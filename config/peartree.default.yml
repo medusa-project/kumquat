@@ -1,0 +1,32 @@
+development: &development
+  :iiif_url: http://localhost:8182/iiif
+  :solr_url: http://localhost:8983/solr/
+  :solr_core: peartree
+  :solr_default_facetable_fields:
+    - subject_txti
+  :solr_id_field: id
+  :solr_class_field: class_si
+  :solr_default_search_field: searchall_txti
+  :solr_more_like_this_endpoint: /mlt
+
+test:
+  :iiif_url: http://localhost:8182/iiif
+  :solr_url: http://localhost:8983/solr/
+  :solr_core: peartree
+  :solr_default_facetable_fields:
+    - subject_txti
+  :solr_id_field: id
+  :solr_class_field: class_si
+  :solr_default_search_field: searchall_txti
+  :solr_more_like_this_endpoint: /mlt
+
+production: &production
+  :iiif_url: http://localhost:8182/iiif
+  :solr_url: http://localhost:8983/solr/
+  :solr_core: peartree
+  :solr_default_facetable_fields:
+    - subject_txti
+  :solr_id_field: id
+  :solr_class_field: class_si
+  :solr_default_search_field: searchall_txti
+  :solr_more_like_this_endpoint: /mlt
