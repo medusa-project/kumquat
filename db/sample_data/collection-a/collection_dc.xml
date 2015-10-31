@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<uiuc:Collection xmlns:uiuc="http://www.library.illinois.edu/terms#"
+  xmlns:dc="http://purl.org/dc/elements/1.1/"
+  xmlns:dcterms="http://purl.org/dc/terms/">
+  <!-- UIUC metadata -->
+  <uiuc:identifier>demo-a</uiuc:identifier>
+  <!-- DC metadata -->
+  <dc:title>Demo Collection A</dc:title>
+  <dc:description>A demo collection.</dc:description>
+</uiuc:Collection>

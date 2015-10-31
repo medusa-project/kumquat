@@ -1,0 +1,252 @@
+##
+# Schema summary:
+#
+# uri_*_txt          arbitrary RDF objects
+# kq_meta_*          normalized metadata schema into which many of the
+#                    uri_* fields are copied (notably, /dc/elements/1.1 and
+#                    /dc/terms are merged)
+# kq_meta_title_s    Single-valued title field that can be sorted (must be
+#                    populated manually)
+# kq_meta_date_dts   Single-valued date field
+# kq_sys_*           system properties
+# kq_*_facet         facets
+# kq_searchall_txt   full-text search field
+#
+# There are no classic fields, only dynamicFields and copyFields.
+#
+# Dynamic fields have the following naming scheme:
+# *_{type}
+# *_{type}i: indexed
+# *_{type}m: multiValued
+# *_{type}im: indexed, multiValued
+#
+copyFields:
+
+dynamicFields:
+    ################# facet fields ##################
+  - name: '*_facet'
+    type: string
+    stored: true
+    indexed: true
+    multiValued: true
+    docValues: true
+
+    ################# integer fields ##################
+  - name: '*_i'
+    type: int
+    stored: true
+    indexed: false
+    multiValued: false
+  - name: '*_ii'
+    type: int
+    stored: true
+    indexed: true
+    multiValued: false
+  - name: '*_im'
+    type: int
+    stored: true
+    indexed: false
+    multiValued: true
+  - name: '*_iim'
+    type: int
+    stored: true
+    indexed: true
+    multiValued: true
+  - name: '*_l'
+    type: long
+    stored: true
+    indexed: true
+  - name: '*_li'
+    type: long
+    stored: true
+    indexed: true
+    multiValued: false
+  - name: '*_lm'
+    type: long
+    stored: true
+    indexed: false
+    multiValued: true
+  - name: '*_lim'
+    type: long
+    stored: true
+    indexed: true
+    multiValued: true
+
+    ################# float fields ##################
+  - name: '*_f'
+    type: float
+    stored: true
+    indexed: false
+  - name: '*_fi'
+    type: float
+    stored: true
+    indexed: true
+    multiValued: false
+  - name: '*_fm'
+    type: float
+    stored: true
+    indexed: false
+    multiValued: true
+  - name: '*_fim'
+    type: float
+    stored: true
+    indexed: true
+    multiValued: true
+  - name: '*_d'
+    type: double
+    stored: true
+    indexed: false
+    multiValued: false
+  - name: '*_di'
+    type: double
+    stored: true
+    indexed: true
+    multiValued: false
+  - name: '*_dm'
+    type: double
+    stored: true
+    indexed: false
+    multiValued: true
+  - name: '*_dim'
+    type: double
+    stored: true
+    indexed: true
+    multiValued: true
+
+    ################# string fields ##################
+  - name: '*_s'
+    type: string
+    stored: true
+    indexed: false
+    multiValued: false
+  - name: '*_si'
+    type: string
+    stored: true
+    indexed: true
+    multiValued: false
+  - name: '*_sm'
+    type: string
+    stored: true
+    indexed: false
+    multiValued: true
+  - name: '*_sim'
+    type: string
+    stored: true
+    indexed: true
+    multiValued: true
+
+    ################# text fields ##################
+  - name: '*_txt'
+    type: text_general
+    stored: true
+    indexed: false
+    multiValued: false
+  - name: '*_txti'
+    type: text_general
+    stored: true
+    indexed: true
+    multiValued: false
+  - name: '*_txtm'
+    type: text_general
+    stored: true
+    indexed: false
+    multiValued: true
+  - name: '*_txtim'
+    type: text_general
+    stored: true
+    indexed: true
+    multiValued: true
+
+    ################# boolean fields ##################
+  - name: '*_b'
+    type: boolean
+    stored: true
+    indexed: false
+  - name: '*_bi'
+    type: boolean
+    stored: true
+    indexed: true
+    multiValued: false
+  - name: '*_bm'
+    type: boolean
+    stored: true
+    indexed: false
+    multiValued: true
+  - name: '*_bim'
+    type: boolean
+    stored: true
+    indexed: true
+    multiValued: true
+
+    ################# date fields ##################
+  - name: '*_dt'
+    type: date
+    indexed: true
+    stored: true
+  - name: '*_dti'
+    type: date
+    indexed: true
+    stored: true
+    multiValued: false
+  - name: '*_dtm'
+    type: date
+    indexed: false
+    stored: true
+    multiValued: true
+  - name: '*_dtim'
+    type: date
+    indexed: true
+    stored: true
+    multiValued: true
+
+  # Type used to index the lat and lon components for the "location" FieldType
+  - name: '*_coordinate'
+    type: tdouble
+    indexed: true
+    stored: false
+
+  - name: '*_p'
+    type: location
+    indexed: true
+    stored: true
+  # some trie-coded dynamic fields for faster range queries
+  - name: '*_ti'
+    type: tint
+    indexed: true
+    stored: true
+  - name: '*_tl'
+    type: tlong
+    indexed: true
+    stored: true
+  - name: '*_tf'
+    type: tfloat
+    indexed: true
+    stored: true
+  - name: '*_td'
+    type: tdouble
+    indexed: true
+    stored: true
+  - name: '*_tdt'
+    type: tdate
+    indexed: true
+    stored: true
+  - name: '*_c'
+    type: currency
+    indexed: true
+    stored: true
+  - name: 'ignored_*'
+    type: ignored
+    multiValued: true
+  - name: 'attr_*'
+    type: text_general
+    indexed: true
+    stored: true
+    multiValued: true
+  - name: 'random_*'
+    type: random
+  - name: '*_facet'
+    type: string
+    docValues: true
+    multiValued: true
+    indexed: true
+    stored: true

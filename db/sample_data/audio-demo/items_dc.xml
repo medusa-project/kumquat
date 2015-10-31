@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<items xmlns:uiuc="http://www.library.illinois.edu/terms#"
+  xmlns:dcterms="http://purl.org/dc/terms/">
+
+  <uiuc:Object>
+    <uiuc:identifier>beep-piano.aif</uiuc:identifier>
+    <uiuc:collection>audio-demo</uiuc:collection>
+    <uiuc:preservationMasterPathname>bytestreams/beep-piano.aif</uiuc:preservationMasterPathname>
+    <uiuc:preservationMasterMediaType>audio/aiff</uiuc:preservationMasterMediaType>
+    <dcterms:description>A short beep.</dcterms:description>
+    <dcterms:extent>22 Kbytes</dcterms:extent>
+    <dcterms:identifier>beep-piano.aif</dcterms:identifier>
+    <dcterms:subject>Pianos</dcterms:subject>
+    <dcterms:subject>Beeps</dcterms:subject>
+    <dcterms:subject>Annoying noises</dcterms:subject>
+    <dcterms:title>Demo AIFF audio item</dcterms:title>
+    <dcterms:type>Sound</dcterms:type>
+  </uiuc:Object>
+
+  <uiuc:Object>
+    <uiuc:identifier>retro_click.wav</uiuc:identifier>
+    <uiuc:collection>audio-demo</uiuc:collection>
+    <uiuc:preservationMasterPathname>bytestreams/retro_click.wav</uiuc:preservationMasterPathname>
+    <uiuc:preservationMasterMediaType>audio/wave</uiuc:preservationMasterMediaType>
+    <dcterms:description>A short click.</dcterms:description>
+    <dcterms:extent>4 Kbytes</dcterms:extent>
+    <dcterms:identifier>retro_click.wav</dcterms:identifier>
+    <dcterms:subject>Clicks</dcterms:subject>
+    <dcterms:subject>Annoying noises</dcterms:subject>
+    <dcterms:title>Demo wave audio item</dcterms:title>
+    <dcterms:type>Sound</dcterms:type>
+  </uiuc:Object>
+
+</items>

@@ -1,0 +1,72 @@
+<?xml version="1.0"?>
+<items xmlns:uiuc="http://www.library.illinois.edu/terms#"
+  xmlns:dcterms="http://purl.org/dc/terms/">
+
+  <uiuc:Object>
+    <uiuc:identifier>magna-carta.txt</uiuc:identifier>
+    <uiuc:collection>doc-demo</uiuc:collection>
+    <uiuc:preservationMasterPathname>bytestreams/magna carta.txt</uiuc:preservationMasterPathname>
+    <uiuc:preservationMasterMediaType>text/plain</uiuc:preservationMasterMediaType>
+    <dcterms:creator>Stephen Langton</dcterms:creator>
+    <dcterms:date>1215-06-19</dcterms:date>
+    <dcterms:description>The Magna Carta, in UTF-8 with no byte order
+      mark.</dcterms:description>
+    <dcterms:extent>4583 words</dcterms:extent>
+    <dcterms:language>English</dcterms:language>
+    <dcterms:publisher>England</dcterms:publisher>
+    <dcterms:rights>Public domain</dcterms:rights>
+    <dcterms:subject>Important historical documents</dcterms:subject>
+    <dcterms:title>Demo plain text item</dcterms:title>
+    <dcterms:type>Text</dcterms:type>
+  </uiuc:Object>
+
+  <uiuc:Object>
+    <uiuc:identifier>NEXTSTEP.pdf</uiuc:identifier>
+    <uiuc:collection>doc-demo</uiuc:collection>
+    <uiuc:preservationMasterPathname>bytestreams/NEXTSTEP.pdf</uiuc:preservationMasterPathname>
+    <uiuc:preservationMasterMediaType>application/pdf</uiuc:preservationMasterMediaType>
+    <dcterms:creator>NeXT Computer, Inc.</dcterms:creator>
+    <dcterms:date>1995</dcterms:date>
+    <dcterms:description>A flyer advertising the NEXTSTEP operating
+      system.</dcterms:description>
+    <dcterms:extent>312 Kbytes</dcterms:extent>
+    <dcterms:language>English</dcterms:language>
+    <dcterms:publisher>NeXT Computer, Inc.</dcterms:publisher>
+    <dcterms:title>Demo PDF item</dcterms:title>
+    <dcterms:type>Text</dcterms:type>
+  </uiuc:Object>
+
+  <uiuc:Object>
+    <uiuc:identifier>powerpoint.pptx</uiuc:identifier>
+    <uiuc:collection>doc-demo</uiuc:collection>
+    <uiuc:preservationMasterPathname>bytestreams/powerpoint.pptx</uiuc:preservationMasterPathname>
+    <uiuc:preservationMasterMediaType>application/vnd.openxmlformats-officedocument.presentationml.presentation</uiuc:preservationMasterMediaType>
+    <dcterms:description>A compound item consisting of bytestreams in various
+      Microsoft Office 2011 file formats.</dcterms:description>
+    <dcterms:extent>58 Kbytes</dcterms:extent>
+    <dcterms:title>Demo compound item consisting of Microsoft Office files</dcterms:title>
+  </uiuc:Object>
+
+  <uiuc:Object>
+    <uiuc:identifier>word.docx</uiuc:identifier>
+    <uiuc:collection>doc-demo</uiuc:collection>
+    <uiuc:preservationMasterPathname>bytestreams/word.docx</uiuc:preservationMasterPathname>
+    <uiuc:preservationMasterMediaType>application/vnd.openxmlformats-officedocument.wordprocessingml.document</uiuc:preservationMasterMediaType>
+    <uiuc:hasParent>powerpoint.pptx</uiuc:hasParent>
+    <dcterms:description>A Microsoft Word 2011 file.</dcterms:description>
+    <dcterms:extent>22 Kbytes</dcterms:extent>
+    <dcterms:title>Demo Microsoft Word 2011 document</dcterms:title>
+  </uiuc:Object>
+
+  <uiuc:Object>
+    <uiuc:identifier>excel.xlsx</uiuc:identifier>
+    <uiuc:collection>doc-demo</uiuc:collection>
+    <uiuc:preservationMasterPathname>bytestreams/excel.xlsx</uiuc:preservationMasterPathname>
+    <uiuc:preservationMasterMediaType>application/vnd.openxmlformats-officedocument.spreadsheetml.sheet</uiuc:preservationMasterMediaType>
+    <uiuc:hasParent>powerpoint.pptx</uiuc:hasParent>
+    <dcterms:description>A Microsoft Excel 2011 file.</dcterms:description>
+    <dcterms:extent>29 Kbytes</dcterms:extent>
+    <dcterms:title>Demo Microsoft Excel 2011 document</dcterms:title>
+  </uiuc:Object>
+
+</items>

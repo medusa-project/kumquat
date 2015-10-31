@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+
+<items xmlns:uiuc="http://www.library.illinois.edu/terms#"
+  xmlns:dcterms="http://purl.org/dc/terms/">
+
+  <uiuc:Object>
+    <uiuc:identifier>hello_world</uiuc:identifier>
+    <uiuc:collection>misc-demo</uiuc:collection>
+    <uiuc:preservationMasterPathname>hello_world</uiuc:preservationMasterPathname>
+    <uiuc:preservationMasterMediaType>application/octet-stream</uiuc:preservationMasterMediaType>
+    <dcterms:date>2015-03-12</dcterms:date>
+    <dcterms:description>"Hello world!", written in C and compiled with GCC for
+      Darwin 14.1 x86_64.</dcterms:description>
+    <dcterms:extent>8 Kbytes</dcterms:extent>
+    <dcterms:identifier>hello_world</dcterms:identifier>
+    <dcterms:language>English</dcterms:language>
+    <dcterms:rights>Public domain</dcterms:rights>
+    <dcterms:subject>Computer software</dcterms:subject>
+    <dcterms:title>Demo binary executable item</dcterms:title>
+    <dcterms:type>Dataset</dcterms:type>
+  </uiuc:Object>
+
+  <uiuc:Object>
+    <uiuc:identifier>non-roman</uiuc:identifier>
+    <uiuc:collection>misc-demo</uiuc:collection>
+    <dcterms:description>
+      An item with non-Roman metadata characters. 🍊🍉
+      Here are some embedded URLs, to see how/whether they get auto-linked:
+      http://example.org/something http://example.org:8080/
+      https://example.org/something/else.html ftp://example.org/something
+      sftp://example.org/something mailto:user@example.org gopher://example.org/
+      file:///dev/null news://example.org/ dav://example.org/
+      feed://example.org/feed.rss foo://example.org/
+    </dcterms:description>
+    <dcterms:extent>0 bytes</dcterms:extent>
+    <dcterms:title>Non-Roman character item 的 ب 🎵</dcterms:title>
+  </uiuc:Object>
+
+  <uiuc:Object>
+    <uiuc:identifier>url</uiuc:identifier>
+    <uiuc:collection>misc-demo</uiuc:collection>
+    <uiuc:preservationMasterURL>http://www.library.illinois.edu/</uiuc:preservationMasterURL>
+    <uiuc:preservationMasterMediaType>text/html</uiuc:preservationMasterMediaType>
+    <dcterms:description>
+      A "URL item," pointing to an external URL via an HTTP redirect.
+      (Try downloading the master.)
+    </dcterms:description>
+    <dcterms:title>URL item</dcterms:title>
+  </uiuc:Object>
+
+</items>

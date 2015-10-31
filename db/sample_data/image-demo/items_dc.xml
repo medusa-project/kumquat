@@ -1,0 +1,110 @@
+<?xml version="1.0"?>
+
+<items xmlns:uiuc="http://www.library.illinois.edu/terms#"
+  xmlns:dcterms="http://purl.org/dc/terms/">
+
+  <uiuc:Object>
+    <uiuc:identifier>800379272_de0817d41a.tiff</uiuc:identifier>
+    <uiuc:collection>image-demo</uiuc:collection>
+    <uiuc:preservationMasterPathname>bytestreams/800379272_de0817d41a.tiff</uiuc:preservationMasterPathname>
+    <uiuc:preservationMasterMediaType>image/tiff</uiuc:preservationMasterMediaType>
+    <dcterms:description>The Death Star under construction.</dcterms:description>
+    <dcterms:extent>248 Kbytes</dcterms:extent>
+    <dcterms:subject>Cranes</dcterms:subject>
+    <dcterms:subject>Moons</dcterms:subject>
+    <dcterms:title>LZW-compressed TIFF image item</dcterms:title>
+    <dcterms:type>Image</dcterms:type>
+  </uiuc:Object>
+
+  <uiuc:Object>
+    <uiuc:identifier>color_bars.png</uiuc:identifier>
+    <uiuc:collection>image-demo</uiuc:collection>
+    <uiuc:preservationMasterPathname>bytestreams/color_bars.png</uiuc:preservationMasterPathname>
+    <uiuc:accessMasterPathname>bytestreams/color_bars.jpg</uiuc:accessMasterPathname>
+    <dcterms:description>SMPTE color bars.</dcterms:description>
+    <dcterms:subject>Colors</dcterms:subject>
+    <dcterms:subject>Television</dcterms:subject>
+    <dcterms:title>PNG image item</dcterms:title>
+    <dcterms:type>Image</dcterms:type>
+  </uiuc:Object>
+
+  <uiuc:Object>
+    <uiuc:identifier>escher_lego.webp</uiuc:identifier>
+    <uiuc:collection>image-demo</uiuc:collection>
+    <uiuc:preservationMasterPathname>bytestreams/escher_lego.webp</uiuc:preservationMasterPathname>
+    <dcterms:description>An M.C. Escher painting reproduced in Lego.</dcterms:description>
+    <dcterms:extent>38 Kbytes</dcterms:extent>
+    <dcterms:identifier>escher_lego.webp</dcterms:identifier>
+    <dcterms:subject>Escher, M.C.</dcterms:subject>
+    <dcterms:subject>Lego</dcterms:subject>
+    <dcterms:title>WebP image</dcterms:title>
+    <dcterms:type>Image</dcterms:type>
+  </uiuc:Object>
+
+  <uiuc:Object>
+    <uiuc:identifier>IMG_1118.jp2</uiuc:identifier>
+    <uiuc:collection>image-demo</uiuc:collection>
+    <uiuc:preservationMasterPathname>bytestreams/IMG_1118.jp2</uiuc:preservationMasterPathname>
+    <uiuc:fullText>Harold E. "Red" Grange
+"the Galloping Ghost"
+"77"
+Born: June 13, 1903 in Forksville, Pa.
+Died: January 28, 1991 in Lake Wales, Fla.
+
+Red Grange is considered to be one of college
+football's greatest stars, lettering at the
+University of Illinois as a halfback from 1923-25
+and earning All-America honors all three seasons.
+His most memorable performance came October 18,
+1924 vs. Michigan here at Memorial Stadium in the
+Dedication Game.
+
+Upon seeing Grange's performance, legendary
+sportswriter Grantland Rice penned this immortal
+verse:
+
+A streak of fire, a breath of flame,
+Eluding all who reach and clutch,
+A gray Ghost thrown into the game
+That rival hands may never touch;
+A rubber, bounding, blasting soul
+Whose destination is the goal..
+Red Grange of Illinois.</uiuc:fullText>
+    <dcterms:coverage>Memorial Stadium, University of Illinois at
+      Urbana-Champaign</dcterms:coverage>
+    <dcterms:creator/>
+    <dcterms:date>2014-06-12</dcterms:date>
+    <dcterms:description>Plaque of Red Grange in Memorial Stadium on the
+      University of Illinois at Urbana-Champaign campus.</dcterms:description>
+    <dcterms:extent>912 Kbytes</dcterms:extent>
+    <dcterms:identifier>IMG_1118.jp2</dcterms:identifier>
+    <dcterms:language>English</dcterms:language>
+    <dcterms:publisher/>
+    <dcterms:relation/>
+    <dcterms:rights>Creative Commons Attribution-NoDerivatives 4.0
+      International</dcterms:rights>
+    <dcterms:source/>
+    <dcterms:subject>Plaques</dcterms:subject>
+    <dcterms:subject>Football</dcterms:subject>
+    <dcterms:title>JPEG2000 image item</dcterms:title>
+    <dcterms:type>Image</dcterms:type>
+  </uiuc:Object>
+
+  <uiuc:Object>
+    <uiuc:identifier>P1000245.jpg</uiuc:identifier>
+    <uiuc:collection>image-demo</uiuc:collection>
+    <uiuc:preservationMasterPathname>bytestreams/P1000245.jpg</uiuc:preservationMasterPathname>
+    <dcterms:coverage>Memorial Stadium, University of Illinois at
+      Urbana-Champaign</dcterms:coverage>
+    <dcterms:date>2014-05-21</dcterms:date>
+    <dcterms:description>Bleachers and playing field in Memorial
+      Stadium.</dcterms:description>
+    <dcterms:extent>1.7 Mbytes</dcterms:extent>
+    <dcterms:rights>Creative Commons Attribution-NoDerivatives 4.0
+      International</dcterms:rights>
+    <dcterms:subject>Football stadiums</dcterms:subject>
+    <dcterms:title>JPEG image item</dcterms:title>
+    <dcterms:type>Image</dcterms:type>
+  </uiuc:Object>
+
+</items>

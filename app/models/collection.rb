@@ -1,0 +1,3 @@
+class Collection < Entity
+
+end
