@@ -72,31 +72,31 @@ class Item < Entity
   def is_audio?
     bs = self.bytestreams.select{ |b| b.type == Bytestream::Type::ACCESS_MASTER }.first ||
         self.bytestreams.select{ |b| b.type == Bytestream::Type::PRESERVATION_MASTER }.first
-    bs and bs.media_type and bs.media_type.start_with?('audio/')
+    bs and bs.is_audio?
   end
 
   def is_image?
     bs = self.bytestreams.select{ |b| b.type == Bytestream::Type::ACCESS_MASTER }.first ||
         self.bytestreams.select{ |b| b.type == Bytestream::Type::PRESERVATION_MASTER }.first
-    bs and bs.media_type and bs.media_type.start_with?('image/')
+    bs and bs.is_image?
   end
 
   def is_pdf?
     bs = self.bytestreams.select{ |b| b.type == Bytestream::Type::ACCESS_MASTER }.first ||
         self.bytestreams.select{ |b| b.type == Bytestream::Type::PRESERVATION_MASTER }.first
-    bs and bs.media_type and bs.media_type.start_with?('application/pdf')
+    bs and bs.is_pdf?
   end
 
   def is_text?
     bs = self.bytestreams.select{ |b| b.type == Bytestream::Type::ACCESS_MASTER }.first ||
         self.bytestreams.select{ |b| b.type == Bytestream::Type::PRESERVATION_MASTER }.first
-    bs and bs.media_type and bs.media_type.start_with?('text/')
+    bs and bs.is_text?
   end
 
   def is_video?
     bs = self.bytestreams.select{ |b| b.type == Bytestream::Type::ACCESS_MASTER }.first ||
         self.bytestreams.select{ |b| b.type == Bytestream::Type::PRESERVATION_MASTER }.first
-    bs and bs.media_type and bs.media_type.start_with?('video/')
+    bs and bs.is_video?
   end
 
   ##
@@ -106,6 +106,9 @@ class Item < Entity
     Relation.new(self).more_like_this
   end
 
+  ##
+  # @return [Item]
+  #
   def parent
     if self.parent_id
       @parent = Item.find(self.parent_id) unless @parent
@@ -114,6 +117,8 @@ class Item < Entity
   end
 
   ##
+  # Overrides parent
+  #
   # @return [Hash]
   #
   def to_solr
@@ -135,10 +140,6 @@ class Item < Entity
       doc[Solr::Fields::PRESERVATION_MASTER_WIDTH] = bs.width
     end
     doc
-  end
-
-  def web_id
-    self.id
   end
 
 end

@@ -51,7 +51,6 @@ class Bytestream
 
   ##
   # Reads the width and height (if an image) and assigns them to the instance.
-  # Only works for images that have pathnames.
   #
   # @raise [RuntimeError] if pathname is not set
   #

@@ -30,14 +30,6 @@ class Entity
     @persisted = false
   end
 
-  ##
-  # @param id [String]
-  # @param class_ [Class]
-  #
-  def self.load(id, class_)
-    class_.new # TODO: write this
-  end
-
   def persisted?
     @persisted # makes to_param work
   end
@@ -67,6 +59,10 @@ class Entity
     doc[Solr::Fields::TITLE] = self.title
     doc[Solr::Fields::WEB_ID] = self.web_id
     doc
+  end
+
+  def web_id
+    @web_id || self.id
   end
 
 end

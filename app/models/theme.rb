@@ -8,7 +8,7 @@ class Theme < ActiveRecord::Base
             uniqueness: { case_sensitive: false }
 
   ##
-  # @return Theme
+  # @return [Theme]
   #
   def self.default
     Theme.where(default: true).limit(1).first
@@ -18,7 +18,7 @@ class Theme < ActiveRecord::Base
   # Returns the expected pathname of the theme's folder relative to the
   # application root.
   #
-  # @return string
+  # @return [String]
   #
   def pathname
     if self.required
