@@ -1,5 +1,14 @@
-<ul>
-  <% @collections.each do |col| %>
-      <li><%= link_to col.title, col %></li>
-  <% end %>
-</ul>
+<% provide :title, 'Collections' %>
+<% provide :body_id, 'collections_index' %>
+<% provide :active_nav, 'collections' %>
+
+<%= breadcrumb %>
+
+<h1>Collections <small><%= @collections.total_length %> total</small></h1>
+
+<div class="kq-results">
+  <%= items_as_list(@collections, @start,
+                    thumbnail_shape: Bytestream::Shape::SQUARE) %>
+</div>
+
+<%= paginate(@collections, @limit, @current_page) %>

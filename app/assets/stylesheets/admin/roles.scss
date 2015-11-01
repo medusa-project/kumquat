@@ -1,0 +1,15 @@
+body#edit_role {
+  section > div {
+    -webkit-column-count:4;
+    -moz-column-count:4;
+    -ms-column-count:4;
+    -o-column-count:4;
+    column-count:4;
+    -webkit-column-gap:1em;
+    -moz-column-gap:1em;
+    -ms-column-gap:1em;
+    -o-column-gap:1em;
+    column-gap:1em;
+    columns:4;
+  }
+}

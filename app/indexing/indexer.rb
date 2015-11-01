@@ -30,24 +30,24 @@ class Indexer
     format = format(pathname)
 
     if encoding == 'xml'
-      namespaces = { 'uiuc' => 'http://www.library.illinois.edu/terms#' }
+      namespaces = { 'lrp' => 'http://www.library.illinois.edu/lrp/terms#' }
       File.open(pathname) do |content|
         doc = Nokogiri::XML(content, &:noblanks)
         doc.encoding = 'utf-8'
         if format == 'dc'
           case entity
             when 'item'
-              doc.xpath('//uiuc:Object', namespaces).each do |node|
+              doc.xpath('//lrp:Object', namespaces).each do |node|
                 entity = entity_class.from_dc_xml(node, pathname)
                 entity.index_in_solr
               end
             when 'collection'
-              node = doc.xpath('//uiuc:Collection', namespaces).first
+              node = doc.xpath('//lrp:Collection', namespaces).first
               if node
                 entity = entity_class.from_dc_xml(node, pathname)
                 entity.index_in_solr
               else
-                raise "Collection metadata file is missing uiuc:Collection "\
+                raise "Collection metadata file is missing lrp:Collection "\
                 "element: #{pathname}"
               end
             else

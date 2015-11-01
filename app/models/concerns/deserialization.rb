@@ -16,52 +16,68 @@ module Deserialization
       namespaces = {
           'dc' => 'http://purl.org/dc/elements/1.1/',
           'dcterms' => 'http://purl.org/dc/terms/',
-          'uiuc' => 'http://www.library.illinois.edu/terms#'
+          'lrp' => 'http://www.library.illinois.edu/lrp/terms#'
       }
 
       entity = self.new
 
       # id
-      id = node.xpath('uiuc:identifier', namespaces).first
+      id = node.xpath('lrp:identifier', namespaces).first
       entity.id = id.content.strip if id
       if !id or entity.id.blank?
-        raise "uiuc:identifier is missing or invalid for entity in "\
+        raise "lrp:identifier is missing or invalid for entity in "\
         "#{metadata_pathname}"
       end
+
+      # subtitle
+      subtitle = node.xpath('dcterms:alternative', namespaces).first
+      entity.subtitle = subtitle.content.strip if subtitle
 
       # title
       title = node.xpath('dc:title', namespaces).first
       title = node.xpath('dcterms:title', namespaces).first unless title
       entity.title = title ? title.content.strip : entity.id
 
+      # published
+      entity.published = node.xpath('lrp:published', namespaces).first.present?
+
       # web ID
-      web_id = node.xpath('uiuc:webID', namespaces).first
+      web_id = node.xpath('lrp:webID', namespaces).first
       entity.web_id = web_id ? web_id.content.strip : entity.id
 
       if entity.kind_of?(Item)
         # collection
-        col = node.xpath('uiuc:collection', namespaces).first
+        col = node.xpath('lrp:collection', namespaces).first
         entity.collection_id = col.content.strip if col
         if !col or entity.collection_id.blank?
-          raise "uiuc:collection is missing or invalid for item with "\
-          "uiuc:identifier #{entity.id} (#{metadata_pathname})"
+          raise "lrp:collection is missing or invalid for item with "\
+          "lrp:identifier #{entity.id} (#{metadata_pathname})"
         end
 
         # parent item
-        parent = node.xpath('uiuc:hasParent', namespaces).first
+        parent = node.xpath('lrp:hasParent', namespaces).first
         entity.parent_id = parent.content.strip if parent
 
         # access master
-        am = node.xpath('uiuc:accessMasterPathname', namespaces).first
+        am = node.xpath('lrp:accessMasterPathname', namespaces).first
         if am
-          entity.access_master_pathname = File.dirname(metadata_pathname) +
-              File::SEPARATOR + am.content.strip
-          unless File.exist?(entity.access_master_pathname)
-            raise "uiuc:accessMasterPathname refers to a missing file for "\
-            "item with uiuc:identifier #{entity.id} (#{metadata_pathname})"
+          bs = Bytestream.new
+          bs.type = Bytestream::Type::ACCESS_MASTER
+          bs.pathname = File.dirname(metadata_pathname) + File::SEPARATOR +
+              am.content.strip
+          unless File.exist?(bs.pathname)
+            raise "lrp:accessMasterPathname refers to a missing file for "\
+            "item with lrp:identifier #{entity.id} (#{metadata_pathname})"
           end
-          mt = node.xpath('uiuc:accessMasterMediaType', namespaces).first
-          entity.access_master_media_type = mt.content.strip if mt
+          # media type
+          mt = node.xpath('lrp:accessMasterMediaType', namespaces).first
+          if mt
+            bs.media_type = mt.content.strip
+          else
+            bs.detect_media_type
+          end
+          bs.read_dimensions
+          entity.bytestreams << bs
         end
 
         # date
@@ -73,39 +89,31 @@ module Deserialization
         end
 
         # full text
-        id = node.xpath('uiuc:fullText', namespaces).first
+        id = node.xpath('lrp:fullText', namespaces).first
         entity.full_text = id.content.strip if id
 
         # preservation master
-        pm = node.xpath('uiuc:preservationMasterPathname', namespaces).first
+        pm = node.xpath('lrp:preservationMasterPathname', namespaces).first
         if pm
-          entity.preservation_master_pathname = File.dirname(metadata_pathname) +
-              File::SEPARATOR + pm.content.strip
-          unless File.exist?(entity.preservation_master_pathname)
-            raise "uiuc:preservationMasterPathname refers to a missing file "\
-            "for item with uiuc:identifier #{entity.id} (#{metadata_pathname})"
+          bs = Bytestream.new
+          bs.type = Bytestream::Type::PRESERVATION_MASTER
+          bs.pathname = File.dirname(metadata_pathname) + File::SEPARATOR +
+              pm.content.strip
+          unless File.exist?(bs.pathname)
+            raise "lrp:preservationMasterPathname refers to a missing file "\
+            "for item with lrp:identifier #{entity.id} (#{metadata_pathname})"
           end
-          mt = node.xpath('uiuc:preservationMasterMediaType', namespaces).first
-          entity.preservation_master_media_type = mt.content.strip if mt
+          mt = node.xpath('lrp:preservationMasterMediaType', namespaces).first
+          if mt
+            bs.media_type = mt.content.strip
+          else
+            bs.detect_media_type
+          end
+          bs.read_dimensions
+          entity.bytestreams << bs
         end
       end
 
-      entity.instance_variable_set('@persisted', true)
-      entity
-    end
-
-    def from_solr(doc)
-      class_field = PearTree::Application.peartree_config[:solr_class_field]
-      class_ = doc[class_field].constantize
-      entity = class_.new
-      entity.id = doc['id']
-      entity.access_master_media_type = doc['access_master_media_type_si']
-      entity.access_master_pathname = doc['access_master_pathname_si']
-      entity.full_text = doc['full_text_txtim']
-      entity.access_master_media_type = doc['access_master_media_type_si']
-      entity.preservation_master_pathname = doc['preservation_master_pathname_si']
-      entity.title = doc['title_txti']
-      entity.web_id = doc['web_id_si']
       entity.instance_variable_set('@persisted', true)
       entity
     end

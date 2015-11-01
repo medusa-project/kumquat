@@ -216,7 +216,7 @@ class Relation
         params['mlt.mintf'] = 1
         params['mlt.match.include'] = false
         params['fq'] = "#{PearTree::Application.peartree_config[:solr_class_field]}:\""\
-        "#{@calling_class.entity_class_uri}\""
+        "#{@calling_class}\""
         endpoint = PearTree::Application.peartree_config[:solr_more_like_this_endpoint].gsub(/\//, '')
       else
         endpoint = 'select'

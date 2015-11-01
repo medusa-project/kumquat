@@ -1,37 +1,40 @@
 <?xml version="1.0"?>
 
-<items xmlns:uiuc="http://www.library.illinois.edu/terms#"
+<items xmlns:lrp="http://www.library.illinois.edu/lrp/terms#"
   xmlns:dcterms="http://purl.org/dc/terms/">
 
-  <uiuc:Object>
-    <uiuc:identifier>800379272_de0817d41a.tiff</uiuc:identifier>
-    <uiuc:collection>image-demo</uiuc:collection>
-    <uiuc:preservationMasterPathname>bytestreams/800379272_de0817d41a.tiff</uiuc:preservationMasterPathname>
-    <uiuc:preservationMasterMediaType>image/tiff</uiuc:preservationMasterMediaType>
+  <lrp:Object>
+    <lrp:identifier>800379272_de0817d41a.tiff</lrp:identifier>
+    <lrp:collection>image-demo</lrp:collection>
+    <lrp:published/>
+    <lrp:preservationMasterPathname>bytestreams/800379272_de0817d41a.tiff</lrp:preservationMasterPathname>
+    <lrp:preservationMasterMediaType>image/tiff</lrp:preservationMasterMediaType>
     <dcterms:description>The Death Star under construction.</dcterms:description>
     <dcterms:extent>248 Kbytes</dcterms:extent>
     <dcterms:subject>Cranes</dcterms:subject>
     <dcterms:subject>Moons</dcterms:subject>
     <dcterms:title>LZW-compressed TIFF image item</dcterms:title>
     <dcterms:type>Image</dcterms:type>
-  </uiuc:Object>
+  </lrp:Object>
 
-  <uiuc:Object>
-    <uiuc:identifier>color_bars.png</uiuc:identifier>
-    <uiuc:collection>image-demo</uiuc:collection>
-    <uiuc:preservationMasterPathname>bytestreams/color_bars.png</uiuc:preservationMasterPathname>
-    <uiuc:accessMasterPathname>bytestreams/color_bars.jpg</uiuc:accessMasterPathname>
+  <lrp:Object>
+    <lrp:identifier>color_bars.png</lrp:identifier>
+    <lrp:collection>image-demo</lrp:collection>
+    <lrp:published/>
+    <lrp:preservationMasterPathname>bytestreams/color_bars.png</lrp:preservationMasterPathname>
+    <lrp:accessMasterPathname>bytestreams/color_bars.jpg</lrp:accessMasterPathname>
     <dcterms:description>SMPTE color bars.</dcterms:description>
     <dcterms:subject>Colors</dcterms:subject>
     <dcterms:subject>Television</dcterms:subject>
     <dcterms:title>PNG image item</dcterms:title>
     <dcterms:type>Image</dcterms:type>
-  </uiuc:Object>
+  </lrp:Object>
 
-  <uiuc:Object>
-    <uiuc:identifier>escher_lego.webp</uiuc:identifier>
-    <uiuc:collection>image-demo</uiuc:collection>
-    <uiuc:preservationMasterPathname>bytestreams/escher_lego.webp</uiuc:preservationMasterPathname>
+  <lrp:Object>
+    <lrp:identifier>escher_lego.webp</lrp:identifier>
+    <lrp:collection>image-demo</lrp:collection>
+    <lrp:published/>
+    <lrp:preservationMasterPathname>bytestreams/escher_lego.webp</lrp:preservationMasterPathname>
     <dcterms:description>An M.C. Escher painting reproduced in Lego.</dcterms:description>
     <dcterms:extent>38 Kbytes</dcterms:extent>
     <dcterms:identifier>escher_lego.webp</dcterms:identifier>
@@ -39,13 +42,14 @@
     <dcterms:subject>Lego</dcterms:subject>
     <dcterms:title>WebP image</dcterms:title>
     <dcterms:type>Image</dcterms:type>
-  </uiuc:Object>
+  </lrp:Object>
 
-  <uiuc:Object>
-    <uiuc:identifier>IMG_1118.jp2</uiuc:identifier>
-    <uiuc:collection>image-demo</uiuc:collection>
-    <uiuc:preservationMasterPathname>bytestreams/IMG_1118.jp2</uiuc:preservationMasterPathname>
-    <uiuc:fullText>Harold E. "Red" Grange
+  <lrp:Object>
+    <lrp:identifier>IMG_1118.jp2</lrp:identifier>
+    <lrp:collection>image-demo</lrp:collection>
+    <lrp:published/>
+    <lrp:preservationMasterPathname>bytestreams/IMG_1118.jp2</lrp:preservationMasterPathname>
+    <lrp:fullText>Harold E. "Red" Grange
 "the Galloping Ghost"
 "77"
 Born: June 13, 1903 in Forksville, Pa.
@@ -69,7 +73,7 @@ A gray Ghost thrown into the game
 That rival hands may never touch;
 A rubber, bounding, blasting soul
 Whose destination is the goal..
-Red Grange of Illinois.</uiuc:fullText>
+Red Grange of Illinois.</lrp:fullText>
     <dcterms:coverage>Memorial Stadium, University of Illinois at
       Urbana-Champaign</dcterms:coverage>
     <dcterms:creator/>
@@ -88,12 +92,13 @@ Red Grange of Illinois.</uiuc:fullText>
     <dcterms:subject>Football</dcterms:subject>
     <dcterms:title>JPEG2000 image item</dcterms:title>
     <dcterms:type>Image</dcterms:type>
-  </uiuc:Object>
+  </lrp:Object>
 
-  <uiuc:Object>
-    <uiuc:identifier>P1000245.jpg</uiuc:identifier>
-    <uiuc:collection>image-demo</uiuc:collection>
-    <uiuc:preservationMasterPathname>bytestreams/P1000245.jpg</uiuc:preservationMasterPathname>
+  <lrp:Object>
+    <lrp:identifier>P1000245.jpg</lrp:identifier>
+    <lrp:collection>image-demo</lrp:collection>
+    <lrp:published/>
+    <lrp:preservationMasterPathname>bytestreams/P1000245.jpg</lrp:preservationMasterPathname>
     <dcterms:coverage>Memorial Stadium, University of Illinois at
       Urbana-Champaign</dcterms:coverage>
     <dcterms:date>2014-05-21</dcterms:date>
@@ -105,6 +110,6 @@ Red Grange of Illinois.</uiuc:fullText>
     <dcterms:subject>Football stadiums</dcterms:subject>
     <dcterms:title>JPEG image item</dcterms:title>
     <dcterms:type>Image</dcterms:type>
-  </uiuc:Object>
+  </lrp:Object>
 
 </items>

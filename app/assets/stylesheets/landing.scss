@@ -1,0 +1,12 @@
+body#landing {
+  .btn-lg:first-child {
+    margin-right: 1em;
+  }
+
+  @media screen and (max-width: 320px) {
+    .kq-main-image {
+      margin-top:1em;
+    }
+  }
+
+}

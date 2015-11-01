@@ -1,0 +1,89 @@
+<div id="kq-search-accordion">
+
+  <div>
+
+    <ul class="nav nav-pills nav-justified" role="tablist">
+      <li role="presentation" class="active">
+        <a href="#kq-text-search" aria-controls="kq-text-search"
+           id="kq-text-search-button" data-toggle="tab">
+          <span class="fa fa-terminal"></span> Text
+        </a>
+      </li>
+      <li role="presentation">
+        <a href="#kq-date-search" aria-controls="kq-date-search"
+           id="kq-date-search-button" data-toggle="tab">
+          <span class="fa fa-calendar-o"></span> Date
+        </a>
+      </li>
+      <li role="presentation">
+        <a href="#kq-place-search" aria-controls="kq-place-search"
+           id="kq-place-search-button" data-toggle="tab">
+          <span class="fa fa-map-marker"></span> Place
+        </a>
+      </li>
+    </ul>
+
+    <%= form_tag(controller: 'items', action: 'search', method: :post) do %>
+
+      <div class="row">
+
+        <div class="col-sm-8">
+
+          <div class="tab-content">
+
+            <div role="tabpanel" class="tab-pane active" id="kq-text-search">
+              <div class="form-group form-inline">
+                <%= select_tag 'fields[]', options_for_select(@predicates_for_select),
+                               class: 'form-control' %>
+                <%= text_field_tag 'terms[]', '', placeholder: 'Search Term',
+                                   class: 'form-control' %>
+              </div>
+              <%= submit_tag 'Search', class: 'btn btn-lg btn-primary' %>
+            </div>
+
+            <div role="tabpanel" class="tab-pane" id="kq-date-search">
+              <p>Not available yet.</p>
+            </div>
+
+            <div role="tabpanel" class="tab-pane" id="kq-place-search">
+              <div class="row">
+                <div class="col-sm-6">
+                  <div style="width:400px; height: 250px; background-color: black;
+                          border: 1px dotted white; text-align:center; vertical-align:middle;
+                          display: table-cell; font-size:2.5em; color: #808080;">Map goes here</div>
+                </div>
+                <div class="col-sm-6">
+                  <p>This is a placeholder pane for a hypothetical spatial search
+                    component. This component will depend on specially-encoded item-level geodata,
+                    which does not yet exist, and would presumably use Solr geospatial search
+                    features in conjunction with something like the Google Maps API.</p>
+                  <button class="btn btn-lg btn-primary" onclick="alert('Patience!')">Search</button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+        <div class="col-sm-4 kq-collections">
+          <button type="button" class="btn btn-xs btn-default kq-check-all">Check All</button>
+          <button type="button" class="btn btn-xs btn-default kq-uncheck-all">Uncheck All</button>
+          <ol>
+            <% @collections.each do |collection| %>
+              <li>
+                <div class="checkbox">
+                  <label><%= check_box_tag('ids[]', collection.id, checked: true) %><%= collection.title %></label>
+                </div>
+              </li>
+            <% end %>
+          </ol>
+        </div>
+
+      </div> <!-- .row -->
+
+    <% end %>
+
+    </div>
+
+</div>

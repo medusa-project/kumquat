@@ -1,12 +1,26 @@
-class CollectionsController < ApplicationController
+class CollectionsController < WebsiteController
 
   def index
-    @collections = Collection.all
+    @start = params[:start] ? params[:start].to_i : 0
+    @limit = 40
+    query = !params[:q].blank? ? "#{Solr::Fields::SEARCH_ALL}:#{params[:q]}" : nil
+    @collections = Collection.where(query).
+        where(Solr::Fields::PUBLISHED => true).
+        order(Solr::Fields::TITLE).start(@start).limit(@limit)
+    @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
+    @num_shown = [@limit, @collections.total_length].min
   end
 
   def show
-    @collection = Collection.find_by_web_id_si(params[:web_id])
+    @collection = Collection.find(params[:id])
     raise ActiveRecord::RecordNotFound unless @collection
+
+    # Get a random image item to show
+    media_types = %w(image/jp2 image/jpeg image/png image/tiff).join(' OR ')
+    @item = Item.where(Solr::Fields::COLLECTION => @collection.id).
+        where("(#{Solr::Fields::ACCESS_MASTER_MEDIA_TYPE}:(#{media_types}) OR "\
+        "#{Solr::Fields::PRESERVATION_MASTER_MEDIA_TYPE}:(#{media_types}))").
+        facet(false).order("random_#{SecureRandom.hex}").limit(1).first
   end
 
 end

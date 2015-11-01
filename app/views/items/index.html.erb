@@ -1,5 +1,61 @@
-<ul>
-  <% @items.each do |item| %>
-    <li><%= link_to item.title, item %></li>
-  <% end %>
-</ul>
+<% provide(:body_id, 'items_index') %>
+
+<%= breadcrumb(collection: @collection, context: session[:browse_context]) %>
+<!--
+<div class="btn-group pull-right">
+  <button type="button" class="btn btn-default dropdown-toggle"
+          data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    <i class="fa fa-eye"></i>
+    View As&hellip; <span class="caret"></span>
+  </button>
+  <ul class="dropdown-menu">
+    <li><%= link_to 'JSON-LD', params.merge(format: :jsonld) %></li>
+    <li><%= link_to 'RDF/XML', params.merge(format: :rdfxml) %></li>
+    <li><%= link_to 'Turtle', params.merge(format: :ttl) %></li>
+  </ul>
+</div>
+-->
+<% if @collection %>
+  <% provide(:title, @collection.title) %>
+  <% provide(:active_nav, 'collections') %>
+  <h1><%= @collection.title %>
+    <% if @collection.subtitle %>
+      <br><small><%= @collection.subtitle %></small>
+    <% end %>
+  </h1>
+<% else %>
+  <% provide(:title, 'Items') %>
+  <% provide(:active_nav, 'items') %>
+<% end %>
+
+<% if @items.total_length > 0 %>
+  <div class="row">
+    <div class="col-sm-3 kq-facets kq-panel-facets">
+      <%= facets_as_panels(@items,
+                           show_collection_facet: session[:browse_context] != ItemsController::BrowseContext::BROWSING_COLLECTION) %>
+    </div>
+
+    <div class="col-sm-9 kq-results">
+      <div class="panel panel-default">
+        <div class="panel-body">
+          <%= search_status(@items, @start, @num_results_shown) %>
+        </div>
+      </div>
+      <div class="kq-list-results">
+        <%= items_as_list(@items, @start, show_collections: !@collection,
+                          show_add_to_favorites_buttons: true,
+                          show_description: true,
+                          show_remove_from_favorites_buttons: true,
+                          thumbnail_shape: Bytestream::Shape::SQUARE) %>
+      </div>
+
+      <div class="text-center">
+        <%= paginate(@items, @limit, @current_page) %>
+      </div>
+    </div>
+  </div>
+<% else %>
+  <div class="kq-no-results">
+    <%= no_results_help(params[:q], @suggestions) %>
+  </div>
+<% end %>

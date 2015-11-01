@@ -1,13 +1,14 @@
 <?xml version="1.0"?>
 
-<items xmlns:uiuc="http://www.library.illinois.edu/terms#"
+<items xmlns:lrp="http://www.library.illinois.edu/lrp/terms#"
   xmlns:dcterms="http://purl.org/dc/terms/">
 
-  <uiuc:Object>
-    <uiuc:identifier>hello_world</uiuc:identifier>
-    <uiuc:collection>misc-demo</uiuc:collection>
-    <uiuc:preservationMasterPathname>hello_world</uiuc:preservationMasterPathname>
-    <uiuc:preservationMasterMediaType>application/octet-stream</uiuc:preservationMasterMediaType>
+  <lrp:Object>
+    <lrp:identifier>hello_world</lrp:identifier>
+    <lrp:collection>misc-demo</lrp:collection>
+    <lrp:published/>
+    <lrp:preservationMasterPathname>hello_world</lrp:preservationMasterPathname>
+    <lrp:preservationMasterMediaType>application/octet-stream</lrp:preservationMasterMediaType>
     <dcterms:date>2015-03-12</dcterms:date>
     <dcterms:description>"Hello world!", written in C and compiled with GCC for
       Darwin 14.1 x86_64.</dcterms:description>
@@ -18,11 +19,12 @@
     <dcterms:subject>Computer software</dcterms:subject>
     <dcterms:title>Demo binary executable item</dcterms:title>
     <dcterms:type>Dataset</dcterms:type>
-  </uiuc:Object>
+  </lrp:Object>
 
-  <uiuc:Object>
-    <uiuc:identifier>non-roman</uiuc:identifier>
-    <uiuc:collection>misc-demo</uiuc:collection>
+  <lrp:Object>
+    <lrp:identifier>non-roman</lrp:identifier>
+    <lrp:collection>misc-demo</lrp:collection>
+    <lrp:published/>
     <dcterms:description>
       An item with non-Roman metadata characters. 🍊🍉
       Here are some embedded URLs, to see how/whether they get auto-linked:
@@ -34,18 +36,29 @@
     </dcterms:description>
     <dcterms:extent>0 bytes</dcterms:extent>
     <dcterms:title>Non-Roman character item 的 ب 🎵</dcterms:title>
-  </uiuc:Object>
+  </lrp:Object>
 
-  <uiuc:Object>
-    <uiuc:identifier>url</uiuc:identifier>
-    <uiuc:collection>misc-demo</uiuc:collection>
-    <uiuc:preservationMasterURL>http://www.library.illinois.edu/</uiuc:preservationMasterURL>
-    <uiuc:preservationMasterMediaType>text/html</uiuc:preservationMasterMediaType>
+  <lrp:Object>
+    <lrp:identifier>url</lrp:identifier>
+    <lrp:collection>misc-demo</lrp:collection>
+    <lrp:published/>
+    <lrp:preservationMasterURL>http://www.library.illinois.edu/</lrp:preservationMasterURL>
+    <lrp:preservationMasterMediaType>text/html</lrp:preservationMasterMediaType>
     <dcterms:description>
       A "URL item," pointing to an external URL via an HTTP redirect.
       (Try downloading the master.)
     </dcterms:description>
     <dcterms:title>URL item</dcterms:title>
-  </uiuc:Object>
+  </lrp:Object>
+
+  <lrp:Object>
+    <lrp:identifier>unpublished</lrp:identifier>
+    <lrp:collection>misc-demo</lrp:collection>
+    <lrp:preservationMasterURL>http://www.library.illinois.edu/</lrp:preservationMasterURL>
+    <lrp:preservationMasterMediaType>text/html</lrp:preservationMasterMediaType>
+    <dcterms:description>If you can see this item in the public display,
+      something is wrong!</dcterms:description>
+    <dcterms:title>Unpublished item</dcterms:title>
+  </lrp:Object>
 
 </items>

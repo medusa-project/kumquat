@@ -1,1 +1,36 @@
-<%= @collection.inspect %>
+<% provide :title, @collection.title %>
+<% provide :body_id, 'collections_show' %>
+<% provide :active_nav, 'collections' %>
+
+<%= breadcrumb(collection: @collection) %>
+
+<h1><%= @collection.title %>
+  <small><%= pluralize(@collection.num_items, 'item') %></small>
+  <% if @collection.subtitle %>
+    <br><small><%= @collection.subtitle %></small>
+  <% end %>
+</h1>
+
+<div class="row">
+  <div class="col-sm-6">
+    <div class="text-center">
+      <%= link_to(collection_items_path(@collection),
+                  class: 'btn btn-lg btn-default kq-browse') do %>
+        <%= icon_for(@collection) %> View the collection
+      <% end %>
+    </div>
+    <p><%= @collection.description %></p>
+  </div>
+  <div class="col-sm-6">
+    <% if @item %>
+      <div class="kq-main-image">
+        <%= link_to @item do %>
+          <%= thumbnail_tag(@item, 512) %>
+        <% end %>
+        <%= link_to @item, class: 'kq-title' do %>
+          <%= @item.title %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>

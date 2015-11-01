@@ -1,5 +1,30 @@
 class Solr
 
+  class Fields
+    ACCESS_MASTER_HEIGHT = 'access_master_height_ii'
+    ACCESS_MASTER_MEDIA_TYPE = 'access_master_media_type_si'
+    ACCESS_MASTER_PATHNAME = 'access_master_pathname_si'
+    ACCESS_MASTER_WIDTH = 'access_master_width_ii'
+    CLASS = 'class_si'
+    COLLECTION = 'collection_si'
+    DATE = 'date_dti'
+    DESCRIPTION = 'description_txti'
+    FULL_TEXT = 'full_text_txti'
+    HEIGHT = 'height_ii'
+    ID = 'id'
+    LAST_INDEXED = 'last_indexed_dti'
+    PARENT_ITEM = 'parent_si'
+    PRESERVATION_MASTER_HEIGHT = 'preservation_master_height_ii'
+    PRESERVATION_MASTER_MEDIA_TYPE = 'preservation_master_media_type_si'
+    PRESERVATION_MASTER_PATHNAME = 'preservation_master_pathname_si'
+    PRESERVATION_MASTER_WIDTH = 'preservation_master_width_ii'
+    PUBLISHED = 'published_bi'
+    SEARCH_ALL = 'searchall_txti'
+    SUBTITLE = 'subtitle_txti'
+    TITLE = 'title_txti'
+    WEB_ID = 'web_id_si'
+  end
+
   SCHEMA = YAML.load(File.read(File.join(__dir__, 'schema.yml')))
 
   @@client = nil

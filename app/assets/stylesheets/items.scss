@@ -1,0 +1,143 @@
+// Place all the styles related to the items controller here.
+// They will automatically be included in application.css.
+// You can use Sass (SCSS) here: http://sass-lang.com/
+
+body#items_index div#kq-page-content {
+  .kq-facets {
+    overflow-x: scroll;
+    div.checkbox {
+      margin:0.2em 0em;
+    }
+    .kq-count.badge {
+      background-color: #c0c0c0;
+      font-size: 0.7em;
+    }
+  }
+
+  .kq-panel-facets {
+    .panel-body {
+      overflow-x: scroll;
+      ul {
+        list-style:none;
+        margin-bottom:0em;
+        margin-left: 0em;
+        padding-left: 0px;
+      }
+    }
+  }
+
+  .kq-no-results {
+    ul {
+      margin-left: 0.5em;
+    }
+  }
+}
+
+body#items_show {
+  .kq-compound-title {
+    margin-top:-0.3em;
+    small {
+      vertical-align:middle;
+      a {
+        color: black;
+      }
+    }
+  }
+  .kq-remove-from-favorites {
+    display:none;
+  }
+  #kq-image-viewer {
+    background-color:black;
+    height: 500px;
+    margin-bottom: 1em;
+    max-width: 1000px;
+    width: 100%;
+  }
+  #kq-image-viewer.fullpage {
+    max-width: 999999px;
+  }
+
+  #kq-video-player {
+    max-width: 1000px;
+    width: 100%;
+  }
+
+  .kq-horizontal-items {
+    overflow-x: scroll;
+    ol, ul {
+      margin-left:0px;
+      padding-left:0px;
+      li {
+        display: inline-block;
+        margin-left: 1em;
+        margin-right: 1em;
+        margin-top: -1em;
+        text-align: center;
+        div:first-child {
+          width: 110px;
+          .kq-thumbnail {
+            display: table-cell;
+            font-size:90px;
+            height: 100px;
+            max-height: 100px;
+            vertical-align: top;
+            img {
+              max-height: 100px;
+              max-width: 100px;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .kq-vertical-items {
+    ol, ul {
+      list-style: none;
+      margin-left:0px;
+      padding-left:0px;
+      li {
+        max-height: 180px;
+        margin-bottom: 20px;
+        text-align: center;
+        vertical-align: top;
+        width: 100%;
+        .kq-thumbnail {
+          display: block;
+          font-size:100px;
+          height: 150px;
+          margin-bottom: 10px;
+          img {
+            height: 150px;
+            text-align: center;
+            width: 150px;
+          }
+        }
+      }
+    }
+  }
+
+  table.kq-triples tr:first-child > td {
+    border-top: 0px;
+  }
+
+  /* display metadata in a 2-column table if the screen is wide enough
+  (IMET-83) */
+  @media screen and (max-width: 800px) {
+    table.kq-triples {
+      display: none;
+    }
+    dl.kq-triples {
+      display: block;
+    }
+  }
+  @media screen and (min-width: 801px) {
+    table.kq-triples {
+      display: block;
+    }
+    dl.kq-triples {
+      display: none;
+    }
+  }
+
+}

@@ -1,0 +1,39 @@
+<% provide :body_id, 'landing' %>
+<% provide :title, 'Home' %>
+
+<h1><%= Option.string(Option::Key::WEBSITE_NAME) %></h1>
+
+<div class="row">
+  <div class="col-sm-7">
+    <div class="text-center">
+      <%= link_to collections_path, class: 'btn btn-default btn-lg' do %>
+        <%= icon_for(Collection) %> View Collections
+      <% end %>
+      <%= link_to items_path, class: 'btn btn-default btn-lg' do %>
+        <%= icon_for(Item) %> View Items
+      <% end %>
+    </div>
+
+    <h2>About the collections</h2>
+
+    <%= sanitize(Option.string(Option::Key::WEBSITE_INTRO_TEXT).gsub("\n", '<br>'),
+                 tags: %w(p br), attributes: %w()) %>
+  </div>
+  <div class="col-sm-5">
+    <% if @random_item %>
+      <div class="kq-main-image">
+        <%= link_to @random_item do %>
+          <%= thumbnail_tag(@random_item, 512) %>
+        <% end %>
+        <%= link_to @random_item, class: 'kq-title' do %>
+          <%= @random_item.title %>
+        <% end %>
+        <br>
+        <%= link_to @random_item.collection, class: 'kq-collection-title' do %>
+          <%= icon_for(@random_item.collection) %>
+          <%= @random_item.collection.title %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>

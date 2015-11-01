@@ -1,1 +1,82 @@
-<%= @item.inspect %>
+<% provide :title, @item.title %>
+<% provide :body_id, 'items_show' %>
+
+<%= breadcrumb(item: @item, context: session[:browse_context],
+               context_url: session[:browse_context_url]) %>
+
+<div class="btn-group pull-right">
+  <button class="btn btn-danger kq-remove-from-favorites"
+          data-web-id="<%= @item.web_id %>">
+    <i class="fa fa-heart-o"></i> Remove From Favorites
+  </button>
+  <button class="btn btn-default kq-add-to-favorites"
+          data-web-id="<%= @item.web_id %>">
+    <i class="fa fa-heart"></i> Add To Favorites
+  </button>
+  <%= share_button(@item) %>
+  <%= download_button(@item) %>
+</div>
+
+<% if @item.parent.kind_of?(Item) %>
+  <h1 class="kq-compound-title">
+    <small><%= link_to @item.parent.title, @item.parent %></small>
+    <br>&nbsp;&nbsp;&#8627; <%= @item.title %>
+  </h1>
+<% else %>
+  <h1><%= @item.title %>
+    <% if @item.subtitle %>
+      <br><small><%= @item.subtitle %></small>
+    <% end %>
+  </h1>
+<% end %>
+
+<%= viewer_for(@item) %>
+
+<% if @item.full_text.present? %>
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <h2 class="panel-title">Full Text</h2>
+    </div>
+    <div class="panel-body">
+      <pre><%= @item.full_text %></pre>
+    </div>
+  </div>
+<% end %>
+
+<% if @pages.any? %>
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <h2 class="panel-title">Pages (<%= @pages.length %>)</h2>
+    </div>
+    <div class="panel-body kq-horizontal-items">
+      <%= pages_as_list(@item) %>
+    </div>
+  </div>
+<% end %>
+
+<div class="row">
+
+  <div class="col-sm-9">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h2 class="panel-title">Descriptive Info</h2>
+      </div>
+      <div class="panel-body">
+        <%= metadata_as_dl(@item) %>
+        <%= metadata_as_table(@item) %>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-sm-3">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h2 class="panel-title">Similar Items</h2>
+      </div>
+      <div class="panel-body kq-vertical-items">
+        <%= similar_items_as_list(@item) %>
+      </div>
+    </div>
+  </div>
+
+</div>

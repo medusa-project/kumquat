@@ -54,6 +54,19 @@ Rails.application.routes.draw do
   #     resources :products
   #   end
 
-  resources :collections, only: [:index, :show]
-  resources :items, only: [:index, :show]
+  root 'landing#index'
+
+  resources :collections, only: [:index, :show] do
+    resources :items, only: :index
+  end
+  resources :favorites, only: :index
+  # constraint allows ids with slashes to get through
+  resources :items, only: [:index, :show], constraints: { id: /.*/ } do
+    match '/master', to: 'items#master_bytestream', via: 'get',
+          as: :master_bytestream
+  end
+  match '/oai-pmh', to: 'oai_pmh#index', via: %w(get post), as: 'oai_pmh'
+  match '/search', to: 'items#search', via: 'post'
+  match '/signin', to: 'sessions#new', via: 'get'
+  match '/signout', to: 'sessions#destroy', via: 'delete'
 end

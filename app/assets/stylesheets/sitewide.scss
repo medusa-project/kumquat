@@ -1,0 +1,40 @@
+/**
+ * Styles used throughout the website, both public and admin sides.
+ */
+
+dl {
+  dd {
+    margin: 0em 0em 0.5em 1em;
+  }
+  dl {
+    ul {
+      margin-left: 1.5em;
+      padding-left: 0em;
+    }
+  }
+}
+
+div.alert ul {
+  margin-left:1em;
+  padding-left:0px;
+}
+
+/* make the default bootstrap .alert-info less prominent */
+div.alert-info {
+  background-color: #f4f4ff;
+  border-color: #e4e4ef;
+}
+
+.kq-triples {
+  .kq-predicate-uri {
+    color: #b0b0b0;
+    font-size: 0.9em;
+  }
+  .kq-predicate-uri-lpc {
+    font-weight: bold;
+  }
+}
+
+.tab-content {
+  padding-top:1em;
+}

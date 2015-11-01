@@ -1,14 +1,108 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>PearTree</title>
-  <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true %>
-  <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
-  <%= csrf_meta_tags %>
-</head>
-<body>
+  <head>
+    <title><%= yield :title %> |
+      <%= Option.string(Option::Key::WEBSITE_NAME) %></title>
 
-<%= yield %>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="copyright"
+          content="Copyright"> <!-- TODO: fix -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <%= csrf_meta_tags %>
 
-</body>
+    <%= stylesheet_link_tag    'application', media: 'all' %>
+    <%= javascript_include_tag 'application' %>
+
+    <!--[if lt IE 9]>
+    <script src="https://raw.githubusercontent.com/aFarkas/html5shiv/master/src/html5shiv.js"></script>
+    <![endif]-->
+  </head>
+  <body <%= !yield(:body_id).empty? ? raw("id=\"#{yield(:body_id)}\"") : nil %>
+        <%= raw("data-nav=\"#{yield(:active_nav)}\"") %>>
+
+    <%= hidden_field_tag('kq-root-path', root_path) %>
+    <%= hidden_field_tag('kq-root-url', root_url) %>
+
+    <%= render 'layouts/header' %>
+
+    <nav class="navbar navbar-default" role="navigation" id="kq-main-nav">
+      <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse"
+                  data-target="#kq-navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <%= link_to 'Home', root_path, class: 'navbar-brand' %>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="kq-navbar-collapse">
+          <ul class="nav navbar-nav">
+            <li id="collections-nav">
+              <%= link_to collections_path do %>
+                <span class="fa fa-folder-open"></span> Collections
+              <% end %>
+            </li>
+            <li class="dropdown" id="items-nav">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown"
+                 role="button" aria-expanded="false">
+                <span class="fa fa-cube"></span> Items<span class="caret"></span>
+              </a>
+              <ul class="dropdown-menu" role="menu">
+                <li><%= link_to "All Items (#{@num_items})", items_path %></li>
+                <li class="divider"></li>
+                <li><%= link_to "Images (#{@image_items.total_length})",
+                                items_path(q: "#{Solr::Fields::ACCESS_MASTER_MEDIA_TYPE}:image/*") %></li>
+                <li><%= link_to "Documents (#{@document_items.total_length})",
+                                items_path(q: "#{Solr::Fields::ACCESS_MASTER_MEDIA_TYPE}:application/pdf") %></li>
+                <li><%= link_to "Videos (#{@video_items.total_length})",
+                                items_path(q: "#{Solr::Fields::ACCESS_MASTER_MEDIA_TYPE}:video/*") %></li>
+                <li><%= link_to "Sound Recordings (#{@audio_items.total_length})",
+                                items_path(q: "#{Solr::Fields::ACCESS_MASTER_MEDIA_TYPE}:audio/*") %></li>
+              </ul>
+            </li>
+            <li id="favorites-nav">
+              <%= link_to favorites_path do %>
+                <span class="fa fa-heart"></span>
+                My Favorites
+                <span class="badge kq-favorites-count"><%= num_favorites %></span>
+              <% end %>
+            </li>
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+            <li id="search-nav">
+              <%= link_to '#' do %>
+                <span class="fa fa-search"></span> Search<span class="caret"></span>
+              <% end %>
+            </li>
+          </ul>
+        </div> <!-- /.navbar-collapse -->
+      </div> <!-- /.container-fluid -->
+    </nav>
+
+    <%= render 'layouts/search_bar' %>
+
+    <div class="container-fluid">
+
+      <% flash.each do |type, message| %>
+        <div class="kq-flash alert alert-dismissable <%= bootstrap_class_for(type) %>">
+          <button type="button" class="close" data-dismiss="alert"
+                  aria-hidden="true">&times;</button>
+          <%= message %>
+        </div>
+      <% end %>
+
+      <div id="kq-page-content">
+        <%= yield %>
+      </div>
+    </div>
+
+    <%= render 'layouts/footer' %>
+
+  </body>
 </html>

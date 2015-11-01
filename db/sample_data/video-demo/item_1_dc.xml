@@ -1,11 +1,12 @@
 <?xml version="1.0"?>
 
-<uiuc:Object xmlns:uiuc="http://www.library.illinois.edu/terms#"
+<lrp:Object xmlns:lrp="http://www.library.illinois.edu/lrp/terms#"
   xmlns:dcterms="http://purl.org/dc/terms/">
-  <uiuc:identifier>IMG_0054.mov</uiuc:identifier>
-  <uiuc:collection>video-demo</uiuc:collection>
-  <uiuc:preservationMasterPathname>bytestreams/IMG_0054.mov</uiuc:preservationMasterPathname>
-  <uiuc:preservationMasterMediaType>video/quicktime</uiuc:preservationMasterMediaType>
+  <lrp:identifier>IMG_0054.mov</lrp:identifier>
+  <lrp:collection>video-demo</lrp:collection>
+  <lrp:published/>
+  <lrp:preservationMasterPathname>bytestreams/IMG_0054.mov</lrp:preservationMasterPathname>
+  <lrp:preservationMasterMediaType>video/quicktime</lrp:preservationMasterMediaType>
   <dcterms:description>Part of the south façade of the Illini Union on the
     University of Illinois at Urbana-Champaign campus. Filmed on an
     iPhone 5S.</dcterms:description>
@@ -18,4 +19,4 @@
   <dcterms:title>Demo QuickTime H.264/AAC video item</dcterms:title>
   <dcterms:type>Video</dcterms:type>
 
-</uiuc:Object>
+</lrp:Object>

@@ -1,11 +1,12 @@
 <?xml version="1.0"?>
-<uiuc:Collection xmlns:uiuc="http://www.library.illinois.edu/terms#"
+<lrp:Collection xmlns:lrp="http://www.library.illinois.edu/lrp/terms#"
   xmlns:dc="http://purl.org/dc/elements/1.1/"
   xmlns:dcterms="http://purl.org/dc/terms/">
   <!-- UIUC metadata -->
-  <uiuc:identifier>misc-demo</uiuc:identifier>
-  <uiuc:webID>misc-demo</uiuc:webID>
+  <lrp:identifier>misc-demo</lrp:identifier>
+  <lrp:webID>misc-demo</lrp:webID>
+  <lrp:published/>
   <!-- DC metadata -->
   <dc:title>Demo Miscellaneous Collection</dc:title>
   <dc:description>A demo collection containing miscellaneous items.</dc:description>
-</uiuc:Collection>
+</lrp:Collection>

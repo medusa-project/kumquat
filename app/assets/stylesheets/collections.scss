@@ -1,0 +1,52 @@
+// Place all the styles related to the collections controller here.
+// They will automatically be included in application.css.
+// You can use Sass (SCSS) here: http://sass-lang.com/
+
+body#collections_index div#kq-page-content {
+  $thumb-size: 80px;
+  ol {
+    list-style: none;
+    margin-left:0px;
+    padding-left:0px;
+    li {
+      margin-bottom: 1em;
+      margin-left:0em;
+    }
+    li > div {
+      display: inline-block;
+      width: 100%;
+      div.kq-thumbnail {
+        float:left;
+        font-size:75px;
+        height: $thumb_size;
+        margin-right: 20px;
+        text-align: center;
+        width: $thumb_size;
+        i {
+          position: relative;
+          transform: translateY(-20%);
+        }
+        img {
+          display:block;
+          margin: 0 auto;
+          max-height: $thumb_size;
+          max-width: $thumb_size;
+          position: relative;
+          top: 50%;
+          transform: translateY(-50%);
+        }
+      }
+      .kq-title {
+        font-size: 1.4em;
+      }
+      .kq-description {
+      }
+    }
+  }
+}
+
+body#collections_show {
+  a.kq-browse {
+    margin:1em 0em;
+  }
+}

@@ -1,0 +1,110 @@
+body#items_index {
+  .kq-search {
+    .kq-triples .form-group:first-child .kq-remove-field {
+      display:none;
+    }
+    .kq-triples select {
+      max-width:40%;
+    }
+    .kq-collections {
+      max-height: 15em;
+      overflow-y: scroll;
+      ol {
+        list-style:none;
+        margin-left:0px;
+        padding-left:0px;
+      }
+    }
+  }
+
+  .kq-list-results ol {
+    margin-left:0px;
+    padding-left:0px;
+    li {
+      margin-bottom: 1em;
+      margin-left:2em;
+      div:first-child {
+        display: inline-block;
+        vertical-align: middle;
+        width: 100%;
+        div.kq-thumbnail {
+          float:left;
+          font-size:75px;
+          height: 100px;
+          margin-right: 14px;
+          text-align: center;
+          width: 100px;
+          img {
+            max-height: 100px;
+            max-width: 100px;
+          }
+        }
+        .kq-title {
+          font-size: 1.4em;
+        }
+        .kq-description {
+        }
+      }
+    }
+  }
+}
+
+body#items_show div#kq-page-content {
+  table.kq-triples tr:first-child > td {
+    border-top: 0px;
+  }
+  /* display metadata in a 2-column table if the screen is wide enough
+  (IMET-83) */
+  @media screen and (max-width: 800px) {
+    table.kq-triples {
+      display: none;
+    }
+    dl.kq-triples {
+      display: block;
+    }
+  }
+  @media screen and (min-width: 801px) {
+    table.kq-triples {
+      display: block;
+    }
+    dl.kq-triples {
+      display: none;
+    }
+  }
+
+  #kq-pages ol {
+    margin-left:0px;
+    padding-left:0px;
+    li {
+      margin-bottom: 1em;
+      margin-left:2em;
+      div:first-child {
+        display: inline-block;
+        vertical-align: middle;
+        width: 100%;
+        div.kq-thumbnail {
+          float:left;
+          font-size:75px;
+          height: 80px;
+          margin-right: 14px;
+          text-align: center;
+          width: 80px;
+          img {
+            max-height: 80px;
+            max-width: 80px;
+          }
+        }
+        .kq-title {
+          font-size: 1.4em;
+        }
+      }
+    }
+  }
+
+  #kq-edit-full-text-panel {
+    textarea {
+      font-family: monospace;
+      min-height: 20em;
+    }
+  }
+}

@@ -1,12 +1,13 @@
 <?xml version="1.0"?>
-<items xmlns:uiuc="http://www.library.illinois.edu/terms#"
+<items xmlns:lrp="http://www.library.illinois.edu/lrp/terms#"
   xmlns:dcterms="http://purl.org/dc/terms/">
 
-  <uiuc:Object>
-    <uiuc:identifier>beep-piano.aif</uiuc:identifier>
-    <uiuc:collection>audio-demo</uiuc:collection>
-    <uiuc:preservationMasterPathname>bytestreams/beep-piano.aif</uiuc:preservationMasterPathname>
-    <uiuc:preservationMasterMediaType>audio/aiff</uiuc:preservationMasterMediaType>
+  <lrp:Object>
+    <lrp:identifier>beep-piano.aif</lrp:identifier>
+    <lrp:collection>audio-demo</lrp:collection>
+    <lrp:published/>
+    <lrp:preservationMasterPathname>bytestreams/beep-piano.aif</lrp:preservationMasterPathname>
+    <lrp:preservationMasterMediaType>audio/aiff</lrp:preservationMasterMediaType>
     <dcterms:description>A short beep.</dcterms:description>
     <dcterms:extent>22 Kbytes</dcterms:extent>
     <dcterms:identifier>beep-piano.aif</dcterms:identifier>
@@ -15,13 +16,14 @@
     <dcterms:subject>Annoying noises</dcterms:subject>
     <dcterms:title>Demo AIFF audio item</dcterms:title>
     <dcterms:type>Sound</dcterms:type>
-  </uiuc:Object>
+  </lrp:Object>
 
-  <uiuc:Object>
-    <uiuc:identifier>retro_click.wav</uiuc:identifier>
-    <uiuc:collection>audio-demo</uiuc:collection>
-    <uiuc:preservationMasterPathname>bytestreams/retro_click.wav</uiuc:preservationMasterPathname>
-    <uiuc:preservationMasterMediaType>audio/wave</uiuc:preservationMasterMediaType>
+  <lrp:Object>
+    <lrp:identifier>retro_click.wav</lrp:identifier>
+    <lrp:collection>audio-demo</lrp:collection>
+    <lrp:published/>
+    <lrp:preservationMasterPathname>bytestreams/retro_click.wav</lrp:preservationMasterPathname>
+    <lrp:preservationMasterMediaType>audio/wave</lrp:preservationMasterMediaType>
     <dcterms:description>A short click.</dcterms:description>
     <dcterms:extent>4 Kbytes</dcterms:extent>
     <dcterms:identifier>retro_click.wav</dcterms:identifier>
@@ -29,6 +31,6 @@
     <dcterms:subject>Annoying noises</dcterms:subject>
     <dcterms:title>Demo wave audio item</dcterms:title>
     <dcterms:type>Sound</dcterms:type>
-  </uiuc:Object>
+  </lrp:Object>
 
 </items>
