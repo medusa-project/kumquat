@@ -117,25 +117,25 @@ body#items_show {
     }
   }
 
-  table.kq-triples tr:first-child > td {
+  table.kq-metadata tr:first-child > td {
     border-top: 0px;
   }
 
   /* display metadata in a 2-column table if the screen is wide enough
   (IMET-83) */
   @media screen and (max-width: 800px) {
-    table.kq-triples {
+    table.kq-metadata {
       display: none;
     }
-    dl.kq-triples {
+    dl.kq-metadata {
       display: block;
     }
   }
   @media screen and (min-width: 801px) {
-    table.kq-triples {
+    table.kq-metadata {
       display: block;
     }
-    dl.kq-triples {
+    dl.kq-metadata {
       display: none;
     }
   }

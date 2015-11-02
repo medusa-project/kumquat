@@ -13,6 +13,7 @@ class Entity
   attr_accessor :id # String
   attr_accessor :date # Date
   attr_accessor :description # String
+  attr_reader :metadata # Array
   attr_accessor :published # Boolean
   attr_accessor :score # float
   attr_accessor :subtitle # String
@@ -26,15 +27,36 @@ class Entity
   end
 
   def initialize
+    @metadata = {}
     @persisted = false
+  end
+
+  def description
+    metadata_values(:dc, :description).first ||
+        metadata_values(:dcterms, :description).first
   end
 
   def index_in_solr
     Solr.client.add(self.to_solr)
   end
 
+  def metadata_values(element_set, element)
+    element_set = element_set.to_s
+    element = element.to_s
+    if self.metadata.keys.include?(element_set)
+      if self.metadata[element_set].keys.include?(element)
+        return self.metadata[element_set][element]
+      end
+    end
+    []
+  end
+
   def persisted?
     @persisted # makes to_param work
+  end
+
+  def subtitle
+    metadata_values(:dcterms, :alternative).first
   end
 
   def to_param
@@ -55,12 +77,17 @@ class Entity
     doc = {}
     doc[Solr::Fields::ID] = self.id
     doc[Solr::Fields::CLASS] = self.class.to_s
-    doc[Solr::Fields::DESCRIPTION] = self.description
     doc[Solr::Fields::LAST_INDEXED] = DateTime.now.utc.iso8601 + 'Z'
     doc[Solr::Fields::PUBLISHED] = self.published
-    doc[Solr::Fields::SUBTITLE] = self.subtitle
     doc[Solr::Fields::TITLE] = self.title
     doc[Solr::Fields::WEB_ID] = self.web_id
+
+    self.metadata.keys.each do |element_set|
+      self.metadata[element_set].keys.each do |element|
+        doc["#{element_set}_#{element}_txtim"] = self.metadata[element_set][element]
+      end
+    end
+
     doc
   end
 

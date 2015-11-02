@@ -29,9 +29,17 @@ module Deserialization
         "#{metadata_pathname}"
       end
 
-      # subtitle
-      subtitle = node.xpath('dcterms:alternative', namespaces).first
-      entity.subtitle = subtitle.content.strip if subtitle
+      # metadata
+      dc_nodes = node.xpath('dc:*', namespaces)
+      dc_nodes.each do |dc_node|
+        entity.metadata['dc'] = {} unless entity.metadata['dc']
+        entity.metadata['dc'][dc_node.name] = dc_node.content.strip
+      end
+      dcterms_nodes = node.xpath('dcterms:*', namespaces)
+      dcterms_nodes.each do |dcterms_node|
+        entity.metadata['dcterms'] = {} unless entity.metadata['dcterms']
+        entity.metadata['dcterms'][dcterms_node.name] = dcterms_node.content.strip
+      end
 
       # title
       title = node.xpath('dc:title', namespaces).first

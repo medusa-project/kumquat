@@ -265,8 +265,6 @@ class Relation
       facet = Facet.new
       facet.field = field
       (0..terms.length - 1).step(2) do |i|
-        # hide the below F4-managed URL from the DC format facet
-        next if terms[i] == 'http://fedora.info/definitions/v4/repository#jcr/xml'
         term = Facet::Term.new
         term.name = terms[i]
         term.label = terms[i]

@@ -9,7 +9,6 @@ class Solr
     CLASS = 'class_si'
     COLLECTION = 'collection_si'
     DATE = 'date_dti'
-    DESCRIPTION = 'description_txti'
     FULL_TEXT = 'full_text_txti'
     HEIGHT = 'height_ii'
     ID = 'id'
@@ -22,7 +21,6 @@ class Solr
     PRESERVATION_MASTER_WIDTH = 'preservation_master_width_ii'
     PUBLISHED = 'published_bi'
     SEARCH_ALL = 'searchall_txti'
-    SUBTITLE = 'subtitle_txti'
     TITLE = 'title_txti'
     WEB_ID = 'web_id_si'
   end

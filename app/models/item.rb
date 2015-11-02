@@ -31,8 +31,15 @@ class Item < Entity
       bs.width = doc[Solr::Fields::PRESERVATION_MASTER_WIDTH]
       item.bytestreams << bs
     end
+
+    %w(dc dcterms).each do |element_set|
+      doc.keys.select{ |k| k.start_with?("#{element_set}_") }.each do |key|
+        item.metadata[element_set] = {} unless item.metadata[element_set]
+        item.metadata[element_set][key.gsub(/#{element_set}_/, '').chomp('_txtim')] = doc[key]
+      end
+    end
+
     item.published = doc[Solr::Fields::PUBLISHED]
-    item.subtitle = doc[Solr::Fields::SUBTITLE]
     item.title = doc[Solr::Fields::TITLE]
     item.web_id = doc[Solr::Fields::WEB_ID]
     item.instance_variable_set('@persisted', true)

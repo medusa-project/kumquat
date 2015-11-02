@@ -198,16 +198,22 @@ module ItemsHelper
   # @param entity [Entity]
   # @return [String]
   #
-  def metadata_as_dl(entity)
-    # TODO: write this
-  end
-
-  ##
-  # @param entity [Entity]
-  # @return [String]
-  #
   def metadata_as_table(entity)
-    # TODO: write this
+    html = '<table class="table table-condensed kq-metadata">'
+    entity.metadata.keys.each do |element_set|
+      entity.metadata[element_set].keys.each do |element|
+        html += '<tr>'
+        html += "<td>#{element.chomp('_txtim')}</td>"
+        html += '<td>'
+        entity.metadata_values(element_set, element).each do |value|
+          html += value
+        end
+        html += '</td>'
+        html += '</tr>'
+      end
+    end
+    html += '</table>'
+    raw(html)
   end
 
   ##
