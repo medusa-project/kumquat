@@ -8,7 +8,6 @@ class Entity
   include ActiveModel::Model
   include GlobalID::Identification
   include Deserialization
-  include Indexing
   include SolrQuerying
 
   attr_accessor :id # String
@@ -28,6 +27,10 @@ class Entity
 
   def initialize
     @persisted = false
+  end
+
+  def index_in_solr
+    Solr.client.add(self.to_solr)
   end
 
   def persisted?
