@@ -14,16 +14,19 @@ class Bytestream
   attr_accessor :media_type # String
   attr_accessor :pathname # String
   attr_accessor :type # Bytestream::Type
+  attr_accessor :url # String
   attr_accessor :width # Integer
 
   ##
   # Attempts to detect the media type and assigns it to the instance.
   #
-  # @raise [RuntimeError] if pathname is not set
+  # @raise [RuntimeError] if neither pathname nor url are set
   #
   def detect_media_type
     if self.pathname and File.exist?(self.pathname)
       self.media_type = MIME::Types.of(self.pathname).first.to_s
+    elsif self.url
+      self.media_type = MIME::Types.of(self.url).first.to_s
     else
       raise 'Pathname not set'
     end

@@ -8,22 +8,26 @@ class Item < Entity
   def self.from_solr(doc)
     item = Item.new
     item.id = doc[Solr::Fields::ID]
-    if doc[Solr::Fields::ACCESS_MASTER_PATHNAME]
+    if doc[Solr::Fields::ACCESS_MASTER_PATHNAME] or
+        doc[Solr::Fields::ACCESS_MASTER_URL]
       bs = Bytestream.new
       bs.height = doc[Solr::Fields::ACCESS_MASTER_HEIGHT]
       bs.media_type = doc[Solr::Fields::ACCESS_MASTER_MEDIA_TYPE]
       bs.pathname = doc[Solr::Fields::ACCESS_MASTER_PATHNAME]
       bs.type = Bytestream::Type::ACCESS_MASTER
+      bs.url = doc[Solr::Fields::ACCESS_MASTER_URL]
       bs.width = doc[Solr::Fields::ACCESS_MASTER_WIDTH]
       item.bytestreams << bs
     end
     item.full_text = doc[Solr::Fields::FULL_TEXT]
-    if doc[Solr::Fields::PRESERVATION_MASTER_PATHNAME]
+    if doc[Solr::Fields::PRESERVATION_MASTER_PATHNAME] or
+        doc[Solr::Fields::PRESERVATION_MASTER_URL]
       bs = Bytestream.new
       bs.height = doc[Solr::Fields::PRESERVATION_MASTER_HEIGHT]
       bs.media_type = doc[Solr::Fields::PRESERVATION_MASTER_MEDIA_TYPE]
       bs.pathname = doc[Solr::Fields::PRESERVATION_MASTER_PATHNAME]
       bs.type = Bytestream::Type::PRESERVATION_MASTER
+      bs.url = doc[Solr::Fields::PRESERVATION_MASTER_URL]
       bs.width = doc[Solr::Fields::PRESERVATION_MASTER_WIDTH]
       item.bytestreams << bs
     end
@@ -130,6 +134,7 @@ class Item < Entity
       doc[Solr::Fields::ACCESS_MASTER_HEIGHT] = bs.height
       doc[Solr::Fields::ACCESS_MASTER_MEDIA_TYPE] = bs.media_type
       doc[Solr::Fields::ACCESS_MASTER_PATHNAME] = bs.pathname
+      doc[Solr::Fields::ACCESS_MASTER_URL] = bs.url
       doc[Solr::Fields::ACCESS_MASTER_WIDTH] = bs.width
     end
     doc[Solr::Fields::FULL_TEXT] = self.full_text
@@ -137,6 +142,7 @@ class Item < Entity
       doc[Solr::Fields::PRESERVATION_MASTER_HEIGHT] = bs.height
       doc[Solr::Fields::PRESERVATION_MASTER_MEDIA_TYPE] = bs.media_type
       doc[Solr::Fields::PRESERVATION_MASTER_PATHNAME] = bs.pathname
+      doc[Solr::Fields::PRESERVATION_MASTER_URL] = bs.url
       doc[Solr::Fields::PRESERVATION_MASTER_WIDTH] = bs.width
     end
     doc

@@ -58,7 +58,7 @@ module Deserialization
         parent = node.xpath('lrp:hasParent', namespaces).first
         entity.parent_id = parent.content.strip if parent
 
-        # access master
+        # access master (pathname)
         am = node.xpath('lrp:accessMasterPathname', namespaces).first
         if am
           bs = Bytestream.new
@@ -78,6 +78,22 @@ module Deserialization
           end
           bs.read_dimensions
           entity.bytestreams << bs
+        else # access master (URL)
+          am = node.xpath('lrp:accessMasterURL', namespaces).first
+          if am
+            bs = Bytestream.new
+            bs.type = Bytestream::Type::ACCESS_MASTER
+            bs.url = am.content.strip
+            # media type
+            mt = node.xpath('lrp:accessMasterMediaType', namespaces).first
+            if mt
+              bs.media_type = mt.content.strip
+            else
+              bs.detect_media_type
+            end
+            #bs.read_dimensions
+            entity.bytestreams << bs
+          end
         end
 
         # date
@@ -92,7 +108,7 @@ module Deserialization
         id = node.xpath('lrp:fullText', namespaces).first
         entity.full_text = id.content.strip if id
 
-        # preservation master
+        # preservation master (pathname)
         pm = node.xpath('lrp:preservationMasterPathname', namespaces).first
         if pm
           bs = Bytestream.new
@@ -111,6 +127,22 @@ module Deserialization
           end
           bs.read_dimensions
           entity.bytestreams << bs
+        else # preservation master (URL)
+          pm = node.xpath('lrp:preservationMasterURL', namespaces).first
+          if pm
+            bs = Bytestream.new
+            bs.type = Bytestream::Type::ACCESS_MASTER
+            bs.url = pm.content.strip
+            # media type
+            mt = node.xpath('lrp:preservationMasterMediaType', namespaces).first
+            if mt
+              bs.media_type = mt.content.strip
+            else
+              bs.detect_media_type
+            end
+            #bs.read_dimensions
+            entity.bytestreams << bs
+          end
         end
       end
 
