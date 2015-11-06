@@ -32,7 +32,7 @@ class ItemsController < WebsiteController
 
     # if there are no results, get some suggestions
     if @items.total_length < 1 and params[:q].present?
-      @suggestions = Solr.new.suggestions(params[:q])
+      @suggestions = Solr::suggestions(params[:q])
     end
   end
 

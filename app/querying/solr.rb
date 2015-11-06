@@ -52,6 +52,16 @@ class Solr
   end
 
   ##
+  # @param term [String] Search term
+  # @return [Array] String suggestions
+  #
+  def suggestions(term)
+    result = Solr::client.get('suggest', params: { q: term })
+    suggestions = result['spellcheck']['suggestions']
+    suggestions.any? ? suggestions[1]['suggestion'] : []
+  end
+
+  ##
   # Creates the set of fields needed by the application. This requires
   # Solr 5.2+ with the ManagedIndexSchemaFactory enabled and a mutable schema.
   #
