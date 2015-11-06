@@ -17,7 +17,7 @@
   <%= download_button(@item) %>
 </div>
 
-<% if @item.parent.kind_of?(Item) %>
+<% if @item.parent %>
   <h1 class="kq-compound-title">
     <small><%= link_to @item.parent.title, @item.parent %></small>
     <br>&nbsp;&nbsp;&#8627; <%= @item.title %>
@@ -65,6 +65,35 @@
         <%= metadata_as_table(@item) %>
       </div>
     </div>
+    <% if Rails.env.development? %>
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h2 class="panel-title">DEVELOPMENT ONLY: Technical Info</h2>
+          </div>
+          <div class="panel-body">
+            <%= metadata_as_table(@item, Element::Type::TECHNICAL) %>
+          </div>
+        </div>
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h2 class="panel-title">DEVELOPMENT ONLY: Bytestreams</h2>
+          </div>
+          <div class="panel-body">
+            <ul>
+              <% @item.bytestreams.each do |bs| %>
+                <li><%= bs.type.upcase %>: <%= bs.pathname %>
+                  <% if File.exist?(bs.pathname) %>
+                    <span class="text-success">(OK)</span>
+                  <% else %>
+                    <span class="text-danger">(MISSING)</span>
+                  <% end %>
+                </li>
+              <% end %>
+            </ul>
+          </div>
+        </div>
+    <% end %>
+
   </div>
 
   <div class="col-sm-3">
