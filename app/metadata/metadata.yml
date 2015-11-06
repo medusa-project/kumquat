@@ -1,0 +1,516 @@
+########################## technical elements ##########################
+
+accessMasterMediaType:
+  type: technical
+  mappings:
+    bibFrame:
+    dc: format
+    dcterms: format
+    geo:
+accessMasterPathname:
+  type: technical
+  mappings:
+    bibFrame:
+    dc:
+    dcterms:
+    geo:
+accessMasterURL:
+  type: technical
+  mappings:
+    bibFrame:
+    dc:
+    dcterms:
+    geo:
+collectionId:
+  type: technical
+  mappings:
+    bibFrame:
+    dc: relation
+    dcterms: isPartOf
+    geo:
+fullText:
+  type: technical
+  mappings:
+    bibFrame:
+    dc:
+    dcterms:
+    geo:
+parentId:
+  type: technical
+  mappings:
+    bibFrame:
+    dc: relation
+    dcterms: isPartOf
+    geo:
+preservationMasterMediaType:
+  type: technical
+  mappings:
+    bibFrame:
+    dc: format
+    dcterms: format
+    geo:
+preservationMasterPathname:
+  type: technical
+  mappings:
+    bibFrame:
+    dc:
+    dcterms:
+    geo:
+preservationMasterURL:
+  type: technical
+  mappings:
+    bibFrame:
+    dc:
+    dcterms:
+    geo:
+repositoryId:
+  type: technical
+  mappings:
+    bibFrame:
+    dc: identifier
+    dcterms: identifier
+    geo:
+webId:
+  type: technical
+  mappings:
+    bibFrame:
+    dc: identifier
+    dcterms: identifier
+    geo:
+
+########################## descriptive elements ##########################
+
+abstract:
+  type: descriptive
+  mappings:
+    bibFrame:
+    dc: description
+    dcterms: abstract
+    geo:
+accessRights:
+  type: descriptive
+  mappings:
+    bibFrame:
+    dc: rights
+    dcterms: accessRights
+    geo:
+accrualMethod:
+  type: descriptive
+  mappings:
+    bibFrame:
+    dc:
+    dcterms: accrualMethod
+    geo:
+accrualPeriodicity:
+  type: descriptive
+  mappings:
+    bibFrame:
+    dc:
+    dcterms: accrualPeriodicity
+    geo:
+accrualPolicy:
+  type: descriptive
+  mappings:
+    bibFrame:
+    dc:
+    dcterms: accrualPolicy
+    geo:
+alternativeTitle:
+  type: descriptive
+  mappings:
+    bibFrame:
+    dc: title
+    dcterms: alternative
+    geo:
+audience:
+  type: descriptive
+  mappings:
+    bibFrame:
+    dc:
+    dcterms: audience
+    geo:
+bibliographicCitation:
+  type: descriptive
+  mappings:
+    bibFrame:
+    dc: identifier
+    dcterms: bibliographicCitation
+    geo:
+cartographicScale:
+  type: descriptive
+  mappings:
+    bibFrame: cartographicScale
+    dc:
+    dcterms:
+    geo:
+conformsTo:
+  type: descriptive
+  mappings:
+    bibFrame:
+    dc: relation
+    dcterms: conformsTo
+    geo:
+contributor:
+  type: descriptive
+  mappings:
+    bibFrame:
+    dc: contributor
+    dcterms: contributor
+    geo:
+coverage:
+  type: descriptive
+  mappings:
+    bibFrame:
+    dc: coverage
+    dcterms: coverage
+    geo:
+creator:
+  type: descriptive
+  mappings:
+    bibFrame:
+    dc: creator
+    dcterms: creator
+    geo:
+date:
+  type: descriptive
+  mappings:
+    bibFrame:
+    dc: date
+    dcterms: date
+    geo:
+dateAccepted:
+  type: descriptive
+  mappings:
+    bibFrame:
+    dc: date
+    dcterms: dateAccepted
+    geo:
+dateAvailable:
+  type: descriptive
+  mappings:
+    bibFrame:
+    dc: date
+    dcterms: available
+    geo:
+dateCopyrighted:
+  type: descriptive
+  mappings:
+    bibFrame:
+    dc: date
+    dcterms: dateCopyrighted
+    geo:
+dateCreated:
+  type: descriptive
+  mappings:
+    bibFrame:
+    dc: date
+    dcterms: created
+    geo:
+dateIssued:
+  type: descriptive
+  mappings:
+    bibFrame:
+    dc: date
+    dcterms: issued
+    geo:
+dateSubmitted:
+  type: descriptive
+  mappings:
+    bibFrame:
+    dc: date
+    dcterms: dateSubmitted
+    geo:
+dateValid:
+  type: descriptive
+  mappings:
+    bibFrame:
+    dc: date
+    dcterms: valid
+    geo:
+description:
+  type: descriptive
+  mappings:
+    bibFrame:
+    dc: description
+    dcterms: description
+    geo:
+dimensions:
+  type: descriptive
+  mappings:
+    bibFrame:
+    dc:
+    dcterms:
+    geo:
+educationLevel:
+  type: descriptive
+  mappings:
+    bibFrame:
+    dc:
+    dcterms: educationLevel
+    geo:
+extent:
+  type: descriptive
+  mappings:
+    bibFrame:
+    dc: format
+    dcterms: extent
+    geo:
+format:
+  type: descriptive
+  mappings:
+    bibFrame:
+    dc: format
+    dcterms: format
+    geo:
+hasFormat:
+  type: descriptive
+  mappings:
+    bibFrame:
+    dc: relation
+    dcterms: hasFormat
+    geo:
+hasPart:
+  type: descriptive
+  mappings:
+    bibFrame:
+    dc: relation
+    dcterms: hasParts
+    geo:
+hasVersion:
+  type: descriptive
+  mappings:
+    bibFrame:
+    dc: relation
+    dcterms: hasVersion
+    geo:
+identifier:
+  type: descriptive
+  mappings:
+    bibFrame:
+    dc: identifier
+    dcterms: identifier
+    geo:
+instructionalMethod:
+  type: descriptive
+  mappings:
+    bibFrame:
+    dc:
+    dcterms: instructionalMethod
+    geo:
+isFormatOf:
+  type: descriptive
+  mappings:
+    bibFrame:
+    dc: relation
+    dcterms: isFormatOf
+    geo:
+isPartOf:
+  type: descriptive
+  mappings:
+    bibFrame:
+    dc: relation
+    dcterms: isPartOf
+    geo:
+isReferencedBy:
+  type: descriptive
+  mappings:
+    bibFrame:
+    dc: relation
+    dcterms: isReferencedBy
+    geo:
+isReplacedBy:
+  type: descriptive
+  mappings:
+    bibFrame:
+    dc: relation
+    dcterms: isReplacedBy
+    geo:
+isRequiredBy:
+  type: descriptive
+  mappings:
+    bibFrame:
+    dc: relation
+    dcterms: isRequiredBy
+    geo:
+isVersionOf:
+  type: descriptive
+  mappings:
+    bibFrame:
+    dc: relation
+    dcterms: isVersionOf
+    geo:
+language:
+  type: descriptive
+  mappings:
+    bibFrame:
+    dc: language
+    dcterms: language
+    geo:
+latitude:
+  type: descriptive
+  mappings:
+    bibFrame:
+    dc: coverage
+    dcterms: spatial
+    geo: lat
+license:
+  type: descriptive
+  mappings:
+    bibFrame:
+    dc: rights
+    dcterms: license
+    geo:
+longitude:
+  type: descriptive
+  mappings:
+    bibFrame:
+    dc: coverage
+    dcterms: spatial
+    geo: long
+mediator:
+  type: descriptive
+  mappings:
+    bibFrame:
+    dc:
+    dcterms: mediator
+    geo:
+medium:
+  type: descriptive
+  mappings:
+    bibFrame:
+    dc: format
+    dcterms: medium
+    geo:
+modified:
+  type: descriptive
+  mappings:
+    bibFrame:
+    dc: date
+    dcterms: modified
+    geo:
+notes:
+  type: descriptive
+  mappings:
+    bibFrame:
+    dc: description
+    dcterms: description
+    geo:
+physicalLocation:
+  type: descriptive
+  mappings:
+    bibFrame:
+    dc:
+    dcterms:
+    geo:
+provenance:
+  type: descriptive
+  mappings:
+    bibFrame:
+    dc:
+    dcterms: provenance
+    geo:
+publicationPlace:
+  type: descriptive
+  mappings:
+    bibFrame:
+    dc:
+    dcterms:
+    geo:
+publisher:
+  type: descriptive
+  mappings:
+    bibFrame:
+    dc: publisher
+    dcterms: publisher
+    geo:
+references:
+  type: descriptive
+  mappings:
+    bibFrame:
+    dc: relation
+    dcterms: references
+    geo:
+relation:
+  type: descriptive
+  mappings:
+    bibFrame:
+    dc: relation
+    dcterms: relation
+    geo:
+replaces:
+  type: descriptive
+  mappings:
+    bibFrame:
+    dc: relation
+    dcterms: replaces
+    geo:
+requires:
+  type: descriptive
+  mappings:
+    bibFrame:
+    dc: relation
+    dcterms: requires
+    geo:
+rights:
+  type: descriptive
+  mappings:
+    bibFrame:
+    dc: rights
+    dcterms: rights
+    geo:
+rightsHolder:
+  type: descriptive
+  mappings:
+    bibFrame:
+    dc:
+    dcterms: rightsHolder
+    geo:
+source:
+  type: descriptive
+  mappings:
+    bibFrame:
+    dc: source
+    dcterms: source
+    geo:
+spatialCovarage:
+  type: descriptive
+  mappings:
+    bibFrame:
+    dc: coverage
+    dcterms: spatial
+    geo:
+subject:
+  type: descriptive
+  mappings:
+    bibFrame:
+    dc: subject
+    dcterms: subject
+    geo:
+tableOfContents:
+  type: descriptive
+  mappings:
+    bibFrame:
+    dc: description
+    dcterms: tableOfContents
+    geo:
+temporalCoverage:
+  type: descriptive
+  mappings:
+    bibFrame:
+    dc: coverage
+    dcterms: temporal
+    geo:
+title:
+  type: descriptive
+  mappings:
+    bibFrame: title
+    dc: title
+    dcterms: title
+    geo:
+type:
+  type: descriptive
+  mappings:
+    bibFrame:
+    dc: type
+    dcterms: type
+    geo:

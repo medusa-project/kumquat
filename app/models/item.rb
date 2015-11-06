@@ -8,12 +8,13 @@ class Item < Entity
   def self.from_solr(doc)
     item = Item.new
     item.id = doc[Solr::Fields::ID]
+    item.parent_id = doc[Solr::Fields::PARENT_ITEM]
     if doc[Solr::Fields::ACCESS_MASTER_PATHNAME] or
         doc[Solr::Fields::ACCESS_MASTER_URL]
       bs = Bytestream.new
       bs.height = doc[Solr::Fields::ACCESS_MASTER_HEIGHT]
       bs.media_type = doc[Solr::Fields::ACCESS_MASTER_MEDIA_TYPE]
-      bs.pathname = doc[Solr::Fields::ACCESS_MASTER_PATHNAME]
+      bs.repository_relative_pathname = doc[Solr::Fields::ACCESS_MASTER_PATHNAME]
       bs.type = Bytestream::Type::ACCESS_MASTER
       bs.url = doc[Solr::Fields::ACCESS_MASTER_URL]
       bs.width = doc[Solr::Fields::ACCESS_MASTER_WIDTH]
@@ -25,17 +26,40 @@ class Item < Entity
       bs = Bytestream.new
       bs.height = doc[Solr::Fields::PRESERVATION_MASTER_HEIGHT]
       bs.media_type = doc[Solr::Fields::PRESERVATION_MASTER_MEDIA_TYPE]
-      bs.pathname = doc[Solr::Fields::PRESERVATION_MASTER_PATHNAME]
+      bs.repository_relative_pathname = doc[Solr::Fields::PRESERVATION_MASTER_PATHNAME]
       bs.type = Bytestream::Type::PRESERVATION_MASTER
       bs.url = doc[Solr::Fields::PRESERVATION_MASTER_URL]
       bs.width = doc[Solr::Fields::PRESERVATION_MASTER_WIDTH]
       item.bytestreams << bs
     end
 
-    %w(dc dcterms).each do |element_set|
-      doc.keys.select{ |k| k.start_with?("#{element_set}_") }.each do |key|
-        item.metadata[element_set] = {} unless item.metadata[element_set]
-        item.metadata[element_set][key.gsub(/#{element_set}_/, '').chomp('_txtim')] = doc[key]
+    # descriptive metadata
+    doc.keys.select{ |k| k.start_with?('metadata_') }.each do |key|
+      filtered_key = key.gsub('metadata_', '').chomp('_txtim')
+      doc[key].each do |value|
+        e = Element.named(filtered_key)
+        e.value = value
+        item.metadata << e
+      end
+    end
+
+    # technical metadata
+    doc.keys.reject{ |k| k.start_with?('metadata_') }.each do |key|
+      if doc[key].respond_to?(:each)
+        doc[key].each do |value|
+          e = Element.named(key)
+          e.value = value
+          item.metadata << e
+        end
+      else
+        e = Element.named(key)
+        if !e
+          e = Element.new
+          e.type = Element::Type::TECHNICAL
+          e.name = key
+        end
+        e.value = doc[key]
+        item.metadata << e
       end
     end
 
@@ -140,7 +164,7 @@ class Item < Entity
     self.bytestreams.select{ |b| b.type == Bytestream::Type::ACCESS_MASTER }.each do |bs|
       doc[Solr::Fields::ACCESS_MASTER_HEIGHT] = bs.height
       doc[Solr::Fields::ACCESS_MASTER_MEDIA_TYPE] = bs.media_type
-      doc[Solr::Fields::ACCESS_MASTER_PATHNAME] = bs.pathname
+      doc[Solr::Fields::ACCESS_MASTER_PATHNAME] = bs.repository_relative_pathname
       doc[Solr::Fields::ACCESS_MASTER_URL] = bs.url
       doc[Solr::Fields::ACCESS_MASTER_WIDTH] = bs.width
     end
@@ -148,7 +172,7 @@ class Item < Entity
     self.bytestreams.select{ |b| b.type == Bytestream::Type::PRESERVATION_MASTER }.each do |bs|
       doc[Solr::Fields::PRESERVATION_MASTER_HEIGHT] = bs.height
       doc[Solr::Fields::PRESERVATION_MASTER_MEDIA_TYPE] = bs.media_type
-      doc[Solr::Fields::PRESERVATION_MASTER_PATHNAME] = bs.pathname
+      doc[Solr::Fields::PRESERVATION_MASTER_PATHNAME] = bs.repository_relative_pathname
       doc[Solr::Fields::PRESERVATION_MASTER_URL] = bs.url
       doc[Solr::Fields::PRESERVATION_MASTER_WIDTH] = bs.width
     end

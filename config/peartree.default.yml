@@ -1,4 +1,5 @@
 development: &development
+  :repository_pathname: /repo
   :iiif_url: http://localhost:8182/iiif
   :solr_url: http://localhost:8983/solr/
   :solr_core: peartree
@@ -10,6 +11,7 @@ development: &development
   :solr_more_like_this_endpoint: /mlt
 
 test:
+  :repository_pathname: /repo
   :iiif_url: http://localhost:8182/iiif
   :solr_url: http://localhost:8983/solr/
   :solr_core: peartree
@@ -21,6 +23,7 @@ test:
   :solr_more_like_this_endpoint: /mlt
 
 production: &production
+  :repository_pathname: /repo
   :iiif_url: http://localhost:8182/iiif
   :solr_url: http://localhost:8983/solr/
   :solr_core: peartree

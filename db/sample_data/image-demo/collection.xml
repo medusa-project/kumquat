@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<lrp:Collection xmlns:lrp="http://www.library.illinois.edu/lrp/terms#">
+  <!-- technical metadata -->
+  <lrp:repositoryId>image-demo</lrp:repositoryId>
+  <lrp:webId>image-demo</lrp:webId>
+  <lrp:published/>
+  <!-- descriptive metadata -->
+  <lrp:title>Demo Image Collection</lrp:title>
+  <lrp:description>A demo collection containing image items.</lrp:description>
+</lrp:Collection>

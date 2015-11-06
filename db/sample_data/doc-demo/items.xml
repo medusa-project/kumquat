@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+<items xmlns:lrp="http://www.library.illinois.edu/lrp/terms#">
+  <lrp:Object>
+    <lrp:repositoryId>magna-carta.txt</lrp:repositoryId>
+    <lrp:collectionId>doc-demo</lrp:collectionId>
+    <lrp:published/>
+    <lrp:preservationMasterPathname>bytestreams/magna carta.txt</lrp:preservationMasterPathname>
+    <lrp:preservationMasterMediaType>text/plain</lrp:preservationMasterMediaType>
+    <lrp:creator>Stephen Langton</lrp:creator>
+    <lrp:date>1215-06-19</lrp:date>
+    <lrp:description>The Magna Carta, in UTF-8 with no byte order
+      mark.</lrp:description>
+    <lrp:extent>4583 words</lrp:extent>
+    <lrp:language>English</lrp:language>
+    <lrp:publisher>England</lrp:publisher>
+    <lrp:rights>Public domain</lrp:rights>
+    <lrp:subject>Important historical documents</lrp:subject>
+    <lrp:title>Demo plain text item</lrp:title>
+    <lrp:type>Text</lrp:type>
+  </lrp:Object>
+
+  <lrp:Object>
+    <lrp:repositoryId>NEXTSTEP.pdf</lrp:repositoryId>
+    <lrp:collectionId>doc-demo</lrp:collectionId>
+    <lrp:published/>
+    <lrp:preservationMasterPathname>bytestreams/NEXTSTEP.pdf</lrp:preservationMasterPathname>
+    <lrp:preservationMasterMediaType>application/pdf</lrp:preservationMasterMediaType>
+    <lrp:creator>NeXT Computer, Inc.</lrp:creator>
+    <lrp:date>1995</lrp:date>
+    <lrp:description>A flyer advertising the NEXTSTEP operating
+      system.</lrp:description>
+    <lrp:extent>312 Kbytes</lrp:extent>
+    <lrp:language>English</lrp:language>
+    <lrp:publisher>NeXT Computer, Inc.</lrp:publisher>
+    <lrp:title>Demo PDF item</lrp:title>
+    <lrp:type>Text</lrp:type>
+  </lrp:Object>
+
+  <lrp:Object>
+    <lrp:repositoryId>powerpoint.pptx</lrp:repositoryId>
+    <lrp:collectionId>doc-demo</lrp:collectionId>
+    <lrp:published/>
+    <lrp:preservationMasterPathname>bytestreams/powerpoint.pptx</lrp:preservationMasterPathname>
+    <lrp:preservationMasterMediaType>application/vnd.openxmlformats-officedocument.presentationml.presentation</lrp:preservationMasterMediaType>
+    <lrp:description>A compound item consisting of bytestreams in various
+      Microsoft Office 2011 file formats.</lrp:description>
+    <lrp:extent>58 Kbytes</lrp:extent>
+    <lrp:title>Demo compound item consisting of Microsoft Office files</lrp:title>
+  </lrp:Object>
+
+  <lrp:Object>
+    <lrp:repositoryId>word.docx</lrp:repositoryId>
+    <lrp:collectionId>doc-demo</lrp:collectionId>
+    <lrp:published/>
+    <lrp:preservationMasterPathname>bytestreams/word.docx</lrp:preservationMasterPathname>
+    <lrp:preservationMasterMediaType>application/vnd.openxmlformats-officedocument.wordprocessingml.document</lrp:preservationMasterMediaType>
+    <lrp:hasParent>powerpoint.pptx</lrp:hasParent>
+    <lrp:description>A Microsoft Word 2011 file.</lrp:description>
+    <lrp:extent>22 Kbytes</lrp:extent>
+    <lrp:title>Demo Microsoft Word 2011 document</lrp:title>
+  </lrp:Object>
+
+  <lrp:Object>
+    <lrp:repositoryId>excel.xlsx</lrp:repositoryId>
+    <lrp:collectionId>doc-demo</lrp:collectionId>
+    <lrp:published/>
+    <lrp:preservationMasterPathname>bytestreams/excel.xlsx</lrp:preservationMasterPathname>
+    <lrp:preservationMasterMediaType>application/vnd.openxmlformats-officedocument.spreadsheetml.sheet</lrp:preservationMasterMediaType>
+    <lrp:hasParent>powerpoint.pptx</lrp:hasParent>
+    <lrp:description>A Microsoft Excel 2011 file.</lrp:description>
+    <lrp:extent>29 Kbytes</lrp:extent>
+    <lrp:title>Demo Microsoft Excel 2011 document</lrp:title>
+  </lrp:Object>
+</items>

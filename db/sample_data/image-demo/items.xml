@@ -1,0 +1,112 @@
+<?xml version="1.0"?>
+<items xmlns:lrp="http://www.library.illinois.edu/lrp/terms#">
+  <lrp:Object>
+    <lrp:repositoryId>800379272_de0817d41a.tiff</lrp:repositoryId>
+    <lrp:collectionId>image-demo</lrp:collectionId>
+    <lrp:published/>
+    <lrp:preservationMasterPathname>bytestreams/800379272_de0817d41a.tiff</lrp:preservationMasterPathname>
+    <lrp:preservationMasterMediaType>image/tiff</lrp:preservationMasterMediaType>
+    <lrp:description>The Death Star under construction.</lrp:description>
+    <lrp:extent>248 Kbytes</lrp:extent>
+    <lrp:subject>Cranes</lrp:subject>
+    <lrp:subject>Moons</lrp:subject>
+    <lrp:title>LZW-compressed TIFF image item</lrp:title>
+    <lrp:type>Image</lrp:type>
+  </lrp:Object>
+
+  <lrp:Object>
+    <lrp:repositoryId>color_bars.png</lrp:repositoryId>
+    <lrp:collectionId>image-demo</lrp:collectionId>
+    <lrp:published/>
+    <lrp:preservationMasterPathname>bytestreams/color_bars.png</lrp:preservationMasterPathname>
+    <lrp:accessMasterPathname>bytestreams/color_bars.jpg</lrp:accessMasterPathname>
+    <lrp:description>SMPTE color bars.</lrp:description>
+    <lrp:subject>Colors</lrp:subject>
+    <lrp:subject>Television</lrp:subject>
+    <lrp:title>PNG image item</lrp:title>
+    <lrp:type>Image</lrp:type>
+  </lrp:Object>
+
+  <lrp:Object>
+    <lrp:repositoryId>escher_lego.webp</lrp:repositoryId>
+    <lrp:collectionId>image-demo</lrp:collectionId>
+    <lrp:published/>
+    <lrp:preservationMasterPathname>bytestreams/escher_lego.webp</lrp:preservationMasterPathname>
+    <lrp:description>An M.C. Escher painting reproduced in Lego.</lrp:description>
+    <lrp:extent>38 Kbytes</lrp:extent>
+    <lrp:identifier>escher_lego.webp</lrp:identifier>
+    <lrp:subject>Escher, M.C.</lrp:subject>
+    <lrp:subject>Lego</lrp:subject>
+    <lrp:title>WebP image</lrp:title>
+    <lrp:type>Image</lrp:type>
+  </lrp:Object>
+
+  <lrp:Object>
+    <lrp:repositoryId>IMG_1118.jp2</lrp:repositoryId>
+    <lrp:collectionId>image-demo</lrp:collectionId>
+    <lrp:published/>
+    <lrp:preservationMasterPathname>bytestreams/IMG_1118.jp2</lrp:preservationMasterPathname>
+    <lrp:fullText>Harold E. "Red" Grange
+"the Galloping Ghost"
+"77"
+Born: June 13, 1903 in Forksville, Pa.
+Died: January 28, 1991 in Lake Wales, Fla.
+
+Red Grange is considered to be one of college
+football's greatest stars, lettering at the
+University of Illinois as a halfback from 1923-25
+and earning All-America honors all three seasons.
+His most memorable performance came October 18,
+1924 vs. Michigan here at Memorial Stadium in the
+Dedication Game.
+
+Upon seeing Grange's performance, legendary
+sportswriter Grantland Rice penned this immortal
+verse:
+
+A streak of fire, a breath of flame,
+Eluding all who reach and clutch,
+A gray Ghost thrown into the game
+That rival hands may never touch;
+A rubber, bounding, blasting soul
+Whose destination is the goal..
+Red Grange of Illinois.</lrp:fullText>
+    <lrp:coverage>Memorial Stadium, University of Illinois at
+      Urbana-Champaign</lrp:coverage>
+    <lrp:creator/>
+    <lrp:date>2014-06-12</lrp:date>
+    <lrp:description>Plaque of Red Grange in Memorial Stadium on the
+      University of Illinois at Urbana-Champaign campus.</lrp:description>
+    <lrp:extent>912 Kbytes</lrp:extent>
+    <lrp:identifier>IMG_1118.jp2</lrp:identifier>
+    <lrp:language>English</lrp:language>
+    <lrp:publisher/>
+    <lrp:relation/>
+    <lrp:rights>Creative Commons Attribution-NoDerivatives 4.0
+      International</lrp:rights>
+    <lrp:source/>
+    <lrp:subject>Plaques</lrp:subject>
+    <lrp:subject>Football</lrp:subject>
+    <lrp:title>JPEG2000 image item</lrp:title>
+    <lrp:type>Image</lrp:type>
+  </lrp:Object>
+
+  <lrp:Object>
+    <lrp:repositoryId>P1000245.jpg</lrp:repositoryId>
+    <lrp:collectionId>image-demo</lrp:collectionId>
+    <lrp:published/>
+    <lrp:preservationMasterPathname>bytestreams/P1000245.jpg</lrp:preservationMasterPathname>
+    <lrp:coverage>Memorial Stadium, University of Illinois at
+      Urbana-Champaign</lrp:coverage>
+    <lrp:date>2014-05-21</lrp:date>
+    <lrp:description>Bleachers and playing field in Memorial
+      Stadium.</lrp:description>
+    <lrp:extent>1.7 Mbytes</lrp:extent>
+    <lrp:rights>Creative Commons Attribution-NoDerivatives 4.0
+      International</lrp:rights>
+    <lrp:subject>Football stadiums</lrp:subject>
+    <lrp:title>JPEG image item</lrp:title>
+    <lrp:type>Image</lrp:type>
+  </lrp:Object>
+
+</items>

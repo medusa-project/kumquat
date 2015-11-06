@@ -27,28 +27,17 @@ class Entity
   end
 
   def initialize
-    @metadata = {}
+    @metadata = []
     @persisted = false
   end
 
   def description
-    metadata_values(:dc, :description).first ||
-        metadata_values(:dcterms, :description).first
+    elements = metadata.select{ |e| e.name == 'description' }
+    elements.any? ? elements.first.value : nil
   end
 
   def index_in_solr
     Solr.client.add(self.to_solr)
-  end
-
-  def metadata_values(element_set, element)
-    element_set = element_set.to_s
-    element = element.to_s
-    if self.metadata.keys.include?(element_set)
-      if self.metadata[element_set].keys.include?(element)
-        return self.metadata[element_set][element]
-      end
-    end
-    []
   end
 
   def persisted?
@@ -56,7 +45,8 @@ class Entity
   end
 
   def subtitle
-    metadata_values(:dcterms, :alternative).first
+    elements = metadata.select{ |e| e.name == 'alternativeTitle' }
+    elements.any? ? elements.first.value : nil
   end
 
   def to_param
@@ -82,10 +72,9 @@ class Entity
     doc[Solr::Fields::TITLE] = self.title
     doc[Solr::Fields::WEB_ID] = self.web_id
 
-    self.metadata.keys.each do |element_set|
-      self.metadata[element_set].keys.each do |element|
-        doc["#{element_set}_#{element}_txtim"] = self.metadata[element_set][element]
-      end
+    self.metadata.each do |element|
+      doc[element.solr_name] ||= []
+      doc[element.solr_name] << element.value
     end
 
     doc

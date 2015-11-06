@@ -12,7 +12,12 @@ class Bytestream
 
   attr_accessor :height # Integer
   attr_accessor :media_type # String
-  attr_accessor :pathname # String
+
+  # @!attribute repository_relative_pathname
+  #   @return [String] Pathname of the bytestream relative to the repository
+  #                    root.
+  attr_accessor :repository_relative_pathname
+
   attr_accessor :type # Bytestream::Type
   attr_accessor :url # String
   attr_accessor :width # Integer
@@ -50,6 +55,14 @@ class Bytestream
 
   def is_video?
     self.media_type and self.media_type.start_with?('video/')
+  end
+
+  ##
+  # @return [String] Absolute local pathname
+  #
+  def pathname
+    rp = PearTree::Application.peartree_config[:repository_pathname]
+    rp ? rp + self.repository_relative_pathname : nil
   end
 
   ##

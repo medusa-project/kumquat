@@ -12,58 +12,41 @@ module Deserialization
     # @return [Entity]
     # @raises [RuntimeError]
     #
-    def from_dc_xml(node, metadata_pathname)
+    def from_lrp_xml(node, metadata_pathname)
       namespaces = {
-          'dc' => 'http://purl.org/dc/elements/1.1/',
-          'dcterms' => 'http://purl.org/dc/terms/',
           'lrp' => 'http://www.library.illinois.edu/lrp/terms#'
       }
 
       entity = self.new
 
+      #################### technical metadata ######################
+
       # id
-      id = node.xpath('lrp:identifier', namespaces).first
+      id = node.xpath('lrp:repositoryId', namespaces).first
       entity.id = id.content.strip if id
       if !id or entity.id.blank?
-        raise "lrp:identifier is missing or invalid for entity in "\
+        raise "lrp:repositoryId is missing or invalid for entity in "\
         "#{metadata_pathname}"
       end
-
-      # metadata
-      dc_nodes = node.xpath('dc:*', namespaces)
-      dc_nodes.each do |dc_node|
-        entity.metadata['dc'] = {} unless entity.metadata['dc']
-        entity.metadata['dc'][dc_node.name] = dc_node.content.strip
-      end
-      dcterms_nodes = node.xpath('dcterms:*', namespaces)
-      dcterms_nodes.each do |dcterms_node|
-        entity.metadata['dcterms'] = {} unless entity.metadata['dcterms']
-        entity.metadata['dcterms'][dcterms_node.name] = dcterms_node.content.strip
-      end
-
-      # title
-      title = node.xpath('dc:title', namespaces).first
-      title = node.xpath('dcterms:title', namespaces).first unless title
-      entity.title = title ? title.content.strip : entity.id
 
       # published
       entity.published = node.xpath('lrp:published', namespaces).first.present?
 
       # web ID
-      web_id = node.xpath('lrp:webID', namespaces).first
+      web_id = node.xpath('lrp:webId', namespaces).first
       entity.web_id = web_id ? web_id.content.strip : entity.id
 
       if entity.kind_of?(Item)
         # collection
-        col = node.xpath('lrp:collection', namespaces).first
+        col = node.xpath('lrp:collectionId', namespaces).first
         entity.collection_id = col.content.strip if col
         if !col or entity.collection_id.blank?
-          raise "lrp:collection is missing or invalid for item with "\
-          "lrp:identifier #{entity.id} (#{metadata_pathname})"
+          raise "lrp:collectionId is missing or invalid for item with "\
+          "lrp:repositoryId #{entity.id} (#{metadata_pathname})"
         end
 
         # parent item
-        parent = node.xpath('lrp:hasParent', namespaces).first
+        parent = node.xpath('lrp:parentId', namespaces).first
         entity.parent_id = parent.content.strip if parent
 
         # access master (pathname)
@@ -71,20 +54,15 @@ module Deserialization
         if am
           bs = Bytestream.new
           bs.type = Bytestream::Type::ACCESS_MASTER
-          bs.pathname = File.dirname(metadata_pathname) + File::SEPARATOR +
-              am.content.strip
-          unless File.exist?(bs.pathname)
-            raise "lrp:accessMasterPathname refers to a missing file for "\
-            "item with lrp:identifier #{entity.id} (#{metadata_pathname})"
-          end
+          bs.repository_relative_pathname = am.content.strip
           # media type
           mt = node.xpath('lrp:accessMasterMediaType', namespaces).first
           if mt
             bs.media_type = mt.content.strip
           else
-            bs.detect_media_type
+            bs.detect_media_type rescue nil
           end
-          bs.read_dimensions
+          #bs.read_dimensions TODO: this is too slow
           entity.bytestreams << bs
         else # access master (URL)
           am = node.xpath('lrp:accessMasterURL', namespaces).first
@@ -97,19 +75,11 @@ module Deserialization
             if mt
               bs.media_type = mt.content.strip
             else
-              bs.detect_media_type
+              bs.detect_media_type rescue nil
             end
-            #bs.read_dimensions
+            #bs.read_dimensions TODO: this is too slow
             entity.bytestreams << bs
           end
-        end
-
-        # date
-        date = node.xpath('dc:date', namespaces).first
-        date = node.xpath('dcterms:date', namespaces).first unless date
-        if date
-          # TODO: gonna have to parse this carefully
-          #entity.date = Date.parse(date.content.strip)
         end
 
         # full text
@@ -121,19 +91,14 @@ module Deserialization
         if pm
           bs = Bytestream.new
           bs.type = Bytestream::Type::PRESERVATION_MASTER
-          bs.pathname = File.dirname(metadata_pathname) + File::SEPARATOR +
-              pm.content.strip
-          unless File.exist?(bs.pathname)
-            raise "lrp:preservationMasterPathname refers to a missing file "\
-            "for item with lrp:identifier #{entity.id} (#{metadata_pathname})"
-          end
+          bs.repository_relative_pathname = pm.content.strip
           mt = node.xpath('lrp:preservationMasterMediaType', namespaces).first
           if mt
             bs.media_type = mt.content.strip
           else
-            bs.detect_media_type
+            bs.detect_media_type rescue nil
           end
-          bs.read_dimensions
+          #bs.read_dimensions TODO: this is too slow
           entity.bytestreams << bs
         else # preservation master (URL)
           pm = node.xpath('lrp:preservationMasterURL', namespaces).first
@@ -146,11 +111,36 @@ module Deserialization
             if mt
               bs.media_type = mt.content.strip
             else
-              bs.detect_media_type
+              bs.detect_media_type rescue nil
             end
-            #bs.read_dimensions
+            #bs.read_dimensions TODO: this is too slow
             entity.bytestreams << bs
           end
+        end
+      end
+
+      #################### descriptive metadata ######################
+
+      # normalized date
+      date = node.xpath('lrp:date', namespaces).first
+      if date
+        # TODO: gonna have to parse this carefully
+        #entity.date = Date.parse(date.content.strip)
+      end
+
+      # normalized title
+      title = node.xpath('lrp:title', namespaces).first
+      entity.title = title ? title.content.strip : entity.id
+
+      # everything else
+      descriptive_elements = Element.all.
+          select{ |e| e.type == Element::Type::DESCRIPTIVE }.map(&:name)
+      md_nodes = node.xpath('lrp:*', namespaces)
+      md_nodes.each do |md_node|
+        if descriptive_elements.include?(md_node.name)
+          e = Element.named(md_node.name)
+          e.value = md_node.content.strip
+          entity.metadata << e
         end
       end
 

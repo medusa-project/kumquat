@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<lrp:Object xmlns:lrp="http://www.library.illinois.edu/lrp/terms#">
+  <lrp:repositoryId>IMG_0054.mov</lrp:repositoryId>
+  <lrp:collectionId>video-demo</lrp:collectionId>
+  <lrp:published/>
+  <lrp:preservationMasterPathname>bytestreams/IMG_0054.mov</lrp:preservationMasterPathname>
+  <lrp:preservationMasterMediaType>video/quicktime</lrp:preservationMasterMediaType>
+  <lrp:description>Part of the south façade of the Illini Union on the
+    University of Illinois at Urbana-Champaign campus. Filmed on an
+    iPhone 5S.</lrp:description>
+  <lrp:extent>1.1 Mbytes</lrp:extent>
+  <lrp:extent>1280x720</lrp:extent>
+  <lrp:identifier>IMG_0054.mov</lrp:identifier>
+  <lrp:subject>University of Illinois at Urbana-Champaign</lrp:subject>
+  <lrp:subject>Illini Union</lrp:subject>
+  <lrp:subject>Buildings</lrp:subject>
+  <lrp:title>Demo QuickTime H.264/AAC video item</lrp:title>
+  <lrp:type>Video</lrp:type>
+</lrp:Object>

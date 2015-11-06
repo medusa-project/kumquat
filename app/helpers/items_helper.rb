@@ -196,21 +196,28 @@ module ItemsHelper
 
   ##
   # @param entity [Entity]
+  # @param metadata_type [Integer] One of the Element::Type constants
   # @return [String]
   #
-  def metadata_as_table(entity)
+  def metadata_as_table(entity, metadata_type = Element::Type::DESCRIPTIVE)
     html = '<table class="table table-condensed kq-metadata">'
-    entity.metadata.keys.each do |element_set|
-      entity.metadata[element_set].keys.each do |element|
-        html += '<tr>'
-        html += "<td>#{element.chomp('_txtim')}</td>"
-        html += '<td>'
-        entity.metadata_values(element_set, element).each do |value|
-          html += value
+    elements = entity.metadata.select{ |e| e.type == metadata_type }
+    elements.map(&:name).uniq.each do |name|
+      html += '<tr>'
+      html += "<td>#{name}</td>"
+      html += '<td>'
+      matching_elements = elements.select{ |e| e.name == name }
+      if matching_elements.length > 1
+        html += '<ul>'
+        matching_elements.each do |element|
+          html += "<li>#{element.value}</li>"
         end
-        html += '</td>'
-        html += '</tr>'
+        html += '</ul>'
+      elsif matching_elements.length == 1
+        html += matching_elements.first.value.to_s
       end
+      html += '</td>'
+      html += '</tr>'
     end
     html += '</table>'
     raw(html)

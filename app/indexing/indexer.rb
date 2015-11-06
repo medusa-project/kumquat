@@ -1,9 +1,7 @@
 class Indexer
 
-  # Metadata filename format: {entity}_{id}_{format}.{encoding}
+  # Metadata filename format: {entity}_{id}.xml
   ALLOWED_ENTITIES = %w(collection item items)
-  ALLOWED_FORMATS = %w(marc mods mets dc rdf)
-  ALLOWED_ENCODINGS = %w(ttl nt xml)
 
   ##
   # Indexes all metadata files within the given pathname.
@@ -11,72 +9,60 @@ class Indexer
   # @param [String] root_pathname Root pathname to index
   #
   def index_all(root_pathname)
+    count = 0
     Dir.glob(root_pathname + '/**/*').select{ |file| File.file?(file) }.each do |pathname|
-      if ALLOWED_ENTITIES.include?(entity(pathname)) and
-          ALLOWED_FORMATS.include?(format(pathname)) and
-          ALLOWED_ENCODINGS.include?(encoding(pathname))
-        index_file(pathname)
-      end
+      count = index_file(pathname, count) if ALLOWED_ENTITIES.include?(entity(pathname))
     end
   end
 
   ##
   # @param pathname [String] Pathname of a metadata file.
   #
-  def index_file(pathname)
-    encoding = encoding(pathname)
+  def index_file(pathname, count)
     entity = entity(pathname).singularize
     entity_class = entity.capitalize.constantize
-    format = format(pathname)
 
-    if encoding == 'xml'
-      namespaces = { 'lrp' => 'http://www.library.illinois.edu/lrp/terms#' }
-      File.open(pathname) do |content|
-        doc = Nokogiri::XML(content, &:noblanks)
-        doc.encoding = 'utf-8'
-        if format == 'dc'
-          case entity
-            when 'item'
-              doc.xpath('//lrp:Object', namespaces).each do |node|
-                entity = entity_class.from_dc_xml(node, pathname)
-                entity.index_in_solr
-              end
-            when 'collection'
-              node = doc.xpath('//lrp:Collection', namespaces).first
-              if node
-                entity = entity_class.from_dc_xml(node, pathname)
-                entity.index_in_solr
-              else
-                raise "Collection metadata file is missing lrp:Collection "\
-                "element: #{pathname}"
-              end
-            else
-              raise "Encountered unknown entity (#{entity_class}) in #{pathname}"
+    namespaces = { 'lrp' => 'http://www.library.illinois.edu/lrp/terms#' }
+    File.open(pathname) do |content|
+      doc = Nokogiri::XML(content, &:noblanks)
+      doc.encoding = 'utf-8'
+      case entity
+        when 'item'
+          doc.xpath('//lrp:Object', namespaces).each do |node|
+            entity = entity_class.from_lrp_xml(node, pathname)
+            entity.index_in_solr
+            count += 1
+            Rails.logger.debug("Indexed #{entity.id} (#{count})")
           end
-        end
+        when 'collection'
+          node = doc.xpath('//lrp:Collection', namespaces).first
+          if node
+            entity = entity_class.from_lrp_xml(node, pathname)
+            entity.index_in_solr
+            count += 1
+            Rails.logger.debug("Indexed #{entity.id} (#{count})")
+          else
+            raise "Collection metadata file is missing lrp:Collection "\
+            "element: #{pathname}"
+          end
+        else
+          raise "Encountered unknown entity (#{entity_class}) in #{pathname}"
       end
     end
+    count
   end
 
   private
-
-  def encoding(pathname)
-    pathname.split('.').last
-  end
 
   ##
   # @return [String] Name of one of the `Entity` subclasses, singular or plural
   #
   def entity(pathname)
     begin
-      return pathname.split(File::SEPARATOR).last.split('_').first
+      return pathname.split(File::SEPARATOR).last.split('.').first.split('_').first
     rescue NameError
       # noop
     end
-  end
-
-  def format(pathname)
-    pathname.split('.').first.split('_').last
   end
 
 end
