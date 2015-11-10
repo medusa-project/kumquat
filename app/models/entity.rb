@@ -37,7 +37,7 @@ class Entity
   end
 
   def index_in_solr
-    Solr.client.add(self.to_solr)
+    Solr.instance.add(self.to_solr)
   end
 
   def persisted?

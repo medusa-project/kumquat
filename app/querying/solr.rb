@@ -1,5 +1,11 @@
+##
+# Singleton class interfacing with Solr.
+#
 class Solr
 
+  ##
+  # All Solr fields used by the application.
+  #
   class Fields
     ACCESS_MASTER_HEIGHT = 'access_master_height_ii'
     ACCESS_MASTER_MEDIA_TYPE = 'access_master_media_type_si'
@@ -25,30 +31,37 @@ class Solr
     WEB_ID = 'web_id_si'
   end
 
+  include Singleton
+
   SCHEMA = YAML.load(File.read(File.join(__dir__, 'schema.yml')))
 
-  @@client = nil
-
   ##
-  # Returns the shared Solr client.
+  # @param doc [Hash]
   #
-  # @return [RSolr::Client]
-  #
-  def self.client
-    config = PearTree::Application.peartree_config
-    @@client = RSolr.connect(url: config[:solr_url].chomp('/') + '/' +
-                                 config[:solr_core]) unless @@client
-    @@client
-  end
-
-  def self.add(doc)
+  def add(doc)
     Rails.logger.info("Adding Solr document: #{doc['id']}")
     client.add(doc)
   end
 
-  def self.delete_by_id(id)
+  ##
+  # @param id [String]
+  #
+  def delete_by_id(id)
     Rails.logger.info("Deleting Solr document: #{id}")
     client.delete_by_id(id)
+  end
+
+  ##
+  # Deletes everything.
+  #
+  def flush
+    Rails.logger.info('Flushing Solr')
+    client.update(data: '<delete><query>*:*</query></delete>')
+  end
+
+  def get(endpoint, options = {})
+    Rails.logger.debug("Solr request: #{endpoint}; #{options}")
+    client.get(endpoint, options)
   end
 
   ##
@@ -56,7 +69,7 @@ class Solr
   # @return [Array] String suggestions
   #
   def suggestions(term)
-    result = Solr::client.get('suggest', params: { q: term })
+    result = get('suggest', params: { q: term })
     suggestions = result['spellcheck']['suggestions']
     suggestions.any? ? suggestions[1]['suggestion'] : []
   end
@@ -65,7 +78,7 @@ class Solr
   # Creates the set of fields needed by the application. This requires
   # Solr 5.2+ with the ManagedIndexSchemaFactory enabled and a mutable schema.
   #
-  def self.update_schema
+  def update_schema
     http = HTTPClient.new
     url = PearTree::Application.peartree_config[:solr_url].chomp('/') + '/' +
         PearTree::Application.peartree_config[:solr_core]
@@ -130,31 +143,27 @@ class Solr
     end
   end
 
-  ##
-  # Deletes everything.
-  #
-  def self.flush
-    Rails.logger.info("Flushing Solr")
-    client.update(data: '<delete><query>*:*</query></delete>')
-  end
+  private
 
-  def self.get(endpoint, options = {})
-    Rails.logger.debug("Solr request: #{endpoint}; #{options}")
-    client.get(endpoint, options)
+  def client
+    config = PearTree::Application.peartree_config
+    @client = RSolr.connect(url: config[:solr_url].chomp('/') + '/' +
+        config[:solr_core]) unless @client
+    @client
   end
 
   ##
-  # @param [HTTPClient] http
-  # @param [String] url
-  # @param [String] key
-  # @param [Array] fields
+  # @param http [HTTPClient]
+  # @param url [String]
+  # @param key [String]
+  # @param fields [Array]
   # @raises [RuntimeError]
   #
-  def self.post_fields(http, url, key, fields)
+  def post_fields(http, url, key, fields)
     if fields.any?
       json = JSON.generate({ key => fields })
       response = http.post("#{url}/schema", json,
-                            { 'Content-Type' => 'application/json' })
+                           { 'Content-Type' => 'application/json' })
       message = JSON.parse(response.body)
       if message['errors']
         raise "Failed to update Solr schema: #{message['errors']}"

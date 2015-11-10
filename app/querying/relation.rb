@@ -228,7 +228,7 @@ class Relation
         end
       end
 
-      @solr_response = Solr.get(endpoint, params: params)
+      @solr_response = Solr.instance.get(endpoint, params: params)
 
       Rails.logger.debug("Solr response:\n#{@solr_response}")
 
