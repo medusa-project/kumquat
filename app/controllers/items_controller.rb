@@ -12,7 +12,7 @@ class ItemsController < WebsiteController
   def index
     @start = params[:start] ? params[:start].to_i : 0
     @limit = Option::integer(Option::Key::RESULTS_PER_PAGE)
-    @items = Item.where("-#{Solr::Fields::PARENT_ITEM}:[* TO *]").where(params[:q])
+    @items = Item.where(Solr::Fields::PARENT_ITEM => :null).where(params[:q])
     if params[:fq].respond_to?(:each)
       params[:fq].each { |fq| @items = @items.facet(fq) }
     else

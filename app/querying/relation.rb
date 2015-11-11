@@ -168,6 +168,18 @@ class Relation
   end
 
   ##
+  # Search using a string:
+  #
+  # where('solr_field:"value"')
+  #
+  # Search using a hash:
+  #
+  # where('solr_field' => 'value')
+  #
+  # Search for null:
+  #
+  # where('solr_field' => :null)
+  #
   # @param where [Hash, String]
   # @return [Entity] self
   #
@@ -176,8 +188,14 @@ class Relation
     if where.blank?
       # noop
     elsif where.kind_of?(Hash)
-      @where_clauses += where.reject{ |k, v| k.blank? or v.blank? }.
-          map { |k, v| "#{k}:#{(v.to_s[0] == '(') ? v : "\"#{v}\""}" }
+      where = where.reject{ |k, v| k.blank? or v.blank? }
+      @where_clauses += where.map do |k, v|
+        if v == :null
+          "-#{k}:[* TO *]"
+        else
+          "#{k}:#{(v.to_s[0] == '(') ? v : "\"#{v}\""}"
+        end
+      end
     elsif where.respond_to?(:to_s)
       @where_clauses << where.to_s
     end

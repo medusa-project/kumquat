@@ -33,7 +33,7 @@ class Collection < Entity
 
   def num_items
     @num_items = Item.where(Solr::Fields::COLLECTION => self.id).
-        where("-#{Solr::Fields::PARENT_ITEM}:[* TO *]").count unless @num_items
+        where(Solr::Fields::PARENT_ITEM => :null).count unless @num_items
     @num_items
   end
 
