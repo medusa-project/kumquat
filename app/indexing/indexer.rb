@@ -30,7 +30,7 @@ class Indexer
         when 'item'
           doc.xpath('//lrp:Object', namespaces).each do |node|
             entity = entity_class.from_lrp_xml(node, pathname)
-            entity.index_in_solr
+            entity.save
             count += 1
             Rails.logger.debug("Indexed #{entity.id} (#{count})")
           end
@@ -38,7 +38,7 @@ class Indexer
           node = doc.xpath('//lrp:Collection', namespaces).first
           if node
             entity = entity_class.from_lrp_xml(node, pathname)
-            entity.index_in_solr
+            entity.save
             count += 1
             Rails.logger.debug("Indexed #{entity.id} (#{count})")
           else

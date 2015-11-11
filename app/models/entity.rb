@@ -36,12 +36,12 @@ class Entity
     elements.any? ? elements.first.value : nil
   end
 
-  def index_in_solr
-    Solr.instance.add(self.to_solr)
-  end
-
   def persisted?
     @persisted # makes to_param work
+  end
+
+  def save
+    Solr.instance.add(self.to_solr)
   end
 
   def subtitle
