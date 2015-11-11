@@ -206,21 +206,10 @@ module ItemsHelper
     collection = entity.kind_of?(Collection) ? entity : entity.collection
     collection.collection_def.metadata_profile.element_defs.each do |e_def|
       elements = entity.metadata.select{ |e| e.name == e_def.name }
-      elements.map(&:name).uniq.each do |name|
+      elements.each do |element|
         html += '<tr>'
-        html += "<td>#{name}</td>"
-        html += '<td>'
-        matching_elements = elements.select{ |e| e.name == name }
-        if matching_elements.length > 1
-          html += '<ul>'
-          matching_elements.each do |element|
-            html += "<li>#{element.value}</li>"
-          end
-          html += '</ul>'
-        elsif matching_elements.length == 1
-          html += matching_elements.first.value.to_s
-        end
-        html += '</td>'
+        html += "<td>#{e_def.label}</td>"
+        html += "<td>#{element.value}</td>"
         html += '</tr>'
       end
     end
