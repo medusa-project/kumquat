@@ -1,0 +1,15 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  collection_id: 1
+  name: MyString
+  label: MyString
+  searchable: false
+  facetable: false
+
+two:
+  collection_id: 1
+  name: MyString
+  label: MyString
+  searchable: false
+  facetable: false

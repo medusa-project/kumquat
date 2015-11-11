@@ -11,10 +11,38 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151031233145) do
+ActiveRecord::Schema.define(version: 20151111162949) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "collection_defs", force: :cascade do |t|
+    t.string   "repository_id"
+    t.integer  "theme_id"
+    t.datetime "created_at",    null: false
+    t.datetime "updated_at",    null: false
+  end
+
+  create_table "element_defs", force: :cascade do |t|
+    t.integer  "collection_id"
+    t.integer  "metadata_profile_id"
+    t.string   "name"
+    t.string   "label"
+    t.integer  "index"
+    t.boolean  "searchable"
+    t.boolean  "facetable"
+    t.boolean  "visible"
+    t.datetime "created_at",          null: false
+    t.datetime "updated_at",          null: false
+  end
+
+  create_table "metadata_profiles", force: :cascade do |t|
+    t.string   "name"
+    t.integer  "collection_id"
+    t.boolean  "default"
+    t.datetime "created_at",    null: false
+    t.datetime "updated_at",    null: false
+  end
 
   create_table "options", force: :cascade do |t|
     t.string   "key"

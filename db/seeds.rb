@@ -21,6 +21,453 @@ Option.create!(key: Option::Key::WEBSITE_INTRO_TEXT,
                value: 'Behold our great collections.')
 Option.create!(key: Option::Key::RESULTS_PER_PAGE, value: 30)
 
+# Metadata profiles
+profiles = {}
+profiles[:default] = MetadataProfile.create!(name: 'Default Profile',
+                                             default: true)
+
+ElementDef.create!(
+    name: 'abstract',
+    label: 'Abstract',
+    visible: true,
+    searchable: true,
+    index: 0,
+    metadata_profile: profiles[:default])
+ElementDef.create!(
+    name: 'accessRights',
+    label: 'Access Rights',
+    visible: true,
+    searchable: true,
+    index: 1,
+    metadata_profile: profiles[:default])
+ElementDef.create!(
+    name: 'accrualMethod',
+    label: 'Accrual Method',
+    visible: true,
+    searchable: true,
+    index: 2,
+    metadata_profile: profiles[:default])
+ElementDef.create!(
+    name: 'accrualPeriodicity',
+    label: 'Accrual Periodicity',
+    visible: true,
+    searchable: true,
+    index: 3,
+    metadata_profile: profiles[:default])
+ElementDef.create!(
+    name: 'accrualPolicy',
+    label: 'Accrual Policy',
+    visible: true,
+    searchable: true,
+    index: 4,
+    metadata_profile: profiles[:default])
+ElementDef.create!(
+    name: 'alternativeTitle',
+    label: 'Alternative Title',
+    visible: true,
+    searchable: true,
+    index: 5,
+    metadata_profile: profiles[:default])
+ElementDef.create!(
+    name: 'audience',
+    label: 'Audience',
+    visible: true,
+    searchable: true,
+    index: 6,
+    metadata_profile: profiles[:default])
+ElementDef.create!(
+    name: 'bibliographicCitation',
+    label: 'Bibliographic Citation',
+    visible: true,
+    searchable: true,
+    index: 7,
+    metadata_profile: profiles[:default])
+ElementDef.create!(
+    name: 'cartographicScale',
+    label: 'Cartographic Scale',
+    visible: true,
+    searchable: true,
+    index: 8,
+    metadata_profile: profiles[:default])
+ElementDef.create!(
+    name: 'conformsTo',
+    label: 'Conforms To',
+    visible: true,
+    searchable: true,
+    index: 9,
+    metadata_profile: profiles[:default])
+ElementDef.create!(
+    name: 'contributor',
+    label: 'Contributor',
+    visible: true,
+    searchable: true,
+    index: 10,
+    metadata_profile: profiles[:default])
+ElementDef.create!(
+    name: 'coverage',
+    label: 'Coverage',
+    visible: true,
+    searchable: true,
+    index: 11,
+    metadata_profile: profiles[:default])
+ElementDef.create!(
+    name: 'creator',
+    label: 'Creator',
+    visible: true,
+    searchable: true,
+    index: 12,
+    metadata_profile: profiles[:default])
+ElementDef.create!(
+    name: 'date',
+    label: 'Date',
+    visible: true,
+    searchable: true,
+    index: 13,
+    metadata_profile: profiles[:default])
+ElementDef.create!(
+    name: 'dateAccepted',
+    label: 'Date Accepted',
+    visible: true,
+    searchable: true,
+    index: 14,
+    metadata_profile: profiles[:default])
+ElementDef.create!(
+    name: 'dateAvailable',
+    label: 'Date Available',
+    visible: true,
+    searchable: true,
+    index: 15,
+    metadata_profile: profiles[:default])
+ElementDef.create!(
+    name: 'dateCopyrighted',
+    label: 'Date Copyrighted',
+    visible: true,
+    searchable: true,
+    index: 16,
+    metadata_profile: profiles[:default])
+ElementDef.create!(
+    name: 'dateCreated',
+    label: 'Date Created',
+    visible: true,
+    searchable: true,
+    index: 17,
+    metadata_profile: profiles[:default])
+ElementDef.create!(
+    name: 'dateIssued',
+    label: 'Date Issued',
+    visible: true,
+    searchable: true,
+    index: 18,
+    metadata_profile: profiles[:default])
+ElementDef.create!(
+    name: 'dateModified',
+    label: 'Date Modified',
+    visible: true,
+    searchable: true,
+    index: 19,
+    metadata_profile: profiles[:default])
+ElementDef.create!(
+    name: 'dateSubmitted',
+    label: 'Date Submitted',
+    visible: true,
+    searchable: true,
+    index: 20,
+    metadata_profile: profiles[:default])
+ElementDef.create!(
+    name: 'dateValid',
+    label: 'Date Valid',
+    visible: true,
+    searchable: true,
+    index: 21,
+    metadata_profile: profiles[:default])
+ElementDef.create!(
+    name: 'description',
+    label: 'Description',
+    visible: true,
+    searchable: true,
+    index: 22,
+    metadata_profile: profiles[:default])
+ElementDef.create!(
+    name: 'dimensions',
+    label: 'Dimensions',
+    visible: true,
+    searchable: true,
+    index: 23,
+    metadata_profile: profiles[:default])
+ElementDef.create!(
+    name: 'educationLevel',
+    label: 'Education Level',
+    visible: true,
+    searchable: true,
+    index: 24,
+    metadata_profile: profiles[:default])
+ElementDef.create!(
+    name: 'extent',
+    label: 'Extent',
+    visible: true,
+    searchable: true,
+    index: 25,
+    metadata_profile: profiles[:default])
+ElementDef.create!(
+    name: 'format',
+    label: 'Format',
+    visible: true,
+    searchable: true,
+    index: 26,
+    metadata_profile: profiles[:default])
+ElementDef.create!(
+    name: 'hasFormat',
+    label: 'Has Format',
+    visible: true,
+    searchable: true,
+    index: 27,
+    metadata_profile: profiles[:default])
+ElementDef.create!(
+    name: 'hasPart',
+    label: 'Has Part',
+    visible: true,
+    searchable: true,
+    index: 28,
+    metadata_profile: profiles[:default])
+ElementDef.create!(
+    name: 'hasVersion',
+    label: 'Has Version',
+    visible: true,
+    searchable: true,
+    index: 29,
+    metadata_profile: profiles[:default])
+ElementDef.create!(
+    name: 'identifier',
+    label: 'Identifier',
+    visible: true,
+    searchable: true,
+    index: 30,
+    metadata_profile: profiles[:default])
+ElementDef.create!(
+    name: 'instructionalMethod',
+    label: 'Instructional Method',
+    visible: true,
+    searchable: true,
+    index: 31,
+    metadata_profile: profiles[:default])
+ElementDef.create!(
+    name: 'isFormatOf',
+    label: 'Is Format Of',
+    visible: true,
+    searchable: true,
+    index: 32,
+    metadata_profile: profiles[:default])
+ElementDef.create!(
+    name: 'isPartOf',
+    label: 'Is Part Of',
+    visible: true,
+    searchable: true,
+    index: 33,
+    metadata_profile: profiles[:default])
+ElementDef.create!(
+    name: 'isReferencedBy',
+    label: 'Is Referenced By',
+    visible: true,
+    searchable: true,
+    index: 34,
+    metadata_profile: profiles[:default])
+ElementDef.create!(
+    name: 'isReplacedBy',
+    label: 'Is Replaced By',
+    visible: true,
+    searchable: true,
+    index: 35,
+    metadata_profile: profiles[:default])
+ElementDef.create!(
+    name: 'isRequiredBy',
+    label: 'Is Required By',
+    visible: true,
+    searchable: true,
+    index: 36,
+    metadata_profile: profiles[:default])
+ElementDef.create!(
+    name: 'isVersionOf',
+    label: 'Is Version Of',
+    visible: true,
+    searchable: true,
+    index: 37,
+    metadata_profile: profiles[:default])
+ElementDef.create!(
+    name: 'language',
+    label: 'Language',
+    visible: true,
+    searchable: true,
+    index: 38,
+    metadata_profile: profiles[:default])
+ElementDef.create!(
+    name: 'latitude',
+    label: 'Latitude',
+    visible: true,
+    searchable: true,
+    index: 39,
+    metadata_profile: profiles[:default])
+ElementDef.create!(
+    name: 'license',
+    label: 'License',
+    visible: true,
+    searchable: true,
+    index: 40,
+    metadata_profile: profiles[:default])
+ElementDef.create!(
+    name: 'longitude',
+    label: 'Longitude',
+    visible: true,
+    searchable: true,
+    index: 41,
+    metadata_profile: profiles[:default])
+ElementDef.create!(
+    name: 'mediator',
+    label: 'Mediator',
+    visible: true,
+    searchable: true,
+    index: 42,
+    metadata_profile: profiles[:default])
+ElementDef.create!(
+    name: 'medium',
+    label: 'Medium',
+    visible: true,
+    searchable: true,
+    index: 43,
+    metadata_profile: profiles[:default])
+ElementDef.create!(
+    name: 'notes',
+    label: 'Notes',
+    visible: true,
+    searchable: true,
+    index: 44,
+    metadata_profile: profiles[:default])
+ElementDef.create!(
+    name: 'physicalLocation',
+    label: 'PhysicalLocation',
+    visible: true,
+    searchable: true,
+    index: 45,
+    metadata_profile: profiles[:default])
+ElementDef.create!(
+    name: 'provenance',
+    label: 'Provenance',
+    visible: true,
+    searchable: true,
+    index: 46,
+    metadata_profile: profiles[:default])
+ElementDef.create!(
+    name: 'publicationPlace',
+    label: 'PublicationPlace',
+    visible: true,
+    searchable: true,
+    index: 47,
+    metadata_profile: profiles[:default])
+ElementDef.create!(
+    name: 'publisher',
+    label: 'Publisher',
+    visible: true,
+    searchable: true,
+    index: 48,
+    metadata_profile: profiles[:default])
+ElementDef.create!(
+    name: 'references',
+    label: 'References',
+    visible: true,
+    searchable: true,
+    index: 49,
+    metadata_profile: profiles[:default])
+ElementDef.create!(
+    name: 'relation',
+    label: 'Relation',
+    visible: true,
+    searchable: true,
+    index: 50,
+    metadata_profile: profiles[:default])
+ElementDef.create!(
+    name: 'replaces',
+    label: 'Replaces',
+    visible: true,
+    searchable: true,
+    index: 51,
+    metadata_profile: profiles[:default])
+ElementDef.create!(
+    name: 'requires',
+    label: 'Requires',
+    visible: true,
+    searchable: true,
+    index: 52,
+    metadata_profile: profiles[:default])
+ElementDef.create!(
+    name: 'rights',
+    label: 'Rights',
+    visible: true,
+    searchable: true,
+    index: 53,
+    metadata_profile: profiles[:default])
+ElementDef.create!(
+    name: 'rightsHolder',
+    label: 'Rights Holder',
+    visible: true,
+    searchable: true,
+    index: 54,
+    metadata_profile: profiles[:default])
+ElementDef.create!(
+    name: 'source',
+    label: 'Source',
+    visible: true,
+    searchable: true,
+    index: 55,
+    metadata_profile: profiles[:default])
+ElementDef.create!(
+    name: 'spatialCoverage',
+    label: 'Spatial Coverage',
+    visible: true,
+    searchable: true,
+    index: 56,
+    metadata_profile: profiles[:default])
+ElementDef.create!(
+    name: 'subject',
+    label: 'Subject',
+    visible: true,
+    searchable: true,
+    index: 57,
+    metadata_profile: profiles[:default])
+ElementDef.create!(
+    name: 'tableOfContents',
+    label: 'Table Of Contents',
+    visible: true,
+    searchable: true,
+    index: 58,
+    metadata_profile: profiles[:default])
+ElementDef.create!(
+    name: 'tableOfContents',
+    label: 'Temporal Coverage',
+    visible: true,
+    searchable: true,
+    index: 59,
+    metadata_profile: profiles[:default])
+ElementDef.create!(
+    name: 'temporalCoverage',
+    label: 'Temporal Coverage',
+    visible: true,
+    searchable: true,
+    index: 60,
+    metadata_profile: profiles[:default])
+ElementDef.create!(
+    name: 'title',
+    label: 'Title',
+    visible: true,
+    searchable: true,
+    index: 61,
+    metadata_profile: profiles[:default])
+ElementDef.create!(
+    name: 'type',
+    label: 'Type',
+    visible: true,
+    searchable: true,
+    index: 62,
+    metadata_profile: profiles[:default])
+
 if Rails.env.start_with?('uiuc')
 
   # Themes

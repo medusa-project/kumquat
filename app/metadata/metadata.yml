@@ -213,6 +213,13 @@ dateIssued:
     dc: date
     dcterms: issued
     geo:
+dateModified:
+  type: descriptive
+  mappings:
+    bibFrame:
+    dc: date
+    dcterms: modified
+    geo:
 dateSubmitted:
   type: descriptive
   mappings:
@@ -380,13 +387,6 @@ medium:
     bibFrame:
     dc: format
     dcterms: medium
-    geo:
-modified:
-  type: descriptive
-  mappings:
-    bibFrame:
-    dc: date
-    dcterms: modified
     geo:
 notes:
   type: descriptive
