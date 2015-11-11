@@ -68,14 +68,6 @@
     <% if Rails.env.development? %>
         <div class="panel panel-default">
           <div class="panel-heading">
-            <h2 class="panel-title">DEVELOPMENT ONLY: Technical Info</h2>
-          </div>
-          <div class="panel-body">
-            <%= metadata_as_table(@item, Element::Type::TECHNICAL) %>
-          </div>
-        </div>
-        <div class="panel panel-default">
-          <div class="panel-heading">
             <h2 class="panel-title">DEVELOPMENT ONLY: Bytestreams</h2>
           </div>
           <div class="panel-body">

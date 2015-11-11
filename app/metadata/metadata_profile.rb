@@ -2,7 +2,8 @@ class MetadataProfile < ActiveRecord::Base
 
   has_many :collection_defs, inverse_of: :metadata_profile,
            dependent: :restrict_with_error
-  has_many :element_defs, inverse_of: :metadata_profile, dependent: :destroy
+  has_many :element_defs, -> { order(:index) }, inverse_of: :metadata_profile,
+           dependent: :destroy
 
   validates :name, presence: true, length: { minimum: 2 },
             uniqueness: { case_sensitive: false }

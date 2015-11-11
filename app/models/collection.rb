@@ -19,6 +19,18 @@ class Collection < Entity
     col
   end
 
+  ##
+  # @return [CollectionDef]
+  #
+  def collection_def
+    unless @collection_def
+      @collection_def = CollectionDef.find_by_repository_id(self.id) ||
+          CollectionDef.create!(repository_id: self.id,
+                                metadata_profile: MetadataProfile.find_by_default(true))
+    end
+    @collection_def
+  end
+
   def num_items
     @num_items = Item.where(Solr::Fields::COLLECTION => self.id).
         where("-#{Solr::Fields::PARENT_ITEM}:[* TO *]").count unless @num_items

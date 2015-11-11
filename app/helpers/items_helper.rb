@@ -196,28 +196,33 @@ module ItemsHelper
 
   ##
   # @param entity [Entity]
-  # @param metadata_type [Integer] One of the Element::Type constants
   # @return [String]
   #
-  def metadata_as_table(entity, metadata_type = Element::Type::DESCRIPTIVE)
+  def metadata_as_table(entity)
     html = '<table class="table table-condensed kq-metadata">'
-    elements = entity.metadata.select{ |e| e.type == metadata_type }
-    elements.map(&:name).uniq.each do |name|
-      html += '<tr>'
-      html += "<td>#{name}</td>"
-      html += '<td>'
-      matching_elements = elements.select{ |e| e.name == name }
-      if matching_elements.length > 1
-        html += '<ul>'
-        matching_elements.each do |element|
-          html += "<li>#{element.value}</li>"
+
+    # iterate through the index-ordered elements in the collection's metadata
+    # profile in order to display the entity's elements in the correct order
+    collection = entity.kind_of?(Collection) ? entity : entity.collection
+    collection.collection_def.metadata_profile.element_defs.each do |e_def|
+      elements = entity.metadata.select{ |e| e.name == e_def.name }
+      elements.map(&:name).uniq.each do |name|
+        html += '<tr>'
+        html += "<td>#{name}</td>"
+        html += '<td>'
+        matching_elements = elements.select{ |e| e.name == name }
+        if matching_elements.length > 1
+          html += '<ul>'
+          matching_elements.each do |element|
+            html += "<li>#{element.value}</li>"
+          end
+          html += '</ul>'
+        elsif matching_elements.length == 1
+          html += matching_elements.first.value.to_s
         end
-        html += '</ul>'
-      elsif matching_elements.length == 1
-        html += matching_elements.first.value.to_s
+        html += '</td>'
+        html += '</tr>'
       end
-      html += '</td>'
-      html += '</tr>'
     end
     html += '</table>'
     raw(html)
