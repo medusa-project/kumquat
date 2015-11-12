@@ -5,11 +5,11 @@
                context_url: session[:browse_context_url]) %>
 
 <div class="btn-group pull-right">
-  <button class="btn btn-danger kq-remove-from-favorites"
+  <button class="btn btn-danger pt-remove-from-favorites"
           data-web-id="<%= @item.web_id %>">
     <i class="fa fa-heart-o"></i> Remove From Favorites
   </button>
-  <button class="btn btn-default kq-add-to-favorites"
+  <button class="btn btn-default pt-add-to-favorites"
           data-web-id="<%= @item.web_id %>">
     <i class="fa fa-heart"></i> Add To Favorites
   </button>
@@ -18,7 +18,7 @@
 </div>
 
 <% if @item.parent %>
-  <h1 class="kq-compound-title">
+  <h1 class="pt-compound-title">
     <small><%= link_to @item.parent.title, @item.parent %></small>
     <br>&nbsp;&nbsp;&#8627; <%= @item.title %>
   </h1>
@@ -48,7 +48,7 @@
     <div class="panel-heading">
       <h2 class="panel-title">Pages (<%= @pages.length %>)</h2>
     </div>
-    <div class="panel-body kq-horizontal-items">
+    <div class="panel-body pt-horizontal-items">
       <%= pages_as_list(@item) %>
     </div>
   </div>
@@ -93,7 +93,7 @@
       <div class="panel-heading">
         <h2 class="panel-title">Similar Items</h2>
       </div>
-      <div class="panel-body kq-vertical-items">
+      <div class="panel-body pt-vertical-items">
         <%= similar_items_as_list(@item) %>
       </div>
     </div>

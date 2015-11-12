@@ -82,9 +82,10 @@ Rails.application.routes.draw do
 
     resources :collections, except: [:new, :edit], concerns: :publishable
     #resources :collections, param: :key, as: :db_collections
+    resources :element_defs, only: [:create, :update, :destroy, :edit]
     resources :facet_defs
-    #match '/items/search', to: 'items#search', via: %w(get post),
-    #      as: 'repository_items_search'
+    match '/items/search', to: 'items#search', via: %w(get post),
+          as: 'items_search'
     resources :items, concerns: :publishable do
       match '/full-text/clear', to: 'items#clear_full_text', via: 'patch',
             as: 'clear_full_text'
@@ -106,7 +107,6 @@ Rails.application.routes.draw do
     match '/settings', to: 'settings#update', via: 'patch'
     match '/tasks', to: 'tasks#index', via: 'get'
     resources :themes, controller: :themes, path: 'themes', except: :show
-    #resources :triples, only: [:create, :update, :destroy, :edit]
     resources :users, param: :username do
       match '/enable', to: 'users#enable', via: 'patch', as: 'enable'
       match '/disable', to: 'users#disable', via: 'patch', as: 'disable'

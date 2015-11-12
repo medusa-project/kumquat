@@ -46,10 +46,12 @@ class Solr
   ##
   # @param id [String]
   #
-  def delete_by_id(id)
+  def delete(id)
     Rails.logger.info("Deleting Solr document: #{id}")
     client.delete_by_id(id)
   end
+
+  alias_method :delete_by_id, :delete
 
   ##
   # Deletes everything.

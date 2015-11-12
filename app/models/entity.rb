@@ -36,6 +36,10 @@ class Entity
     elements.any? ? elements.first.value : nil
   end
 
+  def destroy
+    Solr.instance.delete(self.id)
+  end
+
   def persisted?
     @persisted # makes to_param work
   end

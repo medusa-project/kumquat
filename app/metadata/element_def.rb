@@ -16,7 +16,7 @@ class ElementDef < ActiveRecord::Base
   #
   def adjust_profile_element_indexes_after_destroy
     if self.metadata_profile and self.destroyed?
-      self.metadata_profile.elements.order(:index).each_with_index do |element, i|
+      self.metadata_profile.element_defs.order(:index).each_with_index do |element, i|
         element.update_column(:index, i) # update_column skips callbacks
       end
     end

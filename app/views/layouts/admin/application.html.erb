@@ -116,14 +116,14 @@
 
     <div class="container-fluid">
       <% flash.each do |type, message| %>
-        <div class="kq-flash alert alert-dismissable <%= bootstrap_class_for(type) %>">
+        <div class="pt-flash alert alert-dismissable <%= bootstrap_class_for(type) %>">
           <button type="button" class="close" data-dismiss="alert"
                   aria-hidden="true">&times;</button>
           <%= message %>
         </div>
       <% end %>
 
-      <div id="kq-page-content">
+      <div id="pt-page-content">
         <%= yield %>
       </div>
     </div>

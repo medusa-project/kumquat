@@ -8,31 +8,31 @@
 </ol>
 <!--
 <div class="btn-group pull-right">
-  <%= link_to new_admin_repository_item_path, class: 'btn btn-default' do %>
+  <%= link_to new_admin_item_path, class: 'btn btn-default' do %>
     <i class="fa fa-cube"></i> New Item
   <% end %>
 </div>
 -->
 <h1>Items</h1>
 
-<div class="well kq-search">
+<div class="well pt-search">
 
   <%= form_tag({controller: 'admin/items', action: 'search'}, {method: :post}) do %>
     <div class="row">
-      <div class="col-sm-5 kq-triples">
+      <div class="col-sm-5 pt-elements">
         <div class="form-group form-inline">
-          <%= select_tag 'triples[]', options_for_select(@predicates_for_select),
+          <%= select_tag 'elements[]', options_for_select(@elements_for_select),
                          class: 'form-control' %>
           <%= text_field_tag 'terms[]', '', placeholder: 'Search Term', class: 'form-control' %>
-          <button type="button" class="btn btn-xs btn-danger kq-remove-triple">&minus;</button>
+          <button type="button" class="btn btn-xs btn-danger pt-remove-element">&minus;</button>
         </div>
-        <button type="button" class="btn btn-xs btn-success kq-add-triple">&plus; Add Triple</button>
+        <button type="button" class="btn btn-xs btn-success pt-add-element">&plus; Add Triple</button>
       </div>
 
       <div class="col-sm-4">
-        <button type="button" class="btn btn-xs btn-default kq-check-all">Check All</button>
-        <button type="button" class="btn btn-xs btn-default kq-uncheck-all">Uncheck All</button>
-        <div class="kq-collections">
+        <button type="button" class="btn btn-xs btn-default pt-check-all">Check All</button>
+        <button type="button" class="btn btn-xs btn-default pt-uncheck-all">Uncheck All</button>
+        <div class="pt-collections">
           <ol>
             <% @collections.each do |collection| %>
               <li>
@@ -49,7 +49,7 @@
         </div>
       </div>
 
-      <div class="col-sm-3 kq-system">
+      <div class="col-sm-3 pt-system">
         <div class="radio">
           <%= label_tag do %>
             <%= radio_button_tag 'published', 'any',
@@ -95,14 +95,14 @@
       <ul class="dropdown-menu" role="menu">
         <!-- TODO: these are broken
         <li><%= link_to 'JSON-LD', params.merge(format: 'jsonld') %></li>
-        <li><%= link_to 'RDF/XML', params.merge(format: 'rdfxml') %></li> -->
-        <li><%= link_to 'Turtle', params.merge(format: 'ttl') %></li>
+        <li><%= link_to 'RDF/XML', params.merge(format: 'rdfxml') %></li>
+        <li><%= link_to 'Turtle', params.merge(format: 'ttl') %></li>-->
       </ul>
     </div>
   </div>
 </div>
 
-<div class="kq-list-results">
+<div class="pt-list-results">
   <%= items_as_list(@items, @start, link_to_admin: true,
                     show_collections: true,
                     show_add_to_favorites_buttons: false,

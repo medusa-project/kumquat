@@ -23,7 +23,7 @@
 </div>
 
 <% if @item.parent %>
-  <h1 class="kq-compound-title">
+  <h1 class="pt-compound-title">
     <small><%= link_to @item.parent.title, @item.parent %></small>
     <br>&nbsp;&nbsp;&#8627; <%= @item.title %>
   </h1>
@@ -41,41 +41,41 @@
 
   <ul class="nav nav-tabs" role="tablist">
     <li class="active" role="presentation">
-      <a href="#kq-triples" aria-controls="home" role="tab" data-toggle="tab">Public RDF</a>
+      <a href="#pt-triples" aria-controls="home" role="tab" data-toggle="tab">Public RDF</a>
     </li>
     <% if @pages.any? %>
       <li role="presentation">
-        <a href="#kq-pages" aria-controls="home" role="tab" data-toggle="tab">
+        <a href="#pt-pages" aria-controls="home" role="tab" data-toggle="tab">
           Pages <span class="badge"><%= @pages.length %></span></a>
       </li>
     <% end %>
     <li role="presentation">
-      <a href="#kq-full-text" aria-controls="home" role="tab" data-toggle="tab">Full Text</a>
+      <a href="#pt-full-text" aria-controls="home" role="tab" data-toggle="tab">Full Text</a>
     </li>
     <li role="presentation">
-      <a href="#kq-repository" aria-controls="home" role="tab" data-toggle="tab">Repository</a>
+      <a href="#pt-repository" aria-controls="home" role="tab" data-toggle="tab">Repository</a>
     </li>
   </ul>
 
   <div class="tab-content">
 
     <!-- Public RDF pane -->
-    <div role="tabpanel" class="tab-pane active" id="kq-triples">
+    <div role="tabpanel" class="tab-pane active" id="pt-triples">
       <%= triples_as_dl(@item, full_label_info: true) %>
       <%= triples_as_table(@item, full_label_info: true) %>
     </div>
 
     <!-- Pages pane -->
-    <div role="tabpanel" class="tab-pane" id="kq-pages">
+    <div role="tabpanel" class="tab-pane" id="pt-pages">
       <%= pages_as_list(@item, link_to_admin: true) %>
     </div>
 
     <!-- Full Text pane -->
-    <div role="tabpanel" class="tab-pane" id="kq-full-text">
+    <div role="tabpanel" class="tab-pane" id="pt-full-text">
       <div class="clearfix">
         <div class="btn-group pull-right">
           <button type="button" class="btn btn-default" data-toggle="modal"
-                  data-target="#kq-edit-full-text-panel" data-backdrop="false">
+                  data-target="#pt-edit-full-text-panel" data-backdrop="false">
             <i class="fa fa-pencil"></i> Edit
           </button>
           <%= link_to admin_repository_item_extract_full_text_path(@item),
@@ -94,7 +94,7 @@
     </div>
 
     <!-- Repository pane -->
-    <div role="tabpanel" class="tab-pane" id="kq-repository">
+    <div role="tabpanel" class="tab-pane" id="pt-repository">
       <h3>Fedora URL</h3>
       <p><%= link_to @item.id, @item.id %></p>
       <h3>Fedora RDF (Turtle)</h3>

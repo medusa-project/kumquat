@@ -69,7 +69,7 @@ module ItemsHelper
           select{ |f| f.field == triple.facet.solr_field }.first
       next unless result_facet and
           result_facet.terms.select{ |t| t.count > 0 }.any?
-      next if result_facet.field == 'kq_collection_facet' and
+      next if result_facet.field == 'pt_collection_facet' and
           !options[:show_collection_facet]
       panel = "<div class=\"panel panel-default\">
       <div class=\"panel-heading\">
@@ -85,21 +85,21 @@ module ItemsHelper
         checked_params = term.removed_from_params(params.deep_dup)
         unchecked_params = term.added_to_params(params.deep_dup)
 
-        if result_facet.field == 'kq_collection_facet'
+        if result_facet.field == 'pt_collection_facet'
           collection = Repository::Collection.find_by_uri(term.name)
           term_label = collection.title if collection
         else
           term_label = term.label
         end
 
-        panel += "<li class=\"kq-term\">"
+        panel += "<li class=\"pt-term\">"
         panel += "<div class=\"checkbox\">"
         panel += "<label>"
         panel += "<input type=\"checkbox\" name=\"psap-facet-term\" #{checked} "\
         "data-checked-href=\"#{url_for(unchecked_params)}\" "\
         "data-unchecked-href=\"#{url_for(checked_params)}\">"
-        panel += "<span class=\"kq-term-name\">#{term_label}</span> "
-        panel += "<span class=\"kq-count badge\">#{term.count}</span>"
+        panel += "<span class=\"pt-term-name\">#{term_label}</span> "
+        panel += "<span class=\"pt-count badge\">#{term.count}</span>"
         panel += "</label>"
         panel += "</div>"
         panel += "</li>"
@@ -141,7 +141,7 @@ module ItemsHelper
       #    admin_item_path(entity) : polymorphic_path(entity)
       html += '<li>'\
         '<div>'
-      html += link_to(link_target, class: 'kq-thumbnail-link') do
+      html += link_to(link_target, class: 'pt-thumbnail-link') do
         if entity.kind_of?(Collection)
           #media_types = "(#{Derivable::TYPES_WITH_IMAGE_DERIVATIVES.join(' OR ')})"
           media_types = %w(image/jp2 image/jpeg image/png image/tiff).join(' OR ')
@@ -154,23 +154,23 @@ module ItemsHelper
         else
           item = entity
         end
-        raw('<div class="kq-thumbnail">' +
+        raw('<div class="pt-thumbnail">' +
           thumbnail_tag(item,
                         options[:thumbnail_size] ? options[:thumbnail_size] : 256,
                         options[:thumbnail_shape]) +
         '</div>')
       end
-      html += '<span class="kq-title">'
+      html += '<span class="pt-title">'
       html += link_to(entity.title, link_target)
       if options[:show_remove_from_favorites_buttons] and entity.kind_of?(Item)
         html += ' <button class="btn btn-xs btn-danger ' +
-            'kq-remove-from-favorites" data-web-id="' + entity.web_id + '">'
+            'pt-remove-from-favorites" data-web-id="' + entity.id + '">'
         html += '<i class="fa fa-heart"></i> Remove'
         html += '</button>'
       end
       if options[:show_add_to_favorites_buttons] and entity.kind_of?(Item)
         html += ' <button class="btn btn-default btn-xs ' +
-            'kq-add-to-favorites" data-web-id="' + entity.web_id + '">'
+            'pt-add-to-favorites" data-web-id="' + entity.id + '">'
         html += '<i class="fa fa-heart-o"></i>'
         html += '</button>'
       end
@@ -183,7 +183,7 @@ module ItemsHelper
       end
       if options[:show_description]
         html += '<br>'
-        html += '<span class="kq-description">'
+        html += '<span class="pt-description">'
         html += truncate(entity.description.to_s, length: 400)
         html += '</span>'
       end
@@ -199,7 +199,7 @@ module ItemsHelper
   # @return [String]
   #
   def metadata_as_table(entity)
-    html = '<table class="table table-condensed kq-metadata">'
+    html = '<table class="table table-condensed pt-metadata">'
 
     # iterate through the index-ordered elements in the collection's metadata
     # profile in order to display the entity's elements in the correct order
@@ -261,16 +261,16 @@ module ItemsHelper
           admin_item_path(child) : item_path(child)
       html += '<li><div>'
       if item == child
-        html += raw('<div class="kq-thumbnail">' +
+        html += raw('<div class="pt-thumbnail">' +
             thumbnail_tag(child, 256) +
             '</div>')
-        html += "<strong class=\"kq-text kq-title\">#{truncate(child.title, length: 40)}</strong>"
+        html += "<strong class=\"pt-text pt-title\">#{truncate(child.title, length: 40)}</strong>"
       else
         html += link_to(link_target) do
-          raw('<div class="kq-thumbnail">' + thumbnail_tag(child, 256) + '</div>')
+          raw('<div class="pt-thumbnail">' + thumbnail_tag(child, 256) + '</div>')
         end
         html += link_to(truncate(child.title, length: 40), link_target,
-                        class: 'kq-title')
+                        class: 'pt-title')
       end
       html += '</div></li>'
     end
@@ -416,13 +416,13 @@ module ItemsHelper
       html += '<ul>'
       items.each do |item|
         html += '<li>'
-        html += '<div class="kq-thumbnail">'
+        html += '<div class="pt-thumbnail">'
         html += link_to(item_path(item)) do
           thumbnail_tag(item, 256, Bytestream::Shape::SQUARE)
         end
         html += '</div>'
         html += link_to(truncate(item.title, length: 40),
-                        item_path(item), class: 'kq-title')
+                        item_path(item), class: 'pt-title')
         html += '</li>'
       end
       html += '</ul>'
@@ -519,11 +519,11 @@ module ItemsHelper
   end
 
   def image_viewer_for(item)
-    html = "<div id=\"kq-image-viewer\"></div>
+    html = "<div id=\"pt-image-viewer\"></div>
     #{javascript_include_tag('/openseadragon/openseadragon.min.js')}
     <script type=\"text/javascript\">
     var viewer = OpenSeadragon({
-        id: \"kq-image-viewer\",
+        id: \"pt-image-viewer\",
         preserveViewport: true,
         prefixUrl: \"/openseadragon/images/\",
         tileSources: \"#{j(iiif_url(item))}\"
@@ -542,7 +542,7 @@ module ItemsHelper
   end
 
   def video_player_for(item)
-    tag = "<video controls id=\"kq-video-player\">
+    tag = "<video controls id=\"pt-video-player\">
       <source src=\"#{bytestream_url(item.master_bytestream)}\"
               type=\"#{item.master_bytestream.media_type}\">
         Your browser does not support the video tag.

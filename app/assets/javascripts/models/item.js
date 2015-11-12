@@ -5,7 +5,7 @@ var FAVORITES_COOKIE_NAME = 'favorites';
  */
 var KQItem = function() {
 
-    var COOKIE_PATH = $('input[name="kq-root-path"]').val();
+    var COOKIE_PATH = $('input[name="pt-root-path"]').val();
 
     this.web_id = null;
 
@@ -21,7 +21,7 @@ var KQItem = function() {
                 cookie = parts.join(',');
             }
             $.cookie(FAVORITES_COOKIE_NAME, cookie, { path: COOKIE_PATH });
-            $(document).trigger(Kumquat.Events.ITEM_ADDED_TO_FAVORITES, self);
+            $(document).trigger(PearTree.Events.ITEM_ADDED_TO_FAVORITES, self);
         }
     };
 
@@ -40,7 +40,7 @@ var KQItem = function() {
             parts.splice($.inArray(self.web_id, parts), 1);
             $.cookie(FAVORITES_COOKIE_NAME, parts.join(','),
                 { path: COOKIE_PATH });
-            $(document).trigger(Kumquat.Events.ITEM_REMOVED_FROM_FAVORITES,
+            $(document).trigger(PearTree.Events.ITEM_REMOVED_FROM_FAVORITES,
                 self);
         }
     };

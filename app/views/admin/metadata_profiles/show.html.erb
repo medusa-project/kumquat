@@ -10,7 +10,7 @@
 
 <div class="btn-group pull-right">
   <button type="button" class="btn btn-default" data-toggle="modal"
-          data-target="#kq-edit-profile-modal">
+          data-target="#pt-edit-profile-modal">
     <i class="fa fa-pencil"></i> Edit
   </button>
   <%= link_to admin_metadata_profile_clone_path(@profile), method: :patch,
@@ -29,14 +29,14 @@
 
 <div class="btn-group pull-right">
   <button type="button" class="btn btn-default" data-toggle="modal"
-          data-target="#kq-add-triple-modal">
-    <i class="fa fa-plus"></i> Add Triple
+          data-target="#pt-add-element-modal">
+    <i class="fa fa-plus"></i> Add Element
   </button>
 </div>
 
-<h2>Triples</h2>
+<h2>Elements</h2>
 
-<% if @profile.triples.count > 0 %>
+<% if @profile.element_defs.count > 0 %>
 
   <table class="table table-striped">
     <thead>
@@ -44,7 +44,7 @@
         <th></th>
         <th></th>
         <th></th>
-        <th>RDF Predicate</th>
+        <th>Element</th>
         <th>Label</th>
         <th>Visible</th>
         <th>Searchable</th>
@@ -53,28 +53,28 @@
       </tr>
     </thead>
     <tbody>
-      <% @profile.triples.order(:index).each_with_index do |triple, i| %>
+      <% @profile.element_defs.order(:index).each_with_index do |element, i| %>
         <tr>
-          <td><%= triple.index + 1%></td>
+          <td><%= element.index + 1%></td>
           <td>
-            <button type="button" class="btn btn-default btn-xs kq-edit-triple"
-                    data-toggle="modal" data-target="#kq-edit-triple-modal"
-                    data-triple-id="<%= triple.id %>">
+            <button type="button" class="btn btn-default btn-xs pt-edit-element"
+                    data-toggle="modal" data-target="#pt-edit-element-modal"
+                    data-element-id="<%= element.id %>">
               Edit
             </button>
           </td>
           <td>
-            <%= link_to 'Delete', admin_triple_path(triple),
+            <%= link_to 'Delete', admin_element_def_path(element),
                         class: 'btn btn-danger btn-xs', method: :delete,
                         data: { confirm: 'Are you sure you want to delete '\
-                        'this triple?' } %>
+                        'this element?' } %>
           </td>
-          <td><%= triple.predicate %></td>
-          <td><%= triple.label %></td>
-          <td><%= boolean(triple.visible) %></td>
-          <td><%= boolean(triple.searchable) %></td>
-          <td><%= triple.facet %></td>
-          <td><%= triple.facet_label %></td>
+          <td><%= element.name %></td>
+          <td><%= element.label %></td>
+          <td><%= boolean(element.visible) %></td>
+          <td><%= boolean(element.searchable) %></td>
+          <td><!-- element.facet --></td>
+          <td><!-- element.facet_label --></td>
         </tr>
       <% end %>
     </tbody>
@@ -82,56 +82,56 @@
 
 <% else %>
 
-  <p>This profile has no triples.</p>
+  <p>This profile has no element definitions.</p>
 
 <% end %>
 
-<div class="modal fade" id="kq-add-triple-modal" tabindex="-1" role="dialog"
-     aria-labelledby="kq-add-triple-modal-label">
+<div class="modal fade" id="pt-add-element-modal" tabindex="-1" role="dialog"
+     aria-labelledby="pt-add-element-modal-label">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
-        <h4 class="modal-title" id="kq-add-triple-modal-label">Add Triple</h4>
+        <h4 class="modal-title" id="pt-add-element-modal-label">Add Element</h4>
       </div>
       <div class="modal-body">
-        <%= render partial: 'admin/triples/form',
-                   locals: { triple: @new_triple, profile: @profile,
-                             context: :new } %>
+        <%= render partial: 'admin/element_defs/form',
+                   locals: { element_def: @new_element,
+                             metadata_profile: @profile, context: :new } %>
       </div>
     </div>
   </div>
 </div>
 
-<div class="modal fade" id="kq-edit-profile-modal" tabindex="-1" role="dialog"
-     aria-labelledby="kq-edit-profile-modal-label">
+<div class="modal fade" id="pt-edit-profile-modal" tabindex="-1" role="dialog"
+     aria-labelledby="pt-edit-profile-modal-label">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
-        <h4 class="modal-title" id="kq-edit-profile-modal-label">Edit Profile</h4>
+        <h4 class="modal-title" id="pt-edit-profile-modal-label">Edit Profile</h4>
       </div>
       <div class="modal-body">
-        <%= render partial: 'form', locals: { profile: @profile,
+        <%= render partial: 'form', locals: { metadata_profile: @profile,
                                               context: :edit } %>
       </div>
     </div>
   </div>
 </div>
 
-<div class="modal fade" id="kq-edit-triple-modal" tabindex="-1" role="dialog"
-     aria-labelledby="kq-edit-triple-modal-label">
+<div class="modal fade" id="pt-edit-element-modal" tabindex="-1" role="dialog"
+     aria-labelledby="pt-edit-element-modal-label">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
-        <h4 class="modal-title" id="kq-edit-triple-modal-label">Edit Triple</h4>
+        <h4 class="modal-title" id="pt-edit-element-modal-label">Edit Element</h4>
       </div>
       <div class="modal-body">
         <% # will be populated via XHR %>

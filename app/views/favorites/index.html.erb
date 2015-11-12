@@ -5,7 +5,7 @@
 <h1>My Favorites</h1>
 
 <% if @items.total_length > 0 %>
-  <div class="kq-results kq-list-results">
+  <div class="pt-results pt-list-results">
     <%= items_as_list(@items, @start, show_remove_from_favorites_buttons: true,
                       show_collections: true) %>
   </div>
@@ -15,4 +15,4 @@
   </div>
 <% end %>
 
-<p class="kq-no-favorites">You have no items in your favorites.</p>
+<p class="pt-no-favorites">You have no items in your favorites.</p>

@@ -12,18 +12,18 @@ module Admin
       begin
         executor.execute(command)
       rescue ActiveMedusa::RecordInvalid
-        response.headers['X-Kumquat-Result'] = 'error'
+        response.headers['X-PearTree-Result'] = 'error'
         render partial: 'shared/validation_messages',
                locals: { entity: @collection }
       rescue => e
-        response.headers['X-Kumquat-Result'] = 'error'
+        response.headers['X-PearTree-Result'] = 'error'
         flash['error'] = "#{e}"
         keep_flash
         render partial: 'form', locals: { collection: @collection,
                                           context: :create }
       else
         Solr::Solr.client.commit
-        response.headers['X-Kumquat-Result'] = 'success'
+        response.headers['X-PearTree-Result'] = 'success'
         flash['success'] = "Collection \"#{@collection.title}\" created."
         keep_flash
         render 'create' # create.js.erb will reload the page
@@ -112,18 +112,18 @@ module Admin
         begin
           executor.execute(command)
         rescue ActiveMedusa::RecordInvalid
-          response.headers['X-Kumquat-Result'] = 'error'
+          response.headers['X-PearTree-Result'] = 'error'
           render partial: 'shared/validation_messages',
                  locals: { entity: @collection }
         rescue => e
-          response.headers['X-Kumquat-Result'] = 'error'
+          response.headers['X-PearTree-Result'] = 'error'
           flash['error'] = "#{e}"
           keep_flash
           render partial: 'form', locals: { collection: @collection,
                                             context: :edit }
         else
           Solr::Solr.client.commit
-          response.headers['X-Kumquat-Result'] = 'success'
+          response.headers['X-PearTree-Result'] = 'success'
           flash['success'] = "Collection \"#{@collection.title}\" updated."
           keep_flash
           render 'create' # create.js.erb will reload the page
@@ -134,11 +134,11 @@ module Admin
         begin
           executor.execute(command)
         rescue => e
-          response.headers['X-Kumquat-Result'] = 'error'
+          response.headers['X-PearTree-Result'] = 'error'
           flash['error'] = "#{e}"
           render 'edit' unless request.xhr?
         else
-          response.headers['X-Kumquat-Result'] = 'success'
+          response.headers['X-PearTree-Result'] = 'success'
           flash['success'] = "Collection \"#{@collection.title}\" updated."
           keep_flash
           render 'update' # update.js.erb will reload the page

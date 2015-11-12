@@ -14,7 +14,7 @@ var PTAdminItemsView = function() {
             }
         });
         $('button.pt-remove-element').on('click', function() {
-            if ($('.kq-elements .form-group').length > 1) {
+            if ($('.pt-elements .form-group').length > 1) {
                 $(this).closest('.form-group').remove();
             }
         });

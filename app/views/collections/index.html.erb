@@ -6,7 +6,7 @@
 
 <h1>Collections <small><%= @collections.total_length %> total</small></h1>
 
-<div class="kq-results">
+<div class="pt-results">
   <%= items_as_list(@collections, @start,
                     thumbnail_shape: Bytestream::Shape::SQUARE) %>
 </div>

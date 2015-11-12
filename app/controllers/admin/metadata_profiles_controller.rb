@@ -9,7 +9,7 @@ module Admin
       profile = MetadataProfile.find(params[:metadata_profile_id])
       begin
         clone = profile.dup
-        clone.name = ('Clone of ' + clone.name)[0..[clone.class.max_length(:name).to_i, 99999].max - 1]
+        clone.name = 'Clone of ' + clone.name
         clone.save!
       rescue => e
         flash['error'] = "#{e}"
@@ -25,16 +25,16 @@ module Admin
       begin
         @profile.save!
       rescue ActiveRecord::RecordInvalid
-        response.headers['X-Kumquat-Result'] = 'error'
+        response.headers['X-PearTree-Result'] = 'error'
         render partial: 'shared/validation_messages',
                locals: { entity: @profile }
       rescue => e
-        response.headers['X-Kumquat-Result'] = 'error'
+        response.headers['X-PearTree-Result'] = 'error'
         flash['error'] = "#{e}"
         keep_flash
         render 'create'
       else
-        response.headers['X-Psap-Result'] = 'success'
+        response.headers['X-PearTree-Result'] = 'success'
         flash['success'] = "Metadata profile \"#{@profile.name}\" created."
         keep_flash
         render 'create' # create.js.erb will reload the page
@@ -61,7 +61,7 @@ module Admin
 
     def show
       @profile = MetadataProfile.find(params[:id])
-      @new_triple = @profile.triples.build
+      @new_element = @profile.element_defs.build
     end
 
     def update
@@ -70,16 +70,16 @@ module Admin
         begin
           @profile.update!(sanitized_params)
         rescue ActiveRecord::RecordInvalid
-          response.headers['X-Kumquat-Result'] = 'error'
+          response.headers['X-PearTree-Result'] = 'error'
           render partial: 'shared/validation_messages',
                  locals: { entity: @profile }
         rescue => e
-          response.headers['X-Kumquat-Result'] = 'error'
+          response.headers['X-PearTree-Result'] = 'error'
           flash['error'] = "#{e}"
           keep_flash
           render 'update'
         else
-          response.headers['X-Psap-Result'] = 'success'
+          response.headers['X-PearTree-Result'] = 'success'
           flash['success'] = "Metadata profile \"#{@profile.name}\" updated."
           keep_flash
           render 'update' # update.js.erb will reload the page
@@ -88,14 +88,14 @@ module Admin
         begin
           @profile.update!(sanitized_params)
         rescue ActiveRecord::RecordInvalid
-          response.headers['X-Kumquat-Result'] = 'error'
+          response.headers['X-PearTree-Result'] = 'error'
           render 'show'
         rescue => e
-          response.headers['X-Kumquat-Result'] = 'error'
+          response.headers['X-PearTree-Result'] = 'error'
           flash['error'] = "#{e}"
           render 'show'
         else
-          response.headers['X-Psap-Result'] = 'success'
+          response.headers['X-PearTree-Result'] = 'success'
           flash['success'] = "Metadata profile \"#{@profile.name}\" updated."
           redirect_to :back
         end

@@ -21,15 +21,15 @@
   </div>
   <div class="col-sm-5">
     <% if @random_item %>
-      <div class="kq-main-image">
+      <div class="pt-main-image">
         <%= link_to @random_item do %>
           <%= thumbnail_tag(@random_item, 512) %>
         <% end %>
-        <%= link_to @random_item, class: 'kq-title' do %>
+        <%= link_to @random_item, class: 'pt-title' do %>
           <%= @random_item.title %>
         <% end %>
         <br>
-        <%= link_to @random_item.collection, class: 'kq-collection-title' do %>
+        <%= link_to @random_item.collection, class: 'pt-collection-title' do %>
           <%= icon_for(@random_item.collection) %>
           <%= @random_item.collection.title %>
         <% end %>

@@ -4,7 +4,7 @@
 // "error", indicating the result of a form submission.
 
 $(document).ajaxComplete(function(event, request, options) {
-    $('#kq-ajax-shade').hide();
+    $('#pt-ajax-shade').hide();
 });
 
 $(document).ajaxSuccess(function(event, request) {

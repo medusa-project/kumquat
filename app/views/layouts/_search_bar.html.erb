@@ -1,23 +1,23 @@
-<div id="kq-search-accordion">
+<div id="pt-search-accordion">
 
   <div>
 
     <ul class="nav nav-pills nav-justified" role="tablist">
       <li role="presentation" class="active">
-        <a href="#kq-text-search" aria-controls="kq-text-search"
-           id="kq-text-search-button" data-toggle="tab">
+        <a href="#pt-text-search" aria-controls="pt-text-search"
+           id="pt-text-search-button" data-toggle="tab">
           <span class="fa fa-terminal"></span> Text
         </a>
       </li>
       <li role="presentation">
-        <a href="#kq-date-search" aria-controls="kq-date-search"
-           id="kq-date-search-button" data-toggle="tab">
+        <a href="#pt-date-search" aria-controls="pt-date-search"
+           id="pt-date-search-button" data-toggle="tab">
           <span class="fa fa-calendar-o"></span> Date
         </a>
       </li>
       <li role="presentation">
-        <a href="#kq-place-search" aria-controls="kq-place-search"
-           id="kq-place-search-button" data-toggle="tab">
+        <a href="#pt-place-search" aria-controls="pt-place-search"
+           id="pt-place-search-button" data-toggle="tab">
           <span class="fa fa-map-marker"></span> Place
         </a>
       </li>
@@ -31,7 +31,7 @@
 
           <div class="tab-content">
 
-            <div role="tabpanel" class="tab-pane active" id="kq-text-search">
+            <div role="tabpanel" class="tab-pane active" id="pt-text-search">
               <div class="form-group form-inline">
                 <%= select_tag 'fields[]', options_for_select(@predicates_for_select),
                                class: 'form-control' %>
@@ -41,11 +41,11 @@
               <%= submit_tag 'Search', class: 'btn btn-lg btn-primary' %>
             </div>
 
-            <div role="tabpanel" class="tab-pane" id="kq-date-search">
+            <div role="tabpanel" class="tab-pane" id="pt-date-search">
               <p>Not available yet.</p>
             </div>
 
-            <div role="tabpanel" class="tab-pane" id="kq-place-search">
+            <div role="tabpanel" class="tab-pane" id="pt-place-search">
               <div class="row">
                 <div class="col-sm-6">
                   <div style="width:400px; height: 250px; background-color: black;
@@ -66,9 +66,9 @@
 
         </div>
 
-        <div class="col-sm-4 kq-collections">
-          <button type="button" class="btn btn-xs btn-default kq-check-all">Check All</button>
-          <button type="button" class="btn btn-xs btn-default kq-uncheck-all">Uncheck All</button>
+        <div class="col-sm-4 pt-collections">
+          <button type="button" class="btn btn-xs btn-default pt-check-all">Check All</button>
+          <button type="button" class="btn btn-xs btn-default pt-uncheck-all">Uncheck All</button>
           <ol>
             <% @collections.each do |collection| %>
               <li>

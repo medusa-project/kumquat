@@ -2,7 +2,7 @@
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
-body#collections_index div#kq-page-content {
+body#collections_index div#pt-page-content {
   $thumb-size: 80px;
   ol {
     list-style: none;
@@ -15,7 +15,7 @@ body#collections_index div#kq-page-content {
     li > div {
       display: inline-block;
       width: 100%;
-      div.kq-thumbnail {
+      div.pt-thumbnail {
         float:left;
         font-size:75px;
         height: $thumb_size;
@@ -36,17 +36,17 @@ body#collections_index div#kq-page-content {
           transform: translateY(-50%);
         }
       }
-      .kq-title {
+      .pt-title {
         font-size: 1.4em;
       }
-      .kq-description {
+      .pt-description {
       }
     }
   }
 }
 
 body#collections_show {
-  a.kq-browse {
+  a.pt-browse {
     margin:1em 0em;
   }
 }

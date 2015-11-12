@@ -1,17 +1,17 @@
 <% position_options = options_from_collection_for_select(
-        [Triple.new(predicate: 'Nothing (First)', index: 0)] +
-                triple.metadata_profile.triples.order(:index),
-        :index, :predicate, selected: triple.index ? triple.index - 1 : 0) %>
+        [ElementDef.new(name: 'None (First)', index: 0)] +
+                element_def.metadata_profile.element_defs.order(:index),
+        :index, :label, selected: element_def.index ? element_def.index - 1 : 0) %>
 
-<%= form_for([:admin, triple], remote: true) do |f| %>
-  <div class="kq-error-messages">
+<%= form_for([:admin, element_def], remote: true) do |f| %>
+  <div class="pt-error-messages">
     <% # populated via ajax by shared/_validation_messages.js.erb
     %>
   </div>
 
   <div class="form-group">
-    <%= f.label :predicate %>
-    <%= f.text_field :predicate, class: 'form-control' %>
+    <%= f.label :name %>
+    <%= f.text_field :name, class: 'form-control' %>
   </div>
 
   <div class="form-group">
@@ -26,15 +26,15 @@
 
   <div class="form-group">
     <%= f.label :facet_id, 'Facet' %>
-    <%= f.select(:facet_id,
-                 options_for_select(Facet.order(:name).map{ |f| [f.name, f.id] },
+    <!-- f.select(:facet_id,
+                 options_for_select(FacetDef.order(:name).map{ |f| [f.name, f.id] },
                                     selected: f.object.facet_id),
-                 { include_blank: 'None' }, { class: 'form-control' }) %>
+                 { include_blank: 'None' }, { class: 'form-control' }) -->
   </div>
 
   <div class="form-group">
     <%= f.label :facet_label %>
-    <%= f.text_field :facet_label, class: 'form-control' %>
+    <!-- f.text_field :facet_label, class: 'form-control' -->
   </div>
 
   <div class="checkbox">
@@ -51,12 +51,12 @@
     </label>
   </div>
 
-  <%= f.hidden_field :metadata_profile_id, value: profile.id %>
+  <%= f.hidden_field :metadata_profile_id, value: metadata_profile.id %>
 
   <div class="clearfix">
     <div class="pull-right">
       <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-      <%= f.submit(context == :new ? 'Create Triple' : 'Edit Triple',
+      <%= f.submit(context == :new ? 'Create Element' : 'Edit Element',
                    class: 'btn btn-primary') %>
     </div>
   </div>

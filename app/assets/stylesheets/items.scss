@@ -2,19 +2,19 @@
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
-body#items_index div#kq-page-content {
-  .kq-facets {
+body#items_index div#pt-page-content {
+  .pt-facets {
     overflow-x: scroll;
     div.checkbox {
       margin:0.2em 0em;
     }
-    .kq-count.badge {
+    .pt-count.badge {
       background-color: #c0c0c0;
       font-size: 0.7em;
     }
   }
 
-  .kq-panel-facets {
+  .pt-panel-facets {
     .panel-body {
       overflow-x: scroll;
       ul {
@@ -26,7 +26,7 @@ body#items_index div#kq-page-content {
     }
   }
 
-  .kq-no-results {
+  .pt-no-results {
     ul {
       margin-left: 0.5em;
     }
@@ -34,7 +34,7 @@ body#items_index div#kq-page-content {
 }
 
 body#items_show {
-  .kq-compound-title {
+  .pt-compound-title {
     margin-top:-0.3em;
     small {
       vertical-align:middle;
@@ -43,26 +43,26 @@ body#items_show {
       }
     }
   }
-  .kq-remove-from-favorites {
+  .pt-remove-from-favorites {
     display:none;
   }
-  #kq-image-viewer {
+  #pt-image-viewer {
     background-color:black;
     height: 500px;
     margin-bottom: 1em;
     max-width: 1000px;
     width: 100%;
   }
-  #kq-image-viewer.fullpage {
+  #pt-image-viewer.fullpage {
     max-width: 999999px;
   }
 
-  #kq-video-player {
+  #pt-video-player {
     max-width: 1000px;
     width: 100%;
   }
 
-  .kq-horizontal-items {
+  .pt-horizontal-items {
     overflow-x: scroll;
     ol, ul {
       margin-left:0px;
@@ -75,7 +75,7 @@ body#items_show {
         text-align: center;
         div:first-child {
           width: 110px;
-          .kq-thumbnail {
+          .pt-thumbnail {
             display: table-cell;
             font-size:90px;
             height: 100px;
@@ -91,7 +91,7 @@ body#items_show {
     }
   }
 
-  .kq-vertical-items {
+  .pt-vertical-items {
     ol, ul {
       list-style: none;
       margin-left:0px;
@@ -102,7 +102,7 @@ body#items_show {
         text-align: center;
         vertical-align: top;
         width: 100%;
-        .kq-thumbnail {
+        .pt-thumbnail {
           display: block;
           font-size:100px;
           height: 150px;
@@ -117,25 +117,25 @@ body#items_show {
     }
   }
 
-  table.kq-metadata tr:first-child > td {
+  table.pt-metadata tr:first-child > td {
     border-top: 0px;
   }
 
   /* display metadata in a 2-column table if the screen is wide enough
   (IMET-83) */
   @media screen and (max-width: 800px) {
-    table.kq-metadata {
+    table.pt-metadata {
       display: none;
     }
-    dl.kq-metadata {
+    dl.pt-metadata {
       display: block;
     }
   }
   @media screen and (min-width: 801px) {
-    table.kq-metadata {
+    table.pt-metadata {
       display: block;
     }
-    dl.kq-metadata {
+    dl.pt-metadata {
       display: none;
     }
   }

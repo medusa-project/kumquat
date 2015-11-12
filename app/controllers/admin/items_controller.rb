@@ -3,12 +3,10 @@ module Admin
   class ItemsController < ControlPanelController
 
     ##
-    # Responds to PATCH /admin/items/:web_id/full-text/clear
+    # Responds to PATCH /admin/items/:id/full-text/clear
     #
     def clear_full_text
-      @item = Repository::Item.find_by_web_id(params[:repository_item_web_id])
-      raise ActiveRecord::RecordNotFound unless @item
-
+      @item = Item.find(params[:item_id])
       begin
         @item.full_text = nil
         @item.save!
@@ -17,32 +15,28 @@ module Admin
       else
         flash['success'] = 'Full text cleared.'
       ensure
-        redirect_to admin_repository_item_url(@item)
+        redirect_to admin_item_url(@item)
       end
     end
 
     def destroy
-      @item = Repository::Item.find_by_web_id(params[:web_id])
-      raise ActiveRecord::RecordNotFound unless @item
-
-      command = DeleteItemCommand.new(@item)
+      @item = Item.find(params[:id])
       begin
-        executor.execute(command)
+        @item.destroy
       rescue => e
         flash['error'] = "#{e}"
-        redirect_to admin_repository_item_url(@item)
+        redirect_to admin_item_url(@item)
       else
         flash['success'] = "Item \"#{@item.title}\" deleted."
-        redirect_to admin_repository_item_url
+        redirect_to admin_item_url
       end
     end
 
     ##
-    # Responds to PATCH /admin/items/:web_id/full-text/extract
+    # Responds to PATCH /admin/items/:id/full-text/extract
     #
     def extract_full_text
-      @item = Repository::Item.find_by_web_id(params[:repository_item_web_id])
-      raise ActiveRecord::RecordNotFound unless @item
+      @item = Item.find(params[:item_id])
 
       args = {
           command: ExtractFullTextCommand,
@@ -58,23 +52,21 @@ module Admin
 
     def index
       if params[:clear]
-        redirect_to admin_repository_items_path
+        redirect_to admin_items_path
         return
       end
 
       @start = params[:start] ? params[:start].to_i : 0
       @limit = Option::integer(Option::Key::RESULTS_PER_PAGE)
-      @items = Repository::Item.all.
-          where("-#{Solr::Fields::ITEM}:[* TO *]").
-          where(params[:q]).
-          facet(false)
+      @items = Item.all.where(Solr::Fields::PARENT_ITEM => :null).
+          where(params[:q]).facet(false)
 
       # fields
       field_input_present = false
-      if params[:triples] and params[:triples].any?
-        params[:triples].each_with_index do |field, index|
+      if params[:elements] and params[:elements].any?
+        params[:elements].each_with_index do |element, index|
           if params[:terms].length > index and !params[:terms][index].blank?
-            @items = @items.where("#{field}:#{params[:terms][index]}")
+            @items = @items.where("#{element}:#{params[:terms][index]}")
             field_input_present = true
           end
         end
@@ -87,7 +79,7 @@ module Admin
       if collections.any?
         if collections.length == 1
           @items = @items.where("#{Solr::Fields::COLLECTION}:\"#{collections.first}\"")
-        elsif collections.length < Repository::Collection.all.count
+        elsif collections.length < Collection.all.count
           @items = @items.where("#{Solr::Fields::COLLECTION}:(#{collections.join(' ')})")
         end
       end
@@ -100,20 +92,22 @@ module Admin
         format.html do
           # if there is no user-entered query, sort by title. Otherwise, use
           # the default sort, which is by relevancy
-          @items = @items.order(Solr::Fields::SINGLE_TITLE) unless field_input_present
+          @items = @items.order(Solr::Fields::TITLE) unless field_input_present
           @items = @items.start(@start).limit(@limit)
           @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
           @num_results_shown = [@limit, @items.total_length].min
 
           # these are used by the search form
-          @predicates_for_select = Triple.order(:predicate).
-              map{ |p| [p.predicate, p.solr_field] }.uniq
-          @predicates_for_select.unshift([ 'Any Triple', Solr::Fields::SEARCH_ALL ])
-          @collections = Repository::Collection.all
+          #@elements_for_select = ElementDef.order(:name).
+          #    map{ |p| [p.name, p.solr_field] }.uniq
+          @elements_for_select = ElementDef.order(:name).
+              map{ |p| [p.name, nil] }.uniq
+          @elements_for_select.unshift([ 'Any Element', Solr::Fields::SEARCH_ALL ])
+          @collections = Collection.all
         end
-        format.jsonld { stream(RDFStreamer.new(@items, :jsonld), 'export.json') }
-        format.rdfxml { stream(RDFStreamer.new(@items, :rdf), 'export.rdf') }
-        format.ttl { stream(RDFStreamer.new(@items, :ttl), 'export.ttl') }
+        #format.jsonld { stream(RDFStreamer.new(@items, :jsonld), 'export.json') }
+        #format.rdfxml { stream(RDFStreamer.new(@items, :rdf), 'export.rdf') }
+        #format.ttl { stream(RDFStreamer.new(@items, :ttl), 'export.ttl') }
       end
     end
 
@@ -131,35 +125,34 @@ module Admin
     end
 
     def show
-      @item = Repository::Item.find_by_web_id(params[:web_id])
+      @item = Item.find(params[:id])
       raise ActiveRecord::RecordNotFound unless @item
 
-      uri = repository_item_url(@item)
+      uri = item_url(@item)
       respond_to do |format|
         format.html do
           @pages = @item.parent_item ? @item.parent_item.items : @item.items
         end
-        format.jsonld { render text: @item.admin_rdf_graph(uri).to_jsonld }
-        format.rdfxml { render text: @item.admin_rdf_graph(uri).to_rdfxml }
-        format.ttl { render text: @item.admin_rdf_graph(uri).to_ttl }
+        #format.jsonld { render text: @item.admin_rdf_graph(uri).to_jsonld }
+        #format.rdfxml { render text: @item.admin_rdf_graph(uri).to_rdfxml }
+        #format.ttl { render text: @item.admin_rdf_graph(uri).to_ttl }
       end
     end
 
     def update
-      @item = Repository::Item.find_by_web_id(params[:web_id])
-      raise ActiveRecord::RecordNotFound unless @item
+      @item = Item.find(params[:id])
 
       command = UpdateRepositoryItemCommand.new(@item, sanitized_params)
       begin
         executor.execute(command)
       rescue => e
-        response.headers['X-Kumquat-Result'] = 'error'
+        response.headers['X-PearTree-Result'] = 'error'
         flash['error'] = "#{e}"
         redirect_to :back
       else
-        response.headers['X-Kumquat-Result'] = 'success'
+        response.headers['X-PearTree-Result'] = 'success'
         flash['success'] = "Item \"#{@item.title}\" updated."
-        redirect_to admin_repository_item_url(@item) unless request.xhr?
+        redirect_to admin_item_url(@item) unless request.xhr?
       end
 
       render 'show' if request.xhr?
@@ -168,7 +161,7 @@ module Admin
     private
 
     def sanitized_params
-      params.require(:repository_item).permit(:full_text)
+      params.require(:item).permit(:full_text)
     end
 
   end

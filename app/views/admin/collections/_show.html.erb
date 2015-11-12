@@ -20,7 +20,7 @@
     <% end %>
   <% end %>
   <button type="button" class="btn btn-default" data-toggle="modal"
-          data-target="#kq-edit-collection-modal">
+          data-target="#pt-edit-collection-modal">
     <i class="fa fa-pencil-square-o"></i> Edit
   </button>
   <%= link_to admin_repository_collection_path(@collection), method: 'delete',
@@ -44,27 +44,27 @@
 
   <ul class="nav nav-tabs" role="tablist">
     <li role="presentation" class="active">
-      <a href="#kq-configuration" aria-controls="home" role="tab" data-toggle="tab">Configuration</a>
+      <a href="#pt-configuration" aria-controls="home" role="tab" data-toggle="tab">Configuration</a>
     </li>
     <li role="presentation">
-      <a href="#kq-triples" aria-controls="home" role="tab" data-toggle="tab">Public RDF</a>
+      <a href="#pt-triples" aria-controls="home" role="tab" data-toggle="tab">Public RDF</a>
     </li>
     <li role="presentation">
-      <a href="#kq-repository" aria-controls="home" role="tab" data-toggle="tab">Fedora RDF</a>
+      <a href="#pt-repository" aria-controls="home" role="tab" data-toggle="tab">Fedora RDF</a>
     </li>
   </ul>
 
   <div class="tab-content">
 
     <!-- Configuration pane -->
-    <div role="tabpanel" class="tab-pane active" id="kq-configuration">
+    <div role="tabpanel" class="tab-pane active" id="pt-configuration">
       <dl>
         <dt>Metadata Profile</dt>
         <dd>
           <%= @collection.db_counterpart.metadata_profile.name %>
           <button type="button" class="btn btn-default btn-xs"
                   data-toggle="modal" data-backdrop="false"
-                  data-target="#kq-metadata-profile-panel">
+                  data-target="#pt-metadata-profile-panel">
             <i class="fa fa-pencil"></i> Edit
           </button>
         </dd>
@@ -73,7 +73,7 @@
           <%= @collection.db_counterpart.theme ? @collection.db_counterpart.theme.name :
                       raw("None (has the #{link_to('default theme', admin_themes_path)})") %>
           <button type="button" class="btn btn-default btn-xs"
-                  data-toggle="modal" data-backdrop="false" data-target="#kq-theme-panel">
+                  data-toggle="modal" data-backdrop="false" data-target="#pt-theme-panel">
             <i class="fa fa-pencil"></i> Edit
           </button>
         </dd>
@@ -81,12 +81,12 @@
     </div>
 
     <!-- Public RDF pane -->
-    <div role="tabpanel" class="tab-pane" id="kq-triples">
+    <div role="tabpanel" class="tab-pane" id="pt-triples">
       <%= triples_as_dl(@collection, full_label_info: true) %>
     </div>
 
     <!-- Repository pane -->
-    <div role="tabpanel" class="tab-pane" id="kq-repository">
+    <div role="tabpanel" class="tab-pane" id="pt-repository">
       <pre><%= @collection.rdf_graph.dump(:ttl) %></pre>
     </div>
 
@@ -95,15 +95,15 @@
 </div> <!-- .tabpanel -->
 
 <!-- edit panel -->
-<div class="modal fade" id="kq-edit-collection-modal" tabindex="-1" role="dialog"
-     aria-labelledby="kq-edit-collection-modal-label">
+<div class="modal fade" id="pt-edit-collection-modal" tabindex="-1" role="dialog"
+     aria-labelledby="pt-edit-collection-modal-label">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
-        <h4 class="modal-title" id="kq-edit-collection-modal-label">Edit Collection</h4>
+        <h4 class="modal-title" id="pt-edit-collection-modal-label">Edit Collection</h4>
       </div>
       <div class="modal-body">
         <%= render partial: 'form', locals: { collection: @collection,
@@ -114,7 +114,7 @@
 </div>
 
 <!-- metadata profile panel -->
-<div class="modal fade kq-edit-panel" id="kq-metadata-profile-panel">
+<div class="modal fade pt-edit-panel" id="pt-metadata-profile-panel">
   <div class="modal-dialog modal-sm">
     <div class="modal-content">
       <%= form_for([:admin, @collection.db_counterpart], remote: true) do |f| %>
@@ -122,7 +122,7 @@
           <h4 class="modal-title">Metadata Profile</h4>
         </div>
         <div class="modal-body">
-          <div class="kq-error-messages">
+          <div class="pt-error-messages">
             <% # populated via ajax by shared/_validation_messages.js.erb
             %>
           </div>
@@ -140,7 +140,7 @@
 </div>
 
 <!-- theme panel -->
-<div class="modal fade kq-edit-panel" id="kq-theme-panel">
+<div class="modal fade pt-edit-panel" id="pt-theme-panel">
   <div class="modal-dialog modal-sm">
     <div class="modal-content">
       <%= form_for([:admin, @collection.db_counterpart], remote: true) do |f| %>
@@ -148,7 +148,7 @@
           <h4 class="modal-title">Theme</h4>
         </div>
         <div class="modal-body">
-          <div class="kq-error-messages">
+          <div class="pt-error-messages">
             <% # populated via ajax by shared/_validation_messages.js.erb
             %>
           </div>

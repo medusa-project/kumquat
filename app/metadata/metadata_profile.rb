@@ -18,7 +18,8 @@ class MetadataProfile < ActiveRecord::Base
   #
   def dup
     clone = super
-    self.elements.each { |t| clone.elements << t.dup }
+    clone.default = false
+    self.element_defs.each { |t| clone.element_defs << t.dup }
     clone
   end
 

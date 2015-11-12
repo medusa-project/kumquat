@@ -21,17 +21,17 @@
   <body <%= !yield(:body_id).empty? ? raw("id=\"#{yield(:body_id)}\"") : nil %>
         <%= raw("data-nav=\"#{yield(:active_nav)}\"") %>>
 
-    <%= hidden_field_tag('kq-root-path', root_path) %>
-    <%= hidden_field_tag('kq-root-url', root_url) %>
+    <%= hidden_field_tag('pt-root-path', root_path) %>
+    <%= hidden_field_tag('pt-root-url', root_url) %>
 
     <%= render 'layouts/header' %>
 
-    <nav class="navbar navbar-default" role="navigation" id="kq-main-nav">
+    <nav class="navbar navbar-default" role="navigation" id="pt-main-nav">
       <div class="container-fluid">
         <!-- Brand and toggle get grouped for better mobile display -->
         <div class="navbar-header">
           <button type="button" class="navbar-toggle" data-toggle="collapse"
-                  data-target="#kq-navbar-collapse">
+                  data-target="#pt-navbar-collapse">
             <span class="sr-only">Toggle navigation</span>
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
@@ -41,7 +41,7 @@
         </div>
 
         <!-- Collect the nav links, forms, and other content for toggling -->
-        <div class="collapse navbar-collapse" id="kq-navbar-collapse">
+        <div class="collapse navbar-collapse" id="pt-navbar-collapse">
           <ul class="nav navbar-nav">
             <li id="collections-nav">
               <%= link_to collections_path do %>
@@ -70,7 +70,7 @@
               <%= link_to favorites_path do %>
                 <span class="fa fa-heart"></span>
                 My Favorites
-                <span class="badge kq-favorites-count"><%= num_favorites %></span>
+                <span class="badge pt-favorites-count"><%= num_favorites %></span>
               <% end %>
             </li>
           </ul>
@@ -90,14 +90,14 @@
     <div class="container-fluid">
 
       <% flash.each do |type, message| %>
-        <div class="kq-flash alert alert-dismissable <%= bootstrap_class_for(type) %>">
+        <div class="pt-flash alert alert-dismissable <%= bootstrap_class_for(type) %>">
           <button type="button" class="close" data-dismiss="alert"
                   aria-hidden="true">&times;</button>
           <%= message %>
         </div>
       <% end %>
 
-      <div id="kq-page-content">
+      <div id="pt-page-content">
         <%= yield %>
       </div>
     </div>

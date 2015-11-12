@@ -9,7 +9,7 @@
 
 <div class="pull-right">
   <button type="button" class="btn btn-default" data-toggle="modal"
-          data-target="#kq-add-profile-modal">
+          data-target="#pt-add-profile-modal">
     <span class="fa fa-plus"></span> Add Profile
   </button>
 </div>
@@ -20,7 +20,7 @@
   The default profile will be used in cross-collection contexts.
 </div>
 
-<table class="table table-striped kq-predicates">
+<table class="table table-striped pt-predicates">
   <thead>
     <th style="width:1px"></th>
     <th style="width:1px"></th>
@@ -48,18 +48,18 @@
   </tbody>
 </table>
 
-<div class="modal fade" id="kq-add-profile-modal" tabindex="-1" role="dialog"
-     aria-labelledby="kq-add-profile-modal-label">
+<div class="modal fade" id="pt-add-profile-modal" tabindex="-1" role="dialog"
+     aria-labelledby="pt-add-profile-modal-label">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
-        <h4 class="modal-title" id="kq-add-profile-modal-label">Add Profile</h4>
+        <h4 class="modal-title" id="pt-add-profile-modal-label">Add Profile</h4>
       </div>
       <div class="modal-body">
-        <%= render partial: 'form', locals: { profile: @new_profile,
+        <%= render partial: 'form', locals: { metadata_profile: @new_profile,
                                               context: :new } %>
       </div>
     </div>

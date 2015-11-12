@@ -1,12 +1,12 @@
 body#items_index {
-  .kq-search {
-    .kq-triples .form-group:first-child .kq-remove-field {
+  .pt-search {
+    .pt-triples .form-group:first-child .pt-remove-field {
       display:none;
     }
-    .kq-triples select {
+    .pt-triples select {
       max-width:40%;
     }
-    .kq-collections {
+    .pt-collections {
       max-height: 15em;
       overflow-y: scroll;
       ol {
@@ -17,7 +17,7 @@ body#items_index {
     }
   }
 
-  .kq-list-results ol {
+  .pt-list-results ol {
     margin-left:0px;
     padding-left:0px;
     li {
@@ -27,7 +27,7 @@ body#items_index {
         display: inline-block;
         vertical-align: middle;
         width: 100%;
-        div.kq-thumbnail {
+        div.pt-thumbnail {
           float:left;
           font-size:75px;
           height: 100px;
@@ -39,40 +39,40 @@ body#items_index {
             max-width: 100px;
           }
         }
-        .kq-title {
+        .pt-title {
           font-size: 1.4em;
         }
-        .kq-description {
+        .pt-description {
         }
       }
     }
   }
 }
 
-body#items_show div#kq-page-content {
-  table.kq-triples tr:first-child > td {
+body#items_show div#pt-page-content {
+  table.pt-triples tr:first-child > td {
     border-top: 0px;
   }
   /* display metadata in a 2-column table if the screen is wide enough
   (IMET-83) */
   @media screen and (max-width: 800px) {
-    table.kq-triples {
+    table.pt-triples {
       display: none;
     }
-    dl.kq-triples {
+    dl.pt-triples {
       display: block;
     }
   }
   @media screen and (min-width: 801px) {
-    table.kq-triples {
+    table.pt-triples {
       display: block;
     }
-    dl.kq-triples {
+    dl.pt-triples {
       display: none;
     }
   }
 
-  #kq-pages ol {
+  #pt-pages ol {
     margin-left:0px;
     padding-left:0px;
     li {
@@ -82,7 +82,7 @@ body#items_show div#kq-page-content {
         display: inline-block;
         vertical-align: middle;
         width: 100%;
-        div.kq-thumbnail {
+        div.pt-thumbnail {
           float:left;
           font-size:75px;
           height: 80px;
@@ -94,14 +94,14 @@ body#items_show div#kq-page-content {
             max-width: 80px;
           }
         }
-        .kq-title {
+        .pt-title {
           font-size: 1.4em;
         }
       }
     }
   }
 
-  #kq-edit-full-text-panel {
+  #pt-edit-full-text-panel {
     textarea {
       font-family: monospace;
       min-height: 20em;
