@@ -1,0 +1,61 @@
+<% provide :title, 'Collections' %>
+<% provide :body_id, 'collections_index' %>
+<% provide :active_nav, 'entities' %>
+
+<ol class="breadcrumb">
+  <li><%= link_to 'Home', admin_root_path %></li>
+  <li class="active">Collections</li>
+</ol>
+
+<div class="btn-group pull-right">
+  <button type="button" class="btn btn-default" data-toggle="modal"
+          data-target="#kq-new-collection-modal">
+    <i class="fa fa-cubes"></i> New Collection
+  </button>
+</div>
+
+<h1>Collections <small><%= @collections.total_length %> total</small></h1>
+
+<table class="table table-striped">
+  <thead>
+    <th>Collection</th>
+    <th>ID</th>
+    <th>Published</th>
+    <th>Items</th>
+    <th>Metadata Profile</th>
+    <th>Theme</th>
+  </thead>
+  <tbody>
+    <% @collections.each do |collection| %>
+      <tr>
+        <td><%= link_to collection.title, admin_collection_path(collection) %></td>
+        <td><%= collection.id %></td>
+        <td><span class="label <%= collection.published ? 'label-success' : 'label-danger' %>">
+            <%= collection.published ? 'Published' : 'Unpublished' %></span></td>
+        <td><%= collection.num_items %></td>
+        <td><%= collection.collection_def.metadata_profile.name %></td>
+        <td><%= collection.collection_def.theme ? collection.collection_def.theme.name : '' %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<%= paginate(@collections, @limit, @current_page) %>
+
+<div class="modal fade" id="kq-new-collection-modal" tabindex="-1" role="dialog"
+     aria-labelledby="kq-new-collection-modal-label">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title" id="kq-new-collection-modal-label">New Collection</h4>
+      </div>
+      <div class="modal-body">
+        <%= render partial: 'form', locals: { collection: @collection,
+                                              context: :create } %>
+      </div>
+    </div>
+  </div>
+</div>

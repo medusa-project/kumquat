@@ -1,8 +1,8 @@
-var Kumquat = {
+var PearTree = {
 
     Events: {
-        ITEM_ADDED_TO_FAVORITES: 'KQItemAddedToFavorites',
-        ITEM_REMOVED_FROM_FAVORITES: 'KQItemRemovedFromFavorites'
+        ITEM_ADDED_TO_FAVORITES: 'PTItemAddedToFavorites',
+        ITEM_REMOVED_FROM_FAVORITES: 'PTItemRemovedFromFavorites'
     },
 
     Flash: {
@@ -11,7 +11,7 @@ var Kumquat = {
 
         /**
          * @param text
-         * @param type Value of the X-Kumquat-Message-Type header
+         * @param type Value of the X-PearTree-Message-Type header
          * @return void
          */
         set: function(text, type) {
@@ -32,29 +32,29 @@ var Kumquat = {
             }
 
             // remove any existing messages
-            $('div.kq-flash').remove();
+            $('div.pt-flash').remove();
 
             // construct the message
-            var flash = $('<div class="kq-flash alert ' + bootstrap_class + '"></div>');
+            var flash = $('<div class="pt-flash alert ' + bootstrap_class + '"></div>');
             var button = $('<button type="button" class="close"' +
             ' data-dismiss="alert" aria-hidden="true">&times;</button>');
             flash.append(button);
             button.after(text);
 
             // append the flash to the DOM
-            $('#kq-page-content').before(flash);
+            $('#pt-page-content').before(flash);
 
             // make it disappear after a delay
             setTimeout(function() {
                 flash.fadeOut();
-            }, Kumquat.Flash.FADE_OUT_DELAY);
+            }, PearTree.Flash.FADE_OUT_DELAY);
         }
 
     },
 
     SearchBar: function() {
 
-        var ELEMENT = $('#kq-search-accordion');
+        var ELEMENT = $('#pt-search-accordion');
         if (!ELEMENT.length) {
             return false;
         }
@@ -69,7 +69,7 @@ var Kumquat = {
 
         function construct() {
             ELEMENT.css('margin-top',
-                '-' + $('#kq-main-nav').css('margin-bottom'));
+                '-' + $('#pt-main-nav').css('margin-bottom'));
             ELEMENT.css('height', 0);
 
             ELEMENT.find('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
@@ -109,25 +109,25 @@ var Kumquat = {
      */
     init: function() {
         // make flash messages disappear after a delay
-        var flash = $('div.kq-flash');
+        var flash = $('div.pt-flash');
         if (flash.length) {
             setTimeout(function () {
                 flash.fadeOut();
-            }, Kumquat.Flash.FADE_OUT_DELAY);
+            }, PearTree.Flash.FADE_OUT_DELAY);
         }
 
         // make the active nav bar nav active
         $('.navbar-nav li').removeClass('active');
         $('.navbar-nav li#' + $('body').attr('data-nav') + '-nav').addClass('active');
 
-        // clear kq_* text from any search fields
+        // clear pt_* text from any search fields
         $('input[name="q"]').each(function() {
-            if ($(this).val().match(/kq_/)) {
+            if ($(this).val().match(/pt_/)) {
                 $(this).val(null);
             }
         });
 
-        var search_bar = new Kumquat.SearchBar();
+        var search_bar = new PearTree.SearchBar();
         $('#search-nav').on('click', function() {
             search_bar.toggle();
             return false;
@@ -142,7 +142,7 @@ var Kumquat = {
 };
 
 var ready = function() {
-    Kumquat.init();
+    PearTree.init();
 };
 
 $(document).ready(ready);

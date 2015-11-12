@@ -1,11 +1,11 @@
-var ServerStatusMonitor = function() {
+var PTServerStatusMonitor = function() {
 
     var refresh_timer;
 
     var refresh = function() {
         console.log('Refreshing server status...');
-        $('.kq-dynamic-status').each(function() {
-            var status = $(this).find('.kq-service-status:first');
+        $('.pt-dynamic-status').each(function() {
+            var status = $(this).find('.pt-service-status:first');
             var check_url = status.attr('data-check');
             $.ajax({
                 url: check_url,
@@ -42,7 +42,7 @@ var monitor;
 
 var ready = function() {
     if ($('body#server').length) {
-        monitor = new ServerStatusMonitor();
+        monitor = new PTServerStatusMonitor();
         monitor.start();
     }
 };

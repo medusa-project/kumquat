@@ -1,0 +1,63 @@
+<% position_options = options_from_collection_for_select(
+        [Triple.new(predicate: 'Nothing (First)', index: 0)] +
+                triple.metadata_profile.triples.order(:index),
+        :index, :predicate, selected: triple.index ? triple.index - 1 : 0) %>
+
+<%= form_for([:admin, triple], remote: true) do |f| %>
+  <div class="kq-error-messages">
+    <% # populated via ajax by shared/_validation_messages.js.erb
+    %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :predicate %>
+    <%= f.text_field :predicate, class: 'form-control' %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :label %>
+    <%= f.text_field :label, class: 'form-control' %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :index, 'Position After' %>
+    <%= f.select :index, position_options, {}, class: 'form-control' %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :facet_id, 'Facet' %>
+    <%= f.select(:facet_id,
+                 options_for_select(Facet.order(:name).map{ |f| [f.name, f.id] },
+                                    selected: f.object.facet_id),
+                 { include_blank: 'None' }, { class: 'form-control' }) %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :facet_label %>
+    <%= f.text_field :facet_label, class: 'form-control' %>
+  </div>
+
+  <div class="checkbox">
+    <label>
+      <%= f.check_box :visible %>
+      Visible
+    </label>
+  </div>
+
+  <div class="checkbox">
+    <label>
+      <%= f.check_box :searchable %>
+      Searchable
+    </label>
+  </div>
+
+  <%= f.hidden_field :metadata_profile_id, value: profile.id %>
+
+  <div class="clearfix">
+    <div class="pull-right">
+      <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+      <%= f.submit(context == :new ? 'Create Triple' : 'Edit Triple',
+                   class: 'btn btn-primary') %>
+    </div>
+  </div>
+<% end %>

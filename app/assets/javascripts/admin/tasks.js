@@ -1,4 +1,4 @@
-var TaskRefresher = function() {
+var PTTaskRefresher = function() {
 
     var FREQUENCY = 4000;
 
@@ -9,7 +9,7 @@ var TaskRefresher = function() {
 
         var tasks_url = $('input[name="tasks-url"]').val();
         $.get(tasks_url, function (data) {
-            $('#kq-tasks-list').html(data);
+            $('#pt-tasks-list').html(data);
             console.log('Refreshed task list');
         });
     };
@@ -27,7 +27,7 @@ var task_refresher;
 
 var ready = function() {
     if ($('body#tasks').length) {
-        task_refresher = new TaskRefresher();
+        task_refresher = new PTTaskRefresher();
         task_refresher.start();
     }
 };

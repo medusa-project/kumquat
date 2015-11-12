@@ -1,0 +1,55 @@
+<% provide :title, 'Facets' %>
+<% provide :body_id, 'facets' %>
+<% provide :active_nav, 'metadata' %>
+
+<ol class="breadcrumb">
+  <li><%= link_to 'Home', admin_root_path %></li>
+  <li class="active">Facets</li>
+</ol>
+
+<div class="pull-right">
+  <button type="button" class="btn btn-default" data-toggle="modal"
+          data-target="#pt-add-facet-modal">
+    <span class="fa fa-plus"></span> Add Facet
+  </button>
+</div>
+
+<h1>Facets</h1>
+
+<table class="table table-striped pt-predicates">
+  <thead>
+    <th style="width:1px"></th>
+    <th>Name</th>
+    <th>Solr Field</th>
+  </thead>
+  <tbody>
+    <% @facets.each do |facet| %>
+      <tr>
+        <td>
+          <%= link_to 'Delete', admin_facet_def_path(facet), method: :delete,
+                      class: 'btn btn-xs btn-danger' %>
+        </td>
+        <td><%= facet.name %></td>
+        <td><%= facet.solr_field %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<div class="modal fade" id="pt-add-facet-modal" tabindex="-1" role="dialog"
+     aria-labelledby="pt-add-facet-modal-label">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title" id="pt-add-facet-modal-label">Add Facet</h4>
+      </div>
+      <div class="modal-body">
+        <%= render partial: 'form',
+                   locals: { facet_def: @new_facet, context: :new } %>
+      </div>
+    </div>
+  </div>
+</div>

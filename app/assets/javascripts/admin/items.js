@@ -1,30 +1,30 @@
 /**
  * @constructor
  */
-var AdminItemsView = function() {
+var PTAdminItemsView = function() {
 
-    var TRIPLE_LIMIT = 4;
+    var ELEMENT_LIMIT = 4;
 
     this.init = function() {
-        $('button.kq-add-triple').on('click', function() {
-            // limit to TRIPLE_LIMIT fields
-            if ($('.kq-triples .form-group').length < TRIPLE_LIMIT) {
+        $('button.pt-add-triple').on('click', function() {
+            // limit to ELEMENT_LIMIT fields
+            if ($('.pt-triples .form-group').length < ELEMENT_LIMIT) {
                 var clone = $(this).prev('.form-group').clone(true);
                 $(this).before(clone);
             }
         });
-        $('button.kq-remove-triple').on('click', function() {
-            if ($('.kq-triples .form-group').length > 1) {
+        $('button.pt-remove-element').on('click', function() {
+            if ($('.kq-elements .form-group').length > 1) {
                 $(this).closest('.form-group').remove();
             }
         });
 
-        $('button.kq-check-all').on('click', function() {
-            $(this).parent().find('.kq-collections').
+        $('button.pt-check-all').on('click', function() {
+            $(this).parent().find('.pt-collections').
                 find('input[type="checkbox"]').prop('checked', true);
         });
-        $('button.kq-uncheck-all').on('click', function() {
-            $(this).parent().find('.kq-collections').
+        $('button.pt-uncheck-all').on('click', function() {
+            $(this).parent().find('.pt-collections').
                 find('input[type="checkbox"]').prop('checked', false);
         });
     };
@@ -33,8 +33,8 @@ var AdminItemsView = function() {
 
 var ready = function() {
     if ($('body#items_index').length) {
-        Kumquat.view = new AdminItemsView();
-        Kumquat.view.init();
+        PearTree.view = new PTAdminItemsView();
+        PearTree.view.init();
     }
 };
 

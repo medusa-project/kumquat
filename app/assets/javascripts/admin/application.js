@@ -13,5 +13,5 @@
 //= require jquery
 //= require jquery_ujs
 //= require bootstrap-sprockets
-//= require ../kumquat
+//= require ../peartree
 //= require_tree .

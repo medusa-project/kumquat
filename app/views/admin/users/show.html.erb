@@ -1,0 +1,134 @@
+<% provide :title, @user.username %>
+<% provide :active_nav, 'access' %>
+
+<ol class="breadcrumb">
+  <li><%= link_to 'Home', admin_root_path %></li>
+  <li><%= link_to 'Users', admin_users_path %></li>
+  <li class="active"><%= @user.username %></li>
+</ol>
+
+<div class="btn-group pull-right">
+  <% if @user.enabled %>
+    <%= link_to admin_user_disable_path(@user), method: :patch,
+                class: 'btn btn-default btn-warning' do %>
+      <i class="fa fa-times"></i> Disable
+    <% end %>
+  <% else %>
+    <%= link_to admin_user_enable_path(@user), method: :patch,
+                class: 'btn btn-default btn-success' do %>
+      <i class="fa fa-check"></i> Enable
+    <% end %>
+  <% end %>
+  <%= link_to edit_admin_user_path(@user), class: 'btn btn-default' do %>
+    <i class="fa fa-pencil"></i> Edit
+  <% end %>
+  <%= link_to admin_user_path(@user), method: :delete,
+              class: 'btn btn-default btn-danger',
+              data: { confirm: 'Are you sure you want to delete this user?' } do %>
+    <i class="fa fa-trash"></i> Delete
+  <% end %>
+</div>
+
+<h1><%= @user.username %></h1>
+
+<div class="row">
+
+  <div class="col-sm-4">
+    <dl>
+      <dt>Roles</dt>
+      <dd>
+        <ul>
+          <% @user.roles.each do |role| %>
+            <li><%= link_to role.name, admin_role_path(role) %></li>
+          <% end %>
+        </ul>
+      </dd>
+      <dt>Account Status</dt>
+      <dd>
+        <span class="label <%= @user.enabled ? 'label-success' : 'label-danger' %>">
+            <%= @user.enabled ? 'Enabled' : 'Disabled' %></span>
+      </dd>
+      <dt>Account Created</dt>
+      <dd><%= local_time_ago(@user.created_at) %></dd>
+    </dl>
+  </div>
+
+  <div class="col-sm-8">
+
+    <ul class="nav nav-tabs">
+      <li class="active">
+        <a href="#permissions" data-toggle="tab">Permissions</a>
+      </li>
+      <li>
+        <a href="#roles" data-toggle="tab">Roles</a>
+      </li>
+    </ul>
+
+    <div class="tab-content">
+
+      <div id="permissions" class="tab-pane active">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th></th>
+              <th>Permission</th>
+              <th>From Role(s)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <div class="alert alert-info">
+              <p>Permissions are additive. Users can do anything that
+                any one of their roles can do.</p>
+            </div>
+            <% @permissions.each do |p| %>
+              <tr>
+                <td><%= @user.has_permission?(p.key) ?
+                                raw('<span class="text-success">&#x2713;</span>') :
+                                '' %></td>
+                <td><%= p.name %></td>
+                <td><%=raw @user.roles_having_permission(p.key).map {|r|
+                  link_to(r.name, admin_role_path(r)) }.join(', ') %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+
+      <div id="roles" class="tab-pane">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th style="width: 1%"></th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% Role.order(:name).each do |role| %>
+              <tr>
+                <td>
+                  <% if @user.roles.include?(role) %>
+                    <%= link_to admin_user_change_roles_path(@user, user: { id: @user.id }, do: :leave, role_id: role.id),
+                                method: :patch,
+                                class: 'btn btn-xs btn-danger' do %>
+                      <i class="fa fa-minus"></i> Leave
+                    <% end %>
+                  <% else %>
+                    <%= link_to admin_user_change_roles_path(@user, user: { id: @user.id }, do: :join, role_id: role.id),
+                                method: :patch,
+                                class: 'btn btn-xs btn-success' do %>
+                      <i class="fa fa-plus"></i> Join
+                    <% end %>
+                  <% end %>
+                </td>
+                <td><%= role.name %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

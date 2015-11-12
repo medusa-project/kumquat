@@ -1,0 +1,13 @@
+<% provide(:title, 'New User') %>
+<% provide(:body_id, 'users_new') %>
+<% provide :active_nav, 'access' %>
+
+<ol class="breadcrumb">
+  <li><%= link_to 'Home', admin_root_path %></li>
+  <li><%= link_to 'Users', admin_users_path %></li>
+  <li class="active">New User</li>
+</ol>
+
+<h1>New User</h1>
+
+<%= render partial: 'form', locals: { user: @user, context: :create } %>

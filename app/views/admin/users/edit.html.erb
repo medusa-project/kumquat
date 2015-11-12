@@ -1,0 +1,14 @@
+<% provide(:title, "Edit #{@user.username}") %>
+<% provide(:body_id, 'users_edit') %>
+<% provide :active_nav, 'access' %>
+
+<ol class="breadcrumb">
+  <li><%= link_to 'Home', admin_root_path %></li>
+  <li><%= link_to 'Users', admin_users_path %></li>
+  <li><%= link_to @user.username, admin_user_path(@user) %></li>
+  <li class="active">Edit</li>
+</ol>
+
+<h1>Edit <%= @user.username %></h1>
+
+<%= render partial: 'form', locals: { user: @user, context: :edit } %>

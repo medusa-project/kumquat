@@ -21,6 +21,37 @@ Option.create!(key: Option::Key::WEBSITE_INTRO_TEXT,
                value: 'Behold our great collections.')
 Option.create!(key: Option::Key::RESULTS_PER_PAGE, value: 30)
 
+# Facets
+facets = {}
+facets[:audience] = FacetDef.create!(
+    name: 'Audience', solr_field: 'audience_facet')
+facets[:cartographicScale] = FacetDef.create!(
+    name: 'Cartographic Scale', solr_field: 'cartographic_scale_facet')
+facets[:collection] = FacetDef.create!(
+    name: 'Collection', solr_field: 'collection_facet')
+facets[:contributor] = FacetDef.create!(
+    name: 'Contributor', solr_field: 'contributor_facet')
+facets[:coverage] = FacetDef.create!(
+    name: 'Coverage', solr_field: 'coverage_facet')
+facets[:creator] = FacetDef.create!(
+    name: 'Creator', solr_field: 'creator_facet')
+facets[:date] = FacetDef.create!(
+    name: 'Date', solr_field: 'date_facet')
+facets[:educationLevel] = FacetDef.create!(
+    name: 'Education Level', solr_field: 'education_level_facet')
+facets[:format] = FacetDef.create!(
+    name: 'Format', solr_field: 'format_facet')
+facets[:language] = FacetDef.create!(
+    name: 'Language', solr_field: 'language_facet')
+facets[:publisher] = FacetDef.create!(
+    name: 'Publisher', solr_field: 'publisher_facet')
+facets[:source] = FacetDef.create!(
+    name: 'Source', solr_field: 'source_facet')
+facets[:subject] = FacetDef.create!(
+    name: 'Subject', solr_field: 'subject_facet')
+facets[:type] = FacetDef.create!(
+    name: 'Type', solr_field: 'type_facet')
+
 # Metadata profiles
 profiles = {}
 profiles[:default] = MetadataProfile.create!(name: 'Default Profile',
@@ -343,7 +374,7 @@ ElementDef.create!(
     metadata_profile: profiles[:default])
 ElementDef.create!(
     name: 'physicalLocation',
-    label: 'PhysicalLocation',
+    label: 'Physical Location',
     visible: true,
     searchable: true,
     index: 45,
@@ -357,7 +388,7 @@ ElementDef.create!(
     metadata_profile: profiles[:default])
 ElementDef.create!(
     name: 'publicationPlace',
-    label: 'PublicationPlace',
+    label: 'Publication Place',
     visible: true,
     searchable: true,
     index: 47,
@@ -467,6 +498,28 @@ ElementDef.create!(
     searchable: true,
     index: 62,
     metadata_profile: profiles[:default])
+
+# Admin user
+users = {}
+users[:admin] = User.create!(
+    email: 'admin@example.org',
+    username: 'admin',
+    password: 'kumquats4ever',
+    enabled: true)
+
+if Rails.env.development? or Rails.env.uiuc_development?
+  # Non-admin users
+  users[:cataloger] = User.create!(
+      email: 'cataloger@example.org',
+      username: 'cataloger',
+      password: 'password',
+      enabled: true)
+  users[:disabled] = User.create!(
+      email: 'disabled@example.org',
+      password: 'password',
+      username: 'disabled',
+      enabled: false)
+end
 
 if Rails.env.start_with?('uiuc')
 

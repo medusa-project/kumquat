@@ -1,0 +1,11 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  index: 1
+  name: MyString
+  solr_field: MyString
+
+two:
+  index: 1
+  name: MyString
+  solr_field: MyString

@@ -3,15 +3,15 @@
  *
  * @constructor
  */
-var KQSearchPanel = function() {
+var PTSearchPanel = function() {
 
     this.init = function() {
-        $('button.kq-check-all').on('click', function() {
-            $(this).closest('.kq-collections').find('input[type="checkbox"]').
+        $('button.pt-check-all').on('click', function() {
+            $(this).closest('.pt-collections').find('input[type="checkbox"]').
                 prop('checked', true);
         });
-        $('button.kq-uncheck-all').on('click', function() {
-            $(this).closest('.kq-collections').find('input[type="checkbox"]').
+        $('button.pt-uncheck-all').on('click', function() {
+            $(this).closest('.pt-collections').find('input[type="checkbox"]').
                 prop('checked', false);
         });
     };
@@ -19,8 +19,8 @@ var KQSearchPanel = function() {
 };
 
 var ready = function() {
-    if ($('#kq-search-accordion').length) {
-        var panel = new KQSearchPanel();
+    if ($('#pt-search-accordion').length) {
+        var panel = new PTSearchPanel();
         panel.init();
     }
 };

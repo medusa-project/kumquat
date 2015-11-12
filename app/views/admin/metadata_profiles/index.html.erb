@@ -1,0 +1,67 @@
+<% provide :title, 'Metadata Profiles' %>
+<% provide :body_id, 'metadata_profiles' %>
+<% provide :active_nav, 'metadata' %>
+
+<ol class="breadcrumb">
+  <li><%= link_to 'Home', admin_root_path %></li>
+  <li class="active">Metadata Profiles</li>
+</ol>
+
+<div class="pull-right">
+  <button type="button" class="btn btn-default" data-toggle="modal"
+          data-target="#kq-add-profile-modal">
+    <span class="fa fa-plus"></span> Add Profile
+  </button>
+</div>
+
+<h1>Metadata Profiles</h1>
+
+<div class="alert alert-info">
+  The default profile will be used in cross-collection contexts.
+</div>
+
+<table class="table table-striped kq-predicates">
+  <thead>
+    <th style="width:1px"></th>
+    <th style="width:1px"></th>
+    <th>Name</th>
+  </thead>
+  <tbody>
+    <% @profiles.each do |profile| %>
+      <tr>
+        <td>
+          <%= link_to 'Delete', admin_metadata_profile_path(profile), method: :delete,
+                      class: 'btn btn-xs btn-danger' %>
+        </td>
+        <td class="text-center">
+          <% if profile.default %>
+            <span class="label label-success">Default</span>
+          <% else %>
+            <%= link_to 'Set As Default',
+                        admin_metadata_profile_path(profile, metadata_profile: { default: true }),
+                        class: 'btn btn-default btn-xs', method: :patch %>
+          <% end %>
+        </td>
+        <td><%= link_to profile.name, admin_metadata_profile_path(profile) %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<div class="modal fade" id="kq-add-profile-modal" tabindex="-1" role="dialog"
+     aria-labelledby="kq-add-profile-modal-label">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title" id="kq-add-profile-modal-label">Add Profile</h4>
+      </div>
+      <div class="modal-body">
+        <%= render partial: 'form', locals: { profile: @new_profile,
+                                              context: :new } %>
+      </div>
+    </div>
+  </div>
+</div>

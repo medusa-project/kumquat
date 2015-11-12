@@ -1,0 +1,72 @@
+<% provide :title, @role.name %>
+<% provide :active_nav, 'access' %>
+
+<ol class="breadcrumb">
+  <li><%= link_to 'Home', admin_root_path %></li>
+  <li><%= link_to 'Roles', admin_roles_path %></li>
+  <li class="active"><%= @role.name %></li>
+</ol>
+
+<div class="btn-group pull-right">
+  <% if current_user.can?(Permission::ROLES_UPDATE) %>
+    <%= link_to edit_admin_role_path(@role), class: 'btn btn-default' do %>
+      <%= content_tag(:span, '', class: 'glyphicon glyphicon-pencil') %>
+      Edit
+    <% end %>
+  <% end %>
+  <% if current_user.can?(Permission::ROLES_DELETE) and !@role.required %>
+    <%= link_to admin_role_path(@role), method: 'delete',
+                class: 'btn btn-default btn-disabled',
+                data: { confirm: 'Are you sure you want to delete this '\
+                'role?' } do %>
+              <%= content_tag(:span, '', class: 'glyphicon glyphicon-trash') %>
+              Delete
+    <% end %>
+  <% end %>
+</div>
+
+<h1><%= @role.name %> <small><%= @role.key %></small></h1>
+
+<div class="row">
+
+  <div class="col-sm-6">
+    <h2>Permissions</h2>
+    <table class="table table-striped">
+      <thead>
+      <tr>
+        <th></th>
+        <th></th>
+      </tr>
+      </thead>
+      <tbody>
+      <% @permissions.each do |p| %>
+        <tr>
+          <td><%= @role.has_permission?(p.key) ?
+                          raw('<span class="text-success">&#x2713;</span>') :
+                          '-' %></td>
+          <td><%= p.name %></td>
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="col-sm-6">
+    <h2>Users</h2>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @role.users.each do |user| %>
+          <tr>
+            <td><%= link_to user.username, admin_user_path(user) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+
+</div>

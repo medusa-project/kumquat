@@ -1,42 +1,42 @@
 /**
  * @constructor
  */
-var KQFavoritesView = function() {
+var PTFavoritesView = function() {
 
     this.init = function() {
-        $(document).on(Kumquat.Events.ITEM_REMOVED_FROM_FAVORITES, function(event, item) {
-            $('.kq-results button[data-web-id="' + item.web_id + '"]').
+        $(document).on(PearTree.Events.ITEM_REMOVED_FROM_FAVORITES, function(event, item) {
+            $('.pt-results button[data-web-id="' + item.web_id + '"]').
                 closest('li').fadeOut(function() {
-                    var badge = $('.kq-favorites-count');
-                    var num_favorites = KQItem.numFavorites();
+                    var badge = $('.pt-favorites-count');
+                    var num_favorites = PTItem.numFavorites();
                     badge.text(num_favorites);
                     if (num_favorites < 1) {
-                        $('.kq-no-favorites').show();
+                        $('.pt-no-favorites').show();
                     } else {
-                        $('.kq-no-favorites').hide();
+                        $('.pt-no-favorites').hide();
                     }
                 });
         });
-        $('button.kq-remove-from-favorites').on('click', function() {
-            var item = new KQItem();
+        $('button.pt-remove-from-favorites').on('click', function() {
+            var item = new PTItem();
             item.web_id = $(this).data('web-id');
             item.removeFromFavorites();
         });
 
-        if (KQItem.numFavorites() < 1) {
-            $('.kq-no-favorites').show();
+        if (PTItem.numFavorites() < 1) {
+            $('.pt-no-favorites').show();
         } else {
-            $('.kq-no-favorites').hide();
+            $('.pt-no-favorites').hide();
         }
-        $('.kq-remove-from-favorites').show();
+        $('.pt-remove-from-favorites').show();
     };
 
 };
 
 var ready = function() {
     if ($('body#favorites').length) {
-        Kumquat.view = new KQFavoritesView();
-        Kumquat.view.init();
+        PearTree.view = new PTFavoritesView();
+        PearTree.view.init();
     }
 };
 

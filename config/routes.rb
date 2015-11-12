@@ -54,8 +54,15 @@ Rails.application.routes.draw do
   #     resources :products
   #   end
 
+  concern :publishable do
+    patch 'publish'
+    patch 'unpublish'
+  end
+
   root 'landing#index'
 
+  match '/auth/:provider/callback', to: 'sessions#create', via: [:get, :post],
+        as: :auth # used by omniauth
   resources :collections, only: [:index, :show] do
     resources :items, only: :index
   end
@@ -69,4 +76,41 @@ Rails.application.routes.draw do
   match '/search', to: 'items#search', via: 'post'
   match '/signin', to: 'sessions#new', via: 'get'
   match '/signout', to: 'sessions#destroy', via: 'delete'
+
+  namespace :admin do
+    root 'dashboard#index'
+
+    resources :collections, except: [:new, :edit], concerns: :publishable
+    #resources :collections, param: :key, as: :db_collections
+    resources :facet_defs
+    #match '/items/search', to: 'items#search', via: %w(get post),
+    #      as: 'repository_items_search'
+    resources :items, concerns: :publishable do
+      match '/full-text/clear', to: 'items#clear_full_text', via: 'patch',
+            as: 'clear_full_text'
+      match '/full-text/extract', to: 'items#extract_full_text', via: 'patch',
+            as: 'extract_full_text'
+    end
+    resources :metadata_profiles, path: 'metadata-profiles' do
+      match '/clone', to: 'metadata_profiles#clone', via: 'patch', as: 'clone'
+    end
+    #resources :roles, param: :key
+    match '/server', to: 'server#index', via: 'get'
+    match '/server/image-server-status', to: 'server#image_server_status',
+          via: 'get', as: 'server_image_server_status'
+    match '/server/reindex', to: 'server#reindex', via: 'patch',
+          as: 'server_reindex'
+    match '/server/search-server-status', to: 'server#search_server_status',
+          via: 'get', as: 'server_search_server_status'
+    match '/settings', to: 'settings#index', via: 'get'
+    match '/settings', to: 'settings#update', via: 'patch'
+    match '/tasks', to: 'tasks#index', via: 'get'
+    resources :themes, controller: :themes, path: 'themes', except: :show
+    #resources :triples, only: [:create, :update, :destroy, :edit]
+    resources :users, param: :username do
+      match '/enable', to: 'users#enable', via: 'patch', as: 'enable'
+      match '/disable', to: 'users#disable', via: 'patch', as: 'disable'
+      match '/roles', to: 'users#change_roles', via: 'patch', as: 'change_roles'
+    end
+  end
 end

@@ -1,0 +1,141 @@
+<% provide :title, @profile.name %>
+<% provide :body_id, 'metadata_profiles_show' %>
+<% provide :active_nav, 'metadata' %>
+
+<ol class="breadcrumb">
+  <li><%= link_to 'Home', admin_root_path %></li>
+  <li><%= link_to 'Metadata Profiles', admin_metadata_profiles_path %></li>
+  <li class="active"><%= @profile.name %></li>
+</ol>
+
+<div class="btn-group pull-right">
+  <button type="button" class="btn btn-default" data-toggle="modal"
+          data-target="#kq-edit-profile-modal">
+    <i class="fa fa-pencil"></i> Edit
+  </button>
+  <%= link_to admin_metadata_profile_clone_path(@profile), method: :patch,
+              class: 'btn btn-default' do %>
+    <i class="fa fa-copy"></i> Clone
+  <% end %>
+  <%= link_to admin_metadata_profile_path(@profile), method: :delete,
+              class: 'btn btn-danger',
+              data: { confirm: 'Are you sure you want to delete this '\
+                      'profile?' } do %>
+      <i class="fa fa-trash"></i> Delete
+  <% end %>
+</div>
+
+<h1><%= @profile.name %></h1>
+
+<div class="btn-group pull-right">
+  <button type="button" class="btn btn-default" data-toggle="modal"
+          data-target="#kq-add-triple-modal">
+    <i class="fa fa-plus"></i> Add Triple
+  </button>
+</div>
+
+<h2>Triples</h2>
+
+<% if @profile.triples.count > 0 %>
+
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th>RDF Predicate</th>
+        <th>Label</th>
+        <th>Visible</th>
+        <th>Searchable</th>
+        <th>Facet</th>
+        <th>Facet Label</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @profile.triples.order(:index).each_with_index do |triple, i| %>
+        <tr>
+          <td><%= triple.index + 1%></td>
+          <td>
+            <button type="button" class="btn btn-default btn-xs kq-edit-triple"
+                    data-toggle="modal" data-target="#kq-edit-triple-modal"
+                    data-triple-id="<%= triple.id %>">
+              Edit
+            </button>
+          </td>
+          <td>
+            <%= link_to 'Delete', admin_triple_path(triple),
+                        class: 'btn btn-danger btn-xs', method: :delete,
+                        data: { confirm: 'Are you sure you want to delete '\
+                        'this triple?' } %>
+          </td>
+          <td><%= triple.predicate %></td>
+          <td><%= triple.label %></td>
+          <td><%= boolean(triple.visible) %></td>
+          <td><%= boolean(triple.searchable) %></td>
+          <td><%= triple.facet %></td>
+          <td><%= triple.facet_label %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+<% else %>
+
+  <p>This profile has no triples.</p>
+
+<% end %>
+
+<div class="modal fade" id="kq-add-triple-modal" tabindex="-1" role="dialog"
+     aria-labelledby="kq-add-triple-modal-label">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title" id="kq-add-triple-modal-label">Add Triple</h4>
+      </div>
+      <div class="modal-body">
+        <%= render partial: 'admin/triples/form',
+                   locals: { triple: @new_triple, profile: @profile,
+                             context: :new } %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="kq-edit-profile-modal" tabindex="-1" role="dialog"
+     aria-labelledby="kq-edit-profile-modal-label">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title" id="kq-edit-profile-modal-label">Edit Profile</h4>
+      </div>
+      <div class="modal-body">
+        <%= render partial: 'form', locals: { profile: @profile,
+                                              context: :edit } %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="kq-edit-triple-modal" tabindex="-1" role="dialog"
+     aria-labelledby="kq-edit-triple-modal-label">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title" id="kq-edit-triple-modal-label">Edit Triple</h4>
+      </div>
+      <div class="modal-body">
+        <% # will be populated via XHR %>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,106 @@
+<ol class="breadcrumb">
+  <li><%= link_to 'Home', admin_root_path %></li>
+  <li><%= link_to 'Items', admin_repository_items_path %></li>
+  <li class="active"><%= truncate(@item.title, length: 50) %></li>
+</ol>
+
+<div class="btn-group pull-right">
+  <%= link_to @item, class: 'btn btn-default' do %>
+    <i class="fa fa-globe"></i> Public View
+  <% end %>
+  <%= download_button(@item, for_admin: true) %>
+<!--
+  <%= link_to edit_admin_repository_item_path(@item), class: 'btn btn-default' do %>
+    <i class="fa fa-pencil-square-o"></i> Edit
+  <% end %>
+-->
+  <%= link_to admin_repository_item_path(@item), method: 'delete',
+              class: 'btn btn-danger',
+              data: { confirm: 'Are you sure you want to delete this item?' } do %>
+    <i class="fa fa-trash"></i>
+    Delete
+  <% end %>
+</div>
+
+<% if @item.parent %>
+  <h1 class="kq-compound-title">
+    <small><%= link_to @item.parent.title, @item.parent %></small>
+    <br>&nbsp;&nbsp;&#8627; <%= @item.title %>
+  </h1>
+<% else %>
+  <h1><%= @item.title %>
+    <% if @item.subtitle %>
+      <br><small><%= @item.subtitle %></small>
+    <% end %>
+  </h1>
+<% end %>
+
+<%= viewer_for(@item) %>
+
+<div role="tabpanel">
+
+  <ul class="nav nav-tabs" role="tablist">
+    <li class="active" role="presentation">
+      <a href="#kq-triples" aria-controls="home" role="tab" data-toggle="tab">Public RDF</a>
+    </li>
+    <% if @pages.any? %>
+      <li role="presentation">
+        <a href="#kq-pages" aria-controls="home" role="tab" data-toggle="tab">
+          Pages <span class="badge"><%= @pages.length %></span></a>
+      </li>
+    <% end %>
+    <li role="presentation">
+      <a href="#kq-full-text" aria-controls="home" role="tab" data-toggle="tab">Full Text</a>
+    </li>
+    <li role="presentation">
+      <a href="#kq-repository" aria-controls="home" role="tab" data-toggle="tab">Repository</a>
+    </li>
+  </ul>
+
+  <div class="tab-content">
+
+    <!-- Public RDF pane -->
+    <div role="tabpanel" class="tab-pane active" id="kq-triples">
+      <%= triples_as_dl(@item, full_label_info: true) %>
+      <%= triples_as_table(@item, full_label_info: true) %>
+    </div>
+
+    <!-- Pages pane -->
+    <div role="tabpanel" class="tab-pane" id="kq-pages">
+      <%= pages_as_list(@item, link_to_admin: true) %>
+    </div>
+
+    <!-- Full Text pane -->
+    <div role="tabpanel" class="tab-pane" id="kq-full-text">
+      <div class="clearfix">
+        <div class="btn-group pull-right">
+          <button type="button" class="btn btn-default" data-toggle="modal"
+                  data-target="#kq-edit-full-text-panel" data-backdrop="false">
+            <i class="fa fa-pencil"></i> Edit
+          </button>
+          <%= link_to admin_repository_item_extract_full_text_path(@item),
+                      method: :patch, class: 'btn btn-default' do %>
+            <i class="fa fa-file-text-o"></i> Re-Extract
+          <% end %>
+          <%= link_to admin_repository_item_clear_full_text_path(@item),
+                      method: :patch, class: 'btn btn-default' do %>
+            <i class="fa fa-trash"></i> Clear
+          <% end %>
+        </div>
+      </div>
+      <% if @item.full_text.present? %>
+        <pre><%= @item.full_text %></pre>
+      <% end %>
+    </div>
+
+    <!-- Repository pane -->
+    <div role="tabpanel" class="tab-pane" id="kq-repository">
+      <h3>Fedora URL</h3>
+      <p><%= link_to @item.id, @item.id %></p>
+      <h3>Fedora RDF (Turtle)</h3>
+      <pre><%= @item.rdf_graph.dump(:ttl) %></pre>
+    </div>
+
+  </div> <!-- .tab-content -->
+
+</div> <!-- .tabpanel -->

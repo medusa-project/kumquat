@@ -1,0 +1,16 @@
+<% provide :title, "Edit Role #{@role.name}" %>
+<% provide :body_id, 'edit_role' %>
+<% provide :active_nav, 'access' %>
+
+<ol class="breadcrumb">
+  <li><%= link_to 'Home', admin_root_path %></li>
+  <li><%= link_to 'Roles', admin_roles_path %></li>
+  <li><%= link_to @role.name, admin_role_path(@role) %></li>
+  <li class="active">Edit</li>
+</ol>
+
+<h1>Edit <%= @role.name %></h1>
+
+<div id="edit">
+  <%= render 'form' %>
+</div>

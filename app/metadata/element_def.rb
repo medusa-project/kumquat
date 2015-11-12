@@ -4,6 +4,7 @@
 #
 class ElementDef < ActiveRecord::Base
 
+  belongs_to :facet_def, inverse_of: :element_defs
   belongs_to :metadata_profile, inverse_of: :element_defs
 
   after_save :adjust_profile_element_indexes_after_save

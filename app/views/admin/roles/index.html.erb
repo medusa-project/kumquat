@@ -1,0 +1,38 @@
+<% provide :title, 'Roles' %>
+<% provide :body_id, 'roles' %>
+<% provide :active_nav, 'access' %>
+
+<ol class="breadcrumb">
+  <li><%= link_to 'Home', admin_root_path %></li>
+  <li class="active">Roles</li>
+</ol>
+
+<div class="btn-group pull-right">
+  <% if current_user.can?(Permission::ROLES_CREATE) %>
+    <!-- New Role -->
+    <%= link_to new_admin_role_path, class: 'btn btn-default' do %>
+      <span class="glyphicon glyphicon-plus"></span> New Role
+    <% end %>
+  <% end %>
+</div>
+
+<h1>Roles</h1>
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Role</th>
+      <th>Key</th>
+      <th>Users</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @roles.each do |role| %>
+      <tr>
+        <td><%= link_to role.name, admin_role_path(role) %></td>
+        <td><%= role.key %></td>
+        <td><%= role.users.length %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

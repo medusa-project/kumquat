@@ -1,0 +1,14 @@
+<% provide :title, 'Tasks' %>
+<% provide :body_id, 'tasks' %>
+<% provide :active_nav, 'server' %>
+
+<ol class="breadcrumb">
+  <li><%= link_to 'Home', admin_root_path %></li>
+  <li class="active">Tasks</li>
+</ol>
+
+<h1>Tasks</h1>
+
+<div id="kq-tasks-list">
+  <%= render partial: 'tasks' %>
+</div>

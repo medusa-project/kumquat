@@ -8,8 +8,8 @@ $(document).ajaxComplete(function(event, request, options) {
 });
 
 $(document).ajaxSuccess(function(event, request) {
-    var result_type = request.getResponseHeader('X-Kumquat-Message-Type');
-    var edit_panel = $('.kq-edit-panel.in');
+    var result_type = request.getResponseHeader('X-PearTree-Message-Type');
+    var edit_panel = $('.pt-edit-panel.in');
 
     if (result_type && edit_panel.length) {
         if (result_type == 'success') {
@@ -17,9 +17,9 @@ $(document).ajaxSuccess(function(event, request) {
         } else if (result_type == 'error') {
             edit_panel.find('.modal-body').animate({ scrollTop: 0 }, 'fast');
         }
-        var message = request.getResponseHeader('X-Kumquat-Message');
+        var message = request.getResponseHeader('X-PearTree-Message');
         if (message && result_type) {
-            Kumquat.Flash.set(message, result_type);
+            PearTree.Flash.set(message, result_type);
         }
     }
 });

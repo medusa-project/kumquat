@@ -3,7 +3,7 @@ class ApplicationController < ActionController::Base
   # For APIs, you may want to use :null_session instead.
   protect_from_forgery with: :exception
 
-  #include SessionsHelper
+  include SessionsHelper
 
   before_action :setup
   after_action :flash_in_response_headers
@@ -11,7 +11,6 @@ class ApplicationController < ActionController::Base
   def setup
   end
 
-=begin
   def admin_user
     unless current_user.is_admin?
       flash['error'] = 'Access denied.'
@@ -26,7 +25,7 @@ class ApplicationController < ActionController::Base
       redirect_to signin_url, notice: 'Please sign in.'
     end
   end
-=end
+
   protected
 
   ##

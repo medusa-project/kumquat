@@ -1,0 +1,30 @@
+<% if @tasks.any? %>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Task</th>
+        <th>Status</th>
+        <th>Progress</th>
+        <th>Started</th>
+        <th>Completed</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @tasks.each do |task| %>
+          <tr>
+            <td><%= task.status_text %></td>
+            <td>
+              <span class="label <%= bootstrap_class_for_task_status(task.status) %>">
+                <%= Task::Status::to_s(task.status) %>
+              </span>
+            </td>
+            <td><%= (task.percent_complete * 100).round(1).to_s + '%' %></td>
+            <td><%= local_time_ago(task.created_at) %></td>
+            <td><%= task.completed_at ? local_time_ago(task.completed_at) : '' %></td>
+          </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p>No tasks to show.</p>
+<% end %>

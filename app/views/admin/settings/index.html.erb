@@ -1,0 +1,104 @@
+<% provide :title, 'Settings' %>
+<% provide :body_id, 'settings' %>
+<% provide :active_nav, 'website' %>
+
+<ol class="breadcrumb">
+  <li><%= link_to 'Home', admin_root_path %></li>
+  <li class="active">Settings</li>
+</ol>
+
+<h1>Settings</h1>
+
+<%= form_tag(admin_settings_path, method: :patch) do %>
+
+  <h2>General</h2>
+
+  <table class="table">
+    <tr>
+      <td><%= label_tag("options[#{Option::Key::ORGANIZATION_NAME}]",
+                        'Organization Name') %></td>
+      <td>
+        <%= text_field_tag("options[#{Option::Key::ORGANIZATION_NAME}]",
+                           Option::string(Option::Key::ORGANIZATION_NAME),
+                           class: 'form-control') %>
+      </td>
+    </tr>
+    <tr>
+      <td><%= label_tag("options[#{Option::Key::ADMINISTRATOR_EMAIL}]",
+                        'Administrator Email') %></td>
+      <td>
+        <%= text_field_tag("options[#{Option::Key::ADMINISTRATOR_EMAIL}]",
+                           Option::string(Option::Key::ADMINISTRATOR_EMAIL),
+                           class: 'form-control') %>
+      </td>
+    </tr>
+    <tr>
+      <td><%= label_tag("options[#{Option::Key::COPYRIGHT_STATEMENT}]",
+                        'Copyright Statement') %></td>
+      <td>
+        <%= text_field_tag("options[#{Option::Key::COPYRIGHT_STATEMENT}]",
+                           Option::string(Option::Key::COPYRIGHT_STATEMENT),
+                           class: 'form-control') %>
+      </td>
+    </tr>
+    <tr>
+      <td><%= label_tag("options[#{Option::Key::OAI_PMH_ENABLED}]",
+                        'Enable OAI-PMH') %></td>
+      <td>
+        <%= hidden_field_tag("options[#{Option::Key::OAI_PMH_ENABLED}]", 0) %>
+        <%= check_box_tag("options[#{Option::Key::OAI_PMH_ENABLED}]", 1,
+                          Option::boolean(Option::Key::OAI_PMH_ENABLED),
+                          class: 'form-control') %>
+      </td>
+    </tr>
+  </table>
+
+  <h2>Website</h2>
+
+  <table class="table">
+    <tr>
+      <td><%= label_tag("options[#{Option::Key::WEBSITE_NAME}]",
+                        'Name') %></td>
+      <td>
+        <%= text_field_tag("options[#{Option::Key::WEBSITE_NAME}]",
+                           Option::string(Option::Key::WEBSITE_NAME),
+                           class: 'form-control') %>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <%= label_tag("options[#{Option::Key::WEBSITE_INTRO_TEXT}]",
+                      'Introductory Text') %>
+        <p class="info">Appears on the <%= link_to 'landing page', root_url %>.
+          The following HTML tags are supported: <code>&lt;br&gt;</code>
+          <code>&lt;p&gt;</code></p>
+      </td>
+      <td>
+        <%= text_area_tag("options[#{Option::Key::WEBSITE_INTRO_TEXT}]",
+                          Option::string(Option::Key::WEBSITE_INTRO_TEXT),
+                          class: 'form-control', rows: 12) %>
+      </td>
+    </tr>
+    <tr>
+      <td><%= label_tag("options[#{Option::Key::RESULTS_PER_PAGE}]",
+                        'Results Per Page') %></td>
+      <td>
+        <%= number_field_tag("options[#{Option::Key::RESULTS_PER_PAGE}]",
+                             Option::integer(Option::Key::RESULTS_PER_PAGE),
+                             class: 'form-control') %>
+      </td>
+    </tr>
+    <tr>
+      <td><%= label_tag("options[#{Option::Key::FACET_TERM_LIMIT}]",
+                        'Facet Term Limit') %></td>
+      <td>
+        <%= number_field_tag("options[#{Option::Key::FACET_TERM_LIMIT}]",
+                             Option::integer(Option::Key::FACET_TERM_LIMIT),
+                             class: 'form-control') %>
+      </td>
+    </tr>
+  </table>
+
+  <%= submit_tag 'Save Changes', class: 'btn btn-primary' %>
+
+<% end %>

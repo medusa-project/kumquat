@@ -14,9 +14,7 @@ gem 'jbuilder', '~> 2.0'
 # bundle exec rake doc:rails generates the API under doc/api.
 gem 'sdoc', '~> 0.4.0', group: :doc
 
-# Use ActiveModel has_secure_password
-# gem 'bcrypt', '~> 3.1.7'
-
+gem 'bcrypt', '~> 3.1.7' # used by ActiveModel has_secure_password
 gem 'bootstrap-sass', '~> 3.3.5.1'
 gem 'font-awesome-sass', '~> 4.3.0'
 gem 'httpclient', git: 'git://github.com/medusa-project/httpclient.git'
@@ -24,6 +22,8 @@ gem 'jquery-cookie-rails'
 gem 'jquery-rails'
 gem 'local_time'
 gem 'mime-types', '~> 2.6'
+gem 'omniauth'
+gem 'omniauth-password', git: 'git://github.com/wearepistachio/omniauth-password.git'
 gem 'pg'
 gem 'rails_autolink'
 gem 'rsolr'

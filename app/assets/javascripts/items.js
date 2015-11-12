@@ -3,46 +3,46 @@
  *
  * @constructor
  */
-var KQItemView = function() {
+var PTItemView = function() {
 
     var self = this;
 
     this.init = function() {
-        $(document).on(Kumquat.Events.ITEM_ADDED_TO_FAVORITES, function(event, item) {
-            $('.kq-add-to-favorites').hide();
-            $('.kq-remove-from-favorites').show();
+        $(document).on(PearTree.Events.ITEM_ADDED_TO_FAVORITES, function(event, item) {
+            $('.pt-add-to-favorites').hide();
+            $('.pt-remove-from-favorites').show();
             updateFavoritesCount();
         });
-        $(document).on(Kumquat.Events.ITEM_REMOVED_FROM_FAVORITES, function(event, item) {
-            $('.kq-remove-from-favorites').hide();
-            $('.kq-add-to-favorites').show();
+        $(document).on(PearTree.Events.ITEM_REMOVED_FROM_FAVORITES, function(event, item) {
+            $('.pt-remove-from-favorites').hide();
+            $('.pt-add-to-favorites').show();
             updateFavoritesCount();
         });
-        $('button.kq-add-to-favorites').on('click',
+        $('button.pt-add-to-favorites').on('click',
             self.item().addToFavorites);
-        $('button.kq-remove-from-favorites').on('click',
+        $('button.pt-remove-from-favorites').on('click',
             self.item().removeFromFavorites);
         if (self.item().isFavorite()) {
-            $('.kq-add-to-favorites').hide();
-            $('.kq-remove-from-favorites').show();
+            $('.pt-add-to-favorites').hide();
+            $('.pt-remove-from-favorites').show();
         } else {
-            $('.kq-remove-from-favorites').hide();
-            $('.kq-add-to-favorites').show();
+            $('.pt-remove-from-favorites').hide();
+            $('.pt-add-to-favorites').show();
         }
     };
 
     /**
-     * @return KQItem
+     * @return PTItem
      */
     this.item = function() {
-        var item = new KQItem();
-        item.web_id = $('.kq-add-to-favorites').data('web-id');
+        var item = new PTItem();
+        item.web_id = $('.pt-add-to-favorites').data('web-id');
         return item;
     };
 
     var updateFavoritesCount = function() {
-        var badge = $('.kq-favorites-count');
-        badge.text(KQItem.numFavorites());
+        var badge = $('.pt-favorites-count');
+        badge.text(PTItem.numFavorites());
     };
 
 };
@@ -52,10 +52,10 @@ var KQItemView = function() {
  *
  * @constructor
  */
-var KQItemsView = function() {
+var PTItemsView = function() {
 
     this.init = function() {
-        $('[name=psap-facet-term]').on('change', function() {
+        $('[name=pt-facet-term]').on('change', function() {
             if ($(this).prop('checked')) {
                 window.location = $(this).data('checked-href');
             } else {
@@ -63,37 +63,37 @@ var KQItemsView = function() {
             }
         });
 
-        $(document).on(Kumquat.Events.ITEM_ADDED_TO_FAVORITES, function(event, item) {
-            $('.kq-results button.kq-remove-from-favorites[data-web-id="' + item.web_id + '"]').show();
-            $('.kq-results button.kq-add-to-favorites[data-web-id="' + item.web_id + '"]').hide();
+        $(document).on(PearTree.Events.ITEM_ADDED_TO_FAVORITES, function(event, item) {
+            $('.pt-results button.pt-remove-from-favorites[data-web-id="' + item.web_id + '"]').show();
+            $('.pt-results button.pt-add-to-favorites[data-web-id="' + item.web_id + '"]').hide();
             updateFavoritesCount();
         });
-        $(document).on(Kumquat.Events.ITEM_REMOVED_FROM_FAVORITES, function(event, item) {
-            $('.kq-results button.kq-remove-from-favorites[data-web-id="' + item.web_id + '"]').hide();
-            $('.kq-results button.kq-add-to-favorites[data-web-id="' + item.web_id + '"]').show();
+        $(document).on(PearTree.Events.ITEM_REMOVED_FROM_FAVORITES, function(event, item) {
+            $('.pt-results button.pt-remove-from-favorites[data-web-id="' + item.web_id + '"]').hide();
+            $('.pt-results button.pt-add-to-favorites[data-web-id="' + item.web_id + '"]').show();
             updateFavoritesCount();
         });
-        $('button.kq-add-to-favorites').on('click', function() {
-            var item = new KQItem();
+        $('button.pt-add-to-favorites').on('click', function() {
+            var item = new PTItem();
             item.web_id = $(this).data('web-id');
             item.addToFavorites();
         });
-        $('button.kq-remove-from-favorites').on('click', function() {
-            var item = new KQItem();
+        $('button.pt-remove-from-favorites').on('click', function() {
+            var item = new PTItem();
             item.web_id = $(this).data('web-id');
             item.removeFromFavorites();
         });
-        $('button.kq-remove-from-favorites, button.kq-add-to-favorites').each(function() {
-            var item = new KQItem();
+        $('button.pt-remove-from-favorites, button.pt-add-to-favorites').each(function() {
+            var item = new PTItem();
             item.web_id = $(this).data('web-id');
             if (item.isFavorite()) {
-                if ($(this).hasClass('kq-remove-from-favorites')) {
+                if ($(this).hasClass('pt-remove-from-favorites')) {
                     $(this).show();
                 } else {
                     $(this).hide();
                 }
             } else {
-                if ($(this).hasClass('kq-add-to-favorites')) {
+                if ($(this).hasClass('pt-add-to-favorites')) {
                     $(this).show();
                 } else {
                     $(this).hide();
@@ -103,19 +103,19 @@ var KQItemsView = function() {
     };
 
     var updateFavoritesCount = function() {
-        var badge = $('.kq-favorites-count');
-        badge.text(KQItem.numFavorites());
+        var badge = $('.pt-favorites-count');
+        badge.text(PTItem.numFavorites());
     };
 
 };
 
 var ready = function() {
     if ($('body#items_index').length) {
-        Kumquat.view = new KQItemsView();
-        Kumquat.view.init();
+        PearTree.view = new PTItemsView();
+        PearTree.view.init();
     } else if ($('body#items_show').length) {
-        Kumquat.view = new KQItemView();
-        Kumquat.view.init();
+        PearTree.view = new PTItemView();
+        PearTree.view.init();
     }
 };
 
