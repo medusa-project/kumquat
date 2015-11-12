@@ -149,7 +149,7 @@ module ItemsHelper
               "to=#{Solr::Fields::ID}}#{Solr::Fields::ACCESS_MASTER_MEDIA_TYPE}:(#{media_types})").
               filter(Solr::Fields::COLLECTION => entity.id).
               omit_entity_query(true).
-              facet(false).order("random_#{SecureRandom.hex}").limit(1).first
+              facet(false).order(:random).limit(1).first
           item ||= Collection
         else
           item = entity

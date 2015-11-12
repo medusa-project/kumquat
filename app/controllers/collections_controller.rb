@@ -20,7 +20,7 @@ class CollectionsController < WebsiteController
     @item = Item.where(Solr::Fields::COLLECTION => @collection.id).
         where("(#{Solr::Fields::ACCESS_MASTER_MEDIA_TYPE}:(#{media_types}) OR "\
         "#{Solr::Fields::PRESERVATION_MASTER_MEDIA_TYPE}:(#{media_types}))").
-        facet(false).order("random_#{SecureRandom.hex}").limit(1).first
+        facet(false).order(:random).limit(1).first
   end
 
 end

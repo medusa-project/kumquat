@@ -137,12 +137,14 @@ class Relation
   end
 
   ##
-  # @param order [Hash, String]
+  # @param order [Hash, String, Symbol] Supply :random to sort randomly.
   # @return [Entity] self
   #
   def order(order)
     reset_results
-    if order.kind_of?(Hash)
+    if order.kind_of?(Symbol) and order == :random
+      order = "random_#{SecureRandom.hex}"
+    elsif order.kind_of?(Hash)
       order = "#{order.keys.first} #{order[order.keys.first]}"
     else
       order = order.to_s
