@@ -36,6 +36,7 @@ ActiveRecord::Schema.define(version: 20151112165546) do
     t.datetime "created_at",          null: false
     t.datetime "updated_at",          null: false
     t.integer  "facet_def_id"
+    t.string   "facet_def_label"
   end
 
   create_table "facet_defs", force: :cascade do |t|

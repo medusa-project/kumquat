@@ -26,7 +26,7 @@ class Solr
     PRESERVATION_MASTER_URL = 'preservation_master_url_si'
     PRESERVATION_MASTER_WIDTH = 'preservation_master_width_ii'
     PUBLISHED = 'published_bi'
-    SEARCH_ALL = 'searchall_txti'
+    SEARCH_ALL = 'searchall_txtim'
     TITLE = 'title_txti'
     WEB_ID = 'web_id_si'
   end
@@ -35,12 +35,20 @@ class Solr
 
   SCHEMA = YAML.load(File.read(File.join(__dir__, 'schema.yml')))
 
+  def self.facetable_fields
+    FacetDef.all.map{ |f| f.solr_field }
+  end
+
   ##
   # @param doc [Hash]
   #
   def add(doc)
     Rails.logger.info("Adding Solr document: #{doc['id']}")
     client.add(doc)
+  end
+
+  def commit
+    client.commit
   end
 
   ##
@@ -102,22 +110,21 @@ class Solr
           map{ |sf| sf['name'] }.include?(kf['name'])
     end
     post_fields(http, url, 'add-dynamic-field', dynamic_fields_to_add)
-=begin
+
     # copy faceted triples into facet fields
-    facetable_fields = Triple.where('facet_id IS NOT NULL').
-        uniq(&:predicate).map do |t|
-      { source: self.class.field_name_for_predicate(t.predicate),
-        dest: t.facet.solr_field }
+    facetable_fields = ElementDef.where('facet_def_id IS NOT NULL').
+        uniq(&:name).map do |e|
+      { source: e.solr_name, dest: e.facet_def.solr_field }
     end
     facetable_fields << {
         source: Fields::COLLECTION,
-        dest: Facet.where(name: 'Collection').first.solr_field }
+        dest: FacetDef.where(name: 'Collection').first.solr_field }
     facetable_fields_to_add = facetable_fields.reject do |ff|
       current['schema']['copyFields'].
           map{ |sf| "#{sf['source']}-#{sf['dest']}" }.
           include?("#{ff['source']}-#{ff['dest']}")
     end
-    post_fields('add-copy-field', facetable_fields_to_add)
+    post_fields(http, url, 'add-copy-field', facetable_fields_to_add)
 
     # copy various fields into a search-all field
     search_all_fields_to_add = search_all_fields.reject do |ff|
@@ -125,8 +132,8 @@ class Solr
           map{ |sf| "#{sf['source']}-#{sf['dest']}" }.
           include?("#{ff['source']}-#{ff['dest']}")
     end
-    post_fields('add-copy-field', search_all_fields_to_add)
-=end
+    post_fields(http, url, 'add-copy-field', search_all_fields_to_add)
+
     # delete obsolete copyFields
     copy_fields_to_delete = current['schema']['copyFields'].select do |kf|
       !SCHEMA['copyFields'].map{ |sf| "#{sf['source']}#{sf['dest']}" }.
@@ -171,6 +178,21 @@ class Solr
         raise "Failed to update Solr schema: #{message['errors']}"
       end
     end
+  end
+
+  ##
+  # Returns a list of fields that will be copied into a "search-all" field
+  # for easy searching.
+  #
+  # @return [Array] Array of strings
+  #
+  def search_all_fields
+    dest = Solr::Fields::SEARCH_ALL
+    fields = Element.all.uniq(&:name).map do |t|
+      { source: t.solr_name, dest: dest }
+    end
+    fields << { source: Solr::Fields::FULL_TEXT, dest: dest }
+    fields
   end
 
 end

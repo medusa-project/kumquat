@@ -36,6 +36,10 @@ class ElementDef < ActiveRecord::Base
     end
   end
 
+  def solr_name
+    "metadata_#{self.name}_txtim"
+  end
+
   def to_s
     self.name
   end

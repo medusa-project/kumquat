@@ -42,9 +42,9 @@ class Item < Entity
         item.metadata << e
       end
     end
-
+=begin TODO: give technical metadata a field prefix, otherwise this is too error-prone
     # technical metadata
-    doc.keys.reject{ |k| k.start_with?('metadata_') }.each do |key|
+    doc.keys.reject{ |k| k.start_with?('metadata_') or k.end_with?('_facet') }.each do |key|
       if doc[key].respond_to?(:each)
         doc[key].each do |value|
           e = Element.named(key)
@@ -62,7 +62,7 @@ class Item < Entity
         item.metadata << e
       end
     end
-
+=end
     item.published = doc[Solr::Fields::PUBLISHED]
     item.title = doc[Solr::Fields::TITLE]
     item.web_id = doc[Solr::Fields::WEB_ID]

@@ -15,7 +15,7 @@ class Relation
     @caller = caller
     @calling_class = caller.kind_of?(Class) ? caller : caller.class
     @facet = true
-    @facetable_fields = PearTree::Application.peartree_config[:solr_default_facetable_fields]
+    @facetable_fields = Solr.facetable_fields
     @facet_queries = []
     @filter_clauses = [] # will be joined by AND
     @limit = nil
@@ -262,7 +262,7 @@ class Relation
         begin
           @results << Entity.from_solr(doc)
         rescue => e
-          Rails.logger.error("#{e} (#{doc['id']})")
+          Rails.logger.error("#{e} (#{doc['id']}) (#{e.backtrace})")
           @results.total_length -= 1
         end
       end

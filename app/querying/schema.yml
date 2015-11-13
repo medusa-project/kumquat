@@ -1,26 +1,24 @@
 ##
 # Schema summary:
 #
-# uri_*_txt          arbitrary RDF objects
-# kq_meta_*          normalized metadata schema into which many of the
-#                    uri_* fields are copied (notably, /dc/elements/1.1 and
-#                    /dc/terms are merged)
-# kq_meta_title_s    Single-valued title field that can be sorted (must be
-#                    populated manually)
-# kq_meta_date_dts   Single-valued date field
-# kq_sys_*           system properties
-# kq_*_facet         facets
-# kq_searchall_txt   full-text search field
+# metadata_*_txtim   arbitrary metadata elements
+# *_facet            faceted versions of the metadata elements
+# Solr::Fields       fields used by the application
 #
 # There are no classic fields, only dynamicFields and copyFields.
 #
 # Dynamic fields have the following naming scheme:
+#
 # *_{type}
 # *_{type}i: indexed
 # *_{type}m: multiValued
 # *_{type}im: indexed, multiValued
 #
 copyFields:
+  - source: 'metadata_*'
+    dest: 'searchall_txtim'
+  - source: 'metadata_*'
+    dest: '*_facet'
 
 dynamicFields:
     ################# facet fields ##################

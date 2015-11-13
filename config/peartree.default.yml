@@ -7,7 +7,7 @@ development: &development
     - subject_txti
   :solr_id_field: id
   :solr_class_field: class_si
-  :solr_default_search_field: searchall_txti
+  :solr_default_search_field: searchall_txtim
   :solr_more_like_this_endpoint: /mlt
 
 test:
@@ -19,7 +19,7 @@ test:
     - subject_txti
   :solr_id_field: id
   :solr_class_field: class_si
-  :solr_default_search_field: searchall_txti
+  :solr_default_search_field: searchall_txtim
   :solr_more_like_this_endpoint: /mlt
 
 production: &production
@@ -31,5 +31,5 @@ production: &production
     - subject_txti
   :solr_id_field: id
   :solr_class_field: class_si
-  :solr_default_search_field: searchall_txti
+  :solr_default_search_field: searchall_txtim
   :solr_more_like_this_endpoint: /mlt

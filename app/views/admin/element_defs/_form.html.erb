@@ -25,16 +25,16 @@
   </div>
 
   <div class="form-group">
-    <%= f.label :facet_id, 'Facet' %>
-    <!-- f.select(:facet_id,
+    <%= f.label :facet_def_id, 'Facet' %>
+    <%= f.select(:facet_def_id,
                  options_for_select(FacetDef.order(:name).map{ |f| [f.name, f.id] },
-                                    selected: f.object.facet_id),
-                 { include_blank: 'None' }, { class: 'form-control' }) -->
+                                    selected: f.object.facet_def_id),
+                 { include_blank: 'None' }, { class: 'form-control' }) %>
   </div>
 
   <div class="form-group">
-    <%= f.label :facet_label %>
-    <!-- f.text_field :facet_label, class: 'form-control' -->
+    <%= f.label :facet_def_label, 'Facet Label' %>
+    <%= f.text_field :facet_def_label, class: 'form-control' %>
   </div>
 
   <div class="checkbox">

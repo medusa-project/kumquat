@@ -43,37 +43,36 @@ module ItemsHelper
   end
 
   ##
-  # @param items [ActiveMedusa::Relation]
+  # @param items [Relation]
   # @param options [Hash] Options hash.
   # @option options [Boolean] :show_collection_facet
   # @option options [MetadataProfile] :metadata_profile
   #
   def facets_as_panels(items, options = {})
-    return nil # TODO fix
     return nil unless items.facet_fields # nothing to do
 
-    # get the list of facets to display from the provided metadata profile; or,
-    # if not supplied, the default profile.
+    # get the list of facets to display from the appropriate metadata profile
     profile = options[:metadata_profile] ||
         MetadataProfile.where(default: true).limit(1).first
-    virtual_collection_triple = Triple.new(facet: Facet.find_by_name('Collection'),
-                                           facet_label: 'Collection')
-    profile_facetable_triples = [virtual_collection_triple] +
-        profile.triples.where('facet_id IS NOT NULL').order(:index)
+    collection_element = ElementDef.new(
+        facet_def: FacetDef.find_by_name('Collection'),
+        facet_def_label: 'Collection')
+    profile_facetable_elements = [collection_element] +
+        profile.element_defs.where('facet_def_id IS NOT NULL').order(:index)
 
     term_limit = Option::integer(Option::Key::FACET_TERM_LIMIT)
 
     html = ''
-    profile_facetable_triples.each do |triple|
+    profile_facetable_elements.each do |element|
       result_facet = items.facet_fields.
-          select{ |f| f.field == triple.facet.solr_field }.first
+          select{ |f| f.field == element.facet_def.solr_field }.first
       next unless result_facet and
           result_facet.terms.select{ |t| t.count > 0 }.any?
       next if result_facet.field == 'pt_collection_facet' and
           !options[:show_collection_facet]
       panel = "<div class=\"panel panel-default\">
       <div class=\"panel-heading\">
-        <h3 class=\"panel-title\">#{triple.facet_label}</h3>
+        <h3 class=\"panel-title\">#{element.facet_def_label}</h3>
       </div>
       <div class=\"panel-body\">
         <ul>"
@@ -85,17 +84,17 @@ module ItemsHelper
         checked_params = term.removed_from_params(params.deep_dup)
         unchecked_params = term.added_to_params(params.deep_dup)
 
-        if result_facet.field == 'pt_collection_facet'
-          collection = Repository::Collection.find_by_uri(term.name)
+        if result_facet.field == 'collection_facet'
+          collection = Collection.find_by_id(term.name)
           term_label = collection.title if collection
         else
-          term_label = term.label
+          term_label = truncate(term.label, length: 80)
         end
 
         panel += "<li class=\"pt-term\">"
         panel += "<div class=\"checkbox\">"
         panel += "<label>"
-        panel += "<input type=\"checkbox\" name=\"psap-facet-term\" #{checked} "\
+        panel += "<input type=\"checkbox\" name=\"pt-facet-term\" #{checked} "\
         "data-checked-href=\"#{url_for(unchecked_params)}\" "\
         "data-unchecked-href=\"#{url_for(checked_params)}\">"
         panel += "<span class=\"pt-term-name\">#{term_label}</span> "

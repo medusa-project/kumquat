@@ -16,7 +16,7 @@ class Collection < Entity
         col.metadata << e
       end
     end
-
+=begin TODO: give technical metadata a field prefix, otherwise this is too error-prone
     # technical metadata
     doc.keys.reject{ |k| k.start_with?('metadata_') }.each do |key|
       if doc[key].respond_to?(:each)
@@ -36,7 +36,7 @@ class Collection < Entity
         col.metadata << e
       end
     end
-
+=end
     col.instance_variable_set('@persisted', true)
     col
   end

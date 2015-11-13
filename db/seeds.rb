@@ -25,8 +25,6 @@ Option.create!(key: Option::Key::RESULTS_PER_PAGE, value: 30)
 facets = {}
 facets[:audience] = FacetDef.create!(
     name: 'Audience', solr_field: 'audience_facet')
-facets[:cartographicScale] = FacetDef.create!(
-    name: 'Cartographic Scale', solr_field: 'cartographic_scale_facet')
 facets[:collection] = FacetDef.create!(
     name: 'Collection', solr_field: 'collection_facet')
 facets[:contributor] = FacetDef.create!(
@@ -105,6 +103,8 @@ ElementDef.create!(
     visible: true,
     searchable: true,
     index: 6,
+    facet_def: facets[:audience],
+    facet_def_label: 'Audience',
     metadata_profile: profiles[:default])
 ElementDef.create!(
     name: 'bibliographicCitation',
@@ -133,6 +133,8 @@ ElementDef.create!(
     visible: true,
     searchable: true,
     index: 10,
+    facet_def: facets[:contributor],
+    facet_def_label: 'Contributor',
     metadata_profile: profiles[:default])
 ElementDef.create!(
     name: 'coverage',
@@ -140,6 +142,8 @@ ElementDef.create!(
     visible: true,
     searchable: true,
     index: 11,
+    facet_def: facets[:coverage],
+    facet_def_label: 'Coverage',
     metadata_profile: profiles[:default])
 ElementDef.create!(
     name: 'creator',
@@ -147,6 +151,8 @@ ElementDef.create!(
     visible: true,
     searchable: true,
     index: 12,
+    facet_def: facets[:creator],
+    facet_def_label: 'Creator',
     metadata_profile: profiles[:default])
 ElementDef.create!(
     name: 'date',
@@ -154,6 +160,8 @@ ElementDef.create!(
     visible: true,
     searchable: true,
     index: 13,
+    facet_def: facets[:date],
+    facet_def_label: 'Date',
     metadata_profile: profiles[:default])
 ElementDef.create!(
     name: 'dateAccepted',
@@ -231,6 +239,8 @@ ElementDef.create!(
     visible: true,
     searchable: true,
     index: 24,
+    facet_def: facets[:educationLevel],
+    facet_def_label: 'Education Level',
     metadata_profile: profiles[:default])
 ElementDef.create!(
     name: 'extent',
@@ -245,6 +255,8 @@ ElementDef.create!(
     visible: true,
     searchable: true,
     index: 26,
+    facet_def: facets[:format],
+    facet_def_label: 'Format',
     metadata_profile: profiles[:default])
 ElementDef.create!(
     name: 'hasFormat',
@@ -329,6 +341,8 @@ ElementDef.create!(
     visible: true,
     searchable: true,
     index: 38,
+    facet_def: facets[:language],
+    facet_def_label: 'Language',
     metadata_profile: profiles[:default])
 ElementDef.create!(
     name: 'latitude',
@@ -399,6 +413,8 @@ ElementDef.create!(
     visible: true,
     searchable: true,
     index: 48,
+    facet_def: facets[:publisher],
+    facet_def_label: 'Publisher',
     metadata_profile: profiles[:default])
 ElementDef.create!(
     name: 'references',
@@ -448,6 +464,8 @@ ElementDef.create!(
     visible: true,
     searchable: true,
     index: 55,
+    facet_def: facets[:source],
+    facet_def_label: 'Source',
     metadata_profile: profiles[:default])
 ElementDef.create!(
     name: 'spatialCoverage',
@@ -462,6 +480,8 @@ ElementDef.create!(
     visible: true,
     searchable: true,
     index: 57,
+    facet_def: facets[:subject],
+    facet_def_label: 'Subject',
     metadata_profile: profiles[:default])
 ElementDef.create!(
     name: 'tableOfContents',
@@ -497,6 +517,8 @@ ElementDef.create!(
     visible: true,
     searchable: true,
     index: 62,
+    facet_def: facets[:type],
+    facet_def_label: 'Type',
     metadata_profile: profiles[:default])
 
 # Admin user
