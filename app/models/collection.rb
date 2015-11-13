@@ -7,11 +7,33 @@ class Collection < Entity
     col.title = doc[Solr::Fields::TITLE]
     col.web_id = doc[Solr::Fields::WEB_ID]
 
-    %w(dc dcterms).each do |element_set|
-      doc.keys.select{ |k| k.start_with?("#{element_set}_") }.each do |key|
-        col.metadata[element_set] = {} unless col.metadata[element_set]
-        element = key.gsub(/#{element_set}_/, '').chomp('_txtim')
-        col.metadata[element_set][element] = doc[key]
+    # descriptive metadata
+    doc.keys.select{ |k| k.start_with?('metadata_') }.each do |key|
+      filtered_key = key.gsub('metadata_', '').chomp('_txtim')
+      doc[key].each do |value|
+        e = Element.named(filtered_key)
+        e.value = value
+        col.metadata << e
+      end
+    end
+
+    # technical metadata
+    doc.keys.reject{ |k| k.start_with?('metadata_') }.each do |key|
+      if doc[key].respond_to?(:each)
+        doc[key].each do |value|
+          e = Element.named(key)
+          e.value = value
+          col.metadata << e
+        end
+      else
+        e = Element.named(key)
+        if !e
+          e = Element.new
+          e.type = Element::Type::TECHNICAL
+          e.name = key
+        end
+        e.value = doc[key]
+        col.metadata << e
       end
     end
 

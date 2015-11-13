@@ -81,7 +81,7 @@ Rails.application.routes.draw do
     root 'dashboard#index'
 
     resources :collections, except: [:new, :edit], concerns: :publishable
-    #resources :collections, param: :key, as: :db_collections
+    resources :collection_defs
     resources :element_defs, only: [:create, :update, :destroy, :edit]
     resources :facet_defs
     match '/items/search', to: 'items#search', via: %w(get post),

@@ -58,10 +58,7 @@ module Admin
     # Responds to PATCH /admin/collections/:key/publish
     #
     def publish
-      @collection = Repository::Collection.find_by_key(
-          params[:repository_collection_key])
-      raise ActiveRecord::RecordNotFound unless @collection
-
+      @collection = Collection.find(params[:collection_id])
       args = {
           command: PublishCollectionCommand,
           args: @collection,
@@ -74,9 +71,7 @@ module Admin
     end
 
     def show
-      @collection = Repository::Collection.find_by_key(params[:key])
-      raise ActiveRecord::RecordNotFound unless @collection
-
+      @collection = Collection.find(params[:id])
       @metadata_profile_options_for_select = MetadataProfile.order(:name).
           map{ |t| [ t.name, t.id ] }
       @theme_options_for_select = [[ 'None (Use Global)', nil ]] +
@@ -87,31 +82,21 @@ module Admin
     # Responds to PATCH /admin/collections/:key/unpublish
     #
     def unpublish
-      @collection = Repository::Collection.find_by_key(
-          params[:repository_collection_key])
-      raise ActiveRecord::RecordNotFound unless @collection
+      @collection = CollectionDef.find_by_repository_id(params[:collection_def_id])
+      @collection.update!(published: false)
 
-      args = {
-          command: UnpublishCollectionCommand,
-          args: @collection,
-          task_status_text: "Unpublish collection \"#{@collection.title}\""
-      }
-      job_runner.run_later(CommandJob, args)
-
-      flash['success'] = 'Collection queued for unpublishing.'
+      flash['success'] = 'Collection unpublished.'
       redirect_to :back
     end
 
     def update
-      @collection = Repository::Collection.find_by_key(params[:key])
-      raise ActiveRecord::RecordNotFound unless @collection
-
-      if params[:repository_collection]
+      @collection = Collection.find(params[:id])
+      if params[:collection]
         command = UpdateRepositoryCollectionCommand.new(@collection,
                                                         sanitized_repo_params)
         begin
           executor.execute(command)
-        rescue ActiveMedusa::RecordInvalid
+        rescue ActiveRecord::RecordInvalid
           response.headers['X-PearTree-Result'] = 'error'
           render partial: 'shared/validation_messages',
                  locals: { entity: @collection }
@@ -164,8 +149,7 @@ module Admin
     end
 
     def sanitized_repo_params
-      params.require(:repository_collection).permit(:description, :key,
-                                                    :published, :title)
+      params.require(:collection).permit(:description, :key, :published, :title)
     end
 
     def update_rbac
