@@ -3,7 +3,7 @@ var FAVORITES_COOKIE_NAME = 'favorites';
 /**
  * @constructor
  */
-var KQItem = function() {
+var PTItem = function() {
 
     var COOKIE_PATH = $('input[name="pt-root-path"]').val();
 
@@ -47,7 +47,7 @@ var KQItem = function() {
 
 };
 
-KQItem.numFavorites = function() {
+PTItem.numFavorites = function() {
     var favorites = $.cookie(FAVORITES_COOKIE_NAME);
     if (favorites && favorites.length > 0) {
         return favorites.split(',').length;
