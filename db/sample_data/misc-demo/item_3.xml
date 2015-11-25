@@ -5,7 +5,6 @@
 
   <lrp:description>
     A "URL item," pointing to an external URL via an HTTP redirect.
-    (Try downloading the master.)
   </lrp:description>
   <lrp:title>URL item</lrp:title>
 

@@ -73,11 +73,13 @@
           <div class="panel-body">
             <ul>
               <% @item.bytestreams.each do |bs| %>
-                <li><%= bs.type.upcase %>: <%= bs.pathname %>
-                  <% if File.exist?(bs.pathname) %>
-                    <span class="text-success">(OK)</span>
-                  <% else %>
-                    <span class="text-danger">(MISSING)</span>
+                <li><%= bs.type.upcase %>: <%= bs.pathname || bs.url %>
+                  <% if bs.pathname %>
+                    <% if File.exist?(bs.pathname) %>
+                      <span class="text-success">(OK)</span>
+                    <% else %>
+                      <span class="text-danger">(MISSING)</span>
+                    <% end %>
                   <% end %>
                 </li>
               <% end %>
