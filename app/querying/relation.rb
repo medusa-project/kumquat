@@ -201,7 +201,7 @@ class Relation
         elsif v == :not_null
           "#{k}:[* TO *]"
         else
-          "#{k}:#{(v.to_s[0] == '(') ? v : "\"#{v}\""}"
+          "#{k}:#{['(', '['].include?(v.to_s[0]) ? v : "\"#{v}\""}"
         end
       end
     elsif where.respond_to?(:to_s)
