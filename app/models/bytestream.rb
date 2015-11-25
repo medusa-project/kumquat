@@ -10,22 +10,36 @@ class Bytestream
     PRESERVATION_MASTER = :preservation_master
   end
 
-  attr_accessor :height # Integer
-  attr_accessor :media_type # String
+  # @!attribute height
+  #   @return [Integer]
+  attr_accessor :height
+
+  # @!attribute media_type
+  #   @return [String]
+  attr_accessor :media_type
 
   # @!attribute repository_relative_pathname
   #   @return [String] Pathname of the bytestream relative to the repository
   #                    root.
   attr_accessor :repository_relative_pathname
 
-  attr_accessor :type # Bytestream::Type
-  attr_accessor :url # String
-  attr_accessor :width # Integer
+  # @!attribute type
+  #   @return [Bytestream::Type]
+  attr_accessor :type
+
+  # @!attribute url
+  #   @return [String]
+  attr_accessor :url
+
+  # @!attribute width
+  #   @return [Integer]
+  attr_accessor :width
 
   ##
   # Attempts to detect the media type and assigns it to the instance.
   #
   # @raise [RuntimeError] if neither pathname nor url are set
+  # @return [void]
   #
   def detect_media_type
     if self.pathname and File.exist?(self.pathname)
@@ -46,7 +60,7 @@ class Bytestream
   end
 
   def is_pdf?
-    self.media_type and self.media_type == ('application/pdf')
+    self.media_type and self.media_type == 'application/pdf'
   end
 
   def is_text?
@@ -58,17 +72,20 @@ class Bytestream
   end
 
   ##
-  # @return [String] Absolute local pathname
+  # @return [String, nil] Absolute local pathname, or nil if the instance is a
+  # "URL" bytestream (in which case the `url` getter would be more relevant).
   #
   def pathname
     rp = PearTree::Application.peartree_config[:repository_pathname]
-    rp ? rp + self.repository_relative_pathname : nil
+    (rp and self.repository_relative_pathname) ?
+        rp + self.repository_relative_pathname : nil
   end
 
   ##
   # Reads the width and height (if an image) and assigns them to the instance.
   #
   # @raise [RuntimeError] if pathname is not set
+  # @return [void]
   #
   def read_dimensions
     raise 'Pathname is not set' unless self.pathname
