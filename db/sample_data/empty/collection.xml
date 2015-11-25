@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <lrp:Collection xmlns:lrp="http://www.library.illinois.edu/lrp/terms#">
   <!-- technical metadata -->
+  <lrp:published>true</lrp:published>
   <lrp:repositoryId>empty</lrp:repositoryId>
-  <lrp:published/>
   <!-- descriptive metadata -->
-  <lrp:title>Demo Empty Collection</lrp:title>
   <lrp:description>An empty collection.</lrp:description>
+  <lrp:title>Demo Empty Collection</lrp:title>
 </lrp:Collection>

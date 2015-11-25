@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <lrp:Collection xmlns:lrp="http://www.library.illinois.edu/lrp/terms#">
   <!-- technical metadata -->
+  <lrp:published>true</lrp:published>
   <lrp:repositoryId>doc-demo</lrp:repositoryId>
   <lrp:webId>doc-demo</lrp:webId>
-  <lrp:published/>
   <!-- descriptive metadata -->
-  <lrp:title>Demo Document Collection</lrp:title>
   <lrp:description>A demo collection containing documents.</lrp:description>
+  <lrp:title>Demo Document Collection</lrp:title>
 </lrp:Collection>

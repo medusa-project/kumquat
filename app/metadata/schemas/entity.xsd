@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xs:schema attributeFormDefault="unqualified"
+  elementFormDefault="qualified"
+  targetNamespace="http://www.library.illinois.edu/lrp/terms#"
+  xmlns:lrp="http://www.library.illinois.edu/lrp/terms#"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:annotation>
+    <xs:documentation xml:lang="en">
+    Base AIP schema. Defines an abstract complexType called Entity containing
+    elements common to all entities.
+    </xs:documentation>
+  </xs:annotation>
+
+  <xs:complexType name="Entity" abstract="true">
+    <xs:sequence>
+      <!-- technical metadata -->
+      <xs:element name="published" type="xs:boolean" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="repositoryId" type="xs:token" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="webId" type="xs:token" minOccurs="0" maxOccurs="1"/>
+      <!-- descriptive metadata -->
+      <xs:element name="abstract" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="accessRights" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="accrualMethod" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="accrualPeriodicity" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="accrualPolicy" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="alternativeTitle" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="audience" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="bibliographicCitation" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="cartographicScale" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="conformsTo" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="contributor" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="coverage" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="creator" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="date" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="dateAccepted" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="dateAvailable" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="dateCopyrighted" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="dateCreated" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="dateIssued" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="dateModified" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="dateSubmitted" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="dateValid" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="description" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="dimensions" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="educationLevel" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="extent" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="format" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="hasFormat" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="hasPart" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="hasVersion" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="identifier" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="instructionalMethod" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="isFormatOf" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="isPartOf" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="isReferencedBy" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="isReplacedBy" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="isRequiredBy" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="isVersionOf" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="language" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="latitude" type="xs:float" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="license" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="longitude" type="xs:float" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="mediator" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="medium" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="notes" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="physicalLocation" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="provenance" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="publicationPlace" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="publisher" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="references" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="relation" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="replaces" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="requires" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="rights" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="rightsHolder" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="source" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="spatialCoverage" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="subject" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="tableOfContents" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="temporalCoverage" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="title" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="type" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>

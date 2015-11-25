@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<lrp:Object xmlns:lrp="http://www.library.illinois.edu/lrp/terms#">
+  <lrp:published>true</lrp:published>
+  <lrp:repositoryId>word.docx</lrp:repositoryId>
+
+  <lrp:description>A Microsoft Word 2011 file.</lrp:description>
+  <lrp:extent>22 Kbytes</lrp:extent>
+  <lrp:title>Demo Microsoft Word 2011 document</lrp:title>
+
+  <lrp:collectionId>doc-demo</lrp:collectionId>
+  <lrp:parentId>powerpoint.pptx</lrp:parentId>
+  <lrp:preservationMasterMediaType>application/vnd.openxmlformats-officedocument.wordprocessingml.document</lrp:preservationMasterMediaType>
+  <lrp:preservationMasterPathname>bytestreams/word.docx</lrp:preservationMasterPathname>
+</lrp:Object>

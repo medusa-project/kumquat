@@ -1,24 +1,27 @@
 class Indexer
 
-  # Metadata filename format: {entity}_{id}.xml
-  ALLOWED_ENTITIES = %w(collection item items)
-
   ##
-  # Indexes all metadata files within the given pathname.
+  # Indexes all metadata files (`collection.xml` or `item_*.xml`) within the
+  # given pathname.
   #
   # @param [String] root_pathname Root pathname to index
+  # @return [void]
   #
   def index_all(root_pathname)
     count = 0
     Dir.glob(root_pathname + '/**/*').select{ |file| File.file?(file) }.each do |pathname|
-      count = index_file(pathname, count) if ALLOWED_ENTITIES.include?(entity(pathname))
+      if %w(collection item).include?(entity(pathname))
+        count = index_file(pathname, count)
+      end
     end
   end
 
   ##
   # @param pathname [String] Pathname of a metadata file.
+  # @param count [Integer] Running count of files indexed; will be logged.
+  # @return [Integer] The given count plus one.
   #
-  def index_file(pathname, count)
+  def index_file(pathname, count = 0)
     entity = entity(pathname).singularize
     entity_class = entity.capitalize.constantize
 
@@ -28,11 +31,15 @@ class Indexer
       doc.encoding = 'utf-8'
       case entity
         when 'item'
-          doc.xpath('//lrp:Object', namespaces).each do |node|
+          node = doc.xpath('//lrp:Object', namespaces).first
+          if node
             entity = entity_class.from_lrp_xml(node, pathname)
             entity.save
             count += 1
             Rails.logger.debug("Indexed #{entity.id} (#{count})")
+          else
+            raise "Object metadata file is missing lrp:Object element: "\
+            "#{pathname}"
           end
         when 'collection'
           node = doc.xpath('//lrp:Collection', namespaces).first
@@ -55,7 +62,8 @@ class Indexer
   private
 
   ##
-  # @return [String] Name of one of the `Entity` subclasses, singular or plural
+  # @param [String] pathname
+  # @return [String] Name of one of the [Entity] subclasses, singular or plural
   #
   def entity(pathname)
     begin

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<lrp:Object xmlns:lrp="http://www.library.illinois.edu/lrp/terms#">
+  <lrp:published>true</lrp:published>
+  <lrp:repositoryId>hello_world</lrp:repositoryId>
+
+  <lrp:date>2015-03-12</lrp:date>
+  <lrp:description>"Hello world!", written in C and compiled with GCC for
+    Darwin 14.1 x86_64.</lrp:description>
+  <lrp:extent>8 Kbytes</lrp:extent>
+  <lrp:identifier>hello_world</lrp:identifier>
+  <lrp:language>English</lrp:language>
+  <lrp:rights>Public domain</lrp:rights>
+  <lrp:subject>Computer software</lrp:subject>
+  <lrp:title>Demo binary executable item</lrp:title>
+  <lrp:type>Dataset</lrp:type>
+
+  <lrp:collectionId>misc-demo</lrp:collectionId>
+  <lrp:preservationMasterMediaType>application/octet-stream</lrp:preservationMasterMediaType>
+  <lrp:preservationMasterPathname>hello_world</lrp:preservationMasterPathname>
+</lrp:Object>

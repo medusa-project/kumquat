@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<lrp:Object xmlns:lrp="http://www.library.illinois.edu/lrp/terms#">
+  <lrp:published>true</lrp:published>
+  <lrp:repositoryId>color_bars.png</lrp:repositoryId>
+
+  <lrp:description>SMPTE color bars.</lrp:description>
+  <lrp:subject>Colors</lrp:subject>
+  <lrp:subject>Television</lrp:subject>
+  <lrp:title>PNG image item</lrp:title>
+  <lrp:type>Image</lrp:type>
+
+  <lrp:accessMasterPathname>bytestreams/color_bars.jpg</lrp:accessMasterPathname>
+  <lrp:collectionId>image-demo</lrp:collectionId>
+  <lrp:preservationMasterMediaType>image/png</lrp:preservationMasterMediaType>
+  <lrp:preservationMasterPathname>bytestreams/color_bars.png</lrp:preservationMasterPathname>
+</lrp:Object>

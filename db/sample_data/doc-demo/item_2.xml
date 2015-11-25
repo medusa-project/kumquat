@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<lrp:Object xmlns:lrp="http://www.library.illinois.edu/lrp/terms#">
+  <lrp:published>true</lrp:published>
+  <lrp:repositoryId>NEXTSTEP.pdf</lrp:repositoryId>
+
+  <lrp:creator>NeXT Computer, Inc.</lrp:creator>
+  <lrp:date>1995</lrp:date>
+  <lrp:description>A flyer advertising the NEXTSTEP operating
+    system.</lrp:description>
+  <lrp:extent>312 Kbytes</lrp:extent>
+  <lrp:language>English</lrp:language>
+  <lrp:publisher>NeXT Computer, Inc.</lrp:publisher>
+  <lrp:title>Demo PDF item</lrp:title>
+  <lrp:type>Text</lrp:type>
+
+  <lrp:collectionId>doc-demo</lrp:collectionId>
+  <lrp:preservationMasterMediaType>application/pdf</lrp:preservationMasterMediaType>
+  <lrp:preservationMasterPathname>bytestreams/NEXTSTEP.pdf</lrp:preservationMasterPathname>
+</lrp:Object>
