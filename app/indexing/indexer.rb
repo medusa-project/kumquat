@@ -31,6 +31,7 @@ class Indexer
       doc.encoding = 'utf-8'
       case entity
         when 'item'
+          validate(doc, 'object.xsd')
           node = doc.xpath('//lrp:Object', namespaces).first
           if node
             entity = entity_class.from_lrp_xml(node, pathname)
@@ -42,6 +43,7 @@ class Indexer
             "#{pathname}"
           end
         when 'collection'
+          validate(doc, 'collection.xsd')
           node = doc.xpath('//lrp:Collection', namespaces).first
           if node
             entity = entity_class.from_lrp_xml(node, pathname)
@@ -70,6 +72,19 @@ class Indexer
       return pathname.split(File::SEPARATOR).last.split('.').first.split('_').first
     rescue NameError
       # noop
+    end
+  end
+
+  ##
+  # @param doc [Nokogiri::XML::Document]
+  # @param schema [String]
+  # @raise [RuntimeError]
+  #
+  def validate(doc, schema)
+    xsd = Nokogiri::XML::Schema(
+        File.open(__dir__ + '/../metadata/schemas/' + schema))
+    xsd.validate(doc).each do |error|
+      raise error.message
     end
   end
 
