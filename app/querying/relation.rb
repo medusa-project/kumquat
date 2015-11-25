@@ -182,6 +182,10 @@ class Relation
   #
   # where('solr_field' => :null)
   #
+  # Search for not-null:
+  #
+  # where('solr_field' => :not_null)
+  #
   # @param where [Hash, String]
   # @return [Entity] self
   #
@@ -194,6 +198,8 @@ class Relation
       @where_clauses += where.map do |k, v|
         if v == :null
           "-#{k}:[* TO *]"
+        elsif v == :not_null
+          "#{k}:[* TO *]"
         else
           "#{k}:#{(v.to_s[0] == '(') ? v : "\"#{v}\""}"
         end
