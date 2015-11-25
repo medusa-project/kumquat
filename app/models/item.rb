@@ -1,13 +1,34 @@
 class Item < Entity
 
-  attr_accessor :bytestreams # Set
-  attr_accessor :collection_id # String
-  attr_accessor :full_text # String
-  attr_accessor :parent_id # String
+  # @!attribute bytestreams
+  #   @return [Set<Bytestream>]
+  attr_accessor :bytestreams
 
+  # @!attribute collection_id
+  #   @return [String]
+  attr_accessor :collection_id
+
+  # @!attribute full_text
+  #   @return [String]
+  attr_accessor :full_text
+
+  # @!attribute parent_id
+  #   @return [String]
+  attr_accessor :parent_id
+
+  ##
+  # @param doc [Nokogiri::XML::Document]
+  # @return [Item]
+  #
   def self.from_solr(doc)
     item = Item.new
     item.id = doc[Solr::Fields::ID]
+    if doc[Solr::Fields::CREATED]
+      item.created = DateTime.parse(doc[Solr::Fields::CREATED])
+    end
+    if doc[Solr::Fields::LAST_MODIFIED]
+      item.last_modified = DateTime.parse(doc[Solr::Fields::LAST_MODIFIED])
+    end
     item.parent_id = doc[Solr::Fields::PARENT_ITEM]
     if doc[Solr::Fields::ACCESS_MASTER_PATHNAME] or
         doc[Solr::Fields::ACCESS_MASTER_URL]
@@ -75,6 +96,9 @@ class Item < Entity
     @bytestreams = Set.new
   end
 
+  ##
+  # @return [Relation]
+  #
   def children
     @children = Item.where(Solr::Fields::PARENT_ITEM => self.id) unless @children
     @children
@@ -82,6 +106,9 @@ class Item < Entity
 
   alias_method :items, :children
 
+  ##
+  # @return [Collection]
+  #
   def collection
     @collection = Collection.find(self.collection_id) unless @collection
     @collection

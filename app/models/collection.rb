@@ -1,8 +1,18 @@
 class Collection < Entity
 
+  ##
+  # @param doc [Nokogiri::XML::Document]
+  # @return [Collection]
+  #
   def self.from_solr(doc)
     col = Collection.new
     col.id = doc[Solr::Fields::ID]
+    if doc[Solr::Fields::CREATED]
+      col.created = DateTime.parse(doc[Solr::Fields::CREATED])
+    end
+    if doc[Solr::Fields::LAST_MODIFIED]
+      col.last_modified = DateTime.parse(doc[Solr::Fields::LAST_MODIFIED])
+    end
     col.published = doc[Solr::Fields::PUBLISHED]
     col.title = doc[Solr::Fields::TITLE]
     col.web_id = doc[Solr::Fields::WEB_ID]
@@ -53,6 +63,9 @@ class Collection < Entity
     @collection_def
   end
 
+  ##
+  # @return [Integer]
+  #
   def num_items
     @num_items = Item.where(Solr::Fields::COLLECTION => self.id).
         where(Solr::Fields::PARENT_ITEM => :null).count unless @num_items
