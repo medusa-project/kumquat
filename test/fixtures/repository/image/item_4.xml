@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <lrp:Object xmlns:lrp="http://www.library.illinois.edu/lrp/terms#">
+  <lrp:created>2015-11-21T01:51:17Z</lrp:created>
+  <lrp:lastModified>2015-11-22T01:51:17Z</lrp:lastModified>
   <lrp:published>true</lrp:published>
   <lrp:repositoryId>IMG_1118.jp2</lrp:repositoryId>
 
@@ -22,7 +24,7 @@
   <lrp:title>JPEG2000 image item</lrp:title>
   <lrp:type>Image</lrp:type>
 
-  <lrp:collectionId>image-demo</lrp:collectionId>
+  <lrp:collectionId>image-test</lrp:collectionId>
   <lrp:fullText>Harold E. "Red" Grange
 "the Galloping Ghost"
 "77"

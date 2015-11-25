@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <lrp:Object xmlns:lrp="http://www.library.illinois.edu/lrp/terms#">
+  <lrp:created>2015-11-21T01:51:17Z</lrp:created>
+  <lrp:lastModified>2015-11-22T01:51:17Z</lrp:lastModified>
   <lrp:published>true</lrp:published>
   <lrp:repositoryId>non-roman</lrp:repositoryId>
 
@@ -15,6 +17,6 @@
   <lrp:extent>0 bytes</lrp:extent>
   <lrp:title>Non-Roman character item 的 ب 🎵</lrp:title>
 
-  <lrp:collectionId>misc-demo</lrp:collectionId>
+  <lrp:collectionId>misc-test</lrp:collectionId>
   <lrp:preservationMasterMediaType>unknown/unknown</lrp:preservationMasterMediaType>
 </lrp:Object>

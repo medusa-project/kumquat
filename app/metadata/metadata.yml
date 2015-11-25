@@ -28,6 +28,13 @@ collectionId:
     dc: relation
     dcterms: isPartOf
     geo:
+created:
+  type: technical
+  mappings:
+    bibFrame:
+    dc: date
+    dcterms: created
+    geo:
 fullText:
   type: technical
   mappings:
@@ -41,6 +48,13 @@ height:
     bibFrame:
     dc:
     dcterms:
+    geo:
+lastModified:
+  type: technical
+  mappings:
+    bibFrame:
+    dc: date
+    dcterms: modified
     geo:
 parentId:
   type: technical

@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <lrp:Object xmlns:lrp="http://www.library.illinois.edu/lrp/terms#">
+  <lrp:created>2015-11-21T01:51:17Z</lrp:created>
+  <lrp:lastModified>2015-11-22T01:51:17Z</lrp:lastModified>
   <lrp:published>true</lrp:published>
   <lrp:repositoryId>beep-piano.aif</lrp:repositoryId>
 
@@ -12,7 +14,7 @@
   <lrp:title>Demo AIFF audio item</lrp:title>
   <lrp:type>Sound</lrp:type>
 
-  <lrp:collectionId>audio-demo</lrp:collectionId>
+  <lrp:collectionId>audio-test</lrp:collectionId>
   <lrp:preservationMasterMediaType>audio/aiff</lrp:preservationMasterMediaType>
   <lrp:preservationMasterPathname>bytestreams/beep-piano.aif</lrp:preservationMasterPathname>
 </lrp:Object>

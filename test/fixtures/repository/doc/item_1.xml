@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <lrp:Object xmlns:lrp="http://www.library.illinois.edu/lrp/terms#">
+  <lrp:created>2015-11-21T01:51:17Z</lrp:created>
+  <lrp:lastModified>2015-11-22T01:51:17Z</lrp:lastModified>
   <lrp:published>true</lrp:published>
   <lrp:repositoryId>magna-carta.txt</lrp:repositoryId>
 
@@ -15,7 +17,7 @@
   <lrp:title>Demo plain text item</lrp:title>
   <lrp:type>Text</lrp:type>
 
-  <lrp:collectionId>doc-demo</lrp:collectionId>
+  <lrp:collectionId>doc-test</lrp:collectionId>
   <lrp:preservationMasterMediaType>text/plain</lrp:preservationMasterMediaType>
   <lrp:preservationMasterPathname>bytestreams/magna carta.txt</lrp:preservationMasterPathname>
 </lrp:Object>

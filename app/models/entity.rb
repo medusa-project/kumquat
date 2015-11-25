@@ -11,8 +11,10 @@ class Entity
   include SolrQuerying
 
   attr_accessor :id # String
+  attr_accessor :created # DateTime
   attr_accessor :date # Date
   attr_accessor :description # String
+  attr_accessor :last_modified # DateTime
   attr_reader :metadata # Array
   attr_accessor :published # Boolean
   attr_accessor :score # float
@@ -71,7 +73,11 @@ class Entity
     doc = {}
     doc[Solr::Fields::ID] = self.id
     doc[Solr::Fields::CLASS] = self.class.to_s
+    doc[Solr::Fields::CREATED] = self.created.utc.iso8601 + 'Z' if self.created
     doc[Solr::Fields::LAST_INDEXED] = DateTime.now.utc.iso8601 + 'Z'
+    if self.last_modified
+      doc[Solr::Fields::LAST_MODIFIED] = self.last_modified.utc.iso8601 + 'Z'
+    end
     doc[Solr::Fields::PUBLISHED] = self.published
     doc[Solr::Fields::TITLE] = self.title
     doc[Solr::Fields::WEB_ID] = self.web_id

@@ -29,6 +29,15 @@ module Deserialization
         "#{metadata_pathname}"
       end
 
+      # created
+      created = node.xpath('lrp:created', namespaces).first
+      entity.created = created ? DateTime.parse(created.content.strip) : nil
+
+      # last modified
+      last_modified = node.xpath('lrp:lastModified', namespaces).first
+      entity.last_modified = last_modified ?
+          DateTime.parse(last_modified.content.strip) : nil
+
       # published
       published = node.xpath('lrp:published', namespaces).first
       entity.published = published ?

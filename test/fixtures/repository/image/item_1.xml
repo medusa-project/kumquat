@@ -1,5 +1,7 @@
 <?xml version="1.0"?>
 <lrp:Object xmlns:lrp="http://www.library.illinois.edu/lrp/terms#">
+  <lrp:created>2015-11-21T01:51:17Z</lrp:created>
+  <lrp:lastModified>2015-11-22T01:51:17Z</lrp:lastModified>
   <lrp:published>true</lrp:published>
   <lrp:repositoryId>800379272_de0817d41a.tiff</lrp:repositoryId>
 
@@ -10,7 +12,7 @@
   <lrp:title>LZW-compressed TIFF image item</lrp:title>
   <lrp:type>Image</lrp:type>
 
-  <lrp:collectionId>image-demo</lrp:collectionId>
+  <lrp:collectionId>image-test</lrp:collectionId>
   <lrp:preservationMasterMediaType>image/tiff</lrp:preservationMasterMediaType>
   <lrp:preservationMasterPathname>bytestreams/800379272_de0817d41a.tiff</lrp:preservationMasterPathname>
 </lrp:Object>
