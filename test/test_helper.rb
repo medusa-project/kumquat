@@ -6,5 +6,13 @@ class ActiveSupport::TestCase
   # Setup all fixtures in test/fixtures/*.yml for all tests in alphabetical order.
   fixtures :all
 
-  # Add more helper methods to be used by all tests here...
+  ##
+  # Seeds a test Solr instance with fixture data.
+  #
+  def seed_repository
+    Solr.instance.flush
+    Indexer.new.index_all(__dir__ + '/fixtures/repository')
+    Solr.instance.commit
+  end
+
 end

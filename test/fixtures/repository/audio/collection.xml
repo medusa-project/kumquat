@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<lrp:Collection xmlns:lrp="http://www.library.illinois.edu/lrp/terms#">
+  <!-- technical metadata -->
+  <lrp:published>true</lrp:published>
+  <lrp:repositoryId>audio-demo</lrp:repositoryId>
+  <lrp:webId>audio-demo</lrp:webId>
+  <!-- descriptive metadata -->
+  <lrp:description>A collection containing audio items.</lrp:description>
+  <lrp:title>Demo Audio Collection</lrp:title>
+</lrp:Collection>

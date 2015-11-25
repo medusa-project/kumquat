@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<lrp:Object xmlns:lrp="http://www.library.illinois.edu/lrp/terms#">
+  <lrp:published>false</lrp:published>
+  <lrp:repositoryId>unpublished</lrp:repositoryId>
+
+  <lrp:description>If you can see this item in the public display,
+    something is wrong!</lrp:description>
+  <lrp:title>Unpublished item</lrp:title>
+
+  <lrp:collectionId>misc-demo</lrp:collectionId>
+  <lrp:preservationMasterMediaType>text/html</lrp:preservationMasterMediaType>
+  <lrp:preservationMasterURL>http://www.library.illinois.edu/</lrp:preservationMasterURL>
+</lrp:Object>

@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<lrp:Object xmlns:lrp="http://www.library.illinois.edu/lrp/terms#">
+  <lrp:published>true</lrp:published>
+  <lrp:repositoryId>800379272_de0817d41a.tiff</lrp:repositoryId>
+
+  <lrp:description>The Death Star under construction.</lrp:description>
+  <lrp:extent>248 Kbytes</lrp:extent>
+  <lrp:subject>Cranes</lrp:subject>
+  <lrp:subject>Moons</lrp:subject>
+  <lrp:title>LZW-compressed TIFF image item</lrp:title>
+  <lrp:type>Image</lrp:type>
+
+  <lrp:collectionId>image-demo</lrp:collectionId>
+  <lrp:preservationMasterMediaType>image/tiff</lrp:preservationMasterMediaType>
+  <lrp:preservationMasterPathname>bytestreams/800379272_de0817d41a.tiff</lrp:preservationMasterPathname>
+</lrp:Object>

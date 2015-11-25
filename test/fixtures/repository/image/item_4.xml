@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<lrp:Object xmlns:lrp="http://www.library.illinois.edu/lrp/terms#">
+  <lrp:published>true</lrp:published>
+  <lrp:repositoryId>IMG_1118.jp2</lrp:repositoryId>
+
+  <lrp:coverage>Memorial Stadium, University of Illinois at
+    Urbana-Champaign</lrp:coverage>
+  <lrp:creator/>
+  <lrp:date>2014-06-12</lrp:date>
+  <lrp:description>Plaque of Red Grange in Memorial Stadium on the
+    University of Illinois at Urbana-Champaign campus.</lrp:description>
+  <lrp:extent>912 Kbytes</lrp:extent>
+  <lrp:identifier>IMG_1118.jp2</lrp:identifier>
+  <lrp:language>English</lrp:language>
+  <lrp:publisher/>
+  <lrp:relation/>
+  <lrp:rights>Creative Commons Attribution-NoDerivatives 4.0
+    International</lrp:rights>
+  <lrp:source/>
+  <lrp:subject>Plaques</lrp:subject>
+  <lrp:subject>Football</lrp:subject>
+  <lrp:title>JPEG2000 image item</lrp:title>
+  <lrp:type>Image</lrp:type>
+
+  <lrp:collectionId>image-demo</lrp:collectionId>
+  <lrp:fullText>Harold E. "Red" Grange
+"the Galloping Ghost"
+"77"
+Born: June 13, 1903 in Forksville, Pa.
+Died: January 28, 1991 in Lake Wales, Fla.
+
+Red Grange is considered to be one of college
+football's greatest stars, lettering at the
+University of Illinois as a halfback from 1923-25
+and earning All-America honors all three seasons.
+His most memorable performance came October 18,
+1924 vs. Michigan here at Memorial Stadium in the
+Dedication Game.
+
+Upon seeing Grange's performance, legendary
+sportswriter Grantland Rice penned this immortal
+verse:
+
+A streak of fire, a breath of flame,
+Eluding all who reach and clutch,
+A gray Ghost thrown into the game
+That rival hands may never touch;
+A rubber, bounding, blasting soul
+Whose destination is the goal..
+Red Grange of Illinois.</lrp:fullText>
+  <lrp:preservationMasterMediaType>image/jp2</lrp:preservationMasterMediaType>
+  <lrp:preservationMasterPathname>bytestreams/IMG_1118.jp2</lrp:preservationMasterPathname>
+</lrp:Object>

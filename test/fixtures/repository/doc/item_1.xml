@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<lrp:Object xmlns:lrp="http://www.library.illinois.edu/lrp/terms#">
+  <lrp:published>true</lrp:published>
+  <lrp:repositoryId>magna-carta.txt</lrp:repositoryId>
+
+  <lrp:creator>Stephen Langton</lrp:creator>
+  <lrp:date>1215-06-19</lrp:date>
+  <lrp:description>The Magna Carta, in UTF-8 with no byte order
+    mark.</lrp:description>
+  <lrp:extent>4583 words</lrp:extent>
+  <lrp:language>English</lrp:language>
+  <lrp:publisher>England</lrp:publisher>
+  <lrp:rights>Public domain</lrp:rights>
+  <lrp:subject>Important historical documents</lrp:subject>
+  <lrp:title>Demo plain text item</lrp:title>
+  <lrp:type>Text</lrp:type>
+
+  <lrp:collectionId>doc-demo</lrp:collectionId>
+  <lrp:preservationMasterMediaType>text/plain</lrp:preservationMasterMediaType>
+  <lrp:preservationMasterPathname>bytestreams/magna carta.txt</lrp:preservationMasterPathname>
+</lrp:Object>
