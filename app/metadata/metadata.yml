@@ -35,6 +35,13 @@ fullText:
     dc:
     dcterms:
     geo:
+height:
+  type: technical
+  mappings:
+    bibFrame:
+    dc:
+    dcterms:
+    geo:
 parentId:
   type: technical
   mappings:
@@ -76,6 +83,13 @@ webId:
     bibFrame:
     dc: identifier
     dcterms: identifier
+    geo:
+width:
+  type: technical
+  mappings:
+    bibFrame:
+    dc:
+    dcterms:
     geo:
 
 ########################## descriptive elements ##########################
