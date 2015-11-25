@@ -30,7 +30,9 @@ module Deserialization
       end
 
       # published
-      entity.published = node.xpath('lrp:published', namespaces).first.present?
+      published = node.xpath('lrp:published', namespaces).first
+      entity.published = published ?
+          %w(true 1).include?(published.content.strip) : false
 
       # web ID
       web_id = node.xpath('lrp:webId', namespaces).first
