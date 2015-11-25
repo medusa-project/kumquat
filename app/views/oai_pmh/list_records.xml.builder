@@ -29,8 +29,8 @@ xml.tag!('OAI-PMH',
         xml.tag!('record') do
           xml.tag!('header') do
             xml.tag!('identifier', oai_pmh_identifier_for(item, @host))
-            xml.tag!('datestamp', item.updated_at.strftime('%Y-%m-%d'))
-            xml.tag!('setSpec', item.collection.key)
+            xml.tag!('datestamp', item.last_modified.strftime('%Y-%m-%d'))
+            xml.tag!('setSpec', item.collection.id)
           end
           xml.tag!('metadata') do
             xml.tag!('oai_dc:dc', {
@@ -40,12 +40,10 @@ xml.tag!('OAI-PMH',
                 'xsi:schemaLocation' => 'xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ '\
               'http://www.openarchives.org/OAI/2.0/oai_dc.xsd'
             }) do
-              item.rdf_graph.each_statement do |statement|
+              item.metadata.each do |element|
                 # oai_dc supports only unqualified DC
-                if statement.predicate.to_s.start_with?('http://purl.org/dc/elements/1.1/')
-                  xml.tag!("dc:#{File.basename(statement.predicate)}",
-                           statement.object.to_s)
-                end
+                # TODO: only dc elements
+                xml.tag!("dc:#{element.name}", element.value)
               end
             end
           end

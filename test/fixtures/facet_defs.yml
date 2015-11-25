@@ -2,10 +2,10 @@
 
 one:
   index: 1
-  name: MyString
-  solr_field: MyString
+  name: Subject
+  solr_field: subject_txti
 
 two:
   index: 1
-  name: MyString
-  solr_field: MyString
+  name: Date
+  solr_field: date_txti

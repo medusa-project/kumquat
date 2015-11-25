@@ -1,5 +1,7 @@
 ##
-# http://www.openarchives.org/OAI/openarchivesprotocol.html
+# Controller for the OAI-PMH endpoint.
+#
+# @see http://www.openarchives.org/OAI/openarchivesprotocol.html
 #
 class OaiPmhController < ApplicationController
 
@@ -74,10 +76,9 @@ class OaiPmhController < ApplicationController
   end
 
   def do_identify
-    items = Repository::Item.all.facet(false).
-        order(Solr::Fields::CREATED_AT => :desc).limit(1)
-    @earliest_datestamp = items.any? ?
-        items.first.created_at.iso8601 : nil
+    items = Item.all.facet(false).where(Solr::Fields::CREATED => :not_null).
+        order(Solr::Fields::CREATED => :desc).limit(1)
+    @earliest_datestamp = items.any? ? items.first.created.utc.iso8601 : nil
     'identify.xml.builder'
   end
 
@@ -103,9 +104,9 @@ class OaiPmhController < ApplicationController
   end
 
   def do_list_sets
-    @collections = Repository::Collection.all.facet(false).
+    @collections = Collection.all.facet(false).
         where(Solr::Fields::PUBLISHED => true).
-        order(Solr::Fields::COLLECTION_KEY)
+        order(Solr::Fields::ID)
     'list_sets.xml.builder'
   end
 
@@ -128,18 +129,18 @@ class OaiPmhController < ApplicationController
                            'this repository.' }
     end
 
-    @results = Repository::Item.all.facet(false).
+    @results = Item.all.facet(false).
         where(Solr::Fields::PUBLISHED => true).
-        order(Solr::Fields::UPDATED_AT => :desc)
+        order(Solr::Fields::CREATED => :desc)
 
     from = to = 'NOW'
-    from = Time.parse(params[:from]).iso8601 + 'Z' if params[:from]
-    to = Time.parse(params[:until]).iso8601 + 'Z' if params[:until]
+    from = Time.parse(params[:from]).utc.iso8601 if params[:from]
+    to = Time.parse(params[:until]).utc.iso8601 if params[:until]
     if from != to
-      @results = @results.where(Solr::Fields::UPDATED_AT => "[#{from} TO #{to}]")
+      @results = @results.where(Solr::Fields::CREATED => "[#{from} TO #{to}]")
     end
     if params[:set]
-      @results = @results.where(Solr::Fields::COLLECTION_KEY => params[:set])
+      @results = @results.where(Solr::Fields::ID => params[:set])
     end
 
     @errors << { code: 'noRecordsMatch',
@@ -155,7 +156,7 @@ class OaiPmhController < ApplicationController
       @errors << {
           code: 'badArgument',
           description: 'Content-Type of POST requests must be '\
-          'application/x-www-form-urlencoded'
+          '"application/x-www-form-urlencoded"'
       }
     end
   end
