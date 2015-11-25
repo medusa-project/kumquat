@@ -12,7 +12,8 @@ class ItemsController < WebsiteController
   def index
     @start = params[:start] ? params[:start].to_i : 0
     @limit = Option::integer(Option::Key::RESULTS_PER_PAGE)
-    @items = Item.where(Solr::Fields::PARENT_ITEM => :null).where(params[:q])
+    @items = Item.where(Solr::Fields::PUBLISHED => true).
+        where(Solr::Fields::PARENT_ITEM => :null).where(params[:q])
     if params[:fq].respond_to?(:each)
       params[:fq].each { |fq| @items = @items.facet(fq) }
     else
@@ -42,8 +43,14 @@ class ItemsController < WebsiteController
   # Responds to GET /items/:id/master
   #
   def master_bytestream
-    @item = Item.find_by_web_id_si(params[:web_id])
-    raise ActiveRecord::RecordNotFound unless @item
+    @item = Item.find(params[:id])
+    unless @item.published
+      render 'error/error', status: :forbidden, locals: {
+          status_code: 403,
+          status_message: 'Forbidden',
+          message: 'This item is currently not published.'
+      }
+    end
     redirect_to bytestream_url(@item.master_bytestream)
   end
 
@@ -78,8 +85,13 @@ class ItemsController < WebsiteController
 
   def show
     @item = Item.find(params[:id])
-    raise ActiveRecord::RecordNotFound unless @item
-
+    unless @item.published
+      render 'error/error', status: :forbidden, locals: {
+          status_code: 403,
+          status_message: 'Forbidden',
+          message: 'This item is not published.'
+      }
+    end
     @pages = @item.parent ? @item.parent.children : @item.items
   end
 

@@ -13,11 +13,18 @@ class CollectionsController < WebsiteController
 
   def show
     @collection = Collection.find(params[:id])
-    raise ActiveRecord::RecordNotFound unless @collection
+    unless @collection.published
+      render 'error/error', status: :forbidden, locals: {
+          status_code: 403,
+          status_message: 'Forbidden',
+          message: 'This collection is not published.'
+      }
+    end
 
     # Get a random image item to show
     media_types = %w(image/jp2 image/jpeg image/png image/tiff).join(' OR ')
     @item = Item.where(Solr::Fields::COLLECTION => @collection.id).
+        where(Solr::Fields::PUBLISHED => true).
         where("(#{Solr::Fields::ACCESS_MASTER_MEDIA_TYPE}:(#{media_types}) OR "\
         "#{Solr::Fields::PRESERVATION_MASTER_MEDIA_TYPE}:(#{media_types}))").
         facet(false).order(:random).limit(1).first
