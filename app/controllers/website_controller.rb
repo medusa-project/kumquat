@@ -35,23 +35,20 @@ class WebsiteController < ApplicationController
   #
   def prepend_view_paths
     unless @skip_after_actions
-      key = 'default'
-      if params[:key]
-        key = params[:key]
-      elsif params[:repository_collection_key]
-        key = params[:repository_collection_key]
-      elsif params[:web_id]
-        item = Item.find_by_web_id(params[:web_id])
-        raise ActiveRecord::RecordNotFound unless item
-        key = item.collection.key
+      id = 'default'
+      if controller_name == 'collections'
+        id = params[:id]
+      elsif controller_name == 'items'
+        if params[:collection_id]
+          id = params[:collection_id]
+        else
+          item = Item.find(params[:id])
+          id = item.collection.id
+        end
       end
-
-      theme = nil
-      #collection = DB::Collection.find_by_key(key)
-      #theme = collection.theme if collection
-      theme ||= Theme.default
-      pathname = nil
-      pathname = File.join(Rails.root, theme.pathname, 'views') if theme
+      collection = CollectionDef.find_by_repository_id(id)
+      theme = collection ? collection.theme : Theme.default
+      pathname = theme ? File.join(Rails.root, theme.pathname, 'views') : nil
       prepend_view_path(pathname) if pathname
     end
   end
