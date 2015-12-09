@@ -12,6 +12,10 @@ class Item < Entity
   #   @return [String]
   attr_accessor :full_text
 
+  # @!attribute page_number
+  #   @return [Integer]
+  attr_accessor :page_number
+
   # @!attribute parent_id
   #   @return [String]
   attr_accessor :parent_id
@@ -29,6 +33,7 @@ class Item < Entity
     if doc[Solr::Fields::LAST_MODIFIED]
       item.last_modified = DateTime.parse(doc[Solr::Fields::LAST_MODIFIED])
     end
+    item.page_number = doc[Solr::Fields::PAGE_NUMBER]
     item.parent_id = doc[Solr::Fields::PARENT_ITEM]
     if doc[Solr::Fields::ACCESS_MASTER_PATHNAME] or
         doc[Solr::Fields::ACCESS_MASTER_URL]
@@ -100,7 +105,10 @@ class Item < Entity
   # @return [Relation]
   #
   def children
-    @children = Item.where(Solr::Fields::PARENT_ITEM => self.id) unless @children
+    unless @children
+      @children = Item.where(Solr::Fields::PARENT_ITEM => self.id).
+          order(Solr::Fields::PAGE_NUMBER)
+    end
     @children
   end
 
@@ -186,6 +194,7 @@ class Item < Entity
   def to_solr
     doc = super
     doc[Solr::Fields::COLLECTION] = self.collection_id
+    doc[Solr::Fields::PAGE_NUMBER] = self.page_number
     doc[Solr::Fields::PARENT_ITEM] = self.parent_id
     doc[Solr::Fields::DATE] = self.date.utc.iso8601 + 'Z' if self.date
     self.bytestreams.select{ |b| b.type == Bytestream::Type::ACCESS_MASTER }.each do |bs|

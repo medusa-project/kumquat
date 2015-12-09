@@ -56,6 +56,10 @@ module Deserialization
           "lrp:repositoryId #{entity.id} (#{metadata_pathname})"
         end
 
+        # page number
+        page = node.xpath('lrp:pageNumber', namespaces).first
+        entity.page_number = page.content.strip if page
+
         # parent item
         parent = node.xpath('lrp:parentId', namespaces).first
         entity.parent_id = parent.content.strip if parent
