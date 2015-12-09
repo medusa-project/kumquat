@@ -63,17 +63,17 @@ class Solr
 
   alias_method :delete_by_id, :delete
 
-  ##
-  # Deletes everything.
-  #
-  def flush
-    Rails.logger.info('Flushing Solr')
-    client.update(data: '<delete><query>*:*</query></delete>')
-  end
-
   def get(endpoint, options = {})
     Rails.logger.debug("Solr request: #{endpoint}; #{options}")
     client.get(endpoint, options)
+  end
+
+  ##
+  # Deletes everything.
+  #
+  def purge
+    Rails.logger.info('Purging Solr')
+    client.update(data: '<delete><query>*:*</query></delete>')
   end
 
   ##

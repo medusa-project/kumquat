@@ -8,9 +8,9 @@ namespace :solr do
   end
 
   desc 'Delete everything'
-  task :flush => :environment do |task, args|
+  task :purge => :environment do |task, args|
     solr = Solr.instance
-    solr.flush
+    solr.purge
     solr.commit
   end
 
