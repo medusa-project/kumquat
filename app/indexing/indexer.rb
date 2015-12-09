@@ -82,7 +82,7 @@ class Indexer
   #
   def validate(doc, schema)
     xsd = Nokogiri::XML::Schema(
-        File.open(__dir__ + '/../metadata/schemas/' + schema))
+        File.open(__dir__ + '/../../public/schema/1/' + schema))
     xsd.validate(doc).each do |error|
       raise error.message
     end

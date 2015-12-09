@@ -18,7 +18,7 @@
           <xs:element name="fullText" type="xs:string" minOccurs="0" maxOccurs="1"/>
           <xs:element name="height" type="xs:positiveInteger" minOccurs="0" maxOccurs="1"/>
           <xs:element name="parentId" type="xs:token" minOccurs="0" maxOccurs="1"/>
-          <xs:element name="preservationMasterMediaType" type="xs:token" minOccurs="1" maxOccurs="1"/>
+          <xs:element name="preservationMasterMediaType" type="xs:token" minOccurs="0" maxOccurs="1"/>
           <xs:element name="preservationMasterPathname" type="xs:normalizedString" minOccurs="0" maxOccurs="1"/>
           <xs:element name="preservationMasterURL" type="xs:anyURI" minOccurs="0" maxOccurs="1"/>
           <xs:element name="width" type="xs:positiveInteger" minOccurs="0" maxOccurs="1"/>
