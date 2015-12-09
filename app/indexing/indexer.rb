@@ -20,6 +20,7 @@ class Indexer
   # @param pathname [String] Pathname of a metadata file.
   # @param count [Integer] Running count of files indexed; will be logged.
   # @return [Integer] The given count plus one.
+  # @raise [RuntimeError]
   #
   def index_file(pathname, count = 0)
     entity = entity(pathname).singularize
@@ -27,33 +28,22 @@ class Indexer
 
     namespaces = { 'lrp' => 'http://www.library.illinois.edu/lrp/terms#' }
     File.open(pathname) do |content|
+      Rails.logger.debug("Indexing #{pathname} (#{count})")
       doc = Nokogiri::XML(content, &:noblanks)
       doc.encoding = 'utf-8'
       case entity
         when 'item'
           validate(doc, 'object.xsd')
           node = doc.xpath('//lrp:Object', namespaces).first
-          if node
-            entity = entity_class.from_lrp_xml(node, pathname)
-            entity.save
-            count += 1
-            Rails.logger.debug("Indexed #{entity.id} (#{count})")
-          else
-            raise "Object metadata file is missing lrp:Object element: "\
-            "#{pathname}"
-          end
+          entity = entity_class.from_lrp_xml(node, pathname)
+          entity.save
+          count += 1
         when 'collection'
           validate(doc, 'collection.xsd')
           node = doc.xpath('//lrp:Collection', namespaces).first
-          if node
-            entity = entity_class.from_lrp_xml(node, pathname)
-            entity.save
-            count += 1
-            Rails.logger.debug("Indexed #{entity.id} (#{count})")
-          else
-            raise "Collection metadata file is missing lrp:Collection "\
-            "element: #{pathname}"
-          end
+          entity = entity_class.from_lrp_xml(node, pathname)
+          entity.save
+          count += 1
         else
           raise "Encountered unknown entity (#{entity_class}) in #{pathname}"
       end
@@ -78,7 +68,8 @@ class Indexer
   ##
   # @param doc [Nokogiri::XML::Document]
   # @param schema [String]
-  # @raise [RuntimeError]
+  # @return [void]
+  # @raise [RuntimeError] If the validation fails.
   #
   def validate(doc, schema)
     xsd = Nokogiri::XML::Schema(
