@@ -17,6 +17,7 @@
           <xs:element name="collectionId" type="xs:token" minOccurs="1" maxOccurs="1"/>
           <xs:element name="fullText" type="xs:string" minOccurs="0" maxOccurs="1"/>
           <xs:element name="height" type="xs:positiveInteger" minOccurs="0" maxOccurs="1"/>
+          <xs:element name="pageNumber" type="xs:positiveInteger" minOccurs="0" maxOccurs="1"/>
           <xs:element name="parentId" type="xs:token" minOccurs="0" maxOccurs="1"/>
           <xs:element name="preservationMasterMediaType" type="xs:token" minOccurs="0" maxOccurs="1"/>
           <xs:element name="preservationMasterPathname" type="xs:normalizedString" minOccurs="0" maxOccurs="1"/>
