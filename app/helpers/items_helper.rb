@@ -17,7 +17,15 @@ module ItemsHelper
 
       bytestreams.each do |bs|
         html += '<li>'
-        url = bs.url ? bs.url : '#'
+        if bs.url
+          url = bs.url
+        elsif bs.type == Bytestream::Type::ACCESS_MASTER
+          url = item_access_master_bytestream_url(item)
+        elsif bs.type == Bytestream::Type::PRESERVATION_MASTER
+          url = item_preservation_master_bytestream_url(item)
+        else
+          url = '#'
+        end
         html += link_to(url) do
           download_label_for_bytestream(bs)
         end
@@ -81,6 +89,8 @@ module ItemsHelper
             'checked' : nil
         checked_params = term.removed_from_params(params.deep_dup)
         unchecked_params = term.added_to_params(params.deep_dup)
+        checked_params.delete(:start)
+        unchecked_params.delete(:start)
 
         if result_facet.field == 'collection_facet'
           collection = Collection.find_by_id(term.name)
@@ -476,7 +486,7 @@ module ItemsHelper
   def audio_player_for(item)
     bs = item.bytestreams.select{ |bs| bs.type == Bytestream::Type::ACCESS_MASTER }.first
     tag = "<audio controls>
-      <source src=\"#{access_master_bytestream_url(item)}\"
+      <source src=\"#{item_access_master_bytestream_url(item)}\"
               type=\"#{bs.media_type}\">
         Your browser does not support the audio tag.
     </audio>"
@@ -539,7 +549,7 @@ module ItemsHelper
   end
 
   def pdf_viewer_for(item)
-    link_to(access_master_bytestream_url(item)) do
+    link_to(item_access_master_bytestream_url(item)) do
       thumbnail_tag(item, 256)
     end
   end
@@ -547,7 +557,7 @@ module ItemsHelper
   def video_player_for(item)
     bs = item.access_master_bytestream
     tag = "<video controls id=\"pt-video-player\">
-      <source src=\"#{access_master_bytestream_url(item)}\"
+      <source src=\"#{item_access_master_bytestream_url(item)}\"
               type=\"#{bs.media_type}\">
         Your browser does not support the video tag.
     </video>"
