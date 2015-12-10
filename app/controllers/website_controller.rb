@@ -21,10 +21,8 @@ class WebsiteController < ApplicationController
 
     # data for the nav bar search
     @collections = Collection.all
-    @predicates_for_select = [].
-        map{ |p| [ p.label, p.solr_field ] }.uniq
+    @predicates_for_select = [].map{ |p| [ p.label, p.solr_field ] }.uniq
     @predicates_for_select.unshift([ 'Any Field', Solr::Fields::SEARCH_ALL ])
-
   end
 
   private
@@ -41,13 +39,13 @@ class WebsiteController < ApplicationController
       elsif controller_name == 'items'
         if params[:collection_id]
           id = params[:collection_id]
-        else
+        elsif params[:id]
           item = Item.find(params[:id])
           id = item.collection.id
         end
       end
       collection = CollectionDef.find_by_repository_id(id)
-      theme = collection ? collection.theme : Theme.default
+      theme = collection ? collection.theme || Theme.default : Theme.default
       pathname = theme ? File.join(Rails.root, theme.pathname, 'views') : nil
       prepend_view_path(pathname) if pathname
     end
