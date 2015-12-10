@@ -131,9 +131,10 @@ class Item < Entity
   # @return [Boolean] True if any text was extracted; false if not
   #
   def extract_and_update_full_text
-    if self.master_bytestream and self.master_bytestream.id
+    bs = access_master_bytestream
+    if bs and bs.exists?
       begin
-        yomu = Yomu.new(self.master_bytestream.id)
+        yomu = Yomu.new(bs.pathname)
         self.full_text = yomu.text.force_encoding('UTF-8')
       rescue Errno::EPIPE
         return false # nothing we can do
