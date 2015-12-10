@@ -523,6 +523,12 @@ module ItemsHelper
     <script type=\"text/javascript\">
     var viewer = OpenSeadragon({
         id: \"pt-image-viewer\",
+        showNavigator: true,
+        navigatorPosition: \"ABSOLUTE\",
+        navigatorTop: \"40px\",
+        navigatorLeft: \"4px\",
+        navigatorHeight: \"120px\",
+        navigatorWidth: \"145px\",
         preserveViewport: true,
         prefixUrl: \"/openseadragon/images/\",
         tileSources: \"#{j(iiif_url(item))}\"
