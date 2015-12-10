@@ -1,6 +1,6 @@
 development: &development
   :repository_pathname: /repo
-  :iiif_url: http://localhost:8182/iiif
+  :iiif_url: http://localhost:8182/iiif/2.0
   :solr_url: http://localhost:8983/solr/
   :solr_core: peartree
   :solr_default_facetable_fields:
@@ -12,7 +12,7 @@ development: &development
 
 test:
   :repository_pathname: /repo
-  :iiif_url: http://localhost:8182/iiif
+  :iiif_url: http://localhost:8182/iiif/2.0
   :solr_url: http://localhost:8983/solr/
   :solr_core: peartree
   :solr_default_facetable_fields:
@@ -24,7 +24,7 @@ test:
 
 production: &production
   :repository_pathname: /repo
-  :iiif_url: http://localhost:8182/iiif
+  :iiif_url: http://localhost:8182/iiif/2.0
   :solr_url: http://localhost:8983/solr/
   :solr_core: peartree
   :solr_default_facetable_fields:
