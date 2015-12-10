@@ -101,6 +101,11 @@ class Item < Entity
     @bytestreams = Set.new
   end
 
+  def access_master_bytestream
+    self.bytestreams.select{ |bs| bs.type == Bytestream::Type::ACCESS_MASTER }.
+        first
+  end
+
   ##
   # @return [Relation]
   #
@@ -200,6 +205,11 @@ class Item < Entity
       @parent = Item.find(self.parent_id) unless @parent
     end
     @parent
+  end
+
+  def preservation_master_bytestream
+    self.bytestreams.
+        select{ |bs| bs.type == Bytestream::Type::PRESERVATION_MASTER }.first
   end
 
   ##
