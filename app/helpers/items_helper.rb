@@ -255,7 +255,7 @@ module ItemsHelper
     return nil unless item.children.any? or item.parent
     items = item.children.any? ? item.items : item.parent.children
     html = '<ol>'
-    items.each do |child|
+    items.limit(999).each do |child|
       link_target = options[:link_to_admin] ?
           admin_item_path(child) : item_path(child)
       html += '<li><div>'
