@@ -51,6 +51,12 @@ class Bytestream
     end
   end
 
+  def human_readable_name
+    formats = YAML::load(File.read("#{Rails.root}/lib/formats.yml"))
+    formats = formats.select{ |f| f['media_types'].include?(self.media_type) }
+    formats.any? ? formats.first['label'] : self.media_type
+  end
+
   def is_audio?
     self.media_type and self.media_type.start_with?('audio/')
   end

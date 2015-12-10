@@ -1,0 +1,40 @@
+- name: AIFF
+  label: AIFF
+  media_types:
+    - audio/aiff
+- name: Binary
+  label: Binary
+  media_types:
+    - application/octet-stream
+- name: GIF
+  label: GIF
+  media_types:
+    - image/gif
+- name: JPEG
+  label: JPEG
+  media_types:
+    - image/jpeg
+- name: JPEG2000
+  label: JPEG2000
+  media_types:
+    - image/jp2
+- name: MP3
+  label: MP3
+  media_types:
+    - audio/mp3
+- name: PNG
+  label: PNG
+  media_types:
+    - image/png
+- name: Pyramidal TIFF
+  label: Pyramidal TIFF
+  media_types:
+    - image/ptif
+- name: TIFF
+  label: TIFF
+  media_types:
+    - image/tiff
+- name: Wave
+  label: Wave Audio
+  media_types:
+    - audio/wav

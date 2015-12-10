@@ -5,40 +5,37 @@ module ItemsHelper
   # @param options [Hash] with available keys: `:for_admin` (boolean)
   #
   def download_button(item, options = {})
-    bytestreams = item.bytestreams
-    return nil unless bytestreams.any?
+    html = ''
+    if item.bytestreams.any?
+      html = '<div class="btn-group">
+        <button type="button" class="btn btn-default dropdown-toggle"
+             data-toggle="dropdown" aria-expanded="false">
+          <i class="fa fa-download"></i> Download <span class="caret"></span>
+        </button>'
+      html += '<ul class="dropdown-menu pull-right" role="menu">'
 
-    html = '<div class="btn-group">
-      <button type="button" class="btn btn-default dropdown-toggle"
-           data-toggle="dropdown" aria-expanded="false">
-        <i class="fa fa-download"></i> Download <span class="caret"></span>
-      </button>'
-    html += '<ul class="dropdown-menu pull-right" role="menu">'
-    #html += '<li>'
-    #html += link_to(download_label_for_bytestream(item.master_bytestream),
-    #                item_master_bytestream_url(item))
-    #html += '</li>'
-    #html += '<li class="divider"></li>'
-    bytestreams.each do |bs|
-      html += '<li>'
-      url = bs.url ? bs.url : '#'
-      html += link_to(url) do
-        download_label_for_bytestream(bs)
+      item.bytestreams.each do |bs|
+        html += '<li>'
+        url = bs.url ? bs.url : '#'
+        html += link_to(url) do
+          download_label_for_bytestream(bs)
+        end
+        html += '</li>'
       end
-      html += '</li>'
-    end
 
-    if options[:for_admin]
-      #json_ld_url = admin_item_url(item, format: :jsonld)
-      #rdf_xml_url = admin_item_url(item, format: :rdfxml)
-      #ttl_url = admin_item_url(item, format: :ttl)
-    else
-      #json_ld_url = item_url(item, format: :jsonld)
-      #rdf_xml_url = item_url(item, format: :rdfxml)
-      #ttl_url = item_url(item, format: :ttl)
+      if options[:for_admin]
+        #json_ld_url = admin_item_url(item, format: :jsonld)
+        #rdf_xml_url = admin_item_url(item, format: :rdfxml)
+        #ttl_url = admin_item_url(item, format: :ttl)
+      else
+        #json_ld_url = item_url(item, format: :jsonld)
+        #rdf_xml_url = item_url(item, format: :rdfxml)
+        #ttl_url = item_url(item, format: :ttl)
+      end
+
+      html += '</ul>'
+      html += '</div>'
     end
-    html += '</ul>'
-    html += '</div>'
     raw(html)
   end
 
@@ -559,28 +556,27 @@ module ItemsHelper
   # @param [Bytestream] bytestream
   #
   def download_label_for_bytestream(bytestream)
-    parts = []
-    #if bytestream.type == Bytestream::Type::MASTER
-    #  parts << 'Master'
-    #end
-    if bytestream.url
-      parts << 'External Resource'
-    else
-      type = MIME::Types[bytestream.media_type].first
-      if type and type.friendly
-        parts << type.friendly
-      elsif bytestream.media_type.present?
-        parts << bytestream.media_type
-      end
-      if bytestream.width and bytestream.width > 0 and bytestream.height and
-          bytestream.height > 0
-        parts << "<small>#{bytestream.width}&times;#{bytestream.height}</small>"
-      end
-      #if bytestream.byte_size
-      #  parts << "<small>#{number_to_human_size(bytestream.byte_size)}</small>"
-      #end
+    type = nil
+    case bytestream.type
+      when Bytestream::Type::ACCESS_MASTER
+        type = 'Access Master'
+      when Bytestream::Type::PRESERVATION_MASTER
+        type = 'Preservation Master'
     end
-    raw(parts.join(' | '))
+
+    format = bytestream.url ? 'External Resource' : bytestream.human_readable_name
+
+    dimensions = nil
+    if bytestream.width and bytestream.width > 0 and bytestream.height and
+        bytestream.height > 0
+      dimensions = "<small>#{bytestream.width}&times;#{bytestream.height}</small>"
+    end
+
+    #if bytestream.byte_size
+    #  parts << "<small>#{number_to_human_size(bytestream.byte_size)}</small>"
+    #end
+
+    raw("#{type} &mdash; #{format} #{dimensions}")
   end
 
   def human_label_for_uri(describable, uri)
