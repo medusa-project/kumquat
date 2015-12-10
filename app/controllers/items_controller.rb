@@ -92,7 +92,9 @@ class ItemsController < WebsiteController
           message: 'This item is not published.'
       }
     end
+    @next_item = @item.next
     @pages = @item.parent ? @item.parent.children : @item.items
+    @previous_item = @item.previous
   end
 
   private

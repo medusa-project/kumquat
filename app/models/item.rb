@@ -177,6 +177,22 @@ class Item < Entity
   end
 
   ##
+  # @return [Item, nil] The next item in a compound object, relative to the
+  # instance, or nil if none or not applicable.
+  # @see previous()
+  #
+  def next
+    next_item = nil
+    if self.parent_id and self.page_number
+      next_item = Item.all.
+          where(Solr::Fields::PARENT_ITEM => self.parent_id,
+                Solr::Fields::PAGE_NUMBER => self.page_number + 1).
+          limit(1).first
+    end
+    next_item
+  end
+
+  ##
   # @return [Item]
   #
   def parent
@@ -184,6 +200,22 @@ class Item < Entity
       @parent = Item.find(self.parent_id) unless @parent
     end
     @parent
+  end
+
+  ##
+  # @return [Item, nil] The previous item in a compound object, relative to the
+  # instance, or nil if none or not applicable.
+  # @see next()
+  #
+  def previous
+    prev_item = nil
+    if self.parent_id and self.page_number
+      prev_item = Item.all.
+          where(Solr::Fields::PARENT_ITEM => self.parent_id,
+                Solr::Fields::PAGE_NUMBER => self.page_number - 1).
+          limit(1).first
+    end
+    prev_item
   end
 
   ##

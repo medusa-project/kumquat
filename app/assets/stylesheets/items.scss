@@ -46,6 +46,14 @@ body#items_show {
   .pt-remove-from-favorites {
     display:none;
   }
+  .pt-page-nav {
+    text-align: center;
+    .pt-page-number {
+      font-size: 1.2em;
+      font-style: italic;
+      margin: 0em 1.5em 0em 1.5em;
+    }
+  }
   #pt-image-viewer {
     background-color:black;
     height: 500px;
