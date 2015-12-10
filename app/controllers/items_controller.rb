@@ -9,6 +9,23 @@ class ItemsController < WebsiteController
 
   before_action :set_browse_context, only: :index
 
+  ##
+  # Retrieves an item's access master bytestream.
+  #
+  # Responds to GET /items/:id/access-master
+  #
+  def access_master_bytestream
+    @item = Item.find(params[:id])
+    unless @item.published
+      render 'error/error', status: :forbidden, locals: {
+          status_code: 403,
+          status_message: 'Forbidden',
+          message: 'This item is currently not published.'
+      }
+    end
+    render_bytestream(@item, Bytestream::Type::ACCESS_MASTER)
+  end
+
   def index
     @start = params[:start] ? params[:start].to_i : 0
     @limit = Option::integer(Option::Key::RESULTS_PER_PAGE)
@@ -38,11 +55,11 @@ class ItemsController < WebsiteController
   end
 
   ##
-  # Redirects to an item's master bytestream.
+  # Retrieves an item's preservation master bytestream.
   #
-  # Responds to GET /items/:id/master
+  # Responds to GET /items/:id/preservation-master
   #
-  def master_bytestream
+  def preservation_master_bytestream
     @item = Item.find(params[:id])
     unless @item.published
       render 'error/error', status: :forbidden, locals: {
@@ -51,7 +68,7 @@ class ItemsController < WebsiteController
           message: 'This item is currently not published.'
       }
     end
-    redirect_to bytestream_url(@item.master_bytestream)
+    render_bytestream(@item, Bytestream::Type::PRESERVATION_MASTER)
   end
 
   ##
@@ -98,6 +115,23 @@ class ItemsController < WebsiteController
   end
 
   private
+
+  ##
+  # @param item [Item]
+  # @param type [Integer] One of the `Bytestream::Type` constants
+  #
+  def render_bytestream(item, type)
+    bs = item.bytestreams.select{ |bs| bs.type == type and bs.exists? }.first
+    if bs
+      if bs.url
+        redirect_to bs.url, status: 303
+      else
+        send_file(bs.pathname)
+      end
+    else
+      render status: 404
+    end
+  end
 
   ##
   # The browse context is "what the user is doing" -- necessary information in
