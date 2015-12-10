@@ -51,6 +51,14 @@ class Bytestream
     end
   end
 
+  ##
+  # @return [Boolean] If the bytestream is a file and the file exists, returns
+  # true. Always returns true for URLs.
+  #
+  def exists?
+    self.url or (self.pathname and File.exist?(self.pathname))
+  end
+
   def human_readable_name
     formats = YAML::load(File.read("#{Rails.root}/lib/formats.yml"))
     formats = formats.select{ |f| f['media_types'].include?(self.media_type) }
