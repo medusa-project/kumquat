@@ -208,7 +208,6 @@ to get a grid of image tiles, flowing from left to right and downwards.
 body#landing, body#collections_show {
   .pt-main-image {
     img {
-      border: 4px solid #404040;
       display:block;
       max-height: 450px;
       max-width: 90%;
@@ -226,4 +225,3 @@ body#landing, body#collections_show {
 }
 
 @import "../../../local/themes/**/*";
-/* @import "../../../local/themes/uiuc/assets/stylesheets/custom.scss"; */
