@@ -65,9 +65,8 @@ var PearTree = {
         var visible = false;
         var self = this;
 
-        construct();
-
-        function construct() {
+        /** constructor */
+        (function(){
             ELEMENT.css('margin-top',
                 '-' + $('#pt-main-nav').css('margin-bottom'));
             ELEMENT.css('height', 0);
@@ -75,10 +74,10 @@ var PearTree = {
             ELEMENT.find('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
                 ELEMENT.animate({ 'height': ELEMENT.find('div').height() + 50 });
             });
-        }
+        })();
 
         this.hide = function() {
-            ELEMENT.animate({ 'height': '-=' + (computed_height + vertical_padding) + 'px' }, SPEED);
+            ELEMENT.animate({ 'height': '0px' }, SPEED);
             visible = false;
         };
 
