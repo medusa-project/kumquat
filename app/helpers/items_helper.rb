@@ -6,7 +6,8 @@ module ItemsHelper
   #
   def download_button(item, options = {})
     html = ''
-    if item.bytestreams.any?
+    bytestreams = item.bytestreams.select{ |bs| bs.exists? }
+    if bytestreams.any?
       html = '<div class="btn-group">
         <button type="button" class="btn btn-default dropdown-toggle"
              data-toggle="dropdown" aria-expanded="false">
@@ -14,7 +15,7 @@ module ItemsHelper
         </button>'
       html += '<ul class="dropdown-menu pull-right" role="menu">'
 
-      item.bytestreams.each do |bs|
+      bytestreams.each do |bs|
         html += '<li>'
         url = bs.url ? bs.url : '#'
         html += link_to(url) do
