@@ -27,6 +27,9 @@
       <% if @previous_item %>
         <%= link_to raw('&larr; Previous Page'), @previous_item,
                     class: 'pt-previous-page btn btn-default btn-sm' %>
+      <% else %>
+        <button disabled class="pt-previous-page btn btn-default btn-sm">
+          &larr; Previous Page</button>
       <% end %>
       <span class="pt-page-number">
         <%= @item.page_number %> of <%= @item.parent.children.total_length %>
@@ -34,6 +37,9 @@
       <% if @next_item %>
         <%= link_to raw('Next Page &rarr;'), @next_item,
                     class: 'pt-previous-page btn btn-default btn-sm' %>
+      <% else %>
+        <button disabled class="pt-next-page btn btn-default btn-sm">
+          Next Page &rarr;</button>
       <% end %>
     </div>
   </div>
