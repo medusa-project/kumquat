@@ -474,9 +474,10 @@ module ItemsHelper
   private
 
   def audio_player_for(item)
+    bs = item.bytestreams.select{ |bs| bs.type == Bytestream::Type::ACCESS_MASTER }.first
     tag = "<audio controls>
-      <source src=\"#{bytestream_url(item.master_bytestream)}\"
-              type=\"#{item.master_bytestream.media_type}\">
+      <source src=\"#{access_master_bytestream_url(item)}\"
+              type=\"#{bs.media_type}\">
         Your browser does not support the audio tag.
     </audio>"
     raw(tag)
@@ -506,8 +507,7 @@ module ItemsHelper
   #
   def image_url(item, size)
     if item.is_image?
-      bs = item.bytestreams.select{ |b| b.type == Bytestream::Type::ACCESS_MASTER }.first ||
-          item.bytestreams.select{ |b| b.type == Bytestream::Type::PRESERVATION_MASTER }.first
+      bs = item.access_master_bytestream || item.preservation_master_bytestream
       if bs.pathname
         return sprintf('%s/full/!%d,%d/0/default.jpg', iiif_url(item), size, size)
       end
@@ -539,15 +539,16 @@ module ItemsHelper
   end
 
   def pdf_viewer_for(item)
-    link_to(item_master_bytestream_url(item)) do
+    link_to(access_master_bytestream_url(item)) do
       thumbnail_tag(item, 256)
     end
   end
 
   def video_player_for(item)
+    bs = item.access_master_bytestream
     tag = "<video controls id=\"pt-video-player\">
-      <source src=\"#{bytestream_url(item.master_bytestream)}\"
-              type=\"#{item.master_bytestream.media_type}\">
+      <source src=\"#{access_master_bytestream_url(item)}\"
+              type=\"#{bs.media_type}\">
         Your browser does not support the video tag.
     </video>"
     raw(tag)
