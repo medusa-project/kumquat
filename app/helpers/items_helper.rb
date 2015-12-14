@@ -499,13 +499,10 @@ module ItemsHelper
   #
   def iiif_url(item)
     if item.is_image?
-      bs = item.bytestreams.select{ |b| b.type == Bytestream::Type::ACCESS_MASTER }.first ||
-          item.bytestreams.select{ |b| b.type == Bytestream::Type::PRESERVATION_MASTER }.first
-      if bs.pathname
-        return sprintf('%s/%s',
-                       PearTree::Application.peartree_config[:iiif_url],
-                       CGI.escape(bs.pathname))
-      end
+      return sprintf('%s/%s',
+                     PearTree::Application.peartree_config[:iiif_url],
+                     URI.escape(item.id))
+
     end
     nil
   end
