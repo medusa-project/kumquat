@@ -75,54 +75,39 @@
   </div>
 <% end %>
 
-<div class="row">
 
-  <div class="col-sm-9">
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">Descriptive Info</h2>
+  </div>
+  <div class="panel-body">
+    <%= metadata_as_table(@item) %>
+  </div>
+</div>
+<% if Rails.env.development? %>
     <div class="panel panel-default">
       <div class="panel-heading">
-        <h2 class="panel-title">Descriptive Info</h2>
+        <h2 class="panel-title">DEVELOPMENT ONLY: Bytestreams</h2>
       </div>
       <div class="panel-body">
-        <%= metadata_as_table(@item) %>
-      </div>
-    </div>
-    <% if Rails.env.development? %>
-        <div class="panel panel-default">
-          <div class="panel-heading">
-            <h2 class="panel-title">DEVELOPMENT ONLY: Bytestreams</h2>
-          </div>
-          <div class="panel-body">
-            <% if @item.bytestreams.any? %>
-              <ul>
-                <% @item.bytestreams.each do |bs| %>
-                  <li>
-                    <%= bs.type.upcase %>: <%= bs.pathname || bs.url %>
-                    <% if bs.exists? %>
-                      <span class="label label-success">OK</span>
-                    <% else %>
-                      <span class="label label-danger">MISSING</span>
-                    <% end %>
-                  </li>
+        <% if @item.bytestreams.any? %>
+          <ul>
+            <% @item.bytestreams.each do |bs| %>
+              <li>
+                <%= bs.type.upcase %>: <%= bs.pathname || bs.url %>
+                <% if bs.exists? %>
+                  <span class="label label-success">OK</span>
+                <% else %>
+                  <span class="label label-danger">MISSING</span>
                 <% end %>
-              </ul>
-            <% else %>
-              None
+              </li>
             <% end %>
-          </div>
-        </div>
-    <% end %>
-
-  </div>
-
-  <div class="col-sm-3">
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <h2 class="panel-title">Similar Items</h2>
-      </div>
-      <div class="panel-body pt-vertical-items">
-        <%= similar_items_as_list(@item) %>
+          </ul>
+        <% else %>
+          None
+        <% end %>
       </div>
     </div>
-  </div>
+<% end %>
 
 </div>
