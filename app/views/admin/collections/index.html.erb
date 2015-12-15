@@ -6,14 +6,7 @@
   <li><%= link_to 'Home', admin_root_path %></li>
   <li class="active">Collections</li>
 </ol>
-<!--
-<div class="btn-group pull-right">
-  <button type="button" class="btn btn-default" data-toggle="modal"
-          data-target="#pt-new-collection-modal">
-    <i class="fa fa-cubes"></i> New Collection
-  </button>
-</div>
--->
+
 <h1>Collections <small><%= @collections.total_length %> total</small></h1>
 
 <table class="table table-striped">
@@ -41,21 +34,3 @@
 </table>
 
 <%= paginate(@collections, @limit, @current_page) %>
-
-<div class="modal fade" id="pt-new-collection-modal" tabindex="-1" role="dialog"
-     aria-labelledby="pt-new-collection-modal-label">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-        <h4 class="modal-title" id="pt-new-collection-modal-label">New Collection</h4>
-      </div>
-      <div class="modal-body">
-        <%= render partial: 'form', locals: { collection: @collection,
-                                              context: :create } %>
-      </div>
-    </div>
-  </div>
-</div>
