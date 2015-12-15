@@ -70,8 +70,9 @@ body#items_show {
     width: 100%;
   }
 
-  .pt-horizontal-items {
-    overflow-x: scroll;
+  .pt-pages {
+    max-height: 25em;
+    overflow-y: scroll;
     ol, ul {
       margin-left:0px;
       padding-left:0px;
