@@ -213,12 +213,21 @@ module ItemsHelper
     collection = entity.kind_of?(Collection) ? entity : entity.collection
     collection.collection_def.metadata_profile.element_defs.each do |e_def|
       elements = entity.metadata.select{ |e| e.name == e_def.name }
-      elements.each do |element|
-        html += '<tr>'
-        html += "<td>#{e_def.label}</td>"
-        html += "<td>#{element.value}</td>"
-        html += '</tr>'
+      next if elements.empty?
+      html += '<tr>'
+      html += "<td>#{e_def.label}</td>"
+      html += '<td>'
+      if elements.length == 1
+        html += elements.first.value
+      else
+        html += '<ul>'
+        elements.each do |element|
+          html += "<li>#{element.value}</li>"
+        end
+        html += '</ul>'
       end
+      html += '</td>'
+      html += '</tr>'
     end
     html += '</table>'
     raw(html)
