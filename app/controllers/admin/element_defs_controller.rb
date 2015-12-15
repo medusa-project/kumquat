@@ -77,7 +77,7 @@ module Admin
     private
 
     def sanitized_params
-      params.require(:element_def).permit(:facet_id, :facet_label, :index,
+      params.require(:element_def).permit(:facet_def_id, :facet_def_label, :index,
                                           :label, :metadata_profile_id, :name,
                                           :searchable, :visible)
     end
