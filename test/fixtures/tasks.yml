@@ -1,0 +1,17 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  name: MyString
+  status: 9.99
+  status_text: MyString
+  job_id: MyString
+  percent_complete: 1.5
+  completed_at: 2015-12-15 09:23:43
+
+two:
+  name: MyString
+  status: 9.99
+  status_text: MyString
+  job_id: MyString
+  percent_complete: 1.5
+  completed_at: 2015-12-15 09:23:43
