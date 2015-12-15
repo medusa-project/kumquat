@@ -1,7 +1,8 @@
-<% position_options = options_from_collection_for_select(
-        [ElementDef.new(name: 'None (First)', index: 0)] +
-                element_def.metadata_profile.element_defs.order(:index),
-        :index, :label, selected: element_def.index ? element_def.index - 1 : 0) %>
+<% position_options = options_for_select(
+    element_def.metadata_profile.element_defs.order(:index).
+        reject{ |e| e.index == element_def.index }.
+        map{ |e| [e.label, e.index + 1] },
+    selected: element_def.index) %>
 
 <%= form_for([:admin, element_def], remote: true) do |f| %>
   <div class="pt-error-messages">
