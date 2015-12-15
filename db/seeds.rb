@@ -491,32 +491,25 @@ ElementDef.create!(
     index: 58,
     metadata_profile: profiles[:default])
 ElementDef.create!(
-    name: 'tableOfContents',
+    name: 'temporalCoverage',
     label: 'Temporal Coverage',
     visible: true,
     searchable: true,
     index: 59,
     metadata_profile: profiles[:default])
 ElementDef.create!(
-    name: 'temporalCoverage',
-    label: 'Temporal Coverage',
-    visible: true,
-    searchable: true,
-    index: 60,
-    metadata_profile: profiles[:default])
-ElementDef.create!(
     name: 'title',
     label: 'Title',
     visible: true,
     searchable: true,
-    index: 61,
+    index: 60,
     metadata_profile: profiles[:default])
 ElementDef.create!(
     name: 'type',
     label: 'Type',
     visible: true,
     searchable: true,
-    index: 62,
+    index: 61,
     facet_def: facets[:type],
     facet_def_label: 'Type',
     metadata_profile: profiles[:default])
