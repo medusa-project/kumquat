@@ -590,11 +590,10 @@ module ItemsHelper
       dimensions = "<small>#{bytestream.width}&times;#{bytestream.height}</small>"
     end
 
-    #if bytestream.byte_size
-    #  parts << "<small>#{number_to_human_size(bytestream.byte_size)}</small>"
-    #end
+    size = bytestream.byte_size
+    size = "<small>(#{number_to_human_size(size)})</small>" if size
 
-    raw("#{type} &mdash; #{format} #{dimensions}")
+    raw("#{type} &mdash; #{format} #{dimensions} #{size}")
   end
 
   def human_label_for_uri(describable, uri)

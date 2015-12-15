@@ -36,6 +36,15 @@ class Bytestream
   attr_accessor :width
 
   ##
+  # Reads the byte size of the bytestream from disk.
+  #
+  # @return [Integer, nil]
+  #
+  def byte_size
+    self.pathname and File.exist?(self.pathname) ? File.size(self.pathname) : nil
+  end
+
+  ##
   # Attempts to detect the media type and assigns it to the instance.
   #
   # @raise [RuntimeError] if neither pathname nor url are set
