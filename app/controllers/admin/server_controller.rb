@@ -24,20 +24,6 @@ module Admin
     end
 
     ##
-    # Responds to PATCH /admin/server/reindex
-    #
-    def reindex
-      args = {
-          command: ReindexCommand,
-          task_status_text: 'Reindex repository'
-      }
-      job_runner.run_later(CommandJob, args)
-
-      flash['success'] = 'Reindexing in progress.'
-      redirect_to :back
-    end
-
-    ##
     # Responds to GET /admin/server/search-server-status with either HTTP 200
     # or 503
     #
