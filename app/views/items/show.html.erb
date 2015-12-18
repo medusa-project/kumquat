@@ -86,7 +86,7 @@
 </div>
 
 <div class="row">
-  <div class="col-sm-3">
+  <div class="col-sm-4">
     <div class="panel panel-default">
       <div class="panel-heading">
         <h2 class="panel-title">Technical Info</h2>
@@ -105,11 +105,18 @@
             <td>Last Indexed</td>
             <td><%= local_time_ago(@item.last_indexed) %></td>
           </tr>
+          <tr>
+            <td>Image Server URL</td>
+            <td>
+              <% url = iiif_url(@item) %>
+              <%= link_to(url, url) %>
+            </td>
+          </tr>
         </table>
       </div>
     </div>
   </div>
-  <div class="col-sm-9">
+  <div class="col-sm-8">
     <% if Rails.env.development? %>
         <div class="panel panel-default">
           <div class="panel-heading">

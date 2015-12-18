@@ -117,6 +117,20 @@ module ItemsHelper
   end
 
   ##
+  # @param [Item] item
+  # @return [String, nil] Base IIIF URL or nil if the item is not an image
+  #
+  def iiif_url(item)
+    if item.is_image?
+      return sprintf('%s/%s',
+                     PearTree::Application.peartree_config[:iiif_url],
+                     URI.escape(item.id))
+
+    end
+    nil
+  end
+
+  ##
   # @param item [Repository::Item]
   #
   def is_favorite?(item)
@@ -504,20 +518,6 @@ module ItemsHelper
 
   ##
   # @param [Item] item
-  # @return [String, nil] Base IIIF URL or nil if the item is not an image
-  #
-  def iiif_url(item)
-    if item.is_image?
-      return sprintf('%s/%s',
-                     PearTree::Application.peartree_config[:iiif_url],
-                     URI.escape(item.id))
-
-    end
-    nil
-  end
-
-  ##
-  # @param [Item] item
   # @param [Integer] size
   # @return [String, nil] Image URL or nil if the item is not an image
   #
@@ -548,9 +548,6 @@ module ItemsHelper
         tileSources: \"#{j(iiif_url(item))}\"
     });
     </script>"
-    if Rails.env.development?
-      html += "DEVELOPMENT: IIIF URL: #{iiif_url(item)}"
-    end
     raw(html)
   end
 
