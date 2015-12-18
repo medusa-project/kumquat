@@ -14,4 +14,5 @@
 //= require jquery_ujs
 //= require jquery.cookie
 //= require bootstrap-sprockets
+//= require local_time
 //= require_tree .

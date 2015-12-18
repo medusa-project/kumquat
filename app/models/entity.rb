@@ -14,6 +14,7 @@ class Entity
   attr_accessor :created # DateTime
   attr_accessor :date # Date
   attr_accessor :description # String
+  attr_accessor :last_indexed # DateTime
   attr_accessor :last_modified # DateTime
   attr_reader :metadata # Array
   attr_accessor :published # Boolean

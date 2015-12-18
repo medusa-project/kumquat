@@ -10,6 +10,9 @@ class Collection < Entity
     if doc[Solr::Fields::CREATED]
       col.created = DateTime.parse(doc[Solr::Fields::CREATED])
     end
+    if doc[Solr::Fields::LAST_INDEXED]
+      col.last_indexed = DateTime.parse(doc[Solr::Fields::LAST_INDEXED])
+    end
     if doc[Solr::Fields::LAST_MODIFIED]
       col.last_modified = DateTime.parse(doc[Solr::Fields::LAST_MODIFIED])
     end

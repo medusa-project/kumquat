@@ -30,6 +30,9 @@ class Item < Entity
     if doc[Solr::Fields::CREATED]
       item.created = DateTime.parse(doc[Solr::Fields::CREATED])
     end
+    if doc[Solr::Fields::LAST_INDEXED]
+      item.last_indexed = DateTime.parse(doc[Solr::Fields::LAST_INDEXED])
+    end
     if doc[Solr::Fields::LAST_MODIFIED]
       item.last_modified = DateTime.parse(doc[Solr::Fields::LAST_MODIFIED])
     end
