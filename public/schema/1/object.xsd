@@ -11,17 +11,52 @@
     <xs:complexContent>
       <xs:extension base="lrp:Entity">
         <xs:sequence>
+          <!-- IANA media type of the access master. If blank, it will either
+          be inferred from the filename extension, or auto-detected using the
+          file header. Neither are foolproof. -->
           <xs:element name="accessMasterMediaType" type="xs:token" minOccurs="0" maxOccurs="1"/>
+
+          <!-- Absolute pathname of the access master relative to the
+          repository root. Mutually exclusive with accessMasterURL. -->
           <xs:element name="accessMasterPathname" type="xs:normalizedString" minOccurs="0" maxOccurs="1"/>
+
+          <!-- URL of the access master. Mutually exclusive with
+          accessMasterFilename. -->
           <xs:element name="accessMasterURL" type="xs:anyURI" minOccurs="0" maxOccurs="1"/>
+
+          <!-- ID of the collection in which the item resides. -->
           <xs:element name="collectionId" type="xs:token" minOccurs="1" maxOccurs="1"/>
+
+          <!-- "Full text" of the item. Will be indexed for searching. -->
           <xs:element name="fullText" type="xs:string" minOccurs="0" maxOccurs="1"/>
+
+          <!-- Pixel width of the access master. For raster images and
+          videos.  TODO: make it clearer whether this is for access or preservation -->
           <xs:element name="height" type="xs:positiveInteger" minOccurs="0" maxOccurs="1"/>
+
+          <!-- Page number of an item that is a child of another item, starting
+          at 1. Used for sorting and previous/next navigation. -->
           <xs:element name="pageNumber" type="xs:positiveInteger" minOccurs="0" maxOccurs="1"/>
+
+          <!-- ID of the item's parent item. Should be left empty for
+          top-level items. -->
           <xs:element name="parentId" type="xs:token" minOccurs="0" maxOccurs="1"/>
+
+          <!-- IANA media type of the preservation master. If blank, it will
+          either be inferred from the filename extension, or auto-detected
+          using the file header. Neither are foolproof. -->
           <xs:element name="preservationMasterMediaType" type="xs:token" minOccurs="0" maxOccurs="1"/>
+
+          <!-- Absolute pathname of the preservation master relative to the
+          repository root. Mutually exclusive with preservationMasterURL. -->
           <xs:element name="preservationMasterPathname" type="xs:normalizedString" minOccurs="0" maxOccurs="1"/>
+
+          <!-- URL of the preservation master. Mutually exclusive with
+          preservationMasterFilename. -->
           <xs:element name="preservationMasterURL" type="xs:anyURI" minOccurs="0" maxOccurs="1"/>
+
+          <!-- Pixel width of the access master. For raster images and
+          videos. TODO: make it clearer whether this is for access or preservation -->
           <xs:element name="width" type="xs:positiveInteger" minOccurs="0" maxOccurs="1"/>
         </xs:sequence>
       </xs:extension>
