@@ -158,6 +158,13 @@ module ItemsHelper
       end
       html += '<span class="pt-title">'
       html += link_to(entity.title, link_target)
+      html += '<br>'
+      if entity.respond_to?(:children)
+        num_children = entity.children.total_length
+        if num_children > 0
+          html += " <span class=\"label label-default\">#{num_children} pages</span> "
+        end
+      end
       if options[:show_remove_from_favorites_buttons] and entity.kind_of?(Item)
         html += ' <button class="btn btn-xs btn-danger ' +
             'pt-remove-from-favorites" data-web-id="' + entity.id + '">'
