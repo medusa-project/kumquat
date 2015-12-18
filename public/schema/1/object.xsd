@@ -11,6 +11,10 @@
     <xs:complexContent>
       <xs:extension base="lrp:Entity">
         <xs:sequence>
+          <!-- Pixel height of the access master. For raster images and
+          videos. -->
+          <xs:element name="accessMasterHeight" type="xs:positiveInteger" minOccurs="0" maxOccurs="1"/>
+
           <!-- IANA media type of the access master. If blank, it will either
           be inferred from the filename extension, or auto-detected using the
           file header. Neither are foolproof. -->
@@ -24,15 +28,15 @@
           accessMasterFilename. -->
           <xs:element name="accessMasterURL" type="xs:anyURI" minOccurs="0" maxOccurs="1"/>
 
+          <!-- Pixel width of the access master. For raster images and
+          videos. -->
+          <xs:element name="accessMasterWidth" type="xs:positiveInteger" minOccurs="0" maxOccurs="1"/>
+
           <!-- ID of the collection in which the item resides. -->
           <xs:element name="collectionId" type="xs:token" minOccurs="1" maxOccurs="1"/>
 
           <!-- "Full text" of the item. Will be indexed for searching. -->
           <xs:element name="fullText" type="xs:string" minOccurs="0" maxOccurs="1"/>
-
-          <!-- Pixel width of the access master. For raster images and
-          videos.  TODO: make it clearer whether this is for access or preservation -->
-          <xs:element name="height" type="xs:positiveInteger" minOccurs="0" maxOccurs="1"/>
 
           <!-- Page number of an item that is a child of another item, starting
           at 1. Used for sorting and previous/next navigation. -->
@@ -41,6 +45,10 @@
           <!-- ID of the item's parent item. Should be left empty for
           top-level items. -->
           <xs:element name="parentId" type="xs:token" minOccurs="0" maxOccurs="1"/>
+
+          <!-- Pixel height of the preservation master. For raster images and
+          videos. -->
+          <xs:element name="preservationMasterHeight" type="xs:positiveInteger" minOccurs="0" maxOccurs="1"/>
 
           <!-- IANA media type of the preservation master. If blank, it will
           either be inferred from the filename extension, or auto-detected
@@ -55,9 +63,9 @@
           preservationMasterFilename. -->
           <xs:element name="preservationMasterURL" type="xs:anyURI" minOccurs="0" maxOccurs="1"/>
 
-          <!-- Pixel width of the access master. For raster images and
-          videos. TODO: make it clearer whether this is for access or preservation -->
-          <xs:element name="width" type="xs:positiveInteger" minOccurs="0" maxOccurs="1"/>
+          <!-- Pixel width of the preservation master. For raster images and
+          videos. -->
+          <xs:element name="preservationMasterWidth" type="xs:positiveInteger" minOccurs="0" maxOccurs="1"/>
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>

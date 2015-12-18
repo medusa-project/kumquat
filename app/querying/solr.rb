@@ -28,7 +28,6 @@ class Solr
     CREATED = 'created_dti'
     DATE = 'date_dti'
     FULL_TEXT = 'full_text_txti'
-    HEIGHT = 'height_ii'
     ID = 'id'
     LAST_INDEXED = 'last_indexed_dti'
     LAST_MODIFIED = 'last_modified_dti'

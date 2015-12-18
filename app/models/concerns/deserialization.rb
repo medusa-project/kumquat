@@ -74,6 +74,12 @@ module Deserialization
           bs = Bytestream.new
           bs.type = Bytestream::Type::ACCESS_MASTER
           bs.repository_relative_pathname = am.content.strip
+          # width
+          width = node.xpath('lrp:accessMasterWidth', namespaces).first
+          bs.width = width.content.strip.to_i if width
+          # height
+          height = node.xpath('lrp:accessMasterHeight', namespaces).first
+          bs.height = height.content.strip.to_i if height
           # media type
           mt = node.xpath('lrp:accessMasterMediaType', namespaces).first
           if mt
@@ -122,6 +128,12 @@ module Deserialization
             bs = Bytestream.new
             bs.type = Bytestream::Type::ACCESS_MASTER
             bs.url = pm.content.strip
+            # width
+            width = node.xpath('lrp:preservationMasterWidth', namespaces).first
+            bs.width = width.content.strip.to_i if width
+            # height
+            height = node.xpath('lrp:preservationMasterHeight', namespaces).first
+            bs.height = height.content.strip.to_i if height
             # media type
             mt = node.xpath('lrp:preservationMasterMediaType', namespaces).first
             if mt
