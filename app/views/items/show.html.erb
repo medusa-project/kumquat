@@ -81,6 +81,7 @@
     <h2 class="panel-title">Descriptive Info</h2>
   </div>
   <div class="panel-body">
+    <%= metadata_as_list(@item) %>
     <%= metadata_as_table(@item) %>
   </div>
 </div>
@@ -92,27 +93,8 @@
         <h2 class="panel-title">Technical Info</h2>
       </div>
       <div class="panel-body">
-        <table class="table table-condensed pt-metadata">
-          <tr>
-            <td>Created</td>
-            <td><%= local_time_ago(@item.created) %></td>
-          </tr>
-          <tr>
-            <td>Last Modified</td>
-            <td><%= local_time_ago(@item.last_modified) %></td>
-          </tr>
-          <tr>
-            <td>Last Indexed</td>
-            <td><%= local_time_ago(@item.last_indexed) %></td>
-          </tr>
-          <tr>
-            <td>Image Server URL</td>
-            <td>
-              <% url = iiif_url(@item) %>
-              <%= link_to(url, url) %>
-            </td>
-          </tr>
-        </table>
+        <%= tech_metadata_as_list(@item) %>
+        <%= tech_metadata_as_table(@item) %>
       </div>
     </div>
   </div>

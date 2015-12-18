@@ -218,6 +218,37 @@ module ItemsHelper
   ##
   # @param entity [Entity]
   # @return [String]
+  # @see `tech_metadata_as_list`
+  #
+  def metadata_as_list(entity)
+    html = '<dl class="pt-metadata">'
+    # iterate through the index-ordered elements in the collection's metadata
+    # profile in order to display the entity's elements in the correct order
+    collection = entity.kind_of?(Collection) ? entity : entity.collection
+    collection.collection_def.metadata_profile.element_defs.each do |e_def|
+      elements = entity.metadata.select{ |e| e.name == e_def.name }
+      next if elements.empty?
+      html += "<dt>#{e_def.label}</dt>"
+      html += '<dd>'
+      if elements.length == 1
+        html += elements.first.value
+      else
+        html += '<ul>'
+        elements.each do |element|
+          html += "<li>#{element.value}</li>"
+        end
+        html += '</ul>'
+      end
+      html += '</dd>'
+    end
+    html += '</dl>'
+    raw(html)
+  end
+
+  ##
+  # @param entity [Entity]
+  # @return [String]
+  # @see `tech_metadata_as_table`
   #
   def metadata_as_table(entity)
     html = '<table class="table table-condensed pt-metadata">'
@@ -461,6 +492,36 @@ module ItemsHelper
   end
 
   ##
+  # @param item [Item]
+  # @return [String]
+  # @see `metadata_as_list`
+  #
+  def tech_metadata_as_list(item)
+    data = tech_metadata_for(item)
+    html = '<dl class="pt-metadata">'
+    data.each do |key, value|
+      html += "<dt>#{key}</dt><dd>#{value}</dd>"
+    end
+    html += '</dl>'
+    raw(html)
+  end
+
+  ##
+  # @param item [Item]
+  # @return [String]
+  # @see `metadata_as_table`
+  #
+  def tech_metadata_as_table(item)
+    data = tech_metadata_for(item)
+    html = '<table class="table table-condensed pt-metadata">'
+    data.each do |key, value|
+      html += "<tr><td>#{key}</td><td>#{value}</td></tr>"
+    end
+    html += '</table>'
+    raw(html)
+  end
+
+  ##
   # @param entity [Item] or some other object suitable for passing
   # to `icon_for`
   # @param size [Integer] One of the sizes in `Derivable::IMAGE_DERIVATIVES`
@@ -602,6 +663,17 @@ module ItemsHelper
     triple = collection.db_counterpart.metadata_profile.triples.
         where(predicate: uri).first
     triple ? triple.label : nil
+  end
+
+  def tech_metadata_for(item)
+    data = {
+        'Created' => local_time_ago(item.created),
+        'Last Modified' => local_time_ago(item.last_modified),
+        'Last Indexed' => local_time_ago(item.last_indexed)
+    }
+    url = iiif_url(item)
+    data['Image Server URL'] = link_to(url, url) if url
+    data
   end
 
 end
