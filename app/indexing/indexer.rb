@@ -1,3 +1,14 @@
+##
+# Indexing tool that scans a filesystem for PearTree AIP files and indexes them
+# in Solr. Typically invoked from a Rake task.
+#
+# The indexer only indexes content in AIP files -- it does not extract any
+# content dynamically, such as getting an image's actual dimensions, or
+# extracting full text, or inferring media type, etc. That information must be
+# pre-encoded in the AIP files. Reason being, the indexer needs to run as fast
+# as  possible, as it will eventually need to scan through millions of AIP
+# files in a reasonable amount of time.
+#
 class Indexer
 
   ##
