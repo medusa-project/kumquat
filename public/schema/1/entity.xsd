@@ -13,13 +13,26 @@
 
   <xs:complexType name="Entity" abstract="true">
     <xs:sequence>
-      <!-- technical metadata -->
+      <!-- TECHNICAL METADATA -->
+      <!-- When the entity was created. -->
       <xs:element name="created" type="xs:dateTime" minOccurs="1" maxOccurs="1"/>
+      <!-- When the entity was last modified. -->
       <xs:element name="lastModified" type="xs:dateTime" minOccurs="1" maxOccurs="1"/>
+      <!-- Whether the entity is publicly accessible. -->
       <xs:element name="published" type="xs:boolean" minOccurs="1" maxOccurs="1"/>
+      <!-- ID of the entity within the repository. Must be repository-unique,
+      persistent across imports (i.e. not dynamically generated at ingest) and
+      preferably opaque and short. -->
       <xs:element name="repositoryId" type="xs:token" minOccurs="1" maxOccurs="1"/>
+      <!-- ID of the item that best represents the entity, for the purposes of
+      e.g. rendering a thumbnail. For example, for a collection, this could be
+      some visually compelling item. For a compound object, it could be the
+      first page. -->
+      <xs:element name="representativeItemId" type="xs:token" minOccurs="0" maxOccurs="1"/>
+      <!-- Deprecated - do not use. TODO: get rid of this -->
       <xs:element name="webId" type="xs:token" minOccurs="0" maxOccurs="1"/>
-      <!-- descriptive metadata -->
+
+      <!-- DESCRIPTIVE METADATA -->
       <xs:element name="abstract" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="accessRights" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="accrualMethod" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>

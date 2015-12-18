@@ -91,6 +91,13 @@ repositoryId:
     dc: identifier
     dcterms: identifier
     geo:
+representativeItemId:
+  type: technical
+  mappings:
+    bibFrame:
+    dc:
+    dcterms:
+    geo:
 webId:
   type: technical
   mappings:

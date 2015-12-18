@@ -43,6 +43,10 @@ module Deserialization
       entity.published = published ?
           %w(true 1).include?(published.content.strip) : false
 
+      # representative item ID
+      rep_item_id = node.xpath('lrp:representativeItemId', namespaces).first
+      entity.representative_item_id = rep_item_id.content.strip if rep_item_id
+
       # web ID
       web_id = node.xpath('lrp:webId', namespaces).first
       entity.web_id = web_id ? web_id.content.strip : entity.id

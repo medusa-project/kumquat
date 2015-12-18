@@ -4,7 +4,18 @@
 class Solr
 
   ##
-  # All Solr fields used by the application.
+  # All Solr fields used by the application. These generally correlated with
+  # XML elements in the PearTree AIP.
+  #
+  # To add a field:
+  # 1) Add it here
+  # 2) Add the corresponding XML element to one of the XSDs in /public
+  # 3) Add that element to app/metadata/elements.yml
+  # 4) Add a corresponding attribute on `Entity` or one of its subclasses
+  # 5) Add code to `Deserialization::from_lrp_xml` to populate the entity from
+  #    XML
+  # 6) Add code to `Entity.from_solr` to populate the entity from Solr
+  # 7) Add code to `Entity.to_solr` to populate the entity's Solr document
   #
   class Fields
     ACCESS_MASTER_HEIGHT = 'access_master_height_ii'
@@ -29,6 +40,7 @@ class Solr
     PRESERVATION_MASTER_URL = 'preservation_master_url_si'
     PRESERVATION_MASTER_WIDTH = 'preservation_master_width_ii'
     PUBLISHED = 'published_bi'
+    REPRESENTATIVE_ITEM_ID = 'representative_item_id_si'
     SEARCH_ALL = 'searchall_txtim'
     TITLE = 'title_txti'
     WEB_ID = 'web_id_si'

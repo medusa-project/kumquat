@@ -35,6 +35,7 @@ class Item < Entity
     end
     item.page_number = doc[Solr::Fields::PAGE_NUMBER]
     item.parent_id = doc[Solr::Fields::PARENT_ITEM]
+    item.representative_item_id = doc[Solr::Fields::REPRESENTATIVE_ITEM_ID]
     if doc[Solr::Fields::ACCESS_MASTER_PATHNAME] or
         doc[Solr::Fields::ACCESS_MASTER_URL]
       bs = Bytestream.new

@@ -17,6 +17,7 @@ class Entity
   attr_accessor :last_modified # DateTime
   attr_reader :metadata # Array
   attr_accessor :published # Boolean
+  attr_accessor :representative_item_id # String
   attr_accessor :score # float
   attr_accessor :subtitle # String
   attr_accessor :title # String
@@ -44,6 +45,10 @@ class Entity
 
   def persisted?
     @persisted # makes to_param work
+  end
+
+  def representative_item
+    Item.find_by_id(self.representative_item_id)
   end
 
   def save
@@ -79,6 +84,7 @@ class Entity
       doc[Solr::Fields::LAST_MODIFIED] = self.last_modified.utc.iso8601 + 'Z'
     end
     doc[Solr::Fields::PUBLISHED] = self.published
+    doc[Solr::Fields::REPRESENTATIVE_ITEM_ID] = self.representative_item_id
     doc[Solr::Fields::TITLE] = self.title
     doc[Solr::Fields::WEB_ID] = self.web_id
 
