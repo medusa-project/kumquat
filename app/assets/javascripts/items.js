@@ -29,6 +29,9 @@ var PTItemView = function() {
             $('.pt-remove-from-favorites').hide();
             $('.pt-add-to-favorites').show();
         }
+        $(window).on('resize', function() {
+            $('#pt-image-viewer').height($(window).height() * 0.75);
+        }).trigger('resize');
     };
 
     /**
