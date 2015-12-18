@@ -77,7 +77,6 @@ module Deserialization
           else
             bs.detect_media_type rescue nil
           end
-          #bs.read_dimensions TODO: this is too slow
           entity.bytestreams << bs
         else # access master (URL)
           am = node.xpath('lrp:accessMasterURL', namespaces).first
@@ -92,7 +91,6 @@ module Deserialization
             else
               bs.detect_media_type rescue nil
             end
-            #bs.read_dimensions TODO: this is too slow
             entity.bytestreams << bs
           end
         end
@@ -113,7 +111,6 @@ module Deserialization
           else
             bs.detect_media_type rescue nil
           end
-          #bs.read_dimensions TODO: this is too slow
           entity.bytestreams << bs
         else # preservation master (URL)
           pm = node.xpath('lrp:preservationMasterURL', namespaces).first
@@ -128,7 +125,6 @@ module Deserialization
             else
               bs.detect_media_type rescue nil
             end
-            #bs.read_dimensions TODO: this is too slow
             entity.bytestreams << bs
           end
         end

@@ -104,24 +104,4 @@ class Bytestream
         rp + self.repository_relative_pathname : nil
   end
 
-  ##
-  # Reads the width and height (if an image) and assigns them to the instance.
-  #
-  # @raise [RuntimeError] if pathname is not set
-  # @return [void]
-  #
-  def read_dimensions
-    raise 'Pathname is not set' unless self.pathname
-    if self.is_image?
-      glue = '|'
-      # TODO: use ruby or IIIF instead
-      output = `identify -format "%[fx:w]#{glue}%[fx:h]" #{self.pathname}`
-      parts = output.split(glue)
-      if parts.length == 2
-        self.width = parts[0].strip.to_i
-        self.height = parts[1].strip.to_i
-      end
-    end
-  end
-
 end
