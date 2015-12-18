@@ -48,7 +48,8 @@ class Entity
   end
 
   def representative_item
-    Item.find_by_id(self.representative_item_id)
+    (self.representative_item_id ?
+        Item.find_by_id(self.representative_item_id) : self) || self
   end
 
   def save

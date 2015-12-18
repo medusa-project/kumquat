@@ -10,7 +10,7 @@ class ActiveSupport::TestCase
   # Seeds a test Solr instance with fixture data.
   #
   def seed_repository
-    Solr.instance.flush
+    Solr.instance.purge
     Indexer.new.index_all(__dir__ + '/fixtures/repository')
     Solr.instance.commit
   end

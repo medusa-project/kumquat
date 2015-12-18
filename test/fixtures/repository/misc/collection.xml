@@ -5,6 +5,7 @@
   <lrp:lastModified>2015-11-22T01:51:17Z</lrp:lastModified>
   <lrp:published>true</lrp:published>
   <lrp:repositoryId>misc-test</lrp:repositoryId>
+  <lrp:representativeItemId>hello_world</lrp:representativeItemId>
   <lrp:webId>misc-test</lrp:webId>
   <!-- descriptive metadata -->
   <lrp:description>A demo collection containing miscellaneous items.</lrp:description>
