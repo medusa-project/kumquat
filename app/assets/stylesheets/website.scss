@@ -153,8 +153,12 @@ description on the right.
       }
       .pt-title {
         font-size: 1.4em;
+        .pt-icon {
+          color: #808080;
+          margin-right: 0.3em;
+        }
         .label-default {
-          background-color: #a0a0a0;
+          background-color: #aaaaaa;
           font-size: 0.7em;
         }
       }

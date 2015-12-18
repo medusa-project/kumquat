@@ -157,33 +157,37 @@ module ItemsHelper
         '</div>')
       end
       html += '<span class="pt-title">'
+      html += icon_for(entity)
       html += link_to(entity.title, link_target)
-      html += '<br>'
-      if entity.respond_to?(:children)
+      if entity.kind_of?(Item)
+        # page count
         num_children = entity.children.total_length
         if num_children > 0
           html += " <span class=\"label label-default\">#{num_children} pages</span> "
         end
-      end
-      if options[:show_remove_from_favorites_buttons] and entity.kind_of?(Item)
-        html += ' <button class="btn btn-xs btn-danger ' +
-            'pt-remove-from-favorites" data-web-id="' + entity.id + '">'
-        html += '<i class="fa fa-heart"></i> Remove'
-        html += '</button>'
-      end
-      if options[:show_add_to_favorites_buttons] and entity.kind_of?(Item)
-        html += ' <button class="btn btn-default btn-xs ' +
-            'pt-add-to-favorites" data-web-id="' + entity.id + '">'
-        html += '<i class="fa fa-heart-o"></i>'
-        html += '</button>'
-      end
-      html += '</span>'
-      if options[:show_collections] and entity.kind_of?(Item)
-        html += '<br>'
-        html += link_to(entity.collection) do
-          raw("#{self.icon_for(entity.collection)} #{entity.collection.title}")
+        # remove-from-favorites button
+        if options[:show_remove_from_favorites_buttons]
+          html += ' <button class="btn btn-xs btn-danger ' +
+              'pt-remove-from-favorites" data-web-id="' + entity.id + '">'
+          html += '<i class="fa fa-heart"></i> Remove'
+          html += '</button>'
+        end
+        # add-to-favorites button
+        if options[:show_add_to_favorites_buttons]
+          html += ' <button class="btn btn-default btn-xs ' +
+              'pt-add-to-favorites" data-web-id="' + entity.id + '">'
+          html += '<i class="fa fa-heart-o"></i>'
+          html += '</button>'
+        end
+        # collection
+        if options[:show_collections]
+          html += '<br>'
+          html += link_to(entity.collection) do
+            raw("#{self.icon_for(entity.collection)} #{entity.collection.title}")
+          end
         end
       end
+      html += '</span>'
       if options[:show_description]
         html += '<br>'
         html += '<span class="pt-description">'

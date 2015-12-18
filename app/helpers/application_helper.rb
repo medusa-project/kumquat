@@ -61,22 +61,29 @@ module ApplicationHelper
   #
   def icon_for(entity)
     icon = 'fa-cube'
+    title = 'Item'
     if entity.kind_of?(Item)
       if entity.is_audio?
         icon = 'fa-volume-up'
+        title = 'Audio'
       elsif entity.is_image?
         icon = 'fa-picture-o'
+        title = 'Image'
       elsif entity.is_pdf? or entity.is_text?
         icon = 'fa-file-text-o'
+        title = 'Text'
       elsif entity.is_video?
         icon = 'fa-film'
+        title = 'Video'
       elsif entity.children.any?
         icon = 'fa-cubes'
+        title = 'Compound Item'
       end
     elsif entity.kind_of?(Collection) or entity == Collection
       icon = 'fa-folder-open-o'
+      title = 'Collection'
     end
-    raw("<i class=\"fa #{icon}\"></i>")
+    raw("<i title=\"#{title}\" class=\"fa #{icon} pt-icon\"></i>")
   end
 
   private
