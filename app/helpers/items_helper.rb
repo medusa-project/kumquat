@@ -149,18 +149,7 @@ module ItemsHelper
       html += '<li>'\
         '<div>'
       html += link_to(link_target, class: 'pt-thumbnail-link') do
-        if entity.kind_of?(Collection)
-          #media_types = "(#{Derivable::TYPES_WITH_IMAGE_DERIVATIVES.join(' OR ')})"
-          media_types = %w(image/jp2 image/jpeg image/png image/tiff).join(' OR ')
-          item = Item.where("{!join from=#{Solr::Fields::PARENT_ITEM} "\
-              "to=#{Solr::Fields::ID}}#{Solr::Fields::ACCESS_MASTER_MEDIA_TYPE}:(#{media_types})").
-              filter(Solr::Fields::COLLECTION => entity.id).
-              omit_entity_query(true).
-              facet(false).order(:random).limit(1).first
-          item ||= Collection
-        else
-          item = entity
-        end
+        item = entity.representative_item
         raw('<div class="pt-thumbnail">' +
           thumbnail_tag(item,
                         options[:thumbnail_size] ? options[:thumbnail_size] : 256,

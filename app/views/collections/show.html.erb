@@ -22,13 +22,14 @@
     <p><%= @collection.description %></p>
   </div>
   <div class="col-sm-6">
-    <% if @item %>
+    <% item = @collection.representative_item %>
+    <% if item %>
       <div class="pt-main-image">
-        <%= link_to @item do %>
-          <%= thumbnail_tag(@item, 512) %>
+        <%= link_to item do %>
+          <%= thumbnail_tag(item, 512) %>
         <% end %>
-        <%= link_to @item, class: 'pt-title' do %>
-          <%= @item.title %>
+        <%= link_to item, class: 'pt-title' do %>
+          <%= item.title %>
         <% end %>
       </div>
     <% end %>
