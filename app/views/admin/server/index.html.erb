@@ -29,6 +29,8 @@
           <dd><%= link_to oai_pmh_url, oai_pmh_url(verb: 'Identify') %></dd>
           <dt>Application Root</dt>
           <dd><%= Rails.root %></dd>
+          <dt>Repository Root</dt>
+          <dd><%= PearTree::Application.peartree_config[:repository_pathname] %></dd>
         </dl>
       </div>
     </div>
