@@ -37,7 +37,7 @@
       <dt>Theme</dt>
       <dd>
         <%= @collection.collection_def.theme ? @collection.collection_def.theme.name :
-                raw("None (has the #{link_to('default theme', admin_themes_path)})") %>
+                "Default (#{Theme.default.name})" %>
       </dd>
     </dl>
   </div>

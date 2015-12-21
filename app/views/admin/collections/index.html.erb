@@ -27,7 +27,8 @@
             <%= collection.published ? 'Published' : 'Unpublished' %></span></td>
         <td><%= collection.num_items %></td>
         <td><%= collection.collection_def.metadata_profile.name %></td>
-        <td><%= collection.collection_def.theme ? collection.collection_def.theme.name : '' %></td>
+        <td><%= collection.collection_def.theme ? collection.collection_def.theme.name :
+                    "Default (#{Theme.default.name})" %></td>
       </tr>
     <% end %>
   </tbody>
