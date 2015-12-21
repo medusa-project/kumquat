@@ -7,7 +7,7 @@ class EmailValidator < ActiveModel::EachValidator
 end
 
 class User < ActiveRecord::Base
-  #has_and_belongs_to_many :roles
+  has_and_belongs_to_many :roles
 
   validates :email, presence: true, uniqueness: true, email: true
   validates :password, length: { minimum: 5 }, if: :should_validate_password?
@@ -24,20 +24,18 @@ class User < ActiveRecord::Base
 
   def has_permission?(key)
     return true if self.is_admin?
-    #self.roles_having_permission(key).any? TODO: fix
+    self.roles_having_permission(key).any?
   end
 
   alias_method :can?, :has_permission?
 
   def is_admin?
-    # TODO: fix
-    true
-    #self.roles.where(key: 'admin').limit(1).any?
+    self.roles.where(key: 'admin').limit(1).any?
   end
 
-  #def roles_having_permission(key)
-  #  self.roles.select{ |r| r.has_permission?(key) }
-  #end
+  def roles_having_permission(key)
+    self.roles.select{ |r| r.has_permission?(key) }
+  end
 
   private
 

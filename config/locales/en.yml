@@ -20,4 +20,19 @@
 # available at http://guides.rubyonrails.org/i18n.html.
 
 en:
-  hello: "Hello world"
+  permission_control_panel_access: Access Control Panel
+  permission_collections_create: Create Collections
+  permission_collections_delete: Delete Collections
+  permission_collections_update: Update Collections
+  permission_reindex: Reindex
+  permission_roles_create: Create Roles
+  permission_roles_delete: Delete Roles
+  permission_roles_update: Update Roles
+  permission_settings_update: Update Settings
+  permission_users_create: Create Users
+  permission_users_delete: Delete Users
+  permission_users_disable: Disable Users
+  permission_users_enable: Enable Users
+  permission_users_update: Update Other Users
+  permission_users_update_self: Update Self
+  permission_users_view: View Users

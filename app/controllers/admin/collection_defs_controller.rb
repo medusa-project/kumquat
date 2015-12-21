@@ -45,12 +45,12 @@ module Admin
 
     def create_rbac
       redirect_to(admin_root_url) unless
-          current_user.can?(Permission::COLLECTIONS_CREATE)
+          current_user.can?(Permission::CREATE_COLLECTION)
     end
 
     def delete_rbac
       redirect_to(admin_root_url) unless
-          current_user.can?(Permission::COLLECTIONS_DELETE)
+          current_user.can?(Permission::DELETE_COLLECTION)
     end
 
     def sanitized_params
@@ -60,7 +60,7 @@ module Admin
 
     def update_rbac
       redirect_to(admin_root_url) unless
-          current_user.can?(Permission::COLLECTIONS_UPDATE)
+          current_user.can?(Permission::UPDATE_COLLECTION)
     end
 
   end

@@ -21,6 +21,46 @@ Option.create!(key: Option::Key::WEBSITE_INTRO_TEXT,
                value: 'Behold our great collections.')
 Option.create!(key: Option::Key::RESULTS_PER_PAGE, value: 30)
 
+# Roles
+roles = {}
+roles[:admin] = Role.create!(key: 'admin', name: 'Administrators', required: true)
+roles[:cataloger] = Role.create!(key: 'cataloger', name: 'Catalogers')
+roles[:anybody] = Role.create!(key: 'anybody', name: 'Anybody', required: true)
+
+# Permissions
+Permission.create!(key: Permission::CREATE_COLLECTION,
+                   roles: [roles[:admin], roles[:cataloger]])
+Permission.create!(key: Permission::DELETE_COLLECTION,
+                   roles: [roles[:admin]])
+Permission.create!(key: Permission::UPDATE_COLLECTION,
+                   roles: [roles[:admin], roles[:cataloger]])
+Permission.create!(key: Permission::ACCESS_CONTROL_PANEL,
+                   roles: [roles[:admin], roles[:cataloger]])
+Permission.create!(key: Permission::REINDEX,
+                   roles: [roles[:admin], roles[:cataloger]])
+Permission.create!(key: Permission::CREATE_ROLE,
+                   roles: [roles[:admin]])
+Permission.create!(key: Permission::DELETE_ROLE,
+                   roles: [roles[:admin]])
+Permission.create!(key: Permission::UPDATE_ROLE,
+                   roles: [roles[:admin]])
+Permission.create!(key: Permission::UPDATE_SETTINGS,
+                   roles: [roles[:admin]])
+Permission.create!(key: Permission::CREATE_USER,
+                   roles: [roles[:admin]])
+Permission.create!(key: Permission::DELETE_USER,
+                   roles: [roles[:admin]])
+Permission.create!(key: Permission::UPDATE_USER,
+                   roles: [roles[:admin]])
+Permission.create!(key: Permission::UPDATE_SELF,
+                   roles: [roles[:admin], roles[:anybody]])
+Permission.create!(key: Permission::DISABLE_USER,
+                   roles: [roles[:admin]])
+Permission.create!(key: Permission::ENABLE_USER,
+                   roles: [roles[:admin]])
+Permission.create!(key: Permission::VIEW_USERS,
+                   roles: [roles[:admin], roles[:cataloger]])
+
 # Facets
 facets = {}
 facets[:audience] = FacetDef.create!(
@@ -520,6 +560,7 @@ users[:admin] = User.create!(
     email: 'admin@example.org',
     username: 'admin',
     password: 'kumquats4ever',
+    roles: [roles[:admin]],
     enabled: true)
 
 if Rails.env.development? or Rails.env.uiuc_development?
@@ -528,11 +569,13 @@ if Rails.env.development? or Rails.env.uiuc_development?
       email: 'cataloger@example.org',
       username: 'cataloger',
       password: 'password',
+      roles: [roles[:cataloger]],
       enabled: true)
   users[:disabled] = User.create!(
       email: 'disabled@example.org',
       password: 'password',
       username: 'disabled',
+      roles: [roles[:cataloger]],
       enabled: false)
 end
 

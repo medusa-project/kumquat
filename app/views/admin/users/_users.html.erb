@@ -1,14 +1,18 @@
 <table class="table table-striped">
   <thead>
     <tr>
+      <th style="width:1%"></th>
       <th>Username</th>
       <th>Role(s)</th>
-      <th style="width:1%"></th>
     </tr>
   </thead>
   <tbody>
     <% @users.each do |user| %>
       <tr>
+        <td>
+          <span class="label <%= user.enabled ? 'label-success' : 'label-danger' %>">
+            <%= user.enabled ? 'Enabled' : 'Disabled' %></span>
+        </td>
         <td><%= link_to user.username, admin_user_path(user) %></td>
         <td>
           <ul>
@@ -16,10 +20,6 @@
               <li><%= link_to role.name, admin_role_path(role) %></li>
             <% end %>
           </ul>
-        </td>
-        <td>
-          <span class="label <%= user.enabled ? 'label-success' : 'label-danger' %>">
-            <%= user.enabled ? 'Enabled' : 'Disabled' %></span>
         </td>
       </tr>
     <% end %>

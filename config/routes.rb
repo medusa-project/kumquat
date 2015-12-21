@@ -97,7 +97,7 @@ Rails.application.routes.draw do
     resources :metadata_profiles, path: 'metadata-profiles' do
       match '/clone', to: 'metadata_profiles#clone', via: 'patch', as: 'clone'
     end
-    #resources :roles, param: :key
+    resources :roles, param: :key
     match '/server', to: 'server#index', via: 'get'
     match '/server/image-server-status', to: 'server#image_server_status',
           via: 'get', as: 'server_image_server_status'
