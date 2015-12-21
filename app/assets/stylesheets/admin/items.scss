@@ -41,6 +41,14 @@ body#items_index {
         }
         .pt-title {
           font-size: 1.4em;
+          .pt-icon {
+            color: #808080;
+            margin-right: 0.3em;
+          }
+          .label-default {
+            background-color: #aaaaaa;
+            font-size: 0.7em;
+          }
         }
         .pt-description {
         }

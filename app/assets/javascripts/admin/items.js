@@ -6,9 +6,9 @@ var PTAdminItemsView = function() {
     var ELEMENT_LIMIT = 4;
 
     this.init = function() {
-        $('button.pt-add-triple').on('click', function() {
+        $('button.pt-add-element').on('click', function() {
             // limit to ELEMENT_LIMIT fields
-            if ($('.pt-triples .form-group').length < ELEMENT_LIMIT) {
+            if ($('.pt-elements .form-group').length < ELEMENT_LIMIT) {
                 var clone = $(this).prev('.form-group').clone(true);
                 $(this).before(clone);
             }

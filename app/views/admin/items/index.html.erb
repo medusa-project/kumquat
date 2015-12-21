@@ -6,99 +6,32 @@
   <li><%= link_to 'Home', admin_root_path %></li>
   <li class="active">Items</li>
 </ol>
-<!--
-<div class="btn-group pull-right">
-  <%= link_to new_admin_item_path, class: 'btn btn-default' do %>
-    <i class="fa fa-cube"></i> New Item
-  <% end %>
-</div>
--->
+
 <h1>Items</h1>
 
 <div class="well pt-search">
-
-  <%= form_tag({controller: 'admin/items', action: 'search'}, {method: :post}) do %>
-    <div class="row">
-      <div class="col-sm-5 pt-elements">
-        <div class="form-group form-inline">
-          <%= select_tag 'elements[]', options_for_select(@elements_for_select),
-                         class: 'form-control' %>
-          <%= text_field_tag 'terms[]', '', placeholder: 'Search Term', class: 'form-control' %>
-          <button type="button" class="btn btn-xs btn-danger pt-remove-element">&minus;</button>
-        </div>
-        <button type="button" class="btn btn-xs btn-success pt-add-element">&plus; Add Triple</button>
-      </div>
-
-      <div class="col-sm-4">
-        <button type="button" class="btn btn-xs btn-default pt-check-all">Check All</button>
-        <button type="button" class="btn btn-xs btn-default pt-uncheck-all">Uncheck All</button>
-        <div class="pt-collections">
-          <ol>
-            <% @collections.each do |collection| %>
-              <li>
-                <div class="checkbox">
-                  <label>
-                    <%= check_box_tag('collections[]', collection.id,
-                                      (params[:collections].present? and params[:collections].include?(collection.id))) %>
-                    <%= collection.title %>
-                  </label>
-                </div>
-              </li>
-            <% end %>
-          </ol>
-        </div>
-      </div>
-
-      <div class="col-sm-3 pt-system">
-        <div class="radio">
-          <%= label_tag do %>
-            <%= radio_button_tag 'published', 'any',
-                                 (params[:published] == 'any' or params[:published].blank?) %>
-            Any
-          <% end %>
-        </div>
-        <div class="radio">
-          <%= label_tag do %>
-            <%= radio_button_tag 'published', '1',
-                                 (params[:published] == '1') %>
-            Published
-          <% end %>
-        </div>
-        <div class="radio">
-          <%= label_tag do %>
-            <%= radio_button_tag 'published', '0',
-                                 (params[:published] == '0') %>
-            Unpublished
-          <% end %>
-        </div>
-      </div>
-    </div>
-
-    <div class="clearfix">
-      <div class="pull-right">
-        <input type="submit" name="clear" value="Clear" class="btn btn-default">
-        <input type="submit" value="Filter" class="btn btn-primary">
-      </div>
-    </div>
-  <% end %>
-
+  <%= render partial: 'search_panel',
+             locals: { elements_for_select: @elements_for_select,
+                       collections: @collections,
+                       params: params } %>
 </div>
 
-<div class="panel">
+<div class="panel panel-default">
   <div class="panel-body">
     <%= search_status(@items, @start, @num_results_shown) %>
+    <!--
     <div class="btn-group pull-right" role="group">
       <button type="button" class="btn btn-default dropdown-toggle"
               data-toggle="dropdown" aria-expanded="false">
         <i class="fa fa-download"></i> Export <span class="caret"></span>
       </button>
       <ul class="dropdown-menu" role="menu">
-        <!-- TODO: these are broken
         <li><%= link_to 'JSON-LD', params.merge(format: 'jsonld') %></li>
         <li><%= link_to 'RDF/XML', params.merge(format: 'rdfxml') %></li>
-        <li><%= link_to 'Turtle', params.merge(format: 'ttl') %></li>-->
+        <li><%= link_to 'Turtle', params.merge(format: 'ttl') %></li>
       </ul>
     </div>
+    -->
   </div>
 </div>
 

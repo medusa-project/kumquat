@@ -101,7 +101,7 @@ module Admin
           #@elements_for_select = ElementDef.order(:name).
           #    map{ |p| [p.name, p.solr_field] }.uniq
           @elements_for_select = ElementDef.order(:name).
-              map{ |p| [p.name, nil] }.uniq
+              map{ |p| [p.label, nil] }.uniq
           @elements_for_select.unshift([ 'Any Element', Solr::Fields::SEARCH_ALL ])
           @collections = Collection.all
         end
@@ -112,16 +112,11 @@ module Admin
     end
 
     ##
-    # Redirects GET /admin/items/search to /admin/items. Also responds to
-    # POST /admin/items/search.
+    # Responds to GET/POST /admin/items/search
     #
     def search
-      if request.get?
-        redirect_to action: :index, status: 301
-      else
-        index
-        render 'index' unless params[:clear]
-      end
+      index
+      render 'index' unless params[:clear]
     end
 
     def show
