@@ -1,0 +1,28 @@
+<% # crudely pilfered from the library home page as of 3/16/2015 %>
+<header id="first-navbar" role="banner">
+  <div class="container-fluid" aria-labelledby="bannerHeading"
+       aria-label="university of illinois library banner">
+    <h1 class="sr-only">University Library, University of Illinois at Urbana-Champaign</h1>
+    <div class="row">
+      <div class="col-md-12" id="header-full-width-column">
+        <div class="row">
+          <div class="col-sm-6 col-md-7">
+            <div>
+              <%= image_tag('university_libraries_wordmark_with_imark_reverse.png',
+                            alt: 'University of Illinois Library',
+                            class: 'img-responsive', usemap: '#bannermap',
+                            id: 'library-brand-img') %>
+              <map name="bannermap">
+                <area id="imark-img-area" shape="rect" coords="0,0,36,47"
+                      href="http://illinois.edu/" alt="University of Illinois">
+                <area id="library-banner-area" shape="rect" coords="37,0,472,47"
+                      href="<%= root_path %>"
+                      alt="University Library, University of Illinois at Urbana-Champaign">
+              </map>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>

@@ -1,0 +1,72 @@
+/*
+ * The base of your custom styles. This is a manifest file that'll be compiled
+ * into application.css, which will include all the files listed below.
+ *
+ * Any CSS and SCSS file within this directory, lib/assets/stylesheets,
+ * vendor/assets/stylesheets, or any plugin's vendor/assets/stylesheets
+ * directory can be referenced here using a relative path.
+ *
+ * You're free to add application-wide styles to this file and they'll appear
+ * at the bottom of the compiled file so the styles you add here take
+ * precedence over styles defined in any styles defined in the other CSS/SCSS
+ * files in this directory. It is generally better to create a new file per
+ * style scope.
+ */
+
+@import "items";
+@import "landing";
+@import "website";
+
+@media print {
+  header, footer, .btn, .pt-facets, audio, video {
+    display: none;
+  }
+}
+
+a {
+  color: rgb(4, 74, 136);
+}
+
+header {
+  background-color: #022544;
+  border-bottom: 5px solid #dddddd;
+  position: relative;
+  z-index: 10;
+}
+
+#header-full-width-column {
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
+
+#myaccount {
+  background-color:#022544;
+  color: #fff;
+  padding: 6px 12px;
+}
+
+footer {
+  background-color: #eee;
+  margin-top: 40px;
+  text-align:left;
+  .footerheading {
+    color: #1d407b;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-size: 1em;
+    text-transform: none;
+    font-weight: bold;
+    text-decoration: none;
+  }
+  a.footer-link {
+    color: #333;
+  }
+  #copyright-footer {
+    background-color: #022544;
+    border-top: 5px solid #dddddd;
+    color: #DEDEDE;
+    font-size: 0.7em;
+    margin-top: 20px;
+    min-height: 90px;
+    padding: 15px;
+  }
+}

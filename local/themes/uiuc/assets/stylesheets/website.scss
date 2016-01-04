@@ -1,0 +1,38 @@
+#pt-search-accordion {
+  background-color: #022544;
+  color:white;
+  a {
+    color:white;
+  }
+  li:hover a {
+    background-color: #224574;
+  }
+  li.active a {
+    background-color: white;
+    color:black;
+  }
+  select > option {
+    color: black;
+  }
+  .btn-default, .btn-primary {
+    background-color: #022544;
+    border-color: #a0a0a0;
+    color:white;
+  }
+
+  .form-control {
+    background:none;
+    border-color: #a0a0a0;
+    color:white;
+  }
+
+  .panel {
+    background:none;
+    border: none;
+  }
+  .panel-heading {
+    background:none;
+    border: none;
+    color:white;
+  }
+}

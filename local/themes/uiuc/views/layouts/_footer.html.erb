@@ -1,0 +1,82 @@
+<% # extracted from the library home page as of 3/16/2015 %>
+<footer>
+<div class="container-fluid">
+  <div class="row" role="complementary" style="padding-bottom:20px;">
+    <h2 class="sr-only">library Website footer information</h2>
+    <div class="col-md-3 col-sm-3 col-xs-12" role="region" aria-label="contact us">
+      <div class="dropdown" aria-labelledby="address">
+        <h3 class="footerheading">Contact Us:</h3>
+        <ul class="dropdown-menu" role="menu">
+          <li role="presentation"><a href="http://www.library.illinois.edu/people/phone.php" aria-labelledby="Employee Directory" role="menuitem" tabindex="-1">Employee Directory</a></li>
+          <li role="presentation"><a href="http://www.library.illinois.edu/secondary/contactUs.html" aria-labelledby="General contact information" role="menuitem" tabindex="-1">General contact information</a></li>
+          <li role="presentation"><a aria-label="Submit your feedback and suggestions" href="https://illinois.edu/fb/sec/1454867" aria-labelledby="Feedback and suggestions" role="menuitem" tabindex="-1">Feedback and suggestions</a></li>
+        </ul>
+      </div>
+
+      University Library<br>
+      University of Illinois at Urbana-Champaign<br>
+      1408 W. Gregory Dr. | Urbana, IL 61801<br>
+      217.333.2290
+      <br>
+      <br>
+      <a class="footer-link" href="https://www.facebook.com/universitylibrary">
+        <span class="fa fa-facebook fa-lg" aria-label="facebook" style="border:1px solid #BCBCBC; padding:.2em; min-width:25px; margin-bottom:.2em"></span><small> Find us on Facebook</small></a>
+      <br>
+      <a class="footer-link" href="http://www.library.illinois.edu/friends/gift.html">
+        <span class="fa fa-gift fa-lg" aria-label="make a gift" style="border:1px solid #BCBCBC; padding:.2em;"></span><small> Make a Gift</small></a>
+    </div>
+
+    <div class="col-md-3 col-sm-3 col-xs-12" role="region" aria-label="information for">
+      <h3 class="footerheading">Information for:</h3>
+      <div class="row">
+        <div class="col-md-6"> <a class="footer-link" href="http://www.library.illinois.edu/ugl/">Undergraduates</a><br>
+          <a class="footer-link" href="http://www.library.illinois.edu/learn/users/gradstudents.html">Graduate Students</a><br>
+          <a class="footer-link" href="http://www.library.illinois.edu/learn/users/faculty.html">Faculty</a><br>
+          <a class="footer-link" href="http://www.library.illinois.edu/learn/users/alumni.html">Alumni</a><br>
+          <a class="footer-link" href="http://www.library.illinois.edu/learn/users/visitors.html">Visitors</a>
+        </div>
+        <div class="col-md-6">
+          <a class="footer-link" href="http://www.library.illinois.edu/learn/users/affiliates.html">Affiliated Organizations</a><br>
+          <a class="footer-link" href="http://www.library.illinois.edu/learn/users/usersdisabilities.html">Users with Disabilities</a><br>
+          <a class="footer-link" href="http://www.library.illinois.edu/distance/">Distance Learners</a><br>
+          <a class="footer-link" href="http://www.library.illinois.edu/staff/">Library Staff</a><br>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3 col-sm-3 col-xs-12" role="region" aria-label="feedback">
+      <h3 class="footerheading">Feedback</h3>
+      <a class="footer-link" href="https://illinois.edu/fb/sec/887006">Suggest an item for purchase</a><br>
+      <a aria-label="Submit your feedback and suggestions" class="footer-link" href="https://illinois.edu/fb/sec/1454867">Give us feedback/suggestions</a>
+    </div>
+
+    <div class="col-md-3 col-sm-3 col-xs-12" id="vertical" role="region" aria-label="about the site">
+      <h3 class="footerheading">About this site</h3>
+      <a class="footer-link" href="http://www.vpaa.uillinois.edu/policies/web_privacy.cfm">Privacy</a><br>
+    </div>
+  </div>
+
+  <div class="row" role="contentinfo" aria-label="university library copyright info" style="text-align:center">
+    <div id="copyright-footer">
+      <p>&copy; 2014 University of Illinois Board of Trustees</p>
+      <br>
+      <p><a href="http://www.library.illinois.edu/doc/"
+            aria-label="Federal Depository Library Program website link">
+        <%= image_tag('fdlp-emblem-logo-text-bw.png', alt: 'Federal Depository Library Program logo') %>
+      </a></p>
+    </div>
+  </div>
+</div>
+</footer>
+
+<% if Rails.env.production? # Google Analytics %>
+  <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-45045308-2', 'auto');
+    ga('send', 'pageview');
+  </script>
+<% end %>
