@@ -120,6 +120,9 @@ GEM
     omniauth (1.2.2)
       hashie (>= 1.2, < 4)
       rack (~> 1.0)
+    passenger (5.0.23)
+      rack
+      rake (>= 0.8.1)
     pg (0.18.3)
     puma (2.14.0)
     rack (1.6.4)
@@ -200,6 +203,7 @@ DEPENDENCIES
   mime-types (~> 2.6)
   omniauth
   omniauth-password!
+  passenger
   pg
   puma
   rails (= 4.2.5)
