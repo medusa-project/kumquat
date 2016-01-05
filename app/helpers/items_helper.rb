@@ -196,7 +196,7 @@ module ItemsHelper
         # collection
         if options[:show_collections]
           html += '<br>'
-          html += link_to(entity.collection) do
+          html += link_to(entity.collection, class: 'pt-collection-title') do
             raw("#{self.icon_for(entity.collection)} #{entity.collection.title}")
           end
         end
