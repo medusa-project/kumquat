@@ -177,7 +177,7 @@ module ItemsHelper
         # page count
         num_children = entity.children.total_length
         if num_children > 0
-          html += " <span class=\"label label-default\">#{num_children} pages</span> "
+          html += " <span class=\"pt-count badge\">#{num_children} pages</span> "
         end
         # remove-from-favorites button
         if options[:show_remove_from_favorites_buttons]

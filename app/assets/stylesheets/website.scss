@@ -89,7 +89,7 @@ form.pt-quick-search {
 
   .panel-body {
     max-height:50em;
-    overflow-y: scroll;
+    overflow-x: scroll;
   }
   .pt-fields .form-group:first-child .pt-remove-field {
     display:none;
@@ -101,6 +101,13 @@ form.pt-quick-search {
       padding-left:0px;
     }
   }
+}
+
+.pt-count.badge {
+  background-color: #c0c0c0;
+  font-size: 0.7em;
+  font-weight: normal;
+  vertical-align: 25%;
 }
 
 /*
@@ -157,9 +164,11 @@ description on the right.
           color: #808080;
           margin-right: 0.3em;
         }
-        .label-default {
-          background-color: #aaaaaa;
+        .label {
+          background-color: #d0d0d0;
           font-size: 0.7em;
+          font-weight: normal;
+          vertical-align: 30%;
         }
       }
       .pt-description {
@@ -215,19 +224,20 @@ to get a grid of image tiles, flowing from left to right and downwards.
 
 body#landing, body#collections_show {
   .pt-main-image {
+    text-align: center;
     img {
       display:block;
+      margin: 0 auto;
       max-height: 450px;
       max-width: 90%;
-    }
-    a {
-      color:#606060;
+      padding-bottom: 0.4em;
     }
     .pt-title {
-      font-family: 'Oswald';
+      color:black;
       font-size: 1.2em;
     }
     .pt-collection-title {
+      color:#606060;
     }
   }
 }
