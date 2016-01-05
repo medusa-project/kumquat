@@ -4,7 +4,9 @@
 
 body#items_index div#pt-page-content {
   .pt-facets {
-    overflow-x: scroll;
+    @media (min-width: $screen-sm-min) {
+      padding-right: 0px;
+    }
     div.checkbox {
       margin:0.2em 0em;
     }
@@ -12,7 +14,6 @@ body#items_index div#pt-page-content {
 
   .pt-panel-facets {
     .panel-body {
-      overflow-x: scroll;
       ul {
         list-style:none;
         margin-bottom:0em;

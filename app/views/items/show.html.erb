@@ -86,44 +86,40 @@
   </div>
 </div>
 
-<div class="row">
-  <div class="col-sm-4">
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <h2 class="panel-title">Technical Info</h2>
-      </div>
-      <div class="panel-body">
-        <%= tech_metadata_as_list(@item) %>
-        <%= tech_metadata_as_table(@item) %>
-      </div>
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">Technical Info</h2>
+  </div>
+  <div class="panel-body">
+    <%= tech_metadata_as_list(@item) %>
+    <%= tech_metadata_as_table(@item) %>
+  </div>
+</div>
+
+<% if Rails.env.development? %>
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <h2 class="panel-title">DEVELOPMENT ONLY: Bytestreams</h2>
+    </div>
+    <div class="panel-body">
+      <% if @item.bytestreams.any? %>
+        <ul>
+          <% @item.bytestreams.each do |bs| %>
+            <li>
+              <%= bs.type.upcase %>: <%= bs.pathname || bs.url %>
+              <% if bs.exists? %>
+                <span class="label label-success">OK</span>
+              <% else %>
+                <span class="label label-danger">MISSING</span>
+              <% end %>
+            </li>
+          <% end %>
+        </ul>
+      <% else %>
+        None
+      <% end %>
     </div>
   </div>
-  <div class="col-sm-8">
-    <% if Rails.env.development? %>
-        <div class="panel panel-default">
-          <div class="panel-heading">
-            <h2 class="panel-title">DEVELOPMENT ONLY: Bytestreams</h2>
-          </div>
-          <div class="panel-body">
-            <% if @item.bytestreams.any? %>
-                <ul>
-                  <% @item.bytestreams.each do |bs| %>
-                      <li>
-                        <%= bs.type.upcase %>: <%= bs.pathname || bs.url %>
-                        <% if bs.exists? %>
-                            <span class="label label-success">OK</span>
-                        <% else %>
-                            <span class="label label-danger">MISSING</span>
-                        <% end %>
-                      </li>
-                  <% end %>
-                </ul>
-            <% else %>
-                None
-            <% end %>
-          </div>
-        </div>
-    <% end %>
-  </div>
+<% end %>
 
 </div>

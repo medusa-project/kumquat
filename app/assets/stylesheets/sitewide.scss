@@ -25,6 +25,10 @@ div.alert-info {
   border-color: #e4e4ef;
 }
 
+.panel-body {
+  overflow-x: scroll;
+}
+
 .pt-triples {
   .pt-predicate-uri {
     color: #b0b0b0;
