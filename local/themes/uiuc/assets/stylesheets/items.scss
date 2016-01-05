@@ -1,0 +1,8 @@
+.pagination {
+  > li > a {
+    color: rgb(4, 74, 136);
+  }
+  > li.active > a {
+    background-color: rgb(4, 74, 136);
+  }
+}
