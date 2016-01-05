@@ -12,18 +12,11 @@ class ItemsController < WebsiteController
   ##
   # Retrieves an item's access master bytestream.
   #
-  # Responds to GET /items/:id/access-master
+  # Responds to GET /items/:item_id/access-master
   #
   def access_master_bytestream
-    @item = Item.find(params[:id])
-    unless @item.published
-      render 'error/error', status: :forbidden, locals: {
-          status_code: 403,
-          status_message: 'Forbidden',
-          message: 'This item is currently not published.'
-      }
-    end
-    render_bytestream(@item, Bytestream::Type::ACCESS_MASTER)
+    item = Item.find(params[:item_id])
+    send_bytestream(item, Bytestream::Type::ACCESS_MASTER)
   end
 
   def index
@@ -50,7 +43,7 @@ class ItemsController < WebsiteController
 
     # if there are no results, get some suggestions
     if @items.total_length < 1 and params[:q].present?
-      @suggestions = Solr::suggestions(params[:q])
+      @suggestions = Solr.instance.suggestions(params[:q])
     end
   end
 
@@ -60,15 +53,8 @@ class ItemsController < WebsiteController
   # Responds to GET /items/:id/preservation-master
   #
   def preservation_master_bytestream
-    @item = Item.find(params[:id])
-    unless @item.published
-      render 'error/error', status: :forbidden, locals: {
-          status_code: 403,
-          status_message: 'Forbidden',
-          message: 'This item is currently not published.'
-      }
-    end
-    render_bytestream(@item, Bytestream::Type::PRESERVATION_MASTER)
+    item = Item.find(params[:id])
+    send_bytestream(item, Bytestream::Type::PRESERVATION_MASTER)
   end
 
   ##
@@ -120,7 +106,14 @@ class ItemsController < WebsiteController
   # @param item [Item]
   # @param type [Integer] One of the `Bytestream::Type` constants
   #
-  def render_bytestream(item, type)
+  def send_bytestream(item, type)
+    unless item.published
+      render 'error/error', status: :forbidden, locals: {
+          status_code: 403,
+          status_message: 'Forbidden',
+          message: 'This item is currently not published.'
+      }
+    end
     bs = item.bytestreams.select{ |bs| bs.type == type and bs.exists? }.first
     if bs
       if bs.url
@@ -129,7 +122,7 @@ class ItemsController < WebsiteController
         send_file(bs.pathname)
       end
     else
-      render status: 404
+      render status: 404, text: 'Not found.'
     end
   end
 
