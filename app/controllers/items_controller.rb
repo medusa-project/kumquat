@@ -89,12 +89,12 @@ class ItemsController < WebsiteController
     end
 
     # collections
-    keys = []
-    if params[:keys].any?
-      keys = params[:keys].select{ |k| !k.blank? }
+    ids = []
+    if params[:ids].any?
+      ids = params[:ids].select{ |k| !k.blank? }
     end
-    if keys.any? and keys.length < Collection.all.length
-      where_clauses << "#{Solr::Fields::COLLECTION}:+(#{keys.join(' ')})"
+    if ids.any? and ids.length < Collection.all.length
+      where_clauses << "#{Solr::Fields::COLLECTION}:+(#{ids.join(' ')})"
     end
 
     redirect_to items_path(q: where_clauses.join(' AND '))

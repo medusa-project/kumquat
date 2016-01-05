@@ -1,7 +1,7 @@
 <div id="pt-search-accordion">
 
   <div>
-
+<!--
     <ul class="nav nav-pills nav-justified" role="tablist">
       <li role="presentation" class="active">
         <a href="#pt-text-search" aria-controls="pt-text-search"
@@ -9,6 +9,7 @@
           <span class="fa fa-terminal"></span> Text
         </a>
       </li>
+
       <li role="presentation">
         <a href="#pt-date-search" aria-controls="pt-date-search"
            id="pt-date-search-button" data-toggle="tab">
@@ -22,7 +23,7 @@
         </a>
       </li>
     </ul>
-
+-->
     <%= form_tag(controller: 'items', action: 'search', method: :post) do %>
 
       <div class="row">
@@ -33,14 +34,14 @@
 
             <div role="tabpanel" class="tab-pane active" id="pt-text-search">
               <div class="form-group form-inline">
-                <%= select_tag 'fields[]', options_for_select(@predicates_for_select),
+                <%= select_tag 'fields[]', options_for_select(@elements_for_select),
                                class: 'form-control' %>
                 <%= text_field_tag 'terms[]', '', placeholder: 'Search Term',
                                    class: 'form-control' %>
               </div>
-              <%= submit_tag 'Search', class: 'btn btn-lg btn-primary' %>
+              <%= submit_tag 'Search', class: 'btn btn-lg btn-primary pt-search' %>
             </div>
-
+<!--
             <div role="tabpanel" class="tab-pane" id="pt-date-search">
               <p>Not available yet.</p>
             </div>
@@ -61,7 +62,7 @@
                 </div>
               </div>
             </div>
-
+-->
           </div>
 
         </div>

@@ -1,38 +1,18 @@
 #pt-search-accordion {
-  background-color: #022544;
-  color:white;
+  background-color: #ededed;
   a {
-    color:white;
+    background-color:#d0d0d0;
+    border: 1px solid #ccc;
+    color: #022544;
+    margin: 0 auto;
+    width: 90%;
   }
-  li:hover a {
-    background-color: #224574;
+  a:hover {
+    background-color:#d8d8d8;
   }
-  li.active a {
-    background-color: white;
+  input.pt-search {
+    background-color:white;
+    border: 1px solid #ccc;
     color:black;
-  }
-  select > option {
-    color: black;
-  }
-  .btn-default, .btn-primary {
-    background-color: #022544;
-    border-color: #a0a0a0;
-    color:white;
-  }
-
-  .form-control {
-    background:none;
-    border-color: #a0a0a0;
-    color:white;
-  }
-
-  .panel {
-    background:none;
-    border: none;
-  }
-  .panel-heading {
-    background:none;
-    border: none;
-    color:white;
   }
 }

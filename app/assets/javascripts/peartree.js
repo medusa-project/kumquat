@@ -61,7 +61,7 @@ var PearTree = {
         var SPEED = 200;
         var computed_height = ELEMENT.height();
         var vertical_padding = parseFloat(ELEMENT.css('padding-top').replace(/px/, '')) +
-            parseFloat(ELEMENT.css('padding-bottom').replace(/px/, '')) + 50;
+            parseFloat(ELEMENT.css('padding-bottom').replace(/px/, ''));
         var visible = false;
         var self = this;
 
