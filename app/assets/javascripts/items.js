@@ -30,7 +30,10 @@ var PTItemView = function() {
             $('.pt-add-to-favorites').show();
         }
         $(window).on('resize', function() {
-            $('#pt-image-viewer').height($(window).height() * 0.75);
+            var viewer = $('#pt-image-viewer');
+            if (!viewer.hasClass('fullpage')) {
+                viewer.height($(window).height() * 0.75);
+            }
         }).trigger('resize');
     };
 
