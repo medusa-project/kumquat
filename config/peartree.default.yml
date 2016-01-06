@@ -10,9 +10,6 @@ development: &development
   :solr_default_search_field: searchall_txtim
   :solr_more_like_this_endpoint: /mlt
 
-uiuc_development:
-  <<: *development
-
 test:
   :repository_pathname: /repo
   :iiif_url: http://localhost:8182/iiif/2
@@ -36,6 +33,3 @@ production: &production
   :solr_class_field: class_si
   :solr_default_search_field: searchall_txtim
   :solr_more_like_this_endpoint: /mlt
-
-uiuc_production:
-  <<: *production
