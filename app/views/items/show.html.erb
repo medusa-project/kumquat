@@ -53,33 +53,6 @@
 
 <%= viewer_for(@item) %>
 
-<% if Socket.gethostname.include?('-dev.library') and
-    PearTree::Application.peartree_config[:iiif_url].start_with?('https:') %>
-  <div class="panel-group" id="cert-accordion" role="tablist">
-    <div class="panel panel-danger">
-      <div class="panel-heading" role="tab" id="cert-heading">
-        <h2 class="panel-title">
-          <a role="button" data-toggle="collapse" data-parent="#cert-accordion"
-             href="#cert-body" aria-expanded="true" aria-controls="cert-body">
-            DEVELOPMENT ONLY: Don't see an image?
-          </a>
-        </h2>
-      </div>
-      <div id="cert-body" class="panel-collapse collapse" role="tabpanel"
-           aria-labelledby="cert-heading">
-        <div class="panel-body">
-          <p>If you don't see an image in the viewer, it might be because
-            your web browser doesn't trust the self-signed SSL certificate
-            used by the development image server. (This won't be an issue in
-            production.) To fix this,
-            <%= link_to 'go here', PearTree::Application.peartree_config[:iiif_url] %>,
-            accept the certificate, and reload this page.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-<% end %>
-
 <% if @item.full_text.present? %>
   <div class="panel panel-default">
     <div class="panel-heading">
