@@ -9,6 +9,7 @@ class ReindexJob < Job
   def perform(*args)
     self.task.status_text = 'Reindexing repository'
     self.task.indeterminate = true
+    self.task.save!
 
     Indexer.new.index_all(args[0][:pathname])
     Solr.instance.commit
