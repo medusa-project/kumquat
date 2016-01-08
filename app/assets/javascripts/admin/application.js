@@ -14,4 +14,5 @@
 //= require jquery_ujs
 //= require bootstrap-sprockets
 //= require ../peartree
+//= require local_time
 //= require_tree .
