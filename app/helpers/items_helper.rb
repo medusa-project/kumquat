@@ -489,7 +489,7 @@ module ItemsHelper
     data = tech_metadata_for(item)
     html = '<dl class="pt-metadata">'
     data.each do |key, value|
-      html += "<dt>#{key}</dt><dd>#{value}</dd>"
+      html += "<dt>#{raw(key)}</dt><dd>#{raw(value)}</dd>"
     end
     html += '</dl>'
     raw(html)
@@ -504,7 +504,7 @@ module ItemsHelper
     data = tech_metadata_for(item)
     html = '<table class="table table-condensed pt-metadata">'
     data.each do |key, value|
-      html += "<tr><td>#{key}</td><td>#{value}</td></tr>"
+      html += "<tr><td>#{raw(key)}</td><td>#{raw(value)}</td></tr>"
     end
     html += '</table>'
     raw(html)
@@ -661,7 +661,7 @@ module ItemsHelper
         'Last Indexed' => local_time_ago(item.last_indexed)
     }
     url = iiif_url(item)
-    data['Image Server URL'] = link_to(url, url) if url
+    data[link_to('IIIF Image URL', 'http://iiif.io/')] = link_to(url, url) if url
     data
   end
 
