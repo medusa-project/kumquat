@@ -32,16 +32,6 @@ module ItemsHelper
         html += '</li>'
       end
 
-      if options[:for_admin]
-        #json_ld_url = admin_item_url(item, format: :jsonld)
-        #rdf_xml_url = admin_item_url(item, format: :rdfxml)
-        #ttl_url = admin_item_url(item, format: :ttl)
-      else
-        #json_ld_url = item_url(item, format: :jsonld)
-        #rdf_xml_url = item_url(item, format: :rdfxml)
-        #ttl_url = item_url(item, format: :ttl)
-      end
-
       html += '</ul>'
       html += '</div>'
     end
@@ -140,7 +130,7 @@ module ItemsHelper
   end
 
   ##
-  # @param items [ActiveMedusa::Relation]
+  # @param entities [ActiveMedusa::Relation]
   # @param start [integer]
   # @param options [Hash] with available keys:
   # :link_to_admin (boolean), :show_remove_from_favorites_buttons (boolean),
@@ -149,17 +139,16 @@ module ItemsHelper
   # :thumbnail_size (integer),
   # :thumbnail_shape (Repository::Bytestream::Shape constant)
   #
-  def items_as_list(items, start, options = {})
+  def items_as_list(entities, start, options = {})
     options[:show_description] = true unless
         options.keys.include?(:show_description)
     options[:thumbnail_shape] = Bytestream::Shape::ORIGINAL unless
         options.keys.include?(:thumbnail_shape)
 
     html = "<ol start=\"#{start + 1}\">"
-    items.each do |entity|
-      link_target = polymorphic_path(entity)
-      #link_target = options[:link_to_admin] ?
-      #    admin_item_path(entity) : polymorphic_path(entity)
+    entities.each do |entity|
+      link_target = options[:link_to_admin] ?
+          admin_item_path(entity) : polymorphic_path(entity)
       html += '<li>'\
         '<div>'
       html += link_to(link_target, class: 'pt-thumbnail-link') do
@@ -317,7 +306,7 @@ module ItemsHelper
     return nil unless item.children.any? or item.parent
     items = item.children.any? ? item.items : item.parent.children
     html = '<ol>'
-    items.limit(999).each do |child|
+    items.each do |child|
       link_target = options[:link_to_admin] ?
           admin_item_path(child) : item_path(child)
       html += '<li><div>'

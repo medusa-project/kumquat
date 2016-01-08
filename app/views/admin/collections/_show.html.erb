@@ -24,30 +24,45 @@
 
 <div class="row">
 
-  <div class="col-sm-6" id="pt-metadata">
-    <%= metadata_as_table(@collection) %>
+  <div class="col-sm-6">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">Metadata</h3>
+      </div>
+      <div class="panel-body">
+        <%= metadata_as_list(@collection) %>
+        <%= metadata_as_table(@collection) %>
+      </div>
+    </div>
   </div>
 
   <div class="col-sm-6">
-    <dl>
-      <dt>Metadata Profile</dt>
-      <dd>
-        <%= @collection.collection_def.metadata_profile.name %>
-      </dd>
-      <dt>Theme</dt>
-      <dd>
-        <%= @collection.collection_def.theme ? @collection.collection_def.theme.name :
-                "Default (#{Theme.default.name})" %>
-      </dd>
-      <dt>Repository Location</dt>
-      <dd><%= @collection.metadata_pathname %></dd>
-      <dt>Created</dt>
-      <dd><%= local_time(@collection.created) %></dd>
-      <dt>Last Indexed</dt>
-      <dd><%= local_time(@collection.last_indexed) %>)</dd>
-      <dt>Last Modified</dt>
-      <dd><%= local_time(@collection.last_modified) %>)</dd>
-    </dl>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">Technical Info</h3>
+      </div>
+      <div class="panel-body">
+        <dl>
+          <dt>Metadata Profile</dt>
+          <dd>
+            <%= @collection.collection_def.metadata_profile.name %>
+          </dd>
+          <dt>Theme</dt>
+          <dd>
+            <%= @collection.collection_def.theme ? @collection.collection_def.theme.name :
+                    "Default (#{Theme.default.name})" %>
+          </dd>
+          <dt>Repository Location</dt>
+          <dd><%= @collection.metadata_pathname %></dd>
+          <dt>Created</dt>
+          <dd><%= local_time(@collection.created) %></dd>
+          <dt>Last Indexed</dt>
+          <dd><%= local_time(@collection.last_indexed) %>)</dd>
+          <dt>Last Modified</dt>
+          <dd><%= local_time(@collection.last_modified) %>)</dd>
+        </dl>
+      </div>
+    </div>
   </div>
 
 </div>

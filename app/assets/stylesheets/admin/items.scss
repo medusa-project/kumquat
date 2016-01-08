@@ -57,62 +57,98 @@ body#items_index {
   }
 }
 
-body#items_show div#pt-page-content {
-  table.pt-triples tr:first-child > td {
-    border-top: 0px;
-  }
-  /* display metadata in a 2-column table if the screen is wide enough
-  (IMET-83) */
-  @media screen and (max-width: 800px) {
-    table.pt-triples {
-      display: none;
-    }
-    dl.pt-triples {
-      display: block;
+body#items_show {
+  .pt-compound-title {
+    margin-top:-0.3em;
+    small {
+      vertical-align:middle;
+      a {
+        color: black;
+      }
     }
   }
-  @media screen and (min-width: 801px) {
-    table.pt-triples {
-      display: block;
+  .pt-remove-from-favorites {
+    display:none;
+  }
+  .pt-page-nav {
+    text-align: center;
+    .pt-page-number {
+      font-size: 1.2em;
+      font-style: italic;
+      margin: 0em 1.5em 0em 1.5em;
     }
-    dl.pt-triples {
+  }
+  #pt-image-viewer {
+    background-color:black;
+    height: 500px;
+    margin-bottom: 1em;
+    max-width: 1200px;
+    width: 100%;
+  }
+  #pt-image-viewer.fullpage {
+    max-width: 999999px;
+  }
+
+  #pt-video-player {
+    max-width: 1000px;
+    width: 100%;
+  }
+
+  .pt-pages {
+    max-height: 25em;
+    overflow-y: scroll;
+    .pt-thumbnail {
       display: none;
     }
   }
 
-  #pt-pages ol {
-    margin-left:0px;
-    padding-left:0px;
-    li {
-      margin-bottom: 1em;
-      margin-left:2em;
-      div:first-child {
-        display: inline-block;
-        vertical-align: middle;
+  .pt-vertical-items {
+    ol, ul {
+      list-style: none;
+      margin-left:0px;
+      padding-left:0px;
+      li {
+        max-height: 180px;
+        margin-bottom: 20px;
+        text-align: center;
+        vertical-align: top;
         width: 100%;
-        div.pt-thumbnail {
-          float:left;
-          font-size:75px;
-          height: 80px;
-          margin-right: 14px;
-          text-align: center;
-          width: 80px;
+        .pt-thumbnail {
+          display: block;
+          font-size:100px;
+          height: 150px;
+          margin-bottom: 10px;
           img {
-            max-height: 80px;
-            max-width: 80px;
+            height: 150px;
+            text-align: center;
+            width: 150px;
           }
-        }
-        .pt-title {
-          font-size: 1.4em;
         }
       }
     }
   }
 
-  #pt-edit-full-text-panel {
-    textarea {
-      font-family: monospace;
-      min-height: 20em;
+  table.pt-metadata tr:first-child > td {
+    border-top: 0px;
+  }
+
+  /* display metadata in a 2-column table if the screen is wide enough
+  (IMET-83) */
+  @media screen and (max-width: 800px) {
+    table.pt-metadata {
+      display: none;
+    }
+    dl.pt-metadata {
+      display: block;
     }
   }
+  @media screen and (min-width: 801px) {
+    table.pt-metadata {
+      display: block;
+    }
+    dl.pt-metadata {
+      display: none;
+    }
+  }
+
 }

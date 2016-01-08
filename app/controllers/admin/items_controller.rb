@@ -123,10 +123,9 @@ module Admin
       @item = Item.find(params[:id])
       raise ActiveRecord::RecordNotFound unless @item
 
-      uri = item_url(@item)
       respond_to do |format|
         format.html do
-          @pages = @item.parent_item ? @item.parent_item.items : @item.items
+          @pages = @item.parent ? @item.parent.items : @item.items
         end
         #format.jsonld { render text: @item.admin_rdf_graph(uri).to_jsonld }
         #format.rdfxml { render text: @item.admin_rdf_graph(uri).to_rdfxml }
