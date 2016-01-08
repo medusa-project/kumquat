@@ -5,6 +5,7 @@ gem 'rails', '4.2.5'
 gem 'bcrypt', '~> 3.1.7' # used by ActiveModel has_secure_password
 gem 'bootstrap-sass', '~> 3.3.6'
 #gem 'coffee-rails', '~> 4.1.0'
+gem 'delayed_job_active_record'
 gem 'font-awesome-sass', '~> 4.5.0'
 gem 'httpclient', git: 'git://github.com/medusa-project/httpclient.git'
 gem 'jbuilder', '~> 2.0' # JSON DSL: https://github.com/rails/jbuilder

@@ -84,6 +84,11 @@ GEM
     coffee-script-source (1.9.1.1)
     colorize (0.7.7)
     concurrent-ruby (1.0.0)
+    delayed_job (4.1.1)
+      activesupport (>= 3.0, < 5.0)
+    delayed_job_active_record (4.1.0)
+      activerecord (>= 3.0, < 5)
+      delayed_job (>= 3.0, < 5)
     erubis (2.7.0)
     execjs (2.6.0)
     font-awesome-sass (4.5.0)
@@ -194,6 +199,7 @@ DEPENDENCIES
   capistrano-bundler
   capistrano-rails
   capistrano-rvm
+  delayed_job_active_record
   font-awesome-sass (~> 4.5.0)
   httpclient!
   jbuilder (~> 2.0)
