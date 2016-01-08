@@ -7,6 +7,14 @@
   <li class="active">Collections</li>
 </ol>
 
+<div class="pull-right">
+  <div class="btn-group">
+    <button type="button" class="btn btn-warning" data-toggle="modal"
+            data-target="#pt-reindex-modal">
+      <span class="fa fa-database"></span> Reindex All</button>
+  </div>
+</div>
+
 <h1>Collections <small><%= @collections.total_length %> total</small></h1>
 
 <table class="table table-striped">
@@ -35,3 +43,27 @@
 </table>
 
 <%= paginate(@collections, @limit, @current_page) %>
+
+<!-- Reindex Repository modal -->
+<div id="pt-reindex-modal" class="modal fade" tabindex="-1" role="dialog" data-backdrop="false">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Cancel">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title">Reindex Repository</h4>
+      </div>
+      <div class="modal-body">
+        <p>The entire repository will be reindexed in the background. Existing
+          collections will be updated, and any new collections will be added.</p>
+        <p>Service will not be interrupted.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <%= link_to 'Reindex', admin_server_reindex_path, method: :patch,
+                    class: 'btn btn-primary' %>
+      </div>
+    </div>
+  </div>
+</div>

@@ -18,7 +18,9 @@
                 <%= Task::Status::to_s(task.status) %>
               </span>
             </td>
-            <td><%= (task.percent_complete * 100).round(1).to_s + '%' %></td>
+            <td><%= (task.indeterminate and task.percent_complete < 1) ?
+                        'Indeterminate' :
+                        (task.percent_complete * 100).round(1).to_s + '%' %></td>
             <td><%= local_time_ago(task.created_at) %></td>
             <td><%= task.completed_at ? local_time_ago(task.completed_at) : '' %></td>
           </tr>

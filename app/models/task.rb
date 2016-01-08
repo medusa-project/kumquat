@@ -65,6 +65,8 @@ class Task < ActiveRecord::Base
     self.save!
   end
 
+  alias_method :succeeded, :done
+
   def progress=(float)
     self.percent_complete = float.to_f
     self.save!

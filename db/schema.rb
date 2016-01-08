@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160108174937) do
+ActiveRecord::Schema.define(version: 20160108183318) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -107,10 +107,11 @@ ActiveRecord::Schema.define(version: 20160108174937) do
     t.decimal  "status"
     t.string   "status_text"
     t.string   "job_id"
-    t.float    "percent_complete"
+    t.float    "percent_complete", default: 0.0
     t.datetime "completed_at"
-    t.datetime "created_at",       null: false
-    t.datetime "updated_at",       null: false
+    t.datetime "created_at",                       null: false
+    t.datetime "updated_at",                       null: false
+    t.boolean  "indeterminate",    default: false
   end
 
   create_table "themes", force: :cascade do |t|

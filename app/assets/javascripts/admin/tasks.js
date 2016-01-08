@@ -10,7 +10,6 @@ var PTTaskRefresher = function() {
         var tasks_url = $('input[name="tasks-url"]').val();
         $.get(tasks_url, function (data) {
             $('#pt-tasks-list').html(data);
-            console.log('Refreshed task list');
         });
     };
 
