@@ -1,26 +1,52 @@
-<% # crudely pilfered from the library home page as of 3/16/2015 %>
-<header id="first-navbar" role="banner">
-  <div class="container-fluid" aria-labelledby="bannerHeading"
-       aria-label="university of illinois library banner">
-    <h1 class="sr-only">University Library, University of Illinois at Urbana-Champaign</h1>
-    <div class="row">
-      <div class="col-md-12" id="header-full-width-column">
-        <div class="row">
-          <div class="col-sm-6 col-md-7">
-            <div>
-              <%= image_tag('university_libraries_wordmark_with_imark_reverse.png',
-                            alt: 'University of Illinois Library',
-                            class: 'img-responsive', usemap: '#bannermap',
-                            id: 'library-brand-img') %>
-              <map name="bannermap">
-                <area id="imark-img-area" shape="rect" coords="0,0,36,47"
-                      href="http://illinois.edu/" alt="University of Illinois">
-                <area id="library-banner-area" shape="rect" coords="37,0,472,47"
-                      href="<%= root_path %>"
-                      alt="University Library, University of Illinois at Urbana-Champaign">
-              </map>
+<% # copied from the library home page as of 1/9/2016 %>
+<header class="" role="banner" aria-label="University of Illinois Library Banner">
+  <div class="row lib-shared-header">
+    <div class="col-sm-6 col-xs-10">
+      <h1 class="sr-only">University Library, University of Illinois at Urbana-Champaign</h1>
+      <div class="table-row">
+        <div class="table-cell banner-image-imark-div">
+          <a href="http://illinois.edu">
+            <%= image_tag('imark.png',
+                          class: 'img-responsive col-xs-12 banner-image-imark',
+                          alt: 'University of Illinois I-Mark') %>
+          </a>
+        </div>
+        <div class="table-cell banner-table-spacer">
+        </div>
+        <div class="table-cell banner-image-library-div hidden-xs">
+          <a href="http://www.library.illinois.edu">
+            <%= image_tag('university_libraries_wordmark.png',
+                          class: 'img-responsive col-xs-12 banner-image-library',
+                          alt: 'University Library, University of Illinois at Urbana-Champaign') %>
+          </a>
+        </div>
+        <div class="table-cell banner-image-library-div visible-xs">
+          <a href="http://www.library.illinois.edu"><img class="img-responsive col-xs-12 banner-image-library banner-mobile-img" alt="Library" src="./shared_content/assets/images/library_wordmark.png"></a>
+        </div>
+      </div>
+    </div>
+    <div class="col-xs-2 visible-xs">
+      <a id="mobile-canvas-button" class="pull-right" href="javascript:void(0)">
+        <i class="fa fa-bars"><span class="sr-only">Site Navigation Menu</span> </i>
+      </a>
+    </div>
+    <div class="col-sm-6 col-xs-12 site-utilities">
+      <div id="site-header-controls-small" class="text-center hidden-md hidden-lg hidden-sm" role="tablist" aria-multiselectable="true">
+        <div class="btn-group btn-group-xs" role="presentation">
+          <a type="button" class="btn btn-default site-header-control-group dark-button" href="https://vufind.carli.illinois.edu/vf-uiu/MyResearch/Home">My Account</a>
+          <a class="btn btn-default site-header-control-group dark-button" role="widget" onclick="open('http://www.library.illinois.edu/iwonder/index.php', 'chat', 'width=400,height=440,resizable=yes');return false;" href="http://www.library.illinois.edu/iwonder" target="_blank">Ask A Librarian</a>
+          <a class="btn btn-default site-header-control-group dark-button" data-toggle="collapse" data-parent="#site-header-controls-small" href="#site_search_collapse_mobile" role="tab" aria-selected="false" aria-expanded="false" id="ui-collapse-842" aria-controls="site_search_collapse_mobile" tabindex="-1">Site Search</a>
+        </div>
+        <div id="site_search_collapse_mobile" class="collapse site-header-control-group" role="tabpanel" tabindex="-1" aria-labelledby="ui-collapse-842" aria-hidden="true">
+          <form id="sitesearch" class="search form-inline" method="get" action="search.php" role="search">
+            <div class="form-group" role="presentation">
+              <input name="hl" value="en" type="hidden">
+              <input name="safe" value="off" type="hidden">
+              <input name="filter" value="0" type="hidden">
+              <input id="searchQuery_mobile" class="form-control input-sm" maxlength="1000" size="25" name="q" placeholder="Search Library Webpages" type="text" aria-required="true" aria-label="Enter keywords to search library web pages.  Press enter to submit.">
+              <span class="sr-only">enter keywoards to search library web pages. Press enter to submit</span>
             </div>
-          </div>
+          </form>
         </div>
       </div>
     </div>
