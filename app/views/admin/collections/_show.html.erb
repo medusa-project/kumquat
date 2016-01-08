@@ -24,11 +24,11 @@
 
 <div class="row">
 
-  <div class="col-sm-9" id="pt-metadata">
+  <div class="col-sm-6" id="pt-metadata">
     <%= metadata_as_table(@collection) %>
   </div>
 
-  <div class="col-sm-3">
+  <div class="col-sm-6">
     <dl>
       <dt>Metadata Profile</dt>
       <dd>
@@ -39,6 +39,12 @@
         <%= @collection.collection_def.theme ? @collection.collection_def.theme.name :
                 "Default (#{Theme.default.name})" %>
       </dd>
+      <dt>Created</dt>
+      <dd><%= local_time(@collection.created) %></dd>
+      <dt>Last Indexed</dt>
+      <dd><%= local_time(@collection.last_indexed) %>)</dd>
+      <dt>Last Modified</dt>
+      <dd><%= local_time(@collection.last_modified) %>)</dd>
     </dl>
   </div>
 
