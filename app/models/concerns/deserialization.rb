@@ -29,6 +29,9 @@ module Deserialization
         "#{metadata_pathname}"
       end
 
+      # metadata pathname
+      entity.metadata_pathname = metadata_pathname
+
       # created
       created = node.xpath('lrp:created', namespaces).first
       entity.created = created ? DateTime.parse(created.content.strip) : nil

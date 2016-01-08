@@ -16,6 +16,7 @@ class Collection < Entity
     if doc[Solr::Fields::LAST_MODIFIED]
       col.last_modified = DateTime.parse(doc[Solr::Fields::LAST_MODIFIED])
     end
+    col.metadata_pathname = doc[Solr::Fields::METADATA_PATHNAME]
     col.published = doc[Solr::Fields::PUBLISHED]
     col.representative_item_id = doc[Solr::Fields::REPRESENTATIVE_ITEM_ID]
     col.title = doc[Solr::Fields::TITLE]
@@ -30,27 +31,7 @@ class Collection < Entity
         col.metadata << e
       end
     end
-=begin TODO: give technical metadata a field prefix, otherwise this is too error-prone
-    # technical metadata
-    doc.keys.reject{ |k| k.start_with?('metadata_') }.each do |key|
-      if doc[key].respond_to?(:each)
-        doc[key].each do |value|
-          e = Element.named(key)
-          e.value = value
-          col.metadata << e
-        end
-      else
-        e = Element.named(key)
-        if !e
-          e = Element.new
-          e.type = Element::Type::TECHNICAL
-          e.name = key
-        end
-        e.value = doc[key]
-        col.metadata << e
-      end
-    end
-=end
+
     col.instance_variable_set('@persisted', true)
     col
   end

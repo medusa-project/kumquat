@@ -17,6 +17,7 @@ class Entity
   attr_accessor :last_indexed # DateTime
   attr_accessor :last_modified # DateTime
   attr_reader :metadata # Array
+  attr_accessor :metadata_pathname # String
   attr_accessor :published # Boolean
   attr_accessor :representative_item_id # String
   attr_accessor :score # float
@@ -85,6 +86,7 @@ class Entity
     if self.last_modified
       doc[Solr::Fields::LAST_MODIFIED] = self.last_modified.utc.iso8601 + 'Z'
     end
+    doc[Solr::Fields::METADATA_PATHNAME] = self.metadata_pathname
     doc[Solr::Fields::PUBLISHED] = self.published
     doc[Solr::Fields::REPRESENTATIVE_ITEM_ID] = self.representative_item_id
     doc[Solr::Fields::TITLE] = self.title

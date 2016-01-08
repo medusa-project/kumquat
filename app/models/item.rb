@@ -36,6 +36,7 @@ class Item < Entity
     if doc[Solr::Fields::LAST_MODIFIED]
       item.last_modified = DateTime.parse(doc[Solr::Fields::LAST_MODIFIED])
     end
+    item.metadata_pathname = doc[Solr::Fields::METADATA_PATHNAME]
     item.page_number = doc[Solr::Fields::PAGE_NUMBER]
     item.parent_id = doc[Solr::Fields::PARENT_ITEM]
     item.representative_item_id = doc[Solr::Fields::REPRESENTATIVE_ITEM_ID]
@@ -72,27 +73,7 @@ class Item < Entity
         item.metadata << e
       end
     end
-=begin TODO: give technical metadata a field prefix, otherwise this is too error-prone
-    # technical metadata
-    doc.keys.reject{ |k| k.start_with?('metadata_') or k.end_with?('_facet') }.each do |key|
-      if doc[key].respond_to?(:each)
-        doc[key].each do |value|
-          e = Element.named(key)
-          e.value = value
-          item.metadata << e
-        end
-      else
-        e = Element.named(key)
-        if !e
-          e = Element.new
-          e.type = Element::Type::TECHNICAL
-          e.name = key
-        end
-        e.value = doc[key]
-        item.metadata << e
-      end
-    end
-=end
+
     item.published = doc[Solr::Fields::PUBLISHED]
     item.title = doc[Solr::Fields::TITLE]
     item.web_id = doc[Solr::Fields::WEB_ID]

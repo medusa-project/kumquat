@@ -39,6 +39,8 @@
         <%= @collection.collection_def.theme ? @collection.collection_def.theme.name :
                 "Default (#{Theme.default.name})" %>
       </dd>
+      <dt>Repository Location</dt>
+      <dd><%= @collection.metadata_pathname %></dd>
       <dt>Created</dt>
       <dd><%= local_time(@collection.created) %></dd>
       <dt>Last Indexed</dt>
