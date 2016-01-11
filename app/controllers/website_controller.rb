@@ -8,16 +8,20 @@ class WebsiteController < ApplicationController
   def setup
     super
 
-    @num_items = Item.count
+    @num_items = Item.where(Solr::Fields::PARENT_ITEM => :null).count
 
     @audio_items = Item.where("#{Solr::Fields::ACCESS_MASTER_MEDIA_TYPE}:audio/* "\
-    "OR #{Solr::Fields::PRESERVATION_MASTER_MEDIA_TYPE}:audio/*").limit(1)
+    "OR #{Solr::Fields::PRESERVATION_MASTER_MEDIA_TYPE}:audio/*").
+        where(Solr::Fields::PARENT_ITEM => :null).limit(1)
     @document_items = Item.where("#{Solr::Fields::ACCESS_MASTER_MEDIA_TYPE}:application/pdf "\
-    "OR #{Solr::Fields::PRESERVATION_MASTER_MEDIA_TYPE}:application/pdf").limit(1)
+    "OR #{Solr::Fields::PRESERVATION_MASTER_MEDIA_TYPE}:application/pdf").
+        where(Solr::Fields::PARENT_ITEM => :null).limit(1)
     @image_items = Item.where("#{Solr::Fields::ACCESS_MASTER_MEDIA_TYPE}:image/* "\
-    "OR #{Solr::Fields::PRESERVATION_MASTER_MEDIA_TYPE}:image/*").limit(1)
+    "OR #{Solr::Fields::PRESERVATION_MASTER_MEDIA_TYPE}:image/*").
+        where(Solr::Fields::PARENT_ITEM => :null).limit(1)
     @video_items = Item.where("#{Solr::Fields::ACCESS_MASTER_MEDIA_TYPE}:video/* "\
-        "OR #{Solr::Fields::PRESERVATION_MASTER_MEDIA_TYPE}:video/*").limit(1)
+        "OR #{Solr::Fields::PRESERVATION_MASTER_MEDIA_TYPE}:video/*").
+        where(Solr::Fields::PARENT_ITEM => :null).limit(1)
 
     # data for the nav bar search
     @collections = Collection.all
