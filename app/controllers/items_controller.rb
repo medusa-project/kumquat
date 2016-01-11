@@ -39,10 +39,11 @@ class ItemsController < WebsiteController
     @items = @items.order(Solr::Fields::TITLE) if params[:q].blank?
     @items = @items.start(@start).limit(@limit)
     @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
-    @num_results_shown = [@limit, @items.total_length].min
+    @count = @items.count
+    @num_results_shown = [@limit, @count].min
 
     # if there are no results, get some suggestions
-    if @items.total_length < 1 and params[:q].present?
+    if @count < 1 and params[:q].present?
       @suggestions = Solr.instance.suggestions(params[:q])
     end
   end
