@@ -303,19 +303,23 @@ module ItemsHelper
   # @param options [Hash] with available keys: `:link_to_admin` [Boolean]
   #
   def pages_as_list(item, options = {})
-    return nil unless item.children.any? or item.parent
-    items = item.children.any? ? item.items : item.parent.children
+    items = item.parent ? item.parent.items : item.items
+    items = items.limit(999)
+    return nil unless items.any?
     html = '<ol>'
     items.each do |child|
       link_target = options[:link_to_admin] ?
           admin_item_path(child) : item_path(child)
-      html += '<li><div>'
-      if item == child
+      html += '<li>'
+      if item.id == child.id
+        html += '<div class="pt-current">'
         html += raw('<div class="pt-thumbnail">' +
-            thumbnail_tag(child, 256) +
-            '</div>')
-        html += "<strong class=\"pt-text pt-title\">#{truncate(child.title, length: 40)}</strong>"
+                        thumbnail_tag(child, 256) +
+                        '</div>')
+        html += '<span class=\"pt-title\">' +
+            truncate(child.title, length: 40) + '</span>'
       else
+        html += '<div>'
         html += link_to(link_target) do
           raw('<div class="pt-thumbnail">' + thumbnail_tag(child, 256) + '</div>')
         end
