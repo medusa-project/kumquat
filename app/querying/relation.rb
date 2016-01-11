@@ -18,7 +18,7 @@ class Relation
     @facetable_fields = Solr.facetable_fields
     @facet_queries = []
     @filter_clauses = [] # will be joined by AND
-    @limit = nil
+    @limit = 1 # default to fastest; clients can override with limit(int)
     @more_like_this = false
     @omit_entity_query = false
     @order = nil
@@ -234,7 +234,7 @@ class Relation
           'fq' => @filter_clauses.join(' AND '),
           'start' => @start,
           'sort' => @order,
-          'rows' => @limit
+          'rows' => @limit.to_i > 0 ? @limit.to_i : 99999
       }
       if @more_like_this
         params['mlt.fl'] = PearTree::Application.peartree_config[:solr_default_search_field]
