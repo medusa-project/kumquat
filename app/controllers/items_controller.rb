@@ -136,7 +136,7 @@ class ItemsController < WebsiteController
     session[:browse_context_url] = request.url
     if !params[:q].blank?
       session[:browse_context] = BrowseContext::SEARCHING
-    elsif !params[:repository_collection_key]
+    elsif !params[:collection_id]
       session[:browse_context] = BrowseContext::BROWSING_ALL_ITEMS
     else
       session[:browse_context] = BrowseContext::BROWSING_COLLECTION
