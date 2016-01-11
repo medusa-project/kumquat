@@ -15,7 +15,7 @@ set :bin, "#{fetch(:home)}/bin"
 # set :deploy_to, '/var/www/my_app_name'
 set :deploy_to, "#{fetch(:home)}/peartree-capistrano"
 
-set :rails_env, 'uiuc_production'
+set :rails_env, 'production'
 
 # Default value for :scm is :git
 # set :scm, :git
