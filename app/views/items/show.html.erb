@@ -17,11 +17,8 @@
   <%= download_button(@item) %>
 </div>
 
-<% if @item.parent %>
-  <h1 class="pt-compound-title">
-    <small><%= link_to @item.parent.title, @item.parent %></small>
-    <br>&nbsp;&nbsp;&#8627; <%= @item.title %>
-  </h1>
+<% if @parent or @pages.any? %>
+  <%= item_page_title(@item) %>
   <div class="panel panel-default">
     <div class="panel-body pt-page-nav">
       <% if @previous_item %>
@@ -32,7 +29,8 @@
           &larr; Previous Page</button>
       <% end %>
       <span class="pt-page-number">
-        <%= @item.page_number %> of <%= @item.parent.children.total_length %>
+        <%= @relative_child.page_number %> of
+        <%= @relative_parent.children.total_length %>
       </span>
       <% if @next_item %>
         <%= link_to raw('Next Page &rarr;'), @next_item,
@@ -44,11 +42,7 @@
     </div>
   </div>
 <% else %>
-  <h1><%= @item.title %>
-    <% if @item.subtitle %>
-      <br><small><%= @item.subtitle %></small>
-    <% end %>
-  </h1>
+  <%= item_page_title(@item) %>
 <% end %>
 
 <%= viewer_for(@item) %>

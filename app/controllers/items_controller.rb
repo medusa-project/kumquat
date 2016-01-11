@@ -95,9 +95,14 @@ class ItemsController < WebsiteController
           message: 'This item is not published.'
       }
     end
-    @next_item = @item.next
-    @pages = @item.parent ? @item.parent.children : @item.items
-    @previous_item = @item.previous
+    @parent = @item.parent
+    @pages = @parent ? @parent.children : @item.children
+
+    @relative_parent = @parent ? @parent : @item
+    @relative_child = @parent ? @item : @pages.first
+
+    @previous_item = @relative_child ? @relative_child.previous : nil
+    @next_item = @relative_child ? @relative_child.next : nil
   end
 
   private

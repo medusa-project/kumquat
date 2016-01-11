@@ -107,7 +107,7 @@ module ItemsHelper
   end
 
   ##
-  # @param [Item] item
+  # @param item [Item]
   # @return [String, nil] Base IIIF URL or nil if the item is not an image
   #
   def iiif_url(item)
@@ -121,7 +121,8 @@ module ItemsHelper
   end
 
   ##
-  # @param item [Repository::Item]
+  # @param item [Item]
+  # @return [Boolean]
   #
   def is_favorite?(item)
     cookies[:favorites] and cookies[:favorites].
@@ -130,14 +131,40 @@ module ItemsHelper
   end
 
   ##
-  # @param entities [ActiveMedusa::Relation]
+  # @param item [Item]
+  # @return [String] HTML string
+  #
+  def item_page_title(item)
+    html = ''
+    if item.parent or item.children.any?
+      relative_parent = item.parent ? item.parent : item
+      relative_child = item.parent ? item : relative_parent
+      html += '<h1 class="pt-compound-title">'
+      if item.parent
+        html += "<small>#{link_to relative_parent.title, relative_parent}</small>"
+      else
+        html += "<small>#{relative_parent.title}</small>"
+      end
+      html += "<br>&nbsp;&nbsp;&#8627; #{relative_child.title}</h1>"
+    else
+      html += "<h1>#{item.title}"
+      if item.subtitle
+        html += "<br><small>#{item.subtitle}</small>"
+      end
+      html += '</h1>'
+    end
+    raw(html)
+  end
+
+  ##
+  # @param entities [Relation]
   # @param start [integer]
   # @param options [Hash] with available keys:
   # :link_to_admin (boolean), :show_remove_from_favorites_buttons (boolean),
   # :show_add_to_favorites_buttons (boolean),
   # :show_collections (boolean), :show_description (boolean),
   # :thumbnail_size (integer),
-  # :thumbnail_shape (Repository::Bytestream::Shape constant)
+  # :thumbnail_shape (Bytestream::Shape constant)
   #
   def items_as_list(entities, start, options = {})
     options[:show_description] = true unless
