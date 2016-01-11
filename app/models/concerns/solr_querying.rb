@@ -23,7 +23,8 @@ module SolrQuerying
     #
     def find(id)
       result = self.find_by_id(id)
-      raise "Unable to find entity with ID #{id}" unless result
+      raise ActiveRecord::RecordNotFound,
+            "Unable to find entity with ID #{id}" unless result
       result
     end
 
