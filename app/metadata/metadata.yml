@@ -507,7 +507,7 @@ source:
     dc: source
     dcterms: source
     geo:
-spatialCovarage:
+spatialCoverage:
   type: descriptive
   mappings:
     bibFrame:
