@@ -41,7 +41,7 @@ module Admin
     end
 
     def index
-      @facets = FacetDef.all.order(:index)
+      @facets = FacetDef.all.order(:name)
       @new_facet = FacetDef.new
     end
 
