@@ -5,14 +5,14 @@
   <lrp:published>true</lrp:published>
   <lrp:repositoryId>P1000245.jpg</lrp:repositoryId>
 
-  <lrp:coverage>Memorial Stadium, University of Illinois at
-    Urbana-Champaign</lrp:coverage>
   <lrp:date>2014-05-21</lrp:date>
   <lrp:description>Bleachers and playing field in Memorial
     Stadium.</lrp:description>
   <lrp:extent>1.7 Mbytes</lrp:extent>
   <lrp:rights>Creative Commons Attribution-NoDerivatives 4.0
     International</lrp:rights>
+  <lrp:spatialCoverage>Memorial Stadium, University of Illinois at
+    Urbana-Champaign</lrp:spatialCoverage>
   <lrp:subject>Football stadiums</lrp:subject>
   <lrp:title>JPEG image item</lrp:title>
   <lrp:type>Image</lrp:type>

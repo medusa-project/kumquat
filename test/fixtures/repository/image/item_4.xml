@@ -5,8 +5,6 @@
   <lrp:published>true</lrp:published>
   <lrp:repositoryId>IMG_1118.jp2</lrp:repositoryId>
 
-  <lrp:coverage>Memorial Stadium, University of Illinois at
-    Urbana-Champaign</lrp:coverage>
   <lrp:creator/>
   <lrp:date>2014-06-12</lrp:date>
   <lrp:description>Plaque of Red Grange in Memorial Stadium on the
@@ -19,6 +17,8 @@
   <lrp:rights>Creative Commons Attribution-NoDerivatives 4.0
     International</lrp:rights>
   <lrp:source/>
+  <lrp:spatialCoverage>Memorial Stadium, University of Illinois at
+    Urbana-Champaign</lrp:spatialCoverage>
   <lrp:subject>Plaques</lrp:subject>
   <lrp:subject>Football</lrp:subject>
   <lrp:title>JPEG2000 image item</lrp:title>

@@ -69,8 +69,6 @@ facets[:collection] = FacetDef.create!(
     name: 'Collection', solr_field: 'collection_si_facet')
 facets[:contributor] = FacetDef.create!(
     name: 'Contributor', solr_field: 'contributor_txtim_facet')
-facets[:coverage] = FacetDef.create!(
-    name: 'Coverage', solr_field: 'spatialCoverage_txtim_facet')
 facets[:creator] = FacetDef.create!(
     name: 'Creator', solr_field: 'creator_txtim_facet')
 facets[:date] = FacetDef.create!(
@@ -85,6 +83,8 @@ facets[:publisher] = FacetDef.create!(
     name: 'Publisher', solr_field: 'publisher_txtim_facet')
 facets[:source] = FacetDef.create!(
     name: 'Source', solr_field: 'source_txtim_facet')
+facets[:coverage] = FacetDef.create!(
+    name: 'Spatial Coverage', solr_field: 'spatialCoverage_txtim_facet')
 facets[:subject] = FacetDef.create!(
     name: 'Subject', solr_field: 'subject_txtim_facet')
 facets[:type] = FacetDef.create!(
@@ -177,20 +177,11 @@ ElementDef.create!(
     facet_def_label: 'Contributor',
     metadata_profile: profiles[:default])
 ElementDef.create!(
-    name: 'coverage',
-    label: 'Coverage',
-    visible: true,
-    searchable: true,
-    index: 11,
-    facet_def: facets[:coverage],
-    facet_def_label: 'Coverage',
-    metadata_profile: profiles[:default])
-ElementDef.create!(
     name: 'creator',
     label: 'Creator',
     visible: true,
     searchable: true,
-    index: 12,
+    index: 11,
     facet_def: facets[:creator],
     facet_def_label: 'Creator',
     metadata_profile: profiles[:default])
@@ -199,7 +190,7 @@ ElementDef.create!(
     label: 'Date',
     visible: true,
     searchable: true,
-    index: 13,
+    index: 12,
     facet_def: facets[:date],
     facet_def_label: 'Date',
     metadata_profile: profiles[:default])
@@ -208,77 +199,77 @@ ElementDef.create!(
     label: 'Date Accepted',
     visible: true,
     searchable: true,
-    index: 14,
+    index: 13,
     metadata_profile: profiles[:default])
 ElementDef.create!(
     name: 'dateAvailable',
     label: 'Date Available',
     visible: true,
     searchable: true,
-    index: 15,
+    index: 14,
     metadata_profile: profiles[:default])
 ElementDef.create!(
     name: 'dateCopyrighted',
     label: 'Date Copyrighted',
     visible: true,
     searchable: true,
-    index: 16,
+    index: 15,
     metadata_profile: profiles[:default])
 ElementDef.create!(
     name: 'dateCreated',
     label: 'Date Created',
     visible: true,
     searchable: true,
-    index: 17,
+    index: 16,
     metadata_profile: profiles[:default])
 ElementDef.create!(
     name: 'dateIssued',
     label: 'Date Issued',
     visible: true,
     searchable: true,
-    index: 18,
+    index: 17,
     metadata_profile: profiles[:default])
 ElementDef.create!(
     name: 'dateModified',
     label: 'Date Modified',
     visible: true,
     searchable: true,
-    index: 19,
+    index: 18,
     metadata_profile: profiles[:default])
 ElementDef.create!(
     name: 'dateSubmitted',
     label: 'Date Submitted',
     visible: true,
     searchable: true,
-    index: 20,
+    index: 19,
     metadata_profile: profiles[:default])
 ElementDef.create!(
     name: 'dateValid',
     label: 'Date Valid',
     visible: true,
     searchable: true,
-    index: 21,
+    index: 20,
     metadata_profile: profiles[:default])
 ElementDef.create!(
     name: 'description',
     label: 'Description',
     visible: true,
     searchable: true,
-    index: 22,
+    index: 21,
     metadata_profile: profiles[:default])
 ElementDef.create!(
     name: 'dimensions',
     label: 'Dimensions',
     visible: true,
     searchable: true,
-    index: 23,
+    index: 22,
     metadata_profile: profiles[:default])
 ElementDef.create!(
     name: 'educationLevel',
     label: 'Education Level',
     visible: true,
     searchable: true,
-    index: 24,
+    index: 23,
     facet_def: facets[:educationLevel],
     facet_def_label: 'Education Level',
     metadata_profile: profiles[:default])
@@ -287,14 +278,14 @@ ElementDef.create!(
     label: 'Extent',
     visible: true,
     searchable: true,
-    index: 25,
+    index: 24,
     metadata_profile: profiles[:default])
 ElementDef.create!(
     name: 'format',
     label: 'Format',
     visible: true,
     searchable: true,
-    index: 26,
+    index: 25,
     facet_def: facets[:format],
     facet_def_label: 'Format',
     metadata_profile: profiles[:default])
@@ -303,84 +294,84 @@ ElementDef.create!(
     label: 'Has Format',
     visible: true,
     searchable: true,
-    index: 27,
+    index: 26,
     metadata_profile: profiles[:default])
 ElementDef.create!(
     name: 'hasPart',
     label: 'Has Part',
     visible: true,
     searchable: true,
-    index: 28,
+    index: 27,
     metadata_profile: profiles[:default])
 ElementDef.create!(
     name: 'hasVersion',
     label: 'Has Version',
     visible: true,
     searchable: true,
-    index: 29,
+    index: 28,
     metadata_profile: profiles[:default])
 ElementDef.create!(
     name: 'identifier',
     label: 'Identifier',
     visible: true,
     searchable: true,
-    index: 30,
+    index: 29,
     metadata_profile: profiles[:default])
 ElementDef.create!(
     name: 'instructionalMethod',
     label: 'Instructional Method',
     visible: true,
     searchable: true,
-    index: 31,
+    index: 30,
     metadata_profile: profiles[:default])
 ElementDef.create!(
     name: 'isFormatOf',
     label: 'Is Format Of',
     visible: true,
     searchable: true,
-    index: 32,
+    index: 31,
     metadata_profile: profiles[:default])
 ElementDef.create!(
     name: 'isPartOf',
     label: 'Is Part Of',
     visible: true,
     searchable: true,
-    index: 33,
+    index: 32,
     metadata_profile: profiles[:default])
 ElementDef.create!(
     name: 'isReferencedBy',
     label: 'Is Referenced By',
     visible: true,
     searchable: true,
-    index: 34,
+    index: 33,
     metadata_profile: profiles[:default])
 ElementDef.create!(
     name: 'isReplacedBy',
     label: 'Is Replaced By',
     visible: true,
     searchable: true,
-    index: 35,
+    index: 34,
     metadata_profile: profiles[:default])
 ElementDef.create!(
     name: 'isRequiredBy',
     label: 'Is Required By',
     visible: true,
     searchable: true,
-    index: 36,
+    index: 35,
     metadata_profile: profiles[:default])
 ElementDef.create!(
     name: 'isVersionOf',
     label: 'Is Version Of',
     visible: true,
     searchable: true,
-    index: 37,
+    index: 36,
     metadata_profile: profiles[:default])
 ElementDef.create!(
     name: 'language',
     label: 'Language',
     visible: true,
     searchable: true,
-    index: 38,
+    index: 37,
     facet_def: facets[:language],
     facet_def_label: 'Language',
     metadata_profile: profiles[:default])
@@ -389,70 +380,70 @@ ElementDef.create!(
     label: 'Latitude',
     visible: true,
     searchable: true,
-    index: 39,
+    index: 38,
     metadata_profile: profiles[:default])
 ElementDef.create!(
     name: 'license',
     label: 'License',
     visible: true,
     searchable: true,
-    index: 40,
+    index: 39,
     metadata_profile: profiles[:default])
 ElementDef.create!(
     name: 'longitude',
     label: 'Longitude',
     visible: true,
     searchable: true,
-    index: 41,
+    index: 40,
     metadata_profile: profiles[:default])
 ElementDef.create!(
     name: 'mediator',
     label: 'Mediator',
     visible: true,
     searchable: true,
-    index: 42,
+    index: 41,
     metadata_profile: profiles[:default])
 ElementDef.create!(
     name: 'medium',
     label: 'Medium',
     visible: true,
     searchable: true,
-    index: 43,
+    index: 42,
     metadata_profile: profiles[:default])
 ElementDef.create!(
     name: 'notes',
     label: 'Notes',
     visible: true,
     searchable: true,
-    index: 44,
+    index: 43,
     metadata_profile: profiles[:default])
 ElementDef.create!(
     name: 'physicalLocation',
     label: 'Physical Location',
     visible: true,
     searchable: true,
-    index: 45,
+    index: 44,
     metadata_profile: profiles[:default])
 ElementDef.create!(
     name: 'provenance',
     label: 'Provenance',
     visible: true,
     searchable: true,
-    index: 46,
+    index: 45,
     metadata_profile: profiles[:default])
 ElementDef.create!(
     name: 'publicationPlace',
     label: 'Publication Place',
     visible: true,
     searchable: true,
-    index: 47,
+    index: 46,
     metadata_profile: profiles[:default])
 ElementDef.create!(
     name: 'publisher',
     label: 'Publisher',
     visible: true,
     searchable: true,
-    index: 48,
+    index: 47,
     facet_def: facets[:publisher],
     facet_def_label: 'Publisher',
     metadata_profile: profiles[:default])
@@ -461,49 +452,49 @@ ElementDef.create!(
     label: 'References',
     visible: true,
     searchable: true,
-    index: 49,
+    index: 48,
     metadata_profile: profiles[:default])
 ElementDef.create!(
     name: 'relation',
     label: 'Relation',
     visible: true,
     searchable: true,
-    index: 50,
+    index: 49,
     metadata_profile: profiles[:default])
 ElementDef.create!(
     name: 'replaces',
     label: 'Replaces',
     visible: true,
     searchable: true,
-    index: 51,
+    index: 50,
     metadata_profile: profiles[:default])
 ElementDef.create!(
     name: 'requires',
     label: 'Requires',
     visible: true,
     searchable: true,
-    index: 52,
+    index: 51,
     metadata_profile: profiles[:default])
 ElementDef.create!(
     name: 'rights',
     label: 'Rights',
     visible: true,
     searchable: true,
-    index: 53,
+    index: 52,
     metadata_profile: profiles[:default])
 ElementDef.create!(
     name: 'rightsHolder',
     label: 'Rights Holder',
     visible: true,
     searchable: true,
-    index: 54,
+    index: 53,
     metadata_profile: profiles[:default])
 ElementDef.create!(
     name: 'source',
     label: 'Source',
     visible: true,
     searchable: true,
-    index: 55,
+    index: 54,
     facet_def: facets[:source],
     facet_def_label: 'Source',
     metadata_profile: profiles[:default])
@@ -512,14 +503,15 @@ ElementDef.create!(
     label: 'Spatial Coverage',
     visible: true,
     searchable: true,
-    index: 56,
+    index: 55,
+    facet_def: facets[:coverage],
     metadata_profile: profiles[:default])
 ElementDef.create!(
     name: 'subject',
     label: 'Subject',
     visible: true,
     searchable: true,
-    index: 57,
+    index: 56,
     facet_def: facets[:subject],
     facet_def_label: 'Subject',
     metadata_profile: profiles[:default])
@@ -528,28 +520,28 @@ ElementDef.create!(
     label: 'Table Of Contents',
     visible: true,
     searchable: true,
-    index: 58,
+    index: 57,
     metadata_profile: profiles[:default])
 ElementDef.create!(
     name: 'temporalCoverage',
     label: 'Temporal Coverage',
     visible: true,
     searchable: true,
-    index: 59,
+    index: 58,
     metadata_profile: profiles[:default])
 ElementDef.create!(
     name: 'title',
     label: 'Title',
     visible: true,
     searchable: true,
-    index: 60,
+    index: 59,
     metadata_profile: profiles[:default])
 ElementDef.create!(
     name: 'type',
     label: 'Type',
     visible: true,
     searchable: true,
-    index: 61,
+    index: 60,
     facet_def: facets[:type],
     facet_def_label: 'Type',
     metadata_profile: profiles[:default])

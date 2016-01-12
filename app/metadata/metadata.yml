@@ -192,13 +192,6 @@ contributor:
     dc: contributor
     dcterms: contributor
     geo:
-coverage:
-  type: descriptive
-  mappings:
-    bibFrame:
-    dc: coverage
-    dcterms: coverage
-    geo:
 creator:
   type: descriptive
   mappings:
