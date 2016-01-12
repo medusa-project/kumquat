@@ -111,13 +111,9 @@ module ItemsHelper
   # @return [String, nil] Base IIIF URL or nil if the item is not an image
   #
   def iiif_url(item)
-    if item.is_image?
-      return sprintf('%s/%s',
-                     PearTree::Application.peartree_config[:iiif_url],
-                     URI.escape(item.id))
-
-    end
-    nil
+    item.is_image? ? sprintf('%s/%s',
+                   PearTree::Application.peartree_config[:iiif_url],
+                   URI.escape(item.id)) : nil
   end
 
   ##
