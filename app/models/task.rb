@@ -90,7 +90,7 @@ class Task < ActiveRecord::Base
   end
 
   def constrain_progress
-    self.percent_complete = self.percent_complete.abs
+    self.percent_complete = self.percent_complete.to_i.abs
     self.percent_complete = self.percent_complete > 1 ? 1 : self.percent_complete
   end
 
