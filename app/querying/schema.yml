@@ -15,6 +15,8 @@
 # *_{type}im: indexed, multiValued
 #
 copyFields:
+  - source: 'collection_si'
+    dest: 'collection_si_facet'
   - source: 'metadata_*'
     dest: 'searchall_txtim'
   - source: 'metadata_*'

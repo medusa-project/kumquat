@@ -62,10 +62,11 @@ module ItemsHelper
     profile_facetable_elements.each do |element|
       result_facet = items.facet_fields.
           select{ |f| f.field == element.facet_def.solr_field }.first
+      is_collection_facet =
+          (result_facet.field == Solr::Fields::COLLECTION + '_facet')
       next unless result_facet and
           result_facet.terms.select{ |t| t.count > 0 }.any?
-      next if result_facet.field == 'pt_collection_facet' and
-          !options[:show_collection_facet]
+      next if is_collection_facet and !options[:show_collection_facet]
       panel = "<div class=\"panel panel-default\">
       <div class=\"panel-heading\">
         <h3 class=\"panel-title\">#{element.facet_def_label}</h3>
@@ -82,7 +83,7 @@ module ItemsHelper
         checked_params.delete(:start)
         unchecked_params.delete(:start)
 
-        if result_facet.field == 'collection_facet'
+        if is_collection_facet
           collection = Collection.find_by_id(term.name)
           term_label = collection.title if collection
         else

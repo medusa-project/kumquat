@@ -64,31 +64,31 @@ Permission.create!(key: Permission::VIEW_USERS,
 # Facets
 facets = {}
 facets[:audience] = FacetDef.create!(
-    name: 'Audience', solr_field: 'audience_facet')
+    name: 'Audience', solr_field: 'audience_txtim_facet')
 facets[:collection] = FacetDef.create!(
-    name: 'Collection', solr_field: 'collection_facet')
+    name: 'Collection', solr_field: 'collection_si_facet')
 facets[:contributor] = FacetDef.create!(
-    name: 'Contributor', solr_field: 'contributor_facet')
+    name: 'Contributor', solr_field: 'contributor_txtim_facet')
 facets[:coverage] = FacetDef.create!(
-    name: 'Coverage', solr_field: 'coverage_facet')
+    name: 'Coverage', solr_field: 'spatialCoverage_txtim_facet')
 facets[:creator] = FacetDef.create!(
-    name: 'Creator', solr_field: 'creator_facet')
+    name: 'Creator', solr_field: 'creator_txtim_facet')
 facets[:date] = FacetDef.create!(
-    name: 'Date', solr_field: 'date_facet')
+    name: 'Date', solr_field: 'date_txtim_facet')
 facets[:educationLevel] = FacetDef.create!(
-    name: 'Education Level', solr_field: 'education_level_facet')
+    name: 'Education Level', solr_field: 'educationLevel_txtim_facet')
 facets[:format] = FacetDef.create!(
-    name: 'Format', solr_field: 'format_facet')
+    name: 'Format', solr_field: 'format_txtim_facet')
 facets[:language] = FacetDef.create!(
-    name: 'Language', solr_field: 'language_facet')
+    name: 'Language', solr_field: 'language_txtim_facet')
 facets[:publisher] = FacetDef.create!(
-    name: 'Publisher', solr_field: 'publisher_facet')
+    name: 'Publisher', solr_field: 'publisher_txtim_facet')
 facets[:source] = FacetDef.create!(
-    name: 'Source', solr_field: 'source_facet')
+    name: 'Source', solr_field: 'source_txtim_facet')
 facets[:subject] = FacetDef.create!(
-    name: 'Subject', solr_field: 'subject_facet')
+    name: 'Subject', solr_field: 'subject_txtim_facet')
 facets[:type] = FacetDef.create!(
-    name: 'Type', solr_field: 'type_facet')
+    name: 'Type', solr_field: 'type_txtim_facet')
 
 # Metadata profiles
 profiles = {}

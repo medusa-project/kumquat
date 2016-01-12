@@ -4,8 +4,8 @@
 class Solr
 
   ##
-  # All Solr fields used by the application. These generally correlated with
-  # XML elements in the PearTree AIP.
+  # All Solr fields used by the application. These are generally correlated
+  # with  XML elements in the PearTree AIP.
   #
   # To add a field:
   # 1) Add it here
@@ -125,29 +125,6 @@ class Solr
           map{ |sf| sf['name'] }.include?(kf['name'])
     end
     post_fields(http, url, 'add-dynamic-field', dynamic_fields_to_add)
-
-    # copy faceted triples into facet fields
-    facetable_fields = ElementDef.where('facet_def_id IS NOT NULL').
-        uniq(&:name).map do |e|
-      { source: e.solr_name, dest: e.facet_def.solr_field }
-    end
-    facetable_fields << {
-        source: Fields::COLLECTION,
-        dest: FacetDef.where(name: 'Collection').first.solr_field }
-    facetable_fields_to_add = facetable_fields.reject do |ff|
-      current['schema']['copyFields'].
-          map{ |sf| "#{sf['source']}-#{sf['dest']}" }.
-          include?("#{ff['source']}-#{ff['dest']}")
-    end
-    post_fields(http, url, 'add-copy-field', facetable_fields_to_add)
-
-    # copy various fields into a search-all field
-    search_all_fields_to_add = search_all_fields.reject do |ff|
-      current['schema']['copyFields'].
-          map{ |sf| "#{sf['source']}-#{sf['dest']}" }.
-          include?("#{ff['source']}-#{ff['dest']}")
-    end
-    post_fields(http, url, 'add-copy-field', search_all_fields_to_add)
 
     # delete obsolete copyFields
     copy_fields_to_delete = current['schema']['copyFields'].select do |kf|
