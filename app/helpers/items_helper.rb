@@ -48,13 +48,13 @@ module ItemsHelper
     return nil unless items.facet_fields # nothing to do
 
     # get the list of facets to display from the appropriate metadata profile
-    profile = options[:metadata_profile] ||
-        MetadataProfile.where(default: true).limit(1).first
     collection_element = ElementDef.new(
         facet_def: FacetDef.find_by_name('Collection'),
         facet_def_label: 'Collection')
     profile_facetable_elements = [collection_element] +
         profile.element_defs.where('facet_def_id IS NOT NULL').order(:index)
+    options[:metadata_profile].element_defs.
+        where('facet_def_id IS NOT NULL').order(:index)
 
     term_limit = Option::integer(Option::Key::FACET_TERM_LIMIT)
 
