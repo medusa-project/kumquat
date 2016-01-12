@@ -26,8 +26,16 @@ class Element
     all.select{ |e| e.name == name }.first
   end
 
+  def self.solr_prefix
+    'metadata_'
+  end
+
+  def self.solr_suffix
+    '_txtim'
+  end
+
   def solr_name
-    "metadata_#{self.name}_txtim"
+    Element.solr_prefix + self.name + Element.solr_suffix
   end
 
 end

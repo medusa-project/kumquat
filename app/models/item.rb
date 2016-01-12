@@ -65,10 +65,9 @@ class Item < Entity
     end
 
     # descriptive metadata
-    doc.keys.select{ |k| k.start_with?('metadata_') }.each do |key|
-      filtered_key = key.gsub('metadata_', '').chomp('_txtim')
+    doc.keys.select{ |k| k.start_with?(Element.solr_prefix) }.each do |key|
       doc[key].each do |value|
-        e = Element.named(filtered_key)
+        e = Element.named(key.gsub(Element.solr_prefix, '').chomp(Element.solr_suffix))
         e.value = value
         item.metadata << e
       end
