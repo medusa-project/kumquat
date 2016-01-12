@@ -52,9 +52,8 @@ module ItemsHelper
         facet_def: FacetDef.find_by_name('Collection'),
         facet_def_label: 'Collection')
     profile_facetable_elements = [collection_element] +
-        profile.element_defs.where('facet_def_id IS NOT NULL').order(:index)
-    options[:metadata_profile].element_defs.
-        where('facet_def_id IS NOT NULL').order(:index)
+        options[:metadata_profile].element_defs.
+          where('facet_def_id IS NOT NULL').order(:index)
 
     term_limit = Option::integer(Option::Key::FACET_TERM_LIMIT)
 
