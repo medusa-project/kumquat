@@ -18,4 +18,4 @@ Rails.application.config.assets.paths << Rails.root.join('app', 'assets', 'fonts
 # Rails.application.config.assets.precompile += %w( search.js )
 
 Rails.application.config.assets.precompile += %w(admin.css)
-Rails.application.config.assets.precompile << /\.(?:png|jpg|jpeg|gif)\z/
+Rails.application.config.assets.precompile << /\.(?:png|ico|jpg|jpeg|gif)\z/
