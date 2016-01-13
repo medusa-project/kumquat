@@ -531,17 +531,26 @@ module ItemsHelper
   #
   def sort_menu(metadata_profile)
     sortable_elements = metadata_profile.element_defs.select{ |d| d.sortable }
+    default_sortable_element = metadata_profile.default_sortable_element_def
     html = ''
     if sortable_elements.any?
-      html += '<form class="form-inline" method="GET">'
-      html += '<div class="form-group">'
-      html += '<select name="sort" class="form-control input-sm">'
-      html += '<option value="">Sort by Relevance</option>'
+      html += '<form class="form-inline" method="GET">
+        <div class="form-group">
+          <select name="sort" class="form-control input-sm">
+            <option value="">Sort by Relevance</option>'
       sortable_elements.each do |d|
-        selected = params[:sort] == d.solr_single_valued_field ? 'selected' : ''
+        if params[:sort] == d.solr_single_valued_field
+          selected = 'selected'
+        elsif d.name == default_sortable_element.name
+          selected = 'selected'
+        else
+          selected = ''
+        end
         html += "<option value=\"#{d.solr_single_valued_field}\" #{selected}>Sort by #{d.label}</option>"
       end
-      html += '</select></div></form>'
+      html += '</select>
+        </div>
+      </form>'
     end
     raw(html)
   end

@@ -62,6 +62,9 @@ module Admin
     def show
       @profile = MetadataProfile.find(params[:id])
       @new_element = @profile.element_defs.build
+
+      @element_def_options_for_select = @profile.element_defs.
+          map{ |t| [ t.label, t.id ] }
     end
 
     def update
@@ -105,7 +108,9 @@ module Admin
     private
 
     def sanitized_params
-      params.require(:metadata_profile).permit(:default, :name)
+      params.require(:metadata_profile).permit(:default,
+                                               :default_sortable_element_def_id,
+                                               :name)
     end
 
   end

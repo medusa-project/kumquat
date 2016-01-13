@@ -78,7 +78,11 @@
             <%= boolean(element.searchable) %>
           </td>
           <td class="text-center <%= element.sortable ? 'bg-success' : 'bg-danger' %>">
-            <%= boolean(element.sortable) %>
+            <% if element == @profile.default_sortable_element_def %>
+              <span class="text-success">DEFAULT</span>
+            <% else %>
+              <%= boolean(element.sortable) %>
+            <% end %>
           </td>
           <td class="text-center <%= element.facetable ? 'bg-success' : 'bg-danger' %>">
             <%= boolean(element.facetable) %>

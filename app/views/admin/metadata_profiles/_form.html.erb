@@ -1,18 +1,32 @@
-<%= form_for([:admin, metadata_profile], remote: true) do |f| %>
-    <div class="pt-error-messages">
-      <% # populated via ajax by shared/_validation_messages.js.erb
-      %>
-    </div>
+<%
+  # @param metadata_profile [MetadataProfile]
+  # @param context [Symbol] :new or :edit
+%>
 
+<%= form_for([:admin, metadata_profile], remote: true) do |f| %>
+  <div class="pt-error-messages">
+    <% # populated via ajax by shared/_validation_messages.js.erb
+    %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :name %>
+    <%= f.text_field :name, class: 'form-control' %>
+  </div>
+
+  <% if context == :edit %>
     <div class="form-group">
-      <%= f.label :name %>
-      <%= f.text_field :name, class: 'form-control' %>
+      <%= f.label :default_sortable_element_def_id, 'Default Sort' %>
+      <%= select(:metadata_profile, :default_sortable_element_def_id,
+                 @element_def_options_for_select, {}, class: 'form-control') %>
     </div>
-    <div class="clearfix">
-      <div class="pull-right">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-        <%= f.submit(context == :new ? 'Create Profile' : 'Edit Profile',
-                     class: 'btn btn-primary') %>
-      </div>
+  <% end %>
+
+  <div class="clearfix">
+    <div class="pull-right">
+      <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+      <%= f.submit(context == :new ? 'Create Profile' : 'Edit Profile',
+                   class: 'btn btn-primary') %>
     </div>
+  </div>
 <% end %>
