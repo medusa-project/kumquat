@@ -50,7 +50,7 @@ class Element
   end
 
   ##
-  # @return [String] Name of the multivalued Solr field.
+  # @return [String] Name of the multi-valued Solr field.
   #
   def solr_multi_valued_field
     "#{Element.solr_prefix}#{self.name}#{Element.solr_suffix}"
@@ -59,7 +59,7 @@ class Element
   ##
   # @return [String] Name of the single-valued Solr field.
   #
-  def solr_sortable_name
+  def solr_single_valued_field
     "#{Element.solr_prefix}#{self.name}#{Element.solr_sortable_suffix}"
   end
 

@@ -538,8 +538,8 @@ module ItemsHelper
       html += '<select name="sort" class="form-control input-sm">'
       html += '<option value="">Sort by Relevance</option>'
       sortable_elements.each do |d|
-        selected = params[:sort] == d.solr_sortable_name ? 'selected' : ''
-        html += "<option value=\"#{d.solr_sortable_name}\" #{selected}>Sort by #{d.label}</option>"
+        selected = params[:sort] == d.solr_single_valued_field ? 'selected' : ''
+        html += "<option value=\"#{d.solr_single_valued_field}\" #{selected}>Sort by #{d.label}</option>"
       end
       html += '</select></div></form>'
     end

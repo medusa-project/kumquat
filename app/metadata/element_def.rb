@@ -48,10 +48,10 @@ class ElementDef < ActiveRecord::Base
     e.solr_multi_valued_field
   end
 
-  def solr_sortable_name
+  def solr_single_valued_field
     e = Element.new
     e.name = self.name
-    e.solr_sortable_name
+    e.solr_single_valued_field
   end
 
   def to_s

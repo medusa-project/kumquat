@@ -95,7 +95,7 @@ class Entity
     self.metadata.each do |element|
       doc[element.solr_multi_valued_field] ||= []
       doc[element.solr_multi_valued_field] << element.value
-      doc[element.solr_sortable_name] = element.value
+      doc[element.solr_single_valued_field] = element.value
     end
 
     doc
