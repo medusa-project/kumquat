@@ -26,7 +26,7 @@ class WebsiteController < ApplicationController
     # data for the nav bar search
     @collections = Collection.all
     @elements_for_select = ElementDef.all.order(:label).
-        map{ |ed| [ ed.label, ed.solr_name ] }
+        map{ |ed| [ ed.label, ed.solr_multi_valued_field ] }
     @elements_for_select.unshift([ 'Any Field', Solr::Fields::SEARCH_ALL ])
   end
 

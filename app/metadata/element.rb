@@ -52,7 +52,7 @@ class Element
   ##
   # @return [String] Name of the multivalued Solr field.
   #
-  def solr_name
+  def solr_multi_valued_field
     "#{Element.solr_prefix}#{self.name}#{Element.solr_suffix}"
   end
 

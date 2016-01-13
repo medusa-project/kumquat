@@ -177,7 +177,7 @@ class Solr
   def search_all_fields
     dest = Solr::Fields::SEARCH_ALL
     fields = Element.all.uniq(&:name).map do |t|
-      { source: t.solr_name, dest: dest }
+      { source: t.solr_multi_valued_field, dest: dest }
     end
     fields << { source: Solr::Fields::FULL_TEXT, dest: dest }
     fields

@@ -93,8 +93,8 @@ class Entity
     doc[Solr::Fields::WEB_ID] = self.web_id
 
     self.metadata.each do |element|
-      doc[element.solr_name] ||= []
-      doc[element.solr_name] << element.value
+      doc[element.solr_multi_valued_field] ||= []
+      doc[element.solr_multi_valued_field] << element.value
       doc[element.solr_sortable_name] = element.value
     end
 

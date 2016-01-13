@@ -42,10 +42,10 @@ class ElementDef < ActiveRecord::Base
         "collection_si#{Element.solr_facet_suffix}" : e.solr_facet_name
   end
 
-  def solr_name
+  def solr_multi_valued_field
     e = Element.new
     e.name = self.name
-    e.solr_name
+    e.solr_multi_valued_field
   end
 
   def solr_sortable_name
