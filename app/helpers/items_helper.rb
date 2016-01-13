@@ -191,14 +191,28 @@ module ItemsHelper
         '</div>')
       end
       html += '<span class="pt-title">'
-      html += icon_for(entity)
       html += link_to(entity.title, link_target)
       if entity.kind_of?(Item)
-        # page count
+        # info line
+        info_parts = []
+
+        info_parts << "#{icon_for(entity)}#{type_of(entity)}"
+
         num_children = entity.children.total_length
         if num_children > 0
-          html += " <span class=\"pt-count badge\">#{num_children} pages</span> "
+          info_parts << "#{num_children} pages"
         end
+        date = entity.date
+        if date
+          info_parts << date.year
+        end
+
+        if options[:show_collections]
+          info_parts << link_to(entity.collection, entity.collection.title)
+        end
+
+        html += "<br><span class=\"pt-info-line\">#{info_parts.join(' | ')}</span>"
+
         # remove-from-favorites button
         if options[:show_remove_from_favorites_buttons]
           html += ' <button class="btn btn-xs btn-danger ' +
@@ -212,13 +226,6 @@ module ItemsHelper
               'pt-add-to-favorites" data-web-id="' + entity.id + '">'
           html += '<i class="fa fa-heart-o"></i>'
           html += '</button>'
-        end
-        # collection
-        if options[:show_collections]
-          html += '<br>'
-          html += link_to(entity.collection, class: 'pt-collection-title') do
-            raw("#{self.icon_for(entity.collection)} #{entity.collection.title}")
-          end
         end
       end
       html += '</span>'

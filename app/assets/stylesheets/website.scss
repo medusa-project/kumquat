@@ -159,19 +159,19 @@ description on the right.
         }
       }
       .pt-title {
-        font-size: 1.4em;
-        .pt-icon {
-          color: #808080;
-          margin-right: 0.3em;
-        }
+        font-size: 1.3em;
         .label {
           background-color: #d0d0d0;
           font-size: 0.7em;
           font-weight: normal;
           vertical-align: 30%;
         }
-        .pt-collection-title {
-          font-size: 0.8em;
+        .pt-info-line {
+          .pt-icon {
+            margin-right: 0.3em;
+          }
+          color: #606060;
+          font-size: 0.7em;
         }
       }
       .pt-description {
