@@ -96,7 +96,7 @@ module ItemsHelper
     html = ''
     profile_facetable_elements.each do |element|
       result_facet = items.facet_fields.
-          select{ |f| f.field == element.solr_facet_name }.first
+          select{ |f| f.field == element.solr_facet_field }.first
       next unless result_facet and
           result_facet.terms.select{ |t| t.count > 0 }.any?
       is_collection_facet =

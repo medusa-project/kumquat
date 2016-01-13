@@ -420,7 +420,7 @@ class MetadataProfile < ActiveRecord::Base
   end
 
   def solr_facet_fields
-    self.element_defs.select{ |d| d.facetable }.map{ |d| d.solr_facet_name }
+    self.element_defs.select{ |d| d.facetable }.map{ |d| d.solr_facet_field }
   end
 
   private

@@ -45,7 +45,7 @@ class Element
   ##
   # @return [String] Name of the Solr facet field.
   #
-  def solr_facet_name
+  def solr_facet_field
     "#{self.name}#{Element.solr_suffix}#{Element.solr_facet_suffix}"
   end
 
