@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160108183318) do
+ActiveRecord::Schema.define(version: 20160113161140) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -51,16 +51,6 @@ ActiveRecord::Schema.define(version: 20160108183318) do
     t.boolean  "visible"
     t.datetime "created_at",          null: false
     t.datetime "updated_at",          null: false
-    t.integer  "facet_def_id"
-    t.string   "facet_def_label"
-  end
-
-  create_table "facet_defs", force: :cascade do |t|
-    t.integer  "index"
-    t.string   "name"
-    t.string   "solr_field"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
   end
 
   create_table "metadata_profiles", force: :cascade do |t|

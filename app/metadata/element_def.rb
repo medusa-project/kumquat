@@ -4,7 +4,6 @@
 #
 class ElementDef < ActiveRecord::Base
 
-  belongs_to :facet_def, inverse_of: :element_defs
   belongs_to :metadata_profile, inverse_of: :element_defs
 
   after_save :adjust_profile_element_indexes_after_save
@@ -36,8 +35,17 @@ class ElementDef < ActiveRecord::Base
     end
   end
 
+  def solr_facet_name
+    e = Element.new
+    e.name = self.name
+    e.name == 'collection' ?
+        "collection_si#{Element.solr_facet_suffix}" : e.solr_facet_name
+  end
+
   def solr_name
-    "metadata_#{self.name}_txtim"
+    e = Element.new
+    e.name = self.name
+    e.solr_name
   end
 
   def to_s

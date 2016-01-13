@@ -34,6 +34,12 @@ class ItemsController < WebsiteController
       raise ActiveRecord::RecordNotFound unless @collection
       @items = @items.where(Solr::Fields::COLLECTION => @collection.id)
     end
+
+    @metadata_profile = @collection ?
+        @collection.collection_def.metadata_profile :
+        MetadataProfile.find_by_default(true)
+    @items = @items.facetable_fields(@metadata_profile.solr_facet_fields)
+
     # if there is no user-entered query, sort by title. Otherwise, use the
     # default sort, which is by relevance
     @items = @items.order(Solr::Fields::TITLE) if params[:q].blank?
@@ -41,9 +47,6 @@ class ItemsController < WebsiteController
     @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
     @count = @items.count
     @num_results_shown = [@limit, @count].min
-    @metadata_profile = @collection ?
-        @collection.collection_def.metadata_profile :
-        MetadataProfile.find_by_default(true)
 
     # if there are no results, get some suggestions
     if @count < 1 and params[:q].present?

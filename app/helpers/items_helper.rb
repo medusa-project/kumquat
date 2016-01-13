@@ -40,40 +40,22 @@ module ItemsHelper
 
   ##
   # @param items [Relation]
-  # @param options [Hash] Options hash.
+  # @param options [Hash] Options hash
   # @option options [Boolean] :show_collection_facet
   # @option options [MetadataProfile] :metadata_profile
   #
   def facets_as_panels(items, options = {})
     return nil unless items.facet_fields # nothing to do
 
-    # get the list of facets to display from the appropriate metadata profile
-    collection_element = ElementDef.new(
-        facet_def: FacetDef.find_by_name('Collection'),
-        facet_def_label: 'Collection')
-    profile_facetable_elements = [collection_element] +
-        options[:metadata_profile].element_defs.
-          where('facet_def_id IS NOT NULL').order(:index)
-
-    term_limit = Option::integer(Option::Key::FACET_TERM_LIMIT)
-
-    html = ''
-    profile_facetable_elements.each do |element|
-      result_facet = items.facet_fields.
-          select{ |f| f.field == element.facet_def.solr_field }.first
-      is_collection_facet =
-          (result_facet.field == Solr::Fields::COLLECTION + '_facet')
-      next unless result_facet and
-          result_facet.terms.select{ |t| t.count > 0 }.any?
-      next if is_collection_facet and !options[:show_collection_facet]
+    def get_panel(title, terms, for_collections = false)
       panel = "<div class=\"panel panel-default\">
       <div class=\"panel-heading\">
-        <h3 class=\"panel-title\">#{element.facet_def_label}</h3>
+        <h3 class=\"panel-title\">#{title}</h3>
       </div>
       <div class=\"panel-body\">
         <ul>"
-      result_facet.terms.each_with_index do |term, i|
-        break if i >= term_limit
+      terms.each_with_index do |term, i|
+        break if i >= Option::integer(Option::Key::FACET_TERM_LIMIT)
         next if term.count < 1
         checked = (params[:fq] and params[:fq].include?(term.facet_query)) ?
             'checked' : nil
@@ -82,12 +64,13 @@ module ItemsHelper
         checked_params.delete(:start)
         unchecked_params.delete(:start)
 
-        if is_collection_facet
+        if for_collections
           collection = Collection.find_by_id(term.name)
           term_label = collection.title if collection
         else
           term_label = truncate(term.label, length: 80)
         end
+        term_label = truncate(term_label, length: 80)
 
         panel += "<li class=\"pt-term\">"
         panel += "<div class=\"checkbox\">"
@@ -101,7 +84,32 @@ module ItemsHelper
         panel += "</div>"
         panel += "</li>"
       end
-      html += panel + '</ul></div></div>'
+      raw(panel + '</ul></div></div>')
+    end
+
+    # get the list of facets to display from the appropriate metadata profile
+    collection_element = ElementDef.new(name: 'collection', facetable: true)
+    profile_facetable_elements = [collection_element] +
+        options[:metadata_profile].element_defs.where(facetable: true).
+            order(:index)
+
+    html = ''
+    profile_facetable_elements.each do |element|
+      result_facet = items.facet_fields.
+          select{ |f| f.field == element.solr_facet_name }.first
+      next unless result_facet and
+          result_facet.terms.select{ |t| t.count > 0 }.any?
+      is_collection_facet =
+          (result_facet.field == Solr::Fields::COLLECTION + Element.solr_facet_suffix)
+      if is_collection_facet
+        if !options[:show_collection_facet]
+          next
+        else
+          html += get_panel('Collection', result_facet.terms, true)
+        end
+      else
+        html += get_panel(element.label, result_facet.terms, false)
+      end
     end
     raw(html)
   end

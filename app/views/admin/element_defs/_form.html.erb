@@ -25,19 +25,6 @@
     <%= f.select :index, position_options, {}, class: 'form-control' %>
   </div>
 
-  <div class="form-group">
-    <%= f.label :facet_def_id, 'Facet' %>
-    <%= f.select(:facet_def_id,
-                 options_for_select(FacetDef.order(:name).map{ |f| [f.name, f.id] },
-                                    selected: f.object.facet_def_id),
-                 { include_blank: 'None' }, { class: 'form-control' }) %>
-  </div>
-
-  <div class="form-group">
-    <%= f.label :facet_def_label, 'Facet Label' %>
-    <%= f.text_field :facet_def_label, class: 'form-control' %>
-  </div>
-
   <div class="checkbox">
     <label>
       <%= f.check_box :visible %>
@@ -49,6 +36,13 @@
     <label>
       <%= f.check_box :searchable %>
       Searchable
+    </label>
+  </div>
+
+  <div class="checkbox">
+    <label>
+      <%= f.check_box :facetable %>
+      Facetable
     </label>
   </div>
 

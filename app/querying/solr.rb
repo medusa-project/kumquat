@@ -50,10 +50,6 @@ class Solr
 
   SCHEMA = YAML.load(File.read(File.join(__dir__, 'schema.yml')))
 
-  def self.facetable_fields
-    FacetDef.all.map{ |f| f.solr_field }
-  end
-
   ##
   # @param doc [Hash]
   #

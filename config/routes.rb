@@ -85,7 +85,6 @@ Rails.application.routes.draw do
     resources :collections, only: [:index, :show]
     resources :collection_defs, except: :new
     resources :element_defs, only: [:create, :update, :destroy, :edit]
-    resources :facet_defs
     match '/items/search', to: 'items#search', via: %w(get post),
           as: 'items_search'
     resources :items, concerns: :publishable do

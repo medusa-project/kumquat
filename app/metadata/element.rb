@@ -26,6 +26,10 @@ class Element
     all.select{ |e| e.name == name }.first
   end
 
+  def self.solr_facet_suffix
+    '_facet'
+  end
+
   def self.solr_prefix
     'metadata_'
   end
@@ -34,8 +38,12 @@ class Element
     '_txtim'
   end
 
+  def solr_facet_name
+    "#{self.name}#{Element.solr_suffix}#{Element.solr_facet_suffix}"
+  end
+
   def solr_name
-    Element.solr_prefix + self.name + Element.solr_suffix
+    "#{Element.solr_prefix}#{self.name}#{Element.solr_suffix}"
   end
 
 end

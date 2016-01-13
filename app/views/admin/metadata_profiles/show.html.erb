@@ -48,8 +48,7 @@
         <th>Label</th>
         <th>Visible</th>
         <th>Searchable</th>
-        <th>Facet</th>
-        <th>Facet Label</th>
+        <th>Facetable</th>
       </tr>
     </thead>
     <tbody>
@@ -73,8 +72,7 @@
           <td><%= element.label %></td>
           <td><%= boolean(element.visible) %></td>
           <td><%= boolean(element.searchable) %></td>
-          <td><%= element.facet_def %></td>
-          <td><%= element.facet_def_label %></td>
+          <td><%= boolean(element.facetable) %></td>
         </tr>
       <% end %>
     </tbody>

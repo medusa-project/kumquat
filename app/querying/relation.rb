@@ -15,7 +15,7 @@ class Relation
     @caller = caller
     @calling_class = caller.kind_of?(Class) ? caller : caller.class
     @facet = true
-    @facetable_fields = Solr.facetable_fields
+    @facetable_fields = []
     @facet_queries = []
     @filter_clauses = [] # will be joined by AND
     @limit = 1 # default to fastest; clients can override with limit(int)
@@ -58,11 +58,11 @@ class Relation
   #
   def facetable_fields(fields = nil)
     if fields
-      @facetable_fields = fields
+      @facetable_fields =
+          [Solr::Fields::COLLECTION + Element.solr_facet_suffix] + fields
       return self
-    else
-      return @facetable_fields
     end
+    @facetable_fields
   end
 
   ##
@@ -246,7 +246,7 @@ class Relation
         endpoint = PearTree::Application.peartree_config[:solr_more_like_this_endpoint].gsub(/\//, '')
       else
         endpoint = 'select'
-        if @facet
+        if @facet and self.facetable_fields.any?
           params['facet'] = true
           params['facet.mincount'] = 1
           params['facet.field'] = self.facetable_fields
@@ -258,7 +258,7 @@ class Relation
 
       Rails.logger.debug("Solr response:\n#{@solr_response}")
 
-      if !@more_like_this and @facet
+      if !@more_like_this and @solr_response['facet_counts']
         @results.facet_fields = solr_facet_fields_to_objects(
             @solr_response['facet_counts']['facet_fields'])
       end

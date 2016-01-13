@@ -23,6 +23,10 @@ class MetadataProfile < ActiveRecord::Base
     clone
   end
 
+  def solr_facet_fields
+    self.element_defs.select{ |d| d.facetable }.map{ |d| d.solr_facet_name }
+  end
+
   private
 
   ##
