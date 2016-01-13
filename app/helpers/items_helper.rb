@@ -523,6 +523,30 @@ module ItemsHelper
   end
 
   ##
+  # Returns a sort pulldown menu for the given metadata profile. If there are
+  # no sortable elements in the profile, returns a zero-length string.
+  #
+  # @param metadata_profile [MetadataProfile]
+  # @return [String] HTML form element
+  #
+  def sort_menu(metadata_profile)
+    sortable_elements = metadata_profile.element_defs.select{ |d| d.sortable }
+    html = ''
+    if sortable_elements.any?
+      html += '<form class="form-inline" method="GET">'
+      html += '<div class="form-group">'
+      html += '<select name="sort" class="form-control input-sm">'
+      html += '<option value="">Sort by Relevance</option>'
+      sortable_elements.each do |d|
+        selected = params[:sort] == d.solr_sortable_name ? 'selected' : ''
+        html += "<option value=\"#{d.solr_sortable_name}\" #{selected}>Sort by #{d.label}</option>"
+      end
+      html += '</select></div></form>'
+    end
+    raw(html)
+  end
+
+  ##
   # @param item [Item]
   # @return [String]
   # @see `metadata_as_list`

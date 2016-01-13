@@ -69,6 +69,11 @@ var PTItemsView = function() {
             }
         });
 
+        // submit the sort form on change
+        $('select[name="sort"]').on('change', function() {
+            $(this).parents('form').submit();
+        });
+
         $(document).on(PearTree.Events.ITEM_ADDED_TO_FAVORITES, function(event, item) {
             $('.pt-results button.pt-remove-from-favorites[data-web-id="' + item.web_id + '"]').show();
             $('.pt-results button.pt-add-to-favorites[data-web-id="' + item.web_id + '"]').hide();

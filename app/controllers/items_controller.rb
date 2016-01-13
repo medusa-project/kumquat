@@ -40,9 +40,7 @@ class ItemsController < WebsiteController
         MetadataProfile.find_by_default(true)
     @items = @items.facetable_fields(@metadata_profile.solr_facet_fields)
 
-    # if there is no user-entered query, sort by title. Otherwise, use the
-    # default sort, which is by relevance
-    @items = @items.order(Solr::Fields::TITLE) if params[:q].blank?
+    @items = @items.order(params[:sort]) if params[:sort].present?
     @items = @items.start(@start).limit(@limit)
     @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
     @count = @items.count

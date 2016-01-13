@@ -65,7 +65,8 @@ class Item < Entity
     end
 
     # descriptive metadata
-    doc.keys.select{ |k| k.start_with?(Element.solr_prefix) }.each do |key|
+    doc.keys.select{ |k| k.start_with?(Element.solr_prefix) and
+        k.end_with?(Element.solr_suffix) }.each do |key|
       doc[key].each do |value|
         e = Element.named(key.gsub(Element.solr_prefix, '').chomp(Element.solr_suffix))
         e.value = value

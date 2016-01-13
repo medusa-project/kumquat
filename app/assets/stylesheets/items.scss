@@ -23,6 +23,16 @@ body#items_index div#pt-page-content {
     }
   }
 
+  .pt-results-summary {
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+  }
+
+  .pt-results-summary > div > div:first-child {
+    padding-top: 0.35em;
+    padding-bottom: 0.35em;
+  }
+
   .pt-no-results {
     ul {
       margin-left: 0.5em;

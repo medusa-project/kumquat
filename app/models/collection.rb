@@ -23,8 +23,9 @@ class Collection < Entity
     col.web_id = doc[Solr::Fields::WEB_ID]
 
     # descriptive metadata
-    doc.keys.select{ |k| k.start_with?('metadata_') }.each do |key|
-      filtered_key = key.gsub('metadata_', '').chomp('_txtim')
+    doc.keys.select{ |k| k.start_with?(Element.solr_prefix) and
+        k.end_with?(Element.solr_suffix) }.each do |key|
+      filtered_key = key.gsub(Element.solr_prefix, '').chomp(Element.solr_suffix)
       doc[key].each do |value|
         e = Element.named(filtered_key)
         e.value = value

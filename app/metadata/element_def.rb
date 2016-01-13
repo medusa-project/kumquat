@@ -48,6 +48,12 @@ class ElementDef < ActiveRecord::Base
     e.solr_name
   end
 
+  def solr_sortable_name
+    e = Element.new
+    e.name = self.name
+    e.solr_sortable_name
+  end
+
   def to_s
     self.name
   end

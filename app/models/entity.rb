@@ -95,6 +95,7 @@ class Entity
     self.metadata.each do |element|
       doc[element.solr_name] ||= []
       doc[element.solr_name] << element.value
+      doc[element.solr_sortable_name] = element.value
     end
 
     doc

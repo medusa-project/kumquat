@@ -46,9 +46,10 @@
         <th></th>
         <th>Element</th>
         <th>Label</th>
-        <th>Visible</th>
-        <th>Searchable</th>
-        <th>Facetable</th>
+        <th class="text-center">Visible</th>
+        <th class="text-center">Searchable</th>
+        <th class="text-center">Sortable</th>
+        <th class="text-center">Facetable</th>
       </tr>
     </thead>
     <tbody>
@@ -70,9 +71,18 @@
           </td>
           <td><%= element.name %></td>
           <td><%= element.label %></td>
-          <td><%= boolean(element.visible) %></td>
-          <td><%= boolean(element.searchable) %></td>
-          <td><%= boolean(element.facetable) %></td>
+          <td class="text-center <%= element.visible ? 'bg-success' : 'bg-danger' %>">
+            <%= boolean(element.visible) %>
+          </td>
+          <td class="text-center <%= element.searchable ? 'bg-success' : 'bg-danger' %>">
+            <%= boolean(element.searchable) %>
+          </td>
+          <td class="text-center <%= element.sortable ? 'bg-success' : 'bg-danger' %>">
+            <%= boolean(element.sortable) %>
+          </td>
+          <td class="text-center <%= element.facetable ? 'bg-success' : 'bg-danger' %>">
+            <%= boolean(element.facetable) %>
+          </td>
         </tr>
       <% end %>
     </tbody>

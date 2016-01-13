@@ -38,10 +38,20 @@
 
     <div class="col-sm-9 pt-results">
       <div class="panel panel-default">
-        <div class="panel-body">
-          <%= search_status(@items, @start, @num_results_shown) %>
+        <div class="panel-body pt-results-summary">
+          <div class="row">
+            <div class="col-sm-8">
+              <%= search_status(@items, @start, @num_results_shown) %>
+            </div>
+            <div class="col-sm-4 pull-right">
+              <div class="pull-right">
+                <%= sort_menu(@metadata_profile) %>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
+
       <div class="pt-list-results">
         <%= items_as_list(@items, @start, show_collections: !@collection,
                           show_add_to_favorites_buttons: true,

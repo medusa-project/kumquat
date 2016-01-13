@@ -34,16 +34,33 @@ class Element
     'metadata_'
   end
 
+  def self.solr_sortable_suffix
+    '_txti'
+  end
+
   def self.solr_suffix
     '_txtim'
   end
 
+  ##
+  # @return [String] Name of the Solr facet field.
+  #
   def solr_facet_name
     "#{self.name}#{Element.solr_suffix}#{Element.solr_facet_suffix}"
   end
 
+  ##
+  # @return [String] Name of the multivalued Solr field.
+  #
   def solr_name
     "#{Element.solr_prefix}#{self.name}#{Element.solr_suffix}"
+  end
+
+  ##
+  # @return [String] Name of the single-valued Solr field.
+  #
+  def solr_sortable_name
+    "#{Element.solr_prefix}#{self.name}#{Element.solr_sortable_suffix}"
   end
 
 end

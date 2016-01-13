@@ -79,7 +79,7 @@ module Admin
     def sanitized_params
       params.require(:element_def).permit(:facetable, :index, :label,
                                           :metadata_profile_id, :name,
-                                          :searchable, :visible)
+                                          :searchable, :sortable, :visible)
     end
 
   end

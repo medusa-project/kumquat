@@ -87,12 +87,14 @@ class MetadataProfile < ActiveRecord::Base
         visible: true,
         searchable: true,
         index: 11,
+        sortable: true,
         facetable: true)
     defs << ElementDef.new(
         name: 'date',
         label: 'Date',
         visible: true,
         searchable: true,
+        sortable: true,
         index: 12,
         facetable: true)
     defs << ElementDef.new(
@@ -100,48 +102,56 @@ class MetadataProfile < ActiveRecord::Base
         label: 'Date Accepted',
         visible: true,
         searchable: true,
+        sortable: true,
         index: 13)
     defs << ElementDef.new(
         name: 'dateAvailable',
         label: 'Date Available',
         visible: true,
         searchable: true,
+        sortable: true,
         index: 14)
     defs << ElementDef.new(
         name: 'dateCopyrighted',
         label: 'Date Copyrighted',
         visible: true,
         searchable: true,
+        sortable: true,
         index: 15)
     defs << ElementDef.new(
         name: 'dateCreated',
         label: 'Date Created',
         visible: true,
         searchable: true,
+        sortable: true,
         index: 16)
     defs << ElementDef.new(
         name: 'dateIssued',
         label: 'Date Issued',
         visible: true,
         searchable: true,
+        sortable: true,
         index: 17)
     defs << ElementDef.new(
         name: 'dateModified',
         label: 'Date Modified',
         visible: true,
         searchable: true,
+        sortable: true,
         index: 18)
     defs << ElementDef.new(
         name: 'dateSubmitted',
         label: 'Date Submitted',
         visible: true,
         searchable: true,
+        sortable: true,
         index: 19)
     defs << ElementDef.new(
         name: 'dateValid',
         label: 'Date Valid',
         visible: true,
         searchable: true,
+        sortable: true,
         index: 20)
     defs << ElementDef.new(
         name: 'description',
@@ -198,6 +208,7 @@ class MetadataProfile < ActiveRecord::Base
         label: 'Identifier',
         visible: true,
         searchable: true,
+        sortable: true,
         index: 29)
     defs << ElementDef.new(
         name: 'instructionalMethod',
@@ -253,6 +264,7 @@ class MetadataProfile < ActiveRecord::Base
         label: 'Latitude',
         visible: true,
         searchable: true,
+        sortable: true,
         index: 38)
     defs << ElementDef.new(
         name: 'license',
@@ -265,6 +277,7 @@ class MetadataProfile < ActiveRecord::Base
         label: 'Longitude',
         visible: true,
         searchable: true,
+        sortable: true,
         index: 40)
     defs << ElementDef.new(
         name: 'mediator',
@@ -382,6 +395,7 @@ class MetadataProfile < ActiveRecord::Base
         label: 'Title',
         visible: true,
         searchable: true,
+        sortable: true,
         index: 59)
     defs << ElementDef.new(
         name: 'type',
