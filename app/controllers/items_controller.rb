@@ -40,7 +40,16 @@ class ItemsController < WebsiteController
         MetadataProfile.find_by_default(true)
     @items = @items.facetable_fields(@metadata_profile.solr_facet_fields)
 
-    @items = @items.order(params[:sort]) if params[:sort].present?
+    # Sort by ?sort= parameter if present; otherwise sort by the metadata
+    # profile's default sort, if present; otherwise sort by relevance.
+    sort = nil
+    if params[:sort].present?
+      sort = params[:sort]
+    elsif @metadata_profile.default_sortable_element_def
+      sort = @metadata_profile.default_sortable_element_def.solr_single_valued_field
+    end
+    @items = @items.order("#{sort} asc") if sort
+
     @items = @items.start(@start).limit(@limit)
     @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
     @count = @items.count

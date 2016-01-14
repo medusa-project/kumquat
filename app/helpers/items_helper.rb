@@ -530,23 +530,30 @@ module ItemsHelper
   # @return [String] HTML form element
   #
   def sort_menu(metadata_profile)
-    sortable_elements = metadata_profile.element_defs.select{ |d| d.sortable }
+    sortable_elements = metadata_profile.element_defs.where(sortable: true)
     default_sortable_element = metadata_profile.default_sortable_element_def
     html = ''
     if sortable_elements.any?
       html += '<form class="form-inline" method="GET">
         <div class="form-group">
-          <select name="sort" class="form-control input-sm">
-            <option value="">Sort by Relevance</option>'
-      sortable_elements.each do |d|
-        if params[:sort] == d.solr_single_valued_field
-          selected = 'selected'
-        elsif d.name == default_sortable_element.name
-          selected = 'selected'
-        else
-          selected = ''
-        end
-        html += "<option value=\"#{d.solr_single_valued_field}\" #{selected}>Sort by #{d.label}</option>"
+          <select name="sort" class="form-control input-sm">'
+
+      unless default_sortable_element
+        html += '<option value="">Sort by Relevance</option>'
+      end
+
+      # If there is an element in the ?sort= query, select that. Otherwise,
+      # select the metadata profile's default sort element.
+      selected_element = sortable_elements.
+          select{ |e| e.solr_single_valued_field == params[:sort] }.first
+      unless selected_element
+        selected_element = sortable_elements.
+            select{ |e| e.name == default_sortable_element.name }.first
+      end
+      sortable_elements.each do |e|
+        selected = (e == selected_element) ? 'selected' : ''
+        html += "<option value=\"#{e.solr_single_valued_field}\" #{selected}>"\
+          "Sort by #{e.label}</option>"
       end
       html += '</select>
         </div>
