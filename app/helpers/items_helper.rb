@@ -546,9 +546,9 @@ module ItemsHelper
       # select the metadata profile's default sort element.
       selected_element = sortable_elements.
           select{ |e| e.solr_single_valued_field == params[:sort] }.first
-      unless selected_element
-        selected_element = sortable_elements.
-            select{ |e| e.name == default_sortable_element.name }.first
+      if !selected_element and default_sortable_element
+        selected_element =
+            sortable_elements.find_by_name(default_sortable_element.name)
       end
       sortable_elements.each do |e|
         selected = (e == selected_element) ? 'selected' : ''
