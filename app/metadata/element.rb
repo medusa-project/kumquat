@@ -35,7 +35,7 @@ class Element
   end
 
   def self.solr_sortable_suffix
-    '_txti'
+    '_si'
   end
 
   def self.solr_suffix
