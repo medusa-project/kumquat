@@ -18,7 +18,9 @@
     <div class="form-group">
       <%= f.label :default_sortable_element_def_id, 'Default Sort' %>
       <%= select(:metadata_profile, :default_sortable_element_def_id,
-                 @element_def_options_for_select, {}, class: 'form-control') %>
+                 @element_def_options_for_select,
+                 { selected: metadata_profile.default_sortable_element_def.id },
+                 class: 'form-control') %>
     </div>
   <% end %>
 
