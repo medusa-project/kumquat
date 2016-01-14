@@ -208,7 +208,7 @@ module ItemsHelper
         end
 
         if options[:show_collections]
-          info_parts << link_to(entity.collection, entity.collection.title)
+          info_parts << link_to(entity.collection.title, entity.collection)
         end
 
         html += "<br><span class=\"pt-info-line\">#{info_parts.join(' | ')}</span>"
