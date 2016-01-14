@@ -21,24 +21,29 @@
   <%= item_page_title(@item) %>
   <div class="panel panel-default">
     <div class="panel-body pt-page-nav">
-      <% if @previous_item %>
-        <%= link_to raw('&larr; Previous Page'), @previous_item,
-                    class: 'pt-previous-page btn btn-default btn-sm' %>
-      <% else %>
-        <button disabled class="pt-previous-page btn btn-default btn-sm">
-          &larr; Previous Page</button>
-      <% end %>
-      <span class="pt-page-number">
-        <%= @relative_child.page_number %> of
-        <%= @relative_parent.children.total_length %>
-      </span>
-      <% if @next_item %>
-        <%= link_to raw('Next Page &rarr;'), @next_item,
-                    class: 'pt-previous-page btn btn-default btn-sm' %>
-      <% else %>
-        <button disabled class="pt-next-page btn btn-default btn-sm">
-          Next Page &rarr;</button>
-      <% end %>
+
+      <!-- this form is never actually submitted -- we are just using the
+      form-inline class for convenience -->
+      <form method="get" class="form-inline">
+        <% if @previous_item %>
+          <%= link_to raw('&larr; Previous Page'), @previous_item,
+                      class: 'pt-previous-page btn btn-default btn-sm' %>
+        <% else %>
+          <button disabled class="pt-previous-page btn btn-default btn-sm">
+            &larr; Previous Page</button>
+        <% end %>
+
+        <%= page_select_menu(@item) %>
+
+        <% if @next_item %>
+          <%= link_to raw('Next Page &rarr;'), @next_item,
+                      class: 'pt-previous-page btn btn-default btn-sm' %>
+        <% else %>
+          <button disabled class="pt-next-page btn btn-default btn-sm">
+            Next Page &rarr;</button>
+        <% end %>
+      </form>
+
     </div>
   </div>
 <% else %>

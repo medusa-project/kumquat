@@ -336,6 +336,21 @@ module ItemsHelper
         cookies[:favorites].split(FavoritesController::COOKIE_DELIMITER).length : 0
   end
 
+  def page_select_menu(item)
+    items = item.parent ? item.parent.items : item.items
+    items = items.limit(999)
+
+    html = '<select class="form-control pt-page-select">'
+    items.each do |page|
+      selected = (page.id == item.id) ? 'selected' : ''
+      html += "<option value=\"#{item_path(page)}\" #{selected}>
+        #{page.title} (#{page.page_number} of #{@pages.total_length})
+        </option>"
+    end
+    html += '</select>'
+    raw(html)
+  end
+
   ##
   # @param item [Item]
   # @param options [Hash] with available keys: `:link_to_admin` [Boolean]
