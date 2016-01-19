@@ -27,6 +27,7 @@ class Item < Entity
   def self.from_solr(doc)
     item = Item.new
     item.id = doc[Solr::Fields::ID]
+    item.bib_id = doc[Solr::Fields::BIB_ID]
     if doc[Solr::Fields::CREATED]
       item.created = DateTime.parse(doc[Solr::Fields::CREATED])
     end

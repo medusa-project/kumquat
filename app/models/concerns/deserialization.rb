@@ -32,6 +32,10 @@ module Deserialization
       # metadata pathname
       entity.metadata_pathname = metadata_pathname
 
+      # bib ID
+      bib_id = node.xpath('lrp:bibId', namespaces).first
+      entity.bib_id = bib_id ? bib_id.content.strip : nil
+
       # created
       created = node.xpath('lrp:created', namespaces).first
       entity.created = created ? DateTime.parse(created.content.strip) : nil

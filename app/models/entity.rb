@@ -10,10 +10,11 @@ class Entity
   include Deserialization
   include SolrQuerying
 
-  attr_accessor :id # String
+  attr_accessor :bib_id # String
   attr_accessor :created # DateTime
   attr_accessor :date # Date
   attr_accessor :description # String
+  attr_accessor :id # String
   attr_accessor :last_indexed # DateTime
   attr_accessor :last_modified # DateTime
   attr_reader :metadata # Array
@@ -80,6 +81,7 @@ class Entity
   def to_solr
     doc = {}
     doc[Solr::Fields::ID] = self.id
+    doc[Solr::Fields::BIB_ID] = self.bib_id
     doc[Solr::Fields::CLASS] = self.class.to_s
     doc[Solr::Fields::CREATED] = self.created.utc.iso8601 + 'Z' if self.created
     doc[Solr::Fields::LAST_INDEXED] = DateTime.now.utc.iso8601 + 'Z'

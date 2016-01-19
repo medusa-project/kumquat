@@ -754,11 +754,11 @@ module ItemsHelper
   end
 
   def tech_metadata_for(item)
-    data = {
-        'Created' => local_time_ago(item.created),
-        'Last Modified' => local_time_ago(item.last_modified),
-        'Last Indexed' => local_time_ago(item.last_indexed)
-    }
+    data = {}
+    data['Created'] = local_time_ago(item.created)
+    data['Last Modified'] = local_time_ago(item.last_modified)
+    data['Last Indexed'] = local_time_ago(item.last_indexed)
+    data['Bib ID'] = item.bib_id if item.bib_id
     url = iiif_url(item)
     data[link_to('IIIF Image URL', 'http://iiif.io/')] = link_to(url, url) if url
     data

@@ -23,6 +23,7 @@ class Solr
     ACCESS_MASTER_PATHNAME = 'access_master_pathname_si'
     ACCESS_MASTER_URL = 'access_master_url_si'
     ACCESS_MASTER_WIDTH = 'access_master_width_ii'
+    BIB_ID = 'bib_id_si'
     CLASS = 'class_si'
     COLLECTION = 'collection_si'
     CREATED = 'created_dti'

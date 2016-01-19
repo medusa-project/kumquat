@@ -7,6 +7,7 @@ class Collection < Entity
   def self.from_solr(doc)
     col = Collection.new
     col.id = doc[Solr::Fields::ID]
+    col.bib_id = doc[Solr::Fields::BIB_ID]
     if doc[Solr::Fields::CREATED]
       col.created = DateTime.parse(doc[Solr::Fields::CREATED])
     end
