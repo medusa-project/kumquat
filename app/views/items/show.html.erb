@@ -92,6 +92,10 @@
   <div class="panel-body">
     <%= tech_metadata_as_list(@item) %>
     <%= tech_metadata_as_table(@item) %>
+    <% if @item.bib_id %>
+      <%= link_to 'Show in Library Catalog',
+                  "http://vufind.carli.illinois.edu/vf-uiu/Record/uiu_#{@item.bib_id}" %>
+    <% end %>
   </div>
 </div>
 
