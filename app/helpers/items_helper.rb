@@ -340,7 +340,7 @@ module ItemsHelper
     items = item.parent ? item.parent.items : item.items
     items = items.limit(999)
 
-    html = '<select class="form-control pt-page-select">'
+    html = '<select class="form-control input-sm pt-page-select">'
     items.each do |page|
       selected = (page.id == item.id) ? 'selected' : ''
       html += "<option value=\"#{item_path(page)}\" #{selected}>
