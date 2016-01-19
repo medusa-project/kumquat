@@ -24,10 +24,37 @@ class WebsiteController < ApplicationController
         where(Solr::Fields::PARENT_ITEM => :null).limit(1)
 
     # data for the nav bar search
+    collection = self.collection
+    if collection
+      element_defs = collection.collection_def.metadata_profile.element_defs
+    else
+      element_defs = ElementDef.all
+    end
     @collections = Collection.all
-    @elements_for_select = ElementDef.all.order(:label).
+    @elements_for_select = element_defs.where(searchable: true).order(:label).
         map{ |ed| [ ed.label, ed.solr_multi_valued_field ] }
     @elements_for_select.unshift([ 'Any Field', Solr::Fields::SEARCH_ALL ])
+  end
+
+  protected
+
+  ##
+  # @return [Collection,nil], Collection in the current context, or nil if
+  #                           there is <> 1
+  #
+  def collection
+    id = nil
+    if controller_name == 'collections'
+      id = params[:id]
+    elsif controller_name == 'items'
+      if params[:collection_id]
+        id = params[:collection_id]
+      elsif params[:id]
+        item = Item.find(params[:id])
+        id = item.collection.id
+      end
+    end
+    id ? Collection.find(id) : nil
   end
 
   private
