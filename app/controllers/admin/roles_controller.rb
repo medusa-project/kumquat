@@ -7,10 +7,8 @@ module Admin
     before_action :update_roles_rbac, only: [:edit, :update]
 
     def create
-      command = CreateRoleCommand.new(sanitized_params)
-      @role = command.object
       begin
-        executor.execute(command)
+        @role = Role.create!(sanitized_params)
       rescue => e
         flash[:error] = "#{e}"
         render 'new'
@@ -21,17 +19,16 @@ module Admin
     end
 
     def destroy
-      @role = Role.find_by_key(params[:key])
-      raise ActiveRecord::RecordNotFound unless @role
+      role = Role.find_by_key(params[:key])
+      raise ActiveRecord::RecordNotFound unless role
 
-      command = DeleteRoleCommand.new(@role)
       begin
-        executor.execute(command)
+        role.destroy!
       rescue => e
         flash[:error] = "#{e}"
-        redirect_to admin_role_url(@role)
+        redirect_to admin_role_url(role)
       else
-        flash[:success] = "Role \"#{@role.name}\" deleted."
+        flash[:success] = "Role \"#{role.name}\" deleted."
         redirect_to admin_roles_url
       end
     end
@@ -62,9 +59,8 @@ module Admin
       @role = Role.find_by_key(params[:key])
       raise ActiveRecord::RecordNotFound unless @role
 
-      command = UpdateRoleCommand.new(@role, sanitized_params)
       begin
-        executor.execute(command)
+        @role.update_attributes!(sanitized_params)
       rescue => e
         @users = User.order(:username)
         flash[:error] = "#{e}"

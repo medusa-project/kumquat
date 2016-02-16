@@ -51,5 +51,6 @@
       <% end %>
     </section>
 
-    <%= f.submit 'Save Changes', class: 'btn btn-primary' %>
+    <%= f.submit(context == :new ? 'Create Role' : 'Save Changes',
+                 class: 'btn btn-primary') %>
 <% end %>

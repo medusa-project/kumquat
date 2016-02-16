@@ -12,5 +12,5 @@
 <h1>Edit <%= @role.name %></h1>
 
 <div id="edit">
-  <%= render 'form' %>
+  <%= render partial: 'form', locals: { role: @role, context: :edit } %>
 </div>

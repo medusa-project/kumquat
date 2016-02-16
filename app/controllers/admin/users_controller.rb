@@ -9,10 +9,10 @@ module Admin
     # and :role_id params.
     #
     def change_roles
-      @user = User.find_by_username params[:user_username]
-      raise ActiveRecord::RecordNotFound unless @user
+      user = User.find_by_username params[:user_username]
+      raise ActiveRecord::RecordNotFound unless user
 
-      role_ids = @user.roles.map(&:id)
+      role_ids = user.roles.map(&:id)
       if params[:do].to_s == 'join'
         role_ids << params[:role_id].to_i
       else
@@ -21,30 +21,28 @@ module Admin
 
       tmp_params = sanitized_params
       tmp_params[:role_ids] = role_ids
-      command = UpdateUserCommand.new(@user, tmp_params)
       begin
-        executor.execute(command)
+        user.update_attributes!(tmp_params)
       rescue => e
         flash['error'] = "#{e}"
         render 'new'
       else
-        flash['success'] = "User #{@user.username} updated."
+        flash['success'] = "User #{user.username} updated."
         redirect_to :back
       end
     end
 
     def create
-      command = CreateUserCommand.new(sanitized_params)
       begin
-        executor.execute(command)
+        user = User.create!(sanitized_params)
       rescue => e
         flash['error'] = "#{e}"
         @user = User.new
         @roles = Role.all.order(:name)
         render 'new'
       else
-        flash['success'] = "User #{command.object.username} created."
-        redirect_to admin_user_path(command.object)
+        flash['success'] = "User #{user.username} created."
+        redirect_to admin_user_path(user)
       end
     end
 
@@ -52,9 +50,8 @@ module Admin
       user = User.find_by_username params[:username]
       raise ActiveRecord::RecordNotFound unless user
 
-      command = DeleteUserCommand.new(user)
       begin
-        executor.execute(command)
+        user.destroy!
       rescue => e
         flash['error'] = "#{e}"
         redirect_to admin_users_url
@@ -77,9 +74,9 @@ module Admin
       user = User.find_by_username params[:user_username]
       raise ActiveRecord::RecordNotFound unless user
 
-      command = DisableUserCommand.new(user)
+      user.enabled = false
       begin
-        executor.execute(command)
+        user.save!
       rescue => e
         flash['error'] = "#{e}"
       else
@@ -102,9 +99,9 @@ module Admin
       user = User.find_by_username params[:user_username]
       raise ActiveRecord::RecordNotFound unless user
 
-      command = EnableUserCommand.new(user)
+      user.enabled = true
       begin
-        executor.execute(command)
+        user.save!
       rescue => e
         flash['error'] = "#{e}"
       else
@@ -116,7 +113,7 @@ module Admin
 
     def index
       q = "%#{params[:q]}%"
-      @users = User.where('users.username LIKE ?', q).order('username') # TODO: paginate
+      @users = User.where('users.username LIKE ?', q).order('username')
     end
 
     def new
@@ -134,9 +131,8 @@ module Admin
       @user = User.find_by_username params[:username]
       raise ActiveRecord::RecordNotFound unless @user
 
-      command = UpdateUserCommand.new(@user, sanitized_params)
       begin
-        executor.execute(command)
+        @user.update_attributes!(sanitized_params)
       rescue => e
         @roles = Role.all.order(:name)
         flash['error'] = "#{e}"
@@ -150,9 +146,7 @@ module Admin
     private
 
     def sanitized_params
-      params.require(:user).permit(:current_password, :email, :enabled,
-                                   :password, :password_confirmation,
-                                   :username, role_ids: [])
+      params.require(:user).permit(:email, :enabled, :username, role_ids: [])
     end
 
     def view_users_rbac

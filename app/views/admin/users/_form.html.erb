@@ -13,23 +13,6 @@
     <%= f.email_field :email, class: 'form-control' %>
   </div>
 
-  <% if context == :edit %>
-    <div class="form-group">
-      <%= f.label :current_password, 'Current Password' %>
-      <%= f.password_field :current_password, class: 'form-control' %>
-    </div>
-  <% end %>
-
-  <div class="form-group">
-    <%= f.label :password, context == :edit ? 'New Password' : 'Password' %>
-    <%= f.password_field :password, class: 'form-control' %>
-  </div>
-
-  <div class="form-group has-feedback">
-    <%= f.label :password_confirmation, 'Confirm Password' %>
-    <%= f.password_field :password_confirmation, class: 'form-control' %>
-  </div>
-
   <div class="form-group">
     <div class="checkbox">
       <%= f.label :enabled do %>
