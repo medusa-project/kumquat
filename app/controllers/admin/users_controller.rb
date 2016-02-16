@@ -146,7 +146,7 @@ module Admin
     private
 
     def sanitized_params
-      params.require(:user).permit(:email, :enabled, :username, role_ids: [])
+      params.require(:user).permit(:enabled, :username, role_ids: [])
     end
 
     def view_users_rbac

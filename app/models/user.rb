@@ -1,19 +1,9 @@
-class EmailValidator < ActiveModel::EachValidator
-  def validate_each(record, attribute, value)
-    unless value =~ /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/i
-      record.errors[attribute] << (options[:message] || "is not an email address")
-    end
-  end
-end
-
 class User < ActiveRecord::Base
+
   has_and_belongs_to_many :roles
 
-  validates :email, presence: true, uniqueness: true, email: true
-  validates :username, presence: true, length: { maximum: 30 },
-            uniqueness: { case_sensitive: false },
-            format: { with: /\A(?=.*[a-z])[a-z\d]+\Z/i,
-                      message: 'Only letters and numbers are allowed.' }
+  validates :username, presence: true, length: { maximum: 50 },
+            uniqueness: { case_sensitive: false }
 
   def to_param
     username

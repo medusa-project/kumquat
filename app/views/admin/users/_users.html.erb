@@ -2,8 +2,7 @@
   <thead>
     <tr>
       <th style="width:1%"></th>
-      <th>Username</th>
-      <th>Email</th>
+      <th>NetID</th>
       <th>Role(s)</th>
     </tr>
   </thead>
@@ -15,7 +14,6 @@
             <%= user.enabled ? 'Enabled' : 'Disabled' %></span>
         </td>
         <td><%= link_to user.username, admin_user_path(user) %></td>
-        <td><%= link_to user.email, admin_user_path(user) %></td>
         <td>
           <ul>
             <% user.roles.each do |role| %>
