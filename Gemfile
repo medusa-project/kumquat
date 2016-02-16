@@ -2,7 +2,6 @@ source 'https://rubygems.org'
 
 gem 'rails', '4.2.5'
 
-gem 'bcrypt', '~> 3.1.7' # used by ActiveModel has_secure_password
 gem 'bootstrap-sass', '~> 3.3.6'
 #gem 'coffee-rails', '~> 4.1.0'
 gem 'daemons' # enables bin/delayed_job start/stop
@@ -15,7 +14,7 @@ gem 'jquery-rails'
 gem 'local_time'
 gem 'mime-types', '~> 2.6'
 gem 'omniauth'
-gem 'omniauth-password', git: 'git://github.com/wearepistachio/omniauth-password.git'
+gem 'omniauth-shibboleth'
 gem 'pg'
 gem 'rails_autolink'
 gem 'rsolr'
@@ -29,7 +28,7 @@ group :development do
   gem 'capistrano-bundler'
   gem 'capistrano-rails'
   gem 'capistrano-rvm'
-  gem 'puma' # puma supports chunked responses
+  gem 'puma' # puma supports chunked/streaming responses
 end
 
 group :development, :test do

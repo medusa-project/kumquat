@@ -10,13 +10,10 @@ class User < ActiveRecord::Base
   has_and_belongs_to_many :roles
 
   validates :email, presence: true, uniqueness: true, email: true
-  validates :password, length: { minimum: 5 }, if: :should_validate_password?
   validates :username, presence: true, length: { maximum: 30 },
             uniqueness: { case_sensitive: false },
             format: { with: /\A(?=.*[a-z])[a-z\d]+\Z/i,
                       message: 'Only letters and numbers are allowed.' }
-
-  has_secure_password
 
   def to_param
     username
@@ -35,12 +32,6 @@ class User < ActiveRecord::Base
 
   def roles_having_permission(key)
     self.roles.select{ |r| r.has_permission?(key) }
-  end
-
-  private
-
-  def should_validate_password?
-    password.present? or password_confirmation.present?
   end
 
 end

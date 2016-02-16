@@ -71,7 +71,6 @@ users = {}
 users[:admin] = User.create!(
     email: 'admin@example.org',
     username: 'admin',
-    password: 'kumquats4ever',
     roles: [roles[:admin]],
     enabled: true)
 
@@ -80,12 +79,10 @@ if Rails.env.development?
   users[:cataloger] = User.create!(
       email: 'cataloger@example.org',
       username: 'cataloger',
-      password: 'password',
       roles: [roles[:cataloger]],
       enabled: true)
   users[:disabled] = User.create!(
       email: 'disabled@example.org',
-      password: 'password',
       username: 'disabled',
       roles: [roles[:cataloger]],
       enabled: false)
