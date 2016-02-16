@@ -21,7 +21,7 @@ class SessionsController < WebsiteController
       end
     end
     flash['error'] = 'Sign-in failed.'
-    redirect_to signin_url
+    redirect_to root_url
   end
 
   def destroy
@@ -33,7 +33,7 @@ class SessionsController < WebsiteController
   # Responds to GET /signin
   #
   def new
-    session[:login_return_referer] = request.env['HTTP_REFERER']
+    session[:referer] = request.env['HTTP_REFERER']
     if Rails.env.production?
       redirect_to(shibboleth_login_path(PearTree::Application.shibboleth_host))
     else
@@ -44,8 +44,8 @@ class SessionsController < WebsiteController
   protected
 
   def clear_and_return_return_path
-    return_url = session[:return_to] || admin_root_path
-    session[:return_to] = nil
+    return_url = session[:return_to] || session[:referer] || admin_root_path
+    session[:return_to] = session[:referer] = nil
     reset_session
     return_url
   end
