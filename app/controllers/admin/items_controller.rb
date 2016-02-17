@@ -79,7 +79,9 @@ module Admin
         format.html do
           # if there is no user-entered query, sort by title. Otherwise, use
           # the default sort, which is by relevancy
-          @items = @items.order(Solr::Fields::TITLE) unless field_input_present
+          unless field_input_present
+            @items = @items.order(Element.named('title').solr_single_valued_field)
+          end
           @items = @items.start(@start).limit(@limit)
           @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
           @num_results_shown = [@limit, @items.total_length].min

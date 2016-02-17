@@ -76,7 +76,6 @@ class Item < Entity
     end
 
     item.published = doc[Solr::Fields::PUBLISHED]
-    item.title = doc[Solr::Fields::TITLE]
     item.web_id = doc[Solr::Fields::WEB_ID]
     item.instance_variable_set('@persisted', true)
     item

@@ -22,8 +22,6 @@ class Entity
   attr_accessor :published # Boolean
   attr_accessor :representative_item_id # String
   attr_accessor :score # float
-  attr_accessor :subtitle # String
-  attr_accessor :title # String
   attr_accessor :web_id # String
 
   def self.from_solr(doc)
@@ -64,6 +62,11 @@ class Entity
     elements.any? ? elements.first.value : nil
   end
 
+  def title
+    elements = metadata.select{ |e| e.name == 'title' }
+    elements.any? ? elements.first.value : nil
+  end
+
   def to_param
     (self.web_id || self.id).to_s
   end
@@ -91,7 +94,6 @@ class Entity
     doc[Solr::Fields::METADATA_PATHNAME] = self.metadata_pathname
     doc[Solr::Fields::PUBLISHED] = self.published
     doc[Solr::Fields::REPRESENTATIVE_ITEM_ID] = self.representative_item_id
-    doc[Solr::Fields::TITLE] = self.title
     doc[Solr::Fields::WEB_ID] = self.web_id
 
     self.metadata.each do |element|

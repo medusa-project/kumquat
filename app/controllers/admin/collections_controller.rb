@@ -5,7 +5,9 @@ module Admin
     def index
       @start = params[:start] ? params[:start].to_i : 0
       @limit = Option::integer(Option::Key::RESULTS_PER_PAGE)
-      @collections = Collection.order(Solr::Fields::TITLE).start(@start).limit(@limit)
+      @collections = Collection.
+          order(Element.named('title').solr_single_valued_field).
+          start(@start).limit(@limit)
       @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
       @num_shown = [@limit, @collections.total_length].min
       @collection = Collection.new

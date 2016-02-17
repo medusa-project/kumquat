@@ -6,7 +6,8 @@ class CollectionsController < WebsiteController
     query = !params[:q].blank? ? "#{Solr::Fields::SEARCH_ALL}:#{params[:q]}" : nil
     @collections = Collection.where(query).
         where(Solr::Fields::PUBLISHED => true).
-        order(Solr::Fields::TITLE).start(@start).limit(@limit)
+        order(Element.named('title').solr_single_valued_field).
+        start(@start).limit(@limit)
     @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
     @num_shown = [@limit, @collections.total_length].min
   end
