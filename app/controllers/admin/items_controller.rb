@@ -19,19 +19,6 @@ module Admin
       end
     end
 
-    def destroy
-      @item = Item.find(params[:id])
-      begin
-        @item.destroy
-      rescue => e
-        flash['error'] = "#{e}"
-        redirect_to admin_item_url(@item)
-      else
-        flash['success'] = "Item \"#{@item.title}\" deleted."
-        redirect_to admin_item_url
-      end
-    end
-
     ##
     # Responds to PATCH /admin/items/:id/full-text/extract
     #
@@ -131,25 +118,6 @@ module Admin
         #format.rdfxml { render text: @item.admin_rdf_graph(uri).to_rdfxml }
         #format.ttl { render text: @item.admin_rdf_graph(uri).to_ttl }
       end
-    end
-
-    def update
-      @item = Item.find(params[:id])
-
-      command = UpdateRepositoryItemCommand.new(@item, sanitized_params)
-      begin
-        executor.execute(command)
-      rescue => e
-        response.headers['X-PearTree-Result'] = 'error'
-        flash['error'] = "#{e}"
-        redirect_to :back
-      else
-        response.headers['X-PearTree-Result'] = 'success'
-        flash['success'] = "Item \"#{@item.title}\" updated."
-        redirect_to admin_item_url(@item) unless request.xhr?
-      end
-
-      render 'show' if request.xhr?
     end
 
     private

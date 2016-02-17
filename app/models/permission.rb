@@ -23,10 +23,8 @@ class Permission < ActiveRecord::Base
             uniqueness: { case_sensitive: false }
 
   ACCESS_CONTROL_PANEL = 'control_panel.access'
-  CREATE_COLLECTION = 'collections.create'
   CREATE_ROLE = 'roles.create'
   CREATE_USER = 'users.create'
-  DELETE_COLLECTION = 'collections.delete'
   DELETE_ROLE = 'roles.delete'
   DELETE_USER = 'users.delete'
   DISABLE_USER = 'users.disable'

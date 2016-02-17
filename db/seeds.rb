@@ -28,10 +28,6 @@ roles[:cataloger] = Role.create!(key: 'cataloger', name: 'Catalogers')
 roles[:anybody] = Role.create!(key: 'anybody', name: 'Anybody', required: true)
 
 # Permissions
-Permission.create!(key: Permission::CREATE_COLLECTION,
-                   roles: [roles[:admin], roles[:cataloger]])
-Permission.create!(key: Permission::DELETE_COLLECTION,
-                   roles: [roles[:admin]])
 Permission.create!(key: Permission::UPDATE_COLLECTION,
                    roles: [roles[:admin], roles[:cataloger]])
 Permission.create!(key: Permission::ACCESS_CONTROL_PANEL,
