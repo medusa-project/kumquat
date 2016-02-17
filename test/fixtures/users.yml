@@ -2,12 +2,8 @@
 
 one:
   username: MyString
-  email: MyString
-  password_digest: MyString
   enabled: false
 
 two:
   username: MyString
-  email: MyString
-  password_digest: MyString
   enabled: false
