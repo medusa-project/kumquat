@@ -8,8 +8,9 @@ class SessionsController < WebsiteController
   #
   def create
     auth_hash = request.env['omniauth.auth']
-    if auth_hash and auth_hash[:info] and auth_hash[:info][:name]
-      user = User.find_by_username(auth_hash[:info][:name])
+    if auth_hash and auth_hash[:uid]
+      username = auth_hash[:uid].split('@').first
+      user = User.find_by_username(username)
       if user and user.enabled
         return_url = clear_and_return_return_path
         sign_in user
