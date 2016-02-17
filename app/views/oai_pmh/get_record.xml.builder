@@ -40,8 +40,10 @@ xml.tag!('OAI-PMH',
           }) do
             @item.metadata.each do |element|
               # oai_dc supports only unqualified DC
-              # TODO: only dc elements
-              xml.tag!("dc:#{element.name}", element.value)
+              name = element.dc_name
+              if name
+                xml.tag!("dc:#{name}", element.value)
+              end
             end
           end
         end
