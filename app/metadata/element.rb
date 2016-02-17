@@ -42,6 +42,14 @@ class Element
     '_txtim'
   end
 
+  def dc_name
+    @@element_defs[self.name]['mappings']['dc']
+  end
+
+  def dcterms_name
+    @@element_defs[self.name]['mappings']['dcterms']
+  end
+
   ##
   # @return [String] Name of the Solr facet field.
   #
