@@ -1,5 +1,10 @@
 namespace :solr do
 
+  desc 'Commit'
+  task :commit => :environment do
+    Solr.instance.commit
+  end
+
   desc 'Delete a document'
   task :delete, [:id] => :environment do |task, args|
     solr = Solr.instance
