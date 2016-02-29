@@ -162,10 +162,6 @@ module Deserialization
         #entity.date = Date.parse(date.content.strip)
       end
 
-      # normalized title
-      title = node.xpath('lrp:title', namespaces).first
-      entity.title = title ? title.content.strip : entity.id
-
       # everything else
       descriptive_elements = Element.all.
           select{ |e| e.type == Element::Type::DESCRIPTIVE }.map(&:name)
