@@ -6,25 +6,43 @@
 # content dynamically, such as getting an image's actual dimensions, or
 # extracting full text, or inferring media type, etc. That information must be
 # pre-encoded in the AIP files. Reason being, the indexer needs to run as fast
-# as  possible, as it will eventually need to scan through millions of AIP
-# files in a reasonable amount of time.
+# as possible, as it will eventually need to scan through millions of files in
+# a reasonable amount of time.
 #
 class Indexer
+
+  ##
+  # @param pathname [String] File or path to index
+  # @return [Integer] Number of items indexed
+  #
+  def index(pathname)
+    count = 0
+    # If pathname is a file...
+    if pathname.end_with?('.xml') and
+        %w(collection item).include?(entity(pathname))
+      count = index_file(pathname, count)
+    else
+      # Pathname is a directory
+      count = index_directory(pathname)
+    end
+    count
+  end
 
   ##
   # Indexes all metadata files (`collection.xml` or `item_*.xml`) within the
   # given pathname.
   #
-  # @param [String] root_pathname Root pathname to index
-  # @return [void]
+  # @param root_pathname [String] Root pathname to index
+  # @return [Integer] Number of items indexed
   #
-  def index_all(root_pathname)
+  def index_directory(root_pathname)
     count = 0
     Dir.glob(root_pathname + '/**/*').select{ |file| File.file?(file) }.each do |pathname|
       if %w(collection item).include?(entity(pathname))
         count = index_file(pathname, count)
       end
     end
+    count
   end
 
   ##
