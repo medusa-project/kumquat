@@ -19,7 +19,7 @@
         <%= icon_for(@collection) %> View the collection
       <% end %>
     </div>
-    <p><%= @collection.description %></p>
+    <p><%= simple_format(auto_link(@collection.description)) %></p>
   </div>
   <div class="col-sm-6">
     <% item = @collection.representative_item %>
