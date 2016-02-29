@@ -44,13 +44,13 @@ class Indexer
       doc.encoding = 'utf-8'
       case entity
         when 'item'
-          validate(doc, 'object.xsd')
+          validate_document(doc, 'object.xsd')
           node = doc.xpath('//lrp:Object', namespaces).first
           entity = entity_class.from_lrp_xml(node, pathname)
           entity.save
           count += 1
         when 'collection'
-          validate(doc, 'collection.xsd')
+          validate_document(doc, 'collection.xsd')
           node = doc.xpath('//lrp:Collection', namespaces).first
           entity = entity_class.from_lrp_xml(node, pathname)
           entity.save
@@ -60,6 +60,24 @@ class Indexer
       end
     end
     count
+  end
+
+  def validate(pathname)
+    entity = entity(pathname).singularize
+    entity_class = entity.capitalize.constantize
+    File.open(pathname) do |content|
+      doc = Nokogiri::XML(content, &:noblanks)
+      doc.encoding = 'utf-8'
+      case entity
+        when 'item'
+          validate_document(doc, 'object.xsd')
+        when 'collection'
+          validate_document(doc, 'collection.xsd')
+        else
+          raise "Encountered unknown entity (#{entity_class}) in #{pathname}"
+      end
+    end
+    true
   end
 
   private
@@ -82,7 +100,7 @@ class Indexer
   # @return [void]
   # @raise [RuntimeError] If the validation fails.
   #
-  def validate(doc, schema)
+  def validate_document(doc, schema)
     xsd = Nokogiri::XML::Schema(
         File.open(__dir__ + '/../../public/schema/1/' + schema))
     xsd.validate(doc).each do |error|
