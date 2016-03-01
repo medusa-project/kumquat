@@ -63,6 +63,13 @@ lastModified:
     dc: date
     dcterms: modified
     geo:
+pageNumber:
+  type: technical
+  mappings:
+    bibFrame:
+    dc:
+    dcterms:
+    geo:
 parentId:
   type: technical
   mappings:
