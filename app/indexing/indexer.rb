@@ -29,6 +29,37 @@ class Indexer
   end
 
   ##
+  # @param pathname [String] File or path to validate
+  # @return [Integer] Number of items validated
+  #
+  def validate(pathname)
+    count = 0
+    # If pathname is a file...
+    if pathname.end_with?('.xml') and
+        %w(collection item).include?(entity(pathname))
+      count = validate_file(pathname, count)
+    else
+      # Pathname is a directory
+      count = validate_directory(pathname)
+    end
+    count
+  end
+
+  private
+
+  ##
+  # @param [String] pathname
+  # @return [String] Name of one of the [Entity] subclasses, singular or plural
+  #
+  def entity(pathname)
+    begin
+      return pathname.split(File::SEPARATOR).last.split('.').first.split('_').first
+    rescue NameError
+      # noop
+    end
+  end
+
+  ##
   # Indexes all metadata files (`collection.xml` or `item_*.xml`) within the
   # given pathname.
   #
@@ -37,7 +68,7 @@ class Indexer
   #
   def index_directory(root_pathname)
     count = 0
-    Dir.glob(root_pathname + '/**/*').select{ |file| File.file?(file) }.each do |pathname|
+    Dir.glob(root_pathname + '/**/*.xml').each do |pathname|
       if %w(collection item).include?(entity(pathname))
         count = index_file(pathname, count)
       end
@@ -56,8 +87,8 @@ class Indexer
     entity_class = entity.capitalize.constantize
 
     namespaces = { 'lrp' => 'http://www.library.illinois.edu/lrp/terms#' }
+    Rails.logger.debug("Indexing #{pathname} (#{count})")
     File.open(pathname) do |content|
-      Rails.logger.debug("Indexing #{pathname} (#{count})")
       doc = Nokogiri::XML(content, &:noblanks)
       doc.encoding = 'utf-8'
       case entity
@@ -80,36 +111,48 @@ class Indexer
     count
   end
 
-  def validate(pathname)
+  ##
+  # Validates all metadata files within the given pathname.
+  #
+  # @param root_pathname [String] Root pathname to validate
+  # @return [Integer] Number of items validated
+  #
+  def validate_directory(root_pathname)
+    count = 0
+    Dir.glob(root_pathname + '/**/*.xml').each do |pathname|
+      if %w(collection item).include?(entity(pathname))
+        count = validate_file(pathname, count)
+      end
+    end
+    count
+  end
+
+  ##
+  # @param pathname [String] Pathname of a metadata file.
+  # @param count [Integer] Running count of files validated; will be logged.
+  # @return [Integer] The given count plus one.
+  # @raise [RuntimeError]
+  #
+  def validate_file(pathname, count = 0)
     entity = entity(pathname).singularize
     entity_class = entity.capitalize.constantize
+
+    Rails.logger.debug("Validating #{pathname} (#{count})")
     File.open(pathname) do |content|
       doc = Nokogiri::XML(content, &:noblanks)
       doc.encoding = 'utf-8'
       case entity
         when 'item'
           validate_document(doc, 'object.xsd')
+          count += 1
         when 'collection'
           validate_document(doc, 'collection.xsd')
+          count += 1
         else
           raise "Encountered unknown entity (#{entity_class}) in #{pathname}"
       end
     end
-    true
-  end
-
-  private
-
-  ##
-  # @param [String] pathname
-  # @return [String] Name of one of the [Entity] subclasses, singular or plural
-  #
-  def entity(pathname)
-    begin
-      return pathname.split(File::SEPARATOR).last.split('.').first.split('_').first
-    rescue NameError
-      # noop
-    end
+    count
   end
 
   ##
@@ -119,10 +162,11 @@ class Indexer
   # @raise [RuntimeError] If the validation fails.
   #
   def validate_document(doc, schema)
-    xsd = Nokogiri::XML::Schema(
-        File.open(__dir__ + '/../../public/schema/1/' + schema))
-    xsd.validate(doc).each do |error|
-      raise error.message
+    File.open(__dir__ + '/../../public/schema/1/' + schema) do |content|
+      xsd = Nokogiri::XML::Schema(content)
+      xsd.validate(doc).each do |error|
+        raise error.message
+      end
     end
   end
 
