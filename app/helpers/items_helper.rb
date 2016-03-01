@@ -146,10 +146,9 @@ module ItemsHelper
       html += '<h1 class="pt-compound-title">'
       if item.parent
         html += "<small>#{link_to relative_parent.title, relative_parent}</small>"
-      else
-        html += "<small>#{relative_parent.title}</small>"
+        html += "<br>&nbsp;&nbsp;&#8627; "
       end
-      html += "<br>&nbsp;&nbsp;&#8627; #{relative_child.title}</h1>"
+      html += "#{relative_child.title}</h1>"
     else
       html += "<h1>#{item.title}"
       if item.subtitle
@@ -344,7 +343,7 @@ module ItemsHelper
     items.each do |page|
       selected = (page.id == item.id) ? 'selected' : ''
       html += "<option value=\"#{item_path(page)}\" #{selected}>
-        #{page.title} (#{page.page_number} of #{@pages.total_length})
+        #{page.title} (#{page.page_number} of #{items.total_length})
         </option>"
     end
     html += '</select>'
