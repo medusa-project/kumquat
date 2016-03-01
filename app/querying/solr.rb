@@ -43,6 +43,7 @@ class Solr
     PUBLISHED = 'published_bi'
     REPRESENTATIVE_ITEM_ID = 'representative_item_id_si'
     SEARCH_ALL = 'searchall_txtim'
+    SUBPAGE_NUMBER = 'subpage_number_ii'
     WEB_ID = 'web_id_si'
   end
 

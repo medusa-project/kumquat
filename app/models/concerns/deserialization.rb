@@ -153,6 +153,10 @@ module Deserialization
         end
       end
 
+      # subpage number
+      page = node.xpath('lrp:subpageNumber', namespaces).first
+      entity.subpage_number = page.content.strip.to_i if page
+
       #################### descriptive metadata ######################
 
       # normalized date

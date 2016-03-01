@@ -20,6 +20,10 @@ class Item < Entity
   #   @return [String]
   attr_accessor :parent_id
 
+  # @!attribute subpage_number
+  #   @return [Integer]
+  attr_accessor :subpage_number
+
   ##
   # @param doc [Nokogiri::XML::Document]
   # @return [Item]
@@ -64,6 +68,7 @@ class Item < Entity
       bs.width = doc[Solr::Fields::PRESERVATION_MASTER_WIDTH]
       item.bytestreams << bs
     end
+    item.subpage_number = doc[Solr::Fields::SUBPAGE_NUMBER]
 
     # descriptive metadata
     doc.keys.select{ |k| k.start_with?(Element.solr_prefix) and
@@ -240,6 +245,7 @@ class Item < Entity
       doc[Solr::Fields::PRESERVATION_MASTER_URL] = bs.url
       doc[Solr::Fields::PRESERVATION_MASTER_WIDTH] = bs.width
     end
+    doc[Solr::Fields::SUBPAGE_NUMBER] = self.subpage_number
     doc
   end
 

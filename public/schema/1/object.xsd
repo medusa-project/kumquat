@@ -66,6 +66,10 @@
           <!-- Pixel width of the preservation master. For raster images and
           videos. -->
           <xs:element name="preservationMasterWidth" type="xs:positiveInteger" minOccurs="0" maxOccurs="1"/>
+
+          <!-- Subpage number of an item that is a fragment of a page, starting
+          at 1. -->
+          <xs:element name="subpageNumber" type="xs:positiveInteger" minOccurs="0" maxOccurs="1"/>
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>

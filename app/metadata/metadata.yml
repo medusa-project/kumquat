@@ -105,6 +105,13 @@ representativeItemId:
     dc:
     dcterms:
     geo:
+subpageNumber:
+  type: technical
+  mappings:
+    bibFrame:
+    dc:
+    dcterms:
+    geo:
 webId:
   type: technical
   mappings:
