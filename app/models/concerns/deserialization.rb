@@ -69,7 +69,7 @@ module Deserialization
 
         # page number
         page = node.xpath('lrp:pageNumber', namespaces).first
-        entity.page_number = page.content.strip if page
+        entity.page_number = page.content.strip.to_i if page
 
         # parent item
         parent = node.xpath('lrp:parentId', namespaces).first
