@@ -137,6 +137,30 @@ class Item < Entity
     false
   end
 
+  ##
+  # @return [Item] The item's front matter item, if available.
+  #
+  def front_matter_item
+    unless @front_matter_item
+      @front_matter_item = Item.where(Solr::Fields::PARENT_ITEM => self.id).
+          where(Solr::Fields::SUBCLASS => Entity::Subclasses::FRONT_MATTER).
+          limit(1).first
+    end
+    @front_matter_item
+  end
+
+  ##
+  # @return [Item] The item's index item, if available.
+  #
+  def index_item
+    unless @index_item
+      @index_item = Item.where(Solr::Fields::PARENT_ITEM => self.id).
+          where(Solr::Fields::SUBCLASS => Entity::Subclasses::INDEX).
+          limit(1).first
+    end
+    @index_item
+  end
+
   def is_audio?
     bs = self.bytestreams.select{ |b| b.type == Bytestream::Type::ACCESS_MASTER }.first ||
         self.bytestreams.select{ |b| b.type == Bytestream::Type::PRESERVATION_MASTER }.first
@@ -165,6 +189,18 @@ class Item < Entity
     bs = self.bytestreams.select{ |b| b.type == Bytestream::Type::ACCESS_MASTER }.first ||
         self.bytestreams.select{ |b| b.type == Bytestream::Type::PRESERVATION_MASTER }.first
     bs and bs.is_video?
+  end
+
+  ##
+  # @return [Item] The item's key item, if available.
+  #
+  def key_item
+    unless @key_item
+      @key_item = Item.where(Solr::Fields::PARENT_ITEM => self.id).
+          where(Solr::Fields::SUBCLASS => Entity::Subclasses::KEY).
+          limit(1).first
+    end
+    @key_item
   end
 
   ##
@@ -232,6 +268,18 @@ class Item < Entity
           limit(1).first
     end
     prev_item
+  end
+
+  ##
+  # @return [Item] The item's title item, if available.
+  #
+  def title_item
+    unless @title_item
+      @title_item = Item.where(Solr::Fields::PARENT_ITEM => self.id).
+          where(Solr::Fields::SUBCLASS => Entity::Subclasses::TITLE).
+          limit(1).first
+    end
+    @title_item
   end
 
   ##
