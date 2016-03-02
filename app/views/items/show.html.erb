@@ -63,17 +63,18 @@
   </div>
 <% end %>
 
-<% if @pages.any? %>
+<% if @item.full_text.present? %>
   <div class="panel panel-default">
     <div class="panel-heading">
-      <h2 class="panel-title">Pages (<%= @pages.total_length %>)</h2>
+      <h2 class="panel-title">Full Text</h2>
     </div>
-    <div class="panel-body pt-pages">
-      <%= pages_as_list(@item) %>
+    <div class="panel-body">
+      <pre><%= @item.full_text %></pre>
     </div>
   </div>
 <% end %>
 
+<%= pages_panel(@pages, @item) %>
 
 <div class="panel panel-default">
   <div class="panel-heading">

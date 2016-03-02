@@ -384,6 +384,21 @@ module ItemsHelper
     raw(html)
   end
 
+  def pages_panel(pages, selected_page)
+    html = ''
+    if pages.any?
+      html += "<div class=\"panel panel-default\">
+        <div class=\"panel-heading\">
+          <h2 class=\"panel-title\">Pages (#{pages.total_length})</h2>
+        </div>
+        <div class=\"panel-body pt-pages\">
+          #{pages_as_list(selected_page)}
+        </div>
+      </div>"
+    end
+    raw(html)
+  end
+
   ##
   # @param items [Array]
   # @param per_page [Integer]
