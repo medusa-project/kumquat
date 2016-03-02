@@ -98,7 +98,8 @@ class Item < Entity
   end
 
   ##
-  # @return [Relation]
+  # @return [Relation] All of the instance's children.
+  # @see items
   #
   def children
     unless @children
@@ -187,6 +188,19 @@ class Item < Entity
           limit(1).first
     end
     next_item
+  end
+
+  ##
+  # @return [Relation] All of the item's children that have a subclass of Page.
+  # @see children
+  #
+  def pages
+    unless @pages
+      @pages = Item.where(Solr::Fields::PARENT_ITEM => self.id).
+          where(Solr::Fields::SUBCLASS => Entity::Subclasses::PAGE).
+          order(Solr::Fields::PAGE_NUMBER)
+    end
+    @pages
   end
 
   ##
