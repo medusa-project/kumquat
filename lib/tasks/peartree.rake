@@ -2,7 +2,9 @@ namespace :peartree do
 
   desc 'Index a pathname'
   task :index, [:pathname] => :environment do |task, args|
-    ReindexJob.perform_later(pathname: File.expand_path(args[:pathname]))
+    Indexer.new.index(args[:pathname])
+    Solr.instance.commit
+    #ReindexJob.perform_later(pathname: File.expand_path(args[:pathname]))
   end
 
   desc 'Validate an XML file'
