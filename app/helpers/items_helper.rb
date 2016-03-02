@@ -336,14 +336,14 @@ module ItemsHelper
   end
 
   def page_select_menu(item)
-    items = item.parent ? item.parent.items : item.items
-    items = items.limit(999)
+    pages = item.parent ? item.parent.pages : item.pages
+    pages = pages.limit(999)
 
     html = '<select class="form-control input-sm pt-page-select">'
-    items.each do |page|
+    pages.each_with_index do |page, index|
       selected = (page.id == item.id) ? 'selected' : ''
       html += "<option value=\"#{item_path(page)}\" #{selected}>
-        #{page.title} (#{page.page_number} of #{items.total_length})
+        #{page.title} (#{index + 1} of #{pages.total_length})
         </option>"
     end
     html += '</select>'
