@@ -355,7 +355,7 @@ module ItemsHelper
   # @param options [Hash] with available keys: `:link_to_admin` [Boolean]
   #
   def pages_as_list(item, options = {})
-    items = item.parent ? item.parent.items : item.items
+    items = item.parent ? item.parent.pages : item.pages
     items = items.limit(999)
     return nil unless items.any?
     html = '<ol>'
