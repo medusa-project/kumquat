@@ -54,6 +54,10 @@ module Deserialization
       rep_item_id = node.xpath('lrp:representativeItemId', namespaces).first
       entity.representative_item_id = rep_item_id.content.strip if rep_item_id
 
+      # subclass
+      subclass = node.xpath('lrp:subclass', namespaces).first
+      entity.subclass = subclass ? subclass.content.strip : nil
+
       # web ID
       web_id = node.xpath('lrp:webId', namespaces).first
       entity.web_id = web_id ? web_id.content.strip : entity.id

@@ -112,6 +112,13 @@ representativeItemId:
     dc:
     dcterms:
     geo:
+subclass:
+  type: technical
+  mappings:
+    bibFrame:
+    dc:
+    dcterms:
+    geo:
 subpageNumber:
   type: technical
   mappings:

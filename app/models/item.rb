@@ -68,6 +68,7 @@ class Item < Entity
       bs.width = doc[Solr::Fields::PRESERVATION_MASTER_WIDTH]
       item.bytestreams << bs
     end
+    item.subclass = doc[Solr::Fields::SUBCLASS]
     item.subpage_number = doc[Solr::Fields::SUBPAGE_NUMBER]
 
     # descriptive metadata

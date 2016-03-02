@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <lrp:Collection xmlns:lrp="http://www.library.illinois.edu/lrp/terms#">
   <!-- technical metadata -->
-  <lrp:class>Collection</lrp:class>
   <lrp:created>2015-11-21T01:51:17Z</lrp:created>
   <lrp:lastModified>2015-11-22T01:51:17Z</lrp:lastModified>
   <lrp:published>true</lrp:published>

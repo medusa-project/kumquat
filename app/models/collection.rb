@@ -20,6 +20,7 @@ class Collection < Entity
     col.metadata_pathname = doc[Solr::Fields::METADATA_PATHNAME]
     col.published = doc[Solr::Fields::PUBLISHED]
     col.representative_item_id = doc[Solr::Fields::REPRESENTATIVE_ITEM_ID]
+    col.subclass = doc[Solr::Fields::SUBCLASS]
     col.web_id = doc[Solr::Fields::WEB_ID]
 
     # descriptive metadata
