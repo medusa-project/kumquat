@@ -1,5 +1,13 @@
 class Item < Entity
 
+  class Subclasses
+    FRONT_MATTER = 'FrontMatter'
+    INDEX = 'Index'
+    KEY = 'Key'
+    PAGE = 'Page'
+    TITLE = 'Title'
+  end
+
   # @!attribute bytestreams
   #   @return [Set<Bytestream>]
   attr_accessor :bytestreams
@@ -143,7 +151,7 @@ class Item < Entity
   def front_matter_item
     unless @front_matter_item
       @front_matter_item = Item.where(Solr::Fields::PARENT_ITEM => self.id).
-          where(Solr::Fields::SUBCLASS => Entity::Subclasses::FRONT_MATTER).
+          where(Solr::Fields::SUBCLASS => Item::Subclasses::FRONT_MATTER).
           limit(1).first
     end
     @front_matter_item
@@ -155,7 +163,7 @@ class Item < Entity
   def index_item
     unless @index_item
       @index_item = Item.where(Solr::Fields::PARENT_ITEM => self.id).
-          where(Solr::Fields::SUBCLASS => Entity::Subclasses::INDEX).
+          where(Solr::Fields::SUBCLASS => Item::Subclasses::INDEX).
           limit(1).first
     end
     @index_item
@@ -197,7 +205,7 @@ class Item < Entity
   def key_item
     unless @key_item
       @key_item = Item.where(Solr::Fields::PARENT_ITEM => self.id).
-          where(Solr::Fields::SUBCLASS => Entity::Subclasses::KEY).
+          where(Solr::Fields::SUBCLASS => Item::Subclasses::KEY).
           limit(1).first
     end
     @key_item
@@ -233,7 +241,7 @@ class Item < Entity
   def pages
     unless @pages
       @pages = Item.where(Solr::Fields::PARENT_ITEM => self.id).
-          where(Solr::Fields::SUBCLASS => Entity::Subclasses::PAGE).
+          where(Solr::Fields::SUBCLASS => Item::Subclasses::PAGE).
           order(Solr::Fields::PAGE_NUMBER)
     end
     @pages
@@ -276,7 +284,7 @@ class Item < Entity
   def title_item
     unless @title_item
       @title_item = Item.where(Solr::Fields::PARENT_ITEM => self.id).
-          where(Solr::Fields::SUBCLASS => Entity::Subclasses::TITLE).
+          where(Solr::Fields::SUBCLASS => Item::Subclasses::TITLE).
           limit(1).first
     end
     @title_item

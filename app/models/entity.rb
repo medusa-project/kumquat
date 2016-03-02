@@ -10,14 +10,6 @@ class Entity
   include Deserialization
   include SolrQuerying
 
-  class Subclasses
-    FRONT_MATTER = 'FrontMatter'
-    INDEX = 'Index'
-    KEY = 'Key'
-    PAGE = 'Page'
-    TITLE = 'Title'
-  end
-
   attr_accessor :bib_id # String
   attr_accessor :created # DateTime
   attr_accessor :date # Date
@@ -30,7 +22,7 @@ class Entity
   attr_accessor :published # Boolean
   attr_accessor :representative_item_id # String
   attr_accessor :score # float
-  attr_accessor :subclass # One of the Entity::Subclasses constants
+  attr_accessor :subclass # One of the Item::Subclasses constants
   attr_accessor :web_id # String
 
   def self.from_solr(doc)
