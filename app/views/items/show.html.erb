@@ -4,7 +4,7 @@
 <%= breadcrumb(item: @item, context: session[:browse_context],
                context_url: session[:browse_context_url]) %>
 
-<img src="<%= qr_code(request.url) %>" class="pt-qr-code">
+<%= qr_code(request.url) %>
 
 <div class="btn-group pull-right">
   <button class="btn btn-danger pt-remove-from-favorites"

@@ -91,7 +91,9 @@ module ApplicationHelper
 
     barcode = Barby::QrCode.new(string, level: :q, size: 6)
     base64_output = Base64.encode64(barcode.to_png({ xdim: 6 }))
-    "data:image/png;base64,#{base64_output}"
+    data = "data:image/png;base64,#{base64_output}"
+    html = "<img src=\"#{data}\" class=\"pt-qr-code\">"
+    raw(html)
   end
 
   ##
