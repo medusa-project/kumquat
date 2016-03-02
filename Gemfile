@@ -28,7 +28,7 @@ group :development do
   gem 'capistrano-bundler'
   gem 'capistrano-rails'
   gem 'capistrano-rvm'
-  gem 'puma' # puma supports chunked/streaming responses
+  gem 'unicorn-rails' # supports chunked/streaming responses
 end
 
 group :development, :test do
