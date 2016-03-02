@@ -712,8 +712,6 @@ module ItemsHelper
   # @param item [Item]
   #
   def viewer_for(item)
-    item = item.children.first if item.children.any?
-
     if item.is_pdf?
       return pdf_viewer_for(item)
     elsif item.is_image?
