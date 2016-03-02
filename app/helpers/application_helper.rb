@@ -80,8 +80,24 @@ module ApplicationHelper
   end
 
   ##
+  # @param string [String]
+  # @return [String] Base64-encoded string
+  #
+  def qr_code(string)
+    require 'barby'
+    require 'barby/barcode'
+    require 'barby/barcode/qr_code'
+    require 'barby/outputter/png_outputter'
+
+    barcode = Barby::QrCode.new(string, level: :q, size: 5)
+    base64_output = Base64.encode64(barcode.to_png({ xdim: 5 }))
+    "data:image/png;base64,#{base64_output}"
+  end
+
+  ##
   # @param entity [Entity]
   # @return [String] Text description of the entity's type
+  #
   def type_of(entity)
     type = 'Item'
     if entity.kind_of?(Item)

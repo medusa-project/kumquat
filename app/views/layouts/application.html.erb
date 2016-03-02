@@ -89,6 +89,8 @@
 
     <div class="container-fluid">
 
+      <img src="<%= qr_code(request.url) %>" class="pt-qr-code">
+
       <% flash.each do |type, message| %>
         <div class="pt-flash alert alert-dismissable <%= bootstrap_class_for(type) %>">
           <button type="button" class="close" data-dismiss="alert"
