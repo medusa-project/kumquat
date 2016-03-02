@@ -67,6 +67,24 @@
           videos. -->
           <xs:element name="preservationMasterWidth" type="xs:positiveInteger" minOccurs="0" maxOccurs="1"/>
 
+          <!-- Subclass name -->
+          <xs:element name="subclass" minOccurs="0" maxOccurs="1">
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <!-- Front matter in e.g. a book -->
+                <xs:enumeration value="FrontMatter"/>
+                <!-- As in a book or map index -->
+                <xs:enumeration value="Index"/>
+                <!-- As in a map key -->
+                <xs:enumeration value="Key"/>
+                <!-- As in a book page; a sub-item -->
+                <xs:enumeration value="Page"/>
+                <!-- As in a title page or book cover -->
+                <xs:enumeration value="Title"/>
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+
           <!-- Subpage number of an item that is a fragment of a page, starting
           at 1. -->
           <xs:element name="subpageNumber" type="xs:positiveInteger" minOccurs="0" maxOccurs="1"/>
