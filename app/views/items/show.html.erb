@@ -17,7 +17,7 @@
   <%= download_button(@item) %>
 </div>
 
-<% if @parent %>
+<% if @item.subclass and @item.subclass == Item::Subclasses::PAGE %>
   <%= item_page_title(@item) %>
   <div class="panel panel-default">
     <div class="panel-body pt-page-nav">
@@ -52,9 +52,21 @@
 
 <%= viewer_for(@item) %>
 
-<%= special_subitem_panels(@item) %>
-
-<%= pages_panel(@pages, @item) %>
+<% if @relative_parent.key_item or @relative_parent.front_matter_item or
+    @relative_parent.index_item %>
+  <div class="row">
+    <div class="col-sm-3">
+      <%= key_item_panel(@relative_parent, size: 512) %>
+      <%= front_matter_item_panel(@relative_parent, size: 512) %>
+      <%= index_item_panel(@relative_parent, size: 512) %>
+    </div>
+    <div class="col-sm-9">
+      <%= pages_panel(@pages, @item) %>
+    </div>
+  </div>
+<% else %>
+  <%= pages_panel(@pages, @item) %>
+<% end %>
 
 <% if @item.full_text.present? %>
   <div class="panel panel-default">
