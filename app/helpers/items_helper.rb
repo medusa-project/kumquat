@@ -727,6 +727,32 @@ module ItemsHelper
 
   ##
   # @param item [Item]
+  # @param options [Hash]
+  # @option options [Integer] :size Thumbnail size
+  # @return [String]
+  #
+  def title_item_panel(item, options)
+    unless options[:size]
+      options[:size] = DEFAULT_THUMBNAIL_SIZE
+    end
+    html = ''
+    if item.title_item
+      html += "<div class=\"panel panel-default pt-title-item\">
+          <div class=\"panel-heading\">
+            <h2 class=\"panel-title\">Title</h2>
+          </div>
+          <div class=\"panel-body\">"
+      html += link_to(item.title_item) do
+        thumbnail_tag(item.title_item, options[:size])
+      end
+      html += '</div>
+              </div>'
+    end
+    raw(html)
+  end
+
+  ##
+  # @param item [Item]
   #
   def viewer_for(item)
     if item.is_pdf?
