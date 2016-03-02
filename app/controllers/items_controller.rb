@@ -110,7 +110,7 @@ class ItemsController < WebsiteController
       }
     end
     @parent = @item.parent
-    @pages = @parent ? @parent.children : @item.children
+    @pages = @parent ? @parent.pages : @item.pages
 
     @relative_parent = @parent ? @parent : @item
     @relative_child = @parent ? @item : @pages.first
