@@ -77,13 +77,14 @@ body#items_show {
     .panel-body {
       text-align: center;
       img {
-        max-height: 150px;
+        max-height: 178px;
+        max-width: 178px;
       }
     }
   }
 
   .pt-pages {
-    max-height: 32em;
+    max-height: 34em;
     overflow-y: scroll;
     ol, ul {
       margin-left:0px;

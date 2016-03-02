@@ -55,13 +55,13 @@
 <% if @relative_parent.key_item or @relative_parent.front_matter_item or
     @relative_parent.index_item %>
   <div class="row">
-    <div class="col-sm-3">
+    <div class="col-sm-4">
       <%= title_item_panel(@relative_parent, size: 512) %>
       <%= key_item_panel(@relative_parent, size: 512) %>
       <%= front_matter_item_panel(@relative_parent, size: 512) %>
       <%= index_item_panel(@relative_parent, size: 512) %>
     </div>
-    <div class="col-sm-9">
+    <div class="col-sm-8">
       <%= pages_panel(@pages, @item) %>
     </div>
   </div>
