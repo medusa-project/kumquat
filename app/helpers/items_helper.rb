@@ -1,5 +1,7 @@
 module ItemsHelper
 
+  DEFAULT_THUMBNAIL_SIZE = 256
+
   ##
   # @param item [Item]
   # @param options [Hash] with available keys: `:for_admin` (boolean)
@@ -373,7 +375,8 @@ module ItemsHelper
       else
         html += '<div>'
         html += link_to(link_target) do
-          raw('<div class="pt-thumbnail">' + thumbnail_tag(child, 256) + '</div>')
+          raw('<div class="pt-thumbnail">' +
+                  thumbnail_tag(child, DEFAULT_THUMBNAIL_SIZE) + '</div>')
         end
         html += link_to(truncate(child.title, length: 40), link_target,
                         class: 'pt-title')
@@ -587,6 +590,67 @@ module ItemsHelper
       html += '</select>
         </div>
       </form>'
+    end
+    raw(html)
+  end
+
+  ##
+  # @param item [Item]
+  # @return [String] Row of Bootstrap panels containing thumbnails for the
+  #         item's key item, front matter item, etc.
+  #
+  def special_subitem_panels(item)
+    item = item.parent ? item.parent : item
+    num_special_subitems = (item.key_item ? 1 : 0) +
+        (item.front_matter_item ? 1 : 0) + (item.index_item ? 1 : 0)
+
+    html = ''
+    if num_special_subitems > 0
+      col_size = 12 / num_special_subitems
+      html += '<div class="row">'
+      if item.key_item
+        html += "<div class=\"col-sm-#{col_size}\">
+          <div class=\"panel panel-default pt-key-item\">
+            <div class=\"panel-heading\">
+              <h2 class=\"panel-title\">Key</h2>
+            </div>
+            <div class=\"panel-body\">"
+              html += link_to(item.key_item) do
+                thumbnail_tag(item.key_item, DEFAULT_THUMBNAIL_SIZE)
+              end
+        html += '</div>
+            </div>
+          </div>'
+      end
+      if item.front_matter_item
+        html += "<div class=\"col-sm-#{col_size}\">
+            <div class=\"panel panel-default pt-key-item\">
+              <div class=\"panel-heading\">
+                <h2 class=\"panel-title\">Front Matter</h2>
+              </div>
+              <div class=\"panel-body\">"
+        html += link_to(item.front_matter_item) do
+          thumbnail_tag(item.front_matter_item, DEFAULT_THUMBNAIL_SIZE)
+        end
+        html += '</div>
+            </div>
+          </div>'
+      end
+      if item.index_item
+        html += "<div class=\"col-sm-#{col_size}\">
+            <div class=\"panel panel-default pt-key-item\">
+              <div class=\"panel-heading\">
+                <h2 class=\"panel-title\">Index</h2>
+              </div>
+              <div class=\"panel-body\">"
+        html += link_to(item.index_item) do
+          thumbnail_tag(item.index_item, DEFAULT_THUMBNAIL_SIZE)
+        end
+        html += '</div>
+            </div>
+          </div>'
+      end
+      html += '</div>'
     end
     raw(html)
   end

@@ -52,29 +52,20 @@
 
 <%= viewer_for(@item) %>
 
-<% if @item.full_text.present? %>
-  <div class="panel panel-default">
-    <div class="panel-heading">
-      <h2 class="panel-title">Full Text</h2>
-    </div>
-    <div class="panel-body">
-      <pre><%= @item.full_text %></pre>
-    </div>
-  </div>
-<% end %>
-
-<% if @item.full_text.present? %>
-  <div class="panel panel-default">
-    <div class="panel-heading">
-      <h2 class="panel-title">Full Text</h2>
-    </div>
-    <div class="panel-body">
-      <pre><%= @item.full_text %></pre>
-    </div>
-  </div>
-<% end %>
+<%= special_subitem_panels(@item) %>
 
 <%= pages_panel(@pages, @item) %>
+
+<% if @item.full_text.present? %>
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <h2 class="panel-title">Full Text</h2>
+    </div>
+    <div class="panel-body">
+      <pre><%= @item.full_text %></pre>
+    </div>
+  </div>
+<% end %>
 
 <div class="panel panel-default">
   <div class="panel-heading">

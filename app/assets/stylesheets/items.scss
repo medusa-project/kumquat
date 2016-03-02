@@ -73,6 +73,15 @@ body#items_show {
     width: 100%;
   }
 
+  .pt-key-item, .pt-front-matter-item, .pt-index-item {
+    .panel-body {
+      text-align: center;
+      img {
+        max-height: 150px;
+      }
+    }
+  }
+
   .pt-pages {
     max-height: 25em;
     overflow-y: scroll;
