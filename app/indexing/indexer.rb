@@ -69,7 +69,8 @@ class Indexer
   def index_directory(root_pathname)
     count = 0
     Dir.glob(root_pathname + '/**/*.xml').each do |pathname|
-      if %w(collection item).include?(entity(pathname))
+      if %w(collection item).include?(entity(pathname)) and
+          !pathname.include?('/source')
         count = index_file(pathname, count)
       end
     end
