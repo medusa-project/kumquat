@@ -3,44 +3,6 @@ module ItemsHelper
   DEFAULT_THUMBNAIL_SIZE = 256
 
   ##
-  # @param item [Item]
-  # @param options [Hash] with available keys: `:for_admin` (boolean)
-  #
-  def download_button(item, options = {})
-    html = ''
-    bytestreams = item.bytestreams.select{ |bs| bs.exists? }
-    if bytestreams.any?
-      html = '<div class="btn-group">
-        <button type="button" class="btn btn-default dropdown-toggle"
-             data-toggle="dropdown" aria-expanded="false">
-          <i class="fa fa-download"></i> Download <span class="caret"></span>
-        </button>'
-      html += '<ul class="dropdown-menu pull-right" role="menu">'
-
-      bytestreams.each do |bs|
-        html += '<li>'
-        if bs.url
-          url = bs.url
-        elsif bs.type == Bytestream::Type::ACCESS_MASTER
-          url = item_access_master_bytestream_url(item)
-        elsif bs.type == Bytestream::Type::PRESERVATION_MASTER
-          url = item_preservation_master_bytestream_url(item)
-        else
-          url = '#'
-        end
-        html += link_to(url) do
-          download_label_for_bytestream(bs)
-        end
-        html += '</li>'
-      end
-
-      html += '</ul>'
-      html += '</div>'
-    end
-    raw(html)
-  end
-
-  ##
   # @param items [Relation]
   # @param options [Hash] Options hash
   # @option options [Boolean] :show_collection_facet
@@ -150,6 +112,15 @@ module ItemsHelper
     item.is_image? ? sprintf('%s/%s',
                    PearTree::Application.peartree_config[:iiif_url],
                    URI.escape(item.id)) : nil
+  end
+
+  ##
+  # @param item [Item]
+  # @return [String, nil] IIIF info.json URL or nil if the item is not an image
+  #
+  def iiif_info_url(item)
+    url = iiif_url(item)
+    url ? "#{url}/info.json" : nil
   end
 
   ##
@@ -839,26 +810,18 @@ module ItemsHelper
   # @param [Bytestream] bytestream
   #
   def download_label_for_bytestream(bytestream)
-    type = nil
-    case bytestream.type
-      when Bytestream::Type::ACCESS_MASTER
-        type = 'Access Master'
-      when Bytestream::Type::PRESERVATION_MASTER
-        type = 'Preservation Master'
-    end
-
     format = bytestream.url ? 'External Resource' : bytestream.human_readable_name
 
     dimensions = nil
     if bytestream.width and bytestream.width > 0 and bytestream.height and
         bytestream.height > 0
-      dimensions = "<small>#{bytestream.width}&times;#{bytestream.height}</small>"
+      dimensions = "#{bytestream.width}&times;#{bytestream.height}"
     end
 
     size = bytestream.byte_size
-    size = "<small>(#{number_to_human_size(size)})</small>" if size
+    size = "(#{number_to_human_size(size)})" if size
 
-    raw("#{type} &mdash; #{format} #{dimensions} #{size}")
+    raw("#{format} #{dimensions} #{size}")
   end
 
   def human_label_for_uri(describable, uri)

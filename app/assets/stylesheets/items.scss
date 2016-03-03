@@ -171,4 +171,41 @@ body#items_show {
     }
   }
 
+  #pt-download-modal {
+    #iiif-download {
+      div.radio {
+        margin-bottom: 0.8em;
+        margin-right: 0.4em;
+        padding: 0px;
+        label {
+          padding: 6px 12px;
+        }
+      }
+      input[type=radio] {
+        padding-left: -28px;
+        opacity: 0;
+        width: 0px;
+      }
+      div.radio.active {
+        background-color:#337ab7;
+        color:white;
+      }
+      .pt-size-1 {
+        font-size: 1.1em;
+      }
+      .pt-size-2 {
+        font-size: 1.2em;
+      }
+      .pt-size-3 {
+        font-size: 1.3em;
+      }
+      .pt-size-4 {
+        font-size: 1.4em;
+      }
+      .pt-size-5 {
+        font-size: 1.5em;
+      }
+    }
+  }
+
 }

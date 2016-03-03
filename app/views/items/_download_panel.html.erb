@@ -1,0 +1,63 @@
+<% # requires the following locals: item %>
+
+<div class="modal fade" id="pt-download-modal" tabindex="-1" role="dialog"
+     aria-labelledby="pt-download-modal-label" data-backdrop="false">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h3 class="modal-title" id="pt-download-modal-label">Download</h3>
+      </div>
+      <div class="modal-body">
+        <form method="get" target="_blank">
+          <div class="row">
+            <div class="col-sm-6">
+              <h4>Source File</h4>
+              <% item.bytestreams.select{ |bs| bs.exists? }.each do |bs|
+                if bs.url
+                  label = 'External URL'
+                  url = bs.url
+                elsif bs.type == Bytestream::Type::ACCESS_MASTER
+                  label = 'Access Master'
+                  url = item_access_master_bytestream_url(item)
+                elsif bs.type == Bytestream::Type::PRESERVATION_MASTER
+                  label = 'Preservation Master'
+                  url = item_preservation_master_bytestream_url(item)
+                end
+                if label and url %>
+                  <div class="radio">
+                    <label>
+                      <%= radio_button_tag('download-url', url) %>
+                      <%= label %>
+                      <br>
+                      <small><%= download_label_for_bytestream(bs) %></small>
+                    </label>
+                  </div>
+                <% end %>
+              <% end %>
+            </div>
+
+            <div class="col-sm-6">
+              <% if item.is_image? %>
+                <input type="hidden" name="iiif-download-url"
+                       value="<%= iiif_url(item) %>">
+                <input type="hidden" name="iiif-download-info-json-url"
+                       value="<%= iiif_info_url(item) %>">
+                <div id="iiif-download"></div>
+              <% end %>
+            </div>
+          </div>
+          <hr>
+          <h4>Link to this item from your website:</h4>
+          <pre><%= "<a href=\"#{item_url(item)}\">#{item.title}</a>" %></pre>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="pt-download">Download</button>
+      </div>
+    </div>
+  </div>
+</div>

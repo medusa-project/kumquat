@@ -16,7 +16,12 @@
     <i class="fa fa-heart"></i> Add To Favorites
   </button>
   <%= share_button(@item) %>
-  <%= download_button(@item) %>
+  <% if @item.bytestreams.any? %>
+    <button type="button" class="btn btn-default" data-toggle="modal"
+            data-target="#pt-download-modal">
+      <i class="fa fa-download"></i> Download</span>
+    </button>
+  <% end %>
 </div>
 
 <% if @item.subclass and @item.subclass == Item::Subclasses::PAGE %>
@@ -133,3 +138,5 @@
 <% end %>
 
 </div>
+
+<%= render partial: 'download_panel', locals: { item: @item } %>
