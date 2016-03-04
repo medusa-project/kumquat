@@ -22,7 +22,6 @@ gem 'rails_autolink'
 gem 'rsolr'
 gem 'sass-rails', '~> 5.0'
 #gem 'sdoc', '~> 0.4.0', group: :doc # bundle exec rake doc:rails generates the API under doc/api.
-gem 'SyslogLogger'
 #gem 'therubyracer', platforms: :ruby # See https://github.com/rails/execjs#readme for more supported runtimes
 gem 'uglifier', '>= 1.3.0' # JavaScript asset compressor
 gem 'yomu' # text extraction from PDF, .docx, etc.

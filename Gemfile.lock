@@ -7,7 +7,6 @@ GIT
 GEM
   remote: https://rubygems.org/
   specs:
-    SyslogLogger (2.0)
     actionmailer (4.2.5)
       actionpack (= 4.2.5)
       actionview (= 4.2.5)
@@ -198,7 +197,6 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  SyslogLogger
   barby
   bootstrap-sass (~> 3.3.6)
   capistrano-bundler
