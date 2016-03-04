@@ -142,7 +142,7 @@ var PTItemView = function() {
                         });
 
                         var radios = download_modal.find('input[type=radio]');
-                        radios.on('change', function() {
+                        radios.on('click', function() {
                             radios.each(function() {
                                 var radio_container = $(this).parents('div.radio');
                                 if ($(this).is(':checked')) {
