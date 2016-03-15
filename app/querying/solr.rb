@@ -32,6 +32,7 @@ class Solr
     ID = 'id'
     LAST_INDEXED = 'last_indexed_dti'
     LAST_MODIFIED = 'last_modified_dti'
+    LAT_LONG = 'lat_long_loc'
     METADATA_PATHNAME = '_metadata_pathname_si'
     PAGE_NUMBER = 'page_number_ii'
     PARENT_ITEM = 'parent_si'

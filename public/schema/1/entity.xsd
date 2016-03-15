@@ -84,8 +84,10 @@
       <xs:element name="isRequiredBy" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="isVersionOf" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="language" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <!-- Spatial latitude in decimal degrees. -->
       <xs:element name="latitude" type="xs:float" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="license" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <!-- Spatial longitude in decimal degrees. -->
       <xs:element name="longitude" type="xs:float" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="mediator" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="medium" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>

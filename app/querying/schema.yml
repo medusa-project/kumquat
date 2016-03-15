@@ -205,7 +205,7 @@ dynamicFields:
     indexed: true
     stored: false
 
-  - name: '*_p'
+  - name: '*_loc'
     type: location
     indexed: true
     stored: true

@@ -20,6 +20,14 @@ class Item < Entity
   #   @return [String]
   attr_accessor :full_text
 
+  # @!attribute latitude
+  #   @return [Float]
+  attr_accessor :latitude
+
+  # @!attribute longitude
+  #   @return [Float]
+  attr_accessor :longitude
+
   # @!attribute page_number
   #   @return [Integer]
   attr_accessor :page_number
@@ -48,6 +56,13 @@ class Item < Entity
     end
     if doc[Solr::Fields::LAST_MODIFIED]
       item.last_modified = DateTime.parse(doc[Solr::Fields::LAST_MODIFIED])
+    end
+    if doc[Solr::Fields::LAT_LONG]
+      parts = doc[Solr::Fields::LAT_LONG].split(',')
+      if parts.length == 2
+        item.latitude = parts.first.to_f
+        item.longitude = parts.last.to_f
+      end
     end
     item.metadata_pathname = doc[Solr::Fields::METADATA_PATHNAME]
     item.page_number = doc[Solr::Fields::PAGE_NUMBER]
@@ -309,6 +324,9 @@ class Item < Entity
       doc[Solr::Fields::ACCESS_MASTER_WIDTH] = bs.width
     end
     doc[Solr::Fields::FULL_TEXT] = self.full_text
+    if self.latitude and self.longitude
+      doc[Solr::Fields::LAT_LONG] = "#{self.latitude},#{self.longitude}"
+    end
     self.bytestreams.select{ |b| b.type == Bytestream::Type::PRESERVATION_MASTER }.each do |bs|
       doc[Solr::Fields::PRESERVATION_MASTER_HEIGHT] = bs.height
       doc[Solr::Fields::PRESERVATION_MASTER_MEDIA_TYPE] = bs.media_type

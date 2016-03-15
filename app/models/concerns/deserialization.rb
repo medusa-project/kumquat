@@ -71,6 +71,14 @@ module Deserialization
           "lrp:repositoryId #{entity.id} (#{metadata_pathname})"
         end
 
+        # latitude
+        lat = node.xpath('lrp:latitude', namespaces).first
+        entity.latitude = lat ? lat.content.strip.to_f : nil
+
+        # longitude
+        long = node.xpath('lrp:longitude', namespaces).first
+        entity.longitude = long ? long.content.strip.to_f : nil
+
         # page number
         page = node.xpath('lrp:pageNumber', namespaces).first
         entity.page_number = page.content.strip.to_i if page
