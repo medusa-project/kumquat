@@ -50,6 +50,18 @@ class Element
     @@element_defs[self.name]['mappings']['dcterms']
   end
 
+  def formatted_value
+    case self.name
+      when 'latitude'
+        val = "#{self.value.gsub('-', '')}°#{self.value.to_f >= 0 ? 'N' : 'S'}"
+      when 'longitude'
+        val = "#{self.value.gsub('-', '')}°#{self.value.to_f >= 0 ? 'E' : 'W'}"
+      else
+        val = self.value
+    end
+    val
+  end
+
   ##
   # @return [String] Name of the Solr facet field.
   #
