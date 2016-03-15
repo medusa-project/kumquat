@@ -1,44 +1,34 @@
-<% # copied from the library home page as of 1/9/2016 %>
-<header class="" role="banner" aria-label="University of Illinois Library Banner">
-  <div class="row lib-shared-header">
-    <div class="col-sm-6 col-xs-10">
-      <h1 class="sr-only">University Library, University of Illinois at Urbana-Champaign</h1>
-      <div class="table-row">
-        <div class="table-cell banner-image-imark-div">
-          <a href="http://illinois.edu">
-            <%= image_tag('imark.png',
-                          class: 'img-responsive col-xs-12 banner-image-imark',
-                          alt: 'University of Illinois I-Mark') %>
-          </a>
-        </div>
-        <div class="table-cell banner-table-spacer">
-        </div>
-        <div class="table-cell banner-image-library-div hidden-xs">
-          <a href="http://www.library.illinois.edu">
-            <%= image_tag('university_libraries_wordmark.png',
-                          class: 'img-responsive col-xs-12 banner-image-library',
-                          alt: 'University Library, University of Illinois at Urbana-Champaign') %>
-          </a>
-        </div>
-        <div class="table-cell banner-image-library-div visible-xs">
-          <a href="http://www.library.illinois.edu">
-            <%= image_tag('library_wordmark.png',
-                          class: 'img-responsive col-xs-12 banner-image-library banner-mobile-img',
-                          alt: 'Library') %>
-          </a>
+<div class="container-fluid s-cus-illinois-header s-lib-side-borders">
+  <header>
+    <div class="row lib-shared-header">
+      <div class="col-sm-6 col-xs-10">
+        <h1 class="sr-only">University Library, University of Illinois at Urbana-Champaign</h1>
+        <div class="table-row">
+          <div class="table-cell banner-image-imark-div">
+            <a href="http://illinois.edu">
+              <%= image_tag('imark.png',
+                            class: 'img-responsive col-xs-12 banner-image-imark',
+                            alt: 'University of Illinois I-Mark') %>
+            </a>
+          </div>
+          <div class="table-cell banner-table-spacer">
+          </div>
+          <div class="table-cell banner-image-library-div hidden-xs">
+            <a href="http://www.library.illinois.edu">
+              <%= image_tag('university_libraries_wordmark.png',
+                            class: 'img-responsive col-xs-12 banner-image-library',
+                            alt: 'University Library, University of Illinois at Urbana-Champaign') %>
+            </a>
+          </div>
+          <div class="table-cell banner-image-library-div visible-xs">
+            <a href="http://www.library.illinois.edu">
+              <%= image_tag('library_wordmark.png',
+                            class: 'img-responsive col-xs-12 banner-image-library banner-mobile-img',
+                            alt: 'Library') %>
+            </a>
+          </div>
         </div>
       </div>
     </div>
-    <div class="col-xs-2 visible-xs">
-      <a id="mobile-canvas-button" class="pull-right" href="javascript:void(0)">
-        <i class="fa fa-bars"><span class="sr-only">Site Navigation Menu</span> </i>
-      </a>
-    </div>
-    <div class="col-sm-6 col-xs-12">
-      <div class="pull-right">
-        <a class="pt-feedback" href="https://illinois.edu/sb/sec/8976147">Feedback</a>
-        <span class="label label-warning pt-beta-label">BETA</span>
-      </div>
-    </div>
-  </div>
-</header>
+  </header>
+</div>

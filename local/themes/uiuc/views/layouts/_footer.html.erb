@@ -1,14 +1,13 @@
-<% # extracted from the library home page as of 1/8/2016 %>
-<footer role="contentinfo">
+<footer class="container-fluid s-lib-side-borders" role="contentinfo">
   <div class="row footer-info">
     <h2 class="sr-only">library Website footer information</h2>
     <div class="col-md-3 col-sm-3 col-xs-12" role="region" aria-label="contact us">
       <div class="dropdown" aria-labelledby="address">
-        <a href="#" class="dropdown-toggle footer-link" data-toggle="dropdown" aria-label="contact us" aria-haspopup="true" aria-expanded="false"><span class="footerheading">Contact Us:<b class="caret"></b></span></a>
-        <ul class="dropdown-menu" role="menu">
-          <li role="presentation"><a href="http://www.library.illinois.edu/people/phone.php" aria-labelledby="Employee Directory" role="menuitem" tabindex="-1">Employee Directory</a></li>
-          <li role="presentation"><a href="http://www.library.illinois.edu/secondary/contactUs.html" aria-labelledby="General contact information" role="menuitem" tabindex="-1">General contact information</a></li>
-          <li role="presentation"><a aria-label="Submit your feedback and suggestions" href="https://illinois.edu/fb/sec/1454867" aria-labelledby="Feedback and suggestions" role="menuitem" tabindex="-1">Feedback and suggestions</a></li>
+        <a href="#" class="dropdown-toggle footer-link" data-toggle="dropdown" aria-label="contact us"><span class="footerheading">Contact Us:<b class="caret"></b></span></a>
+        <ul class="dropdown-menu">
+          <li><a href="http://www.library.illinois.edu/people/phone.php" aria-labelledby="Employee Directory">Employee Directory</a></li>
+          <li><a href="http://www.library.illinois.edu/secondary/contactUs.html" aria-labelledby="General contact information">General contact information</a></li>
+          <li><a aria-label="Submit your feedback and suggestions" href="https://illinois.edu/fb/sec/1454867" aria-labelledby="Feedback and suggestions">Feedback and suggestions</a></li>
         </ul>
       </div>
       <span class="text-block">University Library</span>
@@ -18,7 +17,7 @@
       <div class="footer-block-top-space">
         <span class="text-block"><a class="footer-link" href="https://www.facebook.com/universitylibrary">
           <span class="fa fa-facebook fa-lg footer-icon-social" aria-label="facebook"></span><small> Find us on Facebook</small></a></span>
-        <span class="text-block"><a class="footer-link" href="http://www.library.illinois.edu/friends/gift.html">
+        <span class="text-block"><a class="footer-link" href="http://www.library.illinois.edu/friends/make-a-gift/">
           <span class="fa fa-gift fa-lg footer-icon-social" aria-label="make a gift"></span><small> Make a Gift</small></a></span>
       </div>
     </div>
@@ -50,7 +49,8 @@
       <span class="text-block"><a class="footer-link" href="http://www.vpaa.uillinois.edu/policies/web_privacy.cfm">Privacy</a></span>
       <div class="footer-block-top-space">
         <a href="http://www.library.illinois.edu/doc/" aria-label="Federal Depository Library Program website link">
-          <%= image_tag('fdlp_logo.png', alt: 'Federal Depository Library Program Logo') %>
+          <%= image_tag('fdlp_logo.png',
+                        alt: 'Federal Depository Library Program Logo') %>
         </a>
       </div>
     </div>
@@ -59,22 +59,11 @@
     <div class="col-md-12 copyright-footer" aria-label="university library copyright info">
       <p>
         <a href="http://illinois.edu" aria-label="University of Illinois website link">
-          <%= image_tag('illinois_wordmark_footer.png', alt: 'University of Illinois Logo') %>
+          <%= image_tag('illinois_wordmark_footer.png',
+                        alt: 'University of Illinois Logo') %>
         </a>
       </p>
-      <p>&copy; 2016 University of Illinois Board of Trustees</p>
+      <p>© 2014 University of Illinois Board of Trustees</p>
     </div>
   </div>
 </footer>
-
-<% if Rails.env.production? # Google Analytics %>
-  <script>
-    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-    ga('create', 'UA-45045308-2', 'auto');
-    ga('send', 'pageview');
-  </script>
-<% end %>
