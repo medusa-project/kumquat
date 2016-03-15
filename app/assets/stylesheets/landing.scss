@@ -1,4 +1,7 @@
 body#landing {
+  h2 {
+    font-family: 'Oswald', sans-serif;
+  }
   .btn-lg:first-child {
     margin-right: 1em;
   }
@@ -8,5 +11,4 @@ body#landing {
       margin-top:1em;
     }
   }
-
 }

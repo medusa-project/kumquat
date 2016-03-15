@@ -13,7 +13,7 @@
         <a href="https://illinois.edu/sb/sec/8976147">here</a>.</p>
     </div>
 
-    <h2>About the collections</h2>
+    <h2><%= Option.string(Option::Key::WEBSITE_NAME) %></h2>
 
     <%= sanitize(Option.string(Option::Key::WEBSITE_INTRO_TEXT).gsub("\n", '<br>'),
                  tags: %w(p br), attributes: %w()) %>
