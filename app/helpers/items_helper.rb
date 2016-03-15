@@ -308,11 +308,11 @@ module ItemsHelper
       html += "<dt>#{e_def.label}</dt>"
       html += '<dd>'
       if elements.length == 1
-        html += elements.first.value
+        html += elements.first.formatted_value
       else
         html += '<ul>'
         elements.each do |element|
-          html += "<li>#{element.value}</li>"
+          html += "<li>#{element.formatted_value}</li>"
         end
         html += '</ul>'
       end
@@ -340,11 +340,11 @@ module ItemsHelper
       html += "<td>#{e_def.label}</td>"
       html += '<td>'
       if elements.length == 1
-        html += elements.first.value
+        html += elements.first.formatted_value
       else
         html += '<ul>'
         elements.each do |element|
-          html += "<li>#{element.value}</li>"
+          html += "<li>#{element.formatted_value}</li>"
         end
         html += '</ul>'
       end
