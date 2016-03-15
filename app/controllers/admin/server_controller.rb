@@ -12,7 +12,7 @@ module Admin
     def image_server_status
       http = HTTPClient.new
       begin
-        response = http.get(PearTree::Application.peartree_config[:iiif_url])
+        response = http.head(PearTree::Application.peartree_config[:iiif_url])
         if response.status == 200
           render text: 'online'
         else
@@ -41,7 +41,7 @@ module Admin
     def search_server_status
       solr = Solr.instance
       begin
-        solr.get('select', params: { q: '*:*', start: 0, rows: 1 })
+        solr.head('select', params: { q: '*:*', start: 0, rows: 1 })
       rescue RSolr::Error::Http
         render text: 'offline', status: 503
       else
