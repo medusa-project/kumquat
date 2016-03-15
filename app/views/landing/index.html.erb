@@ -13,15 +13,6 @@
         <a href="https://illinois.edu/sb/sec/8976147">here</a>.</p>
     </div>
 
-    <div class="text-center">
-      <%= link_to collections_path, class: 'btn btn-default btn-lg' do %>
-        <%= icon_for(Collection) %> View Collections
-      <% end %>
-      <%= link_to items_path, class: 'btn btn-default btn-lg' do %>
-        <%= icon_for(Item) %> View Items
-      <% end %>
-    </div>
-
     <h2>About the collections</h2>
 
     <%= sanitize(Option.string(Option::Key::WEBSITE_INTRO_TEXT).gsub("\n", '<br>'),
