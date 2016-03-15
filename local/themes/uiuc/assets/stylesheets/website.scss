@@ -28,3 +28,18 @@ a.pt-feedback, a.pt-feedback:hover {
   color:white;
   margin-right: 0.8em;
 }
+
+/* the orange banner that appears on all non-landing pages */
+#uiuc-banner {
+  background-color: #c74a27;
+  padding: 6px 0px 4px 15px;
+  a {
+    color: white;
+    font-family: 'Garamond', 'Palatino', 'Book Antiqua', serif;
+    font-size: 3em;
+    font-weight: 200;
+  }
+  a:hover {
+    text-decoration: none;
+  }
+}
