@@ -57,6 +57,10 @@ h2, h3, h4, h5, h6, dt, .navbar-header a, #pt-navbar-collapse a, .breadcrumb, .b
   border-radius: 0px;
   position: relative;
   z-index: 10;
+
+  .navbar-collapse {
+    padding-left: 0px;
+  }
 }
 
 form.pt-quick-search {
