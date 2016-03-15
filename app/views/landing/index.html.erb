@@ -27,7 +27,7 @@
     <%= sanitize(Option.string(Option::Key::WEBSITE_INTRO_TEXT).gsub("\n", '<br>'),
                  tags: %w(p br), attributes: %w()) %>
   </div>
-  <div class="col-sm-5">
+  <div class="col-sm-5 hidden-xs">
     <% if @random_item %>
       <div class="pt-main-image">
         <%= link_to @random_item do %>
