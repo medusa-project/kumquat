@@ -10,7 +10,9 @@ module Admin
     # or 503
     #
     def image_server_status
-      http = HTTPClient.new
+      http = HTTPClient.new {
+        self.ssl_config.verify_mode = OpenSSL::SSL::VERIFY_NONE
+      }
       begin
         response = http.head(PearTree::Application.peartree_config[:iiif_url])
         if response.status == 200
