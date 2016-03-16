@@ -1,8 +1,8 @@
 <%= form_for([:admin, @collection_def]) do |f| %>
 
   <div class="form-group">
-    <%= f.label :medusa_uuid %>
-    <%= f.text_field(:medusa_uuid, class: 'form-control') %>
+    <%= f.label :medusa_id, 'Medusa ID' %>
+    <%= f.text_field(:medusa_id, class: 'form-control') %>
   </div>
 
   <div class="form-group">

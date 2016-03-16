@@ -56,10 +56,10 @@
             <%= @collection.collection_def.theme ? @collection.collection_def.theme.name :
                     "Default (#{Theme.default.name})" %>
           </dd>
-          <dt>Medusa UUID</dt>
+          <dt>Medusa ID</dt>
           <dd>
-            <%= @collection.collection_def.medusa_uuid ?
-                    @collection.collection_def.medusa_uuid : 'None' %>
+            <%= @collection.collection_def.medusa_id ?
+                    @collection.collection_def.medusa_id : 'None' %>
           </dd>
           <dt>Repository Location</dt>
           <dd><%= @collection.metadata_pathname %></dd>

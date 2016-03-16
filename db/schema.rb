@@ -22,7 +22,7 @@ ActiveRecord::Schema.define(version: 20160316141953) do
     t.datetime "created_at",          null: false
     t.datetime "updated_at",          null: false
     t.integer  "metadata_profile_id"
-    t.string   "medusa_uuid"
+    t.integer  "medusa_id"
   end
 
   create_table "delayed_jobs", force: :cascade do |t|
