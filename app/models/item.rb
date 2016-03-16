@@ -16,6 +16,10 @@ class Item < Entity
   #   @return [String]
   attr_accessor :collection_id
 
+  # @!attribute date
+  #   @return [Time]
+  attr_accessor :date
+
   # @!attribute full_text
   #   @return [String]
   attr_accessor :full_text
@@ -49,13 +53,14 @@ class Item < Entity
     item.id = doc[Solr::Fields::ID]
     item.bib_id = doc[Solr::Fields::BIB_ID]
     if doc[Solr::Fields::CREATED]
-      item.created = DateTime.parse(doc[Solr::Fields::CREATED])
+      item.created = Time.parse(doc[Solr::Fields::CREATED])
     end
+    item.date = Time.parse(doc[Solr::Fields::DATE])
     if doc[Solr::Fields::LAST_INDEXED]
-      item.last_indexed = DateTime.parse(doc[Solr::Fields::LAST_INDEXED])
+      item.last_indexed = Time.parse(doc[Solr::Fields::LAST_INDEXED])
     end
     if doc[Solr::Fields::LAST_MODIFIED]
-      item.last_modified = DateTime.parse(doc[Solr::Fields::LAST_MODIFIED])
+      item.last_modified = Time.parse(doc[Solr::Fields::LAST_MODIFIED])
     end
     if doc[Solr::Fields::LAT_LONG]
       parts = doc[Solr::Fields::LAT_LONG].split(',')
@@ -315,7 +320,7 @@ class Item < Entity
     doc[Solr::Fields::COLLECTION] = self.collection_id
     doc[Solr::Fields::PAGE_NUMBER] = self.page_number
     doc[Solr::Fields::PARENT_ITEM] = self.parent_id
-    doc[Solr::Fields::DATE] = self.date.utc.iso8601 + 'Z' if self.date
+    doc[Solr::Fields::DATE] = self.date.utc.iso8601 if self.date
     self.bytestreams.select{ |b| b.type == Bytestream::Type::ACCESS_MASTER }.each do |bs|
       doc[Solr::Fields::ACCESS_MASTER_HEIGHT] = bs.height
       doc[Solr::Fields::ACCESS_MASTER_MEDIA_TYPE] = bs.media_type

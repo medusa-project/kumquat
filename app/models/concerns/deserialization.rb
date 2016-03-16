@@ -71,6 +71,23 @@ module Deserialization
           "lrp:repositoryId #{entity.id} (#{metadata_pathname})"
         end
 
+        # normalized date
+        date = node.xpath('lrp:date', namespaces).first
+        date = node.xpath('lrp:dateCreated', namespaces).first unless date
+        if date
+          date = date.content.strip
+          iso8601 = nil
+          # This is rather quick & dirty, but will work for now.
+          if date.match('[1-9]{4}') # date is apparently YYYY (1000-)
+            iso8601 = "#{date}-01-01T00:00:00Z"
+          elsif date.match('[1-9]{4}-[0-1][0-9]-[0-3][0-9]') # date is apparently YYYY-MM-DD
+            iso8601 = "#{date}T00:00:00Z"
+          end
+          if iso8601
+            entity.date = Time.parse(iso8601)
+          end
+        end
+
         # latitude
         lat = node.xpath('lrp:latitude', namespaces).first
         entity.latitude = lat ? lat.content.strip.to_f : nil
@@ -171,14 +188,6 @@ module Deserialization
 
       #################### descriptive metadata ######################
 
-      # normalized date
-      date = node.xpath('lrp:date', namespaces).first
-      if date
-        # TODO: gonna have to parse this carefully
-        #entity.date = Date.parse(date.content.strip)
-      end
-
-      # everything else
       descriptive_elements = Element.all.
           select{ |e| e.type == Element::Type::DESCRIPTIVE }.map(&:name)
       md_nodes = node.xpath('lrp:*', namespaces)

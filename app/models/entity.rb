@@ -12,7 +12,6 @@ class Entity
 
   attr_accessor :bib_id # String
   attr_accessor :created # DateTime
-  attr_accessor :date # Date
   attr_accessor :description # String
   attr_accessor :id # String
   attr_accessor :last_indexed # DateTime
