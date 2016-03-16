@@ -34,7 +34,7 @@ a.pt-feedback, a.pt-feedback:hover {
 }
 
 /* the orange banner that appears on all non-landing pages */
-#uiuc-banner {
+.uiuc-plain-banner {
   background-color: #c74a27;
   padding: 6px 0px 4px 15px;
   a {
@@ -46,4 +46,23 @@ a.pt-feedback, a.pt-feedback:hover {
   a:hover {
     text-decoration: none;
   }
+}
+
+.uiuc-image-banner {
+  font-family: 'Garamond', 'Palatino', 'Book Antiqua', serif;
+  font-size: 4em;
+  font-weight: 200;
+  height: 280px;
+  padding: 10px 15px;
+  a {
+    color: white;
+  }
+  a:hover {
+    text-decoration: none;
+  }
+}
+
+#uiuc-collections-banner {
+  background-image: image_url('banner_2.jpg');
+  background-position: center 30%;
 }
