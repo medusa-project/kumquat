@@ -10,11 +10,11 @@
 
 <div class="btn-group pull-right">
   <%= link_to @collection, class: 'btn btn-default' do %>
-      <i class="fa fa-globe"></i> Public View
+    <i class="fa fa-globe"></i> Public View
   <% end %>
   <%= link_to edit_admin_collection_def_path(@collection.collection_def),
               class: 'btn btn-default' do %>
-      <i class="fa fa-pencil-square-o"></i> Edit
+    <i class="fa fa-pencil-square-o"></i> Edit
   <% end %>
 </div>
 
@@ -22,7 +22,7 @@
   <small><%= link_to(pluralize(@collection.num_items, 'item'),
                      admin_items_path('collections[]' => @collection.id)) %></small>
   <% if @collection.subtitle %>
-      <br><small><%= @collection.subtitle %></small>
+    <br><small><%= @collection.subtitle %></small>
   <% end %>
 </h1>
 
@@ -55,6 +55,11 @@
           <dd>
             <%= @collection.collection_def.theme ? @collection.collection_def.theme.name :
                     "Default (#{Theme.default.name})" %>
+          </dd>
+          <dt>Medusa UUID</dt>
+          <dd>
+            <%= @collection.collection_def.medusa_uuid ?
+                    @collection.collection_def.medusa_uuid : 'None' %>
           </dd>
           <dt>Repository Location</dt>
           <dd><%= @collection.metadata_pathname %></dd>

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160216202159) do
+ActiveRecord::Schema.define(version: 20160316141953) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -22,6 +22,7 @@ ActiveRecord::Schema.define(version: 20160216202159) do
     t.datetime "created_at",          null: false
     t.datetime "updated_at",          null: false
     t.integer  "metadata_profile_id"
+    t.string   "medusa_uuid"
   end
 
   create_table "delayed_jobs", force: :cascade do |t|

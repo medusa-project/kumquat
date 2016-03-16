@@ -30,8 +30,8 @@ module Admin
     private
 
     def sanitized_params
-      params.require(:collection_def).permit(:id, :metadata_profile_id,
-                                             :theme_id)
+      params.require(:collection_def).permit(:id, :medusa_uuid,
+                                             :metadata_profile_id, :theme_id)
     end
 
     def update_collections_rbac

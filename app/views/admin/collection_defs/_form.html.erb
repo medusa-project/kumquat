@@ -1,6 +1,11 @@
 <%= form_for([:admin, @collection_def]) do |f| %>
 
   <div class="form-group">
+    <%= f.label :medusa_uuid %>
+    <%= f.text_field(:medusa_uuid, class: 'form-control') %>
+  </div>
+
+  <div class="form-group">
     <%= f.label :metadata_profile_id, 'Metadata Profile' %>
     <%= select(:collection_def, :metadata_profile_id,
                @metadata_profile_options_for_select, {},
