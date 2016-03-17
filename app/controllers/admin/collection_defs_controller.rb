@@ -31,6 +31,7 @@ module Admin
 
     def sanitized_params
       params.require(:collection_def).permit(:id, :medusa_id,
+                                             :medusa_file_group_id,
                                              :metadata_profile_id, :theme_id)
     end
 

@@ -56,10 +56,16 @@
             <%= @collection.collection_def.theme ? @collection.collection_def.theme.name :
                     "Default (#{Theme.default.name})" %>
           </dd>
-          <dt>Medusa ID</dt>
+          <dt>Medusa Collection ID</dt>
           <dd>
-            <%= @collection.collection_def.medusa_id ?
-                    @collection.collection_def.medusa_id : 'None' %>
+            <%= @collection.medusa_collection ?
+                    link_to(@collection.medusa_collection.id, @collection.medusa_collection.url) :
+                    'None' %>
+          </dd>
+          <dt>Medusa File Group ID</dt>
+          <dd>
+            <%= @collection.collection_def.medusa_file_group_id ?
+                    @collection.collection_def.medusa_file_group_id : 'None' %>
           </dd>
           <dt>Repository Location</dt>
           <dd><%= @collection.metadata_pathname %></dd>
