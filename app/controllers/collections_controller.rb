@@ -10,6 +10,9 @@ class CollectionsController < WebsiteController
         start(@start).limit(@limit)
     @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
     @num_shown = [@limit, @collections.total_length].min
+
+    @medusa_collections = MedusaCollection.all.
+        select{ |c| c.published and c.access_url }
   end
 
   def show

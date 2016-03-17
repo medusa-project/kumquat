@@ -4,11 +4,39 @@
 
 <%= breadcrumb %>
 
-<h1>Collections <small><%= @collections.total_length %> total</small></h1>
+<div class="row">
 
-<div class="pt-results">
-  <%= items_as_list(@collections, @start,
-                    thumbnail_shape: Bytestream::Shape::SQUARE) %>
+  <div class="col-sm-6">
+    <h1>Collections <small><%= @collections.total_length %> total</small></h1>
+
+    <div class="pt-results">
+      <%= items_as_list(@collections, @start,
+                        thumbnail_shape: Bytestream::Shape::SQUARE) %>
+    </div>
+
+    <%= paginate(@collections, @limit, @current_page) %>
+  </div>
+
+  <div class="col-sm-6">
+    <h1>Other Library Collections</h1>
+
+    <div class="pt-results">
+      <ol>
+        <% @medusa_collections.each do |col| %>
+          <li>
+            <div>
+              <span class="pt-title">
+                <%= link_to col.title, col.access_url, target: '_blank' %>
+              </span>
+              <br>
+              <span class="pt-description">
+                <%= col.description %>
+              </span>
+            </div>
+          </li>
+        <% end %>
+      </ol>
+    </div>
+  </div>
+
 </div>
-
-<%= paginate(@collections, @limit, @current_page) %>
