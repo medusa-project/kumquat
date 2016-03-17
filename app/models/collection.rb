@@ -51,6 +51,17 @@ class Collection < Entity
   end
 
   ##
+  # @return [Medusa::Collection,nil]
+  #
+  def medusa_collection
+    medusa_id = self.collection_def.medusa_id
+    if medusa_id
+      return Medusa::Collection.new{ self.id = medusa_id }
+    end
+    nil
+  end
+
+  ##
   # @return [Integer]
   #
   def num_items
