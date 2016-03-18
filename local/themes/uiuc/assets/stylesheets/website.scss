@@ -21,10 +21,11 @@ a {
   }
 }
 
-.uiuc-beta-label {
-  display: inline-block;
-  font-size: 1em;
-  font-weight: 200;
+.uiuc-beta-badge {
+  pointer-events: none;
+  position: absolute;
+  right: 0px;
+  z-index: 9999;
 }
 
 a.uiuc-feedback, a.uiuc-feedback:hover {
