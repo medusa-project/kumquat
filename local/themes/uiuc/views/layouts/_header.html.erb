@@ -39,16 +39,14 @@
   </header>
 </div>
 
+<div class="uiuc-plain-banner">
+  <%= link_to 'Digital Collections', root_path %>
+</div>
+
 <% if controller_name == 'landing' %>
   <div id="uiuc-landing-banner" class="uiuc-image-banner hidden-xs">
-    <%= link_to 'Digital Collections', root_path %>
   </div>
 <% elsif controller_name == 'collections' and action_name == 'index' %>
   <div id="uiuc-collections-banner" class="uiuc-image-banner hidden-xs">
-    <%= link_to 'Digital Collections', root_path %>
-  </div>
-<% else %>
-  <div class="uiuc-plain-banner">
-    <%= link_to 'Digital Collections', root_path %>
   </div>
 <% end %>
