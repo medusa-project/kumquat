@@ -1,15 +1,11 @@
 header {
   padding-left: 0px;
 }
-
 .lib-shared-header {
   background-color: $color__dark-navy;
-  border-bottom: 2px solid $color__light-grey;
-  padding-top: 15px;
-  padding-bottom: 15px;
-}
-.banner-table-spacer {
-  width:5%;
+  border-bottom: 0px;
+  padding-top: 5px;
+  padding-bottom: 5px;
 }
 .table-row {
   display: table-row;
@@ -17,40 +13,24 @@ header {
 .table-cell {
   display: table-cell;
 }
-@media (max-width: 767px) {
-  .banner-image-imark {
-    width: 26px;
-    height:auto;
-  }
-  .banner-mobile-img {
-    width:207px;
-    height:auto;
-  }
-  .banner-table-spacer {
-    width:8%;
+@media (max-width: 400px) {
+  .banner-image-university {
+    display: none;
   }
 }
-.banner-image-library,.banner-image-imark {
-  padding:0 0;
-  transition: all .15s ease-in-out;
-}
-.banner-image-library:hover,.banner-image-imark:hover {
-  opacity:.7;
-  transition: all .15s ease-in-out;
-}
-.dark-button {
-  color: #fff;
-  background-color: $color__dark-navy;
-}
-#site-header-controls-small {
-  margin-top:15px;
-  form {
-    margin-top:15px;
+@media (max-width: 300px) {
+  .banner-image-library {
+    display: none;
   }
-  .btn {
-    font-size:14px;
+}
+@media (max-width: 880px) {
+  .banner-image-uiuc {
+    display: none;
   }
-  .form-group {
-    margin-bottom: 0;
-  }
+}
+.banner-image-imark {
+  padding:0px 3px 0px 0px;
+}
+.banner-image-university,.banner-image-library,.banner-image-uiuc {
+  padding:0;
 }
