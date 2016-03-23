@@ -26,17 +26,6 @@ module Admin
     end
 
     ##
-    # Responds to PATCH /admin/server/reindex.
-    #
-    def reindex
-      pathname = PearTree::Application.peartree_config[:repository_pathname]
-      ReindexJob.perform_later(pathname: pathname)
-
-      flash['success'] = 'Repository is reindexing.'
-      redirect_to :back
-    end
-
-    ##
     # Responds to GET /admin/server/search-server-status with either HTTP 200
     # or 503
     #
