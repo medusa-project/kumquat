@@ -31,7 +31,8 @@
 
       <!-- ID of the entity within the repository. Must be repository-unique,
       persistent across imports (i.e. not dynamically generated at ingest) and
-      preferably opaque and short. -->
+      preferably opaque and short.
+      For collections, this should be its Medusa ID. -->
       <xs:element name="repositoryId" type="xs:token" minOccurs="1" maxOccurs="1"/>
 
       <!-- ID of the item that best represents the entity, for the purposes of
