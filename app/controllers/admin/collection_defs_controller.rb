@@ -5,7 +5,7 @@ module Admin
     before_action :update_collections_rbac, only: :update
 
     def edit
-      @collection = Collection.find(params[:id])
+      @collection = MedusaCollection.find(params[:id])
       @collection_def = @collection.collection_def
 
       @metadata_profile_options_for_select = MetadataProfile.order(:name).
@@ -16,7 +16,7 @@ module Admin
 
     def update
       begin
-        collection = Collection.find(params[:id])
+        collection = MedusaCollection.find(params[:id])
         @collection_def = collection.collection_def
         @collection_def.update!(sanitized_params)
       rescue => e
@@ -30,8 +30,7 @@ module Admin
     private
 
     def sanitized_params
-      params.require(:collection_def).permit(:id, :medusa_id,
-                                             :medusa_file_group_id,
+      params.require(:collection_def).permit(:id, :medusa_file_group_id,
                                              :metadata_profile_id, :theme_id)
     end
 

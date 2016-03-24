@@ -29,7 +29,7 @@ module ItemsHelper
         unchecked_params.delete(:start)
 
         if for_collections
-          collection = Collection.find_by_id(term.name)
+          collection = MedusaCollection.find(term.name)
           term_label = collection.title if collection
         else
           term_label = truncate(term.label, length: 80)
@@ -232,7 +232,8 @@ module ItemsHelper
         end
 
         if options[:show_collections]
-          info_parts << link_to(entity.collection.title, entity.collection)
+          info_parts << link_to(entity.collection.title,
+                                collection_path(entity.collection))
         end
 
         html += "<br><span class=\"pt-info-line\">#{info_parts.join(' | ')}</span>"
@@ -301,7 +302,7 @@ module ItemsHelper
     html = '<dl class="pt-metadata">'
     # iterate through the index-ordered elements in the collection's metadata
     # profile in order to display the entity's elements in the correct order
-    collection = entity.kind_of?(Collection) ? entity : entity.collection
+    collection = entity.kind_of?(MedusaCollection) ? entity : entity.collection
     collection.collection_def.metadata_profile.element_defs.each do |e_def|
       elements = entity.metadata.select{ |e| e.name == e_def.name }
       next if elements.empty?
@@ -332,7 +333,7 @@ module ItemsHelper
 
     # iterate through the index-ordered elements in the collection's metadata
     # profile in order to display the entity's elements in the correct order
-    collection = entity.kind_of?(Collection) ? entity : entity.collection
+    collection = entity.kind_of?(MedusaCollection) ? entity : entity.collection
     collection.collection_def.metadata_profile.element_defs.each do |e_def|
       elements = entity.metadata.select{ |e| e.name == e_def.name }
       next if elements.empty?
@@ -825,7 +826,7 @@ module ItemsHelper
   end
 
   def human_label_for_uri(describable, uri)
-    if describable.kind_of?(Collection)
+    if describable.kind_of?(MedusaCollection)
       collection = describable
     else
       collection = describable.collection

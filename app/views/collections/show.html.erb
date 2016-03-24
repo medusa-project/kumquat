@@ -4,11 +4,9 @@
 
 <%= breadcrumb(collection: @collection) %>
 
-<h1><%= @collection.title %>
+<h1>
+  <%= @collection.title %>
   <small><%= pluralize(@collection.num_items, 'item') %></small>
-  <% if @collection.subtitle %>
-    <br><small><%= @collection.subtitle %></small>
-  <% end %>
 </h1>
 
 <div class="row">
@@ -22,15 +20,10 @@
     <p><%= simple_format(auto_link(@collection.description)) %></p>
   </div>
   <div class="col-sm-6">
-    <% item = @collection.representative_item %>
-    <% if item %>
+    <% image = @collection.representative_image %>
+    <% if image %>
       <div class="pt-main-image">
-        <%= link_to item do %>
-          <%= thumbnail_tag(item, 512) %>
-        <% end %>
-        <%= link_to item, class: 'pt-title' do %>
-          <%= item.title %>
-        <% end %>
+
       </div>
     <% end %>
   </div>

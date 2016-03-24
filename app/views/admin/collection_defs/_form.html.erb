@@ -1,11 +1,6 @@
 <%= form_for([:admin, @collection_def]) do |f| %>
 
   <div class="form-group">
-    <%= f.label :medusa_id, 'Medusa Collection ID' %>
-    <%= f.text_field(:medusa_id, class: 'form-control') %>
-  </div>
-
-  <div class="form-group">
     <%= f.label :medusa_file_group_id, 'Medusa File Group ID' %>
     <%= f.text_field(:medusa_file_group_id, class: 'form-control') %>
   </div>

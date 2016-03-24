@@ -9,8 +9,11 @@
 </ol>
 
 <div class="btn-group pull-right">
-  <%= link_to @collection, class: 'btn btn-default' do %>
+  <%= link_to collection_path(@collection), class: 'btn btn-default', target: '_blank' do %>
     <i class="fa fa-globe"></i> Public View
+  <% end %>
+  <%= link_to @collection.url, class: 'btn btn-default', target: '_blank' do %>
+    <i class="fa fa-database"></i> Medusa View
   <% end %>
   <%= link_to edit_admin_collection_def_path(@collection.collection_def),
               class: 'btn btn-default' do %>
@@ -18,29 +21,22 @@
   <% end %>
 </div>
 
-<h1><%= @collection.title %>
-  <small><%= link_to(pluralize(@collection.num_items, 'item'),
-                     admin_items_path('collections[]' => @collection.id)) %></small>
-  <% if @collection.subtitle %>
-    <br><small><%= @collection.subtitle %></small>
-  <% end %>
-</h1>
+<h1><%= @collection.title %></h1>
 
 <div class="row">
 
-  <div class="col-sm-6">
+  <div class="col-sm-8">
     <div class="panel panel-default">
       <div class="panel-heading">
-        <h3 class="panel-title">Metadata</h3>
+        <h3 class="panel-title">Description</h3>
       </div>
       <div class="panel-body">
-        <%= metadata_as_list(@collection) %>
-        <%= metadata_as_table(@collection) %>
+        <%= raw @collection.description_html %>
       </div>
     </div>
   </div>
 
-  <div class="col-sm-6">
+  <div class="col-sm-4">
     <div class="panel panel-default">
       <div class="panel-heading">
         <h3 class="panel-title">Technical Info</h3>
@@ -53,28 +49,19 @@
           </dd>
           <dt>Theme</dt>
           <dd>
-            <%= @collection.collection_def.theme ? @collection.collection_def.theme.name :
+            <%= @collection.collection_def.theme ?
+                    @collection.collection_def.theme.name :
                     "Default (#{Theme.default.name})" %>
           </dd>
-          <dt>Medusa Collection ID</dt>
+          <dt>Medusa File Group</dt>
           <dd>
-            <%= @collection.medusa_collection ?
-                    link_to(@collection.medusa_collection.id, @collection.medusa_collection.url) :
-                    'None' %>
+            <% if @file_group %>
+              <%= link_to("#{@file_group.title} (#{@file_group.id})",
+                          @file_group.url, target: '_blank') %>
+            <% else %>
+              None
+            <% end %>
           </dd>
-          <dt>Medusa File Group ID</dt>
-          <dd>
-            <%= @collection.collection_def.medusa_file_group_id ?
-                    @collection.collection_def.medusa_file_group_id : 'None' %>
-          </dd>
-          <dt>Repository Location</dt>
-          <dd><%= @collection.metadata_pathname %></dd>
-          <dt>Created</dt>
-          <dd><%= local_time(@collection.created) %></dd>
-          <dt>Last Indexed</dt>
-          <dd><%= local_time(@collection.last_indexed) %></dd>
-          <dt>Last Modified</dt>
-          <dd><%= local_time(@collection.last_modified) %></dd>
         </dl>
       </div>
     </div>

@@ -52,6 +52,7 @@ class Item < Entity
     item = Item.new
     item.id = doc[Solr::Fields::ID]
     item.bib_id = doc[Solr::Fields::BIB_ID]
+    item.collection_id = doc[Solr::Fields::COLLECTION]
     if doc[Solr::Fields::CREATED]
       item.created = Time.parse(doc[Solr::Fields::CREATED])
     end
@@ -140,10 +141,10 @@ class Item < Entity
   alias_method :items, :children
 
   ##
-  # @return [Collection]
+  # @return [MedusaCollection]
   #
   def collection
-    @collection = Collection.find(self.collection_id) unless @collection
+    @collection = MedusaCollection.find(self.collection_id) unless @collection
     @collection
   end
 

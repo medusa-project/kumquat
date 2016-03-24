@@ -28,7 +28,8 @@
           <%= @random_item.title %>
         <% end %>
         <br>
-        <%= link_to @random_item.collection, class: 'pt-collection-title' do %>
+        <%= link_to collection_path(@random_item.collection),
+                    class: 'pt-collection-title' do %>
           <%= icon_for(@random_item.collection) %>
           <%= @random_item.collection.title %>
         <% end %>

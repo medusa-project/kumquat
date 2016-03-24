@@ -8,17 +8,13 @@ class MedusaFileGroup
   #   @return [Hash]
   attr_accessor :medusa_representation
 
-  # @!attribute string
-  #   @return [String]
-  attr_accessor :pathname
-
-  # @!attribute storage_level
-  #   @return [String]
-  attr_accessor :storage_level
-
-  # @!attribute title
-  #   @return [String]
-  attr_accessor :title
+  def title
+    unless @title
+      load
+      @title = self.medusa_representation['title']
+    end
+    @title
+  end
 
   ##
   # @return [String] Absolute URI of the Medusa file group resource, or nil
@@ -26,8 +22,8 @@ class MedusaFileGroup
   #
   def url
     if self.id
-      PearTree::Application.peartree_config[:medusa_url].chomp('/') +
-          '/bit_level_file_groups/' + self.id
+      return PearTree::Application.peartree_config[:medusa_url].chomp('/') +
+          '/file_groups/' + self.id.to_s
     end
     nil
   end

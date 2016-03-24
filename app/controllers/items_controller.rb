@@ -30,7 +30,7 @@ class ItemsController < WebsiteController
       @items = @items.facet(params[:fq])
     end
     if params[:collection_id]
-      @collection = Collection.find(params[:collection_id])
+      @collection = MedusaCollection.find(params[:collection_id])
       raise ActiveRecord::RecordNotFound unless @collection
       @items = @items.where(Solr::Fields::COLLECTION => @collection.id)
     end
@@ -93,7 +93,7 @@ class ItemsController < WebsiteController
     if params[:ids].any?
       ids = params[:ids].select{ |k| !k.blank? }
     end
-    if ids.any? and ids.length < Collection.all.length
+    if ids.any? and ids.length < MedusaCollection.all.length
       where_clauses << "#{Solr::Fields::COLLECTION}:+(#{ids.join(' ')})"
     end
 

@@ -104,9 +104,8 @@ class OaiPmhController < ApplicationController
   end
 
   def do_list_sets
-    @collections = Collection.all.facet(false).
-        where(Solr::Fields::PUBLISHED => true).
-        order(Solr::Fields::ID)
+    @collections = MedusaCollection.all.select{ |c| c.published }.
+        sort{ |c,d| c.id <=> d.id }
     'list_sets.xml.builder'
   end
 

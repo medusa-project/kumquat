@@ -1,5 +1,8 @@
 class MedusaCollection
 
+  include ActiveModel::Model
+  include GlobalID::Identification
+
   # @!attribute id
   #   @return [Integer]
   attr_accessor :id
@@ -23,6 +26,17 @@ class MedusaCollection
     collections
   end
 
+  def self.find(id)
+    col = MedusaCollection.new
+    col.id = id
+    begin
+      col.title # this will raise an error if the ID is invalid
+    rescue
+      raise ActiveRecord::RecordNotFound
+    end
+    col
+  end
+
   def access_url
     unless @access_url
       load
@@ -31,6 +45,17 @@ class MedusaCollection
     @access_url
   end
 
+  ##
+  # @return [CollectionDef]
+  #
+  def collection_def
+    unless @collection_def
+      @collection_def = CollectionDef.find_by_repository_id(self.id) ||
+          CollectionDef.create!(repository_id: self.id,
+                                metadata_profile: MetadataProfile.find_by_default(true))
+    end
+    @collection_def
+  end
 
   def description
     unless @description
@@ -63,12 +88,33 @@ class MedusaCollection
     @file_groups
   end
 
+  ##
+  # @return [Integer]
+  #
+  def num_items
+    @num_items = Item.where(Solr::Fields::COLLECTION => self.id).
+        where(Solr::Fields::PARENT_ITEM => :null).count unless @num_items
+    @num_items
+  end
+
+  def persisted?
+    true # makes to_param work
+  end
+
   def published
     unless @published
       load
       @published = self.medusa_representation['publish']
     end
     @published
+  end
+
+  def representative_image
+    unless @representative_image
+      load
+      @representative_image = self.medusa_representation['representative_image']
+    end
+    @representative_image
   end
 
   def title
@@ -85,8 +131,8 @@ class MedusaCollection
   #
   def url
     if self.id
-      PearTree::Application.peartree_config[:medusa_url].chomp('/') +
-          '/collections/' + self.id
+      return PearTree::Application.peartree_config[:medusa_url].chomp('/') +
+          '/collections/' + self.id.to_s
     end
     nil
   end
@@ -104,9 +150,18 @@ class MedusaCollection
     return if @loaded
     raise 'load() called without ID set' unless self.id
 
-    config = PearTree::Application.peartree_config
-    url = "#{config[:medusa_url].chomp('/')}/collections/#{self.id}.json"
-    self.medusa_representation = JSON.parse(Medusa.client.get(url).body)
+    cache_pathname = "#{Rails.root}/tmp/cache/medusa/collection_#{self.id}.json"
+    if File.exist?(cache_pathname) and File.mtime(cache_pathname).
+        between?(Time.at(Time.now.to_i - 2592000), Time.now)
+      json_str = File.read(cache_pathname)
+    else
+      config = PearTree::Application.peartree_config
+      url = "#{config[:medusa_url].chomp('/')}/collections/#{self.id}.json"
+      json_str = Medusa.client.get(url).body
+      FileUtils.mkdir_p("#{Rails.root}/tmp/cache/medusa")
+      File.open(cache_pathname, 'wb') { |f| f.write(json_str) }
+    end
+    self.medusa_representation = JSON.parse(json_str)
     @loaded = true
   end
 

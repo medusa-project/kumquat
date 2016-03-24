@@ -73,7 +73,7 @@ module ApplicationHelper
       elsif entity.children.any?
         icon = 'fa-cubes'
       end
-    elsif entity.kind_of?(Collection) or entity == Collection
+    elsif entity.kind_of?(MedusaCollection) or entity == MedusaCollection
       icon = 'fa-folder-open-o'
     end
     raw("<i title=\"#{type_of(entity)}\" class=\"fa #{icon} pt-icon\"></i>")
@@ -114,7 +114,7 @@ module ApplicationHelper
       elsif entity.children.any?
         type = 'Multi-Page Item'
       end
-    elsif entity.kind_of?(Collection) or entity == Collection
+    elsif entity.kind_of?(MedusaCollection) or entity == MedusaCollection
       type = 'Collection'
     end
     type
@@ -194,7 +194,7 @@ module ApplicationHelper
       html = "<ol class=\"breadcrumb\">"\
                 "<li>#{link_to('Home', root_path)}</li>"\
                 "<li>#{link_to('Collections', collections_path)}</li>"\
-                "<li>#{link_to(truncate(collection.title, length: 50), collection)}</li>"\
+                "<li>#{link_to(truncate(collection.title, length: 50), collection_path(collection))}</li>"\
                 "<li class=\"active\">Items</li>"\
               "</ol>"
       return raw(html)

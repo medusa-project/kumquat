@@ -30,7 +30,7 @@ class WebsiteController < ApplicationController
     else
       element_defs = ElementDef.all
     end
-    @collections = Collection.all
+    @collections = MedusaCollection.all
     @elements_for_select = element_defs.where(searchable: true).order(:label).
         map{ |ed| [ ed.label, ed.solr_multi_valued_field ] }
     @elements_for_select.unshift([ 'Any Field', Solr::Fields::SEARCH_ALL ])
@@ -54,7 +54,10 @@ class WebsiteController < ApplicationController
         id = item.collection.id
       end
     end
-    id ? Collection.find(id) : nil
+    if id
+      return MedusaCollection.find(id)
+    end
+    nil
   end
 
   private
