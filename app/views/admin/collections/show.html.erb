@@ -53,11 +53,20 @@
                     @collection.collection_def.theme.name :
                     "Default (#{Theme.default.name})" %>
           </dd>
-          <dt>Medusa File Group</dt>
+          <dt>Medusa Metadata File Group</dt>
           <dd>
-            <% if @file_group %>
-              <%= link_to("#{@file_group.title} (#{@file_group.id})",
-                          @file_group.url, target: '_blank') %>
+            <% if @metadata_file_group %>
+                <%= link_to("#{@metadata_file_group.title} (#{@metadata_file_group.id})",
+                            @metadata_file_group.url, target: '_blank') %>
+            <% else %>
+                None
+            <% end %>
+          </dd>
+          <dt>Medusa Data File Group</dt>
+          <dd>
+            <% if @data_file_group %>
+              <%= link_to("#{@data_file_group.title} (#{@data_file_group.id})",
+                          @data_file_group.url, target: '_blank') %>
             <% else %>
               None
             <% end %>

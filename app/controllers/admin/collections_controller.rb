@@ -16,8 +16,10 @@ module Admin
 
     def show
       @collection = MedusaCollection.find(params[:id])
-      @file_group = @collection.collection_def.medusa_file_group_id ?
-          @collection.collection_def.medusa_file_group : nil
+      @data_file_group = @collection.collection_def.medusa_data_file_group_id ?
+          @collection.collection_def.medusa_data_file_group : nil
+      @metadata_file_group = @collection.collection_def.medusa_metadata_file_group_id ?
+          @collection.collection_def.medusa_metadata_file_group : nil
     end
 
   end
