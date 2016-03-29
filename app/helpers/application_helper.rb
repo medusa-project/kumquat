@@ -150,7 +150,7 @@ module ApplicationHelper
         html = "<ol class=\"breadcrumb\">"\
           "<li>#{link_to 'Home', root_path}</li>"\
           "<li>#{link_to 'Collections', collections_path}</li>"\
-          "<li>#{link_to item.collection.title, item.collection}</li>"\
+          "<li>#{link_to item.collection.title, collection_path(item.collection)}</li>"\
           "<li>#{link_to 'Items', collection_items_path(item.collection)}</li>"
         if item.parent
           html += "<li>#{link_to item.parent.title, item.parent}</li>"
