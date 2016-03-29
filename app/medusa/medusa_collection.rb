@@ -117,6 +117,10 @@ class MedusaCollection
     @representative_image
   end
 
+  def representative_item
+    Item.find('1607347_001.jp2') # TODO: store this in medusa
+  end
+
   def title
     unless @title
       load
