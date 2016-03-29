@@ -30,7 +30,7 @@ class WebsiteController < ApplicationController
     else
       element_defs = ElementDef.all
     end
-    @collections = MedusaCollection.all
+    @collections = MedusaCollection.all.select{ |c| c.published }
     @elements_for_select = element_defs.where(searchable: true).order(:label).
         map{ |ed| [ ed.label, ed.solr_multi_valued_field ] }
     @elements_for_select.unshift([ 'Any Field', Solr::Fields::SEARCH_ALL ])
