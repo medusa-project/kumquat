@@ -78,6 +78,7 @@ class ItemsController < WebsiteController
   #
   def search
     where_clauses = []
+    filter_clauses = []
 
     # fields
     if params[:fields].any?
@@ -94,10 +95,10 @@ class ItemsController < WebsiteController
       ids = params[:ids].select{ |k| !k.blank? }
     end
     if ids.any? and ids.length < MedusaCollection.all.length
-      where_clauses << "#{Solr::Fields::COLLECTION}:+(#{ids.join(' ')})"
+      filter_clauses << "#{Solr::Fields::COLLECTION}:(#{ids.join(' ')})"
     end
 
-    redirect_to items_path(q: where_clauses.join(' AND '))
+    redirect_to items_path(q: where_clauses.join(' AND '), fq: filter_clauses)
   end
 
   def show
