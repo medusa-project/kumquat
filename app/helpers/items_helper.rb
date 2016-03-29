@@ -109,9 +109,11 @@ module ItemsHelper
   # @return [String, nil] Base IIIF URL or nil if the item is not an image
   #
   def iiif_url(item)
-    item.is_image? ? sprintf('%s/%s',
-                   PearTree::Application.peartree_config[:iiif_url],
-                   URI.escape(item.id)) : nil
+    if item.is_image? or item.is_pdf?
+      return sprintf('%s/%s', PearTree::Application.peartree_config[:iiif_url],
+                     URI.escape(item.id))
+    end
+    nil
   end
 
   ##
@@ -762,7 +764,7 @@ module ItemsHelper
   # @return [String, nil] Image URL or nil if the item is not an image
   #
   def image_url(item, size)
-    if item.is_image?
+    if item.is_image? or item.is_pdf?
       bs = item.access_master_bytestream || item.preservation_master_bytestream
       if bs.pathname
         return sprintf('%s/full/!%d,%d/0/default.jpg', iiif_url(item), size, size)
