@@ -20,10 +20,14 @@
     <p><%= simple_format(auto_link(@collection.description)) %></p>
   </div>
   <div class="col-sm-6">
-    <% image = @collection.representative_image %>
-    <% if image %>
+    <% if @representative_item %>
       <div class="pt-main-image">
-
+        <%= link_to @representative_item do %>
+          <%= thumbnail_tag(@representative_item, 512) %>
+        <% end %>
+        <%= link_to @representative_item, class: 'pt-title' do %>
+          <%= @representative_item.title %>
+        <% end %>
       </div>
     <% end %>
   </div>

@@ -14,6 +14,7 @@ class CollectionsController < WebsiteController
           message: 'This collection is not published.'
       }
     end
+    @representative_item = @collection.representative_item
   end
 
 end
