@@ -6,6 +6,14 @@ module Admin
       @collections = MedusaCollection.all.sort{ |c,d| c.title <=> d.title }
     end
 
+    ##
+    # Responds to PATCH /admin/collections/refresh
+    def refresh
+      MedusaCollection.all.each { |c| c.reload }
+      flash['success'] = 'Collections refreshed.'
+      redirect_to :back
+    end
+
     def show
       @collection = MedusaCollection.find(params[:id])
       @file_group = @collection.collection_def.medusa_file_group_id ?

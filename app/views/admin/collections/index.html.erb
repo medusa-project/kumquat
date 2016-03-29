@@ -7,6 +7,12 @@
   <li class="active">Collections</li>
 </ol>
 
+<div class="pull-right">
+  <%= link_to admin_collections_refresh_path, method: 'patch', class: 'btn btn-default' do %>
+    <i class="fa fa-refresh"></i> Refresh
+  <% end %>
+</div>
+
 <h1>Collections <small><%= @collections.select(&:published).length %> published</small></h1>
 
 <table class="table table-striped">
