@@ -71,7 +71,7 @@
           <button type="button" class="btn btn-xs btn-default pt-check-all">Check All</button>
           <button type="button" class="btn btn-xs btn-default pt-uncheck-all">Uncheck All</button>
           <ol>
-            <% @collections.each do |collection| %>
+            <% @searchable_collections.each do |collection| %>
               <li>
                 <div class="checkbox">
                   <label><%= check_box_tag('ids[]', collection.id, checked: true) %><%= collection.title %></label>

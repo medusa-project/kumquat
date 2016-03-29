@@ -30,7 +30,8 @@ class WebsiteController < ApplicationController
     else
       element_defs = ElementDef.all
     end
-    @collections = MedusaCollection.all.select{ |c| c.published }
+    @searchable_collections = MedusaCollection.all.
+        select{ |c| c.published and c.title.include?('Sanborn') } # TODO: fix once MED-400 is complete
     @elements_for_select = element_defs.where(searchable: true).order(:label).
         map{ |ed| [ ed.label, ed.solr_multi_valued_field ] }
     @elements_for_select.unshift([ 'Any Field', Solr::Fields::SEARCH_ALL ])
