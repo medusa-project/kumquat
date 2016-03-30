@@ -74,8 +74,16 @@ class Relation
     if fq.blank?
       # noop
     elsif fq.kind_of?(Hash)
-      @filter_clauses += fq.reject{ |k, v| k.blank? or v.blank? }.
-          map{ |k, v| "#{k}:\"#{v}\"" }
+      fq = fq.reject{ |k, v| k.blank? or v.blank? }
+      @filter_clauses += fq.map do |k, v|
+        if v == :null
+          "-#{k}:[* TO *]"
+        elsif v == :not_null
+          "#{k}:[* TO *]"
+        else
+          "#{k}:#{['(', '['].include?(v.to_s[0]) ? v : "\"#{v}\""}"
+        end
+      end
     elsif fq.respond_to?(:to_s)
       @filter_clauses << fq.to_s
     end
