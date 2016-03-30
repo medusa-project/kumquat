@@ -4,26 +4,22 @@
 
 <%= breadcrumb %>
 
-<h1>Collections <small><%= @collections.length %> total</small></h1>
+<div class="row">
 
-<div class="pt-results">
-  <ol>
-    <% @collections.each do |col| %>
-      <li>
-        <div>
-          <span class="pt-title">
-            <% if col.published %>
-              <%= link_to col.title, collection_url(col) %>
-            <% else %>
-              <%= link_to col.title, col.access_url, target: '_blank' %>
-            <% end %>
-          </span>
-          <br>
-          <span class="pt-description">
-            <%= col.description %>
-          </span>
-        </div>
-      </li>
-    <% end %>
-  </ol>
+  <div class="col-sm-6">
+    <h1>Local Collections</h1>
+
+    <div class="pt-results">
+      <%= collections_as_list(@collections.select(&:published_in_dls)) %>
+    </div>
+  </div>
+
+  <div class="col-sm-6">
+    <h1>Other Library Collections</h1>
+
+    <div class="pt-results">
+      <%= collections_as_list(@collections.select{ |c| !c.published_in_dls }) %>
+    </div>
+  </div>
+
 </div>
