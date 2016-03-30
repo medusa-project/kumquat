@@ -97,8 +97,11 @@ class MedusaCollection
     @num_items
   end
 
+  ##
+  # Makes to_param work.
+  #
   def persisted?
-    true # makes to_param work
+    true
   end
 
   def published
@@ -107,6 +110,10 @@ class MedusaCollection
       @published = self.medusa_representation['publish']
     end
     @published
+  end
+
+  def published_in_dls
+    self.id == 162 # TODO: fix this
   end
 
   ##
