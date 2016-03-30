@@ -56,7 +56,9 @@ class Item < Entity
     if doc[Solr::Fields::CREATED]
       item.created = Time.parse(doc[Solr::Fields::CREATED])
     end
-    item.date = Time.parse(doc[Solr::Fields::DATE])
+    if doc[Solr::Fields::DATE]
+      item.date = Time.parse(doc[Solr::Fields::DATE])
+    end
     if doc[Solr::Fields::LAST_INDEXED]
       item.last_indexed = Time.parse(doc[Solr::Fields::LAST_INDEXED])
     end
