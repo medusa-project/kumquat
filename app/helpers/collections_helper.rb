@@ -1,21 +1,27 @@
 module CollectionsHelper
 
+  ##
+  # @param collections [Array]
+  # @return [String]
+  #
   def collections_as_list(collections)
-    html = '<ol>'
+    html = ''
     collections.each do |col|
-      html += '<li>'
-      html += '<div>'
-      html += '<span class="pt-title">'
-      html += link_to(col.title, col.access_url, target: '_blank')
-      html += '</span>'
-      html += '<br>'
-      html += '<span class="pt-description">'
-      html += truncate(col.description, length: 400)
-      html += '</span>'
+      html += '<div class="media">'
+      html += '<div class="media-left">'
+      html += link_to(collection_url(col)) do
+        image_tag(image_url(col.representative_item, 180),
+                  class: 'media-object', alt: 'Collection thumbnail')
+      end
       html += '</div>'
-      html += '</li>'
+      html += '<div class="media-body">'
+      html += '<h4 class="media-heading">'
+      html += link_to(col.title, collection_url(col))
+      html += '</h4>'
+      html += truncate(col.description, length: 800)
+      html += '</div>'
+      html += '</div>'
     end
-    html += '</ol>'
     raw(html)
   end
 

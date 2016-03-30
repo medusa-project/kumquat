@@ -679,7 +679,7 @@ module ItemsHelper
   ##
   # @param entity [Item] or some other object suitable for passing
   # to `icon_for`
-  # @param size [Integer] One of the sizes in `Derivable::IMAGE_DERIVATIVES`
+  # @param size [Integer]
   # @param shape [String] One of the `Bytestream::Shape` constants
   # @return [String]
   #
