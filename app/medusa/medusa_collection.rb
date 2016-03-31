@@ -113,7 +113,7 @@ class MedusaCollection
   end
 
   def published_in_dls
-    self.id == '162' # TODO: fix this
+    self.id.to_s == '162' # TODO: fix this
   end
 
   ##

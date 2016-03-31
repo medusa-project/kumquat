@@ -4,16 +4,6 @@
 
 <%= breadcrumb %>
 
-<div class="row">
+<h1>Collections</h1>
 
-  <div class="col-md-6">
-    <h1>Local Collections</h1>
-    <%= collections_as_list(@collections.select(&:published_in_dls)) %>
-  </div>
-
-  <div class="col-md-6">
-    <h1>Other Library Collections</h1>
-    <%= collections_as_list(@collections.select{ |c| !c.published_in_dls }) %>
-  </div>
-
-</div>
+<%= collections_as_list(@collections) %>
