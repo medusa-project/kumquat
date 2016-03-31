@@ -137,12 +137,18 @@ class MedusaCollection
     unless @representative_image
       load
       @representative_image = self.medusa_representation['representative_image']
+      unless @representative_image
+        @representative_image = image_url('folder.png')
+      end
     end
     @representative_image
   end
 
   def representative_item
-    Item.find('1607347_001.jp2') # TODO: store this in medusa
+    if self.id.to_s == '162'
+      return Item.find('1607347_001.jp2') # TODO: store this in medusa
+    end
+    nil
   end
 
   def title

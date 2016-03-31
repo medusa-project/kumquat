@@ -567,7 +567,7 @@ module ItemsHelper
     html += '</li>'
     # pinterest
     url = "http://pinterest.com/pin/create/button/?url=#{CGI::escape(item_url(item))}&description=#{CGI::escape(item.title)}"
-    iiif_url = image_url(item, 512)
+    iiif_url = item_image_url(item, 512)
     url += "&media=#{CGI::escape(iiif_url)}" if iiif_url
     html += '<li>'
     html += link_to(url) do
@@ -686,7 +686,7 @@ module ItemsHelper
   def thumbnail_tag(entity, size, shape = Bytestream::Shape::ORIGINAL)
     html = ''
     if entity.kind_of?(Item)
-      url = image_url(entity, size)
+      url = item_image_url(entity, size)
       if url
         # no alt because it may appear in a huge font size if the image is 404
         html += image_tag(url, alt: '')
@@ -758,21 +758,6 @@ module ItemsHelper
     raw(tag)
   end
 
-  ##
-  # @param [Item] item
-  # @param [Integer] size
-  # @return [String, nil] Image URL or nil if the item is not an image
-  #
-  def image_url(item, size)
-    if item.is_image? or item.is_pdf?
-      bs = item.access_master_bytestream || item.preservation_master_bytestream
-      if bs.pathname
-        return sprintf('%s/full/!%d,%d/0/default.jpg', iiif_url(item), size, size)
-      end
-    end
-    nil
-  end
-
   def image_viewer_for(item)
     html = "<div id=\"pt-image-viewer\"></div>
     #{javascript_include_tag('/openseadragon/openseadragon.min.js')}
@@ -791,6 +776,21 @@ module ItemsHelper
     });
     </script>"
     raw(html)
+  end
+
+  ##
+  # @param [Item] item
+  # @param [Integer] size
+  # @return [String, nil] Image URL or nil if the item is not an image
+  #
+  def item_image_url(item, size)
+    if item.is_image? or item.is_pdf?
+      bs = item.access_master_bytestream || item.preservation_master_bytestream
+      if bs.pathname
+        return sprintf('%s/full/!%d,%d/0/default.jpg', iiif_url(item), size, size)
+      end
+    end
+    nil
   end
 
   def pdf_viewer_for(item)

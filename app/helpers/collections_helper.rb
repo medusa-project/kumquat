@@ -5,13 +5,19 @@ module CollectionsHelper
   # @return [String]
   #
   def collections_as_list(collections)
+    thumb_size = 140
     html = ''
     collections.each do |col|
+      if col.representative_item
+        img_url = item_image_url(col.representative_item, thumb_size)
+      else
+        img_url = image_url('folder-open-o-600.png')
+      end
       html += '<div class="media">'
       html += '<div class="media-left">'
       html += link_to(collection_url(col)) do
-        image_tag(image_url(col.representative_item, 180),
-                  class: 'media-object', alt: 'Collection thumbnail')
+        image_tag(img_url, class: 'media-object', alt: 'Collection thumbnail',
+                  style: "width: #{thumb_size}px")
       end
       html += '</div>'
       html += '<div class="media-body">'
