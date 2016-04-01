@@ -232,7 +232,7 @@ class Relation
     if @calling_class and !@loaded
       if !@omit_entity_query
         # limit the query to the calling class
-        @filter_clauses << "#{PearTree::Application.peartree_config[:solr_class_field]}:\""\
+        @where_clauses << "#{PearTree::Application.peartree_config[:solr_class_field]}:\""\
         "#{@calling_class}\""
       end
       params = {
