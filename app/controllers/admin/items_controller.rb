@@ -45,7 +45,7 @@ module Admin
 
       @start = params[:start] ? params[:start].to_i : 0
       @limit = Option::integer(Option::Key::RESULTS_PER_PAGE)
-      @items = Item.all.where(Solr::Fields::PARENT_ITEM => :null).
+      @items = Item.all.where(Item::SolrFields::PARENT_ITEM => :null).
           where(params[:q]).facet(false)
 
       # fields
@@ -65,14 +65,14 @@ module Admin
           params[:collections] and params[:collections].any?
       if collections.any?
         if collections.length == 1
-          @items = @items.where("#{Solr::Fields::COLLECTION}:\"#{collections.first}\"")
+          @items = @items.where("#{Item::SolrFields::COLLECTION}:\"#{collections.first}\"")
         elsif collections.length < MedusaCollection.all.count
-          @items = @items.where("#{Solr::Fields::COLLECTION}:(#{collections.join(' ')})")
+          @items = @items.where("#{Item::SolrFields::COLLECTION}:(#{collections.join(' ')})")
         end
       end
 
       if params[:published].present? and params[:published] != 'any'
-        @items = @items.where("#{Solr::Fields::PUBLISHED}:#{params[:published].to_i}")
+        @items = @items.where("#{Item::SolrFields::PUBLISHED}:#{params[:published].to_i}")
       end
 
       respond_to do |format|
@@ -91,7 +91,8 @@ module Admin
           #    map{ |p| [p.name, p.solr_field] }.uniq
           @elements_for_select = ElementDef.order(:name).
               map{ |p| [p.label, nil] }.uniq
-          @elements_for_select.unshift([ 'Any Element', Solr::Fields::SEARCH_ALL ])
+          @elements_for_select.
+              unshift([ 'Any Element', Entity::SolrFields::SEARCH_ALL ])
           @collections = MedusaCollection.all
         end
         #format.jsonld { stream(RDFStreamer.new(@items, :jsonld), 'export.json') }

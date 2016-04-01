@@ -3,51 +3,6 @@
 #
 class Solr
 
-  ##
-  # All Solr fields used by the application. These are generally correlated
-  # with  XML elements in the PearTree AIP.
-  #
-  # To add a field:
-  # 1) Add it here
-  # 2) Add the corresponding XML element to one of the XSDs in /public
-  # 3) Add that element to app/metadata/elements.yml
-  # 4) Add a corresponding attribute on `Entity` or one of its subclasses
-  # 5) Add code to `Deserialization::from_lrp_xml` to populate the entity from
-  #    XML
-  # 6) Add code to `Entity.from_solr` to populate the entity from Solr
-  # 7) Add code to `Entity.to_solr` to populate the entity's Solr document
-  #
-  class Fields
-    ACCESS_MASTER_HEIGHT = 'access_master_height_ii'
-    ACCESS_MASTER_MEDIA_TYPE = 'access_master_media_type_si'
-    ACCESS_MASTER_PATHNAME = 'access_master_pathname_si'
-    ACCESS_MASTER_URL = 'access_master_url_si'
-    ACCESS_MASTER_WIDTH = 'access_master_width_ii'
-    BIB_ID = 'bib_id_si'
-    CLASS = 'class_si'
-    COLLECTION = 'collection_si'
-    CREATED = 'created_dti'
-    DATE = 'date_dti'
-    FULL_TEXT = 'full_text_txti'
-    ID = 'id'
-    LAST_INDEXED = 'last_indexed_dti'
-    LAST_MODIFIED = 'last_modified_dti'
-    LAT_LONG = 'lat_long_loc'
-    METADATA_PATHNAME = 'metadata_pathname_si'
-    PAGE_NUMBER = 'page_number_ii'
-    PARENT_ITEM = 'parent_si'
-    PRESERVATION_MASTER_HEIGHT = 'preservation_master_height_ii'
-    PRESERVATION_MASTER_MEDIA_TYPE = 'preservation_master_media_type_si'
-    PRESERVATION_MASTER_PATHNAME = 'preservation_master_pathname_si'
-    PRESERVATION_MASTER_URL = 'preservation_master_url_si'
-    PRESERVATION_MASTER_WIDTH = 'preservation_master_width_ii'
-    PUBLISHED = 'published_bi'
-    REPRESENTATIVE_ITEM_ID = 'representative_item_id_si'
-    SEARCH_ALL = 'searchall_txtim'
-    SUBCLASS = 'subclass_si'
-    SUBPAGE_NUMBER = 'subpage_number_ii'
-  end
-
   include Singleton
 
   SCHEMA = YAML.load(File.read(File.join(__dir__, 'schema.yml')))
@@ -177,11 +132,11 @@ class Solr
   # @return [Array] Array of strings
   #
   def search_all_fields
-    dest = Solr::Fields::SEARCH_ALL
+    dest = Entity::SolrFields::SEARCH_ALL
     fields = Element.all.uniq(&:name).map do |t|
       { source: t.solr_multi_valued_field, dest: dest }
     end
-    fields << { source: Solr::Fields::FULL_TEXT, dest: dest }
+    fields << { source: SolrFields::FULL_TEXT, dest: dest }
     fields
   end
 

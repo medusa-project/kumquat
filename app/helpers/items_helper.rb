@@ -64,7 +64,7 @@ module ItemsHelper
       next unless result_facet and
           result_facet.terms.select{ |t| t.count > 0 }.any?
       is_collection_facet =
-          (result_facet.field == Solr::Fields::COLLECTION + Element.solr_facet_suffix)
+          (result_facet.field == Item::SolrFields::COLLECTION + Element.solr_facet_suffix)
       if is_collection_facet
         if !options[:show_collection_facet]
           next

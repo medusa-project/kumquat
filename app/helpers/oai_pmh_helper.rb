@@ -9,8 +9,8 @@ module OaiPmhHelper
     parts = identifier.split(':')
     id = parts.pop
     return nil if parts.join(':') != "oai:#{host}"
-    Item.where(Solr::Fields::PUBLISHED => true).
-        where(Solr::Fields::ID => id).limit(1).first
+    Item.where(Item::SolrFields::PUBLISHED => true).
+        where(Entity::SolrFields::ID => id).limit(1).first
   end
 
   ##

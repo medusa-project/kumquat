@@ -1,5 +1,33 @@
 class Item < Entity
 
+  class SolrFields
+    ACCESS_MASTER_HEIGHT = 'access_master_height_ii'
+    ACCESS_MASTER_MEDIA_TYPE = 'access_master_media_type_si'
+    ACCESS_MASTER_PATHNAME = 'access_master_pathname_si'
+    ACCESS_MASTER_URL = 'access_master_url_si'
+    ACCESS_MASTER_WIDTH = 'access_master_width_ii'
+    BIB_ID = 'bib_id_si'
+    COLLECTION = 'collection_si'
+    CREATED = 'created_dti'
+    DATE = 'date_dti'
+    FULL_TEXT = 'full_text_txti'
+    LAST_MODIFIED = 'last_modified_dti'
+    LAT_LONG = 'lat_long_loc'
+    METADATA_PATHNAME = 'metadata_pathname_si'
+    PAGE_NUMBER = 'page_number_ii'
+    PARENT_ITEM = 'parent_si'
+    PRESERVATION_MASTER_HEIGHT = 'preservation_master_height_ii'
+    PRESERVATION_MASTER_MEDIA_TYPE = 'preservation_master_media_type_si'
+    PRESERVATION_MASTER_PATHNAME = 'preservation_master_pathname_si'
+    PRESERVATION_MASTER_URL = 'preservation_master_url_si'
+    PRESERVATION_MASTER_WIDTH = 'preservation_master_width_ii'
+    PUBLISHED = 'published_bi'
+    REPRESENTATIVE_ITEM_ID = 'representative_item_id_si'
+    SEARCH_ALL = 'searchall_txtim'
+    SUBCLASS = 'subclass_si'
+    SUBPAGE_NUMBER = 'subpage_number_ii'
+  end
+
   class Subclasses
     FRONT_MATTER = 'FrontMatter'
     INDEX = 'Index'
@@ -7,6 +35,10 @@ class Item < Entity
     PAGE = 'Page'
     TITLE = 'Title'
   end
+
+  # @!attribute bib_id
+  #   @return [String]
+  attr_accessor :bib_id
 
   # @!attribute bytestreams
   #   @return [Set<Bytestream>]
@@ -16,6 +48,10 @@ class Item < Entity
   #   @return [String]
   attr_accessor :collection_id
 
+  # @!attribute created
+  #   @return [Time]
+  attr_accessor :created
+
   # @!attribute date
   #   @return [Time]
   attr_accessor :date
@@ -23,6 +59,10 @@ class Item < Entity
   # @!attribute full_text
   #   @return [String]
   attr_accessor :full_text
+
+  # @!attribute last_modified
+  #   @return [Time]
+  attr_accessor :last_modified
 
   # @!attribute latitude
   #   @return [Float]
@@ -32,6 +72,14 @@ class Item < Entity
   #   @return [Float]
   attr_accessor :longitude
 
+  # @!attribute metadata
+  #   @return [Array]
+  attr_reader :metadata
+
+  # @!attribute metadata_pathname
+  #   @return [String]
+  attr_accessor :metadata_pathname
+
   # @!attribute page_number
   #   @return [Integer]
   attr_accessor :page_number
@@ -39,6 +87,18 @@ class Item < Entity
   # @!attribute parent_id
   #   @return [String]
   attr_accessor :parent_id
+
+  # @!attribute published
+  #   @return [Boolean]
+  attr_accessor :published
+
+  # @!attribute representative_item_id
+  #   @return [String]
+  attr_accessor :representative_item_id
+
+  # @!attribute subclass One of the Item::Subclasses constants
+  #   @return [String]
+  attr_accessor :subclass
 
   # @!attribute subpage_number
   #   @return [Integer]
@@ -50,57 +110,57 @@ class Item < Entity
   #
   def self.from_solr(doc)
     item = Item.new
-    item.id = doc[Solr::Fields::ID]
-    item.bib_id = doc[Solr::Fields::BIB_ID]
-    item.collection_id = doc[Solr::Fields::COLLECTION]
-    if doc[Solr::Fields::CREATED]
-      item.created = Time.parse(doc[Solr::Fields::CREATED])
+    item.id = doc[Entity::SolrFields::ID]
+    item.bib_id = doc[SolrFields::BIB_ID]
+    item.collection_id = doc[SolrFields::COLLECTION]
+    if doc[SolrFields::CREATED]
+      item.created = Time.parse(doc[SolrFields::CREATED])
     end
-    if doc[Solr::Fields::DATE]
-      item.date = Time.parse(doc[Solr::Fields::DATE])
+    if doc[SolrFields::DATE]
+      item.date = Time.parse(doc[SolrFields::DATE])
     end
-    if doc[Solr::Fields::LAST_INDEXED]
-      item.last_indexed = Time.parse(doc[Solr::Fields::LAST_INDEXED])
+    if doc[Entity::SolrFields::LAST_INDEXED]
+      item.last_indexed = Time.parse(doc[Entity::SolrFields::LAST_INDEXED])
     end
-    if doc[Solr::Fields::LAST_MODIFIED]
-      item.last_modified = Time.parse(doc[Solr::Fields::LAST_MODIFIED])
+    if doc[SolrFields::LAST_MODIFIED]
+      item.last_modified = Time.parse(doc[SolrFields::LAST_MODIFIED])
     end
-    if doc[Solr::Fields::LAT_LONG]
-      parts = doc[Solr::Fields::LAT_LONG].split(',')
+    if doc[SolrFields::LAT_LONG]
+      parts = doc[SolrFields::LAT_LONG].split(',')
       if parts.length == 2
         item.latitude = parts.first.to_f
         item.longitude = parts.last.to_f
       end
     end
-    item.metadata_pathname = doc[Solr::Fields::METADATA_PATHNAME]
-    item.page_number = doc[Solr::Fields::PAGE_NUMBER]
-    item.parent_id = doc[Solr::Fields::PARENT_ITEM]
-    item.representative_item_id = doc[Solr::Fields::REPRESENTATIVE_ITEM_ID]
-    if doc[Solr::Fields::ACCESS_MASTER_PATHNAME] or
-        doc[Solr::Fields::ACCESS_MASTER_URL]
+    item.metadata_pathname = doc[SolrFields::METADATA_PATHNAME]
+    item.page_number = doc[SolrFields::PAGE_NUMBER]
+    item.parent_id = doc[SolrFields::PARENT_ITEM]
+    item.representative_item_id = doc[SolrFields::REPRESENTATIVE_ITEM_ID]
+    if doc[SolrFields::ACCESS_MASTER_PATHNAME] or
+        doc[SolrFields::ACCESS_MASTER_URL]
       bs = Bytestream.new
-      bs.height = doc[Solr::Fields::ACCESS_MASTER_HEIGHT]
-      bs.media_type = doc[Solr::Fields::ACCESS_MASTER_MEDIA_TYPE]
-      bs.repository_relative_pathname = doc[Solr::Fields::ACCESS_MASTER_PATHNAME]
+      bs.height = doc[SolrFields::ACCESS_MASTER_HEIGHT]
+      bs.media_type = doc[SolrFields::ACCESS_MASTER_MEDIA_TYPE]
+      bs.repository_relative_pathname = doc[SolrFields::ACCESS_MASTER_PATHNAME]
       bs.type = Bytestream::Type::ACCESS_MASTER
-      bs.url = doc[Solr::Fields::ACCESS_MASTER_URL]
-      bs.width = doc[Solr::Fields::ACCESS_MASTER_WIDTH]
+      bs.url = doc[SolrFields::ACCESS_MASTER_URL]
+      bs.width = doc[SolrFields::ACCESS_MASTER_WIDTH]
       item.bytestreams << bs
     end
-    item.full_text = doc[Solr::Fields::FULL_TEXT]
-    if doc[Solr::Fields::PRESERVATION_MASTER_PATHNAME] or
-        doc[Solr::Fields::PRESERVATION_MASTER_URL]
+    item.full_text = doc[SolrFields::FULL_TEXT]
+    if doc[SolrFields::PRESERVATION_MASTER_PATHNAME] or
+        doc[SolrFields::PRESERVATION_MASTER_URL]
       bs = Bytestream.new
-      bs.height = doc[Solr::Fields::PRESERVATION_MASTER_HEIGHT]
-      bs.media_type = doc[Solr::Fields::PRESERVATION_MASTER_MEDIA_TYPE]
-      bs.repository_relative_pathname = doc[Solr::Fields::PRESERVATION_MASTER_PATHNAME]
+      bs.height = doc[SolrFields::PRESERVATION_MASTER_HEIGHT]
+      bs.media_type = doc[SolrFields::PRESERVATION_MASTER_MEDIA_TYPE]
+      bs.repository_relative_pathname = doc[SolrFields::PRESERVATION_MASTER_PATHNAME]
       bs.type = Bytestream::Type::PRESERVATION_MASTER
-      bs.url = doc[Solr::Fields::PRESERVATION_MASTER_URL]
-      bs.width = doc[Solr::Fields::PRESERVATION_MASTER_WIDTH]
+      bs.url = doc[SolrFields::PRESERVATION_MASTER_URL]
+      bs.width = doc[SolrFields::PRESERVATION_MASTER_WIDTH]
       item.bytestreams << bs
     end
-    item.subclass = doc[Solr::Fields::SUBCLASS]
-    item.subpage_number = doc[Solr::Fields::SUBPAGE_NUMBER]
+    item.subclass = doc[SolrFields::SUBCLASS]
+    item.subpage_number = doc[SolrFields::SUBPAGE_NUMBER]
 
     # descriptive metadata
     doc.keys.select{ |k| k.start_with?(Element.solr_prefix) and
@@ -112,7 +172,7 @@ class Item < Entity
       end
     end
 
-    item.published = doc[Solr::Fields::PUBLISHED]
+    item.published = doc[SolrFields::PUBLISHED]
     item.instance_variable_set('@persisted', true)
     item
   end
@@ -120,6 +180,7 @@ class Item < Entity
   def initialize
     super
     @bytestreams = Set.new
+    @metadata = []
   end
 
   def access_master_bytestream
@@ -133,8 +194,8 @@ class Item < Entity
   #
   def children
     unless @children
-      @children = Item.where(Solr::Fields::PARENT_ITEM => self.id).
-          order(Solr::Fields::PAGE_NUMBER)
+      @children = Item.where(SolrFields::PARENT_ITEM => self.id).
+          order(SolrFields::PAGE_NUMBER)
     end
     @children
   end
@@ -147,6 +208,11 @@ class Item < Entity
   def collection
     @collection = MedusaCollection.find(self.collection_id) unless @collection
     @collection
+  end
+
+  def description
+    elements = metadata.select{ |e| e.name == 'description' }
+    elements.any? ? elements.first.value : nil
   end
 
   ##
@@ -172,8 +238,8 @@ class Item < Entity
   #
   def front_matter_item
     unless @front_matter_item
-      @front_matter_item = Item.where(Solr::Fields::PARENT_ITEM => self.id).
-          where(Solr::Fields::SUBCLASS => Item::Subclasses::FRONT_MATTER).
+      @front_matter_item = Item.where(SolrFields::PARENT_ITEM => self.id).
+          where(SolrFields::SUBCLASS => Item::Subclasses::FRONT_MATTER).
           limit(1).first
     end
     @front_matter_item
@@ -184,8 +250,8 @@ class Item < Entity
   #
   def index_item
     unless @index_item
-      @index_item = Item.where(Solr::Fields::PARENT_ITEM => self.id).
-          where(Solr::Fields::SUBCLASS => Item::Subclasses::INDEX).
+      @index_item = Item.where(Item::SolrFields::PARENT_ITEM => self.id).
+          where(SolrFields::SUBCLASS => Item::Subclasses::INDEX).
           limit(1).first
     end
     @index_item
@@ -226,8 +292,8 @@ class Item < Entity
   #
   def key_item
     unless @key_item
-      @key_item = Item.where(Solr::Fields::PARENT_ITEM => self.id).
-          where(Solr::Fields::SUBCLASS => Item::Subclasses::KEY).
+      @key_item = Item.where(SolrFields::PARENT_ITEM => self.id).
+          where(SolrFields::SUBCLASS => Item::Subclasses::KEY).
           limit(1).first
     end
     @key_item
@@ -249,8 +315,8 @@ class Item < Entity
     next_item = nil
     if self.parent_id and self.page_number
       next_item = Item.all.
-          where(Solr::Fields::PARENT_ITEM => self.parent_id,
-                Solr::Fields::PAGE_NUMBER => self.page_number + 1).
+          where(SolrFields::PARENT_ITEM => self.parent_id,
+                SolrFields::PAGE_NUMBER => self.page_number + 1).
           limit(1).first
     end
     next_item
@@ -262,9 +328,9 @@ class Item < Entity
   #
   def pages
     unless @pages
-      @pages = Item.where(Solr::Fields::PARENT_ITEM => self.id).
-          where(Solr::Fields::SUBCLASS => Item::Subclasses::PAGE).
-          order(Solr::Fields::PAGE_NUMBER)
+      @pages = Item.where(SolrFields::PARENT_ITEM => self.id).
+          where(SolrFields::SUBCLASS => Item::Subclasses::PAGE).
+          order(SolrFields::PAGE_NUMBER)
     end
     @pages
   end
@@ -293,11 +359,26 @@ class Item < Entity
     prev_item = nil
     if self.parent_id and self.page_number
       prev_item = Item.all.
-          where(Solr::Fields::PARENT_ITEM => self.parent_id,
-                Solr::Fields::PAGE_NUMBER => self.page_number - 1).
+          where(SolrFields::PARENT_ITEM => self.parent_id,
+                SolrFields::PAGE_NUMBER => self.page_number - 1).
           limit(1).first
     end
     prev_item
+  end
+
+  def representative_item
+    (self.representative_item_id ?
+        Item.find_by_id(self.representative_item_id) : self) || self
+  end
+
+  def subtitle
+    elements = metadata.select{ |e| e.name == 'alternativeTitle' }
+    elements.any? ? elements.first.value : nil
+  end
+
+  def title
+    elements = metadata.select{ |e| e.name == 'title' }
+    elements.any? ? elements.first.value : nil
   end
 
   ##
@@ -305,8 +386,8 @@ class Item < Entity
   #
   def title_item
     unless @title_item
-      @title_item = Item.where(Solr::Fields::PARENT_ITEM => self.id).
-          where(Solr::Fields::SUBCLASS => Item::Subclasses::TITLE).
+      @title_item = Item.where(SolrFields::PARENT_ITEM => self.id).
+          where(SolrFields::SUBCLASS => Item::Subclasses::TITLE).
           limit(1).first
     end
     @title_item
@@ -319,29 +400,45 @@ class Item < Entity
   #
   def to_solr
     doc = super
-    doc[Solr::Fields::COLLECTION] = self.collection_id
-    doc[Solr::Fields::PAGE_NUMBER] = self.page_number
-    doc[Solr::Fields::PARENT_ITEM] = self.parent_id
-    doc[Solr::Fields::DATE] = self.date.utc.iso8601 if self.date
+    doc[SolrFields::BIB_ID] = self.bib_id
+    doc[SolrFields::CREATED] = self.created.utc.iso8601 + 'Z' if self.created
+    doc[SolrFields::COLLECTION] = self.collection_id
+    doc[SolrFields::PAGE_NUMBER] = self.page_number
+    doc[SolrFields::PARENT_ITEM] = self.parent_id
+    doc[SolrFields::DATE] = self.date.utc.iso8601 if self.date
     self.bytestreams.select{ |b| b.type == Bytestream::Type::ACCESS_MASTER }.each do |bs|
-      doc[Solr::Fields::ACCESS_MASTER_HEIGHT] = bs.height
-      doc[Solr::Fields::ACCESS_MASTER_MEDIA_TYPE] = bs.media_type
-      doc[Solr::Fields::ACCESS_MASTER_PATHNAME] = bs.repository_relative_pathname
-      doc[Solr::Fields::ACCESS_MASTER_URL] = bs.url
-      doc[Solr::Fields::ACCESS_MASTER_WIDTH] = bs.width
+      doc[SolrFields::ACCESS_MASTER_HEIGHT] = bs.height
+      doc[SolrFields::ACCESS_MASTER_MEDIA_TYPE] = bs.media_type
+      doc[SolrFields::ACCESS_MASTER_PATHNAME] = bs.repository_relative_pathname
+      doc[SolrFields::ACCESS_MASTER_URL] = bs.url
+      doc[SolrFields::ACCESS_MASTER_WIDTH] = bs.width
     end
-    doc[Solr::Fields::FULL_TEXT] = self.full_text
+    doc[SolrFields::FULL_TEXT] = self.full_text
+    if self.last_modified
+      doc[SolrFields::LAST_MODIFIED] = self.last_modified.utc.iso8601 + 'Z'
+    end
     if self.latitude and self.longitude
-      doc[Solr::Fields::LAT_LONG] = "#{self.latitude},#{self.longitude}"
+      doc[SolrFields::LAT_LONG] = "#{self.latitude},#{self.longitude}"
     end
+    doc[SolrFields::METADATA_PATHNAME] = self.metadata_pathname
     self.bytestreams.select{ |b| b.type == Bytestream::Type::PRESERVATION_MASTER }.each do |bs|
-      doc[Solr::Fields::PRESERVATION_MASTER_HEIGHT] = bs.height
-      doc[Solr::Fields::PRESERVATION_MASTER_MEDIA_TYPE] = bs.media_type
-      doc[Solr::Fields::PRESERVATION_MASTER_PATHNAME] = bs.repository_relative_pathname
-      doc[Solr::Fields::PRESERVATION_MASTER_URL] = bs.url
-      doc[Solr::Fields::PRESERVATION_MASTER_WIDTH] = bs.width
+      doc[SolrFields::PRESERVATION_MASTER_HEIGHT] = bs.height
+      doc[SolrFields::PRESERVATION_MASTER_MEDIA_TYPE] = bs.media_type
+      doc[SolrFields::PRESERVATION_MASTER_PATHNAME] = bs.repository_relative_pathname
+      doc[SolrFields::PRESERVATION_MASTER_URL] = bs.url
+      doc[SolrFields::PRESERVATION_MASTER_WIDTH] = bs.width
     end
-    doc[Solr::Fields::SUBPAGE_NUMBER] = self.subpage_number
+    doc[SolrFields::PUBLISHED] = self.published
+    doc[SolrFields::REPRESENTATIVE_ITEM_ID] = self.representative_item_id
+    doc[SolrFields::SUBCLASS] = self.subclass
+    doc[SolrFields::SUBPAGE_NUMBER] = self.subpage_number
+
+    self.metadata.each do |element|
+      doc[element.solr_multi_valued_field] ||= []
+      doc[element.solr_multi_valued_field] << element.value
+      doc[element.solr_single_valued_field] = element.value
+    end
+
     doc
   end
 

@@ -61,12 +61,12 @@ class MedusaCollection < Entity
   def self.from_solr(doc)
     col = MedusaCollection.new
 
-    col.id = doc[Solr::Fields::ID]
+    col.id = doc[Entity::SolrFields::ID]
     col.access_url = doc[SolrFields::ACCESS_URL]
     col.description = doc[SolrFields::DESCRIPTION]
     col.description_html = doc[SolrFields::DESCRIPTION_HTML]
-    if doc[Solr::Fields::LAST_INDEXED]
-      col.last_indexed = Time.parse(doc[Solr::Fields::LAST_INDEXED])
+    if doc[Entity::SolrFields::LAST_INDEXED]
+      col.last_indexed = Time.parse(doc[Entity::SolrFields::LAST_INDEXED])
     end
     col.published = doc[SolrFields::PUBLISHED]
     col.published_in_dls = doc[SolrFields::PUBLISHED_IN_DLS]
@@ -125,8 +125,8 @@ class MedusaCollection < Entity
   # @return [Integer]
   #
   def num_items
-    @num_items = Item.where(Solr::Fields::COLLECTION => self.id).
-        where(Solr::Fields::PARENT_ITEM => :null).count unless @num_items
+    @num_items = Item.where(Item::SolrFields::COLLECTION => self.id).
+        where(Item::SolrFields::PARENT_ITEM => :null).count unless @num_items
     @num_items
   end
 

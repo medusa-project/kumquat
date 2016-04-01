@@ -22,8 +22,8 @@ class ItemsController < WebsiteController
   def index
     @start = params[:start] ? params[:start].to_i : 0
     @limit = Option::integer(Option::Key::RESULTS_PER_PAGE)
-    @items = Item.where(Solr::Fields::PUBLISHED => true).
-        where(Solr::Fields::PARENT_ITEM => :null).where(params[:q])
+    @items = Item.where(Item::SolrFields::PUBLISHED => true).
+        where(Item::SolrFields::PARENT_ITEM => :null).where(params[:q])
     if params[:fq].respond_to?(:each)
       params[:fq].each { |fq| @items = @items.facet(fq) }
     else
@@ -32,7 +32,7 @@ class ItemsController < WebsiteController
     if params[:collection_id]
       @collection = MedusaCollection.find(params[:collection_id])
       raise ActiveRecord::RecordNotFound unless @collection
-      @items = @items.where(Solr::Fields::COLLECTION => @collection.id)
+      @items = @items.where(Item::SolrFields::COLLECTION => @collection.id)
     end
 
     @metadata_profile = @collection ?
@@ -95,7 +95,7 @@ class ItemsController < WebsiteController
       ids = params[:ids].select{ |k| !k.blank? }
     end
     if ids.any? and ids.length < MedusaCollection.all.length
-      filter_clauses << "#{Solr::Fields::COLLECTION}:(#{ids.join(' ')})"
+      filter_clauses << "#{Item::SolrFields::COLLECTION}:(#{ids.join(' ')})"
     end
 
     redirect_to items_path(q: where_clauses.join(' AND '), fq: filter_clauses)

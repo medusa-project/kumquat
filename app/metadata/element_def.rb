@@ -39,7 +39,7 @@ class ElementDef < ActiveRecord::Base
     e = Element.new
     e.name = self.name
     e.name == 'collection' ?
-        Solr::Fields::COLLECTION + Element.solr_facet_suffix :
+        Item::SolrFields::COLLECTION + Element.solr_facet_suffix :
         e.solr_facet_field
   end
 

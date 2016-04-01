@@ -76,8 +76,8 @@ class OaiPmhController < ApplicationController
   end
 
   def do_identify
-    items = Item.all.facet(false).where(Solr::Fields::CREATED => :not_null).
-        order(Solr::Fields::CREATED => :desc).limit(1)
+    items = Item.all.facet(false).where(Item::SolrFields::CREATED => :not_null).
+        order(Item::SolrFields::CREATED => :desc).limit(1)
     @earliest_datestamp = items.any? ? items.first.created.utc.iso8601 : nil
     'identify.xml.builder'
   end
@@ -129,17 +129,17 @@ class OaiPmhController < ApplicationController
     end
 
     @results = Item.all.facet(false).
-        where(Solr::Fields::PUBLISHED => true).
-        order(Solr::Fields::CREATED => :desc)
+        where(Item::SolrFields::PUBLISHED => true).
+        order(Item::SolrFields::CREATED => :desc)
 
     from = to = 'NOW'
     from = Time.parse(params[:from]).utc.iso8601 if params[:from]
     to = Time.parse(params[:until]).utc.iso8601 if params[:until]
     if from != to
-      @results = @results.where(Solr::Fields::CREATED => "[#{from} TO #{to}]")
+      @results = @results.where(Item::SolrFields::CREATED => "[#{from} TO #{to}]")
     end
     if params[:set]
-      @results = @results.where(Solr::Fields::ID => params[:set])
+      @results = @results.where(Entity::SolrFields::ID => params[:set])
     end
 
     @errors << { code: 'noRecordsMatch',

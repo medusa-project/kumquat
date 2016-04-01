@@ -56,13 +56,13 @@
                 <li><%= link_to "All Items (#{@num_items})", items_path %></li>
                 <li class="divider"></li>
                 <li><%= link_to "Images (#{@image_items.total_length})",
-                                items_path(q: "#{Solr::Fields::ACCESS_MASTER_MEDIA_TYPE}:image/*") %></li>
+                                items_path(q: "#{Item::SolrFields::ACCESS_MASTER_MEDIA_TYPE}:image/*") %></li>
                 <li><%= link_to "Documents (#{@document_items.total_length})",
-                                items_path(q: "#{Solr::Fields::ACCESS_MASTER_MEDIA_TYPE}:application/pdf") %></li>
+                                items_path(q: "#{Item::SolrFields::ACCESS_MASTER_MEDIA_TYPE}:application/pdf") %></li>
                 <li><%= link_to "Videos (#{@video_items.total_length})",
-                                items_path(q: "#{Solr::Fields::ACCESS_MASTER_MEDIA_TYPE}:video/*") %></li>
+                                items_path(q: "#{Item::SolrFields::ACCESS_MASTER_MEDIA_TYPE}:video/*") %></li>
                 <li><%= link_to "Sound Recordings (#{@audio_items.total_length})",
-                                items_path(q: "#{Solr::Fields::ACCESS_MASTER_MEDIA_TYPE}:audio/*") %></li>
+                                items_path(q: "#{Item::SolrFields::ACCESS_MASTER_MEDIA_TYPE}:audio/*") %></li>
               </ul>
             </li>
             <li id="favorites-nav">

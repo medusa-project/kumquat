@@ -8,20 +8,20 @@ class WebsiteController < ApplicationController
   def setup
     super
 
-    @num_items = Item.where(Solr::Fields::PARENT_ITEM => :null).count
+    @num_items = Item.where(Item::SolrFields::PARENT_ITEM => :null).count
 
-    @audio_items = Item.where("#{Solr::Fields::ACCESS_MASTER_MEDIA_TYPE}:audio/* "\
-    "OR #{Solr::Fields::PRESERVATION_MASTER_MEDIA_TYPE}:audio/*").
-        where(Solr::Fields::PARENT_ITEM => :null).limit(1)
-    @document_items = Item.where("#{Solr::Fields::ACCESS_MASTER_MEDIA_TYPE}:application/pdf "\
-    "OR #{Solr::Fields::PRESERVATION_MASTER_MEDIA_TYPE}:application/pdf").
-        where(Solr::Fields::PARENT_ITEM => :null).limit(1)
-    @image_items = Item.where("#{Solr::Fields::ACCESS_MASTER_MEDIA_TYPE}:image/* "\
-    "OR #{Solr::Fields::PRESERVATION_MASTER_MEDIA_TYPE}:image/*").
-        where(Solr::Fields::PARENT_ITEM => :null).limit(1)
-    @video_items = Item.where("#{Solr::Fields::ACCESS_MASTER_MEDIA_TYPE}:video/* "\
-        "OR #{Solr::Fields::PRESERVATION_MASTER_MEDIA_TYPE}:video/*").
-        where(Solr::Fields::PARENT_ITEM => :null).limit(1)
+    @audio_items = Item.where("#{Item::SolrFields::ACCESS_MASTER_MEDIA_TYPE}:audio/* "\
+    "OR #{Item::SolrFields::PRESERVATION_MASTER_MEDIA_TYPE}:audio/*").
+        where(Item::SolrFields::PARENT_ITEM => :null).limit(1)
+    @document_items = Item.where("#{Item::SolrFields::ACCESS_MASTER_MEDIA_TYPE}:application/pdf "\
+    "OR #{Item::SolrFields::PRESERVATION_MASTER_MEDIA_TYPE}:application/pdf").
+        where(Item::SolrFields::PARENT_ITEM => :null).limit(1)
+    @image_items = Item.where("#{Item::SolrFields::ACCESS_MASTER_MEDIA_TYPE}:image/* "\
+    "OR #{Item::SolrFields::PRESERVATION_MASTER_MEDIA_TYPE}:image/*").
+        where(Item::SolrFields::PARENT_ITEM => :null).limit(1)
+    @video_items = Item.where("#{Item::SolrFields::ACCESS_MASTER_MEDIA_TYPE}:video/* "\
+        "OR #{Item::SolrFields::PRESERVATION_MASTER_MEDIA_TYPE}:video/*").
+        where(Item::SolrFields::PARENT_ITEM => :null).limit(1)
 
     # data for the nav bar search
     collection = self.collection
@@ -34,7 +34,7 @@ class WebsiteController < ApplicationController
         select{ |c| c.published and c.title.include?('Sanborn') } # TODO: fix once MED-400 is complete
     @elements_for_select = element_defs.where(searchable: true).order(:label).
         map{ |ed| [ ed.label, ed.solr_multi_valued_field ] }
-    @elements_for_select.unshift([ 'Any Field', Solr::Fields::SEARCH_ALL ])
+    @elements_for_select.unshift([ 'Any Field', Entity::SolrFields::SEARCH_ALL ])
   end
 
   protected
