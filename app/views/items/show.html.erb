@@ -8,11 +8,11 @@
 
 <div class="btn-group pull-right">
   <button class="btn btn-danger pt-remove-from-favorites"
-          data-web-id="<%= @item.web_id %>">
+          data-item-id="<%= @item.id %>">
     <i class="fa fa-heart-o"></i> Remove From Favorites
   </button>
   <button class="btn btn-default pt-add-to-favorites"
-          data-web-id="<%= @item.web_id %>">
+          data-item-id="<%= @item.id %>">
     <i class="fa fa-heart"></i> Add To Favorites
   </button>
   <%= share_button(@item) %>

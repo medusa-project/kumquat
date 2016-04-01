@@ -32,9 +32,9 @@ class FavoritesController < WebsiteController
   #
   def purge_invalid_favorites
     if cookies[:favorites]
-      web_ids = cookies[:favorites].split(COOKIE_DELIMITER)
-      if web_ids.length != @items.length
-        cookies[:favorites] = @items.map(&:web_id).join(COOKIE_DELIMITER)
+      ids = cookies[:favorites].split(COOKIE_DELIMITER)
+      if ids.length != @items.length
+        cookies[:favorites] = @items.map(&:id).join(COOKIE_DELIMITER)
       end
     end
   end

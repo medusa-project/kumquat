@@ -22,7 +22,6 @@ class Entity
   attr_accessor :representative_item_id # String
   attr_accessor :score # float
   attr_accessor :subclass # One of the Item::Subclasses constants
-  attr_accessor :web_id # String
 
   def self.from_solr(doc)
     class_field = PearTree::Application.peartree_config[:solr_class_field]
@@ -68,7 +67,7 @@ class Entity
   end
 
   def to_param
-    (self.web_id || self.id).to_s
+    self.id.to_s
   end
 
   ##
@@ -95,7 +94,6 @@ class Entity
     doc[Solr::Fields::PUBLISHED] = self.published
     doc[Solr::Fields::REPRESENTATIVE_ITEM_ID] = self.representative_item_id
     doc[Solr::Fields::SUBCLASS] = self.subclass
-    doc[Solr::Fields::WEB_ID] = self.web_id
 
     self.metadata.each do |element|
       doc[element.solr_multi_valued_field] ||= []
@@ -104,10 +102,6 @@ class Entity
     end
 
     doc
-  end
-
-  def web_id
-    @web_id || self.id
   end
 
 end

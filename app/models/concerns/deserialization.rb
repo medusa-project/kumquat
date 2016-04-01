@@ -58,10 +58,6 @@ module Deserialization
       subclass = node.xpath('lrp:subclass', namespaces).first
       entity.subclass = subclass ? subclass.content.strip : nil
 
-      # web ID
-      web_id = node.xpath('lrp:webId', namespaces).first
-      entity.web_id = web_id ? web_id.content.strip : entity.id
-
       if entity.kind_of?(Item)
         # collection
         col = node.xpath('lrp:collectionId', namespaces).first

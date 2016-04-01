@@ -158,7 +158,7 @@ module ItemsHelper
   def is_favorite?(item)
     cookies[:favorites] and cookies[:favorites].
         split(FavoritesController::COOKIE_DELIMITER).
-        select{ |f| f == item.web_id }.any?
+        select{ |f| f == item.id }.any?
   end
 
   ##
@@ -243,14 +243,14 @@ module ItemsHelper
         # remove-from-favorites button
         if options[:show_remove_from_favorites_buttons]
           html += ' <button class="btn btn-xs btn-danger ' +
-              'pt-remove-from-favorites" data-web-id="' + entity.id + '">'
+              'pt-remove-from-favorites" data-item-id="' + entity.id + '">'
           html += '<i class="fa fa-heart"></i> Remove'
           html += '</button>'
         end
         # add-to-favorites button
         if options[:show_add_to_favorites_buttons]
           html += ' <button class="btn btn-default btn-xs ' +
-              'pt-add-to-favorites" data-web-id="' + entity.id + '">'
+              'pt-add-to-favorites" data-item-id="' + entity.id + '">'
           html += '<i class="fa fa-heart-o"></i>'
           html += '</button>'
         end

@@ -5,7 +5,7 @@ var PTFavoritesView = function() {
 
     this.init = function() {
         $(document).on(PearTree.Events.ITEM_REMOVED_FROM_FAVORITES, function(event, item) {
-            $('.pt-results button[data-web-id="' + item.web_id + '"]').
+            $('.pt-results button[data-item-id="' + item.id + '"]').
                 closest('li').fadeOut(function() {
                     var badge = $('.pt-favorites-count');
                     var num_favorites = PTItem.numFavorites();
@@ -19,7 +19,7 @@ var PTFavoritesView = function() {
         });
         $('button.pt-remove-from-favorites').on('click', function() {
             var item = new PTItem();
-            item.web_id = $(this).data('web-id');
+            item.id = $(this).data('item-id');
             item.removeFromFavorites();
         });
 

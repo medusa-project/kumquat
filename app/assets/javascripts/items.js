@@ -184,7 +184,7 @@ var PTItemView = function() {
      */
     this.item = function() {
         var item = new PTItem();
-        item.web_id = $('.pt-add-to-favorites').data('web-id');
+        item.id = $('.pt-add-to-favorites').data('item-id');
         return item;
     };
 
@@ -217,28 +217,28 @@ var PTItemsView = function() {
         });
 
         $(document).on(PearTree.Events.ITEM_ADDED_TO_FAVORITES, function(event, item) {
-            $('.pt-results button.pt-remove-from-favorites[data-web-id="' + item.web_id + '"]').show();
-            $('.pt-results button.pt-add-to-favorites[data-web-id="' + item.web_id + '"]').hide();
+            $('.pt-results button.pt-remove-from-favorites[data-item-id="' + item.id + '"]').show();
+            $('.pt-results button.pt-add-to-favorites[data-item-id="' + item.id + '"]').hide();
             updateFavoritesCount();
         });
         $(document).on(PearTree.Events.ITEM_REMOVED_FROM_FAVORITES, function(event, item) {
-            $('.pt-results button.pt-remove-from-favorites[data-web-id="' + item.web_id + '"]').hide();
-            $('.pt-results button.pt-add-to-favorites[data-web-id="' + item.web_id + '"]').show();
+            $('.pt-results button.pt-remove-from-favorites[data-item-id="' + item.id + '"]').hide();
+            $('.pt-results button.pt-add-to-favorites[data-item-id="' + item.id + '"]').show();
             updateFavoritesCount();
         });
         $('button.pt-add-to-favorites').on('click', function() {
             var item = new PTItem();
-            item.web_id = $(this).data('web-id');
+            item.id = $(this).data('item-id');
             item.addToFavorites();
         });
         $('button.pt-remove-from-favorites').on('click', function() {
             var item = new PTItem();
-            item.web_id = $(this).data('web-id');
+            item.id = $(this).data('item-id');
             item.removeFromFavorites();
         });
         $('button.pt-remove-from-favorites, button.pt-add-to-favorites').each(function() {
             var item = new PTItem();
-            item.web_id = $(this).data('web-id');
+            item.id = $(this).data('item-id');
             if (item.isFavorite()) {
                 if ($(this).hasClass('pt-remove-from-favorites')) {
                     $(this).show();

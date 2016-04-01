@@ -46,7 +46,6 @@ class Solr
     SEARCH_ALL = 'searchall_txtim'
     SUBCLASS = 'subclass_si'
     SUBPAGE_NUMBER = 'subpage_number_ii'
-    WEB_ID = 'web_id_si'
   end
 
   include Singleton
