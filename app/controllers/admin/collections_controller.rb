@@ -11,8 +11,9 @@ module Admin
     # Responds to PATCH /admin/collections/refresh
     #
     def refresh
-      MedusaIndexer.new.index_collections
-      flash['success'] = 'Collections refreshed.'
+      ReindexCollectionsJob.perform_later
+      flash['success'] = 'Refreshing collections in the background.
+        (This will take a minute.)'
       redirect_to :back
     end
 
