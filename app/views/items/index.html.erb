@@ -26,13 +26,13 @@
 
 <% if @count > 0 %>
   <div class="row">
-    <div class="col-sm-3 pt-facets pt-panel-facets">
+    <div class="col-sm-3 col-lg-2 pt-facets pt-panel-facets">
       <%= facets_as_panels(@items,
                            metadata_profile: @metadata_profile,
                            show_collection_facet: session[:browse_context] != ItemsController::BrowseContext::BROWSING_COLLECTION) %>
     </div>
 
-    <div class="col-sm-9 pt-results">
+    <div class="col-sm-9 col-lg-10 pt-results">
       <div class="panel panel-default">
         <div class="panel-body pt-results-summary">
           <div class="row">
