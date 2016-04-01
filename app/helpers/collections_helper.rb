@@ -25,7 +25,7 @@ module CollectionsHelper
       html += '<h4 class="media-heading">'
       html += link_to(col.title, collection_url(col))
       html += '</h4>'
-      html += truncate(col.description, length: 400)
+      html += truncate(col.description.to_s, length: 400)
       html += '</div>'
       html += '</div>'
     end

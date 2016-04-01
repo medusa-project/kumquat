@@ -1,8 +1,9 @@
 class CollectionsController < WebsiteController
 
   def index
-    @collections = MedusaCollection.all.sort{ |c,d| c.title <=> d.title }.
-        select(&:published)
+    @collections = MedusaCollection.all.
+        where(MedusaCollection::SolrFields::PUBLISHED => true).
+        order(MedusaCollection::SolrFields::TITLE).limit(9999)
   end
 
   def show

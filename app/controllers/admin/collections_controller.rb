@@ -3,13 +3,15 @@ module Admin
   class CollectionsController < ControlPanelController
 
     def index
-      @collections = MedusaCollection.all.sort{ |c,d| c.title <=> d.title }
+      @collections = MedusaCollection.all.
+          order(MedusaCollection::SolrFields::TITLE).limit(9999)
     end
 
     ##
     # Responds to PATCH /admin/collections/refresh
+    #
     def refresh
-      MedusaCollection.all.each { |c| c.reload }
+      MedusaIndexer.new.index_collections
       flash['success'] = 'Collections refreshed.'
       redirect_to :back
     end

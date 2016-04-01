@@ -1,48 +1,79 @@
-class MedusaCollection
+class MedusaCollection < Entity
 
-  include ActiveModel::Model
-  include GlobalID::Identification
-
-  # @!attribute id
-  #   @return [Integer]
-  attr_accessor :id
-
-  # @!attribute medusa_representation
-  #   @return [Hash]
-  attr_accessor :medusa_representation
-
-  def self.all
-    config = PearTree::Application.peartree_config
-    url = "#{config[:medusa_url].chomp('/')}/collections.json"
-    response = Medusa.client.get(url)
-    struct = JSON.parse(response.body)
-
-    collections = []
-    struct.each do |row|
-      col = MedusaCollection.new
-      col.id = row['id']
-      collections << col
-    end
-    collections
+  class SolrFields
+    ACCESS_URL = 'access_url_si'
+    DESCRIPTION = 'description_txti'
+    DESCRIPTION_HTML = 'description_html_txti'
+    PUBLISHED = 'published_bi'
+    PUBLISHED_IN_DLS = 'published_in_dls_bi'
+    REPRESENTATIVE_IMAGE = 'representative_image_si'
+    REPRESENTATIVE_ITEM = 'representative_item_si'
+    TITLE = 'title_txti'
   end
 
-  def self.find(id)
+  # @!attribute access_url
+  #   @return [String]
+  attr_accessor :access_url
+
+  # @!attribute description
+  #   @return [String]
+  attr_accessor :description
+
+  # @!attribute description
+  #   @return [String]
+  attr_accessor :description_html
+
+  # @!attribute published
+  #   @return [Boolean]
+  attr_accessor :published
+
+  # @!attribute published_in_dls
+  #   @return [Boolean]
+  attr_accessor :published_in_dls
+
+  # @!attribute representative_image
+  #   @return [String]
+  attr_accessor :representative_image
+
+  # @!attribute representative_item
+  #   @return [String]
+  attr_accessor :representative_item
+
+  # @!attribute title
+  #   @return [String]
+  attr_accessor :title
+
+  ##
+  # @param struct [Hash] Hash from the Medusa JSON response
+  # @return [MedusaCollection]
+  #
+  def self.from_medusa(struct)
     col = MedusaCollection.new
-    col.id = id
-    begin
-      col.title # this will raise an error if the ID is invalid
-    rescue
-      raise ActiveRecord::RecordNotFound
-    end
+    col.id = struct['id']
+    col.load_from_medusa
     col
   end
 
-  def access_url
-    unless @access_url
-      load
-      @access_url = self.medusa_representation['access_url']
+  ##
+  # @param doc [Nokogiri::XML::Document]
+  # @return [Item]
+  #
+  def self.from_solr(doc)
+    col = MedusaCollection.new
+
+    col.id = doc[Solr::Fields::ID]
+    col.access_url = doc[SolrFields::ACCESS_URL]
+    col.description = doc[SolrFields::DESCRIPTION]
+    col.description_html = doc[SolrFields::DESCRIPTION_HTML]
+    if doc[Solr::Fields::LAST_INDEXED]
+      col.last_indexed = Time.parse(doc[Solr::Fields::LAST_INDEXED])
     end
-    @access_url
+    col.published = doc[SolrFields::PUBLISHED]
+    col.published_in_dls = doc[SolrFields::PUBLISHED_IN_DLS]
+    col.title = doc[SolrFields::TITLE]
+
+    col.instance_variable_set('@persisted', true)
+    col
   end
 
   ##
@@ -55,22 +86,6 @@ class MedusaCollection
                                 metadata_profile: MetadataProfile.find_by_default(true))
     end
     @collection_def
-  end
-
-  def description
-    unless @description
-      load
-      @description = self.medusa_representation['description']
-    end
-    @description
-  end
-
-  def description_html
-    unless @description_html
-      load
-      @description_html = self.medusa_representation['description_html']
-    end
-    @description_html
   end
 
   def file_groups
@@ -86,6 +101,24 @@ class MedusaCollection
       end
     end
     @file_groups
+  end
+
+  def load_from_medusa
+    raise 'load() called without ID set' unless self.id
+
+    config = PearTree::Application.peartree_config
+    url = "#{config[:medusa_url].chomp('/')}/collections/#{self.id}.json"
+    json_str = Medusa.client.get(url).body
+    struct = JSON.parse(json_str)
+
+    self.access_url = struct['access_url']
+    self.description = struct['description']
+    self.description_html = struct['description_html']
+    self.published = struct['publish']
+    self.published_in_dls = struct['published_in_dls']
+    self.representative_image = struct['representative_image']
+    self.representative_item = struct['representative_item']
+    self.title = struct['title']
   end
 
   ##
@@ -104,59 +137,15 @@ class MedusaCollection
     true
   end
 
-  def published
-    unless @published
-      load
-      @published = self.medusa_representation['publish']
-    end
-    @published
-  end
-
   def published_in_dls
-    self.id.to_s == '162' # TODO: fix this
+    self.id.to_s == '162' # TODO: eliminate this
   end
 
-  ##
-  # Downloads and caches the instance's Medusa representation and populates
-  # the instance with it.
-  #
-  # @return [void]
-  #
-  def reload
-    raise 'reload() called without ID set' unless self.id
-    config = PearTree::Application.peartree_config
-    url = "#{config[:medusa_url].chomp('/')}/collections/#{self.id}.json"
-    json_str = Medusa.client.get(url).body
-    FileUtils.mkdir_p("#{Rails.root}/tmp/cache/medusa")
-    File.open(cache_pathname, 'wb') { |f| f.write(json_str) }
-    self.medusa_representation = json_str
-    @loaded = true
-  end
-
-  def representative_image
-    unless @representative_image
-      load
-      @representative_image = self.medusa_representation['representative_image']
-      unless @representative_image
-        @representative_image = image_url('folder.png')
-      end
-    end
-    @representative_image
-  end
-
-  def representative_item
+  def representative_item # TODO: eliminate this
     if self.id.to_s == '162'
-      return Item.find('1607347_001.jp2') # TODO: store this in medusa
+      return Item.find('1607347_001.jp2')
     end
     nil
-  end
-
-  def title
-    unless @title
-      load
-      @title = self.medusa_representation['title']
-    end
-    @title
   end
 
   ##
@@ -171,31 +160,20 @@ class MedusaCollection
     nil
   end
 
-  private
-
-  def cache_pathname
-    "#{Rails.root}/tmp/cache/medusa/collection_#{self.id}.json"
-  end
-
   ##
-  # Populates `medusa_representation`.
+  # Overrides parent
   #
-  # @return [void]
-  # @raises [RuntimeError] If the instance's ID is not set
-  # @raises [HTTPClient::BadResponseError]
+  # @return [Hash]
   #
-  def load
-    return if @loaded
-    raise 'load() called without ID set' unless self.id
-
-    if File.exist?(cache_pathname) and File.mtime(cache_pathname).
-        between?(Time.at(Time.now.to_i - 2592000), Time.now)
-      json_str = File.read(cache_pathname)
-      self.medusa_representation = JSON.parse(json_str)
-    else
-      reload
-    end
-    @loaded = true
+  def to_solr
+    doc = super
+    doc[SolrFields::ACCESS_URL] = self.access_url
+    doc[SolrFields::DESCRIPTION] = self.description
+    doc[SolrFields::DESCRIPTION_HTML] = self.description_html
+    doc[SolrFields::PUBLISHED] = self.published
+    doc[SolrFields::PUBLISHED_IN_DLS] = self.published_in_dls
+    doc[SolrFields::TITLE] = self.title
+    doc
   end
 
 end
