@@ -18,8 +18,7 @@ class Indexer
   def index(pathname)
     count = 0
     # If pathname is a file...
-    if pathname.end_with?('.xml') and
-        %w(collection item).include?(entity(pathname))
+    if pathname.end_with?('.xml') and %w(item).include?(entity(pathname))
       count = index_file(pathname, count)
     else
       # Pathname is a directory
@@ -35,8 +34,7 @@ class Indexer
   def validate(pathname)
     count = 0
     # If pathname is a file...
-    if pathname.end_with?('.xml') and
-        %w(collection item).include?(entity(pathname))
+    if pathname.end_with?('.xml') and %w(item).include?(entity(pathname))
       count = validate_file(pathname, count)
     else
       # Pathname is a directory
@@ -60,8 +58,7 @@ class Indexer
   end
 
   ##
-  # Indexes all metadata files (`collection.xml` or `item_*.xml`) within the
-  # given pathname.
+  # Indexes all metadata files (item_*.xml`) within the given pathname.
   #
   # @param root_pathname [String] Root pathname to index
   # @return [Integer] Number of items indexed
@@ -69,8 +66,7 @@ class Indexer
   def index_directory(root_pathname)
     count = 0
     Dir.glob(root_pathname + '/**/*.xml').each do |pathname|
-      if %w(collection item).include?(entity(pathname)) and
-          !pathname.include?('/source')
+      if %w(item).include?(entity(pathname)) and !pathname.include?('/source')
         count = index_file(pathname, count)
       end
     end
@@ -99,12 +95,6 @@ class Indexer
           entity = entity_class.from_lrp_xml(node, pathname)
           entity.save
           count += 1
-        when 'collection'
-          validate_document(doc, 'collection.xsd')
-          node = doc.xpath('//lrp:Collection', namespaces).first
-          entity = entity_class.from_lrp_xml(node, pathname)
-          entity.save
-          count += 1
         else
           raise "Encountered unknown entity (#{entity_class}) in #{pathname}"
       end
@@ -121,7 +111,7 @@ class Indexer
   def validate_directory(root_pathname)
     count = 0
     Dir.glob(root_pathname + '/**/*.xml').each do |pathname|
-      if %w(collection item).include?(entity(pathname))
+      if %w(item).include?(entity(pathname))
         count = validate_file(pathname, count)
       end
     end
@@ -145,9 +135,6 @@ class Indexer
       case entity
         when 'item'
           validate_document(doc, 'object.xsd')
-          count += 1
-        when 'collection'
-          validate_document(doc, 'collection.xsd')
           count += 1
         else
           raise "Encountered unknown entity (#{entity_class}) in #{pathname}"
