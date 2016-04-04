@@ -9,7 +9,7 @@
 # as possible, as it will eventually need to scan through millions of files in
 # a reasonable amount of time.
 #
-class Indexer
+class FilesystemIndexer
 
   ##
   # @param pathname [String] File or path to index

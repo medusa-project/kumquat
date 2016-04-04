@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class IndexerTest < ActiveSupport::TestCase
+class FilesystemIndexerTest < ActiveSupport::TestCase
   # test "the truth" do
   #   assert true
   # end

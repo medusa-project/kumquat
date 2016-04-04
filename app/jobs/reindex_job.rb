@@ -11,7 +11,7 @@ class ReindexJob < Job
     self.task.indeterminate = true
     self.task.save!
 
-    Indexer.new.index(args[0][:pathname])
+    FilesystemIndexer.new.index(args[0][:pathname])
     Solr.instance.commit
 
     self.task.succeeded
