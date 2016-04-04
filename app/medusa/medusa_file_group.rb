@@ -8,6 +8,15 @@ class MedusaFileGroup
   #   @return [Hash]
   attr_accessor :medusa_representation
 
+  def cfs_directory
+    unless @cfs_directory
+      load
+      @cfs_directory = MedusaCfsDirectory.new
+      @cfs_directory.id = self.medusa_representation['cfs_directory']['id']
+    end
+    @cfs_directory
+  end
+
   def title
     unless @title
       load
@@ -33,7 +42,7 @@ class MedusaFileGroup
   ##
   # Populates `medusa_representation`.
   #
-  # @return void
+  # @return [void]
   # @raises [RuntimeError] If the instance's ID is not set
   # @raises [HTTPClient::BadResponseError]
   #
@@ -41,9 +50,8 @@ class MedusaFileGroup
     return if @loaded
     raise 'load() called without ID set' unless self.id
 
-    config = PearTree::Application.peartree_config
-    url = "#{config[:medusa_url].chomp('/')}/bit_level_file_groups/#{self.id}.json"
-    self.medusa_representation = JSON.parse(Medusa.client.get(url).body)
+    self.medusa_representation =
+        JSON.parse(Medusa.client.get("#{self.url}.json").body)
     @loaded = true
   end
 
