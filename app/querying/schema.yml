@@ -136,6 +136,11 @@ dynamicFields:
     multiValued: true
 
     ################# text fields ##################
+  - name: '*_sort_en_i'
+    type: sort_en
+    stored: true
+    indexed: true
+    multiValued: false
   - name: '*_txt'
     type: text_general
     stored: true
@@ -156,11 +161,6 @@ dynamicFields:
     stored: true
     indexed: true
     multiValued: true
-  - name: '*_txt_en_i'
-    type: text_en
-    stored: true
-    indexed: true
-    multiValued: false
 
     ################# boolean fields ##################
   - name: '*_b'
