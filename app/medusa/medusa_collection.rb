@@ -8,7 +8,7 @@ class MedusaCollection < Entity
     PUBLISHED_IN_DLS = 'published_in_dls_bi'
     REPRESENTATIVE_IMAGE = 'representative_image_si'
     REPRESENTATIVE_ITEM = 'representative_item_si'
-    TITLE = 'title_txt_en_i'
+    TITLE = 'title_sort_en_i'
   end
 
   # @!attribute access_url
