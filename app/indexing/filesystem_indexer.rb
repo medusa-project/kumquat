@@ -1,6 +1,6 @@
 ##
-# Indexing tool that scans a filesystem for PearTree AIP files and indexes them
-# in Solr. Typically invoked from a Rake task.
+# Indexing tool that scans a filesystem tree for PearTree AIP files and
+# indexes them in Solr.
 #
 # The indexer only indexes content in AIP files -- it does not extract any
 # content dynamically, such as getting an image's actual dimensions, or
@@ -12,19 +12,15 @@
 class FilesystemIndexer
 
   ##
-  # @param pathname [String] File or path to index
+  # @param collection_id [String] Medusa collection ID
   # @return [Integer] Number of items indexed
   #
-  def index(pathname)
-    count = 0
-    # If pathname is a file...
-    if pathname.end_with?('.xml') and %w(item).include?(entity(pathname))
-      count = index_file(pathname, count)
-    else
-      # Pathname is a directory
-      count = index_directory(pathname)
-    end
-    count
+  def index(collection_id)
+    col = MedusaCollection.find(collection_id)
+    file_group = col.collection_def.medusa_data_file_group
+    cfs_dir = file_group.cfs_directory
+    pathname = cfs_dir.pathname
+    index_directory(pathname)
   end
 
   ##
@@ -60,14 +56,15 @@ class FilesystemIndexer
   ##
   # Indexes all metadata files (item_*.xml`) within the given pathname.
   #
-  # @param root_pathname [String] Root pathname to index
+  # @param pathname [String] Root pathname to index
   # @return [Integer] Number of items indexed
   #
-  def index_directory(root_pathname)
+  def index_directory(pathname)
+    Rails.logger.info("Indexing #{pathname}...")
     count = 0
-    Dir.glob(root_pathname + '/**/*.xml').each do |pathname|
-      if %w(item).include?(entity(pathname)) and !pathname.include?('/source')
-        count = index_file(pathname, count)
+    Dir.glob(pathname + '/**/*.xml').each do |p|
+      if %w(item).include?(entity(p)) and !p.include?('/source')
+        count = index_file(p, count)
       end
     end
     count
@@ -84,7 +81,7 @@ class FilesystemIndexer
     entity_class = entity.capitalize.constantize
 
     namespaces = { 'lrp' => 'http://www.library.illinois.edu/lrp/terms#' }
-    Rails.logger.debug("Indexing #{pathname} (#{count})")
+    Rails.logger.info("Indexing #{pathname} (#{count})")
     File.open(pathname) do |content|
       doc = Nokogiri::XML(content, &:noblanks)
       doc.encoding = 'utf-8'
@@ -128,7 +125,7 @@ class FilesystemIndexer
     entity = entity(pathname).singularize
     entity_class = entity.capitalize.constantize
 
-    Rails.logger.debug("Validating #{pathname} (#{count})")
+    Rails.logger.info("Validating #{pathname} (#{count})")
     File.open(pathname) do |content|
       doc = Nokogiri::XML(content, &:noblanks)
       doc.encoding = 'utf-8'

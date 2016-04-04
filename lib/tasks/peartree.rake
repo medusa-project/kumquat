@@ -1,8 +1,14 @@
 namespace :peartree do
 
-  desc 'Index a pathname'
-  task :index, [:pathname] => :environment do |task, args|
-    FilesystemIndexer.new.index(args[:pathname])
+  desc 'Index collections'
+  task :index_collections => :environment do |task|
+    MedusaIndexer.new.index_collections
+    Solr.instance.commit
+  end
+
+  desc 'Index all items in a collection'
+  task :index, [:collection_id] => :environment do |task, args|
+    FilesystemIndexer.new.index(args[:collection_id])
     Solr.instance.commit
   end
 
