@@ -9,7 +9,8 @@
 </ol>
 
 <div class="btn-group pull-right">
-  <%= link_to collection_path(@collection), class: 'btn btn-default', target: '_blank' do %>
+  <%= link_to collection_path(@collection), class: 'btn btn-default',
+              target: '_blank' do %>
     <i class="fa fa-globe"></i> Public View
   <% end %>
   <%= link_to @collection.url, class: 'btn btn-default', target: '_blank' do %>
@@ -18,6 +19,11 @@
   <%= link_to edit_admin_collection_def_path(@collection.collection_def),
               class: 'btn btn-default' do %>
     <i class="fa fa-pencil-square-o"></i> Edit
+  <% end %>
+  <%= link_to admin_collection_reindex_path(@collection),
+              method: 'patch', disabled: !@can_reindex,
+              class: 'btn btn-default' do %>
+    <i class="fa fa-refresh"></i> Index
   <% end %>
 </div>
 

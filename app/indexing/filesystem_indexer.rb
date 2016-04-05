@@ -12,12 +12,11 @@
 class FilesystemIndexer
 
   ##
-  # @param collection_id [String] Medusa collection ID
+  # @param collection [MedusaCollection] Medusa collection
   # @return [Integer] Number of items indexed
   #
-  def index(collection_id)
-    col = MedusaCollection.find(collection_id)
-    file_group = col.collection_def.medusa_data_file_group
+  def index(collection)
+    file_group = collection.collection_def.medusa_metadata_file_group
     cfs_dir = file_group.cfs_directory
     pathname = cfs_dir.pathname
     index_directory(pathname)

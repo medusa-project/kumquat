@@ -17,12 +17,27 @@ module Admin
       redirect_to :back
     end
 
+    ##
+    # Responds to PATCH /admin/collections/:id/reindex
+    #
+    def reindex
+      @collection = MedusaCollection.find(params[:collection_id])
+
+      ReindexCollectionItemsJob.perform_later(@collection.id)
+
+      flash['success'] = 'Indexing collection in the background.
+        (This will take a while.)'
+      redirect_to :back
+    end
+
     def show
       @collection = MedusaCollection.find(params[:id])
       @data_file_group = @collection.collection_def.medusa_data_file_group_id ?
           @collection.collection_def.medusa_data_file_group : nil
       @metadata_file_group = @collection.collection_def.medusa_metadata_file_group_id ?
           @collection.collection_def.medusa_metadata_file_group : nil
+      @can_reindex = (@collection.published_in_dls and
+          @collection.collection_def.medusa_data_file_group)
     end
 
   end

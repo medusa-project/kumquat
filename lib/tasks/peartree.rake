@@ -8,7 +8,8 @@ namespace :peartree do
 
   desc 'Index all items in a collection'
   task :index, [:collection_id] => :environment do |task, args|
-    FilesystemIndexer.new.index(args[:collection_id])
+    col = MedusaCollection.find(args[:collection_id])
+    FilesystemIndexer.new.index(col)
     Solr.instance.commit
   end
 

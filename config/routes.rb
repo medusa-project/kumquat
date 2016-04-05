@@ -84,7 +84,9 @@ Rails.application.routes.draw do
 
     match '/collections/refresh', to: 'collections#refresh', via: 'patch',
           as: 'collections_refresh'
-    resources :collections, only: [:index, :show]
+    resources :collections, only: [:index, :show] do
+      match '/reindex', to: 'collections#reindex', via: 'patch', as: 'reindex'
+    end
     resources :collection_defs, except: :new
     resources :element_defs, only: [:create, :update, :destroy, :edit]
     match '/items/search', to: 'items#search', via: %w(get post),
