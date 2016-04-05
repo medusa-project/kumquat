@@ -9,12 +9,16 @@ class MedusaCfsDirectory
   attr_accessor :medusa_representation
 
   def pathname
-    unless @pathname
+    PearTree::Application.peartree_config[:repository_pathname] +
+        self.repository_relative_pathname
+  end
+
+  def repository_relative_pathname
+    unless @repository_relative_pathname
       load
-      @pathname = PearTree::Application.peartree_config[:repository_pathname] +
-          '/' + self.medusa_representation['name']
+      @repository_relative_pathname = '/' + self.medusa_representation['name']
     end
-    @pathname
+    @repository_relative_pathname
   end
 
   ##

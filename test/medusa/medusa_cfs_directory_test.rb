@@ -12,6 +12,10 @@ class MedusaCfsDirectoryTest < ActiveSupport::TestCase
                  @cfs.pathname)
   end
 
+  test 'repository_relative_pathname should return the correct repository-relative pathname' do
+    assert_equal('/162/2204', @cfs.repository_relative_pathname)
+  end
+
   test 'url should return the correct url' do
     assert_equal(PearTree::Application.peartree_config[:medusa_url].chomp('/') + '/cfs_directories/407393',
                  @cfs.url)
