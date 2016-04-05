@@ -21,7 +21,7 @@
           <xs:element name="accessMasterMediaType" type="xs:token" minOccurs="0" maxOccurs="1"/>
 
           <!-- Absolute pathname of the access master relative to the
-          repository root. Mutually exclusive with accessMasterURL. -->
+          file group root. Mutually exclusive with accessMasterURL. -->
           <xs:element name="accessMasterPathname" type="xs:normalizedString" minOccurs="0" maxOccurs="1"/>
 
           <!-- URL of the access master. Mutually exclusive with
@@ -56,7 +56,7 @@
           <xs:element name="preservationMasterMediaType" type="xs:token" minOccurs="0" maxOccurs="1"/>
 
           <!-- Absolute pathname of the preservation master relative to the
-          repository root. Mutually exclusive with preservationMasterURL. -->
+          file group root. Mutually exclusive with preservationMasterURL. -->
           <xs:element name="preservationMasterPathname" type="xs:normalizedString" minOccurs="0" maxOccurs="1"/>
 
           <!-- URL of the preservation master. Mutually exclusive with
