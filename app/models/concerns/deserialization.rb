@@ -103,9 +103,9 @@ module Deserialization
         # access master (pathname)
         am = node.xpath('lrp:accessMasterPathname', namespaces).first
         if am
-          bs = Bytestream.new
+          bs = Bytestream.new(entity.collection.collection_def.medusa_data_file_group)
           bs.type = Bytestream::Type::ACCESS_MASTER
-          bs.repository_relative_pathname = am.content.strip
+          bs.file_group_relative_pathname = am.content.strip
           # width
           width = node.xpath('lrp:accessMasterWidth', namespaces).first
           bs.width = width.content.strip.to_i if width
@@ -123,7 +123,7 @@ module Deserialization
         else # access master (URL)
           am = node.xpath('lrp:accessMasterURL', namespaces).first
           if am
-            bs = Bytestream.new
+            bs = Bytestream.new(entity.collection.collection_def.medusa_data_file_group)
             bs.type = Bytestream::Type::ACCESS_MASTER
             bs.url = am.content.strip
             # media type
@@ -144,9 +144,9 @@ module Deserialization
         # preservation master (pathname)
         pm = node.xpath('lrp:preservationMasterPathname', namespaces).first
         if pm
-          bs = Bytestream.new
+          bs = Bytestream.new(entity.collection.collection_def.medusa_data_file_group)
           bs.type = Bytestream::Type::PRESERVATION_MASTER
-          bs.repository_relative_pathname = pm.content.strip
+          bs.file_group_relative_pathname = pm.content.strip
           mt = node.xpath('lrp:preservationMasterMediaType', namespaces).first
           if mt
             bs.media_type = mt.content.strip
@@ -157,7 +157,7 @@ module Deserialization
         else # preservation master (URL)
           pm = node.xpath('lrp:preservationMasterURL', namespaces).first
           if pm
-            bs = Bytestream.new
+            bs = Bytestream.new(entity.collection.collection_def.medusa_data_file_group)
             bs.type = Bytestream::Type::ACCESS_MASTER
             bs.url = pm.content.strip
             # width

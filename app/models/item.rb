@@ -138,10 +138,10 @@ class Item < Entity
     item.representative_item_id = doc[SolrFields::REPRESENTATIVE_ITEM_ID]
     if doc[SolrFields::ACCESS_MASTER_PATHNAME] or
         doc[SolrFields::ACCESS_MASTER_URL]
-      bs = Bytestream.new
+      bs = Bytestream.new(item.collection.collection_def.medusa_data_file_group)
       bs.height = doc[SolrFields::ACCESS_MASTER_HEIGHT]
       bs.media_type = doc[SolrFields::ACCESS_MASTER_MEDIA_TYPE]
-      bs.repository_relative_pathname = doc[SolrFields::ACCESS_MASTER_PATHNAME]
+      bs.file_group_relative_pathname = doc[SolrFields::ACCESS_MASTER_PATHNAME]
       bs.type = Bytestream::Type::ACCESS_MASTER
       bs.url = doc[SolrFields::ACCESS_MASTER_URL]
       bs.width = doc[SolrFields::ACCESS_MASTER_WIDTH]
@@ -150,10 +150,10 @@ class Item < Entity
     item.full_text = doc[SolrFields::FULL_TEXT]
     if doc[SolrFields::PRESERVATION_MASTER_PATHNAME] or
         doc[SolrFields::PRESERVATION_MASTER_URL]
-      bs = Bytestream.new
+      bs = Bytestream.new(item.collection.collection_def.medusa_data_file_group)
       bs.height = doc[SolrFields::PRESERVATION_MASTER_HEIGHT]
       bs.media_type = doc[SolrFields::PRESERVATION_MASTER_MEDIA_TYPE]
-      bs.repository_relative_pathname = doc[SolrFields::PRESERVATION_MASTER_PATHNAME]
+      bs.file_group_relative_pathname = doc[SolrFields::PRESERVATION_MASTER_PATHNAME]
       bs.type = Bytestream::Type::PRESERVATION_MASTER
       bs.url = doc[SolrFields::PRESERVATION_MASTER_URL]
       bs.width = doc[SolrFields::PRESERVATION_MASTER_WIDTH]
@@ -409,7 +409,7 @@ class Item < Entity
     self.bytestreams.select{ |b| b.type == Bytestream::Type::ACCESS_MASTER }.each do |bs|
       doc[SolrFields::ACCESS_MASTER_HEIGHT] = bs.height
       doc[SolrFields::ACCESS_MASTER_MEDIA_TYPE] = bs.media_type
-      doc[SolrFields::ACCESS_MASTER_PATHNAME] = bs.repository_relative_pathname
+      doc[SolrFields::ACCESS_MASTER_PATHNAME] = bs.file_group_relative_pathname
       doc[SolrFields::ACCESS_MASTER_URL] = bs.url
       doc[SolrFields::ACCESS_MASTER_WIDTH] = bs.width
     end
@@ -424,7 +424,7 @@ class Item < Entity
     self.bytestreams.select{ |b| b.type == Bytestream::Type::PRESERVATION_MASTER }.each do |bs|
       doc[SolrFields::PRESERVATION_MASTER_HEIGHT] = bs.height
       doc[SolrFields::PRESERVATION_MASTER_MEDIA_TYPE] = bs.media_type
-      doc[SolrFields::PRESERVATION_MASTER_PATHNAME] = bs.repository_relative_pathname
+      doc[SolrFields::PRESERVATION_MASTER_PATHNAME] = bs.file_group_relative_pathname
       doc[SolrFields::PRESERVATION_MASTER_URL] = bs.url
       doc[SolrFields::PRESERVATION_MASTER_WIDTH] = bs.width
     end

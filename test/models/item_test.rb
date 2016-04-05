@@ -8,7 +8,7 @@ class ItemTest < ActiveSupport::TestCase
 
   test 'access_master_bytestream should work properly' do
     assert_nil(@item.access_master_bytestream)
-    bs = Bytestream.new
+    bs = Bytestream.new(MedusaFileGroup.new)
     bs.type = Bytestream::Type::ACCESS_MASTER
     @item.bytestreams << bs
     assert_not_nil(@item.access_master_bytestream)
@@ -16,7 +16,7 @@ class ItemTest < ActiveSupport::TestCase
 
   test 'preservation_master_bytestream should work properly' do
     assert_nil(@item.preservation_master_bytestream)
-    bs = Bytestream.new
+    bs = Bytestream.new(MedusaFileGroup.new)
     bs.type = Bytestream::Type::PRESERVATION_MASTER
     @item.bytestreams << bs
     assert_not_nil(@item.preservation_master_bytestream)

@@ -3,7 +3,7 @@ require 'test_helper'
 class BytestreamTest < ActiveSupport::TestCase
 
   def setup
-    @bs = Bytestream.new
+    @bs = Bytestream.new(MedusaFileGroup.new)
   end
 
   test 'byte_size should return the correct size' do

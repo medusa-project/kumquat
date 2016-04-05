@@ -10,6 +10,15 @@ class Bytestream
     PRESERVATION_MASTER = :preservation_master
   end
 
+  # @!attribute file_group
+  #   @return [MedusaFileGroup]
+  attr_accessor :file_group
+
+  # @!attribute file_group_relative_pathname
+  #   @return [String] Pathname of the bytestream relative to its file group
+  #                    root.
+  attr_accessor :file_group_relative_pathname
+
   # @!attribute height
   #   @return [Integer]
   attr_accessor :height
@@ -17,11 +26,6 @@ class Bytestream
   # @!attribute media_type
   #   @return [String]
   attr_accessor :media_type
-
-  # @!attribute repository_relative_pathname
-  #   @return [String] Pathname of the bytestream relative to the repository
-  #                    root.
-  attr_accessor :repository_relative_pathname
 
   # @!attribute type
   #   @return [Bytestream::Type]
@@ -35,13 +39,26 @@ class Bytestream
   #   @return [Integer]
   attr_accessor :width
 
+  def initialize(file_group)
+    self.file_group = file_group
+  end
+
+  ##
+  # @return [String, nil] Absolute local pathname, or nil if the instance is a
+  # "URL" bytestream (in which case the `url` getter would be more relevant).
+  #
+  def absolute_local_pathname
+    self.file_group.cfs_directory.pathname + self.file_group_relative_pathname
+  end
+
   ##
   # Reads the byte size of the bytestream from disk.
   #
   # @return [Integer, nil]
   #
   def byte_size
-    self.pathname and File.exist?(self.pathname) ? File.size(self.pathname) : nil
+    pathname = self.absolute_local_pathname
+    pathname and File.exist?(pathname) ? File.size(pathname) : nil
   end
 
   ##
@@ -51,10 +68,11 @@ class Bytestream
   # @return [void]
   #
   def detect_media_type
-    if self.pathname and File.exist?(self.pathname)
-      self.media_type = MIME::Types.of(self.pathname).first.to_s
+    p = absolute_local_pathname
+    if p and File.exist?(p)
+      self.media_type = MIME::Types.of(p).first.to_s
     elsif self.url
-      self.media_type = MIME::Types.of(self.url).first.to_s
+      self.media_type = MIME::Types.of(p).first.to_s
     else
       raise 'Pathname not set'
     end
@@ -65,7 +83,8 @@ class Bytestream
   # true. Always returns true for URLs.
   #
   def exists?
-    self.url or (self.pathname and File.exist?(self.pathname))
+    p = absolute_local_pathname
+    self.url or (p and File.exist?(p))
   end
 
   def human_readable_name
@@ -94,14 +113,9 @@ class Bytestream
     self.media_type and self.media_type.start_with?('video/')
   end
 
-  ##
-  # @return [String, nil] Absolute local pathname, or nil if the instance is a
-  # "URL" bytestream (in which case the `url` getter would be more relevant).
-  #
-  def pathname
-    rp = PearTree::Application.peartree_config[:repository_pathname]
-    (rp and self.repository_relative_pathname) ?
-        rp + self.repository_relative_pathname : nil
+  def repository_relative_pathname
+    self.file_group.cfs_directory.repository_relative_pathname +
+        self.file_group_relative_pathname
   end
 
 end

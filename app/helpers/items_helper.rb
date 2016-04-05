@@ -110,8 +110,9 @@ module ItemsHelper
   #
   def iiif_url(item)
     if item.is_image? or item.is_pdf?
-      return sprintf('%s/%s', PearTree::Application.peartree_config[:iiif_url],
-                     URI.escape(item.id))
+      id = item.access_master_bytestream.repository_relative_pathname.
+          reverse.chomp('/').reverse
+      return PearTree::Application.peartree_config[:iiif_url] + '/' + CGI.escape(id)
     end
     nil
   end
@@ -786,7 +787,7 @@ module ItemsHelper
   def item_image_url(item, size)
     if item.is_image? or item.is_pdf?
       bs = item.access_master_bytestream || item.preservation_master_bytestream
-      if bs.pathname
+      if bs.file_group_relative_pathname
         return sprintf('%s/full/!%d,%d/0/default.jpg', iiif_url(item), size, size)
       end
     end

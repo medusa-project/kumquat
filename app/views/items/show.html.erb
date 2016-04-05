@@ -121,7 +121,7 @@
         <ul>
           <% @item.bytestreams.each do |bs| %>
             <li>
-              <%= bs.type.upcase %>: <%= bs.pathname || bs.url %>
+              <%= bs.type.upcase %>: <%= bs.absolute_local_pathname || bs.url %>
               <% if bs.exists? %>
                 <span class="label label-success">OK</span>
               <% else %>
