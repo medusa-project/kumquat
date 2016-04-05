@@ -25,7 +25,7 @@ class Job < ActiveJob::Base
     raise 'Must override perform()'
   end
 
-  rescue_from(RuntimeError) do |e|
+  rescue_from(Exception) do |e|
     self.task.status = Task::Status::FAILED
     self.task.save!
     raise e
