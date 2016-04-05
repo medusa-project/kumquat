@@ -4,6 +4,7 @@ development: &development
   :medusa_url: https://medusa.library.illinois.edu/
   :medusa_user: machine_user
   :medusa_secret: FoifWowdeth3
+  :medusa_cache_ttl: 2592000
   :solr_url: http://localhost:8983/solr/
   :solr_core: peartree
   :solr_default_facetable_fields:
@@ -19,6 +20,7 @@ test:
   :medusa_url: https://medusa.library.illinois.edu/
   :medusa_user: machine_user
   :medusa_secret: FoifWowdeth3
+  :medusa_cache_ttl: 0
   :solr_url: http://localhost:8983/solr/
   :solr_core: peartree
   :solr_default_facetable_fields:
@@ -34,6 +36,7 @@ production: &production
   :medusa_url: https://medusa.library.illinois.edu/
   :medusa_user: machine_user
   :medusa_secret: FoifWowdeth3
+  :medusa_cache_ttl: 2592000
   :solr_url: http://localhost:8983/solr/
   :solr_core: peartree
   :solr_default_facetable_fields:
