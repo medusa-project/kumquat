@@ -29,6 +29,8 @@ class Item < Entity
   end
 
   class Subclasses
+    DIRECTORY = 'Directory'
+    FILE = 'File'
     FRONT_MATTER = 'FrontMatter'
     INDEX = 'Index'
     KEY = 'Key'
