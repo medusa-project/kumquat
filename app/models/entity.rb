@@ -13,6 +13,7 @@ class Entity
   extend ActiveModel::Callbacks
 
   include ActiveModel::Model
+  include ActiveModel::Serialization
   include GlobalID::Identification
   include Deserialization
   include SolrQuerying

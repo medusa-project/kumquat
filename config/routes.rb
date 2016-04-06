@@ -67,8 +67,7 @@ Rails.application.routes.draw do
     resources :items, only: :index
   end
   resources :favorites, only: :index
-  # constraint allows ids with slashes to get through
-  resources :items, only: [:index, :show], constraints: { id: /.*/ } do
+  resources :items, only: [:index, :show] do
     match '/access-master', to: 'items#access_master_bytestream', via: 'get',
           as: :access_master_bytestream
     match '/preservation-master', to: 'items#preservation_master_bytestream',

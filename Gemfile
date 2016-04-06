@@ -2,6 +2,7 @@ source 'https://rubygems.org'
 
 gem 'rails', '4.2.5'
 
+gem 'active_model_serializers'
 gem 'bootstrap-sass', '~> 3.3.6'
 gem 'barby' # provides QR codes in print representations
 gem 'rqrcode'

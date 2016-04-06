@@ -51,13 +51,26 @@ class ItemsController < WebsiteController
     @items = @items.order("#{sort} asc") if sort
 
     @items = @items.start(@start).limit(@limit)
-    @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
-    @count = @items.count
-    @num_results_shown = [@limit, @count].min
 
-    # if there are no results, get some suggestions
-    if @count < 1 and params[:q].present?
-      @suggestions = Solr.instance.suggestions(params[:q])
+    respond_to do |format|
+      format.html do
+        @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
+        @count = @items.count
+        @num_results_shown = [@limit, @count].min
+
+        # if there are no results, get some suggestions
+        if @count < 1 and params[:q].present?
+          @suggestions = Solr.instance.suggestions(params[:q])
+        end
+      end
+      format.json do
+        render json: @items.to_a.map { |item|
+          {
+              id: item.id,
+              url: item_url(item)
+          }
+        }
+      end
     end
   end
 
@@ -110,14 +123,20 @@ class ItemsController < WebsiteController
           message: 'This item is not published.'
       }
     end
-    @parent = @item.parent
-    @pages = @parent ? @parent.pages : @item.pages
 
-    @relative_parent = @parent ? @parent : @item
-    @relative_child = @parent ? @item : @pages.first
+    respond_to do |format|
+      format.html {
+        @parent = @item.parent
+        @pages = @parent ? @parent.pages : @item.pages
 
-    @previous_item = @relative_child ? @relative_child.previous : nil
-    @next_item = @relative_child ? @relative_child.next : nil
+        @relative_parent = @parent ? @parent : @item
+        @relative_child = @parent ? @item : @pages.first
+
+        @previous_item = @relative_child ? @relative_child.previous : nil
+        @next_item = @relative_child ? @relative_child.next : nil
+      }
+      format.json { render json: @item }
+    end
   end
 
   private

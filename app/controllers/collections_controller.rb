@@ -4,6 +4,18 @@ class CollectionsController < WebsiteController
     @collections = MedusaCollection.all.
         where(MedusaCollection::SolrFields::PUBLISHED => true).
         order(MedusaCollection::SolrFields::TITLE).limit(9999)
+
+    respond_to do |format|
+      format.html
+      format.json do
+        render json: @collections.to_a.map { |c|
+          {
+              id: c.id,
+              url: collection_url(c)
+          }
+        }
+      end
+    end
   end
 
   def show
@@ -15,7 +27,13 @@ class CollectionsController < WebsiteController
           message: 'This collection is not published.'
       }
     end
-    @representative_item = @collection.representative_item
+
+    respond_to do |format|
+      format.html do
+        @representative_item = @collection.representative_item
+      end
+      format.json { render json: @collection }
+    end
   end
 
 end

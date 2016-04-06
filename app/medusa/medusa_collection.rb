@@ -1,3 +1,6 @@
+##
+# Serialization is handled in MedusaCollectionSerializer.
+#
 class MedusaCollection < Entity
 
   class SolrFields
