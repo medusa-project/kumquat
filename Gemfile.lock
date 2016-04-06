@@ -1,8 +1,8 @@
 GIT
   remote: git://github.com/medusa-project/httpclient.git
-  revision: f676352ceaecb61ecca722b36c920c2a0bb52e8b
+  revision: 07f65b46470c16783a85ed7e23e859ce65335941
   specs:
-    httpclient (2.6.0.1)
+    httpclient (2.7.1)
 
 GEM
   remote: https://rubygems.org/
