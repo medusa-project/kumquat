@@ -1,20 +1,18 @@
 <% provide(:body_id, 'items_index') %>
 
 <%= breadcrumb(collection: @collection, context: session[:browse_context]) %>
-<!--
-<div class="btn-group pull-right">
+
+<div class="btn-group pull-right" style="margin-left: 1em">
   <button type="button" class="btn btn-default dropdown-toggle"
           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
     <i class="fa fa-eye"></i>
     View As&hellip; <span class="caret"></span>
   </button>
   <ul class="dropdown-menu">
-    <li><%= link_to 'JSON-LD', params.merge(format: :jsonld) %></li>
-    <li><%= link_to 'RDF/XML', params.merge(format: :rdfxml) %></li>
-    <li><%= link_to 'Turtle', params.merge(format: :ttl) %></li>
+    <li><%= link_to 'JSON', params.merge(format: :json) %></li>
   </ul>
 </div>
--->
+
 <% if @collection %>
   <% provide(:title, @collection.title) %>
   <% provide(:active_nav, 'collections') %>
