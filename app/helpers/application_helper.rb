@@ -70,6 +70,10 @@ module ApplicationHelper
         icon = 'fa-file-text-o'
       elsif entity.is_video?
         icon = 'fa-film'
+      elsif entity.subclass == Item::Subclasses::DIRECTORY
+        icon = 'fa-folder-open-o'
+      elsif entity.subclass == Item::Subclasses::FILE
+        icon = 'fa-file-o'
       elsif entity.children.any?
         icon = 'fa-cubes'
       end

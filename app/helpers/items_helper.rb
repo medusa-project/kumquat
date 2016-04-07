@@ -79,6 +79,44 @@ module ItemsHelper
   end
 
   ##
+  # @param files [Relation<Item>]
+  #
+  def files_as_list(files)
+    return nil unless files.any?
+    html = '<ol>'
+    files.each do |child|
+      link_target = item_path(child)
+      html += '<li>'
+      html += '<div>'
+      html += link_to(link_target) do
+        raw('<div class="pt-thumbnail">' +
+                thumbnail_tag(child, DEFAULT_THUMBNAIL_SIZE) + '</div>')
+      end
+      html += link_to(truncate(child.title, length: 40), link_target,
+                      class: 'pt-title')
+      html += '</div></li>'
+    end
+    html += '</ol>'
+    raw(html)
+  end
+
+  def files_panel(item)
+    files = item.files.limit(999)
+    html = ''
+    if files.any?
+      html += "<div class=\"panel panel-default\">
+        <div class=\"panel-heading\">
+          <h2 class=\"panel-title\">Files (#{files.total_length})</h2>
+        </div>
+        <div class=\"panel-body pt-pages\">
+          #{files_as_list(files)}
+        </div>
+      </div>"
+    end
+    raw(html)
+  end
+
+  ##
   # @param item [Item]
   # @param options [Hash]
   # @option options [Integer] :size Thumbnail size

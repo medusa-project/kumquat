@@ -73,21 +73,25 @@
 
 <%= viewer_for(@item) %>
 
-<% if @relative_parent.key_item or @relative_parent.front_matter_item or
+<% if @item.subclass == Item::Subclasses::DIRECTORY %>
+  <%= files_panel(@item) %>
+<% elsif @item.subclass != Item::Subclasses::FILE %>
+  <% if @relative_parent.key_item or @relative_parent.front_matter_item or
     @relative_parent.index_item %>
-  <div class="row">
-    <div class="col-sm-4 col-md-3 col-lg-3">
-      <%= title_item_panel(@relative_parent, size: 512) %>
-      <%= key_item_panel(@relative_parent, size: 512) %>
-      <%= front_matter_item_panel(@relative_parent, size: 512) %>
-      <%= index_item_panel(@relative_parent, size: 512) %>
+    <div class="row">
+      <div class="col-sm-4 col-md-3 col-lg-3">
+        <%= title_item_panel(@relative_parent, size: 512) %>
+        <%= key_item_panel(@relative_parent, size: 512) %>
+        <%= front_matter_item_panel(@relative_parent, size: 512) %>
+        <%= index_item_panel(@relative_parent, size: 512) %>
+      </div>
+      <div class="col-sm-8 col-md-9 col-lg-9">
+        <%= pages_panel(@pages, @item) %>
+      </div>
     </div>
-    <div class="col-sm-8 col-md-9 col-lg-9">
-      <%= pages_panel(@pages, @item) %>
-    </div>
-  </div>
-<% else %>
-  <%= pages_panel(@pages, @item) %>
+  <% else %>
+    <%= pages_panel(@pages, @item) %>
+  <% end %>
 <% end %>
 
 <% if @item.full_text.present? %>
