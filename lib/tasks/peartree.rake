@@ -13,6 +13,12 @@ namespace :peartree do
     Solr.instance.commit
   end
 
+  desc 'Index all items in a collection'
+  task :index_path, [:pathname] => :environment do |task, args|
+    FilesystemIndexer.new.index_pathname(args[:pathname])
+    Solr.instance.commit
+  end
+
   desc 'Validate an XML file'
   task :validate, [:pathname] => :environment do |task, args|
     if FilesystemIndexer.new.validate(File.expand_path(args[:pathname]))

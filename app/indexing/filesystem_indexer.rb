@@ -19,7 +19,24 @@ class FilesystemIndexer
     file_group = collection.collection_def.medusa_metadata_file_group
     cfs_dir = file_group.cfs_directory
     pathname = cfs_dir.pathname
-    index_directory(pathname)
+    index_pathname(pathname)
+  end
+
+  ##
+  # Indexes all metadata files (item_*.xml`) within the given pathname.
+  #
+  # @param pathname [String] Root pathname to index
+  # @return [Integer] Number of items indexed
+  #
+  def index_pathname(pathname)
+    Rails.logger.info("Indexing #{pathname}...")
+    count = 0
+    Dir.glob(pathname + '/**/*.xml').each do |p|
+      if %w(item).include?(entity(p)) and !p.include?('/source')
+        count = index_file(p, count)
+      end
+    end
+    count
   end
 
   ##
@@ -50,23 +67,6 @@ class FilesystemIndexer
     rescue NameError
       # noop
     end
-  end
-
-  ##
-  # Indexes all metadata files (item_*.xml`) within the given pathname.
-  #
-  # @param pathname [String] Root pathname to index
-  # @return [Integer] Number of items indexed
-  #
-  def index_directory(pathname)
-    Rails.logger.info("Indexing #{pathname}...")
-    count = 0
-    Dir.glob(pathname + '/**/*.xml').each do |p|
-      if %w(item).include?(entity(p)) and !p.include?('/source')
-        count = index_file(p, count)
-      end
-    end
-    count
   end
 
   ##
