@@ -147,10 +147,17 @@ module ItemsHelper
   # @return [String, nil] Base IIIF URL or nil if the item is not an image
   #
   def iiif_url(item)
-    if item.is_image? or item.is_pdf?
-      id = item.access_master_bytestream.repository_relative_pathname.
-          reverse.chomp('/').reverse
-      return PearTree::Application.peartree_config[:iiif_url] + '/' + CGI.escape(id)
+    bs = item.access_master_bytestream
+    if !bs or (!bs.is_image? and !bs.is_pdf?)
+      bs = item.preservation_master_bytestream
+      if !bs or (!bs.is_image? and bs.is_pdf?)
+        bs = nil
+      end
+    end
+    if bs
+      id = bs.repository_relative_pathname.reverse.chomp('/').reverse
+      return PearTree::Application.peartree_config[:iiif_url] + '/' +
+          CGI.escape(id)
     end
     nil
   end
