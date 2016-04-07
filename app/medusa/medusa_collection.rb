@@ -146,9 +146,13 @@ class MedusaCollection < Entity
     %w(136 162).include?(self.id.to_s)
   end
 
-  def representative_item # TODO: eliminate this
+  def representative_item # TODO: fix this
     if self.id.to_s == '162'
-      return Item.find('1607347_001.jp2')
+      begin
+        return Item.find('1607347_001.jp2')
+      rescue ActiveRecord::RecordNotFound
+        # noop
+      end
     end
     nil
   end
