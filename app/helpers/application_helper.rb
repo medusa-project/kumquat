@@ -135,56 +135,52 @@ module ApplicationHelper
     nil # no breadcrumb in this view
   end
 
+  def item_structure_breadcrumb(item)
+    html = ''
+    parent = item.parent
+    while parent
+      html = "<li>#{link_to parent.title, parent}</li>#{html}"
+      parent = parent.parent
+    end
+    html += "<li class=\"active\">#{truncate(item.title, length: 50)}</li>"
+    html
+  end
+
   def item_view_breadcrumb(item, context, context_url)
     case context
       when ItemsController::BrowseContext::SEARCHING
-        html = "<ol class=\"breadcrumb\">"\
-          "<li>#{link_to 'Home', root_path}</li>"\
-          "<li>#{link_to 'Search', context_url}</li>"
-        if item.parent_id
-          html += "<li>#{link_to item.parent.title, item.parent}</li>"
-        end
-        html += "<li class=\"active\">#{truncate(item.title, length: 50)}</li>"\
-          "</ol>"
+        html = "<ol class=\"breadcrumb\">"
+        html += "<li>#{link_to 'Home', root_path}</li>"
+        html += "<li>#{link_to 'Search', context_url}</li>"
+        html += item_structure_breadcrumb(item)
+        html += "</ol>"
       when ItemsController::BrowseContext::BROWSING_COLLECTION
-        html = "<ol class=\"breadcrumb\">"\
-          "<li>#{link_to 'Home', root_path}</li>"\
-          "<li>#{link_to 'Collections', collections_path}</li>"\
-          "<li>#{link_to item.collection.title, collection_path(item.collection)}</li>"\
-          "<li>#{link_to 'Items', collection_items_path(item.collection)}</li>"
-        if item.parent
-          html += "<li>#{link_to item.parent.title, item.parent}</li>"
-        end
-        html += "<li class=\"active\">#{truncate(item.title, length: 50)}</li>"\
-          "</ol>"
+        html = "<ol class=\"breadcrumb\">"
+        html += "<li>#{link_to 'Home', root_path}</li>"
+        html += "<li>#{link_to 'Collections', collections_path}</li>"
+        html += "<li>#{link_to item.collection.title, collection_path(item.collection)}</li>"
+        html += "<li>#{link_to 'Items', collection_items_path(item.collection)}</li>"
+        html += item_structure_breadcrumb(item)
+        html += "</ol>"
       when ItemsController::BrowseContext::BROWSING_ALL_ITEMS
-        html = "<ol class=\"breadcrumb\">"\
-          "<li>#{link_to 'Home', root_path}</li>"\
-          "<li>#{link_to 'All Items', items_path}</li>"
-        if item.parent
-          html += "<li>#{link_to item.parent.title, item.parent}</li>"
-        end
-        html += "<li class=\"active\">#{truncate(item.title, length: 50)}</li>"\
-          "</ol>"
+        html += "<ol class=\"breadcrumb\">"
+        html += "<li>#{link_to 'Home', root_path}</li>"
+        html += "<li>#{link_to 'All Items', items_path}</li>"
+        html += item_structure_breadcrumb(item)
+        html += "</ol>"
       when ItemsController::BrowseContext::FAVORITES
-        html = "<ol class=\"breadcrumb\">"\
-          "<li>#{link_to 'Home', root_path}</li>"\
-          "<li>#{link_to 'Favorites', favorites_path}</li>"
-        if item.parent
-          html += "<li>#{link_to item.parent.title, item.parent}</li>"
-        end
-        html += "<li class=\"active\">#{truncate(item.title, length: 50)}</li>"\
-          "</ol>"
+        html = "<ol class=\"breadcrumb\">"
+        html += "<li>#{link_to 'Home', root_path}</li>"
+        html += "<li>#{link_to 'Favorites', favorites_path}</li>"
+        html += item_structure_breadcrumb(item)
+        html += "</ol>"
       else
-        html = "<ol class=\"breadcrumb\">"\
-          "<li>#{link_to 'Home', root_path}</li>"\
-          "<li>#{link_to 'Collections', collections_path}</li>"\
-          "<li>#{link_to item.collection.title, collections_path(item.collection)}</li>"
-        if item.parent
-          html += "<li>#{link_to item.parent.title, item.parent}</li>"
-        end
-        html += "<li class=\"active\">#{truncate(item.title, length: 50)}</li>"\
-          "</ol>"
+        html = "<ol class=\"breadcrumb\">"
+        html += "<li>#{link_to 'Home', root_path}</li>"
+        html += "<li>#{link_to 'Collections', collections_path}</li>"
+        html += "<li>#{link_to item.collection.title, collections_path(item.collection)}</li>"
+        html += item_structure_breadcrumb(item)
+        html += "</ol>"
     end
     raw(html)
   end
