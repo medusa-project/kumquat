@@ -237,6 +237,22 @@ class Item < Entity
   end
 
   ##
+  # @return [Relation] All of the item's children that have a subclass of File
+  #                    or Directory.
+  # @see children
+  # @see pages
+  #
+  def files
+    unless @files
+      file_classes = [Subclasses::FILE, Subclasses::DIRECTORY].join(' OR ')
+      @files = Item.where(SolrFields::PARENT_ITEM => self.id).
+          where(SolrFields::SUBCLASS => "(#{file_classes})").
+          order(SolrFields::PAGE_NUMBER)
+    end
+    @files
+  end
+
+  ##
   # @return [Item] The item's front matter item, if available.
   #
   def front_matter_item
