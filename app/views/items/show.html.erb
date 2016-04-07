@@ -105,27 +105,32 @@
   </div>
 <% end %>
 
-<div class="panel panel-default">
-  <div class="panel-heading">
-    <h2 class="panel-title">Descriptive Info</h2>
+<div class="row">
+  <div class="col-lg-9">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h2 class="panel-title">Descriptive Info</h2>
+      </div>
+      <div class="panel-body">
+        <%= metadata_as_list(@item) %>
+        <%= metadata_as_table(@item) %>
+      </div>
+    </div>
   </div>
-  <div class="panel-body">
-    <%= metadata_as_list(@item) %>
-    <%= metadata_as_table(@item) %>
-  </div>
-</div>
-
-<div class="panel panel-default">
-  <div class="panel-heading">
-    <h2 class="panel-title">Technical Info</h2>
-  </div>
-  <div class="panel-body">
-    <%= tech_metadata_as_list(@item) %>
-    <%= tech_metadata_as_table(@item) %>
-    <% if @item.bib_id %>
-      <%= link_to 'Show in Library Catalog',
-                  "http://vufind.carli.illinois.edu/vf-uiu/Record/uiu_#{@item.bib_id}" %>
-    <% end %>
+  <div class="col-lg-3">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h2 class="panel-title">Technical Info</h2>
+      </div>
+      <div class="panel-body">
+        <%= tech_metadata_as_list(@item) %>
+        <%= tech_metadata_as_table(@item) %>
+        <% if @item.bib_id %>
+          <%= link_to 'Show in Library Catalog',
+                      "http://vufind.carli.illinois.edu/vf-uiu/Record/uiu_#{@item.bib_id}" %>
+        <% end %>
+      </div>
+    </div>
   </div>
 </div>
 
