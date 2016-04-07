@@ -140,8 +140,10 @@ class MedusaCollection < Entity
     true
   end
 
-  def published_in_dls
-    self.id.to_s == '162' # TODO: eliminate this
+  def published_in_dls # TODO: eliminate this
+    # 136: Digital Surrogates from the Illini Union Photographic Subject File, ca.1940-1998
+    # 162: Sanborn Fire Insurance Maps
+    %w(136 162).include?(self.id.to_s)
   end
 
   def representative_item # TODO: eliminate this
