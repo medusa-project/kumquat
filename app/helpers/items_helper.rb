@@ -533,7 +533,7 @@ module ItemsHelper
             data-toggle="dropdown" aria-expanded="false">
         <i class="fa fa-share-alt"></i> Share <span class="caret"></span>
       </button>'
-    html += '<ul class="dropdown-menu pull-right" role="menu">'
+    html += '<ul class="dropdown-menu" role="menu">'
     description = item.description ? CGI::escape(item.description) : nil
     # email
     html += '<li>'
