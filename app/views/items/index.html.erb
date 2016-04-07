@@ -24,13 +24,21 @@
 
 <% if @count > 0 %>
   <div class="row">
-    <div class="col-sm-3 col-lg-2 pt-facets pt-panel-facets">
-      <%= facets_as_panels(@items,
-                           metadata_profile: @metadata_profile,
-                           show_collection_facet: session[:browse_context] != ItemsController::BrowseContext::BROWSING_COLLECTION) %>
+    <% facet_panels = facets_as_panels(@items,
+                                       metadata_profile: @metadata_profile,
+                                       show_collection_facet: session[:browse_context] != ItemsController::BrowseContext::BROWSING_COLLECTION)
+    if facet_panels.present?
+      l_classes = 'col-sm-3 col-lg-2'
+      r_classes = 'col-sm-9 col-lg-10'
+    else
+      l_classes = 'hidden-xs hidden-sm hidden-md hidden-lg'
+      r_classes = 'col-xs-12'
+    end %>
+    <div class="<%= l_classes %> pt-facets pt-panel-facets">
+      <%= facet_panels %>
     </div>
 
-    <div class="col-sm-9 col-lg-10 pt-results">
+    <div class="<%= r_classes %> pt-results">
       <div class="panel panel-default">
         <div class="panel-body pt-results-summary">
           <div class="row">
