@@ -71,6 +71,10 @@
           <xs:element name="subclass" minOccurs="0" maxOccurs="1">
             <xs:simpleType>
               <xs:restriction base="xs:string">
+                <!-- As in a filesystem directory -->
+                <xs:enumeration value="Directory"/>
+                <!-- As in a file on a filesystem -->
+                <xs:enumeration value="File"/>
                 <!-- Front matter in e.g. a book -->
                 <xs:enumeration value="FrontMatter"/>
                 <!-- As in a book or map index -->

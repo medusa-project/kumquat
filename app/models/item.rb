@@ -28,6 +28,7 @@ class Item < Entity
     SUBPAGE_NUMBER = 'subpage_number_ii'
   end
 
+  # These need to be kept in sync with the values in object.xsd.
   class Subclasses
     DIRECTORY = 'Directory'
     FILE = 'File'
