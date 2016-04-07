@@ -77,6 +77,9 @@
               None
             <% end %>
           </dd>
+          <dt>Published</dt>
+          <dd><span class="label <%= @collection.published ? 'label-success' : 'label-danger' %>">
+            <%= @collection.published ? 'Published' : 'Unpublished' %></span></dd>
         </dl>
       </div>
     </div>
