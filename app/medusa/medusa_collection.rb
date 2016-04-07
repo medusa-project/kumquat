@@ -95,12 +95,12 @@ class MedusaCollection < Entity
     unless @file_groups
       load
       self.medusa_representation['file_groups'].each do |row|
-        @file_groups << MedusaFileGroup.new{
-          self.id = row['id']
-          self.pathname = row['path']
-          self.title = row['title']
-          self.storage_level = row['storage_level']
-        }
+        fg = MedusaFileGroup.new
+        fg.id = row['id']
+        fg.pathname = row['path']
+        fg.title = row['title']
+        fg.storage_level = row['storage_level']
+        @file_groups << fg
       end
     end
     @file_groups
