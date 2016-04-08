@@ -23,15 +23,18 @@ class WebsiteController < ApplicationController
         "OR #{Item::SolrFields::PRESERVATION_MASTER_MEDIA_TYPE}:video/*").
         where(Item::SolrFields::PARENT_ITEM => :null).limit(1)
 
-    # data for the nav bar search
+    # Data for the nav bar search. If there is a single collection in the
+    # current context, use the fields of its metadata profile. Otherwise, use
+    # the fields of the default metadata profile.
     collection = self.collection
     if collection
       element_defs = collection.collection_def.metadata_profile.element_defs
     else
-      element_defs = ElementDef.all
+      element_defs = MetadataProfile.where(default: true).limit(1).first.
+          element_defs
     end
     @searchable_collections = MedusaCollection.all.
-        select{ |c| c.published and c.title.include?('Sanborn') } # TODO: fix once MED-400 is complete
+        select{ |c| c.published and c.id.to_s == '162' } # TODO: fix once MED-400 is complete
     @elements_for_select = element_defs.where(searchable: true).order(:label).
         map{ |ed| [ ed.label, ed.solr_multi_valued_field ] }
     @elements_for_select.unshift([ 'Any Field', Entity::SolrFields::SEARCH_ALL ])
