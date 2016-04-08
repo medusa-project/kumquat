@@ -115,6 +115,10 @@ module ApplicationHelper
         type = 'Text'
       elsif entity.is_video?
         type = 'Video'
+      elsif entity.subclass == Item::Subclasses::FILE
+        type = 'File'
+      elsif entity.subclass == Item::Subclasses::DIRECTORY
+        type = 'File Folder'
       elsif entity.children.any?
         type = 'Multi-Page Item'
       end

@@ -270,10 +270,21 @@ module ItemsHelper
 
         info_parts << "#{icon_for(entity)}#{type_of(entity)}"
 
-        num_children = entity.children.total_length
-        if num_children > 0
-          info_parts << "#{num_children} pages"
+        num_pages = entity.pages.total_length
+        if num_pages > 0
+          info_parts << "#{num_pages} pages"
+        else
+          num_files = entity.files.total_length
+          if num_files > 0
+            info_parts << "#{num_files} files"
+          else
+            num_children = entity.children.total_length
+            if num_children > 0
+              info_parts << "#{num_children} sub-items"
+            end
+          end
         end
+
         date = entity.date
         if date
           info_parts << date.year
