@@ -80,7 +80,7 @@ class ItemsController < WebsiteController
   # Responds to GET /items/:id/preservation-master
   #
   def preservation_master_bytestream
-    item = Item.find(params[:id])
+    item = Item.find(params[:item_id])
     send_bytestream(item, Bytestream::Type::PRESERVATION_MASTER)
   end
 
@@ -158,7 +158,7 @@ class ItemsController < WebsiteController
       if bs.url
         redirect_to bs.url, status: 303
       else
-        send_file(bs.pathname)
+        send_file(bs.absolute_local_pathname)
       end
     else
       render status: 404, text: 'Not found.'
