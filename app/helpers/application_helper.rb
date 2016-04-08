@@ -113,7 +113,9 @@ module ApplicationHelper
         type = 'Audio'
       elsif entity.is_image?
         type = 'Image'
-      elsif entity.is_pdf? or entity.is_text?
+      elsif entity.is_pdf?
+        type = 'PDF'
+      elsif entity.is_text?
         type = 'Text'
       elsif entity.is_video?
         type = 'Video'
