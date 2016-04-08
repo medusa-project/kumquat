@@ -5,10 +5,27 @@ class LandingController < WebsiteController
   #
   def index
     # Get a random image item to show
-    media_types = %w(image/jp2 image/jpeg image/png image/tiff).join(' OR ')
+    image_media_types = %w(image/jp2 image/jpeg image/png image/tiff).join(' OR ')
     @random_item = Item.where(Item::SolrFields::PUBLISHED => true).
-        filter(Item::SolrFields::ACCESS_MASTER_MEDIA_TYPE => "(#{media_types})").
+        filter(Item::SolrFields::ACCESS_MASTER_MEDIA_TYPE => "(#{image_media_types})").
         facet(false).order(:random).limit(1).first
+
+    # Get some counts for the statistics table
+    @num_all_items = Item.all.count
+    @num_top_level_items = Item.where(Item::SolrFields::PARENT_ITEM => :null).count
+
+    @num_audio_items = Item.where("#{Item::SolrFields::ACCESS_MASTER_MEDIA_TYPE}:audio/* "\
+    "OR #{Item::SolrFields::PRESERVATION_MASTER_MEDIA_TYPE}:audio/*").count
+
+    doc_media_types = %w(application/pdf text/plain).join(' OR ')
+    @num_document_items = Item.where("#{Item::SolrFields::ACCESS_MASTER_MEDIA_TYPE}:(#{doc_media_types}) "\
+    "OR #{Item::SolrFields::PRESERVATION_MASTER_MEDIA_TYPE}:(#{doc_media_types})").count
+
+    @num_image_items = Item.where("#{Item::SolrFields::ACCESS_MASTER_MEDIA_TYPE}:image/* "\
+    "OR #{Item::SolrFields::PRESERVATION_MASTER_MEDIA_TYPE}:image/*").count
+
+    @num_video_items = Item.where("#{Item::SolrFields::ACCESS_MASTER_MEDIA_TYPE}:video/* "\
+        "OR #{Item::SolrFields::PRESERVATION_MASTER_MEDIA_TYPE}:video/*").count
   end
 
 end
