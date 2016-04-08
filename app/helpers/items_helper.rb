@@ -222,9 +222,9 @@ module ItemsHelper
         html += "<small>#{link_to relative_parent.title, relative_parent}</small>"
         html += "<br>&nbsp;&nbsp;&#8627; "
       end
-      html += "#{relative_child.title}</h1>"
+      html += "#{icon_for(relative_child)} #{relative_child.title}</h1>"
     else
-      html += "<h1>#{item.title}"
+      html += "<h1>#{icon_for(item)} #{item.title}"
       if item.subtitle
         html += "<br><small>#{item.subtitle}</small>"
       end
