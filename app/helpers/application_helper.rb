@@ -66,7 +66,9 @@ module ApplicationHelper
         icon = 'fa-volume-up'
       elsif entity.is_image?
         icon = 'fa-picture-o'
-      elsif entity.is_pdf? or entity.is_text?
+      elsif entity.is_pdf?
+        icon = 'fa-file-pdf-o'
+      elsif entity.is_text?
         icon = 'fa-file-text-o'
       elsif entity.is_video?
         icon = 'fa-film'
