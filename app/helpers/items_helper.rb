@@ -4,6 +4,36 @@ module ItemsHelper
   PAGE_TITLE_LENGTH = 35
 
   ##
+  # @param item [Item]
+  # @return [String]
+  # @see `metadata_as_list`
+  #
+  def access_bytestream_metadata_as_list(item)
+    data = bytestream_metadata_for(item.access_master_bytestream)
+    html = '<dl class="pt-metadata">'
+    data.each do |key, value|
+      html += "<dt>#{raw(key)}</dt><dd>#{raw(value)}</dd>"
+    end
+    html += '</dl>'
+    raw(html)
+  end
+
+  ##
+  # @param item [Item]
+  # @return [String]
+  # @see `metadata_as_table`
+  #
+  def access_bytestream_metadata_as_table(item)
+    data = bytestream_metadata_for(item.access_master_bytestream)
+    html = '<table class="table table-condensed pt-metadata">'
+    data.each do |key, value|
+      html += "<tr><td>#{raw(key)}</td><td>#{raw(value)}</td></tr>"
+    end
+    html += '</table>'
+    raw(html)
+  end
+
+  ##
   # @param items [Relation]
   # @param options [Hash] Options hash
   # @option options [Boolean] :show_collection_facet
@@ -566,6 +596,36 @@ module ItemsHelper
   end
 
   ##
+  # @param item [Item]
+  # @return [String]
+  # @see `metadata_as_list`
+  #
+  def preservation_bytestream_metadata_as_list(item)
+    data = bytestream_metadata_for(item.preservation_master_bytestream)
+    html = '<dl class="pt-metadata">'
+    data.each do |key, value|
+      html += "<dt>#{raw(key)}</dt><dd>#{raw(value)}</dd>"
+    end
+    html += '</dl>'
+    raw(html)
+  end
+
+  ##
+  # @param item [Item]
+  # @return [String]
+  # @see `metadata_as_table`
+  #
+  def preservation_bytestream_metadata_as_table(item)
+    data = bytestream_metadata_for(item.preservation_master_bytestream)
+    html = '<table class="table table-condensed pt-metadata">'
+    data.each do |key, value|
+      html += "<tr><td>#{raw(key)}</td><td>#{raw(value)}</td></tr>"
+    end
+    html += '</table>'
+    raw(html)
+  end
+
+  ##
   # Returns the status of a search or browse action, e.g. "Showing n of n
   # items".
   #
@@ -813,6 +873,24 @@ module ItemsHelper
         Your browser does not support the audio tag.
     </audio>"
     raw(tag)
+  end
+
+  def bytestream_metadata_for(bytestream)
+    data = {}
+    if bytestream
+      if Rails.env.development?
+        data['Location (DEVELOPMENT)'] = bytestream.absolute_local_pathname || bytestream.url
+        data['Exists (DEVELOPMENT)'] = bytestream.exists? ?
+            '<span class="label label-success">OK</span>' :
+            '<span class="label label-danger">MISSING</span>'
+      end
+      if bytestream.is_image?
+        bytestream.exif.each do |k, v|
+          data[k] = v
+        end
+      end
+    end
+    data
   end
 
   def image_viewer_for(item)

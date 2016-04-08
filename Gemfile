@@ -9,6 +9,7 @@ gem 'rqrcode'
 #gem 'coffee-rails', '~> 4.1.0'
 gem 'daemons' # enables bin/delayed_job start/stop
 gem 'delayed_job_active_record'
+gem 'exifr'
 gem 'font-awesome-sass', '~> 4.5.0'
 gem 'httpclient', git: 'git://github.com/medusa-project/httpclient.git'
 gem 'jbuilder', '~> 2.0' # JSON DSL: https://github.com/rails/jbuilder

@@ -79,6 +79,21 @@ class Bytestream
   end
 
   ##
+  # @return [Hash]
+  #
+  def exif
+    exif = {}
+    pathname = self.absolute_local_pathname
+    case MIME::Types.of(pathname).first.to_s
+      when 'image/jpeg'
+        exif = EXIFR::JPEG.new(pathname).to_hash
+      when 'image/tiff'
+        exif = EXIFR::TIFF.new(pathname).to_hash
+    end
+    exif.select{ |k,v| v.present? }
+  end
+
+  ##
   # @return [Boolean] If the bytestream is a file and the file exists, returns
   # true. Always returns true for URLs.
   #
