@@ -1,6 +1,7 @@
 module ItemsHelper
 
   DEFAULT_THUMBNAIL_SIZE = 256
+  PAGE_TITLE_LENGTH = 35
 
   ##
   # @param items [Relation]
@@ -92,8 +93,8 @@ module ItemsHelper
         raw('<div class="pt-thumbnail">' +
                 thumbnail_tag(child, DEFAULT_THUMBNAIL_SIZE) + '</div>')
       end
-      html += link_to(truncate(child.title, length: 40), link_target,
-                      class: 'pt-title')
+      html += link_to(truncate(child.title, length: PAGE_TITLE_LENGTH),
+                      link_target, class: 'pt-title')
       html += '</div></li>'
     end
     html += '</ol>'
@@ -480,15 +481,15 @@ module ItemsHelper
                         thumbnail_tag(child, 256) +
                         '</div>')
         html += '<span class=\"pt-title\">' +
-            truncate(child.title, length: 40) + '</span>'
+            truncate(child.title, length: PAGE_TITLE_LENGTH) + '</span>'
       else
         html += '<div>'
         html += link_to(link_target) do
           raw('<div class="pt-thumbnail">' +
                   thumbnail_tag(child, DEFAULT_THUMBNAIL_SIZE) + '</div>')
         end
-        html += link_to(truncate(child.title, length: 40), link_target,
-                        class: 'pt-title')
+        html += link_to(truncate(child.title, length: PAGE_TITLE_LENGTH),
+                        link_target, class: 'pt-title')
       end
       html += '</div></li>'
     end
