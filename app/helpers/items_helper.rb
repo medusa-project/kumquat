@@ -793,10 +793,9 @@ module ItemsHelper
     elsif item.is_audio?
       return audio_player_for(item)
     elsif item.is_text?
-      # We don't provide a viewer for text as this is handled separately in
-      # show-item view by reading the item's full_text property. Full text and
-      # a viewer are not mutually exclusive -- an image may have full text, an
-      # audio clip may have a transcript, etc.
+      bs = item.access_master_bytestream || item.preservation_master_bytestream
+      pathname = bs.absolute_local_pathname
+      return raw("<pre>#{File.read(pathname)}</pre>")
     elsif item.is_video?
       return video_player_for(item)
     end
