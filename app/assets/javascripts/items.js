@@ -159,22 +159,24 @@ var PTItemView = function() {
         });
 
         $('#pt-download').on('click', function() {
-            var form = $(this).parent().prev().find('form');
-            var source_file = form.find('input[name="download-url"]:checked');
+            var source_file = download_modal.
+                    find('input[name="download-url"]:checked');
             var url;
             if (source_file.length > 0) {
                 url = source_file.val();
             } else {
-                var size = form.find('input[name="size"]:checked').val();
-                var quality = form.find('input[name="quality"]:checked').val();
-                var format = form.find('input[name="format"]:checked').val();
+                var size = download_modal.find('input[name="size"]:checked').val();
+                var quality = download_modal.find('input[name="quality"]:checked').val();
+                var format = download_modal.find('input[name="format"]:checked').val();
                 url = $('input[name="iiif-download-url"]').val() +
                     '/full/' + size + '/0/' + quality + '.' + format;
             }
 
             if (url != null) {
-                window.open(url, '_blank');
-                //download_modal.modal('hide');
+                $(this).attr('href', url);
+                download_modal.modal('hide');
+            } else {
+                return false;
             }
         });
     };
