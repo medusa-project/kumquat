@@ -47,9 +47,15 @@ class Solr
   # @return [Array] String suggestions
   #
   def suggestions(term)
+    suggestions = []
     result = get('suggest', params: { q: term })
-    suggestions = result['spellcheck']['suggestions']
-    suggestions.any? ? suggestions[1]['suggestion'] : []
+    if result['spellcheck']
+      struct = result['spellcheck']['suggestions']
+      if struct.any?
+        suggestions = struct[1]['suggestion']
+      end
+    end
+    suggestions
   end
 
   ##
