@@ -143,7 +143,11 @@ class MedusaCollection < Entity
 
   def representative_item
     if self.representative_item_id
-      return Item.find(self.representative_item_id)
+      begin
+        return Item.find(self.representative_item_id)
+      rescue ActiveRecord::RecordNotFound
+        # noop
+      end
     end
     nil
   end
