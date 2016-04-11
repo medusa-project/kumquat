@@ -2,9 +2,25 @@ module Admin
 
   class CollectionsController < ControlPanelController
 
+    before_action :update_collections_rbac, only: :update
+
+    def edit
+      @collection = Collection.find_by_repository_id(params[:id])
+      raise ActiveRecord::RecordNotFound unless @collection
+
+      @metadata_profile_options_for_select = MetadataProfile.order(:name).
+          map{ |t| [ t.name, t.id ] }
+      @theme_options_for_select = [[ 'None (Use Global)', nil ]] +
+          Theme.order(:name).map{ |t| [ t.name, t.id ] }
+    end
+
     def index
-      @collections = MedusaCollection.all.
-          order(MedusaCollection::SolrFields::TITLE).limit(9999)
+      @collections = Collection.all.order(:title).limit(9999)
+
+      # TODO: fix this
+      #@collections = MedusaCollection.all.
+      #    where(MedusaCollection::SolrFields::PUBLISHED => true).
+      #    order(MedusaCollection::SolrFields::TITLE).limit(9999)
     end
 
     ##
@@ -29,13 +45,42 @@ module Admin
     end
 
     def show
-      @collection = MedusaCollection.find(params[:id])
-      @data_file_group = @collection.collection_def.medusa_data_file_group_id ?
-          @collection.collection_def.medusa_data_file_group : nil
-      @metadata_file_group = @collection.collection_def.medusa_metadata_file_group_id ?
-          @collection.collection_def.medusa_metadata_file_group : nil
+      @collection = Collection.find_by_repository_id(params[:id])
+      raise ActiveRecord::RecordNotFound unless @collection
+
+      @data_file_group = @collection.medusa_data_file_group_id ?
+          @collection.medusa_data_file_group : nil
+      @metadata_file_group = @collection.medusa_metadata_file_group_id ?
+          @collection.medusa_metadata_file_group : nil
       @can_reindex = (@collection.published_in_dls and
-          @collection.collection_def.medusa_data_file_group)
+          @collection.medusa_data_file_group)
+    end
+
+    def update
+      begin
+        collection = Collection.find_by_repository_id(params[:id])
+        raise ActiveRecord::RecordNotFound unless collection
+
+        collection.update!(sanitized_params)
+      rescue => e
+        flash['error'] = "#{e}"
+      else
+        flash['success'] = "Collection \"#{collection.title}\" updated."
+        redirect_to admin_collection_path(collection)
+      end
+    end
+
+    private
+
+    def sanitized_params
+      params.require(:collection).permit(:id, :medusa_data_file_group_id,
+                                         :medusa_metadata_file_group_id,
+                                         :metadata_profile_id, :theme_id)
+    end
+
+    def update_collections_rbac
+      redirect_to(admin_root_url) unless
+          current_user.can?(Permission::UPDATE_COLLECTION)
     end
 
   end

@@ -141,7 +141,7 @@ class Item < Entity
     item.representative_item_id = doc[SolrFields::REPRESENTATIVE_ITEM_ID]
     if doc[SolrFields::ACCESS_MASTER_PATHNAME] or
         doc[SolrFields::ACCESS_MASTER_URL]
-      bs = Bytestream.new(item.collection.collection_def.medusa_data_file_group)
+      bs = Bytestream.new(item.collection.medusa_data_file_group)
       bs.height = doc[SolrFields::ACCESS_MASTER_HEIGHT]
       bs.media_type = doc[SolrFields::ACCESS_MASTER_MEDIA_TYPE]
       bs.file_group_relative_pathname = doc[SolrFields::ACCESS_MASTER_PATHNAME]
@@ -153,7 +153,7 @@ class Item < Entity
     item.full_text = doc[SolrFields::FULL_TEXT]
     if doc[SolrFields::PRESERVATION_MASTER_PATHNAME] or
         doc[SolrFields::PRESERVATION_MASTER_URL]
-      bs = Bytestream.new(item.collection.collection_def.medusa_data_file_group)
+      bs = Bytestream.new(item.collection.medusa_data_file_group)
       bs.height = doc[SolrFields::PRESERVATION_MASTER_HEIGHT]
       bs.media_type = doc[SolrFields::PRESERVATION_MASTER_MEDIA_TYPE]
       bs.file_group_relative_pathname = doc[SolrFields::PRESERVATION_MASTER_PATHNAME]
@@ -206,10 +206,12 @@ class Item < Entity
   alias_method :items, :children
 
   ##
-  # @return [MedusaCollection]
+  # @return [Collection]
   #
   def collection
-    @collection = MedusaCollection.find(self.collection_id) unless @collection
+    unless @collection
+      @collection = Collection.find_by_repository_id(self.collection_id)
+    end
     @collection
   end
 

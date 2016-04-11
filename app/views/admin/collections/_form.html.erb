@@ -1,4 +1,4 @@
-<%= form_for([:admin, @collection_def]) do |f| %>
+<%= form_for([:admin, @collection]) do |f| %>
 
   <div class="form-group">
     <%= f.label :medusa_metadata_file_group_id, 'Medusa Metadata File Group ID' %>
@@ -12,14 +12,14 @@
 
   <div class="form-group">
     <%= f.label :metadata_profile_id, 'Metadata Profile' %>
-    <%= select(:collection_def, :metadata_profile_id,
+    <%= select(:collection, :metadata_profile_id,
                @metadata_profile_options_for_select, {},
                class: 'form-control') %>
   </div>
 
   <div class="form-group">
     <%= f.label :theme_id %>
-    <%= select(:collection_def, :theme_id, @theme_options_for_select, {},
+    <%= select(:collection, :theme_id, @theme_options_for_select, {},
                class: 'form-control') %>
   </div>
 

@@ -1,9 +1,9 @@
 require 'test_helper'
 
-class MedusaCollectionTest < ActiveSupport::TestCase
+class CollectionTest < ActiveSupport::TestCase
 
   def setup
-    @col = MedusaCollection.new
+    @col = Collection.new
     @col.id = 162
   end
 

@@ -79,7 +79,7 @@ module ApplicationHelper
       elsif entity.children.any?
         icon = 'fa-cubes'
       end
-    elsif entity.kind_of?(MedusaCollection) or entity == MedusaCollection
+    elsif entity.kind_of?(Collection) or entity == Collection
       icon = 'fa-folder-open-o'
     end
     raw("<i title=\"#{type_of(entity)}\" class=\"fa #{icon} pt-icon\"></i>")
@@ -126,7 +126,7 @@ module ApplicationHelper
       elsif entity.children.any?
         type = 'Multi-Page Item'
       end
-    elsif entity.kind_of?(MedusaCollection) or entity == MedusaCollection
+    elsif entity.kind_of?(Collection) or entity == Collection
       type = 'Collection'
     end
     type
@@ -175,7 +175,7 @@ module ApplicationHelper
         html += item_structure_breadcrumb(item)
         html += "</ol>"
       when ItemsController::BrowseContext::BROWSING_ALL_ITEMS
-        html += "<ol class=\"breadcrumb\">"
+        html = "<ol class=\"breadcrumb\">"
         html += "<li>#{link_to 'Home', root_path}</li>"
         html += "<li>#{link_to 'All Items', items_path}</li>"
         html += item_structure_breadcrumb(item)

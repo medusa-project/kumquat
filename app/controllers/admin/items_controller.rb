@@ -66,7 +66,7 @@ module Admin
       if collections.any?
         if collections.length == 1
           @items = @items.where("#{Item::SolrFields::COLLECTION}:\"#{collections.first}\"")
-        elsif collections.length < MedusaCollection.all.count
+        elsif collections.length < Collection.count
           @items = @items.where("#{Item::SolrFields::COLLECTION}:(#{collections.join(' ')})")
         end
       end
@@ -93,11 +93,8 @@ module Admin
               map{ |p| [p.label, nil] }.uniq
           @elements_for_select.
               unshift([ 'Any Element', Entity::SolrFields::SEARCH_ALL ])
-          @collections = MedusaCollection.all
+          @collections = Collection.all
         end
-        #format.jsonld { stream(RDFStreamer.new(@items, :jsonld), 'export.json') }
-        #format.rdfxml { stream(RDFStreamer.new(@items, :rdf), 'export.rdf') }
-        #format.ttl { stream(RDFStreamer.new(@items, :ttl), 'export.ttl') }
       end
     end
 

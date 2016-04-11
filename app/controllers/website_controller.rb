@@ -28,13 +28,12 @@ class WebsiteController < ApplicationController
     # the fields of the default metadata profile.
     collection = self.collection
     if collection
-      element_defs = collection.collection_def.metadata_profile.element_defs
+      element_defs = collection.effective_metadata_profile.element_defs
     else
       element_defs = MetadataProfile.where(default: true).limit(1).first.
           element_defs
     end
-    @searchable_collections = MedusaCollection.
-        where(MedusaCollection::SolrFields::PUBLISHED_IN_DLS => true)
+    @searchable_collections = Collection.where(published_in_dls: true)
     @elements_for_select = element_defs.where(searchable: true).order(:label).
         map{ |ed| [ ed.label, ed.solr_multi_valued_field ] }
     @elements_for_select.unshift([ 'Any Field', Entity::SolrFields::SEARCH_ALL ])
@@ -59,7 +58,7 @@ class WebsiteController < ApplicationController
       end
     end
     if id
-      return MedusaCollection.find(id)
+      return Collection.find_by_repository_id(id)
     end
     nil
   end
@@ -83,7 +82,7 @@ class WebsiteController < ApplicationController
           id = item.collection.id
         end
       end
-      collection = CollectionDef.find_by_repository_id(id)
+      collection = Collection.find_by_repository_id(id)
       theme = collection ? collection.theme || Theme.default : Theme.default
       pathname = theme ? File.join(Rails.root, theme.pathname, 'views') : nil
       prepend_view_path(pathname) if pathname

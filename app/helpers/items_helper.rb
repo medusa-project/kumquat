@@ -60,7 +60,7 @@ module ItemsHelper
         unchecked_params.delete(:start)
 
         if for_collections
-          collection = MedusaCollection.find(term.name)
+          collection = Collection.find(term.name)
           term_label = collection.title if collection
         else
           term_label = truncate(term.label, length: 80)
@@ -392,8 +392,8 @@ module ItemsHelper
     html = '<dl class="pt-metadata">'
     # iterate through the index-ordered elements in the collection's metadata
     # profile in order to display the entity's elements in the correct order
-    collection = entity.kind_of?(MedusaCollection) ? entity : entity.collection
-    collection.collection_def.metadata_profile.element_defs.each do |e_def|
+    collection = entity.kind_of?(Collection) ? entity : entity.collection
+    collection.effective_metadata_profile.element_defs.each do |e_def|
       elements = entity.metadata.select{ |e| e.name == e_def.name }
       next if elements.empty?
       html += "<dt>#{e_def.label}</dt>"
@@ -423,8 +423,8 @@ module ItemsHelper
 
     # iterate through the index-ordered elements in the collection's metadata
     # profile in order to display the entity's elements in the correct order
-    collection = entity.kind_of?(MedusaCollection) ? entity : entity.collection
-    collection.collection_def.metadata_profile.element_defs.each do |e_def|
+    collection = entity.kind_of?(Collection) ? entity : entity.collection
+    collection.effective_metadata_profile.element_defs.each do |e_def|
       elements = entity.metadata.select{ |e| e.name == e_def.name }
       next if elements.empty?
       html += '<tr>'
@@ -960,17 +960,6 @@ module ItemsHelper
     size = "(#{number_to_human_size(size)})" if size
 
     raw("#{format} #{dimensions} #{size}")
-  end
-
-  def human_label_for_uri(describable, uri)
-    if describable.kind_of?(MedusaCollection)
-      collection = describable
-    else
-      collection = describable.collection
-    end
-    triple = collection.db_counterpart.metadata_profile.triples.
-        where(predicate: uri).first
-    triple ? triple.label : nil
   end
 
   def tech_metadata_for(item)

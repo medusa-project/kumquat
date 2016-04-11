@@ -40,6 +40,7 @@ class Bytestream
   attr_accessor :width
 
   def initialize(file_group)
+    raise 'File group is nil' unless file_group
     self.file_group = file_group
   end
 

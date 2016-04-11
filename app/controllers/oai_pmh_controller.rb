@@ -104,8 +104,7 @@ class OaiPmhController < ApplicationController
   end
 
   def do_list_sets
-    @collections = MedusaCollection.all.select{ |c| c.published }.
-        sort{ |c,d| c.id <=> d.id }
+    @collections = Collection.where(published: true).order(:repository_id)
     'list_sets.xml.builder'
   end
 

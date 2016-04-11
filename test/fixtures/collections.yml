@@ -1,0 +1,21 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  title: MyString
+  description: MyString
+  description_html: MyString
+  access_url: MyString
+  published: false
+  published_in_dls: false
+  representative_image: MyString
+  representative_item_id: MyString
+
+two:
+  title: MyString
+  description: MyString
+  description_html: MyString
+  access_url: MyString
+  published: false
+  published_in_dls: false
+  representative_image: MyString
+  representative_item_id: MyString

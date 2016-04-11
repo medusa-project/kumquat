@@ -11,20 +11,28 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160329161518) do
+ActiveRecord::Schema.define(version: 20160411202239) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
-  create_table "collection_defs", force: :cascade do |t|
+  create_table "collections", force: :cascade do |t|
     t.string   "repository_id"
+    t.string   "title"
+    t.string   "description"
+    t.string   "description_html"
+    t.string   "access_url"
+    t.boolean  "published"
+    t.boolean  "published_in_dls"
+    t.string   "representative_image"
+    t.string   "representative_item_id"
     t.integer  "theme_id"
-    t.datetime "created_at",                    null: false
-    t.datetime "updated_at",                    null: false
     t.integer  "metadata_profile_id"
-    t.integer  "medusa_id"
     t.integer  "medusa_data_file_group_id"
     t.integer  "medusa_metadata_file_group_id"
+    t.datetime "created_at",                    null: false
+    t.datetime "updated_at",                    null: false
+    t.datetime "last_indexed"
   end
 
   create_table "delayed_jobs", force: :cascade do |t|

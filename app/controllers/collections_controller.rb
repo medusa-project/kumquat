@@ -1,16 +1,14 @@
 class CollectionsController < WebsiteController
 
   def index
-    @collections = MedusaCollection.all.
-        where(MedusaCollection::SolrFields::PUBLISHED => true).
-        order(MedusaCollection::SolrFields::TITLE).limit(9999)
+    @collections = Collection.all.where(published: true).order(:title)
 
     respond_to do |format|
       format.html
       format.json do
-        render json: @collections.to_a.map { |c|
+        render json: @collections.to_a.map { |c| # TODO: optimize this
           {
-              id: c.id,
+              id: c.repository_id,
               url: collection_url(c)
           }
         }
@@ -19,7 +17,7 @@ class CollectionsController < WebsiteController
   end
 
   def show
-    @collection = MedusaCollection.find(params[:id])
+    @collection = Collection.find_by_repository_id(params[:id])
     unless @collection.published
       render 'error/error', status: :forbidden, locals: {
           status_code: 403,

@@ -30,13 +30,13 @@ class ItemsController < WebsiteController
       @items = @items.facet(params[:fq])
     end
     if params[:collection_id]
-      @collection = MedusaCollection.find(params[:collection_id])
+      @collection = Collection.find_by_repository_id(params[:collection_id])
       raise ActiveRecord::RecordNotFound unless @collection
-      @items = @items.where(Item::SolrFields::COLLECTION => @collection.id)
+      @items = @items.where(Item::SolrFields::COLLECTION => @collection.repository_id)
     end
 
     @metadata_profile = @collection ?
-        @collection.collection_def.metadata_profile :
+        @collection.effective_metadata_profile :
         MetadataProfile.find_by_default(true)
     @items = @items.facetable_fields(@metadata_profile.solr_facet_fields)
 
@@ -107,7 +107,7 @@ class ItemsController < WebsiteController
     if params[:ids].any?
       ids = params[:ids].select{ |k| !k.blank? }
     end
-    if ids.any? and ids.length < MedusaCollection.all.length
+    if ids.any? and ids.length < Collection.count
       filter_clauses << "#{Item::SolrFields::COLLECTION}:(#{ids.join(' ')})"
     end
 

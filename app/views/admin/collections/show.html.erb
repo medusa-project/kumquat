@@ -16,7 +16,7 @@
   <%= link_to @collection.url, class: 'btn btn-default', target: '_blank' do %>
     <i class="fa fa-database"></i> Medusa View
   <% end %>
-  <%= link_to edit_admin_collection_def_path(@collection.collection_def),
+  <%= link_to edit_admin_collection_path(@collection),
               class: 'btn btn-default' do %>
     <i class="fa fa-pencil-square-o"></i> Edit
   <% end %>
@@ -51,12 +51,12 @@
         <dl>
           <dt>Metadata Profile</dt>
           <dd>
-            <%= @collection.collection_def.metadata_profile.name %>
+            <%= @collection.metadata_profile ? @collection.metadata_profile.name :
+                    "Default (#{MetadataProfile.default.name})" %>
           </dd>
           <dt>Theme</dt>
           <dd>
-            <%= @collection.collection_def.theme ?
-                    @collection.collection_def.theme.name :
+            <%= @collection.theme ? @collection.theme.name :
                     "Default (#{Theme.default.name})" %>
           </dd>
           <dt>Medusa Metadata File Group</dt>

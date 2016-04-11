@@ -1,8 +1,6 @@
 class Theme < ActiveRecord::Base
 
-  #include Defaultable
-
-  #has_many :collections, class_name: 'DB::Collection'
+  has_many :collections, inverse_of: :theme
 
   validates :name, length: { minimum: 2, maximum: 30 },
             uniqueness: { case_sensitive: false }
@@ -21,10 +19,9 @@ class Theme < ActiveRecord::Base
   # @return [String]
   #
   def pathname
-    if self.required
-      return File.join('app', 'views')
-    end
-    File.join('local', 'themes', self.name.downcase.gsub(' ', '_'))
+    self.required ?
+        File.join('app', 'views') :
+        File.join('local', 'themes', self.name.downcase.gsub(' ', '_'))
   end
 
 end

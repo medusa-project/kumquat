@@ -12,6 +12,10 @@ class MetadataProfile < ActiveRecord::Base
   after_create :add_default_element_defs
   after_save :ensure_default_uniqueness
 
+  def self.default
+    MetadataProfile.find_by_default(true)
+  end
+
   def self.default_element_defs
     defs = []
     defs << ElementDef.new(

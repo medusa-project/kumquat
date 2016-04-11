@@ -1,4 +1,4 @@
-<% provide :body_id, 'edit_collection_defs' %>
+<% provide :body_id, 'edit_collections' %>
 <% provide :active_nav, 'entities' %>
 
 <ol class="breadcrumb">
@@ -10,4 +10,4 @@
 
 <h1>Edit <%= @collection.title %></h1>
 
-<%= render partial: 'form', locals: { collection: @collection_def, context: :edit } %>
+<%= render partial: 'form', locals: { collection: @collection, context: :edit } %>
