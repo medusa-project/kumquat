@@ -38,9 +38,9 @@ class MedusaCollection < Entity
   #   @return [String]
   attr_accessor :representative_image
 
-  # @!attribute representative_item
+  # @!attribute representative_item_id
   #   @return [String]
-  attr_accessor :representative_item
+  attr_accessor :representative_item_id
 
   # @!attribute title
   #   @return [String]
@@ -73,6 +73,7 @@ class MedusaCollection < Entity
     end
     col.published = doc[SolrFields::PUBLISHED]
     col.published_in_dls = doc[SolrFields::PUBLISHED_IN_DLS]
+    col.representative_item_id = doc[SolrFields::REPRESENTATIVE_ITEM]
     col.title = doc[SolrFields::TITLE]
 
     col.instance_variable_set('@persisted', true)
@@ -120,7 +121,7 @@ class MedusaCollection < Entity
     self.published = struct['publish']
     self.published_in_dls = struct['published_in_dls']
     self.representative_image = struct['representative_image']
-    self.representative_item = struct['representative_item']
+    self.representative_item_id = struct['representative_item']
     self.title = struct['title']
   end
 
@@ -138,6 +139,13 @@ class MedusaCollection < Entity
   #
   def persisted?
     true
+  end
+
+  def representative_item
+    if self.representative_item_id
+      return Item.find(self.representative_item_id)
+    end
+    nil
   end
 
   ##
@@ -164,6 +172,7 @@ class MedusaCollection < Entity
     doc[SolrFields::DESCRIPTION_HTML] = self.description_html
     doc[SolrFields::PUBLISHED] = self.published
     doc[SolrFields::PUBLISHED_IN_DLS] = self.published_in_dls
+    doc[SolrFields::REPRESENTATIVE_ITEM] = self.representative_item_id
     doc[SolrFields::TITLE] = self.title
     doc
   end
