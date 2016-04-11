@@ -19,6 +19,7 @@
   <thead>
     <th>Collection</th>
     <th>Published</th>
+    <th>Published in DLS</th>
     <th>Metadata Profile</th>
     <th>Theme</th>
   </thead>
@@ -26,8 +27,12 @@
     <% @collections.each do |collection| %>
       <tr>
         <td><%= link_to collection.title, admin_collection_path(collection) %></td>
-        <td><span class="label <%= collection.published ? 'label-success' : 'label-danger' %>">
-            <%= collection.published ? 'Published' : 'Unpublished' %></span></td>
+        <td class="text-center <%= collection.published ? 'bg-success' : 'bg-danger' %>">
+            <%= boolean(collection.published) %>
+        </td>
+        <td class="text-center <%= collection.published_in_dls ? 'bg-success' : 'bg-danger' %>">
+          <%= boolean(collection.published_in_dls) %>
+        </td>
         <td><%= collection.collection_def.metadata_profile.name %></td>
         <td><%= collection.collection_def.theme ? collection.collection_def.theme.name :
                     "Default (#{Theme.default.name})" %></td>
