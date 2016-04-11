@@ -84,11 +84,13 @@ class Bytestream
   def exif
     exif = {}
     pathname = self.absolute_local_pathname
-    case MIME::Types.of(pathname).first.to_s
-      when 'image/jpeg'
-        exif = EXIFR::JPEG.new(pathname).to_hash
-      when 'image/tiff'
-        exif = EXIFR::TIFF.new(pathname).to_hash
+    if File.exist?(pathname) and File.readable?(pathname)
+      case MIME::Types.of(pathname).first.to_s
+        when 'image/jpeg'
+          exif = EXIFR::JPEG.new(pathname).to_hash
+        when 'image/tiff'
+          exif = EXIFR::TIFF.new(pathname).to_hash
+      end
     end
     exif.select{ |k,v| v.present? }
   end
