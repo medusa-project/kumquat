@@ -386,8 +386,9 @@ class Item < Entity
   end
 
   def representative_item
+    # TODO: remove periods from representativeItemId in AIPs and get rid of the gsub()
     (self.representative_item_id ?
-        Item.find_by_id(self.representative_item_id) : self) || self
+        Item.find_by_id(self.representative_item_id.gsub('.', '_')) : self) || self
   end
 
   def subtitle
