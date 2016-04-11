@@ -140,23 +140,6 @@ class MedusaCollection < Entity
     true
   end
 
-  def published_in_dls # TODO: eliminate this
-    # 136: Digital Surrogates from the Illini Union Photographic Subject File, ca.1940-1998
-    # 162: Sanborn Fire Insurance Maps
-    %w(136 162).include?(self.id.to_s)
-  end
-
-  def representative_item # TODO: fix this
-    if self.id.to_s == '162'
-      begin
-        return Item.find('1607347_001.jp2')
-      rescue ActiveRecord::RecordNotFound
-        # noop
-      end
-    end
-    nil
-  end
-
   ##
   # @return [String] Absolute URI of the Medusa collection resource, or nil
   # if the instance does not have an ID.

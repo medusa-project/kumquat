@@ -33,8 +33,8 @@ class WebsiteController < ApplicationController
       element_defs = MetadataProfile.where(default: true).limit(1).first.
           element_defs
     end
-    @searchable_collections = MedusaCollection.all.
-        select{ |c| c.published and c.id.to_s == '162' } # TODO: fix once MED-400 is complete
+    @searchable_collections = MedusaCollection.
+        where(MedusaCollection::SolrFields::PUBLISHED_IN_DLS => true)
     @elements_for_select = element_defs.where(searchable: true).order(:label).
         map{ |ed| [ ed.label, ed.solr_multi_valued_field ] }
     @elements_for_select.unshift([ 'Any Field', Entity::SolrFields::SEARCH_ALL ])
