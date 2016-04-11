@@ -21,9 +21,7 @@ module Admin
     # Responds to PATCH /admin/collections/:id/reindex
     #
     def reindex
-      @collection = MedusaCollection.find(params[:collection_id])
-
-      ReindexCollectionItemsJob.perform_later(@collection.id)
+      ReindexCollectionItemsJob.perform_later(params[:collection_id])
 
       flash['success'] = 'Indexing collection in the background.
         (This will take a while.)'
