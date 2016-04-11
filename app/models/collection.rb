@@ -22,6 +22,8 @@ class Collection < ActiveRecord::Base
 
   validates_uniqueness_of :repository_id
 
+  before_save :index_in_solr
+
   ##
   # @param id [Integer] Medusa collection ID
   # @return [Collection]
@@ -49,6 +51,11 @@ class Collection < ActiveRecord::Base
       end
     end
     @file_groups
+  end
+
+  def index_in_solr
+    self.last_indexed = Time.now
+    Solr.instance.add(self.to_solr)
   end
 
   def medusa_data_file_group
@@ -138,10 +145,10 @@ class Collection < ActiveRecord::Base
   # @return [Hash]
   #
   def to_solr
-    doc = super
-    doc[Entity::SolrFields::ID] = self.id
+    doc = {}
+    doc[Entity::SolrFields::ID] = self.repository_id
     doc[Entity::SolrFields::CLASS] = self.class.to_s
-    doc[Entity::SolrFields::LAST_INDEXED] = Time.now.utc.iso8601
+    doc[Entity::SolrFields::LAST_INDEXED] = self.last_indexed.utc.iso8601
     doc[SolrFields::ACCESS_URL] = self.access_url
     doc[SolrFields::DESCRIPTION] = self.description
     doc[SolrFields::DESCRIPTION_HTML] = self.description_html
