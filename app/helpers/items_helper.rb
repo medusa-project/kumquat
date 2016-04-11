@@ -886,7 +886,11 @@ module ItemsHelper
       end
       if bytestream.is_image?
         bytestream.exif.each do |k, v|
-          data[k] = v
+          if k.to_s == 'orientation'
+            data[k.to_s] = v.to_i.to_s
+          else
+            data[k.to_s] = truncate(v.to_s, length: 400)
+          end
         end
       end
     end
