@@ -3,14 +3,20 @@
 #
 class Collection < ActiveRecord::Base
 
+  include SolrQuerying
+
   class SolrFields
     ACCESS_URL = 'access_url_si'
+    CLASS = 'class_si'
     DESCRIPTION = 'description_txti'
     DESCRIPTION_HTML = 'description_html_txti'
+    ID = 'id'
+    LAST_INDEXED = 'last_indexed_dti'
     PUBLISHED = 'published_bi'
     PUBLISHED_IN_DLS = 'published_in_dls_bi'
     REPRESENTATIVE_IMAGE = 'representative_image_si'
     REPRESENTATIVE_ITEM = 'representative_item_si'
+    SEARCH_ALL = 'searchall_txtim'
     TITLE = 'title_sort_en_i'
   end
 
@@ -22,6 +28,7 @@ class Collection < ActiveRecord::Base
 
   validates_uniqueness_of :repository_id
 
+  before_destroy :delete_from_solr
   before_save :index_in_solr
 
   ##
@@ -29,9 +36,15 @@ class Collection < ActiveRecord::Base
   # @return [Collection]
   #
   def self.from_medusa(id)
-    col = Collection.new(repository_id: id)
+    col = Collection.new
+    col.repository_id = id
     col.update_from_medusa
     col
+  end
+
+  def delete_from_solr
+    self.last_indexed = Time.now
+    Solr.instance.delete(self.solr_id)
   end
 
   def effective_metadata_profile
@@ -114,8 +127,16 @@ class Collection < ActiveRecord::Base
     nil
   end
 
+  def solr_id
+    self.repository_id
+  end
+
   def to_param
     self.repository_id
+  end
+
+  def to_s
+    self.title
   end
 
   def update_from_medusa
@@ -146,9 +167,9 @@ class Collection < ActiveRecord::Base
   #
   def to_solr
     doc = {}
-    doc[Entity::SolrFields::ID] = self.repository_id
-    doc[Entity::SolrFields::CLASS] = self.class.to_s
-    doc[Entity::SolrFields::LAST_INDEXED] = self.last_indexed.utc.iso8601
+    doc[SolrFields::ID] = self.solr_id
+    doc[SolrFields::CLASS] = self.class.to_s
+    doc[SolrFields::LAST_INDEXED] = self.last_indexed.utc.iso8601
     doc[SolrFields::ACCESS_URL] = self.access_url
     doc[SolrFields::DESCRIPTION] = self.description
     doc[SolrFields::DESCRIPTION_HTML] = self.description_html

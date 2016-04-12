@@ -3,7 +3,8 @@
 #
 # metadata_*_txtim                    arbitrary metadata elements
 # *_facet                             faceted versions of the metadata elements
-# Entity::SolrFields (and subclasses) fields used by the application
+# Item::SolrFields                    fields used by the application
+# Collection::SolrFields              fields used by the application
 #
 # There are no classic fields, only dynamicFields and copyFields.
 #

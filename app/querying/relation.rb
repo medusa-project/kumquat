@@ -8,7 +8,7 @@ class Relation
   attr_reader :solr_response
 
   ##
-  # @param caller [Entity] The calling entity, or `nil` to
+  # @param caller [Object<SolrQuerying>] The calling entity, or `nil` to
   # initialize an "empty query", i.e. one that will return no results.
   #
   def initialize(caller = nil)
@@ -25,6 +25,11 @@ class Relation
     @start = 0
     @where_clauses = [] # will be joined by AND
     reset_results
+  end
+
+  def all
+    reset_results
+    self
   end
 
   ##
@@ -67,7 +72,7 @@ class Relation
 
   ##
   # @param fq [Hash, String]
-  # @return [Entity] self
+  # @return [Relation] self
   #
   def filter(fq)
     reset_results
@@ -91,7 +96,7 @@ class Relation
   end
 
   ##
-  # @return [Entity, nil]
+  # @return [Object<SolrQuerying>, nil]
   #
   def first
     @limit = 1
@@ -146,7 +151,7 @@ class Relation
 
   ##
   # @param order [Hash, String, Symbol] Supply :random to sort randomly.
-  # @return [Entity] self
+  # @return [Relation] self
   #
   def order(order)
     reset_results
@@ -169,7 +174,7 @@ class Relation
 
   ##
   # @param start [Integer]
-  # @return [Entity] self
+  # @return [Relation] self
   #
   def start(start)
     reset_results
@@ -195,7 +200,7 @@ class Relation
   # where('solr_field' => :not_null)
   #
   # @param where [Hash, String]
-  # @return [Entity] self
+  # @return [Relation] self
   #
   def where(where)
     reset_results
@@ -238,7 +243,7 @@ class Relation
       params = {
           'q' => @where_clauses.join(' AND '),
           'df' => PearTree::Application.peartree_config[:solr_default_search_field],
-          'fl' => "*",
+          'fl' => @calling_class::SolrFields::ID,
           'fq' => @filter_clauses.join(' AND '),
           'start' => @start,
           'sort' => @order,
@@ -274,7 +279,8 @@ class Relation
       docs = @solr_response['response']['docs']
       docs.each do |doc|
         begin
-          @results << Entity.from_solr(doc)
+          @results << @calling_class.
+              find_by_repository_id(doc[@calling_class::SolrFields::ID])
         rescue => e
           Rails.logger.error("#{e} (#{doc['id']}) (#{e.backtrace})")
           @results.total_length -= 1

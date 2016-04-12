@@ -1,55 +1,26 @@
-class Bytestream
-
-  class Shape
-    ORIGINAL = :original
-    SQUARE = :square
-  end
+class Bytestream < ActiveRecord::Base
 
   class Type
-    ACCESS_MASTER = :access_master
-    PRESERVATION_MASTER = :preservation_master
+    ACCESS_MASTER = 1
+    PRESERVATION_MASTER = 0
   end
 
-  # @!attribute file_group
-  #   @return [MedusaFileGroup]
-  attr_accessor :file_group
+  belongs_to :item, inverse_of: :bytestreams
 
-  # @!attribute file_group_relative_pathname
-  #   @return [String] Pathname of the bytestream relative to its file group
-  #                    root.
-  attr_accessor :file_group_relative_pathname
+  after_initialize :do_after_initialize
 
-  # @!attribute height
-  #   @return [Integer]
-  attr_accessor :height
-
-  # @!attribute media_type
-  #   @return [String]
-  attr_accessor :media_type
-
-  # @!attribute type
-  #   @return [Bytestream::Type]
-  attr_accessor :type
-
-  # @!attribute url
-  #   @return [String]
-  attr_accessor :url
-
-  # @!attribute width
-  #   @return [Integer]
-  attr_accessor :width
-
-  def initialize(file_group)
-    raise 'File group is nil' unless file_group
-    self.file_group = file_group
+  def do_after_initialize
+    self.media_type = 'unknown/unknown'
   end
 
   ##
   # @return [String, nil] Absolute local pathname, or nil if the instance is a
-  # "URL" bytestream (in which case the `url` getter would be more relevant).
+  #                       "URL" bytestream (in which case the `url` getter
+  #                       would be more relevant).
   #
   def absolute_local_pathname
-    self.file_group.cfs_directory.pathname + self.file_group_relative_pathname
+    self.item.collection.medusa_data_file_group.cfs_directory.pathname +
+        self.file_group_relative_pathname
   end
 
   ##
@@ -98,7 +69,7 @@ class Bytestream
 
   ##
   # @return [Boolean] If the bytestream is a file and the file exists, returns
-  # true. Always returns true for URLs.
+  #                   true. Always returns true for URLs.
   #
   def exists?
     p = absolute_local_pathname
@@ -132,7 +103,7 @@ class Bytestream
   end
 
   def repository_relative_pathname
-    self.file_group.cfs_directory.repository_relative_pathname +
+    self.item.collection.medusa_data_file_group.cfs_directory.repository_relative_pathname +
         self.file_group_relative_pathname
   end
 

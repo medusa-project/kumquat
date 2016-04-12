@@ -27,7 +27,7 @@ xml.tag!('OAI-PMH',
     xml.tag!('ListSets') do
       @collections.each do |collection|
         xml.tag!('set') do
-          xml.tag!('setSpec', collection.id)
+          xml.tag!('setSpec', collection.repository_id)
           xml.tag!('setName', collection.title)
           if collection.description
             xml.tag!('setDescription') do

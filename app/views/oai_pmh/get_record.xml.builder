@@ -27,8 +27,8 @@ xml.tag!('OAI-PMH',
       xml.tag!('record') do
         xml.tag!('header') do
           xml.tag!('identifier', @identifier)
-          xml.tag!('datestamp', @item.last_modified.strftime('%Y-%m-%d'))
-          xml.tag!('setSpec', @item.collection.id)
+          xml.tag!('datestamp', @item.updated_at.strftime('%Y-%m-%d'))
+          xml.tag!('setSpec', @item.collection.repository_id)
         end
         xml.tag!('metadata') do
           xml.tag!('oai_dc:dc', {
@@ -38,7 +38,7 @@ xml.tag!('OAI-PMH',
               'xsi:schemaLocation' => 'xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ '\
               'http://www.openarchives.org/OAI/2.0/oai_dc.xsd'
           }) do
-            @item.metadata.each do |element|
+            @item.elements.each do |element|
               # oai_dc supports only unqualified DC
               name = element.dc_name
               if name

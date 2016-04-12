@@ -19,8 +19,8 @@
             <li>
               <div class="checkbox">
                 <label>
-                  <%= check_box_tag('collections[]', collection.id,
-                                    (params[:collections].present? and params[:collections].include?(collection.id))) %>
+                  <%= check_box_tag('collections[]', collection.repository_id,
+                                    (params[:collections].present? and params[:collections].include?(collection.repository_id))) %>
                   <%= collection.title %>
                 </label>
               </div>

@@ -74,7 +74,10 @@
             <% @searchable_collections.each do |collection| %>
               <li>
                 <div class="checkbox">
-                  <label><%= check_box_tag('ids[]', collection.id, checked: true) %><%= collection.title %></label>
+                  <label>
+                    <%= check_box_tag('ids[]', collection.repository_id, checked: true) %>
+                    <%= collection.title %>
+                  </label>
                 </div>
               </li>
             <% end %>

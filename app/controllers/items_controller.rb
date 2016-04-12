@@ -22,7 +22,7 @@ class ItemsController < WebsiteController
   def index
     @start = params[:start] ? params[:start].to_i : 0
     @limit = Option::integer(Option::Key::RESULTS_PER_PAGE)
-    @items = Item.where(Item::SolrFields::PUBLISHED => true).
+    @items = Item.solr.where(Item::SolrFields::PUBLISHED => true).
         where(Item::SolrFields::PARENT_ITEM => :null).where(params[:q])
     if params[:fq].respond_to?(:each)
       params[:fq].each { |fq| @items = @items.facet(fq) }
@@ -66,7 +66,7 @@ class ItemsController < WebsiteController
       format.json do
         render json: @items.to_a.map { |item|
           {
-              id: item.id,
+              id: item.repository_id,
               url: item_url(item)
           }
         }
@@ -107,7 +107,7 @@ class ItemsController < WebsiteController
     if params[:ids].any?
       ids = params[:ids].select{ |k| !k.blank? }
     end
-    if ids.any? and ids.length < Collection.count
+    if ids.any?
       filter_clauses << "#{Item::SolrFields::COLLECTION}:(#{ids.join(' ')})"
     end
 
@@ -115,7 +115,7 @@ class ItemsController < WebsiteController
   end
 
   def show
-    @item = Item.find(params[:id])
+    @item = Item.find_by_repository_id(params[:id])
     unless @item.published
       render 'error/error', status: :forbidden, locals: {
           status_code: 403,
@@ -153,7 +153,7 @@ class ItemsController < WebsiteController
           message: 'This item is currently not published.'
       }
     end
-    bs = item.bytestreams.select{ |bs| bs.type == type and bs.exists? }.first
+    bs = item.bytestreams.where(bytestream_type: type).select(&:exists).first
     if bs
       if bs.url
         redirect_to bs.url, status: 303

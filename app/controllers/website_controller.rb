@@ -8,18 +8,22 @@ class WebsiteController < ApplicationController
   def setup
     super
 
-    @num_items = Item.where(Item::SolrFields::PARENT_ITEM => :null).count
+    @num_items = Item.solr.where(Item::SolrFields::PARENT_ITEM => :null).count
 
-    @audio_items = Item.where("#{Item::SolrFields::ACCESS_MASTER_MEDIA_TYPE}:audio/* "\
-    "OR #{Item::SolrFields::PRESERVATION_MASTER_MEDIA_TYPE}:audio/*").
+    @audio_items = Item.solr.
+        where("#{Item::SolrFields::ACCESS_MASTER_MEDIA_TYPE}:audio/* "\
+        "OR #{Item::SolrFields::PRESERVATION_MASTER_MEDIA_TYPE}:audio/*").
         where(Item::SolrFields::PARENT_ITEM => :null).limit(1)
-    @document_items = Item.where("#{Item::SolrFields::ACCESS_MASTER_MEDIA_TYPE}:application/pdf "\
-    "OR #{Item::SolrFields::PRESERVATION_MASTER_MEDIA_TYPE}:application/pdf").
+    @document_items = Item.solr.
+        where("#{Item::SolrFields::ACCESS_MASTER_MEDIA_TYPE}:application/pdf "\
+        "OR #{Item::SolrFields::PRESERVATION_MASTER_MEDIA_TYPE}:application/pdf").
         where(Item::SolrFields::PARENT_ITEM => :null).limit(1)
-    @image_items = Item.where("#{Item::SolrFields::ACCESS_MASTER_MEDIA_TYPE}:image/* "\
-    "OR #{Item::SolrFields::PRESERVATION_MASTER_MEDIA_TYPE}:image/*").
+    @image_items = Item.solr.
+        where("#{Item::SolrFields::ACCESS_MASTER_MEDIA_TYPE}:image/* "\
+        "OR #{Item::SolrFields::PRESERVATION_MASTER_MEDIA_TYPE}:image/*").
         where(Item::SolrFields::PARENT_ITEM => :null).limit(1)
-    @video_items = Item.where("#{Item::SolrFields::ACCESS_MASTER_MEDIA_TYPE}:video/* "\
+    @video_items = Item.solr.
+        where("#{Item::SolrFields::ACCESS_MASTER_MEDIA_TYPE}:video/* "\
         "OR #{Item::SolrFields::PRESERVATION_MASTER_MEDIA_TYPE}:video/*").
         where(Item::SolrFields::PARENT_ITEM => :null).limit(1)
 
@@ -36,7 +40,7 @@ class WebsiteController < ApplicationController
     @searchable_collections = Collection.where(published_in_dls: true)
     @elements_for_select = element_defs.where(searchable: true).order(:label).
         map{ |ed| [ ed.label, ed.solr_multi_valued_field ] }
-    @elements_for_select.unshift([ 'Any Field', Entity::SolrFields::SEARCH_ALL ])
+    @elements_for_select.unshift([ 'Any Field', Item::SolrFields::SEARCH_ALL ])
   end
 
   protected
@@ -53,8 +57,8 @@ class WebsiteController < ApplicationController
       if params[:collection_id]
         id = params[:collection_id]
       elsif params[:id]
-        item = Item.find(params[:id])
-        id = item.collection.id
+        item = Item.find_by_repository_id(params[:id])
+        id = item.collection.repository_id
       end
     end
     if id
@@ -78,8 +82,8 @@ class WebsiteController < ApplicationController
         if params[:collection_id]
           id = params[:collection_id]
         elsif params[:id]
-          item = Item.find(params[:id])
-          id = item.collection.id
+          item = Item.find_by_repository_id(params[:id])
+          id = item.collection.repository_id
         end
       end
       collection = Collection.find_by_repository_id(id)

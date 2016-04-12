@@ -76,9 +76,10 @@ class OaiPmhController < ApplicationController
   end
 
   def do_identify
-    items = Item.all.facet(false).where(Item::SolrFields::CREATED => :not_null).
+    items = Item.solr.all.facet(false).
+        where(Item::SolrFields::CREATED => :not_null).
         order(Item::SolrFields::CREATED => :desc).limit(1)
-    @earliest_datestamp = items.any? ? items.first.created.utc.iso8601 : nil
+    @earliest_datestamp = items.any? ? items.first.created_at.utc.iso8601 : nil
     'identify.xml.builder'
   end
 
@@ -127,7 +128,7 @@ class OaiPmhController < ApplicationController
                            'this repository.' }
     end
 
-    @results = Item.all.facet(false).
+    @results = Item.solr.all.facet(false).
         where(Item::SolrFields::PUBLISHED => true).
         order(Item::SolrFields::CREATED => :desc)
 
@@ -138,7 +139,7 @@ class OaiPmhController < ApplicationController
       @results = @results.where(Item::SolrFields::CREATED => "[#{from} TO #{to}]")
     end
     if params[:set]
-      @results = @results.where(Entity::SolrFields::ID => params[:set])
+      @results = @results.where(Item::SolrFields::ID => params[:set])
     end
 
     @errors << { code: 'noRecordsMatch',

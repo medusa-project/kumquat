@@ -1,0 +1,15 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  type: 1
+  file_group_relative_pathname: MyString
+  url: MyString
+  width: 1
+  height: 1
+
+two:
+  type: 1
+  file_group_relative_pathname: MyString
+  url: MyString
+  width: 1
+  height: 1

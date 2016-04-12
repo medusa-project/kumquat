@@ -111,7 +111,7 @@ class OaiPmhControllerTest < ActionController::TestCase
     assert_select 'Identify > protocolVersion', '2.0'
     items = Item.where(Item::SolrFields::PUBLISHED => true).
         order(Item::SolrFields::CREATED => :desc).limit(1)
-    assert_select 'Identify > earliestDatestamp', items.first.created.iso8601
+    assert_select 'Identify > earliestDatestamp', items.first.created_at.iso8601
     assert_select 'Identify > deletedRecord', 'no'
     assert_select 'Identify > granularity', 'YYYY-MM-DDThh:mm:ssZ'
     assert_select 'Identify > adminEmail',

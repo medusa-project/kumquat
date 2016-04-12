@@ -10,7 +10,7 @@ module OaiPmhHelper
     id = parts.pop
     return nil if parts.join(':') != "oai:#{host}"
     Item.where(Item::SolrFields::PUBLISHED => true).
-        where(Entity::SolrFields::ID => id).limit(1).first
+        where(Item::SolrFields::ID => id).limit(1).first
   end
 
   ##
@@ -20,7 +20,7 @@ module OaiPmhHelper
   #
   def oai_pmh_identifier_for(item, host)
     # see section 2.4: http://www.openarchives.org/OAI/openarchivesprotocol.html
-    "oai:#{host}:#{item.id}"
+    "oai:#{host}:#{item.repository_id}"
   end
 
 end

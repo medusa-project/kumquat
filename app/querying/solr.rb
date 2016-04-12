@@ -138,11 +138,11 @@ class Solr
   # @return [Array] Array of strings
   #
   def search_all_fields
-    dest = Entity::SolrFields::SEARCH_ALL
-    fields = Element.all.uniq(&:name).map do |t|
+    dest = Item::SolrFields::SEARCH_ALL
+    fields = Element.all_available.map do |t|
       { source: t.solr_multi_valued_field, dest: dest }
     end
-    fields << { source: SolrFields::FULL_TEXT, dest: dest }
+    fields << { source: Item::SolrFields::FULL_TEXT, dest: dest }
     fields
   end
 

@@ -3,9 +3,9 @@
 #
 class ItemSerializer < ActiveModel::Serializer
   root false
-  attributes :id, :bytestreams, :metadata, :page_number, :subpage_number,
-             :subclass, :full_text, :date, :created, :last_indexed,
-             :last_modified, :collection, :representative_item, :parent_item
+  attributes :id, :bytestreams, :elements, :page_number, :subpage_number,
+             :subclass, :full_text, :last_indexed,
+             :collection, :representative_item, :parent_item
 
   def collection
     collection_url(object.collection, only_path: true)

@@ -1,29 +1,30 @@
-class Element
+class Element < ActiveRecord::Base
 
   class Type
     DESCRIPTIVE = 0
     TECHNICAL = 1
   end
 
+  attr_accessor :type
+
   @@element_defs = YAML::load_file(File.join(__dir__, 'metadata.yml'))
 
-  attr_accessor :name
-  attr_accessor :type
-  attr_accessor :value
+  validates_presence_of :name
 
-  def self.all
+  def self.all_available
     all_elements = []
     @@element_defs.each do |name, defs|
       e = Element.new
       e.name = name
-      e.type = (defs['type'] == 'descriptive') ? Type::DESCRIPTIVE : Type::TECHNICAL
+      e.type = (defs['type'] == 'descriptive') ?
+          Type::DESCRIPTIVE : Type::TECHNICAL
       all_elements << e
     end
     all_elements
   end
 
   def self.named(name)
-    all.select{ |e| e.name == name }.first
+    all_available.select{ |e| e.name == name }.first
   end
 
   def self.solr_facet_suffix
@@ -81,6 +82,10 @@ class Element
   #
   def solr_single_valued_field
     "#{Element.solr_prefix}#{self.name}#{Element.solr_sortable_suffix}"
+  end
+
+  def to_s
+    self.value.to_s
   end
 
 end

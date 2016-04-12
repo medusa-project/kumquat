@@ -12,7 +12,7 @@
 class FilesystemIndexer
 
   ##
-  # @param collection [Collection] Medusa collection
+  # @param collection [Collection]
   # @return [Integer] Number of items indexed
   # @raises [RuntimeError]
   #
@@ -35,10 +35,11 @@ class FilesystemIndexer
   # @return [Integer] Number of items indexed
   #
   def index_pathname(pathname)
+    pathname = File.expand_path(pathname)
     Rails.logger.info("Indexing #{pathname}...")
     count = 0
     Dir.glob(pathname + '/**/*.xml').each do |p|
-      if %w(item).include?(entity(p)) and !p.include?('/source')
+      if %w(item).include?(entity(p))
         count = index_file(p, count)
       end
     end
@@ -65,7 +66,7 @@ class FilesystemIndexer
 
   ##
   # @param [String] pathname
-  # @return [String] Name of one of the [Entity] subclasses, singular or plural
+  # @return [String]
   #
   def entity(pathname)
     begin
@@ -94,8 +95,7 @@ class FilesystemIndexer
         when 'item'
           validate_document(doc, 'object.xsd')
           node = doc.xpath('//lrp:Object', namespaces).first
-          entity = entity_class.from_lrp_xml(node, pathname)
-          entity.save
+          Item.from_lrp_xml(node).save!
           count += 1
         else
           raise "Encountered unknown entity (#{entity_class}) in #{pathname}"

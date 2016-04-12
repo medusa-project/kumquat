@@ -60,7 +60,7 @@ module ItemsHelper
         unchecked_params.delete(:start)
 
         if for_collections
-          collection = Collection.find(term.name)
+          collection = Collection.find_by_repository_id(term.name)
           term_label = collection.title if collection
         else
           term_label = truncate(term.label, length: 80)
@@ -132,12 +132,12 @@ module ItemsHelper
   end
 
   def files_panel(item)
-    files = item.files.limit(999)
+    files = item.files
     html = ''
     if files.any?
       html += "<div class=\"panel panel-default\">
         <div class=\"panel-heading\">
-          <h2 class=\"panel-title\">Files (#{files.total_length})</h2>
+          <h2 class=\"panel-title\">Files (#{files.count})</h2>
         </div>
         <div class=\"panel-body pt-pages\">
           #{files_as_list(files)}
@@ -235,7 +235,7 @@ module ItemsHelper
   def is_favorite?(item)
     cookies[:favorites] and cookies[:favorites].
         split(FavoritesController::COOKIE_DELIMITER).
-        select{ |f| f == item.id }.any?
+        select{ |f| f == item.repository_id }.any?
   end
 
   ##
@@ -244,7 +244,7 @@ module ItemsHelper
   #
   def item_page_title(item)
     html = ''
-    if item.parent or item.children.any?
+    if item.parent or item.items.any?
       relative_parent = item.parent ? item.parent : item
       relative_child = item.parent ? item : relative_parent
       html += '<h1 class="pt-compound-title">'
@@ -264,90 +264,84 @@ module ItemsHelper
   end
 
   ##
-  # @param entities [Relation]
+  # @param items [Relation<Item>]
   # @param start [integer]
   # @param options [Hash] with available keys:
   # :link_to_admin (boolean), :show_remove_from_favorites_buttons (boolean),
   # :show_add_to_favorites_buttons (boolean),
   # :show_collections (boolean), :show_description (boolean),
-  # :thumbnail_size (integer),
-  # :thumbnail_shape (Bytestream::Shape constant)
+  # :thumbnail_size (integer)
   #
-  def items_as_list(entities, start, options = {})
+  def items_as_list(items, start, options = {})
     options[:show_description] = true unless
         options.keys.include?(:show_description)
-    options[:thumbnail_shape] = Bytestream::Shape::ORIGINAL unless
-        options.keys.include?(:thumbnail_shape)
 
     html = "<ol start=\"#{start + 1}\">"
-    entities.each do |entity|
+    items.each do |item|
       link_target = options[:link_to_admin] ?
-          admin_item_path(entity) : polymorphic_path(entity)
+          admin_item_path(item) : polymorphic_path(item)
       html += '<li>'\
         '<div>'
       html += link_to(link_target, class: 'pt-thumbnail-link') do
-        item = entity.representative_item
         raw('<div class="pt-thumbnail">' +
-          thumbnail_tag(item,
-                        options[:thumbnail_size] ? options[:thumbnail_size] : 256,
-                        options[:thumbnail_shape]) +
+          thumbnail_tag(item.effective_representative_item,
+                        options[:thumbnail_size] ? options[:thumbnail_size] : 256) +
         '</div>')
       end
       html += '<span class="pt-title">'
-      html += link_to(entity.title, link_target)
-      if entity.kind_of?(Item)
-        # info line
-        info_parts = []
+      html += link_to(item.title, link_target)
 
-        info_parts << "#{icon_for(entity)}#{type_of(entity)}"
+      # info line
+      info_parts = []
+      info_parts << "#{icon_for(item)}#{type_of(item)}"
 
-        num_pages = entity.pages.total_length
-        if num_pages > 0
-          info_parts << "#{num_pages} pages"
+      num_pages = item.pages.count
+      if num_pages > 0
+        info_parts << "#{num_pages} pages"
+      else
+        num_files = item.files.count
+        if num_files > 0
+          info_parts << "#{num_files} files"
         else
-          num_files = entity.files.total_length
-          if num_files > 0
-            info_parts << "#{num_files} files"
-          else
-            num_children = entity.children.total_length
-            if num_children > 0
-              info_parts << "#{num_children} sub-items"
-            end
+          num_children = item.items.count
+          if num_children > 0
+            info_parts << "#{num_children} sub-items"
           end
         end
-
-        date = entity.date
-        if date
-          info_parts << date.year
-        end
-
-        if options[:show_collections]
-          info_parts << link_to(entity.collection.title,
-                                collection_path(entity.collection))
-        end
-
-        html += "<br><span class=\"pt-info-line\">#{info_parts.join(' | ')}</span>"
-
-        # remove-from-favorites button
-        if options[:show_remove_from_favorites_buttons]
-          html += ' <button class="btn btn-xs btn-danger ' +
-              'pt-remove-from-favorites" data-item-id="' + entity.id + '">'
-          html += '<i class="fa fa-heart"></i> Remove'
-          html += '</button>'
-        end
-        # add-to-favorites button
-        if options[:show_add_to_favorites_buttons]
-          html += ' <button class="btn btn-default btn-xs ' +
-              'pt-add-to-favorites" data-item-id="' + entity.id + '">'
-          html += '<i class="fa fa-heart-o"></i>'
-          html += '</button>'
-        end
       end
+
+      date = item.date
+      if date
+        info_parts << date.year
+      end
+
+      if options[:show_collections]
+        info_parts << link_to(item.collection.title,
+                              collection_path(item.collection))
+      end
+
+      html += "<br><span class=\"pt-info-line\">#{info_parts.join(' | ')}</span>"
+
+      # remove-from-favorites button
+      if options[:show_remove_from_favorites_buttons]
+        html += ' <button class="btn btn-xs btn-danger ' +
+            'pt-remove-from-favorites" data-item-id="' + item.repository_id + '">'
+        html += '<i class="fa fa-heart"></i> Remove'
+        html += '</button>'
+      end
+      # add-to-favorites button
+      if options[:show_add_to_favorites_buttons]
+        html += ' <button class="btn btn-default btn-xs ' +
+            'pt-add-to-favorites" data-item-id="' + item.repository_id + '">'
+        html += '<i class="fa fa-heart-o"></i>'
+        html += '</button>'
+      end
+
       html += '</span>'
       if options[:show_description]
         html += '<br>'
         html += '<span class="pt-description">'
-        html += truncate(entity.description.to_s, length: 400)
+        html += truncate(item.description.to_s, length: 400)
         html += '</span>'
       end
       html += '</div>'
@@ -384,7 +378,7 @@ module ItemsHelper
   end
 
   ##
-  # @param entity [Entity]
+  # @param entity [Object]
   # @return [String]
   # @see `tech_metadata_as_list`
   #
@@ -394,7 +388,7 @@ module ItemsHelper
     # profile in order to display the entity's elements in the correct order
     collection = entity.kind_of?(Collection) ? entity : entity.collection
     collection.effective_metadata_profile.element_defs.each do |e_def|
-      elements = entity.metadata.select{ |e| e.name == e_def.name }
+      elements = entity.elements.where(name: e_def.name)
       next if elements.empty?
       html += "<dt>#{e_def.label}</dt>"
       html += '<dd>'
@@ -414,7 +408,7 @@ module ItemsHelper
   end
 
   ##
-  # @param entity [Entity]
+  # @param entity [Object]
   # @return [String]
   # @see `tech_metadata_as_table`
   #
@@ -425,7 +419,7 @@ module ItemsHelper
     # profile in order to display the entity's elements in the correct order
     collection = entity.kind_of?(Collection) ? entity : entity.collection
     collection.effective_metadata_profile.element_defs.each do |e_def|
-      elements = entity.metadata.select{ |e| e.name == e_def.name }
+      elements = entity.elements.where(name: e_def.name)
       next if elements.empty?
       html += '<tr>'
       html += "<td>#{e_def.label}</td>"
@@ -444,6 +438,13 @@ module ItemsHelper
     end
     html += '</table>'
     raw(html)
+  end
+
+  ##
+  # @return [Relation]
+  #
+  def more_like_this
+    Relation.new(self).more_like_this
   end
 
   ##
@@ -479,13 +480,13 @@ module ItemsHelper
 
   def page_select_menu(item)
     pages = item.parent ? item.parent.pages : item.pages
-    pages = pages.limit(999)
+    pages = pages
 
     html = '<select class="form-control input-sm pt-page-select">'
     pages.each_with_index do |page, index|
-      selected = (page.id == item.id) ? 'selected' : ''
+      selected = (page.repository_id == item.repository_id) ? 'selected' : ''
       html += "<option value=\"#{item_path(page)}\" #{selected}>
-        #{page.title} (#{index + 1} of #{pages.total_length})
+        #{page.title} (#{index + 1} of #{pages.count})
         </option>"
     end
     html += '</select>'
@@ -505,7 +506,7 @@ module ItemsHelper
       link_target = options[:link_to_admin] ?
           admin_item_path(child) : item_path(child)
       html += '<li>'
-      if item.id == child.id
+      if item.repository_id == child.repository_id
         html += '<div class="pt-current">'
         html += raw('<div class="pt-thumbnail">' +
                         thumbnail_tag(child, 256) +
@@ -532,7 +533,7 @@ module ItemsHelper
     if pages.any?
       html += "<div class=\"panel panel-default\">
         <div class=\"panel-heading\">
-          <h2 class=\"panel-title\">Pages (#{pages.total_length})</h2>
+          <h2 class=\"panel-title\">Pages (#{pages.count})</h2>
         </div>
         <div class=\"panel-body pt-pages\">
           #{pages_as_list(selected_page)}
@@ -543,7 +544,7 @@ module ItemsHelper
   end
 
   ##
-  # @param items [Array]
+  # @param items [Relation]
   # @param per_page [Integer]
   # @param current_page [Integer]
   # @param max_links [Integer] (ideally odd)
@@ -629,7 +630,7 @@ module ItemsHelper
   # Returns the status of a search or browse action, e.g. "Showing n of n
   # items".
   #
-  # @param items [ActiveMedusa::Relation]
+  # @param items [Relation]
   # @param start [Integer]
   # @param num_results_shown [Integer]
   # @return [String]
@@ -712,7 +713,7 @@ module ItemsHelper
         html += '<li>'
         html += '<div class="pt-thumbnail">'
         html += link_to(item_path(item)) do
-          thumbnail_tag(item, 256, Bytestream::Shape::SQUARE)
+          thumbnail_tag(item, 256)
         end
         html += '</div>'
         html += link_to(truncate(item.title, length: 40),
@@ -798,10 +799,9 @@ module ItemsHelper
   # @param entity [Item] or some other object suitable for passing
   # to `icon_for`
   # @param size [Integer]
-  # @param shape [String] One of the `Bytestream::Shape` constants
   # @return [String]
   #
-  def thumbnail_tag(entity, size, shape = Bytestream::Shape::ORIGINAL)
+  def thumbnail_tag(entity, size)
     html = ''
     if entity.kind_of?(Item)
       url = item_image_url(entity, size)
@@ -866,7 +866,8 @@ module ItemsHelper
   private
 
   def audio_player_for(item)
-    bs = item.bytestreams.select{ |bs| bs.type == Bytestream::Type::ACCESS_MASTER }.first
+    bs = item.bytestreams.
+        where(bytestream_type: Bytestream::Type::ACCESS_MASTER).first
     tag = "<audio controls>
       <source src=\"#{item_access_master_bytestream_url(item)}\"
               type=\"#{bs.media_type}\">
@@ -968,8 +969,8 @@ module ItemsHelper
 
   def tech_metadata_for(item)
     data = {}
-    data['Created'] = local_time_ago(item.created)
-    data['Last Modified'] = local_time_ago(item.last_modified)
+    data['Created'] = local_time_ago(item.created_at)
+    data['Last Modified'] = local_time_ago(item.updated_at)
     data['Last Indexed'] = local_time_ago(item.last_indexed)
     data['Bib ID'] = item.bib_id if item.bib_id
     url = iiif_url(item)

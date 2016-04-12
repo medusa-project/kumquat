@@ -4,7 +4,7 @@ class CollectionTest < ActiveSupport::TestCase
 
   def setup
     @col = Collection.new
-    @col.id = 162
+    @col.repository_id = '162'
   end
 
   test 'file_groups should return the correct file groups' do

@@ -13,7 +13,7 @@
   <% end %>
 </div>
 
-<h1>Collections <small><%= @collections.where(published: true).count %> published</small></h1>
+<h1>Collections <small><%= @collections.select{ |c| c.published }.length %> published</small></h1>
 
 <table class="table table-striped">
   <thead>

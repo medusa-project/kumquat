@@ -1,7 +1,7 @@
 module CollectionsHelper
 
   ##
-  # @param collections [Array]
+  # @param collections [Relation]
   # @return [String]
   #
   def collections_as_list(collections)

@@ -61,7 +61,7 @@ module ApplicationHelper
   #
   def icon_for(entity)
     icon = 'fa-cube'
-    if entity.kind_of?(Item)
+    if entity.kind_of?(Item) or entity == Item
       if entity.is_audio?
         icon = 'fa-volume-up'
       elsif entity.is_image?
@@ -76,7 +76,7 @@ module ApplicationHelper
         icon = 'fa-folder-open-o'
       elsif entity.subclass == Item::Subclasses::FILE
         icon = 'fa-file-o'
-      elsif entity.children.any?
+      elsif entity.items.any?
         icon = 'fa-cubes'
       end
     elsif entity.kind_of?(Collection) or entity == Collection
@@ -108,7 +108,7 @@ module ApplicationHelper
   #
   def type_of(entity)
     type = 'Item'
-    if entity.kind_of?(Item)
+    if entity.kind_of?(Item) or entity == Item
       if entity.is_audio?
         type = 'Audio'
       elsif entity.is_image?
@@ -123,7 +123,7 @@ module ApplicationHelper
         type = 'File'
       elsif entity.subclass == Item::Subclasses::DIRECTORY
         type = 'File Folder'
-      elsif entity.children.any?
+      elsif entity.items.any?
         type = 'Multi-Page Item'
       end
     elsif entity.kind_of?(Collection) or entity == Collection

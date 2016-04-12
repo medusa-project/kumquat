@@ -1,7 +1,9 @@
 class CollectionsController < WebsiteController
 
   def index
-    @collections = Collection.all.where(published: true).order(:title)
+    @collections = Collection.solr.
+        where(Collection::SolrFields::PUBLISHED => true).
+        order(Collection::SolrFields::TITLE).limit(9999)
 
     respond_to do |format|
       format.html

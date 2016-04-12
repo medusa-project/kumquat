@@ -11,10 +11,22 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160411202239) do
+ActiveRecord::Schema.define(version: 20160412211215) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "bytestreams", force: :cascade do |t|
+    t.integer  "bytestream_type"
+    t.string   "media_type"
+    t.string   "file_group_relative_pathname"
+    t.string   "url"
+    t.integer  "width"
+    t.integer  "height"
+    t.datetime "created_at",                   null: false
+    t.datetime "updated_at",                   null: false
+    t.integer  "item_id"
+  end
 
   create_table "collections", force: :cascade do |t|
     t.string   "repository_id"
@@ -63,6 +75,33 @@ ActiveRecord::Schema.define(version: 20160411202239) do
     t.datetime "created_at",                          null: false
     t.datetime "updated_at",                          null: false
     t.boolean  "sortable",            default: false
+  end
+
+  create_table "elements", force: :cascade do |t|
+    t.string   "name"
+    t.string   "value"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer  "item_id"
+  end
+
+  create_table "items", force: :cascade do |t|
+    t.string   "repository_id"
+    t.string   "collection_repository_id"
+    t.string   "parent_repository_id"
+    t.string   "representative_item_repository_id"
+    t.string   "subclass"
+    t.integer  "page_number"
+    t.integer  "subpage_number"
+    t.string   "bib_id"
+    t.datetime "date"
+    t.boolean  "published"
+    t.decimal  "latitude",                          precision: 10, scale: 7
+    t.decimal  "longitude",                         precision: 10, scale: 7
+    t.text     "full_text"
+    t.datetime "last_indexed"
+    t.datetime "created_at",                                                 null: false
+    t.datetime "updated_at",                                                 null: false
   end
 
   create_table "metadata_profiles", force: :cascade do |t|

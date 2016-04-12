@@ -1,4 +1,6 @@
-class Item < Entity
+class Item < ActiveRecord::Base
+
+  include SolrQuerying
 
   class SolrFields
     ACCESS_MASTER_HEIGHT = 'access_master_height_ii'
@@ -7,13 +9,15 @@ class Item < Entity
     ACCESS_MASTER_URL = 'access_master_url_si'
     ACCESS_MASTER_WIDTH = 'access_master_width_ii'
     BIB_ID = 'bib_id_si'
+    CLASS = 'class_si'
     COLLECTION = 'collection_si'
     CREATED = 'created_dti'
     DATE = 'date_dti'
     FULL_TEXT = 'full_text_txti'
+    ID = 'id'
     LAST_MODIFIED = 'last_modified_dti'
     LAT_LONG = 'lat_long_loc'
-    METADATA_PATHNAME = 'metadata_pathname_si'
+    LAST_INDEXED = 'last_indexed_dti'
     PAGE_NUMBER = 'page_number_ii'
     PARENT_ITEM = 'parent_si'
     PRESERVATION_MASTER_HEIGHT = 'preservation_master_height_ii'
@@ -39,423 +43,391 @@ class Item < Entity
     TITLE = 'Title'
   end
 
-  # @!attribute bib_id
-  #   @return [String]
-  attr_accessor :bib_id
+  has_many :bytestreams, inverse_of: :item, dependent: :destroy
+  has_many :elements, dependent: :destroy
 
-  # @!attribute bytestreams
-  #   @return [Set<Bytestream>]
-  attr_accessor :bytestreams
+  validates :collection_repository_id, presence: true
 
-  # @!attribute collection_id
-  #   @return [String]
-  attr_accessor :collection_id
-
-  # @!attribute created
-  #   @return [Time]
-  attr_accessor :created
-
-  # @!attribute date
-  #   @return [Time]
-  attr_accessor :date
-
-  # @!attribute full_text
-  #   @return [String]
-  attr_accessor :full_text
-
-  # @!attribute last_modified
-  #   @return [Time]
-  attr_accessor :last_modified
-
-  # @!attribute latitude
-  #   @return [Float]
-  attr_accessor :latitude
-
-  # @!attribute longitude
-  #   @return [Float]
-  attr_accessor :longitude
-
-  # @!attribute metadata
-  #   @return [Array]
-  attr_reader :metadata
-
-  # @!attribute metadata_pathname
-  #   @return [String]
-  attr_accessor :metadata_pathname
-
-  # @!attribute page_number
-  #   @return [Integer]
-  attr_accessor :page_number
-
-  # @!attribute parent_id
-  #   @return [String]
-  attr_accessor :parent_id
-
-  # @!attribute published
-  #   @return [Boolean]
-  attr_accessor :published
-
-  # @!attribute representative_item_id
-  #   @return [String]
-  attr_accessor :representative_item_id
-
-  # @!attribute subclass One of the Item::Subclasses constants
-  #   @return [String]
-  attr_accessor :subclass
-
-  # @!attribute subpage_number
-  #   @return [Integer]
-  attr_accessor :subpage_number
+  before_destroy :delete_from_solr
+  before_save :index_in_solr
 
   ##
-  # @param doc [Nokogiri::XML::Document]
+  # Creates an instance from valid LRP AIP XML.
+  #
+  # @param [Nokogiri::XML::Node] node
   # @return [Item]
   #
-  def self.from_solr(doc)
+  def self.from_lrp_xml(node)
+    namespaces = { 'lrp' => 'http://www.library.illinois.edu/lrp/terms#' }
+
     item = Item.new
-    item.id = doc[Entity::SolrFields::ID]
-    item.bib_id = doc[SolrFields::BIB_ID]
-    item.collection_id = doc[SolrFields::COLLECTION]
-    if doc[SolrFields::CREATED]
-      item.created = Time.parse(doc[SolrFields::CREATED])
-    end
-    if doc[SolrFields::DATE]
-      item.date = Time.parse(doc[SolrFields::DATE])
-    end
-    if doc[Entity::SolrFields::LAST_INDEXED]
-      item.last_indexed = Time.parse(doc[Entity::SolrFields::LAST_INDEXED])
-    end
-    if doc[SolrFields::LAST_MODIFIED]
-      item.last_modified = Time.parse(doc[SolrFields::LAST_MODIFIED])
-    end
-    if doc[SolrFields::LAT_LONG]
-      parts = doc[SolrFields::LAT_LONG].split(',')
-      if parts.length == 2
-        item.latitude = parts.first.to_f
-        item.longitude = parts.last.to_f
-      end
-    end
-    item.metadata_pathname = doc[SolrFields::METADATA_PATHNAME]
-    item.page_number = doc[SolrFields::PAGE_NUMBER]
-    item.parent_id = doc[SolrFields::PARENT_ITEM]
-    item.representative_item_id = doc[SolrFields::REPRESENTATIVE_ITEM_ID]
-    if doc[SolrFields::ACCESS_MASTER_PATHNAME] or
-        doc[SolrFields::ACCESS_MASTER_URL]
-      bs = Bytestream.new(item.collection.medusa_data_file_group)
-      bs.height = doc[SolrFields::ACCESS_MASTER_HEIGHT]
-      bs.media_type = doc[SolrFields::ACCESS_MASTER_MEDIA_TYPE]
-      bs.file_group_relative_pathname = doc[SolrFields::ACCESS_MASTER_PATHNAME]
-      bs.type = Bytestream::Type::ACCESS_MASTER
-      bs.url = doc[SolrFields::ACCESS_MASTER_URL]
-      bs.width = doc[SolrFields::ACCESS_MASTER_WIDTH]
-      item.bytestreams << bs
-    end
-    item.full_text = doc[SolrFields::FULL_TEXT]
-    if doc[SolrFields::PRESERVATION_MASTER_PATHNAME] or
-        doc[SolrFields::PRESERVATION_MASTER_URL]
-      bs = Bytestream.new(item.collection.medusa_data_file_group)
-      bs.height = doc[SolrFields::PRESERVATION_MASTER_HEIGHT]
-      bs.media_type = doc[SolrFields::PRESERVATION_MASTER_MEDIA_TYPE]
-      bs.file_group_relative_pathname = doc[SolrFields::PRESERVATION_MASTER_PATHNAME]
-      bs.type = Bytestream::Type::PRESERVATION_MASTER
-      bs.url = doc[SolrFields::PRESERVATION_MASTER_URL]
-      bs.width = doc[SolrFields::PRESERVATION_MASTER_WIDTH]
-      item.bytestreams << bs
-    end
-    item.subclass = doc[SolrFields::SUBCLASS]
-    item.subpage_number = doc[SolrFields::SUBPAGE_NUMBER]
 
-    # descriptive metadata
-    doc.keys.select{ |k| k.start_with?(Element.solr_prefix) and
-        k.end_with?(Element.solr_suffix) }.each do |key|
-      doc[key].each do |value|
-        e = Element.named(key.gsub(Element.solr_prefix, '').chomp(Element.solr_suffix))
-        e.value = value
-        item.metadata << e
+    # bib ID
+    bib_id = node.xpath('lrp:bibId', namespaces).first
+    item.bib_id = bib_id ? bib_id.content.strip : nil
+
+    # collection
+    col_id = node.xpath('lrp:collectionId', namespaces).first
+    item.collection_repository_id = col_id.content.strip if col_id
+
+    # date
+    date = node.xpath('lrp:date', namespaces).first
+    date = node.xpath('lrp:dateCreated', namespaces).first unless date
+    if date
+      date = date.content.strip
+      iso8601 = nil
+      # This is rather quick & dirty, but will work for now.
+      if date.match('[1-9]{4}') # date is apparently YYYY (1000-)
+        iso8601 = "#{date}-01-01T00:00:00Z"
+      elsif date.match('[1-9]{4}-[0-1][0-9]-[0-3][0-9]') # date is apparently YYYY-MM-DD
+        iso8601 = "#{date}T00:00:00Z"
+      end
+      if iso8601
+        item.date = Time.parse(iso8601)
       end
     end
 
-    item.published = doc[SolrFields::PUBLISHED]
-    item.instance_variable_set('@persisted', true)
+    # full text
+    id = node.xpath('lrp:fullText', namespaces).first
+    item.full_text = id.content.strip if id
+
+    # latitude
+    lat = node.xpath('lrp:latitude', namespaces).first
+    item.latitude = lat ? lat.content.strip.to_f : nil
+
+    # longitude
+    long = node.xpath('lrp:longitude', namespaces).first
+    item.longitude = long ? long.content.strip.to_f : nil
+
+    # page number
+    page = node.xpath('lrp:pageNumber', namespaces).first
+    item.page_number = page.content.strip.to_i if page
+
+    # parent item
+    parent = node.xpath('lrp:parentId', namespaces).first
+    item.parent_repository_id = parent.content.strip if parent
+
+    # published
+    published = node.xpath('lrp:published', namespaces).first
+    item.published = published ?
+        %w(true 1).include?(published.content.strip) : false
+
+    # repository ID
+    rep_id = node.xpath('lrp:repositoryId', namespaces).first
+    item.repository_id = rep_id.content.strip
+
+    # representative item ID
+    rep_item_id = node.xpath('lrp:representativeItemId', namespaces).first
+    item.representative_item_repository_id = rep_item_id.content.strip if rep_item_id
+
+    # subclass
+    subclass = node.xpath('lrp:subclass', namespaces).first
+    item.subclass = subclass ? subclass.content.strip : nil
+
+    # subpage number
+    page = node.xpath('lrp:subpageNumber', namespaces).first
+    item.subpage_number = page.content.strip.to_i if page
+
+    # access master (pathname)
+    am = node.xpath('lrp:accessMasterPathname', namespaces).first
+    if am
+      bs = item.bytestreams.build
+      bs.bytestream_type = Bytestream::Type::ACCESS_MASTER
+      bs.file_group_relative_pathname = am.content.strip
+      # width
+      width = node.xpath('lrp:accessMasterWidth', namespaces).first
+      bs.width = width.content.strip.to_i if width
+      # height
+      height = node.xpath('lrp:accessMasterHeight', namespaces).first
+      bs.height = height.content.strip.to_i if height
+      # media type
+      mt = node.xpath('lrp:accessMasterMediaType', namespaces).first
+      bs.media_type = mt.content.strip if mt
+    else # access master (URL)
+      am = node.xpath('lrp:accessMasterURL', namespaces).first
+      if am
+        bs = item.bytestreams.build
+        bs.bytestream_type = Bytestream::Type::ACCESS_MASTER
+        bs.url = am.content.strip
+        # media type
+        mt = node.xpath('lrp:accessMasterMediaType', namespaces).first
+        bs.media_type = mt.content.strip if mt
+      end
+    end
+
+    # preservation master (pathname)
+    pm = node.xpath('lrp:preservationMasterPathname', namespaces).first
+    if pm
+      bs = item.bytestreams.build
+      bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
+      bs.file_group_relative_pathname = pm.content.strip
+      mt = node.xpath('lrp:preservationMasterMediaType', namespaces).first
+      bs.media_type = mt.content.strip if mt
+    else # preservation master (URL)
+      pm = node.xpath('lrp:preservationMasterURL', namespaces).first
+      if pm
+        bs = item.bytestreams.build
+        bs.bytestream_type = Bytestream::Type::ACCESS_MASTER
+        bs.url = pm.content.strip
+        # width
+        width = node.xpath('lrp:preservationMasterWidth', namespaces).first
+        bs.width = width.content.strip.to_i if width
+        # height
+        height = node.xpath('lrp:preservationMasterHeight', namespaces).first
+        bs.height = height.content.strip.to_i if height
+        # media type
+        mt = node.xpath('lrp:preservationMasterMediaType', namespaces).first
+        bs.media_type = mt.content.strip if mt
+      end
+    end
+
+    descriptive_elements = Element.all_available.
+        select{ |e| e.type == Element::Type::DESCRIPTIVE }.map(&:name)
+    node.xpath('lrp:*', namespaces).each do |md_node|
+      if descriptive_elements.include?(md_node.name)
+        e = Element.named(md_node.name)
+        e.value = md_node.content.strip
+        item.elements << e
+      end
+    end
+
     item
   end
 
-  def initialize
-    super
-    @bytestreams = Set.new
-    @metadata = []
-  end
-
-  def access_master_bytestream
-    self.bytestreams.select{ |bs| bs.type == Bytestream::Type::ACCESS_MASTER }.
-        first
-  end
-
   ##
-  # @return [Relation] All of the instance's children.
-  # @see items
+  # @return [Bytestream]
   #
-  def children
-    unless @children
-      @children = Item.where(SolrFields::PARENT_ITEM => self.id).
-          order(SolrFields::PAGE_NUMBER)
-    end
-    @children
+  def access_master_bytestream
+    self.bytestreams.where(bytestream_type: Bytestream::Type::ACCESS_MASTER).
+        limit(1).first
   end
-
-  alias_method :items, :children
 
   ##
   # @return [Collection]
   #
   def collection
-    unless @collection
-      @collection = Collection.find_by_repository_id(self.collection_id)
-    end
-    @collection
-  end
-
-  def description
-    elements = metadata.select{ |e| e.name == 'description' }
-    elements.any? ? elements.first.value : nil
+    Collection.find_by_repository_id(self.collection_repository_id)
   end
 
   ##
-  # @return [Boolean] True if any text was extracted; false if not
+  # @return [Element]
   #
-  def extract_and_update_full_text
-    bs = access_master_bytestream
-    if bs and bs.exists?
-      begin
-        yomu = Yomu.new(bs.pathname)
-        self.full_text = yomu.text.force_encoding('UTF-8')
-      rescue Errno::EPIPE
-        return false # nothing we can do
-      else
-        return self.full_text.present?
-      end
-    end
-    false
+  def description
+    element = self.elements.where(name: 'description').limit(1).first
+    element ? element.value : nil
+  end
+
+  def delete_from_solr
+    self.last_indexed = Time.now
+    Solr.instance.delete(self.solr_id)
+  end
+
+  ##
+  # @return [Item]
+  # @see representative_item
+  #
+  def effective_representative_item
+    self.representative_item || self
   end
 
   ##
   # @return [Relation] All of the item's children that have a subclass of File
   #                    or Directory.
-  # @see children
-  # @see pages
+  # @see pages()
   #
   def files
-    unless @files
-      file_classes = [Subclasses::FILE, Subclasses::DIRECTORY].join(' OR ')
-      @files = Item.where(SolrFields::PARENT_ITEM => self.id).
-          where(SolrFields::SUBCLASS => "(#{file_classes})").
-          order(SolrFields::PAGE_NUMBER)
-    end
-    @files
+    self.items.where(subclass: [Subclasses::FILE, Subclasses::DIRECTORY])
   end
 
   ##
-  # @return [Item] The item's front matter item, if available.
+  # @return [Item] The item's key item, if available.
   #
   def front_matter_item
-    unless @front_matter_item
-      @front_matter_item = Item.where(SolrFields::PARENT_ITEM => self.id).
-          where(SolrFields::SUBCLASS => Item::Subclasses::FRONT_MATTER).
-          limit(1).first
-    end
-    @front_matter_item
+    self.items.where(subclass: Subclasses::FRONT_MATTER).limit(1).first
+  end
+
+  def index_in_solr
+    self.last_indexed = Time.now
+    Solr.instance.add(self.to_solr)
   end
 
   ##
   # @return [Item] The item's index item, if available.
   #
   def index_item
-    unless @index_item
-      @index_item = Item.where(Item::SolrFields::PARENT_ITEM => self.id).
-          where(SolrFields::SUBCLASS => Item::Subclasses::INDEX).
-          limit(1).first
-    end
-    @index_item
+    self.items.where(subclass: Subclasses::INDEX).limit(1).first
   end
 
   def is_audio?
-    bs = self.bytestreams.select{ |b| b.type == Bytestream::Type::ACCESS_MASTER }.first ||
-        self.bytestreams.select{ |b| b.type == Bytestream::Type::PRESERVATION_MASTER }.first
+    bs = self.access_master_bytestream || self.preservation_master_bytestream
     bs and bs.is_audio?
   end
 
   def is_image?
-    bs = self.bytestreams.select{ |b| b.type == Bytestream::Type::ACCESS_MASTER }.first ||
-        self.bytestreams.select{ |b| b.type == Bytestream::Type::PRESERVATION_MASTER }.first
+    bs = self.access_master_bytestream || self.preservation_master_bytestream
     bs and bs.is_image?
   end
 
   def is_pdf?
-    bs = self.bytestreams.select{ |b| b.type == Bytestream::Type::ACCESS_MASTER }.first ||
-        self.bytestreams.select{ |b| b.type == Bytestream::Type::PRESERVATION_MASTER }.first
+    bs = self.access_master_bytestream || self.preservation_master_bytestream
     bs and bs.is_pdf?
   end
 
   def is_text?
-    bs = self.bytestreams.select{ |b| b.type == Bytestream::Type::ACCESS_MASTER }.first ||
-        self.bytestreams.select{ |b| b.type == Bytestream::Type::PRESERVATION_MASTER }.first
+    bs = self.access_master_bytestream || self.preservation_master_bytestream
     bs and bs.is_text?
   end
 
   def is_video?
-    bs = self.bytestreams.select{ |b| b.type == Bytestream::Type::ACCESS_MASTER }.first ||
-        self.bytestreams.select{ |b| b.type == Bytestream::Type::PRESERVATION_MASTER }.first
+    bs = self.access_master_bytestream || self.preservation_master_bytestream
     bs and bs.is_video?
+  end
+
+  def items
+    Item.where(parent_repository_id: self.repository_id)
   end
 
   ##
   # @return [Item] The item's key item, if available.
   #
   def key_item
-    unless @key_item
-      @key_item = Item.where(SolrFields::PARENT_ITEM => self.id).
-          where(SolrFields::SUBCLASS => Item::Subclasses::KEY).
-          limit(1).first
-    end
-    @key_item
-  end
-
-  ##
-  # @return [Relation]
-  #
-  def more_like_this
-    Relation.new(self).more_like_this
+    self.items.where(subclass: Subclasses::KEY).limit(1).first
   end
 
   ##
   # @return [Item, nil] The next item in a compound object, relative to the
-  # instance, or nil if none or not applicable.
+  #                     instance, or nil if none or not applicable.
   # @see previous()
   #
   def next
     next_item = nil
-    if self.parent_id and self.page_number
-      next_item = Item.all.
-          where(SolrFields::PARENT_ITEM => self.parent_id,
-                SolrFields::PAGE_NUMBER => self.page_number + 1).
-          limit(1).first
+    if self.parent and self.page_number
+      next_item = Item.where(parent_repository_id: self.parent.repository_id,
+                page_number: self.page_number + 1).limit(1).first
     end
     next_item
   end
 
   ##
-  # @return [Relation] All of the item's children that have a subclass of Page.
-  # @see children
+  # @see files()
   #
   def pages
-    unless @pages
-      @pages = Item.where(SolrFields::PARENT_ITEM => self.id).
-          where(SolrFields::SUBCLASS => Item::Subclasses::PAGE).
-          order(SolrFields::PAGE_NUMBER)
-    end
-    @pages
+    self.items.where(subclass: Subclasses::PAGE).
+        order(:page_number, :subpage_number)
   end
 
   ##
-  # @return [Item]
+  # @return [Item, nil]
   #
   def parent
-    if self.parent_id
-      @parent = Item.find(self.parent_id) unless @parent
-    end
-    @parent
+    Item.find_by_repository_id(self.parent_repository_id)
   end
 
+  ##
+  # @return [Bytestream, nil]
+  #
   def preservation_master_bytestream
     self.bytestreams.
-        select{ |bs| bs.type == Bytestream::Type::PRESERVATION_MASTER }.first
+        where(bytestream_type: Bytestream::Type::PRESERVATION_MASTER).
+        limit(1).first
   end
 
   ##
   # @return [Item, nil] The previous item in a compound object, relative to the
-  # instance, or nil if none or not applicable.
+  #                     instance, or nil if none or not applicable.
   # @see next()
   #
   def previous
     prev_item = nil
-    if self.parent_id and self.page_number
-      prev_item = Item.all.
-          where(SolrFields::PARENT_ITEM => self.parent_id,
-                SolrFields::PAGE_NUMBER => self.page_number - 1).
-          limit(1).first
+    if self.parent and self.page_number
+      prev_item = Item.where(parent_repository_id: self.parent.repository_id,
+                             page_number: self.page_number - 1).limit(1).first
     end
     prev_item
   end
 
+  ##
+  # @return [Item, nil]
+  # @see effective_representative_item
+  #
   def representative_item
-    # TODO: remove periods from representativeItemId in AIPs and get rid of the gsub()
-    (self.representative_item_id ?
-        Item.find_by_id(self.representative_item_id.gsub('.', '_')) : self) || self
+    Item.find_by_repository_id(self.representative_item_repository_id)
   end
 
+  ##
+  # @return [String] The repository ID.
+  #
+  def solr_id
+    self.repository_id
+  end
+
+  ##
+  # @return [Element]
+  #
   def subtitle
-    elements = metadata.select{ |e| e.name == 'alternativeTitle' }
-    elements.any? ? elements.first.value : nil
+    element = self.elements.where(name: 'alternativeTitle').limit(1).first
+    element ? element.value : nil
   end
 
+  ##
+  # @return [Element]
+  #
   def title
-    elements = metadata.select{ |e| e.name == 'title' }
-    elements.any? ? elements.first.value : nil
+    element = self.elements.where(name: 'title').limit(1).first
+    element ? element.value : nil
   end
 
   ##
   # @return [Item] The item's title item, if available.
   #
   def title_item
-    unless @title_item
-      @title_item = Item.where(SolrFields::PARENT_ITEM => self.id).
-          where(SolrFields::SUBCLASS => Item::Subclasses::TITLE).
-          limit(1).first
-    end
-    @title_item
+    self.items.where(subclass: Subclasses::TITLE).limit(1).first
+  end
+
+  def to_param
+    self.repository_id
+  end
+
+  def to_s
+    self.title
   end
 
   ##
-  # Overrides parent
-  #
   # @return [Hash]
   #
   def to_solr
-    doc = super
+    doc = {}
+    doc[SolrFields::ID] = self.solr_id
     doc[SolrFields::BIB_ID] = self.bib_id
-    doc[SolrFields::CREATED] = self.created.utc.iso8601 + 'Z' if self.created
-    doc[SolrFields::COLLECTION] = self.collection_id
-    doc[SolrFields::PAGE_NUMBER] = self.page_number
-    doc[SolrFields::PARENT_ITEM] = self.parent_id
+    doc[SolrFields::CLASS] = self.class.to_s
+    doc[SolrFields::COLLECTION] = self.collection_repository_id
     doc[SolrFields::DATE] = self.date.utc.iso8601 if self.date
-    self.bytestreams.select{ |b| b.type == Bytestream::Type::ACCESS_MASTER }.each do |bs|
+    doc[SolrFields::FULL_TEXT] = self.full_text
+    doc[SolrFields::LAST_INDEXED] = self.last_indexed.utc.iso8601
+    if self.latitude and self.longitude
+      doc[SolrFields::LAT_LONG] = "#{self.latitude},#{self.longitude}"
+    end
+    doc[SolrFields::PAGE_NUMBER] = self.page_number
+    doc[SolrFields::PARENT_ITEM] = self.parent_repository_id
+    doc[SolrFields::PUBLISHED] = self.published
+    doc[SolrFields::REPRESENTATIVE_ITEM_ID] = self.representative_item_repository_id
+    doc[SolrFields::SUBCLASS] = self.subclass
+    doc[SolrFields::SUBPAGE_NUMBER] = self.subpage_number
+    self.bytestreams.where(bytestream_type: Bytestream::Type::ACCESS_MASTER).limit(1).each do |bs|
       doc[SolrFields::ACCESS_MASTER_HEIGHT] = bs.height
       doc[SolrFields::ACCESS_MASTER_MEDIA_TYPE] = bs.media_type
       doc[SolrFields::ACCESS_MASTER_PATHNAME] = bs.file_group_relative_pathname
       doc[SolrFields::ACCESS_MASTER_URL] = bs.url
       doc[SolrFields::ACCESS_MASTER_WIDTH] = bs.width
     end
-    doc[SolrFields::FULL_TEXT] = self.full_text
-    if self.last_modified
-      doc[SolrFields::LAST_MODIFIED] = self.last_modified.utc.iso8601 + 'Z'
-    end
-    if self.latitude and self.longitude
-      doc[SolrFields::LAT_LONG] = "#{self.latitude},#{self.longitude}"
-    end
-    doc[SolrFields::METADATA_PATHNAME] = self.metadata_pathname
-    self.bytestreams.select{ |b| b.type == Bytestream::Type::PRESERVATION_MASTER }.each do |bs|
+    self.bytestreams.where(bytestream_type: Bytestream::Type::PRESERVATION_MASTER).limit(1).each do |bs|
       doc[SolrFields::PRESERVATION_MASTER_HEIGHT] = bs.height
       doc[SolrFields::PRESERVATION_MASTER_MEDIA_TYPE] = bs.media_type
       doc[SolrFields::PRESERVATION_MASTER_PATHNAME] = bs.file_group_relative_pathname
       doc[SolrFields::PRESERVATION_MASTER_URL] = bs.url
       doc[SolrFields::PRESERVATION_MASTER_WIDTH] = bs.width
     end
-    doc[SolrFields::PUBLISHED] = self.published
-    doc[SolrFields::REPRESENTATIVE_ITEM_ID] = self.representative_item_id
-    doc[SolrFields::SUBCLASS] = self.subclass
-    doc[SolrFields::SUBPAGE_NUMBER] = self.subpage_number
-
-    self.metadata.each do |element|
+    self.elements.each do |element|
       doc[element.solr_multi_valued_field] ||= []
       doc[element.solr_multi_valued_field] << element.value
       doc[element.solr_single_valued_field] = element.value

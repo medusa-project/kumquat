@@ -15,7 +15,7 @@ class FavoritesController < WebsiteController
     unless cookies[:favorites].blank?
       ids = cookies[:favorites].split(COOKIE_DELIMITER)
       if ids.any?
-        @items = Item.where("id:(#{ids.map{ |id| "#{id}" }.join(' ')})")
+        @items = Item.solr.where("id:(#{ids.map{ |id| "#{id}" }.join(' ')})")
       end
     end
 

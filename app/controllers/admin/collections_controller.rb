@@ -15,12 +15,8 @@ module Admin
     end
 
     def index
-      @collections = Collection.all.order(:title).limit(9999)
-
-      # TODO: fix this
-      #@collections = MedusaCollection.all.
-      #    where(MedusaCollection::SolrFields::PUBLISHED => true).
-      #    order(MedusaCollection::SolrFields::TITLE).limit(9999)
+      @collections = Collection.solr.order(Collection::SolrFields::TITLE).
+          limit(9999)
     end
 
     ##

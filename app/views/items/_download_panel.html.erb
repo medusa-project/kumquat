@@ -18,10 +18,10 @@
               if bs.url
                 label = 'External URL'
                 url = bs.url
-              elsif bs.type == Bytestream::Type::ACCESS_MASTER
+              elsif bs.bytestream_type == Bytestream::Type::ACCESS_MASTER
                 label = 'Access Master'
                 url = item_access_master_bytestream_url(item)
-              elsif bs.type == Bytestream::Type::PRESERVATION_MASTER
+              elsif bs.bytestream_type == Bytestream::Type::PRESERVATION_MASTER
                 label = 'Preservation Master'
                 url = item_preservation_master_bytestream_url(item)
               end

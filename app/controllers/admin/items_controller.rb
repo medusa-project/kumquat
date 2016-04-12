@@ -2,41 +2,6 @@ module Admin
 
   class ItemsController < ControlPanelController
 
-    ##
-    # Responds to PATCH /admin/items/:id/full-text/clear
-    #
-    def clear_full_text
-      @item = Item.find(params[:item_id])
-      begin
-        @item.full_text = nil
-        @item.save!
-      rescue => e
-        flash['error'] = "#{e}"
-      else
-        flash['success'] = 'Full text cleared.'
-      ensure
-        redirect_to admin_item_url(@item)
-      end
-    end
-
-    ##
-    # Responds to PATCH /admin/items/:id/full-text/extract
-    #
-    def extract_full_text
-      @item = Item.find(params[:item_id])
-
-      args = {
-          command: ExtractFullTextCommand,
-          args: @item,
-          task_status_text: "Extract full text from item \"#{@item.title}\""
-      }
-      @job_runner.run_later(CommandJob, args)
-
-      flash['success'] = 'Queued full text extraction. This may take a while '\
-      'depending on the size of the master bytestream.'
-      redirect_to :back
-    end
-
     def index
       if params[:clear]
         redirect_to admin_items_path
@@ -45,7 +10,7 @@ module Admin
 
       @start = params[:start] ? params[:start].to_i : 0
       @limit = Option::integer(Option::Key::RESULTS_PER_PAGE)
-      @items = Item.all.where(Item::SolrFields::PARENT_ITEM => :null).
+      @items = Item.solr.where(Item::SolrFields::PARENT_ITEM => :null).
           where(params[:q]).facet(false)
 
       # fields
@@ -66,7 +31,7 @@ module Admin
       if collections.any?
         if collections.length == 1
           @items = @items.where("#{Item::SolrFields::COLLECTION}:\"#{collections.first}\"")
-        elsif collections.length < Collection.count
+        else
           @items = @items.where("#{Item::SolrFields::COLLECTION}:(#{collections.join(' ')})")
         end
       end
@@ -92,7 +57,7 @@ module Admin
           @elements_for_select = ElementDef.order(:name).
               map{ |p| [p.label, nil] }.uniq
           @elements_for_select.
-              unshift([ 'Any Element', Entity::SolrFields::SEARCH_ALL ])
+              unshift([ 'Any Element', Item::SolrFields::SEARCH_ALL ])
           @collections = Collection.all
         end
       end
@@ -118,12 +83,6 @@ module Admin
         #format.rdfxml { render text: @item.admin_rdf_graph(uri).to_rdfxml }
         #format.ttl { render text: @item.admin_rdf_graph(uri).to_ttl }
       end
-    end
-
-    private
-
-    def sanitized_params
-      params.require(:item).permit(:full_text)
     end
 
   end
