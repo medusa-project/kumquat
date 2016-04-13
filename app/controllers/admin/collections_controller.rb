@@ -44,12 +44,10 @@ module Admin
       @collection = Collection.find_by_repository_id(params[:id])
       raise ActiveRecord::RecordNotFound unless @collection
 
-      @data_file_group = @collection.medusa_data_file_group_id ?
-          @collection.medusa_data_file_group : nil
-      @metadata_file_group = @collection.medusa_metadata_file_group_id ?
-          @collection.medusa_metadata_file_group : nil
+      @file_group = @collection.medusa_file_group_id ?
+          @collection.medusa_file_group : nil
       @can_reindex = (@collection.published_in_dls and
-          @collection.medusa_data_file_group)
+          @collection.medusa_file_group)
     end
 
     def update
@@ -69,8 +67,7 @@ module Admin
     private
 
     def sanitized_params
-      params.require(:collection).permit(:id, :medusa_data_file_group_id,
-                                         :medusa_metadata_file_group_id,
+      params.require(:collection).permit(:id, :medusa_file_group_id,
                                          :metadata_profile_id, :theme_id)
     end
 

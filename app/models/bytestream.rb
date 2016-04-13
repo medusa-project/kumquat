@@ -19,7 +19,7 @@ class Bytestream < ActiveRecord::Base
   #                       would be more relevant).
   #
   def absolute_local_pathname
-    self.item.collection.medusa_data_file_group.cfs_directory.pathname +
+    self.item.collection.medusa_file_group.cfs_directory.pathname +
         self.file_group_relative_pathname
   end
 
@@ -103,7 +103,7 @@ class Bytestream < ActiveRecord::Base
   end
 
   def repository_relative_pathname
-    self.item.collection.medusa_data_file_group.cfs_directory.repository_relative_pathname +
+    self.item.collection.medusa_file_group.cfs_directory.repository_relative_pathname +
         self.file_group_relative_pathname
   end
 

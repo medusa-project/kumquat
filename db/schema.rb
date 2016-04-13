@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160412211215) do
+ActiveRecord::Schema.define(version: 20160413135206) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -40,10 +40,9 @@ ActiveRecord::Schema.define(version: 20160412211215) do
     t.string   "representative_item_id"
     t.integer  "theme_id"
     t.integer  "metadata_profile_id"
-    t.integer  "medusa_data_file_group_id"
-    t.integer  "medusa_metadata_file_group_id"
-    t.datetime "created_at",                    null: false
-    t.datetime "updated_at",                    null: false
+    t.integer  "medusa_file_group_id"
+    t.datetime "created_at",             null: false
+    t.datetime "updated_at",             null: false
     t.datetime "last_indexed"
   end
 

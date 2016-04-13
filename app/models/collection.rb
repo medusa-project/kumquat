@@ -71,26 +71,15 @@ class Collection < ActiveRecord::Base
     Solr.instance.add(self.to_solr)
   end
 
-  def medusa_data_file_group
-   unless @data_file_group
-     @data_file_group = nil
-     if self.medusa_data_file_group_id
-       @data_file_group = MedusaFileGroup.new
-       @data_file_group.id = self.medusa_data_file_group_id
+  def medusa_file_group
+   unless @file_group
+     @file_group = nil
+     if self.medusa_file_group_id
+       @file_group = MedusaFileGroup.new
+       @file_group.id = self.medusa_file_group_id
      end
    end
-   @data_file_group
-  end
-
-  def medusa_metadata_file_group
-   unless @metadata_file_group
-     @metadata_file_group = nil
-     if self.medusa_metadata_file_group_id
-       @metadata_file_group = MedusaFileGroup.new
-       @metadata_file_group.id = self.medusa_metadata_file_group_id
-     end
-   end
-   @metadata_file_group
+   @file_group
   end
 
   ##
