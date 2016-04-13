@@ -6,14 +6,7 @@ namespace :peartree do
     Solr.instance.commit
   end
 
-  desc 'Index all items in a collection'
-  task :index, [:collection_id] => :environment do |task, args|
-    col = Collection.find_by_repository_id(args[:collection_id])
-    FilesystemIndexer.new.index(col)
-    Solr.instance.commit
-  end
-
-  desc 'Index all items in a collection'
+  desc 'Index all items in a directory tree'
   task :index_path, [:pathname] => :environment do |task, args|
     FilesystemIndexer.new.index_pathname(args[:pathname])
     Solr.instance.commit

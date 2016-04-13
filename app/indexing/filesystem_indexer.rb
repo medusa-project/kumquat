@@ -12,23 +12,6 @@
 class FilesystemIndexer
 
   ##
-  # @param collection [Collection]
-  # @return [Integer] Number of items indexed
-  # @raises [RuntimeError]
-  #
-  def index(collection)
-    raise 'Collection has no data file group assigned' unless
-        collection.medusa_data_file_group
-    raise 'Collection has no content file group assigned' unless
-        collection.medusa_metadata_file_group
-
-    file_group = collection.medusa_metadata_file_group
-    cfs_dir = file_group.cfs_directory
-    pathname = cfs_dir.pathname
-    index_pathname(pathname)
-  end
-
-  ##
   # Indexes all metadata files (item_*.xml`) within the given pathname.
   #
   # @param pathname [String] Root pathname to index
