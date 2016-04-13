@@ -106,14 +106,11 @@ class Collection < ActiveRecord::Base
   end
 
   def representative_item
+    item = nil
     if self.representative_item_id.present?
-      begin
-        return Item.find(self.representative_item_id)
-      rescue ActiveRecord::RecordNotFound
-        # noop
-      end
+      item = Item.find_by_repository_id(self.representative_item_id)
     end
-    nil
+    item
   end
 
   def solr_id

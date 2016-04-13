@@ -67,7 +67,7 @@ Rails.application.routes.draw do
     resources :items, only: :index
   end
   resources :favorites, only: :index
-  resources :items, only: [:index, :show] do
+  resources :items, only: [:create, :index, :show] do
     match '/access-master', to: 'items#access_master_bytestream', via: 'get',
           as: :access_master_bytestream
     match '/preservation-master', to: 'items#preservation_master_bytestream',
@@ -83,9 +83,7 @@ Rails.application.routes.draw do
 
     match '/collections/refresh', to: 'collections#refresh', via: 'patch',
           as: 'collections_refresh'
-    resources :collections, except: [:new, :delete] do
-      match '/reindex', to: 'collections#reindex', via: 'patch', as: 'reindex'
-    end
+    resources :collections, except: [:new, :delete]
     resources :element_defs, only: [:create, :update, :destroy, :edit]
     match '/items/search', to: 'items#search', via: %w(get post),
           as: 'items_search'

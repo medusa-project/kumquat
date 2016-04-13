@@ -7,6 +7,8 @@ class ItemsController < WebsiteController
     FAVORITES = 3
   end
 
+  before_action :authorize_api_user, only: :create
+  skip_before_action :verify_authenticity_token, only: :create
   before_action :set_browse_context, only: :index
 
   ##
@@ -19,6 +21,27 @@ class ItemsController < WebsiteController
     send_bytestream(item, Bytestream::Type::ACCESS_MASTER)
   end
 
+  ##
+  # Responds to POST /items (protected by HTTP Basic auth)
+  #
+  def create
+    # curl -X POST -u api_user:secret -H "Content-Type: application/xml" -d 'some data' localhost:3000/items
+    begin
+      item = ItemIngester.new.ingest_xml(request.body.read)
+      #render text: 'OK', status: 201
+      render :text => proc { |response, output|
+        response.status = 201
+        response.location = url_for(item)
+        output.write('OK')
+      }
+    rescue => e
+      render text: "#{e}\n", status: 403
+    end
+  end
+
+  ##
+  # Responds to GET /items
+  #
   def index
     @start = params[:start] ? params[:start].to_i : 0
     @limit = Option::integer(Option::Key::RESULTS_PER_PAGE)
@@ -114,6 +137,9 @@ class ItemsController < WebsiteController
     redirect_to items_path(q: where_clauses.join(' AND '), fq: filter_clauses)
   end
 
+  ##
+  # Responds to GET /items/:id
+  #
   def show
     @item = Item.find_by_repository_id(params[:id])
     unless @item.published
@@ -142,6 +168,23 @@ class ItemsController < WebsiteController
   private
 
   ##
+  # Authenticates a user via HTTP Basic and authorizes by IP address.
+  #
+  def authorize_api_user
+    authenticate_or_request_with_http_basic do |username, secret|
+      config = PearTree::Application.peartree_config
+      if username == config[:api_user] and secret == config[:api_secret]
+        return config[:api_ips].
+            select{ |ip| request.remote_ip.start_with?(ip) }.any?
+      end
+    end
+    false
+  end
+
+  ##
+  # Streams one of an item's bytestreams, or redirects to a bytestream's URL,
+  # if it has one.
+  #
   # @param item [Item]
   # @param type [Integer] One of the `Bytestream::Type` constants
   #
@@ -166,10 +209,9 @@ class ItemsController < WebsiteController
   end
 
   ##
-  # The browse context is "what the user is doing" -- necessary information in
-  # item view in which we need to know the "mode of entry" in order to display
-  # appropriate navigational controls, either "back to results" or "back to
-  # collection" etc.
+  # The browse context is "what the user is doing" -- needed in item view in
+  # order to display appropriate navigational controls, either "back to
+  # results" or "back to collection" etc.
   #
   def set_browse_context
     session[:browse_context_url] = request.url

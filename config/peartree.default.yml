@@ -5,6 +5,10 @@ development: &development
   :medusa_user: machine_user
   :medusa_secret: FoifWowdeth3
   :medusa_cache_ttl: 2592000
+  :api_user: api_user
+  :api_secret: secret
+  :api_ips:
+    - 127.0.
   :solr_url: http://localhost:8983/solr/
   :solr_core: peartree
   :solr_default_facetable_fields:
@@ -21,6 +25,10 @@ test:
   :medusa_user: machine_user
   :medusa_secret: FoifWowdeth3
   :medusa_cache_ttl: 0
+  :api_user: api_user
+  :api_secret: secret
+  :api_ips:
+    - 127.0.
   :solr_url: http://localhost:8983/solr/
   :solr_core: peartree
   :solr_default_facetable_fields:
@@ -37,6 +45,17 @@ production: &production
   :medusa_user: machine_user
   :medusa_secret: FoifWowdeth3
   :medusa_cache_ttl: 2592000
+  :api_user: api_user
+  :api_secret: secret
+  :api_ips: # https://answers.uillinois.edu/illinois/page.php?id=47572
+    - 127.0.
+    - 128.174.
+    - 130.126.
+    - 192.17.
+    - 72.36.64.
+    - 2620:0:e00:
+    - 172.16.
+    - 10.192.
   :solr_url: http://localhost:8983/solr/
   :solr_core: peartree
   :solr_default_facetable_fields:

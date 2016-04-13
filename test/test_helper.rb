@@ -11,8 +11,7 @@ class ActiveSupport::TestCase
   #
   def seed_repository
     Solr.instance.purge
-    # TODO: fix this
-    #FilesystemIndexer.new.index(__dir__ + '/fixtures/repository')
+    ItemIngester.new.index_pathname(__dir__ + '/fixtures/repository')
     Solr.instance.commit
   end
 

@@ -29,17 +29,6 @@ module Admin
       redirect_to :back
     end
 
-    ##
-    # Responds to PATCH /admin/collections/:id/reindex
-    #
-    def reindex
-      ReindexCollectionItemsJob.perform_later(params[:collection_id])
-
-      flash['success'] = 'Indexing collection in the background.
-        (This will take a while.)'
-      redirect_to :back
-    end
-
     def show
       @collection = Collection.find_by_repository_id(params[:id])
       raise ActiveRecord::RecordNotFound unless @collection
