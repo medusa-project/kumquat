@@ -44,9 +44,10 @@ class Item < ActiveRecord::Base
   end
 
   has_many :bytestreams, inverse_of: :item, dependent: :destroy
-  has_many :elements, dependent: :destroy
+  has_many :elements, inverse_of: :item, dependent: :destroy
 
   validates :collection_repository_id, presence: true
+  validates_uniqueness_of :repository_id
 
   before_destroy :delete_from_solr
   before_save :index_in_solr

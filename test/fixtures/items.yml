@@ -1,25 +1,33 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-one:
+item1:
   bib_id: MyString
-  collection_id: 
-  subpage_number: 1
-  subclass: MyString
-  representative_item_id: 1
-  published: false
-  parent_item_id: 1
-  latitude: 9.99
-  longitude: 9.99
+  collection_repository_id: collection1
+  date: <%= Time.parse('2015-05-15') %>
   full_text: MyText
+  last_indexed: <%= Time.now %>
+  latitude: 39.25243
+  longitude: -152.23423
+  page_number:
+  parent_repository_id: 1
+  published: true
+  repository_id: item1
+  representative_item_repository_id: 1
+  subclass:
+  subpage_number:
 
-two:
+item2:
   bib_id: MyString
-  collection_id: 
-  subpage_number: 1
-  subclass: MyString
-  representative_item_id: 1
-  published: false
-  parent_item_id: 1
-  latitude: 9.99
-  longitude: 9.99
+  collection_repository_id: collection2
+  date: <%= Time.parse('2015-08-10') %>
   full_text: MyText
+  last_indexed: <%= Time.now %>
+  page_number: 1
+  parent_repository_id: 1
+  published: false
+  latitude: 45.105254
+  longitude: -10.2234234
+  repository_id: item2
+  representative_item_repository_id: 1
+  subclass: Page
+  subpage_number:

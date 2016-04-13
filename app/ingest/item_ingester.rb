@@ -20,6 +20,9 @@ class ItemIngester
   end
 
   ##
+  # Creates a new item from the given XML document, or updates the item
+  # corresponding to the item ID in the document if it already exists.
+  #
   # @param xml [String] XML document string
   # @return [Item]
   #
@@ -28,7 +31,10 @@ class ItemIngester
     doc.encoding = 'utf-8'
     validate_document(doc, 'object.xsd')
     node = doc.xpath('//lrp:Object', XML_NAMESPACES).first
-    item = Item.from_lrp_xml(node).save!
+    item = Item.from_lrp_xml(node)
+    existing_item = Item.find_by_repository_id(item.repository_id)
+    item = existing_item if existing_item
+    item.save!
     item
   end
 

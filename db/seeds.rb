@@ -65,7 +65,6 @@ profiles[:default] = MetadataProfile.create!(name: 'Default Profile',
 # Admin user
 users = {}
 users[:admin] = User.create!(
-    email: 'admin@example.org',
     username: 'admin',
     roles: [roles[:admin]],
     enabled: true)
@@ -73,12 +72,10 @@ users[:admin] = User.create!(
 if Rails.env.development?
   # Non-admin users
   users[:cataloger] = User.create!(
-      email: 'cataloger@example.org',
       username: 'cataloger',
       roles: [roles[:cataloger]],
       enabled: true)
   users[:disabled] = User.create!(
-      email: 'disabled@example.org',
       username: 'disabled',
       roles: [roles[:cataloger]],
       enabled: false)

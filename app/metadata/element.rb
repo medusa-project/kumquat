@@ -5,6 +5,8 @@ class Element < ActiveRecord::Base
     TECHNICAL = 1
   end
 
+  belongs_to :item, inverse_of: :elements
+
   attr_accessor :type
 
   @@element_defs = YAML::load_file(File.join(__dir__, 'metadata.yml'))

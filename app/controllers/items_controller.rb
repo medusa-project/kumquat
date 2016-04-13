@@ -7,8 +7,11 @@ class ItemsController < WebsiteController
     FAVORITES = 3
   end
 
+  # API actions
   before_action :authorize_api_user, only: :create
+  before_action :check_api_content_type, only: :create
   skip_before_action :verify_authenticity_token, only: :create
+
   before_action :set_browse_context, only: :index
 
   ##
@@ -22,20 +25,16 @@ class ItemsController < WebsiteController
   end
 
   ##
-  # Responds to POST /items (protected by HTTP Basic auth)
+  # Responds to POST /items (protected by Basic auth)
   #
   def create
-    # curl -X POST -u api_user:secret -H "Content-Type: application/xml" -d 'some data' localhost:3000/items
+    # curl -X POST -u api_user:secret --silent -H "Content-Type: application/xml" -d "/path/to/file.xml" localhost:3000/items
     begin
       item = ItemIngester.new.ingest_xml(request.body.read)
-      #render text: 'OK', status: 201
-      render :text => proc { |response, output|
-        response.status = 201
-        response.location = url_for(item)
-        output.write('OK')
-      }
+      url = item_url(item)
+      render text: "OK: #{url}\n", status: :created, location: url
     rescue => e
-      render text: "#{e}\n", status: 403
+      render text: "#{e}\n\n#{e.backtrace.join("\n")}\n", status: :bad_request
     end
   end
 
@@ -179,6 +178,14 @@ class ItemsController < WebsiteController
       end
     end
     false
+  end
+
+  def check_api_content_type
+    if request.content_type != 'application/xml'
+      render text: 'Invalid content type.', status: :unsupported_media_type
+      return false
+    end
+    true
   end
 
   ##

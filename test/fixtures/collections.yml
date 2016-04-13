@@ -1,21 +1,27 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-one:
-  title: MyString
+collection1:
+  access_url: MyString
   description: MyString
   description_html: MyString
-  access_url: MyString
+  last_indexed: <%= Time.now %>
+  medusa_file_group_id: 162
   published: false
   published_in_dls: false
+  repository_id: collection1
   representative_image: MyString
   representative_item_id: MyString
+  title: MyString
 
-two:
-  title: MyString
+collection2:
+  access_url: MyString
   description: MyString
   description_html: MyString
-  access_url: MyString
+  last_indexed: <%= Time.now %>
+  medusa_file_group_id: 162
   published: false
   published_in_dls: false
+  repository_id: collection2
   representative_image: MyString
   representative_item_id: MyString
+  title: MyString

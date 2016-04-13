@@ -1,15 +1,19 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  type: 1
+  bytestream_type: 1
   file_group_relative_pathname: MyString
+  item: item1
+  media_type: text/plain
   url: MyString
-  width: 1
-  height: 1
+  width:
+  height:
 
 two:
-  type: 1
+  bytestream_type: 1
   file_group_relative_pathname: MyString
+  item: item2
+  media_type: image/jpeg
   url: MyString
-  width: 1
-  height: 1
+  width: 150
+  height: 100

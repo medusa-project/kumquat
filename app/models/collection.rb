@@ -20,7 +20,7 @@ class Collection < ActiveRecord::Base
     TITLE = 'title_sort_en_i'
   end
 
-  belongs_to :metadata_profile
+  belongs_to :metadata_profile, inverse_of: :collections
   belongs_to :theme, inverse_of: :collections
   has_many :element_defs, inverse_of: :collection
 

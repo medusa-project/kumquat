@@ -2,14 +2,20 @@
 
 one:
   collection_id: 1
-  name: MyString
-  label: MyString
-  searchable: false
   facetable: false
+  index: 0
+  label: Title
+  name: title
+  searchable: true
+  sortable: true
+  visible: true
 
 two:
   collection_id: 1
-  name: MyString
-  label: MyString
-  searchable: false
   facetable: false
+  index: 1
+  label: Description
+  name: description
+  searchable: false
+  sortable: true
+  visible: true
