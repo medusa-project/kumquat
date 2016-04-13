@@ -65,6 +65,11 @@ class Element < ActiveRecord::Base
     val
   end
 
+  def serializable_hash(opts)
+    opts ||= {}
+    super(opts.merge(only: [ :name, :value ]))
+  end
+
   ##
   # @return [String] Name of the Solr facet field.
   #

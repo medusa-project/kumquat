@@ -2,13 +2,12 @@ source 'https://rubygems.org'
 
 gem 'rails', '4.2.5'
 
-gem 'active_model_serializers'
 gem 'bootstrap-sass', '~> 3.3.6'
 gem 'barby' # provides QR codes in print representations
 gem 'rqrcode'
-#gem 'coffee-rails', '~> 4.1.0'
 gem 'daemons' # enables bin/delayed_job start/stop
 gem 'delayed_job_active_record'
+gem 'draper'
 gem 'exifr'
 gem 'font-awesome-sass', '~> 4.5.0'
 gem 'httpclient', git: 'git://github.com/medusa-project/httpclient.git'
@@ -23,7 +22,6 @@ gem 'pg'
 gem 'rails_autolink'
 gem 'rsolr'
 gem 'sass-rails', '~> 5.0'
-#gem 'sdoc', '~> 0.4.0', group: :doc # bundle exec rake doc:rails generates the API under doc/api.
 #gem 'therubyracer', platforms: :ruby # See https://github.com/rails/execjs#readme for more supported runtimes
 gem 'uglifier', '>= 1.3.0' # JavaScript asset compressor
 gem 'yomu' # text extraction from PDF, .docx, etc.

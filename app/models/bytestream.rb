@@ -107,4 +107,13 @@ class Bytestream < ActiveRecord::Base
         self.file_group_relative_pathname
   end
 
+  def serializable_hash(opts)
+    {
+        type: self.bytestream_type == Type::ACCESS_MASTER ? 'access' : 'presentation',
+        media_type: self.media_type,
+        width: self.width,
+        height: self.height
+    }
+  end
+
 end

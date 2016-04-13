@@ -160,7 +160,7 @@ class ItemsController < WebsiteController
         @previous_item = @relative_child ? @relative_child.previous : nil
         @next_item = @relative_child ? @relative_child.next : nil
       }
-      format.json { render json: @item }
+      format.json { render json: @item.decorate }
     end
   end
 

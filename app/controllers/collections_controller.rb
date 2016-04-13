@@ -32,7 +32,7 @@ class CollectionsController < WebsiteController
       format.html do
         @representative_item = @collection.representative_item
       end
-      format.json { render json: @collection }
+      format.json { render json: @collection.decorate }
     end
   end
 
