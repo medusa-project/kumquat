@@ -423,6 +423,13 @@ license:
     dc: rights
     dcterms: license
     geo:
+localId:
+  type: descriptive
+  mappings:
+    bibFrame:
+    dc: identifier
+    dcterms: identifier
+    geo:
 longitude:
   type: descriptive
   mappings:
