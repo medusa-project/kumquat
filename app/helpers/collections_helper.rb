@@ -9,8 +9,10 @@ module CollectionsHelper
     html = ''
     collections.each do |col|
       next unless effective_collection_access_url(col)
-      if col.representative_item
-        img_url = item_image_url(col.representative_item, thumb_size)
+
+      bs = col.representative_image_bytestream
+      if bs
+        img_url = bytestream_image_url(bs, thumb_size)
       else
         img_url = image_url('folder-open-o-600.png')
       end

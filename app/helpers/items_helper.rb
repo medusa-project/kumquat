@@ -265,18 +265,12 @@ module ItemsHelper
   end
 
   ##
-  # @param item [Item]
-  # @return [String, nil] Base IIIF URL or nil if the item is not an image
+  # @param bs [Bytestream]
+  # @return [String, nil] Base IIIF URL or nil if the bytestream is not an
+  #                       image
   #
-  def iiif_url(item)
-    bs = item.access_master_bytestream
-    if !bs or (!bs.is_image? and !bs.is_pdf?)
-      bs = item.preservation_master_bytestream
-      if !bs or (!bs.is_image? and bs.is_pdf?)
-        bs = nil
-      end
-    end
-    if bs
+  def iiif_bytestream_url(bs)
+    if bs and (bs.is_image? or bs.is_pdf?)
       id = bs.repository_relative_pathname.reverse.chomp('/').reverse
       return PearTree::Application.peartree_config[:iiif_url] + '/' +
           CGI.escape(id)
@@ -288,9 +282,28 @@ module ItemsHelper
   # @param item [Item]
   # @return [String, nil] IIIF info.json URL or nil if the item is not an image
   #
-  def iiif_info_url(item)
-    url = iiif_url(item)
+  def iiif_item_info_url(item)
+    url = iiif_item_url(item)
     url ? "#{url}/info.json" : nil
+  end
+
+  ##
+  # @param item [Item]
+  # @return [String, nil] Base IIIF URL or nil if the item is not an image
+  #
+  def iiif_item_url(item)
+    url = nil
+    bs = item.access_master_bytestream
+    if !bs or (!bs.is_image? and !bs.is_pdf?)
+      bs = item.preservation_master_bytestream
+      if !bs or (!bs.is_image? and bs.is_pdf?)
+        bs = nil
+      end
+    end
+    if bs
+      url = iiif_bytestream_url(bs)
+    end
+    url
   end
 
   ##
@@ -938,6 +951,20 @@ module ItemsHelper
   end
 
   ##
+  # @param bs [Bytestream]
+  # @param size [Integer]
+  # @return [String, nil] Image URL or nil if the item is not an image
+  #
+  def bytestream_image_url(bs, size)
+    url = nil
+    if (bs.is_image? or bs.is_pdf?) and bs.file_group_relative_pathname
+      url = sprintf('%s/full/!%d,%d/0/default.jpg',
+                     iiif_bytestream_url(bs), size, size)
+    end
+    url
+  end
+
+  ##
   # @return [Hash] Hash with `:file`, `:exif`, `:iptc`, and `:xmp` keys
   #
   def bytestream_metadata_for(bytestream)
@@ -1001,7 +1028,7 @@ module ItemsHelper
         navigatorWidth: \"145px\",
         preserveViewport: true,
         prefixUrl: \"/openseadragon/images/\",
-        tileSources: \"#{j(iiif_url(item))}\"
+        tileSources: \"#{j(iiif_item_url(item))}\"
     });
     </script>"
     raw(html)
@@ -1016,7 +1043,8 @@ module ItemsHelper
     if item.is_image? or item.is_pdf?
       bs = item.access_master_bytestream || item.preservation_master_bytestream
       if bs.file_group_relative_pathname
-        return sprintf('%s/full/!%d,%d/0/default.jpg', iiif_url(item), size, size)
+        return sprintf('%s/full/!%d,%d/0/default.jpg',
+                       iiif_item_url(item), size, size)
       end
     end
     nil
@@ -1062,7 +1090,7 @@ module ItemsHelper
     data['Last Modified'] = local_time_ago(item.updated_at)
     data['Last Indexed'] = local_time_ago(item.last_indexed)
     data['Bib ID'] = item.bib_id if item.bib_id
-    url = iiif_url(item)
+    url = iiif_item_url(item)
     data[link_to('IIIF Image URL', 'http://iiif.io/')] = link_to(url, url) if url
     data
   end

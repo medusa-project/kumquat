@@ -8,12 +8,18 @@ class Bytestream < ActiveRecord::Base
   belongs_to :item, inverse_of: :bytestreams
 
   ##
-  # @return [String, nil] Absolute local pathname, or nil if the instance is a
-  #                       "URL" bytestream (in which case the `url` getter
-  #                       would be more relevant).
+  # If the instance is associated with an Item, appends its file
+  # group-relative pathname to the item's collection's file group pathname.
+  # Otherwise, uses the repository root pathname as a base.
+
+  # @return [String, nil]
   #
   def absolute_local_pathname
-    self.item.collection.medusa_file_group.cfs_directory.pathname +
+    if self.item
+      return self.item.collection.medusa_file_group.cfs_directory.pathname +
+          self.file_group_relative_pathname
+    end
+    PearTree::Application.peartree_config[:repository_pathname] +
         self.file_group_relative_pathname
   end
 
@@ -50,6 +56,10 @@ class Bytestream < ActiveRecord::Base
     formats.any? ? formats.first['label'] : self.media_type
   end
 
+  def infer_media_type
+    self.media_type = MIME::Types.of(self.absolute_local_pathname).first.to_s
+  end
+
   ##
   # @return [String]
   #
@@ -79,8 +89,11 @@ class Bytestream < ActiveRecord::Base
   end
 
   def repository_relative_pathname
-    self.item.collection.medusa_file_group.cfs_directory.repository_relative_pathname +
-        self.file_group_relative_pathname
+    if self.item
+      return self.item.collection.medusa_file_group.cfs_directory.repository_relative_pathname +
+          self.file_group_relative_pathname
+    end
+    self.file_group_relative_pathname
   end
 
   def serializable_hash(opts)

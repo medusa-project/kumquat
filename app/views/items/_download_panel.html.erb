@@ -41,9 +41,9 @@
           <div class="col-sm-6">
             <% if item.is_image? %>
               <input type="hidden" name="iiif-download-url"
-                     value="<%= iiif_url(item) %>">
+                     value="<%= iiif_item_url(item) %>">
               <input type="hidden" name="iiif-download-info-json-url"
-                     value="<%= iiif_info_url(item) %>">
+                     value="<%= iiif_item_info_url(item) %>">
               <div id="iiif-download"></div>
             <% end %>
           </div>

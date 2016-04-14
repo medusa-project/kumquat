@@ -103,6 +103,36 @@ class Collection < ActiveRecord::Base
     @num_items
   end
 
+  ##
+  # @return [Bytestream,nil] Best representative image bytestream based on the
+  #                          representative image set in Medusa, if available,
+  #                          or the representative item set in Medusa, if not.
+  #
+  def representative_image_bytestream
+    bs = nil
+    if self.representative_image
+=begin
+      # TODO: fix
+      cfs_file = MedusaCfsFile.new
+      cfs_file.id = self.representative_image
+      cfs_file.pathname
+      bs = Bytestream.new
+      bs.file_group_relative_pathname = cfs_file.pathname
+=end
+      bs = Bytestream.new
+      if self.repository_id.to_s == '970'
+        bs.file_group_relative_pathname = '/970/2169/regular/ADV_19180302-19190906/sn91054139/00000182568/1918032301/0050.jp2'
+      else
+        bs.file_group_relative_pathname = '/162/2204/1601831/access/1601831_001.jp2'
+      end
+      bs.infer_media_type
+    elsif self.representative_item_id
+      item = self.representative_item
+      bs = item.access_master_bytestream || item.preservation_master_bytestream
+    end
+    bs
+  end
+
   def representative_item
     item = nil
     if self.representative_item_id.present?
