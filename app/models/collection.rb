@@ -26,8 +26,6 @@ class Collection < ActiveRecord::Base
 
   validates :repository_id, presence: true
 
-  validates_uniqueness_of :repository_id
-
   before_destroy :delete_from_solr
   before_save :index_in_solr
 
