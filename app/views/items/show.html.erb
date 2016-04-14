@@ -127,8 +127,12 @@
         <h2 class="panel-title">Technical Info</h2>
       </div>
       <div class="panel-body">
-        <%= tech_metadata_as_list(@item) %>
-        <%= tech_metadata_as_table(@item) %>
+        <div class="visible-xs">
+          <%= tech_metadata_as_list(@item) %>
+        </div>
+        <div class="hidden-xs">
+          <%= tech_metadata_as_table(@item) %>
+        </div>
         <% if @item.bib_id %>
           <%= link_to 'Show in Library Catalog',
                       "http://vufind.carli.illinois.edu/vf-uiu/Record/uiu_#{@item.bib_id}" %>
