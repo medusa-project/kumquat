@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160413171025) do
+ActiveRecord::Schema.define(version: 20160414144340) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -27,6 +27,8 @@ ActiveRecord::Schema.define(version: 20160413171025) do
     t.datetime "updated_at",                   null: false
     t.integer  "item_id"
   end
+
+  add_index "bytestreams", ["item_id"], name: "index_bytestreams_on_item_id", using: :btree
 
   create_table "collections", force: :cascade do |t|
     t.string   "repository_id"
@@ -45,6 +47,13 @@ ActiveRecord::Schema.define(version: 20160413171025) do
     t.datetime "updated_at",             null: false
     t.datetime "last_indexed"
   end
+
+  add_index "collections", ["metadata_profile_id"], name: "index_collections_on_metadata_profile_id", using: :btree
+  add_index "collections", ["published"], name: "index_collections_on_published", using: :btree
+  add_index "collections", ["published_in_dls"], name: "index_collections_on_published_in_dls", using: :btree
+  add_index "collections", ["repository_id"], name: "index_collections_on_repository_id", unique: true, using: :btree
+  add_index "collections", ["representative_item_id"], name: "index_collections_on_representative_item_id", using: :btree
+  add_index "collections", ["theme_id"], name: "index_collections_on_theme_id", using: :btree
 
   create_table "delayed_jobs", force: :cascade do |t|
     t.integer  "priority",   default: 0, null: false
@@ -76,6 +85,9 @@ ActiveRecord::Schema.define(version: 20160413171025) do
     t.boolean  "sortable",            default: false
   end
 
+  add_index "element_defs", ["collection_id"], name: "index_element_defs_on_collection_id", using: :btree
+  add_index "element_defs", ["metadata_profile_id"], name: "index_element_defs_on_metadata_profile_id", using: :btree
+
   create_table "elements", force: :cascade do |t|
     t.string   "name"
     t.string   "value"
@@ -83,6 +95,8 @@ ActiveRecord::Schema.define(version: 20160413171025) do
     t.datetime "updated_at", null: false
     t.integer  "item_id"
   end
+
+  add_index "elements", ["item_id"], name: "index_elements_on_item_id", using: :btree
 
   create_table "items", force: :cascade do |t|
     t.string   "repository_id"
@@ -103,6 +117,11 @@ ActiveRecord::Schema.define(version: 20160413171025) do
     t.datetime "updated_at",                                                 null: false
   end
 
+  add_index "items", ["collection_repository_id"], name: "index_items_on_collection_repository_id", using: :btree
+  add_index "items", ["parent_repository_id"], name: "index_items_on_parent_repository_id", using: :btree
+  add_index "items", ["repository_id"], name: "index_items_on_repository_id", unique: true, using: :btree
+  add_index "items", ["representative_item_repository_id"], name: "index_items_on_representative_item_repository_id", using: :btree
+
   create_table "metadata_profiles", force: :cascade do |t|
     t.string   "name"
     t.boolean  "default"
@@ -111,12 +130,16 @@ ActiveRecord::Schema.define(version: 20160413171025) do
     t.integer  "default_sortable_element_def_id"
   end
 
+  add_index "metadata_profiles", ["default_sortable_element_def_id"], name: "index_metadata_profiles_on_default_sortable_element_def_id", using: :btree
+
   create_table "options", force: :cascade do |t|
     t.string   "key"
     t.string   "value"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
+
+  add_index "options", ["key"], name: "index_options_on_key", unique: true, using: :btree
 
   create_table "permissions", force: :cascade do |t|
     t.string   "key"
@@ -129,6 +152,9 @@ ActiveRecord::Schema.define(version: 20160413171025) do
     t.integer "role_id"
   end
 
+  add_index "permissions_roles", ["permission_id"], name: "index_permissions_roles_on_permission_id", using: :btree
+  add_index "permissions_roles", ["role_id"], name: "index_permissions_roles_on_role_id", using: :btree
+
   create_table "roles", force: :cascade do |t|
     t.string   "key"
     t.string   "name"
@@ -137,10 +163,15 @@ ActiveRecord::Schema.define(version: 20160413171025) do
     t.datetime "updated_at", null: false
   end
 
+  add_index "roles", ["key"], name: "index_roles_on_key", using: :btree
+
   create_table "roles_users", force: :cascade do |t|
     t.integer "user_id"
     t.integer "role_id"
   end
+
+  add_index "roles_users", ["role_id"], name: "index_roles_users_on_role_id", using: :btree
+  add_index "roles_users", ["user_id"], name: "index_roles_users_on_user_id", using: :btree
 
   create_table "tasks", force: :cascade do |t|
     t.string   "name"
