@@ -879,13 +879,21 @@ module ItemsHelper
   def bytestream_metadata_for(bytestream)
     data = {}
     if bytestream
+      # development-only info
       if Rails.env.development?
         data['Location (DEVELOPMENT)'] = bytestream.absolute_local_pathname || bytestream.url
         data['Exists (DEVELOPMENT)'] = bytestream.exists? ?
             '<span class="label label-success">OK</span>' :
             '<span class="label label-danger">MISSING</span>'
       end
+      # media type
       data['Media Type'] = bytestream.media_type
+      # size
+      size = bytestream.byte_size
+      if size
+        data['Size'] = number_to_human_size(size)
+      end
+      # EXIF
       if bytestream.is_image?
         bytestream.exif.each do |k, v|
           if k.to_s == 'orientation'
