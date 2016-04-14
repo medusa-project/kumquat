@@ -139,146 +139,84 @@
 </div>
 
 <div class="row">
-  <div class="col-sm-6">
-    <% if @item.preservation_master_bytestream %>
+  <% @item.bytestreams.where(bytestream_type: [Bytestream::Type::ACCESS_MASTER,
+                                               Bytestream::Type::PRESERVATION_MASTER]).limit(2).each do |bs| %>
+    <div class="col-sm-6">
       <div class="panel panel-default">
         <div class="panel-heading">
-          <h2 class="panel-title">Preservation Master</h2>
+          <h2 class="panel-title">
+            <%= bs.bytestream_type == Bytestream::Type::ACCESS_MASTER ?
+                    'Access Master' : 'Preservation Master' %>
+          </h2>
         </div>
         <div class="panel-body">
           <ul class="nav nav-pills" role="tablist">
             <li role="presentation" class="active">
-              <a href="#pt-preservation-master-file"
-                 aria-controls="pt-preservation-master-file" role="tab" data-toggle="tab">File</a>
+              <a href="#pt-bytestream-<%= bs.bytestream_type %>-file"
+                 aria-controls="pt-bytestream-<%= bs.bytestream_type %>-file"
+                 role="tab" data-toggle="tab">File</a>
             </li>
-            <% if @item.preservation_master_bytestream.exif.any? %>
+            <% if bs.exif.any? %>
               <li role="presentation">
-                <a href="#pt-preservation-master-exif"
-                   aria-controls="pt-preservation-master-exif" role="tab" data-toggle="tab">EXIF</a>
+                <a href="#pt-bytestream-<%= bs.bytestream_type %>-exif"
+                   aria-controls="pt-bytestream-<%= bs.bytestream_type %>-exif"
+                   role="tab" data-toggle="tab">EXIF</a>
               </li>
             <% end %>
-            <% if @item.preservation_master_bytestream.iptc %>
+            <% if bs.iptc %>
               <li role="presentation">
-                <a href="#pt-preservation-master-iptc"
-                   aria-controls="pt-preservation-master-iptc" role="tab" data-toggle="tab">IPTC</a>
+                <a href="#pt-bytestream-<%= bs.bytestream_type %>-iptc"
+                   aria-controls="pt-bytestream-<%= bs.bytestream_type %>-iptc"
+                   role="tab" data-toggle="tab">IPTC</a>
               </li>
             <% end %>
-            <% if @item.preservation_master_bytestream.xmp %>
+            <% if bs.xmp %>
               <li role="presentation">
-                <a href="#pt-preservation-master-xmp"
-                   aria-controls="pt-preservation-master-xmp" role="tab" data-toggle="tab">XMP</a>
+                <a href="#pt-bytestream-<%= bs.bytestream_type %>-xmp"
+                   aria-controls="pt-bytestream-<%= bs.bytestream_type %>-xmp"
+                   role="tab" data-toggle="tab">XMP</a>
               </li>
             <% end %>
           </ul>
 
           <div class="tab-content">
-            <div role="tabpanel" class="tab-pane active" id="pt-preservation-master-file">
+            <div role="tabpanel" class="tab-pane active" id="pt-bytestream-<%= bs.bytestream_type %>-file">
               <div class="visible-xs">
-                <%= bytestream_file_metadata_as_list(@item.preservation_master_bytestream) %>
+                <%= bytestream_file_metadata_as_list(bs) %>
               </div>
               <div class="hidden-xs">
-                <%= bytestream_file_metadata_as_table(@item.preservation_master_bytestream) %>
+                <%= bytestream_file_metadata_as_table(bs) %>
               </div>
             </div>
-            <div role="tabpanel" class="tab-pane" id="pt-preservation-master-exif">
+            <div role="tabpanel" class="tab-pane" id="pt-bytestream-<%= bs.bytestream_type %>-exif">
               <div class="visible-xs">
-                <%= bytestream_exif_metadata_as_list(@item.preservation_master_bytestream) %>
+                <%= bytestream_exif_metadata_as_list(bs) %>
               </div>
               <div class="hidden-xs">
-                <%= bytestream_exif_metadata_as_table(@item.preservation_master_bytestream) %>
+                <%= bytestream_exif_metadata_as_table(bs) %>
               </div>
             </div>
-            <div role="tabpanel" class="tab-pane" id="pt-preservation-master-iptc">
+            <div role="tabpanel" class="tab-pane" id="pt-bytestream-<%= bs.bytestream_type %>-iptc">
               <div class="visible-xs">
-                <%= bytestream_iptc_metadata_as_list(@item.preservation_master_bytestream) %>
+                <%= bytestream_iptc_metadata_as_list(bs) %>
               </div>
               <div class="hidden-xs">
-                <%= bytestream_iptc_metadata_as_table(@item.preservation_master_bytestream) %>
+                <%= bytestream_iptc_metadata_as_table(bs) %>
               </div>
             </div>
-            <div role="tabpanel" class="tab-pane" id="pt-preservation-master-xmp">
+            <div role="tabpanel" class="tab-pane" id="pt-bytestream-<%= bs.bytestream_type %>-xmp">
               <div class="visible-xs">
-                <%= bytestream_xmp_metadata_as_list(@item.preservation_master_bytestream) %>
+                <%= bytestream_xmp_metadata_as_list(bs) %>
               </div>
               <div class="hidden-xs">
-                <%= bytestream_xmp_metadata_as_table(@item.preservation_master_bytestream) %>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    <% end %>
-  </div>
-  <div class="col-sm-6">
-    <% if @item.access_master_bytestream %>
-      <div class="panel panel-default">
-        <div class="panel-heading">
-          <h2 class="panel-title">Access Master</h2>
-        </div>
-        <div class="panel-body">
-          <ul class="nav nav-pills" role="tablist">
-            <li role="presentation" class="active">
-              <a href="#pt-access-master-file"
-                 aria-controls="pt-access-master-file" role="tab" data-toggle="tab">File</a>
-            </li>
-            <% if @item.access_master_bytestream.exif.any? %>
-              <li role="presentation">
-                <a href="#pt-access-master-exif"
-                   aria-controls="pt-access-master-exif" role="tab" data-toggle="tab">EXIF</a>
-              </li>
-            <% end %>
-            <% if @item.access_master_bytestream.iptc %>
-              <li role="presentation">
-                <a href="#pt-access-master-iptc"
-                   aria-controls="pt-access-master-iptc" role="tab" data-toggle="tab">IPTC</a>
-              </li>
-            <% end %>
-            <% if @item.access_master_bytestream.xmp %>
-              <li role="presentation">
-                <a href="#pt-access-master-xmp"
-                   aria-controls="pt-access-master-xmp" role="tab" data-toggle="tab">XMP</a>
-              </li>
-            <% end %>
-          </ul>
-
-          <div class="tab-content">
-            <div role="tabpanel" class="tab-pane active" id="pt-access-master-file">
-              <div class="visible-xs">
-                <%= bytestream_file_metadata_as_list(@item.access_master_bytestream) %>
-              </div>
-              <div class="hidden-xs">
-                <%= bytestream_file_metadata_as_table(@item.access_master_bytestream) %>
-              </div>
-            </div>
-            <div role="tabpanel" class="tab-pane" id="pt-access-master-exif">
-              <div class="visible-xs">
-                <%= bytestream_exif_metadata_as_list(@item.access_master_bytestream) %>
-              </div>
-              <div class="hidden-xs">
-                <%= bytestream_exif_metadata_as_table(@item.access_master_bytestream) %>
-              </div>
-            </div>
-            <div role="tabpanel" class="tab-pane" id="pt-access-master-iptc">
-              <div class="visible-xs">
-                <%= bytestream_iptc_metadata_as_list(@item.access_master_bytestream) %>
-              </div>
-              <div class="hidden-xs">
-                <%= bytestream_iptc_metadata_as_table(@item.access_master_bytestream) %>
-              </div>
-            </div>
-            <div role="tabpanel" class="tab-pane" id="pt-access-master-xmp">
-              <div class="visible-xs">
-                <%= bytestream_xmp_metadata_as_list(@item.access_master_bytestream) %>
-              </div>
-              <div class="hidden-xs">
-                <%= bytestream_xmp_metadata_as_table(@item.access_master_bytestream) %>
+                <%= bytestream_xmp_metadata_as_table(bs) %>
               </div>
             </div>
           </div>
         </div>
       </div>
-    <% end %>
-  </div>
+    </div>
+  <% end %>
 </div>
 
 <%= render partial: 'download_panel', locals: { item: @item } %>
