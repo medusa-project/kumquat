@@ -34,23 +34,6 @@ class Bytestream < ActiveRecord::Base
   end
 
   ##
-  # Attempts to detect the media type and assigns it to the instance.
-  #
-  # @raise [RuntimeError] if neither pathname nor url are set
-  # @return [void]
-  #
-  def detect_media_type
-    p = absolute_local_pathname
-    if p and File.exist?(p)
-      self.media_type = MIME::Types.of(p).first.to_s
-    elsif self.url
-      self.media_type = MIME::Types.of(p).first.to_s
-    else
-      raise 'Pathname not set'
-    end
-  end
-
-  ##
   # @return [Hash]
   #
   def exif
