@@ -7,12 +7,6 @@ class Bytestream < ActiveRecord::Base
 
   belongs_to :item, inverse_of: :bytestreams
 
-  after_initialize :do_after_initialize
-
-  def do_after_initialize
-    self.media_type = 'unknown/unknown'
-  end
-
   ##
   # @return [String, nil] Absolute local pathname, or nil if the instance is a
   #                       "URL" bytestream (in which case the `url` getter
