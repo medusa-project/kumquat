@@ -7,42 +7,16 @@ module ItemsHelper
   # @param bs [Bytestream]
   # @return [String]
   #
-  def bytestream_metadata_as_lists(bs)
+  def bytestream_exif_metadata_as_list(bs)
     data = bytestream_metadata_for(bs)
     html = ''
-
-    # File
-    if data[:file].any?
-      html += '<h4>File</h4>'
-      html += '<dl class="pt-metadata">'
-      data[:file].each do |key, value|
-        html += "<dt>#{raw(key)}</dt><dd>#{raw(value)}</dd>"
-      end
-      html += '</dl>'
-    end
-
-    # EXIF
     if data[:exif].any?
-      html += '<h4>EXIF</h4>'
       html += '<dl class="pt-metadata">'
       data[:exif].each do |key, value|
         html += "<dt>#{raw(key)}</dt><dd>#{raw(value)}</dd>"
       end
       html += '</dl>'
     end
-
-    # IPTC
-    if data[:iptc]
-      html += '<h4>IPTC</h4>'
-      html += "#{data[:iptc]}"
-    end
-
-    # XMP
-    if data[:xmp]
-      html += '<h4>XMP</h4>'
-      html += "<pre>#{h(data[:xmp])}</pre>"
-    end
-
     raw(html)
   end
 
@@ -50,42 +24,103 @@ module ItemsHelper
   # @param bs [Bytestream]
   # @return [String]
   #
-  def bytestream_metadata_as_tables(bs)
+  def bytestream_file_metadata_as_list(bs)
     data = bytestream_metadata_for(bs)
     html = ''
-
-    # File
     if data[:file].any?
-      html += '<h4>File</h4>'
-      html += '<table class="table table-condensed pt-metadata">'
+      html += '<dl class="pt-metadata">'
       data[:file].each do |key, value|
-        html += "<tr><td>#{raw(key)}</td><td>#{raw(value)}</td></tr>"
+        html += "<dt>#{raw(key)}</dt><dd>#{raw(value)}</dd>"
       end
-      html += '</table>'
+      html += '</dl>'
     end
+    raw(html)
+  end
 
-    # EXIF
+  ##
+  # @param bs [Bytestream]
+  # @return [String]
+  #
+  def bytestream_iptc_metadata_as_list(bs)
+    data = bytestream_metadata_for(bs)
+    html = ''
+    if data[:iptc]
+      html += "#{data[:iptc]}"
+    end
+    raw(html)
+  end
+
+  ##
+  # @param bs [Bytestream]
+  # @return [String]
+  #
+  def bytestream_xmp_metadata_as_list(bs)
+    data = bytestream_metadata_for(bs)
+    html = ''
+    if data[:xmp]
+      html += "<pre>#{h(data[:xmp])}</pre>"
+    end
+    raw(html)
+  end
+
+
+  ##
+  # @param bs [Bytestream]
+  # @return [String]
+  #
+  def bytestream_exif_metadata_as_table(bs)
+    data = bytestream_metadata_for(bs)
+    html = ''
     if data[:exif].any?
-      html += '<h4>EXIF</h4>'
       html += '<table class="table table-condensed pt-metadata">'
       data[:exif].each do |key, value|
         html += "<tr><td>#{raw(key)}</td><td>#{raw(value)}</td></tr>"
       end
       html += '</table>'
     end
+    raw(html)
+  end
 
-    # IPTC
+  ##
+  # @param bs [Bytestream]
+  # @return [String]
+  #
+  def bytestream_file_metadata_as_table(bs)
+    data = bytestream_metadata_for(bs)
+    html = ''
+    if data[:file].any?
+      html += '<table class="table table-condensed pt-metadata">'
+      data[:file].each do |key, value|
+        html += "<tr><td>#{raw(key)}</td><td>#{raw(value)}</td></tr>"
+      end
+      html += '</table>'
+    end
+    raw(html)
+  end
+
+  ##
+  # @param bs [Bytestream]
+  # @return [String]
+  #
+  def bytestream_iptc_metadata_as_table(bs)
+    data = bytestream_metadata_for(bs)
+    html = ''
     if data[:iptc]
-      html += '<h4>IPTC</h4>'
       html += "#{data[:iptc]}"
     end
+    raw(html)
+  end
 
-    # XMP
+  ##
+  # @param bs [Bytestream]
+  # @return [String]
+  #
+  def bytestream_xmp_metadata_as_table(bs)
+    data = bytestream_metadata_for(bs)
+    html = ''
     if data[:xmp]
-      html += '<h4>XMP</h4>'
       html += "<pre>#{h(data[:xmp])}</pre>"
     end
-
     raw(html)
   end
 

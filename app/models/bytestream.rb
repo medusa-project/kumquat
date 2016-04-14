@@ -31,17 +31,8 @@ class Bytestream < ActiveRecord::Base
   # @return [Hash]
   #
   def exif
-    exif = {}
-    pathname = self.absolute_local_pathname
-    if File.exist?(pathname) and File.readable?(pathname)
-      case MIME::Types.of(pathname).first.to_s
-        when 'image/jpeg'
-          exif = EXIFR::JPEG.new(pathname).to_hash
-        when 'image/tiff'
-          exif = EXIFR::TIFF.new(pathname).to_hash
-      end
-    end
-    exif.select{ |k,v| !%w(iptc xmp).include?(k.to_s) and v.present? }
+    load_metadata unless @metadata_loaded
+    @metadata.select{ |k,v| !%w(iptc xmp).include?(k.to_s) and v.present? }
   end
 
   ##
@@ -63,22 +54,8 @@ class Bytestream < ActiveRecord::Base
   # @return [String]
   #
   def iptc
-    exif = nil
-    pathname = self.absolute_local_pathname
-    if File.exist?(pathname) and File.readable?(pathname)
-      case MIME::Types.of(pathname).first.to_s
-        when 'image/jpeg'
-          exif = EXIFR::JPEG.new(pathname).to_hash
-        when 'image/tiff'
-          exif = EXIFR::TIFF.new(pathname).to_hash
-      end
-    end
-    if exif
-      if exif[:iptc]
-        return exif[:iptc].join("\n").strip
-      end
-    end
-    nil
+    load_metadata unless @metadata_loaded
+    @metadata[:iptc] ? @metadata[:iptc].join("\n").strip : nil
   end
 
   def is_audio?
@@ -119,22 +96,24 @@ class Bytestream < ActiveRecord::Base
   # @return [String]
   #
   def xmp
-    exif = nil
+    load_metadata unless @metadata_loaded
+    @metadata[:xmp] ? @metadata[:xmp].strip : nil
+  end
+
+  private
+
+  def load_metadata
+    @metadata = {}
     pathname = self.absolute_local_pathname
     if File.exist?(pathname) and File.readable?(pathname)
       case MIME::Types.of(pathname).first.to_s
         when 'image/jpeg'
-          exif = EXIFR::JPEG.new(pathname).to_hash
+          @metadata = EXIFR::JPEG.new(pathname).to_hash
         when 'image/tiff'
-          exif = EXIFR::TIFF.new(pathname).to_hash
+          @metadata = EXIFR::TIFF.new(pathname).to_hash
       end
     end
-    if exif
-      if exif[:xmp]
-        return exif[:xmp].to_s.strip
-      end
-    end
-    nil
+    @metadata_loaded = true
   end
 
 end
