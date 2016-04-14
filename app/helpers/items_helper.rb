@@ -972,6 +972,12 @@ module ItemsHelper
         # XMP
         data[:xmp] = bytestream.xmp
       end
+      if bytestream.is_image? or bytestream.is_video?
+        if bytestream.width and bytestream.height
+          data[:file]['Dimensions'] =
+              "#{bytestream.width}&times;#{bytestream.height} pixels"
+        end
+      end
     end
     data
   end
