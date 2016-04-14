@@ -16,7 +16,11 @@ class BytestreamDecorator < Draper::Decorator
 
   def serializable_hash(opts)
     struct = object.serializable_hash(opts)
-    #struct[:url] = bytestream_url(object) # TODO: fix this
+    if object.bytestream_type == Bytestream::Type::PRESERVATION_MASTER
+      struct[:url] = item_preservation_master_bytestream_url(object.item)
+    else
+      struct[:url] = item_access_master_bytestream_url(object.item)
+    end
     struct
   end
 

@@ -20,7 +20,7 @@ class ItemsController < WebsiteController
   # Responds to GET /items/:item_id/access-master
   #
   def access_master_bytestream
-    item = Item.find(params[:item_id])
+    item = Item.find_by_repository_id(params[:item_id])
     send_bytestream(item, Bytestream::Type::ACCESS_MASTER)
   end
 
@@ -102,7 +102,7 @@ class ItemsController < WebsiteController
   # Responds to GET /items/:id/preservation-master
   #
   def preservation_master_bytestream
-    item = Item.find(params[:item_id])
+    item = Item.find_by_repository_id(params[:item_id])
     send_bytestream(item, Bytestream::Type::PRESERVATION_MASTER)
   end
 
@@ -203,7 +203,7 @@ class ItemsController < WebsiteController
           message: 'This item is currently not published.'
       }
     end
-    bs = item.bytestreams.where(bytestream_type: type).select(&:exists).first
+    bs = item.bytestreams.where(bytestream_type: type).select(&:exists?).first
     if bs
       if bs.url
         redirect_to bs.url, status: 303
