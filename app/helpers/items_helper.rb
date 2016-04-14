@@ -885,6 +885,7 @@ module ItemsHelper
             '<span class="label label-success">OK</span>' :
             '<span class="label label-danger">MISSING</span>'
       end
+      data['Media Type'] = bytestream.media_type
       if bytestream.is_image?
         bytestream.exif.each do |k, v|
           if k.to_s == 'orientation'
