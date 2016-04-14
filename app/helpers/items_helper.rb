@@ -945,11 +945,16 @@ module ItemsHelper
     if bytestream
       # development-only info
       if Rails.env.development?
-        data[:file]['Location (DEVELOPMENT)'] =
+        data[:file]['Pathname (DEVELOPMENT)'] =
             bytestream.absolute_local_pathname || bytestream.url
         data[:file]['Exists (DEVELOPMENT)'] = bytestream.exists? ?
             '<span class="label label-success">OK</span>' :
             '<span class="label label-danger">MISSING</span>'
+      end
+      # filename
+      if bytestream.file_group_relative_pathname or bytestream.url
+        data[:file]['Filename'] =
+            File.basename(bytestream.file_group_relative_pathname || bytestream.url)
       end
       # media type
       data[:file]['Media Type'] = bytestream.media_type
