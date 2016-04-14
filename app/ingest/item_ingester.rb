@@ -31,10 +31,21 @@ class ItemIngester
     doc.encoding = 'utf-8'
     validate_document(doc, 'object.xsd')
     node = doc.xpath('//lrp:Object', XML_NAMESPACES).first
-    item = Item.from_lrp_xml(node)
-    existing_item = Item.find_by_repository_id(item.repository_id)
-    item = existing_item if existing_item
-    item.save!
+
+    # If an item with the same repository ID already exists, update it.
+    # Otherwise, create a new item and save it.
+    repository_id = node.xpath('lrp:repositoryId', XML_NAMESPACES).
+        first.content.strip
+    item = nil
+    if repository_id
+      item = Item.find_by_repository_id(repository_id)
+      if item
+        item.update_from_xml(node)
+      end
+    end
+    unless item
+      item = Item.from_lrp_xml(node)
+    end
     item
   end
 
@@ -65,11 +76,7 @@ class ItemIngester
   def ingest_file(pathname, count = 0)
     Rails.logger.info("Ingesting #{pathname} (#{count})")
     File.open(pathname) do |content|
-      doc = Nokogiri::XML(content, &:noblanks)
-      doc.encoding = 'utf-8'
-      validate_document(doc, 'object.xsd')
-      node = doc.xpath('//lrp:Object', XML_NAMESPACES).first
-      Item.from_lrp_xml(node).save!
+      ingest_xml(content)
       count += 1
     end
     count
