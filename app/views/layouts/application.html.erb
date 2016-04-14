@@ -118,7 +118,7 @@
       <% end %>
 
       <div id="pt-page-content">
-        <%= yield %>
+        <%= yield.force_encoding(Encoding::UTF_8) %>
       </div>
     </div>
 
