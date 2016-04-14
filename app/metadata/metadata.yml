@@ -425,10 +425,10 @@ license:
     geo:
 localId:
   type: descriptive
-  mappings:
+  mappings: # no mappings as this is for internal use only.
     bibFrame:
-    dc: identifier
-    dcterms: identifier
+    dc:
+    dcterms:
     geo:
 longitude:
   type: descriptive
