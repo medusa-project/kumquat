@@ -112,8 +112,12 @@
         <h2 class="panel-title">Descriptive Info</h2>
       </div>
       <div class="panel-body">
-        <%= metadata_as_list(@item) %>
-        <%= metadata_as_table(@item) %>
+        <div class="visible-xs">
+          <%= metadata_as_list(@item) %>
+        </div>
+        <div class="hidden-xs">
+          <%= metadata_as_table(@item) %>
+        </div>
       </div>
     </div>
   </div>
@@ -135,30 +139,36 @@
 </div>
 
 <div class="row">
-  <div class="col-md-6">
-    <% if @item.preservation_master_bytestream and
-        @item.preservation_master_bytestream.exif.any? %>
+  <div class="col-sm-6">
+    <% if @item.preservation_master_bytestream %>
       <div class="panel panel-default">
         <div class="panel-heading">
-          <h2 class="panel-title">Preservation Master File</h2>
+          <h2 class="panel-title">Preservation Master</h2>
         </div>
         <div class="panel-body">
-          <%= preservation_bytestream_metadata_as_list(@item) %>
-          <%= preservation_bytestream_metadata_as_table(@item) %>
+          <div class="visible-xs">
+            <%= bytestream_metadata_as_lists(@item.preservation_master_bytestream) %>
+          </div>
+          <div class="hidden-xs">
+            <%= bytestream_metadata_as_tables(@item.preservation_master_bytestream) %>
+          </div>
         </div>
       </div>
     <% end %>
   </div>
-  <div class="col-md-6">
-    <% if @item.access_master_bytestream and
-        @item.access_master_bytestream.exif.any? %>
+  <div class="col-sm-6">
+    <% if @item.access_master_bytestream %>
       <div class="panel panel-default">
         <div class="panel-heading">
-          <h2 class="panel-title">Access Master File</h2>
+          <h2 class="panel-title">Access Master</h2>
         </div>
         <div class="panel-body">
-          <%= access_bytestream_metadata_as_list(@item) %>
-          <%= access_bytestream_metadata_as_table(@item) %>
+          <div class="visible-xs">
+            <%= bytestream_metadata_as_lists(@item.access_master_bytestream) %>
+          </div>
+          <div class="hidden-xs">
+            <%= bytestream_metadata_as_tables(@item.access_master_bytestream) %>
+          </div>
         </div>
       </div>
     <% end %>

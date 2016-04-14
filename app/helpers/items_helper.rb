@@ -4,32 +4,88 @@ module ItemsHelper
   PAGE_TITLE_LENGTH = 35
 
   ##
-  # @param item [Item]
+  # @param bs [Bytestream]
   # @return [String]
-  # @see `metadata_as_list`
   #
-  def access_bytestream_metadata_as_list(item)
-    data = bytestream_metadata_for(item.access_master_bytestream)
-    html = '<dl class="pt-metadata">'
-    data.each do |key, value|
-      html += "<dt>#{raw(key)}</dt><dd>#{raw(value)}</dd>"
+  def bytestream_metadata_as_lists(bs)
+    data = bytestream_metadata_for(bs)
+    html = ''
+
+    # File
+    if data[:file].any?
+      html += '<h4>File</h4>'
+      html += '<dl class="pt-metadata">'
+      data[:file].each do |key, value|
+        html += "<dt>#{raw(key)}</dt><dd>#{raw(value)}</dd>"
+      end
+      html += '</dl>'
     end
-    html += '</dl>'
+
+    # EXIF
+    if data[:exif].any?
+      html += '<h4>EXIF</h4>'
+      html += '<dl class="pt-metadata">'
+      data[:exif].each do |key, value|
+        html += "<dt>#{raw(key)}</dt><dd>#{raw(value)}</dd>"
+      end
+      html += '</dl>'
+    end
+
+    # IPTC
+    if data[:iptc]
+      html += '<h4>IPTC</h4>'
+      html += "#{data[:iptc]}"
+    end
+
+    # XMP
+    if data[:xmp]
+      html += '<h4>XMP</h4>'
+      html += "<pre>#{h(data[:xmp])}</pre>"
+    end
+
     raw(html)
   end
 
   ##
-  # @param item [Item]
+  # @param bs [Bytestream]
   # @return [String]
-  # @see `metadata_as_table`
   #
-  def access_bytestream_metadata_as_table(item)
-    data = bytestream_metadata_for(item.access_master_bytestream)
-    html = '<table class="table table-condensed pt-metadata">'
-    data.each do |key, value|
-      html += "<tr><td>#{raw(key)}</td><td>#{raw(value)}</td></tr>"
+  def bytestream_metadata_as_tables(bs)
+    data = bytestream_metadata_for(bs)
+    html = ''
+
+    # File
+    if data[:file].any?
+      html += '<h4>File</h4>'
+      html += '<table class="table table-condensed pt-metadata">'
+      data[:file].each do |key, value|
+        html += "<tr><td>#{raw(key)}</td><td>#{raw(value)}</td></tr>"
+      end
+      html += '</table>'
     end
-    html += '</table>'
+
+    # EXIF
+    if data[:exif].any?
+      html += '<h4>EXIF</h4>'
+      html += '<table class="table table-condensed pt-metadata">'
+      data[:exif].each do |key, value|
+        html += "<tr><td>#{raw(key)}</td><td>#{raw(value)}</td></tr>"
+      end
+      html += '</table>'
+    end
+
+    # IPTC
+    if data[:iptc]
+      html += '<h4>IPTC</h4>'
+      html += "#{data[:iptc]}"
+    end
+
+    # XMP
+    if data[:xmp]
+      html += '<h4>XMP</h4>'
+      html += "<pre>#{h(data[:xmp])}</pre>"
+    end
+
     raw(html)
   end
 
@@ -597,36 +653,6 @@ module ItemsHelper
   end
 
   ##
-  # @param item [Item]
-  # @return [String]
-  # @see `metadata_as_list`
-  #
-  def preservation_bytestream_metadata_as_list(item)
-    data = bytestream_metadata_for(item.preservation_master_bytestream)
-    html = '<dl class="pt-metadata">'
-    data.each do |key, value|
-      html += "<dt>#{raw(key)}</dt><dd>#{raw(value)}</dd>"
-    end
-    html += '</dl>'
-    raw(html)
-  end
-
-  ##
-  # @param item [Item]
-  # @return [String]
-  # @see `metadata_as_table`
-  #
-  def preservation_bytestream_metadata_as_table(item)
-    data = bytestream_metadata_for(item.preservation_master_bytestream)
-    html = '<table class="table table-condensed pt-metadata">'
-    data.each do |key, value|
-      html += "<tr><td>#{raw(key)}</td><td>#{raw(value)}</td></tr>"
-    end
-    html += '</table>'
-    raw(html)
-  end
-
-  ##
   # Returns the status of a search or browse action, e.g. "Showing n of n
   # items".
   #
@@ -876,32 +902,40 @@ module ItemsHelper
     raw(tag)
   end
 
+  ##
+  # @return [Hash] Hash with `:file`, `:exif`, `:iptc`, and `:xmp` keys
+  #
   def bytestream_metadata_for(bytestream)
-    data = {}
+    data = { file: {}, exif: {}, iptc: nil, xmp: nil }
     if bytestream
       # development-only info
       if Rails.env.development?
-        data['Location (DEVELOPMENT)'] = bytestream.absolute_local_pathname || bytestream.url
-        data['Exists (DEVELOPMENT)'] = bytestream.exists? ?
+        data[:file]['Location (DEVELOPMENT)'] =
+            bytestream.absolute_local_pathname || bytestream.url
+        data[:file]['Exists (DEVELOPMENT)'] = bytestream.exists? ?
             '<span class="label label-success">OK</span>' :
             '<span class="label label-danger">MISSING</span>'
       end
       # media type
-      data['Media Type'] = bytestream.media_type
+      data[:file]['Media Type'] = bytestream.media_type
       # size
       size = bytestream.byte_size
       if size
-        data['Size'] = number_to_human_size(size)
+        data[:file]['Size'] = number_to_human_size(size)
       end
-      # EXIF
       if bytestream.is_image?
+        # EXIF
         bytestream.exif.each do |k, v|
           if k.to_s == 'orientation'
-            data[k.to_s] = v.to_i.to_s
+            data[:exif][k.to_s] = v.to_i.to_s
           else
-            data[k.to_s] = truncate(v.to_s, length: 400)
+            data[:exif][k.to_s] = truncate(v.to_s, length: 400)
           end
         end
+        # IPTC
+        data[:iptc] = bytestream.iptc
+        # XMP
+        data[:xmp] = bytestream.xmp
       end
     end
     data

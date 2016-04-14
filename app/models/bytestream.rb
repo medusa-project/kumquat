@@ -41,7 +41,7 @@ class Bytestream < ActiveRecord::Base
           exif = EXIFR::TIFF.new(pathname).to_hash
       end
     end
-    exif.select{ |k,v| v.present? }
+    exif.select{ |k,v| !%w(iptc xmp).include?(k.to_s) and v.present? }
   end
 
   ##
@@ -57,6 +57,28 @@ class Bytestream < ActiveRecord::Base
     formats = YAML::load(File.read("#{Rails.root}/lib/formats.yml"))
     formats = formats.select{ |f| f['media_types'].include?(self.media_type) }
     formats.any? ? formats.first['label'] : self.media_type
+  end
+
+  ##
+  # @return [String]
+  #
+  def iptc
+    exif = nil
+    pathname = self.absolute_local_pathname
+    if File.exist?(pathname) and File.readable?(pathname)
+      case MIME::Types.of(pathname).first.to_s
+        when 'image/jpeg'
+          exif = EXIFR::JPEG.new(pathname).to_hash
+        when 'image/tiff'
+          exif = EXIFR::TIFF.new(pathname).to_hash
+      end
+    end
+    if exif
+      if exif[:iptc]
+        return exif[:iptc].join("\n").strip
+      end
+    end
+    nil
   end
 
   def is_audio?
@@ -91,6 +113,28 @@ class Bytestream < ActiveRecord::Base
         width: self.width,
         height: self.height
     }
+  end
+
+  ##
+  # @return [String]
+  #
+  def xmp
+    exif = nil
+    pathname = self.absolute_local_pathname
+    if File.exist?(pathname) and File.readable?(pathname)
+      case MIME::Types.of(pathname).first.to_s
+        when 'image/jpeg'
+          exif = EXIFR::JPEG.new(pathname).to_hash
+        when 'image/tiff'
+          exif = EXIFR::TIFF.new(pathname).to_hash
+      end
+    end
+    if exif
+      if exif[:xmp]
+        return exif[:xmp].to_s.strip
+      end
+    end
+    nil
   end
 
 end
