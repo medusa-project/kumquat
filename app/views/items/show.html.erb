@@ -43,7 +43,7 @@
   <% end %>
 </div>
 
-<% if @item.subclass and @item.subclass == Item::Subclasses::PAGE %>
+<% if @item.variant and @item.variant == Item::Variants::PAGE %>
   <%= item_page_title(@item) %>
   <div class="panel panel-default">
     <div class="panel-body pt-page-nav">
@@ -78,9 +78,9 @@
 
 <%= viewer_for(@item) %>
 
-<% if @item.subclass == Item::Subclasses::DIRECTORY %>
+<% if @item.variant == Item::Variants::DIRECTORY %>
   <%= files_panel(@item) %>
-<% elsif @item.subclass != Item::Subclasses::FILE %>
+<% elsif @item.variant != Item::Variants::FILE %>
   <% if @relative_parent.key_item or @relative_parent.front_matter_item or
     @relative_parent.index_item %>
     <div class="row">

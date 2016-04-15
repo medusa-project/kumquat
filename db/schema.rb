@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160414161056) do
+ActiveRecord::Schema.define(version: 20160415014131) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -103,7 +103,7 @@ ActiveRecord::Schema.define(version: 20160414161056) do
     t.string   "collection_repository_id"
     t.string   "parent_repository_id"
     t.string   "representative_item_repository_id"
-    t.string   "subclass"
+    t.string   "variant"
     t.integer  "page_number"
     t.integer  "subpage_number"
     t.string   "bib_id"

@@ -28,12 +28,12 @@ class Item < ActiveRecord::Base
     PUBLISHED = 'published_bi'
     REPRESENTATIVE_ITEM_ID = 'representative_item_id_si'
     SEARCH_ALL = 'searchall_txtim'
-    SUBCLASS = 'subclass_si'
     SUBPAGE_NUMBER = 'subpage_number_ii'
+    VARIANT = 'variant_si'
   end
 
   # These need to be kept in sync with the values in object.xsd.
-  class Subclasses
+  class Variants
     DIRECTORY = 'Directory'
     FILE = 'File'
     FRONT_MATTER = 'FrontMatter'
@@ -52,14 +52,14 @@ class Item < ActiveRecord::Base
   before_save :index_in_solr
 
   ##
-  # Creates a new instance from valid LRP AIP XML, persists it, and returns it.
+  # Creates a new instance from valid DLS XML, persists it, and returns it.
   #
   # @param [Nokogiri::XML::Node] node
   # @return [Item]
   #
-  def self.from_lrp_xml(node)
+  def self.from_dls_xml(node, schema_version)
     item = Item.new
-    item.update_from_xml(node)
+    item.update_from_xml(node, schema_version)
     item
   end
 
@@ -100,19 +100,19 @@ class Item < ActiveRecord::Base
   end
 
   ##
-  # @return [Relation] All of the item's children that have a subclass of File
+  # @return [Relation] All of the item's children that have a variant of File
   #                    or Directory.
   # @see pages()
   #
   def files
-    self.items.where(subclass: [Subclasses::FILE, Subclasses::DIRECTORY])
+    self.items.where(variant: [Variants::FILE, Variants::DIRECTORY])
   end
 
   ##
   # @return [Item] The item's key item, if available.
   #
   def front_matter_item
-    self.items.where(subclass: Subclasses::FRONT_MATTER).limit(1).first
+    self.items.where(variant: Variants::FRONT_MATTER).limit(1).first
   end
 
   def index_in_solr
@@ -126,7 +126,7 @@ class Item < ActiveRecord::Base
   # @return [Item] The item's index item, if available.
   #
   def index_item
-    self.items.where(subclass: Subclasses::INDEX).limit(1).first
+    self.items.where(variant: Variants::INDEX).limit(1).first
   end
 
   def is_audio?
@@ -162,7 +162,7 @@ class Item < ActiveRecord::Base
   # @return [Item] The item's key item, if available.
   #
   def key_item
-    self.items.where(subclass: Subclasses::KEY).limit(1).first
+    self.items.where(variant: Variants::KEY).limit(1).first
   end
 
   ##
@@ -183,7 +183,7 @@ class Item < ActiveRecord::Base
   # @see files()
   #
   def pages
-    self.items.where(subclass: Subclasses::PAGE).
+    self.items.where(variant: Variants::PAGE).
         order(:page_number, :subpage_number)
   end
 
@@ -252,7 +252,7 @@ class Item < ActiveRecord::Base
   # @return [Item] The item's title item, if available.
   #
   def title_item
-    self.items.where(subclass: Subclasses::TITLE).limit(1).first
+    self.items.where(variant: Variants::TITLE).limit(1).first
   end
 
   def to_param
@@ -282,8 +282,8 @@ class Item < ActiveRecord::Base
     doc[SolrFields::PARENT_ITEM] = self.parent_repository_id
     doc[SolrFields::PUBLISHED] = self.published
     doc[SolrFields::REPRESENTATIVE_ITEM_ID] = self.representative_item_repository_id
-    doc[SolrFields::SUBCLASS] = self.subclass
     doc[SolrFields::SUBPAGE_NUMBER] = self.subpage_number
+    doc[SolrFields::VARIANT] = self.variant
     self.bytestreams.where(bytestream_type: Bytestream::Type::ACCESS_MASTER).limit(1).each do |bs|
       doc[SolrFields::ACCESS_MASTER_HEIGHT] = bs.height
       doc[SolrFields::ACCESS_MASTER_MEDIA_TYPE] = bs.media_type
@@ -311,10 +311,16 @@ class Item < ActiveRecord::Base
   # Updates an instance from valid LRP AIP XML.
   #
   # @param [Nokogiri::XML::Node] node
+  # @param schema_version [Integer]
   # @return [Item]
   #
-  def update_from_xml(node)
-    namespaces = ItemIngester::XML_NAMESPACES
+  def update_from_xml(node, schema_version = 1)
+    case schema_version
+      when 1
+        namespaces = ItemIngester::XML_V1_NAMESPACE
+      else
+        namespaces = ItemIngester::XML_V2_NAMESPACE
+    end
 
     ActiveRecord::Base.transaction do
       self.elements.destroy_all
@@ -378,9 +384,15 @@ class Item < ActiveRecord::Base
       rep_item_id = node.xpath('lrp:representativeItemId', namespaces).first
       self.representative_item_repository_id = rep_item_id.content.strip if rep_item_id
 
-      # subclass
-      subclass = node.xpath('lrp:subclass', namespaces).first
-      self.subclass = subclass ? subclass.content.strip : nil
+      if schema_version == 1
+        # subclass
+        subclass = node.xpath('lrp:subclass', namespaces).first
+        self.variant = subclass ? subclass.content.strip : nil
+      else
+        # variant
+        variant = node.xpath('lrp:variant', namespaces).first
+        self.variant = variant ? variant.content.strip : nil
+      end
 
       # subpage number
       page = node.xpath('lrp:subpageNumber', namespaces).first

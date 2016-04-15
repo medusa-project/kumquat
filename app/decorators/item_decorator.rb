@@ -20,7 +20,7 @@ class ItemDecorator < Draper::Decorator
         collection: self.collection ? collection_url(self.collection) : nil,
         page_number: self.page_number,
         subpage_number: self.subpage_number,
-        subclass: self.subclass,
+        variant: self.variant,
         full_text: self.full_text,
         parent: self.parent ? item_url(self.parent) : nil,
         representative_item: self.representative_item ?

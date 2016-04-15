@@ -13,8 +13,8 @@ item1:
   published: true
   repository_id: item1
   representative_item_repository_id: 1
-  subclass:
   subpage_number:
+  variant:
 
 item2:
   bib_id: MyString
@@ -29,5 +29,5 @@ item2:
   longitude: -10.2234234
   repository_id: item2
   representative_item_repository_id: 1
-  subclass: Page
   subpage_number:
+  variant: Page

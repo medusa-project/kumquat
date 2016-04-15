@@ -28,9 +28,10 @@ class ItemsController < WebsiteController
   # Responds to POST /items (protected by Basic auth)
   #
   def create
-    # curl -X POST -u api_user:secret --silent -H "Content-Type: application/xml" -d "/path/to/file.xml" localhost:3000/items
+    # curl -X POST -u api_user:secret --silent -H "Content-Type: application/xml" -d "/path/to/file.xml" localhost:3000/items?version=2
     begin
-      item = ItemIngester.new.ingest_xml(request.body.read)
+      item = ItemIngester.new.ingest_xml(request.body.read,
+                                         params[:version].to_i)
       url = item_url(item)
       render text: "OK: #{url}\n", status: :created, location: url
     rescue => e

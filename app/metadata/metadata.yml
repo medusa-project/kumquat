@@ -112,7 +112,7 @@ representativeItemId:
     dc:
     dcterms:
     geo:
-subclass:
+variant:
   type: technical
   mappings:
     bibFrame:

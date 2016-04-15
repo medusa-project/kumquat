@@ -72,9 +72,9 @@ module ApplicationHelper
         icon = 'fa-file-text-o'
       elsif entity.is_video?
         icon = 'fa-film'
-      elsif entity.subclass == Item::Subclasses::DIRECTORY
+      elsif entity.variant == Item::Variants::DIRECTORY
         icon = 'fa-folder-open-o'
-      elsif entity.subclass == Item::Subclasses::FILE
+      elsif entity.variant == Item::Variants::FILE
         icon = 'fa-file-o'
       elsif entity.items.any?
         icon = 'fa-cubes'
@@ -119,9 +119,9 @@ module ApplicationHelper
         type = 'Text'
       elsif entity.is_video?
         type = 'Video'
-      elsif entity.subclass == Item::Subclasses::FILE
+      elsif entity.variant == Item::Variants::FILE
         type = 'File'
-      elsif entity.subclass == Item::Subclasses::DIRECTORY
+      elsif entity.variant == Item::Variants::DIRECTORY
         type = 'File Folder'
       elsif entity.items.any?
         type = 'Multi-Page Item'
