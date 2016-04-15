@@ -6,7 +6,7 @@ module Admin
     # XHR only
     #
     def create
-      @element = Element.new(sanitized_params)
+      @element = ElementDef.new(sanitized_params)
       begin
         @element.save!
       rescue ActiveRecord::RecordInvalid
