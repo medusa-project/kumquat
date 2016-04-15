@@ -20,7 +20,7 @@ class MedusaCfsDirectory
   # @return [void]
   #
   def reload
-    raise 'reload() called without ID set' unless self.id
+    raise 'reload() called without ID set' unless self.id.present?
 
     config = PearTree::Application.peartree_config
     url = "#{config[:medusa_url].chomp('/')}/cfs_directories/#{self.id}.json"
@@ -66,7 +66,7 @@ class MedusaCfsDirectory
   #
   def load
     return if @loaded
-    raise 'load() called without ID set' unless self.id
+    raise 'load() called without ID set' unless self.id.present?
 
     ttl = PearTree::Application.peartree_config[:medusa_cache_ttl]
     if File.exist?(cache_pathname) and File.mtime(cache_pathname).
