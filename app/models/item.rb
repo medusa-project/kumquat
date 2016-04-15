@@ -373,8 +373,7 @@ class Item < ActiveRecord::Base
 
       # published
       published = node.xpath('lrp:published', namespaces).first
-      self.published = published ?
-          %w(true 1).include?(published.content.strip) : false
+      self.published = %w(true 1).include?(published.content.strip) if published
 
       # repository ID
       rep_id = node.xpath('lrp:repositoryId', namespaces).first
