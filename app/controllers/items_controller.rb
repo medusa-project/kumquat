@@ -142,16 +142,17 @@ class ItemsController < WebsiteController
   #
   def show
     @item = Item.find_by_repository_id(params[:id])
-    unless @item.published
-      render 'error/error', status: :forbidden, locals: {
-          status_code: 403,
-          status_message: 'Forbidden',
-          message: 'This item is not published.'
-      }
-    end
 
     respond_to do |format|
       format.html {
+        unless @item.published
+          render 'error/error', status: :forbidden, locals: {
+              status_code: 403,
+              status_message: 'Forbidden',
+              message: 'This item is not published.'
+          }
+        end
+
         @parent = @item.parent
         @pages = @parent ? @parent.pages : @item.pages
 
@@ -161,7 +162,25 @@ class ItemsController < WebsiteController
         @previous_item = @relative_child ? @relative_child.previous : nil
         @next_item = @relative_child ? @relative_child.next : nil
       }
-      format.json { render json: @item.decorate }
+      format.json {
+        if @item.published
+          render json: @item.decorate
+        else
+          render text: 'This item is not published.', status: 403
+        end
+      }
+      format.xml {
+        # XML representations of an item are available published or not, but
+        # authorization is required.
+        if authorize_api_user
+          version = ItemIngester::SCHEMA_VERSIONS.max
+          if params[:version] and
+              ItemIngester::SCHEMA_VERSIONS.include?(params[:version].to_i)
+            version = params[:version].to_i
+          end
+          render text: @item.to_dls_xml(version)
+        end
+      }
     end
   end
 

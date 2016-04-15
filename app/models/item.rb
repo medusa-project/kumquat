@@ -267,6 +267,19 @@ class Item < ActiveRecord::Base
   end
 
   ##
+  # @param schema_version [Integer] One of the versions in
+  #                                 `ItemIngester::SCHEMA_VERSIONS`
+  #
+  def to_dls_xml(schema_version)
+    case schema_version.to_i
+      when 1
+        return to_dls_xml_v1
+      else
+        return to_dls_xml_v2
+    end
+  end
+
+  ##
   # @return [Hash]
   #
   def to_solr
@@ -464,6 +477,273 @@ class Item < ActiveRecord::Base
 
       self.save!
     end
+  end
+
+  private
+
+  def to_dls_xml_v1
+    builder = Nokogiri::XML::Builder.new do |xml|
+      xml['lrp'].Object('xmlns:lrp' => ItemIngester::XML_V1_NAMESPACE['lrp']) {
+        bib_id = self.elements.find_by_name('bibId')
+        if bib_id.present?
+          xml['lrp'].bibId {
+            xml.text(bib_id)
+          }
+        end
+        if self.created_at.present?
+          xml['lrp'].created {
+            xml.text(self.created_at.utc.iso8601)
+          }
+        end
+        if self.updated_at.present?
+          xml['lrp'].lastModified {
+            xml.text(self.updated_at.utc.iso8601)
+          }
+        end
+        xml['lrp'].published {
+          xml.text(self.published ? 'true' : 'false')
+        }
+        xml['lrp'].repositoryId {
+          xml.text(self.repository_id)
+        }
+        if self.representative_item_repository_id.present?
+          xml['lrp'].representativeItemId {
+            xml.text(self.representative_item_repository_id)
+          }
+        end
+
+        self.elements.order(:name).each do |element|
+          next if element.name == 'bibId'
+          if element.value.present?
+            xml['lrp'].send(element.name) {
+              xml.text(element.value)
+            }
+          end
+        end
+
+        access_master = self.bytestreams.
+            where(bytestream_type: Bytestream::Type::ACCESS_MASTER).limit(1).first
+        if access_master
+          if access_master.height.present?
+            xml['lrp'].accessMasterHeight {
+              xml.text(access_master.height)
+            }
+          end
+          if access_master.media_type.present?
+            xml['lrp'].accessMasterMediaType {
+              xml.text(access_master.media_type)
+            }
+          end
+          xml['lrp'].accessMasterPathname {
+            xml.text(access_master.repository_relative_pathname)
+          }
+          if access_master.url.present?
+            xml['lrp'].accessMasterURL {
+              xml.text(access_master.url)
+            }
+          end
+          if access_master.width.present?
+            xml['lrp'].accessMasterWidth {
+              xml.text(access_master.width)
+            }
+          end
+        end
+
+        xml['lrp'].collectionId {
+          xml.text(self.collection_repository_id)
+        }
+
+        if self.full_text.present?
+          xml['lrp'].fullText {
+            xml.text(self.full_text)
+          }
+        end
+        if self.page_number.present?
+          xml['lrp'].pageNumber {
+            xml.text(self.page_number)
+          }
+        end
+        if self.parent_repository_id.present?
+          xml['lrp'].parentId {
+            xml.text(self.parent_repository_id)
+          }
+        end
+
+        preservation_master = self.bytestreams.
+            where(bytestream_type: Bytestream::Type::PRESERVATION_MASTER).
+            limit(1).first
+        if preservation_master
+          if preservation_master.height.present?
+            xml['lrp'].preservationMasterHeight {
+              xml.text(preservation_master.height)
+            }
+          end
+          if preservation_master.media_type.present?
+            xml['lrp'].preservationMasterMediaType {
+              xml.text(preservation_master.media_type)
+            }
+          end
+          xml['lrp'].preservationMasterPathname {
+            xml.text(preservation_master.repository_relative_pathname)
+          }
+          if preservation_master.url.present?
+            xml['lrp'].preservationMasterURL {
+              xml.text(preservation_master.url)
+            }
+          end
+          if preservation_master.width.present?
+            xml['lrp'].preservationMasterWidth {
+              xml.text(preservation_master.width)
+            }
+          end
+        end
+
+        if self.variant.present?
+          xml['lrp'].subclass {
+            xml.text(self.variant)
+          }
+        end
+
+        if self.subpage_number.present?
+          xml['lrp'].subpageNumber {
+            xml.text(self.subpage_number)
+          }
+        end
+      }
+    end
+    builder.to_xml
+  end
+
+  def to_dls_xml_v2
+    builder = Nokogiri::XML::Builder.new do |xml|
+      xml['dls'].Object('xmlns:dls' => ItemIngester::XML_V2_NAMESPACE['dls']) {
+        xml['dls'].repositoryId {
+          xml.text(self.repository_id)
+        }
+        xml['dls'].collectionId {
+          xml.text(self.collection_repository_id)
+        }
+        if self.parent_repository_id.present?
+          xml['dls'].parentId {
+            xml.text(self.parent_repository_id)
+          }
+        end
+        if self.representative_item_repository_id.present?
+          xml['dls'].representativeItemId {
+            xml.text(self.representative_item_repository_id)
+          }
+        end
+        xml['dls'].published {
+          xml.text(self.published ? 'true' : 'false')
+        }
+        if self.full_text.present?
+          xml['dls'].fullText {
+            xml.text(self.full_text)
+          }
+        end
+        if self.page_number.present?
+          xml['dls'].pageNumber {
+            xml.text(self.page_number)
+          }
+        end
+        if self.subpage_number.present?
+          xml['dls'].subpageNumber {
+            xml.text(self.subpage_number)
+          }
+        end
+        if self.latitude.present?
+          xml['dls'].latitude {
+            xml.text(self.latitude)
+          }
+        end
+        if self.longitude.present?
+          xml['dls'].longitude {
+            xml.text(self.longitude)
+          }
+        end
+        if self.created_at.present?
+          xml['dls'].created {
+            xml.text(self.created_at.utc.iso8601)
+          }
+        end
+        if self.updated_at.present?
+          xml['dls'].lastModified {
+            xml.text(self.updated_at.utc.iso8601)
+          }
+        end
+        if self.variant.present?
+          xml['dls'].variant {
+            xml.text(self.variant)
+          }
+        end
+
+        access_master = self.bytestreams.
+            where(bytestream_type: Bytestream::Type::ACCESS_MASTER).limit(1).first
+        if access_master
+          xml['dls'].accessMasterPathname {
+            xml.text(access_master.repository_relative_pathname)
+          }
+          if access_master.url.present?
+            xml['dls'].accessMasterURL {
+              xml.text(access_master.url)
+            }
+          end
+          if access_master.media_type.present?
+            xml['dls'].accessMasterMediaType {
+              xml.text(access_master.media_type)
+            }
+          end
+          if access_master.width.present?
+            xml['dls'].accessMasterWidth {
+              xml.text(access_master.width)
+            }
+          end
+          if access_master.height.present?
+            xml['dls'].accessMasterHeight {
+              xml.text(access_master.height)
+            }
+          end
+        end
+
+        preservation_master = self.bytestreams.
+            where(bytestream_type: Bytestream::Type::PRESERVATION_MASTER).
+            limit(1).first
+        if preservation_master
+          xml['dls'].preservationMasterPathname {
+            xml.text(preservation_master.repository_relative_pathname)
+          }
+          if preservation_master.url.present?
+            xml['dls'].preservationMasterURL {
+              xml.text(preservation_master.url)
+            }
+          end
+          if preservation_master.media_type.present?
+            xml['dls'].preservationMasterMediaType {
+              xml.text(preservation_master.media_type)
+            }
+          end
+          if preservation_master.width.present?
+            xml['dls'].preservationMasterWidth {
+              xml.text(preservation_master.width)
+            }
+          end
+          if preservation_master.height.present?
+            xml['dls'].preservationMasterHeight {
+              xml.text(preservation_master.height)
+            }
+          end
+        end
+
+        self.elements.order(:name).each do |element|
+          if element.value.present?
+            xml['dls'].send(element.name) {
+              xml.text(element.value)
+            }
+          end
+        end
+      }
+    end
+    builder.to_xml
   end
 
 end
