@@ -27,7 +27,7 @@
       <xs:element name="lastModified" type="xs:dateTime" minOccurs="0" maxOccurs="1"/>
 
       <!-- Whether the entity is publicly accessible. -->
-      <xs:element name="published" type="xs:boolean" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="published" type="xs:boolean" minOccurs="0" maxOccurs="1"/>
 
       <!-- ID of the entity within the repository. Must be repository-unique,
       persistent across imports (i.e. not dynamically generated at ingest) and
@@ -46,7 +46,7 @@
       first page. -->
       <xs:element name="representativeItemId" type="xs:token" minOccurs="0" maxOccurs="1"/>
 
-      <!-- Deprecated - do not use. TODO: get rid of this -->
+      <!-- Deprecated - do not use.-->
       <xs:element name="webId" type="xs:token" minOccurs="0" maxOccurs="1"/>
 
       <!--
