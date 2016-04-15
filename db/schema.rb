@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160415014131) do
+ActiveRecord::Schema.define(version: 20160415171341) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -31,7 +31,7 @@ ActiveRecord::Schema.define(version: 20160415014131) do
   add_index "bytestreams", ["item_id"], name: "index_bytestreams_on_item_id", using: :btree
 
   create_table "collections", force: :cascade do |t|
-    t.string   "repository_id"
+    t.string   "repository_id",          null: false
     t.string   "title"
     t.string   "description"
     t.string   "description_html"
@@ -99,7 +99,7 @@ ActiveRecord::Schema.define(version: 20160415014131) do
   add_index "elements", ["item_id"], name: "index_elements_on_item_id", using: :btree
 
   create_table "items", force: :cascade do |t|
-    t.string   "repository_id"
+    t.string   "repository_id",                                                             null: false
     t.string   "collection_repository_id"
     t.string   "parent_repository_id"
     t.string   "representative_item_repository_id"
@@ -108,13 +108,13 @@ ActiveRecord::Schema.define(version: 20160415014131) do
     t.integer  "subpage_number"
     t.string   "bib_id"
     t.datetime "date"
-    t.boolean  "published"
+    t.boolean  "published",                                                  default: true
     t.decimal  "latitude",                          precision: 10, scale: 7
     t.decimal  "longitude",                         precision: 10, scale: 7
     t.text     "full_text"
     t.datetime "last_indexed"
-    t.datetime "created_at",                                                 null: false
-    t.datetime "updated_at",                                                 null: false
+    t.datetime "created_at",                                                                null: false
+    t.datetime "updated_at",                                                                null: false
   end
 
   add_index "items", ["collection_repository_id"], name: "index_items_on_collection_repository_id", using: :btree
