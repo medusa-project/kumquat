@@ -492,7 +492,8 @@ module ItemsHelper
     # profile in order to display the entity's elements in the correct order
     collection = entity.kind_of?(Collection) ? entity : entity.collection
     collection.effective_metadata_profile.element_defs.each do |e_def|
-      elements = entity.elements.where(name: e_def.name)
+      elements = entity.elements.where(name: e_def.name).
+          select{ |e| e.value.present? }
       next if elements.empty?
       html += "<dt>#{e_def.label}</dt>"
       html += '<dd>'
@@ -523,7 +524,8 @@ module ItemsHelper
     # profile in order to display the entity's elements in the correct order
     collection = entity.kind_of?(Collection) ? entity : entity.collection
     collection.effective_metadata_profile.element_defs.each do |e_def|
-      elements = entity.elements.where(name: e_def.name)
+      elements = entity.elements.where(name: e_def.name).
+          select{ |e| e.value.present? }
       next if elements.empty?
       html += '<tr>'
       html += "<td>#{e_def.label}</td>"
@@ -1098,7 +1100,6 @@ module ItemsHelper
     data['Created'] = local_time_ago(item.created_at)
     data['Last Modified'] = local_time_ago(item.updated_at)
     data['Last Indexed'] = local_time_ago(item.last_indexed)
-    data['Bib ID'] = item.bib_id if item.bib_id
     url = iiif_item_url(item)
     data[link_to('IIIF Image URL', 'http://iiif.io/')] = link_to(url, url) if url
     data
