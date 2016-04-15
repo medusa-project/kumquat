@@ -79,6 +79,12 @@
       <!-- Spatial longitude in decimal degrees. -->
       <xs:element name="longitude" type="xs:float" minOccurs="0" maxOccurs="1"/>
 
+      <!-- When the entity was created. -->
+      <xs:element name="created" type="xs:dateTime" minOccurs="0" maxOccurs="1"/>
+
+      <!-- When the entity was last modified. -->
+      <xs:element name="lastModified" type="xs:dateTime" minOccurs="0" maxOccurs="1"/>
+
       <!-- A way of refining the type of an item, which may affect how it is
       displayed. -->
       <xs:element name="variant" minOccurs="0" maxOccurs="1">
