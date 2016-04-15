@@ -27,7 +27,7 @@ class MedusaCfsDirectory
     json_str = Medusa.client.get(url).body
     FileUtils.mkdir_p("#{Rails.root}/tmp/cache/medusa")
     File.open(cache_pathname, 'wb') { |f| f.write(json_str) }
-    self.medusa_representation = json_str
+    self.medusa_representation = JSON.parse(json_str)
     @loaded = true
   end
 
