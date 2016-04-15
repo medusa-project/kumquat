@@ -20,11 +20,11 @@
       <!-- Bib ID -->
       <xs:element name="bibId" type="xs:token" minOccurs="0" maxOccurs="1"/>
 
-      <!-- When the entity was created. DEPRECATED - DO NOT USE. -->
-      <xs:element name="created" type="xs:dateTime" minOccurs="1" maxOccurs="1"/>
+      <!-- When the entity was created. -->
+      <xs:element name="created" type="xs:dateTime" minOccurs="0" maxOccurs="1"/>
 
-      <!-- When the entity was last modified. DEPRECATED - DO NOT USE. -->
-      <xs:element name="lastModified" type="xs:dateTime" minOccurs="1" maxOccurs="1"/>
+      <!-- When the entity was last modified. -->
+      <xs:element name="lastModified" type="xs:dateTime" minOccurs="0" maxOccurs="1"/>
 
       <!-- Whether the entity is publicly accessible. -->
       <xs:element name="published" type="xs:boolean" minOccurs="1" maxOccurs="1"/>
