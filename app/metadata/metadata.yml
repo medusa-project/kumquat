@@ -21,13 +21,6 @@ accessMasterURL:
     dc:
     dcterms:
     geo:
-bibId:
-  type: technical
-  mappings:
-    bibFrame:
-    dc: identifier
-    dcterms: identifier
-    geo:
 collectionId:
   type: technical
   mappings:
@@ -191,6 +184,13 @@ audience:
     bibFrame:
     dc:
     dcterms: audience
+    geo:
+bibId:
+  type: descriptive
+  mappings:
+    bibFrame:
+    dc: identifier
+    dcterms: identifier
     geo:
 bibliographicCitation:
   type: descriptive

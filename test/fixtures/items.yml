@@ -1,7 +1,6 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 item1:
-  bib_id: MyString
   collection_repository_id: collection1
   date: <%= Time.parse('2015-05-15') %>
   full_text: MyText
@@ -17,7 +16,6 @@ item1:
   variant:
 
 item2:
-  bib_id: MyString
   collection_repository_id: collection2
   date: <%= Time.parse('2015-08-10') %>
   full_text: MyText

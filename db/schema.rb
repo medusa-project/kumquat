@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160415171341) do
+ActiveRecord::Schema.define(version: 20160415192603) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -106,7 +106,6 @@ ActiveRecord::Schema.define(version: 20160415171341) do
     t.string   "variant"
     t.integer  "page_number"
     t.integer  "subpage_number"
-    t.string   "bib_id"
     t.datetime "date"
     t.boolean  "published",                                                  default: true
     t.decimal  "latitude",                          precision: 10, scale: 7

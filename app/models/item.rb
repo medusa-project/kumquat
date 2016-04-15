@@ -8,7 +8,6 @@ class Item < ActiveRecord::Base
     ACCESS_MASTER_PATHNAME = 'access_master_pathname_si'
     ACCESS_MASTER_URL = 'access_master_url_si'
     ACCESS_MASTER_WIDTH = 'access_master_width_ii'
-    BIB_ID = 'bib_id_si'
     CLASS = 'class_si'
     COLLECTION = 'collection_si'
     CREATED = 'created_dti'
@@ -69,6 +68,10 @@ class Item < ActiveRecord::Base
   def access_master_bytestream
     self.bytestreams.where(bytestream_type: Bytestream::Type::ACCESS_MASTER).
         limit(1).first
+  end
+
+  def bib_id
+    self.elements.where(name: 'bibId').limit(1)&.first&.value
   end
 
   ##
@@ -269,7 +272,6 @@ class Item < ActiveRecord::Base
   def to_solr
     doc = {}
     doc[SolrFields::ID] = self.solr_id
-    doc[SolrFields::BIB_ID] = self.bib_id
     doc[SolrFields::CLASS] = self.class.to_s
     doc[SolrFields::COLLECTION] = self.collection_repository_id
     doc[SolrFields::DATE] = self.date.utc.iso8601 if self.date
@@ -325,10 +327,6 @@ class Item < ActiveRecord::Base
     ActiveRecord::Base.transaction do
       self.elements.destroy_all
       self.bytestreams.destroy_all
-
-      # bib ID
-      bib_id = node.xpath('lrp:bibId', namespaces).first
-      self.bib_id = bib_id ? bib_id.content.strip : nil
 
       # collection
       col_id = node.xpath('lrp:collectionId', namespaces).first
