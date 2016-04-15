@@ -7,67 +7,6 @@ module ItemsHelper
   # @param bs [Bytestream]
   # @return [String]
   #
-  def bytestream_exif_metadata_as_list(bs)
-    data = bytestream_metadata_for(bs)
-    html = ''
-    if data[:exif].any?
-      html += '<dl class="pt-metadata">'
-      data[:exif].each do |key, value|
-        html += "<dt>#{raw(key)}</dt><dd>#{raw(value)}</dd>"
-      end
-      html += '</dl>'
-    end
-    raw(html)
-  end
-
-  ##
-  # @param bs [Bytestream]
-  # @return [String]
-  #
-  def bytestream_file_metadata_as_list(bs)
-    data = bytestream_metadata_for(bs)
-    html = ''
-    if data[:file].any?
-      html += '<dl class="pt-metadata">'
-      data[:file].each do |key, value|
-        html += "<dt>#{raw(key)}</dt><dd>#{raw(value)}</dd>"
-      end
-      html += '</dl>'
-    end
-    raw(html)
-  end
-
-  ##
-  # @param bs [Bytestream]
-  # @return [String]
-  #
-  def bytestream_iptc_metadata_as_list(bs)
-    data = bytestream_metadata_for(bs)
-    html = ''
-    if data[:iptc]
-      html += "#{data[:iptc]}"
-    end
-    raw(html)
-  end
-
-  ##
-  # @param bs [Bytestream]
-  # @return [String]
-  #
-  def bytestream_xmp_metadata_as_list(bs)
-    data = bytestream_metadata_for(bs)
-    html = ''
-    if data[:xmp]
-      html += "<pre>#{h(data[:xmp])}</pre>"
-    end
-    raw(html)
-  end
-
-
-  ##
-  # @param bs [Bytestream]
-  # @return [String]
-  #
   def bytestream_exif_metadata_as_table(bs)
     data = bytestream_metadata_for(bs)
     html = ''

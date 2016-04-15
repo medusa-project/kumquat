@@ -186,36 +186,16 @@
 
           <div class="tab-content">
             <div role="tabpanel" class="tab-pane active" id="pt-bytestream-<%= bs.bytestream_type %>-file">
-              <div class="visible-xs">
-                <%= bytestream_file_metadata_as_list(bs) %>
-              </div>
-              <div class="hidden-xs">
-                <%= bytestream_file_metadata_as_table(bs) %>
-              </div>
+              <%= bytestream_file_metadata_as_table(bs) %>
             </div>
             <div role="tabpanel" class="tab-pane" id="pt-bytestream-<%= bs.bytestream_type %>-exif">
-              <div class="visible-xs">
-                <%= bytestream_exif_metadata_as_list(bs) %>
-              </div>
-              <div class="hidden-xs">
-                <%= bytestream_exif_metadata_as_table(bs) %>
-              </div>
+              <%= bytestream_exif_metadata_as_table(bs) %>
             </div>
             <div role="tabpanel" class="tab-pane" id="pt-bytestream-<%= bs.bytestream_type %>-iptc">
-              <div class="visible-xs">
-                <%= bytestream_iptc_metadata_as_list(bs) %>
-              </div>
-              <div class="hidden-xs">
-                <%= bytestream_iptc_metadata_as_table(bs) %>
-              </div>
+              <%= bytestream_iptc_metadata_as_table(bs) %>
             </div>
             <div role="tabpanel" class="tab-pane" id="pt-bytestream-<%= bs.bytestream_type %>-xmp">
-              <div class="visible-xs">
-                <%= bytestream_xmp_metadata_as_list(bs) %>
-              </div>
-              <div class="hidden-xs">
-                <%= bytestream_xmp_metadata_as_table(bs) %>
-              </div>
+              <%= bytestream_xmp_metadata_as_table(bs) %>
             </div>
           </div>
         </div>
