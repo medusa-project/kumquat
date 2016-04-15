@@ -30,7 +30,8 @@ class CollectionsController < WebsiteController
 
     respond_to do |format|
       format.html do
-        @representative_item = @collection.representative_item
+        @representative_image_bytestream =
+            @collection.representative_image_bytestream
       end
       format.json { render json: @collection.decorate }
     end

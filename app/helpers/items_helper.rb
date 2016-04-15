@@ -870,14 +870,22 @@ module ItemsHelper
   end
 
   ##
-  # @param entity [Item] or some other object suitable for passing
-  # to `icon_for`
+  # @param entity [Item, Bytestream] or some other object suitable for passing
+  #                                  to `icon_for`
   # @param size [Integer]
   # @return [String]
   #
   def thumbnail_tag(entity, size)
     html = ''
-    if entity.kind_of?(Item)
+    if entity.kind_of?(Bytestream)
+      url = bytestream_image_url(entity, size)
+      if url
+        # no alt because it may appear in a huge font size if the image is 404
+        html += image_tag(url, alt: '')
+      else
+        html += icon_for(entity) # ApplicationHelper
+      end
+    elsif entity.kind_of?(Item)
       url = item_image_url(entity, size)
       if url
         # no alt because it may appear in a huge font size if the image is 404
