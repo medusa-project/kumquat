@@ -2,11 +2,28 @@ module CollectionsHelper
 
   ##
   # @param collections [Relation]
+  # @return [Array] Array of capitalized unique first characters of each
+  #                 collection.
+  #
+  def collection_anchors(collections)
+    anchors = []
+    collections.each do |col|
+      next unless effective_collection_access_url(col)
+      normalized_title = col.title.downcase.gsub(/^a /, '').gsub(/^an /, '').
+          gsub(/^the /, '')
+      anchors << normalized_title[0].upcase
+    end
+    anchors.uniq
+  end
+
+  ##
+  # @param collections [Relation]
   # @return [String]
   #
   def collections_as_list(collections)
     thumb_size = 140
     html = ''
+    previous_first_letter = ''
     collections.each do |col|
       next unless effective_collection_access_url(col)
 
@@ -16,6 +33,16 @@ module CollectionsHelper
       else
         img_url = image_url('folder-open-o-600.png')
       end
+
+      # Sprinkle in some invisible IDed elements for the letter navigation
+      # links to jump to.
+      if col.title[0].upcase != previous_first_letter
+        normalized_title = col.title.downcase.gsub(/^a /, '').gsub(/^an /, '').
+            gsub(/^the /, '')
+        previous_first_letter = normalized_title[0].upcase
+        html += "<span id=\"#{previous_first_letter}\"></span>"
+      end
+
       html += '<div class="media">'
       html += '<div class="media-left">'
       html += link_to(collection_url(col)) do

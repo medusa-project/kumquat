@@ -6,4 +6,14 @@
 
 <h1>Collections</h1>
 
+<div id="pt-letter-links">
+  <ul class="nav nav-pills">
+    <% collection_anchors(@collections).each_with_index do |n, index| %>
+      <li role="presentation" data-toggle="tab" <%= index == 0 ? 'class=active' : '' %>>
+        <a href="#<%= n %>"><%= n %></a>
+      </li>
+    <% end %>
+  </ul>
+</div>
+
 <%= collections_as_list(@collections) %>

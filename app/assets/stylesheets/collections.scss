@@ -6,6 +6,31 @@ body#collections_index {
   div.media {
     margin-bottom: 1em;
   }
+
+  #pt-letter-links {
+    margin-bottom: 1em;
+    padding: 0.4em 0em 0.4em 0em;
+    a {
+      font-weight: 600;
+    }
+  }
+  #pt-letter-links.affix {
+    background-color: white;
+    border-bottom: 1px solid $gray-lighter;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+  }
+  /* center the nav pills */
+  .nav-tabs > li, .nav-pills > li {
+    float: none;
+    display: inline-block;
+    *display: inline; /* IE7 fix */
+    zoom:1; /* hasLayout IE7 trigger */
+  }
+  .nav-tabs, .nav-pills {
+    text-align:center;
+  }
 }
 
 body#collections_show {
