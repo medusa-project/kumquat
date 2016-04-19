@@ -62,6 +62,36 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_equal 1, Item.where(repository_id: '800379272_de0817d41a_tiff').count
   end
 
+  # delete()
+
+  test 'delete() with no credentials should return 401' do
+    delete('/items/item1', nil, {})
+    assert_response :unauthorized
+  end
+
+  test 'delete() with invalid credentials should return 401' do
+    headers = valid_headers.merge(
+        'Authorization' => ActionController::HttpAuthentication::Basic.
+            encode_credentials('bogus', 'bogus'))
+    delete('/items/item1', nil, headers)
+    assert_response :unauthorized
+  end
+
+  test 'delete() with invalid resource should return 404' do
+    delete('/items/bogus', nil, valid_headers)
+    assert_response :not_found
+  end
+
+  test 'delete() should return 200' do
+    delete('/items/item1', nil, valid_headers)
+    assert_response :success
+  end
+
+  test 'delete() should delete the item' do
+    delete('/items/item1', nil, valid_headers)
+    assert_equal 0, Item.where(repository_id: 'item1').count
+  end
+
   private
 
   def valid_headers

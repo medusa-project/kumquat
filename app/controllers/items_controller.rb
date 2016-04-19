@@ -8,9 +8,9 @@ class ItemsController < WebsiteController
   end
 
   # API actions
-  before_action :authorize_api_user, only: [:create, :delete]
+  before_action :authorize_api_user, only: [:create, :destroy]
   before_action :check_api_content_type, only: :create
-  skip_before_action :verify_authenticity_token, only: [:create, :delete]
+  skip_before_action :verify_authenticity_token, only: [:create, :destroy]
 
   before_action :set_browse_context, only: :index
 
@@ -28,7 +28,7 @@ class ItemsController < WebsiteController
   # Responds to POST /items (protected by Basic auth)
   #
   def create
-    # curl -X POST -u api_user:secret --silent -H "Content-Type: application/xml" -d "/path/to/file.xml" localhost:3000/items?version=2
+    # curl -X POST -u api_user:secret --silent -H "Content-Type: application/xml" -d @"/path/to/file.xml" localhost:3000/items?version=2
     begin
       item = ItemIngester.new.ingest_xml(request.body.read,
                                          params[:version].to_i)
@@ -42,8 +42,8 @@ class ItemsController < WebsiteController
   ##
   # Responds to DELETE /items/:id
   #
-  def delete
-    item = Item.find_by_repository_id(params[:item_id])
+  def destroy
+    item = Item.find_by_repository_id(params[:id])
     begin
       raise ActiveRecord::RecordNotFound unless item
       item.destroy!
