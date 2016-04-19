@@ -1,5 +1,7 @@
 require 'test_helper'
 
+# TODO: try this: http://stackoverflow.com/questions/22673544/rails-integration-test-headers-not-being-set
+# otherwise try this: https://github.com/brynary/rack-test
 class ItemsControllerTest < ActionController::TestCase
 
   def setup
