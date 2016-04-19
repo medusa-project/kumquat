@@ -14,6 +14,7 @@ class Collection < ActiveRecord::Base
     LAST_INDEXED = 'last_indexed_dti'
     PUBLISHED = 'published_bi'
     PUBLISHED_IN_DLS = 'published_in_dls_bi'
+    REPOSITORY_TITLE = 'repository_title_si'
     REPRESENTATIVE_IMAGE = 'representative_image_si'
     REPRESENTATIVE_ITEM = 'representative_item_si'
     RESOURCE_TYPES = 'resource_types_sim'
@@ -159,6 +160,7 @@ class Collection < ActiveRecord::Base
     self.published = struct['publish']
     self.published_in_dls = struct['access_systems'].
         select{ |obj| obj['name'].include?('Medusa Digital Library') }.any?
+    self.repository_title = struct['repository_title']
     self.representative_image = struct['representative_image']
     self.representative_item_id = struct['representative_item']
     self.resource_types = struct['resource_types'].map{ |t| t['name'] }
@@ -184,6 +186,7 @@ class Collection < ActiveRecord::Base
     doc[SolrFields::DESCRIPTION_HTML] = self.description_html
     doc[SolrFields::PUBLISHED] = self.published
     doc[SolrFields::PUBLISHED_IN_DLS] = self.published_in_dls
+    doc[SolrFields::REPOSITORY_TITLE] = self.repository_title
     doc[SolrFields::REPRESENTATIVE_ITEM] = self.representative_item_id
     doc[SolrFields::RESOURCE_TYPES] = self.resource_types
     doc[SolrFields::TITLE] = self.title

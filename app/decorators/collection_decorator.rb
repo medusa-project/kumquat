@@ -23,6 +23,7 @@ class CollectionDecorator < Draper::Decorator
         access_url: self.access_url,
         representative_image: self.representative_image,
         representative_item: item_url(self.representative_item),
+        repository_title: self.repository_title,
         resource_types: self.resource_types
     }
   end
