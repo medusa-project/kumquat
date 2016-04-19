@@ -16,9 +16,12 @@ class Collection < ActiveRecord::Base
     PUBLISHED_IN_DLS = 'published_in_dls_bi'
     REPRESENTATIVE_IMAGE = 'representative_image_si'
     REPRESENTATIVE_ITEM = 'representative_item_si'
+    RESOURCE_TYPES = 'resource_types_sim'
     SEARCH_ALL = 'searchall_txtim'
     TITLE = 'title_sort_en_i'
   end
+
+  serialize :resource_types
 
   belongs_to :metadata_profile, inverse_of: :collections
   belongs_to :theme, inverse_of: :collections
@@ -158,6 +161,7 @@ class Collection < ActiveRecord::Base
         select{ |obj| obj['name'].include?('Medusa Digital Library') }.any?
     self.representative_image = struct['representative_image']
     self.representative_item_id = struct['representative_item']
+    self.resource_types = struct['resource_types'].map{ |t| t['name'] }
     self.title = struct['title']
   end
 
@@ -181,6 +185,7 @@ class Collection < ActiveRecord::Base
     doc[SolrFields::PUBLISHED] = self.published
     doc[SolrFields::PUBLISHED_IN_DLS] = self.published_in_dls
     doc[SolrFields::REPRESENTATIVE_ITEM] = self.representative_item_id
+    doc[SolrFields::RESOURCE_TYPES] = self.resource_types
     doc[SolrFields::TITLE] = self.title
     doc
   end
