@@ -111,7 +111,9 @@
       <div class="modal-body">
         <%= render partial: 'admin/element_defs/form',
                    locals: { element_def: @new_element,
-                             metadata_profile: @profile, context: :new } %>
+                             name_options_for_select: @name_options_for_select,
+                             metadata_profile: @profile,
+                             context: :new } %>
       </div>
     </div>
   </div>

@@ -12,7 +12,9 @@
 
   <div class="form-group">
     <%= f.label :name %>
-    <%= f.text_field :name, class: 'form-control' %>
+    <%= f.select(:name, name_options_for_select,
+                 { selected: element_def.name },
+                 class: 'form-control') %>
   </div>
 
   <div class="form-group">
