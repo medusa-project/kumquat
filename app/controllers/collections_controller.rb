@@ -3,7 +3,14 @@ class CollectionsController < WebsiteController
   def index
     @collections = Collection.solr.
         where(Collection::SolrFields::PUBLISHED => true).
+        facetable_fields(Collection::solr_facet_fields.map{ |e| e[:name] }).
         order(Collection::SolrFields::TITLE).limit(9999)
+
+    if params[:fq].respond_to?(:each)
+      params[:fq].each { |fq| @collections = @collections.facet(fq) }
+    else
+      @collections = @collections.facet(params[:fq])
+    end
 
     respond_to do |format|
       format.html

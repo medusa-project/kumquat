@@ -6,6 +6,14 @@
 var PTCollectionsView = function() {
 
     this.init = function() {
+        $('[name=pt-facet-term]').on('change', function() {
+            if ($(this).prop('checked')) {
+                window.location = $(this).data('checked-href');
+            } else {
+                window.location = $(this).data('unchecked-href');
+            }
+        });
+
         var SCROLL_OFFSET = 60;
         $('body').scrollspy({
             target: '#pt-letter-links',

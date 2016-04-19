@@ -44,6 +44,14 @@ class Collection < ActiveRecord::Base
     col
   end
 
+  ##
+  # @return [Array<Hash>] Array of hashes with `:name` and `:label` keys
+  #
+  def self.solr_facet_fields
+    [ { name: SolrFields::REPOSITORY_TITLE, label: 'Repository' },
+      { name: SolrFields::RESOURCE_TYPES, label: 'Resource Type' } ]
+  end
+
   def delete_from_solr
     self.last_indexed = Time.now
     Solr.instance.delete(self.solr_id)
