@@ -67,7 +67,7 @@ Rails.application.routes.draw do
     resources :items, only: :index
   end
   resources :favorites, only: :index
-  resources :items, only: [:create, :index, :show] do
+  resources :items, only: [:create, :delete, :index, :show] do
     match '/access-master', to: 'items#access_master_bytestream', via: 'get',
           as: :access_master_bytestream
     match '/preservation-master', to: 'items#preservation_master_bytestream',

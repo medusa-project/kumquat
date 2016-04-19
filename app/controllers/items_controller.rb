@@ -8,9 +8,9 @@ class ItemsController < WebsiteController
   end
 
   # API actions
-  before_action :authorize_api_user, only: :create
+  before_action :authorize_api_user, only: [:create, :delete]
   before_action :check_api_content_type, only: :create
-  skip_before_action :verify_authenticity_token, only: :create
+  skip_before_action :verify_authenticity_token, only: [:create, :delete]
 
   before_action :set_browse_context, only: :index
 
@@ -36,6 +36,23 @@ class ItemsController < WebsiteController
       render text: "OK: #{url}\n", status: :created, location: url
     rescue => e
       render text: "#{e}\n\n#{e.backtrace.join("\n")}\n", status: :bad_request
+    end
+  end
+
+  ##
+  # Responds to DELETE /items/:id
+  #
+  def delete
+    item = Item.find_by_repository_id(params[:item_id])
+    begin
+      raise ActiveRecord::RecordNotFound unless item
+      item.destroy!
+    rescue ActiveRecord::RecordNotFound => e
+      render text: "#{e}", status: :not_found
+    rescue => e
+      render text: "#{e}", status: :internal_server_error
+    else
+      render text: 'Success'
     end
   end
 
