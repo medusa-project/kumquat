@@ -99,10 +99,8 @@ class ItemIngester
   #
   def ingest_file(pathname, schema_version, count = 0)
     Rails.logger.info("Ingesting #{pathname} (#{count})")
-    File.open(pathname) do |content|
-      ingest_xml(content, schema_version)
-      count += 1
-    end
+    ingest_xml(File.read(pathname), schema_version)
+    count += 1
     count
   end
 
@@ -114,13 +112,11 @@ class ItemIngester
   # @raise [RuntimeError] If the validation fails.
   #
   def validate_document(doc, schema, schema_version)
-    schema_path = sprintf('%s/../../public/schema/%d/%s',
-                          __dir__, schema_version, schema)
-    File.open(schema_path) do |content|
-      xsd = Nokogiri::XML::Schema(content)
-      xsd.validate(doc).each do |error|
-        raise error.message
-      end
+    schema_path = sprintf('%s/public/schema/%d/%s',
+                          Rails.root, schema_version, schema)
+    xsd = Nokogiri::XML::Schema(File.read(schema_path))
+    xsd.validate(doc).each do |error|
+      raise error.message
     end
   end
 
@@ -133,12 +129,11 @@ class ItemIngester
   #
   def validate_file(pathname, schema_version, count = 0)
     Rails.logger.info("Validating #{pathname} (#{count})")
-    File.open(pathname) do |content|
-      doc = Nokogiri::XML(content, &:noblanks)
-      doc.encoding = 'utf-8'
-      validate_document(doc, 'object.xsd', schema_version)
-      count += 1
-    end
+
+    doc = Nokogiri::XML(File.read(pathname), &:noblanks)
+    doc.encoding = 'utf-8'
+    validate_document(doc, 'object.xsd', schema_version)
+    count += 1
     count
   end
 
