@@ -58,7 +58,7 @@ class WebsiteController < ApplicationController
         id = params[:collection_id]
       elsif params[:id]
         item = Item.find_by_repository_id(params[:id])
-        id = item.collection.repository_id
+        id = item&.collection&.repository_id
       end
     end
     if id
@@ -83,7 +83,7 @@ class WebsiteController < ApplicationController
           id = params[:collection_id]
         elsif params[:id]
           item = Item.find_by_repository_id(params[:id])
-          id = item.collection.repository_id
+          id = item&.collection&.repository_id
         end
       end
       collection = Collection.find_by_repository_id(id)
