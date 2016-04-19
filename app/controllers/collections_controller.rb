@@ -20,6 +20,8 @@ class CollectionsController < WebsiteController
 
   def show
     @collection = Collection.find_by_repository_id(params[:id])
+    raise ActiveRecord::RecordNotFound unless @collection
+
     unless @collection.published
       render 'error/error', status: :forbidden, locals: {
           status_code: 403,

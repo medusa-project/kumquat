@@ -159,6 +159,7 @@ class ItemsController < WebsiteController
   #
   def show
     @item = Item.find_by_repository_id(params[:id])
+    raise ActiveRecord::RecordNotFound unless @item
 
     respond_to do |format|
       format.html {
