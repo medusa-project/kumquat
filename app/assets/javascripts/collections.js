@@ -13,16 +13,6 @@ var PTCollectionsView = function() {
                 window.location = $(this).data('unchecked-href');
             }
         });
-
-        var SCROLL_OFFSET = 60;
-        $('body').scrollspy({
-            target: '#pt-letter-links',
-            offset: SCROLL_OFFSET
-        });
-        $('#pt-letter-links').affix({
-            offset: { top: 505 }
-        });
-        PearTree.smoothAnchorScroll(SCROLL_OFFSET);
     };
 
 };

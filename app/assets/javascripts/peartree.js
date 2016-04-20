@@ -104,32 +104,6 @@ var PearTree = {
     },
 
     /**
-     * Enables smooth scrolling to anchors.
-     *
-     * @param offset Integer
-     */
-    smoothAnchorScroll: function(offset) {
-        $('a[href^="#"]').off('click').on('click', function(e) {
-            // avoid interfering with other Bootstrap components
-            if ($(this).data('toggle') == 'collapse' ||
-                $(this).data('toggle') == 'tab') {
-                return;
-            }
-            e.preventDefault();
-
-            var target = this.hash;
-            $('html, body').stop().animate(
-                { 'scrollTop': $(target).offset().top - offset },
-                500,
-                'swing',
-                function () {
-                    window.location.hash = target;
-                }
-            );
-        });
-    },
-
-    /**
      * Application-level initialization.
      */
     init: function() {

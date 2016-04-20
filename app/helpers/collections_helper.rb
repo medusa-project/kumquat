@@ -2,22 +2,6 @@ module CollectionsHelper
 
   ##
   # @param collections [Relation]
-  # @return [Array] Array of capitalized unique first characters of each
-  #                 collection.
-  #
-  def collection_anchors(collections)
-    anchors = []
-    collections.each do |col|
-      next unless effective_collection_access_url(col)
-      normalized_title = col.title.downcase.gsub(/^a /, '').gsub(/^an /, '').
-          gsub(/^the /, '')
-      anchors << normalized_title[0].upcase
-    end
-    anchors.uniq
-  end
-
-  ##
-  # @param collections [Relation]
   #
   def collection_facets_as_panels(collections)
     return nil unless collections.facet_fields # nothing to do
