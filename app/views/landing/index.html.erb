@@ -3,14 +3,6 @@
 
 <div class="row">
   <div class="col-sm-7">
-    <div class="alert alert-info">
-      <p>This is a beta version of a new digital content management and access
-        system for the library's digital image collections. It is under
-        construction. Please browse our
-        collections, and <a href="https://illinois.edu/sb/sec/8976147">tell us
-        about your experience</a>.</p>
-    </div>
-
     <h1><%= Option.string(Option::Key::WEBSITE_NAME) %></h1>
 
     <%= sanitize(Option.string(Option::Key::WEBSITE_INTRO_TEXT).gsub("\n", '<br>'),

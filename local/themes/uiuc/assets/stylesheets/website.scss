@@ -50,10 +50,14 @@ a.uiuc-feedback, a.uiuc-feedback:hover {
 
 .uiuc-image-banner {
   font-family: 'Garamond', 'Palatino', 'Book Antiqua', serif;
-  font-size: 4em;
-  font-weight: 200;
   height: 280px;
   padding: 10px 15px;
+  .beta-disclaimer {
+    background-color: rgba(0,0,0,0.5);
+    border: 0px;
+    color: #e0e0e0;
+    font-family: sans-serif;
+  }
   a {
     color: white;
   }
