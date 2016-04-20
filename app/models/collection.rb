@@ -61,21 +61,6 @@ class Collection < ActiveRecord::Base
     self.metadata_profile || MetadataProfile.default
   end
 
-  def file_groups
-    unless @file_groups
-      load
-      self.medusa_representation['file_groups'].each do |row|
-        fg = MedusaFileGroup.new
-        fg.id = row['id']
-        fg.pathname = row['path']
-        fg.title = row['title']
-        fg.storage_level = row['storage_level']
-        @file_groups << fg
-      end
-    end
-    @file_groups
-  end
-
   def index_in_solr
     self.last_indexed = Time.now
     Solr.instance.add(self.to_solr)
