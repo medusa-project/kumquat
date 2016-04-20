@@ -10,7 +10,7 @@ class FavoritesController < WebsiteController
   def index
     @start = params[:start] ? params[:start].to_i : 0
     @limit = 40
-    @items = Item.none
+    @items = Item.solr.none
 
     unless cookies[:favorites].blank?
       ids = cookies[:favorites].split(COOKIE_DELIMITER)

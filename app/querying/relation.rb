@@ -234,7 +234,7 @@ class Relation
   private
 
   def load
-    if @calling_class and !@loaded
+    if @caller and @calling_class and !@loaded
       if !@omit_entity_query
         # limit the query to the calling class
         @where_clauses << "#{PearTree::Application.peartree_config[:solr_class_field]}:\""\
