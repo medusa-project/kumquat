@@ -134,6 +134,10 @@ class Relation
     self.where(PearTree::Application.peartree_config[:solr_id_field] => @caller.id)
   end
 
+  def none
+    Relation.new
+  end
+
   ##
   # Whether to omit the entity query from the Solr query. If false, calling
   # something like `MyEntity.where(..)` will automatically limit the query to
