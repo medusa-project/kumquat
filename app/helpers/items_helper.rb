@@ -943,10 +943,11 @@ module ItemsHelper
       if bytestream.is_image?
         # EXIF
         bytestream.exif.each do |k, v|
+          key_name = k.to_s.gsub('_', ' ').titleize
           if k.to_s == 'orientation'
-            data[:exif][k.to_s] = v.to_i.to_s
+            data[:exif][key_name] = v.to_i.to_s
           else
-            data[:exif][k.to_s] = truncate(v.to_s, length: 400)
+            data[:exif][key_name] = truncate(v.to_s, length: 400)
           end
         end
         # IPTC
