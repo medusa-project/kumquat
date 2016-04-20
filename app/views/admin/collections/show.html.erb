@@ -20,11 +20,6 @@
               class: 'btn btn-default' do %>
     <i class="fa fa-pencil-square-o"></i> Edit
   <% end %>
-  <%= link_to admin_collection_reindex_path(@collection),
-              method: 'patch', disabled: !@can_reindex,
-              class: 'btn btn-default' do %>
-    <i class="fa fa-refresh"></i> Index
-  <% end %>
 </div>
 
 <h1><%= @collection.title %></h1>
