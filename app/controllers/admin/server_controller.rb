@@ -32,7 +32,7 @@ module Admin
     def search_server_status
       solr = Solr.instance
       begin
-        solr.head('select', params: { q: '*:*', start: 0, rows: 1 })
+        solr.get('select', params: { q: '*:*', start: 0, rows: 1 })
       rescue RSolr::Error::Http
         render text: 'offline', status: 503
       else
