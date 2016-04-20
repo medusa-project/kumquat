@@ -54,6 +54,7 @@
       <xs:element name="alternativeTitle" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="audience" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="bibliographicCitation" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="callNumber" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="cartographicScale" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="conformsTo" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="contributor" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
@@ -83,6 +84,7 @@
       <xs:element name="isReplacedBy" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="isRequiredBy" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="isVersionOf" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="keyword" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="language" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <!-- Spatial latitude in decimal degrees. -->
       <xs:element name="latitude" type="xs:float" minOccurs="0" maxOccurs="unbounded"/>
@@ -90,6 +92,8 @@
       <xs:element name="localId" type="xs:token" minOccurs="0" maxOccurs="unbounded"/>
       <!-- Spatial longitude in decimal degrees. -->
       <xs:element name="longitude" type="xs:float" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="materialsColor" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="materialsTechniques" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="mediator" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="medium" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="notes" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
