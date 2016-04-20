@@ -199,6 +199,13 @@ bibliographicCitation:
     dc: identifier
     dcterms: bibliographicCitation
     geo:
+callNumber:
+  type: descriptive
+  mappings:
+    bibFrame:
+    dc:
+    dcterms:
+    geo:
 cartographicScale:
   type: descriptive
   mappings:
@@ -402,6 +409,13 @@ isVersionOf:
     dc: relation
     dcterms: isVersionOf
     geo:
+keyword:
+  type: descriptive
+  mappings:
+    bibFrame:
+    dc: subject
+    dcterms: subject
+    geo:
 language:
   type: descriptive
   mappings:
@@ -437,6 +451,20 @@ longitude:
     dc: coverage
     dcterms: spatial
     geo: long
+materialsColor:
+  type: descriptive
+  mappings:
+    bibFrame:
+    dc: description
+    dcterms: description
+    geo:
+materialsTechniques:
+  type: descriptive
+  mappings:
+    bibFrame:
+    dc: description
+    dcterms: description
+    geo:
 mediator:
   type: descriptive
   mappings:

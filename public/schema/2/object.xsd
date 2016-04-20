@@ -164,6 +164,7 @@
       <xs:element name="audience" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="bibId" type="xs:token" minOccurs="0" maxOccurs="1"/>
       <xs:element name="bibliographicCitation" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="callNumber" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="cartographicScale" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="conformsTo" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="contributor" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
@@ -193,9 +194,12 @@
       <xs:element name="isReplacedBy" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="isRequiredBy" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="isVersionOf" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="keyword" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="language" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="license" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="localId" type="xs:token" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="materialsColor" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="materialsTechniques" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="mediator" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="medium" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="notes" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
