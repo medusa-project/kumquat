@@ -10,13 +10,7 @@ require 'test_helper'
 class OaiPmhControllerTest < ActionController::TestCase
 
   setup do
-    seed_repository
-    @valid_identifier = 'oai:test.host:beep-piano.aif'
-  end
-
-  # 2.4
-  test 'identifier should be a non-HTTP URI' do
-    # TODO: write this
+    @valid_identifier = 'oai:test.host:item1'
   end
 
   # 2.5.1
@@ -109,9 +103,8 @@ class OaiPmhControllerTest < ActionController::TestCase
                   Option::string(Option::Key::WEBSITE_NAME)
     assert_select 'Identify > baseURL', 'http://test.host/'
     assert_select 'Identify > protocolVersion', '2.0'
-    items = Item.where(Item::SolrFields::PUBLISHED => true).
-        order(Item::SolrFields::CREATED => :desc).limit(1)
-    assert_select 'Identify > earliestDatestamp', items.first.created_at.iso8601
+    items = Item.where(published: true).order(created_at: :desc).limit(1)
+    assert_select 'Identify > earliestDatestamp', items.first.created_at.utc.iso8601
     assert_select 'Identify > deletedRecord', 'no'
     assert_select 'Identify > granularity', 'YYYY-MM-DDThh:mm:ssZ'
     assert_select 'Identify > adminEmail',
@@ -124,7 +117,6 @@ class OaiPmhControllerTest < ActionController::TestCase
   test 'ListIdentifiers should return a list when correct arguments are
   passed and results are available' do
     get :index, verb: 'ListIdentifiers', metadataPrefix: 'oai_dc'
-    puts response.body.gsub('>', ">\n")
     assert_select 'ListIdentifiers > header > identifier',
                   @valid_identifier
 
@@ -205,7 +197,7 @@ class OaiPmhControllerTest < ActionController::TestCase
   test 'ListSets should return a list when correct arguments are passed and
   results are available' do
     get :index, verb: 'ListSets', metadataPrefix: 'oai_dc'
-    assert_select 'ListSets > set > setSpec', 'audio-test'
+    assert_select 'ListSets > set > setSpec', 'collection1'
   end
 
   private

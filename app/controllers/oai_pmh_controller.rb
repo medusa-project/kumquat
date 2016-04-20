@@ -76,9 +76,7 @@ class OaiPmhController < ApplicationController
   end
 
   def do_identify
-    items = Item.solr.all.facet(false).
-        where(Item::SolrFields::CREATED => :not_null).
-        order(Item::SolrFields::CREATED => :desc).limit(1)
+    items = Item.order(created_at: :desc).limit(1)
     @earliest_datestamp = items.any? ? items.first.created_at.utc.iso8601 : nil
     'identify.xml.builder'
   end
@@ -128,18 +126,16 @@ class OaiPmhController < ApplicationController
                            'this repository.' }
     end
 
-    @results = Item.solr.all.facet(false).
-        where(Item::SolrFields::PUBLISHED => true).
-        order(Item::SolrFields::CREATED => :desc)
+    @results = Item.where(published: true).order(created_at: :desc)
 
-    from = to = 'NOW'
+    from = to = Time.now
     from = Time.parse(params[:from]).utc.iso8601 if params[:from]
     to = Time.parse(params[:until]).utc.iso8601 if params[:until]
     if from != to
-      @results = @results.where(Item::SolrFields::CREATED => "[#{from} TO #{to}]")
+      @results = @results.where('created_at > ?', from).where('created_at < ?', to)
     end
     if params[:set]
-      @results = @results.where(Item::SolrFields::ID => params[:set])
+      @results = @results.where(repository_id: params[:set])
     end
 
     @errors << { code: 'noRecordsMatch',
