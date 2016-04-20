@@ -30,7 +30,8 @@ class Bytestream < ActiveRecord::Base
   #
   def byte_size
     pathname = self.absolute_local_pathname
-    pathname and File.exist?(pathname) ? File.size(pathname) : nil
+    pathname and File.exist?(pathname) and File.file?(pathname) ?
+        File.size(pathname) : nil
   end
 
   ##
@@ -47,7 +48,7 @@ class Bytestream < ActiveRecord::Base
   #
   def exists?
     p = absolute_local_pathname
-    self.url or (p and File.exist?(p))
+    self.url or (p and File.exist?(p) and File.file?(p))
   end
 
   def human_readable_name
