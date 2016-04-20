@@ -13,7 +13,7 @@
               target: '_blank' do %>
     <i class="fa fa-globe"></i> Public View
   <% end %>
-  <%= link_to @collection.url, class: 'btn btn-default', target: '_blank' do %>
+  <%= link_to @collection.medusa_url, class: 'btn btn-default', target: '_blank' do %>
     <i class="fa fa-database"></i> Medusa View
   <% end %>
   <%= link_to edit_admin_collection_path(@collection),

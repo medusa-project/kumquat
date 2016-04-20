@@ -78,15 +78,18 @@ class Collection < ActiveRecord::Base
   end
 
   ##
+  # @param format [String] URL extension like `json`
   # @return [String] Absolute URI of the Medusa collection resource, or nil
-  # if the instance does not have an ID.
+  #                  if the instance does not have an ID.
   #
-  def medusa_url
+  def medusa_url(format = nil)
+    format = format.present? ? ".#{format.to_s.gsub('.', '')}" : ''
     url = nil
     if self.repository_id
-      url = sprintf('%s/collections/%s.json',
-              PearTree::Application.peartree_config[:medusa_url].chomp('/'),
-              self.repository_id)
+      url = sprintf('%s/collections/%s%s',
+                    PearTree::Application.peartree_config[:medusa_url].chomp('/'),
+                    self.repository_id,
+                    format)
     end
     url
   end
@@ -144,7 +147,7 @@ class Collection < ActiveRecord::Base
     unless self.repository_id
       raise 'update_from_medusa() called without repository_id set'
     end
-    json_str = Medusa.client.get(self.medusa_url).body
+    json_str = Medusa.client.get(self.medusa_url('json')).body
     struct = JSON.parse(json_str)
 
     self.access_url = struct['access_url']
@@ -158,10 +161,6 @@ class Collection < ActiveRecord::Base
     self.representative_item_id = struct['representative_item']
     self.resource_types = struct['resource_types'].map{ |t| t['name'] }
     self.title = struct['title']
-  end
-
-  def url # TODO: replace with medusa_url
-    medusa_url
   end
 
   ##
