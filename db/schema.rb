@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160419200022) do
+ActiveRecord::Schema.define(version: 20160421013630) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -120,14 +120,15 @@ ActiveRecord::Schema.define(version: 20160419200022) do
 
   add_index "items", ["collection_repository_id"], name: "index_items_on_collection_repository_id", using: :btree
   add_index "items", ["parent_repository_id"], name: "index_items_on_parent_repository_id", using: :btree
+  add_index "items", ["published"], name: "index_items_on_published", using: :btree
   add_index "items", ["repository_id"], name: "index_items_on_repository_id", unique: true, using: :btree
   add_index "items", ["representative_item_repository_id"], name: "index_items_on_representative_item_repository_id", using: :btree
 
   create_table "metadata_profiles", force: :cascade do |t|
     t.string   "name"
-    t.boolean  "default"
-    t.datetime "created_at",                      null: false
-    t.datetime "updated_at",                      null: false
+    t.boolean  "default",                         default: false
+    t.datetime "created_at",                                      null: false
+    t.datetime "updated_at",                                      null: false
     t.integer  "default_sortable_element_def_id"
   end
 
@@ -195,7 +196,7 @@ ActiveRecord::Schema.define(version: 20160419200022) do
   end
 
   create_table "users", force: :cascade do |t|
-    t.string   "username"
+    t.string   "username",   null: false
     t.boolean  "enabled"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
