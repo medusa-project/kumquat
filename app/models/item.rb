@@ -368,11 +368,11 @@ class Item < ActiveRecord::Base
 
       # latitude
       lat = node.xpath('lrp:latitude', namespaces).first
-      self.latitude = lat ? lat.content.strip.to_f : nil
+      self.latitude = lat.content.strip.to_f if lat
 
       # longitude
       long = node.xpath('lrp:longitude', namespaces).first
-      self.longitude = long ? long.content.strip.to_f : nil
+      self.longitude = long.content.strip.to_f if long
 
       # page number
       page = node.xpath('lrp:pageNumber', namespaces).first
@@ -397,11 +397,11 @@ class Item < ActiveRecord::Base
       if schema_version == 1
         # subclass
         subclass = node.xpath('lrp:subclass', namespaces).first
-        self.variant = subclass ? subclass.content.strip : nil
+        self.variant = subclass.content.strip if subclass
       else
         # variant
         variant = node.xpath('lrp:variant', namespaces).first
-        self.variant = variant ? variant.content.strip : nil
+        self.variant = variant.content.strip if variant
       end
 
       # subpage number

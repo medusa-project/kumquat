@@ -1,7 +1,7 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  bytestream_type: 1
+  bytestream_type: <%= Bytestream::Type::ACCESS_MASTER %>
   file_group_relative_pathname: MyString
   item: item1
   media_type: text/plain
@@ -10,6 +10,15 @@ one:
   height:
 
 two:
+  bytestream_type: <%= Bytestream::Type::PRESERVATION_MASTER %>
+  file_group_relative_pathname: MyString
+  item: item1
+  media_type: text/plain
+  url: MyString
+  width:
+  height:
+
+three:
   bytestream_type: 1
   file_group_relative_pathname: MyString
   item: item2
