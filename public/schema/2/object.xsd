@@ -10,7 +10,7 @@
       Changes since version 1:
       * entity.xsd has been merged.
       * Elements have been rearranged.
-      * created, lastModified, and webId have been removed.
+      * webId has been removed.
       * published has been made optional.
       * subclass has been renamed to variant.
       * The target namespace and abbreviation have changed.
@@ -151,8 +151,8 @@
       * DESCRIPTIVE ELEMENTS
       * These elements are relatively free-form, and their presence or
       * absence does not generally affect the working of the system.
-      * All elements are optional, but title and description are
-      * recommended.
+      * All elements are optional, but title and description are nice to
+      * have.
       *********************************************************************
       -->
       <xs:element name="abstract" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
