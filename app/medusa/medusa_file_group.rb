@@ -11,8 +11,10 @@ class MedusaFileGroup
   def cfs_directory
     unless @cfs_directory
       load
-      @cfs_directory = MedusaCfsDirectory.new
-      @cfs_directory.id = self.medusa_representation['cfs_directory']['id']
+      if self.medusa_representation['cfs_directory']
+        @cfs_directory = MedusaCfsDirectory.new
+        @cfs_directory.id = self.medusa_representation['cfs_directory']['id']
+      end
     end
     @cfs_directory
   end
@@ -29,8 +31,10 @@ class MedusaFileGroup
     config = PearTree::Application.peartree_config
     url = "#{config[:medusa_url].chomp('/')}/file_groups/#{self.id}.json"
     json_str = Medusa.client.get(url).body
-    FileUtils.mkdir_p("#{Rails.root}/tmp/cache/medusa")
-    File.open(cache_pathname, 'wb') { |f| f.write(json_str) }
+    unless Rails.env.test?
+      FileUtils.mkdir_p("#{Rails.root}/tmp/cache/medusa")
+      File.open(cache_pathname, 'wb') { |f| f.write(json_str) }
+    end
     self.medusa_representation = JSON.parse(json_str)
     @loaded = true
   end
@@ -72,13 +76,17 @@ class MedusaFileGroup
     return if @loaded
     raise 'load() called without ID set' unless self.id.present?
 
-    ttl = PearTree::Application.peartree_config[:medusa_cache_ttl]
-    if File.exist?(cache_pathname) and File.mtime(cache_pathname).
-        between?(Time.at(Time.now.to_i - ttl), Time.now)
-      json_str = File.read(cache_pathname)
-      self.medusa_representation = JSON.parse(json_str)
-    else
+    if Rails.env.test?
       reload
+    else
+      ttl = PearTree::Application.peartree_config[:medusa_cache_ttl]
+      if File.exist?(cache_pathname) and File.mtime(cache_pathname).
+          between?(Time.at(Time.now.to_i - ttl), Time.now)
+        json_str = File.read(cache_pathname)
+        self.medusa_representation = JSON.parse(json_str)
+      else
+        reload
+      end
     end
     @loaded = true
   end

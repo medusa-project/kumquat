@@ -90,11 +90,9 @@ class Bytestream < ActiveRecord::Base
   end
 
   def repository_relative_pathname
-    if self.item
-      return self.item.collection.medusa_file_group.cfs_directory.repository_relative_pathname +
-          self.file_group_relative_pathname
-    end
-    self.file_group_relative_pathname
+    prefix = self.item&.collection&.medusa_file_group&.cfs_directory&.
+        repository_relative_pathname || ''
+    prefix + self.file_group_relative_pathname
   end
 
   def serializable_hash(opts)

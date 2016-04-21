@@ -192,9 +192,14 @@ class ItemsController < WebsiteController
         # authorization is required.
         if authorize_api_user
           version = ItemIngester::SCHEMA_VERSIONS.max
-          if params[:version] and
-              ItemIngester::SCHEMA_VERSIONS.include?(params[:version].to_i)
-            version = params[:version].to_i
+          if params[:version]
+            if ItemIngester::SCHEMA_VERSIONS.include?(params[:version].to_i)
+              version = params[:version].to_i
+            else
+              render text: "Invalid schema version. Available versions: #{ItemIngester::SCHEMA_VERSIONS.join(', ')}",
+                     status: :bad_request
+              return
+            end
           end
           render text: @item.to_dls_xml(version)
         end

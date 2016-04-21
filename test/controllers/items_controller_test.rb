@@ -92,6 +92,43 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_equal 0, Item.where(repository_id: 'item1').count
   end
 
+  # show() with JSON
+
+  test 'show() JSON should return 200' do
+    get('/items/item1.json')
+    assert_response :success
+  end
+
+  # show() with XML
+
+  test 'show() XML with no credentials should return 401' do
+    get('/items/item1.xml?version=1')
+    assert_response :unauthorized
+  end
+
+  test 'show() XML with invalid credentials should return 401' do
+    headers = valid_headers.merge(
+        'Authorization' => ActionController::HttpAuthentication::Basic.
+            encode_credentials('bogus', 'bogus'))
+    get('/items/item1.xml?version=1', nil, headers)
+    assert_response :unauthorized
+  end
+
+  test 'show() with no version should return 200' do
+    get('/items/item1.xml', nil, valid_headers)
+    assert_response :success
+  end
+
+  test 'show() with invalid version should return 400' do
+    get('/items/item1.xml?version=9', nil, valid_headers)
+    assert_response :bad_request
+  end
+
+  test 'show() with valid credentials should return 200' do
+    get('/items/item1.xml?version=1', nil, valid_headers)
+    assert_response :success
+  end
+
   private
 
   def valid_headers
