@@ -8,7 +8,6 @@ class MetadataProfile < ActiveRecord::Base
 
   validates :name, presence: true, length: { minimum: 2 },
             uniqueness: { case_sensitive: false }
-  validate :element_def_names_must_be_unique
 
   after_create :add_default_element_defs
   after_save :ensure_default_uniqueness
@@ -435,13 +434,6 @@ class MetadataProfile < ActiveRecord::Base
     MetadataProfile.default_element_defs.each do |ed|
       ed.metadata_profile = self
       ed.save!
-    end
-  end
-
-  def element_def_names_must_be_unique
-    if self.element_defs.map{ |ed| ed.name }.uniq.length <
-        self.element_defs.length
-      errors.add(:element_defs, 'Elements must be unique.')
     end
   end
 

@@ -7,15 +7,12 @@ module Admin
     #
     def create
       @element = ElementDef.new(sanitized_params)
-      error_entity = @element.metadata_profile
       begin
-        @element.metadata_profile.save! # trigger validations
-        error_entity = @element
         @element.save!
       rescue ActiveRecord::RecordInvalid
         response.headers['X-PearTree-Result'] = 'error'
         render partial: 'shared/validation_messages',
-               locals: { entity: error_entity }
+               locals: { entity: @element }
       rescue => e
         response.headers['X-PearTree-Result'] = 'error'
         flash['error'] = "#{e}"
@@ -62,15 +59,12 @@ module Admin
     #
     def update
       element = ElementDef.find(params[:id])
-      error_entity = element.metadata_profile
       begin
-        element.metadata_profile.save!
-        error_entity = element
         element.update!(sanitized_params)
       rescue ActiveRecord::RecordInvalid
         response.headers['X-PearTree-Result'] = 'error'
         render partial: 'shared/validation_messages',
-               locals: { entity: error_entity }
+               locals: { entity: element }
       rescue => e
         response.headers['X-PearTree-Result'] = 'error'
         flash['error'] = "#{e}"
