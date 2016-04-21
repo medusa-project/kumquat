@@ -13,6 +13,12 @@ namespace :peartree do
     Solr.instance.commit
   end
 
+  desc 'Publish a collection'
+  task :publish_collection, [:id] => :environment do |task, args|
+    Collection.find_by_repository_id(args[:id]).
+        update!(published: true, published_in_dls: true)
+  end
+
   desc 'Validate an XML file'
   task :validate, [:pathname, :schema_version] => :environment do |task, args|
     if ItemIngester.new.validate_pathname(args[:pathname],
