@@ -26,6 +26,8 @@ xml.tag!('OAI-PMH',
     # 4.5
     xml.tag!('ListRecords') do
       @results.each do |item|
+        # This should ideally never hit, but just to be safe...
+        next unless item.collection
         xml.tag!('record') do
           xml.tag!('header') do
             xml.tag!('identifier', oai_pmh_identifier_for(item, @host))
