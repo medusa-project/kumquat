@@ -25,7 +25,7 @@ xml.tag!('OAI-PMH',
   else
     # 4.6
     xml.tag!('ListSets') do
-      @collections.each do |collection|
+      @results.each do |collection|
         xml.tag!('set') do
           xml.tag!('setSpec', collection.repository_id)
           xml.tag!('setName', collection.title)
@@ -44,6 +44,11 @@ xml.tag!('OAI-PMH',
           end
         end
       end
+      xml.tag!('resumptionToken',
+               { 'completeListSize' => @total_num_results,
+                 'cursor' => @results_offset,
+                 'expirationDate' => @expiration_date },
+               @next_page_available ? @resumption_token : nil)
     end
   end
 

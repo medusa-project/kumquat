@@ -32,6 +32,11 @@ xml.tag!('OAI-PMH',
           xml.tag!('setSpec', item.collection.repository_id)
         end
       end
+      xml.tag!('resumptionToken',
+               { 'completeListSize' => @total_num_results,
+                 'cursor' => @results_offset,
+                 'expirationDate' => @expiration_date },
+               @next_page_available ? @resumption_token : nil)
     end
   end
 

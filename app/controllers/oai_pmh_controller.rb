@@ -12,6 +12,7 @@ class OaiPmhController < ApplicationController
   before_action :check_pmh_enabled
   before_action :validate_request
 
+  MAX_LIST_RESULTS = 100
   SUPPORTED_METADATA_FORMATS = ['oai_dc']
 
   def initialize
@@ -103,7 +104,14 @@ class OaiPmhController < ApplicationController
   end
 
   def do_list_sets
-    @collections = Collection.where(published: true).order(:repository_id)
+    @results = Collection.where(published: true).order(:repository_id)
+    @total_num_results = @results.count
+    @results_offset = offset
+    @results = @results.offset(@results_offset)
+    @next_page_available =
+        (@results_offset + MAX_LIST_RESULTS < @total_num_results)
+    @expiration_date = resumption_token_expiration_date
+    @results.limit(MAX_LIST_RESULTS)
     'list_sets.xml.builder'
   end
 
@@ -113,6 +121,21 @@ class OaiPmhController < ApplicationController
     render text: 'This server\'s OAI-PMH endpoint is disabled.',
            status: :service_unavailable unless
         Option::boolean(Option::Key::OAI_PMH_ENABLED)
+  end
+
+  ##
+  # @return [Integer]
+  #
+  def offset
+    if params[:resumptionToken].present?
+      params[:resumptionToken].split(';').each do |pair|
+        kv = pair.split(':')
+        if kv.length == 2 and kv[0] == 'offset'
+          return kv[1].to_i
+        end
+      end
+    end
+    0
   end
 
   def preprocessing_for_list_identifiers_or_records
@@ -140,7 +163,27 @@ class OaiPmhController < ApplicationController
 
     @errors << { code: 'noRecordsMatch',
                  description: 'No matching records.' } unless @results.any?
-    @results
+
+    @total_num_results = @results.count
+    @results_offset = offset
+    @results = @results.offset(@results_offset)
+    @next_page_available =
+        (@results_offset + MAX_LIST_RESULTS < @total_num_results)
+    @resumption_token = resumption_token(@results_offset)
+    @expiration_date = resumption_token_expiration_date
+    @results.limit(MAX_LIST_RESULTS)
+  end
+
+  ##
+  # @param current_offset [Integer]
+  # @return [String]
+  #
+  def resumption_token(current_offset)
+    "offset:#{current_offset + MAX_LIST_RESULTS}"
+  end
+
+  def resumption_token_expiration_date
+    (Time.now + 1.hour).utc.iso8601
   end
 
   def validate_request
