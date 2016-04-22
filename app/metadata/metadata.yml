@@ -2,99 +2,42 @@
 
 accessMasterMediaType:
   type: technical
-  mappings:
-    dc: format
-    dcterms: format
 accessMasterPathname:
   type: technical
-  mappings:
-    dc:
-    dcterms:
 accessMasterURL:
   type: technical
-  mappings:
-    dc:
-    dcterms:
 collectionId:
   type: technical
-  mappings:
-    dc: relation
-    dcterms: isPartOf
 created:
   type: technical
-  mappings:
-    dc: date
-    dcterms: created
 fullText:
   type: technical
-  mappings:
-    dc:
-    dcterms:
 height:
   type: technical
-  mappings:
-    dc:
-    dcterms:
 lastModified:
   type: technical
-  mappings:
-    dc: date
-    dcterms: modified
 pageNumber:
   type: technical
-  mappings:
-    dc:
-    dcterms:
 parentId:
   type: technical
-  mappings:
-    dc: relation
-    dcterms: isPartOf
 preservationMasterMediaType:
   type: technical
-  mappings:
-    dc: format
-    dcterms: format
 preservationMasterPathname:
   type: technical
-  mappings:
-    dc:
-    dcterms:
 preservationMasterURL:
   type: technical
-  mappings:
-    dc:
-    dcterms:
 repositoryId:
   type: technical
-  mappings:
-    dc: identifier
-    dcterms: identifier
 representativeItemId:
   type: technical
-  mappings:
-    dc:
-    dcterms:
 variant:
   type: technical
-  mappings:
-    dc:
-    dcterms:
 subpageNumber:
   type: technical
-  mappings:
-    dc:
-    dcterms:
 webId:
   type: technical
-  mappings:
-    dc: identifier
-    dcterms: identifier
 width:
   type: technical
-  mappings:
-    dc:
-    dcterms:
 
 ########################## descriptive elements ##########################
 
@@ -105,9 +48,6 @@ abstract:
   searchable: true
   sortable: true
   facetable: true
-  mappings:
-    dc: description
-    dcterms: abstract
 accessRights:
   type: descriptive
   label: Access Rights
@@ -115,9 +55,6 @@ accessRights:
   searchable: true
   sortable: true
   facetable: true
-  mappings:
-    dc: rights
-    dcterms: accessRights
 accrualMethod:
   type: descriptive
   label: Accrual Method
@@ -125,9 +62,6 @@ accrualMethod:
   searchable: true
   sortable: true
   facetable: true
-  mappings:
-    dc:
-    dcterms: accrualMethod
 accrualPeriodicity:
   type: descriptive
   label: Accrual Periodicity
@@ -135,9 +69,6 @@ accrualPeriodicity:
   searchable: true
   sortable: true
   facetable: true
-  mappings:
-    dc:
-    dcterms: accrualPeriodicity
 accrualPolicy:
   type: descriptive
   label: Accural Policy
@@ -145,9 +76,6 @@ accrualPolicy:
   searchable: true
   sortable: true
   facetable: true
-  mappings:
-    dc:
-    dcterms: accrualPolicy
 alternativeTitle:
   type: descriptive
   label: Alternative Title
@@ -155,9 +83,6 @@ alternativeTitle:
   searchable: true
   sortable: true
   facetable: true
-  mappings:
-    dc: title
-    dcterms: alternative
 audience:
   type: descriptive
   label: Audience
@@ -165,9 +90,6 @@ audience:
   searchable: true
   sortable: true
   facetable: true
-  mappings:
-    dc:
-    dcterms: audience
 bibId:
   type: descriptive
   label: Bibliographic ID
@@ -175,9 +97,6 @@ bibId:
   searchable: true
   sortable: true
   facetable: true
-  mappings:
-    dc: identifier
-    dcterms: identifier
 bibliographicCitation:
   type: descriptive
   label: Bibliographic Citation
@@ -185,9 +104,6 @@ bibliographicCitation:
   searchable: true
   sortable: true
   facetable: true
-  mappings:
-    dc: identifier
-    dcterms: bibliographicCitation
 callNumber:
   type: descriptive
   label: Call Number
@@ -195,9 +111,6 @@ callNumber:
   searchable: true
   sortable: true
   facetable: true
-  mappings:
-    dc:
-    dcterms:
 cartographicScale:
   type: descriptive
   label: Cartographic Scale
@@ -205,9 +118,6 @@ cartographicScale:
   searchable: true
   sortable: true
   facetable: true
-  mappings:
-    dc:
-    dcterms:
 conformsTo:
   type: descriptive
   label: Conforms To
@@ -215,9 +125,6 @@ conformsTo:
   searchable: true
   sortable: true
   facetable: true
-  mappings:
-    dc: relation
-    dcterms: conformsTo
 contributor:
   type: descriptive
   label: Contributor
@@ -225,9 +132,6 @@ contributor:
   searchable: true
   sortable: true
   facetable: true
-  mappings:
-    dc: contributor
-    dcterms: contributor
 creator:
   type: descriptive
   label: Creator
@@ -235,9 +139,6 @@ creator:
   searchable: true
   sortable: true
   facetable: true
-  mappings:
-    dc: creator
-    dcterms: creator
 date:
   type: descriptive
   label: Date
@@ -245,9 +146,6 @@ date:
   searchable: true
   sortable: true
   facetable: true
-  mappings:
-    dc: date
-    dcterms: date
 dateAccepted:
   type: descriptive
   label: Date Accepted
@@ -255,9 +153,6 @@ dateAccepted:
   searchable: true
   sortable: true
   facetable: true
-  mappings:
-    dc: date
-    dcterms: dateAccepted
 dateAvailable:
   type: descriptive
   label: Date Available
@@ -265,9 +160,6 @@ dateAvailable:
   searchable: true
   sortable: true
   facetable: true
-  mappings:
-    dc: date
-    dcterms: available
 dateCopyrighted:
   type: descriptive
   label: Date Copyrighted
@@ -275,9 +167,6 @@ dateCopyrighted:
   searchable: true
   sortable: true
   facetable: true
-  mappings:
-    dc: date
-    dcterms: dateCopyrighted
 dateCreated:
   type: descriptive
   label: Date Created
@@ -285,9 +174,6 @@ dateCreated:
   searchable: true
   sortable: true
   facetable: true
-  mappings:
-    dc: date
-    dcterms: created
 dateIssued:
   type: descriptive
   label: Date Issued
@@ -295,9 +181,6 @@ dateIssued:
   searchable: true
   sortable: true
   facetable: true
-  mappings:
-    dc: date
-    dcterms: issued
 dateModified:
   type: descriptive
   label: Date Modified
@@ -305,9 +188,6 @@ dateModified:
   searchable: true
   sortable: true
   facetable: true
-  mappings:
-    dc: date
-    dcterms: modified
 dateSubmitted:
   type: descriptive
   label: Date Submitted
@@ -315,9 +195,6 @@ dateSubmitted:
   searchable: true
   sortable: true
   facetable: true
-  mappings:
-    dc: date
-    dcterms: dateSubmitted
 dateValid:
   type: descriptive
   label: Date Valid
@@ -325,9 +202,6 @@ dateValid:
   searchable: true
   sortable: true
   facetable: true
-  mappings:
-    dc: date
-    dcterms: valid
 description:
   type: descriptive
   label: Description
@@ -335,9 +209,6 @@ description:
   searchable: true
   sortable: true
   facetable: true
-  mappings:
-    dc: description
-    dcterms: description
 dimensions:
   type: descriptive
   label: Dimensions
@@ -345,9 +216,6 @@ dimensions:
   searchable: true
   sortable: true
   facetable: true
-  mappings:
-    dc:
-    dcterms:
 educationLevel:
   type: descriptive
   label: Education Level
@@ -355,9 +223,6 @@ educationLevel:
   searchable: true
   sortable: true
   facetable: true
-  mappings:
-    dc:
-    dcterms: educationLevel
 extent:
   type: descriptive
   label: Extent
@@ -365,9 +230,6 @@ extent:
   searchable: true
   sortable: true
   facetable: true
-  mappings:
-    dc: format
-    dcterms: extent
 format:
   type: descriptive
   label: Format
@@ -375,9 +237,6 @@ format:
   searchable: true
   sortable: true
   facetable: true
-  mappings:
-    dc: format
-    dcterms: format
 hasFormat:
   type: descriptive
   label: Has Format
@@ -385,9 +244,6 @@ hasFormat:
   searchable: true
   sortable: true
   facetable: true
-  mappings:
-    dc: relation
-    dcterms: hasFormat
 hasPart:
   type: descriptive
   label: Has Part
@@ -395,9 +251,6 @@ hasPart:
   searchable: true
   sortable: true
   facetable: true
-  mappings:
-    dc: relation
-    dcterms: hasParts
 hasVersion:
   type: descriptive
   label: Has Part
@@ -405,9 +258,6 @@ hasVersion:
   searchable: true
   sortable: true
   facetable: true
-  mappings:
-    dc: relation
-    dcterms: hasVersion
 identifier:
   type: descriptive
   label: Identifier
@@ -415,9 +265,6 @@ identifier:
   searchable: true
   sortable: true
   facetable: true
-  mappings:
-    dc: identifier
-    dcterms: identifier
 instructionalMethod:
   type: descriptive
   label: Instructional Method
@@ -425,9 +272,6 @@ instructionalMethod:
   searchable: true
   sortable: true
   facetable: true
-  mappings:
-    dc:
-    dcterms: instructionalMethod
 isFormatOf:
   type: descriptive
   label: Is Format Of
@@ -435,9 +279,6 @@ isFormatOf:
   searchable: true
   sortable: true
   facetable: true
-  mappings:
-    dc: relation
-    dcterms: isFormatOf
 isPartOf:
   type: descriptive
   label: Is Part Of
@@ -445,9 +286,6 @@ isPartOf:
   searchable: true
   sortable: true
   facetable: true
-  mappings:
-    dc: relation
-    dcterms: isPartOf
 isReferencedBy:
   type: descriptive
   label: Is Referenced By
@@ -455,9 +293,6 @@ isReferencedBy:
   searchable: true
   sortable: true
   facetable: true
-  mappings:
-    dc: relation
-    dcterms: isReferencedBy
 isReplacedBy:
   type: descriptive
   label: Is Replaced By
@@ -465,9 +300,6 @@ isReplacedBy:
   searchable: true
   sortable: true
   facetable: true
-  mappings:
-    dc: relation
-    dcterms: isReplacedBy
 isRequiredBy:
   type: descriptive
   label: Is Required By
@@ -475,9 +307,6 @@ isRequiredBy:
   searchable: true
   sortable: true
   facetable: true
-  mappings:
-    dc: relation
-    dcterms: isRequiredBy
 isVersionOf:
   type: descriptive
   label: Is Version Of
@@ -485,9 +314,6 @@ isVersionOf:
   searchable: true
   sortable: true
   facetable: true
-  mappings:
-    dc: relation
-    dcterms: isVersionOf
 keyword:
   type: descriptive
   label: Keyword
@@ -495,9 +321,6 @@ keyword:
   searchable: true
   sortable: true
   facetable: true
-  mappings:
-    dc: subject
-    dcterms: subject
 language:
   type: descriptive
   label: Language
@@ -505,9 +328,6 @@ language:
   searchable: true
   sortable: true
   facetable: true
-  mappings:
-    dc: language
-    dcterms: language
 latitude:
   type: descriptive
   label: Latitude
@@ -515,9 +335,6 @@ latitude:
   searchable: true
   sortable: true
   facetable: true
-  mappings:
-    dc: coverage
-    dcterms: spatial
 license:
   type: descriptive
   label: License
@@ -525,9 +342,6 @@ license:
   searchable: true
   sortable: true
   facetable: true
-  mappings:
-    dc: rights
-    dcterms: license
 localId:
   type: descriptive
   label: Local ID
@@ -535,9 +349,6 @@ localId:
   searchable: true
   sortable: true
   facetable: true
-  mappings: # no mappings as this is for internal use only.
-    dc:
-    dcterms:
 longitude:
   type: descriptive
   label: Longitude
@@ -545,9 +356,6 @@ longitude:
   searchable: true
   sortable: true
   facetable: true
-  mappings:
-    dc: coverage
-    dcterms: spatial
 materialsColor:
   type: descriptive
   label: Materials Color
@@ -555,9 +363,6 @@ materialsColor:
   searchable: true
   sortable: true
   facetable: true
-  mappings:
-    dc: description
-    dcterms: description
 materialsTechniques:
   type: descriptive
   label: Materials Techniques
@@ -565,9 +370,6 @@ materialsTechniques:
   searchable: true
   sortable: true
   facetable: true
-  mappings:
-    dc: description
-    dcterms: description
 mediator:
   type: descriptive
   label: Mediator
@@ -575,9 +377,6 @@ mediator:
   searchable: true
   sortable: true
   facetable: true
-  mappings:
-    dc:
-    dcterms: mediator
 medium:
   type: descriptive
   label: Medium
@@ -585,9 +384,6 @@ medium:
   searchable: true
   sortable: true
   facetable: true
-  mappings:
-    dc: format
-    dcterms: medium
 notes:
   type: descriptive
   label: Notes
@@ -595,9 +391,6 @@ notes:
   searchable: true
   sortable: true
   facetable: true
-  mappings:
-    dc: description
-    dcterms: description
 physicalLocation:
   type: descriptive
   label: Physical Location
@@ -605,9 +398,6 @@ physicalLocation:
   searchable: true
   sortable: true
   facetable: true
-  mappings:
-    dc:
-    dcterms:
 provenance:
   type: descriptive
   label: Provenance
@@ -615,9 +405,6 @@ provenance:
   searchable: true
   sortable: true
   facetable: true
-  mappings:
-    dc:
-    dcterms: provenance
 publicationPlace:
   type: descriptive
   label: Publication Place
@@ -625,9 +412,6 @@ publicationPlace:
   searchable: true
   sortable: true
   facetable: true
-  mappings:
-    dc:
-    dcterms:
 publisher:
   type: descriptive
   label: Publisher
@@ -635,9 +419,6 @@ publisher:
   searchable: true
   sortable: true
   facetable: true
-  mappings:
-    dc: publisher
-    dcterms: publisher
 references:
   type: descriptive
   label: References
@@ -645,9 +426,6 @@ references:
   searchable: true
   sortable: true
   facetable: true
-  mappings:
-    dc: relation
-    dcterms: references
 relation:
   type: descriptive
   label: Relation
@@ -655,9 +433,6 @@ relation:
   searchable: true
   sortable: true
   facetable: true
-  mappings:
-    dc: relation
-    dcterms: relation
 replaces:
   type: descriptive
   label: Replaces
@@ -665,9 +440,6 @@ replaces:
   searchable: true
   sortable: true
   facetable: true
-  mappings:
-    dc: relation
-    dcterms: replaces
 requires:
   type: descriptive
   label: Requires
@@ -675,9 +447,6 @@ requires:
   searchable: true
   sortable: true
   facetable: true
-  mappings:
-    dc: relation
-    dcterms: requires
 rights:
   type: descriptive
   label: Rights
@@ -685,9 +454,6 @@ rights:
   searchable: true
   sortable: true
   facetable: true
-  mappings:
-    dc: rights
-    dcterms: rights
 rightsHolder:
   type: descriptive
   label: Rights Holder
@@ -695,9 +461,6 @@ rightsHolder:
   searchable: true
   sortable: true
   facetable: true
-  mappings:
-    dc:
-    dcterms: rightsHolder
 source:
   type: descriptive
   label: Source
@@ -705,9 +468,6 @@ source:
   searchable: true
   sortable: true
   facetable: true
-  mappings:
-    dc: source
-    dcterms: source
 spatialCoverage:
   type: descriptive
   label: Spatial Coverage
@@ -715,9 +475,6 @@ spatialCoverage:
   searchable: true
   sortable: true
   facetable: true
-  mappings:
-    dc: coverage
-    dcterms: spatial
 subject:
   type: descriptive
   label: Subject
@@ -725,9 +482,6 @@ subject:
   searchable: true
   sortable: true
   facetable: true
-  mappings:
-    dc: subject
-    dcterms: subject
 tableOfContents:
   type: descriptive
   label: Table of Contents
@@ -735,9 +489,6 @@ tableOfContents:
   searchable: true
   sortable: true
   facetable: true
-  mappings:
-    dc: description
-    dcterms: tableOfContents
 temporalCoverage:
   type: descriptive
   label: Temporal Coverage
@@ -745,9 +496,6 @@ temporalCoverage:
   searchable: true
   sortable: true
   facetable: true
-  mappings:
-    dc: coverage
-    dcterms: temporal
 title:
   type: descriptive
   label: Title
@@ -755,9 +503,6 @@ title:
   searchable: true
   sortable: true
   facetable: false
-  mappings:
-    dc: title
-    dcterms: title
 type:
   type: descriptive
   label: Type
@@ -765,6 +510,3 @@ type:
   searchable: true
   sortable: true
   facetable: true
-  mappings:
-    dc: type
-    dcterms: type

@@ -45,14 +45,6 @@ class Element < ActiveRecord::Base
     '_txtim'
   end
 
-  def dc_name
-    @@element_defs[self.name]['mappings']['dc']
-  end
-
-  def dcterms_name
-    @@element_defs[self.name]['mappings']['dcterms']
-  end
-
   def formatted_value
     case self.name
       when 'latitude'

@@ -2,18 +2,6 @@ require 'test_helper'
 
 class ElementTest < ActiveSupport::TestCase
 
-  test 'dc_name should return the correct name' do
-    e = Element.new
-    e.name = 'spatialCoverage'
-    assert_equal 'coverage', e.dc_name
-  end
-
-  test 'dcterms_name should return the correct name' do
-    e = Element.new
-    e.name = 'spatialCoverage'
-    assert_equal 'spatial', e.dcterms_name
-  end
-
   test 'formatted_value should return the correct value' do
     e = Element.new
     e.name = 'cats'
