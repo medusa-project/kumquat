@@ -1,0 +1,30 @@
+contributor:
+  label: Contributor
+coverage:
+  label: Coverage
+creator:
+  label: Creator
+date:
+  label: Date
+description:
+  label: Description
+format:
+  label: Format
+identifier:
+  label: Identifier
+language:
+  label: Language
+publisher:
+  label: Publisher
+relation:
+  label: Relation
+rights:
+  label: Rights
+source:
+  label: Source
+subject:
+  label: Subject
+title:
+  label: Title
+type:
+  label: Type

@@ -3,605 +3,768 @@
 accessMasterMediaType:
   type: technical
   mappings:
-    bibFrame:
     dc: format
     dcterms: format
-    geo:
 accessMasterPathname:
   type: technical
   mappings:
-    bibFrame:
     dc:
     dcterms:
-    geo:
 accessMasterURL:
   type: technical
   mappings:
-    bibFrame:
     dc:
     dcterms:
-    geo:
 collectionId:
   type: technical
   mappings:
-    bibFrame:
     dc: relation
     dcterms: isPartOf
-    geo:
 created:
   type: technical
   mappings:
-    bibFrame:
     dc: date
     dcterms: created
-    geo:
 fullText:
   type: technical
   mappings:
-    bibFrame:
     dc:
     dcterms:
-    geo:
 height:
   type: technical
   mappings:
-    bibFrame:
     dc:
     dcterms:
-    geo:
 lastModified:
   type: technical
   mappings:
-    bibFrame:
     dc: date
     dcterms: modified
-    geo:
 pageNumber:
   type: technical
   mappings:
-    bibFrame:
     dc:
     dcterms:
-    geo:
 parentId:
   type: technical
   mappings:
-    bibFrame:
     dc: relation
     dcterms: isPartOf
-    geo:
 preservationMasterMediaType:
   type: technical
   mappings:
-    bibFrame:
     dc: format
     dcterms: format
-    geo:
 preservationMasterPathname:
   type: technical
   mappings:
-    bibFrame:
     dc:
     dcterms:
-    geo:
 preservationMasterURL:
   type: technical
   mappings:
-    bibFrame:
     dc:
     dcterms:
-    geo:
 repositoryId:
   type: technical
   mappings:
-    bibFrame:
     dc: identifier
     dcterms: identifier
-    geo:
 representativeItemId:
   type: technical
   mappings:
-    bibFrame:
     dc:
     dcterms:
-    geo:
 variant:
   type: technical
   mappings:
-    bibFrame:
     dc:
     dcterms:
-    geo:
 subpageNumber:
   type: technical
   mappings:
-    bibFrame:
     dc:
     dcterms:
-    geo:
 webId:
   type: technical
   mappings:
-    bibFrame:
     dc: identifier
     dcterms: identifier
-    geo:
 width:
   type: technical
   mappings:
-    bibFrame:
     dc:
     dcterms:
-    geo:
 
 ########################## descriptive elements ##########################
 
 abstract:
   type: descriptive
+  label: Abstract
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
   mappings:
-    bibFrame:
     dc: description
     dcterms: abstract
-    geo:
 accessRights:
   type: descriptive
+  label: Access Rights
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
   mappings:
-    bibFrame:
     dc: rights
     dcterms: accessRights
-    geo:
 accrualMethod:
   type: descriptive
+  label: Accrual Method
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
   mappings:
-    bibFrame:
     dc:
     dcterms: accrualMethod
-    geo:
 accrualPeriodicity:
   type: descriptive
+  label: Accrual Periodicity
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
   mappings:
-    bibFrame:
     dc:
     dcterms: accrualPeriodicity
-    geo:
 accrualPolicy:
   type: descriptive
+  label: Accural Policy
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
   mappings:
-    bibFrame:
     dc:
     dcterms: accrualPolicy
-    geo:
 alternativeTitle:
   type: descriptive
+  label: Alternative Title
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
   mappings:
-    bibFrame:
     dc: title
     dcterms: alternative
-    geo:
 audience:
   type: descriptive
+  label: Audience
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
   mappings:
-    bibFrame:
     dc:
     dcterms: audience
-    geo:
 bibId:
   type: descriptive
+  label: Bibliographic ID
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
   mappings:
-    bibFrame:
     dc: identifier
     dcterms: identifier
-    geo:
 bibliographicCitation:
   type: descriptive
+  label: Bibliographic Citation
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
   mappings:
-    bibFrame:
     dc: identifier
     dcterms: bibliographicCitation
-    geo:
 callNumber:
   type: descriptive
+  label: Call Number
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
   mappings:
-    bibFrame:
     dc:
     dcterms:
-    geo:
 cartographicScale:
   type: descriptive
+  label: Cartographic Scale
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
   mappings:
-    bibFrame: cartographicScale
     dc:
     dcterms:
-    geo:
 conformsTo:
   type: descriptive
+  label: Conforms To
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
   mappings:
-    bibFrame:
     dc: relation
     dcterms: conformsTo
-    geo:
 contributor:
   type: descriptive
+  label: Contributor
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
   mappings:
-    bibFrame:
     dc: contributor
     dcterms: contributor
-    geo:
 creator:
   type: descriptive
+  label: Creator
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
   mappings:
-    bibFrame:
     dc: creator
     dcterms: creator
-    geo:
 date:
   type: descriptive
+  label: Date
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
   mappings:
-    bibFrame:
     dc: date
     dcterms: date
-    geo:
 dateAccepted:
   type: descriptive
+  label: Date Accepted
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
   mappings:
-    bibFrame:
     dc: date
     dcterms: dateAccepted
-    geo:
 dateAvailable:
   type: descriptive
+  label: Date Available
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
   mappings:
-    bibFrame:
     dc: date
     dcterms: available
-    geo:
 dateCopyrighted:
   type: descriptive
+  label: Date Copyrighted
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
   mappings:
-    bibFrame:
     dc: date
     dcterms: dateCopyrighted
-    geo:
 dateCreated:
   type: descriptive
+  label: Date Created
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
   mappings:
-    bibFrame:
     dc: date
     dcterms: created
-    geo:
 dateIssued:
   type: descriptive
+  label: Date Issued
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
   mappings:
-    bibFrame:
     dc: date
     dcterms: issued
-    geo:
 dateModified:
   type: descriptive
+  label: Date Modified
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
   mappings:
-    bibFrame:
     dc: date
     dcterms: modified
-    geo:
 dateSubmitted:
   type: descriptive
+  label: Date Submitted
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
   mappings:
-    bibFrame:
     dc: date
     dcterms: dateSubmitted
-    geo:
 dateValid:
   type: descriptive
+  label: Date Valid
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
   mappings:
-    bibFrame:
     dc: date
     dcterms: valid
-    geo:
 description:
   type: descriptive
+  label: Description
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
   mappings:
-    bibFrame:
     dc: description
     dcterms: description
-    geo:
 dimensions:
   type: descriptive
+  label: Dimensions
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
   mappings:
-    bibFrame:
     dc:
     dcterms:
-    geo:
 educationLevel:
   type: descriptive
+  label: Education Level
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
   mappings:
-    bibFrame:
     dc:
     dcterms: educationLevel
-    geo:
 extent:
   type: descriptive
+  label: Extent
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
   mappings:
-    bibFrame:
     dc: format
     dcterms: extent
-    geo:
 format:
   type: descriptive
+  label: Format
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
   mappings:
-    bibFrame:
     dc: format
     dcterms: format
-    geo:
 hasFormat:
   type: descriptive
+  label: Has Format
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
   mappings:
-    bibFrame:
     dc: relation
     dcterms: hasFormat
-    geo:
 hasPart:
   type: descriptive
+  label: Has Part
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
   mappings:
-    bibFrame:
     dc: relation
     dcterms: hasParts
-    geo:
 hasVersion:
   type: descriptive
+  label: Has Part
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
   mappings:
-    bibFrame:
     dc: relation
     dcterms: hasVersion
-    geo:
 identifier:
   type: descriptive
+  label: Identifier
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
   mappings:
-    bibFrame:
     dc: identifier
     dcterms: identifier
-    geo:
 instructionalMethod:
   type: descriptive
+  label: Instructional Method
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
   mappings:
-    bibFrame:
     dc:
     dcterms: instructionalMethod
-    geo:
 isFormatOf:
   type: descriptive
+  label: Is Format Of
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
   mappings:
-    bibFrame:
     dc: relation
     dcterms: isFormatOf
-    geo:
 isPartOf:
   type: descriptive
+  label: Is Part Of
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
   mappings:
-    bibFrame:
     dc: relation
     dcterms: isPartOf
-    geo:
 isReferencedBy:
   type: descriptive
+  label: Is Referenced By
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
   mappings:
-    bibFrame:
     dc: relation
     dcterms: isReferencedBy
-    geo:
 isReplacedBy:
   type: descriptive
+  label: Is Replaced By
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
   mappings:
-    bibFrame:
     dc: relation
     dcterms: isReplacedBy
-    geo:
 isRequiredBy:
   type: descriptive
+  label: Is Required By
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
   mappings:
-    bibFrame:
     dc: relation
     dcterms: isRequiredBy
-    geo:
 isVersionOf:
   type: descriptive
+  label: Is Version Of
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
   mappings:
-    bibFrame:
     dc: relation
     dcterms: isVersionOf
-    geo:
 keyword:
   type: descriptive
+  label: Keyword
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
   mappings:
-    bibFrame:
     dc: subject
     dcterms: subject
-    geo:
 language:
   type: descriptive
+  label: Language
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
   mappings:
-    bibFrame:
     dc: language
     dcterms: language
-    geo:
 latitude:
   type: descriptive
+  label: Latitude
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
   mappings:
-    bibFrame:
     dc: coverage
     dcterms: spatial
-    geo: lat
 license:
   type: descriptive
+  label: License
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
   mappings:
-    bibFrame:
     dc: rights
     dcterms: license
-    geo:
 localId:
   type: descriptive
+  label: Local ID
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
   mappings: # no mappings as this is for internal use only.
-    bibFrame:
     dc:
     dcterms:
-    geo:
 longitude:
   type: descriptive
+  label: Longitude
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
   mappings:
-    bibFrame:
     dc: coverage
     dcterms: spatial
-    geo: long
 materialsColor:
   type: descriptive
+  label: Materials Color
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
   mappings:
-    bibFrame:
     dc: description
     dcterms: description
-    geo:
 materialsTechniques:
   type: descriptive
+  label: Materials Techniques
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
   mappings:
-    bibFrame:
     dc: description
     dcterms: description
-    geo:
 mediator:
   type: descriptive
+  label: Mediator
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
   mappings:
-    bibFrame:
     dc:
     dcterms: mediator
-    geo:
 medium:
   type: descriptive
+  label: Medium
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
   mappings:
-    bibFrame:
     dc: format
     dcterms: medium
-    geo:
 notes:
   type: descriptive
+  label: Notes
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
   mappings:
-    bibFrame:
     dc: description
     dcterms: description
-    geo:
 physicalLocation:
   type: descriptive
+  label: Physical Location
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
   mappings:
-    bibFrame:
     dc:
     dcterms:
-    geo:
 provenance:
   type: descriptive
+  label: Provenance
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
   mappings:
-    bibFrame:
     dc:
     dcterms: provenance
-    geo:
 publicationPlace:
   type: descriptive
+  label: Publication Place
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
   mappings:
-    bibFrame:
     dc:
     dcterms:
-    geo:
 publisher:
   type: descriptive
+  label: Publisher
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
   mappings:
-    bibFrame:
     dc: publisher
     dcterms: publisher
-    geo:
 references:
   type: descriptive
+  label: References
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
   mappings:
-    bibFrame:
     dc: relation
     dcterms: references
-    geo:
 relation:
   type: descriptive
+  label: Relation
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
   mappings:
-    bibFrame:
     dc: relation
     dcterms: relation
-    geo:
 replaces:
   type: descriptive
+  label: Replaces
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
   mappings:
-    bibFrame:
     dc: relation
     dcterms: replaces
-    geo:
 requires:
   type: descriptive
+  label: Requires
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
   mappings:
-    bibFrame:
     dc: relation
     dcterms: requires
-    geo:
 rights:
   type: descriptive
+  label: Rights
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
   mappings:
-    bibFrame:
     dc: rights
     dcterms: rights
-    geo:
 rightsHolder:
   type: descriptive
+  label: Rights Holder
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
   mappings:
-    bibFrame:
     dc:
     dcterms: rightsHolder
-    geo:
 source:
   type: descriptive
+  label: Source
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
   mappings:
-    bibFrame:
     dc: source
     dcterms: source
-    geo:
 spatialCoverage:
   type: descriptive
+  label: Spatial Coverage
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
   mappings:
-    bibFrame:
     dc: coverage
     dcterms: spatial
-    geo:
 subject:
   type: descriptive
+  label: Subject
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
   mappings:
-    bibFrame:
     dc: subject
     dcterms: subject
-    geo:
 tableOfContents:
   type: descriptive
+  label: Table of Contents
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
   mappings:
-    bibFrame:
     dc: description
     dcterms: tableOfContents
-    geo:
 temporalCoverage:
   type: descriptive
+  label: Temporal Coverage
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
   mappings:
-    bibFrame:
     dc: coverage
     dcterms: temporal
-    geo:
 title:
   type: descriptive
+  label: Title
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: false
   mappings:
-    bibFrame: title
     dc: title
     dcterms: title
-    geo:
 type:
   type: descriptive
+  label: Type
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
   mappings:
-    bibFrame:
     dc: type
     dcterms: type
-    geo:

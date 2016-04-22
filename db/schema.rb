@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160421013630) do
+ActiveRecord::Schema.define(version: 20160421205847) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -85,6 +85,8 @@ ActiveRecord::Schema.define(version: 20160421013630) do
     t.datetime "created_at",                          null: false
     t.datetime "updated_at",                          null: false
     t.boolean  "sortable",            default: false
+    t.string   "dc_map"
+    t.string   "dcterms_map"
   end
 
   add_index "element_defs", ["collection_id"], name: "index_element_defs_on_collection_id", using: :btree

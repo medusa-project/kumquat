@@ -1,0 +1,110 @@
+abstract:
+  label: Abstract
+accessRights:
+  label: Access Rights
+accrualMethod:
+  label: Accrual Method
+accrualPeriodicity:
+  label: Accrual Periodicity
+accrualPolicy:
+  label: Accrual Policy
+alternative:
+  label: Alternative Title
+audience:
+  label: Audience
+available:
+  label: Date Available
+bibliographicCitation:
+  label: Bibliographic Citation
+conformsTo:
+  label: Conforms To
+contributor:
+  label: Contributor
+coverage:
+  label: Coverage
+created:
+  label: Date Created
+creator:
+  label: Creator
+date:
+  label: Date
+dateAccepted:
+  label: Date Accepted
+dateCopyrighted:
+  label: Date Copyrighted
+dateSubmitted:
+  label: Date Submitted
+description:
+  label: Description
+educationLevel:
+  label: Audience Education Level
+extent:
+  label: Extent
+format:
+  label: Format
+hasFormat:
+  label: Has Format
+hasPart:
+  label: Has Part
+hasVersion:
+  label: Has Version
+identifier:
+  label: Identifier
+instructionalMethod:
+  label: Instructional Method
+isFormatOf:
+  label: Is Format Of
+isPartOf:
+  label: Is Part Of
+isReferencedBy:
+  label: Is Referenced By
+isReplacedBy:
+  label: Is Replaced By
+isRequiredBy:
+  label: Is Required By
+issued:
+  label: Date Issued
+isVersionOf:
+  label: Is Version Of
+language:
+  label: Language
+license:
+  label: License
+mediator:
+  label: Mediator
+medium:
+  label: Medium
+modified:
+  label: Date Modified
+provenance:
+  label: Provenance
+publisher:
+  label: Publisher
+references:
+  label: References
+relation:
+  label: Relation
+replaces:
+  label: Replaces
+requires:
+  label: Requires
+rights:
+  label: Rights
+rightsHolder:
+  label: Rights Holder
+source:
+  label: Source
+spatial:
+  label: Spatial Coverage
+subject:
+  label: Subject
+tableOfContents:
+  label: Table Of Contents
+temporal:
+  label: Temporal Coverage
+title:
+  label: Title
+type:
+  label: Type
+valid:
+  label: Date Valid

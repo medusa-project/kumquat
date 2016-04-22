@@ -55,6 +55,22 @@
     </label>
   </div>
 
+  <div class="form-group">
+    <%= f.label :dc_map, 'Dublin Core Mapping' %>
+    <%= select('element_def', 'dc_map',
+               DublinCoreElement.all.map { |p| [ p.label, p.name ] },
+               { include_blank: true, selected: f.object.dc_map },
+               { class: 'form-control' }) %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :dcterms_map, 'Dublin Core Terms Mapping' %>
+    <%= select('element_def', 'dcterms_map',
+               DublinCoreTerm.all.map { |p| [ p.label, p.name ] },
+               { include_blank: true, selected: f.object.dcterms_map },
+               { class: 'form-control' }) %>
+  </div>
+
   <%= f.hidden_field :metadata_profile_id, value: metadata_profile.id %>
 
   <div class="clearfix">

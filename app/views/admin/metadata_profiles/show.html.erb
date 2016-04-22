@@ -46,6 +46,8 @@
         <th></th>
         <th>Element</th>
         <th>Label</th>
+        <th>Dublin Core Map</th>
+        <th>Dublin Core Terms Map</th>
         <th class="text-center">Visible</th>
         <th class="text-center">Searchable</th>
         <th class="text-center">Sortable</th>
@@ -71,6 +73,8 @@
           </td>
           <td><%= element.name %></td>
           <td><%= element.label %></td>
+          <td><%= DublinCoreElement.label_for(element.dc_map) %></td>
+          <td><%= DublinCoreTerm.label_for(element.dcterms_map) %></td>
           <td class="text-center <%= element.visible ? 'bg-success' : 'bg-danger' %>">
             <%= boolean(element.visible) %>
           </td>
