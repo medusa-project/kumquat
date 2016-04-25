@@ -95,6 +95,20 @@ class Relation
     self
   end
 
+  def find_each(options = {})
+    limit = 100
+    page = 1
+    loop do
+      offset = (page - 1) * limit
+      batch = self.limit(limit).start(offset)
+      page += 1
+
+      batch.each{ |x| yield x }
+
+      break if batch.size < limit
+    end
+  end
+
   ##
   # @return [Object<SolrQuerying>, nil]
   #
