@@ -1,5 +1,10 @@
 ########################## technical elements ##########################
 
+accessMasterHeight:
+  type: technical
+  mappings:
+    dc:
+    dcterms:
 accessMasterMediaType:
   type: technical
   mappings:
@@ -11,6 +16,11 @@ accessMasterPathname:
     dc:
     dcterms:
 accessMasterURL:
+  type: technical
+  mappings:
+    dc:
+    dcterms:
+accessMasterWidth:
   type: technical
   mappings:
     dc:
@@ -30,11 +40,6 @@ fullText:
   mappings:
     dc:
     dcterms:
-height:
-  type: technical
-  mappings:
-    dc:
-    dcterms:
 lastModified:
   type: technical
   mappings:
@@ -50,6 +55,11 @@ parentId:
   mappings:
     dc: relation
     dcterms: isPartOf
+preservationMasterHeight:
+  type: technical
+  mappings:
+    dc:
+    dcterms:
 preservationMasterMediaType:
   type: technical
   mappings:
@@ -61,6 +71,11 @@ preservationMasterPathname:
     dc:
     dcterms:
 preservationMasterURL:
+  type: technical
+  mappings:
+    dc:
+    dcterms:
+preservationMasterWidth:
   type: technical
   mappings:
     dc:
@@ -81,11 +96,6 @@ variant:
     dc:
     dcterms:
 subpageNumber:
-  type: technical
-  mappings:
-    dc:
-    dcterms:
-width:
   type: technical
   mappings:
     dc:

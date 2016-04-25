@@ -60,6 +60,18 @@ module Admin
               unshift([ 'Any Element', Item::SolrFields::SEARCH_ALL ])
           @collections = Collection.all
         end
+        format.tsv do
+          # Use Enumerator in conjunction with some custom headers to
+          # stream the results, as an alternative to send_data
+          # which would require them to be loaded into memory first.
+          enumerator = Enumerator.new do |y|
+            y << Item.tsv_header
+            # Item.uncached disables ActiveRecord caching that would prevent
+            # previous find_each batches from being garbage-collected.
+            Item.uncached { @items.find_each { |item| y << item.to_tsv } }
+          end
+          stream(enumerator, 'items.tsv')
+        end
       end
     end
 
