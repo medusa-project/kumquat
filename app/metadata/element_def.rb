@@ -10,8 +10,7 @@ class ElementDef < ActiveRecord::Base
   after_destroy :adjust_profile_element_indexes_after_destroy
 
   def self.all_available
-    Element.all_available.select{ |e| e.type == Element::Type::DESCRIPTIVE }.
-        map{ |e| ElementDef.new(name: e.name) }
+    Element.all_available.map{ |e| ElementDef.new(name: e.name) }
   end
 
   ##

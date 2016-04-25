@@ -46,6 +46,7 @@ module Admin
       element = ElementDef.find(params[:id])
       profile = element.metadata_profile
       name_options_for_select = ElementDef.all_available.
+          select{ |ed| ed.type == Element::Type::DESCRIPTIVE }.
           map{ |t| [ t.name, t.name ] }
       render partial: 'admin/element_defs/form',
              locals: { element_def: element,
