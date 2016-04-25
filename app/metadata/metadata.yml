@@ -85,11 +85,6 @@ subpageNumber:
   mappings:
     dc:
     dcterms:
-webId:
-  type: technical
-  mappings:
-    dc: identifier
-    dcterms: identifier
 width:
   type: technical
   mappings:
