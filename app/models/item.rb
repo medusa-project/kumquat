@@ -68,7 +68,17 @@ class Item < ActiveRecord::Base
   #
   def self.tsv_header
     # Must remain synchronized with the output of to_tsv.
-    Element.all_available.map(&:name).join("\t") + "\n"
+    tech_elements = ['repositoryId', 'parentId', 'collectionId',
+                     'representativeItemId', 'variant', 'pageNumber',
+                     'subpageNumber', 'fullText', 'accessMasterPathname',
+                     'accessMasterURL', 'accessMasterMediaType',
+                     'accessMasterWidth', 'accessMasterHeight',
+                     'preservationMasterPathname', 'preservationMasterURL',
+                     'preservationMasterMediaType', 'preservationMasterWidth',
+                     'preservationMasterHeight', 'created', 'lastModified']
+    elements = tech_elements + Element.all_available.
+        reject{ |e| tech_elements.include?(e.name) }.map(&:name)
+    elements.join("\t") + "\n"
   end
 
   ##
@@ -335,41 +345,42 @@ class Item < ActiveRecord::Base
   # @return [String] Tab-separated values with trailing newline.
   # @see tsv_header
   #
-  def to_tsv(options = {})
+  def to_tsv
     # Columns must remain synchronized with the output of tsv_header. There
     # must also be a fixed number of columns, in order for the CSV schema to
     # be convertible (i.e. to dump large numbers of items at once).
     # Properties with multiple values are placed in the same cell, separated
     # by vertical bar characters.
     columns = []
-    bs = self.bytestreams.
-        where(bytestream_type: Bytestream::Type::ACCESS_MASTER).first
-    columns << bs&.height
-    columns << bs&.media_type
-    columns << bs&.file_group_relative_pathname
-    columns << bs&.url
-    columns << bs&.width
-    columns << self.collection_repository_id
-    columns << self.created_at.utc.iso8601
-    columns << self.full_text
-    columns << self.updated_at.utc.iso8601
-    columns << self.page_number
-    columns << self.parent_repository_id
-    bs = self.bytestreams.
-        where(bytestream_type: Bytestream::Type::PRESERVATION_MASTER).first
-    columns << bs&.height
-    columns << bs&.media_type
-    columns << bs&.file_group_relative_pathname
-    columns << bs&.url
-    columns << bs&.width
     columns << self.repository_id
+    columns << self.parent_repository_id
+    columns << self.collection_repository_id
     columns << self.representative_item_repository_id
     columns << self.variant
+    columns << self.page_number
     columns << self.subpage_number
+    columns << self.full_text
+    bs = self.bytestreams.
+        where(bytestream_type: Bytestream::Type::ACCESS_MASTER).first
+    columns << bs&.file_group_relative_pathname
+    columns << bs&.url
+    columns << bs&.media_type
+    columns << bs&.width
+    columns << bs&.height
+    bs = self.bytestreams.
+        where(bytestream_type: Bytestream::Type::PRESERVATION_MASTER).first
+    columns << bs&.file_group_relative_pathname
+    columns << bs&.url
+    columns << bs&.media_type
+    columns << bs&.width
+    columns << bs&.height
+    columns << self.created_at.utc.iso8601
+    columns << self.updated_at.utc.iso8601
 
     Element.all_available.
         select{ |ed| ed.type == Element::Type::DESCRIPTIVE }.each do |el|
-      columns << self.elements.where(name: el.name).map(&:value).join('|')
+      columns << self.elements.select{ |e| e.name == el.name }.map(&:value).
+          join('|')
     end
     columns.join("\t") + "\n"
   end

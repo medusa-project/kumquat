@@ -10,8 +10,7 @@ module Admin
 
       @start = params[:start] ? params[:start].to_i : 0
       @limit = Option::integer(Option::Key::RESULTS_PER_PAGE)
-      @items = Item.solr.where(Item::SolrFields::PARENT_ITEM => :null).
-          where(params[:q]).facet(false)
+      @items = Item.solr.where(params[:q]).facet(false)
 
       # fields
       field_input_present = false
@@ -47,7 +46,8 @@ module Admin
           unless field_input_present
             @items = @items.order(Element.named('title').solr_single_valued_field)
           end
-          @items = @items.start(@start).limit(@limit)
+          @items = @items.where(Item::SolrFields::PARENT_ITEM => :null).
+              start(@start).limit(@limit)
           @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
           @num_results_shown = [@limit, @items.total_length].min
 
@@ -61,6 +61,7 @@ module Admin
           @collections = Collection.all
         end
         format.tsv do
+          # The TSV representation includes item children.
           # Use Enumerator in conjunction with some custom headers to
           # stream the results, as an alternative to send_data
           # which would require them to be loaded into memory first.
@@ -68,7 +69,10 @@ module Admin
             y << Item.tsv_header
             # Item.uncached disables ActiveRecord caching that would prevent
             # previous find_each batches from being garbage-collected.
-            Item.uncached { @items.find_each { |item| y << item.to_tsv } }
+            Item.uncached do
+              @items.order(Element.named('repositoryId').solr_single_valued_field).
+                  find_each { |item| y << item.to_tsv }
+            end
           end
           stream(enumerator, 'items.tsv')
         end
