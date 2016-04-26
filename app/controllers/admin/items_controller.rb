@@ -58,7 +58,7 @@ module Admin
               map{ |p| [p.label, nil] }.uniq
           @elements_for_select.
               unshift([ 'Any Element', Item::SolrFields::SEARCH_ALL ])
-          @collections = Collection.all
+          @collections = Collection.where(published_in_dls: true)
         end
         format.tsv do
           # The TSV representation includes item children.
