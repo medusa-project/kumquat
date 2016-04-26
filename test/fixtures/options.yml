@@ -3,23 +3,19 @@
 administrator_email:
   key: <%= Option::Key::ADMINISTRATOR_EMAIL %>
   value: '{"value" : "admin@example.org"}'
-  created_at: <%= Time.now %>
-  updated_at: <%= Time.now %>
 
 oai_pmh_enabled:
   key: <%= Option::Key::OAI_PMH_ENABLED %>
   value: '{"value" : 1}'
-  created_at: <%= Time.now %>
-  updated_at: <%= Time.now %>
+
+results_per_page:
+  key: <%= Option::Key::RESULTS_PER_PAGE %>
+  value: '{"value" : 20}'
 
 website_intro_text:
   key: <%= Option::Key::WEBSITE_INTRO_TEXT %>
   value: '{"value" : "bah humbug"}'
-  created_at: <%= Time.now %>
-  updated_at: <%= Time.now %>
 
 website_name:
   key: <%= Option::Key::WEBSITE_NAME %>
   value: '{"value" : "My Great Website"}'
-  created_at: <%= Time.now %>
-  updated_at: <%= Time.now %>
