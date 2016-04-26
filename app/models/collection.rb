@@ -57,6 +57,17 @@ class Collection < ActiveRecord::Base
     Solr.instance.delete(self.solr_id)
   end
 
+  ##
+  # The effective CFS directory of the instance -- either one that is directly
+  # assigned, or the root CFS directory of the file group.
+  #
+  # @return [MedusaCfsDirectory, nil]
+  # @see medusa_cfs_directory
+  #
+  def effective_medusa_cfs_directory
+    self.medusa_cfs_directory || self.medusa_file_group&.cfs_directory
+  end
+
   def effective_metadata_profile
     self.metadata_profile || MetadataProfile.default
   end
@@ -67,7 +78,12 @@ class Collection < ActiveRecord::Base
   end
 
   ##
+  # The CFS directory in which content resides. This may be the same as the
+  # root CFS directory of the file group, or deeper within it. This is used
+  # as a refinement of medusa_file_group.
+  #
   # @return [MedusaCfsDirectory, nil]
+  # @see effective_medusa_cfs_directory
   #
   def medusa_cfs_directory
     unless @cfs_directory
