@@ -6,6 +6,11 @@
   </div>
 
   <div class="form-group">
+    <%= f.label :medusa_cfs_directory_id, 'Medusa CFS Directory ID' %>
+    <%= f.text_field(:medusa_cfs_directory_id, class: 'form-control') %>
+  </div>
+
+  <div class="form-group">
     <%= f.label :metadata_profile_id, 'Metadata Profile' %>
     <%= select(:collection, :metadata_profile_id,
                @metadata_profile_options_for_select, {},

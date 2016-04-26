@@ -63,6 +63,14 @@
               None
             <% end %>
           </dd>
+          <dt>Medusa CFS Directory</dt>
+          <dd>
+            <% if @collection.medusa_cfs_directory %>
+              <%= link_to(@collection.medusa_cfs_directory_id,
+                          @collection.medusa_cfs_directory.url,
+                          target: '_blank') %>
+            <% end %>
+          </dd>
           <dt>Published</dt>
           <dd><span class="label <%= @collection.published ? 'label-success' : 'label-danger' %>">
             <%= @collection.published ? 'Published' : 'Unpublished' %></span></dd>

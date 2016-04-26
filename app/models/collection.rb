@@ -66,6 +66,20 @@ class Collection < ActiveRecord::Base
     Solr.instance.add(self.to_solr)
   end
 
+  ##
+  # @return [MedusaCfsDirectory, nil]
+  #
+  def medusa_cfs_directory
+    unless @cfs_directory
+      @cfs_directory = nil
+      if self.medusa_cfs_directory_id
+        @cfs_directory = MedusaCfsDirectory.new
+        @cfs_directory.id = self.medusa_cfs_directory_id
+      end
+    end
+    @cfs_directory
+  end
+
   def medusa_file_group
    unless @file_group
      @file_group = nil
