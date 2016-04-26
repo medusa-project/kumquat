@@ -70,7 +70,7 @@ module Admin
             # Item.uncached disables ActiveRecord caching that would prevent
             # previous find_each batches from being garbage-collected.
             Item.uncached do
-              @items.order(Element.named('repositoryId').solr_single_valued_field).
+              @items.order(Item::SolrFields::ID).
                   find_each { |item| y << item.to_tsv }
             end
           end
