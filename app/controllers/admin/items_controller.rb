@@ -83,7 +83,7 @@ module Admin
     #
     def search
       index
-      render 'index' unless params[:clear]
+      render 'index' if !params[:clear] and request.format == :html
     end
 
     def show
