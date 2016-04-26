@@ -361,14 +361,14 @@ class Item < ActiveRecord::Base
     columns << self.subpage_number
     columns << self.full_text
     bs = self.bytestreams.
-        where(bytestream_type: Bytestream::Type::ACCESS_MASTER).first
+        select{ |b| b.bytestream_type == Bytestream::Type::ACCESS_MASTER }.first
     columns << bs&.file_group_relative_pathname
     columns << bs&.url
     columns << bs&.media_type
     columns << bs&.width
     columns << bs&.height
     bs = self.bytestreams.
-        where(bytestream_type: Bytestream::Type::PRESERVATION_MASTER).first
+        select{ |b| b.bytestream_type == Bytestream::Type::PRESERVATION_MASTER }.first
     columns << bs&.file_group_relative_pathname
     columns << bs&.url
     columns << bs&.media_type
