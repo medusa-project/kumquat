@@ -321,6 +321,7 @@ module ItemsHelper
 
     html = "<ol start=\"#{start + 1}\">"
     items.each do |item|
+      next unless item # item may be nil in testing
       link_target = options[:link_to_admin] ?
           admin_item_path(item) : polymorphic_path(item)
       html += '<li>'\
