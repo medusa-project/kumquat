@@ -24,17 +24,16 @@ module Admin
       end
 
       # collections
-      collections = []
-      collections = params[:collections].select{ |k| !k.blank? } if
-          params[:collections] and params[:collections].any?
-      if collections.any?
-        if collections.length == 1
-          @items = @items.where("#{Item::SolrFields::COLLECTION}:\"#{collections.first}\"")
-        else
-          @items = @items.where("#{Item::SolrFields::COLLECTION}:(#{collections.join(' ')})")
+      if params[:collections] and params[:collections].any?
+        collections = params[:collections].select{ |k| k.present? }
+        if collections.any?
+          if collections.length == 1
+            @items = @items.where("#{Item::SolrFields::COLLECTION}:\"#{collections.first}\"")
+          else
+            @items = @items.where("#{Item::SolrFields::COLLECTION}:(#{collections.join(' ')})")
+          end
         end
       end
-
       if params[:published].present? and params[:published] != 'any'
         @items = @items.where("#{Item::SolrFields::PUBLISHED}:#{params[:published].to_i}")
       end
@@ -42,7 +41,7 @@ module Admin
       respond_to do |format|
         format.html do
           # if there is no user-entered query, sort by title. Otherwise, use
-          # the default sort, which is by relevancy
+          # the default sort, which is by relevance
           unless field_input_present
             @items = @items.order(Element.named('title').solr_single_valued_field)
           end
@@ -51,18 +50,18 @@ module Admin
           @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
           @num_results_shown = [@limit, @items.total_length].min
 
-          # these are used by the search form
-          #@elements_for_select = ElementDef.order(:name).
-          #    map{ |p| [p.name, p.solr_field] }.uniq
+          # These are used by the search form.
           @elements_for_select = ElementDef.order(:name).
-              map{ |p| [p.label, nil] }.uniq
+              map{ |p| [p.label, p.solr_multi_valued_field] }.uniq
           @elements_for_select.
               unshift([ 'Any Element', Item::SolrFields::SEARCH_ALL ])
           @collections = Collection.where(published_in_dls: true)
         end
         format.tsv do
-          # The TSV representation includes item children.
-          # Use Enumerator in conjunction with some custom headers to
+          # The TSV representation includes item children. Ordering, limit,
+          # offset, etc. is not customizable.
+
+          # Here we use Enumerator in conjunction with some custom headers to
           # stream the results, as an alternative to send_data
           # which would require them to be loaded into memory first.
           enumerator = Enumerator.new do |y|
