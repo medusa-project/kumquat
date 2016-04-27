@@ -422,17 +422,16 @@ module ItemsHelper
   end
 
   ##
-  # @param entity [Object]
+  # @param item [Item]
   # @return [String]
   # @see `tech_metadata_as_list`
   #
-  def metadata_as_list(entity)
+  def metadata_as_list(item)
     html = '<dl class="pt-metadata">'
     # iterate through the index-ordered elements in the collection's metadata
     # profile in order to display the entity's elements in the correct order
-    collection = entity.kind_of?(Collection) ? entity : entity.collection
-    collection.effective_metadata_profile.element_defs.each do |e_def|
-      elements = entity.elements.
+    item.collection.effective_metadata_profile.element_defs.each do |e_def|
+      elements = item.elements.
           select{ |e| e.name == e_def.name and e.value.present? }
       next if elements.empty?
       html += "<dt>#{e_def.label}</dt>"
@@ -453,18 +452,17 @@ module ItemsHelper
   end
 
   ##
-  # @param entity [Object]
+  # @param item [Item]
   # @return [String]
   # @see `tech_metadata_as_table`
   #
-  def metadata_as_table(entity)
+  def metadata_as_table(item)
     html = '<table class="table table-condensed pt-metadata">'
 
     # iterate through the index-ordered elements in the collection's metadata
     # profile in order to display the entity's elements in the correct order
-    collection = entity.kind_of?(Collection) ? entity : entity.collection
-    collection.effective_metadata_profile.element_defs.each do |e_def|
-      elements = entity.elements.
+    item.collection.effective_metadata_profile.element_defs.each do |e_def|
+      elements = item.elements.
           select{ |e| e.name == e_def.name and e.value.present? }
       next if elements.empty?
       html += '<tr>'
