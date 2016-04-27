@@ -112,19 +112,21 @@
 
 <div class="row">
   <div class="col-lg-9">
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <h2 class="panel-title">Descriptive Info</h2>
-      </div>
-      <div class="panel-body">
-        <div class="visible-xs">
-          <%= metadata_as_list(@item) %>
+    <% if @item.elements.reject{ |e| e.name == 'title' }.any? %>
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h2 class="panel-title">Descriptive Info</h2>
         </div>
-        <div class="hidden-xs">
-          <%= metadata_as_table(@item) %>
+        <div class="panel-body">
+          <div class="visible-xs">
+            <%= metadata_as_list(@item) %>
+          </div>
+          <div class="hidden-xs">
+            <%= metadata_as_table(@item) %>
+          </div>
         </div>
       </div>
-    </div>
+    <% end %>
   </div>
   <div class="col-lg-3">
     <div class="panel panel-default">
