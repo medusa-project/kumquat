@@ -17,8 +17,13 @@ module Admin
     def index
       @limit = Option::integer(Option::Key::RESULTS_PER_PAGE)
       @start = params[:start] ? params[:start].to_i : 0
-      @collections = Collection.solr.order(Collection::SolrFields::TITLE).
-          start(@start).limit(@limit)
+
+      @collections = Collection.solr.order(Collection::SolrFields::TITLE).limit(@limit)
+      if params[:q].present?
+        @collections.where("#{Collection::SolrFields::TITLE}:*#{params[:q]}*")
+      else
+        @collections.start(@start)
+      end
       @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
     end
 

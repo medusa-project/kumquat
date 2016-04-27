@@ -1,0 +1,30 @@
+<table class="table table-striped">
+  <thead>
+    <th>Collection</th>
+    <th>Published</th>
+    <th>Published in DLS</th>
+    <th>Metadata Profile</th>
+    <th>Theme</th>
+  </thead>
+  <tbody>
+    <% @collections.each do |col| %>
+      <tr>
+        <td><%= link_to col.title, admin_collection_path(col) %></td>
+        <td class="text-center <%= col.published ? 'bg-success' : 'bg-danger' %>">
+          <%= boolean(col.published) %>
+        </td>
+        <td class="text-center <%= col.published_in_dls ? 'bg-success' : 'bg-danger' %>">
+          <%= boolean(col.published_in_dls) %>
+        </td>
+        <td><%= col.metadata_profile ? col.metadata_profile.name :
+                    "Default (#{MetadataProfile.default.name})" %></td>
+        <td><%= col.theme ? col.theme.name :
+                    "Default (#{Theme.default.name})" %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<div class="text-center">
+  <%= paginate(@collections, @limit, @current_page) %>
+</div>
