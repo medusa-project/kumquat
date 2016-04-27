@@ -87,7 +87,7 @@ module Admin
     end
 
     def show
-      @item = Item.find(params[:id])
+      @item = Item.find_by_repository_id(params[:id])
       raise ActiveRecord::RecordNotFound unless @item
 
       respond_to do |format|

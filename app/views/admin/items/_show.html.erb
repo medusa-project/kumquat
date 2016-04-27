@@ -5,10 +5,9 @@
 </ol>
 
 <div class="btn-group pull-right">
-  <%= link_to @item, class: 'btn btn-default' do %>
+  <%= link_to @item, class: 'btn btn-default', target: '_blank' do %>
     <i class="fa fa-globe"></i> Public View
   <% end %>
-  <%= download_button(@item, for_admin: true) %>
 </div>
 
 <% if @item.parent %>
@@ -46,8 +45,6 @@
       </div>
       <div class="panel-body">
         <dl>
-          <dt>Repository Location</dt>
-          <dd><%= @item.metadata_pathname %></dd>
           <dt>Created</dt>
           <dd><%= local_time(@item.created_at) %></dd>
           <dt>Last Indexed</dt>
