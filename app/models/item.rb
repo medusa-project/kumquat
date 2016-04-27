@@ -396,8 +396,10 @@ class Item < ActiveRecord::Base
     case schema_version
       when 1
         namespaces = ItemIngester::XML_V1_NAMESPACE
+        prefix = 'lrp'
       else
         namespaces = ItemIngester::XML_V2_NAMESPACE
+        prefix = 'dls'
     end
 
     ActiveRecord::Base.transaction do
@@ -405,12 +407,12 @@ class Item < ActiveRecord::Base
       self.bytestreams.destroy_all
 
       # collection
-      col_id = node.xpath('lrp:collectionId', namespaces).first
+      col_id = node.xpath("#{prefix}:collectionId", namespaces).first
       self.collection_repository_id = col_id.content.strip if col_id
 
       # date
-      date = node.xpath('lrp:date', namespaces).first
-      date = node.xpath('lrp:dateCreated', namespaces).first unless date
+      date = node.xpath("#{prefix}:date", namespaces).first
+      date = node.xpath("#{prefix}:dateCreated", namespaces).first unless date
       if date
         date = date.content.strip
         iso8601 = nil
@@ -426,103 +428,103 @@ class Item < ActiveRecord::Base
       end
 
       # full text
-      id = node.xpath('lrp:fullText', namespaces).first
+      id = node.xpath("#{prefix}:fullText", namespaces).first
       self.full_text = id.content.strip if id
 
       # latitude
-      lat = node.xpath('lrp:latitude', namespaces).first
+      lat = node.xpath("#{prefix}:latitude", namespaces).first
       self.latitude = lat.content.strip.to_f if lat
 
       # longitude
-      long = node.xpath('lrp:longitude', namespaces).first
+      long = node.xpath("#{prefix}:longitude", namespaces).first
       self.longitude = long.content.strip.to_f if long
 
       # page number
-      page = node.xpath('lrp:pageNumber', namespaces).first
+      page = node.xpath("#{prefix}:pageNumber", namespaces).first
       self.page_number = page.content.strip.to_i if page
 
       # parent item
-      parent = node.xpath('lrp:parentId', namespaces).first
+      parent = node.xpath("#{prefix}:parentId", namespaces).first
       self.parent_repository_id = parent.content.strip if parent
 
       # published
-      published = node.xpath('lrp:published', namespaces).first
+      published = node.xpath("#{prefix}:published", namespaces).first
       self.published = %w(true 1).include?(published.content.strip) if published
 
       # repository ID
-      rep_id = node.xpath('lrp:repositoryId', namespaces).first
+      rep_id = node.xpath("#{prefix}:repositoryId", namespaces).first
       self.repository_id = rep_id.content.strip
 
       # representative item ID
-      rep_item_id = node.xpath('lrp:representativeItemId', namespaces).first
+      rep_item_id = node.xpath("#{prefix}:representativeItemId", namespaces).first
       self.representative_item_repository_id = rep_item_id.content.strip if rep_item_id
 
       if schema_version == 1
         # subclass
-        subclass = node.xpath('lrp:subclass', namespaces).first
+        subclass = node.xpath("#{prefix}:subclass", namespaces).first
         self.variant = subclass.content.strip if subclass
       else
         # variant
-        variant = node.xpath('lrp:variant', namespaces).first
+        variant = node.xpath("#{prefix}:variant", namespaces).first
         self.variant = variant.content.strip if variant
       end
 
       # subpage number
-      page = node.xpath('lrp:subpageNumber', namespaces).first
+      page = node.xpath("#{prefix}:subpageNumber", namespaces).first
       self.subpage_number = page.content.strip.to_i if page
 
       # access master (pathname)
-      am = node.xpath('lrp:accessMasterPathname', namespaces).first
+      am = node.xpath("#{prefix}:accessMasterPathname", namespaces).first
       if am
         bs = self.bytestreams.build
         bs.bytestream_type = Bytestream::Type::ACCESS_MASTER
         bs.file_group_relative_pathname = am.content.strip
         # width
-        width = node.xpath('lrp:accessMasterWidth', namespaces).first
+        width = node.xpath("#{prefix}:accessMasterWidth", namespaces).first
         bs.width = width.content.strip.to_i if width
         # height
-        height = node.xpath('lrp:accessMasterHeight', namespaces).first
+        height = node.xpath("#{prefix}:accessMasterHeight", namespaces).first
         bs.height = height.content.strip.to_i if height
         # media type
-        mt = node.xpath('lrp:accessMasterMediaType', namespaces).first
+        mt = node.xpath("#{prefix}:accessMasterMediaType", namespaces).first
         bs.media_type = mt.content.strip if mt
         bs.save!
       else # access master (URL)
-        am = node.xpath('lrp:accessMasterURL', namespaces).first
+        am = node.xpath("#{prefix}:accessMasterURL", namespaces).first
         if am
           bs = self.bytestreams.build
           bs.bytestream_type = Bytestream::Type::ACCESS_MASTER
           bs.url = am.content.strip
           # media type
-          mt = node.xpath('lrp:accessMasterMediaType', namespaces).first
+          mt = node.xpath("#{prefix}:accessMasterMediaType", namespaces).first
           bs.media_type = mt.content.strip if mt
           bs.save!
         end
       end
 
       # preservation master (pathname)
-      pm = node.xpath('lrp:preservationMasterPathname', namespaces).first
+      pm = node.xpath("#{prefix}:preservationMasterPathname", namespaces).first
       if pm
         bs = self.bytestreams.build
         bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
         bs.file_group_relative_pathname = pm.content.strip
-        mt = node.xpath('lrp:preservationMasterMediaType', namespaces).first
+        mt = node.xpath("#{prefix}:preservationMasterMediaType", namespaces).first
         bs.media_type = mt.content.strip if mt
         bs.save!
       else # preservation master (URL)
-        pm = node.xpath('lrp:preservationMasterURL', namespaces).first
+        pm = node.xpath("#{prefix}:preservationMasterURL", namespaces).first
         if pm
           bs = self.bytestreams.build
           bs.bytestream_type = Bytestream::Type::ACCESS_MASTER
           bs.url = pm.content.strip
           # width
-          width = node.xpath('lrp:preservationMasterWidth', namespaces).first
+          width = node.xpath("#{prefix}:preservationMasterWidth", namespaces).first
           bs.width = width.content.strip.to_i if width
           # height
-          height = node.xpath('lrp:preservationMasterHeight', namespaces).first
+          height = node.xpath("#{prefix}:preservationMasterHeight", namespaces).first
           bs.height = height.content.strip.to_i if height
           # media type
-          mt = node.xpath('lrp:preservationMasterMediaType', namespaces).first
+          mt = node.xpath("#{prefix}:preservationMasterMediaType", namespaces).first
           bs.media_type = mt.content.strip if mt
           bs.save!
         end
@@ -530,7 +532,7 @@ class Item < ActiveRecord::Base
 
       descriptive_elements = Element.all_available.
           select{ |e| e.type == Element::Type::DESCRIPTIVE }.map(&:name)
-      node.xpath('lrp:*', namespaces).each do |md_node|
+      node.xpath("#{prefix}:*", namespaces).each do |md_node|
         if descriptive_elements.include?(md_node.name)
           e = Element.named(md_node.name)
           e.value = md_node.content.strip
