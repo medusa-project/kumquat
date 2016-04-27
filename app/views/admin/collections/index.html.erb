@@ -13,7 +13,7 @@
   <% end %>
 </div>
 
-<h1>Collections <small><%= @collections.select{ |c| c.published }.length %> published</small></h1>
+<h1>Collections <small><%= @collections.total_length %> total</small></h1>
 
 <table class="table table-striped">
   <thead>
@@ -41,3 +41,7 @@
     <% end %>
   </tbody>
 </table>
+
+<div class="text-center">
+  <%= paginate(@collections, @limit, @current_page) %>
+</div>
