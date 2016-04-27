@@ -432,8 +432,8 @@ module ItemsHelper
     # profile in order to display the entity's elements in the correct order
     collection = entity.kind_of?(Collection) ? entity : entity.collection
     collection.effective_metadata_profile.element_defs.each do |e_def|
-      elements = entity.elements.where(name: e_def.name).
-          select{ |e| e.value.present? }
+      elements = entity.elements.
+          select{ |e| e.name == e_def.name and e.value.present? }
       next if elements.empty?
       html += "<dt>#{e_def.label}</dt>"
       html += '<dd>'
@@ -464,8 +464,8 @@ module ItemsHelper
     # profile in order to display the entity's elements in the correct order
     collection = entity.kind_of?(Collection) ? entity : entity.collection
     collection.effective_metadata_profile.element_defs.each do |e_def|
-      elements = entity.elements.where(name: e_def.name).
-          select{ |e| e.value.present? }
+      elements = entity.elements.
+          select{ |e| e.name == e_def.name and e.value.present? }
       next if elements.empty?
       html += '<tr>'
       html += "<td>#{e_def.label}</td>"
