@@ -901,13 +901,15 @@ module ItemsHelper
   ##
   # @param bs [Bytestream]
   # @param size [Integer]
+  # @param shape [Symbol] :default or :square
   # @return [String, nil] Image URL or nil if the item is not an image
   #
-  def bytestream_image_url(bs, size)
+  def bytestream_image_url(bs, size, shape = :default)
     url = nil
     if (bs.is_image? or bs.is_pdf?) and bs.file_group_relative_pathname
-      url = sprintf('%s/full/!%d,%d/0/default.jpg',
-                     iiif_bytestream_url(bs), size, size)
+      shape = (shape == :default) ? 'full' : 'square'
+      url = sprintf('%s/%s/!%d,%d/0/default.jpg',
+                     iiif_bytestream_url(bs), shape, size, size)
     end
     url
   end
