@@ -3,25 +3,22 @@
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
 body#collections_index {
-  div.media {
-    margin-bottom: 1em;
+  div.pt-card {
+    height: 320px;
+    padding: 5px;
+    div.pt-image {
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: 112%;
+      height: 230px;
+      a {
+        display: block;
+        height: 100%;
+        width: 100%;
+      }
+    }
   }
 
-  #pt-letter-links {
-    margin-bottom: 1em;
-    padding: 0.4em 0em 0.4em 0em;
-    a {
-      font-weight: 600;
-    }
-    z-index: 100;
-  }
-  #pt-letter-links.affix {
-    background-color: white;
-    border-bottom: 1px solid $gray-lighter;
-    left: 0px;
-    top: 0px;
-    width: 100%;
-  }
   /* center the nav pills */
   .nav-tabs > li, .nav-pills > li {
     float: none;

@@ -51,48 +51,41 @@ module CollectionsHelper
     raw(html)
   end
 
-  ##
-  # @param collections [Relation]
-  # @return [String]
-  #
-  def collections_as_list(collections)
-    thumb_size = 140
-    html = ''
-    previous_first_letter = ''
+  def collections_as_cards(collections)
+    thumb_size = 500
+    html = '<div class="row">'
+
+    index = 0
     collections.each do |col|
       next unless effective_collection_access_url(col)
 
       bs = col.representative_image_bytestream
       if bs
-        img_url = bytestream_image_url(bs, thumb_size)
+        img_url = bytestream_image_url(bs, thumb_size, :square)
       else
         img_url = image_url('folder-open-o-600.png')
       end
 
-      # Sprinkle in some invisible IDed elements for the letter navigation
-      # links to jump to.
-      if col.title[0].upcase != previous_first_letter
-        normalized_title = col.title.downcase.gsub(/^a /, '').gsub(/^an /, '').
-            gsub(/^the /, '')
-        previous_first_letter = normalized_title[0].upcase
-        html += "<span id=\"#{previous_first_letter}\"></span>"
+      if index % 3 == 0
+
       end
 
-      html += '<div class="media">'
-      html += '<div class="media-left">'
-      html += link_to(collection_url(col)) do
-        image_tag(img_url, class: 'media-object', alt: 'Collection thumbnail',
-                  style: "width: #{thumb_size}px")
-      end
-      html += '</div>'
-      html += '<div class="media-body">'
-      html += '<h4 class="media-heading">'
+      html += '<div class="col-xs-6 col-md-4">'
+      html += '  <div class="pt-card">'
+      html += "    <div class=\"pt-image\" style=\"background-image: url(#{img_url});\">"
+      html += link_to('', collection_url(col))
+      html += '    </div>'
+      html += '    <div class="pt-title">'
+      html += '      <h4>'
       html += link_to(col.title, collection_url(col))
-      html += '</h4>'
-      html += truncate(col.description.to_s, length: 400)
+      html += '      </h4>'
+      html += '    </div>'
+      html += '  </div>'
       html += '</div>'
-      html += '</div>'
+
+      index += 1
     end
+    html += '</div>'
     raw(html)
   end
 
