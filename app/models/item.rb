@@ -287,7 +287,7 @@ class Item < ActiveRecord::Base
 
   ##
   # @param schema_version [Integer] One of the versions in
-  #                                 `ItemIngester::SCHEMA_VERSIONS`
+  #                                 `ItemXmlIngester::SCHEMA_VERSIONS`
   #
   def to_dls_xml(schema_version)
     case schema_version.to_i
@@ -395,10 +395,10 @@ class Item < ActiveRecord::Base
   def update_from_xml(node, schema_version = 1)
     case schema_version
       when 1
-        namespaces = ItemIngester::XML_V1_NAMESPACE
+        namespaces = ItemXmlIngester::XML_V1_NAMESPACE
         prefix = 'lrp'
       else
-        namespaces = ItemIngester::XML_V2_NAMESPACE
+        namespaces = ItemXmlIngester::XML_V2_NAMESPACE
         prefix = 'dls'
     end
 
@@ -548,7 +548,7 @@ class Item < ActiveRecord::Base
 
   def to_dls_xml_v1
     builder = Nokogiri::XML::Builder.new do |xml|
-      xml['lrp'].Object('xmlns:lrp' => ItemIngester::XML_V1_NAMESPACE['lrp']) {
+      xml['lrp'].Object('xmlns:lrp' => ItemXmlIngester::XML_V1_NAMESPACE['lrp']) {
         bib_id = self.elements.find_by_name('bibId')
         if bib_id.present?
           xml['lrp'].bibId {
@@ -681,7 +681,7 @@ class Item < ActiveRecord::Base
 
   def to_dls_xml_v2
     builder = Nokogiri::XML::Builder.new do |xml|
-      xml['dls'].Object('xmlns:dls' => ItemIngester::XML_V2_NAMESPACE['dls']) {
+      xml['dls'].Object('xmlns:dls' => ItemXmlIngester::XML_V2_NAMESPACE['dls']) {
         xml['dls'].repositoryId {
           xml.text(self.repository_id)
         }

@@ -1,4 +1,4 @@
-class ItemIngester
+class ItemXmlIngester
 
   SCHEMA_VERSIONS = [1, 2]
 

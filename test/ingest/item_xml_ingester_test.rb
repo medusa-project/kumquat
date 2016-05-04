@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class ItemIngesterTest < ActiveSupport::TestCase
+class ItemXmlIngesterTest < ActiveSupport::TestCase
   # test "the truth" do
   #   assert true
   # end

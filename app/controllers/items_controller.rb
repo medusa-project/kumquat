@@ -30,8 +30,8 @@ class ItemsController < WebsiteController
   def create
     # curl -X POST -u api_user:secret --silent -H "Content-Type: application/xml" -d @"/path/to/file.xml" localhost:3000/items?version=2
     begin
-      item = ItemIngester.new.ingest_xml(request.body.read,
-                                         params[:version].to_i)
+      item = ItemXmlIngester.new.ingest_xml(request.body.read,
+                                            params[:version].to_i)
       url = item_url(item)
       render text: "OK: #{url}\n", status: :created, location: url
     rescue => e
@@ -191,12 +191,12 @@ class ItemsController < WebsiteController
         # XML representations of an item are available published or not, but
         # authorization is required.
         if authorize_api_user
-          version = ItemIngester::SCHEMA_VERSIONS.max
+          version = ItemXmlIngester::SCHEMA_VERSIONS.max
           if params[:version]
-            if ItemIngester::SCHEMA_VERSIONS.include?(params[:version].to_i)
+            if ItemXmlIngester::SCHEMA_VERSIONS.include?(params[:version].to_i)
               version = params[:version].to_i
             else
-              render text: "Invalid schema version. Available versions: #{ItemIngester::SCHEMA_VERSIONS.join(', ')}",
+              render text: "Invalid schema version. Available versions: #{ItemXmlIngester::SCHEMA_VERSIONS.join(', ')}",
                      status: :bad_request
               return
             end
