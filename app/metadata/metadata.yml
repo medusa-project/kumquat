@@ -80,6 +80,11 @@ preservationMasterWidth:
   mappings:
     dc:
     dcterms:
+published:
+  type: technical
+  mappings:
+    dc:
+    dcterms:
 repositoryId:
   type: technical
   mappings:
@@ -90,12 +95,12 @@ representativeItemId:
   mappings:
     dc:
     dcterms:
-variant:
+subpageNumber:
   type: technical
   mappings:
     dc:
     dcterms:
-subpageNumber:
+variant:
   type: technical
   mappings:
     dc:
