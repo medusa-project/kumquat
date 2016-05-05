@@ -15,9 +15,7 @@
           <td>
             <%= task.status_text %>
             <% if task.detail %>
-              <button type="button" class="btn btn-default btn-xs" data-toggle="popover"
-                      data-placement="bottom" title="Detail"
-                      data-content="<%= h(task.detail) %>">?</button>
+              <span class="text-danger"><%= h(task.detail) %></span>
             <% end %>
           </td>
           <td>

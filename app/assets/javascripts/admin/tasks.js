@@ -26,12 +26,8 @@ var task_refresher;
 
 var ready = function() {
     if ($('body#tasks').length) {
-        //task_refresher = new PTTaskRefresher();
-        //task_refresher.start(); TODO: interferes with popovers
-
-        $(function () {
-            $('[data-toggle="popover"]').popover();
-        });
+        task_refresher = new PTTaskRefresher();
+        task_refresher.start();
     }
 };
 
