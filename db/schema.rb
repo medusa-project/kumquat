@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160426191152) do
+ActiveRecord::Schema.define(version: 20160505165037) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -31,7 +31,7 @@ ActiveRecord::Schema.define(version: 20160426191152) do
   add_index "bytestreams", ["item_id"], name: "index_bytestreams_on_item_id", using: :btree
 
   create_table "collections", force: :cascade do |t|
-    t.string   "repository_id",          null: false
+    t.string   "repository_id",           null: false
     t.string   "title"
     t.string   "description"
     t.string   "description_html"
@@ -43,8 +43,8 @@ ActiveRecord::Schema.define(version: 20160426191152) do
     t.integer  "theme_id"
     t.integer  "metadata_profile_id"
     t.integer  "medusa_file_group_id"
-    t.datetime "created_at",             null: false
-    t.datetime "updated_at",             null: false
+    t.datetime "created_at",              null: false
+    t.datetime "updated_at",              null: false
     t.datetime "last_indexed"
     t.text     "resource_types"
     t.string   "repository_title"
@@ -188,6 +188,7 @@ ActiveRecord::Schema.define(version: 20160426191152) do
     t.datetime "created_at",                       null: false
     t.datetime "updated_at",                       null: false
     t.boolean  "indeterminate",    default: false
+    t.text     "detail"
   end
 
   create_table "themes", force: :cascade do |t|
