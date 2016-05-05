@@ -87,14 +87,17 @@ module Admin
           # Can't pass an uploaded file to an ActiveJob, so it will be saved
           # to this temp file, whose pathname gets passed to the job.
           tempfile = Tempfile.new('peartree-uploaded-items.tsv')
+          # The finalizer would otherwise delete it.
+          ObjectSpace.undefine_finalizer(tempfile)
           begin
             raise 'No TSV content specified.' if params[:tsv].blank?
 
-            File.open(tempfile, 'wb') { |f| f.write(params[:tsv].read) }
+            tempfile.write(params[:tsv].read)
+            tempfile.close
 
             IngestItemsFromTsvJob.perform_later(tempfile.path)
           rescue => e
-            tempfile.delete
+            tempfile.unlink
             flash['error'] = "#{e}"
             redirect_to admin_items_url
           else
