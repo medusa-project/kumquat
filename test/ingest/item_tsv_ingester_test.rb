@@ -28,6 +28,12 @@ class ItemTsvIngesterTest < ActiveSupport::TestCase
     assert_equal initial_count, Item.all.count
   end
 
+  test 'ingest_tsv should raise an error with empty TSV argument' do
+    assert_raises RuntimeError do
+      @ingester.ingest_tsv(nil)
+    end
+  end
+
   test 'ingest_tsv should raise an error with missing value' do
     tsv = "collectionId\ttitle\n"
     tsv += "collection1\tFrom fixture\n"
