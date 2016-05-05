@@ -46,6 +46,7 @@ class Item < ActiveRecord::Base
   has_many :elements, inverse_of: :item, dependent: :destroy
 
   validates :collection_repository_id, presence: true
+  validates :repository_id, presence: true
 
   before_destroy :delete_from_solr
   before_save :index_in_solr
