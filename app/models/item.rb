@@ -82,6 +82,18 @@ class Item < ActiveRecord::Base
   end
 
   ##
+  # Creates a new instance from valid DLS XML, persists it, and returns it.
+  #
+  # @param [Hash<String,String>] TSV row
+  # @return [Item]
+  #
+  def self.from_tsv(tsv)
+    item = Item.new
+    item.update_from_tsv(tsv)
+    item
+  end
+
+  ##
   # @return [Bytestream]
   #
   def access_master_bytestream
@@ -386,7 +398,132 @@ class Item < ActiveRecord::Base
   end
 
   ##
-  # Updates an instance from valid LRP AIP XML.
+  # Updates an instance from a hash representing a TSV row.
+  #
+  # @param [Hash<String,String>] TSV row
+  # @return [Item]
+  #
+  def update_from_tsv(row)
+    ActiveRecord::Base.transaction do
+      self.elements.destroy_all
+      self.bytestreams.destroy_all
+
+      # collectionId
+      self.collection_repository_id = row['collectionId'] if row['collectionId']
+
+      # date (normalized)
+      date = row['date'] || row['dateCreated']
+      if date
+        self.date = human_date_to_time(date.strip)
+      end
+
+      # full text
+      self.full_text = row['fullText'].strip if row['fullText']
+
+      # latitude
+      self.latitude = row['latitude'].strip.to_f if row['latitude']
+
+      # longitude
+      self.longitude = row['longitude'].strip.to_f if row['longitude']
+
+      # page number
+      self.page_number = row['pageNumber'].strip.to_i if row['pageNumber']
+
+      # parent item
+      self.parent_repository_id = row['parentId'].strip if row['parentId']
+
+      # published
+      self.published = %w(true 1).include?(row['published'].strip) if
+          row['published']
+
+      # repository ID
+      self.repository_id = row['repositoryId'].strip if row['repositoryId']
+
+      # representative item ID
+      self.representative_item_repository_id = row['representativeItemId'] if
+          row['representativeItemId']
+
+      # subpage number
+      self.subpage_number = row['subpageNumber'].strip.to_i if
+          row['subpageNumber']
+
+      # variant
+      self.variant = row['variant'] if row['variant']
+
+      # access master (pathname)
+      am = row['accessMasterPathname']
+      if am
+        bs = self.bytestreams.build
+        bs.bytestream_type = Bytestream::Type::ACCESS_MASTER
+        bs.file_group_relative_pathname = am.strip
+        # width
+        width = row['accessMasterWidth']
+        bs.width = width.strip.to_i if width
+        # height
+        height = row['accessMasterHeight']
+        bs.height = height.strip.to_i if height
+        # media type
+        mt = row['accessMasterMediaType']
+        bs.media_type = mt.strip if mt
+        bs.save!
+      else # access master (URL)
+        am = row['accessMasterURL']
+        if am
+          bs = self.bytestreams.build
+          bs.bytestream_type = Bytestream::Type::ACCESS_MASTER
+          bs.url = am.strip
+          # media type
+          mt = row['accessMasterMediaType']
+          bs.media_type = mt.strip if mt
+          bs.save!
+        end
+      end
+
+      # preservation master (pathname)
+      am = row['preservationMasterPathname']
+      if am
+        bs = self.bytestreams.build
+        bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
+        bs.file_group_relative_pathname = am.strip
+        # width
+        width = row['preservationMasterWidth']
+        bs.width = width.strip.to_i if width
+        # height
+        height = row['preservationMasterHeight']
+        bs.height = height.strip.to_i if height
+        # media type
+        mt = row['preservationMasterMediaType']
+        bs.media_type = mt.strip if mt
+        bs.save!
+      else # access master (URL)
+        am = row['preservationMasterURL']
+        if am
+          bs = self.bytestreams.build
+          bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
+          bs.url = am.strip
+          # media type
+          mt = row['preservationMasterMediaType']
+          bs.media_type = mt.strip if mt
+          bs.save!
+        end
+      end
+
+      descriptive_elements = Element.all_available.
+          select{ |e| e.type == Element::Type::DESCRIPTIVE }.map(&:name)
+      row.each do |col, value|
+        if descriptive_elements.include?(col)
+          e = Element.named(col)
+          e.value = value
+          self.elements << e
+        end
+      end
+
+      self.save!
+    end
+  end
+
+  ##
+  # Updates an instance from valid DLS AIP XML.
   #
   # @param [Nokogiri::XML::Node] node
   # @param schema_version [Integer]
@@ -411,20 +548,10 @@ class Item < ActiveRecord::Base
       self.collection_repository_id = col_id.content.strip if col_id
 
       # date
-      date = node.xpath("#{prefix}:date", namespaces).first
-      date = node.xpath("#{prefix}:dateCreated", namespaces).first unless date
+      date = node.xpath("#{prefix}:date", namespaces).first ||
+          node.xpath("#{prefix}:dateCreated", namespaces).first
       if date
-        date = date.content.strip
-        iso8601 = nil
-        # This is rather quick & dirty, but will work for now.
-        if date.match('[1-9]{4}') # date is apparently YYYY (1000-)
-          iso8601 = "#{date}-01-01T00:00:00Z"
-        elsif date.match('[1-9]{4}-[0-1][0-9]-[0-3][0-9]') # date is apparently YYYY-MM-DD
-          iso8601 = "#{date}T00:00:00Z"
-        end
-        if iso8601
-          self.date = Time.parse(iso8601)
-        end
+        self.date = human_date_to_time(date.content.strip)
       end
 
       # full text
@@ -545,6 +672,24 @@ class Item < ActiveRecord::Base
   end
 
   private
+
+  ##
+  # @param date [String]
+  # @return [Time]
+  #
+  def human_date_to_time(date)
+    iso8601 = nil
+    # This is rather quick & dirty, but will work for now. TODO: improve this
+    if date.match('[1-9]{4}') # date is apparently YYYY (1000-)
+      iso8601 = "#{date}-01-01T00:00:00Z"
+    elsif date.match('[1-9]{4}-[0-1][0-9]-[0-3][0-9]') # date is apparently YYYY-MM-DD
+      iso8601 = "#{date}T00:00:00Z"
+    end
+    if iso8601
+      return Time.parse(iso8601)
+    end
+    nil
+  end
 
   def to_dls_xml_v1
     builder = Nokogiri::XML::Builder.new do |xml|

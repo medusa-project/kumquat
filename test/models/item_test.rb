@@ -68,4 +68,68 @@ class ItemTest < ActiveSupport::TestCase
     end
   end
 
+  # update_from_tsv
+
+  test 'update_from_tsv should work' do
+    row = {}
+    # technical elements
+    row['collectionId'] = 'collection1' # from fixture
+    row['date'] = '1984'
+    row['fullText'] = 'full text'
+    row['latitude'] = '45.52'
+    row['longitude'] = '-120.564'
+    row['pageNumber'] = '3'
+    row['parentId'] = 'item1'
+    row['published'] = 'true'
+    row['repositoryId'] = 'cats001'
+    row['representativeItemId'] = 'cats001'
+    row['subpageNumber'] = '1'
+    row['variant'] = Item::Variants::PAGE
+    row['accessMasterPathname'] = '/pathname'
+    row['accessMasterWidth'] = '500'
+    row['accessMasterHeight'] = '400'
+    row['accessMasterMediaType'] = 'image/jpeg'
+    row['preservationMasterPathname'] = '/pathname'
+    row['preservationMasterWidth'] = '500'
+    row['preservationMasterHeight'] = '400'
+    row['preservationMasterMediaType'] = 'image/jpeg'
+
+    # descriptive elements
+    row['description'] = 'A lot of cats'
+    row['title'] = 'Cats'
+
+    @item.update_from_tsv(row)
+
+    assert_equal('collection1', @item.collection.repository_id)
+    assert_equal(1984, @item.date.year)
+    assert_equal('full text', @item.full_text)
+    assert_equal(45.52, @item.latitude)
+    assert_equal(-120.564, @item.longitude)
+    assert_equal(3, @item.page_number)
+    assert_equal('item1', @item.parent_repository_id)
+    assert @item.published
+    assert_equal('cats001', @item.repository_id)
+    assert_equal('cats001', @item.representative_item_repository_id)
+    assert_equal(1, @item.subpage_number)
+    assert_equal(Item::Variants::PAGE, @item.variant)
+
+    assert_equal(2, @item.bytestreams.length)
+    am = @item.bytestreams.
+        select{ |bs| bs.bytestream_type == Bytestream::Type::ACCESS_MASTER }.first
+    assert_equal('/pathname', am.file_group_relative_pathname)
+    assert_equal(500, am.width)
+    assert_equal(400, am.height)
+    assert_equal('image/jpeg', am.media_type)
+
+    am = @item.bytestreams.
+        select{ |bs| bs.bytestream_type == Bytestream::Type::PRESERVATION_MASTER }.first
+    assert_equal('/pathname', am.file_group_relative_pathname)
+    assert_equal(500, am.width)
+    assert_equal(400, am.height)
+    assert_equal('image/jpeg', am.media_type)
+
+    assert_equal('A lot of cats', @item.description)
+    assert_equal('Cats', @item.title)
+  end
+
 end
