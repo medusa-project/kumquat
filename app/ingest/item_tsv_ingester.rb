@@ -25,7 +25,9 @@ class ItemTsvIngester
       end
       count += 1
 
-      task.progress = count / total_count.to_f if task
+      if task and count % 10 == 0
+      task.progress = count / total_count.to_f
+      end
     end
     count
   end
