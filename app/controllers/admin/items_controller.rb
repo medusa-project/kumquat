@@ -79,6 +79,34 @@ module Admin
     end
 
     ##
+    # Responds to POST /items/ingest
+    #
+    def ingest
+      respond_to do |format|
+        format.tsv do
+          # Can't pass an uploaded file to an ActiveJob, so it will be saved
+          # to this temp file, whose pathname gets passed to the job.
+          tempfile = Tempfile.new('peartree-uploaded-items.tsv')
+          begin
+            raise 'No TSV content specified.' if params[:tsv].blank?
+
+            File.open(tempfile, 'wb') { |f| f.write(params[:tsv].read) }
+
+            IngestItemsFromTsvJob.perform_later(tempfile.path)
+          rescue => e
+            tempfile.delete
+            flash['error'] = "#{e}"
+            redirect_to admin_items_url
+          else
+            flash['success'] = 'Importing items in the background. This '\
+            'may take a while.'
+            redirect_to admin_items_url
+          end
+        end
+      end
+    end
+
+    ##
     # Responds to GET/POST /admin/items/search
     #
     def search

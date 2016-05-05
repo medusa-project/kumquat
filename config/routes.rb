@@ -87,12 +87,8 @@ Rails.application.routes.draw do
     resources :element_defs, only: [:create, :update, :destroy, :edit]
     match '/items/search', to: 'items#search', via: %w(get post),
           as: 'items_search'
-    resources :items, concerns: :publishable do
-      match '/full-text/clear', to: 'items#clear_full_text', via: 'patch',
-            as: 'clear_full_text'
-      match '/full-text/extract', to: 'items#extract_full_text', via: 'patch',
-            as: 'extract_full_text'
-    end
+    resources :items, concerns: :publishable
+    match '/items/ingest', to: 'items#ingest', via: 'post'
     resources :metadata_profiles, path: 'metadata-profiles' do
       match '/clone', to: 'metadata_profiles#clone', via: 'patch', as: 'clone'
     end
