@@ -27,8 +27,6 @@ class ItemTsvIngester
 
       task.progress = count / total_count.to_f if task
     end
-
-    task.succeeded if task
     count
   end
 
