@@ -27,4 +27,15 @@ class ItemTsvIngester
     count
   end
 
+  ##
+  # Creates or updates items from the given TSV file.
+  #
+  # @param tsv_pathname [String] TSV file pathname
+  # @param task [Task] Optional
+  # @return [Integer] Number of items ingested
+  #
+  def ingest_tsv_file(tsv_pathname, task = nil)
+    ingest_tsv(File.read(tsv_pathname), task)
+  end
+
 end
