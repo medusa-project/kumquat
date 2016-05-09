@@ -31,9 +31,8 @@
       *********************** REQUIRED ELEMENTS ***************************
       -->
 
-      <!-- ID of the entity within the repository. Must be repository-unique,
-      persistent across imports (i.e. not dynamically generated at ingest) and
-      preferably opaque and short. -->
+      <!-- ID of the entity within the repository. This is typically a
+      Medusa UUID. -->
       <xs:element name="repositoryId" minOccurs="1" maxOccurs="1">
         <xs:simpleType>
           <xs:restriction base="xs:token">
