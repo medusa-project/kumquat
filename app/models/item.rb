@@ -42,6 +42,8 @@ class Item < ActiveRecord::Base
     TITLE = 'Title'
   end
 
+  MULTI_VALUE_SEPARATOR = '||'
+
   has_many :bytestreams, inverse_of: :item, dependent: :destroy
   has_many :elements, inverse_of: :item, dependent: :destroy
 
@@ -406,7 +408,10 @@ class Item < ActiveRecord::Base
   #
   def update_from_tsv(row)
     ActiveRecord::Base.transaction do
+      # These need to be deleted first, otherwise it would be impossible for
+      # an update to remove them.
       self.bytestreams.destroy_all
+      self.elements.destroy_all
 
       # collectionId
       self.collection_repository_id = row['collectionId'] if row['collectionId']
@@ -510,10 +515,6 @@ class Item < ActiveRecord::Base
 
       row.select{ |col, value| Element.all_descriptive.map(&:name).include?(col) }.
           each do |col, value|
-        # Delete any existing elements with the same name
-        self.elements.select{ |e| e.name == col }.each do |e|
-          self.elements.destroy(e)
-        end
         # Add new elements
         value.split(MULTI_VALUE_SEPARATOR).select(&:present?).each do |v|
           e = Element.named(col)
@@ -527,13 +528,13 @@ class Item < ActiveRecord::Base
   end
 
   ##
-  # Updates an instance from valid DLS AIP XML.
+  # Updates an instance from valid DLS XML.
   #
   # @param [Nokogiri::XML::Node] node
   # @param schema_version [Integer]
   # @return [Item]
   #
-  def update_from_xml(node, schema_version = 1)
+  def update_from_xml(node, schema_version)
     case schema_version
       when 1
         namespaces = ItemXmlIngester::XML_V1_NAMESPACE
@@ -544,131 +545,131 @@ class Item < ActiveRecord::Base
     end
 
     ActiveRecord::Base.transaction do
-      self.elements.destroy_all
+      # These need to be deleted first, otherwise it would be impossible for
+      # an update to remove them.
       self.bytestreams.destroy_all
+      self.elements.destroy_all
 
       # collection
-      col_id = node.xpath("#{prefix}:collectionId", namespaces).first
+      col_id = node.xpath("//#{prefix}:collectionId", namespaces).first
       self.collection_repository_id = col_id.content.strip if col_id
 
       # date
-      date = node.xpath("#{prefix}:date", namespaces).first ||
-          node.xpath("#{prefix}:dateCreated", namespaces).first
-      if date
-        self.date = human_date_to_time(date.content.strip)
-      end
+      date = node.xpath("//#{prefix}:date", namespaces).first ||
+          node.xpath("//#{prefix}:dateCreated", namespaces).first
+      self.date = human_date_to_time(date.content.strip) if date
 
       # full text
-      id = node.xpath("#{prefix}:fullText", namespaces).first
-      self.full_text = id.content.strip if id
+      ft = node.xpath("//#{prefix}:fullText", namespaces).first
+      self.full_text = ft.content.strip if ft
 
       # latitude
-      lat = node.xpath("#{prefix}:latitude", namespaces).first
+      lat = node.xpath("//#{prefix}:latitude", namespaces).first
       self.latitude = lat.content.strip.to_f if lat
 
       # longitude
-      long = node.xpath("#{prefix}:longitude", namespaces).first
+      long = node.xpath("//#{prefix}:longitude", namespaces).first
       self.longitude = long.content.strip.to_f if long
 
       # page number
-      page = node.xpath("#{prefix}:pageNumber", namespaces).first
+      page = node.xpath("//#{prefix}:pageNumber", namespaces).first
       self.page_number = page.content.strip.to_i if page
 
       # parent item
-      parent = node.xpath("#{prefix}:parentId", namespaces).first
+      parent = node.xpath("//#{prefix}:parentId", namespaces).first
       self.parent_repository_id = parent.content.strip if parent
 
       # published
-      published = node.xpath("#{prefix}:published", namespaces).first
+      published = node.xpath("//#{prefix}:published", namespaces).first
       self.published = %w(true 1).include?(published.content.strip) if published
 
       # repository ID
-      rep_id = node.xpath("#{prefix}:repositoryId", namespaces).first
-      self.repository_id = rep_id.content.strip
+      rep_id = node.xpath("//#{prefix}:repositoryId", namespaces).first
+      self.repository_id = rep_id.content.strip if rep_id
 
       # representative item ID
-      rep_item_id = node.xpath("#{prefix}:representativeItemId", namespaces).first
+      rep_item_id = node.xpath("//#{prefix}:representativeItemId", namespaces).first
       self.representative_item_repository_id = rep_item_id.content.strip if rep_item_id
 
       if schema_version == 1
         # subclass
-        subclass = node.xpath("#{prefix}:subclass", namespaces).first
+        subclass = node.xpath("//#{prefix}:subclass", namespaces).first
         self.variant = subclass.content.strip if subclass
       else
         # variant
-        variant = node.xpath("#{prefix}:variant", namespaces).first
+        variant = node.xpath("//#{prefix}:variant", namespaces).first
         self.variant = variant.content.strip if variant
       end
 
       # subpage number
-      page = node.xpath("#{prefix}:subpageNumber", namespaces).first
+      page = node.xpath("//#{prefix}:subpageNumber", namespaces).first
       self.subpage_number = page.content.strip.to_i if page
 
       # access master (pathname)
-      am = node.xpath("#{prefix}:accessMasterPathname", namespaces).first
+      am = node.xpath("//#{prefix}:accessMasterPathname", namespaces).first
       if am
         bs = self.bytestreams.build
         bs.bytestream_type = Bytestream::Type::ACCESS_MASTER
         bs.file_group_relative_pathname = am.content.strip
         # width
-        width = node.xpath("#{prefix}:accessMasterWidth", namespaces).first
+        width = node.xpath("//#{prefix}:accessMasterWidth", namespaces).first
         bs.width = width.content.strip.to_i if width
         # height
-        height = node.xpath("#{prefix}:accessMasterHeight", namespaces).first
+        height = node.xpath("//#{prefix}:accessMasterHeight", namespaces).first
         bs.height = height.content.strip.to_i if height
         # media type
-        mt = node.xpath("#{prefix}:accessMasterMediaType", namespaces).first
+        mt = node.xpath("//#{prefix}:accessMasterMediaType", namespaces).first
         bs.media_type = mt.content.strip if mt
         bs.save!
       else # access master (URL)
-        am = node.xpath("#{prefix}:accessMasterURL", namespaces).first
+        am = node.xpath("//#{prefix}:accessMasterURL", namespaces).first
         if am
           bs = self.bytestreams.build
           bs.bytestream_type = Bytestream::Type::ACCESS_MASTER
           bs.url = am.content.strip
           # media type
-          mt = node.xpath("#{prefix}:accessMasterMediaType", namespaces).first
+          mt = node.xpath("//#{prefix}:accessMasterMediaType", namespaces).first
           bs.media_type = mt.content.strip if mt
           bs.save!
         end
       end
 
       # preservation master (pathname)
-      pm = node.xpath("#{prefix}:preservationMasterPathname", namespaces).first
+      pm = node.xpath("//#{prefix}:preservationMasterPathname", namespaces).first
       if pm
         bs = self.bytestreams.build
         bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
         bs.file_group_relative_pathname = pm.content.strip
-        mt = node.xpath("#{prefix}:preservationMasterMediaType", namespaces).first
+        # width
+        width = node.xpath("//#{prefix}:preservationMasterWidth", namespaces).first
+        bs.width = width.content.strip.to_i if width
+        # height
+        height = node.xpath("//#{prefix}:preservationMasterHeight", namespaces).first
+        bs.height = height.content.strip.to_i if height
+        # media type
+        mt = node.xpath("//#{prefix}:preservationMasterMediaType", namespaces).first
         bs.media_type = mt.content.strip if mt
         bs.save!
       else # preservation master (URL)
-        pm = node.xpath("#{prefix}:preservationMasterURL", namespaces).first
+        pm = node.xpath("//#{prefix}:preservationMasterURL", namespaces).first
         if pm
           bs = self.bytestreams.build
           bs.bytestream_type = Bytestream::Type::ACCESS_MASTER
           bs.url = pm.content.strip
-          # width
-          width = node.xpath("#{prefix}:preservationMasterWidth", namespaces).first
-          bs.width = width.content.strip.to_i if width
-          # height
-          height = node.xpath("#{prefix}:preservationMasterHeight", namespaces).first
-          bs.height = height.content.strip.to_i if height
           # media type
-          mt = node.xpath("#{prefix}:preservationMasterMediaType", namespaces).first
+          mt = node.xpath("//#{prefix}:preservationMasterMediaType", namespaces).first
           bs.media_type = mt.content.strip if mt
           bs.save!
         end
       end
 
-      descriptive_elements = Element.all_available.
-          select{ |e| e.type == Element::Type::DESCRIPTIVE }.map(&:name)
-      node.xpath("#{prefix}:*", namespaces).each do |md_node|
-        if descriptive_elements.include?(md_node.name)
-          e = Element.named(md_node.name)
-          e.value = md_node.content.strip
-          self.elements << e
-        end
+      node.xpath("//#{prefix}:*", namespaces).
+          select{ |node| Element.all_descriptive.map(&:name).include?(node.name) }.
+          each do |node|
+        # Add a new element
+        e = Element.named(node.name)
+        e.value = node.content.strip
+        self.elements << e
       end
 
       self.save!

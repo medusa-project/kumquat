@@ -130,7 +130,92 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal(400, am.height)
     assert_equal('image/jpeg', am.media_type)
 
-    assert_equal('A lot of cats', @item.description)
+    descriptions = @item.elements.select{ |e| e.name == 'description' }
+    assert_equal 3, descriptions.length
+    assert_equal 1, descriptions.select{ |e| e.value == 'Cats' }.length
+    assert_equal 1, descriptions.select{ |e| e.value == 'cats' }.length
+    assert_equal 1, descriptions.select{ |e| e.value == 'and more cats' }.length
+
+    assert_equal('Cats', @item.title)
+  end
+
+  # update_from_xml
+
+  test 'update_from_xml should work with schema version 1' do
+    # TODO: write this
+  end
+
+  test 'update_from_xml should work with schema version 2' do
+    xml = '<?xml version="1.0" encoding="utf-8"?>'
+    xml += '<dls:Object xmlns:dls="http://digital.library.illinois.edu/terms#">'
+    # technical elements
+    xml += '<dls:repositoryId>cats001</dls:repositoryId>'
+    xml += '<dls:collectionId>collection1</dls:collectionId>' # from fixture
+    xml += '<dls:parentId>item1</dls:parentId>'
+    xml += '<dls:representativeItemId>cats001</dls:representativeItemId>'
+    xml += '<dls:published>true</dls:published>'
+    xml += '<dls:fullText>full text</dls:fullText>'
+    xml += '<dls:pageNumber>3</dls:pageNumber>'
+    xml += '<dls:subpageNumber>1</dls:subpageNumber>'
+    xml += '<dls:latitude>45.52</dls:latitude>'
+    xml += '<dls:longitude>-120.564</dls:longitude>'
+    xml += "<dls:variant>#{Item::Variants::PAGE}</dls:variant>"
+    xml += '<dls:accessMasterPathname>/pathname</dls:accessMasterPathname>'
+    xml += '<dls:accessMasterMediaType>image/jpeg</dls:accessMasterMediaType>'
+    xml += '<dls:accessMasterWidth>500</dls:accessMasterWidth>'
+    xml += '<dls:accessMasterHeight>400</dls:accessMasterHeight>'
+    xml += '<dls:preservationMasterPathname>/pathname</dls:preservationMasterPathname>'
+    xml += '<dls:preservationMasterMediaType>image/jpeg</dls:preservationMasterMediaType>'
+    xml += '<dls:preservationMasterWidth>500</dls:preservationMasterWidth>'
+    xml += '<dls:preservationMasterHeight>400</dls:preservationMasterHeight>'
+
+    # descriptive elements
+    xml += '<dls:date>1984</dls:date>'
+    xml += '<dls:description>Cats</dls:description>'
+    xml += '<dls:description>More cats</dls:description>'
+    xml += '<dls:description>Even more cats</dls:description>'
+    xml += '<dls:title>Cats</dls:title>'
+    xml += '</dls:Object>'
+
+    doc = Nokogiri::XML(xml, &:noblanks)
+    doc.encoding = 'utf-8'
+
+    @item.update_from_xml(doc, 2)
+
+    assert_equal('collection1', @item.collection.repository_id)
+    assert_equal(1984, @item.date.year)
+    assert_equal('full text', @item.full_text)
+    assert_equal(45.52, @item.latitude)
+    assert_equal(-120.564, @item.longitude)
+    assert_equal(3, @item.page_number)
+    assert_equal('item1', @item.parent_repository_id)
+    assert @item.published
+    assert_equal('cats001', @item.repository_id)
+    assert_equal('cats001', @item.representative_item_repository_id)
+    assert_equal(1, @item.subpage_number)
+    assert_equal(Item::Variants::PAGE, @item.variant)
+
+    assert_equal(2, @item.bytestreams.length)
+    bs = @item.bytestreams.
+        select{ |bs| bs.bytestream_type == Bytestream::Type::ACCESS_MASTER }.first
+    assert_equal('/pathname', bs.file_group_relative_pathname)
+    assert_equal(500, bs.width)
+    assert_equal(400, bs.height)
+    assert_equal('image/jpeg', bs.media_type)
+
+    bs = @item.bytestreams.
+        select{ |bs| bs.bytestream_type == Bytestream::Type::PRESERVATION_MASTER }.first
+    assert_equal('/pathname', bs.file_group_relative_pathname)
+    assert_equal(500, bs.width)
+    assert_equal(400, bs.height)
+    assert_equal('image/jpeg', bs.media_type)
+
+    descriptions = @item.elements.select{ |e| e.name == 'description' }
+    assert_equal 3, descriptions.length
+    assert_equal 1, descriptions.select{ |e| e.value == 'Cats' }.length
+    assert_equal 1, descriptions.select{ |e| e.value == 'More cats' }.length
+    assert_equal 1, descriptions.select{ |e| e.value == 'Even more cats' }.length
+
     assert_equal('Cats', @item.title)
   end
 
