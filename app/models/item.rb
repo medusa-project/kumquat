@@ -406,7 +406,6 @@ class Item < ActiveRecord::Base
   #
   def update_from_tsv(row)
     ActiveRecord::Base.transaction do
-      self.elements.destroy_all
       self.bytestreams.destroy_all
 
       # collectionId
@@ -509,12 +508,16 @@ class Item < ActiveRecord::Base
         end
       end
 
-      descriptive_elements = Element.all_available.
-          select{ |e| e.type == Element::Type::DESCRIPTIVE }.map(&:name)
-      row.each do |col, value|
-        if descriptive_elements.include?(col)
+      row.select{ |col, value| Element.all_descriptive.map(&:name).include?(col) }.
+          each do |col, value|
+        # Delete any existing elements with the same name
+        self.elements.select{ |e| e.name == col }.each do |e|
+          self.elements.destroy(e)
+        end
+        # Add new elements
+        value.split(MULTI_VALUE_SEPARATOR).select(&:present?).each do |v|
           e = Element.named(col)
-          e.value = value
+          e.value = v
           self.elements << e
         end
       end
@@ -680,10 +683,9 @@ class Item < ActiveRecord::Base
   #
   def human_date_to_time(date)
     iso8601 = nil
-    # This is rather quick & dirty, but will work for now. TODO: improve this
-    if date.match('[1-9]{4}') # date is apparently YYYY (1000-)
+    if date.match('[1-9]{4}') # date appears to be YYYY (1000-)
       iso8601 = "#{date}-01-01T00:00:00Z"
-    elsif date.match('[1-9]{4}-[0-1][0-9]-[0-3][0-9]') # date is apparently YYYY-MM-DD
+    elsif date.match('[1-9]{4}-[0-1][0-9]-[0-3][0-9]') # date appears to be YYYY-MM-DD
       iso8601 = "#{date}T00:00:00Z"
     end
     if iso8601

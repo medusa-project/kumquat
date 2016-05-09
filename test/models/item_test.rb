@@ -95,7 +95,9 @@ class ItemTest < ActiveSupport::TestCase
     row['preservationMasterMediaType'] = 'image/jpeg'
 
     # descriptive elements
-    row['description'] = 'A lot of cats'
+    row['description'] = sprintf('Cats%scats%sand more cats',
+                                 Item::MULTI_VALUE_SEPARATOR,
+                                 Item::MULTI_VALUE_SEPARATOR)
     row['title'] = 'Cats'
 
     @item.update_from_tsv(row)
