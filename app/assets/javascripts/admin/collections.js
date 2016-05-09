@@ -25,7 +25,7 @@ var PTAdminCollectionsView = function() {
 };
 
 var ready = function() {
-    if ($('body#collections_index').length) {
+    if ($('body#admin_collections_index').length) {
         PearTree.view = new PTAdminCollectionsView();
         PearTree.view.init();
     }
