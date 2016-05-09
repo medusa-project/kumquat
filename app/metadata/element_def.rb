@@ -13,6 +13,11 @@ class ElementDef < ActiveRecord::Base
     Element.all_available.map{ |e| ElementDef.new(name: e.name) }
   end
 
+  def self.all_descriptive
+    Element.all_available.select{ |e| e.type == Element::Type::DESCRIPTIVE }.
+        map{ |e| ElementDef.new(name: e.name) }
+  end
+
   ##
   # Updates the indexes of all elements in the same metadata profile to ensure
   # that they are non-repeating and properly gapped.

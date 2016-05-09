@@ -64,8 +64,7 @@ module Admin
       @new_element = @profile.element_defs.build
       @element_def_options_for_select =
           @profile.element_defs.map{ |t| [ t.name, t.id ] }
-      @name_options_for_select = ElementDef.all_available.
-          select{ |ed| ed.type == Element::Type::DESCRIPTIVE }.
+      @name_options_for_select = ElementDef.all_descriptive.
           map{ |t| [ t.name, t.name ] }
     end
 
