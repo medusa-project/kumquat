@@ -359,7 +359,7 @@ module ItemsHelper
         info_parts << date.year
       end
 
-      if options[:show_collections]
+      if options[:show_collections] and item.collection
         info_parts << link_to(item.collection.title,
                               collection_path(item.collection))
       end
