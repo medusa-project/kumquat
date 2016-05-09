@@ -25,6 +25,10 @@ class Element < ActiveRecord::Base
     all_elements
   end
 
+  def self.all_descriptive
+    all_available.select{ |e| e.type == Type::DESCRIPTIVE }
+  end
+
   def self.named(name)
     all_available.select{ |e| e.name == name }.first
   end
