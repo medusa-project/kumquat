@@ -20,6 +20,13 @@
   </div>
 
   <div class="form-group">
+    <%= f.label :content_profile_id, 'Content Profile' %>
+    <%= select(:collection, :content_profile_id,
+               @content_profile_options_for_select, {},
+               class: 'form-control') %>
+  </div>
+
+  <div class="form-group">
     <%= f.label :theme_id %>
     <%= select(:collection, :theme_id, @theme_options_for_select, {},
                class: 'form-control') %>
