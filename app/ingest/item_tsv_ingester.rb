@@ -11,9 +11,7 @@ class ItemTsvIngester
   #
   def ingest_tsv(tsv, task = nil)
     raise 'No TSV content specified.' unless tsv.present?
-    # quote_char needs to be a character that the source data is guaranteed
-    # not to contain: in this case, a unicode rocket ship.
-    tsv = CSV.parse(tsv, headers: true, col_sep: "\t", quote_char: '🚀')
+    tsv = CSV.parse(tsv, headers: true, col_sep: "\t")
     total_count = tsv.length
     count = 0
     tsv.map{ |row| row.to_hash }.each do |row|
