@@ -36,8 +36,8 @@ class ItemTsvIngesterTest < ActiveSupport::TestCase
 
   test 'ingest_tsv should raise an error with missing value' do
     tsv = "collectionId\ttitle\n"
-    tsv += "collection1\tFrom fixture\n"
-    tsv += "collection2\tFrom fixture\n"
+    tsv += "collection1\tCats\n"
+    tsv += "collection2\tMore cats\n"
     assert_raises ActiveRecord::RecordInvalid do
       @ingester.ingest_tsv(tsv)
     end
@@ -45,8 +45,8 @@ class ItemTsvIngesterTest < ActiveSupport::TestCase
 
   test 'ingest_tsv should raise an error with blank value' do
     tsv = "repositoryId\tcollectionId\ttitle\n"
-    tsv += "item1\t\tFrom fixture\n"
-    tsv += "item2\t\tFrom fixture\n"
+    tsv += "newitem1\t\tCats\n"
+    tsv += "newitem2\t\tMore cats\n"
     assert_raises ActiveRecord::RecordInvalid do
       @ingester.ingest_tsv(tsv)
     end

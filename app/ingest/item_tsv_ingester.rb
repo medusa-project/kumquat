@@ -16,7 +16,7 @@ class ItemTsvIngester
     tsv = CSV.parse(tsv, headers: true, col_sep: "\t", quote_char: '🚀')
     total_count = tsv.length
     count = 0
-    tsv.map{ |row| row.to_hash }.select{ |row| row['repositoryId'].present? }.each do |row|
+    tsv.map{ |row| row.to_hash }.each do |row|
       item = Item.find_by_repository_id(row['repositoryId'])
       if item
         item.update_from_tsv(row)
