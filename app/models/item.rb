@@ -361,10 +361,10 @@ class Item < ActiveRecord::Base
   #
   def to_tsv
     # Columns must remain synchronized with the output of tsv_header. There
-    # must also be a fixed number of columns, in order for the CSV schema to
-    # be convertible (i.e. to dump large numbers of items at once).
+    # must be a fixed number of columns in a fixed order, in order to be able
+    # to dump multiple items into the same document.
     # Properties with multiple values are placed in the same cell, separated
-    # by vertical bar characters.
+    # by MULTI_VALUE_SEPARATOR.
     columns = []
     columns << self.repository_id
     columns << self.parent_repository_id
@@ -391,10 +391,9 @@ class Item < ActiveRecord::Base
     columns << self.created_at.utc.iso8601
     columns << self.updated_at.utc.iso8601
 
-    Element.all_available.
-        select{ |ed| ed.type == Element::Type::DESCRIPTIVE }.each do |el|
+    Element.all_descriptive.each do |el|
       columns << self.elements.select{ |e| e.name == el.name }.map(&:value).
-          join('|')
+          join(MULTI_VALUE_SEPARATOR)
     end
     columns.join("\t") + "\n"
   end

@@ -98,6 +98,43 @@ class ItemTest < ActiveSupport::TestCase
     end
   end
 
+  # to_tsv
+
+  test 'to_tsv should work' do
+    values = @item.to_tsv.strip.split("\t")
+    assert_equal @item.repository_id.to_s, values[0]
+    assert_equal @item.parent_repository_id.to_s, values[1]
+    assert_equal @item.collection_repository_id.to_s, values[2]
+    assert_equal @item.representative_item_repository_id.to_s, values[3]
+    assert_equal @item.variant.to_s, values[4]
+    assert_equal @item.page_number.to_s, values[5]
+    assert_equal @item.subpage_number.to_s, values[6]
+    assert_equal @item.full_text.to_s, values[7]
+    bs = @item.bytestreams.
+        select{ |b| b.bytestream_type == Bytestream::Type::ACCESS_MASTER }.first
+    assert_equal bs&.file_group_relative_pathname.to_s, values[8]
+    assert_equal bs&.url.to_s, values[9]
+    assert_equal bs&.media_type.to_s, values[10]
+    assert_equal bs&.width.to_s, values[11]
+    assert_equal bs&.height.to_s, values[12]
+    bs = @item.bytestreams.
+        select{ |b| b.bytestream_type == Bytestream::Type::PRESERVATION_MASTER }.first
+    assert_equal bs&.file_group_relative_pathname.to_s, values[13]
+    assert_equal bs&.url.to_s, values[14]
+    assert_equal bs&.media_type.to_s, values[15]
+    assert_equal bs&.width.to_s, values[16]
+    assert_equal bs&.height.to_s, values[17]
+    assert_equal @item.created_at.utc.iso8601, values[18]
+    assert_equal @item.updated_at.utc.iso8601, values[19]
+
+    Element.all_descriptive.each_with_index do |el, index|
+      assert_equal @item.elements.select{ |e| e.name == el.name }.map(&:value).
+          join(Item::MULTI_VALUE_SEPARATOR),
+                   values[20 + index].to_s
+      assert_not_equal 'nil', values[20 + index]
+    end
+  end
+
   # update_from_tsv
 
   test 'update_from_tsv should work' do
