@@ -52,6 +52,22 @@ class Collection < ActiveRecord::Base
       { name: SolrFields::RESOURCE_TYPES, label: 'Resource Type' } ]
   end
 
+  ##
+  # @return [ContentProfile,nil]
+  #
+  def content_profile
+    self.content_profile_id.present? ?
+        ContentProfile.find(self.content_profile_id) : nil
+  end
+
+  ##
+  # @param profile [ContentProfile]
+  #
+  def content_profile=(profile)
+    self.content_profile_id = profile.kind_of?(ContentProfile) ?
+        profile.id : nil
+  end
+
   def delete_from_solr
     Solr.instance.delete(self.solr_id)
   end

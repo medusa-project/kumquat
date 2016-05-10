@@ -2,6 +2,7 @@
 
 collection1:
   access_url: MyString
+  content_profile_id: <%= ContentProfile::FREE_FORM_PROFILE.id %>
   description: MyString
   description_html: MyString
   medusa_file_group_id: 162
@@ -15,6 +16,7 @@ collection1:
 
 collection2:
   access_url: MyString
+  content_profile_id: <%= ContentProfile::MAP_PROFILE.id %>
   description: MyString
   description_html: MyString
   medusa_file_group_id: 162
