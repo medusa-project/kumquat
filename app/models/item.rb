@@ -80,7 +80,7 @@ class Item < ActiveRecord::Base
                      'preservationMasterMediaType', 'preservationMasterWidth',
                      'preservationMasterHeight', 'created', 'lastModified']
     elements = tech_elements + Element.all_descriptive.map(&:name)
-    elements.join("\t") + "\n"
+    elements.join("\t") + "\n\r"
   end
 
   ##
@@ -394,7 +394,7 @@ class Item < ActiveRecord::Base
       columns << self.elements.select{ |e| e.name == el.name }.map(&:value).
           join(MULTI_VALUE_SEPARATOR)
     end
-    columns.join("\t") + "\n"
+    columns.join("\t") + "\n\r"
   end
 
   ##
