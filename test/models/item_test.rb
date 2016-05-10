@@ -98,6 +98,53 @@ class ItemTest < ActiveSupport::TestCase
     end
   end
 
+  # to_solr
+
+  test 'to_solr should work' do
+    doc = @item.to_solr
+
+    assert_equal @item.solr_id, doc[Item::SolrFields::ID]
+    assert_equal @item.class.to_s, doc[Item::SolrFields::CLASS]
+    assert_equal @item.collection_repository_id,
+                 doc[Item::SolrFields::COLLECTION]
+    assert_equal @item.date.utc.iso8601, doc[Item::SolrFields::DATE]
+    assert_equal @item.full_text, doc[Item::SolrFields::FULL_TEXT]
+    assert_not_empty doc[Item::SolrFields::LAST_INDEXED]
+    assert_equal "#{@item.latitude},#{@item.longitude}",
+                 doc[Item::SolrFields::LAT_LONG]
+    assert_equal @item.page_number, doc[Item::SolrFields::PAGE_NUMBER]
+    assert_equal @item.parent_repository_id, doc[Item::SolrFields::PARENT_ITEM]
+    assert_equal @item.published, doc[Item::SolrFields::PUBLISHED]
+    assert_equal @item.representative_item_repository_id,
+                 doc[Item::SolrFields::REPRESENTATIVE_ITEM_ID]
+    assert_equal @item.subpage_number, doc[Item::SolrFields::SUBPAGE_NUMBER]
+    assert_equal @item.variant, doc[Item::SolrFields::VARIANT]
+
+    bs = @item.bytestreams.
+        select{ |b| b.bytestream_type == Bytestream::Type::ACCESS_MASTER }.first
+    assert_equal bs.height, doc[Item::SolrFields::ACCESS_MASTER_HEIGHT]
+    assert_equal bs.media_type, doc[Item::SolrFields::ACCESS_MASTER_MEDIA_TYPE]
+    assert_equal bs.file_group_relative_pathname,
+                 doc[Item::SolrFields::ACCESS_MASTER_PATHNAME]
+    assert_equal bs.url, doc[Item::SolrFields::ACCESS_MASTER_URL]
+    assert_equal bs.width, doc[Item::SolrFields::ACCESS_MASTER_WIDTH]
+
+    bs = @item.bytestreams.
+        select{ |b| b.bytestream_type == Bytestream::Type::PRESERVATION_MASTER }.first
+    assert_equal bs.height, doc[Item::SolrFields::PRESERVATION_MASTER_HEIGHT]
+    assert_equal bs.media_type,
+                 doc[Item::SolrFields::PRESERVATION_MASTER_MEDIA_TYPE]
+    assert_equal bs.file_group_relative_pathname,
+                 doc[Item::SolrFields::PRESERVATION_MASTER_PATHNAME]
+    assert_equal bs.url, doc[Item::SolrFields::PRESERVATION_MASTER_URL]
+    assert_equal bs.width, doc[Item::SolrFields::PRESERVATION_MASTER_WIDTH]
+
+    @item.elements.each do |element|
+      assert_equal [element.value], doc[element.solr_multi_valued_field]
+      assert_equal element.value, doc[element.solr_single_valued_field]
+    end
+  end
+
   # to_tsv
 
   test 'to_tsv should work' do
