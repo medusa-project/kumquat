@@ -104,7 +104,7 @@ class Item < ActiveRecord::Base
   end
 
   def bib_id
-    self.elements.where(name: 'bibId').limit(1)&.first&.value
+    self.elements.select{ |e| e.name == 'bibId' }.first&.value
   end
 
   ##
@@ -118,8 +118,7 @@ class Item < ActiveRecord::Base
   # @return [Element]
   #
   def description
-    element = self.elements.where(name: 'description').limit(1).first
-    element ? element.value : nil
+    self.elements.select{ |e| e.name == 'description' }.first&.value
   end
 
   def delete_from_solr
@@ -270,16 +269,14 @@ class Item < ActiveRecord::Base
   # @return [Element]
   #
   def subtitle
-    element = self.elements.where(name: 'alternativeTitle').limit(1).first
-    element ? element.value : nil
+    self.elements.select{ |e| e.name == 'alternativeTitle' }.first&.value
   end
 
   ##
   # @return [Element]
   #
   def title
-    element = self.elements.where(name: 'title').limit(1).first
-    element ? element.value : nil
+    self.elements.select{ |e| e.name == 'title' }.first&.value
   end
 
   ##
