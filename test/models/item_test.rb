@@ -15,6 +15,36 @@ class ItemTest < ActiveSupport::TestCase
     assert_kind_of Item, Item.from_dls_xml(doc, 1)
   end
 
+  # Item.tsv_header()
+
+  test 'tsv_header should return the correct columns' do
+    cols = Item.tsv_header.strip.split("\t")
+    assert_equal 'repositoryId', cols[0]
+    assert_equal 'parentId', cols[1]
+    assert_equal 'collectionId', cols[2]
+    assert_equal 'representativeItemId', cols[3]
+    assert_equal 'variant', cols[4]
+    assert_equal 'pageNumber', cols[5]
+    assert_equal 'subpageNumber', cols[6]
+    assert_equal 'fullText', cols[7]
+    assert_equal 'accessMasterPathname', cols[8]
+    assert_equal 'accessMasterURL', cols[9]
+    assert_equal 'accessMasterMediaType', cols[10]
+    assert_equal 'accessMasterWidth', cols[11]
+    assert_equal 'accessMasterHeight', cols[12]
+    assert_equal 'preservationMasterPathname', cols[13]
+    assert_equal 'preservationMasterURL', cols[14]
+    assert_equal 'preservationMasterMediaType', cols[15]
+    assert_equal 'preservationMasterWidth', cols[16]
+    assert_equal 'preservationMasterHeight', cols[17]
+    assert_equal 'created', cols[18]
+    assert_equal 'lastModified', cols[19]
+
+    Element.all_descriptive.map(&:name).each_with_index do |el, index|
+      assert_not_empty cols[20 + index]
+    end
+  end
+
   # access_master_bytestream()
 
   test 'access_master_bytestream() should work properly' do

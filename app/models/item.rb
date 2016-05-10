@@ -79,8 +79,7 @@ class Item < ActiveRecord::Base
                      'preservationMasterPathname', 'preservationMasterURL',
                      'preservationMasterMediaType', 'preservationMasterWidth',
                      'preservationMasterHeight', 'created', 'lastModified']
-    elements = tech_elements + Element.all_available.
-        reject{ |e| tech_elements.include?(e.name) }.map(&:name)
+    elements = tech_elements + Element.all_descriptive.map(&:name)
     elements.join("\t") + "\n"
   end
 
