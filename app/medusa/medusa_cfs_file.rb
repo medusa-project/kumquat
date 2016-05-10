@@ -9,7 +9,7 @@ class MedusaCfsFile
   attr_accessor :medusa_representation
 
   def pathname
-    PearTree::Application.peartree_config[:repository_pathname] +
+    PearTree::Application.peartree_config[:repository_pathname].chomp('/') +
         self.repository_relative_pathname
   end
 
