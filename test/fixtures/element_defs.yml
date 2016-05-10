@@ -1,7 +1,9 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-one:
-  collection_id: 1
+one: # TODO: rename to title_def
+  metadata_profile_id: 1
+  dc_map: title
+  dcterms_map: title
   facetable: false
   index: 0
   label: Title
@@ -10,8 +12,10 @@ one:
   sortable: true
   visible: true
 
-two:
-  collection_id: 1
+two: # TODO: rename to description_def
+  metadata_profile_id: 1
+  dc_map: description
+  dcterms_map: description
   facetable: false
   index: 1
   label: Description

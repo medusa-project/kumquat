@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160510153038) do
+ActiveRecord::Schema.define(version: 20160510163453) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -74,7 +74,6 @@ ActiveRecord::Schema.define(version: 20160510153038) do
   add_index "delayed_jobs", ["priority", "run_at"], name: "delayed_jobs_priority", using: :btree
 
   create_table "element_defs", force: :cascade do |t|
-    t.integer  "collection_id"
     t.integer  "metadata_profile_id"
     t.string   "name"
     t.string   "label"
@@ -89,7 +88,6 @@ ActiveRecord::Schema.define(version: 20160510153038) do
     t.string   "dcterms_map"
   end
 
-  add_index "element_defs", ["collection_id"], name: "index_element_defs_on_collection_id", using: :btree
   add_index "element_defs", ["metadata_profile_id"], name: "index_element_defs_on_metadata_profile_id", using: :btree
 
   create_table "elements", force: :cascade do |t|
