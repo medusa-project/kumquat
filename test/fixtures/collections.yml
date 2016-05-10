@@ -5,6 +5,7 @@ collection1:
   description: MyString
   description_html: MyString
   medusa_file_group_id: 162
+  metadata_profile: default_metadata_profile
   published: true
   published_in_dls: true
   repository_id: collection1
@@ -17,6 +18,7 @@ collection2:
   description: MyString
   description_html: MyString
   medusa_file_group_id: 162
+  metadata_profile: metadata_profile_2
   published: false
   published_in_dls: false
   repository_id: collection2
