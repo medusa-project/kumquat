@@ -330,14 +330,18 @@ class Item < ActiveRecord::Base
     doc[SolrFields::REPRESENTATIVE_ITEM_ID] = self.representative_item_repository_id
     doc[SolrFields::SUBPAGE_NUMBER] = self.subpage_number
     doc[SolrFields::VARIANT] = self.variant
-    self.bytestreams.where(bytestream_type: Bytestream::Type::ACCESS_MASTER).limit(1).each do |bs|
+    bs = self.bytestreams.
+        select{ |b| b.bytestream_type == Bytestream::Type::ACCESS_MASTER }.first
+    if bs
       doc[SolrFields::ACCESS_MASTER_HEIGHT] = bs.height
       doc[SolrFields::ACCESS_MASTER_MEDIA_TYPE] = bs.media_type
       doc[SolrFields::ACCESS_MASTER_PATHNAME] = bs.file_group_relative_pathname
       doc[SolrFields::ACCESS_MASTER_URL] = bs.url
       doc[SolrFields::ACCESS_MASTER_WIDTH] = bs.width
     end
-    self.bytestreams.where(bytestream_type: Bytestream::Type::PRESERVATION_MASTER).limit(1).each do |bs|
+    bs = self.bytestreams.
+        select{ |b| b.bytestream_type == Bytestream::Type::PRESERVATION_MASTER }.first
+    if bs
       doc[SolrFields::PRESERVATION_MASTER_HEIGHT] = bs.height
       doc[SolrFields::PRESERVATION_MASTER_MEDIA_TYPE] = bs.media_type
       doc[SolrFields::PRESERVATION_MASTER_PATHNAME] = bs.file_group_relative_pathname
