@@ -123,7 +123,6 @@ class Item < ActiveRecord::Base
   end
 
   def delete_from_solr
-    self.last_indexed = Time.now
     Solr.instance.delete(self.solr_id)
   end
 
@@ -152,7 +151,6 @@ class Item < ActiveRecord::Base
   end
 
   def index_in_solr
-    self.last_indexed = Time.now
     Solr.instance.add(self.to_solr)
     # To improve the performance of imports, we will avoid saving here, as
     # this will be called in a before_save callback 99.99% of the time.
@@ -322,7 +320,7 @@ class Item < ActiveRecord::Base
     doc[SolrFields::COLLECTION] = self.collection_repository_id
     doc[SolrFields::DATE] = self.date.utc.iso8601 if self.date
     doc[SolrFields::FULL_TEXT] = self.full_text
-    doc[SolrFields::LAST_INDEXED] = self.last_indexed.utc.iso8601
+    doc[SolrFields::LAST_INDEXED] = Time.now.utc.iso8601
     if self.latitude and self.longitude
       doc[SolrFields::LAT_LONG] = "#{self.latitude},#{self.longitude}"
     end

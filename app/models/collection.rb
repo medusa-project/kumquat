@@ -53,7 +53,6 @@ class Collection < ActiveRecord::Base
   end
 
   def delete_from_solr
-    self.last_indexed = Time.now
     Solr.instance.delete(self.solr_id)
   end
 
@@ -73,7 +72,6 @@ class Collection < ActiveRecord::Base
   end
 
   def index_in_solr
-    self.last_indexed = Time.now
     Solr.instance.add(self.to_solr)
   end
 
@@ -202,7 +200,7 @@ class Collection < ActiveRecord::Base
     doc = {}
     doc[SolrFields::ID] = self.solr_id
     doc[SolrFields::CLASS] = self.class.to_s
-    doc[SolrFields::LAST_INDEXED] = self.last_indexed.utc.iso8601
+    doc[SolrFields::LAST_INDEXED] = Time.now.utc.iso8601
     doc[SolrFields::ACCESS_URL] = self.access_url
     doc[SolrFields::DESCRIPTION] = self.description
     doc[SolrFields::DESCRIPTION_HTML] = self.description_html

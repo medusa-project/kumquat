@@ -4,7 +4,6 @@ collection1:
   access_url: MyString
   description: MyString
   description_html: MyString
-  last_indexed: <%= Time.now %>
   medusa_file_group_id: 162
   published: true
   published_in_dls: true
@@ -17,7 +16,6 @@ collection2:
   access_url: MyString
   description: MyString
   description_html: MyString
-  last_indexed: <%= Time.now %>
   medusa_file_group_id: 162
   published: false
   published_in_dls: false
