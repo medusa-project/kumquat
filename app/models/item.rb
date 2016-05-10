@@ -50,8 +50,8 @@ class Item < ActiveRecord::Base
   validates :collection_repository_id, length: { minimum: 2 }
   validates :repository_id, length: { minimum: 2 }
 
-  before_destroy :delete_from_solr
-  before_save :index_in_solr
+  after_commit :index_in_solr, on: [:create, :update]
+  after_commit :delete_from_solr, on: :destroy
 
   ##
   # Creates a new instance from valid DLS XML, persists it, and returns it.

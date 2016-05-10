@@ -30,8 +30,8 @@ class Collection < ActiveRecord::Base
 
   validates :repository_id, presence: true
 
-  before_destroy :delete_from_solr
-  before_save :index_in_solr
+  after_commit :index_in_solr, on: [:create, :update]
+  after_commit :delete_from_solr, on: :destroy
 
   ##
   # @param id [Integer] Medusa collection ID
