@@ -7,10 +7,10 @@ class ItemTsvIngesterTest < ActiveSupport::TestCase
   end
 
   test 'ingest_tsv should create new items from valid TSV' do
-    tsv = "repositoryId\tcollectionId\ttitle\n"
-    tsv += "001\tcollection1\tCats\n"
-    tsv += "002\tcollection1\tMore cats\n"
-    tsv += "003\tcollection1\tEven more cats\n"
+    tsv = "repositoryId\tcollectionId\ttitle\r\n"
+    tsv += "001\tcollection1\tCats\r\n"
+    tsv += "002\tcollection1\tMore cats\r\n"
+    tsv += "003\tcollection1\tEven more cats\r\n"
     assert_equal 3, @ingester.ingest_tsv(tsv)
 
     assert_equal 3, Item.where("repository_id IN ('001', '002', '003')").count
@@ -20,9 +20,9 @@ class ItemTsvIngesterTest < ActiveSupport::TestCase
   test 'ingest_tsv should update existing items from valid TSV' do
     initial_count = Item.all.count
 
-    tsv = "repositoryId\tcollectionId\ttitle\n"
-    tsv += "item1\tcollection1\tFrom fixture\n"
-    tsv += "item2\tcollection1\tFrom fixture\n"
+    tsv = "repositoryId\tcollectionId\ttitle\r\n"
+    tsv += "item1\tcollection1\tFrom fixture\r\n"
+    tsv += "item2\tcollection1\tFrom fixture\r\n"
     @ingester.ingest_tsv(tsv)
 
     assert_equal initial_count, Item.all.count
@@ -35,18 +35,18 @@ class ItemTsvIngesterTest < ActiveSupport::TestCase
   end
 
   test 'ingest_tsv should raise an error with missing value' do
-    tsv = "collectionId\ttitle\n"
-    tsv += "collection1\tCats\n"
-    tsv += "collection2\tMore cats\n"
+    tsv = "collectionId\ttitle\r\n"
+    tsv += "collection1\tCats\r\n"
+    tsv += "collection2\tMore cats\r\n"
     assert_raises ActiveRecord::RecordInvalid do
       @ingester.ingest_tsv(tsv)
     end
   end
 
   test 'ingest_tsv should raise an error with blank value' do
-    tsv = "repositoryId\tcollectionId\ttitle\n"
-    tsv += "newitem1\t\tCats\n"
-    tsv += "newitem2\t\tMore cats\n"
+    tsv = "repositoryId\tcollectionId\ttitle\r\n"
+    tsv += "newitem1\t\tCats\r\n"
+    tsv += "newitem2\t\tMore cats\r\n"
     assert_raises ActiveRecord::RecordInvalid do
       @ingester.ingest_tsv(tsv)
     end
