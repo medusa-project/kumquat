@@ -130,7 +130,7 @@ class Collection < ActiveRecord::Base
     format = format.present? ? ".#{format.to_s.gsub('.', '')}" : ''
     url = nil
     if self.repository_id
-      url = sprintf('%s/collections/%s%s',
+      url = sprintf('%s/uuids/%s%s',
                     PearTree::Application.peartree_config[:medusa_url].chomp('/'),
                     self.repository_id,
                     format)
@@ -191,7 +191,8 @@ class Collection < ActiveRecord::Base
     unless self.repository_id
       raise 'update_from_medusa() called without repository_id set'
     end
-    json_str = Medusa.client.get(self.medusa_url('json')).body
+    json_str = Medusa.client.get(self.medusa_url('json'),
+                                 follow_redirect: true).body
     struct = JSON.parse(json_str)
 
     self.access_url = struct['access_url']
