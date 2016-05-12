@@ -18,15 +18,6 @@ var PTAdminItemsView = function() {
                 $(this).closest('.form-group').remove();
             }
         });
-
-        $('button.pt-check-all').on('click', function() {
-            $(this).parent().find('.pt-collections').
-                find('input[type="checkbox"]').prop('checked', true);
-        });
-        $('button.pt-uncheck-all').on('click', function() {
-            $(this).parent().find('.pt-collections').
-                find('input[type="checkbox"]').prop('checked', false);
-        });
     };
 
 };

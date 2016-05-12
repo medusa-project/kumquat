@@ -2,15 +2,23 @@ module Admin
 
   class ItemsController < ControlPanelController
 
+    ##
+    # Responds to GET /admin/collections/:collection_id/items
+    #
     def index
+      @collection = Collection.find_by_repository_id(params[:collection_id])
+      raise ActiveRecord::RecordNotFound unless @collection
+
       if params[:clear]
-        redirect_to admin_items_path
+        redirect_to edit_admin_collection_item_url(@collection)
         return
       end
 
       @start = params[:start] ? params[:start].to_i : 0
       @limit = Option::integer(Option::Key::RESULTS_PER_PAGE)
-      @items = Item.solr.where(params[:q]).facet(false)
+      @items = Item.solr.
+          where(Item::SolrFields::COLLECTION => @collection.repository_id).
+          where(params[:q]).facet(false)
 
       # fields
       field_input_present = false
@@ -23,17 +31,6 @@ module Admin
         end
       end
 
-      # collections
-      if params[:collections] and params[:collections].any?
-        collections = params[:collections].select{ |k| k.present? }
-        if collections.any?
-          if collections.length == 1
-            @items = @items.where("#{Item::SolrFields::COLLECTION}:\"#{collections.first}\"")
-          else
-            @items = @items.where("#{Item::SolrFields::COLLECTION}:(#{collections.join(' ')})")
-          end
-        end
-      end
       if params[:published].present? and params[:published] != 'any'
         @items = @items.where("#{Item::SolrFields::PUBLISHED}:#{params[:published].to_i}")
       end
@@ -55,7 +52,6 @@ module Admin
               map{ |p| [p.label, p.solr_multi_valued_field] }.uniq
           @elements_for_select.
               unshift([ 'Any Element', Item::SolrFields::SEARCH_ALL ])
-          @collections = Collection.where(published_in_dls: true)
         end
         format.tsv do
           # The TSV representation includes item children. Ordering, limit,
@@ -79,7 +75,7 @@ module Admin
     end
 
     ##
-    # Responds to POST /items/ingest
+    # Responds to POST /admin/collections/:collection_id/items/ingest
     #
     def ingest
       respond_to do |format|
@@ -110,21 +106,22 @@ module Admin
     end
 
     ##
-    # Responds to GET/POST /admin/items/search
+    # Responds to GET/POST /admin/collections/:collection_id/items/search
     #
     def search
       index
       render 'index' if !params[:clear] and request.format == :html
     end
 
+    ##
+    # Responds to GET /admin/collections/:collection_id/items/:id
+    #
     def show
       @item = Item.find_by_repository_id(params[:id])
       raise ActiveRecord::RecordNotFound unless @item
 
       respond_to do |format|
-        format.html do
-          @pages = @item.parent ? @item.parent.items : @item.items
-        end
+        format.html { @pages = @item.parent ? @item.parent.items : @item.items }
         #format.jsonld { render text: @item.admin_rdf_graph(uri).to_jsonld }
         #format.rdfxml { render text: @item.admin_rdf_graph(uri).to_rdfxml }
         #format.ttl { render text: @item.admin_rdf_graph(uri).to_ttl }
