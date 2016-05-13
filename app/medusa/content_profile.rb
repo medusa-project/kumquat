@@ -50,4 +50,70 @@ class ContentProfile
   FREE_FORM_PROFILE = ContentProfile.find(0)
   MAP_PROFILE = ContentProfile.find(1)
 
+  ##
+  # @param item_id [String]
+  # @return [String, nil] UUID of the parent item of the given item, or nil
+  #                       if there is no parent.
+  # @raises [HTTPClient::BadResponseError]
+  #
+  def parent_id(item_id)
+    case self.id
+      when 0
+        return parent_free_form_id(item_id)
+      when 1
+        return parent_map_id(item_id)
+    end
+    nil
+  end
+
+  private
+
+  ##
+  # @param uuid [String]
+  # @return [String] Absolute URI of the Medusa collection resource, or nil
+  #                  if the instance does not have an ID.
+  #
+  def medusa_url(uuid)
+    sprintf('%s/uuids/%s.json',
+            PearTree::Application.peartree_config[:medusa_url].chomp('/'),
+            uuid)
+  end
+
+  def parent_free_form_id(item_id)
+    client = Medusa.client
+    json = client.get(medusa_url(item_id), follow_redirect: true).body
+    struct = JSON.parse(json)
+    if struct['parent_directory']
+      json = client.get(medusa_url(struct['parent_directory']['uuid']),
+                        follow_redirect: true).body
+      struct2 = JSON.parse(json)
+      unless struct2['parent_directory']
+        return nil
+      end
+    elsif struct['directory']
+      return struct['directory']['uuid']
+    end
+  end
+
+  def parent_map_id(item_id)
+    client = Medusa.client
+    json = client.get(medusa_url(item_id), follow_redirect: true).body
+    struct = JSON.parse(json)
+
+    # Top-level items will have `access`, `metadata`, and/or `preservation`
+    # subdirectories.
+    if struct['subdirectories']&.
+        select{ |n| %w(access metadata preservation).include?(n['name']) }&.any?
+      return nil
+      # Child items will reside in a directory called `access` or
+      # `preservation`.
+    elsif struct['directory'] and
+        %w(access preservation).include?(struct['directory']['name'])
+      json = client.get(medusa_url(struct['directory']['uuid']),
+                        follow_redirect: true).body
+      struct2 = JSON.parse(json)
+      return struct2['parent_directory']['uuid']
+    end
+  end
+
 end
