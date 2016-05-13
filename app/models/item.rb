@@ -15,7 +15,7 @@ class Item < ActiveRecord::Base
     LAT_LONG = 'lat_long_loc'
     LAST_INDEXED = 'last_indexed_dti'
     PAGE_NUMBER = 'page_number_ii'
-    PARENT_ITEM = 'parent_si'
+    PARENT_ITEM = 'parent_item_si'
     PRESERVATION_MASTER_MEDIA_TYPE = 'preservation_master_media_type_si'
     PRESERVATION_MASTER_PATHNAME = 'preservation_master_pathname_si'
     PUBLISHED = 'published_bi'
