@@ -417,11 +417,8 @@ class Item < ActiveRecord::Base
   #
   def update_from_xml(node, schema_version)
     case schema_version
-      when 1
-        namespaces = ItemXmlIngester::XML_V1_NAMESPACE
-        prefix = 'lrp'
-      else
-        namespaces = ItemXmlIngester::XML_V2_NAMESPACE
+      when 3
+        namespaces = ItemXmlIngester::XML_V3_NAMESPACES
         prefix = 'dls'
     end
 
@@ -556,7 +553,7 @@ class Item < ActiveRecord::Base
 
   def to_dls_xml_v3
     builder = Nokogiri::XML::Builder.new do |xml|
-      xml['dls'].Object('xmlns:dls' => ItemXmlIngester::XML_V2_NAMESPACE['dls']) {
+      xml['dls'].Object('xmlns:dls' => ItemXmlIngester::XML_V3_NAMESPACES['dls']) {
         xml['dls'].repositoryId {
           xml.text(self.repository_id)
         }

@@ -2,8 +2,7 @@ class ItemXmlIngester
 
   SCHEMA_VERSIONS = [3]
 
-  XML_V1_NAMESPACE = { 'lrp' => 'http://www.library.illinois.edu/lrp/terms#' }
-  XML_V2_NAMESPACE = { 'dls' => 'http://digital.library.illinois.edu/terms#' }
+  XML_V3_NAMESPACES = { 'dls' => 'http://digital.library.illinois.edu/terms#' }
 
   ##
   # Ingests items from all metadata files (item_*.xml`) underneath the given
@@ -42,17 +41,11 @@ class ItemXmlIngester
     doc = Nokogiri::XML(xml, &:noblanks)
     doc.encoding = 'utf-8'
     validate_document(doc, 'object.xsd', schema_version)
-    if schema_version == 1
-      node = doc.xpath('//lrp:Object', XML_V1_NAMESPACE).first
+    if schema_version == 3
+      node = doc.xpath('//dls:Object', XML_V3_NAMESPACES).first
       # If an item with the same repository ID already exists, update it.
       # Otherwise, create a new item and save it.
-      repository_id = node.xpath('lrp:repositoryId', XML_V1_NAMESPACE).
-          first.content.strip
-    else
-      node = doc.xpath('//dls:Object', XML_V2_NAMESPACE).first
-      # If an item with the same repository ID already exists, update it.
-      # Otherwise, create a new item and save it.
-      repository_id = node.xpath('dls:repositoryId', XML_V2_NAMESPACE).
+      repository_id = node.xpath('dls:repositoryId', XML_V3_NAMESPACES).
           first.content.strip
     end
 
