@@ -19,29 +19,15 @@ class ItemTest < ActiveSupport::TestCase
 
   test 'tsv_header should return the correct columns' do
     cols = Item.tsv_header.strip.split("\t")
-    assert_equal 'repositoryId', cols[0]
-    assert_equal 'parentId', cols[1]
-    assert_equal 'collectionId', cols[2]
-    assert_equal 'representativeItemId', cols[3]
-    assert_equal 'variant', cols[4]
-    assert_equal 'pageNumber', cols[5]
-    assert_equal 'subpageNumber', cols[6]
-    assert_equal 'fullText', cols[7]
-    assert_equal 'accessMasterPathname', cols[8]
-    assert_equal 'accessMasterURL', cols[9]
-    assert_equal 'accessMasterMediaType', cols[10]
-    assert_equal 'accessMasterWidth', cols[11]
-    assert_equal 'accessMasterHeight', cols[12]
-    assert_equal 'preservationMasterPathname', cols[13]
-    assert_equal 'preservationMasterURL', cols[14]
-    assert_equal 'preservationMasterMediaType', cols[15]
-    assert_equal 'preservationMasterWidth', cols[16]
-    assert_equal 'preservationMasterHeight', cols[17]
-    assert_equal 'created', cols[18]
-    assert_equal 'lastModified', cols[19]
+    assert_equal 'uuid', cols[0]
+    assert_equal 'variant', cols[1]
+    assert_equal 'pageNumber', cols[2]
+    assert_equal 'subpageNumber', cols[3]
+    assert_equal 'latitude', cols[4]
+    assert_equal 'longitude', cols[5]
 
     Element.all_descriptive.map(&:name).each_with_index do |el, index|
-      assert_not_empty cols[20 + index]
+      assert_not_empty cols[6 + index]
     end
   end
 
@@ -74,23 +60,11 @@ class ItemTest < ActiveSupport::TestCase
 
   # to_dls_xml(schema_version)
 
-  test 'to_dls_xml() should work with version 1' do
+  test 'to_dls_xml() should work with version 3' do
     Item.all.each do |item|
-      xml = item.to_dls_xml(1)
+      xml = item.to_dls_xml(3)
       doc = Nokogiri::XML(xml, &:noblanks)
-      schema_path = sprintf('%s/../../public/schema/1/object.xsd', __dir__)
-      xsd = Nokogiri::XML::Schema(File.read(schema_path))
-      xsd.validate(doc).each do |error|
-        raise error.message
-      end
-    end
-  end
-
-  test 'to_dls_xml() should work with version 2' do
-    Item.all.each do |item|
-      xml = item.to_dls_xml(2)
-      doc = Nokogiri::XML(xml, &:noblanks)
-      schema_path = sprintf('%s/../../public/schema/2/object.xsd', __dir__)
+      schema_path = sprintf('%s/../../public/schema/3/object.xsd', __dir__)
       xsd = Nokogiri::XML::Schema(File.read(schema_path))
       xsd.validate(doc).each do |error|
         raise error.message
@@ -144,35 +118,17 @@ class ItemTest < ActiveSupport::TestCase
   test 'to_tsv should work' do
     values = @item.to_tsv.strip.split("\t")
     assert_equal @item.repository_id.to_s, values[0]
-    assert_equal @item.parent_repository_id.to_s, values[1]
-    assert_equal @item.collection_repository_id.to_s, values[2]
-    assert_equal @item.representative_item_repository_id.to_s, values[3]
-    assert_equal @item.variant.to_s, values[4]
-    assert_equal @item.page_number.to_s, values[5]
-    assert_equal @item.subpage_number.to_s, values[6]
-    assert_equal @item.full_text.to_s, values[7]
-    bs = @item.bytestreams.
-        select{ |b| b.bytestream_type == Bytestream::Type::ACCESS_MASTER }.first
-    assert_equal bs&.file_group_relative_pathname.to_s, values[8]
-    assert_equal bs&.url.to_s, values[9]
-    assert_equal bs&.media_type.to_s, values[10]
-    assert_equal bs&.width.to_s, values[11]
-    assert_equal bs&.height.to_s, values[12]
-    bs = @item.bytestreams.
-        select{ |b| b.bytestream_type == Bytestream::Type::PRESERVATION_MASTER }.first
-    assert_equal bs&.file_group_relative_pathname.to_s, values[13]
-    assert_equal bs&.url.to_s, values[14]
-    assert_equal bs&.media_type.to_s, values[15]
-    assert_equal bs&.width.to_s, values[16]
-    assert_equal bs&.height.to_s, values[17]
-    assert_equal @item.created_at.utc.iso8601, values[18]
-    assert_equal @item.updated_at.utc.iso8601, values[19]
+    assert_equal @item.variant.to_s, values[1]
+    assert_equal @item.page_number.to_s, values[2]
+    assert_equal @item.subpage_number.to_s, values[3]
+    assert_equal @item.latitude.to_s, values[4]
+    assert_equal @item.longitude.to_s, values[5]
 
     Element.all_descriptive.each_with_index do |el, index|
       assert_equal @item.elements.select{ |e| e.name == el.name }.map(&:value).
           join(Item::MULTI_VALUE_SEPARATOR),
-                   values[20 + index].to_s
-      assert_not_equal 'nil', values[20 + index]
+                   values[6 + index].to_s
+      assert_not_equal 'nil', values[6 + index]
     end
   end
 
@@ -181,26 +137,12 @@ class ItemTest < ActiveSupport::TestCase
   test 'update_from_tsv should work' do
     row = {}
     # technical elements
-    row['collectionId'] = 'collection1' # from fixture
     row['date'] = '1984'
-    row['fullText'] = 'full text'
     row['latitude'] = '45.52'
     row['longitude'] = '-120.564'
     row['pageNumber'] = '3'
-    row['parentId'] = 'item1'
-    row['published'] = 'true'
-    row['repositoryId'] = 'cats001'
-    row['representativeItemId'] = 'cats001'
     row['subpageNumber'] = '1'
     row['variant'] = Item::Variants::PAGE
-    row['accessMasterPathname'] = '/pathname'
-    row['accessMasterWidth'] = '500'
-    row['accessMasterHeight'] = '400'
-    row['accessMasterMediaType'] = 'image/jpeg'
-    row['preservationMasterPathname'] = '/pathname'
-    row['preservationMasterWidth'] = '500'
-    row['preservationMasterHeight'] = '400'
-    row['preservationMasterMediaType'] = 'image/jpeg'
 
     # descriptive elements
     row['description'] = sprintf('Cats%scats%sand more cats',
@@ -210,33 +152,12 @@ class ItemTest < ActiveSupport::TestCase
 
     @item.update_from_tsv(row)
 
-    assert_equal('collection1', @item.collection.repository_id)
     assert_equal(1984, @item.date.year)
-    assert_equal('full text', @item.full_text)
     assert_equal(45.52, @item.latitude)
     assert_equal(-120.564, @item.longitude)
     assert_equal(3, @item.page_number)
-    assert_equal('item1', @item.parent_repository_id)
-    assert @item.published
-    assert_equal('cats001', @item.repository_id)
-    assert_equal('cats001', @item.representative_item_repository_id)
     assert_equal(1, @item.subpage_number)
     assert_equal(Item::Variants::PAGE, @item.variant)
-
-    assert_equal(2, @item.bytestreams.length)
-    am = @item.bytestreams.
-        select{ |bs| bs.bytestream_type == Bytestream::Type::ACCESS_MASTER }.first
-    assert_equal('/pathname', am.file_group_relative_pathname)
-    assert_equal(500, am.width)
-    assert_equal(400, am.height)
-    assert_equal('image/jpeg', am.media_type)
-
-    am = @item.bytestreams.
-        select{ |bs| bs.bytestream_type == Bytestream::Type::PRESERVATION_MASTER }.first
-    assert_equal('/pathname', am.file_group_relative_pathname)
-    assert_equal(500, am.width)
-    assert_equal(400, am.height)
-    assert_equal('image/jpeg', am.media_type)
 
     descriptions = @item.elements.select{ |e| e.name == 'description' }
     assert_equal 3, descriptions.length

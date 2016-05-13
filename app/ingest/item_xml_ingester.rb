@@ -1,6 +1,6 @@
 class ItemXmlIngester
 
-  SCHEMA_VERSIONS = [1, 2]
+  SCHEMA_VERSIONS = [3]
 
   XML_V1_NAMESPACE = { 'lrp' => 'http://www.library.illinois.edu/lrp/terms#' }
   XML_V2_NAMESPACE = { 'dls' => 'http://digital.library.illinois.edu/terms#' }

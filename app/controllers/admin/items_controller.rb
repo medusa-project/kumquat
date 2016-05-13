@@ -91,7 +91,8 @@ module Admin
             tempfile.write(params[:tsv].read)
             tempfile.close
 
-            IngestItemsFromTsvJob.perform_later(tempfile.path)
+            IngestItemsFromTsvJob.perform_later(tempfile.path,
+                                                params[:collection_id])
           rescue => e
             tempfile.unlink
             flash['error'] = "#{e}"

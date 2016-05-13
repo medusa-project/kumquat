@@ -248,11 +248,7 @@ class ItemsController < WebsiteController
     end
     bs = item.bytestreams.where(bytestream_type: type).select(&:exists?).first
     if bs
-      if bs.url
-        redirect_to bs.url, status: 303
-      else
-        send_file(bs.absolute_local_pathname)
-      end
+      send_file(bs.absolute_local_pathname)
     else
       render status: 404, text: 'Not found.'
     end

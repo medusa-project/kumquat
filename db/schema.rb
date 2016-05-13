@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160510165648) do
+ActiveRecord::Schema.define(version: 20160513155502) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -20,7 +20,6 @@ ActiveRecord::Schema.define(version: 20160510165648) do
     t.integer  "bytestream_type"
     t.string   "media_type",                   default: "unknown/unknown"
     t.string   "file_group_relative_pathname"
-    t.string   "url"
     t.integer  "width"
     t.integer  "height"
     t.datetime "created_at",                                               null: false

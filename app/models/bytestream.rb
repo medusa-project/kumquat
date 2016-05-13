@@ -44,11 +44,11 @@ class Bytestream < ActiveRecord::Base
 
   ##
   # @return [Boolean] If the bytestream is a file and the file exists, returns
-  #                   true. Always returns true for URLs.
+  #                   true.
   #
   def exists?
     p = absolute_local_pathname
-    self.url or (p and File.exist?(p) and File.file?(p))
+    p and File.exist?(p) and File.file?(p)
   end
 
   def human_readable_name

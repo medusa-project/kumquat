@@ -15,10 +15,7 @@
           <div class="col-sm-6">
             <h4>Source File</h4>
             <% item.bytestreams.select{ |bs| bs.exists? }.each do |bs|
-              if bs.url
-                label = 'External URL'
-                url = bs.url
-              elsif bs.bytestream_type == Bytestream::Type::ACCESS_MASTER
+              if bs.bytestream_type == Bytestream::Type::ACCESS_MASTER
                 label = 'Access Master'
                 url = item_access_master_bytestream_url(item)
               elsif bs.bytestream_type == Bytestream::Type::PRESERVATION_MASTER

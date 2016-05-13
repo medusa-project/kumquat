@@ -5,7 +5,6 @@ one:
   file_group_relative_pathname: MyString
   item: item1
   media_type: text/plain
-  url: MyString
   width:
   height:
 
@@ -14,7 +13,6 @@ two:
   file_group_relative_pathname: MyString
   item: item1
   media_type: text/plain
-  url: MyString
   width:
   height:
 
@@ -23,6 +21,5 @@ three:
   file_group_relative_pathname: MyString
   item: item2
   media_type: image/jpeg
-  url: MyString
   width: 150
   height: 100

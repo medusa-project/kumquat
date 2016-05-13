@@ -923,12 +923,12 @@ module ItemsHelper
       # development-only info
       if Rails.env.development?
         data[:file]['Pathname (DEVELOPMENT)'] =
-            bytestream.absolute_local_pathname || bytestream.url
+            bytestream.absolute_local_pathname
       end
       # filename
-      if bytestream.file_group_relative_pathname or bytestream.url
+      if bytestream.file_group_relative_pathname
         data[:file]['Filename'] =
-            File.basename(bytestream.file_group_relative_pathname || bytestream.url)
+            File.basename(bytestream.file_group_relative_pathname)
       end
       # status
       data[:file]['Status'] = bytestream.exists? ?
@@ -1022,8 +1022,6 @@ module ItemsHelper
   # @param [Bytestream] bytestream
   #
   def download_label_for_bytestream(bytestream)
-    format = bytestream.url ? 'External Resource' : bytestream.human_readable_name
-
     dimensions = nil
     if bytestream.width and bytestream.width > 0 and bytestream.height and
         bytestream.height > 0
@@ -1033,7 +1031,7 @@ module ItemsHelper
     size = bytestream.byte_size
     size = "(#{number_to_human_size(size)})" if size
 
-    raw("#{format} #{dimensions} #{size}")
+    raw("#{bytestream.human_readable_name} #{dimensions} #{size}")
   end
 
   def tech_metadata_for(item)
