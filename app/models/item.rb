@@ -372,6 +372,10 @@ class Item < ActiveRecord::Base
       self.bytestreams.destroy_all
       self.elements.destroy_all
 
+      # parent item
+      self.parent_repository_id =
+          self.collection.content_profile.parent_id(self.repository_id)
+
       # date (normalized)
       date = row['date'] || row['dateCreated']
       if date
