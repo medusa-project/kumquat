@@ -20,12 +20,11 @@ class ItemTsvIngester
     tsv.map{ |row| row.to_hash }.each do |row|
       item = Item.find_by_repository_id(row['uuid'])
       if item
+        item.collection = collection
         item.update_from_tsv(row)
       else
-        item = Item.from_tsv(row)
+        Item.from_tsv(row, collection)
       end
-      item.collection = collection
-      item.save! # TODO: the item is getting saved too many times
       count += 1
 
       if task and count % 10 == 0
