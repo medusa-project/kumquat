@@ -3,11 +3,8 @@ class Item < ActiveRecord::Base
   include SolrQuerying
 
   class SolrFields
-    ACCESS_MASTER_HEIGHT = 'access_master_height_ii'
     ACCESS_MASTER_MEDIA_TYPE = 'access_master_media_type_si'
     ACCESS_MASTER_PATHNAME = 'access_master_pathname_si'
-    ACCESS_MASTER_URL = 'access_master_url_si'
-    ACCESS_MASTER_WIDTH = 'access_master_width_ii'
     CLASS = 'class_si'
     COLLECTION = 'collection_si'
     CREATED = 'created_dti'
@@ -19,11 +16,8 @@ class Item < ActiveRecord::Base
     LAST_INDEXED = 'last_indexed_dti'
     PAGE_NUMBER = 'page_number_ii'
     PARENT_ITEM = 'parent_si'
-    PRESERVATION_MASTER_HEIGHT = 'preservation_master_height_ii'
     PRESERVATION_MASTER_MEDIA_TYPE = 'preservation_master_media_type_si'
     PRESERVATION_MASTER_PATHNAME = 'preservation_master_pathname_si'
-    PRESERVATION_MASTER_URL = 'preservation_master_url_si'
-    PRESERVATION_MASTER_WIDTH = 'preservation_master_width_ii'
     PUBLISHED = 'published_bi'
     REPRESENTATIVE_ITEM_ID = 'representative_item_id_si'
     SEARCH_ALL = 'searchall_txtim'
@@ -330,20 +324,14 @@ class Item < ActiveRecord::Base
     bs = self.bytestreams.
         select{ |b| b.bytestream_type == Bytestream::Type::ACCESS_MASTER }.first
     if bs
-      doc[SolrFields::ACCESS_MASTER_HEIGHT] = bs.height
       doc[SolrFields::ACCESS_MASTER_MEDIA_TYPE] = bs.media_type
       doc[SolrFields::ACCESS_MASTER_PATHNAME] = bs.file_group_relative_pathname
-      doc[SolrFields::ACCESS_MASTER_URL] = bs.url
-      doc[SolrFields::ACCESS_MASTER_WIDTH] = bs.width
     end
     bs = self.bytestreams.
         select{ |b| b.bytestream_type == Bytestream::Type::PRESERVATION_MASTER }.first
     if bs
-      doc[SolrFields::PRESERVATION_MASTER_HEIGHT] = bs.height
       doc[SolrFields::PRESERVATION_MASTER_MEDIA_TYPE] = bs.media_type
       doc[SolrFields::PRESERVATION_MASTER_PATHNAME] = bs.file_group_relative_pathname
-      doc[SolrFields::PRESERVATION_MASTER_URL] = bs.url
-      doc[SolrFields::PRESERVATION_MASTER_WIDTH] = bs.width
     end
     self.elements.each do |element|
       doc[element.solr_multi_valued_field] ||= []
