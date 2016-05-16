@@ -18,7 +18,7 @@ class ItemTest < ActiveSupport::TestCase
   # Item.tsv_header()
 
   test 'tsv_header should return the correct columns' do
-    cols = Item.tsv_header.strip.split("\t")
+    cols = Item.tsv_header(@item.collection.metadata_profile).strip.split("\t")
     assert_equal 'uuid', cols[0]
     assert_equal 'variant', cols[1]
     assert_equal 'pageNumber', cols[2]
@@ -26,7 +26,7 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal 'latitude', cols[4]
     assert_equal 'longitude', cols[5]
 
-    Element.all_descriptive.map(&:name).each_with_index do |el, index|
+    @item.collection.metadata_profile.element_defs.map(&:name).each_with_index do |el, index|
       assert_not_empty cols[6 + index]
     end
   end
@@ -124,7 +124,7 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal @item.latitude.to_s, values[4]
     assert_equal @item.longitude.to_s, values[5]
 
-    Element.all_descriptive.each_with_index do |el, index|
+    @item.collection.metadata_profile.element_defs.each_with_index do |el, index|
       assert_equal @item.elements.select{ |e| e.name == el.name }.map(&:value).
           join(Item::MULTI_VALUE_SEPARATOR),
                    values[6 + index].to_s

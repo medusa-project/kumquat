@@ -1,7 +1,7 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-one: # TODO: rename to title_def
-  metadata_profile_id: 1
+default_profile_title:
+  metadata_profile: default_metadata_profile
   dc_map: title
   dcterms_map: title
   facetable: false
@@ -12,8 +12,8 @@ one: # TODO: rename to title_def
   sortable: true
   visible: true
 
-two: # TODO: rename to description_def
-  metadata_profile_id: 1
+default_profile_description:
+  metadata_profile: default_metadata_profile
   dc_map: description
   dcterms_map: description
   facetable: false

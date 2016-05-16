@@ -60,14 +60,15 @@ class Item < ActiveRecord::Base
   end
 
   ##
+  # @param metadata_profile [MetadataProfile]
   # @return [String] Tab-separated values with trailing newline.
   # @see to_tsv
   #
-  def self.tsv_header
+  def self.tsv_header(metadata_profile)
     # Must remain synchronized with the output of to_tsv.
     tech_elements = ['uuid', 'variant', 'pageNumber', 'subpageNumber',
                      'latitude', 'longitude']
-    elements = tech_elements + Element.all_descriptive.map(&:name)
+    elements = tech_elements + metadata_profile.element_defs.map(&:name)
     elements.join("\t") + "\n\r"
   end
 
@@ -354,7 +355,7 @@ class Item < ActiveRecord::Base
     columns << self.latitude
     columns << self.longitude
 
-    Element.all_descriptive.each do |el|
+    self.collection.metadata_profile.element_defs.each do |el|
       columns << self.elements.select{ |e| e.name == el.name }.map(&:value).
           join(MULTI_VALUE_SEPARATOR)
     end
@@ -400,7 +401,7 @@ class Item < ActiveRecord::Base
       # variant
       self.variant = row['variant'] if row['variant']
 
-      row.select{ |col, value| Element.all_descriptive.map(&:name).include?(col) }.
+      row.select{ |col, value| self.collection.metadata_profile.element_defs.map(&:name).include?(col) }.
           each do |col, value|
         # Add new elements
         value.split(MULTI_VALUE_SEPARATOR).select(&:present?).each do |v|

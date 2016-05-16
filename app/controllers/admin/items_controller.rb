@@ -61,7 +61,7 @@ module Admin
           # stream the results, as an alternative to send_data
           # which would require them to be loaded into memory first.
           enumerator = Enumerator.new do |y|
-            y << Item.tsv_header
+            y << Item.tsv_header(@collection.metadata_profile)
             # Item.uncached disables ActiveRecord caching that would prevent
             # previous find_each batches from being garbage-collected.
             Item.uncached do
