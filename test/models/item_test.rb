@@ -12,7 +12,7 @@ class ItemTest < ActiveSupport::TestCase
     xml = File.read(__dir__ + '/../fixtures/repository/image/item_1.xml')
     doc = Nokogiri::XML(xml, &:noblanks)
     doc.encoding = 'utf-8'
-    assert_kind_of Item, Item.from_dls_xml(doc, 1)
+    assert_kind_of Item, Item.from_dls_xml(doc, 3)
   end
 
   # Item.tsv_header()
@@ -170,11 +170,7 @@ class ItemTest < ActiveSupport::TestCase
 
   # update_from_xml
 
-  test 'update_from_xml should work with schema version 1' do
-    # TODO: write this
-  end
-
-  test 'update_from_xml should work with schema version 2' do
+  test 'update_from_xml should work with schema version 3' do
     xml = '<?xml version="1.0" encoding="utf-8"?>'
     xml += '<dls:Object xmlns:dls="http://digital.library.illinois.edu/terms#">'
     # technical elements
@@ -209,7 +205,7 @@ class ItemTest < ActiveSupport::TestCase
     doc = Nokogiri::XML(xml, &:noblanks)
     doc.encoding = 'utf-8'
 
-    @item.update_from_xml(doc, 2)
+    @item.update_from_xml(doc, 3)
 
     assert_equal('collection1', @item.collection.repository_id)
     assert_equal(1984, @item.date.year)
