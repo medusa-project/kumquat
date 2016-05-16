@@ -906,7 +906,7 @@ module ItemsHelper
   #
   def bytestream_image_url(bs, size, shape = :default)
     url = nil
-    if (bs.is_image? or bs.is_pdf?) and bs.file_group_relative_pathname
+    if (bs.is_image? or bs.is_pdf?) and bs.repository_relative_pathname
       shape = (shape == :default) ? 'full' : 'square'
       url = sprintf('%s/%s/!%d,%d/0/default.jpg',
                      iiif_bytestream_url(bs), shape, size, size)
@@ -926,9 +926,9 @@ module ItemsHelper
             bytestream.absolute_local_pathname
       end
       # filename
-      if bytestream.file_group_relative_pathname
+      if bytestream.repository_relative_pathname
         data[:file]['Filename'] =
-            File.basename(bytestream.file_group_relative_pathname)
+            File.basename(bytestream.repository_relative_pathname)
       end
       # status
       data[:file]['Status'] = bytestream.exists? ?
@@ -994,7 +994,7 @@ module ItemsHelper
   def item_image_url(item, size)
     if item.is_image? or item.is_pdf?
       bs = item.access_master_bytestream || item.preservation_master_bytestream
-      if bs.file_group_relative_pathname
+      if bs.repository_relative_pathname
         return sprintf('%s/full/!%d,%d/0/default.jpg',
                        iiif_item_url(item), size, size)
       end

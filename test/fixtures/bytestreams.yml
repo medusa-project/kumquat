@@ -2,7 +2,7 @@
 
 one:
   bytestream_type: <%= Bytestream::Type::ACCESS_MASTER %>
-  file_group_relative_pathname: MyString
+  repository_relative_pathname: MyString
   item: item1
   media_type: text/plain
   width:
@@ -10,7 +10,7 @@ one:
 
 two:
   bytestream_type: <%= Bytestream::Type::PRESERVATION_MASTER %>
-  file_group_relative_pathname: MyString
+  repository_relative_pathname: MyString
   item: item1
   media_type: text/plain
   width:
@@ -18,7 +18,7 @@ two:
 
 three:
   bytestream_type: 1
-  file_group_relative_pathname: MyString
+  repository_relative_pathname: MyString
   item: item2
   media_type: image/jpeg
   width: 150

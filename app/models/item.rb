@@ -60,8 +60,15 @@ class Item < ActiveRecord::Base
   end
 
   ##
+  # Returns a tab-separated list of applicable technical elements, plus one
+  # column per element definition in the item's collection's metadata profile.
+  #
+  # Headings are guaranteed to be consistent with the output of to_tsv as long
+  # as the passed-in MetadataProfile is the same as that of an item's
+  # collection.
+  #
   # @param metadata_profile [MetadataProfile]
-  # @return [String] Tab-separated values with trailing newline.
+  # @return [String] Tab-separated values with trailing CRLF newline.
   # @see to_tsv
   #
   def self.tsv_header(metadata_profile)
@@ -320,13 +327,11 @@ class Item < ActiveRecord::Base
         select{ |b| b.bytestream_type == Bytestream::Type::ACCESS_MASTER }.first
     if bs
       doc[SolrFields::ACCESS_MASTER_MEDIA_TYPE] = bs.media_type
-      doc[SolrFields::ACCESS_MASTER_PATHNAME] = bs.file_group_relative_pathname
     end
     bs = self.bytestreams.
         select{ |b| b.bytestream_type == Bytestream::Type::PRESERVATION_MASTER }.first
     if bs
       doc[SolrFields::PRESERVATION_MASTER_MEDIA_TYPE] = bs.media_type
-      doc[SolrFields::PRESERVATION_MASTER_PATHNAME] = bs.file_group_relative_pathname
     end
     self.elements.each do |element|
       doc[element.solr_multi_valued_field] ||= []
@@ -401,6 +406,11 @@ class Item < ActiveRecord::Base
       # variant
       self.variant = row['variant'] if row['variant']
 
+      # bytestream
+      bs = self.bytestreams.build
+      bs.repository_relative_pathname = row['relative_pathname']
+
+      # profile-specific metadata elements
       row.select{ |col, value| self.collection.metadata_profile.element_defs.map(&:name).include?(col) }.
           each do |col, value|
         # Add new elements
@@ -495,7 +505,7 @@ class Item < ActiveRecord::Base
       if am
         bs = self.bytestreams.build
         bs.bytestream_type = Bytestream::Type::ACCESS_MASTER
-        bs.file_group_relative_pathname = am.content.strip
+        bs.repository_relative_pathname = am.content.strip
         # width
         width = node.xpath("//#{prefix}:accessMasterWidth", namespaces).first
         bs.width = width.content.strip.to_i if width
@@ -513,7 +523,7 @@ class Item < ActiveRecord::Base
       if pm
         bs = self.bytestreams.build
         bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
-        bs.file_group_relative_pathname = pm.content.strip
+        bs.repository_relative_pathname = pm.content.strip
         # width
         width = node.xpath("//#{prefix}:preservationMasterWidth", namespaces).first
         bs.width = width.content.strip.to_i if width

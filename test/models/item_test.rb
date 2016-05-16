@@ -97,15 +97,11 @@ class ItemTest < ActiveSupport::TestCase
     bs = @item.bytestreams.
         select{ |b| b.bytestream_type == Bytestream::Type::ACCESS_MASTER }.first
     assert_equal bs.media_type, doc[Item::SolrFields::ACCESS_MASTER_MEDIA_TYPE]
-    assert_equal bs.file_group_relative_pathname,
-                 doc[Item::SolrFields::ACCESS_MASTER_PATHNAME]
 
     bs = @item.bytestreams.
         select{ |b| b.bytestream_type == Bytestream::Type::PRESERVATION_MASTER }.first
     assert_equal bs.media_type,
                  doc[Item::SolrFields::PRESERVATION_MASTER_MEDIA_TYPE]
-    assert_equal bs.file_group_relative_pathname,
-                 doc[Item::SolrFields::PRESERVATION_MASTER_PATHNAME]
 
     @item.elements.each do |element|
       assert_equal [element.value], doc[element.solr_multi_valued_field]
@@ -223,14 +219,14 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal(2, @item.bytestreams.length)
     bs = @item.bytestreams.
         select{ |bs| bs.bytestream_type == Bytestream::Type::ACCESS_MASTER }.first
-    assert_equal('/pathname', bs.file_group_relative_pathname)
+    assert_equal('/pathname', bs.repository_relative_pathname)
     assert_equal(500, bs.width)
     assert_equal(400, bs.height)
     assert_equal('image/jpeg', bs.media_type)
 
     bs = @item.bytestreams.
         select{ |bs| bs.bytestream_type == Bytestream::Type::PRESERVATION_MASTER }.first
-    assert_equal('/pathname', bs.file_group_relative_pathname)
+    assert_equal('/pathname', bs.repository_relative_pathname)
     assert_equal(500, bs.width)
     assert_equal(400, bs.height)
     assert_equal('image/jpeg', bs.media_type)

@@ -8,19 +8,11 @@ class Bytestream < ActiveRecord::Base
   belongs_to :item, inverse_of: :bytestreams
 
   ##
-  # If the instance is associated with an Item, appends its file
-  # group-relative pathname to the item's collection's file group pathname.
-  # Otherwise, uses the repository root pathname as a base.
-
   # @return [String, nil]
   #
   def absolute_local_pathname
-    if self.item
-      return self.item.collection.medusa_file_group.cfs_directory.pathname +
-          self.file_group_relative_pathname
-    end
     PearTree::Application.peartree_config[:repository_pathname] +
-        self.file_group_relative_pathname
+        self.repository_relative_pathname
   end
 
   ##
@@ -87,12 +79,6 @@ class Bytestream < ActiveRecord::Base
 
   def is_video?
     self.media_type and self.media_type.start_with?('video/')
-  end
-
-  def repository_relative_pathname
-    prefix = self.item&.collection&.medusa_file_group&.cfs_directory&.
-        repository_relative_pathname || ''
-    prefix + self.file_group_relative_pathname
   end
 
   def serializable_hash(opts)
