@@ -1,11 +1,8 @@
 ##
-# Content in a Medusa file group is organized (in terms of its folder
-# structure, naming scheme, etc.) according to a content profile. An instance
-# of this class representing a given profile is associated with a [Collection].
-#
-# Profiles can't be created by users. Their properties are hard-coded into a
-# constant. An array of instances reflecting these properties can be accessed
-# via `all()`.
+# Content in a DLS-compatible Medusa file group is organized (in terms of its
+# folder  structure, naming scheme, etc.) according to a content profile. An
+# instance of this class representing a given profile is associated with a
+# [Collection] representing a Medusa collection.
 #
 class ContentProfile
 
@@ -52,16 +49,31 @@ class ContentProfile
 
   ##
   # @param item_id [String]
-  # @return [String, nil] UUID of the parent item of the given item, or nil
-  #                       if there is no parent.
+  # @return [Array<Bytestream>]
+  # @raises [HTTPClient::BadResponseError]
+  #
+  def bytestreams_for(item_id)
+    case self.id
+      when 0
+        return free_form_bytestreams_for(item_id)
+      when 1
+        return map_bytestreams_for(item_id)
+    end
+    []
+  end
+
+  ##
+  # @param item_id [String]
+  # @return [String, nil] UUID of the parent item of the given item, or nil if
+  #                       there is no parent.
   # @raises [HTTPClient::BadResponseError]
   #
   def parent_id(item_id)
     case self.id
       when 0
-        return parent_free_form_id(item_id)
+        return free_form_parent_id(item_id)
       when 1
-        return parent_map_id(item_id)
+        return map_parent_id(item_id)
     end
     nil
   end
@@ -79,7 +91,34 @@ class ContentProfile
             uuid)
   end
 
-  def parent_free_form_id(item_id)
+  ##
+  # In the free-form profile, there is one bytestream per file. Directories
+  # have no bytestreams.
+  #
+  # @param item_id [String]
+  # @return [Array<Bytestream>]
+  #
+  def free_form_bytestreams_for(item_id)
+    client = Medusa.client
+    json = client.get(medusa_url(item_id), follow_redirect: true).body
+    struct = JSON.parse(json)
+    bytestreams = []
+    if struct['mtime'] # Only files will have this key.
+      bs = Bytestream.new
+      bs.repository_relative_pathname =
+          '/' + struct['relative_pathname'].reverse.chomp('/').reverse
+      bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
+      bs.infer_media_type
+      bytestreams << bs
+    end
+    bytestreams
+  end
+
+  ##
+  # @param item_id [String]
+  # @return [String]
+  #
+  def free_form_parent_id(item_id)
     client = Medusa.client
     json = client.get(medusa_url(item_id), follow_redirect: true).body
     struct = JSON.parse(json)
@@ -87,15 +126,74 @@ class ContentProfile
       json = client.get(medusa_url(struct['parent_directory']['uuid']),
                         follow_redirect: true).body
       struct2 = JSON.parse(json)
-      unless struct2['parent_directory']
-        return nil
-      end
+      return nil unless struct2['parent_directory']
     elsif struct['directory']
       return struct['directory']['uuid']
     end
   end
 
-  def parent_map_id(item_id)
+  ##
+  # Child items will reside in a directory called `access` or
+  # `preservation`. These are the only items in this profile that will have
+  # any associated bytestreams. Preservation and access filenames will be the
+  # same, except preservation files will end in .tif and access filenames in
+  # .jp2.
+  #
+  # @return [Array<Bytestream>]
+  #
+  def map_bytestreams_for(item_id)
+    client = Medusa.client
+    json = client.get(medusa_url(item_id), follow_redirect: true).body
+    struct = JSON.parse(json)
+    bytestreams = []
+
+    if struct['directory']
+      case struct['directory']['name']
+        when 'preservation'
+          # add the preservation master
+          bs = Bytestream.new
+          bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
+          bs.repository_relative_pathname =
+              '/' + struct['relative_pathname'].reverse.chomp('/').reverse
+          bs.infer_media_type
+          bytestreams << bs
+
+          # add the access master
+          bs = Bytestream.new
+          bs.bytestream_type = Bytestream::Type::ACCESS_MASTER
+          bs.repository_relative_pathname =
+              '/' + struct['relative_pathname'].reverse.chomp('/').reverse.
+                  gsub('/preservation/', '/access/').chomp('.tif') + '.jp2'
+          bs.infer_media_type
+          bytestreams << bs
+        when 'access'
+          # add the preservation master
+          bs = Bytestream.new
+          bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
+          bs.repository_relative_pathname =
+              '/' + struct['relative_pathname'].reverse.chomp('/').reverse.
+                  gsub('/preservation/', '/access/').chomp('.jp2') + '.tif'
+          bs.infer_media_type
+          bytestreams << bs
+
+          # add the access master
+          bs = Bytestream.new
+          bs.bytestream_type = Bytestream::Type::ACCESS_MASTER
+          bs.repository_relative_pathname =
+              '/' + struct['relative_pathname'].reverse.chomp('/').reverse
+          bs.infer_media_type
+          bytestreams << bs
+      end
+
+    end
+    bytestreams
+  end
+
+  ##
+  # @param item_id [String]
+  # @return [String]
+  #
+  def map_parent_id(item_id)
     client = Medusa.client
     json = client.get(medusa_url(item_id), follow_redirect: true).body
     struct = JSON.parse(json)

@@ -406,9 +406,10 @@ class Item < ActiveRecord::Base
       # variant
       self.variant = row['variant'] if row['variant']
 
-      # bytestream
-      bs = self.bytestreams.build
-      bs.repository_relative_pathname = row['relative_pathname']
+      # bytestreams
+      self.collection.content_profile.bytestreams_for(self.repository_id).each do |bs|
+        self.bytestreams << bs
+      end
 
       # profile-specific metadata elements
       row.select{ |col, value| self.collection.metadata_profile.element_defs.map(&:name).include?(col) }.
