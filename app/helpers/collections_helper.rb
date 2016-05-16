@@ -57,6 +57,7 @@ module CollectionsHelper
 
     index = 0
     collections.each do |col|
+      next unless col # TODO: why is this needed?
       next unless effective_collection_access_url(col)
 
       bs = col.representative_image_bytestream
