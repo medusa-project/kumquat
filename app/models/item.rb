@@ -276,7 +276,8 @@ class Item < ActiveRecord::Base
   # @return [Element]
   #
   def title
-    self.elements.select{ |e| e.name == 'title' }.first&.value
+    self.elements.select{ |e| e.name == 'title' }.first&.value ||
+        self.repository_id
   end
 
   ##
