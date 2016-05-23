@@ -19,6 +19,13 @@ module Admin
       assert_response :success
     end
 
+    test 'index with tsv format and no items should return a heading' do
+      Item.destroy_all
+      get :index, collection_id: collections(:collection1).repository_id,
+          format: :tsv
+      assert response.body.split("\n\r").length == 1
+    end
+
   end
 
 end
