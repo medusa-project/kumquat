@@ -103,7 +103,7 @@ class Relation
       batch = self.limit(limit).start(offset)
       page += 1
 
-      batch.each{ |x| yield x }
+      batch.select{ |x| x }.each{ |x| yield x }
 
       break if batch.size < limit
     end
