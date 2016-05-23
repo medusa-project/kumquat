@@ -113,6 +113,13 @@ class Item < ActiveRecord::Base
   end
 
   ##
+  # @param collection [Collection]
+  #
+  def collection=(collection)
+    self.collection_repository_id = collection.repository_id
+  end
+
+  ##
   # @return [Element]
   #
   def description

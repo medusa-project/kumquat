@@ -45,19 +45,19 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'create() with valid credentials, content-type, and body should return 201' do
-    post('/items?version=1', @valid_xml, valid_headers)
+    post('/items?version=3', @valid_xml, valid_headers)
     assert_response :created
   end
 
   test 'create() with valid credentials and a new item should create the item' do
     assert_nil Item.find_by_repository_id('800379272_de0817d41a_tiff')
-    post('/items?version=1', @valid_xml, valid_headers)
+    post('/items?version=3', @valid_xml, valid_headers)
     assert_not_nil Item.find_by_repository_id('800379272_de0817d41a_tiff')
   end
 
   test 'create() with valid credentials and an existing item should update the item' do
     2.times do
-      post('/items?version=1', @valid_xml, valid_headers)
+      post('/items?version=3', @valid_xml, valid_headers)
     end
     assert_equal 1, Item.where(repository_id: '800379272_de0817d41a_tiff').count
   end
@@ -125,7 +125,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'show() with valid credentials should return 200' do
-    get('/items/item1.xml?version=1', nil, valid_headers)
+    get('/items/item1.xml?version=3', nil, valid_headers)
     assert_response :success
   end
 
