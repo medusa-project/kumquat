@@ -1,1 +1,132 @@
-<% #empty %>
+<div class="container-fluid">
+  <%= image_tag('beta.png', class: 'uiuc-beta-badge', alt: 'Beta') %>
+  <header>
+    <div class="row lib-shared-header">
+      <div class="col-xs-12">
+        <h1 class="sr-only">University Library, University of Illinois at Urbana-Champaign</h1>
+        <div class="table-row">
+          <div class="table-cell">
+            <a href="http://illinois.edu">
+              <%= image_tag('library_wordmark_horizontal_1.png',
+                            class: 'col-xs-12 banner-image-imark',
+                            alt: 'University of Illinois I-Mark') %>
+            </a>
+          </div>
+          <div class="table-cell">
+            <a href="http://www.library.illinois.edu">
+              <%= image_tag('library_wordmark_horizontal_2.png',
+                            class: 'col-xs-12 banner-image-university',
+                            alt: 'University') %>
+            </a>
+          </div>
+          <div class="table-cell">
+            <a href="http://www.library.illinois.edu">
+              <%= image_tag('library_wordmark_horizontal_3.png',
+                            class: 'col-xs-12 banner-image-library',
+                            alt: 'Library') %>
+            </a>
+          </div>
+          <div class="table-cell">
+            <a href="http://www.library.illinois.edu">
+              <%= image_tag('library_wordmark_horizontal_4.png',
+                            class: 'col-xs-12 banner-image-uiuc banner-mobile-img',
+                            alt: 'University of Illinois at Urbana-Champaign') %>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+</div>
+
+<div class="uiuc-plain-banner">
+  <nav class="navbar navbar-default" role="navigation" id="pt-main-nav">
+    <div class="container-fluid">
+      <!-- Brand and toggle get grouped for better mobile display -->
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse"
+                data-target="#pt-navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <%= link_to 'Digital Collections', root_path, class: 'navbar-brand' %>
+      </div>
+
+      <!-- Collect the nav links, forms, and other content for toggling -->
+      <div class="collapse navbar-collapse" id="pt-navbar-collapse">
+        <ul class="nav navbar-nav">
+          <li id="collections-nav">
+            <%= link_to collections_path do %>
+                <span class="fa fa-folder-open"></span> Collections
+            <% end %>
+          </li>
+          <li class="dropdown" id="items-nav">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown"
+               role="button" aria-expanded="false">
+              <span class="fa fa-cube"></span> Items<span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu" role="menu">
+              <li>
+                <%= link_to(items_path) do %>
+                    All Items
+                    <span class="badge pt-count"><%= number_with_delimiter(@num_items) %></span>
+                <% end %>
+              </li>
+              <li class="divider"></li>
+              <li>
+                <%= link_to(items_path(q: "#{Item::SolrFields::ACCESS_MASTER_MEDIA_TYPE}:image/*")) do %>
+                    Images
+                    <span class="badge pt-count"><%= number_with_delimiter(@image_items.total_length) %></span>
+                <% end %>
+              </li>
+              <li>
+                <%= link_to(items_path(q: "#{Item::SolrFields::ACCESS_MASTER_MEDIA_TYPE}:application/pdf")) do %>
+                    Documents
+                    <span class="badge pt-count"><%= number_with_delimiter(@document_items.total_length) %></span>
+                <% end %>
+              </li>
+              <li>
+                <%= link_to(items_path(q: "#{Item::SolrFields::ACCESS_MASTER_MEDIA_TYPE}:video/*")) do %>
+                    Videos
+                    <span class="badge pt-count"><%= number_with_delimiter(@video_items.total_length) %></span>
+                <% end %>
+              </li>
+              <li>
+                <%= link_to(items_path(q: "#{Item::SolrFields::ACCESS_MASTER_MEDIA_TYPE}:audio/*")) do %>
+                    Sound Recordings
+                    <span class="badge pt-count"><%= number_with_delimiter(@audio_items.total_length) %></span>
+                <% end %>
+              </li>
+            </ul>
+          </li>
+          <li id="favorites-nav">
+            <%= link_to favorites_path do %>
+                <span class="fa fa-heart"></span>
+                My Favorites
+                <span class="badge pt-favorites-count"><%= num_favorites %></span>
+            <% end %>
+          </li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+          <li id="search-nav">
+            <%= link_to '#' do %>
+                <span class="fa fa-search"></span> Search<span class="caret"></span>
+            <% end %>
+          </li>
+        </ul>
+      </div> <!-- /.navbar-collapse -->
+    </div> <!-- /.container-fluid -->
+  </nav>
+
+  <%= render 'layouts/search_bar' %>
+</div>
+
+<% if controller_name == 'landing' %>
+  <div id="uiuc-landing-banner" class="uiuc-image-banner hidden-xs">
+  </div>
+<% elsif controller_name == 'collections' and action_name == 'index' %>
+  <div id="uiuc-collections-banner" class="uiuc-image-banner hidden-xs">
+  </div>
+<% end %>

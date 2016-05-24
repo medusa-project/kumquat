@@ -29,6 +29,11 @@ body#collections_index {
   .nav-tabs, .nav-pills {
     text-align:center;
   }
+
+  #uiuc-collections-banner {
+    background-image: image_url('banner_2.jpg');
+    background-position: center 30%;
+  }
 }
 
 body#collections_show {
