@@ -13,7 +13,7 @@ class IngestItemsFromTsvJob < Job
     self.task.save!
 
     collection = Collection.find_by_repository_id(args[1])
-    ItemTsvIngester.new.ingest_tsv_file(args[0], collection, self.task)
+    ItemTsvIngester.new.ingest_pathname(args[0], collection, self.task)
     Solr.instance.commit
 
     File.delete(args[0]) if File.exist?(args[0])

@@ -3,10 +3,25 @@ require 'csv'
 class ItemTsvIngester
 
   ##
+  # Ingests items from the given TSV file.
+  #
+  # @param pathname [String] Absolute pathname of a TSV file
+  # @param collection [Collection] Collection to ingest the items into.
+  # @param task [Task] Optional
+  # @return [Integer] Number of items ingested
+  #
+  def ingest_pathname(pathname, collection, task = nil)
+    pathname = File.expand_path(pathname)
+    Rails.logger.info("Ingesting items in #{pathname}...")
+
+    ingest_tsv(File.read(pathname), collection, task)
+  end
+
+  ##
   # Creates or updates items from the given TSV string.
   #
   # @param tsv [String] TSV body string
-  # @param collection [Collection]
+  # @param collection [Collection] Collection to ingest the items into.
   # @param task [Task] Optional
   # @return [Integer] Number of items ingested
   #
@@ -32,18 +47,6 @@ class ItemTsvIngester
       end
     end
     count
-  end
-
-  ##
-  # Creates or updates items from the given TSV file.
-  #
-  # @param tsv_pathname [String] TSV file pathname
-  # @param collection [Collection]
-  # @param task [Task] Optional
-  # @return [Integer] Number of items ingested
-  #
-  def ingest_tsv_file(tsv_pathname, collection, task = nil)
-    ingest_tsv(File.read(tsv_pathname), collection, task)
   end
 
 end
