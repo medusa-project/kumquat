@@ -25,6 +25,14 @@
                class: 'form-control') %>
   </div>
 
+  <div class="form-group">
+    <div class="checkbox">
+      <label>
+        <%= f.check_box(:published_in_dls) %> Published in DLS
+      </label>
+    </div>
+  </div>
+
   <%= f.submit 'Save', class: 'btn btn-primary' %>
 
 <% end %>
