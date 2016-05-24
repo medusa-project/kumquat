@@ -5,28 +5,6 @@ class ItemXmlIngester
   XML_V3_NAMESPACES = { 'dls' => 'http://digital.library.illinois.edu/terms#' }
 
   ##
-  # Ingests items from all metadata files (item_*.xml`) underneath the given
-  # pathname.
-  #
-  # @param pathname [String] Root pathname to ingest
-  # @param schema_version [Integer] Version of the XML Schema to use to
-  #                                 validate the document.
-  # @return [Integer] Number of items ingested
-  #
-  def ingest_pathname(pathname, schema_version)
-    raise 'Invalid schema version' unless
-        SCHEMA_VERSIONS.include?(schema_version)
-
-    pathname = File.expand_path(pathname)
-    Rails.logger.info("Ingesting content in #{pathname}...")
-    count = 0
-    Dir.glob(pathname + '/**/*.xml').each do |p|
-      count = ingest_file(p, schema_version, count)
-    end
-    count
-  end
-
-  ##
   # Creates a new item from the given XML document, or updates the item
   # corresponding to the item ID in the document if it already exists.
   #
