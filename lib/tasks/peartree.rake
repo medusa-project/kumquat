@@ -23,6 +23,7 @@ namespace :peartree do
   task :reindex => :environment do |task, args|
     Collection.all.each { |col| col.index_in_solr }
     Item.all.each { |item| item.index_in_solr }
+    Solr.instance.commit
   end
 
   desc 'Validate an XML file'
