@@ -14,8 +14,6 @@ module Admin
         return
       end
 
-      @start = params[:start] ? params[:start].to_i : 0
-      @limit = Option::integer(Option::Key::RESULTS_PER_PAGE)
       @items = Item.solr.
           where(Item::SolrFields::COLLECTION => @collection.repository_id).
           where(params[:q]).facet(false)
@@ -31,12 +29,15 @@ module Admin
         end
       end
 
-      if params[:published].present? and params[:published] != 'any'
-        @items = @items.where("#{Item::SolrFields::PUBLISHED}:#{params[:published].to_i}")
-      end
-
       respond_to do |format|
         format.html do
+          if params[:published].present? and params[:published] != 'any'
+            @items = @items.where("#{Item::SolrFields::PUBLISHED}:#{params[:published].to_i}")
+          end
+
+          @start = params[:start] ? params[:start].to_i : 0
+          @limit = Option::integer(Option::Key::RESULTS_PER_PAGE)
+
           # if there is no user-entered query, sort by title. Otherwise, use
           # the default sort, which is by relevance
           unless field_input_present
@@ -61,7 +62,7 @@ module Admin
           # stream the results, as an alternative to send_data
           # which would require them to be loaded into memory first.
           enumerator = Enumerator.new do |y|
-            y << Item.tsv_header(@collection.metadata_profile)
+            y << Item.tsv_header(@collection.effective_metadata_profile)
             # Item.uncached disables ActiveRecord caching that would prevent
             # previous find_each batches from being garbage-collected.
             Item.uncached do
