@@ -20,14 +20,15 @@ class ItemTest < ActiveSupport::TestCase
   test 'tsv_header should return the correct columns' do
     cols = Item.tsv_header(@item.collection.metadata_profile).strip.split("\t")
     assert_equal 'uuid', cols[0]
-    assert_equal 'variant', cols[1]
-    assert_equal 'pageNumber', cols[2]
-    assert_equal 'subpageNumber', cols[3]
-    assert_equal 'latitude', cols[4]
-    assert_equal 'longitude', cols[5]
+    assert_equal 'parentId', cols[1]
+    assert_equal 'variant', cols[2]
+    assert_equal 'pageNumber', cols[3]
+    assert_equal 'subpageNumber', cols[4]
+    assert_equal 'latitude', cols[5]
+    assert_equal 'longitude', cols[6]
 
     @item.collection.metadata_profile.element_defs.map(&:name).each_with_index do |el, index|
-      assert_not_empty cols[6 + index]
+      assert_not_empty cols[7 + index]
     end
   end
 
@@ -114,23 +115,60 @@ class ItemTest < ActiveSupport::TestCase
   test 'to_tsv should work' do
     values = @item.to_tsv.strip.split("\t")
     assert_equal @item.repository_id.to_s, values[0]
-    assert_equal @item.variant.to_s, values[1]
-    assert_equal @item.page_number.to_s, values[2]
-    assert_equal @item.subpage_number.to_s, values[3]
-    assert_equal @item.latitude.to_s, values[4]
-    assert_equal @item.longitude.to_s, values[5]
+    assert_equal @item.parent_repository_id.to_s, values[1]
+    assert_equal @item.variant.to_s, values[2]
+    assert_equal @item.page_number.to_s, values[3]
+    assert_equal @item.subpage_number.to_s, values[4]
+    assert_equal @item.latitude.to_s, values[5]
+    assert_equal @item.longitude.to_s, values[6]
 
     @item.collection.metadata_profile.element_defs.each_with_index do |el, index|
       assert_equal @item.elements.select{ |e| e.name == el.name }.map(&:value).
           join(Item::MULTI_VALUE_SEPARATOR),
-                   values[6 + index].to_s
-      assert_not_equal 'nil', values[6 + index]
+                   values[7 + index].to_s
+      assert_not_equal 'nil', values[7 + index]
     end
   end
 
   # update_from_tsv
 
-  test 'update_from_tsv should work' do
+  test 'update_from_tsv should work with a parentId column' do
+    row = {}
+    # technical elements
+    row['parentId'] = '9182'
+    row['date'] = '1984'
+    row['latitude'] = '45.52'
+    row['longitude'] = '-120.564'
+    row['pageNumber'] = '3'
+    row['subpageNumber'] = '1'
+    row['variant'] = Item::Variants::PAGE
+
+    # descriptive elements
+    row['description'] = sprintf('Cats%scats%sand more cats',
+                                 Item::MULTI_VALUE_SEPARATOR,
+                                 Item::MULTI_VALUE_SEPARATOR)
+    row['title'] = 'Cats'
+
+    @item.update_from_tsv(row)
+
+    assert_equal('9182', @item.parent_repository_id)
+    assert_equal(1984, @item.date.year)
+    assert_equal(45.52, @item.latitude)
+    assert_equal(-120.564, @item.longitude)
+    assert_equal(3, @item.page_number)
+    assert_equal(1, @item.subpage_number)
+    assert_equal(Item::Variants::PAGE, @item.variant)
+
+    descriptions = @item.elements.select{ |e| e.name == 'description' }
+    assert_equal 3, descriptions.length
+    assert_equal 1, descriptions.select{ |e| e.value == 'Cats' }.length
+    assert_equal 1, descriptions.select{ |e| e.value == 'cats' }.length
+    assert_equal 1, descriptions.select{ |e| e.value == 'and more cats' }.length
+
+    assert_equal('Cats', @item.title)
+  end
+
+  test 'update_from_tsv should work without a parentId column' do
     row = {}
     # technical elements
     row['date'] = '1984'
@@ -148,6 +186,7 @@ class ItemTest < ActiveSupport::TestCase
 
     @item.update_from_tsv(row)
 
+    assert_nil(@item.parent_repository_id)
     assert_equal(1984, @item.date.year)
     assert_equal(45.52, @item.latitude)
     assert_equal(-120.564, @item.longitude)

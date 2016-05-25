@@ -73,8 +73,8 @@ class Item < ActiveRecord::Base
   #
   def self.tsv_header(metadata_profile)
     # Must remain synchronized with the output of to_tsv.
-    tech_elements = ['uuid', 'variant', 'pageNumber', 'subpageNumber',
-                     'latitude', 'longitude']
+    tech_elements = ['uuid', 'parentId', 'variant', 'pageNumber',
+                     'subpageNumber', 'latitude', 'longitude']
     elements = tech_elements + metadata_profile.element_defs.map(&:name)
     elements.join("\t") + "\n\r"
   end
@@ -362,6 +362,7 @@ class Item < ActiveRecord::Base
     # by MULTI_VALUE_SEPARATOR.
     columns = []
     columns << self.repository_id
+    columns << self.parent_repository_id
     columns << self.variant
     columns << self.page_number
     columns << self.subpage_number
@@ -388,9 +389,15 @@ class Item < ActiveRecord::Base
       self.bytestreams.destroy_all
       self.elements.destroy_all
 
-      # parent item
-      self.parent_repository_id =
-          self.collection.content_profile.parent_id(self.repository_id)
+      # Parent item. If the TSV is coming from a DLS export, it will have a
+      # parentId column. Otherwise, if it's coming from a Medusa export, we
+      # will have to search for it based on the collection's content profile.
+      if row['parentId']
+        self.parent_repository_id = row['parentId']
+      else
+        self.parent_repository_id =
+            self.collection.content_profile.parent_id(self.repository_id)
+      end
 
       # date (normalized)
       date = row['date'] || row['dateCreated']
