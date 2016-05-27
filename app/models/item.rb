@@ -389,7 +389,10 @@ class Item < ActiveRecord::Base
       self.bytestreams.destroy_all
       self.elements.destroy_all
 
-      # Parent item. If the TSV is coming from a DLS export, it will have a
+      # repository ID
+      self.repository_id = row['uuid'].strip if row['uuid']
+
+      # Parent item ID. If the TSV is coming from a DLS export, it will have a
       # parentId column. Otherwise, if it's coming from a Medusa export, we
       # will have to search for it based on the collection's content profile.
       if row['parentId']
@@ -413,9 +416,6 @@ class Item < ActiveRecord::Base
 
       # page number
       self.page_number = row['pageNumber'].strip.to_i if row['pageNumber']
-
-      # repository ID
-      self.repository_id = row['uuid'].strip if row['uuid']
 
       # subpage number
       self.subpage_number = row['subpageNumber'].strip.to_i if
