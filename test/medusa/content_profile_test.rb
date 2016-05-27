@@ -73,10 +73,10 @@ class ContentProfileTest < ActiveSupport::TestCase
   end
 
   test 'parent_id with the free-form profile should return the parent UUID with pages' do
-    # https://medusa.library.illinois.edu/cfs_files/9799301.json
-    page = 'd853fad0-c451-0133-1d17-0050569601ca-7'
-    # https://medusa.library.illinois.edu/cfs_directories/414759.json
-    expected_parent = 'd83e6f60-c451-0133-1d17-0050569601ca-8'
+    # https://medusa.library.illinois.edu/cfs_directories/111150.json
+    page = 'a536b060-5ca8-0132-3334-0050569601ca-8'
+    # https://medusa.library.illinois.edu/cfs_directories/111144.json
+    expected_parent = 'a53194a0-5ca8-0132-3334-0050569601ca-8'
     assert_equal expected_parent, ContentProfile::FREE_FORM_PROFILE.parent_id(page)
   end
 
