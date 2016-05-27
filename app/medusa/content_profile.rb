@@ -1,3 +1,5 @@
+require 'csv'
+
 ##
 # Content in a DLS-compatible Medusa file group is organized (in terms of its
 # folder structure, naming scheme, etc.) according to a content profile. An
@@ -57,12 +59,32 @@ class ContentProfile
   #
   def bytestreams_from_medusa(item_id)
     raise ArgumentError, 'No ID provided' unless item_id
-
     case self.id
       when 0
         return free_form_bytestreams_from_medusa(item_id)
       when 1
         return map_bytestreams_from_medusa(item_id)
+    end
+    []
+  end
+
+  ##
+  # Searches for all bytestreams for the Item with the given ID from the given
+  # TSV string.
+  #
+  # @param item_id [String]
+  # @param tsv [String]
+  # @return [Array<Bytestream>]
+  # @raises [HTTPClient::BadResponseError]
+  # @raises [ArgumentError] If any arguments are nil
+  #
+  def bytestreams_from_tsv(item_id, tsv)
+    raise ArgumentError, 'No ID provided' unless item_id
+    case self.id
+      when 0
+        return free_form_bytestreams_from_tsv(item_id, tsv)
+      when 1
+        return map_bytestreams_from_tsv(item_id, tsv)
     end
     []
   end
@@ -78,7 +100,6 @@ class ContentProfile
   #
   def parent_id_from_medusa(item_id)
     raise ArgumentError, 'No ID provided' unless item_id
-
     case self.id
       when 0
         return free_form_parent_id_from_medusa(item_id)
@@ -128,6 +149,30 @@ class ContentProfile
   end
 
   ##
+  # In the free-form profile, there is one bytestream per file. Directories
+  # have no bytestreams.
+  #
+  # @param item_id [String]
+  # @param tsv [String]
+  # @return [Array<Bytestream>]
+  #
+  def free_form_bytestreams_from_tsv(item_id, tsv)
+    bytestreams = []
+    tsv = CSV.parse(tsv, headers: true, col_sep: "\t").map{ |row| row.to_hash }
+    row = tsv.select{ |row| row['uuid'] == item_id }.first
+    if row and row['type'] and row['type'] == 'file'
+      bs = Bytestream.new
+      bs.repository_relative_pathname = '/' + row['relative_pathname']
+      bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
+      bs.infer_media_type
+      bytestreams << bs
+    else
+      # TODO: write this for DLS TSV
+    end
+    bytestreams
+  end
+
+  ##
   # @param item_id [String]
   # @return [String]
   #
@@ -161,6 +206,7 @@ class ContentProfile
   # same, except preservation files will end in .tif and access filenames in
   # .jp2.
   #
+  # @param item_id [String]
   # @return [Array<Bytestream>]
   #
   def map_bytestreams_from_medusa(item_id)
@@ -207,6 +253,44 @@ class ContentProfile
           bytestreams << bs
       end
 
+    end
+    bytestreams
+  end
+
+  ##
+  # Child items will reside in a directory called `access` or
+  # `preservation`. These are the only items in this profile that will have
+  # any associated bytestreams. Preservation and access filenames will be the
+  # same, except preservation files will end in .tif and access filenames in
+  # .jp2.
+  #
+  # @param item_id [String]
+  # @param tsv [String]
+  # @return [Array<Bytestream>]
+  #
+  def map_bytestreams_from_tsv(item_id, tsv)
+    bytestreams = []
+    tsv = CSV.parse(tsv, headers: true, col_sep: "\t").map{ |row| row.to_hash }
+    row = tsv.select{ |row| row['uuid'] == item_id }.first
+    if row and row['type'] and row['type'] == 'file'
+      bs = Bytestream.new
+      bs.repository_relative_pathname = '/' + row['relative_pathname']
+      bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
+      bs.infer_media_type
+      bytestreams << bs
+
+      # We'll add an access bytestream even if it doesn't exist, since many of
+      # the collections in Medusa are quite messy. Same path except /access/
+      # instead of /preservation/ and a .jp2 extension instead of .tif.
+      bs = Bytestream.new
+      bs.repository_relative_pathname = '/' + row['relative_pathname'].
+          gsub('/preservation/', '/access/').chomp('.tif').chomp('.tiff').
+          chomp('.TIF').chomp('.TIFF') + '.jp2'
+      bs.bytestream_type = Bytestream::Type::ACCESS_MASTER
+      bs.infer_media_type
+      bytestreams << bs
+    else
+      # TODO: write this for DLS TSV
     end
     bytestreams
   end
