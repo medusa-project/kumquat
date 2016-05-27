@@ -7,15 +7,15 @@ namespace :peartree do
   end
 
   desc 'Ingest items in a TSV file'
-  task :ingest_tsv, [:pathname, :collection_id] => :environment do |task, args|
-    collection = Collection.find_by_repository_id(args[:collection_id])
+  task :ingest_tsv, [:pathname, :collection_uuid] => :environment do |task, args|
+    collection = Collection.find_by_repository_id(args[:collection_uuid])
     ItemTsvIngester.new.ingest_pathname(args[:pathname], collection)
     Solr.instance.commit
   end
 
   desc 'Publish a collection'
-  task :publish_collection, [:id] => :environment do |task, args|
-    Collection.find_by_repository_id(args[:id]).
+  task :publish_collection, [:uuid] => :environment do |task, args|
+    Collection.find_by_repository_id(args[:uuid]).
         update!(published: true, published_in_dls: true)
   end
 

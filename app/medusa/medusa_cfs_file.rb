@@ -22,11 +22,11 @@ class MedusaCfsFile
   def reload
     raise 'reload() called without ID set' unless self.id.present?
 
-    config = PearTree::Application.peartree_config
-    url = "#{config[:medusa_url].chomp('/')}/cfs_files/#{self.id}.json"
-    json_str = Medusa.client.get(url).body
-    FileUtils.mkdir_p("#{Rails.root}/tmp/cache/medusa")
-    File.open(cache_pathname, 'wb') { |f| f.write(json_str) } unless Rails.env.test?
+    json_str = Medusa.client.get(self.url + '.json', follow_redirect: true).body
+    unless Rails.env.test?
+      FileUtils.mkdir_p("#{Rails.root}/tmp/cache/medusa")
+      File.open(cache_pathname, 'wb') { |f| f.write(json_str) }
+    end
     self.medusa_representation = JSON.parse(json_str)
     @loaded = true
   end
@@ -48,7 +48,7 @@ class MedusaCfsFile
     url = nil
     if self.id
       url = PearTree::Application.peartree_config[:medusa_url].chomp('/') +
-          '/cfs_files/' + self.id.to_s
+          '/uuids/' + self.id.to_s
     end
     url
   end

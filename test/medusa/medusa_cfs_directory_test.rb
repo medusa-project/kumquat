@@ -4,7 +4,7 @@ class MedusaCfsDirectoryTest < ActiveSupport::TestCase
 
   def setup
     @cfs = MedusaCfsDirectory.new
-    @cfs.id = 407393
+    @cfs.id = '7e927880-c12b-0133-1d0f-0050569601ca-4'
   end
 
   test 'pathname should return the correct pathname' do
@@ -17,7 +17,8 @@ class MedusaCfsDirectoryTest < ActiveSupport::TestCase
   end
 
   test 'url should return the correct url' do
-    assert_equal(PearTree::Application.peartree_config[:medusa_url].chomp('/') + '/cfs_directories/407393',
+    assert_equal(PearTree::Application.peartree_config[:medusa_url].chomp('/') +
+                     '/uuids/7e927880-c12b-0133-1d0f-0050569601ca-4',
                  @cfs.url)
   end
 
