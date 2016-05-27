@@ -398,8 +398,8 @@ class Item < ActiveRecord::Base
       if row['parentId']
         self.parent_repository_id = row['parentId']
       else
-        self.parent_repository_id =
-            self.collection.content_profile.parent_id(self.repository_id)
+        self.parent_repository_id = self.collection.content_profile.
+            parent_id_from_medusa(self.repository_id)
       end
 
       # date (normalized)
@@ -425,7 +425,7 @@ class Item < ActiveRecord::Base
       self.variant = row['variant'] if row['variant']
 
       # bytestreams
-      self.collection.content_profile.bytestreams_for(self.repository_id).each do |bs|
+      self.collection.content_profile.bytestreams_from_medusa(self.repository_id).each do |bs|
         self.bytestreams << bs
       end
 

@@ -1,6 +1,6 @@
 ##
 # Content in a DLS-compatible Medusa file group is organized (in terms of its
-# folder  structure, naming scheme, etc.) according to a content profile. An
+# folder structure, naming scheme, etc.) according to a content profile. An
 # instance of this class representing a given profile is associated with a
 # [Collection] representing a Medusa collection.
 #
@@ -48,38 +48,42 @@ class ContentProfile
   MAP_PROFILE = ContentProfile.find(1)
 
   ##
+  # Queries Medusa to find all bytestreams for the Item with the given ID.
+  #
   # @param item_id [String]
   # @return [Array<Bytestream>]
   # @raises [HTTPClient::BadResponseError]
   # @raises [ArgumentError] If the item ID is nil
   #
-  def bytestreams_for(item_id)
+  def bytestreams_from_medusa(item_id)
     raise ArgumentError, 'No ID provided' unless item_id
 
     case self.id
       when 0
-        return free_form_bytestreams_for(item_id)
+        return free_form_bytestreams_from_medusa(item_id)
       when 1
-        return map_bytestreams_for(item_id)
+        return map_bytestreams_from_medusa(item_id)
     end
     []
   end
 
   ##
+  # Queries Medusa to find the parent ID of the Item with the given ID.
+  #
   # @param item_id [String]
   # @return [String, nil] UUID of the parent item of the given item, or nil if
   #                       there is no parent.
   # @raises [HTTPClient::BadResponseError]
   # @raises [ArgumentError] If the item ID is nil
   #
-  def parent_id(item_id)
+  def parent_id_from_medusa(item_id)
     raise ArgumentError, 'No ID provided' unless item_id
 
     case self.id
       when 0
-        return free_form_parent_id(item_id)
+        return free_form_parent_id_from_medusa(item_id)
       when 1
-        return map_parent_id(item_id)
+        return map_parent_id_from_medusa(item_id)
     end
     nil
   end
@@ -104,7 +108,7 @@ class ContentProfile
   # @param item_id [String]
   # @return [Array<Bytestream>]
   #
-  def free_form_bytestreams_for(item_id)
+  def free_form_bytestreams_from_medusa(item_id)
     bytestreams = []
     client = Medusa.client
     response = client.get(medusa_url(item_id), follow_redirect: true)
@@ -127,7 +131,7 @@ class ContentProfile
   # @param item_id [String]
   # @return [String]
   #
-  def free_form_parent_id(item_id)
+  def free_form_parent_id_from_medusa(item_id)
     parent_id = nil
     client = Medusa.client
     response = client.get(medusa_url(item_id), follow_redirect: true)
@@ -159,7 +163,7 @@ class ContentProfile
   #
   # @return [Array<Bytestream>]
   #
-  def map_bytestreams_for(item_id)
+  def map_bytestreams_from_medusa(item_id)
     client = Medusa.client
     json = client.get(medusa_url(item_id), follow_redirect: true).body
     struct = JSON.parse(json)
@@ -211,7 +215,7 @@ class ContentProfile
   # @param item_id [String]
   # @return [String]
   #
-  def map_parent_id(item_id)
+  def map_parent_id_from_medusa(item_id)
     client = Medusa.client
     json = client.get(medusa_url(item_id), follow_redirect: true).body
     struct = JSON.parse(json)
