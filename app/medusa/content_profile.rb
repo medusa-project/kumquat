@@ -51,8 +51,11 @@ class ContentProfile
   # @param item_id [String]
   # @return [Array<Bytestream>]
   # @raises [HTTPClient::BadResponseError]
+  # @raises [ArgumentError] If the item ID is nil
   #
   def bytestreams_for(item_id)
+    raise ArgumentError, 'No ID provided' unless item_id
+
     case self.id
       when 0
         return free_form_bytestreams_for(item_id)
@@ -67,8 +70,11 @@ class ContentProfile
   # @return [String, nil] UUID of the parent item of the given item, or nil if
   #                       there is no parent.
   # @raises [HTTPClient::BadResponseError]
+  # @raises [ArgumentError] If the item ID is nil
   #
   def parent_id(item_id)
+    raise ArgumentError, 'No ID provided' unless item_id
+
     case self.id
       when 0
         return free_form_parent_id(item_id)

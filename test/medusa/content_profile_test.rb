@@ -24,6 +24,14 @@ class ContentProfileTest < ActiveSupport::TestCase
     assert_nil ContentProfile.find(27)
   end
 
+  # bytestreams_for
+
+  test 'bytestreams_for should raise an error when no ID is provided' do
+    assert_raises ArgumentError do
+      ContentProfile::FREE_FORM_PROFILE.bytestreams_for(nil)
+    end
+  end
+
   # bytestreams_for (with free-form profile)
 
   test 'bytestreams_for with the free-form profile should return an empty
@@ -62,6 +70,14 @@ class ContentProfileTest < ActiveSupport::TestCase
         select{ |b| b.bytestream_type == Bytestream::Type::ACCESS_MASTER }.length
     assert_equal 1, bytestreams.
         select{ |b| b.bytestream_type == Bytestream::Type::PRESERVATION_MASTER }.length
+  end
+
+  # parent_id
+
+  test 'parent_id should raise an error when no ID is provided' do
+    assert_raises ArgumentError do
+      ContentProfile::FREE_FORM_PROFILE.parent_id(nil)
+    end
   end
 
   # parent_id (with free-form profile)
