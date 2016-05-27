@@ -53,13 +53,4 @@ class ItemTsvIngesterTest < ActiveSupport::TestCase
     end
   end
 
-  test 'ingest_tsv should raise an error with blank value' do
-    tsv = "uuid\tcollectionId\ttitle\r\n"
-    tsv += "newitem1\t\tCats\r\n"
-    tsv += "newitem2\t\tMore cats\r\n"
-    assert_raises ActiveRecord::RecordInvalid do
-      @ingester.ingest_tsv(tsv, @collection)
-    end
-  end
-
 end

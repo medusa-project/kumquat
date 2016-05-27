@@ -414,6 +414,9 @@ class Item < ActiveRecord::Base
       # page number
       self.page_number = row['pageNumber'].strip.to_i if row['pageNumber']
 
+      # repository ID
+      self.repository_id = row['uuid'].strip if row['uuid']
+
       # subpage number
       self.subpage_number = row['subpageNumber'].strip.to_i if
           row['subpageNumber']

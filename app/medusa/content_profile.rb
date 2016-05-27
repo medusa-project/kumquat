@@ -99,17 +99,20 @@ class ContentProfile
   # @return [Array<Bytestream>]
   #
   def free_form_bytestreams_for(item_id)
-    client = Medusa.client
-    json = client.get(medusa_url(item_id), follow_redirect: true).body
-    struct = JSON.parse(json)
     bytestreams = []
-    if struct['mtime'] # Only files will have this key.
-      bs = Bytestream.new
-      bs.repository_relative_pathname =
-          '/' + struct['relative_pathname'].reverse.chomp('/').reverse
-      bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
-      bs.infer_media_type
-      bytestreams << bs
+    client = Medusa.client
+    response = client.get(medusa_url(item_id), follow_redirect: true)
+    if response.status < 300
+      json = response.body
+      struct = JSON.parse(json)
+      if struct['mtime'] # Only files will have this key.
+        bs = Bytestream.new
+        bs.repository_relative_pathname =
+            '/' + struct['relative_pathname'].reverse.chomp('/').reverse
+        bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
+        bs.infer_media_type
+        bytestreams << bs
+      end
     end
     bytestreams
   end
@@ -120,16 +123,20 @@ class ContentProfile
   #
   def free_form_parent_id(item_id)
     client = Medusa.client
-    json = client.get(medusa_url(item_id), follow_redirect: true).body
-    struct = JSON.parse(json)
-    if struct['parent_directory']
-      json = client.get(medusa_url(struct['parent_directory']['uuid']),
-                        follow_redirect: true).body
-      struct2 = JSON.parse(json)
-      return nil unless struct2['parent_directory']
-    elsif struct['directory']
-      return struct['directory']['uuid']
+    response = client.get(medusa_url(item_id), follow_redirect: true)
+    if response.status < 300
+      json = response.body
+      struct = JSON.parse(json)
+      if struct['parent_directory']
+        json = client.get(medusa_url(struct['parent_directory']['uuid']),
+                          follow_redirect: true).body
+        struct2 = JSON.parse(json)
+        return nil unless struct2['parent_directory']
+      elsif struct['directory']
+        return struct['directory']['uuid']
+      end
     end
+    nil
   end
 
   ##
