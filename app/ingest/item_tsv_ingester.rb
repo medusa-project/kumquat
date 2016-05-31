@@ -29,16 +29,16 @@ class ItemTsvIngester
     raise 'No TSV content provided.' unless tsv.present?
     raise 'No collection provided.' unless collection
 
-    tsv = CSV.parse(tsv, headers: true, col_sep: "\t")
+    tsv = CSV.parse(tsv, headers: true, col_sep: "\t").map{ |row| row.to_hash }
     total_count = tsv.length
     count = 0
-    tsv.map{ |row| row.to_hash }.each do |row|
+    tsv.each do |row|
       item = Item.find_by_repository_id(row['uuid'])
       if item
         item.collection = collection
-        item.update_from_tsv(row)
+        item.update_from_tsv(tsv, row)
       else
-        Item.from_tsv(row, collection)
+        Item.from_tsv(tsv, row, collection)
       end
       count += 1
 

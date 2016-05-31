@@ -82,14 +82,15 @@ class Item < ActiveRecord::Base
   ##
   # Creates a new instance from valid DLS XML, persists it, and returns it.
   #
-  # @param [Hash<String,String>] TSV row
+  # @param tsv [String] TSV
+  # @param row [Hash<String,String>] TSV row
   # @param collection [Collection]
   # @return [Item]
   #
-  def self.from_tsv(tsv, collection)
+  def self.from_tsv(tsv, row, collection)
     item = Item.new
     item.collection = collection
-    item.update_from_tsv(tsv)
+    item.update_from_tsv(tsv, row)
     item
   end
 
@@ -379,10 +380,11 @@ class Item < ActiveRecord::Base
   ##
   # Updates an instance from a hash representing a TSV row.
   #
+  # @param tsv [String] TSV string
   # @param [Hash<String,String>] TSV row
   # @return [Item]
   #
-  def update_from_tsv(row)
+  def update_from_tsv(tsv, row)
     ActiveRecord::Base.transaction do
       # These need to be deleted first, otherwise it would be impossible for
       # an update to remove them.
@@ -425,7 +427,7 @@ class Item < ActiveRecord::Base
       self.variant = row['variant'] if row['variant']
 
       # bytestreams
-      self.collection.content_profile.bytestreams_from_medusa(self.repository_id).each do |bs|
+      self.collection.content_profile.bytestreams_from_tsv(tsv, self.repository_id).each do |bs|
         self.bytestreams << bs
       end
 

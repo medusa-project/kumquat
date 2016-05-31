@@ -149,7 +149,9 @@ class ItemTest < ActiveSupport::TestCase
                                  Item::MULTI_VALUE_SEPARATOR)
     row['title'] = 'Cats'
 
-    @item.update_from_tsv(row)
+    tsv = row.keys.join("\t") + "\n\r" + row.values.join("\t")
+
+    @item.update_from_tsv(tsv, row)
 
     assert_equal('9182', @item.parent_repository_id)
     assert_equal(1984, @item.date.year)
@@ -184,7 +186,9 @@ class ItemTest < ActiveSupport::TestCase
                                  Item::MULTI_VALUE_SEPARATOR)
     row['title'] = 'Cats'
 
-    @item.update_from_tsv(row)
+    tsv = row.keys.join("\t") + "\n\r" + row.values.join("\t")
+
+    @item.update_from_tsv(tsv, row)
 
     assert_nil(@item.parent_repository_id)
     assert_equal(1984, @item.date.year)
