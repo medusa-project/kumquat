@@ -32,18 +32,20 @@ class ItemTsvIngester
     tsv = CSV.parse(tsv, headers: true, col_sep: "\t").map{ |row| row.to_hash }
     total_count = tsv.length
     count = 0
-    tsv.each do |row|
-      item = Item.find_by_repository_id(row['uuid'])
-      if item
-        item.collection = collection
-        item.update_from_tsv(tsv, row)
-      else
-        Item.from_tsv(tsv, row, collection)
-      end
-      count += 1
+    ActiveRecord::Base.transaction do
+      tsv.each do |row|
+        item = Item.find_by_repository_id(row['uuid'])
+        if item
+          item.collection = collection
+          item.update_from_tsv(tsv, row)
+        else
+          Item.from_tsv(tsv, row, collection)
+        end
+        count += 1
 
-      if task and count % 10 == 0
-        task.progress = count / total_count.to_f
+        if task and count % 10 == 0
+          task.progress = count / total_count.to_f
+        end
       end
     end
     count
