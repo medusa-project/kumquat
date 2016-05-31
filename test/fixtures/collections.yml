@@ -5,6 +5,7 @@ collection1:
   content_profile_id: <%= ContentProfile::FREE_FORM_PROFILE.id %>
   description: MyString
   description_html: MyString
+  medusa_cfs_directory_id: a53194a0-5ca8-0132-3334-0050569601ca-8
   medusa_file_group_id: 162
   metadata_profile: default_metadata_profile
   published: true

@@ -5,17 +5,16 @@ class ItemTsvIngesterTest < ActiveSupport::TestCase
   setup do
     @ingester = ItemTsvIngester.new
     @collection = collections(:collection1)
+
+    @tsv = File.read(__dir__ + '/../fixtures/repository/medusa-free-form.tsv')
+    @tsv_hash = CSV.parse(@tsv, headers: true, col_sep: "\t").
+        map{ |row| row.to_hash }
   end
 
-  test 'ingest_tsv should create new items from valid TSV' do
-    tsv = "uuid\ttitle\r\n"
-    tsv += "001\tCats\r\n"
-    tsv += "002\tMore cats\r\n"
-    tsv += "003\tEven more cats\r\n"
-    assert_equal 3, @ingester.ingest_tsv(tsv, @collection)
+  # ingest_tsv
 
-    assert_equal 3, Item.where("repository_id IN ('001', '002', '003')").count
-    assert_equal 'Cats', Item.find_by_repository_id('001').title
+  test 'ingest_tsv should create new items from valid TSV' do
+    assert_equal 45, @ingester.ingest_tsv(@tsv, @collection)
   end
 
   test 'ingest_tsv should update existing items from valid TSV' do
@@ -35,13 +34,35 @@ class ItemTsvIngesterTest < ActiveSupport::TestCase
     end
   end
 
-  test 'ingest_tsv should raise an error with missing value' do
-    tsv = "title\r\n"
-    tsv += "Cats\r\n"
-    tsv += "More cats\r\n"
-    assert_raises ActiveRecord::RecordInvalid do
-      @ingester.ingest_tsv(tsv, @collection)
-    end
+  # parent_directory_id
+
+  test 'parent_directory_id should return nil for files/directories with no
+        parent' do
+    assert_nil @ingester.parent_directory_id('431d6090-5ca7-0132-3334-0050569601ca-a', @tsv_hash)
+  end
+
+  test 'parent_directory_id should return the correct parent ID for
+        files/directories with a parent' do
+    assert_equal '431d6090-5ca7-0132-3334-0050569601ca-a',
+                 @ingester.parent_directory_id('a52b2e40-5ca8-0132-3334-0050569601ca-c', @tsv_hash)
+    assert_equal 'a53add10-5ca8-0132-3334-0050569601ca-7',
+                 @ingester.parent_directory_id('6e3c33c0-5ce3-0132-3334-0050569601ca-f', @tsv_hash)
+  end
+
+  # within_root?
+
+  test 'within_root? should return false for items that are not within a
+        collection\'s effective root' do
+    assert !@ingester.within_root?('431d6090-5ca7-0132-3334-0050569601ca-a',
+                                   @collection, @tsv_hash)
+  end
+
+  test 'within_root? should return true for items that are within a collection\'s
+        effective root' do
+    assert @ingester.within_root?('a53194a0-5ca8-0132-3334-0050569601ca-8',
+                                  @collection, @tsv_hash)
+    assert @ingester.within_root?('6e412540-5ce3-0132-3334-0050569601ca-a',
+                                  @collection, @tsv_hash)
   end
 
 end
