@@ -2,6 +2,11 @@ require 'test_helper'
 
 class ContentProfileTest < ActiveSupport::TestCase
 
+  setup do
+    tsv = File.read(__dir__ + '/../fixtures/repository/medusa-free-form.tsv')
+    @tsv = CSV.parse(tsv, headers: true, col_sep: "\t").map{ |row| row.to_hash }
+  end
+
   # all
 
   test 'all() should return the correct profiles' do
@@ -86,22 +91,20 @@ class ContentProfileTest < ActiveSupport::TestCase
         array with top-level items' do
     # https://medusa.library.illinois.edu/cfs_directories/414021.json
     item = 'be8d3500-c451-0133-1d17-0050569601ca-9'
-    tsv = File.read(__dir__ + '/../fixtures/repository/medusa-free-form.tsv')
-    assert_equal 0, ContentProfile::FREE_FORM_PROFILE.bytestreams_from_tsv(item, tsv).length
+    assert_equal 0, ContentProfile::FREE_FORM_PROFILE.bytestreams_from_tsv(item, @tsv).length
   end
 
   test 'bytestreams_from_tsv with the free-form profile should return a
         one-element array with files' do
     item = '6e406030-5ce3-0132-3334-0050569601ca-3'
     tsv = File.read(__dir__ + '/../fixtures/repository/medusa-free-form.tsv')
-    assert_equal 1, ContentProfile::FREE_FORM_PROFILE.bytestreams_from_tsv(item, tsv).length
+    assert_equal 1, ContentProfile::FREE_FORM_PROFILE.bytestreams_from_tsv(item, @tsv).length
   end
 
   test 'bytestreams_from_tsv with the free-form profile should return an
         empty array with directories' do
     item = 'a5393f70-5ca8-0132-3334-0050569601ca-9'
-    tsv = File.read(__dir__ + '/../fixtures/repository/medusa-free-form.tsv')
-    assert_equal 0, ContentProfile::FREE_FORM_PROFILE.bytestreams_from_tsv(item, tsv).length
+    assert_equal 0, ContentProfile::FREE_FORM_PROFILE.bytestreams_from_tsv(item, @tsv).length
   end
 
   # bytestreams_from_tsv (with map profile)
@@ -109,15 +112,13 @@ class ContentProfileTest < ActiveSupport::TestCase
   test 'bytestreams_from_tsv with the map profile should return an empty
         array with top-level items' do
     item = 'ab792720-c451-0133-1d17-0050569601ca-4'
-    tsv = File.read(__dir__ + '/../fixtures/repository/medusa-map.tsv')
-    assert_equal 0, ContentProfile::MAP_PROFILE.bytestreams_from_tsv(item, tsv).length
+    assert_equal 0, ContentProfile::MAP_PROFILE.bytestreams_from_tsv(item, @tsv).length
   end
 
   test 'bytestreams_from_tsv with the map profile should return a
         two-element array with child items' do
     item = 'd73e9190-c451-0133-1d17-0050569601ca-2'
-    tsv = File.read(__dir__ + '/../fixtures/repository/medusa-map.tsv')
-    assert_equal 2, ContentProfile::MAP_PROFILE.bytestreams_from_tsv(item, tsv).length
+    assert_equal 2, ContentProfile::MAP_PROFILE.bytestreams_from_tsv(item, @tsv).length
   end
 
   # parent_id_from_medusa

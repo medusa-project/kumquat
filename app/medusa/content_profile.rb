@@ -73,7 +73,7 @@ class ContentProfile
   # TSV string.
   #
   # @param item_id [String]
-  # @param tsv [String]
+  # @param tsv [Hash<String,String>]
   # @return [Array<Bytestream>]
   # @raises [HTTPClient::BadResponseError]
   # @raises [ArgumentError] If any arguments are nil
@@ -153,12 +153,11 @@ class ContentProfile
   # have no bytestreams.
   #
   # @param item_id [String]
-  # @param tsv [String]
+  # @param tsv [Array<Hash<String,String>>]
   # @return [Array<Bytestream>]
   #
   def free_form_bytestreams_from_tsv(item_id, tsv)
     bytestreams = []
-    tsv = CSV.parse(tsv, headers: true, col_sep: "\t").map{ |row| row.to_hash }
     row = tsv.select{ |row| row['uuid'] == item_id }.first
     if row and row['type'] and row['type'] == 'file'
       bs = Bytestream.new
@@ -265,12 +264,11 @@ class ContentProfile
   # .jp2.
   #
   # @param item_id [String]
-  # @param tsv [String]
+  # @param tsv [Hash<String,String>]
   # @return [Array<Bytestream>]
   #
   def map_bytestreams_from_tsv(item_id, tsv)
     bytestreams = []
-    tsv = CSV.parse(tsv, headers: true, col_sep: "\t").map{ |row| row.to_hash }
     row = tsv.select{ |row| row['uuid'] == item_id }.first
     if row and row['type'] and row['type'] == 'file'
       bs = Bytestream.new

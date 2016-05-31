@@ -38,31 +38,31 @@ class ItemTsvIngesterTest < ActiveSupport::TestCase
 
   test 'parent_directory_id should return nil for files/directories with no
         parent' do
-    assert_nil @ingester.parent_directory_id('431d6090-5ca7-0132-3334-0050569601ca-a', @tsv_hash)
+    assert_nil ItemTsvIngester.parent_directory_id('431d6090-5ca7-0132-3334-0050569601ca-a', @tsv_hash)
   end
 
   test 'parent_directory_id should return the correct parent ID for
         files/directories with a parent' do
     assert_equal '431d6090-5ca7-0132-3334-0050569601ca-a',
-                 @ingester.parent_directory_id('a52b2e40-5ca8-0132-3334-0050569601ca-c', @tsv_hash)
+                 ItemTsvIngester.parent_directory_id('a52b2e40-5ca8-0132-3334-0050569601ca-c', @tsv_hash)
     assert_equal 'a53add10-5ca8-0132-3334-0050569601ca-7',
-                 @ingester.parent_directory_id('6e3c33c0-5ce3-0132-3334-0050569601ca-f', @tsv_hash)
+                 ItemTsvIngester.parent_directory_id('6e3c33c0-5ce3-0132-3334-0050569601ca-f', @tsv_hash)
   end
 
   # within_root?
 
   test 'within_root? should return false for items that are not within a
         collection\'s effective root' do
-    assert !@ingester.within_root?('431d6090-5ca7-0132-3334-0050569601ca-a',
-                                   @collection, @tsv_hash)
+    assert !ItemTsvIngester.within_root?('431d6090-5ca7-0132-3334-0050569601ca-a',
+                                         @collection, @tsv_hash)
   end
 
   test 'within_root? should return true for items that are within a collection\'s
         effective root' do
-    assert @ingester.within_root?('a53194a0-5ca8-0132-3334-0050569601ca-8',
-                                  @collection, @tsv_hash)
-    assert @ingester.within_root?('6e412540-5ce3-0132-3334-0050569601ca-a',
-                                  @collection, @tsv_hash)
+    assert ItemTsvIngester.within_root?('a53194a0-5ca8-0132-3334-0050569601ca-8',
+                                        @collection, @tsv_hash)
+    assert ItemTsvIngester.within_root?('6e412540-5ce3-0132-3334-0050569601ca-a',
+                                        @collection, @tsv_hash)
   end
 
 end

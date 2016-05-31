@@ -380,8 +380,8 @@ class Item < ActiveRecord::Base
   ##
   # Updates an instance from a hash representing a TSV row.
   #
-  # @param tsv [String] TSV string
-  # @param [Hash<String,String>] TSV row
+  # @param tsv [Array<Hash<String,String>>]
+  # @param row [Hash<String,String>] TSV row
   # @return [Item]
   #
   def update_from_tsv(tsv, row)
@@ -402,6 +402,14 @@ class Item < ActiveRecord::Base
       else
         self.parent_repository_id = self.collection.content_profile.
             parent_id_from_medusa(self.repository_id)
+        # The parent ID in the Medusa TSV may be pointing to a directory that
+        # is outside the collection's effective root directory
+        # (Collection.effective_medusa_cfs_directory). In that case, it needs
+        # to be nil.
+        if ItemTsvIngester.within_root?(self.parent_repository_id,
+                                        self.collection, tsv)
+          self.parent_repository_id = nil
+        end
       end
 
       # date (normalized)
@@ -427,7 +435,8 @@ class Item < ActiveRecord::Base
       self.variant = row['variant'] if row['variant']
 
       # bytestreams
-      self.collection.content_profile.bytestreams_from_tsv(tsv, self.repository_id).each do |bs|
+      self.collection.content_profile.
+          bytestreams_from_tsv(self.repository_id, tsv).each do |bs|
         self.bytestreams << bs
       end
 
@@ -449,7 +458,7 @@ class Item < ActiveRecord::Base
   ##
   # Updates an instance from valid DLS XML.
   #
-  # @param [Nokogiri::XML::Node] node
+  # @param node [Nokogiri::XML::Node]
   # @param schema_version [Integer]
   # @return [Item]
   #
