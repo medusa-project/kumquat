@@ -49,6 +49,10 @@ class ContentProfile
   FREE_FORM_PROFILE = ContentProfile.find(0)
   MAP_PROFILE = ContentProfile.find(1)
 
+  def ==(obj)
+    obj.kind_of?(self.class) and obj.id == self.id
+  end
+
   ##
   # Queries Medusa to find all bytestreams for the Item with the given ID.
   #

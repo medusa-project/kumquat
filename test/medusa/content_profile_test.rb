@@ -29,6 +29,26 @@ class ContentProfileTest < ActiveSupport::TestCase
     assert_nil ContentProfile.find(27)
   end
 
+  # ==(obj)
+
+  test '== should work properly' do
+    p1 = ContentProfile.new
+    p2 = ContentProfile.new
+    assert p1 == p2
+
+    p1 = ContentProfile.new
+    p1.id = 3
+    p2 = ContentProfile.new
+    p2.id = 3
+    assert p1 == p2
+
+    p1 = ContentProfile.new
+    p1.id = 3
+    p2 = ContentProfile.new
+    p2.id = 4
+    assert !(p1 == p2)
+  end
+
   # bytestreams_from_medusa
 
   test 'bytestreams_from_medusa should raise an error when no ID is provided' do
