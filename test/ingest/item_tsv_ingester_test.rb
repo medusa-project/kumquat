@@ -67,4 +67,13 @@ class ItemTsvIngesterTest < ActiveSupport::TestCase
     end
   end
 
+  test 'ingest_tsv should set the variant for free-form content ingested from
+        Medusa' do
+    @ingester.ingest_tsv(@tsv, @collection)
+    assert_equal Item::Variants::DIRECTORY,
+                 Item.find_by_repository_id('a53a0ce0-5ca8-0132-3334-0050569601ca-9').variant
+    assert_equal Item::Variants::FILE,
+                 Item.find_by_repository_id('6e3c33c0-5ce3-0132-3334-0050569601ca-f').variant
+  end
+
 end
