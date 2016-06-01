@@ -71,16 +71,22 @@ class ItemTsvIngester
     ActiveRecord::Base.transaction do
       tsv.each do |row|
         if self.class.within_root?(row['uuid'], collection, tsv)
-          # The variant needs to be set properly for free-form content. TSV
-          # exported from Medusa will not contain this column, but TSV
-          # exported from DLS will.
           if collection.content_profile == ContentProfile::FREE_FORM_PROFILE
+            # The variant needs to be set properly for free-form content. TSV
+            # exported from Medusa will not contain this column, but TSV
+            # exported from DLS will.
             unless row['variant']
               if row['type'] == 'folder'
                 row['variant'] = Item::Variants::DIRECTORY
               else
                 row['variant'] = Item::Variants::FILE
               end
+            end
+            # If the title is not already set, but there is a name column
+            # (only Medusa TSV will contain this), set the title to the
+            # filename.
+            if row['name'] and !row['title']
+              row['title'] = row['name']
             end
           end
 

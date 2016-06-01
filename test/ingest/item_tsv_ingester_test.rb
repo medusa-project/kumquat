@@ -76,4 +76,13 @@ class ItemTsvIngesterTest < ActiveSupport::TestCase
                  Item.find_by_repository_id('6e3c33c0-5ce3-0132-3334-0050569601ca-f').variant
   end
 
+  test 'ingest_tsv should set the title for title-less free-form content
+        ingested from Medusa' do
+    @ingester.ingest_tsv(@tsv, @collection)
+    assert_equal 'binder_9',
+                 Item.find_by_repository_id('a53a0ce0-5ca8-0132-3334-0050569601ca-9').title
+    assert_equal 'animals_001.jpg',
+                 Item.find_by_repository_id('6e3c33c0-5ce3-0132-3334-0050569601ca-f').title
+  end
+
 end
