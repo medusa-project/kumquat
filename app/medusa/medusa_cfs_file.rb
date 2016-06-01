@@ -8,6 +8,21 @@ class MedusaCfsFile
   #   @return [Hash]
   attr_accessor :medusa_representation
 
+  ##
+  # @param id [String] Medusa UUID
+  # @return [Boolean]
+  #
+  def self.file?(id)
+    url = PearTree::Application.peartree_config[:medusa_url].chomp('/') +
+        '/uuids/' + id.to_s + '.json'
+    # It's a file if Medusa redirects to a /cfs_files/ URI.
+    response = Medusa.client.head(url, follow_redirect: false)
+    response.header['Location'].to_s.include?('/cfs_files/')
+  end
+
+  ##
+  # @return [String]
+  #
   def pathname
     PearTree::Application.peartree_config[:repository_pathname].chomp('/') +
         self.repository_relative_pathname
