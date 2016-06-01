@@ -406,8 +406,8 @@ class Item < ActiveRecord::Base
         # is outside the collection's effective root directory
         # (Collection.effective_medusa_cfs_directory). In that case, it needs
         # to be nil.
-        if ItemTsvIngester.within_root?(self.parent_repository_id,
-                                        self.collection, tsv)
+        unless ItemTsvIngester.within_root?(self.parent_repository_id,
+                                            self.collection, tsv)
           self.parent_repository_id = nil
         end
       end
