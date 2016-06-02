@@ -1,3 +1,25 @@
+##
+# Encapsulates a unit of intellectual content.
+#
+# All items reside in a collection. An item may have one or more child items,
+# as may any of those, forming a tree. It may also have one or more
+# Bytestreams, each corresponding to a file in Medusa.
+#
+# Items have a number of properties of their own as well as a one-to-many
+# relationship with Element, which encapsulates a metadata element. The set of
+# elements that an item contains is typically shaped by its collection's
+# metadata profile, although there is no constraint in place to keep an item
+# from being associated with other elements.
+#
+# Note that Medusa is not item-aware; items are a DLS entity. Item IDs
+# correspond to Medusa file/directory IDs depending on a collection's content
+# profile. These IDs are stored in `repository_id`, NOT `id`, which is
+# database-specific.
+#
+# Being an ActiveRecord entity, items are searchable via ActiveRecord as well
+# as via Solr. Instances are automatically indexed in Solr (see `to_solr`) and
+# the Solr search functionality is available via the `solr` class method.
+#
 class Item < ActiveRecord::Base
 
   include SolrQuerying
@@ -432,7 +454,7 @@ class Item < ActiveRecord::Base
           row['subpageNumber']
 
       # variant
-      self.variant = row['variant'] if row['variant']
+      self.variant = row['variant'].strip if row['variant']
 
       # bytestreams
       self.collection.content_profile.

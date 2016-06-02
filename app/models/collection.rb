@@ -1,5 +1,19 @@
 ##
-# Serialization is handled in CollectionSerializer.
+# Encapsulates a Medusa collection.
+#
+# Collections can contain zero or more items.
+#
+# Collections are identified by their repository ID (`repository_id`), which
+# is a UUID matching a collection's Medusa UUID.
+#
+# Collections are associated with a metadata profile, which defines the list
+# of elements that contained items are supposed to have, as well as a content
+# profile, which defines how collection content is structured in Medusa in
+# terms of its file/directory layout.
+#
+# Being an ActiveRecord entity, collections are searchable via ActiveRecord as
+# well as via Solr. Instances are automatically indexed in Solr (see `to_solr`)
+# and the Solr search functionality is available via the `solr` class method.
 #
 class Collection < ActiveRecord::Base
 
