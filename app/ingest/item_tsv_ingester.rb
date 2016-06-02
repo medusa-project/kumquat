@@ -60,10 +60,13 @@ class ItemTsvIngester
   # @param collection [Collection] Collection to ingest the items into.
   # @param task [Task] Optional
   # @return [Integer] Number of items ingested
+  # @raises [RuntimeError]
   #
   def ingest_tsv(tsv, collection, task = nil)
     raise 'No TSV content provided.' unless tsv.present?
     raise 'No collection provided.' unless collection
+    raise 'Collection does not have a content profile assigned.' unless
+        collection.content_profile
 
     tsv = CSV.parse(tsv, headers: true, col_sep: "\t").map{ |row| row.to_hash }
     total_count = tsv.length

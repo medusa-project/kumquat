@@ -46,6 +46,19 @@ class ItemTsvIngesterTest < ActiveSupport::TestCase
 
   # ingest_tsv
 
+  test 'ingest_tsv should raise an error with empty TSV argument' do
+    assert_raises RuntimeError do
+      @ingester.ingest_tsv(nil, @collection)
+    end
+  end
+
+  test 'ingest_tsv should raise an error with collection with no content profile assigned' do
+    assert_raises RuntimeError do
+      @collection.content_profile = nil
+      @ingester.ingest_tsv(@tsv, @collection)
+    end
+  end
+
   test 'ingest_tsv should create new items from valid TSV' do
     assert_equal 45, @ingester.ingest_tsv(@tsv, @collection)
   end
@@ -59,12 +72,6 @@ class ItemTsvIngesterTest < ActiveSupport::TestCase
     @ingester.ingest_tsv(tsv, @collection)
 
     assert_equal initial_count, Item.all.count
-  end
-
-  test 'ingest_tsv should raise an error with empty TSV argument' do
-    assert_raises RuntimeError do
-      @ingester.ingest_tsv(nil, @collection)
-    end
   end
 
   test 'ingest_tsv should set the variant for free-form content ingested from
