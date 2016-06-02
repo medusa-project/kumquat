@@ -208,6 +208,16 @@ callNumber:
   mappings:
     dc:
     dcterms:
+campaign:
+  type: descriptive
+  label: Campaign
+  visible: true
+  searchable: true
+  sortable: false
+  facetable: true
+  mappings:
+    dc:
+    dcterms:
 cartographicScale:
   type: descriptive
   label: Cartographic Scale
@@ -728,6 +738,16 @@ spatialCoverage:
   mappings:
     dc: coverage
     dcterms: spatial
+sponsor:
+  type: descriptive
+  label: Sponsor
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
+  mappings:
+    dc:
+    dcterms:
 subject:
   type: descriptive
   label: Subject
@@ -758,6 +778,26 @@ temporalCoverage:
   mappings:
     dc: coverage
     dcterms: temporal
+textOriginal:
+  type: descriptive
+  label: Original Text
+  visible: true
+  searchable: true
+  sortable: false
+  facetable: false
+  mappings:
+    dc: description
+    dcterms: description
+textTranslation:
+  type: descriptive
+  label: Translation
+  visible: true
+  searchable: true
+  sortable: false
+  facetable: false
+  mappings:
+    dc: description
+    dcterms: description
 title:
   type: descriptive
   label: Title
