@@ -55,6 +55,7 @@
       <xs:element name="audience" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="bibliographicCitation" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="callNumber" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="campaign" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="cartographicScale" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="conformsTo" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="contributor" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
@@ -109,9 +110,12 @@
       <xs:element name="rightsHolder" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="source" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="spatialCoverage" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="sponsor" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="subject" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="tableOfContents" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="temporalCoverage" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="textOriginal" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="textTranslation" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="title" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="type" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
 
