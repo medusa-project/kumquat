@@ -27,3 +27,37 @@ item2:
   representative_item_repository_id: 1
   subpage_number:
   variant: Page
+
+free_form_dir1:
+  collection_repository_id: collection1
+  date: <%= Time.parse('2015-08-10') %>
+  published: true
+  repository_id: a53add10-5ca8-0132-3334-0050569601ca-7
+  variant: Directory
+
+free_form_dir1_file1:
+  collection_repository_id: collection1
+  date: <%= Time.parse('2015-08-10') %>
+  published: true
+  repository_id: 6e406030-5ce3-0132-3334-0050569601ca-3
+  parent_repository_id: a53add10-5ca8-0132-3334-0050569601ca-7
+  variant: File
+
+map_obj1:
+  collection_repository_id: collection2
+  date: <%= Time.parse('2015-08-10') %>
+  published: true
+  repository_id: be8d3500-c451-0133-1d17-0050569601ca-9
+
+map_obj1_page1:
+  collection_repository_id: collection2
+  date: <%= Time.parse('2015-08-10') %>
+  published: true
+  repository_id: d29950d0-c451-0133-1d17-0050569601ca-2
+
+map_obj1_page2:
+  collection_repository_id: collection2
+  date: <%= Time.parse('2015-08-10') %>
+  published: true
+  repository_id: d29edba0-c451-0133-1d17-0050569601ca-c
+

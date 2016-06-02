@@ -77,7 +77,7 @@ class ContentProfile
   # TSV string.
   #
   # @param item_id [String]
-  # @param tsv [Hash<String,String>]
+  # @param tsv [Array<Hash<String,String>>]
   # @return [Array<Bytestream>]
   # @raises [HTTPClient::BadResponseError]
   # @raises [ArgumentError] If any arguments are nil
@@ -114,6 +114,20 @@ class ContentProfile
   end
 
   private
+
+  ##
+  # @param preservation_master [Bytestream]
+  # @return [Bytestream]
+  #
+  def access_master_counterpart(preservation_master)
+    bs = Bytestream.new
+    bs.repository_relative_pathname = preservation_master.
+        repository_relative_pathname.gsub('/preservation/', '/access/').
+        chomp('.tif').chomp('.tiff').chomp('.TIF').chomp('.TIFF') + '.jp2'
+    bs.bytestream_type = Bytestream::Type::ACCESS_MASTER
+    bs.infer_media_type
+    bs
+  end
 
   ##
   # @param uuid [String]
@@ -156,21 +170,33 @@ class ContentProfile
   # In the free-form profile, there is one bytestream per file. Directories
   # have no bytestreams.
   #
-  # @param item_id [String]
+  # @param item_id [String] Medusa UUID
   # @param tsv [Array<Hash<String,String>>]
   # @return [Array<Bytestream>]
   #
   def free_form_bytestreams_from_tsv(item_id, tsv)
     bytestreams = []
     row = tsv.select{ |row| row['uuid'] == item_id }.first
-    if row and row['type'] and row['type'] == 'file'
+    # We need to handle Medusa TSV and DLS TSV differently.
+    # Only Medusa TSV will contain a `parent_directory_uuid` column.
+    if row and row['parent_directory_uuid'] and row['type'] and row['type'] == 'file'
       bs = Bytestream.new
       bs.repository_relative_pathname = '/' + row['relative_pathname']
       bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
       bs.infer_media_type
       bytestreams << bs
     else
-      # TODO: write this for DLS TSV
+      # It's coming from DLS TSV. Find out whether it's a file or a directory
+      # from Medusa, as this information is not contained in the TSV.
+      if MedusaCfsFile.file?(item_id)
+        file = MedusaCfsFile.new
+        file.id = item_id
+        bs = Bytestream.new
+        bs.repository_relative_pathname = file.repository_relative_pathname
+        bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
+        bs.infer_media_type
+        bytestreams << bs
+      end
     end
     bytestreams
   end
@@ -230,13 +256,7 @@ class ContentProfile
           bytestreams << bs
 
           # add the access master
-          bs = Bytestream.new
-          bs.bytestream_type = Bytestream::Type::ACCESS_MASTER
-          bs.repository_relative_pathname =
-              '/' + struct['relative_pathname'].reverse.chomp('/').reverse.
-                  gsub('/preservation/', '/access/').chomp('.tif') + '.jp2'
-          bs.infer_media_type
-          bytestreams << bs
+          bytestreams << access_master_counterpart(bs)
         when 'access'
           # add the preservation master
           bs = Bytestream.new
@@ -261,11 +281,10 @@ class ContentProfile
   end
 
   ##
-  # Child items will reside in a directory called `access` or
-  # `preservation`. These are the only items in this profile that will have
-  # any associated bytestreams. Preservation and access filenames will be the
-  # same, except preservation files will end in .tif and access filenames in
-  # .jp2.
+  # Child items will reside in a directory called `access` or `preservation`.
+  # These are the only items in this profile that will have  any associated
+  # bytestreams. Preservation and access filenames will be the  same, except
+  # preservation files will end in .tif and access filenames in .jp2.
   #
   # @param item_id [String]
   # @param tsv [Hash<String,String>]
@@ -274,25 +293,41 @@ class ContentProfile
   def map_bytestreams_from_tsv(item_id, tsv)
     bytestreams = []
     row = tsv.select{ |row| row['uuid'] == item_id }.first
-    if row and row['type'] and row['type'] == 'file'
+    # We need to handle Medusa TSV and DLS TSV differently.
+    # Only Medusa TSV will contain a `parent_directory_uuid` column.
+    if row and row['parent_directory_uuid'] and row['type'] and row['type'] == 'file'
       bs = Bytestream.new
       bs.repository_relative_pathname = '/' + row['relative_pathname']
       bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
       bs.infer_media_type
       bytestreams << bs
 
-      # We'll add an access bytestream even if it doesn't exist, since many of
-      # the collections in Medusa are quite messy. Same path except /access/
-      # instead of /preservation/ and a .jp2 extension instead of .tif.
-      bs = Bytestream.new
-      bs.repository_relative_pathname = '/' + row['relative_pathname'].
-          gsub('/preservation/', '/access/').chomp('.tif').chomp('.tiff').
-          chomp('.TIF').chomp('.TIFF') + '.jp2'
-      bs.bytestream_type = Bytestream::Type::ACCESS_MASTER
-      bs.infer_media_type
-      bytestreams << bs
+      # Add an access bytestream even if it doesn't exist in Medusa. (Much of
+      # the content in Medusa is messy and the access file could appear
+      # eventually.) Same path except /access/ instead of /preservation/ and a
+      # .jp2 extension instead of .tif.
+      bytestreams << access_master_counterpart(bs)
     else
-      # TODO: write this for DLS TSV
+      # It's coming from DLS TSV. Find out whether it's a file or a directory
+      # from Medusa, as this information is not contained in the TSV.
+      if MedusaCfsFile.file?(item_id)
+        file = MedusaCfsFile.new
+        file.id = item_id
+        # Only preservation masters are considered "items" in this profile.
+        if File.extname(file.repository_relative_pathname).downcase[0..3] == '.tif'
+          bs = Bytestream.new
+          bs.repository_relative_pathname = file.repository_relative_pathname
+          bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
+          bs.infer_media_type
+          bytestreams << bs
+
+          # Add an access bytestream even if it doesn't exist in Medusa. (Much
+          # of the content in Medusa is messy and the access file could appear
+          # eventually.) Same path except /access/ instead of /preservation/
+          # and a .jp2 extension instead of .tif.
+          bytestreams << access_master_counterpart(bs)
+        end
+      end
     end
     bytestreams
   end
