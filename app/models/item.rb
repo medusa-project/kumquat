@@ -466,10 +466,12 @@ class Item < ActiveRecord::Base
       row.select{ |col, value| self.collection.metadata_profile.element_defs.map(&:name).include?(col) }.
           each do |col, value|
         # Add new elements
-        value.split(MULTI_VALUE_SEPARATOR).select(&:present?).each do |v|
-          e = Element.named(col)
-          e.value = v
-          self.elements << e
+        if value.present?
+          value.split(MULTI_VALUE_SEPARATOR).select(&:present?).each do |v|
+            e = Element.named(col)
+            e.value = v
+            self.elements << e
+          end
         end
       end
 
