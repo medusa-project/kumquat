@@ -72,7 +72,13 @@ class ItemTsvIngester
     total_count = tsv.length
     count = 0
     ActiveRecord::Base.transaction do
-      tsv.each do |row|
+      tsv.each_with_index do |row, index|
+        Rails.logger.debug("ingest_tsv: row #{index + 1}")
+        # In content profiles other than the free-form profile, items should
+        # be created for only a subset of the rows.
+        if collection.content_profile != ContentProfile::FREE_FORM_PROFILE
+          next unless row['title'].present?
+        end
         if self.class.within_root?(row['uuid'], collection, tsv)
           if collection.content_profile == ContentProfile::FREE_FORM_PROFILE
             # The variant needs to be set properly for free-form content. TSV
