@@ -131,7 +131,7 @@
   <div class="col-lg-3">
     <div class="panel panel-default">
       <div class="panel-heading">
-        <h2 class="panel-title">Technical Info</h2>
+        <h2 class="panel-title">System Information</h2>
       </div>
       <div class="panel-body">
         <div class="visible-xs">
@@ -158,13 +158,13 @@
         </div>
         <div class="panel-body">
           <ul class="nav nav-pills" role="tablist">
-            <li role="presentation" class="active">
+            <li role="presentation" class="<%= bs.exif.any? ? '' : 'active' %>">
               <a href="#pt-bytestream-<%= bs.bytestream_type %>-file"
                  aria-controls="pt-bytestream-<%= bs.bytestream_type %>-file"
                  role="tab" data-toggle="tab">File</a>
             </li>
             <% if bs.exif.any? %>
-              <li role="presentation">
+              <li role="presentation" class="active">
                 <a href="#pt-bytestream-<%= bs.bytestream_type %>-exif"
                    aria-controls="pt-bytestream-<%= bs.bytestream_type %>-exif"
                    role="tab" data-toggle="tab">EXIF</a>
@@ -187,10 +187,10 @@
           </ul>
 
           <div class="tab-content">
-            <div role="tabpanel" class="tab-pane active" id="pt-bytestream-<%= bs.bytestream_type %>-file">
+            <div role="tabpanel" class="tab-pane" id="pt-bytestream-<%= bs.bytestream_type %>-file">
               <%= bytestream_file_metadata_as_table(bs) %>
             </div>
-            <div role="tabpanel" class="tab-pane" id="pt-bytestream-<%= bs.bytestream_type %>-exif">
+            <div role="tabpanel" class="tab-pane active" id="pt-bytestream-<%= bs.bytestream_type %>-exif">
               <%= bytestream_exif_metadata_as_table(bs) %>
             </div>
             <div role="tabpanel" class="tab-pane" id="pt-bytestream-<%= bs.bytestream_type %>-iptc">

@@ -25,6 +25,12 @@
   font-style: normal;
 }
 
+@media print {
+  header, footer, .btn, .pt-facets, audio, video {
+    display: none;
+  }
+}
+
 h1 {
   font-family: 'Oswald', sans-serif;
   font-size: 2.5em;
@@ -51,6 +57,10 @@ h6 {
 
 h2, h3, h4, h5, h6, .navbar-header a, #pt-navbar-collapse a, .breadcrumb, .btn, .pt-title {
   font-family: 'PT Sans', sans-serif;
+}
+
+#pt-page-content {
+  padding-top: 15px;
 }
 
 #pt-main-nav {
@@ -269,5 +279,3 @@ body#landing, body#collections_show {
     }
   }
 }
-
-@import "../../../local/themes/**/*";
