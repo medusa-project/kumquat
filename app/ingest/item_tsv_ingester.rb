@@ -27,9 +27,9 @@ class ItemTsvIngester
   #
   def self.within_root?(item_id, collection, tsv)
     effective_top_id = collection.effective_medusa_cfs_directory&.id
-    if effective_top_id
+    if effective_top_id.present?
       next_parent_id = item_id
-      while next_parent_id do
+      while next_parent_id.present? do
         next_parent_id = parent_directory_id(next_parent_id, tsv)
         return true if next_parent_id == effective_top_id
       end
