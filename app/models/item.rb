@@ -615,7 +615,11 @@ class Item < ActiveRecord::Base
       iso8601 = "#{date}T00:00:00Z"
     end
     if iso8601
-      return Time.parse(iso8601)
+      begin
+        return Time.parse(iso8601)
+      rescue ArgumentError
+        # nothing we can do
+      end
     end
     nil
   end
