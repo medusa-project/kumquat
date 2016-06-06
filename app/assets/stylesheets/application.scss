@@ -17,10 +17,13 @@
 @import "font-awesome-sprockets";
 @import "font-awesome";
 
+@import "_variables.scss";
 @import "sitewide.scss";
 @import "website.scss";
 @import "collections.scss";
 @import "favorites.scss";
+@import "footer.scss";
+@import "header.scss";
 @import "items.scss";
 @import "landing.scss";
 @import "print.scss";

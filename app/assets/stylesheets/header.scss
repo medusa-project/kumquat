@@ -1,0 +1,129 @@
+/* Styles for the narrow top UIUC Library header. */
+
+header {
+  padding-left: 0px;
+}
+.lib-shared-header {
+  background-color: $color__dark-navy;
+  border-bottom: 0px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+.table-row {
+  display: table-row;
+}
+.table-cell {
+  display: table-cell;
+}
+@media (max-width: 400px) {
+  .banner-image-university {
+    display: none;
+  }
+}
+@media (max-width: 300px) {
+  .banner-image-library {
+    display: none;
+  }
+}
+@media (max-width: 880px) {
+  .banner-image-uiuc {
+    display: none;
+  }
+}
+.banner-image-imark {
+  padding:0px 3px 0px 0px;
+}
+.banner-image-university,.banner-image-library,.banner-image-uiuc {
+  padding:0;
+}
+
+/* Styles for the Digital Collections banner and search form. */
+
+a {
+  color: rgb(4, 74, 136);
+}
+
+.uiuc-beta-badge {
+  pointer-events: none;
+  position: absolute;
+  right: 0px;
+  z-index: 9999;
+}
+
+a.uiuc-feedback, a.uiuc-feedback:hover {
+  color:white;
+  margin-right: 0.8em;
+}
+
+.uiuc-plain-banner {
+  border-bottom: 3px solid #FA6300;
+  padding: 14px 0px 10px 0px;
+  .navbar-default {
+    background-color: white;
+    border: 0px;
+    margin-bottom: 0px;
+  }
+  a.navbar-brand {
+    color: black;
+    font-family: 'Garamond', 'Palatino', 'Book Antiqua', serif;
+    font-size: 3em;
+    font-weight: 200;
+    margin-right: 20px;
+  }
+  @media (max-width: 450px) {
+    a.navbar-brand {
+      font-size: 1.8em;
+    }
+  }
+  a.navbar-brand:hover, a.navbar-brand:active {
+    color: black;
+    text-decoration: none;
+  }
+  .navbar-nav {
+    margin-top: -2px;
+  }
+  .navbar-nav > li > a {
+    color: black;
+  }
+  .navbar-nav > li > a:hover {
+    background-color: #e7e7e7;
+  }
+}
+
+#pt-search-accordion {
+  background-color: #ededed;
+  margin-bottom: 0px;
+  a {
+    background-color:#d0d0d0;
+    border: 1px solid #ccc;
+    color: #022544;
+    margin: 0 auto;
+    width: 90%;
+  }
+  a:hover {
+    background-color:#d8d8d8;
+  }
+  input.pt-search {
+    background-color:white;
+    border: 1px solid #ccc;
+    color:black;
+  }
+}
+
+.uiuc-image-banner {
+  font-family: 'Garamond', 'Palatino', 'Book Antiqua', serif;
+  height: 280px;
+  padding: 10px 15px;
+  .beta-disclaimer {
+    background-color: rgba(0,0,0,0.5);
+    border: 0px;
+    color: #e0e0e0;
+    font-family: sans-serif;
+  }
+  a {
+    color: white;
+  }
+  a:hover {
+    text-decoration: none;
+  }
+}
