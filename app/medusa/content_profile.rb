@@ -295,18 +295,32 @@ class ContentProfile
     row = tsv.select{ |row| row['uuid'] == item_id }.first
     # We need to handle Medusa TSV and DLS TSV differently.
     # Only Medusa TSV will contain a `parent_directory_uuid` column.
-    if row and row['parent_directory_uuid'] and row['type'] and row['type'] == 'file'
-      bs = Bytestream.new
-      bs.repository_relative_pathname = '/' + row['relative_pathname']
-      bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
-      bs.infer_media_type
-      bytestreams << bs
-
-      # Add an access bytestream even if it doesn't exist in Medusa. (Much of
-      # the content in Medusa is messy and the access file could appear
-      # eventually.) Same path except /access/ instead of /preservation/ and a
-      # .jp2 extension instead of .tif.
-      bytestreams << access_master_counterpart(bs)
+    if row and row['parent_directory_uuid'] and row['type']
+      if row['type'] == 'file' # It's a compound object page.
+        bs = Bytestream.new
+        bs.repository_relative_pathname = '/' + row['relative_pathname']
+        bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
+        bs.infer_media_type
+        bytestreams << bs
+        # Add an access bytestream even if it doesn't exist in Medusa. (Much of
+        # the content in Medusa is messy and the access file could appear
+        # eventually.) Same path except /access/ instead of /preservation/ and
+        # a .jp2 extension instead of .tif.
+        bytestreams << access_master_counterpart(bs)
+      elsif row['type'] == 'folder' and row['title'].present?
+        # It's a top-level non-compound-object.
+        bs = Bytestream.new
+        bs.repository_relative_pathname = '/' + row['relative_pathname'] +
+            '/preservation/' + row['name'] + '.tif'
+        bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
+        bs.infer_media_type
+        bytestreams << bs
+        # Add an access bytestream even if it doesn't exist in Medusa. (Much of
+        # the content in Medusa is messy and the access file could appear
+        # eventually.) Same path except /access/ instead of /preservation/ and
+        # a .jp2 extension instead of .tif.
+        bytestreams << access_master_counterpart(bs)
+      end
     else
       # It's coming from DLS TSV. Find out whether it's a file or a directory
       # from Medusa, as this information is not contained in the TSV.
@@ -320,7 +334,6 @@ class ContentProfile
           bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
           bs.infer_media_type
           bytestreams << bs
-
           # Add an access bytestream even if it doesn't exist in Medusa. (Much
           # of the content in Medusa is messy and the access file could appear
           # eventually.) Same path except /access/ instead of /preservation/

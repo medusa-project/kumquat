@@ -4,7 +4,15 @@ class ContentProfileTest < ActiveSupport::TestCase
 
   setup do
     tsv = File.read(__dir__ + '/../fixtures/repository/medusa-free-form.tsv')
-    @medusa_tsv = CSV.parse(tsv, headers: true, col_sep: "\t").
+    @medusa_free_form_tsv = CSV.parse(tsv, headers: true, col_sep: "\t").
+        map{ |row| row.to_hash }
+
+    tsv = File.read(__dir__ + '/../fixtures/repository/medusa-map.tsv')
+    @medusa_map_tsv = CSV.parse(tsv, headers: true, col_sep: "\t").
+        map{ |row| row.to_hash }
+
+    tsv = File.read(__dir__ + '/../fixtures/repository/medusa-map2.tsv')
+    @medusa_map_tsv2 = CSV.parse(tsv, headers: true, col_sep: "\t").
         map{ |row| row.to_hash }
 
     tsv = Item.tsv_header(metadata_profiles(:default_metadata_profile))
@@ -126,14 +134,14 @@ class ContentProfileTest < ActiveSupport::TestCase
         return a one-element array with files' do
     item = '6e406030-5ce3-0132-3334-0050569601ca-3'
     assert_equal 1, ContentProfile::FREE_FORM_PROFILE.
-        bytestreams_from_tsv(item, @medusa_tsv).length
+        bytestreams_from_tsv(item, @medusa_free_form_tsv).length
   end
 
   test 'bytestreams_from_tsv with the free-form profile and Medusa TSV should
         return an empty array with directories' do
     item = 'a5393f70-5ca8-0132-3334-0050569601ca-9'
     assert_equal 0, ContentProfile::FREE_FORM_PROFILE.
-        bytestreams_from_tsv(item, @medusa_tsv).length
+        bytestreams_from_tsv(item, @medusa_free_form_tsv).length
   end
 
   # bytestreams_from_tsv (free-form profile, DLS TSV)
@@ -155,17 +163,24 @@ class ContentProfileTest < ActiveSupport::TestCase
   # bytestreams_from_tsv (map profile, Medusa TSV)
 
   test 'bytestreams_from_tsv with the map profile and Medusa TSV should return
-        an empty array with top-level items' do
-    item = 'ab792720-c451-0133-1d17-0050569601ca-4'
+        an empty array with empty top-level items' do
+    item = 'bc840bf0-c451-0133-1d17-0050569601ca-7'
     assert_equal 0, ContentProfile::MAP_PROFILE.
-        bytestreams_from_tsv(item, @medusa_tsv).length
+        bytestreams_from_tsv(item, @medusa_map_tsv).length
+  end
+
+  test 'bytestreams_from_tsv with the map profile and Medusa TSV should return
+        a two-element array with top-level items that have a bytestream' do
+    item = '2ac46220-e946-0133-1d3d-0050569601ca-5'
+    assert_equal 2, ContentProfile::MAP_PROFILE.
+        bytestreams_from_tsv(item, @medusa_map_tsv2).length
   end
 
   test 'bytestreams_from_tsv with the map profile and Medusa TSV should return
         a two-element array with child items' do
     item = 'd73e9190-c451-0133-1d17-0050569601ca-2'
     assert_equal 2, ContentProfile::MAP_PROFILE.
-        bytestreams_from_tsv(item, @medusa_tsv).length
+        bytestreams_from_tsv(item, @medusa_map_tsv2).length
   end
 
   # bytestreams_from_tsv (map profile, DLS TSV)
