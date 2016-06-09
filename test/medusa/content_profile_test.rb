@@ -25,6 +25,7 @@ class ContentProfileTest < ActiveSupport::TestCase
     tsv += Item.find_by_repository_id('be8d3500-c451-0133-1d17-0050569601ca-9').to_tsv
     tsv += Item.find_by_repository_id('d29950d0-c451-0133-1d17-0050569601ca-2').to_tsv
     tsv += Item.find_by_repository_id('d29edba0-c451-0133-1d17-0050569601ca-c').to_tsv
+    tsv += Item.find_by_repository_id('cd2d4601-c451-0133-1d17-0050569601ca-8').to_tsv
     @dls_map_tsv = CSV.parse(tsv, headers: true, row_sep: "\n\r", col_sep: "\t").
         map{ |row| row.to_hash }
   end
@@ -197,6 +198,91 @@ class ContentProfileTest < ActiveSupport::TestCase
     item = 'd29950d0-c451-0133-1d17-0050569601ca-2'
     assert_equal 2, ContentProfile::MAP_PROFILE.
         bytestreams_from_tsv(item, @dls_map_tsv).length
+  end
+
+  # children_from_tsv (free-form profile, Medusa TSV)
+
+  test 'children_from_tsv with the free-form profile and Medusa TSV should
+        return an empty array with leaf items' do
+    item = '6e3c33c0-5ce3-0132-3334-0050569601ca-f'
+    assert_equal 0, ContentProfile::FREE_FORM_PROFILE.
+        children_from_tsv(item, @medusa_free_form_tsv).length
+  end
+
+  test 'children_from_tsv with the free-form profile and Medusa TSV should
+        return an array with items containing children' do
+    item = 'a53264b0-5ca8-0132-3334-0050569601ca-8'
+    assert_equal 3, ContentProfile::FREE_FORM_PROFILE.
+        children_from_tsv(item, @medusa_free_form_tsv).length
+  end
+
+  # children_from_tsv (free-form profile, DLS TSV)
+
+  test 'children_from_tsv with the free-form profile and DLS TSV should return
+        an empty array with child items' do
+    item = 'a53add10-5ca8-0132-3334-0050569601ca-7'
+    assert_equal 1, ContentProfile::FREE_FORM_PROFILE.
+        children_from_tsv(item, @dls_free_form_tsv).length
+  end
+
+  test 'children_from_tsv with the free-form profile and DLS TSV should return
+        an empty array with leaf items' do
+    item = '6e406030-5ce3-0132-3334-0050569601ca-3'
+    assert_equal 0, ContentProfile::FREE_FORM_PROFILE.
+        children_from_tsv(item, @dls_free_form_tsv).length
+  end
+
+  test 'children_from_tsv with the free-form profile and DLS TSV should return
+        an array with non-leaf items' do
+    item = 'a53add10-5ca8-0132-3334-0050569601ca-7'
+    assert_equal 1, ContentProfile::FREE_FORM_PROFILE.
+        children_from_tsv(item, @dls_free_form_tsv).length
+  end
+
+  # children_from_tsv (map profile, Medusa TSV)
+
+  test 'children_from_tsv with the map profile and Medusa TSV should return an
+        empty array with child items' do
+    item = '5da29d40-e946-0133-1d3d-0050569601ca-6'
+    assert_equal 0, ContentProfile::MAP_PROFILE.
+        children_from_tsv(item, @medusa_map_tsv2).length
+  end
+
+  test 'children_from_tsv with the map profile and Medusa TSV should return an
+        empty array with top-level non-compound items' do
+    item = '39be0760-e946-0133-1d3d-0050569601ca-a'
+    assert_equal 0, ContentProfile::MAP_PROFILE.
+        children_from_tsv(item, @medusa_map_tsv2).length
+  end
+
+  test 'children_from_tsv with the map profile and Medusa TSV should return an
+        array with top-level compound items' do
+    item = 'abc359c0-c451-0133-1d17-0050569601ca-a'
+    assert_equal 6, ContentProfile::MAP_PROFILE.
+        children_from_tsv(item, @medusa_map_tsv).length
+  end
+
+  # children_from_tsv (map profile, DLS TSV)
+
+  test 'children_from_tsv with the map profile and DLS TSV should return an
+        empty array with child items' do
+    item = 'd29950d0-c451-0133-1d17-0050569601ca-2'
+    assert_equal 0, ContentProfile::MAP_PROFILE.
+        children_from_tsv(item, @dls_map_tsv).length
+  end
+
+  test 'children_from_tsv with the map profile and DLS TSV should return an
+        empty array with top-level non-compound items' do
+    item = 'cd2d4601-c451-0133-1d17-0050569601ca-8'
+    assert_equal 0, ContentProfile::MAP_PROFILE.
+        children_from_tsv(item, @dls_map_tsv).length
+  end
+
+  test 'children_from_tsv with the map profile and DLS TSV should return an
+        array with top-level compound items' do
+    item = 'be8d3500-c451-0133-1d17-0050569601ca-9'
+    assert_equal 2, ContentProfile::MAP_PROFILE.
+        children_from_tsv(item, @dls_map_tsv).length
   end
 
   # parent_id_from_medusa

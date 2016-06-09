@@ -94,6 +94,24 @@ class ContentProfile
   end
 
   ##
+  # Returns an array of the UUIDs of all of an item's children.
+  #
+  # @param item_id [String]
+  # @param tsv [Array<Hash<String,String>>]
+  # @return [Array<String>] Array of UUIDs
+  #
+  def children_from_tsv(item_id, tsv)
+    raise ArgumentError, 'No ID provided' unless item_id
+    case self.id
+      when 0
+        return free_form_children_from_tsv(item_id, tsv)
+      when 1
+        return map_children_from_tsv(item_id, tsv)
+    end
+    nil
+  end
+
+  ##
   # Queries Medusa to find the parent ID of the Item with the given ID.
   #
   # @param item_id [String]
@@ -203,6 +221,26 @@ class ContentProfile
 
   ##
   # @param item_id [String]
+  # @param tsv [Array<Hash<String,String>>]
+  # @return [String]
+  #
+  def free_form_children_from_tsv(item_id, tsv)
+    children = []
+    # We need to handle Medusa TSV and DLS TSV differently.
+    # Only Medusa TSV will contain an `inode_type` column.
+    if tsv.first['inode_type'].present?
+      children += tsv.select{ |r| r['parent_directory_uuid'] == item_id }.
+          map{ |r| r['uuid'] }
+    else
+      # Assume it's DLS TSV.
+      children += tsv.select{ |r| r['parentId'] == item_id }.
+          map{ |r| r['uuid'] }
+    end
+    children
+  end
+
+  ##
+  # @param item_id [String]
   # @return [String]
   #
   def free_form_parent_id_from_medusa(item_id)
@@ -287,7 +325,7 @@ class ContentProfile
   # preservation files will end in .tif and access filenames in .jp2.
   #
   # @param item_id [String]
-  # @param tsv [Hash<String,String>]
+  # @param tsv [Array<Hash<String,String>>]
   # @return [Array<Bytestream>]
   #
   def map_bytestreams_from_tsv(item_id, tsv)
@@ -343,6 +381,39 @@ class ContentProfile
       end
     end
     bytestreams
+  end
+
+  ##
+  # @param item_id [String]
+  # @param tsv [Array<Hash<String,String>>]
+  # @return [String]
+  #
+  def map_children_from_tsv(item_id, tsv)
+    children = []
+    # We need to handle Medusa TSV and DLS TSV differently.
+    # Only Medusa TSV will contain an `inode_type` column.
+    row = tsv.select{ |r| r['uuid'] == item_id }.first
+    if row['inode_type'].present?
+      if row['inode_type'] == 'folder'
+        pres_dir = tsv.select{ |r| r['parent_directory_uuid'] == item_id and
+            r['name'] == 'preservation' }.first
+        if pres_dir
+          pres_dir_files = tsv.
+              select{ |r| r['parent_directory_uuid'] == pres_dir['uuid'] }.
+              map{ |r| r['uuid'] }
+          # If there is only 1 file in the preservation folder, assume it's a
+          # non-compound object, which has no children.
+          if pres_dir_files.length > 1
+            children += pres_dir_files
+          end
+        end
+      end
+    else
+      # Assume it's DLS TSV.
+      children += tsv.select{ |r| r['parentId'] == row['uuid'] }.
+          map{ |r| r['uuid'] }
+    end
+    children
   end
 
   ##
