@@ -23,3 +23,19 @@ three:
   media_type: image/jpeg
   width: 150
   height: 100
+
+map_obj1_page1_preservation:
+  bytestream_type: <%= Bytestream::Type::PRESERVATION_MASTER %>
+  repository_relative_pathname: MyString
+  item: map_obj1_page1
+  media_type: image/jpeg
+  width: 150
+  height: 100
+
+map_obj1_page1_access:
+  bytestream_type: <%= Bytestream::Type::ACCESS_MASTER %>
+  repository_relative_pathname: MyString
+  item: map_obj1_page1
+  media_type: image/jpeg
+  width: 150
+  height: 100

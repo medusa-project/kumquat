@@ -334,30 +334,35 @@ class ContentProfile
     # We need to handle Medusa TSV and DLS TSV differently.
     # Only Medusa TSV will contain an `inode_type` column.
     if row and row['inode_type']
-      if row['inode_type'] == 'file' # It's a compound object page.
-        bs = Bytestream.new
-        bs.repository_relative_pathname = '/' + row['relative_pathname']
-        bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
-        bs.infer_media_type
-        bytestreams << bs
-        # Add an access bytestream even if it doesn't exist in Medusa. (Much of
-        # the content in Medusa is messy and the access file could appear
-        # eventually.) Same path except /access/ instead of /preservation/ and
-        # a .jp2 extension instead of .tif.
-        bytestreams << access_master_counterpart(bs)
-      elsif row['inode_type'] == 'folder' and row['title'].present?
-        # It's a top-level non-compound-object.
-        bs = Bytestream.new
-        bs.repository_relative_pathname = '/' + row['relative_pathname'] +
-            '/preservation/' + row['name'] + '.tif'
-        bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
-        bs.infer_media_type
-        bytestreams << bs
-        # Add an access bytestream even if it doesn't exist in Medusa. (Much of
-        # the content in Medusa is messy and the access file could appear
-        # eventually.) Same path except /access/ instead of /preservation/ and
-        # a .jp2 extension instead of .tif.
-        bytestreams << access_master_counterpart(bs)
+      case row['inode_type']
+        when 'file' # It's a compound object page.
+          bs = Bytestream.new
+          bs.repository_relative_pathname = '/' + row['relative_pathname']
+          bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
+          bs.infer_media_type
+          bytestreams << bs
+          # Add an access bytestream even if it doesn't exist in Medusa.
+          # (Content in Medusa may be messy and missing access files could
+          # appear eventually.) Same path except /access/ instead of
+          # /preservation/ and a .jp2 extension instead of .tif.
+          bytestreams << access_master_counterpart(bs)
+        when 'folder'
+          # If it has no children, assume it's a top-level non-compound-object,
+          # which does have bytestreams. Otherwise, assume it's a top-level
+          # compound-object, which does not.
+          if children_from_tsv(item_id, tsv).empty?
+            bs = Bytestream.new
+            bs.repository_relative_pathname = '/' + row['relative_pathname'] +
+                '/preservation/' + row['name'] + '.tif'
+            bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
+            bs.infer_media_type
+            bytestreams << bs
+            # Add an access bytestream even if it doesn't exist in Medusa.
+            # (Content in Medusa may be messy and missing access files could
+            # appear eventually.) Same path except /access/ instead of
+            # /preservation/ and a .jp2 extension instead of .tif.
+            bytestreams << access_master_counterpart(bs)
+          end
       end
     else
       # It's coming from DLS TSV. Find out whether it's a file or a directory
@@ -372,10 +377,10 @@ class ContentProfile
           bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
           bs.infer_media_type
           bytestreams << bs
-          # Add an access bytestream even if it doesn't exist in Medusa. (Much
-          # of the content in Medusa is messy and the access file could appear
-          # eventually.) Same path except /access/ instead of /preservation/
-          # and a .jp2 extension instead of .tif.
+          # Add an access bytestream even if it doesn't exist in Medusa.
+          # (Content in Medusa may be messy and missing access files could
+          # appear eventually.) Same path except /access/ instead of
+          # /preservation/ and a .jp2 extension instead of .tif.
           bytestreams << access_master_counterpart(bs)
         end
       end
