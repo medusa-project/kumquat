@@ -86,22 +86,22 @@ module Admin
           tempfile = Tempfile.new('peartree-uploaded-items.tsv')
           # The finalizer would otherwise delete it.
           ObjectSpace.undefine_finalizer(tempfile)
+
+          col = Collection.find_by_repository_id(params[:collection_id])
           begin
             raise 'No TSV content specified.' if params[:tsv].blank?
-
             tempfile.write(params[:tsv].read)
             tempfile.close
-
             IngestItemsFromTsvJob.perform_later(tempfile.path,
                                                 params[:collection_id])
           rescue => e
             tempfile.unlink
             flash['error'] = "#{e}"
-            redirect_to admin_items_url
+            redirect_to admin_collection_items_url(col)
           else
             flash['success'] = 'Importing items in the background. This '\
             'may take a while.'
-            redirect_to admin_items_url
+            redirect_to admin_collection_items_url(col)
           end
         end
       end

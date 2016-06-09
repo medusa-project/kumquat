@@ -16,7 +16,7 @@
         <h4 class="modal-title">Edit Full Text</h4>
       </div>
       <div class="modal-body">
-        <%= form_for([:admin, @item]) do |f| %>
+        <%= form_for([@collection, @item]) do |f| %>
           <%= f.text_area(:full_text, class: 'form-control') %>
 
           <div class="clearfix">

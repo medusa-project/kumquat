@@ -323,7 +323,7 @@ module ItemsHelper
     items.each do |item|
       next unless item # item may be nil in testing
       link_target = options[:link_to_admin] ?
-          admin_item_path(item) : polymorphic_path(item)
+          admin_collection_item_path(item.collection, item) : polymorphic_path(item)
       html += '<li>'\
         '<div>'
       html += link_to(link_target, class: 'pt-thumbnail-link') do
@@ -548,7 +548,7 @@ module ItemsHelper
     html = '<ol>'
     items.each do |child|
       link_target = options[:link_to_admin] ?
-          admin_item_path(child) : item_path(child)
+          admin_collection_item_path(child.collection, child) : item_path(child)
       html += '<li>'
       if item.repository_id == child.repository_id
         html += '<div class="pt-current">'
