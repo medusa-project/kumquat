@@ -85,7 +85,7 @@ class ItemTsvIngester
             # exported from Medusa will not contain this column, but TSV
             # exported from DLS will.
             unless row['variant']
-              if row['type'] == 'folder'
+              if row['inode_type'] == 'folder'
                 row['variant'] = Item::Variants::DIRECTORY
               else
                 row['variant'] = Item::Variants::FILE

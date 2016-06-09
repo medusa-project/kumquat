@@ -1,4 +1,4 @@
-uuid	type	name	parent_directory_uuid	parent_directory_name	md5_sum	content_type	size	mtime	relative_pathname
+uuid	inode_type	name	parent_directory_uuid	parent_directory_name	md5_sum	content_type	size	mtime	relative_pathname
 7e927880-c12b-0133-1d0f-0050569601ca-4	folder	162/2204	""	""	""	""	2880848588066.0	""	162/2204
 37bdf1f0-c458-0133-1d17-0050569601ca-b	file	collection.xml	7e927880-c12b-0133-1d0f-0050569601ca-4	162/2204	0bb1401074a4bc7b3238900476e1b436	application/xml	1697.0	2016-02-29 14:49:18 UTC	162/2204/collection.xml
 ab792720-c451-0133-1d17-0050569601ca-4	folder	1613220	7e927880-c12b-0133-1d0f-0050569601ca-4	162/2204	""	""	241800257.0	""	162/2204/1613220

@@ -1,4 +1,4 @@
-uuid	type	name	parent_directory_uuid	parent_directory_name	md5_sum	content_type	size	mtime	relative_pathname
+uuid	inode_type	name	parent_directory_uuid	parent_directory_name	md5_sum	content_type	size	mtime	relative_pathname
 431d6090-5ca7-0132-3334-0050569601ca-a	folder	136/310	""	""	""	""	493701397852.0	""	136/310
 a52b2e40-5ca8-0132-3334-0050569601ca-c	folder	3707005	431d6090-5ca7-0132-3334-0050569601ca-a	136/310	""	""	493701397852.0	""	136/310/3707005
 a52e3e60-5ca8-0132-3334-0050569601ca-3	folder	access	a52b2e40-5ca8-0132-3334-0050569601ca-c	3707005	""	""	4859726938.0	""	136/310/3707005/access

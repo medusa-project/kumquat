@@ -467,8 +467,6 @@ class Item < ActiveRecord::Base
           each do |col, value|
         # Add new elements
         if value.present?
-          # Filter out values from the Medusa TSV `type` column
-          next if col == 'type' and %w(folder file).include?(value)
           value.split(MULTI_VALUE_SEPARATOR).select(&:present?).each do |v|
             e = Element.named(col)
             e.value = v

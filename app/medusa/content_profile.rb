@@ -178,8 +178,8 @@ class ContentProfile
     bytestreams = []
     row = tsv.select{ |row| row['uuid'] == item_id }.first
     # We need to handle Medusa TSV and DLS TSV differently.
-    # Only Medusa TSV will contain a `parent_directory_uuid` column.
-    if row and row['parent_directory_uuid'] and row['type'] and row['type'] == 'file'
+    # Only Medusa TSV will contain an `inode_type` column.
+    if row and row['inode_type'] and row['inode_type'] == 'file'
       bs = Bytestream.new
       bs.repository_relative_pathname = '/' + row['relative_pathname']
       bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
@@ -294,9 +294,9 @@ class ContentProfile
     bytestreams = []
     row = tsv.select{ |row| row['uuid'] == item_id }.first
     # We need to handle Medusa TSV and DLS TSV differently.
-    # Only Medusa TSV will contain a `parent_directory_uuid` column.
-    if row and row['parent_directory_uuid'] and row['type']
-      if row['type'] == 'file' # It's a compound object page.
+    # Only Medusa TSV will contain an `inode_type` column.
+    if row and row['inode_type']
+      if row['inode_type'] == 'file' # It's a compound object page.
         bs = Bytestream.new
         bs.repository_relative_pathname = '/' + row['relative_pathname']
         bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
@@ -307,7 +307,7 @@ class ContentProfile
         # eventually.) Same path except /access/ instead of /preservation/ and
         # a .jp2 extension instead of .tif.
         bytestreams << access_master_counterpart(bs)
-      elsif row['type'] == 'folder' and row['title'].present?
+      elsif row['inode_type'] == 'folder' and row['title'].present?
         # It's a top-level non-compound-object.
         bs = Bytestream.new
         bs.repository_relative_pathname = '/' + row['relative_pathname'] +
