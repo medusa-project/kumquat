@@ -454,7 +454,21 @@ class Item < ActiveRecord::Base
           row['subpageNumber']
 
       # variant
-      self.variant = row['variant'].strip if row['variant']
+      if row['variant']
+        self.variant = row['variant'].strip if row['variant']
+      else
+        # The variant needs to be set properly for free-form content.
+        # Medusa TSV will not contain this column, but DLS TSV will.
+        if self.collection.content_profile == ContentProfile::FREE_FORM_PROFILE
+          if row['inode_type'] == 'folder'
+            self.variant = Item::Variants::DIRECTORY
+          else
+            self.variant = Item::Variants::FILE
+          end
+        elsif self.parent_repository_id
+          self.variant = Item::Variants::PAGE
+        end
+      end
 
       # bytestreams
       self.collection.content_profile.
@@ -463,6 +477,14 @@ class Item < ActiveRecord::Base
       end
 
       # profile-specific metadata elements
+
+      # Before we begin adding these, if the title is not already set, but
+      # there is a "name" (filename) column (only Medusa TSV will contain
+      # this), set the title to the filename.
+      if self.collection.content_profile == ContentProfile::FREE_FORM_PROFILE
+        row['title'] = row['name'] if row['name'].present? and row['title'].blank?
+      end
+      # Now, begin.
       row.select{ |col, value| self.collection.metadata_profile.element_defs.map(&:name).include?(col) }.
           each do |col, value|
         # Add new elements

@@ -2,8 +2,18 @@ require 'test_helper'
 
 class ItemTest < ActiveSupport::TestCase
 
-  def setup
+  setup do
     @item = items(:item1)
+
+    @free_form_collection = collections(:collection1)
+    @medusa_free_form_tsv = File.read(__dir__ + '/../fixtures/repository/medusa-free-form.tsv')
+    @medusa_free_form_tsv_array = CSV.parse(@medusa_free_form_tsv, headers: true, col_sep: "\t").
+        map{ |row| row.to_hash }
+
+    @map_collection = collections(:collection2)
+    @medusa_map_tsv = File.read(__dir__ + '/../fixtures/repository/medusa-map.tsv')
+    @medusa_map_tsv_array = CSV.parse(@medusa_map_tsv, headers: true, col_sep: "\t").
+        map{ |row| row.to_hash }
   end
 
   # Item.from_dls_xml()
@@ -201,6 +211,54 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal 1, descriptions.select{ |e| e.value == 'and more cats' }.length
 
     assert_equal('Cats', @item.title)
+  end
+
+  test 'update_from_tsv should set the variant for free-form content from
+        Medusa TSV' do
+    ItemTsvIngester.new.ingest_tsv(@medusa_free_form_tsv, @free_form_collection)
+
+    item1 = Item.find_by_repository_id('a53a0ce0-5ca8-0132-3334-0050569601ca-9')
+    item1.update_from_tsv(@medusa_free_form_tsv_array,
+                          { 'inode_type' => 'folder' })
+    assert_equal Item::Variants::DIRECTORY, item1.variant
+
+    item2 = Item.find_by_repository_id('6e3c33c0-5ce3-0132-3334-0050569601ca-f')
+    item2.update_from_tsv(@medusa_free_form_tsv_array,
+                          { 'inode_type' => 'file' })
+    assert_equal Item::Variants::FILE, item2.variant
+  end
+
+  test 'update_from_tsv should not set the variant for non-free-form compound
+        objects from Medusa TSV if it is missing' do
+    ItemTsvIngester.new.ingest_tsv(@medusa_map_tsv, @map_collection)
+
+    item = Item.find_by_repository_id('abdc55a0-c451-0133-1d17-0050569601ca-1')
+    item.update_from_tsv(@medusa_map_tsv_array, {})
+    assert_nil item.variant
+  end
+
+  test 'update_from_tsv should set the variant for non-free-form pages from
+        Medusa TSV if it is missing' do
+    ItemTsvIngester.new.ingest_tsv(@medusa_map_tsv, @map_collection)
+
+    item = Item.find_by_repository_id('d29edba0-c451-0133-1d17-0050569601ca-c')
+    item.update_from_tsv(@medusa_map_tsv_array, {})
+    assert_equal Item::Variants::PAGE, item.variant
+  end
+
+  test 'update_from_tsv should set the title for title-less free-form content
+        from Medusa TSV' do
+    ItemTsvIngester.new.ingest_tsv(@medusa_free_form_tsv, @free_form_collection)
+
+    item1 = Item.find_by_repository_id('a53a0ce0-5ca8-0132-3334-0050569601ca-9')
+    item1.update_from_tsv(@medusa_free_form_tsv_array,
+                          { 'name' => 'binder_9' })
+    assert_equal 'binder_9', item1.title
+
+    item2 = Item.find_by_repository_id('6e3c33c0-5ce3-0132-3334-0050569601ca-f')
+    item2.update_from_tsv(@medusa_free_form_tsv_array,
+                          { 'name' => 'animals_001.jpg' })
+    assert_equal 'animals_001.jpg', item2.title
   end
 
   # update_from_xml

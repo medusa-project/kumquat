@@ -4,10 +4,15 @@ class ItemTsvIngesterTest < ActiveSupport::TestCase
 
   setup do
     @ingester = ItemTsvIngester.new
-    @collection = collections(:collection1)
 
-    @tsv = File.read(__dir__ + '/../fixtures/repository/medusa-free-form.tsv')
-    @tsv_hash = CSV.parse(@tsv, headers: true, col_sep: "\t").
+    @free_form_collection = collections(:collection1)
+    @free_form_tsv = File.read(__dir__ + '/../fixtures/repository/medusa-free-form.tsv')
+    @free_form_tsv_array = CSV.parse(@free_form_tsv, headers: true, col_sep: "\t").
+        map{ |row| row.to_hash }
+
+    @map_collection = collections(:collection2)
+    @map_tsv = File.read(__dir__ + '/../fixtures/repository/medusa-map.tsv')
+    @map_tsv_array = CSV.parse(@map_tsv, headers: true, col_sep: "\t").
         map{ |row| row.to_hash }
   end
 
@@ -15,15 +20,18 @@ class ItemTsvIngesterTest < ActiveSupport::TestCase
 
   test 'parent_directory_id should return nil for files/directories with no
         parent' do
-    assert_nil ItemTsvIngester.parent_directory_id('431d6090-5ca7-0132-3334-0050569601ca-a', @tsv_hash)
+    assert_nil ItemTsvIngester.parent_directory_id('431d6090-5ca7-0132-3334-0050569601ca-a',
+                                                   @free_form_tsv_array)
   end
 
   test 'parent_directory_id should return the correct parent ID for
         files/directories with a parent' do
     assert_equal '431d6090-5ca7-0132-3334-0050569601ca-a',
-                 ItemTsvIngester.parent_directory_id('a52b2e40-5ca8-0132-3334-0050569601ca-c', @tsv_hash)
+                 ItemTsvIngester.parent_directory_id('a52b2e40-5ca8-0132-3334-0050569601ca-c',
+                                                     @free_form_tsv_array)
     assert_equal 'a53add10-5ca8-0132-3334-0050569601ca-7',
-                 ItemTsvIngester.parent_directory_id('6e3c33c0-5ce3-0132-3334-0050569601ca-f', @tsv_hash)
+                 ItemTsvIngester.parent_directory_id('6e3c33c0-5ce3-0132-3334-0050569601ca-f',
+                                                     @free_form_tsv_array)
   end
 
   # within_root?
@@ -31,36 +39,36 @@ class ItemTsvIngesterTest < ActiveSupport::TestCase
   test 'within_root? should return false for items that are not within a
         collection\'s effective root' do
     assert !ItemTsvIngester.within_root?('431d6090-5ca7-0132-3334-0050569601ca-a',
-                                         @collection, @tsv_hash)
+                                         @free_form_collection, @free_form_tsv_array)
     assert !ItemTsvIngester.within_root?('a530c1f0-5ca8-0132-3334-0050569601ca-8',
-                                         @collection, @tsv_hash)
+                                         @free_form_collection, @free_form_tsv_array)
   end
 
   test 'within_root? should return true for items that are within a collection\'s
         effective root' do
     assert ItemTsvIngester.within_root?('a53194a0-5ca8-0132-3334-0050569601ca-8',
-                                        @collection, @tsv_hash)
+                                        @free_form_collection, @free_form_tsv_array)
     assert ItemTsvIngester.within_root?('6e412540-5ce3-0132-3334-0050569601ca-a',
-                                        @collection, @tsv_hash)
+                                        @free_form_collection, @free_form_tsv_array)
   end
 
   # ingest_tsv
 
   test 'ingest_tsv should raise an error with empty TSV argument' do
     assert_raises RuntimeError do
-      @ingester.ingest_tsv(nil, @collection)
+      @ingester.ingest_tsv(nil, @free_form_collection)
     end
   end
 
   test 'ingest_tsv should raise an error with collection with no content profile assigned' do
     assert_raises RuntimeError do
-      @collection.content_profile = nil
-      @ingester.ingest_tsv(@tsv, @collection)
+      @free_form_collection.content_profile = nil
+      @ingester.ingest_tsv(@free_form_tsv, @free_form_collection)
     end
   end
 
   test 'ingest_tsv should create new items from valid TSV' do
-    assert_equal 45, @ingester.ingest_tsv(@tsv, @collection)
+    assert_equal 45, @ingester.ingest_tsv(@free_form_tsv, @free_form_collection)
   end
 
   test 'ingest_tsv should update existing items from valid TSV' do
@@ -69,27 +77,9 @@ class ItemTsvIngesterTest < ActiveSupport::TestCase
     tsv = "uuid\ttitle\r\n"
     tsv += "item1\tFrom fixture\r\n"
     tsv += "item2\tFrom fixture\r\n"
-    @ingester.ingest_tsv(tsv, @collection)
+    @ingester.ingest_tsv(tsv, @free_form_collection)
 
     assert_equal initial_count, Item.all.count
-  end
-
-  test 'ingest_tsv should set the variant for free-form content ingested from
-        Medusa' do
-    @ingester.ingest_tsv(@tsv, @collection)
-    assert_equal Item::Variants::DIRECTORY,
-                 Item.find_by_repository_id('a53a0ce0-5ca8-0132-3334-0050569601ca-9').variant
-    assert_equal Item::Variants::FILE,
-                 Item.find_by_repository_id('6e3c33c0-5ce3-0132-3334-0050569601ca-f').variant
-  end
-
-  test 'ingest_tsv should set the title for title-less free-form content
-        ingested from Medusa' do
-    @ingester.ingest_tsv(@tsv, @collection)
-    assert_equal 'binder_9',
-                 Item.find_by_repository_id('a53a0ce0-5ca8-0132-3334-0050569601ca-9').title
-    assert_equal 'animals_001.jpg',
-                 Item.find_by_repository_id('6e3c33c0-5ce3-0132-3334-0050569601ca-f').title
   end
 
 end

@@ -72,45 +72,20 @@ class ItemTsvIngester
     total_count = tsv.length
     count = 0
     ActiveRecord::Base.transaction do
-      tsv.each_with_index do |row, index|
-        Rails.logger.debug("ingest_tsv: row #{index + 1}")
-        # In content profiles other than the free-form profile, items should
-        # be created for only a subset of the rows.
-        if collection.content_profile != ContentProfile::FREE_FORM_PROFILE
-          next unless row['title'].present?
+      collection.content_profile.items_from_tsv(tsv).each do |row|
+        next unless self.class.within_root?(row['uuid'], collection, tsv)
+
+        item = Item.find_by_repository_id(row['uuid'])
+        if item
+          item.collection = collection
+          item.update_from_tsv(tsv, row)
+        else
+          Item.from_tsv(tsv, row, collection)
         end
-        if self.class.within_root?(row['uuid'], collection, tsv)
-          if collection.content_profile == ContentProfile::FREE_FORM_PROFILE
-            # The variant needs to be set properly for free-form content. TSV
-            # exported from Medusa will not contain this column, but TSV
-            # exported from DLS will.
-            unless row['variant']
-              if row['inode_type'] == 'folder'
-                row['variant'] = Item::Variants::DIRECTORY
-              else
-                row['variant'] = Item::Variants::FILE
-              end
-            end
-            # If the title is not already set, but there is a name column
-            # (only Medusa TSV will contain this), set the title to the
-            # filename.
-            if row['name'] and !row['title']
-              row['title'] = row['name']
-            end
-          end
+        count += 1
 
-          item = Item.find_by_repository_id(row['uuid'])
-          if item
-            item.collection = collection
-            item.update_from_tsv(tsv, row)
-          else
-            Item.from_tsv(tsv, row, collection)
-          end
-          count += 1
-
-          if task and count % 10 == 0
-            task.progress = count / total_count.to_f
-          end
+        if task and count % 10 == 0
+          task.progress = count / total_count.to_f
         end
       end
     end
