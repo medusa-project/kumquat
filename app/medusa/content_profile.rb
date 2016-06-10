@@ -147,6 +147,23 @@ class ContentProfile
     nil
   end
 
+  ##
+  # @param tsv [Array<Hash<String,String>>]
+  # @return [String]
+  # @raises [ArgumentError] For DLS TSV
+  #
+  def top_dir_id(tsv)
+    # Only Medusa TSV will contain an inode_type column.
+    if tsv.first['inode_type'].present?
+      row = tsv.select{ |row| row['parent_directory_uuid'].blank? }.first
+      return row['uuid'] if row
+    else
+      # It's DLS TSV.
+      raise ArgumentError, 'DLS TSV has no top directory'
+    end
+    nil
+  end
+
   private
 
   ##
@@ -469,11 +486,11 @@ class ContentProfile
     # If the TSV is Medusa format, it will have a parent_directory_uuid column.
     if tsv.first.keys.include?('parent_directory_uuid')
       # Get the name of the top-level directory.
-      top_dir = tsv.first['name']
+      top_dir = top_dir_id(tsv)
       tsv.each do |row|
         # If it's a folder within the top-level directory, and it has a subfolder
         # named "preservation", consider it an item.
-        if row['inode_type'] == 'folder' and row['parent_directory_name'] == top_dir
+        if row['inode_type'] == 'folder' and row['parent_directory_uuid'] == top_dir
           if tsv.select{ |r| r['parent_directory_uuid'] == row['uuid'] }.
               map{ |r| r['name'].strip }.include?('preservation')
             item_rows << row

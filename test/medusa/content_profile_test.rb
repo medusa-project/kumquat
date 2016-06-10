@@ -366,4 +366,19 @@ class ContentProfileTest < ActiveSupport::TestCase
     assert_nil ContentProfile::MAP_PROFILE.parent_id_from_medusa(bogus)
   end
 
+  # top_dir_id (Medusa TSV)
+
+  test 'top_dir_id with Medusa TSV should return the top dir ID' do
+    assert_equal '431d6090-5ca7-0132-3334-0050569601ca-a',
+                 ContentProfile::MAP_PROFILE.top_dir_id(@medusa_free_form_tsv)
+  end
+
+  # top_dir_id (DLS TSV)
+
+  test 'top_dir_id with DLS TSV should raise an error' do
+    assert_raises ArgumentError do
+      ContentProfile::MAP_PROFILE.top_dir_id(@dls_free_form_tsv)
+    end
+  end
+
 end
