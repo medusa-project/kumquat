@@ -115,7 +115,7 @@ class ContentProfile
   # Returns an array of the UUIDs of all items in the given TSV.
   #
   # @param tsv [Array<Hash<String,String>>]
-  # @return [Array<String>] Array of UUIDs
+  # @return [Array<Hash<String,String>>] Array of item rows
   #
   def items_from_tsv(tsv)
     case self.id
@@ -257,20 +257,19 @@ class ContentProfile
 
   ##
   # @param tsv [Array<Hash<String,String>>]
-  # @return [Array<String>]
+  # @return [Array<Hash<String,String>>]
   #
   def free_form_items_from_tsv(tsv)
     # We need to handle Medusa TSV and DLS TSV differently.
     # If the TSV is Medusa format, it will have a parent_directory_uuid column.
     if tsv.first.keys.include?('parent_directory_uuid')
       # Exclude the top-level directory.
-      items = tsv.select{ |r| r['parent_directory_uuid'].present? }.
-          map{ |r| r['uuid'] }
+      item_rows = tsv.select{ |r| r['parent_directory_uuid'].present? }
     else
       # The TSV is DLS format.
-      items = tsv.select{ |r| r['uuid'].present? }.map{ |r| r['uuid'] }
+      item_rows = tsv.select{ |r| r['uuid'].present? }
     end
-    items
+    item_rows
   end
 
   ##
@@ -463,10 +462,10 @@ class ContentProfile
   # before ingesting.
   #
   # @param tsv [Array<Hash<String,String>>]
-  # @return [Array<String>]
+  # @return [Array<Hash<String,String>>]
   #
   def map_items_from_tsv(tsv)
-    items = []
+    item_rows = []
     # If the TSV is Medusa format, it will have a parent_directory_uuid column.
     if tsv.first.keys.include?('parent_directory_uuid')
       # Get the name of the top-level directory.
@@ -477,18 +476,18 @@ class ContentProfile
         if row['inode_type'] == 'folder' and row['parent_directory_name'] == top_dir
           if tsv.select{ |r| r['parent_directory_uuid'] == row['uuid'] }.
               map{ |r| r['name'].strip }.include?('preservation')
-            items << row['uuid']
+            item_rows << row
           end
         # If it's a compound object page, it will end in a TIFF extension.
         elsif row['name'] and row['name'].downcase[0..3].end_with?('.tif')
-          items << row['uuid']
+          item_rows << row
         end
       end
     else
       # It's DLS TSV.
-      items = tsv.select{ |r| r['uuid'].present? }.map{ |r| r['uuid'] }
+      item_rows = tsv.select{ |r| r['uuid'].present? }
     end
-    items
+    item_rows
   end
 
   ##
