@@ -366,6 +366,87 @@ class ContentProfileTest < ActiveSupport::TestCase
     assert_nil ContentProfile::MAP_PROFILE.parent_id_from_medusa(bogus)
   end
 
+  # parent_id_from_tsv
+
+  test 'parent_id_from_tsv should raise an error when no ID is provided' do
+    assert_raises ArgumentError do
+      ContentProfile::FREE_FORM_PROFILE.parent_id_from_tsv(nil, @dls_free_form_tsv)
+    end
+  end
+
+  # parent_id_from_tsv (free-form profile, DLS TSV)
+
+  test 'parent_id_from_tsv with the free-form profile and DLS TSV should
+        return nil with top-level items' do
+    item = 'a53add10-5ca8-0132-3334-0050569601ca-7'
+    assert_nil ContentProfile::FREE_FORM_PROFILE.
+        parent_id_from_tsv(item, @dls_free_form_tsv)
+  end
+
+  test 'parent_id_from_tsv with the free-form profile and DLS TSV should return
+        the parent UUID with pages' do
+    page = '6e406030-5ce3-0132-3334-0050569601ca-3'
+    expected_parent = 'a53add10-5ca8-0132-3334-0050569601ca-7'
+    assert_equal expected_parent, ContentProfile::FREE_FORM_PROFILE.
+        parent_id_from_tsv(page, @dls_free_form_tsv)
+  end
+
+  # parent_id_from_tsv (free-form profile, Medusa TSV)
+
+  test 'parent_id_from_tsv with the free-form profile and Medusa TSV should
+        return nil with top-level items' do
+    item = 'a52b2e40-5ca8-0132-3334-0050569601ca-c'
+    assert_nil ContentProfile::FREE_FORM_PROFILE.
+        parent_id_from_tsv(item, @medusa_free_form_tsv)
+  end
+
+  test 'parent_id_from_tsv with the free-form profile and Medusa TSV should
+        return the parent UUID with pages' do
+    page = 'a53344a0-5ca8-0132-3334-0050569601ca-9'
+    expected_parent = 'a53194a0-5ca8-0132-3334-0050569601ca-8'
+    assert_equal expected_parent, ContentProfile::FREE_FORM_PROFILE.
+        parent_id_from_tsv(page, @medusa_free_form_tsv)
+  end
+
+  # parent_id_from_tsv (map profile, DLS TSV)
+
+  test 'parent_id_from_tsv with the map profile and DLS TSV should return nil
+        with top-level items' do
+    item = 'be8d3500-c451-0133-1d17-0050569601ca-9'
+    assert_nil ContentProfile::MAP_PROFILE.parent_id_from_tsv(item, @dls_map_tsv)
+  end
+
+  test 'parent_id_from_tsv with the map profile and DLS TSV should return the
+        parent UUID with pages' do
+    page = 'd29950d0-c451-0133-1d17-0050569601ca-2'
+    expected_parent = 'be8d3500-c451-0133-1d17-0050569601ca-9'
+    assert_equal expected_parent, ContentProfile::MAP_PROFILE.
+        parent_id_from_tsv(page, @dls_map_tsv)
+  end
+
+  # parent_id_from_tsv (map profile, Medusa TSV)
+
+  test 'parent_id_from_tsv with the map profile and Medusa TSV should return nil
+        with top-level items' do
+    item = '2ac46220-e946-0133-1d3d-0050569601ca-5'
+    assert_nil ContentProfile::MAP_PROFILE.parent_id_from_tsv(item, @medusa_map_tsv2)
+  end
+
+  test 'parent_id_from_tsv with the map profile and Medusa TSV should return the
+        parent UUID with pages' do
+    page = '5d709430-e946-0133-1d3d-0050569601ca-1'
+    expected_parent = '2ac46220-e946-0133-1d3d-0050569601ca-5'
+    assert_equal expected_parent, ContentProfile::MAP_PROFILE.
+        parent_id_from_tsv(page, @medusa_map_tsv2)
+  end
+
+  test 'parent_id_from_tsv with the map profile and Medusa TSV should return nil
+        for non-item content' do
+    bogus = '5d8f2420-e946-0133-1d3d-0050569601ca-9'
+    assert_nil ContentProfile::MAP_PROFILE.
+        parent_id_from_tsv(bogus, @medusa_map_tsv2)
+  end
+
   # top_dir_id (Medusa TSV)
 
   test 'top_dir_id with Medusa TSV should return the top dir ID' do

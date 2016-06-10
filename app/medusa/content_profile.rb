@@ -148,6 +148,24 @@ class ContentProfile
   end
 
   ##
+  # Returns the parent UUID of an item.
+  #
+  # @param item_id [String]
+  # @param tsv [Array<Hash<String,String>>]
+  # @return [String, nil] Parent UUID
+  #
+  def parent_id_from_tsv(item_id, tsv)
+    raise ArgumentError, 'No ID provided' unless item_id
+    case self.id
+      when 0
+        return free_form_parent_from_tsv(item_id, tsv)
+      when 1
+        return map_parent_from_tsv(item_id, tsv)
+    end
+    []
+  end
+
+  ##
   # @param tsv [Array<Hash<String,String>>]
   # @return [String]
   # @raises [ArgumentError] For DLS TSV
@@ -314,6 +332,29 @@ class ContentProfile
       end
     end
     parent_id
+  end
+
+  ##
+  # @param item_id [String]
+  # @param tsv [Array<Hash<String,String>>]
+  # @return [String]
+  #
+  def free_form_parent_from_tsv(item_id, tsv)
+    # We need to handle Medusa TSV and DLS TSV differently.
+    # Only Medusa TSV will contain an `inode_type` column.
+    if tsv.first['inode_type'].present?
+      parent = tsv.select{ |r| r['uuid'] == item_id }.first
+      if parent and parent['parent_directory_uuid'] != top_dir_id(tsv)
+        return parent['parent_directory_uuid']
+      end
+    else
+      # Assume it's DLS TSV.
+      parent = tsv.select{ |r| r['uuid'] == item_id }.first
+      if parent
+        return parent['parentId']
+      end
+    end
+    nil
   end
 
   ##
@@ -530,6 +571,30 @@ class ContentProfile
       struct2 = JSON.parse(json)
       return struct2['parent_directory']['uuid']
     end
+  end
+
+  ##
+  # @param item_id [String]
+  # @param tsv [Array<Hash<String,String>>]
+  # @return [String]
+  #
+  def map_parent_from_tsv(item_id, tsv)
+    # We need to handle Medusa TSV and DLS TSV differently.
+    # Only Medusa TSV will contain an `inode_type` column.
+    if tsv.first['inode_type'].present?
+      parent_dir = tsv.select{ |r| r['uuid'] == item_id }.first
+      if parent_dir
+        parent_item = tsv.select{ |r| r['uuid'] == parent_dir['parent_directory_uuid'] }.first
+        if parent_item and parent_item['parent_directory_uuid'] != top_dir_id(tsv)
+          return parent_item['parent_directory_uuid']
+        end
+      end
+    else
+      # Assume it's DLS TSV.
+      parent = tsv.select{ |r| r['uuid'] == item_id }.first
+      return parent['parentId'] if parent
+    end
+    nil
   end
 
 end
