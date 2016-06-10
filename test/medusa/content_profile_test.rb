@@ -285,6 +285,34 @@ class ContentProfileTest < ActiveSupport::TestCase
         children_from_tsv(item, @dls_map_tsv).length
   end
 
+  # items_from_tsv (free-form profile, Medusa TSV)
+
+  test 'items_from_tsv with the free-form profile and Medusa TSV should return items' do
+    assert_equal 50, ContentProfile::FREE_FORM_PROFILE.
+        items_from_tsv(@medusa_free_form_tsv).length
+  end
+
+  # items_from_tsv (free-form profile, DLS TSV)
+
+  test 'items_from_tsv with the free-form profile and DLS TSV should return items' do
+    assert_equal 2, ContentProfile::FREE_FORM_PROFILE.
+        items_from_tsv(@dls_free_form_tsv).length
+  end
+
+  # items_from_tsv (map profile, Medusa TSV)
+
+  test 'items_from_tsv with the map profile and Medusa TSV should return items' do
+    assert_equal 79, ContentProfile::MAP_PROFILE.
+        items_from_tsv(@medusa_map_tsv).length
+  end
+
+  # items_from_tsv (map profile, DLS TSV)
+
+  test 'items_from_tsv with the map profile and DLS TSV should return items' do
+    assert_equal 4, ContentProfile::MAP_PROFILE.
+        items_from_tsv(@dls_map_tsv).length
+  end
+
   # parent_id_from_medusa
 
   test 'parent_id_from_medusa should raise an error when no ID is provided' do

@@ -108,7 +108,23 @@ class ContentProfile
       when 1
         return map_children_from_tsv(item_id, tsv)
     end
-    nil
+    []
+  end
+
+  ##
+  # Returns an array of the UUIDs of all items in the given TSV.
+  #
+  # @param tsv [Array<Hash<String,String>>]
+  # @return [Array<String>] Array of UUIDs
+  #
+  def items_from_tsv(tsv)
+    case self.id
+      when 0
+        return free_form_items_from_tsv(tsv)
+      when 1
+        return map_items_from_tsv(tsv)
+    end
+    []
   end
 
   ##
@@ -237,6 +253,24 @@ class ContentProfile
           map{ |r| r['uuid'] }
     end
     children
+  end
+
+  ##
+  # @param tsv [Array<Hash<String,String>>]
+  # @return [Array<String>]
+  #
+  def free_form_items_from_tsv(tsv)
+    # We need to handle Medusa TSV and DLS TSV differently.
+    # If the TSV is Medusa format, it will have a parent_directory_uuid column.
+    if tsv.first.keys.include?('parent_directory_uuid')
+      # Exclude the top-level directory.
+      items = tsv.select{ |r| r['parent_directory_uuid'].present? }.
+          map{ |r| r['uuid'] }
+    else
+      # The TSV is DLS format.
+      items = tsv.select{ |r| r['uuid'].present? }.map{ |r| r['uuid'] }
+    end
+    items
   end
 
   ##
@@ -419,6 +453,42 @@ class ContentProfile
           map{ |r| r['uuid'] }
     end
     children
+  end
+
+  ##
+  # Returns all map item IDs in the given TSV.
+  #
+  # Note that this includes items that may be outside a collection's effective
+  # CFS root, so the IDs should be checked with `ItemTsvIngester.within_root?`
+  # before ingesting.
+  #
+  # @param tsv [Array<Hash<String,String>>]
+  # @return [Array<String>]
+  #
+  def map_items_from_tsv(tsv)
+    items = []
+    # If the TSV is Medusa format, it will have a parent_directory_uuid column.
+    if tsv.first.keys.include?('parent_directory_uuid')
+      # Get the name of the top-level directory.
+      top_dir = tsv.first['name']
+      tsv.each do |row|
+        # If it's a folder within the top-level directory, and it has a subfolder
+        # named "preservation", consider it an item.
+        if row['inode_type'] == 'folder' and row['parent_directory_name'] == top_dir
+          if tsv.select{ |r| r['parent_directory_uuid'] == row['uuid'] }.
+              map{ |r| r['name'].strip }.include?('preservation')
+            items << row['uuid']
+          end
+        # If it's a compound object page, it will end in a TIFF extension.
+        elsif row['name'] and row['name'].downcase[0..3].end_with?('.tif')
+          items << row['uuid']
+        end
+      end
+    else
+      # It's DLS TSV.
+      items = tsv.select{ |r| r['uuid'].present? }.map{ |r| r['uuid'] }
+    end
+    items
   end
 
   ##
