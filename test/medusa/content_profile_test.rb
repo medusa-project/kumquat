@@ -18,7 +18,8 @@ class ContentProfileTest < ActiveSupport::TestCase
     tsv = Item.tsv_header(metadata_profiles(:default_metadata_profile))
     tsv += Item.find_by_repository_id('a53add10-5ca8-0132-3334-0050569601ca-7').to_tsv
     tsv += Item.find_by_repository_id('6e406030-5ce3-0132-3334-0050569601ca-3').to_tsv
-    @dls_free_form_tsv = CSV.parse(tsv, headers: true, row_sep: "\n\r", col_sep: "\t").
+    @dls_free_form_tsv = CSV.parse(tsv, headers: true,
+                                   row_sep: Item::TSV_LINE_BREAK, col_sep: "\t").
         map{ |row| row.to_hash }
 
     tsv = Item.tsv_header(metadata_profiles(:default_metadata_profile))
@@ -26,7 +27,8 @@ class ContentProfileTest < ActiveSupport::TestCase
     tsv += Item.find_by_repository_id('d29950d0-c451-0133-1d17-0050569601ca-2').to_tsv
     tsv += Item.find_by_repository_id('d29edba0-c451-0133-1d17-0050569601ca-c').to_tsv
     tsv += Item.find_by_repository_id('cd2d4601-c451-0133-1d17-0050569601ca-8').to_tsv
-    @dls_map_tsv = CSV.parse(tsv, headers: true, row_sep: "\n\r", col_sep: "\t").
+    @dls_map_tsv = CSV.parse(tsv, headers: true,
+                             row_sep: Item::TSV_LINE_BREAK, col_sep: "\t").
         map{ |row| row.to_hash }
   end
 

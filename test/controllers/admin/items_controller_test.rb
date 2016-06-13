@@ -23,7 +23,7 @@ module Admin
       Item.destroy_all
       get :index, collection_id: collections(:collection1).repository_id,
           format: :tsv
-      assert response.body.split("\n\r").length == 1
+      assert response.body.split(Item::TSV_LINE_BREAK).length == 1
     end
 
   end

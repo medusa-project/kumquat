@@ -59,6 +59,7 @@ class Item < ActiveRecord::Base
   end
 
   MULTI_VALUE_SEPARATOR = '||'
+  TSV_LINE_BREAK = "\n"
 
   has_many :bytestreams, inverse_of: :item, dependent: :destroy
   has_many :elements, inverse_of: :item, dependent: :destroy
@@ -98,7 +99,7 @@ class Item < ActiveRecord::Base
     tech_elements = ['uuid', 'parentId', 'variant', 'pageNumber',
                      'subpageNumber', 'latitude', 'longitude']
     elements = tech_elements + metadata_profile.element_defs.map(&:name)
-    elements.join("\t") + "\n\r"
+    elements.join("\t") + TSV_LINE_BREAK
   end
 
   ##
@@ -396,7 +397,7 @@ class Item < ActiveRecord::Base
       columns << self.elements.select{ |e| e.name == el.name }.map(&:value).
           join(MULTI_VALUE_SEPARATOR)
     end
-    columns.join("\t") + "\n\r"
+    columns.join("\t") + TSV_LINE_BREAK
   end
 
   ##
