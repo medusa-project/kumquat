@@ -270,7 +270,7 @@ class ContentProfile
 
   ##
   # @param item_id [String]
-  # @param tsv [Array<Hash<String,String>>]
+  # @param tsv [Array<String>]
   # @return [String]
   #
   def free_form_children_from_tsv(item_id, tsv)
@@ -472,7 +472,7 @@ class ContentProfile
 
   ##
   # @param item_id [String]
-  # @param tsv [Array<Hash<String,String>>]
+  # @param tsv [Array<String>]
   # @return [String]
   #
   def map_children_from_tsv(item_id, tsv)
@@ -482,19 +482,17 @@ class ContentProfile
     if ItemTsvIngester.dls_tsv?(tsv)
       children += tsv.select{ |r| r['parentId'] == row['uuid'] }.
           map{ |r| r['uuid'] }
-    else
-      if row['inode_type'] == 'folder'
-        pres_dir = tsv.select{ |r| r['parent_directory_uuid'] == item_id and
-            r['name'] == 'preservation' }.first
-        if pres_dir
-          pres_dir_files = tsv.
-              select{ |r| r['parent_directory_uuid'] == pres_dir['uuid'] }.
-              map{ |r| r['uuid'] }
-          # If there is only 1 file in the preservation folder, assume it's a
-          # non-compound object, which has no children.
-          if pres_dir_files.length > 1
-            children += pres_dir_files
-          end
+    elsif row['inode_type'] == 'folder'
+      preservation_dir = tsv.select{ |r| r['parent_directory_uuid'] == item_id and
+          r['name'] == 'preservation' }.first
+      if preservation_dir
+        pres_dir_files = tsv.
+            select{ |r| r['parent_directory_uuid'] == preservation_dir['uuid'] }.
+            map{ |r| r['uuid'] }
+        # If there is only 1 file in the preservation folder, assume it's a
+        # non-compound object, which has no children.
+        if pres_dir_files.length > 1
+          children += pres_dir_files
         end
       end
     end
