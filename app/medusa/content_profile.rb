@@ -519,15 +519,15 @@ class ContentProfile
       # Get the name of the top-level directory.
       top_dir = top_dir_id(tsv)
       tsv.each do |row|
-        # If it's a folder within the top-level directory, and it has a subfolder
-        # named "preservation", consider it an item.
+        # If it's a folder within the top-level directory, and it has a
+        # subfolder named "preservation", consider it an item.
         if row['inode_type'] == 'folder' and row['parent_directory_uuid'] == top_dir
           if tsv.select{ |r| r['parent_directory_uuid'] == row['uuid'] }.
               map{ |r| r['name'].strip }.include?('preservation')
             item_rows << row
           end
         # If it's a compound object page, it will end in a TIFF extension.
-        elsif row['name'] and row['name'].downcase[0..3].end_with?('.tif')
+        elsif row['name'] and row['name'].downcase.end_with?('.tif')
           item_rows << row
         end
       end
