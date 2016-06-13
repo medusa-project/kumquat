@@ -16,6 +16,31 @@ class ItemTsvIngesterTest < ActiveSupport::TestCase
         map{ |row| row.to_hash }
   end
 
+  # dls_tsv?
+
+  test 'dls_tsv? should return true for DLS TSV' do
+    tsv = Item.tsv_header(metadata_profiles(:default_metadata_profile))
+    tsv += Item.find_by_repository_id('a53add10-5ca8-0132-3334-0050569601ca-7').to_tsv
+    tsv += Item.find_by_repository_id('6e406030-5ce3-0132-3334-0050569601ca-3').to_tsv
+    dls_free_form_tsv = CSV.parse(tsv, headers: true, row_sep: "\n\r", col_sep: "\t").
+        map{ |row| row.to_hash }
+    tsv = Item.tsv_header(metadata_profiles(:default_metadata_profile))
+    tsv += Item.find_by_repository_id('be8d3500-c451-0133-1d17-0050569601ca-9').to_tsv
+    tsv += Item.find_by_repository_id('d29950d0-c451-0133-1d17-0050569601ca-2').to_tsv
+    tsv += Item.find_by_repository_id('d29edba0-c451-0133-1d17-0050569601ca-c').to_tsv
+    tsv += Item.find_by_repository_id('cd2d4601-c451-0133-1d17-0050569601ca-8').to_tsv
+    dls_map_tsv = CSV.parse(tsv, headers: true, row_sep: "\n\r", col_sep: "\t").
+        map{ |row| row.to_hash }
+
+    assert ItemTsvIngester.dls_tsv?(dls_free_form_tsv)
+    assert ItemTsvIngester.dls_tsv?(dls_map_tsv)
+  end
+
+  test 'dls_tsv? should return false for Medusa TSV' do
+    assert !ItemTsvIngester.dls_tsv?(@free_form_tsv_array)
+    assert !ItemTsvIngester.dls_tsv?(@map_tsv_array)
+  end
+
   # parent_directory_id
 
   test 'parent_directory_id should return nil for files/directories with no

@@ -171,13 +171,11 @@ class ContentProfile
   # @raises [ArgumentError] For DLS TSV
   #
   def top_dir_id(tsv)
-    # Only Medusa TSV will contain an inode_type column.
-    if tsv.first['inode_type'].present?
+    if ItemTsvIngester.dls_tsv?(tsv)
+      raise ArgumentError, 'DLS TSV has no top directory'
+    else
       row = tsv.select{ |row| row['parent_directory_uuid'].blank? }.first
       return row['uuid'] if row
-    else
-      # It's DLS TSV.
-      raise ArgumentError, 'DLS TSV has no top directory'
     end
     nil
   end
@@ -278,13 +276,11 @@ class ContentProfile
   def free_form_children_from_tsv(item_id, tsv)
     children = []
     # We need to handle Medusa TSV and DLS TSV differently.
-    # Only Medusa TSV will contain an `inode_type` column.
-    if tsv.first['inode_type'].present?
-      children += tsv.select{ |r| r['parent_directory_uuid'] == item_id }.
+    if ItemTsvIngester.dls_tsv?(tsv)
+      children += tsv.select{ |r| r['parentId'] == item_id }.
           map{ |r| r['uuid'] }
     else
-      # Assume it's DLS TSV.
-      children += tsv.select{ |r| r['parentId'] == item_id }.
+      children += tsv.select{ |r| r['parent_directory_uuid'] == item_id }.
           map{ |r| r['uuid'] }
     end
     children
@@ -296,13 +292,11 @@ class ContentProfile
   #
   def free_form_items_from_tsv(tsv)
     # We need to handle Medusa TSV and DLS TSV differently.
-    # If the TSV is Medusa format, it will have a parent_directory_uuid column.
-    if tsv.first.keys.include?('parent_directory_uuid')
+    if ItemTsvIngester.dls_tsv?(tsv)
+      item_rows = tsv.select{ |r| r['uuid'].present? }
+    else
       # Exclude the top-level directory.
       item_rows = tsv.select{ |r| r['parent_directory_uuid'].present? }
-    else
-      # The TSV is DLS format.
-      item_rows = tsv.select{ |r| r['uuid'].present? }
     end
     item_rows
   end
@@ -341,17 +335,15 @@ class ContentProfile
   #
   def free_form_parent_from_tsv(item_id, tsv)
     # We need to handle Medusa TSV and DLS TSV differently.
-    # Only Medusa TSV will contain an `inode_type` column.
-    if tsv.first['inode_type'].present?
-      parent = tsv.select{ |r| r['uuid'] == item_id }.first
-      if parent and parent['parent_directory_uuid'] != top_dir_id(tsv)
-        return parent['parent_directory_uuid']
-      end
-    else
-      # Assume it's DLS TSV.
+    if ItemTsvIngester.dls_tsv?(tsv)
       parent = tsv.select{ |r| r['uuid'] == item_id }.first
       if parent
         return parent['parentId']
+      end
+    else
+      parent = tsv.select{ |r| r['uuid'] == item_id }.first
+      if parent and parent['parent_directory_uuid'] != top_dir_id(tsv)
+        return parent['parent_directory_uuid']
       end
     end
     nil
@@ -423,8 +415,7 @@ class ContentProfile
     bytestreams = []
     row = tsv.select{ |row| row['uuid'] == item_id }.first
     # We need to handle Medusa TSV and DLS TSV differently.
-    # Only Medusa TSV will contain an `inode_type` column.
-    if row and row['inode_type']
+    if row and !ItemTsvIngester.dls_tsv?(tsv)
       case row['inode_type']
         when 'file' # It's a compound object page.
           bs = Bytestream.new
@@ -487,9 +478,11 @@ class ContentProfile
   def map_children_from_tsv(item_id, tsv)
     children = []
     # We need to handle Medusa TSV and DLS TSV differently.
-    # Only Medusa TSV will contain an `inode_type` column.
     row = tsv.select{ |r| r['uuid'] == item_id }.first
-    if row['inode_type'].present?
+    if ItemTsvIngester.dls_tsv?(tsv)
+      children += tsv.select{ |r| r['parentId'] == row['uuid'] }.
+          map{ |r| r['uuid'] }
+    else
       if row['inode_type'] == 'folder'
         pres_dir = tsv.select{ |r| r['parent_directory_uuid'] == item_id and
             r['name'] == 'preservation' }.first
@@ -504,10 +497,6 @@ class ContentProfile
           end
         end
       end
-    else
-      # Assume it's DLS TSV.
-      children += tsv.select{ |r| r['parentId'] == row['uuid'] }.
-          map{ |r| r['uuid'] }
     end
     children
   end
@@ -524,8 +513,9 @@ class ContentProfile
   #
   def map_items_from_tsv(tsv)
     item_rows = []
-    # If the TSV is Medusa format, it will have a parent_directory_uuid column.
-    if tsv.first.keys.include?('parent_directory_uuid')
+    if ItemTsvIngester.dls_tsv?(tsv)
+      item_rows = tsv.select{ |r| r['uuid'].present? }
+    else
       # Get the name of the top-level directory.
       top_dir = top_dir_id(tsv)
       tsv.each do |row|
@@ -541,9 +531,6 @@ class ContentProfile
           item_rows << row
         end
       end
-    else
-      # It's DLS TSV.
-      item_rows = tsv.select{ |r| r['uuid'].present? }
     end
     item_rows
   end
@@ -580,8 +567,10 @@ class ContentProfile
   #
   def map_parent_from_tsv(item_id, tsv)
     # We need to handle Medusa TSV and DLS TSV differently.
-    # Only Medusa TSV will contain an `inode_type` column.
-    if tsv.first['inode_type'].present?
+    if ItemTsvIngester.dls_tsv?(tsv)
+      parent = tsv.select{ |r| r['uuid'] == item_id }.first
+      return parent['parentId'] if parent
+    else
       parent_dir = tsv.select{ |r| r['uuid'] == item_id }.first
       if parent_dir
         parent_item = tsv.select{ |r| r['uuid'] == parent_dir['parent_directory_uuid'] }.first
@@ -589,10 +578,6 @@ class ContentProfile
           return parent_item['parent_directory_uuid']
         end
       end
-    else
-      # Assume it's DLS TSV.
-      parent = tsv.select{ |r| r['uuid'] == item_id }.first
-      return parent['parentId'] if parent
     end
     nil
   end

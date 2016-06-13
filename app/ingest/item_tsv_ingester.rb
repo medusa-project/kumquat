@@ -3,6 +3,15 @@ require 'csv'
 class ItemTsvIngester
 
   ##
+  # @param tsv [Array<Hash<String,String>>]
+  # @return [Boolean] Whether the given TSV is DLS TSV. If not, it's probably
+  #                   Medusa TSV.
+  #
+  def self.dls_tsv?(tsv)
+    !tsv.first.keys.include?('inode_type')
+  end
+
+  ##
   # @param id [String] File/directory UUID
   # @return [String,nil] Directory UUID
   #
