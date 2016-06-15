@@ -190,7 +190,7 @@ module ApplicationHelper
         html = "<ol class=\"breadcrumb\">"
         html += "<li>#{link_to 'Home', root_path}</li>"
         html += "<li>#{link_to 'Collections', collections_path}</li>"
-        html += "<li>#{link_to item.collection.title, collections_path(item.collection)}</li>"
+        html += "<li>#{link_to item.collection.title, collection_path(item.collection)}</li>"
         html += item_structure_breadcrumb(item)
         html += "</ol>"
     end

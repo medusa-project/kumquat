@@ -35,6 +35,9 @@ body#items_show {
   }
   .pt-page-nav {
     text-align: center;
+    .pt-page-select {
+      max-width: 50%;
+    }
   }
   #pt-image-viewer {
     background-color:black;

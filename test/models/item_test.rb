@@ -49,6 +49,42 @@ class ItemTest < ActiveSupport::TestCase
                  @item.access_master_bytestream.bytestream_type
   end
 
+  # effective_representative_item()
+
+  test 'effective_representative_item should return the representative item
+        when it is assigned' do
+    id = 'a53add10-5ca8-0132-3334-0050569601ca-7'
+    @item.representative_item_repository_id = id
+    assert_equal id, @item.effective_representative_item.repository_id
+  end
+
+  test 'effective_representative_item should return the first page when
+        representative_item_repository_id is not set' do
+    @item = items(:map_obj1)
+    @item.representative_item_repository_id = nil
+    assert_equal 'd29950d0-c451-0133-1d17-0050569601ca-2',
+                 @item.effective_representative_item.repository_id
+  end
+
+  test 'effective_representative_item should return the first child when
+        representative_item_repository_id is not set and the first child is
+        not a page' do
+    @item = items(:map_obj1)
+    @item.representative_item_repository_id = nil
+    @item.items.first.variant = nil
+    assert_equal 'd29950d0-c451-0133-1d17-0050569601ca-2',
+                 @item.effective_representative_item.repository_id
+  end
+
+  test 'effective_representative_item should return the instance when
+        representative_item_repository_id is not set and it has no children' do
+    @item = items(:map_obj1)
+    @item.representative_item_repository_id = nil
+    @item.items.delete_all
+    assert_equal @item.repository_id,
+                 @item.effective_representative_item.repository_id
+  end
+
   # preservation_master_bytestream()
 
   test 'preservation_master_bytestream() should work properly' do

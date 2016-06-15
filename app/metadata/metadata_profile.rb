@@ -1,3 +1,15 @@
+##
+# A metadata profile defines a set of metadata elements, their labels, their
+# mappings to other schemas, whether they are searchable, sortable, etc.
+# Metadata profiles are assigned to collections and control things like
+# faceting; which fields appear in a TSV export, and are accepted in a TSV
+# import; how local elements map to DC in the OAI-PMH endpoint; etc.
+#
+# A metadata profile is like a template. For example, instead of enumerating
+# an Item's metadata elements for public display, we would enumerate the
+# elements in its collection's metadata profile, and display each of its
+# elements that match, in the order defined by the profile.
+#
 class MetadataProfile < ActiveRecord::Base
 
   belongs_to :default_sortable_element_def, class_name: 'ElementDef'
