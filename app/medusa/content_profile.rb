@@ -158,9 +158,9 @@ class ContentProfile
     raise ArgumentError, 'No ID provided' unless item_id
     case self.id
       when 0
-        return free_form_parent_from_tsv(item_id, tsv)
+        return free_form_parent_id_from_tsv(item_id, tsv)
       when 1
-        return map_parent_from_tsv(item_id, tsv)
+        return map_parent_id_from_tsv(item_id, tsv)
     end
     []
   end
@@ -333,7 +333,7 @@ class ContentProfile
   # @param tsv [Array<Hash<String,String>>]
   # @return [String]
   #
-  def free_form_parent_from_tsv(item_id, tsv)
+  def free_form_parent_id_from_tsv(item_id, tsv)
     # We need to handle Medusa TSV and DLS TSV differently.
     if ItemTsvIngester.dls_tsv?(tsv)
       parent = tsv.select{ |r| r['uuid'] == item_id }.first
@@ -524,9 +524,18 @@ class ContentProfile
               map{ |r| r['name'].strip }.include?('preservation')
             item_rows << row
           end
-        # If it's a compound object page, it will end in a TIFF extension.
-        elsif row['name'] and row['name'].downcase.end_with?('.tif')
-          item_rows << row
+        else
+          # If it's a compound object page, it will end in a TIFF extension.
+          # But, if there is only one .tif file in the preservation directory,
+          # it belongs to a top-level non-compound-object, so it's not a
+          # compound object page.
+          if row['name'] and File.extname(row['name']).downcase[0..3] == '.tif'
+            # Get the ostensible parent in order to find out how many children
+            # it has.
+            if tsv.select{ |r| r['parent_directory_uuid'] == row['parent_directory_uuid'] }.length > 1
+              item_rows << row
+            end
+          end
         end
       end
     end
@@ -563,17 +572,19 @@ class ContentProfile
   # @param tsv [Array<Hash<String,String>>]
   # @return [String]
   #
-  def map_parent_from_tsv(item_id, tsv)
+  def map_parent_id_from_tsv(item_id, tsv)
     # We need to handle Medusa TSV and DLS TSV differently.
     if ItemTsvIngester.dls_tsv?(tsv)
       parent = tsv.select{ |r| r['uuid'] == item_id }.first
       return parent['parentId'] if parent
     else
-      parent_dir = tsv.select{ |r| r['uuid'] == item_id }.first
-      if parent_dir
-        parent_item = tsv.select{ |r| r['uuid'] == parent_dir['parent_directory_uuid'] }.first
-        if parent_item and parent_item['parent_directory_uuid'] != top_dir_id(tsv)
-          return parent_item['parent_directory_uuid']
+      row = tsv.select{ |r| r['uuid'] == item_id }.first
+      if row and row['parent_directory_name'] == 'preservation'
+        if tsv.select{ |r| r['parent_directory_uuid'] == row['parent_directory_uuid'] }.length > 1
+          parent_dir = tsv.select{ |r| r['uuid'] == row['parent_directory_uuid'] }.first
+          if parent_dir
+            return parent_dir['parent_directory_uuid']
+          end
         end
       end
     end

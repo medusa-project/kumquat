@@ -304,7 +304,7 @@ class ContentProfileTest < ActiveSupport::TestCase
   # items_from_tsv (map profile, Medusa TSV)
 
   test 'items_from_tsv with the map profile and Medusa TSV should return items' do
-    assert_equal 79, ContentProfile::MAP_PROFILE.
+    assert_equal 555, ContentProfile::MAP_PROFILE.
         items_from_tsv(@medusa_map_tsv).length
   end
 
@@ -436,10 +436,10 @@ class ContentProfileTest < ActiveSupport::TestCase
 
   test 'parent_id_from_tsv with the map profile and Medusa TSV should return the
         parent UUID with pages' do
-    page = '5d709430-e946-0133-1d3d-0050569601ca-1'
-    expected_parent = '2ac46220-e946-0133-1d3d-0050569601ca-5'
+    page = 'de9f2c90-c451-0133-1d17-0050569601ca-b'
+    expected_parent = 'be86fcf0-c451-0133-1d17-0050569601ca-e'
     assert_equal expected_parent, ContentProfile::MAP_PROFILE.
-        parent_id_from_tsv(page, @medusa_map_tsv2)
+        parent_id_from_tsv(page, @medusa_map_tsv)
   end
 
   test 'parent_id_from_tsv with the map profile and Medusa TSV should return nil
