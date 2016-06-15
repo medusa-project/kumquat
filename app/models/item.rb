@@ -126,11 +126,19 @@ class Item < ActiveRecord::Base
   end
 
   ##
+  # Returns the instance's effective representative item based on the following
+  # order of preference:
+  #
+  # 1) The instance's assigned representative item (if it has one)
+  # 2) The instance's first page (if it has any)
+  # 3) The instance's first child item (if it has any)
+  # 4) The instance itself
+  #
   # @return [Item]
   # @see representative_item
   #
   def effective_representative_item
-    self.representative_item || self
+    self.representative_item || self.pages.first || self.items.first || self
   end
 
   ##
@@ -251,7 +259,10 @@ class Item < ActiveRecord::Base
   end
 
   ##
-  # @return [Item, nil]
+  # @return [Item, nil] The instance's assigned representative item, which may
+  #                     be nil. For the purposes of getting "the"
+  #                     representative item, `effective_representative_item`
+  #                     should be used instead.
   # @see effective_representative_item
   #
   def representative_item
