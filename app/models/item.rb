@@ -415,14 +415,13 @@ class Item < ActiveRecord::Base
   # Updates an instance from a hash representing a TSV row.
   #
   # @param tsv [Array<Hash<String,String>>]
-  # @param row [Hash<String,String>] TSV row
+  # @param row [Hash<String,String>] Item serialized as a TSV row
   # @return [Item]
   #
   def update_from_tsv(tsv, row)
     ActiveRecord::Base.transaction do
-      # These need to be deleted first, otherwise it would be impossible for
-      # an update to remove them.
-      self.bytestreams.destroy_all
+      # Metadata elements need to be deleted first, otherwise an update
+      # wouldn't be able to remove them.
       self.elements.destroy_all
 
       # repository ID
@@ -466,11 +465,10 @@ class Item < ActiveRecord::Base
           row['subpageNumber']
 
       # variant
-      if row['variant']
+      if row['variant'] # DLS TSV will contain this, but Medusa TSV will not.
         self.variant = row['variant'].strip if row['variant']
       else
         # The variant needs to be set properly for free-form content.
-        # Medusa TSV will not contain this column, but DLS TSV will.
         if self.collection.content_profile == ContentProfile::FREE_FORM_PROFILE
           if row['inode_type'] == 'folder'
             self.variant = Item::Variants::DIRECTORY
@@ -482,10 +480,16 @@ class Item < ActiveRecord::Base
         end
       end
 
-      # bytestreams
-      self.collection.content_profile.
-          bytestreams_from_tsv(self.repository_id, tsv).each do |bs|
-        self.bytestreams << bs
+      # Bytestreams.
+      # If the TSV is in Medusa format, delete all bytestreams first in order
+      # to create new ones based on the TSV. Otherwise, if the TSV is in DLS
+      # format, leave the bytestreams alone.
+      unless ItemTsvIngester.dls_tsv?(tsv)
+        self.bytestreams.destroy_all
+        self.collection.content_profile.
+            bytestreams_from_tsv(self.repository_id, tsv).each do |bs|
+          self.bytestreams << bs
+        end
       end
 
       # profile-specific metadata elements
