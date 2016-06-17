@@ -21,9 +21,28 @@ namespace :peartree do
 
   desc 'Reindex all database entities'
   task :reindex => :environment do |task, args|
-    Collection.all.each { |col| col.index_in_solr }
-    Item.all.each { |item| item.index_in_solr }
+    reindex_all
     Solr.instance.commit
+  end
+
+  def reindex_all
+    Item.all.each { |item| item.index_in_solr }
+    reindex_collections
+  end
+
+  desc 'Reindex all collections'
+  task :reindex_collections => :environment do |task, args|
+    reindex_collections
+    Solr.instance.commit
+  end
+
+  def reindex_collections
+    # Reindex existing collections
+    Collection.all.each { |col| col.index_in_solr }
+    # Remove indexed documents whose entities have disappeared
+    Collection.solr.all.select{ |c| c.to_s == c }.each do |col_id|
+      Solr.delete_by_id(col_id)
+    end
   end
 
   desc 'Validate an XML file'
