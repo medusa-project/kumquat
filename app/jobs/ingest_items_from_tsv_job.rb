@@ -9,7 +9,9 @@ class IngestItemsFromTsvJob < Job
   #
   def perform(*args)
     self.task.status_text = 'Ingesting items from TSV'
-    self.task.indeterminate = false
+    # Indeterminate because the ingest happens in a transaction from which
+    # task progress updates won't appear.
+    self.task.indeterminate = true
     self.task.save!
 
     collection = Collection.find_by_repository_id(args[1])
