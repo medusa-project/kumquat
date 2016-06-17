@@ -82,9 +82,16 @@
               Same as File Group
             <% end %>
           </dd>
-          <dt>Published</dt>
-          <dd><span class="label <%= @collection.published ? 'label-success' : 'label-danger' %>">
-            <%= @collection.published ? 'Published' : 'Unpublished' %></span></dd>
+          <dt>Medusa</dt>
+          <dd>
+            <span class="label <%= @collection.published ? 'label-success' : 'label-danger' %>">
+            <%= @collection.published ? 'Published' : 'Unpublished' %></span>
+          </dd>
+          <dt>DLS</dt>
+          <dd>
+            <span class="label <%= @collection.published_in_dls ? 'label-success' : 'label-danger' %>">
+            <%= @collection.published_in_dls ? 'Published' : 'Unpublished' %></span>
+          </dd>
         </dl>
       </div>
     </div>

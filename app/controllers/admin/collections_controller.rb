@@ -69,7 +69,8 @@ module Admin
       params.require(:collection).permit(:content_profile_id, :id,
                                          :medusa_cfs_directory_id,
                                          :medusa_file_group_id,
-                                         :metadata_profile_id, :theme_id)
+                                         :metadata_profile_id,
+                                         :published_in_dls, :theme_id)
     end
 
     def update_collections_rbac
