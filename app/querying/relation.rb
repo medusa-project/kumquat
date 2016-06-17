@@ -297,8 +297,12 @@ class Relation
       docs = @solr_response['response']['docs']
       docs.each do |doc|
         begin
-          @results << @calling_class.
+          # Find the database entity corresponding to the Solr document ID,
+          # and add it to the results. If it doesn't exist, add its ID rather
+          # than nil.
+          entity = @calling_class.
               find_by_repository_id(doc[@calling_class::SolrFields::ID])
+          @results << entity || doc[@calling_class::SolrFields::ID]
         rescue => e
           Rails.logger.error("#{e} (#{doc['id']}) (#{e.backtrace})")
           @results.total_length -= 1
