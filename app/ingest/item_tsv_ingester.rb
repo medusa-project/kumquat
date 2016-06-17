@@ -77,7 +77,10 @@ class ItemTsvIngester
     raise 'Collection does not have a content profile assigned.' unless
         collection.content_profile
 
-    tsv = CSV.parse(tsv, headers: true, col_sep: "\t").map{ |row| row.to_hash }
+    # Treat the zero-byte as the quote character in order to allow quotes in
+    # values.
+    tsv = CSV.parse(tsv, headers: true, col_sep: "\t", quote_char: "\x00").
+        map{ |row| row.to_hash }
     total_count = tsv.length
     count = 0
     ActiveRecord::Base.transaction do
