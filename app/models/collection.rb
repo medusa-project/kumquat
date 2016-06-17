@@ -182,8 +182,6 @@ class Collection < ActiveRecord::Base
     self.description = struct['description']
     self.description_html = struct['description_html']
     self.published = struct['publish']
-    self.published_in_dls = struct['access_systems'].
-        select{ |obj| obj['name'].include?('Medusa Digital Library') }.any?
     self.repository_title = struct['repository_title']
     self.representative_image = struct['representative_image']
     self.representative_item_id = struct['representative_item']
