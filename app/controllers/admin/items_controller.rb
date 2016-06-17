@@ -90,7 +90,8 @@ module Admin
           col = Collection.find_by_repository_id(params[:collection_id])
           begin
             raise 'No TSV content specified.' if params[:tsv].blank?
-            tempfile.write(params[:tsv].read)
+            tsv = params[:tsv].read.force_encoding('UTF-8')
+            tempfile.write(tsv)
             tempfile.close
             IngestItemsFromTsvJob.perform_later(tempfile.path,
                                                 params[:collection_id])
