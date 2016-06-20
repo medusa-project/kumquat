@@ -487,6 +487,27 @@ module ItemsHelper
   end
 
   ##
+  # @param item [Item]
+  # @return [String]
+  #
+  def metadata_panel(item)
+    html = "<div class=\"panel panel-default\">
+       <div class=\"panel-heading\">
+         <h2 class=\"panel-title\">Descriptive Info</h2>
+       </div>
+       <div class=\"panel-body\">
+         <div class=\"visible-xs\">
+           #{metadata_as_list(item)}
+         </div>
+         <div class=\"hidden-xs\">
+           #{metadata_as_table(item)}
+         </div>
+        </div>
+      </div>"
+    raw(html)
+  end
+
+  ##
   # @return [Relation]
   #
   def more_like_this
