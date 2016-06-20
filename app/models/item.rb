@@ -1,5 +1,6 @@
 class Item < ActiveRecord::Base
 
+  include NaturalSort
   include SolrQuerying
 
   class SolrFields

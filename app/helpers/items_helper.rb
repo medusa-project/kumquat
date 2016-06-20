@@ -162,7 +162,9 @@ module ItemsHelper
   end
 
   def files_panel(item)
-    files = item.files
+    # Explicitly calling sort() on an array of Items causes them to be
+    # natural-sorted.
+    files = item.files.sort
     html = ''
     if files.any?
       html += "<div class=\"panel panel-default\">
