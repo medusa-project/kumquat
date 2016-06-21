@@ -102,7 +102,6 @@ Rails.application.routes.draw do
     match '/settings', to: 'settings#index', via: 'get'
     match '/settings', to: 'settings#update', via: 'patch'
     match '/tasks', to: 'tasks#index', via: 'get'
-    resources :themes, controller: :themes, path: 'themes', except: :show
     resources :users, param: :username do
       match '/enable', to: 'users#enable', via: 'patch', as: 'enable'
       match '/disable', to: 'users#disable', via: 'patch', as: 'disable'

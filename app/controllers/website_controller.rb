@@ -3,8 +3,6 @@
 #
 class WebsiteController < ApplicationController
 
-  before_action :prepend_view_paths
-
   def setup
     super
 
@@ -65,32 +63,6 @@ class WebsiteController < ApplicationController
       return Collection.find_by_repository_id(id)
     end
     nil
-  end
-
-  private
-
-  ##
-  # Allow view templates to be overridden by adding custom templates to
-  # /local/themes/[theme name]/views.
-  #
-  def prepend_view_paths
-    unless @skip_after_actions
-      id = 'default'
-      if controller_name == 'collections'
-        id = params[:id]
-      elsif controller_name == 'items'
-        if params[:collection_id]
-          id = params[:collection_id]
-        elsif params[:id]
-          item = Item.find_by_repository_id(params[:id])
-          id = item&.collection&.repository_id
-        end
-      end
-      collection = Collection.find_by_repository_id(id)
-      theme = collection ? collection.theme || Theme.default : Theme.default
-      pathname = theme ? File.join(Rails.root, theme.pathname, 'views') : nil
-      prepend_view_path(pathname) if pathname
-    end
   end
 
 end

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160527151950) do
+ActiveRecord::Schema.define(version: 20160621204805) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -39,7 +39,6 @@ ActiveRecord::Schema.define(version: 20160527151950) do
     t.boolean  "published_in_dls"
     t.string   "representative_image"
     t.string   "representative_item_id"
-    t.integer  "theme_id"
     t.integer  "metadata_profile_id"
     t.string   "medusa_file_group_id"
     t.datetime "created_at",              null: false
@@ -55,7 +54,6 @@ ActiveRecord::Schema.define(version: 20160527151950) do
   add_index "collections", ["published_in_dls"], name: "index_collections_on_published_in_dls", using: :btree
   add_index "collections", ["repository_id"], name: "index_collections_on_repository_id", unique: true, using: :btree
   add_index "collections", ["representative_item_id"], name: "index_collections_on_representative_item_id", using: :btree
-  add_index "collections", ["theme_id"], name: "index_collections_on_theme_id", using: :btree
 
   create_table "delayed_jobs", force: :cascade do |t|
     t.integer  "priority",   default: 0, null: false
@@ -185,14 +183,6 @@ ActiveRecord::Schema.define(version: 20160527151950) do
     t.datetime "updated_at",                       null: false
     t.boolean  "indeterminate",    default: false
     t.text     "detail"
-  end
-
-  create_table "themes", force: :cascade do |t|
-    t.string   "name"
-    t.boolean  "required",   default: false
-    t.boolean  "default",    default: false
-    t.datetime "created_at",                 null: false
-    t.datetime "updated_at",                 null: false
   end
 
   create_table "users", force: :cascade do |t|
