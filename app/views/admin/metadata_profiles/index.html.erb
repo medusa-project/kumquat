@@ -35,8 +35,13 @@
     <% @profiles.each do |profile| %>
       <tr>
         <td>
-          <%= link_to 'Delete', admin_metadata_profile_path(profile), method: :delete,
-                      class: 'btn btn-xs btn-danger' %>
+          <%= link_to admin_metadata_profile_path(profile), method: 'delete',
+                      class: 'btn btn-xs btn-danger',
+                      data: { confirm: 'Are you sure you want to delete this '\
+                      'metadata profile?' } do %>
+            <%= content_tag(:span, '', class: 'fa fa-trash') %>
+            Delete
+          <% end %>
         </td>
         <td class="text-center">
           <% if profile.default %>
