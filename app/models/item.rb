@@ -495,11 +495,11 @@ class Item < ActiveRecord::Base
 
       # profile-specific metadata elements
 
-      # Before we begin adding these, if the title is not already set, but
-      # there is a "name" (filename) column (only Medusa TSV will contain
-      # this), set the title to the filename.
-      if self.collection.content_profile == ContentProfile::FREE_FORM_PROFILE
-        row['title'] = row['name'] if row['name'].present? and row['title'].blank?
+      # Before we begin adding these, if we are using Medusa TSV, and the
+      # title is not already set, set the title to the filename.
+      if self.collection.content_profile == ContentProfile::FREE_FORM_PROFILE and
+          row['title'].blank? and !ItemTsvIngester.dls_tsv?(tsv)
+        row['title'] = row['name']
       end
       # Now, begin. Just to be safe, we will take in any valid descriptive
       # element, whether or not it exists in the collection's metadata profile.
