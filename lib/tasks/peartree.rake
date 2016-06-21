@@ -13,38 +13,6 @@ namespace :peartree do
     Solr.instance.commit
   end
 
-  # TODO: This is temporary and should be removed once this has been done in
-  # all environments.
-  desc 'Migrate representative images to UUIDs'
-  task :migrate_representative_images => :environment do |task|
-    client = Medusa.client
-    response = client.get('https://medusa.library.illinois.edu/collections.json')
-    collections = JSON.parse(response.body)
-    collections.each do |c|
-      col_resp = client.get('https://medusa.library.illinois.edu/collections/' +
-                                c['id'].to_s + '.json')
-      col = JSON.parse(col_resp.body)
-
-      if col['representative_image'].length > 0
-        rep_image = col['representative_image']
-
-        file_resp = client.get('https://medusa.library.illinois.edu/cfs_files/' +
-                                   rep_image + '.json')
-        file = JSON.parse(file_resp.body)
-        if file['uuid']
-          rep_image = file['uuid']
-        end
-
-        col = Collection.find_by_repository_id(col['uuid'])
-        col.representative_image = rep_image
-        col.save!
-      end
-    end
-
-
-    #Solr.instance.commit
-  end
-
   desc 'Publish a collection'
   task :publish_collection, [:uuid] => :environment do |task, args|
     Collection.find_by_repository_id(args[:uuid]).
