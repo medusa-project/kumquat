@@ -61,11 +61,19 @@ module Admin
 
     def show
       @profile = MetadataProfile.find(params[:id])
-      @new_element = @profile.element_defs.build
-      @element_def_options_for_select =
-          @profile.element_defs.map{ |t| [ t.name, t.id ] }
-      @name_options_for_select = ElementDef.all_descriptive.
-          map{ |t| [ t.name, t.name ] }
+
+      respond_to do |format|
+        format.html {
+          @new_element = @profile.element_defs.build
+          @element_def_options_for_select =
+              @profile.element_defs.map{ |t| [ t.name, t.id ] }
+          @name_options_for_select = ElementDef.all_descriptive.
+              map{ |t| [ t.name, t.name ] }
+        }
+        format.json {
+          render json: @profile
+        }
+      end
     end
 
     def update

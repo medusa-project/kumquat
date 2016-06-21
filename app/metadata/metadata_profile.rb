@@ -50,6 +50,17 @@ class MetadataProfile < ActiveRecord::Base
   end
 
   ##
+  # Overrides parent to serialize an instance to JSON with its child
+  # ElementDefs included.
+  #
+  # @param options [Hash]
+  # @return [String]
+  #
+  def as_json(options = {})
+    super(options.merge(include: :element_defs))
+  end
+
+  ##
   # Overrides parent to intelligently clone a metadata profile including all
   # of its elements.
   #
