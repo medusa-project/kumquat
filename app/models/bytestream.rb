@@ -84,9 +84,7 @@ class Bytestream < ActiveRecord::Base
   def serializable_hash(opts)
     {
         type: self.bytestream_type == Type::ACCESS_MASTER ? 'access' : 'presentation',
-        media_type: self.media_type,
-        width: self.width,
-        height: self.height
+        media_type: self.media_type
     }
   end
 

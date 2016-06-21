@@ -353,15 +353,11 @@ class ItemTest < ActiveSupport::TestCase
     bs = @item.bytestreams.
         select{ |bs| bs.bytestream_type == Bytestream::Type::ACCESS_MASTER }.first
     assert_equal('/pathname', bs.repository_relative_pathname)
-    assert_equal(500, bs.width)
-    assert_equal(400, bs.height)
     assert_equal('image/jpeg', bs.media_type)
 
     bs = @item.bytestreams.
         select{ |bs| bs.bytestream_type == Bytestream::Type::PRESERVATION_MASTER }.first
     assert_equal('/pathname', bs.repository_relative_pathname)
-    assert_equal(500, bs.width)
-    assert_equal(400, bs.height)
     assert_equal('image/jpeg', bs.media_type)
 
     descriptions = @item.elements.select{ |e| e.name == 'description' }

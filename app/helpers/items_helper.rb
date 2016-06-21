@@ -982,12 +982,6 @@ module ItemsHelper
         # XMP
         data[:xmp] = bytestream.xmp
       end
-      if bytestream.is_image? or bytestream.is_video?
-        if bytestream.width and bytestream.height
-          data[:file]['Dimensions'] =
-              "#{bytestream.width}&times;#{bytestream.height} pixels"
-        end
-      end
     end
     data
   end
@@ -1049,14 +1043,8 @@ module ItemsHelper
   #
   def download_label_for_bytestream(bytestream)
     dimensions = nil
-    if bytestream.width and bytestream.width > 0 and bytestream.height and
-        bytestream.height > 0
-      dimensions = "#{bytestream.width}&times;#{bytestream.height}"
-    end
-
     size = bytestream.byte_size
     size = "(#{number_to_human_size(size)})" if size
-
     raw("#{bytestream.human_readable_name} #{dimensions} #{size}")
   end
 

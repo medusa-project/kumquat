@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160621204805) do
+ActiveRecord::Schema.define(version: 20160621210324) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -19,8 +19,6 @@ ActiveRecord::Schema.define(version: 20160621204805) do
   create_table "bytestreams", force: :cascade do |t|
     t.integer  "bytestream_type"
     t.string   "media_type",                   default: "unknown/unknown"
-    t.integer  "width"
-    t.integer  "height"
     t.datetime "created_at",                                               null: false
     t.datetime "updated_at",                                               null: false
     t.integer  "item_id"
