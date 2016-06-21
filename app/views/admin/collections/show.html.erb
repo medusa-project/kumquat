@@ -9,6 +9,10 @@
 </ol>
 
 <div class="btn-group pull-right">
+  <%= link_to admin_collection_items_path(@collection),
+              class: 'btn btn-default' do %>
+    <%= icon_for(@collection) %> Items
+  <% end %>
   <%= link_to collection_path(@collection), class: 'btn btn-default',
               target: '_blank' do %>
     <i class="fa fa-globe"></i> Public View
@@ -26,7 +30,7 @@
 
 <div class="row">
 
-  <div class="col-sm-8">
+  <div class="col-md-8 col-sm-7">
     <div class="panel panel-default">
       <div class="panel-heading">
         <h3 class="panel-title">Description</h3>
@@ -37,7 +41,7 @@
     </div>
   </div>
 
-  <div class="col-sm-4">
+  <div class="col-md-4 col-sm-5">
     <div class="panel panel-default">
       <div class="panel-heading">
         <h3 class="panel-title">Technical Info</h3>
@@ -48,6 +52,11 @@
           <dd>
             <%= @collection.metadata_profile ? @collection.metadata_profile.name :
                     "Default (#{MetadataProfile.default.name})" %>
+          </dd>
+          <dt>Content Profile</dt>
+          <dd>
+            <%= @collection.content_profile ?
+                    @collection.content_profile&.name : 'None' %>
           </dd>
           <dt>Theme</dt>
           <dd>

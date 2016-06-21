@@ -83,12 +83,13 @@ Rails.application.routes.draw do
 
     match '/collections/refresh', to: 'collections#refresh', via: 'patch',
           as: 'collections_refresh'
-    resources :collections, except: [:new, :delete]
+    resources :collections, except: [:new, :create, :delete] do
+      match '/items/search', to: 'items#search', via: %w(get post),
+            as: 'items_search'
+      resources :items, concerns: :publishable
+      match '/items/ingest', to: 'items#ingest', via: 'post'
+    end
     resources :element_defs, only: [:create, :update, :destroy, :edit]
-    match '/items/search', to: 'items#search', via: %w(get post),
-          as: 'items_search'
-    resources :items, concerns: :publishable
-    match '/items/ingest', to: 'items#ingest', via: 'post'
     resources :metadata_profiles, path: 'metadata-profiles' do
       match '/clone', to: 'metadata_profiles#clone', via: 'patch', as: 'clone'
     end

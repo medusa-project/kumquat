@@ -112,9 +112,10 @@ body#items_show {
   #pt-image-viewer {
     background-color:black;
     height: 500px;
+    margin:0 auto;
     margin-bottom: 1em;
     max-width: 1200px;
-    width: 100%;
+    width: 90%;
   }
   #pt-image-viewer.fullpage {
     max-width: 999999px;

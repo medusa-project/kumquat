@@ -1,5 +1,19 @@
 ##
-# Serialization is handled in CollectionSerializer.
+# Encapsulates a Medusa collection.
+#
+# Collections can contain zero or more items.
+#
+# Collections are identified by their repository ID (`repository_id`), which
+# is a UUID matching a collection's Medusa UUID.
+#
+# Collections are associated with a metadata profile, which defines the list
+# of elements that contained items are supposed to have, as well as a content
+# profile, which defines how collection content is structured in Medusa in
+# terms of its file/directory layout.
+#
+# Being an ActiveRecord entity, collections are searchable via ActiveRecord as
+# well as via Solr. Instances are automatically indexed in Solr (see `to_solr`)
+# and the Solr search functionality is available via the `solr` class method.
 #
 class Collection < ActiveRecord::Base
 
@@ -50,6 +64,22 @@ class Collection < ActiveRecord::Base
   def self.solr_facet_fields
     [ { name: SolrFields::REPOSITORY_TITLE, label: 'Repository' },
       { name: SolrFields::RESOURCE_TYPES, label: 'Resource Type' } ]
+  end
+
+  ##
+  # @return [ContentProfile,nil]
+  #
+  def content_profile
+    self.content_profile_id.present? ?
+        ContentProfile.find(self.content_profile_id) : nil
+  end
+
+  ##
+  # @param profile [ContentProfile]
+  #
+  def content_profile=(profile)
+    self.content_profile_id = profile.kind_of?(ContentProfile) ?
+        profile.id : nil
   end
 
   def delete_from_solr
@@ -114,7 +144,7 @@ class Collection < ActiveRecord::Base
     format = format.present? ? ".#{format.to_s.gsub('.', '')}" : ''
     url = nil
     if self.repository_id
-      url = sprintf('%s/collections/%s%s',
+      url = sprintf('%s/uuids/%s%s',
                     PearTree::Application.peartree_config[:medusa_url].chomp('/'),
                     self.repository_id,
                     format)
@@ -145,7 +175,7 @@ class Collection < ActiveRecord::Base
       cfs_file = MedusaCfsFile.new
       cfs_file.id = self.representative_image
       bs = Bytestream.new
-      bs.file_group_relative_pathname = cfs_file.repository_relative_pathname
+      bs.repository_relative_pathname = cfs_file.repository_relative_pathname
       bs.infer_media_type
     end
     bs
@@ -175,7 +205,8 @@ class Collection < ActiveRecord::Base
     unless self.repository_id
       raise 'update_from_medusa() called without repository_id set'
     end
-    json_str = Medusa.client.get(self.medusa_url('json')).body
+    json_str = Medusa.client.get(self.medusa_url('json'),
+                                 follow_redirect: true).body
     struct = JSON.parse(json_str)
 
     self.access_url = struct['access_url']

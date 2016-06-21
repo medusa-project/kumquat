@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160516163103) do
+ActiveRecord::Schema.define(version: 20160527151950) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -19,13 +19,12 @@ ActiveRecord::Schema.define(version: 20160516163103) do
   create_table "bytestreams", force: :cascade do |t|
     t.integer  "bytestream_type"
     t.string   "media_type",                   default: "unknown/unknown"
-    t.string   "file_group_relative_pathname"
-    t.string   "url"
     t.integer  "width"
     t.integer  "height"
     t.datetime "created_at",                                               null: false
     t.datetime "updated_at",                                               null: false
     t.integer  "item_id"
+    t.string   "repository_relative_pathname"
   end
 
   add_index "bytestreams", ["item_id"], name: "index_bytestreams_on_item_id", using: :btree
@@ -42,12 +41,13 @@ ActiveRecord::Schema.define(version: 20160516163103) do
     t.string   "representative_item_id"
     t.integer  "theme_id"
     t.integer  "metadata_profile_id"
-    t.integer  "medusa_file_group_id"
+    t.string   "medusa_file_group_id"
     t.datetime "created_at",              null: false
     t.datetime "updated_at",              null: false
     t.text     "resource_types"
     t.string   "repository_title"
-    t.integer  "medusa_cfs_directory_id"
+    t.string   "medusa_cfs_directory_id"
+    t.integer  "content_profile_id"
   end
 
   add_index "collections", ["metadata_profile_id"], name: "index_collections_on_metadata_profile_id", using: :btree

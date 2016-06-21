@@ -1,34 +1,33 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <xs:schema attributeFormDefault="unqualified"
-  elementFormDefault="qualified"
-  targetNamespace="http://www.library.illinois.edu/lrp/terms#"
-  xmlns:lrp="http://www.library.illinois.edu/lrp/terms#"
-  xmlns:xs="http://www.w3.org/2001/XMLSchema">
+           elementFormDefault="qualified"
+           targetNamespace="http://digital.library.illinois.edu/terms#"
+           xmlns:dls="http://digital.library.illinois.edu/terms#"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
-  <!-- WARNING: THIS SCHEMA IS OBSOLETE, AND CONFORMANT DOCUMENTS CAN NO
-  LONGER BE IMPORTED. -->
+  <xs:annotation>
+    <xs:documentation xml:lang="en">
+      Changes since version 2:
+
+      * The accessMaster* and preservationMaster* elements have been removed.
+    </xs:documentation>
+  </xs:annotation>
 
   <xs:complexType name="Object">
     <xs:sequence>
       <!--
-      TECHNICAL METADATA
+      *********************************************************************
+      * TECHNICAL/STRUCTURAL ELEMENTS
+      * Information in these elements is used by the system to establish
+      * item form, structure, and machine-readable properties.
+      *********************************************************************
       -->
 
-      <!-- Bib ID -->
-      <xs:element name="bibId" type="xs:token" minOccurs="0" maxOccurs="1"/>
+      <!--
+      *********************** REQUIRED ELEMENTS ***************************
+      -->
 
-      <!-- When the entity was created. -->
-      <xs:element name="created" type="xs:dateTime" minOccurs="0" maxOccurs="1"/>
-
-      <!-- When the entity was last modified. -->
-      <xs:element name="lastModified" type="xs:dateTime" minOccurs="0" maxOccurs="1"/>
-
-      <!-- Whether the entity is publicly accessible. -->
-      <xs:element name="published" type="xs:boolean" minOccurs="0" maxOccurs="1"/>
-
-      <!-- ID of the entity within the repository. Must be repository-unique,
-      persistent across imports (i.e. not dynamically generated at ingest) and
-      preferably opaque and short. -->
+      <!-- Medusa UUID of the item. -->
       <xs:element name="repositoryId" minOccurs="1" maxOccurs="1">
         <xs:simpleType>
           <xs:restriction base="xs:token">
@@ -37,17 +36,80 @@
         </xs:simpleType>
       </xs:element>
 
-      <!-- ID of the item that best represents the entity, for the purposes of
-      e.g. rendering a thumbnail. For example, for a collection, this could be
-      some visually compelling item. For a compound object, it could be the
-      first page. -->
-      <xs:element name="representativeItemId" type="xs:token" minOccurs="0" maxOccurs="1"/>
-
-      <!-- Deprecated - do not use.-->
-      <xs:element name="webId" type="xs:token" minOccurs="0" maxOccurs="1"/>
+      <!-- Medusa UUID of the collection in which the item resides. -->
+      <xs:element name="collectionId" type="xs:token" minOccurs="1" maxOccurs="1"/>
 
       <!--
-      DESCRIPTIVE METADATA
+      ********************** OPTIONAL ELEMENTS ****************************
+      -->
+
+      <!-- repositoryId of the item's parent item. Should be omitted or left
+      empty for top-level items. -->
+      <xs:element name="parentId" type="xs:token" minOccurs="0" maxOccurs="1"/>
+
+      <!-- repositoryId of the item that best represents the entity, for the
+      purposes of e.g. rendering a thumbnail image. For example, for a compound
+      object, it could be the first page. -->
+      <xs:element name="representativeItemId" type="xs:token" minOccurs="0" maxOccurs="1"/>
+
+      <!-- Whether the item will be publicly accessible at ingest. Will default
+      to true if not supplied. -->
+      <xs:element name="published" type="xs:boolean" minOccurs="0" maxOccurs="1"/>
+
+      <!-- "Full text" of the item. Will be indexed for searching. -->
+      <xs:element name="fullText" type="xs:string" minOccurs="0" maxOccurs="1"/>
+
+      <!-- Page number of an item that is a child of another item, starting
+      at 1. Used for sorting and previous/next navigation. -->
+      <xs:element name="pageNumber" type="xs:positiveInteger" minOccurs="0" maxOccurs="1"/>
+
+      <!-- Subpage number of an item that is a fragment of a page, starting
+      at 1. -->
+      <xs:element name="subpageNumber" type="xs:positiveInteger" minOccurs="0" maxOccurs="1"/>
+
+      <!-- Spatial latitude in decimal degrees. -->
+      <xs:element name="latitude" type="xs:float" minOccurs="0" maxOccurs="1"/>
+
+      <!-- Spatial longitude in decimal degrees. -->
+      <xs:element name="longitude" type="xs:float" minOccurs="0" maxOccurs="1"/>
+
+      <!-- When the entity was created. -->
+      <xs:element name="created" type="xs:dateTime" minOccurs="0" maxOccurs="1"/>
+
+      <!-- When the entity was last modified. -->
+      <xs:element name="lastModified" type="xs:dateTime" minOccurs="0" maxOccurs="1"/>
+
+      <!-- A way of refining the type of an item, which may affect how it is
+      displayed. -->
+      <xs:element name="variant" minOccurs="0" maxOccurs="1">
+        <xs:simpleType>
+          <xs:restriction base="xs:token">
+            <!-- As in a filesystem directory -->
+            <xs:enumeration value="Directory"/>
+            <!-- As in a file on a filesystem -->
+            <xs:enumeration value="File"/>
+            <!-- Front matter in e.g. a book -->
+            <xs:enumeration value="FrontMatter"/>
+            <!-- As in a book or map index -->
+            <xs:enumeration value="Index"/>
+            <!-- As in a map key -->
+            <xs:enumeration value="Key"/>
+            <!-- As in a book page -->
+            <xs:enumeration value="Page"/>
+            <!-- As in a title page or book cover -->
+            <xs:enumeration value="Title"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+
+      <!--
+      *********************************************************************
+      * DESCRIPTIVE ELEMENTS
+      * These elements are relatively free-form, and their presence or
+      * absence does not generally affect the working of the system.
+      * All elements are optional, but title and description are nice to
+      * have.
+      *********************************************************************
       -->
       <xs:element name="abstract" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="accessRights" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
@@ -56,9 +118,9 @@
       <xs:element name="accrualPolicy" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="alternativeTitle" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="audience" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="bibId" type="xs:token" minOccurs="0" maxOccurs="1"/>
       <xs:element name="bibliographicCitation" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="callNumber" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
-      <xs:element name="campaign" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="cartographicScale" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="conformsTo" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="contributor" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
@@ -90,12 +152,8 @@
       <xs:element name="isVersionOf" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="keyword" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="language" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
-      <!-- Spatial latitude in decimal degrees. -->
-      <xs:element name="latitude" type="xs:float" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="license" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="localId" type="xs:token" minOccurs="0" maxOccurs="unbounded"/>
-      <!-- Spatial longitude in decimal degrees. -->
-      <xs:element name="longitude" type="xs:float" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="materialsColor" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="materialsTechniques" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="mediator" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
@@ -113,98 +171,14 @@
       <xs:element name="rightsHolder" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="source" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="spatialCoverage" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
-      <xs:element name="sponsor" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="subject" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="tableOfContents" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="temporalCoverage" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
-      <xs:element name="textOriginal" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
-      <xs:element name="textTranslation" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="title" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="type" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
-
-      <!-- Pixel height of the access master. For raster images and
-      videos. -->
-      <xs:element name="accessMasterHeight" type="xs:positiveInteger" minOccurs="0" maxOccurs="1"/>
-
-      <!-- IANA media type of the access master. If blank, it will either
-      be inferred from the filename extension, or auto-detected using the
-      file header. Neither are foolproof. -->
-      <xs:element name="accessMasterMediaType" type="xs:token" minOccurs="0" maxOccurs="1"/>
-
-      <!-- Absolute pathname of the access master relative to the
-      file group root. Mutually exclusive with accessMasterURL. -->
-      <xs:element name="accessMasterPathname" type="xs:normalizedString" minOccurs="0" maxOccurs="1"/>
-
-      <!-- URL of the access master. Mutually exclusive with
-      accessMasterFilename. -->
-      <xs:element name="accessMasterURL" type="xs:anyURI" minOccurs="0" maxOccurs="1"/>
-
-      <!-- Pixel width of the access master. For raster images and
-      videos. -->
-      <xs:element name="accessMasterWidth" type="xs:positiveInteger" minOccurs="0" maxOccurs="1"/>
-
-      <!-- ID of the collection in which the item resides. -->
-      <xs:element name="collectionId" type="xs:token" minOccurs="1" maxOccurs="1"/>
-
-      <!-- "Full text" of the item. Will be indexed for searching. -->
-      <xs:element name="fullText" type="xs:string" minOccurs="0" maxOccurs="1"/>
-
-      <!-- Page number of an item that is a child of another item, starting
-      at 1. Used for sorting and previous/next navigation. -->
-      <xs:element name="pageNumber" type="xs:positiveInteger" minOccurs="0" maxOccurs="1"/>
-
-      <!-- ID of the item's parent item. Should be left empty for
-      top-level items. -->
-      <xs:element name="parentId" type="xs:token" minOccurs="0" maxOccurs="1"/>
-
-      <!-- Pixel height of the preservation master. For raster images and
-      videos. -->
-      <xs:element name="preservationMasterHeight" type="xs:positiveInteger" minOccurs="0" maxOccurs="1"/>
-
-      <!-- IANA media type of the preservation master. If blank, it will
-      either be inferred from the filename extension, or auto-detected
-      using the file header. Neither are foolproof. -->
-      <xs:element name="preservationMasterMediaType" type="xs:token" minOccurs="0" maxOccurs="1"/>
-
-      <!-- Absolute pathname of the preservation master relative to the
-      file group root. Mutually exclusive with preservationMasterURL. -->
-      <xs:element name="preservationMasterPathname" type="xs:normalizedString" minOccurs="0" maxOccurs="1"/>
-
-      <!-- URL of the preservation master. Mutually exclusive with
-      preservationMasterFilename. -->
-      <xs:element name="preservationMasterURL" type="xs:anyURI" minOccurs="0" maxOccurs="1"/>
-
-      <!-- Pixel width of the preservation master. For raster images and
-      videos. -->
-      <xs:element name="preservationMasterWidth" type="xs:positiveInteger" minOccurs="0" maxOccurs="1"/>
-
-      <!-- Subclass name -->
-      <xs:element name="subclass" minOccurs="0" maxOccurs="1">
-        <xs:simpleType>
-          <xs:restriction base="xs:string">
-            <!-- As in a filesystem directory -->
-            <xs:enumeration value="Directory"/>
-            <!-- As in a file on a filesystem -->
-            <xs:enumeration value="File"/>
-            <!-- Front matter in e.g. a book -->
-            <xs:enumeration value="FrontMatter"/>
-            <!-- As in a book or map index -->
-            <xs:enumeration value="Index"/>
-            <!-- As in a map key -->
-            <xs:enumeration value="Key"/>
-            <!-- As in a book page; a sub-item -->
-            <xs:enumeration value="Page"/>
-            <!-- As in a title page or book cover -->
-            <xs:enumeration value="Title"/>
-          </xs:restriction>
-        </xs:simpleType>
-      </xs:element>
-
-      <!-- Subpage number of an item that is a fragment of a page, starting
-      at 1. -->
-      <xs:element name="subpageNumber" type="xs:positiveInteger" minOccurs="0" maxOccurs="1"/>
     </xs:sequence>
+
   </xs:complexType>
 
-  <xs:element name="Object" type="lrp:Object"/>
+  <xs:element name="Object" type="dls:Object"/>
 </xs:schema>

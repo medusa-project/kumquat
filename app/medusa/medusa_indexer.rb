@@ -3,10 +3,10 @@ class MedusaIndexer
   def index_collections(task = nil)
     config = PearTree::Application.peartree_config
     url = sprintf('%s/collections.json', config[:medusa_url].chomp('/'))
-    response = Medusa.client.get(url)
+    response = Medusa.client.get(url, follow_redirect: true)
     struct = JSON.parse(response.body)
     struct.each_with_index do |st, index|
-      col = Collection.find_or_create_by(repository_id: st['id'])
+      col = Collection.find_or_create_by(repository_id: st['uuid'])
       col.update_from_medusa
       col.save!
 

@@ -9,13 +9,21 @@ module Admin
     end
 
     test 'index with html format should work' do
-      get :index
+      get :index, collection_id: collections(:collection1).repository_id
       assert_response :success
     end
 
     test 'index with tsv format should work' do
-      get :index, format: :tsv
+      get :index, collection_id: collections(:collection1).repository_id,
+          format: :tsv
       assert_response :success
+    end
+
+    test 'index with tsv format and no items should return a heading' do
+      Item.destroy_all
+      get :index, collection_id: collections(:collection1).repository_id,
+          format: :tsv
+      assert response.body.split(Item::TSV_LINE_BREAK).length == 1
     end
 
   end

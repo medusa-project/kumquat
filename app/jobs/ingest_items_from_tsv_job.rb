@@ -3,15 +3,19 @@ class IngestItemsFromTsvJob < Job
   queue_as :default
 
   ##
-  # @param args [Array] One-element array containing a pathname of the TSV to
-  #                     ingest.
+  # @param args [Array] Two-element array with the pathname of the TSV to
+  #                     ingest at position 0, and the ID of the collection to
+  #                     ingest the items into at position 1.
   #
   def perform(*args)
     self.task.status_text = 'Ingesting items from TSV'
-    self.task.indeterminate = false
+    # Indeterminate because the ingest happens in a transaction from which
+    # task progress updates won't appear.
+    self.task.indeterminate = true
     self.task.save!
 
-    ItemTsvIngester.new.ingest_tsv_file(args[0], self.task)
+    collection = Collection.find_by_repository_id(args[1])
+    ItemTsvIngester.new.ingest_pathname(args[0], collection, self.task)
     Solr.instance.commit
 
     File.delete(args[0]) if File.exist?(args[0])

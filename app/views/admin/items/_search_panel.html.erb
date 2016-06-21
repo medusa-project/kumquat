@@ -1,6 +1,6 @@
 <%= form_tag({ controller: 'admin/items', action: 'search' }, { method: :post }) do %>
   <div class="row">
-    <div class="col-sm-6 pt-elements">
+    <div class="col-sm-8 pt-elements">
       <div class="form-group form-inline">
         <%= select_tag 'elements[]', options_for_select(elements_for_select),
                        class: 'form-control' %>
@@ -10,27 +10,7 @@
       <button type="button" class="btn btn-xs btn-success pt-add-element">&plus; Add Element</button>
     </div>
 
-    <div class="col-sm-4">
-      <button type="button" class="btn btn-xs btn-default pt-check-all">Check All</button>
-      <button type="button" class="btn btn-xs btn-default pt-uncheck-all">Uncheck All</button>
-      <div class="pt-collections">
-        <ol>
-          <% collections.each do |collection| %>
-            <li>
-              <div class="checkbox">
-                <label>
-                  <%= check_box_tag('collections[]', collection.repository_id,
-                                    (params[:collections].present? and params[:collections].include?(collection.repository_id))) %>
-                  <%= collection.title %>
-                </label>
-              </div>
-            </li>
-          <% end %>
-        </ol>
-      </div>
-    </div>
-
-    <div class="col-sm-2 pt-system">
+    <div class="col-sm-4 pt-system">
       <div class="radio">
         <%= label_tag do %>
             <%= radio_button_tag 'published', 'any',

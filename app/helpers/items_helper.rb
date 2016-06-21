@@ -162,7 +162,9 @@ module ItemsHelper
   end
 
   def files_panel(item)
-    files = item.files
+    # Explicitly calling sort() on an array of Items causes them to be
+    # natural-sorted.
+    files = item.files.sort
     html = ''
     if files.any?
       html += "<div class=\"panel panel-default\">
@@ -323,7 +325,7 @@ module ItemsHelper
     items.each do |item|
       next unless item # item may be nil in testing
       link_target = options[:link_to_admin] ?
-          admin_item_path(item) : polymorphic_path(item)
+          admin_collection_item_path(item.collection, item) : polymorphic_path(item)
       html += '<li>'\
         '<div>'
       html += link_to(link_target, class: 'pt-thumbnail-link') do
@@ -485,6 +487,27 @@ module ItemsHelper
   end
 
   ##
+  # @param item [Item]
+  # @return [String]
+  #
+  def metadata_panel(item)
+    html = "<div class=\"panel panel-default\">
+       <div class=\"panel-heading\">
+         <h2 class=\"panel-title\">Descriptive Info</h2>
+       </div>
+       <div class=\"panel-body\">
+         <div class=\"visible-xs\">
+           #{metadata_as_list(item)}
+         </div>
+         <div class=\"hidden-xs\">
+           #{metadata_as_table(item)}
+         </div>
+        </div>
+      </div>"
+    raw(html)
+  end
+
+  ##
   # @return [Relation]
   #
   def more_like_this
@@ -548,7 +571,7 @@ module ItemsHelper
     html = '<ol>'
     items.each do |child|
       link_target = options[:link_to_admin] ?
-          admin_item_path(child) : item_path(child)
+          admin_collection_item_path(child.collection, child) : item_path(child)
       html += '<li>'
       if item.repository_id == child.repository_id
         html += '<div class="pt-current">'
@@ -906,7 +929,7 @@ module ItemsHelper
   #
   def bytestream_image_url(bs, size, shape = :default)
     url = nil
-    if (bs.is_image? or bs.is_pdf?) and bs.file_group_relative_pathname
+    if (bs.is_image? or bs.is_pdf?) and bs.repository_relative_pathname
       shape = (shape == :default) ? 'full' : 'square'
       url = sprintf('%s/%s/!%d,%d/0/default.jpg',
                      iiif_bytestream_url(bs), shape, size, size)
@@ -923,12 +946,12 @@ module ItemsHelper
       # development-only info
       if Rails.env.development?
         data[:file]['Pathname (DEVELOPMENT)'] =
-            bytestream.absolute_local_pathname || bytestream.url
+            bytestream.absolute_local_pathname
       end
       # filename
-      if bytestream.file_group_relative_pathname or bytestream.url
+      if bytestream.repository_relative_pathname
         data[:file]['Filename'] =
-            File.basename(bytestream.file_group_relative_pathname || bytestream.url)
+            File.basename(bytestream.repository_relative_pathname)
       end
       # status
       data[:file]['Status'] = bytestream.exists? ?
@@ -994,7 +1017,7 @@ module ItemsHelper
   def item_image_url(item, size)
     if item.is_image? or item.is_pdf?
       bs = item.access_master_bytestream || item.preservation_master_bytestream
-      if bs.file_group_relative_pathname
+      if bs.repository_relative_pathname
         return sprintf('%s/full/!%d,%d/0/default.jpg',
                        iiif_item_url(item), size, size)
       end
@@ -1022,8 +1045,6 @@ module ItemsHelper
   # @param [Bytestream] bytestream
   #
   def download_label_for_bytestream(bytestream)
-    format = bytestream.url ? 'External Resource' : bytestream.human_readable_name
-
     dimensions = nil
     if bytestream.width and bytestream.width > 0 and bytestream.height and
         bytestream.height > 0
@@ -1033,7 +1054,7 @@ module ItemsHelper
     size = bytestream.byte_size
     size = "(#{number_to_human_size(size)})" if size
 
-    raw("#{format} #{dimensions} #{size}")
+    raw("#{bytestream.human_readable_name} #{dimensions} #{size}")
   end
 
   def tech_metadata_for(item)

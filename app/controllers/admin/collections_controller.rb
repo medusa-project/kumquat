@@ -8,7 +8,9 @@ module Admin
       @collection = Collection.find_by_repository_id(params[:id])
       raise ActiveRecord::RecordNotFound unless @collection
 
-      @metadata_profile_options_for_select = MetadataProfile.order(:name).
+      @metadata_profile_options_for_select = MetadataProfile.all.order(:name).
+          map{ |t| [ t.name, t.id ] }
+      @content_profile_options_for_select = ContentProfile.all.
           map{ |t| [ t.name, t.id ] }
       @theme_options_for_select = [[ 'None (Use Global)', nil ]] +
           Theme.order(:name).map{ |t| [ t.name, t.id ] }
@@ -64,7 +66,8 @@ module Admin
     private
 
     def sanitized_params
-      params.require(:collection).permit(:id, :medusa_cfs_directory_id,
+      params.require(:collection).permit(:content_profile_id, :id,
+                                         :medusa_cfs_directory_id,
                                          :medusa_file_group_id,
                                          :metadata_profile_id,
                                          :published_in_dls, :theme_id)

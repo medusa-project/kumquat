@@ -1,18 +1,13 @@
 <?xml version="1.0"?>
-<lrp:Object xmlns:lrp="http://www.library.illinois.edu/lrp/terms#">
-  <lrp:created>2015-11-21T01:51:17Z</lrp:created>
-  <lrp:lastModified>2015-11-22T01:51:17Z</lrp:lastModified>
-  <lrp:published>true</lrp:published>
-  <lrp:repositoryId>800379272_de0817d41a_tiff</lrp:repositoryId>
-
-  <lrp:description>The Death Star under construction.</lrp:description>
-  <lrp:extent>248 Kbytes</lrp:extent>
-  <lrp:subject>Cranes</lrp:subject>
-  <lrp:subject>Moons</lrp:subject>
-  <lrp:title>LZW-compressed TIFF image item</lrp:title>
-  <lrp:type>Image</lrp:type>
-
-  <lrp:collectionId>image-test</lrp:collectionId>
-  <lrp:preservationMasterMediaType>image/tiff</lrp:preservationMasterMediaType>
-  <lrp:preservationMasterPathname>bytestreams/800379272_de0817d41a.tiff</lrp:preservationMasterPathname>
-</lrp:Object>
+<dls:Object xmlns:dls="http://digital.library.illinois.edu/terms#">
+  <dls:repositoryId>800379272_de0817d41a_tiff</dls:repositoryId>
+  <dls:collectionId>image-test</dls:collectionId>
+  <dls:created>2015-11-21T01:51:17Z</dls:created>
+  <dls:lastModified>2015-11-22T01:51:17Z</dls:lastModified>
+  <dls:description>The Death Star under construction.</dls:description>
+  <dls:extent>248 Kbytes</dls:extent>
+  <dls:subject>Cranes</dls:subject>
+  <dls:subject>Moons</dls:subject>
+  <dls:title>LZW-compressed TIFF image item</dls:title>
+  <dls:type>Image</dls:type>
+</dls:Object>

@@ -1,13 +1,33 @@
+##
+# Encapsulates a unit of intellectual content.
+#
+# All items reside in a collection. An item may have one or more child items,
+# as may any of those, forming a tree. It may also have one or more
+# Bytestreams, each corresponding to a file in Medusa.
+#
+# Items have a number of properties of their own as well as a one-to-many
+# relationship with Element, which encapsulates a metadata element. The set of
+# elements that an item contains is typically shaped by its collection's
+# metadata profile, although there is no constraint in place to keep an item
+# from being associated with other elements.
+#
+# Note that Medusa is not item-aware; items are a DLS entity. Item IDs
+# correspond to Medusa file/directory IDs depending on a collection's content
+# profile. These IDs are stored in `repository_id`, NOT `id`, which is
+# database-specific.
+#
+# Being an ActiveRecord entity, items are searchable via ActiveRecord as well
+# as via Solr. Instances are automatically indexed in Solr (see `to_solr`) and
+# the Solr search functionality is available via the `solr` class method.
+#
 class Item < ActiveRecord::Base
 
+  include NaturalSort
   include SolrQuerying
 
   class SolrFields
-    ACCESS_MASTER_HEIGHT = 'access_master_height_ii'
     ACCESS_MASTER_MEDIA_TYPE = 'access_master_media_type_si'
     ACCESS_MASTER_PATHNAME = 'access_master_pathname_si'
-    ACCESS_MASTER_URL = 'access_master_url_si'
-    ACCESS_MASTER_WIDTH = 'access_master_width_ii'
     CLASS = 'class_si'
     COLLECTION = 'collection_si'
     CREATED = 'created_dti'
@@ -18,12 +38,9 @@ class Item < ActiveRecord::Base
     LAT_LONG = 'lat_long_loc'
     LAST_INDEXED = 'last_indexed_dti'
     PAGE_NUMBER = 'page_number_ii'
-    PARENT_ITEM = 'parent_si'
-    PRESERVATION_MASTER_HEIGHT = 'preservation_master_height_ii'
+    PARENT_ITEM = 'parent_item_si'
     PRESERVATION_MASTER_MEDIA_TYPE = 'preservation_master_media_type_si'
     PRESERVATION_MASTER_PATHNAME = 'preservation_master_pathname_si'
-    PRESERVATION_MASTER_URL = 'preservation_master_url_si'
-    PRESERVATION_MASTER_WIDTH = 'preservation_master_width_ii'
     PUBLISHED = 'published_bi'
     REPRESENTATIVE_ITEM_ID = 'representative_item_id_si'
     SEARCH_ALL = 'searchall_txtim'
@@ -43,6 +60,7 @@ class Item < ActiveRecord::Base
   end
 
   MULTI_VALUE_SEPARATOR = '||'
+  TSV_LINE_BREAK = "\n"
 
   has_many :bytestreams, inverse_of: :item, dependent: :destroy
   has_many :elements, inverse_of: :item, dependent: :destroy
@@ -66,32 +84,37 @@ class Item < ActiveRecord::Base
   end
 
   ##
-  # @return [String] Tab-separated values with trailing newline.
+  # Returns a tab-separated list of applicable technical elements, plus one
+  # column per element definition in the item's collection's metadata profile.
+  #
+  # Headings are guaranteed to be consistent with the output of to_tsv as long
+  # as the passed-in MetadataProfile is the same as that of an item's
+  # collection.
+  #
+  # @param metadata_profile [MetadataProfile]
+  # @return [String] Tab-separated values with trailing CRLF newline.
   # @see to_tsv
   #
-  def self.tsv_header
+  def self.tsv_header(metadata_profile)
     # Must remain synchronized with the output of to_tsv.
-    tech_elements = ['repositoryId', 'parentId', 'collectionId',
-                     'representativeItemId', 'variant', 'pageNumber',
-                     'subpageNumber', 'fullText', 'accessMasterPathname',
-                     'accessMasterURL', 'accessMasterMediaType',
-                     'accessMasterWidth', 'accessMasterHeight',
-                     'preservationMasterPathname', 'preservationMasterURL',
-                     'preservationMasterMediaType', 'preservationMasterWidth',
-                     'preservationMasterHeight', 'created', 'lastModified']
-    elements = tech_elements + Element.all_descriptive.map(&:name)
-    elements.join("\t") + "\n\r"
+    tech_elements = ['uuid', 'parentId', 'variant', 'pageNumber',
+                     'subpageNumber', 'latitude', 'longitude']
+    elements = tech_elements + metadata_profile.element_defs.map(&:name)
+    elements.join("\t") + TSV_LINE_BREAK
   end
 
   ##
   # Creates a new instance from valid DLS XML, persists it, and returns it.
   #
-  # @param [Hash<String,String>] TSV row
+  # @param tsv [String] TSV
+  # @param row [Hash<String,String>] TSV row
+  # @param collection [Collection]
   # @return [Item]
   #
-  def self.from_tsv(tsv)
+  def self.from_tsv(tsv, row, collection)
     item = Item.new
-    item.update_from_tsv(tsv)
+    item.collection = collection
+    item.update_from_tsv(tsv, row)
     item
   end
 
@@ -115,6 +138,13 @@ class Item < ActiveRecord::Base
   end
 
   ##
+  # @param collection [Collection]
+  #
+  def collection=(collection)
+    self.collection_repository_id = collection.repository_id
+  end
+
+  ##
   # @return [Element]
   #
   def description
@@ -126,11 +156,19 @@ class Item < ActiveRecord::Base
   end
 
   ##
+  # Returns the instance's effective representative item based on the following
+  # order of preference:
+  #
+  # 1) The instance's assigned representative item (if it has one)
+  # 2) The instance's first page (if it has any)
+  # 3) The instance's first child item (if it has any)
+  # 4) The instance itself
+  #
   # @return [Item]
   # @see representative_item
   #
   def effective_representative_item
-    self.representative_item || self
+    self.representative_item || self.pages.first || self.items.first || self
   end
 
   ##
@@ -251,7 +289,10 @@ class Item < ActiveRecord::Base
   end
 
   ##
-  # @return [Item, nil]
+  # @return [Item, nil] The instance's assigned representative item, which may
+  #                     be nil. For the purposes of getting "the"
+  #                     representative item, `effective_representative_item`
+  #                     should be used instead.
   # @see effective_representative_item
   #
   def representative_item
@@ -301,10 +342,8 @@ class Item < ActiveRecord::Base
   #
   def to_dls_xml(schema_version)
     case schema_version.to_i
-      when 1
-        return to_dls_xml_v1
-      else
-        return to_dls_xml_v2
+      when 3
+        return to_dls_xml_v3
     end
   end
 
@@ -331,20 +370,12 @@ class Item < ActiveRecord::Base
     bs = self.bytestreams.
         select{ |b| b.bytestream_type == Bytestream::Type::ACCESS_MASTER }.first
     if bs
-      doc[SolrFields::ACCESS_MASTER_HEIGHT] = bs.height
       doc[SolrFields::ACCESS_MASTER_MEDIA_TYPE] = bs.media_type
-      doc[SolrFields::ACCESS_MASTER_PATHNAME] = bs.file_group_relative_pathname
-      doc[SolrFields::ACCESS_MASTER_URL] = bs.url
-      doc[SolrFields::ACCESS_MASTER_WIDTH] = bs.width
     end
     bs = self.bytestreams.
         select{ |b| b.bytestream_type == Bytestream::Type::PRESERVATION_MASTER }.first
     if bs
-      doc[SolrFields::PRESERVATION_MASTER_HEIGHT] = bs.height
       doc[SolrFields::PRESERVATION_MASTER_MEDIA_TYPE] = bs.media_type
-      doc[SolrFields::PRESERVATION_MASTER_PATHNAME] = bs.file_group_relative_pathname
-      doc[SolrFields::PRESERVATION_MASTER_URL] = bs.url
-      doc[SolrFields::PRESERVATION_MASTER_WIDTH] = bs.width
     end
     self.elements.each do |element|
       doc[element.solr_multi_valued_field] ||= []
@@ -368,60 +399,58 @@ class Item < ActiveRecord::Base
     columns = []
     columns << self.repository_id
     columns << self.parent_repository_id
-    columns << self.collection_repository_id
-    columns << self.representative_item_repository_id
     columns << self.variant
     columns << self.page_number
     columns << self.subpage_number
-    columns << self.full_text
-    bs = self.bytestreams.
-        select{ |b| b.bytestream_type == Bytestream::Type::ACCESS_MASTER }.first
-    columns << bs&.file_group_relative_pathname
-    columns << bs&.url
-    columns << bs&.media_type
-    columns << bs&.width
-    columns << bs&.height
-    bs = self.bytestreams.
-        select{ |b| b.bytestream_type == Bytestream::Type::PRESERVATION_MASTER }.first
-    columns << bs&.file_group_relative_pathname
-    columns << bs&.url
-    columns << bs&.media_type
-    columns << bs&.width
-    columns << bs&.height
-    columns << self.created_at.utc.iso8601
-    columns << self.updated_at.utc.iso8601
+    columns << self.latitude
+    columns << self.longitude
 
-    Element.all_descriptive.each do |el|
+    self.collection.metadata_profile.element_defs.each do |el|
       columns << self.elements.select{ |e| e.name == el.name }.map(&:value).
           join(MULTI_VALUE_SEPARATOR)
     end
-    columns.join("\t") + "\n\r"
+    columns.join("\t") + TSV_LINE_BREAK
   end
 
   ##
   # Updates an instance from a hash representing a TSV row.
   #
-  # @param [Hash<String,String>] TSV row
+  # @param tsv [Array<Hash<String,String>>]
+  # @param row [Hash<String,String>] Item serialized as a TSV row
   # @return [Item]
   #
-  def update_from_tsv(row)
+  def update_from_tsv(tsv, row)
     ActiveRecord::Base.transaction do
-      # These need to be deleted first, otherwise it would be impossible for
-      # an update to remove them.
-      self.bytestreams.destroy_all
+      # Metadata elements need to be deleted first, otherwise an update
+      # wouldn't be able to remove them.
       self.elements.destroy_all
 
-      # collectionId
-      self.collection_repository_id = row['collectionId'] if row['collectionId']
+      # repository ID
+      self.repository_id = row['uuid'].strip if row['uuid']
+
+      # Parent item ID. If the TSV is coming from a DLS export, it will have a
+      # parentId column. Otherwise, if it's coming from a Medusa export, we
+      # will have to search for it based on the collection's content profile.
+      if row['parentId']
+        self.parent_repository_id = row['parentId']
+      else
+        self.parent_repository_id = self.collection.content_profile.
+            parent_id_from_medusa(self.repository_id)
+        # The parent ID in the Medusa TSV may be pointing to a directory that
+        # is outside the collection's effective root directory
+        # (Collection.effective_medusa_cfs_directory). In that case, it needs
+        # to be nil.
+        unless ItemTsvIngester.within_root?(self.parent_repository_id,
+                                            self.collection, tsv)
+          self.parent_repository_id = nil
+        end
+      end
 
       # date (normalized)
       date = row['date'] || row['dateCreated']
       if date
         self.date = human_date_to_time(date.strip)
       end
-
-      # full text
-      self.full_text = row['fullText'].strip if row['fullText']
 
       # latitude
       self.latitude = row['latitude'].strip.to_f if row['latitude']
@@ -432,92 +461,56 @@ class Item < ActiveRecord::Base
       # page number
       self.page_number = row['pageNumber'].strip.to_i if row['pageNumber']
 
-      # parent item
-      self.parent_repository_id = row['parentId'].strip if row['parentId']
-
-      # published
-      self.published = %w(true 1).include?(row['published'].strip) if
-          row['published']
-
-      # repository ID
-      self.repository_id = row['repositoryId'].strip if row['repositoryId']
-
-      # representative item ID
-      self.representative_item_repository_id = row['representativeItemId'] if
-          row['representativeItemId']
-
       # subpage number
       self.subpage_number = row['subpageNumber'].strip.to_i if
           row['subpageNumber']
 
       # variant
-      self.variant = row['variant'] if row['variant']
-
-      # access master (pathname)
-      am = row['accessMasterPathname']
-      if am
-        bs = self.bytestreams.build
-        bs.bytestream_type = Bytestream::Type::ACCESS_MASTER
-        bs.file_group_relative_pathname = am.strip
-        # width
-        width = row['accessMasterWidth']
-        bs.width = width.strip.to_i if width
-        # height
-        height = row['accessMasterHeight']
-        bs.height = height.strip.to_i if height
-        # media type
-        mt = row['accessMasterMediaType']
-        bs.media_type = mt.strip if mt
-        bs.save!
-      else # access master (URL)
-        am = row['accessMasterURL']
-        if am
-          bs = self.bytestreams.build
-          bs.bytestream_type = Bytestream::Type::ACCESS_MASTER
-          bs.url = am.strip
-          # media type
-          mt = row['accessMasterMediaType']
-          bs.media_type = mt.strip if mt
-          bs.save!
+      if row['variant'] # DLS TSV will contain this, but Medusa TSV will not.
+        self.variant = row['variant'].strip if row['variant']
+      else
+        # The variant needs to be set properly for free-form content.
+        if self.collection.content_profile == ContentProfile::FREE_FORM_PROFILE
+          if row['inode_type'] == 'folder'
+            self.variant = Item::Variants::DIRECTORY
+          else
+            self.variant = Item::Variants::FILE
+          end
+        elsif self.parent_repository_id
+          self.variant = Item::Variants::PAGE
         end
       end
 
-      # preservation master (pathname)
-      am = row['preservationMasterPathname']
-      if am
-        bs = self.bytestreams.build
-        bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
-        bs.file_group_relative_pathname = am.strip
-        # width
-        width = row['preservationMasterWidth']
-        bs.width = width.strip.to_i if width
-        # height
-        height = row['preservationMasterHeight']
-        bs.height = height.strip.to_i if height
-        # media type
-        mt = row['preservationMasterMediaType']
-        bs.media_type = mt.strip if mt
-        bs.save!
-      else # access master (URL)
-        am = row['preservationMasterURL']
-        if am
-          bs = self.bytestreams.build
-          bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
-          bs.url = am.strip
-          # media type
-          mt = row['preservationMasterMediaType']
-          bs.media_type = mt.strip if mt
-          bs.save!
+      # Bytestreams.
+      # If the TSV is in Medusa format, delete all bytestreams first in order
+      # to create new ones based on the TSV. Otherwise, if the TSV is in DLS
+      # format, leave the bytestreams alone.
+      unless ItemTsvIngester.dls_tsv?(tsv)
+        self.bytestreams.destroy_all
+        self.collection.content_profile.
+            bytestreams_from_tsv(self.repository_id, tsv).each do |bs|
+          self.bytestreams << bs
         end
       end
 
-      row.select{ |col, value| Element.all_descriptive.map(&:name).include?(col) }.
+      # profile-specific metadata elements
+
+      # Before we begin adding these, if the title is not already set, but
+      # there is a "name" (filename) column (only Medusa TSV will contain
+      # this), set the title to the filename.
+      if self.collection.content_profile == ContentProfile::FREE_FORM_PROFILE
+        row['title'] = row['name'] if row['name'].present? and row['title'].blank?
+      end
+      # Now, begin.
+      row.select{ |col, value| self.collection.metadata_profile.element_defs.map(&:name).include?(col) }.
           each do |col, value|
         # Add new elements
-        value.split(MULTI_VALUE_SEPARATOR).select(&:present?).each do |v|
-          e = Element.named(col)
-          e.value = v
-          self.elements << e
+        if value.present?
+          value.split(MULTI_VALUE_SEPARATOR).select(&:present?).each do |v|
+            e = Element.named(col)
+            e.value = v
+            self.elements << e
+          end
         end
       end
 
@@ -528,17 +521,14 @@ class Item < ActiveRecord::Base
   ##
   # Updates an instance from valid DLS XML.
   #
-  # @param [Nokogiri::XML::Node] node
+  # @param node [Nokogiri::XML::Node]
   # @param schema_version [Integer]
   # @return [Item]
   #
   def update_from_xml(node, schema_version)
     case schema_version
-      when 1
-        namespaces = ItemXmlIngester::XML_V1_NAMESPACE
-        prefix = 'lrp'
-      else
-        namespaces = ItemXmlIngester::XML_V2_NAMESPACE
+      when 3
+        namespaces = ItemXmlIngester::XML_V3_NAMESPACES
         prefix = 'dls'
     end
 
@@ -608,7 +598,7 @@ class Item < ActiveRecord::Base
       if am
         bs = self.bytestreams.build
         bs.bytestream_type = Bytestream::Type::ACCESS_MASTER
-        bs.file_group_relative_pathname = am.content.strip
+        bs.repository_relative_pathname = am.content.strip
         # width
         width = node.xpath("//#{prefix}:accessMasterWidth", namespaces).first
         bs.width = width.content.strip.to_i if width
@@ -619,17 +609,6 @@ class Item < ActiveRecord::Base
         mt = node.xpath("//#{prefix}:accessMasterMediaType", namespaces).first
         bs.media_type = mt.content.strip if mt
         bs.save!
-      else # access master (URL)
-        am = node.xpath("//#{prefix}:accessMasterURL", namespaces).first
-        if am
-          bs = self.bytestreams.build
-          bs.bytestream_type = Bytestream::Type::ACCESS_MASTER
-          bs.url = am.content.strip
-          # media type
-          mt = node.xpath("//#{prefix}:accessMasterMediaType", namespaces).first
-          bs.media_type = mt.content.strip if mt
-          bs.save!
-        end
       end
 
       # preservation master (pathname)
@@ -637,7 +616,7 @@ class Item < ActiveRecord::Base
       if pm
         bs = self.bytestreams.build
         bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
-        bs.file_group_relative_pathname = pm.content.strip
+        bs.repository_relative_pathname = pm.content.strip
         # width
         width = node.xpath("//#{prefix}:preservationMasterWidth", namespaces).first
         bs.width = width.content.strip.to_i if width
@@ -648,17 +627,6 @@ class Item < ActiveRecord::Base
         mt = node.xpath("//#{prefix}:preservationMasterMediaType", namespaces).first
         bs.media_type = mt.content.strip if mt
         bs.save!
-      else # preservation master (URL)
-        pm = node.xpath("//#{prefix}:preservationMasterURL", namespaces).first
-        if pm
-          bs = self.bytestreams.build
-          bs.bytestream_type = Bytestream::Type::ACCESS_MASTER
-          bs.url = pm.content.strip
-          # media type
-          mt = node.xpath("//#{prefix}:preservationMasterMediaType", namespaces).first
-          bs.media_type = mt.content.strip if mt
-          bs.save!
-        end
       end
 
       node.xpath("//#{prefix}:*", namespaces).
@@ -688,147 +656,18 @@ class Item < ActiveRecord::Base
       iso8601 = "#{date}T00:00:00Z"
     end
     if iso8601
-      return Time.parse(iso8601)
+      begin
+        return Time.parse(iso8601)
+      rescue ArgumentError
+        # nothing we can do
+      end
     end
     nil
   end
 
-  def to_dls_xml_v1
+  def to_dls_xml_v3
     builder = Nokogiri::XML::Builder.new do |xml|
-      xml['lrp'].Object('xmlns:lrp' => ItemXmlIngester::XML_V1_NAMESPACE['lrp']) {
-        bib_id = self.elements.find_by_name('bibId')
-        if bib_id.present?
-          xml['lrp'].bibId {
-            xml.text(bib_id)
-          }
-        end
-        if self.created_at.present?
-          xml['lrp'].created {
-            xml.text(self.created_at.utc.iso8601)
-          }
-        end
-        if self.updated_at.present?
-          xml['lrp'].lastModified {
-            xml.text(self.updated_at.utc.iso8601)
-          }
-        end
-        xml['lrp'].published {
-          xml.text(self.published ? 'true' : 'false')
-        }
-        xml['lrp'].repositoryId {
-          xml.text(self.repository_id)
-        }
-        if self.representative_item_repository_id.present?
-          xml['lrp'].representativeItemId {
-            xml.text(self.representative_item_repository_id)
-          }
-        end
-
-        self.elements.order(:name).each do |element|
-          next if element.name == 'bibId'
-          if element.value.present?
-            xml['lrp'].send(element.name) {
-              xml.text(element.value)
-            }
-          end
-        end
-
-        access_master = self.bytestreams.
-            where(bytestream_type: Bytestream::Type::ACCESS_MASTER).limit(1).first
-        if access_master
-          if access_master.height.present?
-            xml['lrp'].accessMasterHeight {
-              xml.text(access_master.height)
-            }
-          end
-          if access_master.media_type.present?
-            xml['lrp'].accessMasterMediaType {
-              xml.text(access_master.media_type)
-            }
-          end
-          xml['lrp'].accessMasterPathname {
-            xml.text(access_master.repository_relative_pathname)
-          }
-          if access_master.url.present?
-            xml['lrp'].accessMasterURL {
-              xml.text(access_master.url)
-            }
-          end
-          if access_master.width.present?
-            xml['lrp'].accessMasterWidth {
-              xml.text(access_master.width)
-            }
-          end
-        end
-
-        xml['lrp'].collectionId {
-          xml.text(self.collection_repository_id)
-        }
-
-        if self.full_text.present?
-          xml['lrp'].fullText {
-            xml.text(self.full_text)
-          }
-        end
-        if self.page_number.present?
-          xml['lrp'].pageNumber {
-            xml.text(self.page_number)
-          }
-        end
-        if self.parent_repository_id.present?
-          xml['lrp'].parentId {
-            xml.text(self.parent_repository_id)
-          }
-        end
-
-        preservation_master = self.bytestreams.
-            where(bytestream_type: Bytestream::Type::PRESERVATION_MASTER).
-            limit(1).first
-        if preservation_master
-          if preservation_master.height.present?
-            xml['lrp'].preservationMasterHeight {
-              xml.text(preservation_master.height)
-            }
-          end
-          if preservation_master.media_type.present?
-            xml['lrp'].preservationMasterMediaType {
-              xml.text(preservation_master.media_type)
-            }
-          end
-          xml['lrp'].preservationMasterPathname {
-            xml.text(preservation_master.repository_relative_pathname)
-          }
-          if preservation_master.url.present?
-            xml['lrp'].preservationMasterURL {
-              xml.text(preservation_master.url)
-            }
-          end
-          if preservation_master.width.present?
-            xml['lrp'].preservationMasterWidth {
-              xml.text(preservation_master.width)
-            }
-          end
-        end
-
-        if self.variant.present?
-          xml['lrp'].subclass {
-            xml.text(self.variant)
-          }
-        end
-
-        if self.subpage_number.present?
-          xml['lrp'].subpageNumber {
-            xml.text(self.subpage_number)
-          }
-        end
-      }
-    end
-    builder.to_xml
-  end
-
-  def to_dls_xml_v2
-    builder = Nokogiri::XML::Builder.new do |xml|
-      xml['dls'].Object('xmlns:dls' => ItemXmlIngester::XML_V2_NAMESPACE['dls']) {
+      xml['dls'].Object('xmlns:dls' => ItemXmlIngester::XML_V3_NAMESPACES['dls']) {
         xml['dls'].repositoryId {
           xml.text(self.repository_id)
         }
@@ -887,63 +726,6 @@ class Item < ActiveRecord::Base
           xml['dls'].variant {
             xml.text(self.variant)
           }
-        end
-
-        access_master = self.bytestreams.
-            where(bytestream_type: Bytestream::Type::ACCESS_MASTER).limit(1).first
-        if access_master
-          xml['dls'].accessMasterPathname {
-            xml.text(access_master.repository_relative_pathname)
-          }
-          if access_master.url.present?
-            xml['dls'].accessMasterURL {
-              xml.text(access_master.url)
-            }
-          end
-          if access_master.media_type.present?
-            xml['dls'].accessMasterMediaType {
-              xml.text(access_master.media_type)
-            }
-          end
-          if access_master.width.present?
-            xml['dls'].accessMasterWidth {
-              xml.text(access_master.width)
-            }
-          end
-          if access_master.height.present?
-            xml['dls'].accessMasterHeight {
-              xml.text(access_master.height)
-            }
-          end
-        end
-
-        preservation_master = self.bytestreams.
-            where(bytestream_type: Bytestream::Type::PRESERVATION_MASTER).
-            limit(1).first
-        if preservation_master
-          xml['dls'].preservationMasterPathname {
-            xml.text(preservation_master.repository_relative_pathname)
-          }
-          if preservation_master.url.present?
-            xml['dls'].preservationMasterURL {
-              xml.text(preservation_master.url)
-            }
-          end
-          if preservation_master.media_type.present?
-            xml['dls'].preservationMasterMediaType {
-              xml.text(preservation_master.media_type)
-            }
-          end
-          if preservation_master.width.present?
-            xml['dls'].preservationMasterWidth {
-              xml.text(preservation_master.width)
-            }
-          end
-          if preservation_master.height.present?
-            xml['dls'].preservationMasterHeight {
-              xml.text(preservation_master.height)
-            }
-          end
         end
 
         self.elements.order(:name).each do |element|

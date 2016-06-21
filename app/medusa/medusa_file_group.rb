@@ -13,7 +13,7 @@ class MedusaFileGroup
       load
       if self.medusa_representation['cfs_directory']
         @cfs_directory = MedusaCfsDirectory.new
-        @cfs_directory.id = self.medusa_representation['cfs_directory']['id']
+        @cfs_directory.id = self.medusa_representation['cfs_directory']['uuid']
       end
     end
     @cfs_directory
@@ -28,9 +28,7 @@ class MedusaFileGroup
   def reload
     raise 'reload() called without ID set' unless self.id.present?
 
-    config = PearTree::Application.peartree_config
-    url = "#{config[:medusa_url].chomp('/')}/file_groups/#{self.id}.json"
-    json_str = Medusa.client.get(url).body
+    json_str = Medusa.client.get(self.url + '.json', follow_redirect: true).body
     unless Rails.env.test?
       FileUtils.mkdir_p("#{Rails.root}/tmp/cache/medusa")
       File.open(cache_pathname, 'wb') { |f| f.write(json_str) }
@@ -54,7 +52,7 @@ class MedusaFileGroup
   def url
     if self.id
       return PearTree::Application.peartree_config[:medusa_url].chomp('/') +
-          '/file_groups/' + self.id.to_s
+          '/uuids/' + self.id.to_s
     end
     nil
   end

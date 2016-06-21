@@ -1,13 +1,15 @@
-<% provide :title, 'Items' %>
+<% provide :title, "#{@collection.title} | Items" %>
 <% provide :body_id, 'items_index' %>
 <% provide :active_nav, 'entities' %>
 
 <ol class="breadcrumb">
   <li><%= link_to 'Home', admin_root_path %></li>
+  <li><%= link_to 'Collections', admin_collections_path %></li>
+  <li><%= link_to @collection.title, admin_collection_path(@collection) %></li>
   <li class="active">Items</li>
 </ol>
 
-<h1>Items</h1>
+<h1>Items in <%= @collection.title %></h1>
 
 <div class="well pt-search">
   <%= render partial: 'search_panel',
@@ -34,11 +36,13 @@
   </div>
 </div>
 
-<div class="panel panel-default">
-  <div class="panel-body">
-    <%= search_status(@items, @start, @num_results_shown) %>
+<% if @num_results_shown > 0 %>
+  <div class="panel panel-default">
+    <div class="panel-body">
+      <%= search_status(@items, @start, @num_results_shown) %>
+    </div>
   </div>
-</div>
+<% end %>
 
 <div class="pt-list-results">
   <%= items_as_list(@items, @start, link_to_admin: true,
@@ -57,7 +61,7 @@
      aria-labelledby="pt-import-modal-label">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
-      <%= form_tag({ controller: 'items', action: 'ingest', format: 'tsv' },
+      <%= form_tag(admin_collection_items_ingest_path(@collection, format: :tsv),
                    { multipart: true }) do %>
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
