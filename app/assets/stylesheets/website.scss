@@ -55,8 +55,10 @@ h6 {
   font-size: 0.9em;
 }
 
-h2, h3, h4, h5, h6, .navbar-header a, #pt-navbar-collapse a, .breadcrumb, .btn, .pt-title {
-  font-family: 'PT Sans', sans-serif;
+h2, h3, h4, h5, h6, .panel-title, .pt-title, .pt-title a {
+  color: black;
+  font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+  font-weight: 500;
 }
 
 #pt-page-content {
