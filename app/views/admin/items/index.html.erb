@@ -69,7 +69,34 @@
           <h4 class="modal-title" id="pt-import-modal-label">Import TSV</h4>
         </div>
         <div class="modal-body">
-          <%= file_field_tag('tsv') %>
+          <div class="form-group">
+            <%= file_field_tag('tsv') %>
+          </div>
+          <hr>
+          <div class="radio">
+            <label>
+              <%= radio_button_tag('import_mode',
+                                   ItemTsvIngester::ImportMode::CREATE_ONLY, true,
+                                   'aria-described-by' => 'pt-only-create-help') %>
+              Only Create
+            </label>
+            <span id="pt-only-create-help" class="help-block">
+              Create new items, but don't update any existing items.
+              Use this for an initial import, or when adding new items to a
+              collection that already contains some.
+            </span>
+          </div>
+          <div class="radio">
+            <label>
+              <%= radio_button_tag('import_mode',
+                                   ItemTsvIngester::ImportMode::CREATE_AND_UPDATE, false,
+                                   'aria-described-by' => 'pt-create-and-update-help') %>
+              Create &amp; Update
+            </label>
+            <span id="pt-create-and-update-help" class="help-block">
+              Create new items, and update existing items. Use this to redo an import.
+            </span>
+          </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
