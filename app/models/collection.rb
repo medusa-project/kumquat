@@ -39,7 +39,6 @@ class Collection < ActiveRecord::Base
   serialize :resource_types
 
   belongs_to :metadata_profile, inverse_of: :collections
-  belongs_to :theme, inverse_of: :collections
   has_many :element_defs, inverse_of: :collection
 
   validates :repository_id, presence: true

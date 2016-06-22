@@ -600,12 +600,6 @@ class Item < ActiveRecord::Base
         bs = self.bytestreams.build
         bs.bytestream_type = Bytestream::Type::ACCESS_MASTER
         bs.repository_relative_pathname = am.content.strip
-        # width
-        width = node.xpath("//#{prefix}:accessMasterWidth", namespaces).first
-        bs.width = width.content.strip.to_i if width
-        # height
-        height = node.xpath("//#{prefix}:accessMasterHeight", namespaces).first
-        bs.height = height.content.strip.to_i if height
         # media type
         mt = node.xpath("//#{prefix}:accessMasterMediaType", namespaces).first
         bs.media_type = mt.content.strip if mt
@@ -618,12 +612,6 @@ class Item < ActiveRecord::Base
         bs = self.bytestreams.build
         bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
         bs.repository_relative_pathname = pm.content.strip
-        # width
-        width = node.xpath("//#{prefix}:preservationMasterWidth", namespaces).first
-        bs.width = width.content.strip.to_i if width
-        # height
-        height = node.xpath("//#{prefix}:preservationMasterHeight", namespaces).first
-        bs.height = height.content.strip.to_i if height
         # media type
         mt = node.xpath("//#{prefix}:preservationMasterMediaType", namespaces).first
         bs.media_type = mt.content.strip if mt

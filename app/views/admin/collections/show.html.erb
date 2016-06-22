@@ -58,11 +58,6 @@
             <%= @collection.content_profile ?
                     @collection.content_profile&.name : 'None' %>
           </dd>
-          <dt>Theme</dt>
-          <dd>
-            <%= @collection.theme ? @collection.theme.name :
-                    "Default (#{Theme.default.name})" %>
-          </dd>
           <dt>Medusa File Group</dt>
           <dd>
             <% if @file_group %>

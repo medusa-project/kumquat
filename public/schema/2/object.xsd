@@ -140,12 +140,10 @@
       <!-- IANA media type of the preservation master. -->
       <xs:element name="preservationMasterMediaType" type="xs:token" minOccurs="0" maxOccurs="1"/>
 
-      <!-- Pixel width of the preservation master. For raster images and
-      videos. -->
+      <!-- Ignored. -->
       <xs:element name="preservationMasterWidth" type="xs:positiveInteger" minOccurs="0" maxOccurs="1"/>
 
-      <!-- Pixel height of the preservation master. For raster images and
-      videos. -->
+      <!-- Ignored. -->
       <xs:element name="preservationMasterHeight" type="xs:positiveInteger" minOccurs="0" maxOccurs="1"/>
 
       <!--
