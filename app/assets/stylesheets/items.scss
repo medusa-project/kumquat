@@ -73,9 +73,9 @@ body#items_show {
 
   .pt-files {
     $column_width: 280px;
-    $font_thumb_size: 90px;
+    $font_thumb_size: 70px;
     $image_thumb_size: 100px;
-    max-height: 38em;
+    max-height: 34em;
     overflow-y: scroll;
     column-width: $column_width;
     -moz-column-width: $column_width;
@@ -85,8 +85,8 @@ body#items_show {
       margin: 0;
       padding: 0;
       li {
-        padding-top: 4px;
-        padding-bottom: 4px;
+        padding-top: 2px;
+        padding-bottom: 2px;
         vertical-align: middle;
         div.pt-thumbnail {
           display: table-cell;
@@ -94,6 +94,7 @@ body#items_show {
           height: $image_thumb_size;
           max-width: $image_thumb_size;
           padding: 0px;
+          text-align: center;
           vertical-align: middle;
           width: $image_thumb_size;
           img {
