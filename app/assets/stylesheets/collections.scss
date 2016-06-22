@@ -3,18 +3,47 @@
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
 body#collections_index {
-  div.pt-card {
-    height: 320px;
-    padding: 5px;
-    div.pt-image {
-      background-position: center;
-      background-repeat: no-repeat;
-      background-size: 112%;
-      height: 230px;
-      a {
-        display: block;
-        height: 100%;
+
+  div.pt-cards {
+    div.pt-card {
+      float: left;
+      position: relative;
+      width: 33.3%;
+      padding-bottom: 43%;
+      div.pt-card-content {
+        position: absolute;
+        left: 10px;
+        right: 10px;
+        top: 10px;
+        bottom: 10px;
+        img {
+          width: 100%;
+        }
+      }
+    }
+
+    @media only screen and (max-width : 480px) {
+      div.pt-card {
         width: 100%;
+        padding-bottom: 110%;
+      }
+    }
+    @media only screen and (max-width : 650px) and (min-width : 481px) {
+      div.pt-card {
+        width: 50%;
+        padding-bottom: 60%;
+      }
+    }
+    @media only screen and (max-width : 1050px) and (min-width : 651px) {
+      div.pt-card {
+        width: 33.3%;
+        padding-bottom: 43.3%;
+      }
+    }
+    @media only screen and (max-width : 1290px) and (min-width : 1051px) {
+      div.pt-card {
+        width: 25%;
+        padding-bottom: 35%;
       }
     }
   }
