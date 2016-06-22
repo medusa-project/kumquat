@@ -38,19 +38,20 @@ class MedusaCfsFile
     raise 'reload() called without ID set' unless self.id.present?
 
     json_str = Medusa.client.get(self.url + '.json', follow_redirect: true).body
-    unless Rails.env.test?
+    rep = JSON.parse(json_str)
+    if rep['status'].to_i < 300 and !Rails.env.test?
       FileUtils.mkdir_p("#{Rails.root}/tmp/cache/medusa")
       File.open(cache_pathname, 'wb') { |f| f.write(json_str) }
     end
-    self.medusa_representation = JSON.parse(json_str)
+    self.medusa_representation = rep
     @loaded = true
   end
 
   def repository_relative_pathname
     unless @repository_relative_pathname
       load
-      @repository_relative_pathname = '/' +
-          self.medusa_representation['relative_pathname']
+      @repository_relative_pathname =
+          "/#{self.medusa_representation['relative_pathname']}"
     end
     @repository_relative_pathname
   end

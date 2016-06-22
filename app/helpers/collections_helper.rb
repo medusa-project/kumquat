@@ -53,9 +53,7 @@ module CollectionsHelper
 
   def collections_as_cards(collections)
     thumb_size = 500
-    html = '<div class="row">'
-
-    index = 0
+    html = ''
     collections.each do |col|
       bs = col.representative_image_bytestream
       if bs
@@ -63,25 +61,18 @@ module CollectionsHelper
       else
         img_url = image_url('folder-open-o-600.png')
       end
-
-      if index % 3 == 0
-
-      end
-
-      html += '<div class="col-xs-6 col-md-4">'
-      html += '  <div class="pt-card">'
-      html += "    <div class=\"pt-image\" style=\"background-image: url(#{img_url});\">"
-      html += link_to('', collection_url(col))
-      html += '    </div>'
+      html += '<div class="pt-card">'
+      html += '  <div class="pt-card-content">'
+      html +=      link_to(col) do
+                     raw("<img src=\"#{img_url}\">")
+                   end
       html += '    <div class="pt-title">'
       html += '      <h4>'
-      html += link_to(col.title, collection_url(col))
+      html +=          link_to(col.title, col)
       html += '      </h4>'
       html += '    </div>'
       html += '  </div>'
       html += '</div>'
-
-      index += 1
     end
     html += '</div>'
     raw(html)
