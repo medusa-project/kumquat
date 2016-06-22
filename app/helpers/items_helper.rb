@@ -148,21 +148,22 @@ module ItemsHelper
     files.each do |child|
       link_target = item_path(child)
       html += '<li>'
-      html += '<div>'
       html += link_to(link_target) do
         raw('<div class="pt-thumbnail">' +
-                thumbnail_tag(child, DEFAULT_THUMBNAIL_SIZE) + '</div>')
+            thumbnail_tag(child, DEFAULT_THUMBNAIL_SIZE) +
+          '</div>' +
+          '<div class="pt-title">' +
+            truncate(child.title, length: PAGE_TITLE_LENGTH) +
+          '</div>')
       end
-      html += link_to(truncate(child.title, length: PAGE_TITLE_LENGTH),
-                      link_target, class: 'pt-title')
-      html += '</div></li>'
+      html += '</li>'
     end
     html += '</ol>'
     raw(html)
   end
 
   def files_panel(item)
-    # Explicitly calling sort() on an array of Items causes them to be
+    # Explicitly calling sort() on an Enumerable of Items causes them to be
     # natural-sorted.
     files = item.files.sort
     html = ''
@@ -171,7 +172,7 @@ module ItemsHelper
         <div class=\"panel-heading\">
           <h2 class=\"panel-title\">Files (#{files.count})</h2>
         </div>
-        <div class=\"panel-body pt-pages\">
+        <div class=\"panel-body pt-files\">
           #{files_as_list(files)}
         </div>
       </div>"
