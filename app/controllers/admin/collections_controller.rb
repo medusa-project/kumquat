@@ -20,7 +20,8 @@ module Admin
 
       @collections = Collection.solr.order(Collection::SolrFields::TITLE).limit(@limit)
       if params[:q].present?
-        @collections.where("#{Collection::SolrFields::TITLE}:*#{params[:q]}*")
+        where = "*#{params[:q].gsub(' ', '\\ *')}*" # gsub escapes spaces properly
+        @collections.where("#{Collection::SolrFields::TITLE}:#{where}")
       else
         @collections.start(@start)
       end
