@@ -14,8 +14,9 @@ class CollectionsController < WebsiteController
     end
 
     respond_to do |format|
-      format.html
+      format.html { fresh_when(etag: @collections) }
       format.json do
+        fresh_when(etag: @collections)
         render json: @collections.to_a.map { |c| # TODO: optimize this
           {
               id: c.repository_id,
@@ -37,6 +38,8 @@ class CollectionsController < WebsiteController
           message: 'This collection is not published.'
       }
     end
+
+    fresh_when(etag: @collection)
 
     respond_to do |format|
       format.html do
