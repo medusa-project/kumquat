@@ -198,13 +198,10 @@ description on the right.
           vertical-align:top;
         }
       }
-      .pt-title {
+      .pt-label {
         font-size: 1.3em;
-        .label {
-          background-color: #d0d0d0;
-          font-size: 0.7em;
-          font-weight: normal;
-          vertical-align: 30%;
+        a {
+          color: black;
         }
         .pt-info-line {
           .pt-icon {
