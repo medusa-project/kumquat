@@ -104,12 +104,16 @@ class ItemsController < WebsiteController
         end
       end
       format.json do
-        render json: @items.to_a.map { |item|
-          {
-              id: item.repository_id,
-              url: item_url(item)
+        render json: {
+            start: @start,
+            numResults: @items.count,
+            results: @items.to_a.map { |item|
+              {
+                  id: item.repository_id,
+                  url: item_url(item)
+              }
+            }
           }
-        }
       end
     end
   end
