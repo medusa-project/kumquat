@@ -92,23 +92,25 @@ form.pt-quick-search {
     margin-bottom: 1em;
   }
 
-  #pt-text-search {
-    input[type=text] {
-      width: 50%;
-    }
-    select {
-      width: 40%;
+  @media (min-width: $screen-sm-min) {
+    #pt-text-search {
+      input[type=text] {
+        width: 50%;
+      }
+      select {
+        width: 40%;
+      }
     }
   }
 
   .panel-body {
     max-height:50em;
-    overflow-x: scroll;
   }
   .pt-fields .form-group:first-child .pt-remove-field {
     display:none;
   }
   .pt-collections {
+    overflow-y: scroll;
     ol {
       list-style:none;
       margin-left:0px;
