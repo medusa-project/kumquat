@@ -987,17 +987,23 @@ module ItemsHelper
   end
 
   def image_viewer_for(item)
+    # https://openseadragon.github.io/docs/OpenSeadragon.html#.Options
     html = "<div id=\"pt-image-viewer\"></div>
     #{javascript_include_tag('/openseadragon/openseadragon.min.js')}
     <script type=\"text/javascript\">
-    var viewer = OpenSeadragon({
+    OpenSeadragon.setString('Tooltips.Home', 'Reset');
+    OpenSeadragon.setString('Tooltips.ZoomIn', 'Zoom In');
+    OpenSeadragon.setString('Tooltips.ZoomOut', 'Zoom Out');
+    OpenSeadragon.setString('Tooltips.FullPage', 'Full Screen');
+    OpenSeadragon.setString('Tooltips.RotateLeft', 'Rotate Left');
+    OpenSeadragon.setString('Tooltips.RotateRight', 'Rotate Right');
+    OpenSeadragon({
         id: \"pt-image-viewer\",
         showNavigator: true,
-        navigatorPosition: \"ABSOLUTE\",
-        navigatorTop: \"40px\",
-        navigatorLeft: \"4px\",
-        navigatorHeight: \"120px\",
-        navigatorWidth: \"145px\",
+        showRotationControl: true,
+        navigatorSizeRatio: 0.2,
+        controlsFadeDelay: 1000,
+        controlsFadeLength: 1000,
         preserveViewport: true,
         prefixUrl: \"/openseadragon/images/\",
         tileSources: \"#{j(iiif_item_url(item))}\"
