@@ -50,6 +50,18 @@ h2, h3, h4, h5, h6, .panel-title, .pt-title, .pt-title a {
   font-weight: 500;
 }
 
+p {
+  line-height: 1.45em;
+  font-size: 1.15em;
+  font-weight: 300;
+}
+
+td, dd {
+  line-height: 1.25em;
+  font-size: 1.05em;
+  font-weight: 400;
+}
+
 #pt-page-content {
   padding-top: 15px;
 }

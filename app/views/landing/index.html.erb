@@ -5,8 +5,10 @@
   <div class="col-sm-7">
     <h1><%= Option.string(Option::Key::WEBSITE_NAME) %></h1>
 
-    <%= sanitize(Option.string(Option::Key::WEBSITE_INTRO_TEXT).gsub("\n", '<br>'),
-                 tags: %w(p br), attributes: %w()) %>
+    <div id="pt-description">
+      <%= sanitize(Option.string(Option::Key::WEBSITE_INTRO_TEXT).gsub("\n", '<br>'),
+                   tags: %w(p br), attributes: %w()) %>
+    </div>
   </div>
 
   <div class="col-sm-5">
