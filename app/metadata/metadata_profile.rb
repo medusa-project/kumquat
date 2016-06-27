@@ -21,7 +21,6 @@ class MetadataProfile < ActiveRecord::Base
   validates :name, presence: true, length: { minimum: 2 },
             uniqueness: { case_sensitive: false }
 
-  after_create :add_default_element_defs
   after_save :ensure_default_uniqueness
 
   @@default_defs = YAML::load_file(File.join(__dir__, 'metadata.yml'))
@@ -50,6 +49,66 @@ class MetadataProfile < ActiveRecord::Base
   end
 
   ##
+  # @param json [String] JSON string from as_json()
+  # @return [MetadataProfile] Persisted MetadataProfile
+  #
+  def self.from_json(json)
+    struct = JSON.parse(json)
+    profile = MetadataProfile.new
+
+    # Ensure that its name is unique.
+    tentative_name = "#{struct['name']} (imported)"
+    index = 1
+    loop do
+      if MetadataProfile.find_by_name(tentative_name)
+        tentative_name = "#{struct['name']} (imported) (#{index})"
+        index += 1
+      else
+        break
+      end
+    end
+    profile.name = tentative_name
+
+    # Add its elements.
+    struct['element_defs'].each do |jd|
+      ed = profile.element_defs.build
+      ed.name = jd['name']
+      ed.label = jd['label']
+      ed.index = jd['index']
+      ed.searchable = jd['searchable']
+      ed.facetable = jd['facetable']
+      ed.visible = jd['visible']
+      ed.sortable = jd['sortable']
+      ed.dc_map = jd['dc_map']
+      ed.dcterms_map = jd['dcterms_map']
+      ed.save!
+      if jd['id'] == struct['default_sortable_element_def_id']
+        profile.default_sortable_element_def_id = ed.id
+      end
+    end
+    profile.save!
+    profile
+  end
+
+  def add_default_element_defs
+    MetadataProfile.default_element_defs.each do |ed|
+      ed.metadata_profile = self
+      ed.save!
+    end
+  end
+
+  ##
+  # Overrides parent to serialize an instance to JSON with its child
+  # ElementDefs included.
+  #
+  # @param options [Hash]
+  # @return [String]
+  #
+  def as_json(options = {})
+    super(options.merge(include: :element_defs))
+  end
+
+  ##
   # Overrides parent to intelligently clone a metadata profile including all
   # of its elements.
   #
@@ -67,13 +126,6 @@ class MetadataProfile < ActiveRecord::Base
   end
 
   private
-
-  def add_default_element_defs
-    MetadataProfile.default_element_defs.each do |ed|
-      ed.metadata_profile = self
-      ed.save!
-    end
-  end
 
   ##
   # Makes all other instances "not default" if the instance is the default.
