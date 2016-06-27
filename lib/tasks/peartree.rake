@@ -6,10 +6,11 @@ namespace :peartree do
     Solr.instance.commit
   end
 
-  desc 'Ingest items in a TSV file'
-  task :ingest_tsv, [:pathname, :collection_uuid] => :environment do |task, args|
+  desc 'Ingest items in a TSV file (mode: create_only or create_and_update)'
+  task :ingest_tsv, [:pathname, :collection_uuid, :mode] => :environment do |task, args|
     collection = Collection.find_by_repository_id(args[:collection_uuid])
-    ItemTsvIngester.new.ingest_pathname(args[:pathname], collection)
+    ItemTsvIngester.new.ingest_pathname(args[:pathname], collection,
+                                        args[:mode])
     Solr.instance.commit
   end
 

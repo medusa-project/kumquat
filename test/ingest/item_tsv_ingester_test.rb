@@ -83,37 +83,62 @@ class ItemTsvIngesterTest < ActiveSupport::TestCase
 
   test 'ingest_tsv should raise an error with empty TSV argument' do
     assert_raises RuntimeError do
-      @ingester.ingest_tsv(nil, @free_form_collection)
+      @ingester.ingest_tsv(nil, @free_form_collection,
+                           ItemTsvIngester::ImportMode::CREATE_AND_UPDATE)
+    end
+  end
+
+  test 'ingest_tsv should raise an error with invalid import_mode argument' do
+    # nil
+    assert_raises RuntimeError do
+      @ingester.ingest_tsv(@free_form_tsv, @free_form_collection, nil)
+    end
+
+    # invalid
+    assert_raises RuntimeError do
+      @ingester.ingest_tsv(@free_form_tsv, @free_form_collection, 'cats')
     end
   end
 
   test 'ingest_tsv should raise an error with collection with no content profile assigned' do
     assert_raises RuntimeError do
       @free_form_collection.content_profile = nil
-      @ingester.ingest_tsv(@free_form_tsv, @free_form_collection)
+      @ingester.ingest_tsv(@free_form_tsv, @free_form_collection,
+                           ItemTsvIngester::ImportMode::CREATE_AND_UPDATE)
     end
   end
 
   test 'ingest_tsv should raise an error with collection with no metadata profile assigned' do
     assert_raises RuntimeError do
       @free_form_collection.metadata_profile = nil
-      @ingester.ingest_tsv(@free_form_tsv, @free_form_collection)
+      @ingester.ingest_tsv(@free_form_tsv, @free_form_collection,
+                           ItemTsvIngester::ImportMode::CREATE_AND_UPDATE)
     end
   end
 
-  test 'ingest_tsv should create new items from valid TSV' do
-    assert_equal 45, @ingester.ingest_tsv(@free_form_tsv, @free_form_collection)
+  test 'ingest_tsv should create and update items from valid TSV when the mode is CREATE_AND_UPDATE' do
+    Item.destroy_all
+    # initial import
+    assert_equal 45, @ingester.ingest_tsv(@free_form_tsv, @free_form_collection,
+                                          ItemTsvIngester::ImportMode::CREATE_AND_UPDATE)
+    # 2nd import: check for updates
+    @free_form_tsv.gsub!('Illini_Union_Photographs', 'cats')
+    assert_equal 45, @ingester.ingest_tsv(@free_form_tsv, @free_form_collection,
+                                          ItemTsvIngester::ImportMode::CREATE_AND_UPDATE)
+    assert_equal 'cats', Item.find_by_repository_id('a53194a0-5ca8-0132-3334-0050569601ca-8').title
   end
 
-  test 'ingest_tsv should update existing items from valid TSV' do
-    initial_count = Item.all.count
-
-    tsv = "uuid\ttitle\r\n"
-    tsv += "item1\tFrom fixture\r\n"
-    tsv += "item2\tFrom fixture\r\n"
-    @ingester.ingest_tsv(tsv, @free_form_collection)
-
-    assert_equal initial_count, Item.all.count
+  test 'ingest_tsv should only create new items from valid TSV when the mode is CREATE_ONLY' do
+    Item.destroy_all
+    # initial import
+    assert_equal 45, @ingester.ingest_tsv(@free_form_tsv, @free_form_collection,
+                                          ItemTsvIngester::ImportMode::CREATE_ONLY)
+    # 2nd import: check that updates do not happen
+    @free_form_tsv.gsub!('Illini_Union_Photographs', 'cats')
+    assert_equal 0, @ingester.ingest_tsv(@free_form_tsv, @free_form_collection,
+                                         ItemTsvIngester::ImportMode::CREATE_ONLY)
+    assert_equal 'Illini_Union_Photographs',
+                 Item.find_by_repository_id('a53194a0-5ca8-0132-3334-0050569601ca-8').title
   end
 
 end
