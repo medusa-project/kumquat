@@ -92,6 +92,8 @@ class ItemsController < WebsiteController
 
     @items = @items.start(@start).limit(@limit)
 
+    fresh_when(etag: @items)
+
     respond_to do |format|
       format.html do
         @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
@@ -104,12 +106,16 @@ class ItemsController < WebsiteController
         end
       end
       format.json do
-        render json: @items.to_a.map { |item|
-          {
-              id: item.repository_id,
-              url: item_url(item)
+        render json: {
+            start: @start,
+            numResults: @items.count,
+            results: @items.to_a.map { |item|
+              {
+                  id: item.repository_id,
+                  url: item_url(item)
+              }
+            }
           }
-        }
       end
     end
   end
@@ -160,6 +166,8 @@ class ItemsController < WebsiteController
   def show
     @item = Item.find_by_repository_id(params[:id])
     raise ActiveRecord::RecordNotFound unless @item
+
+    fresh_when(etag: @item)
 
     respond_to do |format|
       format.html {
