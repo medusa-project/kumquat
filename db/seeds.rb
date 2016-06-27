@@ -124,9 +124,6 @@ if Rails.env.development?
       enabled: false)
 end
 
-# Themes
-Theme.create!(name: 'UIUC', default: true)
-
 # Overwrite some default options for internal demo purposes
 option = Option.find_by_key(Option::Key::COPYRIGHT_STATEMENT)
 option.value = 'Copyright © 2015 The Board of Trustees at the '\

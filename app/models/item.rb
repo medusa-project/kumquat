@@ -495,14 +495,15 @@ class Item < ActiveRecord::Base
 
       # profile-specific metadata elements
 
-      # Before we begin adding these, if the title is not already set, but
-      # there is a "name" (filename) column (only Medusa TSV will contain
-      # this), set the title to the filename.
-      if self.collection.content_profile == ContentProfile::FREE_FORM_PROFILE
-        row['title'] = row['name'] if row['name'].present? and row['title'].blank?
+      # Before we begin adding these, if we are using Medusa TSV, and the
+      # title is not already set, set the title to the filename.
+      if self.collection.content_profile == ContentProfile::FREE_FORM_PROFILE and
+          row['title'].blank? and !ItemTsvIngester.dls_tsv?(tsv)
+        row['title'] = row['name']
       end
-      # Now, begin.
-      row.select{ |col, value| self.collection.metadata_profile.element_defs.map(&:name).include?(col) }.
+      # Now, begin. Just to be safe, we will take in any valid descriptive
+      # element, whether or not it exists in the collection's metadata profile.
+      row.select{ |col, value| ElementDef.all_descriptive.map(&:name).include?(col) }.
           each do |col, value|
         # Add new elements
         if value.present?
@@ -599,12 +600,6 @@ class Item < ActiveRecord::Base
         bs = self.bytestreams.build
         bs.bytestream_type = Bytestream::Type::ACCESS_MASTER
         bs.repository_relative_pathname = am.content.strip
-        # width
-        width = node.xpath("//#{prefix}:accessMasterWidth", namespaces).first
-        bs.width = width.content.strip.to_i if width
-        # height
-        height = node.xpath("//#{prefix}:accessMasterHeight", namespaces).first
-        bs.height = height.content.strip.to_i if height
         # media type
         mt = node.xpath("//#{prefix}:accessMasterMediaType", namespaces).first
         bs.media_type = mt.content.strip if mt
@@ -617,12 +612,6 @@ class Item < ActiveRecord::Base
         bs = self.bytestreams.build
         bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
         bs.repository_relative_pathname = pm.content.strip
-        # width
-        width = node.xpath("//#{prefix}:preservationMasterWidth", namespaces).first
-        bs.width = width.content.strip.to_i if width
-        # height
-        height = node.xpath("//#{prefix}:preservationMasterHeight", namespaces).first
-        bs.height = height.content.strip.to_i if height
         # media type
         mt = node.xpath("//#{prefix}:preservationMasterMediaType", namespaces).first
         bs.media_type = mt.content.strip if mt

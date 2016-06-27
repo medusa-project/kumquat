@@ -76,6 +76,8 @@ class ItemTsvIngester
     raise 'No collection provided.' unless collection
     raise 'Collection does not have a content profile assigned.' unless
         collection.content_profile
+    raise 'Collection does not have a metadata profile assigned.' unless
+        collection.metadata_profile
 
     # Treat the zero-byte as the quote character in order to allow quotes in
     # values.

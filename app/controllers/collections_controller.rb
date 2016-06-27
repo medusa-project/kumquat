@@ -3,6 +3,7 @@ class CollectionsController < WebsiteController
   def index
     @collections = Collection.solr.
         where(Collection::SolrFields::PUBLISHED => true).
+        where(Collection::SolrFields::ACCESS_URL => :not_null).
         facetable_fields(Collection::solr_facet_fields.map{ |e| e[:name] }).
         order(Collection::SolrFields::TITLE).limit(9999)
 

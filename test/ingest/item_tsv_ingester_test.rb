@@ -94,6 +94,13 @@ class ItemTsvIngesterTest < ActiveSupport::TestCase
     end
   end
 
+  test 'ingest_tsv should raise an error with collection with no metadata profile assigned' do
+    assert_raises RuntimeError do
+      @free_form_collection.metadata_profile = nil
+      @ingester.ingest_tsv(@free_form_tsv, @free_form_collection)
+    end
+  end
+
   test 'ingest_tsv should create new items from valid TSV' do
     assert_equal 45, @ingester.ingest_tsv(@free_form_tsv, @free_form_collection)
   end

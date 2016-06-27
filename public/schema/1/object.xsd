@@ -157,8 +157,7 @@
       top-level items. -->
       <xs:element name="parentId" type="xs:token" minOccurs="0" maxOccurs="1"/>
 
-      <!-- Pixel height of the preservation master. For raster images and
-      videos. -->
+      <!-- Ignored. -->
       <xs:element name="preservationMasterHeight" type="xs:positiveInteger" minOccurs="0" maxOccurs="1"/>
 
       <!-- IANA media type of the preservation master. If blank, it will
@@ -174,8 +173,7 @@
       preservationMasterFilename. -->
       <xs:element name="preservationMasterURL" type="xs:anyURI" minOccurs="0" maxOccurs="1"/>
 
-      <!-- Pixel width of the preservation master. For raster images and
-      videos. -->
+      <!-- Ignored. -->
       <xs:element name="preservationMasterWidth" type="xs:positiveInteger" minOccurs="0" maxOccurs="1"/>
 
       <!-- Subclass name -->

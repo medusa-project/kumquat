@@ -12,8 +12,6 @@ module Admin
           map{ |t| [ t.name, t.id ] }
       @content_profile_options_for_select = ContentProfile.all.
           map{ |t| [ t.name, t.id ] }
-      @theme_options_for_select = [[ 'None (Use Global)', nil ]] +
-          Theme.order(:name).map{ |t| [ t.name, t.id ] }
     end
 
     def index
@@ -70,7 +68,7 @@ module Admin
                                          :medusa_cfs_directory_id,
                                          :medusa_file_group_id,
                                          :metadata_profile_id,
-                                         :published_in_dls, :theme_id)
+                                         :published_in_dls)
     end
 
     def update_collections_rbac
