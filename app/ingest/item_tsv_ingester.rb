@@ -52,14 +52,13 @@ class ItemTsvIngester
   #
   # @param pathname [String] Absolute pathname of a TSV file
   # @param collection [Collection] Collection to ingest the items into.
-  # @param task [Task] Optional
   # @return [Integer] Number of items ingested
   #
-  def ingest_pathname(pathname, collection, task = nil)
+  def ingest_pathname(pathname, collection)
     pathname = File.expand_path(pathname)
     Rails.logger.info("Ingesting items in #{pathname}...")
 
-    ingest_tsv(File.read(pathname), collection, task)
+    ingest_tsv(File.read(pathname), collection)
   end
 
   ##
@@ -67,11 +66,10 @@ class ItemTsvIngester
   #
   # @param tsv [String] TSV body string
   # @param collection [Collection] Collection to ingest the items into.
-  # @param task [Task] Optional
   # @return [Integer] Number of items ingested
   # @raises [RuntimeError]
   #
-  def ingest_tsv(tsv, collection, task = nil)
+  def ingest_tsv(tsv, collection)
     raise 'No TSV content provided.' unless tsv.present?
     raise 'No collection provided.' unless collection
     raise 'Collection does not have a content profile assigned.' unless
@@ -97,10 +95,6 @@ class ItemTsvIngester
           Item.from_tsv(tsv, row, collection)
         end
         count += 1
-
-        if task and count % 10 == 0
-          task.progress = count / total_count.to_f
-        end
       end
     end
     count
