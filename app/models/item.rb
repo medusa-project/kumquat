@@ -88,18 +88,26 @@ class Item < ActiveRecord::Base
   # column per element definition in the item's collection's metadata profile.
   #
   # Headings are guaranteed to be consistent with the output of to_tsv as long
-  # as the passed-in MetadataProfile is the same as that of an item's
-  # collection.
+  # as the passed-in MetadataProfile is the same as the one assigned to an
+  # item's collection.
   #
   # @param metadata_profile [MetadataProfile]
-  # @return [String] Tab-separated values with trailing CRLF newline.
+  # @return [String] Tab-separated values with trailing newline.
   # @see to_tsv
   #
   def self.tsv_header(metadata_profile)
     # Must remain synchronized with the output of to_tsv.
-    tech_elements = ['uuid', 'parentId', 'variant', 'pageNumber',
-                     'subpageNumber', 'latitude', 'longitude']
-    elements = tech_elements + metadata_profile.element_defs.map(&:name)
+    elements = ['uuid', 'parentId', 'variant', 'pageNumber',
+                'subpageNumber', 'latitude', 'longitude']
+    metadata_profile.element_defs.each do |el|
+      # There will be one column per ElementDef vocabulary. Column headings are
+      # in the format "vocabKey:elementName", except the uncontrolled vocabulary
+      # which will not get a vocabKey prefix.
+      elements += el.vocabularies.order(:key).map do |vocab|
+        vocab.key != Vocabulary::UNCONTROLLED_KEY ?
+            "#{vocab.key}:#{el.name}" : el.name
+      end
+    end
     elements.join("\t") + TSV_LINE_BREAK
   end
 
@@ -405,9 +413,14 @@ class Item < ActiveRecord::Base
     columns << self.latitude
     columns << self.longitude
 
-    self.collection.metadata_profile.element_defs.each do |el|
-      columns << self.elements.select{ |e| e.name == el.name }.map(&:value).
-          join(MULTI_VALUE_SEPARATOR)
+    self.collection.metadata_profile.element_defs.each do |pe|
+      # An ElementDef will have one column per vocabulary.
+      pe.vocabularies.order(:key).each do |vocab|
+        columns << self.elements.
+            select{ |e| e.name == pe.name and e.vocabulary == vocab }.
+            map(&:value).
+            join(MULTI_VALUE_SEPARATOR)
+      end
     end
     columns.join("\t") + TSV_LINE_BREAK
   end

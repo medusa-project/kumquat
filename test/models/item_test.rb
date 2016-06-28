@@ -29,6 +29,7 @@ class ItemTest < ActiveSupport::TestCase
 
   test 'tsv_header should return the correct columns' do
     cols = Item.tsv_header(@item.collection.metadata_profile).strip.split("\t")
+    assert_equal 11, cols.length
     assert_equal 'uuid', cols[0]
     assert_equal 'parentId', cols[1]
     assert_equal 'variant', cols[2]
@@ -36,10 +37,10 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal 'subpageNumber', cols[4]
     assert_equal 'latitude', cols[5]
     assert_equal 'longitude', cols[6]
-
-    @item.collection.metadata_profile.element_defs.map(&:name).each_with_index do |el, index|
-      assert_not_empty cols[7 + index]
-    end
+    assert_equal 'title', cols[7]
+    assert_equal 'description', cols[8]
+    assert_equal 'lcsh:subject', cols[9]
+    assert_equal 'tgm:subject', cols[10]
   end
 
   # access_master_bytestream()
@@ -160,6 +161,7 @@ class ItemTest < ActiveSupport::TestCase
 
   test 'to_tsv should work' do
     values = @item.to_tsv.strip.split("\t")
+    assert_equal 11, values.length
     assert_equal @item.repository_id.to_s, values[0]
     assert_equal @item.parent_repository_id.to_s, values[1]
     assert_equal @item.variant.to_s, values[2]
@@ -167,13 +169,9 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal @item.subpage_number.to_s, values[4]
     assert_equal @item.latitude.to_s, values[5]
     assert_equal @item.longitude.to_s, values[6]
-
-    @item.collection.metadata_profile.element_defs.each_with_index do |el, index|
-      assert_equal @item.elements.select{ |e| e.name == el.name }.map(&:value).
-          join(Item::MULTI_VALUE_SEPARATOR),
-                   values[7 + index].to_s
-      assert_not_equal 'nil', values[7 + index]
-    end
+    assert_equal @item.elements.select{ |e| e.name == 'title' }.first.value, values[7]
+    assert_equal @item.elements.select{ |e| e.name == 'description' }.first.value, values[8]
+    assert_equal @item.elements.select{ |e| e.name == 'subject' }.first.value, values[9]
   end
 
   # update_from_tsv

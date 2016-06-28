@@ -1,9 +1,13 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-one:
-  key: MyString
-  name: MyString
+uncontrolled:
+  key: uncontrolled
+  name: Uncontrolled
 
-two:
-  key: MyString
-  name: MyString
+lcsh:
+  key: lcsh
+  name: Library of Congress Subject Headings
+
+tgm:
+  key: tgm
+  name: Thesaurus of Graphic Materials
