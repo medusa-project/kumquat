@@ -43,11 +43,8 @@
       <tr>
         <th></th>
         <th></th>
-        <th></th>
         <th>Element</th>
-        <th>Label</th>
-        <th>Dublin Core Map</th>
-        <th>Dublin Core Terms Map</th>
+        <th>Mappings</th>
         <th class="text-center">Visible</th>
         <th class="text-center">Searchable</th>
         <th class="text-center">Sortable</th>
@@ -64,17 +61,29 @@
                     data-element-id="<%= element.id %>">
               Edit
             </button>
-          </td>
-          <td>
+            <br>
             <%= link_to 'Delete', admin_element_def_path(element),
                         class: 'btn btn-danger btn-xs', method: :delete,
                         data: { confirm: 'Are you sure you want to delete '\
                         'this element?' } %>
           </td>
-          <td><%= element.name %></td>
-          <td><%= element.label %></td>
-          <td><%= DublinCoreElement.label_for(element.dc_map) %></td>
-          <td><%= DublinCoreTerm.label_for(element.dcterms_map) %></td>
+          <td>
+            <var><%= element.name %></var>
+            <br>
+            <%= element.label %>
+          </td>
+          <td>
+            <table class="table-condensed">
+              <tr>
+                <th class="text-right">dc</th>
+                <td><%= DublinCoreElement.label_for(element.dc_map) %></td>
+              </tr>
+              <tr>
+                <th>dcterms</th>
+                <td><%= DublinCoreTerm.label_for(element.dcterms_map) %></td>
+              </tr>
+            </table>
+          </td>
           <td class="text-center <%= element.visible ? 'bg-success' : 'bg-danger' %>">
             <%= boolean(element.visible) %>
           </td>
