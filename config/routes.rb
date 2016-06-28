@@ -107,5 +107,6 @@ Rails.application.routes.draw do
       match '/disable', to: 'users#disable', via: 'patch', as: 'disable'
       match '/roles', to: 'users#change_roles', via: 'patch', as: 'change_roles'
     end
+    resources :vocabularies
   end
 end

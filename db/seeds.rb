@@ -62,6 +62,9 @@ profiles = {}
 profiles[:default] = MetadataProfile.create!(name: 'Default Profile',
                                              default: true)
 
+# Vocabularies
+Vocabulary.create!(name: 'Default Vocabulary', key: 'default')
+
 # Collections
 
 collections = {}
