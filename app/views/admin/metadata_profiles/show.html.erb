@@ -36,7 +36,7 @@
 
 <h2>Elements</h2>
 
-<% if @profile.element_defs.count > 0 %>
+<% if @profile.element_defs.any? %>
 
   <table class="table table-striped">
     <thead>
@@ -44,6 +44,7 @@
         <th></th>
         <th></th>
         <th>Element</th>
+        <th>Vocabularies</th>
         <th>Mappings</th>
         <th class="text-center">Visible</th>
         <th class="text-center">Searchable</th>
@@ -52,9 +53,9 @@
       </tr>
     </thead>
     <tbody>
-      <% @profile.element_defs.order(:index).each_with_index do |element, i| %>
+      <% @profile.element_defs.order(:index).each do |element| %>
         <tr>
-          <td><%= element.index + 1%></td>
+          <td><%= element.index + 1 %></td>
           <td>
             <button type="button" class="btn btn-default btn-xs pt-edit-element"
                     data-toggle="modal" data-target="#pt-edit-element-modal"
@@ -68,12 +69,23 @@
                         'this element?' } %>
           </td>
           <td>
-            <var><%= element.name %></var>
-            <br>
             <%= element.label %>
+            <br>
+            <var><%= element.name %></var>
           </td>
           <td>
-            <table class="table-condensed">
+            <% if element.vocabularies.any? %>
+              <ul>
+                <% element.vocabularies.each do |vocab| %>
+                  <li><%= vocab.name %></li>
+                <% end %>
+              </ul>
+            <% else %>
+              &ndash;
+            <% end %>
+          </td>
+          <td>
+            <table>
               <tr>
                 <th class="text-right">dc</th>
                 <td><%= DublinCoreElement.label_for(element.dc_map) %></td>

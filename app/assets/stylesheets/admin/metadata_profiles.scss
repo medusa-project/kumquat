@@ -1,6 +1,13 @@
 body#metadata_profiles_show {
   td {
     vertical-align: middle;
+    td, th {
+      padding: 3px 5px 3px 5px;
+    }
+    ul {
+      margin-left: 0px;
+      padding-left: 0px;
+    }
   }
   button.pt-edit-element {
     margin-bottom: 0.8em;
