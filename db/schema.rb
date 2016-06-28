@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160628134506) do
+ActiveRecord::Schema.define(version: 20160628145618) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -85,6 +85,11 @@ ActiveRecord::Schema.define(version: 20160628134506) do
   end
 
   add_index "element_defs", ["metadata_profile_id"], name: "index_element_defs_on_metadata_profile_id", using: :btree
+
+  create_table "element_defs_vocabularies", id: false, force: :cascade do |t|
+    t.integer "element_def_id", null: false
+    t.integer "vocabulary_id",  null: false
+  end
 
   create_table "elements", force: :cascade do |t|
     t.string   "name"
