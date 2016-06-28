@@ -6,6 +6,7 @@ class Element < ActiveRecord::Base
   end
 
   belongs_to :item, inverse_of: :elements
+  belongs_to :vocabulary
 
   attr_accessor :type
 
