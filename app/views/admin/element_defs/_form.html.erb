@@ -29,6 +29,9 @@
 
   <div class="form-group">
     <%= f.label :vocabularies, 'Vocabularies' %>
+
+    <%= hidden_field_tag('element_def[vocabulary_ids][]', nil) %>
+
     <% Vocabulary.order(:name).each do |vocab| %>
       <div class="checkbox">
         <%= label_tag do %>
