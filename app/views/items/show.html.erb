@@ -76,9 +76,11 @@
   <%= item_page_title(@item) %>
 <% end %>
 
-<!-- If the item's collection's content profile is the free-form profile, lay
-out the viewer and metadata side-by-side. (IMET-161) -->
-<% if @item.collection.content_profile == ContentProfile::FREE_FORM_PROFILE %>
+<!-- If the item's collection's content profile is the free-form profile, and
+the current item is not a directory, lay out the viewer and metadata
+side-by-side. (IMET-161) -->
+<% if @item.collection.content_profile == ContentProfile::FREE_FORM_PROFILE and
+    @item.variant != Item::Variants::DIRECTORY %>
   <div class="row">
     <div class="col-md-7 pt-split-viewer">
       <%= viewer_for(@item) %>
