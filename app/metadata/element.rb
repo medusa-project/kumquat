@@ -1,3 +1,17 @@
+##
+# Encapsulates a metadata element attached to an item. An element has a name
+# matching any of the AvailableElement names.
+#
+# To add technical elements:
+# 1) Add a column for it on Item
+# 2) Add it to Item::SolrFields
+# 3) Add it to app/metadata/metadata.yml
+# 4) Add it to one of the XSDs in /public
+# 5) Add serialization code to Item.tsv_header, to_tsv, to_xml, and to_solr
+# 6) Add deserialization code to Item.update_from_tsv and update_from_xml
+# 7) Update fixtures and tests
+# 8) Reindex, if necessary
+#
 class Element < ActiveRecord::Base
 
   class Type
