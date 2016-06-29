@@ -50,9 +50,16 @@ module Admin
 
     ##
     # Responds to GET /elements
+    #
     def index
       @elements = AvailableElement.all.order(:name)
-      @new_element = AvailableElement.new
+      respond_to do |format|
+        format.html { @new_element = AvailableElement.new }
+        format.json {
+          headers['Content-Disposition'] = "attachment; filename=elements.json"
+          render json: @elements
+        }
+      end
     end
 
     ##

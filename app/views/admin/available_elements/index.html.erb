@@ -8,10 +8,15 @@
 </ol>
 
 <div class="btn-group pull-right">
+  <!-- Add Element button -->
   <button type="button" class="btn btn-default" data-toggle="modal"
           data-target="#pt-add-element-modal">
     <span class="fa fa-plus"></span> Add Element
   </button>
+  <!-- Export button -->
+  <%= link_to params.merge(format: 'json'), type: 'button', class: 'btn btn-default' do %>
+    <i class="fa fa-download"></i> Export
+  <% end %>
 </div>
 
 <h1>Available Elements</h1>
