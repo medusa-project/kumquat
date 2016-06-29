@@ -176,7 +176,7 @@ class ItemTest < ActiveSupport::TestCase
 
   # update_from_tsv
 
-  test 'update_from_tsv should work with a parentId column' do
+  test 'update_from_tsv should work with DLS TSV' do
     row = {}
     # technical elements
     row['parentId'] = '9182'
@@ -212,7 +212,7 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal('Cats', @item.title)
   end
 
-  test 'update_from_tsv should work without a parentId column' do
+  test 'update_from_tsv should work with Medusa TSV' do
     row = {}
     # technical elements
     row['date'] = '1984'
@@ -227,6 +227,8 @@ class ItemTest < ActiveSupport::TestCase
                                  Item::MULTI_VALUE_SEPARATOR,
                                  Item::MULTI_VALUE_SEPARATOR)
     row['title'] = 'Cats'
+    row['subject'] = 'Mammals'
+    row['lcsh:subject'] = 'Felines'
 
     @item.update_from_tsv([row], row)
 
@@ -243,8 +245,28 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal 1, descriptions.select{ |e| e.value == 'Cats' }.length
     assert_equal 1, descriptions.select{ |e| e.value == 'cats' }.length
     assert_equal 1, descriptions.select{ |e| e.value == 'and more cats' }.length
+    assert_equal Vocabulary.uncontrolled, descriptions[0].vocabulary
+    assert_equal Vocabulary.uncontrolled, descriptions[1].vocabulary
+    assert_equal Vocabulary.uncontrolled, descriptions[2].vocabulary
 
-    assert_equal('Cats', @item.title)
+    title = @item.elements.select{ |e| e.name == 'title' }.first
+    assert_equal Vocabulary.uncontrolled, title.vocabulary
+    assert_equal 'Cats', title.value
+
+    assert_not_nil @item.elements.
+        select{ |e| e.name == 'subject' and e.vocabulary == Vocabulary.uncontrolled and e.value = 'Mammals' }.first
+    assert_not_nil @item.elements.
+        select{ |e| e.name == 'subject' and e.vocabulary == Vocabulary.find_by_key('lcsh') and e.value == 'Felines' }.first
+  end
+
+  test 'update_from_tsv should raise an error if given an invalid vocabulary prefix' do
+    row = {}
+    row['title'] = 'Cats'
+    row['bogus:subject'] = 'Felines'
+
+    assert_raises RuntimeError do
+      @item.update_from_tsv([row], row)
+    end
   end
 
   test 'update_from_tsv should set the variant for free-form content from
