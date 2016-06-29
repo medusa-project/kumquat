@@ -1,0 +1,94 @@
+<% provide :title, 'Available Elements' %>
+<% provide :body_id, 'available_elements' %>
+<% provide :active_nav, 'metadata' %>
+
+<ol class="breadcrumb">
+  <li><%= link_to 'Home', admin_root_path %></li>
+  <li class="active">Available Elements</li>
+</ol>
+
+<div class="btn-group pull-right">
+  <button type="button" class="btn btn-default" data-toggle="modal"
+          data-target="#pt-add-element-modal">
+    <span class="fa fa-plus"></span> Add Element
+  </button>
+</div>
+
+<h1>Available Elements</h1>
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th style="width: 1px"></th>
+      <th style="width: 1px"></th>
+      <th>Element</th>
+      <th>Description</th>
+      <th># of Occurrences</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @elements.each do |element| %>
+      <% num_usages = element.num_usages %>
+      <tr>
+        <td>
+          <button type="button" class="btn btn-default btn-xs pt-edit-element"
+                  data-toggle="modal" data-target="#pt-edit-element-modal"
+                  data-element-id="<%= element.id %>">
+            Edit
+          </button>
+        </td>
+        <td>
+          <% if num_usages > 0 %>
+            <%= link_to 'Delete', '#', class: 'btn btn-danger btn-xs',
+                        disabled: true %>
+          <% else %>
+            <%= link_to 'Delete', admin_available_element_path(element),
+                        class: 'btn btn-danger btn-xs', method: :delete,
+                        data: { confirm: 'Are you sure you want to delete '\
+                        'this element?' } %>
+          <% end %>
+        </td>
+        <td><%= link_to element.name, admin_available_element_path(element) %></td>
+        <td><%= element.description %></td>
+        <td><%= num_usages %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<!-- Add-element modal -->
+<div class="modal fade" id="pt-add-element-modal" tabindex="-1" role="dialog"
+     aria-labelledby="pt-add-element-modal-label">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title" id="pt-add-element-modal-label">Add Element</h4>
+      </div>
+      <div class="modal-body">
+        <%= render partial: 'form', locals: { element: @new_element,
+                                              context: :new } %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit-element modal -->
+<div class="modal fade" id="pt-edit-element-modal" tabindex="-1" role="dialog"
+     aria-labelledby="pt-edit-element-modal-label">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title" id="pt-edit-element-modal-label">Edit Element</h4>
+      </div>
+      <div class="modal-body">
+        <% # will be populated via XHR %>
+      </div>
+    </div>
+  </div>
+</div>

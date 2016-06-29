@@ -62,6 +62,22 @@ profiles = {}
 profiles[:default] = MetadataProfile.create!(name: 'Default Profile',
                                              default: true)
 
+# Available elements
+
+%w(abstract accessRights accrualMethod accrualPeriodicity accrualPolicy
+alternativeTitle audience bibId bibliographicCitation callNumber
+cartographicScale conformsTo contributor creator date dateAccepted
+dateAvailable dateCopyrighted dateCreated dateIssued dateModified
+dateSubmitted dateValid description dimensions educationLevel extent format
+hasFormat hasPart hasVersion identifier instructionalMethod isFormatOf
+isPartOf isReferencedBy isReplacedBy isRequiredBy isVersionOf keyword language
+license localId materialsColor materialsTechniques mediator medium notes
+physicalLocation provenance publicationPlace publisher references relation
+replaces requires rights rightsHolder source spatialCoverage subject
+tableOfContents temporalCoverage title type).each do |element|
+  AvailableElement.create!(name: element)
+end
+
 # Collections
 
 collections = {}
