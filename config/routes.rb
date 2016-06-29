@@ -82,6 +82,7 @@ Rails.application.routes.draw do
     root 'dashboard#index'
 
     resources :available_elements, except: :show, path: 'elements'
+    match '/elements/schema', to: 'available_elements#schema', via: 'get'
     match '/collections/refresh', to: 'collections#refresh', via: 'patch',
           as: 'collections_refresh'
     resources :collections, except: [:new, :create, :delete] do

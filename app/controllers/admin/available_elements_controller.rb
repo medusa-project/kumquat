@@ -48,9 +48,18 @@ module Admin
              locals: { element: element, context: :edit }
     end
 
+    ##
+    # Responds to GET /elements
     def index
       @elements = AvailableElement.all.order(:name)
       @new_element = AvailableElement.new
+    end
+
+    ##
+    # Responds to GET /elements/schema
+    #
+    def schema
+      render 'schema.xml.builder'
     end
 
     ##

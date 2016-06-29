@@ -5,6 +5,9 @@
            xmlns:dls="http://digital.library.illinois.edu/terms#"
            xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
+  <!-- WARNING: THIS SCHEMA IS OBSOLETE, AND CONFORMANT DOCUMENTS CAN NO
+  LONGER BE IMPORTED. -->
+
   <xs:annotation>
     <xs:documentation xml:lang="en">
       Changes since version 2:
