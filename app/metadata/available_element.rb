@@ -10,6 +10,8 @@ class AvailableElement < ActiveRecord::Base
   before_update :restrict_name_changes
   before_destroy :restrict_delete_of_used_elements
 
+
+
   ##
   # @return [Integer]
   #
