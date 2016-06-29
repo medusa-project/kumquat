@@ -87,7 +87,7 @@ module Admin
           @new_element = @profile.element_defs.build
           @element_def_options_for_select =
               @profile.element_defs.map{ |t| [ t.name, t.id ] }
-          @name_options_for_select = ElementDef.all_descriptive.
+          @name_options_for_select = Element.all_descriptive.
               map{ |t| [ t.name, t.name ] }
         }
         format.json {

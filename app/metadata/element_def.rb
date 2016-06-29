@@ -9,14 +9,6 @@ class ElementDef < ActiveRecord::Base
   after_save :adjust_profile_element_indexes_after_save
   after_destroy :adjust_profile_element_indexes_after_destroy
 
-  def self.all_available
-    Element.all_available.map{ |e| ElementDef.new(name: e.name) }
-  end
-
-  def self.all_descriptive
-    Element.all_descriptive.map{ |e| ElementDef.new(name: e.name) }
-  end
-
   ##
   # Updates the indexes of all elements in the same metadata profile to ensure
   # that they are non-repeating and properly gapped.
