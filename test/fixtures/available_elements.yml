@@ -1,9 +1,16 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-one:
-  name: MyString
-  description: MyString
+date:
+  name: Date
 
-two:
-  name: MyString
-  description: MyString
+description:
+  name: Description
+
+subject:
+  name: Subject
+
+title:
+  name: Title
+
+type:
+  name: Type

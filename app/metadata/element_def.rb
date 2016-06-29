@@ -14,8 +14,7 @@ class ElementDef < ActiveRecord::Base
   end
 
   def self.all_descriptive
-    Element.all_available.select{ |e| e.type == Element::Type::DESCRIPTIVE }.
-        map{ |e| ElementDef.new(name: e.name) }
+    Element.all_descriptive.map{ |e| ElementDef.new(name: e.name) }
   end
 
   ##

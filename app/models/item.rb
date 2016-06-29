@@ -503,7 +503,7 @@ class Item < ActiveRecord::Base
       end
       # Now, begin. Just to be safe, we will take in any valid descriptive
       # element, whether or not it exists in the collection's metadata profile.
-      row.select{ |col, value| ElementDef.all_descriptive.map(&:name).include?(col) }.
+      row.select{ |col, value| Element.all_descriptive.map(&:name).include?(col) }.
           each do |col, value|
         # Add new elements
         if value.present?

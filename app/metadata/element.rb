@@ -9,26 +9,36 @@ class Element < ActiveRecord::Base
 
   attr_accessor :type
 
-  @@element_defs = YAML::load_file(File.join(__dir__, 'metadata.yml'))
+  @@element_properties = YAML::load_file(File.join(__dir__, 'metadata.yml'))
 
   validates_presence_of :name
 
+  ##
+  # @return [Array<Element>]
+  #
   def self.all_available
-    all_elements = []
-    @@element_defs.each do |name, defs|
-      e = Element.new
-      e.name = name
-      e.type = (defs['type'] == 'descriptive') ?
-          Type::DESCRIPTIVE : Type::TECHNICAL
-      all_elements << e
+    # Technical elements
+    all_elements = @@element_properties.map do |name, props|
+      Element.new(name: name, type: Type::TECHNICAL)
     end
+    # Descriptive elements
+    all_elements += all_descriptive
     all_elements
   end
 
+  ##
+  # @return [Array<Element>]
+  #
   def self.all_descriptive
-    all_available.select{ |e| e.type == Type::DESCRIPTIVE }
+    AvailableElement.all.map do |elem|
+      Element.new(name: elem.name, type: Type::DESCRIPTIVE)
+    end
   end
 
+  ##
+  # @return [Element] Element with the given name, or nil if the given name is
+  #                   not an available technical or descriptive element name.
+  #
   def self.named(name)
     all_available.select{ |e| e.name == name }.first
   end
