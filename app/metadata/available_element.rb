@@ -15,15 +15,20 @@ class AvailableElement < ActiveRecord::Base
   ##
   # @return [Integer]
   #
-  def num_usages
+  def num_usages_by_items
     Element.where(name: self.name).count
   end
 
   ##
+  # @return [Integer]
+  #
+  def num_usages_by_metadata_profiles
+    ElementDef.where(name: self.name).count
+  end
   # Disallows instances with any uses from being destroyed.
   #
   def restrict_delete_of_used_elements
-    self.num_usages == 0
+    self.num_usages_by_items == 0 and self.num_usages_by_metadata_profiles == 0
   end
 
   ##

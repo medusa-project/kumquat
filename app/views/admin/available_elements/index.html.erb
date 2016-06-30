@@ -33,7 +33,7 @@
   </thead>
   <tbody>
     <% @elements.each do |element| %>
-      <% num_usages = element.num_usages %>
+      <% num_usages_by_items = element.num_usages_by_items %>
       <tr>
         <td>
           <button type="button" class="btn btn-default btn-xs pt-edit-element"
@@ -43,7 +43,7 @@
           </button>
         </td>
         <td>
-          <% if num_usages > 0 %>
+          <% if num_usages_by_items > 0 %>
             <%= link_to 'Delete', '#', class: 'btn btn-danger btn-xs',
                         disabled: true %>
           <% else %>
@@ -55,7 +55,7 @@
         </td>
         <td><%= link_to element.name, admin_available_element_path(element) %></td>
         <td><%= element.description %></td>
-        <td><%= num_usages %></td>
+        <td><%= num_usages_by_items %></td>
       </tr>
     <% end %>
   </tbody>
