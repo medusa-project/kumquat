@@ -30,7 +30,7 @@ class AvailableElement < ActiveRecord::Base
   # Disallows the name from being changed.
   #
   def restrict_name_changes
-    self.name_was != self.name
+    self.name_was == self.name
   end
 
 end
