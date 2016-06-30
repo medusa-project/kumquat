@@ -417,7 +417,7 @@ class Item < ActiveRecord::Base
       # An ElementDef will have one column per vocabulary.
       pe.vocabularies.order(:key).each do |vocab|
         columns << self.elements.
-            select{ |e| e.name == pe.name and e.vocabulary == vocab }.
+            select{ |e| e.name == pe.name and (e.vocabulary == vocab or (!e.vocabulary and vocab == Vocabulary.uncontrolled)) }.
             map(&:value).
             join(MULTI_VALUE_SEPARATOR)
       end
