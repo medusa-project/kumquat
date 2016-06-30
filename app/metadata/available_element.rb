@@ -10,7 +10,15 @@ class AvailableElement < ActiveRecord::Base
   before_update :restrict_name_changes
   before_destroy :restrict_delete_of_used_elements
 
-
+  ##
+  # @param struct [Hash] Deserialized hash from JSON.parse()
+  # @return [AvailableElement] New non-persisted AvailableElement
+  #
+  def self.from_json_struct(struct)
+    e = AvailableElement.new
+    e.update_from_json_struct(struct)
+    e
+  end
 
   ##
   # @return [Integer]
@@ -25,6 +33,16 @@ class AvailableElement < ActiveRecord::Base
   def num_usages_by_metadata_profiles
     ElementDef.where(name: self.name).count
   end
+
+  def update_from_json_struct(struct)
+    self.name = struct['name']
+    self.description = struct['description']
+    self.save!
+  end
+
+  private
+
+  ##
   # Disallows instances with any uses from being destroyed.
   #
   def restrict_delete_of_used_elements

@@ -82,6 +82,8 @@ Rails.application.routes.draw do
     root 'dashboard#index'
 
     resources :available_elements, except: :show, path: 'elements'
+    match '/elements/import', to: 'available_elements#import', via: 'post',
+          as: 'available_elements_import'
     match '/elements/schema', to: 'available_elements#schema', via: 'get'
     match '/collections/refresh', to: 'collections#refresh', via: 'patch',
           as: 'collections_refresh'

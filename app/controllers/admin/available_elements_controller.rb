@@ -2,6 +2,11 @@ module Admin
 
   class AvailableElementsController < ControlPanelController
 
+    class ImportMode
+      MERGE = 'merge'
+      REPLACE = 'replace'
+    end
+
     ##
     # XHR only
     #
@@ -46,6 +51,37 @@ module Admin
       element = AvailableElement.find(params[:id])
       render partial: 'admin/available_elements/form',
              locals: { element: element, context: :edit }
+    end
+
+    ##
+    # Responds to POST /admin/elements/import
+    #
+    def import
+      begin
+        raise 'No elements specified.' if params[:elements].blank?
+
+        json = params[:elements].read.force_encoding('UTF-8')
+        struct = JSON.parse(json)
+        ActiveRecord::Base.transaction do
+          if params[:import_mode] == ImportMode::REPLACE
+            AvailableElement.delete_all # skip callbacks & validation
+          end
+          struct.each do |hash|
+            e = AvailableElement.find_by_name(hash['name'])
+            if e
+              e.update_from_json_struct(hash)
+            else
+              AvailableElement.from_json_struct(hash).save!
+            end
+          end
+        end
+      rescue => e
+        flash['error'] = "#{e}"
+        redirect_to admin_available_elements_path
+      else
+        flash['success'] = "#{struct.length} elements created or updated."
+        redirect_to admin_available_elements_path
+      end
     end
 
     ##
