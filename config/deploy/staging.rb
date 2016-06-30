@@ -33,7 +33,8 @@ server 'kumquat-dev.library.illinois.edu', user: 'peartree',
 # Feel free to add new variables to customise your setup.
 
 # Default branch is :master
-ask :branch, 'staging'
+#ask :branch, 'staging'
+set :branch, 'staging'
 
 # Custom SSH Options
 # ==================
