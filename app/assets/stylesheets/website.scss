@@ -14,17 +14,6 @@
   font-style: normal;
 }
 
-@font-face {
-  font-family: 'PT Sans';
-  src: font_url('PT_Sans-Web-Regular.eot');
-  src: local('☺'),
-  font_url('PT_Sans-Web-Regular.woff') format('woff'),
-  font_url('PT_Sans-Web-Regular.ttf') format('truetype'),
-  font_url('PT_Sans-Web-Regular.svg') format('svg');
-  font-weight: normal;
-  font-style: normal;
-}
-
 @media print {
   header, footer, .btn, .pt-facets, audio, video {
     display: none;
@@ -55,8 +44,22 @@ h6 {
   font-size: 0.9em;
 }
 
-h2, h3, h4, h5, h6, .navbar-header a, #pt-navbar-collapse a, .breadcrumb, .btn, .pt-title {
-  font-family: 'PT Sans', sans-serif;
+h2, h3, h4, h5, h6, .panel-title, .pt-title, .pt-title a {
+  color: black;
+  font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+  font-weight: 500;
+}
+
+p {
+  line-height: 1.45em;
+  font-size: 1.15em;
+  font-weight: 300;
+}
+
+td, dd {
+  line-height: 1.25em;
+  font-size: 1.05em;
+  font-weight: 400;
 }
 
 #pt-page-content {
@@ -195,13 +198,10 @@ description on the right.
           vertical-align:top;
         }
       }
-      .pt-title {
+      .pt-label {
         font-size: 1.3em;
-        .label {
-          background-color: #d0d0d0;
-          font-size: 0.7em;
-          font-weight: normal;
-          vertical-align: 30%;
+        a {
+          color: black;
         }
         .pt-info-line {
           .pt-icon {

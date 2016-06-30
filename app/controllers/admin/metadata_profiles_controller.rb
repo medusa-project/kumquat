@@ -22,6 +22,7 @@ module Admin
 
     def create
       @profile = MetadataProfile.new(sanitized_params)
+      @profile.add_default_element_defs
       begin
         @profile.save!
       rescue ActiveRecord::RecordInvalid
@@ -54,6 +55,25 @@ module Admin
       end
     end
 
+    ##
+    # Responds to POST /admin/metadata-profiles/import
+    #
+    def import
+      begin
+        raise 'No profile specified.' if params[:metadata_profile].blank?
+
+        json = params[:metadata_profile].read.force_encoding('UTF-8')
+        profile = MetadataProfile.from_json(json)
+        profile.save!
+      rescue => e
+        flash['error'] = "#{e}"
+        redirect_to admin_metadata_profiles_path
+      else
+        flash['success'] = "Profile imported as #{profile.name}."
+        redirect_to admin_metadata_profiles_path
+      end
+    end
+
     def index
       @profiles = MetadataProfile.order(:name)
       @new_profile = MetadataProfile.new
@@ -61,11 +81,21 @@ module Admin
 
     def show
       @profile = MetadataProfile.find(params[:id])
-      @new_element = @profile.element_defs.build
-      @element_def_options_for_select =
-          @profile.element_defs.map{ |t| [ t.name, t.id ] }
-      @name_options_for_select = ElementDef.all_descriptive.
-          map{ |t| [ t.name, t.name ] }
+
+      respond_to do |format|
+        format.html {
+          @new_element = @profile.element_defs.build
+          @element_def_options_for_select =
+              @profile.element_defs.map{ |t| [ t.name, t.id ] }
+          @name_options_for_select = ElementDef.all_descriptive.
+              map{ |t| [ t.name, t.name ] }
+        }
+        format.json {
+          filename = "#{CGI.escape(@profile.name)}.json"
+          headers['Content-Disposition'] = "attachment; filename=#{filename}"
+          render json: @profile
+        }
+      end
     end
 
     def update

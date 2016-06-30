@@ -2,6 +2,11 @@ require 'csv'
 
 class ItemTsvIngester
 
+  class ImportMode
+    CREATE_AND_UPDATE = 'create_and_update'
+    CREATE_ONLY = 'create_only'
+  end
+
   ##
   # @param tsv [Array<Hash<String,String>>]
   # @return [Boolean] Whether the given TSV is DLS TSV. If not, it's probably
@@ -52,13 +57,14 @@ class ItemTsvIngester
   #
   # @param pathname [String] Absolute pathname of a TSV file
   # @param collection [Collection] Collection to ingest the items into.
-  # @return [Integer] Number of items ingested
+  # @param import_mode [String] One of the ImportMode constants
+  # @return [Integer] Number of items created or updated
   #
-  def ingest_pathname(pathname, collection)
+  def ingest_pathname(pathname, collection, import_mode)
     pathname = File.expand_path(pathname)
     Rails.logger.info("Ingesting items in #{pathname}...")
 
-    ingest_tsv(File.read(pathname), collection)
+    ingest_tsv(File.read(pathname), collection, import_mode)
   end
 
   ##
@@ -66,12 +72,15 @@ class ItemTsvIngester
   #
   # @param tsv [String] TSV body string
   # @param collection [Collection] Collection to ingest the items into.
-  # @return [Integer] Number of items ingested
+  # @param import_mode [String] One of the ImportMode constants
+  # @return [Integer] Number of items created or updated
   # @raises [RuntimeError]
   #
-  def ingest_tsv(tsv, collection)
+  def ingest_tsv(tsv, collection, import_mode)
     raise 'No TSV content provided.' unless tsv.present?
     raise 'No collection provided.' unless collection
+    raise 'Invalid import mode.' unless
+        ImportMode.constants.map{ |c| c.to_s.downcase }.include?(import_mode)
     raise 'Collection does not have a content profile assigned.' unless
         collection.content_profile
     raise 'Collection does not have a metadata profile assigned.' unless
@@ -81,7 +90,6 @@ class ItemTsvIngester
     # values.
     tsv = CSV.parse(tsv, headers: true, col_sep: "\t", quote_char: "\x00").
         map{ |row| row.to_hash }
-    total_count = tsv.length
     count = 0
     ActiveRecord::Base.transaction do
       collection.content_profile.items_from_tsv(tsv).each do |row|
@@ -89,12 +97,15 @@ class ItemTsvIngester
 
         item = Item.find_by_repository_id(row['uuid'])
         if item
-          item.collection = collection
-          item.update_from_tsv(tsv, row)
+          if import_mode != ImportMode::CREATE_ONLY
+            item.collection = collection
+            item.update_from_tsv(tsv, row)
+            count += 1
+          end
         else
           Item.from_tsv(tsv, row, collection)
+          count += 1
         end
-        count += 1
       end
     end
     count

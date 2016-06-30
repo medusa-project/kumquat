@@ -148,21 +148,22 @@ module ItemsHelper
     files.each do |child|
       link_target = item_path(child)
       html += '<li>'
-      html += '<div>'
       html += link_to(link_target) do
         raw('<div class="pt-thumbnail">' +
-                thumbnail_tag(child, DEFAULT_THUMBNAIL_SIZE) + '</div>')
+            thumbnail_tag(child, DEFAULT_THUMBNAIL_SIZE, :square) +
+          '</div>' +
+          '<div class="pt-label">' +
+            truncate(child.title, length: PAGE_TITLE_LENGTH) +
+          '</div>')
       end
-      html += link_to(truncate(child.title, length: PAGE_TITLE_LENGTH),
-                      link_target, class: 'pt-title')
-      html += '</div></li>'
+      html += '</li>'
     end
     html += '</ol>'
     raw(html)
   end
 
   def files_panel(item)
-    # Explicitly calling sort() on an array of Items causes them to be
+    # Explicitly calling sort() on an Enumerable of Items causes them to be
     # natural-sorted.
     files = item.files.sort
     html = ''
@@ -171,7 +172,7 @@ module ItemsHelper
         <div class=\"panel-heading\">
           <h2 class=\"panel-title\">Files (#{files.count})</h2>
         </div>
-        <div class=\"panel-body pt-pages\">
+        <div class=\"panel-body pt-files\">
           #{files_as_list(files)}
         </div>
       </div>"
@@ -329,12 +330,12 @@ module ItemsHelper
       html += '<li>'\
         '<div>'
       html += link_to(link_target, class: 'pt-thumbnail-link') do
+        size = options[:thumbnail_size] ? options[:thumbnail_size] : 256
         raw('<div class="pt-thumbnail">' +
-          thumbnail_tag(item.effective_representative_item,
-                        options[:thumbnail_size] ? options[:thumbnail_size] : 256) +
+          thumbnail_tag(item.effective_representative_item, size, :square) +
         '</div>')
       end
-      html += '<span class="pt-title">'
+      html += '<span class="pt-label">'
       html += link_to(item.title, link_target)
 
       # info line
@@ -576,7 +577,7 @@ module ItemsHelper
       if item.repository_id == child.repository_id
         html += '<div class="pt-current">'
         html += raw('<div class="pt-thumbnail">' +
-                        thumbnail_tag(child, 256) +
+                        thumbnail_tag(child, DEFAULT_THUMBNAIL_SIZE, :square) +
                         '</div>')
         html += '<span class=\"pt-title\">' +
             truncate(child.title, length: PAGE_TITLE_LENGTH) + '</span>'
@@ -584,7 +585,7 @@ module ItemsHelper
         html += '<div>'
         html += link_to(link_target) do
           raw('<div class="pt-thumbnail">' +
-                  thumbnail_tag(child, DEFAULT_THUMBNAIL_SIZE) + '</div>')
+                  thumbnail_tag(child, DEFAULT_THUMBNAIL_SIZE, :square) + '</div>')
         end
         html += link_to(truncate(child.title, length: PAGE_TITLE_LENGTH),
                         link_target, class: 'pt-title')
@@ -750,7 +751,7 @@ module ItemsHelper
         html += '<li>'
         html += '<div class="pt-thumbnail">'
         html += link_to(item_path(item)) do
-          thumbnail_tag(item, 256)
+          thumbnail_tag(item, DEFAULT_THUMBNAIL_SIZE, :square)
         end
         html += '</div>'
         html += link_to(truncate(item.title, length: 40),
@@ -836,12 +837,13 @@ module ItemsHelper
   # @param entity [Item, Bytestream] or some other object suitable for passing
   #                                  to `icon_for`
   # @param size [Integer]
+  # @param shape [Symbol] :default or :square
   # @return [String]
   #
-  def thumbnail_tag(entity, size)
+  def thumbnail_tag(entity, size, shape = :default)
     html = ''
     if entity.kind_of?(Bytestream)
-      url = bytestream_image_url(entity, size)
+      url = bytestream_image_url(entity, size, shape)
       if url
         # no alt because it may appear in a huge font size if the image is 404
         html += image_tag(url, alt: '')
@@ -849,7 +851,7 @@ module ItemsHelper
         html += icon_for(entity) # ApplicationHelper
       end
     elsif entity.kind_of?(Item)
-      url = item_image_url(entity, size)
+      url = item_image_url(entity, size, shape)
       if url
         # no alt because it may appear in a huge font size if the image is 404
         html += image_tag(url, alt: '')
@@ -930,7 +932,7 @@ module ItemsHelper
   def bytestream_image_url(bs, size, shape = :default)
     url = nil
     if (bs.is_image? or bs.is_pdf?) and bs.repository_relative_pathname
-      shape = (shape == :default) ? 'full' : 'square'
+      shape = (shape == :square) ? 'square' : 'full'
       url = sprintf('%s/%s/!%d,%d/0/default.jpg',
                      iiif_bytestream_url(bs), shape, size, size)
     end
@@ -987,17 +989,23 @@ module ItemsHelper
   end
 
   def image_viewer_for(item)
+    # https://openseadragon.github.io/docs/OpenSeadragon.html#.Options
     html = "<div id=\"pt-image-viewer\"></div>
     #{javascript_include_tag('/openseadragon/openseadragon.min.js')}
     <script type=\"text/javascript\">
-    var viewer = OpenSeadragon({
+    OpenSeadragon.setString('Tooltips.Home', 'Reset');
+    OpenSeadragon.setString('Tooltips.ZoomIn', 'Zoom In');
+    OpenSeadragon.setString('Tooltips.ZoomOut', 'Zoom Out');
+    OpenSeadragon.setString('Tooltips.FullPage', 'Full Screen');
+    OpenSeadragon.setString('Tooltips.RotateLeft', 'Rotate Left');
+    OpenSeadragon.setString('Tooltips.RotateRight', 'Rotate Right');
+    OpenSeadragon({
         id: \"pt-image-viewer\",
         showNavigator: true,
-        navigatorPosition: \"ABSOLUTE\",
-        navigatorTop: \"40px\",
-        navigatorLeft: \"4px\",
-        navigatorHeight: \"120px\",
-        navigatorWidth: \"145px\",
+        showRotationControl: true,
+        navigatorSizeRatio: 0.2,
+        controlsFadeDelay: 1000,
+        controlsFadeLength: 1000,
         preserveViewport: true,
         prefixUrl: \"/openseadragon/images/\",
         tileSources: \"#{j(iiif_item_url(item))}\"
@@ -1007,24 +1015,27 @@ module ItemsHelper
   end
 
   ##
-  # @param [Item] item
-  # @param [Integer] size
+  # @param item [Item]
+  # @param size [Integer]
+  # @param shape [Symbol] :default or :square
   # @return [String, nil] Image URL or nil if the item is not an image
   #
-  def item_image_url(item, size)
+  def item_image_url(item, size, shape = :default)
+    url = nil
     if item.is_image? or item.is_pdf?
       bs = item.access_master_bytestream || item.preservation_master_bytestream
       if bs.repository_relative_pathname
-        return sprintf('%s/full/!%d,%d/0/default.jpg',
-                       iiif_item_url(item), size, size)
+        shape = (shape == :square) ? 'square' : 'full'
+        url = sprintf('%s/%s/!%d,%d/0/default.jpg',
+                      iiif_item_url(item), shape, size, size)
       end
     end
-    nil
+    url
   end
 
   def pdf_viewer_for(item)
     link_to(item_access_master_bytestream_url(item)) do
-      thumbnail_tag(item, 256)
+      thumbnail_tag(item, DEFAULT_THUMBNAIL_SIZE)
     end
   end
 

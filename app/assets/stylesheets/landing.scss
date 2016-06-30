@@ -6,6 +6,10 @@ body#landing {
     margin-right: 1em;
   }
 
+  #pt-description {
+    text-align: justify;
+  }
+
   @media screen and (max-width: 320px) {
     .pt-main-image {
       margin-top:1em;
