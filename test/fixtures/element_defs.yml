@@ -11,6 +11,8 @@ default_profile_title:
   searchable: true
   sortable: true
   visible: true
+  vocabularies:
+    - uncontrolled
 
 default_profile_description:
   metadata_profile: default_metadata_profile
@@ -23,3 +25,20 @@ default_profile_description:
   searchable: false
   sortable: true
   visible: true
+  vocabularies:
+    - uncontrolled
+
+default_profile_subject:
+  metadata_profile: default_metadata_profile
+  dc_map: subject
+  dcterms_map: subject
+  facetable: true
+  index: 2
+  label: Subject
+  name: subject
+  searchable: true
+  sortable: false
+  visible: true
+  vocabularies:
+    - lcsh
+    - tgm

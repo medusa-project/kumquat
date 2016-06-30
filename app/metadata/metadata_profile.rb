@@ -42,6 +42,7 @@ class MetadataProfile < ActiveRecord::Base
                              facetable: props['facetable'],
                              dc_map: props['mappings']['dc'],
                              dcterms_map: props['mappings']['dcterms'],
+                             vocabularies: [ Vocabulary.uncontrolled ],
                              index: index)
       index += 1
     end
