@@ -2,7 +2,7 @@ namespace :peartree do
 
   desc 'Harvest collections from Medusa'
   task :harvest_collections => :environment do |task|
-    MedusaIndexer.new.ingest_collections
+    MedusaIngester.new.ingest_collections
     Solr.instance.commit
   end
 
