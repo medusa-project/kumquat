@@ -1,6 +1,10 @@
 class MedusaIndexer
 
-  def index_collections(task = nil)
+  ##
+  # @param task [Task] Required for progress reporting
+  # @return [void]
+  #
+  def inget_collections(task = nil)
     config = PearTree::Application.peartree_config
     url = sprintf('%s/collections.json', config[:medusa_url].chomp('/'))
     response = Medusa.client.get(url, follow_redirect: true)
