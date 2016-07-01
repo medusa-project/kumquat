@@ -172,9 +172,9 @@ class ContentProfile
   #
   def top_dir_id(tsv)
     if ItemTsvIngester.dls_tsv?(tsv)
-      raise ArgumentError, 'DLS TSV has no top directory'
+      raise ArgumentError, 'top_dir_id() does not work with DLS TSV'
     else
-      row = tsv.select{ |row| row['parent_directory_uuid'].blank? }.first
+      row = tsv.select{ |row| row['parent_directory_uuid'].gsub('"', '').blank? }.first
       return row['uuid'] if row
     end
     nil
