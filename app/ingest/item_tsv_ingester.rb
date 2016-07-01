@@ -93,7 +93,10 @@ class ItemTsvIngester
     count = 0
     ActiveRecord::Base.transaction do
       collection.content_profile.items_from_tsv(tsv).each do |row|
-        next unless self.class.within_root?(row['uuid'], collection, tsv)
+        unless self.class.within_root?(row['uuid'], collection, tsv)
+          Rails.logger.debug("Outside of root: #{row['uuid']} (skipping)")
+          next
+        end
 
         item = Item.find_by_repository_id(row['uuid'])
         if item
