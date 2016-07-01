@@ -168,6 +168,16 @@ alternativeTitle:
   mappings:
     dc: title
     dcterms: alternative
+associatedPeople:
+  type: descriptive
+  label: Associated People
+  visible: true
+  searchable: true
+  sortable: true
+  facetable: true
+  mappings:
+    dc: subject
+    dcterms: subject
 audience:
   type: descriptive
   label: Audience
@@ -420,7 +430,7 @@ hasPart:
     dcterms: hasParts
 hasVersion:
   type: descriptive
-  label: Has Part
+  label: Has Version
   visible: true
   searchable: true
   sortable: true

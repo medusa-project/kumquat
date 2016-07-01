@@ -48,6 +48,10 @@
       </div>
       <div class="panel-body">
         <dl>
+          <dt>ID</dt>
+          <dd>
+            <%= @collection.repository_id %>
+          </dd>
           <dt>Metadata Profile</dt>
           <dd>
             <%= @collection.metadata_profile ? @collection.metadata_profile.name :

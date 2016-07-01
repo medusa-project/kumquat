@@ -117,6 +117,7 @@
       <xs:element name="accrualPeriodicity" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="accrualPolicy" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="alternativeTitle" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="associatedPeople" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="audience" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="bibId" type="xs:token" minOccurs="0" maxOccurs="1"/>
       <xs:element name="bibliographicCitation" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>

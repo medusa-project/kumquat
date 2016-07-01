@@ -49,18 +49,16 @@
 
 <h2>Elements</h2>
 
-<% if @profile.element_defs.count > 0 %>
+<% if @profile.element_defs.any? %>
 
   <table class="table table-striped">
     <thead>
       <tr>
         <th></th>
         <th></th>
-        <th></th>
         <th>Element</th>
-        <th>Label</th>
-        <th>Dublin Core Map</th>
-        <th>Dublin Core Terms Map</th>
+        <th>Vocabularies</th>
+        <th>Mappings</th>
         <th class="text-center">Visible</th>
         <th class="text-center">Searchable</th>
         <th class="text-center">Sortable</th>
@@ -68,26 +66,49 @@
       </tr>
     </thead>
     <tbody>
-      <% @profile.element_defs.order(:index).each_with_index do |element, i| %>
+      <% @profile.element_defs.order(:index).each do |element| %>
         <tr>
-          <td><%= element.index + 1%></td>
+          <td><%= element.index + 1 %></td>
           <td>
             <button type="button" class="btn btn-default btn-xs pt-edit-element"
                     data-toggle="modal" data-target="#pt-edit-element-modal"
                     data-element-id="<%= element.id %>">
               Edit
             </button>
-          </td>
-          <td>
+            <br>
             <%= link_to 'Delete', admin_element_def_path(element),
                         class: 'btn btn-danger btn-xs', method: :delete,
                         data: { confirm: 'Are you sure you want to delete '\
                         'this element?' } %>
           </td>
-          <td><%= element.name %></td>
-          <td><%= element.label %></td>
-          <td><%= DublinCoreElement.label_for(element.dc_map) %></td>
-          <td><%= DublinCoreTerm.label_for(element.dcterms_map) %></td>
+          <td>
+            <%= element.label %>
+            <br>
+            <var><%= element.name %></var>
+          </td>
+          <td>
+            <% if element.vocabularies.any? %>
+              <ul>
+                <% element.vocabularies.each do |vocab| %>
+                  <li><%= vocab.name %></li>
+                <% end %>
+              </ul>
+            <% else %>
+              &ndash;
+            <% end %>
+          </td>
+          <td>
+            <table>
+              <tr>
+                <th class="text-right">dc</th>
+                <td><%= DublinCoreElement.label_for(element.dc_map) %></td>
+              </tr>
+              <tr>
+                <th>dcterms</th>
+                <td><%= DublinCoreTerm.label_for(element.dcterms_map) %></td>
+              </tr>
+            </table>
+          </td>
           <td class="text-center <%= element.visible ? 'bg-success' : 'bg-danger' %>">
             <%= boolean(element.visible) %>
           </td>
