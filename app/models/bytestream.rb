@@ -1,5 +1,8 @@
 class Bytestream < ActiveRecord::Base
 
+  ##
+  # Must be kept in sync with the return value of human_readable_type().
+  #
   class Type
     ACCESS_MASTER = 1
     PRESERVATION_MASTER = 0
@@ -43,10 +46,26 @@ class Bytestream < ActiveRecord::Base
     p and File.exist?(p) and File.file?(p)
   end
 
+  ##
+  # @return [String]
+  #
   def human_readable_name
     formats = YAML::load(File.read("#{Rails.root}/lib/formats.yml"))
     formats = formats.select{ |f| f['media_types'].include?(self.media_type) }
     formats.any? ? formats.first['label'] : self.media_type
+  end
+
+  ##
+  # @return [String]
+  #
+  def human_readable_type
+    case self.bytestream_type
+      when Bytestream::Type::ACCESS_MASTER
+        return 'Access Master'
+      when Bytestream::Type::PRESERVATION_MASTER
+        return 'Preservation Master'
+    end
+    nil
   end
 
   def infer_media_type
