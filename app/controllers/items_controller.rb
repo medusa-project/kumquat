@@ -92,7 +92,7 @@ class ItemsController < WebsiteController
 
     @items = @items.start(@start).limit(@limit)
 
-    fresh_when(etag: @items)
+    fresh_when(etag: @items) if Rails.env.production?
 
     respond_to do |format|
       format.html do
@@ -167,7 +167,7 @@ class ItemsController < WebsiteController
     @item = Item.find_by_repository_id(params[:id])
     raise ActiveRecord::RecordNotFound unless @item
 
-    fresh_when(etag: @item)
+    fresh_when(etag: @item) if Rails.env.production?
 
     respond_to do |format|
       format.html {
