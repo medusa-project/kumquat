@@ -121,11 +121,16 @@ class Bytestream < ActiveRecord::Base
     @metadata = {}
     pathname = self.absolute_local_pathname
     if File.exist?(pathname) and File.readable?(pathname)
-      case MIME::Types.of(pathname).first.to_s
-        when 'image/jpeg'
-          @metadata = EXIFR::JPEG.new(pathname).to_hash
-        when 'image/tiff'
-          @metadata = EXIFR::TIFF.new(pathname).to_hash
+      begin
+        case MIME::Types.of(pathname).first.to_s
+          when 'image/jpeg'
+            @metadata = EXIFR::JPEG.new(pathname).to_hash
+          when 'image/tiff'
+            @metadata = EXIFR::TIFF.new(pathname).to_hash
+        end
+      rescue Errno::EIO => e
+        # This has happened with the NCSA condo mount at least once.
+        Rails.logger.error(e)
       end
     end
     @metadata_loaded = true
