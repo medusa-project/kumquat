@@ -148,7 +148,7 @@ module ItemsHelper
     files.each do |child|
       link_target = item_path(child)
       html += '<li>'
-      html += link_to(link_target) do
+      html += link_to(link_target, class: 'pt-title') do
         raw('<div class="pt-thumbnail">' +
             thumbnail_tag(child, DEFAULT_THUMBNAIL_SIZE, :square) +
           '</div>' +

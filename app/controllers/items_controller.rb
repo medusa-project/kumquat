@@ -12,7 +12,12 @@ class ItemsController < WebsiteController
   before_action :check_api_content_type, only: :create
   skip_before_action :verify_authenticity_token, only: [:create, :destroy]
 
+  # Other actions
   before_action :set_browse_context, only: :index
+  after_action :check_published, only: [:access_master_bytestream,
+                                        :files, :pages,
+                                        :preservation_master_bytestream,
+                                        :show]
 
   ##
   # Retrieves an item's access master bytestream.
@@ -53,6 +58,24 @@ class ItemsController < WebsiteController
       render text: "#{e}", status: :internal_server_error
     else
       render text: 'Success'
+    end
+  end
+
+  ##
+  # Responds to GET /item/:id/files (XHR only)
+  #
+  def files
+    if request.xhr?
+      @item = Item.find_by_repository_id(params[:id])
+      raise ActiveRecord::RecordNotFound unless @item
+
+      fresh_when(etag: @item)
+
+      @parent = @item.parent
+      @pages = @parent ? @parent.pages : @item.pages
+      render 'items/files'
+    else
+      render status: 406, text: 'Not Acceptable'
     end
   end
 
@@ -121,6 +144,24 @@ class ItemsController < WebsiteController
   end
 
   ##
+  # Responds to GET /item/:id/pages (XHR only)
+  #
+  def pages
+    if request.xhr?
+      @item = Item.find_by_repository_id(params[:id])
+      raise ActiveRecord::RecordNotFound unless @item
+
+      fresh_when(etag: @item)
+
+      @parent = @item.parent
+      @pages = @parent ? @parent.pages : @item.pages
+      render 'items/pages'
+    else
+      render status: 406, text: 'Not Acceptable'
+    end
+  end
+
+  ##
   # Retrieves an item's preservation master bytestream.
   #
   # Responds to GET /items/:id/preservation-master
@@ -171,14 +212,6 @@ class ItemsController < WebsiteController
 
     respond_to do |format|
       format.html {
-        unless @item.published
-          render 'error/error', status: :forbidden, locals: {
-              status_code: 403,
-              status_message: 'Forbidden',
-              message: 'This item is not published.'
-          }
-        end
-
         @parent = @item.parent
         @pages = @parent ? @parent.pages : @item.pages
 
@@ -189,11 +222,7 @@ class ItemsController < WebsiteController
         @next_item = @relative_child ? @relative_child.next : nil
       }
       format.json {
-        if @item.published
-          render json: @item.decorate
-        else
-          render text: 'This item is not published.', status: 403
-        end
+        render json: @item.decorate
       }
       format.xml {
         # XML representations of an item are available published or not, but
@@ -239,6 +268,18 @@ class ItemsController < WebsiteController
     true
   end
 
+  def check_published
+    unless @item.published
+      render 'error/error', status: :forbidden, locals: {
+          status_code: 403,
+          status_message: 'Forbidden',
+          message: 'This item is not published.'
+      }
+      return false
+    end
+    true
+  end
+
   ##
   # Streams one of an item's bytestreams, or redirects to a bytestream's URL,
   # if it has one.
@@ -247,13 +288,6 @@ class ItemsController < WebsiteController
   # @param type [Integer] One of the `Bytestream::Type` constants
   #
   def send_bytestream(item, type)
-    unless item.published
-      render 'error/error', status: :forbidden, locals: {
-          status_code: 403,
-          status_message: 'Forbidden',
-          message: 'This item is currently not published.'
-      }
-    end
     bs = item.bytestreams.where(bytestream_type: type).select(&:exists?).first
     if bs
       send_file(bs.absolute_local_pathname)
