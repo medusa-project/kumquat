@@ -316,15 +316,17 @@ class ItemsController < WebsiteController
   end
 
   def set_files_ivar
-    start = params[:start] ? params[:start].to_i : 0
-    limit = Option::integer(Option::Key::RESULTS_PER_PAGE)
-    @files = @item.files_from_solr.start(start).limit(limit)
+    @start = params[:start] ? params[:start].to_i : 0
+    @limit = Option::integer(Option::Key::RESULTS_PER_PAGE)
+    @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
+    @files = @item.files_from_solr.start(@start).limit(@limit)
   end
 
   def set_pages_ivar
-    start = params[:start] ? params[:start].to_i : 0
-    limit = Option::integer(Option::Key::RESULTS_PER_PAGE)
-    @pages = @item.pages_from_solr.start(start).limit(limit)
+    @start = params[:start] ? params[:start].to_i : 0
+    @limit = Option::integer(Option::Key::RESULTS_PER_PAGE)
+    @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
+    @pages = @item.pages_from_solr.start(@start).limit(@limit)
   end
 
 end
