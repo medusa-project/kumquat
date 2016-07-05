@@ -33,4 +33,9 @@ class BytestreamTest < ActiveSupport::TestCase
     assert(!@bs.exists?)
   end
 
+  test 'human_readable_type should work properly' do
+    assert_equal 'Access Master', bytestreams(:one).human_readable_type
+    assert_equal 'Preservation Master', bytestreams(:two).human_readable_type
+  end
+
 end
