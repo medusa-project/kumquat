@@ -321,14 +321,16 @@ class ItemsController < WebsiteController
     @start = params[:start] ? params[:start].to_i : 0
     @limit = PAGES_LIMIT
     @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
-    @files = @item.files_from_solr.start(@start).limit(@limit)
+    @files = @item.files_from_solr.order(Item::SolrFields::TITLE).
+        start(@start).limit(@limit)
   end
 
   def set_pages_ivar
     @start = params[:start] ? params[:start].to_i : 0
     @limit = PAGES_LIMIT
     @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
-    @pages = @item.pages_from_solr.start(@start).limit(@limit)
+    @pages = @item.pages_from_solr.order(Item::SolrFields::TITLE).
+        start(@start).limit(@limit)
   end
 
 end

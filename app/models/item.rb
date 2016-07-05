@@ -44,6 +44,7 @@ class Item < ActiveRecord::Base
     REPRESENTATIVE_ITEM_ID = 'representative_item_id_si'
     SEARCH_ALL = 'searchall_txtim'
     SUBPAGE_NUMBER = 'subpage_number_ii'
+    TITLE = 'title_sort_en_i'
     VARIANT = 'variant_si'
   end
 
@@ -396,6 +397,7 @@ class Item < ActiveRecord::Base
     doc[SolrFields::PUBLISHED] = self.published
     doc[SolrFields::REPRESENTATIVE_ITEM_ID] = self.representative_item_repository_id
     doc[SolrFields::SUBPAGE_NUMBER] = self.subpage_number
+    doc[SolrFields::TITLE] = self.title
     doc[SolrFields::VARIANT] = self.variant
     bs = self.bytestreams.
         select{ |b| b.bytestream_type == Bytestream::Type::ACCESS_MASTER }.first

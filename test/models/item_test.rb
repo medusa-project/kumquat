@@ -139,6 +139,7 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal @item.representative_item_repository_id,
                  doc[Item::SolrFields::REPRESENTATIVE_ITEM_ID]
     assert_equal @item.subpage_number, doc[Item::SolrFields::SUBPAGE_NUMBER]
+    assert_equal @item.title, doc[Item::SolrFields::TITLE]
     assert_equal @item.variant, doc[Item::SolrFields::VARIANT]
 
     bs = @item.bytestreams.
