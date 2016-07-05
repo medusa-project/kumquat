@@ -162,20 +162,16 @@ module ItemsHelper
     raw(html)
   end
 
-  def files_panel(item)
+  def files_section(item)
     # Explicitly calling sort() on an Enumerable of Items causes them to be
     # natural-sorted.
     files = item.files.sort
     html = ''
     if files.any?
-      html += "<div class=\"panel panel-default\">
-        <div class=\"panel-heading\">
-          <h2 class=\"panel-title\">Files (#{files.count})</h2>
-        </div>
-        <div class=\"panel-body pt-files\">
+      html += "<h2>Files <span class=\"badge\">#{files.count}</span></h2>
+        <div class=\"pt-files\">
           #{files_as_list(files)}
-        </div>
-      </div>"
+        </div>"
     end
     raw(html)
   end
@@ -491,20 +487,14 @@ module ItemsHelper
   # @param item [Item]
   # @return [String]
   #
-  def metadata_panel(item)
-    html = "<div class=\"panel panel-default\">
-       <div class=\"panel-heading\">
-         <h2 class=\"panel-title\">Descriptive Info</h2>
-       </div>
-       <div class=\"panel-body\">
+  def metadata_section(item)
+    html = "<h2>Descriptive Info</h2>
          <div class=\"visible-xs\">
            #{metadata_as_list(item)}
          </div>
          <div class=\"hidden-xs\">
            #{metadata_as_table(item)}
-         </div>
-        </div>
-      </div>"
+         </div>"
     raw(html)
   end
 
@@ -596,17 +586,13 @@ module ItemsHelper
     raw(html)
   end
 
-  def pages_panel(pages, selected_page)
+  def pages_section(pages, selected_page)
     html = ''
     if pages.any?
-      html += "<div class=\"panel panel-default\">
-        <div class=\"panel-heading\">
-          <h2 class=\"panel-title\">Pages (#{pages.count})</h2>
-        </div>
-        <div class=\"panel-body pt-pages\">
+      html += "<h2>Pages <span class=\"badge\">#{pages.count}</span></h2>
+        <div class=\"pt-pages\">
           #{pages_as_list(selected_page)}
-        </div>
-      </div>"
+        </div>"
     end
     raw(html)
   end
