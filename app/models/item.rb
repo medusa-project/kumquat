@@ -22,7 +22,6 @@
 #
 class Item < ActiveRecord::Base
 
-  include NaturalSort
   include SolrQuerying
 
   class SolrFields
@@ -172,12 +171,27 @@ class Item < ActiveRecord::Base
   end
 
   ##
-  # @return [Relation] All of the item's children that have a variant of File
-  #                    or Directory.
-  # @see pages()
+  # Queries the database to obtain a Relation of all children that have a
+  # variant of Variant::FILE or Variant::DIRECTORY.
+  #
+  # @return [Relation]
+  # @see files_from_solr()
   #
   def files
     self.items.where(variant: [Variants::FILE, Variants::DIRECTORY])
+  end
+
+  ##
+  # Queries Solr to obtain a Relation of all children that have a
+  # variant of Variant::FILE or Variant::DIRECTORY.
+  #
+  # @return [Relation]
+  # @see files()
+  #
+  def files_from_solr
+    Item.solr.where(Item::SolrFields::PARENT_ITEM => self.repository_id).
+        where("(#{Item::SolrFields::VARIANT}:#{Item::Variants::FILE} OR "\
+            "#{Item::SolrFields::VARIANT}:#{Item::Variants::DIRECTORY})")
   end
 
   ##
@@ -251,11 +265,27 @@ class Item < ActiveRecord::Base
   end
 
   ##
-  # @see files()
+  # Queries the database to obtain a Relation of all children that have a
+  # variant of Variant::PAGE.
+  #
+  # @return [Relation]
+  # @see pages_from_solr()
   #
   def pages
     self.items.where(variant: Variants::PAGE).
         order(:page_number, :subpage_number)
+  end
+
+  ##
+  # Queries Solr to obtain a Relation of all children that have a
+  # variant of Variant::PAGE.
+  #
+  # @return [Relation]
+  # @see pages()
+  #
+  def pages_from_solr
+    Item.solr.where(Item::SolrFields::PARENT_ITEM => self.repository_id).
+        where(Item::SolrFields::VARIANT => Item::Variants::PAGE)
   end
 
   ##

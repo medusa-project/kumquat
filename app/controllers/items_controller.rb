@@ -69,10 +69,9 @@ class ItemsController < WebsiteController
       @item = Item.find_by_repository_id(params[:id])
       raise ActiveRecord::RecordNotFound unless @item
 
-      fresh_when(etag: @item)
+      fresh_when(etag: @item) if Rails.env.production?
 
-      @parent = @item.parent
-      @pages = @parent ? @parent.pages : @item.pages
+      set_files_ivar
       render 'items/files'
     else
       render status: 406, text: 'Not Acceptable'
@@ -115,7 +114,7 @@ class ItemsController < WebsiteController
 
     @items = @items.start(@start).limit(@limit)
 
-    fresh_when(etag: @items)
+    fresh_when(etag: @items) if Rails.env.production?
 
     respond_to do |format|
       format.html do
@@ -151,10 +150,9 @@ class ItemsController < WebsiteController
       @item = Item.find_by_repository_id(params[:id])
       raise ActiveRecord::RecordNotFound unless @item
 
-      fresh_when(etag: @item)
+      fresh_when(etag: @item) if Rails.env.production?
 
-      @parent = @item.parent
-      @pages = @parent ? @parent.pages : @item.pages
+      set_pages_ivar
       render 'items/pages'
     else
       render status: 406, text: 'Not Acceptable'
@@ -208,23 +206,28 @@ class ItemsController < WebsiteController
     @item = Item.find_by_repository_id(params[:id])
     raise ActiveRecord::RecordNotFound unless @item
 
-    fresh_when(etag: @item)
+    fresh_when(etag: @item) if Rails.env.production?
 
     respond_to do |format|
-      format.html {
+      format.html do
         @parent = @item.parent
-        @pages = @parent ? @parent.pages : @item.pages
-
         @relative_parent = @parent ? @parent : @item
-        @relative_child = @parent ? @item : @pages.first
+
+        set_files_ivar
+        if @files.total_length > 0
+          @relative_child = @files.first
+        else
+          set_pages_ivar
+          @relative_child = @parent ? @item : @pages.first
+        end
 
         @previous_item = @relative_child ? @relative_child.previous : nil
         @next_item = @relative_child ? @relative_child.next : nil
-      }
-      format.json {
+      end
+      format.json do
         render json: @item.decorate
-      }
-      format.xml {
+      end
+      format.xml do
         # XML representations of an item are available published or not, but
         # authorization is required.
         if authorize_api_user
@@ -240,7 +243,7 @@ class ItemsController < WebsiteController
           end
           render text: @item.to_dls_xml(version)
         end
-      }
+      end
     end
   end
 
@@ -310,6 +313,18 @@ class ItemsController < WebsiteController
     else
       session[:browse_context] = BrowseContext::BROWSING_COLLECTION
     end
+  end
+
+  def set_files_ivar
+    start = params[:start] ? params[:start].to_i : 0
+    limit = Option::integer(Option::Key::RESULTS_PER_PAGE)
+    @files = @item.files_from_solr.start(start).limit(limit)
+  end
+
+  def set_pages_ivar
+    start = params[:start] ? params[:start].to_i : 0
+    limit = Option::integer(Option::Key::RESULTS_PER_PAGE)
+    @pages = @item.pages_from_solr.start(start).limit(limit)
   end
 
 end
