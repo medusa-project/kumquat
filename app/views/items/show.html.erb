@@ -96,12 +96,12 @@ side-by-side. (IMET-161) -->
 <% end %>
 
 <% if @item.variant == Item::Variants::DIRECTORY %>
-  <section>
-    <%= files_section(@item) %>
+  <section id="pt-files-section">
+    <%= render partial: 'files' %>
   </section>
 <% elsif @item.variant != Item::Variants::FILE %>
   <% if @relative_parent.key_item or @relative_parent.front_matter_item or
-    @relative_parent.index_item %>
+      @relative_parent.index_item %>
     <div class="row">
       <div class="col-sm-4 col-md-3 col-lg-3">
         <%= title_item_panel(@relative_parent, size: 512) %>
@@ -116,8 +116,8 @@ side-by-side. (IMET-161) -->
       </div>
     </div>
   <% else %>
-    <section>
-      <%= pages_section(@pages, @item) %>
+    <section id="pt-pages-section">
+      <%= render partial: 'pages' %>
     </section>
   <% end %>
 <% end %>

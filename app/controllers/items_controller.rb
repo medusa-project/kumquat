@@ -7,12 +7,19 @@ class ItemsController < WebsiteController
     FAVORITES = 3
   end
 
+  PAGES_LIMIT = 15
+
   # API actions
   before_action :authorize_api_user, only: [:create, :destroy]
   before_action :check_api_content_type, only: :create
   skip_before_action :verify_authenticity_token, only: [:create, :destroy]
 
+  # Other actions
   before_action :set_browse_context, only: :index
+  after_action :check_published, only: [:access_master_bytestream,
+                                        :files, :pages,
+                                        :preservation_master_bytestream,
+                                        :show]
 
   ##
   # Retrieves an item's access master bytestream.
@@ -53,6 +60,23 @@ class ItemsController < WebsiteController
       render text: "#{e}", status: :internal_server_error
     else
       render text: 'Success'
+    end
+  end
+
+  ##
+  # Responds to GET /item/:id/files (XHR only)
+  #
+  def files
+    if request.xhr?
+      @item = Item.find_by_repository_id(params[:id])
+      raise ActiveRecord::RecordNotFound unless @item
+
+      fresh_when(etag: @item) if Rails.env.production?
+
+      set_files_ivar
+      render 'items/files'
+    else
+      render status: 406, text: 'Not Acceptable'
     end
   end
 
@@ -121,6 +145,23 @@ class ItemsController < WebsiteController
   end
 
   ##
+  # Responds to GET /item/:id/pages (XHR only)
+  #
+  def pages
+    if request.xhr?
+      @item = Item.find_by_repository_id(params[:id])
+      raise ActiveRecord::RecordNotFound unless @item
+
+      fresh_when(etag: @item) if Rails.env.production?
+
+      set_pages_ivar
+      render 'items/pages'
+    else
+      render status: 406, text: 'Not Acceptable'
+    end
+  end
+
+  ##
   # Retrieves an item's preservation master bytestream.
   #
   # Responds to GET /items/:id/preservation-master
@@ -170,32 +211,25 @@ class ItemsController < WebsiteController
     fresh_when(etag: @item) if Rails.env.production?
 
     respond_to do |format|
-      format.html {
-        unless @item.published
-          render 'error/error', status: :forbidden, locals: {
-              status_code: 403,
-              status_message: 'Forbidden',
-              message: 'This item is not published.'
-          }
-        end
-
+      format.html do
         @parent = @item.parent
-        @pages = @parent ? @parent.pages : @item.pages
-
         @relative_parent = @parent ? @parent : @item
-        @relative_child = @parent ? @item : @pages.first
+
+        set_files_ivar
+        if @files.total_length > 0
+          @relative_child = @files.first
+        else
+          set_pages_ivar
+          @relative_child = @parent ? @item : @pages.first
+        end
 
         @previous_item = @relative_child ? @relative_child.previous : nil
         @next_item = @relative_child ? @relative_child.next : nil
-      }
-      format.json {
-        if @item.published
-          render json: @item.decorate
-        else
-          render text: 'This item is not published.', status: 403
-        end
-      }
-      format.xml {
+      end
+      format.json do
+        render json: @item.decorate
+      end
+      format.xml do
         # XML representations of an item are available published or not, but
         # authorization is required.
         if authorize_api_user
@@ -211,7 +245,7 @@ class ItemsController < WebsiteController
           end
           render text: @item.to_dls_xml(version)
         end
-      }
+      end
     end
   end
 
@@ -239,6 +273,18 @@ class ItemsController < WebsiteController
     true
   end
 
+  def check_published
+    if @item and !@item.published
+      render 'error/error', status: :forbidden, locals: {
+          status_code: 403,
+          status_message: 'Forbidden',
+          message: 'This item is not published.'
+      }
+      return false
+    end
+    true
+  end
+
   ##
   # Streams one of an item's bytestreams, or redirects to a bytestream's URL,
   # if it has one.
@@ -247,13 +293,6 @@ class ItemsController < WebsiteController
   # @param type [Integer] One of the `Bytestream::Type` constants
   #
   def send_bytestream(item, type)
-    unless item.published
-      render 'error/error', status: :forbidden, locals: {
-          status_code: 403,
-          status_message: 'Forbidden',
-          message: 'This item is currently not published.'
-      }
-    end
     bs = item.bytestreams.where(bytestream_type: type).select(&:exists?).first
     if bs
       send_file(bs.absolute_local_pathname)
@@ -276,6 +315,22 @@ class ItemsController < WebsiteController
     else
       session[:browse_context] = BrowseContext::BROWSING_COLLECTION
     end
+  end
+
+  def set_files_ivar
+    @start = params[:start] ? params[:start].to_i : 0
+    @limit = PAGES_LIMIT
+    @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
+    @files = @item.files_from_solr.order(Item::SolrFields::TITLE).
+        start(@start).limit(@limit)
+  end
+
+  def set_pages_ivar
+    @start = params[:start] ? params[:start].to_i : 0
+    @limit = PAGES_LIMIT
+    @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
+    @pages = @item.pages_from_solr.order(Item::SolrFields::TITLE).
+        start(@start).limit(@limit)
   end
 
 end
