@@ -75,8 +75,6 @@ body#items_show {
     $column_width: 280px;
     $font_thumb_size: 70px;
     $image_thumb_size: 100px;
-    max-height: 34em;
-    overflow-y: scroll;
     column-width: $column_width;
     -moz-column-width: $column_width;
     -webkit-column-width: $column_width;
