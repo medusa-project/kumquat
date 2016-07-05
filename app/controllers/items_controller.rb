@@ -7,6 +7,8 @@ class ItemsController < WebsiteController
     FAVORITES = 3
   end
 
+  PAGES_LIMIT = 15
+
   # API actions
   before_action :authorize_api_user, only: [:create, :destroy]
   before_action :check_api_content_type, only: :create
@@ -272,7 +274,7 @@ class ItemsController < WebsiteController
   end
 
   def check_published
-    unless @item.published
+    if @item and !@item.published
       render 'error/error', status: :forbidden, locals: {
           status_code: 403,
           status_message: 'Forbidden',
@@ -317,14 +319,14 @@ class ItemsController < WebsiteController
 
   def set_files_ivar
     @start = params[:start] ? params[:start].to_i : 0
-    @limit = Option::integer(Option::Key::RESULTS_PER_PAGE)
+    @limit = PAGES_LIMIT
     @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
     @files = @item.files_from_solr.start(@start).limit(@limit)
   end
 
   def set_pages_ivar
     @start = params[:start] ? params[:start].to_i : 0
-    @limit = Option::integer(Option::Key::RESULTS_PER_PAGE)
+    @limit = PAGES_LIMIT
     @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
     @pages = @item.pages_from_solr.start(@start).limit(@limit)
   end
