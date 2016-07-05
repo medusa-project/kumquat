@@ -85,6 +85,9 @@ class Solr
     end
     post_fields(http, url, 'add-dynamic-field', dynamic_fields_to_add)
 
+    # replace (update) dynamic fields
+    post_fields(http, url, 'replace-dynamic-field', SCHEMA['dynamicFields'])
+
     # delete obsolete copyFields
     copy_fields_to_delete = current['schema']['copyFields'].select do |kf|
       !SCHEMA['copyFields'].map{ |sf| "#{sf['source']}#{sf['dest']}" }.

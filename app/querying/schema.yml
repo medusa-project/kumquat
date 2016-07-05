@@ -138,7 +138,7 @@ dynamicFields:
 
     ################# text fields ##################
   - name: '*_sort_en_i'
-    type: sort_en
+    type: text_en_natural
     stored: true
     indexed: true
     multiValued: false
