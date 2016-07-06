@@ -137,7 +137,7 @@ dynamicFields:
     multiValued: true
 
     ################# text fields ##################
-  - name: '*_sort_en_i'
+  - name: '*_natsort_en_i'
     type: text_en_natural
     stored: true
     indexed: true

@@ -33,7 +33,7 @@ class Collection < ActiveRecord::Base
     REPRESENTATIVE_ITEM = 'representative_item_si'
     RESOURCE_TYPES = 'resource_types_sim'
     SEARCH_ALL = 'searchall_txtim'
-    TITLE = 'title_sort_en_i'
+    TITLE = 'title_natsort_en_i'
   end
 
   serialize :resource_types
