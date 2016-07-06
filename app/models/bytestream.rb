@@ -103,7 +103,6 @@ class Bytestream < ActiveRecord::Base
 
         value = v['val']
         if v['desc'].present? and value.present?
-          value = value.join(', ') if value.respond_to?(:each)
           parts = k.split(':')
           category = parts.length > 1 ? parts[0] : nil
           @metadata << {

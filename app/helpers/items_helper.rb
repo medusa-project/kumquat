@@ -15,9 +15,19 @@ module ItemsHelper
       data.each do |row|
         category = %w(ExifTool File).include?(row[:category]) ?
             nil : row[:category]
+        if row[:value].respond_to?(:each)
+          value = '<ul>'
+          row[:value].each do |v|
+            value += "<li>#{v}</li>"
+          end
+          value += '</ul>'
+        else
+          value = row[:value]
+        end
+
         html += "<tr>
           <td>#{row[:label]} <span class=\"label label-default\">#{category}</span></td>
-          <td>#{row[:value]}</td>
+          <td>#{raw(value)}</td>
         </tr>"
       end
       html += '</table>'
@@ -902,8 +912,8 @@ module ItemsHelper
   end
 
   ##
-  # @return [Array<Hash<Symbol,String>>] Array of hashes with :label,
-  #                                      :category, and :value keys.
+  # @return [Array<Hash<Symbol,?>>] Array of hashes with :label,
+  #                                 :category, and :value keys.
   #
   def bytestream_metadata_for(bytestream)
     data = []
@@ -921,7 +931,8 @@ module ItemsHelper
           data << {
               label: field[:label],
               category: field[:category],
-              value: truncate(field[:value].to_s, length: 400)
+              value: field[:value].respond_to?(:each) ?
+                  field[:value] : truncate(field[:value].to_s, length: 400)
           }
         end
       end
