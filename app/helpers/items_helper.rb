@@ -7,58 +7,20 @@ module ItemsHelper
   # @param bs [Bytestream]
   # @return [String]
   #
-  def bytestream_exif_metadata_as_table(bs)
+  def bytestream_metadata_as_table(bs)
     data = bytestream_metadata_for(bs)
     html = ''
-    if data[:exif].any?
+    if data.any?
       html += '<table class="table table-condensed pt-metadata">'
-      data[:exif].each do |key, value|
-        html += "<tr><td>#{raw(key)}</td><td>#{raw(value)}</td></tr>"
+      data.each do |row|
+        category = %w(ExifTool File).include?(row[:category]) ?
+            nil : row[:category]
+        html += "<tr>
+          <td>#{row[:label]} <span class=\"label label-default\">#{category}</span></td>
+          <td>#{row[:value]}</td>
+        </tr>"
       end
       html += '</table>'
-    end
-    raw(html)
-  end
-
-  ##
-  # @param bs [Bytestream]
-  # @return [String]
-  #
-  def bytestream_file_metadata_as_table(bs)
-    data = bytestream_metadata_for(bs)
-    html = ''
-    if data[:file].any?
-      html += '<table class="table table-condensed pt-metadata">'
-      data[:file].each do |key, value|
-        html += "<tr><td>#{raw(key)}</td><td>#{raw(value)}</td></tr>"
-      end
-      html += '</table>'
-    end
-    raw(html)
-  end
-
-  ##
-  # @param bs [Bytestream]
-  # @return [String]
-  #
-  def bytestream_iptc_metadata_as_table(bs)
-    data = bytestream_metadata_for(bs)
-    html = ''
-    if data[:iptc]
-      html += "#{data[:iptc]}"
-    end
-    raw(html)
-  end
-
-  ##
-  # @param bs [Bytestream]
-  # @return [String]
-  #
-  def bytestream_xmp_metadata_as_table(bs)
-    data = bytestream_metadata_for(bs)
-    html = ''
-    if data[:xmp]
-      html += "<pre>#{h(data[:xmp])}</pre>"
     end
     raw(html)
   end
@@ -940,49 +902,28 @@ module ItemsHelper
   end
 
   ##
-  # @return [Hash] Hash with `:file`, `:exif`, `:iptc`, and `:xmp` keys
+  # @return [Array<Hash<Symbol,String>>] Array of hashes with :label,
+  #                                      :category, and :value keys.
   #
   def bytestream_metadata_for(bytestream)
-    data = { file: {}, exif: {}, iptc: nil, xmp: nil }
+    data = []
     if bytestream
-      # development-only info
-      if Rails.env.development?
-        data[:file]['Pathname (DEVELOPMENT)'] =
-            bytestream.absolute_local_pathname
-      end
-      # filename
-      if bytestream.repository_relative_pathname
-        data[:file]['Filename'] =
-            File.basename(bytestream.repository_relative_pathname)
-      end
       # status
-      data[:file]['Status'] = bytestream.exists? ?
-          '<span class="label label-success">OK</span>' :
-          '<span class="label label-danger">MISSING</span>'
-      # media type
-      data[:file]['Media Type'] = bytestream.media_type
-      # size
-      size = bytestream.byte_size
-      if size
-        data[:file]['Size'] = number_to_human_size(size)
-      end
+      data << {
+          label: 'Status',
+          category: 'File',
+          value: bytestream.exists? ?
+              '<span class="label label-success">OK</span>' :
+              '<span class="label label-danger">MISSING</span>'
+      }
       if bytestream.is_image?
-        # EXIF
-        keys_to_reject = [:orientation, :rows_per_strip, :strip_offsets,
-                          :strip_byte_counts, :photometric_interpretation,
-                          :planar_configuration]
-        bytestream.exif.reject{ |k, v| keys_to_reject.include?(k) }.each do |k, v|
-          key_name = k.to_s.gsub('_', ' ').titleize
-          if k.to_s == 'orientation'
-            data[:exif][key_name] = v.to_i.to_s
-          else
-            data[:exif][key_name] = truncate(v.to_s, length: 400)
-          end
+        bytestream.metadata.each do |field|
+          data << {
+              label: field[:label],
+              category: field[:category],
+              value: truncate(field[:value].to_s, length: 400)
+          }
         end
-        # IPTC
-        data[:iptc] = bytestream.iptc
-        # XMP
-        data[:xmp] = bytestream.xmp
       end
     end
     data

@@ -27,14 +27,6 @@ class Bytestream < ActiveRecord::Base
   end
 
   ##
-  # @return [Hash]
-  #
-  def exif
-    load_metadata unless @metadata_loaded
-    @metadata.select{ |k,v| !%w(iptc xmp).include?(k.to_s) and v.present? }
-  end
-
-  ##
   # @return [Boolean] If the bytestream is a file and the file exists, returns
   #                   true.
   #
@@ -51,14 +43,6 @@ class Bytestream < ActiveRecord::Base
 
   def infer_media_type
     self.media_type = MIME::Types.of(self.absolute_local_pathname).first.to_s
-  end
-
-  ##
-  # @return [String]
-  #
-  def iptc
-    load_metadata unless @metadata_loaded
-    @metadata[:iptc] ? @metadata[:iptc].join("\n").strip : nil
   end
 
   def is_audio?
@@ -81,6 +65,15 @@ class Bytestream < ActiveRecord::Base
     self.media_type and self.media_type.start_with?('video/')
   end
 
+  ##
+  # @return [Array<Hash<Symbol,String>>] Array of hashes with :label,
+  #                                      :category, and :value keys.
+  #
+  def metadata
+    load_metadata unless @metadata_loaded
+    @metadata
+  end
+
   def serializable_hash(opts)
     {
         type: self.bytestream_type == Type::ACCESS_MASTER ? 'access' : 'presentation',
@@ -88,30 +81,37 @@ class Bytestream < ActiveRecord::Base
     }
   end
 
-  ##
-  # @return [String]
-  #
-  def xmp
-    load_metadata unless @metadata_loaded
-    @metadata[:xmp] ? @metadata[:xmp].strip : nil
-  end
-
   private
 
+  ##
+  # Reads metadata from the file using exiftool.
+  #
   def load_metadata
-    @metadata = {}
+    @metadata = []
     pathname = self.absolute_local_pathname
     if File.exist?(pathname) and File.readable?(pathname)
-      begin
-        case MIME::Types.of(pathname).first.to_s
-          when 'image/jpeg'
-            @metadata = EXIFR::JPEG.new(pathname).to_hash
-          when 'image/tiff'
-            @metadata = EXIFR::TIFF.new(pathname).to_hash
+      json = `exiftool -json -l -G #{pathname}`
+      struct = JSON.parse(json)
+      struct.first.each do |k, v|
+        next if k.include?('ExifToolVersion')
+        # show this one in development
+        next if k.include?('Directory') and Rails.env.production?
+        next if k.include?('FileAccessDate')
+        next if k.include?('FilePermissions')
+        next if k.include?('FileTypeExtension')
+        next if k.include?('CurrentIPTCDigest')
+
+        value = v['val']
+        if v['desc'].present? and value.present?
+          value = value.join(', ') if value.respond_to?(:each)
+          parts = k.split(':')
+          category = parts.length > 1 ? parts[0] : nil
+          @metadata << {
+              label: v['desc'],
+              category: category,
+              value: value
+          }
         end
-      rescue Errno::EIO => e
-        # This has happened with the NCSA condo mount at least once.
-        Rails.logger.error(e)
       end
     end
     @metadata_loaded = true

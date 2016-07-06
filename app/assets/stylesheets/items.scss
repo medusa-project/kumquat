@@ -192,8 +192,14 @@ body#items_show {
     }
   }
 
-  table.pt-metadata tr:first-child > td {
-    border-top: 0px;
+  table.pt-metadata {
+    .label-default {
+      background-color: #d0d0d0;
+      font-size: 0.7em;
+    }
+    tr:first-child > td {
+      border-top: 0px;
+    }
   }
 
   #pt-download-modal {

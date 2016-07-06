@@ -87,7 +87,6 @@ GEM
       request_store (~> 1.0)
     erubis (2.7.0)
     execjs (2.6.0)
-    exifr (1.2.4)
     font-awesome-sass (4.5.0)
       sass (>= 3.2)
     globalid (0.3.6)
@@ -212,7 +211,6 @@ DEPENDENCIES
   daemons
   delayed_job_active_record
   draper
-  exifr
   font-awesome-sass (~> 4.5.0)
   httpclient!
   jbuilder (~> 2.0)

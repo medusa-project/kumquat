@@ -33,4 +33,10 @@ class BytestreamTest < ActiveSupport::TestCase
     assert(!@bs.exists?)
   end
 
+  test 'metadata should return metadata' do
+    @bs = Bytestream.new(repository_relative_pathname:
+                             __dir__ + '/../fixtures/images/jpg-exif.jpg')
+    assert @bs.metadata.length > 10
+  end
+
 end
