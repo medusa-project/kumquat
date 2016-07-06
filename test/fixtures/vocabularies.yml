@@ -1,0 +1,13 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+uncontrolled:
+  key: uncontrolled
+  name: Uncontrolled
+
+lcsh:
+  key: lcsh
+  name: Library of Congress Subject Headings
+
+tgm:
+  key: tgm
+  name: Thesaurus of Graphic Materials

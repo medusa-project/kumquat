@@ -1,0 +1,44 @@
+<% provide :title, @vocabulary.name %>
+<% provide :body_id, 'vocabularies_show' %>
+<% provide :active_nav, 'metadata' %>
+
+<ol class="breadcrumb">
+  <li><%= link_to 'Home', admin_root_path %></li>
+  <li><%= link_to 'Vocabularies', admin_vocabularies_path %></li>
+  <li class="active"><%= @vocabulary.name %></li>
+</ol>
+
+<% if @vocabulary.key != 'uncontrolled' %>
+  <div class="btn-group pull-right">
+    <button type="button" class="btn btn-default" data-toggle="modal"
+            data-target="#pt-edit-vocabulary-modal">
+      <i class="fa fa-pencil"></i> Edit
+    </button>
+    <%= link_to admin_vocabulary_path(@vocabulary), method: :delete,
+                class: 'btn btn-danger',
+                data: { confirm: 'Are you sure you want to delete this '\
+                        'vocabulary?' } do %>
+      <i class="fa fa-trash"></i> Delete
+    <% end %>
+  </div>
+<% end %>
+
+<h1><%= @vocabulary.name %> <small><%= @vocabulary.key %></small></h1>
+
+<div class="modal fade" id="pt-edit-vocabulary-modal" tabindex="-1" role="dialog"
+     aria-labelledby="pt-edit-vocabulary-modal-label">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title" id="pt-edit-vocabulary-modal-label">Edit Vocabulary</h4>
+      </div>
+      <div class="modal-body">
+        <%= render partial: 'form', locals: { vocabulary: @vocabulary,
+                                              context: :edit } %>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,52 @@
+<% provide :title, 'Vocabularies' %>
+<% provide :body_id, 'vocabularies' %>
+<% provide :active_nav, 'metadata' %>
+
+<ol class="breadcrumb">
+  <li><%= link_to 'Home', admin_root_path %></li>
+  <li class="active">Vocabularies</li>
+</ol>
+
+<div class="pull-right">
+  <button type="button" class="btn btn-default" data-toggle="modal"
+          data-target="#pt-add-vocabulary-modal">
+    <span class="fa fa-plus"></span> Add Vocabulary
+  </button>
+</div>
+
+<h1>Vocabularies</h1>
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Key</th>
+      <th>Name</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @vocabularies.each do |vocab| %>
+      <tr>
+        <td><%= link_to vocab.key, admin_vocabulary_path(vocab) %></td>
+        <td><%= link_to vocab.name, admin_vocabulary_path(vocab) %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<div class="modal fade" id="pt-add-vocabulary-modal" tabindex="-1" role="dialog"
+     aria-labelledby="pt-add-vocabulary-modal-label">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title" id="pt-add-vocabulary-modal-label">Add Vocabulary</h4>
+      </div>
+      <div class="modal-body">
+        <%= render partial: 'form', locals: { vocabulary: @vocabulary,
+                                              context: :new } %>
+      </div>
+    </div>
+  </div>
+</div>

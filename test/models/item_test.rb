@@ -29,6 +29,7 @@ class ItemTest < ActiveSupport::TestCase
 
   test 'tsv_header should return the correct columns' do
     cols = Item.tsv_header(@item.collection.metadata_profile).strip.split("\t")
+    assert_equal 11, cols.length
     assert_equal 'uuid', cols[0]
     assert_equal 'parentId', cols[1]
     assert_equal 'variant', cols[2]
@@ -36,10 +37,10 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal 'subpageNumber', cols[4]
     assert_equal 'latitude', cols[5]
     assert_equal 'longitude', cols[6]
-
-    @item.collection.metadata_profile.element_defs.map(&:name).each_with_index do |el, index|
-      assert_not_empty cols[7 + index]
-    end
+    assert_equal 'title', cols[7]
+    assert_equal 'description', cols[8]
+    assert_equal 'lcsh:subject', cols[9]
+    assert_equal 'tgm:subject', cols[10]
   end
 
   # access_master_bytestream()
@@ -160,6 +161,7 @@ class ItemTest < ActiveSupport::TestCase
 
   test 'to_tsv should work' do
     values = @item.to_tsv.strip.split("\t")
+    assert_equal 11, values.length
     assert_equal @item.repository_id.to_s, values[0]
     assert_equal @item.parent_repository_id.to_s, values[1]
     assert_equal @item.variant.to_s, values[2]
@@ -167,18 +169,14 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal @item.subpage_number.to_s, values[4]
     assert_equal @item.latitude.to_s, values[5]
     assert_equal @item.longitude.to_s, values[6]
-
-    @item.collection.metadata_profile.element_defs.each_with_index do |el, index|
-      assert_equal @item.elements.select{ |e| e.name == el.name }.map(&:value).
-          join(Item::MULTI_VALUE_SEPARATOR),
-                   values[7 + index].to_s
-      assert_not_equal 'nil', values[7 + index]
-    end
+    assert_equal @item.elements.select{ |e| e.name == 'title' }.first.value, values[7]
+    assert_equal @item.elements.select{ |e| e.name == 'description' }.first.value, values[8]
+    assert_equal @item.elements.select{ |e| e.name == 'subject' }.first.value, values[9]
   end
 
   # update_from_tsv
 
-  test 'update_from_tsv should work with a parentId column' do
+  test 'update_from_tsv should work with DLS TSV' do
     row = {}
     # technical elements
     row['parentId'] = '9182'
@@ -214,7 +212,7 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal('Cats', @item.title)
   end
 
-  test 'update_from_tsv should work without a parentId column' do
+  test 'update_from_tsv should work with Medusa TSV' do
     row = {}
     # technical elements
     row['date'] = '1984'
@@ -229,6 +227,8 @@ class ItemTest < ActiveSupport::TestCase
                                  Item::MULTI_VALUE_SEPARATOR,
                                  Item::MULTI_VALUE_SEPARATOR)
     row['title'] = 'Cats'
+    row['subject'] = 'Mammals'
+    row['lcsh:subject'] = 'Felines'
 
     @item.update_from_tsv([row], row)
 
@@ -245,8 +245,28 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal 1, descriptions.select{ |e| e.value == 'Cats' }.length
     assert_equal 1, descriptions.select{ |e| e.value == 'cats' }.length
     assert_equal 1, descriptions.select{ |e| e.value == 'and more cats' }.length
+    assert_equal Vocabulary.uncontrolled, descriptions[0].vocabulary
+    assert_equal Vocabulary.uncontrolled, descriptions[1].vocabulary
+    assert_equal Vocabulary.uncontrolled, descriptions[2].vocabulary
 
-    assert_equal('Cats', @item.title)
+    title = @item.elements.select{ |e| e.name == 'title' }.first
+    assert_equal Vocabulary.uncontrolled, title.vocabulary
+    assert_equal 'Cats', title.value
+
+    assert_not_nil @item.elements.
+        select{ |e| e.name == 'subject' and e.vocabulary == Vocabulary.uncontrolled and e.value = 'Mammals' }.first
+    assert_not_nil @item.elements.
+        select{ |e| e.name == 'subject' and e.vocabulary == Vocabulary.find_by_key('lcsh') and e.value == 'Felines' }.first
+  end
+
+  test 'update_from_tsv should raise an error if given an invalid vocabulary prefix' do
+    row = {}
+    row['title'] = 'Cats'
+    row['bogus:subject'] = 'Felines'
+
+    assert_raises RuntimeError do
+      @item.update_from_tsv([row], row)
+    end
   end
 
   test 'update_from_tsv should set the variant for free-form content from
