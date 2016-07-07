@@ -48,8 +48,9 @@ namespace :peartree do
   def reindex_collections
     # Reindex existing collections
     Collection.all.each { |col| col.index_in_solr }
-    # Remove indexed documents whose entities have disappeared
-    Collection.solr.all.select{ |c| c.to_s == c }.each do |col_id|
+    # Remove indexed documents whose entities have disappeared.
+    # (For these, Relation will contain a string ID in place of an instance.)
+    Collection.solr.all.limit(99999).select{ |c| c.to_s == c }.each do |col_id|
       Solr.delete_by_id(col_id)
     end
   end
