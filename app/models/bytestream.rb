@@ -101,6 +101,10 @@ class Bytestream < ActiveRecord::Base
         next if k.include?('FileTypeExtension')
         next if k.include?('CurrentIPTCDigest')
 
+        if v['val']&.kind_of?(String)
+          next if v['val']&.include?('use -b option to extract')
+        end
+
         value = v['val']
         if v['desc'].present? and value.present?
           value = value.kind_of?(String) ? value.strip : value
