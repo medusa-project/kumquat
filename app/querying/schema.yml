@@ -1,4 +1,7 @@
 ##
+# This is a YAML representation of the Solr schema required by the application.
+# Solr::update_schema() will read this file and update Solr via its REST API.
+#
 # Schema summary:
 #
 # metadata_*_txtim                    arbitrary metadata elements
@@ -15,6 +18,49 @@
 # *_{type}m: multiValued
 # *_{type}im: indexed, multiValued
 #
+
+#########################################################################
+# FIELD TYPES
+#########################################################################
+
+fieldTypes:
+  - name: 'text_en_natural'
+    class: 'solr.TextField'
+    autoGeneratePhraseQueries: 'true'
+    positionIncrementGap: '100'
+    analyzer:
+      tokenizer:
+        # KeywordTokenizer does no actual tokenizing, so the entire input
+        # string is preserved as a single token.
+        class: 'solr.KeywordTokenizerFactory'
+      filters:
+        - class: 'solr.LowerCaseFilterFactory'
+        - class: 'solr.TrimFilterFactory'
+          # Remove leading articles
+        - class: 'solr.PatternReplaceFilterFactory'
+          pattern: "^(a |the |les |la |le |l'|de la |du |des )"
+          replacement:
+          replace: 'all'
+          # Left-pad numbers with zeroes
+        - class: 'solr.PatternReplaceFilterFactory'
+          pattern: '(\d+)'
+          replacement: '00000$1'
+          replace: 'all'
+          # Left-trim zeroes to produce 6 digit numbers
+        - class: 'solr.PatternReplaceFilterFactory'
+          pattern: '0*([0-9]{6,})'
+          replacement: '$1'
+          replace: 'all'
+          # Remove all but alphanumeric characters
+        - class: 'solr.PatternReplaceFilterFactory'
+          pattern: '([^a-z0-9])'
+          replacement:
+          replace: 'all'
+
+#########################################################################
+# COPY FIELDS
+#########################################################################
+
 copyFields:
   - source: 'collection_si'
     dest: 'collection_si_facet'
@@ -22,6 +68,10 @@ copyFields:
     dest: 'searchall_txtim'
   - source: 'metadata_*'
     dest: '*_facet'
+
+#########################################################################
+# DYNAMIC FIELDS
+#########################################################################
 
 dynamicFields:
     ################# facet fields ##################
