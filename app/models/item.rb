@@ -429,7 +429,9 @@ class Item < ActiveRecord::Base
   # Updates an instance's metadata elements from the metadata embedded within
   # its preservation master bytestream.
   #
-  def update_from_embedded_metadata
+  # @param save [Boolean] Whether to save the instance.
+  #
+  def update_from_embedded_metadata(save = true)
     # Get the preservation bytestream
     bs = self.preservation_master_bytestream
     return unless bs
@@ -482,7 +484,7 @@ class Item < ActiveRecord::Base
       end
     end
 
-    self.save!
+    self.save! if save
   end
 
   ##
@@ -566,12 +568,21 @@ class Item < ActiveRecord::Base
         end
       end
 
-      # Metadata elements. Before we begin adding these, if we are using
-      # Medusa TSV, and the free-form profile, and the title is not already
-      # set, set the title to the filename.
+      # Metadata elements.
+      # If we are using Medusa TSV, and the free-form profile...
       if self.collection.content_profile == ContentProfile::FREE_FORM_PROFILE and
-          row['title'].blank? and !ItemTsvIngester.dls_tsv?(tsv)
-        row['title'] = row['name']
+          !ItemTsvIngester.dls_tsv?(tsv)
+        # Try to obtain a title from 1) the TSV; 2) embedded metadata;
+        # 3) the filename.
+        if row['title'].blank?
+          # Vacuum up embedded metadata. This may or may not include a title.
+          self.update_from_embedded_metadata(false)
+
+          # If still no title, use the filename.
+          if self.elements.select{ |e| e.name == 'title' }.empty?
+            row['title'] = row['name']
+          end
+        end
       end
       # Now, begin.
       row.each do |heading, value|
