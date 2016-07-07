@@ -613,6 +613,9 @@ class Item < ActiveRecord::Base
         end
       end
 
+      # If the only changes were to dependent entities, this would not get
+      # updated.
+      self.updated_at = Time.now
       self.save!
     end
   end
