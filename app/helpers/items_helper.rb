@@ -11,26 +11,51 @@ module ItemsHelper
     data = bytestream_metadata_for(bs)
     html = ''
     if data.any?
-      html += '<table class="table table-condensed pt-metadata">'
-      data.each do |row|
-        category = %w(ExifTool File).include?(row[:category]) ?
-            nil : row[:category]
-        if row[:value].respond_to?(:each)
-          value = '<ul>'
-          row[:value].each do |v|
-            value += "<li>#{v}</li>"
-          end
-          value += '</ul>'
-        else
-          value = row[:value]
-        end
+      categories = data.map{ |f| f[:category] }.uniq.
+          reject{ |cat| cat == 'ExifTool' }
 
-        html += "<tr>
-          <td>#{row[:label]} <span class=\"label label-default\">#{category}</span></td>
-          <td>#{raw(value)}</td>
-        </tr>"
+      # create the category tabs
+      html += '<ul class="nav nav-pills" role="tablist">'
+      categories.each_with_index do |category, index|
+        tab_id = "pt-metadata-tab-#{bs.bytestream_type}-#{category.gsub(' ', '')}"
+        class_ = (index == 0) ? 'active' : ''
+        html += "<li role=\"presentation\" class=\"#{class_}\">
+          <a href=\"##{tab_id}\" aria-controls=\"#{tab_id}\"
+              role=\"tab\" data-toggle=\"tab\">#{category}</a>
+        </li>"
       end
-      html += '</table>'
+      html += '</ul>'
+
+      # create the category tab panes
+      html += '<div class="tab-content">'
+      categories.each_with_index do |category, index|
+        tab_id = "pt-metadata-tab-#{bs.bytestream_type}-#{category.gsub(' ', '')}"
+        class_ = (index == 0) ? 'active' : ''
+        html += "<div role=\"tabpanel\" class=\"tab-pane #{class_}\"
+            id=\"#{tab_id}\">"
+
+        html += '<table class="table table-condensed pt-metadata">'
+        data.select{ |row| row[:category] == category }.each do |row|
+          if row[:value].respond_to?(:each)
+            value = '<ul>'
+            row[:value].each do |v|
+              value += "<li>#{v}</li>"
+            end
+            value += '</ul>'
+          else
+            value = row[:value]
+          end
+
+          html += "<tr>
+            <td>#{row[:label]}</td>
+            <td>#{raw(value)}</td>
+          </tr>"
+        end
+        html += '</table>'
+
+        html += "</div>" # .tab-pane
+      end
+      html += '</div>' # .tab-content
     end
     raw(html)
   end

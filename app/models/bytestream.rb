@@ -124,16 +124,13 @@ class Bytestream < ActiveRecord::Base
           next if v['val']&.include?('use -b option to extract')
         end
 
-        value = v['val']
-        if v['desc'].present? and value.present?
-          value = value.kind_of?(String) ? value.strip : value
+        if v['desc'].present? and v['val'].present?
           parts = k.split(':')
           category = parts.length > 1 ? parts[0] : nil
-          @metadata << {
-              label: v['desc'],
-              category: category,
-              value: value
-          }
+          category = category.upcase if category.include?('Jpeg')
+          category.gsub!('ICC_Profile', 'ICC Profile')
+          value = v['val'].kind_of?(String) ? v['val'].strip : v['val']
+          @metadata << { label: v['desc'], category: category, value: value }
         end
       end
     end
