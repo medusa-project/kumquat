@@ -13,10 +13,11 @@ class CollectionsController < WebsiteController
       @collections = @collections.facet(params[:fq])
     end
 
+    fresh_when(etag: @collections) if Rails.env.production?
+
     respond_to do |format|
-      format.html { fresh_when(etag: @collections) }
+      format.html
       format.json do
-        fresh_when(etag: @collections)
         render json: @collections.to_a.map { |c| # TODO: optimize this
           {
               id: c.repository_id,
@@ -39,7 +40,7 @@ class CollectionsController < WebsiteController
       }
     end
 
-    fresh_when(etag: @collection)
+    fresh_when(etag: @collection) if Rails.env.production?
 
     respond_to do |format|
       format.html do

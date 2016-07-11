@@ -22,7 +22,8 @@ module CollectionsHelper
         unchecked_params = term.added_to_params(params.deep_dup)
         checked_params.delete(:start)
         unchecked_params.delete(:start)
-        term_label = truncate(term.label&.titleize, length: 80)
+        term_label = term.label.present? ?
+            truncate(term.label.titleize, length: 80) : '(Unknown)'
 
         panel += "<li class=\"pt-term\">"
         panel += "<div class=\"checkbox\">"

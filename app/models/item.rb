@@ -88,18 +88,26 @@ class Item < ActiveRecord::Base
   # column per element definition in the item's collection's metadata profile.
   #
   # Headings are guaranteed to be consistent with the output of to_tsv as long
-  # as the passed-in MetadataProfile is the same as that of an item's
-  # collection.
+  # as the passed-in MetadataProfile is the same as the one assigned to an
+  # item's collection.
   #
   # @param metadata_profile [MetadataProfile]
-  # @return [String] Tab-separated values with trailing CRLF newline.
+  # @return [String] Tab-separated values with trailing newline.
   # @see to_tsv
   #
   def self.tsv_header(metadata_profile)
     # Must remain synchronized with the output of to_tsv.
-    tech_elements = ['uuid', 'parentId', 'variant', 'pageNumber',
-                     'subpageNumber', 'latitude', 'longitude']
-    elements = tech_elements + metadata_profile.element_defs.map(&:name)
+    elements = ['uuid', 'parentId', 'variant', 'pageNumber',
+                'subpageNumber', 'latitude', 'longitude']
+    metadata_profile.element_defs.each do |el|
+      # There will be one column per ElementDef vocabulary. Column headings are
+      # in the format "vocabKey:elementName", except the uncontrolled vocabulary
+      # which will not get a vocabKey prefix.
+      elements += el.vocabularies.order(:key).map do |vocab|
+        vocab.key != Vocabulary::UNCONTROLLED_KEY ?
+            "#{vocab.key}:#{el.name}" : el.name
+      end
+    end
     elements.join("\t") + TSV_LINE_BREAK
   end
 
@@ -405,9 +413,14 @@ class Item < ActiveRecord::Base
     columns << self.latitude
     columns << self.longitude
 
-    self.collection.metadata_profile.element_defs.each do |el|
-      columns << self.elements.select{ |e| e.name == el.name }.map(&:value).
-          join(MULTI_VALUE_SEPARATOR)
+    self.collection.metadata_profile.element_defs.each do |pe|
+      # An ElementDef will have one column per vocabulary.
+      pe.vocabularies.order(:key).each do |vocab|
+        columns << self.elements.
+            select{ |e| e.name == pe.name and (e.vocabulary == vocab or (!e.vocabulary and vocab == Vocabulary.uncontrolled)) }.
+            map(&:value).
+            join(MULTI_VALUE_SEPARATOR)
+      end
     end
     columns.join("\t") + TSV_LINE_BREAK
   end
@@ -418,6 +431,7 @@ class Item < ActiveRecord::Base
   # @param tsv [Array<Hash<String,String>>]
   # @param row [Hash<String,String>] Item serialized as a TSV row
   # @return [Item]
+  # @raises [RuntimeError]
   #
   def update_from_tsv(tsv, row)
     ActiveRecord::Base.transaction do
@@ -481,7 +495,6 @@ class Item < ActiveRecord::Base
         end
       end
 
-      # Bytestreams.
       # If the TSV is in Medusa format, delete all bytestreams first in order
       # to create new ones based on the TSV. Otherwise, if the TSV is in DLS
       # format, leave the bytestreams alone.
@@ -493,23 +506,37 @@ class Item < ActiveRecord::Base
         end
       end
 
-      # profile-specific metadata elements
-
-      # Before we begin adding these, if we are using Medusa TSV, and the
-      # title is not already set, set the title to the filename.
+      # Metadata elements. Before we begin adding these, if we are using
+      # Medusa TSV, and the free-form profile, and the title is not already
+      # set, set the title to the filename.
       if self.collection.content_profile == ContentProfile::FREE_FORM_PROFILE and
           row['title'].blank? and !ItemTsvIngester.dls_tsv?(tsv)
         row['title'] = row['name']
       end
-      # Now, begin. Just to be safe, we will take in any valid descriptive
-      # element, whether or not it exists in the collection's metadata profile.
-      row.select{ |col, value| ElementDef.all_descriptive.map(&:name).include?(col) }.
-          each do |col, value|
-        # Add new elements
-        if value.present?
-          value.split(MULTI_VALUE_SEPARATOR).select(&:present?).each do |v|
-            e = Element.named(col)
-            e.value = v
+      # Now, begin.
+      row.each do |heading, value|
+        # Skip columns with an empty value.
+        next unless value.present?
+        # Vocabulary columns will have a heading of "vocabKey:elementName",
+        # except uncontrolled columns which will have a heading of just
+        # "elementName".
+        parts = heading.split(':')
+        element_name = parts.last
+        # To be safe, we will accept any descriptive element, whether or not it
+        # is present in the collection's metadata profile.
+        if ElementDef.all_descriptive.map(&:name).include?(element_name)
+          value.split(MULTI_VALUE_SEPARATOR).select(&:present?).each do |value|
+            e = Element.named(element_name)
+            e.value = value
+            if parts.length > 1
+              e.vocabulary = Vocabulary.find_by_key(parts.first)
+              # Disallow invalid vocabularies.
+              unless e.vocabulary
+                raise "Column contains an invalid vocabulary: #{heading}"
+              end
+            else
+              e.vocabulary = Vocabulary.uncontrolled
+            end
             self.elements << e
           end
         end

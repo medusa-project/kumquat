@@ -27,7 +27,7 @@ class LandingController < WebsiteController
     @num_video_items = Item.solr.where("#{Item::SolrFields::ACCESS_MASTER_MEDIA_TYPE}:video/* "\
         "OR #{Item::SolrFields::PRESERVATION_MASTER_MEDIA_TYPE}:video/*").count
 
-    fresh_when(etag: @num_all_items)
+    fresh_when(etag: @num_all_items) if Rails.env.production?
   end
 
 end

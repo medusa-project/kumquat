@@ -430,7 +430,7 @@ hasPart:
     dcterms: hasParts
 hasVersion:
   type: descriptive
-  label: Has Part
+  label: Has Version
   visible: true
   searchable: true
   sortable: true

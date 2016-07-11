@@ -20,6 +20,7 @@ class Element < ActiveRecord::Base
   end
 
   belongs_to :item, inverse_of: :elements
+  belongs_to :vocabulary
 
   attr_accessor :type
 
@@ -61,6 +62,11 @@ class Element < ActiveRecord::Base
 
   def self.solr_suffix
     '_txtim'
+  end
+
+  def ==(obj)
+    obj.kind_of?(Element) and obj.name == self.name and
+        obj.value == self.value and obj.vocabulary_id == self.vocabulary_id
   end
 
   def formatted_value
