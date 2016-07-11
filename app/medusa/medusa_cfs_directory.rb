@@ -8,6 +8,14 @@ class MedusaCfsDirectory
   #   @return [Hash]
   attr_accessor :medusa_representation
 
+  ##
+  # @return [Integer] Database ID of the entity.
+  #
+  def id
+    load
+    self.medusa_representation['id']
+  end
+
   def pathname
     PearTree::Application.peartree_config[:repository_pathname].chomp('/') +
         self.repository_relative_pathname
