@@ -9,6 +9,16 @@ class MedusaCfsDirectory
   attr_accessor :medusa_representation
 
   ##
+  # @return [Hash]
+  #
+  def contents_as_json
+    url = PearTree::Application.peartree_config[:medusa_url].chomp('/') +
+        '/cfs_directories/' + self.id.to_s + '/show_tree.json'
+    json_str = Medusa.client.get(url, follow_redirect: true).body
+    JSON.parse(json_str)
+  end
+
+  ##
   # @return [Integer] Database ID of the entity.
   #
   def id

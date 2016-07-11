@@ -7,6 +7,10 @@ class MedusaCfsDirectoryTest < ActiveSupport::TestCase
     @cfs.uuid = '7e927880-c12b-0133-1d0f-0050569601ca-4'
   end
 
+  test 'contents_as_json should return the JSON contents' do
+    # TODO: test this with a small amount of content
+  end
+
   test 'id should return the ID' do
     assert_equal 407393, @cfs.id
   end
