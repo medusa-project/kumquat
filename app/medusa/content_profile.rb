@@ -257,7 +257,7 @@ class ContentProfile
       # from Medusa, as this information is not contained in the TSV.
       if MedusaCfsFile.file?(item_id)
         file = MedusaCfsFile.new
-        file.id = item_id
+        file.uuid = item_id
         bs = Bytestream.new
         bs.repository_relative_pathname = file.repository_relative_pathname
         bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
@@ -451,7 +451,7 @@ class ContentProfile
       # from Medusa, as this information is not contained in the TSV.
       if MedusaCfsFile.file?(item_id)
         file = MedusaCfsFile.new
-        file.id = item_id
+        file.uuid = item_id
         # Only preservation masters are considered "items" in this profile.
         if File.extname(file.repository_relative_pathname).downcase[0..3] == '.tif'
           bs = Bytestream.new

@@ -4,7 +4,7 @@ class MedusaCfsDirectoryTest < ActiveSupport::TestCase
 
   def setup
     @cfs = MedusaCfsDirectory.new
-    @cfs.id = '7e927880-c12b-0133-1d0f-0050569601ca-4'
+    @cfs.uuid = '7e927880-c12b-0133-1d0f-0050569601ca-4'
   end
 
   test 'pathname should return the correct pathname' do

@@ -4,7 +4,7 @@ class MedusaCfsFileTest < ActiveSupport::TestCase
 
   def setup
     @cfs = MedusaCfsFile.new
-    @cfs.id = 'd25db810-c451-0133-1d17-0050569601ca-3'
+    @cfs.uuid = 'd25db810-c451-0133-1d17-0050569601ca-3'
   end
 
   test 'file? should work properly' do

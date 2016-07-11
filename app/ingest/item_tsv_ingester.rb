@@ -40,7 +40,7 @@ class ItemTsvIngester
   #                   effective root CFS directory.
   #
   def self.within_root?(item_id, collection, tsv)
-    effective_top_id = collection.effective_medusa_cfs_directory&.id
+    effective_top_id = collection.effective_medusa_cfs_directory&.uuid
     if effective_top_id.present?
       next_parent_id = item_id
       while next_parent_id.present? do
