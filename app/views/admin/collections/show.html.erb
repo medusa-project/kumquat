@@ -65,7 +65,7 @@
           <dt>Medusa File Group</dt>
           <dd>
             <% if @file_group %>
-              <%= link_to("#{@file_group.title} (#{@file_group.id})",
+              <%= link_to("#{@file_group.title} (#{@file_group.uuid})",
                           @file_group.url, target: '_blank') %>
             <% else %>
               None

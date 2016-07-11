@@ -117,7 +117,7 @@ class Collection < ActiveRecord::Base
       @cfs_directory = nil
       if self.medusa_cfs_directory_id
         @cfs_directory = MedusaCfsDirectory.new
-        @cfs_directory.id = self.medusa_cfs_directory_id
+        @cfs_directory.uuid = self.medusa_cfs_directory_id
       end
     end
     @cfs_directory
@@ -128,7 +128,7 @@ class Collection < ActiveRecord::Base
      @file_group = nil
      if self.medusa_file_group_id
        @file_group = MedusaFileGroup.new
-       @file_group.id = self.medusa_file_group_id
+       @file_group.uuid = self.medusa_file_group_id
      end
    end
    @file_group
@@ -172,7 +172,7 @@ class Collection < ActiveRecord::Base
       bs = item.access_master_bytestream || item.preservation_master_bytestream
     elsif self.representative_image.present?
       cfs_file = MedusaCfsFile.new
-      cfs_file.id = self.representative_image
+      cfs_file.uuid = self.representative_image
       bs = Bytestream.new
       bs.repository_relative_pathname = cfs_file.repository_relative_pathname
       bs.infer_media_type
