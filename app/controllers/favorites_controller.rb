@@ -23,7 +23,7 @@ class FavoritesController < WebsiteController
     @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
     @num_results_shown = [@limit, @items.total_length].min
 
-    fresh_when(etag: @items)
+    fresh_when(etag: @items) if Rails.env.production?
   end
 
   private

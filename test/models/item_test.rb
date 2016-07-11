@@ -140,6 +140,7 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal @item.representative_item_repository_id,
                  doc[Item::SolrFields::REPRESENTATIVE_ITEM_ID]
     assert_equal @item.subpage_number, doc[Item::SolrFields::SUBPAGE_NUMBER]
+    assert_equal @item.title, doc[Item::SolrFields::TITLE]
     assert_equal @item.variant, doc[Item::SolrFields::VARIANT]
 
     bs = @item.bytestreams.
@@ -172,6 +173,26 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal @item.elements.select{ |e| e.name == 'title' }.first.value, values[7]
     assert_equal @item.elements.select{ |e| e.name == 'description' }.first.value, values[8]
     assert_equal @item.elements.select{ |e| e.name == 'subject' }.first.value, values[9]
+  end
+
+  # update_from_embedded_metadata
+
+  test 'update_from_embedded_metadata should work' do
+    @item.update_from_embedded_metadata
+
+    puts @item.elements.select{ |e| e.name == 'date' }.first
+    assert_equal 1, @item.elements.
+        select{ |e| e.name == 'date' and e.value == '2005-06-02T05:00:00Z' }.length
+    assert_equal 1, @item.elements.
+        select{ |e| e.name == 'dateCreated' and e.value == '2005:06:02 07:19:00' }.length
+    assert_equal 1, @item.elements.
+        select{ |e| e.name == 'description' and e.value == 'OLYMPUS DIGITAL CAMERA' }.length
+    assert_equal 1, @item.elements.
+        select{ |e| e.name == 'subject' and e.value == 'Green Bay / De Pere' }.length
+    assert_equal 1, @item.elements.
+        select{ |e| e.name == 'subject' and e.value == 'St. Norbert College' }.length
+    assert_equal 1, @item.elements.
+        select{ |e| e.name == 'subject' and e.value == 'Van Den Heuvel Campus Center' }.length
   end
 
   # update_from_tsv

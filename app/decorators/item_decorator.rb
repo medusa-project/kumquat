@@ -25,10 +25,25 @@ class ItemDecorator < Draper::Decorator
         parent: self.parent ? item_url(self.parent) : nil,
         representative_item: self.representative_item ?
             item_url(self.representative_item) : nil,
-        elements: self.elements,
+        elements: [],
         bytestreams: BytestreamDecorator.decorate_collection(self.bytestreams),
         subitems: []
     }
+
+    # Populate the elements array
+    self.elements.each do |element|
+      element_def = self.collection.metadata_profile.element_defs.
+          select{ |ed| ed.name == element.name }.first
+      struct[:elements] << {
+          name: element.name,
+          dublin_core_map: element_def.dc_map,
+          dublin_core_terms_map: element_def.dcterms_map,
+          vocabulary: element.vocabulary&.name,
+          value: element.value
+      }
+    end
+
+    # Populate the subitems array
     self.items.each do |subitem|
       struct[:subitems] << {
           id: subitem.repository_id,

@@ -64,6 +64,11 @@ class Element < ActiveRecord::Base
     '_txtim'
   end
 
+  def ==(obj)
+    obj.kind_of?(Element) and obj.name == self.name and
+        obj.value == self.value and obj.vocabulary_id == self.vocabulary_id
+  end
+
   def formatted_value
     case self.name
       when 'latitude'
