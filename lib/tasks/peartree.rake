@@ -47,6 +47,15 @@ namespace :peartree do
     Solr.instance.commit
   end
 
+  desc 'Sync items from Medusa (modes: create_and_update, create_only, delete_missing)'
+  task :sync_items, [:collection_uuid, :mode] => :environment do |task, args|
+    collection = Collection.find_by_repository_id(args[:collection_uuid])
+    warnings = []
+    MedusaIngester.new.ingest_items(collection, args[:mode], warnings)
+    Solr.instance.commit
+    warnings.each { |w| puts w }
+  end
+
   desc 'Validate an XML file'
   task :validate, [:pathname, :schema_version] => :environment do |task, args|
     if ItemXmlIngester.new.validate_pathname(args[:pathname],
