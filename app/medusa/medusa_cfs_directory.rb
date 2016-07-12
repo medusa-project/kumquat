@@ -1,11 +1,5 @@
 class MedusaCfsDirectory
 
-  # @!attribute json_tree If set to a JSON tree from a Medusa show_tree.json
-  #                       endpoint, that will be used instead of making live
-  #                       requests.
-  #   @return [Hash]
-  attr_writer :json_tree
-
   # @!attribute medusa_representation
   #   @return [Hash]
   attr_accessor :medusa_representation
@@ -15,8 +9,7 @@ class MedusaCfsDirectory
   attr_accessor :uuid
 
   def initialize
-    @directories = []
-    @files = []
+    reset
   end
 
   ##
@@ -41,6 +34,17 @@ class MedusaCfsDirectory
   def id
     load_instance
     self.medusa_representation['id']
+  end
+
+  ##
+  # If set to a JSON tree from a Medusa show_tree.json endpoint, that will
+  # be used instead of making live requests.
+  #
+  # @param tree [Hash]
+  #
+  def json_tree=(tree)
+    @json_tree = tree
+    reset
   end
 
   ##
@@ -180,6 +184,12 @@ class MedusaCfsDirectory
       reload_instance
     end
     @instance_loaded = true
+  end
+
+  def reset
+    @directories = []
+    @files = []
+    @contents_loaded = false
   end
 
 end
