@@ -6,7 +6,7 @@ class MedusaIngesterTest < ActiveSupport::TestCase
     @instance = MedusaIngester.new
   end
 
-  test 'ingest_items with map profile collection and non-compound items' do
+  test 'ingest_items with map profile collection, non-compound items, and create-only ingest mode' do
     # Set up the fixture data.
     collection = collections(:collection2)
     collection.medusa_cfs_directory_id = '19c62760-e894-0133-1d3c-0050569601ca-d'
@@ -22,7 +22,8 @@ class MedusaIngesterTest < ActiveSupport::TestCase
 
     # Run the ingest.
     warnings = []
-    @instance.ingest_items(collection, warnings)
+    @instance.ingest_items(collection, MedusaIngester::IngestMode::CREATE_ONLY,
+                           warnings)
 
     # Assert that the correct number of items were added.
     assert_equal 0, warnings.length
@@ -43,7 +44,7 @@ class MedusaIngesterTest < ActiveSupport::TestCase
                  bs.repository_relative_pathname
   end
 
-  test 'ingest_items with map profile collection and compound items' do
+  test 'ingest_items with map profile collection, compound items, and create-only ingest mode' do
     # Set up the fixture data.
     item_uuid = '3aa7dd70-e946-0133-1d3d-0050569601ca-d'
     collection = collections(:collection2)
@@ -58,7 +59,8 @@ class MedusaIngesterTest < ActiveSupport::TestCase
 
     # Run the ingest.
     warnings = []
-    @instance.ingest_items(collection, warnings)
+    @instance.ingest_items(collection, MedusaIngester::IngestMode::CREATE_ONLY,
+                           warnings)
 
     assert_equal 0, warnings.length
 
@@ -81,6 +83,43 @@ class MedusaIngesterTest < ActiveSupport::TestCase
     assert_equal 'image/jp2', bs.media_type
     assert_equal '/59/2257/afm0003060/access/afm0003060a.jp2',
                  bs.repository_relative_pathname
+  end
+
+  test 'ingest_items with map profile collection, non-compound items, and create-and-update ingest mode' do
+    # TODO: write this
+  end
+
+  test 'ingest_items with map profile collection, compound items, and create-and-update ingest mode' do
+    # TODO: write this
+  end
+
+  test 'ingest_items with map profile collection and delete-missing ingest mode' do
+    # Set up the fixture data.
+    collection = collections(:collection2)
+    collection.medusa_cfs_directory_id = '19c62760-e894-0133-1d3c-0050569601ca-d'
+    cfs_dir = collection.effective_medusa_cfs_directory
+    tree = JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_map_tree.json'))
+    # Extract a small slice of the tree.
+    tree['subdirectories'] = tree['subdirectories'][0..9]
+    cfs_dir.json_tree = tree
+    # These will only cloud the waters.
+    Item.destroy_all
+
+    # Ingest some items.
+    @instance.ingest_items(collection, MedusaIngester::IngestMode::CREATE_ONLY)
+
+    # Record initial conditions.
+    start_num_items = Item.count
+
+    # Slice off some items from the ingest data.
+    tree['subdirectories'] = tree['subdirectories'][0..7]
+    cfs_dir.json_tree = tree
+
+    # "Ingest" the items.
+    @instance.ingest_items(collection, MedusaIngester::IngestMode::DELETE_MISSING)
+
+    # Assert that they were deleted.
+    assert_equal start_num_items - 2, Item.count
   end
 
 end

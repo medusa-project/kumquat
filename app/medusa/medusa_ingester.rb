@@ -1,5 +1,17 @@
 class MedusaIngester
 
+  class IngestMode
+    # Creates new DLS items and updates existing DLS items.
+    CREATE_AND_UPDATE = 'create_and_update'
+
+    # Creates new DLS items but does not touch existing DLS items.
+    CREATE_ONLY = 'create_only'
+
+    # Deletes DLS items that have gone missing in Medusa, but does not create
+    # or update anything.
+    DELETE_MISSING = 'delete_missing'
+  end
+
   ##
   # Retrieves the current list of Medusa collections from the Medusa REST API
   # and creates or updates the local Collection counterpart instances.
@@ -30,13 +42,14 @@ class MedusaIngester
   # collection's content profile.
   #
   # @param collection [Collection]
+  # @param mode [String] One of the IngestMode constants.
   # @param warnings [Array<String>] Supply an array which will be populated
   #                                 with nonfatal warnings (optional).
   # @raises [ArgumentError] If the collection's file group or content profile
   #                         are not set.
   # @raises [IllegalContentError]
   #
-  def ingest_items(collection, warnings = [])
+  def ingest_items(collection, mode, warnings = [])
     raise ArgumentError, 'Collection file group is not set' unless
         collection.medusa_file_group
     raise ArgumentError, 'Collection content profile is not set' unless
@@ -45,9 +58,14 @@ class MedusaIngester
     ActiveRecord::Base.transaction do
       case collection.content_profile
         when ContentProfile::FREE_FORM_PROFILE
-          ingest_free_form_items(collection)
+          ingest_free_form_items(collection, mode)
         when ContentProfile::MAP_PROFILE
-          ingest_map_items(collection, warnings)
+          case mode
+            when IngestMode::DELETE_MISSING
+              delete_missing_map_items(collection)
+            else
+              ingest_map_items(collection, mode, warnings)
+          end
       end
     end
   end
@@ -57,25 +75,59 @@ class MedusaIngester
   ##
   # @param collection [Collection]
   # @return [void]
+  # @raises [IllegalContentError]
   #
-  def ingest_free_form_items(collection)
+  def delete_missing_map_items(collection)
+    # Compile a list of all item UUIDs currently in the Medusa file group.
+    medusa_map_items = map_items_in(collection.effective_medusa_cfs_directory)
+    Rails.logger.debug("delete_missing_map_items(): "\
+        "#{medusa_map_items.length} items in CFS directory")
+
+    # For each DLS item in the collection, if it's no longer contained in the
+    # file group, delete it.
+    Item.where(collection_repository_id: collection.repository_id).each do |item|
+      unless medusa_map_items.include?(item.repository_id)
+        Rails.logger.info("delete_missing_map_items(): deleting "\
+          "#{item.repository_id}")
+        item.destroy!
+      end
+    end
+  end
+
+  ##
+  # @param collection [Collection]
+  # @param mode [String] One of the IngestMode constants.
+  # @return [void]
+  #
+  def ingest_free_form_items(collection, mode)
     # TODO: write this
   end
 
   ##
   # @param collection [Collection]
+  # @param mode [String] One of the IngestMode constants.
   # @param warnings [Array<String>] Supply an array which will be populated
   #                                 with nonfatal warnings (optional).
   # @return [void]
   # @raises [IllegalContentError]
   #
-  def ingest_map_items(collection, warnings = [])
+  def ingest_map_items(collection, mode, warnings = [])
     collection.effective_medusa_cfs_directory.directories.each do |top_item_dir|
-      Rails.logger.info("ingest_map_items(): ingesting top-level item "\
-      "#{top_item_dir.uuid}")
-
-      item = Item.new(repository_id: top_item_dir.uuid,
-                      collection_repository_id: collection.repository_id)
+      item = Item.find_by_repository_id(top_item_dir.uuid)
+      if item
+        if mode == IngestMode::CREATE_ONLY
+          Rails.logger.info("ingest_map_items(): skipping item "\
+              "#{top_item_dir.uuid}")
+          next
+        end
+        Rails.logger.info("ingest_map_items(): updating item "\
+                    "#{top_item_dir.uuid}")
+      else
+        Rails.logger.info("ingest_map_items(): creating item "\
+                    "#{top_item_dir.uuid}")
+        item = Item.new(repository_id: top_item_dir.uuid,
+                        collection_repository_id: collection.repository_id)
+      end
       if top_item_dir.directories.any?
         pres_dir = top_item_dir.directories.
             select{ |d| d.name == 'preservation' }.first
@@ -84,11 +136,26 @@ class MedusaIngester
           # file corresponds to a child item with its own preservation master.
           if pres_dir.files.length > 1
             pres_dir.files.each do |pres_file|
-              Rails.logger.info("ingest_map_items(): ingesting child item "\
-              "#{pres_file.uuid}")
-              child = Item.new(repository_id: pres_file.uuid,
-                               collection_repository_id: collection.repository_id)
-              child.parent_repository_id = item.repository_id
+              # Find or create the child item depending on the import mode and
+              # whether it already exists.
+              child = Item.find_by_repository_id(pres_file.uuid)
+              if child
+                if mode == IngestMode::CREATE_ONLY
+                  Rails.logger.info("ingest_map_items(): skipping child item "\
+                      "#{pres_file.uuid}")
+                  next
+                end
+                Rails.logger.info("ingest_map_items(): updating child item "\
+                    "#{pres_file.uuid}")
+                # These will be recreated below.
+                child.bytestreams.destroy_all
+              else
+                Rails.logger.info("ingest_map_items(): creating child item "\
+                    "#{pres_file.uuid}")
+                child = Item.new(repository_id: pres_file.uuid,
+                                 collection_repository_id: collection.repository_id,
+                                 parent_repository_id: item.repository_id)
+              end
 
               # Create the preservation master bytestream.
               pres_file = pres_dir.files.first
@@ -98,7 +165,7 @@ class MedusaIngester
                   '/' + pres_file.repository_relative_pathname.reverse.chomp('/').reverse
               bs.media_type = pres_file.media_type
 
-              # Find the access master bytestream.
+              # Find and create the access master bytestream.
               begin
                 bs = map_access_master_bytestream(top_item_dir, pres_file)
                 child.bytestreams << bs
@@ -117,7 +184,7 @@ class MedusaIngester
                 '/' + pres_file.repository_relative_pathname.reverse.chomp('/').reverse
             bs.media_type = pres_file.media_type
 
-            # Find the access master bytestream.
+            # Find and create the access master bytestream.
             begin
               bs = map_access_master_bytestream(top_item_dir, pres_file)
               item.bytestreams << bs
@@ -131,7 +198,7 @@ class MedusaIngester
           end
         else
           msg = "Directory #{top_item_dir.uuid} is missing a preservation "\
-          "directory."
+              "directory."
           Rails.logger.warn('ingest_map_items(): ' + msg)
           warnings << msg
         end
@@ -168,7 +235,7 @@ class MedusaIngester
           return bs
         else
           msg = "Preservation master file #{pres_master_file.uuid} has no "\
-          "access master counterpart."
+              "access master counterpart."
           Rails.logger.warn('map_access_master_bytestream(): ' + msg)
           raise IllegalContentError, msg
         end
@@ -179,10 +246,32 @@ class MedusaIngester
       end
     else
       msg = "Item directory #{item_cfs_dir.uuid} is missing an access "\
-      "master subdirectory."
+          "master subdirectory."
       Rails.logger.warn('map_access_master_bytestream(): ' + msg)
       raise IllegalContentError, msg
     end
+  end
+
+  ##
+  # @return [Set<String>] Set of item UUIDs
+  #
+  def map_items_in(cfs_dir)
+    medusa_item_uuids = Set.new
+    cfs_dir.directories.each do |top_item_dir|
+      medusa_item_uuids << top_item_dir.uuid
+      if top_item_dir.directories.any?
+        pres_dir = top_item_dir.directories.
+            select{ |d| d.name == 'preservation' }.first
+        if pres_dir
+          # If the preservation directory contains more than one file, each
+          # file corresponds to a child item with its own preservation master.
+          if pres_dir.files.length > 1
+            pres_dir.files.each { |file| medusa_item_uuids << file.uuid }
+          end
+        end
+      end
+    end
+    medusa_item_uuids
   end
 
 end
