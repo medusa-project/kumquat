@@ -2,7 +2,7 @@ class MedusaCfsDirectory
 
   # @!attribute json_tree If set to a JSON tree from a Medusa show_tree.json
   #                       endpoint, that will be used instead of making live
-  #                       requests. Useful only during testing.
+  #                       requests.
   #   @return [Hash]
   attr_writer :json_tree
 
@@ -136,6 +136,9 @@ class MedusaCfsDirectory
           dir.uuid = struct_dir['uuid']
           # Calling the directories() getter here would cause an infinite loop.
           parent_dir.instance_variable_get('@directories') << dir
+          dir.instance_variable_set('@contents_loaded', true)
+          dir.instance_variable_set('@repository_relative_pathname',
+                                    struct_dir['relative_pathname'])
           assemble_contents(struct_dir, dir)
         end
       end
@@ -145,6 +148,8 @@ class MedusaCfsDirectory
           file.uuid = struct_file['uuid']
           # Calling the files() getter here would cause an infinite loop.
           parent_dir.instance_variable_get('@files') << file
+          file.instance_variable_set('@repository_relative_pathname',
+                                     struct_file['relative_pathname'])
         end
       end
     end
