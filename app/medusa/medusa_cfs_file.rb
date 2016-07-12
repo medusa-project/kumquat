@@ -23,6 +23,14 @@ class MedusaCfsFile
   ##
   # @return [String]
   #
+  def media_type
+    load_instance
+    self.medusa_representation['content_type']
+  end
+
+  ##
+  # @return [String]
+  #
   def name
     File.basename(self.pathname)
   end
@@ -41,8 +49,8 @@ class MedusaCfsFile
   #
   # @return [void]
   #
-  def reload
-    raise 'reload() called without UUID set' unless self.uuid.present?
+  def reload_instance
+    raise 'reload_instance() called without UUID set' unless self.uuid.present?
 
     json_str = Medusa.client.get(self.url + '.json', follow_redirect: true).body
     rep = JSON.parse(json_str)
@@ -51,12 +59,12 @@ class MedusaCfsFile
       File.open(cache_pathname, 'wb') { |f| f.write(json_str) }
     end
     self.medusa_representation = rep
-    @loaded = true
+    @instance_loaded = true
   end
 
   def repository_relative_pathname
     unless @repository_relative_pathname
-      load
+      load_instance
       @repository_relative_pathname =
           "/#{self.medusa_representation['relative_pathname']}"
     end
@@ -89,12 +97,12 @@ class MedusaCfsFile
   # @raises [RuntimeError] If the instance's UUID is not set
   # @raises [HTTPClient::BadResponseError]
   #
-  def load
-    return if @loaded
-    raise 'load() called without UUID set' unless self.uuid.present?
+  def load_instance
+    return if @instance_loaded
+    raise 'load_instance() called without UUID set' unless self.uuid.present?
 
     if Rails.env.test?
-      reload
+      reload_instance
     else
       ttl = PearTree::Application.peartree_config[:medusa_cache_ttl]
       if File.exist?(cache_pathname) and File.mtime(cache_pathname).
@@ -102,10 +110,10 @@ class MedusaCfsFile
         json_str = File.read(cache_pathname)
         self.medusa_representation = JSON.parse(json_str)
       else
-        reload
+        reload_instance
       end
     end
-    @loaded = true
+    @instance_loaded = true
   end
 
 end
