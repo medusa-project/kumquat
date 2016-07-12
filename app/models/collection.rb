@@ -115,7 +115,7 @@ class Collection < ActiveRecord::Base
   def medusa_cfs_directory
     unless @cfs_directory
       @cfs_directory = nil
-      if self.medusa_cfs_directory_id
+      if self.medusa_cfs_directory_id.present?
         @cfs_directory = MedusaCfsDirectory.new
         @cfs_directory.id = self.medusa_cfs_directory_id
       end
