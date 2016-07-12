@@ -54,25 +54,6 @@ class ContentProfile
   end
 
   ##
-  # Queries Medusa to find all bytestreams for the Item with the given ID.
-  #
-  # @param item_id [String]
-  # @return [Array<Bytestream>]
-  # @raises [HTTPClient::BadResponseError]
-  # @raises [ArgumentError] If the item ID is nil
-  #
-  def bytestreams_from_medusa(item_id)
-    raise ArgumentError, 'No ID provided' unless item_id
-    case self.id
-      when 0
-        return free_form_bytestreams_from_medusa(item_id)
-      when 1
-        return map_bytestreams_from_medusa(item_id)
-    end
-    []
-  end
-
-  ##
   # Searches for all bytestreams for the Item with the given ID from the given
   # TSV string.
   #
@@ -211,32 +192,6 @@ class ContentProfile
   # In the free-form profile, there is one bytestream per file. Directories
   # have no bytestreams.
   #
-  # @param item_id [String]
-  # @return [Array<Bytestream>]
-  #
-  def free_form_bytestreams_from_medusa(item_id)
-    bytestreams = []
-    client = Medusa.client
-    response = client.get(medusa_url(item_id), follow_redirect: true)
-    if response.status < 300
-      json = response.body
-      struct = JSON.parse(json)
-      if struct['mtime'] # Only files will have this key.
-        bs = Bytestream.new
-        bs.repository_relative_pathname =
-            '/' + struct['relative_pathname'].reverse.chomp('/').reverse
-        bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
-        bs.infer_media_type
-        bytestreams << bs
-      end
-    end
-    bytestreams
-  end
-
-  ##
-  # In the free-form profile, there is one bytestream per file. Directories
-  # have no bytestreams.
-  #
   # @param item_id [String] Medusa UUID
   # @param tsv [Array<Hash<String,String>>]
   # @return [Array<Bytestream>]
@@ -347,58 +302,6 @@ class ContentProfile
       end
     end
     nil
-  end
-
-  ##
-  # Child items will reside in a directory called `access` or
-  # `preservation`. These are the only items in this profile that will have
-  # any associated bytestreams. Preservation and access filenames will be the
-  # same, except preservation files will end in .tif and access filenames in
-  # .jp2.
-  #
-  # @param item_id [String]
-  # @return [Array<Bytestream>]
-  #
-  def map_bytestreams_from_medusa(item_id)
-    client = Medusa.client
-    json = client.get(medusa_url(item_id), follow_redirect: true).body
-    struct = JSON.parse(json)
-    bytestreams = []
-
-    if struct['directory']
-      case struct['directory']['name']
-        when 'preservation'
-          # add the preservation master
-          bs = Bytestream.new
-          bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
-          bs.repository_relative_pathname =
-              '/' + struct['relative_pathname'].reverse.chomp('/').reverse
-          bs.infer_media_type
-          bytestreams << bs
-
-          # add the access master
-          bytestreams << access_master_counterpart(bs)
-        when 'access'
-          # add the preservation master
-          bs = Bytestream.new
-          bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
-          bs.repository_relative_pathname =
-              '/' + struct['relative_pathname'].reverse.chomp('/').reverse.
-                  gsub('/preservation/', '/access/').chomp('.jp2') + '.tif'
-          bs.infer_media_type
-          bytestreams << bs
-
-          # add the access master
-          bs = Bytestream.new
-          bs.bytestream_type = Bytestream::Type::ACCESS_MASTER
-          bs.repository_relative_pathname =
-              '/' + struct['relative_pathname'].reverse.chomp('/').reverse
-          bs.infer_media_type
-          bytestreams << bs
-      end
-
-    end
-    bytestreams
   end
 
   ##
