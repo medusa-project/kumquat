@@ -23,6 +23,13 @@ class MedusaCfsFile
   ##
   # @return [String]
   #
+  def name
+    File.basename(self.pathname)
+  end
+
+  ##
+  # @return [String]
+  #
   def pathname
     PearTree::Application.peartree_config[:repository_pathname].chomp('/') +
         self.repository_relative_pathname
