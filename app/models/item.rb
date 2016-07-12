@@ -16,6 +16,11 @@
 # profile. These IDs are stored in `repository_id`, NOT `id`, which is
 # database-specific.
 #
+# Items have a soft pointer to their collection and parent item based on
+# repository ID, rather than a belongs_to/has_many on their database ID.
+# This is to be able to establish structure more easily outside of the
+# application.
+#
 # Being an ActiveRecord entity, items are searchable via ActiveRecord as well
 # as via Solr. Instances are automatically indexed in Solr (see `to_solr`) and
 # the Solr search functionality is available via the `solr` class method.
