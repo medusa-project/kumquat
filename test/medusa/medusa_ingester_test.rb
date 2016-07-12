@@ -6,6 +6,14 @@ class MedusaIngesterTest < ActiveSupport::TestCase
     @instance = MedusaIngester.new
   end
 
+  test 'ingest_items with free-form profile collection and create-only ingest mode' do
+    # TODO: write this
+  end
+
+  test 'ingest_items with free-form profile collection and delete-missing ingest mode' do
+    # TODO: write this
+  end
+
   test 'ingest_items with map profile collection, non-compound items, and create-only ingest mode' do
     # Set up the fixture data.
     collection = collections(:collection2)
@@ -83,14 +91,6 @@ class MedusaIngesterTest < ActiveSupport::TestCase
     assert_equal 'image/jp2', bs.media_type
     assert_equal '/59/2257/afm0003060/access/afm0003060a.jp2',
                  bs.repository_relative_pathname
-  end
-
-  test 'ingest_items with map profile collection, non-compound items, and create-and-update ingest mode' do
-    # TODO: write this
-  end
-
-  test 'ingest_items with map profile collection, compound items, and create-and-update ingest mode' do
-    # TODO: write this
   end
 
   test 'ingest_items with map profile collection and delete-missing ingest mode' do

@@ -55,7 +55,7 @@ namespace :peartree do
     Solr.instance.commit
   end
 
-  desc 'Sync items from Medusa (modes: create_and_update, create_only, delete_missing)'
+  desc 'Sync items from Medusa (modes: create_only, delete_missing)'
   task :sync_items, [:collection_uuid, :mode] => :environment do |task, args|
     collection = Collection.find_by_repository_id(args[:collection_uuid])
     warnings = []

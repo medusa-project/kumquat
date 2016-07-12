@@ -120,8 +120,6 @@ class MedusaIngester
               "#{top_item_dir.uuid}")
           next
         end
-        Rails.logger.info("ingest_map_items(): updating item "\
-                    "#{top_item_dir.uuid}")
       else
         Rails.logger.info("ingest_map_items(): creating item "\
                     "#{top_item_dir.uuid}")
@@ -145,8 +143,6 @@ class MedusaIngester
                       "#{pres_file.uuid}")
                   next
                 end
-                Rails.logger.info("ingest_map_items(): updating child item "\
-                    "#{pres_file.uuid}")
                 # These will be recreated below.
                 child.bytestreams.destroy_all
               else
