@@ -47,7 +47,6 @@
   <%= item_page_title(@item) %>
   <div class="panel panel-default">
     <div class="panel-body pt-page-nav">
-
       <!-- This form is never actually submitted -- we are just using the
       form-inline class for convenience. -->
       <form method="get" class="form-inline">
@@ -69,7 +68,6 @@
             Next Page &rarr;</button>
         <% end %>
       </form>
-
     </div>
   </div>
 <% else %>
@@ -86,7 +84,9 @@ side-by-side. (IMET-161) -->
       <%= viewer_for(@item) %>
     </div>
     <div class="col-md-5">
-      <%= metadata_panel(@item) %>
+      <section>
+        <%= metadata_section(@item) %>
+      </section>
     </div>
   </div>
 <% else %>
@@ -96,10 +96,12 @@ side-by-side. (IMET-161) -->
 <% end %>
 
 <% if @item.variant == Item::Variants::DIRECTORY %>
-  <%= files_panel(@item) %>
+  <section id="pt-files-section">
+    <%= render partial: 'files' %>
+  </section>
 <% elsif @item.variant != Item::Variants::FILE %>
   <% if @relative_parent.key_item or @relative_parent.front_matter_item or
-    @relative_parent.index_item %>
+      @relative_parent.index_item %>
     <div class="row">
       <div class="col-sm-4 col-md-3 col-lg-3">
         <%= title_item_panel(@relative_parent, size: 512) %>
@@ -108,110 +110,49 @@ side-by-side. (IMET-161) -->
         <%= index_item_panel(@relative_parent, size: 512) %>
       </div>
       <div class="col-sm-8 col-md-9 col-lg-9">
-        <%= pages_panel(@pages, @item) %>
+        <section>
+          <%= pages_section(@pages, @item) %>
+        </section>
       </div>
     </div>
   <% else %>
-    <%= pages_panel(@pages, @item) %>
+    <section id="pt-pages-section">
+      <%= render partial: 'pages' %>
+    </section>
   <% end %>
 <% end %>
 
 <% if @item.full_text.present? %>
-  <div class="panel panel-default">
-    <div class="panel-heading">
-      <h2 class="panel-title">Full Text</h2>
-    </div>
-    <div class="panel-body">
-      <pre><%= @item.full_text %></pre>
-    </div>
-  </div>
+  <section>
+    <h2>Full Text</h2>
+    <pre><%= @item.full_text %></pre>
+  </section>
 <% end %>
 
-<div class="row">
-  <div class="col-lg-9">
-    <% if @item.elements.reject{ |e| e.name == 'title' }.any? and
-        @item.collection.content_profile != ContentProfile::FREE_FORM_PROFILE %>
-      <%= metadata_panel(@item) %>
-    <% end %>
-  </div>
-  <div class="col-lg-3">
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <h2 class="panel-title">System Information</h2>
-      </div>
-      <div class="panel-body">
-        <div class="visible-xs">
-          <%= tech_metadata_as_list(@item) %>
-        </div>
-        <div class="hidden-xs">
-          <%= tech_metadata_as_table(@item) %>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+<% if @item.elements.reject{ |e| e.name == 'title' }.any? and
+    @item.collection.content_profile != ContentProfile::FREE_FORM_PROFILE %>
+  <section>
+    <%= metadata_section(@item) %>
+  </section>
+<% end %>
 
-<div class="row">
-  <% @item.bytestreams.where(bytestream_type: [Bytestream::Type::ACCESS_MASTER,
-                                               Bytestream::Type::PRESERVATION_MASTER]).limit(2).each do |bs| %>
-    <div class="col-sm-6">
-      <div class="panel panel-default">
-        <div class="panel-heading">
-          <h2 class="panel-title">
-            <%= bs.bytestream_type == Bytestream::Type::ACCESS_MASTER ?
-                    'Access Master' : 'Preservation Master' %>
-          </h2>
-        </div>
-        <div class="panel-body">
-          <ul class="nav nav-pills" role="tablist">
-            <li role="presentation" class="<%= bs.exif.any? ? '' : 'active' %>">
-              <a href="#pt-bytestream-<%= bs.bytestream_type %>-file"
-                 aria-controls="pt-bytestream-<%= bs.bytestream_type %>-file"
-                 role="tab" data-toggle="tab">File</a>
-            </li>
-            <% if bs.exif.any? %>
-              <li role="presentation" class="active">
-                <a href="#pt-bytestream-<%= bs.bytestream_type %>-exif"
-                   aria-controls="pt-bytestream-<%= bs.bytestream_type %>-exif"
-                   role="tab" data-toggle="tab">EXIF</a>
-              </li>
-            <% end %>
-            <% if bs.iptc %>
-              <li role="presentation">
-                <a href="#pt-bytestream-<%= bs.bytestream_type %>-iptc"
-                   aria-controls="pt-bytestream-<%= bs.bytestream_type %>-iptc"
-                   role="tab" data-toggle="tab">IPTC</a>
-              </li>
-            <% end %>
-            <% if bs.xmp %>
-              <li role="presentation">
-                <a href="#pt-bytestream-<%= bs.bytestream_type %>-xmp"
-                   aria-controls="pt-bytestream-<%= bs.bytestream_type %>-xmp"
-                   role="tab" data-toggle="tab">XMP</a>
-              </li>
-            <% end %>
-          </ul>
+<% @item.bytestreams.select{ |bs| [Bytestream::Type::ACCESS_MASTER,
+                                   Bytestream::Type::PRESERVATION_MASTER].
+    include?(bs.bytestream_type) }.each do |bs| %>
+  <section>
+    <h2><%= bs.human_readable_type %> File</h2>
+    <%= bytestream_metadata_as_table(bs) %>
+  </section>
+<% end %>
 
-          <div class="tab-content">
-            <div role="tabpanel" class="tab-pane <%= bs.exif.any? ? '' : 'active' %>"
-                 id="pt-bytestream-<%= bs.bytestream_type %>-file">
-              <%= bytestream_file_metadata_as_table(bs) %>
-            </div>
-            <div role="tabpanel" class="tab-pane <%= bs.exif.any? ? 'active' : '' %>"
-                 id="pt-bytestream-<%= bs.bytestream_type %>-exif">
-              <%= bytestream_exif_metadata_as_table(bs) %>
-            </div>
-            <div role="tabpanel" class="tab-pane" id="pt-bytestream-<%= bs.bytestream_type %>-iptc">
-              <%= bytestream_iptc_metadata_as_table(bs) %>
-            </div>
-            <div role="tabpanel" class="tab-pane" id="pt-bytestream-<%= bs.bytestream_type %>-xmp">
-              <%= bytestream_xmp_metadata_as_table(bs) %>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  <% end %>
-</div>
+<section>
+  <h2>Technical Info</h2>
+  <div class="visible-xs">
+    <%= tech_metadata_as_list(@item) %>
+  </div>
+  <div class="hidden-xs">
+    <%= tech_metadata_as_table(@item) %>
+  </div>
+</section>
 
 <%= render partial: 'download_panel', locals: { item: @item } %>

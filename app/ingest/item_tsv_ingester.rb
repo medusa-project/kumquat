@@ -94,18 +94,23 @@ class ItemTsvIngester
     ActiveRecord::Base.transaction do
       collection.content_profile.items_from_tsv(tsv).each do |row|
         unless self.class.within_root?(row['uuid'], collection, tsv)
-          Rails.logger.debug("Outside of root: #{row['uuid']} (skipping)")
+          Rails.logger.info("Skipping #{row['uuid']} (outside of root)")
           next
         end
 
         item = Item.find_by_repository_id(row['uuid'])
         if item
           if import_mode != ImportMode::CREATE_ONLY
+            Rails.logger.info("Updating #{row['uuid']}")
             item.collection = collection
             item.update_from_tsv(tsv, row)
             count += 1
+          else
+            Rails.logger.info("Skipping #{row['uuid']} "\
+            "(already exists [create-only mode])")
           end
         else
+          Rails.logger.info("Creating #{row['uuid']}")
           Item.from_tsv(tsv, row, collection)
           count += 1
         end

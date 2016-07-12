@@ -25,6 +25,14 @@ namespace :peartree do
     reindex_collections
   end
 
+  desc 'Reindex collection'
+  task :reindex_collection, [:uuid] => :environment do |task, args|
+    Item.where(collection_repository_id: args[:uuid]).each do |item|
+      item.index_in_solr
+    end
+    Solr.instance.commit
+  end
+
   desc 'Reindex all collections'
   task :reindex_collections => :environment do |task, args|
     reindex_collections
