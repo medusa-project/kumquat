@@ -1,11 +1,5 @@
 namespace :peartree do
 
-  desc 'Harvest collections from Medusa'
-  task :harvest_collections => :environment do |task|
-    MedusaIngester.new.ingest_collections
-    Solr.instance.commit
-  end
-
   desc 'Ingest items in a TSV file (mode: create_only or create_and_update)'
   task :ingest_tsv, [:pathname, :collection_uuid, :mode] => :environment do |task, args|
     collection = Collection.find_by_repository_id(args[:collection_uuid])
@@ -45,6 +39,12 @@ namespace :peartree do
     Collection.solr.all.limit(99999).select{ |c| c.to_s == c }.each do |col_id|
       Solr.delete_by_id(col_id)
     end
+  end
+
+  desc 'Sync collections from Medusa'
+  task :sync_collections => :environment do |task|
+    MedusaIngester.new.ingest_collections
+    Solr.instance.commit
   end
 
   desc 'Validate an XML file'
