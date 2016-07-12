@@ -1,5 +1,11 @@
 class MedusaCfsDirectory
 
+  # @!attribute json_tree If set to a JSON tree from a Medusa show_tree.json
+  #                       endpoint, that will be used instead of making live
+  #                       requests. Useful only during testing.
+  #   @return [Hash]
+  attr_writer :json_tree
+
   # @!attribute medusa_representation
   #   @return [Hash]
   attr_accessor :medusa_representation
@@ -100,10 +106,15 @@ class MedusaCfsDirectory
   #
   def load_contents
     return if @contents_loaded
-    url = PearTree::Application.peartree_config[:medusa_url].chomp('/') +
-        '/cfs_directories/' + self.id.to_s + '/show_tree.json'
-    Rails.logger.debug('MedusaCfsDirectory.load_contents(): loading ' + url)
-    json_str = Medusa.client.get(url, follow_redirect: true).body
+    if @json_tree # This will likely only be true during testing.
+      tree = @json_tree
+    else
+      url = PearTree::Application.peartree_config[:medusa_url].chomp('/') +
+          '/cfs_directories/' + self.id.to_s + '/show_tree.json'
+      Rails.logger.debug('MedusaCfsDirectory.load_contents(): loading ' + url)
+      json_str = Medusa.client.get(url, follow_redirect: true).body
+      tree = JSON.parse(json_str)
+    end
 
     ##
     # Creates a MedusaCfsDirectory/MedusaCfsFile structure analogous to the
@@ -131,7 +142,6 @@ class MedusaCfsDirectory
       end
     end
 
-    tree = JSON.parse(json_str)
     assemble_contents(tree)
     @contents_loaded = true
     nil
