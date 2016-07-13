@@ -213,7 +213,6 @@ class MedusaIngester
   # @param warnings [Array<String>] Supply an array which will be populated
   #                                 with nonfatal warnings (optional).
   # @return [void]
-  # @raises [IllegalContentError]
   #
   def ingest_map_items(collection, mode, warnings = [])
     collection.effective_medusa_cfs_directory.directories.each do |top_item_dir|
@@ -304,7 +303,8 @@ class MedusaIngester
         end
       else
         msg = "Directory #{top_item_dir.uuid} does not have any subdirectories."
-        raise IllegalContentError, msg
+        Rails.logger.warn('ingest_map_items(): ' + msg)
+        warnings << msg
       end
 
       item.save!
