@@ -102,8 +102,8 @@ class Item < ActiveRecord::Base
   #
   def self.tsv_header(metadata_profile)
     # Must remain synchronized with the output of to_tsv.
-    elements = ['uuid', 'parentId', 'variant', 'pageNumber',
-                'subpageNumber', 'latitude', 'longitude']
+    elements = %w(uuid parentId preservationMasterPathname accessMasterPathname
+                  variant pageNumber subpageNumber latitude longitude)
     metadata_profile.element_defs.each do |el|
       # There will be one column per ElementDef vocabulary. Column headings are
       # in the format "vocabKey:elementName", except the uncontrolled vocabulary
@@ -444,6 +444,8 @@ class Item < ActiveRecord::Base
     columns = []
     columns << self.repository_id
     columns << self.parent_repository_id
+    columns << self.preservation_master_bytestream&.repository_relative_pathname
+    columns << self.access_master_bytestream&.repository_relative_pathname
     columns << self.variant
     columns << self.page_number
     columns << self.subpage_number
