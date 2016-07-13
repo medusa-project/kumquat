@@ -190,4 +190,72 @@ class MedusaIngesterTest < ActiveSupport::TestCase
     assert_equal 2, result[:num_deleted]
   end
 
+  test 'ingest_items with single-item object profile collection and create-only ingest mode' do
+    # Set up the fixture data.
+    collection = collections(:single_item_object_collection)
+    cfs_dir = collection.effective_medusa_cfs_directory
+    tree = JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_single_item_tree.json'))
+    cfs_dir.json_tree = tree
+
+    # These will only get in the way.
+    Item.destroy_all
+
+    # Run the ingest.
+    warnings = []
+    result = @instance.ingest_items(collection,
+                                    MedusaIngester::IngestMode::CREATE_ONLY,
+                                    warnings)
+
+    # Assert that the correct number of items were added.
+    assert_equal 0, warnings.length
+    assert_equal 4, Item.count
+    assert_equal 4, result[:num_created]
+
+    # Inspect an individual item more thoroughly.
+    item = Item.find_by_repository_id('7b7e08f0-0b13-0134-1d55-0050569601ca-a')
+    assert_empty item.items
+    assert_equal 2, item.bytestreams.length
+    bs = item.bytestreams.
+        select{ |b| b.bytestream_type == Bytestream::Type::PRESERVATION_MASTER }.first
+    assert_equal 'image/tiff', bs.media_type
+    assert_equal '/55/2358/preservation/03501042_001_souscrivez.TIF',
+                 bs.repository_relative_pathname
+
+    bs = item.bytestreams.
+        select{ |b| b.bytestream_type == Bytestream::Type::ACCESS_MASTER }.first
+    assert_equal 'image/jp2', bs.media_type
+    assert_equal '/55/2358/access/03501042_001_souscrivez.jp2',
+                 bs.repository_relative_pathname
+  end
+
+  test 'ingest_items with single-item object profile collection and delete-missing ingest mode' do
+    # Set up the fixture data.
+    collection = collections(:single_item_object_collection)
+    cfs_dir = collection.effective_medusa_cfs_directory
+    tree = JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_single_item_tree.json'))
+    cfs_dir.json_tree = tree
+
+    # These will only get in the way.
+    Item.destroy_all
+
+    # Ingest some items.
+    @instance.ingest_items(collection, MedusaIngester::IngestMode::CREATE_ONLY)
+
+    # Record initial conditions.
+    start_num_items = Item.count
+
+    # Slice off some items from the ingest data.
+    tree['subdirectories'].select{ |d| d['name'] == 'preservation' }[0]['files'] =
+        tree['subdirectories'].select{ |d| d['name'] == 'preservation' }[0]['files'][0..2]
+    cfs_dir.json_tree = tree
+
+    # "Ingest" the items.
+    result = @instance.ingest_items(collection,
+                                    MedusaIngester::IngestMode::DELETE_MISSING)
+
+    # Assert that they were deleted.
+    assert_equal start_num_items - 1, Item.count
+    assert_equal 1, result[:num_deleted]
+  end
+
 end

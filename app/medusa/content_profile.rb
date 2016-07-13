@@ -19,6 +19,10 @@ class ContentProfile
       {
           id: 1,
           name: 'Map'
+      },
+      {
+          id: 2,
+          name: 'Single-Item Object'
       }
   ]
 
@@ -48,6 +52,7 @@ class ContentProfile
 
   FREE_FORM_PROFILE = ContentProfile.find(0)
   MAP_PROFILE = ContentProfile.find(1)
+  SINGLE_ITEM_OBJECT_PROFILE = ContentProfile.find(2)
 
   def ==(obj)
     obj.kind_of?(self.class) and obj.id == self.id
