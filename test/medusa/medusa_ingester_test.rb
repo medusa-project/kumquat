@@ -2,16 +2,77 @@ require 'test_helper'
 
 class MedusaIngesterTest < ActiveSupport::TestCase
 
-  def setup
+  setup do
     @instance = MedusaIngester.new
   end
 
   test 'ingest_items with free-form profile collection and create-only ingest mode' do
-    # TODO: write this
+    # Set up the fixture data.
+    collection = collections(:collection1)
+    collection.medusa_cfs_directory_id = '19c62760-e894-0133-1d3c-0050569601ca-d'
+    cfs_dir = collection.effective_medusa_cfs_directory
+    tree = JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_map_tree.json'))
+    # Extract a small slice of the tree.
+    tree['subdirectories'] = tree['subdirectories'][0..0]
+    cfs_dir.json_tree = tree
+
+    # These will only get in the way.
+    Item.destroy_all
+
+    # Run the ingest.
+    warnings = []
+    @instance.ingest_items(collection, MedusaIngester::IngestMode::CREATE_ONLY,
+                           warnings)
+
+    # Assert that the correct number of items were added.
+    assert_equal 0, warnings.length
+    assert_equal 7, Item.count
+
+    # Inspect an individual directory item more thoroughly.
+    item = Item.find_by_repository_id('231fa570-e949-0133-1d3d-0050569601ca-2')
+    assert_equal 1, item.items.length
+    assert_equal 0, item.bytestreams.length
+    assert_equal Item::Variants::DIRECTORY, item.variant
+
+    # Inspect an individual file item more thoroughly.
+    item = Item.find_by_repository_id('236763b0-e949-0133-1d3d-0050569601ca-2')
+    assert_empty item.items
+    assert_equal 1, item.bytestreams.length
+    assert_equal Item::Variants::FILE, item.variant
+    bs = item.bytestreams.select{ |b| b.bytestream_type == Bytestream::Type::PRESERVATION_MASTER }.first
+    assert_equal 'image/jp2', bs.media_type
+    assert_equal '/59/2257/afm0002389/access/afm0002389.jp2',
+                 bs.repository_relative_pathname
   end
 
   test 'ingest_items with free-form profile collection and delete-missing ingest mode' do
-    # TODO: write this
+    # Set up the fixture data.
+    collection = collections(:collection1)
+    collection.medusa_cfs_directory_id = '19c62760-e894-0133-1d3c-0050569601ca-d'
+    cfs_dir = collection.effective_medusa_cfs_directory
+    tree = JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_map_tree.json'))
+    # Extract a small slice of the tree.
+    tree['subdirectories'] = tree['subdirectories'][0..1]
+    cfs_dir.json_tree = tree
+
+    # These will only get in the way.
+    Item.destroy_all
+
+    # Ingest some items.
+    @instance.ingest_items(collection, MedusaIngester::IngestMode::CREATE_ONLY)
+
+    # Record initial conditions.
+    start_num_items = Item.count
+
+    # Slice off some items from the ingest data.
+    tree['subdirectories'] = tree['subdirectories'][0..0]
+    cfs_dir.json_tree = tree
+
+    # "Ingest" the items.
+    @instance.ingest_items(collection, MedusaIngester::IngestMode::DELETE_MISSING)
+
+    # Assert that they were deleted.
+    assert_equal start_num_items - 7, Item.count
   end
 
   test 'ingest_items with map profile collection, non-compound items, and create-only ingest mode' do
@@ -23,10 +84,9 @@ class MedusaIngesterTest < ActiveSupport::TestCase
     # Extract a small slice of the tree containing only four items.
     tree['subdirectories'] = tree['subdirectories'][0..3]
     cfs_dir.json_tree = tree
-    assert_equal 4, cfs_dir.directories.length
 
-    # Record initial conditions.
-    start_num_items = Item.count
+    # These will only get in the way.
+    Item.destroy_all
 
     # Run the ingest.
     warnings = []
@@ -35,7 +95,7 @@ class MedusaIngesterTest < ActiveSupport::TestCase
 
     # Assert that the correct number of items were added.
     assert_equal 0, warnings.length
-    assert_equal start_num_items + 4, Item.count
+    assert_equal 4, Item.count
 
     # Inspect an individual item more thoroughly.
     item = Item.find_by_repository_id('2066c390-e946-0133-1d3d-0050569601ca-d')
@@ -102,7 +162,8 @@ class MedusaIngesterTest < ActiveSupport::TestCase
     # Extract a small slice of the tree.
     tree['subdirectories'] = tree['subdirectories'][0..9]
     cfs_dir.json_tree = tree
-    # These will only cloud the waters.
+
+    # These will only get in the way.
     Item.destroy_all
 
     # Ingest some items.

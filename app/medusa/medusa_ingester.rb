@@ -1,14 +1,14 @@
 class MedusaIngester
 
   class IngestMode
-    # Creates new DLS items and updates existing DLS items.
+    # Creates new DLS entities and updates existing DLS entities.
     CREATE_AND_UPDATE = 'create_and_update'
 
-    # Creates new DLS items but does not touch existing DLS items.
+    # Creates new DLS entities but does not touch existing DLS entities.
     CREATE_ONLY = 'create_only'
 
-    # Deletes DLS items that have gone missing in Medusa, but does not create
-    # or update anything.
+    # Deletes DLS entities that have gone missing in Medusa, but does not
+    # create or update anything.
     DELETE_MISSING = 'delete_missing'
   end
 
@@ -58,7 +58,12 @@ class MedusaIngester
     ActiveRecord::Base.transaction do
       case collection.content_profile
         when ContentProfile::FREE_FORM_PROFILE
-          ingest_free_form_items(collection, mode)
+          case mode
+            when IngestMode::DELETE_MISSING
+              delete_missing_free_form_items(collection)
+            else
+              ingest_free_form_items(collection, mode)
+          end
         when ContentProfile::MAP_PROFILE
           case mode
             when IngestMode::DELETE_MISSING
@@ -71,6 +76,28 @@ class MedusaIngester
   end
 
   private
+
+  ##
+  # @param collection [Collection]
+  # @return [void]
+  # @raises [IllegalContentError]
+  #
+  def delete_missing_free_form_items(collection)
+    # Compile a list of all item UUIDs currently in the Medusa file group.
+    medusa_items = free_form_items_in(collection.effective_medusa_cfs_directory)
+    Rails.logger.debug("delete_missing_free_form_items(): "\
+        "#{medusa_items.length} items in CFS directory")
+
+    # For each DLS item in the collection, if it's no longer contained in the
+    # file group, delete it.
+    Item.where(collection_repository_id: collection.repository_id).each do |item|
+      unless medusa_items.include?(item.repository_id)
+        Rails.logger.info("delete_missing_items(): deleting "\
+          "#{item.repository_id}")
+        item.destroy!
+      end
+    end
+  end
 
   ##
   # @param collection [Collection]
@@ -95,12 +122,89 @@ class MedusaIngester
   end
 
   ##
+  # @param cfs_dir [MedusaCfsDirectory]
+  # @return [Set<String>] Set of item UUIDs
+  #
+  def free_form_items_in(cfs_dir)
+    ##
+    # @param cfs_dir [Collection]
+    # @param medusa_item_uuids [Set<String>]
+    # @return [void]
+    #
+    def walk_tree(cfs_dir, medusa_item_uuids)
+      cfs_dir.directories.each do |dir|
+        medusa_item_uuids << dir.uuid
+        walk_tree(dir, medusa_item_uuids)
+      end
+      cfs_dir.files.each do |file|
+        medusa_item_uuids << file.uuid
+      end
+    end
+
+    medusa_item_uuids = Set.new
+    walk_tree(cfs_dir, medusa_item_uuids)
+    medusa_item_uuids
+  end
+
+  ##
   # @param collection [Collection]
   # @param mode [String] One of the IngestMode constants.
   # @return [void]
   #
   def ingest_free_form_items(collection, mode)
-    # TODO: write this
+    ##
+    # @param collection [Collection]
+    # @param cfs_dir [MedusaCfsDirectory]
+    # @param mode [String] One of the IngestMode constants.
+    # @return [void]
+    #
+    def walk_tree(collection, cfs_dir, mode)
+      cfs_dir.directories.each do |dir|
+        item = Item.find_by_repository_id(dir.uuid)
+        if item
+          if mode == IngestMode::CREATE_ONLY
+            Rails.logger.info("ingest_free_form_items(): skipping item "\
+                "#{dir.uuid}")
+            next
+          end
+        else
+          Rails.logger.info("ingest_free_form_items(): creating item "\
+                    "#{dir.uuid}")
+          item = Item.new(repository_id: dir.uuid,
+                          parent_repository_id: cfs_dir.uuid,
+                          collection_repository_id: collection.repository_id,
+                          variant: Item::Variants::DIRECTORY)
+        end
+        item.save!
+        walk_tree(collection, dir, mode)
+      end
+      cfs_dir.files.each do |file|
+        item = Item.find_by_repository_id(file.uuid)
+        if item
+          if mode == IngestMode::CREATE_ONLY
+            Rails.logger.info("ingest_free_form_items(): skipping item "\
+                  "#{file.uuid}")
+            next
+          end
+        else
+          Rails.logger.info("ingest_free_form_items(): creating item "\
+                      "#{file.uuid}")
+          item = Item.new(repository_id: file.uuid,
+                          parent_repository_id: cfs_dir.uuid,
+                          collection_repository_id: collection.repository_id,
+                          variant: Item::Variants::FILE)
+          # Create its corresponding bytestream.
+          bs = item.bytestreams.build
+          bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
+          bs.repository_relative_pathname =
+              '/' + file.repository_relative_pathname.reverse.chomp('/').reverse
+          bs.media_type = file.media_type
+        end
+        item.save!
+      end
+    end
+
+    walk_tree(collection, collection.effective_medusa_cfs_directory, mode)
   end
 
   ##
