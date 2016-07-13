@@ -16,9 +16,13 @@ class SyncItemsJob < Job
     self.task.indeterminate = true
     self.task.save!
 
-    MedusaIngester.new.ingest_items(collection, args[1])
+    result = MedusaIngester.new.ingest_items(collection, args[1])
     Solr.instance.commit
 
+    self.task.status_text += ": #{result[:num_created]} created; "\
+        "#{result[:num_updated]} updated; "\
+        "#{result[:num_deleted]} deleted; "\
+        "#{result[:num_skipped]} skipped"
     self.task.succeeded
   end
 
