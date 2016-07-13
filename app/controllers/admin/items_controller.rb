@@ -132,6 +132,26 @@ module Admin
       end
     end
 
+    ##
+    # Responds to POST /admin/collections/:collection_id/items/sync
+    #
+    def sync
+      col = Collection.find_by_repository_id(params[:collection_id])
+      raise ActiveRecord::RecordNotFound unless col
+
+      begin
+        SyncItemsJob.perform_later(params[:collection_id],
+                                   params[:ingest_mode])
+      rescue => e
+        flash['error'] = "#{e}"
+        redirect_to admin_collection_items_url(col)
+      else
+        flash['success'] = 'Syncing items in the background. This '\
+        'may take a while.'
+        redirect_to admin_collection_items_url(col)
+      end
+    end
+
   end
 
 end
