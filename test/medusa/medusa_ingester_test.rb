@@ -21,12 +21,13 @@ class MedusaIngesterTest < ActiveSupport::TestCase
 
     # Run the ingest.
     warnings = []
-    @instance.ingest_items(collection, MedusaIngester::IngestMode::CREATE_ONLY,
-                           warnings)
+    result = @instance.ingest_items(
+        collection, MedusaIngester::IngestMode::CREATE_ONLY, warnings)
 
     # Assert that the correct number of items were added.
     assert_equal 0, warnings.length
     assert_equal 7, Item.count
+    assert_equal 7, result[:num_created]
 
     # Inspect an individual directory item more thoroughly.
     item = Item.find_by_repository_id('231fa570-e949-0133-1d3d-0050569601ca-2')
@@ -69,10 +70,12 @@ class MedusaIngesterTest < ActiveSupport::TestCase
     cfs_dir.json_tree = tree
 
     # "Ingest" the items.
-    @instance.ingest_items(collection, MedusaIngester::IngestMode::DELETE_MISSING)
+    result = @instance.ingest_items(
+        collection, MedusaIngester::IngestMode::DELETE_MISSING)
 
     # Assert that they were deleted.
     assert_equal start_num_items - 7, Item.count
+    assert_equal 7, result[:num_deleted]
   end
 
   test 'ingest_items with map profile collection, non-compound items, and create-only ingest mode' do
@@ -90,12 +93,13 @@ class MedusaIngesterTest < ActiveSupport::TestCase
 
     # Run the ingest.
     warnings = []
-    @instance.ingest_items(collection, MedusaIngester::IngestMode::CREATE_ONLY,
-                           warnings)
+    result = @instance.ingest_items(
+        collection, MedusaIngester::IngestMode::CREATE_ONLY, warnings)
 
     # Assert that the correct number of items were added.
     assert_equal 0, warnings.length
     assert_equal 4, Item.count
+    assert_equal 4, result[:num_created]
 
     # Inspect an individual item more thoroughly.
     item = Item.find_by_repository_id('2066c390-e946-0133-1d3d-0050569601ca-d')
@@ -127,10 +131,11 @@ class MedusaIngesterTest < ActiveSupport::TestCase
 
     # Run the ingest.
     warnings = []
-    @instance.ingest_items(collection, MedusaIngester::IngestMode::CREATE_ONLY,
-                           warnings)
+    result = @instance.ingest_items(
+        collection, MedusaIngester::IngestMode::CREATE_ONLY, warnings)
 
     assert_equal 0, warnings.length
+    assert_equal 5, result[:num_created]
 
     # Inspect the item.
     item = Item.find_by_repository_id(item_uuid)
@@ -177,10 +182,12 @@ class MedusaIngesterTest < ActiveSupport::TestCase
     cfs_dir.json_tree = tree
 
     # "Ingest" the items.
-    @instance.ingest_items(collection, MedusaIngester::IngestMode::DELETE_MISSING)
+    result = @instance.ingest_items(collection,
+                                    MedusaIngester::IngestMode::DELETE_MISSING)
 
     # Assert that they were deleted.
     assert_equal start_num_items - 2, Item.count
+    assert_equal 2, result[:num_deleted]
   end
 
 end

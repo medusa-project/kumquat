@@ -45,6 +45,8 @@ class MedusaIngester
   # @param mode [String] One of the IngestMode constants.
   # @param warnings [Array<String>] Supply an array which will be populated
   #                                 with nonfatal warnings (optional).
+  # @return [Hash<Symbol,Integer>] Hash with :num_created, :num_updated,
+  #                                :num_deleted, and :num_skipped keys.
   # @raises [ArgumentError] If the collection's file group or content profile
   #                         are not set.
   # @raises [IllegalContentError]
@@ -55,31 +57,34 @@ class MedusaIngester
     raise ArgumentError, 'Collection content profile is not set' unless
         collection.content_profile
 
+    status = { num_deleted: 0, num_created: 0, num_updated: 0, num_skipped: 0 }
+
     ActiveRecord::Base.transaction do
       case collection.content_profile
         when ContentProfile::FREE_FORM_PROFILE
           case mode
             when IngestMode::DELETE_MISSING
-              delete_missing_free_form_items(collection)
+              status.merge!(delete_missing_free_form_items(collection))
             else
-              ingest_free_form_items(collection, mode)
+              status.merge!(ingest_free_form_items(collection, mode))
           end
         when ContentProfile::MAP_PROFILE
           case mode
             when IngestMode::DELETE_MISSING
-              delete_missing_map_items(collection)
+              status.merge!(delete_missing_map_items(collection))
             else
-              ingest_map_items(collection, mode, warnings)
+              status.merge!(ingest_map_items(collection, mode, warnings))
           end
       end
     end
+    status
   end
 
   private
 
   ##
   # @param collection [Collection]
-  # @return [void]
+  # @return [Hash<Symbol,Integer>] Hash with :num_deleted key.
   # @raises [IllegalContentError]
   #
   def delete_missing_free_form_items(collection)
@@ -90,18 +95,21 @@ class MedusaIngester
 
     # For each DLS item in the collection, if it's no longer contained in the
     # file group, delete it.
+    status = { num_deleted: 0 }
     Item.where(collection_repository_id: collection.repository_id).each do |item|
       unless medusa_items.include?(item.repository_id)
         Rails.logger.info("delete_missing_items(): deleting "\
           "#{item.repository_id}")
         item.destroy!
+        status[:num_deleted] += 1
       end
     end
+    status
   end
 
   ##
   # @param collection [Collection]
-  # @return [void]
+  # @return [Hash<Symbol,Integer>] Hash with :num_deleted key.
   # @raises [IllegalContentError]
   #
   def delete_missing_map_items(collection)
@@ -112,13 +120,16 @@ class MedusaIngester
 
     # For each DLS item in the collection, if it's no longer contained in the
     # file group, delete it.
+    status = { num_deleted: 0 }
     Item.where(collection_repository_id: collection.repository_id).each do |item|
       unless medusa_map_items.include?(item.repository_id)
         Rails.logger.info("delete_missing_map_items(): deleting "\
           "#{item.repository_id}")
         item.destroy!
+        status[:num_deleted] += 1
       end
     end
+    status
   end
 
   ##
@@ -149,23 +160,28 @@ class MedusaIngester
   ##
   # @param collection [Collection]
   # @param mode [String] One of the IngestMode constants.
-  # @return [void]
+  # @return [Hash<Symbol,Integer>] Hash with :num_created, :num_updated, and
+  #                                :num_skipped keys.
   #
   def ingest_free_form_items(collection, mode)
     ##
     # @param collection [Collection]
     # @param cfs_dir [MedusaCfsDirectory]
     # @param mode [String] One of the IngestMode constants.
-    # @return [void]
+    # @return [Hash<Symbol,Integer>] Hash with :num_created, :num_updated, and
+    #                                :num_skipped keys.
     #
-    def walk_tree(collection, cfs_dir, mode)
+    def walk_tree(collection, cfs_dir, mode, status)
       cfs_dir.directories.each do |dir|
         item = Item.find_by_repository_id(dir.uuid)
         if item
           if mode == IngestMode::CREATE_ONLY
             Rails.logger.info("ingest_free_form_items(): skipping item "\
                 "#{dir.uuid}")
+            status[:num_skipped] += 1
             next
+          else
+            status[:num_updated] += 1
           end
         else
           Rails.logger.info("ingest_free_form_items(): creating item "\
@@ -174,9 +190,10 @@ class MedusaIngester
                           parent_repository_id: cfs_dir.uuid,
                           collection_repository_id: collection.repository_id,
                           variant: Item::Variants::DIRECTORY)
+          status[:num_created] += 1
         end
         item.save!
-        walk_tree(collection, dir, mode)
+        walk_tree(collection, dir, mode, status)
       end
       cfs_dir.files.each do |file|
         item = Item.find_by_repository_id(file.uuid)
@@ -184,7 +201,10 @@ class MedusaIngester
           if mode == IngestMode::CREATE_ONLY
             Rails.logger.info("ingest_free_form_items(): skipping item "\
                   "#{file.uuid}")
+            status[:num_skipped] += 1
             next
+          else
+            status[:num_updated] += 1
           end
         else
           Rails.logger.info("ingest_free_form_items(): creating item "\
@@ -199,12 +219,15 @@ class MedusaIngester
           bs.repository_relative_pathname =
               '/' + file.repository_relative_pathname.reverse.chomp('/').reverse
           bs.media_type = file.media_type
+          status[:num_created] += 1
         end
         item.save!
       end
     end
 
-    walk_tree(collection, collection.effective_medusa_cfs_directory, mode)
+    status = { num_created: 0, num_updated: 0, num_skipped: 0 }
+    walk_tree(collection, collection.effective_medusa_cfs_directory, mode, status)
+    status
   end
 
   ##
@@ -212,22 +235,28 @@ class MedusaIngester
   # @param mode [String] One of the IngestMode constants.
   # @param warnings [Array<String>] Supply an array which will be populated
   #                                 with nonfatal warnings (optional).
-  # @return [void]
+  # @return [Hash<Symbol,Integer>] Hash with :num_created, :num_updated, and
+  #                                :num_skipped keys.
   #
   def ingest_map_items(collection, mode, warnings = [])
+    status = { num_created: 0, num_updated: 0, num_skipped: 0 }
     collection.effective_medusa_cfs_directory.directories.each do |top_item_dir|
       item = Item.find_by_repository_id(top_item_dir.uuid)
       if item
         if mode == IngestMode::CREATE_ONLY
           Rails.logger.info("ingest_map_items(): skipping item "\
               "#{top_item_dir.uuid}")
+          status[:num_skipped] += 1
           next
+        else
+          status[:num_updated] += 1
         end
       else
         Rails.logger.info("ingest_map_items(): creating item "\
                     "#{top_item_dir.uuid}")
         item = Item.new(repository_id: top_item_dir.uuid,
                         collection_repository_id: collection.repository_id)
+        status[:num_created] += 1
       end
       if top_item_dir.directories.any?
         pres_dir = top_item_dir.directories.
@@ -244,7 +273,10 @@ class MedusaIngester
                 if mode == IngestMode::CREATE_ONLY
                   Rails.logger.info("ingest_map_items(): skipping child item "\
                       "#{pres_file.uuid}")
+                  status[:num_skipped] += 1
                   next
+                else
+                  status[:num_updated] += 1
                 end
                 # These will be recreated below.
                 child.bytestreams.destroy_all
@@ -254,6 +286,7 @@ class MedusaIngester
                 child = Item.new(repository_id: pres_file.uuid,
                                  collection_repository_id: collection.repository_id,
                                  parent_repository_id: item.repository_id)
+                status[:num_created] += 1
               end
 
               # Create the preservation master bytestream.
@@ -309,6 +342,7 @@ class MedusaIngester
 
       item.save!
     end
+    status
   end
 
   ##

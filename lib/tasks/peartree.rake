@@ -59,9 +59,14 @@ namespace :peartree do
   task :sync_items, [:collection_uuid, :mode] => :environment do |task, args|
     collection = Collection.find_by_repository_id(args[:collection_uuid])
     warnings = []
-    MedusaIngester.new.ingest_items(collection, args[:mode], warnings)
+    result = MedusaIngester.new.ingest_items(collection, args[:mode], warnings)
     Solr.instance.commit
     warnings.each { |w| puts w }
+    puts "#{args[:mode]} sync of #{collection.title}:\n"\
+        "    Created: #{result[:num_created]}\n"\
+        "    Updated: #{result[:num_updated]}\n"\
+        "    Deleted: #{result[:num_deleted]}\n"\
+        "    Skipped: #{result[:num_skipped]}\n"
   end
 
   desc 'Validate an XML file'
