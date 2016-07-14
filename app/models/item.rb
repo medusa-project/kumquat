@@ -543,11 +543,11 @@ class Item < ActiveRecord::Base
 
       # Parent item ID. If the TSV is coming from a DLS export, it will have a
       # parentId column. Otherwise, if it's coming from a Medusa export, we
-      # will have to search for it based on the collection's content profile.
+      # will have to search for it based on the collection's package profile.
       if row['parentId']
         self.parent_repository_id = row['parentId']
       else
-        self.parent_repository_id = self.collection.content_profile.
+        self.parent_repository_id = self.collection.package_profile.
             parent_id_from_medusa(self.repository_id)
         # The parent ID in the Medusa TSV may be pointing to a directory that
         # is outside the collection's effective root directory
@@ -583,7 +583,7 @@ class Item < ActiveRecord::Base
         self.variant = row['variant'].strip if row['variant']
       else
         # The variant needs to be set properly for free-form content.
-        if self.collection.content_profile == ContentProfile::FREE_FORM_PROFILE
+        if self.collection.package_profile == PackageProfile::FREE_FORM_PROFILE
           if row['inode_type'] == 'folder'
             self.variant = Item::Variants::DIRECTORY
           else
@@ -599,7 +599,7 @@ class Item < ActiveRecord::Base
       # format, leave the bytestreams alone.
       unless ItemTsvIngester.dls_tsv?(tsv)
         self.bytestreams.destroy_all
-        self.collection.content_profile.
+        self.collection.package_profile.
             bytestreams_from_tsv(self.repository_id, tsv).each do |bs|
           self.bytestreams << bs
         end
@@ -607,7 +607,7 @@ class Item < ActiveRecord::Base
 
       # Metadata elements.
       # If we are using Medusa TSV, and the free-form profile...
-      if self.collection.content_profile == ContentProfile::FREE_FORM_PROFILE and
+      if self.collection.package_profile == PackageProfile::FREE_FORM_PROFILE and
           !ItemTsvIngester.dls_tsv?(tsv)
         # Try to obtain a title from 1) the TSV; 2) embedded metadata;
         # 3) the filename.

@@ -57,10 +57,10 @@
             <%= @collection.metadata_profile ? @collection.metadata_profile.name :
                     "Default (#{MetadataProfile.default.name})" %>
           </dd>
-          <dt>Content Profile</dt>
+          <dt>Package Profile</dt>
           <dd>
-            <%= @collection.content_profile ?
-                    @collection.content_profile&.name : 'None' %>
+            <%= @collection.package_profile ?
+                    @collection.package_profile.name : 'None' %>
           </dd>
           <dt>Medusa File Group</dt>
           <dd>

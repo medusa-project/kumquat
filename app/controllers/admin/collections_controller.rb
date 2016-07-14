@@ -10,7 +10,7 @@ module Admin
 
       @metadata_profile_options_for_select = MetadataProfile.all.order(:name).
           map{ |t| [ t.name, t.id ] }
-      @content_profile_options_for_select = ContentProfile.all.
+      @package_profile_options_for_select = PackageProfile.all.
           map{ |t| [ t.name, t.id ] }
     end
 
@@ -65,10 +65,10 @@ module Admin
     private
 
     def sanitized_params
-      params.require(:collection).permit(:content_profile_id, :id,
-                                         :medusa_cfs_directory_id,
+      params.require(:collection).permit(:id, :medusa_cfs_directory_id,
                                          :medusa_file_group_id,
                                          :metadata_profile_id,
+                                         :package_profile_id,
                                          :published_in_dls)
     end
 
