@@ -39,7 +39,7 @@ class MedusaIngester
   ##
   # Retrieves the current contents of a collection's effective Medusa CFS
   # directory and creates or updates the items within according to the
-  # collection's content profile.
+  # collection's package profile.
   #
   # @param collection [Collection]
   # @param mode [String] One of the IngestMode constants.
@@ -47,15 +47,15 @@ class MedusaIngester
   #                                 with nonfatal warnings (optional).
   # @return [Hash<Symbol,Integer>] Hash with :num_created, :num_updated,
   #                                :num_deleted, and :num_skipped keys.
-  # @raises [ArgumentError] If the collection's file group or content profile
+  # @raises [ArgumentError] If the collection's file group or package profile
   #                         are not set.
   # @raises [IllegalContentError]
   #
   def ingest_items(collection, mode, warnings = [])
     raise ArgumentError, 'Collection file group is not set' unless
         collection.medusa_file_group
-    raise ArgumentError, 'Collection content profile is not set' unless
-        collection.content_profile
+    raise ArgumentError, 'Collection package profile is not set' unless
+        collection.package_profile
 
     status = { num_deleted: 0, num_created: 0, num_updated: 0, num_skipped: 0 }
 
@@ -64,12 +64,12 @@ class MedusaIngester
         when IngestMode::DELETE_MISSING
           status.merge!(delete_missing_items(collection))
         else
-          case collection.content_profile
-            when ContentProfile::FREE_FORM_PROFILE
+          case collection.package_profile
+            when PackageProfile::FREE_FORM_PROFILE
               status.merge!(ingest_free_form_items(collection, mode))
-            when ContentProfile::MAP_PROFILE
+            when PackageProfile::MAP_PROFILE
               status.merge!(ingest_map_items(collection, mode, warnings))
-            when ContentProfile::SINGLE_ITEM_OBJECT_PROFILE
+            when PackageProfile::SINGLE_ITEM_OBJECT_PROFILE
               status.merge!(ingest_single_items(collection, mode, warnings))
           end
       end
@@ -90,12 +90,12 @@ class MedusaIngester
     Rails.logger.debug("delete_missing_items(): "\
         "#{medusa_items.length} items in CFS directory")
 
-    case collection.content_profile
-      when ContentProfile::FREE_FORM_PROFILE
+    case collection.package_profile
+      when PackageProfile::FREE_FORM_PROFILE
         medusa_items = free_form_items_in(collection.effective_medusa_cfs_directory)
-      when ContentProfile::MAP_PROFILE
+      when PackageProfile::MAP_PROFILE
         medusa_items = map_items_in(collection.effective_medusa_cfs_directory)
-      when ContentProfile::SINGLE_ITEM_OBJECT_PROFILE
+      when PackageProfile::SINGLE_ITEM_OBJECT_PROFILE
         medusa_items = single_items_in(collection.effective_medusa_cfs_directory)
       else
         raise IllegalContentError,

@@ -1,12 +1,12 @@
 require 'csv'
 
 ##
-# Content in a DLS-compatible Medusa file group is organized (in terms of its
-# folder structure, naming scheme, etc.) according to a content profile. An
-# instance of this class representing a given profile is associated with a
-# [Collection] representing a Medusa collection.
+# Content in a Medusa file group is organized (in terms of its folder
+# structure, naming scheme, etc.) according to a package profile. An instance
+# of this class representing a given profile is associated with a [Collection]
+# representing a Medusa collection.
 #
-class ContentProfile
+class PackageProfile
 
   # Note: constants for quickly accessing a particular profile are defined
   # further down.
@@ -35,11 +35,11 @@ class ContentProfile
   attr_accessor :name
 
   ##
-  # @return [Array<ContentProfile>]
+  # @return [Array<PackageProfile>]
   #
   def self.all
     PROFILES.map do |profile|
-      p = ContentProfile.new
+      p = PackageProfile.new
       p.id = profile[:id]
       p.name = profile[:name]
       p
@@ -50,9 +50,9 @@ class ContentProfile
     self.all.select{ |p| p.id == id.to_i }.first
   end
 
-  FREE_FORM_PROFILE = ContentProfile.find(0)
-  MAP_PROFILE = ContentProfile.find(1)
-  SINGLE_ITEM_OBJECT_PROFILE = ContentProfile.find(2)
+  FREE_FORM_PROFILE = PackageProfile.find(0)
+  MAP_PROFILE = PackageProfile.find(1)
+  SINGLE_ITEM_OBJECT_PROFILE = PackageProfile.find(2)
 
   def ==(obj)
     obj.kind_of?(self.class) and obj.id == self.id

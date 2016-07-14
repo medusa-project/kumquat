@@ -6,15 +6,15 @@ class CollectionTest < ActiveSupport::TestCase
     @col = collections(:collection1)
   end
 
-  test 'content_profile should return a ContentProfile' do
-    assert @col.content_profile.kind_of?(ContentProfile)
-    @col.content_profile_id = 37
-    assert_nil @col.content_profile
+  test 'package_profile should return a PackageProfile' do
+    assert @col.package_profile.kind_of?(PackageProfile)
+    @col.package_profile_id = 37
+    assert_nil @col.package_profile
   end
 
-  test 'content_profile= should set a ContentProfile' do
-    @col.content_profile = ContentProfile::MAP_PROFILE
-    assert_equal @col.content_profile_id, ContentProfile::MAP_PROFILE.id
+  test 'package_profile= should set a PackageProfile' do
+    @col.package_profile = PackageProfile::MAP_PROFILE
+    assert_equal @col.package_profile_id, PackageProfile::MAP_PROFILE.id
   end
 
   test 'medusa_url should return the correct URL' do
