@@ -39,7 +39,7 @@ class MedusaIngester
   ##
   # Retrieves the current contents of a collection's effective Medusa CFS
   # directory and creates or updates the items within according to the
-  # collection's content profile.
+  # collection's package profile.
   #
   # @param collection [Collection]
   # @param mode [String] One of the IngestMode constants.
@@ -47,14 +47,14 @@ class MedusaIngester
   #                                 with nonfatal warnings (optional).
   # @return [Hash<Symbol,Integer>] Hash with :num_created, :num_updated,
   #                                :num_deleted, and :num_skipped keys.
-  # @raises [ArgumentError] If the collection's file group or content profile
+  # @raises [ArgumentError] If the collection's file group or package profile
   #                         are not set.
   # @raises [IllegalContentError]
   #
   def ingest_items(collection, mode, warnings = [])
     raise ArgumentError, 'Collection file group is not set' unless
         collection.medusa_file_group
-    raise ArgumentError, 'Collection content profile is not set' unless
+    raise ArgumentError, 'Collection package profile is not set' unless
         collection.content_profile
 
     status = { num_deleted: 0, num_created: 0, num_updated: 0, num_skipped: 0 }
