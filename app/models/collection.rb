@@ -20,6 +20,7 @@ class Collection < ActiveRecord::Base
   include SolrQuerying
 
   class SolrFields
+    ACCESS_SYSTEMS = 'access_systems_sim'
     ACCESS_URL = 'access_url_si'
     CLASS = 'class_si'
     DESCRIPTION = 'description_txti'
@@ -36,6 +37,7 @@ class Collection < ActiveRecord::Base
     TITLE = 'title_natsort_en_i'
   end
 
+  serialize :access_systems
   serialize :resource_types
 
   belongs_to :metadata_profile, inverse_of: :collections
@@ -61,8 +63,12 @@ class Collection < ActiveRecord::Base
   # @return [Array<Hash>] Array of hashes with `:name` and `:label` keys
   #
   def self.solr_facet_fields
-    [ { name: SolrFields::REPOSITORY_TITLE, label: 'Repository' },
-      { name: SolrFields::RESOURCE_TYPES, label: 'Resource Type' } ]
+    # These should be defined in the order they should appear.
+    [
+        { name: SolrFields::RESOURCE_TYPES, label: 'Resource Type' },
+        { name: SolrFields::REPOSITORY_TITLE, label: 'Repository' },
+        { name: SolrFields::ACCESS_SYSTEMS, label: 'Access Systems' }
+    ]
   end
 
   ##
@@ -208,6 +214,7 @@ class Collection < ActiveRecord::Base
                                  follow_redirect: true).body
     struct = JSON.parse(json_str)
 
+    self.access_systems = struct['access_systems'].map{ |t| t['name'] }
     self.access_url = struct['access_url']
     self.description = struct['description']
     self.description_html = struct['description_html']
@@ -229,6 +236,7 @@ class Collection < ActiveRecord::Base
     doc[SolrFields::ID] = self.solr_id
     doc[SolrFields::CLASS] = self.class.to_s
     doc[SolrFields::LAST_INDEXED] = Time.now.utc.iso8601
+    doc[SolrFields::ACCESS_SYSTEMS] = self.access_systems
     doc[SolrFields::ACCESS_URL] = self.access_url
     doc[SolrFields::DESCRIPTION] = self.description
     doc[SolrFields::DESCRIPTION_HTML] = self.description_html
