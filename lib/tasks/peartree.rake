@@ -55,12 +55,4 @@ namespace :peartree do
     end
   end
 
-  desc 'Validate an XML file'
-  task :validate, [:pathname, :schema_version] => :environment do |task, args|
-    if ItemXmlIngester.new.validate_pathname(args[:pathname],
-                                             args[:schema_version].to_i)
-      puts 'OK'
-    end
-  end
-
 end
