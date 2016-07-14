@@ -416,11 +416,13 @@ class Item < ActiveRecord::Base
         select{ |b| b.bytestream_type == Bytestream::Type::ACCESS_MASTER }.first
     if bs
       doc[SolrFields::ACCESS_MASTER_MEDIA_TYPE] = bs.media_type
+      doc[SolrFields::ACCESS_MASTER_PATHNAME] = bs.repository_relative_pathname
     end
     bs = self.bytestreams.
         select{ |b| b.bytestream_type == Bytestream::Type::PRESERVATION_MASTER }.first
     if bs
       doc[SolrFields::PRESERVATION_MASTER_MEDIA_TYPE] = bs.media_type
+      doc[SolrFields::PRESERVATION_MASTER_PATHNAME] = bs.repository_relative_pathname
     end
     self.elements.each do |element|
       doc[element.solr_multi_valued_field] ||= []
