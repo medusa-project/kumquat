@@ -10,7 +10,7 @@ module Admin
       raise ActiveRecord::RecordNotFound unless @collection
 
       if params[:clear]
-        redirect_to edit_admin_collection_item_url(@collection)
+        redirect_to admin_collection_items_url(@collection)
         return
       end
 
