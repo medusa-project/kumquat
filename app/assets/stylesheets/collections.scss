@@ -19,31 +19,40 @@ body#collections_index {
         img {
           width: 100%;
         }
+        .pt-title {
+          padding-top: 0.2em;
+        }
       }
     }
 
-    @media only screen and (max-width : 480px) {
+    @media only screen and (max-width : 350px) {
+      div.pt-card {
+        width: 100%;
+        padding-bottom: 118%;
+      }
+    }
+    @media only screen and (min-width : 351px) and (max-width : 480px) {
       div.pt-card {
         width: 100%;
         padding-bottom: 110%;
       }
     }
-    @media only screen and (max-width : 650px) and (min-width : 481px) {
+    @media only screen and (min-width : 481px) and (max-width : 650px) {
       div.pt-card {
         width: 50%;
         padding-bottom: 60%;
       }
     }
-    @media only screen and (max-width : 1050px) and (min-width : 651px) {
+    @media only screen and (min-width : 651px) and (max-width : 1050px) {
       div.pt-card {
         width: 33.3%;
-        padding-bottom: 43.3%;
+        padding-bottom: 45%;
       }
     }
-    @media only screen and (max-width : 1290px) and (min-width : 1051px) {
+    @media only screen and (min-width : 1051px) and (max-width : 1290px) {
       div.pt-card {
         width: 25%;
-        padding-bottom: 35%;
+        padding-bottom: 32%;
       }
     }
   }

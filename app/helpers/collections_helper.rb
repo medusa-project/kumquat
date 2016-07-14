@@ -68,7 +68,7 @@ module CollectionsHelper
                      raw("<img src=\"#{img_url}\">")
                    end
       html += '    <h4 class="pt-title">'
-      html +=        link_to(truncate(col.title, length: 52), col)
+      html +=        link_to(col.title, col)
       html += '    </h4>'
       html += '  </div>'
       html += '</div>'
