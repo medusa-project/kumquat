@@ -11,10 +11,17 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160628180023) do
+ActiveRecord::Schema.define(version: 20160714140631) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "available_elements", force: :cascade do |t|
+    t.string   "name"
+    t.string   "description"
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
+  end
 
   create_table "bytestreams", force: :cascade do |t|
     t.integer  "bytestream_type"
@@ -44,7 +51,7 @@ ActiveRecord::Schema.define(version: 20160628180023) do
     t.text     "resource_types"
     t.string   "repository_title"
     t.string   "medusa_cfs_directory_id"
-    t.integer  "content_profile_id"
+    t.integer  "package_profile_id"
   end
 
   add_index "collections", ["metadata_profile_id"], name: "index_collections_on_metadata_profile_id", using: :btree

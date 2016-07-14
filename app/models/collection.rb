@@ -7,7 +7,7 @@
 # is a UUID matching a collection's Medusa UUID.
 #
 # Collections are associated with a metadata profile, which defines the list
-# of elements that contained items are supposed to have, as well as a content
+# of elements that contained items are supposed to have, as well as a package
 # profile, which defines how collection content is structured in Medusa in
 # terms of its file/directory layout.
 #
@@ -66,18 +66,18 @@ class Collection < ActiveRecord::Base
   end
 
   ##
-  # @return [ContentProfile,nil]
+  # @return [PackageProfile,nil]
   #
-  def content_profile
-    self.content_profile_id.present? ?
-        ContentProfile.find(self.content_profile_id) : nil
+  def package_profile
+    self.package_profile_id.present? ?
+        PackageProfile.find(self.package_profile_id) : nil
   end
 
   ##
-  # @param profile [ContentProfile]
+  # @param profile [PackageProfile]
   #
-  def content_profile=(profile)
-    self.content_profile_id = profile.kind_of?(ContentProfile) ?
+  def package_profile=(profile)
+    self.package_profile_id = profile.kind_of?(PackageProfile) ?
         profile.id : nil
   end
 
