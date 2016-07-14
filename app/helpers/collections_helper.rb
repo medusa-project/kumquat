@@ -7,6 +7,15 @@ module CollectionsHelper
     return nil unless collections.facet_fields # nothing to do
 
     def get_panel(title, terms)
+
+      def label_for(term)
+        if term.present?
+          term = term.split(' ').map{ |t| t.present? ? t.capitalize : '' }.join(' ')
+          return truncate(term, length: 80)
+        end
+        '(Unknown)'
+      end
+
       panel = "<div class=\"panel panel-default\">
       <div class=\"panel-heading\">
         <h3 class=\"panel-title\">#{title}</h3>
@@ -22,8 +31,7 @@ module CollectionsHelper
         unchecked_params = term.added_to_params(params.deep_dup)
         checked_params.delete(:start)
         unchecked_params.delete(:start)
-        term_label = term.label.present? ?
-            truncate(term.label.titleize, length: 80) : '(Unknown)'
+        term_label = label_for(term.label)
 
         panel += "<li class=\"pt-term\">"
         panel += "<div class=\"checkbox\">"
@@ -68,7 +76,7 @@ module CollectionsHelper
                      raw("<img src=\"#{img_url}\">")
                    end
       html += '    <h4 class="pt-title">'
-      html +=        link_to(truncate(col.title, length: 52), col)
+      html +=        link_to(col.title, col)
       html += '    </h4>'
       html += '  </div>'
       html += '</div>'

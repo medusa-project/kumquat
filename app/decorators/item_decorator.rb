@@ -36,10 +36,12 @@ class ItemDecorator < Draper::Decorator
           select{ |ed| ed.name == element.name }.first
       struct[:elements] << {
           name: element.name,
-          dublin_core_map: element_def.dc_map,
-          dublin_core_terms_map: element_def.dcterms_map,
           vocabulary: element.vocabulary&.name,
-          value: element.value
+          value: element.value,
+          mappings: {
+              dc: element_def.dc_map.present? ? element_def.dc_map : nil,
+              dcterms: element_def.dcterms_map.present? ? element_def.dcterms_map : nil
+          }
       }
     end
 

@@ -296,7 +296,8 @@ class ItemTest < ActiveSupport::TestCase
 
   test 'update_from_tsv should set the variant for free-form content from
         Medusa TSV' do
-    ItemTsvIngester.new.ingest_tsv(@medusa_free_form_tsv, @free_form_collection)
+    ItemTsvIngester.new.ingest_tsv(@medusa_free_form_tsv, @free_form_collection,
+                                   ItemTsvIngester::ImportMode::CREATE_ONLY)
 
     item1 = Item.find_by_repository_id('a53a0ce0-5ca8-0132-3334-0050569601ca-9')
     item1.update_from_tsv(@medusa_free_form_tsv_array,
@@ -311,7 +312,8 @@ class ItemTest < ActiveSupport::TestCase
 
   test 'update_from_tsv should not set the variant for non-free-form compound
         objects from Medusa TSV if it is missing' do
-    ItemTsvIngester.new.ingest_tsv(@medusa_map_tsv, @map_collection)
+    ItemTsvIngester.new.ingest_tsv(@medusa_map_tsv, @map_collection,
+                                   ItemTsvIngester::ImportMode::CREATE_ONLY)
 
     item = Item.find_by_repository_id('abdc55a0-c451-0133-1d17-0050569601ca-1')
     item.update_from_tsv(@medusa_map_tsv_array, {})
@@ -320,7 +322,8 @@ class ItemTest < ActiveSupport::TestCase
 
   test 'update_from_tsv should set the variant for non-free-form pages from
         Medusa TSV if it is missing' do
-    ItemTsvIngester.new.ingest_tsv(@medusa_map_tsv, @map_collection)
+    ItemTsvIngester.new.ingest_tsv(@medusa_map_tsv, @map_collection,
+                                   ItemTsvIngester::ImportMode::CREATE_ONLY)
 
     item = Item.find_by_repository_id('d29edba0-c451-0133-1d17-0050569601ca-c')
     item.update_from_tsv(@medusa_map_tsv_array, {})
@@ -329,7 +332,8 @@ class ItemTest < ActiveSupport::TestCase
 
   test 'update_from_tsv should set the title for title-less free-form content
         from Medusa TSV' do
-    ItemTsvIngester.new.ingest_tsv(@medusa_free_form_tsv, @free_form_collection)
+    ItemTsvIngester.new.ingest_tsv(@medusa_free_form_tsv, @free_form_collection,
+                                   ItemTsvIngester::ImportMode::CREATE_ONLY)
 
     item1 = Item.find_by_repository_id('a53a0ce0-5ca8-0132-3334-0050569601ca-9')
     item1.update_from_tsv(@medusa_free_form_tsv_array,
