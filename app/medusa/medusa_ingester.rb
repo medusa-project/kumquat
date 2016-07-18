@@ -58,20 +58,20 @@ class MedusaIngester
     raise ArgumentError, 'Collection file group is not set' unless
         collection.medusa_file_group
     raise ArgumentError, 'Collection package profile is not set' unless
-        collection.content_profile
+        collection.package_profile
 
     status = { num_deleted: 0, num_created: 0, num_updated: 0, num_skipped: 0 }
 
     ActiveRecord::Base.transaction do
-      case collection.content_profile
-        when ContentProfile::FREE_FORM_PROFILE
+      case collection.package_profile
+        when PackageProfile::FREE_FORM_PROFILE
           case mode
             when IngestMode::DELETE_MISSING
               status.merge!(delete_missing_free_form_items(collection))
             else
               status.merge!(ingest_free_form_items(collection, mode))
           end
-        when ContentProfile::MAP_PROFILE
+        when PackageProfile::MAP_PROFILE
           case mode
             when IngestMode::DELETE_MISSING
               status.merge!(delete_missing_map_items(collection))
