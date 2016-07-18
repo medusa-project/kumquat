@@ -469,9 +469,7 @@ class Item < ActiveRecord::Base
   # Updates an instance's metadata elements from the metadata embedded within
   # its preservation master bytestream.
   #
-  # @param save [Boolean] Whether to save the instance.
-  #
-  def update_from_embedded_metadata(save = true)
+  def update_from_embedded_metadata
     # Get the preservation bytestream
     bs = self.preservation_master_bytestream
     return unless bs
@@ -616,7 +614,7 @@ class Item < ActiveRecord::Base
         # 3) the filename.
         if row['title'].blank?
           # Vacuum up embedded metadata. This may or may not include a title.
-          self.update_from_embedded_metadata(false)
+          self.update_from_embedded_metadata
 
           # If still no title, use the filename.
           if self.elements.select{ |e| e.name == 'title' }.empty?
