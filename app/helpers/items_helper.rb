@@ -1065,6 +1065,7 @@ module ItemsHelper
         navigatorSizeRatio: 0.2,
         controlsFadeDelay: 1000,
         controlsFadeLength: 1000,
+        immediateRender: true,
         preserveViewport: true,
         prefixUrl: \"/openseadragon/images/\",
         tileSources: \"#{j(iiif_item_url(item))}\"
