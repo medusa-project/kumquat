@@ -135,8 +135,8 @@ class Item < ActiveRecord::Base
   # @return [Bytestream]
   #
   def access_master_bytestream
-    self.bytestreams.where(bytestream_type: Bytestream::Type::ACCESS_MASTER).
-        limit(1).first
+    self.bytestreams.
+        select{ |b| b.bytestream_type == Bytestream::Type::ACCESS_MASTER }.first
   end
 
   def bib_id
@@ -314,8 +314,7 @@ class Item < ActiveRecord::Base
   #
   def preservation_master_bytestream
     self.bytestreams.
-        where(bytestream_type: Bytestream::Type::PRESERVATION_MASTER).
-        limit(1).first
+        select{ |b| b.bytestream_type == Bytestream::Type::PRESERVATION_MASTER }.first
   end
 
   ##
