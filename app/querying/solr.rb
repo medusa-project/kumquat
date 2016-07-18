@@ -11,7 +11,7 @@ class Solr
   # @param doc [Hash]
   #
   def add(doc)
-    Rails.logger.info("Adding Solr document: #{doc['id']}")
+    Rails.logger.info("Solr.add(): #{doc['id']}")
     client.add(doc)
   end
 
@@ -23,14 +23,14 @@ class Solr
   # @param id [String]
   #
   def delete(id)
-    Rails.logger.info("Deleting Solr document: #{id}")
+    Rails.logger.info("Solr.delete(): #{id}")
     client.delete_by_id(id)
   end
 
   alias_method :delete_by_id, :delete
 
   def get(endpoint, options = {})
-    Rails.logger.debug("Solr request: #{endpoint}; #{options}")
+    Rails.logger.debug("Solr.get(): requesting #{endpoint}; #{options}")
     client.get(endpoint, options)
   end
 
@@ -68,6 +68,7 @@ class Solr
     url = PearTree::Application.peartree_config[:solr_url].chomp('/') + '/' +
         PearTree::Application.peartree_config[:solr_core]
 
+    Rails.logger.debug('Solr.update_schema(): retrieving current schema')
     response = http.get("#{url}/schema")
     current = JSON.parse(response.body)
 
@@ -81,9 +82,11 @@ class Solr
       current['schema']['fieldTypes'].
           map{ |sf| sf['name'] }.include?(kf['name'])
     end
+    Rails.logger.debug('Solr.update_schema(): adding fieldTypes')
     post_fields(http, url, 'add-field-type', field_types_to_add)
 
     # Replace (update) existing fieldTypes
+    Rails.logger.debug('Solr.update_schema(): updating fieldTypes')
     post_fields(http, url, 'replace-field-type', SCHEMA['fieldTypes'])
 
     # ************************ DYNAMIC FIELDS *************************
@@ -93,6 +96,7 @@ class Solr
       !SCHEMA['dynamicFields'].map{ |sf| sf['name'] }.include?(cf['name'])
     end
     dynamic_fields_to_delete.each do |df|
+      Rails.logger.debug('Solr.update_schema(): deleting dynamicFields')
       post_fields(http, url, 'delete-dynamic-field', { 'name' => df['name'] })
     end
 
@@ -101,9 +105,11 @@ class Solr
       current['schema']['dynamicFields'].
           map{ |sf| sf['name'] }.include?(kf['name'])
     end
+    Rails.logger.debug('Solr.update_schema(): adding dynamicFields')
     post_fields(http, url, 'add-dynamic-field', dynamic_fields_to_add)
 
     # Replace (update) existing dynamic fields
+    Rails.logger.debug('Solr.update_schema(): updating dynamicFields')
     post_fields(http, url, 'replace-dynamic-field', SCHEMA['dynamicFields'])
 
     # ************************ COPY FIELDS *************************
@@ -113,6 +119,7 @@ class Solr
       !SCHEMA['copyFields'].map{ |sf| "#{sf['source']}#{sf['dest']}" }.
           include?("#{kf['source']}#{kf['dest']}") if SCHEMA['copyFields']
     end
+    Rails.logger.debug('Solr.update_schema(): deleting copyFields')
     post_fields(http, url, 'delete-copy-field', copy_fields_to_delete)
 
     # Add new copyFields
@@ -122,6 +129,7 @@ class Solr
             map{ |sf| "#{sf['source']}#{sf['dest']}" }.
             include?("#{kf['source']}#{kf['dest']}")
       end
+      Rails.logger.debug('Solr.update_schema(): adding copyFields')
       post_fields(http, url, 'add-copy-field', copy_fields_to_add)
     end
   end

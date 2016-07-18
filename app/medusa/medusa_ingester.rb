@@ -158,7 +158,7 @@ class MedusaIngester
     # @return [Hash<Symbol,Integer>] Hash with :num_created, :num_updated, and
     #                                :num_skipped keys.
     #
-    def walk_tree(collection, cfs_dir, mode, status)
+    def walk_tree(collection, cfs_dir, top_cfs_dir, mode, status)
       cfs_dir.directories.each do |dir|
         item = Item.find_by_repository_id(dir.uuid)
         if item
@@ -166,21 +166,25 @@ class MedusaIngester
             Rails.logger.info("ingest_free_form_items(): skipping item "\
                 "#{dir.uuid}")
             status[:num_skipped] += 1
-            next
           else
+            item.save!
             status[:num_updated] += 1
           end
         else
           Rails.logger.info("ingest_free_form_items(): creating item "\
                     "#{dir.uuid}")
           item = Item.new(repository_id: dir.uuid,
-                          parent_repository_id: cfs_dir.uuid,
+                          parent_repository_id: (cfs_dir.uuid != top_cfs_dir.uuid) ? cfs_dir.uuid : nil,
                           collection_repository_id: collection.repository_id,
                           variant: Item::Variants::DIRECTORY)
+          # Assign a title of the directory name.
+          e = item.elements.build
+          e.name = 'title'
+          e.value = dir.name
+          item.save!
           status[:num_created] += 1
         end
-        item.save!
-        walk_tree(collection, dir, mode, status)
+        walk_tree(collection, dir, top_cfs_dir, mode, status)
       end
       cfs_dir.files.each do |file|
         item = Item.find_by_repository_id(file.uuid)
@@ -191,6 +195,8 @@ class MedusaIngester
             status[:num_skipped] += 1
             next
           else
+            item.update_from_embedded_metadata
+            item.save!
             status[:num_updated] += 1
           end
         else
@@ -206,14 +212,17 @@ class MedusaIngester
           bs.repository_relative_pathname =
               '/' + file.repository_relative_pathname.reverse.chomp('/').reverse
           bs.media_type = file.media_type
+          # Populate its metadata from embedded bytestream metadata.
+          item.update_from_embedded_metadata
+          item.save!
           status[:num_created] += 1
         end
-        item.save!
       end
     end
 
     status = { num_created: 0, num_updated: 0, num_skipped: 0 }
-    walk_tree(collection, collection.effective_medusa_cfs_directory, mode, status)
+    walk_tree(collection, collection.effective_medusa_cfs_directory,
+        collection.effective_medusa_cfs_directory, mode, status)
     status
   end
 

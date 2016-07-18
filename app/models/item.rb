@@ -135,8 +135,8 @@ class Item < ActiveRecord::Base
   # @return [Bytestream]
   #
   def access_master_bytestream
-    self.bytestreams.where(bytestream_type: Bytestream::Type::ACCESS_MASTER).
-        limit(1).first
+    self.bytestreams.
+        select{ |b| b.bytestream_type == Bytestream::Type::ACCESS_MASTER }.first
   end
 
   def bib_id
@@ -314,8 +314,7 @@ class Item < ActiveRecord::Base
   #
   def preservation_master_bytestream
     self.bytestreams.
-        where(bytestream_type: Bytestream::Type::PRESERVATION_MASTER).
-        limit(1).first
+        select{ |b| b.bytestream_type == Bytestream::Type::PRESERVATION_MASTER }.first
   end
 
   ##
@@ -416,11 +415,13 @@ class Item < ActiveRecord::Base
         select{ |b| b.bytestream_type == Bytestream::Type::ACCESS_MASTER }.first
     if bs
       doc[SolrFields::ACCESS_MASTER_MEDIA_TYPE] = bs.media_type
+      doc[SolrFields::ACCESS_MASTER_PATHNAME] = bs.repository_relative_pathname
     end
     bs = self.bytestreams.
         select{ |b| b.bytestream_type == Bytestream::Type::PRESERVATION_MASTER }.first
     if bs
       doc[SolrFields::PRESERVATION_MASTER_MEDIA_TYPE] = bs.media_type
+      doc[SolrFields::PRESERVATION_MASTER_PATHNAME] = bs.repository_relative_pathname
     end
     self.elements.each do |element|
       doc[element.solr_multi_valued_field] ||= []
@@ -468,9 +469,7 @@ class Item < ActiveRecord::Base
   # Updates an instance's metadata elements from the metadata embedded within
   # its preservation master bytestream.
   #
-  # @param save [Boolean] Whether to save the instance.
-  #
-  def update_from_embedded_metadata(save = true)
+  def update_from_embedded_metadata
     # Get the preservation bytestream
     bs = self.preservation_master_bytestream
     return unless bs
@@ -615,7 +614,7 @@ class Item < ActiveRecord::Base
         # 3) the filename.
         if row['title'].blank?
           # Vacuum up embedded metadata. This may or may not include a title.
-          self.update_from_embedded_metadata(false)
+          self.update_from_embedded_metadata
 
           # If still no title, use the filename.
           if self.elements.select{ |e| e.name == 'title' }.empty?
