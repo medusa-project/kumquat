@@ -309,6 +309,20 @@ class MedusaIngester
                   '/' + pres_file.repository_relative_pathname.reverse.chomp('/').reverse
               bs.infer_media_type # The type of the CFS file cannot be trusted.
 
+              # Set the child's variant properly.
+              basename = File.basename(pres_file.repository_relative_pathname)
+              if basename.include?('_frontmatter')
+                child.variant = Item::Variants::FRONT_MATTER
+              elsif basename.include?('_index')
+                child.variant = Item::Variants::INDEX
+              elsif basename.include?('_key')
+                child.variant = Item::Variants::KEY
+              elsif basename.include?('_title')
+                child.variant = Item::Variants::TITLE
+              else
+                child.variant = Item::Variants::PAGE
+              end
+
               # Find and create the access master bytestream.
               begin
                 bs = map_access_master_bytestream(top_item_dir, pres_file)
