@@ -155,9 +155,17 @@ class Collection < ActiveRecord::Base
   # @return [Integer]
   #
   def num_items
-    @num_items = Item.where(Item::SolrFields::COLLECTION => self.repository_id).
-        where(Item::SolrFields::PARENT_ITEM => :null).count unless @num_items
+    @num_items = Item.solr.where(Item::SolrFields::COLLECTION => self.repository_id).count unless @num_items
     @num_items
+  end
+
+  ##
+  # @return [Integer]
+  #
+  def num_top_items
+    @num_top_items = Item.solr.where(Item::SolrFields::COLLECTION => self.repository_id).
+        where(Item::SolrFields::PARENT_ITEM => :null).count unless @num_top_items
+    @num_top_items
   end
 
   ##
