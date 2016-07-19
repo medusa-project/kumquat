@@ -103,6 +103,8 @@ class Relation
       batch = self.limit(limit).start(offset)
       page += 1
 
+      Rails.logger.debug("Relation.find_each(): limit: #{limit} | offset: #{offset}")
+
       batch.select{ |x| x }.each{ |x| yield x }
 
       break if batch.size < limit
