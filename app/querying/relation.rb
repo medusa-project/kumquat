@@ -176,7 +176,7 @@ class Relation
     if order.kind_of?(Symbol) and order == :random
       order = "random_#{SecureRandom.hex} asc"
     elsif order.kind_of?(Hash)
-      order = "#{order.keys.first} #{order[order.keys.first]}"
+      order = order.map{ |k, v| "#{k} #{v}" }.join(', ')
     else
       order = order.to_s
       order += ' asc' if !order.end_with?(' asc') and
