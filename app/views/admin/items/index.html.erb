@@ -22,12 +22,14 @@
   <div class="btn-group pull-right" role="group">
     <!-- Sync button -->
     <button type="button" class="btn btn-default" data-toggle="modal"
-            data-target="#pt-sync-modal">
+            data-target="#pt-sync-modal"
+            <%= (@collection.package_profile and @collection.medusa_file_group) ? '' : 'disabled="disabled"' %>>
       <i class="fa fa-refresh"></i> Sync&hellip;
     </button>
     <!-- Import button -->
     <button type="button" class="btn btn-default" data-toggle="modal"
-            data-target="#pt-import-modal">
+            data-target="#pt-import-modal"
+            <%= (@collection.package_profile and @collection.medusa_file_group) ? '' : 'disabled="disabled"' %>>
       <i class="fa fa-upload"></i> Import&hellip;
     </button>
     <div class="btn-group">
@@ -82,7 +84,7 @@
         <div class="modal-body">
           <div class="alert alert-info">Before syncing, please verify that
             the collection's package profile and file group are set
-            correctly.</div>
+            correctly, and that its content conforms to the package profile.</div>
           <div class="radio">
             <label>
               <%= radio_button_tag('ingest_mode',
@@ -93,6 +95,18 @@
             <span id="pt-create-only-help" class="help-block">
               Create any items present in Medusa but not the DLS. Don't touch
               existing DLS items.
+            </span>
+          </div>
+          <div class="radio">
+            <label>
+              <%= radio_button_tag('ingest_mode',
+                                   MedusaIngester::IngestMode::CREATE_AND_UPDATE, false,
+                                   'aria-described-by' => 'pt-create-and-update-help') %>
+              Create &amp; Update
+            </label>
+            <span id="pt-create-and-update-help" class="help-block">
+              Create any items present in Medusa but not the DLS, and also update
+              existing items' bytestreams.
             </span>
           </div>
           <div class="radio">

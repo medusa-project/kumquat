@@ -16,6 +16,7 @@ module Admin
 
       @items = Item.solr.
           where(Item::SolrFields::COLLECTION => @collection.repository_id).
+          where(Item::SolrFields::PARENT_ITEM => :null).
           where(params[:q]).facet(false)
 
       # fields
@@ -43,8 +44,7 @@ module Admin
           unless field_input_present
             @items = @items.order(Element.named('title').solr_single_valued_field)
           end
-          @items = @items.where(Item::SolrFields::PARENT_ITEM => :null).
-              start(@start).limit(@limit)
+          @items = @items.start(@start).limit(@limit)
           @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
           @num_results_shown = [@limit, @items.total_length].min
 
@@ -62,12 +62,18 @@ module Admin
           # stream the results, as an alternative to send_data
           # which would require them to be loaded into memory first.
           enumerator = Enumerator.new do |y|
+            def walk_tree(item, enumerator)
+              item.items.each do |it|
+                enumerator << it.to_tsv
+                walk_tree(it, enumerator)
+              end
+            end
+
             y << Item.tsv_header(@collection.effective_metadata_profile)
-            # Item.uncached disables ActiveRecord caching that would prevent
-            # previous find_each batches from being garbage-collected.
-            Item.uncached do
-              @items.order(Item::SolrFields::ID).
-                  find_each { |item| y << item.to_tsv }
+
+            @items.limit(999999).each do |item|
+              y << item.to_tsv
+              walk_tree(item, y)
             end
           end
           stream(enumerator, 'items.tsv')
