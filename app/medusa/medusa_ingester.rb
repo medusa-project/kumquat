@@ -361,7 +361,8 @@ class MedusaIngester
 
   ##
   # @param collection [Collection]
-  # @param mode [String] One of the IngestMode constants.
+  # @param mode [String] IngestMode::CREATE_ONLY or
+  #                      IngestMode::CREATE_AND_UPDATE
   # @param warnings [Array<String>] Supply an array which will be populated
   #                                 with nonfatal warnings (optional).
   # @return [Hash<Symbol,Integer>] Hash with :num_created, :num_updated, and
@@ -382,6 +383,8 @@ class MedusaIngester
           status[:num_skipped] += 1
           next
         else
+          # These will be recreated below.
+          item.bytestreams.destroy_all
           status[:num_updated] += 1
         end
       else
