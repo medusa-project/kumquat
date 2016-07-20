@@ -162,7 +162,8 @@ class MedusaIngester
 
   ##
   # @param collection [Collection]
-  # @param mode [String] One of the IngestMode constants.
+  # @param mode [String] IngestMode::CREATE_ONLY or
+  #                      IngestMode::CREATE_AND_UPDATE
   # @return [Hash<Symbol,Integer>] Hash with :num_created, :num_updated, and
   #                                :num_skipped keys.
   #
@@ -244,7 +245,8 @@ class MedusaIngester
 
   ##
   # @param collection [Collection]
-  # @param mode [String] One of the IngestMode constants.
+  # @param mode [String] IngestMode::CREATE_ONLY or
+  #                      IngestMode::CREATE_AND_UPDATE
   # @param warnings [Array<String>] Supply an array which will be populated
   #                                 with nonfatal warnings (optional).
   # @return [Hash<Symbol,Integer>] Hash with :num_created, :num_updated, and
@@ -261,6 +263,8 @@ class MedusaIngester
           status[:num_skipped] += 1
           next
         else
+          # These will be recreated below.
+          item.bytestreams.destroy_all
           status[:num_updated] += 1
         end
       else
@@ -288,10 +292,10 @@ class MedusaIngester
                   status[:num_skipped] += 1
                   next
                 else
+                  # These will be recreated below.
+                  child.bytestreams.destroy_all
                   status[:num_updated] += 1
                 end
-                # These will be recreated below.
-                child.bytestreams.destroy_all
               else
                 Rails.logger.info("ingest_map_items(): creating child item "\
                     "#{pres_file.uuid}")
@@ -309,7 +313,7 @@ class MedusaIngester
                   '/' + pres_file.repository_relative_pathname.reverse.chomp('/').reverse
               bs.infer_media_type # The type of the CFS file cannot be trusted.
 
-              # Set the child's variant properly.
+              # Set the child's variant.
               basename = File.basename(pres_file.repository_relative_pathname)
               if basename.include?('_frontmatter')
                 child.variant = Item::Variants::FRONT_MATTER
