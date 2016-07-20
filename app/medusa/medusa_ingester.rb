@@ -150,8 +150,12 @@ class MedusaIngester
   #                      IngestMode::CREATE_AND_UPDATE
   # @return [Hash<Symbol,Integer>] Hash with :num_created, :num_updated, and
   #                                :num_skipped keys.
+  # @raises [ArgumentError] If the given ingest mode is invalid.
   #
   def ingest_free_form_items(collection, mode)
+    raise ArgumentError, 'Invalid ingest mode' unless
+        [IngestMode::CREATE_ONLY, IngestMode::CREATE_AND_UPDATE].include?(mode)
+
     ##
     # @param collection [Collection]
     # @param cfs_dir [MedusaCfsDirectory]
@@ -235,8 +239,12 @@ class MedusaIngester
   #                                 with nonfatal warnings (optional).
   # @return [Hash<Symbol,Integer>] Hash with :num_created, :num_updated, and
   #                                :num_skipped keys.
+  # @raises [ArgumentError] If the given ingest mode is invalid.
   #
   def ingest_map_items(collection, mode, warnings = [])
+    raise ArgumentError, 'Invalid ingest mode' unless
+        [IngestMode::CREATE_ONLY, IngestMode::CREATE_AND_UPDATE].include?(mode)
+
     status = { num_created: 0, num_updated: 0, num_skipped: 0 }
     collection.effective_medusa_cfs_directory.directories.each do |top_item_dir|
       item = Item.find_by_repository_id(top_item_dir.uuid)
@@ -367,8 +375,12 @@ class MedusaIngester
   #                                 with nonfatal warnings (optional).
   # @return [Hash<Symbol,Integer>] Hash with :num_created, :num_updated, and
   #                                :num_skipped keys.
+  # @raises [ArgumentError] If the given ingest mode is invalid.
   #
   def ingest_single_items(collection, mode, warnings = [])
+    raise ArgumentError, 'Invalid ingest mode' unless
+        [IngestMode::CREATE_ONLY, IngestMode::CREATE_AND_UPDATE].include?(mode)
+
     cfs_dir = collection.effective_medusa_cfs_directory
     pres_dir = cfs_dir.directories.select{ |d| d.name == 'preservation' }.first
 
