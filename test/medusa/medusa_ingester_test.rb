@@ -312,6 +312,90 @@ class MedusaIngesterTest < ActiveSupport::TestCase
                  bs.repository_relative_pathname
   end
 
+  test 'ingest_items with single-item object profile collection and create-and-update ingest mode' do
+    # Set up the fixture data.
+    collection = collections(:single_item_object_collection)
+    cfs_dir = collection.effective_medusa_cfs_directory
+    tree = JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_single_item_tree.json'))
+    # Trim off one of the preservation master files.
+    tree['subdirectories'].select{ |d| d['name'] == 'preservation' }.first['files'] =
+        tree['subdirectories'].select{ |d| d['name'] == 'preservation' }.first['files'][0..2]
+    cfs_dir.json_tree = tree
+
+    # These will only get in the way.
+    Item.destroy_all
+
+    # Run the ingest.
+    warnings = []
+    result = @instance.ingest_items(collection,
+                                    MedusaIngester::IngestMode::CREATE_ONLY,
+                                    warnings)
+
+    # Assert that the correct number of items were added.
+    assert_equal 0, warnings.length
+    assert_equal 3, Item.count
+    assert_equal 3, result[:num_created]
+
+    # Repeat the above, without trimming any files.
+    tree = JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_single_item_tree.json'))
+    cfs_dir.json_tree = tree
+
+    # Run the ingest.
+    warnings = []
+    result = @instance.ingest_items(collection,
+                                    MedusaIngester::IngestMode::CREATE_AND_UPDATE,
+                                    warnings)
+
+    # Assert that the correct number of items were added.
+    assert_equal 0, warnings.length
+    assert_equal 4, Item.count
+    assert_equal 1, result[:num_created]
+    assert_equal 3, result[:num_updated]
+  end
+
+  test 'ingest_items with single-item object profile collection and create-and-update ingest mode should add missing bytestreams' do
+    # Set up the fixture data.
+    collection = collections(:single_item_object_collection)
+    cfs_dir = collection.effective_medusa_cfs_directory
+    tree = JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_single_item_tree.json'))
+    # Trim off one of the access master files.
+    tree['subdirectories'].select{ |d| d['name'] == 'access' }.first['files'] =
+        tree['subdirectories'].select{ |d| d['name'] == 'access' }.first['files'][0..2]
+    cfs_dir.json_tree = tree
+
+    # These will only get in the way.
+    Item.destroy_all
+
+    # Run the ingest.
+    warnings = []
+    result = @instance.ingest_items(collection,
+                                    MedusaIngester::IngestMode::CREATE_ONLY,
+                                    warnings)
+
+    # Assert that the correct number of items were added.
+    assert_equal 1, warnings.length
+    assert_equal 4, Item.count
+    assert_equal 4, result[:num_created]
+    assert_equal 7, Bytestream.count
+
+    # Repeat the above, without trimming any files.
+    tree = JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_single_item_tree.json'))
+    cfs_dir.json_tree = tree
+
+    # Run the ingest.
+    warnings = []
+    result = @instance.ingest_items(collection,
+                                    MedusaIngester::IngestMode::CREATE_AND_UPDATE,
+                                    warnings)
+
+    # Assert that the correct number of items were added.
+    assert_equal 0, warnings.length
+    assert_equal 4, Item.count
+    assert_equal 0, result[:num_created]
+    assert_equal 4, result[:num_updated]
+    assert_equal 8, Bytestream.count
+  end
+
   test 'ingest_items with single-item object profile collection and delete-missing ingest mode' do
     # Set up the fixture data.
     collection = collections(:single_item_object_collection)
