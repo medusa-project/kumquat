@@ -103,6 +103,7 @@ class MedusaIngesterTest < ActiveSupport::TestCase
 
     # Inspect an individual item more thoroughly.
     item = Item.find_by_repository_id('2066c390-e946-0133-1d3d-0050569601ca-d')
+    assert_nil item.variant
     assert_empty item.items
     assert_equal 2, item.bytestreams.length
     bs = item.bytestreams.select{ |b| b.bytestream_type == Bytestream::Type::PRESERVATION_MASTER }.first
@@ -139,12 +140,14 @@ class MedusaIngesterTest < ActiveSupport::TestCase
 
     # Inspect the item.
     item = Item.find_by_repository_id(item_uuid)
+    assert_nil item.variant
     assert_equal 4, item.items.length
     assert_equal 0, item.bytestreams.length
 
     # Inspect the first child item.
     child = item.items.
         select{ |it| it.repository_id == '458f3300-e949-0133-1d3d-0050569601ca-7' }.first
+    assert_equal Item::Variants::PAGE, child.variant
     assert_equal 2, child.bytestreams.length
 
     bs = child.bytestreams.select{ |b| b.bytestream_type == Bytestream::Type::PRESERVATION_MASTER }.first
