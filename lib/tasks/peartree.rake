@@ -20,6 +20,14 @@ namespace :peartree do
         update!(published: true, published_in_dls: true)
   end
 
+  desc 'Delete all items from a collection'
+  task :purge_collection, [:uuid] => :environment do |task, args|
+    ActiveRecord::Base.transaction do
+      Item.where(collection_repository_id: args[:uuid]).destroy_all
+    end
+    Solr.instance.commit
+  end
+
   desc 'Reindex all database entities'
   task :reindex => :environment do |task, args|
     reindex_all
