@@ -84,7 +84,7 @@ module Admin
       params.require(:element_def).permit(:dc_map, :dcterms_map, :facetable,
                                           :index, :label, :metadata_profile_id,
                                           :name, :searchable, :sortable,
-                                          :visible)
+                                          :visible, vocabulary_ids: [])
     end
 
   end

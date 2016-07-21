@@ -100,9 +100,9 @@ class ItemTsvIngesterTest < ActiveSupport::TestCase
     end
   end
 
-  test 'ingest_tsv should raise an error with collection with no content profile assigned' do
+  test 'ingest_tsv should raise an error with collection with no package profile assigned' do
     assert_raises RuntimeError do
-      @free_form_collection.content_profile = nil
+      @free_form_collection.package_profile = nil
       @ingester.ingest_tsv(@free_form_tsv, @free_form_collection,
                            ItemTsvIngester::ImportMode::CREATE_AND_UPDATE)
     end

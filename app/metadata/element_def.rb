@@ -5,6 +5,7 @@
 class ElementDef < ActiveRecord::Base
 
   belongs_to :metadata_profile, inverse_of: :element_defs
+  has_and_belongs_to_many :vocabularies
 
   after_save :adjust_profile_element_indexes_after_save
   after_destroy :adjust_profile_element_indexes_after_destroy

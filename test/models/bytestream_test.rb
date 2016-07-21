@@ -33,4 +33,15 @@ class BytestreamTest < ActiveSupport::TestCase
     assert(!@bs.exists?)
   end
 
+  test 'human_readable_type should work properly' do
+    assert_equal 'Access Master', bytestreams(:one).human_readable_type
+    assert_equal 'Preservation Master', bytestreams(:two).human_readable_type
+  end
+
+  test 'metadata should return metadata' do
+    @bs = Bytestream.new(repository_relative_pathname:
+                             __dir__ + '/../fixtures/images/jpg-exif.jpg')
+    assert @bs.metadata.length > 10
+  end
+
 end

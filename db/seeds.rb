@@ -78,6 +78,9 @@ tableOfContents temporalCoverage title type).each do |element|
   AvailableElement.create!(name: element)
 end
 
+# Vocabularies
+Vocabulary.create!(name: 'Uncontrolled Vocabulary', key: 'uncontrolled')
+
 # Collections
 
 collections = {}

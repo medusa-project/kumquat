@@ -29,6 +29,7 @@ class ItemTest < ActiveSupport::TestCase
 
   test 'tsv_header should return the correct columns' do
     cols = Item.tsv_header(@item.collection.metadata_profile).strip.split("\t")
+    assert_equal 11, cols.length
     assert_equal 'uuid', cols[0]
     assert_equal 'parentId', cols[1]
     assert_equal 'variant', cols[2]
@@ -36,10 +37,10 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal 'subpageNumber', cols[4]
     assert_equal 'latitude', cols[5]
     assert_equal 'longitude', cols[6]
-
-    @item.collection.metadata_profile.element_defs.map(&:name).each_with_index do |el, index|
-      assert_not_empty cols[7 + index]
-    end
+    assert_equal 'title', cols[7]
+    assert_equal 'description', cols[8]
+    assert_equal 'lcsh:subject', cols[9]
+    assert_equal 'tgm:subject', cols[10]
   end
 
   # access_master_bytestream()
@@ -139,16 +140,21 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal @item.representative_item_repository_id,
                  doc[Item::SolrFields::REPRESENTATIVE_ITEM_ID]
     assert_equal @item.subpage_number, doc[Item::SolrFields::SUBPAGE_NUMBER]
+    assert_equal @item.title, doc[Item::SolrFields::TITLE]
     assert_equal @item.variant, doc[Item::SolrFields::VARIANT]
 
     bs = @item.bytestreams.
         select{ |b| b.bytestream_type == Bytestream::Type::ACCESS_MASTER }.first
     assert_equal bs.media_type, doc[Item::SolrFields::ACCESS_MASTER_MEDIA_TYPE]
+    assert_equal bs.repository_relative_pathname,
+                 doc[Item::SolrFields::ACCESS_MASTER_PATHNAME]
 
     bs = @item.bytestreams.
         select{ |b| b.bytestream_type == Bytestream::Type::PRESERVATION_MASTER }.first
     assert_equal bs.media_type,
                  doc[Item::SolrFields::PRESERVATION_MASTER_MEDIA_TYPE]
+    assert_equal bs.repository_relative_pathname,
+                 doc[Item::SolrFields::PRESERVATION_MASTER_PATHNAME]
 
     @item.elements.each do |element|
       assert_equal [element.value], doc[element.solr_multi_valued_field]
@@ -160,6 +166,7 @@ class ItemTest < ActiveSupport::TestCase
 
   test 'to_tsv should work' do
     values = @item.to_tsv.strip.split("\t")
+    assert_equal 11, values.length
     assert_equal @item.repository_id.to_s, values[0]
     assert_equal @item.parent_repository_id.to_s, values[1]
     assert_equal @item.variant.to_s, values[2]
@@ -167,18 +174,34 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal @item.subpage_number.to_s, values[4]
     assert_equal @item.latitude.to_s, values[5]
     assert_equal @item.longitude.to_s, values[6]
+    assert_equal @item.elements.select{ |e| e.name == 'title' }.first.value, values[7]
+    assert_equal @item.elements.select{ |e| e.name == 'description' }.first.value, values[8]
+    assert_equal @item.elements.select{ |e| e.name == 'subject' }.first.value, values[9]
+  end
 
-    @item.collection.metadata_profile.element_defs.each_with_index do |el, index|
-      assert_equal @item.elements.select{ |e| e.name == el.name }.map(&:value).
-          join(Item::MULTI_VALUE_SEPARATOR),
-                   values[7 + index].to_s
-      assert_not_equal 'nil', values[7 + index]
-    end
+  # update_from_embedded_metadata
+
+  test 'update_from_embedded_metadata should work' do
+    @item.update_from_embedded_metadata
+
+    puts @item.elements.select{ |e| e.name == 'date' }.first
+    assert_equal 1, @item.elements.
+        select{ |e| e.name == 'date' and e.value == '2005-06-02T05:00:00Z' }.length
+    assert_equal 1, @item.elements.
+        select{ |e| e.name == 'dateCreated' and e.value == '2005:06:02 07:19:00' }.length
+    assert_equal 1, @item.elements.
+        select{ |e| e.name == 'description' and e.value == 'OLYMPUS DIGITAL CAMERA' }.length
+    assert_equal 1, @item.elements.
+        select{ |e| e.name == 'subject' and e.value == 'Green Bay / De Pere' }.length
+    assert_equal 1, @item.elements.
+        select{ |e| e.name == 'subject' and e.value == 'St. Norbert College' }.length
+    assert_equal 1, @item.elements.
+        select{ |e| e.name == 'subject' and e.value == 'Van Den Heuvel Campus Center' }.length
   end
 
   # update_from_tsv
 
-  test 'update_from_tsv should work with a parentId column' do
+  test 'update_from_tsv should work with DLS TSV' do
     row = {}
     # technical elements
     row['parentId'] = '9182'
@@ -214,7 +237,7 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal('Cats', @item.title)
   end
 
-  test 'update_from_tsv should work without a parentId column' do
+  test 'update_from_tsv should work with Medusa TSV' do
     row = {}
     # technical elements
     row['date'] = '1984'
@@ -229,6 +252,8 @@ class ItemTest < ActiveSupport::TestCase
                                  Item::MULTI_VALUE_SEPARATOR,
                                  Item::MULTI_VALUE_SEPARATOR)
     row['title'] = 'Cats'
+    row['subject'] = 'Mammals'
+    row['lcsh:subject'] = 'Felines'
 
     @item.update_from_tsv([row], row)
 
@@ -245,13 +270,34 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal 1, descriptions.select{ |e| e.value == 'Cats' }.length
     assert_equal 1, descriptions.select{ |e| e.value == 'cats' }.length
     assert_equal 1, descriptions.select{ |e| e.value == 'and more cats' }.length
+    assert_equal Vocabulary.uncontrolled, descriptions[0].vocabulary
+    assert_equal Vocabulary.uncontrolled, descriptions[1].vocabulary
+    assert_equal Vocabulary.uncontrolled, descriptions[2].vocabulary
 
-    assert_equal('Cats', @item.title)
+    title = @item.elements.select{ |e| e.name == 'title' }.first
+    assert_equal Vocabulary.uncontrolled, title.vocabulary
+    assert_equal 'Cats', title.value
+
+    assert_not_nil @item.elements.
+        select{ |e| e.name == 'subject' and e.vocabulary == Vocabulary.uncontrolled and e.value = 'Mammals' }.first
+    assert_not_nil @item.elements.
+        select{ |e| e.name == 'subject' and e.vocabulary == Vocabulary.find_by_key('lcsh') and e.value == 'Felines' }.first
+  end
+
+  test 'update_from_tsv should raise an error if given an invalid vocabulary prefix' do
+    row = {}
+    row['title'] = 'Cats'
+    row['bogus:subject'] = 'Felines'
+
+    assert_raises RuntimeError do
+      @item.update_from_tsv([row], row)
+    end
   end
 
   test 'update_from_tsv should set the variant for free-form content from
         Medusa TSV' do
-    ItemTsvIngester.new.ingest_tsv(@medusa_free_form_tsv, @free_form_collection)
+    ItemTsvIngester.new.ingest_tsv(@medusa_free_form_tsv, @free_form_collection,
+                                   ItemTsvIngester::ImportMode::CREATE_ONLY)
 
     item1 = Item.find_by_repository_id('a53a0ce0-5ca8-0132-3334-0050569601ca-9')
     item1.update_from_tsv(@medusa_free_form_tsv_array,
@@ -266,7 +312,8 @@ class ItemTest < ActiveSupport::TestCase
 
   test 'update_from_tsv should not set the variant for non-free-form compound
         objects from Medusa TSV if it is missing' do
-    ItemTsvIngester.new.ingest_tsv(@medusa_map_tsv, @map_collection)
+    ItemTsvIngester.new.ingest_tsv(@medusa_map_tsv, @map_collection,
+                                   ItemTsvIngester::ImportMode::CREATE_ONLY)
 
     item = Item.find_by_repository_id('abdc55a0-c451-0133-1d17-0050569601ca-1')
     item.update_from_tsv(@medusa_map_tsv_array, {})
@@ -275,7 +322,8 @@ class ItemTest < ActiveSupport::TestCase
 
   test 'update_from_tsv should set the variant for non-free-form pages from
         Medusa TSV if it is missing' do
-    ItemTsvIngester.new.ingest_tsv(@medusa_map_tsv, @map_collection)
+    ItemTsvIngester.new.ingest_tsv(@medusa_map_tsv, @map_collection,
+                                   ItemTsvIngester::ImportMode::CREATE_ONLY)
 
     item = Item.find_by_repository_id('d29edba0-c451-0133-1d17-0050569601ca-c')
     item.update_from_tsv(@medusa_map_tsv_array, {})
@@ -284,7 +332,8 @@ class ItemTest < ActiveSupport::TestCase
 
   test 'update_from_tsv should set the title for title-less free-form content
         from Medusa TSV' do
-    ItemTsvIngester.new.ingest_tsv(@medusa_free_form_tsv, @free_form_collection)
+    ItemTsvIngester.new.ingest_tsv(@medusa_free_form_tsv, @free_form_collection,
+                                   ItemTsvIngester::ImportMode::CREATE_ONLY)
 
     item1 = Item.find_by_repository_id('a53a0ce0-5ca8-0132-3334-0050569601ca-9')
     item1.update_from_tsv(@medusa_free_form_tsv_array,

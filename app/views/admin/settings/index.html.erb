@@ -47,8 +47,7 @@
       <td>
         <%= hidden_field_tag("options[#{Option::Key::OAI_PMH_ENABLED}]", 0) %>
         <%= check_box_tag("options[#{Option::Key::OAI_PMH_ENABLED}]", 1,
-                          Option::boolean(Option::Key::OAI_PMH_ENABLED),
-                          class: 'form-control') %>
+                          Option::boolean(Option::Key::OAI_PMH_ENABLED)) %>
       </td>
     </tr>
   </table>

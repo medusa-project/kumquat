@@ -7,58 +7,55 @@ module ItemsHelper
   # @param bs [Bytestream]
   # @return [String]
   #
-  def bytestream_exif_metadata_as_table(bs)
+  def bytestream_metadata_as_table(bs)
     data = bytestream_metadata_for(bs)
     html = ''
-    if data[:exif].any?
-      html += '<table class="table table-condensed pt-metadata">'
-      data[:exif].each do |key, value|
-        html += "<tr><td>#{raw(key)}</td><td>#{raw(value)}</td></tr>"
+    if data.any?
+      categories = data.map{ |f| f[:category] }.uniq.
+          reject{ |cat| cat == 'ExifTool' }
+
+      # create the category tabs
+      html += '<ul class="nav nav-pills" role="tablist">'
+      categories.each_with_index do |category, index|
+        tab_id = "pt-metadata-tab-#{bs.bytestream_type}-#{category.gsub(' ', '')}"
+        class_ = (index == 0) ? 'active' : ''
+        html += "<li role=\"presentation\" class=\"#{class_}\">
+          <a href=\"##{tab_id}\" aria-controls=\"#{tab_id}\"
+              role=\"tab\" data-toggle=\"tab\">#{category}</a>
+        </li>"
       end
-      html += '</table>'
-    end
-    raw(html)
-  end
+      html += '</ul>'
 
-  ##
-  # @param bs [Bytestream]
-  # @return [String]
-  #
-  def bytestream_file_metadata_as_table(bs)
-    data = bytestream_metadata_for(bs)
-    html = ''
-    if data[:file].any?
-      html += '<table class="table table-condensed pt-metadata">'
-      data[:file].each do |key, value|
-        html += "<tr><td>#{raw(key)}</td><td>#{raw(value)}</td></tr>"
+      # create the category tab panes
+      html += '<div class="tab-content">'
+      categories.each_with_index do |category, index|
+        tab_id = "pt-metadata-tab-#{bs.bytestream_type}-#{category.gsub(' ', '')}"
+        class_ = (index == 0) ? 'active' : ''
+        html += "<div role=\"tabpanel\" class=\"tab-pane #{class_}\"
+            id=\"#{tab_id}\">"
+
+        html += '<table class="table table-condensed pt-metadata">'
+        data.select{ |row| row[:category] == category }.each do |row|
+          if row[:value].respond_to?(:each)
+            value = '<ul>'
+            row[:value].each do |v|
+              value += "<li>#{v}</li>"
+            end
+            value += '</ul>'
+          else
+            value = row[:value]
+          end
+
+          html += "<tr>
+            <td>#{row[:label]}</td>
+            <td>#{raw(value)}</td>
+          </tr>"
+        end
+        html += '</table>'
+
+        html += "</div>" # .tab-pane
       end
-      html += '</table>'
-    end
-    raw(html)
-  end
-
-  ##
-  # @param bs [Bytestream]
-  # @return [String]
-  #
-  def bytestream_iptc_metadata_as_table(bs)
-    data = bytestream_metadata_for(bs)
-    html = ''
-    if data[:iptc]
-      html += "#{data[:iptc]}"
-    end
-    raw(html)
-  end
-
-  ##
-  # @param bs [Bytestream]
-  # @return [String]
-  #
-  def bytestream_xmp_metadata_as_table(bs)
-    data = bytestream_metadata_for(bs)
-    html = ''
-    if data[:xmp]
-      html += "<pre>#{h(data[:xmp])}</pre>"
+      html += '</div>' # .tab-content
     end
     raw(html)
   end
@@ -148,7 +145,7 @@ module ItemsHelper
     files.each do |child|
       link_target = item_path(child)
       html += '<li>'
-      html += link_to(link_target) do
+      html += link_to(link_target, class: 'pt-title') do
         raw('<div class="pt-thumbnail">' +
             thumbnail_tag(child, DEFAULT_THUMBNAIL_SIZE, :square) +
           '</div>' +
@@ -162,20 +159,15 @@ module ItemsHelper
     raw(html)
   end
 
-  def files_panel(item)
+  def files_section(files)
     # Explicitly calling sort() on an Enumerable of Items causes them to be
     # natural-sorted.
-    files = item.files.sort
     html = ''
     if files.any?
-      html += "<div class=\"panel panel-default\">
-        <div class=\"panel-heading\">
-          <h2 class=\"panel-title\">Files (#{files.count})</h2>
-        </div>
-        <div class=\"panel-body pt-files\">
+      html += "<h2>Files <span class=\"badge\">#{files.count}</span></h2>
+        <div class=\"pt-files\">
           #{files_as_list(files)}
-        </div>
-      </div>"
+        </div>"
     end
     raw(html)
   end
@@ -491,20 +483,14 @@ module ItemsHelper
   # @param item [Item]
   # @return [String]
   #
-  def metadata_panel(item)
-    html = "<div class=\"panel panel-default\">
-       <div class=\"panel-heading\">
-         <h2 class=\"panel-title\">Descriptive Info</h2>
-       </div>
-       <div class=\"panel-body\">
+  def metadata_section(item)
+    html = "<h2>Descriptive Info</h2>
          <div class=\"visible-xs\">
            #{metadata_as_list(item)}
          </div>
          <div class=\"hidden-xs\">
            #{metadata_as_table(item)}
-         </div>
-        </div>
-      </div>"
+         </div>"
     raw(html)
   end
 
@@ -596,72 +582,53 @@ module ItemsHelper
     raw(html)
   end
 
-  def pages_panel(pages, selected_page)
+  def pages_section(pages, selected_page)
     html = ''
     if pages.any?
-      html += "<div class=\"panel panel-default\">
-        <div class=\"panel-heading\">
-          <h2 class=\"panel-title\">Pages (#{pages.count})</h2>
-        </div>
-        <div class=\"panel-body pt-pages\">
+      html += "<h2>Pages <span class=\"badge\">#{pages.count}</span></h2>
+        <div class=\"pt-pages\">
           #{pages_as_list(selected_page)}
-        </div>
-      </div>"
+        </div>"
     end
     raw(html)
   end
 
   ##
+  # Returns non-AJAX pagination for item results view.
+  #
   # @param items [Relation]
   # @param per_page [Integer]
   # @param current_page [Integer]
   # @param max_links [Integer] (ideally odd)
   #
   def paginate(items, per_page, current_page, max_links = 9)
-    return '' unless items.total_length > per_page
-    num_pages = (items.total_length / per_page.to_f).ceil
-    first_page = [1, current_page - (max_links / 2.0).floor].max
-    last_page = [first_page + max_links - 1, num_pages].min
-    first_page = last_page - max_links + 1 if
-        last_page - first_page < max_links and num_pages > max_links
-    prev_page = [1, current_page - 1].max
-    next_page = [last_page, current_page + 1].min
-    prev_start = (prev_page - 1) * per_page
-    next_start = (next_page - 1) * per_page
-    last_start = (num_pages - 1) * per_page
+    do_paginate(items, per_page, current_page, max_links)
+  end
 
-    first_link = link_to(params.except(:start), 'aria-label' => 'First') do
-      raw('<span aria-hidden="true">First</span>')
-    end
-    prev_link = link_to(params.merge(start: prev_start), 'aria-label' => 'Previous') do
-      raw('<span aria-hidden="true">&laquo;</span>')
-    end
-    next_link = link_to(params.merge(start: next_start), 'aria-label' => 'Next') do
-      raw('<span aria-hidden="true">&raquo;</span>')
-    end
-    last_link = link_to(params.merge(start: last_start), 'aria-label' => 'Last') do
-      raw('<span aria-hidden="true">Last</span>')
-    end
+  ##
+  # Returns AJAX pagination for files in show-item view.
+  #
+  # @param items [Relation]
+  # @param per_page [Integer]
+  # @param current_page [Integer]
+  # @param max_links [Integer] (ideally odd)
+  #
+  def paginate_files(parent_item, items, per_page, current_page, max_links = 9)
+    do_paginate(items, per_page, current_page, max_links, parent_item,
+                Item::Variants::FILE, true)
+  end
 
-    # http://getbootstrap.com/components/#pagination
-    html = '<nav>' +
-      '<ul class="pagination">' +
-        "<li #{current_page == first_page ? 'class="disabled"' : ''}>#{first_link}</li>" +
-        "<li #{current_page == prev_page ? 'class="disabled"' : ''}>#{prev_link}</li>"
-    (first_page..last_page).each do |page|
-      start = (page - 1) * per_page
-      page_link = link_to((start == 0) ? params.except(:start) : params.merge(start: start)) do
-        raw("#{page} #{(page == current_page) ?
-                '<span class="sr-only">(current)</span>' : ''}")
-      end
-      html += "<li class=\"#{page == current_page ? 'active' : ''}\">" +
-            page_link + '</li>'
-    end
-    html += "<li #{current_page == next_page ? 'class="disabled"' : ''}>#{next_link}</li>" +
-        "<li #{current_page == last_page ? 'class="disabled"' : ''}>#{last_link}</li>"
-      '</ul>' +
-    '</nav>'
-    raw(html)
+  ##
+  # Returns AJAX pagination for pages in show-item view.
+  #
+  # @param items [Relation]
+  # @param per_page [Integer]
+  # @param current_page [Integer]
+  # @param max_links [Integer] (ideally odd)
+  #
+  def paginate_pages(parent_item, items, per_page, current_page, max_links = 9)
+    do_paginate(items, per_page, current_page, max_links, parent_item,
+                Item::Variants::PAGE, true)
   end
 
   ##
@@ -940,52 +907,144 @@ module ItemsHelper
   end
 
   ##
-  # @return [Hash] Hash with `:file`, `:exif`, `:iptc`, and `:xmp` keys
+  # @return [Array<Hash<Symbol,?>>] Array of hashes with :label,
+  #                                 :category, and :value keys.
   #
   def bytestream_metadata_for(bytestream)
-    data = { file: {}, exif: {}, iptc: nil, xmp: nil }
+    data = []
     if bytestream
-      # development-only info
-      if Rails.env.development?
-        data[:file]['Pathname (DEVELOPMENT)'] =
-            bytestream.absolute_local_pathname
-      end
-      # filename
-      if bytestream.repository_relative_pathname
-        data[:file]['Filename'] =
-            File.basename(bytestream.repository_relative_pathname)
-      end
       # status
-      data[:file]['Status'] = bytestream.exists? ?
-          '<span class="label label-success">OK</span>' :
-          '<span class="label label-danger">MISSING</span>'
-      # media type
-      data[:file]['Media Type'] = bytestream.media_type
-      # size
-      size = bytestream.byte_size
-      if size
-        data[:file]['Size'] = number_to_human_size(size)
-      end
+      data << {
+          label: 'Status',
+          category: 'File',
+          value: bytestream.exists? ?
+              '<span class="label label-success">OK</span>' :
+              '<span class="label label-danger">MISSING</span>'
+      }
       if bytestream.is_image?
-        # EXIF
-        keys_to_reject = [:orientation, :rows_per_strip, :strip_offsets,
-                          :strip_byte_counts, :photometric_interpretation,
-                          :planar_configuration]
-        bytestream.exif.reject{ |k, v| keys_to_reject.include?(k) }.each do |k, v|
-          key_name = k.to_s.gsub('_', ' ').titleize
-          if k.to_s == 'orientation'
-            data[:exif][key_name] = v.to_i.to_s
-          else
-            data[:exif][key_name] = truncate(v.to_s, length: 400)
-          end
+        bytestream.metadata.each do |field|
+          data << {
+              label: field[:label],
+              category: field[:category],
+              value: field[:value].respond_to?(:each) ?
+                  field[:value] : truncate(field[:value].to_s, length: 400)
+          }
         end
-        # IPTC
-        data[:iptc] = bytestream.iptc
-        # XMP
-        data[:xmp] = bytestream.xmp
       end
     end
     data
+  end
+
+  ##
+  # @param items [Relation]
+  # @param per_page [Integer]
+  # @param current_page [Integer]
+  # @param max_links [Integer] (ideally odd)
+  # @param parent_item [Item]
+  # @param child_item_variant [Item::Variant]
+  # @param remote [Boolean]
+  #
+  def do_paginate(items, per_page, current_page, max_links = 9,
+                  parent_item = nil, child_item_variant = nil, remote = false)
+    return '' if items.total_length <= per_page
+    num_pages = (items.total_length / per_page.to_f).ceil
+    first_page = [1, current_page - (max_links / 2.0).floor].max
+    last_page = [first_page + max_links - 1, num_pages].min
+    first_page = last_page - max_links + 1 if
+        last_page - first_page < max_links and num_pages > max_links
+    prev_page = [1, current_page - 1].max
+    next_page = [last_page, current_page + 1].min
+    prev_start = (prev_page - 1) * per_page
+    next_start = (next_page - 1) * per_page
+    last_start = (num_pages - 1) * per_page
+
+    case child_item_variant
+      when Item::Variants::FILE
+        first_link = link_to(item_files_path(parent_item, params.except(:start)),
+                             remote: remote, 'aria-label' => 'First') do
+          raw('<span aria-hidden="true">First</span>')
+        end
+        prev_link = link_to(item_files_path(parent_item, params.merge(start: prev_start)),
+                            remote: remote, 'aria-label' => 'Previous') do
+          raw('<span aria-hidden="true">&laquo;</span>')
+        end
+        next_link = link_to(item_files_path(parent_item, params.merge(start: next_start)),
+                            remote: remote, 'aria-label' => 'Next') do
+          raw('<span aria-hidden="true">&raquo;</span>')
+        end
+        last_link = link_to(item_files_path(parent_item, params.merge(start: last_start)),
+                            remote: remote, 'aria-label' => 'Last') do
+          raw('<span aria-hidden="true">Last</span>')
+        end
+      when Item::Variants::PAGE
+        first_link = link_to(item_pages_path(parent_item, params.except(:start)),
+                             remote: remote, 'aria-label' => 'First') do
+          raw('<span aria-hidden="true">First</span>')
+        end
+        prev_link = link_to(item_pages_path(parent_item, params.merge(start: prev_start)),
+                            remote: remote, 'aria-label' => 'Previous') do
+          raw('<span aria-hidden="true">&laquo;</span>')
+        end
+        next_link = link_to(item_pages_path(parent_item, params.merge(start: next_start)),
+                            remote: remote, 'aria-label' => 'Next') do
+          raw('<span aria-hidden="true">&raquo;</span>')
+        end
+        last_link = link_to(item_pages_path(parent_item, params.merge(start: last_start)),
+                            remote: remote, 'aria-label' => 'Last') do
+          raw('<span aria-hidden="true">Last</span>')
+        end
+      else
+        first_link = link_to(params.except(:start), remote: remote,
+                             'aria-label' => 'First') do
+          raw('<span aria-hidden="true">First</span>')
+        end
+        prev_link = link_to(params.merge(start: prev_start), remote: remote, 'aria-label' => 'Previous') do
+          raw('<span aria-hidden="true">&laquo;</span>')
+        end
+        next_link = link_to(params.merge(start: next_start), remote: remote, 'aria-label' => 'Next') do
+          raw('<span aria-hidden="true">&raquo;</span>')
+        end
+        last_link = link_to(params.merge(start: last_start), remote: remote, 'aria-label' => 'Last') do
+          raw('<span aria-hidden="true">Last</span>')
+        end
+    end
+
+    # http://getbootstrap.com/components/#pagination
+    html = '<nav>' +
+        '<ul class="pagination">' +
+        "<li #{current_page == first_page ? 'class="disabled"' : ''}>#{first_link}</li>" +
+        "<li #{current_page == prev_page ? 'class="disabled"' : ''}>#{prev_link}</li>"
+    (first_page..last_page).each do |page|
+      start = (page - 1) * per_page
+      case child_item_variant
+        when Item::Variants::FILE
+          path = (start == 0) ? item_files_path(parent_item, params.except(:start)) :
+              item_files_path(parent_item, params.merge(start: start))
+          page_link = link_to(path, remote: remote) do
+            raw("#{page} #{(page == current_page) ?
+                '<span class="sr-only">(current)</span>' : ''}")
+          end
+        when Item::Variants::PAGE
+          path = (start == 0) ? item_pages_path(parent_item, params.except(:start)) :
+              item_pages_path(parent_item, params.merge(start: start))
+          page_link = link_to(path, remote: remote) do
+            raw("#{page} #{(page == current_page) ?
+                '<span class="sr-only">(current)</span>' : ''}")
+          end
+        else
+          page_link = link_to((start == 0) ? params.except(:start) : params.merge(start: start), remote: remote) do
+            raw("#{page} #{(page == current_page) ?
+                '<span class="sr-only">(current)</span>' : ''}")
+          end
+      end
+      html += "<li class=\"#{page == current_page ? 'active' : ''}\">" +
+          page_link + '</li>'
+    end
+    html += "<li #{current_page == next_page ? 'class="disabled"' : ''}>#{next_link}</li>" +
+        "<li #{current_page == last_page ? 'class="disabled"' : ''}>#{last_link}</li>"
+    '</ul>' +
+        '</nav>'
+    raw(html)
   end
 
   def image_viewer_for(item)
@@ -1006,6 +1065,7 @@ module ItemsHelper
         navigatorSizeRatio: 0.2,
         controlsFadeDelay: 1000,
         controlsFadeLength: 1000,
+        immediateRender: true,
         preserveViewport: true,
         prefixUrl: \"/openseadragon/images/\",
         tileSources: \"#{j(iiif_item_url(item))}\"

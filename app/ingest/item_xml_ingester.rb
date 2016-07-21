@@ -40,26 +40,6 @@ class ItemXmlIngester
     item
   end
 
-  ##
-  # @param pathname [String] File or path to validate
-  # @param schema_version [Integer]
-  # @return [Integer] Number of items validated
-  #
-  def validate_pathname(pathname, schema_version)
-    raise 'Invalid schema version' unless
-        SCHEMA_VERSIONS.include?(schema_version)
-    pathname = File.expand_path(pathname)
-    count = 0
-    if pathname.end_with?('.xml')
-      count = validate_file(pathname, schema_version, count)
-    elsif File.directory?(pathname)
-      Dir.glob(pathname + '/**/*.xml').each do |p|
-        count = validate_file(p, schema_version, count)
-      end
-    end
-    count
-  end
-
   private
 
   ##

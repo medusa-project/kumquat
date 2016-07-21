@@ -31,7 +31,7 @@ class ItemTsvIngester
   end
 
   ##
-  # Used only for items within the free-form content profile.
+  # Used only for items within the free-form package profile.
   #
   # @param item_id [String]
   # @param collection [Collection]
@@ -81,8 +81,8 @@ class ItemTsvIngester
     raise 'No collection provided.' unless collection
     raise 'Invalid import mode.' unless
         ImportMode.constants.map{ |c| c.to_s.downcase }.include?(import_mode)
-    raise 'Collection does not have a content profile assigned.' unless
-        collection.content_profile
+    raise 'Collection does not have a package profile assigned.' unless
+        collection.package_profile
     raise 'Collection does not have a metadata profile assigned.' unless
         collection.metadata_profile
 
@@ -92,17 +92,25 @@ class ItemTsvIngester
         map{ |row| row.to_hash }
     count = 0
     ActiveRecord::Base.transaction do
-      collection.content_profile.items_from_tsv(tsv).each do |row|
-        next unless self.class.within_root?(row['uuid'], collection, tsv)
+      collection.package_profile.items_from_tsv(tsv).each do |row|
+        unless self.class.within_root?(row['uuid'], collection, tsv)
+          Rails.logger.info("Skipping #{row['uuid']} (outside of root)")
+          next
+        end
 
         item = Item.find_by_repository_id(row['uuid'])
         if item
           if import_mode != ImportMode::CREATE_ONLY
+            Rails.logger.info("Updating #{row['uuid']}")
             item.collection = collection
             item.update_from_tsv(tsv, row)
             count += 1
+          else
+            Rails.logger.info("Skipping #{row['uuid']} "\
+            "(already exists [create-only mode])")
           end
         else
+          Rails.logger.info("Creating #{row['uuid']}")
           Item.from_tsv(tsv, row, collection)
           count += 1
         end

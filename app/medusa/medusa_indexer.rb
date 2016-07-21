@@ -3,6 +3,8 @@ class MedusaIndexer
   def index_collections(task = nil)
     config = PearTree::Application.peartree_config
     url = sprintf('%s/collections.json', config[:medusa_url].chomp('/'))
+
+    Rails.logger.info('MedusaIndexer.index_collections(): retrieving collection list')
     response = Medusa.client.get(url, follow_redirect: true)
     struct = JSON.parse(response.body)
     struct.each_with_index do |st, index|

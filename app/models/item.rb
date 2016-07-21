@@ -16,13 +16,17 @@
 # profile. These IDs are stored in `repository_id`, NOT `id`, which is
 # database-specific.
 #
+# Items have a soft pointer to their collection and parent item based on
+# repository ID, rather than a belongs_to/has_many on their database ID.
+# This is to be able to establish structure more easily outside of the
+# application.
+#
 # Being an ActiveRecord entity, items are searchable via ActiveRecord as well
 # as via Solr. Instances are automatically indexed in Solr (see `to_solr`) and
 # the Solr search functionality is available via the `solr` class method.
 #
 class Item < ActiveRecord::Base
 
-  include NaturalSort
   include SolrQuerying
 
   class SolrFields
@@ -45,6 +49,7 @@ class Item < ActiveRecord::Base
     REPRESENTATIVE_ITEM_ID = 'representative_item_id_si'
     SEARCH_ALL = 'searchall_txtim'
     SUBPAGE_NUMBER = 'subpage_number_ii'
+    TITLE = 'title_natsort_en_i'
     VARIANT = 'variant_si'
   end
 
@@ -88,18 +93,26 @@ class Item < ActiveRecord::Base
   # column per element definition in the item's collection's metadata profile.
   #
   # Headings are guaranteed to be consistent with the output of to_tsv as long
-  # as the passed-in MetadataProfile is the same as that of an item's
-  # collection.
+  # as the passed-in MetadataProfile is the same as the one assigned to an
+  # item's collection.
   #
   # @param metadata_profile [MetadataProfile]
-  # @return [String] Tab-separated values with trailing CRLF newline.
+  # @return [String] Tab-separated values with trailing newline.
   # @see to_tsv
   #
   def self.tsv_header(metadata_profile)
     # Must remain synchronized with the output of to_tsv.
-    tech_elements = ['uuid', 'parentId', 'variant', 'pageNumber',
-                     'subpageNumber', 'latitude', 'longitude']
-    elements = tech_elements + metadata_profile.element_defs.map(&:name)
+    elements = ['uuid', 'parentId', 'variant', 'pageNumber',
+                'subpageNumber', 'latitude', 'longitude']
+    metadata_profile.element_defs.each do |el|
+      # There will be one column per ElementDef vocabulary. Column headings are
+      # in the format "vocabKey:elementName", except the uncontrolled vocabulary
+      # which will not get a vocabKey prefix.
+      elements += el.vocabularies.order(:key).map do |vocab|
+        vocab.key != Vocabulary::UNCONTROLLED_KEY ?
+            "#{vocab.key}:#{el.name}" : el.name
+      end
+    end
     elements.join("\t") + TSV_LINE_BREAK
   end
 
@@ -172,12 +185,27 @@ class Item < ActiveRecord::Base
   end
 
   ##
-  # @return [Relation] All of the item's children that have a variant of File
-  #                    or Directory.
-  # @see pages()
+  # Queries the database to obtain a Relation of all children that have a
+  # variant of Variant::FILE or Variant::DIRECTORY.
+  #
+  # @return [Relation]
+  # @see files_from_solr()
   #
   def files
     self.items.where(variant: [Variants::FILE, Variants::DIRECTORY])
+  end
+
+  ##
+  # Queries Solr to obtain a Relation of all children that have a
+  # variant of Variant::FILE or Variant::DIRECTORY.
+  #
+  # @return [Relation]
+  # @see files()
+  #
+  def files_from_solr
+    Item.solr.where(Item::SolrFields::PARENT_ITEM => self.repository_id).
+        where("(#{Item::SolrFields::VARIANT}:#{Item::Variants::FILE} OR "\
+            "#{Item::SolrFields::VARIANT}:#{Item::Variants::DIRECTORY})")
   end
 
   ##
@@ -251,11 +279,27 @@ class Item < ActiveRecord::Base
   end
 
   ##
-  # @see files()
+  # Queries the database to obtain a Relation of all children that have a
+  # variant of Variant::PAGE.
+  #
+  # @return [Relation]
+  # @see pages_from_solr()
   #
   def pages
     self.items.where(variant: Variants::PAGE).
         order(:page_number, :subpage_number)
+  end
+
+  ##
+  # Queries Solr to obtain a Relation of all children that have a
+  # variant of Variant::PAGE.
+  #
+  # @return [Relation]
+  # @see pages()
+  #
+  def pages_from_solr
+    Item.solr.where(Item::SolrFields::PARENT_ITEM => self.repository_id).
+        where(Item::SolrFields::VARIANT => Item::Variants::PAGE)
   end
 
   ##
@@ -366,16 +410,19 @@ class Item < ActiveRecord::Base
     doc[SolrFields::PUBLISHED] = self.published
     doc[SolrFields::REPRESENTATIVE_ITEM_ID] = self.representative_item_repository_id
     doc[SolrFields::SUBPAGE_NUMBER] = self.subpage_number
+    doc[SolrFields::TITLE] = self.title
     doc[SolrFields::VARIANT] = self.variant
     bs = self.bytestreams.
         select{ |b| b.bytestream_type == Bytestream::Type::ACCESS_MASTER }.first
     if bs
       doc[SolrFields::ACCESS_MASTER_MEDIA_TYPE] = bs.media_type
+      doc[SolrFields::ACCESS_MASTER_PATHNAME] = bs.repository_relative_pathname
     end
     bs = self.bytestreams.
         select{ |b| b.bytestream_type == Bytestream::Type::PRESERVATION_MASTER }.first
     if bs
       doc[SolrFields::PRESERVATION_MASTER_MEDIA_TYPE] = bs.media_type
+      doc[SolrFields::PRESERVATION_MASTER_PATHNAME] = bs.repository_relative_pathname
     end
     self.elements.each do |element|
       doc[element.solr_multi_valued_field] ||= []
@@ -405,11 +452,78 @@ class Item < ActiveRecord::Base
     columns << self.latitude
     columns << self.longitude
 
-    self.collection.metadata_profile.element_defs.each do |el|
-      columns << self.elements.select{ |e| e.name == el.name }.map(&:value).
-          join(MULTI_VALUE_SEPARATOR)
+    self.collection.metadata_profile.element_defs.each do |pe|
+      # An ElementDef will have one column per vocabulary.
+      pe.vocabularies.order(:key).each do |vocab|
+        columns << self.elements.
+            select{ |e| e.name == pe.name and (e.vocabulary == vocab or (!e.vocabulary and vocab == Vocabulary.uncontrolled)) }.
+            map(&:value).
+            join(MULTI_VALUE_SEPARATOR)
+      end
     end
     columns.join("\t") + TSV_LINE_BREAK
+  end
+
+  ##
+  # Updates an instance's metadata elements from the metadata embedded within
+  # its preservation master bytestream.
+  #
+  # @param save [Boolean] Whether to save the instance.
+  #
+  def update_from_embedded_metadata(save = true)
+    # Get the preservation bytestream
+    bs = self.preservation_master_bytestream
+    return unless bs
+
+    # Get its embedded metadata
+    metadata = bs.metadata
+
+    def copy_metadata(src_label, dest_elem, metadata)
+      src_elem = metadata.select{ |e| e[:label] == src_label }.first
+      if src_elem
+        if src_elem[:value].respond_to?(:each)
+          src_elem[:value].select{ |v| v.present? }.each do |value|
+            self.elements.build(name: dest_elem, value: value,
+                                vocabulary: Vocabulary.uncontrolled)
+          end
+        elsif src_elem[:value].present?
+          self.elements.build(name: dest_elem, value: src_elem[:value],
+                              vocabulary: Vocabulary.uncontrolled)
+        end
+      end
+    end
+
+    # This is a very abbreviated list of IPTC IIM fields that can easily map
+    # to common ElementDefs. We do not check if these elements actually exist
+    # in the item's metadata profile, but most profiles should include them,
+    # and if not, no big deal.
+    #
+    # Obviously, this is very crude and a change in the effort/reward ratio
+    # might warrant maintaining a master list of IIM fields and enabling
+    # customizable mappings.
+    copy_metadata('Author', 'creator', metadata)
+    copy_metadata('Credit', 'creator', metadata)
+    copy_metadata('Creator', 'creator', metadata)
+    copy_metadata('Date Created', 'dateCreated', metadata)
+    copy_metadata('Description', 'description', metadata)
+    copy_metadata('Caption', 'description', metadata)
+    copy_metadata('Copyright', 'rights', metadata)
+    copy_metadata('Copyright Notice', 'rights', metadata)
+    copy_metadata('Keywords', 'subject', metadata)
+    copy_metadata('Headline', 'title', metadata)
+    copy_metadata('Title', 'title', metadata)
+
+    # If a date is present, try to add a normalized date element.
+    date_elem = metadata.select{ |e| e[:label] == 'Date Created' }.first
+    if date_elem
+      date = string_date_to_time(date_elem[:value])
+      if date
+        self.elements.build(name: 'date', value: date.utc.iso8601,
+                            vocabulary: Vocabulary.uncontrolled)
+      end
+    end
+
+    self.save! if save
   end
 
   ##
@@ -418,6 +532,7 @@ class Item < ActiveRecord::Base
   # @param tsv [Array<Hash<String,String>>]
   # @param row [Hash<String,String>] Item serialized as a TSV row
   # @return [Item]
+  # @raises [RuntimeError]
   #
   def update_from_tsv(tsv, row)
     ActiveRecord::Base.transaction do
@@ -430,11 +545,11 @@ class Item < ActiveRecord::Base
 
       # Parent item ID. If the TSV is coming from a DLS export, it will have a
       # parentId column. Otherwise, if it's coming from a Medusa export, we
-      # will have to search for it based on the collection's content profile.
+      # will have to search for it based on the collection's package profile.
       if row['parentId']
         self.parent_repository_id = row['parentId']
       else
-        self.parent_repository_id = self.collection.content_profile.
+        self.parent_repository_id = self.collection.package_profile.
             parent_id_from_medusa(self.repository_id)
         # The parent ID in the Medusa TSV may be pointing to a directory that
         # is outside the collection's effective root directory
@@ -449,7 +564,7 @@ class Item < ActiveRecord::Base
       # date (normalized)
       date = row['date'] || row['dateCreated']
       if date
-        self.date = human_date_to_time(date.strip)
+        self.date = string_date_to_time(date.strip)
       end
 
       # latitude
@@ -470,7 +585,7 @@ class Item < ActiveRecord::Base
         self.variant = row['variant'].strip if row['variant']
       else
         # The variant needs to be set properly for free-form content.
-        if self.collection.content_profile == ContentProfile::FREE_FORM_PROFILE
+        if self.collection.package_profile == PackageProfile::FREE_FORM_PROFILE
           if row['inode_type'] == 'folder'
             self.variant = Item::Variants::DIRECTORY
           else
@@ -481,40 +596,65 @@ class Item < ActiveRecord::Base
         end
       end
 
-      # Bytestreams.
       # If the TSV is in Medusa format, delete all bytestreams first in order
       # to create new ones based on the TSV. Otherwise, if the TSV is in DLS
       # format, leave the bytestreams alone.
       unless ItemTsvIngester.dls_tsv?(tsv)
         self.bytestreams.destroy_all
-        self.collection.content_profile.
+        self.collection.package_profile.
             bytestreams_from_tsv(self.repository_id, tsv).each do |bs|
           self.bytestreams << bs
         end
       end
 
-      # profile-specific metadata elements
+      # Metadata elements.
+      # If we are using Medusa TSV, and the free-form profile...
+      if self.collection.package_profile == PackageProfile::FREE_FORM_PROFILE and
+          !ItemTsvIngester.dls_tsv?(tsv)
+        # Try to obtain a title from 1) the TSV; 2) embedded metadata;
+        # 3) the filename.
+        if row['title'].blank?
+          # Vacuum up embedded metadata. This may or may not include a title.
+          self.update_from_embedded_metadata(false)
 
-      # Before we begin adding these, if we are using Medusa TSV, and the
-      # title is not already set, set the title to the filename.
-      if self.collection.content_profile == ContentProfile::FREE_FORM_PROFILE and
-          row['title'].blank? and !ItemTsvIngester.dls_tsv?(tsv)
-        row['title'] = row['name']
+          # If still no title, use the filename.
+          if self.elements.select{ |e| e.name == 'title' }.empty?
+            row['title'] = row['name']
+          end
+        end
       end
-      # Now, begin. Just to be safe, we will take in any valid descriptive
-      # element, whether or not it exists in the collection's metadata profile.
-      row.select{ |col, value| Element.all_descriptive.map(&:name).include?(col) }.
-          each do |col, value|
-        # Add new elements
-        if value.present?
-          value.split(MULTI_VALUE_SEPARATOR).select(&:present?).each do |v|
-            e = Element.named(col)
-            e.value = v
+      # Now, begin.
+      row.each do |heading, value|
+        # Skip columns with an empty value.
+        next unless value.present?
+        # Vocabulary columns will have a heading of "vocabKey:elementName",
+        # except uncontrolled columns which will have a heading of just
+        # "elementName".
+        parts = heading.split(':')
+        element_name = parts.last
+        # To be safe, we will accept any descriptive element, whether or not it
+        # is present in the collection's metadata profile.
+        if ElementDef.all_descriptive.map(&:name).include?(element_name)
+          value.split(MULTI_VALUE_SEPARATOR).select(&:present?).each do |value|
+            e = Element.named(element_name)
+            e.value = value
+            if parts.length > 1
+              e.vocabulary = Vocabulary.find_by_key(parts.first)
+              # Disallow invalid vocabularies.
+              unless e.vocabulary
+                raise "Column contains an invalid vocabulary: #{heading}"
+              end
+            else
+              e.vocabulary = Vocabulary.uncontrolled
+            end
             self.elements << e
           end
         end
       end
 
+      # If the only changes were to dependent entities, this would not get
+      # updated.
+      self.updated_at = Time.now
       self.save!
     end
   end
@@ -546,7 +686,7 @@ class Item < ActiveRecord::Base
       # date
       date = node.xpath("//#{prefix}:date", namespaces).first ||
           node.xpath("//#{prefix}:dateCreated", namespaces).first
-      self.date = human_date_to_time(date.content.strip) if date
+      self.date = string_date_to_time(date.content.strip) if date
 
       # full text
       ft = node.xpath("//#{prefix}:fullText", namespaces).first
@@ -637,12 +777,22 @@ class Item < ActiveRecord::Base
   # @param date [String]
   # @return [Time]
   #
-  def human_date_to_time(date)
+  def string_date_to_time(date)
     iso8601 = nil
-    if date.match('[1-9]{4}') # date appears to be YYYY (1000-)
-      iso8601 = "#{date}-01-01T00:00:00Z"
-    elsif date.match('[1-9]{4}-[0-1][0-9]-[0-3][0-9]') # date appears to be YYYY-MM-DD
+    # Tests should be in order of most to least complex.
+    if date.match('[0-9]{4}:[0-1][0-9]:[0-3][0-9] [0-1][0-9]:[0-5][0-9]:[0-5][0-9]')
+      # date appears to be YYYY:MM:DD HH:MM:SS
+      parts = date.split(' ')
+      date_parts = parts.first.split(':')
+      time_parts = parts.last.split(':')
+      iso8601 = "#{date_parts[0]}-#{date_parts[1]}-#{date_parts[2]}T"\
+      "#{time_parts[0]}-#{time_parts[1]}-#{time_parts[2]}Z"
+    elsif date.match('[0-9]{4}-[0-1][0-9]-[0-3][0-9]')
+      # date appears to be YYYY-MM-DD
       iso8601 = "#{date}T00:00:00Z"
+    elsif date.match('[0-9]{4}')
+      # date appears to be YYYY (1000-)
+      iso8601 = "#{date}-01-01T00:00:00Z"
     end
     if iso8601
       begin

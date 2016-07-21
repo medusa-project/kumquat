@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class ElementTest < ActiveSupport::TestCase
+class VocabularyTest < ActiveSupport::TestCase
   # test "the truth" do
   #   assert true
   # end

@@ -11,7 +11,7 @@ class Solr
   # @param doc [Hash]
   #
   def add(doc)
-    Rails.logger.info("Adding Solr document: #{doc['id']}")
+    Rails.logger.info("Solr.add(): #{doc['id']}")
     client.add(doc)
   end
 
@@ -23,14 +23,14 @@ class Solr
   # @param id [String]
   #
   def delete(id)
-    Rails.logger.info("Deleting Solr document: #{id}")
+    Rails.logger.info("Solr.delete(): #{id}")
     client.delete_by_id(id)
   end
 
   alias_method :delete_by_id, :delete
 
   def get(endpoint, options = {})
-    Rails.logger.debug("Solr request: #{endpoint}; #{options}")
+    Rails.logger.debug("Solr.get(): requesting #{endpoint}; #{options}")
     client.get(endpoint, options)
   end
 
@@ -59,46 +59,77 @@ class Solr
   end
 
   ##
-  # Creates the set of fields needed by the application. This requires
-  # Solr 5.2+ with the ManagedIndexSchemaFactory enabled and a mutable schema.
+  # Creates the set of fields and fieldTypes needed by the application. This
+  # requires Solr 5.2+ with the ManagedIndexSchemaFactory enabled and a
+  # mutable schema.
   #
   def update_schema
     http = HTTPClient.new
     url = PearTree::Application.peartree_config[:solr_url].chomp('/') + '/' +
         PearTree::Application.peartree_config[:solr_core]
 
+    Rails.logger.debug('Solr.update_schema(): retrieving current schema')
     response = http.get("#{url}/schema")
     current = JSON.parse(response.body)
 
-    # delete obsolete dynamic fields
+    # ************************ FIELD TYPES *************************
+
+    # We are not going to delete existing field types, as there is no downside
+    # to leaving them in place.
+
+    # Add new fieldTypes
+    field_types_to_add = SCHEMA['fieldTypes'].reject do |kf|
+      current['schema']['fieldTypes'].
+          map{ |sf| sf['name'] }.include?(kf['name'])
+    end
+    Rails.logger.debug('Solr.update_schema(): adding fieldTypes')
+    post_fields(http, url, 'add-field-type', field_types_to_add)
+
+    # Replace (update) existing fieldTypes
+    Rails.logger.debug('Solr.update_schema(): updating fieldTypes')
+    post_fields(http, url, 'replace-field-type', SCHEMA['fieldTypes'])
+
+    # ************************ DYNAMIC FIELDS *************************
+
+    # Delete obsolete dynamic fields
     dynamic_fields_to_delete = current['schema']['dynamicFields'].select do |cf|
       !SCHEMA['dynamicFields'].map{ |sf| sf['name'] }.include?(cf['name'])
     end
     dynamic_fields_to_delete.each do |df|
+      Rails.logger.debug('Solr.update_schema(): deleting dynamicFields')
       post_fields(http, url, 'delete-dynamic-field', { 'name' => df['name'] })
     end
 
-    # add new dynamic fields
+    # Add new dynamic fields
     dynamic_fields_to_add = SCHEMA['dynamicFields'].reject do |kf|
       current['schema']['dynamicFields'].
           map{ |sf| sf['name'] }.include?(kf['name'])
     end
+    Rails.logger.debug('Solr.update_schema(): adding dynamicFields')
     post_fields(http, url, 'add-dynamic-field', dynamic_fields_to_add)
 
-    # delete obsolete copyFields
+    # Replace (update) existing dynamic fields
+    Rails.logger.debug('Solr.update_schema(): updating dynamicFields')
+    post_fields(http, url, 'replace-dynamic-field', SCHEMA['dynamicFields'])
+
+    # ************************ COPY FIELDS *************************
+
+    # Delete obsolete copyFields
     copy_fields_to_delete = current['schema']['copyFields'].select do |kf|
       !SCHEMA['copyFields'].map{ |sf| "#{sf['source']}#{sf['dest']}" }.
           include?("#{kf['source']}#{kf['dest']}") if SCHEMA['copyFields']
     end
+    Rails.logger.debug('Solr.update_schema(): deleting copyFields')
     post_fields(http, url, 'delete-copy-field', copy_fields_to_delete)
 
-    # add new copyFields
+    # Add new copyFields
     if SCHEMA['copyFields']
       copy_fields_to_add = SCHEMA['copyFields'].reject do |kf|
         current['schema']['copyFields'].
             map{ |sf| "#{sf['source']}#{sf['dest']}" }.
             include?("#{kf['source']}#{kf['dest']}")
       end
+      Rails.logger.debug('Solr.update_schema(): adding copyFields')
       post_fields(http, url, 'add-copy-field', copy_fields_to_add)
     end
   end

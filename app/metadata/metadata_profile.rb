@@ -40,6 +40,7 @@ class MetadataProfile < ActiveRecord::Base
                              facetable: true,
                              dc_map: dc_map,
                              dcterms_map: dcterms_map,
+                             vocabularies: [ Vocabulary.uncontrolled ],
                              index: index)
     end
     defs
@@ -48,6 +49,8 @@ class MetadataProfile < ActiveRecord::Base
   ##
   # @param json [String] JSON string from as_json()
   # @return [MetadataProfile] Persisted MetadataProfile
+  # @raises [RuntimeError] If a vocabulary associated with an element does not
+  #                        exist
   #
   def self.from_json(json)
     struct = JSON.parse(json)
@@ -78,6 +81,14 @@ class MetadataProfile < ActiveRecord::Base
       ed.sortable = jd['sortable']
       ed.dc_map = jd['dc_map']
       ed.dcterms_map = jd['dcterms_map']
+      jd['vocabularies'].each do |v|
+        vocab = Vocabulary.find_by_key(v['key'])
+        if vocab
+          ed.vocabularies << vocab
+        else
+          raise "Vocabulary does not exist: #{v['key']}"
+        end
+      end
       ed.save!
       if jd['id'] == struct['default_sortable_element_def_id']
         profile.default_sortable_element_def_id = ed.id
@@ -102,7 +113,11 @@ class MetadataProfile < ActiveRecord::Base
   # @return [String]
   #
   def as_json(options = {})
-    super(options.merge(include: :element_defs))
+    super(options.merge(include: {
+        element_defs: {
+          include: :vocabularies
+        }
+    }))
   end
 
   ##

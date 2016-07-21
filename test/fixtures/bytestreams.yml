@@ -8,9 +8,9 @@ one:
 
 two:
   bytestream_type: <%= Bytestream::Type::PRESERVATION_MASTER %>
-  repository_relative_pathname: MyString
+  repository_relative_pathname: <%= Rails.root %>/test/fixtures/images/jpg-iptc.jpg
   item: item1
-  media_type: text/plain
+  media_type: image/jpeg
 
 three:
   bytestream_type: 1
