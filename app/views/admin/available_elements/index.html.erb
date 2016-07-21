@@ -33,7 +33,7 @@
       <th style="width: 1px"></th>
       <th>Element</th>
       <th>Description</th>
-      <th># of Occurrences</th>
+      <th>Occurrences</th>
     </tr>
   </thead>
   <tbody>
@@ -58,9 +58,9 @@
                         'this element?' } %>
           <% end %>
         </td>
-        <td><%= link_to element.name, admin_available_element_path(element) %></td>
+        <td><%= element.name %></td>
         <td><%= element.description %></td>
-        <td><%= num_usages_by_items %></td>
+        <td><%= number_with_delimiter(num_usages_by_items) %></td>
       </tr>
     <% end %>
   </tbody>
