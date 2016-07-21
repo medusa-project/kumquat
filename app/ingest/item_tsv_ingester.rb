@@ -37,9 +37,11 @@ class ItemTsvIngester
   # @param collection [Collection]
   # @param tsv [Hash<String,String>]
   # @return [Boolean] True if the given item ID is within the collection's
-  #                   effective root CFS directory.
+  #                   effective root CFS directory; of if the given TSV is DLS
+  #                   TSV.
   #
   def self.within_root?(item_id, collection, tsv)
+    return true if dls_tsv?(tsv)
     effective_top_id = collection.effective_medusa_cfs_directory&.uuid
     if effective_top_id.present?
       next_parent_id = item_id
