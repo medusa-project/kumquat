@@ -93,7 +93,7 @@ module Admin
         format.html { @new_element = AvailableElement.new }
         format.json {
           headers['Content-Disposition'] = "attachment; filename=elements.json"
-          render json: @elements
+          render text: JSON.pretty_generate(@elements.as_json)
         }
       end
     end
