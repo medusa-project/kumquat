@@ -545,7 +545,7 @@ class Item < ActiveRecord::Base
       # Parent item ID. If the TSV is coming from a DLS export, it will have a
       # parentId column. Otherwise, if it's coming from a Medusa export, we
       # will have to search for it based on the collection's package profile.
-      if row['parentId']
+      if row.keys.include?('parentId')
         self.parent_repository_id = row['parentId']
       else
         self.parent_repository_id = self.collection.package_profile.
