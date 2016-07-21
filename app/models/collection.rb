@@ -43,6 +43,7 @@ class Collection < ActiveRecord::Base
 
   validates :repository_id, presence: true
 
+  before_validation :do_before_validation
   after_commit :index_in_solr, on: [:create, :update]
   after_commit :delete_from_solr, on: :destroy
 
@@ -247,6 +248,14 @@ class Collection < ActiveRecord::Base
     doc[SolrFields::RESOURCE_TYPES] = self.resource_types
     doc[SolrFields::TITLE] = self.title
     doc
+  end
+
+  private
+
+  def do_before_validation
+    self.medusa_cfs_directory_id&.strip!
+    self.medusa_file_group_id&.strip!
+    self.representative_item_id&.strip!
   end
 
 end
