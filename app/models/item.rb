@@ -16,6 +16,11 @@
 # profile. These IDs are stored in `repository_id`, NOT `id`, which is
 # database-specific.
 #
+# Items have a soft pointer to their collection and parent item based on
+# repository ID, rather than a belongs_to/has_many on their database ID.
+# This is to be able to establish structure more easily outside of the
+# application.
+#
 # Being an ActiveRecord entity, items are searchable via ActiveRecord as well
 # as via Solr. Instances are automatically indexed in Solr (see `to_solr`) and
 # the Solr search functionality is available via the `solr` class method.
@@ -97,8 +102,8 @@ class Item < ActiveRecord::Base
   #
   def self.tsv_header(metadata_profile)
     # Must remain synchronized with the output of to_tsv.
-    elements = ['uuid', 'parentId', 'variant', 'pageNumber',
-                'subpageNumber', 'latitude', 'longitude']
+    elements = %w(uuid parentId preservationMasterPathname accessMasterPathname
+                  variant pageNumber subpageNumber latitude longitude)
     metadata_profile.element_defs.each do |el|
       # There will be one column per ElementDef vocabulary. Column headings are
       # in the format "vocabKey:elementName", except the uncontrolled vocabulary
@@ -130,8 +135,8 @@ class Item < ActiveRecord::Base
   # @return [Bytestream]
   #
   def access_master_bytestream
-    self.bytestreams.where(bytestream_type: Bytestream::Type::ACCESS_MASTER).
-        limit(1).first
+    self.bytestreams.
+        select{ |b| b.bytestream_type == Bytestream::Type::ACCESS_MASTER }.first
   end
 
   def bib_id
@@ -309,8 +314,7 @@ class Item < ActiveRecord::Base
   #
   def preservation_master_bytestream
     self.bytestreams.
-        where(bytestream_type: Bytestream::Type::PRESERVATION_MASTER).
-        limit(1).first
+        select{ |b| b.bytestream_type == Bytestream::Type::PRESERVATION_MASTER }.first
   end
 
   ##
@@ -411,11 +415,13 @@ class Item < ActiveRecord::Base
         select{ |b| b.bytestream_type == Bytestream::Type::ACCESS_MASTER }.first
     if bs
       doc[SolrFields::ACCESS_MASTER_MEDIA_TYPE] = bs.media_type
+      doc[SolrFields::ACCESS_MASTER_PATHNAME] = bs.repository_relative_pathname
     end
     bs = self.bytestreams.
         select{ |b| b.bytestream_type == Bytestream::Type::PRESERVATION_MASTER }.first
     if bs
       doc[SolrFields::PRESERVATION_MASTER_MEDIA_TYPE] = bs.media_type
+      doc[SolrFields::PRESERVATION_MASTER_PATHNAME] = bs.repository_relative_pathname
     end
     self.elements.each do |element|
       doc[element.solr_multi_valued_field] ||= []
@@ -439,6 +445,8 @@ class Item < ActiveRecord::Base
     columns = []
     columns << self.repository_id
     columns << self.parent_repository_id
+    columns << self.preservation_master_bytestream&.repository_relative_pathname
+    columns << self.access_master_bytestream&.repository_relative_pathname
     columns << self.variant
     columns << self.page_number
     columns << self.subpage_number
@@ -461,9 +469,7 @@ class Item < ActiveRecord::Base
   # Updates an instance's metadata elements from the metadata embedded within
   # its preservation master bytestream.
   #
-  # @param save [Boolean] Whether to save the instance.
-  #
-  def update_from_embedded_metadata(save = true)
+  def update_from_embedded_metadata
     # Get the preservation bytestream
     bs = self.preservation_master_bytestream
     return unless bs
@@ -538,11 +544,11 @@ class Item < ActiveRecord::Base
 
       # Parent item ID. If the TSV is coming from a DLS export, it will have a
       # parentId column. Otherwise, if it's coming from a Medusa export, we
-      # will have to search for it based on the collection's content profile.
-      if row['parentId']
+      # will have to search for it based on the collection's package profile.
+      if row.keys.include?('parentId')
         self.parent_repository_id = row['parentId']
       else
-        self.parent_repository_id = self.collection.content_profile.
+        self.parent_repository_id = self.collection.package_profile.
             parent_id_from_medusa(self.repository_id)
         # The parent ID in the Medusa TSV may be pointing to a directory that
         # is outside the collection's effective root directory
@@ -578,7 +584,7 @@ class Item < ActiveRecord::Base
         self.variant = row['variant'].strip if row['variant']
       else
         # The variant needs to be set properly for free-form content.
-        if self.collection.content_profile == ContentProfile::FREE_FORM_PROFILE
+        if self.collection.package_profile == PackageProfile::FREE_FORM_PROFILE
           if row['inode_type'] == 'folder'
             self.variant = Item::Variants::DIRECTORY
           else
@@ -594,7 +600,7 @@ class Item < ActiveRecord::Base
       # format, leave the bytestreams alone.
       unless ItemTsvIngester.dls_tsv?(tsv)
         self.bytestreams.destroy_all
-        self.collection.content_profile.
+        self.collection.package_profile.
             bytestreams_from_tsv(self.repository_id, tsv).each do |bs|
           self.bytestreams << bs
         end
@@ -602,13 +608,13 @@ class Item < ActiveRecord::Base
 
       # Metadata elements.
       # If we are using Medusa TSV, and the free-form profile...
-      if self.collection.content_profile == ContentProfile::FREE_FORM_PROFILE and
+      if self.collection.package_profile == PackageProfile::FREE_FORM_PROFILE and
           !ItemTsvIngester.dls_tsv?(tsv)
         # Try to obtain a title from 1) the TSV; 2) embedded metadata;
         # 3) the filename.
         if row['title'].blank?
           # Vacuum up embedded metadata. This may or may not include a title.
-          self.update_from_embedded_metadata(false)
+          self.update_from_embedded_metadata
 
           # If still no title, use the filename.
           if self.elements.select{ |e| e.name == 'title' }.empty?

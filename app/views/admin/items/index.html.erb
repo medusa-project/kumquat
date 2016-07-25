@@ -20,19 +20,33 @@
 
 <div class="clearfix" style="margin-bottom: 1em">
   <div class="btn-group pull-right" role="group">
+    <!-- Sync button -->
+    <button type="button" class="btn btn-default" data-toggle="modal"
+            data-target="#pt-sync-modal"
+            <%= (@collection.package_profile and @collection.medusa_file_group) ? '' : 'disabled="disabled"' %>>
+      <i class="fa fa-refresh"></i> Sync&hellip;
+    </button>
     <!-- Import button -->
     <button type="button" class="btn btn-default" data-toggle="modal"
-            data-target="#pt-import-modal">
+            data-target="#pt-import-modal"
+            <%= (@collection.package_profile and @collection.medusa_file_group) ? '' : 'disabled="disabled"' %>>
       <i class="fa fa-upload"></i> Import&hellip;
     </button>
-    <!-- Export menu -->
-    <button type="button" class="btn btn-default dropdown-toggle"
-            data-toggle="dropdown" aria-expanded="false">
-      <i class="fa fa-download"></i> Export <span class="caret"></span>
-    </button>
-    <ul class="dropdown-menu" role="menu">
-      <li><%= link_to 'TSV', params.merge(format: 'tsv') %></li>
-    </ul>
+    <div class="btn-group">
+      <!-- Export menu -->
+      <button type="button" class="btn btn-default dropdown-toggle"
+              data-toggle="dropdown" aria-expanded="false">
+        <i class="fa fa-download"></i> Export <span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu" role="menu">
+        <li><%= link_to 'TSV', params.merge(format: 'tsv') %></li>
+      </ul>
+    </div>
+    <!-- Public View button -->
+    <%= link_to collection_items_path(@collection), class: 'btn btn-default',
+                target: '_blank' do %>
+      <i class="fa fa-globe"></i> Public View
+    <% end %>
   </div>
 </div>
 
@@ -56,6 +70,66 @@
   <%= paginate(@items, @limit, @current_page) %>
 </div>
 
+<!-- Sync modal panel -->
+<div class="modal fade" id="pt-sync-modal" tabindex="-1" role="dialog"
+     aria-labelledby="pt-sync-modal-label">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <%= form_tag(admin_collection_items_sync_path(@collection)) do %>
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="pt-import-modal-label">Sync Items</h4>
+        </div>
+        <div class="modal-body">
+          <div class="alert alert-info">Before syncing, please verify that
+            the collection's package profile and file group are set
+            correctly, and that its content conforms to the package profile.</div>
+          <div class="radio">
+            <label>
+              <%= radio_button_tag('ingest_mode',
+                                   MedusaIngester::IngestMode::CREATE_ONLY, true,
+                                   'aria-described-by' => 'pt-create-only-help') %>
+              Create
+            </label>
+            <span id="pt-create-only-help" class="help-block">
+              Create any items present in Medusa but not the DLS. Don't touch
+              existing DLS items.
+            </span>
+          </div>
+          <div class="radio">
+            <label>
+              <%= radio_button_tag('ingest_mode',
+                                   MedusaIngester::IngestMode::CREATE_AND_UPDATE, false,
+                                   'aria-described-by' => 'pt-create-and-update-help') %>
+              Create &amp; Update
+            </label>
+            <span id="pt-create-and-update-help" class="help-block">
+              Create any items present in Medusa but not the DLS, and also update
+              existing items' bytestreams.
+            </span>
+          </div>
+          <div class="radio">
+            <label>
+              <%= radio_button_tag('ingest_mode',
+                                   MedusaIngester::IngestMode::DELETE_MISSING, false,
+                                   'aria-described-by' => 'pt-delete-missing-help') %>
+              Delete Missing
+            </label>
+            <span id="pt-delete-missing-help" class="help-block">
+              Delete any items present in the DLS but not Medusa.
+            </span>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Sync</button>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
 <!-- Import modal panel -->
 <div class="modal fade" id="pt-import-modal" tabindex="-1" role="dialog"
      aria-labelledby="pt-import-modal-label">
@@ -69,9 +143,10 @@
           <h4 class="modal-title" id="pt-import-modal-label">Import TSV</h4>
         </div>
         <div class="modal-body">
+          <div class="alert alert-warning">Importing from Medusa TSV is
+            deprecated. Please use the sync feature instead.</div>
           <div class="alert alert-info">Before importing, please verify that
-            the collection's content profile, metadata profile, and file group
-            are set correctly.</div>
+            the collection's package profile and file group are set correctly.</div>
           <div class="form-group">
             <%= file_field_tag('tsv') %>
           </div>
@@ -97,7 +172,7 @@
               Create &amp; Update
             </label>
             <span id="pt-create-and-update-help" class="help-block">
-              Create new items, and update existing items. Use this to redo an import.
+              Create new items, and update existing items.
             </span>
           </div>
         </div>

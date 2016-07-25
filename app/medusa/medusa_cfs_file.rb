@@ -1,23 +1,38 @@
 class MedusaCfsFile
 
-  # @!attribute id
+  # @!attribute uuid
   #   @return [Integer]
-  attr_accessor :id
+  attr_accessor :uuid
 
   # @!attribute medusa_representation
   #   @return [Hash]
   attr_accessor :medusa_representation
 
   ##
-  # @param id [String] Medusa UUID
+  # @param uuid [String] Medusa UUID
   # @return [Boolean]
   #
-  def self.file?(id)
+  def self.file?(uuid)
     url = PearTree::Application.peartree_config[:medusa_url].chomp('/') +
-        '/uuids/' + id.to_s + '.json'
+        '/uuids/' + uuid.to_s + '.json'
     # It's a file if Medusa redirects to a /cfs_files/ URI.
     response = Medusa.client.head(url, follow_redirect: false)
     response.header['Location'].to_s.include?('/cfs_files/')
+  end
+
+  ##
+  # @return [String]
+  #
+  def media_type
+    load_instance
+    self.medusa_representation['content_type']
+  end
+
+  ##
+  # @return [String]
+  #
+  def name
+    File.basename(self.pathname)
   end
 
   ##
@@ -34,8 +49,8 @@ class MedusaCfsFile
   #
   # @return [void]
   #
-  def reload
-    raise 'reload() called without ID set' unless self.id.present?
+  def reload_instance
+    raise 'reload_instance() called without UUID set' unless self.uuid.present?
 
     json_str = Medusa.client.get(self.url + '.json', follow_redirect: true).body
     rep = JSON.parse(json_str)
@@ -44,12 +59,12 @@ class MedusaCfsFile
       File.open(cache_pathname, 'wb') { |f| f.write(json_str) }
     end
     self.medusa_representation = rep
-    @loaded = true
+    @instance_loaded = true
   end
 
   def repository_relative_pathname
     unless @repository_relative_pathname
-      load
+      load_instance
       @repository_relative_pathname =
           "/#{self.medusa_representation['relative_pathname']}"
     end
@@ -57,14 +72,14 @@ class MedusaCfsFile
   end
 
   ##
-  # @return [String] Absolute URI of the Medusa file group resource, or nil
-  #                  if the instance does not have an ID.
+  # @return [String] Absolute URI of the Medusa CFS file resource, or nil if
+  #                  the instance does not have a UUID.
   #
   def url
     url = nil
-    if self.id
+    if self.uuid
       url = PearTree::Application.peartree_config[:medusa_url].chomp('/') +
-          '/uuids/' + self.id.to_s
+          '/uuids/' + self.uuid.to_s
     end
     url
   end
@@ -72,22 +87,22 @@ class MedusaCfsFile
   private
 
   def cache_pathname
-    "#{Rails.root}/tmp/cache/medusa/cfs_file_#{self.id}.json"
+    "#{Rails.root}/tmp/cache/medusa/cfs_file_#{self.uuid}.json"
   end
 
   ##
   # Populates `medusa_representation`.
   #
   # @return [void]
-  # @raises [RuntimeError] If the instance's ID is not set
+  # @raises [RuntimeError] If the instance's UUID is not set
   # @raises [HTTPClient::BadResponseError]
   #
-  def load
-    return if @loaded
-    raise 'load() called without ID set' unless self.id.present?
+  def load_instance
+    return if @instance_loaded
+    raise 'load_instance() called without UUID set' unless self.uuid.present?
 
     if Rails.env.test?
-      reload
+      reload_instance
     else
       ttl = PearTree::Application.peartree_config[:medusa_cache_ttl]
       if File.exist?(cache_pathname) and File.mtime(cache_pathname).
@@ -95,10 +110,10 @@ class MedusaCfsFile
         json_str = File.read(cache_pathname)
         self.medusa_representation = JSON.parse(json_str)
       else
-        reload
+        reload_instance
       end
     end
-    @loaded = true
+    @instance_loaded = true
   end
 
 end

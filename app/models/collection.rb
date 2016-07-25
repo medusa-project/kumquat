@@ -7,7 +7,7 @@
 # is a UUID matching a collection's Medusa UUID.
 #
 # Collections are associated with a metadata profile, which defines the list
-# of elements that contained items are supposed to have, as well as a content
+# of elements that contained items are supposed to have, as well as a package
 # profile, which defines how collection content is structured in Medusa in
 # terms of its file/directory layout.
 #
@@ -43,6 +43,7 @@ class Collection < ActiveRecord::Base
 
   validates :repository_id, presence: true
 
+  before_validation :do_before_validation
   after_commit :index_in_solr, on: [:create, :update]
   after_commit :delete_from_solr, on: :destroy
 
@@ -66,18 +67,18 @@ class Collection < ActiveRecord::Base
   end
 
   ##
-  # @return [ContentProfile,nil]
+  # @return [PackageProfile,nil]
   #
-  def content_profile
-    self.content_profile_id.present? ?
-        ContentProfile.find(self.content_profile_id) : nil
+  def package_profile
+    self.package_profile_id.present? ?
+        PackageProfile.find(self.package_profile_id) : nil
   end
 
   ##
-  # @param profile [ContentProfile]
+  # @param profile [PackageProfile]
   #
-  def content_profile=(profile)
-    self.content_profile_id = profile.kind_of?(ContentProfile) ?
+  def package_profile=(profile)
+    self.package_profile_id = profile.kind_of?(PackageProfile) ?
         profile.id : nil
   end
 
@@ -115,9 +116,9 @@ class Collection < ActiveRecord::Base
   def medusa_cfs_directory
     unless @cfs_directory
       @cfs_directory = nil
-      if self.medusa_cfs_directory_id
+      if self.medusa_cfs_directory_id.present?
         @cfs_directory = MedusaCfsDirectory.new
-        @cfs_directory.id = self.medusa_cfs_directory_id
+        @cfs_directory.uuid = self.medusa_cfs_directory_id
       end
     end
     @cfs_directory
@@ -128,7 +129,7 @@ class Collection < ActiveRecord::Base
      @file_group = nil
      if self.medusa_file_group_id
        @file_group = MedusaFileGroup.new
-       @file_group.id = self.medusa_file_group_id
+       @file_group.uuid = self.medusa_file_group_id
      end
    end
    @file_group
@@ -155,9 +156,17 @@ class Collection < ActiveRecord::Base
   # @return [Integer]
   #
   def num_items
-    @num_items = Item.where(Item::SolrFields::COLLECTION => self.repository_id).
-        where(Item::SolrFields::PARENT_ITEM => :null).count unless @num_items
+    @num_items = Item.solr.where(Item::SolrFields::COLLECTION => self.repository_id).count unless @num_items
     @num_items
+  end
+
+  ##
+  # @return [Integer]
+  #
+  def num_top_items
+    @num_top_items = Item.solr.where(Item::SolrFields::COLLECTION => self.repository_id).
+        where(Item::SolrFields::PARENT_ITEM => :null).count unless @num_top_items
+    @num_top_items
   end
 
   ##
@@ -172,7 +181,7 @@ class Collection < ActiveRecord::Base
       bs = item.access_master_bytestream || item.preservation_master_bytestream
     elsif self.representative_image.present?
       cfs_file = MedusaCfsFile.new
-      cfs_file.id = self.representative_image
+      cfs_file.uuid = self.representative_image
       bs = Bytestream.new
       bs.repository_relative_pathname = cfs_file.repository_relative_pathname
       bs.infer_media_type
@@ -239,6 +248,14 @@ class Collection < ActiveRecord::Base
     doc[SolrFields::RESOURCE_TYPES] = self.resource_types
     doc[SolrFields::TITLE] = self.title
     doc
+  end
+
+  private
+
+  def do_before_validation
+    self.medusa_cfs_directory_id&.strip!
+    self.medusa_file_group_id&.strip!
+    self.representative_item_id&.strip!
   end
 
 end

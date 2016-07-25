@@ -71,6 +71,49 @@ body#items_show {
     }
   }
 
+  .pt-directories {
+    $font_thumb_size: 35px;
+    $image_thumb_size: 50px;
+    ol {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+      li {
+        padding-top: 2px;
+        padding-bottom: 2px;
+        vertical-align: middle;
+        div.pt-thumbnail {
+          display: table-cell;
+          font-size: $font_thumb_size;
+          height: $image_thumb_size;
+          max-width: $image_thumb_size;
+          padding: 0px;
+          text-align: center;
+          vertical-align: middle;
+          width: $image_thumb_size;
+          img {
+            display: block;
+            margin: 0 auto;
+            max-height: $image_thumb_size;
+            max-width: $image_thumb_size;
+            vertical-align: middle;
+          }
+        }
+        div.pt-label {
+          display: table-cell;
+          overflow: hidden;
+          padding-left: 8px;
+          vertical-align: middle;
+          word-wrap: break-word;
+        }
+      }
+    }
+    /* correct webkit/chrome uneven margin on the first column */
+    ol li:first-child {
+      margin-top:0px;
+    }
+  }
+
   .pt-files {
     $column_width: 280px;
     $font_thumb_size: 70px;
@@ -110,11 +153,6 @@ body#items_show {
           padding-left: 8px;
           vertical-align: middle;
           word-wrap: break-word;
-        }
-        .pt-current {
-          background-color:#e0e0e0;
-          border-radius: 5px;
-          font-family: "PT Sans", sans-serif;
         }
       }
     }

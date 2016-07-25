@@ -159,15 +159,17 @@ module ItemsHelper
     raw(html)
   end
 
-  def files_section(files)
-    # Explicitly calling sort() on an Enumerable of Items causes them to be
-    # natural-sorted.
+  def files_section(items)
+    # IMET-163: file lists should be n number of vertical columns; directory
+    # lists should be purely vertical.
     html = ''
-    if files.any?
-      html += "<h2>Files <span class=\"badge\">#{files.count}</span></h2>
-        <div class=\"pt-files\">
-          #{files_as_list(files)}
-        </div>"
+    if items.any?
+      dirs = items.select{ |item| item.variant == Item::Variants::DIRECTORY }
+      class_ = (dirs.length == items.length) ? 'pt-directories' : 'pt-files'
+      html += "<h2>Files <span class=\"badge\">#{items.count}</span></h2>
+          <div class=\"#{class_}\">
+            #{files_as_list(items)}
+          </div>"
     end
     raw(html)
   end
@@ -1065,6 +1067,7 @@ module ItemsHelper
         navigatorSizeRatio: 0.2,
         controlsFadeDelay: 1000,
         controlsFadeLength: 1000,
+        immediateRender: true,
         preserveViewport: true,
         prefixUrl: \"/openseadragon/images/\",
         tileSources: \"#{j(iiif_item_url(item))}\"

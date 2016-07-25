@@ -90,6 +90,7 @@ Rails.application.routes.draw do
             as: 'items_search'
       resources :items, concerns: :publishable
       match '/items/ingest', to: 'items#ingest', via: 'post'
+      match '/items/sync', to: 'items#sync', via: 'post'
     end
     resources :element_defs, only: [:create, :update, :destroy, :edit]
     resources :metadata_profiles, path: 'metadata-profiles' do

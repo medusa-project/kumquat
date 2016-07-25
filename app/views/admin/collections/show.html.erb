@@ -11,7 +11,7 @@
 <div class="btn-group pull-right">
   <%= link_to admin_collection_items_path(@collection),
               class: 'btn btn-default' do %>
-    <%= icon_for(@collection) %> Items
+    <%= icon_for(@collection) %> <%= @collection.num_items %> Items
   <% end %>
   <%= link_to collection_path(@collection), class: 'btn btn-default',
               target: '_blank' do %>
@@ -57,15 +57,15 @@
             <%= @collection.metadata_profile ? @collection.metadata_profile.name :
                     "Default (#{MetadataProfile.default.name})" %>
           </dd>
-          <dt>Content Profile</dt>
+          <dt>Package Profile</dt>
           <dd>
-            <%= @collection.content_profile ?
-                    @collection.content_profile&.name : 'None' %>
+            <%= @collection.package_profile ?
+                    @collection.package_profile.name : 'None' %>
           </dd>
           <dt>Medusa File Group</dt>
           <dd>
             <% if @file_group %>
-              <%= link_to("#{@file_group.title} (#{@file_group.id})",
+              <%= link_to("#{@file_group.title} (#{@file_group.uuid})",
                           @file_group.url, target: '_blank') %>
             <% else %>
               None
