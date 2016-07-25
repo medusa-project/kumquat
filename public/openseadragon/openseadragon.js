@@ -1,6 +1,6 @@
 //! openseadragon 2.2.1
-//! Built on 2016-06-21
-//! Git commit: v2.2.1-0-babdefd
+//! Built on 2016-07-18
+//! Git commit: v2.2.1-4-edd2464-dirty
 //! http://openseadragon.github.io
 //! License: http://openseadragon.github.io/license/
 
@@ -2125,12 +2125,13 @@ if (typeof define === 'function' && define.amd) {
                 }
             };
 
-            if (withCredentials) {
-                request.withCredentials = true;
-            }
-
             try {
                 request.open( "GET", url, true );
+
+                if (withCredentials) {
+                    request.withCredentials = true;
+                }
+
                 request.send( null );
             } catch (e) {
                 var msg = e.message;
@@ -19761,7 +19762,7 @@ function onTileLoad( tiledImage, tile, time, image, errorMsg ) {
         tiledImage.viewer.raiseEvent("tile-load-failed", {tile: tile, tiledImage: tiledImage, time: time, message: errorMsg});
         tile.loading = false;
         tile.exists = false;
-        return;
+        //return;
     }
 
     if ( time < tiledImage.lastResetTime ) {

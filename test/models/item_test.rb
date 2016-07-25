@@ -29,18 +29,20 @@ class ItemTest < ActiveSupport::TestCase
 
   test 'tsv_header should return the correct columns' do
     cols = Item.tsv_header(@item.collection.metadata_profile).strip.split("\t")
-    assert_equal 11, cols.length
+    assert_equal 13, cols.length
     assert_equal 'uuid', cols[0]
     assert_equal 'parentId', cols[1]
-    assert_equal 'variant', cols[2]
-    assert_equal 'pageNumber', cols[3]
-    assert_equal 'subpageNumber', cols[4]
-    assert_equal 'latitude', cols[5]
-    assert_equal 'longitude', cols[6]
-    assert_equal 'title', cols[7]
-    assert_equal 'description', cols[8]
-    assert_equal 'lcsh:subject', cols[9]
-    assert_equal 'tgm:subject', cols[10]
+    assert_equal 'preservationMasterPathname', cols[2]
+    assert_equal 'accessMasterPathname', cols[3]
+    assert_equal 'variant', cols[4]
+    assert_equal 'pageNumber', cols[5]
+    assert_equal 'subpageNumber', cols[6]
+    assert_equal 'latitude', cols[7]
+    assert_equal 'longitude', cols[8]
+    assert_equal 'title', cols[9]
+    assert_equal 'description', cols[10]
+    assert_equal 'lcsh:subject', cols[11]
+    assert_equal 'tgm:subject', cols[12]
   end
 
   # access_master_bytestream()
@@ -146,11 +148,15 @@ class ItemTest < ActiveSupport::TestCase
     bs = @item.bytestreams.
         select{ |b| b.bytestream_type == Bytestream::Type::ACCESS_MASTER }.first
     assert_equal bs.media_type, doc[Item::SolrFields::ACCESS_MASTER_MEDIA_TYPE]
+    assert_equal bs.repository_relative_pathname,
+                 doc[Item::SolrFields::ACCESS_MASTER_PATHNAME]
 
     bs = @item.bytestreams.
         select{ |b| b.bytestream_type == Bytestream::Type::PRESERVATION_MASTER }.first
     assert_equal bs.media_type,
                  doc[Item::SolrFields::PRESERVATION_MASTER_MEDIA_TYPE]
+    assert_equal bs.repository_relative_pathname,
+                 doc[Item::SolrFields::PRESERVATION_MASTER_PATHNAME]
 
     @item.elements.each do |element|
       assert_equal [element.value], doc[element.solr_multi_valued_field]
@@ -162,17 +168,19 @@ class ItemTest < ActiveSupport::TestCase
 
   test 'to_tsv should work' do
     values = @item.to_tsv.strip.split("\t")
-    assert_equal 11, values.length
+    assert_equal 13, values.length
     assert_equal @item.repository_id.to_s, values[0]
     assert_equal @item.parent_repository_id.to_s, values[1]
-    assert_equal @item.variant.to_s, values[2]
-    assert_equal @item.page_number.to_s, values[3]
-    assert_equal @item.subpage_number.to_s, values[4]
-    assert_equal @item.latitude.to_s, values[5]
-    assert_equal @item.longitude.to_s, values[6]
-    assert_equal @item.elements.select{ |e| e.name == 'title' }.first.value, values[7]
-    assert_equal @item.elements.select{ |e| e.name == 'description' }.first.value, values[8]
-    assert_equal @item.elements.select{ |e| e.name == 'subject' }.first.value, values[9]
+    assert_equal @item.preservation_master_bytestream&.repository_relative_pathname, values[2]
+    assert_equal @item.access_master_bytestream&.repository_relative_pathname, values[3]
+    assert_equal @item.variant.to_s, values[4]
+    assert_equal @item.page_number.to_s, values[5]
+    assert_equal @item.subpage_number.to_s, values[6]
+    assert_equal @item.latitude.to_s, values[7]
+    assert_equal @item.longitude.to_s, values[8]
+    assert_equal @item.elements.select{ |e| e.name == 'title' }.first.value, values[9]
+    assert_equal @item.elements.select{ |e| e.name == 'description' }.first.value, values[10]
+    assert_equal @item.elements.select{ |e| e.name == 'subject' }.first.value, values[11]
   end
 
   # update_from_embedded_metadata

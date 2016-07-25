@@ -102,8 +102,8 @@ class Item < ActiveRecord::Base
   #
   def self.tsv_header(metadata_profile)
     # Must remain synchronized with the output of to_tsv.
-    elements = ['uuid', 'parentId', 'variant', 'pageNumber',
-                'subpageNumber', 'latitude', 'longitude']
+    elements = %w(uuid parentId preservationMasterPathname accessMasterPathname
+                  variant pageNumber subpageNumber latitude longitude)
     metadata_profile.element_defs.each do |el|
       # There will be one column per ElementDef vocabulary. Column headings are
       # in the format "vocabKey:elementName", except the uncontrolled vocabulary
@@ -135,8 +135,8 @@ class Item < ActiveRecord::Base
   # @return [Bytestream]
   #
   def access_master_bytestream
-    self.bytestreams.where(bytestream_type: Bytestream::Type::ACCESS_MASTER).
-        limit(1).first
+    self.bytestreams.
+        select{ |b| b.bytestream_type == Bytestream::Type::ACCESS_MASTER }.first
   end
 
   def bib_id
@@ -314,8 +314,7 @@ class Item < ActiveRecord::Base
   #
   def preservation_master_bytestream
     self.bytestreams.
-        where(bytestream_type: Bytestream::Type::PRESERVATION_MASTER).
-        limit(1).first
+        select{ |b| b.bytestream_type == Bytestream::Type::PRESERVATION_MASTER }.first
   end
 
   ##
@@ -416,11 +415,13 @@ class Item < ActiveRecord::Base
         select{ |b| b.bytestream_type == Bytestream::Type::ACCESS_MASTER }.first
     if bs
       doc[SolrFields::ACCESS_MASTER_MEDIA_TYPE] = bs.media_type
+      doc[SolrFields::ACCESS_MASTER_PATHNAME] = bs.repository_relative_pathname
     end
     bs = self.bytestreams.
         select{ |b| b.bytestream_type == Bytestream::Type::PRESERVATION_MASTER }.first
     if bs
       doc[SolrFields::PRESERVATION_MASTER_MEDIA_TYPE] = bs.media_type
+      doc[SolrFields::PRESERVATION_MASTER_PATHNAME] = bs.repository_relative_pathname
     end
     self.elements.each do |element|
       doc[element.solr_multi_valued_field] ||= []
@@ -444,6 +445,8 @@ class Item < ActiveRecord::Base
     columns = []
     columns << self.repository_id
     columns << self.parent_repository_id
+    columns << self.preservation_master_bytestream&.repository_relative_pathname
+    columns << self.access_master_bytestream&.repository_relative_pathname
     columns << self.variant
     columns << self.page_number
     columns << self.subpage_number
@@ -466,9 +469,7 @@ class Item < ActiveRecord::Base
   # Updates an instance's metadata elements from the metadata embedded within
   # its preservation master bytestream.
   #
-  # @param save [Boolean] Whether to save the instance.
-  #
-  def update_from_embedded_metadata(save = true)
+  def update_from_embedded_metadata
     # Get the preservation bytestream
     bs = self.preservation_master_bytestream
     return unless bs
@@ -544,7 +545,7 @@ class Item < ActiveRecord::Base
       # Parent item ID. If the TSV is coming from a DLS export, it will have a
       # parentId column. Otherwise, if it's coming from a Medusa export, we
       # will have to search for it based on the collection's package profile.
-      if row['parentId']
+      if row.keys.include?('parentId')
         self.parent_repository_id = row['parentId']
       else
         self.parent_repository_id = self.collection.package_profile.
@@ -613,7 +614,7 @@ class Item < ActiveRecord::Base
         # 3) the filename.
         if row['title'].blank?
           # Vacuum up embedded metadata. This may or may not include a title.
-          self.update_from_embedded_metadata(false)
+          self.update_from_embedded_metadata
 
           # If still no title, use the filename.
           if self.elements.select{ |e| e.name == 'title' }.empty?

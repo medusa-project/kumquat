@@ -45,6 +45,7 @@ class Collection < ActiveRecord::Base
 
   validates :repository_id, presence: true
 
+  before_validation :do_before_validation
   after_commit :index_in_solr, on: [:create, :update]
   after_commit :delete_from_solr, on: :destroy
 
@@ -123,7 +124,7 @@ class Collection < ActiveRecord::Base
       @cfs_directory = nil
       if self.medusa_cfs_directory_id.present?
         @cfs_directory = MedusaCfsDirectory.new
-        @cfs_directory.id = self.medusa_cfs_directory_id
+        @cfs_directory.uuid = self.medusa_cfs_directory_id
       end
     end
     @cfs_directory
@@ -134,7 +135,7 @@ class Collection < ActiveRecord::Base
      @file_group = nil
      if self.medusa_file_group_id
        @file_group = MedusaFileGroup.new
-       @file_group.id = self.medusa_file_group_id
+       @file_group.uuid = self.medusa_file_group_id
      end
    end
    @file_group
@@ -161,9 +162,17 @@ class Collection < ActiveRecord::Base
   # @return [Integer]
   #
   def num_items
-    @num_items = Item.where(Item::SolrFields::COLLECTION => self.repository_id).
-        where(Item::SolrFields::PARENT_ITEM => :null).count unless @num_items
+    @num_items = Item.solr.where(Item::SolrFields::COLLECTION => self.repository_id).count unless @num_items
     @num_items
+  end
+
+  ##
+  # @return [Integer]
+  #
+  def num_top_items
+    @num_top_items = Item.solr.where(Item::SolrFields::COLLECTION => self.repository_id).
+        where(Item::SolrFields::PARENT_ITEM => :null).count unless @num_top_items
+    @num_top_items
   end
 
   ##
@@ -178,7 +187,7 @@ class Collection < ActiveRecord::Base
       bs = item.access_master_bytestream || item.preservation_master_bytestream
     elsif self.representative_image.present?
       cfs_file = MedusaCfsFile.new
-      cfs_file.id = self.representative_image
+      cfs_file.uuid = self.representative_image
       bs = Bytestream.new
       bs.repository_relative_pathname = cfs_file.repository_relative_pathname
       bs.infer_media_type
@@ -247,6 +256,14 @@ class Collection < ActiveRecord::Base
     doc[SolrFields::RESOURCE_TYPES] = self.resource_types
     doc[SolrFields::TITLE] = self.title
     doc
+  end
+
+  private
+
+  def do_before_validation
+    self.medusa_cfs_directory_id&.strip!
+    self.medusa_file_group_id&.strip!
+    self.representative_item_id&.strip!
   end
 
 end

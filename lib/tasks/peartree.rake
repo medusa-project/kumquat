@@ -1,11 +1,5 @@
 namespace :peartree do
 
-  desc 'Harvest collections from Medusa'
-  task :harvest_collections => :environment do |task|
-    MedusaIndexer.new.index_collections
-    Solr.instance.commit
-  end
-
   desc 'Ingest items in a TSV file (mode: create_only or create_and_update)'
   task :ingest_tsv, [:pathname, :collection_uuid, :mode] => :environment do |task, args|
     collection = Collection.find_by_repository_id(args[:collection_uuid])
@@ -18,6 +12,14 @@ namespace :peartree do
   task :publish_collection, [:uuid] => :environment do |task, args|
     Collection.find_by_repository_id(args[:uuid]).
         update!(published: true, published_in_dls: true)
+  end
+
+  desc 'Delete all items from a collection'
+  task :purge_collection, [:uuid] => :environment do |task, args|
+    ActiveRecord::Base.transaction do
+      Item.where(collection_repository_id: args[:uuid]).destroy_all
+    end
+    Solr.instance.commit
   end
 
   desc 'Reindex all database entities'
@@ -53,6 +55,26 @@ namespace :peartree do
     Collection.solr.all.limit(99999).select{ |c| c.to_s == c }.each do |col_id|
       Solr.delete_by_id(col_id)
     end
+  end
+
+  desc 'Sync collections from Medusa'
+  task :sync_collections => :environment do |task|
+    MedusaIngester.new.ingest_collections
+    Solr.instance.commit
+  end
+
+  desc 'Sync items from Medusa (modes: create_only, delete_missing)'
+  task :sync_items, [:collection_uuid, :mode] => :environment do |task, args|
+    collection = Collection.find_by_repository_id(args[:collection_uuid])
+    warnings = []
+    result = MedusaIngester.new.ingest_items(collection, args[:mode], warnings)
+    Solr.instance.commit
+    warnings.each { |w| puts w }
+    puts "#{args[:mode]} sync of #{collection.title}:\n"\
+        "    Created: #{result[:num_created]}\n"\
+        "    Updated: #{result[:num_updated]}\n"\
+        "    Deleted: #{result[:num_deleted]}\n"\
+        "    Skipped: #{result[:num_skipped]}\n"
   end
 
 end

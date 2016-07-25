@@ -6,35 +6,50 @@
 
 <h1><%= @collection.title %></h1>
 
-<div class="row">
-  <div class="col-sm-6">
-    <div class="text-center">
-      <%= link_to(@collection.published_in_dls ?
-                      collection_items_path(@collection) : @collection.access_url,
-                  class: 'btn btn-lg btn-default pt-browse',
-                  target: @collection.published_in_dls ? '' : '_blank') do %>
-        <%= icon_for(@collection) %> View the collection
-      <% end %>
-    </div>
-    <div id="pt-description">
-      <%= raw(@collection.description_html) ||
-              simple_format(auto_link(@collection.description)) %>
-    </div>
-  </div>
-  <div class="col-sm-6">
-    <% if @representative_image_bytestream %>
-      <div class="pt-main-image">
-        <% if @representative_image_bytestream.item %>
-          <%= link_to @representative_image_bytestream.item do %>
-            <%= thumbnail_tag(@representative_image_bytestream, 512) %>
-          <% end %>
-          <%= link_to @representative_image_bytestream.item, class: 'pt-title' do %>
-            <%= @representative_image_bytestream.item.title %>
-          <% end %>
-        <% else %>
-          <%= thumbnail_tag(@representative_image_bytestream, 512) %>
+<% if @representative_image_bytestream %>
+  <div class="row">
+    <div class="col-sm-6">
+      <div class="text-center">
+        <%= link_to(@collection.published_in_dls ?
+                        collection_items_path(@collection) : @collection.access_url,
+                    class: 'btn btn-lg btn-default pt-browse',
+                    target: @collection.published_in_dls ? '' : '_blank') do %>
+          <%= icon_for(@collection) %> View the collection
         <% end %>
       </div>
+      <div id="pt-description">
+        <%= raw(@collection.description_html) ||
+                simple_format(auto_link(@collection.description)) %>
+      </div>
+    </div>
+    <div class="col-sm-6">
+      <% if @representative_image_bytestream %>
+        <div class="pt-main-image">
+          <% if @representative_image_bytestream.item %>
+            <%= link_to @representative_image_bytestream.item do %>
+              <%= thumbnail_tag(@representative_image_bytestream, 512) %>
+            <% end %>
+            <%= link_to @representative_image_bytestream.item, class: 'pt-title' do %>
+              <%= @representative_image_bytestream.item.title %>
+            <% end %>
+          <% else %>
+            <%= thumbnail_tag(@representative_image_bytestream, 512) %>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% else %>
+  <div class="text-center">
+    <%= link_to(@collection.published_in_dls ?
+                    collection_items_path(@collection) : @collection.access_url,
+                class: 'btn btn-lg btn-default pt-browse',
+                target: @collection.published_in_dls ? '' : '_blank') do %>
+      <%= icon_for(@collection) %> View the collection
     <% end %>
   </div>
-</div>
+  <div id="pt-description">
+    <%= raw(@collection.description_html) ||
+            simple_format(auto_link(@collection.description)) %>
+  </div>
+<% end %>

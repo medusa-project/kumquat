@@ -10,7 +10,7 @@ class ReindexCollectionsJob < Job
     self.task.indeterminate = false
     self.task.save!
 
-    MedusaIndexer.new.index_collections(self.task)
+    MedusaIngester.new.ingest_collections(self.task)
     Solr.instance.commit
 
     self.task.succeeded

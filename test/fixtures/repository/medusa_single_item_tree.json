@@ -1,0 +1,111 @@
+{
+  "files": [],
+  "id": 444809,
+  "name": "55/2358",
+  "parent_id": 2358,
+  "parent_type": "FileGroup",
+  "relative_pathname": "55/2358",
+  "subdirectories": [
+    {
+      "files": [
+        {
+          "content_type": "image/jp2",
+          "id": 9918891,
+          "md5_sum": "064ca262713760e4c78c3657bd916c07",
+          "mtime": "2016-05-09T18:28:32.000Z",
+          "name": "03501042_001_souscrivez.jp2",
+          "relative_pathname": "55/2358/access/03501042_001_souscrivez.jp2",
+          "size": 290263919,
+          "uuid": "621434b0-0b13-0134-1d55-0050569601ca-3"
+        },
+        {
+          "content_type": "image/jp2",
+          "id": 9918892,
+          "md5_sum": "656f346dca7433dd5b665db926ec7327",
+          "mtime": "2016-05-09T18:32:55.000Z",
+          "name": "03501042_002_debout.jp2",
+          "relative_pathname": "55/2358/access/03501042_002_debout.jp2",
+          "size": 275529648,
+          "uuid": "62f916e0-0b13-0134-1d55-0050569601ca-5"
+        },
+        {
+          "content_type": "image/jp2",
+          "id": 9918893,
+          "md5_sum": "1e765c0bcee2798215a26eb5fcaef51c",
+          "mtime": "2016-05-09T18:37:36.000Z",
+          "name": "03501042_003_vous.jp2",
+          "relative_pathname": "55/2358/access/03501042_003_vous.jp2",
+          "size": 294388524,
+          "uuid": "63919310-0b13-0134-1d55-0050569601ca-5"
+        },
+        {
+          "content_type": "image/jp2",
+          "id": 9918894,
+          "md5_sum": "a13d75c775403b1b0775b7b9f853e952",
+          "mtime": "2016-05-09T18:42:11.000Z",
+          "name": "03501042_004_emprunt.jp2",
+          "relative_pathname": "55/2358/access/03501042_004_emprunt.jp2",
+          "size": 298195712,
+          "uuid": "63f968f0-0b13-0134-1d55-0050569601ca-8"
+        }
+      ],
+      "id": 444812,
+      "name": "access",
+      "parent_id": 444809,
+      "parent_type": "CfsDirectory",
+      "relative_pathname": "55/2358/access",
+      "uuid": "5b186a00-0b13-0134-1d55-0050569601ca-3"
+    },
+    {
+      "files": [
+        {
+          "content_type": "image/tiff",
+          "id": 9918996,
+          "md5_sum": "61884f6fe4a9d7f908ff845139a94289",
+          "mtime": "2011-08-16T15:37:32.000Z",
+          "name": "03501042_001_souscrivez.TIF",
+          "relative_pathname": "55/2358/preservation/03501042_001_souscrivez.TIF",
+          "size": 893184360,
+          "uuid": "7b7e08f0-0b13-0134-1d55-0050569601ca-a"
+        },
+        {
+          "content_type": "image/tiff",
+          "id": 9918997,
+          "md5_sum": "089c76972c5bf196bee751f1367b8d34",
+          "mtime": "2011-08-16T15:41:27.000Z",
+          "name": "03501042_002_debout.TIF",
+          "relative_pathname": "55/2358/preservation/03501042_002_debout.TIF",
+          "size": 894336360,
+          "uuid": "7b9164c0-0b13-0134-1d55-0050569601ca-9"
+        },
+        {
+          "content_type": "image/tiff",
+          "id": 9918998,
+          "md5_sum": "47c50772fd3e16e9ff1b5a1ba4334be8",
+          "mtime": "2011-08-16T15:44:23.000Z",
+          "name": "03501042_003_vous.TIF",
+          "relative_pathname": "55/2358/preservation/03501042_003_vous.TIF",
+          "size": 922608360,
+          "uuid": "7baa7ff0-0b13-0134-1d55-0050569601ca-a"
+        },
+        {
+          "content_type": "image/tiff",
+          "id": 9918999,
+          "md5_sum": "54e1500ba0226b92af5dc0fa51e197d7",
+          "mtime": "2011-08-16T15:50:19.000Z",
+          "name": "03501042_004_emprunt.TIF",
+          "relative_pathname": "55/2358/preservation/03501042_004_emprunt.TIF",
+          "size": 957600360,
+          "uuid": "7bc24dc0-0b13-0134-1d55-0050569601ca-3"
+        }
+      ],
+      "id": 444813,
+      "name": "preservation",
+      "parent_id": 444809,
+      "parent_type": "CfsDirectory",
+      "relative_pathname": "55/2358/preservation",
+      "uuid": "5faa4510-0b13-0134-1d55-0050569601ca-a"
+    }
+  ],
+  "uuid": "ac1a9850-0b09-0134-1d54-0050569601ca-a"
+}

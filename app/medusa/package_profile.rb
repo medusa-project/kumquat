@@ -19,6 +19,10 @@ class PackageProfile
       {
           id: 1,
           name: 'Map'
+      },
+      {
+          id: 2,
+          name: 'Single-Item Object'
       }
   ]
 
@@ -48,28 +52,10 @@ class PackageProfile
 
   FREE_FORM_PROFILE = PackageProfile.find(0)
   MAP_PROFILE = PackageProfile.find(1)
+  SINGLE_ITEM_OBJECT_PROFILE = PackageProfile.find(2)
 
   def ==(obj)
     obj.kind_of?(self.class) and obj.id == self.id
-  end
-
-  ##
-  # Queries Medusa to find all bytestreams for the Item with the given ID.
-  #
-  # @param item_id [String]
-  # @return [Array<Bytestream>]
-  # @raises [HTTPClient::BadResponseError]
-  # @raises [ArgumentError] If the item ID is nil
-  #
-  def bytestreams_from_medusa(item_id)
-    raise ArgumentError, 'No ID provided' unless item_id
-    case self.id
-      when 0
-        return free_form_bytestreams_from_medusa(item_id)
-      when 1
-        return map_bytestreams_from_medusa(item_id)
-    end
-    []
   end
 
   ##
@@ -211,32 +197,6 @@ class PackageProfile
   # In the free-form profile, there is one bytestream per file. Directories
   # have no bytestreams.
   #
-  # @param item_id [String]
-  # @return [Array<Bytestream>]
-  #
-  def free_form_bytestreams_from_medusa(item_id)
-    bytestreams = []
-    client = Medusa.client
-    response = client.get(medusa_url(item_id), follow_redirect: true)
-    if response.status < 300
-      json = response.body
-      struct = JSON.parse(json)
-      if struct['mtime'] # Only files will have this key.
-        bs = Bytestream.new
-        bs.repository_relative_pathname =
-            '/' + struct['relative_pathname'].reverse.chomp('/').reverse
-        bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
-        bs.infer_media_type
-        bytestreams << bs
-      end
-    end
-    bytestreams
-  end
-
-  ##
-  # In the free-form profile, there is one bytestream per file. Directories
-  # have no bytestreams.
-  #
   # @param item_id [String] Medusa UUID
   # @param tsv [Array<Hash<String,String>>]
   # @return [Array<Bytestream>]
@@ -257,7 +217,7 @@ class PackageProfile
       # from Medusa, as this information is not contained in the TSV.
       if MedusaCfsFile.file?(item_id)
         file = MedusaCfsFile.new
-        file.id = item_id
+        file.uuid = item_id
         bs = Bytestream.new
         bs.repository_relative_pathname = file.repository_relative_pathname
         bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
@@ -350,58 +310,6 @@ class PackageProfile
   end
 
   ##
-  # Child items will reside in a directory called `access` or
-  # `preservation`. These are the only items in this profile that will have
-  # any associated bytestreams. Preservation and access filenames will be the
-  # same, except preservation files will end in .tif and access filenames in
-  # .jp2.
-  #
-  # @param item_id [String]
-  # @return [Array<Bytestream>]
-  #
-  def map_bytestreams_from_medusa(item_id)
-    client = Medusa.client
-    json = client.get(medusa_url(item_id), follow_redirect: true).body
-    struct = JSON.parse(json)
-    bytestreams = []
-
-    if struct['directory']
-      case struct['directory']['name']
-        when 'preservation'
-          # add the preservation master
-          bs = Bytestream.new
-          bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
-          bs.repository_relative_pathname =
-              '/' + struct['relative_pathname'].reverse.chomp('/').reverse
-          bs.infer_media_type
-          bytestreams << bs
-
-          # add the access master
-          bytestreams << access_master_counterpart(bs)
-        when 'access'
-          # add the preservation master
-          bs = Bytestream.new
-          bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
-          bs.repository_relative_pathname =
-              '/' + struct['relative_pathname'].reverse.chomp('/').reverse.
-                  gsub('/preservation/', '/access/').chomp('.jp2') + '.tif'
-          bs.infer_media_type
-          bytestreams << bs
-
-          # add the access master
-          bs = Bytestream.new
-          bs.bytestream_type = Bytestream::Type::ACCESS_MASTER
-          bs.repository_relative_pathname =
-              '/' + struct['relative_pathname'].reverse.chomp('/').reverse
-          bs.infer_media_type
-          bytestreams << bs
-      end
-
-    end
-    bytestreams
-  end
-
-  ##
   # Child items will reside in a directory called `access` or `preservation`.
   # These are the only items in this profile that will have  any associated
   # bytestreams. Preservation and access filenames will be the  same, except
@@ -451,7 +359,7 @@ class PackageProfile
       # from Medusa, as this information is not contained in the TSV.
       if MedusaCfsFile.file?(item_id)
         file = MedusaCfsFile.new
-        file.id = item_id
+        file.uuid = item_id
         # Only preservation masters are considered "items" in this profile.
         if File.extname(file.repository_relative_pathname).downcase[0..3] == '.tif'
           bs = Bytestream.new
