@@ -208,7 +208,7 @@ class MedusaIngester
           Rails.logger.info("ingest_free_form_items(): creating item "\
                       "#{file.uuid}")
           item = Item.new(repository_id: file.uuid,
-                          parent_repository_id: cfs_dir.uuid,
+                          parent_repository_id: (cfs_dir.uuid != top_cfs_dir.uuid) ? cfs_dir.uuid : nil,
                           collection_repository_id: collection.repository_id,
                           variant: Item::Variants::FILE)
           # Create its corresponding bytestream.
