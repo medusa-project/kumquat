@@ -1102,9 +1102,20 @@ module ItemsHelper
   end
 
   def pdf_viewer_for(item)
-    link_to(item_access_master_bytestream_url(item)) do
-      thumbnail_tag(item, DEFAULT_THUMBNAIL_SIZE)
+    bs = item.bytestreams.select{ |bs| bs.bytestream_type == Bytestream::Type::ACCESS_MASTER }.first
+    url = item_access_master_bytestream_url(item, disposition: 'inline')
+    unless bs
+      bs = item.bytestreams.select{ |bs| bs.bytestream_type == Bytestream::Type::PRESERVATION_MASTER }.first
+      url = item_preservation_master_bytestream_url(item, disposition: 'inline')
     end
+
+    html = ''
+    if bs
+      html += link_to(url) do
+        thumbnail_tag(item, DEFAULT_THUMBNAIL_SIZE)
+      end
+    end
+    raw(html)
   end
 
   def video_player_for(item)
