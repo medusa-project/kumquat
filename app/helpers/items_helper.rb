@@ -225,14 +225,15 @@ module ItemsHelper
 
   ##
   # @param item [Item]
-  # @return [String, nil] Base IIIF URL or nil if the item is not an image
+  # @return [String, nil] Base IIIF URL or nil if the item is not
+  #                       IIIF-compatible
   #
   def iiif_item_url(item)
     url = nil
     bs = item.access_master_bytestream
     if !bs or (!bs.is_image? and !bs.is_pdf?)
       bs = item.preservation_master_bytestream
-      if !bs or (!bs.is_image? and bs.is_pdf?)
+      if !bs or (!bs.is_image? and !bs.is_pdf?)
         bs = nil
       end
     end
@@ -882,14 +883,19 @@ module ItemsHelper
   private
 
   def audio_player_for(item)
-    bs = item.bytestreams.
-        where(bytestream_type: Bytestream::Type::ACCESS_MASTER).first
-    tag = "<audio controls>
-      <source src=\"#{item_access_master_bytestream_url(item)}\"
-              type=\"#{bs.media_type}\">
-        Your browser does not support the audio tag.
-    </audio>"
-    raw(tag)
+    bs = item.bytestreams.select{ |bs| bs.bytestream_type == Bytestream::Type::ACCESS_MASTER }.first
+    url = item_access_master_bytestream_url(item)
+    unless bs
+      bs = item.bytestreams.select{ |bs| bs.bytestream_type == Bytestream::Type::PRESERVATION_MASTER }.first
+      url = item_preservation_master_bytestream_url(item)
+    end
+    html = ''
+    if bs
+      html += "<audio src=\"#{url}\" type=\"#{bs.media_type}\" controls>
+          <a href=\"#{url}\">Download audio</a>
+      </audio>"
+    end
+    raw(html)
   end
 
   ##
@@ -1096,9 +1102,20 @@ module ItemsHelper
   end
 
   def pdf_viewer_for(item)
-    link_to(item_access_master_bytestream_url(item)) do
-      thumbnail_tag(item, DEFAULT_THUMBNAIL_SIZE)
+    bs = item.bytestreams.select{ |bs| bs.bytestream_type == Bytestream::Type::ACCESS_MASTER }.first
+    url = item_access_master_bytestream_url(item, disposition: 'inline')
+    unless bs
+      bs = item.bytestreams.select{ |bs| bs.bytestream_type == Bytestream::Type::PRESERVATION_MASTER }.first
+      url = item_preservation_master_bytestream_url(item, disposition: 'inline')
     end
+
+    html = ''
+    if bs
+      html += link_to(url) do
+        thumbnail_tag(item, DEFAULT_THUMBNAIL_SIZE)
+      end
+    end
+    raw(html)
   end
 
   def video_player_for(item)

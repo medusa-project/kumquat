@@ -16,19 +16,22 @@ class ItemsController < WebsiteController
 
   # Other actions
   before_action :set_browse_context, only: :index
-  after_action :check_published, only: [:access_master_bytestream,
-                                        :files, :pages,
-                                        :preservation_master_bytestream,
-                                        :show]
 
   ##
   # Retrieves an item's access master bytestream.
   #
   # Responds to GET /items/:item_id/access-master
   #
+  # The default is to send with a Content-Disposition of `attachment`. Supply a
+  # `disposition` query variable of `inline` to override.
+  #
   def access_master_bytestream
     item = Item.find_by_repository_id(params[:item_id])
-    send_bytestream(item, Bytestream::Type::ACCESS_MASTER)
+
+    return unless check_collection_published(item.collection)
+    return unless check_item_published(item)
+
+    send_bytestream(item, Bytestream::Type::ACCESS_MASTER, params[:disposition])
   end
 
   ##
@@ -71,6 +74,9 @@ class ItemsController < WebsiteController
       @item = Item.find_by_repository_id(params[:id])
       raise ActiveRecord::RecordNotFound unless @item
 
+      return unless check_collection_published(@item.collection)
+      return unless check_item_published(@item)
+
       fresh_when(etag: @item) if Rails.env.production?
 
       set_files_ivar
@@ -96,6 +102,10 @@ class ItemsController < WebsiteController
     if params[:collection_id]
       @collection = Collection.find_by_repository_id(params[:collection_id])
       raise ActiveRecord::RecordNotFound unless @collection
+
+      # TODO: published items in unpublished collections can still get through
+      return unless check_collection_published(@collection)
+
       @items = @items.where(Item::SolrFields::COLLECTION => @collection.repository_id)
     end
 
@@ -152,6 +162,9 @@ class ItemsController < WebsiteController
       @item = Item.find_by_repository_id(params[:id])
       raise ActiveRecord::RecordNotFound unless @item
 
+      return unless check_collection_published(@item.collection)
+      return unless check_item_published(@item)
+
       fresh_when(etag: @item) if Rails.env.production?
 
       set_pages_ivar
@@ -166,9 +179,17 @@ class ItemsController < WebsiteController
   #
   # Responds to GET /items/:id/preservation-master
   #
+  # The default is to send with a Content-Disposition of `attachment`. Supply a
+  # `disposition` query variable of `inline` to override.
+  #
   def preservation_master_bytestream
     item = Item.find_by_repository_id(params[:item_id])
-    send_bytestream(item, Bytestream::Type::PRESERVATION_MASTER)
+
+    return unless check_collection_published(item.collection)
+    return unless check_item_published(item)
+
+    send_bytestream(item, Bytestream::Type::PRESERVATION_MASTER,
+                    params[:disposition])
   end
 
   ##
@@ -207,6 +228,9 @@ class ItemsController < WebsiteController
   def show
     @item = Item.find_by_repository_id(params[:id])
     raise ActiveRecord::RecordNotFound unless @item
+
+    return unless check_collection_published(@item.collection)
+    return unless check_item_published(@item)
 
     fresh_when(etag: @item) if Rails.env.production?
 
@@ -273,8 +297,28 @@ class ItemsController < WebsiteController
     true
   end
 
-  def check_published
-    if @item and !@item.published
+  ##
+  # @param collection [Collection]
+  # @return [Boolean]
+  #
+  def check_collection_published(collection)
+    if collection and !collection.published
+      render 'error/error', status: :forbidden, locals: {
+          status_code: 403,
+          status_message: 'Forbidden',
+          message: 'This item is not published.'
+      }
+      return false
+    end
+    true
+  end
+
+  ##
+  # @param item [Item]
+  # @return [Boolean]
+  #
+  def check_item_published(item)
+    if item and !item.published
       render 'error/error', status: :forbidden, locals: {
           status_code: 403,
           status_message: 'Forbidden',
@@ -291,11 +335,14 @@ class ItemsController < WebsiteController
   #
   # @param item [Item]
   # @param type [Integer] One of the `Bytestream::Type` constants
+  # @param disposition [String] `inline` or `attachment`
   #
-  def send_bytestream(item, type)
+  def send_bytestream(item, type, disposition)
+    disposition = 'attachment' unless %w(attachment inline).include?(disposition)
+
     bs = item.bytestreams.where(bytestream_type: type).select(&:exists?).first
     if bs
-      send_file(bs.absolute_local_pathname)
+      send_file(bs.absolute_local_pathname, disposition: disposition)
     else
       render status: 404, text: 'Not found.'
     end

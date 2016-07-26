@@ -204,6 +204,9 @@ description on the right.
         margin-right: 20px;
         text-align: center;
         width: $max-image-width;
+        i {
+          display: block;
+        }
         img {
           max-height: $max-image-height;
           max-width: $max-image-width;
