@@ -171,9 +171,6 @@ class MedusaIngester
             Rails.logger.info("ingest_free_form_items(): skipping item "\
                 "#{dir.uuid}")
             status[:num_skipped] += 1
-          else
-            item.save!
-            status[:num_updated] += 1
           end
         else
           Rails.logger.info("ingest_free_form_items(): creating item "\
@@ -217,8 +214,18 @@ class MedusaIngester
           bs.repository_relative_pathname =
               '/' + file.repository_relative_pathname.reverse.chomp('/').reverse
           bs.infer_media_type # The type of the CFS file cannot be trusted.
+
           # Populate its metadata from embedded bytestream metadata.
           item.update_from_embedded_metadata
+
+          # If there was no title available in the embedded metadata, assign a
+          # title of the filename.
+          if item.elements.select{ |e| e.name == 'title' }.empty?
+            e = item.elements.build
+            e.name = 'title'
+            e.value = file.name
+          end
+
           item.save!
           status[:num_created] += 1
         end

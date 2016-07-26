@@ -40,6 +40,7 @@ class MedusaIngesterTest < ActiveSupport::TestCase
     assert_empty item.items
     assert_equal 1, item.bytestreams.length
     assert_equal Item::Variants::FILE, item.variant
+    assert_equal 'afm0002389.jp2', item.title
     bs = item.bytestreams.select{ |b| b.bytestream_type == Bytestream::Type::PRESERVATION_MASTER }.first
     assert_equal 'image/jp2', bs.media_type
     assert_equal '/59/2257/afm0002389/access/afm0002389.jp2',
