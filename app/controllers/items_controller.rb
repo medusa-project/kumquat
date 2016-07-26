@@ -16,10 +16,6 @@ class ItemsController < WebsiteController
 
   # Other actions
   before_action :set_browse_context, only: :index
-  after_action :check_published, only: [:access_master_bytestream,
-                                        :files, :pages,
-                                        :preservation_master_bytestream,
-                                        :show]
 
   ##
   # Retrieves an item's access master bytestream.
@@ -28,6 +24,10 @@ class ItemsController < WebsiteController
   #
   def access_master_bytestream
     item = Item.find_by_repository_id(params[:item_id])
+
+    return unless check_collection_published(item.collection)
+    return unless check_item_published(item)
+
     send_bytestream(item, Bytestream::Type::ACCESS_MASTER)
   end
 
@@ -71,6 +71,9 @@ class ItemsController < WebsiteController
       @item = Item.find_by_repository_id(params[:id])
       raise ActiveRecord::RecordNotFound unless @item
 
+      return unless check_collection_published(@item.collection)
+      return unless check_item_published(@item)
+
       fresh_when(etag: @item) if Rails.env.production?
 
       set_files_ivar
@@ -96,6 +99,10 @@ class ItemsController < WebsiteController
     if params[:collection_id]
       @collection = Collection.find_by_repository_id(params[:collection_id])
       raise ActiveRecord::RecordNotFound unless @collection
+
+      # TODO: published items in unpublished collections can still get through
+      return unless check_collection_published(@collection)
+
       @items = @items.where(Item::SolrFields::COLLECTION => @collection.repository_id)
     end
 
@@ -152,6 +159,9 @@ class ItemsController < WebsiteController
       @item = Item.find_by_repository_id(params[:id])
       raise ActiveRecord::RecordNotFound unless @item
 
+      return unless check_collection_published(@item.collection)
+      return unless check_item_published(@item)
+
       fresh_when(etag: @item) if Rails.env.production?
 
       set_pages_ivar
@@ -168,6 +178,10 @@ class ItemsController < WebsiteController
   #
   def preservation_master_bytestream
     item = Item.find_by_repository_id(params[:item_id])
+
+    return unless check_collection_published(item.collection)
+    return unless check_item_published(item)
+
     send_bytestream(item, Bytestream::Type::PRESERVATION_MASTER)
   end
 
@@ -207,6 +221,9 @@ class ItemsController < WebsiteController
   def show
     @item = Item.find_by_repository_id(params[:id])
     raise ActiveRecord::RecordNotFound unless @item
+
+    return unless check_collection_published(@item.collection)
+    return unless check_item_published(@item)
 
     fresh_when(etag: @item) if Rails.env.production?
 
@@ -273,8 +290,28 @@ class ItemsController < WebsiteController
     true
   end
 
-  def check_published
-    if @item and !@item.published
+  ##
+  # @param collection [Collection]
+  # @return [Boolean]
+  #
+  def check_collection_published(collection)
+    if collection and !collection.published
+      render 'error/error', status: :forbidden, locals: {
+          status_code: 403,
+          status_message: 'Forbidden',
+          message: 'This item is not published.'
+      }
+      return false
+    end
+    true
+  end
+
+  ##
+  # @param item [Item]
+  # @return [Boolean]
+  #
+  def check_item_published(item)
+    if item and !item.published
       render 'error/error', status: :forbidden, locals: {
           status_code: 403,
           status_message: 'Forbidden',
