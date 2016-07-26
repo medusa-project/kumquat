@@ -282,53 +282,6 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal('Cats', @item.title)
   end
 
-  test 'update_from_tsv should work with Medusa TSV' do
-    row = {}
-    # technical elements
-    row['date'] = '1984'
-    row['latitude'] = '45.52'
-    row['longitude'] = '-120.564'
-    row['pageNumber'] = '3'
-    row['subpageNumber'] = '1'
-    row['variant'] = Item::Variants::PAGE
-
-    # descriptive elements
-    row['description'] = sprintf('Cats%scats%sand more cats',
-                                 Item::MULTI_VALUE_SEPARATOR,
-                                 Item::MULTI_VALUE_SEPARATOR)
-    row['title'] = 'Cats'
-    row['subject'] = 'Mammals'
-    row['lcsh:subject'] = 'Felines'
-
-    @item.update_from_tsv([row], row)
-
-    assert_nil(@item.parent_repository_id)
-    assert_equal(1984, @item.date.year)
-    assert_equal(45.52, @item.latitude)
-    assert_equal(-120.564, @item.longitude)
-    assert_equal(3, @item.page_number)
-    assert_equal(1, @item.subpage_number)
-    assert_equal(Item::Variants::PAGE, @item.variant)
-
-    descriptions = @item.elements.select{ |e| e.name == 'description' }
-    assert_equal 3, descriptions.length
-    assert_equal 1, descriptions.select{ |e| e.value == 'Cats' }.length
-    assert_equal 1, descriptions.select{ |e| e.value == 'cats' }.length
-    assert_equal 1, descriptions.select{ |e| e.value == 'and more cats' }.length
-    assert_equal Vocabulary.uncontrolled, descriptions[0].vocabulary
-    assert_equal Vocabulary.uncontrolled, descriptions[1].vocabulary
-    assert_equal Vocabulary.uncontrolled, descriptions[2].vocabulary
-
-    title = @item.elements.select{ |e| e.name == 'title' }.first
-    assert_equal Vocabulary.uncontrolled, title.vocabulary
-    assert_equal 'Cats', title.value
-
-    assert_not_nil @item.elements.
-        select{ |e| e.name == 'subject' and e.vocabulary == Vocabulary.uncontrolled and e.value = 'Mammals' }.first
-    assert_not_nil @item.elements.
-        select{ |e| e.name == 'subject' and e.vocabulary == Vocabulary.find_by_key('lcsh') and e.value == 'Felines' }.first
-  end
-
   test 'update_from_tsv should raise an error if given an invalid vocabulary prefix' do
     row = {}
     row['title'] = 'Cats'
@@ -337,58 +290,6 @@ class ItemTest < ActiveSupport::TestCase
     assert_raises RuntimeError do
       @item.update_from_tsv([row], row)
     end
-  end
-
-  test 'update_from_tsv should set the variant for free-form content from
-        Medusa TSV' do
-    ItemTsvIngester.new.ingest_tsv(@medusa_free_form_tsv, @free_form_collection,
-                                   ItemTsvIngester::ImportMode::CREATE_ONLY)
-
-    item1 = Item.find_by_repository_id('a53a0ce0-5ca8-0132-3334-0050569601ca-9')
-    item1.update_from_tsv(@medusa_free_form_tsv_array,
-                          { 'inode_type' => 'folder' })
-    assert_equal Item::Variants::DIRECTORY, item1.variant
-
-    item2 = Item.find_by_repository_id('6e3c33c0-5ce3-0132-3334-0050569601ca-f')
-    item2.update_from_tsv(@medusa_free_form_tsv_array,
-                          { 'inode_type' => 'file' })
-    assert_equal Item::Variants::FILE, item2.variant
-  end
-
-  test 'update_from_tsv should not set the variant for non-free-form compound
-        objects from Medusa TSV if it is missing' do
-    ItemTsvIngester.new.ingest_tsv(@medusa_map_tsv, @map_collection,
-                                   ItemTsvIngester::ImportMode::CREATE_ONLY)
-
-    item = Item.find_by_repository_id('abdc55a0-c451-0133-1d17-0050569601ca-1')
-    item.update_from_tsv(@medusa_map_tsv_array, {})
-    assert_nil item.variant
-  end
-
-  test 'update_from_tsv should set the variant for non-free-form pages from
-        Medusa TSV if it is missing' do
-    ItemTsvIngester.new.ingest_tsv(@medusa_map_tsv, @map_collection,
-                                   ItemTsvIngester::ImportMode::CREATE_ONLY)
-
-    item = Item.find_by_repository_id('d29edba0-c451-0133-1d17-0050569601ca-c')
-    item.update_from_tsv(@medusa_map_tsv_array, {})
-    assert_equal Item::Variants::PAGE, item.variant
-  end
-
-  test 'update_from_tsv should set the title for title-less free-form content
-        from Medusa TSV' do
-    ItemTsvIngester.new.ingest_tsv(@medusa_free_form_tsv, @free_form_collection,
-                                   ItemTsvIngester::ImportMode::CREATE_ONLY)
-
-    item1 = Item.find_by_repository_id('a53a0ce0-5ca8-0132-3334-0050569601ca-9')
-    item1.update_from_tsv(@medusa_free_form_tsv_array,
-                          { 'name' => 'binder_9' })
-    assert_equal 'binder_9', item1.title
-
-    item2 = Item.find_by_repository_id('6e3c33c0-5ce3-0132-3334-0050569601ca-f')
-    item2.update_from_tsv(@medusa_free_form_tsv_array,
-                          { 'name' => 'animals_001.jpg' })
-    assert_equal 'animals_001.jpg', item2.title
   end
 
   # update_from_xml
