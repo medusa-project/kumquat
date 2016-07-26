@@ -22,13 +22,16 @@ class ItemsController < WebsiteController
   #
   # Responds to GET /items/:item_id/access-master
   #
+  # The default is to send with a Content-Disposition of `attachment`. Supply a
+  # `disposition` query variable of `inline` to override.
+  #
   def access_master_bytestream
     item = Item.find_by_repository_id(params[:item_id])
 
     return unless check_collection_published(item.collection)
     return unless check_item_published(item)
 
-    send_bytestream(item, Bytestream::Type::ACCESS_MASTER)
+    send_bytestream(item, Bytestream::Type::ACCESS_MASTER, params[:disposition])
   end
 
   ##
@@ -176,13 +179,17 @@ class ItemsController < WebsiteController
   #
   # Responds to GET /items/:id/preservation-master
   #
+  # The default is to send with a Content-Disposition of `attachment`. Supply a
+  # `disposition` query variable of `inline` to override.
+  #
   def preservation_master_bytestream
     item = Item.find_by_repository_id(params[:item_id])
 
     return unless check_collection_published(item.collection)
     return unless check_item_published(item)
 
-    send_bytestream(item, Bytestream::Type::PRESERVATION_MASTER)
+    send_bytestream(item, Bytestream::Type::PRESERVATION_MASTER,
+                    params[:disposition])
   end
 
   ##
@@ -328,11 +335,14 @@ class ItemsController < WebsiteController
   #
   # @param item [Item]
   # @param type [Integer] One of the `Bytestream::Type` constants
+  # @param disposition [String] `inline` or `attachment`
   #
-  def send_bytestream(item, type)
+  def send_bytestream(item, type, disposition)
+    disposition = 'attachment' unless %w(attachment inline).include?(disposition)
+
     bs = item.bytestreams.where(bytestream_type: type).select(&:exists?).first
     if bs
-      send_file(bs.absolute_local_pathname)
+      send_file(bs.absolute_local_pathname, disposition: disposition)
     else
       render status: 404, text: 'Not found.'
     end
