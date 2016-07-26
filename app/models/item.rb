@@ -66,12 +66,25 @@ class Item < ActiveRecord::Base
 
   MULTI_VALUE_SEPARATOR = '||'
   TSV_LINE_BREAK = "\n"
+  UUID_REGEX = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/
 
   has_many :bytestreams, inverse_of: :item, dependent: :destroy
   has_many :elements, inverse_of: :item, dependent: :destroy
 
-  validates :collection_repository_id, length: { minimum: 2 }
-  validates :repository_id, length: { minimum: 2 }
+  validates_format_of :collection_repository_id,
+                      with: UUID_REGEX,
+                      message: 'UUID is invalid'
+  validates_format_of :parent_repository_id,
+                      with: UUID_REGEX,
+                      message: 'UUID is invalid',
+                      allow_blank: true
+  validates_format_of :repository_id,
+                      with: UUID_REGEX,
+                      message: 'UUID is invalid'
+  validates_format_of :representative_item_repository_id,
+                      with: UUID_REGEX,
+                      message: 'UUID is invalid',
+                      allow_blank: true
 
   after_commit :index_in_solr, on: [:create, :update]
   after_commit :delete_from_solr, on: :destroy

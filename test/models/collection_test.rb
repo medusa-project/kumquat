@@ -4,6 +4,23 @@ class CollectionTest < ActiveSupport::TestCase
 
   def setup
     @col = collections(:collection1)
+    assert @col.valid?
+  end
+
+  test 'medusa_cfs_directory_id must be a UUID' do
+    @col.medusa_cfs_directory_id = 123
+    assert !@col.valid?
+
+    @col.medusa_cfs_directory_id = '8acdb390-96b6-0133-1ce8-0050569601ca-4'
+    assert @col.valid?
+  end
+
+  test 'medusa_file_group_id must be a UUID' do
+    @col.medusa_file_group_id = 123
+    assert !@col.valid?
+
+    @col.medusa_file_group_id = '8acdb390-96b6-0133-1ce8-0050569601ca-4'
+    assert @col.valid?
   end
 
   test 'package_profile should return a PackageProfile' do
@@ -29,6 +46,14 @@ class CollectionTest < ActiveSupport::TestCase
                        PearTree::Application.peartree_config[:medusa_url].chomp('/'),
                        @col.repository_id)
     assert_equal(expected, @col.medusa_url('json'))
+  end
+
+  test 'repository_id must be a UUID' do
+    @col.repository_id = 123
+    assert !@col.valid?
+
+    @col.repository_id = '8acdb390-96b6-0133-1ce8-0050569601ca-4'
+    assert @col.valid?
   end
 
 end
