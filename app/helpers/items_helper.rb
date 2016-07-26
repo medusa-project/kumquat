@@ -883,14 +883,19 @@ module ItemsHelper
   private
 
   def audio_player_for(item)
-    bs = item.bytestreams.
-        where(bytestream_type: Bytestream::Type::ACCESS_MASTER).first
-    tag = "<audio controls>
-      <source src=\"#{item_access_master_bytestream_url(item)}\"
-              type=\"#{bs.media_type}\">
-        Your browser does not support the audio tag.
-    </audio>"
-    raw(tag)
+    bs = item.bytestreams.select{ |bs| bs.bytestream_type == Bytestream::Type::ACCESS_MASTER }.first
+    url = item_access_master_bytestream_url(item)
+    unless bs
+      bs = item.bytestreams.select{ |bs| bs.bytestream_type == Bytestream::Type::PRESERVATION_MASTER }.first
+      url = item_preservation_master_bytestream_url(item)
+    end
+    html = ''
+    if bs
+      html += "<audio src=\"#{url}\" type=\"#{bs.media_type}\" controls>
+          <a href=\"#{url}\">Download audio</a>
+      </audio>"
+    end
+    raw(html)
   end
 
   ##
