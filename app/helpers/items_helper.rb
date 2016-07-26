@@ -884,10 +884,10 @@ module ItemsHelper
 
   def audio_player_for(item)
     bs = item.bytestreams.select{ |bs| bs.bytestream_type == Bytestream::Type::ACCESS_MASTER }.first
-    url = item_access_master_bytestream_url(item)
+    url = item_access_master_bytestream_url(item, disposition: 'inline')
     unless bs
       bs = item.bytestreams.select{ |bs| bs.bytestream_type == Bytestream::Type::PRESERVATION_MASTER }.first
-      url = item_preservation_master_bytestream_url(item)
+      url = item_preservation_master_bytestream_url(item, disposition: 'inline')
     end
     html = ''
     if bs
