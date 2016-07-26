@@ -99,9 +99,7 @@ module Admin
             tsv = params[:tsv].read.force_encoding('UTF-8')
             tempfile.write(tsv)
             tempfile.close
-            IngestItemsFromTsvJob.perform_later(tempfile.path,
-                                                params[:collection_id],
-                                                params[:import_mode])
+            IngestItemsFromTsvJob.perform_later(tempfile.path)
           rescue => e
             tempfile.unlink
             flash['error'] = "#{e}"

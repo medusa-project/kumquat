@@ -563,14 +563,6 @@ class Item < ActiveRecord::Base
       else
         self.parent_repository_id = self.collection.package_profile.
             parent_id_from_medusa(self.repository_id)
-        # The parent ID in the Medusa TSV may be pointing to a directory that
-        # is outside the collection's effective root directory
-        # (Collection.effective_medusa_cfs_directory). In that case, it needs
-        # to be nil.
-        unless ItemTsvIngester.within_root?(self.parent_repository_id,
-                                            self.collection, tsv)
-          self.parent_repository_id = nil
-        end
       end
 
       # date (normalized)
@@ -593,49 +585,9 @@ class Item < ActiveRecord::Base
           row['subpageNumber']
 
       # variant
-      if row['variant'] # DLS TSV will contain this, but Medusa TSV will not.
-        self.variant = row['variant'].strip if row['variant']
-      else
-        # The variant needs to be set properly for free-form content.
-        if self.collection.package_profile == PackageProfile::FREE_FORM_PROFILE
-          if row['inode_type'] == 'folder'
-            self.variant = Item::Variants::DIRECTORY
-          else
-            self.variant = Item::Variants::FILE
-          end
-        elsif self.parent_repository_id
-          self.variant = Item::Variants::PAGE
-        end
-      end
-
-      # If the TSV is in Medusa format, delete all bytestreams first in order
-      # to create new ones based on the TSV. Otherwise, if the TSV is in DLS
-      # format, leave the bytestreams alone.
-      unless ItemTsvIngester.dls_tsv?(tsv)
-        self.bytestreams.destroy_all
-        self.collection.package_profile.
-            bytestreams_from_tsv(self.repository_id, tsv).each do |bs|
-          self.bytestreams << bs
-        end
-      end
+      self.variant = row['variant'].strip if row['variant']
 
       # Metadata elements.
-      # If we are using Medusa TSV, and the free-form profile...
-      if self.collection.package_profile == PackageProfile::FREE_FORM_PROFILE and
-          !ItemTsvIngester.dls_tsv?(tsv)
-        # Try to obtain a title from 1) the TSV; 2) embedded metadata;
-        # 3) the filename.
-        if row['title'].blank?
-          # Vacuum up embedded metadata. This may or may not include a title.
-          self.update_from_embedded_metadata
-
-          # If still no title, use the filename.
-          if self.elements.select{ |e| e.name == 'title' }.empty?
-            row['title'] = row['name']
-          end
-        end
-      end
-      # Now, begin.
       row.each do |heading, value|
         # Skip columns with an empty value.
         next unless value.present?

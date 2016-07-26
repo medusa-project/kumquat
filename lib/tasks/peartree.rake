@@ -1,13 +1,5 @@
 namespace :peartree do
 
-  desc 'Ingest items in a TSV file (mode: create_only or create_and_update)'
-  task :ingest_tsv, [:pathname, :collection_uuid, :mode] => :environment do |task, args|
-    collection = Collection.find_by_repository_id(args[:collection_uuid])
-    ItemTsvIngester.new.ingest_pathname(args[:pathname], collection,
-                                        args[:mode])
-    Solr.instance.commit
-  end
-
   desc 'Publish a collection'
   task :publish_collection, [:uuid] => :environment do |task, args|
     Collection.find_by_repository_id(args[:uuid]).
@@ -75,6 +67,13 @@ namespace :peartree do
         "    Updated: #{result[:num_updated]}\n"\
         "    Deleted: #{result[:num_deleted]}\n"\
         "    Skipped: #{result[:num_skipped]}\n"
+  end
+
+  desc 'Update items from a TSV file'
+  task :update_from_tsv, [:pathname] => :environment do |task, args|
+    count = ItemTsvIngester.new.ingest_pathname(args[:pathname])
+    Solr.instance.commit
+    puts "#{count} items updated."
   end
 
 end
