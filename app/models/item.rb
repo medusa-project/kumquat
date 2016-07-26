@@ -66,12 +66,25 @@ class Item < ActiveRecord::Base
 
   MULTI_VALUE_SEPARATOR = '||'
   TSV_LINE_BREAK = "\n"
+  UUID_REGEX = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/
 
   has_many :bytestreams, inverse_of: :item, dependent: :destroy
   has_many :elements, inverse_of: :item, dependent: :destroy
 
-  validates :collection_repository_id, length: { minimum: 2 }
-  validates :repository_id, length: { minimum: 2 }
+  validates_format_of :collection_repository_id,
+                      with: UUID_REGEX,
+                      message: 'UUID is invalid'
+  validates_format_of :parent_repository_id,
+                      with: UUID_REGEX,
+                      message: 'UUID is invalid',
+                      allow_blank: true
+  validates_format_of :repository_id,
+                      with: UUID_REGEX,
+                      message: 'UUID is invalid'
+  validates_format_of :representative_item_repository_id,
+                      with: UUID_REGEX,
+                      message: 'UUID is invalid',
+                      allow_blank: true
 
   after_commit :index_in_solr, on: [:create, :update]
   after_commit :delete_from_solr, on: :destroy
@@ -515,7 +528,7 @@ class Item < ActiveRecord::Base
     # If a date is present, try to add a normalized date element.
     date_elem = metadata.select{ |e| e[:label] == 'Date Created' }.first
     if date_elem
-      date = string_date_to_time(date_elem[:value])
+      date = TimeUtil.string_date_to_time(date_elem[:value])
       if date
         self.elements.build(name: 'date', value: date.utc.iso8601,
                             vocabulary: Vocabulary.uncontrolled)
@@ -563,7 +576,7 @@ class Item < ActiveRecord::Base
       # date (normalized)
       date = row['date'] || row['dateCreated']
       if date
-        self.date = string_date_to_time(date.strip)
+        self.date = TimeUtil.string_date_to_time(date.strip)
       end
 
       # latitude
@@ -685,7 +698,7 @@ class Item < ActiveRecord::Base
       # date
       date = node.xpath("//#{prefix}:date", namespaces).first ||
           node.xpath("//#{prefix}:dateCreated", namespaces).first
-      self.date = string_date_to_time(date.content.strip) if date
+      self.date = TimeUtil.string_date_to_time(date.content.strip) if date
 
       # full text
       ft = node.xpath("//#{prefix}:fullText", namespaces).first
@@ -771,37 +784,6 @@ class Item < ActiveRecord::Base
   end
 
   private
-
-  ##
-  # @param date [String]
-  # @return [Time]
-  #
-  def string_date_to_time(date)
-    iso8601 = nil
-    # Tests should be in order of most to least complex.
-    if date.match('[0-9]{4}:[0-1][0-9]:[0-3][0-9] [0-1][0-9]:[0-5][0-9]:[0-5][0-9]')
-      # date appears to be YYYY:MM:DD HH:MM:SS
-      parts = date.split(' ')
-      date_parts = parts.first.split(':')
-      time_parts = parts.last.split(':')
-      iso8601 = "#{date_parts[0]}-#{date_parts[1]}-#{date_parts[2]}T"\
-      "#{time_parts[0]}-#{time_parts[1]}-#{time_parts[2]}Z"
-    elsif date.match('[0-9]{4}-[0-1][0-9]-[0-3][0-9]')
-      # date appears to be YYYY-MM-DD
-      iso8601 = "#{date}T00:00:00Z"
-    elsif date.match('[0-9]{4}')
-      # date appears to be YYYY (1000-)
-      iso8601 = "#{date}-01-01T00:00:00Z"
-    end
-    if iso8601
-      begin
-        return Time.parse(iso8601)
-      rescue ArgumentError
-        # nothing we can do
-      end
-    end
-    nil
-  end
 
   def to_dls_xml_v3
     builder = Nokogiri::XML::Builder.new do |xml|

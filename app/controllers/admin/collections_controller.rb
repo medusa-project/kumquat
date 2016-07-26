@@ -56,6 +56,7 @@ module Admin
         collection.update!(sanitized_params)
       rescue => e
         flash['error'] = "#{e}"
+        redirect_to edit_admin_collection_path(collection)
       else
         flash['success'] = "Collection \"#{collection.title}\" updated."
         redirect_to admin_collection_path(collection)

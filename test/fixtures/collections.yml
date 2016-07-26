@@ -10,7 +10,7 @@ collection1:
   package_profile_id: <%= PackageProfile::FREE_FORM_PROFILE.id %>
   published: true
   published_in_dls: true
-  repository_id: collection1
+  repository_id: d250c1f0-5ca8-0132-3334-0050569601ca-8
   representative_image: MyString
   representative_item_id: MyString
   title: MyString
@@ -24,7 +24,7 @@ collection2:
   package_profile_id: <%= PackageProfile::MAP_PROFILE.id %>
   published: false
   published_in_dls: false
-  repository_id: collection2
+  repository_id: c28af1f0-5ca8-0132-3334-0050569601ca-8
   representative_image: MyString
   representative_item_id: MyString
   title: MyString
@@ -38,7 +38,7 @@ single_item_object_collection:
   package_profile_id: <%= PackageProfile::SINGLE_ITEM_OBJECT_PROFILE.id %>
   published: false
   published_in_dls: false
-  repository_id: single_item_object_collection
+  repository_id: c678c1f0-5ca8-0132-3334-0050569601ca-8
   representative_image: MyString
   representative_item_id: MyString
   title: MyString

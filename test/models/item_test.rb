@@ -4,6 +4,7 @@ class ItemTest < ActiveSupport::TestCase
 
   setup do
     @item = items(:item1)
+    assert @item.valid?
 
     @free_form_collection = collections(:collection1)
     @medusa_free_form_tsv = File.read(__dir__ + '/../fixtures/repository/medusa-free-form.tsv')
@@ -52,6 +53,16 @@ class ItemTest < ActiveSupport::TestCase
                  @item.access_master_bytestream.bytestream_type
   end
 
+  # collection_repository_id
+
+  test 'collection_repository_id must be a UUID' do
+    @item.collection_repository_id = 123
+    assert !@item.valid?
+
+    @item.collection_repository_id = '8acdb390-96b6-0133-1ce8-0050569601ca-4'
+    assert @item.valid?
+  end
+
   # effective_representative_item()
 
   test 'effective_representative_item should return the representative item
@@ -88,11 +99,31 @@ class ItemTest < ActiveSupport::TestCase
                  @item.effective_representative_item.repository_id
   end
 
+  # parent_repository_id
+
+  test 'parent_repository_id must be a UUID' do
+    @item.parent_repository_id = 123
+    assert !@item.valid?
+
+    @item.parent_repository_id = '8acdb390-96b6-0133-1ce8-0050569601ca-4'
+    assert @item.valid?
+  end
+
   # preservation_master_bytestream()
 
   test 'preservation_master_bytestream() should work properly' do
     assert_equal Bytestream::Type::PRESERVATION_MASTER,
                  @item.preservation_master_bytestream.bytestream_type
+  end
+
+  # repository_id
+
+  test 'repository_id must be a UUID' do
+    @item.repository_id = 123
+    assert !@item.valid?
+
+    @item.repository_id = '8acdb390-96b6-0133-1ce8-0050569601ca-4'
+    assert @item.valid?
   end
 
   # representative_item()
@@ -104,8 +135,18 @@ class ItemTest < ActiveSupport::TestCase
     @item.representative_item_repository_id = 'bogus'
     assert_nil(@item.representative_item)
     # for an existent representative item, it should return the representative item
-    col = Collection.find_by_repository_id('collection1')
+    col = Collection.find_by_repository_id('d250c1f0-5ca8-0132-3334-0050569601ca-8')
     assert_equal('MyString', col.representative_item_id)
+  end
+
+  # representative_item_repository_id
+
+  test 'representative_item_repository_id must be a UUID' do
+    @item.representative_item_repository_id = 123
+    assert !@item.valid?
+
+    @item.representative_item_repository_id = '8acdb390-96b6-0133-1ce8-0050569601ca-4'
+    assert @item.valid?
   end
 
   # to_dls_xml(schema_version)
@@ -208,7 +249,7 @@ class ItemTest < ActiveSupport::TestCase
   test 'update_from_tsv should work with DLS TSV' do
     row = {}
     # technical elements
-    row['parentId'] = '9182'
+    row['parentId'] = 'a111c1f0-5ca8-0132-3334-0050569601ca-8'
     row['date'] = '1984'
     row['latitude'] = '45.52'
     row['longitude'] = '-120.564'
@@ -224,7 +265,7 @@ class ItemTest < ActiveSupport::TestCase
 
     @item.update_from_tsv([row], row)
 
-    assert_equal('9182', @item.parent_repository_id)
+    assert_equal('a555c1f0-5ca8-0132-3334-0050569601ca-8', @item.parent_repository_id)
     assert_equal(1984, @item.date.year)
     assert_equal(45.52, @item.latitude)
     assert_equal(-120.564, @item.longitude)
@@ -356,10 +397,10 @@ class ItemTest < ActiveSupport::TestCase
     xml = '<?xml version="1.0" encoding="utf-8"?>'
     xml += '<dls:Object xmlns:dls="http://digital.library.illinois.edu/terms#">'
     # technical elements
-    xml += '<dls:repositoryId>cats001</dls:repositoryId>'
-    xml += '<dls:collectionId>collection1</dls:collectionId>' # from fixture
-    xml += '<dls:parentId>item1</dls:parentId>'
-    xml += '<dls:representativeItemId>cats001</dls:representativeItemId>'
+    xml += '<dls:repositoryId>e12adef0-5ca8-0132-3334-0050569601ca-8</dls:repositoryId>'
+    xml += '<dls:collectionId>d250c1f0-5ca8-0132-3334-0050569601ca-8</dls:collectionId>' # from fixture
+    xml += '<dls:parentId>ace52312-5ca8-0132-3334-0050569601ca-8</dls:parentId>'
+    xml += '<dls:representativeItemId>e12adef0-5ca8-0132-3334-0050569601ca-8</dls:representativeItemId>'
     xml += '<dls:published>true</dls:published>'
     xml += '<dls:fullText>full text</dls:fullText>'
     xml += '<dls:pageNumber>3</dls:pageNumber>'
@@ -389,16 +430,16 @@ class ItemTest < ActiveSupport::TestCase
 
     @item.update_from_xml(doc, 3)
 
-    assert_equal('collection1', @item.collection.repository_id)
+    assert_equal('d250c1f0-5ca8-0132-3334-0050569601ca-8', @item.collection.repository_id)
     assert_equal(1984, @item.date.year)
     assert_equal('full text', @item.full_text)
     assert_equal(45.52, @item.latitude)
     assert_equal(-120.564, @item.longitude)
     assert_equal(3, @item.page_number)
-    assert_equal('item1', @item.parent_repository_id)
+    assert_equal('ace52312-5ca8-0132-3334-0050569601ca-8', @item.parent_repository_id)
     assert @item.published
-    assert_equal('cats001', @item.repository_id)
-    assert_equal('cats001', @item.representative_item_repository_id)
+    assert_equal('e12adef0-5ca8-0132-3334-0050569601ca-8', @item.repository_id)
+    assert_equal('e12adef0-5ca8-0132-3334-0050569601ca-8', @item.representative_item_repository_id)
     assert_equal(1, @item.subpage_number)
     assert_equal(Item::Variants::PAGE, @item.variant)
 

@@ -109,7 +109,7 @@ class Bytestream < ActiveRecord::Base
     @metadata = []
     pathname = self.absolute_local_pathname
     if File.exist?(pathname) and File.readable?(pathname)
-      json = `exiftool -json -l -G #{pathname}`
+      json = `exiftool -json -l -G "#{pathname.gsub('"', '\\"')}"`
       begin
         struct = JSON.parse(json)
         struct.first.each do |k, v|
