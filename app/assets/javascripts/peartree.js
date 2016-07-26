@@ -43,11 +43,6 @@ var PearTree = {
 
             // append the flash to the DOM
             $('#pt-page-content').before(flash);
-
-            // make it disappear after a delay
-            setTimeout(function() {
-                flash.fadeOut();
-            }, PearTree.Flash.FADE_OUT_DELAY);
         }
 
     },
@@ -107,14 +102,6 @@ var PearTree = {
      * Application-level initialization.
      */
     init: function() {
-        // make flash messages disappear after a delay
-        var flash = $('div.pt-flash');
-        if (flash.length) {
-            setTimeout(function () {
-                flash.fadeOut();
-            }, PearTree.Flash.FADE_OUT_DELAY);
-        }
-
         // make the active nav bar nav active
         $('.navbar-nav li').removeClass('active');
         $('.navbar-nav li#' + $('body').attr('data-nav') + '-nav').addClass('active');
