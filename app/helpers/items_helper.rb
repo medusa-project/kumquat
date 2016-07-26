@@ -225,14 +225,15 @@ module ItemsHelper
 
   ##
   # @param item [Item]
-  # @return [String, nil] Base IIIF URL or nil if the item is not an image
+  # @return [String, nil] Base IIIF URL or nil if the item is not
+  #                       IIIF-compatible
   #
   def iiif_item_url(item)
     url = nil
     bs = item.access_master_bytestream
     if !bs or (!bs.is_image? and !bs.is_pdf?)
       bs = item.preservation_master_bytestream
-      if !bs or (!bs.is_image? and bs.is_pdf?)
+      if !bs or (!bs.is_image? and !bs.is_pdf?)
         bs = nil
       end
     end
