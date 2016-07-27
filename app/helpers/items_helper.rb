@@ -5,10 +5,12 @@ module ItemsHelper
 
   ##
   # @param bs [Bytestream]
+  # @param options [Hash<Symbol,Object>]
+  # @option options [Boolean] :admin
   # @return [String]
   #
-  def bytestream_metadata_as_table(bs)
-    data = bytestream_metadata_for(bs)
+  def bytestream_metadata_as_table(bs, options = {})
+    data = bytestream_metadata_for(bs, options)
     html = ''
     if data.any?
       categories = data.map{ |f| f[:category] }.uniq.
@@ -915,10 +917,13 @@ module ItemsHelper
   end
 
   ##
-  # @return [Array<Hash<Symbol,?>>] Array of hashes with :label,
-  #                                 :category, and :value keys.
+  # @param bytestream [Bytestream]
+  # @param options [Hash<Symbol,Object>]
+  # @option options [Boolean] :admin
+  # @return [Array<Hash<Symbol,Object>>] Array of hashes with :label,
+  #                                      :category, and :value keys.
   #
-  def bytestream_metadata_for(bytestream)
+  def bytestream_metadata_for(bytestream, options = {})
     data = []
     if bytestream
       # status
@@ -929,6 +934,16 @@ module ItemsHelper
               '<span class="label label-success">OK</span>' :
               '<span class="label label-danger">MISSING</span>'
       }
+      if options[:admin]
+        data << {
+            label: 'Medusa CFS File',
+            category: 'File',
+            value: link_to(bytestream.cfs_file_uuid,
+                           PearTree::Application.peartree_config[:medusa_url] +
+                               '/uuids/' + bytestream.cfs_file_uuid,
+                           target: '_blank')
+        }
+      end
       if bytestream.is_image?
         bytestream.metadata.each do |field|
           data << {
