@@ -1,15 +1,15 @@
 class MedusaIngester
 
   class IngestMode
-    # Creates new DLS entities and updates existing DLS entities.
-    CREATE_AND_UPDATE = 'create_and_update'
-
     # Creates new DLS entities but does not touch existing DLS entities.
     CREATE_ONLY = 'create_only'
 
     # Deletes DLS entities that have gone missing in Medusa, but does not
     # create or update anything.
     DELETE_MISSING = 'delete_missing'
+
+    # Updates existing DLS items' bytestreams.
+    UPDATE_BYTESTREAMS = 'update_bytestreams'
   end
 
   ##
@@ -46,10 +46,10 @@ class MedusaIngester
   #
   # @param collection [Collection]
   # @param mode [String] One of the IngestMode constants.
-  # @param warnings [Array<String>] Supply an array which will be populated
-  #                                 with nonfatal warnings (optional).
+  # @param warnings [Array<String>] Array which will be populated with nonfatal
+  #                                 warnings (optional).
   # @return [Hash<Symbol,Integer>] Hash with :num_created, :num_updated,
-  #                                :num_deleted, and :num_skipped keys.
+  #                                :num_deleted, and/or :num_skipped keys.
   # @raises [ArgumentError] If the collection's file group or package profile
   #                         are not set.
   # @raises [IllegalContentError]
@@ -60,118 +60,42 @@ class MedusaIngester
     raise ArgumentError, 'Collection package profile is not set' unless
         collection.package_profile
 
-    status = { num_deleted: 0, num_created: 0, num_updated: 0, num_skipped: 0 }
+    stats = { num_deleted: 0, num_created: 0, num_updated: 0, num_skipped: 0 }
 
     ActiveRecord::Base.transaction do
       case mode
         when IngestMode::DELETE_MISSING
-          status.merge!(delete_missing_items(collection))
+          stats.merge!(delete_missing_items(collection))
+        when IngestMode::UPDATE_BYTESTREAMS
+          stats.merge!(update_bytestreams(collection, warnings))
         else
-          case collection.package_profile
-            when PackageProfile::FREE_FORM_PROFILE
-              status.merge!(ingest_free_form_items(collection, mode))
-            when PackageProfile::MAP_PROFILE
-              status.merge!(ingest_map_items(collection, mode, warnings))
-            when PackageProfile::SINGLE_ITEM_OBJECT_PROFILE
-              status.merge!(ingest_single_items(collection, mode, warnings))
-          end
+          stats.merge!(create_items(collection, warnings))
       end
     end
-    status
+    stats
   end
 
   private
 
   ##
   # @param collection [Collection]
-  # @return [Hash<Symbol,Integer>] Hash with :num_deleted key.
-  # @raises [IllegalContentError]
-  #
-  def delete_missing_items(collection)
-    # Compile a list of all item UUIDs currently in the Medusa file group.
-    medusa_items = free_form_items_in(collection.effective_medusa_cfs_directory)
-    Rails.logger.debug("delete_missing_items(): "\
-        "#{medusa_items.length} items in CFS directory")
-
-    case collection.package_profile
-      when PackageProfile::FREE_FORM_PROFILE
-        medusa_items = free_form_items_in(collection.effective_medusa_cfs_directory)
-      when PackageProfile::MAP_PROFILE
-        medusa_items = map_items_in(collection.effective_medusa_cfs_directory)
-      when PackageProfile::SINGLE_ITEM_OBJECT_PROFILE
-        medusa_items = single_items_in(collection.effective_medusa_cfs_directory)
-      else
-        raise IllegalContentError,
-              'delete_missing_items(): unrecognized collection content profile.'
-    end
-
-    # For each DLS item in the collection, if it's no longer contained in the
-    # file group, delete it.
-    status = { num_deleted: 0 }
-    Item.where(collection_repository_id: collection.repository_id).each do |item|
-      unless medusa_items.include?(item.repository_id)
-        Rails.logger.info("delete_missing_items(): deleting "\
-          "#{item.repository_id}")
-        item.destroy!
-        status[:num_deleted] += 1
-      end
-    end
-    status
-  end
-
-  ##
-  # @param cfs_dir [MedusaCfsDirectory]
-  # @return [Set<String>] Set of item UUIDs
-  #
-  def free_form_items_in(cfs_dir)
-    ##
-    # @param cfs_dir [Collection]
-    # @param medusa_item_uuids [Set<String>]
-    # @return [void]
-    #
-    def walk_tree(cfs_dir, medusa_item_uuids)
-      cfs_dir.directories.each do |dir|
-        medusa_item_uuids << dir.uuid
-        walk_tree(dir, medusa_item_uuids)
-      end
-      cfs_dir.files.each do |file|
-        medusa_item_uuids << file.uuid
-      end
-    end
-
-    medusa_item_uuids = Set.new
-    walk_tree(cfs_dir, medusa_item_uuids)
-    medusa_item_uuids
-  end
-
-  ##
-  # @param collection [Collection]
-  # @param mode [String] IngestMode::CREATE_ONLY or
-  #                      IngestMode::CREATE_AND_UPDATE
   # @return [Hash<Symbol,Integer>] Hash with :num_created, :num_updated, and
   #                                :num_skipped keys.
-  # @raises [ArgumentError] If the given ingest mode is invalid.
   #
-  def ingest_free_form_items(collection, mode)
-    raise ArgumentError, 'Invalid ingest mode' unless
-        [IngestMode::CREATE_ONLY, IngestMode::CREATE_AND_UPDATE].include?(mode)
-
+  def create_free_form_items(collection)
     ##
     # @param collection [Collection]
     # @param cfs_dir [MedusaCfsDirectory]
-    # @param mode [String] One of the IngestMode constants.
     # @return [Hash<Symbol,Integer>] Hash with :num_created, :num_updated, and
     #                                :num_skipped keys.
     #
-    def walk_tree(collection, cfs_dir, top_cfs_dir, mode, status)
+    def walk_tree(collection, cfs_dir, top_cfs_dir, status)
       cfs_dir.directories.each do |dir|
         item = Item.find_by_repository_id(dir.uuid)
         if item
-          if mode == IngestMode::CREATE_ONLY
-            Rails.logger.info("ingest_free_form_items(): skipping item "\
-                "#{dir.uuid}")
-            status[:num_skipped] += 1
-          end
+          Rails.logger.info("ingest_free_form_items(): skipping item "\
+              "#{dir.uuid}")
+          status[:num_skipped] += 1
         else
           Rails.logger.info("ingest_free_form_items(): creating item "\
                     "#{dir.uuid}")
@@ -186,21 +110,15 @@ class MedusaIngester
           item.save!
           status[:num_created] += 1
         end
-        walk_tree(collection, dir, top_cfs_dir, mode, status)
+        walk_tree(collection, dir, top_cfs_dir, status)
       end
       cfs_dir.files.each do |file|
         item = Item.find_by_repository_id(file.uuid)
         if item
-          if mode == IngestMode::CREATE_ONLY
-            Rails.logger.info("ingest_free_form_items(): skipping item "\
-                  "#{file.uuid}")
-            status[:num_skipped] += 1
-            next
-          else
-            item.update_from_embedded_metadata
-            item.save!
-            status[:num_updated] += 1
-          end
+          Rails.logger.info("ingest_free_form_items(): skipping item "\
+                "#{file.uuid}")
+          status[:num_skipped] += 1
+          next
         else
           Rails.logger.info("ingest_free_form_items(): creating item "\
                       "#{file.uuid}")
@@ -234,38 +152,48 @@ class MedusaIngester
 
     status = { num_created: 0, num_updated: 0, num_skipped: 0 }
     walk_tree(collection, collection.effective_medusa_cfs_directory,
-        collection.effective_medusa_cfs_directory, mode, status)
+        collection.effective_medusa_cfs_directory, status)
     status
   end
 
   ##
   # @param collection [Collection]
-  # @param mode [String] IngestMode::CREATE_ONLY or
-  #                      IngestMode::CREATE_AND_UPDATE
+  # @param warnings [Array<String>] Array which will be populated with
+  #                                 nonfatal warnings (optional).
+  # @return [Hash<Symbol,Integer>] Hash with :num_created, :num_updated, and
+  #                                :num_skipped keys.
+  #
+  def create_items(collection, warnings = [])
+    case collection.package_profile
+      when PackageProfile::FREE_FORM_PROFILE
+        return create_free_form_items(collection)
+      when PackageProfile::MAP_PROFILE
+        return create_map_items(collection, warnings)
+      when PackageProfile::SINGLE_ITEM_OBJECT_PROFILE
+        return create_single_items(collection, warnings)
+      else
+        raise IllegalContentError,
+              "create_items(): unrecognized package profile: "\
+                    "#{collection.package_profile}"
+    end
+  end
+
+  ##
+  # @param collection [Collection]
   # @param warnings [Array<String>] Supply an array which will be populated
   #                                 with nonfatal warnings (optional).
   # @return [Hash<Symbol,Integer>] Hash with :num_created, :num_updated, and
   #                                :num_skipped keys.
-  # @raises [ArgumentError] If the given ingest mode is invalid.
   #
-  def ingest_map_items(collection, mode, warnings = [])
-    raise ArgumentError, 'Invalid ingest mode' unless
-        [IngestMode::CREATE_ONLY, IngestMode::CREATE_AND_UPDATE].include?(mode)
-
+  def create_map_items(collection, warnings = [])
     status = { num_created: 0, num_updated: 0, num_skipped: 0 }
     collection.effective_medusa_cfs_directory.directories.each do |top_item_dir|
       item = Item.find_by_repository_id(top_item_dir.uuid)
       if item
-        if mode == IngestMode::CREATE_ONLY
-          Rails.logger.info("ingest_map_items(): skipping item "\
-              "#{top_item_dir.uuid}")
-          status[:num_skipped] += 1
-          next
-        else
-          # These will be recreated below.
-          item.bytestreams.destroy_all
-          status[:num_updated] += 1
-        end
+        Rails.logger.info("ingest_map_items(): skipping item "\
+            "#{top_item_dir.uuid}")
+        status[:num_skipped] += 1
+        next
       else
         Rails.logger.info("ingest_map_items(): creating item "\
                     "#{top_item_dir.uuid}")
@@ -281,20 +209,13 @@ class MedusaIngester
           # file corresponds to a child item with its own preservation master.
           if pres_dir.files.length > 1
             pres_dir.files.each do |pres_file|
-              # Find or create the child item depending on the import mode and
-              # whether it already exists.
+              # Find or create the child item.
               child = Item.find_by_repository_id(pres_file.uuid)
               if child
-                if mode == IngestMode::CREATE_ONLY
-                  Rails.logger.info("ingest_map_items(): skipping child item "\
-                      "#{pres_file.uuid}")
-                  status[:num_skipped] += 1
-                  next
-                else
-                  # These will be recreated below.
-                  child.bytestreams.destroy_all
-                  status[:num_updated] += 1
-                end
+                Rails.logger.info("ingest_map_items(): skipping child item "\
+                    "#{pres_file.uuid}")
+                status[:num_skipped] += 1
+                next
               else
                 Rails.logger.info("ingest_map_items(): creating child item "\
                     "#{pres_file.uuid}")
@@ -376,36 +297,23 @@ class MedusaIngester
 
   ##
   # @param collection [Collection]
-  # @param mode [String] IngestMode::CREATE_ONLY or
-  #                      IngestMode::CREATE_AND_UPDATE
   # @param warnings [Array<String>] Supply an array which will be populated
   #                                 with nonfatal warnings (optional).
   # @return [Hash<Symbol,Integer>] Hash with :num_created, :num_updated, and
   #                                :num_skipped keys.
-  # @raises [ArgumentError] If the given ingest mode is invalid.
   #
-  def ingest_single_items(collection, mode, warnings = [])
-    raise ArgumentError, 'Invalid ingest mode' unless
-        [IngestMode::CREATE_ONLY, IngestMode::CREATE_AND_UPDATE].include?(mode)
-
+  def create_single_items(collection, warnings = [])
     cfs_dir = collection.effective_medusa_cfs_directory
     pres_dir = cfs_dir.directories.select{ |d| d.name == 'preservation' }.first
 
     status = { num_created: 0, num_updated: 0, num_skipped: 0 }
     pres_dir.files.each do |file|
-      # Find or create the child item depending on the import mode and
-      # whether it already exists.
+      # Find or create the child item.
       item = Item.find_by_repository_id(file.uuid)
       if item
-        if mode == IngestMode::CREATE_ONLY
-          Rails.logger.info("ingest_single_items(): skipping item #{file.uuid}")
-          status[:num_skipped] += 1
-          next
-        else
-          # These will be recreated below.
-          item.bytestreams.destroy_all
-          status[:num_updated] += 1
-        end
+        Rails.logger.info("ingest_single_items(): skipping item #{file.uuid}")
+        status[:num_skipped] += 1
+        next
       else
         Rails.logger.info("ingest_single_items(): creating item #{file.uuid}")
         item = Item.new(repository_id: file.uuid,
@@ -430,6 +338,68 @@ class MedusaIngester
       item.save!
     end
     status
+  end
+
+  ##
+  # @param collection [Collection]
+  # @return [Hash<Symbol,Integer>] Hash with :num_deleted key.
+  # @raises [IllegalContentError]
+  #
+  def delete_missing_items(collection)
+    # Compile a list of all item UUIDs currently in the Medusa file group.
+    medusa_items = free_form_items_in(collection.effective_medusa_cfs_directory)
+    Rails.logger.debug("delete_missing_items(): "\
+        "#{medusa_items.length} items in CFS directory")
+
+    case collection.package_profile
+      when PackageProfile::FREE_FORM_PROFILE
+        medusa_items = free_form_items_in(collection.effective_medusa_cfs_directory)
+      when PackageProfile::MAP_PROFILE
+        medusa_items = map_items_in(collection.effective_medusa_cfs_directory)
+      when PackageProfile::SINGLE_ITEM_OBJECT_PROFILE
+        medusa_items = single_items_in(collection.effective_medusa_cfs_directory)
+      else
+        raise IllegalContentError,
+              'delete_missing_items(): unrecognized collection content profile.'
+    end
+
+    # For each DLS item in the collection, if it's no longer contained in the
+    # file group, delete it.
+    status = { num_deleted: 0 }
+    Item.where(collection_repository_id: collection.repository_id).each do |item|
+      unless medusa_items.include?(item.repository_id)
+        Rails.logger.info("delete_missing_items(): deleting "\
+          "#{item.repository_id}")
+        item.destroy!
+        status[:num_deleted] += 1
+      end
+    end
+    status
+  end
+
+  ##
+  # @param cfs_dir [MedusaCfsDirectory]
+  # @return [Set<String>] Set of item UUIDs
+  #
+  def free_form_items_in(cfs_dir)
+    ##
+    # @param cfs_dir [Collection]
+    # @param medusa_item_uuids [Set<String>]
+    # @return [void]
+    #
+    def walk_tree(cfs_dir, medusa_item_uuids)
+      cfs_dir.directories.each do |dir|
+        medusa_item_uuids << dir.uuid
+        walk_tree(dir, medusa_item_uuids)
+      end
+      cfs_dir.files.each do |file|
+        medusa_item_uuids << file.uuid
+      end
+    end
+
+    medusa_item_uuids = Set.new
+    walk_tree(cfs_dir, medusa_item_uuids)
+    medusa_item_uuids
   end
 
   ##
@@ -518,6 +488,195 @@ class MedusaIngester
       pres_dir.files.each { |file| medusa_item_uuids << file.uuid }
     end
     medusa_item_uuids
+  end
+
+  ##
+  # @param collection [Collection]
+  # @param warnings [Array<String>] Will be populated with nonfatal warnings
+  #                                 (optional).
+  # @return [Hash<Symbol, Integer>]
+  #
+  def update_bytestreams(collection, warnings = [])
+    case collection.package_profile
+      when PackageProfile::FREE_FORM_PROFILE
+        return update_free_form_bytestreams(collection)
+      when PackageProfile::MAP_PROFILE
+        return update_map_bytestreams(collection, warnings)
+      when PackageProfile::SINGLE_ITEM_OBJECT_PROFILE
+        return update_single_item_bytestreams(collection, warnings)
+      else
+        raise IllegalContentError,
+              "update_bytestreams(): unrecognized package profile: "\
+                    "#{collection.package_profile}"
+    end
+  end
+
+  ##
+  # @param collection [Collection]
+  # @return [Hash<Symbol,Integer>] Hash with a :num_updated key.
+  #
+  def update_free_form_bytestreams(collection)
+    ##
+    # @param collection [Collection]
+    # @param cfs_dir [MedusaCfsDirectory]
+    # @param top_cfs_dir [MedusaCfsDirectory]
+    # @param stats [Hash<Symbol,Integer>]
+    # @return [Hash<Symbol,Integer>] Hash with a :num_updated key.
+    #
+    def walk_tree(collection, cfs_dir, top_cfs_dir, stats)
+      cfs_dir.directories.each do |dir|
+        walk_tree(collection, dir, top_cfs_dir, stats)
+      end
+      cfs_dir.files.each do |file|
+        item = Item.find_by_repository_id(file.uuid)
+        if item
+          Rails.logger.info("update_free_form_bytestreams(): updating "\
+                            "bytestreams for item: #{file.uuid}")
+
+          item.bytestreams.destroy_all
+
+          bs = item.bytestreams.build
+          bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
+          bs.repository_relative_pathname =
+              '/' + file.repository_relative_pathname.reverse.chomp('/').reverse
+          bs.infer_media_type # The type of the CFS file cannot be trusted.
+          bs.save!
+
+          stats[:num_updated] += 1
+        end
+      end
+    end
+
+    stats = { num_updated: 0 }
+    walk_tree(collection, collection.effective_medusa_cfs_directory,
+              collection.effective_medusa_cfs_directory, stats)
+    stats
+  end
+
+  ##
+  # @param collection [Collection]
+  # @param warnings [Array<String>] Supply an array which will be populated
+  #                                 with nonfatal warnings (optional).
+  # @return [Hash<Symbol,Integer>] Hash with a :num_updated key.
+  #
+  def update_map_bytestreams(collection, warnings = [])
+    stats = { num_updated: 0 }
+    collection.effective_medusa_cfs_directory.directories.each do |top_item_dir|
+      item = Item.find_by_repository_id(top_item_dir.uuid)
+      if item
+        if top_item_dir.directories.any?
+          pres_dir = top_item_dir.directories.
+              select{ |d| d.name == 'preservation' }.first
+          if pres_dir
+            # If the preservation directory contains more than one file, each
+            # file corresponds to a child item with its own preservation master.
+            if pres_dir.files.length > 1
+              pres_dir.files.each do |pres_file|
+                # Find the child item.
+                child = Item.find_by_repository_id(pres_file.uuid)
+                if child
+                  child.bytestreams.destroy_all
+
+                  # Create the preservation master bytestream.
+                  pres_file = pres_dir.files.first
+                  bs = child.bytestreams.build
+                  bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
+                  bs.repository_relative_pathname =
+                      '/' + pres_file.repository_relative_pathname.reverse.chomp('/').reverse
+                  bs.infer_media_type # The type of the CFS file cannot be trusted.
+                  bs.save!
+
+                  # Find and create the access master bytestream.
+                  begin
+                    bs = map_access_master_bytestream(top_item_dir, pres_file)
+                    bs.item = child
+                    bs.save!
+                  rescue IllegalContentError => e
+                    warnings << "#{e}"
+                  end
+                  stats[:num_updated] += 1
+                end
+              end
+            elsif pres_dir.files.length == 1
+              # Create the preservation master bytestream.
+              pres_file = pres_dir.files.first
+              bs = item.bytestreams.build
+              bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
+              bs.repository_relative_pathname =
+                  '/' + pres_file.repository_relative_pathname.reverse.chomp('/').reverse
+              bs.infer_media_type # The type of the CFS file cannot be trusted.
+
+              # Find and create the access master bytestream.
+              begin
+                bs = map_access_master_bytestream(top_item_dir, pres_file)
+                item.bytestreams << bs
+              rescue IllegalContentError => e
+                warnings << "#{e}"
+              end
+
+              stats[:num_updated] += 1
+            else
+              msg = "Preservation directory #{pres_dir.uuid} is empty."
+              Rails.logger.warn('update_map_bytestreams(): ' + msg)
+              warnings << msg
+            end
+          else
+            msg = "Directory #{top_item_dir.uuid} is missing a preservation "\
+                "directory."
+            Rails.logger.warn('update_map_bytestreams(): ' + msg)
+            warnings << msg
+          end
+        else
+          msg = "Directory #{top_item_dir.uuid} does not have any subdirectories."
+          Rails.logger.warn('update_map_bytestreams(): ' + msg)
+          warnings << msg
+        end
+      else
+        msg = "No item for directory: #{top_item_dir.uuid}"
+        Rails.logger.warn('update_map_bytestreams(): ' + msg)
+        warnings << msg
+      end
+    end
+    stats
+  end
+
+  ##
+  # @param collection [Collection]
+  # @param warnings [Array<String>] Supply an array which will be populated
+  #                                 with nonfatal warnings (optional).
+  # @return [Hash<Symbol,Integer>] Hash with a :num_updated key.
+  #
+  def update_single_item_bytestreams(collection, warnings = [])
+    cfs_dir = collection.effective_medusa_cfs_directory
+    pres_dir = cfs_dir.directories.select{ |d| d.name == 'preservation' }.first
+
+    stats = { num_updated: 0 }
+    pres_dir.files.each do |file|
+      item = Item.find_by_repository_id(file.uuid)
+      if item
+        item.bytestreams.destroy_all
+
+        # Create the preservation master bytestream.
+        bs = item.bytestreams.build
+        bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
+        bs.repository_relative_pathname =
+            '/' + file.repository_relative_pathname.reverse.chomp('/').reverse
+        bs.media_type = file.media_type
+        bs.save!
+
+        # Find and create the access master bytestream.
+        begin
+          bs = single_item_access_master_bytestream(cfs_dir, file)
+          bs.item = item
+          bs.save!
+        rescue IllegalContentError => e
+          warnings << "#{e}"
+        end
+
+        stats[:num_updated] += 1
+      end
+    end
+    stats
   end
 
 end
