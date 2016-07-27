@@ -934,7 +934,7 @@ module ItemsHelper
               '<span class="label label-success">OK</span>' :
               '<span class="label label-danger">MISSING</span>'
       }
-      if options[:admin]
+      if options[:admin] and bytestream.cfs_file_uuid.present?
         data << {
             label: 'Medusa CFS File',
             category: 'File',
