@@ -129,6 +129,7 @@ class MedusaIngester
           # Create its corresponding bytestream.
           bs = item.bytestreams.build
           bs.bytestream_type = Bytestream::Type::ACCESS_MASTER
+          bs.cfs_file_uuid = file.uuid
           bs.repository_relative_pathname =
               '/' + file.repository_relative_pathname.reverse.chomp('/').reverse
           bs.infer_media_type # The type of the CFS file cannot be trusted.
@@ -228,6 +229,7 @@ class MedusaIngester
               # Create the preservation master bytestream.
               pres_file = pres_dir.files.first
               bs = child.bytestreams.build
+              bs.cfs_file_uuid = pres_file.uuid
               bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
               bs.repository_relative_pathname =
                   '/' + pres_file.repository_relative_pathname.reverse.chomp('/').reverse
@@ -261,6 +263,7 @@ class MedusaIngester
             # Create the preservation master bytestream.
             pres_file = pres_dir.files.first
             bs = item.bytestreams.build
+            bs.cfs_file_uuid = pres_file.uuid
             bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
             bs.repository_relative_pathname =
                 '/' + pres_file.repository_relative_pathname.reverse.chomp('/').reverse
@@ -323,6 +326,7 @@ class MedusaIngester
 
       # Create the preservation master bytestream.
       bs = item.bytestreams.build
+      bs.cfs_file_uuid = file.uuid
       bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
       bs.repository_relative_pathname =
           '/' + file.repository_relative_pathname.reverse.chomp('/').reverse
@@ -419,6 +423,7 @@ class MedusaIngester
             pres_master_name.chomp(File.extname(pres_master_name)) }.first
         if access_file
           bs = Bytestream.new
+          bs.cfs_file_uuid = access_file.uuid
           bs.bytestream_type = Bytestream::Type::ACCESS_MASTER
           bs.repository_relative_pathname =
               '/' + access_file.repository_relative_pathname.reverse.chomp('/').reverse
@@ -537,6 +542,7 @@ class MedusaIngester
 
           bs = item.bytestreams.build
           bs.bytestream_type = Bytestream::Type::ACCESS_MASTER
+          bs.cfs_file_uuid = file.uuid
           bs.repository_relative_pathname =
               '/' + file.repository_relative_pathname.reverse.chomp('/').reverse
           bs.infer_media_type # The type of the CFS file cannot be trusted.
@@ -580,6 +586,7 @@ class MedusaIngester
                   # Create the preservation master bytestream.
                   pres_file = pres_dir.files.first
                   bs = child.bytestreams.build
+                  bs.cfs_file_uuid = pres_file.uuid
                   bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
                   bs.repository_relative_pathname =
                       '/' + pres_file.repository_relative_pathname.reverse.chomp('/').reverse
@@ -601,6 +608,7 @@ class MedusaIngester
               # Create the preservation master bytestream.
               pres_file = pres_dir.files.first
               bs = item.bytestreams.build
+              bs.cfs_file_uuid = pres_file.uuid
               bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
               bs.repository_relative_pathname =
                   '/' + pres_file.repository_relative_pathname.reverse.chomp('/').reverse
@@ -658,6 +666,7 @@ class MedusaIngester
 
         # Create the preservation master bytestream.
         bs = item.bytestreams.build
+        bs.cfs_file_uuid = file.uuid
         bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
         bs.repository_relative_pathname =
             '/' + file.repository_relative_pathname.reverse.chomp('/').reverse
