@@ -199,6 +199,7 @@ class Collection < ActiveRecord::Base
       cfs_file = MedusaCfsFile.new
       cfs_file.uuid = self.representative_image
       bs = Bytestream.new
+      bs.cfs_file_uuid = cfs_file.uuid
       bs.repository_relative_pathname = cfs_file.repository_relative_pathname
       bs.infer_media_type
     end
