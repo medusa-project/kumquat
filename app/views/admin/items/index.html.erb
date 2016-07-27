@@ -100,13 +100,13 @@
           <div class="radio">
             <label>
               <%= radio_button_tag('ingest_mode',
-                                   MedusaIngester::IngestMode::CREATE_AND_UPDATE, false,
-                                   'aria-described-by' => 'pt-create-and-update-help') %>
-              Create &amp; Update
+                                   MedusaIngester::IngestMode::UPDATE_BYTESTREAMS, false,
+                                   'aria-described-by' => 'pt-update-bytestreams-help') %>
+              Update Bytestreams
             </label>
-            <span id="pt-create-and-update-help" class="help-block">
-              Create any items present in Medusa but not the DLS, and also update
-              existing items' bytestreams.
+            <span id="pt-update-bytestreams-help" class="help-block">
+              Update existing DLS items' bytestreams based on their corresponding
+              files in Medusa.
             </span>
           </div>
           <div class="radio">
