@@ -37,11 +37,14 @@ class MedusaIngesterTest < ActiveSupport::TestCase
 
     # Inspect an individual file item more thoroughly.
     item = Item.find_by_repository_id('236763b0-e949-0133-1d3d-0050569601ca-2')
+    item.bytestreams.each do |bs|
+      assert_equal Bytestream::Type::ACCESS_MASTER, bs.bytestream_type
+    end
     assert_empty item.items
     assert_equal 1, item.bytestreams.length
     assert_equal Item::Variants::FILE, item.variant
     assert_equal 'afm0002389.jp2', item.title
-    bs = item.bytestreams.select{ |b| b.bytestream_type == Bytestream::Type::PRESERVATION_MASTER }.first
+    bs = item.bytestreams.first
     assert_equal 'image/jp2', bs.media_type
     assert_equal '/59/2257/afm0002389/access/afm0002389.jp2',
                  bs.repository_relative_pathname
@@ -100,6 +103,9 @@ class MedusaIngesterTest < ActiveSupport::TestCase
 
     # Assert that the bytestreams were created.
     assert_equal Bytestream.count, result[:num_updated]
+    Bytestream.all.each do |bs|
+      assert_equal Bytestream::Type::ACCESS_MASTER, bs.bytestream_type
+    end
     assert_equal start_num_items, Item.count
     assert_equal Item.where(variant: Item::Variants::FILE).count, Bytestream.count
     Item.where(variant: Item::Variants::FILE).each do |it|
