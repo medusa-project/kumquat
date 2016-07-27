@@ -344,17 +344,6 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal(1, @item.subpage_number)
     assert_equal(Item::Variants::PAGE, @item.variant)
 
-    assert_equal(2, @item.bytestreams.length)
-    bs = @item.bytestreams.
-        select{ |bs| bs.bytestream_type == Bytestream::Type::ACCESS_MASTER }.first
-    assert_equal('/pathname', bs.repository_relative_pathname)
-    assert_equal('image/jpeg', bs.media_type)
-
-    bs = @item.bytestreams.
-        select{ |bs| bs.bytestream_type == Bytestream::Type::PRESERVATION_MASTER }.first
-    assert_equal('/pathname', bs.repository_relative_pathname)
-    assert_equal('image/jpeg', bs.media_type)
-
     descriptions = @item.elements.select{ |e| e.name == 'description' }
     assert_equal 3, descriptions.length
     assert_equal 1, descriptions.select{ |e| e.value == 'Cats' }.length

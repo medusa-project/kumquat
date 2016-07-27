@@ -698,30 +698,6 @@ class Item < ActiveRecord::Base
       page = node.xpath("//#{prefix}:subpageNumber", namespaces).first
       self.subpage_number = page.content.strip.to_i if page
 
-      # access master (pathname)
-      am = node.xpath("//#{prefix}:accessMasterPathname", namespaces).first
-      if am
-        bs = self.bytestreams.build
-        bs.bytestream_type = Bytestream::Type::ACCESS_MASTER
-        bs.repository_relative_pathname = am.content.strip
-        # media type
-        mt = node.xpath("//#{prefix}:accessMasterMediaType", namespaces).first
-        bs.media_type = mt.content.strip if mt
-        bs.save!
-      end
-
-      # preservation master (pathname)
-      pm = node.xpath("//#{prefix}:preservationMasterPathname", namespaces).first
-      if pm
-        bs = self.bytestreams.build
-        bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
-        bs.repository_relative_pathname = pm.content.strip
-        # media type
-        mt = node.xpath("//#{prefix}:preservationMasterMediaType", namespaces).first
-        bs.media_type = mt.content.strip if mt
-        bs.save!
-      end
-
       node.xpath("//#{prefix}:*", namespaces).
           select{ |node| Element.all_descriptive.map(&:name).include?(node.name) }.
           each do |node|
