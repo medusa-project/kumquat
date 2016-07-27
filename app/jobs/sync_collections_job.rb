@@ -1,4 +1,4 @@
-class ReindexCollectionsJob < Job
+class SyncCollectionsJob < Job
 
   queue_as :default
 
@@ -6,7 +6,7 @@ class ReindexCollectionsJob < Job
   # @param args [Hash]
   #
   def perform(*args)
-    self.task.status_text = 'Reindexing collections'
+    self.task.status_text = 'Syncing collections'
     self.task.indeterminate = false
     self.task.save!
 

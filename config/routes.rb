@@ -83,8 +83,8 @@ Rails.application.routes.draw do
   namespace :admin do
     root 'dashboard#index'
 
-    match '/collections/refresh', to: 'collections#refresh', via: 'patch',
-          as: 'collections_refresh'
+    match '/collections/sync', to: 'collections#sync', via: 'patch',
+          as: 'collections_sync'
     resources :collections, except: [:new, :create, :delete] do
       match '/items/search', to: 'items#search', via: %w(get post),
             as: 'items_search'

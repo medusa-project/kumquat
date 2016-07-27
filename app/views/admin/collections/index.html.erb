@@ -12,8 +12,8 @@
     <div class="form-inline">
       <%= search_field_tag :q, params[:q], placeholder: 'Search',
                            class: 'form-control' %>
-      <%= link_to admin_collections_refresh_path, method: 'patch', class: 'btn btn-default' do %>
-          <i class="fa fa-refresh"></i> Refresh
+      <%= link_to admin_collections_sync_path, method: 'patch', class: 'btn btn-default' do %>
+          <i class="fa fa-refresh"></i> Sync
       <% end %>
     <% end %>
   </div>
