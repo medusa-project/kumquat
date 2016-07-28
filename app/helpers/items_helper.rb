@@ -1070,30 +1070,60 @@ module ItemsHelper
     raw(html)
   end
 
+  ##
+  # @param bs [Bytestream]
+  # @return [Boolean] Whether the given bytestream is presumed safe to feed to
+  #                   an IIIF server (won't bog it down too much).
+  #
+  def iiif_safe?(bs)
+    max_size = 30000000 # arbitrary
+
+    return false if !bs or bs.repository_relative_pathname.blank?
+
+    # Large TIFF preservation masters are probably neither tiled nor
+    # multiresolution, so are going to be very inefficient to read.
+    if bs.bytestream_type == Bytestream::Type::PRESERVATION_MASTER and
+        bs.media_type == 'image/tiff' and
+        File.size(bs.absolute_local_pathname) > max_size
+      return false
+    end
+    true
+  end
+
   def image_viewer_for(item)
-    # https://openseadragon.github.io/docs/OpenSeadragon.html#.Options
-    html = "<div id=\"pt-image-viewer\"></div>
-    #{javascript_include_tag('/openseadragon/openseadragon.min.js')}
-    <script type=\"text/javascript\">
-    OpenSeadragon.setString('Tooltips.Home', 'Reset');
-    OpenSeadragon.setString('Tooltips.ZoomIn', 'Zoom In');
-    OpenSeadragon.setString('Tooltips.ZoomOut', 'Zoom Out');
-    OpenSeadragon.setString('Tooltips.FullPage', 'Full Screen');
-    OpenSeadragon.setString('Tooltips.RotateLeft', 'Rotate Left');
-    OpenSeadragon.setString('Tooltips.RotateRight', 'Rotate Right');
-    OpenSeadragon({
-        id: \"pt-image-viewer\",
-        showNavigator: true,
-        showRotationControl: true,
-        navigatorSizeRatio: 0.2,
-        controlsFadeDelay: 1000,
-        controlsFadeLength: 1000,
-        immediateRender: true,
-        preserveViewport: true,
-        prefixUrl: \"/openseadragon/images/\",
-        tileSources: \"#{j(iiif_item_url(item))}\"
-    });
-    </script>"
+    html = ''
+
+    # If there is no access master, and the preservation master is too large,
+    # render an alert instead of the viewer.
+    if !item.access_master_bytestream and
+        !iiif_safe?(item.preservation_master_bytestream)
+      html += '<div class="alert alert-info">Preservation master image is too
+          large to display, and no access master is available.</div>'
+    else
+      # https://openseadragon.github.io/docs/OpenSeadragon.html#.Options
+      html += "<div id=\"pt-image-viewer\"></div>
+      #{javascript_include_tag('/openseadragon/openseadragon.min.js')}
+      <script type=\"text/javascript\">
+      OpenSeadragon.setString('Tooltips.Home', 'Reset');
+      OpenSeadragon.setString('Tooltips.ZoomIn', 'Zoom In');
+      OpenSeadragon.setString('Tooltips.ZoomOut', 'Zoom Out');
+      OpenSeadragon.setString('Tooltips.FullPage', 'Full Screen');
+      OpenSeadragon.setString('Tooltips.RotateLeft', 'Rotate Left');
+      OpenSeadragon.setString('Tooltips.RotateRight', 'Rotate Right');
+      OpenSeadragon({
+          id: \"pt-image-viewer\",
+          showNavigator: true,
+          showRotationControl: true,
+          navigatorSizeRatio: 0.2,
+          controlsFadeDelay: 1000,
+          controlsFadeLength: 1000,
+          immediateRender: true,
+          preserveViewport: true,
+          prefixUrl: \"/openseadragon/images/\",
+          tileSources: \"#{j(iiif_item_url(item))}\"
+      });
+      </script>"
+    end
     raw(html)
   end
 
@@ -1107,7 +1137,7 @@ module ItemsHelper
     url = nil
     if item.is_image? or item.is_pdf?
       bs = item.access_master_bytestream || item.preservation_master_bytestream
-      if bs.repository_relative_pathname
+      if bs.repository_relative_pathname and iiif_safe?(bs)
         shape = (shape == :square) ? 'square' : 'full'
         url = sprintf('%s/%s/!%d,%d/0/default.jpg',
                       iiif_item_url(item), shape, size, size)
