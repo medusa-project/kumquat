@@ -1,4 +1,10 @@
-<%= pages_section(@pages, @item) %>
+<% if @pages.any? %>
+  <h2>Pages <span class="badge"><%= @pages.count %></span></h2>
+  <div class="pt-pages">
+    <%= pages_as_list(@pages, @item) %>
+  </div>
+<% end %>
+
 <div class="text-center">
   <%= paginate_pages(@item, @pages, @limit, @current_page) %>
 </div>

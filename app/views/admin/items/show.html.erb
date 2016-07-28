@@ -53,7 +53,7 @@
   <h2>Pages</h2>
   <% if @item.pages.any? %>
     <div class="pt-pages">
-      <%= pages_as_list(@item, link_to_admin: true) %>
+      <%= pages_as_list(@item.pages, nil, link_to_admin: true) %>
     </div>
     <!-- TODO: files, directories, non-pages -->
   <% else %>

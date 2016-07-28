@@ -161,21 +161,6 @@ module ItemsHelper
     raw(html)
   end
 
-  def files_section(items)
-    # IMET-163: file lists should be n number of vertical columns; directory
-    # lists should be purely vertical.
-    html = ''
-    if items.any?
-      dirs = items.select{ |item| item.variant == Item::Variants::DIRECTORY }
-      class_ = (dirs.length == items.length) ? 'pt-directories' : 'pt-files'
-      html += "<h2>Files <span class=\"badge\">#{items.count}</span></h2>
-          <div class=\"#{class_}\">
-            #{files_as_list(items)}
-          </div>"
-    end
-    raw(html)
-  end
-
   ##
   # @param item [Item]
   # @param options [Hash]
@@ -553,48 +538,37 @@ module ItemsHelper
   end
 
   ##
-  # @param item [Item]
+  # @param pages [Relation<Item>]
+  # @param selected_item [Item]
   # @param options [Hash] with available keys: `:link_to_admin` [Boolean]
   #
-  def pages_as_list(item, options = {})
-    items = item.parent ? item.parent.pages : item.pages
-    items = items.limit(999)
-    return nil unless items.any?
+  def pages_as_list(pages, selected_item, options = {})
+    return nil unless pages.any?
     html = '<ol>'
-    items.each do |child|
+    pages.each do |page|
       link_target = options[:link_to_admin] ?
-          admin_collection_item_path(child.collection, child) : item_path(child)
+          admin_collection_item_path(page.collection, page) : item_path(page)
       html += '<li>'
-      if item.repository_id == child.repository_id
+      if selected_item&.repository_id == page.repository_id
         html += '<div class="pt-current">'
-        html += raw('<div class="pt-thumbnail">' +
-                        thumbnail_tag(child, DEFAULT_THUMBNAIL_SIZE, :square) +
-                        '</div>')
+        html += '<div class="pt-thumbnail">' +
+                    thumbnail_tag(page, DEFAULT_THUMBNAIL_SIZE, :square) +
+            '</div>'
         html += '<span class=\"pt-title\">' +
-            truncate(child.title, length: PAGE_TITLE_LENGTH) + '</span>'
+            truncate(page.title, length: PAGE_TITLE_LENGTH) + '</span>'
       else
         html += '<div>'
         html += link_to(link_target) do
           raw('<div class="pt-thumbnail">' +
-                  thumbnail_tag(child, DEFAULT_THUMBNAIL_SIZE, :square) + '</div>')
+                  thumbnail_tag(page, DEFAULT_THUMBNAIL_SIZE, :square) + '</div>')
         end
-        html += link_to(truncate(child.title, length: PAGE_TITLE_LENGTH),
+        html += link_to(truncate(page.title, length: PAGE_TITLE_LENGTH),
                         link_target, class: 'pt-title')
+        html += '</div>'
       end
-      html += '</div></li>'
+      html += '</li>'
     end
     html += '</ol>'
-    raw(html)
-  end
-
-  def pages_section(pages, selected_page)
-    html = ''
-    if pages.any?
-      html += "<h2>Pages <span class=\"badge\">#{pages.count}</span></h2>
-        <div class=\"pt-pages\">
-          #{pages_as_list(selected_page)}
-        </div>"
-    end
     raw(html)
   end
 
@@ -983,36 +957,44 @@ module ItemsHelper
 
     case child_item_variant
       when Item::Variants::FILE
-        first_link = link_to(item_files_path(parent_item, params.except(:start)),
+        first_link = link_to(item_files_path(parent_item,
+                                             params.except(:start).symbolize_keys),
                              remote: remote, 'aria-label': 'First') do
           raw('<span aria-hidden="true">First</span>')
         end
-        prev_link = link_to(item_files_path(parent_item, params.merge(start: prev_start)),
+        prev_link = link_to(item_files_path(parent_item,
+                                            params.merge(start: prev_start).symbolize_keys),
                             remote: remote, 'aria-label': 'Previous') do
           raw('<span aria-hidden="true">&laquo;</span>')
         end
-        next_link = link_to(item_files_path(parent_item, params.merge(start: next_start)),
+        next_link = link_to(item_files_path(parent_item,
+                                            params.merge(start: next_start).symbolize_keys),
                             remote: remote, 'aria-label': 'Next') do
           raw('<span aria-hidden="true">&raquo;</span>')
         end
-        last_link = link_to(item_files_path(parent_item, params.merge(start: last_start)),
+        last_link = link_to(item_files_path(parent_item,
+                                            params.merge(start: last_start).symbolize_keys),
                             remote: remote, 'aria-label': 'Last') do
           raw('<span aria-hidden="true">Last</span>')
         end
       when Item::Variants::PAGE
-        first_link = link_to(item_pages_path(parent_item, params.except(:start)),
+        first_link = link_to(item_pages_path(parent_item,
+                                             params.except(:start).symbolize_keys),
                              remote: remote, 'aria-label': 'First') do
           raw('<span aria-hidden="true">First</span>')
         end
-        prev_link = link_to(item_pages_path(parent_item, params.merge(start: prev_start)),
+        prev_link = link_to(item_pages_path(parent_item,
+                                            params.merge(start: prev_start).symbolize_keys),
                             remote: remote, 'aria-label': 'Previous') do
           raw('<span aria-hidden="true">&laquo;</span>')
         end
-        next_link = link_to(item_pages_path(parent_item, params.merge(start: next_start)),
+        next_link = link_to(item_pages_path(parent_item,
+                                            params.merge(start: next_start).symbolize_keys),
                             remote: remote, 'aria-label': 'Next') do
           raw('<span aria-hidden="true">&raquo;</span>')
         end
-        last_link = link_to(item_pages_path(parent_item, params.merge(start: last_start)),
+        last_link = link_to(item_pages_path(parent_item,
+                                            params.merge(start: last_start).symbolize_keys),
                             remote: remote, 'aria-label': 'Last') do
           raw('<span aria-hidden="true">Last</span>')
         end
@@ -1021,13 +1003,16 @@ module ItemsHelper
                              'aria-label': 'First') do
           raw('<span aria-hidden="true">First</span>')
         end
-        prev_link = link_to(params.merge(start: prev_start), remote: remote, 'aria-label': 'Previous') do
+        prev_link = link_to(params.merge(start: prev_start).symbolize_keys,
+                            remote: remote, 'aria-label': 'Previous') do
           raw('<span aria-hidden="true">&laquo;</span>')
         end
-        next_link = link_to(params.merge(start: next_start), remote: remote, 'aria-label': 'Next') do
+        next_link = link_to(params.merge(start: next_start).symbolize_keys,
+                            remote: remote, 'aria-label': 'Next') do
           raw('<span aria-hidden="true">&raquo;</span>')
         end
-        last_link = link_to(params.merge(start: last_start), remote: remote, 'aria-label': 'Last') do
+        last_link = link_to(params.merge(start: last_start).symbolize_keys,
+                            remote: remote, 'aria-label': 'Last') do
           raw('<span aria-hidden="true">Last</span>')
         end
     end
@@ -1041,21 +1026,22 @@ module ItemsHelper
       start = (page - 1) * per_page
       case child_item_variant
         when Item::Variants::FILE
-          path = (start == 0) ? item_files_path(parent_item, params.except(:start)) :
-              item_files_path(parent_item, params.merge(start: start))
+          path = (start == 0) ? item_files_path(parent_item, params.except(:start).symbolize_keys) :
+              item_files_path(parent_item, params.merge(start: start).symbolize_keys)
           page_link = link_to(path, remote: remote) do
             raw("#{page} #{(page == current_page) ?
                 '<span class="sr-only">(current)</span>' : ''}")
           end
         when Item::Variants::PAGE
-          path = (start == 0) ? item_pages_path(parent_item, params.except(:start)) :
-              item_pages_path(parent_item, params.merge(start: start))
+          path = (start == 0) ? item_pages_path(parent_item, params.except(:start).symbolize_keys) :
+              item_pages_path(parent_item, params.merge(start: start).symbolize_keys)
           page_link = link_to(path, remote: remote) do
             raw("#{page} #{(page == current_page) ?
                 '<span class="sr-only">(current)</span>' : ''}")
           end
         else
-          page_link = link_to((start == 0) ? params.except(:start) : params.merge(start: start), remote: remote) do
+          page_link = link_to((start == 0) ? params.except(:start) :
+                                  params.merge(start: start).symbolize_keys, remote: remote) do
             raw("#{page} #{(page == current_page) ?
                 '<span class="sr-only">(current)</span>' : ''}")
           end
@@ -1065,7 +1051,7 @@ module ItemsHelper
     end
     html += "<li #{current_page == next_page ? 'class="disabled"' : ''}>#{next_link}</li>" +
         "<li #{current_page == last_page ? 'class="disabled"' : ''}>#{last_link}</li>"
-    '</ul>' +
+    html += '</ul>' +
         '</nav>'
     raw(html)
   end
