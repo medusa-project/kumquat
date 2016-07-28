@@ -258,6 +258,16 @@ contributor:
   mappings:
     dc: contributor
     dcterms: contributor
+coordinates:
+  type: descriptive
+  label: Latitude-Longitude Coordinates
+  visible: true
+  searchable: false
+  sortable: false
+  facetable: false
+  mappings:
+    dc: coverage
+    dcterms: spatial
 creator:
   type: descriptive
   label: Creator
