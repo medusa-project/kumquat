@@ -229,13 +229,13 @@ class ItemsController < WebsiteController
     @item = Item.find_by_repository_id(params[:id])
     raise ActiveRecord::RecordNotFound unless @item
 
-    return unless check_collection_published(@item.collection)
-    return unless check_item_published(@item)
-
     fresh_when(etag: @item) if Rails.env.production?
 
     respond_to do |format|
       format.html do
+        return unless check_collection_published(@item.collection)
+        return unless check_item_published(@item)
+
         @parent = @item.parent
         @relative_parent = @parent ? @parent : @item
 
@@ -251,6 +251,9 @@ class ItemsController < WebsiteController
         @next_item = @relative_child ? @relative_child.next : nil
       end
       format.json do
+        return unless check_collection_published(@item.collection)
+        return unless check_item_published(@item)
+
         render json: @item.decorate
       end
       format.xml do
@@ -377,7 +380,7 @@ class ItemsController < WebsiteController
     @limit = PAGES_LIMIT
     @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
     @pages = @item.pages_from_solr.order(Item::SolrFields::TITLE).
-        start(@start).limit(@limit)
+        start(@start).limit(@limit).to_a
   end
 
 end
