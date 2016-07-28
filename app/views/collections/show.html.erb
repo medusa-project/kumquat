@@ -17,7 +17,17 @@
           <%= icon_for(@collection) %> View the collection
         <% end %>
         <% if Rails.env.development? %>
-          <%= link_to('Admin View', admin_collection_path(@collection),
+          <%= link_to('Admin', admin_collection_path(@collection),
+                      class: 'btn btn-lg btn-default', target: '_blank') %>
+          <br>
+          <%= link_to('Staging', "https://kumquat-dev.library.illinois.edu/collections/#{@collection.repository_id}",
+                      class: 'btn btn-lg btn-default', target: '_blank') %>
+          <%= link_to('Staging Admin', "https://kumquat-dev.library.illinois.edu/admin/collections/#{@collection.repository_id}",
+                      class: 'btn btn-lg btn-default', target: '_blank') %>
+          <br>
+          <%= link_to('Production', "https://digital.library.illinois.edu/collections/#{@collection.repository_id}",
+                      class: 'btn btn-lg btn-default', target: '_blank') %>
+          <%= link_to('Production Admin', "https://digital.library.illinois.edu/admin/collections/#{@collection.repository_id}",
                       class: 'btn btn-lg btn-default', target: '_blank') %>
         <% end %>
       </div>
