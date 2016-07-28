@@ -110,8 +110,8 @@ side-by-side. (IMET-161) -->
         <%= index_item_panel(@relative_parent, size: 512) %>
       </div>
       <div class="col-sm-8 col-md-9 col-lg-9">
-        <section>
-          <%= pages_section(@pages, @item) %>
+        <section id="pt-pages-section">
+          <%= render partial: 'pages' %>
         </section>
       </div>
     </div>

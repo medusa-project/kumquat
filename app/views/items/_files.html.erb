@@ -1,4 +1,17 @@
-<%= files_section(@files) %>
+<%
+# IMET-163: file lists should be n number of vertical columns; directory
+# lists should be purely vertical.
+%>
+
+<% if @files.any? %>
+  <% dirs = @files.select{ |item| item.variant == Item::Variants::DIRECTORY } %>
+  <% class_ = (dirs.length == @files.length) ? 'pt-directories' : 'pt-files' %>
+  <h2>Files <span class="badge"><%= @files.count %></span></h2>
+  <div class="<%= class_ %>">
+    <%= files_as_list(@files) %>
+  </div>
+<% end %>
+
 <div class="text-center">
   <%= paginate_files(@item, @files, @limit, @current_page) %>
 </div>

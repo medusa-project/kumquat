@@ -161,21 +161,6 @@ module ItemsHelper
     raw(html)
   end
 
-  def files_section(items)
-    # IMET-163: file lists should be n number of vertical columns; directory
-    # lists should be purely vertical.
-    html = ''
-    if items.any?
-      dirs = items.select{ |item| item.variant == Item::Variants::DIRECTORY }
-      class_ = (dirs.length == items.length) ? 'pt-directories' : 'pt-files'
-      html += "<h2>Files <span class=\"badge\">#{items.count}</span></h2>
-          <div class=\"#{class_}\">
-            #{files_as_list(items)}
-          </div>"
-    end
-    raw(html)
-  end
-
   ##
   # @param item [Item]
   # @param options [Hash]
@@ -553,48 +538,37 @@ module ItemsHelper
   end
 
   ##
-  # @param item [Item]
+  # @param pages [Relation<Item>]
+  # @param selected_item [Item]
   # @param options [Hash] with available keys: `:link_to_admin` [Boolean]
   #
-  def pages_as_list(item, options = {})
-    items = item.parent ? item.parent.pages : item.pages
-    items = items.limit(999)
-    return nil unless items.any?
+  def pages_as_list(pages, selected_item, options = {})
+    return nil unless pages.any?
     html = '<ol>'
-    items.each do |child|
+    pages.each do |page|
       link_target = options[:link_to_admin] ?
-          admin_collection_item_path(child.collection, child) : item_path(child)
+          admin_collection_item_path(page.collection, page) : item_path(page)
       html += '<li>'
-      if item.repository_id == child.repository_id
+      if selected_item&.repository_id == page.repository_id
         html += '<div class="pt-current">'
-        html += raw('<div class="pt-thumbnail">' +
-                        thumbnail_tag(child, DEFAULT_THUMBNAIL_SIZE, :square) +
-                        '</div>')
+        html += '<div class="pt-thumbnail">' +
+                    thumbnail_tag(page, DEFAULT_THUMBNAIL_SIZE, :square) +
+            '</div>'
         html += '<span class=\"pt-title\">' +
-            truncate(child.title, length: PAGE_TITLE_LENGTH) + '</span>'
+            truncate(page.title, length: PAGE_TITLE_LENGTH) + '</span>'
       else
         html += '<div>'
         html += link_to(link_target) do
           raw('<div class="pt-thumbnail">' +
-                  thumbnail_tag(child, DEFAULT_THUMBNAIL_SIZE, :square) + '</div>')
+                  thumbnail_tag(page, DEFAULT_THUMBNAIL_SIZE, :square) + '</div>')
         end
-        html += link_to(truncate(child.title, length: PAGE_TITLE_LENGTH),
+        html += link_to(truncate(page.title, length: PAGE_TITLE_LENGTH),
                         link_target, class: 'pt-title')
+        html += '</div>'
       end
-      html += '</div></li>'
+      html += '</li>'
     end
     html += '</ol>'
-    raw(html)
-  end
-
-  def pages_section(pages, selected_page)
-    html = ''
-    if pages.any?
-      html += "<h2>Pages <span class=\"badge\">#{pages.count}</span></h2>
-        <div class=\"pt-pages\">
-          #{pages_as_list(selected_page)}
-        </div>"
-    end
     raw(html)
   end
 
