@@ -227,7 +227,6 @@ class MedusaIngester
               end
 
               # Create the preservation master bytestream.
-              pres_file = pres_dir.files.first
               bs = child.bytestreams.build
               bs.cfs_file_uuid = pres_file.uuid
               bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
@@ -581,10 +580,12 @@ class MedusaIngester
                 # Find the child item.
                 child = Item.find_by_repository_id(pres_file.uuid)
                 if child
+                  Rails.logger.info("update_map_bytestreams(): updating child item "\
+                    "#{pres_file.uuid}")
+
                   child.bytestreams.destroy_all
 
                   # Create the preservation master bytestream.
-                  pres_file = pres_dir.files.first
                   bs = child.bytestreams.build
                   bs.cfs_file_uuid = pres_file.uuid
                   bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
@@ -602,9 +603,15 @@ class MedusaIngester
                     warnings << "#{e}"
                   end
                   stats[:num_updated] += 1
+                else
+                  Rails.logger.warn("update_map_bytestreams(): skipping child item "\
+                    "#{pres_file.uuid} (no item)")
                 end
               end
             elsif pres_dir.files.length == 1
+              Rails.logger.info("update_map_bytestreams(): updating item "\
+                    "#{item.repository_id}")
+
               # Create the preservation master bytestream.
               pres_file = pres_dir.files.first
               bs = item.bytestreams.build
