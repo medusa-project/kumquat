@@ -934,7 +934,7 @@ module ItemsHelper
               '<span class="label label-success">OK</span>' :
               '<span class="label label-danger">MISSING</span>'
       }
-      if options[:admin]
+      if options[:admin] and bytestream.cfs_file_uuid.present?
         data << {
             label: 'Medusa CFS File',
             category: 'File',
@@ -984,50 +984,50 @@ module ItemsHelper
     case child_item_variant
       when Item::Variants::FILE
         first_link = link_to(item_files_path(parent_item, params.except(:start)),
-                             remote: remote, 'aria-label' => 'First') do
+                             remote: remote, 'aria-label': 'First') do
           raw('<span aria-hidden="true">First</span>')
         end
         prev_link = link_to(item_files_path(parent_item, params.merge(start: prev_start)),
-                            remote: remote, 'aria-label' => 'Previous') do
+                            remote: remote, 'aria-label': 'Previous') do
           raw('<span aria-hidden="true">&laquo;</span>')
         end
         next_link = link_to(item_files_path(parent_item, params.merge(start: next_start)),
-                            remote: remote, 'aria-label' => 'Next') do
+                            remote: remote, 'aria-label': 'Next') do
           raw('<span aria-hidden="true">&raquo;</span>')
         end
         last_link = link_to(item_files_path(parent_item, params.merge(start: last_start)),
-                            remote: remote, 'aria-label' => 'Last') do
+                            remote: remote, 'aria-label': 'Last') do
           raw('<span aria-hidden="true">Last</span>')
         end
       when Item::Variants::PAGE
         first_link = link_to(item_pages_path(parent_item, params.except(:start)),
-                             remote: remote, 'aria-label' => 'First') do
+                             remote: remote, 'aria-label': 'First') do
           raw('<span aria-hidden="true">First</span>')
         end
         prev_link = link_to(item_pages_path(parent_item, params.merge(start: prev_start)),
-                            remote: remote, 'aria-label' => 'Previous') do
+                            remote: remote, 'aria-label': 'Previous') do
           raw('<span aria-hidden="true">&laquo;</span>')
         end
         next_link = link_to(item_pages_path(parent_item, params.merge(start: next_start)),
-                            remote: remote, 'aria-label' => 'Next') do
+                            remote: remote, 'aria-label': 'Next') do
           raw('<span aria-hidden="true">&raquo;</span>')
         end
         last_link = link_to(item_pages_path(parent_item, params.merge(start: last_start)),
-                            remote: remote, 'aria-label' => 'Last') do
+                            remote: remote, 'aria-label': 'Last') do
           raw('<span aria-hidden="true">Last</span>')
         end
       else
         first_link = link_to(params.except(:start), remote: remote,
-                             'aria-label' => 'First') do
+                             'aria-label': 'First') do
           raw('<span aria-hidden="true">First</span>')
         end
-        prev_link = link_to(params.merge(start: prev_start), remote: remote, 'aria-label' => 'Previous') do
+        prev_link = link_to(params.merge(start: prev_start), remote: remote, 'aria-label': 'Previous') do
           raw('<span aria-hidden="true">&laquo;</span>')
         end
-        next_link = link_to(params.merge(start: next_start), remote: remote, 'aria-label' => 'Next') do
+        next_link = link_to(params.merge(start: next_start), remote: remote, 'aria-label': 'Next') do
           raw('<span aria-hidden="true">&raquo;</span>')
         end
-        last_link = link_to(params.merge(start: last_start), remote: remote, 'aria-label' => 'Last') do
+        last_link = link_to(params.merge(start: last_start), remote: remote, 'aria-label': 'Last') do
           raw('<span aria-hidden="true">Last</span>')
         end
     end
