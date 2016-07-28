@@ -380,7 +380,7 @@ class ItemsController < WebsiteController
     @limit = PAGES_LIMIT
     @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
     @pages = @item.pages_from_solr.order(Item::SolrFields::TITLE).
-        start(@start).limit(@limit)
+        start(@start).limit(@limit).to_a
   end
 
 end
