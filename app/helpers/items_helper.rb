@@ -983,36 +983,44 @@ module ItemsHelper
 
     case child_item_variant
       when Item::Variants::FILE
-        first_link = link_to(item_files_path(parent_item, params.except(:start)),
+        first_link = link_to(item_files_path(parent_item,
+                                             params.except(:start).symbolize_keys),
                              remote: remote, 'aria-label': 'First') do
           raw('<span aria-hidden="true">First</span>')
         end
-        prev_link = link_to(item_files_path(parent_item, params.merge(start: prev_start)),
+        prev_link = link_to(item_files_path(parent_item,
+                                            params.merge(start: prev_start).symbolize_keys),
                             remote: remote, 'aria-label': 'Previous') do
           raw('<span aria-hidden="true">&laquo;</span>')
         end
-        next_link = link_to(item_files_path(parent_item, params.merge(start: next_start)),
+        next_link = link_to(item_files_path(parent_item,
+                                            params.merge(start: next_start).symbolize_keys),
                             remote: remote, 'aria-label': 'Next') do
           raw('<span aria-hidden="true">&raquo;</span>')
         end
-        last_link = link_to(item_files_path(parent_item, params.merge(start: last_start)),
+        last_link = link_to(item_files_path(parent_item,
+                                            params.merge(start: last_start).symbolize_keys),
                             remote: remote, 'aria-label': 'Last') do
           raw('<span aria-hidden="true">Last</span>')
         end
       when Item::Variants::PAGE
-        first_link = link_to(item_pages_path(parent_item, params.except(:start)),
+        first_link = link_to(item_pages_path(parent_item,
+                                             params.except(:start).symbolize_keys),
                              remote: remote, 'aria-label': 'First') do
           raw('<span aria-hidden="true">First</span>')
         end
-        prev_link = link_to(item_pages_path(parent_item, params.merge(start: prev_start)),
+        prev_link = link_to(item_pages_path(parent_item,
+                                            params.merge(start: prev_start).symbolize_keys),
                             remote: remote, 'aria-label': 'Previous') do
           raw('<span aria-hidden="true">&laquo;</span>')
         end
-        next_link = link_to(item_pages_path(parent_item, params.merge(start: next_start)),
+        next_link = link_to(item_pages_path(parent_item,
+                                            params.merge(start: next_start).symbolize_keys),
                             remote: remote, 'aria-label': 'Next') do
           raw('<span aria-hidden="true">&raquo;</span>')
         end
-        last_link = link_to(item_pages_path(parent_item, params.merge(start: last_start)),
+        last_link = link_to(item_pages_path(parent_item,
+                                            params.merge(start: last_start).symbolize_keys),
                             remote: remote, 'aria-label': 'Last') do
           raw('<span aria-hidden="true">Last</span>')
         end
@@ -1021,13 +1029,16 @@ module ItemsHelper
                              'aria-label': 'First') do
           raw('<span aria-hidden="true">First</span>')
         end
-        prev_link = link_to(params.merge(start: prev_start), remote: remote, 'aria-label': 'Previous') do
+        prev_link = link_to(params.merge(start: prev_start).symbolize_keys,
+                            remote: remote, 'aria-label': 'Previous') do
           raw('<span aria-hidden="true">&laquo;</span>')
         end
-        next_link = link_to(params.merge(start: next_start), remote: remote, 'aria-label': 'Next') do
+        next_link = link_to(params.merge(start: next_start).symbolize_keys,
+                            remote: remote, 'aria-label': 'Next') do
           raw('<span aria-hidden="true">&raquo;</span>')
         end
-        last_link = link_to(params.merge(start: last_start), remote: remote, 'aria-label': 'Last') do
+        last_link = link_to(params.merge(start: last_start).symbolize_keys,
+                            remote: remote, 'aria-label': 'Last') do
           raw('<span aria-hidden="true">Last</span>')
         end
     end
@@ -1041,21 +1052,22 @@ module ItemsHelper
       start = (page - 1) * per_page
       case child_item_variant
         when Item::Variants::FILE
-          path = (start == 0) ? item_files_path(parent_item, params.except(:start)) :
-              item_files_path(parent_item, params.merge(start: start))
+          path = (start == 0) ? item_files_path(parent_item, params.except(:start).symbolize_keys) :
+              item_files_path(parent_item, params.merge(start: start).symbolize_keys)
           page_link = link_to(path, remote: remote) do
             raw("#{page} #{(page == current_page) ?
                 '<span class="sr-only">(current)</span>' : ''}")
           end
         when Item::Variants::PAGE
-          path = (start == 0) ? item_pages_path(parent_item, params.except(:start)) :
-              item_pages_path(parent_item, params.merge(start: start))
+          path = (start == 0) ? item_pages_path(parent_item, params.except(:start).symbolize_keys) :
+              item_pages_path(parent_item, params.merge(start: start).symbolize_keys)
           page_link = link_to(path, remote: remote) do
             raw("#{page} #{(page == current_page) ?
                 '<span class="sr-only">(current)</span>' : ''}")
           end
         else
-          page_link = link_to((start == 0) ? params.except(:start) : params.merge(start: start), remote: remote) do
+          page_link = link_to((start == 0) ? params.except(:start) :
+                                  params.merge(start: start).symbolize_keys, remote: remote) do
             raw("#{page} #{(page == current_page) ?
                 '<span class="sr-only">(current)</span>' : ''}")
           end
@@ -1065,7 +1077,7 @@ module ItemsHelper
     end
     html += "<li #{current_page == next_page ? 'class="disabled"' : ''}>#{next_link}</li>" +
         "<li #{current_page == last_page ? 'class="disabled"' : ''}>#{last_link}</li>"
-    '</ul>' +
+    html += '</ul>' +
         '</nav>'
     raw(html)
   end
