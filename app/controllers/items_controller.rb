@@ -229,13 +229,13 @@ class ItemsController < WebsiteController
     @item = Item.find_by_repository_id(params[:id])
     raise ActiveRecord::RecordNotFound unless @item
 
-    return unless check_collection_published(@item.collection)
-    return unless check_item_published(@item)
-
     fresh_when(etag: @item) if Rails.env.production?
 
     respond_to do |format|
       format.html do
+        return unless check_collection_published(@item.collection)
+        return unless check_item_published(@item)
+
         @parent = @item.parent
         @relative_parent = @parent ? @parent : @item
 
@@ -251,6 +251,9 @@ class ItemsController < WebsiteController
         @next_item = @relative_child ? @relative_child.next : nil
       end
       format.json do
+        return unless check_collection_published(@item.collection)
+        return unless check_item_published(@item)
+
         render json: @item.decorate
       end
       format.xml do
