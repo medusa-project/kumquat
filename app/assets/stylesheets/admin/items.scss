@@ -109,6 +109,13 @@ body#items_show {
       margin: 0em 1.5em 0em 1.5em;
     }
   }
+
+  #pt-structure ul {
+    list-style: none;
+    margin-left: 1.5em;
+    padding-left: 0em;
+  }
+
   #pt-image-viewer {
     background-color:black;
     height: 500px;
