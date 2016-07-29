@@ -190,3 +190,10 @@ body#items_show {
   }
 
 }
+
+body#items_edit {
+  #item_full_text {
+    font-family: monospace;
+    min-height: 200px;
+  }
+}

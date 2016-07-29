@@ -1,0 +1,15 @@
+<% provide :body_id, 'items_edit' %>
+<% provide :active_nav, 'entities' %>
+
+<ol class="breadcrumb">
+  <li><%= link_to 'Home', admin_root_path %></li>
+  <li><%= link_to 'Collections', admin_collections_path %></li>
+  <li><%= link_to @item.collection.title, admin_collection_path(@item.collection) %></li>
+  <li><%= link_to truncate(@item.title, length: 50),
+                  admin_collection_item_path(@item.collection, @item) %></li>
+  <li class="active">Edit</li>
+</ol>
+
+<h1>Edit <%= @item.title %></h1>
+
+<%= render partial: 'form', locals: { item: @item, context: :edit } %>

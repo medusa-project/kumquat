@@ -3,6 +3,14 @@ module Admin
   class ItemsController < ControlPanelController
 
     ##
+    # Responds to GET /admin/collections/:collection_id/items/:id
+    #
+    def edit
+      @item = Item.find_by_repository_id(params[:id])
+      raise ActiveRecord::RecordNotFound unless @item
+    end
+
+    ##
     # Responds to GET /admin/collections/:collection_id/items
     #
     def index
@@ -154,6 +162,43 @@ module Admin
         'may take a while.'
         redirect_to admin_collection_items_url(col)
       end
+    end
+
+    def update
+      begin
+        item = Item.find_by_repository_id(params[:id])
+        raise ActiveRecord::RecordNotFound unless item
+
+        # If we are updating metadata, we will need to process the elements
+        # manually.
+        if params[:elements].respond_to?(:each)
+          ActiveRecord::Base.transaction do
+            item.elements.destroy_all
+            params[:elements].each do |name, values|
+              values.each do |value|
+                item.elements.build(name: name, value: value)
+              end
+            end
+            item.save!
+          end
+        end
+
+        if params[:item]
+          item.update!(sanitized_params)
+        end
+      rescue => e
+        flash['error'] = "#{e}"
+        redirect_to edit_admin_collection_item_path(item.collection, item)
+      else
+        flash['success'] = "Item \"#{item.title}\" updated."
+        redirect_to edit_admin_collection_item_path(item.collection, item)
+      end
+    end
+
+    private
+
+    def sanitized_params
+      params.require(:item).permit(:id, :full_text)
     end
 
   end
