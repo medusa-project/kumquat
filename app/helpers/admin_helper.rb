@@ -104,6 +104,8 @@ module AdminHelper
         end
       when 'items'
         case action_name
+          when 'edit'
+            return admin_item_edit_view_breadcrumb(options[:item])
           when 'index'
             return admin_results_breadcrumb(options[:collection])
           when 'show'
@@ -139,6 +141,17 @@ module AdminHelper
     end
     html += "<li class=\"active\">#{truncate(item.title, length: 50)}</li>"
     html
+  end
+
+  def admin_item_edit_view_breadcrumb(item)
+    html = "<ol class=\"breadcrumb\">"
+    html += "<li>#{link_to 'Home', admin_root_path}</li>"
+    html += "<li>#{link_to 'Collections', admin_collections_path}</li>"
+    html += "<li>#{link_to item.collection.title, admin_collection_path(item.collection)}</li>"
+    html += admin_item_structure_breadcrumb(item)
+    html += "<li>Edit</li>"
+    html += "</ol>"
+    raw(html)
   end
 
   def admin_item_view_breadcrumb(item)
