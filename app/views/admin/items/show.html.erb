@@ -2,13 +2,7 @@
 <% provide :body_id, 'items_show' %>
 <% provide :active_nav, 'entities' %>
 
-<ol class="breadcrumb">
-  <li><%= link_to 'Home', admin_root_path %></li>
-  <li><%= link_to 'Collections', admin_collections_path %></li>
-  <li><%= link_to @item.collection.title, admin_collection_path(@item.collection) %></li>
-  <li><%= link_to 'Items', admin_collection_items_path %></li>
-  <li class="active"><%= truncate(@item.title, length: 50) %></li>
-</ol>
+<%= admin_breadcrumb(item: @item) %>
 
 <div class="btn-group pull-right">
   <%= link_to edit_admin_collection_item_path(@item.collection, @item),

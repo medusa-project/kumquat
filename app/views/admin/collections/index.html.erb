@@ -2,10 +2,7 @@
 <% provide :body_id, 'admin_collections_index' %>
 <% provide :active_nav, 'entities' %>
 
-<ol class="breadcrumb">
-  <li><%= link_to 'Home', admin_root_path %></li>
-  <li class="active">Collections</li>
-</ol>
+<%= admin_breadcrumb %>
 
 <div class="pull-right">
   <%= form_tag admin_collections_path, method: 'get', class: 'pt-live-search' do %>

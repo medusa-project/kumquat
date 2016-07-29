@@ -2,12 +2,7 @@
 <% provide :body_id, 'items_index' %>
 <% provide :active_nav, 'entities' %>
 
-<ol class="breadcrumb">
-  <li><%= link_to 'Home', admin_root_path %></li>
-  <li><%= link_to 'Collections', admin_collections_path %></li>
-  <li><%= link_to @collection.title, admin_collection_path(@collection) %></li>
-  <li class="active">Items</li>
-</ol>
+<%= admin_breadcrumb(collection: @collection) %>
 
 <h1>Items in <%= @collection.title %></h1>
 
