@@ -25,10 +25,13 @@ var PTAdminItemEditView = function() {
         // Auto-vertical-resize the textareas...
         var textareas = $('textarea');
         var MAGIC_FUDGE = 12;
+        var MIN_HEIGHT = 20;
         // ... initially
         textareas.each(function() {
             $(this).height('0px');
-            $(this).height((this.scrollHeight - MAGIC_FUDGE) + 'px');
+            var height = this.scrollHeight - MAGIC_FUDGE;
+            height = (height < MIN_HEIGHT) ? MIN_HEIGHT : height;
+            $(this).height(height + 'px');
         });
         // ... and on change
         textareas.on('input propertychange keyup change', function() {
