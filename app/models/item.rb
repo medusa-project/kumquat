@@ -373,8 +373,8 @@ class Item < ActiveRecord::Base
   # @return [Element]
   #
   def title
-    self.elements.select{ |e| e.name == 'title' }.first&.value ||
-        self.repository_id
+    t = self.elements.select{ |e| e.name == 'title' }.first&.value
+    t.present? ? t : self.repository_id
   end
 
   ##
