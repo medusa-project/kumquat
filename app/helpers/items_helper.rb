@@ -1069,9 +1069,12 @@ module ItemsHelper
     # Large TIFF preservation masters are probably neither tiled nor
     # multiresolution, so are going to be very inefficient to read.
     if bs.bytestream_type == Bytestream::Type::PRESERVATION_MASTER and
-        bs.media_type == 'image/tiff' and
-        File.size(bs.absolute_local_pathname) > max_size
-      return false
+        bs.media_type == 'image/tiff'
+      begin
+        return false if File.size(bs.absolute_local_pathname) > max_size
+      rescue
+        return false
+      end
     end
     true
   end
