@@ -72,8 +72,8 @@
       </div>
 
       <div role="tabpanel" class="tab-pane" id="pt-descriptive-metadata">
-        <%= metadata_as_list(@item) %>
-        <%= metadata_as_table(@item) %>
+        <%= metadata_as_list(@item, show_invisible: true) %>
+        <%= metadata_as_table(@item, show_invisible: true) %>
       </div>
 
       <div role="tabpanel" class="tab-pane" id="pt-bytestreams">
