@@ -408,14 +408,18 @@ module ItemsHelper
 
   ##
   # @param item [Item]
+  # @param options [Hash]
+  # @option options [Boolean] :show_invisible
   # @return [String]
   # @see `tech_metadata_as_list`
   #
-  def metadata_as_list(item)
+  def metadata_as_list(item, options = {})
     html = '<dl class="pt-metadata">'
     # iterate through the index-ordered elements in the collection's metadata
     # profile in order to display the entity's elements in the correct order
-    item.collection.effective_metadata_profile.element_defs.each do |e_def|
+    defs = item.collection.effective_metadata_profile.element_defs
+    defs = defs.select(&:visible) unless options[:show_invisible]
+    defs.each do |e_def|
       elements = item.elements.
           select{ |e| e.name == e_def.name and e.value.present? }
       next if elements.empty?
@@ -438,15 +442,19 @@ module ItemsHelper
 
   ##
   # @param item [Item]
+  # @param options [Hash]
+  # @option options [Boolean] :show_invisible
   # @return [String]
   # @see `tech_metadata_as_table`
   #
-  def metadata_as_table(item)
+  def metadata_as_table(item, options = {})
     html = '<table class="table table-condensed pt-metadata">'
 
     # iterate through the index-ordered elements in the collection's metadata
     # profile in order to display the entity's elements in the correct order
-    item.collection.effective_metadata_profile.element_defs.each do |e_def|
+    defs = item.collection.effective_metadata_profile.element_defs
+    defs = defs.select(&:visible) unless options[:show_invisible]
+    defs.each do |e_def|
       elements = item.elements.
           select{ |e| e.name == e_def.name and e.value.present? }
       next if elements.empty?
