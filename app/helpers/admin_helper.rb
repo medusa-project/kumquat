@@ -220,8 +220,8 @@ module AdminHelper
     data['Page Number'] = item.page_number
     data['Subpage Number'] = item.subpage_number
     data['Normalized Date'] = item.date
-    data['Longitude'] = item.longitude
-    data['Latitude'] = item.latitude
+    data['Normalized Longitude'] = item.longitude
+    data['Normalized Latitude'] = item.latitude
     data['Created'] = local_time(item.created_at)
     data['Last Modified'] = local_time(item.updated_at)
     data
