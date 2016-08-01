@@ -98,8 +98,15 @@ body#items_show {
       }
     }
   }
-  .pt-remove-from-favorites {
-    display:none;
+  .pt-thumbnail {
+    font-size: 72px;
+    margin-top: 0px;
+    margin-bottom: 10px;
+    text-align: center;
+    img {
+      max-height: 150px;
+      max-width: 150px;
+    }
   }
   .pt-page-nav {
     text-align: center;

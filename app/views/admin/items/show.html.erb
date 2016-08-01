@@ -29,6 +29,9 @@
 
 <div class="row">
   <div class="col-sm-3 col-lg-2">
+    <div class="pt-thumbnail">
+      <%= thumbnail_tag(@item, ItemsHelper::DEFAULT_THUMBNAIL_SIZE) %>
+    </div>
     <ul class="nav nav-pills nav-stacked" role="tablist">
       <li role="presentation" class="active">
         <a href="#pt-structure" aria-controls="pt-structure" role="tab" data-toggle="tab">Structure</a>
@@ -64,7 +67,6 @@
       </div>
 
       <div role="tabpanel" class="tab-pane" id="pt-system-info">
-        <%= thumbnail_tag(@item, ItemsHelper::DEFAULT_THUMBNAIL_SIZE) %>
         <%= admin_system_info_as_list(@item) %>
         <%= admin_system_info_as_table(@item) %>
       </div>
