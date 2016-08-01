@@ -612,6 +612,8 @@ class MedusaIngester
               Rails.logger.info("update_map_bytestreams(): updating item "\
                     "#{item.repository_id}")
 
+              item.bytestreams.destroy_all
+
               # Create the preservation master bytestream.
               pres_file = pres_dir.files.first
               bs = item.bytestreams.build
@@ -628,6 +630,8 @@ class MedusaIngester
               rescue IllegalContentError => e
                 warnings << "#{e}"
               end
+
+              item.save!
 
               stats[:num_updated] += 1
             else
