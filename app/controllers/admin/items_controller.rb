@@ -8,6 +8,10 @@ module Admin
     def edit
       @item = Item.find_by_repository_id(params[:id])
       raise ActiveRecord::RecordNotFound unless @item
+
+      @variants = Item::Variants.constants.map do |v|
+        [v.to_s.downcase.gsub('_', ' ').titleize, v.to_s.downcase.camelize]
+      end
     end
 
     ##
@@ -198,7 +202,12 @@ module Admin
     private
 
     def sanitized_params
-      params.require(:item).permit(:id, :full_text)
+      # Metadata elements are not included here, as they are processed
+      # separately.
+      params.require(:item).permit(:id, :full_text, :latitude, :longitude,
+                                   :page_number, :published,
+                                   :representative_item_id, :subpage_number,
+                                   :variant)
     end
 
   end
