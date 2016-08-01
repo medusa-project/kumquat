@@ -136,10 +136,17 @@ module AdminHelper
     html = ''
     parent = item.parent
     while parent
-      html = "<li>#{link_to parent.title, admin_collection_item_path(parent.collection, parent)}</li>#{html}"
+      html = "<li>#{link_to truncate(parent.title, length: 50),
+                            admin_collection_item_path(parent.collection, parent)}</li>#{html}"
       parent = parent.parent
     end
-    html += "<li class=\"active\">#{truncate(item.title, length: 50)}</li>"
+    if action_name == 'edit'
+      value = link_to(truncate(item.title, length: 50),
+                      admin_collection_item_path(item.collection, item));
+    else
+      value = truncate(item.title, length: 50)
+    end
+    html += "<li class=\"active\">#{value}</li>"
     html
   end
 
