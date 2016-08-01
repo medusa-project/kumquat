@@ -72,8 +72,14 @@
           <dd><span class="label <%= @item.published ? 'label-success' : 'label-danger' %>">
             <%= @item.published ? 'Published' : 'Unpublished' %></span></dd>
           <dt>IIIF URL</dt>
-          <dd><%= link_to iiif_item_url(@item),
-                          iiif_item_url(@item), target: '_blank' %></dd>
+          <dd>
+            <% iiif_url = iiif_item_url(@item) %>
+            <% if iiif_url.present? %>
+              <%= link_to iiif_url, iiif_url, target: '_blank' %>
+            <% else %>
+              <p>None</p>
+            <% end %>
+          </dd>
           <dt>Variant</dt>
           <dd><%= @item.variant.present? ? @item.variant : 'None' %></dd>
           <dt>Representative Item</dt>
