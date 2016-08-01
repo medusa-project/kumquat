@@ -65,44 +65,8 @@
 
       <div role="tabpanel" class="tab-pane" id="pt-system-info">
         <%= thumbnail_tag(@item, ItemsHelper::DEFAULT_THUMBNAIL_SIZE) %>
-        <dl>
-          <dt>Repository ID</dt>
-          <dd><%= @item.repository_id %></dd>
-          <dt>Published</dt>
-          <dd><span class="label <%= @item.published ? 'label-success' : 'label-danger' %>">
-            <%= @item.published ? 'Published' : 'Unpublished' %></span></dd>
-          <dt>IIIF URL</dt>
-          <dd>
-            <% iiif_url = iiif_item_url(@item) %>
-            <% if iiif_url.present? %>
-              <%= link_to iiif_url, iiif_url, target: '_blank' %>
-            <% else %>
-              <p>None</p>
-            <% end %>
-          </dd>
-          <dt>Variant</dt>
-          <dd><%= @item.variant.present? ? @item.variant : 'None' %></dd>
-          <dt>Representative Item</dt>
-          <dd>
-            <%= @item.representative_item ? link_to(@item.representative_item.title,
-                                                    admin_collection_item_path(@item.representative_item.collection,
-                                                                               @item.representative_item)) : 'None' %>
-          </dd>
-          <dt>Page Number</dt>
-          <dd><%= @item.page_number ? @item.page_number : 'None' %></dd>
-          <dt>Subpage Number</dt>
-          <dd><%= @item.subpage_number ? @item.subpage_number : 'None' %></dd>
-          <dt>Normalized Date</dt>
-          <dd><%= @item.date ? @item.date : 'None' %></dd>
-          <dt>Latitude</dt>
-          <dd><%= @item.latitude.present? ? @item.latitude : 'None' %></dd>
-          <dt>Longitude</dt>
-          <dd><%= @item.longitude.present? ? @item.longitude : 'None' %></dd>
-          <dt>Created</dt>
-          <dd><%= local_time(@item.created_at) %></dd>
-          <dt>Last Modified</dt>
-          <dd><%= local_time(@item.updated_at) %></dd>
-        </dl>
+        <%= admin_system_info_as_list(@item) %>
+        <%= admin_system_info_as_table(@item) %>
       </div>
 
       <div role="tabpanel" class="tab-pane" id="pt-descriptive-metadata">
@@ -124,8 +88,6 @@
       <div role="tabpanel" class="tab-pane" id="pt-full-text">
         <% if @item.full_text.present? %>
           <pre><%= @item.full_text %></pre>
-        <% else %>
-          <p>None</p>
         <% end %>
       </div>
 

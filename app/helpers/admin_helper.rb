@@ -174,4 +174,50 @@ module AdminHelper
     raw(html)
   end
 
+  def admin_system_info_as_list(item)
+    html = '<dl class="visible-xs hidden-sm">'
+    admin_system_info_data(item).each do |label, value|
+      html += "<dt>#{label}</dt><dd>#{value}</dd>"
+    end
+    html += '</dl>'
+    raw(html)
+  end
+
+  def admin_system_info_as_table(item)
+    html = '<table class="table table-striped hidden-xs">'
+    admin_system_info_data(item).each do |label, value|
+      html += "<tr><td>#{label}</td><td>#{value}</td></tr>"
+    end
+    html += '</table>'
+    raw(html)
+  end
+
+  private
+
+  def admin_system_info_data(item)
+    data = {}
+    data['Repository ID'] = item.repository_id
+    data['Published'] = "<span class=\"label #{item.published ? 'label-success' : 'label-danger'}\">"\
+        "#{item.published ? 'Published' : 'Unpublished' }</span>"
+
+    iiif_url = iiif_item_url(item)
+    data['IIIF URL'] = iiif_url.present? ?
+        link_to(iiif_url, iiif_url, target: '_blank') : 'None'
+
+    data['Variant'] = item.variant
+
+    data['Representative Item'] = item.representative_item ?
+      link_to(item.representative_item.title,
+                      admin_collection_item_path(item.representative_item.collection,
+                                                 item.representative_item)) : ''
+    data['Page Number'] = item.page_number
+    data['Subpage Number'] = item.subpage_number
+    data['Normalized Date'] = item.date
+    data['Longitude'] = item.longitude
+    data['Latitude'] = item.latitude
+    data['Created'] = local_time(item.created_at)
+    data['Last Modified'] = local_time(item.updated_at)
+    data
+  end
+
 end
