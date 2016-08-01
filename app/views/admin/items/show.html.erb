@@ -77,10 +77,25 @@
       </div>
 
       <div role="tabpanel" class="tab-pane" id="pt-bytestreams">
-        <% @item.bytestreams.each do |bs| %>
-          <h2><%= bs.human_readable_type %></h2>
-          <%= bytestream_metadata_as_table(bs, admin: true) %>
-        <% end %>
+        <ul class="nav nav-tabs" role="tablist">
+          <% @item.bytestreams.each_with_index do |bs, index| %>
+            <li role="presentation" class="<%= index == 0 ? 'active' : '' %>">
+              <a href="#pt-bs-<%= bs.bytestream_type %>" aria-controls="home"
+                 role="tab" data-toggle="tab">
+                <%= bs.human_readable_type %>
+              </a>
+            </li>
+          <% end %>
+        </ul>
+
+        <div class="tab-content">
+          <% @item.bytestreams.each_with_index do |bs, index| %>
+            <div role="tabpanel" class="tab-pane <%= index == 0 ? 'active' : '' %>"
+                 id="pt-bs-<%= bs.bytestream_type %>">
+              <%= bytestream_metadata_as_table(bs, admin: true) %>
+            </div>
+          <% end %>
+        </div>
       </div>
 
       <div role="tabpanel" class="tab-pane" id="pt-viewer">
