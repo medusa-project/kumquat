@@ -10,64 +10,62 @@
   </li>
 </ul>
 
-<div class="tab-content">
-  <div role="tabpanel" class="tab-pane active" id="pt-system-info">
-    <%= form_for([:admin, @item.collection, @item]) do |f| %>
-        <table class="table pt-elements">
-          <tbody>
-            <tr>
-              <td>Published</td>
-              <td><%= f.check_box(:published) %></td>
-            </tr>
-            <tr>
-              <td>Variant</td>
-              <td>
-                <%= f.select(:variant, @variants, { include_blank: true },
-                             { class: 'form-control'}) %>
-              </td>
-            </tr>
-            <tr>
-              <td>Representative Item ID</td>
-              <td>
-                <%= f.text_field(:representative_item_repository_id, class: 'form-control') %>
-              </td>
-            </tr>
-            <tr>
-              <td>Page Number</td>
-              <td>
-                <%= f.number_field(:page_number, class: 'form-control') %>
-              </td>
-            </tr>
-            <tr>
-              <td>Subpage Number</td>
-              <td>
-                <%= f.number_field(:subpage_number, class: 'form-control') %>
-              </td>
-            </tr>
-            <tr>
-              <td>Longitude (decimal degrees)</td>
-              <td>
-                <%= f.text_field(:longitude, class: 'form-control') %>
-              </td>
-            </tr>
-            <tr>
-              <td>Latitude (decimal degrees)</td>
-              <td>
-                <%= f.text_field(:latitude, class: 'form-control') %>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <%= f.submit 'Save System Info', class: 'btn btn-primary' %>
-    <% end %>
-  </div>
-
-  <div role="tabpanel" class="tab-pane" id="pt-metadata">
-    <div class="alert alert-info">Collection metadata profile:
-      <%= link_to(@item.collection.metadata_profile.name,
-                  admin_metadata_profile_path(@item.collection.metadata_profile)) %>
+<%= form_for([:admin, @item.collection, @item]) do |f| %>
+  <div class="tab-content">
+    <div role="tabpanel" class="tab-pane active" id="pt-system-info">
+      <table class="table pt-elements">
+        <tbody>
+          <tr>
+            <td>Published</td>
+            <td><%= f.check_box(:published) %></td>
+          </tr>
+          <tr>
+            <td>Variant</td>
+            <td>
+              <%= f.select(:variant, @variants, { include_blank: true },
+                           { class: 'form-control'}) %>
+            </td>
+          </tr>
+          <tr>
+            <td>Representative Item ID</td>
+            <td>
+              <%= f.text_field(:representative_item_repository_id, class: 'form-control') %>
+            </td>
+          </tr>
+          <tr>
+            <td>Page Number</td>
+            <td>
+              <%= f.number_field(:page_number, class: 'form-control') %>
+            </td>
+          </tr>
+          <tr>
+            <td>Subpage Number</td>
+            <td>
+              <%= f.number_field(:subpage_number, class: 'form-control') %>
+            </td>
+          </tr>
+          <tr>
+            <td>Longitude (decimal degrees)</td>
+            <td>
+              <%= f.text_field(:longitude, class: 'form-control') %>
+            </td>
+          </tr>
+          <tr>
+            <td>Latitude (decimal degrees)</td>
+            <td>
+              <%= f.text_field(:latitude, class: 'form-control') %>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
-    <%= form_for([:admin, @item.collection, @item]) do |f| %>
+
+    <div role="tabpanel" class="tab-pane" id="pt-metadata">
+      <div class="alert alert-info">Collection metadata profile:
+        <%= link_to(@item.collection.metadata_profile.name,
+                    admin_metadata_profile_path(@item.collection.metadata_profile)) %>
+      </div>
+
       <table class="table pt-elements">
         <tbody>
           <% @item.collection.metadata_profile.element_defs.each do |e_def| %>
@@ -89,16 +87,15 @@
           <% end %>
         </tbody>
       </table>
-      <%= f.submit 'Save Metadata', class: 'btn btn-primary' %>
-    <% end %>
-  </div>
+    </div>
 
-  <div role="tabpanel" class="tab-pane" id="pt-full-text">
-    <%= form_for([:admin, @item.collection, @item]) do |f| %>
+    <div role="tabpanel" class="tab-pane" id="pt-full-text">
       <div class="form-group">
         <%= f.text_area :full_text, class: 'form-control' %>
       </div>
-      <%= f.submit 'Save Full Text', class: 'btn btn-primary' %>
-    <% end %>
+    </div>
   </div>
-</div>
+
+  <%= f.submit 'Save', class: 'btn btn-primary' %>
+
+<% end %>
