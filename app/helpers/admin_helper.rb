@@ -191,7 +191,7 @@ module AdminHelper
   end
 
   def admin_system_info_as_table(item)
-    html = '<table class="table table-striped hidden-xs">'
+    html = '<table class="table hidden-xs">'
     admin_system_info_data(item).each do |label, value|
       html += "<tr><td>#{label}</td><td>#{value}</td></tr>"
     end
