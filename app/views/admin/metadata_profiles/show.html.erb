@@ -132,8 +132,22 @@
 
 <% else %>
 
-  <p>This profile has no element definitions.</p>
+  <p>This profile has no elements.</p>
 
+<% end %>
+
+<hr>
+
+<h2>Collections</h2>
+
+<% if @profile.collections.any? %>
+  <ol>
+    <% @profile.collections.sort{ |c, d| c.title <=> d.title }.each do |col| %>
+      <li><%= link_to(col.title, admin_collection_path(col)) %></li>
+    <% end %>
+  </ol>
+<% else %>
+  <p>None</p>
 <% end %>
 
 <div class="modal fade" id="pt-add-element-modal" tabindex="-1" role="dialog"
