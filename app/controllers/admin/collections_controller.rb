@@ -28,16 +28,6 @@ module Admin
       @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
     end
 
-    ##
-    # Responds to PATCH /admin/collections/refresh
-    #
-    def refresh
-      ReindexCollectionsJob.perform_later
-      flash['success'] = 'Refreshing collections in the background.
-        (This will take a minute.)'
-      redirect_to :back
-    end
-
     def show
       @collection = Collection.find_by_repository_id(params[:id])
       raise ActiveRecord::RecordNotFound unless @collection
@@ -48,6 +38,16 @@ module Admin
           @collection.medusa_file_group)
     end
 
+    ##
+    # Responds to PATCH /admin/collections/sync
+    #
+    def sync
+      SyncCollectionsJob.perform_later
+      flash['success'] = 'Syncing collections in the background.
+        (This will take a minute.)'
+      redirect_to :back
+    end
+
     def update
       begin
         collection = Collection.find_by_repository_id(params[:id])
@@ -56,6 +56,7 @@ module Admin
         collection.update!(sanitized_params)
       rescue => e
         flash['error'] = "#{e}"
+        redirect_to edit_admin_collection_path(collection)
       else
         flash['success'] = "Collection \"#{collection.title}\" updated."
         redirect_to admin_collection_path(collection)

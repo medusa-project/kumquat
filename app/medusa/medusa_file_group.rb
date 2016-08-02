@@ -1,8 +1,8 @@
 class MedusaFileGroup
 
-  # @!attribute id
+  # @!attribute uuid
   #   @return [Integer]
-  attr_accessor :id
+  attr_accessor :uuid
 
   # @!attribute medusa_representation
   #   @return [Hash]
@@ -13,7 +13,7 @@ class MedusaFileGroup
       load
       if self.medusa_representation['cfs_directory']
         @cfs_directory = MedusaCfsDirectory.new
-        @cfs_directory.id = self.medusa_representation['cfs_directory']['uuid']
+        @cfs_directory.uuid = self.medusa_representation['cfs_directory']['uuid']
       end
     end
     @cfs_directory
@@ -26,7 +26,7 @@ class MedusaFileGroup
   # @return [void]
   #
   def reload
-    raise 'reload() called without ID set' unless self.id.present?
+    raise 'reload() called without UUID set' unless self.uuid.present?
 
     json_str = Medusa.client.get(self.url + '.json', follow_redirect: true).body
     rep = JSON.parse(json_str)
@@ -48,12 +48,12 @@ class MedusaFileGroup
 
   ##
   # @return [String] Absolute URI of the Medusa file group resource, or nil
-  # if the instance does not have an ID.
+  # if the instance does not have a UUID.
   #
   def url
-    if self.id
+    if self.uuid
       return PearTree::Application.peartree_config[:medusa_url].chomp('/') +
-          '/uuids/' + self.id.to_s
+          '/uuids/' + self.uuid.to_s
     end
     nil
   end
@@ -61,19 +61,19 @@ class MedusaFileGroup
   private
 
   def cache_pathname
-    "#{Rails.root}/tmp/cache/medusa/file_group_#{self.id}.json"
+    "#{Rails.root}/tmp/cache/medusa/file_group_#{self.uuid}.json"
   end
 
   ##
   # Populates `medusa_representation`.
   #
   # @return [void]
-  # @raises [RuntimeError] If the instance's ID is not set
+  # @raises [RuntimeError] If the instance's UUID is not set
   # @raises [HTTPClient::BadResponseError]
   #
   def load
     return if @loaded
-    raise 'load() called without ID set' unless self.id.present?
+    raise 'load() called without UUID set' unless self.uuid.present?
 
     if Rails.env.test?
       reload

@@ -71,6 +71,49 @@ body#items_show {
     }
   }
 
+  .pt-directories {
+    $font_thumb_size: 35px;
+    $image_thumb_size: 50px;
+    ol {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+      li {
+        padding-top: 2px;
+        padding-bottom: 2px;
+        vertical-align: middle;
+        div.pt-thumbnail {
+          display: table-cell;
+          font-size: $font_thumb_size;
+          height: $image_thumb_size;
+          max-width: $image_thumb_size;
+          padding: 0px;
+          text-align: center;
+          vertical-align: middle;
+          width: $image_thumb_size;
+          img {
+            display: block;
+            margin: 0 auto;
+            max-height: $image_thumb_size;
+            max-width: $image_thumb_size;
+            vertical-align: middle;
+          }
+        }
+        div.pt-label {
+          display: table-cell;
+          overflow: hidden;
+          padding-left: 8px;
+          vertical-align: middle;
+          word-wrap: break-word;
+        }
+      }
+    }
+    /* correct webkit/chrome uneven margin on the first column */
+    ol li:first-child {
+      margin-top:0px;
+    }
+  }
+
   .pt-files {
     $column_width: 280px;
     $font_thumb_size: 70px;
@@ -111,11 +154,6 @@ body#items_show {
           vertical-align: middle;
           word-wrap: break-word;
         }
-        .pt-current {
-          background-color:#e0e0e0;
-          border-radius: 5px;
-          font-family: "PT Sans", sans-serif;
-        }
       }
     }
     /* correct webkit/chrome uneven margin on the first column */
@@ -125,8 +163,6 @@ body#items_show {
   }
 
   .pt-pages {
-    max-height: 34em;
-    overflow-y: scroll;
     ol, ul {
       margin-left:0px;
       margin-top: -1em;
@@ -159,32 +195,6 @@ body#items_show {
         .pt-current {
           background-color:#e0e0e0;
           border-radius: 5px;
-        }
-      }
-    }
-  }
-
-  .pt-vertical-items {
-    ol, ul {
-      list-style: none;
-      margin-left:0px;
-      padding-left:0px;
-      li {
-        max-height: 180px;
-        margin-bottom: 20px;
-        text-align: center;
-        vertical-align: top;
-        width: 100%;
-        .pt-thumbnail {
-          display: block;
-          font-size:100px;
-          height: 150px;
-          margin-bottom: 10px;
-          img {
-            height: 150px;
-            text-align: center;
-            width: 150px;
-          }
         }
       }
     }

@@ -99,9 +99,7 @@ module Admin
             tsv = params[:tsv].read.force_encoding('UTF-8')
             tempfile.write(tsv)
             tempfile.close
-            IngestItemsFromTsvJob.perform_later(tempfile.path,
-                                                params[:collection_id],
-                                                params[:import_mode])
+            IngestItemsFromTsvJob.perform_later(tempfile.path)
           rescue => e
             tempfile.unlink
             flash['error'] = "#{e}"
@@ -135,6 +133,26 @@ module Admin
         #format.jsonld { render text: @item.admin_rdf_graph(uri).to_jsonld }
         #format.rdfxml { render text: @item.admin_rdf_graph(uri).to_rdfxml }
         #format.ttl { render text: @item.admin_rdf_graph(uri).to_ttl }
+      end
+    end
+
+    ##
+    # Responds to POST /admin/collections/:collection_id/items/sync
+    #
+    def sync
+      col = Collection.find_by_repository_id(params[:collection_id])
+      raise ActiveRecord::RecordNotFound unless col
+
+      begin
+        SyncItemsJob.perform_later(params[:collection_id],
+                                   params[:ingest_mode])
+      rescue => e
+        flash['error'] = "#{e}"
+        redirect_to admin_collection_items_url(col)
+      else
+        flash['success'] = 'Syncing items in the background. This '\
+        'may take a while.'
+        redirect_to admin_collection_items_url(col)
       end
     end
 

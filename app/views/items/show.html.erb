@@ -32,6 +32,10 @@
                         "http://vufind.carli.illinois.edu/vf-uiu/Record/uiu_#{@item.bib_id}",
                         target: '_blank' %></li>
       <% end %>
+      <% if Rails.env.development? %>
+        <li><%= link_to 'Admin View', admin_collection_item_path(@item.collection, @item),
+                        target: '_blank' %></li>
+      <% end %>
     </ul>
   </div>
 
@@ -110,8 +114,8 @@ side-by-side. (IMET-161) -->
         <%= index_item_panel(@relative_parent, size: 512) %>
       </div>
       <div class="col-sm-8 col-md-9 col-lg-9">
-        <section>
-          <%= pages_section(@pages, @item) %>
+        <section id="pt-pages-section">
+          <%= render partial: 'pages' %>
         </section>
       </div>
     </div>
@@ -136,9 +140,7 @@ side-by-side. (IMET-161) -->
   </section>
 <% end %>
 
-<% @item.bytestreams.select{ |bs| [Bytestream::Type::ACCESS_MASTER,
-                                   Bytestream::Type::PRESERVATION_MASTER].
-    include?(bs.bytestream_type) }.each do |bs| %>
+<% @item.bytestreams.each do |bs| %>
   <section>
     <h2><%= bs.human_readable_type %> File</h2>
     <%= bytestream_metadata_as_table(bs) %>

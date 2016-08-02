@@ -1,13 +1,62 @@
 class MedusaCfsDirectory
 
-  # @!attribute id
-  #   @return [Integer]
-  attr_accessor :id
-
   # @!attribute medusa_representation
   #   @return [Hash]
   attr_accessor :medusa_representation
 
+  # @!attribute uuid
+  #   @return [Integer]
+  attr_accessor :uuid
+
+  def initialize
+    reset
+  end
+
+  ##
+  # @return [Array<MedusaCfsDirectory>]
+  #
+  def directories
+    load_contents
+    @directories
+  end
+
+  ##
+  # @return [Array<MedusaCfsFile>]
+  #
+  def files
+    load_contents
+    @files
+  end
+
+  ##
+  # @return [Integer] Database ID of the entity.
+  #
+  def id
+    load_instance
+    self.medusa_representation['id']
+  end
+
+  ##
+  # If set to a JSON tree from a Medusa show_tree.json endpoint, that will
+  # be used instead of making live requests.
+  #
+  # @param tree [Hash]
+  #
+  def json_tree=(tree)
+    @json_tree = tree
+    reset
+  end
+
+  ##
+  # @return [String]
+  #
+  def name
+    File.basename(self.pathname)
+  end
+
+  ##
+  # @return [String]
+  #
   def pathname
     PearTree::Application.peartree_config[:repository_pathname].chomp('/') +
         self.repository_relative_pathname
@@ -19,35 +68,38 @@ class MedusaCfsDirectory
   #
   # @return [void]
   #
-  def reload
-    raise 'reload() called without ID set' unless self.id.present?
+  def reload_instance
+    raise 'reload_instance() called without UUID set' unless self.uuid.present?
 
-    json_str = Medusa.client.get(self.url + '.json', follow_redirect: true).body
+    url = self.url + '.json'
+    Rails.logger.debug('MedusaCfsDirectory.reload_instance: loading ' + url);
+
+    json_str = Medusa.client.get(url, follow_redirect: true).body
     rep = JSON.parse(json_str)
     if rep['status'].to_i < 300 and !Rails.env.test?
       FileUtils.mkdir_p("#{Rails.root}/tmp/cache/medusa")
       File.open(cache_pathname, 'wb') { |f| f.write(json_str) }
     end
     self.medusa_representation = rep
-    @loaded = true
+    @instance_loaded = true
   end
 
   def repository_relative_pathname
     unless @repository_relative_pathname
-      load
+      load_instance
       @repository_relative_pathname = "/#{self.medusa_representation['name']}"
     end
     @repository_relative_pathname
   end
 
   ##
-  # @return [String] Absolute URI of the Medusa file group resource, or nil
-  #                  if the instance does not have an ID.
+  # @return [String] Absolute URI of the Medusa CFS directory resource, or nil
+  #                  if the instance does not have a UUID.
   #
   def url
-    if self.id
+    if self.uuid
       return PearTree::Application.peartree_config[:medusa_url].chomp('/') +
-          '/uuids/' + self.id.to_s
+          '/uuids/' + self.uuid.to_s
     end
     nil
   end
@@ -55,19 +107,73 @@ class MedusaCfsDirectory
   private
 
   def cache_pathname
-    "#{Rails.root}/tmp/cache/medusa/cfs_directory_#{self.id}.json"
+    "#{Rails.root}/tmp/cache/medusa/cfs_directory_#{self.uuid}.json"
   end
 
   ##
-  # Populates `medusa_representation`.
+  # @return [void]
+  # @raises [RuntimeError] If the instance's ID is not set
+  # @raises [HTTPClient::BadResponseError]
+  #
+  def load_contents
+    return if @contents_loaded
+    if @json_tree # This will likely only be true during testing.
+      tree = @json_tree
+    else
+      url = PearTree::Application.peartree_config[:medusa_url].chomp('/') +
+          '/cfs_directories/' + self.id.to_s + '/show_tree.json'
+      Rails.logger.debug('MedusaCfsDirectory.load_contents(): loading ' + url)
+      json_str = Medusa.client.get(url, follow_redirect: true).body
+      tree = JSON.parse(json_str)
+    end
+
+    ##
+    # Creates a MedusaCfsDirectory/MedusaCfsFile structure analogous to the
+    # given JSON argument.
+    #
+    # @return [void]
+    #
+    def assemble_contents(struct, parent_dir = self)
+      if struct['subdirectories']
+        struct['subdirectories'].each do |struct_dir|
+          dir = MedusaCfsDirectory.new
+          dir.uuid = struct_dir['uuid']
+          # Calling the directories() getter here would cause an infinite loop.
+          parent_dir.instance_variable_get('@directories') << dir
+          dir.instance_variable_set('@contents_loaded', true)
+          dir.instance_variable_set('@repository_relative_pathname',
+                                    struct_dir['relative_pathname'])
+          assemble_contents(struct_dir, dir)
+        end
+      end
+      if struct['files']
+        struct['files'].each do |struct_file|
+          file = MedusaCfsFile.new
+          file.uuid = struct_file['uuid']
+          # Calling the files() getter here would cause an infinite loop.
+          parent_dir.instance_variable_get('@files') << file
+          file.instance_variable_set('@repository_relative_pathname',
+                                     struct_file['relative_pathname'])
+        end
+      end
+    end
+
+    assemble_contents(tree)
+    @contents_loaded = true
+    nil
+  end
+
+  ##
+  # Populates `medusa_representation` with the instance's Medusa
+  # representation.
   #
   # @return [void]
   # @raises [RuntimeError] If the instance's ID is not set
   # @raises [HTTPClient::BadResponseError]
   #
-  def load
-    return if @loaded
-    raise 'load() called without ID set' unless self.id.present?
+  def load_instance
+    return if @instance_loaded
+    raise 'load_instance() called without ID set' unless self.uuid.present?
 
     ttl = PearTree::Application.peartree_config[:medusa_cache_ttl]
     if File.exist?(cache_pathname) and File.mtime(cache_pathname).
@@ -75,9 +181,15 @@ class MedusaCfsDirectory
       json_str = File.read(cache_pathname)
       self.medusa_representation = JSON.parse(json_str)
     else
-      reload
+      reload_instance
     end
-    @loaded = true
+    @instance_loaded = true
+  end
+
+  def reset
+    @directories = []
+    @files = []
+    @contents_loaded = false
   end
 
 end

@@ -5,10 +5,12 @@ module ItemsHelper
 
   ##
   # @param bs [Bytestream]
+  # @param options [Hash<Symbol,Object>]
+  # @option options [Boolean] :admin
   # @return [String]
   #
-  def bytestream_metadata_as_table(bs)
-    data = bytestream_metadata_for(bs)
+  def bytestream_metadata_as_table(bs, options = {})
+    data = bytestream_metadata_for(bs, options)
     html = ''
     if data.any?
       categories = data.map{ |f| f[:category] }.uniq.
@@ -159,19 +161,6 @@ module ItemsHelper
     raw(html)
   end
 
-  def files_section(files)
-    # Explicitly calling sort() on an Enumerable of Items causes them to be
-    # natural-sorted.
-    html = ''
-    if files.any?
-      html += "<h2>Files <span class=\"badge\">#{files.count}</span></h2>
-        <div class=\"pt-files\">
-          #{files_as_list(files)}
-        </div>"
-    end
-    raw(html)
-  end
-
   ##
   # @param item [Item]
   # @param options [Hash]
@@ -223,14 +212,15 @@ module ItemsHelper
 
   ##
   # @param item [Item]
-  # @return [String, nil] Base IIIF URL or nil if the item is not an image
+  # @return [String, nil] Base IIIF URL or nil if the item is not
+  #                       IIIF-compatible
   #
   def iiif_item_url(item)
     url = nil
     bs = item.access_master_bytestream
     if !bs or (!bs.is_image? and !bs.is_pdf?)
       bs = item.preservation_master_bytestream
-      if !bs or (!bs.is_image? and bs.is_pdf?)
+      if !bs or (!bs.is_image? and !bs.is_pdf?)
         bs = nil
       end
     end
@@ -418,14 +408,18 @@ module ItemsHelper
 
   ##
   # @param item [Item]
+  # @param options [Hash]
+  # @option options [Boolean] :show_invisible
   # @return [String]
   # @see `tech_metadata_as_list`
   #
-  def metadata_as_list(item)
+  def metadata_as_list(item, options = {})
     html = '<dl class="pt-metadata">'
     # iterate through the index-ordered elements in the collection's metadata
     # profile in order to display the entity's elements in the correct order
-    item.collection.effective_metadata_profile.element_defs.each do |e_def|
+    defs = item.collection.effective_metadata_profile.element_defs
+    defs = defs.select(&:visible) unless options[:show_invisible]
+    defs.each do |e_def|
       elements = item.elements.
           select{ |e| e.name == e_def.name and e.value.present? }
       next if elements.empty?
@@ -448,15 +442,19 @@ module ItemsHelper
 
   ##
   # @param item [Item]
+  # @param options [Hash]
+  # @option options [Boolean] :show_invisible
   # @return [String]
   # @see `tech_metadata_as_table`
   #
-  def metadata_as_table(item)
+  def metadata_as_table(item, options = {})
     html = '<table class="table table-condensed pt-metadata">'
 
     # iterate through the index-ordered elements in the collection's metadata
     # profile in order to display the entity's elements in the correct order
-    item.collection.effective_metadata_profile.element_defs.each do |e_def|
+    defs = item.collection.effective_metadata_profile.element_defs
+    defs = defs.select(&:visible) unless options[:show_invisible]
+    defs.each do |e_def|
       elements = item.elements.
           select{ |e| e.name == e_def.name and e.value.present? }
       next if elements.empty?
@@ -548,48 +546,37 @@ module ItemsHelper
   end
 
   ##
-  # @param item [Item]
+  # @param pages [Relation<Item>]
+  # @param selected_item [Item]
   # @param options [Hash] with available keys: `:link_to_admin` [Boolean]
   #
-  def pages_as_list(item, options = {})
-    items = item.parent ? item.parent.pages : item.pages
-    items = items.limit(999)
-    return nil unless items.any?
+  def pages_as_list(pages, selected_item, options = {})
+    return nil unless pages.any?
     html = '<ol>'
-    items.each do |child|
+    pages.each do |page|
       link_target = options[:link_to_admin] ?
-          admin_collection_item_path(child.collection, child) : item_path(child)
+          admin_collection_item_path(page.collection, page) : item_path(page)
       html += '<li>'
-      if item.repository_id == child.repository_id
+      if selected_item&.repository_id == page.repository_id
         html += '<div class="pt-current">'
-        html += raw('<div class="pt-thumbnail">' +
-                        thumbnail_tag(child, DEFAULT_THUMBNAIL_SIZE, :square) +
-                        '</div>')
+        html += '<div class="pt-thumbnail">' +
+                    thumbnail_tag(page, DEFAULT_THUMBNAIL_SIZE, :square) +
+            '</div>'
         html += '<span class=\"pt-title\">' +
-            truncate(child.title, length: PAGE_TITLE_LENGTH) + '</span>'
+            truncate(page.title, length: PAGE_TITLE_LENGTH) + '</span>'
       else
         html += '<div>'
         html += link_to(link_target) do
           raw('<div class="pt-thumbnail">' +
-                  thumbnail_tag(child, DEFAULT_THUMBNAIL_SIZE, :square) + '</div>')
+                  thumbnail_tag(page, DEFAULT_THUMBNAIL_SIZE, :square) + '</div>')
         end
-        html += link_to(truncate(child.title, length: PAGE_TITLE_LENGTH),
+        html += link_to(truncate(page.title, length: PAGE_TITLE_LENGTH),
                         link_target, class: 'pt-title')
+        html += '</div>'
       end
-      html += '</div></li>'
+      html += '</li>'
     end
     html += '</ol>'
-    raw(html)
-  end
-
-  def pages_section(pages, selected_page)
-    html = ''
-    if pages.any?
-      html += "<h2>Pages <span class=\"badge\">#{pages.count}</span></h2>
-        <div class=\"pt-pages\">
-          #{pages_as_list(selected_page)}
-        </div>"
-    end
     raw(html)
   end
 
@@ -880,14 +867,19 @@ module ItemsHelper
   private
 
   def audio_player_for(item)
-    bs = item.bytestreams.
-        where(bytestream_type: Bytestream::Type::ACCESS_MASTER).first
-    tag = "<audio controls>
-      <source src=\"#{item_access_master_bytestream_url(item)}\"
-              type=\"#{bs.media_type}\">
-        Your browser does not support the audio tag.
-    </audio>"
-    raw(tag)
+    bs = item.bytestreams.select{ |bs| bs.bytestream_type == Bytestream::Type::ACCESS_MASTER }.first
+    url = item_access_master_bytestream_url(item, disposition: 'inline')
+    unless bs
+      bs = item.bytestreams.select{ |bs| bs.bytestream_type == Bytestream::Type::PRESERVATION_MASTER }.first
+      url = item_preservation_master_bytestream_url(item, disposition: 'inline')
+    end
+    html = ''
+    if bs
+      html += "<audio src=\"#{url}\" type=\"#{bs.media_type}\" controls>
+          <a href=\"#{url}\">Download audio</a>
+      </audio>"
+    end
+    raw(html)
   end
 
   ##
@@ -907,10 +899,13 @@ module ItemsHelper
   end
 
   ##
-  # @return [Array<Hash<Symbol,?>>] Array of hashes with :label,
-  #                                 :category, and :value keys.
+  # @param bytestream [Bytestream]
+  # @param options [Hash<Symbol,Object>]
+  # @option options [Boolean] :admin
+  # @return [Array<Hash<Symbol,Object>>] Array of hashes with :label,
+  #                                      :category, and :value keys.
   #
-  def bytestream_metadata_for(bytestream)
+  def bytestream_metadata_for(bytestream, options = {})
     data = []
     if bytestream
       # status
@@ -921,6 +916,16 @@ module ItemsHelper
               '<span class="label label-success">OK</span>' :
               '<span class="label label-danger">MISSING</span>'
       }
+      if options[:admin] and bytestream.cfs_file_uuid.present?
+        data << {
+            label: 'Medusa CFS File',
+            category: 'File',
+            value: link_to(bytestream.cfs_file_uuid,
+                           PearTree::Application.peartree_config[:medusa_url] +
+                               '/uuids/' + bytestream.cfs_file_uuid,
+                           target: '_blank')
+        }
+      end
       if bytestream.is_image?
         bytestream.metadata.each do |field|
           data << {
@@ -960,51 +965,62 @@ module ItemsHelper
 
     case child_item_variant
       when Item::Variants::FILE
-        first_link = link_to(item_files_path(parent_item, params.except(:start)),
-                             remote: remote, 'aria-label' => 'First') do
+        first_link = link_to(item_files_path(parent_item,
+                                             params.except(:start).symbolize_keys),
+                             remote: remote, 'aria-label': 'First') do
           raw('<span aria-hidden="true">First</span>')
         end
-        prev_link = link_to(item_files_path(parent_item, params.merge(start: prev_start)),
-                            remote: remote, 'aria-label' => 'Previous') do
+        prev_link = link_to(item_files_path(parent_item,
+                                            params.merge(start: prev_start).symbolize_keys),
+                            remote: remote, 'aria-label': 'Previous') do
           raw('<span aria-hidden="true">&laquo;</span>')
         end
-        next_link = link_to(item_files_path(parent_item, params.merge(start: next_start)),
-                            remote: remote, 'aria-label' => 'Next') do
+        next_link = link_to(item_files_path(parent_item,
+                                            params.merge(start: next_start).symbolize_keys),
+                            remote: remote, 'aria-label': 'Next') do
           raw('<span aria-hidden="true">&raquo;</span>')
         end
-        last_link = link_to(item_files_path(parent_item, params.merge(start: last_start)),
-                            remote: remote, 'aria-label' => 'Last') do
+        last_link = link_to(item_files_path(parent_item,
+                                            params.merge(start: last_start).symbolize_keys),
+                            remote: remote, 'aria-label': 'Last') do
           raw('<span aria-hidden="true">Last</span>')
         end
       when Item::Variants::PAGE
-        first_link = link_to(item_pages_path(parent_item, params.except(:start)),
-                             remote: remote, 'aria-label' => 'First') do
+        first_link = link_to(item_pages_path(parent_item,
+                                             params.except(:start).symbolize_keys),
+                             remote: remote, 'aria-label': 'First') do
           raw('<span aria-hidden="true">First</span>')
         end
-        prev_link = link_to(item_pages_path(parent_item, params.merge(start: prev_start)),
-                            remote: remote, 'aria-label' => 'Previous') do
+        prev_link = link_to(item_pages_path(parent_item,
+                                            params.merge(start: prev_start).symbolize_keys),
+                            remote: remote, 'aria-label': 'Previous') do
           raw('<span aria-hidden="true">&laquo;</span>')
         end
-        next_link = link_to(item_pages_path(parent_item, params.merge(start: next_start)),
-                            remote: remote, 'aria-label' => 'Next') do
+        next_link = link_to(item_pages_path(parent_item,
+                                            params.merge(start: next_start).symbolize_keys),
+                            remote: remote, 'aria-label': 'Next') do
           raw('<span aria-hidden="true">&raquo;</span>')
         end
-        last_link = link_to(item_pages_path(parent_item, params.merge(start: last_start)),
-                            remote: remote, 'aria-label' => 'Last') do
+        last_link = link_to(item_pages_path(parent_item,
+                                            params.merge(start: last_start).symbolize_keys),
+                            remote: remote, 'aria-label': 'Last') do
           raw('<span aria-hidden="true">Last</span>')
         end
       else
         first_link = link_to(params.except(:start), remote: remote,
-                             'aria-label' => 'First') do
+                             'aria-label': 'First') do
           raw('<span aria-hidden="true">First</span>')
         end
-        prev_link = link_to(params.merge(start: prev_start), remote: remote, 'aria-label' => 'Previous') do
+        prev_link = link_to(params.merge(start: prev_start).symbolize_keys,
+                            remote: remote, 'aria-label': 'Previous') do
           raw('<span aria-hidden="true">&laquo;</span>')
         end
-        next_link = link_to(params.merge(start: next_start), remote: remote, 'aria-label' => 'Next') do
+        next_link = link_to(params.merge(start: next_start).symbolize_keys,
+                            remote: remote, 'aria-label': 'Next') do
           raw('<span aria-hidden="true">&raquo;</span>')
         end
-        last_link = link_to(params.merge(start: last_start), remote: remote, 'aria-label' => 'Last') do
+        last_link = link_to(params.merge(start: last_start).symbolize_keys,
+                            remote: remote, 'aria-label': 'Last') do
           raw('<span aria-hidden="true">Last</span>')
         end
     end
@@ -1018,21 +1034,22 @@ module ItemsHelper
       start = (page - 1) * per_page
       case child_item_variant
         when Item::Variants::FILE
-          path = (start == 0) ? item_files_path(parent_item, params.except(:start)) :
-              item_files_path(parent_item, params.merge(start: start))
+          path = (start == 0) ? item_files_path(parent_item, params.except(:start).symbolize_keys) :
+              item_files_path(parent_item, params.merge(start: start).symbolize_keys)
           page_link = link_to(path, remote: remote) do
             raw("#{page} #{(page == current_page) ?
                 '<span class="sr-only">(current)</span>' : ''}")
           end
         when Item::Variants::PAGE
-          path = (start == 0) ? item_pages_path(parent_item, params.except(:start)) :
-              item_pages_path(parent_item, params.merge(start: start))
+          path = (start == 0) ? item_pages_path(parent_item, params.except(:start).symbolize_keys) :
+              item_pages_path(parent_item, params.merge(start: start).symbolize_keys)
           page_link = link_to(path, remote: remote) do
             raw("#{page} #{(page == current_page) ?
                 '<span class="sr-only">(current)</span>' : ''}")
           end
         else
-          page_link = link_to((start == 0) ? params.except(:start) : params.merge(start: start), remote: remote) do
+          page_link = link_to((start == 0) ? params.except(:start) :
+                                  params.merge(start: start).symbolize_keys, remote: remote) do
             raw("#{page} #{(page == current_page) ?
                 '<span class="sr-only">(current)</span>' : ''}")
           end
@@ -1042,35 +1059,68 @@ module ItemsHelper
     end
     html += "<li #{current_page == next_page ? 'class="disabled"' : ''}>#{next_link}</li>" +
         "<li #{current_page == last_page ? 'class="disabled"' : ''}>#{last_link}</li>"
-    '</ul>' +
+    html += '</ul>' +
         '</nav>'
     raw(html)
   end
 
+  ##
+  # @param bs [Bytestream]
+  # @return [Boolean] Whether the given bytestream is presumed safe to feed to
+  #                   an IIIF server (won't bog it down too much).
+  #
+  def iiif_safe?(bs)
+    max_size = 30000000 # arbitrary
+
+    return false if !bs or bs.repository_relative_pathname.blank?
+
+    # Large TIFF preservation masters are probably neither tiled nor
+    # multiresolution, so are going to be very inefficient to read.
+    if bs.bytestream_type == Bytestream::Type::PRESERVATION_MASTER and
+        bs.media_type == 'image/tiff'
+      begin
+        return false if File.size(bs.absolute_local_pathname) > max_size
+      rescue
+        return false
+      end
+    end
+    true
+  end
+
   def image_viewer_for(item)
-    # https://openseadragon.github.io/docs/OpenSeadragon.html#.Options
-    html = "<div id=\"pt-image-viewer\"></div>
-    #{javascript_include_tag('/openseadragon/openseadragon.min.js')}
-    <script type=\"text/javascript\">
-    OpenSeadragon.setString('Tooltips.Home', 'Reset');
-    OpenSeadragon.setString('Tooltips.ZoomIn', 'Zoom In');
-    OpenSeadragon.setString('Tooltips.ZoomOut', 'Zoom Out');
-    OpenSeadragon.setString('Tooltips.FullPage', 'Full Screen');
-    OpenSeadragon.setString('Tooltips.RotateLeft', 'Rotate Left');
-    OpenSeadragon.setString('Tooltips.RotateRight', 'Rotate Right');
-    OpenSeadragon({
-        id: \"pt-image-viewer\",
-        showNavigator: true,
-        showRotationControl: true,
-        navigatorSizeRatio: 0.2,
-        controlsFadeDelay: 1000,
-        controlsFadeLength: 1000,
-        immediateRender: true,
-        preserveViewport: true,
-        prefixUrl: \"/openseadragon/images/\",
-        tileSources: \"#{j(iiif_item_url(item))}\"
-    });
-    </script>"
+    html = ''
+
+    # If there is no access master, and the preservation master is too large,
+    # render an alert instead of the viewer.
+    if !item.access_master_bytestream and
+        !iiif_safe?(item.preservation_master_bytestream)
+      html += '<div class="alert alert-info">Preservation master image is too
+          large to display, and no access master is available.</div>'
+    else
+      # https://openseadragon.github.io/docs/OpenSeadragon.html#.Options
+      html += "<div id=\"pt-image-viewer\"></div>
+      #{javascript_include_tag('/openseadragon/openseadragon.min.js')}
+      <script type=\"text/javascript\">
+      OpenSeadragon.setString('Tooltips.Home', 'Reset');
+      OpenSeadragon.setString('Tooltips.ZoomIn', 'Zoom In');
+      OpenSeadragon.setString('Tooltips.ZoomOut', 'Zoom Out');
+      OpenSeadragon.setString('Tooltips.FullPage', 'Full Screen');
+      OpenSeadragon.setString('Tooltips.RotateLeft', 'Rotate Left');
+      OpenSeadragon.setString('Tooltips.RotateRight', 'Rotate Right');
+      OpenSeadragon({
+          id: \"pt-image-viewer\",
+          showNavigator: true,
+          showRotationControl: true,
+          navigatorSizeRatio: 0.2,
+          controlsFadeDelay: 1000,
+          controlsFadeLength: 1000,
+          immediateRender: true,
+          preserveViewport: true,
+          prefixUrl: \"/openseadragon/images/\",
+          tileSources: \"#{j(iiif_item_url(item))}\"
+      });
+      </script>"
+    end
     raw(html)
   end
 
@@ -1084,7 +1134,7 @@ module ItemsHelper
     url = nil
     if item.is_image? or item.is_pdf?
       bs = item.access_master_bytestream || item.preservation_master_bytestream
-      if bs.repository_relative_pathname
+      if bs.repository_relative_pathname and iiif_safe?(bs)
         shape = (shape == :square) ? 'square' : 'full'
         url = sprintf('%s/%s/!%d,%d/0/default.jpg',
                       iiif_item_url(item), shape, size, size)
@@ -1094,9 +1144,20 @@ module ItemsHelper
   end
 
   def pdf_viewer_for(item)
-    link_to(item_access_master_bytestream_url(item)) do
-      thumbnail_tag(item, DEFAULT_THUMBNAIL_SIZE)
+    bs = item.bytestreams.select{ |bs| bs.bytestream_type == Bytestream::Type::ACCESS_MASTER }.first
+    url = item_access_master_bytestream_url(item, disposition: 'inline')
+    unless bs
+      bs = item.bytestreams.select{ |bs| bs.bytestream_type == Bytestream::Type::PRESERVATION_MASTER }.first
+      url = item_preservation_master_bytestream_url(item, disposition: 'inline')
     end
+
+    html = ''
+    if bs
+      html += link_to(url) do
+        thumbnail_tag(item, DEFAULT_THUMBNAIL_SIZE)
+      end
+    end
+    raw(html)
   end
 
   def video_player_for(item)

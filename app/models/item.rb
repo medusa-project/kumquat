@@ -66,12 +66,25 @@ class Item < ActiveRecord::Base
 
   MULTI_VALUE_SEPARATOR = '||'
   TSV_LINE_BREAK = "\n"
+  UUID_REGEX = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/
 
   has_many :bytestreams, inverse_of: :item, dependent: :destroy
   has_many :elements, inverse_of: :item, dependent: :destroy
 
-  validates :collection_repository_id, length: { minimum: 2 }
-  validates :repository_id, length: { minimum: 2 }
+  validates_format_of :collection_repository_id,
+                      with: UUID_REGEX,
+                      message: 'UUID is invalid'
+  validates_format_of :parent_repository_id,
+                      with: UUID_REGEX,
+                      message: 'UUID is invalid',
+                      allow_blank: true
+  validates_format_of :repository_id,
+                      with: UUID_REGEX,
+                      message: 'UUID is invalid'
+  validates_format_of :representative_item_repository_id,
+                      with: UUID_REGEX,
+                      message: 'UUID is invalid',
+                      allow_blank: true
 
   after_commit :index_in_solr, on: [:create, :update]
   after_commit :delete_from_solr, on: :destroy
@@ -102,8 +115,8 @@ class Item < ActiveRecord::Base
   #
   def self.tsv_header(metadata_profile)
     # Must remain synchronized with the output of to_tsv.
-    elements = ['uuid', 'parentId', 'variant', 'pageNumber',
-                'subpageNumber', 'latitude', 'longitude']
+    elements = %w(uuid parentId preservationMasterPathname accessMasterPathname
+                  variant pageNumber subpageNumber latitude longitude)
     metadata_profile.element_defs.each do |el|
       # There will be one column per ElementDef vocabulary. Column headings are
       # in the format "vocabKey:elementName", except the uncontrolled vocabulary
@@ -135,8 +148,8 @@ class Item < ActiveRecord::Base
   # @return [Bytestream]
   #
   def access_master_bytestream
-    self.bytestreams.where(bytestream_type: Bytestream::Type::ACCESS_MASTER).
-        limit(1).first
+    self.bytestreams.
+        select{ |b| b.bytestream_type == Bytestream::Type::ACCESS_MASTER }.first
   end
 
   def bib_id
@@ -314,8 +327,7 @@ class Item < ActiveRecord::Base
   #
   def preservation_master_bytestream
     self.bytestreams.
-        where(bytestream_type: Bytestream::Type::PRESERVATION_MASTER).
-        limit(1).first
+        select{ |b| b.bytestream_type == Bytestream::Type::PRESERVATION_MASTER }.first
   end
 
   ##
@@ -361,8 +373,8 @@ class Item < ActiveRecord::Base
   # @return [Element]
   #
   def title
-    self.elements.select{ |e| e.name == 'title' }.first&.value ||
-        self.repository_id
+    t = self.elements.select{ |e| e.name == 'title' }.first&.value
+    t.present? ? t : self.repository_id
   end
 
   ##
@@ -446,6 +458,8 @@ class Item < ActiveRecord::Base
     columns = []
     columns << self.repository_id
     columns << self.parent_repository_id
+    columns << self.preservation_master_bytestream&.repository_relative_pathname
+    columns << self.access_master_bytestream&.repository_relative_pathname
     columns << self.variant
     columns << self.page_number
     columns << self.subpage_number
@@ -468,9 +482,7 @@ class Item < ActiveRecord::Base
   # Updates an instance's metadata elements from the metadata embedded within
   # its preservation master bytestream.
   #
-  # @param save [Boolean] Whether to save the instance.
-  #
-  def update_from_embedded_metadata(save = true)
+  def update_from_embedded_metadata
     # Get the preservation bytestream
     bs = self.preservation_master_bytestream
     return unless bs
@@ -516,7 +528,7 @@ class Item < ActiveRecord::Base
     # If a date is present, try to add a normalized date element.
     date_elem = metadata.select{ |e| e[:label] == 'Date Created' }.first
     if date_elem
-      date = string_date_to_time(date_elem[:value])
+      date = TimeUtil.string_date_to_time(date_elem[:value])
       if date
         self.elements.build(name: 'date', value: date.utc.iso8601,
                             vocabulary: Vocabulary.uncontrolled)
@@ -546,25 +558,17 @@ class Item < ActiveRecord::Base
       # Parent item ID. If the TSV is coming from a DLS export, it will have a
       # parentId column. Otherwise, if it's coming from a Medusa export, we
       # will have to search for it based on the collection's package profile.
-      if row['parentId']
+      if row.keys.include?('parentId')
         self.parent_repository_id = row['parentId']
       else
         self.parent_repository_id = self.collection.package_profile.
             parent_id_from_medusa(self.repository_id)
-        # The parent ID in the Medusa TSV may be pointing to a directory that
-        # is outside the collection's effective root directory
-        # (Collection.effective_medusa_cfs_directory). In that case, it needs
-        # to be nil.
-        unless ItemTsvIngester.within_root?(self.parent_repository_id,
-                                            self.collection, tsv)
-          self.parent_repository_id = nil
-        end
       end
 
       # date (normalized)
       date = row['date'] || row['dateCreated']
       if date
-        self.date = string_date_to_time(date.strip)
+        self.date = TimeUtil.string_date_to_time(date.strip)
       end
 
       # latitude
@@ -581,49 +585,9 @@ class Item < ActiveRecord::Base
           row['subpageNumber']
 
       # variant
-      if row['variant'] # DLS TSV will contain this, but Medusa TSV will not.
-        self.variant = row['variant'].strip if row['variant']
-      else
-        # The variant needs to be set properly for free-form content.
-        if self.collection.package_profile == PackageProfile::FREE_FORM_PROFILE
-          if row['inode_type'] == 'folder'
-            self.variant = Item::Variants::DIRECTORY
-          else
-            self.variant = Item::Variants::FILE
-          end
-        elsif self.parent_repository_id
-          self.variant = Item::Variants::PAGE
-        end
-      end
-
-      # If the TSV is in Medusa format, delete all bytestreams first in order
-      # to create new ones based on the TSV. Otherwise, if the TSV is in DLS
-      # format, leave the bytestreams alone.
-      unless ItemTsvIngester.dls_tsv?(tsv)
-        self.bytestreams.destroy_all
-        self.collection.package_profile.
-            bytestreams_from_tsv(self.repository_id, tsv).each do |bs|
-          self.bytestreams << bs
-        end
-      end
+      self.variant = row['variant'].strip if row['variant']
 
       # Metadata elements.
-      # If we are using Medusa TSV, and the free-form profile...
-      if self.collection.package_profile == PackageProfile::FREE_FORM_PROFILE and
-          !ItemTsvIngester.dls_tsv?(tsv)
-        # Try to obtain a title from 1) the TSV; 2) embedded metadata;
-        # 3) the filename.
-        if row['title'].blank?
-          # Vacuum up embedded metadata. This may or may not include a title.
-          self.update_from_embedded_metadata(false)
-
-          # If still no title, use the filename.
-          if self.elements.select{ |e| e.name == 'title' }.empty?
-            row['title'] = row['name']
-          end
-        end
-      end
-      # Now, begin.
       row.each do |heading, value|
         # Skip columns with an empty value.
         next unless value.present?
@@ -686,7 +650,7 @@ class Item < ActiveRecord::Base
       # date
       date = node.xpath("//#{prefix}:date", namespaces).first ||
           node.xpath("//#{prefix}:dateCreated", namespaces).first
-      self.date = string_date_to_time(date.content.strip) if date
+      self.date = TimeUtil.string_date_to_time(date.content.strip) if date
 
       # full text
       ft = node.xpath("//#{prefix}:fullText", namespaces).first
@@ -734,30 +698,6 @@ class Item < ActiveRecord::Base
       page = node.xpath("//#{prefix}:subpageNumber", namespaces).first
       self.subpage_number = page.content.strip.to_i if page
 
-      # access master (pathname)
-      am = node.xpath("//#{prefix}:accessMasterPathname", namespaces).first
-      if am
-        bs = self.bytestreams.build
-        bs.bytestream_type = Bytestream::Type::ACCESS_MASTER
-        bs.repository_relative_pathname = am.content.strip
-        # media type
-        mt = node.xpath("//#{prefix}:accessMasterMediaType", namespaces).first
-        bs.media_type = mt.content.strip if mt
-        bs.save!
-      end
-
-      # preservation master (pathname)
-      pm = node.xpath("//#{prefix}:preservationMasterPathname", namespaces).first
-      if pm
-        bs = self.bytestreams.build
-        bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
-        bs.repository_relative_pathname = pm.content.strip
-        # media type
-        mt = node.xpath("//#{prefix}:preservationMasterMediaType", namespaces).first
-        bs.media_type = mt.content.strip if mt
-        bs.save!
-      end
-
       node.xpath("//#{prefix}:*", namespaces).
           select{ |node| Element.all_descriptive.map(&:name).include?(node.name) }.
           each do |node|
@@ -772,37 +712,6 @@ class Item < ActiveRecord::Base
   end
 
   private
-
-  ##
-  # @param date [String]
-  # @return [Time]
-  #
-  def string_date_to_time(date)
-    iso8601 = nil
-    # Tests should be in order of most to least complex.
-    if date.match('[0-9]{4}:[0-1][0-9]:[0-3][0-9] [0-1][0-9]:[0-5][0-9]:[0-5][0-9]')
-      # date appears to be YYYY:MM:DD HH:MM:SS
-      parts = date.split(' ')
-      date_parts = parts.first.split(':')
-      time_parts = parts.last.split(':')
-      iso8601 = "#{date_parts[0]}-#{date_parts[1]}-#{date_parts[2]}T"\
-      "#{time_parts[0]}-#{time_parts[1]}-#{time_parts[2]}Z"
-    elsif date.match('[0-9]{4}-[0-1][0-9]-[0-3][0-9]')
-      # date appears to be YYYY-MM-DD
-      iso8601 = "#{date}T00:00:00Z"
-    elsif date.match('[0-9]{4}')
-      # date appears to be YYYY (1000-)
-      iso8601 = "#{date}-01-01T00:00:00Z"
-    end
-    if iso8601
-      begin
-        return Time.parse(iso8601)
-      rescue ArgumentError
-        # nothing we can do
-      end
-    end
-    nil
-  end
 
   def to_dls_xml_v3
     builder = Nokogiri::XML::Builder.new do |xml|

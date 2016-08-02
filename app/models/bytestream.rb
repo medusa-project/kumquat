@@ -109,29 +109,33 @@ class Bytestream < ActiveRecord::Base
     @metadata = []
     pathname = self.absolute_local_pathname
     if File.exist?(pathname) and File.readable?(pathname)
-      json = `exiftool -json -l -G #{pathname}`
-      struct = JSON.parse(json)
-      struct.first.each do |k, v|
-        next if k.include?('ExifToolVersion')
-        # show this one in development
-        next if k.include?('Directory') and Rails.env.production?
-        next if k.include?('FileAccessDate')
-        next if k.include?('FilePermissions')
-        next if k.include?('FileTypeExtension')
-        next if k.include?('CurrentIPTCDigest')
+      json = `exiftool -json -l -G "#{pathname.gsub('"', '\\"')}"`
+      begin
+        struct = JSON.parse(json)
+        struct.first.each do |k, v|
+          next if k.include?('ExifToolVersion')
+          # show this one in development
+          next if k.include?('Directory') and Rails.env.production?
+          next if k.include?('FileAccessDate')
+          next if k.include?('FilePermissions')
+          next if k.include?('FileTypeExtension')
+          next if k.include?('CurrentIPTCDigest')
 
-        if v['val']&.kind_of?(String)
-          next if v['val']&.include?('use -b option to extract')
-        end
+          if v['val']&.kind_of?(String)
+            next if v['val']&.include?('use -b option to extract')
+          end
 
-        if v['desc'].present? and v['val'].present?
-          parts = k.split(':')
-          category = parts.length > 1 ? parts[0] : nil
-          category = category.upcase if category.include?('Jpeg')
-          category.gsub!('ICC_Profile', 'ICC Profile')
-          value = v['val'].kind_of?(String) ? v['val'].strip : v['val']
-          @metadata << { label: v['desc'], category: category, value: value }
+          if v['desc'].present? and v['val'].present?
+            parts = k.split(':')
+            category = parts.length > 1 ? parts[0] : nil
+            category = category.upcase if category.include?('Jpeg')
+            category.gsub!('ICC_Profile', 'ICC Profile')
+            value = v['val'].kind_of?(String) ? v['val'].strip : v['val']
+            @metadata << { label: v['desc'], category: category, value: value }
+          end
         end
+      rescue JSON::ParserError => e
+        Rails.logger.warn("Bytestream.load_metadata(): #{e}")
       end
     end
     @metadata_loaded = true

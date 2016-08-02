@@ -1,6 +1,6 @@
-// The X-Kumquat-Message and X-Kumquat-Message-Type headers are set by an
+// The X-PearTree-Message and X-PearTree-Message-Type headers are set by an
 // ApplicationController after_filter to support ajax requests.
-// X-Kumquat-Result is another header that, if set, can contain "success" or
+// X-PearTree-Result is another header that, if set, can contain "success" or
 // "error", indicating the result of a form submission.
 
 $(document).ajaxComplete(function(event, request, options) {
@@ -24,6 +24,8 @@ $(document).ajaxSuccess(function(event, request) {
     }
 });
 
-$(document).ajaxError(function(event, request) {
-    console.log('ajaxError');
+$(document).ajaxError(function(event, request, settings) {
+    console.error(event);
+    console.error(request);
+    console.error(settings);
 });

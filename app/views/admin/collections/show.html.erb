@@ -54,8 +54,13 @@
           </dd>
           <dt>Metadata Profile</dt>
           <dd>
-            <%= @collection.metadata_profile ? @collection.metadata_profile.name :
-                    "Default (#{MetadataProfile.default.name})" %>
+            <% if @collection.metadata_profile %>
+              <%= link_to(@collection.metadata_profile.name,
+                          admin_metadata_profile_path(@collection.metadata_profile)) %>
+            <% else %>
+              <%= link_to("Default (#{MetadataProfile.default.name})",
+                          admin_metadata_profile_path(MetadataProfile.default)) %>
+            <% end %>
           </dd>
           <dt>Package Profile</dt>
           <dd>
@@ -65,7 +70,7 @@
           <dt>Medusa File Group</dt>
           <dd>
             <% if @file_group %>
-              <%= link_to("#{@file_group.title} (#{@file_group.id})",
+              <%= link_to("#{@file_group.title} (#{@file_group.uuid})",
                           @file_group.url, target: '_blank') %>
             <% else %>
               None

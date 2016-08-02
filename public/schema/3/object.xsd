@@ -128,6 +128,7 @@
       <xs:element name="cartographicScale" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="conformsTo" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="contributor" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="coordinates" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="creator" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="date" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="dateAccepted" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>

@@ -4,6 +4,7 @@ class ItemTest < ActiveSupport::TestCase
 
   setup do
     @item = items(:item1)
+    assert @item.valid?
 
     @free_form_collection = collections(:collection1)
     @medusa_free_form_tsv = File.read(__dir__ + '/../fixtures/repository/medusa-free-form.tsv')
@@ -29,18 +30,20 @@ class ItemTest < ActiveSupport::TestCase
 
   test 'tsv_header should return the correct columns' do
     cols = Item.tsv_header(@item.collection.metadata_profile).strip.split("\t")
-    assert_equal 11, cols.length
+    assert_equal 13, cols.length
     assert_equal 'uuid', cols[0]
     assert_equal 'parentId', cols[1]
-    assert_equal 'variant', cols[2]
-    assert_equal 'pageNumber', cols[3]
-    assert_equal 'subpageNumber', cols[4]
-    assert_equal 'latitude', cols[5]
-    assert_equal 'longitude', cols[6]
-    assert_equal 'title', cols[7]
-    assert_equal 'description', cols[8]
-    assert_equal 'lcsh:subject', cols[9]
-    assert_equal 'tgm:subject', cols[10]
+    assert_equal 'preservationMasterPathname', cols[2]
+    assert_equal 'accessMasterPathname', cols[3]
+    assert_equal 'variant', cols[4]
+    assert_equal 'pageNumber', cols[5]
+    assert_equal 'subpageNumber', cols[6]
+    assert_equal 'latitude', cols[7]
+    assert_equal 'longitude', cols[8]
+    assert_equal 'title', cols[9]
+    assert_equal 'description', cols[10]
+    assert_equal 'lcsh:subject', cols[11]
+    assert_equal 'tgm:subject', cols[12]
   end
 
   # access_master_bytestream()
@@ -48,6 +51,16 @@ class ItemTest < ActiveSupport::TestCase
   test 'access_master_bytestream() should work properly' do
     assert_equal Bytestream::Type::ACCESS_MASTER,
                  @item.access_master_bytestream.bytestream_type
+  end
+
+  # collection_repository_id
+
+  test 'collection_repository_id must be a UUID' do
+    @item.collection_repository_id = 123
+    assert !@item.valid?
+
+    @item.collection_repository_id = '8acdb390-96b6-0133-1ce8-0050569601ca-4'
+    assert @item.valid?
   end
 
   # effective_representative_item()
@@ -86,11 +99,31 @@ class ItemTest < ActiveSupport::TestCase
                  @item.effective_representative_item.repository_id
   end
 
+  # parent_repository_id
+
+  test 'parent_repository_id must be a UUID' do
+    @item.parent_repository_id = 123
+    assert !@item.valid?
+
+    @item.parent_repository_id = '8acdb390-96b6-0133-1ce8-0050569601ca-4'
+    assert @item.valid?
+  end
+
   # preservation_master_bytestream()
 
   test 'preservation_master_bytestream() should work properly' do
     assert_equal Bytestream::Type::PRESERVATION_MASTER,
                  @item.preservation_master_bytestream.bytestream_type
+  end
+
+  # repository_id
+
+  test 'repository_id must be a UUID' do
+    @item.repository_id = 123
+    assert !@item.valid?
+
+    @item.repository_id = '8acdb390-96b6-0133-1ce8-0050569601ca-4'
+    assert @item.valid?
   end
 
   # representative_item()
@@ -102,8 +135,18 @@ class ItemTest < ActiveSupport::TestCase
     @item.representative_item_repository_id = 'bogus'
     assert_nil(@item.representative_item)
     # for an existent representative item, it should return the representative item
-    col = Collection.find_by_repository_id('collection1')
+    col = Collection.find_by_repository_id('d250c1f0-5ca8-0132-3334-0050569601ca-8')
     assert_equal('MyString', col.representative_item_id)
+  end
+
+  # representative_item_repository_id
+
+  test 'representative_item_repository_id must be a UUID' do
+    @item.representative_item_repository_id = 123
+    assert !@item.valid?
+
+    @item.representative_item_repository_id = '8acdb390-96b6-0133-1ce8-0050569601ca-4'
+    assert @item.valid?
   end
 
   # to_dls_xml(schema_version)
@@ -166,17 +209,19 @@ class ItemTest < ActiveSupport::TestCase
 
   test 'to_tsv should work' do
     values = @item.to_tsv.strip.split("\t")
-    assert_equal 11, values.length
+    assert_equal 13, values.length
     assert_equal @item.repository_id.to_s, values[0]
     assert_equal @item.parent_repository_id.to_s, values[1]
-    assert_equal @item.variant.to_s, values[2]
-    assert_equal @item.page_number.to_s, values[3]
-    assert_equal @item.subpage_number.to_s, values[4]
-    assert_equal @item.latitude.to_s, values[5]
-    assert_equal @item.longitude.to_s, values[6]
-    assert_equal @item.elements.select{ |e| e.name == 'title' }.first.value, values[7]
-    assert_equal @item.elements.select{ |e| e.name == 'description' }.first.value, values[8]
-    assert_equal @item.elements.select{ |e| e.name == 'subject' }.first.value, values[9]
+    assert_equal @item.preservation_master_bytestream&.repository_relative_pathname, values[2]
+    assert_equal @item.access_master_bytestream&.repository_relative_pathname, values[3]
+    assert_equal @item.variant.to_s, values[4]
+    assert_equal @item.page_number.to_s, values[5]
+    assert_equal @item.subpage_number.to_s, values[6]
+    assert_equal @item.latitude.to_s, values[7]
+    assert_equal @item.longitude.to_s, values[8]
+    assert_equal @item.elements.select{ |e| e.name == 'title' }.first.value, values[9]
+    assert_equal @item.elements.select{ |e| e.name == 'description' }.first.value, values[10]
+    assert_equal @item.elements.select{ |e| e.name == 'subject' }.first.value, values[11]
   end
 
   # update_from_embedded_metadata
@@ -204,7 +249,7 @@ class ItemTest < ActiveSupport::TestCase
   test 'update_from_tsv should work with DLS TSV' do
     row = {}
     # technical elements
-    row['parentId'] = '9182'
+    row['parentId'] = 'a111c1f0-5ca8-0132-3334-0050569601ca-8'
     row['date'] = '1984'
     row['latitude'] = '45.52'
     row['longitude'] = '-120.564'
@@ -220,7 +265,7 @@ class ItemTest < ActiveSupport::TestCase
 
     @item.update_from_tsv([row], row)
 
-    assert_equal('9182', @item.parent_repository_id)
+    assert_equal('a555c1f0-5ca8-0132-3334-0050569601ca-8', @item.parent_repository_id)
     assert_equal(1984, @item.date.year)
     assert_equal(45.52, @item.latitude)
     assert_equal(-120.564, @item.longitude)
@@ -237,53 +282,6 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal('Cats', @item.title)
   end
 
-  test 'update_from_tsv should work with Medusa TSV' do
-    row = {}
-    # technical elements
-    row['date'] = '1984'
-    row['latitude'] = '45.52'
-    row['longitude'] = '-120.564'
-    row['pageNumber'] = '3'
-    row['subpageNumber'] = '1'
-    row['variant'] = Item::Variants::PAGE
-
-    # descriptive elements
-    row['description'] = sprintf('Cats%scats%sand more cats',
-                                 Item::MULTI_VALUE_SEPARATOR,
-                                 Item::MULTI_VALUE_SEPARATOR)
-    row['title'] = 'Cats'
-    row['subject'] = 'Mammals'
-    row['lcsh:subject'] = 'Felines'
-
-    @item.update_from_tsv([row], row)
-
-    assert_nil(@item.parent_repository_id)
-    assert_equal(1984, @item.date.year)
-    assert_equal(45.52, @item.latitude)
-    assert_equal(-120.564, @item.longitude)
-    assert_equal(3, @item.page_number)
-    assert_equal(1, @item.subpage_number)
-    assert_equal(Item::Variants::PAGE, @item.variant)
-
-    descriptions = @item.elements.select{ |e| e.name == 'description' }
-    assert_equal 3, descriptions.length
-    assert_equal 1, descriptions.select{ |e| e.value == 'Cats' }.length
-    assert_equal 1, descriptions.select{ |e| e.value == 'cats' }.length
-    assert_equal 1, descriptions.select{ |e| e.value == 'and more cats' }.length
-    assert_equal Vocabulary.uncontrolled, descriptions[0].vocabulary
-    assert_equal Vocabulary.uncontrolled, descriptions[1].vocabulary
-    assert_equal Vocabulary.uncontrolled, descriptions[2].vocabulary
-
-    title = @item.elements.select{ |e| e.name == 'title' }.first
-    assert_equal Vocabulary.uncontrolled, title.vocabulary
-    assert_equal 'Cats', title.value
-
-    assert_not_nil @item.elements.
-        select{ |e| e.name == 'subject' and e.vocabulary == Vocabulary.uncontrolled and e.value = 'Mammals' }.first
-    assert_not_nil @item.elements.
-        select{ |e| e.name == 'subject' and e.vocabulary == Vocabulary.find_by_key('lcsh') and e.value == 'Felines' }.first
-  end
-
   test 'update_from_tsv should raise an error if given an invalid vocabulary prefix' do
     row = {}
     row['title'] = 'Cats'
@@ -294,68 +292,16 @@ class ItemTest < ActiveSupport::TestCase
     end
   end
 
-  test 'update_from_tsv should set the variant for free-form content from
-        Medusa TSV' do
-    ItemTsvIngester.new.ingest_tsv(@medusa_free_form_tsv, @free_form_collection,
-                                   ItemTsvIngester::ImportMode::CREATE_ONLY)
-
-    item1 = Item.find_by_repository_id('a53a0ce0-5ca8-0132-3334-0050569601ca-9')
-    item1.update_from_tsv(@medusa_free_form_tsv_array,
-                          { 'inode_type' => 'folder' })
-    assert_equal Item::Variants::DIRECTORY, item1.variant
-
-    item2 = Item.find_by_repository_id('6e3c33c0-5ce3-0132-3334-0050569601ca-f')
-    item2.update_from_tsv(@medusa_free_form_tsv_array,
-                          { 'inode_type' => 'file' })
-    assert_equal Item::Variants::FILE, item2.variant
-  end
-
-  test 'update_from_tsv should not set the variant for non-free-form compound
-        objects from Medusa TSV if it is missing' do
-    ItemTsvIngester.new.ingest_tsv(@medusa_map_tsv, @map_collection,
-                                   ItemTsvIngester::ImportMode::CREATE_ONLY)
-
-    item = Item.find_by_repository_id('abdc55a0-c451-0133-1d17-0050569601ca-1')
-    item.update_from_tsv(@medusa_map_tsv_array, {})
-    assert_nil item.variant
-  end
-
-  test 'update_from_tsv should set the variant for non-free-form pages from
-        Medusa TSV if it is missing' do
-    ItemTsvIngester.new.ingest_tsv(@medusa_map_tsv, @map_collection,
-                                   ItemTsvIngester::ImportMode::CREATE_ONLY)
-
-    item = Item.find_by_repository_id('d29edba0-c451-0133-1d17-0050569601ca-c')
-    item.update_from_tsv(@medusa_map_tsv_array, {})
-    assert_equal Item::Variants::PAGE, item.variant
-  end
-
-  test 'update_from_tsv should set the title for title-less free-form content
-        from Medusa TSV' do
-    ItemTsvIngester.new.ingest_tsv(@medusa_free_form_tsv, @free_form_collection,
-                                   ItemTsvIngester::ImportMode::CREATE_ONLY)
-
-    item1 = Item.find_by_repository_id('a53a0ce0-5ca8-0132-3334-0050569601ca-9')
-    item1.update_from_tsv(@medusa_free_form_tsv_array,
-                          { 'name' => 'binder_9' })
-    assert_equal 'binder_9', item1.title
-
-    item2 = Item.find_by_repository_id('6e3c33c0-5ce3-0132-3334-0050569601ca-f')
-    item2.update_from_tsv(@medusa_free_form_tsv_array,
-                          { 'name' => 'animals_001.jpg' })
-    assert_equal 'animals_001.jpg', item2.title
-  end
-
   # update_from_xml
 
   test 'update_from_xml should work with schema version 3' do
     xml = '<?xml version="1.0" encoding="utf-8"?>'
     xml += '<dls:Object xmlns:dls="http://digital.library.illinois.edu/terms#">'
     # technical elements
-    xml += '<dls:repositoryId>cats001</dls:repositoryId>'
-    xml += '<dls:collectionId>collection1</dls:collectionId>' # from fixture
-    xml += '<dls:parentId>item1</dls:parentId>'
-    xml += '<dls:representativeItemId>cats001</dls:representativeItemId>'
+    xml += '<dls:repositoryId>e12adef0-5ca8-0132-3334-0050569601ca-8</dls:repositoryId>'
+    xml += '<dls:collectionId>d250c1f0-5ca8-0132-3334-0050569601ca-8</dls:collectionId>' # from fixture
+    xml += '<dls:parentId>ace52312-5ca8-0132-3334-0050569601ca-8</dls:parentId>'
+    xml += '<dls:representativeItemId>e12adef0-5ca8-0132-3334-0050569601ca-8</dls:representativeItemId>'
     xml += '<dls:published>true</dls:published>'
     xml += '<dls:fullText>full text</dls:fullText>'
     xml += '<dls:pageNumber>3</dls:pageNumber>'
@@ -385,29 +331,18 @@ class ItemTest < ActiveSupport::TestCase
 
     @item.update_from_xml(doc, 3)
 
-    assert_equal('collection1', @item.collection.repository_id)
+    assert_equal('d250c1f0-5ca8-0132-3334-0050569601ca-8', @item.collection.repository_id)
     assert_equal(1984, @item.date.year)
     assert_equal('full text', @item.full_text)
     assert_equal(45.52, @item.latitude)
     assert_equal(-120.564, @item.longitude)
     assert_equal(3, @item.page_number)
-    assert_equal('item1', @item.parent_repository_id)
+    assert_equal('ace52312-5ca8-0132-3334-0050569601ca-8', @item.parent_repository_id)
     assert @item.published
-    assert_equal('cats001', @item.repository_id)
-    assert_equal('cats001', @item.representative_item_repository_id)
+    assert_equal('e12adef0-5ca8-0132-3334-0050569601ca-8', @item.repository_id)
+    assert_equal('e12adef0-5ca8-0132-3334-0050569601ca-8', @item.representative_item_repository_id)
     assert_equal(1, @item.subpage_number)
     assert_equal(Item::Variants::PAGE, @item.variant)
-
-    assert_equal(2, @item.bytestreams.length)
-    bs = @item.bytestreams.
-        select{ |bs| bs.bytestream_type == Bytestream::Type::ACCESS_MASTER }.first
-    assert_equal('/pathname', bs.repository_relative_pathname)
-    assert_equal('image/jpeg', bs.media_type)
-
-    bs = @item.bytestreams.
-        select{ |bs| bs.bytestream_type == Bytestream::Type::PRESERVATION_MASTER }.first
-    assert_equal('/pathname', bs.repository_relative_pathname)
-    assert_equal('image/jpeg', bs.media_type)
 
     descriptions = @item.elements.select{ |e| e.name == 'description' }
     assert_equal 3, descriptions.length

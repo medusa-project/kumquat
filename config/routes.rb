@@ -87,13 +87,13 @@ Rails.application.routes.draw do
     match '/elements/import', to: 'available_elements#import', via: 'post',
           as: 'available_elements_import'
     match '/elements/schema', to: 'available_elements#schema', via: 'get'
-    match '/collections/refresh', to: 'collections#refresh', via: 'patch',
-          as: 'collections_refresh'
+    match '/collections/sync', to: 'collections#sync', via: 'patch',
+          as: 'collections_sync'
     resources :collections, except: [:new, :create, :delete] do
       match '/items/search', to: 'items#search', via: %w(get post),
             as: 'items_search'
       resources :items, concerns: :publishable
-      match '/items/ingest', to: 'items#ingest', via: 'post'
+      match '/items/sync', to: 'items#sync', via: 'post'
     end
     resources :element_defs, only: [:create, :update, :destroy, :edit]
     resources :metadata_profiles, path: 'metadata-profiles' do

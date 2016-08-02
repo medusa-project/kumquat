@@ -1,10 +1,12 @@
 ##
 # Encapsulates a Medusa collection.
 #
-# Collections can contain zero or more items.
-#
 # Collections are identified by their repository ID (`repository_id`), which
 # is a UUID matching a collection's Medusa UUID.
+#
+# Collections can "contain" zero or more items. (This is a weak relationship;
+# the collections don't literally contain them, but items maintain a reference
+# to their owning collection's repository ID.)
 #
 # Collections are associated with a metadata profile, which defines the list
 # of elements that contained items are supposed to have, as well as a package
@@ -13,7 +15,8 @@
 #
 # Being an ActiveRecord entity, collections are searchable via ActiveRecord as
 # well as via Solr. Instances are automatically indexed in Solr (see `to_solr`)
-# and the Solr search functionality is available via the `solr` class method.
+# in an after_commit callback, and the Solr search functionality is available
+# via the `solr` class method.
 #
 class Collection < ActiveRecord::Base
 
@@ -36,14 +39,27 @@ class Collection < ActiveRecord::Base
     TITLE = 'title_natsort_en_i'
   end
 
+  UUID_REGEX = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/
+
   serialize :resource_types
 
   belongs_to :metadata_profile, inverse_of: :collections
   has_many :element_defs, inverse_of: :collection
 
-  validates :repository_id, presence: true
+  validates_format_of :medusa_cfs_directory_id,
+                      with: UUID_REGEX,
+                      message: 'UUID is invalid',
+                      allow_blank: true
+  validates_format_of :medusa_file_group_id,
+                      with: UUID_REGEX,
+                      message: 'UUID is invalid',
+                      allow_blank: true
+  validates_format_of :repository_id,
+                      with: UUID_REGEX,
+                      message: 'UUID is invalid'
 
   before_validation :do_before_validation
+
   after_commit :index_in_solr, on: [:create, :update]
   after_commit :delete_from_solr, on: :destroy
 
@@ -118,7 +134,7 @@ class Collection < ActiveRecord::Base
       @cfs_directory = nil
       if self.medusa_cfs_directory_id.present?
         @cfs_directory = MedusaCfsDirectory.new
-        @cfs_directory.id = self.medusa_cfs_directory_id
+        @cfs_directory.uuid = self.medusa_cfs_directory_id
       end
     end
     @cfs_directory
@@ -129,7 +145,7 @@ class Collection < ActiveRecord::Base
      @file_group = nil
      if self.medusa_file_group_id
        @file_group = MedusaFileGroup.new
-       @file_group.id = self.medusa_file_group_id
+       @file_group.uuid = self.medusa_file_group_id
      end
    end
    @file_group
@@ -181,8 +197,9 @@ class Collection < ActiveRecord::Base
       bs = item.access_master_bytestream || item.preservation_master_bytestream
     elsif self.representative_image.present?
       cfs_file = MedusaCfsFile.new
-      cfs_file.id = self.representative_image
+      cfs_file.uuid = self.representative_image
       bs = Bytestream.new
+      bs.cfs_file_uuid = cfs_file.uuid
       bs.repository_relative_pathname = cfs_file.repository_relative_pathname
       bs.infer_media_type
     end
