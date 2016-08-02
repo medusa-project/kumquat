@@ -1,0 +1,101 @@
+<ul class="nav nav-tabs" role="tablist">
+  <li role="presentation" class="active">
+    <a href="#pt-system-info" aria-controls="pt-system-info" role="tab" data-toggle="tab">System Info</a>
+  </li>
+  <li role="presentation">
+    <a href="#pt-metadata" aria-controls="pt-metadata" role="tab" data-toggle="tab">Metadata</a>
+  </li>
+  <li role="presentation">
+    <a href="#pt-full-text" aria-controls="pt-full-text" role="tab" data-toggle="tab">Full Text</a>
+  </li>
+</ul>
+
+<%= form_for([:admin, @item.collection, @item]) do |f| %>
+  <div class="tab-content">
+    <div role="tabpanel" class="tab-pane active" id="pt-system-info">
+      <table class="table pt-elements">
+        <tbody>
+          <tr>
+            <td>Published</td>
+            <td><%= f.check_box(:published) %></td>
+          </tr>
+          <tr>
+            <td>Variant</td>
+            <td>
+              <%= f.select(:variant, @variants, { include_blank: true },
+                           { class: 'form-control'}) %>
+            </td>
+          </tr>
+          <tr>
+            <td>Representative Item ID</td>
+            <td>
+              <%= f.text_field(:representative_item_repository_id, class: 'form-control') %>
+            </td>
+          </tr>
+          <tr>
+            <td>Page Number</td>
+            <td>
+              <%= f.number_field(:page_number, class: 'form-control') %>
+            </td>
+          </tr>
+          <tr>
+            <td>Subpage Number</td>
+            <td>
+              <%= f.number_field(:subpage_number, class: 'form-control') %>
+            </td>
+          </tr>
+          <tr>
+            <td>Longitude (decimal degrees)</td>
+            <td>
+              <%= f.text_field(:longitude, class: 'form-control') %>
+            </td>
+          </tr>
+          <tr>
+            <td>Latitude (decimal degrees)</td>
+            <td>
+              <%= f.text_field(:latitude, class: 'form-control') %>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div role="tabpanel" class="tab-pane" id="pt-metadata">
+      <div class="alert alert-info">Collection metadata profile:
+        <%= link_to(@item.collection.metadata_profile.name,
+                    admin_metadata_profile_path(@item.collection.metadata_profile)) %>
+      </div>
+
+      <table class="table pt-elements">
+        <tbody>
+          <% @item.collection.metadata_profile.element_defs.each do |e_def| %>
+            <tr>
+              <td style="width:20%">
+                <label><%= e_def.label %></label>
+              </td>
+              <td>
+                <% elements = @item.elements.select{ |e| e.name == e_def.name} %>
+                <% if elements.any? %>
+                  <% elements.each do |elem| %>
+                    <%= admin_item_element_edit_tag(e_def.name, elem.value) %>
+                  <% end %>
+                <% else %>
+                  <%= admin_item_element_edit_tag(e_def.name, '') %>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <div role="tabpanel" class="tab-pane" id="pt-full-text">
+      <div class="form-group">
+        <%= f.text_area :full_text, class: 'form-control' %>
+      </div>
+    </div>
+  </div>
+
+  <%= f.submit 'Save', class: 'btn btn-primary' %>
+
+<% end %>

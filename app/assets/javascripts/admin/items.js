@@ -1,6 +1,50 @@
 /**
  * @constructor
  */
+var PTAdminItemEditView = function() {
+
+    this.init = function() {
+        $('button.pt-add-element').on('click', function() {
+            var element = $(this).closest('.pt-element');
+
+            var clone = element.clone(true);
+            clone.find('input').val('');
+
+            element.after(clone);
+
+            return false;
+        });
+        $('button.pt-remove-element').on('click', function() {
+            var element = $(this).closest('.pt-element');
+            if (element.siblings().length > 0) {
+                element.remove();
+            }
+            return false;
+        });
+
+        // Auto-vertical-resize the textareas...
+        var textareas = $('textarea');
+        var MAGIC_FUDGE = 12;
+        var MIN_HEIGHT = 20;
+        // ... initially
+        textareas.each(function() {
+            $(this).height('0px');
+            var height = this.scrollHeight - MAGIC_FUDGE;
+            height = (height < MIN_HEIGHT) ? MIN_HEIGHT : height;
+            $(this).height(height + 'px');
+        });
+        // ... and on change
+        textareas.on('input propertychange keyup change', function() {
+            $(this).height('20px');
+            $(this).height((this.scrollHeight - MAGIC_FUDGE) + 'px');
+        });
+    };
+
+};
+
+/**
+ * @constructor
+ */
 var PTAdminItemsView = function() {
 
     var ELEMENT_LIMIT = 4;
@@ -23,6 +67,10 @@ var PTAdminItemsView = function() {
 };
 
 var ready = function() {
+    if ($('body#items_edit').length) {
+        PearTree.view = new PTAdminItemEditView();
+        PearTree.view.init();
+    }
     if ($('body#items_index').length) {
         PearTree.view = new PTAdminItemsView();
         PearTree.view.init();

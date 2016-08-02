@@ -2,15 +2,13 @@
 <% provide :body_id, 'items_show' %>
 <% provide :active_nav, 'entities' %>
 
-<ol class="breadcrumb">
-  <li><%= link_to 'Home', admin_root_path %></li>
-  <li><%= link_to 'Collections', admin_collections_path %></li>
-  <li><%= link_to @item.collection.title, admin_collection_path(@item.collection) %></li>
-  <li><%= link_to 'Items', admin_collection_items_path %></li>
-  <li class="active"><%= truncate(@item.title, length: 50) %></li>
-</ol>
+<%= admin_breadcrumb(item: @item) %>
 
 <div class="btn-group pull-right">
+  <%= link_to edit_admin_collection_item_path(@item.collection, @item),
+              class: 'btn btn-default' do %>
+    <i class="fa fa-pencil"></i> Edit
+  <% end %>
   <%= link_to @item, class: 'btn btn-default', target: '_blank' do %>
     <i class="fa fa-globe"></i> Public View
   <% end %>
@@ -29,53 +27,89 @@
   </h1>
 <% end %>
 
-<%= viewer_for(@item) %>
-
-<section>
-  <h2>Metadata</h2>
-  <%= metadata_as_list(@item) %>
-  <%= metadata_as_table(@item) %>
-</section>
-
-<section>
-  <h2>Bytestreams</h2>
-  <% if @item.bytestreams.any? %>
-    <% @item.bytestreams.each do |bs| %>
-      <h3><%= bs.human_readable_type %></h3>
-      <%= bytestream_metadata_as_table(bs, admin: true) %>
-    <% end %>
-  <% else %>
-    <p>None</p>
-  <% end %>
-</section>
-
-<section>
-  <h2>Pages</h2>
-  <% if @item.pages.any? %>
-    <div class="pt-pages">
-      <%= pages_as_list(@item.pages, nil, link_to_admin: true) %>
+<div class="row">
+  <div class="col-sm-3 col-lg-2">
+    <div class="pt-thumbnail">
+      <%= thumbnail_tag(@item, ItemsHelper::DEFAULT_THUMBNAIL_SIZE) %>
     </div>
-    <!-- TODO: files, directories, non-pages -->
-  <% else %>
-    <p>None</p>
-  <% end %>
-</section>
+    <ul class="nav nav-pills nav-stacked" role="tablist">
+      <li role="presentation" class="active">
+        <a href="#pt-structure" aria-controls="pt-structure" role="tab" data-toggle="tab">Structure</a>
+      </li>
 
-<section>
-  <h2>Full Text</h2>
-  <% if @item.full_text.present? %>
-    <pre><%= @item.full_text %></pre>
-  <% else %>
-    <p>None</p>
-  <% end %>
-</section>
+      <li role="presentation">
+        <a href="#pt-system-info" aria-controls="pt-system-info" role="tab" data-toggle="tab">System Info</a>
+      </li>
 
-<section>
-  <h2>System Information</h2>
-  <dl>
-    <dt>Created</dt>
-    <dd><%= local_time(@item.created_at) %></dd>
-    <dt>Last Modified</dt>
-    <dd><%= local_time(@item.updated_at) %></dd>
-  </dl>
-</section>
+      <li role="presentation">
+        <a href="#pt-descriptive-metadata" aria-controls="pt-descriptive-metadata" role="tab" data-toggle="tab">Descriptive Metadata</a>
+      </li>
+
+      <li role="presentation">
+        <a href="#pt-bytestreams" aria-controls="pt-bytestreams" role="tab" data-toggle="tab">
+          Bytestreams <span class="badge"><%= @item.bytestreams.length %></span></a>
+      </li>
+
+      <li role="presentation">
+        <a href="#pt-viewer" aria-controls="pt-viewer" role="tab" data-toggle="tab">Viewer</a>
+      </li>
+
+      <li role="presentation">
+        <a href="#pt-full-text" aria-controls="pt-full-text" role="tab" data-toggle="tab">Full Text</a>
+      </li>
+    </ul>
+  </div>
+
+  <div class="col-sm-9 col-lg-10">
+    <div class="tab-content">
+      <div role="tabpanel" class="tab-pane active" id="pt-structure">
+        <%= admin_structure_of_item(@item) %>
+      </div>
+
+      <div role="tabpanel" class="tab-pane" id="pt-system-info">
+        <%= admin_system_info_as_list(@item) %>
+        <%= admin_system_info_as_table(@item) %>
+      </div>
+
+      <div role="tabpanel" class="tab-pane" id="pt-descriptive-metadata">
+        <%= metadata_as_list(@item, show_invisible: true) %>
+        <%= metadata_as_table(@item, show_invisible: true) %>
+      </div>
+
+      <div role="tabpanel" class="tab-pane" id="pt-bytestreams">
+        <% if @item.bytestreams.any? %>
+          <ul class="nav nav-tabs" role="tablist">
+            <% @item.bytestreams.each_with_index do |bs, index| %>
+              <li role="presentation" class="<%= index == 0 ? 'active' : '' %>">
+                <a href="#pt-bs-<%= bs.bytestream_type %>" aria-controls="home"
+                   role="tab" data-toggle="tab">
+                  <%= bs.human_readable_type %>
+                </a>
+              </li>
+            <% end %>
+          </ul>
+
+          <div class="tab-content">
+            <% @item.bytestreams.each_with_index do |bs, index| %>
+              <div role="tabpanel" class="tab-pane <%= index == 0 ? 'active' : '' %>"
+                   id="pt-bs-<%= bs.bytestream_type %>">
+                <%= bytestream_metadata_as_table(bs, admin: true) %>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+
+      <div role="tabpanel" class="tab-pane" id="pt-viewer">
+        <%= viewer_for(@item) %>
+      </div>
+
+      <div role="tabpanel" class="tab-pane" id="pt-full-text">
+        <% if @item.full_text.present? %>
+          <pre><%= @item.full_text %></pre>
+        <% end %>
+      </div>
+
+    </div>
+  </div>
+</div>

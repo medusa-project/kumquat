@@ -1,0 +1,8 @@
+<% provide :body_id, 'items_edit' %>
+<% provide :active_nav, 'entities' %>
+
+<%= admin_breadcrumb(collection: @item.collection, item: @item) %>
+
+<h1>Edit <%= @item.title %></h1>
+
+<%= render partial: 'form', locals: { item: @item, context: :edit } %>

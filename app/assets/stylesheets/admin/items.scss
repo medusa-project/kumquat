@@ -98,8 +98,15 @@ body#items_show {
       }
     }
   }
-  .pt-remove-from-favorites {
-    display:none;
+  .pt-thumbnail {
+    font-size: 72px;
+    margin-top: 0px;
+    margin-bottom: 10px;
+    text-align: center;
+    img {
+      max-height: 150px;
+      max-width: 150px;
+    }
   }
   .pt-page-nav {
     text-align: center;
@@ -109,6 +116,13 @@ body#items_show {
       margin: 0em 1.5em 0em 1.5em;
     }
   }
+
+  #pt-structure ul {
+    list-style: none;
+    margin-left: 1.5em;
+    padding-left: 0em;
+  }
+
   #pt-image-viewer {
     background-color:black;
     height: 500px;
@@ -189,4 +203,11 @@ body#items_show {
     }
   }
 
+}
+
+body#items_edit {
+  #item_full_text {
+    font-family: monospace;
+    min-height: 200px;
+  }
 }
