@@ -63,6 +63,10 @@
   </div>
 
   <div role="tabpanel" class="tab-pane" id="pt-metadata">
+    <div class="alert alert-info">Collection metadata profile:
+      <%= link_to(@item.collection.metadata_profile.name,
+                  admin_metadata_profile_path(@item.collection.metadata_profile)) %>
+    </div>
     <%= form_for([:admin, @item.collection, @item]) do |f| %>
       <table class="table pt-elements">
         <tbody>
