@@ -15,4 +15,11 @@
 //= require jquery.cookie
 //= require bootstrap-sprockets
 //= require local_time
-//= require_tree .
+
+//= require ajax
+//= require peartree
+//= require models/item
+//= require collections
+//= require favorites
+//= require items
+//= require search
