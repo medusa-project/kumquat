@@ -109,7 +109,7 @@ xml.tag!('schema',
 
       xml.comment!('******************* DESCRIPTIVE ELEMENTS *******************')
 
-      AvailableElement.all.order(:name).each do |e|
+      Element.all.order(:name).each do |e|
         xml.tag!('xs:element', { name: e.name, type: 'xs:string',
                                  minOccurs: '0', maxOccurs: 'unbounded' })
       end

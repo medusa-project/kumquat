@@ -1,6 +1,6 @@
 ##
 # Encapsulates a metadata element attached to an item. An element has a name
-# matching any of the AvailableElement names.
+# matching any of the Element names.
 #
 # To add technical elements:
 # 1) Add a column for it on Item
@@ -45,7 +45,7 @@ class ItemElement < ActiveRecord::Base
   # @return [Array<ItemElement>]
   #
   def self.all_descriptive
-    AvailableElement.all.map do |elem|
+    Element.all.map do |elem|
       ItemElement.new(name: elem.name, type: Type::DESCRIPTIVE)
     end
   end

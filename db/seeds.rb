@@ -62,7 +62,7 @@ profiles = {}
 profiles[:default] = MetadataProfile.create!(name: 'Default Profile',
                                              default: true)
 
-# Available elements
+# Elements
 
 %w(abstract accessRights accrualMethod accrualPeriodicity accrualPolicy
 alternativeTitle audience bibId bibliographicCitation callNumber
@@ -75,7 +75,7 @@ license localId materialsColor materialsTechniques mediator medium notes
 physicalLocation provenance publicationPlace publisher references relation
 replaces requires rights rightsHolder source spatialCoverage subject
 tableOfContents temporalCoverage title type).each do |element|
-  AvailableElement.create!(name: element)
+  Element.create!(name: element)
 end
 
 # Vocabularies

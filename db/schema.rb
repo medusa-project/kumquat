@@ -11,17 +11,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160802155603) do
+ActiveRecord::Schema.define(version: 20160802161059) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
-
-  create_table "available_elements", force: :cascade do |t|
-    t.string   "name"
-    t.string   "description"
-    t.datetime "created_at",  null: false
-    t.datetime "updated_at",  null: false
-  end
 
   create_table "bytestreams", force: :cascade do |t|
     t.integer  "bytestream_type"
@@ -97,6 +90,13 @@ ActiveRecord::Schema.define(version: 20160802155603) do
   create_table "element_defs_vocabularies", id: false, force: :cascade do |t|
     t.integer "element_def_id", null: false
     t.integer "vocabulary_id",  null: false
+  end
+
+  create_table "elements", force: :cascade do |t|
+    t.string   "name"
+    t.string   "description"
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
   end
 
   create_table "item_elements", force: :cascade do |t|

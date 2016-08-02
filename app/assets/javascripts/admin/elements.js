@@ -1,7 +1,7 @@
 /**
  * @constructor
  */
-var PTAdminAvailableElementsView = function() {
+var PTAdminElementsView = function() {
 
     this.init = function() {
         $('button.pt-edit-element').on('click', function() {
@@ -18,8 +18,8 @@ var PTAdminAvailableElementsView = function() {
 };
 
 var ready = function() {
-    if ($('body#available_elements').length) {
-        PearTree.view = new PTAdminAvailableElementsView();
+    if ($('body#elements').length) {
+        PearTree.view = new PTAdminElementsView();
         PearTree.view.init();
     }
 };

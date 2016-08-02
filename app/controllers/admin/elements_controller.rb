@@ -1,6 +1,6 @@
 module Admin
 
-  class AvailableElementsController < ControlPanelController
+  class ElementsController < ControlPanelController
 
     class ImportMode
       MERGE = 'merge'
@@ -11,7 +11,7 @@ module Admin
     # XHR only
     #
     def create
-      @element = AvailableElement.new(sanitized_params)
+      @element = Element.new(sanitized_params)
       begin
         @element.save!
       rescue ActiveRecord::RecordInvalid
@@ -32,7 +32,7 @@ module Admin
     end
 
     def destroy
-      element = AvailableElement.find(params[:id])
+      element = Element.find(params[:id])
       begin
         element.destroy!
       rescue => e
@@ -48,8 +48,8 @@ module Admin
     # XHR only
     #
     def edit
-      element = AvailableElement.find(params[:id])
-      render partial: 'admin/available_elements/form',
+      element = Element.find(params[:id])
+      render partial: 'admin/elements/form',
              locals: { element: element, context: :edit }
     end
 
@@ -64,23 +64,23 @@ module Admin
         struct = JSON.parse(json)
         ActiveRecord::Base.transaction do
           if params[:import_mode] == ImportMode::REPLACE
-            AvailableElement.delete_all # skip callbacks & validation
+            Element.delete_all # skip callbacks & validation
           end
           struct.each do |hash|
-            e = AvailableElement.find_by_name(hash['name'])
+            e = Element.find_by_name(hash['name'])
             if e
               e.update_from_json_struct(hash)
             else
-              AvailableElement.from_json_struct(hash).save!
+              Element.from_json_struct(hash).save!
             end
           end
         end
       rescue => e
         flash['error'] = "#{e}"
-        redirect_to admin_available_elements_path
+        redirect_to admin_elements_path
       else
         flash['success'] = "#{struct.length} elements created or updated."
-        redirect_to admin_available_elements_path
+        redirect_to admin_elements_path
       end
     end
 
@@ -88,9 +88,9 @@ module Admin
     # Responds to GET /elements
     #
     def index
-      @elements = AvailableElement.all.order(:name)
+      @elements = Element.all.order(:name)
       respond_to do |format|
-        format.html { @new_element = AvailableElement.new }
+        format.html { @new_element = Element.new }
         format.json {
           headers['Content-Disposition'] = "attachment; filename=elements.json"
           render text: JSON.pretty_generate(@elements.as_json)
@@ -109,7 +109,7 @@ module Admin
     # XHR only
     #
     def update
-      element = AvailableElement.find(params[:id])
+      element = Element.find(params[:id])
       begin
         element.update!(sanitized_params)
       rescue ActiveRecord::RecordInvalid
@@ -132,7 +132,7 @@ module Admin
     private
 
     def sanitized_params
-      params.require(:available_element).permit(:description, :name)
+      params.require(:element).permit(:description, :name)
     end
 
   end

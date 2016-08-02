@@ -1,8 +1,8 @@
 ##
-# An element available for use in a metadata profile, and thus ascribable to
+# A DLS element, which can be used in metadata profile, and is ascribable to
 # an item.
 #
-class AvailableElement < ActiveRecord::Base
+class Element < ActiveRecord::Base
 
   validates :name, presence: true, format: { with: /\A[-a-zA-Z0-9]+\Z/ },
             uniqueness: { case_sensitive: false }
@@ -12,10 +12,10 @@ class AvailableElement < ActiveRecord::Base
 
   ##
   # @param struct [Hash] Deserialized hash from JSON.parse()
-  # @return [AvailableElement] New non-persisted AvailableElement
+  # @return [Element] New non-persisted AvailableElement
   #
   def self.from_json_struct(struct)
-    e = AvailableElement.new
+    e = Element.new
     e.update_from_json_struct(struct)
     e
   end

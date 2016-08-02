@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class AvailableElementTest < ActiveSupport::TestCase
+class ElementTest < ActiveSupport::TestCase
   # test "the truth" do
   #   assert true
   # end

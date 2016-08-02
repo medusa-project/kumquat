@@ -1,6 +1,6 @@
 ##
 # A list of available technical/structural elements. Descriptive elements are
-# encompassed by the AvailableElement model.
+# encompassed by the Element model.
 #
 accessMasterHeight:
   mappings:

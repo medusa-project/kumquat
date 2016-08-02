@@ -83,10 +83,10 @@ Rails.application.routes.draw do
   namespace :admin do
     root 'dashboard#index'
 
-    resources :available_elements, except: :show, path: 'elements'
-    match '/elements/import', to: 'available_elements#import', via: 'post',
-          as: 'available_elements_import'
-    match '/elements/schema', to: 'available_elements#schema', via: 'get'
+    resources :elements, except: :show, path: 'elements'
+    match '/elements/import', to: 'elements#import', via: 'post',
+          as: 'elements_import'
+    match '/elements/schema', to: 'elements#schema', via: 'get'
     match '/collections/sync', to: 'collections#sync', via: 'patch',
           as: 'collections_sync'
     resources :collections, except: [:new, :create, :delete] do
