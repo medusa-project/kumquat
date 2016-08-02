@@ -69,7 +69,8 @@ class Item < ActiveRecord::Base
   UUID_REGEX = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/
 
   has_many :bytestreams, inverse_of: :item, dependent: :destroy
-  has_many :elements, inverse_of: :item, dependent: :destroy
+  has_many :elements, class_name: 'ItemElement', inverse_of: :item,
+           dependent: :destroy
 
   validates_format_of :collection_repository_id,
                       with: UUID_REGEX,
@@ -600,7 +601,7 @@ class Item < ActiveRecord::Base
         # is present in the collection's metadata profile.
         if ElementDef.all_descriptive.map(&:name).include?(element_name)
           value.split(MULTI_VALUE_SEPARATOR).select(&:present?).each do |value|
-            e = Element.named(element_name)
+            e = ItemElement.named(element_name)
             e.value = value
             if parts.length > 1
               e.vocabulary = Vocabulary.find_by_key(parts.first)
@@ -699,10 +700,10 @@ class Item < ActiveRecord::Base
       self.subpage_number = page.content.strip.to_i if page
 
       node.xpath("//#{prefix}:*", namespaces).
-          select{ |node| Element.all_descriptive.map(&:name).include?(node.name) }.
+          select{ |node| ItemElement.all_descriptive.map(&:name).include?(node.name) }.
           each do |node|
         # Add a new element
-        e = Element.named(node.name)
+        e = ItemElement.named(node.name)
         e.value = node.content.strip
         self.elements << e
       end

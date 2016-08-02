@@ -1,6 +1,6 @@
 ##
 # A vocabulary is a list of terms (values) that can be set as values of an
-# Element. This list may be controlled (curated/restricted) or uncontrolled
+# ItemElement. This list may be controlled (curated/restricted) or uncontrolled
 # (anything goes).
 #
 # ElementDefs need to be associated with one or more vocabularies. By default,

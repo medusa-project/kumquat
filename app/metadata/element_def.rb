@@ -37,21 +37,21 @@ class ElementDef < ActiveRecord::Base
   end
 
   def solr_facet_field
-    e = Element.new
+    e = ItemElement.new
     e.name = self.name
     e.name == 'collection' ?
-        Item::SolrFields::COLLECTION + Element.solr_facet_suffix :
+        Item::SolrFields::COLLECTION + ItemElement.solr_facet_suffix :
         e.solr_facet_field
   end
 
   def solr_multi_valued_field
-    e = Element.new
+    e = ItemElement.new
     e.name = self.name
     e.solr_multi_valued_field
   end
 
   def solr_single_valued_field
-    e = Element.new
+    e = ItemElement.new
     e.name = self.name
     e.solr_single_valued_field
   end

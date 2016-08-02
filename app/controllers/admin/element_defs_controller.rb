@@ -45,7 +45,7 @@ module Admin
     def edit
       element = ElementDef.find(params[:id])
       profile = element.metadata_profile
-      name_options_for_select = Element.all_descriptive.
+      name_options_for_select = ItemElement.all_descriptive.
           map{ |t| [ t.name, t.name ] }
       render partial: 'admin/element_defs/form',
              locals: { element_def: element,

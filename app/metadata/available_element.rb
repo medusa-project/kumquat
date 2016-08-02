@@ -24,7 +24,7 @@ class AvailableElement < ActiveRecord::Base
   # @return [Integer]
   #
   def num_usages_by_items
-    Element.where(name: self.name).count
+    ItemElement.where(name: self.name).count
   end
 
   ##

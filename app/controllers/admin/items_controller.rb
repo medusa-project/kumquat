@@ -42,7 +42,7 @@ module Admin
           # if there is no user-entered query, sort by title. Otherwise, use
           # the default sort, which is by relevance
           unless field_input_present
-            @items = @items.order(Element.named('title').solr_single_valued_field)
+            @items = @items.order(ItemElement.named('title').solr_single_valued_field)
           end
           @items = @items.start(@start).limit(@limit)
           @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1

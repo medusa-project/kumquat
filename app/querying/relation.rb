@@ -64,7 +64,7 @@ class Relation
   def facetable_fields(fields = nil)
     if fields
       @facetable_fields =
-          [Item::SolrFields::COLLECTION + Element.solr_facet_suffix] + fields
+          [Item::SolrFields::COLLECTION + ItemElement.solr_facet_suffix] + fields
       return self
     end
     @facetable_fields

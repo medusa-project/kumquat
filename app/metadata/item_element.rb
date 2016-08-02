@@ -12,7 +12,7 @@
 # 7) Update fixtures and tests
 # 8) Reindex, if necessary
 #
-class Element < ActiveRecord::Base
+class ItemElement < ActiveRecord::Base
 
   class Type
     DESCRIPTIVE = 0
@@ -29,12 +29,12 @@ class Element < ActiveRecord::Base
   validates_presence_of :name
 
   ##
-  # @return [Array<Element>]
+  # @return [Array<ItemElement>]
   #
   def self.all_available
     # Technical elements
     all_elements = @@element_properties.map do |name, props|
-      Element.new(name: name, type: Type::TECHNICAL)
+      ItemElement.new(name: name, type: Type::TECHNICAL)
     end
     # Descriptive elements
     all_elements += all_descriptive
@@ -42,17 +42,18 @@ class Element < ActiveRecord::Base
   end
 
   ##
-  # @return [Array<Element>]
+  # @return [Array<ItemElement>]
   #
   def self.all_descriptive
     AvailableElement.all.map do |elem|
-      Element.new(name: elem.name, type: Type::DESCRIPTIVE)
+      ItemElement.new(name: elem.name, type: Type::DESCRIPTIVE)
     end
   end
 
   ##
-  # @return [Element] Element with the given name, or nil if the given name is
-  #                   not an available technical or descriptive element name.
+  # @return [ItemElement] ItemElement with the given name, or nil if the given
+  #                       name is not an available technical or descriptive
+  #                       element name.
   #
   def self.named(name)
     all_available.select{ |e| e.name == name }.first
@@ -75,7 +76,7 @@ class Element < ActiveRecord::Base
   end
 
   def ==(obj)
-    obj.kind_of?(Element) and obj.name == self.name and
+    obj.kind_of?(ItemElement) and obj.name == self.name and
         obj.value == self.value and obj.vocabulary_id == self.vocabulary_id
   end
 
@@ -100,21 +101,21 @@ class Element < ActiveRecord::Base
   # @return [String] Name of the Solr facet field.
   #
   def solr_facet_field
-    "#{self.name}#{Element.solr_suffix}#{Element.solr_facet_suffix}"
+    "#{self.name}#{ItemElement.solr_suffix}#{ItemElement.solr_facet_suffix}"
   end
 
   ##
   # @return [String] Name of the multi-valued Solr field.
   #
   def solr_multi_valued_field
-    "#{Element.solr_prefix}#{self.name}#{Element.solr_suffix}"
+    "#{ItemElement.solr_prefix}#{self.name}#{ItemElement.solr_suffix}"
   end
 
   ##
   # @return [String] Name of the single-valued Solr field.
   #
   def solr_single_valued_field
-    "#{Element.solr_prefix}#{self.name}#{Element.solr_sortable_suffix}"
+    "#{ItemElement.solr_prefix}#{self.name}#{ItemElement.solr_sortable_suffix}"
   end
 
   def to_s
