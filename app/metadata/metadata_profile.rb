@@ -14,7 +14,7 @@ class MetadataProfile < ActiveRecord::Base
 
   belongs_to :default_sortable_element_def, class_name: 'ElementDef'
   has_many :collections, inverse_of: :metadata_profile,
-           dependent: :restrict_with_error
+           dependent: :restrict_with_exception
   has_many :element_defs, -> { order(:index) }, inverse_of: :metadata_profile,
            dependent: :destroy
 
