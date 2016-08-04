@@ -1,840 +1,88 @@
-########################## technical elements ##########################
-
+##
+# A list of available technical/structural elements. Descriptive elements are
+# encompassed by the Element model.
+#
 accessMasterHeight:
-  type: technical
   mappings:
     dc:
     dcterms:
 accessMasterMediaType:
-  type: technical
   mappings:
     dc: format
     dcterms: format
 accessMasterPathname:
-  type: technical
   mappings:
     dc:
     dcterms:
 accessMasterURL:
-  type: technical
   mappings:
     dc:
     dcterms:
 accessMasterWidth:
-  type: technical
   mappings:
     dc:
     dcterms:
 collectionId:
-  type: technical
   mappings:
     dc: relation
     dcterms: isPartOf
 created:
-  type: technical
   mappings:
     dc: date
     dcterms: created
 fullText:
-  type: technical
   mappings:
     dc:
     dcterms:
 lastModified:
-  type: technical
   mappings:
     dc: date
     dcterms: modified
 pageNumber:
-  type: technical
   mappings:
     dc:
     dcterms:
 parentId:
-  type: technical
   mappings:
     dc: relation
     dcterms: isPartOf
 preservationMasterHeight:
-  type: technical
   mappings:
     dc:
     dcterms:
 preservationMasterMediaType:
-  type: technical
   mappings:
     dc: format
     dcterms: format
 preservationMasterPathname:
-  type: technical
   mappings:
     dc:
     dcterms:
 preservationMasterURL:
-  type: technical
   mappings:
     dc:
     dcterms:
 preservationMasterWidth:
-  type: technical
   mappings:
     dc:
     dcterms:
 published:
-  type: technical
   mappings:
     dc:
     dcterms:
 repositoryId:
-  type: technical
   mappings:
     dc: identifier
     dcterms: identifier
 representativeItemId:
-  type: technical
   mappings:
     dc:
     dcterms:
 subpageNumber:
-  type: technical
   mappings:
     dc:
     dcterms:
 variant:
-  type: technical
   mappings:
     dc:
     dcterms:
-
-########################## descriptive elements ##########################
-
-abstract:
-  type: descriptive
-  label: Abstract
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings:
-    dc: description
-    dcterms: abstract
-accessRights:
-  type: descriptive
-  label: Access Rights
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings:
-    dc: rights
-    dcterms: accessRights
-accrualMethod:
-  type: descriptive
-  label: Accrual Method
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings:
-    dc:
-    dcterms: accrualMethod
-accrualPeriodicity:
-  type: descriptive
-  label: Accrual Periodicity
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings:
-    dc:
-    dcterms: accrualPeriodicity
-accrualPolicy:
-  type: descriptive
-  label: Accural Policy
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings:
-    dc:
-    dcterms: accrualPolicy
-alternativeTitle:
-  type: descriptive
-  label: Alternative Title
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings:
-    dc: title
-    dcterms: alternative
-associatedPeople:
-  type: descriptive
-  label: Associated People
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings:
-    dc: subject
-    dcterms: subject
-audience:
-  type: descriptive
-  label: Audience
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings:
-    dc:
-    dcterms: audience
-bibId:
-  type: descriptive
-  label: Bibliographic ID
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings:
-    dc: identifier
-    dcterms: identifier
-bibliographicCitation:
-  type: descriptive
-  label: Bibliographic Citation
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings:
-    dc: identifier
-    dcterms: bibliographicCitation
-callNumber:
-  type: descriptive
-  label: Call Number
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings:
-    dc:
-    dcterms:
-campaign:
-  type: descriptive
-  label: Campaign
-  visible: true
-  searchable: true
-  sortable: false
-  facetable: true
-  mappings:
-    dc:
-    dcterms:
-cartographicScale:
-  type: descriptive
-  label: Cartographic Scale
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings:
-    dc:
-    dcterms:
-conformsTo:
-  type: descriptive
-  label: Conforms To
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings:
-    dc: relation
-    dcterms: conformsTo
-contributor:
-  type: descriptive
-  label: Contributor
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings:
-    dc: contributor
-    dcterms: contributor
-coordinates:
-  type: descriptive
-  label: Latitude-Longitude Coordinates
-  visible: true
-  searchable: false
-  sortable: false
-  facetable: false
-  mappings:
-    dc: coverage
-    dcterms: spatial
-creator:
-  type: descriptive
-  label: Creator
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings:
-    dc: creator
-    dcterms: creator
-date:
-  type: descriptive
-  label: Date
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings:
-    dc: date
-    dcterms: date
-dateAccepted:
-  type: descriptive
-  label: Date Accepted
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings:
-    dc: date
-    dcterms: dateAccepted
-dateAvailable:
-  type: descriptive
-  label: Date Available
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings:
-    dc: date
-    dcterms: available
-dateCopyrighted:
-  type: descriptive
-  label: Date Copyrighted
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings:
-    dc: date
-    dcterms: dateCopyrighted
-dateCreated:
-  type: descriptive
-  label: Date Created
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings:
-    dc: date
-    dcterms: created
-dateIssued:
-  type: descriptive
-  label: Date Issued
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings:
-    dc: date
-    dcterms: issued
-dateModified:
-  type: descriptive
-  label: Date Modified
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings:
-    dc: date
-    dcterms: modified
-dateSubmitted:
-  type: descriptive
-  label: Date Submitted
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings:
-    dc: date
-    dcterms: dateSubmitted
-dateValid:
-  type: descriptive
-  label: Date Valid
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings:
-    dc: date
-    dcterms: valid
-description:
-  type: descriptive
-  label: Description
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings:
-    dc: description
-    dcterms: description
-dimensions:
-  type: descriptive
-  label: Dimensions
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings:
-    dc:
-    dcterms:
-educationLevel:
-  type: descriptive
-  label: Education Level
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings:
-    dc:
-    dcterms: educationLevel
-extent:
-  type: descriptive
-  label: Extent
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings:
-    dc: format
-    dcterms: extent
-format:
-  type: descriptive
-  label: Format
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings:
-    dc: format
-    dcterms: format
-hasFormat:
-  type: descriptive
-  label: Has Format
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings:
-    dc: relation
-    dcterms: hasFormat
-hasPart:
-  type: descriptive
-  label: Has Part
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings:
-    dc: relation
-    dcterms: hasParts
-hasVersion:
-  type: descriptive
-  label: Has Version
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings:
-    dc: relation
-    dcterms: hasVersion
-identifier:
-  type: descriptive
-  label: Identifier
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings:
-    dc: identifier
-    dcterms: identifier
-instructionalMethod:
-  type: descriptive
-  label: Instructional Method
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings:
-    dc:
-    dcterms: instructionalMethod
-isFormatOf:
-  type: descriptive
-  label: Is Format Of
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings:
-    dc: relation
-    dcterms: isFormatOf
-isPartOf:
-  type: descriptive
-  label: Is Part Of
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings:
-    dc: relation
-    dcterms: isPartOf
-isReferencedBy:
-  type: descriptive
-  label: Is Referenced By
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings:
-    dc: relation
-    dcterms: isReferencedBy
-isReplacedBy:
-  type: descriptive
-  label: Is Replaced By
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings:
-    dc: relation
-    dcterms: isReplacedBy
-isRequiredBy:
-  type: descriptive
-  label: Is Required By
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings:
-    dc: relation
-    dcterms: isRequiredBy
-isVersionOf:
-  type: descriptive
-  label: Is Version Of
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings:
-    dc: relation
-    dcterms: isVersionOf
-keyword:
-  type: descriptive
-  label: Keyword
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings:
-    dc: subject
-    dcterms: subject
-language:
-  type: descriptive
-  label: Language
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings:
-    dc: language
-    dcterms: language
-latitude:
-  type: descriptive
-  label: Latitude
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings:
-    dc: coverage
-    dcterms: spatial
-license:
-  type: descriptive
-  label: License
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings:
-    dc: rights
-    dcterms: license
-localId:
-  type: descriptive
-  label: Local ID
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings: # no mappings as this is for internal use only.
-    dc:
-    dcterms:
-longitude:
-  type: descriptive
-  label: Longitude
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings:
-    dc: coverage
-    dcterms: spatial
-materialsColor:
-  type: descriptive
-  label: Materials Color
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings:
-    dc: description
-    dcterms: description
-materialsTechniques:
-  type: descriptive
-  label: Materials Techniques
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings:
-    dc: description
-    dcterms: description
-mediator:
-  type: descriptive
-  label: Mediator
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings:
-    dc:
-    dcterms: mediator
-medium:
-  type: descriptive
-  label: Medium
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings:
-    dc: format
-    dcterms: medium
-notes:
-  type: descriptive
-  label: Notes
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings:
-    dc: description
-    dcterms: description
-physicalLocation:
-  type: descriptive
-  label: Physical Location
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings:
-    dc:
-    dcterms:
-provenance:
-  type: descriptive
-  label: Provenance
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings:
-    dc:
-    dcterms: provenance
-publicationPlace:
-  type: descriptive
-  label: Publication Place
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings:
-    dc:
-    dcterms:
-publisher:
-  type: descriptive
-  label: Publisher
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings:
-    dc: publisher
-    dcterms: publisher
-references:
-  type: descriptive
-  label: References
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings:
-    dc: relation
-    dcterms: references
-relation:
-  type: descriptive
-  label: Relation
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings:
-    dc: relation
-    dcterms: relation
-replaces:
-  type: descriptive
-  label: Replaces
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings:
-    dc: relation
-    dcterms: replaces
-requires:
-  type: descriptive
-  label: Requires
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings:
-    dc: relation
-    dcterms: requires
-rights:
-  type: descriptive
-  label: Rights
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings:
-    dc: rights
-    dcterms: rights
-rightsHolder:
-  type: descriptive
-  label: Rights Holder
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings:
-    dc:
-    dcterms: rightsHolder
-source:
-  type: descriptive
-  label: Source
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings:
-    dc: source
-    dcterms: source
-spatialCoverage:
-  type: descriptive
-  label: Spatial Coverage
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings:
-    dc: coverage
-    dcterms: spatial
-sponsor:
-  type: descriptive
-  label: Sponsor
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings:
-    dc:
-    dcterms:
-subject:
-  type: descriptive
-  label: Subject
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings:
-    dc: subject
-    dcterms: subject
-tableOfContents:
-  type: descriptive
-  label: Table of Contents
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings:
-    dc: description
-    dcterms: tableOfContents
-temporalCoverage:
-  type: descriptive
-  label: Temporal Coverage
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings:
-    dc: coverage
-    dcterms: temporal
-textOriginal:
-  type: descriptive
-  label: Original Text
-  visible: true
-  searchable: true
-  sortable: false
-  facetable: false
-  mappings:
-    dc: description
-    dcterms: description
-textTranslation:
-  type: descriptive
-  label: Translation
-  visible: true
-  searchable: true
-  sortable: false
-  facetable: false
-  mappings:
-    dc: description
-    dcterms: description
-title:
-  type: descriptive
-  label: Title
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: false
-  mappings:
-    dc: title
-    dcterms: title
-type:
-  type: descriptive
-  label: Type
-  visible: true
-  searchable: true
-  sortable: true
-  facetable: true
-  mappings:
-    dc: type
-    dcterms: type

@@ -69,7 +69,8 @@ class Item < ActiveRecord::Base
   UUID_REGEX = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/
 
   has_many :bytestreams, inverse_of: :item, dependent: :destroy
-  has_many :elements, inverse_of: :item, dependent: :destroy
+  has_many :elements, class_name: 'ItemElement', inverse_of: :item,
+           dependent: :destroy
 
   validates_format_of :collection_repository_id,
                       with: UUID_REGEX,
@@ -117,13 +118,13 @@ class Item < ActiveRecord::Base
     # Must remain synchronized with the output of to_tsv.
     elements = %w(uuid parentId preservationMasterPathname accessMasterPathname
                   variant pageNumber subpageNumber latitude longitude)
-    metadata_profile.element_defs.each do |el|
+    metadata_profile.element_defs.each do |ed|
       # There will be one column per ElementDef vocabulary. Column headings are
       # in the format "vocabKey:elementName", except the uncontrolled vocabulary
       # which will not get a vocabKey prefix.
-      elements += el.vocabularies.order(:key).map do |vocab|
+      elements += ed.vocabularies.sort{ |v| v.key <=> v.key }.map do |vocab|
         vocab.key != Vocabulary::UNCONTROLLED_KEY ?
-            "#{vocab.key}:#{el.name}" : el.name
+            "#{vocab.key}:#{ed.name}" : ed.name
       end
     end
     elements.join("\t") + TSV_LINE_BREAK
@@ -600,7 +601,7 @@ class Item < ActiveRecord::Base
         # is present in the collection's metadata profile.
         if ElementDef.all_descriptive.map(&:name).include?(element_name)
           value.split(MULTI_VALUE_SEPARATOR).select(&:present?).each do |value|
-            e = Element.named(element_name)
+            e = ItemElement.named(element_name)
             e.value = value
             if parts.length > 1
               e.vocabulary = Vocabulary.find_by_key(parts.first)
@@ -699,10 +700,10 @@ class Item < ActiveRecord::Base
       self.subpage_number = page.content.strip.to_i if page
 
       node.xpath("//#{prefix}:*", namespaces).
-          select{ |node| Element.all_descriptive.map(&:name).include?(node.name) }.
+          select{ |node| ItemElement.all_descriptive.map(&:name).include?(node.name) }.
           each do |node|
         # Add a new element
-        e = Element.named(node.name)
+        e = ItemElement.named(node.name)
         e.value = node.content.strip
         self.elements << e
       end

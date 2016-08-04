@@ -10,15 +10,6 @@ class ElementDef < ActiveRecord::Base
   after_save :adjust_profile_element_indexes_after_save
   after_destroy :adjust_profile_element_indexes_after_destroy
 
-  def self.all_available
-    Element.all_available.map{ |e| ElementDef.new(name: e.name) }
-  end
-
-  def self.all_descriptive
-    Element.all_available.select{ |e| e.type == Element::Type::DESCRIPTIVE }.
-        map{ |e| ElementDef.new(name: e.name) }
-  end
-
   ##
   # Updates the indexes of all elements in the same metadata profile to ensure
   # that they are non-repeating and properly gapped.
@@ -46,21 +37,21 @@ class ElementDef < ActiveRecord::Base
   end
 
   def solr_facet_field
-    e = Element.new
+    e = ItemElement.new
     e.name = self.name
     e.name == 'collection' ?
-        Item::SolrFields::COLLECTION + Element.solr_facet_suffix :
+        Item::SolrFields::COLLECTION + ItemElement.solr_facet_suffix :
         e.solr_facet_field
   end
 
   def solr_multi_valued_field
-    e = Element.new
+    e = ItemElement.new
     e.name = self.name
     e.solr_multi_valued_field
   end
 
   def solr_single_valued_field
-    e = Element.new
+    e = ItemElement.new
     e.name = self.name
     e.solr_single_valued_field
   end

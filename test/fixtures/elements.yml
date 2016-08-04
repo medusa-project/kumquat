@@ -1,25 +1,16 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-item1_title:
-  item: item1
-  name: title
-  value: My Great Title
-  vocabulary: uncontrolled
+date:
+  name: Date
 
-item1_description:
-  item: item1
-  name: description
-  value: About something
-  vocabulary: uncontrolled
+description:
+  name: Description
 
-item1_subject1:
-  item: item1
-  name: subject
-  value: Cats
-  vocabulary: lcsh
+subject:
+  name: Subject
 
-item1_subject2:
-  item: item1
-  name: subject
-  value: More cats
-  vocabulary: tgm
+title:
+  name: Title
+
+type:
+  name: Type

@@ -83,13 +83,16 @@ Rails.application.routes.draw do
   namespace :admin do
     root 'dashboard#index'
 
+    resources :elements, except: :show, path: 'elements'
+    match '/elements/import', to: 'elements#import', via: 'post',
+          as: 'elements_import'
+    match '/elements/schema', to: 'elements#schema', via: 'get'
     match '/collections/sync', to: 'collections#sync', via: 'patch',
           as: 'collections_sync'
     resources :collections, except: [:new, :create, :delete] do
       match '/items/search', to: 'items#search', via: %w(get post),
             as: 'items_search'
       resources :items, concerns: :publishable
-      match '/items/ingest', to: 'items#ingest', via: 'post'
       match '/items/sync', to: 'items#sync', via: 'post'
     end
     resources :element_defs, only: [:create, :update, :destroy, :edit]

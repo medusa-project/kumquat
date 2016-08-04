@@ -1,14 +1,14 @@
 ##
 # A metadata profile defines a set of metadata elements, their labels, their
-# mappings to other schemas, whether they are searchable, sortable, etc.
+# mappings to other schemas, and whether they are searchable, sortable, etc.
 # Metadata profiles are assigned to collections and control things like
-# faceting; which fields appear in a TSV export, and are accepted in a TSV
-# import; how local elements map to DC in the OAI-PMH endpoint; etc.
+# faceting; which fields appear in a TSV export; how local elements map to DC
+# in the OAI-PMH endpoint; etc.
 #
 # A metadata profile is like a template. For example, instead of enumerating
-# an Item's metadata elements for public display, we would enumerate the
-# elements in its collection's metadata profile, and display each of its
-# elements that match, in the order defined by the profile.
+# an Item's metadata elements for public display, we enumerate the elements
+# in its collection's metadata profile, and display each of its elements that
+# match, in the order defined by the profile.
 #
 class MetadataProfile < ActiveRecord::Base
 
@@ -23,28 +23,25 @@ class MetadataProfile < ActiveRecord::Base
 
   after_save :ensure_default_uniqueness
 
-  @@default_defs = YAML::load_file(File.join(__dir__, 'metadata.yml'))
-
   def self.default
     MetadataProfile.find_by_default(true)
   end
 
   def self.default_element_defs
     defs = []
-    index = 0
-    @@default_defs.select{ |k, v| v['type'] == 'descriptive' }.
-        each do |name, props|
-      defs << ElementDef.new(name: name,
-                             label: props['label'],
-                             visible: props['visible'],
-                             searchable: props['searchable'],
-                             sortable: props['sortable'],
-                             facetable: props['facetable'],
-                             dc_map: props['mappings']['dc'],
-                             dcterms_map: props['mappings']['dcterms'],
+    ItemElement.all_descriptive.each_with_index do |elem, index|
+      dc_map = DublinCoreElement.all.map(&:name).include?(elem.name) ? elem.name : nil
+      dcterms_map = DublinCoreTerm.all.map(&:name).include?(elem.name) ? elem.name : nil
+      defs << ElementDef.new(name: elem.name,
+                             label: elem.name.titleize,
+                             visible: true,
+                             searchable: true,
+                             sortable: true,
+                             facetable: true,
+                             dc_map: dc_map,
+                             dcterms_map: dcterms_map,
                              vocabularies: [ Vocabulary.uncontrolled ],
                              index: index)
-      index += 1
     end
     defs
   end

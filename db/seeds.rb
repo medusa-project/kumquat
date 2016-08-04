@@ -62,6 +62,22 @@ profiles = {}
 profiles[:default] = MetadataProfile.create!(name: 'Default Profile',
                                              default: true)
 
+# Elements
+
+%w(abstract accessRights accrualMethod accrualPeriodicity accrualPolicy
+alternativeTitle audience bibId bibliographicCitation callNumber
+cartographicScale conformsTo contributor creator date dateAccepted
+dateAvailable dateCopyrighted dateCreated dateIssued dateModified
+dateSubmitted dateValid description dimensions educationLevel extent format
+hasFormat hasPart hasVersion identifier instructionalMethod isFormatOf
+isPartOf isReferencedBy isReplacedBy isRequiredBy isVersionOf keyword language
+license localId materialsColor materialsTechniques mediator medium notes
+physicalLocation provenance publicationPlace publisher references relation
+replaces requires rights rightsHolder source spatialCoverage subject
+tableOfContents temporalCoverage title type).each do |element|
+  Element.create!(name: element)
+end
+
 # Vocabularies
 Vocabulary.create!(name: 'Uncontrolled Vocabulary', key: 'uncontrolled')
 

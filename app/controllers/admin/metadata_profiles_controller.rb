@@ -83,18 +83,25 @@ module Admin
       @profile = MetadataProfile.find(params[:id])
 
       respond_to do |format|
-        format.html {
+        format.html do
           @new_element = @profile.element_defs.build
           @element_def_options_for_select =
               @profile.element_defs.map{ |t| [ t.name, t.id ] }
-          @name_options_for_select = ElementDef.all_descriptive.
+          @name_options_for_select = ItemElement.all_descriptive.
+              sort{ |e, f| e.name <=> f.name }.
               map{ |t| [ t.name, t.name ] }
-        }
-        format.json {
+          @dublin_core_elements = DublinCoreElement.all.
+              sort{ |e, f| e.label <=> f.label }.
+              map { |p| [ p.label, p.name ] }
+          @dublin_core_terms = DublinCoreTerm.all.
+              sort{ |e, f| e.label <=> f.label }.
+              map { |p| [ p.label, p.name ] }
+        end
+        format.json do
           filename = "#{CGI.escape(@profile.name)}.json"
           headers['Content-Disposition'] = "attachment; filename=#{filename}"
           render json: @profile
-        }
+        end
       end
     end
 
