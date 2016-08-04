@@ -55,28 +55,9 @@ module Admin
               unshift([ 'Any Element', Item::SolrFields::SEARCH_ALL ])
         end
         format.tsv do
-          # The TSV representation includes item children. Ordering, limit,
-          # offset, etc. is not customizable.
-
-          # Here we use Enumerator in conjunction with some custom headers to
-          # stream the results, as an alternative to send_data
-          # which would require them to be loaded into memory first.
-          enumerator = Enumerator.new do |y|
-            def walk_tree(item, enumerator)
-              item.items.each do |it|
-                enumerator << it.to_tsv
-                walk_tree(it, enumerator)
-              end
-            end
-
-            y << Item.tsv_header(@collection.effective_metadata_profile)
-
-            @items.limit(999999).each do |item|
-              y << item.to_tsv
-              walk_tree(item, y)
-            end
-          end
-          stream(enumerator, 'items.tsv')
+          headers['Content-Disposition'] = 'attachment; filename="items.tsv"'
+          headers['Content-Disposition'] = 'text/tab-separated-values'
+          render text: @collection.items_to_tsv
         end
       end
     end

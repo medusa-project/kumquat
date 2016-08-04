@@ -122,6 +122,93 @@ class Collection < ActiveRecord::Base
   end
 
   ##
+  # @return [String] Full contents of the collection as a TSV string. Item
+  #                  children are included. Ordering, limit, offset, etc. is
+  #                  not customizable.
+  #
+  def items_to_tsv
+    # We use a native PostgreSQL query because going through ActiveRecord is
+    # just too slow.
+=begin
+SELECT items.repository_id,
+  items.parent_repository_id,
+  (SELECT repository_relative_pathname
+    FROM bytestreams
+    WHERE bytestreams.item_id = items.id
+      AND bytestreams.bytestream_type = 0) AS pres_pathname,
+  (SELECT repository_relative_pathname
+    FROM bytestreams
+    WHERE bytestreams.item_id = items.id
+      AND bytestreams.bytestream_type = 1) AS access_pathname,
+  items.variant,
+  items.page_number,
+  items.subpage_number,
+  items.latitude,
+  items.longitude,
+  array_to_string(array(SELECT value
+    FROM item_elements
+    WHERE item_elements.item_id = items.id
+      AND item_elements.vocabulary_id IS NULL
+      AND item_elements.name = 'subject'), '||') AS uncontrolled_subject,
+  array_to_string(array(SELECT value
+    FROM item_elements
+    WHERE item_elements.item_id = items.id
+      AND item_elements.vocabulary_id = 11
+      AND item_elements.name = 'subject'), '||') AS lcsh_subject
+FROM items
+WHERE items.collection_repository_id = '8132f520-e3fb-012f-c5b6-0019b9e633c5-f'
+ORDER BY items.parent_repository_id, items.page_number, items.subpage_number,
+  pres_pathname
+LIMIT 1000;
+=end
+    element_subselects = self.effective_metadata_profile.element_defs.map do |ed|
+      subselects = []
+      ed.vocabularies.sort{ |v| v.key <=> v.key }.each do |vocab|
+        vocab_id = (vocab == Vocabulary.uncontrolled) ? 'IS NULL' : "= #{vocab.id}"
+        subselects << "array_to_string(array(
+          SELECT value
+          FROM item_elements
+          WHERE item_elements.item_id = items.id
+            AND item_elements.vocabulary_id #{vocab_id}
+            AND item_elements.name = '#{ed.name}'), '#{Item::MULTI_VALUE_SEPARATOR}')
+              AS #{vocab.key}_#{ed.name}"
+      end
+      subselects.join(",\n")
+    end
+
+    sql = "SELECT items.repository_id,
+      items.parent_repository_id,
+      (SELECT repository_relative_pathname
+        FROM bytestreams
+        WHERE bytestreams.item_id = items.id
+          AND bytestreams.bytestream_type = #{Bytestream::Type::PRESERVATION_MASTER})
+            AS pres_pathname,
+      (SELECT repository_relative_pathname
+        FROM bytestreams
+        WHERE bytestreams.item_id = items.id
+          AND bytestreams.bytestream_type = #{Bytestream::Type::ACCESS_MASTER})
+            AS access_pathname,
+      items.variant,
+      items.page_number,
+      items.subpage_number,
+      items.latitude,
+      items.longitude,
+      #{element_subselects.join(",\n")}
+    FROM items
+    WHERE items.collection_repository_id = $1
+    ORDER BY items.parent_repository_id, items.page_number,
+      items.subpage_number, pres_pathname"
+
+    values = [[ nil, self.repository_id ]]
+
+    tsv = Item.tsv_header(self.effective_metadata_profile)
+    ActiveRecord::Base.connection.exec_query(sql, 'SQL', values).each do |row|
+      tsv += row.values.join("\t") + Item::TSV_LINE_BREAK
+    end
+    tsv
+  end
+
+  ##
   # The CFS directory in which content resides. This may be the same as the
   # root CFS directory of the file group, or deeper within it. This is used
   # as a refinement of medusa_file_group.

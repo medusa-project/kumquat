@@ -118,13 +118,13 @@ class Item < ActiveRecord::Base
     # Must remain synchronized with the output of to_tsv.
     elements = %w(uuid parentId preservationMasterPathname accessMasterPathname
                   variant pageNumber subpageNumber latitude longitude)
-    metadata_profile.element_defs.each do |el|
+    metadata_profile.element_defs.each do |ed|
       # There will be one column per ElementDef vocabulary. Column headings are
       # in the format "vocabKey:elementName", except the uncontrolled vocabulary
       # which will not get a vocabKey prefix.
-      elements += el.vocabularies.order(:key).map do |vocab|
+      elements += ed.vocabularies.sort{ |v| v.key <=> v.key }.map do |vocab|
         vocab.key != Vocabulary::UNCONTROLLED_KEY ?
-            "#{vocab.key}:#{el.name}" : el.name
+            "#{vocab.key}:#{ed.name}" : ed.name
       end
     end
     elements.join("\t") + TSV_LINE_BREAK
