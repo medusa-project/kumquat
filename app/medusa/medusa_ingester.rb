@@ -51,7 +51,8 @@ class MedusaIngester
   # @return [Hash<Symbol,Integer>] Hash with :num_created, :num_updated,
   #                                :num_deleted, and/or :num_skipped keys.
   # @raises [ArgumentError] If the collection's file group or package profile
-  #                         are not set.
+  #                         are not set, or if the file group is set to an
+  #                         external store.
   # @raises [IllegalContentError]
   #
   def ingest_items(collection, mode, warnings = [])
@@ -59,6 +60,8 @@ class MedusaIngester
         collection.medusa_file_group
     raise ArgumentError, 'Collection package profile is not set' unless
         collection.package_profile
+    raise ArgumentError, 'Collection\'s Medusa CFS directory is invalid' unless
+        collection.effective_medusa_cfs_directory
 
     stats = { num_deleted: 0, num_created: 0, num_updated: 0, num_skipped: 0 }
 
