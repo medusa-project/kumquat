@@ -131,7 +131,7 @@ class MedusaIngester
                           variant: Item::Variants::FILE)
           # Create its corresponding bytestream.
           bs = item.bytestreams.build
-          bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
+          bs.bytestream_type = Bytestream::Type::ACCESS_MASTER
           bs.cfs_file_uuid = file.uuid
           bs.repository_relative_pathname =
               '/' + file.repository_relative_pathname.reverse.chomp('/').reverse
@@ -543,8 +543,8 @@ class MedusaIngester
           item.bytestreams.destroy_all
 
           bs = item.bytestreams.build
+          bs.bytestream_type = Bytestream::Type::ACCESS_MASTER
           bs.cfs_file_uuid = file.uuid
-          bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
           bs.repository_relative_pathname =
               '/' + file.repository_relative_pathname.reverse.chomp('/').reverse
           bs.infer_media_type # The type of the CFS file cannot be trusted.

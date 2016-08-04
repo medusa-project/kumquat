@@ -484,8 +484,8 @@ class Item < ActiveRecord::Base
   # its preservation master bytestream.
   #
   def update_from_embedded_metadata
-    # Get the preservation bytestream
-    bs = self.preservation_master_bytestream
+    # Get the bytestream from which the metadata will be pulled
+    bs = self.preservation_master_bytestream || self.access_master_bytestream
     return unless bs
 
     # Get its embedded metadata
