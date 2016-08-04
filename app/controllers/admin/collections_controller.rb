@@ -32,7 +32,7 @@ module Admin
       @collection = Collection.find_by_repository_id(params[:id])
       raise ActiveRecord::RecordNotFound unless @collection
 
-      @file_group = @collection.medusa_file_group_id ?
+      @file_group = @collection.medusa_file_group_id.present? ?
           @collection.medusa_file_group : nil
       @can_reindex = (@collection.published_in_dls and
           @collection.medusa_file_group)
