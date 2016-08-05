@@ -1,6 +1,10 @@
 ##
-# A DLS element, which can be used in metadata profile, and is ascribable to
-# an item.
+# A DLS element.
+#
+# Elements can be added to a metadata profile, and are ascribable to an item,
+# but note that this class itself has no relationships; metadata profile
+# elements are instead ElementDefs and item elements are ItemElements. (This
+# might be revisited at some point.)
 #
 class Element < ActiveRecord::Base
 

@@ -9,6 +9,37 @@ class MedusaIngesterTest < ActiveSupport::TestCase
     Item.destroy_all
   end
 
+  test 'ingest_items with collection file group not set should raise an error' do
+    collection = collections(:collection1)
+    collection.medusa_file_group_id = nil
+
+    assert_raises ArgumentError do
+      @instance.ingest_items(
+          collection, MedusaIngester::IngestMode::CREATE_ONLY)
+    end
+  end
+
+  test 'ingest_items with collection package profile not set should raise an error' do
+    collection = collections(:collection1)
+    collection.package_profile = nil
+
+    assert_raises ArgumentError do
+      @instance.ingest_items(
+          collection, MedusaIngester::IngestMode::CREATE_ONLY)
+    end
+  end
+
+  test 'ingest_items with no effective collection CFS directory should raise an error' do
+    collection = collections(:collection1)
+    collection.medusa_cfs_directory_id = nil
+    collection.medusa_file_group_id = nil
+
+    assert_raises ArgumentError do
+      @instance.ingest_items(
+          collection, MedusaIngester::IngestMode::CREATE_ONLY)
+    end
+  end
+
   test 'ingest_items with free-form profile collection and create-only ingest mode' do
     # Set up the fixture data.
     collection = collections(:collection1)

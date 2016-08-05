@@ -69,7 +69,7 @@ module Admin
         format.tsv do
           headers['Content-Disposition'] = 'attachment; filename="items.tsv"'
           headers['Content-Disposition'] = 'text/tab-separated-values'
-          render text: @collection.items_to_tsv
+          render text: @collection.items_as_tsv
         end
       end
     end

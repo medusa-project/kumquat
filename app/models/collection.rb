@@ -132,7 +132,7 @@ class Collection < ActiveRecord::Base
   #                  children are included. Ordering, limit, offset, etc. is
   #                  not customizable.
   #
-  def items_to_tsv
+  def items_as_tsv
     # We use a native PostgreSQL query because going through ActiveRecord is
     # just too slow.
 =begin
