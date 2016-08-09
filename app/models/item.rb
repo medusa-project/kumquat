@@ -486,7 +486,10 @@ class Item < ActiveRecord::Base
   def update_from_embedded_metadata
     # Get the bytestream from which the metadata will be pulled
     bs = self.preservation_master_bytestream || self.access_master_bytestream
-    return unless bs
+    unless bs
+      Rails.logger.info('Item.update_from_embedded_metadata(): no bytestreams')
+      return
+    end
 
     # Get its embedded metadata
     metadata = bs.metadata
