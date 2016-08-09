@@ -137,8 +137,10 @@ module Admin
       raise ActiveRecord::RecordNotFound unless col
 
       begin
+        params[:options] = {} unless params[:options].kind_of?(Hash)
         SyncItemsJob.perform_later(params[:collection_id],
-                                   params[:ingest_mode])
+                                   params[:ingest_mode],
+                                   params[:options])
       rescue => e
         flash['error'] = "#{e}"
         redirect_to admin_collection_items_url(col)

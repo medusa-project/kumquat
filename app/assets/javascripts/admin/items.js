@@ -62,6 +62,14 @@ var PTAdminItemsView = function() {
                 $(this).closest('.form-group').remove();
             }
         });
+
+        // Show the "extract metadata" checkbox in the sync panel only when the
+        // "create" radio is selected.
+        var extract_metadata_checkbox = $('input[name="options[extract_metadata]"]');
+        $('input[name="ingest_mode"]').on('change', function() {
+            extract_metadata_checkbox.prop('disabled',
+                !$('input[value="create_only"]').prop('checked'));
+        });
     };
 
 };

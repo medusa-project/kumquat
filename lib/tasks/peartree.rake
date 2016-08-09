@@ -59,7 +59,9 @@ namespace :peartree do
   task :sync_items, [:collection_uuid, :mode] => :environment do |task, args|
     collection = Collection.find_by_repository_id(args[:collection_uuid])
     warnings = []
-    result = MedusaIngester.new.ingest_items(collection, args[:mode], warnings)
+    result = MedusaIngester.new.ingest_items(collection, args[:mode],
+                                             { extract_metadata: true },
+                                             warnings)
     Solr.instance.commit
     warnings.each { |w| puts w }
     puts "#{args[:mode]} sync of #{collection.title}:\n"\

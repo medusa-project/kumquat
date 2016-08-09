@@ -46,6 +46,8 @@ class MedusaIngester
   #
   # @param collection [Collection]
   # @param mode [String] One of the IngestMode constants.
+  # @param options [Hash] Options hash.
+  # @option options [Boolean] :extract_metadata
   # @param warnings [Array<String>] Array which will be populated with nonfatal
   #                                 warnings (optional).
   # @return [Hash<Symbol,Integer>] Hash with :num_created, :num_updated,
@@ -55,7 +57,7 @@ class MedusaIngester
   #                         external store.
   # @raises [IllegalContentError]
   #
-  def ingest_items(collection, mode, warnings = [])
+  def ingest_items(collection, mode, options = {}, warnings = [])
     raise ArgumentError, 'Collection file group is not set' unless
         collection.medusa_file_group
     raise ArgumentError, 'Collection package profile is not set' unless
@@ -63,6 +65,7 @@ class MedusaIngester
     raise ArgumentError, 'Collection\'s Medusa CFS directory is invalid' unless
         collection.effective_medusa_cfs_directory
 
+    options = options.symbolize_keys
     stats = { num_deleted: 0, num_created: 0, num_updated: 0, num_skipped: 0 }
 
     ActiveRecord::Base.transaction do
@@ -72,7 +75,7 @@ class MedusaIngester
         when IngestMode::UPDATE_BYTESTREAMS
           stats.merge!(update_bytestreams(collection, warnings))
         else
-          stats.merge!(create_items(collection, warnings))
+          stats.merge!(create_items(collection, options, warnings))
       end
     end
     stats
@@ -82,17 +85,22 @@ class MedusaIngester
 
   ##
   # @param collection [Collection]
+  # @param options [Hash]
+  # @option options [Boolean] :extract_metadata
   # @return [Hash<Symbol,Integer>] Hash with :num_created, :num_updated, and
   #                                :num_skipped keys.
   #
-  def create_free_form_items(collection)
+  def create_free_form_items(collection, options)
     ##
     # @param collection [Collection]
     # @param cfs_dir [MedusaCfsDirectory]
+    # @param top_cfs_dir [MedusaCfsDirectory]
+    # @param options [Hash]
+    # @option options [Boolean] :extract_metadata
     # @return [Hash<Symbol,Integer>] Hash with :num_created, :num_updated, and
     #                                :num_skipped keys.
     #
-    def walk_tree(collection, cfs_dir, top_cfs_dir, status)
+    def walk_tree(collection, cfs_dir, top_cfs_dir, options, status)
       cfs_dir.directories.each do |dir|
         item = Item.find_by_repository_id(dir.uuid)
         if item
@@ -113,7 +121,7 @@ class MedusaIngester
           item.save!
           status[:num_created] += 1
         end
-        walk_tree(collection, dir, top_cfs_dir, status)
+        walk_tree(collection, dir, top_cfs_dir, options, status)
       end
       cfs_dir.files.each do |file|
         item = Item.find_by_repository_id(file.uuid)
@@ -138,7 +146,7 @@ class MedusaIngester
           bs.infer_media_type # The type of the CFS file cannot be trusted.
 
           # Populate its metadata from embedded bytestream metadata.
-          item.update_from_embedded_metadata
+          item.update_from_embedded_metadata if options[:extract_metadata]
 
           # If there was no title available in the embedded metadata, assign a
           # title of the filename.
@@ -156,25 +164,27 @@ class MedusaIngester
 
     status = { num_created: 0, num_updated: 0, num_skipped: 0 }
     walk_tree(collection, collection.effective_medusa_cfs_directory,
-        collection.effective_medusa_cfs_directory, status)
+        collection.effective_medusa_cfs_directory, options, status)
     status
   end
 
   ##
   # @param collection [Collection]
+  # @param options [Hash]
+  # @option options [Boolean] :extract_metadata
   # @param warnings [Array<String>] Array which will be populated with
   #                                 nonfatal warnings (optional).
   # @return [Hash<Symbol,Integer>] Hash with :num_created, :num_updated, and
   #                                :num_skipped keys.
   #
-  def create_items(collection, warnings = [])
+  def create_items(collection, options, warnings = [])
     case collection.package_profile
       when PackageProfile::FREE_FORM_PROFILE
-        return create_free_form_items(collection)
+        return create_free_form_items(collection, options)
       when PackageProfile::MAP_PROFILE
-        return create_map_items(collection, warnings)
+        return create_map_items(collection, options, warnings)
       when PackageProfile::SINGLE_ITEM_OBJECT_PROFILE
-        return create_single_items(collection, warnings)
+        return create_single_items(collection, options, warnings)
       else
         raise IllegalContentError,
               "create_items(): unrecognized package profile: "\
@@ -184,12 +194,14 @@ class MedusaIngester
 
   ##
   # @param collection [Collection]
+  # @param options [Hash]
+  # @option options [Boolean] :extract_metadata
   # @param warnings [Array<String>] Supply an array which will be populated
   #                                 with nonfatal warnings (optional).
   # @return [Hash<Symbol,Integer>] Hash with :num_created, :num_updated, and
   #                                :num_skipped keys.
   #
-  def create_map_items(collection, warnings = [])
+  def create_map_items(collection, options, warnings = [])
     status = { num_created: 0, num_updated: 0, num_skipped: 0 }
     collection.effective_medusa_cfs_directory.directories.each do |top_item_dir|
       item = Item.find_by_repository_id(top_item_dir.uuid)
@@ -259,6 +271,8 @@ class MedusaIngester
                 warnings << "#{e}"
               end
 
+              child.update_from_embedded_metadata if options[:extract_metadata]
+
               child.save!
             end
           elsif pres_dir.files.length == 1
@@ -278,6 +292,8 @@ class MedusaIngester
             rescue IllegalContentError => e
               warnings << "#{e}"
             end
+
+            item.update_from_embedded_metadata if options[:extract_metadata]
           else
             msg = "Preservation directory #{pres_dir.uuid} is empty."
             Rails.logger.warn('ingest_map_items(): ' + msg)
@@ -302,12 +318,14 @@ class MedusaIngester
 
   ##
   # @param collection [Collection]
+  # @param options [Hash]
+  # @option options [Boolean] :extract_metadata
   # @param warnings [Array<String>] Supply an array which will be populated
   #                                 with nonfatal warnings (optional).
   # @return [Hash<Symbol,Integer>] Hash with :num_created, :num_updated, and
   #                                :num_skipped keys.
   #
-  def create_single_items(collection, warnings = [])
+  def create_single_items(collection, options, warnings = [])
     cfs_dir = collection.effective_medusa_cfs_directory
     pres_dir = cfs_dir.directories.select{ |d| d.name == 'preservation' }.first
 
@@ -340,6 +358,8 @@ class MedusaIngester
       rescue IllegalContentError => e
         warnings << "#{e}"
       end
+
+      item.update_from_embedded_metadata if options[:extract_metadata]
 
       item.save!
     end

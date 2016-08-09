@@ -92,6 +92,14 @@
               existing DLS items.
             </span>
           </div>
+          <div class="checkbox" style="padding-left: 1em">
+            <label>
+              <%= check_box_tag('options[extract_metadata]',
+                                'true', true,
+                                'aria-described-by' => 'pt-extract-metadata-help') %>
+              Extract embedded file metadata into DLS metadata
+            </label>
+          </div>
           <div class="radio">
             <label>
               <%= radio_button_tag('ingest_mode',

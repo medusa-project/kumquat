@@ -43,42 +43,75 @@ class MedusaIngesterTest < ActiveSupport::TestCase
   test 'ingest_items with free-form profile collection and create-only ingest mode' do
     # Set up the fixture data.
     collection = collections(:collection1)
-    collection.medusa_cfs_directory_id = '19c62760-e894-0133-1d3c-0050569601ca-d'
+    collection.medusa_cfs_directory_id = 'a53add10-5ca8-0132-3334-0050569601ca-7'
     cfs_dir = collection.effective_medusa_cfs_directory
-    tree = JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_map_tree.json'))
+    tree = JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_free_form_tree.json'))
     # Extract a small slice of the tree.
+    tree = tree['subdirectories'][0]
     tree['subdirectories'] = tree['subdirectories'][0..0]
+    tree['subdirectories'][0]['files'] =
+        tree['subdirectories'][0]['files'][0..1]
     cfs_dir.json_tree = tree
 
     # Run the ingest.
     warnings = []
     result = @instance.ingest_items(
-        collection, MedusaIngester::IngestMode::CREATE_ONLY, warnings)
+        collection, MedusaIngester::IngestMode::CREATE_ONLY, {}, warnings)
 
     # Assert that the correct number of items were added.
     assert_equal 0, warnings.length
-    assert_equal 7, Item.count
-    assert_equal 7, result[:num_created]
+    assert_equal 3, Item.count
+    assert_equal 3, result[:num_created]
 
     # Inspect an individual directory item more thoroughly.
-    item = Item.find_by_repository_id('231fa570-e949-0133-1d3d-0050569601ca-2')
-    assert_equal 1, item.items.length
+    item = Item.find_by_repository_id('a53add10-5ca8-0132-3334-0050569601ca-7')
+    #assert_equal 1, item.items.length
     assert_equal 0, item.bytestreams.length
     assert_equal Item::Variants::DIRECTORY, item.variant
 
     # Inspect an individual file item more thoroughly.
-    item = Item.find_by_repository_id('236763b0-e949-0133-1d3d-0050569601ca-2')
+    item = Item.find_by_repository_id('6e3c33c0-5ce3-0132-3334-0050569601ca-f')
     item.bytestreams.each do |bs|
       assert_equal Bytestream::Type::ACCESS_MASTER, bs.bytestream_type
     end
     assert_empty item.items
     assert_equal 1, item.bytestreams.length
     assert_equal Item::Variants::FILE, item.variant
-    assert_equal 'afm0002389.jp2', item.title
+    assert_equal 1, item.elements.length
+    assert_equal 'animals_001.jpg', item.title
     bs = item.bytestreams.first
-    assert_equal 'image/jp2', bs.media_type
-    assert_equal '/59/2257/afm0002389/access/afm0002389.jp2',
+    assert_equal 'image/jpeg', bs.media_type
+    assert_equal '/136/310/3707005/access/online/Illini_Union_Photographs/binder_10/animals/animals_001.jpg',
                  bs.repository_relative_pathname
+  end
+
+  test 'ingest_items with free-form profile collection and create-only ingest mode, extracting metadata' do
+    # Set up the fixture data.
+    collection = collections(:collection1)
+    collection.medusa_cfs_directory_id = 'a53add10-5ca8-0132-3334-0050569601ca-7'
+    cfs_dir = collection.effective_medusa_cfs_directory
+    tree = JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_free_form_tree.json'))
+    # Extract a small slice of the tree.
+    tree = tree['subdirectories'][0]['subdirectories'][0]
+    tree['files'] = tree['files'][0..1]
+    cfs_dir.json_tree = tree
+
+    # Run the ingest.
+    warnings = []
+    @instance.ingest_items(collection,
+                           MedusaIngester::IngestMode::CREATE_ONLY,
+                           { extract_metadata: true }, warnings)
+
+    # Assert that the metadata was extracted.
+    item = Item.find_by_repository_id('6e3c33c0-5ce3-0132-3334-0050569601ca-f')
+    assert item.elements.select{ |e| e.name == 'creator' }.map(&:value).
+        include?('University of Illinois Library')
+    assert item.elements.select{ |e| e.name == 'date' }.map(&:value).
+        include?('2012-11-27T00:00:00Z')
+    assert item.elements.select{ |e| e.name == 'dateCreated' }.map(&:value).
+        include?('2012:11:27')
+    assert item.elements.select{ |e| e.name == 'title' }.map(&:value).
+        include?('Illini Union Photographs Record Series 3707005')
   end
 
   test 'ingest_items with free-form profile collection and delete-missing ingest mode' do
@@ -160,7 +193,7 @@ class MedusaIngesterTest < ActiveSupport::TestCase
     # Run the ingest.
     warnings = []
     result = @instance.ingest_items(
-        collection, MedusaIngester::IngestMode::CREATE_ONLY, warnings)
+        collection, MedusaIngester::IngestMode::CREATE_ONLY, {}, warnings)
 
     # Assert that the correct number of items were added.
     assert_equal 0, warnings.length
@@ -199,7 +232,7 @@ class MedusaIngesterTest < ActiveSupport::TestCase
     # Run the ingest.
     warnings = []
     result = @instance.ingest_items(
-        collection, MedusaIngester::IngestMode::CREATE_ONLY, warnings)
+        collection, MedusaIngester::IngestMode::CREATE_ONLY, {}, warnings)
 
     assert_equal 0, warnings.length
     assert_equal 5, result[:num_created]
@@ -225,6 +258,11 @@ class MedusaIngesterTest < ActiveSupport::TestCase
     assert_equal 'image/jp2', bs.media_type
     assert_equal '/59/2257/afm0003060/access/afm0003060a.jp2',
                  bs.repository_relative_pathname
+  end
+
+  test 'ingest_items with map profile collection and create-only ingest mode, extracting metadata' do
+    # Currently no map profile collections contain embedded metadata (or at
+    # least any that is used).
   end
 
   test 'ingest_items with map profile collection and delete-missing ingest mode' do
@@ -307,7 +345,7 @@ class MedusaIngesterTest < ActiveSupport::TestCase
     warnings = []
     result = @instance.ingest_items(collection,
                                     MedusaIngester::IngestMode::CREATE_ONLY,
-                                    warnings)
+                                    {}, warnings)
 
     # Assert that the correct number of items were added.
     assert_equal 0, warnings.length
@@ -329,6 +367,11 @@ class MedusaIngesterTest < ActiveSupport::TestCase
     assert_equal 'image/jp2', bs.media_type
     assert_equal '/55/2358/access/03501042_001_souscrivez.jp2',
                  bs.repository_relative_pathname
+  end
+
+  test 'ingest_items with single-item object profile collection and create-only ingest mode, extracting metadata' do
+    # Currently no collections with this profile contain embedded metadata (or
+    # at least any that is used).
   end
 
   test 'ingest_items with single-item object profile collection and delete-missing ingest mode' do
