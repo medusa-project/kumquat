@@ -36,7 +36,7 @@
                         "http://vufind.carli.illinois.edu/vf-uiu/Record/uiu_#{@item.bib_id}",
                         target: '_blank' %></li>
       <% end %>
-      <% if Rails.env.development? %>
+      <% if signed_in? %>
         <li><%= link_to 'Admin View', admin_collection_item_path(@item.collection, @item),
                         target: '_blank' %></li>
       <% end %>
