@@ -56,45 +56,47 @@ class MetadataProfile < ActiveRecord::Base
     struct = JSON.parse(json)
     profile = MetadataProfile.new
 
-    # Ensure that its name is unique.
-    tentative_name = "#{struct['name']} (imported)"
-    index = 1
-    loop do
-      if MetadataProfile.find_by_name(tentative_name)
-        tentative_name = "#{struct['name']} (imported) (#{index})"
-        index += 1
-      else
-        break
-      end
-    end
-    profile.name = tentative_name
-
-    # Add its elements.
-    struct['element_defs'].each do |jd|
-      ed = profile.element_defs.build
-      ed.name = jd['name']
-      ed.label = jd['label']
-      ed.index = jd['index']
-      ed.searchable = jd['searchable']
-      ed.facetable = jd['facetable']
-      ed.visible = jd['visible']
-      ed.sortable = jd['sortable']
-      ed.dc_map = jd['dc_map']
-      ed.dcterms_map = jd['dcterms_map']
-      jd['vocabularies'].each do |v|
-        vocab = Vocabulary.find_by_key(v['key'])
-        if vocab
-          ed.vocabularies << vocab
+    ActiveRecord::Base.transaction do
+      # Ensure that its name is unique.
+      tentative_name = "#{struct['name']} (imported)"
+      index = 1
+      loop do
+        if MetadataProfile.find_by_name(tentative_name)
+          tentative_name = "#{struct['name']} (imported) (#{index})"
+          index += 1
         else
-          raise "Vocabulary does not exist: #{v['key']}"
+          break
         end
       end
-      ed.save!
-      if jd['id'] == struct['default_sortable_element_def_id']
-        profile.default_sortable_element_def_id = ed.id
+      profile.name = tentative_name
+
+      # Add its elements.
+      struct['element_defs'].each do |jd|
+        ed = profile.element_defs.build
+        ed.name = jd['name']
+        ed.label = jd['label']
+        ed.index = jd['index']
+        ed.searchable = jd['searchable']
+        ed.facetable = jd['facetable']
+        ed.visible = jd['visible']
+        ed.sortable = jd['sortable']
+        ed.dc_map = jd['dc_map']
+        ed.dcterms_map = jd['dcterms_map']
+        jd['vocabularies'].each do |v|
+          vocab = Vocabulary.find_by_key(v['key'])
+          if vocab
+            ed.vocabularies << vocab
+          else
+            raise "Vocabulary does not exist: #{v['key']}"
+          end
+        end
+        ed.save!
+        if jd['id'] == struct['default_sortable_element_def_id']
+          profile.default_sortable_element_def_id = ed.id
+        end
       end
+      profile.save!
     end
-    profile.save!
     profile
   end
 
