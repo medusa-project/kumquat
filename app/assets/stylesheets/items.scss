@@ -206,15 +206,17 @@ body#items_show {
     }
   }
 
-  #pt-download-modal {
+  #pt-embed-image-modal {
     #iiif-download {
       div.radio {
-        margin-bottom: 0.8em;
         margin-right: 0.4em;
         padding: 0px;
         label {
           padding: 6px 12px;
         }
+      }
+      .form-inline {
+        margin: 10px 0em;
       }
       input[type=radio] {
         padding-left: -28px;
@@ -240,6 +242,12 @@ body#items_show {
       .pt-size-5 {
         font-size: 1.5em;
       }
+    }
+    textarea {
+      font-family: monospace;
+    }
+    textarea#pt-embed-link {
+      height: 16em;
     }
   }
 

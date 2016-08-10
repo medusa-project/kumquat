@@ -6,7 +6,157 @@
 var PTItemView = function() {
 
     var self = this;
-    var download_modal_loaded = false;
+
+    /**
+     * Encapsulates the embed-image panel.
+     *
+     * @constructor
+     */
+    var PTEmbedPanel = function() {
+
+        var NUM_SIZE_TIERS = 6;
+        var MIN_SIZE = 400;
+
+        var embed_modal_loaded = false;
+
+        var init = function() {
+            var embed_modal = $('#pt-embed-image-modal');
+            embed_modal.on('show.bs.modal', function() {
+                if (embed_modal_loaded) {
+                    return;
+                }
+                loadIiifInfo(renderContents);
+                embed_modal_loaded = true;
+            });
+        }; init();
+
+        var loadIiifInfo = function(callback) {
+            $.ajax({
+                dataType: 'json',
+                url: $('input[name="iiif-download-info-json-url"]').val(),
+                data: null,
+                success: callback
+            });
+        };
+
+        var renderContents = function(iiif_info) {
+            var container = $('#iiif-download');
+            var full_width = iiif_info['width'];
+            var num_sizes = iiif_info['sizes'].length;
+
+            // find the number of usable sizes in order to calculate button
+            // size tiers.
+            var num_usable_sizes = 0;
+            for (var i = 0; i < num_sizes; i++) {
+                var width = iiif_info['sizes'][i]['width'];
+                var height = iiif_info['sizes'][i]['height'];
+                if (width >= MIN_SIZE && height >= MIN_SIZE) {
+                    num_usable_sizes++;
+                }
+            }
+
+            // Create a button for each size tier up to the maximum.
+            for (var i = 0, size_i = 0; i < num_sizes; i++) {
+                var width = iiif_info['sizes'][i]['width'];
+                var height = iiif_info['sizes'][i]['height'];
+
+                if (width >= MIN_SIZE && height >= MIN_SIZE) {
+                    var size_class = 'pt-size-' +
+                        Math.ceil(size_i / num_usable_sizes * NUM_SIZE_TIERS);
+                    var percent = Math.round(width / full_width * 100);
+                    var checked = (size_i == 0) ? 'checked' : '';
+                    var active = (size_i == 0) ? 'active' : '';
+                    container.append(
+                        '<div class="radio btn btn-default ' + size_class + ' ' + active + '">' +
+                            '<label>' +
+                                '<input type="radio" name="size" value="' + width + ',' + '" ' + checked + '>' +
+                                width + '&times;' + height + ' pixels (' + percent + '%)' +
+                            '</label>' +
+                        '</div><br>');
+                    size_i++;
+                }
+            }
+
+            var qualities_div = $('<div class="form-inline"></div>');
+            iiif_info['profile'][1]['qualities'].forEach(function (item) {
+                // Exclude the "default" quality.
+                if (item == 'color' || item == 'gray' || item == 'bitonal') {
+                    var checked = '';
+                    var container_class = '';
+                    if (item == 'color') {
+                        checked = 'checked';
+                        container_class = 'active';
+                    }
+                    qualities_div.append(
+                        '<div class="radio btn btn-default ' + container_class + '">' +
+                            '<label>' +
+                                '<input type="radio" name="quality" value="' + item + '" ' + checked + '>' +
+                                item.charAt(0).toUpperCase() + item.slice(1) +
+                            '</label>' +
+                        '</div>');
+                }
+            });
+            container.append(qualities_div);
+
+            var formats_div = $('<div class="form-inline"></div>');
+            iiif_info['profile'][1]['formats'].forEach(function (item) {
+                var checked = '';
+                var container_class = '';
+                if (item == 'jpg') {
+                    checked = 'checked';
+                    container_class = 'active';
+                }
+                formats_div.append(
+                    '<div class="radio btn btn-default ' + container_class + '">' +
+                    '<label>' +
+                    '<input type="radio" name="format" value="' + item + '" ' + checked + '>' +
+                    item.toUpperCase() +
+                    '</label>' +
+                    '</div>');
+            });
+            container.append(formats_div);
+
+            var embed_modal = $('#pt-embed-image-modal');
+
+            var displayUrl = function() {
+                var source_file = embed_modal.find('input[name="download-url"]:checked');
+                var url;
+                if (source_file.length > 0) {
+                    url = source_file.val();
+                } else {
+                    var size = embed_modal.find('input[name="size"]:checked').val();
+                    var quality = embed_modal.find('input[name="quality"]:checked').val();
+                    var format = embed_modal.find('input[name="format"]:checked').val();
+                    url = $('input[name="iiif-download-url"]').val() +
+                        '/full/' + size + '/0/' + quality + '.' + format;
+                }
+                if (url != null) {
+                    $('#pt-preview-link').attr('href', url).show();
+                    $('#pt-embed-link').val('<img src="' + url + '">');
+                } else {
+                    $('#pt-preview-link').hide();
+                    $('#pt-embed-link').val(null);
+                }
+            };
+
+            $('input[name="size"], input[name="quality"], input[name="format"]').on('click', function () {
+                displayUrl();
+            });
+            displayUrl();
+
+            var radios = embed_modal.find('input[type=radio]');
+            radios.on('click', function () {
+                radios.each(function () {
+                    var radio_container = $(this).parents('div.radio');
+                    if ($(this).is(':checked')) {
+                        radio_container.addClass('active');
+                    } else {
+                        radio_container.removeClass('active');
+                    }
+                });
+            });
+        }
+    };
 
     this.init = function() {
         $(document).on(PearTree.Events.ITEM_ADDED_TO_FAVORITES, function(event, item) {
@@ -42,143 +192,7 @@ var PTItemView = function() {
             }
         }).trigger('resize');
 
-        // When the download modal is shown, populate the IIIF download form.
-        var download_modal = $('#pt-download-modal');
-        download_modal.on('show.bs.modal', function() {
-            if (download_modal_loaded) {
-                return;
-            }
-            var container = $('#iiif-download');
-            if (container != null) { // will be null for non-images
-                $.ajax({
-                    dataType: 'json',
-                    url: $('input[name="iiif-download-info-json-url"]').val(),
-                    data: null,
-                    success: function(data) {
-                        container.before('<h4>Reduced Image</h4>');
-
-                        var NUM_SIZE_TIERS = 6;
-                        var MIN_SIZE = 400;
-                        var full_width = data['width'];
-                        var full_height = data['height'];
-                        var num_sizes = data['sizes'].length;
-
-                        // find the number of usable sizes in order to calculate
-                        // button size tiers
-                        var num_usable_sizes = 0;
-                        for (var i = 0; i < num_sizes; i++) {
-                            var width = data['sizes'][i]['width'];
-                            var height = data['sizes'][i]['height'];
-                            if (width >= MIN_SIZE && height >= MIN_SIZE) { // arbitrary cutoff
-                                num_usable_sizes++;
-                            }
-                        }
-
-                        for (var i = 0, size_i = 0; i < num_sizes; i++) {
-                            var width = data['sizes'][i]['width'];
-                            var height = data['sizes'][i]['height'];
-
-                            if (width >= MIN_SIZE && height >= MIN_SIZE) { // arbitrary cutoff
-                                var size_class = 'pt-size-' +
-                                    Math.ceil(size_i / num_usable_sizes * NUM_SIZE_TIERS);
-                                var percent = Math.round(width / full_width * 100);
-                                container.append(
-                                    '<div class="radio btn btn-default ' + size_class + '">' +
-                                        '<label>' +
-                                            '<input type="radio" name="size" value="' + width + ',' + height + '">' +
-                                            width + '&times;' + height + ' pixels (' + percent + '%)' +
-                                        '</label>' +
-                                    '</div>');
-                                size_i++;
-                            }
-                        }
-
-                        var qualities_div = $('<div class="form-inline"></div>');
-                        data['profile'][1]['qualities'].forEach(function(item) {
-                            if (item == 'color' || item == 'gray' || item == 'bitonal') {
-                                var checked = '';
-                                var container_class = '';
-                                if (item == 'color') {
-                                    checked = 'checked';
-                                    container_class = 'active';
-                                }
-                                qualities_div.append(
-                                    '<div class="radio btn btn-default ' + container_class + '">' +
-                                        '<label>' +
-                                            '<input type="radio" name="quality" value="' + item + '" ' + checked + '>' +
-                                            item.charAt(0).toUpperCase() + item.slice(1) +
-                                        '</label>' +
-                                    '</div>');
-                                }
-                        });
-                        container.append(qualities_div);
-
-                        var formats_div = $('<div class="form-inline"></div>');
-                        data['profile'][1]['formats'].forEach(function(item) {
-                            var checked = '';
-                            var container_class = '';
-                            if (item == 'jpg') {
-                                checked = 'checked';
-                                container_class = 'active';
-                            }
-                            formats_div.append(
-                                    '<div class="radio btn btn-default ' + container_class + '">' +
-                                        '<label>' +
-                                            '<input type="radio" name="format" value="' + item + '" ' + checked + '>' +
-                                            item.toUpperCase() +
-                                        '</label>' +
-                                    '</div>');
-                        });
-                        container.append(formats_div);
-
-                        $('input[name="download-url"]').on('click', function() {
-                            $('input[name="size"]:checked').prop('checked', false);
-                            //$('input[name="quality"]:checked').attr('checked', false);
-                            //$('input[name="format"]:checked').attr('checked', false);
-                        });
-
-                        $('input[name="size"], input[name="quality"], input[name="format"]').on('click', function() {
-                            $('input[name="download-url"]').prop('checked', false);
-                        });
-
-                        var radios = download_modal.find('input[type=radio]');
-                        radios.on('click', function() {
-                            radios.each(function() {
-                                var radio_container = $(this).parents('div.radio');
-                                if ($(this).is(':checked')) {
-                                    radio_container.addClass('active');
-                                } else {
-                                    radio_container.removeClass('active');
-                                }
-                            });
-                        });
-                    }
-                });
-            }
-            download_modal_loaded = true;
-        });
-
-        $('#pt-download').on('click', function() {
-            var source_file = download_modal.
-                    find('input[name="download-url"]:checked');
-            var url;
-            if (source_file.length > 0) {
-                url = source_file.val();
-            } else {
-                var size = download_modal.find('input[name="size"]:checked').val();
-                var quality = download_modal.find('input[name="quality"]:checked').val();
-                var format = download_modal.find('input[name="format"]:checked').val();
-                url = $('input[name="iiif-download-url"]').val() +
-                    '/full/' + size + '/0/' + quality + '.' + format;
-            }
-
-            if (url != null) {
-                $(this).attr('href', url);
-                download_modal.modal('hide');
-            } else {
-                return false;
-            }
-        });
+        new PTEmbedPanel();
     };
 
     /**

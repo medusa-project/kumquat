@@ -1184,8 +1184,6 @@ module ItemsHelper
     data = {}
     data['Ingested'] = local_time_ago(item.created_at)
     data['Last Modified'] = local_time_ago(item.updated_at)
-    url = iiif_item_url(item)
-    data[link_to('IIIF Image URL', 'http://iiif.io/')] = link_to(url, url) if url
     data
   end
 
