@@ -8,6 +8,25 @@ var PTItemView = function() {
     var self = this;
 
     /**
+     * Encapsulates the download panel.
+     *
+     * @constructor
+     */
+    var PTDownloadPanel = function() {
+
+        var init = function() {
+            $('#pt-download').on('click', function() {
+                var download_modal = $('#pt-download-modal');
+                var source_file = download_modal.find('input[name="download-url"]:checked');
+                var url;
+                if (source_file.length > 0) {
+                    $(this).attr('href', source_file.val());
+                }
+            });
+        }; init();
+    };
+
+    /**
      * Encapsulates the embed-image panel.
      *
      * @constructor
@@ -106,12 +125,18 @@ var PTItemView = function() {
                     checked = 'checked';
                     container_class = 'active';
                 }
+                var label = item.toUpperCase();
+                if (label == 'JPG') {
+                    label = 'JPEG';
+                } else if (label == 'TIF') {
+                    label = 'TIFF';
+                }
                 formats_div.append(
                     '<div class="radio btn btn-default ' + container_class + '">' +
-                    '<label>' +
-                    '<input type="radio" name="format" value="' + item + '" ' + checked + '>' +
-                    item.toUpperCase() +
-                    '</label>' +
+                        '<label>' +
+                            '<input type="radio" name="format" value="' + item + '" ' + checked + '>' +
+                            label +
+                        '</label>' +
                     '</div>');
             });
             container.append(formats_div);
@@ -119,24 +144,14 @@ var PTItemView = function() {
             var embed_modal = $('#pt-embed-image-modal');
 
             var displayUrl = function() {
-                var source_file = embed_modal.find('input[name="download-url"]:checked');
-                var url;
-                if (source_file.length > 0) {
-                    url = source_file.val();
-                } else {
-                    var size = embed_modal.find('input[name="size"]:checked').val();
-                    var quality = embed_modal.find('input[name="quality"]:checked').val();
-                    var format = embed_modal.find('input[name="format"]:checked').val();
-                    url = $('input[name="iiif-download-url"]').val() +
-                        '/full/' + size + '/0/' + quality + '.' + format;
-                }
-                if (url != null) {
-                    $('#pt-preview-link').attr('href', url).show();
-                    $('#pt-embed-link').val('<img src="' + url + '">');
-                } else {
-                    $('#pt-preview-link').hide();
-                    $('#pt-embed-link').val(null);
-                }
+                var size = embed_modal.find('input[name="size"]:checked').val();
+                var quality = embed_modal.find('input[name="quality"]:checked').val();
+                var format = embed_modal.find('input[name="format"]:checked').val();
+                var url = $('input[name="iiif-download-url"]').val() +
+                    '/full/' + size + '/0/' + quality + '.' + format;
+
+                $('#pt-preview-link').attr('href', url).show();
+                $('#pt-embed-link').val('<img src="' + url + '">');
             };
 
             $('input[name="size"], input[name="quality"], input[name="format"]').on('click', function () {
@@ -192,6 +207,7 @@ var PTItemView = function() {
             }
         }).trigger('resize');
 
+        new PTDownloadPanel();
         new PTEmbedPanel();
     };
 
