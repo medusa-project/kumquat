@@ -13,17 +13,15 @@
       <div class="modal-body">
         <% item.bytestreams.select{ |bs| bs.exists? }.each do |bs|
           if bs.bytestream_type == Bytestream::Type::ACCESS_MASTER
-            label = 'Access Master'
             url = item_access_master_bytestream_url(item)
           elsif bs.bytestream_type == Bytestream::Type::PRESERVATION_MASTER
-            label = 'Preservation Master'
             url = item_preservation_master_bytestream_url(item)
           end
-          if label and url %>
+          if url %>
             <div class="radio">
               <label>
                 <%= radio_button_tag('download-url', url) %>
-                <%= label %>
+                <%= bs.human_readable_type %>
                 <br>
                 <small><%= download_label_for_bytestream(bs) %></small>
               </label>
