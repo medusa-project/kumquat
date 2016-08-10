@@ -158,6 +158,8 @@
         <%= render partial: 'admin/element_defs/form',
                    locals: { element_def: @new_element,
                              name_options_for_select: @name_options_for_select,
+                             dublin_core_elements: @dublin_core_elements,
+                             dublin_core_terms: @dublin_core_terms,
                              metadata_profile: @profile,
                              context: :new } %>
       </div>
