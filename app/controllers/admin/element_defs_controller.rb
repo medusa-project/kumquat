@@ -47,10 +47,18 @@ module Admin
       profile = element.metadata_profile
       name_options_for_select = ItemElement.all_descriptive.
           map{ |t| [ t.name, t.name ] }
+      dublin_core_elements = DublinCoreElement.all.
+          sort{ |e, f| e.label <=> f.label }.
+          map { |p| [ p.label, p.name ] }
+      dublin_core_terms = DublinCoreTerm.all.
+          sort{ |e, f| e.label <=> f.label }.
+          map { |p| [ p.label, p.name ] }
       render partial: 'admin/element_defs/form',
              locals: { element_def: element,
                        metadata_profile: profile,
                        name_options_for_select: name_options_for_select,
+                       dublin_core_elements: dublin_core_elements,
+                       dublin_core_terms: dublin_core_terms,
                        context: :edit }
     end
 
