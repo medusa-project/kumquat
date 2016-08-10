@@ -47,7 +47,7 @@
   <div class="form-group">
     <%= f.label :dc_map, 'Dublin Core Mapping' %>
     <%= select('element_def', 'dc_map',
-               @dublin_core_elements,
+               dublin_core_elements,
                { include_blank: true, selected: f.object.dc_map },
                { class: 'form-control' }) %>
   </div>
@@ -55,7 +55,7 @@
   <div class="form-group">
     <%= f.label :dcterms_map, 'Dublin Core Terms Mapping' %>
     <%= select('element_def', 'dcterms_map',
-               @dublin_core_terms,
+               dublin_core_terms,
                { include_blank: true, selected: f.object.dcterms_map },
                { class: 'form-control' }) %>
   </div>
