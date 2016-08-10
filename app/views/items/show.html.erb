@@ -30,7 +30,7 @@
       <% if iiif_url %>
         <li><%= link_to 'IIIF Image Information', iiif_url, target: '_blank' %></li>
       <% end %>
-      <li><%= link_to 'JSON', params.merge(format: :json) %></li>
+      <li><%= link_to 'JSON', params.merge(format: :json), target: '_blank' %></li>
       <% if @item.bib_id %>
         <li><%= link_to 'Library Catalog Record',
                         "http://vufind.carli.illinois.edu/vf-uiu/Record/uiu_#{@item.bib_id}",
