@@ -15,7 +15,7 @@ var PTItemView = function() {
     var PTEmbedPanel = function() {
 
         var NUM_SIZE_TIERS = 6;
-        var MIN_SIZE = 400;
+        var MIN_SIZE = 200;
 
         var embed_modal_loaded = false;
 
