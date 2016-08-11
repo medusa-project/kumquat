@@ -138,7 +138,7 @@
      aria-labelledby="pt-import-modal-label">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
-      <%= form_tag(admin_collection_items_sync_path(@collection, format: :tsv),
+      <%= form_tag(admin_collection_items_import_path(@collection, format: :tsv),
                    { multipart: true }) do %>
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">

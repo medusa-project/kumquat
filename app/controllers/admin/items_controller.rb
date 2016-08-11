@@ -75,9 +75,9 @@ module Admin
     end
 
     ##
-    # Responds to POST /admin/collections/:collection_id/items/ingest
+    # Responds to POST /admin/collections/:collection_id/items/import
     #
-    def ingest
+    def import
       respond_to do |format|
         format.tsv do
           # Can't pass an uploaded file to an ActiveJob, so it will be saved
@@ -92,7 +92,7 @@ module Admin
             tsv = params[:tsv].read.force_encoding('UTF-8')
             tempfile.write(tsv)
             tempfile.close
-            IngestItemsFromTsvJob.perform_later(tempfile.path)
+            ImportItemsFromTsvJob.perform_later(tempfile.path)
           rescue => e
             tempfile.unlink
             flash['error'] = "#{e}"
