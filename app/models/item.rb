@@ -91,18 +91,6 @@ class Item < ActiveRecord::Base
   after_commit :delete_from_solr, on: :destroy
 
   ##
-  # Creates a new instance from valid DLS XML, persists it, and returns it.
-  #
-  # @param [Nokogiri::XML::Node] node
-  # @return [Item]
-  #
-  def self.from_dls_xml(node, schema_version)
-    item = Item.new
-    item.update_from_xml(node, schema_version)
-    item
-  end
-
-  ##
   # Returns a tab-separated list of applicable technical elements, plus one
   # column per element definition in the item's collection's metadata profile.
   #

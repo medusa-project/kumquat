@@ -12,15 +12,6 @@ class ItemTest < ActiveSupport::TestCase
         map{ |row| row.to_hash }
   end
 
-  # Item.from_dls_xml()
-
-  test 'from_dls_xml() should return an item' do
-    xml = File.read(__dir__ + '/../fixtures/repository/item.xml')
-    doc = Nokogiri::XML(xml, &:noblanks)
-    doc.encoding = 'utf-8'
-    assert_kind_of Item, Item.from_dls_xml(doc, 3)
-  end
-
   # Item.tsv_header()
 
   test 'tsv_header should return the correct columns' do
