@@ -2,36 +2,6 @@ require 'test_helper'
 
 class PackageProfileTest < ActiveSupport::TestCase
 
-  setup do
-    tsv = File.read(__dir__ + '/../fixtures/repository/medusa-free-form.tsv')
-    @medusa_free_form_tsv = CSV.parse(tsv, headers: true, col_sep: "\t").
-        map{ |row| row.to_hash }
-
-    tsv = File.read(__dir__ + '/../fixtures/repository/medusa-map.tsv')
-    @medusa_map_tsv = CSV.parse(tsv, headers: true, col_sep: "\t").
-        map{ |row| row.to_hash }
-
-    tsv = File.read(__dir__ + '/../fixtures/repository/medusa-map2.tsv')
-    @medusa_map_tsv2 = CSV.parse(tsv, headers: true, col_sep: "\t").
-        map{ |row| row.to_hash }
-
-    tsv = Item.tsv_header(metadata_profiles(:default_metadata_profile))
-    tsv += Item.find_by_repository_id('a53add10-5ca8-0132-3334-0050569601ca-7').to_tsv
-    tsv += Item.find_by_repository_id('6e406030-5ce3-0132-3334-0050569601ca-3').to_tsv
-    @dls_free_form_tsv = CSV.parse(tsv, headers: true,
-                                   row_sep: Item::TSV_LINE_BREAK, col_sep: "\t").
-        map{ |row| row.to_hash }
-
-    tsv = Item.tsv_header(metadata_profiles(:default_metadata_profile))
-    tsv += Item.find_by_repository_id('be8d3500-c451-0133-1d17-0050569601ca-9').to_tsv
-    tsv += Item.find_by_repository_id('d29950d0-c451-0133-1d17-0050569601ca-2').to_tsv
-    tsv += Item.find_by_repository_id('d29edba0-c451-0133-1d17-0050569601ca-c').to_tsv
-    tsv += Item.find_by_repository_id('cd2d4601-c451-0133-1d17-0050569601ca-8').to_tsv
-    @dls_map_tsv = CSV.parse(tsv, headers: true,
-                             row_sep: Item::TSV_LINE_BREAK, col_sep: "\t").
-        map{ |row| row.to_hash }
-  end
-
   # all
 
   test 'all() should return the correct profiles' do

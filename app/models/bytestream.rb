@@ -25,8 +25,9 @@ class Bytestream < ActiveRecord::Base
   #
   def byte_size
     pathname = self.absolute_local_pathname
-    pathname and File.exist?(pathname) and File.file?(pathname) ?
+    size = (pathname and File.exist?(pathname) and File.file?(pathname)) ?
         File.size(pathname) : nil
+    size || nil
   end
 
   ##

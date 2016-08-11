@@ -1,16 +1,22 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-one:
+iptc:
   bytestream_type: <%= Bytestream::Type::ACCESS_MASTER %>
+  repository_relative_pathname: /136/310/3707005/access/online/Illini_Union_Photographs/binder_5/banquets/banquets_002.jpg
+  item: iptc_item
+  media_type: image/jpeg
+
+item1_one:
+  bytestream_type: <%= Bytestream::Type::PRESERVATION_MASTER %>
   repository_relative_pathname: MyString
   item: item1
   media_type: text/plain
 
-two:
-  bytestream_type: <%= Bytestream::Type::PRESERVATION_MASTER %>
-  repository_relative_pathname: <%= Rails.root %>/test/fixtures/images/jpg-iptc.jpg
+item1_two:
+  bytestream_type: <%= Bytestream::Type::ACCESS_MASTER %>
+  repository_relative_pathname: MyString
   item: item1
-  media_type: image/jpeg
+  media_type: text/plain
 
 three:
   bytestream_type: 1

@@ -15,7 +15,7 @@ class ItemTest < ActiveSupport::TestCase
   # Item.from_dls_xml()
 
   test 'from_dls_xml() should return an item' do
-    xml = File.read(__dir__ + '/../fixtures/repository/image/item_1.xml')
+    xml = File.read(__dir__ + '/../fixtures/repository/item.xml')
     doc = Nokogiri::XML(xml, &:noblanks)
     doc.encoding = 'utf-8'
     assert_kind_of Item, Item.from_dls_xml(doc, 3)
@@ -194,10 +194,13 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal bs.repository_relative_pathname,
                  doc[Item::SolrFields::PRESERVATION_MASTER_PATHNAME]
 
-    @item.elements.each do |element|
-      assert_equal [element.value], doc[element.solr_multi_valued_field]
-      assert_equal element.value, doc[element.solr_single_valued_field]
-    end
+    title = @item.elements.select{ |e| e.name == 'title' }.first
+    assert_equal [title.value], doc[title.solr_multi_valued_field]
+    description = @item.elements.select{ |e| e.name == 'description' }.first
+    assert_equal [description.value], doc[description.solr_multi_valued_field]
+    subjects = @item.elements.select{ |e| e.name == 'subject' }
+    assert_equal subjects.map(&:value),
+                 doc[subjects.first.solr_multi_valued_field]
   end
 
   # to_tsv
@@ -222,21 +225,19 @@ class ItemTest < ActiveSupport::TestCase
   # update_from_embedded_metadata
 
   test 'update_from_embedded_metadata should work' do
+    @item = items(:iptc_item)
     @item.update_from_embedded_metadata
 
-    puts @item.elements.select{ |e| e.name == 'date' }.first
     assert_equal 1, @item.elements.
-        select{ |e| e.name == 'date' and e.value == '2005-06-02T05:00:00Z' }.length
+        select{ |e| e.name == 'creator' and e.value == 'JP Goguen' }.length
     assert_equal 1, @item.elements.
-        select{ |e| e.name == 'dateCreated' and e.value == '2005:06:02 07:19:00' }.length
+        select{ |e| e.name == 'creator' and e.value == 'University of Illinois Library' }.length
     assert_equal 1, @item.elements.
-        select{ |e| e.name == 'description' and e.value == 'OLYMPUS DIGITAL CAMERA' }.length
+        select{ |e| e.name == 'date' and e.value == '2012-10-10T00:00:00Z' }.length
     assert_equal 1, @item.elements.
-        select{ |e| e.name == 'subject' and e.value == 'Green Bay / De Pere' }.length
+        select{ |e| e.name == 'dateCreated' and e.value == '2012:10:10' }.length
     assert_equal 1, @item.elements.
-        select{ |e| e.name == 'subject' and e.value == 'St. Norbert College' }.length
-    assert_equal 1, @item.elements.
-        select{ |e| e.name == 'subject' and e.value == 'Van Den Heuvel Campus Center' }.length
+        select{ |e| e.name == 'title' and e.value == 'Illini Union Photographs Record Series 3707005' }.length
   end
 
   # update_from_tsv

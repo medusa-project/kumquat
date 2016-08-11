@@ -43,6 +43,13 @@ free_form_dir1_file1:
   parent_repository_id: a53add10-5ca8-0132-3334-0050569601ca-7
   variant: File
 
+iptc_item:
+  collection_repository_id: 34d204d0-05d1-0130-c5bb-0019b9e633c5-e
+  parent_repository_id:
+  published: true
+  repository_id: 7400e0a0-5ce3-0132-3334-0050569601ca-c
+  variant: File
+
 map_obj1:
   collection_repository_id: d250c1f0-5ca8-0132-3334-0050569601ca-8
   date: <%= Time.parse('2015-08-10') %>
