@@ -5,12 +5,12 @@ class ItemXmlIngester
   XML_V3_NAMESPACES = { 'dls' => 'http://digital.library.illinois.edu/terms#' }
 
   ##
-  # Creates a new item from the given XML document, or updates the item
-  # corresponding to the item ID in the document if it already exists.
+  # Updates the item corresponding to the item ID in the document.
   #
   # @param xml [String] XML document string
   # @param schema_version [Integer] XML schema version
   # @return [Item]
+  # @raises [ActiveRecord::RecordNotFound]
   #
   def ingest_xml(xml, schema_version)
     raise 'Invalid schema version' unless
@@ -19,6 +19,8 @@ class ItemXmlIngester
     doc = Nokogiri::XML(xml, &:noblanks)
     doc.encoding = 'utf-8'
     validate_document(doc, 'object.xsd', schema_version)
+
+    node = repository_id = nil
     if schema_version == 3
       node = doc.xpath('//dls:Object', XML_V3_NAMESPACES).first
       # If an item with the same repository ID already exists, update it.
@@ -27,15 +29,11 @@ class ItemXmlIngester
           first.content.strip
     end
 
-    item = nil
-    if repository_id
-      item = Item.find_by_repository_id(repository_id)
-      if item
-        item.update_from_xml(node, schema_version)
-      end
-    end
-    unless item
-      item = Item.from_dls_xml(node, schema_version)
+    item = Item.find_by_repository_id(repository_id)
+    if item
+      item.update_from_xml(node, schema_version)
+    else
+      raise ActiveRecord::RecordNotFound
     end
     item
   end
