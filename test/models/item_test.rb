@@ -6,14 +6,9 @@ class ItemTest < ActiveSupport::TestCase
     @item = items(:item1)
     assert @item.valid?
 
-    @free_form_collection = collections(:collection1)
-    @medusa_free_form_tsv = File.read(__dir__ + '/../fixtures/repository/medusa-free-form.tsv')
-    @medusa_free_form_tsv_array = CSV.parse(@medusa_free_form_tsv, headers: true, col_sep: "\t").
-        map{ |row| row.to_hash }
-
-    @map_collection = collections(:collection2)
-    @medusa_map_tsv = File.read(__dir__ + '/../fixtures/repository/medusa-map.tsv')
-    @medusa_map_tsv_array = CSV.parse(@medusa_map_tsv, headers: true, col_sep: "\t").
+    @collection = collections(:collection1)
+    @tsv = File.read(__dir__ + '/../fixtures/repository/lincoln.tsv')
+    @tsv_array = CSV.parse(@tsv, headers: true, col_sep: "\t").
         map{ |row| row.to_hash }
   end
 
@@ -246,10 +241,9 @@ class ItemTest < ActiveSupport::TestCase
 
   # update_from_tsv
 
-  test 'update_from_tsv should work with DLS TSV' do
+  test 'update_from_tsv should work' do
     row = {}
     # technical elements
-    row['parentId'] = 'a111c1f0-5ca8-0132-3334-0050569601ca-8'
     row['date'] = '1984'
     row['latitude'] = '45.52'
     row['longitude'] = '-120.564'
@@ -263,9 +257,8 @@ class ItemTest < ActiveSupport::TestCase
                                  Item::MULTI_VALUE_SEPARATOR)
     row['title'] = 'Cats'
 
-    @item.update_from_tsv([row], row)
+    @item.update_from_tsv(row)
 
-    assert_equal('a555c1f0-5ca8-0132-3334-0050569601ca-8', @item.parent_repository_id)
     assert_equal(1984, @item.date.year)
     assert_equal(45.52, @item.latitude)
     assert_equal(-120.564, @item.longitude)
@@ -288,7 +281,7 @@ class ItemTest < ActiveSupport::TestCase
     row['bogus:subject'] = 'Felines'
 
     assert_raises RuntimeError do
-      @item.update_from_tsv([row], row)
+      @item.update_from_tsv(row)
     end
   end
 

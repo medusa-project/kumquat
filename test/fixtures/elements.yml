@@ -1,16 +1,16 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 date:
-  name: Date
+  name: date
 
 description:
-  name: Description
+  name: description
 
 subject:
-  name: Subject
+  name: subject
 
 title:
-  name: Title
+  name: title
 
 type:
-  name: Type
+  name: type

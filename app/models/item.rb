@@ -527,12 +527,11 @@ class Item < ActiveRecord::Base
   ##
   # Updates an instance from a hash representing a TSV row.
   #
-  # @param tsv [Array<Hash<String,String>>]
   # @param row [Hash<String,String>] Item serialized as a TSV row
   # @return [Item]
   # @raises [RuntimeError]
   #
-  def update_from_tsv(tsv, row)
+  def update_from_tsv(row)
     ActiveRecord::Base.transaction do
       # Metadata elements need to be deleted first, otherwise an update
       # wouldn't be able to remove them.
@@ -574,18 +573,19 @@ class Item < ActiveRecord::Base
       self.variant = row['variant'].strip if row['variant']
 
       # Metadata elements.
-      row.each do |heading, value|
+      row.each do |heading, multi_value|
         # Skip columns with an empty value.
-        next unless value.present?
+        next unless multi_value.present?
         # Vocabulary columns will have a heading of "vocabKey:elementName",
         # except uncontrolled columns which will have a heading of just
         # "elementName".
         parts = heading.split(':')
         element_name = parts.last
-        # To be safe, we will accept any descriptive element, whether or not it
-        # is present in the collection's metadata profile.
+        # To be a little safer, we will accept any available descriptive
+        # element, whether or not it is present in the collection's metadata
+        # profile.
         if ItemElement.all_descriptive.map(&:name).include?(element_name)
-          value.split(MULTI_VALUE_SEPARATOR).select(&:present?).each do |value|
+          multi_value.split(MULTI_VALUE_SEPARATOR).select(&:present?).each do |value|
             e = ItemElement.named(element_name)
             e.value = value
             if parts.length > 1
