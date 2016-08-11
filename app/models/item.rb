@@ -131,21 +131,6 @@ class Item < ActiveRecord::Base
   end
 
   ##
-  # Creates a new instance from valid DLS XML, persists it, and returns it.
-  #
-  # @param tsv [String] TSV
-  # @param row [Hash<String,String>] TSV row
-  # @param collection [Collection]
-  # @return [Item]
-  #
-  def self.from_tsv(tsv, row, collection)
-    item = Item.new
-    item.collection = collection
-    item.update_from_tsv(tsv, row)
-    item
-  end
-
-  ##
   # @return [Bytestream]
   #
   def access_master_bytestream
