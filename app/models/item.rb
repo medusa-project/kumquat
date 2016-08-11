@@ -599,7 +599,7 @@ class Item < ActiveRecord::Base
         element_name = parts.last
         # To be safe, we will accept any descriptive element, whether or not it
         # is present in the collection's metadata profile.
-        if ElementDef.all_descriptive.map(&:name).include?(element_name)
+        if ItemElement.all_descriptive.map(&:name).include?(element_name)
           value.split(MULTI_VALUE_SEPARATOR).select(&:present?).each do |value|
             e = ItemElement.named(element_name)
             e.value = value
