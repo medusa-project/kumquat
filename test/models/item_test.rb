@@ -218,6 +218,7 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal @item.class.to_s, doc[Item::SolrFields::CLASS]
     assert_equal @item.collection_repository_id,
                  doc[Item::SolrFields::COLLECTION]
+    assert doc[Item::SolrFields::COLLECTION_PUBLISHED]
     assert_equal @item.date.utc.iso8601, doc[Item::SolrFields::DATE]
     assert_equal @item.full_text, doc[Item::SolrFields::FULL_TEXT]
     assert_not_empty doc[Item::SolrFields::LAST_INDEXED]

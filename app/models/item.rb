@@ -34,6 +34,9 @@ class Item < ActiveRecord::Base
     ACCESS_MASTER_PATHNAME = 'access_master_pathname_si'
     CLASS = 'class_si'
     COLLECTION = 'collection_si'
+    # The owning collection's published status is stored to expedite queries.
+    # Naturally, when it changes, its items will need to be reindexed.
+    COLLECTION_PUBLISHED = 'collection_published_bi'
     CREATED = 'created_dti'
     DATE = 'date_dti'
     FULL_TEXT = 'full_text_txti'
@@ -385,6 +388,8 @@ class Item < ActiveRecord::Base
     doc[SolrFields::ID] = self.solr_id
     doc[SolrFields::CLASS] = self.class.to_s
     doc[SolrFields::COLLECTION] = self.collection_repository_id
+    doc[SolrFields::COLLECTION_PUBLISHED] = (self.collection.published and
+        self.collection.published_in_dls)
     doc[SolrFields::DATE] = self.date.utc.iso8601 if self.date
     doc[SolrFields::FULL_TEXT] = self.full_text
     doc[SolrFields::LAST_INDEXED] = Time.now.utc.iso8601
