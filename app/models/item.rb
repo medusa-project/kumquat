@@ -91,18 +91,6 @@ class Item < ActiveRecord::Base
   after_commit :delete_from_solr, on: :destroy
 
   ##
-  # Creates a new instance from valid DLS XML, persists it, and returns it.
-  #
-  # @param [Nokogiri::XML::Node] node
-  # @return [Item]
-  #
-  def self.from_dls_xml(node, schema_version)
-    item = Item.new
-    item.update_from_xml(node, schema_version)
-    item
-  end
-
-  ##
   # Returns a tab-separated list of applicable technical elements, plus one
   # column per element definition in the item's collection's metadata profile.
   #
@@ -128,21 +116,6 @@ class Item < ActiveRecord::Base
       end
     end
     elements.join("\t") + TSV_LINE_BREAK
-  end
-
-  ##
-  # Creates a new instance from valid DLS XML, persists it, and returns it.
-  #
-  # @param tsv [String] TSV
-  # @param row [Hash<String,String>] TSV row
-  # @param collection [Collection]
-  # @return [Item]
-  #
-  def self.from_tsv(tsv, row, collection)
-    item = Item.new
-    item.collection = collection
-    item.update_from_tsv(tsv, row)
-    item
   end
 
   ##
@@ -178,7 +151,7 @@ class Item < ActiveRecord::Base
     self.elements.select{ |e| e.name == 'description' }.first&.value
   end
 
-  def delete_from_solr
+  def delete_from_solr # TODO: change to Item.solr.delete()
     Solr.instance.delete(self.solr_id)
   end
 
@@ -186,10 +159,10 @@ class Item < ActiveRecord::Base
   # Returns the instance's effective representative item based on the following
   # order of preference:
   #
-  # 1) The instance's assigned representative item (if it has one)
-  # 2) The instance's first page (if it has any)
-  # 3) The instance's first child item (if it has any)
-  # 4) The instance itself
+  # 1. The instance's assigned representative item (if it has one)
+  # 2. The instance's first page (if it has any)
+  # 3. The instance's first child item (if it has any)
+  # 4. The instance itself
   #
   # @return [Item]
   # @see representative_item
@@ -244,27 +217,27 @@ class Item < ActiveRecord::Base
 
   def is_audio?
     bs = self.access_master_bytestream || self.preservation_master_bytestream
-    bs and bs.is_audio?
+    bs&.is_audio?
   end
 
   def is_image?
     bs = self.access_master_bytestream || self.preservation_master_bytestream
-    bs and bs.is_image?
+    bs&.is_image?
   end
 
   def is_pdf?
     bs = self.access_master_bytestream || self.preservation_master_bytestream
-    bs and bs.is_pdf?
+    bs&.is_pdf?
   end
 
   def is_text?
     bs = self.access_master_bytestream || self.preservation_master_bytestream
-    bs and bs.is_text?
+    bs&.is_text?
   end
 
   def is_video?
     bs = self.access_master_bytestream || self.preservation_master_bytestream
-    bs and bs.is_video?
+    bs&.is_video?
   end
 
   def items
@@ -545,12 +518,11 @@ class Item < ActiveRecord::Base
   ##
   # Updates an instance from a hash representing a TSV row.
   #
-  # @param tsv [Array<Hash<String,String>>]
   # @param row [Hash<String,String>] Item serialized as a TSV row
   # @return [Item]
   # @raises [RuntimeError]
   #
-  def update_from_tsv(tsv, row)
+  def update_from_tsv(row)
     ActiveRecord::Base.transaction do
       # Metadata elements need to be deleted first, otherwise an update
       # wouldn't be able to remove them.
@@ -592,18 +564,19 @@ class Item < ActiveRecord::Base
       self.variant = row['variant'].strip if row['variant']
 
       # Metadata elements.
-      row.each do |heading, value|
+      row.each do |heading, multi_value|
         # Skip columns with an empty value.
-        next unless value.present?
+        next unless multi_value.present?
         # Vocabulary columns will have a heading of "vocabKey:elementName",
         # except uncontrolled columns which will have a heading of just
         # "elementName".
         parts = heading.split(':')
         element_name = parts.last
-        # To be safe, we will accept any descriptive element, whether or not it
-        # is present in the collection's metadata profile.
+        # To be a little safer, we will accept any available descriptive
+        # element, whether or not it is present in the collection's metadata
+        # profile.
         if ItemElement.all_descriptive.map(&:name).include?(element_name)
-          value.split(MULTI_VALUE_SEPARATOR).select(&:present?).each do |value|
+          multi_value.split(MULTI_VALUE_SEPARATOR).select(&:present?).each do |value|
             e = ItemElement.named(element_name)
             e.value = value
             if parts.length > 1

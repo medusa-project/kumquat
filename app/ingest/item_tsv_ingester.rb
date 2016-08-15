@@ -35,7 +35,7 @@ class ItemTsvIngester
         item = Item.find_by_repository_id(row['uuid'])
         if item
           Rails.logger.info("Updating #{row['uuid']}")
-          item.update_from_tsv(tsv, row)
+          item.update_from_tsv(row)
           count += 1
         end
       end

@@ -6,24 +6,10 @@ class ItemTest < ActiveSupport::TestCase
     @item = items(:item1)
     assert @item.valid?
 
-    @free_form_collection = collections(:collection1)
-    @medusa_free_form_tsv = File.read(__dir__ + '/../fixtures/repository/medusa-free-form.tsv')
-    @medusa_free_form_tsv_array = CSV.parse(@medusa_free_form_tsv, headers: true, col_sep: "\t").
+    @collection = collections(:collection1)
+    @tsv = File.read(__dir__ + '/../fixtures/repository/lincoln.tsv')
+    @tsv_array = CSV.parse(@tsv, headers: true, col_sep: "\t").
         map{ |row| row.to_hash }
-
-    @map_collection = collections(:collection2)
-    @medusa_map_tsv = File.read(__dir__ + '/../fixtures/repository/medusa-map.tsv')
-    @medusa_map_tsv_array = CSV.parse(@medusa_map_tsv, headers: true, col_sep: "\t").
-        map{ |row| row.to_hash }
-  end
-
-  # Item.from_dls_xml()
-
-  test 'from_dls_xml() should return an item' do
-    xml = File.read(__dir__ + '/../fixtures/repository/image/item_1.xml')
-    doc = Nokogiri::XML(xml, &:noblanks)
-    doc.encoding = 'utf-8'
-    assert_kind_of Item, Item.from_dls_xml(doc, 3)
   end
 
   # Item.tsv_header()
@@ -46,11 +32,29 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal 'tgm:subject', cols[12]
   end
 
+  test 'tsv_header should end with a line break' do
+    assert Item.tsv_header(@item.collection.metadata_profile).
+        end_with?(Item::TSV_LINE_BREAK)
+  end
+
   # access_master_bytestream()
 
-  test 'access_master_bytestream() should work properly' do
+  test 'access_master_bytestream() should return the access master bytestream,
+  or nil if none exists' do
     assert_equal Bytestream::Type::ACCESS_MASTER,
                  @item.access_master_bytestream.bytestream_type
+
+    @item.bytestreams.destroy_all
+    assert_nil @item.access_master_bytestream
+  end
+
+  # bib_id()
+
+  test 'bib_id() should return the bibId element value, or nil if none exists' do
+    assert_nil @item.bib_id
+
+    @item.elements.build(name: 'bibId', value: 'cats')
+    assert_equal 'cats', @item.bib_id
   end
 
   # collection_repository_id
@@ -61,6 +65,17 @@ class ItemTest < ActiveSupport::TestCase
 
     @item.collection_repository_id = '8acdb390-96b6-0133-1ce8-0050569601ca-4'
     assert @item.valid?
+  end
+
+  # description()
+
+  test 'description() should return the description element value, or nil if
+  none exists' do
+    @item.elements.destroy_all
+    assert_nil @item.description
+
+    @item.elements.build(name: 'description', value: 'cats')
+    assert_equal 'cats', @item.description
   end
 
   # effective_representative_item()
@@ -111,9 +126,13 @@ class ItemTest < ActiveSupport::TestCase
 
   # preservation_master_bytestream()
 
-  test 'preservation_master_bytestream() should work properly' do
+  test 'preservation_master_bytestream() should return the preservation
+  master bytestream, or nil if none exists' do
     assert_equal Bytestream::Type::PRESERVATION_MASTER,
                  @item.preservation_master_bytestream.bytestream_type
+
+    @item.bytestreams.destroy_all
+    assert_nil @item.preservation_master_bytestream
   end
 
   # repository_id
@@ -147,6 +166,33 @@ class ItemTest < ActiveSupport::TestCase
 
     @item.representative_item_repository_id = '8acdb390-96b6-0133-1ce8-0050569601ca-4'
     assert @item.valid?
+  end
+
+  # solr_id()
+
+  test 'solr_id() should return the Solr document ID' do
+    assert_equal @item.repository_id, @item.solr_id
+  end
+
+  # subtitle()
+
+  test 'subtitle() should return the title element value, or nil if none
+  exists' do
+    @item.elements.destroy_all
+    assert_nil @item.subtitle
+
+    @item.elements.build(name: 'subtitle', value: 'cats')
+    assert_equal 'cats', @item.subtitle
+  end
+
+  # title()
+
+  test 'title() should return the title element value, or nil if none exists' do
+    @item.elements.destroy_all
+    assert_nil @item.title
+
+    @item.elements.build(name: 'title', value: 'cats')
+    assert_equal 'cats', @item.title
   end
 
   # to_dls_xml(schema_version)
@@ -199,10 +245,13 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal bs.repository_relative_pathname,
                  doc[Item::SolrFields::PRESERVATION_MASTER_PATHNAME]
 
-    @item.elements.each do |element|
-      assert_equal [element.value], doc[element.solr_multi_valued_field]
-      assert_equal element.value, doc[element.solr_single_valued_field]
-    end
+    title = @item.elements.select{ |e| e.name == 'title' }.first
+    assert_equal [title.value], doc[title.solr_multi_valued_field]
+    description = @item.elements.select{ |e| e.name == 'description' }.first
+    assert_equal [description.value], doc[description.solr_multi_valued_field]
+    subjects = @item.elements.select{ |e| e.name == 'subject' }
+    assert_equal subjects.map(&:value),
+                 doc[subjects.first.solr_multi_valued_field]
   end
 
   # to_tsv
@@ -227,29 +276,26 @@ class ItemTest < ActiveSupport::TestCase
   # update_from_embedded_metadata
 
   test 'update_from_embedded_metadata should work' do
+    @item = items(:iptc_item)
     @item.update_from_embedded_metadata
 
-    puts @item.elements.select{ |e| e.name == 'date' }.first
     assert_equal 1, @item.elements.
-        select{ |e| e.name == 'date' and e.value == '2005-06-02T05:00:00Z' }.length
+        select{ |e| e.name == 'creator' and e.value == 'JP Goguen' }.length
     assert_equal 1, @item.elements.
-        select{ |e| e.name == 'dateCreated' and e.value == '2005:06:02 07:19:00' }.length
+        select{ |e| e.name == 'creator' and e.value == 'University of Illinois Library' }.length
     assert_equal 1, @item.elements.
-        select{ |e| e.name == 'description' and e.value == 'OLYMPUS DIGITAL CAMERA' }.length
+        select{ |e| e.name == 'date' and e.value == '2012-10-10T00:00:00Z' }.length
     assert_equal 1, @item.elements.
-        select{ |e| e.name == 'subject' and e.value == 'Green Bay / De Pere' }.length
+        select{ |e| e.name == 'dateCreated' and e.value == '2012:10:10' }.length
     assert_equal 1, @item.elements.
-        select{ |e| e.name == 'subject' and e.value == 'St. Norbert College' }.length
-    assert_equal 1, @item.elements.
-        select{ |e| e.name == 'subject' and e.value == 'Van Den Heuvel Campus Center' }.length
+        select{ |e| e.name == 'title' and e.value == 'Illini Union Photographs Record Series 3707005' }.length
   end
 
   # update_from_tsv
 
-  test 'update_from_tsv should work with DLS TSV' do
+  test 'update_from_tsv should work' do
     row = {}
     # technical elements
-    row['parentId'] = 'a111c1f0-5ca8-0132-3334-0050569601ca-8'
     row['date'] = '1984'
     row['latitude'] = '45.52'
     row['longitude'] = '-120.564'
@@ -263,9 +309,8 @@ class ItemTest < ActiveSupport::TestCase
                                  Item::MULTI_VALUE_SEPARATOR)
     row['title'] = 'Cats'
 
-    @item.update_from_tsv([row], row)
+    @item.update_from_tsv(row)
 
-    assert_equal('a555c1f0-5ca8-0132-3334-0050569601ca-8', @item.parent_repository_id)
     assert_equal(1984, @item.date.year)
     assert_equal(45.52, @item.latitude)
     assert_equal(-120.564, @item.longitude)
@@ -288,7 +333,7 @@ class ItemTest < ActiveSupport::TestCase
     row['bogus:subject'] = 'Felines'
 
     assert_raises RuntimeError do
-      @item.update_from_tsv([row], row)
+      @item.update_from_tsv(row)
     end
   end
 
