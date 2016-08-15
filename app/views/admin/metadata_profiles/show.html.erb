@@ -28,105 +28,108 @@
               class: 'btn btn-danger',
               data: { confirm: 'Are you sure you want to delete this '\
                       'profile?' } do %>
-    <i class="fa fa-trash"></i> Delete
+    <i class="fa fa-trash"></i> Delete Profile
   <% end %>
 </div>
 
 <h1><%= @profile.name %></h1>
 
-<div class="btn-group pull-right">
-  <button type="button" class="btn btn-default" data-toggle="modal"
-          data-target="#pt-add-element-modal">
-    <i class="fa fa-plus"></i> Add Element
-  </button>
-</div>
+<%= form_tag(admin_metadata_profile_delete_elements_path(@profile), method: :post) do %>
 
-<h2>Elements</h2>
+  <div class="btn-group pull-right">
+    <button type="button" class="btn btn-default" data-toggle="modal"
+            data-target="#pt-add-element-modal">
+      <i class="fa fa-plus"></i> Add Element
+    </button>
+    <button type="button" id="pt-delete-checked" class="btn btn-danger">
+      <i class="fa fa-trash"></i> Delete Checked
+    </button>
+  </div>
 
-<% if @profile.element_defs.any? %>
+  <h2>Elements</h2>
 
-  <table class="table table-striped">
-    <thead>
-      <tr>
-        <th></th>
-        <th></th>
-        <th>Element</th>
-        <th>Vocabularies</th>
-        <th>Mappings</th>
-        <th class="text-center">Visible</th>
-        <th class="text-center">Searchable</th>
-        <th class="text-center">Sortable</th>
-        <th class="text-center">Facetable</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% @profile.element_defs.order(:index).each do |element| %>
+  <% if @profile.element_defs.any? %>
+    <table class="table table-striped">
+      <thead>
         <tr>
-          <td><%= element.index + 1 %></td>
-          <td>
-            <button type="button" class="btn btn-default btn-xs pt-edit-element"
-                    data-toggle="modal" data-target="#pt-edit-element-modal"
-                    data-element-id="<%= element.id %>">
-              Edit
-            </button>
-            <br>
-            <%= link_to 'Delete', admin_element_def_path(element),
-                        class: 'btn btn-danger btn-xs', method: :delete,
-                        data: { confirm: 'Are you sure you want to delete '\
-                        'this element?' } %>
-          </td>
-          <td>
-            <%= element.label %>
-            <br>
-            <var><%= element.name %></var>
-          </td>
-          <td>
-            <% if element.vocabularies.any? %>
-              <ul>
-                <% element.vocabularies.each do |vocab| %>
-                  <li><%= vocab.name %></li>
-                <% end %>
-              </ul>
-            <% else %>
-              &ndash;
-            <% end %>
-          </td>
-          <td>
-            <table>
-              <tr>
-                <th class="text-right">dc</th>
-                <td><%= DublinCoreElement.label_for(element.dc_map) %></td>
-              </tr>
-              <tr>
-                <th>dcterms</th>
-                <td><%= DublinCoreTerm.label_for(element.dcterms_map) %></td>
-              </tr>
-            </table>
-          </td>
-          <td class="text-center <%= element.visible ? 'bg-success' : 'bg-danger' %>">
-            <%= boolean(element.visible) %>
-          </td>
-          <td class="text-center <%= element.searchable ? 'bg-success' : 'bg-danger' %>">
-            <%= boolean(element.searchable) %>
-          </td>
-          <td class="text-center <%= element.sortable ? 'bg-success' : 'bg-danger' %>">
-            <% if element == @profile.default_sortable_element_def %>
-              <span class="text-success">DEFAULT</span>
-            <% else %>
-              <%= boolean(element.sortable) %>
-            <% end %>
-          </td>
-          <td class="text-center <%= element.facetable ? 'bg-success' : 'bg-danger' %>">
-            <%= boolean(element.facetable) %>
-          </td>
+          <th></th>
+          <th></th>
+          <th>Element</th>
+          <th>Vocabularies</th>
+          <th>Mappings</th>
+          <th class="text-center">Visible</th>
+          <th class="text-center">Searchable</th>
+          <th class="text-center">Sortable</th>
+          <th class="text-center">Facetable</th>
         </tr>
-      <% end %>
-    </tbody>
-  </table>
-
-<% else %>
-
-  <p>This profile has no elements.</p>
+      </thead>
+      <tbody>
+        <% @profile.element_defs.order(:index).each do |element| %>
+          <tr>
+            <td>
+              <div class="checkbox">
+                <label>
+                  <%= check_box_tag('element_defs[]', element.id) %>
+                  <%= element.index + 1 %>
+                </label>
+              </div>
+            </td>
+            <td>
+              <button type="button" class="btn btn-default btn-xs pt-edit-element"
+                      data-toggle="modal" data-target="#pt-edit-element-modal"
+                      data-element-id="<%= element.id %>">Edit</button>
+            </td>
+            <td>
+              <%= element.label %>
+              <br>
+              <var><%= element.name %></var>
+            </td>
+            <td>
+              <% if element.vocabularies.any? %>
+                <ul>
+                  <% element.vocabularies.each do |vocab| %>
+                    <li><%= vocab.name %></li>
+                  <% end %>
+                </ul>
+              <% else %>
+                &ndash;
+              <% end %>
+            </td>
+            <td>
+              <table>
+                <tr>
+                  <th class="text-right">dc</th>
+                  <td><%= DublinCoreElement.label_for(element.dc_map) %></td>
+                </tr>
+                <tr>
+                  <th>dcterms</th>
+                  <td><%= DublinCoreTerm.label_for(element.dcterms_map) %></td>
+                </tr>
+              </table>
+            </td>
+            <td class="text-center <%= element.visible ? 'bg-success' : 'bg-danger' %>">
+              <%= boolean(element.visible) %>
+            </td>
+            <td class="text-center <%= element.searchable ? 'bg-success' : 'bg-danger' %>">
+              <%= boolean(element.searchable) %>
+            </td>
+            <td class="text-center <%= element.sortable ? 'bg-success' : 'bg-danger' %>">
+              <% if element == @profile.default_sortable_element_def %>
+                <span class="text-success">DEFAULT</span>
+              <% else %>
+                <%= boolean(element.sortable) %>
+              <% end %>
+            </td>
+            <td class="text-center <%= element.facetable ? 'bg-success' : 'bg-danger' %>">
+              <%= boolean(element.facetable) %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <p>This profile has no elements.</p>
+  <% end %>
 
 <% end %>
 

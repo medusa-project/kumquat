@@ -1,9 +1,13 @@
 /**
  * @constructor
  */
-var PTAdminMetadataProfilesView = function() {
+var PTAdminMetadataProfileView = function() {
 
-    this.init = function() {
+    var init = function() {
+        $('button#pt-delete-checked').on('click', function() {
+            $(this).parents('form').submit();
+        });
+
         $('button.pt-edit-element').on('click', function() {
             var element_id = $(this).data('element-id');
             var ROOT_URL = $('input[name="root_url"]').val();
@@ -12,14 +16,13 @@ var PTAdminMetadataProfilesView = function() {
                 $('#pt-edit-element-modal .modal-body').html(data);
             });
         });
-    };
+    }; init();
 
 };
 
 var ready = function() {
     if ($('body#metadata_profiles_show').length) {
-        PearTree.view = new PTAdminMetadataProfilesView();
-        PearTree.view.init();
+        PearTree.view = new PTAdminMetadataProfileView();
     }
 };
 

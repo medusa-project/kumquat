@@ -99,6 +99,8 @@ Rails.application.routes.draw do
     resources :element_defs, only: [:create, :update, :destroy, :edit]
     resources :metadata_profiles, path: 'metadata-profiles' do
       match '/clone', to: 'metadata_profiles#clone', via: 'patch', as: 'clone'
+      match '/delete-elements', to: 'metadata_profiles#delete_elements',
+            via: 'post', as: 'delete_elements'
     end
     match '/metadata-profiles/import', to: 'metadata_profiles#import',
           via: 'post', as: 'metadata_profile_import'

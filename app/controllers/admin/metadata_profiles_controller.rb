@@ -42,6 +42,24 @@ module Admin
       end
     end
 
+    ##
+    # Responds to POST /metadata-profiles/:id/delete-elements
+    #
+    def delete_elements
+      if params[:element_defs]&.respond_to?(:each)
+        count = params[:element_defs].length
+        if count > 0
+          ActiveRecord::Base.transaction do
+            ElementDef.destroy_all(id: params[:element_defs])
+          end
+          flash['success'] = "Deleted #{count} element(s)."
+        end
+      else
+        flash['error'] = 'No elements to delete (none checked).'
+      end
+      redirect_to :back
+    end
+
     def destroy
       profile = MetadataProfile.find(params[:id])
       begin
