@@ -90,6 +90,7 @@ class Item < ActiveRecord::Base
                       message: 'UUID is invalid',
                       allow_blank: true
 
+  before_save :prune_identical_elements
   after_commit :index_in_solr, on: [:create, :update]
   after_commit :delete_from_solr, on: :destroy
 
@@ -694,6 +695,22 @@ class Item < ActiveRecord::Base
   end
 
   private
+
+  ##
+  # Removes duplicate elements, ensuring that all are unique.
+  #
+  def prune_identical_elements
+    ActiveRecord::Base.transaction do
+      all_elements = self.elements.to_a
+      unique_elements = []
+      all_elements.each do |e|
+        if unique_elements.select{ |ue| e == ue }.empty?
+          unique_elements << e
+        end
+      end
+      (all_elements - unique_elements).each(&:destroy!)
+    end
+  end
 
   def to_dls_xml_v3
     builder = Nokogiri::XML::Builder.new do |xml|

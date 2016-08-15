@@ -168,6 +168,35 @@ class ItemTest < ActiveSupport::TestCase
     assert @item.valid?
   end
 
+  # save
+
+  test 'save() should prune identical elements' do
+    @item.elements.destroy_all
+    # These are all unique and should survive.
+    @item.elements.build(name: 'name1', value: 'value1',
+                         vocabulary: vocabularies(:uncontrolled))
+    @item.elements.build(name: 'name1', value: 'value2',
+                         vocabulary: vocabularies(:uncontrolled))
+    @item.elements.build(name: 'name2', value: 'value1',
+                         vocabulary: vocabularies(:uncontrolled))
+    @item.elements.build(name: 'name2', value: 'value2',
+                         vocabulary: vocabularies(:uncontrolled))
+    @item.elements.build(name: 'name3', value: 'value',
+                         vocabulary: vocabularies(:uncontrolled))
+    @item.elements.build(name: 'name3', value: 'value',
+                         vocabulary: vocabularies(:lcsh))
+
+    # One of these should get pruned.
+    @item.elements.build(name: 'prunable', value: 'value',
+                         vocabulary: vocabularies(:uncontrolled))
+    @item.elements.build(name: 'prunable', value: 'value',
+                         vocabulary: vocabularies(:uncontrolled))
+
+    assert_equal 8, @item.elements.length
+    @item.save!
+    assert_equal 7, @item.elements.count
+  end
+
   # solr_id()
 
   test 'solr_id() should return the Solr document ID' do
