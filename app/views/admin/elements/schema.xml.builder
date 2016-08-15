@@ -85,24 +85,14 @@ xml.tag!('schema',
                                minOccurs: '0', maxOccurs: '1' })
 
       xml.comment!('A way of refining the type of an item, which may affect '\
-      'how it is displayed.')
+      'how it is displayed. (Generally, "compound object" pages require '\
+      'a value of "Page".)')
       xml.tag!('xs:element', { name: 'variant', minOccurs: '0', maxOccurs: '1' }) do
         xml.tag!('xs:simpleType') do
           xml.tag!('xs:restriction', { base: 'xs:token' }) do
-            xml.comment!('As in a filesystem directory')
-            xml.tag!('xs:enumeration', { value: 'Directory' })
-            xml.comment!('As in a file on a filesystem')
-            xml.tag!('xs:enumeration', { value: 'File' })
-            xml.comment!('Front matter in e.g. a book')
-            xml.tag!('xs:enumeration', { value: 'FrontMatter' })
-            xml.comment!('As in a book or map index')
-            xml.tag!('xs:enumeration', { value: 'Index' })
-            xml.comment!('As in a map key')
-            xml.tag!('xs:enumeration', { value: 'Key' })
-            xml.comment!('As in a book page')
-            xml.tag!('xs:enumeration', { value: 'Page' })
-            xml.comment!('As in a title page or book cover')
-            xml.tag!('xs:enumeration', { value: 'Title' })
+            Item::Variants::constants.each do |const|
+              xml.tag!('xs:enumeration', { value: const.to_s.downcase.camelize })
+            end
           end
         end
       end
