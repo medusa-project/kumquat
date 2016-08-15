@@ -151,7 +151,7 @@ class Item < ActiveRecord::Base
     self.elements.select{ |e| e.name == 'description' }.first&.value
   end
 
-  def delete_from_solr
+  def delete_from_solr # TODO: change to Item.solr.delete()
     Solr.instance.delete(self.solr_id)
   end
 
@@ -159,10 +159,10 @@ class Item < ActiveRecord::Base
   # Returns the instance's effective representative item based on the following
   # order of preference:
   #
-  # 1) The instance's assigned representative item (if it has one)
-  # 2) The instance's first page (if it has any)
-  # 3) The instance's first child item (if it has any)
-  # 4) The instance itself
+  # 1. The instance's assigned representative item (if it has one)
+  # 2. The instance's first page (if it has any)
+  # 3. The instance's first child item (if it has any)
+  # 4. The instance itself
   #
   # @return [Item]
   # @see representative_item
@@ -217,27 +217,27 @@ class Item < ActiveRecord::Base
 
   def is_audio?
     bs = self.access_master_bytestream || self.preservation_master_bytestream
-    bs and bs.is_audio?
+    bs&.is_audio?
   end
 
   def is_image?
     bs = self.access_master_bytestream || self.preservation_master_bytestream
-    bs and bs.is_image?
+    bs&.is_image?
   end
 
   def is_pdf?
     bs = self.access_master_bytestream || self.preservation_master_bytestream
-    bs and bs.is_pdf?
+    bs&.is_pdf?
   end
 
   def is_text?
     bs = self.access_master_bytestream || self.preservation_master_bytestream
-    bs and bs.is_text?
+    bs&.is_text?
   end
 
   def is_video?
     bs = self.access_master_bytestream || self.preservation_master_bytestream
-    bs and bs.is_video?
+    bs&.is_video?
   end
 
   def items

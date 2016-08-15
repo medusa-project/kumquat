@@ -32,11 +32,29 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal 'tgm:subject', cols[12]
   end
 
+  test 'tsv_header should end with a line break' do
+    assert Item.tsv_header(@item.collection.metadata_profile).
+        end_with?(Item::TSV_LINE_BREAK)
+  end
+
   # access_master_bytestream()
 
-  test 'access_master_bytestream() should work properly' do
+  test 'access_master_bytestream() should return the access master bytestream,
+  or nil if none exists' do
     assert_equal Bytestream::Type::ACCESS_MASTER,
                  @item.access_master_bytestream.bytestream_type
+
+    @item.bytestreams.destroy_all
+    assert_nil @item.access_master_bytestream
+  end
+
+  # bib_id()
+
+  test 'bib_id() should return the bibId element value, or nil if none exists' do
+    assert_nil @item.bib_id
+
+    @item.elements.build(name: 'bibId', value: 'cats')
+    assert_equal 'cats', @item.bib_id
   end
 
   # collection_repository_id
@@ -47,6 +65,17 @@ class ItemTest < ActiveSupport::TestCase
 
     @item.collection_repository_id = '8acdb390-96b6-0133-1ce8-0050569601ca-4'
     assert @item.valid?
+  end
+
+  # description()
+
+  test 'description() should return the description element value, or nil if
+  none exists' do
+    @item.elements.destroy_all
+    assert_nil @item.description
+
+    @item.elements.build(name: 'description', value: 'cats')
+    assert_equal 'cats', @item.description
   end
 
   # effective_representative_item()
@@ -97,9 +126,13 @@ class ItemTest < ActiveSupport::TestCase
 
   # preservation_master_bytestream()
 
-  test 'preservation_master_bytestream() should work properly' do
+  test 'preservation_master_bytestream() should return the preservation
+  master bytestream, or nil if none exists' do
     assert_equal Bytestream::Type::PRESERVATION_MASTER,
                  @item.preservation_master_bytestream.bytestream_type
+
+    @item.bytestreams.destroy_all
+    assert_nil @item.preservation_master_bytestream
   end
 
   # repository_id
@@ -133,6 +166,33 @@ class ItemTest < ActiveSupport::TestCase
 
     @item.representative_item_repository_id = '8acdb390-96b6-0133-1ce8-0050569601ca-4'
     assert @item.valid?
+  end
+
+  # solr_id()
+
+  test 'solr_id() should return the Solr document ID' do
+    assert_equal @item.repository_id, @item.solr_id
+  end
+
+  # subtitle()
+
+  test 'subtitle() should return the title element value, or nil if none
+  exists' do
+    @item.elements.destroy_all
+    assert_nil @item.subtitle
+
+    @item.elements.build(name: 'subtitle', value: 'cats')
+    assert_equal 'cats', @item.subtitle
+  end
+
+  # title()
+
+  test 'title() should return the title element value, or nil if none exists' do
+    @item.elements.destroy_all
+    assert_nil @item.title
+
+    @item.elements.build(name: 'title', value: 'cats')
+    assert_equal 'cats', @item.title
   end
 
   # to_dls_xml(schema_version)

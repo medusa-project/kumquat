@@ -319,29 +319,7 @@ LIMIT 1000;
     self.title
   end
 
-  def update_from_medusa
-    unless self.repository_id
-      raise 'update_from_medusa() called without repository_id set'
-    end
-    json_str = Medusa.client.get(self.medusa_url('json'),
-                                 follow_redirect: true).body
-    struct = JSON.parse(json_str)
-
-    self.access_systems = struct['access_systems'].map{ |t| t['name'] }
-    self.access_url = struct['access_url']
-    self.description = struct['description']
-    self.description_html = struct['description_html']
-    self.published = struct['publish']
-    self.repository_title = struct['repository_title']
-    self.representative_image = struct['representative_image']
-    self.representative_item_id = struct['representative_item']
-    self.resource_types = struct['resource_types'].map{ |t| t['name'] }
-    self.title = struct['title']
-  end
-
   ##
-  # Overrides parent
-  #
   # @return [Hash]
   #
   def to_solr
@@ -360,6 +338,32 @@ LIMIT 1000;
     doc[SolrFields::RESOURCE_TYPES] = self.resource_types
     doc[SolrFields::TITLE] = self.title
     doc
+  end
+
+  ##
+  # @return [void]
+  # @raises [ActiveRecord::RecordNotFound]
+  #
+  def update_from_medusa
+    unless self.repository_id
+      raise ActiveRecord::RecordNotFound,
+            'update_from_medusa() called without repository_id set'
+    end
+    response = Medusa.client.get(self.medusa_url('json'),
+                                 follow_redirect: true)
+    json_str = response.body
+    struct = JSON.parse(json_str)
+
+    self.access_systems = struct['access_systems'].map{ |t| t['name'] }
+    self.access_url = struct['access_url']
+    self.description = struct['description']
+    self.description_html = struct['description_html']
+    self.published = struct['publish']
+    self.repository_title = struct['repository_title']
+    self.representative_image = struct['representative_image']
+    self.representative_item_id = struct['representative_item']
+    self.resource_types = struct['resource_types'].map{ |t| t['name'] }
+    self.title = struct['title']
   end
 
   private
