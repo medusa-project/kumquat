@@ -193,3 +193,7 @@ side-by-side. (IMET-161) -->
 
 <%= render partial: 'download_panel', locals: { item: @item } %>
 <%= render partial: 'embed_image_panel', locals: { item: @item } %>
+
+<script type="application/ld+json">
+  <%= schema_org_json_ld(@item) %>
+</script>

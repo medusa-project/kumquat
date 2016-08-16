@@ -619,6 +619,127 @@ module ItemsHelper
   end
 
   ##
+  # @param item [Item]
+  # @param options [Hash]
+  # @option options [Boolean] :pretty_print
+  # @return [String]
+  #
+  def schema_org_json_ld(item, options = {})
+    # See: http://schema.org/CreativeWork
+    # See: https://search.google.com/structured-data/testing-tool
+
+    # N.B.: search engines allegedly do not appreciate it when this blob
+    # contains information that does not appear in human-readable portions of
+    # the page.
+
+    # Base keys contained in all blobs.
+    struct = {
+        '@context': 'http://schema.org',
+        '@type': 'CreativeWork'
+    }
+
+    ######################### Thing properties ############################
+    # alternateName: we use CreativeWork.alternativeHeadline instead.
+
+    # description
+    description = item.element('description')
+    struct[:description] = description.value if description
+
+    # image
+    if item.is_image? or item.is_pdf?
+      # We are not told about an optimal size, so make one up.
+      # We don't want to expose a master image to search engines as it might
+      # be huge and/or in a format they can't use.
+      struct[:image] = item_image_url(item, 1024)
+    end
+
+    # url
+    struct[:url] = item_url(item)
+
+    ###################### CreativeWork properties ########################
+
+    # alternativeHeadline
+    alternative_headline = item.element('alternativeTitle')
+    struct[:alternativeHeadline] = alternative_headline.value if alternative_headline
+
+    # associatedMedia
+    if item.bytestreams.any?
+      struct[:associatedMedia] = []
+
+      bs = item.access_master_bytestream
+      if bs
+        media = {}
+        if bs.is_audio?
+          media[:'@type'] = 'AudioObject'
+        elsif bs.is_image?
+          media[:'@type'] = 'ImageObject'
+        elsif bs.is_video?
+          media[:'@type'] = 'VideoObject'
+        else
+          media[:'@type'] = 'MediaObject'
+        end
+        media[:contentUrl] = item_access_master_bytestream_url(item)
+        size = bs.byte_size
+        media[:contentSize] = size if size
+        struct[:associatedMedia] << media
+      end
+
+      bs = item.preservation_master_bytestream
+      if bs
+        media = {}
+        if bs.is_audio?
+          media[:'@type'] = 'AudioObject'
+        elsif bs.is_image?
+          media[:'@type'] = 'ImageObject'
+        elsif bs.is_video?
+          media[:'@type'] = 'VideoObject'
+        else
+          media[:'@type'] = 'MediaObject'
+        end
+        media[:contentUrl] = item_preservation_master_bytestream_url(item)
+        size = bs.byte_size
+        media[:contentSize] = size if size
+        struct[:associatedMedia] << media
+      end
+    end
+
+    # audience
+    audience = item.element('audience')
+    if audience
+      struct[:audience] = {
+          '@type': 'Audience',
+          'audienceType': audience.value
+      }
+    end
+
+    # dateCreated
+    struct[:dateCreated] = item.created_at.utc.iso8601
+
+    # dateModified
+    struct[:dateModified] = item.updated_at.utc.iso8601
+
+    # headline
+    headline = item.element('headline')
+    struct[:headline] = headline.value if headline
+
+    # position
+    struct[:position] = item.page_number if item.page_number
+
+    # temporalCoverage (Google doesn't recognize)
+    #struct[:temporalCoverage] = item.date.utc.iso8601 if item.date
+
+    # text
+    struct[:text] = item.full_text if item.full_text.present?
+
+    # thumbnailUrl
+    if item.is_image? or item.is_pdf?
+      struct[:thumbnailUrl] = item_image_url(item, ItemsHelper::DEFAULT_THUMBNAIL_SIZE)
+    end
+
+    options[:pretty_print] ? JSON.pretty_generate(struct) : JSON.generate(struct)
+  end
+
+  ##
   # Returns the status of a search or browse action, e.g. "Showing n of n
   # items".
   #
