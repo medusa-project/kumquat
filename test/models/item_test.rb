@@ -114,6 +114,13 @@ class ItemTest < ActiveSupport::TestCase
                  @item.effective_representative_item.repository_id
   end
 
+  # element()
+
+  test 'element() should work' do
+    assert_equal 'My Great Title', @item.element('title').value
+    assert_nil @item.element('bogus')
+  end
+
   # parent_repository_id
 
   test 'parent_repository_id must be a UUID' do
