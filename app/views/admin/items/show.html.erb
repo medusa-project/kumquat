@@ -57,6 +57,10 @@
       <li role="presentation">
         <a href="#pt-full-text" aria-controls="pt-full-text" role="tab" data-toggle="tab">Full Text</a>
       </li>
+
+      <li role="presentation">
+        <a href="#pt-schema-org" aria-controls="pt-schema-org" role="tab" data-toggle="tab">schema.org</a>
+      </li>
     </ul>
   </div>
 
@@ -110,6 +114,16 @@
         <% end %>
       </div>
 
+      <div role="tabpanel" class="tab-pane" id="pt-schema-org">
+        <div class="clearfix">
+          <div class="pull-right">
+            <a href="https://search.google.com/structured-data/testing-tool"
+               class="btn btn-default" target="_blank">
+              <i class="fa fa-google"></i> Test</a>
+          </div>
+        </div>
+        <pre><%= schema_org_json_ld(@item, pretty_print: true) %></pre>
+      </div>
     </div>
   </div>
 </div>

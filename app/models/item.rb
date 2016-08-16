@@ -176,6 +176,17 @@ class Item < ActiveRecord::Base
   end
 
   ##
+  # Convenience method that retrieves one element with the given name from the
+  # instance's `elements` relationship.
+  #
+  # @param name [String] Element name
+  # @return [ItemElement]
+  #
+  def element(name)
+    self.elements.select{ |e| e.name == name }.first
+  end
+
+  ##
   # Queries the database to obtain a Relation of all children that have a
   # variant of Variant::FILE or Variant::DIRECTORY.
   #
