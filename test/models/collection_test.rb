@@ -115,7 +115,8 @@ cd2d4601-c451-0133-1d17-0050569601ca-8\t\t\t\t\t\t\t\t\t\t\t\t\n"
     assert_equal @col.description_html, doc[Collection::SolrFields::DESCRIPTION_HTML]
     assert_equal @col.published, doc[Collection::SolrFields::PUBLISHED]
     assert_equal @col.published_in_dls, doc[Collection::SolrFields::PUBLISHED_IN_DLS]
-    assert_equal @col.repository_title, doc[Collection::SolrFields::REPOSITORY_TITLE]
+    assert_equal @col.medusa_repository.title,
+                 doc[Collection::SolrFields::REPOSITORY_TITLE]
     assert_equal @col.representative_item_id,
                  doc[Collection::SolrFields::REPRESENTATIVE_ITEM]
     assert_equal @col.resource_types, doc[Collection::SolrFields::RESOURCE_TYPES]

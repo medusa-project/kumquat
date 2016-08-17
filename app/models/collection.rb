@@ -233,6 +233,9 @@ LIMIT 1000;
     @cfs_directory
   end
 
+  ##
+  # @return [MedusaFileGroup]
+  #
   def medusa_file_group
    unless @file_group
      @file_group = nil
@@ -242,6 +245,20 @@ LIMIT 1000;
      end
    end
    @file_group
+  end
+
+  ##
+  # @return [MedusaRepository]
+  #
+  def medusa_repository
+    unless @medusa_repository
+      @medusa_repository = nil
+      if self.medusa_repository_id
+        @medusa_repository = MedusaRepository.new
+        @medusa_repository.id = self.medusa_repository_id
+      end
+    end
+    @medusa_repository
   end
 
   ##
@@ -333,7 +350,7 @@ LIMIT 1000;
     doc[SolrFields::DESCRIPTION_HTML] = self.description_html
     doc[SolrFields::PUBLISHED] = self.published
     doc[SolrFields::PUBLISHED_IN_DLS] = self.published_in_dls
-    doc[SolrFields::REPOSITORY_TITLE] = self.repository_title
+    doc[SolrFields::REPOSITORY_TITLE] = self.medusa_repository.title
     doc[SolrFields::REPRESENTATIVE_ITEM] = self.representative_item_id
     doc[SolrFields::RESOURCE_TYPES] = self.resource_types
     doc[SolrFields::TITLE] = self.title
@@ -358,8 +375,8 @@ LIMIT 1000;
     self.access_url = struct['access_url']
     self.description = struct['description']
     self.description_html = struct['description_html']
+    self.medusa_repository_id = struct['repository_path'].gsub(/[^0-9+]/, '').to_i
     self.published = struct['publish']
-    self.repository_title = struct['repository_title']
     self.representative_image = struct['representative_image']
     self.representative_item_id = struct['representative_item']
     self.resource_types = struct['resource_types'].map{ |t| t['name'] }
