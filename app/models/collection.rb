@@ -350,7 +350,7 @@ LIMIT 1000;
     doc[SolrFields::DESCRIPTION_HTML] = self.description_html
     doc[SolrFields::PUBLISHED] = self.published
     doc[SolrFields::PUBLISHED_IN_DLS] = self.published_in_dls
-    doc[SolrFields::REPOSITORY_TITLE] = self.medusa_repository.title
+    doc[SolrFields::REPOSITORY_TITLE] = self.medusa_repository&.title
     doc[SolrFields::REPRESENTATIVE_ITEM] = self.representative_item_id
     doc[SolrFields::RESOURCE_TYPES] = self.resource_types
     doc[SolrFields::TITLE] = self.title
