@@ -1062,6 +1062,25 @@ module ItemsHelper
   end
 
   ##
+  # @param item [Item]
+  # @return [String, nil] Mailto string for injection into an anchor href, or
+  #                       nil if the item's collection's repository does not
+  #                       have a contact email.
+  #
+  def curator_mailto(item)
+    mailto = nil
+    email = item.collection.medusa_repository.contact_email
+    if email.present?
+      subject = 'Feedback about a digital collections item'
+      body = "Item: #{item_url(item)}%0D"
+      body += "%0D"
+      body += "(Enter your comment here.)%0D"
+      mailto = "mailto:#{email}?subject=#{subject}&body=#{body}"
+    end
+    mailto
+  end
+
+  ##
   # @param items [Relation]
   # @param per_page [Integer]
   # @param current_page [Integer]

@@ -24,7 +24,7 @@ class CollectionDecorator < Draper::Decorator
         representative_image: self.representative_image,
         representative_item: self.representative_item ?
             item_url(self.representative_item) : nil,
-        repository_title: self.repository_title,
+        repository_title: self.medusa_repository.title,
         resource_types: self.resource_types
     }
   end
