@@ -86,6 +86,18 @@ class Bytestream < ActiveRecord::Base
   end
 
   ##
+  # @return [String, nil]
+  #
+  def medusa_url
+    url = nil
+    if self.cfs_file_uuid.present?
+      url = PearTree::Application.peartree_config[:medusa_url].chomp('/') +
+          '/uuids/' + self.cfs_file_uuid
+    end
+    url
+  end
+
+  ##
   # @return [Array<Hash<Symbol,String>>] Array of hashes with :label,
   #                                      :category, and :value keys.
   #

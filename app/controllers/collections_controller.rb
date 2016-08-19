@@ -33,7 +33,7 @@ class CollectionsController < WebsiteController
     raise ActiveRecord::RecordNotFound unless @collection
 
     unless @collection.published
-      render 'error/error', status: :forbidden, locals: {
+      render 'errors/error', status: :forbidden, locals: {
           status_code: 403,
           status_message: 'Forbidden',
           message: 'This collection is not published.'

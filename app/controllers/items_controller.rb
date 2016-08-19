@@ -306,7 +306,7 @@ class ItemsController < WebsiteController
   #
   def check_collection_published(collection)
     if collection and !collection.published
-      render 'error/error', status: :forbidden, locals: {
+      render 'errors/error', status: :forbidden, locals: {
           status_code: 403,
           status_message: 'Forbidden',
           message: 'This item is not published.'
@@ -322,7 +322,7 @@ class ItemsController < WebsiteController
   #
   def check_item_published(item)
     if item and !item.published
-      render 'error/error', status: :forbidden, locals: {
+      render 'errors/error', status: :forbidden, locals: {
           status_code: 403,
           status_message: 'Forbidden',
           message: 'This item is not published.'

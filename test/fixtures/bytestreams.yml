@@ -3,6 +3,7 @@
 iptc:
   bytestream_type: <%= Bytestream::Type::ACCESS_MASTER %>
   repository_relative_pathname: /136/310/3707005/access/online/Illini_Union_Photographs/binder_5/banquets/banquets_002.jpg
+  cfs_file_uuid: 7400e0a0-5ce3-0132-3334-0050569601ca-c
   item: iptc_item
   media_type: image/jpeg
 
