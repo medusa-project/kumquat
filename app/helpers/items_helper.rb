@@ -920,9 +920,7 @@ module ItemsHelper
         data << {
             label: 'Medusa CFS File',
             category: 'File',
-            value: link_to(bytestream.cfs_file_uuid,
-                           PearTree::Application.peartree_config[:medusa_url] +
-                               '/uuids/' + bytestream.cfs_file_uuid,
+            value: link_to(bytestream.cfs_file_uuid, bytestream.medusa_url,
                            target: '_blank')
         }
       end
