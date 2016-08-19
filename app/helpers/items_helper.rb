@@ -819,6 +819,23 @@ module ItemsHelper
   end
 
   ##
+  # @param entity [Item, Bytestream] or some other object suitable for passing
+  #                                  to `icon_for`
+  # @param size [Integer]
+  # @param shape [Symbol] :default or :square
+  # @return [String]
+  #
+  def thumbnail_url(entity, size, shape = :default)
+    url = nil
+    if entity.kind_of?(Bytestream)
+      url = bytestream_image_url(entity, size, shape)
+    elsif entity.kind_of?(Item)
+      url = item_image_url(entity, size, shape)
+    end
+    url
+  end
+
+  ##
   # @param item [Item]
   # @param options [Hash]
   # @option options [Integer] :size Thumbnail size
