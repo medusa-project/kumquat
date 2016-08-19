@@ -129,6 +129,11 @@ class ItemsController < WebsiteController
     fresh_when(etag: @items) if Rails.env.production?
 
     respond_to do |format|
+      format.atom do
+        @items = @items.to_a
+        @updated = @items.any? ?
+            @items.map(&:updated_at).sort{ |d| d <=> d }.last : Time.now
+      end
       format.html do
         @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
         @count = @items.count
@@ -232,6 +237,7 @@ class ItemsController < WebsiteController
     fresh_when(etag: @item) if Rails.env.production?
 
     respond_to do |format|
+      format.atom
       format.html do
         return unless check_collection_published(@item.collection)
         return unless check_item_published(@item)
