@@ -1084,7 +1084,7 @@ module ItemsHelper
   #
   def curator_mailto(item)
     mailto = nil
-    email = item.collection.medusa_repository.contact_email
+    email = item.collection.medusa_repository.email
     if email.present?
       subject = 'Feedback about a digital collections item'
       body = "Item: #{item_url(item)}%0D"
