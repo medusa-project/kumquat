@@ -639,7 +639,10 @@ module ItemsHelper
     }
 
     ######################### Thing properties ############################
-    # alternateName: we use CreativeWork.alternativeHeadline instead.
+
+    # alternateName
+    alternate_name = item.element('alternativeTitle')
+    struct[:alternateName] = alternate_name.value if alternate_name
 
     # description
     description = item.element('description')
@@ -647,20 +650,23 @@ module ItemsHelper
 
     # image
     if item.is_image? or item.is_pdf?
-      # We are not told about an optimal size, so make one up.
+      # schema.org does not recommend any particular sizes, so make one up.
       # We don't want to expose a master image to search engines as it might
       # be huge and/or in a format they can't use.
-      struct[:image] = item_image_url(item, 1024)
+      struct[:image] = {
+          '@type': 'ImageObject',
+          'contentUrl': item_image_url(item, 1024)
+      }
     end
+
+    # name
+    name = item.element('title')
+    struct[:name] = name.value if name
 
     # url
     struct[:url] = item_url(item)
 
     ###################### CreativeWork properties ########################
-
-    # alternativeHeadline
-    alternative_headline = item.element('alternativeTitle')
-    struct[:alternativeHeadline] = alternative_headline.value if alternative_headline
 
     # associatedMedia
     if item.bytestreams.any?
@@ -681,6 +687,7 @@ module ItemsHelper
         media[:contentUrl] = item_access_master_bytestream_url(item)
         size = bs.byte_size
         media[:contentSize] = size if size
+        media[:fileFormat] = bs.media_type
         struct[:associatedMedia] << media
       end
 
@@ -699,6 +706,7 @@ module ItemsHelper
         media[:contentUrl] = item_preservation_master_bytestream_url(item)
         size = bs.byte_size
         media[:contentSize] = size if size
+        media[:fileFormat] = bs.media_type
         struct[:associatedMedia] << media
       end
     end
@@ -712,15 +720,57 @@ module ItemsHelper
       }
     end
 
+    # contentLocation
+    location = item.element('spatialCoverage')
+    if location
+      struct[:contentLocation] = {
+          '@type': 'Place',
+          'name': location.value
+      }
+      if item.latitude and item.longitude
+        struct[:contentLocation][:geo] = {
+            '@type': 'GeoCoordinates',
+            latitude: item.latitude,
+            longitude: item.longitude
+        }
+      end
+    end
+
     # dateCreated
     struct[:dateCreated] = item.created_at.utc.iso8601
 
     # dateModified
     struct[:dateModified] = item.updated_at.utc.iso8601
 
-    # headline
-    headline = item.element('headline')
-    struct[:headline] = headline.value if headline
+    # hasPart
+    if item.items.any?
+      struct[:hasPart] = []
+      item.items.each do |child|
+        struct[:hasPart] << {
+            '@type': 'CreativeWork',
+            name: child.title,
+            url: item_url(child)
+        }
+      end
+    end
+
+    # isPartOf
+    if item.parent
+      struct[:isPartOf] = {
+          '@type': 'CreativeWork',
+          name: item.parent.title,
+          url: item_url(item.parent)
+      }
+    end
+
+    # mainEntity
+    if item.parent
+      struct[:mainEntity] = {
+          '@type': 'CreativeWork',
+          name: item.root_parent.title,
+          url: item_url(item.root_parent)
+      }
+    end
 
     # position
     struct[:position] = item.page_number if item.page_number
