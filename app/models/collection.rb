@@ -379,7 +379,9 @@ LIMIT 1000;
     self.published = struct['publish']
     self.representative_image = struct['representative_image']
     self.representative_item_id = struct['representative_item']
-    self.resource_types = struct['resource_types'].map{ |t| t['name'] }
+    self.resource_types = struct['resource_types'].map do |t| # titleize these
+      t['name'].split(' ').map{ |t| t.present? ? t.capitalize : '' }.join(' ')
+    end
     self.title = struct['title']
   end
 

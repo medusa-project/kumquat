@@ -22,9 +22,7 @@ module CollectionsHelper
         unchecked_params = term.added_to_params(params.deep_dup)
         checked_params.delete(:start)
         unchecked_params.delete(:start)
-        term_label = term.label.split(' ').
-            map{ |t| t.present? ? t.capitalize : '' }.join(' ')
-        term_label = truncate(term_label, length: 80)
+        term_label = truncate(term.label, length: 80)
 
         panel += "<li class=\"pt-term\">"
         panel += "<div class=\"checkbox\">"
