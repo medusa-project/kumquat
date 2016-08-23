@@ -128,6 +128,13 @@ class Collection < ActiveRecord::Base
   end
 
   ##
+  # @return [ActiveRecord::Relation<Item>]
+  #
+  def items
+    Item.where(collection_repository_id: self.repository_id)
+  end
+
+  ##
   # @return [String] Full contents of the collection as a TSV string. Item
   #                  children are included. Ordering, limit, offset, etc. is
   #                  not customizable.
