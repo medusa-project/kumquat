@@ -60,6 +60,37 @@ cd2d4601-c451-0133-1d17-0050569601ca-8\t\t\t\t\t\t\t\t\t\t\t\t\n"
     assert @col.valid?
   end
 
+  # migrate_item_elements()
+
+  test 'migrate_item_elements() should raise an error when given a destination
+  element that is not present in the metadata profile' do
+    assert_raises ArgumentError do
+      @col.migrate_item_elements('title', 'bogus')
+    end
+  end
+
+  test 'migrate_item_elements() should raise an error when source and
+  destination elements have different vocabularies' do
+    assert_raises ArgumentError do
+      @col.migrate_item_elements('title', 'subject')
+    end
+  end
+
+  test 'migrate_item_elements() should work' do
+    test_item = items(:item1)
+    test_title = test_item.title
+    assert_not_empty test_title
+    assert_equal 1, test_item.elements.select{ |e| e.name == 'description' }.length
+
+    @col.migrate_item_elements('title', 'description')
+
+    test_item.reload
+    assert_empty test_item.elements.select{ |e| e.name == 'title' }
+    assert_equal 2, test_item.elements.select{ |e| e.name == 'description' }.length
+  end
+
+  # package_profile()
+
   test 'package_profile should return a PackageProfile' do
     assert @col.package_profile.kind_of?(PackageProfile)
     @col.package_profile_id = 37

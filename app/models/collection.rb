@@ -286,6 +286,39 @@ LIMIT 1000;
   end
 
   ##
+  # @param source_element [String] Element name
+  # @param dest_element [String] Element name
+  # @return [void]
+  # @raises [ArgumentError]
+  #
+  def migrate_item_elements(source_element, dest_element)
+    # Check that the destination element is present in the instance's
+    # metadata profile.
+    source_def = self.metadata_profile.element_defs.
+        select{ |e| e.name == source_element }.first
+    dest_def = self.metadata_profile.element_defs.
+        select{ |e| e.name == dest_element }.first
+    unless dest_def
+      raise ArgumentError, "#{dest_element} element is not present in the "\
+          "metadata profile."
+    end
+
+    # Check that the source and destination element have the same vocabularies.
+    source_vocabs = source_def.vocabularies.map(&:key).uniq
+    dest_vocabs = dest_def.vocabularies.map(&:key).uniq
+    if source_vocabs != dest_vocabs
+      raise ArgumentError, 'Source and destination elements have different '\
+          'assigned vocabularies.'
+    end
+
+    ActiveRecord::Base.transaction do
+      self.items.each do |item|
+        item.migrate_elements(source_element, dest_element)
+      end
+    end
+  end
+
+  ##
   # @return [Integer]
   #
   def num_items
