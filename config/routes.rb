@@ -99,6 +99,7 @@ Rails.application.routes.draw do
             as: 'items_search'
       resources :items, concerns: :publishable
       match '/items/import', to: 'items#import', via: 'post'
+      match '/items/migrate', to: 'items#migrate', via: 'post'
       match '/items/sync', to: 'items#sync', via: 'post'
     end
     resources :element_defs, only: [:create, :update, :destroy, :edit]
