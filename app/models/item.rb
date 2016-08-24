@@ -178,12 +178,23 @@ class Item < ActiveRecord::Base
   ##
   # @return [String, nil] Rights statement assigned to the instance, if
   #                       present; otherwise, the rights statement assigned to
-  #                       its collection, if present; otherwise, nil.
+  #                       its collection, if present; otherwise nil.
   #
   def effective_rights_statement
     rs = self.rights_statement
     rs = self.collection.rights_statement if rs.blank?
     rs
+  end
+
+  ##
+  # @return [RightsStatement, nil] RightsStatements.org statement assigned to
+  #                                the instance, if present; otherwise, the
+  #                                RightsStatements.org assigned to its
+  #                                collection, if present; otherwise nil.
+  #
+  def effective_rightsstatements_org_statement
+    RightsStatement.for_uri(self.rightsstatements_org_uri) ||
+        RightsStatement.for_uri(self.collection.rightsstatements_org_uri)
   end
 
   ##

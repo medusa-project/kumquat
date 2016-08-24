@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160824145757) do
+ActiveRecord::Schema.define(version: 20160824155447) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -29,7 +29,7 @@ ActiveRecord::Schema.define(version: 20160824145757) do
   add_index "bytestreams", ["item_id"], name: "index_bytestreams_on_item_id", using: :btree
 
   create_table "collections", force: :cascade do |t|
-    t.string   "repository_id",           null: false
+    t.string   "repository_id",            null: false
     t.string   "title"
     t.string   "description"
     t.string   "description_html"
@@ -40,14 +40,15 @@ ActiveRecord::Schema.define(version: 20160824145757) do
     t.string   "representative_item_id"
     t.integer  "metadata_profile_id"
     t.string   "medusa_file_group_id"
-    t.datetime "created_at",              null: false
-    t.datetime "updated_at",              null: false
+    t.datetime "created_at",               null: false
+    t.datetime "updated_at",               null: false
     t.text     "resource_types"
     t.string   "medusa_cfs_directory_id"
     t.integer  "package_profile_id"
     t.text     "access_systems"
     t.integer  "medusa_repository_id"
     t.text     "rights_statement"
+    t.string   "rightsstatements_org_uri"
   end
 
   add_index "collections", ["metadata_profile_id"], name: "index_collections_on_metadata_profile_id", using: :btree
@@ -128,6 +129,7 @@ ActiveRecord::Schema.define(version: 20160824145757) do
     t.datetime "created_at",                                                                null: false
     t.datetime "updated_at",                                                                null: false
     t.text     "rights_statement"
+    t.string   "rightsstatements_org_uri"
   end
 
   add_index "items", ["collection_repository_id"], name: "index_items_on_collection_repository_id", using: :btree
