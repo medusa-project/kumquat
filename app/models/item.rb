@@ -180,11 +180,23 @@ class Item < ActiveRecord::Base
 
   ##
   # @return [String, nil] Rights statement assigned to the instance, if
-  #                       present; otherwise, the rights statement assigned to
-  #                       its collection, if present; otherwise nil.
+  #                       present; otherwise, the closest ancestor statement,
+  #                       if present; otherwise, the rights statement assigned
+  #                       to its collection, if present; otherwise nil.
   #
   def effective_rights_statement
+    # Use the statement assigned to the instance.
     rs = self.rights_statement
+    # If not assigned, walk up the item tree to find a parent statement.
+    if rs.blank?
+      p = self.parent
+      while p
+        rs = p.rights_statement
+        break if rs.present?
+        p = p.parent
+      end
+    end
+    # If still no statement available, use the collection's statement.
     rs = self.collection.rights_statement if rs.blank?
     rs
   end
@@ -192,12 +204,25 @@ class Item < ActiveRecord::Base
   ##
   # @return [RightsStatement, nil] RightsStatements.org statement assigned to
   #                                the instance, if present; otherwise, the
-  #                                RightsStatements.org assigned to its
+  #                                closest ancestor statement, if present;
+  #                                otherwise, the statement assigned to its
   #                                collection, if present; otherwise nil.
   #
   def effective_rightsstatements_org_statement
-    RightsStatement.for_uri(self.rightsstatements_org_uri) ||
-        RightsStatement.for_uri(self.collection.rightsstatements_org_uri)
+    # Use the statement assigned to the instance.
+    rs = RightsStatement.for_uri(self.rightsstatements_org_uri)
+    # If not assigned, walk up the item tree to find a parent statement.
+    unless rs
+      p = self.parent
+      while p
+        rs = RightsStatement.for_uri(p.rightsstatements_org_uri)
+        break if rs
+        p = p.parent
+      end
+    end
+    # If still no statement available, use the collection's statement.
+    rs = RightsStatement.for_uri(self.collection.rightsstatements_org_uri) unless rs
+    rs
   end
 
   ##

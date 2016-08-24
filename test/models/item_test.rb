@@ -116,8 +116,15 @@ class ItemTest < ActiveSupport::TestCase
 
   # effective_rights_statement()
 
-  test 'effective_rights_statement() should return the rights statement' do
+  test 'effective_rights_statement() should return the statement of the instance' do
     assert_equal 'Test rights statement', @item.effective_rights_statement
+  end
+
+  test 'effective_rights_statement() should fall back to a parent statement' do
+    @item = items(:free_form_dir1_file1)
+    @item.rights_statement = nil
+    @item.parent.rights_statement = 'cats'
+    assert_equal 'cats', @item.effective_rights_statement
   end
 
   test 'effective_rights_statement() should fall back to the collection
@@ -125,6 +132,33 @@ class ItemTest < ActiveSupport::TestCase
     @item.rights_statement = nil
     @item.collection.rights_statement = 'cats'
     assert_equal 'cats', @item.effective_rights_statement
+  end
+
+  # effective_rightsstatement_org_statement()
+
+  test 'effective_rightsstatements_org_statement() should return the statement
+  of the instance' do
+    assert_equal 'http://rightsstatements.org/vocab/NoC-OKLR/1.0/',
+                 @item.effective_rightsstatements_org_statement.uri
+  end
+
+  test 'effective_rightsstatements_org_statement() should fall back to a parent
+  statement' do
+    @item = items(:free_form_dir1_file1)
+    @item.rightsstatements_org_uri = nil
+    @item.parent.rightsstatements_org_uri =
+        'http://rightsstatements.org/vocab/NoC-OKLR/1.0/'
+    assert_equal 'http://rightsstatements.org/vocab/NoC-OKLR/1.0/',
+                 @item.effective_rightsstatements_org_statement.uri
+  end
+
+  test 'effective_rightsstatements_org_statement() should fall back to the
+  collection rights statement' do
+    @item.rightsstatements_org_uri = nil
+    @item.collection.rightsstatements_org_uri =
+        'http://rightsstatements.org/vocab/NoC-OKLR/1.0/'
+    assert_equal 'http://rightsstatements.org/vocab/NoC-OKLR/1.0/',
+                 @item.effective_rightsstatements_org_statement.uri
   end
 
   # element()
