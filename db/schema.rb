@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160817153624) do
+ActiveRecord::Schema.define(version: 20160824142251) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -47,6 +47,7 @@ ActiveRecord::Schema.define(version: 20160817153624) do
     t.integer  "package_profile_id"
     t.text     "access_systems"
     t.integer  "medusa_repository_id"
+    t.text     "rights_statement"
   end
 
   add_index "collections", ["metadata_profile_id"], name: "index_collections_on_metadata_profile_id", using: :btree

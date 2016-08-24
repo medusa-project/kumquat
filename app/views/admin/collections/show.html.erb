@@ -27,14 +27,15 @@
 <div class="row">
 
   <div class="col-md-8 col-sm-7">
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <h3 class="panel-title">Description</h3>
-      </div>
-      <div class="panel-body">
-        <%= raw @collection.description_html %>
-      </div>
-    </div>
+    <section>
+      <h3>Description</h3>
+      <%= raw @collection.description_html %>
+    </section>
+    <section>
+      <h3>Rights Statement</h3>
+      <%= @collection.rights_statement.present? ?
+              @collection.rights_statement : 'None' %>
+    </section>
   </div>
 
   <div class="col-md-4 col-sm-5">

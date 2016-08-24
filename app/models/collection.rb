@@ -382,6 +382,7 @@ LIMIT 1000;
     self.resource_types = struct['resource_types'].map do |t| # titleize these
       t['name'].split(' ').map{ |t| t.present? ? t.capitalize : '' }.join(' ')
     end
+    self.rights_statement = struct['rights']['custom_copyright_statement']
     self.title = struct['title']
   end
 
