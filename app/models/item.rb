@@ -359,7 +359,8 @@ class Item < ActiveRecord::Base
   # @return [Item, nil]
   #
   def parent
-    Item.find_by_repository_id(self.parent_repository_id)
+    @parent = Item.find_by_repository_id(self.parent_repository_id) unless @parent
+    @parent
   end
 
   ##
