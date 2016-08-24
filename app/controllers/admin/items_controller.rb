@@ -190,7 +190,8 @@ module Admin
       params.require(:item).permit(:id, :full_text, :latitude, :longitude,
                                    :page_number, :published,
                                    :representative_item_id, :rights_statement,
-                                   :subpage_number, :variant)
+                                   :rightsstatements_org_uri, :subpage_number,
+                                   :variant)
     end
 
   end

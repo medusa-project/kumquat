@@ -62,6 +62,16 @@
               <%= f.text_area(:rights_statement, class: 'form-control') %>
             </td>
           </tr>
+          <tr>
+            <td>RightsStatements.org Statement</td>
+            <td>
+              <% options = options_for_select(
+                  RightsStatement.all_statements.map{ |e| [e.name, e.uri] },
+                  selected: f.object.rightsstatements_org_uri) %>
+              <%= f.select :rightsstatements_org_uri, options,
+                           { include_blank: true }, { class: 'form-control' } %>
+            </td>
+          </tr>
         </tbody>
       </table>
     </div>

@@ -222,6 +222,15 @@ module AdminHelper
     data['Normalized Date'] = item.date
     data['Normalized Longitude'] = item.longitude
     data['Normalized Latitude'] = item.latitude
+
+    if item.rightsstatements_org_statement
+      data['RightsStatements.org'] =
+          link_to(item.rightsstatements_org_statement.info_uri, target: '_blank') do
+        image_tag(item.rightsstatements_org_statement.image,
+                      alt: item.rightsstatements_org_statement.name)
+      end
+    end
+
     data['Rights Statement'] = item.rights_statement
     data['Created'] = local_time(item.created_at)
     data['Last Modified'] = local_time(item.updated_at)

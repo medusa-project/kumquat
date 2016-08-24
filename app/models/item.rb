@@ -207,6 +207,7 @@ class Item < ActiveRecord::Base
   #                                closest ancestor statement, if present;
   #                                otherwise, the statement assigned to its
   #                                collection, if present; otherwise nil.
+  # @see rightsstatements_org_statement()
   #
   def effective_rightsstatements_org_statement
     # Use the statement assigned to the instance.
@@ -392,6 +393,14 @@ class Item < ActiveRecord::Base
   #
   def representative_item
     Item.find_by_repository_id(self.representative_item_repository_id)
+  end
+
+  ##
+  # @return [RightsStatement, nil]
+  # @see effective_rightsstatements_org_statement()
+  #
+  def rightsstatements_org_statement
+    RightsStatement.for_uri(self.rightsstatements_org_uri)
   end
 
   ##
