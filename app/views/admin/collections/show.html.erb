@@ -36,6 +36,18 @@
       <%= @collection.rights_statement.present? ?
               @collection.rights_statement : 'None' %>
     </section>
+    <section class="pt-rights">
+      <h3>RightsStatements.org</h3>
+      <% if @collection.rightsstatements_org_statement %>
+        <%= link_to(@collection.rightsstatements_org_statement.info_uri,
+                    target: '_blank') do %>
+          <%= image_tag(@collection.rightsstatements_org_statement.image,
+                        alt: @collection.rightsstatements_org_statement) %>
+        <% end %>
+      <% else %>
+        Not Set
+      <% end %>
+    </section>
   </div>
 
   <div class="col-md-4 col-sm-5">

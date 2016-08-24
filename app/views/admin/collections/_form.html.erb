@@ -1,6 +1,14 @@
 <%= form_for([:admin, @collection]) do |f| %>
 
   <div class="form-group">
+    <div class="checkbox">
+      <label>
+        <%= f.check_box(:published_in_dls) %> Published in DLS
+      </label>
+    </div>
+  </div>
+
+  <div class="form-group">
     <%= f.label :medusa_file_group_id, 'Medusa File Group UUID' %>
     <%= f.text_field(:medusa_file_group_id, class: 'form-control') %>
   </div>
@@ -27,11 +35,13 @@
   </div>
 
   <div class="form-group">
-    <div class="checkbox">
-      <label>
-        <%= f.check_box(:published_in_dls) %> Published in DLS
-      </label>
-    </div>
+    <% options = options_for_select(
+        RightsStatement.all_statements.map{ |e| [e.name, e.uri] },
+        selected: f.object.rightsstatements_org_uri) %>
+    <%= f.label :rightsstatements_org_uri, 'RightsStatements.org Statement' %>
+    <%= f.select :rightsstatements_org_uri, options, { include_blank: true },
+                 { class: 'form-control' } %>
+    <p class="help-block">The free-form rights statement can be edited in Medusa.</p>
   </div>
 
   <%= f.submit 'Save', class: 'btn btn-primary' %>
