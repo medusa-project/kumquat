@@ -18,7 +18,8 @@ class RightsStatementTest < ActiveSupport::TestCase
     uri = 'http://rightsstatements.org/vocab/InC/1.0/'
     st = RightsStatement.for_uri(uri)
     assert_equal 'In Copyright', st.name
-    assert_equal 'InC.white.svg', st.image
+    assert_equal 'InC.dark-white-interior.svg', st.image
+    assert_equal 'http://rightsstatements.org/page/InC/1.0/', st.info_uri
     assert_equal uri, st.uri
   end
 
