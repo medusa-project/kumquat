@@ -11,6 +11,7 @@ item1:
   published: true
   repository_id: a1234567-5ca8-0132-3334-0050569601ca-8
   representative_item_repository_id:
+  rights_statement: Test rights statement
   subpage_number:
   variant:
 

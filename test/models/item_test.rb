@@ -114,6 +114,19 @@ class ItemTest < ActiveSupport::TestCase
                  @item.effective_representative_item.repository_id
   end
 
+  # effective_rights_statement()
+
+  test 'effective_rights_statement() should return the rights statement' do
+    assert_equal 'Test rights statement', @item.effective_rights_statement
+  end
+
+  test 'effective_rights_statement() should fall back to the collection
+  rights statement' do
+    @item.rights_statement = nil
+    @item.collection.rights_statement = 'cats'
+    assert_equal 'cats', @item.effective_rights_statement
+  end
+
   # element()
 
   test 'element() should work' do
