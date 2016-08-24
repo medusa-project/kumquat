@@ -138,7 +138,10 @@ class Item < ActiveRecord::Base
   # @return [Collection]
   #
   def collection
-    Collection.find_by_repository_id(self.collection_repository_id)
+    unless @collection
+      @collection = Collection.find_by_repository_id(self.collection_repository_id)
+    end
+    @collection
   end
 
   ##
