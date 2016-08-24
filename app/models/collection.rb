@@ -328,8 +328,7 @@ LIMIT 1000;
   # @return [RightsStatement, nil]
   #
   def rightsstatements_org_statement
-    self.rightsstatements_org_uri.present? ?
-        RightsStatement.for_uri(self.rightsstatements_org_uri) : nil
+    RightsStatement.for_uri(self.rightsstatements_org_uri)
   end
 
   def solr_id
