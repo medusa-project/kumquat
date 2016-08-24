@@ -176,6 +176,17 @@ class Item < ActiveRecord::Base
   end
 
   ##
+  # @return [String, nil] Rights statement assigned to the instance, if
+  #                       present; otherwise, the rights statement assigned to
+  #                       its collection, if present; otherwise, nil.
+  #
+  def effective_rights_statement
+    rs = self.rights_statement
+    rs = self.collection.rights_statement if rs.blank?
+    rs
+  end
+
+  ##
   # Convenience method that retrieves one element with the given name from the
   # instance's `elements` relationship.
   #

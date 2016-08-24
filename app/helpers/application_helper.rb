@@ -103,6 +103,28 @@ module ApplicationHelper
   end
 
   ##
+  # @param text [String]
+  # @return [String]
+  #
+  def rights_statement(text)
+    html = ''
+    if text.present?
+      html += "<div class=\"alert alert-info pt-rights\">
+         <div class=\"media\">
+           <div class=\"media-left\">
+             <i class=\"fa fa-copyright\"></i>
+           </div>
+           <div class=\"media-body\">
+             <h4 class=\"media-heading\">Rights Information</h4>
+             #{auto_link(text)}
+           </div>
+         </div>
+       </div>"
+    end
+    raw(html)
+  end
+
+  ##
   # @param entity [Entity]
   # @return [String] Text description of the entity's type
   #

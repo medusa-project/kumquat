@@ -210,6 +210,8 @@ side-by-side. (IMET-161) -->
   </div>
 </section>
 
+<%= rights_statement(@item.effective_rights_statement) %>
+
 <%= render partial: 'download_panel', locals: { item: @item } %>
 <%= render partial: 'embed_image_panel', locals: { item: @item } %>
 
