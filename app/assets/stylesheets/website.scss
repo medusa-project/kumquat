@@ -252,8 +252,12 @@ body#landing, body#collections_show {
   }
 }
 
-div.alert.pt-rights {
+div.pt-rights {
+  .media-left img {
+    width: 200px;
+  }
   i {
     font-size: 5em;
+    margin-right: 6px;
   }
 }

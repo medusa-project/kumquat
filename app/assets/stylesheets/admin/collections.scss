@@ -11,6 +11,10 @@ body#collections_show {
     border-top: 0px;
   }
 
+  .pt-rights img {
+    width: 200px;
+  }
+
   /* display metadata in a 2-column table if the screen is wide enough
   (IMET-83) */
   @media screen and (max-width: 800px) {

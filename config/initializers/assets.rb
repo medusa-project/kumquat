@@ -5,10 +5,11 @@ Rails.application.config.assets.version = '1.0'
 
 # Add additional assets to the asset load path
 Rails.application.config.assets.paths << Rails.root.join('app', 'assets', 'fonts')
+Rails.application.config.assets.paths << Rails.root.join('app', 'assets', 'images', 'rightsstatements.org')
 
 # Precompile additional assets.
 # application.js, application.css, and all non-JS/CSS in app/assets folder are already added.
 # Rails.application.config.assets.precompile += %w( search.js )
 
 Rails.application.config.assets.precompile += %w(admin.css)
-Rails.application.config.assets.precompile << /\.(?:png|ico|jpg|jpeg|gif)\z/
+Rails.application.config.assets.precompile << /\.(?:png|ico|jpg|jpeg|gif|svg)\z/
