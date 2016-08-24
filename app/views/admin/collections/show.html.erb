@@ -42,7 +42,7 @@
         <%= link_to(@collection.rightsstatements_org_statement.info_uri,
                     target: '_blank') do %>
           <%= image_tag(@collection.rightsstatements_org_statement.image,
-                        alt: @collection.rightsstatements_org_statement) %>
+                        alt: @collection.rightsstatements_org_statement.name) %>
         <% end %>
       <% else %>
         Not Set
