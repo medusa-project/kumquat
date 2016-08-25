@@ -25,6 +25,7 @@ class ItemDecorator < Draper::Decorator
         parent: self.parent ? item_url(self.parent) : nil,
         representative_item: self.representative_item ?
             item_url(self.representative_item) : nil,
+        rights_statement: self.effective_rightsstatements_org_statement&.uri,
         elements: [],
         bytestreams: BytestreamDecorator.decorate_collection(self.bytestreams),
         subitems: []
