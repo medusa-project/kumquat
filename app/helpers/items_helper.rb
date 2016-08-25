@@ -726,6 +726,10 @@ module ItemsHelper
     headline = item.element('headline')
     struct[:headline] = headline.value if headline
 
+    # license
+    statement = item.effective_rightsstatements_org_statement
+    struct[:license] = statement.uri if statement
+
     # position
     struct[:position] = item.page_number if item.page_number
 
