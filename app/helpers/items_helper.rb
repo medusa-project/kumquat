@@ -420,6 +420,8 @@ module ItemsHelper
     defs = item.collection.effective_metadata_profile.element_defs
     defs = defs.select(&:visible) unless options[:show_invisible]
     defs.each do |e_def|
+      # These will be displayed elsewhere on the page.
+      next if %w(rights title).include?(e_def.name)
       elements = item.elements.
           select{ |e| e.name == e_def.name and e.value.present? }
       next if elements.empty?
@@ -455,6 +457,8 @@ module ItemsHelper
     defs = item.collection.effective_metadata_profile.element_defs
     defs = defs.select(&:visible) unless options[:show_invisible]
     defs.each do |e_def|
+      # These will be displayed elsewhere on the page.
+      next if %w(rights title).include?(e_def.name)
       elements = item.elements.
           select{ |e| e.name == e_def.name and e.value.present? }
       next if elements.empty?
