@@ -432,6 +432,7 @@ class ItemTest < ActiveSupport::TestCase
     xml += '<dls:parentId>ace52312-5ca8-0132-3334-0050569601ca-8</dls:parentId>'
     xml += '<dls:representativeItemId>e12adef0-5ca8-0132-3334-0050569601ca-8</dls:representativeItemId>'
     xml += '<dls:published>true</dls:published>'
+    xml += '<dls:rightsStatementUri>http://example.org/rights</dls:rightsStatementUri>'
     xml += '<dls:fullText>full text</dls:fullText>'
     xml += '<dls:pageNumber>3</dls:pageNumber>'
     xml += '<dls:subpageNumber>1</dls:subpageNumber>'
@@ -470,6 +471,7 @@ class ItemTest < ActiveSupport::TestCase
     assert @item.published
     assert_equal('e12adef0-5ca8-0132-3334-0050569601ca-8', @item.repository_id)
     assert_equal('e12adef0-5ca8-0132-3334-0050569601ca-8', @item.representative_item_repository_id)
+    assert_equal('http://example.org/rights', @item.rightsstatements_org_uri)
     assert_equal(1, @item.subpage_number)
     assert_equal(Item::Variants::PAGE, @item.variant)
 

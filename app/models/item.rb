@@ -730,6 +730,10 @@ class Item < ActiveRecord::Base
       published = node.xpath("//#{prefix}:published", namespaces).first
       self.published = %w(true 1).include?(published.content.strip) if published
 
+      # rights statement URI
+      rights = node.xpath("//#{prefix}:rightsStatementUri", namespaces).first
+      self.rightsstatements_org_uri = rights.content.strip if rights
+
       # repository ID
       rep_id = node.xpath("//#{prefix}:repositoryId", namespaces).first
       self.repository_id = rep_id.content.strip if rep_id
@@ -805,6 +809,11 @@ class Item < ActiveRecord::Base
         xml['dls'].published {
           xml.text(self.published ? 'true' : 'false')
         }
+        if self.rightsstatements_org_uri.present?
+          xml['dls'].rightsStatementUri {
+            xml.text(self.rightsstatements_org_uri)
+          }
+        end
         if self.full_text.present?
           xml['dls'].fullText {
             xml.text(self.full_text)
