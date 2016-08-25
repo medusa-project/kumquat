@@ -6,24 +6,22 @@
 # Bytestreams, each corresponding to a file in Medusa.
 #
 # Items have a number of properties of their own as well as a one-to-many
-# relationship with Element, which encapsulates a metadata element. The set of
-# elements that an item contains is typically shaped by its collection's
+# relationship with ItemElement, which encapsulates a metadata element. The set
+# of elements that an item contains is typically shaped by its collection's
 # metadata profile, although there is no constraint in place to keep an item
 # from being associated with other elements.
 #
 # Note that Medusa is not item-aware; items are a DLS entity. Item IDs
 # correspond to Medusa file/directory IDs depending on a collection's content
-# profile. These IDs are stored in `repository_id`, NOT `id`, which is
-# database-specific.
+# profile. These IDs are stored in `repository_id`, NOT `id`.
 #
 # Items have a soft pointer to their collection and parent item based on
 # repository ID, rather than a belongs_to/has_many on their database ID.
-# This is to be able to establish structure more easily outside of the
-# application.
+# This is to be able to establish structure outside of the application.
 #
-# Being an ActiveRecord entity, items are searchable via ActiveRecord as well
-# as via Solr. Instances are automatically indexed in Solr (see `to_solr`) and
-# the Solr search functionality is available via the `solr` class method.
+# Items are searchable via ActiveRecord as well as via Solr. Instances are
+# automatically indexed in Solr (see `to_solr`) and the Solr search
+# functionality is available via the `solr` class method.
 #
 class Item < ActiveRecord::Base
 
@@ -516,6 +514,7 @@ class Item < ActiveRecord::Base
     columns << self.subpage_number
     columns << self.latitude
     columns << self.longitude
+    columns << self.rightsstatements_org_uri
 
     self.collection.metadata_profile.element_defs.each do |pe|
       # An ElementDef will have one column per vocabulary.
@@ -636,6 +635,10 @@ class Item < ActiveRecord::Base
       # subpage number
       self.subpage_number = row['subpageNumber'].strip.to_i if
           row['subpageNumber']
+
+      # rights statement URI
+      self.rightsstatements_org_uri = row['rightsStatementUri'].strip if
+          row['rightsStatementUri']
 
       # variant
       self.variant = row['variant'].strip if row['variant']

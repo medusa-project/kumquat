@@ -342,7 +342,7 @@ class ItemTest < ActiveSupport::TestCase
 
   test 'to_tsv should work' do
     values = @item.to_tsv.strip.split("\t")
-    assert_equal 13, values.length
+    assert_equal 14, values.length
     assert_equal @item.repository_id.to_s, values[0]
     assert_equal @item.parent_repository_id.to_s, values[1]
     assert_equal @item.preservation_master_bytestream&.repository_relative_pathname, values[2]
@@ -352,9 +352,10 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal @item.subpage_number.to_s, values[6]
     assert_equal @item.latitude.to_s, values[7]
     assert_equal @item.longitude.to_s, values[8]
-    assert_equal @item.elements.select{ |e| e.name == 'title' }.first.value, values[9]
-    assert_equal @item.elements.select{ |e| e.name == 'description' }.first.value, values[10]
-    assert_equal @item.elements.select{ |e| e.name == 'subject' }.first.value, values[11]
+    assert_equal @item.rightsstatements_org_uri, values[9]
+    assert_equal @item.elements.select{ |e| e.name == 'title' }.first.value, values[10]
+    assert_equal @item.elements.select{ |e| e.name == 'description' }.first.value, values[11]
+    assert_equal @item.elements.select{ |e| e.name == 'subject' }.first.value, values[12]
   end
 
   # update_from_embedded_metadata
@@ -385,6 +386,7 @@ class ItemTest < ActiveSupport::TestCase
     row['longitude'] = '-120.564'
     row['pageNumber'] = '3'
     row['subpageNumber'] = '1'
+    row['rightsStatementUri'] = 'http://example.org/rights'
     row['variant'] = Item::Variants::PAGE
 
     # descriptive elements
@@ -400,6 +402,7 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal(-120.564, @item.longitude)
     assert_equal(3, @item.page_number)
     assert_equal(1, @item.subpage_number)
+    assert_equal('http://example.org/rights', @item.rightsstatements_org_uri)
     assert_equal(Item::Variants::PAGE, @item.variant)
 
     descriptions = @item.elements.select{ |e| e.name == 'description' }
