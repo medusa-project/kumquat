@@ -186,12 +186,12 @@ class Item < ActiveRecord::Base
   #
   def effective_rights_statement
     # Use the statement assigned to the instance.
-    rs = self.rights_statement
-    # If not assigned, walk up the item tree to find a parent statement.
+    rs = self.element('rights')&.value
+    # If not available, walk up the item tree to find a parent statement.
     if rs.blank?
       p = self.parent
       while p
-        rs = p.rights_statement
+        rs = p.element('rights')&.value
         break if rs.present?
         p = p.parent
       end

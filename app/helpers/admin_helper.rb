@@ -231,7 +231,6 @@ module AdminHelper
       end
     end
 
-    data['Rights Statement'] = item.rights_statement
     data['Created'] = local_time(item.created_at)
     data['Last Modified'] = local_time(item.updated_at)
     data
