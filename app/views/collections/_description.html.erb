@@ -24,6 +24,3 @@
   <%= raw(@collection.description_html) ||
           simple_format(auto_link(@collection.description)) %>
 </div>
-
-<%= rights_statement(@collection.rightsstatements_org_statement,
-                     @collection.rights_statement) %>
