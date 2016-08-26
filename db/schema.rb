@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160826134846) do
+ActiveRecord::Schema.define(version: 20160826164327) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -109,6 +109,7 @@ ActiveRecord::Schema.define(version: 20160826134846) do
     t.datetime "updated_at",    null: false
     t.integer  "item_id"
     t.integer  "vocabulary_id"
+    t.string   "uri"
   end
 
   add_index "item_elements", ["item_id"], name: "index_item_elements_on_item_id", using: :btree
@@ -128,7 +129,6 @@ ActiveRecord::Schema.define(version: 20160826134846) do
     t.text     "full_text"
     t.datetime "created_at",                                                                null: false
     t.datetime "updated_at",                                                                null: false
-    t.string   "rightsstatements_org_uri"
   end
 
   add_index "items", ["collection_repository_id"], name: "index_items_on_collection_repository_id", using: :btree

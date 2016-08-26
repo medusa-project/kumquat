@@ -138,6 +138,8 @@ class ItemTest < ActiveSupport::TestCase
 
   test 'effective_rightsstatements_org_statement() should return the statement
   of the instance' do
+    @item.elements.build(name: 'rightsStatement',
+                         uri: 'http://rightsstatements.org/vocab/NoC-OKLR/1.0/')
     assert_equal 'http://rightsstatements.org/vocab/NoC-OKLR/1.0/',
                  @item.effective_rightsstatements_org_statement.uri
   end
@@ -145,16 +147,16 @@ class ItemTest < ActiveSupport::TestCase
   test 'effective_rightsstatements_org_statement() should fall back to a parent
   statement' do
     @item = items(:free_form_dir1_file1)
-    @item.rightsstatements_org_uri = nil
-    @item.parent.rightsstatements_org_uri =
-        'http://rightsstatements.org/vocab/NoC-OKLR/1.0/'
+    @item.elements.where(name: 'rightsStatement').destroy_all
+    @item.parent.elements.build(name: 'rightsStatement',
+                                uri: 'http://rightsstatements.org/vocab/NoC-OKLR/1.0/')
     assert_equal 'http://rightsstatements.org/vocab/NoC-OKLR/1.0/',
                  @item.effective_rightsstatements_org_statement.uri
   end
 
   test 'effective_rightsstatements_org_statement() should fall back to the
   collection rights statement' do
-    @item.rightsstatements_org_uri = nil
+    @item.elements.where(name: 'rightsStatement').destroy_all
     @item.collection.rightsstatements_org_uri =
         'http://rightsstatements.org/vocab/NoC-OKLR/1.0/'
     assert_equal 'http://rightsstatements.org/vocab/NoC-OKLR/1.0/',
@@ -386,7 +388,6 @@ class ItemTest < ActiveSupport::TestCase
     row['longitude'] = '-120.564'
     row['pageNumber'] = '3'
     row['subpageNumber'] = '1'
-    row['rightsStatementUri'] = 'http://example.org/rights'
     row['variant'] = Item::Variants::PAGE
 
     # descriptive elements
@@ -402,7 +403,6 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal(-120.564, @item.longitude)
     assert_equal(3, @item.page_number)
     assert_equal(1, @item.subpage_number)
-    assert_equal('http://example.org/rights', @item.rightsstatements_org_uri)
     assert_equal(Item::Variants::PAGE, @item.variant)
 
     descriptions = @item.elements.select{ |e| e.name == 'description' }
@@ -435,7 +435,6 @@ class ItemTest < ActiveSupport::TestCase
     xml += '<dls:parentId>ace52312-5ca8-0132-3334-0050569601ca-8</dls:parentId>'
     xml += '<dls:representativeItemId>e12adef0-5ca8-0132-3334-0050569601ca-8</dls:representativeItemId>'
     xml += '<dls:published>true</dls:published>'
-    xml += '<dls:rightsStatementUri>http://example.org/rights</dls:rightsStatementUri>'
     xml += '<dls:fullText>full text</dls:fullText>'
     xml += '<dls:pageNumber>3</dls:pageNumber>'
     xml += '<dls:subpageNumber>1</dls:subpageNumber>'
@@ -474,7 +473,6 @@ class ItemTest < ActiveSupport::TestCase
     assert @item.published
     assert_equal('e12adef0-5ca8-0132-3334-0050569601ca-8', @item.repository_id)
     assert_equal('e12adef0-5ca8-0132-3334-0050569601ca-8', @item.representative_item_repository_id)
-    assert_equal('http://example.org/rights', @item.rightsstatements_org_uri)
     assert_equal(1, @item.subpage_number)
     assert_equal(Item::Variants::PAGE, @item.variant)
 

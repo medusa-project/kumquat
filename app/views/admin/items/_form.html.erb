@@ -56,16 +56,6 @@
               <%= f.text_field(:latitude, class: 'form-control') %>
             </td>
           </tr>
-          <tr>
-            <td>RightsStatements.org Statement</td>
-            <td>
-              <% options = options_for_select(
-                  RightsStatement.all_statements.map{ |e| [e.name, e.uri] },
-                  selected: f.object.rightsstatements_org_uri) %>
-              <%= f.select :rightsstatements_org_uri, options,
-                           { include_blank: true }, { class: 'form-control' } %>
-            </td>
-          </tr>
         </tbody>
       </table>
     </div>
@@ -87,10 +77,10 @@
                 <% elements = @item.elements.select{ |e| e.name == e_def.name} %>
                 <% if elements.any? %>
                   <% elements.each do |elem| %>
-                    <%= admin_item_element_edit_tag(e_def.name, elem.value) %>
+                    <%= admin_item_element_edit_tag(e_def, elem.value) %>
                   <% end %>
                 <% else %>
-                  <%= admin_item_element_edit_tag(e_def.name, '') %>
+                  <%= admin_item_element_edit_tag(e_def, '') %>
                 <% end %>
               </td>
             </tr>

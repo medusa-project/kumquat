@@ -1,25 +1,38 @@
 module AdminHelper
 
-  def admin_item_element_edit_tag(element_name, element_value)
+  ##
+  # @param element_def [ElementDef]
+  # @param element_value [String]
+  #
+  def admin_item_element_edit_tag(element_def, element_value)
     html = '<table class="table-condensed pt-element" style="width:100%">
       <tr>
         <td>'
-    html += text_area_tag("elements[#{element_name}][]", element_value,
-                          id: "elements[#{element_name}]",
-                          class: 'form-control')
+    if element_def.vocabularies.select{ |v| v.key == 'uncontrolled' }.any?
+      html += text_area_tag("elements[#{element_def.name}][]", element_value,
+                            id: "elements[#{element_def.name}]",
+                            class: 'form-control',
+                            data: { controlled: 'false' })
+    else
+      html += text_field_tag("elements[#{element_def.name}][]", element_value,
+                            id: "elements[#{element_def.name}]",
+                            class: 'form-control',
+                            data: { controlled: 'true',
+                                    vocabulary_ids: element_def.vocabularies.map(&:id).join(',') })
+    end
     html += '</td>
-             <td style="width: 90px">
-               <div class="btn-group">
-                 <button class="btn btn-sm btn-default pt-add-element">
-                   <i class="fa fa-plus"></i>
-                 </button>
-                 <button class="btn btn-sm btn-danger pt-remove-element">
-                   <i class="fa fa-minus"></i>
-                 </button>
-               </div>
-             </td>
-           </tr>
-         </table>'
+          <td style="width: 90px">
+            <div class="btn-group">
+              <button class="btn btn-sm btn-default pt-add-element">
+                <i class="fa fa-plus"></i>
+              </button>
+              <button class="btn btn-sm btn-danger pt-remove-element">
+                <i class="fa fa-minus"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </table>'
     raw(html)
   end
 

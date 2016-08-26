@@ -38,6 +38,17 @@ var PTAdminItemEditView = function() {
             $(this).height('20px');
             $(this).height((this.scrollHeight - MAGIC_FUDGE) + 'px');
         });
+
+        // Initialize autocompletion for each controlled text field.
+        $('[data-controlled=true]').each(function() {
+/* TODO: write this
+            var vocabulary_ids = $(this).data('vocabulary-ids');
+
+            var url = $('[name=root_url]').val() +
+                '/admin/vocabulary-terms.json?query=%QUERY&vocabulary_ids=' +
+                vocabulary_ids;
+*/
+        });
     };
 
 };

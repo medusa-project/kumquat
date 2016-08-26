@@ -50,6 +50,20 @@ module Admin
     end
 
     ##
+    # Responds to GET /admin/vocabulary-terms.json?query=,vocabulary_ids={comma-separated}
+    #
+    def index
+      respond_to do |format|
+        format.json do
+          render json: VocabularyTerm.
+              where(vocabulary_id: params[:vocabulary_ids].split(',')).
+              where('string LIKE ?', "%#{params[:query]}%").
+              order(:string).limit(50)
+        end
+      end
+    end
+
+    ##
     # XHR only
     #
     def update

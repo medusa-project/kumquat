@@ -153,7 +153,7 @@ class Item < ActiveRecord::Base
   # @return [Element]
   #
   def description
-    self.elements.select{ |e| e.name == 'description' }.first&.value
+    self.element(:description)&.value
   end
 
   def delete_from_solr # TODO: change to Item.solr.delete()
@@ -184,12 +184,12 @@ class Item < ActiveRecord::Base
   #
   def effective_rights_statement
     # Use the statement assigned to the instance.
-    rs = self.element('rights')&.value
+    rs = self.element(:rights)&.value
     # If not available, walk up the item tree to find a parent statement.
     if rs.blank?
       p = self.parent
       while p
-        rs = p.element('rights')&.value
+        rs = p.element(:rights)&.value
         break if rs.present?
         p = p.parent
       end
@@ -209,12 +209,12 @@ class Item < ActiveRecord::Base
   #
   def effective_rightsstatements_org_statement
     # Use the statement assigned to the instance.
-    rs = RightsStatement.for_uri(self.rightsstatements_org_uri)
+    rs = RightsStatement.for_uri(self.element(:rightsStatement)&.uri)
     # If not assigned, walk up the item tree to find a parent statement.
     unless rs
       p = self.parent
       while p
-        rs = RightsStatement.for_uri(p.rightsstatements_org_uri)
+        rs = RightsStatement.for_uri(p.element(:rightsStatement)&.uri)
         break if rs
         p = p.parent
       end
@@ -228,11 +228,11 @@ class Item < ActiveRecord::Base
   # Convenience method that retrieves one element with the given name from the
   # instance's `elements` relationship.
   #
-  # @param name [String] Element name
+  # @param name [String, Symbol] Element name
   # @return [ItemElement]
   #
   def element(name)
-    self.elements.select{ |e| e.name == name }.first
+    self.elements.select{ |e| e.name == name.to_s }.first
   end
 
   ##
@@ -399,7 +399,7 @@ class Item < ActiveRecord::Base
   # @see effective_rightsstatements_org_statement()
   #
   def rightsstatements_org_statement
-    RightsStatement.for_uri(self.rightsstatements_org_uri)
+    RightsStatement.for_uri(self.element(:rightsStatement)&.uri)
   end
 
   ##
@@ -413,14 +413,14 @@ class Item < ActiveRecord::Base
   # @return [Element]
   #
   def subtitle
-    self.elements.select{ |e| e.name == 'alternativeTitle' }.first&.value
+    self.element(:alternativeTitle)&.value
   end
 
   ##
   # @return [Element]
   #
   def title
-    t = self.elements.select{ |e| e.name == 'title' }.first&.value
+    t = self.element(:title)&.value
     t.present? ? t : self.repository_id
   end
 
@@ -636,10 +636,6 @@ class Item < ActiveRecord::Base
       self.subpage_number = row['subpageNumber'].strip.to_i if
           row['subpageNumber']
 
-      # rights statement URI
-      self.rightsstatements_org_uri = row['rightsStatementUri'].strip if
-          row['rightsStatementUri']
-
       # variant
       self.variant = row['variant'].strip if row['variant']
 
@@ -733,10 +729,6 @@ class Item < ActiveRecord::Base
       published = node.xpath("//#{prefix}:published", namespaces).first
       self.published = %w(true 1).include?(published.content.strip) if published
 
-      # rights statement URI
-      rights = node.xpath("//#{prefix}:rightsStatementUri", namespaces).first
-      self.rightsstatements_org_uri = rights.content.strip if rights
-
       # repository ID
       rep_id = node.xpath("//#{prefix}:repositoryId", namespaces).first
       self.repository_id = rep_id.content.strip if rep_id
@@ -812,11 +804,6 @@ class Item < ActiveRecord::Base
         xml['dls'].published {
           xml.text(self.published ? 'true' : 'false')
         }
-        if self.rightsstatements_org_uri.present?
-          xml['dls'].rightsStatementUri {
-            xml.text(self.rightsstatements_org_uri)
-          }
-        end
         if self.full_text.present?
           xml['dls'].fullText {
             xml.text(self.full_text)

@@ -189,8 +189,7 @@ module Admin
       # separately.
       params.require(:item).permit(:id, :full_text, :latitude, :longitude,
                                    :page_number, :published,
-                                   :representative_item_id,
-                                   :rightsstatements_org_uri, :subpage_number,
+                                   :representative_item_id, :subpage_number,
                                    :variant)
     end
 

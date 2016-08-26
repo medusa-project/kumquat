@@ -61,10 +61,6 @@ xml.tag!('schema',
       xml.tag!('xs:element', { name: 'published', type: 'xs:boolean',
                                minOccurs: '0', maxOccurs: '1' })
 
-      xml.comment!('Rights statement URI, typically from RightsStatement.org.')
-      xml.tag!('xs:element', { name: 'rightsStatementUri', type: 'xs:anyURI',
-                               minOccurs: '0', maxOccurs: '1' })
-
       xml.comment!('"Full text" of the item, which will viewable and indexed '\
       'for searching.')
       xml.tag!('xs:element', { name: 'fullText', type: 'xs:string',
