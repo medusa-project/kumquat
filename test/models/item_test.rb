@@ -451,11 +451,11 @@ class ItemTest < ActiveSupport::TestCase
     xml += '<dls:preservationMasterHeight>400</dls:preservationMasterHeight>'
 
     # descriptive elements
-    xml += '<dls:date>1984</dls:date>'
-    xml += '<dls:description>Cats</dls:description>'
-    xml += '<dls:description>More cats</dls:description>'
-    xml += '<dls:description>Even more cats</dls:description>'
-    xml += '<dls:title>Cats</dls:title>'
+    xml += '<dls:date vocabularyKey="uncontrolled" dataType="string">1984</dls:date>'
+    xml += '<dls:description vocabularyKey="uncontrolled" dataType="string">Cats</dls:description>'
+    xml += '<dls:description vocabularyKey="lcsh" dataType="string">More cats</dls:description>'
+    xml += '<dls:description vocabularyKey="uncontrolled" dataType="URI">http://example.org/cats</dls:description>'
+    xml += '<dls:title vocabularyKey="uncontrolled" dataType="string">Cats</dls:title>'
     xml += '</dls:Object>'
 
     doc = Nokogiri::XML(xml, &:noblanks)
@@ -480,7 +480,9 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal 3, descriptions.length
     assert_equal 1, descriptions.select{ |e| e.value == 'Cats' }.length
     assert_equal 1, descriptions.select{ |e| e.value == 'More cats' }.length
-    assert_equal 1, descriptions.select{ |e| e.value == 'Even more cats' }.length
+    assert_equal 1, descriptions.select{ |e| e.uri == 'http://example.org/cats' }.length
+    assert_equal 'uncontrolled', descriptions.first.vocabulary.key
+    assert_equal 'lcsh', descriptions[1].vocabulary.key
 
     assert_equal('Cats', @item.title)
   end

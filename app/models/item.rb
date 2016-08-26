@@ -756,7 +756,13 @@ class Item < ActiveRecord::Base
           each do |node|
         # Add a new element
         e = ItemElement.named(node.name)
-        e.value = node.content.strip
+        case node['dataType']
+          when 'URI'
+            e.uri = node.content.strip
+          else
+            e.value = node.content.strip
+        end
+        e.vocabulary = Vocabulary.find_by_key(node['vocabularyKey'])
         self.elements << e
       end
 
@@ -846,9 +852,20 @@ class Item < ActiveRecord::Base
         end
 
         self.elements.order(:name).each do |element|
+          vocab_key = element.vocabulary ?
+              element.vocabulary.key : Vocabulary::uncontrolled.key
+
           if element.value.present?
-            xml['dls'].send(element.name) {
+            xml['dls'].send(element.name,
+                            vocabularyKey: vocab_key,
+                            dataType: 'string') {
               xml.text(element.value)
+            }
+          elsif element.uri.present?
+            xml['dls'].send(element.name,
+                            vocabularyKey: vocab_key,
+                            dataType: 'URI') {
+              xml.text(element.uri)
             }
           end
         end
