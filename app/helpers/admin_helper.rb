@@ -2,26 +2,29 @@ module AdminHelper
 
   ##
   # @param element_def [ElementDef]
-  # @param element_value [String]
+  # @param element [ItemElement, nil]
   #
-  def admin_item_element_edit_tag(element_def, element_value)
+  def admin_item_element_edit_tag(element_def, element)
     html = '<table class="table-condensed pt-element" style="width:100%">
       <tr>
+        <th style="text-align: right; width: 1px">String</th>
         <td>'
     if element_def.vocabularies.select{ |v| v.key == 'uncontrolled' }.any?
-      html += text_area_tag("elements[#{element_def.name}][]", element_value,
-                            id: "elements[#{element_def.name}]",
+      html += text_area_tag("elements[#{element_def.name}][][string]",
+                            element&.value,
+                            id: "elements[#{element_def.name}][string]",
                             class: 'form-control',
                             data: { controlled: 'false' })
     else
-      html += text_field_tag("elements[#{element_def.name}][]", element_value,
-                            id: "elements[#{element_def.name}]",
-                            class: 'form-control',
-                            data: { controlled: 'true',
-                                    vocabulary_ids: element_def.vocabularies.map(&:id).join(',') })
+      html += text_field_tag("elements[#{element_def.name}][][string]",
+                             element&.value,
+                             id: "elements[#{element_def.name}][string]",
+                             class: 'form-control',
+                             data: { controlled: 'true',
+                                     vocabulary_ids: element_def.vocabularies.map(&:id).join(',') })
     end
     html += '</td>
-          <td style="width: 90px">
+          <td style="width: 90px" rowspan="2">
             <div class="btn-group">
               <button class="btn btn-sm btn-default pt-add-element">
                 <i class="fa fa-plus"></i>
@@ -31,6 +34,17 @@ module AdminHelper
               </button>
             </div>
           </td>
+        </tr>
+        <tr>
+          <th style="text-align: right; width: 1px">URI</th>
+          <td>'
+    html += text_field_tag("elements[#{element_def.name}][][uri]",
+                           element&.uri,
+                           id: "elements[#{element_def.name}][uri]",
+                           class: 'form-control',
+                           data: { controlled: 'false',
+                                   vocabulary_ids: element_def.vocabularies.map(&:id).join(',') })
+    html += '</td>
         </tr>
       </table>'
     raw(html)

@@ -66,7 +66,7 @@
                     admin_metadata_profile_path(@item.collection.metadata_profile)) %>
       </div>
 
-      <table class="table pt-elements">
+      <table class="table table-striped pt-elements">
         <tbody>
           <% @item.collection.metadata_profile.element_defs.each do |e_def| %>
             <tr>
@@ -77,10 +77,10 @@
                 <% elements = @item.elements.select{ |e| e.name == e_def.name} %>
                 <% if elements.any? %>
                   <% elements.each do |elem| %>
-                    <%= admin_item_element_edit_tag(e_def, elem.value) %>
+                    <%= admin_item_element_edit_tag(e_def, elem) %>
                   <% end %>
                 <% else %>
-                  <%= admin_item_element_edit_tag(e_def, '') %>
+                  <%= admin_item_element_edit_tag(e_def, nil) %>
                 <% end %>
               </td>
             </tr>

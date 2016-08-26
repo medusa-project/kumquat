@@ -161,9 +161,11 @@ module Admin
         if params[:elements].respond_to?(:each)
           ActiveRecord::Base.transaction do
             item.elements.destroy_all
-            params[:elements].each do |name, values|
-              values.each do |value|
-                item.elements.build(name: name, value: value)
+            params[:elements].each do |name, elements|
+              elements.each do |element|
+                item.elements.build(name: name,
+                                    value: element[:string],
+                                    uri: element[:uri])
               end
             end
             item.save!
