@@ -437,39 +437,6 @@ class Item < ActiveRecord::Base
   end
 
   ##
-  # @return [String] Tab-separated values with trailing newline.
-  # @see tsv_header
-  #
-  def to_tsv
-    # Columns must remain synchronized with the output of tsv_header. There
-    # must be a fixed number of columns in a fixed order, in order to be able
-    # to dump multiple items into the same document.
-    # Properties with multiple values are placed in the same cell, separated
-    # by MULTI_VALUE_SEPARATOR.
-    columns = []
-    columns << self.repository_id
-    columns << self.parent_repository_id
-    columns << self.preservation_master_bytestream&.repository_relative_pathname
-    columns << self.access_master_bytestream&.repository_relative_pathname
-    columns << self.variant
-    columns << self.page_number
-    columns << self.subpage_number
-    columns << self.latitude
-    columns << self.longitude
-
-    self.collection.metadata_profile.element_defs.each do |pe|
-      # An ElementDef will have one column per vocabulary.
-      pe.vocabularies.order(:key).each do |vocab|
-        columns << self.elements.
-            select{ |e| e.name == pe.name and (e.vocabulary == vocab or (!e.vocabulary and vocab == Vocabulary.uncontrolled)) }.
-            map(&:value).
-            join(MULTI_VALUE_SEPARATOR)
-      end
-    end
-    columns.join("\t") + TSV_LINE_BREAK
-  end
-
-  ##
   # Updates an instance's metadata elements from the metadata embedded within
   # its preservation master bytestream.
   #
