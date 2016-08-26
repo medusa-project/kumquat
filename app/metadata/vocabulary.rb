@@ -11,6 +11,8 @@
 class Vocabulary < ActiveRecord::Base
 
   has_and_belongs_to_many :element_defs
+  has_many :vocabulary_terms, -> { order(:string, :uri) },
+           inverse_of: :vocabulary, dependent: :destroy
 
   validates :key, presence: true, format: { with: /\A[-a-zA-Z0-9]+\Z/ },
             uniqueness: { case_sensitive: false }
@@ -22,10 +24,54 @@ class Vocabulary < ActiveRecord::Base
   UNCONTROLLED_KEY = 'uncontrolled'
 
   ##
+  # @param json [String] JSON string from as_json()
+  # @return [Vocabulary] Persisted Vocabulary
+  # @raises [ArgumentError] If a vocabulary with the same key or name already
+  #                         exists.
+  #
+  def self.from_json(json)
+    struct = JSON.parse(json)
+    vocab = Vocabulary.new
+
+    if Vocabulary.find_by_key(struct['key'])
+      raise ArgumentError, 'A vocabulary with the same key already exists.'
+    end
+    if Vocabulary.find_by_name(struct['name'])
+      raise ArgumentError, 'A vocabulary with the same name already exists.'
+    end
+
+    ActiveRecord::Base.transaction do
+      vocab.key = struct['key']
+      vocab.name = struct['name']
+
+      # Add its terms.
+      struct['vocabulary_terms'].each do |vt|
+        term = vocab.vocabulary_terms.build
+        term.string = vt['string']
+        term.uri = vt['uri']
+        term.save!
+      end
+      vocab.save!
+    end
+    vocab
+  end
+
+  ##
   # @return [Vocabulary] The uncontrolled vocabulary.
   #
   def self.uncontrolled
     Vocabulary.find_by_key(UNCONTROLLED_KEY)
+  end
+
+  ##
+  # Overrides parent to serialize an instance to JSON with its child
+  # vocabulary terms included.
+  #
+  # @param options [Hash]
+  # @return [String]
+  #
+  def as_json(options = {})
+    super(options.merge(include: :vocabulary_terms))
   end
 
   ##

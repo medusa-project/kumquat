@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160824223455) do
+ActiveRecord::Schema.define(version: 20160826134846) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -214,6 +214,18 @@ ActiveRecord::Schema.define(version: 20160824223455) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
+
+  create_table "vocabulary_terms", force: :cascade do |t|
+    t.string   "string"
+    t.string   "uri"
+    t.integer  "vocabulary_id"
+    t.datetime "created_at",    null: false
+    t.datetime "updated_at",    null: false
+  end
+
+  add_index "vocabulary_terms", ["string"], name: "index_vocabulary_terms_on_string", using: :btree
+  add_index "vocabulary_terms", ["uri"], name: "index_vocabulary_terms_on_uri", using: :btree
+  add_index "vocabulary_terms", ["vocabulary_id"], name: "index_vocabulary_terms_on_vocabulary_id", using: :btree
 
   add_foreign_key "bytestreams", "items", on_delete: :cascade
   add_foreign_key "element_defs", "metadata_profiles", on_delete: :cascade
