@@ -76,13 +76,15 @@
       </div>
 
       <div role="tabpanel" class="tab-pane" id="pt-descriptive-metadata">
-        <p>Metadata Profile: <%= @item.collection.metadata_profile ?
-                                      link_to(@item.collection.metadata_profile&.name,
-                                              admin_metadata_profile_path(@item.collection.metadata_profile)) :
-                                      'None' %></p>
-        <hr>
-        <%= metadata_as_list(@item, show_invisible: true) %>
-        <%= metadata_as_table(@item, show_invisible: true) %>
+        <div class="alert alert-info">
+          Collection metadata profile:
+          <%= @item.collection.metadata_profile ?
+                  link_to(@item.collection.metadata_profile&.name,
+                          admin_metadata_profile_path(@item.collection.metadata_profile)) :
+                  'None' %>
+        </div>
+        <%= metadata_as_list(@item, admin: true) %>
+        <%= metadata_as_table(@item, admin: true) %>
       </div>
 
       <div role="tabpanel" class="tab-pane" id="pt-bytestreams">
