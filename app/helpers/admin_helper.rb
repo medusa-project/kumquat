@@ -226,6 +226,24 @@ module AdminHelper
     raw(html)
   end
 
+  ##
+  # @param element_def [ElementDef]
+  # @return [String]
+  #
+  def admin_vocabularies(element_def)
+    html = ''
+    if element_def.vocabularies.select{ |v| v.key == 'uncontrolled'}.length > 1
+      html += '<ul>'
+      element_def.vocabularies.each do |vocab|
+        html += "<li>#{vocab.name}</li>"
+      end
+      html += '</ul>'
+    else
+      html += element_def.vocabularies.first&.name
+    end
+    raw(html)
+  end
+
   private
 
   def admin_system_info_data(item)
@@ -249,15 +267,14 @@ module AdminHelper
     data['Normalized Date'] = item.date
     data['Normalized Longitude'] = item.longitude
     data['Normalized Latitude'] = item.latitude
-
-    if item.rightsstatements_org_statement
-      data['RightsStatements.org'] =
-          link_to(item.rightsstatements_org_statement.info_uri, target: '_blank') do
-        image_tag(item.rightsstatements_org_statement.image,
-                      alt: item.rightsstatements_org_statement.name)
-      end
-    end
-
+    data['RightsStatements.org (assigned)'] = item.rightsstatements_org_statement ?
+        link_to(item.rightsstatements_org_statement.name,
+                item.rightsstatements_org_statement.info_uri,
+                target: '_blank') : ''
+    data['RightsStatements.org (effective)'] =
+        link_to(item.effective_rightsstatements_org_statement.name,
+                item.effective_rightsstatements_org_statement.info_uri,
+                target: '_blank')
     data['Created'] = local_time(item.created_at)
     data['Last Modified'] = local_time(item.updated_at)
     data

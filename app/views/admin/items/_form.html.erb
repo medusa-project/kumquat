@@ -72,6 +72,7 @@
             <tr>
               <td style="width:20%">
                 <label><%= e_def.label %></label>
+                <p class="help-block"><%= admin_vocabularies(e_def) %></p>
               </td>
               <td>
                 <% elements = @item.elements.select{ |e| e.name == e_def.name} %>
