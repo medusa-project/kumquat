@@ -133,6 +133,8 @@ class Collection < ActiveRecord::Base
   #                  not customizable.
   #
   def items_as_tsv
+    # N.B. The return value must remain synchronized with that of
+    # Item.tsv_header().
     # We use a native PostgreSQL query because going through ActiveRecord is
     # just too slow.
 =begin
@@ -171,13 +173,22 @@ LIMIT 1000;
       subselects = []
       ed.vocabularies.sort{ |v| v.key <=> v.key }.each do |vocab|
         vocab_id = (vocab == Vocabulary.uncontrolled) ? 'IS NULL' : "= #{vocab.id}"
+        # String element type
         subselects << "array_to_string(array(
           SELECT value
           FROM item_elements
           WHERE item_elements.item_id = items.id
             AND item_elements.vocabulary_id #{vocab_id}
             AND item_elements.name = '#{ed.name}'), '#{Item::MULTI_VALUE_SEPARATOR}')
-              AS #{vocab.key}_#{ed.name}"
+              AS string_#{vocab.key}_#{ed.name}"
+        # URI element type
+        subselects << "array_to_string(array(
+          SELECT uri
+          FROM item_elements
+          WHERE item_elements.item_id = items.id
+            AND item_elements.vocabulary_id #{vocab_id}
+            AND item_elements.name = '#{ed.name}'), '#{Item::MULTI_VALUE_SEPARATOR}')
+              AS uri_#{vocab.key}_#{ed.name}"
       end
       subselects.join(",\n")
     end
