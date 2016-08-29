@@ -332,6 +332,7 @@ class Item < ActiveRecord::Base
 
   ##
   # @return [Item, nil]
+  # @see root_parent()
   #
   def parent
     Item.find_by_repository_id(self.parent_repository_id)
@@ -368,6 +369,19 @@ class Item < ActiveRecord::Base
   #
   def representative_item
     Item.find_by_repository_id(self.representative_item_repository_id)
+  end
+
+  ##
+  # @return [Item, nil]
+  # @see parent()
+  #
+  def root_parent
+    p = self.parent
+    while p
+      break unless p.parent
+      p = p.parent
+    end
+    p
   end
 
   ##
