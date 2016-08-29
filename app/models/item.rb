@@ -318,6 +318,32 @@ class Item < ActiveRecord::Base
   end
 
   ##
+  # Transactionally migrates elements with the given source name to new
+  # elements with the given destination name, and then deletes the source
+  # elements.
+  #
+  # Call reload() afterwards to refresh the `elements` relationship.
+  #
+  # @param source_name [String] Source element name
+  # @param dest_name [String] Destination element name
+  # @return [void]
+  #
+  def migrate_elements(source_name, dest_name)
+    ActiveRecord::Base.transaction do
+      # Get all of the elements with the same name as the source element...
+      source_elements = self.elements.select{ |e| e.name == source_name }
+      # Clone them into elements with the destination name...
+      source_elements.each do |src_e|
+        self.elements.build(name: dest_name,
+                            value: src_e.value,
+                            vocabulary: src_e.vocabulary)
+        src_e.destroy!
+      end
+      self.save!
+    end
+  end
+
+  ##
   # @return [Item, nil] The next item in a compound object, relative to the
   #                     instance, or nil if none or not applicable.
   # @see previous()
@@ -357,6 +383,7 @@ class Item < ActiveRecord::Base
 
   ##
   # @return [Item, nil]
+  # @see root_parent()
   #
   def parent
     @parent = Item.find_by_repository_id(self.parent_repository_id) unless @parent
@@ -402,6 +429,19 @@ class Item < ActiveRecord::Base
   #
   def rightsstatements_org_statement
     RightsStatement.for_uri(self.element(:rightsStatement)&.uri)
+  end
+
+  ##
+  # @return [Item, nil]
+  # @see parent()
+  #
+  def root_parent
+    p = self.parent
+    while p
+      break unless p.parent
+      p = p.parent
+    end
+    p
   end
 
   ##
@@ -494,40 +534,6 @@ class Item < ActiveRecord::Base
     end
 
     doc
-  end
-
-  ##
-  # @return [String] Tab-separated values with trailing newline.
-  # @see tsv_header
-  #
-  def to_tsv
-    # Columns must remain synchronized with the output of tsv_header. There
-    # must be a fixed number of columns in a fixed order, in order to be able
-    # to dump multiple items into the same document.
-    # Properties with multiple values are placed in the same cell, separated
-    # by MULTI_VALUE_SEPARATOR.
-    columns = []
-    columns << self.repository_id
-    columns << self.parent_repository_id
-    columns << self.preservation_master_bytestream&.repository_relative_pathname
-    columns << self.access_master_bytestream&.repository_relative_pathname
-    columns << self.variant
-    columns << self.page_number
-    columns << self.subpage_number
-    columns << self.latitude
-    columns << self.longitude
-    columns << self.rightsstatements_org_uri
-
-    self.collection.metadata_profile.element_defs.each do |pe|
-      # An ElementDef will have one column per vocabulary.
-      pe.vocabularies.order(:key).each do |vocab|
-        columns << self.elements.
-            select{ |e| e.name == pe.name and (e.vocabulary == vocab or (!e.vocabulary and vocab == Vocabulary.uncontrolled)) }.
-            map(&:value).
-            join(MULTI_VALUE_SEPARATOR)
-      end
-    end
-    columns.join("\t") + TSV_LINE_BREAK
   end
 
   ##

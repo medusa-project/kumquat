@@ -174,6 +174,25 @@ class ItemTest < ActiveSupport::TestCase
     assert_nil @item.element('bogus')
   end
 
+  # migrate_elements()
+
+  test 'migrate_elements() should work' do
+    source_elements = @item.elements.select{ |e| e.name == 'title' }
+    dest_elements = @item.elements.select{ |e| e.name == 'test' }
+
+    assert_equal 1, source_elements.length
+    assert_equal 0, dest_elements.length
+
+    @item.migrate_elements('title', 'test')
+    @item.reload
+
+    source_elements = @item.elements.select{ |e| e.name == 'title' }
+    dest_elements = @item.elements.select{ |e| e.name == 'test' }
+
+    assert_equal 0, source_elements.length
+    assert_equal 1, dest_elements.length
+  end
+
   # parent_repository_id
 
   test 'parent_repository_id must be a UUID' do
@@ -342,26 +361,6 @@ class ItemTest < ActiveSupport::TestCase
     subjects = @item.elements.select{ |e| e.name == 'subject' }
     assert_equal subjects.map(&:value),
                  doc[subjects.first.solr_multi_valued_field]
-  end
-
-  # to_tsv
-
-  test 'to_tsv should work' do
-    values = @item.to_tsv.strip.split("\t")
-    assert_equal 14, values.length
-    assert_equal @item.repository_id.to_s, values[0]
-    assert_equal @item.parent_repository_id.to_s, values[1]
-    assert_equal @item.preservation_master_bytestream&.repository_relative_pathname, values[2]
-    assert_equal @item.access_master_bytestream&.repository_relative_pathname, values[3]
-    assert_equal @item.variant.to_s, values[4]
-    assert_equal @item.page_number.to_s, values[5]
-    assert_equal @item.subpage_number.to_s, values[6]
-    assert_equal @item.latitude.to_s, values[7]
-    assert_equal @item.longitude.to_s, values[8]
-    assert_equal @item.rightsstatements_org_uri, values[9]
-    assert_equal @item.elements.select{ |e| e.name == 'title' }.first.value, values[10]
-    assert_equal @item.elements.select{ |e| e.name == 'description' }.first.value, values[11]
-    assert_equal @item.elements.select{ |e| e.name == 'subject' }.first.value, values[12]
   end
 
   # update_from_embedded_metadata

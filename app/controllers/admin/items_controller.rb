@@ -78,6 +78,9 @@ module Admin
     # Responds to POST /admin/collections/:collection_id/items/import
     #
     def import
+      col = Collection.find_by_repository_id(params[:collection_id])
+      raise ActiveRecord::RecordNotFound unless col
+
       respond_to do |format|
         format.tsv do
           # Can't pass an uploaded file to an ActiveJob, so it will be saved
@@ -86,7 +89,6 @@ module Admin
           # The finalizer would otherwise delete it.
           ObjectSpace.undefine_finalizer(tempfile)
 
-          col = Collection.find_by_repository_id(params[:collection_id])
           begin
             raise 'No TSV content specified.' if params[:tsv].blank?
             tsv = params[:tsv].read.force_encoding('UTF-8')
@@ -103,6 +105,28 @@ module Admin
             redirect_to admin_collection_items_url(col)
           end
         end
+      end
+    end
+
+    ##
+    # Migrates values from elements of one name to elements of a different
+    # name.
+    #
+    # Responds to POST /admin/collections/:collection_id/items/migrate
+    #
+    def migrate
+      col = Collection.find_by_repository_id(params[:collection_id])
+      raise ActiveRecord::RecordNotFound unless col
+      begin
+        MigrateItemMetadataJob.perform_later(
+            col.repository_id, params[:source_element], params[:dest_element])
+      rescue => e
+        flash['error'] = "#{e}"
+        redirect_to admin_collection_items_url(col)
+      else
+        flash['success'] = 'Migrating metadata elements in the background. '\
+        'This may take a while.'
+        redirect_to admin_collection_items_url(col)
       end
     end
 
