@@ -121,6 +121,25 @@ class ItemTest < ActiveSupport::TestCase
     assert_nil @item.element('bogus')
   end
 
+  # migrate_elements()
+
+  test 'migrate_elements() should work' do
+    source_elements = @item.elements.select{ |e| e.name == 'title' }
+    dest_elements = @item.elements.select{ |e| e.name == 'test' }
+
+    assert_equal 1, source_elements.length
+    assert_equal 0, dest_elements.length
+
+    @item.migrate_elements('title', 'test')
+    @item.reload
+
+    source_elements = @item.elements.select{ |e| e.name == 'title' }
+    dest_elements = @item.elements.select{ |e| e.name == 'test' }
+
+    assert_equal 0, source_elements.length
+    assert_equal 1, dest_elements.length
+  end
+
   # parent_repository_id
 
   test 'parent_repository_id must be a UUID' do

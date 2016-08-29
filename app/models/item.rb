@@ -267,6 +267,32 @@ class Item < ActiveRecord::Base
   end
 
   ##
+  # Transactionally migrates elements with the given source name to new
+  # elements with the given destination name, and then deletes the source
+  # elements.
+  #
+  # Call reload() afterwards to refresh the `elements` relationship.
+  #
+  # @param source_name [String] Source element name
+  # @param dest_name [String] Destination element name
+  # @return [void]
+  #
+  def migrate_elements(source_name, dest_name)
+    ActiveRecord::Base.transaction do
+      # Get all of the elements with the same name as the source element...
+      source_elements = self.elements.select{ |e| e.name == source_name }
+      # Clone them into elements with the destination name...
+      source_elements.each do |src_e|
+        self.elements.build(name: dest_name,
+                            value: src_e.value,
+                            vocabulary: src_e.vocabulary)
+        src_e.destroy!
+      end
+      self.save!
+    end
+  end
+
+  ##
   # @return [Item, nil] The next item in a compound object, relative to the
   #                     instance, or nil if none or not applicable.
   # @see previous()
@@ -306,6 +332,7 @@ class Item < ActiveRecord::Base
 
   ##
   # @return [Item, nil]
+  # @see root_parent()
   #
   def parent
     Item.find_by_repository_id(self.parent_repository_id)
@@ -342,6 +369,19 @@ class Item < ActiveRecord::Base
   #
   def representative_item
     Item.find_by_repository_id(self.representative_item_repository_id)
+  end
+
+  ##
+  # @return [Item, nil]
+  # @see parent()
+  #
+  def root_parent
+    p = self.parent
+    while p
+      break unless p.parent
+      p = p.parent
+    end
+    p
   end
 
   ##

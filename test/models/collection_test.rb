@@ -2,7 +2,7 @@ require 'test_helper'
 
 class CollectionTest < ActiveSupport::TestCase
 
-  def setup
+  setup do
     @col = collections(:collection1)
     assert @col.valid?
   end
@@ -20,6 +20,12 @@ class CollectionTest < ActiveSupport::TestCase
     assert_equal 'Sanborn Fire Insurance Maps', col.title
   end
 
+  # items()
+
+  test 'items should return all items' do
+    assert_equal 7, @col.items.length
+  end
+
   # items_as_tsv()
 
   test 'items_as_tsv should work' do
@@ -34,6 +40,8 @@ cd2d4601-c451-0133-1d17-0050569601ca-8\t\t\t\t\t\t\t\t\t\t\t\t\n"
     assert_equal expected, @col.items_as_tsv
   end
 
+  # medusa_cfs_directory_id
+
   test 'medusa_cfs_directory_id must be a UUID' do
     @col.medusa_cfs_directory_id = 123
     assert !@col.valid?
@@ -41,6 +49,8 @@ cd2d4601-c451-0133-1d17-0050569601ca-8\t\t\t\t\t\t\t\t\t\t\t\t\n"
     @col.medusa_cfs_directory_id = '8acdb390-96b6-0133-1ce8-0050569601ca-4'
     assert @col.valid?
   end
+
+  # meduse_file_group_id
 
   test 'medusa_file_group_id must be a UUID' do
     @col.medusa_file_group_id = 123
@@ -50,16 +60,51 @@ cd2d4601-c451-0133-1d17-0050569601ca-8\t\t\t\t\t\t\t\t\t\t\t\t\n"
     assert @col.valid?
   end
 
+  # migrate_item_elements()
+
+  test 'migrate_item_elements() should raise an error when given a destination
+  element that is not present in the metadata profile' do
+    assert_raises ArgumentError do
+      @col.migrate_item_elements('title', 'bogus')
+    end
+  end
+
+  test 'migrate_item_elements() should raise an error when source and
+  destination elements have different vocabularies' do
+    assert_raises ArgumentError do
+      @col.migrate_item_elements('title', 'subject')
+    end
+  end
+
+  test 'migrate_item_elements() should work' do
+    test_item = items(:item1)
+    test_title = test_item.title
+    assert_not_empty test_title
+    assert_equal 1, test_item.elements.select{ |e| e.name == 'description' }.length
+
+    @col.migrate_item_elements('title', 'description')
+
+    test_item.reload
+    assert_empty test_item.elements.select{ |e| e.name == 'title' }
+    assert_equal 2, test_item.elements.select{ |e| e.name == 'description' }.length
+  end
+
+  # package_profile()
+
   test 'package_profile should return a PackageProfile' do
     assert @col.package_profile.kind_of?(PackageProfile)
     @col.package_profile_id = 37
     assert_nil @col.package_profile
   end
 
+  # package_profile=()
+
   test 'package_profile= should set a PackageProfile' do
     @col.package_profile = PackageProfile::MAP_PROFILE
     assert_equal @col.package_profile_id, PackageProfile::MAP_PROFILE.id
   end
+
+  # medusa_url()
 
   test 'medusa_url should return the correct URL' do
     # without format
@@ -74,6 +119,8 @@ cd2d4601-c451-0133-1d17-0050569601ca-8\t\t\t\t\t\t\t\t\t\t\t\t\n"
                        @col.repository_id)
     assert_equal(expected, @col.medusa_url('json'))
   end
+
+  # repository_id
 
   test 'repository_id must be a UUID' do
     @col.repository_id = 123
