@@ -48,6 +48,7 @@ class MedusaIngester
   # @param mode [String] One of the IngestMode constants.
   # @param options [Hash] Options hash.
   # @option options [Boolean] :extract_metadata
+  # @option options [Boolean] :include_date_created
   # @param warnings [Array<String>] Array which will be populated with nonfatal
   #                                 warnings (optional).
   # @return [Hash<Symbol,Integer>] Hash with :num_created, :num_updated,
@@ -97,6 +98,7 @@ class MedusaIngester
     # @param top_cfs_dir [MedusaCfsDirectory]
     # @param options [Hash]
     # @option options [Boolean] :extract_metadata
+    # @option options [Boolean] :include_date_created
     # @return [Hash<Symbol,Integer>] Hash with :num_created, :num_updated, and
     #                                :num_skipped keys.
     #
@@ -146,7 +148,7 @@ class MedusaIngester
           bs.infer_media_type # The type of the CFS file cannot be trusted.
 
           # Populate its metadata from embedded bytestream metadata.
-          item.update_from_embedded_metadata if options[:extract_metadata]
+          item.update_from_embedded_metadata(options) if options[:extract_metadata]
 
           # If there was no title available in the embedded metadata, assign a
           # title of the filename.
@@ -196,6 +198,7 @@ class MedusaIngester
   # @param collection [Collection]
   # @param options [Hash]
   # @option options [Boolean] :extract_metadata
+  # @option options [Boolean] :include_date_created
   # @param warnings [Array<String>] Supply an array which will be populated
   #                                 with nonfatal warnings (optional).
   # @return [Hash<Symbol,Integer>] Hash with :num_created, :num_updated, and
@@ -271,7 +274,8 @@ class MedusaIngester
                 warnings << "#{e}"
               end
 
-              child.update_from_embedded_metadata if options[:extract_metadata]
+              child.update_from_embedded_metadata(options) if
+                  options[:extract_metadata]
 
               child.save!
             end
@@ -293,7 +297,8 @@ class MedusaIngester
               warnings << "#{e}"
             end
 
-            item.update_from_embedded_metadata if options[:extract_metadata]
+            item.update_from_embedded_metadata(options) if
+                options[:extract_metadata]
           else
             msg = "Preservation directory #{pres_dir.uuid} is empty."
             Rails.logger.warn('ingest_map_items(): ' + msg)
@@ -320,6 +325,7 @@ class MedusaIngester
   # @param collection [Collection]
   # @param options [Hash]
   # @option options [Boolean] :extract_metadata
+  # @option options [Boolean] :include_date_created
   # @param warnings [Array<String>] Supply an array which will be populated
   #                                 with nonfatal warnings (optional).
   # @return [Hash<Symbol,Integer>] Hash with :num_created, :num_updated, and
@@ -359,7 +365,7 @@ class MedusaIngester
         warnings << "#{e}"
       end
 
-      item.update_from_embedded_metadata if options[:extract_metadata]
+      item.update_from_embedded_metadata(options) if options[:extract_metadata]
 
       item.save!
     end

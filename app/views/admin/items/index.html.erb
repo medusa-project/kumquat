@@ -97,10 +97,14 @@
           </div>
           <div class="checkbox" style="padding-left: 1em">
             <label>
-              <%= check_box_tag('options[extract_metadata]',
-                                'true', true,
-                                'aria-described-by' => 'pt-extract-metadata-help') %>
+              <%= check_box_tag('options[extract_metadata]', 'true', true) %>
               Extract embedded file metadata into DLS metadata
+            </label>
+          </div>
+          <div class="checkbox" style="padding-left: 1em">
+            <label>
+              <%= check_box_tag('options[include_date_created]', 'true', true) %>
+              Extract creation date from embedded file metadata
             </label>
           </div>
           <div class="radio">

@@ -314,18 +314,15 @@ class ItemTest < ActiveSupport::TestCase
 
   test 'update_from_embedded_metadata should work' do
     @item = items(:iptc_item)
-    @item.update_from_embedded_metadata
+    @item.update_from_embedded_metadata(include_date_created: true)
 
     assert_equal 1, @item.elements.
-        select{ |e| e.name == 'creator' and e.value == 'JP Goguen' }.length
+        select{ |e| e.name == 'title' and e.value == 'Illini Union Photographs Record Series 3707005' }.length
     assert_equal 1, @item.elements.
         select{ |e| e.name == 'creator' and e.value == 'University of Illinois Library' }.length
     assert_equal 1, @item.elements.
-        select{ |e| e.name == 'date' and e.value == '2012-10-10T00:00:00Z' }.length
-    assert_equal 1, @item.elements.
         select{ |e| e.name == 'dateCreated' and e.value == '2012:10:10' }.length
-    assert_equal 1, @item.elements.
-        select{ |e| e.name == 'title' and e.value == 'Illini Union Photographs Record Series 3707005' }.length
+    assert_equal '2012-10-10T00:00:00Z', @item.date.iso8601
   end
 
   # update_from_tsv

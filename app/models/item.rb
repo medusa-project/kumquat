@@ -477,11 +477,14 @@ class Item < ActiveRecord::Base
   end
 
   ##
-  # Updates an instance's metadata elements from the metadata embedded within
-  # its preservation master bytestream.
+  # Transactionally updates an instance's metadata elements from the metadata
+  # embedded within its preservation or access master bytestream.
   #
-  def update_from_embedded_metadata
-    # Get the bytestream from which the metadata will be pulled
+  # @param options [Hash<Symbol,Object>]
+  # @option options [Boolean] :include_date_created
+  #
+  def update_from_embedded_metadata(options = {})
+    # Get the bytestream from which the metadata will be extracted
     bs = self.preservation_master_bytestream || self.access_master_bytestream
     unless bs
       Rails.logger.info('Item.update_from_embedded_metadata(): no bytestreams')
@@ -489,54 +492,79 @@ class Item < ActiveRecord::Base
     end
 
     # Get its embedded metadata
-    metadata = bs.metadata
+    iim_metadata = bs.metadata
 
-    def copy_metadata(src_label, dest_elem, metadata)
-      src_elem = metadata.select{ |e| e[:label] == src_label }.first
-      if src_elem
-        if src_elem[:value].respond_to?(:each)
-          src_elem[:value].select{ |v| v.present? }.each do |value|
-            self.elements.build(name: dest_elem, value: value,
-                                vocabulary: Vocabulary.uncontrolled)
-          end
-        elsif src_elem[:value].present?
-          self.elements.build(name: dest_elem, value: src_elem[:value],
+    def add_element(dest_elem, value)
+      if value.respond_to?(:each)
+        value.select{ |v| v.present? }.each do |val|
+          self.elements.build(name: dest_elem, value: val,
                               vocabulary: Vocabulary.uncontrolled)
         end
-      end
-    end
-
-    # This is a very abbreviated list of IPTC IIM fields that can easily map
-    # to common ElementDefs. We do not check if these elements actually exist
-    # in the item's metadata profile, but most profiles should include them,
-    # and if not, no big deal.
-    #
-    # Obviously, this is very crude and a change in the effort/reward ratio
-    # might warrant maintaining a master list of IIM fields and enabling
-    # customizable mappings.
-    copy_metadata('Author', 'creator', metadata)
-    copy_metadata('Credit', 'creator', metadata)
-    copy_metadata('Creator', 'creator', metadata)
-    copy_metadata('Date Created', 'dateCreated', metadata)
-    copy_metadata('Description', 'description', metadata)
-    copy_metadata('Caption', 'description', metadata)
-    copy_metadata('Copyright', 'rights', metadata)
-    copy_metadata('Copyright Notice', 'rights', metadata)
-    copy_metadata('Keywords', 'subject', metadata)
-    copy_metadata('Headline', 'title', metadata)
-    copy_metadata('Title', 'title', metadata)
-
-    # If a date is present, try to add a normalized date element.
-    date_elem = metadata.select{ |e| e[:label] == 'Date Created' }.first
-    if date_elem
-      date = TimeUtil.string_date_to_time(date_elem[:value])
-      if date
-        self.elements.build(name: 'date', value: date.utc.iso8601,
+      elsif value.present?
+        self.elements.build(name: dest_elem, value: value,
                             vocabulary: Vocabulary.uncontrolled)
       end
     end
 
-    self.save! if save
+    def copy_iim_value(src_label, dest_elem, metadata)
+      src_elem = metadata.select{ |e| e[:label] == src_label }.first
+      add_element(dest_elem, src_elem[:value]) if src_elem
+    end
+
+    # See discussion in IMET-246
+    # See: https://docs.google.com/spreadsheets/d/15Wf75vzP-rW-lrYzLHATjv1bI3xcMMSVbdBShy4t55A/edit
+    # See: http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata
+
+    ActiveRecord::Base.transaction do
+      # Title
+      title = iim_metadata.select{ |e| e[:label] == 'Headline' }.first
+      unless title
+        title = iim_metadata.select{ |e| e[:label] == 'Title' }.first
+      end
+      add_element('title', title[:value])
+
+      # Date Created
+      if options[:include_date_created].to_s == 'true'
+        copy_iim_value('Date Created', 'dateCreated', iim_metadata)
+
+        # Try to add a normalized date.
+        date_elem = iim_metadata.select{ |e| e[:label] == 'Date Created' }.first
+        self.date = TimeUtil.string_date_to_time(date_elem[:value]) if date_elem
+      end
+
+      # Creator
+      creator = iim_metadata.select{ |e| e[:label] == 'Creator' }.first
+      unless creator
+        creator = iim_metadata.select{ |e| e[:label] == 'Credit Line' }.first
+      end
+      add_element('creator', creator[:value])
+
+      # Description
+      copy_iim_value('Description', 'description', iim_metadata)
+
+      # Copyright Notice
+      copy_iim_value('Copyright Notice', 'rights', iim_metadata)
+
+      # Rights Usage Terms
+      copy_iim_value('Rights Usage Terms', 'license', iim_metadata)
+
+      # Keywords
+      copy_iim_value('Keywords', 'keyword', iim_metadata)
+
+      # Sublocation
+      copy_iim_value('Sublocation', 'streetAddress', iim_metadata)
+
+      # City
+      copy_iim_value('City', 'addressLocality', iim_metadata)
+
+      # Province or State
+      copy_iim_value('Province or State', 'addressRegion', iim_metadata)
+
+      # Country Name
+      copy_iim_value('Country Name', 'addressCountry', iim_metadata)
+
+      self.save!
+    end
   end
 
   ##
