@@ -572,8 +572,7 @@ class Item < ActiveRecord::Base
       keyword << iim_metadata.select{ |e| e[:label] == 'Province or State' }.first
       keyword << iim_metadata.select{ |e| e[:label] == 'Country Name' }.first
       keyword.select!(&:present?)
-        add_element('keyword', keyword.join(', '))
-      end
+      add_element('keyword', keyword.join(', ')) if keyword.any?
 
       self.save!
     end
