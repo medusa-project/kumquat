@@ -563,6 +563,18 @@ class Item < ActiveRecord::Base
       # Country Name
       copy_iim_value('Country Name', 'addressCountry', iim_metadata)
 
+      # Concatenate sublocation, city, province or state, and country name
+      # into a keyword element.
+      # TODO: this was requested in IMET-246, but consider getting rid of it
+      keyword = []
+      keyword << iim_metadata.select{ |e| e[:label] == 'Sublocation' }.first
+      keyword << iim_metadata.select{ |e| e[:label] == 'City' }.first
+      keyword << iim_metadata.select{ |e| e[:label] == 'Province or State' }.first
+      keyword << iim_metadata.select{ |e| e[:label] == 'Country Name' }.first
+      keyword.select!(&:present?)
+        add_element('keyword', keyword.join(', '))
+      end
+
       self.save!
     end
   end
