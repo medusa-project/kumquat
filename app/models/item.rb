@@ -521,7 +521,7 @@ class Item < ActiveRecord::Base
       unless title
         title = iim_metadata.select{ |e| e[:label] == 'Title' }.first
       end
-      add_element('title', title[:value])
+      add_element('title', title[:value]) if title
 
       # Date Created
       if options[:include_date_created].to_s == 'true'
@@ -537,7 +537,7 @@ class Item < ActiveRecord::Base
       unless creator
         creator = iim_metadata.select{ |e| e[:label] == 'Credit Line' }.first
       end
-      add_element('creator', creator[:value])
+      add_element('creator', creator[:value]) if creator
 
       # Description
       copy_iim_value('Description', 'description', iim_metadata)
