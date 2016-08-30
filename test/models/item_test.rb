@@ -16,7 +16,7 @@ class ItemTest < ActiveSupport::TestCase
 
   test 'tsv_header should return the correct columns' do
     cols = Item.tsv_header(@item.collection.metadata_profile).strip.split("\t")
-    assert_equal 17, cols.length
+    assert_equal 13, cols.length
     assert_equal 'uuid', cols[0]
     assert_equal 'parentId', cols[1]
     assert_equal 'preservationMasterPathname', cols[2]
@@ -26,14 +26,10 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal 'subpageNumber', cols[6]
     assert_equal 'latitude', cols[7]
     assert_equal 'longitude', cols[8]
-    assert_equal 'string:uncontrolled:title', cols[9]
-    assert_equal 'uri:uncontrolled:title', cols[10]
-    assert_equal 'string:uncontrolled:description', cols[11]
-    assert_equal 'uri:uncontrolled:description', cols[12]
-    assert_equal 'string:lcsh:subject', cols[13]
-    assert_equal 'uri:lcsh:subject', cols[14]
-    assert_equal 'string:tgm:subject', cols[15]
-    assert_equal 'uri:tgm:subject', cols[16]
+    assert_equal 'title', cols[9]
+    assert_equal 'description', cols[10]
+    assert_equal 'lcsh:subject', cols[11]
+    assert_equal 'tgm:subject', cols[12]
   end
 
   test 'tsv_header should end with a line break' do

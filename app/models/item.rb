@@ -105,18 +105,16 @@ class Item < ActiveRecord::Base
   # @see to_tsv
   #
   def self.tsv_header(metadata_profile)
-    # N.B. The return value must remain synchronized with that of
-    # Collection.items_as_tsv().
+    # Must remain synchronized with the output of to_tsv.
     elements = %w(uuid parentId preservationMasterPathname accessMasterPathname
                   variant pageNumber subpageNumber latitude longitude)
     metadata_profile.element_defs.each do |ed|
-      # There will be one column per ElementDef vocabulary per data type
-      # (string or URI). Column headings are in the format
-      # "dataType:vocabKey:elementName".
-      ed.vocabularies.sort{ |v| v.key <=> v.key }.each do |vocab|
-        %w(string uri).each do |type|
-          elements << "#{type}:#{vocab.key}:#{ed.name}"
-        end
+      # There will be one column per ElementDef vocabulary. Column headings are
+      # in the format "vocabKey:elementName", except the uncontrolled vocabulary
+      # which will not get a vocabKey prefix.
+      elements += ed.vocabularies.sort{ |v| v.key <=> v.key }.map do |vocab|
+        vocab.key != Vocabulary::UNCONTROLLED_KEY ?
+            "#{vocab.key}:#{ed.name}" : ed.name
       end
     end
     elements.join("\t") + TSV_LINE_BREAK

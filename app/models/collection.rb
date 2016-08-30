@@ -135,6 +135,8 @@ class Collection < ActiveRecord::Base
   end
 
   ##
+  # Requires PostgreSQL.
+  #
   # @return [String] Full contents of the collection as a TSV string. Item
   #                  children are included. Ordering, limit, offset, etc. is
   #                  not customizable.
@@ -160,16 +162,32 @@ SELECT items.repository_id,
   items.subpage_number,
   items.latitude,
   items.longitude,
-  array_to_string(array(SELECT value
-    FROM item_elements
-    WHERE item_elements.item_id = items.id
-      AND item_elements.vocabulary_id IS NULL
-      AND item_elements.name = 'subject'), '||') AS uncontrolled_subject,
-  array_to_string(array(SELECT value
-    FROM item_elements
-    WHERE item_elements.item_id = items.id
-      AND item_elements.vocabulary_id = 11
-      AND item_elements.name = 'subject'), '||') AS lcsh_subject
+  array_to_string(
+    array_cat(
+      array(SELECT value || ''
+        FROM item_elements
+        WHERE item_elements.item_id = items.id
+          AND item_elements.vocabulary_id IS NULL
+          AND item_elements.name = 'subject'),
+      array(SELECT '<' || uri || '>'
+        FROM item_elements
+        WHERE item_elements.item_id = items.id
+          AND item_elements.vocabulary_id IS NULL
+          AND item_elements.name = 'subject')
+    ), '||') AS uncontrolled_subject,
+  array_to_string(
+    array_cat(
+      array(SELECT value || ''
+        FROM item_elements
+        WHERE item_elements.item_id = items.id
+          AND item_elements.vocabulary_id = 11
+          AND item_elements.name = 'subject'),
+      array(SELECT '<' || uri || '>'
+        FROM item_elements
+        WHERE item_elements.item_id = items.id
+          AND item_elements.vocabulary_id = 11
+          AND item_elements.name = 'subject')
+    ), '||') AS lcsh_subject
 FROM items
 WHERE items.collection_repository_id = '8132f520-e3fb-012f-c5b6-0019b9e633c5-f'
 ORDER BY items.parent_repository_id, items.page_number, items.subpage_number,
@@ -180,22 +198,21 @@ LIMIT 1000;
       subselects = []
       ed.vocabularies.sort{ |v| v.key <=> v.key }.each do |vocab|
         vocab_id = (vocab == Vocabulary.uncontrolled) ? 'IS NULL' : "= #{vocab.id}"
-        # String element type
-        subselects << "array_to_string(array(
-          SELECT value
-          FROM item_elements
-          WHERE item_elements.item_id = items.id
-            AND item_elements.vocabulary_id #{vocab_id}
-            AND item_elements.name = '#{ed.name}'), '#{Item::MULTI_VALUE_SEPARATOR}')
-              AS string_#{vocab.key}_#{ed.name}"
-        # URI element type
-        subselects << "array_to_string(array(
-          SELECT uri
-          FROM item_elements
-          WHERE item_elements.item_id = items.id
-            AND item_elements.vocabulary_id #{vocab_id}
-            AND item_elements.name = '#{ed.name}'), '#{Item::MULTI_VALUE_SEPARATOR}')
-              AS uri_#{vocab.key}_#{ed.name}"
+        subselects << "array_to_string(
+          array_cat(
+            array(
+              SELECT value || ''
+              FROM item_elements
+              WHERE item_elements.item_id = items.id
+                AND item_elements.vocabulary_id #{vocab_id}
+                AND item_elements.name = '#{ed.name}'),
+            array(
+              SELECT '<' || uri || '>'
+              FROM item_elements
+              WHERE item_elements.item_id = items.id
+                AND item_elements.vocabulary_id #{vocab_id}
+                AND item_elements.name = '#{ed.name}')
+          ), '#{Item::MULTI_VALUE_SEPARATOR}') AS #{vocab.key}_#{ed.name}"
       end
       subselects.join(",\n")
     end

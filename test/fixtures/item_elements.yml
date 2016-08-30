@@ -16,10 +16,12 @@ item1_subject1:
   item: item1
   name: subject
   value: Cats
+  uri: http://example.org/cats1
   vocabulary: lcsh
 
 item1_subject2:
   item: item1
   name: subject
   value: More cats
+  uri: http://example.org/cats2
   vocabulary: tgm
