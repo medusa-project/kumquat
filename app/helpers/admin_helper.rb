@@ -285,10 +285,10 @@ module AdminHelper
         link_to(item.rightsstatements_org_statement.name,
                 item.rightsstatements_org_statement.info_uri,
                 target: '_blank') : ''
-    data['RightsStatements.org (effective)'] =
+    data['RightsStatements.org (effective)'] = item.effective_rightsstatements_org_statement ?
         link_to(item.effective_rightsstatements_org_statement.name,
                 item.effective_rightsstatements_org_statement.info_uri,
-                target: '_blank')
+                target: '_blank') : ''
     data['Created'] = local_time(item.created_at)
     data['Last Modified'] = local_time(item.updated_at)
     data
