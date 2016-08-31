@@ -185,9 +185,16 @@ module Admin
         if params[:elements].respond_to?(:each)
           ActiveRecord::Base.transaction do
             item.elements.destroy_all
-            params[:elements].each do |name, values|
-              values.each do |value|
-                item.elements.build(name: name, value: value)
+            params[:elements].each do |name, vocabs|
+              vocabs.each do |vocab_id, occurrences|
+                occurrences.each do |occurrence|
+                  if occurrence[:string].present? or occurrence[:uri].present?
+                    item.elements.build(name: name,
+                                        value: occurrence[:string],
+                                        uri: occurrence[:uri],
+                                        vocabulary_id: vocab_id)
+                  end
+                end
               end
             end
             item.save!

@@ -6,24 +6,22 @@
 # Bytestreams, each corresponding to a file in Medusa.
 #
 # Items have a number of properties of their own as well as a one-to-many
-# relationship with Element, which encapsulates a metadata element. The set of
-# elements that an item contains is typically shaped by its collection's
+# relationship with ItemElement, which encapsulates a metadata element. The set
+# of elements that an item contains is typically shaped by its collection's
 # metadata profile, although there is no constraint in place to keep an item
 # from being associated with other elements.
 #
 # Note that Medusa is not item-aware; items are a DLS entity. Item IDs
 # correspond to Medusa file/directory IDs depending on a collection's content
-# profile. These IDs are stored in `repository_id`, NOT `id`, which is
-# database-specific.
+# profile. These IDs are stored in `repository_id`, NOT `id`.
 #
 # Items have a soft pointer to their collection and parent item based on
 # repository ID, rather than a belongs_to/has_many on their database ID.
-# This is to be able to establish structure more easily outside of the
-# application.
+# This is to be able to establish structure outside of the application.
 #
-# Being an ActiveRecord entity, items are searchable via ActiveRecord as well
-# as via Solr. Instances are automatically indexed in Solr (see `to_solr`) and
-# the Solr search functionality is available via the `solr` class method.
+# Items are searchable via ActiveRecord as well as via Solr. Instances are
+# automatically indexed in Solr (see `to_solr`) and the Solr search
+# functionality is available via the `solr` class method.
 #
 class Item < ActiveRecord::Base
 
@@ -138,7 +136,10 @@ class Item < ActiveRecord::Base
   # @return [Collection]
   #
   def collection
-    Collection.find_by_repository_id(self.collection_repository_id)
+    unless @collection
+      @collection = Collection.find_by_repository_id(self.collection_repository_id)
+    end
+    @collection
   end
 
   ##
@@ -152,7 +153,7 @@ class Item < ActiveRecord::Base
   # @return [Element]
   #
   def description
-    self.elements.select{ |e| e.name == 'description' }.first&.value
+    self.element(:description)&.value
   end
 
   def delete_from_solr # TODO: change to Item.solr.delete()
@@ -176,14 +177,62 @@ class Item < ActiveRecord::Base
   end
 
   ##
+  # @return [String, nil] Rights statement assigned to the instance, if
+  #                       present; otherwise, the closest ancestor statement,
+  #                       if present; otherwise, the rights statement assigned
+  #                       to its collection, if present; otherwise nil.
+  #
+  def effective_rights_statement
+    # Use the statement assigned to the instance.
+    rs = self.element(:rights)&.value
+    # If not available, walk up the item tree to find a parent statement.
+    if rs.blank?
+      p = self.parent
+      while p
+        rs = p.element(:rights)&.value
+        break if rs.present?
+        p = p.parent
+      end
+    end
+    # If still no statement available, use the collection's statement.
+    rs = self.collection.rights_statement if rs.blank?
+    rs
+  end
+
+  ##
+  # @return [RightsStatement, nil] RightsStatements.org statement assigned to
+  #                                the instance, if present; otherwise, the
+  #                                closest ancestor statement, if present;
+  #                                otherwise, the statement assigned to its
+  #                                collection, if present; otherwise nil.
+  # @see rightsstatements_org_statement()
+  #
+  def effective_rightsstatements_org_statement
+    # Use the statement assigned to the instance.
+    rs = RightsStatement.for_uri(self.element(:rightsStatement)&.uri)
+    # If not assigned, walk up the item tree to find a parent statement.
+    unless rs
+      p = self.parent
+      while p
+        rs = RightsStatement.for_uri(p.element(:rightsStatement)&.uri)
+        break if rs
+        p = p.parent
+      end
+    end
+    # If still no statement available, use the collection's statement.
+    rs = RightsStatement.for_uri(self.collection.rightsstatements_org_uri) unless rs
+    rs
+  end
+
+  ##
   # Convenience method that retrieves one element with the given name from the
   # instance's `elements` relationship.
   #
-  # @param name [String] Element name
+  # @param name [String, Symbol] Element name
   # @return [ItemElement]
   #
   def element(name)
-    self.elements.select{ |e| e.name == name }.first
+    self.elements.select{ |e| e.name == name.to_s }.first
   end
 
   ##
@@ -335,7 +384,8 @@ class Item < ActiveRecord::Base
   # @see root_parent()
   #
   def parent
-    Item.find_by_repository_id(self.parent_repository_id)
+    @parent = Item.find_by_repository_id(self.parent_repository_id) unless @parent
+    @parent
   end
 
   ##
@@ -372,6 +422,14 @@ class Item < ActiveRecord::Base
   end
 
   ##
+  # @return [RightsStatement, nil]
+  # @see effective_rightsstatements_org_statement()
+  #
+  def rightsstatements_org_statement
+    RightsStatement.for_uri(self.element(:rightsStatement)&.uri)
+  end
+
+  ##
   # @return [Item, nil]
   # @see parent()
   #
@@ -395,14 +453,14 @@ class Item < ActiveRecord::Base
   # @return [Element]
   #
   def subtitle
-    self.elements.select{ |e| e.name == 'alternativeTitle' }.first&.value
+    self.element(:alternativeTitle)&.value
   end
 
   ##
   # @return [Element]
   #
   def title
-    t = self.elements.select{ |e| e.name == 'title' }.first&.value
+    t = self.element(:title)&.value
     t.present? ? t : self.repository_id
   end
 
@@ -743,7 +801,13 @@ class Item < ActiveRecord::Base
           each do |node|
         # Add a new element
         e = ItemElement.named(node.name)
-        e.value = node.content.strip
+        case node['dataType']
+          when 'URI'
+            e.uri = node.content.strip
+          else
+            e.value = node.content.strip
+        end
+        e.vocabulary = Vocabulary.find_by_key(node['vocabularyKey'])
         self.elements << e
       end
 
@@ -833,9 +897,20 @@ class Item < ActiveRecord::Base
         end
 
         self.elements.order(:name).each do |element|
+          vocab_key = element.vocabulary ?
+              element.vocabulary.key : Vocabulary::uncontrolled.key
+
           if element.value.present?
-            xml['dls'].send(element.name) {
+            xml['dls'].send(element.name,
+                            vocabularyKey: vocab_key,
+                            dataType: 'string') {
               xml.text(element.value)
+            }
+          elsif element.uri.present?
+            xml['dls'].send(element.name,
+                            vocabularyKey: vocab_key,
+                            dataType: 'URI') {
+              xml.text(element.uri)
             }
           end
         end

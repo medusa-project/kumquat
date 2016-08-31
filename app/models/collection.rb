@@ -135,11 +135,15 @@ class Collection < ActiveRecord::Base
   end
 
   ##
+  # Requires PostgreSQL.
+  #
   # @return [String] Full contents of the collection as a TSV string. Item
   #                  children are included. Ordering, limit, offset, etc. is
   #                  not customizable.
   #
   def items_as_tsv
+    # N.B. The return value must remain synchronized with that of
+    # Item.tsv_header().
     # We use a native PostgreSQL query because going through ActiveRecord is
     # just too slow.
 =begin
@@ -158,16 +162,40 @@ SELECT items.repository_id,
   items.subpage_number,
   items.latitude,
   items.longitude,
-  array_to_string(array(SELECT value
-    FROM item_elements
-    WHERE item_elements.item_id = items.id
-      AND (item_elements.vocabulary_id IS NULL OR item_elements.vocabulary_id = 11)
-      AND item_elements.name = 'subject'), '||') AS uncontrolled_subject,
-  array_to_string(array(SELECT value
-    FROM item_elements
-    WHERE item_elements.item_id = items.id
-      AND (item_elements.vocabulary_id IS NULL OR item_elements.vocabulary_id = 11)
-      AND item_elements.name = 'subject'), '||') AS lcsh_subject
+  array_to_string(
+    array_cat(
+      array(SELECT value || ''
+        FROM item_elements
+        WHERE item_elements.item_id = items.id
+          AND (item_elements.vocabulary_id IS NULL OR item_elements.vocabulary_id = 11)
+          AND item_elements.name = 'subject'
+          AND value IS NOT NULL
+          AND length(value) > 0)
+      array(SELECT '<' || uri || '>'
+        FROM item_elements
+        WHERE item_elements.item_id = items.id
+          AND (item_elements.vocabulary_id IS NULL OR item_elements.vocabulary_id = 11)
+          AND item_elements.name = 'subject'
+          AND uri IS NOT NULL
+          AND length(uri) > 0)
+    ), '||') AS uncontrolled_subject,
+  array_to_string(
+    array_cat(
+      array(SELECT value || ''
+        FROM item_elements
+        WHERE item_elements.item_id = items.id
+          AND (item_elements.vocabulary_id IS NULL OR item_elements.vocabulary_id = 11)
+          AND item_elements.name = 'subject'
+          AND value IS NOT NULL
+          AND length(value) > 0)
+      array(SELECT '<' || uri || '>'
+        FROM item_elements
+        WHERE item_elements.item_id = items.id
+          AND (item_elements.vocabulary_id IS NULL OR item_elements.vocabulary_id = 11)
+          AND item_elements.name = 'subject'
+          AND uri IS NOT NULL
+          AND length(uri) > 0)
+    ), '||') AS lcsh_subject
 FROM items
 WHERE items.collection_repository_id = '8132f520-e3fb-012f-c5b6-0019b9e633c5-f'
 ORDER BY items.parent_repository_id, items.page_number, items.subpage_number,
@@ -179,13 +207,25 @@ LIMIT 1000;
       ed.vocabularies.sort{ |v| v.key <=> v.key }.each do |vocab|
         vocab_id = (vocab == Vocabulary.uncontrolled) ?
             "IS NULL OR item_elements.vocabulary_id = #{Vocabulary.uncontrolled.id}" : "= #{vocab.id}"
-        subselects << "array_to_string(array(
-          SELECT value
-          FROM item_elements
-          WHERE item_elements.item_id = items.id
-            AND (item_elements.vocabulary_id #{vocab_id})
-            AND item_elements.name = '#{ed.name}'), '#{Item::MULTI_VALUE_SEPARATOR}')
-              AS #{vocab.key}_#{ed.name}"
+        subselects << "array_to_string(
+          array_cat(
+            array(
+              SELECT value || ''
+              FROM item_elements
+              WHERE item_elements.item_id = items.id
+                AND (item_elements.vocabulary_id #{vocab_id})
+                AND item_elements.name = '#{ed.name}'
+                AND value IS NOT NULL
+                AND length(value) > 0),
+            array(
+              SELECT '<' || uri || '>'
+              FROM item_elements
+              WHERE item_elements.item_id = items.id
+                AND (item_elements.vocabulary_id #{vocab_id})
+                AND item_elements.name = '#{ed.name}'
+                AND uri IS NOT NULL
+                AND length(uri) > 0)
+          ), '#{Item::MULTI_VALUE_SEPARATOR}') AS #{vocab.key}_#{ed.name}"
       end
       subselects.join(",\n")
     end
@@ -365,6 +405,13 @@ LIMIT 1000;
     item
   end
 
+  ##
+  # @return [RightsStatement, nil]
+  #
+  def rightsstatements_org_statement
+    RightsStatement.for_uri(self.rightsstatements_org_uri)
+  end
+
   def solr_id
     self.repository_id
   end
@@ -423,6 +470,7 @@ LIMIT 1000;
     self.resource_types = struct['resource_types'].map do |t| # titleize these
       t['name'].split(' ').map{ |t| t.present? ? t.capitalize : '' }.join(' ')
     end
+    self.rights_statement = struct['rights']['custom_copyright_statement']
     self.title = struct['title']
   end
 

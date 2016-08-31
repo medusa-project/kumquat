@@ -3,6 +3,112 @@
  */
 var PTAdminItemEditView = function() {
 
+    /**
+     * @param input {jQuery}
+     * @constructor
+     */
+    var Autocompleter = function(input) {
+
+        var RESULTS_LIMIT = 10;
+        var self = this;
+
+        this.clearResults = function() {
+            $('.pt-autocomplete-results').remove();
+        };
+
+        this.fetchResults = function(onSuccess) {
+            var query = input.val();
+            if (query.length > 1) {
+                var vocabulary_id = input.data('vocabulary-id');
+                var inputType = (input.attr('name').indexOf('[string]') > 0) ?
+                    'string' : 'uri';
+                var url = $('[name=root_url]').val() +
+                    '/admin/vocabularies/' + vocabulary_id +
+                    '/terms.json?query=' + query +
+                    '&type=' + inputType;
+                console.debug('Autocompleter.fetchResults(): ' + url);
+                $.ajax({
+                    url: url,
+                    success: function (results) {
+                        onSuccess(results);
+                    }
+                });
+            } else {
+                self.clearResults();
+            }
+        };
+
+        /**
+         * @private
+         */
+        var init_ = function() {
+            self.clearResults();
+
+            self.fetchResults(function(results) {
+                if (results.length > 0) {
+                    self.renderResults(results);
+                } else {
+                    self.clearResults();
+                }
+            });
+        }; init_();
+
+        /**
+         * Called publicly to complete initialization.
+         */
+        this.init = function() {
+            $(':not([data-controlled=true])').on('click', function() {
+                self.clearResults();
+            });
+        };
+
+        this.renderResults = function(results) {
+            var div = '<div class="pt-autocomplete-results">' +
+                '<ul>';
+            results.forEach(function (obj, index) {
+                if (index < RESULTS_LIMIT) {
+                    var value, type;
+                    if (input.attr('name').indexOf('[string]') > 0) {
+                        value = obj['string'];
+                        type = 'string';
+                    } else {
+                        value = obj['uri'];
+                        type = 'uri';
+                    }
+                    div += '<li><a href="#" data-type="' + type +
+                        '" data-string="' + obj['string'] +
+                        '" data-uri="' + obj['uri'] + '">' + value + '</a></li>';
+                }
+            });
+            div += '</ul>' +
+                '</div>';
+            div = $(div);
+            div.css('width', input.width());
+            input.after(div);
+
+            div.find('a').on('click', function() {
+                if ($(this).data('type') == 'string') {
+                    input.val($(this).data('string'));
+                    input.parent().parent().next().find('input').val($(this).data('uri'));
+                } else {
+                    input.val($(this).data('uri'));
+                    input.parent().parent().prev().find('input').val($(this).data('string'));
+
+                }
+                self.clearResults();
+                return false;
+            });
+
+            div.find('li').on('mouseover', function() {
+                $(this).addClass('active');
+            }).on('mouseout', function() {
+                $(this).removeClass('active');
+            });
+
+        };
+
+    };
+
     this.init = function() {
         $('button.pt-add-element').on('click', function() {
             var element = $(this).closest('.pt-element');
@@ -37,6 +143,12 @@ var PTAdminItemEditView = function() {
         textareas.on('input propertychange keyup change', function() {
             $(this).height('20px');
             $(this).height((this.scrollHeight - MAGIC_FUDGE) + 'px');
+        });
+
+        // Initialize autocompletion for each controlled text field.
+        $('[data-controlled=true]').on('input', function() {
+            var ac = new Autocompleter($(this));
+            ac.init();
         });
     };
 

@@ -117,6 +117,10 @@ body#items_show {
     }
   }
 
+  #pt-system-info img {
+    max-width: 200px;
+  }
+
   #pt-structure ul {
     list-style: none;
     margin-left: 1.5em;
@@ -206,6 +210,31 @@ body#items_show {
 }
 
 body#items_edit {
+  .pt-autocomplete-results {
+    background-color: white;
+    border: 1px solid #ccc;
+    position: absolute;
+    ul {
+      list-style-type: none;
+      margin-left: 0px;
+      padding-left: 0px;
+      li {
+        a {
+          color: black;
+          display: inline-block;
+          padding: 0.4em;
+          width: 100%;
+        }
+      }
+      li.active {
+        background-color: #337ab7;
+        a {
+          color: white;
+          text-decoration: none;
+        }
+      }
+    }
+  }
   #item_full_text {
     font-family: monospace;
     min-height: 200px;

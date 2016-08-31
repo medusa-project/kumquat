@@ -27,7 +27,7 @@ class ItemDecorator < Draper::Decorator
             item_url(self.representative_item) : nil,
         elements: [],
         bytestreams: BytestreamDecorator.decorate_collection(self.bytestreams),
-        subitems: []
+        children: []
     }
 
     # Populate the elements array
@@ -37,7 +37,8 @@ class ItemDecorator < Draper::Decorator
       struct[:elements] << {
           name: element.name,
           vocabulary: element.vocabulary&.name,
-          value: element.value,
+          value: element.value.present? ? element.value : nil,
+          uri: element.uri.present? ? element.uri : nil,
           mappings: {
               dc: element_def.dc_map.present? ? element_def.dc_map : nil,
               dcterms: element_def.dcterms_map.present? ? element_def.dcterms_map : nil

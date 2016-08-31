@@ -4,18 +4,23 @@ class ItemElementTest < ActiveSupport::TestCase
 
   test '== should work properly' do
     # same properties
-    e1 = ItemElement.new(name: 'name1', value: 'value1', vocabulary_id: 1)
-    e2 = ItemElement.new(name: 'name1', value: 'value1', vocabulary_id: 1)
+    e1 = ItemElement.new(name: 'name1', value: 'value1', uri: 'http://1', vocabulary_id: 1)
+    e2 = ItemElement.new(name: 'name1', value: 'value1', uri: 'http://1', vocabulary_id: 1)
     assert e1 == e2
 
     # different names
-    e1 = ItemElement.new(name: 'name1', value: 'value1', vocabulary_id: 1)
-    e2 = ItemElement.new(name: 'name2', value: 'value1', vocabulary_id: 1)
+    e1 = ItemElement.new(name: 'name1', value: 'value1', uri: 'http://1', vocabulary_id: 1)
+    e2 = ItemElement.new(name: 'name2', value: 'value1', uri: 'http://1', vocabulary_id: 1)
     assert e1 != e2
 
     # different values
-    e1 = ItemElement.new(name: 'name1', value: 'value1', vocabulary_id: 1)
-    e2 = ItemElement.new(name: 'name1', value: 'value2', vocabulary_id: 1)
+    e1 = ItemElement.new(name: 'name1', value: 'value1', uri: 'http://1', vocabulary_id: 1)
+    e2 = ItemElement.new(name: 'name1', value: 'value2', uri: 'http://1', vocabulary_id: 1)
+    assert e1 != e2
+
+    # different URIs
+    e1 = ItemElement.new(name: 'name1', value: 'value1', uri: 'http://1', vocabulary_id: 1)
+    e2 = ItemElement.new(name: 'name1', value: 'value1', uri: 'http://2', vocabulary_id: 1)
     assert e1 != e2
 
     # different vocabulary IDs

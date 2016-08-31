@@ -27,14 +27,27 @@
 <div class="row">
 
   <div class="col-md-8 col-sm-7">
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <h3 class="panel-title">Description</h3>
-      </div>
-      <div class="panel-body">
-        <%= raw @collection.description_html %>
-      </div>
-    </div>
+    <section>
+      <h3>Description</h3>
+      <%= raw @collection.description_html %>
+    </section>
+    <section>
+      <h3>Rights Statement</h3>
+      <%= @collection.rights_statement.present? ?
+              @collection.rights_statement : 'None' %>
+    </section>
+    <section class="pt-rights">
+      <h3>RightsStatements.org</h3>
+      <% if @collection.rightsstatements_org_statement %>
+        <%= link_to(@collection.rightsstatements_org_statement.info_uri,
+                    target: '_blank') do %>
+          <%= image_tag(@collection.rightsstatements_org_statement.image,
+                        alt: @collection.rightsstatements_org_statement.name) %>
+        <% end %>
+      <% else %>
+        Not Set
+      <% end %>
+    </section>
   </div>
 
   <div class="col-md-4 col-sm-5">

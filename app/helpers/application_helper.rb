@@ -103,6 +103,38 @@ module ApplicationHelper
   end
 
   ##
+  # @param statement [RightsStatement, nil]
+  # @param text [String, nil]
+  # @return [String]
+  #
+  def rights_statement(statement, text)
+    html = ''
+    if statement or text.present?
+      if statement
+        image = link_to(statement.info_uri, target: '_blank') do
+          image_tag(statement.image,
+                    alt: "#{statement.name} (RightsStatement.org)")
+        end
+      else
+        image = '<i class="fa fa-copyright"></i>'
+      end
+
+      title = statement ? '' : '<h4 class="media-heading">Rights Information</h4>'
+      text = text.present? ? "<p>#{auto_link(text)}</p>" : ''
+
+      html += "<div class=\"media pt-rights\">
+          <div class=\"media-left\">
+            #{image}
+          </div>
+          <div class=\"media-body\">
+            #{title}#{text}
+          </div>
+        </div>"
+    end
+    raw(html)
+  end
+
+  ##
   # @param entity [Entity]
   # @return [String] Text description of the entity's type
   #

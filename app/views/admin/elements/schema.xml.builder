@@ -101,8 +101,22 @@ xml.tag!('schema',
 
       Element.all.order(:name).each do |e|
         xml.tag!('xs:element', { name: e.name, type: 'xs:string',
-                                 minOccurs: '0', maxOccurs: 'unbounded' })
+                                 minOccurs: '0', maxOccurs: 'unbounded' }) do
+          xml.tag!('xs:complexType') do
+            xml.tag!('xs:attribute', { name: 'vocabularyKey', type: 'xs:token',
+                                       use: 'required' })
+            xml.tag!('xs:attribute', { name: 'dataType', type: 'DataType',
+                                       use: 'required' })
+          end
+        end
       end
+    end
+  end
+
+  xml.tag!('xs:simpleType', { name: 'DataType' }) do
+    xml.tag!('xs:restriction', { base: 'xs:token' }) do
+      xml.tag!('xs:enumeration', { value: 'string' })
+      xml.tag!('xs:enumeration', { value: 'URI' })
     end
   end
 

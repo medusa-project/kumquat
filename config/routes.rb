@@ -124,6 +124,14 @@ Rails.application.routes.draw do
       match '/disable', to: 'users#disable', via: 'patch', as: 'disable'
       match '/roles', to: 'users#change_roles', via: 'patch', as: 'change_roles'
     end
-    resources :vocabularies
+    resources :vocabulary_terms, except: :index, path: 'vocabulary-terms'
+    resources :vocabularies do
+      match '/delete-vocabulary-terms',
+            to: 'vocabularies#delete_vocabulary_terms',
+            via: 'post', as: 'delete_vocabulary_terms'
+      match '/terms', to: 'vocabularies#terms', via: 'get'
+    end
+    match '/vocabularies/import', to: 'vocabularies#import', via: 'post',
+          as: 'vocabulary_import'
   end
 end

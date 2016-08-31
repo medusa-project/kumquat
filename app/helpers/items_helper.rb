@@ -409,7 +409,7 @@ module ItemsHelper
   ##
   # @param item [Item]
   # @param options [Hash]
-  # @option options [Boolean] :show_invisible
+  # @option options [Boolean] :admin
   # @return [String]
   # @see `tech_metadata_as_list`
   #
@@ -418,8 +418,10 @@ module ItemsHelper
     # iterate through the index-ordered elements in the collection's metadata
     # profile in order to display the entity's elements in the correct order
     defs = item.collection.effective_metadata_profile.element_defs
-    defs = defs.select(&:visible) unless options[:show_invisible]
+    defs = defs.select(&:visible) unless options[:admin]
     defs.each do |e_def|
+      # These will be displayed elsewhere on the page.
+      next if %w(rights title).include?(e_def.name) and !options[:admin]
       elements = item.elements.
           select{ |e| e.name == e_def.name and e.value.present? }
       next if elements.empty?
@@ -443,7 +445,7 @@ module ItemsHelper
   ##
   # @param item [Item]
   # @param options [Hash]
-  # @option options [Boolean] :show_invisible
+  # @option options [Boolean] :admin
   # @return [String]
   # @see `tech_metadata_as_table`
   #
@@ -453,8 +455,10 @@ module ItemsHelper
     # iterate through the index-ordered elements in the collection's metadata
     # profile in order to display the entity's elements in the correct order
     defs = item.collection.effective_metadata_profile.element_defs
-    defs = defs.select(&:visible) unless options[:show_invisible]
+    defs = defs.select(&:visible) unless options[:admin]
     defs.each do |e_def|
+      # These will be displayed elsewhere on the page.
+      next if %w(rights title).include?(e_def.name) and !options[:admin]
       elements = item.elements.
           select{ |e| e.name == e_def.name and e.value.present? }
       next if elements.empty?
@@ -771,6 +775,10 @@ module ItemsHelper
           url: item_url(item.root_parent)
       }
     end
+
+    # license
+    statement = item.effective_rightsstatements_org_statement
+    struct[:license] = statement.uri if statement
 
     # position
     struct[:position] = item.page_number if item.page_number

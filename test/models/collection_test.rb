@@ -33,7 +33,7 @@ class CollectionTest < ActiveSupport::TestCase
 6e406030-5ce3-0132-3334-0050569601ca-3\ta53add10-5ca8-0132-3334-0050569601ca-7\t\t\tFile\t\t\t\t\t\t\t\t
 d29950d0-c451-0133-1d17-0050569601ca-2\tbe8d3500-c451-0133-1d17-0050569601ca-9\tMyString\tMyString\t\t\t\t\t\t\t\t\t
 d29edba0-c451-0133-1d17-0050569601ca-c\tbe8d3500-c451-0133-1d17-0050569601ca-9\t\t\t\t\t\t\t\t\t\t\t
-a1234567-5ca8-0132-3334-0050569601ca-8\t\tMyString\tMyString\t\t\t\t39.2524300\t-152.2342300\t\t\tCats\tMore cats
+a1234567-5ca8-0132-3334-0050569601ca-8\t\tMyString\tMyString\t\t\t\t39.2524300\t-152.2342300\t\t\tCats||<http://example.org/cats1>\tMore cats||<http://example.org/cats2>
 be8d3500-c451-0133-1d17-0050569601ca-9\t\t\t\t\t\t\t\t\t\t\t\t
 a53add10-5ca8-0132-3334-0050569601ca-7\t\t\t\tDirectory\t\t\t\t\t\t\t\t
 cd2d4601-c451-0133-1d17-0050569601ca-8\t\t\t\t\t\t\t\t\t\t\t\t\n"

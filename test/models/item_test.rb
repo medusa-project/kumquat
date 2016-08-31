@@ -114,6 +114,55 @@ class ItemTest < ActiveSupport::TestCase
                  @item.effective_representative_item.repository_id
   end
 
+  # effective_rights_statement()
+
+  test 'effective_rights_statement() should return the statement of the instance' do
+    assert_equal 'Test rights statement', @item.effective_rights_statement
+  end
+
+  test 'effective_rights_statement() should fall back to a parent statement' do
+    @item = items(:free_form_dir1_file1)
+    @item.rights_statement = nil
+    @item.parent.rights_statement = 'cats'
+    assert_equal 'cats', @item.effective_rights_statement
+  end
+
+  test 'effective_rights_statement() should fall back to the collection
+  rights statement' do
+    @item.rights_statement = nil
+    @item.collection.rights_statement = 'cats'
+    assert_equal 'cats', @item.effective_rights_statement
+  end
+
+  # effective_rightsstatement_org_statement()
+
+  test 'effective_rightsstatements_org_statement() should return the statement
+  of the instance' do
+    @item.elements.build(name: 'rightsStatement',
+                         uri: 'http://rightsstatements.org/vocab/NoC-OKLR/1.0/')
+    assert_equal 'http://rightsstatements.org/vocab/NoC-OKLR/1.0/',
+                 @item.effective_rightsstatements_org_statement.uri
+  end
+
+  test 'effective_rightsstatements_org_statement() should fall back to a parent
+  statement' do
+    @item = items(:free_form_dir1_file1)
+    @item.elements.where(name: 'rightsStatement').destroy_all
+    @item.parent.elements.build(name: 'rightsStatement',
+                                uri: 'http://rightsstatements.org/vocab/NoC-OKLR/1.0/')
+    assert_equal 'http://rightsstatements.org/vocab/NoC-OKLR/1.0/',
+                 @item.effective_rightsstatements_org_statement.uri
+  end
+
+  test 'effective_rightsstatements_org_statement() should fall back to the
+  collection rights statement' do
+    @item.elements.where(name: 'rightsStatement').destroy_all
+    @item.collection.rightsstatements_org_uri =
+        'http://rightsstatements.org/vocab/NoC-OKLR/1.0/'
+    assert_equal 'http://rightsstatements.org/vocab/NoC-OKLR/1.0/',
+                 @item.effective_rightsstatements_org_statement.uri
+  end
+
   # element()
 
   test 'element() should work' do
@@ -398,11 +447,11 @@ class ItemTest < ActiveSupport::TestCase
     xml += '<dls:preservationMasterHeight>400</dls:preservationMasterHeight>'
 
     # descriptive elements
-    xml += '<dls:date>1984</dls:date>'
-    xml += '<dls:description>Cats</dls:description>'
-    xml += '<dls:description>More cats</dls:description>'
-    xml += '<dls:description>Even more cats</dls:description>'
-    xml += '<dls:title>Cats</dls:title>'
+    xml += '<dls:date vocabularyKey="uncontrolled" dataType="string">1984</dls:date>'
+    xml += '<dls:description vocabularyKey="uncontrolled" dataType="string">Cats</dls:description>'
+    xml += '<dls:description vocabularyKey="lcsh" dataType="string">More cats</dls:description>'
+    xml += '<dls:description vocabularyKey="uncontrolled" dataType="URI">http://example.org/cats</dls:description>'
+    xml += '<dls:title vocabularyKey="uncontrolled" dataType="string">Cats</dls:title>'
     xml += '</dls:Object>'
 
     doc = Nokogiri::XML(xml, &:noblanks)
@@ -427,7 +476,9 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal 3, descriptions.length
     assert_equal 1, descriptions.select{ |e| e.value == 'Cats' }.length
     assert_equal 1, descriptions.select{ |e| e.value == 'More cats' }.length
-    assert_equal 1, descriptions.select{ |e| e.value == 'Even more cats' }.length
+    assert_equal 1, descriptions.select{ |e| e.uri == 'http://example.org/cats' }.length
+    assert_equal 'uncontrolled', descriptions.first.vocabulary.key
+    assert_equal 'lcsh', descriptions[1].vocabulary.key
 
     assert_equal('Cats', @item.title)
   end

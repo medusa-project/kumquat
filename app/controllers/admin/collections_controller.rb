@@ -70,7 +70,8 @@ module Admin
                                          :medusa_file_group_id,
                                          :metadata_profile_id,
                                          :package_profile_id,
-                                         :published_in_dls)
+                                         :published_in_dls,
+                                         :rightsstatements_org_uri)
     end
 
     def update_collections_rbac

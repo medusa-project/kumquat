@@ -1,25 +1,57 @@
 module AdminHelper
 
-  def admin_item_element_edit_tag(element_name, element_value)
+  ##
+  # @param element_def [ElementDef]
+  # @param element [ItemElement, nil]
+  # @param vocabulary [Vocabulary]
+  # @return [String]
+  #
+  def admin_item_element_edit_tag(element_def, element, vocabulary)
     html = '<table class="table-condensed pt-element" style="width:100%">
       <tr>
+        <th style="text-align: right; width: 1px">String</th>
         <td>'
-    html += text_area_tag("elements[#{element_name}][]", element_value,
-                          id: "elements[#{element_name}]",
-                          class: 'form-control')
+    if vocabulary == Vocabulary.uncontrolled # uncontrolled gets a textarea
+      html += text_area_tag("elements[#{element_def.name}][#{vocabulary.id}][][string]",
+                            element&.value,
+                            id: "elements[#{element_def.name}][#{vocabulary.id}][string]",
+                            class: 'form-control',
+                            autocomplete: 'off',
+                            data: { controlled: 'false' })
+    else # controlled gets a one-line text field
+      html += text_field_tag("elements[#{element_def.name}][#{vocabulary.id}][][string]",
+                             element&.value,
+                             id: "elements[#{element_def.name}][#{vocabulary.id}][string]",
+                             class: 'form-control',
+                             autocomplete: 'off',
+                             data: { controlled: 'true',
+                                     'vocabulary-id': vocabulary.id })
+    end
     html += '</td>
-             <td style="width: 90px">
-               <div class="btn-group">
-                 <button class="btn btn-sm btn-default pt-add-element">
-                   <i class="fa fa-plus"></i>
-                 </button>
-                 <button class="btn btn-sm btn-danger pt-remove-element">
-                   <i class="fa fa-minus"></i>
-                 </button>
-               </div>
-             </td>
-           </tr>
-         </table>'
+          <td style="width: 90px" rowspan="2">
+            <div class="btn-group">
+              <button class="btn btn-sm btn-default pt-add-element">
+                <i class="fa fa-plus"></i>
+              </button>
+              <button class="btn btn-sm btn-danger pt-remove-element">
+                <i class="fa fa-minus"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <th style="text-align: right; width: 1px">URI</th>
+          <td>'
+    html += text_field_tag("elements[#{element_def.name}][#{vocabulary.id}][][uri]",
+                           element&.uri,
+                           id: "elements[#{element_def.name}][#{vocabulary.id}][uri]",
+                           class: 'form-control',
+                           autocomplete: 'off',
+                           data: { controlled: (vocabulary == Vocabulary.uncontrolled) ? 'false' : 'true',
+                                   'vocabulary-id': vocabulary.id})
+    html += '</td>
+        </tr>
+      </table>'
     raw(html)
   end
 
@@ -223,6 +255,14 @@ module AdminHelper
     data['Normalized Date'] = item.date
     data['Normalized Longitude'] = item.longitude
     data['Normalized Latitude'] = item.latitude
+    data['RightsStatements.org (assigned)'] = item.rightsstatements_org_statement ?
+        link_to(item.rightsstatements_org_statement.name,
+                item.rightsstatements_org_statement.info_uri,
+                target: '_blank') : ''
+    data['RightsStatements.org (effective)'] = item.effective_rightsstatements_org_statement ?
+        link_to(item.effective_rightsstatements_org_statement.name,
+                item.effective_rightsstatements_org_statement.info_uri,
+                target: '_blank') : ''
     data['Created'] = local_time(item.created_at)
     data['Last Modified'] = local_time(item.updated_at)
     data
