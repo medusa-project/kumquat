@@ -14,12 +14,14 @@ module AdminHelper
                             element&.value,
                             id: "elements[#{element_def.name}][string]",
                             class: 'form-control',
+                            autocomplete: 'off',
                             data: { controlled: 'false' })
     else
       html += text_field_tag("elements[#{element_def.name}][][string]",
                              element&.value,
                              id: "elements[#{element_def.name}][string]",
                              class: 'form-control',
+                             autocomplete: 'off',
                              data: { controlled: 'true',
                                      vocabulary_ids: element_def.vocabularies.map(&:id).join(',') })
     end
@@ -38,12 +40,23 @@ module AdminHelper
         <tr>
           <th style="text-align: right; width: 1px">URI</th>
           <td>'
-    html += text_field_tag("elements[#{element_def.name}][][uri]",
-                           element&.uri,
-                           id: "elements[#{element_def.name}][uri]",
-                           class: 'form-control',
-                           data: { controlled: 'false',
-                                   vocabulary_ids: element_def.vocabularies.map(&:id).join(',') })
+    if element_def.vocabularies.select{ |v| v.key == 'uncontrolled' }.any?
+      html += text_field_tag("elements[#{element_def.name}][][uri]",
+                             element&.uri,
+                             id: "elements[#{element_def.name}][uri]",
+                             class: 'form-control',
+                             autocomplete: 'off',
+                             data: { controlled: 'false',
+                                     vocabulary_ids: element_def.vocabularies.map(&:id).join(',') })
+    else
+      html += text_field_tag("elements[#{element_def.name}][][uri]",
+                             element&.uri,
+                             id: "elements[#{element_def.name}][uri]",
+                             class: 'form-control',
+                             autocomplete: 'off',
+                             data: { controlled: 'true',
+                                     vocabulary_ids: element_def.vocabularies.map(&:id).join(',') })
+    end
     html += '</td>
         </tr>
       </table>'
