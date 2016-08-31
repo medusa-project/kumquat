@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160826164327) do
+ActiveRecord::Schema.define(version: 20160831182142) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -230,4 +230,6 @@ ActiveRecord::Schema.define(version: 20160826164327) do
   add_foreign_key "bytestreams", "items", on_delete: :cascade
   add_foreign_key "element_defs", "metadata_profiles", on_delete: :cascade
   add_foreign_key "item_elements", "items", on_delete: :cascade
+  add_foreign_key "item_elements", "vocabularies", on_delete: :restrict
+  add_foreign_key "vocabulary_terms", "vocabularies", on_delete: :cascade
 end
