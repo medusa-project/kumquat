@@ -3,27 +3,29 @@ module AdminHelper
   ##
   # @param element_def [ElementDef]
   # @param element [ItemElement, nil]
+  # @param vocabulary [Vocabulary]
+  # @return [String]
   #
-  def admin_item_element_edit_tag(element_def, element)
+  def admin_item_element_edit_tag(element_def, element, vocabulary)
     html = '<table class="table-condensed pt-element" style="width:100%">
       <tr>
         <th style="text-align: right; width: 1px">String</th>
         <td>'
-    if element_def.vocabularies.select{ |v| v.key == 'uncontrolled' }.any?
-      html += text_area_tag("elements[#{element_def.name}][][string]",
+    if vocabulary == Vocabulary.uncontrolled # uncontrolled gets a textarea
+      html += text_area_tag("elements[#{element_def.name}][#{vocabulary.id}][][string]",
                             element&.value,
-                            id: "elements[#{element_def.name}][string]",
+                            id: "elements[#{element_def.name}][#{vocabulary.id}][string]",
                             class: 'form-control',
                             autocomplete: 'off',
                             data: { controlled: 'false' })
-    else
-      html += text_field_tag("elements[#{element_def.name}][][string]",
+    else # controlled gets a one-line text field
+      html += text_field_tag("elements[#{element_def.name}][#{vocabulary.id}][][string]",
                              element&.value,
-                             id: "elements[#{element_def.name}][string]",
+                             id: "elements[#{element_def.name}][#{vocabulary.id}][string]",
                              class: 'form-control',
                              autocomplete: 'off',
                              data: { controlled: 'true',
-                                     vocabulary_ids: element_def.vocabularies.map(&:id).join(',') })
+                                     'vocabulary-id': vocabulary.id })
     end
     html += '</td>
           <td style="width: 90px" rowspan="2">
@@ -40,23 +42,13 @@ module AdminHelper
         <tr>
           <th style="text-align: right; width: 1px">URI</th>
           <td>'
-    if element_def.vocabularies.select{ |v| v.key == 'uncontrolled' }.any?
-      html += text_field_tag("elements[#{element_def.name}][][uri]",
-                             element&.uri,
-                             id: "elements[#{element_def.name}][uri]",
-                             class: 'form-control',
-                             autocomplete: 'off',
-                             data: { controlled: 'false',
-                                     vocabulary_ids: element_def.vocabularies.map(&:id).join(',') })
-    else
-      html += text_field_tag("elements[#{element_def.name}][][uri]",
-                             element&.uri,
-                             id: "elements[#{element_def.name}][uri]",
-                             class: 'form-control',
-                             autocomplete: 'off',
-                             data: { controlled: 'true',
-                                     vocabulary_ids: element_def.vocabularies.map(&:id).join(',') })
-    end
+    html += text_field_tag("elements[#{element_def.name}][#{vocabulary.id}][][uri]",
+                           element&.uri,
+                           id: "elements[#{element_def.name}][#{vocabulary.id}][uri]",
+                           class: 'form-control',
+                           autocomplete: 'off',
+                           data: { controlled: (vocabulary == Vocabulary.uncontrolled) ? 'false' : 'true',
+                                   'vocabulary-id': vocabulary.id})
     html += '</td>
         </tr>
       </table>'
@@ -237,24 +229,6 @@ module AdminHelper
       html += "<tr><td>#{label}</td><td>#{value}</td></tr>"
     end
     html += '</table>'
-    raw(html)
-  end
-
-  ##
-  # @param element_def [ElementDef]
-  # @return [String]
-  #
-  def admin_vocabularies(element_def)
-    html = ''
-    if element_def.vocabularies.select{ |v| v.key == 'uncontrolled'}.length > 1
-      html += '<ul>'
-      element_def.vocabularies.each do |vocab|
-        html += "<li>#{vocab.name}</li>"
-      end
-      html += '</ul>'
-    else
-      html += element_def.vocabularies.first&.name
-    end
     raw(html)
   end
 

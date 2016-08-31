@@ -99,6 +99,23 @@ module Admin
       end
     end
 
+    ##
+    # Responds to GET /admin/vocabularies/:id/terms.json?query=&type={string,uri}
+    #
+    def terms
+      @vocabulary = Vocabulary.find(params[:vocabulary_id])
+
+      respond_to do |format|
+        format.json do
+          type = %w(string uri).include?(params[:type]) ?
+              params[:type] : 'string'
+          render json: @vocabulary.vocabulary_terms.
+              where("LOWER(#{type}) LIKE ?", "%#{params[:query].downcase}%").
+              order(:string, :uri).limit(50)
+        end
+      end
+    end
+
     def update
       @vocabulary = Vocabulary.find(params[:id])
       if request.xhr?

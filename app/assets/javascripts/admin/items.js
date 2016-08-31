@@ -19,13 +19,14 @@ var PTAdminItemEditView = function() {
         this.fetchResults = function(onSuccess) {
             var query = input.val();
             if (query.length > 1) {
-                var vocabulary_ids = input.data('vocabulary-ids');
+                var vocabulary_id = input.data('vocabulary-id');
                 var inputType = (input.attr('name').indexOf('[string]') > 0) ?
                     'string' : 'uri';
                 var url = $('[name=root_url]').val() +
-                    '/admin/vocabulary-terms.json?query=' + query +
-                    '&vocabulary_ids=' + vocabulary_ids +
+                    '/admin/vocabularies/' + vocabulary_id +
+                    '/terms.json?query=' + query +
                     '&type=' + inputType;
+                console.debug('Autocompleter.fetchResults(): ' + url);
                 $.ajax({
                     url: url,
                     success: function (results) {

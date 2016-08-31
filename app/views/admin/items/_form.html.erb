@@ -69,22 +69,25 @@
       <table class="table table-striped pt-elements">
         <tbody>
           <% @item.collection.metadata_profile.element_defs.each do |e_def| %>
-            <tr>
-              <td style="width:20%">
-                <label><%= e_def.label %></label>
-                <p class="help-block"><%= admin_vocabularies(e_def) %></p>
-              </td>
-              <td>
-                <% elements = @item.elements.select{ |e| e.name == e_def.name} %>
-                <% if elements.any? %>
-                  <% elements.each do |elem| %>
-                    <%= admin_item_element_edit_tag(e_def, elem) %>
+            <% e_def.vocabularies.each do |voc| %>
+              <tr>
+                <td style="width:20%">
+                  <label><%= e_def.label %></label>
+                  <p class="help-block"><%= voc.name %></p>
+                </td>
+                <td>
+                  <% elements = @item.elements.select{ |e| e.name == e_def.name and
+                      (e.vocabulary_id == voc.id or (e.vocabulary_id.blank? and voc == Vocabulary.uncontrolled)) } %>
+                  <% if elements.any? %>
+                    <% elements.each do |elem| %>
+                      <%= admin_item_element_edit_tag(e_def, elem, voc) %>
+                    <% end %>
+                  <% else %>
+                    <%= admin_item_element_edit_tag(e_def, nil, voc) %>
                   <% end %>
-                <% else %>
-                  <%= admin_item_element_edit_tag(e_def, nil) %>
-                <% end %>
-              </td>
-            </tr>
+                </td>
+              </tr>
+            <% end %>
           <% end %>
         </tbody>
       </table>
