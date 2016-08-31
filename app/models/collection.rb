@@ -161,12 +161,12 @@ SELECT items.repository_id,
   array_to_string(array(SELECT value
     FROM item_elements
     WHERE item_elements.item_id = items.id
-      AND item_elements.vocabulary_id IS NULL
+      AND (item_elements.vocabulary_id IS NULL OR item_elements.vocabulary_id = 11)
       AND item_elements.name = 'subject'), '||') AS uncontrolled_subject,
   array_to_string(array(SELECT value
     FROM item_elements
     WHERE item_elements.item_id = items.id
-      AND item_elements.vocabulary_id = 11
+      AND (item_elements.vocabulary_id IS NULL OR item_elements.vocabulary_id = 11)
       AND item_elements.name = 'subject'), '||') AS lcsh_subject
 FROM items
 WHERE items.collection_repository_id = '8132f520-e3fb-012f-c5b6-0019b9e633c5-f'
@@ -177,12 +177,13 @@ LIMIT 1000;
     element_subselects = self.effective_metadata_profile.element_defs.map do |ed|
       subselects = []
       ed.vocabularies.sort{ |v| v.key <=> v.key }.each do |vocab|
-        vocab_id = (vocab == Vocabulary.uncontrolled) ? 'IS NULL' : "= #{vocab.id}"
+        vocab_id = (vocab == Vocabulary.uncontrolled) ?
+            "IS NULL OR item_elements.vocabulary_id = #{Vocabulary.uncontrolled.id}" : "= #{vocab.id}"
         subselects << "array_to_string(array(
           SELECT value
           FROM item_elements
           WHERE item_elements.item_id = items.id
-            AND item_elements.vocabulary_id #{vocab_id}
+            AND (item_elements.vocabulary_id #{vocab_id})
             AND item_elements.name = '#{ed.name}'), '#{Item::MULTI_VALUE_SEPARATOR}')
               AS #{vocab.key}_#{ed.name}"
       end
