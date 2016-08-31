@@ -167,14 +167,14 @@ SELECT items.repository_id,
       array(SELECT value || ''
         FROM item_elements
         WHERE item_elements.item_id = items.id
-          AND item_elements.vocabulary_id IS NULL
+          AND (item_elements.vocabulary_id IS NULL OR item_elements.vocabulary_id = 11)
           AND item_elements.name = 'subject'
           AND value IS NOT NULL
           AND length(value) > 0)
       array(SELECT '<' || uri || '>'
         FROM item_elements
         WHERE item_elements.item_id = items.id
-          AND item_elements.vocabulary_id IS NULL
+          AND (item_elements.vocabulary_id IS NULL OR item_elements.vocabulary_id = 11)
           AND item_elements.name = 'subject'
           AND uri IS NOT NULL
           AND length(uri) > 0)
@@ -184,14 +184,14 @@ SELECT items.repository_id,
       array(SELECT value || ''
         FROM item_elements
         WHERE item_elements.item_id = items.id
-          AND item_elements.vocabulary_id = 11
+          AND (item_elements.vocabulary_id IS NULL OR item_elements.vocabulary_id = 11)
           AND item_elements.name = 'subject'
           AND value IS NOT NULL
           AND length(value) > 0)
       array(SELECT '<' || uri || '>'
         FROM item_elements
         WHERE item_elements.item_id = items.id
-          AND item_elements.vocabulary_id = 11
+          AND (item_elements.vocabulary_id IS NULL OR item_elements.vocabulary_id = 11)
           AND item_elements.name = 'subject'
           AND uri IS NOT NULL
           AND length(uri) > 0)
@@ -205,14 +205,15 @@ LIMIT 1000;
     element_subselects = self.effective_metadata_profile.element_defs.map do |ed|
       subselects = []
       ed.vocabularies.sort{ |v| v.key <=> v.key }.each do |vocab|
-        vocab_id = (vocab == Vocabulary.uncontrolled) ? 'IS NULL' : "= #{vocab.id}"
+        vocab_id = (vocab == Vocabulary.uncontrolled) ?
+            "IS NULL OR item_elements.vocabulary_id = #{Vocabulary.uncontrolled.id}" : "= #{vocab.id}"
         subselects << "array_to_string(
           array_cat(
             array(
               SELECT value || ''
               FROM item_elements
               WHERE item_elements.item_id = items.id
-                AND item_elements.vocabulary_id #{vocab_id}
+                AND (item_elements.vocabulary_id #{vocab_id})
                 AND item_elements.name = '#{ed.name}'
                 AND value IS NOT NULL
                 AND length(value) > 0),
@@ -220,7 +221,7 @@ LIMIT 1000;
               SELECT '<' || uri || '>'
               FROM item_elements
               WHERE item_elements.item_id = items.id
-                AND item_elements.vocabulary_id #{vocab_id}
+                AND (item_elements.vocabulary_id #{vocab_id})
                 AND item_elements.name = '#{ed.name}'
                 AND uri IS NOT NULL
                 AND length(uri) > 0)
