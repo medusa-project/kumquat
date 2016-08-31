@@ -77,7 +77,8 @@ class ItemElement < ActiveRecord::Base
 
   def ==(obj)
     obj.kind_of?(ItemElement) and obj.name == self.name and
-        obj.value == self.value and obj.vocabulary_id == self.vocabulary_id
+        obj.value == self.value and obj.uri == self.uri and
+        obj.vocabulary_id == self.vocabulary_id
   end
 
   def formatted_value
