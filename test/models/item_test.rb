@@ -387,9 +387,11 @@ class ItemTest < ActiveSupport::TestCase
     row['variant'] = Item::Variants::PAGE
 
     # descriptive elements
-    row['description'] = sprintf('Cats%scats%sand more cats',
-                                 Item::MULTI_VALUE_SEPARATOR,
-                                 Item::MULTI_VALUE_SEPARATOR)
+    row['description'] = 'Cats' + Item::MULTI_VALUE_SEPARATOR +
+        'cats' + Item::MULTI_VALUE_SEPARATOR +
+        '<http://example.org/cats1>' + Item::MULTI_VALUE_SEPARATOR +
+        'and more cats' + Item::MULTI_VALUE_SEPARATOR +
+        '<http://example.org/cats2>' + Item::MULTI_VALUE_SEPARATOR
     row['title'] = 'Cats'
 
     @item.update_from_tsv(row)
@@ -402,12 +404,24 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal(Item::Variants::PAGE, @item.variant)
 
     descriptions = @item.elements.select{ |e| e.name == 'description' }
-    assert_equal 3, descriptions.length
+    assert_equal 5, descriptions.length
     assert_equal 1, descriptions.select{ |e| e.value == 'Cats' }.length
     assert_equal 1, descriptions.select{ |e| e.value == 'cats' }.length
     assert_equal 1, descriptions.select{ |e| e.value == 'and more cats' }.length
+    assert_equal 1, descriptions.select{ |e| e.uri == 'http://example.org/cats1' }.length
+    assert_equal 1, descriptions.select{ |e| e.uri == 'http://example.org/cats2' }.length
 
     assert_equal('Cats', @item.title)
+  end
+
+  test 'update_from_tsv should raise an error if given an invalid element name' do
+    row = {}
+    row['title'] = 'Cats'
+    row['totallyBogus'] = 'Felines'
+
+    assert_raises ArgumentError do
+      @item.update_from_tsv(row)
+    end
   end
 
   test 'update_from_tsv should raise an error if given an invalid vocabulary prefix' do
@@ -415,7 +429,7 @@ class ItemTest < ActiveSupport::TestCase
     row['title'] = 'Cats'
     row['bogus:subject'] = 'Felines'
 
-    assert_raises RuntimeError do
+    assert_raises ArgumentError do
       @item.update_from_tsv(row)
     end
   end

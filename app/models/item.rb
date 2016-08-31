@@ -66,6 +66,8 @@ class Item < ActiveRecord::Base
   end
 
   MULTI_VALUE_SEPARATOR = '||'
+  NON_DESCRIPTIVE_TSV_COLUMNS = %w(uuid parentId preservationMasterPathname
+    accessMasterPathname variant pageNumber subpageNumber latitude longitude)
   TSV_LINE_BREAK = "\n"
   UUID_REGEX = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/
 
@@ -106,18 +108,17 @@ class Item < ActiveRecord::Base
   #
   def self.tsv_header(metadata_profile)
     # Must remain synchronized with the output of to_tsv.
-    elements = %w(uuid parentId preservationMasterPathname accessMasterPathname
-                  variant pageNumber subpageNumber latitude longitude)
+    columns = NON_DESCRIPTIVE_TSV_COLUMNS
     metadata_profile.element_defs.each do |ed|
       # There will be one column per ElementDef vocabulary. Column headings are
       # in the format "vocabKey:elementName", except the uncontrolled vocabulary
       # which will not get a vocabKey prefix.
-      elements += ed.vocabularies.sort{ |v| v.key <=> v.key }.map do |vocab|
+      columns += ed.vocabularies.sort{ |v| v.key <=> v.key }.map do |vocab|
         vocab.key != Vocabulary::UNCONTROLLED_KEY ?
             "#{vocab.key}:#{ed.name}" : ed.name
       end
     end
-    elements.join("\t") + TSV_LINE_BREAK
+    columns.join("\t") + TSV_LINE_BREAK
   end
 
   ##
@@ -641,7 +642,10 @@ class Item < ActiveRecord::Base
   #
   # @param row [Hash<String,String>] Item serialized as a TSV row
   # @return [Item]
-  # @raises [RuntimeError]
+  # @raises [ArgumentError] If a column heading contains an unrecognized
+  #                         element name
+  # @raises [ArgumentError] If a column heading contains an unrecognized
+  #                         vocabulary prefix
   #
   def update_from_tsv(row)
     ActiveRecord::Base.transaction do
@@ -684,33 +688,47 @@ class Item < ActiveRecord::Base
       # variant
       self.variant = row['variant'].strip if row['variant']
 
-      # Metadata elements.
+      # Descriptive metadata elements.
       row.each do |heading, multi_value|
         # Skip columns with an empty value.
         next unless multi_value.present?
+
         # Vocabulary columns will have a heading of "vocabKey:elementName",
         # except uncontrolled columns which will have a heading of just
         # "elementName".
-        parts = heading.split(':')
-        element_name = parts.last
-        # To be a little safer, we will accept any available descriptive
-        # element, whether or not it is present in the collection's metadata
-        # profile.
+        heading_parts = heading.split(':')
+        element_name = heading_parts.last
+
+        # Skip non-descriptive columns.
+        next if NON_DESCRIPTIVE_TSV_COLUMNS.include?(element_name)
+
+        # To avoid data loss, we will accept any available descriptive element,
+        # whether or not it is present in the collection's metadata profile.
         if ItemElement.all_descriptive.map(&:name).include?(element_name)
-          multi_value.split(MULTI_VALUE_SEPARATOR).select(&:present?).each do |value|
+          multi_value.split(MULTI_VALUE_SEPARATOR).select(&:present?).each do |raw_value|
             e = ItemElement.named(element_name)
-            e.value = value
-            if parts.length > 1
-              e.vocabulary = Vocabulary.find_by_key(parts.first)
+            # If the value is "<value>", it's a URI.
+            if raw_value.start_with?('<') and raw_value.end_with?('>')
+              e.uri = raw_value[1..raw_value.length - 2]
+            else
+              e.value = raw_value
+            end
+            # Assign the correct vocabulary.
+            if heading_parts.length > 1
+              e.vocabulary = Vocabulary.find_by_key(heading_parts.first)
               # Disallow invalid vocabularies.
               unless e.vocabulary
-                raise "Column contains an invalid vocabulary: #{heading}"
+                raise ArgumentError,
+                      "Column contains an unrecognized vocabulary key: #{heading}"
               end
             else
               e.vocabulary = Vocabulary.uncontrolled
             end
             self.elements << e
           end
+        else
+          raise ArgumentError,
+                "Column contains an unrecognized element name: #{element_name}"
         end
       end
 
