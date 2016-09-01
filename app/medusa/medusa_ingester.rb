@@ -3,11 +3,11 @@ class MedusaIngester
   class IngestMode
     # Creates new DLS entities but does not touch existing DLS entities.
     CREATE_ONLY = 'create_only'
-
     # Deletes DLS entities that have gone missing in Medusa, but does not
     # create or update anything.
     DELETE_MISSING = 'delete_missing'
-
+    # Replaces DLS items' metadata with that found in embedded metadata.
+    REPLACE_METADATA = 'replace_metadata'
     # Updates existing DLS items' bytestreams.
     UPDATE_BYTESTREAMS = 'update_bytestreams'
   end
@@ -75,6 +75,8 @@ class MedusaIngester
           stats.merge!(delete_missing_items(collection))
         when IngestMode::UPDATE_BYTESTREAMS
           stats.merge!(update_bytestreams(collection, warnings))
+        when IngestMode::REPLACE_METADATA
+          stats.merge!(replace_metadata(collection))
         else
           stats.merge!(create_items(collection, options, warnings))
       end
@@ -497,6 +499,20 @@ class MedusaIngester
       end
     end
     medusa_item_uuids
+  end
+
+  ##
+  # @param collection [Collection]
+  # @return [Hash<Symbol,Integer>] Hash with a :num_updated key.
+  #
+  def replace_metadata(collection)
+    stats = { num_updated: 0 }
+    collection.items.each do |item|
+      item.elements.destroy_all
+      item.update_from_embedded_metadata
+      stats[:num_updated] += 1
+    end
+    stats
   end
 
   ##
