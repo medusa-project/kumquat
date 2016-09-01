@@ -93,7 +93,8 @@ class ItemsController < WebsiteController
     @start = params[:start] ? params[:start].to_i : 0
     @limit = Option::integer(Option::Key::RESULTS_PER_PAGE)
     @items = Item.solr.where(Item::SolrFields::PUBLISHED => true).
-        where(Item::SolrFields::PARENT_ITEM => :null).where(params[:q])
+        where(Item::SolrFields::COLLECTION_PUBLISHED => true).
+        where(params[:q])
     if params[:fq].respond_to?(:each)
       params[:fq].each { |fq| @items = @items.facet(fq) }
     else
@@ -103,7 +104,6 @@ class ItemsController < WebsiteController
       @collection = Collection.find_by_repository_id(params[:collection_id])
       raise ActiveRecord::RecordNotFound unless @collection
 
-      # TODO: published items in unpublished collections can still get through
       return unless check_collection_published(@collection)
 
       @items = @items.where(Item::SolrFields::COLLECTION => @collection.repository_id)
