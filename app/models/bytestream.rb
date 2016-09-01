@@ -10,6 +10,8 @@ class Bytestream < ActiveRecord::Base
 
   belongs_to :item, inverse_of: :bytestreams
 
+  @@formats = YAML::load(File.read("#{Rails.root}/lib/formats.yml"))
+
   ##
   # @return [String, nil]
   #
@@ -25,9 +27,8 @@ class Bytestream < ActiveRecord::Base
   #
   def byte_size
     pathname = self.absolute_local_pathname
-    size = (pathname and File.exist?(pathname) and File.file?(pathname)) ?
+    (pathname and File.exist?(pathname) and File.file?(pathname)) ?
         File.size(pathname) : nil
-    size || nil
   end
 
   ##
@@ -43,8 +44,7 @@ class Bytestream < ActiveRecord::Base
   # @return [String]
   #
   def human_readable_name
-    formats = YAML::load(File.read("#{Rails.root}/lib/formats.yml"))
-    formats = formats.select{ |f| f['media_types'].include?(self.media_type) }
+    formats = @@formats.select{ |f| f['media_types'].include?(self.media_type) }
     formats.any? ? formats.first['label'] : self.media_type
   end
 
@@ -118,39 +118,44 @@ class Bytestream < ActiveRecord::Base
   ##
   # Reads metadata from the file using exiftool.
   #
+  # @raises [IOError] If the file does not exist or is not readable.
+  #
   def load_metadata
     @metadata = []
     pathname = self.absolute_local_pathname
-    if File.exist?(pathname) and File.readable?(pathname)
-      json = `exiftool -json -l -G "#{pathname.gsub('"', '\\"')}"`
-      begin
-        struct = JSON.parse(json)
-        struct.first.each do |k, v|
-          next if k.include?('ExifToolVersion')
-          # show this one in development
-          next if k.include?('Directory') and Rails.env.production?
-          next if k.include?('FileAccessDate')
-          next if k.include?('FilePermissions')
-          next if k.include?('FileTypeExtension')
-          next if k.include?('CurrentIPTCDigest')
 
-          if v['val']&.kind_of?(String)
-            next if v['val']&.include?('use -b option to extract')
-          end
+    raise IOError, "Does not exist: #{pathname}" unless File.exist?(pathname)
+    raise IOError, "Not readable: #{pathname}" unless File.readable?(pathname)
 
-          if v['desc'].present? and v['val'].present?
-            parts = k.split(':')
-            category = parts.length > 1 ? parts[0] : nil
-            category = category.upcase if category.include?('Jpeg')
-            category.gsub!('ICC_Profile', 'ICC Profile')
-            value = v['val'].kind_of?(String) ? v['val'].strip : v['val']
-            @metadata << { label: v['desc'], category: category, value: value }
-          end
+    json = `exiftool -json -l -G "#{pathname.gsub('"', '\\"')}"`
+    begin
+      struct = JSON.parse(json)
+      struct.first.each do |k, v|
+        next if k.include?('ExifToolVersion')
+        # show this one in development
+        next if k.include?('Directory') and Rails.env.production?
+        next if k.include?('FileAccessDate')
+        next if k.include?('FilePermissions')
+        next if k.include?('FileTypeExtension')
+        next if k.include?('CurrentIPTCDigest')
+
+        if v['val']&.kind_of?(String)
+          next if v['val']&.include?('use -b option to extract')
         end
-      rescue JSON::ParserError => e
-        Rails.logger.warn("Bytestream.load_metadata(): #{e}")
+
+        if v['desc'].present? and v['val'].present?
+          parts = k.split(':')
+          category = parts.length > 1 ? parts[0] : nil
+          category = category.upcase if category.include?('Jpeg')
+          category.gsub!('ICC_Profile', 'ICC Profile')
+          value = v['val'].kind_of?(String) ? v['val'].strip : v['val']
+          @metadata << { label: v['desc'], category: category, value: value }
+        end
       end
+    rescue JSON::ParserError => e
+      Rails.logger.warn("Bytestream.load_metadata(): #{e}")
     end
+
     @metadata_loaded = true
   end
 
