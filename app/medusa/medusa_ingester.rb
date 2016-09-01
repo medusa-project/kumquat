@@ -149,16 +149,8 @@ class MedusaIngester
               '/' + file.repository_relative_pathname.reverse.chomp('/').reverse
           bs.infer_media_type # The type of the CFS file cannot be trusted.
 
-          # Populate its metadata from embedded bytestream metadata.
-          item.update_from_embedded_metadata(options) if options[:extract_metadata]
-
-          # If there was no title available in the embedded metadata, assign a
-          # title of the filename.
-          if item.elements.select{ |e| e.name == 'title' }.empty?
-            e = item.elements.build
-            e.name = 'title'
-            e.value = file.name
-          end
+          update_item_from_embedded_metadata(item, file.name, options) if
+              options[:extract_metadata]
 
           item.save!
           status[:num_created] += 1
@@ -507,9 +499,11 @@ class MedusaIngester
   #
   def replace_metadata(collection)
     stats = { num_updated: 0 }
-    collection.items.each do |item|
+    # Skip items derived from directories, as they have no embedded metadata.
+    collection.items.where('variant != ?', Item::Variants::DIRECTORY).each do |item|
+      Rails.logger.info("replace_metadata(): #{item.repository_id}")
       item.elements.destroy_all
-      item.update_from_embedded_metadata
+      update_item_from_embedded_metadata(item, nil)
       stats[:num_updated] += 1
     end
     stats
@@ -601,6 +595,25 @@ class MedusaIngester
     walk_tree(collection, collection.effective_medusa_cfs_directory,
               collection.effective_medusa_cfs_directory, stats)
     stats
+  end
+
+  ##
+  # Populate an item's metadata from its embedded bytestream metadata.
+  #
+  # @param item [Item]
+  # @param fallback_title [String]
+  # @param options [Hash]
+  # @option options [Boolean] :include_date_created
+  #
+  def update_item_from_embedded_metadata(item, fallback_title, options = {})
+    item.update_from_embedded_metadata(options)
+    # If there was no title present in the embedded metadata, assign a title
+    # of the filename.
+    if item.elements.select{ |e| e.name == 'title' }.empty?
+      e = item.elements.build
+      e.name = 'title'
+      e.value = fallback_title.present? ? fallback_title : item.repository_id
+    end
   end
 
   ##
