@@ -1,29 +1,10 @@
 <div id="pt-search-accordion">
 
   <div>
-<!--
-    <ul class="nav nav-pills nav-justified" role="tablist">
-      <li role="presentation" class="active">
-        <a href="#pt-text-search" aria-controls="pt-text-search"
-           id="pt-text-search-button" data-toggle="tab">
-          <span class="fa fa-terminal"></span> Text
-        </a>
-      </li>
 
-      <li role="presentation">
-        <a href="#pt-date-search" aria-controls="pt-date-search"
-           id="pt-date-search-button" data-toggle="tab">
-          <span class="fa fa-calendar-o"></span> Date
-        </a>
-      </li>
-      <li role="presentation">
-        <a href="#pt-place-search" aria-controls="pt-place-search"
-           id="pt-place-search-button" data-toggle="tab">
-          <span class="fa fa-map-marker"></span> Place
-        </a>
-      </li>
-    </ul>
--->
+    <div class="alert alert-info">Search is under development, and is currently
+      limited to the collections below.</div>
+
     <%= form_tag(controller: 'items', action: 'search', method: :post) do %>
 
       <div class="row">
