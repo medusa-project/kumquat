@@ -1113,13 +1113,17 @@ module ItemsHelper
         }
       end
       if bytestream.is_image?
-        bytestream.metadata.each do |field|
-          data << {
-              label: field[:label],
-              category: field[:category],
-              value: field[:value].respond_to?(:each) ?
-                  field[:value] : truncate(field[:value].to_s, length: 400)
-          }
+        begin
+          bytestream.metadata.each do |field|
+            data << {
+                label: field[:label],
+                category: field[:category],
+                value: field[:value].respond_to?(:each) ?
+                    field[:value] : truncate(field[:value].to_s, length: 400)
+            }
+          end
+        rescue IOError
+          # Nothing we can do.
         end
       end
     end

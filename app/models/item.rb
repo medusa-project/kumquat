@@ -482,6 +482,7 @@ class Item < ActiveRecord::Base
   #
   # @param options [Hash<Symbol,Object>]
   # @option options [Boolean] :include_date_created
+  # @raises [IOError]
   #
   def update_from_embedded_metadata(options = {})
     # Get the bytestream from which the metadata will be extracted
