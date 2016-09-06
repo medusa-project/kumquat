@@ -46,6 +46,11 @@ class LandingController < WebsiteController
         where("#{Item::SolrFields::ACCESS_MASTER_MEDIA_TYPE}:video/* "\
         "OR #{Item::SolrFields::PRESERVATION_MASTER_MEDIA_TYPE}:video/*").count
 
+    # Get DLS collections
+    @dls_collections = Collection.solr.
+        where(Collection::SolrFields::ACCESS_SYSTEMS => 'Medusa Digital Library').
+        limit(100)
+
     fresh_when(etag: @num_all_items) if Rails.env.production?
   end
 
