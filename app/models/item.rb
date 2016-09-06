@@ -492,6 +492,9 @@ class Item < ActiveRecord::Base
       return
     end
 
+    Rails.logger.debug("Item.update_from_embedded_metadata: using "\
+        "#{bs.human_readable_type} (#{bs.absolute_local_pathname})")
+
     # Get its embedded metadata
     iim_metadata = bs.metadata
 
