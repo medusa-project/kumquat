@@ -531,7 +531,7 @@ class Item < ActiveRecord::Base
       add_element('title', title[:value]) if title
 
       # Date Created
-      if options[:include_date_created].to_s == 'true'
+      if options[:include_date_created].to_s != 'false'
         copy_iim_value('Date Created', 'dateCreated', iim_metadata)
 
         # Try to add a normalized date.
@@ -542,15 +542,22 @@ class Item < ActiveRecord::Base
       # Creator
       creator = iim_metadata.select{ |e| e[:label] == 'Creator' }.first
       unless creator
-        creator = iim_metadata.select{ |e| e[:label] == 'Credit Line' }.first
+        creator = iim_metadata.select{ |e| e[:label] == 'By-line' }.first
         unless creator
-          creator = iim_metadata.select{ |e| e[:label] == 'By-line' }.first
+          creator = iim_metadata.select{ |e| e[:label] == 'Credit Line' }.first
         end
       end
       add_element('creator', creator[:value]) if creator
 
       # Description
-      copy_iim_value('Description', 'description', iim_metadata)
+      desc = iim_metadata.select{ |e| e[:label] == 'Description' }.first
+      unless desc
+        desc = iim_metadata.select{ |e| e[:label] == 'Caption' }.first
+        unless desc
+          desc = iim_metadata.select{ |e| e[:label] == 'Abstract' }.first
+        end
+      end
+      add_element('description', desc[:value]) if desc
 
       # Copyright Notice
       copy_iim_value('Copyright Notice', 'rights', iim_metadata)
