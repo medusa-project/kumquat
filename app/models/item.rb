@@ -524,6 +524,9 @@ class Item < ActiveRecord::Base
       title = iim_metadata.select{ |e| e[:label] == 'Headline' }.first
       unless title
         title = iim_metadata.select{ |e| e[:label] == 'Title' }.first
+        unless title
+          title = iim_metadata.select{ |e| e[:label] == 'Object Name' }.first
+        end
       end
       add_element('title', title[:value]) if title
 
@@ -540,6 +543,9 @@ class Item < ActiveRecord::Base
       creator = iim_metadata.select{ |e| e[:label] == 'Creator' }.first
       unless creator
         creator = iim_metadata.select{ |e| e[:label] == 'Credit Line' }.first
+        unless creator
+          creator = iim_metadata.select{ |e| e[:label] == 'By-line' }.first
+        end
       end
       add_element('creator', creator[:value]) if creator
 
