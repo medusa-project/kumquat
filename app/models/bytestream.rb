@@ -175,7 +175,8 @@ class Bytestream < ActiveRecord::Base
   #
   def read_metadata_using_exiv2(pathname)
     # exiv2 --help
-    `exiv2 -Pklt "#{pathname.gsub('"', '\\"')}"`.split("\n").each do |row|
+    `exiv2 -Pklt "#{pathname.gsub('"', '\\"')}"`.
+        encode('UTF-8', invalid: :replace).split("\n").each do |row|
       next if row.length < 10
 
       first_space = row.index(' ')
