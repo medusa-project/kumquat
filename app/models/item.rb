@@ -495,8 +495,8 @@ class Item < ActiveRecord::Base
     Rails.logger.debug("Item.update_from_embedded_metadata: using "\
         "#{bs.human_readable_type} (#{bs.absolute_local_pathname})")
 
-    # Get its embedded metadata
-    iim_metadata = bs.metadata
+    # Get its embedded IPTC IIM metadata
+    iim_metadata = bs.metadata.select{ |m| m[:category] == 'IPTC' }
 
     def add_element(dest_elem, value)
       if value.respond_to?(:each)
@@ -575,7 +575,6 @@ class Item < ActiveRecord::Base
 
       # Concatenate sublocation, city, province or state, and country name
       # into a keyword element.
-      # TODO: this was requested in IMET-246, but consider getting rid of it
       keyword = []
       keyword << iim_metadata.select{ |e| e[:label] == 'Sublocation' }.first
       keyword << iim_metadata.select{ |e| e[:label] == 'City' }.first
