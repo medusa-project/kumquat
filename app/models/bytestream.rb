@@ -174,9 +174,8 @@ class Bytestream < ActiveRecord::Base
   # @param pathname [String]
   #
   def read_metadata_using_exiv2(pathname)
-    # exiv2 --help
-    `exiv2 -Pklt "#{pathname.gsub('"', '\\"')}"`.
-        encode('UTF-8', invalid: :replace).split("\n").each do |row|
+    output = `exiv2 -Pklt "#{pathname.gsub('"', '\\"')}"`
+    output.encode('UTF-8', invalid: :replace).split("\n").each do |row|
       next if row.length < 10
 
       first_space = row.index(' ')
@@ -200,9 +199,21 @@ class Bytestream < ActiveRecord::Base
       cols = [key] + row[col_2_start..row.length - 1].gsub('  ', "\t").
           squeeze("\t").split("\t")
 
-      @metadata << { label: cols[1].strip,
-                     category: key.split('.').first.upcase,
-                     value: cols[2].strip } if cols[2].present?
+      value = cols[2]&.strip
+      if value.present?
+        label = cols[1].strip
+        category = key.split('.').first.upcase
+        
+        md = @metadata.select{ |m| m[:category] == category and m[:label] == label }
+        if md.any?
+          unless md.first[:value].respond_to?(:each)
+            md.first[:value] = [ md.first[:value] ]
+          end
+          md.first[:value] << value
+        else
+          @metadata << { label: label, category: category, value: value }
+        end
+      end
     end
   end
 
