@@ -102,7 +102,7 @@ class Bytestream < ActiveRecord::Base
   #                                      :category, and :value keys.
   #
   def metadata
-    load_metadata unless @metadata_loaded
+    read_metadata unless @metadata_read
     @metadata
   end
 
@@ -120,19 +120,31 @@ class Bytestream < ActiveRecord::Base
   #
   # @raises [IOError] If the file does not exist or is not readable.
   #
-  def load_metadata
+  def read_metadata
     @metadata = []
     pathname = self.absolute_local_pathname
 
     raise IOError, "Does not exist: #{pathname}" unless File.exist?(pathname)
     raise IOError, "Not readable: #{pathname}" unless File.readable?(pathname)
 
+    # exiftool's output is more comprehensive, but as of 2016-09-01, it appears
+    # to cause my local machine's condo NFS mount to unmount itself. OTRS ticket
+    # filed, but don't want to wait on it. OTOH, exiv2 is faster. --AAD
+    #read_metadata_using_exiftool(pathname)
+    read_metadata_using_exiv2(pathname)
+
+    @metadata_read = true
+  end
+
+  ##
+  # @param pathname [String]
+  #
+  def read_metadata_using_exiftool(pathname)
     json = `exiftool -json -l -G "#{pathname.gsub('"', '\\"')}"`
     begin
       struct = JSON.parse(json)
       struct.first.each do |k, v|
         next if k.include?('ExifToolVersion')
-        # show this one in development
         next if k.include?('Directory') and Rails.env.production?
         next if k.include?('FileAccessDate')
         next if k.include?('FilePermissions')
@@ -140,6 +152,7 @@ class Bytestream < ActiveRecord::Base
         next if k.include?('CurrentIPTCDigest')
 
         if v['val']&.kind_of?(String)
+          # Skip binary values
           next if v['val']&.include?('use -b option to extract')
         end
 
@@ -147,16 +160,49 @@ class Bytestream < ActiveRecord::Base
           parts = k.split(':')
           category = parts.length > 1 ? parts[0] : nil
           category = category.upcase if category.include?('Jpeg')
-          category.gsub!('ICC_Profile', 'ICC Profile')
+          category.gsub!('_', ' ')
           value = v['val'].kind_of?(String) ? v['val'].strip : v['val']
           @metadata << { label: v['desc'], category: category, value: value }
         end
       end
     rescue JSON::ParserError => e
-      Rails.logger.warn("Bytestream.load_metadata(): #{e}")
+      Rails.logger.warn("Bytestream.read_metadata(): #{e}")
     end
+  end
 
-    @metadata_loaded = true
+  ##
+  # @param pathname [String]
+  #
+  def read_metadata_using_exiv2(pathname)
+    # exiv2 --help
+    `exiv2 -Pklt "#{pathname.gsub('"', '\\"')}"`.split("\n").each do |row|
+      next if row.length < 10
+
+      first_space = row.index(' ')
+      col_2_start = first_space
+      begin
+        row[first_space..row.length - 1].split('').each_with_index do |char, index|
+          if char != ' '
+            col_2_start += index
+            break
+          end
+        end
+      rescue ArgumentError => e
+        next if "#{e}".include?('bad value for range')
+      end
+      key = row[0..first_space - 1]
+
+      next if key.start_with?('Exif.Thumbnail')
+      next if key.start_with?('Xmp.xmpMM.DerivedFrom')
+      next if key.start_with?('Xmp.xmpMM.History')
+
+      cols = [key] + row[col_2_start..row.length - 1].gsub('  ', "\t").
+          squeeze("\t").split("\t")
+
+      @metadata << { label: cols[1].strip,
+                     category: key.split('.').first.upcase,
+                     value: cols[2].strip } if cols[2].present?
+    end
   end
 
 end

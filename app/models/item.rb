@@ -541,6 +541,7 @@ class Item < ActiveRecord::Base
   #
   # @param options [Hash<Symbol,Object>]
   # @option options [Boolean] :include_date_created
+  # @raises [IOError]
   #
   def update_from_embedded_metadata(options = {})
     # Get the bytestream from which the metadata will be extracted
@@ -550,8 +551,11 @@ class Item < ActiveRecord::Base
       return
     end
 
-    # Get its embedded metadata
-    iim_metadata = bs.metadata
+    Rails.logger.debug("Item.update_from_embedded_metadata: using "\
+        "#{bs.human_readable_type} (#{bs.absolute_local_pathname})")
+
+    # Get its embedded IPTC IIM metadata
+    iim_metadata = bs.metadata.select{ |m| m[:category] == 'IPTC' }
 
     def add_element(dest_elem, value)
       if value.respond_to?(:each)
@@ -579,6 +583,9 @@ class Item < ActiveRecord::Base
       title = iim_metadata.select{ |e| e[:label] == 'Headline' }.first
       unless title
         title = iim_metadata.select{ |e| e[:label] == 'Title' }.first
+        unless title
+          title = iim_metadata.select{ |e| e[:label] == 'Object Name' }.first
+        end
       end
       add_element('title', title[:value]) if title
 
@@ -595,6 +602,9 @@ class Item < ActiveRecord::Base
       creator = iim_metadata.select{ |e| e[:label] == 'Creator' }.first
       unless creator
         creator = iim_metadata.select{ |e| e[:label] == 'Credit Line' }.first
+        unless creator
+          creator = iim_metadata.select{ |e| e[:label] == 'By-line' }.first
+        end
       end
       add_element('creator', creator[:value]) if creator
 
@@ -624,7 +634,6 @@ class Item < ActiveRecord::Base
 
       # Concatenate sublocation, city, province or state, and country name
       # into a keyword element.
-      # TODO: this was requested in IMET-246, but consider getting rid of it
       keyword = []
       keyword << iim_metadata.select{ |e| e[:label] == 'Sublocation' }.first
       keyword << iim_metadata.select{ |e| e[:label] == 'City' }.first

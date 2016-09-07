@@ -502,8 +502,10 @@ class MedusaIngester
     # Skip items derived from directories, as they have no embedded metadata.
     collection.items.where('variant != ?', Item::Variants::DIRECTORY).each do |item|
       Rails.logger.info("replace_metadata(): #{item.repository_id}")
+      title = item.title
       item.elements.destroy_all
-      update_item_from_embedded_metadata(item, nil)
+      update_item_from_embedded_metadata(item, title)
+      item.save!
       stats[:num_updated] += 1
     end
     stats
@@ -598,7 +600,7 @@ class MedusaIngester
   end
 
   ##
-  # Populate an item's metadata from its embedded bytestream metadata.
+  # Populates an item's metadata from its embedded bytestream metadata.
   #
   # @param item [Item]
   # @param fallback_title [String]

@@ -370,7 +370,7 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal 1, @item.elements.
         select{ |e| e.name == 'creator' and e.value == 'University of Illinois Library' }.length
     assert_equal 1, @item.elements.
-        select{ |e| e.name == 'dateCreated' and e.value == '2012:10:10' }.length
+        select{ |e| e.name == 'dateCreated' and e.value == '2012-10-10' }.length
     assert_equal '2012-10-10T00:00:00Z', @item.date.iso8601
   end
 
