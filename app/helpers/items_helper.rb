@@ -1112,13 +1112,20 @@ module ItemsHelper
               '<span class="label label-success">OK</span>' :
               '<span class="label label-danger">MISSING</span>'
       }
-      if options[:admin] and bytestream.cfs_file_uuid.present?
+      if options[:admin]
         data << {
-            label: 'Medusa CFS File',
+            label: 'Pathname',
             category: 'File',
-            value: link_to(bytestream.cfs_file_uuid, bytestream.medusa_url,
-                           target: '_blank')
+            value: bytestream.absolute_local_pathname
         }
+        if bytestream.cfs_file_uuid.present?
+          data << {
+              label: 'Medusa CFS File',
+              category: 'File',
+              value: link_to(bytestream.cfs_file_uuid, bytestream.medusa_url,
+                             target: '_blank')
+          }
+        end
       end
       if bytestream.is_image?
         begin
