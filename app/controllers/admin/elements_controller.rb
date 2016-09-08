@@ -102,7 +102,7 @@ module Admin
     # Responds to GET /elements/schema
     #
     def schema
-      render 'schema.xml.builder'
+      render xml: Item.xml_schema
     end
 
     ##

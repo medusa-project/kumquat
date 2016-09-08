@@ -123,6 +123,113 @@ class Item < ActiveRecord::Base
   end
 
   ##
+  # @return [String]
+  #
+  def self.xml_schema
+    builder = Nokogiri::XML::Builder.new do |xml|
+      xml.schema('xmlns:xs': 'http://www.w3.org/2001/XMLSchema',
+                 'xmlns:dls': 'http://digital.library.illinois.edu/terms#',
+                 targetNamespace: 'http://digital.library.illinois.edu/terms#',
+                 elementFormDefault: 'qualified',
+                 attributeFormDefault: 'unqualified') do
+        xml['xs'].complexType(name: 'Item') do
+          xml['xs'].sequence do
+            xml.comment('******************* TECHNICAL ELEMENTS *******************')
+
+            xml.comment('DLS UUID of the item. REQUIRED.')
+            xml['xs'].element(name: 'repositoryId', minOccurs: 1, maxOccurs: 1) do
+              xml['xs'].simpleType do
+                xml['xs'].restriction(base: 'xs:token') do
+                  xml['xs'].pattern(value: UUID_REGEX)
+                end
+              end
+            end
+
+            xml.comment('Medusa UUID of the collection in which the item resides. REQUIRED.')
+            xml['xs'].element(name: 'collectionId', minOccurs: 1, maxOccurs: 1) do
+              xml['xs'].simpleType do
+                xml['xs'].restriction(base: 'xs:token') do
+                  xml['xs'].pattern(value: UUID_REGEX)
+                end
+              end
+            end
+
+            xml.comment('repositoryId of the item that best represents the entity, '\
+            'for the purposes of e.g. rendering a thumbnail image. For example, for '\
+            'a compound object, it could be the first page.')
+            xml['xs'].element(name: 'representativeItemId', minOccurs: 0, maxOccurs: 1) do
+              xml['xs'].simpleType do
+                xml['xs'].restriction(base: 'xs:token') do
+                  xml['xs'].pattern(value: UUID_REGEX)
+                end
+              end
+            end
+
+            xml.comment('Whether the item is publicly accessible. Will default to '\
+            'true if not supplied.')
+            xml['xs'].element(name: 'published', type: 'xs:boolean',
+                              minOccurs: 0, maxOccurs: 1)
+
+            xml['xs'].comment('"Full text" of the item, which will viewable and indexed '\
+            'for searching.')
+            xml['xs'].element(name: 'fullText', type: 'xs:string',
+                              minOccurs: 0, maxOccurs: 1)
+
+            xml['xs'].comment('Page number of an item with a variant of "Page," '\
+            'starting at 1. Used for sorting and previous/next navigation.')
+            xml['xs'].element(name: 'pageNumber', type: 'xs:positiveInteger',
+                              minOccurs: 0, maxOccurs: 1)
+
+            xml['xs'].comment('Subpage number of an item that is a fragment of a page, '\
+            'starting at 1.')
+            xml['xs'].element(name: 'subpageNumber', type: 'xs:positiveInteger',
+                              minOccurs: 0, maxOccurs: 1)
+
+            xml['xs'].comment('Spatial longitude in decimal degrees.')
+            xml['xs'].element(name: 'longitude', type: 'xs:float',
+                              minOccurs: 0, maxOccurs: 1)
+
+            xml['xs'].comment('Spatial latitude in decimal degrees.')
+            xml['xs'].element(name: 'latitude', type: 'xs:float',
+                              minOccurs: 0, maxOccurs: 1)
+
+            xml.comment('A way of refining the type of an item, which may affect '\
+            'how it is displayed. (Generally, "compound object" pages require '\
+            'a value of "Page".)')
+            xml['xs'].element(name: 'variant', minOccurs: 0, maxOccurs: 1) do
+              xml['xs'].simpleType do
+                xml['xs'].restriction(base: 'xs:token') do
+                  Item::Variants::constants.each do |const|
+                    xml['xs'].enumeration(value: const.to_s.downcase.camelize)
+                  end
+                end
+              end
+            end
+
+            xml.comment('CONTENTdm alias ("CISOROOT") of the item, if it '\
+            'originated in CONTENTdm.')
+            xml['xs'].element(name: 'contentdmAlias', type: 'xs:token',
+                              minOccurs: 0, maxOccurs: 1)
+
+            xml.comment('CONTENTdm pointer ("CISOPTR") of the item, if it '\
+            'originated in CONTENTdm.')
+            xml['xs'].element(name: 'contentdmPointer', type: 'xs:positiveInteger',
+                              minOccurs: 0, maxOccurs: 1)
+
+            xml.comment('******************* DESCRIPTIVE ELEMENTS *******************')
+
+            Element.all.order(:name).each do |e|
+              xml['xs'].element(name: e.name, type: 'xs:normalizedString',
+                                minOccurs: 0, maxOccurs: 'unbounded')
+            end
+          end
+        end
+      end
+    end
+    builder.to_xml
+  end
+
+  ##
   # @return [Bytestream]
   #
   def access_master_bytestream
