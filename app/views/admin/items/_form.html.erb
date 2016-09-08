@@ -56,6 +56,20 @@
               <%= f.text_field(:latitude, class: 'form-control') %>
             </td>
           </tr>
+          <tr>
+            <td>CONTENTdm Alias ("CISOROOT")</td>
+            <td>
+              <%= f.text_field(:contentdm_alias, class: 'form-control') %>
+              <p class="help-block">Needed only if the item's DLS collection is
+                different than its CONTENTdm collection.</p>
+            </td>
+          </tr>
+          <tr>
+            <td>CONTENTdm Pointer ("CISOPTR")</td>
+            <td>
+              <%= f.text_field(:contentdm_pointer, class: 'form-control') %>
+            </td>
+          </tr>
         </tbody>
       </table>
     </div>

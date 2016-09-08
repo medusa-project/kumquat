@@ -223,6 +223,8 @@ module AdminHelper
     data['Normalized Date'] = item.date
     data['Normalized Longitude'] = item.longitude
     data['Normalized Latitude'] = item.latitude
+    data['CONTENTdm Alias'] = item.contentdm_alias
+    data['CONTENTdm Pointer'] = item.contentdm_pointer
     data['Created'] = local_time(item.created_at)
     data['Last Modified'] = local_time(item.updated_at)
     data
