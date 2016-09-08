@@ -210,12 +210,16 @@ class Item < ActiveRecord::Base
   #
   def effective_rightsstatements_org_statement
     # Use the statement assigned to the instance.
-    rs = RightsStatement.for_uri(self.element(:rightsStatement)&.uri)
+    uri = self.elements.select{ |e| e.name == 'rights' and
+        e.uri.start_with?('http://rightsstatements.org') }.first&.uri
+    rs = RightsStatement.for_uri(uri)
     # If not assigned, walk up the item tree to find a parent statement.
     unless rs
       p = self.parent
       while p
-        rs = RightsStatement.for_uri(p.element(:rightsStatement)&.uri)
+        uri = p.elements.select{ |e| e.name == 'rights' and
+            e.uri.start_with?('http://rightsstatements.org') }.first&.uri
+        rs = RightsStatement.for_uri(uri)
         break if rs
         p = p.parent
       end
@@ -427,7 +431,7 @@ class Item < ActiveRecord::Base
   # @see effective_rightsstatements_org_statement()
   #
   def rightsstatements_org_statement
-    RightsStatement.for_uri(self.element(:rightsStatement)&.uri)
+    RightsStatement.for_uri(self.element(:rights)&.uri)
   end
 
   ##
