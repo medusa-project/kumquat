@@ -9,7 +9,7 @@ module AdminHelper
   def admin_item_element_edit_tag(element_def, element, vocabulary)
     html = '<table class="table-condensed pt-element" style="width:100%">
       <tr>
-        <th style="text-align: right; width: 1px">String</th>
+        <th style="text-align: right; width: 1px"><span class="label label-default">String</span></th>
         <td>'
     if vocabulary == Vocabulary.uncontrolled # uncontrolled gets a textarea
       html += text_area_tag("elements[#{element_def.name}][#{vocabulary.id}][][string]",
@@ -40,7 +40,7 @@ module AdminHelper
           </td>
         </tr>
         <tr>
-          <th style="text-align: right; width: 1px">URI</th>
+          <th style="text-align: right; width: 1px"><span class="label label-primary">URI</span></th>
           <td>'
     html += text_field_tag("elements[#{element_def.name}][#{vocabulary.id}][][uri]",
                            element&.uri,
@@ -52,6 +52,46 @@ module AdminHelper
     html += '</td>
         </tr>
       </table>'
+    raw(html)
+  end
+
+  ##
+  # @param item [Item]
+  # @return [String]
+  #
+  def admin_item_metadata_as_table(item)
+    html = '<table class="table table-condensed pt-metadata">'
+
+    # Iterate through the index-ordered elements in the collection's metadata
+    # profile in order to display the entity's elements in the correct order.
+    defs = item.collection.effective_metadata_profile.element_defs
+    defs.each do |e_def|
+      elements = item.elements.
+          select{ |e| e.name == e_def.name and (e.value.present? or e.uri.present?) }
+      next if elements.empty?
+      html += '<tr>'
+      html += "<td>#{e_def.label}</td>"
+      html += '<td>'
+      html += '<table class="table table-condensed">'
+      elements.each do |element|
+        if element.value.present?
+          html += "<tr>"
+          html += "<td style=\"width:1px\"><span class=\"label label-default\">String</span></td>"
+          html += "<td>#{element.formatted_value}</td>"
+          html += "</tr>"
+        end
+        if element.uri.present?
+          html += "<tr>"
+          html += "<td style=\"width:1px\"><span class=\"label label-primary\">URI</span></td>"
+          html += "<td>#{element.uri}</td>"
+          html += "</tr>"
+        end
+      end
+      html += '</table>'
+      html += '</td>'
+      html += '</tr>'
+    end
+    html += '</table>'
     raw(html)
   end
 
