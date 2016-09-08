@@ -66,6 +66,19 @@ Rails.application.routes.draw do
   match '/404', to: 'errors#not_found', via: :all
   match '/500', to: 'errors#internal_server_error', via: :all
 
+  # Intercept CONTENTdm reference URLs for redirection.
+  match '/cdm/ref/collection/:alias/:pointer',
+        to: 'contentdm#redirect_to_dls_item', via: :all
+  # Intercept CONTENTdm single-item URLs for redirection.
+  match '/cdm/singleitem/collection/:alias/id/:pointer',
+        to: 'contentdm#redirect_to_dls_item', via: :all
+  # Intercept CONTENTdm compound object URLs for redirection.
+  match '/cdm/compoundobject/collection/:alias/id/:pointer',
+        to: 'contentdm#redirect_to_dls_item', via: :all
+  # Intercept CONTENTdm collection pages for redirection.
+  match '/cdm/landingpage/collection/:alias',
+        to: 'contentdm#redirect_to_dls_collection', via: :all
+
   match '/auth/:provider/callback', to: 'sessions#create', via: [:get, :post],
         as: :auth # used by omniauth
   resources :collections, only: [:index, :show] do
