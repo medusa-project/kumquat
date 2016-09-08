@@ -754,12 +754,7 @@ class Item < ActiveRecord::Base
     ActiveRecord::Base.transaction do
       # These need to be deleted first, otherwise it would be impossible for
       # an update to remove them.
-      self.bytestreams.destroy_all
       self.elements.destroy_all
-
-      # collection
-      col_id = node.xpath("//#{prefix}:collectionId", namespaces).first
-      self.collection_repository_id = col_id.content.strip if col_id
 
       # CONTENTdm alias
       alias_ = node.xpath("//#{prefix}:contentdmAlias", namespaces).first
@@ -789,10 +784,6 @@ class Item < ActiveRecord::Base
       # page number
       page = node.xpath("//#{prefix}:pageNumber", namespaces).first
       self.page_number = page.content.strip.to_i if page
-
-      # parent item
-      parent = node.xpath("//#{prefix}:parentId", namespaces).first
-      self.parent_repository_id = parent.content.strip if parent
 
       # published
       published = node.xpath("//#{prefix}:published", namespaces).first

@@ -378,13 +378,11 @@ class ItemTest < ActiveSupport::TestCase
 
   # update_from_xml
 
-  test 'update_from_xml should work with schema version 3' do
+  test 'update_from_xml should work' do
     xml = '<?xml version="1.0" encoding="utf-8"?>'
     xml += '<dls:Object xmlns:dls="http://digital.library.illinois.edu/terms#">'
     # technical elements
     xml += '<dls:repositoryId>e12adef0-5ca8-0132-3334-0050569601ca-8</dls:repositoryId>'
-    xml += '<dls:collectionId>d250c1f0-5ca8-0132-3334-0050569601ca-8</dls:collectionId>' # from fixture
-    xml += '<dls:parentId>ace52312-5ca8-0132-3334-0050569601ca-8</dls:parentId>'
     xml += '<dls:representativeItemId>e12adef0-5ca8-0132-3334-0050569601ca-8</dls:representativeItemId>'
     xml += '<dls:published>true</dls:published>'
     xml += '<dls:fullText>full text</dls:fullText>'
@@ -395,14 +393,6 @@ class ItemTest < ActiveSupport::TestCase
     xml += "<dls:variant>#{Item::Variants::PAGE}</dls:variant>"
     xml += '<dls:contentdmAlias>cats</dls:contentdmAlias>'
     xml += '<dls:contentdmPointer>123</dls:contentdmPointer>'
-    xml += '<dls:accessMasterPathname>/pathname</dls:accessMasterPathname>'
-    xml += '<dls:accessMasterMediaType>image/jpeg</dls:accessMasterMediaType>'
-    xml += '<dls:accessMasterWidth>500</dls:accessMasterWidth>'
-    xml += '<dls:accessMasterHeight>400</dls:accessMasterHeight>'
-    xml += '<dls:preservationMasterPathname>/pathname</dls:preservationMasterPathname>'
-    xml += '<dls:preservationMasterMediaType>image/jpeg</dls:preservationMasterMediaType>'
-    xml += '<dls:preservationMasterWidth>500</dls:preservationMasterWidth>'
-    xml += '<dls:preservationMasterHeight>400</dls:preservationMasterHeight>'
 
     # descriptive elements
     xml += '<dls:date>1984</dls:date>'
@@ -417,7 +407,6 @@ class ItemTest < ActiveSupport::TestCase
 
     @item.update_from_xml(doc, 3)
 
-    assert_equal('d250c1f0-5ca8-0132-3334-0050569601ca-8', @item.collection.repository_id)
     assert_equal 'cats', @item.contentdm_alias
     assert_equal 123, @item.contentdm_pointer
     assert_equal 1984, @item.date.year
@@ -425,7 +414,6 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal 45.52, @item.latitude
     assert_equal -120.564, @item.longitude
     assert_equal 3, @item.page_number
-    assert_equal 'ace52312-5ca8-0132-3334-0050569601ca-8', @item.parent_repository_id
     assert @item.published
     assert_equal 'e12adef0-5ca8-0132-3334-0050569601ca-8', @item.repository_id
     assert_equal 'e12adef0-5ca8-0132-3334-0050569601ca-8', @item.representative_item_repository_id
