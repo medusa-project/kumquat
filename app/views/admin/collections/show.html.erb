@@ -48,14 +48,6 @@
           <dd>
             <%= @collection.repository_id %>
           </dd>
-          <dt>CONTENTdm Alias</dt>
-          <dd>
-            <% if @collection.contentdm_alias.present? %>
-              <%= @collection.contentdm_alias %>
-            <% else %>
-              None
-            <% end %>
-          </dd>
           <dt>Metadata Profile</dt>
           <dd>
             <% if @collection.metadata_profile %>
@@ -88,6 +80,14 @@
                           target: '_blank') %>
             <% else %>
               Same as File Group
+            <% end %>
+          </dd>
+          <dt>CONTENTdm Alias</dt>
+          <dd>
+            <% if @collection.contentdm_alias.present? %>
+              <%= @collection.contentdm_alias %>
+            <% else %>
+              None
             <% end %>
           </dd>
           <dt>Medusa</dt>
