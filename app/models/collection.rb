@@ -158,6 +158,8 @@ SELECT items.repository_id,
   items.subpage_number,
   items.latitude,
   items.longitude,
+  items.contentdm_alias,
+  items.contentdm_pointer,
   array_to_string(array(SELECT value
     FROM item_elements
     WHERE item_elements.item_id = items.id
@@ -207,6 +209,8 @@ LIMIT 1000;
       items.subpage_number,
       items.latitude,
       items.longitude,
+      items.contentdm_alias,
+      items.contentdm_pointer,
       #{element_subselects.join(",\n")}
     FROM items
     WHERE items.collection_repository_id = $1

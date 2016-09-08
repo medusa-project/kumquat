@@ -97,6 +97,14 @@ xml.tag!('schema',
         end
       end
 
+      xml.comment!('CONTENTdm alias ("CISOROOT") of the item, if it originated in CONTENTdm.')
+      xml.tag!('xs:element', { name: 'contentdmAlias', type: 'xs:token',
+                               minOccurs: '0', maxOccurs: '1' })
+
+      xml.comment!('CONTENTdm pointer ("CISOPTR") of the item, if it originated in CONTENTdm.')
+      xml.tag!('xs:element', { name: 'contentdmPointer', type: 'xs:positiveInteger',
+                               minOccurs: '0', maxOccurs: '1' })
+
       xml.comment!('******************* DESCRIPTIVE ELEMENTS *******************')
 
       Element.all.order(:name).each do |e|

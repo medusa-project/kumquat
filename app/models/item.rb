@@ -56,7 +56,6 @@ class Item < ActiveRecord::Base
     VARIANT = 'variant_si'
   end
 
-  # These need to be kept in sync with the values in object.xsd.
   class Variants
     DIRECTORY = 'Directory'
     FILE = 'File'
@@ -109,7 +108,8 @@ class Item < ActiveRecord::Base
   def self.tsv_header(metadata_profile)
     # Must remain synchronized with the output of to_tsv.
     elements = %w(uuid parentId preservationMasterPathname accessMasterPathname
-                  variant pageNumber subpageNumber latitude longitude)
+                  variant pageNumber subpageNumber latitude longitude
+                  contentdmAlias contentdmPointer)
     metadata_profile.element_defs.each do |ed|
       # There will be one column per ElementDef vocabulary. Column headings are
       # in the format "vocabKey:elementName", except the uncontrolled vocabulary
@@ -565,6 +565,12 @@ class Item < ActiveRecord::Base
             parent_id_from_medusa(self.repository_id)
       end
 
+      # CONTENTdm alias ("CISOROOT")
+      self.contentdm_alias = row['contentdmAlias'].strip if row['contentdmAlias']
+
+      # CONTENTdm pointer ("CISOPTR")
+      self.contentdm_pointer = row['contentdmPointer'].strip if row['contentdmPointer']
+
       # date (normalized)
       date = row['date'] || row['dateCreated']
       if date
@@ -647,6 +653,14 @@ class Item < ActiveRecord::Base
       # collection
       col_id = node.xpath("//#{prefix}:collectionId", namespaces).first
       self.collection_repository_id = col_id.content.strip if col_id
+
+      # CONTENTdm alias
+      alias_ = node.xpath("//#{prefix}:contentdmAlias", namespaces).first
+      self.contentdm_alias = alias_.content.strip if alias_
+
+      # CONTENTdm pointer
+      ptr = node.xpath("//#{prefix}:contentdmPointer", namespaces).first
+      self.contentdm_pointer = ptr.content.strip.to_i if ptr
 
       # date
       date = node.xpath("//#{prefix}:date", namespaces).first ||
@@ -790,6 +804,16 @@ class Item < ActiveRecord::Base
         if self.variant.present?
           xml['dls'].variant {
             xml.text(self.variant)
+          }
+        end
+        if self.contentdm_alias.present?
+          xml['dls'].contentdmAlias {
+            xml.text(self.contentdm_alias)
+          }
+        end
+        if self.contentdm_pointer.present?
+          xml['dls'].contentdmPointer {
+            xml.text(self.contentdm_pointer)
           }
         end
 
