@@ -66,7 +66,8 @@ module Admin
     private
 
     def sanitized_params
-      params.require(:collection).permit(:id, :medusa_cfs_directory_id,
+      params.require(:collection).permit(:id, :contentdm_alias,
+                                         :medusa_cfs_directory_id,
                                          :medusa_file_group_id,
                                          :metadata_profile_id,
                                          :package_profile_id,

@@ -18,7 +18,7 @@ class ItemXmlIngester
 
     doc = Nokogiri::XML(xml, &:noblanks)
     doc.encoding = 'utf-8'
-    validate_document(doc, 'object.xsd', schema_version)
+    validate_document(doc, schema_version)
 
     node = repository_id = nil
     if schema_version == 3
@@ -55,15 +55,12 @@ class ItemXmlIngester
 
   ##
   # @param doc [Nokogiri::XML::Document]
-  # @param schema [String]
   # @param schema_version [Integer]
   # @return [void]
   # @raise [RuntimeError] If the validation fails.
   #
-  def validate_document(doc, schema, schema_version)
-    schema_path = sprintf('%s/public/schema/%d/%s',
-                          Rails.root, schema_version, schema)
-    xsd = Nokogiri::XML::Schema(File.read(schema_path))
+  def validate_document(doc, schema_version)
+    xsd = Nokogiri::XML::Schema(Item.xml_schema)
     xsd.validate(doc).each do |error|
       raise error.message
     end
@@ -81,7 +78,7 @@ class ItemXmlIngester
 
     doc = Nokogiri::XML(File.read(pathname), &:noblanks)
     doc.encoding = 'utf-8'
-    validate_document(doc, 'object.xsd', schema_version)
+    validate_document(doc, schema_version)
     count += 1
     count
   end

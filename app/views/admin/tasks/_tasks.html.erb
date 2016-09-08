@@ -22,6 +22,11 @@
             <span class="label <%= bootstrap_class_for_task_status(task.status) %>">
               <%= Task::Status::to_s(task.status) %>
             </span>
+            <% if task.status == Task::Status::FAILED and task.backtrace.present? %>
+              <button type="button" class="btn btn-default btn-xs"
+                      data-toggle="popover" data-placement="auto bottom"
+                      title="Stack Trace" data-content="<pre><%= task.backtrace %></pre>">Trace</button>
+            <% end %>
           </td>
           <td><%= (task.indeterminate and task.percent_complete < 1) ?
                       'Indeterminate' :

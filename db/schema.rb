@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160901182447) do
+ActiveRecord::Schema.define(version: 20160908165439) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -49,6 +49,7 @@ ActiveRecord::Schema.define(version: 20160901182447) do
     t.integer  "medusa_repository_id"
     t.text     "rights_statement"
     t.string   "rightsstatements_org_uri"
+    t.string   "contentdm_alias"
   end
 
   add_index "collections", ["metadata_profile_id"], name: "index_collections_on_metadata_profile_id", using: :btree
@@ -129,6 +130,8 @@ ActiveRecord::Schema.define(version: 20160901182447) do
     t.text     "full_text"
     t.datetime "created_at",                                                                null: false
     t.datetime "updated_at",                                                                null: false
+    t.string   "contentdm_alias"
+    t.integer  "contentdm_pointer"
   end
 
   add_index "items", ["collection_repository_id"], name: "index_items_on_collection_repository_id", using: :btree
@@ -193,6 +196,7 @@ ActiveRecord::Schema.define(version: 20160901182447) do
     t.datetime "updated_at",                       null: false
     t.boolean  "indeterminate",    default: false
     t.text     "detail"
+    t.text     "backtrace"
   end
 
   create_table "users", force: :cascade do |t|

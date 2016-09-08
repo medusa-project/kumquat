@@ -255,6 +255,8 @@ module AdminHelper
     data['Normalized Date'] = item.date
     data['Normalized Longitude'] = item.longitude
     data['Normalized Latitude'] = item.latitude
+    data['CONTENTdm Alias'] = item.contentdm_alias
+    data['CONTENTdm Pointer'] = item.contentdm_pointer
     data['RightsStatements.org (assigned)'] = item.rightsstatements_org_statement ?
         link_to(item.rightsstatements_org_statement.name,
                 item.rightsstatements_org_statement.info_uri,

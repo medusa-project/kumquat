@@ -54,7 +54,6 @@ class Item < ActiveRecord::Base
     VARIANT = 'variant_si'
   end
 
-  # These need to be kept in sync with the values in object.xsd.
   class Variants
     DIRECTORY = 'Directory'
     FILE = 'File'
@@ -67,7 +66,8 @@ class Item < ActiveRecord::Base
 
   MULTI_VALUE_SEPARATOR = '||'
   NON_DESCRIPTIVE_TSV_COLUMNS = %w(uuid parentId preservationMasterPathname
-    accessMasterPathname variant pageNumber subpageNumber latitude longitude)
+    accessMasterPathname variant pageNumber subpageNumber latitude longitude
+    contentdmAlias contentdmPointer)
   TSV_LINE_BREAK = "\n"
   UUID_REGEX = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/
 
@@ -107,7 +107,6 @@ class Item < ActiveRecord::Base
   # @see to_tsv
   #
   def self.tsv_header(metadata_profile)
-    # Must remain synchronized with the output of to_tsv.
     columns = NON_DESCRIPTIVE_TSV_COLUMNS
     metadata_profile.element_defs.each do |ed|
       # There will be one column per ElementDef vocabulary. Column headings are
@@ -119,6 +118,125 @@ class Item < ActiveRecord::Base
       end
     end
     columns.join("\t") + TSV_LINE_BREAK
+  end
+
+  ##
+  # @return [String]
+  #
+  def self.xml_schema
+    builder = Nokogiri::XML::Builder.new do |xml|
+      xml.schema('xmlns:xs': 'http://www.w3.org/2001/XMLSchema',
+                 'xmlns:dls': 'http://digital.library.illinois.edu/terms#',
+                 targetNamespace: 'http://digital.library.illinois.edu/terms#',
+                 elementFormDefault: 'qualified',
+                 attributeFormDefault: 'unqualified') do
+        xml['xs'].complexType(name: 'Item') do
+          xml['xs'].sequence do
+            xml.comment('******************* TECHNICAL ELEMENTS *******************')
+
+            xml.comment('DLS UUID of the item. REQUIRED.')
+            xml['xs'].element(name: 'repositoryId', minOccurs: 1, maxOccurs: 1) do
+              xml['xs'].simpleType do
+                xml['xs'].restriction(base: 'xs:token') do
+                  xml['xs'].pattern(value: UUID_REGEX)
+                end
+              end
+            end
+
+            xml.comment('Medusa UUID of the collection in which the item resides. REQUIRED.')
+            xml['xs'].element(name: 'collectionId', minOccurs: 1, maxOccurs: 1) do
+              xml['xs'].simpleType do
+                xml['xs'].restriction(base: 'xs:token') do
+                  xml['xs'].pattern(value: UUID_REGEX)
+                end
+              end
+            end
+
+            xml.comment('repositoryId of the item that best represents the entity, '\
+            'for the purposes of e.g. rendering a thumbnail image. For example, for '\
+            'a compound object, it could be the first page.')
+            xml['xs'].element(name: 'representativeItemId', minOccurs: 0, maxOccurs: 1) do
+              xml['xs'].simpleType do
+                xml['xs'].restriction(base: 'xs:token') do
+                  xml['xs'].pattern(value: UUID_REGEX)
+                end
+              end
+            end
+
+            xml.comment('Whether the item is publicly accessible. Will default to '\
+            'true if not supplied.')
+            xml['xs'].element(name: 'published', type: 'xs:boolean',
+                              minOccurs: 0, maxOccurs: 1)
+
+            xml['xs'].comment('"Full text" of the item, which will viewable and indexed '\
+            'for searching.')
+            xml['xs'].element(name: 'fullText', type: 'xs:string',
+                              minOccurs: 0, maxOccurs: 1)
+
+            xml['xs'].comment('Page number of an item with a variant of "Page," '\
+            'starting at 1. Used for sorting and previous/next navigation.')
+            xml['xs'].element(name: 'pageNumber', type: 'xs:positiveInteger',
+                              minOccurs: 0, maxOccurs: 1)
+
+            xml['xs'].comment('Subpage number of an item that is a fragment of a page, '\
+            'starting at 1.')
+            xml['xs'].element(name: 'subpageNumber', type: 'xs:positiveInteger',
+                              minOccurs: 0, maxOccurs: 1)
+
+            xml['xs'].comment('Spatial longitude in decimal degrees.')
+            xml['xs'].element(name: 'longitude', type: 'xs:float',
+                              minOccurs: 0, maxOccurs: 1)
+
+            xml['xs'].comment('Spatial latitude in decimal degrees.')
+            xml['xs'].element(name: 'latitude', type: 'xs:float',
+                              minOccurs: 0, maxOccurs: 1)
+
+            xml.comment('A way of refining the type of an item, which may affect '\
+            'how it is displayed. (Generally, "compound object" pages require '\
+            'a value of "Page".)')
+            xml['xs'].element(name: 'variant', minOccurs: 0, maxOccurs: 1) do
+              xml['xs'].simpleType do
+                xml['xs'].restriction(base: 'xs:token') do
+                  Item::Variants::constants.each do |const|
+                    xml['xs'].enumeration(value: const.to_s.downcase.camelize)
+                  end
+                end
+              end
+            end
+
+            xml.comment('CONTENTdm alias ("CISOROOT") of the item, if it '\
+            'originated in CONTENTdm.')
+            xml['xs'].element(name: 'contentdmAlias', type: 'xs:token',
+                              minOccurs: 0, maxOccurs: 1)
+
+            xml.comment('CONTENTdm pointer ("CISOPTR") of the item, if it '\
+            'originated in CONTENTdm.')
+            xml['xs'].element(name: 'contentdmPointer', type: 'xs:positiveInteger',
+                              minOccurs: 0, maxOccurs: 1)
+
+            xml.comment('******************* DESCRIPTIVE ELEMENTS *******************')
+
+            Element.all.order(:name).each do |e|
+              xml['xs'].element(name: e.name, type: 'xs:normalizedString',
+                                minOccurs: 0, maxOccurs: 'unbounded') do
+                xml['xs'].complexType do
+                  xml['xs'].attribute(name: 'vocabularyKey', type: 'xs:token', use: 'required')
+                  xml['xs'].attribute(name: 'dataType', type: 'DataType', use: 'required')
+                end
+              end
+            end
+          end
+        end
+
+        xml['xs'].simpleType(name: 'DataType') do
+          xml['xs'].restriction(base: 'xs:token') do
+            xml['xs'].enumeration(value: 'string')
+            xml['xs'].enumeration(value: 'URI')
+          end
+        end
+      end
+    end
+    builder.to_xml
   end
 
   ##
@@ -682,6 +800,12 @@ class Item < ActiveRecord::Base
             parent_id_from_medusa(self.repository_id)
       end
 
+      # CONTENTdm alias ("CISOROOT")
+      self.contentdm_alias = row['contentdmAlias'].strip if row['contentdmAlias']
+
+      # CONTENTdm pointer ("CISOPTR")
+      self.contentdm_pointer = row['contentdmPointer'].strip if row['contentdmPointer']
+
       # date (normalized)
       date = row['date'] || row['dateCreated']
       if date
@@ -772,12 +896,15 @@ class Item < ActiveRecord::Base
     ActiveRecord::Base.transaction do
       # These need to be deleted first, otherwise it would be impossible for
       # an update to remove them.
-      self.bytestreams.destroy_all
       self.elements.destroy_all
 
-      # collection
-      col_id = node.xpath("//#{prefix}:collectionId", namespaces).first
-      self.collection_repository_id = col_id.content.strip if col_id
+      # CONTENTdm alias
+      alias_ = node.xpath("//#{prefix}:contentdmAlias", namespaces).first
+      self.contentdm_alias = alias_.content.strip if alias_
+
+      # CONTENTdm pointer
+      ptr = node.xpath("//#{prefix}:contentdmPointer", namespaces).first
+      self.contentdm_pointer = ptr.content.strip.to_i if ptr
 
       # date
       date = node.xpath("//#{prefix}:date", namespaces).first ||
@@ -799,10 +926,6 @@ class Item < ActiveRecord::Base
       # page number
       page = node.xpath("//#{prefix}:pageNumber", namespaces).first
       self.page_number = page.content.strip.to_i if page
-
-      # parent item
-      parent = node.xpath("//#{prefix}:parentId", namespaces).first
-      self.parent_repository_id = parent.content.strip if parent
 
       # published
       published = node.xpath("//#{prefix}:published", namespaces).first
@@ -927,6 +1050,16 @@ class Item < ActiveRecord::Base
         if self.variant.present?
           xml['dls'].variant {
             xml.text(self.variant)
+          }
+        end
+        if self.contentdm_alias.present?
+          xml['dls'].contentdmAlias {
+            xml.text(self.contentdm_alias)
+          }
+        end
+        if self.contentdm_pointer.present?
+          xml['dls'].contentdmPointer {
+            xml.text(self.contentdm_pointer)
           }
         end
 

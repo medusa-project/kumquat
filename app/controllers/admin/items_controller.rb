@@ -218,7 +218,8 @@ module Admin
     def sanitized_params
       # Metadata elements are not included here, as they are processed
       # separately.
-      params.require(:item).permit(:id, :full_text, :latitude, :longitude,
+      params.require(:item).permit(:id, :contentdm_alias, :contentdm_pointer,
+                                   :full_text, :latitude, :longitude,
                                    :page_number, :published,
                                    :representative_item_id, :subpage_number,
                                    :variant)
