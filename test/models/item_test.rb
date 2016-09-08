@@ -140,7 +140,7 @@ class ItemTest < ActiveSupport::TestCase
 
   test 'effective_rightsstatements_org_statement() should return the statement
   of the instance' do
-    @item.elements.build(name: 'rightsStatement',
+    @item.elements.build(name: 'rights',
                          uri: 'http://rightsstatements.org/vocab/NoC-OKLR/1.0/')
     assert_equal 'http://rightsstatements.org/vocab/NoC-OKLR/1.0/',
                  @item.effective_rightsstatements_org_statement.uri
@@ -149,8 +149,8 @@ class ItemTest < ActiveSupport::TestCase
   test 'effective_rightsstatements_org_statement() should fall back to a parent
   statement' do
     @item = items(:free_form_dir1_file1)
-    @item.elements.where(name: 'rightsStatement').destroy_all
-    @item.parent.elements.build(name: 'rightsStatement',
+    @item.elements.where(name: 'rights').destroy_all
+    @item.parent.elements.build(name: 'rights',
                                 uri: 'http://rightsstatements.org/vocab/NoC-OKLR/1.0/')
     assert_equal 'http://rightsstatements.org/vocab/NoC-OKLR/1.0/',
                  @item.effective_rightsstatements_org_statement.uri
@@ -158,7 +158,7 @@ class ItemTest < ActiveSupport::TestCase
 
   test 'effective_rightsstatements_org_statement() should fall back to the
   collection rights statement' do
-    @item.elements.where(name: 'rightsStatement').destroy_all
+    @item.elements.where(name: 'rights').destroy_all
     @item.collection.rightsstatements_org_uri =
         'http://rightsstatements.org/vocab/NoC-OKLR/1.0/'
     assert_equal 'http://rightsstatements.org/vocab/NoC-OKLR/1.0/',

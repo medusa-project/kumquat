@@ -188,25 +188,6 @@ body#items_show {
     border-top: 0px;
   }
 
-  /* display metadata in a 2-column table if the screen is wide enough
-  (IMET-83) */
-  @media screen and (max-width: 800px) {
-    table.pt-metadata {
-      display: none;
-    }
-    dl.pt-metadata {
-      display: block;
-    }
-  }
-  @media screen and (min-width: 801px) {
-    table.pt-metadata {
-      display: block;
-    }
-    dl.pt-metadata {
-      display: none;
-    }
-  }
-
 }
 
 body#items_edit {
