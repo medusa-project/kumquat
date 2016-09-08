@@ -3,3 +3,9 @@ body#server {
     text-transform:uppercase;
   }
 }
+
+body#tasks {
+  .popover {
+    max-width: 80%;
+  }
+}

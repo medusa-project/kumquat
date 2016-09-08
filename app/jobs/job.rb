@@ -28,6 +28,7 @@ class Job < ActiveJob::Base
   rescue_from(Exception) do |e|
     self.task.status = Task::Status::FAILED
     self.task.detail = "#{e}"
+    self.task.backtrace = e.backtrace
     self.task.save!
     raise e
   end

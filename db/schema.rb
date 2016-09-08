@@ -196,6 +196,7 @@ ActiveRecord::Schema.define(version: 20160908165439) do
     t.datetime "updated_at",                       null: false
     t.boolean  "indeterminate",    default: false
     t.text     "detail"
+    t.text     "backtrace"
   end
 
   create_table "users", force: :cascade do |t|
