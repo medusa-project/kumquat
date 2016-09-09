@@ -225,7 +225,7 @@ LIMIT 1000;
                 AND item_elements.name = '#{ed.name}'
                 AND uri IS NOT NULL
                 AND length(uri) > 0)
-          ), '#{Item::MULTI_VALUE_SEPARATOR}') AS #{vocab.key}_#{ed.name}"
+          ), '#{Item::TSV_MULTI_VALUE_SEPARATOR}') AS #{vocab.key}_#{ed.name}"
       end
       subselects.join(",\n")
     end

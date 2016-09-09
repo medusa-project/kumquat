@@ -390,11 +390,11 @@ class ItemTest < ActiveSupport::TestCase
     row['variant'] = Item::Variants::PAGE
 
     # descriptive elements
-    row['description'] = 'Cats' + Item::MULTI_VALUE_SEPARATOR +
-        'cats' + Item::MULTI_VALUE_SEPARATOR +
-        '<http://example.org/cats1>' + Item::MULTI_VALUE_SEPARATOR +
-        'and more cats' + Item::MULTI_VALUE_SEPARATOR +
-        '<http://example.org/cats2>' + Item::MULTI_VALUE_SEPARATOR
+    row['description'] = 'Cats' + Item::TSV_MULTI_VALUE_SEPARATOR +
+        'cats' + Item::TSV_MULTI_VALUE_SEPARATOR +
+        '<http://example.org/cats1>' + Item::TSV_MULTI_VALUE_SEPARATOR +
+        'and more cats' + Item::TSV_MULTI_VALUE_SEPARATOR +
+        '<http://example.org/cats2>' + Item::TSV_MULTI_VALUE_SEPARATOR
     row['title'] = 'Cats'
 
     @item.update_from_tsv(row)
