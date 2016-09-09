@@ -166,38 +166,24 @@ SELECT items.repository_id,
   items.contentdm_alias,
   items.contentdm_pointer,
   array_to_string(
-    array_cat(
-      array(SELECT value || ''
+    array(
+      SELECT replace(replace(coalesce(value, '') || '&&<' || coalesce(uri, '') || '>', '&&<>', ''), '||&&', '')
         FROM item_elements
         WHERE item_elements.item_id = items.id
           AND (item_elements.vocabulary_id IS NULL OR item_elements.vocabulary_id = 11)
           AND item_elements.name = 'subject'
-          AND value IS NOT NULL
-          AND length(value) > 0)
-      array(SELECT '<' || uri || '>'
-        FROM item_elements
-        WHERE item_elements.item_id = items.id
-          AND (item_elements.vocabulary_id IS NULL OR item_elements.vocabulary_id = 11)
-          AND item_elements.name = 'subject'
-          AND uri IS NOT NULL
-          AND length(uri) > 0)
+          AND (value IS NOT NULL OR uri IS NOT NULL)
+          AND (length(value) > 0 OR length(uri) > 0)
     ), '||') AS uncontrolled_subject,
   array_to_string(
-    array_cat(
-      array(SELECT value || ''
+    array(
+      SELECT replace(replace(coalesce(value, '') || '&&<' || coalesce(uri, '') || '>', '&&<>', ''), '||&&', '')
         FROM item_elements
         WHERE item_elements.item_id = items.id
-          AND (item_elements.vocabulary_id IS NULL OR item_elements.vocabulary_id = 11)
+          AND (item_elements.vocabulary_id = XX)
           AND item_elements.name = 'subject'
-          AND value IS NOT NULL
-          AND length(value) > 0)
-      array(SELECT '<' || uri || '>'
-        FROM item_elements
-        WHERE item_elements.item_id = items.id
-          AND (item_elements.vocabulary_id IS NULL OR item_elements.vocabulary_id = 11)
-          AND item_elements.name = 'subject'
-          AND uri IS NOT NULL
-          AND length(uri) > 0)
+          AND (value IS NOT NULL OR uri IS NOT NULL)
+          AND (length(value) > 0 OR length(uri) > 0)
     ), '||') AS lcsh_subject
 FROM items
 WHERE items.collection_repository_id = '8132f520-e3fb-012f-c5b6-0019b9e633c5-f'
@@ -211,24 +197,15 @@ LIMIT 1000;
         vocab_id = (vocab == Vocabulary.uncontrolled) ?
             "IS NULL OR item_elements.vocabulary_id = #{Vocabulary.uncontrolled.id}" : "= #{vocab.id}"
         subselects << "array_to_string(
-          array_cat(
             array(
-              SELECT value || ''
+              SELECT replace(replace(coalesce(value, '') || '#{Item::TSV_URI_VALUE_SEPARATOR}<' || coalesce(uri, '') || '>', '#{Item::TSV_URI_VALUE_SEPARATOR}<>', ''), '||#{Item::TSV_URI_VALUE_SEPARATOR}', '')
               FROM item_elements
               WHERE item_elements.item_id = items.id
                 AND (item_elements.vocabulary_id #{vocab_id})
                 AND item_elements.name = '#{ed.name}'
-                AND value IS NOT NULL
-                AND length(value) > 0),
-            array(
-              SELECT '<' || uri || '>'
-              FROM item_elements
-              WHERE item_elements.item_id = items.id
-                AND (item_elements.vocabulary_id #{vocab_id})
-                AND item_elements.name = '#{ed.name}'
-                AND uri IS NOT NULL
-                AND length(uri) > 0)
-          ), '#{Item::MULTI_VALUE_SEPARATOR}') AS #{vocab.key}_#{ed.name}"
+                AND (value IS NOT NULL OR uri IS NOT NULL)
+                AND (length(value) > 0 OR length(uri) > 0)
+            ), '#{Item::TSV_MULTI_VALUE_SEPARATOR}') AS #{vocab.key}_#{ed.name}"
       end
       subselects.join(",\n")
     end

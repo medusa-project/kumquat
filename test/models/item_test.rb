@@ -387,11 +387,11 @@ class ItemTest < ActiveSupport::TestCase
     row['variant'] = Item::Variants::PAGE
 
     # descriptive elements
-    row['description'] = 'Cats' + Item::MULTI_VALUE_SEPARATOR +
-        'cats' + Item::MULTI_VALUE_SEPARATOR +
-        '<http://example.org/cats1>' + Item::MULTI_VALUE_SEPARATOR +
-        'and more cats' + Item::MULTI_VALUE_SEPARATOR +
-        '<http://example.org/cats2>' + Item::MULTI_VALUE_SEPARATOR
+    row['description'] = 'Cats' +
+        Item::TSV_MULTI_VALUE_SEPARATOR +
+        'cats' + Item::TSV_URI_VALUE_SEPARATOR + '<http://example.org/cats1>' +
+        Item::TSV_MULTI_VALUE_SEPARATOR +
+        'and more cats' + Item::TSV_URI_VALUE_SEPARATOR + '<http://example.org/cats2>'
     row['title'] = 'Cats'
 
     @item.update_from_tsv(row)
@@ -406,12 +406,12 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal Item::Variants::PAGE, @item.variant
 
     descriptions = @item.elements.select{ |e| e.name == 'description' }
-    assert_equal 5, descriptions.length
+    assert_equal 3, descriptions.length
     assert_equal 1, descriptions.select{ |e| e.value == 'Cats' }.length
-    assert_equal 1, descriptions.select{ |e| e.value == 'cats' }.length
-    assert_equal 1, descriptions.select{ |e| e.value == 'and more cats' }.length
-    assert_equal 1, descriptions.select{ |e| e.uri == 'http://example.org/cats1' }.length
-    assert_equal 1, descriptions.select{ |e| e.uri == 'http://example.org/cats2' }.length
+    assert_equal 1, descriptions.select{ |e| e.value == 'cats' and
+        e.uri == 'http://example.org/cats1' }.length
+    assert_equal 1, descriptions.select{ |e| e.value == 'and more cats' and
+        e.uri == 'http://example.org/cats2' }.length
 
     assert_equal('Cats', @item.title)
   end

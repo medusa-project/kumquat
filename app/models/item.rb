@@ -64,11 +64,12 @@ class Item < ActiveRecord::Base
     TITLE = 'Title'
   end
 
-  MULTI_VALUE_SEPARATOR = '||'
   NON_DESCRIPTIVE_TSV_COLUMNS = %w(uuid parentId preservationMasterPathname
     accessMasterPathname variant pageNumber subpageNumber latitude longitude
     contentdmAlias contentdmPointer)
   TSV_LINE_BREAK = "\n"
+  TSV_MULTI_VALUE_SEPARATOR = '||'
+  TSV_URI_VALUE_SEPARATOR = '&&'
   UUID_REGEX = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/
 
   has_many :bytestreams, inverse_of: :item, dependent: :destroy
@@ -851,14 +852,20 @@ class Item < ActiveRecord::Base
         # To avoid data loss, we will accept any available descriptive element,
         # whether or not it is present in the collection's metadata profile.
         if ItemElement.all_descriptive.map(&:name).include?(element_name)
-          multi_value.split(MULTI_VALUE_SEPARATOR).select(&:present?).each do |raw_value|
+          multi_value.split(TSV_MULTI_VALUE_SEPARATOR).select(&:present?).each do |raw_value|
             e = ItemElement.named(element_name)
-            # If the value is "<value>", it's a URI.
-            if raw_value.start_with?('<') and raw_value.end_with?('>')
-              e.uri = raw_value[1..raw_value.length - 2]
-            else
-              e.value = raw_value
+            # raw_value may be an arbitrary string; it may be a URI (enclosed
+            # in angle brackets); or it may be both, joined with
+            # TSV_URI_VALUE_SEPARATOR.
+            value_parts = raw_value.split(TSV_URI_VALUE_SEPARATOR)
+            value_parts.each do |part|
+              if part.start_with?('<') and part.end_with?('>') and part.length > 2
+                e.uri = part[1..part.length - 2]
+              elsif part.present?
+                e.value = part
+              end
             end
+
             # Assign the correct vocabulary.
             if heading_parts.length > 1
               e.vocabulary = Vocabulary.find_by_key(heading_parts.first)
