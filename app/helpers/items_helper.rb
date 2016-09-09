@@ -275,14 +275,14 @@ module ItemsHelper
     if item.parent or item.items.any?
       relative_parent = item.parent ? item.parent : item
       relative_child = item.parent ? item : relative_parent
-      html += '<h1 class="pt-compound-title">'
+      html += '<h1 class="pt-title pt-compound-title">'
       if item.parent
         html += "<small>#{link_to relative_parent.title, relative_parent}</small>"
         html += "<br>&nbsp;&nbsp;&#8627; "
       end
       html += "#{icon_for(relative_child)} #{relative_child.title}</h1>"
     else
-      html += "<h1>#{icon_for(item)} #{item.title}"
+      html += "<h1 class=\"pt-title\">#{icon_for(item)} #{item.title}"
       if item.subtitle
         html += "<br><small>#{item.subtitle}</small>"
       end

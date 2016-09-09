@@ -149,9 +149,10 @@ var PTItemView = function() {
                 var format = embed_modal.find('input[name="format"]:checked').val();
                 var url = $('input[name="iiif-download-url"]').val() +
                     '/full/' + size + '/0/' + quality + '.' + format;
+                var title = $('h1.pt-title').text().trim().replace(/"/g, '&quot;');
 
                 $('#pt-preview-link').attr('href', url).show();
-                $('#pt-embed-link').val('<img src="' + url + '">');
+                $('#pt-embed-link').val('<img src="' + url + '" alt="' + title + '">');
             };
 
             $('input[name="size"], input[name="quality"], input[name="format"]').on('click', function () {
