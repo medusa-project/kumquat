@@ -69,6 +69,7 @@ class Item < ActiveRecord::Base
     accessMasterPathname variant pageNumber subpageNumber latitude longitude)
   TSV_LINE_BREAK = "\n"
   TSV_MULTI_VALUE_SEPARATOR = '||'
+  TSV_URI_VALUE_SEPARATOR = '&&'
   UUID_REGEX = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/
 
   has_many :bytestreams, inverse_of: :item, dependent: :destroy
