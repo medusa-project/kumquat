@@ -94,8 +94,11 @@ class ItemsController < WebsiteController
     @limit = Option::integer(Option::Key::RESULTS_PER_PAGE)
     @items = Item.solr.where(Item::SolrFields::PUBLISHED => true).
         where(Item::SolrFields::COLLECTION_PUBLISHED => true).
-        where(Item::SolrFields::PARENT_ITEM => :null). # TODO: remove this during a search
         where(params[:q])
+    # Child items are hidden when browsing, but shown when searching.
+    if params[:q].blank?
+      @items = @items.where(Item::SolrFields::PARENT_ITEM => :null)
+    end
     if params[:fq].respond_to?(:each)
       params[:fq].each { |fq| @items = @items.facet(fq) }
     else
