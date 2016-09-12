@@ -145,7 +145,7 @@ class MetadataProfile < ActiveRecord::Base
     clone.default = false
     # The instance requires an ID for MetadataProfileElement validations.
     clone.save!
-    self.element_defs.each { |t| clone.elements << t.dup }
+    self.element_defs.each { |t| clone.element_defs << t.dup }
     clone
   end
 
