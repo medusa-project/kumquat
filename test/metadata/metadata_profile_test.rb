@@ -258,4 +258,10 @@ class MetadataProfileTest < ActiveSupport::TestCase
     @profile.add_default_elements
   end
 
+  test 'dup should work' do
+    dup = @profile.dup
+    puts dup.elements.map(&:name)
+    dup.save!
+  end
+
 end

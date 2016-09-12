@@ -156,7 +156,10 @@ class MetadataProfile < ActiveRecord::Base
   #
   def dup
     clone = super
+    clone.name = "Clone of #{self.name}"
     clone.default = false
+    # The instance requires an ID for MetadataProfileElement validations.
+    clone.save!
     self.elements.each { |t| clone.elements << t.dup }
     clone
   end

@@ -9,7 +9,6 @@ module Admin
       profile = MetadataProfile.find(params[:metadata_profile_id])
       begin
         clone = profile.dup
-        clone.name = 'Clone of ' + clone.name
         clone.save!
       rescue => e
         flash['error'] = "#{e}"
@@ -118,7 +117,7 @@ module Admin
         format.json do
           filename = "#{CGI.escape(@profile.name)}.json"
           headers['Content-Disposition'] = "attachment; filename=#{filename}"
-          render json: @profile
+          render text: JSON.pretty_generate(@profile.as_json)
         end
       end
     end
