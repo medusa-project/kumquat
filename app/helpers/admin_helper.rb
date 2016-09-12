@@ -1,27 +1,27 @@
 module AdminHelper
 
   ##
-  # @param element_def [ElementDef]
+  # @param profile_element [MetadataProfileElement]
   # @param element [ItemElement, nil]
   # @param vocabulary [Vocabulary]
   # @return [String]
   #
-  def admin_item_element_edit_tag(element_def, element, vocabulary)
+  def admin_item_element_edit_tag(profile_element, element, vocabulary)
     html = '<table class="table-condensed pt-element" style="width:100%">
       <tr>
         <th style="text-align: right; width: 1px"><span class="label label-default">String</span></th>
         <td>'
     if vocabulary == Vocabulary.uncontrolled # uncontrolled gets a textarea
-      html += text_area_tag("elements[#{element_def.name}][#{vocabulary.id}][][string]",
+      html += text_area_tag("elements[#{profile_element.name}][#{vocabulary.id}][][string]",
                             element&.value,
-                            id: "elements[#{element_def.name}][#{vocabulary.id}][string]",
+                            id: "elements[#{profile_element.name}][#{vocabulary.id}][string]",
                             class: 'form-control',
                             autocomplete: 'off',
                             data: { controlled: 'false' })
     else # controlled gets a one-line text field
-      html += text_field_tag("elements[#{element_def.name}][#{vocabulary.id}][][string]",
+      html += text_field_tag("elements[#{profile_element.name}][#{vocabulary.id}][][string]",
                              element&.value,
-                             id: "elements[#{element_def.name}][#{vocabulary.id}][string]",
+                             id: "elements[#{profile_element.name}][#{vocabulary.id}][string]",
                              class: 'form-control',
                              autocomplete: 'off',
                              data: { controlled: 'true',
@@ -42,9 +42,9 @@ module AdminHelper
         <tr>
           <th style="text-align: right; width: 1px"><span class="label label-primary">URI</span></th>
           <td>'
-    html += text_field_tag("elements[#{element_def.name}][#{vocabulary.id}][][uri]",
+    html += text_field_tag("elements[#{profile_element.name}][#{vocabulary.id}][][uri]",
                            element&.uri,
-                           id: "elements[#{element_def.name}][#{vocabulary.id}][uri]",
+                           id: "elements[#{profile_element.name}][#{vocabulary.id}][uri]",
                            class: 'form-control',
                            autocomplete: 'off',
                            data: { controlled: (vocabulary == Vocabulary.uncontrolled) ? 'false' : 'true',
@@ -64,7 +64,7 @@ module AdminHelper
 
     # Iterate through the index-ordered elements in the collection's metadata
     # profile in order to display the entity's elements in the correct order.
-    defs = item.collection.effective_metadata_profile.element_defs
+    defs = item.collection.effective_metadata_profile.elements
     defs.each do |e_def|
       elements = item.elements.
           select{ |e| e.name == e_def.name and (e.value.present? or e.uri.present?) }

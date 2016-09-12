@@ -3,14 +3,15 @@
 # ItemElement. This list may be controlled (curated/restricted) or uncontrolled
 # (anything goes).
 #
-# ElementDefs need to be associated with one or more vocabularies. By default,
-# new ElementDefs are associated with the uncontrolled vocabulary instance,
-# which signifies that they may contain any value. The application depends on
-# this instance (with a key of "uncontrolled") always existing.
+# MetadataProfileElements should be associated with one or more vocabularies.
+# By default, new MetadataProfileElement instances are associated with the
+# uncontrolled vocabulary instance, which signifies that they may contain any
+# value. The application depends on this instance (with a key of
+# "uncontrolled") always existing.
 #
 class Vocabulary < ActiveRecord::Base
 
-  has_and_belongs_to_many :element_defs
+  has_and_belongs_to_many :metadata_profile_elements
   has_many :vocabulary_terms, -> { order(:string, :uri) },
            inverse_of: :vocabulary, dependent: :destroy
 

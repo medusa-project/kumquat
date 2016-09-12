@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class ElementDefTest < ActiveSupport::TestCase
+class MetadataProfileElementTest < ActiveSupport::TestCase
   # test "the truth" do
   #   assert true
   # end

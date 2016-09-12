@@ -123,8 +123,8 @@ class ItemsController < WebsiteController
     sort = nil
     if params[:sort].present?
       sort = params[:sort]
-    elsif @metadata_profile.default_sortable_element_def
-      sort = @metadata_profile.default_sortable_element_def.solr_single_valued_field
+    elsif @metadata_profile.default_sortable_element
+      sort = @metadata_profile.default_sortable_element.solr_single_valued_field
     end
     @items = @items.order("#{sort} asc") if sort
 

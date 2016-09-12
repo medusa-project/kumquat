@@ -1,10 +1,10 @@
 <% position_options = options_for_select(
-    element_def.metadata_profile.element_defs.order(:index).
-        reject{ |e| e.index == element_def.index }.
+    element.metadata_profile.elements.order(:index).
+        reject{ |e| e.index == element.index }.
         map{ |e| [e.label, e.index + 1] },
-    selected: element_def.index) %>
+    selected: element.index) %>
 
-<%= form_for([:admin, element_def], remote: true) do |f| %>
+<%= form_for([:admin, element], remote: true) do |f| %>
   <div class="pt-error-messages">
     <% # populated via ajax by shared/_validation_messages.js.erb
     %>
@@ -13,7 +13,7 @@
   <div class="form-group">
     <%= f.label :name %>
     <%= f.select(:name, name_options_for_select,
-                 { selected: element_def.name },
+                 { selected: element.name },
                  class: 'form-control') %>
   </div>
 
@@ -30,14 +30,14 @@
   <div class="form-group">
     <%= f.label :vocabularies, 'Vocabularies' %>
 
-    <%= hidden_field_tag('element_def[vocabulary_ids][]', nil) %>
+    <%= hidden_field_tag('metadata_profile_element[vocabulary_ids][]', nil) %>
 
     <% Vocabulary.order(:name).each do |vocab| %>
       <div class="checkbox">
         <%= label_tag do %>
           <%= check_box_tag :vocabulary_ids, vocab.id,
-                            element_def.vocabulary_ids.include?(vocab.id),
-                            name: 'element_def[vocabulary_ids][]' %>
+                            element.vocabulary_ids.include?(vocab.id),
+                            name: 'metadata_profile_element[vocabulary_ids][]' %>
           <%= vocab.name %>
         <% end %>
       </div>
@@ -46,7 +46,7 @@
 
   <div class="form-group">
     <%= f.label :dc_map, 'Dublin Core Mapping' %>
-    <%= select('element_def', 'dc_map',
+    <%= select('element', 'dc_map',
                dublin_core_elements,
                { include_blank: true, selected: f.object.dc_map },
                { class: 'form-control' }) %>
@@ -54,7 +54,7 @@
 
   <div class="form-group">
     <%= f.label :dcterms_map, 'Dublin Core Terms Mapping' %>
-    <%= select('element_def', 'dcterms_map',
+    <%= select('element', 'dcterms_map',
                dublin_core_terms,
                { include_blank: true, selected: f.object.dcterms_map },
                { class: 'form-control' }) %>

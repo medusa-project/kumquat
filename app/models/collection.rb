@@ -46,7 +46,6 @@ class Collection < ActiveRecord::Base
   serialize :resource_types
 
   belongs_to :metadata_profile, inverse_of: :collections
-  has_many :element_defs, inverse_of: :collection
 
   validates_format_of :medusa_cfs_directory_id,
                       with: UUID_REGEX,
@@ -196,7 +195,7 @@ ORDER BY
   end, items.page_number, items.subpage_number, pres_pathname NULLS FIRST
 LIMIT 1000;
 =end
-    element_subselects = self.effective_metadata_profile.element_defs.map do |ed|
+    element_subselects = self.effective_metadata_profile.elements.map do |ed|
       subselects = []
       ed.vocabularies.sort{ |v| v.key <=> v.key }.each do |vocab|
         vocab_id = (vocab == Vocabulary.uncontrolled) ?
@@ -327,9 +326,9 @@ LIMIT 1000;
   def migrate_item_elements(source_element, dest_element)
     # Check that the destination element is present in the instance's
     # metadata profile.
-    source_def = self.metadata_profile.element_defs.
+    source_def = self.metadata_profile.elements.
         select{ |e| e.name == source_element }.first
-    dest_def = self.metadata_profile.element_defs.
+    dest_def = self.metadata_profile.elements.
         select{ |e| e.name == dest_element }.first
     unless dest_def
       raise ArgumentError, "#{dest_element} element is not present in the "\

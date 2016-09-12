@@ -61,7 +61,7 @@ module Admin
           @num_results_shown = [@limit, @items.total_length].min
 
           # These are used by the search form.
-          @elements_for_select = ElementDef.order(:name).
+          @elements_for_select = MetadataProfileElement.order(:name).
               map{ |p| [p.label, p.solr_multi_valued_field] }.uniq
           @elements_for_select.
               unshift([ 'Any Element', Item::SolrFields::SEARCH_ALL ])

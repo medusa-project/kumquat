@@ -109,10 +109,10 @@ class Item < ActiveRecord::Base
   #
   def self.tsv_header(metadata_profile)
     columns = NON_DESCRIPTIVE_TSV_COLUMNS
-    metadata_profile.element_defs.each do |ed|
-      # There will be one column per ElementDef vocabulary. Column headings are
-      # in the format "vocabKey:elementName", except the uncontrolled vocabulary
-      # which will not get a vocabKey prefix.
+    metadata_profile.elements.each do |ed|
+      # There will be one column per MetadataProfileElement vocabulary. Column
+      # headings are in the format "vocabKey:elementName", except the
+      # uncontrolled vocabulary which will not have a vocabKey prefix.
       columns += ed.vocabularies.sort{ |v| v.key <=> v.key }.map do |vocab|
         vocab.key != Vocabulary::UNCONTROLLED_KEY ?
             "#{vocab.key}:#{ed.name}" : ed.name
