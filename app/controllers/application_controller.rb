@@ -8,10 +8,8 @@ class ApplicationController < ActionController::Base
   before_action :setup
   after_action :flash_in_response_headers
 
-=begin
   def setup
   end
-=end
 
   def admin_user
     unless current_user.is_admin?
