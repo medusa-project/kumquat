@@ -100,11 +100,21 @@ class MetadataProfile < ActiveRecord::Base
     profile
   end
 
+  ##
+  # Will save the instance of its ID is nil.
+  #
+  # @return [void]
+  #
   def add_default_element_defs
-    MetadataProfile.default_element_defs.each do |ed|
-      next if self.element_defs.map(&:name).include?(ed.name)
-      ed.metadata_profile = self
-      ed.save!
+    ActiveRecord::Base.transaction do
+      # The instance requires an ID for ElementDef validations.
+      self.save! if self.id.nil?
+      MetadataProfile.default_element_defs.each do |ed|
+        unless self.element_defs.map(&:name).include?(ed.name)
+          self.element_defs << ed
+        end
+      end
+      self.save!
     end
   end
 
