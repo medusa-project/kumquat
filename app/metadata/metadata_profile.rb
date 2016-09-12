@@ -5,10 +5,10 @@
 # faceting; which fields appear in a TSV export; how local elements map to DC
 # in the OAI-PMH endpoint; etc.
 #
-# A metadata profile is like a template. For example, instead of enumerating
-# an Item's metadata elements for public display, we enumerate the elements
-# in its collection's metadata profile, and display each of its elements that
-# match, in the order defined by the profile.
+# A metadata profile is like a template or view. Instead of enumerating an
+# Item's metadata elements for public display, we enumerate the elements in its
+# collection's metadata profile, and display each of its elements that match,
+# in the order defined by the profile.
 #
 class MetadataProfile < ActiveRecord::Base
 
@@ -23,25 +23,37 @@ class MetadataProfile < ActiveRecord::Base
 
   after_save :ensure_default_uniqueness
 
+  ##
+  # @return [MetadataProfile]
+  #
   def self.default
     MetadataProfile.find_by_default(true)
   end
 
+  ##
+  # @return [Array<ElementDef>]
+  #
   def self.default_element_defs
     defs = []
     ItemElement.all_descriptive.each_with_index do |elem, index|
       dc_map = DublinCoreElement.all.map(&:name).include?(elem.name) ? elem.name : nil
       dcterms_map = DublinCoreTerm.all.map(&:name).include?(elem.name) ? elem.name : nil
-      defs << ElementDef.new(name: elem.name,
-                             label: elem.name.titleize,
-                             visible: true,
-                             searchable: true,
-                             sortable: true,
-                             facetable: true,
-                             dc_map: dc_map,
-                             dcterms_map: dcterms_map,
-                             vocabularies: [ Vocabulary.uncontrolled ],
-                             index: index)
+      ed = ElementDef.new(name: elem.name,
+                          label: elem.name.titleize,
+                          visible: true,
+                          searchable: true,
+                          sortable: true,
+                          facetable: true,
+                          dc_map: dc_map,
+                          dcterms_map: dcterms_map,
+                          vocabularies: [ Vocabulary.uncontrolled ],
+                          index: index)
+      # Add the RightsStatements.org vocabulary to the `rights` element.
+      if ed.name == 'rights'
+        rights_vocab = Vocabulary.find_by_key('rights')
+        ed.vocabularies << rights_vocab if rights_vocab
+      end
+      defs << ed
     end
     defs
   end
