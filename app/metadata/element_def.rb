@@ -38,6 +38,15 @@ class ElementDef < ActiveRecord::Base
     end
   end
 
+  ##
+  # @return [MetadataProfileElement]
+  #
+  def dup
+    clone = super
+    clone.vocabulary_ids = self.vocabulary_ids
+    clone
+  end
+
   def solr_facet_field
     e = ItemElement.new
     e.name = self.name
