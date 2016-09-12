@@ -29,35 +29,6 @@
       </div>
     <% end %>
 
-    <hr>
-
-    <h2>Statistics</h2>
-    <table class="table table-condensed">
-      <tr>
-        <td>Top-Level Items</td>
-        <td><%= number_with_delimiter(@num_top_level_items) %></td>
-      </tr>
-      <tr>
-        <td>Items Including Children</td>
-        <td><%= number_with_delimiter(@num_all_items) %></td>
-      </tr>
-      <tr>
-        <td>Images</td>
-        <td><%= number_with_delimiter(@num_image_items) %></td>
-      </tr>
-      <tr>
-        <td>Videos</td>
-        <td><%= number_with_delimiter(@num_video_items) %></td>
-      </tr>
-      <tr>
-        <td>Sound Recordings</td>
-        <td><%= number_with_delimiter(@num_audio_items) %></td>
-      </tr>
-      <tr>
-        <td>Documents</td>
-        <td><%= number_with_delimiter(@num_document_items) %></td>
-      </tr>
-    </table>
   </div>
 </div>
 
