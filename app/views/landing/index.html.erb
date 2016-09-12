@@ -32,6 +32,14 @@
   </div>
 </div>
 
+<hr>
+
 <div class="pt-cards">
   <%= collections_as_cards(@dls_collections) %>
+</div>
+
+<div class="pt-spacer">&nbsp;</div>
+
+<div id="pt-see-more" class="text-center">
+  <%= link_to(raw("See #{Collection.all.where(published: true).count - @dls_collections.length} more collections&hellip;"), collections_path) %>
 </div>
