@@ -187,8 +187,13 @@ SELECT items.repository_id,
     ), '||') AS lcsh_subject
 FROM items
 WHERE items.collection_repository_id = '8132f520-e3fb-012f-c5b6-0019b9e633c5-f'
-ORDER BY items.parent_repository_id, items.page_number, items.subpage_number,
-  pres_pathname
+ORDER BY
+  case
+    when items.parent_repository_id IS NULL then
+      items.repository_id
+    else
+      items.parent_repository_id
+  end, items.page_number, items.subpage_number, pres_pathname NULLS FIRST
 LIMIT 1000;
 =end
     element_subselects = self.effective_metadata_profile.element_defs.map do |ed|
@@ -232,8 +237,13 @@ LIMIT 1000;
       #{element_subselects.join(",\n")}
     FROM items
     WHERE items.collection_repository_id = $1
-    ORDER BY items.parent_repository_id, items.page_number,
-      items.subpage_number, pres_pathname"
+    ORDER BY
+      case
+        when items.parent_repository_id IS NULL then
+          items.repository_id
+        else
+          items.parent_repository_id
+      end, items.page_number, items.subpage_number, pres_pathname NULLS FIRST"
 
     values = [[ nil, self.repository_id ]]
 
