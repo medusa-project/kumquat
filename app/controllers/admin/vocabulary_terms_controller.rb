@@ -15,7 +15,7 @@ module Admin
                locals: { entity: @vocabulary_term }
       rescue => e
         response.headers['X-PearTree-Result'] = 'error'
-        flash['error'] = "#{e}"
+        handle_error(e)
         keep_flash
         render 'create'
       else
@@ -31,7 +31,7 @@ module Admin
       begin
         term.destroy!
       rescue => e
-        flash['error'] = "#{e}"
+        handle_error(e)
       else
         flash['success'] = "Vocabulary term \"#{term}\" deleted."
       ensure
@@ -62,7 +62,7 @@ module Admin
                locals: { entity: term }
       rescue => e
         response.headers['X-PearTree-Result'] = 'error'
-        flash['error'] = "#{e}"
+        handle_error(e)
         keep_flash
         render 'update'
       else

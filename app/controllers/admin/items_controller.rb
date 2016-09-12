@@ -97,7 +97,7 @@ module Admin
             ImportItemsFromTsvJob.perform_later(tempfile.path)
           rescue => e
             tempfile.unlink
-            flash['error'] = "#{e}"
+            handle_error(e)
             redirect_to admin_collection_items_url(col)
           else
             flash['success'] = 'Importing items in the background. This '\
@@ -121,7 +121,7 @@ module Admin
         MigrateItemMetadataJob.perform_later(
             col.repository_id, params[:source_element], params[:dest_element])
       rescue => e
-        flash['error'] = "#{e}"
+        handle_error(e)
         redirect_to admin_collection_items_url(col)
       else
         flash['success'] = 'Migrating metadata elements in the background. '\
@@ -166,7 +166,7 @@ module Admin
                                    params[:ingest_mode],
                                    params[:options])
       rescue => e
-        flash['error'] = "#{e}"
+        handle_error(e)
         redirect_to admin_collection_items_url(col)
       else
         flash['success'] = 'Syncing items in the background. This '\
@@ -205,7 +205,7 @@ module Admin
           item.update!(sanitized_params)
         end
       rescue => e
-        flash['error'] = "#{e}"
+        handle_error(e)
         redirect_to edit_admin_collection_item_path(item.collection, item)
       else
         flash['success'] = "Item \"#{item.title}\" updated."

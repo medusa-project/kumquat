@@ -32,7 +32,7 @@ module Admin
           end
         end
       rescue => e
-        flash['error'] = "#{e}"
+        handle_error(e)
         render :index
       else
         flash['success'] = 'Settings updated.'

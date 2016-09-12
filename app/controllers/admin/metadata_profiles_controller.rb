@@ -11,7 +11,7 @@ module Admin
         clone = profile.dup
         clone.save!
       rescue => e
-        flash['error'] = "#{e}"
+        handle_error(e)
         redirect_to :back
       else
         flash['success'] = "Cloned #{profile.name} as \"#{clone.name}\"."
@@ -30,7 +30,7 @@ module Admin
                locals: { entity: @profile }
       rescue => e
         response.headers['X-PearTree-Result'] = 'error'
-        flash['error'] = "#{e}"
+        handle_error(e)
         keep_flash
         render 'create'
       else
@@ -64,7 +64,7 @@ module Admin
       begin
         profile.destroy!
       rescue => e
-        flash['error'] = "#{e}"
+        handle_error(e)
       else
         flash['success'] = "Metadata profile \"#{profile.name}\" deleted."
       ensure
@@ -83,7 +83,7 @@ module Admin
         profile = MetadataProfile.from_json(json)
         profile.save!
       rescue => e
-        flash['error'] = "#{e}"
+        handle_error(e)
         redirect_to admin_metadata_profiles_path
       else
         flash['success'] = "Profile imported as #{profile.name}."
@@ -133,7 +133,7 @@ module Admin
                  locals: { entity: @profile }
         rescue => e
           response.headers['X-PearTree-Result'] = 'error'
-          flash['error'] = "#{e}"
+          handle_error(e)
           keep_flash
           render 'update'
         else
@@ -150,7 +150,7 @@ module Admin
           render 'show'
         rescue => e
           response.headers['X-PearTree-Result'] = 'error'
-          flash['error'] = "#{e}"
+          handle_error(e)
           render 'show'
         else
           response.headers['X-PearTree-Result'] = 'success'

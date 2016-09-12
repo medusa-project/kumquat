@@ -24,7 +24,7 @@ module Admin
       begin
         user.update_attributes!(tmp_params)
       rescue => e
-        flash['error'] = "#{e}"
+        handle_error(e)
         render 'new'
       else
         flash['success'] = "User #{user.username} updated."
@@ -36,7 +36,7 @@ module Admin
       begin
         user = User.create!(sanitized_params)
       rescue => e
-        flash['error'] = "#{e}"
+        handle_error(e)
         @user = User.new
         @roles = Role.all.order(:name)
         render 'new'
@@ -53,7 +53,7 @@ module Admin
       begin
         user.destroy!
       rescue => e
-        flash['error'] = "#{e}"
+        handle_error(e)
         redirect_to admin_users_url
       else
         if user == current_user
@@ -78,7 +78,7 @@ module Admin
       begin
         user.save!
       rescue => e
-        flash['error'] = "#{e}"
+        handle_error(e)
       else
         flash['success'] = "User #{user.username} disabled."
       ensure
@@ -103,7 +103,7 @@ module Admin
       begin
         user.save!
       rescue => e
-        flash['error'] = "#{e}"
+        handle_error(e)
       else
         flash['success'] = "User #{user.username} enabled."
       ensure
@@ -135,7 +135,7 @@ module Admin
         @user.update_attributes!(sanitized_params)
       rescue => e
         @roles = Role.all.order(:name)
-        flash['error'] = "#{e}"
+        handle_error(e)
         render 'edit'
       else
         flash['success'] = "User #{@user.username} updated."

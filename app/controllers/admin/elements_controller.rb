@@ -20,7 +20,7 @@ module Admin
                locals: { entity: @element }
       rescue => e
         response.headers['X-PearTree-Result'] = 'error'
-        flash['error'] = "#{e}"
+        handle_error(e)
         keep_flash
         render 'create'
       else
@@ -36,7 +36,7 @@ module Admin
       begin
         element.destroy!
       rescue => e
-        flash['error'] = "#{e}"
+        handle_error(e)
       else
         flash['success'] = "Element \"#{element.name}\" deleted."
       ensure
@@ -76,7 +76,7 @@ module Admin
           end
         end
       rescue => e
-        flash['error'] = "#{e}"
+        handle_error(e)
         redirect_to admin_elements_path
       else
         flash['success'] = "#{struct.length} elements created or updated."
@@ -118,7 +118,7 @@ module Admin
                locals: { entity: element }
       rescue => e
         response.headers['X-PearTree-Result'] = 'error'
-        flash['error'] = "#{e}"
+        handle_error(e)
         keep_flash
         render 'update'
       else

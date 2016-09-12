@@ -8,8 +8,10 @@ class ApplicationController < ActionController::Base
   before_action :setup
   after_action :flash_in_response_headers
 
+=begin
   def setup
   end
+=end
 
   def admin_user
     unless current_user.is_admin?
@@ -27,6 +29,16 @@ class ApplicationController < ActionController::Base
   end
 
   protected
+
+  ##
+  # Logs the given error and sets the flash to it.
+  #
+  # @param e [Exception, String]
+  #
+  def handle_error(e)
+    Rails.logger.warn(e)
+    flash['error'] = "#{e}"
+  end
 
   ##
   # Normally the flash is discarded after being added to the response headers
