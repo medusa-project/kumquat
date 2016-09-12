@@ -1,12 +1,12 @@
 module Admin
 
-  class ElementDefsController < ControlPanelController
+  class MetadataProfileElementsController < ControlPanelController
 
     ##
     # XHR only
     #
     def create
-      @element = ElementDef.new(sanitized_params)
+      @element = MetadataProfileElement.new(sanitized_params)
       begin
         @element.save!
       rescue ActiveRecord::RecordInvalid
@@ -27,7 +27,7 @@ module Admin
     end
 
     def destroy
-      element = ElementDef.find(params[:id])
+      element = MetadataProfileElement.find(params[:id])
       begin
         element.destroy!
       rescue => e
@@ -43,7 +43,7 @@ module Admin
     # XHR only
     #
     def edit
-      element = ElementDef.find(params[:id])
+      element = MetadataProfileElement.find(params[:id])
       profile = element.metadata_profile
       name_options_for_select = ItemElement.all_descriptive.
           map{ |t| [ t.name, t.name ] }
@@ -53,8 +53,8 @@ module Admin
       dublin_core_terms = DublinCoreTerm.all.
           sort{ |e, f| e.label <=> f.label }.
           map { |p| [ p.label, p.name ] }
-      render partial: 'admin/element_defs/form',
-             locals: { element_def: element,
+      render partial: 'admin/metadata_profile_elements/form',
+             locals: { element: element,
                        metadata_profile: profile,
                        name_options_for_select: name_options_for_select,
                        dublin_core_elements: dublin_core_elements,
@@ -66,7 +66,7 @@ module Admin
     # XHR only
     #
     def update
-      element = ElementDef.find(params[:id])
+      element = MetadataProfileElement.find(params[:id])
       begin
         element.update!(sanitized_params)
       rescue ActiveRecord::RecordInvalid
@@ -89,10 +89,10 @@ module Admin
     private
 
     def sanitized_params
-      params.require(:element_def).permit(:dc_map, :dcterms_map, :facetable,
-                                          :index, :label, :metadata_profile_id,
-                                          :name, :searchable, :sortable,
-                                          :visible, vocabulary_ids: [])
+      params.require(:metadata_profile_element).permit(
+          :dc_map, :dcterms_map, :facetable, :index, :label,
+          :metadata_profile_id, :name, :searchable, :sortable,
+          :visible, vocabulary_ids: [])
     end
 
   end

@@ -112,9 +112,10 @@ module ItemsHelper
     end
 
     # get the list of facets to display from the appropriate metadata profile
-    collection_element = ElementDef.new(name: 'collection', facetable: true)
+    collection_element = MetadataProfileElement.new(name: 'collection',
+                                                    facetable: true)
     profile_facetable_elements = [collection_element] +
-        options[:metadata_profile].element_defs.where(facetable: true).
+        options[:metadata_profile].elements.where(facetable: true).
             order(:index)
 
     html = ''
@@ -417,7 +418,7 @@ module ItemsHelper
     html = '<dl class="pt-metadata">'
     # iterate through the index-ordered elements in the collection's metadata
     # profile in order to display the entity's elements in the correct order
-    defs = item.collection.effective_metadata_profile.element_defs
+    defs = item.collection.effective_metadata_profile.elements
     defs = defs.select(&:visible) unless options[:admin]
     defs.each do |e_def|
       # These will be displayed elsewhere on the page.
@@ -454,7 +455,7 @@ module ItemsHelper
 
     # iterate through the index-ordered elements in the collection's metadata
     # profile in order to display the entity's elements in the correct order
-    defs = item.collection.effective_metadata_profile.element_defs
+    defs = item.collection.effective_metadata_profile.elements
     defs = defs.select(&:visible) unless options[:admin]
     defs.each do |e_def|
       # These will be displayed elsewhere on the page.
@@ -904,8 +905,8 @@ module ItemsHelper
   # @return [String] HTML form element
   #
   def sort_menu(metadata_profile)
-    sortable_elements = metadata_profile.element_defs.where(sortable: true)
-    default_sortable_element = metadata_profile.default_sortable_element_def
+    sortable_elements = metadata_profile.elements.where(sortable: true)
+    default_sortable_element = metadata_profile.default_sortable_element
     html = ''
     if sortable_elements.any?
       html += '<form class="form-inline" method="GET">

@@ -1,10 +1,10 @@
 ##
-# A DLS element.
+# A DLS element archetype.
 #
 # Elements can be added to a metadata profile, and are ascribable to an item,
 # but note that this class itself has no relationships; metadata profile
-# elements are instead ElementDefs and item elements are ItemElements. (This
-# might be revisited at some point.)
+# elements are instead MetadataProfileElements and item elements are
+# ItemElements.
 #
 class Element < ActiveRecord::Base
 
@@ -35,7 +35,7 @@ class Element < ActiveRecord::Base
   # @return [Integer]
   #
   def num_usages_by_metadata_profiles
-    ElementDef.where(name: self.name).count
+    MetadataProfileElement.where(name: self.name).count
   end
 
   def update_from_json_struct(struct)

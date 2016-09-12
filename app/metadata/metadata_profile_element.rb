@@ -1,10 +1,9 @@
 ##
-# Database representation of a metadata element definition. Primarily used in
-# collection metadata profiles.
+# Encapsulates an element in a metadata profile.
 #
-class ElementDef < ActiveRecord::Base
+class MetadataProfileElement < ActiveRecord::Base
 
-  belongs_to :metadata_profile, inverse_of: :element_defs
+  belongs_to :metadata_profile, inverse_of: :elements
   has_and_belongs_to_many :vocabularies
 
   validates_uniqueness_of :name, scope: :metadata_profile_id
@@ -18,7 +17,7 @@ class ElementDef < ActiveRecord::Base
   #
   def adjust_profile_element_indexes_after_destroy
     if self.metadata_profile and self.destroyed?
-      self.metadata_profile.element_defs.order(:index).each_with_index do |element, i|
+      self.metadata_profile.elements.order(:index).each_with_index do |element, i|
         element.update_column(:index, i) # update_column skips callbacks
       end
     end
@@ -30,7 +29,7 @@ class ElementDef < ActiveRecord::Base
   #
   def adjust_profile_element_indexes_after_save
     if self.metadata_profile and self.changed.include?('index')
-      self.metadata_profile.element_defs.where('id != ?', self.id).order(:index).
+      self.metadata_profile.elements.where('id != ?', self.id).order(:index).
           each_with_index do |element, i|
         # update_column skips callbacks
         element.update_column(:index, (i >= self.index) ? i + 1 : i)

@@ -44,7 +44,7 @@ xml.tag!('OAI-PMH',
             }) do
               item.elements.each do |element|
                 # oai_dc supports only unqualified DC.
-                dc_element = item.collection.metadata_profile.element_defs.
+                dc_element = item.collection.metadata_profile.elements.
                     where(name: element.name).first&.dc_map
                 if dc_element and element.value.present?
                   xml.tag!("dc:#{dc_element}", element.value)

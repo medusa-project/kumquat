@@ -21,7 +21,7 @@ module Admin
 
     def create
       @profile = MetadataProfile.new(sanitized_params)
-      @profile.add_default_element_defs
+      @profile.add_default_elements
       begin
         @profile.save!
       rescue ActiveRecord::RecordInvalid
@@ -45,11 +45,11 @@ module Admin
     # Responds to POST /metadata-profiles/:id/delete-elements
     #
     def delete_elements
-      if params[:element_defs]&.respond_to?(:each)
-        count = params[:element_defs].length
+      if params[:elements]&.respond_to?(:each)
+        count = params[:elements].length
         if count > 0
           ActiveRecord::Base.transaction do
-            ElementDef.destroy_all(id: params[:element_defs])
+            MetadataProfileElement.destroy_all(id: params[:elements])
           end
           flash['success'] = "Deleted #{count} element(s)."
         end
@@ -101,9 +101,9 @@ module Admin
 
       respond_to do |format|
         format.html do
-          @new_element = @profile.element_defs.build
-          @element_def_options_for_select =
-              @profile.element_defs.map{ |t| [ t.name, t.id ] }
+          @new_element = @profile.elements.build
+          @element_options_for_select =
+              @profile.elements.map{ |t| [ t.name, t.id ] }
           @name_options_for_select = ItemElement.all_descriptive.
               sort{ |e, f| e.name <=> f.name }.
               map{ |t| [ t.name, t.name ] }
@@ -164,7 +164,7 @@ module Admin
 
     def sanitized_params
       params.require(:metadata_profile).permit(:default,
-                                               :default_sortable_element_def_id,
+                                               :default_sortable_element_id,
                                                :name)
     end
 

@@ -30,14 +30,14 @@ class WebsiteController < ApplicationController
     # the fields of the default metadata profile.
     collection = self.collection
     if collection
-      element_defs = collection.effective_metadata_profile.element_defs
+      profile_elements = collection.effective_metadata_profile.elements
     else
-      element_defs = MetadataProfile.where(default: true).limit(1).first.
-          element_defs
+      profile_elements = MetadataProfile.where(default: true).limit(1).first.
+          elements
     end
     @searchable_collections = Collection.where(published_in_dls: true)
-    @elements_for_select = element_defs.where(searchable: true).order(:label).
-        map{ |ed| [ ed.label, ed.solr_multi_valued_field ] }
+    @elements_for_select = profile_elements.where(searchable: true).
+        order(:label).map{ |ed| [ ed.label, ed.solr_multi_valued_field ] }
     @elements_for_select.unshift([ 'Any Field', Item::SolrFields::SEARCH_ALL ])
   end
 

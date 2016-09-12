@@ -169,7 +169,7 @@
         </div>
         <div class="modal-body">
           <% if @collection.metadata_profile %>
-            <% defs = @collection.metadata_profile.element_defs.
+            <% defs = @collection.metadata_profile.elements.
                 sort{ |a, b| a.label <=> b.label }.
                 map{ |t| [ "#{t.label} (#{t.name})", t.name ] } %>
             <div class="form-group">

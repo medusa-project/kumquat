@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160908165439) do
+ActiveRecord::Schema.define(version: 20160912182950) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -74,28 +74,6 @@ ActiveRecord::Schema.define(version: 20160908165439) do
 
   add_index "delayed_jobs", ["priority", "run_at"], name: "delayed_jobs_priority", using: :btree
 
-  create_table "element_defs", force: :cascade do |t|
-    t.integer  "metadata_profile_id"
-    t.string   "name"
-    t.string   "label"
-    t.integer  "index"
-    t.boolean  "searchable"
-    t.boolean  "facetable"
-    t.boolean  "visible"
-    t.datetime "created_at",                          null: false
-    t.datetime "updated_at",                          null: false
-    t.boolean  "sortable",            default: false
-    t.string   "dc_map"
-    t.string   "dcterms_map"
-  end
-
-  add_index "element_defs", ["metadata_profile_id"], name: "index_element_defs_on_metadata_profile_id", using: :btree
-
-  create_table "element_defs_vocabularies", id: false, force: :cascade do |t|
-    t.integer "element_def_id", null: false
-    t.integer "vocabulary_id",  null: false
-  end
-
   create_table "elements", force: :cascade do |t|
     t.string   "name"
     t.string   "description"
@@ -140,15 +118,37 @@ ActiveRecord::Schema.define(version: 20160908165439) do
   add_index "items", ["repository_id"], name: "index_items_on_repository_id", unique: true, using: :btree
   add_index "items", ["representative_item_repository_id"], name: "index_items_on_representative_item_repository_id", using: :btree
 
-  create_table "metadata_profiles", force: :cascade do |t|
+  create_table "metadata_profile_elements", force: :cascade do |t|
+    t.integer  "metadata_profile_id"
     t.string   "name"
-    t.boolean  "default",                         default: false
-    t.datetime "created_at",                                      null: false
-    t.datetime "updated_at",                                      null: false
-    t.integer  "default_sortable_element_def_id"
+    t.string   "label"
+    t.integer  "index"
+    t.boolean  "searchable"
+    t.boolean  "facetable"
+    t.boolean  "visible"
+    t.datetime "created_at",                          null: false
+    t.datetime "updated_at",                          null: false
+    t.boolean  "sortable",            default: false
+    t.string   "dc_map"
+    t.string   "dcterms_map"
   end
 
-  add_index "metadata_profiles", ["default_sortable_element_def_id"], name: "index_metadata_profiles_on_default_sortable_element_def_id", using: :btree
+  add_index "metadata_profile_elements", ["metadata_profile_id"], name: "index_metadata_profile_elements_on_metadata_profile_id", using: :btree
+
+  create_table "metadata_profile_elements_vocabularies", id: false, force: :cascade do |t|
+    t.integer "metadata_profile_element_id", null: false
+    t.integer "vocabulary_id",               null: false
+  end
+
+  create_table "metadata_profiles", force: :cascade do |t|
+    t.string   "name"
+    t.boolean  "default",                     default: false
+    t.datetime "created_at",                                  null: false
+    t.datetime "updated_at",                                  null: false
+    t.integer  "default_sortable_element_id"
+  end
+
+  add_index "metadata_profiles", ["default_sortable_element_id"], name: "index_metadata_profiles_on_default_sortable_element_id", using: :btree
 
   create_table "options", force: :cascade do |t|
     t.string   "key"
@@ -226,9 +226,9 @@ ActiveRecord::Schema.define(version: 20160908165439) do
   add_index "vocabulary_terms", ["vocabulary_id"], name: "index_vocabulary_terms_on_vocabulary_id", using: :btree
 
   add_foreign_key "bytestreams", "items", on_delete: :cascade
-  add_foreign_key "element_defs", "metadata_profiles", on_delete: :cascade
   add_foreign_key "item_elements", "items", on_delete: :cascade
   add_foreign_key "item_elements", "vocabularies", on_delete: :restrict
+  add_foreign_key "metadata_profile_elements", "metadata_profiles", on_delete: :cascade
   add_foreign_key "permissions_roles", "permissions", on_update: :cascade, on_delete: :cascade
   add_foreign_key "permissions_roles", "roles", on_update: :cascade, on_delete: :cascade
   add_foreign_key "roles_users", "roles", on_update: :cascade, on_delete: :cascade

@@ -6,8 +6,8 @@ class MetadataProfileTest < ActiveSupport::TestCase
     @profile = metadata_profiles(:default_metadata_profile)
   end
 
-  test 'default_element_defs should work' do
-    assert MetadataProfile.default_element_defs.length == 5
+  test 'default_elements should work' do
+    assert MetadataProfile.default_elements.length == 5
   end
 
   test 'from_json should work' do
@@ -18,8 +18,8 @@ class MetadataProfileTest < ActiveSupport::TestCase
         "default": false,
         "created_at": "2016-06-28T17:46:31.072Z",
         "updated_at": "2016-06-28T17:46:31.072Z",
-        "default_sortable_element_def_id": 1366,
-        "element_defs": [
+        "default_sortable_element_id": 1366,
+        "elements": [
             {
                 "id": 1367,
                 "metadata_profile_id": 15,
@@ -121,10 +121,10 @@ class MetadataProfileTest < ActiveSupport::TestCase
     HEREDOC
     profile = MetadataProfile.from_json(json)
     assert_equal 'Test Profile (imported)', profile.name
-    assert_equal 4, profile.element_defs.length
+    assert_equal 4, profile.elements.length
 
-    abstract = profile.element_defs.select{ |ed| ed.name == 'abstract' }.first
-    assert_equal abstract.id, profile.default_sortable_element_def_id
+    abstract = profile.elements.select{ |ed| ed.name == 'abstract' }.first
+    assert_equal abstract.id, profile.default_sortable_element_id
     assert_equal 'Abstract', abstract.label
     assert_equal profile.id, abstract.metadata_profile_id
     assert_equal 2, abstract.index
@@ -148,8 +148,8 @@ class MetadataProfileTest < ActiveSupport::TestCase
         "default": false,
         "created_at": "2016-06-28T17:46:31.072Z",
         "updated_at": "2016-06-28T17:46:31.072Z",
-        "default_sortable_element_def_id": 1366,
-        "element_defs": [
+        "default_sortable_element_id": 1366,
+        "elements": [
             {
                 "id": 1367,
                 "metadata_profile_id": 15,
@@ -254,8 +254,8 @@ class MetadataProfileTest < ActiveSupport::TestCase
     end
   end
 
-  test 'add_default_element_defs should work' do
-    @profile.add_default_element_defs
+  test 'add_default_elements should work' do
+    @profile.add_default_elements
   end
 
   test 'dup should work' do

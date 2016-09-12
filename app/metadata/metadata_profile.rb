@@ -5,17 +5,19 @@
 # faceting; which fields appear in a TSV export; how local elements map to DC
 # in the OAI-PMH endpoint; etc.
 #
-# A metadata profile is like a template. For example, instead of enumerating
-# an Item's metadata elements for public display, we enumerate the elements
-# in its collection's metadata profile, and display each of its elements that
-# match, in the order defined by the profile.
+# A metadata profile is like a template or view. Instead of enumerating an
+# Item's metadata elements for public display, we enumerate the elements in its
+# collection's metadata profile, and display each of its elements that match,
+# in the order defined by the profile.
 #
 class MetadataProfile < ActiveRecord::Base
 
-  belongs_to :default_sortable_element_def, class_name: 'ElementDef'
+  belongs_to :default_sortable_element, class_name: 'MetadataProfileElement'
   has_many :collections, inverse_of: :metadata_profile,
            dependent: :restrict_with_exception
-  has_many :element_defs, -> { order(:index) }, inverse_of: :metadata_profile,
+  has_many :elements, -> { order(:index) },
+           class_name: 'MetadataProfileElement',
+           inverse_of: :metadata_profile,
            dependent: :destroy
 
   validates :name, presence: true, length: { minimum: 2 },
@@ -23,25 +25,38 @@ class MetadataProfile < ActiveRecord::Base
 
   after_save :ensure_default_uniqueness
 
+  ##
+  # @return [MetadataProfile]
+  #
   def self.default
     MetadataProfile.find_by_default(true)
   end
 
-  def self.default_element_defs
+  ##
+  # @return [Array<MetadataProfileElement>]
+  #
+  def self.default_elements
     defs = []
     ItemElement.all_descriptive.each_with_index do |elem, index|
       dc_map = DublinCoreElement.all.map(&:name).include?(elem.name) ? elem.name : nil
       dcterms_map = DublinCoreTerm.all.map(&:name).include?(elem.name) ? elem.name : nil
-      defs << ElementDef.new(name: elem.name,
-                             label: elem.name.titleize,
-                             visible: true,
-                             searchable: true,
-                             sortable: true,
-                             facetable: true,
-                             dc_map: dc_map,
-                             dcterms_map: dcterms_map,
-                             vocabularies: [ Vocabulary.uncontrolled ],
-                             index: index)
+      profile_elem = MetadataProfileElement.new(
+          name: elem.name,
+          label: elem.name.titleize,
+          visible: true,
+          searchable: true,
+          sortable: true,
+          facetable: true,
+          dc_map: dc_map,
+          dcterms_map: dcterms_map,
+          vocabularies: [ Vocabulary.uncontrolled ],
+          index: index)
+      # Add the RightsStatements.org vocabulary to the `rights` element.
+      if profile_elem.name == 'rights'
+        rights_vocab = Vocabulary.find_by_key('rights')
+        profile_elem.vocabularies << rights_vocab if rights_vocab
+      end
+      defs << profile_elem
     end
     defs
   end
@@ -71,28 +86,28 @@ class MetadataProfile < ActiveRecord::Base
       profile.name = tentative_name
 
       # Add its elements.
-      struct['element_defs'].each do |jd|
-        ed = profile.element_defs.build
-        ed.name = jd['name']
-        ed.label = jd['label']
-        ed.index = jd['index']
-        ed.searchable = jd['searchable']
-        ed.facetable = jd['facetable']
-        ed.visible = jd['visible']
-        ed.sortable = jd['sortable']
-        ed.dc_map = jd['dc_map']
-        ed.dcterms_map = jd['dcterms_map']
+      struct['elements'].each do |jd|
+        profile_elem = profile.elements.build
+        profile_elem.name = jd['name']
+        profile_elem.label = jd['label']
+        profile_elem.index = jd['index']
+        profile_elem.searchable = jd['searchable']
+        profile_elem.facetable = jd['facetable']
+        profile_elem.visible = jd['visible']
+        profile_elem.sortable = jd['sortable']
+        profile_elem.dc_map = jd['dc_map']
+        profile_elem.dcterms_map = jd['dcterms_map']
         jd['vocabularies'].each do |v|
           vocab = Vocabulary.find_by_key(v['key'])
           if vocab
-            ed.vocabularies << vocab
+            profile_elem.vocabularies << vocab
           else
             raise "Vocabulary does not exist: #{v['key']}"
           end
         end
-        ed.save!
-        if jd['id'] == struct['default_sortable_element_def_id']
-          profile.default_sortable_element_def_id = ed.id
+        profile_elem.save!
+        if jd['id'] == struct['default_sortable_element_id']
+          profile.default_sortable_element_id = profile_elem.id
         end
       end
       profile.save!
@@ -105,13 +120,13 @@ class MetadataProfile < ActiveRecord::Base
   #
   # @return [void]
   #
-  def add_default_element_defs
+  def add_default_elements
     ActiveRecord::Base.transaction do
-      # The instance requires an ID for ElementDef validations.
+      # The instance requires an ID for MetadataProfileElement validations.
       self.save! if self.id.nil?
-      MetadataProfile.default_element_defs.each do |ed|
-        unless self.element_defs.map(&:name).include?(ed.name)
-          self.element_defs << ed
+      MetadataProfile.default_elements.each do |ed|
+        unless self.elements.map(&:name).include?(ed.name)
+          self.elements << ed
         end
       end
       self.save!
@@ -120,14 +135,14 @@ class MetadataProfile < ActiveRecord::Base
 
   ##
   # Overrides parent to serialize an instance to JSON with its child
-  # ElementDefs included.
+  # MetadataProfileElements included.
   #
   # @param options [Hash]
   # @return [String]
   #
   def as_json(options = {})
     super(options.merge(include: {
-        element_defs: {
+        elements: {
           include: :vocabularies
         }
     }))
@@ -145,12 +160,12 @@ class MetadataProfile < ActiveRecord::Base
     clone.default = false
     # The instance requires an ID for MetadataProfileElement validations.
     clone.save!
-    self.element_defs.each { |t| clone.element_defs << t.dup }
+    self.elements.each { |t| clone.elements << t.dup }
     clone
   end
 
   def solr_facet_fields
-    self.element_defs.select{ |d| d.facetable }.map{ |d| d.solr_facet_field }
+    self.elements.select{ |d| d.facetable }.map{ |d| d.solr_facet_field }
   end
 
   private

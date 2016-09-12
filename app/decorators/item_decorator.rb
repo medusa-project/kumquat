@@ -32,7 +32,7 @@ class ItemDecorator < Draper::Decorator
 
     # Populate the elements array
     self.elements.each do |element|
-      element_def = self.collection.metadata_profile.element_defs.
+      profile_element = self.collection.metadata_profile.elements.
           select{ |ed| ed.name == element.name }.first
       struct[:elements] << {
           name: element.name,
@@ -40,8 +40,8 @@ class ItemDecorator < Draper::Decorator
           value: element.value.present? ? element.value : nil,
           uri: element.uri.present? ? element.uri : nil,
           mappings: {
-              dc: element_def.dc_map.present? ? element_def.dc_map : nil,
-              dcterms: element_def.dcterms_map.present? ? element_def.dcterms_map : nil
+              dc: profile_element.dc_map.present? ? profile_element.dc_map : nil,
+              dcterms: profile_element.dcterms_map.present? ? profile_element.dcterms_map : nil
           }
       }
     end

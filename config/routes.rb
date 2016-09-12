@@ -115,7 +115,8 @@ Rails.application.routes.draw do
       match '/items/migrate', to: 'items#migrate', via: 'post'
       match '/items/sync', to: 'items#sync', via: 'post'
     end
-    resources :element_defs, only: [:create, :update, :destroy, :edit]
+    resources :metadata_profile_elements,
+              only: [:create, :update, :destroy, :edit]
     resources :metadata_profiles, path: 'metadata-profiles' do
       match '/clone', to: 'metadata_profiles#clone', via: 'patch', as: 'clone'
       match '/delete-elements', to: 'metadata_profiles#delete_elements',
