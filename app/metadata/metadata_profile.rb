@@ -102,6 +102,7 @@ class MetadataProfile < ActiveRecord::Base
 
   def add_default_element_defs
     MetadataProfile.default_element_defs.each do |ed|
+      next if self.element_defs.map(&:name).include?(ed.name)
       ed.metadata_profile = self
       ed.save!
     end

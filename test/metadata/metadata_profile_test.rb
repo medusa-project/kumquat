@@ -2,6 +2,10 @@ require 'test_helper'
 
 class MetadataProfileTest < ActiveSupport::TestCase
 
+  setup do
+    @profile = metadata_profiles(:default_metadata_profile)
+  end
+
   test 'default_element_defs should work' do
     assert MetadataProfile.default_element_defs.length == 5
   end
@@ -248,6 +252,10 @@ class MetadataProfileTest < ActiveSupport::TestCase
     assert_raises RuntimeError do
       MetadataProfile.from_json(json)
     end
+  end
+
+  test 'add_default_element_defs should work' do
+    @profile.add_default_element_defs
   end
 
 end
