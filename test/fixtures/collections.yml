@@ -29,6 +29,20 @@ collection2:
   representative_item_id: MyString
   title: MyString
 
+iptc_collection:
+  access_url: MyString
+  description: MyString
+  description_html: MyString
+  medusa_file_group_id:
+  metadata_profile: metadata_profile_2
+  package_profile_id: <%= PackageProfile::SINGLE_ITEM_OBJECT_PROFILE.id %>
+  published: false
+  published_in_dls: false
+  repository_id: 34d204d0-05d1-0130-c5bb-0019b9e633c5-e
+  representative_image: MyString
+  representative_item_id: MyString
+  title: MyString
+
 single_item_object_collection:
   access_url: MyString
   description: MyString
