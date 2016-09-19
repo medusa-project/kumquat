@@ -7,13 +7,13 @@ class Role < ActiveRecord::Base
   has_many :hosts, -> { order(:pattern) }, dependent: :destroy
 
   has_and_belongs_to_many :allowing_collections, class_name: 'Collection',
-                          association_foreign_key: :allowed_role_id
+                          foreign_key: :allowed_role_id
   has_and_belongs_to_many :denying_collections, class_name: 'Collection',
-                          association_foreign_key: :denied_role_id
+                          foreign_key: :denied_role_id
   has_and_belongs_to_many :allowing_items, class_name: 'Item',
-                          association_foreign_key: :allowed_role_id
+                          foreign_key: :allowed_role_id
   has_and_belongs_to_many :denying_items, class_name: 'Item',
-                          association_foreign_key: :denied_role_id
+                          foreign_key: :denied_role_id
   has_and_belongs_to_many :permissions
   has_and_belongs_to_many :users
 
