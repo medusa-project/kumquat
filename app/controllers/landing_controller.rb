@@ -15,6 +15,7 @@ class LandingController < WebsiteController
     # Get DLS collections
     @dls_collections = Collection.solr.
         where(Collection::SolrFields::ACCESS_SYSTEMS => 'Medusa Digital Library').
+        where(Collection::SolrFields::PUBLISHED_IN_DLS => true).
         limit(100)
 
     fresh_when(etag: @dls_collections) if Rails.env.production?
