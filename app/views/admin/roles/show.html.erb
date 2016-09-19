@@ -26,46 +26,40 @@
 
 <h1><%= @role.name %> <small><%= @role.key %></small></h1>
 
+<section>
+  <h2>Permissions</h2>
+
+  <% @permissions.each do |p| %>
+    <%= @role.has_permission?(p.key) ?
+            raw("<span class=\"label label-success\">&check; #{p.name}</span>") :
+            raw("<span class=\"label label-danger\">&times; #{p.name}</span>") %>
+  <% end %>
+</section>
+
 <div class="row">
-
-  <div class="col-sm-6">
-    <h2>Permissions</h2>
-    <table class="table table-striped">
-      <thead>
-      <tr>
-        <th></th>
-        <th></th>
-      </tr>
-      </thead>
-      <tbody>
-      <% @permissions.each do |p| %>
-        <tr>
-          <td><%= @role.has_permission?(p.key) ?
-                          raw('<span class="text-success">&#x2713;</span>') :
-                          '-' %></td>
-          <td><%= p.name %></td>
-        </tr>
-      <% end %>
-      </tbody>
-    </table>
-  </div>
-
   <div class="col-sm-6">
     <h2>Users</h2>
-    <table class="table table-striped">
-      <thead>
-        <tr>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
+    <% if @role.users.any? %>
+      <ul>
         <% @role.users.each do |user| %>
-          <tr>
-            <td><%= link_to user.username, admin_user_path(user) %></td>
-          </tr>
+          <li><%= link_to user.username, admin_user_path(user) %></li>
         <% end %>
-      </tbody>
-    </table>
+      </ul>
+    <% else %>
+      None
+    <% end %>
   </div>
 
+  <div class="col-sm-6">
+    <h2>Hosts</h2>
+    <% if @role.hosts.any? %>
+      <ul>
+        <% @role.hosts.each do |host| %>
+          <li><%= host.pattern %></li>
+        <% end %>
+      </ul>
+    <% else %>
+      None
+    <% end %>
+  </div>
 </div>

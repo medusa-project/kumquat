@@ -7,9 +7,17 @@ module Admin
     before_action :update_roles_rbac, only: [:edit, :update]
 
     def create
+      @role = Role.new(sanitized_params)
       begin
-        @role = Role.create!(sanitized_params)
+        ActiveRecord::Base.transaction do
+          # Hosts from the form textarea need to be processed manually.
+          params[:role][:hosts].split("\n").each do |pattern|
+            @role.hosts.build(pattern: pattern.strip)
+          end
+          @role.save!
+        end
       rescue => e
+        @users = User.order(:username)
         flash[:error] = "#{e}"
         render 'new'
       else
@@ -21,7 +29,6 @@ module Admin
     def destroy
       role = Role.find_by_key(params[:key])
       raise ActiveRecord::RecordNotFound unless role
-
       begin
         role.destroy!
       rescue => e
@@ -60,7 +67,14 @@ module Admin
       raise ActiveRecord::RecordNotFound unless @role
 
       begin
-        @role.update_attributes!(sanitized_params)
+        ActiveRecord::Base.transaction do
+          # Hosts from the form textarea need to be processed manually.
+          @role.hosts.destroy_all
+          params[:role][:hosts].split("\n").each do |pattern|
+            @role.hosts.build(pattern: pattern.strip)
+          end
+          @role.update_attributes!(sanitized_params)
+        end
       rescue => e
         @users = User.order(:username)
         flash[:error] = "#{e}"
