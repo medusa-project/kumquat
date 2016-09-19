@@ -24,99 +24,126 @@
 
 <h1><%= @collection.title %></h1>
 
-<div class="row">
+<section>
+  <h3>Technical Info</h3>
 
-  <div class="col-md-8 col-sm-7">
-    <section>
-      <h3>Description</h3>
-      <%= raw @collection.description_html %>
-    </section>
-    <section>
-      <h3>Rights Statement</h3>
-      <%= @collection.rights_statement.present? ?
-              @collection.rights_statement : 'None' %>
-    </section>
-    <section class="pt-rights">
-      <h3>RightsStatements.org</h3>
-      <% if @collection.rightsstatements_org_statement %>
-        <%= link_to(@collection.rightsstatements_org_statement.info_uri,
-                    target: '_blank') do %>
-          <%= image_tag(@collection.rightsstatements_org_statement.image,
-                        alt: @collection.rightsstatements_org_statement.name) %>
+  <table class="table">
+    <tr>
+      <td>ID</td>
+      <td><%= @collection.repository_id %></td>
+    </tr>
+    <tr>
+      <td>Medusa</td>
+      <td>
+        <span class="label <%= @collection.published ? 'label-success' : 'label-danger' %>">
+        <%= @collection.published ? 'Published' : 'Unpublished' %></span>
+      </td>
+    </tr>
+    <tr>
+      <td>DLS</td>
+      <td>
+        <span class="label <%= @collection.published_in_dls ? 'label-success' : 'label-danger' %>">
+        <%= @collection.published_in_dls ? 'Published' : 'Unpublished' %></span>
+      </td>
+    </tr>
+    <tr>
+      <td>Metadata Profile</td>
+      <td>
+        <% if @collection.metadata_profile %>
+            <%= link_to(@collection.metadata_profile.name,
+                        admin_metadata_profile_path(@collection.metadata_profile)) %>
+        <% else %>
+            <%= link_to("Default (#{MetadataProfile.default.name})",
+                        admin_metadata_profile_path(MetadataProfile.default)) %>
         <% end %>
-      <% else %>
-        Not Set
-      <% end %>
-    </section>
-  </div>
+      </td>
+    </tr>
+    <tr>
+      <td>Package Profile</td>
+      <td>
+        <%= @collection.package_profile ?
+                @collection.package_profile.name : 'None' %>
+      </td>
+    </tr>
+    <tr>
+      <td>Medusa File Group</td>
+      <td>
+        <% if @file_group %>
+            <%= link_to("#{@file_group.title} (#{@file_group.uuid})",
+                        @file_group.url, target: '_blank') %>
+        <% else %>
+            None
+        <% end %>
+      </td>
+    </tr>
+    <tr>
+      <td>Medusa CFS Directory</td>
+      <td>
+        <% if @collection.medusa_cfs_directory %>
+            <%= link_to(@collection.medusa_cfs_directory_id,
+                        @collection.medusa_cfs_directory.url,
+                        target: '_blank') %>
+        <% else %>
+            Same as File Group
+        <% end %>
+      </td>
+    </tr>
+    <tr>
+      <td>CONTENTdm Alias</td>
+      <td>
+        <% if @collection.contentdm_alias.present? %>
+            <%= @collection.contentdm_alias %>
+        <% else %>
+            None
+        <% end %>
+      </td>
+    </tr>
+    <tr>
+      <td>Rights Statement</td>
+      <td>
+        <%= @collection.rights_statement.present? ?
+                @collection.rights_statement : 'None' %>
+      </td>
+    </tr>
+    <tr>
+      <td>RightsStatements.org</td>
+      <td>
+        <%= @collection.rightsstatements_org_statement ?
+                @collection.rightsstatements_org_statement.name : 'None' %>
+      </td>
+    </tr>
+    <tr>
+      <td>Allowed Roles</td>
+      <td>
+        <% if @collection.allowed_roles.any? %>
+          <ul>
+            <% @collection.allowed_roles.each do |role| %>
+              <li><%= link_to role.name, admin_role_path(role) %></li>
+            <% end %>
+          </ul>
+        <% else %>
+          Any
+        <% end %>
+      </td>
+    </tr>
+    <tr>
+      <td>Denied Roles</td>
+      <td>
+        <% if @collection.denied_roles.any? %>
+          <ul>
+            <% @collection.denied_roles.each do |role| %>
+              <li><%= link_to role.name, admin_role_path(role) %></li>
+            <% end %>
+          </ul>
+        <% else %>
+          None
+        <% end %>
+      </td>
+    </tr>
+  </table>
+</section>
 
-  <div class="col-md-4 col-sm-5">
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <h3 class="panel-title">Technical Info</h3>
-      </div>
-      <div class="panel-body">
-        <dl>
-          <dt>ID</dt>
-          <dd>
-            <%= @collection.repository_id %>
-          </dd>
-          <dt>Metadata Profile</dt>
-          <dd>
-            <% if @collection.metadata_profile %>
-              <%= link_to(@collection.metadata_profile.name,
-                          admin_metadata_profile_path(@collection.metadata_profile)) %>
-            <% else %>
-              <%= link_to("Default (#{MetadataProfile.default.name})",
-                          admin_metadata_profile_path(MetadataProfile.default)) %>
-            <% end %>
-          </dd>
-          <dt>Package Profile</dt>
-          <dd>
-            <%= @collection.package_profile ?
-                    @collection.package_profile.name : 'None' %>
-          </dd>
-          <dt>Medusa File Group</dt>
-          <dd>
-            <% if @file_group %>
-              <%= link_to("#{@file_group.title} (#{@file_group.uuid})",
-                          @file_group.url, target: '_blank') %>
-            <% else %>
-              None
-            <% end %>
-          </dd>
-          <dt>Medusa CFS Directory</dt>
-          <dd>
-            <% if @collection.medusa_cfs_directory %>
-              <%= link_to(@collection.medusa_cfs_directory_id,
-                          @collection.medusa_cfs_directory.url,
-                          target: '_blank') %>
-            <% else %>
-              Same as File Group
-            <% end %>
-          </dd>
-          <dt>CONTENTdm Alias</dt>
-          <dd>
-            <% if @collection.contentdm_alias.present? %>
-              <%= @collection.contentdm_alias %>
-            <% else %>
-              None
-            <% end %>
-          </dd>
-          <dt>Medusa</dt>
-          <dd>
-            <span class="label <%= @collection.published ? 'label-success' : 'label-danger' %>">
-            <%= @collection.published ? 'Published' : 'Unpublished' %></span>
-          </dd>
-          <dt>DLS</dt>
-          <dd>
-            <span class="label <%= @collection.published_in_dls ? 'label-success' : 'label-danger' %>">
-            <%= @collection.published_in_dls ? 'Published' : 'Unpublished' %></span>
-          </dd>
-        </dl>
-      </div>
-    </div>
-  </div>
-
-</div>
-
+<section>
+  <h3>Description</h3>
+  <%= raw @collection.description_html %>
+</section>

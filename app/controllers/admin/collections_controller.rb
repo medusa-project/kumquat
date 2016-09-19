@@ -75,7 +75,9 @@ module Admin
                                          :metadata_profile_id,
                                          :package_profile_id,
                                          :published_in_dls,
-                                         :rightsstatements_org_uri)
+                                         :rightsstatements_org_uri,
+                                         allowed_role_ids: [],
+                                         denied_role_ids: [])
     end
 
     def update_collections_rbac
