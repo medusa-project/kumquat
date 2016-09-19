@@ -12,32 +12,6 @@ class MetadataProfileElement < ActiveRecord::Base
   after_destroy :adjust_profile_element_indexes_after_destroy
 
   ##
-  # Updates the indexes of all elements in the same metadata profile to ensure
-  # that they are non-repeating and properly gapped.
-  #
-  def adjust_profile_element_indexes_after_destroy
-    if self.metadata_profile and self.destroyed?
-      self.metadata_profile.elements.order(:index).each_with_index do |element, i|
-        element.update_column(:index, i) # update_column skips callbacks
-      end
-    end
-  end
-
-  ##
-  # Updates the indexes of all elements in the same metadata profile to ensure
-  # that they are non-repeating and properly gapped.
-  #
-  def adjust_profile_element_indexes_after_save
-    if self.metadata_profile and self.changed.include?('index')
-      self.metadata_profile.elements.where('id != ?', self.id).order(:index).
-          each_with_index do |element, i|
-        # update_column skips callbacks
-        element.update_column(:index, (i >= self.index) ? i + 1 : i)
-      end
-    end
-  end
-
-  ##
   # @return [MetadataProfileElement]
   #
   def dup
@@ -68,6 +42,42 @@ class MetadataProfileElement < ActiveRecord::Base
 
   def to_s
     self.name
+  end
+
+  private
+
+  ##
+  # Updates the indexes of all elements in the metadata profile to ensure that
+  # they are sequential.
+  #
+  def adjust_profile_element_indexes_after_destroy
+    ActiveRecord::Base.transaction do
+      if self.metadata_profile and self.destroyed?
+        self.metadata_profile.elements.order(:index).each_with_index do |element, i|
+          # update_column skips callbacks, which would cause this method to be
+          # called recursively.
+          element.update_column(:index, i)
+        end
+      end
+    end
+  end
+
+  ##
+  # Updates the indexes of all elements in the metadata profile to ensure that
+  # they are sequential.
+  #
+  def adjust_profile_element_indexes_after_save
+    ActiveRecord::Base.transaction do
+      if self.metadata_profile and self.changed.include?('index')
+        # update_column skips callbacks, which would cause this method to be
+        # called recursively.
+        self.update_column(:index, 0) if self.index < 0
+        self.metadata_profile.elements.where('id != ?', self.id).order(:index).
+            each_with_index do |element, i|
+          element.update_column(:index, (i >= self.index) ? i + 1 : i)
+        end
+      end
+    end
   end
 
 end
