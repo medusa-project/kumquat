@@ -2,7 +2,7 @@
     [['Nothing (First)', 0]] +
     element.metadata_profile.elements.order(:index).
         reject{ |e| e.index == element.index }.
-        map{ |e| [e.label, e.index + 1] },
+        map{ |e| [e.label, (e.index > element.index.to_i) ? e.index : e.index + 1] },
     selected: element.index) %>
 
 <%= form_for([:admin, element], remote: true) do |f| %>
