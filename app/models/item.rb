@@ -72,6 +72,11 @@ class Item < ActiveRecord::Base
   TSV_URI_VALUE_SEPARATOR = '&&'
   UUID_REGEX = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/
 
+  has_and_belongs_to_many :allowed_roles, class_name: 'Role',
+                          association_foreign_key: :allowed_role_id
+  has_and_belongs_to_many :denied_roles, class_name: 'Role',
+                          association_foreign_key: :denied_role_id
+
   has_many :bytestreams, inverse_of: :item, dependent: :destroy
   has_many :elements, class_name: 'ItemElement', inverse_of: :item,
            dependent: :destroy

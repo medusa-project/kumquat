@@ -47,6 +47,11 @@ class Collection < ActiveRecord::Base
 
   belongs_to :metadata_profile, inverse_of: :collections
 
+  has_and_belongs_to_many :allowed_roles, class_name: 'Role',
+                          association_foreign_key: :allowed_role_id
+  has_and_belongs_to_many :denied_roles, class_name: 'Role',
+                          association_foreign_key: :denied_role_id
+
   validates_format_of :medusa_cfs_directory_id,
                       with: UUID_REGEX,
                       message: 'UUID is invalid',

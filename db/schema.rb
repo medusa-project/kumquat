@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160912194604) do
+ActiveRecord::Schema.define(version: 20160919173801) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -58,6 +58,12 @@ ActiveRecord::Schema.define(version: 20160912194604) do
   add_index "collections", ["repository_id"], name: "index_collections_on_repository_id", unique: true, using: :btree
   add_index "collections", ["representative_item_id"], name: "index_collections_on_representative_item_id", using: :btree
 
+  create_table "collections_roles", force: :cascade do |t|
+    t.integer "collection_id"
+    t.integer "allowed_role_id"
+    t.integer "denied_role_id"
+  end
+
   create_table "delayed_jobs", force: :cascade do |t|
     t.integer  "priority",   default: 0, null: false
     t.integer  "attempts",   default: 0, null: false
@@ -79,6 +85,13 @@ ActiveRecord::Schema.define(version: 20160912194604) do
     t.string   "description"
     t.datetime "created_at",  null: false
     t.datetime "updated_at",  null: false
+  end
+
+  create_table "hosts", force: :cascade do |t|
+    t.string   "pattern"
+    t.integer  "role_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "item_elements", force: :cascade do |t|
@@ -117,6 +130,12 @@ ActiveRecord::Schema.define(version: 20160912194604) do
   add_index "items", ["published"], name: "index_items_on_published", using: :btree
   add_index "items", ["repository_id"], name: "index_items_on_repository_id", unique: true, using: :btree
   add_index "items", ["representative_item_repository_id"], name: "index_items_on_representative_item_repository_id", using: :btree
+
+  create_table "items_roles", force: :cascade do |t|
+    t.integer "item_id"
+    t.integer "allowed_role_id"
+    t.integer "denied_role_id"
+  end
 
   create_table "metadata_profile_elements", force: :cascade do |t|
     t.integer  "metadata_profile_id"
@@ -226,8 +245,15 @@ ActiveRecord::Schema.define(version: 20160912194604) do
   add_index "vocabulary_terms", ["vocabulary_id"], name: "index_vocabulary_terms_on_vocabulary_id", using: :btree
 
   add_foreign_key "bytestreams", "items", on_delete: :cascade
+  add_foreign_key "collections_roles", "collections", on_update: :cascade, on_delete: :cascade
+  add_foreign_key "collections_roles", "roles", column: "allowed_role_id", on_update: :cascade, on_delete: :cascade
+  add_foreign_key "collections_roles", "roles", column: "denied_role_id", on_update: :cascade, on_delete: :cascade
+  add_foreign_key "hosts", "roles", on_update: :cascade, on_delete: :cascade
   add_foreign_key "item_elements", "items", on_delete: :cascade
   add_foreign_key "item_elements", "vocabularies", on_delete: :restrict
+  add_foreign_key "items_roles", "items", on_update: :cascade, on_delete: :cascade
+  add_foreign_key "items_roles", "roles", column: "allowed_role_id", on_update: :cascade, on_delete: :cascade
+  add_foreign_key "items_roles", "roles", column: "denied_role_id", on_update: :cascade, on_delete: :cascade
   add_foreign_key "metadata_profile_elements", "metadata_profiles", on_update: :cascade, on_delete: :cascade
   add_foreign_key "metadata_profile_elements_vocabularies", "metadata_profile_elements", on_update: :cascade, on_delete: :cascade
   add_foreign_key "metadata_profile_elements_vocabularies", "vocabularies", on_update: :cascade, on_delete: :cascade
