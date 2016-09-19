@@ -1,4 +1,5 @@
 <% position_options = options_for_select(
+    [['Nothing (First)', 0]] +
     element.metadata_profile.elements.order(:index).
         reject{ |e| e.index == element.index }.
         map{ |e| [e.label, e.index + 1] },
