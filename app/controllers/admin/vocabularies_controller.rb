@@ -12,7 +12,7 @@ module Admin
                locals: { entity: @vocabulary }
       rescue => e
         response.headers['X-PearTree-Result'] = 'error'
-        flash['error'] = "#{e}"
+        handle_error(e)
         keep_flash
         render 'create'
       else
@@ -46,7 +46,7 @@ module Admin
       begin
         vocabulary.destroy!
       rescue => e
-        flash['error'] = "#{e}"
+        handle_error(e)
       else
         flash['success'] = "Vocabulary \"#{vocabulary.name}\" deleted."
       ensure
@@ -65,7 +65,7 @@ module Admin
         vocab = Vocabulary.from_json(json)
         vocab.save!
       rescue => e
-        flash['error'] = "#{e}"
+        handle_error(e)
         redirect_to admin_vocabularies_path
       else
         flash['success'] = "Vocabulary imported as #{vocab.name}."
@@ -127,7 +127,7 @@ module Admin
                  locals: { entity: @vocabulary }
         rescue => e
           response.headers['X-PearTree-Result'] = 'error'
-          flash['error'] = "#{e}"
+          handle_error(e)
           keep_flash
           render 'update'
         else
@@ -144,7 +144,7 @@ module Admin
           render 'show'
         rescue => e
           response.headers['X-PearTree-Result'] = 'error'
-          flash['error'] = "#{e}"
+          handle_error(e)
           render 'show'
         else
           response.headers['X-PearTree-Result'] = 'success'

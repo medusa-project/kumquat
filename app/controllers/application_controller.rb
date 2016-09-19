@@ -29,6 +29,16 @@ class ApplicationController < ActionController::Base
   protected
 
   ##
+  # Logs the given error and sets the flash to it.
+  #
+  # @param e [Exception, String]
+  #
+  def handle_error(e)
+    Rails.logger.warn(e)
+    flash['error'] = "#{e}"
+  end
+
+  ##
   # Normally the flash is discarded after being added to the response headers
   # (see flash_in_response_headers). Calling this method will save it, enabling
   # it to work with redirects. (Notably, it works different than flash.keep.)

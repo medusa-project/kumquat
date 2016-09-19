@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160912182950) do
+ActiveRecord::Schema.define(version: 20160912194604) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -108,8 +108,8 @@ ActiveRecord::Schema.define(version: 20160912182950) do
     t.text     "full_text"
     t.datetime "created_at",                                                                null: false
     t.datetime "updated_at",                                                                null: false
-    t.string   "contentdm_alias"
     t.integer  "contentdm_pointer"
+    t.string   "contentdm_alias"
   end
 
   add_index "items", ["collection_repository_id"], name: "index_items_on_collection_repository_id", using: :btree
@@ -228,7 +228,10 @@ ActiveRecord::Schema.define(version: 20160912182950) do
   add_foreign_key "bytestreams", "items", on_delete: :cascade
   add_foreign_key "item_elements", "items", on_delete: :cascade
   add_foreign_key "item_elements", "vocabularies", on_delete: :restrict
-  add_foreign_key "metadata_profile_elements", "metadata_profiles", on_delete: :cascade
+  add_foreign_key "metadata_profile_elements", "metadata_profiles", on_update: :cascade, on_delete: :cascade
+  add_foreign_key "metadata_profile_elements_vocabularies", "metadata_profile_elements", on_update: :cascade, on_delete: :cascade
+  add_foreign_key "metadata_profile_elements_vocabularies", "vocabularies", on_update: :cascade, on_delete: :cascade
+  add_foreign_key "metadata_profiles", "metadata_profile_elements", column: "default_sortable_element_id", on_update: :cascade, on_delete: :nullify
   add_foreign_key "permissions_roles", "permissions", on_update: :cascade, on_delete: :cascade
   add_foreign_key "permissions_roles", "roles", on_update: :cascade, on_delete: :cascade
   add_foreign_key "roles_users", "roles", on_update: :cascade, on_delete: :cascade

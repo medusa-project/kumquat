@@ -10,7 +10,7 @@ require 'test_helper'
 class OaiPmhControllerTest < ActionController::TestCase
 
   setup do
-    @valid_identifier = 'oai:test.host:item1'
+    @valid_identifier = 'oai:test.host:a1234567-5ca8-0132-3334-0050569601ca-8'
   end
 
   # 2.5.1
@@ -159,7 +159,7 @@ class OaiPmhControllerTest < ActionController::TestCase
 
   test 'ListMetadataFormats should return an error when there are no metadata '\
   'formats available for a given item' do
-    # this will never happen, as all kumquat items will support oai_dc
+    # This should never happen, as all items will support oai_dc.
   end
 
   # 4.5 ListRecords
@@ -197,7 +197,7 @@ class OaiPmhControllerTest < ActionController::TestCase
   test 'ListSets should return a list when correct arguments are passed and
   results are available' do
     get :index, verb: 'ListSets', metadataPrefix: 'oai_dc'
-    assert_select 'ListSets > set > setSpec', 'collection1'
+    assert_select 'ListSets > set > setSpec', 'd250c1f0-5ca8-0132-3334-0050569601ca-8'
   end
 
   private
