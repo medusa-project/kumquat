@@ -111,7 +111,7 @@ class ItemsController < WebsiteController
       @collection = Collection.find_by_repository_id(params[:collection_id])
       raise ActiveRecord::RecordNotFound unless @collection
 
-      authorize(@collection)
+      return unless authorize(@collection)
 
       @items = @items.where(Item::SolrFields::COLLECTION => @collection.repository_id)
     end
@@ -285,8 +285,8 @@ class ItemsController < WebsiteController
   end
 
   def authorize_item
-    authorize(@item.collection)
-    authorize(@item)
+    return unless authorize(@item.collection)
+    return unless authorize(@item)
   end
 
   def check_api_content_type

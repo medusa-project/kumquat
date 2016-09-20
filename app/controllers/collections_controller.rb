@@ -52,7 +52,7 @@ class CollectionsController < WebsiteController
   private
 
   def authorize_collection
-    authorize(@collection)
+    return unless authorize(@collection)
   end
 
   def load_collection

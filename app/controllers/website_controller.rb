@@ -44,8 +44,11 @@ class WebsiteController < ApplicationController
   protected
 
   ##
+  # Renders an error template if the request is not authorized to access the
+  # given model.
+  #
   # @param model [Object]
-  # @return [void]
+  # @return [Boolean]
   #
   def authorize(model)
     if model&.respond_to?(:authorized_by_any_roles?) # AuthorizableByRole method
@@ -56,7 +59,7 @@ class WebsiteController < ApplicationController
             message: "You are not authorized to access this "\
               "#{model.class.to_s.downcase}."
         }
-        return
+        return false
       end
     end
     if model&.respond_to?(:published)
@@ -66,9 +69,10 @@ class WebsiteController < ApplicationController
             status_message: 'Forbidden',
             message: "This #{model.class.to_s.downcase} is not published."
         }
-        return
+        return false
       end
     end
+    true
   end
 
   ##
