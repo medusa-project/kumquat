@@ -4,11 +4,20 @@ class CollectionsController < WebsiteController
   before_action :authorize_collection, only: :show
 
   def index
+    roles = request_roles.map(&:key).join(' ')
     @collections = Collection.solr.
         where(Collection::SolrFields::PUBLISHED => true).
         where(Collection::SolrFields::ACCESS_URL => :not_null).
+        # Include documents that have allowed roles matching one of the user
+        # roles, or that have no effective allowed roles.
+        where("(#{Collection::SolrFields::ALLOWED_ROLES}:(#{roles}) "\
+          "OR *:* -#{Collection::SolrFields::ALLOWED_ROLES}:[* TO *])").
+        # Exclude documents that have denied roles matching one of the user
+        # roles.
+        where("-#{Collection::SolrFields::DENIED_ROLES}:(#{roles})").
         facetable_fields(Collection::solr_facet_fields.map{ |e| e[:name] }).
-        order(Collection::SolrFields::TITLE).limit(99999)
+        order(Collection::SolrFields::TITLE).
+        limit(99999)
 
     if params[:fq].respond_to?(:each)
       params[:fq].each { |fq| @collections = @collections.facet(fq) }
