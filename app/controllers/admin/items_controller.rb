@@ -203,6 +203,11 @@ module Admin
 
         if params[:item]
           item.update!(sanitized_params)
+
+          # We will also need to update the effective allowed/denied roles
+          # of each child item, which may take some time, so we will do it in
+          # the background.
+          PropagateRolesToChildrenJob.perform_later(item.repository_id)
         end
       rescue => e
         handle_error(e)

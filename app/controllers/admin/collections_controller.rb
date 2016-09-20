@@ -57,6 +57,11 @@ module Admin
         raise ActiveRecord::RecordNotFound unless collection
 
         collection.update!(sanitized_params)
+
+        # We will also need to update the effective allowed/denied roles
+        # of each item in the collection, which will take some time, so we
+        # will do it in the background.
+        PropagateRolesToItemsJob.perform_later(collection.repository_id)
       rescue => e
         handle_error(e)
         redirect_to edit_admin_collection_path(collection)
