@@ -32,6 +32,16 @@
                       "http://vufind.carli.illinois.edu/vf-uiu/Record/uiu_#{@item.bib_id}",
                       target: '_blank' %></li>
     <% end %>
+    <% if Rails.env.development? %>
+      <li class="divider"></li>
+      <li>
+        <%= link_to(PearTree::Application.peartree_config[:solr_url].chomp('/') +
+                        '/' + PearTree::Application.peartree_config[:solr_core] +
+                        "/select?wt=json&indent=true&q=id:#{@item.repository_id}", target: '_blank') do %>
+          <i class="fa fa-search"></i>&nbsp;&nbsp;Solr (DEVELOPMENT)
+        <% end %>
+      </li>
+    <% end %>
     <li class="divider"></li>
     <li>
       <%= link_to @item, target: '_blank' do %>
