@@ -314,11 +314,11 @@ module AdminHelper
 
     data['Allowed Roles (assigned)'] = item.allowed_roles.any? ?
         item.allowed_roles.map(&:name) : 'Any'
-    data['Denied Roles (assigned)'] = item.denied_roles.any? ?
-        item.denied_roles.map(&:name) : 'Any'
     effective_allowed_roles = item.effective_allowed_roles
     data['Allowed Roles (effective)'] = effective_allowed_roles.any? ?
-        effective_allowed_roles.map(&:name) : 'None'
+        effective_allowed_roles.map(&:name) : 'Any'
+    data['Denied Roles (assigned)'] = item.denied_roles.any? ?
+        item.denied_roles.map(&:name) : 'None'
     effective_denied_roles = item.effective_denied_roles
     data['Denied Roles (effective)'] = effective_denied_roles.any? ?
         effective_denied_roles.map(&:name) : 'None'
