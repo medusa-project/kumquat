@@ -1,6 +1,5 @@
 ##
 # Encapsulates a role in a role-based access control (RBAC) system.
-# A role can have zero or more permissions as well as zero or more users.
 #
 class Role < ActiveRecord::Base
 
@@ -22,6 +21,22 @@ class Role < ActiveRecord::Base
   validates :name, presence: true, length: { maximum: 255 },
             uniqueness: { case_sensitive: false }
 
+  ##
+  # @param hostname [String] Full hostname
+  # @param ip_address [String] Full IP address
+  # @return [Set<Role>]
+  #
+  def self.all_matching_hostname_or_ip(hostname, ip_address)
+    roles = Set.new
+    Role.all.each do |role|
+      role.hosts.each do |host|
+        roles << role if host.pattern_matches?(hostname) or
+            host.pattern_matches?(ip_address)
+      end
+    end
+    roles
+  end
+
   def after_initialize
     if self.key == 'admin'
       self.permissions = Permission.all
@@ -29,10 +44,16 @@ class Role < ActiveRecord::Base
     end
   end
 
+  ##
+  # @return [String]
+  #
   def to_param
     key
   end
 
+  ##
+  # @return [Boolean]
+  #
   def has_permission?(key)
     (self.permissions.where(key: key).count > 0)
   end
