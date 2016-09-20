@@ -19,8 +19,8 @@ class ItemsController < WebsiteController
   before_action :load_item, only: [:access_master_bytestream, :files, :pages,
                                    :preservation_master_bytestream, :show]
   before_action :authorize_item, only: [:access_master_bytestream, :files,
-                                        :pages, :preservation_master_bytestream,
-                                        :show]
+                                        :pages, :preservation_master_bytestream]
+  before_action :authorize_item, only: :show, unless: :using_api?
   before_action :set_browse_context, only: :index
 
   ##
@@ -250,8 +250,7 @@ class ItemsController < WebsiteController
       end
       format.xml do
         # Authorization is required for unpublished items.
-        if (authorized?(@item.collection) and authorized?(@item)) or
-            authorize_api_user
+        if (@item.collection.published and @item.published) or authorize_api_user
           version = ItemXmlIngester::SCHEMA_VERSIONS.max
           if params[:version]
             if ItemXmlIngester::SCHEMA_VERSIONS.include?(params[:version].to_i)
@@ -352,6 +351,10 @@ class ItemsController < WebsiteController
     @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
     @pages = @item.pages_from_solr.order(Item::SolrFields::TITLE).
         start(@start).limit(@limit).to_a
+  end
+
+  def using_api?
+    request.format == :xml
   end
 
 end
