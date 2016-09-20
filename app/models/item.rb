@@ -38,6 +38,8 @@ class Item < ActiveRecord::Base
     COLLECTION_PUBLISHED = 'collection_published_bi'
     CREATED = 'created_dti'
     DATE = 'date_dti'
+    EFFECTIVE_ALLOWED_ROLES = 'effective_allowed_roles_sim'
+    EFFECTIVE_DENIED_ROLES = 'effective_denied_roles_sim'
     FULL_TEXT = 'full_text_txti'
     ID = 'id'
     LAST_MODIFIED = 'last_modified_dti'
@@ -259,6 +261,9 @@ class Item < ActiveRecord::Base
         select{ |b| b.bytestream_type == Bytestream::Type::ACCESS_MASTER }.first
   end
 
+  ##
+  # @return [String, nil] Value of the bibId element.
+  #
   def bib_id
     self.elements.select{ |e| e.name == 'bibId' }.first&.value
   end
@@ -652,6 +657,10 @@ class Item < ActiveRecord::Base
     doc[SolrFields::COLLECTION_PUBLISHED] = (self.collection.published and
         self.collection.published_in_dls)
     doc[SolrFields::DATE] = self.date.utc.iso8601 if self.date
+    doc[SolrFields::EFFECTIVE_ALLOWED_ROLES] =
+        self.effective_allowed_roles.map(&:key)
+    doc[SolrFields::EFFECTIVE_DENIED_ROLES] =
+        self.effective_denied_roles.map(&:key)
     doc[SolrFields::FULL_TEXT] = self.full_text
     doc[SolrFields::LAST_INDEXED] = Time.now.utc.iso8601
     if self.latitude and self.longitude

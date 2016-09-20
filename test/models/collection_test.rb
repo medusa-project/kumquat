@@ -158,6 +158,10 @@ cd2d4601-c451-0133-1d17-0050569601ca-8\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n"
     assert_not_empty doc[Collection::SolrFields::LAST_INDEXED]
     assert_equal @col.access_systems, doc[Collection::SolrFields::ACCESS_SYSTEMS]
     assert_equal @col.access_url, doc[Collection::SolrFields::ACCESS_URL]
+    assert_equal @col.allowed_roles.map(&:key).sort,
+                 doc[Collection::SolrFields::ALLOWED_ROLES].sort
+    assert_equal @col.denied_roles.map(&:key).sort,
+                 doc[Collection::SolrFields::DENIED_ROLES].sort
     assert_equal @col.description, doc[Collection::SolrFields::DESCRIPTION]
     assert_equal @col.description_html, doc[Collection::SolrFields::DESCRIPTION_HTML]
     assert_equal @col.published, doc[Collection::SolrFields::PUBLISHED]
