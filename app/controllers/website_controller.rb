@@ -44,6 +44,49 @@ class WebsiteController < ApplicationController
   protected
 
   ##
+  # @param model [Object]
+  # @return [void]
+  #
+  def authorize(model)
+    if model&.respond_to?(:authorized_by_any_roles?) # AuthorizableByRole method
+      unless model.authorized_by_any_roles?(request_roles)
+        render 'errors/error', status: :forbidden, locals: {
+            status_code: 403,
+            status_message: 'Forbidden',
+            message: "You are not authorized to access this "\
+              "#{model.class.to_s.downcase}."
+        }
+        return
+      end
+    end
+    if model&.respond_to?(:published)
+      unless model.published
+        render 'errors/error', status: :forbidden, locals: {
+            status_code: 403,
+            status_message: 'Forbidden',
+            message: "This #{model.class.to_s.downcase} is not published."
+        }
+        return
+      end
+    end
+  end
+
+  ##
+  # @param model [Object]
+  # @return [Boolean]
+  #
+  def authorized?(model)
+    authorized = true
+    if model&.respond_to?(:authorized_by_any_roles?) # AuthorizableByRole method
+      authorized = false unless model.authorized_by_any_roles?(request_roles)
+    end
+    if model&.respond_to?(:published)
+      authorized = false unless model.published
+    end
+    authorized
+  end
+
+  ##
   # @return [Collection,nil], Collection in the current context, or nil if
   #                           there is <> 1
   #

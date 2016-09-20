@@ -1,11 +1,14 @@
 class CollectionsController < WebsiteController
 
+  before_action :load_collection, only: :show
+  before_action :authorize_collection, only: :show
+
   def index
     @collections = Collection.solr.
         where(Collection::SolrFields::PUBLISHED => true).
         where(Collection::SolrFields::ACCESS_URL => :not_null).
         facetable_fields(Collection::solr_facet_fields.map{ |e| e[:name] }).
-        order(Collection::SolrFields::TITLE).limit(9999)
+        order(Collection::SolrFields::TITLE).limit(99999)
 
     if params[:fq].respond_to?(:each)
       params[:fq].each { |fq| @collections = @collections.facet(fq) }
@@ -18,28 +21,14 @@ class CollectionsController < WebsiteController
     respond_to do |format|
       format.html
       format.json do
-        render json: @collections.to_a.map { |c| # TODO: optimize this
-          {
-              id: c.repository_id,
-              url: collection_url(c)
-          }
-        }
+        render json: @collections.to_a.map do |c|
+          { id: c.repository_id, url: collection_url(c) }
+        end
       end
     end
   end
 
   def show
-    @collection = Collection.find_by_repository_id(params[:id])
-    raise ActiveRecord::RecordNotFound unless @collection
-
-    unless @collection.published
-      render 'errors/error', status: :forbidden, locals: {
-          status_code: 403,
-          status_message: 'Forbidden',
-          message: 'This collection is not published.'
-      }
-    end
-
     fresh_when(etag: @collection) if Rails.env.production?
 
     respond_to do |format|
@@ -49,6 +38,17 @@ class CollectionsController < WebsiteController
       end
       format.json { render json: @collection.decorate }
     end
+  end
+
+  private
+
+  def authorize_collection
+    authorize(@collection)
+  end
+
+  def load_collection
+    @collection = Collection.find_by_repository_id(params[:id])
+    raise ActiveRecord::RecordNotFound unless @collection
   end
 
 end
