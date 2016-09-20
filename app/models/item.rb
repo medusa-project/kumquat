@@ -228,6 +228,26 @@ class Item < ActiveRecord::Base
             xml['xs'].element(name: 'contentdmPointer', type: 'xs:positiveInteger',
                               minOccurs: 0, maxOccurs: 1)
 
+            xml.comment('Allowed role keys.')
+            xml['xs'].element(name: 'allowedRoles', minOccurs: 0, maxOccurs: 1) do
+              xml['xs'].complexType do
+                xml['xs'].sequence do
+                  xml['xs'].element(name: 'key', type: 'xs:token',
+                                    minOccurs: 1, maxOccurs: 'unbounded')
+                end
+              end
+            end
+
+            xml.comment('Denied role keys.')
+            xml['xs'].element(name: 'deniedRoles', minOccurs: 0, maxOccurs: 1) do
+              xml['xs'].complexType do
+                xml['xs'].sequence do
+                  xml['xs'].element(name: 'key', type: 'xs:token',
+                                    minOccurs: 1, maxOccurs: 'unbounded')
+                end
+              end
+            end
+
             xml.comment('******************* DESCRIPTIVE ELEMENTS *******************')
 
             Element.all.order(:name).each do |e|
@@ -932,6 +952,7 @@ class Item < ActiveRecord::Base
   # @param node [Nokogiri::XML::Node]
   # @param schema_version [Integer]
   # @return [Item]
+  # @raises [ArgumentError]
   #
   def update_from_xml(node, schema_version)
     case schema_version
@@ -944,6 +965,8 @@ class Item < ActiveRecord::Base
       # These need to be deleted first, otherwise it would be impossible for
       # an update to remove them.
       self.elements.destroy_all
+      self.allowed_roles.clear
+      self.denied_roles.clear
 
       # CONTENTdm alias
       alias_ = node.xpath("//#{prefix}:contentdmAlias", namespaces).first
@@ -986,14 +1009,18 @@ class Item < ActiveRecord::Base
       rep_item_id = node.xpath("//#{prefix}:representativeItemId", namespaces).first
       self.representative_item_repository_id = rep_item_id.content.strip if rep_item_id
 
-      if schema_version == 1
-        # subclass
-        subclass = node.xpath("//#{prefix}:subclass", namespaces).first
-        self.variant = subclass.content.strip if subclass
-      else
-        # variant
-        variant = node.xpath("//#{prefix}:variant", namespaces).first
-        self.variant = variant.content.strip if variant
+      # roles (allowed)
+      node.xpath("//#{prefix}:allowedRoles/key", namespaces).each do |key|
+        role = Role.find_by_key(key.content)
+        raise ArgumentError, "Role does not exist: #{key}" unless role
+        self.allowed_roles << role
+      end
+
+      # roles (denied)
+      node.xpath("//#{prefix}:deniedRoles/key", namespaces).each do |key|
+        role = Role.find_by_key(key.content)
+        raise ArgumentError, "Role does not exist: #{key}" unless role
+        self.denied_roles << role
       end
 
       # subpage number
@@ -1014,6 +1041,10 @@ class Item < ActiveRecord::Base
         e.vocabulary = Vocabulary.find_by_key(node['vocabularyKey'])
         self.elements << e
       end
+
+      # variant
+      variant = node.xpath("//#{prefix}:variant", namespaces).first
+      self.variant = variant.content.strip if variant
 
       self.save!
     end
@@ -1163,6 +1194,25 @@ class Item < ActiveRecord::Base
         if self.contentdm_pointer.present?
           xml['dls'].contentdmPointer {
             xml.text(self.contentdm_pointer)
+          }
+        end
+
+        if self.allowed_roles.any?
+          xml['dls'].allowedRoles {
+            self.allowed_roles.map(&:key).each do |role|
+              xml['dls'].key {
+                xml.text(role)
+              }
+            end
+          }
+        end
+        if self.denied_roles.any?
+          xml['dls'].deniedRoles {
+            self.denied_roles.map(&:key).each do |role|
+              xml['dls'].key {
+                xml.text(role)
+              }
+            end
           }
         end
 

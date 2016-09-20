@@ -534,6 +534,12 @@ class ItemTest < ActiveSupport::TestCase
     xml += "<dls:variant>#{Item::Variants::PAGE}</dls:variant>"
     xml += '<dls:contentdmAlias>cats</dls:contentdmAlias>'
     xml += '<dls:contentdmPointer>123</dls:contentdmPointer>'
+    xml += '<dls:allowedRoles>'
+    xml +=   '<key>admins</key>'
+    xml += '</dls:allowedRoles>'
+    xml += '<dls:deniedRoles>'
+    xml +=   '<key>users</key>'
+    xml += '</dls:deniedRoles>'
 
     # descriptive elements
     xml += '<dls:date vocabularyKey="uncontrolled" dataType="string">1984</dls:date>'
@@ -560,6 +566,10 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal 'e12adef0-5ca8-0132-3334-0050569601ca-8', @item.representative_item_repository_id
     assert_equal 1, @item.subpage_number
     assert_equal Item::Variants::PAGE, @item.variant
+    assert_equal 1, @item.allowed_roles.length
+    assert_equal 'admins', @item.allowed_roles.first.key
+    assert_equal 1, @item.denied_roles.length
+    assert_equal 'users', @item.denied_roles.first.key
 
     descriptions = @item.elements.select{ |e| e.name == 'description' }
     assert_equal 3, descriptions.length
