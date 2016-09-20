@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160919173801) do
+ActiveRecord::Schema.define(version: 20160920141611) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -135,6 +135,8 @@ ActiveRecord::Schema.define(version: 20160919173801) do
     t.integer "item_id"
     t.integer "allowed_role_id"
     t.integer "denied_role_id"
+    t.integer "effective_allowed_role_id"
+    t.integer "effective_denied_role_id"
   end
 
   create_table "metadata_profile_elements", force: :cascade do |t|
@@ -254,6 +256,8 @@ ActiveRecord::Schema.define(version: 20160919173801) do
   add_foreign_key "items_roles", "items", on_update: :cascade, on_delete: :cascade
   add_foreign_key "items_roles", "roles", column: "allowed_role_id", on_update: :cascade, on_delete: :cascade
   add_foreign_key "items_roles", "roles", column: "denied_role_id", on_update: :cascade, on_delete: :cascade
+  add_foreign_key "items_roles", "roles", column: "effective_allowed_role_id", on_update: :cascade, on_delete: :cascade
+  add_foreign_key "items_roles", "roles", column: "effective_denied_role_id", on_update: :cascade, on_delete: :cascade
   add_foreign_key "metadata_profile_elements", "metadata_profiles", on_update: :cascade, on_delete: :cascade
   add_foreign_key "metadata_profile_elements_vocabularies", "metadata_profile_elements", on_update: :cascade, on_delete: :cascade
   add_foreign_key "metadata_profile_elements_vocabularies", "vocabularies", on_update: :cascade, on_delete: :cascade

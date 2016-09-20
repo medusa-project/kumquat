@@ -76,6 +76,10 @@ class Item < ActiveRecord::Base
                           association_foreign_key: :allowed_role_id
   has_and_belongs_to_many :denied_roles, class_name: 'Role',
                           association_foreign_key: :denied_role_id
+  has_and_belongs_to_many :effective_allowed_roles, class_name: 'Role',
+                          association_foreign_key: :effective_allowed_role_id
+  has_and_belongs_to_many :effective_denied_roles, class_name: 'Role',
+                          association_foreign_key: :effective_denied_role_id
 
   has_many :bytestreams, inverse_of: :item, dependent: :destroy
   has_many :elements, class_name: 'ItemElement', inverse_of: :item,
@@ -96,7 +100,8 @@ class Item < ActiveRecord::Base
                       message: 'UUID is invalid',
                       allow_blank: true
 
-  before_save :prune_identical_elements
+  before_save :prune_identical_elements, :set_effective_roles
+  after_update :propagate_roles
   after_commit :index_in_solr, on: [:create, :update]
   after_commit :delete_from_solr, on: :destroy
 
@@ -539,6 +544,20 @@ class Item < ActiveRecord::Base
                              page_number: self.page_number - 1).limit(1).first
     end
     prev_item
+  end
+
+  ##
+  # Propagates roles from the instance to all of its descendents. This is an
+  # O(n) operation.
+  #
+  # @return [void]
+  #
+  def propagate_roles
+    ActiveRecord::Base.transaction do
+      # Save callbacks will call this method on direct children, so there is
+      # no need to crawl deeper levels of the child subtree.
+      self.items.each { |item| item.save! }
+    end
   end
 
   ##
@@ -993,6 +1012,38 @@ class Item < ActiveRecord::Base
   private
 
   ##
+  # @return [void]
+  #
+  def inherit_roles
+    allowed_roles = []
+    denied_roles = []
+    # Try to inherit from an ancestor.
+    p = self.parent
+    while p
+      allowed_roles = p.allowed_roles
+      denied_roles = p.denied_roles
+      break if allowed_roles.any? or denied_roles.any?
+      p = p.parent
+    end
+    # If no ancestor has any roles, inherit from the collection.
+    if allowed_roles.empty? and denied_roles.empty?
+      allowed_roles = self.collection.allowed_roles
+      denied_roles = self.collection.denied_roles
+    end
+
+    ActiveRecord::Base.transaction do
+      self.effective_allowed_roles.destroy_all
+      self.effective_denied_roles.destroy_all
+      allowed_roles.each do |role|
+        self.effective_allowed_roles << role
+      end
+      denied_roles.each do |role|
+        self.effective_denied_roles << role
+      end
+    end
+  end
+
+  ##
   # Removes duplicate elements, ensuring that all are unique.
   #
   def prune_identical_elements
@@ -1005,6 +1056,30 @@ class Item < ActiveRecord::Base
         end
       end
       (all_elements - unique_elements).each(&:destroy!)
+    end
+  end
+
+  ##
+  # Populates effective_allowed_roles and effective_denied_roles.
+  #
+  # @return [void]
+  #
+  def set_effective_roles
+    allowed_roles = self.allowed_roles
+    denied_roles = self.denied_roles
+    if allowed_roles.any? or denied_roles.any?
+      ActiveRecord::Base.transaction do
+        self.effective_allowed_roles.destroy_all
+        self.effective_denied_roles.destroy_all
+        allowed_roles.each do |role|
+          self.effective_allowed_roles << role
+        end
+        denied_roles.each do |role|
+          self.effective_denied_roles << role
+        end
+      end
+    else
+      inherit_roles
     end
   end
 
