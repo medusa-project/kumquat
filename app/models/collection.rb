@@ -20,6 +20,7 @@
 #
 class Collection < ActiveRecord::Base
 
+  include AuthorizableByRole
   include SolrQuerying
 
   class SolrFields
@@ -105,6 +106,16 @@ class Collection < ActiveRecord::Base
   def delete_from_solr
     Solr.instance.delete(self.solr_id)
   end
+
+  ##
+  # Satisfies the AuthorizableByRole module contract.
+  #
+  alias_method :effective_allowed_roles, :allowed_roles
+
+  ##
+  # Satisfies the AuthorizableByRole module contract.
+  #
+  alias_method :effective_denied_roles, :denied_roles
 
   ##
   # The effective CFS directory of the instance -- either one that is directly

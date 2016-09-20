@@ -25,6 +25,7 @@
 #
 class Item < ActiveRecord::Base
 
+  include AuthorizableByRole
   include SolrQuerying
 
   class SolrFields
