@@ -3,6 +3,9 @@
     <a href="#pt-system-info" aria-controls="pt-system-info" role="tab" data-toggle="tab">System Info</a>
   </li>
   <li role="presentation">
+    <a href="#pt-access" aria-controls="pt-access" role="tab" data-toggle="tab">Access</a>
+  </li>
+  <li role="presentation">
     <a href="#pt-metadata" aria-controls="pt-metadata" role="tab" data-toggle="tab">Metadata</a>
   </li>
   <li role="presentation">
@@ -72,6 +75,45 @@
           </tr>
         </tbody>
       </table>
+    </div>
+
+    <div role="tabpanel" class="tab-pane" id="pt-access">
+      <div class="row">
+        <div class="col-sm-6">
+          <div class="form-group">
+            <%= f.label :allowed_roles, 'Allowed Roles' %>
+            <%= hidden_field_tag :role_ids, nil,
+                                 name: 'item[allowed_role_ids][]' %>
+            <% Role.order(:name).each do |role| %>
+              <div class="checkbox">
+                <label>
+                  <%= check_box_tag :role_ids, role.id,
+                                    f.object.allowed_roles.map(&:id).include?(role.id),
+                                    name: 'item[allowed_role_ids][]' %>
+                  <%= role.name %>
+                </label>
+              </div>
+            <% end %>
+          </div>
+        </div>
+        <div class="col-sm-6">
+          <div class="form-group">
+            <%= f.label :denied_roles, 'Denied Roles' %>
+            <%= hidden_field_tag :role_ids, nil,
+                                 name: 'item[denied_role_ids][]' %>
+            <% Role.order(:name).each do |role| %>
+              <div class="checkbox">
+                <label>
+                  <%= check_box_tag :role_ids, role.id,
+                                    f.object.denied_roles.map(&:id).include?(role.id),
+                                    name: 'item[denied_role_ids][]' %>
+                  <%= role.name %>
+                </label>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div role="tabpanel" class="tab-pane" id="pt-metadata">

@@ -222,7 +222,8 @@ module Admin
                                    :full_text, :latitude, :longitude,
                                    :page_number, :published,
                                    :representative_item_id, :subpage_number,
-                                   :variant)
+                                   :variant, allowed_role_ids: [],
+                                   denied_role_ids: [])
     end
 
   end
