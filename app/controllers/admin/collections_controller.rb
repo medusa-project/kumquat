@@ -56,7 +56,10 @@ module Admin
         collection = Collection.find_by_repository_id(params[:id])
         raise ActiveRecord::RecordNotFound unless collection
 
-        collection.update!(sanitized_params)
+        ActiveRecord::Base.transaction do # trigger after_commit callbacks
+          collection.update!(sanitized_params)
+        end
+        Solr.instance.commit
 
         # We will also need to update the effective allowed/denied roles
         # of each item in the collection, which will take some time, so we

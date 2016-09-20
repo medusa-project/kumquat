@@ -202,7 +202,10 @@ module Admin
         end
 
         if params[:item]
-          item.update!(sanitized_params)
+          ActiveRecord::Base.transaction do # trigger after_commit callbacks
+            item.update!(sanitized_params)
+          end
+          Solr.instance.commit
 
           # We will also need to update the effective allowed/denied roles
           # of each child item, which may take some time, so we will do it in
