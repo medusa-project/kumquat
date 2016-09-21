@@ -24,6 +24,7 @@
       <th>Role</th>
       <th>Key</th>
       <th>Users</th>
+      <th>Hosts</th>
     </tr>
   </thead>
   <tbody>
@@ -31,7 +32,8 @@
       <tr>
         <td><%= link_to role.name, admin_role_path(role) %></td>
         <td><%= role.key %></td>
-        <td><%= role.users.length %></td>
+        <td><%= role.users.count %></td>
+        <td><%= role.hosts.count %></td>
       </tr>
     <% end %>
   </tbody>
