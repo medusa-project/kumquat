@@ -64,8 +64,17 @@ class Permission < ActiveRecord::Base
       end
       # Delete database permissions that no longer exist in the Permissions
       # class.
-      Rails.logger.info('Permission.sync_to_database(): deleting obsolete permissions')
+      Rails.logger.info('Permission.sync_to_database(): deleting obsolete '\
+          'permissions')
       Permission.where('key NOT IN (?)', const_keys).delete_all
+
+      # Ensure that the administrator role has all permissions.
+      Rails.logger.info('Permission.sync_to_database(): granting all '\
+          'permissions to the administrator role')
+      admin = Role.find_by_key(:admin)
+      admin.permissions.clear
+      Permission.all.each { |p| admin.permissions << p }
+      admin.save!
     end
   end
 
