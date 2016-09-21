@@ -25,7 +25,6 @@ class Permission < ActiveRecord::Base
     DISABLE_USER = 'users.disable'                 # TODO: replace with MODIFY_USERS
     ENABLE_USER = 'users.enable'                   # TODO: replace with MODIFY_USERS
     PUBLISH_COLLECTION = 'collections.publish'     # TODO: replace with MODIFY_COLLECTIONS
-    REINDEX = 'reindex'                            # TODO: remove
     UNPUBLISH_COLLECTION = 'collections.unpublish' # TODO: replace with MODIFY_COLLECTIONS
     UPDATE_COLLECTION = 'collections.update'       # TODO: replace with MODIFY_COLLECTIONS
     UPDATE_ITEM = 'items.update'                   # TODO: replace with MODIFY_ITEMS
