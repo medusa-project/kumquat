@@ -14,6 +14,10 @@
 # 1. Add a constant for it to the Permissions class
 # 2. Call sync_to_database() (restarting the app will also do this)
 #
+# To rename a permission:
+#
+# 1. TODO: Write this
+#
 class Permission < ActiveRecord::Base
 
   class Permissions
@@ -24,12 +28,16 @@ class Permission < ActiveRecord::Base
     DELETE_USER = 'users.delete'                   # TODO: replace with MODIFY_USERS
     DISABLE_USER = 'users.disable'                 # TODO: replace with MODIFY_USERS
     ENABLE_USER = 'users.enable'                   # TODO: replace with MODIFY_USERS
+    #MODIFY_COLLECTIONS = 'collections.modify'
+    #MODIFY_ITEMS = 'items.modify'
+    #MODIFY_ROLES = 'roles.modify'
+    #MODIFY_SETTINGS = 'settings.modify'
+    #MODIFY_USERS = 'users.modify'
     PUBLISH_COLLECTION = 'collections.publish'     # TODO: replace with MODIFY_COLLECTIONS
     UNPUBLISH_COLLECTION = 'collections.unpublish' # TODO: replace with MODIFY_COLLECTIONS
     UPDATE_COLLECTION = 'collections.update'       # TODO: replace with MODIFY_COLLECTIONS
     UPDATE_ITEM = 'items.update'                   # TODO: replace with MODIFY_ITEMS
     UPDATE_ROLE = 'roles.update'                   # TODO: replace with MODIFY_ROLES
-    UPDATE_SELF = 'users.update_self'              # TODO: replace with MODIFY_OWN_USER
     UPDATE_SETTINGS = 'settings.update'            # TODO: rename to MODIFY_SETTINGS
     UPDATE_USER = 'users.update'                   # TODO: replace with MODIFY_USERS
   end
