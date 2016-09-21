@@ -2,6 +2,9 @@ module Admin
 
   class ItemsController < ControlPanelController
 
+    before_action :modify_items_rbac, only: [:edit, :update, :import, :migrate,
+                                             :sync]
+
     ##
     # Responds to GET /admin/collections/:collection_id/items/:id
     #
@@ -222,6 +225,11 @@ module Admin
     end
 
     private
+
+    def modify_items_rbac
+      redirect_to(admin_root_url) unless
+          current_user.can?(Permission::Permissions::MODIFY_ITEMS)
+    end
 
     def sanitized_params
       # Metadata elements are not included here, as they are processed

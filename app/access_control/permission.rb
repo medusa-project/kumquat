@@ -23,11 +23,10 @@ class Permission < ActiveRecord::Base
   class Permissions
     ACCESS_CONTROL_PANEL = 'control_panel.access'
     MODIFY_COLLECTIONS = 'collections.modify'
-    #MODIFY_ITEMS = 'items.modify'
+    MODIFY_ITEMS = 'items.modify'
     MODIFY_ROLES = 'roles.modify'
     #MODIFY_SETTINGS = 'settings.modify'
     MODIFY_USERS = 'users.modify'
-    UPDATE_ITEM = 'items.update'                   # TODO: replace with MODIFY_ITEMS
     UPDATE_SETTINGS = 'settings.update'            # TODO: rename to MODIFY_SETTINGS
   end
 
