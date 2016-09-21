@@ -77,8 +77,11 @@ class Permission < ActiveRecord::Base
     key
   end
 
-  def readonly?
-    !new_record?
+  ##
+  # @return [String]
+  #
+  def to_s
+    name
   end
 
 end
