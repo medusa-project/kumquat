@@ -26,18 +26,17 @@
 
 <h1><%= @role.name %> <small><%= @role.key %></small></h1>
 
-<section>
-  <h2>Permissions</h2>
-
-  <% @permissions.each do |p| %>
-    <%= @role.has_permission?(p.key) ?
-            raw("<span class=\"label label-success\">&check; #{p.name}</span>") :
-            raw("<span class=\"label label-danger\">&times; #{p.name}</span>") %>
-  <% end %>
-</section>
-
 <div class="row">
-  <div class="col-sm-6">
+  <div class="col-sm-4">
+    <h2>Permissions</h2>
+    <% @permissions.each do |p| %>
+      <%= @role.has_permission?(p.key) ?
+              raw("<span class=\"label label-success\">&check; #{p.name}</span>") :
+              raw("<span class=\"label label-danger\">&times; #{p.name}</span>") %>
+    <% end %>
+  </div>
+
+  <div class="col-sm-4">
     <h2>Users</h2>
     <% if @role.users.any? %>
       <ul>
@@ -50,7 +49,7 @@
     <% end %>
   </div>
 
-  <div class="col-sm-6">
+  <div class="col-sm-4">
     <h2>Hosts</h2>
     <% if @role.hosts.any? %>
       <ul>
