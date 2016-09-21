@@ -42,8 +42,12 @@ class CollectionsController < WebsiteController
 
     respond_to do |format|
       format.html do
-        @representative_image_bytestream =
-            @collection.representative_image_bytestream
+        begin
+          @representative_image_bytestream =
+              @collection.representative_image_bytestream
+        rescue => e
+          Rails.logger.error("#{e}")
+        end
       end
       format.json { render json: @collection.decorate }
     end
