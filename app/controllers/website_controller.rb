@@ -9,18 +9,26 @@ class WebsiteController < ApplicationController
     @num_items = Item.solr.where(Item::SolrFields::PARENT_ITEM => :null).count
 
     @audio_items = Item.solr.
+        where(Item::SolrFields::COLLECTION_PUBLISHED => true).
+        where(Item::SolrFields::PUBLISHED => true).
         where("#{Item::SolrFields::ACCESS_MASTER_MEDIA_TYPE}:audio/* "\
         "OR #{Item::SolrFields::PRESERVATION_MASTER_MEDIA_TYPE}:audio/*").
         where(Item::SolrFields::PARENT_ITEM => :null).limit(1)
     @document_items = Item.solr.
+        where(Item::SolrFields::COLLECTION_PUBLISHED => true).
+        where(Item::SolrFields::PUBLISHED => true).
         where("#{Item::SolrFields::ACCESS_MASTER_MEDIA_TYPE}:application/pdf "\
         "OR #{Item::SolrFields::PRESERVATION_MASTER_MEDIA_TYPE}:application/pdf").
         where(Item::SolrFields::PARENT_ITEM => :null).limit(1)
     @image_items = Item.solr.
+        where(Item::SolrFields::COLLECTION_PUBLISHED => true).
+        where(Item::SolrFields::PUBLISHED => true).
         where("#{Item::SolrFields::ACCESS_MASTER_MEDIA_TYPE}:image/* "\
         "OR #{Item::SolrFields::PRESERVATION_MASTER_MEDIA_TYPE}:image/*").
         where(Item::SolrFields::PARENT_ITEM => :null).limit(1)
     @video_items = Item.solr.
+        where(Item::SolrFields::COLLECTION_PUBLISHED => true).
+        where(Item::SolrFields::PUBLISHED => true).
         where("#{Item::SolrFields::ACCESS_MASTER_MEDIA_TYPE}:video/* "\
         "OR #{Item::SolrFields::PRESERVATION_MASTER_MEDIA_TYPE}:video/*").
         where(Item::SolrFields::PARENT_ITEM => :null).limit(1)
