@@ -32,7 +32,7 @@
     <% @permissions.each do |p| %>
       <%= @role.has_permission?(p.key) ?
               raw("<span class=\"label label-success\">&check; #{p.name}</span>") :
-              raw("<span class=\"label label-danger\">&times; #{p.name}</span>") %>
+              raw("<span class=\"label label-default\">&times; #{p.name}</span>") %>
     <% end %>
   </div>
 
