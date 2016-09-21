@@ -2,9 +2,8 @@ module Admin
 
   class RolesController < ControlPanelController
 
-    before_action :create_roles_rbac, only: [:new, :create]
-    before_action :delete_roles_rbac, only: :destroy
-    before_action :update_roles_rbac, only: [:edit, :update]
+    before_action :modify_roles_rbac, only: [:new, :create, :destroy, :edit,
+                                             :update]
 
     def create
       @role = Role.new(sanitized_params)
@@ -87,24 +86,14 @@ module Admin
 
     private
 
-    def create_roles_rbac
+    def modify_roles_rbac
       redirect_to(admin_root_url) unless
-          current_user.can?(Permission::Permissions::CREATE_ROLE)
-    end
-
-    def delete_roles_rbac
-      redirect_to(admin_root_url) unless
-          current_user.can?(Permission::Permissions::DELETE_ROLE)
+          current_user.can?(Permission::Permissions::MODIFY_ROLES)
     end
 
     def sanitized_params
       params.require(:role).permit(:key, :name, permission_ids: [],
                                    user_ids: [])
-    end
-
-    def update_roles_rbac
-      redirect_to(admin_root_url) unless
-          current_user.can?(Permission::Permissions::UPDATE_ROLE)
     end
 
   end
