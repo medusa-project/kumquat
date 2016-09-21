@@ -3,7 +3,7 @@ require 'test_helper'
 class ItemsControllerTest < ActionDispatch::IntegrationTest
 
   def setup
-    @valid_xml = File.read(__dir__ + '/../fixtures/repository/image/item_1.xml')
+    @valid_xml = File.read(__dir__ + '/../fixtures/repository/item.xml')
   end
 
   # create()
@@ -65,7 +65,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
   # delete()
 
   test 'delete() with no credentials should return 401' do
-    delete('/items/item1', nil, {})
+    delete('/items/' + items(:item1).repository_id, nil, {})
     assert_response :unauthorized
   end
 
@@ -73,7 +73,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     headers = valid_headers.merge(
         'Authorization' => ActionController::HttpAuthentication::Basic.
             encode_credentials('bogus', 'bogus'))
-    delete('/items/item1', nil, headers)
+    delete('/items/' + items(:item1).repository_id, nil, headers)
     assert_response :unauthorized
   end
 
@@ -83,26 +83,40 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'delete() should return 200' do
-    delete('/items/item1', nil, valid_headers)
+    delete('/items/' + items(:item1).repository_id, nil, valid_headers)
     assert_response :success
   end
 
   test 'delete() should delete the item' do
-    delete('/items/item1', nil, valid_headers)
+    delete('/items/' + items(:item1).repository_id, nil, valid_headers)
     assert_equal 0, Item.where(repository_id: 'item1').count
+  end
+
+  # show() access control
+
+  test 'show() should restrict access to role-restricted items' do
+    role = Role.new(key: 'test', name: 'Test')
+    role.hosts.build(pattern: 'localhost')
+    role.save!
+    item = items(:item1)
+    item.denied_roles << role
+    item.save!
+
+    get('/items/' + item.repository_id)
+    assert_response :forbidden
   end
 
   # show() with JSON
 
   test 'show() JSON should return 200' do
-    get('/items/item1.json')
+    get('/items/' + items(:item1).repository_id + '.json')
     assert_response :success
   end
 
   # show() with XML
 
   test 'show() XML with no credentials should return 401' do
-    get('/items/item1.xml?version=1')
+    get('/items/' + items(:item1).repository_id + '.xml?version=1')
     assert_response :unauthorized
   end
 
@@ -110,22 +124,24 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     headers = valid_headers.merge(
         'Authorization' => ActionController::HttpAuthentication::Basic.
             encode_credentials('bogus', 'bogus'))
-    get('/items/item1.xml?version=1', nil, headers)
+    get('/items/' + items(:item1).repository_id + '.xml?version=1', nil, headers)
     assert_response :unauthorized
   end
 
   test 'show() with no version should return 200' do
-    get('/items/item1.xml', nil, valid_headers)
+    get('/items/' + items(:item1).repository_id + '.xml', nil, valid_headers)
     assert_response :success
   end
 
   test 'show() with invalid version should return 400' do
-    get('/items/item1.xml?version=9', nil, valid_headers)
+    get('/items/' + items(:item1).repository_id + '.xml?version=9', nil,
+        valid_headers)
     assert_response :bad_request
   end
 
   test 'show() with valid credentials should return 200' do
-    get('/items/item1.xml?version=3', nil, valid_headers)
+    get('/items/' + items(:item1).repository_id + '.xml?version=3', nil,
+        valid_headers)
     assert_response :success
   end
 
