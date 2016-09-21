@@ -150,7 +150,7 @@ module Admin
     end
 
     def view_users_rbac
-      unless current_user.can?(Permission::VIEW_USERS)
+      unless current_user.can?(Permission::Permissions::VIEW_USERS)
         flash['error'] = 'Insufficient privileges.'
         redirect_to(admin_root_url)
       end

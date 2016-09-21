@@ -90,7 +90,7 @@ module Admin
 
     def update_collections_rbac
       redirect_to(admin_root_url) unless
-          current_user.can?(Permission::UPDATE_COLLECTION)
+          current_user.can?(Permission::Permissions::UPDATE_COLLECTION)
     end
 
   end

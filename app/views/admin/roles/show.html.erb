@@ -8,13 +8,13 @@
 </ol>
 
 <div class="btn-group pull-right">
-  <% if current_user.can?(Permission::UPDATE_ROLE) %>
+  <% if current_user.can?(Permission::Permissions::UPDATE_ROLE) %>
     <%= link_to edit_admin_role_path(@role), class: 'btn btn-default' do %>
       <%= content_tag(:span, '', class: 'fa fa-pencil') %>
       Edit
     <% end %>
   <% end %>
-  <% if current_user.can?(Permission::DELETE_ROLE) and !@role.required %>
+  <% if current_user.can?(Permission::Permissions::DELETE_ROLE) and !@role.required %>
     <%= link_to admin_role_path(@role), method: 'delete',
                 class: 'btn btn-danger',
                 data: { confirm: 'Are you sure you want to delete this role?' } do %>

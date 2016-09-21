@@ -8,7 +8,7 @@
 </ol>
 
 <div class="btn-group pull-right">
-  <% if current_user.can?(Permission::CREATE_ROLE) %>
+  <% if current_user.can?(Permission::Permissions::CREATE_ROLE) %>
     <!-- New Role -->
     <%= link_to new_admin_role_path, class: 'btn btn-default' do %>
       <span class="fa fa-plus"></span> New Role

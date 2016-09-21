@@ -89,12 +89,12 @@ module Admin
 
     def create_roles_rbac
       redirect_to(admin_root_url) unless
-          current_user.can?(Permission::CREATE_ROLE)
+          current_user.can?(Permission::Permissions::CREATE_ROLE)
     end
 
     def delete_roles_rbac
       redirect_to(admin_root_url) unless
-          current_user.can?(Permission::DELETE_ROLE)
+          current_user.can?(Permission::Permissions::DELETE_ROLE)
     end
 
     def sanitized_params
@@ -104,7 +104,7 @@ module Admin
 
     def update_roles_rbac
       redirect_to(admin_root_url) unless
-          current_user.can?(Permission::UPDATE_ROLE)
+          current_user.can?(Permission::Permissions::UPDATE_ROLE)
     end
 
   end
