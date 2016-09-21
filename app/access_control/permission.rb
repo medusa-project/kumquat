@@ -12,8 +12,7 @@
 # To add a permission:
 #
 # 1. Add a constant for it to the Permissions class
-# 2. Add its label to the strings file(s) in config/locales
-# 3. Call sync_to_database() (restarting the app will also do this)
+# 2. Call sync_to_database() (restarting the app will also do this)
 #
 class Permission < ActiveRecord::Base
 
@@ -70,7 +69,12 @@ class Permission < ActiveRecord::Base
   # @return [String]
   #
   def name
-    I18n.t "permission_#{key.gsub('.', '_')}"
+    Permission::Permissions.constants(false).each do |const|
+      if Permission::Permissions.const_get(const) == self.key
+        return const.to_s.titleize
+      end
+    end
+    key
   end
 
   def readonly?
