@@ -72,9 +72,11 @@ class Permission < ActiveRecord::Base
       Rails.logger.info('Permission.sync_to_database(): granting all '\
           'permissions to the administrator role')
       admin = Role.find_by_key(:admin)
-      admin.permissions.clear
-      Permission.all.each { |p| admin.permissions << p }
-      admin.save!
+      if admin
+        admin.permissions.clear
+        Permission.all.each { |p| admin.permissions << p }
+        admin.save!
+      end
     end
   end
 
