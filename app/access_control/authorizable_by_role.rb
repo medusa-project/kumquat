@@ -6,9 +6,11 @@ module AuthorizableByRole
 
   ##
   # @param roles [Enumerable<Role>]
-  # @return [Boolean]
+  # @return [Boolean] True if no roles are provided or if any role authorizes
+  #                   the entity; false otherwise.
   #
   def authorized_by_any_roles?(roles)
+    return true if !roles or roles.empty?
     roles.each { |role| return true if authorized_by_role?(role) }
     false
   end
