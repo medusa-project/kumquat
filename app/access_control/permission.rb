@@ -11,9 +11,9 @@
 #
 # To add a permission:
 #
-# 1. Assign it a constant and string value corresponding to its key
-# 2. Create a Permission object with that key and save it
-# 3. Add its key to the strings file(s) in config/locales
+# 1. Add a constant for it to the Permissions class
+# 2. Add its label to the strings file(s) in config/locales
+# 3. Call sync_to_database() (restarting the app will also do this)
 #
 class Permission < ActiveRecord::Base
 
@@ -42,7 +42,33 @@ class Permission < ActiveRecord::Base
   validates :key, presence: true, length: { maximum: 255 },
             uniqueness: { case_sensitive: false }
 
+  ##
+  # Synchronizes the permissions defined in the Permissions class to the
+  # database.
+  #
+  def self.sync_to_database
+    const_keys = Permission::Permissions.constants(false).map do |const|
+      Permission::Permissions.const_get(const)
+    end
 
+    ActiveRecord::Base.transaction do
+      # Create permissions that don't exist in the database.
+      Rails.logger.info('Permission.sync_to_database(): creating permissions')
+      const_keys.each do |key|
+        Permission.create!(key: key) unless Permission.find_by_key(key)
+      end
+      # Delete database permissions that no longer exist in the Permissions
+      # class.
+      Rails.logger.info('Permission.sync_to_database(): deleting obsolete permissions')
+      Permission.where('key NOT IN (?)', const_keys).delete_all
+    end
+  end
+
+  Permission.sync_to_database
+
+  ##
+  # @return [String]
+  #
   def name
     I18n.t "permission_#{key.gsub('.', '_')}"
   end
