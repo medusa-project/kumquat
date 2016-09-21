@@ -54,8 +54,6 @@ Permission.create!(key: Permission::Permissions::DISABLE_USER,
                    roles: [roles[:admin]])
 Permission.create!(key: Permission::Permissions::ENABLE_USER,
                    roles: [roles[:admin]])
-Permission.create!(key: Permission::Permissions::VIEW_USERS,
-                   roles: [roles[:admin], roles[:cataloger]])
 
 # Metadata profiles
 profiles = {}
