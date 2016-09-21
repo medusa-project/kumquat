@@ -37,13 +37,6 @@ class Role < ActiveRecord::Base
     roles
   end
 
-  def after_initialize
-    if self.key == 'admin'
-      self.permissions = Permission.all
-      self.save!
-    end
-  end
-
   ##
   # @return [String]
   #
