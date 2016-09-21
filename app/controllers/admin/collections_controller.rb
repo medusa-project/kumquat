@@ -2,7 +2,7 @@ module Admin
 
   class CollectionsController < ControlPanelController
 
-    before_action :update_collections_rbac, only: :update
+    before_action :modify_collections_rbac, only: [:edit, :update, :sync]
 
     def edit
       @collection = Collection.find_by_repository_id(params[:id])
@@ -76,6 +76,11 @@ module Admin
 
     private
 
+    def modify_collections_rbac
+      redirect_to(admin_root_url) unless
+          current_user.can?(Permission::Permissions::MODIFY_COLLECTIONS)
+    end
+
     def sanitized_params
       params.require(:collection).permit(:id, :contentdm_alias,
                                          :medusa_cfs_directory_id,
@@ -86,11 +91,6 @@ module Admin
                                          :rightsstatements_org_uri,
                                          allowed_role_ids: [],
                                          denied_role_ids: [])
-    end
-
-    def update_collections_rbac
-      redirect_to(admin_root_url) unless
-          current_user.can?(Permission::Permissions::UPDATE_COLLECTION)
     end
 
   end
