@@ -2,6 +2,9 @@ module Admin
 
   class UsersController < ControlPanelController
 
+    before_action :modify_users_rbac, only: [:change_roles, :create, :destroy,
+                                             :disable, :enable, :edit, :update]
+
     ##
     # Responds to PATCH /users/:username/roles. Supply :do => :join/:leave
     # and :role_id params.
@@ -142,6 +145,11 @@ module Admin
     end
 
     private
+
+    def modify_users_rbac
+      redirect_to(admin_root_url) unless
+          current_user.can?(Permission::Permissions::MODIFY_USERS)
+    end
 
     def sanitized_params
       params.require(:user).permit(:enabled, :username, role_ids: [])

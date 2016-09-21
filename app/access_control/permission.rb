@@ -23,23 +23,18 @@ class Permission < ActiveRecord::Base
   class Permissions
     ACCESS_CONTROL_PANEL = 'control_panel.access'
     CREATE_ROLE = 'roles.create'                   # TODO: replace with MODIFY_ROLES
-    CREATE_USER = 'users.create'                   # TODO: replace with MODIFY_USERS
     DELETE_ROLE = 'roles.delete'                   # TODO: replace with MODIFY_ROLES
-    DELETE_USER = 'users.delete'                   # TODO: replace with MODIFY_USERS
-    DISABLE_USER = 'users.disable'                 # TODO: replace with MODIFY_USERS
-    ENABLE_USER = 'users.enable'                   # TODO: replace with MODIFY_USERS
     #MODIFY_COLLECTIONS = 'collections.modify'
     #MODIFY_ITEMS = 'items.modify'
     #MODIFY_ROLES = 'roles.modify'
     #MODIFY_SETTINGS = 'settings.modify'
-    #MODIFY_USERS = 'users.modify'
+    MODIFY_USERS = 'users.modify'
     PUBLISH_COLLECTION = 'collections.publish'     # TODO: replace with MODIFY_COLLECTIONS
     UNPUBLISH_COLLECTION = 'collections.unpublish' # TODO: replace with MODIFY_COLLECTIONS
     UPDATE_COLLECTION = 'collections.update'       # TODO: replace with MODIFY_COLLECTIONS
     UPDATE_ITEM = 'items.update'                   # TODO: replace with MODIFY_ITEMS
     UPDATE_ROLE = 'roles.update'                   # TODO: replace with MODIFY_ROLES
     UPDATE_SETTINGS = 'settings.update'            # TODO: rename to MODIFY_SETTINGS
-    UPDATE_USER = 'users.update'                   # TODO: replace with MODIFY_USERS
   end
 
   has_and_belongs_to_many :roles
