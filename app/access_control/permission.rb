@@ -25,9 +25,8 @@ class Permission < ActiveRecord::Base
     MODIFY_COLLECTIONS = 'collections.modify'
     MODIFY_ITEMS = 'items.modify'
     MODIFY_ROLES = 'roles.modify'
-    #MODIFY_SETTINGS = 'settings.modify'
+    MODIFY_SETTINGS = 'settings.modify'
     MODIFY_USERS = 'users.modify'
-    UPDATE_SETTINGS = 'settings.update'            # TODO: rename to MODIFY_SETTINGS
   end
 
   has_and_belongs_to_many :roles
