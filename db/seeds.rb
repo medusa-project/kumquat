@@ -25,7 +25,6 @@ Option.create!(key: Option::Key::RESULTS_PER_PAGE, value: 30)
 roles = {}
 roles[:admin] = Role.create!(key: 'admin', name: 'Administrators', required: true)
 roles[:cataloger] = Role.create!(key: 'cataloger', name: 'Catalogers')
-roles[:anybody] = Role.create!(key: 'anybody', name: 'Anybody', required: true)
 
 # Metadata profiles
 profiles = {}
