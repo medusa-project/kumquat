@@ -542,18 +542,32 @@ class MedusaIngester
   # @return [Hash<Symbol, Integer>]
   #
   def update_bytestreams(collection, warnings = [])
+    stats = {}
     case collection.package_profile
       when PackageProfile::FREE_FORM_PROFILE
-        return update_free_form_bytestreams(collection)
+        stats = update_free_form_bytestreams(collection)
       when PackageProfile::MAP_PROFILE
-        return update_map_bytestreams(collection, warnings)
+        stats = update_map_bytestreams(collection, warnings)
       when PackageProfile::SINGLE_ITEM_OBJECT_PROFILE
-        return update_single_item_bytestreams(collection, warnings)
+        stats = update_single_item_bytestreams(collection, warnings)
       else
         raise IllegalContentError,
               "update_bytestreams(): unrecognized package profile: "\
                     "#{collection.package_profile}"
     end
+
+    # The bytestreams have been updated, but the image server probably still
+    # has cached versions of the old ones. Here, we will use the Cantaloupe
+    # API to purge them.
+    collection.items.each do |item|
+      begin
+        ImageServer.instance.purge_item_from_cache(item)
+      rescue => e
+        Rails.logger.error("#{e}")
+      end
+    end
+
+    stats
   end
 
   ##
