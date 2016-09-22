@@ -27,36 +27,6 @@ roles[:admin] = Role.create!(key: 'admin', name: 'Administrators', required: tru
 roles[:cataloger] = Role.create!(key: 'cataloger', name: 'Catalogers')
 roles[:anybody] = Role.create!(key: 'anybody', name: 'Anybody', required: true)
 
-# Permissions
-Permission.create!(key: Permission::UPDATE_COLLECTION,
-                   roles: [roles[:admin], roles[:cataloger]])
-Permission.create!(key: Permission::ACCESS_CONTROL_PANEL,
-                   roles: [roles[:admin], roles[:cataloger]])
-Permission.create!(key: Permission::REINDEX,
-                   roles: [roles[:admin], roles[:cataloger]])
-Permission.create!(key: Permission::CREATE_ROLE,
-                   roles: [roles[:admin]])
-Permission.create!(key: Permission::DELETE_ROLE,
-                   roles: [roles[:admin]])
-Permission.create!(key: Permission::UPDATE_ROLE,
-                   roles: [roles[:admin]])
-Permission.create!(key: Permission::UPDATE_SETTINGS,
-                   roles: [roles[:admin]])
-Permission.create!(key: Permission::CREATE_USER,
-                   roles: [roles[:admin]])
-Permission.create!(key: Permission::DELETE_USER,
-                   roles: [roles[:admin]])
-Permission.create!(key: Permission::UPDATE_USER,
-                   roles: [roles[:admin]])
-Permission.create!(key: Permission::UPDATE_SELF,
-                   roles: [roles[:admin], roles[:anybody]])
-Permission.create!(key: Permission::DISABLE_USER,
-                   roles: [roles[:admin]])
-Permission.create!(key: Permission::ENABLE_USER,
-                   roles: [roles[:admin]])
-Permission.create!(key: Permission::VIEW_USERS,
-                   roles: [roles[:admin], roles[:cataloger]])
-
 # Metadata profiles
 profiles = {}
 profiles[:default] = MetadataProfile.create!(name: 'Default Profile',

@@ -20,12 +20,15 @@
 #
 class Collection < ActiveRecord::Base
 
+  include AuthorizableByRole
   include SolrQuerying
 
   class SolrFields
     ACCESS_SYSTEMS = 'access_systems_sim'
     ACCESS_URL = 'access_url_si'
+    ALLOWED_ROLES = 'allowed_roles_sim'
     CLASS = 'class_si'
+    DENIED_ROLES = 'denied_roles_sim'
     DESCRIPTION = 'description_txti'
     DESCRIPTION_HTML = 'description_html_txti'
     ID = 'id'
@@ -47,6 +50,11 @@ class Collection < ActiveRecord::Base
 
   belongs_to :metadata_profile, inverse_of: :collections
 
+  has_and_belongs_to_many :allowed_roles, class_name: 'Role',
+                          association_foreign_key: :allowed_role_id
+  has_and_belongs_to_many :denied_roles, class_name: 'Role',
+                          association_foreign_key: :denied_role_id
+
   validates_format_of :medusa_cfs_directory_id,
                       with: UUID_REGEX,
                       message: 'UUID is invalid',
@@ -60,6 +68,13 @@ class Collection < ActiveRecord::Base
                       message: 'UUID is invalid'
 
   before_validation :do_before_validation
+
+  # This is commented out because, even though it has to happen, it is
+  # potentially very time-consuming. CollectionsController.update() is
+  # currently the only means by which collections are updated, so it will
+  # invoke this method in a background job.
+  #
+  #after_update :propagate_host_authorization
 
   after_commit :index_in_solr, on: [:create, :update]
   after_commit :delete_from_solr, on: :destroy
@@ -81,32 +96,26 @@ class Collection < ActiveRecord::Base
   def self.solr_facet_fields
     # These should be defined in the order they should appear.
     [
-        # IMET-283 says Access Systems should appear first.
+        # IMET-283 places Access Systems first.
         { name: SolrFields::ACCESS_SYSTEMS, label: 'Access Systems' },
         { name: SolrFields::RESOURCE_TYPES, label: 'Resource Type' },
         { name: SolrFields::REPOSITORY_TITLE, label: 'Repository' }
     ]
   end
 
-  ##
-  # @return [PackageProfile,nil]
-  #
-  def package_profile
-    self.package_profile_id.present? ?
-        PackageProfile.find(self.package_profile_id) : nil
-  end
-
-  ##
-  # @param profile [PackageProfile]
-  #
-  def package_profile=(profile)
-    self.package_profile_id = profile.kind_of?(PackageProfile) ?
-        profile.id : nil
-  end
-
   def delete_from_solr
     Solr.instance.delete(self.solr_id)
   end
+
+  ##
+  # Satisfies the AuthorizableByRole module contract.
+  #
+  alias_method :effective_allowed_roles, :allowed_roles
+
+  ##
+  # Satisfies the AuthorizableByRole module contract.
+  #
+  alias_method :effective_denied_roles, :denied_roles
 
   ##
   # The effective CFS directory of the instance -- either one that is directly
@@ -368,6 +377,36 @@ LIMIT 1000;
   end
 
   ##
+  # @return [PackageProfile,nil]
+  #
+  def package_profile
+    self.package_profile_id.present? ?
+        PackageProfile.find(self.package_profile_id) : nil
+  end
+
+  ##
+  # @param profile [PackageProfile]
+  #
+  def package_profile=(profile)
+    self.package_profile_id = profile.kind_of?(PackageProfile) ?
+        profile.id : nil
+  end
+
+  ##
+  # Propagates allowed and denied roles from the instance to all of its items.
+  # This is an O(n) operation.
+  #
+  # @return [void]
+  #
+  def propagate_roles
+    ActiveRecord::Base.transaction do
+      # Save callbacks will call this method on direct children, so there is
+      # no need to crawl deeper levels of the item tree.
+      self.items.where(parent_repository_id: nil).each { |item| item.save! }
+    end
+  end
+
+  ##
   # @return [Bytestream,nil] Best representative image bytestream based on the
   #                          representative item set in Medusa, if available,
   #                          or the representative image, if not.
@@ -421,7 +460,9 @@ LIMIT 1000;
   def to_solr
     doc = {}
     doc[SolrFields::ID] = self.solr_id
+    doc[SolrFields::ALLOWED_ROLES] = self.allowed_roles.map(&:key)
     doc[SolrFields::CLASS] = self.class.to_s
+    doc[SolrFields::DENIED_ROLES] = self.denied_roles.map(&:key)
     doc[SolrFields::LAST_INDEXED] = Time.now.utc.iso8601
     doc[SolrFields::ACCESS_SYSTEMS] = self.access_systems
     doc[SolrFields::ACCESS_URL] = self.access_url

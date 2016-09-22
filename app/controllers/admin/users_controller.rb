@@ -2,7 +2,8 @@ module Admin
 
   class UsersController < ControlPanelController
 
-    before_action :view_users_rbac, only: [:index, :show]
+    before_action :modify_users_rbac, only: [:change_roles, :create, :destroy,
+                                             :disable, :enable, :edit, :update]
 
     ##
     # Responds to PATCH /users/:username/roles. Supply :do => :join/:leave
@@ -145,15 +146,13 @@ module Admin
 
     private
 
-    def sanitized_params
-      params.require(:user).permit(:enabled, :username, role_ids: [])
+    def modify_users_rbac
+      redirect_to(admin_root_url) unless
+          current_user.can?(Permission::Permissions::MODIFY_USERS)
     end
 
-    def view_users_rbac
-      unless current_user.can?(Permission::VIEW_USERS)
-        flash['error'] = 'Insufficient privileges.'
-        redirect_to(admin_root_url)
-      end
+    def sanitized_params
+      params.require(:user).permit(:enabled, :username, role_ids: [])
     end
 
   end

@@ -274,6 +274,83 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal 7, @item.elements.count
   end
 
+  test 'save() should copy allowed_roles and denied_roles into
+  effective_allowed_roles and effective_denied_roles when they exist' do
+    item = items(:map_obj1_page1)
+
+    # Create initial allowed and denied roles.
+    item.allowed_roles << roles(:admins)
+    item.denied_roles << roles(:users)
+    # Assert that they get propagated to effective roles.
+    item.save!
+    assert_equal 1, item.effective_allowed_roles.length
+    assert_equal 'admins', item.effective_allowed_roles.first.key
+    assert_equal 1, item.effective_denied_roles.length
+    assert_equal 'users', item.effective_denied_roles.first.key
+
+    # Clear them out and change them.
+    item.allowed_roles.destroy_all
+    item.allowed_roles << roles(:skiers)
+    item.denied_roles.destroy_all
+    item.denied_roles << roles(:cellists)
+    # Assert that they get propagated to effective roles.
+    item.save!
+    assert_equal 1, item.effective_allowed_roles.length
+    assert_equal 'skiers', item.effective_allowed_roles.first.key
+    assert_equal 1, item.effective_denied_roles.length
+    assert_equal 'cellists', item.effective_denied_roles.first.key
+  end
+
+  test 'save() should copy parent allowed_roles and denied_roles into
+  effective_allowed_roles and effective_denied_roles when they are not set on
+  the instance' do
+    item = items(:map_obj1_page1)
+
+    # Create initial allowed and denied roles.
+    item.parent.allowed_roles << roles(:admins)
+    item.parent.denied_roles << roles(:users)
+
+    # Assert that they get propagated to effective roles.
+    item.save!
+    assert_equal 1, item.effective_allowed_roles.length
+    assert_equal 'admins', item.effective_allowed_roles.first.key
+    assert_equal 1, item.effective_denied_roles.length
+    assert_equal 'users', item.effective_denied_roles.first.key
+  end
+
+  test 'save() should copy collection allowed_roles and denied_roles into
+  effective_allowed_roles and effective_denied_roles when they are not set on
+  the instance nor a parent' do
+    item = items(:map_obj1_page1)
+
+    # Create initial allowed and denied roles.
+    item.collection.allowed_roles << roles(:admins)
+    item.collection.denied_roles << roles(:users)
+
+    # Assert that they get propagated to effective roles.
+    item.save!
+    assert_equal 1, item.effective_allowed_roles.length
+    assert_equal 'admins', item.effective_allowed_roles.first.key
+    assert_equal 1, item.effective_denied_roles.length
+    assert_equal 'users', item.effective_denied_roles.first.key
+  end
+
+  test 'save() should propagate allowed_roles and denied_roles into
+  effective_allowed_roles and effective_denied_roles of children' do
+    item = items(:map_obj1_page1)
+    parent = item.parent
+
+    parent.allowed_roles << roles(:admins)
+    parent.denied_roles << roles(:users)
+
+    # Assert that they get propagated to child effective roles.
+    parent.save!
+    assert_equal 1, item.effective_allowed_roles.length
+    assert_equal 'admins', item.effective_allowed_roles.first.key
+    assert_equal 1, item.effective_denied_roles.length
+    assert_equal 'users', item.effective_denied_roles.first.key
+  end
+
   # solr_id()
 
   test 'solr_id() should return the Solr document ID' do
@@ -322,6 +399,10 @@ class ItemTest < ActiveSupport::TestCase
                  doc[Item::SolrFields::COLLECTION]
     assert doc[Item::SolrFields::COLLECTION_PUBLISHED]
     assert_equal @item.date.utc.iso8601, doc[Item::SolrFields::DATE]
+    assert_equal @item.effective_allowed_roles.map(&:key),
+                 doc[Item::SolrFields::EFFECTIVE_ALLOWED_ROLES]
+    assert_equal @item.effective_denied_hosts.map(&:key),
+                 doc[Item::SolrFields::EFFECTIVE_DENIED_ROLES]
     assert_equal @item.full_text, doc[Item::SolrFields::FULL_TEXT]
     assert_not_empty doc[Item::SolrFields::LAST_INDEXED]
     assert_equal "#{@item.latitude},#{@item.longitude}",
@@ -453,6 +534,12 @@ class ItemTest < ActiveSupport::TestCase
     xml += "<dls:variant>#{Item::Variants::PAGE}</dls:variant>"
     xml += '<dls:contentdmAlias>cats</dls:contentdmAlias>'
     xml += '<dls:contentdmPointer>123</dls:contentdmPointer>'
+    xml += '<dls:allowedRoles>'
+    xml +=   '<key>admins</key>'
+    xml += '</dls:allowedRoles>'
+    xml += '<dls:deniedRoles>'
+    xml +=   '<key>users</key>'
+    xml += '</dls:deniedRoles>'
 
     # descriptive elements
     xml += '<dls:date vocabularyKey="uncontrolled" dataType="string">1984</dls:date>'
@@ -479,6 +566,10 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal 'e12adef0-5ca8-0132-3334-0050569601ca-8', @item.representative_item_repository_id
     assert_equal 1, @item.subpage_number
     assert_equal Item::Variants::PAGE, @item.variant
+    assert_equal 1, @item.allowed_roles.length
+    assert_equal 'admins', @item.allowed_roles.first.key
+    assert_equal 1, @item.denied_roles.length
+    assert_equal 'users', @item.denied_roles.first.key
 
     descriptions = @item.elements.select{ |e| e.name == 'description' }
     assert_equal 3, descriptions.length

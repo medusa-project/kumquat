@@ -2,7 +2,7 @@ module Admin
 
   class CollectionsController < ControlPanelController
 
-    before_action :update_collections_rbac, only: :update
+    before_action :modify_collections_rbac, only: [:edit, :update, :sync]
 
     def edit
       @collection = Collection.find_by_repository_id(params[:id])
@@ -56,7 +56,15 @@ module Admin
         collection = Collection.find_by_repository_id(params[:id])
         raise ActiveRecord::RecordNotFound unless collection
 
-        collection.update!(sanitized_params)
+        ActiveRecord::Base.transaction do # trigger after_commit callbacks
+          collection.update!(sanitized_params)
+        end
+        Solr.instance.commit
+
+        # We will also need to update the effective allowed/denied roles
+        # of each item in the collection, which will take some time, so we
+        # will do it in the background.
+        PropagateRolesToItemsJob.perform_later(collection.repository_id)
       rescue => e
         handle_error(e)
         redirect_to edit_admin_collection_path(collection)
@@ -68,6 +76,11 @@ module Admin
 
     private
 
+    def modify_collections_rbac
+      redirect_to(admin_root_url) unless
+          current_user.can?(Permission::Permissions::MODIFY_COLLECTIONS)
+    end
+
     def sanitized_params
       params.require(:collection).permit(:id, :contentdm_alias,
                                          :medusa_cfs_directory_id,
@@ -75,12 +88,9 @@ module Admin
                                          :metadata_profile_id,
                                          :package_profile_id,
                                          :published_in_dls,
-                                         :rightsstatements_org_uri)
-    end
-
-    def update_collections_rbac
-      redirect_to(admin_root_url) unless
-          current_user.can?(Permission::UPDATE_COLLECTION)
+                                         :rightsstatements_org_uri,
+                                         allowed_role_ids: [],
+                                         denied_role_ids: [])
     end
 
   end

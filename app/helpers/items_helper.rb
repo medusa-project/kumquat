@@ -1054,7 +1054,11 @@ module ItemsHelper
     elsif item.is_text?
       bs = item.access_master_bytestream || item.preservation_master_bytestream
       pathname = bs.absolute_local_pathname
-      return raw("<pre>#{File.read(pathname)}</pre>")
+      begin
+        return raw("<pre>#{File.read(pathname)}</pre>")
+      rescue Errno::ENOENT # File not found
+        return ''
+      end
     elsif item.is_video?
       return video_player_for(item)
     end
@@ -1154,7 +1158,7 @@ module ItemsHelper
   #
   def curator_mailto(item)
     mailto = nil
-    email = item.collection.medusa_repository.email
+    email = item.collection.medusa_repository&.email
     if email.present?
       subject = 'Feedback about a digital collections item'
       body = "Item: #{item_url(item)}%0D"

@@ -7,6 +7,7 @@ class ItemsController < WebsiteController
     FAVORITES = 3
   end
 
+  # Number of children to display per page in show-item view.
   PAGES_LIMIT = 15
 
   # API actions
@@ -15,6 +16,11 @@ class ItemsController < WebsiteController
   skip_before_action :verify_authenticity_token, only: [:create, :destroy]
 
   # Other actions
+  before_action :load_item, only: [:access_master_bytestream, :files, :pages,
+                                   :preservation_master_bytestream, :show]
+  before_action :authorize_item, only: [:access_master_bytestream, :files,
+                                        :pages, :preservation_master_bytestream]
+  before_action :authorize_item, only: :show, unless: :using_api?
   before_action :set_browse_context, only: :index
 
   ##
@@ -26,12 +32,7 @@ class ItemsController < WebsiteController
   # `disposition` query variable of `inline` to override.
   #
   def access_master_bytestream
-    item = Item.find_by_repository_id(params[:item_id])
-
-    return unless check_collection_published(item.collection)
-    return unless check_item_published(item)
-
-    send_bytestream(item, Bytestream::Type::ACCESS_MASTER, params[:disposition])
+    send_bytestream(@item, Bytestream::Type::ACCESS_MASTER, params[:disposition])
   end
 
   ##
@@ -71,14 +72,7 @@ class ItemsController < WebsiteController
   #
   def files
     if request.xhr?
-      @item = Item.find_by_repository_id(params[:id])
-      raise ActiveRecord::RecordNotFound unless @item
-
-      return unless check_collection_published(@item.collection)
-      return unless check_item_published(@item)
-
       fresh_when(etag: @item) if Rails.env.production?
-
       set_files_ivar
       render 'items/files'
     else
@@ -92,8 +86,17 @@ class ItemsController < WebsiteController
   def index
     @start = params[:start] ? params[:start].to_i : 0
     @limit = Option::integer(Option::Key::RESULTS_PER_PAGE)
+
+    roles = request_roles.map(&:key).join(' ')
     @items = Item.solr.where(Item::SolrFields::PUBLISHED => true).
         where(Item::SolrFields::COLLECTION_PUBLISHED => true).
+        # Include documents that have allowed roles matching one of the user
+        # roles, or that have no effective allowed roles.
+        where("(#{Item::SolrFields::EFFECTIVE_ALLOWED_ROLES}:(#{roles}) "\
+          "OR *:* -#{Item::SolrFields::EFFECTIVE_ALLOWED_ROLES}:[* TO *])").
+        # Exclude documents that have denied roles matching one of the user
+        # roles.
+        where("-#{Item::SolrFields::EFFECTIVE_DENIED_ROLES}:(#{roles})").
         where(params[:q])
     # Child items are hidden when browsing, but shown when searching.
     if params[:q].blank?
@@ -108,7 +111,7 @@ class ItemsController < WebsiteController
       @collection = Collection.find_by_repository_id(params[:collection_id])
       raise ActiveRecord::RecordNotFound unless @collection
 
-      return unless check_collection_published(@collection)
+      return unless authorize(@collection)
 
       @items = @items.where(Item::SolrFields::COLLECTION => @collection.repository_id)
     end
@@ -168,14 +171,7 @@ class ItemsController < WebsiteController
   #
   def pages
     if request.xhr?
-      @item = Item.find_by_repository_id(params[:id])
-      raise ActiveRecord::RecordNotFound unless @item
-
-      return unless check_collection_published(@item.collection)
-      return unless check_item_published(@item)
-
       fresh_when(etag: @item) if Rails.env.production?
-
       set_pages_ivar
       render 'items/pages'
     else
@@ -192,12 +188,7 @@ class ItemsController < WebsiteController
   # `disposition` query variable of `inline` to override.
   #
   def preservation_master_bytestream
-    item = Item.find_by_repository_id(params[:item_id])
-
-    return unless check_collection_published(item.collection)
-    return unless check_item_published(item)
-
-    send_bytestream(item, Bytestream::Type::PRESERVATION_MASTER,
+    send_bytestream(@item, Bytestream::Type::PRESERVATION_MASTER,
                     params[:disposition])
   end
 
@@ -235,17 +226,11 @@ class ItemsController < WebsiteController
   # Responds to GET /items/:id
   #
   def show
-    @item = Item.find_by_repository_id(params[:id])
-    raise ActiveRecord::RecordNotFound unless @item
-
     fresh_when(etag: @item) if Rails.env.production?
 
     respond_to do |format|
       format.atom
       format.html do
-        return unless check_collection_published(@item.collection)
-        return unless check_item_published(@item)
-
         @parent = @item.parent
         @relative_parent = @parent ? @parent : @item
 
@@ -261,20 +246,18 @@ class ItemsController < WebsiteController
         @next_item = @relative_child ? @relative_child.next : nil
       end
       format.json do
-        return unless check_collection_published(@item.collection)
-        return unless check_item_published(@item)
-
         render json: @item.decorate
       end
       format.xml do
         # Authorization is required for unpublished items.
-        if (@item.published and @item.collection.published) or authorize_api_user
+        if (@item.collection.published and @item.published) or authorize_api_user
           version = ItemXmlIngester::SCHEMA_VERSIONS.max
           if params[:version]
             if ItemXmlIngester::SCHEMA_VERSIONS.include?(params[:version].to_i)
               version = params[:version].to_i
             else
-              render text: "Invalid schema version. Available versions: #{ItemXmlIngester::SCHEMA_VERSIONS.join(', ')}",
+              render text: "Invalid schema version. Available versions: "\
+                           "#{ItemXmlIngester::SCHEMA_VERSIONS.join(', ')}",
                      status: :bad_request
               return
             end
@@ -301,6 +284,11 @@ class ItemsController < WebsiteController
     false
   end
 
+  def authorize_item
+    return unless authorize(@item.collection)
+    return unless authorize(@item)
+  end
+
   def check_api_content_type
     if request.content_type != 'application/xml'
       render text: 'Invalid content type.', status: :unsupported_media_type
@@ -309,36 +297,9 @@ class ItemsController < WebsiteController
     true
   end
 
-  ##
-  # @param collection [Collection]
-  # @return [Boolean]
-  #
-  def check_collection_published(collection)
-    if collection and !collection.published
-      render 'errors/error', status: :forbidden, locals: {
-          status_code: 403,
-          status_message: 'Forbidden',
-          message: 'This item is not published.'
-      }
-      return false
-    end
-    true
-  end
-
-  ##
-  # @param item [Item]
-  # @return [Boolean]
-  #
-  def check_item_published(item)
-    if item and !item.published
-      render 'errors/error', status: :forbidden, locals: {
-          status_code: 403,
-          status_message: 'Forbidden',
-          message: 'This item is not published.'
-      }
-      return false
-    end
-    true
+  def load_item
+    @item = Item.find_by_repository_id(params[:item_id] || params[:id])
+    raise ActiveRecord::RecordNotFound unless @item
   end
 
   ##
@@ -390,6 +351,10 @@ class ItemsController < WebsiteController
     @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
     @pages = @item.pages_from_solr.order(Item::SolrFields::TITLE).
         start(@start).limit(@limit).to_a
+  end
+
+  def using_api?
+    request.format == :xml
   end
 
 end

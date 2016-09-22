@@ -2,14 +2,21 @@ module Admin
 
   class RolesController < ControlPanelController
 
-    before_action :create_roles_rbac, only: [:new, :create]
-    before_action :delete_roles_rbac, only: :destroy
-    before_action :update_roles_rbac, only: [:edit, :update]
+    before_action :modify_roles_rbac, only: [:new, :create, :destroy, :edit,
+                                             :update]
 
     def create
+      @role = Role.new(sanitized_params)
       begin
-        @role = Role.create!(sanitized_params)
+        ActiveRecord::Base.transaction do
+          # Hosts from the form textarea need to be processed manually.
+          params[:role][:hosts].split("\n").each do |pattern|
+            @role.hosts.build(pattern: pattern.strip)
+          end
+          @role.save!
+        end
       rescue => e
+        @users = User.order(:username)
         flash[:error] = "#{e}"
         render 'new'
       else
@@ -21,7 +28,6 @@ module Admin
     def destroy
       role = Role.find_by_key(params[:key])
       raise ActiveRecord::RecordNotFound unless role
-
       begin
         role.destroy!
       rescue => e
@@ -60,7 +66,14 @@ module Admin
       raise ActiveRecord::RecordNotFound unless @role
 
       begin
-        @role.update_attributes!(sanitized_params)
+        ActiveRecord::Base.transaction do
+          # Hosts from the form textarea need to be processed manually.
+          @role.hosts.destroy_all
+          params[:role][:hosts].split("\n").each do |pattern|
+            @role.hosts.build(pattern: pattern.strip)
+          end
+          @role.update_attributes!(sanitized_params)
+        end
       rescue => e
         @users = User.order(:username)
         flash[:error] = "#{e}"
@@ -73,24 +86,14 @@ module Admin
 
     private
 
-    def create_roles_rbac
+    def modify_roles_rbac
       redirect_to(admin_root_url) unless
-          current_user.can?(Permission::CREATE_ROLE)
-    end
-
-    def delete_roles_rbac
-      redirect_to(admin_root_url) unless
-          current_user.can?(Permission::DELETE_ROLE)
+          current_user.can?(Permission::Permissions::MODIFY_ROLES)
     end
 
     def sanitized_params
       params.require(:role).permit(:key, :name, permission_ids: [],
                                    user_ids: [])
-    end
-
-    def update_roles_rbac
-      redirect_to(admin_root_url) unless
-          current_user.can?(Permission::UPDATE_ROLE)
     end
 
   end

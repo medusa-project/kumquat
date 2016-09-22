@@ -1,11 +1,21 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-one:
-  key: MyString
-  name: MyString
+admins:
+  key: admins
+  name: Administrators
+  required: true
+
+users:
+  key: users
+  name: Users
   required: false
 
-two:
-  key: MyString
-  name: MyString
+skiers:
+  key: skiers
+  name: Skiers
+  required: false
+
+cellists:
+  key: cellists
+  name: Cellists
   required: false

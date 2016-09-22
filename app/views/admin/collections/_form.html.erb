@@ -49,6 +49,43 @@
     <p class="help-block">The free-form rights statement can be edited in Medusa.</p>
   </div>
 
+  <div class="row">
+    <div class="col-sm-6">
+      <div class="form-group">
+        <%= f.label :allowed_roles, 'Allowed Roles' %>
+        <%= hidden_field_tag :role_ids, nil,
+                             name: 'collection[allowed_role_ids][]' %>
+        <% Role.order(:name).each do |role| %>
+          <div class="checkbox">
+            <label>
+              <%= check_box_tag :role_ids, role.id,
+                                f.object.allowed_roles.map(&:id).include?(role.id),
+                                name: 'collection[allowed_role_ids][]' %>
+              <%= role.name %>
+            </label>
+          </div>
+        <% end %>
+      </div>
+    </div>
+    <div class="col-sm-6">
+      <div class="form-group">
+        <%= f.label :denied_roles, 'Denied Roles' %>
+        <%= hidden_field_tag :role_ids, nil,
+                             name: 'collection[denied_role_ids][]' %>
+        <% Role.order(:name).each do |role| %>
+          <div class="checkbox">
+            <label>
+              <%= check_box_tag :role_ids, role.id,
+                                f.object.denied_roles.map(&:id).include?(role.id),
+                                name: 'collection[denied_role_ids][]' %>
+              <%= role.name %>
+            </label>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
   <%= f.submit 'Save', class: 'btn btn-primary' %>
 
 <% end %>

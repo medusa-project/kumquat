@@ -2,6 +2,9 @@ module Admin
 
   class ItemsController < ControlPanelController
 
+    before_action :modify_items_rbac, only: [:edit, :update, :import, :migrate,
+                                             :sync]
+
     ##
     # Responds to GET /admin/collections/:collection_id/items/:id
     #
@@ -202,7 +205,15 @@ module Admin
         end
 
         if params[:item]
-          item.update!(sanitized_params)
+          ActiveRecord::Base.transaction do # trigger after_commit callbacks
+            item.update!(sanitized_params)
+          end
+          Solr.instance.commit
+
+          # We will also need to update the effective allowed/denied roles
+          # of each child item, which may take some time, so we will do it in
+          # the background.
+          PropagateRolesToChildrenJob.perform_later(item.repository_id)
         end
       rescue => e
         handle_error(e)
@@ -215,6 +226,11 @@ module Admin
 
     private
 
+    def modify_items_rbac
+      redirect_to(admin_root_url) unless
+          current_user.can?(Permission::Permissions::MODIFY_ITEMS)
+    end
+
     def sanitized_params
       # Metadata elements are not included here, as they are processed
       # separately.
@@ -222,7 +238,8 @@ module Admin
                                    :full_text, :latitude, :longitude,
                                    :page_number, :published,
                                    :representative_item_id, :subpage_number,
-                                   :variant)
+                                   :variant, allowed_role_ids: [],
+                                   denied_role_ids: [])
     end
 
   end

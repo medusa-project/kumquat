@@ -48,6 +48,15 @@ class ApplicationController < ActionController::Base
   end
 
   ##
+  # @return [Set<Role>] Set of Roles associated with the current user, if
+  #                     available, or the request hostname/IP address otherwise.
+  #
+  def request_roles
+    return Set.new(current_user.roles) if current_user
+    Role.all_matching_hostname_or_ip(request.host, request.remote_ip)
+  end
+
+  ##
   # Sends an Enumerable object in chunks as an attachment. Streaming requires
   # a web server capable of it (not WEBrick).
   #

@@ -257,6 +257,9 @@ module AdminHelper
   def admin_system_info_as_list(item)
     html = '<dl class="visible-xs hidden-sm">'
     admin_system_info_data(item).each do |label, value|
+      if value.respond_to?(:each)
+        value = "<ul>#{value.map{ |v| "<li>#{v}</li>" }.join}</ul>"
+      end
       html += "<dt>#{label}</dt><dd>#{value}</dd>"
     end
     html += '</dl>'
@@ -266,6 +269,9 @@ module AdminHelper
   def admin_system_info_as_table(item)
     html = '<table class="table hidden-xs">'
     admin_system_info_data(item).each do |label, value|
+      if value.respond_to?(:each)
+        value = "<ul>#{value.map{ |v| "<li>#{v}</li>" }.join}</ul>"
+      end
       html += "<tr><td>#{label}</td><td>#{value}</td></tr>"
     end
     html += '</table>'
@@ -305,6 +311,18 @@ module AdminHelper
         link_to(item.effective_rightsstatements_org_statement.name,
                 item.effective_rightsstatements_org_statement.info_uri,
                 target: '_blank') : ''
+
+    data['Allowed Roles (assigned)'] = item.allowed_roles.any? ?
+        item.allowed_roles.map(&:name) : 'Any'
+    effective_allowed_roles = item.effective_allowed_roles
+    data['Allowed Roles (effective)'] = effective_allowed_roles.any? ?
+        effective_allowed_roles.map(&:name) : 'Any'
+    data['Denied Roles (assigned)'] = item.denied_roles.any? ?
+        item.denied_roles.map(&:name) : 'None'
+    effective_denied_roles = item.effective_denied_roles
+    data['Denied Roles (effective)'] = effective_denied_roles.any? ?
+        effective_denied_roles.map(&:name) : 'None'
+
     data['Created'] = local_time(item.created_at)
     data['Last Modified'] = local_time(item.updated_at)
     data

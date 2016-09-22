@@ -25,6 +25,7 @@
 #
 class Item < ActiveRecord::Base
 
+  include AuthorizableByRole
   include SolrQuerying
 
   class SolrFields
@@ -37,6 +38,8 @@ class Item < ActiveRecord::Base
     COLLECTION_PUBLISHED = 'collection_published_bi'
     CREATED = 'created_dti'
     DATE = 'date_dti'
+    EFFECTIVE_ALLOWED_ROLES = 'effective_allowed_roles_sim'
+    EFFECTIVE_DENIED_ROLES = 'effective_denied_roles_sim'
     FULL_TEXT = 'full_text_txti'
     ID = 'id'
     LAST_MODIFIED = 'last_modified_dti'
@@ -72,6 +75,15 @@ class Item < ActiveRecord::Base
   TSV_URI_VALUE_SEPARATOR = '&&'
   UUID_REGEX = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/
 
+  has_and_belongs_to_many :allowed_roles, class_name: 'Role',
+                          association_foreign_key: :allowed_role_id
+  has_and_belongs_to_many :denied_roles, class_name: 'Role',
+                          association_foreign_key: :denied_role_id
+  has_and_belongs_to_many :effective_allowed_roles, class_name: 'Role',
+                          association_foreign_key: :effective_allowed_role_id
+  has_and_belongs_to_many :effective_denied_roles, class_name: 'Role',
+                          association_foreign_key: :effective_denied_role_id
+
   has_many :bytestreams, inverse_of: :item, dependent: :destroy
   has_many :elements, class_name: 'ItemElement', inverse_of: :item,
            dependent: :destroy
@@ -91,7 +103,8 @@ class Item < ActiveRecord::Base
                       message: 'UUID is invalid',
                       allow_blank: true
 
-  before_save :prune_identical_elements
+  before_save :prune_identical_elements, :set_effective_roles
+  after_update :propagate_roles
   after_commit :index_in_solr, on: [:create, :update]
   after_commit :delete_from_solr, on: :destroy
 
@@ -215,6 +228,26 @@ class Item < ActiveRecord::Base
             xml['xs'].element(name: 'contentdmPointer', type: 'xs:positiveInteger',
                               minOccurs: 0, maxOccurs: 1)
 
+            xml.comment('Allowed role keys.')
+            xml['xs'].element(name: 'allowedRoles', minOccurs: 0, maxOccurs: 1) do
+              xml['xs'].complexType do
+                xml['xs'].sequence do
+                  xml['xs'].element(name: 'key', type: 'xs:token',
+                                    minOccurs: 1, maxOccurs: 'unbounded')
+                end
+              end
+            end
+
+            xml.comment('Denied role keys.')
+            xml['xs'].element(name: 'deniedRoles', minOccurs: 0, maxOccurs: 1) do
+              xml['xs'].complexType do
+                xml['xs'].sequence do
+                  xml['xs'].element(name: 'key', type: 'xs:token',
+                                    minOccurs: 1, maxOccurs: 'unbounded')
+                end
+              end
+            end
+
             xml.comment('******************* DESCRIPTIVE ELEMENTS *******************')
 
             Element.all.order(:name).each do |e|
@@ -248,6 +281,9 @@ class Item < ActiveRecord::Base
         select{ |b| b.bytestream_type == Bytestream::Type::ACCESS_MASTER }.first
   end
 
+  ##
+  # @return [String, nil] Value of the bibId element.
+  #
   def bib_id
     self.elements.select{ |e| e.name == 'bibId' }.first&.value
   end
@@ -537,6 +573,20 @@ class Item < ActiveRecord::Base
   end
 
   ##
+  # Propagates roles from the instance to all of its descendents. This is an
+  # O(n) operation.
+  #
+  # @return [void]
+  #
+  def propagate_roles
+    ActiveRecord::Base.transaction do
+      # Save callbacks will call this method on direct children, so there is
+      # no need to crawl deeper levels of the child subtree.
+      self.items.each { |item| item.save! }
+    end
+  end
+
+  ##
   # @return [Item, nil] The instance's assigned representative item, which may
   #                     be nil. For the purposes of getting "the"
   #                     representative item, `effective_representative_item`
@@ -627,6 +677,10 @@ class Item < ActiveRecord::Base
     doc[SolrFields::COLLECTION_PUBLISHED] = (self.collection.published and
         self.collection.published_in_dls)
     doc[SolrFields::DATE] = self.date.utc.iso8601 if self.date
+    doc[SolrFields::EFFECTIVE_ALLOWED_ROLES] =
+        self.effective_allowed_roles.map(&:key)
+    doc[SolrFields::EFFECTIVE_DENIED_ROLES] =
+        self.effective_denied_roles.map(&:key)
     doc[SolrFields::FULL_TEXT] = self.full_text
     doc[SolrFields::LAST_INDEXED] = Time.now.utc.iso8601
     if self.latitude and self.longitude
@@ -898,6 +952,7 @@ class Item < ActiveRecord::Base
   # @param node [Nokogiri::XML::Node]
   # @param schema_version [Integer]
   # @return [Item]
+  # @raises [ArgumentError]
   #
   def update_from_xml(node, schema_version)
     case schema_version
@@ -910,6 +965,8 @@ class Item < ActiveRecord::Base
       # These need to be deleted first, otherwise it would be impossible for
       # an update to remove them.
       self.elements.destroy_all
+      self.allowed_roles.clear
+      self.denied_roles.clear
 
       # CONTENTdm alias
       alias_ = node.xpath("//#{prefix}:contentdmAlias", namespaces).first
@@ -952,14 +1009,18 @@ class Item < ActiveRecord::Base
       rep_item_id = node.xpath("//#{prefix}:representativeItemId", namespaces).first
       self.representative_item_repository_id = rep_item_id.content.strip if rep_item_id
 
-      if schema_version == 1
-        # subclass
-        subclass = node.xpath("//#{prefix}:subclass", namespaces).first
-        self.variant = subclass.content.strip if subclass
-      else
-        # variant
-        variant = node.xpath("//#{prefix}:variant", namespaces).first
-        self.variant = variant.content.strip if variant
+      # roles (allowed)
+      node.xpath("//#{prefix}:allowedRoles/key", namespaces).each do |key|
+        role = Role.find_by_key(key.content)
+        raise ArgumentError, "Role does not exist: #{key}" unless role
+        self.allowed_roles << role
+      end
+
+      # roles (denied)
+      node.xpath("//#{prefix}:deniedRoles/key", namespaces).each do |key|
+        role = Role.find_by_key(key.content)
+        raise ArgumentError, "Role does not exist: #{key}" unless role
+        self.denied_roles << role
       end
 
       # subpage number
@@ -981,11 +1042,47 @@ class Item < ActiveRecord::Base
         self.elements << e
       end
 
+      # variant
+      variant = node.xpath("//#{prefix}:variant", namespaces).first
+      self.variant = variant.content.strip if variant
+
       self.save!
     end
   end
 
   private
+
+  ##
+  # @return [void]
+  #
+  def inherit_roles
+    allowed_roles = []
+    denied_roles = []
+    # Try to inherit from an ancestor.
+    p = self.parent
+    while p
+      allowed_roles = p.allowed_roles
+      denied_roles = p.denied_roles
+      break if allowed_roles.any? or denied_roles.any?
+      p = p.parent
+    end
+    # If no ancestor has any roles, inherit from the collection.
+    if allowed_roles.empty? and denied_roles.empty?
+      allowed_roles = self.collection.allowed_roles
+      denied_roles = self.collection.denied_roles
+    end
+
+    ActiveRecord::Base.transaction do
+      self.effective_allowed_roles.destroy_all
+      self.effective_denied_roles.destroy_all
+      allowed_roles.each do |role|
+        self.effective_allowed_roles << role
+      end
+      denied_roles.each do |role|
+        self.effective_denied_roles << role
+      end
+    end
+  end
 
   ##
   # Removes duplicate elements, ensuring that all are unique.
@@ -1000,6 +1097,30 @@ class Item < ActiveRecord::Base
         end
       end
       (all_elements - unique_elements).each(&:destroy!)
+    end
+  end
+
+  ##
+  # Populates effective_allowed_roles and effective_denied_roles.
+  #
+  # @return [void]
+  #
+  def set_effective_roles
+    allowed_roles = self.allowed_roles
+    denied_roles = self.denied_roles
+    if allowed_roles.any? or denied_roles.any?
+      ActiveRecord::Base.transaction do
+        self.effective_allowed_roles.destroy_all
+        self.effective_denied_roles.destroy_all
+        allowed_roles.each do |role|
+          self.effective_allowed_roles << role
+        end
+        denied_roles.each do |role|
+          self.effective_denied_roles << role
+        end
+      end
+    else
+      inherit_roles
     end
   end
 
@@ -1073,6 +1194,25 @@ class Item < ActiveRecord::Base
         if self.contentdm_pointer.present?
           xml['dls'].contentdmPointer {
             xml.text(self.contentdm_pointer)
+          }
+        end
+
+        if self.allowed_roles.any?
+          xml['dls'].allowedRoles {
+            self.allowed_roles.map(&:key).each do |role|
+              xml['dls'].key {
+                xml.text(role)
+              }
+            end
+          }
+        end
+        if self.denied_roles.any?
+          xml['dls'].deniedRoles {
+            self.denied_roles.map(&:key).each do |role|
+              xml['dls'].key {
+                xml.text(role)
+              }
+            end
           }
         end
 

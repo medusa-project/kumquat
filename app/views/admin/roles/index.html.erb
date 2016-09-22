@@ -8,7 +8,7 @@
 </ol>
 
 <div class="btn-group pull-right">
-  <% if current_user.can?(Permission::CREATE_ROLE) %>
+  <% if current_user.can?(Permission::Permissions::MODIFY_ROLES) %>
     <!-- New Role -->
     <%= link_to new_admin_role_path, class: 'btn btn-default' do %>
       <span class="fa fa-plus"></span> New Role
@@ -24,6 +24,7 @@
       <th>Role</th>
       <th>Key</th>
       <th>Users</th>
+      <th>Hosts</th>
     </tr>
   </thead>
   <tbody>
@@ -31,7 +32,8 @@
       <tr>
         <td><%= link_to role.name, admin_role_path(role) %></td>
         <td><%= role.key %></td>
-        <td><%= role.users.length %></td>
+        <td><%= role.users.count %></td>
+        <td><%= role.hosts.count %></td>
       </tr>
     <% end %>
   </tbody>

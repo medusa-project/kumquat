@@ -9,6 +9,8 @@ module Admin
   #
   class SettingsController < ControlPanelController
 
+    before_action :modify_settings_rbac, only: [:index, :update]
+
     def index
     end
 
@@ -37,6 +39,15 @@ module Admin
       else
         flash['success'] = 'Settings updated.'
         redirect_to :back
+      end
+    end
+
+    private
+
+    def modify_settings_rbac
+      unless current_user.can?(Permission::Permissions::MODIFY_SETTINGS)
+        flash['error'] = 'You do not have permission to perform this action.'
+        redirect_to(admin_root_url)
       end
     end
 
