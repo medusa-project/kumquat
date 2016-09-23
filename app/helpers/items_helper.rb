@@ -1376,12 +1376,18 @@ module ItemsHelper
       url = item_preservation_master_bytestream_url(item, disposition: 'inline')
     end
 
-    html = ''
+    html = '<div id="pt-pdf-viewer">'
     if bs
-      html += link_to(url) do
+      viewer_url = asset_path('/pdfjs/web/viewer.html?file=' + url)
+      html += link_to(viewer_url, target: '_blank') do
         thumbnail_tag(item, DEFAULT_THUMBNAIL_SIZE)
       end
+      html += link_to(viewer_url, target: '_blank',
+                      class: 'btn btn-lg btn-success') do
+        content_tag(:span, '', class: 'fa fa-file-pdf-o') + ' Open in PDF Viewer'
+      end
     end
+    html += '</div>'
     raw(html)
   end
 
