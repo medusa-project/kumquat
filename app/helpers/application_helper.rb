@@ -61,7 +61,9 @@ module ApplicationHelper
   #
   def icon_for(entity)
     icon = 'fa-cube'
-    if entity.kind_of?(Item) or entity == Item
+    if entity == Item
+      icon = 'fa-cube'
+    elsif entity.kind_of?(Item)
       if entity.is_audio?
         icon = 'fa-volume-up'
       elsif entity.is_image?
@@ -79,7 +81,7 @@ module ApplicationHelper
       elsif entity.items.any?
         icon = 'fa-cubes'
       end
-    elsif entity.kind_of?(Collection) or entity == Collection
+    elsif entity == Collection or entity.kind_of?(Collection)
       icon = 'fa-folder-open-o'
     end
     raw("<i title=\"#{type_of(entity)}\" class=\"fa #{icon} pt-icon\"></i>")
@@ -140,7 +142,9 @@ module ApplicationHelper
   #
   def type_of(entity)
     type = 'Item'
-    if entity.kind_of?(Item) or entity == Item
+    if entity == Item
+      type = 'Item'
+    elsif entity.kind_of?(Item)
       if entity.is_audio?
         type = 'Audio'
       elsif entity.is_image?
