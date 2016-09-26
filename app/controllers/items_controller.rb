@@ -87,17 +87,21 @@ class ItemsController < WebsiteController
     @start = params[:start] ? params[:start].to_i : 0
     @limit = Option::integer(Option::Key::RESULTS_PER_PAGE)
 
-    roles = request_roles.map(&:key).join(' ')
     @items = Item.solr.where(Item::SolrFields::PUBLISHED => true).
         where(Item::SolrFields::COLLECTION_PUBLISHED => true).
-        # Include documents that have allowed roles matching one of the user
-        # roles, or that have no effective allowed roles.
-        where("(#{Item::SolrFields::EFFECTIVE_ALLOWED_ROLES}:(#{roles}) "\
-          "OR *:* -#{Item::SolrFields::EFFECTIVE_ALLOWED_ROLES}:[* TO *])").
+        where(params[:q])
+
+    roles = request_roles.map(&:key)
+    if roles.any?
+      # Include documents that have allowed roles matching one of the user
+      # roles, or that have no effective allowed roles.
+      @items = @items.where("(#{Item::SolrFields::EFFECTIVE_ALLOWED_ROLES}:(#{roles.join(' ')}) "\
+          "OR *:* -#{Item::SolrFields::EFFECTIVE_ALLOWED_ROLES}:[* TO *])")
         # Exclude documents that have denied roles matching one of the user
         # roles.
-        where("-#{Item::SolrFields::EFFECTIVE_DENIED_ROLES}:(#{roles})").
-        where(params[:q])
+      @items = @items.where("-#{Item::SolrFields::EFFECTIVE_DENIED_ROLES}:(#{roles.join(' ')})")
+    end
+
     # Child items are hidden when browsing, but shown when searching.
     if params[:q].blank?
       @items = @items.where(Item::SolrFields::PARENT_ITEM => :null)
