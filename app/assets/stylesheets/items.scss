@@ -56,8 +56,11 @@ body#items_show {
   .pt-split-viewer #pt-image-viewer {
   }
 
-  #pt-pdf-viewer a.btn {
-    margin-left: 1em;
+  #pt-pdf-viewer {
+    height: 500px;
+    margin: 0 auto;
+    margin-bottom: 1em;
+    max-width: 1200px;
   }
 
   #pt-video-player {
