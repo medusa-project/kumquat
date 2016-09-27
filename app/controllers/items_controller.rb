@@ -1,5 +1,7 @@
 class ItemsController < WebsiteController
 
+  include ActionController::Streaming
+
   class BrowseContext
     BROWSING_ALL_ITEMS = 0
     BROWSING_COLLECTION = 1
@@ -166,6 +168,18 @@ class ItemsController < WebsiteController
               }
             }
           }
+      end
+      format.zip do
+        # Redirect to the ZipDownloader Rack app, passing the IDs we want to
+        # include in the zip file via the query string.
+        # TODO: instantiating items is inefficient
+        ids = @items.start(0).limit(999999).map(&:id).join(',')
+        if ids.length > 0
+          redirect_to "/items/download?items=#{ids}"
+        else
+          flash['error'] = 'No items to download.'
+          redirect_to :back
+        end
       end
     end
   end
