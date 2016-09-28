@@ -27,7 +27,7 @@ class ZipDownloader
         query(params[:q]).
         facet_queries(params[:fq]).
         include_children(true).
-        order(Item::SolrFields::ID).
+        sort(Item::SolrFields::ID).
         start(params[:start]).
         limit(BATCH_SIZE)
 
