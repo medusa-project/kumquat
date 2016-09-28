@@ -1,5 +1,7 @@
 class ItemsController < WebsiteController
 
+  include ActionController::Streaming
+
   class BrowseContext
     BROWSING_ALL_ITEMS = 0
     BROWSING_COLLECTION = 1
@@ -84,88 +86,61 @@ class ItemsController < WebsiteController
   # Responds to GET /items
   #
   def index
-    @start = params[:start] ? params[:start].to_i : 0
-    @limit = Option::integer(Option::Key::RESULTS_PER_PAGE)
-
-    @items = Item.solr.where(Item::SolrFields::PUBLISHED => true).
-        where(Item::SolrFields::COLLECTION_PUBLISHED => true).
-        where(params[:q])
-
-    roles = request_roles.map(&:key)
-    if roles.any?
-      # Include documents that have allowed roles matching one of the user
-      # roles, or that have no effective allowed roles.
-      @items = @items.where("(#{Item::SolrFields::EFFECTIVE_ALLOWED_ROLES}:(#{roles.join(' ')}) "\
-          "OR *:* -#{Item::SolrFields::EFFECTIVE_ALLOWED_ROLES}:[* TO *])")
-        # Exclude documents that have denied roles matching one of the user
-        # roles.
-      @items = @items.where("-#{Item::SolrFields::EFFECTIVE_DENIED_ROLES}:(#{roles.join(' ')})")
-    end
-
-    # Child items are hidden when browsing, but shown when searching.
-    if params[:q].blank?
-      @items = @items.where(Item::SolrFields::PARENT_ITEM => :null)
-    end
-    if params[:fq].respond_to?(:each)
-      params[:fq].each { |fq| @items = @items.facet(fq) }
-    else
-      @items = @items.facet(params[:fq])
-    end
     if params[:collection_id]
       @collection = Collection.find_by_repository_id(params[:collection_id])
       raise ActiveRecord::RecordNotFound unless @collection
-
       return unless authorize(@collection)
-
-      @items = @items.where(Item::SolrFields::COLLECTION => @collection.repository_id)
     end
 
-    @metadata_profile = @collection ?
-        @collection.effective_metadata_profile :
-        MetadataProfile.find_by_default(true)
-    @items = @items.facetable_fields(@metadata_profile.solr_facet_fields)
-
-    # Sort by ?sort= parameter if present; otherwise sort by the metadata
-    # profile's default sort, if present; otherwise sort by relevance.
-    sort = nil
-    if params[:sort].present?
-      sort = params[:sort]
-    elsif @metadata_profile.default_sortable_element
-      sort = @metadata_profile.default_sortable_element.solr_single_valued_field
-    end
-    @items = @items.order("#{sort} asc") if sort
-
-    @items = @items.start(@start).limit(@limit)
-
-    fresh_when(etag: @items) if Rails.env.production?
+    @start = params[:start].to_i
+    @limit = Option::integer(Option::Key::RESULTS_PER_PAGE)
+    finder = ItemFinder.new.
+        client_hostname(request.host).
+        client_ip(request.remote_ip).
+        client_user(current_user).
+        collection_id(params[:collection_id]).
+        query(params[:q]).
+        include_children(params[:q].present?).
+        facet_queries(params[:fq]).
+        sort(params[:sort]).
+        start(@start).
+        limit(@limit)
 
     respond_to do |format|
       format.atom do
-        @items = @items.to_a
         @updated = @items.any? ?
             @items.map(&:updated_at).sort{ |d| d <=> d }.last : Time.now
       end
       format.html do
-        @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
-        @count = @items.count
+        @items = finder.to_a
+        @current_page = finder.page
+        @count = finder.count
         @num_results_shown = [@limit, @count].min
+        @metadata_profile = finder.effective_metadata_profile
 
-        # if there are no results, get some suggestions
+        # If there are no results, get some search suggestions.
         if @count < 1 and params[:q].present?
-          @suggestions = Solr.instance.suggestions(params[:q])
+          @suggestions = finder.suggestions
         end
+
+        fresh_when(etag: @items) if Rails.env.production?
       end
       format.json do
+        @items = finder.to_a
         render json: {
             start: @start,
             numResults: @items.count,
-            results: @items.to_a.map { |item|
+            results: @items.map { |item|
               {
                   id: item.repository_id,
                   url: item_url(item)
               }
             }
           }
+      end
+      format.zip do
+        # Redirect to the ZipDownloader Rack app, preserving the query string.
+        redirect_to "/items/download?#{params.to_query}"
       end
     end
   end

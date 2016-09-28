@@ -200,6 +200,7 @@ GEM
       rack
       unicorn
     yomu (0.1.5)
+    zip_tricks (4.2.0)
 
 PLATFORMS
   ruby
@@ -232,6 +233,7 @@ DEPENDENCIES
   uglifier (>= 1.3.0)
   unicorn-rails
   yomu
+  zip_tricks
 
 BUNDLED WITH
    1.11.2
