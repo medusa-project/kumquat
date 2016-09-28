@@ -46,12 +46,13 @@ class ItemDecorator < Draper::Decorator
       }
     end
 
-    # Populate the subitems array
+    # Populate the children array
     self.items.each do |subitem|
-      struct[:subitems] << {
-          id: subitem.repository_id,
-          url: item_url(subitem)
-      }
+      subitem = { id: subitem.repository_id }
+      if context[:web]
+        subitem[:url] = item_url(subitem)
+      end
+      struct[:children] << subitem
     end
     struct
   end
