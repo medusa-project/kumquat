@@ -177,7 +177,7 @@ class ItemFinder
       if @facet_queries.respond_to?(:each)
         @facet_queries.each { |fq| @items = @items.facet(fq) }
       else
-        @items = @items.facet(params[:fq])
+        @items = @items.facet(@facet_queries)
       end
     end
 
