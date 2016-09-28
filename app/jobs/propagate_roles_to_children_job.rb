@@ -21,9 +21,10 @@ class PropagateRolesToChildrenJob < Job
 
     ActiveRecord::Base.transaction do
       item.propagate_roles
-      Solr.instance.commit
-      self.task.succeeded
     end
+
+    Solr.instance.commit
+    self.task.succeeded
   end
 
 end
