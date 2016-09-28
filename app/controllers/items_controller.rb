@@ -139,17 +139,8 @@ class ItemsController < WebsiteController
           }
       end
       format.zip do
-        # Redirect to the ZipDownloader Rack app, passing the IDs we want to
-        # include in the zip file via the query string.
-        # TODO: instantiating items is inefficient
-        @items = finder.start(0).limit(999999).to_a
-        ids = @items.map(&:id).join(',')
-        if ids.length > 0
-          redirect_to "/items/download?items=#{ids}"
-        else
-          flash['error'] = 'No items to download.'
-          redirect_to :back
-        end
+        # Redirect to the ZipDownloader Rack app, preserving the query string.
+        redirect_to "/items/download?#{params.to_query}"
       end
     end
   end
