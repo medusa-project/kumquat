@@ -48,6 +48,9 @@ class ItemFinder
 
   ##
   # @return [Integer]
+  # @raises [ActiveRecord::RecordNotFound] If a collection ID that does not
+  #                                        exist has been assigned to the
+  #                                        instance.
   #
   def count
     load
@@ -143,6 +146,9 @@ class ItemFinder
 
   ##
   # @return [Enumerable<Item>]
+  # @raises [ActiveRecord::RecordNotFound] If a collection ID that does not
+  #                                        exist has been assigned to the
+  #                                        instance.
   #
   def to_a
     load
@@ -183,6 +189,7 @@ class ItemFinder
 
     if @collection_id
       @collection = Collection.find_by_repository_id(@collection_id)
+      raise ActiveRecord::RecordNotFound unless @collection
       @items = @items.where(Item::SolrFields::COLLECTION => @collection_id)
     end
 
