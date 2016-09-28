@@ -169,7 +169,7 @@ class ItemFinder
     "Client User: #{@client_user}\n"\
     "Include children: #{@include_children}\n"\
     "Include unpublished: #{@include_unpublished}\n"\
-    "Num Results: #{@items&.total_length}\n"
+    "Num Results: #{@items&.length}\n"
   end
 
   private

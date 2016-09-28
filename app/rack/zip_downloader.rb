@@ -9,6 +9,8 @@
 #
 class ZipDownloader
 
+  BATCH_SIZE = 100
+
   def call(env)
     params = Rack::Utils.parse_nested_query(env['QUERY_STRING']).symbolize_keys
 
@@ -24,19 +26,22 @@ class ZipDownloader
         collection_id(params[:collection_id]).
         query(params[:q]).
         facet_queries(params[:fq]).
-        include_children(true)
+        include_children(true).
+        order(Item::SolrFields::ID).
+        start(params[:start]).
+        limit(BATCH_SIZE)
 
     begin
       items = finder.to_a
-      if items.total_length > 0
-        download_id = Random.rand(10000000)
-        Rails.logger.info("ZipDownloader #{download_id}: "\
+      if items.length > 0
+        instance_id = Random.rand(10000000)
+        Rails.logger.info("ZipDownloader-#{instance_id}: "\
             "processing request for: #{finder.to_s.split("\n").join('; ')}")
 
         body = ZipTricks::RackBody.new do |zip|
           items.each_with_index do |item, index|
-            Rails.logger.info("ZipDownloader #{download_id}: "\
-                "adding item #{index + 1} of #{items.total_length} (#{item.repository_id})")
+            Rails.logger.debug("ZipDownloader-#{instance_id}: "\
+                "adding item #{index + 1} of #{items.length} (#{item.repository_id})")
 
             # Include the item's JSON metadata in the zip.
             json = JSON.pretty_generate(item.decorate(context: { web: false }).as_json)
