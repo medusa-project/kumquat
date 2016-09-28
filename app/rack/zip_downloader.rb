@@ -34,9 +34,9 @@ class ZipDownloader
             "processing request for: #{finder.to_s.split("\n").join('; ')}")
 
         body = ZipTricks::RackBody.new do |zip|
-          items.each do |item|
-            Rails.logger.debug("ZipDownloader #{download_id}: "\
-                "adding item #{item.repository_id}")
+          items.each_with_index do |item, index|
+            Rails.logger.info("ZipDownloader #{download_id}: "\
+                "adding item #{index + 1} of #{items.total_length} (#{item.repository_id})")
 
             # Include the item's JSON metadata in the zip.
             json = JSON.pretty_generate(item.decorate(context: { web: false }).as_json)
