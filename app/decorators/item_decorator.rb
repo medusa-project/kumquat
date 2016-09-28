@@ -55,19 +55,19 @@ class ItemDecorator < Draper::Decorator
           value: element.value.present? ? element.value : nil,
           uri: element.uri.present? ? element.uri : nil,
           mappings: {
-              dc: profile_element.dc_map.present? ? profile_element.dc_map : nil,
-              dcterms: profile_element.dcterms_map.present? ? profile_element.dcterms_map : nil
+              dc: profile_element&.dc_map.present? ? profile_element.dc_map : nil,
+              dcterms: profile_element&.dcterms_map.present? ? profile_element.dcterms_map : nil
           }
       }
     end
 
-    # Populate the subitems array
+    # Populate the children array
     self.items.each do |subitem|
       subitem = { id: subitem.repository_id }
       if context[:web]
         subitem[:url] = item_url(subitem)
       end
-      struct[:subitems] << subitem
+      struct[:children] << subitem
     end
     struct
   end
