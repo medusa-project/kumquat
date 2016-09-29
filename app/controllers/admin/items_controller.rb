@@ -115,9 +115,9 @@ module Admin
     # Migrates values from elements of one name to elements of a different
     # name.
     #
-    # Responds to POST /admin/collections/:collection_id/items/migrate
+    # Responds to POST /admin/collections/:collection_id/items/migrate-metadata
     #
-    def migrate
+    def migrate_metadata
       col = Collection.find_by_repository_id(params[:collection_id])
       raise ActiveRecord::RecordNotFound unless col
       begin
@@ -128,7 +128,29 @@ module Admin
         redirect_to admin_collection_items_url(col)
       else
         flash['success'] = 'Migrating metadata elements in the background. '\
-        'This may take a while.'
+        'This should take less than a minute.'
+        redirect_to admin_collection_items_url(col)
+      end
+    end
+
+    ##
+    # Finds and replaces values across metadata elements.
+    #
+    # Responds to POST /admin/collections/:collection_id/items/replace-metadata
+    #
+    def replace_metadata
+      col = Collection.find_by_repository_id(params[:collection_id])
+      raise ActiveRecord::RecordNotFound unless col
+      begin
+        ReplaceItemMetadataJob.perform_later(
+            col.repository_id, params[:matching_mode], params[:find_value],
+            params[:element], params[:replace_mode], params[:replace_value])
+      rescue => e
+        handle_error(e)
+        redirect_to admin_collection_items_url(col)
+      else
+        flash['success'] = 'Replacing metadata values in the background. '\
+        'This should take less than a minute.'
         redirect_to admin_collection_items_url(col)
       end
     end

@@ -120,6 +120,148 @@ cd2d4601-c451-0133-1d17-0050569601ca-8\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n"
     assert_equal(expected, @col.medusa_url('json'))
   end
 
+  # replace_item_element_values()
+
+  test 'replace_item_element_values() should work with :exact_match matching
+  mode and :whole_value replace mode' do
+    # Test match
+    item = items(:item1)
+    item.elements.build(name: 'cat', value: 'tigers')
+    item.save!
+
+    @col.replace_item_element_values(:exact_match, 'tigers', 'cat', :whole_value, 'lions')
+
+    item.reload
+    assert_equal 'lions', item.element(:cat).value
+
+    # Test no match
+    item.elements.clear
+    item.elements.build(name: 'cat', value: 'tigers')
+    item.save!
+
+    @col.replace_item_element_values(:exact_match, 'foxes', 'cat', :whole_value, 'lions')
+
+    item.reload
+    assert_equal 'tigers', item.element(:cat).value
+  end
+
+  test 'replace_item_element_values() should work with :exact_match matching
+  mode and :matched_part replace mode' do
+    item = items(:item1)
+    item.elements.build(name: 'cat', value: 'ZZZtigersZZZ')
+    item.save!
+
+    @col.replace_item_element_values(:exact_match, 'ZZZtigersZZZ', 'cat', :matched_part, 'lions')
+
+    item.reload
+    assert_equal 'lions', item.element(:cat).value
+  end
+
+  test 'replace_item_element_values() should work with :contain matching mode
+  and :whole_value replace mode' do
+    # Test match
+    item = items(:item1)
+    item.elements.build(name: 'cat', value: 'ZZZtigersZZZ')
+    item.save!
+
+    @col.replace_item_element_values(:contain, 'tigers', 'cat', :whole_value, 'lions')
+
+    item.reload
+    assert_equal 'lions', item.element(:cat).value
+
+    # Test no match
+    item.elements.clear
+    item.elements.build(name: 'cat', value: 'foxes')
+    item.save!
+
+    @col.replace_item_element_values(:contain, 'tigers', 'cat', :whole_value, 'lions')
+
+    item.reload
+    assert_equal 'foxes', item.element(:cat).value
+  end
+
+  test 'replace_item_element_values() should work with :contain matching mode
+  and :matched_part replace mode' do
+    item = items(:item1)
+    item.elements.build(name: 'cat', value: 'ZZZtigersZZZ')
+    item.save!
+
+    @col.replace_item_element_values(:contain, 'tigers', 'cat', :matched_part, 'lions')
+
+    item.reload
+    assert_equal 'ZZZlionsZZZ', item.element(:cat).value
+  end
+
+  test 'replace_item_element_values() should work with :start matching mode and
+  :whole_value replace mode' do
+    # Test match
+    item = items(:item1)
+    item.elements.build(name: 'cat', value: 'tigersZZZ')
+    item.save!
+
+    @col.replace_item_element_values(:start, 'tigers', 'cat', :whole_value, 'lions')
+
+    item.reload
+    assert_equal 'lions', item.element(:cat).value
+
+    # Test no match
+    item.elements.clear
+    item.elements.build(name: 'cat', value: 'ZZZtigers')
+    item.save!
+
+    @col.replace_item_element_values(:start, 'tigers', 'cat', :whole_value, 'lions')
+
+    item.reload
+    assert_equal 'ZZZtigers', item.element(:cat).value
+  end
+
+  test 'replace_item_element_values() should work with :start matching mode and
+  :matched_part replace mode' do
+    item = items(:item1)
+    item.elements.build(name: 'cat', value: 'tigersZZZ')
+    item.save!
+
+    @col.replace_item_element_values(:start, 'tigers', 'cat', :matched_part, 'lions')
+
+    item.reload
+    assert_equal 'lionsZZZ', item.element(:cat).value
+  end
+
+  test 'replace_item_element_values() should work with :end matching mode and
+  :whole_value replace mode' do
+    # Test match
+    item = items(:item1)
+    item.elements.build(name: 'cat', value: 'ZZZtigers')
+    item.save!
+
+    @col.replace_item_element_values(:end, 'tigers', 'cat', :whole_value, 'lions')
+
+    item.reload
+    assert_equal 'lions', item.element(:cat).value
+
+    # Test no match
+    item.elements.clear
+    item.elements.build(name: 'cat', value: 'tigersZZZ')
+    item.save!
+
+    @col.replace_item_element_values(:end, 'tigers', 'cat', :whole_value, 'lions')
+
+    item.reload
+    assert_equal 'tigersZZZ', item.element(:cat).value
+  end
+
+  test 'replace_item_element_values() should work with :end matching mode and
+  :matched_part replace mode' do
+    item = items(:item1)
+    item.elements.build(name: 'cat', value: 'ZZZtigers')
+    item.save!
+
+    @col.replace_item_element_values(:end, 'tigers', 'cat', :matched_part, 'lions')
+
+    item.reload
+    assert_equal 'ZZZlions', item.element(:cat).value
+  end
+
   # repository_id
 
   test 'repository_id must be a UUID' do

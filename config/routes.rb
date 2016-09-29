@@ -112,7 +112,8 @@ Rails.application.routes.draw do
             as: 'items_search'
       resources :items, concerns: :publishable
       match '/items/import', to: 'items#import', via: 'post'
-      match '/items/migrate', to: 'items#migrate', via: 'post'
+      match '/items/migrate-metadata', to: 'items#migrate_metadata', via: 'post'
+      match '/items/replace-metadata', to: 'items#replace_metadata', via: 'post'
       match '/items/sync', to: 'items#sync', via: 'post'
     end
     resources :metadata_profile_elements,
