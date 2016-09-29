@@ -421,6 +421,71 @@ LIMIT 1000;
   end
 
   ##
+  # @param matching_mode [Symbol] :exact_match, :contain, :start, or :end
+  # @param find_value [String] Value to search for.
+  # @param element_name [String] Element in which to search.
+  # @param replace_mode [Symbol] What part of the matches to replace:
+  #                              :whole_value or :matched_part
+  # @param replace_value [String] Value to replace the matches with.
+  # @return [void]
+  # @raises [ArgumentError]
+  #
+  def replace_item_element_values(matching_mode, find_value, element_name,
+                                  replace_mode, replace_value)
+    ActiveRecord::Base.transaction do
+      self.items.each do |item|
+        item.elements.where(name: element_name).each do |element|
+          case matching_mode
+            when :exact_match
+              if element.value == find_value
+                element.value = replace_value
+                element.save!
+              end
+            when :contain
+              if element.value&.include?(find_value)
+                case replace_mode
+                  when :whole_value
+                    element.value = replace_value
+                  when :matched_part
+                    element.value.gsub!(find_value, replace_value)
+                  else
+                    raise ArgumentError, "Illegal replace mode: #{replace_mode}"
+                end
+                element.save!
+              end
+            when :start
+              if element.value&.start_with?(find_value)
+                case replace_mode
+                  when :whole_value
+                    element.value = replace_value
+                  when :matched_part
+                    element.value.gsub!(find_value, replace_value)
+                  else
+                    raise ArgumentError, "Illegal replace mode: #{replace_mode}"
+                end
+                element.save!
+              end
+            when :end
+              if element.value&.end_with?(find_value)
+                case replace_mode
+                  when :whole_value
+                    element.value = replace_value
+                  when :matched_part
+                    element.value.gsub!(find_value, replace_value)
+                  else
+                    raise ArgumentError, "Illegal replace mode: #{replace_mode}"
+                end
+                element.save!
+              end
+            else
+              raise ArgumentError, "Illegal matching mode: #{matching_mode}"
+          end
+        end
+      end
+    end
+  end
+
+  ##
   # @return [Bytestream,nil] Best representative image bytestream based on the
   #                          representative item set in Medusa, if available,
   #                          or the representative image, if not.
