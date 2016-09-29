@@ -26,10 +26,12 @@ class Job < ActiveJob::Base
   end
 
   rescue_from(Exception) do |e|
-    self.task.status = Task::Status::FAILED
-    self.task.detail = "#{e}"
-    self.task.backtrace = e.backtrace
-    self.task.save!
+    if self.task
+      self.task.status = Task::Status::FAILED
+      self.task.detail = "#{e}"
+      self.task.backtrace = e.backtrace
+      self.task.save!
+    end
     raise e
   end
 
@@ -54,13 +56,17 @@ class Job < ActiveJob::Base
   end
 
   def do_before_perform
-    self.task.status = Task::Status::RUNNING
-    self.task.save!
+    if self.task
+      self.task.status = Task::Status::RUNNING
+      self.task.save!
+    end
   end
 
   def do_after_perform
-    self.task.status = Task::Status::SUCCEEDED
-    self.task.save!
+    if self.task
+      self.task.status = Task::Status::SUCCEEDED
+      self.task.save!
+    end
   end
 
 end
