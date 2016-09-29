@@ -72,7 +72,10 @@ class ZipDownloader
             end
           end
         end
-        return [200, { 'Content-Disposition': 'attachment; filename=items.zip' }, body]
+        start = params[:start].to_i + 1
+        end_ = params[:start].to_i + items.length
+        filename = "items-#{start}-#{end_}.zip"
+        return [200, { 'Content-Disposition': "attachment; filename=#{filename}" }, body]
       else
         return [204, {}, nil]
       end
