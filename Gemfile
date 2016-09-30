@@ -4,6 +4,7 @@ gem 'rails', '4.2.7'
 
 gem 'bootstrap-sass', '~> 3.3.6'
 gem 'barby' # provides QR codes in print representations
+gem 'browser'
 gem 'rqrcode'
 gem 'daemons' # enables bin/delayed_job start/stop
 gem 'delayed_job_active_record'

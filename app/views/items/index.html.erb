@@ -24,8 +24,11 @@
       </ul>
     </div>
     <!-- Download menu, disabled in cross-collection contexts to limit the
-    downloading of huge amounts of content -->
-    <% if @collection %>
+    downloading of huge amounts of content. Also disabled in non-desktop
+    contexts using the `browser` gem. -->
+    <% if @collection and !browser.device.console? and
+        !browser.device.mobile? and !browser.device.tablet? and
+        !browser.device.tv? %>
       <div class="btn-group">
         <button type="button" class="btn btn-default dropdown-toggle"
                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
