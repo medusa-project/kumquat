@@ -15,6 +15,7 @@
 
           <% if @collection.metadata_profile %>
             <% defs = @collection.metadata_profile.elements.
+                select{ |e| !e.controlled? }.
                 sort{ |a, b| a.label <=> b.label }.
                 map{ |t| [ "#{t.label} (#{t.name})", t.name ] } %>
 
