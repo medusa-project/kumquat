@@ -13,7 +13,7 @@ class TimeUtil
       date_parts = parts.first.split(':')
       time_parts = parts.last.split(':')
       iso8601 = "#{date_parts[0]}-#{date_parts[1]}-#{date_parts[2]}T"\
-      "#{time_parts[0]}-#{time_parts[1]}-#{time_parts[2]}Z"
+      "#{time_parts[0]}:#{time_parts[1]}:#{time_parts[2]}Z"
       # YYYY-MM-DD
     elsif date.match('[0-9]{4}-[0-1][0-9]-[0-3][0-9]')
       iso8601 = "#{date}T00:00:00Z"
@@ -28,7 +28,7 @@ class TimeUtil
       begin
         return Time.parse(iso8601)
       rescue ArgumentError
-        # nothing we can do
+        Rails.logger.warn("TimeUtil.string_date_to_time: unable to parse \"#{iso8601}\"")
       end
     end
     nil

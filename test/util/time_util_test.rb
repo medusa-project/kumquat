@@ -3,23 +3,27 @@ require 'test_helper'
 class UserTest < ActiveSupport::TestCase
 
   test 'string_date_to_time with an unrecognizable argument should return nil' do
-    # TODO: write this
+    assert_nil TimeUtil.string_date_to_time('cats')
   end
 
   test 'string_date_to_time should work with YYYY:MM:DD HH:MM:SS' do
-    # TODO: write this
+    assert_equal Time.parse('1923-02-12 12:10:50Z'),
+                 TimeUtil.string_date_to_time('1923:02:12 12:10:50')
   end
 
   test 'string_date_to_time should work with YYYY-MM-DD' do
-    # TODO: write this
+    assert_equal Time.parse('1923-02-12 00:00:00Z'),
+                 TimeUtil.string_date_to_time('1923-02-12')
   end
 
   test 'string_date_to_time should work with YYYY:MM:DD' do
-    # TODO: write this
+    assert_equal Time.parse('1923-02-12 00:00:00Z'),
+                 TimeUtil.string_date_to_time('1923:02:12')
   end
 
   test 'string_date_to_time should work with YYYY' do
-    # TODO: write this
+    assert_equal Time.parse('1923-01-01 00:00:00Z'),
+                 TimeUtil.string_date_to_time('1923')
   end
 
 end
