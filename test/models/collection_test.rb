@@ -28,12 +28,18 @@ class CollectionTest < ActiveSupport::TestCase
     item.elements.build(name: 'cat', value: 'leopard')
     item.save!
 
-    @col.change_item_element_values('cat', ['lion', 'cougar'])
+    @col.change_item_element_values('cat', [
+        { string: 'lion', uri: 'http://example.org/lion' },
+        { string: 'cougar', uri: 'http://example.org/cougar' }
+    ])
 
     item.reload
     assert_equal 2, item.elements.select{ |e| e.name == 'cat' }.length
-    assert item.elements.select{ |e| e.name == 'cat' }.map(&:value).include?('lion')
-    assert item.elements.select{ |e| e.name == 'cat' }.map(&:value).include?('cougar')
+    elements = item.elements.select{ |e| e.name == 'cat' }
+    assert elements.map(&:value).include?('lion')
+    assert elements.map(&:uri).include?('http://example.org/lion')
+    assert elements.map(&:value).include?('cougar')
+    assert elements.map(&:uri).include?('http://example.org/cougar')
   end
 
   # items()

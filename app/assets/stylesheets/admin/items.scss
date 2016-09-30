@@ -82,8 +82,9 @@ body#items_index {
   }
 
   #pt-batch-change-modal {
-    input[type=text] {
-      width: 94%;
+    .form-group td:last-child {
+      text-align: center;
+      vertical-align: middle;
     }
   }
 }

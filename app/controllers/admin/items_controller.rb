@@ -16,7 +16,7 @@ module Admin
       raise ActiveRecord::RecordNotFound unless col
       begin
         BatchChangeItemMetadataJob.perform_later(
-            col.repository_id, params[:element], params[:replace_value])
+            col.repository_id, params[:element], params[:replace_values])
       rescue => e
         handle_error(e)
         redirect_to admin_collection_items_url(col)

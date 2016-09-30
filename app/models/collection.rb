@@ -105,7 +105,9 @@ class Collection < ActiveRecord::Base
 
   ##
   # @param element_name [String] Element to replace.
-  # @param replace_values [Enumerable<String>] Values to replace with.
+  # @param replace_values [Enumerable<Hash<Symbol,String>] Enumerable of hashes
+  #                                                        with :string and
+  #                                                        :uri keys.
   # @return [void]
   # @raises [ArgumentError]
   #
@@ -115,8 +117,11 @@ class Collection < ActiveRecord::Base
     ActiveRecord::Base.transaction do
       self.items.each do |item|
         item.elements.where(name: element_name).destroy_all
-        replace_values.each do |value|
-          item.elements.build(name: element_name, value: value)
+        replace_values.each do |hash|
+          hash = hash.symbolize_keys
+          item.elements.build(name: element_name,
+                              value: hash[:string],
+                              uri: hash[:uri])
         end
         item.save!
       end

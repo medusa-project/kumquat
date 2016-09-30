@@ -26,10 +26,21 @@
             </div>
 
             <div class="pt-elements">
-              <label for="replace_value">To Value:</label>
-              <div class="form-group form-inline">
-                <%= text_field_tag('replace_value[]', '', class: 'form-control') %>
-                <button type="button" class="btn btn-xs btn-danger pt-remove-element">&minus;</button>
+              <label>To:</label>
+              <div class="form-group">
+                <table class="table table-condensed">
+                  <tr>
+                    <td>
+                      <label>String:</label>
+                      <%= text_field_tag('replace_values[][string]', '', class: 'form-control') %>
+                      <label>URI:</label>
+                      <%= text_field_tag('replace_values[][uri]', '', class: 'form-control') %>
+                    </td>
+                    <td>
+                      <button type="button" class="btn btn-sm btn-danger pt-remove-element">&minus;</button>
+                    </td>
+                  </tr>
+                </table>
               </div>
               <button class="btn btn-sm btn-success pt-add-element">&plus;</button>
             </div>
