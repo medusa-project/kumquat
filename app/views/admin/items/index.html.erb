@@ -30,6 +30,10 @@
       </button>
       <ul class="dropdown-menu" role="menu">
         <li <%= @collection.metadata_profile ? '' : 'disabled="disabled"' %>>
+          <%= link_to raw('Batch Change&hellip;'), '',
+                      'data-toggle': 'modal', 'data-target': '#pt-batch-change-modal' %>
+        </li>
+        <li <%= @collection.metadata_profile ? '' : 'disabled="disabled"' %>>
           <%= link_to raw('Find and Replace&hellip;'), '',
                       'data-toggle': 'modal', 'data-target': '#pt-find-replace-modal' %>
         </li>
@@ -160,6 +164,7 @@
   </div>
 </div>
 
+<%= render partial: 'batch_change_metadata_panel' %>
 <%= render partial: 'replace_metadata_panel' %>
 <%= render partial: 'migrate_metadata_panel' %>
 <%= render partial: 'import_panel' %>

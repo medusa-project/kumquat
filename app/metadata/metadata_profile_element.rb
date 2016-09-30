@@ -12,6 +12,14 @@ class MetadataProfileElement < ActiveRecord::Base
   after_destroy :adjust_profile_element_indexes_after_destroy
 
   ##
+  # @return [Boolean]
+  #
+  def controlled?
+    !(self.vocabularies.empty? or (self.vocabularies.length == 1 and
+        self.vocabularies.first == Vocabulary.uncontrolled))
+  end
+
+  ##
   # @return [MetadataProfileElement]
   #
   def dup

@@ -2,8 +2,30 @@ module Admin
 
   class ItemsController < ControlPanelController
 
-    before_action :modify_items_rbac, only: [:edit, :update, :import, :migrate,
-                                             :sync]
+    before_action :modify_items_rbac, only: [:batch_change_metadata, :edit,
+                                             :import, :migrate_metadata,
+                                             :replace_metadata, :sync, :update]
+
+    ##
+    # Batch-changes metadata elements.
+    #
+    # Responds to POST /admin/collections/:collection_id/items/batch-change-metadata
+    #
+    def batch_change_metadata
+      col = Collection.find_by_repository_id(params[:collection_id])
+      raise ActiveRecord::RecordNotFound unless col
+      begin
+        BatchChangeItemMetadataJob.perform_later(
+            col.repository_id, params[:element], params[:replace_values])
+      rescue => e
+        handle_error(e)
+        redirect_to admin_collection_items_url(col)
+      else
+        flash['success'] = 'Batch-changing metadata values in the background. '\
+        'This should take less than a minute.'
+        redirect_to admin_collection_items_url(col)
+      end
+    end
 
     ##
     # Responds to GET /admin/collections/:collection_id/items/:id

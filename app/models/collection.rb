@@ -103,6 +103,31 @@ class Collection < ActiveRecord::Base
     ]
   end
 
+  ##
+  # @param element_name [String] Element to replace.
+  # @param replace_values [Enumerable<Hash<Symbol,String>] Enumerable of hashes
+  #                                                        with :string and
+  #                                                        :uri keys.
+  # @return [void]
+  # @raises [ArgumentError]
+  #
+  def change_item_element_values(element_name, replace_values)
+    raise ArgumentError, 'replace_values must be an Enumerable' unless
+        replace_values.respond_to?(:each)
+    ActiveRecord::Base.transaction do
+      self.items.each do |item|
+        item.elements.where(name: element_name).destroy_all
+        replace_values.each do |hash|
+          hash = hash.symbolize_keys
+          item.elements.build(name: element_name,
+                              value: hash[:string],
+                              uri: hash[:uri])
+        end
+        item.save!
+      end
+    end
+  end
+
   def delete_from_solr
     Solr.instance.delete(self.solr_id)
   end

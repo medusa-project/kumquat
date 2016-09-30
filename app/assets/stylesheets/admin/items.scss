@@ -1,11 +1,5 @@
 body#items_index {
   .pt-search {
-    .pt-triples .form-group:first-child .pt-remove-field {
-      display:none;
-    }
-    .pt-triples select {
-      max-width:40%;
-    }
     .pt-collections {
       max-height: 15em;
       overflow-y: scroll;
@@ -84,6 +78,13 @@ body#items_index {
         .pt-description {
         }
       }
+    }
+  }
+
+  #pt-batch-change-modal {
+    .form-group td:last-child {
+      text-align: center;
+      vertical-align: middle;
     }
   }
 }

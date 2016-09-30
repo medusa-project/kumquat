@@ -20,6 +20,28 @@ class CollectionTest < ActiveSupport::TestCase
     assert_equal 'Sanborn Fire Insurance Maps', col.title
   end
 
+  # change_item_element_values()
+
+  test 'change_item_element_values() should work' do
+    item = items(:item1)
+    item.elements.build(name: 'cat', value: 'tiger')
+    item.elements.build(name: 'cat', value: 'leopard')
+    item.save!
+
+    @col.change_item_element_values('cat', [
+        { string: 'lion', uri: 'http://example.org/lion' },
+        { string: 'cougar', uri: 'http://example.org/cougar' }
+    ])
+
+    item.reload
+    assert_equal 2, item.elements.select{ |e| e.name == 'cat' }.length
+    elements = item.elements.select{ |e| e.name == 'cat' }
+    assert elements.map(&:value).include?('lion')
+    assert elements.map(&:uri).include?('http://example.org/lion')
+    assert elements.map(&:value).include?('cougar')
+    assert elements.map(&:uri).include?('http://example.org/cougar')
+  end
+
   # items()
 
   test 'items should return all items' do

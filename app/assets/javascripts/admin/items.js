@@ -69,15 +69,18 @@ var PTAdminItemsView = function() {
     this.init = function() {
         $('button.pt-add-element').on('click', function() {
             // limit to ELEMENT_LIMIT fields
-            if ($('.pt-elements .form-group').length < ELEMENT_LIMIT) {
+            if ($(this).parents('.pt-elements').find('.form-group').length < ELEMENT_LIMIT) {
                 var clone = $(this).prev('.form-group').clone(true);
+                clone.val(null);
                 $(this).before(clone);
             }
+            return false;
         });
         $('button.pt-remove-element').on('click', function() {
-            if ($('.pt-elements .form-group').length > 1) {
+            if ($(this).parents('.pt-elements').find('.form-group').length > 1) {
                 $(this).closest('.form-group').remove();
             }
+            return false;
         });
 
         // Enable certain checkboxes in the sync panel only when the "create"
