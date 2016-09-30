@@ -108,12 +108,12 @@ class MedusaIngester
       cfs_dir.directories.each do |dir|
         item = Item.find_by_repository_id(dir.uuid)
         if item
-          Rails.logger.info("ingest_free_form_items(): skipping item "\
-              "#{dir.uuid}")
+          Rails.logger.info("MedusaIngester.create_free_form_items(): "\
+              "skipping item #{dir.uuid}")
           status[:num_skipped] += 1
         else
-          Rails.logger.info("ingest_free_form_items(): creating item "\
-                    "#{dir.uuid}")
+          Rails.logger.info("MedusaIngester.create_free_form_items(): "\
+              "creating item #{dir.uuid}")
           item = Item.new(repository_id: dir.uuid,
                           parent_repository_id: (cfs_dir.uuid != top_cfs_dir.uuid) ? cfs_dir.uuid : nil,
                           collection_repository_id: collection.repository_id,
@@ -130,13 +130,13 @@ class MedusaIngester
       cfs_dir.files.each do |file|
         item = Item.find_by_repository_id(file.uuid)
         if item
-          Rails.logger.info("ingest_free_form_items(): skipping item "\
-                "#{file.uuid}")
+          Rails.logger.info("MedusaIngester.create_free_form_items(): "\
+                "skipping item #{file.uuid}")
           status[:num_skipped] += 1
           next
         else
-          Rails.logger.info("ingest_free_form_items(): creating item "\
-                      "#{file.uuid}")
+          Rails.logger.info("MedusaIngester.create_free_form_items(): "\
+                "creating item #{file.uuid}")
           item = Item.new(repository_id: file.uuid,
                           parent_repository_id: (cfs_dir.uuid != top_cfs_dir.uuid) ? cfs_dir.uuid : nil,
                           collection_repository_id: collection.repository_id,
@@ -205,12 +205,12 @@ class MedusaIngester
     collection.effective_medusa_cfs_directory.directories.each do |top_item_dir|
       item = Item.find_by_repository_id(top_item_dir.uuid)
       if item
-        Rails.logger.info("ingest_map_items(): skipping item "\
+        Rails.logger.info("MedusaIngester.create_map_items(): skipping item "\
             "#{top_item_dir.uuid}")
         status[:num_skipped] += 1
         next
       else
-        Rails.logger.info("ingest_map_items(): creating item "\
+        Rails.logger.info("MedusaIngester.create_map_items(): creating item "\
                     "#{top_item_dir.uuid}")
         item = Item.new(repository_id: top_item_dir.uuid,
                         collection_repository_id: collection.repository_id)
@@ -227,13 +227,13 @@ class MedusaIngester
               # Find or create the child item.
               child = Item.find_by_repository_id(pres_file.uuid)
               if child
-                Rails.logger.info("ingest_map_items(): skipping child item "\
-                    "#{pres_file.uuid}")
+                Rails.logger.info("MedusaIngester.create_map_items(): "\
+                    "skipping child item #{pres_file.uuid}")
                 status[:num_skipped] += 1
                 next
               else
-                Rails.logger.info("ingest_map_items(): creating child item "\
-                    "#{pres_file.uuid}")
+                Rails.logger.info("MedusaIngester.create_map_items(): "\
+                    "creating child item #{pres_file.uuid}")
                 child = Item.new(repository_id: pres_file.uuid,
                                  collection_repository_id: collection.repository_id,
                                  parent_repository_id: item.repository_id)
@@ -299,18 +299,18 @@ class MedusaIngester
                 options[:extract_metadata]
           else
             msg = "Preservation directory #{pres_dir.uuid} is empty."
-            Rails.logger.warn('ingest_map_items(): ' + msg)
+            Rails.logger.warn("MedusaIngester.create_map_items(): #{msg}")
             warnings << msg
           end
         else
           msg = "Directory #{top_item_dir.uuid} is missing a preservation "\
               "directory."
-          Rails.logger.warn('ingest_map_items(): ' + msg)
+          Rails.logger.warn("MedusaIngester.create_map_items(): #{msg}")
           warnings << msg
         end
       else
         msg = "Directory #{top_item_dir.uuid} does not have any subdirectories."
-        Rails.logger.warn('ingest_map_items(): ' + msg)
+        Rails.logger.warn("MedusaIngester.create_map_items(): #{msg}")
         warnings << msg
       end
 
@@ -338,11 +338,13 @@ class MedusaIngester
       # Find or create the child item.
       item = Item.find_by_repository_id(file.uuid)
       if item
-        Rails.logger.info("ingest_single_items(): skipping item #{file.uuid}")
+        Rails.logger.info("MedusaIngester.create_single_items(): skipping "\
+            "item #{file.uuid}")
         status[:num_skipped] += 1
         next
       else
-        Rails.logger.info("ingest_single_items(): creating item #{file.uuid}")
+        Rails.logger.info("MedusaIngester.create_single_items(): creating "\
+            "item #{file.uuid}")
         item = Item.new(repository_id: file.uuid,
                         collection_repository_id: collection.repository_id)
         status[:num_created] += 1
@@ -379,7 +381,7 @@ class MedusaIngester
   def delete_missing_items(collection)
     # Compile a list of all item UUIDs currently in the Medusa file group.
     medusa_items = free_form_items_in(collection.effective_medusa_cfs_directory)
-    Rails.logger.debug("delete_missing_items(): "\
+    Rails.logger.debug("MedusaIngester.delete_missing_items(): "\
         "#{medusa_items.length} items in CFS directory")
 
     case collection.package_profile
@@ -399,7 +401,7 @@ class MedusaIngester
     status = { num_deleted: 0 }
     Item.where(collection_repository_id: collection.repository_id).each do |item|
       unless medusa_items.include?(item.repository_id)
-        Rails.logger.info("delete_missing_items(): deleting "\
+        Rails.logger.info("MedusaIngester.delete_missing_items(): deleting "\
           "#{item.repository_id}")
         item.destroy!
         status[:num_deleted] += 1
@@ -460,18 +462,18 @@ class MedusaIngester
         else
           msg = "Preservation master file #{pres_master_file.uuid} has no "\
               "access master counterpart."
-          Rails.logger.warn('map_access_master_bytestream(): ' + msg)
+          Rails.logger.warn("MedusaIngester.map_access_master_bytestream(): #{msg}")
           raise IllegalContentError, msg
         end
       else
         msg = "Access master directory #{access_dir.uuid} has no files."
-        Rails.logger.warn('map_access_master_bytestream(): ' + msg)
+        Rails.logger.warn("MedusaIngester.map_access_master_bytestream(): #{msg}")
         raise IllegalContentError, msg
       end
     else
       msg = "Item directory #{item_cfs_dir.uuid} is missing an access "\
           "master subdirectory."
-      Rails.logger.warn('map_access_master_bytestream(): ' + msg)
+      Rails.logger.warn("MedusaIngester.map_access_master_bytestream(): #{msg}")
       raise IllegalContentError, msg
     end
   end
@@ -507,7 +509,7 @@ class MedusaIngester
     stats = { num_updated: 0 }
     # Skip items derived from directories, as they have no embedded metadata.
     collection.items.where('variant != ?', Item::Variants::DIRECTORY).each do |item|
-      Rails.logger.info("replace_metadata(): #{item.repository_id}")
+      Rails.logger.info("MedusaIngester.replace_metadata(): #{item.repository_id}")
       update_item_from_embedded_metadata(item)
       item.save!
       stats[:num_updated] += 1
@@ -567,7 +569,8 @@ class MedusaIngester
       begin
         ImageServer.instance.purge_item_from_cache(item)
       rescue => e
-        Rails.logger.error("#{e}")
+        Rails.logger.error("MedusaIngester.update_bytestreams(): failed to "\
+            "purge item from image server cache: #{e}")
       end
     end
 
@@ -593,8 +596,8 @@ class MedusaIngester
       cfs_dir.files.each do |file|
         item = Item.find_by_repository_id(file.uuid)
         if item
-          Rails.logger.info("update_free_form_bytestreams(): updating "\
-                            "bytestreams for item: #{file.uuid}")
+          Rails.logger.info("MedusaIngester.update_free_form_bytestreams(): "\
+                            "updating bytestreams for item: #{file.uuid}")
 
           item.bytestreams.destroy_all
 
@@ -657,8 +660,8 @@ class MedusaIngester
                 # Find the child item.
                 child = Item.find_by_repository_id(pres_file.uuid)
                 if child
-                  Rails.logger.info("update_map_bytestreams(): updating child item "\
-                    "#{pres_file.uuid}")
+                  Rails.logger.info("MedusaIngester.update_map_bytestreams(): "\
+                      "updating child item #{pres_file.uuid}")
 
                   child.bytestreams.destroy_all
 
@@ -682,13 +685,13 @@ class MedusaIngester
                   end
                   stats[:num_updated] += 1
                 else
-                  Rails.logger.warn("update_map_bytestreams(): skipping child item "\
-                    "#{pres_file.uuid} (no item)")
+                  Rails.logger.warn("MedusaIngester.update_map_bytestreams(): "\
+                      "skipping child item #{pres_file.uuid} (no item)")
                 end
               end
             elsif pres_dir.files.length == 1
-              Rails.logger.info("update_map_bytestreams(): updating item "\
-                    "#{item.repository_id}")
+              Rails.logger.info("MedusaIngester.update_map_bytestreams(): "\
+                    "updating item #{item.repository_id}")
 
               item.bytestreams.destroy_all
 
@@ -715,23 +718,23 @@ class MedusaIngester
               stats[:num_updated] += 1
             else
               msg = "Preservation directory #{pres_dir.uuid} is empty."
-              Rails.logger.warn('update_map_bytestreams(): ' + msg)
+              Rails.logger.warn("MedusaIngester.update_map_bytestreams(): #{msg}")
               warnings << msg
             end
           else
             msg = "Directory #{top_item_dir.uuid} is missing a preservation "\
                 "directory."
-            Rails.logger.warn('update_map_bytestreams(): ' + msg)
+            Rails.logger.warn("MedusaIngester.update_map_bytestreams(): #{msg}")
             warnings << msg
           end
         else
           msg = "Directory #{top_item_dir.uuid} does not have any subdirectories."
-          Rails.logger.warn('update_map_bytestreams(): ' + msg)
+          Rails.logger.warn("MedusaIngester.update_map_bytestreams(): #{msg}")
           warnings << msg
         end
       else
         msg = "No item for directory: #{top_item_dir.uuid}"
-        Rails.logger.warn('update_map_bytestreams(): ' + msg)
+        Rails.logger.warn("MedusaIngester.update_map_bytestreams(): #{msg}")
         warnings << msg
       end
     end
