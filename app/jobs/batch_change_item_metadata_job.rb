@@ -4,19 +4,19 @@ class BatchChangeItemMetadataJob < Job
 
   ##
   # @param args [Array] Three-element array with collection UUID at position 0;
-  #                     element name at position 1; and replacement value at
-  #                     position 2.
+  #                     element name at position 1; and array of replacement
+  #                     values at position 2.
   # @raises [ArgumentError]
   #
   def perform(*args)
     collection = Collection.find_by_repository_id(args[0])
 
     element_name = args[1]
-    replace_value = args[2]
+    replace_values = args[2]
 
     if self.task
       self.task.status_text = "Changing \"#{element_name}\" element values "\
-        "to \"#{replace_value}\" in #{collection.title}"
+        "in #{collection.title}"
 
       # Indeterminate because the task happens in a transaction from which
       # progress updates won't appear.
@@ -24,7 +24,7 @@ class BatchChangeItemMetadataJob < Job
       self.task.save!
     end
 
-    collection.change_item_element_values(element_name, replace_value)
+    collection.change_item_element_values(element_name, replace_values)
 
     Solr.instance.commit
     self.task&.succeeded

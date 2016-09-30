@@ -25,9 +25,13 @@
                              class: 'form-control') %>
             </div>
 
-            <div class="form-group">
+            <div class="pt-elements">
               <label for="replace_value">To Value:</label>
-              <%= text_field_tag(:replace_value, '', class: 'form-control') %>
+              <div class="form-group form-inline">
+                <%= text_field_tag('replace_value[]', '', class: 'form-control') %>
+                <button type="button" class="btn btn-xs btn-danger pt-remove-element">&minus;</button>
+              </div>
+              <button class="btn btn-sm btn-success pt-add-element">&plus;</button>
             </div>
           <% else %>
             <p>Metadata profile is not set.</p>

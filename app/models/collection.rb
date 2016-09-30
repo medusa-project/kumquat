@@ -105,15 +105,19 @@ class Collection < ActiveRecord::Base
 
   ##
   # @param element_name [String] Element to replace.
-  # @param replace_value [String] Value to replace with.
+  # @param replace_values [Enumerable<String>] Values to replace with.
   # @return [void]
   # @raises [ArgumentError]
   #
-  def change_item_element_values(element_name, replace_value)
+  def change_item_element_values(element_name, replace_values)
+    raise ArgumentError, 'replace_values must be an Enumerable' unless
+        replace_values.respond_to?(:each)
     ActiveRecord::Base.transaction do
       self.items.each do |item|
         item.elements.where(name: element_name).destroy_all
-        item.elements.build(name: element_name, value: replace_value)
+        replace_values.each do |value|
+          item.elements.build(name: element_name, value: value)
+        end
         item.save!
       end
     end
