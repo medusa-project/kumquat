@@ -81,6 +81,7 @@ class MedusaIngesterTest < ActiveSupport::TestCase
     assert_equal 1, item.elements.length
     assert_equal 'animals_001.jpg', item.title
     bs = item.bytestreams.first
+    assert_equal 1757527, bs.byte_size
     assert_equal 'image/jpeg', bs.media_type
     assert_equal '/136/310/3707005/access/online/Illini_Union_Photographs/binder_10/animals/animals_001.jpg',
                  bs.repository_relative_pathname
@@ -108,10 +109,6 @@ class MedusaIngesterTest < ActiveSupport::TestCase
     item = Item.find_by_repository_id('6e3c33c0-5ce3-0132-3334-0050569601ca-f')
     assert item.elements.select{ |e| e.name == 'creator' }.map(&:value).
         include?('University of Illinois Library')
-    assert item.elements.select{ |e| e.name == 'date' }.map(&:value).
-        include?('2012-11-27T00:00:00Z')
-    assert item.elements.select{ |e| e.name == 'dateCreated' }.map(&:value).
-        include?('2012:11:27')
     assert item.elements.select{ |e| e.name == 'title' }.map(&:value).
         include?('Illini Union Photographs Record Series 3707005')
   end
@@ -144,11 +141,13 @@ class MedusaIngesterTest < ActiveSupport::TestCase
     assert_equal 2, item.bytestreams.length
     bs = item.bytestreams.select{ |b| b.bytestream_type == Bytestream::Type::PRESERVATION_MASTER }.first
     assert_equal 'image/tiff', bs.media_type
+    assert_equal 28184152, bs.byte_size
     assert_equal '/59/2257/afm0002389/preservation/afm0002389.tif',
                  bs.repository_relative_pathname
 
     bs = item.bytestreams.select{ |b| b.bytestream_type == Bytestream::Type::ACCESS_MASTER }.first
     assert_equal 'image/jp2', bs.media_type
+    assert_equal 9665238, bs.byte_size
     assert_equal '/59/2257/afm0002389/access/afm0002389.jp2',
                  bs.repository_relative_pathname
   end
@@ -189,11 +188,13 @@ class MedusaIngesterTest < ActiveSupport::TestCase
 
     bs = child.bytestreams.select{ |b| b.bytestream_type == Bytestream::Type::PRESERVATION_MASTER }.first
     assert_equal 'image/tiff', bs.media_type
+    assert_equal 43204936, bs.byte_size
     assert_equal '/59/2257/afm0003060/preservation/afm0003060a.tif',
                  bs.repository_relative_pathname
 
     bs = child.bytestreams.select{ |b| b.bytestream_type == Bytestream::Type::ACCESS_MASTER }.first
     assert_equal 'image/jp2', bs.media_type
+    assert_equal 15095518, bs.byte_size
     assert_equal '/59/2257/afm0003060/access/afm0003060a.jp2',
                  bs.repository_relative_pathname
   end
@@ -230,12 +231,14 @@ class MedusaIngesterTest < ActiveSupport::TestCase
     bs = item.bytestreams.
         select{ |b| b.bytestream_type == Bytestream::Type::PRESERVATION_MASTER }.first
     assert_equal 'image/tiff', bs.media_type
+    assert_equal 575834922, bs.byte_size
     assert_equal '/55/2358/preservation/03501042_001_souscrivez.TIF',
                  bs.repository_relative_pathname
 
     bs = item.bytestreams.
         select{ |b| b.bytestream_type == Bytestream::Type::ACCESS_MASTER }.first
     assert_equal 'image/jp2', bs.media_type
+    assert_equal 128493361, bs.byte_size
     assert_equal '/55/2358/access/03501042_001_souscrivez.jp2',
                  bs.repository_relative_pathname
   end

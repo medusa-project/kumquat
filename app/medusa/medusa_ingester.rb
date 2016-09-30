@@ -2,14 +2,14 @@ class MedusaIngester
 
   class IngestMode
     # Creates new DLS entities but does not touch existing DLS entities.
-    CREATE_ONLY = 'create_only'
+    CREATE_ONLY = :create_only
     # Deletes DLS entities that have gone missing in Medusa, but does not
     # create or update anything.
-    DELETE_MISSING = 'delete_missing'
+    DELETE_MISSING = :delete_missing
     # Replaces DLS items' metadata with that found in embedded metadata.
-    REPLACE_METADATA = 'replace_metadata'
+    REPLACE_METADATA = :replace_metadata
     # Updates existing DLS items' bytestreams.
-    UPDATE_BYTESTREAMS = 'update_bytestreams'
+    UPDATE_BYTESTREAMS = :update_bytestreams
   end
 
   ##
@@ -70,7 +70,7 @@ class MedusaIngester
     stats = { num_deleted: 0, num_created: 0, num_updated: 0, num_skipped: 0 }
 
     ActiveRecord::Base.transaction do
-      case mode
+      case mode.to_sym
         when IngestMode::DELETE_MISSING
           stats.merge!(delete_missing_items(collection))
         when IngestMode::UPDATE_BYTESTREAMS
@@ -141,15 +141,17 @@ class MedusaIngester
                           parent_repository_id: (cfs_dir.uuid != top_cfs_dir.uuid) ? cfs_dir.uuid : nil,
                           collection_repository_id: collection.repository_id,
                           variant: Item::Variants::FILE)
+          item.elements.build(name: 'title', value: file.name)
           # Create its corresponding bytestream.
           bs = item.bytestreams.build
           bs.bytestream_type = Bytestream::Type::ACCESS_MASTER
           bs.cfs_file_uuid = file.uuid
           bs.repository_relative_pathname =
               '/' + file.repository_relative_pathname.reverse.chomp('/').reverse
-          bs.infer_media_type # The type of the CFS file cannot be trusted.
+          bs.byte_size = File.size(bs.absolute_local_pathname)
+          bs.infer_media_type # The type of the CFS file is likely to be vague.
 
-          update_item_from_embedded_metadata(item, file.name, options) if
+          update_item_from_embedded_metadata(item, options) if
               options[:extract_metadata]
 
           item.save!
@@ -244,7 +246,8 @@ class MedusaIngester
               bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
               bs.repository_relative_pathname =
                   '/' + pres_file.repository_relative_pathname.reverse.chomp('/').reverse
-              bs.infer_media_type # The type of the CFS file cannot be trusted.
+              bs.byte_size = File.size(bs.absolute_local_pathname)
+              bs.infer_media_type # The type of the CFS file is likely to be vague.
 
               # Set the child's variant.
               basename = File.basename(pres_file.repository_relative_pathname)
@@ -281,7 +284,8 @@ class MedusaIngester
             bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
             bs.repository_relative_pathname =
                 '/' + pres_file.repository_relative_pathname.reverse.chomp('/').reverse
-            bs.infer_media_type # The type of the CFS file cannot be trusted.
+            bs.byte_size = File.size(bs.absolute_local_pathname)
+            bs.infer_media_type # The type of the CFS file is likely to be vague.
 
             # Find and create the access master bytestream.
             begin
@@ -350,6 +354,7 @@ class MedusaIngester
       bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
       bs.repository_relative_pathname =
           '/' + file.repository_relative_pathname.reverse.chomp('/').reverse
+      bs.byte_size = File.size(bs.absolute_local_pathname)
       bs.media_type = file.media_type
 
       # Find and create the access master bytestream.
@@ -449,7 +454,8 @@ class MedusaIngester
           bs.bytestream_type = Bytestream::Type::ACCESS_MASTER
           bs.repository_relative_pathname =
               '/' + access_file.repository_relative_pathname.reverse.chomp('/').reverse
-          bs.infer_media_type # The type of the CFS file cannot be trusted.
+          bs.byte_size = File.size(bs.absolute_local_pathname)
+          bs.infer_media_type # The type of the CFS file is likely to be vague.
           return bs
         else
           msg = "Preservation master file #{pres_master_file.uuid} has no "\
@@ -502,9 +508,7 @@ class MedusaIngester
     # Skip items derived from directories, as they have no embedded metadata.
     collection.items.where('variant != ?', Item::Variants::DIRECTORY).each do |item|
       Rails.logger.info("replace_metadata(): #{item.repository_id}")
-      title = item.title
-      item.elements.destroy_all
-      update_item_from_embedded_metadata(item, title)
+      update_item_from_embedded_metadata(item)
       item.save!
       stats[:num_updated] += 1
     end
@@ -599,7 +603,8 @@ class MedusaIngester
           bs.cfs_file_uuid = file.uuid
           bs.repository_relative_pathname =
               '/' + file.repository_relative_pathname.reverse.chomp('/').reverse
-          bs.infer_media_type # The type of the CFS file cannot be trusted.
+          bs.byte_size = File.size(bs.absolute_local_pathname)
+          bs.infer_media_type # The media type of the CFS file is likely to be vague.
           bs.save!
 
           stats[:num_updated] += 1
@@ -617,18 +622,16 @@ class MedusaIngester
   # Populates an item's metadata from its embedded bytestream metadata.
   #
   # @param item [Item]
-  # @param fallback_title [String]
   # @param options [Hash]
   # @option options [Boolean] :include_date_created
   #
-  def update_item_from_embedded_metadata(item, fallback_title, options = {})
+  def update_item_from_embedded_metadata(item, options = {})
+    initial_title = item.title
     item.update_from_embedded_metadata(options)
-    # If there was no title present in the embedded metadata, assign a title
-    # of the filename.
+    # If there is no title present in the new metadata, restore the initial
+    # title.
     if item.elements.select{ |e| e.name == 'title' }.empty?
-      e = item.elements.build
-      e.name = 'title'
-      e.value = fallback_title.present? ? fallback_title : item.repository_id
+      item.elements.build(name: 'title', value: initial_title)
     end
   end
 
@@ -665,7 +668,8 @@ class MedusaIngester
                   bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
                   bs.repository_relative_pathname =
                       '/' + pres_file.repository_relative_pathname.reverse.chomp('/').reverse
-                  bs.infer_media_type # The type of the CFS file cannot be trusted.
+                  bs.byte_size = File.size(bs.absolute_local_pathname)
+                  bs.infer_media_type # The type of the CFS file is likely to be vague.
                   bs.save!
 
                   # Find and create the access master bytestream.
@@ -695,6 +699,7 @@ class MedusaIngester
               bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
               bs.repository_relative_pathname =
                   '/' + pres_file.repository_relative_pathname.reverse.chomp('/').reverse
+              bs.byte_size = File.size(bs.absolute_local_pathname)
               bs.infer_media_type # The type of the CFS file cannot be trusted.
 
               # Find and create the access master bytestream.
@@ -755,6 +760,7 @@ class MedusaIngester
         bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
         bs.repository_relative_pathname =
             '/' + file.repository_relative_pathname.reverse.chomp('/').reverse
+        bs.byte_size = File.size(bs.absolute_local_pathname)
         bs.media_type = file.media_type
         bs.save!
 
