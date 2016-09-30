@@ -103,6 +103,22 @@ class Collection < ActiveRecord::Base
     ]
   end
 
+  ##
+  # @param element_name [String] Element to replace.
+  # @param replace_value [String] Value to replace with.
+  # @return [void]
+  # @raises [ArgumentError]
+  #
+  def change_item_element_values(element_name, replace_value)
+    ActiveRecord::Base.transaction do
+      self.items.each do |item|
+        item.elements.where(name: element_name).destroy_all
+        item.elements.build(name: element_name, value: replace_value)
+        item.save!
+      end
+    end
+  end
+
   def delete_from_solr
     Solr.instance.delete(self.solr_id)
   end

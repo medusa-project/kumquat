@@ -20,6 +20,21 @@ class CollectionTest < ActiveSupport::TestCase
     assert_equal 'Sanborn Fire Insurance Maps', col.title
   end
 
+  # change_item_element_values()
+
+  test 'change_item_element_values() should work' do
+    item = items(:item1)
+    item.elements.build(name: 'cat', value: 'tiger')
+    item.elements.build(name: 'cat', value: 'leopard')
+    item.save!
+
+    @col.change_item_element_values('cat', 'lions')
+
+    item.reload
+    assert_equal 1, item.elements.select{ |e| e.name == 'cat' }.length
+    assert_equal 'lions', item.element(:cat).value
+  end
+
   # items()
 
   test 'items should return all items' do
