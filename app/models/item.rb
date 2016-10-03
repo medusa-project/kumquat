@@ -428,10 +428,31 @@ class Item < ActiveRecord::Base
     self.items.where(variant: Variants::FRONT_MATTER).limit(1).first
   end
 
+  ##
+  # @return [String,nil]
+  #
+  def iiif_identifier
+    id = nil
+    bs = self.access_master_bytestream
+    if !bs or (!bs.is_image? and !bs.is_pdf?)
+      bs = self.preservation_master_bytestream
+      if !bs or (!bs.is_image? and !bs.is_pdf?)
+        bs = nil
+      end
+    end
+    if bs
+      id = bs.repository_relative_pathname.reverse.chomp('/').reverse
+    end
+    id
+  end
+
+  ##
+  # @return [void]
+  #
   def index_in_solr
     Solr.instance.add(self.to_solr)
-    # To improve the performance of imports, we will avoid saving here, as
-    # this will be called in a before_save callback 99.99% of the time.
+    # To improve performance, we will avoid saving here, as this will be
+    # called in an after_commit callback 99.99% of the time.
   end
 
   ##

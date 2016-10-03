@@ -172,6 +172,22 @@ class ItemTest < ActiveSupport::TestCase
     assert_nil @item.element('bogus')
   end
 
+  # iiif_identifier()
+
+  test 'iiif_identifier should use the access master bytestream by default' do
+    @item.access_master_bytestream.repository_relative_pathname = '/bla/bla/cats cats.jpg'
+    @item.access_master_bytestream.media_type = 'image/jpeg'
+    @item.bytestreams.where(bytestream_type: Bytestream::Type::PRESERVATION_MASTER).destroy_all
+    assert_equal 'bla/bla/cats cats.jpg', @item.iiif_identifier
+  end
+
+  test 'iiif_identifier should fall back to the preservation master bytestream' do
+    @item.bytestreams.where(bytestream_type: Bytestream::Type::ACCESS_MASTER).destroy_all
+    @item.preservation_master_bytestream.repository_relative_pathname = '/bla/bla/cats cats.jpg'
+    @item.preservation_master_bytestream.media_type = 'image/jpeg'
+    assert_equal 'bla/bla/cats cats.jpg', @item.iiif_identifier
+  end
+
   # migrate_elements()
 
   test 'migrate_elements() should work' do
