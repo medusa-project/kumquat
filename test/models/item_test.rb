@@ -188,6 +188,15 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal 'bla/bla/cats cats.jpg', @item.iiif_identifier
   end
 
+  # iiif_url()
+
+  test 'iiif_url() should work' do
+    @item.access_master_bytestream.repository_relative_pathname = '/bla/bla/cats cats.jpg'
+    @item.access_master_bytestream.media_type = 'image/jpeg'
+    assert_equal PearTree::Application.peartree_config[:iiif_url] +
+                     '/bla%2Fbla%2Fcats+cats.jpg', @item.iiif_url
+  end
+
   # migrate_elements()
 
   test 'migrate_elements() should work' do

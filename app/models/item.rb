@@ -447,6 +447,19 @@ class Item < ActiveRecord::Base
   end
 
   ##
+  # @return [String,nil]
+  #
+  def iiif_url
+    url = nil
+    id = self.iiif_identifier
+    if id
+      url = PearTree::Application.peartree_config[:iiif_url] + '/' +
+          CGI.escape(id)
+    end
+    url
+  end
+
+  ##
   # @return [void]
   #
   def index_in_solr
