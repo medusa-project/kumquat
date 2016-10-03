@@ -147,7 +147,7 @@ class Relation
     reset_results
     @more_like_this = true
     @facet = false
-    self.where(PearTree::Application.peartree_config[:solr_id_field] => @caller.id)
+    self.where(Configuration.instance.solr_id_field => @caller.id)
   end
 
   def none
@@ -257,12 +257,12 @@ class Relation
     if @caller and @calling_class and !@loaded
       if !@omit_entity_query
         # limit the query to the calling class
-        @where_clauses << "#{PearTree::Application.peartree_config[:solr_class_field]}:\""\
+        @where_clauses << "#{Configuration.instance.solr_class_field}:\""\
         "#{@calling_class}\""
       end
       params = {
           'q' => @where_clauses.join(' AND '),
-          'df' => PearTree::Application.peartree_config[:solr_default_search_field],
+          'df' => Configuration.instance.solr_default_search_field,
           'fl' => @calling_class::SolrFields::ID,
           'fq' => @filter_clauses.join(' AND '),
           'start' => @start,
@@ -270,13 +270,13 @@ class Relation
           'rows' => @limit.to_i > 0 ? @limit.to_i : 99999
       }
       if @more_like_this
-        params['mlt.fl'] = PearTree::Application.peartree_config[:solr_default_search_field]
+        params['mlt.fl'] = Configuration.instance.solr_default_search_field
         params['mlt.mindf'] = 1
         params['mlt.mintf'] = 1
         params['mlt.match.include'] = false
-        params['fq'] = "#{PearTree::Application.peartree_config[:solr_class_field]}:\""\
+        params['fq'] = "#{Configuration.instance.solr_class_field}:\""\
         "#{@calling_class}\""
-        endpoint = PearTree::Application.peartree_config[:solr_more_like_this_endpoint].gsub(/\//, '')
+        endpoint = Configuration.instance.solr_more_like_this_endpoint.gsub(/\//, '')
       else
         endpoint = 'select'
         if @facet and self.facetable_fields.any?

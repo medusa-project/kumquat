@@ -344,7 +344,7 @@ LIMIT 1000;
     url = nil
     if self.repository_id
       url = sprintf('%s/uuids/%s%s',
-                    PearTree::Application.peartree_config[:medusa_url].chomp('/'),
+                    Configuration.instance.medusa_url.chomp('/'),
                     self.repository_id,
                     format)
     end

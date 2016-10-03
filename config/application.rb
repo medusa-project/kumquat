@@ -9,7 +9,6 @@ Bundler.require(*Rails.groups)
 module PearTree
   class Application < Rails::Application
 
-    attr_accessor :peartree_config
     attr_accessor :shibboleth_host
 
     # Settings in config/environments/* take precedence over those specified here.

@@ -63,7 +63,7 @@ class MedusaRepository
   #
   def url
     if self.id
-      return PearTree::Application.peartree_config[:medusa_url].chomp('/') +
+      return Configuration.instance.medusa_url.chomp('/') +
           '/repositories/' + self.id.to_s
     end
     nil
@@ -89,7 +89,7 @@ class MedusaRepository
     if Rails.env.test?
       reload
     else
-      ttl = PearTree::Application.peartree_config[:medusa_cache_ttl]
+      ttl = Configuration.instance.medusa_cache_ttl
       if File.exist?(cache_pathname) and File.mtime(cache_pathname).
           between?(Time.at(Time.now.to_i - ttl), Time.now)
         json_str = File.read(cache_pathname)

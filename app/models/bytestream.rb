@@ -16,7 +16,7 @@ class Bytestream < ActiveRecord::Base
   # @return [String, nil]
   #
   def absolute_local_pathname
-    PearTree::Application.peartree_config[:repository_pathname] +
+    Configuration.instance.repository_pathname +
         self.repository_relative_pathname
   end
 
@@ -91,8 +91,8 @@ class Bytestream < ActiveRecord::Base
   def medusa_url
     url = nil
     if self.cfs_file_uuid.present?
-      url = PearTree::Application.peartree_config[:medusa_url].chomp('/') +
-          '/uuids/' + self.cfs_file_uuid
+      url = Configuration.instance.medusa_url.chomp('/') + '/uuids/' +
+          self.cfs_file_uuid
     end
     url
   end

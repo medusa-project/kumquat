@@ -3,14 +3,14 @@ class ImageServer
   include Singleton
 
   def client
-    config = PearTree::Application.peartree_config
+    config = Configuration.instance
     HTTPClient.new do
       self.ssl_config.verify_mode = OpenSSL::SSL::VERIFY_NONE
       self.force_basic_auth = true
-      uri = URI.parse(config[:image_server_api_endpoint])
+      uri = URI.parse(config.image_server_api_endpoint)
       domain = uri.scheme + '://' + uri.host
-      user = config[:image_server_api_user]
-      secret = config[:image_server_api_secret]
+      user = config.image_server_api_user
+      secret = config.image_server_api_secret
       self.set_auth(domain, user, secret)
     end
   end
@@ -26,7 +26,7 @@ class ImageServer
   def purge_item_from_cache(item)
     identifier = item.iiif_identifier
     if identifier
-      uri = PearTree::Application.peartree_config[:image_server_api_endpoint] +
+      uri = Configuration.instance.image_server_api_endpoint +
           '/' + CGI::escape(identifier)
       client.delete(uri)
     end

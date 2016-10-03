@@ -30,7 +30,7 @@
           <dt>Application Root</dt>
           <dd><%= Rails.root %></dd>
           <dt>Repository Root</dt>
-          <dd><%= PearTree::Application.peartree_config[:repository_pathname] %></dd>
+          <dd><%= Configuration.instance.repository_pathname %></dd>
         </dl>
       </div>
     </div>
@@ -48,10 +48,10 @@
       <div class="panel-body">
         <dl>
           <dt>URL</dt>
-          <dd><%= link_to PearTree::Application.peartree_config[:solr_url],
-                          PearTree::Application.peartree_config[:solr_url] %></dd>
+          <dd><%= link_to Configuration.instance.solr_url,
+                          Configuration.instance.solr_url %></dd>
           <dt>Core</dt>
-          <dd><%= PearTree::Application.peartree_config[:solr_core] %></dd>
+          <dd><%= Configuration.instance.solr_core %></dd>
         </dl>
       </div>
     </div>
@@ -68,8 +68,8 @@
         <dl>
           <dt>URL</dt>
           <dd id="image-server-uri">
-            <%= link_to PearTree::Application.peartree_config[:iiif_url],
-                        PearTree::Application.peartree_config[:iiif_url] %>
+            <%= link_to Configuration.instance.iiif_url,
+                        Configuration.instance.iiif_url %>
           </dd>
         </dl>
       </div>

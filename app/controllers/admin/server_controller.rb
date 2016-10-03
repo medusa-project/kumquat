@@ -14,7 +14,7 @@ module Admin
         self.ssl_config.verify_mode = OpenSSL::SSL::VERIFY_NONE
       }
       begin
-        response = http.head(PearTree::Application.peartree_config[:iiif_url])
+        response = http.head(Configuration.instance.iiif_url)
         if response.status == 200
           render text: 'online'
         else

@@ -28,7 +28,7 @@ class MedusaRepositoryTest < ActiveSupport::TestCase
   # url()
 
   test 'url() should return the URL' do
-    assert_equal PearTree::Application.peartree_config[:medusa_url] + 'repositories/32',
+    assert_equal Configuration.instance.medusa_url + 'repositories/32',
                  @repo.url
   end
 

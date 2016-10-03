@@ -16,7 +16,7 @@ class MedusaFileGroupTest < ActiveSupport::TestCase
   end
 
   test 'url should return the correct url' do
-    assert_equal(PearTree::Application.peartree_config[:medusa_url].chomp('/') +
+    assert_equal(Configuration.instance.medusa_url.chomp('/') +
                      '/uuids/7dd36d20-c12b-0133-1d0f-0050569601ca-d',
                  @fg.url)
   end

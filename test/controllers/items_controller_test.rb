@@ -148,9 +148,9 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
   private
 
   def valid_headers
-    config = PearTree::Application.peartree_config
+    config = Configuration.instance
     creds = ActionController::HttpAuthentication::Basic.encode_credentials(
-        config[:api_user], config[:api_secret])
+        config.api_user, config.api_secret)
     {
         'Authorization' => creds,
         'Content-Type' => 'application/xml'

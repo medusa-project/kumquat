@@ -131,13 +131,13 @@ cd2d4601-c451-0133-1d17-0050569601ca-8\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n"
   test 'medusa_url should return the correct URL' do
     # without format
     expected = sprintf('%s/uuids/%s',
-                       PearTree::Application.peartree_config[:medusa_url].chomp('/'),
+                       Configuration.instance.medusa_url.chomp('/'),
                        @col.repository_id)
     assert_equal(expected, @col.medusa_url)
 
     # with format
     expected = sprintf('%s/uuids/%s.json',
-                       PearTree::Application.peartree_config[:medusa_url].chomp('/'),
+                       Configuration.instance.medusa_url.chomp('/'),
                        @col.repository_id)
     assert_equal(expected, @col.medusa_url('json'))
   end

@@ -22,7 +22,7 @@
       <% end %>
     </li>
     <li>
-      <%= link_to PearTree::Application.peartree_config[:medusa_url] + '/collections',
+      <%= link_to Configuration.instance.medusa_url + '/collections',
                   target: '_blank' do %>
         <i class="fa fa-database"></i>&nbsp;&nbsp;Medusa
       <% end %>

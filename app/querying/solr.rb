@@ -65,8 +65,8 @@ class Solr
   #
   def update_schema
     http = HTTPClient.new
-    url = PearTree::Application.peartree_config[:solr_url].chomp('/') + '/' +
-        PearTree::Application.peartree_config[:solr_core]
+    url = Configuration.instance.solr_url.chomp('/') + '/' +
+        Configuration.instance.solr_core
 
     Rails.logger.debug('Solr.update_schema(): retrieving current schema')
     response = http.get("#{url}/schema")
@@ -137,9 +137,9 @@ class Solr
   private
 
   def client
-    config = PearTree::Application.peartree_config
-    @client = RSolr.connect(url: config[:solr_url].chomp('/') + '/' +
-        config[:solr_core]) unless @client
+    config = Configuration.instance
+    @client = RSolr.connect(url: config.solr_url.chomp('/') + '/' +
+        config.solr_core) unless @client
     @client
   end
 

@@ -15,7 +15,7 @@ class MedusaCfsFileTest < ActiveSupport::TestCase
   end
 
   test 'pathname should return the correct pathname' do
-    assert_equal(PearTree::Application.peartree_config[:repository_pathname].chomp('/') +
+    assert_equal(Configuration.instance.repository_pathname.chomp('/') +
                      '/162/2204/1601831/access/1601831_001.jp2',
                  @cfs.pathname)
   end
@@ -26,7 +26,8 @@ class MedusaCfsFileTest < ActiveSupport::TestCase
   end
 
   test 'url should return the correct url' do
-    assert_equal(PearTree::Application.peartree_config[:medusa_url].chomp('/') + '/uuids/d25db810-c451-0133-1d17-0050569601ca-3',
+    assert_equal(Configuration.instance.medusa_url.chomp('/') +
+                     '/uuids/d25db810-c451-0133-1d17-0050569601ca-3',
                  @cfs.url)
   end
 

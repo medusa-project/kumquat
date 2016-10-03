@@ -13,7 +13,7 @@ class MedusaCfsFile
   # @return [Boolean]
   #
   def self.file?(uuid)
-    url = PearTree::Application.peartree_config[:medusa_url].chomp('/') +
+    url = Configuration.instance.medusa_url.chomp('/') +
         '/uuids/' + uuid.to_s + '.json'
     # It's a file if Medusa redirects to a /cfs_files/ URI.
     response = Medusa.client.head(url, follow_redirect: false)
@@ -39,7 +39,7 @@ class MedusaCfsFile
   # @return [String]
   #
   def pathname
-    PearTree::Application.peartree_config[:repository_pathname].chomp('/') +
+    Configuration.instance.repository_pathname.chomp('/') +
         self.repository_relative_pathname
   end
 
@@ -78,7 +78,7 @@ class MedusaCfsFile
   def url
     url = nil
     if self.uuid
-      url = PearTree::Application.peartree_config[:medusa_url].chomp('/') +
+      url = Configuration.instance.medusa_url.chomp('/') +
           '/uuids/' + self.uuid.to_s
     end
     url
@@ -104,7 +104,7 @@ class MedusaCfsFile
     if Rails.env.test?
       reload_instance
     else
-      ttl = PearTree::Application.peartree_config[:medusa_cache_ttl]
+      ttl = Configuration.instance.medusa_cache_ttl
       if File.exist?(cache_pathname) and File.mtime(cache_pathname).
           between?(Time.at(Time.now.to_i - ttl), Time.now)
         json_str = File.read(cache_pathname)

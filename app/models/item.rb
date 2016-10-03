@@ -462,8 +462,7 @@ class Item < ActiveRecord::Base
     url = nil
     id = self.iiif_identifier
     if id
-      url = PearTree::Application.peartree_config[:iiif_url] + '/' +
-          CGI.escape(id)
+      url = Configuration.instance.iiif_url + '/' + CGI.escape(id)
     end
     url
   end

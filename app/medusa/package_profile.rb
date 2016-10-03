@@ -86,8 +86,7 @@ class PackageProfile
   #                  if the instance does not have an ID.
   #
   def medusa_url(uuid)
-    sprintf('%s/uuids/%s.json',
-            PearTree::Application.peartree_config[:medusa_url].chomp('/'),
+    sprintf('%s/uuids/%s.json', Configuration.instance.medusa_url.chomp('/'),
             uuid)
   end
 

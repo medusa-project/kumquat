@@ -58,7 +58,7 @@ class MedusaCfsDirectory
   # @return [String]
   #
   def pathname
-    PearTree::Application.peartree_config[:repository_pathname].chomp('/') +
+    Configuration.instance.repository_pathname.chomp('/') +
         self.repository_relative_pathname
   end
 
@@ -98,8 +98,8 @@ class MedusaCfsDirectory
   #
   def url
     if self.uuid
-      return PearTree::Application.peartree_config[:medusa_url].chomp('/') +
-          '/uuids/' + self.uuid.to_s
+      return Configuration.instance.medusa_url.chomp('/') + '/uuids/' +
+          self.uuid.to_s
     end
     nil
   end
@@ -120,7 +120,7 @@ class MedusaCfsDirectory
     if @json_tree # This will likely only be true during testing.
       tree = @json_tree
     else
-      url = PearTree::Application.peartree_config[:medusa_url].chomp('/') +
+      url = Configuration.instance.medusa_url.chomp('/') +
           '/cfs_directories/' + self.id.to_s + '/show_tree.json'
       Rails.logger.debug('MedusaCfsDirectory.load_contents(): loading ' + url)
       json_str = Medusa.client.get(url, follow_redirect: true).body
@@ -175,7 +175,7 @@ class MedusaCfsDirectory
     return if @instance_loaded
     raise 'load_instance() called without ID set' unless self.uuid.present?
 
-    ttl = PearTree::Application.peartree_config[:medusa_cache_ttl]
+    ttl = Configuration.instance.medusa_cache_ttl
     if File.exist?(cache_pathname) and File.mtime(cache_pathname).
         between?(Time.at(Time.now.to_i - ttl), Time.now)
       json_str = File.read(cache_pathname)

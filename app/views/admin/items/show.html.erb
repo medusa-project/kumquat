@@ -38,8 +38,8 @@
     <% if Rails.env.development? %>
       <li class="divider"></li>
       <li>
-        <%= link_to(PearTree::Application.peartree_config[:solr_url].chomp('/') +
-                        '/' + PearTree::Application.peartree_config[:solr_core] +
+        <%= link_to(Configuration.instance.solr_url.chomp('/') + '/' +
+                        Configuration.instance.solr_core +
                         "/select?wt=json&indent=true&q=id:#{@item.repository_id}", target: '_blank') do %>
           <i class="fa fa-search"></i>&nbsp;&nbsp;Solr (DEVELOPMENT)
         <% end %>

@@ -196,8 +196,7 @@ module ItemsHelper
   def iiif_bytestream_url(bs)
     if bs and (bs.is_image? or bs.is_pdf?)
       id = bs.repository_relative_pathname.reverse.chomp('/').reverse
-      return PearTree::Application.peartree_config[:iiif_url] + '/' +
-          CGI.escape(id)
+      return Configuration.instance.iiif_url + '/' + CGI.escape(id)
     end
     nil
   end

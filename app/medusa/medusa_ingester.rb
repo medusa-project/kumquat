@@ -20,8 +20,8 @@ class MedusaIngester
   # @return [void]
   #
   def ingest_collections(task = nil)
-    config = PearTree::Application.peartree_config
-    url = sprintf('%s/collections.json', config[:medusa_url].chomp('/'))
+    config = Configuration.instance
+    url = sprintf('%s/collections.json', config.medusa_url.chomp('/'))
 
     Rails.logger.info('MedusaIngester.ingest_collections(): '\
         'retrieving collection list')
