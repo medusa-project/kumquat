@@ -447,6 +447,15 @@ class Item < ActiveRecord::Base
   end
 
   ##
+  # @return [String, nil] IIIF info.json URL, or nil if the instance is not an
+  #                       image.
+  #
+  def iiif_info_url
+    url = self.iiif_url
+    url ? "#{url}/info.json" : nil
+  end
+
+  ##
   # @return [String,nil]
   #
   def iiif_url
