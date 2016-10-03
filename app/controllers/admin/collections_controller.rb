@@ -21,7 +21,7 @@ module Admin
       @collections = Collection.solr.order(Collection::SolrFields::TITLE).limit(@limit)
       # Will be true when searching/filtering.
       if params[:published].present?
-        where = "*#{params[:q].gsub(' ', '\\ *')}*" # gsub escapes spaces properly
+        where = "(*#{params[:q].gsub(' ', '*')}*)"
         @collections.where("#{Collection::SolrFields::TITLE}:#{where}").
             where(Collection::SolrFields::PUBLISHED => params[:published] == '1' ? true : false).
             where(Collection::SolrFields::PUBLISHED_IN_DLS => params[:published_in_dls] == '1' ? true : false)
