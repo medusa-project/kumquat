@@ -31,7 +31,7 @@
           <i class="fa fa-rss"></i>&nbsp;&nbsp;Atom
         <% end %>
       </li>
-      <% iiif_url = iiif_item_url(@item) %>
+      <% iiif_url = @item.iiif_url %>
       <% if iiif_url %>
         <li>
           <%= link_to iiif_url, target: '_blank' do %>

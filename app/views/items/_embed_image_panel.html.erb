@@ -14,9 +14,9 @@
         <div class="row">
           <div class="col-sm-6">
             <input type="hidden" name="iiif-download-url"
-                   value="<%= iiif_item_url(item) %>">
+                   value="<%= item.iiif_url %>">
             <input type="hidden" name="iiif-download-info-json-url"
-                   value="<%= iiif_item_info_url(item) %>">
+                   value="<%= item.iiif_info_url %>">
             <div id="iiif-download"></div>
           </div>
           <div class="col-sm-6">

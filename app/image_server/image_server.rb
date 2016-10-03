@@ -16,15 +16,6 @@ class ImageServer
   end
 
   ##
-  # @param item [Item]
-  # @return [String, nil] Unencoded image server identifier of the item.
-  #
-  def identifier(item)
-    item&.access_master_bytestream&.repository_relative_pathname&.reverse&.
-        chomp('/')&.reverse
-  end
-
-  ##
   # Purges all content related to the given item from the image server cache
   # using the Cantaloupe API.
   #
@@ -33,7 +24,7 @@ class ImageServer
   # @raises [Exception]
   #
   def purge_item_from_cache(item)
-    identifier = identifier(item)
+    identifier = item.iiif_identifier
     if identifier
       uri = PearTree::Application.peartree_config[:image_server_api_endpoint] +
           '/' + CGI::escape(identifier)
