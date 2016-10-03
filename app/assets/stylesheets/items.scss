@@ -68,6 +68,9 @@ body#items_show {
     margin: 0 auto;
     margin-bottom: 1em;
     max-width: 1200px;
+    iframe {
+      height: 93%;
+    }
   }
 
   #pt-video-player {

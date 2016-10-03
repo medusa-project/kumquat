@@ -1384,6 +1384,11 @@ module ItemsHelper
     if bs
       viewer_url = asset_path('/pdfjs/web/viewer.html?file=' + url)
       html += "<iframe src=\"#{viewer_url}\" height=\"100%\" width=\"100%\"></iframe>"
+
+      html += link_to(viewer_url, target: '_blank',
+                      class: 'btn btn-default') do
+        content_tag(:span, '', class: 'fa fa-file-pdf-o') + ' Open in New Window'
+      end
     end
     html += '</div>'
     raw(html)
