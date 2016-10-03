@@ -43,7 +43,7 @@
               <label for="replace_mode">Replace:</label>
               <%= select_tag(:replace_mode, options_for_select(
                   [ [ 'Whole Value', 'whole_value' ],
-                    [ 'Matched Part', 'matched_part' ] ]),
+                    [ 'Matched Part', 'matched_part' ] ], 'matched_part'),
                              class: 'form-control') %>
             </div>
 
