@@ -45,9 +45,11 @@
         <% end %>
       </li>
       <% if @item.bib_id %>
-        <li><%= link_to 'Library Catalog Record',
-                        "http://vufind.carli.illinois.edu/vf-uiu/Record/uiu_#{@item.bib_id}",
-                        target: '_blank' %></li>
+        <li><%= link_to "http://vufind.carli.illinois.edu/vf-uiu/Record/uiu_#{@item.bib_id}",
+                        target: '_blank' do %>
+            <i class="fa fa-book"></i>&nbsp;&nbsp;Library Catalog Record
+          <% end %>
+        </li>
       <% end %>
       <li class="divider"></li>
       <li>
