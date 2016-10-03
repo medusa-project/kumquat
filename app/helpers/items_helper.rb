@@ -204,35 +204,6 @@ module ItemsHelper
 
   ##
   # @param item [Item]
-  # @return [String, nil] IIIF info.json URL or nil if the item is not an image
-  #
-  def iiif_item_info_url(item)
-    url = iiif_item_url(item)
-    url ? "#{url}/info.json" : nil
-  end
-
-  ##
-  # @param item [Item]
-  # @return [String, nil] Base IIIF URL or nil if the item is not
-  #                       IIIF-compatible
-  #
-  def iiif_item_url(item)
-    url = nil
-    bs = item.access_master_bytestream
-    if !bs or (!bs.is_image? and !bs.is_pdf?)
-      bs = item.preservation_master_bytestream
-      if !bs or (!bs.is_image? and !bs.is_pdf?)
-        bs = nil
-      end
-    end
-    if bs
-      url = iiif_bytestream_url(bs)
-    end
-    url
-  end
-
-  ##
-  # @param item [Item]
   # @param options [Hash]
   # @option options [Integer] :size Thumbnail size
   # @return [String]
@@ -1346,7 +1317,7 @@ module ItemsHelper
           immediateRender: true,
           preserveViewport: true,
           prefixUrl: \"/openseadragon/images/\",
-          tileSources: \"#{j(iiif_item_url(item))}\"
+          tileSources: \"#{j(item.iiif_url)}\"
       });
       </script>"
     end
@@ -1366,7 +1337,7 @@ module ItemsHelper
       if bs.repository_relative_pathname and iiif_safe?(bs)
         shape = (shape == :square) ? 'square' : 'full'
         url = sprintf('%s/%s/!%d,%d/0/default.jpg',
-                      iiif_item_url(item), shape, size, size)
+                      item.iiif_url, shape, size, size)
       end
     end
     url

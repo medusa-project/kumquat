@@ -310,7 +310,7 @@ module AdminHelper
     data['Published'] = "<span class=\"label #{item.published ? 'label-success' : 'label-danger'}\">"\
         "#{item.published ? 'Published' : 'Unpublished' }</span>"
 
-    iiif_url = iiif_item_url(item)
+    iiif_url = item.iiif_url
     data['IIIF URL'] = iiif_url.present? ?
         link_to(iiif_url, iiif_url, target: '_blank') : 'None'
 
