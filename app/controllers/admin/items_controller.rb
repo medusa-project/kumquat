@@ -52,9 +52,9 @@ module Admin
       end
 
       @items = Item.solr.
-          where(Item::SolrFields::COLLECTION => @collection.repository_id).
-          where(Item::SolrFields::PARENT_ITEM => :null).
-          where(params[:q]).facet(false)
+          filter(Item::SolrFields::COLLECTION => @collection.repository_id).
+          filter(Item::SolrFields::PARENT_ITEM => :null).
+          where(params[:q])
 
       # fields
       field_input_present = false
@@ -70,7 +70,7 @@ module Admin
       respond_to do |format|
         format.html do
           if params[:published].present? and params[:published] != 'any'
-            @items = @items.where("#{Item::SolrFields::PUBLISHED}:#{params[:published].to_i}")
+            @items = @items.filter(Item::SolrFields::PUBLISHED => params[:published].to_i ? 'true' : 'false')
           end
 
           @start = params[:start] ? params[:start].to_i : 0

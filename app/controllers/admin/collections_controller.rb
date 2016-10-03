@@ -23,8 +23,10 @@ module Admin
       if params[:published].present?
         where = "(*#{params[:q].gsub(' ', '*')}*)"
         @collections.where("#{Collection::SolrFields::TITLE}:#{where}").
-            where(Collection::SolrFields::PUBLISHED => params[:published] == '1' ? true : false).
-            where(Collection::SolrFields::PUBLISHED_IN_DLS => params[:published_in_dls] == '1' ? true : false)
+            filter(Collection::SolrFields::PUBLISHED =>
+                       params[:published].to_s == '1' ? true : false).
+            filter(Collection::SolrFields::PUBLISHED_IN_DLS =>
+                       params[:published_in_dls].to_s == '1' ? true : false)
       else
         @collections.start(@start)
       end

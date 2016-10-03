@@ -16,11 +16,10 @@ class Relation
     @calling_class = caller.kind_of?(Class) ? caller : caller.class
     @facet = true
     @facetable_fields = []
-    @facet_queries = []
-    @filter_clauses = [] # will be joined by AND
+    @filter_clauses = []
     @limit = 1 # default to fastest; clients can override with limit(int)
     @more_like_this = false
-    @omit_entity_query = false
+    @operator = :and
     @order = nil
     @start = 0
     @where_clauses = [] # will be joined by AND
@@ -37,24 +36,6 @@ class Relation
   #
   def count
     self.to_a.total_length
-  end
-
-  ##
-  # @param fq [Array, String]
-  # @return [Relation] self
-  #
-  def facet(fq)
-    reset_results
-    if fq === false
-      @facet = false
-    elsif fq.blank?
-      # noop
-    elsif fq.respond_to?(:each)
-      @facet_queries += fq.reject{ |v| v.blank? }
-    elsif fq.respond_to?(:to_s)
-      @facet_queries << fq.to_s
-    end
-    self
   end
 
   ##
@@ -89,6 +70,8 @@ class Relation
           "#{k}:#{['(', '['].include?(v.to_s[0]) ? v : "\"#{v}\""}"
         end
       end
+    elsif fq.respond_to?(:each)
+      @filter_clauses += fq
     elsif fq.respond_to?(:to_s)
       @filter_clauses << fq.to_s
     end
@@ -155,17 +138,11 @@ class Relation
   end
 
   ##
-  # Whether to omit the entity query from the Solr query. If false, calling
-  # something like `MyEntity.where(..)` will automatically limit the query to
-  # results of `MyEntity` type.
-  #
-  # The entity query is present by default.
-  #
-  # @param boolean [Boolean]
+  # @param op [Symbol] `:and` or `:or`
   # @return [Relation] self
   #
-  def omit_entity_query(boolean)
-    @omit_entity_query = boolean
+  def operator(op)
+    @operator = op.to_sym
     self
   end
 
@@ -255,16 +232,16 @@ class Relation
 
   def load
     if @caller and @calling_class and !@loaded
-      if !@omit_entity_query
-        # limit the query to the calling class
-        @where_clauses << "#{Configuration.instance.solr_class_field}:\""\
-        "#{@calling_class}\""
-      end
+      query = @where_clauses.any? ? @where_clauses.join(' ') : ['*:*']
+      filter = ["#{Configuration.instance.solr_class_field}:\"#{@calling_class}\""] +
+          @filter_clauses
+
       params = {
-          'q' => @where_clauses.join(' AND '),
+          'q' => query,
+          'q.op' => @operator.to_s.upcase,
           'df' => Configuration.instance.solr_default_search_field,
           'fl' => @calling_class::SolrFields::ID,
-          'fq' => @filter_clauses.join(' AND '),
+          'fq' => filter,
           'start' => @start,
           'sort' => @order,
           'rows' => @limit.to_i > 0 ? @limit.to_i : 99999
@@ -274,8 +251,6 @@ class Relation
         params['mlt.mindf'] = 1
         params['mlt.mintf'] = 1
         params['mlt.match.include'] = false
-        params['fq'] = "#{Configuration.instance.solr_class_field}:\""\
-        "#{@calling_class}\""
         endpoint = Configuration.instance.solr_more_like_this_endpoint.gsub(/\//, '')
       else
         endpoint = 'select'
@@ -283,7 +258,6 @@ class Relation
           params['facet'] = true
           params['facet.mincount'] = 1
           params['facet.field'] = self.facetable_fields
-          params['fq'] = @facet_queries
         end
       end
 

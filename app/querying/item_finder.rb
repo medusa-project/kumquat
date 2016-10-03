@@ -68,6 +68,7 @@ class ItemFinder
   ##
   # @param queries [Array]
   # @return [self]
+  #
   def facet_queries(queries)
     @facet_queries = queries
     self
@@ -179,35 +180,29 @@ class ItemFinder
 
     @items = Item.solr.all
 
-    @items = @items.where(Item::SolrFields::PUBLISHED => true).
-        where(Item::SolrFields::COLLECTION_PUBLISHED => true) unless @include_unpublished
+    @items = @items.filter(Item::SolrFields::PUBLISHED => true).
+        filter(Item::SolrFields::COLLECTION_PUBLISHED => true) unless @include_unpublished
     @items = @items.where(@query) if @query
 
     role_keys = roles.map(&:key)
     if role_keys.any?
       # Include documents that have allowed roles matching one of the user
       # roles, or that have no effective allowed roles.
-      @items = @items.where("(#{Item::SolrFields::EFFECTIVE_ALLOWED_ROLES}:(#{role_keys.join(' ')}) "\
+      @items = @items.filter("(#{Item::SolrFields::EFFECTIVE_ALLOWED_ROLES}:(#{role_keys.join(' ')}) "\
           "OR *:* -#{Item::SolrFields::EFFECTIVE_ALLOWED_ROLES}:[* TO *])")
       # Exclude documents that have denied roles matching one of the user
       # roles.
-      @items = @items.where("-#{Item::SolrFields::EFFECTIVE_DENIED_ROLES}:(#{role_keys.join(' ')})")
+      @items = @items.filter("-#{Item::SolrFields::EFFECTIVE_DENIED_ROLES}:(#{role_keys.join(' ')})")
     end
 
-    @items = @items.where(Item::SolrFields::PARENT_ITEM => :null) unless @include_children
+    @items = @items.filter(Item::SolrFields::PARENT_ITEM => :null) unless @include_children
 
-    if @facet_queries
-      if @facet_queries.respond_to?(:each)
-        @facet_queries.each { |fq| @items = @items.facet(fq) }
-      else
-        @items = @items.facet(@facet_queries)
-      end
-    end
+    @items = @items.filter(@facet_queries)
 
     if @collection_id
       @collection = Collection.find_by_repository_id(@collection_id)
       raise ActiveRecord::RecordNotFound unless @collection
-      @items = @items.where(Item::SolrFields::COLLECTION => @collection_id)
+      @items = @items.filter(Item::SolrFields::COLLECTION => @collection_id)
     end
 
     metadata_profile = effective_metadata_profile
