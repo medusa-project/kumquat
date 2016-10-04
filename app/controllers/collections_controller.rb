@@ -17,7 +17,7 @@ class CollectionsController < WebsiteController
       # roles, or that have no effective allowed roles.
       @collections = @collections.
           where("(#{Collection::SolrFields::ALLOWED_ROLES}:(#{roles.join(' ')}) "\
-          "OR *:* -#{Collection::SolrFields::ALLOWED_ROLES}:[* TO *])")
+          "OR (*:* -#{Collection::SolrFields::ALLOWED_ROLES}:[* TO *]))")
       # Exclude documents that have denied roles matching one of the user
       # roles.
       @collections = @collections.
