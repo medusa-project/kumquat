@@ -188,7 +188,7 @@ class ItemFinder
       # Include documents that have allowed roles matching one of the user
       # roles, or that have no effective allowed roles.
       @items = @items.where("(#{Item::SolrFields::EFFECTIVE_ALLOWED_ROLES}:(#{role_keys.join(' ')}) "\
-          "OR *:* -#{Item::SolrFields::EFFECTIVE_ALLOWED_ROLES}:[* TO *])")
+          "OR (*:* -#{Item::SolrFields::EFFECTIVE_ALLOWED_ROLES}:[* TO *]))")
       # Exclude documents that have denied roles matching one of the user
       # roles.
       @items = @items.where("-#{Item::SolrFields::EFFECTIVE_DENIED_ROLES}:(#{role_keys.join(' ')})")
