@@ -52,8 +52,10 @@ class ApplicationController < ActionController::Base
   #                     available, or the request hostname/IP address otherwise.
   #
   def request_roles
-    return Set.new(current_user.roles) if current_user
-    Role.all_matching_hostname_or_ip(request.host, request.remote_ip)
+    roles = Set.new
+    roles += current_user.roles if current_user
+    roles += Role.all_matching_hostname_or_ip(request.host, request.remote_ip)
+    roles
   end
 
   ##
