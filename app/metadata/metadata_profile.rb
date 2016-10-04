@@ -85,6 +85,10 @@ class MetadataProfile < ActiveRecord::Base
       end
       profile.name = tentative_name
 
+      # Save now to get an ID, which elements will need to perform validations
+      # in the next step.
+      profile.save!
+
       # Add its elements.
       struct['elements'].each do |jd|
         profile_elem = profile.elements.build

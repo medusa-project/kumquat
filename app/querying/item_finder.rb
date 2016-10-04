@@ -189,7 +189,7 @@ class ItemFinder
       # Include documents that have allowed roles matching one of the user
       # roles, or that have no effective allowed roles.
       @items = @items.filter("(#{Item::SolrFields::EFFECTIVE_ALLOWED_ROLES}:(#{role_keys.join(' ')}) "\
-          "OR *:* -#{Item::SolrFields::EFFECTIVE_ALLOWED_ROLES}:[* TO *])")
+          "OR (*:* -#{Item::SolrFields::EFFECTIVE_ALLOWED_ROLES}:[* TO *]))")
       # Exclude documents that have denied roles matching one of the user
       # roles.
       @items = @items.filter("-#{Item::SolrFields::EFFECTIVE_DENIED_ROLES}:(#{role_keys.join(' ')})")
@@ -225,13 +225,14 @@ class ItemFinder
 
   ##
   # @return [Set<Role>] Set of Roles associated with the client user, if
-  #                     available, or the client hostname/IP address otherwise.
+  #                     available, and the client hostname/IP address.
   #
   def roles
-    return Set.new(@client_user.roles) if @client_user
-    return Role.all_matching_hostname_or_ip(@client_hostname, @client_ip) if
+    roles = Set.new
+    roles += @client_user.roles if @client_user
+    roles += Role.all_matching_hostname_or_ip(@client_hostname, @client_ip) if
         @client_hostname or @client_ip
-    Set.new
+    roles
   end
 
 end
