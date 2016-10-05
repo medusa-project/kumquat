@@ -6,6 +6,7 @@ class ItemFinder
   def initialize
     @include_children = false
     @include_unpublished = false
+    @media_types = []
     @start = 0
     @limit = 999999
   end
@@ -108,6 +109,13 @@ class ItemFinder
   end
 
   ##
+  # @param types [Enumerable<String>]
+  def media_types(types)
+    @media_types = types
+    self
+  end
+
+  ##
   # @param string [String]
   # @return [self]
   #
@@ -124,6 +132,8 @@ class ItemFinder
     @sort = string
     self
   end
+
+  alias_method :order, :sort
 
   ##
   # @param start [Integer]
@@ -180,8 +190,14 @@ class ItemFinder
 
     @items = Item.solr.all
 
-    @items = @items.filter(Item::SolrFields::PUBLISHED => true).
-        filter(Item::SolrFields::COLLECTION_PUBLISHED => true) unless @include_unpublished
+    unless @include_unpublished
+      @items = @items.filter(Item::SolrFields::PUBLISHED => true).
+          filter(Item::SolrFields::COLLECTION_PUBLISHED => true)
+    end
+    if @media_types.any?
+      @items = @items.filter(Item::SolrFields::ACCESS_MASTER_MEDIA_TYPE => "(#{@media_types.join(' OR ')})")
+    end
+
     @items = @items.where(@query) if @query
 
     role_keys = roles.map(&:key)
@@ -218,7 +234,11 @@ class ItemFinder
     elsif metadata_profile.default_sortable_element
       sort = metadata_profile.default_sortable_element.solr_single_valued_field
     end
-    @items = @items.order("#{sort} asc") if sort
+    if sort == :random
+      @items = @items.order(sort)
+    elsif sort
+      @items = @items.order("#{sort} asc")
+    end
 
     @items = @items.start(@start).limit(@limit)
 
