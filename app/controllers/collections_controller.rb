@@ -23,6 +23,9 @@ class CollectionsController < WebsiteController
       # roles.
       @collections = @collections.
           filter("-#{Collection::SolrFields::DENIED_ROLES}:(#{roles.join(' ')})")
+    else
+      @collections = @collections.
+          filter("*:* -#{Collection::SolrFields::ALLOWED_ROLES}:[* TO *]")
     end
 
     fresh_when(etag: @collections) if Rails.env.production?
@@ -56,7 +59,7 @@ class CollectionsController < WebsiteController
   private
 
   def authorize_collection
-    return unless authorize(@collection)
+    authorize(@collection)
   end
 
   def load_collection

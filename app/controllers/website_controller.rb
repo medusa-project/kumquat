@@ -90,10 +90,10 @@ class WebsiteController < ApplicationController
   def authorized?(model)
     authorized = true
     if model&.respond_to?(:authorized_by_any_roles?) # AuthorizableByRole method
-      authorized = false unless model.authorized_by_any_roles?(request_roles)
+      authorized = model.authorized_by_any_roles?(request_roles)
     end
     if model&.respond_to?(:published)
-      authorized = false unless model.published
+      authorized = model.published
     end
     authorized
   end

@@ -10,7 +10,7 @@ module AuthorizableByRole
   #                   the entity; false otherwise.
   #
   def authorized_by_any_roles?(roles)
-    return true if !roles or roles.empty?
+    return self.effective_allowed_roles.empty? if !roles or roles.empty?
     roles.each { |role| return true if authorized_by_role?(role) }
     false
   end
