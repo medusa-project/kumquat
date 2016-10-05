@@ -661,6 +661,14 @@ class Item < ActiveRecord::Base
   end
 
   ##
+  # @return [Hash]
+  #
+  def solr_document
+    Solr.instance.get('select', params: {
+        q: "#{Item::SolrFields::ID}:#{self.repository_id}" })
+  end
+
+  ##
   # @return [String] The repository ID.
   #
   def solr_id
