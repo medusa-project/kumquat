@@ -22,6 +22,8 @@ class CollectionsController < WebsiteController
       # roles.
       @collections = @collections.
           where("-#{Collection::SolrFields::DENIED_ROLES}:(#{roles.join(' ')})")
+    else
+      @collections = @collections.where("*:* -#{Collection::SolrFields::ALLOWED_ROLES}:[* TO *]")
     end
 
     if params[:fq].respond_to?(:each)
@@ -61,7 +63,7 @@ class CollectionsController < WebsiteController
   private
 
   def authorize_collection
-    return unless authorize(@collection)
+    authorize(@collection)
   end
 
   def load_collection

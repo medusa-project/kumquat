@@ -192,6 +192,8 @@ class ItemFinder
       # Exclude documents that have denied roles matching one of the user
       # roles.
       @items = @items.where("-#{Item::SolrFields::EFFECTIVE_DENIED_ROLES}:(#{role_keys.join(' ')})")
+    else
+      @items = @items.where("*:* -#{Item::SolrFields::EFFECTIVE_ALLOWED_ROLES}:[* TO *]")
     end
 
     @items = @items.where(Item::SolrFields::PARENT_ITEM => :null) unless @include_children
