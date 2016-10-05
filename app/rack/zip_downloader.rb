@@ -25,7 +25,7 @@ class ZipDownloader
         #client_user(current_user). TODO: fix
         collection_id(params[:collection_id]).
         query(params[:q]).
-        facet_queries(params[:fq]).
+        filter_queries(params[:fq]).
         include_children(true).
         sort(Item::SolrFields::ID).
         start(params[:start]).

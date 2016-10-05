@@ -4,29 +4,19 @@ class CollectionsController < WebsiteController
   before_action :authorize_collection, only: :show
 
   def index
-    @collections = Collection.solr.
-        filter(Collection::SolrFields::PUBLISHED => true).
-        filter(Collection::SolrFields::ACCESS_URL => :not_null).
-        facetable_fields(Collection::solr_facet_fields.map{ |e| e[:name] }).
-        filter(params[:fq]).
+    filters = { Collection::SolrFields::ACCESS_URL => :not_null }
+    filters += params[:fq] if params[:fq]
+
+    finder = CollectionFinder.new.
+        client_hostname(request.host).
+        client_ip(request.remote_ip).
+        client_user(current_user).
+        include_unpublished(false).
+        include_unpublished_in_dls(true).
+        filter_queries(filters).
         order(Collection::SolrFields::TITLE).
         limit(99999)
-
-    roles = request_roles.map(&:key)
-    if roles.any?
-      # Include documents that have allowed roles matching one of the user
-      # roles, or that have no effective allowed roles.
-      @collections = @collections.
-          filter("(#{Collection::SolrFields::ALLOWED_ROLES}:(#{roles.join(' ')}) "\
-          "OR (*:* -#{Collection::SolrFields::ALLOWED_ROLES}:[* TO *]))")
-      # Exclude documents that have denied roles matching one of the user
-      # roles.
-      @collections = @collections.
-          filter("-#{Collection::SolrFields::DENIED_ROLES}:(#{roles.join(' ')})")
-    else
-      @collections = @collections.
-          filter("*:* -#{Collection::SolrFields::ALLOWED_ROLES}:[* TO *]")
-    end
+    @collections = finder.to_a
 
     fresh_when(etag: @collections) if Rails.env.production?
 

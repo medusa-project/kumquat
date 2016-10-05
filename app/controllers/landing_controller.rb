@@ -17,26 +17,14 @@ class LandingController < WebsiteController
         limit(1)
     @random_item = finder.to_a.first
 
-    # Get DLS collections
-    @dls_collections = Collection.solr.
-        where(Collection::SolrFields::ACCESS_SYSTEMS => 'Medusa Digital Library').
-        where(Collection::SolrFields::PUBLISHED_IN_DLS => true).
+    # Get DLS collections.
+    finder = CollectionFinder.new.
+        client_hostname(request.host).
+        client_ip(request.remote_ip).
+        client_user(current_user).
+        filter_queries(Collection::SolrFields::ACCESS_SYSTEMS => 'Medusa Digital Library').
         limit(100)
-
-    role_keys = request_roles.map(&:key)
-    if role_keys.any?
-      # Include documents that have allowed roles matching one of the user
-      # roles, or that have no effective allowed roles.
-      @dls_collections = @dls_collections.
-          where("(#{Collection::SolrFields::ALLOWED_ROLES}:(#{role_keys.join(' ')}) "\
-          "OR (*:* -#{Collection::SolrFields::ALLOWED_ROLES}:[* TO *]))")
-      # Exclude documents that have denied roles matching one of the user
-      # roles.
-      @dls_collections = @dls_collections.
-          where("-#{Collection::SolrFields::DENIED_ROLES}:(#{role_keys.join(' ')})")
-    else
-      @dls_collections = @dls_collections.where("*:* -#{Collection::SolrFields::ALLOWED_ROLES}:[* TO *]")
-    end
+    @dls_collections = finder.to_a
 
     fresh_when(etag: @dls_collections) if Rails.env.production?
   end
