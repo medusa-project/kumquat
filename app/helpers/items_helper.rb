@@ -795,6 +795,14 @@ module ItemsHelper
       </button>'
     html += '<ul class="dropdown-menu" role="menu">'
     description = item.description ? CGI::escape(item.description) : nil
+    # share
+    html += '<li>'
+    html += link_to('#', onclick: 'return false;', data: { toggle: 'modal',
+                                                           target: '#pt-cite-modal' }) do
+      raw('<i class="fa fa-pencil"></i> Cite')
+    end
+    html += '</li>'
+    html += '<li class="divider"></li>'
     # email
     html += '<li>'
     html += link_to("mailto:?subject=#{item.title}&body=#{item_url(item)}") do

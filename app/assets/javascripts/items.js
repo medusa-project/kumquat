@@ -1,11 +1,107 @@
 /**
- * Represents show-item view.
+ * Encapsulates show-item view.
  *
  * @constructor
  */
 var PTItemView = function() {
 
     var self = this;
+
+    /**
+     * Encapsulates the citation panel.
+     *
+     * @constructor
+     */
+    var PTCitationPanel = function() {
+
+        var init = function() {
+            Date.prototype.getAbbreviatedMonthName = function() {
+                switch (this.getMonth()) {
+                    case 1: return 'Jan.';
+                    case 2: return 'Feb.';
+                    case 3: return 'Mar.';
+                    case 4: return 'Apr.';
+                    case 5: return 'May';
+                    case 6: return 'June';
+                    case 7: return 'July';
+                    case 8: return 'Aug.';
+                    case 9: return 'Sept.';
+                    case 10: return 'Oct.';
+                    case 11: return 'Nov.';
+                    case 12: return 'Dec.';
+                }
+            };
+            Date.prototype.getMonthName = function() {
+                switch (this.getMonth()) {
+                    case 1: return 'January';
+                    case 2: return 'February';
+                    case 3: return 'March';
+                    case 4: return 'April';
+                    case 5: return 'May';
+                    case 6: return 'June';
+                    case 7: return 'July';
+                    case 8: return 'August';
+                    case 9: return 'September';
+                    case 10: return 'October';
+                    case 11: return 'November';
+                    case 12: return 'December';
+                }
+            };
+            $('[name=pt-citation-format]').on('change', function() {
+                var author = $('[name=pt-citation-author]').val();
+                var date = $('[name=pt-citation-date-created]').val();
+                var dateObj = new Date(date);
+                var source = $('[name=pt-citation-source]').val();
+                var title = $('[name=pt-citation-title]').val();
+                var url = $('[name=pt-citation-url]').val();
+                var citation = '';
+
+                switch ($(this).val()) {
+                    case 'APA':
+                        // "Nonperiodical Web Document or Report":
+                        // https://owl.english.purdue.edu/owl/resource/560/10/
+                        if (author) {
+                            author += '. ';
+                        } else {
+                            author = '[Unknown]. ';
+                        }
+                        if (date) {
+                            date = '(' + dateObj.getFullYear() + ', ' +
+                                dateObj.getMonthName() + ' ' + dateObj.getDay() + '). ';
+                        }
+                        title = '<i>' + title + '</i>. ';
+                        url = 'Retrieved from ' + url;
+                        citation = author + date + title + url;
+                        break;
+                    case 'Chicago':
+                        // https://owl.english.purdue.edu/owl/resource/717/05/
+                        if (author) {
+                            author += ', ';
+                        }
+                        title = '"' + title + '," ';
+                        source = '<i>' + source + '</i>, ';
+                        date = 'last modified ' + dateObj.getMonthName() +
+                            ' ' + dateObj.getDay() + ', ' +
+                            dateObj.getFullYear() + ', ';
+                        url += '.';
+                        citation = author + title + source + date + url;
+                        break;
+                    case 'MLA':
+                        // "A Page on a Web Site"
+                        // https://owl.english.purdue.edu/owl/resource/747/08/
+                        title = '"' + title + '." ';
+                        source = '<i>' + source + ',</i> ';
+                        date = dateObj.getDay() + ' ' +
+                            dateObj.getAbbreviatedMonthName() + ' ' +
+                            dateObj.getFullYear() + ', ';
+                        url = url.replace('http://', '').replace('https://', '') + '.';
+                        citation = title + source + date + url;
+                        break;
+                }
+                $('#pt-citation').html(citation);
+            }).trigger('change');
+        }; init();
+    };
 
     /**
      * Encapsulates the download panel.
@@ -208,6 +304,7 @@ var PTItemView = function() {
             }
         }).trigger('resize');
 
+        new PTCitationPanel();
         new PTDownloadPanel();
         new PTEmbedPanel();
     };
