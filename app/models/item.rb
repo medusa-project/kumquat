@@ -508,8 +508,26 @@ class Item < ActiveRecord::Base
     bs&.is_video?
   end
 
-  def items
-    Item.where(parent_repository_id: self.repository_id)
+  ##
+  # @param recursive [Boolean] Whether to include all items regardless of depth
+  #                            in the hierarchy, or only immediate children.
+  # @return [Enumerable<Item>] Child items.
+  #
+  def items(recursive = false)
+    items = []
+    if recursive
+      def all_items(bucket, child_items)
+        child_items.each do |child|
+          bucket << child
+          all_items(bucket, child.items(false))
+        end
+        bucket
+      end
+      items = all_items(items, self.items(false))
+    else
+      items = Item.where(parent_repository_id: self.repository_id)
+    end
+    items
   end
 
   ##

@@ -32,11 +32,8 @@
       </ul>
     </div>
     <!-- Download menu, disabled in cross-collection contexts to limit the
-    downloading of huge amounts of content. Also disabled in non-desktop
-    contexts using the `browser` gem. -->
-    <% if @collection and !browser.device.console? and
-        !browser.device.mobile? and !browser.device.tablet? and
-        !browser.device.tv? %>
+    downloading of huge amounts of content. -->
+    <% if @collection and client_supports_zip_download? %>
       <div class="btn-group">
         <button type="button" class="btn btn-default dropdown-toggle"
                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -44,7 +41,7 @@
         </button>
         <ul class="dropdown-menu dropdown-menu-right">
           <li>
-            <%= link_to('', 'data-toggle': 'modal', 'data-target': '#pt-download-modal') do %>
+            <%= link_to('', 'data-toggle': 'modal', 'data-target': '#pt-download-zip-modal') do %>
               <i class="fa fa-file-zip-o"></i>&nbsp;&nbsp;Zip File&hellip;
             <% end %>
           </li>
@@ -113,33 +110,4 @@
   </div>
 <% end %>
 
-<!-- Download Items modal panel -->
-<div class="modal fade" id="pt-download-modal" tabindex="-1" role="dialog"
-     aria-labelledby="pt-download-modal-label">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="pt-download-modal-label">Download Zip File</h4>
-      </div>
-      <div class="modal-body">
-        <p>Zip files include access masters and JSON metadata for all of the
-          items in the current result set, including their children. They are
-          segmented into batches, and limited to
-          <%= ZipDownloader::BATCH_SIZE %> items per batch.</p>
-        <div class="alert alert-warning">
-          <i class="fa fa-exclamation-triangle"></i> Each batch file may be
-          multiple gigabytes in size.</div>
-
-        <div id="pt-batch-buttons">
-          <% (@items.total_length / ZipDownloader::BATCH_SIZE.to_f).ceil.times do |i| %>
-            <%= link_to("Batch #{i + 1}",
-                        params.merge({ format: :zip, start: i * ZipDownloader::BATCH_SIZE }),
-                        class: 'btn btn-primary') %>
-          <% end %>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+<%= render partial: 'download_zip_panel', locals: { items: @items } %>

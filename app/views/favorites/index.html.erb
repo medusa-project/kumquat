@@ -2,6 +2,25 @@
 <% provide(:body_id, 'favorites') %>
 <% provide(:active_nav, 'favorites') %>
 
+<% if client_supports_zip_download? %>
+  <div class="btn-group pull-right" id="pt-download-menu">
+    <!-- Download menu -->
+    <div class="btn-group">
+      <button type="button" class="btn btn-default dropdown-toggle"
+              data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <i class="fa fa-download"></i> Download <span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu dropdown-menu-right">
+        <li>
+          <%= link_to('', 'data-toggle': 'modal', 'data-target': '#pt-download-zip-modal') do %>
+            <i class="fa fa-file-zip-o"></i>&nbsp;&nbsp;Zip File&hellip;
+          <% end %>
+        </li>
+      </ul>
+    </div>
+  </div>
+<% end %>
+
 <h1>My Favorites</h1>
 
 <% if @items.count > 0 %>
@@ -16,3 +35,5 @@
 <% end %>
 
 <p class="pt-no-favorites">You have no items in your favorites.</p>
+
+<%= render partial: 'items/download_zip_panel', locals: { items: @items } %>

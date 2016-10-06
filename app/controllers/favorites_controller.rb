@@ -9,21 +9,39 @@ class FavoritesController < WebsiteController
 
   def index
     @start = params[:start] ? params[:start].to_i : 0
-    @limit = 40
-    @items = Item.solr.none
 
-    unless cookies[:favorites].blank?
-      ids = cookies[:favorites].split(COOKIE_DELIMITER)
-      if ids.any?
-        @items = Item.solr.where("id:(#{ids.map{ |id| "#{id}" }.join(' ')})")
+    respond_to do |format|
+      format.html do
+        @limit = 40
+        @items = Item.solr.none
+
+        unless cookies[:favorites].blank?
+          ids = cookies[:favorites].split(COOKIE_DELIMITER)
+          if ids.any?
+            @items = Item.solr.where("id:(#{ids.map{ |id| "#{id}" }.join(' ')})")
+          end
+        end
+
+        @items = @items.start(@start).limit(@limit)
+        @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
+        @num_results_shown = [@limit, @items.total_length].min
+
+        fresh_when(etag: @items) if Rails.env.production?
+      end
+      format.zip do
+        if cookies[:favorites].present?
+          ids = cookies[:favorites].split(COOKIE_DELIMITER)
+          if ids.any?
+            ids = ids.join(',')
+            # Redirect to the FavoritesZipDownloader Rack app.
+            redirect_to "/favorites/download?items=#{ids}&start=#{@start}"
+            return
+          end
+        end
+        flash['error'] = 'No favorites to download.'
+        redirect_to favorites_url
       end
     end
-
-    @items = @items.start(@start).limit(@limit)
-    @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
-    @num_results_shown = [@limit, @items.total_length].min
-
-    fresh_when(etag: @items) if Rails.env.production?
   end
 
   private
@@ -33,7 +51,7 @@ class FavoritesController < WebsiteController
   # no longer exist in the repo.
   #
   def purge_invalid_favorites
-    if cookies[:favorites]
+    if @items and cookies[:favorites]
       ids = cookies[:favorites].split(COOKIE_DELIMITER)
       if ids.length != @items.length
         cookies[:favorites] = @items.map(&:id).join(COOKIE_DELIMITER)

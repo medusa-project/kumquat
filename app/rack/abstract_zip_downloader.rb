@@ -7,37 +7,24 @@
 # huge amount of content they could retrieve. (But, perhaps it would be better
 # to limit the total number of items instead.)
 #
-class ZipDownloader
+class AbstractZipDownloader
 
   BATCH_SIZE = 100
 
+  attr_accessor :instance_id
+  attr_accessor :params
+
+  def initialize
+    @instance_id = Random.rand(10000000)
+  end
+
   def call(env)
-    params = Rack::Utils.parse_nested_query(env['QUERY_STRING']).symbolize_keys
+    @params = Rack::Utils.parse_nested_query(env['QUERY_STRING']).symbolize_keys
+  end
 
-    if params[:collection_id].blank?
-      return [400, {}, 'To spare computing resources, zip file '\
-        'generation across collection contexts is disabled.']
-    end
-
-    finder = ItemFinder.new.
-        client_hostname(env['HTTP_HOST'].split(':').first).
-        client_ip(env['REMOTE_ADDR']).
-        #client_user(current_user). TODO: fix
-        collection_id(params[:collection_id]).
-        query(params[:q]).
-        filter_queries(params[:fq]).
-        include_children(true).
-        sort(Item::SolrFields::ID).
-        start(params[:start]).
-        limit(BATCH_SIZE)
-
+  def send_items(items)
     begin
-      items = finder.to_a
       if items.length > 0
-        instance_id = Random.rand(10000000)
-        Rails.logger.info("ZipDownloader-#{instance_id}: "\
-            "processing request for: #{finder.to_s.split("\n").join('; ')}")
-
         body = ZipTricks::RackBody.new do |zip|
           items.each_with_index do |item, index|
             Rails.logger.debug("ZipDownloader-#{instance_id}: "\
