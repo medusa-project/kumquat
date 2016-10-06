@@ -13,15 +13,15 @@
         <p>Zip files include access masters and JSON metadata for all of the
           items in the current result set, including their children. They are
           segmented into batches, and limited to
-          <%= ZipDownloader::BATCH_SIZE %> items per batch.</p>
+          <%= AbstractZipDownloader::BATCH_SIZE %> items per batch.</p>
         <div class="alert alert-warning">
           <i class="fa fa-exclamation-triangle"></i> Each batch file may be
           multiple gigabytes in size.</div>
 
         <div id="pt-batch-buttons">
-          <% (items.total_length / ZipDownloader::BATCH_SIZE.to_f).ceil.times do |i| %>
+          <% (items.total_length / AbstractZipDownloader::BATCH_SIZE.to_f).ceil.times do |i| %>
             <%= link_to("Batch #{i + 1}",
-                        params.merge({ format: :zip, start: i * ZipDownloader::BATCH_SIZE }),
+                        params.merge({ format: :zip, start: i * AbstractZipDownloader::BATCH_SIZE }),
                         class: 'btn btn-primary') %>
           <% end %>
         </div>

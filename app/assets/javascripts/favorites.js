@@ -12,8 +12,10 @@ var PTFavoritesView = function() {
                     badge.text(num_favorites);
                     if (num_favorites < 1) {
                         $('.pt-no-favorites').show();
+                        $('#pt-download-menu').hide();
                     } else {
                         $('.pt-no-favorites').hide();
+                        $('#pt-download-menu').show();
                     }
                 });
         });
@@ -25,8 +27,10 @@ var PTFavoritesView = function() {
 
         if (PTItem.numFavorites() < 1) {
             $('.pt-no-favorites').show();
+            $('#pt-download-menu').hide();
         } else {
             $('.pt-no-favorites').hide();
+            $('#pt-download-menu').show();
         }
         $('.pt-remove-from-favorites').show();
     };
