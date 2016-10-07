@@ -202,14 +202,6 @@ module ApplicationHelper
         html += "<li>#{link_to 'Search', context_url}</li>"
         html += item_structure_breadcrumb(item)
         html += "</ol>"
-      when ItemsController::BrowseContext::BROWSING_COLLECTION
-        html = "<ol class=\"breadcrumb\">"
-        html += "<li>#{link_to 'Home', root_path}</li>"
-        html += "<li>#{link_to 'Collections', collections_path}</li>"
-        html += "<li>#{link_to item.collection.title, collection_path(item.collection)}</li>"
-        html += "<li>#{link_to 'Items', collection_items_path(item.collection)}</li>"
-        html += item_structure_breadcrumb(item)
-        html += "</ol>"
       when ItemsController::BrowseContext::BROWSING_ALL_ITEMS
         html = "<ol class=\"breadcrumb\">"
         html += "<li>#{link_to 'Home', root_path}</li>"
@@ -227,6 +219,7 @@ module ApplicationHelper
         html += "<li>#{link_to 'Home', root_path}</li>"
         html += "<li>#{link_to 'Collections', collections_path}</li>"
         html += "<li>#{link_to item.collection.title, collection_path(item.collection)}</li>"
+        html += "<li>#{link_to 'Items', collection_items_path(item.collection)}</li>"
         html += item_structure_breadcrumb(item)
         html += "</ol>"
     end
