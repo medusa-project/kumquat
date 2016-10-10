@@ -113,11 +113,11 @@ class ItemFinder < AbstractFinder
     if role_keys.any?
       # Include documents that have allowed roles matching one of the user
       # roles, or that have no effective allowed roles.
-      @items = @items.filter("(#{Item::SolrFields::EFFECTIVE_ALLOWED_ROLES}:(#{role_keys.join(' ')}) "\
+      @items = @items.filter("(#{Item::SolrFields::EFFECTIVE_ALLOWED_ROLES}:(#{role_keys.join(' OR ')}) "\
           "OR (*:* -#{Item::SolrFields::EFFECTIVE_ALLOWED_ROLES}:[* TO *]))")
       # Exclude documents that have denied roles matching one of the user
       # roles.
-      @items = @items.filter("-#{Item::SolrFields::EFFECTIVE_DENIED_ROLES}:(#{role_keys.join(' ')})")
+      @items = @items.filter("-#{Item::SolrFields::EFFECTIVE_DENIED_ROLES}:(#{role_keys.join(' OR ')})")
     else
       @items = @items.filter("*:* -#{Item::SolrFields::EFFECTIVE_ALLOWED_ROLES}:[* TO *]")
     end
@@ -149,7 +149,7 @@ class ItemFinder < AbstractFinder
       @items = @items.order("#{sort} asc")
     end
 
-    @items = @items.start(@start).limit(@limit)
+    @items = @items.operator(:and).start(@start).limit(@limit)
 
     @loaded = true
   end

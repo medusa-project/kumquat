@@ -57,16 +57,17 @@ class CollectionFinder < AbstractFinder
     if role_keys.any?
       # Include documents that have allowed roles matching one of the user
       # roles, or that have no effective allowed roles.
-      @collections = @collections.filter("(#{Collection::SolrFields::ALLOWED_ROLES}:(#{role_keys.join(' ')}) "\
+      @collections = @collections.filter("(#{Collection::SolrFields::ALLOWED_ROLES}:(#{role_keys.join(' OR ')}) "\
           "OR (*:* -#{Collection::SolrFields::ALLOWED_ROLES}:[* TO *]))")
       # Exclude documents that have denied roles matching one of the user
       # roles.
-      @collections = @collections.filter("-#{Collection::SolrFields::DENIED_ROLES}:(#{role_keys.join(' ')})")
+      @collections = @collections.filter("-#{Collection::SolrFields::DENIED_ROLES}:(#{role_keys.join(' OR ')})")
     else
       @collections = @collections.filter("*:* -#{Collection::SolrFields::ALLOWED_ROLES}:[* TO *]")
     end
 
     @collections = @collections.
+        operator(:and).
         facetable_fields(Collection::solr_facet_fields.map{ |e| e[:name] }).
         filter(@filter_queries).
         order(@sort).
