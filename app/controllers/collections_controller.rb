@@ -4,7 +4,8 @@ class CollectionsController < WebsiteController
   before_action :authorize_collection, only: :show
 
   def index
-    filters = { Collection::SolrFields::ACCESS_URL => :not_null }
+    #filters = { Collection::SolrFields::ACCESS_URL => :not_null }
+    filters = {}
     filters += params[:fq] if params[:fq]
 
     finder = CollectionFinder.new.
