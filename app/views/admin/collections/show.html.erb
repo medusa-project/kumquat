@@ -32,6 +32,16 @@
         <i class="fa fa-database"></i> Medusa
       <% end %>
     </li>
+    <% if Rails.env.development? %>
+      <li class="divider"></li>
+      <li>
+        <%= link_to(Configuration.instance.solr_url.chomp('/') + '/' +
+                        Configuration.instance.solr_core +
+                        "/select?wt=json&indent=true&q=id:#{@collection.repository_id}", target: '_blank') do %>
+          <i class="fa fa-search"></i>&nbsp;&nbsp;Solr (DEVELOPMENT)
+        <% end %>
+      </li>
+    <% end %>
   </ul>
 </div>
 
