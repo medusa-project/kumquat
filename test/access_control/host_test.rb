@@ -2,15 +2,30 @@ require 'test_helper'
 
 class HostTest < ActiveSupport::TestCase
 
-  test 'pattern can contain only certain characters' do
-    Host.create!(pattern: 'ABCabc123.*_-')
+  # comment()
 
-    assert_raises ActiveRecord::RecordInvalid do
-      Host.create!(pattern: 'abc abc')
-    end
-    assert_raises ActiveRecord::RecordInvalid do
-      Host.create!(pattern: '123. 242.*')
-    end
+  test 'comment() should work' do
+    host = Host.new(pattern: '123.123.* # some range')
+    assert_equal 'some range', host.comment
+    host = Host.new(pattern: '# 123.123.*')
+    assert_equal '123.123.*', host.comment
+    host = Host.new(pattern: '* # some range')
+    assert_equal 'some range', host.comment
+    host = Host.new(pattern: '123.123.*')
+    assert_nil host.comment
+    host = Host.new(pattern: '*')
+    assert_nil host.comment
+  end
+
+  # comment()
+
+  test 'commented_out?() should work' do
+    host = Host.new(pattern: '123.123.* # some range')
+    assert !host.commented_out?
+    host = Host.new(pattern: '# 123.123.*')
+    assert host.commented_out?
+    host = Host.new(pattern: '123.123.*')
+    assert !host.commented_out?
   end
 
   # ip?()
@@ -43,7 +58,25 @@ class HostTest < ActiveSupport::TestCase
     assert host.ip_range?('123.123.*-123.124.*')
   end
 
+  # pattern
+
+  test 'pattern can contain only certain characters' do
+    Host.create!(pattern: 'ABCabc123.*#_-')
+
+    assert_raises ActiveRecord::RecordInvalid do
+      Host.create!(pattern: 'abc abc')
+    end
+    assert_raises ActiveRecord::RecordInvalid do
+      Host.create!(pattern: '123. 242.*')
+    end
+  end
+
   # pattern_matches?()
+
+  test 'pattern_matches?() should return false when pattern is commented out' do
+    host = Host.new(pattern: '# 123.123.*')
+    assert !host.pattern_matches?('123.123.123.123')
+  end
 
   test 'pattern_matches?() should work with IP addresses' do
     host = Host.new(pattern: '123.123.*')
@@ -74,6 +107,11 @@ class HostTest < ActiveSupport::TestCase
     assert host.within_range?('123.126.12.10', '123.123.*', '123.130.*')
     assert !host.within_range?('123.122.16.2', '123.123.*', '123.130.*')
     assert !host.within_range?('123.131.16.2', '123.123.*', '123.130.*')
+  end
+
+  test 'within_range?() should return false when pattern is commented out' do
+    host = Host.new(pattern: '# 123.123.*-123.130.*')
+    assert !host.within_range?('123.126.12.10', '123.123.*', '123.130.*')
   end
 
 end
