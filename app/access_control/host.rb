@@ -9,12 +9,39 @@
 # IP ranges are also allowed, as in:
 # 10.0.*-10.10.*
 #
+# Comments are allowed anywhere in the pattern, starting with
+# COMMENT_CHARACTER.
+#
 class Host < ActiveRecord::Base
 
-  # Allow any hostname or IPv4 address, as well as a wildcard character.
-  validates_format_of :pattern, with: /\A[a-zA-Z0-9\-.*_]+\Z/i,
+  COMMENT_CHARACTER = '#'
+
+  # Allow any hostname or IPv4 address, as well as a wildcard character and a
+  # pound sign for comments.
+  validates_format_of :pattern, with: /\A[a-zA-Z0-9\-#.*_]+\Z/i,
                       message: 'Pattern is invalid',
                       allow_blank: false
+
+  ##
+  # @return [String] Comment portion of the pattern (the part after
+  #                  COMMENT_CHARACTER).
+  #
+  def comment
+    if self.pattern
+      index = self.pattern.index(COMMENT_CHARACTER)
+      if index
+        return self.pattern[(index + 1)..self.pattern.length].strip
+      end
+    end
+    nil
+  end
+
+  ##
+  # @return [Boolean]
+  #
+  def commented_out?
+    self.pattern ? (self.pattern.strip.index(COMMENT_CHARACTER) == 0) : true
+  end
 
   ##
   # @param string [String] Any string
@@ -37,7 +64,9 @@ class Host < ActiveRecord::Base
   # @return [Boolean]
   #
   def pattern_matches?(string)
-    if self.pattern == string
+    if self.commented_out?
+      return false
+    elsif self.pattern == string
       return true
     elsif ip_range?(self.pattern)
       parts = self.pattern.split('-')
@@ -59,6 +88,8 @@ class Host < ActiveRecord::Base
   # @return [Boolean]
   #
   def within_range?(ip, start, end_)
+    return false if self.commented_out?
+
     ip_groups = ip.gsub('*', '').split('.')
     start_groups = start.gsub('*', '').split('.')
     end_groups = end_.gsub('*', '').split('.')
