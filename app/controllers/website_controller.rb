@@ -43,7 +43,17 @@ class WebsiteController < ApplicationController
       profile_elements = MetadataProfile.where(default: true).limit(1).first.
           elements
     end
-    @searchable_collections = Collection.where(published_in_dls: true)
+
+    finder = CollectionFinder.new.
+        client_hostname(request.host).
+        client_ip(request.remote_ip).
+        client_user(current_user).
+        include_unpublished(false).
+        include_unpublished_in_dls(false).
+        order(Collection::SolrFields::TITLE).
+        limit(99999)
+    @searchable_collections = finder.to_a
+
     @elements_for_select = profile_elements.where(searchable: true).
         order(:label).map{ |ed| [ ed.label, ed.solr_multi_valued_field ] }
     @elements_for_select.unshift([ 'Any Field', Item::SolrFields::SEARCH_ALL ])
