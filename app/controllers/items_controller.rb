@@ -15,6 +15,7 @@ class ItemsController < WebsiteController
   # API actions
   before_action :authorize_api_user, only: [:create, :destroy]
   before_action :check_api_content_type, only: :create
+  before_action :enable_cors, only: [:annotation, :canvas, :manifest, :sequence]
   skip_before_action :verify_authenticity_token, only: [:create, :destroy]
 
   # Other actions
@@ -49,13 +50,16 @@ class ItemsController < WebsiteController
   # @see http://iiif.io/api/presentation/2.1/#annotation
   #
   def annotation
-    @page = Item.find_by_repository_id(params[:name])
-    if @page
-      render 'items/iiif_presentation_api/canvas',
+    valid_names = %w(access preservation)
+    if valid_names.include?(params[:name])
+      @annotation_name = params[:name]
+      @bytestream = @annotation_name == 'access' ?
+          @item.access_master_bytestream : @item.preservation_master_bytestream
+      render 'items/iiif_presentation_api/annotation',
              formats: :json,
-             content_type: (Rails.env.development? ? 'application/json' : 'application/ld+json')
+             content_type: 'application/json'
     else
-      render text: 'No such canvas.', status: :not_found
+      render text: 'No such annotation.', status: :not_found
     end
   end
 
@@ -71,7 +75,7 @@ class ItemsController < WebsiteController
     if @page
       render 'items/iiif_presentation_api/canvas',
              formats: :json,
-             content_type: (Rails.env.development? ? 'application/json' : 'application/ld+json')
+             content_type: 'application/json'
     else
       render text: 'No such canvas.', status: :not_found
     end
@@ -195,7 +199,7 @@ class ItemsController < WebsiteController
   def manifest
     render 'items/iiif_presentation_api/manifest',
            formats: :json,
-           content_type: (Rails.env.development? ? 'application/json' : 'application/ld+json')
+           content_type: 'application/json'
   end
 
   ##
@@ -268,7 +272,7 @@ class ItemsController < WebsiteController
         if @item.pages.count > 0
           render 'items/iiif_presentation_api/sequence',
                  formats: :json,
-                 content_type: (Rails.env.development? ? 'application/json' : 'application/ld+json')
+                 content_type: 'application/json'
         else
           render text: 'This object does not have a page sequence.',
                  status: :not_found
@@ -350,6 +354,10 @@ class ItemsController < WebsiteController
       return false
     end
     true
+  end
+
+  def enable_cors
+    headers['Access-Control-Allow-Origin'] = '*'
   end
 
   def load_item

@@ -9,6 +9,6 @@ json.width @page.access_master_bytestream&.width
 if @page.is_image?
   json.images do
     json.set! '@type', 'oa:Annotation'
-    json.set! '@id', item_iiif_annotation_url(@page, @page.repository_id)
+    json.set! '@id', item_iiif_annotation_url(@page, 'access')
   end
 end
