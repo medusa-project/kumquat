@@ -212,6 +212,25 @@ module ItemsHelper
 
   ##
   # @param item [Item]
+  # @param size [Integer]
+  # @param shape [Symbol] :default or :square
+  # @return [String, nil] Image URL or nil if the item is not an image
+  #
+  def iiif_image_url(item, size, shape = :default)
+    url = nil
+    if item.is_image? or item.is_pdf?
+      bs = item.access_master_bytestream || item.preservation_master_bytestream
+      if bs.repository_relative_pathname and iiif_safe?(bs)
+        shape = (shape == :square) ? 'square' : 'full'
+        url = sprintf('%s/%s/!%d,%d/0/default.jpg',
+                      item.iiif_url, shape, size, size)
+      end
+    end
+    url
+  end
+
+  ##
+  # @param item [Item]
   # @param options [Hash]
   # @option options [Integer] :size Thumbnail size
   # @return [String]
@@ -639,7 +658,7 @@ module ItemsHelper
       # be huge and/or in a format they can't use.
       struct[:image] = {
           '@type': 'ImageObject',
-          'contentUrl': item_image_url(item, 1024)
+          'contentUrl': iiif_image_url(item, 1024)
       }
     end
 
@@ -771,7 +790,7 @@ module ItemsHelper
 
     # thumbnailUrl
     if item.is_image? or item.is_pdf?
-      struct[:thumbnailUrl] = item_image_url(item, ItemsHelper::DEFAULT_THUMBNAIL_SIZE)
+      struct[:thumbnailUrl] = iiif_image_url(item, ItemsHelper::DEFAULT_THUMBNAIL_SIZE)
     end
 
     options[:pretty_print] ? JSON.pretty_generate(struct) : JSON.generate(struct)
@@ -845,7 +864,7 @@ module ItemsHelper
     html += '</li>'
     # pinterest
     url = "http://pinterest.com/pin/create/button/?url=#{CGI::escape(item_url(item))}&description=#{CGI::escape(item.title)}"
-    iiif_url = item_image_url(item, 512)
+    iiif_url = iiif_image_url(item, 512)
     url += "&media=#{CGI::escape(iiif_url)}" if iiif_url
     html += '<li>'
     html += link_to(url) do
@@ -972,7 +991,7 @@ module ItemsHelper
         html += icon_for(entity) # ApplicationHelper
       end
     elsif entity.kind_of?(Item)
-      url = item_image_url(entity, size, shape)
+      url = iiif_image_url(entity, size, shape)
       if url
         # no alt because it may appear in a huge font size if the image is 404
         html += image_tag(url, alt: '')
@@ -997,7 +1016,7 @@ module ItemsHelper
     if entity.kind_of?(Bytestream)
       url = bytestream_image_url(entity, size, shape)
     elsif entity.kind_of?(Item)
-      url = item_image_url(entity, size, shape)
+      url = iiif_image_url(entity, size, shape)
     end
     url
   end
@@ -1338,25 +1357,6 @@ module ItemsHelper
       </script>"
     end
     raw(html)
-  end
-
-  ##
-  # @param item [Item]
-  # @param size [Integer]
-  # @param shape [Symbol] :default or :square
-  # @return [String, nil] Image URL or nil if the item is not an image
-  #
-  def item_image_url(item, size, shape = :default)
-    url = nil
-    if item.is_image? or item.is_pdf?
-      bs = item.access_master_bytestream || item.preservation_master_bytestream
-      if bs.repository_relative_pathname and iiif_safe?(bs)
-        shape = (shape == :square) ? 'square' : 'full'
-        url = sprintf('%s/%s/!%d,%d/0/default.jpg',
-                      item.iiif_url, shape, size, size)
-      end
-    end
-    url
   end
 
   def pdf_viewer_for(item)
