@@ -18,10 +18,14 @@ class ItemsController < WebsiteController
   skip_before_action :verify_authenticity_token, only: [:create, :destroy]
 
   # Other actions
-  before_action :load_item, only: [:access_master_bytestream, :files, :pages,
-                                   :preservation_master_bytestream, :show]
+  before_action :load_item, only: [:access_master_bytestream, :files,
+                                   :manifest, :pages,
+                                   :preservation_master_bytestream, :sequence,
+                                   :show]
   before_action :authorize_item, only: [:access_master_bytestream, :files,
-                                        :pages, :preservation_master_bytestream]
+                                        :manifest, :pages,
+                                        :preservation_master_bytestream,
+                                        :sequence]
   before_action :authorize_item, only: :show, unless: :using_api?
   before_action :set_browse_context, only: :index
 
@@ -146,6 +150,19 @@ class ItemsController < WebsiteController
   end
 
   ##
+  # Serves IIIF Presentation API 2.1 manifests.
+  #
+  # Responds to GET /items/:id/manifest
+  #
+  # @see http://iiif.io/api/presentation/2.1/#manifest
+  #
+  def manifest
+    render 'items/manifest',
+           formats: :json,
+           content_type: (Rails.env.development? ? 'application/json' : 'application/ld+json')
+  end
+
+  ##
   # Responds to GET /item/:id/pages (XHR only)
   #
   def pages
@@ -199,6 +216,19 @@ class ItemsController < WebsiteController
     end
 
     redirect_to items_path(q: where_clauses.join(' AND '), fq: filter_clauses)
+  end
+
+  ##
+  # Serves IIIF Presentation API 2.1 sequences.
+  #
+  # Responds to GET /items/:id/sequence
+  #
+  # @see http://iiif.io/api/presentation/2.1/#sequence
+  #
+  def sequence
+    render 'items/sequence',
+           formats: :json,
+           content_type: (Rails.env.development? ? 'application/json' : 'application/ld+json')
   end
 
   ##

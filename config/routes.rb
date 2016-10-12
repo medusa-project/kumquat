@@ -92,6 +92,9 @@ Rails.application.routes.draw do
     match '/pages', to: 'items#pages', via: 'get', as: :pages
     match '/preservation-master', to: 'items#preservation_master_bytestream',
           via: 'get', as: :preservation_master_bytestream
+    # IIIF Presentation API 2.1 routes
+    match '/manifest', to: 'items#manifest', via: 'get', as: 'iiif_manifest'
+    match '/sequence', to: 'items#sequence', via: 'get', as: 'iiif_sequence'
   end
   match '/oai-pmh', to: 'oai_pmh#index', via: %w(get post), as: 'oai_pmh'
   match '/search', to: 'items#search', via: 'post'
