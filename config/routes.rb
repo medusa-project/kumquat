@@ -93,6 +93,8 @@ Rails.application.routes.draw do
     match '/preservation-master', to: 'items#preservation_master_bytestream',
           via: 'get', as: :preservation_master_bytestream
     # IIIF Presentation API 2.1 routes
+    match '/annotation/:name', to: 'items#annotation', via: 'get',
+          as: 'iiif_annotation'
     match '/canvas/:name', to: 'items#canvas', via: 'get', as: 'iiif_canvas'
     match '/manifest', to: 'items#manifest', via: 'get', as: 'iiif_manifest'
     match '/sequence/:name', to: 'items#sequence', via: 'get',

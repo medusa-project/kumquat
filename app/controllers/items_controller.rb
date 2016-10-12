@@ -18,12 +18,12 @@ class ItemsController < WebsiteController
   skip_before_action :verify_authenticity_token, only: [:create, :destroy]
 
   # Other actions
-  before_action :load_item, only: [:access_master_bytestream, :canvas, :files,
-                                   :manifest, :pages,
+  before_action :load_item, only: [:access_master_bytestream, :annotation,
+                                   :canvas, :files, :manifest, :pages,
                                    :preservation_master_bytestream, :sequence,
                                    :show]
-  before_action :authorize_item, only: [:access_master_bytestream, :canvas,
-                                        :files, :manifest, :pages,
+  before_action :authorize_item, only: [:access_master_bytestream, :annotation,
+                                        :canvas, :files, :manifest, :pages,
                                         :preservation_master_bytestream,
                                         :sequence]
   before_action :authorize_item, only: :show, unless: :using_api?
@@ -42,6 +42,24 @@ class ItemsController < WebsiteController
   end
 
   ##
+  # Serves IIIF Presentation API 2.1 annotations.
+  #
+  # Responds to GET /items/:id/annotation/:name
+  #
+  # @see http://iiif.io/api/presentation/2.1/#annotation
+  #
+  def annotation
+    @page = Item.find_by_repository_id(params[:name])
+    if @page
+      render 'items/iiif_presentation_api/canvas',
+             formats: :json,
+             content_type: (Rails.env.development? ? 'application/json' : 'application/ld+json')
+    else
+      render text: 'No such canvas.', status: :not_found
+    end
+  end
+
+  ##
   # Serves IIIF Presentation API 2.1 canvases.
   #
   # Responds to GET /items/:id/canvas/:name
@@ -49,9 +67,14 @@ class ItemsController < WebsiteController
   # @see http://iiif.io/api/presentation/2.1/#canvas
   #
   def canvas
-    render 'items/iiif_presentation_api/canvas',
-           formats: :json,
-           content_type: (Rails.env.development? ? 'application/json' : 'application/ld+json')
+    @page = Item.find_by_repository_id(params[:name])
+    if @page
+      render 'items/iiif_presentation_api/canvas',
+             formats: :json,
+             content_type: (Rails.env.development? ? 'application/json' : 'application/ld+json')
+    else
+      render text: 'No such canvas.', status: :not_found
+    end
   end
 
   ##

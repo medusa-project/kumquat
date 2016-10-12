@@ -7,7 +7,7 @@ module IiifPresentationHelper
   def iiif_canvases(item)
     item.pages.map do |page|
       {
-          '@id': item_iiif_canvas_url(page, "page#{item.page_number}"),
+          '@id': item_iiif_canvas_url(page, page.repository_id),
           '@type': 'sc:Canvas',
           'label': "Page #{item.page_number}"
       }
