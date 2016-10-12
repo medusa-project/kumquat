@@ -1,8 +1,25 @@
 class CollectionsController < WebsiteController
 
-  before_action :load_collection, only: :show
-  before_action :authorize_collection, only: :show
+  before_action :load_collection, only: [:iiif_presentation, :show]
+  before_action :authorize_collection, only: [:iiif_presentation, :show]
+  before_action :enable_cors, only: :iiif_presentation
 
+  ##
+  # Serves IIIF Presentation API 2.1 collections.
+  #
+  # Responds to GET /collection/:id
+  #
+  # @see http://iiif.io/api/presentation/2.1/#collection
+  #
+  def iiif_presentation
+    render 'collections/iiif_presentation_api/collection',
+           formats: :json,
+           content_type: 'application/json'
+  end
+
+  ##
+  # Responds to GET /collections
+  #
   def index
     #filters = { Collection::SolrFields::ACCESS_URL => :not_null }
     filters = {}
@@ -31,6 +48,9 @@ class CollectionsController < WebsiteController
     end
   end
 
+  ##
+  # Responds to GET /collections/:id
+  #
   def show
     fresh_when(etag: @collection) if Rails.env.production?
 
@@ -54,7 +74,7 @@ class CollectionsController < WebsiteController
   end
 
   def load_collection
-    @collection = Collection.find_by_repository_id(params[:id])
+    @collection = Collection.find_by_repository_id(params[:collection_id] || params[:id])
     raise ActiveRecord::RecordNotFound unless @collection
   end
 

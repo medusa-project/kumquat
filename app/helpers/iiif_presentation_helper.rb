@@ -15,6 +15,20 @@ module IiifPresentationHelper
   end
 
   ##
+  # @param collection [Collection]
+  # @return [Array]
+  #
+  def iiif_manifests_for(collection)
+    collection.items.map do |item| # top-level items only
+      {
+          '@id': item_iiif_manifest_url(item),
+          '@type': 'sc:Manifest',
+          label: item.title
+      }
+    end
+  end
+
+  ##
   # @param item [Item]
   # @return [Array]
   #

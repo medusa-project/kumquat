@@ -83,6 +83,9 @@ Rails.application.routes.draw do
         as: :auth # used by omniauth
   resources :collections, only: [:index, :show] do
     resources :items, only: :index
+    # IIIF Presentation API 2.1 routes
+    match '/presentation', to: 'collections#iiif_presentation', via: 'get',
+          as: 'iiif_presentation'
   end
   resources :favorites, only: :index
   resources :items, only: [:create, :destroy, :index, :show] do
