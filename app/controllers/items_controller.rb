@@ -18,12 +18,12 @@ class ItemsController < WebsiteController
   skip_before_action :verify_authenticity_token, only: [:create, :destroy]
 
   # Other actions
-  before_action :load_item, only: [:access_master_bytestream, :files,
+  before_action :load_item, only: [:access_master_bytestream, :canvas, :files,
                                    :manifest, :pages,
                                    :preservation_master_bytestream, :sequence,
                                    :show]
-  before_action :authorize_item, only: [:access_master_bytestream, :files,
-                                        :manifest, :pages,
+  before_action :authorize_item, only: [:access_master_bytestream, :canvas,
+                                        :files, :manifest, :pages,
                                         :preservation_master_bytestream,
                                         :sequence]
   before_action :authorize_item, only: :show, unless: :using_api?
@@ -39,6 +39,19 @@ class ItemsController < WebsiteController
   #
   def access_master_bytestream
     send_bytestream(@item, Bytestream::Type::ACCESS_MASTER, params[:disposition])
+  end
+
+  ##
+  # Serves IIIF Presentation API 2.1 canvases.
+  #
+  # Responds to GET /items/:id/canvas/:name
+  #
+  # @see http://iiif.io/api/presentation/2.1/#canvas
+  #
+  def canvas
+    render 'items/iiif_presentation_api/canvas',
+           formats: :json,
+           content_type: (Rails.env.development? ? 'application/json' : 'application/ld+json')
   end
 
   ##
@@ -157,7 +170,7 @@ class ItemsController < WebsiteController
   # @see http://iiif.io/api/presentation/2.1/#manifest
   #
   def manifest
-    render 'items/manifest',
+    render 'items/iiif_presentation_api/manifest',
            formats: :json,
            content_type: (Rails.env.development? ? 'application/json' : 'application/ld+json')
   end
@@ -226,9 +239,20 @@ class ItemsController < WebsiteController
   # @see http://iiif.io/api/presentation/2.1/#sequence
   #
   def sequence
-    render 'items/sequence',
-           formats: :json,
-           content_type: (Rails.env.development? ? 'application/json' : 'application/ld+json')
+    @sequence_name = params[:name]
+    case @sequence_name
+      when 'page'
+        if @item.pages.count > 0
+          render 'items/iiif_presentation_api/sequence',
+                 formats: :json,
+                 content_type: (Rails.env.development? ? 'application/json' : 'application/ld+json')
+        else
+          render text: 'This object does not have a page sequence.',
+                 status: :not_found
+        end
+      else
+        render text: 'Sequence not available.', status: :not_found
+    end
   end
 
   ##
