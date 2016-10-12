@@ -130,4 +130,8 @@ class WebsiteController < ApplicationController
     nil
   end
 
+  def enable_cors
+    headers['Access-Control-Allow-Origin'] = '*'
+  end
+
 end

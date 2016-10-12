@@ -356,10 +356,6 @@ class ItemsController < WebsiteController
     true
   end
 
-  def enable_cors
-    headers['Access-Control-Allow-Origin'] = '*'
-  end
-
   def load_item
     @item = Item.find_by_repository_id(params[:item_id] || params[:id])
     raise ActiveRecord::RecordNotFound unless @item
