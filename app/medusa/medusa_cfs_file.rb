@@ -72,6 +72,22 @@ class MedusaCfsFile
   end
 
   ##
+  # @param bytestream_type [Bytestream::Type]
+  # @return [Bytestream] Fully initialized bytestream instance (not persisted).
+  #
+  def to_bytestream(bytestream_type)
+    bs = Bytestream.new
+    bs.bytestream_type = bytestream_type
+    bs.cfs_file_uuid = self.uuid
+    bs.repository_relative_pathname =
+        '/' + self.repository_relative_pathname.reverse.chomp('/').reverse
+    bs.byte_size = File.size(bs.absolute_local_pathname)
+    bs.infer_media_type # The type of the CFS file is likely to be vague.
+    bs.read_dimensions
+    bs
+  end
+
+  ##
   # @return [String] Absolute URI of the Medusa CFS file resource, or nil if
   #                  the instance does not have a UUID.
   #
