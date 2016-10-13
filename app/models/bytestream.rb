@@ -84,6 +84,14 @@ class Bytestream < ActiveRecord::Base
     self.media_type and self.media_type == 'application/pdf'
   end
 
+  ##
+  # @return [Boolean] Whether the bytestream is of a still or moving raster
+  #                   image with pixel dimensions.
+  #
+  def is_raster?
+    is_image? or is_video?
+  end
+
   def is_text?
     self.media_type and self.media_type.start_with?('text/plain')
   end
@@ -105,12 +113,43 @@ class Bytestream < ActiveRecord::Base
   end
 
   ##
+  # Returns metadata for human consumption that is not guaranteed to be in any
+  # particular format.
+  #
   # @return [Array<Hash<Symbol,String>>] Array of hashes with :label,
   #                                      :category, and :value keys.
   #
   def metadata
     read_metadata unless @metadata_read
     @metadata
+  end
+
+  ##
+  # Populates the width and height properties by reading the dimensions from
+  # the source image or video.
+  #
+  # @return [void]
+  #
+  def read_dimensions
+    if is_image?
+      # Redirect stderr to /dev/null as there is apparently no other way to
+      # suppress "no exif data found in the file" messages.
+      output = `exiv2 "#{self.absolute_local_pathname.gsub('"', '\\"')}" 2> /dev/null`
+      output.encode('UTF-8', invalid: :replace).split("\n").each do |row|
+        if row.downcase.start_with?('image size')
+          columns = row.split(':')
+          if columns.length > 1
+            dimensions = columns[1].split('x')
+            if dimensions.length == 2
+              self.width = dimensions[0].strip.to_i
+              self.height = dimensions[1].strip.to_i
+            end
+          end
+        end
+      end
+    elsif is_video?
+      # TODO: write this
+    end
   end
 
   def serializable_hash(opts)

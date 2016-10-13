@@ -71,6 +71,23 @@ namespace :peartree do
         "    Skipped: #{result[:num_skipped]}\n"
   end
 
+  desc 'Update bytestreams in all collections'
+  task :update_bytestreams => :environment do |task|
+    ActiveRecord::Base.transaction do
+      Collection.all.each do |collection|
+        next if collection.items.count == 0
+        puts collection.title
+        warnings = []
+        MedusaIngester.new.ingest_items(collection,
+                                        MedusaIngester::IngestMode::UPDATE_BYTESTREAMS,
+                                        { extract_metadata: false },
+                                        warnings)
+        warnings.each { |w| puts w }
+      end
+    end
+    Solr.instance.commit
+  end
+
   desc 'Update items from a TSV file'
   task :update_from_tsv, [:pathname] => :environment do |task, args|
     count = ItemTsvIngester.new.ingest_pathname(args[:pathname])

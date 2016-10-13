@@ -142,14 +142,11 @@ class MedusaIngester
                           collection_repository_id: collection.repository_id,
                           variant: Item::Variants::FILE)
           item.elements.build(name: 'title', value: file.name)
+
           # Create its corresponding bytestream.
-          bs = item.bytestreams.build
-          bs.bytestream_type = Bytestream::Type::ACCESS_MASTER
-          bs.cfs_file_uuid = file.uuid
-          bs.repository_relative_pathname =
-              '/' + file.repository_relative_pathname.reverse.chomp('/').reverse
-          bs.byte_size = File.size(bs.absolute_local_pathname)
-          bs.infer_media_type # The type of the CFS file is likely to be vague.
+          bs = file.to_bytestream(Bytestream::Type::ACCESS_MASTER)
+          bs.item = item
+          bs.save!
 
           update_item_from_embedded_metadata(item, options) if
               options[:extract_metadata]
@@ -241,13 +238,8 @@ class MedusaIngester
               end
 
               # Create the preservation master bytestream.
-              bs = child.bytestreams.build
-              bs.cfs_file_uuid = pres_file.uuid
-              bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
-              bs.repository_relative_pathname =
-                  '/' + pres_file.repository_relative_pathname.reverse.chomp('/').reverse
-              bs.byte_size = File.size(bs.absolute_local_pathname)
-              bs.infer_media_type # The type of the CFS file is likely to be vague.
+              child.bytestreams << pres_file.
+                  to_bytestream(Bytestream::Type::PRESERVATION_MASTER)
 
               # Set the child's variant.
               basename = File.basename(pres_file.repository_relative_pathname)
@@ -279,13 +271,8 @@ class MedusaIngester
           elsif pres_dir.files.length == 1
             # Create the preservation master bytestream.
             pres_file = pres_dir.files.first
-            bs = item.bytestreams.build
-            bs.cfs_file_uuid = pres_file.uuid
-            bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
-            bs.repository_relative_pathname =
-                '/' + pres_file.repository_relative_pathname.reverse.chomp('/').reverse
-            bs.byte_size = File.size(bs.absolute_local_pathname)
-            bs.infer_media_type # The type of the CFS file is likely to be vague.
+            item.bytestreams << pres_file.
+                to_bytestream(Bytestream::Type::PRESERVATION_MASTER)
 
             # Find and create the access master bytestream.
             begin
@@ -451,14 +438,7 @@ class MedusaIngester
             select{ |f| f.name.chomp(File.extname(f.name)) ==
             pres_master_name.chomp(File.extname(pres_master_name)) }.first
         if access_file
-          bs = Bytestream.new
-          bs.cfs_file_uuid = access_file.uuid
-          bs.bytestream_type = Bytestream::Type::ACCESS_MASTER
-          bs.repository_relative_pathname =
-              '/' + access_file.repository_relative_pathname.reverse.chomp('/').reverse
-          bs.byte_size = File.size(bs.absolute_local_pathname)
-          bs.infer_media_type # The type of the CFS file is likely to be vague.
-          return bs
+          return access_file.to_bytestream(Bytestream::Type::ACCESS_MASTER)
         else
           msg = "Preservation master file #{pres_master_file.uuid} has no "\
               "access master counterpart."
@@ -601,13 +581,8 @@ class MedusaIngester
 
           item.bytestreams.destroy_all
 
-          bs = item.bytestreams.build
-          bs.bytestream_type = Bytestream::Type::ACCESS_MASTER
-          bs.cfs_file_uuid = file.uuid
-          bs.repository_relative_pathname =
-              '/' + file.repository_relative_pathname.reverse.chomp('/').reverse
-          bs.byte_size = File.size(bs.absolute_local_pathname)
-          bs.infer_media_type # The media type of the CFS file is likely to be vague.
+          bs = file.to_bytestream(Bytestream::Type::ACCESS_MASTER)
+          bs.item = item
           bs.save!
 
           stats[:num_updated] += 1
@@ -666,13 +641,8 @@ class MedusaIngester
                   child.bytestreams.destroy_all
 
                   # Create the preservation master bytestream.
-                  bs = child.bytestreams.build
-                  bs.cfs_file_uuid = pres_file.uuid
-                  bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
-                  bs.repository_relative_pathname =
-                      '/' + pres_file.repository_relative_pathname.reverse.chomp('/').reverse
-                  bs.byte_size = File.size(bs.absolute_local_pathname)
-                  bs.infer_media_type # The type of the CFS file is likely to be vague.
+                  bs = pres_file.to_bytestream(Bytestream::Type::PRESERVATION_MASTER)
+                  bs.item = child
                   bs.save!
 
                   # Find and create the access master bytestream.
@@ -697,13 +667,8 @@ class MedusaIngester
 
               # Create the preservation master bytestream.
               pres_file = pres_dir.files.first
-              bs = item.bytestreams.build
-              bs.cfs_file_uuid = pres_file.uuid
-              bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
-              bs.repository_relative_pathname =
-                  '/' + pres_file.repository_relative_pathname.reverse.chomp('/').reverse
-              bs.byte_size = File.size(bs.absolute_local_pathname)
-              bs.infer_media_type # The type of the CFS file cannot be trusted.
+              item.bytestreams << pres_file.
+                  to_bytestream(Bytestream::Type::PRESERVATION_MASTER)
 
               # Find and create the access master bytestream.
               begin

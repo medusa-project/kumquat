@@ -54,4 +54,16 @@ class BytestreamTest < ActiveSupport::TestCase
     assert @bs.metadata.length > 10
   end
 
+  # read_dimensions()
+
+  test 'read_dimensions() should work on images' do
+    @bs.read_dimensions
+    assert_equal 2000, @bs.width
+    assert_equal 1434, @bs.height
+  end
+
+  test 'read_dimensions() should work on videos' do
+    # TODO: write this
+  end
+
 end

@@ -11,20 +11,22 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160930135358) do
+ActiveRecord::Schema.define(version: 20161013142850) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
   create_table "bytestreams", force: :cascade do |t|
     t.integer  "bytestream_type"
-    t.string   "media_type",                             default: "unknown/unknown"
-    t.datetime "created_at",                                                         null: false
-    t.datetime "updated_at",                                                         null: false
+    t.string   "media_type",                                           default: "unknown/unknown"
+    t.datetime "created_at",                                                                       null: false
+    t.datetime "updated_at",                                                                       null: false
     t.integer  "item_id"
     t.string   "repository_relative_pathname"
     t.string   "cfs_file_uuid"
     t.integer  "byte_size",                    limit: 8
+    t.decimal  "width",                                  precision: 6
+    t.decimal  "height",                                 precision: 6
   end
 
   add_index "bytestreams", ["item_id"], name: "index_bytestreams_on_item_id", using: :btree
