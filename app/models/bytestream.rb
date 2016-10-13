@@ -125,7 +125,9 @@ class Bytestream < ActiveRecord::Base
   #
   def read_dimensions
     if is_image?
-      output = `exiv2 "#{self.absolute_local_pathname.gsub('"', '\\"')}"`
+      # Redirect stderr to /dev/null as there is apparently no other way to
+      # suppress "no exif data found in the file" messages.
+      output = `exiv2 "#{self.absolute_local_pathname.gsub('"', '\\"')}" 2> /dev/null`
       output.encode('UTF-8', invalid: :replace).split("\n").each do |row|
         if row.downcase.start_with?('image size')
           columns = row.split(':')
