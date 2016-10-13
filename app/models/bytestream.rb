@@ -41,13 +41,6 @@ class Bytestream < ActiveRecord::Base
   end
 
   ##
-  # @return [Integer]
-  #
-  def height # TODO: fix and store in the database
-    1000
-  end
-
-  ##
   # @return [String]
   #
   def human_readable_name
@@ -157,13 +150,6 @@ class Bytestream < ActiveRecord::Base
         type: self.human_readable_type,
         media_type: self.media_type
     }
-  end
-
-  ##
-  # @return [Integer]
-  #
-  def width # TODO: fix and store in the database
-    1000
   end
 
   private
