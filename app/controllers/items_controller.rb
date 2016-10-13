@@ -71,7 +71,7 @@ class ItemsController < WebsiteController
   # @see http://iiif.io/api/presentation/2.1/#canvas
   #
   def canvas
-    @page = Item.find_by_repository_id(params[:name])
+    @page = Item.find_by_repository_id(params[:id])
     if @page
       render 'items/iiif_presentation_api/canvas',
              formats: :json,
@@ -261,15 +261,26 @@ class ItemsController < WebsiteController
   ##
   # Serves IIIF Presentation API 2.1 sequences.
   #
-  # Responds to GET /items/:id/sequence
+  # Responds to GET /items/:id/sequence/:name
   #
   # @see http://iiif.io/api/presentation/2.1/#sequence
   #
   def sequence
     @sequence_name = params[:name]
     case @sequence_name
+      when 'item'
+        if @item.items.count > 0
+          @start_canvas_item = @item.items.first
+          render 'items/iiif_presentation_api/sequence',
+                 formats: :json,
+                 content_type: 'application/json'
+        else
+          render text: 'This object does not have an item sequence.',
+                 status: :not_found
+        end
       when 'page'
         if @item.pages.count > 0
+          @start_canvas_item = @item.title_item || @item.pages.first
           render 'items/iiif_presentation_api/sequence',
                  formats: :json,
                  content_type: 'application/json'

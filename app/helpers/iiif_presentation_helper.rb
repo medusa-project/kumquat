@@ -1,32 +1,6 @@
 module IiifPresentationHelper
 
-  ##
-  # @param item [Item]
-  # @return [Array]
-  #
-  def iiif_canvases(item)
-    item.pages.map do |page|
-      {
-          '@id': item_iiif_canvas_url(page, page.repository_id),
-          '@type': 'sc:Canvas',
-          'label': "Page #{item.page_number}"
-      }
-    end
-  end
-
-  ##
-  # @param collection [Collection]
-  # @return [Array]
-  #
-  def iiif_manifests_for(collection)
-    collection.items.map do |item| # top-level items only
-      {
-          '@id': item_iiif_manifest_url(item),
-          '@type': 'sc:Manifest',
-          label: item.title
-      }
-    end
-  end
+  MIN_CANVAS_SIZE = 1200
 
   ##
   # @param item [Item]
