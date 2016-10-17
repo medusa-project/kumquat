@@ -47,9 +47,10 @@ class ItemFinder < AbstractFinder
   end
 
   ##
-  # @param types [Enumerable<String>]
+  # @param types [Enumerable<String>,String]
+  #
   def media_types(types)
-    @media_types = types
+    @media_types = types.respond_to?(:each) ? types : [types]
     self
   end
 
