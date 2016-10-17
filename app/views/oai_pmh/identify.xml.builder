@@ -34,7 +34,7 @@ xml.tag!('OAI-PMH',
       xml.tag!('granularity', 'YYYY-MM-DDThh:mm:ssZ')
       xml.tag!('adminEmail', Option::string(Option::Key::ADMINISTRATOR_EMAIL))
       # this one is optional
-      xml.tag!('description', Option::string(Option::Key::WEBSITE_INTRO_TEXT))
+      xml.tag!('description', strip_tags(Option::string(Option::Key::WEBSITE_INTRO_TEXT)))
     end
   end
 

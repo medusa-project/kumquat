@@ -78,25 +78,25 @@
               <li>
                 <%= link_to(items_path(q: "#{Item::SolrFields::ACCESS_MASTER_MEDIA_TYPE}:image/*")) do %>
                     Images
-                    <span class="badge pt-count"><%= number_with_delimiter(@image_items.total_length) %></span>
+                    <span class="badge pt-count"><%= number_with_delimiter(@num_image_items) %></span>
                 <% end %>
               </li>
               <li>
                 <%= link_to(items_path(q: "#{Item::SolrFields::ACCESS_MASTER_MEDIA_TYPE}:application/pdf")) do %>
                     Documents
-                    <span class="badge pt-count"><%= number_with_delimiter(@document_items.total_length) %></span>
+                    <span class="badge pt-count"><%= number_with_delimiter(@num_document_items) %></span>
                 <% end %>
               </li>
               <li>
                 <%= link_to(items_path(q: "#{Item::SolrFields::ACCESS_MASTER_MEDIA_TYPE}:video/*")) do %>
                     Videos
-                    <span class="badge pt-count"><%= number_with_delimiter(@video_items.total_length) %></span>
+                    <span class="badge pt-count"><%= number_with_delimiter(@num_video_items) %></span>
                 <% end %>
               </li>
               <li>
                 <%= link_to(items_path(q: "#{Item::SolrFields::ACCESS_MASTER_MEDIA_TYPE}:audio/*")) do %>
                     Sound Recordings
-                    <span class="badge pt-count"><%= number_with_delimiter(@audio_items.total_length) %></span>
+                    <span class="badge pt-count"><%= number_with_delimiter(@num_audio_items) %></span>
                 <% end %>
               </li>
             </ul>
