@@ -88,6 +88,15 @@ namespace :peartree do
     Solr.instance.commit
   end
 
+  desc 'Update the dimensions of all bytestreams'
+  task :update_dimensions => :environment do |task|
+    Bytestream.where('repository_relative_pathname IS NOT NULL').all.each do |bs|
+      puts bs.repository_relative_pathname
+      bs.read_dimensions
+      bs.save!
+    end
+  end
+
   desc 'Update items from a TSV file'
   task :update_from_tsv, [:pathname] => :environment do |task, args|
     count = ItemTsvIngester.new.ingest_pathname(args[:pathname])
