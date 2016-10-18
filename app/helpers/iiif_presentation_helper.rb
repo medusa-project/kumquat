@@ -53,7 +53,7 @@ module IiifPresentationHelper
             resource: {
                 '@id': iiif_image_url(item, 1000),
                 '@type': 'dctypes:Image',
-                '@format': item.access_master_bytestream.media_type,
+                'format': item.access_master_bytestream.media_type,
                 service: {
                     '@context': 'http://iiif.io/api/image/2/context.json',
                     '@id': iiif_bytestream_url(item.access_master_bytestream),
