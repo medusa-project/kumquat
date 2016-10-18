@@ -483,26 +483,49 @@ class Item < ActiveRecord::Base
     self.items.where(variant: Variants::INDEX).limit(1).first
   end
 
+  ##
+  # @return [Boolean]
+  #
   def is_audio?
     bs = self.access_master_bytestream || self.preservation_master_bytestream
     bs&.is_audio?
   end
 
+  ##
+  # @return [Boolean] Whether the instance has any children with a "page"
+  #                   variant.
+  #
+  def is_compound?
+    self.pages.count > 0
+  end
+
+  ##
+  # @return [Boolean]
+  #
   def is_image?
     bs = self.access_master_bytestream || self.preservation_master_bytestream
     bs&.is_image?
   end
 
+  ##
+  # @return [Boolean]
+  #
   def is_pdf?
     bs = self.access_master_bytestream || self.preservation_master_bytestream
     bs&.is_pdf?
   end
 
+  ##
+  # @return [Boolean]
+  #
   def is_text?
     bs = self.access_master_bytestream || self.preservation_master_bytestream
     bs&.is_text?
   end
 
+  ##
+  # @return [Boolean]
+  #
   def is_video?
     bs = self.access_master_bytestream || self.preservation_master_bytestream
     bs&.is_video?
