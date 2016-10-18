@@ -27,7 +27,7 @@ if thumb_url
   end
 end
 
-json.rendering({ '@id': item_url(@item), format: 'text/html' })
+json.related({ '@id': item_url(@item), format: 'text/html' })
 json.seeAlso [ { '@id': item_url(@item, format: :json), format: 'application/json' },
                { '@id': item_url(@item, format: :atom), format: 'application/atom+xml' } ]
 
