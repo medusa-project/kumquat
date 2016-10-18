@@ -1051,7 +1051,9 @@ module ItemsHelper
   # @param item [Item]
   #
   def viewer_for(item)
-    if item.is_pdf?
+    if item.is_compound?
+      return compound_viewer_for(item)
+    elsif item.is_pdf?
       return pdf_viewer_for(item)
     elsif item.is_image?
       return image_viewer_for(item)
@@ -1154,6 +1156,26 @@ module ItemsHelper
       end
     end
     data
+  end
+
+  ##
+  # @param item [Item]
+  # @return [String]
+  #
+  def compound_viewer_for(item)
+    html = ''
+    if item.is_compound?
+      # Configuration is in /public/uvconfig.json;
+      # See http://universalviewer.io/examples/ for config structure.
+      html += "<div id=\"pt-compound-viewer\" class=\"uv\" "\
+        "data-locale=\"en-GB:English (GB)\" "\
+        "data-config=\"#{asset_url('uvconfig.json')}\" "\
+        "data-uri=\"#{item_iiif_manifest_url(item)}\" "\
+        "data-sequenceindex=\"0\" data-canvasindex=\"0\" "\
+        "data-rotation=\"0\"></div>"
+      html += javascript_include_tag('/universalviewer/lib/embed.js', id: 'embedUV')
+    end
+    raw(html)
   end
 
   ##
@@ -1314,7 +1336,7 @@ module ItemsHelper
     if bs.bytestream_type == Bytestream::Type::PRESERVATION_MASTER and
         bs.media_type == 'image/tiff'
       begin
-        return false if File.size(bs.absolute_local_pathname) > max_size
+        return false if bs.byte_size > max_size
       rescue
         return false
       end

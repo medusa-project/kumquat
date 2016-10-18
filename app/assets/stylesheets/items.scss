@@ -63,6 +63,13 @@ body#items_show {
   .pt-split-viewer #pt-image-viewer {
   }
 
+  #pt-compound-viewer {
+    background-color: black;
+    margin:0 auto;
+    margin-bottom: 1em;
+    height: 600px;
+  }
+
   #pt-pdf-viewer {
     height: 500px;
     margin: 0 auto;

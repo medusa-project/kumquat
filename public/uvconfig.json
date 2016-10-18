@@ -1,0 +1,33 @@
+{
+  "modules": {
+    "contentLeftPanel": {
+      "options": {
+        "pagingOptionEnabled": false
+      }
+    },
+    "footerPanel": {
+      "options": {
+        "downloadEnabled": false,
+        "shareEnabled": false
+      }
+    },
+    "headerPanel": {
+      "options": {
+        "localeToggleEnabled": false,
+        "settingsButtonEnabled": false
+      }
+    },
+    "pagingHeaderPanel": {
+      "options": {
+        "searchWithinEnabled": false
+      }
+    },
+    "seadragonCenterPanel": {
+      "options": {
+        "immediateRender": true,
+        "navigatorPosition": "TOP_RIGHT",
+        "showHomeControl": true
+      }
+    }
+  }
+}
