@@ -6,7 +6,7 @@ json.set! '@type', 'sc:Manifest'
 # Descriptive metadata about the object/work
 json.label @item.title
 json.metadata iiif_metadata_for(@item)
-json.description @item.description
+json.description @item.description if @item.description.present?
 
 # Images
 thumb_url = thumbnail_url(@item)
