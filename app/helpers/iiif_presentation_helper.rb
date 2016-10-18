@@ -3,6 +3,69 @@ module IiifPresentationHelper
   MIN_CANVAS_SIZE = 1200
 
   ##
+  # @param subitem [Item] Subitem or page
+  #
+  def iiif_canvas_for(subitem)
+    case subitem.variant
+      when Item::Variants::PAGE
+        struct = {
+            '@id': item_iiif_canvas_url(subitem, subitem.repository_id),
+            '@type': 'sc:Canvas',
+            'label': "Page #{subitem.page_number}",
+            height: canvas_height(subitem),
+            width: canvas_width(subitem),
+        }
+        struct[:images] = iiif_images_for(subitem, 'access') if subitem.is_image?
+        return struct
+      else
+        struct = {
+            '@id': item_iiif_canvas_url(subitem, subitem.repository_id),
+            '@type': 'sc:Canvas',
+            label: subitem.title,
+            height: canvas_height(subitem),
+            width: canvas_width(subitem),
+        }
+        struct[:images] = iiif_images_for(subitem, 'access') if subitem.is_image?
+        return struct
+    end
+  end
+
+  ##
+  # @param item [Item]
+  # @return [Array]
+  #
+  def iiif_canvases_for(item)
+    items = item.is_compound? ? item.pages : item.items
+    items.map { |subitem| iiif_canvas_for(subitem) }
+  end
+
+  ##
+  # @param item [Item]
+  # @param annotation_name [String] 'access' or 'preservation'
+  # @return [Array]
+  #
+  def iiif_images_for(item, annotation_name)
+    {
+        '@type': 'oa:Annotation',
+        '@id': item_iiif_annotation_url(item, annotation_name),
+        motivation: 'sc:painting',
+        resource: {
+            '@id': iiif_image_url(item, 1000),
+            '@type': 'dctypes:Image',
+            '@format': item.access_master_bytestream.media_type,
+            service: {
+                '@context': 'http://iiif.io/api/image/2/context.json',
+                '@id': iiif_bytestream_url(item.access_master_bytestream),
+                profile: 'http://iiif.io/api/image/2/profiles/level2.json'
+            },
+            height: item.access_master_bytestream.height,
+            width: item.access_master_bytestream.width
+        },
+        on: item_iiif_canvas_url(item, item.repository_id)
+    }
+  end
+
+  ##
   # @param item [Item]
   # @return [Array]
   #
@@ -19,6 +82,47 @@ module IiifPresentationHelper
       end
     end
     elements
+  end
+
+  ##
+  # @param item [Item]
+  # @return [Array]
+  #
+  def iiif_sequences_for(item)
+    if item.pages.count > 0
+      return [
+          {
+              '@id': item_iiif_sequence_url(item, :page),
+              '@type': 'sc:Sequence',
+              label: 'Pages',
+              viewingHint: 'paged',
+              canvases: iiif_canvases_for(item)
+          }
+      ]
+    elsif item.items.count > 0
+      return [
+          {
+             '@id': item_iiif_sequence_url(item, :item),
+             '@type': 'sc:Sequence',
+             label: 'Sub-Items',
+             canvases: iiif_canvases_for(item)
+          }
+      ]
+    end
+  end
+
+  private
+
+  def canvas_height(item)
+    height = item.access_master_bytestream&.height || MIN_CANVAS_SIZE
+    height *= 2 if height < MIN_CANVAS_SIZE
+    height
+  end
+
+  def canvas_width(item)
+    width = item.access_master_bytestream&.width || MIN_CANVAS_SIZE
+    width *= 2 if width < MIN_CANVAS_SIZE
+    width
   end
 
 end

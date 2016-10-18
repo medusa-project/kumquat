@@ -55,20 +55,4 @@ else
 end
 
 # List of sequences
-if @item.pages.count > 0
-  json.sequences [
-      {
-          '@id': item_iiif_sequence_url(@item, :page),
-          '@type': 'sc:Sequence',
-          label: 'Pages Order'
-      }
-  ]
-elsif @item.items.count > 0
-  json.sequences [
-      {
-          '@id': item_iiif_sequence_url(@item, :item),
-          '@type': 'sc:Sequence',
-          label: 'Sub-Items'
-      }
-  ]
-end
+json.sequences iiif_sequences_for(@item)
