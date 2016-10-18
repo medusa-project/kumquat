@@ -21,17 +21,6 @@ class Bytestream < ActiveRecord::Base
   end
 
   ##
-  # Reads the byte size of the bytestream from disk.
-  #
-  # @return [Integer, nil]
-  #
-  def byte_size
-    pathname = self.absolute_local_pathname
-    (pathname and File.exist?(pathname) and File.file?(pathname)) ?
-        File.size(pathname) : nil
-  end
-
-  ##
   # @return [Boolean] If the bytestream is a file and the file exists, returns
   #                   true.
   #
