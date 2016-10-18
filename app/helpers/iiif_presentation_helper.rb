@@ -45,24 +45,26 @@ module IiifPresentationHelper
   # @return [Array]
   #
   def iiif_images_for(item, annotation_name)
-    {
-        '@type': 'oa:Annotation',
-        '@id': item_iiif_annotation_url(item, annotation_name),
-        motivation: 'sc:painting',
-        resource: {
-            '@id': iiif_image_url(item, 1000),
-            '@type': 'dctypes:Image',
-            '@format': item.access_master_bytestream.media_type,
-            service: {
-                '@context': 'http://iiif.io/api/image/2/context.json',
-                '@id': iiif_bytestream_url(item.access_master_bytestream),
-                profile: 'http://iiif.io/api/image/2/profiles/level2.json'
+    [
+        {
+            '@type': 'oa:Annotation',
+            '@id': item_iiif_annotation_url(item, annotation_name),
+            motivation: 'sc:painting',
+            resource: {
+                '@id': iiif_image_url(item, 1000),
+                '@type': 'dctypes:Image',
+                '@format': item.access_master_bytestream.media_type,
+                service: {
+                    '@context': 'http://iiif.io/api/image/2/context.json',
+                    '@id': iiif_bytestream_url(item.access_master_bytestream),
+                    profile: 'http://iiif.io/api/image/2/profiles/level2.json'
+                },
+                height: item.access_master_bytestream.height,
+                width: item.access_master_bytestream.width
             },
-            height: item.access_master_bytestream.height,
-            width: item.access_master_bytestream.width
-        },
-        on: item_iiif_canvas_url(item, item.repository_id)
-    }
+            on: item_iiif_canvas_url(item, item.repository_id)
+        }
+    ]
   end
 
   ##
