@@ -305,6 +305,15 @@ class ItemsController < WebsiteController
         @parent = @item.parent
         @relative_parent = @parent ? @parent : @item
 
+        if @item.variant == Item::Variants::PAGE
+          render 'errors/error', status: :forbidden, locals: {
+              status_code: 403,
+              status_message: 'Forbidden',
+              message: 'This item is an object page.'
+          }
+          return
+        end
+
         set_files_ivar
         if @files.total_length > 0
           @relative_child = @files.first
