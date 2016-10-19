@@ -7,6 +7,7 @@ class ItemFinder < AbstractFinder
     super
     @include_children = false
     @media_types = []
+    @exclude_variants = []
   end
 
   ##
@@ -35,6 +36,15 @@ class ItemFinder < AbstractFinder
   def effective_metadata_profile
     @collection ? @collection.effective_metadata_profile :
         MetadataProfile.find_by_default(true)
+  end
+
+  ##
+  # @param variants [Array<String>] Array of Item::Variants constant values.
+  # @return [self]
+  #
+  def exclude_variants(variants)
+    @exclude_variants = variants
+    self
   end
 
   ##
@@ -106,6 +116,10 @@ class ItemFinder < AbstractFinder
     end
     if @media_types.any?
       @items = @items.filter(Item::SolrFields::ACCESS_MASTER_MEDIA_TYPE => "(#{@media_types.join(' OR ')})")
+    end
+
+    if @exclude_variants.any?
+      @items = @items.filter("-#{Item::SolrFields::VARIANT}:(#{@exclude_variants.join(' OR ')})")
     end
 
     @items = @items.where(@query) if @query
