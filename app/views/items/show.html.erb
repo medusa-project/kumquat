@@ -153,6 +153,9 @@ side-by-side. (IMET-161) -->
   </div>
 <% end %>
 
+<%= rights_statement(@item.effective_rightsstatements_org_statement,
+                     @item.effective_rights_statement) %>
+
 <% if @item.variant == Item::Variants::DIRECTORY %>
   <section id="pt-files-section">
     <%= render partial: 'files' %>
@@ -210,9 +213,6 @@ side-by-side. (IMET-161) -->
     <%= tech_metadata_as_table(@item) %>
   </div>
 </section>
-
-<%= rights_statement(@item.effective_rightsstatements_org_statement,
-                     @item.effective_rights_statement) %>
 
 <%= render partial: 'cite_panel', locals: { item: @item } %>
 <%= render partial: 'download_panel', locals: { item: @item } %>
