@@ -117,7 +117,7 @@ class ItemsController < WebsiteController
   # @see http://iiif.io/api/presentation/2.1/#canvas
   #
   def iiif_canvas
-    @page = Item.find_by_repository_id(params[:id])
+    @page = Item.find_by_repository_id(params[:item_id])
     if @page
       render 'items/iiif_presentation_api/canvas',
              formats: :json,
@@ -138,6 +138,31 @@ class ItemsController < WebsiteController
     render 'items/iiif_presentation_api/manifest',
            formats: :json,
            content_type: 'application/json'
+  end
+
+  ##
+  # Serves IIIF Presentation API 2.1 ranges.
+  #
+  # Responds to GET /items/:id/range/:name where :name is a value of an
+  # Item::Variants constant.
+  #
+  # @see http://iiif.io/api/presentation/2.1/#range
+  #
+  def iiif_range
+    all_ranges = Item::Variants.constants.map{ |c| Item::Variants.const_get(c) }
+    if all_ranges.include?(params[:name])
+      @range = params[:name]
+      @item = Item.find_by_repository_id(params[:item_id])
+      if @item
+        render 'items/iiif_presentation_api/range',
+               formats: :json,
+               content_type: 'application/json'
+      else
+        render text: 'No such item.', status: :not_found
+      end
+    else
+      render text: 'No such range.', status: :not_found
+    end
   end
 
   ##

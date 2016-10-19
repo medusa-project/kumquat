@@ -64,6 +64,7 @@ class Item < ActiveRecord::Base
     INDEX = 'Index'
     KEY = 'Key'
     PAGE = 'Page'
+    TABLE_OF_CONTENTS = 'TableOfContents'
     TITLE = 'Title'
   end
 
@@ -721,6 +722,13 @@ class Item < ActiveRecord::Base
   #
   def subtitle
     self.element(:alternativeTitle)&.value
+  end
+
+  ##
+  # @return [Item] The item's table-of-contents item, if available.
+  #
+  def table_of_contents_item
+    self.items.where(variant: Variants::TABLE_OF_CONTENTS).limit(1).first
   end
 
   ##

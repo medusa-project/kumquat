@@ -56,3 +56,6 @@ end
 
 # List of sequences
 json.sequences iiif_sequences_for(@item)
+
+# List of ranges
+json.structures iiif_ranges_for(@item)

@@ -101,6 +101,7 @@ Rails.application.routes.draw do
     match '/canvas/:id', to: 'items#iiif_canvas', via: 'get', as: 'iiif_canvas'
     match '/manifest', to: 'items#iiif_manifest', via: 'get',
           as: 'iiif_manifest'
+    match '/range/:name', to: 'items#iiif_range', via: 'get', as: 'iiif_range'
     match '/sequence/:name', to: 'items#iiif_sequence', via: 'get',
           as: 'iiif_sequence'
   end

@@ -87,6 +87,40 @@ module IiifPresentationHelper
   end
 
   ##
+  # @param item [Item] Compound object
+  # @param variant [String] One of the Item::Variants constant values
+  # @return [Hash]
+  #
+  def iiif_range_for(item, variant)
+    subitem = item.items.where(variant: variant).first
+    {
+        '@id': item_iiif_range_url(subitem, variant),
+        '@type': 'sc:Range',
+        label: variant.titleize,
+        members: [
+            iiif_canvas_for(subitem)
+        ]
+    }
+  end
+
+  ##
+  # @param item [Item]
+  # @return [Array]
+  # @see http://iiif.io/api/presentation/2.1/#range
+  #
+  def iiif_ranges_for(item)
+    ranges = item.items.where('variant NOT IN (?)', [Item::Variants::PAGE]).map do |subitem|
+      iiif_range_for(item, subitem.variant)
+    end
+
+    top_range = ranges.select{ |r| r[:label] == Item::Variants::TITLE.titleize }.first ||
+        ranges.select{ |r| r[:label] == Item::Variants::TABLE_OF_CONTENTS.titleize }.first
+    top_range[:viewingHint] = 'top' if top_range
+
+    ranges
+  end
+
+  ##
   # @param item [Item]
   # @return [Array]
   #
