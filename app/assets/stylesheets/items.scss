@@ -217,6 +217,17 @@ body#items_show {
     }
   }
 
+  div.pt-rights {
+    margin-bottom: 2em;
+    .media-left img {
+      width: 200px;
+    }
+    i {
+      font-size: 5em;
+      margin-right: 6px;
+    }
+  }
+
   table.pt-metadata {
     tr:first-child > td {
       border-top: 0px;

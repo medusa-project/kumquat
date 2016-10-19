@@ -153,8 +153,10 @@ side-by-side. (IMET-161) -->
   </div>
 <% end %>
 
-<%= rights_statement(@item.effective_rightsstatements_org_statement,
-                     @item.effective_rights_statement) %>
+<% if has_viewer?(@item) %>
+  <%= rights_statement(@item.effective_rightsstatements_org_statement,
+                       @item.effective_rights_statement) %>
+<% end %>
 
 <% if @item.variant == Item::Variants::DIRECTORY %>
   <section id="pt-files-section">
@@ -188,6 +190,11 @@ side-by-side. (IMET-161) -->
     <h2>Full Text</h2>
     <pre><%= @item.full_text %></pre>
   </section>
+<% end %>
+
+<% unless has_viewer?(@item) %>
+  <%= rights_statement(@item.effective_rightsstatements_org_statement,
+                       @item.effective_rights_statement) %>
 <% end %>
 
 <% if @item.elements.reject{ |e| e.name == 'title' }.any? and
