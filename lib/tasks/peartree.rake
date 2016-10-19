@@ -88,9 +88,20 @@ namespace :peartree do
     Solr.instance.commit
   end
 
+  desc 'Update the sizes of all bytestreams'
+  task :update_byte_sizes => :environment do |task|
+    Bytestream.where('repository_relative_pathname IS NOT NULL').each do |bs|
+      puts bs.repository_relative_pathname
+      pathname = bs.absolute_local_pathname
+      bs.byte_size = (pathname and File.exist?(pathname) and File.file?(pathname)) ?
+          File.size(pathname) : nil
+      bs.save!
+    end
+  end
+
   desc 'Update the dimensions of all bytestreams'
   task :update_dimensions => :environment do |task|
-    Bytestream.where('repository_relative_pathname IS NOT NULL').all.each do |bs|
+    Bytestream.where('repository_relative_pathname IS NOT NULL').each do |bs|
       puts bs.repository_relative_pathname
       bs.read_dimensions
       bs.save!
