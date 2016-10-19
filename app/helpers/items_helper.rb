@@ -198,6 +198,21 @@ module ItemsHelper
   end
 
   ##
+  # @param item [Item]
+  # @return [Boolean]
+  #
+  def has_viewer?(item)
+    # This logic needs to be kept in sync with viewer_for().
+    if item.is_pdf? or item.is_image? or item.is_audio? or item.is_video?
+      return true
+    elsif item.is_text?
+      bs = item.access_master_bytestream || item.preservation_master_bytestream
+      return bs.exists?
+    end
+    false
+  end
+
+  ##
   # @param bs [Bytestream]
   # @return [String, nil] Base IIIF URL or nil if the bytestream is not an
   #                       image
@@ -1051,6 +1066,7 @@ module ItemsHelper
   # @param item [Item]
   #
   def viewer_for(item)
+    # This logic needs to be kept in sync with has_viewer?().
     if item.is_pdf?
       return pdf_viewer_for(item)
     elsif item.is_image?
