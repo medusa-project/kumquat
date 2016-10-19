@@ -44,6 +44,13 @@
           <i class="fa fa-code"></i>&nbsp;JSON
         <% end %>
       </li>
+      <% if @item.has_iiif_manifest? %>
+        <li>
+          <%= link_to item_iiif_manifest_path(@item), target: '_blank' do %>
+            <i class="fa fa-code"></i>&nbsp;Manifest
+          <% end %>
+        </li>
+      <% end %>
       <% if @item.bib_id %>
         <li><%= link_to "http://vufind.carli.illinois.edu/vf-uiu/Record/uiu_#{@item.bib_id}",
                         target: '_blank' do %>
