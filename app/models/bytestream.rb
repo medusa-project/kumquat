@@ -8,7 +8,7 @@ class Bytestream < ActiveRecord::Base
     PRESERVATION_MASTER = 0
   end
 
-  belongs_to :item, inverse_of: :bytestreams
+  belongs_to :item, inverse_of: :bytestreams, touch: true
 
   @@formats = YAML::load(File.read("#{Rails.root}/lib/formats.yml"))
 
