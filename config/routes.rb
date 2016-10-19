@@ -98,9 +98,10 @@ Rails.application.routes.draw do
     # IIIF Presentation API 2.1 routes
     match '/annotation/:name', to: 'items#annotation', via: 'get',
           as: 'iiif_annotation'
-    match '/canvas/:id', to: 'items#canvas', via: 'get', as: 'iiif_canvas'
-    match '/manifest', to: 'items#manifest', via: 'get', as: 'iiif_manifest'
-    match '/sequence/:name', to: 'items#sequence', via: 'get',
+    match '/canvas/:id', to: 'items#iiif_canvas', via: 'get', as: 'iiif_canvas'
+    match '/manifest', to: 'items#iiif_manifest', via: 'get',
+          as: 'iiif_manifest'
+    match '/sequence/:name', to: 'items#iiif_sequence', via: 'get',
           as: 'iiif_sequence'
   end
   match '/oai-pmh', to: 'oai_pmh#index', via: %w(get post), as: 'oai_pmh'

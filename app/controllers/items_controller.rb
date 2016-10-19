@@ -15,18 +15,19 @@ class ItemsController < WebsiteController
   # API actions
   before_action :authorize_api_user, only: [:create, :destroy]
   before_action :check_api_content_type, only: :create
-  before_action :enable_cors, only: [:annotation, :canvas, :manifest, :sequence]
+  before_action :enable_cors, only: [:iiif_annotation, :iiif_canvas,
+                                     :iiif_manifest, :iiif_sequence]
   skip_before_action :verify_authenticity_token, only: [:create, :destroy]
 
   # Other actions
-  before_action :load_item, only: [:access_master_bytestream, :annotation,
-                                   :canvas, :files, :manifest, :pages,
-                                   :preservation_master_bytestream, :sequence,
-                                   :show]
-  before_action :authorize_item, only: [:access_master_bytestream, :annotation,
-                                        :canvas, :files, :manifest, :pages,
-                                        :preservation_master_bytestream,
-                                        :sequence]
+  before_action :load_item, only: [:access_master_bytestream, :files,
+                                   :iiif_annotation, :iiif_canvas,
+                                   :iiif_manifest, :iiif_sequence, :pages,
+                                   :preservation_master_bytestream, :show]
+  before_action :authorize_item, only: [:access_master_bytestream, :files,
+                                        :iiif_annotation, :iiif_canvas,
+                                        :iiif_manifest, :iiif_sequence, :pages,
+                                        :preservation_master_bytestream]
   before_action :authorize_item, only: :show, unless: :using_api?
   before_action :set_browse_context, only: :index
 
@@ -40,45 +41,6 @@ class ItemsController < WebsiteController
   #
   def access_master_bytestream
     send_bytestream(@item, Bytestream::Type::ACCESS_MASTER, params[:disposition])
-  end
-
-  ##
-  # Serves IIIF Presentation API 2.1 annotations.
-  #
-  # Responds to GET /items/:id/annotation/:name
-  #
-  # @see http://iiif.io/api/presentation/2.1/#annotation
-  #
-  def annotation
-    valid_names = %w(access preservation)
-    if valid_names.include?(params[:name])
-      @annotation_name = params[:name]
-      @bytestream = @annotation_name == 'access' ?
-          @item.access_master_bytestream : @item.preservation_master_bytestream
-      render 'items/iiif_presentation_api/annotation',
-             formats: :json,
-             content_type: 'application/json'
-    else
-      render text: 'No such annotation.', status: :not_found
-    end
-  end
-
-  ##
-  # Serves IIIF Presentation API 2.1 canvases.
-  #
-  # Responds to GET /items/:id/canvas/:name
-  #
-  # @see http://iiif.io/api/presentation/2.1/#canvas
-  #
-  def canvas
-    @page = Item.find_by_repository_id(params[:id])
-    if @page
-      render 'items/iiif_presentation_api/canvas',
-             formats: :json,
-             content_type: 'application/json'
-    else
-      render text: 'No such canvas.', status: :not_found
-    end
   end
 
   ##
@@ -123,6 +85,93 @@ class ItemsController < WebsiteController
       render 'items/files'
     else
       render status: 406, text: 'Not Acceptable'
+    end
+  end
+
+  ##
+  # Serves IIIF Presentation API 2.1 annotations.
+  #
+  # Responds to GET /items/:id/annotation/:name
+  #
+  # @see http://iiif.io/api/presentation/2.1/#annotation
+  #
+  def iiif_annotation
+    valid_names = %w(access preservation)
+    if valid_names.include?(params[:name])
+      @annotation_name = params[:name]
+      @bytestream = @annotation_name == 'access' ?
+          @item.access_master_bytestream : @item.preservation_master_bytestream
+      render 'items/iiif_presentation_api/annotation',
+             formats: :json,
+             content_type: 'application/json'
+    else
+      render text: 'No such annotation.', status: :not_found
+    end
+  end
+
+  ##
+  # Serves IIIF Presentation API 2.1 canvases.
+  #
+  # Responds to GET /items/:id/canvas/:name
+  #
+  # @see http://iiif.io/api/presentation/2.1/#canvas
+  #
+  def iiif_canvas
+    @page = Item.find_by_repository_id(params[:id])
+    if @page
+      render 'items/iiif_presentation_api/canvas',
+             formats: :json,
+             content_type: 'application/json'
+    else
+      render text: 'No such canvas.', status: :not_found
+    end
+  end
+
+  ##
+  # Serves IIIF Presentation API 2.1 manifests.
+  #
+  # Responds to GET /items/:id/manifest
+  #
+  # @see http://iiif.io/api/presentation/2.1/#manifest
+  #
+  def iiif_manifest
+    render 'items/iiif_presentation_api/manifest',
+           formats: :json,
+           content_type: 'application/json'
+  end
+
+  ##
+  # Serves IIIF Presentation API 2.1 sequences.
+  #
+  # Responds to GET /items/:id/sequence/:name
+  #
+  # @see http://iiif.io/api/presentation/2.1/#sequence
+  #
+  def iiif_sequence
+    @sequence_name = params[:name]
+    case @sequence_name
+      when 'item'
+        if @item.items.count > 0
+          @start_canvas_item = @item.items.first
+          render 'items/iiif_presentation_api/sequence',
+                 formats: :json,
+                 content_type: 'application/json'
+        else
+          render text: 'This object does not have an item sequence.',
+                 status: :not_found
+        end
+      when 'page'
+        if @item.pages.count > 0
+          @start_canvas_item = @item.title_item || @item.pages.first
+          render 'items/iiif_presentation_api/sequence',
+                 formats: :json,
+                 content_type: 'application/json'
+        else
+          render text: 'This object does not have a page sequence.',
+                 status: :not_found
+        end
+      else
+        render text: 'Sequence not available.', status: :not_found
     end
   end
 
@@ -190,19 +239,6 @@ class ItemsController < WebsiteController
   end
 
   ##
-  # Serves IIIF Presentation API 2.1 manifests.
-  #
-  # Responds to GET /items/:id/manifest
-  #
-  # @see http://iiif.io/api/presentation/2.1/#manifest
-  #
-  def manifest
-    render 'items/iiif_presentation_api/manifest',
-           formats: :json,
-           content_type: 'application/json'
-  end
-
-  ##
   # Responds to GET /item/:id/pages (XHR only)
   #
   def pages
@@ -256,41 +292,6 @@ class ItemsController < WebsiteController
     end
 
     redirect_to items_path(q: where_clauses.join(' AND '), fq: filter_clauses)
-  end
-
-  ##
-  # Serves IIIF Presentation API 2.1 sequences.
-  #
-  # Responds to GET /items/:id/sequence/:name
-  #
-  # @see http://iiif.io/api/presentation/2.1/#sequence
-  #
-  def sequence
-    @sequence_name = params[:name]
-    case @sequence_name
-      when 'item'
-        if @item.items.count > 0
-          @start_canvas_item = @item.items.first
-          render 'items/iiif_presentation_api/sequence',
-                 formats: :json,
-                 content_type: 'application/json'
-        else
-          render text: 'This object does not have an item sequence.',
-                 status: :not_found
-        end
-      when 'page'
-        if @item.pages.count > 0
-          @start_canvas_item = @item.title_item || @item.pages.first
-          render 'items/iiif_presentation_api/sequence',
-                 formats: :json,
-                 content_type: 'application/json'
-        else
-          render text: 'This object does not have a page sequence.',
-                 status: :not_found
-        end
-      else
-        render text: 'Sequence not available.', status: :not_found
-    end
   end
 
   ##
