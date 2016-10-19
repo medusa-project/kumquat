@@ -81,6 +81,20 @@
         </li>
       </ul>
     </div>
+  <% elsif client_supports_zip_download? %>
+    <div class="btn-group">
+      <button type="button" class="btn btn-default dropdown-toggle"
+              data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <i class="fa fa-download"></i> Download <span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu dropdown-menu-right">
+        <li>
+          <%= link_to('', 'data-toggle': 'modal', 'data-target': '#pt-download-zip-modal') do %>
+            <i class="fa fa-file-zip-o"></i>&nbsp;&nbsp;Zip File&hellip;
+          <% end %>
+        </li>
+      </ul>
+    </div>
   <% end %>
 
   <% mailto = curator_mailto(@item) %>
@@ -166,6 +180,7 @@ side-by-side. (IMET-161) -->
 
 <%= render partial: 'cite_panel', locals: { item: @item } %>
 <%= render partial: 'download_panel', locals: { item: @item } %>
+<%= render partial: 'download_zip_panel', locals: { items: @item.items_from_solr } %>
 <%= render partial: 'embed_image_panel', locals: { item: @item } %>
 
 <script type="application/ld+json">

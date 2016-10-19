@@ -18,13 +18,6 @@ body#items_index div#pt-page-content {
       margin-left: 0.5em;
     }
   }
-
-  #pt-download-zip-modal {
-    #pt-batch-buttons {
-      line-height: 3em;
-      text-align: center;
-    }
-  }
 }
 
 body#items_show {
@@ -275,6 +268,15 @@ body#items_show {
     }
   }
 
+}
+
+body#items_index, body#items_show {
+  #pt-download-zip-modal {
+    #pt-batch-buttons {
+      line-height: 3em;
+      text-align: center;
+    }
+  }
 }
 
 .pagination {
