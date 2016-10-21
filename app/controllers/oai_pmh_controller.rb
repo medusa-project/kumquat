@@ -158,7 +158,7 @@ class OaiPmhController < ApplicationController
       @results = @results.where('created_at > ?', from).where('created_at < ?', to)
     end
     if params[:set]
-      @results = @results.where(repository_id: params[:set])
+      @results = @results.where(collection_repository_id: params[:set])
     end
 
     @errors << { code: 'noRecordsMatch',
