@@ -1,5 +1,8 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
+creator:
+  name: creator
+
 date:
   name: date
 
