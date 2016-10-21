@@ -87,9 +87,10 @@ class OaiPmhControllerTest < ActionController::TestCase
   end
 
   test 'GetRecord should return errors when arguments are invalid' do
-    get :index, verb: 'GetRecord', metadataPrefix: 'cats'
+    get :index, verb: 'GetRecord', identifier: @valid_identifier,
+        metadataPrefix: 'cats'
     assert_select 'error', 'The metadata format identified by the '\
-    'metadataPrefix argument is not supported by this item.'
+    'metadataPrefix argument is not supported by this object.'
 
     get :index, verb: 'GetRecord', identifier: 'cats'
     assert_select 'error', 'The value of the identifier argument is unknown '\

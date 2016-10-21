@@ -7,32 +7,48 @@ class ItemTsvIngester
   #
   # @param pathname [String] Absolute pathname of a TSV file
   # @return [Integer] Number of items created or updated
-  # @raises [RuntimeError]
   #
   def ingest_pathname(pathname)
     pathname = File.expand_path(pathname)
     Rails.logger.info("ItemTsvIngester.ingest_pathname(): "\
         "ingesting from #{pathname}...")
 
-    count = 0
+    num_rows = File.read(pathname).scan(/\n/).count
+    num_ingested = 0
     ActiveRecord::Base.transaction do
       # Treat the zero-byte as the quote character in order to allow quotes in
       # values without escaping.
+      row_num = 0
       CSV.foreach(pathname, headers: true, col_sep: "\t",
                   quote_char: "\x00") do |tsv_row|
+        progress = progress(row_num, num_rows)
         struct = tsv_row.to_hash
         item = Item.find_by_repository_id(struct['uuid'])
         if item
-          Rails.logger.info("ItemTsvIngester.ingest_pathname(): #{struct['uuid']}")
+          Rails.logger.info("ItemTsvIngester.ingest_pathname(): "\
+              "#{struct['uuid']} #{progress}")
           item.update_from_tsv(struct)
-          count += 1
+          num_ingested += 1
         else
           Rails.logger.warn("ItemTsvIngester.ingest_pathname(): "\
-              "does not exist: #{struct['uuid']}")
+              "does not exist: #{struct['uuid']} #{progress}")
         end
+        row_num += 1
       end
     end
-    count
+    num_ingested
+  end
+
+  private
+
+  ##
+  # @param row_num [Integer]
+  # @param num_rows [Integer]
+  # @return [String]
+  #
+  def progress(row_num, num_rows)
+    percent = (((row_num + 1) / num_rows.to_f) * 100).round(2)
+    "(#{row_num + 1}/#{num_rows}) (#{percent}%)"
   end
 
 end
