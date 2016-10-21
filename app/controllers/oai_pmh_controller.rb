@@ -102,7 +102,8 @@ class OaiPmhController < ApplicationController
   end
 
   def do_list_sets
-    @results = Collection.where(published: true).order(:repository_id)
+    @results = Collection.where(published: true, published_in_dls: true).
+        order(:repository_id)
     @total_num_results = @results.count
     @results_offset = offset
     @results = @results.offset(@results_offset)
