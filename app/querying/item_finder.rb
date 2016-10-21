@@ -5,9 +5,10 @@ class ItemFinder < AbstractFinder
 
   def initialize
     super
-    @include_children = false
-    @media_types = []
     @exclude_variants = []
+    @include_children = false
+    @include_variants = []
+    @media_types = []
   end
 
   ##
@@ -53,6 +54,19 @@ class ItemFinder < AbstractFinder
   #
   def include_children(boolean)
     @include_children = boolean
+    self
+  end
+
+  ##
+  # @param variants [Array<String>] Array of Item::Variants constant values.
+  #                                 Supply a nil value to specify no variant.
+  # @return [self]
+  #
+  def include_variants(variants)
+    @include_variants = variants.map do |v|
+      v = "(-#{Item::SolrFields::VARIANT}:[* TO *] AND *:*)" if v.nil?
+      v
+    end
     self
   end
 
@@ -118,6 +132,9 @@ class ItemFinder < AbstractFinder
       @items = @items.filter(Item::SolrFields::ACCESS_MASTER_MEDIA_TYPE => "(#{@media_types.join(' OR ')})")
     end
 
+    if @include_variants.any?
+      @items = @items.filter("#{Item::SolrFields::VARIANT}:(#{@include_variants.join(' OR ')})")
+    end
     if @exclude_variants.any?
       @items = @items.filter("-#{Item::SolrFields::VARIANT}:(#{@exclude_variants.join(' OR ')})")
     end
