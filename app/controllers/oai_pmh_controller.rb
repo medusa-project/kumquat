@@ -76,7 +76,7 @@ class OaiPmhController < ApplicationController
   end
 
   def do_identify
-    items = Item.order(created_at: :desc).limit(1)
+    items = Item.order(created_at: :asc).limit(1)
     @earliest_datestamp = items.any? ? items.first.created_at.utc.iso8601 : nil
     'identify.xml.builder'
   end
@@ -146,7 +146,7 @@ class OaiPmhController < ApplicationController
                            'this repository.' }
     end
 
-    @results = Item.where(published: true).order(created_at: :desc)
+    @results = Item.where(published: true).order(created_at: :asc)
 
     from = to = Time.now
     from = Time.parse(params[:from]).utc.iso8601 if params[:from]
