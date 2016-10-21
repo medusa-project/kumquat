@@ -14,6 +14,7 @@ module IiifPresentationHelper
             'label': "Page #{subitem.page_number}",
             height: canvas_height(subitem),
             width: canvas_width(subitem),
+            metadata: iiif_metadata_for(subitem)
         }
         struct[:images] = iiif_images_for(subitem, 'access') if subitem.is_image?
         return struct
@@ -24,6 +25,7 @@ module IiifPresentationHelper
             label: subitem.title,
             height: canvas_height(subitem),
             width: canvas_width(subitem),
+            metadata: iiif_metadata_for(subitem)
         }
         struct[:images] = iiif_images_for(subitem, 'access') if subitem.is_image?
         return struct
