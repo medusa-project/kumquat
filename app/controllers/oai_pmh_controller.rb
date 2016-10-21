@@ -25,7 +25,7 @@ class OaiPmhController < ApplicationController
     response.content_type = 'text/xml'
 
     template = nil
-    case params[:verb].to_s
+    case params[:verb]
       when 'GetRecord' # 4.1
         template = do_get_record
       when 'Identify' # 4.2
@@ -38,12 +38,10 @@ class OaiPmhController < ApplicationController
         template = do_list_records
       when 'ListSets' # 4.6
         template = do_list_sets
-      when ''
-        @errors << { code: 'badVerb',
-                     description: 'Missing verb argument.' }
+      when nil
+        @errors << { code: 'badVerb', description: 'Missing verb argument.' }
       else
-        @errors << { code: 'badVerb',
-                     description: 'Illegal verb argument.' }
+        @errors << { code: 'badVerb', description: 'Illegal verb argument.' }
     end
     template = 'error.xml.builder' if @errors.any?
     render template
@@ -71,7 +69,8 @@ class OaiPmhController < ApplicationController
     elsif !SUPPORTED_METADATA_FORMATS.include?(params[:metadataPrefix])
       @errors << { code: 'cannotDisseminateFormat',
                    description: 'The metadata format identified by the '\
-                       'metadataPrefix argument is not supported by this item.' }
+                       'metadataPrefix argument is not supported by this '\
+                       'object.' }
     end
     'get_record.xml.builder'
   end
@@ -91,9 +90,8 @@ class OaiPmhController < ApplicationController
     if params[:identifier]
       @item = item_for_oai_pmh_identifier(params[:identifier], @host)
       @errors << { code: 'idDoesNotExist',
-                   description: 'The value of the identifier '\
-                       'argument is unknown or illegal in this '\
-                       'repository.' } unless @item
+                   description: 'The value of the identifier argument is '\
+                       'unknown or illegal in this repository.' } unless @item
     end
     'list_metadata_formats.xml.builder'
   end
@@ -130,9 +128,7 @@ class OaiPmhController < ApplicationController
     if params[:resumptionToken].present?
       params[:resumptionToken].split(';').each do |pair|
         kv = pair.split(':')
-        if kv.length == 2 and kv[0] == 'offset'
-          return kv[1].to_i
-        end
+        return kv[1].to_i if kv.length == 2 and kv[0] == 'offset'
       end
     end
     0
@@ -155,7 +151,8 @@ class OaiPmhController < ApplicationController
     from = Time.parse(params[:from]).utc.iso8601 if params[:from]
     to = Time.parse(params[:until]).utc.iso8601 if params[:until]
     if from != to
-      @results = @results.where('created_at > ?', from).where('created_at < ?', to)
+      @results = @results.where('created_at > ?', from).
+          where('created_at < ?', to)
     end
     if params[:set]
       @results = @results.where(collection_repository_id: params[:set])
