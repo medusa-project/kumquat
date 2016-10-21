@@ -980,7 +980,7 @@ module ItemsHelper
   # @param shape [Symbol] :default or :square
   # @return [String]
   #
-  def thumbnail_tag(entity, size, shape = :default)
+  def thumbnail_tag(entity, size = DEFAULT_THUMBNAIL_SIZE, shape = :default)
     html = ''
     if entity.kind_of?(Bytestream)
       url = bytestream_image_url(entity, size, shape)
