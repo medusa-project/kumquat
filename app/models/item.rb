@@ -1037,10 +1037,6 @@ class Item < ActiveRecord::Base
                 "Column contains an unrecognized element name: #{element_name}"
         end
       end
-
-      # If the only changes were to dependent entities, this would not get
-      # updated.
-      self.updated_at = Time.now
       self.save!
     end
   end
