@@ -16,6 +16,7 @@ class Solr
   end
 
   def commit
+    Rails.logger.info('Solr.commit()')
     client.commit
   end
 
@@ -38,7 +39,7 @@ class Solr
   # Deletes everything.
   #
   def purge
-    Rails.logger.info('Purging Solr')
+    Rails.logger.info('Solr.purge()')
     client.update(data: '<delete><query>*:*</query></delete>')
   end
 
