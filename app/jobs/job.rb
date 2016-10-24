@@ -19,10 +19,17 @@ class Job < ActiveJob::Base
   #     self.task.save!
   #
   # @param args Arguments to pass to the job. Must be serializable or an
-  # object that includes GlobalID::Identifier.
+  #             object that includes GlobalID::Identifier.
   #
   def perform(*args)
     raise 'Must override perform()'
+  end
+
+  def perform_now(*args)
+    # background jobs will have a job_id, but foreground jobs will not, so use
+    # the object_id instead.
+    create_task_for_job_id(self.object_id)
+    super
   end
 
   rescue_from(Exception) do |e|
@@ -45,14 +52,17 @@ class Job < ActiveJob::Base
 
   protected
 
+  ##
+  # Will be called before enqueueing (background jobs only).
+  #
   def do_before_enqueue
   end
 
+  ##
+  # Will be called after enqueueing (background jobs only).
+  #
   def do_after_enqueue
-    # background jobs will have a job_id, but foreground jobs will not, so use
-    # the object_id instead.
-    Task.create!(name: self.class.name, job_id: self.job_id || self.object_id,
-                 status: Task::Status::WAITING)
+    create_task_for_job_id(self.job_id) # Background jobs will have a job_id.
   end
 
   def do_before_perform
@@ -63,10 +73,13 @@ class Job < ActiveJob::Base
   end
 
   def do_after_perform
-    if self.task
-      self.task.status = Task::Status::SUCCEEDED
-      self.task.save!
-    end
+    self.task.succeeded
+  end
+
+  private
+
+  def create_task_for_job_id(job_id)
+    @task = Task.create!(name: self.class.name, job_id: job_id)
   end
 
 end
