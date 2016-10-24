@@ -1185,7 +1185,7 @@ module ItemsHelper
       # See http://universalviewer.io/examples/ for config structure.
       html += "<div id=\"pt-compound-viewer\" class=\"uv\" "\
         "data-locale=\"en-GB:English (GB)\" "\
-        "data-config=\"#{asset_url('uvconfig.json')}\" "\
+        "data-config=\"#{asset_path('uvconfig.json')}\" "\
         "data-uri=\"#{item_iiif_manifest_url(item)}\" "\
         "data-sequenceindex=\"0\" data-canvasindex=\"0\" "\
         "data-rotation=\"0\"></div>"
