@@ -53,6 +53,12 @@ class Task < ActiveRecord::Base
 
   end
 
+  # Instances will often be updated from inside transactions, outside of which
+  # any updates would not be visible. So, we use a different database
+  # connection, to which ActiveRecord::Base.transaction fortunately does not
+  # propagate.
+  establish_connection "#{Rails.env}_2".to_sym
+
   after_initialize :init
   before_save :constrain_progress, :auto_complete
 
