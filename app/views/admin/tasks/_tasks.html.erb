@@ -7,6 +7,7 @@
         <th>Progress</th>
         <th>Started</th>
         <th>Completed</th>
+        <th>Duration</th>
       </tr>
     </thead>
     <tbody>
@@ -33,6 +34,11 @@
                       (task.percent_complete * 100).round(1).to_s + '%' %></td>
           <td><%= local_time_ago(task.created_at) %></td>
           <td><%= task.completed_at ? local_time_ago(task.completed_at) : '' %></td>
+          <td>
+            <% if task.completed_at %>
+              <%= distance_of_time_in_words(task.created_at, task.completed_at, include_seconds: true) %>
+            <% end %>
+          </td>
         </tr>
       <% end %>
     </tbody>
