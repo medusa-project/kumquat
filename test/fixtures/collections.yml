@@ -21,7 +21,7 @@ collection2:
   description_html: MyString
   medusa_file_group_id: 3783d1f0-5ca7-0132-3334-0050569601ca-2
   metadata_profile: metadata_profile_2
-  package_profile_id: <%= PackageProfile::MAP_PROFILE.id %>
+  package_profile_id: <%= PackageProfile::COMPOUND_OBJECT_PROFILE.id %>
   published: false
   published_in_dls: false
   repository_id: c28af1f0-5ca8-0132-3334-0050569601ca-8
