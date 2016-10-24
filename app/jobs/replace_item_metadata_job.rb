@@ -20,22 +20,17 @@ class ReplaceItemMetadataJob < Job
     replace_mode = args[4].to_sym
     replace_value = args[5]
 
-    if self.task
-      self.task.status_text = "Replacing instances of \"#{find_value}\" with "\
-        "\"#{replace_value}\" in #{element_name} element in #{collection.title}"
 
-      # Indeterminate because the task happens in a transaction from which
-      # progress updates won't appear.
-      self.task.indeterminate = true
-      self.task.save!
-    end
+    self.task.update(status_text: "Replacing instances of \"#{find_value}\" "\
+        "with \"#{replace_value}\" in #{element_name} element in "\
+        "#{collection.title}")
 
     collection.replace_item_element_values(matching_mode, find_value,
                                            element_name, replace_mode,
-                                           replace_value)
+                                           replace_value, self.task)
 
     Solr.instance.commit
-    self.task&.succeeded
+    self.task.succeeded
   end
 
 end

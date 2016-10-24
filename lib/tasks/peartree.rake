@@ -57,24 +57,14 @@ namespace :peartree do
 
   desc 'Sync collections from Medusa'
   task :sync_collections => :environment do |task|
-    MedusaIngester.new.ingest_collections
-    Solr.instance.commit
+    SyncCollectionsJob.new.perform_now
   end
 
   desc 'Sync items from Medusa (modes: create_only, update_bytestreams, delete_missing)'
   task :sync_items, [:collection_uuid, :mode] => :environment do |task, args|
-    collection = Collection.find_by_repository_id(args[:collection_uuid])
-    warnings = []
-    result = MedusaIngester.new.ingest_items(collection, args[:mode],
-                                             { extract_metadata: true },
-                                             warnings)
+    SyncItemsJob.new(args[:collection_uuid], args[:mode],
+                     extract_metadata: false).perform_now
     Solr.instance.commit
-    warnings.each { |w| puts w }
-    puts "#{args[:mode]} sync of #{collection.title}:\n"\
-        "    Created: #{result[:num_created]}\n"\
-        "    Updated: #{result[:num_updated]}\n"\
-        "    Deleted: #{result[:num_deleted]}\n"\
-        "    Skipped: #{result[:num_skipped]}\n"
   end
 
   desc 'Update bytestreams in all collections'
