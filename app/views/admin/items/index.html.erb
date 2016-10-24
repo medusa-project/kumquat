@@ -46,7 +46,10 @@
           <%= link_to raw('Import From TSV&hellip;'), '',
                       'data-toggle': 'modal', 'data-target': '#pt-import-modal' %>
         </li>
-        <li><%= link_to 'Export As TSV', params.merge(format: 'tsv') %></li>
+        <li>
+          <%= link_to raw('Export As TSV&hellip;'), '',
+                      'data-toggle': 'modal', 'data-target': '#pt-export-modal' %>
+        </li>
       </ul>
     </div>
 
@@ -168,3 +171,4 @@
 <%= render partial: 'replace_metadata_panel' %>
 <%= render partial: 'migrate_metadata_panel' %>
 <%= render partial: 'import_panel' %>
+<%= render partial: 'export_panel' %>
