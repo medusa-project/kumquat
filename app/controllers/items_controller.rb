@@ -312,12 +312,10 @@ class ItemsController < WebsiteController
     end
 
     # collections
-    ids = []
-    if params[:ids].any?
-      ids = params[:ids].select{ |k| !k.blank? }
-    end
+    ids = params[:ids].respond_to?(:each) ?
+        params[:ids].select{ |k| !k.blank? } : []
     if ids.any?
-      filter_clauses << "#{Item::SolrFields::COLLECTION}:(#{ids.join(' ')})"
+      filter_clauses << "#{Item::SolrFields::COLLECTION}:(#{ids.join(' OR ')})"
     end
 
     redirect_to items_path(q: where_clauses.join(' AND '), fq: filter_clauses)
