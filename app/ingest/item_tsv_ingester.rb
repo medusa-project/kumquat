@@ -5,10 +5,11 @@ class ItemTsvIngester
   ##
   # Ingests items from the given TSV file.
   #
-  # @param pathname [String] Absolute pathname of a TSV file
-  # @return [Integer] Number of items created or updated
+  # @param pathname [String] Absolute pathname of a TSV file.
+  # @param task [Task] Supply to receive progress updates.
+  # @return [Integer] Number of items created or updated.
   #
-  def ingest_pathname(pathname)
+  def ingest_pathname(pathname, task = nil)
     pathname = File.expand_path(pathname)
     Rails.logger.info("ItemTsvIngester.ingest_pathname(): "\
         "ingesting from #{pathname}...")
@@ -33,6 +34,11 @@ class ItemTsvIngester
           Rails.logger.warn("ItemTsvIngester.ingest_pathname(): "\
               "does not exist: #{struct['uuid']} #{progress}")
         end
+
+        if task and index % 10 == 0
+          task.update(percent_complete: row_num / num_rows.to_f)
+        end
+
         row_num += 1
       end
     end

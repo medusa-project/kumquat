@@ -13,7 +13,7 @@ class ImportItemsFromTsvJob < Job
     self.task.indeterminate = true
     self.task.save!
 
-    ItemTsvIngester.new.ingest_pathname(args[0])
+    ItemTsvIngester.new.ingest_pathname(args[0], self.task)
     Solr.instance.commit
 
     File.delete(args[0]) if File.exist?(args[0])

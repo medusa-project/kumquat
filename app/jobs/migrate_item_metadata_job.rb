@@ -13,15 +13,10 @@ class MigrateItemMetadataJob < Job
     source_element = args[1]
     dest_element = args[2]
 
-    self.task.status_text = "Migrating \"#{source_element}\" elements to "\
-      "\"#{dest_element}\" in #{collection.title}"
+    self.task.update!(status_text: "Migrating \"#{source_element}\" "\
+      "elements to \"#{dest_element}\" in #{collection.title}")
 
-    # Indeterminate because the task happens in a transaction from which
-    # progress updates won't appear.
-    self.task.indeterminate = true
-    self.task.save!
-
-    collection.migrate_item_elements(source_element, dest_element)
+    collection.migrate_item_elements(source_element, dest_element, self.task)
 
     Solr.instance.commit
     self.task.succeeded

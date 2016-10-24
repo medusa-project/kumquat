@@ -660,13 +660,21 @@ class Item < ActiveRecord::Base
   # Propagates roles from the instance to all of its descendents. This is an
   # O(n) operation.
   #
+  # @param task [Task] Supply to receive progress updates.
   # @return [void]
   #
-  def propagate_roles
+  def propagate_roles(task = nil)
     ActiveRecord::Base.transaction do
       # Save callbacks will call this method on direct children, so there is
       # no need to crawl deeper levels of the child subtree.
-      self.items.each { |item| item.save! }
+      num_items = self.items.count
+      self.items.each_with_index do |item|
+        item.save!
+
+        if task and index % 10 == 0
+          task.update(percent_complete: index / num_items.to_f)
+        end
+      end
     end
   end
 
