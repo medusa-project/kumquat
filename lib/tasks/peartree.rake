@@ -57,8 +57,7 @@ namespace :peartree do
 
   desc 'Sync collections from Medusa'
   task :sync_collections => :environment do |task|
-    MedusaIngester.new.ingest_collections
-    Solr.instance.commit
+    SyncCollectionsJob.new.perform_now
   end
 
   desc 'Sync items from Medusa (modes: create_only, update_bytestreams, delete_missing)'
