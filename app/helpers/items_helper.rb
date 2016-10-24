@@ -369,7 +369,7 @@ module ItemsHelper
       if options[:show_description]
         html += '<br>'
         html += '<span class="pt-description">'
-        html += truncate(item.description.to_s, length: 400)
+        html += truncate(item.description.to_s, length: 380)
         html += '</span>'
       end
       html += '</div>'
