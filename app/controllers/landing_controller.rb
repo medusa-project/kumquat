@@ -12,6 +12,7 @@ class LandingController < WebsiteController
         client_ip(request.remote_ip).
         client_user(current_user).
         include_children(true).
+        include_variants([Item::Variants::FILE, nil]).
         media_types(IMAGE_MEDIA_TYPES).
         sort(:random).
         limit(1)
