@@ -83,6 +83,10 @@ var PTAdminItemsView = function() {
             return false;
         });
 
+        $('#pt-export-modal button[type=submit]').on('click', function() {
+            $('#pt-export-modal').modal('hide');
+        });
+
         // Enable certain checkboxes in the sync panel only when the "create"
         // radio is selected.
         var extract_metadata_checkbox = $('input[name="options[extract_metadata]"]');
