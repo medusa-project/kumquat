@@ -10,37 +10,45 @@ class ItemTsvIngester
   #
   def ingest_pathname(pathname)
     pathname = File.expand_path(pathname)
-    Rails.logger.info("Ingesting items in #{pathname}...")
+    Rails.logger.info("ItemTsvIngester.ingest_pathname(): "\
+        "ingesting from #{pathname}...")
 
-    ingest_tsv(File.read(pathname))
-  end
-
-  ##
-  # Creates or updates items from the given TSV string.
-  #
-  # @param tsv [String] TSV body string
-  # @return [Integer] Number of items created or updated
-  # @raises [RuntimeError]
-  #
-  def ingest_tsv(tsv)
-    raise 'No TSV content provided.' unless tsv.present?
-
-    # Treat the zero-byte as the quote character in order to allow quotes in
-    # values.
-    tsv = CSV.parse(tsv, headers: true, col_sep: "\t", quote_char: "\x00").
-        map{ |row| row.to_hash }
-    count = 0
+    num_rows = File.read(pathname).scan(/\n/).count
+    num_ingested = 0
     ActiveRecord::Base.transaction do
-      tsv.each do |row|
-        item = Item.find_by_repository_id(row['uuid'])
+      # Treat the zero-byte as the quote character in order to allow quotes in
+      # values without escaping.
+      row_num = 0
+      CSV.foreach(pathname, headers: true, col_sep: "\t",
+                  quote_char: "\x00") do |tsv_row|
+        progress = progress(row_num, num_rows)
+        struct = tsv_row.to_hash
+        item = Item.find_by_repository_id(struct['uuid'])
         if item
-          Rails.logger.info("Updating #{row['uuid']}")
-          item.update_from_tsv(row)
-          count += 1
+          Rails.logger.info("ItemTsvIngester.ingest_pathname(): "\
+              "#{struct['uuid']} #{progress}")
+          item.update_from_tsv(struct)
+          num_ingested += 1
+        else
+          Rails.logger.warn("ItemTsvIngester.ingest_pathname(): "\
+              "does not exist: #{struct['uuid']} #{progress}")
         end
+        row_num += 1
       end
     end
-    count
+    num_ingested
+  end
+
+  private
+
+  ##
+  # @param row_num [Integer]
+  # @param num_rows [Integer]
+  # @return [String]
+  #
+  def progress(row_num, num_rows)
+    percent = (((row_num + 1) / num_rows.to_f) * 100).round(2)
+    "(#{row_num + 1}/#{num_rows}) (#{percent}%)"
   end
 
 end
