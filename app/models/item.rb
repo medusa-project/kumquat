@@ -341,13 +341,13 @@ class Item < ActiveRecord::Base
   #
   def effective_rights_statement
     # Use the statement assigned to the instance.
-    rs = self.elements.select{ |e| e.name == 'accessRights' and e.value.present? }.
+    rs = self.elements.select{ |e| e.name == 'rights' and e.value.present? }.
         first&.value
     # If not available, walk up the item tree to find a parent statement.
     if rs.blank?
       p = self.parent
       while p
-        rs = p.elements.select{ |e| e.name == 'accessRights' and e.value.present? }.
+        rs = p.elements.select{ |e| e.name == 'rights' and e.value.present? }.
             first&.value
         break if rs.present?
         p = p.parent
