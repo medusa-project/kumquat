@@ -63,7 +63,7 @@ class Task < ActiveRecord::Base
   before_save :constrain_progress, :auto_complete
 
   def init
-    self.status ||= Status::RUNNING
+    self.status ||= Status::WAITING
   end
 
   def done
