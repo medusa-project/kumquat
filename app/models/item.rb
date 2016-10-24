@@ -469,6 +469,15 @@ class Item < ActiveRecord::Base
   end
 
   ##
+  # @return [Boolean]
+  #
+  def has_iiif_manifest?
+    self.is_compound? or
+        [Variants::DIRECTORY, Variants::FILE].include?(self.variant) or
+        !self.variant
+  end
+
+  ##
   # @return [void]
   #
   def index_in_solr
@@ -552,6 +561,15 @@ class Item < ActiveRecord::Base
       items = Item.where(parent_repository_id: self.repository_id)
     end
     items
+  end
+
+  ##
+  # Queries Solr to obtain a Relation of all children.
+  #
+  # @return [Relation<Item>]
+  #
+  def items_from_solr
+    Item.solr.where(Item::SolrFields::PARENT_ITEM => self.repository_id)
   end
 
   ##

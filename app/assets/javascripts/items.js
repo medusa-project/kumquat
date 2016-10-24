@@ -293,10 +293,6 @@ var PTItemView = function() {
             $('.pt-add-to-favorites').show();
         }
 
-        $('select.pt-page-select').on('change', function() {
-            window.location = $(this).val();
-        });
-
         $(window).on('resize', function() {
             var viewer = $('#pt-image-viewer');
             if (!viewer.hasClass('fullpage')) {

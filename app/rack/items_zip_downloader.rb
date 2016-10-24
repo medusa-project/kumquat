@@ -13,7 +13,7 @@ class ItemsZipDownloader < AbstractZipDownloader
     super(env)
     params = Rack::Utils.parse_nested_query(env['QUERY_STRING']).symbolize_keys
 
-    if params[:collection_id].blank?
+    if params[:collection_id].blank? and params[Item::SolrFields::PARENT_ITEM.to_sym].blank?
       return [400, {}, 'To spare computing resources, zip file '\
         'generation across collection contexts is disabled.']
     end

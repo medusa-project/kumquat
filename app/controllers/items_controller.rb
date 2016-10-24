@@ -335,6 +335,15 @@ class ItemsController < WebsiteController
         @parent = @item.parent
         @relative_parent = @parent ? @parent : @item
 
+        if @item.variant == Item::Variants::PAGE
+          render 'errors/error', status: :forbidden, locals: {
+              status_code: 403,
+              status_message: 'Forbidden',
+              message: 'This item is an object page.'
+          }
+          return
+        end
+
         set_files_ivar
         if @files.total_length > 0
           @relative_child = @files.first
@@ -365,6 +374,14 @@ class ItemsController < WebsiteController
           end
           render xml: @item.to_dls_xml(version)
         end
+      end
+      format.zip do # Used for downloading pages into a zip file.
+        query = {
+            collection_id: @item.collection_repository_id,
+            q: "#{Item::SolrFields::PARENT_ITEM}:#{@item.repository_id}"
+        }
+        # Redirect to the ZipDownloader Rack app, preserving the query string.
+        redirect_to "/items/download?#{query.to_query}"
       end
     end
   end

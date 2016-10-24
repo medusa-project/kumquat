@@ -44,6 +44,13 @@
           <i class="fa fa-code"></i>&nbsp;JSON
         <% end %>
       </li>
+      <% if @item.has_iiif_manifest? %>
+        <li>
+          <%= link_to item_iiif_manifest_path(@item), target: '_blank' do %>
+            <i class="fa fa-code"></i>&nbsp;Manifest
+          <% end %>
+        </li>
+      <% end %>
       <% if @item.bib_id %>
         <li><%= link_to "http://vufind.carli.illinois.edu/vf-uiu/Record/uiu_#{@item.bib_id}",
                         target: '_blank' do %>
@@ -81,6 +88,20 @@
         </li>
       </ul>
     </div>
+  <% elsif client_supports_zip_download? %>
+    <div class="btn-group">
+      <button type="button" class="btn btn-default dropdown-toggle"
+              data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <i class="fa fa-download"></i> Download <span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu dropdown-menu-right">
+        <li>
+          <%= link_to('', 'data-toggle': 'modal', 'data-target': '#pt-download-zip-modal') do %>
+            <i class="fa fa-file-zip-o"></i>&nbsp;&nbsp;Zip File&hellip;
+          <% end %>
+        </li>
+      </ul>
+    </div>
   <% end %>
 
   <% mailto = curator_mailto(@item) %>
@@ -101,36 +122,7 @@
 
 </div>
 
-<% if @item.variant and @item.variant == Item::Variants::PAGE %>
-  <%= item_page_title(@item) %>
-  <div class="panel panel-default">
-    <div class="panel-body pt-page-nav">
-      <!-- This form is never actually submitted -- we are just using the
-      form-inline class for convenience. -->
-      <form method="get" class="form-inline">
-        <% if @previous_item %>
-          <%= link_to raw('&larr; Previous Page'), @previous_item,
-                      class: 'pt-previous-page btn btn-default btn-sm' %>
-        <% else %>
-          <button disabled class="pt-previous-page btn btn-default btn-sm">
-            &larr; Previous Page</button>
-        <% end %>
-
-        <%= page_select_menu(@item) %>
-
-        <% if @next_item %>
-          <%= link_to raw('Next Page &rarr;'), @next_item,
-                      class: 'pt-previous-page btn btn-default btn-sm' %>
-        <% else %>
-          <button disabled class="pt-next-page btn btn-default btn-sm">
-            Next Page &rarr;</button>
-        <% end %>
-      </form>
-    </div>
-  </div>
-<% else %>
-  <%= item_page_title(@item) %>
-<% end %>
+<%= item_page_title(@item) %>
 
 <!-- If the item's collection's package profile is the free-form profile, and
 the current item is not a directory, lay out the viewer and metadata
@@ -162,27 +154,6 @@ side-by-side. (IMET-161) -->
   <section id="pt-files-section">
     <%= render partial: 'files' %>
   </section>
-<% elsif @item.variant != Item::Variants::FILE %>
-  <% if @relative_parent.key_item or @relative_parent.front_matter_item or
-      @relative_parent.index_item %>
-    <div class="row">
-      <div class="col-sm-4 col-md-3 col-lg-3">
-        <%= title_item_panel(@relative_parent, size: 512) %>
-        <%= key_item_panel(@relative_parent, size: 512) %>
-        <%= front_matter_item_panel(@relative_parent, size: 512) %>
-        <%= index_item_panel(@relative_parent, size: 512) %>
-      </div>
-      <div class="col-sm-8 col-md-9 col-lg-9">
-        <section id="pt-pages-section">
-          <%= render partial: 'pages' %>
-        </section>
-      </div>
-    </div>
-  <% else %>
-    <section id="pt-pages-section">
-      <%= render partial: 'pages' %>
-    </section>
-  <% end %>
 <% end %>
 
 <% if @item.full_text.present? %>
@@ -223,6 +194,7 @@ side-by-side. (IMET-161) -->
 
 <%= render partial: 'cite_panel', locals: { item: @item } %>
 <%= render partial: 'download_panel', locals: { item: @item } %>
+<%= render partial: 'download_zip_panel', locals: { items: @item.items_from_solr } %>
 <%= render partial: 'embed_image_panel', locals: { item: @item } %>
 
 <script type="application/ld+json">
