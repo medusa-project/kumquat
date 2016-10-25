@@ -153,13 +153,13 @@ module IiifPresentationHelper
 
   def canvas_height(item)
     height = item.access_master_bytestream&.height || MIN_CANVAS_SIZE
-    height *= 2 if height < MIN_CANVAS_SIZE
+    height = MIN_CANVAS_SIZE if height < MIN_CANVAS_SIZE
     height
   end
 
   def canvas_width(item)
     width = item.access_master_bytestream&.width || MIN_CANVAS_SIZE
-    width *= 2 if width < MIN_CANVAS_SIZE
+    width = MIN_CANVAS_SIZE if width < MIN_CANVAS_SIZE
     width
   end
 
