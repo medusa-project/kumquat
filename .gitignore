@@ -19,6 +19,6 @@
 !/log/.keep
 /tmp
 
-database.yml
-peartree.yml
-shibboleth.yml
+/config/database.yml
+/config/peartree.yml
+/config/shibboleth.yml
