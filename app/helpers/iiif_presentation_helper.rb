@@ -99,9 +99,7 @@ module IiifPresentationHelper
         '@id': item_iiif_range_url(item, variant),
         '@type': 'sc:Range',
         label: variant.titleize,
-        members: [
-            iiif_canvas_for(subitem)
-        ]
+        canvases: [ iiif_canvas_for(subitem) ]
     }
   end
 
