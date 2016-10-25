@@ -32,7 +32,7 @@ json.seeAlso [ { '@id': item_url(@item, format: :json), format: 'application/jso
                { '@id': item_url(@item, format: :atom), format: 'application/atom+xml' } ]
 
 # Presentation information
-json.viewingDirection 'right-to-left'
+json.viewingDirection 'left-to-right'
 if @item.pages.count > 0
   json.viewingHint 'paged'
 else
