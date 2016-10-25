@@ -25,11 +25,17 @@ class Job < ActiveJob::Base
     raise 'Must override perform()'
   end
 
-  def perform_now(*args)
-    # background jobs will have a job_id, but foreground jobs will not, so use
+  ##
+  # This is not a ActiveJob::Job method. Client code will call this instead of
+  # perform_now() so that the job can better discern whether it is being run in
+  # the foreground.
+  #
+  def perform_in_foreground(*args)
+    # Background jobs will have a job_id, but foreground jobs will not, so use
     # the object_id instead.
     create_task_for_job_id(self.object_id)
-    super
+
+    perform_now
   end
 
   rescue_from(Exception) do |e|

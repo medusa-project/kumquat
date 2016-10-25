@@ -62,13 +62,13 @@ namespace :peartree do
 
   desc 'Sync collections from Medusa'
   task :sync_collections => :environment do |task|
-    SyncCollectionsJob.new.perform_now
+    SyncCollectionsJob.new.perform_in_foreground
   end
 
   desc 'Sync items from Medusa (modes: create_only, update_bytestreams, delete_missing)'
   task :sync_items, [:collection_uuid, :mode] => :environment do |task, args|
     SyncItemsJob.new(args[:collection_uuid], args[:mode],
-                     extract_metadata: false).perform_now
+                     extract_metadata: false).perform_in_foreground
     Solr.instance.commit
   end
 
@@ -111,9 +111,7 @@ namespace :peartree do
 
   desc 'Update items from a TSV file'
   task :update_from_tsv, [:pathname] => :environment do |task, args|
-    count = ItemTsvIngester.new.ingest_pathname(args[:pathname])
-    Solr.instance.commit
-    puts "#{count} items updated."
+    ImportItemsFromTsvJob.new(args[:pathname]).perform_in_foreground
   end
 
 end
