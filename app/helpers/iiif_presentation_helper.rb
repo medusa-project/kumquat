@@ -96,12 +96,10 @@ module IiifPresentationHelper
   def iiif_range_for(item, variant)
     subitem = item.items.where(variant: variant).first
     {
-        '@id': item_iiif_range_url(subitem, variant),
+        '@id': item_iiif_range_url(item, variant),
         '@type': 'sc:Range',
         label: variant.titleize,
-        members: [
-            iiif_canvas_for(subitem)
-        ]
+        canvases: [ iiif_canvas_for(subitem) ]
     }
   end
 
