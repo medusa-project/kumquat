@@ -7,11 +7,7 @@ class ImportItemsFromTsvJob < Job
   #                     ingest at position 0.
   #
   def perform(*args)
-    self.task.status_text = 'Importing items from TSV'
-    # Indeterminate because the import happens in a transaction from which
-    # task progress updates won't appear.
-    self.task.indeterminate = true
-    self.task.save!
+    self.task.update(status_text: 'Importing items from TSV')
 
     ItemTsvIngester.new.ingest_pathname(args[0], self.task)
     Solr.instance.commit

@@ -6,6 +6,11 @@ namespace :peartree do
         where('updated_at < ?', 1.day.ago).destroy_all
   end
 
+  desc 'Clear tasks'
+  task :clear_tasks => :environment do |task, args|
+    Task.destroy_all
+  end
+
   desc 'Publish a collection'
   task :publish_collection, [:uuid] => :environment do |task, args|
     Collection.find_by_repository_id(args[:uuid]).
