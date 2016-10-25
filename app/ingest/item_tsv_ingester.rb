@@ -35,7 +35,7 @@ class ItemTsvIngester
               "does not exist: #{struct['uuid']} #{progress}")
         end
 
-        if task and index % 10 == 0
+        if task and row_num % 10 == 0
           task.update(percent_complete: row_num / num_rows.to_f)
         end
 
