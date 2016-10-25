@@ -1,10 +1,12 @@
 {
+  "options": {
+    "pagingEnabled": true,
+    "pagingOptionEnabled": true,
+    "searchWithinEnabled": false,
+    "termsOfUseEnabled": false,
+    "useArrowKeysToNavigate": true
+  },
   "modules": {
-    "contentLeftPanel": {
-      "options": {
-        "pagingOptionEnabled": false
-      }
-    },
     "footerPanel": {
       "options": {
         "downloadEnabled": false,
@@ -19,6 +21,7 @@
     },
     "pagingHeaderPanel": {
       "options": {
+        "pageModeEnabled": false,
         "searchWithinEnabled": false
       }
     },
