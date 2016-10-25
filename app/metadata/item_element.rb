@@ -19,7 +19,7 @@ class ItemElement < ActiveRecord::Base
     TECHNICAL = 1
   end
 
-  belongs_to :item, inverse_of: :elements
+  belongs_to :item, inverse_of: :elements, touch: true
   belongs_to :vocabulary
 
   attr_accessor :type

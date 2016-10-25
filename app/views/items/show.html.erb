@@ -145,6 +145,11 @@ side-by-side. (IMET-161) -->
   </div>
 <% end %>
 
+<% if has_viewer?(@item) %>
+  <%= rights_statement(@item.effective_rightsstatements_org_statement,
+                       @item.effective_rights_statement) %>
+<% end %>
+
 <% if @item.variant == Item::Variants::DIRECTORY %>
   <section id="pt-files-section">
     <%= render partial: 'files' %>
@@ -156,6 +161,11 @@ side-by-side. (IMET-161) -->
     <h2>Full Text</h2>
     <pre><%= @item.full_text %></pre>
   </section>
+<% end %>
+
+<% unless has_viewer?(@item) %>
+  <%= rights_statement(@item.effective_rightsstatements_org_statement,
+                       @item.effective_rights_statement) %>
 <% end %>
 
 <% if @item.elements.reject{ |e| e.name == 'title' }.any? and
@@ -181,9 +191,6 @@ side-by-side. (IMET-161) -->
     <%= tech_metadata_as_table(@item) %>
   </div>
 </section>
-
-<%= rights_statement(@item.effective_rightsstatements_org_statement,
-                     @item.effective_rights_statement) %>
 
 <%= render partial: 'cite_panel', locals: { item: @item } %>
 <%= render partial: 'download_panel', locals: { item: @item } %>

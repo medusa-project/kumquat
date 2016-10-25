@@ -22,7 +22,7 @@ class CollectionsController < WebsiteController
   #
   def index
     #filters = { Collection::SolrFields::ACCESS_URL => :not_null }
-    filters = {}
+    filters = []
     filters += params[:fq] if params[:fq]
 
     finder = CollectionFinder.new.

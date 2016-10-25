@@ -219,6 +219,10 @@ class ItemsController < WebsiteController
         collection_id(params[:collection_id]).
         query(params[:q]).
         include_children(params[:q].present?).
+        exclude_variants([Item::Variants::FRONT_MATTER, Item::Variants::INDEX,
+                          Item::Variants::KEY, Item::Variants::PAGE,
+                          Item::Variants::TABLE_OF_CONTENTS,
+                          Item::Variants::TITLE]).
         filter_queries(params[:fq]).
         sort(params[:sort]).
         start(@start).
@@ -308,12 +312,10 @@ class ItemsController < WebsiteController
     end
 
     # collections
-    ids = []
-    if params[:ids].any?
-      ids = params[:ids].select{ |k| !k.blank? }
-    end
+    ids = params[:ids].respond_to?(:each) ?
+        params[:ids].select{ |k| !k.blank? } : []
     if ids.any?
-      filter_clauses << "#{Item::SolrFields::COLLECTION}:(#{ids.join(' ')})"
+      filter_clauses << "#{Item::SolrFields::COLLECTION}:(#{ids.join(' OR ')})"
     end
 
     redirect_to items_path(q: where_clauses.join(' AND '), fq: filter_clauses)
