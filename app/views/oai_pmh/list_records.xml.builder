@@ -39,14 +39,14 @@ xml.tag!('OAI-PMH',
                 'xmlns:oai_dc' => 'http://www.openarchives.org/OAI/2.0/oai_dc/',
                 'xmlns:dc' => 'http://purl.org/dc/elements/1.1/',
                 'xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance',
-                'xsi:schemaLocation' => 'xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ '\
+                'xsi:schemaLocation' => 'http://www.openarchives.org/OAI/2.0/oai_dc/ '\
               'http://www.openarchives.org/OAI/2.0/oai_dc.xsd'
             }) do
               item.elements.each do |element|
                 # oai_dc supports only unqualified DC.
                 dc_element = item.collection.metadata_profile.elements.
                     where(name: element.name).first&.dc_map
-                if dc_element and element.value.present?
+                if dc_element.present? and element.value.present?
                   xml.tag!("dc:#{dc_element}", element.value)
                 end
               end
