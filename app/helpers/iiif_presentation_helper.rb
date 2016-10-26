@@ -99,7 +99,7 @@ module IiifPresentationHelper
         '@id': item_iiif_range_url(item, variant),
         '@type': 'sc:Range',
         label: variant.titleize,
-        canvases: [ iiif_canvas_for(subitem) ]
+        canvases: [ item_iiif_canvas_url(subitem, subitem.repository_id) ]
     }
   end
 
