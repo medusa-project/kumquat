@@ -11,7 +11,7 @@ module IiifPresentationHelper
         struct = {
             '@id': item_iiif_canvas_url(subitem, subitem.repository_id),
             '@type': 'sc:Canvas',
-            'label': "Page #{subitem.page_number}",
+            'label': subitem.title,
             height: canvas_height(subitem),
             width: canvas_width(subitem),
             metadata: iiif_metadata_for(subitem)

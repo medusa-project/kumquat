@@ -1,34 +1,30 @@
 <% provide :body_id, 'landing' %>
 <% provide :title, 'Home' %>
 
+<h1><%= Option::string(Option::Key::WEBSITE_NAME) %></h1>
+
+<div id="pt-description">
+  <%= sanitize(Option::string(Option::Key::WEBSITE_INTRO_TEXT).gsub("\n", '<br>'),
+               tags: %w(p br), attributes: %w()) %>
+</div>
+
+<hr>
+
 <div class="row">
-  <div class="col-sm-6">
-    <h1><%= Option.string(Option::Key::WEBSITE_NAME) %></h1>
-
-    <div id="pt-description">
-      <%= sanitize(Option.string(Option::Key::WEBSITE_INTRO_TEXT).gsub("\n", '<br>'),
-                   tags: %w(p br), attributes: %w()) %>
-    </div>
+  <div class="col-sm-7 col-md-8">
+    <h3 class="pt-title">
+      <%= link_to collection_path(@random_collection) do %>
+        <%= @random_collection.title %>
+      <% end %>
+    </h3>
+    <p><%= truncate(@random_collection.description, length: 400) %></p>
   </div>
-
-  <div class="col-sm-6">
-    <% if @random_item %>
-      <div class="pt-main-image">
-        <%= link_to @random_item do %>
-          <%= thumbnail_tag(@random_item) %>
-        <% end %>
-        <%= link_to @random_item, class: 'pt-title' do %>
-          <%= @random_item.title %>
-        <% end %>
-        <br>
-        <%= link_to collection_path(@random_item.collection),
-                    class: 'pt-collection-title' do %>
-          <%= icon_for(@random_item.collection) %>
-          <%= @random_item.collection.title %>
-        <% end %>
-      </div>
-    <% end %>
-
+  <div class="col-sm-5 col-md-4">
+    <div class="pt-main-image">
+      <%= link_to @random_collection do %>
+        <%= thumbnail_tag(@random_collection, 300) %>
+      <% end %>
+    </div>
   </div>
 </div>
 
