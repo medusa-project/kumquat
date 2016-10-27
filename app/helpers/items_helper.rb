@@ -996,23 +996,22 @@ module ItemsHelper
   # @return [String]
   #
   def thumbnail_tag(entity, size = DEFAULT_THUMBNAIL_SIZE, shape = :default)
-    html = ''
+    url = nil
     if entity.kind_of?(Bytestream)
       url = bytestream_image_url(entity, size, shape)
-      if url
-        # no alt because it may appear in a huge font size if the image is 404
-        html += image_tag(url, alt: '')
-      else
-        html += icon_for(entity) # ApplicationHelper
+    elsif entity.kind_of?(Collection)
+      bs = entity.representative_image_bytestream
+      if bs
+        url = bytestream_image_url(bs, size, shape)
       end
     elsif entity.kind_of?(Item)
       url = iiif_image_url(entity, size, shape)
-      if url
-        # no alt because it may appear in a huge font size if the image is 404
-        html += image_tag(url, alt: '')
-      else
-        html += icon_for(entity) # ApplicationHelper
-      end
+    end
+
+    html = ''
+    if url
+      # No alt because it may appear in a huge font size if the image is 404.
+      html += image_tag(url, class: 'pt-thumbnail', alt: '')
     else
       html += icon_for(entity) # ApplicationHelper
     end
