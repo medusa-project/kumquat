@@ -10,26 +10,6 @@
 
 <hr>
 
-<div class="row">
-  <div class="col-sm-7 col-md-8">
-    <h3 class="pt-title">
-      <%= link_to collection_path(@random_collection) do %>
-        <%= @random_collection.title %>
-      <% end %>
-    </h3>
-    <p><%= truncate(@random_collection.description, length: 400) %></p>
-  </div>
-  <div class="col-sm-5 col-md-4">
-    <div class="pt-main-image">
-      <%= link_to @random_collection do %>
-        <%= thumbnail_tag(@random_collection, 300) %>
-      <% end %>
-    </div>
-  </div>
-</div>
-
-<hr>
-
 <div class="pt-cards">
   <%= collections_as_cards(@dls_collections) %>
 </div>
