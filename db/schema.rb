@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161018203357) do
+ActiveRecord::Schema.define(version: 20161028181524) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -30,6 +30,14 @@ ActiveRecord::Schema.define(version: 20161018203357) do
   end
 
   add_index "bytestreams", ["item_id"], name: "index_bytestreams_on_item_id", using: :btree
+
+  create_table "collection_joins", force: :cascade do |t|
+    t.string "parent_repository_id", null: false
+    t.string "child_repository_id",  null: false
+  end
+
+  add_index "collection_joins", ["child_repository_id"], name: "index_collection_joins_on_child_repository_id", using: :btree
+  add_index "collection_joins", ["parent_repository_id"], name: "index_collection_joins_on_parent_repository_id", using: :btree
 
   create_table "collections", force: :cascade do |t|
     t.string   "repository_id",            null: false

@@ -50,6 +50,18 @@ class Collection < ActiveRecord::Base
 
   belongs_to :metadata_profile, inverse_of: :collections
 
+  # See CollectionJoin for an explanation of why we don't join on database IDs.
+  has_many :child_collection_joins, class_name: 'CollectionJoin',
+           primary_key: :repository_id, foreign_key: :parent_repository_id,
+           dependent: :destroy
+  has_many :children, -> { order('title ASC') },
+           through: :child_collection_joins, source: :child_collection
+  has_many :parent_collection_joins, class_name: 'CollectionJoin',
+           primary_key: :repository_id, foreign_key: :child_repository_id,
+           dependent: :destroy
+  has_many :parents, -> { order('title ASC') },
+           through: :parent_collection_joins, source: :parent_collection
+
   has_and_belongs_to_many :allowed_roles, class_name: 'Role',
                           association_foreign_key: :allowed_role_id
   has_and_belongs_to_many :denied_roles, class_name: 'Role',
