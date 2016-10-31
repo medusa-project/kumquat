@@ -43,7 +43,7 @@ class Collection < ActiveRecord::Base
     TITLE = 'title_natsort_en_i'
   end
 
-  UUID_REGEX = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/
+  UUID_REGEX = /\A[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/
 
   serialize :access_systems
   serialize :resource_types
