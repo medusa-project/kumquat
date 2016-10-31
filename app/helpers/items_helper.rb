@@ -434,8 +434,6 @@ module ItemsHelper
     defs = item.collection.effective_metadata_profile.elements
     defs = defs.select(&:visible) unless options[:admin]
     defs.each do |e_def|
-      # These will be displayed elsewhere on the page.
-      next if %w(rights title).include?(e_def.name) and !options[:admin]
       elements = item.elements.
           select{ |e| e.name == e_def.name and e.value.present? }
       next if elements.empty?
@@ -465,14 +463,11 @@ module ItemsHelper
   #
   def metadata_as_table(item, options = {})
     html = '<table class="table table-condensed pt-metadata">'
-
     # iterate through the index-ordered elements in the collection's metadata
     # profile in order to display the entity's elements in the correct order
     defs = item.collection.effective_metadata_profile.elements
     defs = defs.select(&:visible) unless options[:admin]
     defs.each do |e_def|
-      # These will be displayed elsewhere on the page.
-      next if %w(rights title).include?(e_def.name) and !options[:admin]
       elements = item.elements.
           select{ |e| e.name == e_def.name and e.value.present? }
       next if elements.empty?
