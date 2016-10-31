@@ -177,11 +177,13 @@ class Collection < ActiveRecord::Base
   ##
   # Requires PostgreSQL.
   #
+  # @param options [Hash]
+  # @option options [Boolean] :only_undescribed
   # @return [String] Full contents of the collection as a TSV string. Item
   #                  children are included. Ordering, limit, offset, etc. is
   #                  not customizable.
   #
-  def items_as_tsv
+  def items_as_tsv(options = {})
     # N.B. The return value must remain synchronized with that of
     # Item.tsv_header().
     # We use a native PostgreSQL query because going through ActiveRecord is
@@ -274,9 +276,18 @@ LIMIT 1000;
       items.contentdm_alias,
       items.contentdm_pointer,
       #{element_subselects.join(",\n")}
-    FROM items
-    WHERE items.collection_repository_id = $1
-    ORDER BY
+    FROM items "
+    # If we are supposed to include only undescribed items, join the
+    # item_elements table and search for title elements whose values match a
+    # UUID regex. (IMET-382)
+    if options[:only_undescribed]
+      sql += 'LEFT JOIN item_elements ON item_elements.item_id = items.id '
+    end
+    sql += "WHERE items.collection_repository_id = $1 "
+    if options[:only_undescribed]
+      sql += "AND item_elements.value ~* '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}' "
+    end
+    sql += "ORDER BY
       case
         when items.parent_repository_id IS NULL then
           items.repository_id

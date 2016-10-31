@@ -51,24 +51,24 @@ module Admin
         return
       end
 
-      @items = Item.solr.
-          filter(Item::SolrFields::COLLECTION => @collection.repository_id).
-          filter(Item::SolrFields::PARENT_ITEM => :null).
-          where(params[:q])
-
-      # fields
-      field_input_present = false
-      if params[:elements] and params[:elements].any?
-        params[:elements].each_with_index do |element, index|
-          if params[:terms].length > index and !params[:terms][index].blank?
-            @items = @items.where("#{element}:#{params[:terms][index]}")
-            field_input_present = true
-          end
-        end
-      end
-
       respond_to do |format|
         format.html do
+          @items = Item.solr.
+              filter(Item::SolrFields::COLLECTION => @collection.repository_id).
+              filter(Item::SolrFields::PARENT_ITEM => :null).
+              where(params[:q])
+
+          # fields
+          field_input_present = false
+          if params[:elements] and params[:elements].any?
+            params[:elements].each_with_index do |element, index|
+              if params[:terms].length > index and !params[:terms][index].blank?
+                @items = @items.where("#{element}:#{params[:terms][index]}")
+                field_input_present = true
+              end
+            end
+          end
+
           if params[:published].present? and params[:published] != 'any'
             @items = @items.filter(Item::SolrFields::PUBLISHED => params[:published].to_i ? 'true' : 'false')
           end
@@ -94,7 +94,8 @@ module Admin
         format.tsv do
           headers['Content-Disposition'] = 'attachment; filename="items.tsv"'
           headers['Content-Disposition'] = 'text/tab-separated-values'
-          render text: @collection.items_as_tsv
+          render text: @collection.items_as_tsv(only_undescribed:
+                                                    (params[:only_undescribed] == 'true'))
         end
       end
     end
