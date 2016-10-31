@@ -6,6 +6,11 @@ namespace :peartree do
         where('updated_at < ?', 1.day.ago).destroy_all
   end
 
+  desc 'Clear tasks'
+  task :clear_tasks => :environment do |task, args|
+    Task.destroy_all
+  end
+
   desc 'Publish a collection'
   task :publish_collection, [:uuid] => :environment do |task, args|
     Collection.find_by_repository_id(args[:uuid]).
@@ -57,24 +62,14 @@ namespace :peartree do
 
   desc 'Sync collections from Medusa'
   task :sync_collections => :environment do |task|
-    MedusaIngester.new.ingest_collections
-    Solr.instance.commit
+    SyncCollectionsJob.new.perform_in_foreground
   end
 
   desc 'Sync items from Medusa (modes: create_only, update_bytestreams, delete_missing)'
   task :sync_items, [:collection_uuid, :mode] => :environment do |task, args|
-    collection = Collection.find_by_repository_id(args[:collection_uuid])
-    warnings = []
-    result = MedusaIngester.new.ingest_items(collection, args[:mode],
-                                             { extract_metadata: true },
-                                             warnings)
+    SyncItemsJob.new(args[:collection_uuid], args[:mode],
+                     extract_metadata: false).perform_in_foreground
     Solr.instance.commit
-    warnings.each { |w| puts w }
-    puts "#{args[:mode]} sync of #{collection.title}:\n"\
-        "    Created: #{result[:num_created]}\n"\
-        "    Updated: #{result[:num_updated]}\n"\
-        "    Deleted: #{result[:num_deleted]}\n"\
-        "    Skipped: #{result[:num_skipped]}\n"
   end
 
   desc 'Update bytestreams in all collections'
@@ -116,9 +111,7 @@ namespace :peartree do
 
   desc 'Update items from a TSV file'
   task :update_from_tsv, [:pathname] => :environment do |task, args|
-    count = ItemTsvIngester.new.ingest_pathname(args[:pathname])
-    Solr.instance.commit
-    puts "#{count} items updated."
+    ImportItemsFromTsvJob.new(args[:pathname]).perform_in_foreground
   end
 
 end

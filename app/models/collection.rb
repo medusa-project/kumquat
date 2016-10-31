@@ -108,14 +108,16 @@ class Collection < ActiveRecord::Base
   # @param replace_values [Enumerable<Hash<Symbol,String>] Enumerable of hashes
   #                                                        with :string and
   #                                                        :uri keys.
+  # @param task [Task] Supply to track progress.
   # @return [void]
   # @raises [ArgumentError]
   #
-  def change_item_element_values(element_name, replace_values)
+  def change_item_element_values(element_name, replace_values, task = nil)
     raise ArgumentError, 'replace_values must be an Enumerable' unless
         replace_values.respond_to?(:each)
     ActiveRecord::Base.transaction do
-      self.items.each do |item|
+      num_items = self.items.count
+      self.items.each_with_index do |item, index|
         item.elements.where(name: element_name).destroy_all
         replace_values.each do |hash|
           hash = hash.symbolize_keys
@@ -124,6 +126,10 @@ class Collection < ActiveRecord::Base
                               uri: hash[:uri])
         end
         item.save!
+
+        if task and index % 10 == 0
+          task.update(percent_complete: index / num_items.to_f)
+        end
       end
     end
   end
@@ -352,12 +358,13 @@ LIMIT 1000;
   end
 
   ##
-  # @param source_element [String] Element name
-  # @param dest_element [String] Element name
+  # @param source_element [String] Element name.
+  # @param dest_element [String] Element name.
+  # @param task [Task] Supply to receive progress updates.
   # @return [void]
   # @raises [ArgumentError]
   #
-  def migrate_item_elements(source_element, dest_element)
+  def migrate_item_elements(source_element, dest_element, task = nil)
     # Check that the destination element is present in the instance's
     # metadata profile.
     source_def = self.metadata_profile.elements.
@@ -378,8 +385,13 @@ LIMIT 1000;
     end
 
     ActiveRecord::Base.transaction do
-      self.items.each do |item|
+      num_items = self.items.count
+      self.items.each_with_index do |item, index|
         item.migrate_elements(source_element, dest_element)
+
+        if task and index % 10 == 0
+          task.update(percent_complete: index / num_items.to_f)
+        end
       end
     end
   end
@@ -435,13 +447,21 @@ LIMIT 1000;
   # Propagates allowed and denied roles from the instance to all of its items.
   # This is an O(n) operation.
   #
+  # @param task [Task] Supply to receive progress updates.
   # @return [void]
   #
-  def propagate_roles
+  def propagate_roles(task = nil)
     ActiveRecord::Base.transaction do
       # Save callbacks will call this method on direct children, so there is
       # no need to crawl deeper levels of the item tree.
-      self.items.where(parent_repository_id: nil).each { |item| item.save! }
+      num_items = self.items.count
+      self.items.where(parent_repository_id: nil).each_with_index do |item, index|
+        item.save!
+
+        if task and index % 10 == 0
+          task.update(percent_complete: index / num_items.to_f)
+        end
+      end
     end
   end
 
@@ -452,13 +472,15 @@ LIMIT 1000;
   # @param replace_mode [Symbol] What part of the matches to replace:
   #                              :whole_value or :matched_part
   # @param replace_value [String] Value to replace the matches with.
+  # @param task [Task] Supply to receive status updates.
   # @return [void]
   # @raises [ArgumentError]
   #
   def replace_item_element_values(matching_mode, find_value, element_name,
-                                  replace_mode, replace_value)
+                                  replace_mode, replace_value, task)
     ActiveRecord::Base.transaction do
-      self.items.each do |item|
+      num_items = self.items.count
+      self.items.each_with_index do |item, index|
         item.elements.where(name: element_name).each do |element|
           case matching_mode
             when :exact_match
@@ -504,6 +526,10 @@ LIMIT 1000;
               end
             else
               raise ArgumentError, "Illegal matching mode: #{matching_mode}"
+          end
+
+          if task and index % 10 == 0
+            task.update(percent_complete: index / num_items.to_f)
           end
         end
       end

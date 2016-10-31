@@ -53,11 +53,17 @@ class Task < ActiveRecord::Base
 
   end
 
+  # Instances will often be updated from inside transactions, outside of which
+  # any updates would not be visible. So, we use a different database
+  # connection, to which ActiveRecord::Base.transaction fortunately does not
+  # propagate.
+  establish_connection "#{Rails.env}_2".to_sym
+
   after_initialize :init
   before_save :constrain_progress, :auto_complete
 
   def init
-    self.status ||= Status::RUNNING
+    self.status ||= Status::WAITING
   end
 
   def done
@@ -90,8 +96,11 @@ class Task < ActiveRecord::Base
   end
 
   def constrain_progress
-    self.percent_complete = self.percent_complete.to_i.abs
-    self.percent_complete = self.percent_complete > 1 ? 1 : self.percent_complete
+    if self.percent_complete < 0
+      self.percent_complete = 0
+    elsif self.percent_complete > 1
+      self.percent_complete = 1
+    end
   end
 
 end

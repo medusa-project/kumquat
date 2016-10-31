@@ -14,20 +14,14 @@ class BatchChangeItemMetadataJob < Job
     element_name = args[1]
     replace_values = args[2]
 
-    if self.task
-      self.task.status_text = "Changing \"#{element_name}\" element values "\
-        "in #{collection.title}"
+    self.task.update!(status_text: "Changing \"#{element_name}\" element "\
+        "values in #{collection.title}")
 
-      # Indeterminate because the task happens in a transaction from which
-      # progress updates won't appear.
-      self.task.indeterminate = true
-      self.task.save!
-    end
-
-    collection.change_item_element_values(element_name, replace_values)
+    collection.change_item_element_values(element_name, replace_values,
+                                          self.task)
 
     Solr.instance.commit
-    self.task&.succeeded
+    self.task.succeeded
   end
 
 end
