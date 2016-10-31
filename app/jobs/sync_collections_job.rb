@@ -8,7 +8,7 @@ class SyncCollectionsJob < Job
   def perform(*args)
     self.task.update!(status_text: 'Syncing collections')
 
-    MedusaIngester.new.ingest_collections(self.task)
+    MedusaIngester.new.sync_collections(self.task)
     Solr.instance.commit
 
     self.task.succeeded
