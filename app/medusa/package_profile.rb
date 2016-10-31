@@ -18,7 +18,7 @@ class PackageProfile
       },
       {
           id: 1,
-          name: 'Map'
+          name: 'Compound Object'
       },
       {
           id: 2,
@@ -50,8 +50,8 @@ class PackageProfile
     self.all.select{ |p| p.id == id.to_i }.first
   end
 
+  COMPOUND_OBJECT_PROFILE = PackageProfile.find(1)
   FREE_FORM_PROFILE = PackageProfile.find(0)
-  MAP_PROFILE = PackageProfile.find(1)
   SINGLE_ITEM_OBJECT_PROFILE = PackageProfile.find(2)
 
   def ==(obj)
@@ -73,7 +73,7 @@ class PackageProfile
       when 0
         return free_form_parent_id_from_medusa(item_id)
       when 1
-        return map_parent_id_from_medusa(item_id)
+        return compound_parent_id_from_medusa(item_id)
     end
     nil
   end
@@ -121,7 +121,7 @@ class PackageProfile
   # @param item_id [String]
   # @return [String]
   #
-  def map_parent_id_from_medusa(item_id) # TODO: move this
+  def compound_parent_id_from_medusa(item_id) # TODO: move this
     client = Medusa.client
     json = client.get(medusa_url(item_id), follow_redirect: true).body
     struct = JSON.parse(json)

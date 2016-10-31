@@ -122,8 +122,8 @@ cd2d4601-c451-0133-1d17-0050569601ca-8\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n"
   # package_profile=()
 
   test 'package_profile= should set a PackageProfile' do
-    @col.package_profile = PackageProfile::MAP_PROFILE
-    assert_equal @col.package_profile_id, PackageProfile::MAP_PROFILE.id
+    @col.package_profile = PackageProfile::COMPOUND_OBJECT_PROFILE
+    assert_equal @col.package_profile_id, PackageProfile::COMPOUND_OBJECT_PROFILE.id
   end
 
   # medusa_url()

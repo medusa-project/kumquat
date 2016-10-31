@@ -176,8 +176,8 @@ class MedusaIngester
     case collection.package_profile
       when PackageProfile::FREE_FORM_PROFILE
         return create_free_form_items(collection, options)
-      when PackageProfile::MAP_PROFILE
-        return create_map_items(collection, options, warnings)
+      when PackageProfile::COMPOUND_OBJECT_PROFILE
+        return create_compound_items(collection, options, warnings)
       when PackageProfile::SINGLE_ITEM_OBJECT_PROFILE
         return create_single_items(collection, options, warnings)
       else
@@ -197,18 +197,18 @@ class MedusaIngester
   # @return [Hash<Symbol,Integer>] Hash with :num_created, :num_updated, and
   #                                :num_skipped keys.
   #
-  def create_map_items(collection, options, warnings = [])
+  def create_compound_items(collection, options, warnings = [])
     status = { num_created: 0, num_updated: 0, num_skipped: 0 }
     collection.effective_medusa_cfs_directory.directories.each do |top_item_dir|
       item = Item.find_by_repository_id(top_item_dir.uuid)
       if item
-        Rails.logger.info("MedusaIngester.create_map_items(): skipping item "\
-            "#{top_item_dir.uuid}")
+        Rails.logger.info("MedusaIngester.create_compound_items(): "\
+            "skipping item #{top_item_dir.uuid}")
         status[:num_skipped] += 1
         next
       else
-        Rails.logger.info("MedusaIngester.create_map_items(): creating item "\
-                    "#{top_item_dir.uuid}")
+        Rails.logger.info("MedusaIngester.create_compound_items(): "\
+            "creating item #{top_item_dir.uuid}")
         item = Item.new(repository_id: top_item_dir.uuid,
                         collection_repository_id: collection.repository_id)
         status[:num_created] += 1
@@ -224,12 +224,12 @@ class MedusaIngester
               # Find or create the child item.
               child = Item.find_by_repository_id(pres_file.uuid)
               if child
-                Rails.logger.info("MedusaIngester.create_map_items(): "\
+                Rails.logger.info("MedusaIngester.create_compound_items(): "\
                     "skipping child item #{pres_file.uuid}")
                 status[:num_skipped] += 1
                 next
               else
-                Rails.logger.info("MedusaIngester.create_map_items(): "\
+                Rails.logger.info("MedusaIngester.create_compound_items(): "\
                     "creating child item #{pres_file.uuid}")
                 child = Item.new(repository_id: pres_file.uuid,
                                  collection_repository_id: collection.repository_id,
@@ -257,7 +257,7 @@ class MedusaIngester
 
               # Find and create the access master bytestream.
               begin
-                bs = map_access_master_bytestream(top_item_dir, pres_file)
+                bs = compound_access_master_bytestream(top_item_dir, pres_file)
                 child.bytestreams << bs
               rescue IllegalContentError => e
                 warnings << "#{e}"
@@ -276,7 +276,7 @@ class MedusaIngester
 
             # Find and create the access master bytestream.
             begin
-              bs = map_access_master_bytestream(top_item_dir, pres_file)
+              bs = compound_access_master_bytestream(top_item_dir, pres_file)
               item.bytestreams << bs
             rescue IllegalContentError => e
               warnings << "#{e}"
@@ -286,18 +286,18 @@ class MedusaIngester
                 options[:extract_metadata]
           else
             msg = "Preservation directory #{pres_dir.uuid} is empty."
-            Rails.logger.warn("MedusaIngester.create_map_items(): #{msg}")
+            Rails.logger.warn("MedusaIngester.create_compound_items(): #{msg}")
             warnings << msg
           end
         else
           msg = "Directory #{top_item_dir.uuid} is missing a preservation "\
               "directory."
-          Rails.logger.warn("MedusaIngester.create_map_items(): #{msg}")
+          Rails.logger.warn("MedusaIngester.create_compound_items(): #{msg}")
           warnings << msg
         end
       else
         msg = "Directory #{top_item_dir.uuid} does not have any subdirectories."
-        Rails.logger.warn("MedusaIngester.create_map_items(): #{msg}")
+        Rails.logger.warn("MedusaIngester.create_compound_items(): #{msg}")
         warnings << msg
       end
 
@@ -374,8 +374,8 @@ class MedusaIngester
     case collection.package_profile
       when PackageProfile::FREE_FORM_PROFILE
         medusa_items = free_form_items_in(collection.effective_medusa_cfs_directory)
-      when PackageProfile::MAP_PROFILE
-        medusa_items = map_items_in(collection.effective_medusa_cfs_directory)
+      when PackageProfile::COMPOUND_OBJECT_PROFILE
+        medusa_items = compound_items_in(collection.effective_medusa_cfs_directory)
       when PackageProfile::SINGLE_ITEM_OBJECT_PROFILE
         medusa_items = single_items_in(collection.effective_medusa_cfs_directory)
       else
@@ -428,7 +428,7 @@ class MedusaIngester
   # @return [Bytestream]
   # @raises [IllegalContentError]
   #
-  def map_access_master_bytestream(item_cfs_dir, pres_master_file)
+  def compound_access_master_bytestream(item_cfs_dir, pres_master_file)
     access_dir = item_cfs_dir.directories.
         select{ |d| d.name == 'access' }.first
     if access_dir
@@ -442,27 +442,27 @@ class MedusaIngester
         else
           msg = "Preservation master file #{pres_master_file.uuid} has no "\
               "access master counterpart."
-          Rails.logger.warn("MedusaIngester.map_access_master_bytestream(): #{msg}")
+          Rails.logger.warn("MedusaIngester.compound_access_master_bytestream(): #{msg}")
           raise IllegalContentError, msg
         end
       else
         msg = "Access master directory #{access_dir.uuid} has no files."
-        Rails.logger.warn("MedusaIngester.map_access_master_bytestream(): #{msg}")
+        Rails.logger.warn("MedusaIngester.compound_access_master_bytestream(): #{msg}")
         raise IllegalContentError, msg
       end
     else
       msg = "Item directory #{item_cfs_dir.uuid} is missing an access "\
           "master subdirectory."
-      Rails.logger.warn("MedusaIngester.map_access_master_bytestream(): #{msg}")
+      Rails.logger.warn("MedusaIngester.compound_access_master_bytestream(): #{msg}")
       raise IllegalContentError, msg
     end
   end
 
   ##
   # @return [Set<String>] Set of all item UUIDs in a CFS directory using the
-  #                       map content profile.
+  #                       compound object content profile.
   #
-  def map_items_in(cfs_dir)
+  def compound_items_in(cfs_dir)
     medusa_item_uuids = Set.new
     cfs_dir.directories.each do |top_item_dir|
       medusa_item_uuids << top_item_dir.uuid
@@ -505,7 +505,7 @@ class MedusaIngester
   #
   def single_item_access_master_bytestream(cfs_dir, pres_master_file)
     # Works the same way.
-    map_access_master_bytestream(cfs_dir, pres_master_file)
+    compound_access_master_bytestream(cfs_dir, pres_master_file)
   end
 
   ##
@@ -532,8 +532,8 @@ class MedusaIngester
     case collection.package_profile
       when PackageProfile::FREE_FORM_PROFILE
         stats = update_free_form_bytestreams(collection)
-      when PackageProfile::MAP_PROFILE
-        stats = update_map_bytestreams(collection, warnings)
+      when PackageProfile::COMPOUND_OBJECT_PROFILE
+        stats = update_compound_bytestreams(collection, warnings)
       when PackageProfile::SINGLE_ITEM_OBJECT_PROFILE
         stats = update_single_item_bytestreams(collection, warnings)
       else
@@ -619,7 +619,7 @@ class MedusaIngester
   #                                 with nonfatal warnings (optional).
   # @return [Hash<Symbol,Integer>] Hash with a :num_updated key.
   #
-  def update_map_bytestreams(collection, warnings = [])
+  def update_compound_bytestreams(collection, warnings = [])
     stats = { num_updated: 0 }
     collection.effective_medusa_cfs_directory.directories.each do |top_item_dir|
       item = Item.find_by_repository_id(top_item_dir.uuid)
@@ -635,7 +635,7 @@ class MedusaIngester
                 # Find the child item.
                 child = Item.find_by_repository_id(pres_file.uuid)
                 if child
-                  Rails.logger.info("MedusaIngester.update_map_bytestreams(): "\
+                  Rails.logger.info("MedusaIngester.update_compound_bytestreams(): "\
                       "updating child item #{pres_file.uuid}")
 
                   child.bytestreams.destroy_all
@@ -647,7 +647,7 @@ class MedusaIngester
 
                   # Find and create the access master bytestream.
                   begin
-                    bs = map_access_master_bytestream(top_item_dir, pres_file)
+                    bs = compound_access_master_bytestream(top_item_dir, pres_file)
                     bs.item = child
                     bs.save!
                   rescue IllegalContentError => e
@@ -655,12 +655,12 @@ class MedusaIngester
                   end
                   stats[:num_updated] += 1
                 else
-                  Rails.logger.warn("MedusaIngester.update_map_bytestreams(): "\
+                  Rails.logger.warn("MedusaIngester.update_compound_bytestreams(): "\
                       "skipping child item #{pres_file.uuid} (no item)")
                 end
               end
             elsif pres_dir.files.length == 1
-              Rails.logger.info("MedusaIngester.update_map_bytestreams(): "\
+              Rails.logger.info("MedusaIngester.update_compound_bytestreams(): "\
                     "updating item #{item.repository_id}")
 
               item.bytestreams.destroy_all
@@ -672,7 +672,7 @@ class MedusaIngester
 
               # Find and create the access master bytestream.
               begin
-                bs = map_access_master_bytestream(top_item_dir, pres_file)
+                bs = compound_access_master_bytestream(top_item_dir, pres_file)
                 item.bytestreams << bs
               rescue IllegalContentError => e
                 warnings << "#{e}"
@@ -683,23 +683,23 @@ class MedusaIngester
               stats[:num_updated] += 1
             else
               msg = "Preservation directory #{pres_dir.uuid} is empty."
-              Rails.logger.warn("MedusaIngester.update_map_bytestreams(): #{msg}")
+              Rails.logger.warn("MedusaIngester.update_compound_bytestreams(): #{msg}")
               warnings << msg
             end
           else
             msg = "Directory #{top_item_dir.uuid} is missing a preservation "\
                 "directory."
-            Rails.logger.warn("MedusaIngester.update_map_bytestreams(): #{msg}")
+            Rails.logger.warn("MedusaIngester.update_compound_bytestreams(): #{msg}")
             warnings << msg
           end
         else
           msg = "Directory #{top_item_dir.uuid} does not have any subdirectories."
-          Rails.logger.warn("MedusaIngester.update_map_bytestreams(): #{msg}")
+          Rails.logger.warn("MedusaIngester.update_compound_bytestreams(): #{msg}")
           warnings << msg
         end
       else
         msg = "No item for directory: #{top_item_dir.uuid}"
-        Rails.logger.warn("MedusaIngester.update_map_bytestreams(): #{msg}")
+        Rails.logger.warn("MedusaIngester.update_compound_bytestreams(): #{msg}")
         warnings << msg
       end
     end
