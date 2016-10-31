@@ -6,8 +6,8 @@ module CollectionsHelper
   def collection_facets_as_panels(collections)
     return nil unless collections.facet_fields # nothing to do
 
-    def get_panel(title, terms)
-      panel = "<div class=\"panel panel-default\">
+    def get_panel(title, id, terms)
+      panel = "<div class=\"panel panel-default\" id=\"#{id}\">
       <div class=\"panel-heading\">
         <h3 class=\"panel-title\">#{title}</h3>
       </div>
@@ -46,7 +46,7 @@ module CollectionsHelper
       next unless result_facet and
           result_facet.terms.select{ |t| t.count > 0 }.any?
 
-      html += get_panel(field[:label], result_facet.terms)
+      html += get_panel(field[:label], field[:id], result_facet.terms)
     end
     raw(html)
   end

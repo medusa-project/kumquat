@@ -97,9 +97,12 @@ class Collection < ActiveRecord::Base
     # These should be defined in the order they should appear.
     [
         # IMET-283 places Access Systems first.
-        { name: SolrFields::ACCESS_SYSTEMS, label: 'Access Systems' },
-        { name: SolrFields::RESOURCE_TYPES, label: 'Resource Type' },
-        { name: SolrFields::REPOSITORY_TITLE, label: 'Repository' }
+        { name: SolrFields::ACCESS_SYSTEMS, label: 'Access Systems',
+          id: 'pt-access-systems-facet' },
+        { name: SolrFields::RESOURCE_TYPES, label: 'Resource Type',
+          id: 'pt-resource-type-facet' },
+        { name: SolrFields::REPOSITORY_TITLE, label: 'Repository',
+          id: 'pt-repository-facet' }
     ]
   end
 
