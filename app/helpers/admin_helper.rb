@@ -1,6 +1,46 @@
 module AdminHelper
 
   ##
+  # @param collection [Collection]
+  # @return [String]
+  #
+  def admin_collection_hierarchy(collection)
+    child_html = ''
+    if collection.children.count > 0
+      child_html += '<ul>'
+      collection.children.each do |child|
+        child_html += "  <li>#{link_to(child.title, admin_collection_path(child))}</li>"
+      end
+      child_html += '</ul>'
+    end
+
+    parent_html = ''
+    if collection.parents.count > 0
+      collection.parents.each do |parent|
+        parent_html += "  <li>#{link_to(parent.title, admin_collection_path(parent))}</li>"
+      end
+    end
+
+    html = ''
+    if parent_html.present?
+      html += '<ul>'
+      html += parent_html
+      html += '<ul>'
+      html += "  <li>#{collection.title}"
+      html += child_html
+      html += '  </li>'
+      html += '</ul>'
+    elsif child_html.present?
+      html += '<ul>'
+      html += "  <li>#{collection.title}"
+      html += child_html
+      html += '  </li>'
+      html += '</ul>'
+    end
+    raw(html)
+  end
+
+  ##
   # @param profile_element [MetadataProfileElement]
   # @param element [ItemElement, nil]
   # @param vocabulary [Vocabulary]
