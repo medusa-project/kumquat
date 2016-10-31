@@ -96,10 +96,10 @@ class Collection < ActiveRecord::Base
   def self.solr_facet_fields
     # These should be defined in the order they should appear.
     [
-        # IMET-283 places Access Systems first.
-        { name: SolrFields::ACCESS_SYSTEMS, label: 'Access Systems' },
+        # Order requested in IMET-399.
+        { name: SolrFields::REPOSITORY_TITLE, label: 'Repository' },
         { name: SolrFields::RESOURCE_TYPES, label: 'Resource Type' },
-        { name: SolrFields::REPOSITORY_TITLE, label: 'Repository' }
+        { name: SolrFields::ACCESS_SYSTEMS, label: 'Access Systems' }
     ]
   end
 
