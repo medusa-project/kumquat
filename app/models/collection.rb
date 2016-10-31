@@ -657,6 +657,19 @@ LIMIT 1000;
     end
     self.rights_statement = struct['rights']['custom_copyright_statement']
     self.title = struct['title']
+
+    self.parents.destroy_all
+    struct['parent_collections'].each do |parent_struct|
+      self.parent_ids << parent_struct['uuid']
+      self.parent_collection_joins.build(parent_repository_id: parent_struct['uuid'],
+                                         child_repository_id: self.repository_id)
+    end
+
+    self.children.destroy_all
+    struct['child_collections'].each do |child_struct|
+      self.child_collection_joins.build(parent_repository_id: self.repository_id,
+                                        child_repository_id: child_struct['uuid'])
+    end
   end
 
   private
