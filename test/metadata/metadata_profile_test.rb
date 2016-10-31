@@ -4,10 +4,11 @@ class MetadataProfileTest < ActiveSupport::TestCase
 
   setup do
     @profile = metadata_profiles(:default_metadata_profile)
+    assert @profile.valid?
   end
 
   test 'default_elements should work' do
-    assert MetadataProfile.default_elements.length == 5
+    assert_equal 6, MetadataProfile.default_elements.length
   end
 
   test 'from_json should work' do
@@ -21,34 +22,10 @@ class MetadataProfileTest < ActiveSupport::TestCase
         "default_sortable_element_id": 1366,
         "elements": [
             {
-                "id": 1367,
-                "metadata_profile_id": 15,
-                "name": "accessRights",
-                "label": "Access Rights",
-                "index": 0,
-                "searchable": true,
-                "facetable": true,
-                "visible": true,
-                "created_at": "2016-06-28T17:46:31.197Z",
-                "updated_at": "2016-06-28T17:46:31.197Z",
-                "sortable": true,
-                "dc_map": "rights",
-                "dcterms_map": "accessRights",
-                "vocabularies": [
-                    {
-                        "id": 11,
-                        "key": "uncontrolled",
-                        "name": "Uncontrolled",
-                        "created_at": "2016-06-28T17:36:17.824Z",
-                        "updated_at": "2016-06-28T17:37:39.868Z"
-                    }
-                ]
-            },
-            {
                 "id": 1368,
                 "metadata_profile_id": 15,
-                "name": "accrualMethod",
-                "label": "Accrual Method",
+                "name": "title",
+                "label": "Title",
                 "index": 1,
                 "searchable": true,
                 "facetable": true,
@@ -71,8 +48,8 @@ class MetadataProfileTest < ActiveSupport::TestCase
             {
                 "id": 1366,
                 "metadata_profile_id": 15,
-                "name": "abstract",
-                "label": "Abstract",
+                "name": "subject",
+                "label": "Subject",
                 "index": 2,
                 "searchable": true,
                 "facetable": true,
@@ -82,30 +59,6 @@ class MetadataProfileTest < ActiveSupport::TestCase
                 "sortable": true,
                 "dc_map": "description",
                 "dcterms_map": "abstract",
-                "vocabularies": [
-                    {
-                        "id": 11,
-                        "key": "uncontrolled",
-                        "name": "Uncontrolled",
-                        "created_at": "2016-06-28T17:36:17.824Z",
-                        "updated_at": "2016-06-28T17:37:39.868Z"
-                    }
-                ]
-            },
-            {
-                "id": 1369,
-                "metadata_profile_id": 15,
-                "name": "accrualPeriodicity",
-                "label": "Accrual Periodicity",
-                "index": 3,
-                "searchable": true,
-                "facetable": true,
-                "visible": true,
-                "created_at": "2016-06-28T17:46:31.216Z",
-                "updated_at": "2016-06-28T17:46:31.216Z",
-                "sortable": true,
-                "dc_map": null,
-                "dcterms_map": "accrualPeriodicity",
                 "vocabularies": [
                     {
                         "id": 11,
@@ -121,26 +74,26 @@ class MetadataProfileTest < ActiveSupport::TestCase
     HEREDOC
     profile = MetadataProfile.from_json(json)
     assert_equal 'Test Profile (imported)', profile.name
-    assert_equal 4, profile.elements.length
+    assert_equal 2, profile.elements.length
 
-    abstract = profile.elements.select{ |ed| ed.name == 'abstract' }.first
-    assert_equal abstract.id, profile.default_sortable_element_id
-    assert_equal 'Abstract', abstract.label
-    assert_equal profile.id, abstract.metadata_profile_id
-    assert_equal 2, abstract.index
-    assert abstract.searchable
-    assert abstract.facetable
-    assert abstract.visible
-    assert abstract.sortable
-    assert_equal 'description', abstract.dc_map
-    assert_equal 'abstract', abstract.dcterms_map
+    subject = profile.elements.select{ |ed| ed.name == 'subject' }.first
+    assert_equal subject.id, profile.default_sortable_element_id
+    assert_equal 'Subject', subject.label
+    assert_equal profile.id, subject.metadata_profile_id
+    assert_equal 2, subject.index
+    assert subject.searchable
+    assert subject.facetable
+    assert subject.visible
+    assert subject.sortable
+    assert_equal 'description', subject.dc_map
+    assert_equal 'abstract', subject.dcterms_map
 
-    assert_equal 1, abstract.vocabularies.length
-    assert_equal 'uncontrolled', abstract.vocabularies.first.key
+    assert_equal 1, subject.vocabularies.length
+    assert_equal 'uncontrolled', subject.vocabularies.first.key
   end
 
   test 'from_json should raise an error when importing JSON that contains '\
-  'references to vocabularies that do not exist' do
+  'references to elements that do not exist' do
     json = <<-HEREDOC
     {
         "id": 15,
@@ -150,30 +103,6 @@ class MetadataProfileTest < ActiveSupport::TestCase
         "updated_at": "2016-06-28T17:46:31.072Z",
         "default_sortable_element_id": 1366,
         "elements": [
-            {
-                "id": 1367,
-                "metadata_profile_id": 15,
-                "name": "accessRights",
-                "label": "Access Rights",
-                "index": 0,
-                "searchable": true,
-                "facetable": true,
-                "visible": true,
-                "created_at": "2016-06-28T17:46:31.197Z",
-                "updated_at": "2016-06-28T17:46:31.197Z",
-                "sortable": true,
-                "dc_map": "rights",
-                "dcterms_map": "accessRights",
-                "vocabularies": [
-                    {
-                        "id": 11234,
-                        "key": "nonexistent",
-                        "name": "Nonexistent",
-                        "created_at": "2016-06-28T17:36:17.824Z",
-                        "updated_at": "2016-06-28T17:37:39.868Z"
-                    }
-                ]
-            },
             {
                 "id": 1368,
                 "metadata_profile_id": 15,
@@ -197,50 +126,45 @@ class MetadataProfileTest < ActiveSupport::TestCase
                         "updated_at": "2016-06-28T17:37:39.868Z"
                     }
                 ]
-            },
+            }
+        ]
+    }
+    HEREDOC
+    assert_raises ActiveRecord::RecordInvalid do
+      MetadataProfile.from_json(json)
+    end
+  end
+
+  test 'from_json should raise an error when importing JSON that contains '\
+  'references to vocabularies that do not exist' do
+    json = <<-HEREDOC
+    {
+        "id": 15,
+        "name": "Test Profile",
+        "default": false,
+        "created_at": "2016-06-28T17:46:31.072Z",
+        "updated_at": "2016-06-28T17:46:31.072Z",
+        "default_sortable_element_id": 1366,
+        "elements": [
             {
-                "id": 1366,
+                "id": 1368,
                 "metadata_profile_id": 15,
-                "name": "abstract",
-                "label": "Abstract",
-                "index": 2,
+                "name": "title",
+                "label": "Title",
+                "index": 1,
                 "searchable": true,
                 "facetable": true,
                 "visible": true,
-                "created_at": "2016-06-28T17:46:31.188Z",
-                "updated_at": "2016-06-28T17:46:48.894Z",
-                "sortable": true,
-                "dc_map": "description",
-                "dcterms_map": "abstract",
-                "vocabularies": [
-                    {
-                        "id": 11,
-                        "key": "uncontrolled",
-                        "name": "Uncontrolled",
-                        "created_at": "2016-06-28T17:36:17.824Z",
-                        "updated_at": "2016-06-28T17:37:39.868Z"
-                    }
-                ]
-            },
-            {
-                "id": 1369,
-                "metadata_profile_id": 15,
-                "name": "accrualPeriodicity",
-                "label": "Accrual Periodicity",
-                "index": 3,
-                "searchable": true,
-                "facetable": true,
-                "visible": true,
-                "created_at": "2016-06-28T17:46:31.216Z",
-                "updated_at": "2016-06-28T17:46:31.216Z",
+                "created_at": "2016-06-28T17:46:31.206Z",
+                "updated_at": "2016-06-28T17:46:31.206Z",
                 "sortable": true,
                 "dc_map": null,
-                "dcterms_map": "accrualPeriodicity",
+                "dcterms_map": "accrualMethod",
                 "vocabularies": [
                     {
-                        "id": 11,
-                        "key": "uncontrolled",
-                        "name": "Uncontrolled",
+                        "id": 11234,
+                        "key": "nonexistent",
+                        "name": "Nonexistent",
                         "created_at": "2016-06-28T17:36:17.824Z",
                         "updated_at": "2016-06-28T17:37:39.868Z"
                     }
@@ -260,8 +184,12 @@ class MetadataProfileTest < ActiveSupport::TestCase
 
   test 'dup should work' do
     dup = @profile.dup
-    puts dup.elements.map(&:name)
     dup.save!
+  end
+
+  test 'validate() should reject profiles with non-DLS elements' do
+    @profile.elements.build(name: 'bogus')
+    assert !@profile.valid?
   end
 
 end
