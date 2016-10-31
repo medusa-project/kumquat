@@ -1,5 +1,11 @@
 namespace :peartree do
 
+  desc 'Clear stale tasks'
+  task :clear_stale_tasks => :environment do |task, args|
+    Task.where(status: [Task::Status::WAITING, Task::Status::RUNNING]).
+        where('updated_at < ?', 1.day.ago).destroy_all
+  end
+
   desc 'Publish a collection'
   task :publish_collection, [:uuid] => :environment do |task, args|
     Collection.find_by_repository_id(args[:uuid]).
