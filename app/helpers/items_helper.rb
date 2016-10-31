@@ -1130,14 +1130,6 @@ module ItemsHelper
   def bytestream_metadata_for(bytestream, options = {})
     data = []
     if bytestream
-      # status
-      data << {
-          label: 'Status',
-          category: 'File',
-          value: bytestream.exists? ?
-              '<span class="label label-success">OK</span>' :
-              '<span class="label label-danger">MISSING</span>'
-      }
       if options[:admin]
         data << {
             label: 'Pathname',
