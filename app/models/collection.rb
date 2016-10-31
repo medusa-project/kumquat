@@ -652,6 +652,7 @@ LIMIT 1000;
   def do_before_validation
     self.medusa_cfs_directory_id&.strip!
     self.medusa_file_group_id&.strip!
+    self.representative_image&.strip!
     self.representative_item_id&.strip!
   end
 
