@@ -11,7 +11,7 @@ module IiifPresentationHelper
         struct = {
             '@id': item_iiif_canvas_url(subitem, subitem.repository_id),
             '@type': 'sc:Canvas',
-            'label': "Page #{subitem.page_number}",
+            'label': subitem.title,
             height: canvas_height(subitem),
             width: canvas_width(subitem),
             metadata: iiif_metadata_for(subitem)
@@ -96,12 +96,10 @@ module IiifPresentationHelper
   def iiif_range_for(item, variant)
     subitem = item.items.where(variant: variant).first
     {
-        '@id': item_iiif_range_url(subitem, variant),
+        '@id': item_iiif_range_url(item, variant),
         '@type': 'sc:Range',
         label: variant.titleize,
-        members: [
-            iiif_canvas_for(subitem)
-        ]
+        canvases: [ item_iiif_canvas_url(subitem, subitem.repository_id) ]
     }
   end
 
@@ -153,13 +151,13 @@ module IiifPresentationHelper
 
   def canvas_height(item)
     height = item.access_master_bytestream&.height || MIN_CANVAS_SIZE
-    height *= 2 if height < MIN_CANVAS_SIZE
+    height = MIN_CANVAS_SIZE if height < MIN_CANVAS_SIZE
     height
   end
 
   def canvas_width(item)
     width = item.access_master_bytestream&.width || MIN_CANVAS_SIZE
-    width *= 2 if width < MIN_CANVAS_SIZE
+    width = MIN_CANVAS_SIZE if width < MIN_CANVAS_SIZE
     width
   end
 
