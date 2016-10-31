@@ -23,6 +23,8 @@ class MetadataProfile < ActiveRecord::Base
   validates :name, presence: true, length: { minimum: 2 },
             uniqueness: { case_sensitive: false }
 
+  validate :using_valid_elements
+
   after_save :ensure_default_uniqueness
 
   ##
@@ -106,7 +108,7 @@ class MetadataProfile < ActiveRecord::Base
           if vocab
             profile_elem.vocabularies << vocab
           else
-            raise "Vocabulary does not exist: #{v['key']}"
+            raise "Vocabulary does not exist: #{v['key']}" # TODO: move this to Vocabulary validation
           end
         end
         profile_elem.save!
@@ -182,6 +184,17 @@ class MetadataProfile < ActiveRecord::Base
       self.class.all.where('id != ?', self.id).each do |instance|
         instance.default = false
         instance.save!
+      end
+    end
+  end
+
+  ##
+  # Ensures that each of the instance's elements has a corresponding [Element].
+  #
+  def using_valid_elements
+    self.elements.each do |pe|
+      unless Element.find_by_name(pe.name)
+        errors.add(:name, "\"#{pe.name}\" is not a valid DLS element.")
       end
     end
   end
