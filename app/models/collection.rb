@@ -43,7 +43,7 @@ class Collection < ActiveRecord::Base
     TITLE = 'title_natsort_en_i'
   end
 
-  UUID_REGEX = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/
+  UUID_REGEX = /\A[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/
 
   serialize :access_systems
   serialize :resource_types
@@ -96,10 +96,10 @@ class Collection < ActiveRecord::Base
   def self.solr_facet_fields
     # These should be defined in the order they should appear.
     [
-        # IMET-283 places Access Systems first.
-        { name: SolrFields::ACCESS_SYSTEMS, label: 'Access Systems' },
+        # Order requested in IMET-399.
+        { name: SolrFields::REPOSITORY_TITLE, label: 'Repository' },
         { name: SolrFields::RESOURCE_TYPES, label: 'Resource Type' },
-        { name: SolrFields::REPOSITORY_TITLE, label: 'Repository' }
+        { name: SolrFields::ACCESS_SYSTEMS, label: 'Access Systems' }
     ]
   end
 
@@ -652,6 +652,7 @@ LIMIT 1000;
   def do_before_validation
     self.medusa_cfs_directory_id&.strip!
     self.medusa_file_group_id&.strip!
+    self.representative_image&.strip!
     self.representative_item_id&.strip!
   end
 
