@@ -229,6 +229,7 @@ ActiveRecord::Schema.define(version: 20161028181524) do
     t.boolean  "indeterminate",    default: false
     t.text     "detail"
     t.text     "backtrace"
+    t.datetime "started_at"
   end
 
   create_table "users", force: :cascade do |t|

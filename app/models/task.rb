@@ -79,7 +79,12 @@ class Task < ActiveRecord::Base
   end
 
   def status=(status)
+    if self.status != status and status == Status::RUNNING
+      self.started_at = Time.now
+    end
+
     write_attribute(:status, status)
+
     if status == Status::SUCCEEDED
       self.percent_complete = 1
       self.completed_at = Time.now
