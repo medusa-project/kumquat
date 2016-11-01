@@ -147,21 +147,39 @@ class Relation
   end
 
   ##
-  # @param order [Hash, String, Symbol] Supply :random to sort randomly.
-  # @return [Relation] self
+  # Usage examples:
   #
-  def order(order)
+  # * order(:random)
+  # * order('field')
+  # * order('field asc')
+  # * order(:field => :asc)
+  # * order('field' => :asc)
+  # * order('field1 asc, field2 asc')
+  # * order({field1: :asc}, {field2: :asc})
+  #
+  # @param order [String, Symbol, Hash] Supply :random to sort randomly.
+  # @param more_orders [String]
+  # @return [Relation] self
+  # @raises [ArgumentError]
+  #
+  def order(order, *more_orders)
     reset_results
-    if order.kind_of?(Symbol) and order == :random
-      order = "random_#{SecureRandom.hex} asc"
-    elsif order.kind_of?(Hash)
-      order = order.map{ |k, v| "#{k} #{v}" }.join(', ')
-    else
-      order = order.to_s
-      order += ' asc' if !order.end_with?(' asc') and
-          !order.end_with?(' desc')
+
+    def format_order(order)
+      if order.kind_of?(Symbol) and order == :random
+        string = "random_#{SecureRandom.hex} asc"
+      elsif order.kind_of?(Hash) and order.length == 1
+        string = order.map{ |k, v| "#{k} #{v}" }.join('')
+      elsif order.kind_of?(String)
+        string = order.to_s
+        string += ' asc' if !string.end_with?(' asc') and
+            !string.end_with?(' desc')
+      else
+        raise ArgumentError, 'Unsupported order format'
+      end
+      string
     end
-    @order = order
+    @order = ([order] + more_orders).map{ |o| format_order(o) }.join(', ')
     self
   end
 
