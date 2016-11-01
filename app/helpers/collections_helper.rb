@@ -51,6 +51,25 @@ module CollectionsHelper
     raw(html)
   end
 
+  ##
+  # @param collection [Collection]
+  # @return [String] HTML string
+  #
+  def collection_page_title(collection)
+    html = ''
+    num_parents = collection.parents.count
+    if num_parents > 0
+      relative_parent = collection.parents.first
+      html += '<h1 class="pt-title pt-compound-title">'
+      html += "<small>#{link_to relative_parent.title, relative_parent}</small>"
+      html += "<br>&nbsp;&nbsp;&#8627; "
+      html += "#{collection.title}</h1>"
+    else
+      html += "<h1 class=\"pt-title\">#{collection.title}</h1>"
+    end
+    raw(html)
+  end
+
   def collections_as_cards(collections)
     thumb_size = 500
     html = ''

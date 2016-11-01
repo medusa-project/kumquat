@@ -55,7 +55,7 @@
   </div>
 </div>
 
-<h1><%= @collection.title %></h1>
+<h1><%= collection_page_title(@collection) %></h1>
 
 <% if @representative_image_bytestream %>
   <div class="row">
@@ -79,4 +79,12 @@
   </div>
 <% else %>
   <%= render partial: 'description' %>
+<% end %>
+
+<% if @collection.children.count > 0 %>
+  <hr>
+  <h2>Subcollections</h2>
+  <div class="pt-cards">
+    <%= collections_as_cards(@collection.children.where(published: true)) %>
+  </div>
 <% end %>

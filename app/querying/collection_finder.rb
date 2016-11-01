@@ -5,6 +5,7 @@ class CollectionFinder < AbstractFinder
 
   def initialize
     super
+    @include_children = false
     @include_unpublished_in_dls = false
     @sort = Collection::SolrFields::TITLE
   end
@@ -15,6 +16,15 @@ class CollectionFinder < AbstractFinder
   def count
     load
     @collections.count
+  end
+
+  ##
+  # @param boolean [Boolean]
+  # @return [self]
+  #
+  def include_children(boolean)
+    @include_children = boolean
+    self
   end
 
   ##
@@ -50,6 +60,8 @@ class CollectionFinder < AbstractFinder
     unless @include_unpublished_in_dls
       @collections = @collections.filter(Collection::SolrFields::PUBLISHED_IN_DLS => true)
     end
+
+    @collections = @collections.filter(Collection::SolrFields::PARENT_COLLECTIONS => :null) unless @include_children
 
     @collections = @collections.where(@query) if @query
 
