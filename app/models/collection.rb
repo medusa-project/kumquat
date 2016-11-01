@@ -418,15 +418,20 @@ LIMIT 1000;
   end
 
   ##
-  # @return [Integer] Number of public items in the collection regardless of
-  #                   hierarchy level.
+  # @return [Integer] Number of public objects in the collection.
   #
-  def num_public_items
-    @num_public_items = Item.solr.
-        where(Item::SolrFields::COLLECTION => self.repository_id).
-        where(Item::SolrFields::PUBLISHED => true).
-        where(Item::SolrFields::COLLECTION_PUBLISHED => true).count unless @num_public_items
-    @num_public_items
+  def num_public_objects
+    unless @num_public_objects
+      query = Item.solr.
+          where(Item::SolrFields::COLLECTION => self.repository_id).
+          where(Item::SolrFields::PUBLISHED => true).
+          where(Item::SolrFields::COLLECTION_PUBLISHED => true)
+      if self.package_profile != PackageProfile::FREE_FORM_PROFILE
+        query = query.where(Item::SolrFields::PARENT_ITEM => :null)
+      end
+      @num_public_objects = query.count
+    end
+    @num_public_objects
   end
 
   ##
