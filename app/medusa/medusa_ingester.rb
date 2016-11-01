@@ -19,14 +19,17 @@ class MedusaIngester
   # @param task [Task] Required for progress reporting
   # @return [void]
   #
-  def ingest_collections(task = nil)
+  def sync_collections(task = nil)
     config = Configuration.instance
     url = sprintf('%s/collections.json', config.medusa_url.chomp('/'))
 
-    Rails.logger.info('MedusaIngester.ingest_collections(): '\
-        'retrieving collection list')
+    # 1. Download the list of collections from Medusa
+    Rails.logger.info('MedusaIngester.sync_collections(): '\
+        'downloading collection list')
     response = Medusa.client.get(url, follow_redirect: true)
     struct = JSON.parse(response.body)
+
+    # 2. Create or update a DLS counterpart of each collection
     struct.each_with_index do |st, index|
       col = Collection.find_or_create_by(repository_id: st['uuid'])
       col.update_from_medusa
@@ -35,6 +38,16 @@ class MedusaIngester
       if task and index % 10 == 0
         task.percent_complete = index / struct.length.to_f
         task.save
+      end
+    end
+
+    # 3. Delete any DLS collections that are no longer present in Medusa (but
+    #    not any items within them, to be safe)
+    Collection.all.each do |col|
+      if struct.select { |st| st['uuid'] == col.repository_id }.empty?
+        Rails.logger.info('MedusaIngester.sync_collections(): '\
+            "deleting #{col.title} (#{col.repository_id})")
+        col.destroy!
       end
     end
   end
@@ -51,6 +64,7 @@ class MedusaIngester
   # @option options [Boolean] :include_date_created
   # @param warnings [Array<String>] Array which will be populated with nonfatal
   #                                 warnings (optional).
+  # @param task [Task] Supply to receive progress updates.
   # @return [Hash<Symbol,Integer>] Hash with :num_created, :num_updated,
   #                                :num_deleted, and/or :num_skipped keys.
   # @raises [ArgumentError] If the collection's file group or package profile
@@ -58,7 +72,7 @@ class MedusaIngester
   #                         external store.
   # @raises [IllegalContentError]
   #
-  def ingest_items(collection, mode, options = {}, warnings = [])
+  def ingest_items(collection, mode, options = {}, warnings = [], task = nil)
     raise ArgumentError, 'Collection file group is not set' unless
         collection.medusa_file_group
     raise ArgumentError, 'Collection package profile is not set' unless
@@ -72,13 +86,13 @@ class MedusaIngester
     ActiveRecord::Base.transaction do
       case mode.to_sym
         when IngestMode::DELETE_MISSING
-          stats.merge!(delete_missing_items(collection))
+          stats.merge!(delete_missing_items(collection, task))
         when IngestMode::UPDATE_BYTESTREAMS
-          stats.merge!(update_bytestreams(collection, warnings))
+          stats.merge!(update_bytestreams(collection, warnings, task))
         when IngestMode::REPLACE_METADATA
-          stats.merge!(replace_metadata(collection))
+          stats.merge!(replace_metadata(collection, task))
         else
-          stats.merge!(create_items(collection, options, warnings))
+          stats.merge!(create_items(collection, options, warnings, task))
       end
     end
     stats
@@ -87,13 +101,35 @@ class MedusaIngester
   private
 
   ##
+  # @param cfs_dir [MedusaCfsDirectory]
+  # @param count [Integer] For internal use.
+  # @return [Integer]
+  #
+  def count_tree_nodes(cfs_dir, count = 0)
+    cfs_dir.directories.each do |dir|
+      count += count_tree_nodes(dir, count)
+    end
+    count += cfs_dir.files.length
+    count
+  end
+
+  ##
   # @param collection [Collection]
   # @param options [Hash]
+  # @param task [Task] Supply to receive progress updates.
   # @option options [Boolean] :extract_metadata
   # @return [Hash<Symbol,Integer>] Hash with :num_created, :num_updated, and
   #                                :num_skipped keys.
   #
-  def create_free_form_items(collection, options)
+  def create_free_form_items(collection, options, task = nil)
+    if task
+      # Compile a count of filesystem nodes in order to display progress
+      # updates.
+      num_nodes = count_tree_nodes(collection.effective_medusa_cfs_directory)
+    else
+      num_nodes = 0
+    end
+
     ##
     # @param collection [Collection]
     # @param cfs_dir [MedusaCfsDirectory]
@@ -101,10 +137,15 @@ class MedusaIngester
     # @param options [Hash]
     # @option options [Boolean] :extract_metadata
     # @option options [Boolean] :include_date_created
+    # @param status [Hash]
+    # @param task [Task] Supply to receive status updates.
+    # @param num_nodes [Integer]
+    # @param num_walked [Integer] For internal use.
     # @return [Hash<Symbol,Integer>] Hash with :num_created, :num_updated, and
     #                                :num_skipped keys.
     #
-    def walk_tree(collection, cfs_dir, top_cfs_dir, options, status)
+    def walk_tree(collection, cfs_dir, top_cfs_dir, options, status,
+                  task = nil, num_nodes = 0, num_walked = 0)
       cfs_dir.directories.each do |dir|
         item = Item.find_by_repository_id(dir.uuid)
         if item
@@ -125,7 +166,15 @@ class MedusaIngester
           item.save!
           status[:num_created] += 1
         end
-        walk_tree(collection, dir, top_cfs_dir, options, status)
+
+        if task
+          task.update(percent_complete: num_walked / num_nodes.to_f)
+        end
+
+        num_walked += 1
+
+        walk_tree(collection, dir, top_cfs_dir, options, status, task,
+                  num_nodes, num_walked)
       end
       cfs_dir.files.each do |file|
         item = Item.find_by_repository_id(file.uuid)
@@ -154,12 +203,18 @@ class MedusaIngester
           item.save!
           status[:num_created] += 1
         end
+
+        if task
+          task.update(percent_complete: num_walked / num_nodes.to_f)
+        end
+        num_walked += 1
       end
     end
 
     status = { num_created: 0, num_updated: 0, num_skipped: 0 }
     walk_tree(collection, collection.effective_medusa_cfs_directory,
-        collection.effective_medusa_cfs_directory, options, status)
+        collection.effective_medusa_cfs_directory, options, status, task,
+              num_nodes)
     status
   end
 
@@ -169,17 +224,18 @@ class MedusaIngester
   # @option options [Boolean] :extract_metadata
   # @param warnings [Array<String>] Array which will be populated with
   #                                 nonfatal warnings (optional).
+  # @param task [Task] Supply to receive progress updates.
   # @return [Hash<Symbol,Integer>] Hash with :num_created, :num_updated, and
   #                                :num_skipped keys.
   #
-  def create_items(collection, options, warnings = [])
+  def create_items(collection, options, warnings = [], task = nil)
     case collection.package_profile
       when PackageProfile::FREE_FORM_PROFILE
         return create_free_form_items(collection, options)
-      when PackageProfile::MAP_PROFILE
-        return create_map_items(collection, options, warnings)
+      when PackageProfile::COMPOUND_OBJECT_PROFILE
+        return create_compound_items(collection, options, warnings)
       when PackageProfile::SINGLE_ITEM_OBJECT_PROFILE
-        return create_single_items(collection, options, warnings)
+        return create_single_items(collection, options, warnings, task)
       else
         raise IllegalContentError,
               "create_items(): unrecognized package profile: "\
@@ -194,21 +250,25 @@ class MedusaIngester
   # @option options [Boolean] :include_date_created
   # @param warnings [Array<String>] Supply an array which will be populated
   #                                 with nonfatal warnings (optional).
+  # @param task [Task] Supply to receive progress updates.
   # @return [Hash<Symbol,Integer>] Hash with :num_created, :num_updated, and
   #                                :num_skipped keys.
   #
-  def create_map_items(collection, options, warnings = [])
+  def create_compound_items(collection, options, warnings = [], task = nil)
     status = { num_created: 0, num_updated: 0, num_skipped: 0 }
-    collection.effective_medusa_cfs_directory.directories.each do |top_item_dir|
+    directories = collection.effective_medusa_cfs_directory.directories
+    num_directories = directories.length
+
+    directories.each_with_index do |top_item_dir, index|
       item = Item.find_by_repository_id(top_item_dir.uuid)
       if item
-        Rails.logger.info("MedusaIngester.create_map_items(): skipping item "\
-            "#{top_item_dir.uuid}")
+        Rails.logger.info("MedusaIngester.create_compound_items(): "\
+            "skipping item #{top_item_dir.uuid}")
         status[:num_skipped] += 1
         next
       else
-        Rails.logger.info("MedusaIngester.create_map_items(): creating item "\
-                    "#{top_item_dir.uuid}")
+        Rails.logger.info("MedusaIngester.create_compound_items(): "\
+            "creating item #{top_item_dir.uuid}")
         item = Item.new(repository_id: top_item_dir.uuid,
                         collection_repository_id: collection.repository_id)
         status[:num_created] += 1
@@ -224,12 +284,12 @@ class MedusaIngester
               # Find or create the child item.
               child = Item.find_by_repository_id(pres_file.uuid)
               if child
-                Rails.logger.info("MedusaIngester.create_map_items(): "\
+                Rails.logger.info("MedusaIngester.create_compound_items(): "\
                     "skipping child item #{pres_file.uuid}")
                 status[:num_skipped] += 1
                 next
               else
-                Rails.logger.info("MedusaIngester.create_map_items(): "\
+                Rails.logger.info("MedusaIngester.create_compound_items(): "\
                     "creating child item #{pres_file.uuid}")
                 child = Item.new(repository_id: pres_file.uuid,
                                  collection_repository_id: collection.repository_id,
@@ -257,7 +317,7 @@ class MedusaIngester
 
               # Find and create the access master bytestream.
               begin
-                bs = map_access_master_bytestream(top_item_dir, pres_file)
+                bs = compound_access_master_bytestream(top_item_dir, pres_file)
                 child.bytestreams << bs
               rescue IllegalContentError => e
                 warnings << "#{e}"
@@ -276,7 +336,7 @@ class MedusaIngester
 
             # Find and create the access master bytestream.
             begin
-              bs = map_access_master_bytestream(top_item_dir, pres_file)
+              bs = compound_access_master_bytestream(top_item_dir, pres_file)
               item.bytestreams << bs
             rescue IllegalContentError => e
               warnings << "#{e}"
@@ -286,22 +346,24 @@ class MedusaIngester
                 options[:extract_metadata]
           else
             msg = "Preservation directory #{pres_dir.uuid} is empty."
-            Rails.logger.warn("MedusaIngester.create_map_items(): #{msg}")
+            Rails.logger.warn("MedusaIngester.create_compound_items(): #{msg}")
             warnings << msg
           end
         else
           msg = "Directory #{top_item_dir.uuid} is missing a preservation "\
               "directory."
-          Rails.logger.warn("MedusaIngester.create_map_items(): #{msg}")
+          Rails.logger.warn("MedusaIngester.create_compound_items(): #{msg}")
           warnings << msg
         end
       else
         msg = "Directory #{top_item_dir.uuid} does not have any subdirectories."
-        Rails.logger.warn("MedusaIngester.create_map_items(): #{msg}")
+        Rails.logger.warn("MedusaIngester.create_compound_items(): #{msg}")
         warnings << msg
       end
 
       item.save!
+
+      task.update(percent_complete: index / num_directories.to_f) if task
     end
     status
   end
@@ -313,15 +375,18 @@ class MedusaIngester
   # @option options [Boolean] :include_date_created
   # @param warnings [Array<String>] Supply an array which will be populated
   #                                 with nonfatal warnings (optional).
+  # @param task [Task] Supply to receive progress updates.
   # @return [Hash<Symbol,Integer>] Hash with :num_created, :num_updated, and
   #                                :num_skipped keys.
   #
-  def create_single_items(collection, options, warnings = [])
+  def create_single_items(collection, options, warnings = [], task = nil)
     cfs_dir = collection.effective_medusa_cfs_directory
     pres_dir = cfs_dir.directories.select{ |d| d.name == 'preservation' }.first
 
     status = { num_created: 0, num_updated: 0, num_skipped: 0 }
-    pres_dir.files.each do |file|
+    files = pres_dir.files
+    num_files = files.length
+    files.each_with_index do |file, index|
       # Find or create the child item.
       item = Item.find_by_repository_id(file.uuid)
       if item
@@ -356,16 +421,21 @@ class MedusaIngester
       item.update_from_embedded_metadata(options) if options[:extract_metadata]
 
       item.save!
+
+      if task and index % 10 == 0
+        task.update(percent_complete: index / num_files.to_f)
+      end
     end
     status
   end
 
   ##
   # @param collection [Collection]
+  # @param task [Task] Supply to receive status updates.
   # @return [Hash<Symbol,Integer>] Hash with :num_deleted key.
   # @raises [IllegalContentError]
   #
-  def delete_missing_items(collection)
+  def delete_missing_items(collection, task = nil)
     # Compile a list of all item UUIDs currently in the Medusa file group.
     medusa_items = free_form_items_in(collection.effective_medusa_cfs_directory)
     Rails.logger.debug("MedusaIngester.delete_missing_items(): "\
@@ -374,8 +444,8 @@ class MedusaIngester
     case collection.package_profile
       when PackageProfile::FREE_FORM_PROFILE
         medusa_items = free_form_items_in(collection.effective_medusa_cfs_directory)
-      when PackageProfile::MAP_PROFILE
-        medusa_items = map_items_in(collection.effective_medusa_cfs_directory)
+      when PackageProfile::COMPOUND_OBJECT_PROFILE
+        medusa_items = compound_items_in(collection.effective_medusa_cfs_directory)
       when PackageProfile::SINGLE_ITEM_OBJECT_PROFILE
         medusa_items = single_items_in(collection.effective_medusa_cfs_directory)
       else
@@ -386,12 +456,18 @@ class MedusaIngester
     # For each DLS item in the collection, if it's no longer contained in the
     # file group, delete it.
     status = { num_deleted: 0 }
-    Item.where(collection_repository_id: collection.repository_id).each do |item|
+    items = Item.where(collection_repository_id: collection.repository_id)
+    num_items = items.count
+    items.each_with_index do |item, index|
       unless medusa_items.include?(item.repository_id)
         Rails.logger.info("MedusaIngester.delete_missing_items(): deleting "\
           "#{item.repository_id}")
         item.destroy!
         status[:num_deleted] += 1
+      end
+
+      if task and index % 10 == 0
+        task.update(percent_complete: index / num_items.to_f)
       end
     end
     status
@@ -428,7 +504,7 @@ class MedusaIngester
   # @return [Bytestream]
   # @raises [IllegalContentError]
   #
-  def map_access_master_bytestream(item_cfs_dir, pres_master_file)
+  def compound_access_master_bytestream(item_cfs_dir, pres_master_file)
     access_dir = item_cfs_dir.directories.
         select{ |d| d.name == 'access' }.first
     if access_dir
@@ -442,27 +518,27 @@ class MedusaIngester
         else
           msg = "Preservation master file #{pres_master_file.uuid} has no "\
               "access master counterpart."
-          Rails.logger.warn("MedusaIngester.map_access_master_bytestream(): #{msg}")
+          Rails.logger.warn("MedusaIngester.compound_access_master_bytestream(): #{msg}")
           raise IllegalContentError, msg
         end
       else
         msg = "Access master directory #{access_dir.uuid} has no files."
-        Rails.logger.warn("MedusaIngester.map_access_master_bytestream(): #{msg}")
+        Rails.logger.warn("MedusaIngester.compound_access_master_bytestream(): #{msg}")
         raise IllegalContentError, msg
       end
     else
       msg = "Item directory #{item_cfs_dir.uuid} is missing an access "\
           "master subdirectory."
-      Rails.logger.warn("MedusaIngester.map_access_master_bytestream(): #{msg}")
+      Rails.logger.warn("MedusaIngester.compound_access_master_bytestream(): #{msg}")
       raise IllegalContentError, msg
     end
   end
 
   ##
   # @return [Set<String>] Set of all item UUIDs in a CFS directory using the
-  #                       map content profile.
+  #                       compound object content profile.
   #
-  def map_items_in(cfs_dir)
+  def compound_items_in(cfs_dir)
     medusa_item_uuids = Set.new
     cfs_dir.directories.each do |top_item_dir|
       medusa_item_uuids << top_item_dir.uuid
@@ -483,16 +559,23 @@ class MedusaIngester
 
   ##
   # @param collection [Collection]
+  # @param task [Task] Supply to receive progress updates.
   # @return [Hash<Symbol,Integer>] Hash with a :num_updated key.
   #
-  def replace_metadata(collection)
+  def replace_metadata(collection, task = nil)
     stats = { num_updated: 0 }
     # Skip items derived from directories, as they have no embedded metadata.
-    collection.items.where('variant != ?', Item::Variants::DIRECTORY).each do |item|
+    items = collection.items.where('variant != ?', Item::Variants::DIRECTORY)
+    num_items = items.count
+    items.each_with_index do |item, index|
       Rails.logger.info("MedusaIngester.replace_metadata(): #{item.repository_id}")
       update_item_from_embedded_metadata(item)
       item.save!
       stats[:num_updated] += 1
+
+      if task and index % 10 == 0
+        task.update(percent_complete: index / num_items.to_f)
+      end
     end
     stats
   end
@@ -505,7 +588,7 @@ class MedusaIngester
   #
   def single_item_access_master_bytestream(cfs_dir, pres_master_file)
     # Works the same way.
-    map_access_master_bytestream(cfs_dir, pres_master_file)
+    compound_access_master_bytestream(cfs_dir, pres_master_file)
   end
 
   ##
@@ -525,26 +608,26 @@ class MedusaIngester
   # @param collection [Collection]
   # @param warnings [Array<String>] Will be populated with nonfatal warnings
   #                                 (optional).
+  # @param task [Task] Supply to receive status updates.
   # @return [Hash<Symbol, Integer>]
   #
-  def update_bytestreams(collection, warnings = [])
-    stats = {}
+  def update_bytestreams(collection, warnings = [], task = nil)
     case collection.package_profile
       when PackageProfile::FREE_FORM_PROFILE
-        stats = update_free_form_bytestreams(collection)
-      when PackageProfile::MAP_PROFILE
-        stats = update_map_bytestreams(collection, warnings)
+        stats = update_free_form_bytestreams(collection, task)
+      when PackageProfile::COMPOUND_OBJECT_PROFILE
+        stats = update_compound_bytestreams(collection, warnings, task)
       when PackageProfile::SINGLE_ITEM_OBJECT_PROFILE
-        stats = update_single_item_bytestreams(collection, warnings)
+        stats = update_single_item_bytestreams(collection, warnings, task)
       else
         raise IllegalContentError,
               "update_bytestreams(): unrecognized package profile: "\
                     "#{collection.package_profile}"
     end
 
-    # The bytestreams have been updated, but the image server probably still
-    # has cached versions of the old ones. Here, we will use the Cantaloupe
-    # API to purge them.
+    # The bytestreams have been updated, but the image server may still have
+    # cached versions of the old ones. Here, we will use the Cantaloupe API to
+    # purge them.
     collection.items.each do |item|
       begin
         ImageServer.instance.purge_item_from_cache(item)
@@ -559,21 +642,41 @@ class MedusaIngester
 
   ##
   # @param collection [Collection]
+  # @param task [Task] Supply to receive status updates.
   # @return [Hash<Symbol,Integer>] Hash with a :num_updated key.
   #
-  def update_free_form_bytestreams(collection)
+  def update_free_form_bytestreams(collection, task = nil)
+    if task
+      # Compile a count of filesystem nodes in order to display progress
+      # updates.
+      num_nodes = count_tree_nodes(collection.effective_medusa_cfs_directory)
+    else
+      num_nodes = 0
+    end
+
     ##
-    # @param collection [Collection]
     # @param cfs_dir [MedusaCfsDirectory]
     # @param top_cfs_dir [MedusaCfsDirectory]
     # @param stats [Hash<Symbol,Integer>]
+    # @param task [Task] Supply to receive progress updates.
+    # @param num_nodes [Integer]
+    # @param num_walked [Integer] For internal use.
     # @return [Hash<Symbol,Integer>] Hash with a :num_updated key.
     #
-    def walk_tree(collection, cfs_dir, top_cfs_dir, stats)
+    def walk_tree(cfs_dir, top_cfs_dir, stats, task = nil, num_nodes = 0,
+                  num_walked = 0)
       cfs_dir.directories.each do |dir|
-        walk_tree(collection, dir, top_cfs_dir, stats)
+        if task and num_walked % 10 == 0
+          task.update(percent_complete: num_walked / num_nodes.to_f)
+        end
+        num_walked += 1
+        walk_tree(dir, top_cfs_dir, stats)
       end
       cfs_dir.files.each do |file|
+        if task and num_walked % 10 == 0
+          task.update(percent_complete: num_walked / num_nodes.to_f)
+        end
+        num_walked += 1
         item = Item.find_by_repository_id(file.uuid)
         if item
           Rails.logger.info("MedusaIngester.update_free_form_bytestreams(): "\
@@ -591,8 +694,8 @@ class MedusaIngester
     end
 
     stats = { num_updated: 0 }
-    walk_tree(collection, collection.effective_medusa_cfs_directory,
-              collection.effective_medusa_cfs_directory, stats)
+    walk_tree(collection.effective_medusa_cfs_directory,
+              collection.effective_medusa_cfs_directory, stats, task, num_nodes)
     stats
   end
 
@@ -617,11 +720,15 @@ class MedusaIngester
   # @param collection [Collection]
   # @param warnings [Array<String>] Supply an array which will be populated
   #                                 with nonfatal warnings (optional).
+  # @param task [Task] Supply to receive progress updates.
   # @return [Hash<Symbol,Integer>] Hash with a :num_updated key.
   #
-  def update_map_bytestreams(collection, warnings = [])
+  def update_compound_bytestreams(collection, warnings = [], task = nil)
     stats = { num_updated: 0 }
-    collection.effective_medusa_cfs_directory.directories.each do |top_item_dir|
+    directories = collection.effective_medusa_cfs_directory.directories
+    num_directories = directories.length
+
+    directories.each_with_index do |top_item_dir, index|
       item = Item.find_by_repository_id(top_item_dir.uuid)
       if item
         if top_item_dir.directories.any?
@@ -635,7 +742,7 @@ class MedusaIngester
                 # Find the child item.
                 child = Item.find_by_repository_id(pres_file.uuid)
                 if child
-                  Rails.logger.info("MedusaIngester.update_map_bytestreams(): "\
+                  Rails.logger.info("MedusaIngester.update_compound_bytestreams(): "\
                       "updating child item #{pres_file.uuid}")
 
                   child.bytestreams.destroy_all
@@ -647,7 +754,7 @@ class MedusaIngester
 
                   # Find and create the access master bytestream.
                   begin
-                    bs = map_access_master_bytestream(top_item_dir, pres_file)
+                    bs = compound_access_master_bytestream(top_item_dir, pres_file)
                     bs.item = child
                     bs.save!
                   rescue IllegalContentError => e
@@ -655,12 +762,12 @@ class MedusaIngester
                   end
                   stats[:num_updated] += 1
                 else
-                  Rails.logger.warn("MedusaIngester.update_map_bytestreams(): "\
+                  Rails.logger.warn("MedusaIngester.update_compound_bytestreams(): "\
                       "skipping child item #{pres_file.uuid} (no item)")
                 end
               end
             elsif pres_dir.files.length == 1
-              Rails.logger.info("MedusaIngester.update_map_bytestreams(): "\
+              Rails.logger.info("MedusaIngester.update_compound_bytestreams(): "\
                     "updating item #{item.repository_id}")
 
               item.bytestreams.destroy_all
@@ -672,7 +779,7 @@ class MedusaIngester
 
               # Find and create the access master bytestream.
               begin
-                bs = map_access_master_bytestream(top_item_dir, pres_file)
+                bs = compound_access_master_bytestream(top_item_dir, pres_file)
                 item.bytestreams << bs
               rescue IllegalContentError => e
                 warnings << "#{e}"
@@ -683,25 +790,26 @@ class MedusaIngester
               stats[:num_updated] += 1
             else
               msg = "Preservation directory #{pres_dir.uuid} is empty."
-              Rails.logger.warn("MedusaIngester.update_map_bytestreams(): #{msg}")
+              Rails.logger.warn("MedusaIngester.update_compound_bytestreams(): #{msg}")
               warnings << msg
             end
           else
             msg = "Directory #{top_item_dir.uuid} is missing a preservation "\
                 "directory."
-            Rails.logger.warn("MedusaIngester.update_map_bytestreams(): #{msg}")
+            Rails.logger.warn("MedusaIngester.update_compound_bytestreams(): #{msg}")
             warnings << msg
           end
         else
           msg = "Directory #{top_item_dir.uuid} does not have any subdirectories."
-          Rails.logger.warn("MedusaIngester.update_map_bytestreams(): #{msg}")
+          Rails.logger.warn("MedusaIngester.update_compound_bytestreams(): #{msg}")
           warnings << msg
         end
       else
         msg = "No item for directory: #{top_item_dir.uuid}"
-        Rails.logger.warn("MedusaIngester.update_map_bytestreams(): #{msg}")
+        Rails.logger.warn("MedusaIngester.update_compound_bytestreams(): #{msg}")
         warnings << msg
       end
+      task.update(percent_complete: index / num_directories.to_f) if task
     end
     stats
   end
@@ -710,14 +818,17 @@ class MedusaIngester
   # @param collection [Collection]
   # @param warnings [Array<String>] Supply an array which will be populated
   #                                 with nonfatal warnings (optional).
+  # @param task [Task] Supply to receive progress updates.
   # @return [Hash<Symbol,Integer>] Hash with a :num_updated key.
   #
-  def update_single_item_bytestreams(collection, warnings = [])
+  def update_single_item_bytestreams(collection, warnings = [], task = nil)
     cfs_dir = collection.effective_medusa_cfs_directory
     pres_dir = cfs_dir.directories.select{ |d| d.name == 'preservation' }.first
 
     stats = { num_updated: 0 }
-    pres_dir.files.each do |file|
+    files = pres_dir.files
+    num_files = files.length
+    files.each_with_index do |file, index|
       item = Item.find_by_repository_id(file.uuid)
       if item
         item.bytestreams.destroy_all
@@ -742,6 +853,10 @@ class MedusaIngester
         end
 
         stats[:num_updated] += 1
+      end
+
+      if task and index % 10 == 0
+        task.update(percent_complete: index / num_files.to_f)
       end
     end
     stats

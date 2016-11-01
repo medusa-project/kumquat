@@ -43,7 +43,7 @@ class Collection < ActiveRecord::Base
     TITLE = 'title_natsort_en_i'
   end
 
-  UUID_REGEX = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/
+  UUID_REGEX = /\A[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/
 
   serialize :access_systems
   serialize :resource_types
@@ -108,14 +108,16 @@ class Collection < ActiveRecord::Base
   # @param replace_values [Enumerable<Hash<Symbol,String>] Enumerable of hashes
   #                                                        with :string and
   #                                                        :uri keys.
+  # @param task [Task] Supply to track progress.
   # @return [void]
   # @raises [ArgumentError]
   #
-  def change_item_element_values(element_name, replace_values)
+  def change_item_element_values(element_name, replace_values, task = nil)
     raise ArgumentError, 'replace_values must be an Enumerable' unless
         replace_values.respond_to?(:each)
     ActiveRecord::Base.transaction do
-      self.items.each do |item|
+      num_items = self.items.count
+      self.items.each_with_index do |item, index|
         item.elements.where(name: element_name).destroy_all
         replace_values.each do |hash|
           hash = hash.symbolize_keys
@@ -124,6 +126,10 @@ class Collection < ActiveRecord::Base
                               uri: hash[:uri])
         end
         item.save!
+
+        if task and index % 10 == 0
+          task.update(percent_complete: index / num_items.to_f)
+        end
       end
     end
   end
@@ -171,11 +177,13 @@ class Collection < ActiveRecord::Base
   ##
   # Requires PostgreSQL.
   #
+  # @param options [Hash]
+  # @option options [Boolean] :only_undescribed
   # @return [String] Full contents of the collection as a TSV string. Item
   #                  children are included. Ordering, limit, offset, etc. is
   #                  not customizable.
   #
-  def items_as_tsv
+  def items_as_tsv(options = {})
     # N.B. The return value must remain synchronized with that of
     # Item.tsv_header().
     # We use a native PostgreSQL query because going through ActiveRecord is
@@ -268,9 +276,18 @@ LIMIT 1000;
       items.contentdm_alias,
       items.contentdm_pointer,
       #{element_subselects.join(",\n")}
-    FROM items
-    WHERE items.collection_repository_id = $1
-    ORDER BY
+    FROM items "
+    # If we are supposed to include only undescribed items, join the
+    # item_elements table and search for title elements whose values match a
+    # UUID regex. (IMET-382)
+    if options[:only_undescribed]
+      sql += 'LEFT JOIN item_elements ON item_elements.item_id = items.id '
+    end
+    sql += "WHERE items.collection_repository_id = $1 "
+    if options[:only_undescribed]
+      sql += "AND item_elements.value ~* '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}' "
+    end
+    sql += "ORDER BY
       case
         when items.parent_repository_id IS NULL then
           items.repository_id
@@ -352,12 +369,13 @@ LIMIT 1000;
   end
 
   ##
-  # @param source_element [String] Element name
-  # @param dest_element [String] Element name
+  # @param source_element [String] Element name.
+  # @param dest_element [String] Element name.
+  # @param task [Task] Supply to receive progress updates.
   # @return [void]
   # @raises [ArgumentError]
   #
-  def migrate_item_elements(source_element, dest_element)
+  def migrate_item_elements(source_element, dest_element, task = nil)
     # Check that the destination element is present in the instance's
     # metadata profile.
     source_def = self.metadata_profile.elements.
@@ -378,8 +396,13 @@ LIMIT 1000;
     end
 
     ActiveRecord::Base.transaction do
-      self.items.each do |item|
+      num_items = self.items.count
+      self.items.each_with_index do |item, index|
         item.migrate_elements(source_element, dest_element)
+
+        if task and index % 10 == 0
+          task.update(percent_complete: index / num_items.to_f)
+        end
       end
     end
   end
@@ -435,13 +458,21 @@ LIMIT 1000;
   # Propagates allowed and denied roles from the instance to all of its items.
   # This is an O(n) operation.
   #
+  # @param task [Task] Supply to receive progress updates.
   # @return [void]
   #
-  def propagate_roles
+  def propagate_roles(task = nil)
     ActiveRecord::Base.transaction do
       # Save callbacks will call this method on direct children, so there is
       # no need to crawl deeper levels of the item tree.
-      self.items.where(parent_repository_id: nil).each { |item| item.save! }
+      num_items = self.items.count
+      self.items.where(parent_repository_id: nil).each_with_index do |item, index|
+        item.save!
+
+        if task and index % 10 == 0
+          task.update(percent_complete: index / num_items.to_f)
+        end
+      end
     end
   end
 
@@ -452,13 +483,15 @@ LIMIT 1000;
   # @param replace_mode [Symbol] What part of the matches to replace:
   #                              :whole_value or :matched_part
   # @param replace_value [String] Value to replace the matches with.
+  # @param task [Task] Supply to receive status updates.
   # @return [void]
   # @raises [ArgumentError]
   #
   def replace_item_element_values(matching_mode, find_value, element_name,
-                                  replace_mode, replace_value)
+                                  replace_mode, replace_value, task)
     ActiveRecord::Base.transaction do
-      self.items.each do |item|
+      num_items = self.items.count
+      self.items.each_with_index do |item, index|
         item.elements.where(name: element_name).each do |element|
           case matching_mode
             when :exact_match
@@ -504,6 +537,10 @@ LIMIT 1000;
               end
             else
               raise ArgumentError, "Illegal matching mode: #{matching_mode}"
+          end
+
+          if task and index % 10 == 0
+            task.update(percent_complete: index / num_items.to_f)
           end
         end
       end
@@ -615,6 +652,7 @@ LIMIT 1000;
   def do_before_validation
     self.medusa_cfs_directory_id&.strip!
     self.medusa_file_group_id&.strip!
+    self.representative_image&.strip!
     self.representative_item_id&.strip!
   end
 

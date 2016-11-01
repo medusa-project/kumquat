@@ -77,7 +77,7 @@ class PackageProfileTest < ActiveSupport::TestCase
         top-level items' do
     # https://medusa.library.illinois.edu/cfs_files/9799301.json
     item = 'ae3991e0-c451-0133-1d17-0050569601ca-b'
-    assert_nil PackageProfile::MAP_PROFILE.parent_id_from_medusa(item)
+    assert_nil PackageProfile::COMPOUND_OBJECT_PROFILE.parent_id_from_medusa(item)
   end
 
   test 'parent_id_from_medusa with the map profile should return the parent
@@ -87,14 +87,14 @@ class PackageProfileTest < ActiveSupport::TestCase
     # https://medusa.library.illinois.edu/cfs_directories/413276.json
     expected_parent = 'ae3991e0-c451-0133-1d17-0050569601ca-b'
     assert_equal expected_parent,
-                 PackageProfile::MAP_PROFILE.parent_id_from_medusa(page)
+                 PackageProfile::COMPOUND_OBJECT_PROFILE.parent_id_from_medusa(page)
   end
 
   test 'parent_id_from_medusa with the map profile should return nil for
         non-item content' do
     # https://medusa.library.illinois.edu/cfs_directories/414759.json
     bogus = 'd83e6f60-c451-0133-1d17-0050569601ca-8'
-    assert_nil PackageProfile::MAP_PROFILE.parent_id_from_medusa(bogus)
+    assert_nil PackageProfile::COMPOUND_OBJECT_PROFILE.parent_id_from_medusa(bogus)
   end
 
 end

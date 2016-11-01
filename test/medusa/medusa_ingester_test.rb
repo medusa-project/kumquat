@@ -113,13 +113,13 @@ class MedusaIngesterTest < ActiveSupport::TestCase
         include?('Illini Union Photographs Record Series 3707005')
   end
 
-  test 'ingest_items with IngestMode::CREATE_ONLY, map profile collection, and
-  non-compound items' do
+  test 'ingest_items with IngestMode::CREATE_ONLY, compound object profile
+  collection, and non-compound items' do
     # Set up the fixture data.
     collection = collections(:collection2)
     collection.medusa_cfs_directory_id = '19c62760-e894-0133-1d3c-0050569601ca-d'
     cfs_dir = collection.effective_medusa_cfs_directory
-    tree = JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_map_tree.json'))
+    tree = JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_compound_object_tree.json'))
     # Extract a small slice of the tree containing only four items.
     tree['subdirectories'] = tree['subdirectories'][0..3]
     cfs_dir.json_tree = tree
@@ -152,14 +152,14 @@ class MedusaIngesterTest < ActiveSupport::TestCase
                  bs.repository_relative_pathname
   end
 
-  test 'ingest_items with IngestMode::CREATE_ONLY, map profile collection, and
+  test 'ingest_items with IngestMode::CREATE_ONLY, compound profile collection, and
   compound items' do
     # Set up the fixture data.
     item_uuid = '3aa7dd70-e946-0133-1d3d-0050569601ca-d'
     collection = collections(:collection2)
     collection.medusa_cfs_directory_id = '19c62760-e894-0133-1d3c-0050569601ca-d'
     cfs_dir = collection.effective_medusa_cfs_directory
-    tree = JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_map_tree.json'))
+    tree = JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_compound_object_tree.json'))
     # Extract a small slice of the tree containing only one top-level item.
     tree['subdirectories'] = tree['subdirectories'].
         select{ |d| d['uuid'] == item_uuid }
@@ -199,10 +199,10 @@ class MedusaIngesterTest < ActiveSupport::TestCase
                  bs.repository_relative_pathname
   end
 
-  test 'ingest_items with IngestMode::CREATE_ONLY and map profile collection,
-  extracting metadata' do
-    # Currently no map profile collections contain embedded metadata (or at
-    # least any that is used).
+  test 'ingest_items with IngestMode::CREATE_ONLY and compound object profile
+  collection, extracting metadata' do
+    # Currently no compound object profile collections contain embedded
+    # metadata (or at least any that is used).
   end
 
   test 'ingest_items with IngestMode::CREATE_ONLY and single-item object
@@ -255,7 +255,7 @@ class MedusaIngesterTest < ActiveSupport::TestCase
     collection = collections(:collection1)
     collection.medusa_cfs_directory_id = '19c62760-e894-0133-1d3c-0050569601ca-d'
     cfs_dir = collection.effective_medusa_cfs_directory
-    tree = JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_map_tree.json'))
+    tree = JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_compound_object_tree.json'))
     # Extract a small slice of the tree.
     tree['subdirectories'] = tree['subdirectories'][0..1]
     cfs_dir.json_tree = tree
@@ -279,13 +279,13 @@ class MedusaIngesterTest < ActiveSupport::TestCase
     assert_equal 7, result[:num_deleted]
   end
 
-  test 'ingest_items with IngestMode::DELETE_MISSING and map profile
-  collection' do
+  test 'ingest_items with IngestMode::DELETE_MISSING and compound object
+  profile collection' do
     # Set up the fixture data.
     collection = collections(:collection2)
     collection.medusa_cfs_directory_id = '19c62760-e894-0133-1d3c-0050569601ca-d'
     cfs_dir = collection.effective_medusa_cfs_directory
-    tree = JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_map_tree.json'))
+    tree = JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_compound_object_tree.json'))
     # Extract a small slice of the tree.
     tree['subdirectories'] = tree['subdirectories'][0..9]
     cfs_dir.json_tree = tree
@@ -379,14 +379,14 @@ class MedusaIngesterTest < ActiveSupport::TestCase
     end
   end
 
-  test 'ingest_items with IngestMode::UPDATE_BYTESTREAMS and map profile
-  collection' do
+  test 'ingest_items with IngestMode::UPDATE_BYTESTREAMS and compound object
+  profile collection' do
     # Set up the fixture data.
     item_uuid = '3aa7dd70-e946-0133-1d3d-0050569601ca-d'
     collection = collections(:collection2)
     collection.medusa_cfs_directory_id = '19c62760-e894-0133-1d3c-0050569601ca-d'
     cfs_dir = collection.effective_medusa_cfs_directory
-    tree = JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_map_tree.json'))
+    tree = JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_compound_object_tree.json'))
     # Extract a small slice of the tree containing only one top-level item.
     tree['subdirectories'] = tree['subdirectories'].
         select{ |d| d['uuid'] == item_uuid }

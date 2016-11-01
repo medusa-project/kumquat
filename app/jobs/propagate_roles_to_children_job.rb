@@ -11,17 +11,10 @@ class PropagateRolesToChildrenJob < Job
   def perform(*args)
     item = Item.find_by_repository_id(args[0])
 
-    self.task.status_text = "Propagating effective roles to children of "\
-    "#{item.title} in #{item&.collection.title}"
+    self.task.update(status_text: "Propagating effective roles to children "\
+        "of #{item.title} in #{item&.collection.title}")
 
-    # Indeterminate because the work happens in a transaction outside of which
-    # progress updates wouldn't appear.
-    self.task.indeterminate = true
-    self.task.save!
-
-    ActiveRecord::Base.transaction do
-      item.propagate_roles
-    end
+    item.propagate_roles(self.task)
 
     Solr.instance.commit
     self.task.succeeded

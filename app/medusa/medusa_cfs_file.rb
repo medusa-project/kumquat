@@ -95,7 +95,7 @@ class MedusaCfsFile
     url = nil
     if self.uuid
       url = Configuration.instance.medusa_url.chomp('/') +
-          '/uuids/' + self.uuid.to_s
+          '/uuids/' + self.uuid.to_s.strip
     end
     url
   end

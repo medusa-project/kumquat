@@ -6,11 +6,9 @@ class SyncCollectionsJob < Job
   # @param args [Hash]
   #
   def perform(*args)
-    self.task.status_text = 'Syncing collections'
-    self.task.indeterminate = false
-    self.task.save!
+    self.task.update!(status_text: 'Syncing collections')
 
-    MedusaIngester.new.ingest_collections(self.task)
+    MedusaIngester.new.sync_collections(self.task)
     Solr.instance.commit
 
     self.task.succeeded

@@ -1,22 +1,16 @@
 body#landing {
-  h2 {
-    font-family: 'Oswald', sans-serif;
-  }
-  .btn-lg:first-child {
-    margin-right: 1em;
-  }
-
-  #pt-description {
-    text-align: justify;
-  }
-
   .pt-spacer {
     clear: both;
     visibility: hidden;
   }
   #pt-see-more {
     font-size: 1.5em;
-    padding-top: 0.4em;
+    a {
+      color: black;
+    }
+    a:hover {
+      text-decoration: none;
+    }
   }
 
   @media screen and (max-width: 320px) {
@@ -60,10 +54,6 @@ body#landing {
       padding-bottom: 27%;
     }
   }
-}
-
-.uiuc-nav-buttons {
-  margin-top: 3em;
 }
 
 #uiuc-landing-banner {

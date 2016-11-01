@@ -62,6 +62,16 @@ cd2d4601-c451-0133-1d17-0050569601ca-8\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n"
     assert_equal expected, @col.items_as_tsv
   end
 
+  test 'items_as_tsv should work with the only_undescribed: true option' do
+    item = @col.items.order(:repository_id).first
+    item.elements.destroy_all
+    item.elements.build(name: 'title', value: 'aaaaaaaa-e946-0133-1d3d-0050569601ca-f')
+    item.save
+    expected = "uuid\tparentId\tpreservationMasterPathname\taccessMasterPathname\tvariant\tpageNumber\tsubpageNumber\tlatitude\tlongitude\tcontentdmAlias\tcontentdmPointer\ttitle\tdescription\tlcsh:subject\ttgm:subject
+6e406030-5ce3-0132-3334-0050569601ca-3\ta53add10-5ca8-0132-3334-0050569601ca-7\t\t\tFile\t\t\t\t\t\t\taaaaaaaa-e946-0133-1d3d-0050569601ca-f\t\t\t\n"
+    assert_equal expected, @col.items_as_tsv(only_undescribed: true)
+  end
+
   # medusa_cfs_directory_id
 
   test 'medusa_cfs_directory_id must be a UUID' do
@@ -122,8 +132,8 @@ cd2d4601-c451-0133-1d17-0050569601ca-8\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n"
   # package_profile=()
 
   test 'package_profile= should set a PackageProfile' do
-    @col.package_profile = PackageProfile::MAP_PROFILE
-    assert_equal @col.package_profile_id, PackageProfile::MAP_PROFILE.id
+    @col.package_profile = PackageProfile::COMPOUND_OBJECT_PROFILE
+    assert_equal @col.package_profile_id, PackageProfile::COMPOUND_OBJECT_PROFILE.id
   end
 
   # medusa_url()

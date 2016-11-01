@@ -74,7 +74,7 @@ class Item < ActiveRecord::Base
   TSV_LINE_BREAK = "\n"
   TSV_MULTI_VALUE_SEPARATOR = '||'
   TSV_URI_VALUE_SEPARATOR = '&&'
-  UUID_REGEX = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/
+  UUID_REGEX = /\A[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/
 
   has_and_belongs_to_many :allowed_roles, class_name: 'Role',
                           association_foreign_key: :allowed_role_id
@@ -678,13 +678,21 @@ class Item < ActiveRecord::Base
   # Propagates roles from the instance to all of its descendents. This is an
   # O(n) operation.
   #
+  # @param task [Task] Supply to receive progress updates.
   # @return [void]
   #
-  def propagate_roles
+  def propagate_roles(task = nil)
     ActiveRecord::Base.transaction do
       # Save callbacks will call this method on direct children, so there is
       # no need to crawl deeper levels of the child subtree.
-      self.items.each { |item| item.save! }
+      num_items = self.items.count
+      self.items.each_with_index do |item|
+        item.save!
+
+        if task and index % 10 == 0
+          task.update(percent_complete: index / num_items.to_f)
+        end
+      end
     end
   end
 

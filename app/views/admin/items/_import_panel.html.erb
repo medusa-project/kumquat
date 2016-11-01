@@ -10,6 +10,9 @@
           <h4 class="modal-title" id="pt-import-modal-label">Import TSV</h4>
         </div>
         <div class="modal-body">
+          <div class="alert alert-warning">To avoid out-of-memory errors, please
+            divide uploaded files into segments of no more than 4,000 rows
+            each, and import each one individually.</div>
           <div class="form-group">
             <%= file_field_tag('tsv') %>
           </div>
