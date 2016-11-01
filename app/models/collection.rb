@@ -34,6 +34,7 @@ class Collection < ActiveRecord::Base
     ID = 'id'
     LAST_INDEXED = 'last_indexed_dti'
     PARENT_COLLECTIONS = 'parent_collections_sim'
+    PHYSICAL_COLLECTION_URL = 'physical_collection_url_si'
     PUBLISHED = 'published_bi'
     PUBLISHED_IN_DLS = 'published_in_dls_bi'
     REPOSITORY_TITLE = 'repository_title_si'
@@ -203,7 +204,7 @@ class Collection < ActiveRecord::Base
     # Item.tsv_header().
     # We use a native PostgreSQL query because going through ActiveRecord is
     # just too slow.
-=begin
+=begin Sample query:
 SELECT items.repository_id,
   items.parent_repository_id,
   (SELECT repository_relative_pathname
@@ -630,6 +631,7 @@ LIMIT 1000;
     doc[SolrFields::DESCRIPTION] = self.description
     doc[SolrFields::DESCRIPTION_HTML] = self.description_html
     doc[SolrFields::PARENT_COLLECTIONS] = self.parents.map(&:repository_id)
+    doc[SolrFields::PHYSICAL_COLLECTION_URL] = self.physical_collection_url
     doc[SolrFields::PUBLISHED] = self.published
     doc[SolrFields::PUBLISHED_IN_DLS] = self.published_in_dls
     doc[SolrFields::REPOSITORY_TITLE] = self.medusa_repository&.title
@@ -658,6 +660,7 @@ LIMIT 1000;
     self.description = struct['description']
     self.description_html = struct['description_html']
     self.medusa_repository_id = struct['repository_path'].gsub(/[^0-9+]/, '').to_i
+    self.physical_collection_url = struct['physical_collection_url']
     self.published = struct['publish']
     self.representative_image = struct['representative_image']
     self.representative_item_id = struct['representative_item']
