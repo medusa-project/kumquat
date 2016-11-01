@@ -1,5 +1,10 @@
 namespace :peartree do
 
+  desc 'Clear running tasks'
+  task :clear_running_tasks => :environment do |task, args|
+    Task.where(status: Task::Status::RUNNING).destroy_all
+  end
+
   desc 'Clear stale tasks'
   task :clear_stale_tasks => :environment do |task, args|
     Task.where(status: [Task::Status::WAITING, Task::Status::RUNNING]).
