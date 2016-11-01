@@ -330,7 +330,7 @@ class Item < ActiveRecord::Base
   # @see representative_item
   #
   def effective_representative_item
-    self.representative_item || self.pages.first || self.items.first || self
+    self.representative_item || self.pages.first || self
   end
 
   ##

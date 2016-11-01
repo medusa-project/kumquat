@@ -93,22 +93,12 @@ class ItemTest < ActiveSupport::TestCase
         representative_item_repository_id is not set' do
     @item = items(:map_obj1)
     @item.representative_item_repository_id = nil
-    assert_equal 'd29950d0-c451-0133-1d17-0050569601ca-2',
-                 @item.effective_representative_item.repository_id
-  end
-
-  test 'effective_representative_item should return the first child when
-        representative_item_repository_id is not set and the first child is
-        not a page' do
-    @item = items(:map_obj1)
-    @item.representative_item_repository_id = nil
-    @item.items.first.variant = nil
-    assert_equal 'd29950d0-c451-0133-1d17-0050569601ca-2',
+    assert_equal 'be8d3500-c451-0133-1d17-0050569601ca-9',
                  @item.effective_representative_item.repository_id
   end
 
   test 'effective_representative_item should return the instance when
-        representative_item_repository_id is not set and it has no children' do
+        representative_item_repository_id is not set and it has no pages' do
     @item = items(:map_obj1)
     @item.representative_item_repository_id = nil
     @item.items.delete_all
