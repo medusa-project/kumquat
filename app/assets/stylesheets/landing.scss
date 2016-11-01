@@ -18,42 +18,6 @@ body#landing {
       margin-top:1em;
     }
   }
-  @media only screen and (max-width : 350px) {
-    div.pt-card {
-      width: 100%;
-      padding-bottom: 118%;
-    }
-  }
-  @media only screen and (min-width : 351px) and (max-width : 480px) {
-    div.pt-card {
-      width: 100%;
-      padding-bottom: 110%;
-    }
-  }
-  @media only screen and (min-width : 481px) and (max-width : 620px) {
-    div.pt-card {
-      width: 50%;
-      padding-bottom: 60%;
-    }
-  }
-  @media only screen and (min-width : 621px) and (max-width : 800px) {
-    div.pt-card {
-      width: 33.3%;
-      padding-bottom: 45%;
-    }
-  }
-  @media only screen and (min-width : 801px) and (max-width : 1090px) {
-    div.pt-card {
-      width: 25%;
-      padding-bottom: 32%;
-    }
-  }
-  @media only screen and (min-width : 1091px) {
-    div.pt-card {
-      width: 20%;
-      padding-bottom: 27%;
-    }
-  }
 }
 
 #uiuc-landing-banner {

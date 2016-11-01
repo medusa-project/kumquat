@@ -170,12 +170,23 @@ module ApplicationHelper
 
   private
 
+  def collection_structure_breadcrumb(collection)
+    html = ''
+    parent = collection.parents.first
+    while parent
+      html = "<li>#{link_to parent.title, parent}</li>#{html}"
+      parent = parent.parents.first
+    end
+    html += "<li class=\"active\">#{truncate(collection.title, length: 50)}</li>"
+    html
+  end
+
   def collection_view_breadcrumb(collection)
     html = "<ol class=\"breadcrumb\">"\
       "<li>#{link_to 'Home', root_path}</li>"\
-      "<li>#{link_to 'Collections', collections_path}</li>"\
-      "<li class=\"active\">#{truncate(collection.title, length: 50)}</li>"\
-    "</ol>"
+      "<li>#{link_to 'Collections', collections_path}</li>"
+    html += collection_structure_breadcrumb(collection)
+    html += "</ol>"
     raw(html)
   end
 

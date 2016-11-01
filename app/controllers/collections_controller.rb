@@ -21,7 +21,6 @@ class CollectionsController < WebsiteController
   # Responds to GET /collections
   #
   def index
-    #filters = { Collection::SolrFields::ACCESS_URL => :not_null }
     filters = []
     filters += params[:fq] if params[:fq]
 
@@ -29,6 +28,7 @@ class CollectionsController < WebsiteController
         client_hostname(request.host).
         client_ip(request.remote_ip).
         client_user(current_user).
+        include_children(false).
         include_unpublished(false).
         include_unpublished_in_dls(true).
         filter_queries(filters).

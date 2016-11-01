@@ -33,6 +33,7 @@ class Collection < ActiveRecord::Base
     DESCRIPTION_HTML = 'description_html_txti'
     ID = 'id'
     LAST_INDEXED = 'last_indexed_dti'
+    PARENT_COLLECTIONS = 'parent_collections_sim'
     PUBLISHED = 'published_bi'
     PUBLISHED_IN_DLS = 'published_in_dls_bi'
     REPOSITORY_TITLE = 'repository_title_si'
@@ -49,6 +50,18 @@ class Collection < ActiveRecord::Base
   serialize :resource_types
 
   belongs_to :metadata_profile, inverse_of: :collections
+
+  # See CollectionJoin for an explanation of why we don't join on database IDs.
+  has_many :child_collection_joins, class_name: 'CollectionJoin',
+           primary_key: :repository_id, foreign_key: :parent_repository_id,
+           dependent: :destroy
+  has_many :children, -> { order('title ASC') },
+           through: :child_collection_joins, source: :child_collection
+  has_many :parent_collection_joins, class_name: 'CollectionJoin',
+           primary_key: :repository_id, foreign_key: :child_repository_id,
+           dependent: :destroy
+  has_many :parents, -> { order('title ASC') },
+           through: :parent_collection_joins, source: :parent_collection
 
   has_and_belongs_to_many :allowed_roles, class_name: 'Role',
                           association_foreign_key: :allowed_role_id
@@ -611,6 +624,7 @@ LIMIT 1000;
     doc[SolrFields::ACCESS_URL] = self.access_url
     doc[SolrFields::DESCRIPTION] = self.description
     doc[SolrFields::DESCRIPTION_HTML] = self.description_html
+    doc[SolrFields::PARENT_COLLECTIONS] = self.parents.map(&:repository_id)
     doc[SolrFields::PUBLISHED] = self.published
     doc[SolrFields::PUBLISHED_IN_DLS] = self.published_in_dls
     doc[SolrFields::REPOSITORY_TITLE] = self.medusa_repository&.title
@@ -647,6 +661,19 @@ LIMIT 1000;
     end
     self.rights_statement = struct['rights']['custom_copyright_statement']
     self.title = struct['title']
+
+    self.parents.destroy_all
+    struct['parent_collections'].each do |parent_struct|
+      self.parent_ids << parent_struct['uuid']
+      self.parent_collection_joins.build(parent_repository_id: parent_struct['uuid'],
+                                         child_repository_id: self.repository_id)
+    end
+
+    self.children.destroy_all
+    struct['child_collections'].each do |child_struct|
+      self.child_collection_joins.build(parent_repository_id: self.repository_id,
+                                        child_repository_id: child_struct['uuid'])
+    end
   end
 
   private
