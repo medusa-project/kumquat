@@ -37,8 +37,7 @@ module IiifPresentationHelper
   # @return [Array]
   #
   def iiif_canvases_for(item)
-    items = item.is_compound? ? item.pages : item.items
-    items.map { |subitem| iiif_canvas_for(subitem) }
+    item.items.map { |subitem| iiif_canvas_for(subitem) }
   end
 
   ##
