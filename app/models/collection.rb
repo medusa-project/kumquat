@@ -646,31 +646,34 @@ LIMIT 1000;
     json_str = response.body
     struct = JSON.parse(json_str)
 
-    self.access_systems = struct['access_systems'].map{ |t| t['name'] }
-    self.access_url = struct['access_url']
-    self.description = struct['description']
-    self.description_html = struct['description_html']
-    self.medusa_repository_id = struct['repository_path'].gsub(/[^0-9+]/, '').to_i
-    self.published = struct['publish']
-    self.representative_image = struct['representative_image']
-    self.representative_item_id = struct['representative_item']
-    self.resource_types = struct['resource_types'].map do |t| # titleize these
-      t['name'].split(' ').map{ |t| t.present? ? t.capitalize : '' }.join(' ')
-    end
-    self.rights_statement = struct['rights']['custom_copyright_statement']
-    self.title = struct['title']
+    ActiveRecord::Base.transaction do
+      self.access_systems = struct['access_systems'].map{ |t| t['name'] }
+      self.access_url = struct['access_url']
+      self.description = struct['description']
+      self.description_html = struct['description_html']
+      self.medusa_repository_id = struct['repository_path'].gsub(/[^0-9+]/, '').to_i
+      self.published = struct['publish']
+      self.representative_image = struct['representative_image']
+      self.representative_item_id = struct['representative_item']
+      self.resource_types = struct['resource_types'].map do |t| # titleize these
+        t['name'].split(' ').map{ |t| t.present? ? t.capitalize : '' }.join(' ')
+      end
+      self.rights_statement = struct['rights']['custom_copyright_statement']
+      self.title = struct['title']
 
-    self.parents.destroy_all
-    struct['parent_collections'].each do |parent_struct|
-      self.parent_ids << parent_struct['uuid']
-      self.parent_collection_joins.build(parent_repository_id: parent_struct['uuid'],
-                                         child_repository_id: self.repository_id)
-    end
+      self.parents.destroy_all
+      struct['parent_collections'].each do |parent_struct|
+        self.parent_collection_joins.build(parent_repository_id: parent_struct['uuid'],
+                                           child_repository_id: self.repository_id)
+      end
 
-    self.children.destroy_all
-    struct['child_collections'].each do |child_struct|
-      self.child_collection_joins.build(parent_repository_id: self.repository_id,
-                                        child_repository_id: child_struct['uuid'])
+      self.children.destroy_all
+      struct['child_collections'].each do |child_struct|
+        self.child_collection_joins.build(parent_repository_id: self.repository_id,
+                                          child_repository_id: child_struct['uuid'])
+      end
+
+      self.save!
     end
   end
 
