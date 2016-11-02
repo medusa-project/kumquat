@@ -34,7 +34,6 @@ class MedusaIngester
       struct.each_with_index do |st, index|
         col = Collection.find_or_create_by(repository_id: st['uuid'])
         col.update_from_medusa
-        col.save!
 
         if task and index % 10 == 0
           task.percent_complete = index / struct.length.to_f
