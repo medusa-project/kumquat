@@ -50,12 +50,8 @@ body#items_show {
   .pt-split-viewer #pt-image-viewer {
   }
 
-  #pt-compound-viewer {
-    background-color: black;
-    margin:0 auto;
-    margin-bottom: 1em;
-    height: 600px;
-  }
+  /* Compound viewer styles (for UniversalViewer) are in a style="" attribute,
+  for reasons known only to UV. */
 
   #pt-pdf-viewer {
     height: 500px;
