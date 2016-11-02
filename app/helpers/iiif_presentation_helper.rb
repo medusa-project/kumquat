@@ -37,7 +37,7 @@ module IiifPresentationHelper
   # @return [Array]
   #
   def iiif_canvases_for(item)
-    item.items.map { |subitem| iiif_canvas_for(subitem) }
+    item.items.order(:page_number).map { |subitem| iiif_canvas_for(subitem) }
   end
 
   ##
