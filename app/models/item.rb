@@ -686,7 +686,7 @@ class Item < ActiveRecord::Base
       # Save callbacks will call this method on direct children, so there is
       # no need to crawl deeper levels of the child subtree.
       num_items = self.items.count
-      self.items.each_with_index do |item|
+      self.items.each_with_index do |item, index|
         item.save!
 
         if task and index % 10 == 0
