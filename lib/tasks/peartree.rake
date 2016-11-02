@@ -74,7 +74,6 @@ namespace :peartree do
   task :sync_items, [:collection_uuid, :mode] => :environment do |task, args|
     SyncItemsJob.new(args[:collection_uuid], args[:mode],
                      extract_metadata: false).perform_in_foreground
-    Solr.instance.commit
   end
 
   desc 'Update bytestreams in all collections'
