@@ -622,7 +622,10 @@ LIMIT 1000;
     doc[SolrFields::ACCESS_URL] = self.access_url
     doc[SolrFields::DESCRIPTION] = self.description
     doc[SolrFields::DESCRIPTION_HTML] = self.description_html
-    doc[SolrFields::PARENT_COLLECTIONS] = self.parents.map(&:repository_id)
+    # TODO: this won't work with unpersisted CollectionJoins
+    #doc[SolrFields::PARENT_COLLECTIONS] = self.parents.map(&:repository_id)
+    doc[SolrFields::PARENT_COLLECTIONS] =
+        self.parent_collection_joins.map(&:parent_repository_id)
     doc[SolrFields::PUBLISHED] = self.published
     doc[SolrFields::PUBLISHED_IN_DLS] = self.published_in_dls
     doc[SolrFields::REPOSITORY_TITLE] = self.medusa_repository&.title
