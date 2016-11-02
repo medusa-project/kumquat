@@ -29,25 +29,26 @@ class MedusaIngester
     response = Medusa.client.get(url, follow_redirect: true)
     struct = JSON.parse(response.body)
 
-    # 2. Create or update a DLS counterpart of each collection
-    struct.each_with_index do |st, index|
-      col = Collection.find_or_create_by(repository_id: st['uuid'])
-      col.update_from_medusa
-      col.save!
+    ActiveRecord::Base.transaction do
+      # 2. Create or update a DLS counterpart of each collection
+      struct.each_with_index do |st, index|
+        col = Collection.find_or_create_by(repository_id: st['uuid'])
+        col.update_from_medusa
 
-      if task and index % 10 == 0
-        task.percent_complete = index / struct.length.to_f
-        task.save
+        if task and index % 10 == 0
+          task.percent_complete = index / struct.length.to_f
+          task.save
+        end
       end
-    end
 
-    # 3. Delete any DLS collections that are no longer present in Medusa (but
-    #    not any items within them, to be safe)
-    Collection.all.each do |col|
-      if struct.select { |st| st['uuid'] == col.repository_id }.empty?
-        Rails.logger.info('MedusaIngester.sync_collections(): '\
-            "deleting #{col.title} (#{col.repository_id})")
-        col.destroy!
+      # 3. Delete any DLS collections that are no longer present in Medusa (but
+      #    not any items within them, to be safe)
+      Collection.all.each do |col|
+        if struct.select { |st| st['uuid'] == col.repository_id }.empty?
+          Rails.logger.info('MedusaIngester.sync_collections(): '\
+              "deleting #{col.title} (#{col.repository_id})")
+          col.destroy!
+        end
       end
     end
   end
