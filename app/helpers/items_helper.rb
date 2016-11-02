@@ -80,49 +80,6 @@ module ItemsHelper
   def facets_as_panels(items, options = {})
     return nil unless items.facet_fields # nothing to do
 
-    def get_panel(title, terms, for_collections = false)
-      panel = "<div class=\"panel panel-default\">
-      <div class=\"panel-heading\">
-        <h3 class=\"panel-title\">#{title}</h3>
-      </div>
-      <div class=\"panel-body\">
-        <ul>"
-      # Quick-fix check; not sure why it's ever necessary.
-      if terms.respond_to?(:each_with_index)
-        terms.each_with_index do |term, i|
-          break if i >= Option::integer(Option::Key::FACET_TERM_LIMIT)
-          next if term.count < 1
-          checked = (params[:fq] and params[:fq].include?(term.facet_query)) ?
-              'checked' : nil
-          checked_params = term.removed_from_params(params.deep_dup)
-          unchecked_params = term.added_to_params(params.deep_dup)
-          checked_params.delete(:start)
-          unchecked_params.delete(:start)
-
-          if for_collections
-            collection = Collection.find_by_repository_id(term.name)
-            term_label = collection.title if collection
-          else
-            term_label = truncate(term.label, length: 80)
-          end
-          term_label = truncate(term_label, length: 80)
-
-          panel += "<li class=\"pt-term\">"
-          panel += "<div class=\"checkbox\">"
-          panel += "<label>"
-          panel += "<input type=\"checkbox\" name=\"pt-facet-term\" #{checked} "\
-          "data-checked-href=\"#{url_for(unchecked_params)}\" "\
-          "data-unchecked-href=\"#{url_for(checked_params)}\">"
-          panel += "<span class=\"pt-term-name\">#{term_label}</span> "
-          panel += "<span class=\"pt-count badge\">#{term.count}</span>"
-          panel += "</label>"
-          panel += "</div>"
-          panel += "</li>"
-        end
-      end
-      raw(panel + '</ul></div></div>')
-    end
-
     # get the list of facets to display from the appropriate metadata profile
     collection_element = MetadataProfileElement.new(name: 'collection',
                                                     facetable: true)
@@ -142,10 +99,10 @@ module ItemsHelper
         if !options[:show_collection_facet]
           next
         else
-          html += get_panel('Collection', result_facet.terms, true)
+          html += item_facet_panel('Collection', result_facet.terms, true)
         end
       else
-        html += get_panel(element.label, result_facet.terms, false)
+        html += item_facet_panel(element.label, result_facet.terms, false)
       end
     end
     raw(html)
@@ -1385,6 +1342,46 @@ module ItemsHelper
       </script>"
     end
     raw(html)
+  end
+
+  def item_facet_panel(title, terms, for_collections = false)
+    panel = "<div class=\"panel panel-default\">
+      <div class=\"panel-heading\">
+        <h3 class=\"panel-title\">#{title}</h3>
+      </div>
+      <div class=\"panel-body\">
+        <ul>"
+    terms.each_with_index do |term, i|
+      break if i >= Option::integer(Option::Key::FACET_TERM_LIMIT)
+      next if term.count < 1
+      checked = (params[:fq] and params[:fq].include?(term.facet_query)) ?
+          'checked' : nil
+      checked_params = term.removed_from_params(params.deep_dup)
+      unchecked_params = term.added_to_params(params.deep_dup)
+      checked_params.delete(:start)
+      unchecked_params.delete(:start)
+
+      if for_collections
+        collection = Collection.find_by_repository_id(term.name)
+        term_label = collection.title if collection
+      else
+        term_label = truncate(term.label, length: 80)
+      end
+      term_label = truncate(term_label, length: 80)
+
+      panel += "<li class=\"pt-term\">"
+      panel += "<div class=\"checkbox\">"
+      panel += "<label>"
+      panel += "<input type=\"checkbox\" name=\"pt-facet-term\" #{checked} "\
+        "data-checked-href=\"#{url_for(unchecked_params)}\" "\
+        "data-unchecked-href=\"#{url_for(checked_params)}\">"
+      panel += "<span class=\"pt-term-name\">#{term_label}</span> "
+      panel += "<span class=\"pt-count badge\">#{term.count}</span>"
+      panel += "</label>"
+      panel += "</div>"
+      panel += "</li>"
+    end
+    raw(panel + '</ul></div></div>')
   end
 
   def pdf_viewer_for(item)
