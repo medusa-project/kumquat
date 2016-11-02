@@ -1182,12 +1182,12 @@ module ItemsHelper
     if item.is_compound?
       # Configuration is in /public/uvconfig.json;
       # See http://universalviewer.io/examples/ for config structure.
+      # UV seems to want its height to be defined in a style attribute.
       html += "<div id=\"pt-compound-viewer\" class=\"uv\" "\
         "data-locale=\"en-GB:English (GB)\" "\
         "data-config=\"#{asset_path('uvconfig.json')}\" "\
         "data-uri=\"#{item_iiif_manifest_url(item)}\" "\
         "data-sequenceindex=\"0\" data-canvasindex=\"0\" "\
-        # UV wants these styles to be inline.
         "data-rotation=\"0\" style=\"height:600px; background-color:#000;\"></div>"
       html += javascript_include_tag('/universalviewer/lib/embed.js', id: 'embedUV')
     end
