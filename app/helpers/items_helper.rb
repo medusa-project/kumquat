@@ -1177,7 +1177,8 @@ module ItemsHelper
         "data-config=\"#{asset_path('uvconfig.json')}\" "\
         "data-uri=\"#{item_iiif_manifest_url(item)}\" "\
         "data-sequenceindex=\"0\" data-canvasindex=\"0\" "\
-        "data-rotation=\"0\"></div>"
+        # UV wants these styles to be inline.
+        "data-rotation=\"0\" style=\"height:600px; background-color:#000;\"></div>"
       html += javascript_include_tag('/universalviewer/lib/embed.js', id: 'embedUV')
     end
     raw(html)
