@@ -38,7 +38,7 @@ module IiifPresentationHelper
   #
   def iiif_canvases_for(item)
     items = item.is_compound? ? item.pages : item.items
-    items.map { |subitem| iiif_canvas_for(subitem) }
+    items.order(:page_number).map { |subitem| iiif_canvas_for(subitem) }
   end
 
   ##
