@@ -285,7 +285,7 @@ LIMIT 1000;
     end
     sql += "WHERE items.collection_repository_id = $1 "
     if options[:only_undescribed]
-      sql += "AND item_elements.value ~* '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}' "
+      sql += "AND (item_elements.value ~* '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}' OR item_elements.item_id IS NULL) "
     end
     sql += "ORDER BY
       case
