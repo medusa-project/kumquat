@@ -230,6 +230,7 @@ class ItemsController < WebsiteController
 
     respond_to do |format|
       format.atom do
+        @items = finder.to_a
         @updated = @items.any? ?
             @items.map(&:updated_at).sort{ |d| d <=> d }.last : Time.now
       end
