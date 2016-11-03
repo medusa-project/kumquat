@@ -338,6 +338,8 @@ cd2d4601-c451-0133-1d17-0050569601ca-8\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n"
                  doc[Collection::SolrFields::DENIED_ROLES].sort
     assert_equal @col.description, doc[Collection::SolrFields::DESCRIPTION]
     assert_equal @col.description_html, doc[Collection::SolrFields::DESCRIPTION_HTML]
+    assert_equal @col.description, doc[Collection::SolrFields::METADATA_DESCRIPTION]
+    assert_equal @col.title, doc[Collection::SolrFields::METADATA_TITLE]
     assert_equal @col.published, doc[Collection::SolrFields::PUBLISHED]
     assert_empty doc[Collection::SolrFields::PARENT_COLLECTIONS]
     assert_equal @col.published_in_dls, doc[Collection::SolrFields::PUBLISHED_IN_DLS]

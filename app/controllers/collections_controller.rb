@@ -22,7 +22,13 @@ class CollectionsController < WebsiteController
   #
   def index
     filters = []
-    filters += params[:fq] if params[:fq]
+    if params[:fq].present?
+      if params[:fq].respond_to?(:each)
+        filters += params[:fq]
+      else
+        filters << params[:fq]
+      end
+    end
 
     finder = CollectionFinder.new.
         client_hostname(request.host).
@@ -32,6 +38,7 @@ class CollectionsController < WebsiteController
         include_unpublished(false).
         include_unpublished_in_dls(true).
         filter_queries(filters).
+        query(params[:q]).
         order(Collection::SolrFields::TITLE).
         limit(99999)
     @collections = finder.to_a

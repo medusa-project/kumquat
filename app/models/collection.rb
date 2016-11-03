@@ -33,6 +33,8 @@ class Collection < ActiveRecord::Base
     DESCRIPTION_HTML = 'description_html_txti'
     ID = 'id'
     LAST_INDEXED = 'last_indexed_dti'
+    METADATA_DESCRIPTION = "#{ItemElement::solr_prefix}_description_txti"
+    METADATA_TITLE = "#{ItemElement::solr_prefix}_title_txti"
     PARENT_COLLECTIONS = 'parent_collections_sim'
     PHYSICAL_COLLECTION_URL = 'physical_collection_url_si'
     PUBLISHED = 'published_bi'
@@ -630,6 +632,12 @@ LIMIT 1000;
     doc[SolrFields::ACCESS_URL] = self.access_url
     doc[SolrFields::DESCRIPTION] = self.description
     doc[SolrFields::DESCRIPTION_HTML] = self.description_html
+
+    # Copy description and title into a "metadata" field in order to have Solr
+    # copy them into a searchall field.
+    doc[SolrFields::METADATA_DESCRIPTION] = self.description
+    doc[SolrFields::METADATA_TITLE] = self.title
+
     doc[SolrFields::PARENT_COLLECTIONS] = self.parents.map(&:repository_id)
     # TODO: this won't work with unpersisted CollectionJoins
     #doc[SolrFields::PARENT_COLLECTIONS] = self.parents.map(&:repository_id)
