@@ -4,11 +4,14 @@
 
 body#items_index div#pt-page-content {
   .pt-results-summary {
-    padding-top: 0.5em;
-    padding-bottom: 0.5em;
+    margin-top: 1em;
+    .panel-body {
+      padding-top: 0.5em;
+      padding-bottom: 0.5em;
+    }
   }
 
-  .pt-results-summary > div > div:first-child {
+  .pt-results-summary > .panel-body > div > div:first-child {
     padding-top: 0.35em;
     padding-bottom: 0.35em;
   }
@@ -18,6 +21,18 @@ body#items_index div#pt-page-content {
       margin-left: 0.5em;
     }
   }
+
+  #pt-download-zip-modal {
+    #pt-batch-buttons {
+      line-height: 3em;
+      text-align: center;
+    }
+  }
+
+  input[type=search] {
+    width: 15em;
+  }
+
 }
 
 body#items_show {

@@ -444,9 +444,9 @@ class ItemsController < WebsiteController
   #
   def set_browse_context
     session[:browse_context_url] = request.url
-    if !params[:q].blank?
+    if params[:q].present? and params[:collection_id].blank?
       session[:browse_context] = BrowseContext::SEARCHING
-    elsif !params[:collection_id]
+    elsif params[:collection_id].blank?
       session[:browse_context] = BrowseContext::BROWSING_ALL_ITEMS
     else
       session[:browse_context] = BrowseContext::BROWSING_COLLECTION
