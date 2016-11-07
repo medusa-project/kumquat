@@ -27,7 +27,7 @@ class ImageServer
     identifier = item.iiif_identifier
     if identifier
       uri = Configuration.instance.image_server_api_endpoint +
-          '/' + CGI::escape(identifier)
+          '/cache/' + CGI::escape(identifier)
       client.delete(uri)
     end
   end
