@@ -1,7 +1,7 @@
 development: &development
   :repository_pathname: /repo
   :iiif_url: http://localhost:8182/iiif/2
-  :image_server_api_endpoint: http://localhost:8182/api
+  :image_server_api_endpoint: http://localhost:8182
   :image_server_api_user: admin
   :image_server_api_secret: secret
   :medusa_url: https://medusa.library.illinois.edu/
@@ -24,7 +24,7 @@ development: &development
 test:
   :repository_pathname: /repo
   :iiif_url: http://localhost:8182/iiif/2
-  :image_server_api_endpoint: http://localhost:8182/api
+  :image_server_api_endpoint: http://localhost:8182
   :image_server_api_user: admin
   :image_server_api_secret: secret
   :medusa_url: https://medusa.library.illinois.edu/
@@ -47,7 +47,7 @@ test:
 production: &production
   :repository_pathname: /repo
   :iiif_url: http://localhost:8182/iiif/2
-  :image_server_api_endpoint: http://localhost:8182/api
+  :image_server_api_endpoint: http://localhost:8182
   :image_server_api_user: admin
   :image_server_api_secret: secret
   :medusa_url: https://medusa.library.illinois.edu/
