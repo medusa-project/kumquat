@@ -71,8 +71,16 @@ class AbstractFinder
   # @param string [String]
   # @return [self]
   #
-  def query(string)
-    @query = "*#{string.to_s.gsub(' ', '*')}*"
+  def query(string) # TODO: separate query() and query_field() methods
+    if string.present?
+      parts = string.split(':')
+      value = "*#{parts.last.gsub(' ', '*')}*"
+      if parts.length > 1
+        @query = "#{parts.first}:#{value}"
+      else
+        @query = value
+      end
+    end
     self
   end
 
