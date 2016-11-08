@@ -34,6 +34,11 @@ class CollectionsController < WebsiteController
         limit(99999)
     @collections = finder.to_a
 
+    # If there are no results, get some search suggestions.
+    if @collections.length < 1 and params[:q].present?
+      @suggestions = finder.suggestions
+    end
+
     fresh_when(etag: @collections) if Rails.env.production?
 
     respond_to do |format|

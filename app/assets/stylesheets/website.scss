@@ -295,6 +295,12 @@ description on the right.
   }
 }
 
+.pt-no-results {
+  ul {
+    margin-left: 0.5em;
+  }
+}
+
 body#landing, body#collections_show {
   .pt-main-image {
     text-align: center;
