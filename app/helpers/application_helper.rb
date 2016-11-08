@@ -105,7 +105,7 @@ module ApplicationHelper
         html += '</ul>'
       end
     else
-      html += '<p>No items.</p>'
+      html += '<p>No results.</p>'
     end
     raw(html)
   end
