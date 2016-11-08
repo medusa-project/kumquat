@@ -227,29 +227,28 @@ class ItemsController < WebsiteController
         sort(params[:sort]).
         start(@start).
         limit(@limit)
+    @items = finder.to_a
+
+    @current_page = finder.page
+    @count = finder.count
+    @num_results_shown = [@limit, @count].min
+    @metadata_profile = finder.effective_metadata_profile
+
+    # If there are no results, get some search suggestions.
+    if @count < 1 and params[:q].present?
+      @suggestions = finder.suggestions
+    end
 
     respond_to do |format|
       format.atom do
-        @items = finder.to_a
         @updated = @items.any? ?
             @items.map(&:updated_at).sort{ |d| d <=> d }.last : Time.now
       end
       format.html do
-        @items = finder.to_a
-        @current_page = finder.page
-        @count = finder.count
-        @num_results_shown = [@limit, @count].min
-        @metadata_profile = finder.effective_metadata_profile
-
-        # If there are no results, get some search suggestions.
-        if @count < 1 and params[:q].present?
-          @suggestions = finder.suggestions
-        end
-
         fresh_when(etag: @items) if Rails.env.production?
       end
+      format.js
       format.json do
-        @items = finder.to_a
         render json: {
             start: @start,
             numResults: @items.count,

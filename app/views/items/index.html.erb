@@ -11,35 +11,23 @@
   <% provide(:active_nav, 'items') %>
 <% end %>
 
-<% if @count > 0 %>
+<%= form_tag(params, method: :get, class: 'pt-filter') do %>
   <div class="row">
-    <% facet_panels = facets_as_panels(@items,
-                                       metadata_profile: @metadata_profile,
-                                       show_collection_facet: session[:browse_context] != ItemsController::BrowseContext::BROWSING_COLLECTION)
-    if facet_panels.present?
-      l_classes = 'col-sm-3 col-lg-2'
-      r_classes = 'col-sm-9 col-lg-10'
-    else
-      l_classes = 'hidden-xs hidden-sm hidden-md hidden-lg'
-      r_classes = 'col-xs-12'
-    end %>
-    <div class="<%= l_classes %> pt-facets pt-panel-facets">
-      <%= facet_panels %>
+    <div class="pt-facets pt-panel-facets">
+      <%= render partial: 'facets' %>
     </div>
 
-    <div class="<%= r_classes %>">
+    <div class="col-sm-9 col-lg-10">
       <div class="row">
         <div class="col-xs-6">
-          <%= form_tag(params, method: :get) do %>
-            <% params.each do |k, v| %>
-              <%= hidden_field_tag(k, v) %>
-            <% end %>
-            <div class="input-group">
-              <span class="input-group-addon"><i class="fa fa-search"></i></span>
-              <%= search_field_tag :q, params[:q], class: 'form-control',
-                                   placeholder: 'Filter Results' %>
-            </div>
+          <% params.each do |k, v| %>
+            <%= hidden_field_tag(k, v) %>
           <% end %>
+          <div class="input-group">
+            <span class="input-group-addon"><i class="fa fa-search"></i></span>
+            <%= search_field_tag :q, params[:q], class: 'form-control',
+                                 placeholder: 'Filter Results' %>
+          </div>
         </div>
         <div class="col-xs-6">
           <% if @count > 0 %>
@@ -98,33 +86,21 @@
       <div class="panel panel-default pt-results-summary">
         <div class="panel-body">
           <div class="row">
-            <div class="col-sm-8">
+            <div class="col-sm-8" id="pt-search-status">
               <%= search_status(@items, @start, @num_results_shown) %>
             </div>
             <div class="col-sm-4 pull-right">
-              <div class="pull-right">
-                <%= sort_menu(@metadata_profile) %>
-              </div>
+              <%= sort_menu(@metadata_profile) %>
             </div>
           </div>
         </div>
       </div>
 
-      <div class="pt-results pt-list-results">
-        <%= items_as_list(@items, @start, show_collections: !@collection,
-                          show_add_to_favorites_buttons: true,
-                          show_description: true,
-                          show_remove_from_favorites_buttons: true) %>
+      <div id="pt-items" class="pt-results pt-list-results">
+        <%= render partial: 'items' %>
       </div>
 
-      <div class="text-center">
-        <%= paginate(@items, @limit, @current_page) %>
-      </div>
     </div>
-  </div>
-<% else %>
-  <div class="pt-no-results">
-    <%= no_results_help(params[:q], @suggestions) %>
   </div>
 <% end %>
 

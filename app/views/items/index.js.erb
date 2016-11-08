@@ -1,0 +1,3 @@
+$('#pt-items').html('<%= escape_javascript(render('items')) %>');
+$('.pt-facets').html('<%= escape_javascript(render('facets')) %>');
+$('#pt-search-status').html('<%= search_status(@items, @start, @num_results_shown) %>');

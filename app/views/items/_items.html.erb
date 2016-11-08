@@ -1,0 +1,14 @@
+<% if @count > 0 %>
+  <%= items_as_list(@items, @start, show_collections: !@collection,
+                    show_add_to_favorites_buttons: true,
+                    show_description: true,
+                    show_remove_from_favorites_buttons: true) %>
+
+  <div class="text-center">
+    <%= paginate(@items, @limit, @current_page) %>
+  </div>
+<% else %>
+  <div class="pt-no-results">
+    <%= no_results_help(params[:q], @suggestions) %>
+  </div>
+<% end %>

@@ -1370,15 +1370,16 @@ module ItemsHelper
       term_label = truncate(term_label, length: 80)
 
       panel += "<li class=\"pt-term\">"
-      panel += "<div class=\"checkbox\">"
-      panel += "<label>"
-      panel += "<input type=\"checkbox\" name=\"pt-facet-term\" #{checked} "\
-        "data-checked-href=\"#{url_for(unchecked_params)}\" "\
-        "data-unchecked-href=\"#{url_for(checked_params)}\">"
-      panel += "<span class=\"pt-term-name\">#{term_label}</span> "
-      panel += "<span class=\"pt-count badge\">#{term.count}</span>"
-      panel += "</label>"
-      panel += "</div>"
+      panel += "  <div class=\"checkbox\">"
+      panel += "    <label>"
+      panel += "      <input type=\"checkbox\" name=\"pt-facet-term\" #{checked} "\
+               "          data-query=\"#{term.facet_query.gsub('"', '&quot;')}\" "\
+               "          data-checked-href=\"#{url_for(unchecked_params)}\" "\
+               "          data-unchecked-href=\"#{url_for(checked_params)}\">"
+      panel += "      <span class=\"pt-term-name\">#{term_label}</span> "
+      panel += "      <span class=\"pt-count badge\">#{term.count}</span>"
+      panel += "    </label>"
+      panel += "  </div>"
       panel += "</li>"
     end
     raw(panel + '</ul></div></div>')

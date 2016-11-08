@@ -1,0 +1,7 @@
+<% facet_panels = facets_as_panels(@items,
+                                   metadata_profile: @metadata_profile,
+                                   show_collection_facet: session[:browse_context] != ItemsController::BrowseContext::BROWSING_COLLECTION) %>
+
+<div class="col-sm-3 col-lg-2 pt-facets pt-panel-facets">
+  <%= facet_panels %>
+</div>

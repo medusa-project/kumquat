@@ -8,12 +8,15 @@ body#items_index div#pt-page-content {
     .panel-body {
       padding-top: 0.5em;
       padding-bottom: 0.5em;
+      .form-group {
+        margin-bottom: 0px;
+      }
     }
-  }
 
-  .pt-results-summary > .panel-body > div > div:first-child {
-    padding-top: 0.35em;
-    padding-bottom: 0.35em;
+    #pt-search-status {
+      padding-top: 0.35em;
+      padding-bottom: 0.35em;
+    }
   }
 
   .pt-no-results {
