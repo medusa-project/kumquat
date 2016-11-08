@@ -2,7 +2,8 @@
 <% provide :body_id, 'collections_index' %>
 <% provide :active_nav, 'collections' %>
 
-<h1>Collections <span id="pt-count" class="badge"><%= @collections.length %></span></h1>
+<h1 id="pt-page-title">Collections
+  <span id="pt-count" class="badge"><%= @collections.length %></span></h1>
 
 <%= form_tag(params, method: :get, class: 'pt-filter') do %>
   <div class="row">
