@@ -5,6 +5,39 @@ var PearTree = {
         ITEM_REMOVED_FROM_FAVORITES: 'PTItemRemovedFromFavorites'
     },
 
+    /**
+     * Provides an ajax filter field.
+     *
+     * @constructor
+     */
+    FilterField: function() {
+        $('form.pt-filter').submit(function () {
+            $.get(this.action, $(this).serialize(), null, 'script');
+            $(this).nextAll('input').addClass('active');
+            return false;
+        });
+
+        var input_timer;
+        $('form.pt-filter input').on('keyup', function () {
+            var input = $(this);
+            input.addClass('active');
+
+            clearTimeout(input_timer);
+            var msec = 500; // wait this long after user has stopped typing
+            var forms = $('form.pt-filter');
+            input_timer = setTimeout(function () {
+                $.get(forms.attr('action'),
+                    forms.serialize(),
+                    function () {
+                        input.removeClass('active');
+                    },
+                    'script');
+                return false;
+            }, msec);
+            return false;
+        });
+    },
+
     Flash: {
 
         FADE_OUT_DELAY: 10000,
