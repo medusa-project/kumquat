@@ -21,15 +21,6 @@ class CollectionsController < WebsiteController
   # Responds to GET /collections
   #
   def index
-    filters = []
-    if params[:fq].present?
-      if params[:fq].respond_to?(:each)
-        filters += params[:fq]
-      else
-        filters << params[:fq]
-      end
-    end
-
     finder = CollectionFinder.new.
         client_hostname(request.host).
         client_ip(request.remote_ip).
@@ -37,7 +28,7 @@ class CollectionsController < WebsiteController
         include_children(false).
         include_unpublished(false).
         include_unpublished_in_dls(true).
-        filter_queries(filters).
+        filter_queries(params[:fq]).
         query(params[:q]).
         order(Collection::SolrFields::TITLE).
         limit(99999)
@@ -47,6 +38,7 @@ class CollectionsController < WebsiteController
 
     respond_to do |format|
       format.html
+      format.js
       format.json do
         render json: @collections.to_a.map do |c|
           { id: c.repository_id, url: collection_url(c) }

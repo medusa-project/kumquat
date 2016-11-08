@@ -2,28 +2,23 @@
 <% provide :body_id, 'collections_index' %>
 <% provide :active_nav, 'collections' %>
 
-<h1>Collections <span class="badge"><%= @collections.length %></span></h1>
+<h1>Collections <span id="pt-count" class="badge"><%= @collections.length %></span></h1>
 
-<div class="row">
-  <div class="col-sm-3 col-lg-2 pt-facets pt-panel-facets">
-    <%= collection_facets_as_panels(@collections) %>
-  </div>
-  <div class="col-sm-9 col-lg-10">
-    <% if @collections.length > 0 %>
-      <%= form_tag(params, method: :get) do %>
-        <% params.each do |k, v| %>
-          <%= hidden_field_tag(k, v) %>
-        <% end %>
-        <div class="input-group">
-          <span class="input-group-addon"><i class="fa fa-search"></i></span>
-          <%= search_field_tag :q, params[:q], class: 'form-control',
-                               placeholder: 'Filter Collections' %>
-        </div>
-      <% end %>
-    <% end %>
+<%= form_tag(params, method: :get, class: 'pt-filter') do %>
+  <div class="row">
+    <div class="col-sm-3 col-lg-2 pt-facets pt-panel-facets">
+      <%= render partial: 'facets' %>
+    </div>
+    <div class="col-sm-9 col-lg-10">
+      <div class="input-group">
+        <span class="input-group-addon"><i class="fa fa-search"></i></span>
+        <%= search_field_tag :q, params[:q], placeholder: 'Filter',
+                             class: 'form-control' %>
+      </div>
 
-    <div class="pt-cards">
-      <%= collections_as_cards(@collections) %>
+      <div id="pt-collections" class="pt-cards">
+        <%= render partial: 'collections' %>
+      </div>
     </div>
   </div>
-</div>
+<% end %>

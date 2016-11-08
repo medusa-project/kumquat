@@ -1,0 +1,3 @@
+$('#pt-collections').html('<%= escape_javascript(render('collections')) %>');
+$('.pt-facets').html('<%= escape_javascript(render('facets')) %>');
+$('#pt-count').text('<%= @collections.length %>');
