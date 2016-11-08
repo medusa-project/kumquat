@@ -71,7 +71,7 @@ class AbstractFinder
   # @return [self]
   #
   def query(string)
-    @query = string
+    @query = "*#{string.to_s.gsub(' ', '*')}*"
     self
   end
 
