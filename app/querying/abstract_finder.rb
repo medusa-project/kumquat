@@ -4,6 +4,7 @@ class AbstractFinder
     @include_unpublished = false
     @start = 0
     @limit = 999999
+    @loaded = false
   end
 
   ##
@@ -93,6 +94,17 @@ class AbstractFinder
   def start(start)
     @start = start.to_i
     self
+  end
+
+  ##
+  # @return [Array<String>]
+  #
+  def suggestions
+    suggestions = []
+    if @loaded and @query.present? and count < 1
+      suggestions = Solr.instance.suggestions(@query)
+    end
+    suggestions
   end
 
   protected

@@ -79,17 +79,6 @@ class ItemFinder < AbstractFinder
   end
 
   ##
-  # @return [Array<String>]
-  #
-  def suggestions
-    suggestions = []
-    if @loaded and @query.present? and count < 1
-      suggestions = Solr.instance.suggestions(@query)
-    end
-    suggestions
-  end
-
-  ##
   # @return [Enumerable<Item>]
   # @raises [ActiveRecord::RecordNotFound] If a collection ID that does not
   #                                        exist has been assigned to the
