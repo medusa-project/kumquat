@@ -33,8 +33,8 @@ class Collection < ActiveRecord::Base
     DESCRIPTION_HTML = 'description_html_txti'
     ID = 'id'
     LAST_INDEXED = 'last_indexed_dti'
-    METADATA_DESCRIPTION = "#{ItemElement::solr_prefix}_description_txti"
-    METADATA_TITLE = "#{ItemElement::solr_prefix}_title_txti"
+    METADATA_DESCRIPTION = "#{ItemElement::solr_prefix}description_txti"
+    METADATA_TITLE = "#{ItemElement::solr_prefix}title_txti"
     PARENT_COLLECTIONS = 'parent_collections_sim'
     PHYSICAL_COLLECTION_URL = 'physical_collection_url_si'
     PUBLISHED = 'published_bi'
