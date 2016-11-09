@@ -59,7 +59,6 @@ module CollectionsHelper
       html += '  </div>'
       html += '</div>'
     end
-    html += '</div>'
     raw(html)
   end
 
