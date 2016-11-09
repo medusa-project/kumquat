@@ -8,21 +8,24 @@ class Relation
   attr_reader :solr_response
 
   ##
-  # @param caller [Object<SolrQuerying>] The calling entity, or `nil` to
-  # initialize an "empty query", i.e. one that will return no results.
+  # @param caller [Object<SolrQuerying>,SolrQuerying,nil] The calling entity;
+  #               the SolrQuerying class to return any SolrQuerying entity; or
+  #               `nil` to initialize an "empty query", i.e. one that will
+  #               return no results.
   #
   def initialize(caller = nil)
     @caller = caller
-    @calling_class = caller.kind_of?(Class) ? caller : caller.class
+    @calling_class = (caller.kind_of?(Class) or caller == SolrQuerying) ?
+        caller : caller.class
     @facet = true
     @facetable_fields = []
     @filter_clauses = []
-    @limit = 1 # default to fastest; clients can override with limit(int)
+    @limit = 1 # default to fastest; clients can override with limit()
     @more_like_this = false
     @operator = :and
     @order = nil
     @start = 0
-    @where_clauses = [] # will be joined by AND
+    @where_clauses = []
     reset_results
   end
 
@@ -251,14 +254,20 @@ class Relation
   def load
     if @caller and @calling_class and !@loaded
       query = @where_clauses.any? ? @where_clauses.join(' ') : ['*:*']
-      filter = ["#{Configuration.instance.solr_class_field}:\"#{@calling_class}\""] +
-          @filter_clauses
+      filter = @filter_clauses
+
+      # If SolrQuerying is the calling class (actually it's a module but
+      # nevermind that), search for entities of any class.
+      if @calling_class != SolrQuerying
+        filter += ["#{Configuration.instance.solr_class_field}:\"#{@calling_class}\""]
+      end
 
       params = {
           'q' => query,
           'q.op' => @operator.to_s.upcase,
           'df' => Configuration.instance.solr_default_search_field,
-          'fl' => @calling_class::SolrFields::ID,
+          'fl' => [Configuration.instance.solr_id_field,
+                   Configuration.instance.solr_class_field],
           'fq' => filter,
           'start' => @start,
           'sort' => @order,
@@ -287,16 +296,20 @@ class Relation
         @results.facet_fields = solr_facet_fields_to_objects(
             @solr_response['facet_counts']['facet_fields'])
       end
+
       @results.total_length = @solr_response['response']['numFound'].to_i
+
       docs = @solr_response['response']['docs']
       docs.each do |doc|
         begin
           # Find the database entity corresponding to the Solr document ID,
           # and add it to the results. If it doesn't exist, add its ID rather
           # than nil.
-          entity = @calling_class.
-              find_by_repository_id(doc[@calling_class::SolrFields::ID])
-          @results << entity || doc[@calling_class::SolrFields::ID]
+          class_ = (@calling_class == SolrQuerying) ?
+              doc[Configuration.instance.solr_class_field].constantize :
+              @calling_class
+          entity = class_.find_by_repository_id(doc[Configuration.instance.solr_id_field])
+          @results << entity || doc[Configuration.instance.solr_id_field]
         rescue => e
           Rails.logger.error("#{e} (#{doc['id']}) (#{e.backtrace})")
           @results.total_length -= 1

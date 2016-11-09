@@ -1,0 +1,7 @@
+<% facet_panels = facets_as_panels(@entities,
+                                   metadata_profile: @metadata_profile,
+                                   show_collection_facet: true) %>
+
+<div class="col-sm-3 col-lg-2 pt-facets pt-panel-facets">
+  <%= facet_panels %>
+</div>

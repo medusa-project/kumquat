@@ -2,7 +2,7 @@
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
-body#items_index div#pt-page-content {
+body#items_index #pt-page-content, body#search_index #pt-page-content {
   .pt-results-summary {
     margin-top: 1em;
     .panel-body {

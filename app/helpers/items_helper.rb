@@ -266,87 +266,89 @@ module ItemsHelper
   end
 
   ##
-  # @param items [Relation<Item>]
+  # @param entities [Relation<SolrQuerying>]
   # @param start [integer]
   # @param options [Hash] with available keys:
   # :link_to_admin (boolean), :show_remove_from_favorites_buttons (boolean),
   # :show_add_to_favorites_buttons (boolean),
-  # :show_collections (boolean), :show_description (boolean),
+  # :show_collections (boolean),
   # :thumbnail_size (integer)
   #
-  def items_as_list(items, start, options = {})
-    options[:show_description] = true unless
-        options.keys.include?(:show_description)
-
+  def items_as_list(entities, start, options = {}) # TODO: rename to entities_as_list(), move to ApplicationHelper, and replace CollectionsHelper.collections_as_list()
     html = "<ol start=\"#{start + 1}\">"
-    items.each do |item|
-      next unless item # item may be nil in testing
-      link_target = options[:link_to_admin] ?
-          admin_collection_item_path(item.collection, item) : polymorphic_path(item)
+    entities.each do |entity|
+      if options[:link_to_admin] and entity.kind_of?(Item)
+        link_target = admin_collection_item_path(entity.collection, entity)
+      else
+        link_target = polymorphic_path(entity)
+      end
       html += '<li>'\
         '<div>'
       html += link_to(link_target, class: 'pt-thumbnail-link') do
-        size = options[:thumbnail_size] ? options[:thumbnail_size] : 256
+        size = options[:thumbnail_size] ?
+            options[:thumbnail_size] : DEFAULT_THUMBNAIL_SIZE
         raw('<div class="pt-thumbnail">' +
-          thumbnail_tag(item.effective_representative_item, size, :square) +
+          thumbnail_tag(entity.effective_representative_item, size, :square) +
         '</div>')
       end
       html += '<span class="pt-label">'
-      html += link_to(item.title, link_target)
+      html += link_to(entity.title, link_target)
 
       # info line
       info_parts = []
-      info_parts << "#{icon_for(item)}#{type_of(item)}"
+      info_parts << "#{icon_for(entity)}#{type_of(entity)}"
 
-      num_pages = item.pages.count
-      if num_pages > 0
-        info_parts << "#{num_pages} pages"
-      else
-        num_files = item.files.count
-        if num_files > 0
-          info_parts << "#{num_files} files"
+      if entity.kind_of?(Item)
+        num_pages = entity.pages.count
+        if num_pages > 0
+          info_parts << "#{num_pages} pages"
         else
-          num_children = item.items.count
-          if num_children > 0
-            info_parts << "#{num_children} sub-items"
+          num_files = entity.files.count
+          if num_files > 0
+            info_parts << "#{num_files} files"
+          else
+            num_children = entity.items.count
+            if num_children > 0
+              info_parts << "#{num_children} sub-items"
+            end
           end
         end
-      end
 
-      date = item.date
-      if date
-        info_parts << date.year
-      end
+        date = entity.date
+        if date
+          info_parts << date.year
+        end
 
-      if options[:show_collections] and item.collection
-        info_parts << link_to(item.collection.title,
-                              collection_path(item.collection))
+        if options[:show_collections] and entity.collection
+          info_parts << link_to(entity.collection.title,
+                                collection_path(entity.collection))
+        end
       end
 
       html += "<br><span class=\"pt-info-line\">#{info_parts.join(' | ')}</span>"
 
-      # remove-from-favorites button
-      if options[:show_remove_from_favorites_buttons]
-        html += ' <button class="btn btn-xs btn-danger ' +
-            'pt-remove-from-favorites" data-item-id="' + item.repository_id + '">'
-        html += '<i class="fa fa-heart"></i> Remove'
-        html += '</button>'
-      end
-      # add-to-favorites button
-      if options[:show_add_to_favorites_buttons]
-        html += ' <button class="btn btn-default btn-xs ' +
-            'pt-add-to-favorites" data-item-id="' + item.repository_id + '">'
-        html += '<i class="fa fa-heart-o"></i>'
-        html += '</button>'
+      if entity.kind_of?(Item)
+        # remove-from-favorites button
+        if options[:show_remove_from_favorites_buttons]
+          html += ' <button class="btn btn-xs btn-danger ' +
+              'pt-remove-from-favorites" data-item-id="' + entity.repository_id + '">'
+          html += '<i class="fa fa-heart"></i> Remove'
+          html += '</button>'
+        end
+        # add-to-favorites button
+        if options[:show_add_to_favorites_buttons]
+          html += ' <button class="btn btn-default btn-xs ' +
+              'pt-add-to-favorites" data-item-id="' + entity.repository_id + '">'
+          html += '<i class="fa fa-heart-o"></i>'
+          html += '</button>'
+        end
       end
 
       html += '</span>'
-      if options[:show_description]
-        html += '<br>'
-        html += '<span class="pt-description">'
-        html += truncate(item.description.to_s, length: 380)
-        html += '</span>'
-      end
+      html += '<br>'
+      html += '<span class="pt-description">'
+      html += truncate(entity.description.to_s, length: 380)
+      html += '</span>'
       html += '</div>'
       html += '</li>'
     end
@@ -755,7 +757,7 @@ module ItemsHelper
   def search_status(items, start, num_results_shown)
     total = items.total_length
     last = [total, start + num_results_shown].min
-    raw("Showing #{start + 1}&ndash;#{last} of #{total} items")
+    raw("Showing #{start + 1}&ndash;#{last} of #{number_with_delimiter(total)} items")
   end
 
   ##

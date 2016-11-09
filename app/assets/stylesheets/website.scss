@@ -84,58 +84,12 @@ section {
 
 #pt-main-nav {
   border-radius: 0px;
-  position: relative;
-  z-index: 10;
 
   .navbar-collapse {
     padding-left: 0px;
   }
-}
-
-form.pt-quick-search {
-  width: 18em;
-  .input-group {
-    width: 100%;
-  }
-}
-
-#pt-search-accordion {
-  margin-bottom:1em;
-  overflow:hidden;
-
-  > div {
-    padding: 1.5em;
-  }
-
-  .nav-pills {
-    margin-bottom: 1em;
-  }
-
-  @media (min-width: $screen-sm-min) {
-    #pt-text-search {
-      input[type=text] {
-        width: 50%;
-      }
-      select {
-        width: 40%;
-      }
-    }
-  }
-
-  .panel-body {
-    max-height:50em;
-  }
-  .pt-fields .form-group:first-child .pt-remove-field {
-    display:none;
-  }
-  .pt-collections {
-    overflow-y: scroll;
-    ol {
-      list-style:none;
-      margin-left:0px;
-      max-height: 150px;
-      padding-left:0px;
-    }
+  input[type=search] {
+    width: 12em;
   }
 }
 

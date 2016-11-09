@@ -37,22 +37,11 @@ header {
   padding:0;
 }
 
-/* Styles for the Digital Collections banner and search form. */
-
-a {
-  color: rgb(4, 74, 136);
-}
-
 .uiuc-beta-badge {
   pointer-events: none;
   position: absolute;
   right: 0px;
   z-index: 9999;
-}
-
-a.uiuc-feedback, a.uiuc-feedback:hover {
-  color:white;
-  margin-right: 0.8em;
 }
 
 .uiuc-plain-banner {
@@ -87,25 +76,5 @@ a.uiuc-feedback, a.uiuc-feedback:hover {
   }
   .navbar-nav > li > a:hover {
     background-color: #e7e7e7;
-  }
-}
-
-#pt-search-accordion {
-  background-color: #ededed;
-  margin-bottom: 0px;
-  a {
-    background-color:#d0d0d0;
-    border: 1px solid #ccc;
-    color: #022544;
-    margin: 0 auto;
-    width: 90%;
-  }
-  a:hover {
-    background-color:#d8d8d8;
-  }
-  input.pt-search {
-    background-color:white;
-    border: 1px solid #ccc;
-    color:black;
   }
 }

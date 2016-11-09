@@ -181,6 +181,10 @@ class Collection < ActiveRecord::Base
     self.metadata_profile || MetadataProfile.default
   end
 
+  def effective_representative_item
+    self.representative_item || self
+  end
+
   def index_in_solr
     Solr.instance.add(self.to_solr)
   end

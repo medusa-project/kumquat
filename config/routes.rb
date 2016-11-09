@@ -106,7 +106,7 @@ Rails.application.routes.draw do
           as: 'iiif_sequence'
   end
   match '/oai-pmh', to: 'oai_pmh#index', via: %w(get post), as: 'oai_pmh'
-  match '/search', to: 'items#search', via: 'post'
+  match '/search', to: 'search#search', via: 'get'
   match '/signin', to: 'sessions#new', via: 'get'
   match '/signout', to: 'sessions#destroy', via: 'delete'
 

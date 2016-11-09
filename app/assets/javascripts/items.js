@@ -270,7 +270,7 @@ var PTItemView = function() {
         }
     };
 
-    this.init = function() {
+    var init = function() {
         $(document).on(PearTree.Events.ITEM_ADDED_TO_FAVORITES, function(event, item) {
             $('.pt-add-to-favorites').hide();
             $('.pt-remove-from-favorites').show();
@@ -303,7 +303,7 @@ var PTItemView = function() {
         new PTCitationPanel();
         new PTDownloadPanel();
         new PTEmbedPanel();
-    };
+    }; init();
 
     /**
      * @return PTItem
@@ -328,7 +328,7 @@ var PTItemView = function() {
  */
 var PTItemsView = function() {
 
-    this.init = function() {
+    var init = function() {
         new PearTree.FilterField();
 
         var addFacetEventListeners = function() {
@@ -411,7 +411,7 @@ var PTItemsView = function() {
                 }
             }
         });
-    };
+    }; init();
 
     var updateFavoritesCount = function() {
         var badge = $('.pt-favorites-count');
@@ -422,11 +422,9 @@ var PTItemsView = function() {
 
 var ready = function() {
     if ($('body#items_index').length) {
-        PearTree.view = new PTItemsView();
-        PearTree.view.init();
+        new PTItemsView();
     } else if ($('body#items_show').length) {
-        PearTree.view = new PTItemView();
-        PearTree.view.init();
+        new PTItemView();
     }
 };
 
