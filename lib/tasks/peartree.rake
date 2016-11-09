@@ -30,15 +30,20 @@ namespace :peartree do
     Solr.instance.commit
   end
 
-  desc 'Reindex all database entities'
+  desc 'Reindex all items and collections'
   task :reindex => :environment do |task, args|
-    reindex_all
-    Solr.instance.commit
-  end
-
-  def reindex_all
-    Item.all.each { |item| item.index_in_solr }
+    num_entities = Item.count + Collection.count
+    # Item.uncached{} in conjunction with find_each() circumvents ActiveRecord
+    # caching that would lead to memory exhaustion.
+    Item.uncached do
+      Item.all.find_each.with_index do |item, index|
+        item.index_in_solr
+        Rails.logger.debug("peartree:reindex: "\
+            "#{((index / num_entities.to_f) * 100).round(2)}%")
+      end
+    end
     reindex_collections
+    Solr.instance.commit
   end
 
   desc 'Reindex collection'
