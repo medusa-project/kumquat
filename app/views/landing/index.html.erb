@@ -1,8 +1,6 @@
 <% provide :body_id, 'landing' %>
 <% provide :title, 'Home' %>
 
-<h1><%= Option::string(Option::Key::WEBSITE_NAME) %></h1>
-
 <div id="pt-description">
   <%= sanitize(Option::string(Option::Key::WEBSITE_INTRO_TEXT).gsub("\n", '<br>'),
                tags: %w(p br), attributes: %w()) %>
