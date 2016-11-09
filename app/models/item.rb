@@ -848,111 +848,9 @@ class Item < ActiveRecord::Base
   # @raises [IOError]
   #
   def update_from_embedded_metadata(options = {})
-    # Get the bytestream from which the metadata will be extracted
-    bs = self.preservation_master_bytestream || self.access_master_bytestream
-    unless bs
-      Rails.logger.info('Item.update_from_embedded_metadata(): no bytestreams')
-      return
-    end
-
-    Rails.logger.debug("Item.update_from_embedded_metadata: using "\
-        "#{bs.human_readable_type} (#{bs.absolute_local_pathname})")
-
-    # Get its embedded IPTC IIM metadata
-    iim_metadata = bs.metadata.select{ |m| m[:category] == 'IPTC' }
-
-    def add_element(dest_elem, value)
-      if value.respond_to?(:each)
-        value.select{ |v| v.present? }.each do |val|
-          self.elements.build(name: dest_elem, value: val,
-                              vocabulary: Vocabulary.uncontrolled)
-        end
-      elsif value.present?
-        self.elements.build(name: dest_elem, value: value,
-                            vocabulary: Vocabulary.uncontrolled)
-      end
-    end
-
-    def copy_iim_value(src_label, dest_elem, metadata)
-      src_elem = metadata.select{ |e| e[:label] == src_label }.first
-      add_element(dest_elem, src_elem[:value]) if src_elem
-    end
-
-    # See discussion in IMET-246
-    # See: https://docs.google.com/spreadsheets/d/15Wf75vzP-rW-lrYzLHATjv1bI3xcMMSVbdBShy4t55A/edit
-    # See: http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata
-
     ActiveRecord::Base.transaction do
-      # Title
-      title = iim_metadata.select{ |e| e[:label] == 'Headline' }.first
-      unless title
-        title = iim_metadata.select{ |e| e[:label] == 'Title' }.first
-        unless title
-          title = iim_metadata.select{ |e| e[:label] == 'Object Name' }.first
-        end
-      end
-      add_element('title', title[:value]) if title
-
-      # Date Created
-      if options[:include_date_created].to_s != 'false'
-        copy_iim_value('Date Created', 'dateCreated', iim_metadata)
-
-        # Try to add a normalized date.
-        date_elem = iim_metadata.select{ |e| e[:label] == 'Date Created' }.first
-        self.date = TimeUtil.string_date_to_time(date_elem[:value]) if date_elem
-      end
-
-      # Creator
-      creator = iim_metadata.select{ |e| e[:label] == 'Creator' }.first
-      unless creator
-        creator = iim_metadata.select{ |e| e[:label] == 'By-line' }.first
-        unless creator
-          creator = iim_metadata.select{ |e| e[:label] == 'Credit Line' }.first
-        end
-      end
-      add_element('creator', creator[:value]) if creator
-
-      # Description
-      desc = iim_metadata.select{ |e| e[:label] == 'Description' }.first
-      unless desc
-        desc = iim_metadata.select{ |e| e[:label] == 'Caption' }.first
-        unless desc
-          desc = iim_metadata.select{ |e| e[:label] == 'Abstract' }.first
-        end
-      end
-      add_element('description', desc[:value]) if desc
-
-      # Copyright Notice
-      copy_iim_value('Copyright Notice', 'rights', iim_metadata)
-
-      # Rights Usage Terms
-      copy_iim_value('Rights Usage Terms', 'license', iim_metadata)
-
-      # Keywords
-      copy_iim_value('Keywords', 'keyword', iim_metadata)
-
-      # Sublocation
-      copy_iim_value('Sublocation', 'streetAddress', iim_metadata)
-
-      # City
-      copy_iim_value('City', 'addressLocality', iim_metadata)
-
-      # Province or State
-      copy_iim_value('Province or State', 'addressRegion', iim_metadata)
-
-      # Country Name
-      copy_iim_value('Country Name', 'addressCountry', iim_metadata)
-
-      # Concatenate sublocation, city, province or state, and country name
-      # into a keyword element.
-      keyword = []
-      keyword << iim_metadata.select{ |e| e[:label] == 'Sublocation' }.first
-      keyword << iim_metadata.select{ |e| e[:label] == 'City' }.first
-      keyword << iim_metadata.select{ |e| e[:label] == 'Province or State' }.first
-      keyword << iim_metadata.select{ |e| e[:label] == 'Country Name' }.first
-      keyword.select!(&:present?)
-      add_element('keyword', keyword.join(', ')) if keyword.any?
-
+      self.elements.destroy_all
+      self.elements += elements_from_embedded_metadata(options)
       self.save!
     end
   end
@@ -1172,6 +1070,126 @@ class Item < ActiveRecord::Base
   end
 
   private
+
+  def elements_for_iim_value(iim_elem_label, dest_elem, iim_metadata)
+    src_elem = iim_metadata.select{ |e| e[:label] == iim_elem_label }.first
+    src_elem ? elements_for_value(src_elem[:value], dest_elem) : []
+  end
+
+  ##
+  # @param value [String,Enumerable]
+  # @param dest_elem [String]
+  # @return [ItemElement]
+  #
+  def elements_for_value(value, dest_elem)
+    elements = []
+    if value.respond_to?(:each)
+      value.select(&:present?).each do |val|
+        elements << ItemElement.new(name: dest_elem, value: val,
+                                    vocabulary: Vocabulary.uncontrolled)
+      end
+    elsif value.present?
+      elements << ItemElement.new(name: dest_elem, value: value,
+                                  vocabulary: Vocabulary.uncontrolled)
+    end
+    elements
+  end
+
+  ##
+  # @param options [Hash<Symbol,Object>]
+  # @option options [Boolean] :include_date_created
+  # @return [Array<ItemElement>]
+  #
+  def elements_from_embedded_metadata(options = {})
+    # Get the bytestream from which the metadata will be extracted
+    bs = self.preservation_master_bytestream || self.access_master_bytestream
+    unless bs
+      Rails.logger.info('Item.elements_from_embedded_metadata(): no bytestreams')
+      return
+    end
+
+    Rails.logger.debug("Item.elements_from_embedded_metadata: using "\
+        "#{bs.human_readable_type} (#{bs.absolute_local_pathname})")
+
+    # Get its embedded IIM metadata
+    iim_metadata = bs.metadata.select{ |m| m[:category] == 'IPTC' }
+
+    elements = []
+
+    # See discussion in IMET-246
+    # See: https://docs.google.com/spreadsheets/d/15Wf75vzP-rW-lrYzLHATjv1bI3xcMMSVbdBShy4t55A/edit
+    # See: http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata
+
+    # Title
+    title = iim_metadata.select{ |e| e[:label] == 'Headline' }.first
+    unless title
+      title = iim_metadata.select{ |e| e[:label] == 'Title' }.first
+      unless title
+        title = iim_metadata.select{ |e| e[:label] == 'Object Name' }.first
+      end
+    end
+    elements += elements_for_value(title[:value], 'title') if title
+
+    # Date Created
+    if options[:include_date_created].to_s != 'false'
+      elements += elements_for_iim_value('Date Created', 'dateCreated', iim_metadata)
+
+      # Try to add a normalized date.
+      date_elem = iim_metadata.select{ |e| e[:label] == 'Date Created' }.first
+      self.date = TimeUtil.string_date_to_time(date_elem[:value]) if date_elem
+    end
+
+    # Creator
+    creator = iim_metadata.select{ |e| e[:label] == 'Creator' }.first
+    unless creator
+      creator = iim_metadata.select{ |e| e[:label] == 'By-line' }.first
+      unless creator
+        creator = iim_metadata.select{ |e| e[:label] == 'Credit Line' }.first
+      end
+    end
+    elements += elements_for_value(creator[:value], 'creator') if creator
+
+    # Description
+    desc = iim_metadata.select{ |e| e[:label] == 'Description' }.first
+    unless desc
+      desc = iim_metadata.select{ |e| e[:label] == 'Caption' }.first
+      unless desc
+        desc = iim_metadata.select{ |e| e[:label] == 'Abstract' }.first
+      end
+    end
+    elements += elements_for_value(desc[:value], 'description') if desc
+
+    # Copyright Notice
+    elements += elements_for_iim_value('Copyright Notice', 'rights', iim_metadata)
+
+    # Rights Usage Terms
+    elements += elements_for_iim_value('Rights Usage Terms', 'license', iim_metadata)
+
+    # Keywords
+    elements += elements_for_iim_value('Keywords', 'keyword', iim_metadata)
+
+    # Sublocation
+    elements += elements_for_iim_value('Sublocation', 'streetAddress', iim_metadata)
+
+    # City
+    elements += elements_for_iim_value('City', 'addressLocality', iim_metadata)
+
+    # Province or State
+    elements += elements_for_iim_value('Province or State', 'addressRegion', iim_metadata)
+
+    # Country Name
+    elements += elements_for_iim_value('Country Name', 'addressCountry', iim_metadata)
+
+    # Copy sublocation, city, province or state, and country name into keyword
+    # elements.
+
+    elements += elements_for_iim_value('Sublocation', 'keyword', iim_metadata)
+    elements += elements_for_iim_value('City', 'keyword', iim_metadata)
+    elements += elements_for_iim_value('Province or State', 'keyword', iim_metadata)
+    elements += elements_for_iim_value('Country Name', 'keyword', iim_metadata)
+
+    elements
+  end
 
   ##
   # @return [void]
