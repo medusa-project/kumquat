@@ -51,7 +51,7 @@ class Item < ActiveRecord::Base
     PRESERVATION_MASTER_PATHNAME = 'preservation_master_pathname_si'
     PUBLISHED = 'published_bi'
     REPRESENTATIVE_ITEM_ID = 'representative_item_id_si'
-    SEARCH_ALL = 'searchall_txtim'
+    SEARCH_ALL = 'searchall_natsort_en_im'
     SUBPAGE_NUMBER = 'subpage_number_ii'
     TITLE = 'title_natsort_en_i'
     VARIANT = 'variant_si'

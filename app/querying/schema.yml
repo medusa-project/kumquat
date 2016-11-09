@@ -65,7 +65,7 @@ copyFields:
   - source: 'collection_si'
     dest: 'collection_si_facet'
   - source: 'metadata_*'
-    dest: 'searchall_txtim'
+    dest: 'searchall_natsort_en_im'
   - source: 'metadata_*'
     dest: '*_facet'
 
@@ -192,6 +192,11 @@ dynamicFields:
     stored: true
     indexed: true
     multiValued: false
+  - name: '*_natsort_en_im'
+    type: text_en_natural
+    stored: true
+    indexed: true
+    multiValued: true
   - name: '*_txt'
     type: text_general
     stored: true

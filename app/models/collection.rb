@@ -43,7 +43,7 @@ class Collection < ActiveRecord::Base
     REPRESENTATIVE_IMAGE = 'representative_image_si'
     REPRESENTATIVE_ITEM = 'representative_item_si'
     RESOURCE_TYPES = 'resource_types_sim'
-    SEARCH_ALL = 'searchall_txtim'
+    SEARCH_ALL = 'searchall_natsort_en_im'
     TITLE = 'title_natsort_en_i'
   end
 
