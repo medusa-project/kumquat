@@ -89,11 +89,24 @@ var PearTree = {
         $('.navbar-nav li#' + $('body').attr('data-nav') + '-nav')
             .addClass('active');
 
-        // clear pt_* text from any search fields
-        $('input[name="q"]').each(function() {
-            if ($(this).val().match(/pt_/)) {
-                $(this).val(null);
-            }
+        // Add an expander icon in front of every collapse toggle.
+        var toggleForCollapse = function(collapse) {
+            return collapse.prev().find('a[data-toggle="collapse"]:first');
+        };
+        var setToggleState = function(elem, expanded) {
+            var class_ = expanded ? 'fa-minus-square-o' : 'fa-plus-square-o';
+            elem.html('<i class="fa ' + class_ + '"></i> ' + elem.text());
+        };
+
+        var collapses = $('.collapse');
+        collapses.each(function() {
+            setToggleState(toggleForCollapse($(this)), $(this).hasClass('in'));
+        });
+        collapses.on('show.bs.collapse', function () {
+            setToggleState(toggleForCollapse($(this)), true);
+        });
+        collapses.on('hide.bs.collapse', function () {
+            setToggleState(toggleForCollapse($(this)), false);
         });
     },
 

@@ -17,7 +17,7 @@ module ItemsHelper
           reject{ |cat| cat == 'ExifTool' }
 
       # create the category tabs
-      html += '<ul class="nav nav-pills" role="tablist">'
+      html += '<ul class="nav nav-tabs" role="tablist">'
       categories.each_with_index do |category, index|
         tab_id = "pt-metadata-tab-#{bs.bytestream_type}-#{category.gsub(' ', '')}"
         class_ = (index == 0) ? 'active' : ''
@@ -461,13 +461,17 @@ module ItemsHelper
   # @return [String]
   #
   def metadata_section(item)
-    html = "<h2>Descriptive Info</h2>
-         <div class=\"visible-xs\">
-           #{metadata_as_list(item)}
-         </div>
-         <div class=\"hidden-xs\">
-           #{metadata_as_table(item)}
-         </div>"
+    html = "<h2><a role=\"button\" data-toggle=\"collapse\"
+      href=\"#pt-metadata\" aria-expanded=\"true\" aria-controls=\"pt-metadata\">
+      Descriptive Info</a></h2>
+        <div id=\"pt-metadata\" class=\"collapse in\">
+          <div class=\"visible-xs\">
+            #{metadata_as_list(item)}
+          </div>
+          <div class=\"hidden-xs\">
+            #{metadata_as_table(item)}
+          </div>
+        </div>"
     raw(html)
   end
 
