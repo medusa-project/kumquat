@@ -17,7 +17,7 @@ module ItemsHelper
           reject{ |cat| cat == 'ExifTool' }
 
       # create the category tabs
-      html += '<ul class="nav nav-pills" role="tablist">'
+      html += '<ul class="nav nav-tabs" role="tablist">'
       categories.each_with_index do |category, index|
         tab_id = "pt-metadata-tab-#{bs.bytestream_type}-#{category.gsub(' ', '')}"
         class_ = (index == 0) ? 'active' : ''
