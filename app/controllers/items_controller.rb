@@ -219,8 +219,7 @@ class ItemsController < WebsiteController
         collection_id(params[:collection_id]).
         query(params[:q]).
         include_children(params[:q].present?).
-        exclude_variants([Item::Variants::DIRECTORY,
-                          Item::Variants::FRONT_MATTER, Item::Variants::INDEX,
+        exclude_variants([Item::Variants::FRONT_MATTER, Item::Variants::INDEX,
                           Item::Variants::KEY, Item::Variants::PAGE,
                           Item::Variants::TABLE_OF_CONTENTS,
                           Item::Variants::TITLE]).
