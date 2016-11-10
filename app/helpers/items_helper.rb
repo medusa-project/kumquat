@@ -87,6 +87,7 @@ module ItemsHelper
         options[:metadata_profile].elements.where(facetable: true).
             order(:index)
 
+    num_facets = 0
     html = ''
     profile_facetable_elements.each do |element|
       result_facet = items.facet_fields.
@@ -99,13 +100,16 @@ module ItemsHelper
         if !options[:show_collection_facet]
           next
         else
+          num_facets += 1
           html += item_facet_panel('Collection', result_facet.terms, true)
         end
       else
+        num_facets += 1
         html += item_facet_panel(element.label, result_facet.terms, false)
       end
     end
-    raw(html)
+    # There is no point in having only one facet.
+    num_facets > 1 ? raw(html) : ''
   end
 
   ##

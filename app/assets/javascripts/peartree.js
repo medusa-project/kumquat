@@ -80,65 +80,20 @@ var PearTree = {
 
     },
 
-    SearchBar: function() {
-
-        var ELEMENT = $('#pt-search-accordion');
-        if (!ELEMENT.length) {
-            return false;
-        }
-        var SPEED = 200;
-        var computed_height = ELEMENT.height();
-        var vertical_padding = parseFloat(ELEMENT.css('padding-top').replace(/px/, '')) +
-            parseFloat(ELEMENT.css('padding-bottom').replace(/px/, ''));
-        var visible = false;
-        var self = this;
-
-        /** constructor */
-        (function(){
-            ELEMENT.css('margin-top',
-                '-' + $('#pt-main-nav').css('margin-bottom'));
-            ELEMENT.css('height', 0);
-
-            ELEMENT.find('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-                ELEMENT.animate({ 'height': ELEMENT.find('div').height() + 50 });
-            });
-        })();
-
-        this.hide = function() {
-            ELEMENT.animate({ 'height': '0px' }, SPEED);
-            visible = false;
-        };
-
-        this.show = function() {
-            ELEMENT.animate({ 'height': '+=' + (computed_height + vertical_padding) + 'px' }, SPEED);
-            visible = true;
-        };
-
-        this.toggle = function() {
-            visible ? self.hide() : self.show();
-        };
-
-    },
-
     /**
      * Application-level initialization.
      */
     init: function() {
         // make the active nav bar nav active
         $('.navbar-nav li').removeClass('active');
-        $('.navbar-nav li#' + $('body').attr('data-nav') + '-nav').addClass('active');
+        $('.navbar-nav li#' + $('body').attr('data-nav') + '-nav')
+            .addClass('active');
 
         // clear pt_* text from any search fields
         $('input[name="q"]').each(function() {
             if ($(this).val().match(/pt_/)) {
                 $(this).val(null);
             }
-        });
-
-        var search_bar = new PearTree.SearchBar();
-        $('#search-nav').on('click', function() {
-            search_bar.toggle();
-            return false;
         });
     },
 
