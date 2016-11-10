@@ -28,6 +28,7 @@
     },
     "seadragonCenterPanel": {
       "options": {
+        "attributionEnabled": false,
         "immediateRender": true,
         "navigatorPosition": "TOP_RIGHT",
         "showHomeControl": true
