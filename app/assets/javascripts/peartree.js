@@ -134,11 +134,28 @@ var PearTree = {
                 $(this).val(null);
             }
         });
+        // Add an expander icon in front of every collapse toggle.
+        var toggleForCollapse = function(collapse) {
+            return collapse.prev().find('a[data-toggle="collapse"]:first');
+        };
+        var setToggleState = function(elem, expanded) {
+            var class_ = expanded ? 'fa-minus-square-o' : 'fa-plus-square-o';
+            elem.html('<i class="fa ' + class_ + '"></i> ' + elem.text());
+        };
 
         var search_bar = new PearTree.SearchBar();
         $('#search-nav').on('click', function() {
             search_bar.toggle();
             return false;
+        var collapses = $('.collapse');
+        collapses.each(function() {
+            setToggleState(toggleForCollapse($(this)), $(this).hasClass('in'));
+        });
+        collapses.on('show.bs.collapse', function () {
+            setToggleState(toggleForCollapse($(this)), true);
+        });
+        collapses.on('hide.bs.collapse', function () {
+            setToggleState(toggleForCollapse($(this)), false);
         });
     },
 
