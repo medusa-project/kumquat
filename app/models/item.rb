@@ -1121,11 +1121,16 @@ class Item < ActiveRecord::Base
     # See: http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata
 
     # Title
-    title = iim_metadata.select{ |e| e[:label] == 'Headline' }.first
-    unless title
-      title = iim_metadata.select{ |e| e[:label] == 'Title' }.first
+    # Hack to treat items in a particular collection differently (IMET-397)
+    if self.collection_repository_id == '8838a520-2b19-0132-3314-0050569601ca-7'
+      title = { value: File.basename(bs.repository_relative_pathname) }
+    else
+      title = iim_metadata.select{ |e| e[:label] == 'Headline' }.first
       unless title
-        title = iim_metadata.select{ |e| e[:label] == 'Object Name' }.first
+        title = iim_metadata.select{ |e| e[:label] == 'Title' }.first
+        unless title
+          title = iim_metadata.select{ |e| e[:label] == 'Object Name' }.first
+        end
       end
     end
     elements += elements_for_value(title[:value], 'title') if title
