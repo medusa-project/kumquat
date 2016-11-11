@@ -142,13 +142,12 @@ class MedusaIngester
     # @param status [Hash]
     # @param task [Task] Supply to receive status updates.
     # @param num_nodes [Integer]
-    # @param num_walked [Integer] For internal use.
-    # @return [Hash<Symbol,Integer>] Hash with :num_created, :num_updated, and
-    #                                :num_skipped keys.
+    # @return [Hash<Symbol,Integer>] Hash with :num_created, :num_updated,
+    #                                :num_skipped, and :num_walked keys.
     #
     def create_free_form_items_in_tree(collection, cfs_dir, top_cfs_dir,
                                        options, status, task = nil,
-                                       num_nodes = 0, num_walked = 0)
+                                       num_nodes = 0)
       cfs_dir.directories.each do |dir|
         item = Item.find_by_repository_id(dir.uuid)
         if item
@@ -171,13 +170,12 @@ class MedusaIngester
         end
 
         if task
-          task.update(percent_complete: num_walked / num_nodes.to_f)
+          task.update(percent_complete: status[:num_walked] / num_nodes.to_f)
         end
 
-        num_walked += 1
-
+        status[:num_walked] += 1
         create_free_form_items_in_tree(collection, dir, top_cfs_dir, options,
-                                       status, task, num_nodes, num_walked)
+                                       status, task, num_nodes)
       end
       cfs_dir.files.each do |file|
         item = Item.find_by_repository_id(file.uuid)
@@ -208,13 +206,14 @@ class MedusaIngester
         end
 
         if task
-          task.update(percent_complete: num_walked / num_nodes.to_f)
+          task.update(percent_complete: status[:num_walked] / num_nodes.to_f)
         end
-        num_walked += 1
+        status[:num_walked] += 1
       end
+      status
     end
 
-    status = { num_created: 0, num_updated: 0, num_skipped: 0 }
+    status = { num_created: 0, num_updated: 0, num_skipped: 0, num_walked: 0 }
     create_free_form_items_in_tree(collection,
                                    collection.effective_medusa_cfs_directory,
                                    collection.effective_medusa_cfs_directory,
