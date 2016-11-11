@@ -108,7 +108,8 @@ class MedusaIngester
   #
   def count_tree_nodes(cfs_dir, count = 0)
     cfs_dir.directories.each do |dir|
-      count += count_tree_nodes(dir, count)
+      count += 1
+      count = count_tree_nodes(dir, count)
     end
     count += cfs_dir.files.length
     count
