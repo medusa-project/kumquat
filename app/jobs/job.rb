@@ -35,16 +35,16 @@ class Job < ActiveJob::Base
     # the object_id instead.
     create_task_for_job_id(self.object_id)
 
-    perform_now
+    begin
+      perform_now
+    rescue Exception => e
+      fail_task(e)
+      raise e
+    end
   end
 
   rescue_from(Exception) do |e|
-    if self.task
-      self.task.status = Task::Status::FAILED
-      self.task.detail = "#{e}"
-      self.task.backtrace = e.backtrace
-      self.task.save!
-    end
+    fail_task(e)
     raise e
   end
 
@@ -86,6 +86,18 @@ class Job < ActiveJob::Base
 
   def create_task_for_job_id(job_id)
     @task = Task.create!(name: self.class.name, job_id: job_id)
+  end
+
+  ##
+  # @param e [Exception]
+  #
+  def fail_task(e)
+    if self.task
+      self.task.status = Task::Status::FAILED
+      self.task.detail = "#{e}"
+      self.task.backtrace = e.backtrace
+      self.task.save!
+    end
   end
 
 end
