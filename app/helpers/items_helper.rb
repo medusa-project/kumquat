@@ -1080,14 +1080,20 @@ module ItemsHelper
             category: 'File',
             value: bytestream.absolute_local_pathname
         }
-        if bytestream.cfs_file_uuid.present?
-          data << {
-              label: 'Medusa CFS File',
-              category: 'File',
-              value: link_to(bytestream.cfs_file_uuid, bytestream.medusa_url,
-                             target: '_blank')
-          }
-        end
+      else
+        data << {
+            label: 'Filename',
+            category: 'File',
+            value: File.basename(bytestream.absolute_local_pathname)
+        }
+      end
+      if bytestream.cfs_file_uuid.present?
+        data << {
+            label: 'Medusa CFS File',
+            category: 'File',
+            value: link_to(bytestream.cfs_file_uuid, bytestream.medusa_url,
+                           target: '_blank')
+        }
       end
       begin
         bytestream.metadata.each do |field|
