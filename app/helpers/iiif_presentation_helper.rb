@@ -80,7 +80,7 @@ module IiifPresentationHelper
   def iiif_metadata_for(item)
     elements = []
     item.collection.metadata_profile.elements.select(&:visible).each do |pe|
-      item_elements = @item.elements.
+      item_elements = item.elements.
           select{ |ie| ie.name == pe.name and ie.value.present? }
       if item_elements.any?
         elements << {
