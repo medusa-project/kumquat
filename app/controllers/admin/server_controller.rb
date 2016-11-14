@@ -10,11 +10,10 @@ module Admin
     # or 503
     #
     def image_server_status
-      http = HTTPClient.new {
-        self.ssl_config.verify_mode = OpenSSL::SSL::VERIFY_NONE
-      }
+      config = ::Configuration.instance
+      client = ImageServer.instance.client
       begin
-        response = http.head(Configuration.instance.iiif_url)
+        response = client.head(config.iiif_url)
         if response.status == 200
           render text: 'online'
         else
