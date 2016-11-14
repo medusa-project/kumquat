@@ -16,22 +16,24 @@ class ItemTest < ActiveSupport::TestCase
 
   test 'tsv_header should return the correct columns' do
     cols = Item.tsv_header(@item.collection.metadata_profile).strip.split("\t")
-    assert_equal 15, cols.length
+    assert_equal 17, cols.length
     assert_equal 'uuid', cols[0]
     assert_equal 'parentId', cols[1]
     assert_equal 'preservationMasterPathname', cols[2]
-    assert_equal 'accessMasterPathname', cols[3]
-    assert_equal 'variant', cols[4]
-    assert_equal 'pageNumber', cols[5]
-    assert_equal 'subpageNumber', cols[6]
-    assert_equal 'latitude', cols[7]
-    assert_equal 'longitude', cols[8]
-    assert_equal 'contentdmAlias', cols[9]
-    assert_equal 'contentdmPointer', cols[10]
-    assert_equal 'title', cols[11]
-    assert_equal 'description', cols[12]
-    assert_equal 'lcsh:subject', cols[13]
-    assert_equal 'tgm:subject', cols[14]
+    assert_equal 'preservationMasterFilename', cols[3]
+    assert_equal 'accessMasterPathname', cols[4]
+    assert_equal 'accessMasterFilename', cols[5]
+    assert_equal 'variant', cols[6]
+    assert_equal 'pageNumber', cols[7]
+    assert_equal 'subpageNumber', cols[8]
+    assert_equal 'latitude', cols[9]
+    assert_equal 'longitude', cols[10]
+    assert_equal 'contentdmAlias', cols[11]
+    assert_equal 'contentdmPointer', cols[12]
+    assert_equal 'title', cols[13]
+    assert_equal 'description', cols[14]
+    assert_equal 'lcsh:subject', cols[15]
+    assert_equal 'tgm:subject', cols[16]
   end
 
   test 'tsv_header should end with a line break' do

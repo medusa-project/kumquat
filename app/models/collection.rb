@@ -217,10 +217,18 @@ SELECT items.repository_id,
     FROM bytestreams
     WHERE bytestreams.item_id = items.id
       AND bytestreams.bytestream_type = 0) AS pres_pathname,
+  (SELECT substring(repository_relative_pathname from '[^/]+$')
+    FROM bytestreams
+    WHERE bytestreams.item_id = items.id
+      AND bytestreams.bytestream_type = 0) AS pres_filename,
   (SELECT repository_relative_pathname
     FROM bytestreams
     WHERE bytestreams.item_id = items.id
       AND bytestreams.bytestream_type = 1) AS access_pathname,
+  (SELECT substring(repository_relative_pathname from '[^/]+$')
+    FROM bytestreams
+    WHERE bytestreams.item_id = items.id
+      AND bytestreams.bytestream_type = 1) AS access_filename,
   items.variant,
   items.page_number,
   items.subpage_number,
@@ -243,7 +251,7 @@ SELECT items.repository_id,
       SELECT replace(replace(coalesce(value, '') || '&&<' || coalesce(uri, '') || '>', '&&<>', ''), '||&&', '')
         FROM item_elements
         WHERE item_elements.item_id = items.id
-          AND (item_elements.vocabulary_id = XX)
+          AND (item_elements.vocabulary_id = 11)
           AND item_elements.name = 'subject'
           AND (value IS NOT NULL OR uri IS NOT NULL)
           AND (length(value) > 0 OR length(uri) > 0)
@@ -285,11 +293,21 @@ LIMIT 1000;
         WHERE bytestreams.item_id = items.id
           AND bytestreams.bytestream_type = #{Bytestream::Type::PRESERVATION_MASTER})
             AS pres_pathname,
+      (SELECT substring(repository_relative_pathname from '[^/]+$')
+        FROM bytestreams
+        WHERE bytestreams.item_id = items.id
+          AND bytestreams.bytestream_type = #{Bytestream::Type::PRESERVATION_MASTER})
+            AS pres_filename,
       (SELECT repository_relative_pathname
         FROM bytestreams
         WHERE bytestreams.item_id = items.id
           AND bytestreams.bytestream_type = #{Bytestream::Type::ACCESS_MASTER})
             AS access_pathname,
+      (SELECT substring(repository_relative_pathname from '[^/]+$')
+        FROM bytestreams
+        WHERE bytestreams.item_id = items.id
+          AND bytestreams.bytestream_type = #{Bytestream::Type::ACCESS_MASTER})
+            AS access_filename,
       items.variant,
       items.page_number,
       items.subpage_number,

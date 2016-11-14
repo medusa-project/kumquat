@@ -69,8 +69,9 @@ class Item < ActiveRecord::Base
   end
 
   NON_DESCRIPTIVE_TSV_COLUMNS = %w(uuid parentId preservationMasterPathname
-    accessMasterPathname variant pageNumber subpageNumber latitude longitude
-    contentdmAlias contentdmPointer)
+    preservationMasterFilename accessMasterPathname accessMasterFilename
+    variant pageNumber subpageNumber latitude longitude contentdmAlias
+    contentdmPointer)
   TSV_LINE_BREAK = "\n"
   TSV_MULTI_VALUE_SEPARATOR = '||'
   TSV_URI_VALUE_SEPARATOR = '&&'
@@ -113,13 +114,8 @@ class Item < ActiveRecord::Base
   # Returns a tab-separated list of applicable technical elements, plus one
   # column per element definition in the item's collection's metadata profile.
   #
-  # Headings are guaranteed to be consistent with the output of to_tsv as long
-  # as the passed-in MetadataProfile is the same as the one assigned to an
-  # item's collection.
-  #
   # @param metadata_profile [MetadataProfile]
   # @return [String] Tab-separated values with trailing newline.
-  # @see to_tsv
   #
   def self.tsv_header(metadata_profile)
     columns = NON_DESCRIPTIVE_TSV_COLUMNS
