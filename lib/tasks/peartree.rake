@@ -8,7 +8,7 @@ namespace :peartree do
   desc 'Clear stale tasks'
   task :clear_stale_tasks => :environment do |task, args|
     Task.where(status: [Task::Status::WAITING, Task::Status::RUNNING]).
-        where('updated_at < ?', 1.day.ago).destroy_all
+        where(started_at: nil).destroy_all
   end
 
   desc 'Clear tasks'

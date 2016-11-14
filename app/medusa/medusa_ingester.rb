@@ -108,7 +108,8 @@ class MedusaIngester
   #
   def count_tree_nodes(cfs_dir, count = 0)
     cfs_dir.directories.each do |dir|
-      count += count_tree_nodes(dir, count)
+      count += 1
+      count = count_tree_nodes(dir, count)
     end
     count += cfs_dir.files.length
     count
@@ -141,12 +142,12 @@ class MedusaIngester
     # @param status [Hash]
     # @param task [Task] Supply to receive status updates.
     # @param num_nodes [Integer]
-    # @param num_walked [Integer] For internal use.
-    # @return [Hash<Symbol,Integer>] Hash with :num_created, :num_updated, and
-    #                                :num_skipped keys.
+    # @return [Hash<Symbol,Integer>] Hash with :num_created, :num_updated,
+    #                                :num_skipped, and :num_walked keys.
     #
-    def walk_tree(collection, cfs_dir, top_cfs_dir, options, status,
-                  task = nil, num_nodes = 0, num_walked = 0)
+    def create_free_form_items_in_tree(collection, cfs_dir, top_cfs_dir,
+                                       options, status, task = nil,
+                                       num_nodes = 0)
       cfs_dir.directories.each do |dir|
         item = Item.find_by_repository_id(dir.uuid)
         if item
@@ -169,13 +170,12 @@ class MedusaIngester
         end
 
         if task
-          task.update(percent_complete: num_walked / num_nodes.to_f)
+          task.update(percent_complete: status[:num_walked] / num_nodes.to_f)
         end
 
-        num_walked += 1
-
-        walk_tree(collection, dir, top_cfs_dir, options, status, task,
-                  num_nodes, num_walked)
+        status[:num_walked] += 1
+        create_free_form_items_in_tree(collection, dir, top_cfs_dir, options,
+                                       status, task, num_nodes)
       end
       cfs_dir.files.each do |file|
         item = Item.find_by_repository_id(file.uuid)
@@ -206,16 +206,18 @@ class MedusaIngester
         end
 
         if task
-          task.update(percent_complete: num_walked / num_nodes.to_f)
+          task.update(percent_complete: status[:num_walked] / num_nodes.to_f)
         end
-        num_walked += 1
+        status[:num_walked] += 1
       end
+      status
     end
 
-    status = { num_created: 0, num_updated: 0, num_skipped: 0 }
-    walk_tree(collection, collection.effective_medusa_cfs_directory,
-        collection.effective_medusa_cfs_directory, options, status, task,
-              num_nodes)
+    status = { num_created: 0, num_updated: 0, num_skipped: 0, num_walked: 0 }
+    create_free_form_items_in_tree(collection,
+                                   collection.effective_medusa_cfs_directory,
+                                   collection.effective_medusa_cfs_directory,
+                                   options, status, task, num_nodes)
     status
   end
 
@@ -484,10 +486,10 @@ class MedusaIngester
     # @param medusa_item_uuids [Set<String>]
     # @return [void]
     #
-    def walk_tree(cfs_dir, medusa_item_uuids)
+    def free_form_items_in_tree(cfs_dir, medusa_item_uuids)
       cfs_dir.directories.each do |dir|
         medusa_item_uuids << dir.uuid
-        walk_tree(dir, medusa_item_uuids)
+        free_form_items_in_tree(dir, medusa_item_uuids)
       end
       cfs_dir.files.each do |file|
         medusa_item_uuids << file.uuid
@@ -495,7 +497,7 @@ class MedusaIngester
     end
 
     medusa_item_uuids = Set.new
-    walk_tree(cfs_dir, medusa_item_uuids)
+    free_form_items_in_tree(cfs_dir, medusa_item_uuids)
     medusa_item_uuids
   end
 
@@ -664,14 +666,15 @@ class MedusaIngester
     # @param num_walked [Integer] For internal use.
     # @return [Hash<Symbol,Integer>] Hash with a :num_updated key.
     #
-    def walk_tree(cfs_dir, top_cfs_dir, stats, task = nil, num_nodes = 0,
-                  num_walked = 0)
+    def update_free_form_bytestreams_in_tree(cfs_dir, top_cfs_dir, stats,
+                                             task = nil, num_nodes = 0,
+                                             num_walked = 0)
       cfs_dir.directories.each do |dir|
         if task and num_walked % 10 == 0
           task.update(percent_complete: num_walked / num_nodes.to_f)
         end
         num_walked += 1
-        walk_tree(dir, top_cfs_dir, stats)
+        update_free_form_bytestreams_in_tree(dir, top_cfs_dir, stats)
       end
       cfs_dir.files.each do |file|
         if task and num_walked % 10 == 0
@@ -695,8 +698,9 @@ class MedusaIngester
     end
 
     stats = { num_updated: 0 }
-    walk_tree(collection.effective_medusa_cfs_directory,
-              collection.effective_medusa_cfs_directory, stats, task, num_nodes)
+    update_free_form_bytestreams_in_tree(
+        collection.effective_medusa_cfs_directory,
+        collection.effective_medusa_cfs_directory, stats, task, num_nodes)
     stats
   end
 

@@ -2,6 +2,7 @@
   "options": {
     "pagingEnabled": true,
     "pagingOptionEnabled": true,
+    "saveUserSettings": true,
     "searchWithinEnabled": false,
     "termsOfUseEnabled": false,
     "useArrowKeysToNavigate": true
@@ -27,6 +28,7 @@
     },
     "seadragonCenterPanel": {
       "options": {
+        "attributionEnabled": false,
         "immediateRender": true,
         "navigatorPosition": "TOP_RIGHT",
         "showHomeControl": true
