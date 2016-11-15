@@ -243,6 +243,16 @@ body#items_show {
   }
 
   #pt-embed-image-modal {
+    #pt-image-select {
+      height: 330px;
+      overflow-y: scroll;
+      input[type=radio] {
+        margin-top: 50px;
+      }
+      img {
+        width: 30%;
+      }
+    }
     #iiif-download {
       div.radio {
         margin-right: 0.4em;

@@ -129,33 +129,50 @@ var PTItemView = function() {
      */
     var PTEmbedPanel = function() {
 
-        var NUM_SIZE_TIERS = 6;
         var MIN_SIZE = 200;
+        var NUM_SIZE_TIERS = 6;
 
-        var embed_modal_loaded = false;
+        var modal_loaded = false;
 
         var init = function() {
             var embed_modal = $('#pt-embed-image-modal');
             embed_modal.on('show.bs.modal', function() {
-                if (embed_modal_loaded) {
+                if (modal_loaded) {
                     return;
                 }
-                loadIiifInfo(renderContents);
-                embed_modal_loaded = true;
+
+                $('input[type=radio][name=pt-embeddable-item]').on('click', function() {
+                    loadIiifInfo();
+                });
+                loadIiifInfo();
+
+                modal_loaded = true;
             });
         }; init();
 
-        var loadIiifInfo = function(callback) {
+        var loadIiifInfo = function() {
+            // Find the info URL to load; it may be in a radio (for compound
+            // objects) or hidden input (for single items).
+            var input = $('input[name=pt-embeddable-item]');
+            var tmp = input.filter(':checked');
+            if (tmp.length > 0) {
+                input = tmp;
+            }
+
             $.ajax({
                 dataType: 'json',
-                url: $('input[name="iiif-download-info-json-url"]').val(),
+                url: input.data('iiif-info-url'),
                 data: null,
-                success: callback
+                success: function(data) {
+                    renderContents(input.data('iiif-url'), data,
+                        input.data('title'));
+                }
             });
         };
 
-        var renderContents = function(iiif_info) {
+        var renderContents = function(iiif_url, iiif_info, item_title) {
             var container = $('#iiif-download');
+            container.empty();
             var full_width = iiif_info['width'];
             var num_sizes = iiif_info['sizes'].length;
 
@@ -172,8 +189,8 @@ var PTItemView = function() {
 
             // Create a button for each size tier up to the maximum.
             for (var i = 0, size_i = 0; i < num_sizes; i++) {
-                var width = iiif_info['sizes'][i]['width'];
-                var height = iiif_info['sizes'][i]['height'];
+                width = iiif_info['sizes'][i]['width'];
+                height = iiif_info['sizes'][i]['height'];
 
                 if (width >= MIN_SIZE && height >= MIN_SIZE) {
                     var size_class = 'pt-size-' +
@@ -243,9 +260,8 @@ var PTItemView = function() {
                 var size = embed_modal.find('input[name="size"]:checked').val();
                 var quality = embed_modal.find('input[name="quality"]:checked').val();
                 var format = embed_modal.find('input[name="format"]:checked').val();
-                var url = $('input[name="iiif-download-url"]').val() +
-                    '/full/' + size + '/0/' + quality + '.' + format;
-                var title = $('h1.pt-title').text().trim().replace(/"/g, '&quot;');
+                var url = iiif_url + '/full/' + size + '/0/' + quality + '.' + format;
+                var title = item_title.trim().replace(/"/g, '&quot;');
 
                 $('#pt-preview-link').attr('href', url).show();
                 $('#pt-embed-link').val('<img src="' + url + '" alt="' + title + '">');
