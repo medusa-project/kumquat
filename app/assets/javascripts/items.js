@@ -130,7 +130,7 @@ var PTItemView = function() {
     var PTEmbedPanel = function() {
 
         var MIN_SIZE = 200;
-        var NUM_SIZE_TIERS = 6;
+        var NUM_BUTTON_SIZE_TIERS = 6;
 
         var modal_loaded = false;
 
@@ -194,7 +194,7 @@ var PTItemView = function() {
 
                 if (width >= MIN_SIZE && height >= MIN_SIZE) {
                     var size_class = 'pt-size-' +
-                        Math.ceil(size_i / num_usable_sizes * NUM_SIZE_TIERS);
+                        Math.ceil(size_i / num_usable_sizes * NUM_BUTTON_SIZE_TIERS);
                     var percent = Math.round(width / full_width * 100);
                     var checked = (size_i == 0) ? 'checked' : '';
                     var active = (size_i == 0) ? 'active' : '';

@@ -244,7 +244,7 @@ body#items_show {
 
   #pt-embed-image-modal {
     #pt-image-select {
-      height: 330px;
+      max-height: 500px;
       overflow-y: scroll;
       input[type=radio] {
         margin-top: 50px;
@@ -293,7 +293,7 @@ body#items_show {
       font-family: monospace;
     }
     textarea#pt-embed-link {
-      height: 16em;
+      height: 18em;
     }
   }
 
