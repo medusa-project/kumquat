@@ -2,7 +2,7 @@
 
 <div class="modal fade" id="pt-embed-image-modal" tabindex="-1" role="dialog"
      aria-labelledby="pt-embed-image-modal-label" data-backdrop="false">
-  <div class="modal-dialog" role="document">
+  <div class="modal-dialog <%= item.is_compound? ? 'modal-lg' : '' %>" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -12,17 +12,49 @@
       </div>
       <div class="modal-body">
         <div class="row">
-          <div class="col-sm-6">
-            <input type="hidden" name="iiif-download-url"
-                   value="<%= item.iiif_url %>">
-            <input type="hidden" name="iiif-download-info-json-url"
-                   value="<%= item.iiif_info_url %>">
-            <div id="iiif-download"></div>
-          </div>
-          <div class="col-sm-6">
-            <h4>HTML code <a href="" id="pt-preview-link" class="btn btn-xs btn-default" target="_blank">Preview</a></h4>
-            <textarea id="pt-embed-link" readonly class="form-control"></textarea>
-          </div>
+          <% if item.is_compound? %>
+            <div id="pt-image-select" class="col-sm-4">
+              <h4>Select an Image&hellip;</h4>
+              <% item.items_from_solr.
+                  order(Item::SolrFields::PAGE_NUMBER, Item::SolrFields::TITLE).
+                  limit(9999).to_a.each_with_index do |subitem, index| %>
+                <div class="radio">
+                  <label>
+                    <%= radio_button_tag('pt-embeddable-item', nil,
+                                         (index == 0),
+                                         data: {
+                                             'iiif-url': subitem.iiif_url,
+                                             'iiif-info-url': subitem.iiif_info_url,
+                                             title: subitem.title
+                                         }) %>
+                    <%= thumbnail_tag(subitem) %>
+                    <%= subitem.title %>
+                  </label>
+                </div>
+              <% end %>
+            </div>
+            <div class="col-sm-4">
+              <h4>Image Options&hellip;</h4>
+              <div id="iiif-download"></div>
+            </div>
+            <div class="col-sm-4">
+              <%= render partial: 'embed_image_panel_code',
+                         locals: { item: item } %>
+            </div>
+          <% else %>
+            <div class="col-sm-6">
+              <%= hidden_field_tag('pt-embeddable-item', nil, data: {
+                  'iiif-url': item.iiif_url,
+                  'iiif-info-url': item.iiif_info_url,
+                  title: item.title
+              }) %>
+              <div id="iiif-download"></div>
+            </div>
+            <div class="col-sm-6">
+              <%= render partial: 'embed_image_panel_code',
+                         locals: { item: item } %>
+            </div>
+          <% end %>
         </div>
         <hr>
         <h4>Link to this item</h4>
