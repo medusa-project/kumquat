@@ -17,6 +17,7 @@
               <h4>Select an Image&hellip;</h4>
               <div id="pt-image-select">
                 <% item.items_from_solr.
+                    filter(Item::SolrFields::ACCESS_MASTER_MEDIA_TYPE => '(image/*)').
                     order(Item::SolrFields::PAGE_NUMBER, Item::SolrFields::TITLE).
                     limit(9999).to_a.each_with_index do |subitem, index| %>
                   <div class="radio">
