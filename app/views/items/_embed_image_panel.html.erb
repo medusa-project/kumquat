@@ -13,25 +13,27 @@
       <div class="modal-body">
         <div class="row">
           <% if item.is_compound? %>
-            <div id="pt-image-select" class="col-sm-4">
+            <div class="col-sm-4">
               <h4>Select an Image&hellip;</h4>
-              <% item.items_from_solr.
-                  order(Item::SolrFields::PAGE_NUMBER, Item::SolrFields::TITLE).
-                  limit(9999).to_a.each_with_index do |subitem, index| %>
-                <div class="radio">
-                  <label>
-                    <%= radio_button_tag('pt-embeddable-item', nil,
-                                         (index == 0),
-                                         data: {
-                                             'iiif-url': subitem.iiif_url,
-                                             'iiif-info-url': subitem.iiif_info_url,
-                                             title: subitem.title
-                                         }) %>
-                    <%= thumbnail_tag(subitem) %>
-                    <%= subitem.title %>
-                  </label>
-                </div>
-              <% end %>
+              <div id="pt-image-select">
+                <% item.items_from_solr.
+                    order(Item::SolrFields::PAGE_NUMBER, Item::SolrFields::TITLE).
+                    limit(9999).to_a.each_with_index do |subitem, index| %>
+                  <div class="radio">
+                    <label>
+                      <%= radio_button_tag('pt-embeddable-item', nil,
+                                           (index == 0),
+                                           data: {
+                                               'iiif-url': subitem.iiif_url,
+                                               'iiif-info-url': subitem.iiif_info_url,
+                                               title: subitem.title
+                                           }) %>
+                      <%= thumbnail_tag(subitem) %>
+                      <%= subitem.title %>
+                    </label>
+                  </div>
+                <% end %>
+              </div>
             </div>
             <div class="col-sm-4">
               <h4>Image Options&hellip;</h4>
