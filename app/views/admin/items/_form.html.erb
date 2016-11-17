@@ -73,6 +73,13 @@
               <%= f.text_field(:contentdm_pointer, class: 'form-control') %>
             </td>
           </tr>
+          <tr>
+            <td>Embed Tag</td>
+            <td>
+              <%= f.text_area(:embed_tag, class: 'form-control') %>
+              <p class="help-block">If present, this will override the viewer.</p>
+            </td>
+          </tr>
         </tbody>
       </table>
     </div>

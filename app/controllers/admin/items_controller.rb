@@ -280,8 +280,8 @@ module Admin
       # Metadata elements are not included here, as they are processed
       # separately.
       params.require(:item).permit(:id, :contentdm_alias, :contentdm_pointer,
-                                   :full_text, :latitude, :longitude,
-                                   :page_number, :published,
+                                   :embed_tag, :full_text, :latitude,
+                                   :longitude, :page_number, :published,
                                    :representative_item_id, :subpage_number,
                                    :variant, allowed_role_ids: [],
                                    denied_role_ids: [])

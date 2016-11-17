@@ -167,7 +167,8 @@ module ItemsHelper
   #
   def has_viewer?(item)
     # This logic needs to be kept in sync with viewer_for().
-    if item.is_pdf? or item.is_image? or item.is_audio? or item.is_video?
+    if item.embed_tag.present? or item.is_pdf? or item.is_image? or
+        item.is_audio? or item.is_video?
       return true
     elsif item.is_text?
       bs = item.access_master_bytestream || item.preservation_master_bytestream
@@ -1008,7 +1009,16 @@ module ItemsHelper
   #
   def viewer_for(item)
     # This logic needs to be kept in sync with has_viewer?().
-    if item.is_compound?
+    if item.embed_tag.present?
+      # Replace hard-coded width/height attribute values.
+      frag = Nokogiri::HTML::DocumentFragment.parse(item.embed_tag)
+      frag.xpath('.//@width').remove
+      frag.xpath('.//@height').remove
+      # These must be kept in sync with the viewer CSS dimensions.
+      frag.xpath('.//*').first['width'] = '100%'
+      frag.xpath('.//*').first['height'] = '400'
+      return raw(frag.to_html.strip)
+    elsif item.is_compound?
       return compound_viewer_for(item)
     elsif item.is_pdf?
       return pdf_viewer_for(item)
