@@ -159,6 +159,10 @@
 
       <div role="tabpanel" class="tab-pane" id="pt-viewer">
         <%= viewer_for(@item) %>
+        <% if @item.embed_tag.present? %>
+          <h2>Embed Tag</h2>
+          <p><%= @item.embed_tag %></p>
+        <% end %>
       </div>
 
       <div role="tabpanel" class="tab-pane" id="pt-full-text">
