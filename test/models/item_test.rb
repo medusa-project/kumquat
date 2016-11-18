@@ -497,7 +497,8 @@ class ItemTest < ActiveSupport::TestCase
         'cats' + Item::TSV_URI_VALUE_SEPARATOR + '<http://example.org/cats1>' +
         Item::TSV_MULTI_VALUE_SEPARATOR +
         'and more cats' + Item::TSV_URI_VALUE_SEPARATOR + '<http://example.org/cats2>'
-    row['title'] = 'Cats'
+    row['title'] = 'Cats & Stuff'
+    row['lcsh:subject'] = 'Cats'
 
     @item.update_from_tsv(row)
 
@@ -510,15 +511,15 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal 1, @item.subpage_number
     assert_equal Item::Variants::PAGE, @item.variant
 
-    descriptions = @item.elements.select{ |e| e.name == 'description' }
-    assert_equal 3, descriptions.length
-    assert_equal 1, descriptions.select{ |e| e.value == 'Cats' }.length
-    assert_equal 1, descriptions.select{ |e| e.value == 'cats' and
-        e.uri == 'http://example.org/cats1' }.length
-    assert_equal 1, descriptions.select{ |e| e.value == 'and more cats' and
-        e.uri == 'http://example.org/cats2' }.length
-
-    assert_equal('Cats', @item.title)
+    assert_equal 6, @item.elements.length # all of the above plus date
+    assert_equal 1, @item.elements.select{ |e| e.name == 'title' and
+        e.value == 'Cats & Stuff' }.length
+    assert_equal 1, @item.elements.select{ |e| e.name == 'description' and
+        e.value == 'cats' and e.uri == 'http://example.org/cats1' }.length
+    assert_equal 1, @item.elements.select{ |e| e.name == 'description' and
+        e.value == 'and more cats' and e.uri == 'http://example.org/cats2' }.length
+    assert_equal 1, @item.elements.select{ |e| e.name == 'subject' and
+        e.value == 'Cats' and e.vocabulary == vocabularies(:lcsh) }.length
   end
 
   test 'update_from_tsv should raise an error if given an invalid element name' do
