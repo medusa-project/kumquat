@@ -82,12 +82,11 @@ class EntityFinder < AbstractFinder
     elsif metadata_profile.default_sortable_element
       sort = metadata_profile.default_sortable_element.solr_single_valued_field
     end
-    if sort == :random
-      @results = @results.order(sort)
-    elsif sort
-      @results = @results.order("#{sort} asc")
+    if sort.join('').length > 0
+      @results = @results.order(*sort)
     else
-      @results = @results.order("#{Configuration.instance.solr_class_field} asc, score desc")
+      @results = @results.order({ Configuration.instance.solr_class_field => :asc },
+                                { 'score' => :desc })
     end
 
     @results = @results.operator(:and).start(@start).limit(@limit)

@@ -160,12 +160,11 @@ class Relation
   # * order('field1 asc, field2 asc')
   # * order({field1: :asc}, {field2: :asc})
   #
-  # @param order [String, Symbol, Hash] Supply :random to sort randomly.
-  # @param more_orders [String]
+  # @param orders [String, Symbol, Hash] Supply :random to sort randomly.
   # @return [Relation] self
   # @raises [ArgumentError]
   #
-  def order(order, *more_orders)
+  def order(*orders)
     reset_results
 
     def format_order(order)
@@ -182,7 +181,7 @@ class Relation
       end
       string
     end
-    @order = ([order] + more_orders).map{ |o| format_order(o) }.join(', ')
+    @order = orders.map{ |o| format_order(o) }.join(', ') if orders.any?
     self
   end
 

@@ -164,11 +164,7 @@ class ItemFinder < AbstractFinder
     elsif metadata_profile.default_sortable_element
       sort = metadata_profile.default_sortable_element.solr_single_valued_field
     end
-    if sort == :random
-      @items = @items.order(sort)
-    elsif sort
-      @items = @items.order("#{sort} asc")
-    end
+    @items = @items.order(*sort)
 
     @items = @items.operator(:and).start(@start).limit(@limit)
 

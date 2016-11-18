@@ -82,7 +82,7 @@ class CollectionFinder < AbstractFinder
         operator(:and).
         facetable_fields(Collection::solr_facet_fields.map{ |e| e[:name] }).
         filter(@filter_queries).
-        order(@sort).
+        order(*@sort).
         start(@start).
         limit(@limit)
 
