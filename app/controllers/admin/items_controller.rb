@@ -51,46 +51,48 @@ module Admin
         return
       end
 
+      @items = Item.solr.
+          filter(Item::SolrFields::COLLECTION => @collection.repository_id).
+          filter(Item::SolrFields::PARENT_ITEM => :null).
+          where(params[:q])
+
+      # fields
+      field_input_present = false
+      if params[:elements] and params[:elements].any?
+        params[:elements].each_with_index do |element, index|
+          if params[:terms].length > index and !params[:terms][index].blank?
+            @items = @items.where("#{element}:#{params[:terms][index]}")
+            field_input_present = true
+          end
+        end
+      end
+
+      if params[:published].present? and params[:published] != 'any'
+        @items = @items.filter(Item::SolrFields::PUBLISHED => params[:published].to_i ? 'true' : 'false')
+      end
+
+      @start = params[:start] ? params[:start].to_i : 0
+      @limit = Option::integer(Option::Key::RESULTS_PER_PAGE)
+
+      # if there is no user-entered query, sort by title. Otherwise, use
+      # the default sort, which is by relevance
+      unless field_input_present
+        @items = @items.order(ItemElement.named('title').solr_single_valued_field)
+      end
+      @items = @items.start(@start).limit(@limit)
+
+      @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
+      @num_results_shown = [@limit, @items.total_length].min
+
       respond_to do |format|
         format.html do
-          @items = Item.solr.
-              filter(Item::SolrFields::COLLECTION => @collection.repository_id).
-              filter(Item::SolrFields::PARENT_ITEM => :null).
-              where(params[:q])
-
-          # fields
-          field_input_present = false
-          if params[:elements] and params[:elements].any?
-            params[:elements].each_with_index do |element, index|
-              if params[:terms].length > index and !params[:terms][index].blank?
-                @items = @items.where("#{element}:#{params[:terms][index]}")
-                field_input_present = true
-              end
-            end
-          end
-
-          if params[:published].present? and params[:published] != 'any'
-            @items = @items.filter(Item::SolrFields::PUBLISHED => params[:published].to_i ? 'true' : 'false')
-          end
-
-          @start = params[:start] ? params[:start].to_i : 0
-          @limit = Option::integer(Option::Key::RESULTS_PER_PAGE)
-
-          # if there is no user-entered query, sort by title. Otherwise, use
-          # the default sort, which is by relevance
-          unless field_input_present
-            @items = @items.order(ItemElement.named('title').solr_single_valued_field)
-          end
-          @items = @items.start(@start).limit(@limit)
-          @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
-          @num_results_shown = [@limit, @items.total_length].min
-
           # These are used by the search form.
           @elements_for_select = MetadataProfileElement.order(:name).
               map{ |p| [p.label, p.solr_multi_valued_field] }.uniq
           @elements_for_select.
               unshift([ 'Any Element', Item::SolrFields::SEARCH_ALL ])
         end
+        format.js
         format.tsv do
           headers['Content-Disposition'] = 'attachment; filename="items.tsv"'
           headers['Content-Disposition'] = 'text/tab-separated-values'
