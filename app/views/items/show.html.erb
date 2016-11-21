@@ -134,7 +134,7 @@ side-by-side. (IMET-161) -->
 <% if @item.collection.package_profile == PackageProfile::FREE_FORM_PROFILE and
     @item.variant != Item::Variants::DIRECTORY %>
   <div class="row">
-    <div class="col-md-7 pt-split-viewer">
+    <div class="col-md-7 pt-viewer pt-split-viewer">
       <%= viewer_for(@item) %>
     </div>
     <div class="col-md-5">
@@ -144,7 +144,7 @@ side-by-side. (IMET-161) -->
     </div>
   </div>
 <% else %>
-  <div class="pt-full-viewer">
+  <div class="pt-viewer pt-full-viewer">
     <%= viewer_for(@item) %>
   </div>
 <% end %>
