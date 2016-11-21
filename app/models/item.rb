@@ -909,10 +909,7 @@ class Item < ActiveRecord::Base
       self.variant = row['variant'].strip if row['variant']
 
       # Descriptive metadata elements.
-      row.each do |heading, multi_value|
-        # Skip columns with an empty value.
-        next unless multi_value.present?
-
+      row.each do |heading, raw_value|
         # Vocabulary columns will have a heading of "vocabKey:elementName",
         # except uncontrolled columns which will have a heading of just
         # "elementName".
@@ -922,40 +919,20 @@ class Item < ActiveRecord::Base
         # Skip non-descriptive columns.
         next if NON_DESCRIPTIVE_TSV_COLUMNS.include?(element_name)
 
+        # Get the vocabulary based on the column heading.
+        vocabulary = nil
+        if heading_parts.length > 1
+          vocabulary = Vocabulary.find_by_key(heading_parts.first)
+          unless vocabulary
+            raise ArgumentError, "Column contains an unrecognized vocabulary "\
+                "key: #{heading_parts.first}"
+          end
+        end
+
         # To avoid data loss, we will accept any available descriptive element,
         # whether or not it is present in the collection's metadata profile.
-        if ItemElement.all_descriptive.map(&:name).include?(element_name)
-          multi_value.split(TSV_MULTI_VALUE_SEPARATOR).select(&:present?).each do |raw_value|
-            e = ItemElement.named(element_name)
-            # raw_value may be an arbitrary string; it may be a URI (enclosed
-            # in angle brackets); or it may be both, joined with
-            # TSV_URI_VALUE_SEPARATOR.
-            value_parts = raw_value.split(TSV_URI_VALUE_SEPARATOR)
-            value_parts.each do |part|
-              if part.start_with?('<') and part.end_with?('>') and part.length > 2
-                e.uri = part[1..part.length - 2]
-              elsif part.present?
-                e.value = part
-              end
-            end
-
-            # Assign the correct vocabulary.
-            if heading_parts.length > 1
-              e.vocabulary = Vocabulary.find_by_key(heading_parts.first)
-              # Disallow invalid vocabularies.
-              unless e.vocabulary
-                raise ArgumentError,
-                      "Column contains an unrecognized vocabulary key: #{heading}"
-              end
-            else
-              e.vocabulary = Vocabulary.uncontrolled
-            end
-            self.elements << e
-          end
-        else
-          raise ArgumentError,
-                "Column contains an unrecognized element name: #{element_name}"
-        end
+        self.elements += ItemElement::elements_from_tsv_string(
+            element_name, raw_value, vocabulary)
       end
       self.save!
     end

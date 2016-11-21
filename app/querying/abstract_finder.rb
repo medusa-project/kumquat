@@ -85,11 +85,11 @@ class AbstractFinder
   end
 
   ##
-  # @param string [String]
+  # @param orders [String]
   # @return [self]
   #
-  def sort(string)
-    @sort = string
+  def sort(*orders)
+    @sort = orders
     self
   end
 

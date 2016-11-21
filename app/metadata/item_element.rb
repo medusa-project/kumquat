@@ -29,7 +29,7 @@ class ItemElement < ActiveRecord::Base
   validates_presence_of :name
 
   ##
-  # @return [Array<ItemElement>]
+  # @return [Enumerable<ItemElement>]
   #
   def self.all_available
     # Technical elements
@@ -42,12 +42,58 @@ class ItemElement < ActiveRecord::Base
   end
 
   ##
-  # @return [Array<ItemElement>]
+  # @return [Enumerable<ItemElement>]
   #
   def self.all_descriptive
     Element.all.map do |elem|
       ItemElement.new(name: elem.name, type: Type::DESCRIPTIVE)
     end
+  end
+
+  ##
+  # @param element_name [String] Element name
+  # @param string [String] TSV string
+  # @param vocabulary_override [Vocabulary] Optionally override any voabularies
+  #                                         specified in the string with this
+  #                                         one.
+  # @return [Enumerable<ItemElement>]
+  # @raises [ArgumentError] If an element with the given name does not exist,
+  #                         or an invalid vocabulary key is provided.
+  #
+  def self.elements_from_tsv_string(element_name, string,
+      vocabulary_override = nil)
+    unless ItemElement.all_descriptive.map(&:name).include?(element_name)
+      raise ArgumentError, "Element does not exist: #{element_name}"
+    end
+
+    elements = []
+    string.split(Item::TSV_MULTI_VALUE_SEPARATOR).select(&:present?).each do |raw_value|
+      e = ItemElement.named(element_name)
+      # raw_value may be an arbitrary string; it may be a URI (enclosed
+      # in angle brackets); or it may be both, joined with
+      # Item::TSV_URI_VALUE_SEPARATOR.
+      value_parts = raw_value.split(Item::TSV_URI_VALUE_SEPARATOR)
+      value_parts.each do |part|
+        if part.start_with?('<') and part.end_with?('>') and part.length > 2
+          e.uri = part[1..part.length - 2]
+        elsif part.present?
+          # part may be prefixed with a vocabulary key.
+          subparts = part.split(':')
+          if subparts.length > 1
+            e.vocabulary = vocabulary_override || Vocabulary.find_by_key(subparts[0])
+            if e.vocabulary.nil?
+              raise ArgumentError, "Vocabulary does not exist: #{subparts[0]}"
+            end
+            e.value = subparts[1..subparts.length].join(':')
+          else
+            e.vocabulary = vocabulary_override || Vocabulary::uncontrolled
+            e.value = part
+          end
+        end
+      end
+      elements << e
+    end
+    elements
   end
 
   ##
