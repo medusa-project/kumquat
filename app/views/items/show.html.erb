@@ -174,7 +174,7 @@ side-by-side. (IMET-161) -->
   </section>
 <% end %>
 
-<% @item.bytestreams.select{ |bs| bs.metadata.any? }.each do |bs| %>
+<% @item.bytestreams.each do |bs| %>
   <section>
     <h2>
       <a role="button" data-toggle="collapse" href="#pt-bytestream-<%= bs.id %>"
