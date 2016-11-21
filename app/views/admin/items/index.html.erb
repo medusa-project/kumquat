@@ -6,13 +6,6 @@
 
 <h1>Items in <%= @collection.title %></h1>
 
-<div class="well pt-search">
-  <%= render partial: 'search_panel',
-             locals: { elements_for_select: @elements_for_select,
-                       collections: @collections,
-                       params: params } %>
-</div>
-
 <div class="clearfix" style="margin-bottom: 1em">
   <div class="btn-group pull-right" role="group">
     <!-- Sync button -->
