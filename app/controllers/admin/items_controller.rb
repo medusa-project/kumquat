@@ -55,9 +55,7 @@ module Admin
           query(params[:q]).
           include_children(true).
           filter_queries(params[:fq]).
-          sort({ Item::SolrFields::PARENT_ITEM => :asc }, # TODO: fix
-               { Item::SolrFields::PAGE_NUMBER => :asc },
-               { Item::SolrFields::SUBPAGE_NUMBER => :asc }).
+          sort(Item::SolrFields::COMPOUND_SORT => :asc).
           start(@start).
           limit(@limit)
       @items = finder.to_a

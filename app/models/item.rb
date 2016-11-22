@@ -41,6 +41,9 @@ class Item < ActiveRecord::Base
     EFFECTIVE_ALLOWED_ROLES = 'effective_allowed_roles_sim'
     EFFECTIVE_DENIED_ROLES = 'effective_denied_roles_sim'
     FULL_TEXT = 'full_text_txti'
+    # Concatenation of various compound object page components (see to_solr())
+    # used for sorting compound object components in correct order.
+    COMPOUND_SORT = 'compound_sort_natsort_en_i'
     ID = 'id'
     LAST_MODIFIED = 'last_modified_dti'
     LAT_LONG = 'lat_long_loc'
@@ -808,6 +811,17 @@ class Item < ActiveRecord::Base
     doc[SolrFields::COLLECTION] = self.collection_repository_id
     doc[SolrFields::COLLECTION_PUBLISHED] = (self.collection.published and
         self.collection.published_in_dls)
+    unless [Variants::FILE, Variants::DIRECTORY].include?(self.variant)
+      # parents: (repository ID)-(variant)-(page)-(subpage)-(title)
+      # children: (parent ID)-(variant)-(page)-(subpage)-(title)
+      nil_component_token = 'ZZZZZZZZZZZZ'
+      doc[SolrFields::COMPOUND_SORT] =
+          "#{self.parent_repository_id.present? ? self.parent_repository_id : self.repository_id}-"\
+          "#{self.variant.present? ? self.variant : nil_component_token}-"\
+          "#{self.page_number.present? ? self.page_number : nil_component_token}-"\
+          "#{self.subpage_number.present? ? self.subpage_number : nil_component_token}-"\
+          "#{self.title.present? ? self.title : nil_component_token}"
+    end
     doc[SolrFields::DATE] = self.date.utc.iso8601 if self.date
     doc[SolrFields::EFFECTIVE_ALLOWED_ROLES] =
         self.effective_allowed_roles.map(&:key)
