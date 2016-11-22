@@ -814,13 +814,14 @@ class Item < ActiveRecord::Base
     unless [Variants::FILE, Variants::DIRECTORY].include?(self.variant)
       # parents: (repository ID)-(variant)-(page)-(subpage)-(title)
       # children: (parent ID)-(variant)-(page)-(subpage)-(title)
-      nil_component_token = 'ZZZZZZZZZZZZ'
+      sort_first_token = '000000'
+      sort_last_token = 'ZZZZZZ'
       doc[SolrFields::COMPOUND_SORT] =
           "#{self.parent_repository_id.present? ? self.parent_repository_id : self.repository_id}-"\
-          "#{self.variant.present? ? self.variant : nil_component_token}-"\
-          "#{self.page_number.present? ? self.page_number : nil_component_token}-"\
-          "#{self.subpage_number.present? ? self.subpage_number : nil_component_token}-"\
-          "#{self.title.present? ? self.title : nil_component_token}"
+          "#{self.variant.present? ? self.variant : sort_first_token}-"\
+          "#{self.page_number.present? ? self.page_number : sort_last_token}-"\
+          "#{self.subpage_number.present? ? self.subpage_number : sort_last_token}-"\
+          "#{self.title.present? ? self.title : sort_last_token}"
     end
     doc[SolrFields::DATE] = self.date.utc.iso8601 if self.date
     doc[SolrFields::EFFECTIVE_ALLOWED_ROLES] =

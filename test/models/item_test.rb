@@ -423,7 +423,7 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal @item.class.to_s, doc[Item::SolrFields::CLASS]
     assert_equal @item.collection_repository_id,
                  doc[Item::SolrFields::COLLECTION]
-    assert_equal "#{@item.repository_id}-ZZZZZZZZZZZZ-ZZZZZZZZZZZZ-ZZZZZZZZZZZZ-ZZZZZZZZZZZZ-#{@item.title}",
+    assert_equal "#{@item.repository_id}-000000-ZZZZZZ-ZZZZZZ-#{@item.title}",
                  doc[Item::SolrFields::COMPOUND_SORT]
     assert doc[Item::SolrFields::COLLECTION_PUBLISHED]
     assert_equal @item.date.utc.iso8601, doc[Item::SolrFields::DATE]
