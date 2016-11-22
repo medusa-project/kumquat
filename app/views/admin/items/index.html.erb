@@ -23,6 +23,9 @@
       </button>
       <ul class="dropdown-menu" role="menu">
         <li <%= @collection.metadata_profile ? '' : 'disabled="disabled"' %>>
+          <%= link_to 'Edit', admin_collection_items_edit_path(@collection) %>
+        </li>
+        <li <%= @collection.metadata_profile ? '' : 'disabled="disabled"' %>>
           <%= link_to raw('Batch Change&hellip;'), '',
                       'data-toggle': 'modal', 'data-target': '#pt-batch-change-modal' %>
         </li>

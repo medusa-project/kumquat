@@ -1,0 +1,16 @@
+<% provide :body_id, 'items_edit_all' %>
+<% provide :active_nav, 'entities' %>
+
+<%= admin_breadcrumb(collection: @collection) %>
+
+<h1>Edit Items</h1>
+
+<p>Metadata profile: <%= link_to @metadata_profile.name,
+                                 admin_metadata_profile_path(@metadata_profile) %></p>
+
+<%= form_tag(controller: 'admin/items', action: 'update_all', method: :post) do %>
+  <div id="pt-items">
+    <%= render partial: 'edit_all_items' %>
+  </div>
+  <%= submit_tag('Save Changes', class: 'btn btn-primary') %>
+<% end %>

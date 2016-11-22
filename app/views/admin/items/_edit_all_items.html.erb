@@ -1,0 +1,39 @@
+<table class="table table-bordered">
+  <thead>
+    <tr>
+      <th></th>
+      <% @metadata_profile.elements.each do |pe| %>
+        <th>
+          <%= pe.label %>
+        </th>
+      <% end %>
+    </tr>
+  </thead>
+  <tbody>
+    <% @items.each do |item| %>
+      <tr>
+        <td class="pt-thumbnail">
+          <%= link_to admin_collection_item_path(item.collection, item), target: '_blank' do %>
+            <%= thumbnail_tag(item) %>
+          <% end %>
+        </td>
+        <% @metadata_profile.elements.each do |pe| %>
+          <td>
+            <% item_elements = item.elements.select{ |ie| ie.name == pe.name } %>
+            <% if item_elements.any? %>
+              <% item_elements.each do |ie| %>
+                <%= text_area_tag("items[#{item.repository_id}][#{pe.name}]", ie.value) %>
+              <% end %>
+            <% else %>
+              <%= text_area_tag("items[#{item.repository_id}][#{pe.name}]", '') %>
+            <% end %>
+          </td>
+        <% end %>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<div class="text-center">
+  <%= paginate_items(@items, @limit, @current_page) %>
+</div>

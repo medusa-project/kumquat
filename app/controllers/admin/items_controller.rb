@@ -40,6 +40,36 @@ module Admin
     end
 
     ##
+    # Responds to GET /admin/collections/:collection_id/items/edit
+    #
+    def edit_all
+      @collection = Collection.find_by_repository_id(params[:collection_id])
+      raise ActiveRecord::RecordNotFound unless @collection
+
+      @metadata_profile = @collection.effective_metadata_profile
+
+      @start = params[:start].to_i
+      @limit = Option::integer(Option::Key::RESULTS_PER_PAGE)
+      finder = ItemFinder.new.
+          collection_id(@collection.repository_id).
+          query(params[:q]).
+          include_children(true).
+          filter_queries(params[:fq]).
+          sort({ Item::SolrFields::PARENT_ITEM => :asc }, # TODO: fix
+               { Item::SolrFields::PAGE_NUMBER => :asc },
+               { Item::SolrFields::SUBPAGE_NUMBER => :asc }).
+          start(@start).
+          limit(@limit)
+      @items = finder.to_a
+      @current_page = finder.page
+
+      respond_to do |format|
+        format.html
+        format.js
+      end
+    end
+
+    ##
     # Responds to GET /admin/collections/:collection_id/items
     #
     def index
@@ -181,14 +211,6 @@ module Admin
     end
 
     ##
-    # Responds to GET/POST /admin/collections/:collection_id/items/search
-    #
-    def search
-      index
-      render 'index' if !params[:clear] and request.format == :html
-    end
-
-    ##
     # Responds to GET /admin/collections/:collection_id/items/:id
     #
     def show
@@ -269,6 +291,32 @@ module Admin
         flash['success'] = "Item \"#{item.title}\" updated."
         redirect_to edit_admin_collection_item_path(item.collection, item)
       end
+    end
+
+    ##
+    # Responds to POST /admin/items/update
+    #
+    def update_all
+      if params[:items].respond_to?(:each)
+        num_updated = 0
+        ActiveRecord::Base.transaction do
+          params[:items].each do |id, element_params|
+            item = Item.find_by_repository_id(id)
+            if item
+              item.elements.destroy_all
+              # Entry values (textarea contents) use the same syntax as TSV.
+              element_params.each do |name, entry_value|
+                item.elements += ItemElement.elements_from_tsv_string(name,
+                                                                      entry_value)
+              end
+              item.save
+              num_updated += 1
+            end
+          end
+        end
+        flash['success'] = "#{num_updated} items updated."
+      end
+      redirect_to :back
     end
 
     private
