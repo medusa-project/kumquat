@@ -66,6 +66,17 @@ class Item < ActiveRecord::Base
     PAGE = 'Page'
     TABLE_OF_CONTENTS = 'TableOfContents'
     TITLE = 'Title'
+
+    ##
+    # @return [Enumerable<String>] String values of all variants.
+    #
+    def self.all
+      all = []
+      self.constants.each do |const|
+        all << self.const_get(const)
+      end
+      all
+    end
   end
 
   NON_DESCRIPTIVE_TSV_COLUMNS = %w(uuid parentId preservationMasterPathname
