@@ -57,9 +57,8 @@
           <td>
             <% item_elements = item.elements.select{ |ie| ie.name == pe.name } %>
             <% if item_elements.any? %>
-              <% item_elements.each do |ie| %>
-                <%= text_area_tag("items[#{item.repository_id}][#{pe.name}]", ie.value) %>
-              <% end %>
+              <%= text_area_tag("items[#{item.repository_id}][#{pe.name}]",
+                                ItemElement::tsv_string_from_elements(item_elements)) %>
             <% else %>
               <%= text_area_tag("items[#{item.repository_id}][#{pe.name}]", '') %>
             <% end %>
