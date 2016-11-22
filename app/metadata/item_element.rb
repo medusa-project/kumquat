@@ -51,6 +51,11 @@ class ItemElement < ActiveRecord::Base
   end
 
   ##
+  # Parses a TSV value into a collection of elements.
+  #
+  # Example value:
+  # string1&&<http://example.org/string1>||string2&&<http://example.org/string2>||lcsh:string3
+  #
   # @param element_name [String] Element name
   # @param string [String] TSV string
   # @param vocabulary_override [Vocabulary] Optionally override any voabularies
@@ -61,7 +66,7 @@ class ItemElement < ActiveRecord::Base
   #                         or an invalid vocabulary key is provided.
   #
   def self.elements_from_tsv_string(element_name, string,
-      vocabulary_override = nil)
+                                    vocabulary_override = nil)
     unless ItemElement.all_descriptive.map(&:name).include?(element_name)
       raise ArgumentError, "Element does not exist: #{element_name}"
     end
@@ -93,6 +98,41 @@ class ItemElement < ActiveRecord::Base
       end
     end
     elements
+  end
+
+  ##
+  # @param elements [Enumerable<ItemElement>] Collection of elements. All must
+  #                                           have the same name.
+  # @return [String]
+  # @raises [ArgumentError] If elements with different names are provided.
+  #
+  def self.tsv_string_from_elements(elements)
+    if elements.to_a.map(&:name).uniq.length > 1
+      raise ArgumentError, 'Elements must all have the same name'
+    end
+
+    values = []
+    elements.each do |e|
+      string = e.value
+      if string.present? and e.vocabulary and
+          e.vocabulary != Vocabulary::uncontrolled
+        string = "#{e.vocabulary.key}:#{string}"
+      end
+      uri = e.uri
+      if uri.present?
+        uri = "<#{uri}>"
+      end
+      if string.present? and uri.present?
+        string = "#{string}#{Item::TSV_URI_VALUE_SEPARATOR}#{uri}"
+      end
+      if string.blank? and uri.present?
+        string = uri
+      end
+      if string.present?
+        values << string
+      end
+    end
+    values.join(Item::TSV_MULTI_VALUE_SEPARATOR)
   end
 
   ##
