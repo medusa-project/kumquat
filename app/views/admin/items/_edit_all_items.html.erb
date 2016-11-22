@@ -2,6 +2,7 @@
   <thead>
     <tr>
       <th></th>
+      <th></th>
       <% @metadata_profile.elements.each do |pe| %>
         <th>
           <%= pe.label %>
@@ -16,6 +17,38 @@
           <%= link_to admin_collection_item_path(item.collection, item), target: '_blank' do %>
             <%= thumbnail_tag(item) %>
           <% end %>
+        </td>
+        <td>
+          <%= select_tag("items[#{item.repository_id}][variant]",
+                         options_for_select(Item::Variants::all.map{ |v| [v.titleize, v] }, selected: item.variant),
+                         include_blank: true,
+                         class: 'form-control input-sm') %>
+          <div class="form-inline">
+            <div class="form-group">
+              <label>Page:
+                <%= number_field_tag("items[#{item.repository_id}][page]", item.page_number,
+                                     class: 'form-control input-sm') %>
+              </label>
+            </div>
+            <div class="form-group">
+              <label>Subpage:
+                <%= number_field_tag("items[#{item.repository_id}][subpage]", item.subpage_number,
+                                     class: 'form-control input-sm') %>
+              </label>
+            </div>
+          </div>
+          <div class="form-inline">
+            <div class="form-group">
+              <label>Lat:
+                <%= number_field_tag("items[#{item.repository_id}][latitude]", item.latitude,
+                                     class: 'form-control input-sm') %>
+              </label>
+              <label>Long:
+                <%= number_field_tag("items[#{item.repository_id}][longitude]", item.longitude,
+                                     class: 'form-control input-sm') %>
+              </label>
+            </div>
+          </div>
         </td>
         <% @metadata_profile.elements.each do |pe| %>
           <td>

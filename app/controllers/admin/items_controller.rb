@@ -49,7 +49,7 @@ module Admin
       @metadata_profile = @collection.effective_metadata_profile
 
       @start = params[:start].to_i
-      @limit = Option::integer(Option::Key::RESULTS_PER_PAGE)
+      @limit = 20
       finder = ItemFinder.new.
           collection_id(@collection.repository_id).
           query(params[:q]).
@@ -304,10 +304,28 @@ module Admin
               item.elements.destroy_all
               # Entry values (textarea contents) use the same syntax as TSV.
               element_params.each do |name, entry_value|
-                item.elements += ItemElement.elements_from_tsv_string(name,
-                                                                      entry_value)
+                case name
+                  when 'variant'
+                    item.variant = Item::Variants::all.include?(entry_value) ?
+                        entry_value : nil
+                  when 'page'
+                    item.page_number = entry_value.length > 0 ?
+                        entry_value.to_i : nil
+                  when 'subpage'
+                    item.subpage_number = entry_value.length > 0 ?
+                        entry_value.to_i : nil
+                  when 'latitude'
+                    item.latitude = entry_value.length > 0 ?
+                        entry_value.to_f : nil
+                  when 'longitude'
+                    item.longitude = entry_value.length > 0 ?
+                        entry_value.to_f : nil
+                  else
+                    item.elements += ItemElement.elements_from_tsv_string(name,
+                                                                          entry_value)
+                end
               end
-              item.save
+              item.save!
               num_updated += 1
             end
           end
