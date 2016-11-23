@@ -6,6 +6,8 @@
       <% @metadata_profile.elements.each do |pe| %>
         <th>
           <%= pe.label %>
+          <br>
+          (<%= pe.name %>)
         </th>
       <% end %>
     </tr>
