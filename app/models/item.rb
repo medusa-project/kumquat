@@ -293,6 +293,19 @@ class Item < ActiveRecord::Base
   end
 
   ##
+  # @return [Enumerable<Item>] All parents in order from closest to farthest.
+  #
+  def all_parents
+    parents = []
+    p = self.parent
+    while p
+      parents << p
+      p = p.parent
+    end
+    parents
+  end
+
+  ##
   # @return [String, nil] Value of the bibId element.
   #
   def bib_id
@@ -655,6 +668,7 @@ class Item < ActiveRecord::Base
 
   ##
   # @return [Item, nil]
+  # @see all_parents()
   # @see root_parent()
   #
   def parent
@@ -728,6 +742,7 @@ class Item < ActiveRecord::Base
   ##
   # @return [Item, nil]
   # @see parent()
+  # @see all_parents()
   #
   def root_parent
     p = self.parent
