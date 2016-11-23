@@ -240,9 +240,19 @@ body#items_edit_all {
     .pt-tree-connector {
       font-size: 30px;
     }
+    thead {
+      background-color: white;
+      position: -webkit-sticky;
+      position: -moz-sticky;
+      position: -ms-sticky;
+      position: -o-sticky;
+      position: sticky;
+      top: 40px;
+      z-index: 999;
+    }
     tbody {
       td {
-        height: 100px;
+        height: 150px;
         min-width: 100px;
         padding: 0px;
         textarea {
@@ -252,6 +262,16 @@ body#items_edit_all {
           resize: none;
         }
       }
+      /* This is too buggy in webkit, and doesn't work at all in firefox.
+      td:nth-child(1) {
+        background-color: white;
+        position: -webkit-sticky;
+        position: -moz-sticky;
+        position: -ms-sticky;
+        position: -o-sticky;
+        position: sticky;
+        left: 0px;
+      }*/
       td:nth-child(2) {
         min-width: 250px;
         padding: 0.5em;
