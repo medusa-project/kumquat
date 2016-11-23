@@ -55,9 +55,16 @@ module Admin
           query(params[:q]).
           include_children(true).
           filter_queries(params[:fq]).
-          sort(Item::SolrFields::COMPOUND_SORT => :asc).
           start(@start).
           limit(@limit)
+      if @collection.package_profile == PackageProfile::FREE_FORM_PROFILE
+        finder = finder.
+            exclude_variants([Item::Variants::DIRECTORY]).
+            sort(Item::SolrFields::GROUPED_SORT => :asc)
+      else
+        finder = finder.sort(Item::SolrFields::GROUPED_SORT => :asc)
+      end
+
       @items = finder.to_a
       @current_page = finder.page
 
