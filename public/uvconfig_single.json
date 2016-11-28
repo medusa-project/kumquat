@@ -1,0 +1,38 @@
+{
+  "options": {
+    "pagingEnabled": false,
+    "pagingOptionEnabled": false,
+    "saveUserSettings": true,
+    "searchWithinEnabled": false,
+    "termsOfUseEnabled": false,
+    "useArrowKeysToNavigate": false
+  },
+  "modules": {
+    "footerPanel": {
+      "options": {
+        "downloadEnabled": false,
+        "shareEnabled": false
+      }
+    },
+    "headerPanel": {
+      "options": {
+        "localeToggleEnabled": false,
+        "settingsButtonEnabled": false
+      }
+    },
+    "pagingHeaderPanel": {
+      "options": {
+        "pageModeEnabled": false,
+        "searchWithinEnabled": false
+      }
+    },
+    "seadragonCenterPanel": {
+      "options": {
+        "attributionEnabled": false,
+        "immediateRender": true,
+        "navigatorPosition": "TOP_RIGHT",
+        "showHomeControl": true
+      }
+    }
+  }
+}

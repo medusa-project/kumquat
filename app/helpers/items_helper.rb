@@ -1128,12 +1128,12 @@ module ItemsHelper
   def compound_viewer_for(item)
     html = ''
     if item.is_compound?
-      # Configuration is in /public/uvconfig.json;
+      # Configuration is in /public/uvconfig_compound.json;
       # See http://universalviewer.io/examples/ for config structure.
       # UV seems to want its height to be defined in a style attribute.
       html += "<div id=\"pt-compound-viewer\" class=\"uv\" "\
         "data-locale=\"en-GB:English (GB)\" "\
-        "data-config=\"#{asset_path('uvconfig.json')}\" "\
+        "data-config=\"#{asset_path('uvconfig_compound.json')}\" "\
         "data-uri=\"#{item_iiif_manifest_url(item)}\" "\
         "data-sequenceindex=\"0\" data-canvasindex=\"0\" "\
         "data-rotation=\"0\" style=\"height:600px; background-color:#000;\"></div>"
@@ -1310,7 +1310,6 @@ module ItemsHelper
 
   def image_viewer_for(item)
     html = ''
-
     # If there is no access master, and the preservation master is too large,
     # render an alert instead of the viewer.
     if !item.access_master_bytestream and
@@ -1318,29 +1317,16 @@ module ItemsHelper
       html += '<div class="alert alert-info">Preservation master image is too
           large to display, and no access master is available.</div>'
     else
-      # https://openseadragon.github.io/docs/OpenSeadragon.html#.Options
-      html += "<div id=\"pt-image-viewer\"></div>
-      #{javascript_include_tag('/openseadragon/openseadragon.min.js')}
-      <script type=\"text/javascript\">
-      OpenSeadragon.setString('Tooltips.Home', 'Reset');
-      OpenSeadragon.setString('Tooltips.ZoomIn', 'Zoom In');
-      OpenSeadragon.setString('Tooltips.ZoomOut', 'Zoom Out');
-      OpenSeadragon.setString('Tooltips.FullPage', 'Full Screen');
-      OpenSeadragon.setString('Tooltips.RotateLeft', 'Rotate Left');
-      OpenSeadragon.setString('Tooltips.RotateRight', 'Rotate Right');
-      OpenSeadragon({
-          id: \"pt-image-viewer\",
-          showNavigator: true,
-          showRotationControl: true,
-          navigatorSizeRatio: 0.2,
-          controlsFadeDelay: 1000,
-          controlsFadeLength: 1000,
-          immediateRender: true,
-          preserveViewport: true,
-          prefixUrl: \"/openseadragon/images/\",
-          tileSources: \"#{j(item.iiif_url)}\"
-      });
-      </script>"
+      # Configuration is in /public/uvconfig_single.json;
+      # See http://universalviewer.io/examples/ for config structure.
+      # UV seems to want its height to be defined in a style attribute.
+      html += "<div id=\"pt-image-viewer\" class=\"uv\" "\
+      "data-locale=\"en-GB:English (GB)\" "\
+      "data-config=\"#{asset_path('uvconfig_single.json')}\" "\
+      "data-uri=\"#{item_iiif_manifest_url(item)}\" "\
+      "data-sequenceindex=\"0\" data-canvasindex=\"0\" "\
+      "data-rotation=\"0\" style=\"height:600px; background-color:#000;\"></div>"
+      html += javascript_include_tag('/universalviewer/lib/embed.js', id: 'embedUV')
     end
     raw(html)
   end
