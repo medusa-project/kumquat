@@ -141,7 +141,7 @@ module AdminHelper
         if element.value.present?
           html += "<tr>"
           html += "<td style=\"width:1px\"><span class=\"label label-default\">String</span></td>"
-          html += "<td>#{element.formatted_value}</td>"
+          html += "<td>#{element.value}</td>"
           html += "</tr>"
         end
         if element.uri.present?

@@ -82,28 +82,4 @@ class ItemElementTest < ActiveSupport::TestCase
                  ItemElement.tsv_string_from_elements(elements)
   end
 
-  # formatted_value()
-
-  test 'formatted_value should return the correct value' do
-    e = ItemElement.new
-    e.name = 'cats'
-    e.value = 'bla'
-    assert_equal 'bla', e.formatted_value
-
-    # latitude
-    e = ItemElement.new
-    e.name = 'latitude'
-    e.value = '45.24'
-    assert_equal '45.24°N', e.formatted_value
-    e.value = '-45.24'
-    assert_equal '45.24°S', e.formatted_value
-
-    e = ItemElement.new
-    e.name = 'longitude'
-    e.value = '45.24'
-    assert_equal '45.24°E', e.formatted_value
-    e.value = '-45.24'
-    assert_equal '45.24°W', e.formatted_value
-  end
-
 end

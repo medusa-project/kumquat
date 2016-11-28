@@ -166,18 +166,6 @@ class ItemElement < ActiveRecord::Base
         obj.vocabulary_id == self.vocabulary_id
   end
 
-  def formatted_value
-    case self.name
-      when 'latitude'
-        val = "#{self.value.gsub('-', '')}°#{self.value.to_f >= 0 ? 'N' : 'S'}"
-      when 'longitude'
-        val = "#{self.value.gsub('-', '')}°#{self.value.to_f >= 0 ? 'E' : 'W'}"
-      else
-        val = self.value
-    end
-    val
-  end
-
   def serializable_hash(opts)
     opts ||= {}
     super(opts.merge(only: [ :name, :value ]))
