@@ -227,7 +227,7 @@ body#items_edit {
 }
 
 body#items_edit_all {
-  table {
+  table.table {
     .pt-thumbnail {
       font-size: 70px;
       padding: 5px;
@@ -251,8 +251,19 @@ body#items_edit_all {
       z-index: 999;
     }
     tbody {
+      table {
+        td {
+          height: 1px;
+          min-width: 1px;
+          width: 1px;
+        }
+        td:nth-child(2) {
+          min-width: 1px;
+          padding: 0px;
+        }
+      }
       td {
-        height: 150px;
+        height: 130px;
         min-width: 100px;
         padding: 0px;
         textarea {

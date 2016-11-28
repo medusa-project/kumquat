@@ -28,32 +28,34 @@
                          options_for_select(Item::Variants::all.map{ |v| [v.titleize, v] }, selected: item.variant),
                          include_blank: true,
                          class: 'form-control input-sm') %>
-          <div class="form-inline">
-            <div class="form-group">
-              <label>Page:
+          <table border="0">
+            <tr>
+              <td>Page:</td>
+              <td>
                 <%= number_field_tag("items[#{item.repository_id}][page]", item.page_number,
                                      class: 'form-control input-sm') %>
-              </label>
-            </div>
-            <div class="form-group">
-              <label>Subpage:
+              </td>
+              <td>
+                Subpage:
+              </td>
+              <td>
                 <%= number_field_tag("items[#{item.repository_id}][subpage]", item.subpage_number,
                                      class: 'form-control input-sm') %>
-              </label>
-            </div>
-          </div>
-          <div class="form-inline">
-            <div class="form-group">
-              <label>Lat:
+              </td>
+            </tr>
+            <tr>
+              <td>Lat:</td>
+              <td>
                 <%= number_field_tag("items[#{item.repository_id}][latitude]", item.latitude,
                                      class: 'form-control input-sm') %>
-              </label>
-              <label>Long:
+              </td>
+              <td>Long:</td>
+              <td>
                 <%= number_field_tag("items[#{item.repository_id}][longitude]", item.longitude,
                                      class: 'form-control input-sm') %>
-              </label>
-            </div>
-          </div>
+              </td>
+            </tr>
+          </table>
         </td>
         <% @metadata_profile.elements.each do |pe| %>
           <td>
