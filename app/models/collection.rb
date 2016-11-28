@@ -475,12 +475,18 @@ LIMIT 1000;
   end
 
   ##
-  # @return [Integer]
+  # @return [Integer] Number of objects in the collection, public or not.
   #
-  def num_top_items
-    @num_top_items = Item.solr.where(Item::SolrFields::COLLECTION => self.repository_id).
-        where(Item::SolrFields::PARENT_ITEM => :null).count unless @num_top_items
-    @num_top_items
+  def num_objects
+    unless @num_objects
+      query = Item.solr.
+          where(Item::SolrFields::COLLECTION => self.repository_id)
+      if self.package_profile != PackageProfile::FREE_FORM_PROFILE
+        query = query.where(Item::SolrFields::PARENT_ITEM => :null)
+      end
+      @num_objects = query.count
+    end
+    @num_objects
   end
 
   ##
