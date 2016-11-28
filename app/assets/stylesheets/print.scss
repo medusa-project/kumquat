@@ -1,12 +1,4 @@
-.pt-qr-code {
-  display:none;
-}
-
 @media only print {
-  .pt-qr-code {
-    display:inline;
-    width:12em;
-  }
   header, footer, div.btn-group, button, a.btn {
     display: none;
   }
