@@ -4,8 +4,6 @@
 <%= breadcrumb(item: @item, context: session[:browse_context],
                context_url: session[:browse_context_url]) %>
 
-<%= qr_code(request.url) %>
-
 <div class="btn-group pull-right" role="group">
   <button class="btn btn-danger pt-remove-from-favorites"
           data-item-id="<%= @item.repository_id %>">
