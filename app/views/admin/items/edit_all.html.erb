@@ -4,12 +4,16 @@
 
 <%= admin_breadcrumb(collection: @collection) %>
 
-<h1>Edit Items</h1>
-
-<p>Metadata profile: <%= link_to @metadata_profile.name,
-                                 admin_metadata_profile_path(@metadata_profile) %></p>
-
 <%= form_tag(controller: 'admin/items', action: 'update_all', method: :post) do %>
+  <div class="btn-group pull-right" role="group">
+    <%= submit_tag('Save Changes', class: 'btn btn-primary') %>
+  </div>
+
+  <h1>Edit Items</h1>
+
+  <p>Metadata profile: <%= link_to @metadata_profile.name,
+                                   admin_metadata_profile_path(@metadata_profile) %></p>
+
   <div id="pt-items">
     <%= render partial: 'edit_all_items' %>
   </div>
