@@ -73,8 +73,9 @@ var PTAdminItemsEditView = function() {
 
     this.init = function() {
         dirty = false;
-        $('textarea').on('change', function() {
+        $('textarea').on('propertychange keyup change', function() {
             dirty = true;
+            $(this).addClass('pt-dirty');
         });
         // When the form is dirty and a link is clicked, prompt to save changes
         // before proceeding.
