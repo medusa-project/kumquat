@@ -49,20 +49,16 @@ body#items_show {
   .pt-viewer {
     margin-bottom: 2em;
   }
-  #pt-image-viewer {
-    background-color:black;
-    height: 600px;
+  #pt-image-viewer, #pt-compound-viewer {
     margin:0 auto;
     margin-bottom: 1em;
+    width: 96%;
+  }
+  #pt-image-viewer {
     max-width: 1200px;
   }
-  #pt-image-viewer.fullpage {
-    max-width: 999999px;
-  }
-  .pt-full-viewer #pt-image-viewer {
-    width: 90%;
-  }
-  .pt-split-viewer #pt-image-viewer {
+  #pt-compound-viewer {
+    max-width: 1400px;
   }
 
   /* Compound viewer styles (for UniversalViewer) are in a style="" attribute,

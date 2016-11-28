@@ -42,7 +42,11 @@ module IiifPresentationHelper
     items = item.items_from_solr.
         order(Item::SolrFields::PAGE_NUMBER, Item::SolrFields::TITLE).
         limit(9999).to_a
-    items.map { |subitem| iiif_canvas_for(subitem) }
+    if items.any?
+      return items.map { |subitem| iiif_canvas_for(subitem) }
+    else
+      return [ iiif_canvas_for(item) ]
+    end
   end
 
   ##
@@ -129,8 +133,9 @@ module IiifPresentationHelper
   # @return [Array]
   #
   def iiif_sequences_for(item)
+    # If the item has any pages, they will comprise the sequences.
     if item.pages.count > 0
-      return [
+      sequences = [
           {
               '@id': item_iiif_sequence_url(item, :page),
               '@type': 'sc:Sequence',
@@ -139,8 +144,10 @@ module IiifPresentationHelper
               canvases: iiif_canvases_for(item)
           }
       ]
+    # Otherwise, if it has any items of any variant, they will comprise the
+    # sequences.
     elsif item.items.count > 0
-      return [
+      sequences = [
           {
              '@id': item_iiif_sequence_url(item, :item),
              '@type': 'sc:Sequence',
@@ -148,7 +155,18 @@ module IiifPresentationHelper
              canvases: iiif_canvases_for(item)
           }
       ]
+    # Otherwise, the item itself will comprise its sequence.
+    else
+      sequences = [
+          {
+              '@id': item_iiif_sequence_url(item, :item),
+              '@type': 'sc:Sequence',
+              label: 'Item',
+              canvases: iiif_canvases_for(item)
+          }
+      ]
     end
+    sequences
   end
 
   private
