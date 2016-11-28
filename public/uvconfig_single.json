@@ -1,5 +1,7 @@
 {
   "options": {
+    "headerPanelEnabled": false,
+    "leftPanelEnabled": false,
     "pagingEnabled": false,
     "pagingOptionEnabled": false,
     "saveUserSettings": true,
