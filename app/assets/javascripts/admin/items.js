@@ -1,4 +1,6 @@
 /**
+ * Manages single-item edit view.
+ *
  * @constructor
  */
 var PTAdminItemEditView = function() {
@@ -60,6 +62,38 @@ var PTAdminItemEditView = function() {
 };
 
 /**
+ * Manages multiple-item edit view.
+ *
+ * @constructor
+ */
+var PTAdminItemsEditView = function() {
+
+    var dirty;
+    var self = this;
+
+    this.init = function() {
+        dirty = false;
+        $('textarea').on('change', function() {
+            dirty = true;
+        });
+        // When the form is dirty and a link is clicked, prompt to save changes
+        // before proceeding.
+        $('a').on('click', function() {
+            if (dirty) {
+                var confirm = window.confirm('Proceed without saving changes?');
+                if (!confirm) {
+                    return false;
+                }
+            }
+        });
+        $(document).ajaxSuccess(function(event, request) {
+            self.init();
+        });
+    };
+
+};
+
+/**
  * @constructor
  */
 var PTAdminItemsView = function() {
@@ -105,8 +139,10 @@ var ready = function() {
     if ($('body#items_edit').length) {
         PearTree.view = new PTAdminItemEditView();
         PearTree.view.init();
-    }
-    if ($('body#items_index').length) {
+    } else if ($('body#items_edit_all').length) {
+        PearTree.view = new PTAdminItemsEditView();
+        PearTree.view.init();
+    } else if ($('body#items_index').length) {
         PearTree.view = new PTAdminItemsView();
         PearTree.view.init();
     }
