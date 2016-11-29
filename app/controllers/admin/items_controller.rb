@@ -19,11 +19,11 @@ module Admin
             col.repository_id, params[:element], params[:replace_values])
       rescue => e
         handle_error(e)
-        redirect_to admin_collection_items_url(col)
+        redirect_to admin_collection_edit_all_items_url(col)
       else
         flash['success'] = 'Batch-changing metadata values in the background. '\
         'This should take less than a minute.'
-        redirect_to admin_collection_items_url(col)
+        redirect_to admin_collection_edit_all_items_url(col)
       end
     end
 
@@ -185,11 +185,11 @@ module Admin
             col.repository_id, params[:source_element], params[:dest_element])
       rescue => e
         handle_error(e)
-        redirect_to admin_collection_items_url(col)
+        redirect_to admin_collection_edit_all_items_url(col)
       else
         flash['success'] = 'Migrating metadata elements in the background. '\
         'This should take less than a minute.'
-        redirect_to admin_collection_items_url(col)
+        redirect_to admin_collection_edit_all_items_url(col)
       end
     end
 
@@ -207,11 +207,11 @@ module Admin
             params[:element], params[:replace_mode], params[:replace_value])
       rescue => e
         handle_error(e)
-        redirect_to admin_collection_items_url(col)
+        redirect_to admin_collection_edit_all_items_url(col)
       else
         flash['success'] = 'Replacing metadata values in the background. '\
         'This should take less than a minute.'
-        redirect_to admin_collection_items_url(col)
+        redirect_to admin_collection_edit_all_items_url(col)
       end
     end
 

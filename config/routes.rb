@@ -120,7 +120,7 @@ Rails.application.routes.draw do
     match '/collections/sync', to: 'collections#sync', via: 'patch',
           as: 'collections_sync'
     resources :collections, except: [:new, :create, :delete] do
-      match '/items/edit', to: 'items#edit_all', via: 'get'
+      match '/items/edit', to: 'items#edit_all', via: 'get', as: 'edit_all_items'
       match '/items/update', to: 'items#update_all', via: 'post'
       resources :items, concerns: :publishable
       match '/items/import', to: 'items#import', via: 'post'

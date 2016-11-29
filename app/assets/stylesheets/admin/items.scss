@@ -80,13 +80,6 @@ body#items_index {
       }
     }
   }
-
-  #pt-batch-change-modal {
-    .form-group td:last-child {
-      text-align: center;
-      vertical-align: middle;
-    }
-  }
 }
 
 body#items_show {
@@ -296,6 +289,13 @@ body#items_edit_all {
       .pt-dirty {
         background-color: #ffe0e0;
       }
+    }
+  }
+
+  #pt-batch-change-modal {
+    .form-group td:last-child {
+      text-align: center;
+      vertical-align: middle;
     }
   }
 }
