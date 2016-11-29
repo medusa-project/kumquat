@@ -4,6 +4,30 @@
 
 <%= admin_breadcrumb(collection: @collection) %>
 
+<div class="btn-group pull-right" role="group">
+  <!-- Metadata -->
+  <div class="btn-group">
+    <button type="button" class="btn btn-default dropdown-toggle"
+            data-toggle="dropdown" aria-expanded="false">
+      <i class="fa fa-list"></i> Metadata <span class="caret"></span>
+    </button>
+    <ul class="dropdown-menu dropdown-menu-right" role="menu">
+      <li <%= @collection.metadata_profile ? '' : 'disabled="disabled"' %>>
+        <%= link_to raw('Batch Change&hellip;'), '',
+                    'data-toggle': 'modal', 'data-target': '#pt-batch-change-modal' %>
+      </li>
+      <li <%= @collection.metadata_profile ? '' : 'disabled="disabled"' %>>
+        <%= link_to raw('Find and Replace&hellip;'), '',
+                    'data-toggle': 'modal', 'data-target': '#pt-find-replace-modal' %>
+      </li>
+      <li <%= @collection.metadata_profile ? '' : 'disabled="disabled"' %>>
+        <%= link_to raw('Migrate Element Values&hellip;'), '',
+                    'data-toggle': 'modal', 'data-target': '#pt-migrate-modal' %>
+      </li>
+    </ul>
+  </div>
+</div>
+
 <h1>Edit Items</h1>
 
 <p>Metadata profile: <%= link_to @metadata_profile.name,
@@ -15,3 +39,7 @@
   </div>
   <%= submit_tag('Save Changes', class: 'btn btn-primary') %>
 <% end %>
+
+<%= render partial: 'batch_change_metadata_panel' %>
+<%= render partial: 'replace_metadata_panel' %>
+<%= render partial: 'migrate_metadata_panel' %>

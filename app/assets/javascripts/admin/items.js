@@ -68,6 +68,8 @@ var PTAdminItemEditView = function() {
  */
 var PTAdminItemsEditView = function() {
 
+    var ELEMENT_LIMIT = 4;
+
     var dirty;
     var self = this;
 
@@ -89,18 +91,7 @@ var PTAdminItemsEditView = function() {
         $(document).ajaxSuccess(function(event, request) {
             self.init();
         });
-    };
 
-};
-
-/**
- * @constructor
- */
-var PTAdminItemsView = function() {
-
-    var ELEMENT_LIMIT = 4;
-
-    this.init = function() {
         $('button.pt-add-element').on('click', function() {
             // limit to ELEMENT_LIMIT fields
             if ($(this).parents('.pt-elements').find('.form-group').length < ELEMENT_LIMIT) {
@@ -116,7 +107,16 @@ var PTAdminItemsView = function() {
             }
             return false;
         });
+    };
 
+};
+
+/**
+ * @constructor
+ */
+var PTAdminItemsView = function() {
+
+    this.init = function() {
         $('#pt-export-modal button[type=submit]').on('click', function() {
             $('#pt-export-modal').modal('hide');
         });
