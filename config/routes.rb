@@ -113,6 +113,7 @@ Rails.application.routes.draw do
   namespace :admin do
     root 'dashboard#index'
 
+    resources :agents
     resources :elements, except: :show, path: 'elements'
     match '/elements/import', to: 'elements#import', via: 'post',
           as: 'elements_import'

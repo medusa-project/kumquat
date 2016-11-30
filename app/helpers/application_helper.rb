@@ -1,5 +1,7 @@
 module ApplicationHelper
 
+  MAX_PAGINATION_LINKS = 9
+
   def bootstrap_class_for(flash_type)
     case flash_type.to_sym
       when :success
@@ -107,6 +109,67 @@ module ApplicationHelper
     else
       html += '<p>No results.</p>'
     end
+    raw(html)
+  end
+
+  ##
+  # @param entities [ActiveRecord::Relation]
+  # @param total_entities [Integer]
+  # @param per_page [Integer]
+  # @param current_page [Integer]
+  # @param remote [Boolean]
+  # @param max_links [Integer] (ideally odd)
+  #
+  def paginate(total_entities, per_page, current_page, remote = false,
+               max_links = MAX_PAGINATION_LINKS)
+    return '' if total_entities <= per_page
+    num_pages = (total_entities / per_page.to_f).ceil
+    first_page = [1, current_page - (max_links / 2.0).floor].max
+    last_page = [first_page + max_links - 1, num_pages].min
+    first_page = last_page - max_links + 1 if
+        last_page - first_page < max_links and num_pages > max_links
+    prev_page = [1, current_page - 1].max
+    next_page = [last_page, current_page + 1].min
+    prev_start = (prev_page - 1) * per_page
+    next_start = (next_page - 1) * per_page
+    last_start = (num_pages - 1) * per_page
+
+    first_link = link_to(params.except(:start),
+                         remote: remote, 'aria-label': 'First') do
+      raw('<span aria-hidden="true">First</span>')
+    end
+    prev_link = link_to(params.merge(start: prev_start).symbolize_keys,
+                        remote: remote, 'aria-label': 'Previous') do
+      raw('<span aria-hidden="true">&laquo;</span>')
+    end
+    next_link = link_to(params.merge(start: next_start).symbolize_keys,
+                        remote: remote, 'aria-label': 'Next') do
+      raw('<span aria-hidden="true">&raquo;</span>')
+    end
+    last_link = link_to(params.merge(start: last_start).symbolize_keys,
+                        remote: remote, 'aria-label': 'Last') do
+      raw('<span aria-hidden="true">Last</span>')
+    end
+
+    # http://getbootstrap.com/components/#pagination
+    html = '<nav>' +
+        '<ul class="pagination">' +
+        "<li #{current_page == first_page ? 'class="disabled"' : ''}>#{first_link}</li>" +
+        "<li #{current_page == prev_page ? 'class="disabled"' : ''}>#{prev_link}</li>"
+    (first_page..last_page).each do |page|
+      start = (page - 1) * per_page
+      page_link = link_to((start == 0) ? params.except(:start) :
+                              params.merge(start: start).symbolize_keys, remote: remote) do
+        raw("#{page} #{(page == current_page) ?
+            '<span class="sr-only">(current)</span>' : ''}")
+      end
+      html += "<li class=\"#{page == current_page ? 'active' : ''}\">" +
+          page_link + '</li>'
+    end
+    html += "<li #{current_page == next_page ? 'class="disabled"' : ''}>#{next_link}</li>" +
+        "<li #{current_page == last_page ? 'class="disabled"' : ''}>#{last_link}</li>"
+    html += '</ul>' +
+        '</nav>'
     raw(html)
   end
 
