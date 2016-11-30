@@ -17,38 +17,17 @@
 
 <h1>Agents</h1>
 
-<table class="table table-striped">
-  <thead>
-    <th style="width: 1px"></th>
-    <th style="width: 1px"></th>
-    <th>Name</th>
-    <th>URI</th>
-  </thead>
-  <tbody>
-    <% @agents.each do |agent| %>
-      <tr>
-        <td>
-          <button type="button" class="btn btn-default btn-xs pt-edit-agent"
-                  data-toggle="modal" data-target="#pt-edit-agent-modal"
-                  data-agent-id="<%= agent.id %>">
-            Edit
-          </button>
-        </td>
-        <td>
-          <%= link_to 'Delete', admin_agent_path(agent),
-                      class: 'btn btn-danger btn-xs', method: :delete,
-                      data: { confirm: 'Are you sure you want to delete '\
-                              'this agent?' } %>
-        </td>
-        <td><%= link_to agent.name, admin_agent_path(agent) %></td>
-        <td><%= link_to agent.uri, admin_agent_path(agent) %></td>
-      </tr>
-    <% end %>
-  </tbody>
-</table>
+<div class="well">
+  <%= form_tag admin_agents_path, method: 'get', class: 'pt-filter' do %>
+    <div class="form-inline">
+      <%= search_field_tag :q, params[:q], placeholder: 'Filter',
+                           class: 'form-control' %>
+    </div>
+  <% end %>
+</div>
 
-<div class="text-center">
-  <%= paginate(@agents.count, @limit, @current_page) %>
+<div id="pt-agents">
+  <%= render 'agents' %>
 </div>
 
 <!-- Add-agent modal -->

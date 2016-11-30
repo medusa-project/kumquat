@@ -51,8 +51,14 @@ module Admin
     def index
       @limit = Option::integer(Option::Key::RESULTS_PER_PAGE)
       @start = params[:start] ? params[:start].to_i : 0
+      @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
 
       @agents = Agent.all.order(:name).offset(@start).limit(@limit)
+
+      if params[:q].present?
+        @agents = @agents.where('LOWER(name) LIKE ?', "%#{params[:q].downcase}%")
+      end
+
       @new_agent = Agent.new
     end
 

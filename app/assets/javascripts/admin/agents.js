@@ -4,6 +4,11 @@
 var PTAdminAgentsView = function() {
 
     this.init = function() {
+        new PearTree.FilterField();
+        $('form.pt-filter input').on('change', function() {
+            $('form.pt-filter').submit();
+        });
+
         $('button.pt-edit-agent').on('click', function() {
             var agent_id = $(this).data('agent-id');
             var ROOT_URL = $('input[name="root_url"]').val();
