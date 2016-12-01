@@ -114,6 +114,8 @@ Rails.application.routes.draw do
     root 'dashboard#index'
 
     resources :agents
+    resources :agent_relation_types, except: :show,
+              path: 'agent-relation-types'
     resources :elements, except: :show, path: 'elements'
     match '/elements/import', to: 'elements#import', via: 'post',
           as: 'elements_import'
