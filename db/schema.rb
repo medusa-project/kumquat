@@ -11,18 +11,26 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161201203606) do
+ActiveRecord::Schema.define(version: 20161201210700) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
+  create_table "agent_relation_types", force: :cascade do |t|
+    t.string   "name",        null: false
+    t.text     "description"
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
+  end
+
   create_table "agent_relations", force: :cascade do |t|
-    t.integer  "agent_id",         null: false
-    t.integer  "related_agent_id", null: false
+    t.integer  "agent_id",               null: false
+    t.integer  "related_agent_id",       null: false
     t.string   "dates"
     t.text     "description"
-    t.datetime "created_at",       null: false
-    t.datetime "updated_at",       null: false
+    t.datetime "created_at",             null: false
+    t.datetime "updated_at",             null: false
+    t.integer  "agent_relation_type_id"
   end
 
   add_index "agent_relations", ["agent_id"], name: "index_agent_relations_on_agent_id", using: :btree
@@ -291,6 +299,7 @@ ActiveRecord::Schema.define(version: 20161201203606) do
   add_index "vocabulary_terms", ["uri"], name: "index_vocabulary_terms_on_uri", using: :btree
   add_index "vocabulary_terms", ["vocabulary_id"], name: "index_vocabulary_terms_on_vocabulary_id", using: :btree
 
+  add_foreign_key "agent_relations", "agent_relation_types", on_update: :cascade, on_delete: :restrict
   add_foreign_key "bytestreams", "items", on_delete: :cascade
   add_foreign_key "collections_roles", "collections", on_update: :cascade, on_delete: :cascade
   add_foreign_key "collections_roles", "roles", column: "allowed_role_id", on_update: :cascade, on_delete: :cascade
