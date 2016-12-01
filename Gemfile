@@ -21,7 +21,6 @@ gem 'pg'
 gem 'rails_autolink'
 gem 'rsolr'
 gem 'sass-rails', '~> 5.0'
-#gem 'therubyracer', platforms: :ruby # See https://github.com/rails/execjs#readme for more supported runtimes
 gem 'uglifier', '>= 1.3.0' # JavaScript asset compressor
 gem 'yomu' # text extraction from PDF, .docx, etc.
 gem 'zip_tricks'
@@ -30,7 +29,7 @@ group :development do
   gem 'capistrano-bundler'
   gem 'capistrano-rails'
   gem 'capistrano-rvm'
-  gem 'unicorn-rails' # supports chunked/streaming responses
+  gem 'thin' # supports chunked/streaming responses
 end
 
 group :development, :test do
