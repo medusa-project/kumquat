@@ -43,6 +43,61 @@
   </tr>
 </table>
 
+<hr>
+
+<h2>Refers To</h2>
+
+<% if @related_agents.any? %>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Relationship Type</th>
+        <th>URI</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @related_agents.each do |relation| %>
+        <tr>
+          <td><%= link_to relation.related_agent.name, admin_agent_path(relation.related_agent) %></td>
+          <td><%= relation.agent_relation_type&.name %></td>
+          <td><%= relation.related_agent.uri %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p>Nothing</p>
+<% end %>
+
+<hr>
+
+<h2>Referred To By</h2>
+
+<% if @relating_agents.any? %>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Relationship Type</th>
+        <th>URI</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @relating_agents.each do |relation| %>
+        <tr>
+          <td><%= link_to relation.agent.name, admin_agent_path(relation.agent) %></td>
+          <td><%= relation.agent_relation_type&.name %></td>
+          <td><%= relation.agent.uri %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p>Nothing</p>
+<% end %>
+
+
 <div class="modal fade" id="pt-edit-agent-modal" tabindex="-1" role="dialog"
      aria-labelledby="pt-edit-agent-modal-label">
   <div class="modal-dialog" role="document">

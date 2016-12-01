@@ -70,6 +70,8 @@ module Admin
     #
     def show
       @agent = Agent.find(params[:id])
+      @relating_agents = AgentRelation.where(related_agent: @agent)
+      @related_agents = AgentRelation.where(agent: @agent)
     end
 
     ##
