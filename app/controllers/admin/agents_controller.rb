@@ -35,7 +35,7 @@ module Admin
       else
         flash['success'] = "Agent \"#{agent.name}\" deleted."
       ensure
-        redirect_to :back
+        redirect_to admin_agents_path
       end
     end
 
@@ -48,6 +48,9 @@ module Admin
              locals: { agent: agent, context: :edit }
     end
 
+    ##
+    # Responds to GET /admin/agents
+    #
     def index
       @limit = Option::integer(Option::Key::RESULTS_PER_PAGE)
       @start = params[:start] ? params[:start].to_i : 0
@@ -62,11 +65,11 @@ module Admin
       @new_agent = Agent.new
     end
 
-    private
-
-    def sanitized_params
-      params.require(:agent).permit(:description, :last_name, :name, :uri,
-                                    :variant_name)
+    ##
+    # Responds to GET /admin/agents/:id
+    #
+    def show
+      @agent = Agent.find(params[:id])
     end
 
     ##
@@ -91,6 +94,13 @@ module Admin
         keep_flash
         render 'update' # update.js.erb will reload the page
       end
+    end
+
+    private
+
+    def sanitized_params
+      params.require(:agent).permit(:description, :last_name, :name, :uri,
+                                    :variant_name)
     end
 
   end
