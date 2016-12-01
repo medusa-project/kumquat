@@ -1,5 +1,10 @@
 class Agent < ActiveRecord::Base
 
+  has_many :agent_relations, class_name: 'AgentRelation',
+           foreign_key: :agent_id, dependent: :destroy
+  has_many :related_agents, -> { order('name ASC') },
+           through: :agent_relations, source: :related_agent
+
   before_validation :ascribe_default_uri, if: :new_record?
 
   validates_presence_of :name, :uri
