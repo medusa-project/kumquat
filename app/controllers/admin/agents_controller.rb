@@ -10,9 +10,11 @@ module Admin
       begin
         ActiveRecord::Base.transaction do
           @agent.save!
-          relation = AgentRelation.new(sanitized_agent_relation_params)
-          relation.related_agent = @agent
-          relation.save!
+          if params[:agent_relation]
+            relation = AgentRelation.new(sanitized_agent_relation_params)
+            relation.related_agent = @agent
+            relation.save!
+          end
         end
       rescue ActiveRecord::RecordInvalid
         response.headers['X-PearTree-Result'] = 'error'
