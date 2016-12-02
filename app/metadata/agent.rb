@@ -1,5 +1,7 @@
 class Agent < ActiveRecord::Base
 
+  belongs_to :agent_rule, inverse_of: :agents
+
   has_many :agent_relations, class_name: 'AgentRelation',
            foreign_key: :agent_id, dependent: :destroy
   has_many :related_agents, -> { order('name ASC') },
