@@ -1,0 +1,31 @@
+<table class="table table-striped">
+  <thead>
+    <th style="width: 1px"></th>
+    <th style="width: 1px"></th>
+    <th>Name</th>
+    <th>Abbreviation</th>
+  </thead>
+  <tbody>
+    <% @agent_rules.each do |rule| %>
+      <tr>
+        <td>
+          <button type="button" class="btn btn-default btn-xs pt-edit-agent-rule"
+                  data-toggle="modal" data-target="#pt-edit-agent-rule-modal"
+                  data-agent-rule-id="<%= rule.id %>">
+            <i class="fa fa-pencil"></i> Edit
+          </button>
+        </td>
+        <td>
+          <%= link_to admin_agent_rule_path(rule),
+                      class: 'btn btn-danger btn-xs', method: :delete,
+                      data: { confirm: 'Are you sure you want to delete '\
+                              'this agent rule?' } do %>
+            <i class="fa fa-trash"></i> Delete
+          <% end %>
+        </td>
+        <td><%= rule.name %></td>
+        <td><%= rule.abbreviation %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

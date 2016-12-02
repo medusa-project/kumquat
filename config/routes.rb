@@ -116,6 +116,7 @@ Rails.application.routes.draw do
     resources :agents
     resources :agent_relation_types, except: :show,
               path: 'agent-relation-types'
+    resources :agent_rules, except: :show, path: 'agent-rules'
     resources :elements, except: :show, path: 'elements'
     match '/elements/import', to: 'elements#import', via: 'post',
           as: 'elements_import'
