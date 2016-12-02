@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161202190505) do
+ActiveRecord::Schema.define(version: 20161202202134) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -46,6 +46,14 @@ ActiveRecord::Schema.define(version: 20161202190505) do
   add_index "agent_rules", ["abbreviation"], name: "index_agent_rules_on_abbreviation", unique: true, using: :btree
   add_index "agent_rules", ["name"], name: "index_agent_rules_on_name", unique: true, using: :btree
 
+  create_table "agent_types", force: :cascade do |t|
+    t.string   "name",       null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  add_index "agent_types", ["name"], name: "index_agent_types_on_name", unique: true, using: :btree
+
   create_table "agents", force: :cascade do |t|
     t.string   "uri",           null: false
     t.string   "name",          null: false
@@ -57,6 +65,7 @@ ActiveRecord::Schema.define(version: 20161202190505) do
     t.datetime "created_at",    null: false
     t.datetime "updated_at",    null: false
     t.integer  "agent_rule_id"
+    t.integer  "agent_type_id"
   end
 
   add_index "agents", ["begin_date"], name: "index_agents_on_begin_date", using: :btree
@@ -314,6 +323,7 @@ ActiveRecord::Schema.define(version: 20161202190505) do
   add_foreign_key "agent_relations", "agents", column: "related_agent_id", on_update: :cascade, on_delete: :cascade
   add_foreign_key "agent_relations", "agents", on_update: :cascade, on_delete: :cascade
   add_foreign_key "agents", "agent_rules", on_update: :cascade, on_delete: :restrict
+  add_foreign_key "agents", "agent_types", on_update: :cascade, on_delete: :restrict
   add_foreign_key "bytestreams", "items", on_delete: :cascade
   add_foreign_key "collections_roles", "collections", on_update: :cascade, on_delete: :cascade
   add_foreign_key "collections_roles", "roles", column: "allowed_role_id", on_update: :cascade, on_delete: :cascade
