@@ -6,9 +6,14 @@ module Admin
     # XHR only
     #
     def create
-      @agent = Agent.new(sanitized_params)
+      @agent = Agent.new(sanitized_agent_params)
       begin
-        @agent.save!
+        ActiveRecord::Base.transaction do
+          @agent.save!
+          relation = AgentRelation.new(sanitized_agent_relation_params)
+          relation.related_agent = @agent
+          relation.save!
+        end
       rescue ActiveRecord::RecordInvalid
         response.headers['X-PearTree-Result'] = 'error'
         render partial: 'shared/validation_messages',
@@ -70,6 +75,8 @@ module Admin
     #
     def show
       @agent = Agent.find(params[:id])
+      @new_agent = Agent.new
+      @new_agent_relation = @agent.agent_relations.build
       @relating_agents = AgentRelation.where(related_agent: @agent)
       @related_agents = AgentRelation.where(agent: @agent)
     end
@@ -80,7 +87,7 @@ module Admin
     def update
       agent = Agent.find(params[:id])
       begin
-        agent.update!(sanitized_params)
+        agent.update!(sanitized_agent_params)
       rescue ActiveRecord::RecordInvalid
         response.headers['X-PearTree-Result'] = 'error'
         render partial: 'shared/validation_messages',
@@ -100,9 +107,14 @@ module Admin
 
     private
 
-    def sanitized_params
+    def sanitized_agent_params
       params.require(:agent).permit(:description, :last_name, :name, :uri,
                                     :variant_name)
+    end
+
+    def sanitized_agent_relation_params
+      params.require(:agent_relation).permit(:agent_id, :related_agent_id,
+                                             :agent_relation_type_id)
     end
 
   end

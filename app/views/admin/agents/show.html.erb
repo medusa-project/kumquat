@@ -45,6 +45,14 @@
 
 <hr>
 
+<div class="btn-group pull-right">
+  <!-- Add Referred Agent button -->
+  <button type="button" class="btn btn-default" data-toggle="modal"
+          data-target="#pt-add-agent-modal">
+    <span class="fa fa-plus"></span> Add Referred Agent
+  </button>
+</div>
+
 <h2>Refers To</h2>
 
 <% if @related_agents.any? %>
@@ -98,6 +106,10 @@
 <% end %>
 
 
+<%= render partial: 'add_agent_panel', locals: { agent: @new_agent,
+                                                 agent_relation: @new_agent_relation,
+                                                 context: :new } %>
+
 <div class="modal fade" id="pt-edit-agent-modal" tabindex="-1" role="dialog"
      aria-labelledby="pt-edit-agent-modal-label">
   <div class="modal-dialog" role="document">
@@ -110,6 +122,7 @@
       </div>
       <div class="modal-body">
         <%= render partial: 'form', locals: { agent: @agent,
+                                              agent_relation: @new_agent_relation,
                                               context: :edit } %>
       </div>
     </div>
