@@ -1,0 +1,59 @@
+<% provide :title, 'Agent Types' %>
+<% provide :body_id, 'admin_agent_types_index' %>
+<% provide :active_nav, 'metadata' %>
+
+<ol class="breadcrumb">
+  <li><%= link_to 'Home', admin_root_path %></li>
+  <li class="active">Agent Types</li>
+</ol>
+
+<div class="btn-group pull-right">
+  <!-- Add Agent Type button -->
+  <button type="button" class="btn btn-default" data-toggle="modal"
+          data-target="#pt-add-agent-type-modal">
+    <span class="fa fa-plus"></span> Add Type
+  </button>
+</div>
+
+<h1>Agent Types</h1>
+
+<div id="pt-agent-types">
+  <%= render 'agent_types' %>
+</div>
+
+<!-- Add-agent-type modal -->
+<div class="modal fade" id="pt-add-agent-type-modal" tabindex="-1" role="dialog"
+     aria-labelledby="pt-add-agent-type-modal-label">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title" id="pt-add-agent-type-modal-label">Add Agent Type</h4>
+      </div>
+      <div class="modal-body">
+        <%= render partial: 'form', locals: { agent_type: @new_agent_type,
+                                              context: :new } %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit-agent-type modal -->
+<div class="modal fade" id="pt-edit-agent-type-modal" tabindex="-1" role="dialog"
+     aria-labelledby="pt-edit-agent-type-modal-label">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title" id="pt-edit-agent-type-modal-label">Edit Agent Type</h4>
+      </div>
+      <div class="modal-body">
+        <% # will be populated via XHR %>
+      </div>
+    </div>
+  </div>
+</div>

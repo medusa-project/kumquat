@@ -53,7 +53,17 @@
   <div class="form-group">
     <%= label_tag :agent_rule, 'Agent Rule' %>
     <%= select_tag 'agent[agent_rule_id]',
-                   options_from_collection_for_select(AgentRule.all.order(:name), 'id', 'name'),
+                   options_from_collection_for_select(AgentRule.all.order(:name),
+                                                      'id', 'name', f.object.agent_rule_id),
+                   include_blank: true,
+                   class: 'form-control' %>
+  </div>
+
+  <div class="form-group">
+    <%= label_tag :agent_type, 'Agent Type' %>
+    <%= select_tag 'agent[agent_type_id]',
+                   options_from_collection_for_select(AgentType.all.order(:name),
+                                                      'id', 'name', f.object.agent_type_id),
                    include_blank: true,
                    class: 'form-control' %>
   </div>
