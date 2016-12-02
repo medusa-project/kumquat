@@ -79,6 +79,12 @@ module Admin
       @new_agent_relation = @agent.agent_relations.build
       @relating_agents = AgentRelation.where(related_agent: @agent)
       @related_agents = AgentRelation.where(agent: @agent)
+
+      @num_item_references = Item.
+          joins('LEFT JOIN item_elements ON item_elements.item_id = items.id').
+          where('item_elements.uri': @agent.uri).count
+      @num_collection_references = 0 # TODO: fix
+      @num_agent_references = @relating_agents.count + @related_agents.count
     end
 
     ##

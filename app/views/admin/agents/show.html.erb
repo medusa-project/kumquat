@@ -55,7 +55,7 @@
 
 <h2>Refers To</h2>
 
-<% if @related_agents.any? %>
+<% if @related_agents.count > 0 %>
   <table class="table">
     <thead>
       <tr>
@@ -82,7 +82,7 @@
 
 <h2>Referred To By</h2>
 
-<% if @relating_agents.any? %>
+<% if @relating_agents.count > 0 %>
   <table class="table">
     <thead>
       <tr>
@@ -104,6 +104,25 @@
 <% else %>
   <p>Nothing</p>
 <% end %>
+
+<hr>
+
+<h2>References</h2>
+
+<table class="table">
+  <tr>
+    <td>Agents</td>
+    <td><%= @num_agent_references %></td>
+  </tr>
+  <tr>
+    <td>Items</td>
+    <td><%= @num_item_references %></td>
+  </tr>
+  <tr>
+    <td>Collections</td>
+    <td><%= @num_collection_references %></td>
+  </tr>
+</table>
 
 
 <%= render partial: 'add_agent_panel', locals: { agent: @new_agent,
