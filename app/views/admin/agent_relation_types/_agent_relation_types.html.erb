@@ -12,14 +12,16 @@
           <button type="button" class="btn btn-default btn-xs pt-edit-agent-relation-type"
                   data-toggle="modal" data-target="#pt-edit-agent-relation-type-modal"
                   data-agent-relation-type-id="<%= type.id %>">
-            Edit
+            <i class="fa fa-pencil"></i> Edit
           </button>
         </td>
         <td>
-          <%= link_to 'Delete', admin_agent_relation_type_path(type),
+          <%= link_to admin_agent_relation_type_path(type),
                       class: 'btn btn-danger btn-xs', method: :delete,
                       data: { confirm: 'Are you sure you want to delete '\
-                              'this relation type?' } %>
+                              'this relation type?' } do %>
+            <i class="fa fa-trash"></i> Delete
+          <% end %>
         </td>
         <td><%= type.name %></td>
         <td><%= type.description %></td>
