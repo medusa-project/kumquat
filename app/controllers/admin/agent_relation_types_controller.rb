@@ -83,7 +83,7 @@ module Admin
     private
 
     def sanitized_params
-      params.require(:agent_relation_type).permit(:description, :name)
+      params.require(:agent_relation_type).permit(:description, :name, :uri)
     end
 
   end
