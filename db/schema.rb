@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161201210700) do
+ActiveRecord::Schema.define(version: 20161202164802) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -300,6 +300,8 @@ ActiveRecord::Schema.define(version: 20161201210700) do
   add_index "vocabulary_terms", ["vocabulary_id"], name: "index_vocabulary_terms_on_vocabulary_id", using: :btree
 
   add_foreign_key "agent_relations", "agent_relation_types", on_update: :cascade, on_delete: :restrict
+  add_foreign_key "agent_relations", "agents", column: "related_agent_id", on_update: :cascade, on_delete: :cascade
+  add_foreign_key "agent_relations", "agents", on_update: :cascade, on_delete: :cascade
   add_foreign_key "bytestreams", "items", on_delete: :cascade
   add_foreign_key "collections_roles", "collections", on_update: :cascade, on_delete: :cascade
   add_foreign_key "collections_roles", "roles", column: "allowed_role_id", on_update: :cascade, on_delete: :cascade
