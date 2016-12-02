@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161202202134) do
+ActiveRecord::Schema.define(version: 20161202212723) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -30,7 +30,7 @@ ActiveRecord::Schema.define(version: 20161202202134) do
     t.text     "description"
     t.datetime "created_at",             null: false
     t.datetime "updated_at",             null: false
-    t.integer  "agent_relation_type_id"
+    t.integer  "agent_relation_type_id", null: false
   end
 
   add_index "agent_relations", ["agent_id"], name: "index_agent_relations_on_agent_id", using: :btree

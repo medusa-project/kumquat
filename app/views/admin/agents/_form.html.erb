@@ -45,7 +45,7 @@
       <%= label_tag 'agent_relation_agent_relation_type_id', 'Relation Type' %>
       <%= select_tag 'agent_relation[agent_relation_type_id]',
                      options_from_collection_for_select(AgentRelationType.all.order(:name), 'id', 'name'),
-                     include_blank: true,
+                     include_blank: false,
                      class: 'form-control' %>
     </div>
   <% end %>
