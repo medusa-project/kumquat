@@ -39,9 +39,9 @@ module IiifPresentationHelper
   def iiif_canvases_for(item)
     # If any child items have a page number, order by that. Otherwise, order
     # by title. (IMET-414)
-    items = item.items_from_solr.
-        order(Item::SolrFields::PAGE_NUMBER, Item::SolrFields::TITLE).
-        limit(9999).to_a
+    items = item.items_from_solr.order(Item::SolrFields::PAGE_NUMBER,
+                                       Item::SolrFields::SUBPAGE_NUMBER,
+                                       Item::SolrFields::TITLE).limit(9999).to_a
     if items.any?
       return items.map { |subitem| iiif_canvas_for(subitem) }
     else
@@ -55,26 +55,28 @@ module IiifPresentationHelper
   # @return [Array]
   #
   def iiif_images_for(item, annotation_name)
-    [
-        {
-            '@type': 'oa:Annotation',
-            '@id': item_iiif_annotation_url(item, annotation_name),
-            motivation: 'sc:painting',
-            resource: {
-                '@id': iiif_image_url(item, 1000),
-                '@type': 'dctypes:Image',
-                'format': item.access_master_bytestream.media_type,
-                service: {
-                    '@context': 'http://iiif.io/api/image/2/context.json',
-                    '@id': iiif_bytestream_url(item.access_master_bytestream),
-                    profile: 'http://iiif.io/api/image/2/profiles/level2.json'
-                },
-                height: item.access_master_bytestream.height,
-                width: item.access_master_bytestream.width
-            },
-            on: item_iiif_canvas_url(item, item.repository_id)
-        }
-    ]
+    images = []
+    if item.access_master_bytestream
+      images << {
+          '@type': 'oa:Annotation',
+          '@id': item_iiif_annotation_url(item, annotation_name),
+          motivation: 'sc:painting',
+          resource: {
+              '@id': iiif_image_url(item, 1000),
+              '@type': 'dctypes:Image',
+              'format': item.access_master_bytestream.media_type,
+              service: {
+                  '@context': 'http://iiif.io/api/image/2/context.json',
+                  '@id': iiif_bytestream_url(item.access_master_bytestream),
+                  profile: 'http://iiif.io/api/image/2/profiles/level2.json'
+              },
+              height: item.access_master_bytestream.height,
+              width: item.access_master_bytestream.width
+          },
+          on: item_iiif_canvas_url(item, item.repository_id)
+      }
+    end
+    images
   end
 
   ##
