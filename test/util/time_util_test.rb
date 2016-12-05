@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class UserTest < ActiveSupport::TestCase
+class TimeUtilTest < ActiveSupport::TestCase
 
   test 'string_date_to_time with an unrecognizable argument should return nil' do
     assert_nil TimeUtil.string_date_to_time('cats')
