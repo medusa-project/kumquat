@@ -526,6 +526,25 @@ class ItemTest < ActiveSupport::TestCase
         e.value == 'Cats' and e.vocabulary == vocabularies(:lcsh) }.length
   end
 
+  test 'update_from_tsv should auto-normalize date from date or dateCreated
+  elements' do
+    row = { 'date' => '1995-02-23' }
+    @item.update_from_tsv(row)
+    assert_equal 1995, @item.date.year
+
+    row = { 'dateCreated' => '1992-01-13' }
+    @item.update_from_tsv(row)
+    assert_equal 1992, @item.date.year
+  end
+
+  test 'update_from_tsv should auto-normalize lat/long from coordinates element
+  when latitude and longitude columns are empty' do
+    row = { 'coordinates' => 'W 90⁰26\'05"/ N 40⁰39\'51"' }
+    @item.update_from_tsv(row)
+    assert_equal 39.25243, @item.latitude.to_f
+    assert_equal -152.23423, @item.longitude.to_f
+  end
+
   test 'update_from_tsv should raise an error if given an invalid element name' do
     row = {}
     row['title'] = 'Cats'
@@ -609,6 +628,39 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal 'lcsh', descriptions[1].vocabulary.key
 
     assert_equal('Cats', @item.title)
+  end
+
+  test 'update_from_xml should auto-normalize lat/long from date or dateCreated
+  element' do
+    xml = '<?xml version="1.0" encoding="utf-8"?>'
+    xml += '<dls:Object xmlns:dls="http://digital.library.illinois.edu/terms#">'
+    xml += '<dls:repositoryId>e12adef0-5ca8-0132-3334-0050569601ca-8</dls:repositoryId>'
+    xml += '<dls:published>true</dls:published>'
+    xml += '<dls:date vocabularyKey="uncontrolled" dataType="string">1964</dls:date>'
+    xml += '</dls:Object>'
+
+    doc = Nokogiri::XML(xml, &:noblanks)
+    doc.encoding = 'utf-8'
+
+    @item.update_from_xml(doc, 3)
+    assert_equal 1964, @item.date.year
+  end
+
+  test 'update_from_xml should auto-normalize lat/long from coordinates element
+  when latitude and longitude elements are empty' do
+    xml = '<?xml version="1.0" encoding="utf-8"?>'
+    xml += '<dls:Object xmlns:dls="http://digital.library.illinois.edu/terms#">'
+    xml += '<dls:repositoryId>e12adef0-5ca8-0132-3334-0050569601ca-8</dls:repositoryId>'
+    xml += '<dls:published>true</dls:published>'
+    xml += '<dls:coordinates vocabularyKey="uncontrolled" dataType="string">W 90⁰26\'05"/ N 40⁰39\'51"</dls:coordinates>'
+    xml += '</dls:Object>'
+
+    doc = Nokogiri::XML(xml, &:noblanks)
+    doc.encoding = 'utf-8'
+
+    @item.update_from_xml(doc, 3)
+    assert_equal 39.25243, @item.latitude.to_f
+    assert_equal -152.23423, @item.longitude.to_f
   end
 
 end

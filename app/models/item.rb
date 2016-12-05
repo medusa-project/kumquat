@@ -944,6 +944,15 @@ class Item < ActiveRecord::Base
       # longitude
       self.longitude = row['longitude'].strip.to_f if row['longitude']
 
+      # latitude/longitude (normalized)
+      if self.latitude.blank? and self.longitude.blank? and row['coordinates']
+        lat_long = SpaceUtil.string_coordinates_to_coordinates(row['coordinates'])
+        if lat_long
+          self.latitude = lat_long[:latitude]
+          self.longitude = lat_long[:longitude]
+        end
+      end
+
       # page number
       self.page_number = row['pageNumber'].strip.to_i if row['pageNumber']
 
@@ -959,7 +968,7 @@ class Item < ActiveRecord::Base
         # Vocabulary columns will have a heading of "vocabKey:elementName",
         # except uncontrolled columns which will have a heading of just
         # "elementName".
-        heading_parts = heading.split(':')
+        heading_parts = heading.to_s.split(':')
         element_name = heading_parts.last
 
         # Skip non-descriptive columns.
@@ -1030,6 +1039,16 @@ class Item < ActiveRecord::Base
       # longitude
       long = node.xpath("//#{prefix}:longitude", namespaces).first
       self.longitude = long.content.strip.to_f if long
+
+      # latitude/longitude (normalized)
+      coordinates = node.xpath("//#{prefix}:coordinates", namespaces).first
+      if self.latitude.blank? and self.longitude.blank? and coordinates
+        lat_long = SpaceUtil.string_coordinates_to_coordinates(coordinates)
+        if lat_long
+          self.latitude = lat_long[:latitude]
+          self.longitude = lat_long[:longitude]
+        end
+      end
 
       # page number
       page = node.xpath("//#{prefix}:pageNumber", namespaces).first

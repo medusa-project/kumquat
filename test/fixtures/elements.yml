@@ -1,10 +1,16 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
+coordinates:
+  name: coordinates
+
 creator:
   name: creator
 
 date:
   name: date
+
+dateCreated:
+  name: dateCreated
 
 description:
   name: description
