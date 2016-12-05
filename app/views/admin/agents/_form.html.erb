@@ -28,16 +28,6 @@
     <%= f.text_field :name, class: 'form-control' %>
   </div>
 
-  <div class="form-group">
-    <%= f.label :last_name, 'Last Name' %>
-    <%= f.text_field :last_name, class: 'form-control' %>
-  </div>
-
-  <div class="form-group">
-    <%= f.label :variant_name, 'Variant Name' %>
-    <%= f.text_field :variant_name, class: 'form-control' %>
-  </div>
-
   <% if agent_relation %>
     <div class="form-group">
       <%= hidden_field_tag 'agent_relation[agent_id]', agent_relation.agent_id %>

@@ -3,8 +3,6 @@
 one:
   uri: MyString
   name: MyString
-  last_name: MyString
-  variant_name: MyString
   begin_date: 2016-11-30 13:37:22
   end_date: 2016-11-30 13:37:22
   description: MyText
@@ -12,8 +10,6 @@ one:
 two:
   uri: MyString
   name: MyString
-  last_name: MyString
-  variant_name: MyString
   begin_date: 2016-11-30 13:37:22
   end_date: 2016-11-30 13:37:22
   description: MyText

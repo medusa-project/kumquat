@@ -117,8 +117,7 @@ module Admin
 
     def sanitized_agent_params
       params.require(:agent).permit(:agent_rule_id, :agent_type_id,
-                                    :description, :last_name, :name, :uri,
-                                    :variant_name)
+                                    :description, :name, :uri)
     end
 
     def sanitized_agent_relation_params
