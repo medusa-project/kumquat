@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161205212000) do
+ActiveRecord::Schema.define(version: 20161205214113) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -164,6 +164,7 @@ ActiveRecord::Schema.define(version: 20161205212000) do
     t.integer  "vocabulary_id"
     t.string   "uri"
     t.string   "type"
+    t.integer  "collection_id"
   end
 
   add_index "entity_elements", ["item_id"], name: "index_entity_elements_on_item_id", using: :btree
@@ -326,6 +327,7 @@ ActiveRecord::Schema.define(version: 20161205212000) do
   add_foreign_key "collections_roles", "collections", on_update: :cascade, on_delete: :cascade
   add_foreign_key "collections_roles", "roles", column: "allowed_role_id", on_update: :cascade, on_delete: :cascade
   add_foreign_key "collections_roles", "roles", column: "denied_role_id", on_update: :cascade, on_delete: :cascade
+  add_foreign_key "entity_elements", "collections", on_update: :cascade, on_delete: :cascade
   add_foreign_key "entity_elements", "items", on_delete: :cascade
   add_foreign_key "entity_elements", "vocabularies", on_delete: :restrict
   add_foreign_key "hosts", "roles", on_update: :cascade, on_delete: :cascade

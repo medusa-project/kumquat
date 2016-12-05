@@ -60,6 +60,8 @@ class Collection < ActiveRecord::Base
            dependent: :destroy
   has_many :children, -> { order('title ASC') },
            through: :child_collection_joins, source: :child_collection
+  has_many :elements, class_name: 'CollectionElement', inverse_of: :collection,
+           dependent: :destroy
   has_many :parent_collection_joins, class_name: 'CollectionJoin',
            primary_key: :repository_id, foreign_key: :child_repository_id,
            dependent: :destroy

@@ -127,6 +127,12 @@ namespace :dls do
 
   end
 
+  # One-time migration created 2016-12-05
+  task :migrate_elements => :environment do |task, args|
+    sql = "UPDATE entity_elements SET type = 'ItemElement'"
+    ActiveRecord::Base.connection.execute(sql)
+  end
+
   def reindex_collections
     # Reindex existing collections
     Collection.all.each { |col| col.index_in_solr }
