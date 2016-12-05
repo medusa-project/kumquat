@@ -1,0 +1,83 @@
+<%
+  # @param agent [Agent]
+  # @param agent_relation [AgentRelation]
+  # @param context [Symbol] :new or :edit
+  # @param show_relation_types [Boolean]
+%>
+
+<%= form_for([:admin, agent], remote: true) do |f| %>
+  <div class="pt-error-messages">
+    <% # populated via ajax by shared/_validation_messages.js.erb
+    %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :uri, 'URI' %>
+    <%= f.text_field :uri, class: 'form-control',
+                     placeholder: (context == :new) ?
+                         'If left blank, a random URI will be generated automatically.' : '' %>
+    <% if context == :edit %>
+      <p class="help text-danger">
+        <i class="fa fa-warning"></i> Changing the URI may break entity relationships.
+      </p>
+    <% end %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :name %>
+    <%= f.text_field :name, class: 'form-control' %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :last_name, 'Last Name' %>
+    <%= f.text_field :last_name, class: 'form-control' %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :variant_name, 'Variant Name' %>
+    <%= f.text_field :variant_name, class: 'form-control' %>
+  </div>
+
+  <% if agent_relation %>
+    <div class="form-group">
+      <%= hidden_field_tag 'agent_relation[agent_id]', agent_relation.agent_id %>
+      <%= hidden_field_tag 'agent_relation[related_agent_id]', agent_relation.related_agent_id %>
+      <%= label_tag 'agent_relation_agent_relation_type_id', 'Relation Type' %>
+      <%= select_tag 'agent_relation[agent_relation_type_id]',
+                     options_from_collection_for_select(AgentRelationType.all.order(:name), 'id', 'name'),
+                     include_blank: false,
+                     class: 'form-control' %>
+    </div>
+  <% end %>
+
+  <div class="form-group">
+    <%= label_tag :agent_rule, 'Agent Rule' %>
+    <%= select_tag 'agent[agent_rule_id]',
+                   options_from_collection_for_select(AgentRule.all.order(:name),
+                                                      'id', 'name', f.object.agent_rule_id),
+                   include_blank: true,
+                   class: 'form-control' %>
+  </div>
+
+  <div class="form-group">
+    <%= label_tag :agent_type, 'Agent Type' %>
+    <%= select_tag 'agent[agent_type_id]',
+                   options_from_collection_for_select(AgentType.all.order(:name),
+                                                      'id', 'name', f.object.agent_type_id),
+                   include_blank: true,
+                   class: 'form-control' %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :description %>
+    <%= f.text_area :description, class: 'form-control' %>
+  </div>
+
+  <div class="clearfix">
+    <div class="pull-right">
+      <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+      <%= f.submit(context == :new ? 'Create Agent' : 'Edit Agent',
+                   class: 'btn btn-primary') %>
+    </div>
+  </div>
+<% end %>

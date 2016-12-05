@@ -1,0 +1,60 @@
+<% provide :title, 'Agent Relation Types' %>
+<% provide :body_id, 'admin_agent_relation_types_index' %>
+<% provide :active_nav, 'metadata' %>
+
+<ol class="breadcrumb">
+  <li><%= link_to 'Home', admin_root_path %></li>
+  <li><%= link_to 'Agents', admin_agents_path %></li>
+  <li class="active">Relation Types</li>
+</ol>
+
+<div class="btn-group pull-right">
+  <!-- Add button -->
+  <button type="button" class="btn btn-default" data-toggle="modal"
+          data-target="#pt-add-agent-relation-type-modal">
+    <span class="fa fa-plus"></span> Add Relation Type
+  </button>
+</div>
+
+<h1>Agent Relation Types</h1>
+
+<div id="pt-agent-relation-types">
+  <%= render 'agent_relation_types' %>
+</div>
+
+<!-- Add modal -->
+<div class="modal fade" id="pt-add-agent-relation-type-modal" tabindex="-1" role="dialog"
+     aria-labelledby="pt-add-agent-relation-type-modal-label">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title" id="pt-add-agent-relation-type-modal-label">Add Relation Type</h4>
+      </div>
+      <div class="modal-body">
+        <%= render partial: 'form', locals: { type: @new_type,
+                                              context: :new } %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit modal -->
+<div class="modal fade" id="pt-edit-agent-relation-type-modal" tabindex="-1" role="dialog"
+     aria-labelledby="pt-edit-agent-relation-type-modal-label">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title" id="pt-edit-agent-relation-type-modal-label">Edit Relation Type</h4>
+      </div>
+      <div class="modal-body">
+        <% # will be populated via XHR %>
+      </div>
+    </div>
+  </div>
+</div>

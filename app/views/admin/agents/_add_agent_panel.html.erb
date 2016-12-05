@@ -1,0 +1,25 @@
+<% # Accepts the following locals:
+   # agent [Agent]
+   # agent_relation [AgentRelation]
+   # context [Symbol] :new or :edit
+%>
+
+<!-- Add-agent modal -->
+<div class="modal fade" id="pt-add-agent-modal" tabindex="-1" role="dialog"
+     aria-labelledby="pt-add-agent-modal-label">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title" id="pt-add-agent-modal-label">Add Agent</h4>
+      </div>
+      <div class="modal-body">
+        <%= render partial: 'form', locals: { agent: agent,
+                                              agent_relation: agent_relation,
+                                              context: context } %>
+      </div>
+    </div>
+  </div>
+</div>

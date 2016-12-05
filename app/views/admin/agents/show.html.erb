@@ -1,0 +1,157 @@
+<% provide :title, @agent.name %>
+<% provide :body_id, 'agents_show' %>
+<% provide :active_nav, 'metadata' %>
+
+<ol class="breadcrumb">
+  <li><%= link_to 'Home', admin_root_path %></li>
+  <li><%= link_to 'Agents', admin_agents_path %></li>
+  <li class="active"><%= @agent.name %></li>
+</ol>
+
+<div class="btn-group pull-right" role="group">
+  <!-- Edit button -->
+  <button type="button" class="btn btn-default" data-toggle="modal"
+          data-target="#pt-edit-agent-modal">
+    <i class="fa fa-pencil"></i> Edit
+  </button>
+  <!-- Delete button -->
+  <%= link_to admin_agent_path(@agent), method: :delete,
+              class: 'btn btn-danger',
+              data: { confirm: 'Are you sure you want to delete this agent?' } do %>
+    <i class="fa fa-trash"></i> Delete
+  <% end %>
+</div>
+
+<h1><%= @agent.name %></h1>
+
+<table class="table">
+  <tr>
+    <td>URI</td>
+    <td><%= @agent.uri %></td>
+  </tr>
+  <tr>
+    <td>Last Name</td>
+    <td><%= @agent.last_name %></td>
+  </tr>
+  <tr>
+    <td>Variant Name</td>
+    <td><%= @agent.variant_name %></td>
+  </tr>
+  <tr>
+    <td>Agent Rule</td>
+    <td><%= @agent.agent_rule&.name %></td>
+  </tr>
+  <tr>
+    <td>Agent Type</td>
+    <td><%= @agent.agent_type&.name %></td>
+  </tr>
+  <tr>
+    <td>Description</td>
+    <td><%= @agent.description %></td>
+  </tr>
+</table>
+
+<hr>
+
+<div class="btn-group pull-right">
+  <!-- Add Referred Agent button -->
+  <button type="button" class="btn btn-default" data-toggle="modal"
+          data-target="#pt-add-agent-modal">
+    <span class="fa fa-plus"></span> Add Referred Agent
+  </button>
+</div>
+
+<h2>Refers To</h2>
+
+<% if @related_agents.count > 0 %>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Relationship Type</th>
+        <th>URI</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @related_agents.each do |relation| %>
+        <tr>
+          <td><%= link_to relation.related_agent.name, admin_agent_path(relation.related_agent) %></td>
+          <td><%= relation.agent_relation_type&.name %></td>
+          <td><%= relation.related_agent.uri %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p>Nothing</p>
+<% end %>
+
+<hr>
+
+<h2>Referred To By</h2>
+
+<% if @relating_agents.count > 0 %>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Relationship Type</th>
+        <th>URI</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @relating_agents.each do |relation| %>
+        <tr>
+          <td><%= link_to relation.agent.name, admin_agent_path(relation.agent) %></td>
+          <td><%= relation.agent_relation_type&.name %></td>
+          <td><%= relation.agent.uri %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p>Nothing</p>
+<% end %>
+
+<hr>
+
+<h2>References</h2>
+
+<table class="table">
+  <tr>
+    <td>Agents</td>
+    <td><%= @num_agent_references %></td>
+  </tr>
+  <tr>
+    <td>Items</td>
+    <td><%= @num_item_references %></td>
+  </tr>
+  <tr>
+    <td>Collections</td>
+    <td><%= @num_collection_references %></td>
+  </tr>
+</table>
+
+
+<%= render partial: 'add_agent_panel', locals: { agent: @new_agent,
+                                                 agent_relation: @new_agent_relation,
+                                                 context: :new } %>
+
+<div class="modal fade" id="pt-edit-agent-modal" tabindex="-1" role="dialog"
+     aria-labelledby="pt-edit-agent-modal-label">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title" id="pt-edit-agent-modal-label">Edit Agent</h4>
+      </div>
+      <div class="modal-body">
+        <%= render partial: 'form', locals: { agent: @agent,
+                                              agent_relation: @new_agent_relation,
+                                              context: :edit } %>
+      </div>
+    </div>
+  </div>
+</div>

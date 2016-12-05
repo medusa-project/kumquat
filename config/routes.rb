@@ -113,6 +113,11 @@ Rails.application.routes.draw do
   namespace :admin do
     root 'dashboard#index'
 
+    resources :agents
+    resources :agent_relation_types, except: :show,
+              path: 'agent-relation-types'
+    resources :agent_rules, except: :show, path: 'agent-rules'
+    resources :agent_types, except: :show, path: 'agent-types'
     resources :elements, except: :show, path: 'elements'
     match '/elements/import', to: 'elements#import', via: 'post',
           as: 'elements_import'

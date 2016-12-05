@@ -1,0 +1,13 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  agent_id: 1
+  related_agent_id: 1
+  dates: MyString
+  description: MyText
+
+two:
+  agent_id: 1
+  related_agent_id: 1
+  dates: MyString
+  description: MyText
