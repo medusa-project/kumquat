@@ -29,6 +29,11 @@
           <i class="fa fa-rss"></i>&nbsp;&nbsp;Atom
         <% end %>
       </li>
+      <li>
+        <%= link_to params.merge(format: :json), target: '_blank' do %>
+          <i class="fa fa-code"></i>&nbsp;JSON
+        <% end %>
+      </li>
       <% iiif_url = @item.iiif_url %>
       <% if iiif_url %>
         <li>
@@ -37,11 +42,6 @@
           <% end %>
         </li>
       <% end %>
-      <li>
-        <%= link_to params.merge(format: :json), target: '_blank' do %>
-          <i class="fa fa-code"></i>&nbsp;JSON
-        <% end %>
-      </li>
       <% if @item.has_iiif_manifest? %>
         <li>
           <%= link_to item_iiif_manifest_path(@item), target: '_blank' do %>
