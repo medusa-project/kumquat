@@ -309,13 +309,6 @@ var PTItemView = function() {
             $('.pt-add-to-favorites').show();
         }
 
-        $(window).on('resize', function() {
-            var viewer = $('#pt-image-viewer');
-            if (!viewer.hasClass('fullpage')) {
-                viewer.height($(window).height() * 0.75);
-            }
-        }).trigger('resize');
-
         new PTCitationPanel();
         new PTDownloadPanel();
         new PTEmbedPanel();

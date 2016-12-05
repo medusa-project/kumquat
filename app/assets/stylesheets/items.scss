@@ -50,15 +50,7 @@ body#items_show {
     margin-bottom: 2em;
   }
   #pt-image-viewer, #pt-compound-viewer {
-    margin:0 auto;
-    margin-bottom: 1em;
-    width: 96%;
-  }
-  #pt-image-viewer {
-    max-width: 1200px;
-  }
-  #pt-compound-viewer {
-    max-width: 1400px;
+    /* Styles are defined inline. */
   }
 
   /* Compound viewer styles (for UniversalViewer) are in a style="" attribute,
@@ -67,7 +59,6 @@ body#items_show {
   #pt-pdf-viewer {
     height: 500px;
     margin: 0 auto;
-    margin-bottom: 1em;
     max-width: 1200px;
     iframe {
       height: 93%;
@@ -75,8 +66,8 @@ body#items_show {
   }
 
   #pt-video-player {
-    max-width: 1000px;
-    width: 100%;
+    margin: 0 auto;
+    width: 96%;
   }
 
   .pt-title-item, .pt-key-item, .pt-front-matter-item, .pt-index-item {
