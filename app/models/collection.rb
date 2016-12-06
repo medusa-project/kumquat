@@ -21,6 +21,7 @@
 class Collection < ActiveRecord::Base
 
   include AuthorizableByRole
+  include Describable
   include SolrQuerying
 
   class SolrFields
@@ -698,9 +699,14 @@ LIMIT 1000;
     struct = JSON.parse(json_str)
 
     ActiveRecord::Base.transaction do
+      self.elements.destroy_all
+
       self.access_systems = struct['access_systems'].map{ |t| t['name'] }
       self.access_url = struct['access_url']
-      self.description = struct['description']
+      if struct['description'].present?
+        self.description = self.elements.build(name: 'description',
+                                               value: struct['description'])
+      end
       self.description_html = struct['description_html']
       self.medusa_repository_id = struct['repository_path'].gsub(/[^0-9+]/, '').to_i
       self.physical_collection_url = struct['physical_collection_url']
@@ -711,7 +717,7 @@ LIMIT 1000;
         t['name'].split(' ').map{ |t| t.present? ? t.capitalize : '' }.join(' ')
       end
       self.rights_statement = struct['rights']['custom_copyright_statement']
-      self.title = struct['title']
+      self.elements.build(name: 'title', value: struct['title'])
 
       self.parents.destroy_all
       struct['parent_collections'].each do |parent_struct|
