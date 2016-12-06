@@ -242,20 +242,20 @@ SELECT items.repository_id,
   array_to_string(
     array(
       SELECT replace(replace(coalesce(value, '') || '&&<' || coalesce(uri, '') || '>', '&&<>', ''), '||&&', '')
-        FROM item_elements
-        WHERE item_elements.item_id = items.id
-          AND (item_elements.vocabulary_id IS NULL OR item_elements.vocabulary_id = 11)
-          AND item_elements.name = 'subject'
+        FROM entity_elements
+        WHERE entity_elements.item_id = items.id
+          AND (entity_elements.vocabulary_id IS NULL OR entity_elements.vocabulary_id = 11)
+          AND entity_elements.name = 'subject'
           AND (value IS NOT NULL OR uri IS NOT NULL)
           AND (length(value) > 0 OR length(uri) > 0)
     ), '||') AS uncontrolled_subject,
   array_to_string(
     array(
       SELECT replace(replace(coalesce(value, '') || '&&<' || coalesce(uri, '') || '>', '&&<>', ''), '||&&', '')
-        FROM item_elements
-        WHERE item_elements.item_id = items.id
-          AND (item_elements.vocabulary_id = 11)
-          AND item_elements.name = 'subject'
+        FROM entity_elements
+        WHERE entity_elements.item_id = items.id
+          AND (entity_elements.vocabulary_id = 11)
+          AND entity_elements.name = 'subject'
           AND (value IS NOT NULL OR uri IS NOT NULL)
           AND (length(value) > 0 OR length(uri) > 0)
     ), '||') AS lcsh_subject
@@ -274,14 +274,14 @@ LIMIT 1000;
       subselects = []
       ed.vocabularies.sort{ |v| v.key <=> v.key }.each do |vocab|
         vocab_id = (vocab == Vocabulary.uncontrolled) ?
-            "IS NULL OR item_elements.vocabulary_id = #{Vocabulary.uncontrolled.id}" : "= #{vocab.id}"
+            "IS NULL OR entity_elements.vocabulary_id = #{Vocabulary.uncontrolled.id}" : "= #{vocab.id}"
         subselects << "array_to_string(
             array(
               SELECT replace(replace(coalesce(value, '') || '#{Item::TSV_URI_VALUE_SEPARATOR}<' || coalesce(uri, '') || '>', '#{Item::TSV_URI_VALUE_SEPARATOR}<>', ''), '||#{Item::TSV_URI_VALUE_SEPARATOR}', '')
-              FROM item_elements
-              WHERE item_elements.item_id = items.id
-                AND (item_elements.vocabulary_id #{vocab_id})
-                AND item_elements.name = '#{ed.name}'
+              FROM entity_elements
+              WHERE entity_elements.item_id = items.id
+                AND (entity_elements.vocabulary_id #{vocab_id})
+                AND entity_elements.name = '#{ed.name}'
                 AND (value IS NOT NULL OR uri IS NOT NULL)
                 AND (length(value) > 0 OR length(uri) > 0)
             ), '#{Item::TSV_MULTI_VALUE_SEPARATOR}') AS #{vocab.key}_#{ed.name}"
@@ -321,14 +321,14 @@ LIMIT 1000;
       #{element_subselects.join(",\n")}
     FROM items "
     # If we are supposed to include only undescribed items, join the
-    # item_elements table and search for title elements whose values match a
+    # entity_elements table and search for title elements whose values match a
     # UUID regex. (IMET-382)
     if options[:only_undescribed]
-      sql += 'LEFT JOIN item_elements ON item_elements.item_id = items.id '
+      sql += 'LEFT JOIN entity_elements ON entity_elements.item_id = items.id '
     end
     sql += "WHERE items.collection_repository_id = $1 "
     if options[:only_undescribed]
-      sql += "AND (item_elements.value ~* '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}' OR item_elements.item_id IS NULL) "
+      sql += "AND (entity_elements.value ~* '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}' OR entity_elements.item_id IS NULL) "
     end
     sql += "ORDER BY
       case
