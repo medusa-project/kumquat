@@ -5,9 +5,11 @@ one:
   related_agent_id: 1
   dates: MyString
   description: MyText
+  agent_relation_type: one
 
 two:
   agent_id: 1
   related_agent_id: 1
   dates: MyString
   description: MyText
+  agent_relation_type: one

@@ -1,15 +1,15 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  uri: MyString
-  name: MyString
+  uri: http://example.org/agents/1
+  name: Agent 1
   begin_date: 2016-11-30 13:37:22
   end_date: 2016-11-30 13:37:22
   description: MyText
 
 two:
-  uri: MyString
-  name: MyString
+  uri: http://example.org/agents/2
+  name: Agent 2
   begin_date: 2016-11-30 13:37:22
   end_date: 2016-11-30 13:37:22
   description: MyText
