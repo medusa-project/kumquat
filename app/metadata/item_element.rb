@@ -14,11 +14,6 @@
 #
 class ItemElement < EntityElement
 
-  class Type
-    DESCRIPTIVE = 0
-    TECHNICAL = 1
-  end
-
   belongs_to :item, inverse_of: :elements, touch: true
 
   @@element_properties = YAML::load_file(File.join(__dir__, 'metadata.yml'))
@@ -29,7 +24,7 @@ class ItemElement < EntityElement
   def self.all_available
     # Technical elements
     all_elements = @@element_properties.map do |name, props|
-      ItemElement.new(name: name, type: Type::TECHNICAL)
+      ItemElement.new(name: name)
     end
     # Descriptive elements
     all_elements += all_descriptive
@@ -41,7 +36,7 @@ class ItemElement < EntityElement
   #
   def self.all_descriptive
     Element.all.map do |elem|
-      ItemElement.new(name: elem.name, type: Type::DESCRIPTIVE)
+      ItemElement.new(name: elem.name)
     end
   end
 
