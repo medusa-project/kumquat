@@ -9,7 +9,7 @@ module Admin
       @agent = Agent.new(sanitized_agent_params)
       begin
         ActiveRecord::Base.transaction do
-          params[:agent_uris].each do |k, v|
+          params[:agent_uris].select{ |k, v| v[:uri]&.present? }.each do |k, v|
             @agent.agent_uris.build(uri: v[:uri],
                                     primary: (v[:primary] == 'true'))
           end
@@ -104,7 +104,7 @@ module Admin
       begin
         ActiveRecord::Base.transaction do
           agent.agent_uris.destroy_all
-          params[:agent_uris].each do |k, v|
+          params[:agent_uris].select{ |k, v| v[:uri]&.present? }.each do |k, v|
             agent.agent_uris.build(uri: v[:uri],
                                    primary: (v[:primary] == 'true'))
           end
