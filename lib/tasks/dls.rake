@@ -1,5 +1,21 @@
 namespace :dls do
 
+  namespace :agents do
+
+    desc 'Reindex all agents'
+    task :reindex => :environment do |task, args|
+      # Reindex existing collections
+      Agent.all.each { |agent| agent.index_in_solr }
+      # Remove indexed documents whose entities have disappeared.
+      # (For these, Relation will contain a string ID in place of an instance.)
+      Agent.solr.all.limit(99999).select{ |a| a.to_s == a }.each do |agent_id|
+        Solr.delete_by_id(agent_id)
+      end
+      Solr.instance.commit
+    end
+
+  end
+
   namespace :bytestreams do
 
     desc 'Update bytestreams in all collections'

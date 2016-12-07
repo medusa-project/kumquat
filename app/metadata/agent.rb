@@ -1,5 +1,14 @@
 class Agent < ActiveRecord::Base
 
+  include SolrQuerying
+
+  class SolrFields
+    CLASS = 'class_si'
+    DESCRIPTION = "#{EntityElement::solr_prefix}_description_txti"
+    NAME = "#{EntityElement::solr_prefix}_title_txti"
+    ID = 'id'
+  end
+
   belongs_to :agent_rule, inverse_of: :agents
   belongs_to :agent_type, inverse_of: :agents
 
@@ -13,6 +22,20 @@ class Agent < ActiveRecord::Base
   before_validation :ascribe_default_uri, if: :new_record?
 
   validates_presence_of :name
+
+  after_commit :index_in_solr, on: [:create, :update]
+  after_commit :delete_from_solr, on: :destroy
+
+  def delete_from_solr
+    Solr.instance.delete(self.solr_id)
+  end
+
+  ##
+  # @return [void]
+  #
+  def index_in_solr
+    Solr.instance.add(self.to_solr)
+  end
 
   ##
   # @return [String, nil] The agent's primary URI, or one if its URIs if none
@@ -39,6 +62,25 @@ class Agent < ActiveRecord::Base
         where('entity_elements.uri IN (?)', self.agent_uris.map(&:uri)).
         where('variant IS NULL OR variant IN (?)',
               [Item::Variants::DIRECTORY, Item::Variants::FILE])
+  end
+
+  ##
+  # @return [String]
+  #
+  def solr_id
+    "agent-#{self.id}"
+  end
+
+  ##
+  # @return [Hash]
+  #
+  def to_solr
+    doc = {}
+    doc[SolrFields::ID] = self.solr_id
+    doc[SolrFields::CLASS] = self.class.to_s
+    doc[SolrFields::DESCRIPTION] = self.description.to_s
+    doc[SolrFields::NAME] = self.name.to_s
+    doc
   end
 
   private
