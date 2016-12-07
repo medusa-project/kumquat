@@ -407,11 +407,11 @@ module ItemsHelper
       html += "<dt>#{e_def.label}</dt>"
       html += '<dd>'
       if elements.length == 1
-        html += auto_link(elements.first.value)
+        html += metadata_value_for_element(elements.first)
       else
         html += '<ul>'
         elements.each do |element|
-          html += "<li>#{auto_link(element.value)}</li>"
+          html += "<li>#{metadata_value_for_element(element)}</li>"
         end
         html += '</ul>'
       end
@@ -442,11 +442,11 @@ module ItemsHelper
       html += "<td>#{e_def.label}</td>"
       html += '<td>'
       if elements.length == 1
-        html += auto_link(elements.first.value)
+        html += metadata_value_for_element(elements.first)
       else
         html += '<ul>'
         elements.each do |element|
-          html += "<li>#{auto_link(element.value)}</li>"
+          html += "<li>#{raw(metadata_value_for_element(element))}</li>"
         end
         html += '</ul>'
       end
@@ -1380,6 +1380,29 @@ module ItemsHelper
       panel += "</li>"
     end
     raw(panel + '</ul></div></div>')
+  end
+
+  ##
+  # If the element has a string value but no URI, or a URI not corresponding to
+  # an agent URI, returns the string value with URIs auto-linked.
+  #
+  # If the element has a string value and a URI corresponding to an agent URI,
+  # returns the string value linking to the corresponding show-agent page.
+  #
+  # If the element has a URI corresponding to an agent URI but no string value,
+  # returns the agent name linking to the corresponding show-agent page.
+  #
+  # @param element [EntityElement]
+  # @return [String] HTML string
+  #
+  def metadata_value_for_element(element)
+    if element.agent
+      label = element.value.present? ? element.value : element.agent.name
+      value = link_to(label, element.agent)
+    else
+      value = auto_link(element.value)
+    end
+    value
   end
 
   def pdf_viewer_for(item)

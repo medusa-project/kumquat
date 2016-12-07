@@ -4,11 +4,6 @@ class AgentsController < WebsiteController
   # Responds to GET /agents/:id
   #
   def show
-    if Socket.gethostname.start_with?('kumquat-prod')
-      render text: 'Agents are not yet available in production.', status: 403
-      return
-    end
-
     @agent = Agent.find(params[:id])
     fresh_when(etag: @agent) if Rails.env.production?
 
