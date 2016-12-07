@@ -62,6 +62,14 @@ class EntityElement < ActiveRecord::Base
     '_txtim'
   end
 
+  def agent
+    agent = nil
+    if self.uri.present?
+      agent = AgentUri.find_by_uri(self.uri)&.agent
+    end
+    agent
+  end
+
   def serializable_hash(opts)
     opts ||= {}
     super(opts.merge(only: [ :name, :value ]))
