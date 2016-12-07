@@ -27,7 +27,7 @@ module Admin
                locals: { entity: @agent }
       rescue => e
         response.headers['X-PearTree-Result'] = 'error'
-        handlbunde_error(e)
+        handle_error(e)
         keep_flash
         render 'create'
       else
