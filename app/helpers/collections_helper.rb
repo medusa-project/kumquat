@@ -42,7 +42,13 @@ module CollectionsHelper
     thumb_size = 500
     html = ''
     collections.each do |col|
-      bs = col.representative_image_bytestream
+      begin
+        # If the reference to the bytestream is invalid (for example, an
+        # invalid UUID has been entered), this will raise an error.
+        bs = col.representative_image_bytestream
+      rescue => e
+        Rails.logger.warn("collections_as_cards(): #{e} (#{col})")
+      end
       if bs
         img_url = bytestream_image_url(bs, thumb_size, :square)
       else
