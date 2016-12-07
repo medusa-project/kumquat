@@ -12,20 +12,42 @@
   </div>
 
   <div class="form-group">
-    <%= f.label :uri, 'URI' %>
-    <%= f.text_field :uri, class: 'form-control',
-                     placeholder: (context == :new) ?
-                         'If left blank, a random URI will be generated automatically.' : '' %>
-    <% if context == :edit %>
-      <p class="help text-danger">
-        <i class="fa fa-warning"></i> Changing the URI may break entity relationships.
-      </p>
-    <% end %>
+    <%= f.label :name %>
+    <%= f.text_field :name, class: 'form-control' %>
   </div>
 
   <div class="form-group">
-    <%= f.label :name %>
-    <%= f.text_field :name, class: 'form-control' %>
+    <%= f.label 'uris', 'URIs' %>
+    <% if context == :edit %>
+      <span class="help text-danger">
+        <i class="fa fa-warning"></i> Changing URIs may break entity relationships.
+      </span>
+    <% end %>
+    <table id="pt-agent-uris" border="0">
+      <% for index in 0..(f.object.agent_uris.length - 1) %>
+        <% uri = f.object.agent_uris[index] %>
+        <tr>
+          <td>
+            <%= text_field_tag "agent_uris[#{index}][uri]", uri&.uri,
+                               class: 'form-control' %>
+          </td>
+          <td style="width:100px">
+            <%= label_tag do %>
+              <%= radio_button_tag "agent_uris[#{index}][primary]", 'true',
+                                   uri&.primary %> Primary
+            <% end %>
+          </td>
+          <td style="width:1px">
+            <button class="btn btn-sm btn-danger pt-remove">
+              <i class="fa fa-minus"></i>
+            </button>
+          </td>
+        </tr>
+      <% end %>
+    </table>
+    <button class="btn btn-sm btn-success pt-add">
+      <i class="fa fa-plus"></i>
+    </button>
   </div>
 
   <% if agent_relation %>

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161205214113) do
+ActiveRecord::Schema.define(version: 20161207163426) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -55,8 +55,17 @@ ActiveRecord::Schema.define(version: 20161205214113) do
 
   add_index "agent_types", ["name"], name: "index_agent_types_on_name", unique: true, using: :btree
 
+  create_table "agent_uris", force: :cascade do |t|
+    t.string   "uri",                        null: false
+    t.integer  "agent_id"
+    t.boolean  "primary",    default: false
+    t.datetime "created_at",                 null: false
+    t.datetime "updated_at",                 null: false
+  end
+
+  add_index "agent_uris", ["uri"], name: "index_agent_uris_on_uri", unique: true, using: :btree
+
   create_table "agents", force: :cascade do |t|
-    t.string   "uri",           null: false
     t.string   "name",          null: false
     t.datetime "begin_date"
     t.datetime "end_date"
@@ -70,7 +79,6 @@ ActiveRecord::Schema.define(version: 20161205214113) do
   add_index "agents", ["begin_date"], name: "index_agents_on_begin_date", using: :btree
   add_index "agents", ["end_date"], name: "index_agents_on_end_date", using: :btree
   add_index "agents", ["name"], name: "index_agents_on_name", using: :btree
-  add_index "agents", ["uri"], name: "index_agents_on_uri", unique: true, using: :btree
 
   create_table "bytestreams", force: :cascade do |t|
     t.integer  "bytestream_type"
@@ -321,6 +329,7 @@ ActiveRecord::Schema.define(version: 20161205214113) do
   add_foreign_key "agent_relations", "agent_relation_types", on_update: :cascade, on_delete: :restrict
   add_foreign_key "agent_relations", "agents", column: "related_agent_id", on_update: :cascade, on_delete: :cascade
   add_foreign_key "agent_relations", "agents", on_update: :cascade, on_delete: :cascade
+  add_foreign_key "agent_uris", "agents", on_update: :cascade, on_delete: :cascade
   add_foreign_key "agents", "agent_rules", on_update: :cascade, on_delete: :restrict
   add_foreign_key "agents", "agent_types", on_update: :cascade, on_delete: :restrict
   add_foreign_key "bytestreams", "items", on_delete: :cascade

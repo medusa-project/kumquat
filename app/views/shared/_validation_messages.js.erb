@@ -1,4 +1,6 @@
-<% # displays validation error messages received via ajax in an edit form.
+<%
+# displays validation error messages received via ajax in an edit form.
+# Supply an "entity" local, which may be a model object or an Exception.
 %>
 // refresh error messages after a failed edit
 $('.pt-error-messages').html("<%= j render partial: 'shared/error_messages', locals: { object: entity } %>");

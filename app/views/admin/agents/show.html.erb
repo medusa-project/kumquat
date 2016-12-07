@@ -26,8 +26,15 @@
 
 <table class="table">
   <tr>
-    <td>URI</td>
-    <td><%= @agent.uri %></td>
+    <td>URIs</td>
+    <td>
+      <ul>
+        <% @agent.agent_uris.each do |uri| %>
+          <li><%= uri %> <%= uri.primary ?
+                                 raw('<span class="label label-success">primary</span>') : '' %></li>
+        <% end %>
+      </ul>
+    </td>
   </tr>
   <tr>
     <td>Agent Rule</td>
@@ -69,7 +76,7 @@
         <tr>
           <td><%= link_to relation.related_agent.name, admin_agent_path(relation.related_agent) %></td>
           <td><%= relation.agent_relation_type&.name %></td>
-          <td><%= relation.related_agent.uri %></td>
+          <td><%= relation.related_agent.primary_uri %></td>
         </tr>
       <% end %>
     </tbody>
@@ -96,7 +103,7 @@
         <tr>
           <td><%= link_to relation.agent.name, admin_agent_path(relation.agent) %></td>
           <td><%= relation.agent_relation_type&.name %></td>
-          <td><%= relation.agent.uri %></td>
+          <td><%= relation.agent.primary_uri %></td>
         </tr>
       <% end %>
     </tbody>
