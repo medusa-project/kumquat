@@ -23,6 +23,24 @@ class Agent < ActiveRecord::Base
     self.agent_uris.select(&:primary).first&.uri || self.agent_uris.first&.uri
   end
 
+  ##
+  # @return [Enumerable<Collection>]
+  #
+  def related_collections
+    Collection.joins('LEFT JOIN entity_elements ON entity_elements.collection_id = collections.id').
+        where('entity_elements.uri IN (?)', self.agent_uris.map(&:uri))
+  end
+
+  ##
+  # @return [Enumerable<Item>]
+  #
+  def related_objects
+    Item.joins('LEFT JOIN entity_elements ON entity_elements.item_id = items.id').
+        where('entity_elements.uri IN (?)', self.agent_uris.map(&:uri)).
+        where('variant IS NULL OR variant IN (?)',
+              [Item::Variants::DIRECTORY, Item::Variants::FILE])
+  end
+
   private
 
   def ascribe_default_uri
