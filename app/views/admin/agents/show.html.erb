@@ -32,6 +32,16 @@
         <i class="fa fa-globe"></i>&nbsp;&nbsp;Public View
       <% end %>
     </li>
+    <% if Rails.env.development? %>
+      <li class="divider"></li>
+      <li>
+        <%= link_to(Configuration.instance.solr_url.chomp('/') + '/' +
+                        Configuration.instance.solr_core +
+                        "/select?wt=json&indent=true&q=id:#{@agent.solr_id}", target: '_blank') do %>
+          <i class="fa fa-search"></i>&nbsp;&nbsp;Solr (DEVELOPMENT)
+        <% end %>
+      </li>
+    <% end %>
   </ul>
   <!-- Delete button -->
   <%= link_to admin_agent_path(@agent), method: :delete,
