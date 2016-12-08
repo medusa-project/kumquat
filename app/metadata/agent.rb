@@ -26,14 +26,6 @@ class Agent < ActiveRecord::Base
   after_commit :index_in_solr, on: [:create, :update]
   after_commit :delete_from_solr, on: :destroy
 
-  ##
-  # @return [Enumerable<Agent>] All agents either referring to or referred to
-  #                             by the instance.
-  #
-  def bidirectional_related_agents
-    AgentRelation.where(related_agent_id: self.id).map(&:agent) + self.related_agents
-  end
-
   def delete_from_solr
     Solr.instance.delete(self.solr_id)
   end

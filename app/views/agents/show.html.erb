@@ -32,12 +32,18 @@
 
 <p><%= @agent.description %></p>
 
-<% if @related_agents.any? %>
+<% if @agent_relations.any? %>
   <hr>
-  <h2>Related Agents <span class="badge"><%= @related_agents.length %></span></h2>
+  <h2>Related Agents <span class="badge"><%= @agent_relations.length %></span></h2>
   <ul>
-    <% @related_agents.each do |agent| %>
-      <li><%= link_to agent.name, agent %></li>
+    <% @agent_relations.each do |relation| %>
+      <% if relation.agent.id == @agent.id %>
+        <li><%= relation.agent_relation_type&.name %>
+          <%= link_to relation.related_agent.name, relation.related_agent %></li>
+      <% else %>
+        <li><%= link_to relation.agent.name, relation.agent %>
+          <%= relation.agent_relation_type.name %> <%= @agent.name %></li>
+      <% end %>
     <% end %>
   </ul>
 <% end %>

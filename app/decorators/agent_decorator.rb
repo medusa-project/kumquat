@@ -19,9 +19,19 @@ class AgentDecorator < Draper::Decorator
         name: self.name,
         description: self.description,
         uris: self.agent_uris.map(&:uri),
-        related_agents: context[:related_agents].map{ |o| { url: agent_url(o) } },
-        related_collections: context[:related_collections].map{ |o| { url: collection_url(o) } },
-        related_objects: context[:related_objects].map{ |o| { url: item_url(o) } }
+        agent_relations: context[:agent_relations].map{ |r|
+          {
+              subject: agent_url(r.agent),
+              relationship: r.agent_relation_type&.name,
+              object: agent_url(r.related_agent)
+          }
+        },
+        related_collections: context[:related_collections].map{ |c|
+          { uri: collection_url(c) }
+        },
+        related_objects: context[:related_objects].map{ |o|
+          { uri: item_url(o) }
+        }
     }
   end
 
