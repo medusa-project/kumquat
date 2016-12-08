@@ -6,5 +6,5 @@
 <% end %>
 
 <div class="text-center">
-  <%= paginate_pages(@item, @pages, @limit, @current_page) %>
+  <%= paginate_pages(@item, @pages.total_length, @limit, @current_page) %>
 </div>

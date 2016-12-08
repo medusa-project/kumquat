@@ -563,38 +563,38 @@ module ItemsHelper
   ##
   # Returns pagination for files in show-item view.
   #
-  # @param items [Relation]
+  # @param count [Integer]
   # @param per_page [Integer]
   # @param current_page [Integer]
   # @param max_links [Integer] (ideally odd)
   #
-  def paginate_files(parent_item, items, per_page, current_page, max_links = 9)
-    do_paginate(items, per_page, current_page, true, max_links, parent_item,
-                Item::Variants::FILE)
+  def paginate_files(parent_item, count, per_page, current_page, max_links = 9)
+    do_paginate(count, per_page, current_page, true, max_links,
+                parent_item, Item::Variants::FILE)
   end
 
   ##
   # Returns pagination for item results view.
   #
-  # @param items [Relation]
+  # @param count [Integer]
   # @param per_page [Integer]
   # @param current_page [Integer]
   # @param max_links [Integer] (ideally odd)
   #
-  def paginate_items(items, per_page, current_page, max_links = 9)
-    do_paginate(items, per_page, current_page, true, max_links)
+  def paginate_items(count, per_page, current_page, max_links = 9)
+    do_paginate(count, per_page, current_page, true, max_links)
   end
 
   ##
   # Returns pagination for pages in show-item view.
   #
-  # @param items [Relation]
+  # @param count [Integer]
   # @param per_page [Integer]
   # @param current_page [Integer]
   # @param max_links [Integer] (ideally odd)
   #
-  def paginate_pages(parent_item, items, per_page, current_page, max_links = 9)
-    do_paginate(items, per_page, current_page, true, max_links, parent_item,
+  def paginate_pages(parent_item, count, per_page, current_page, max_links = 9)
+    do_paginate(count, per_page, current_page, true, max_links, parent_item,
                 Item::Variants::PAGE)
   end
 
@@ -1202,7 +1202,7 @@ module ItemsHelper
   end
 
   ##
-  # @param items [Relation]
+  # @param count [Integer] Total number of items in the result set
   # @param per_page [Integer]
   # @param current_page [Integer]
   # @param remote [Boolean]
@@ -1210,11 +1210,11 @@ module ItemsHelper
   # @param parent_item [Item]
   # @param child_item_variant [Item::Variant]
   #
-  def do_paginate(items, per_page, current_page, remote = false,
+  def do_paginate(count, per_page, current_page, remote = false,
                   max_links = ApplicationHelper::MAX_PAGINATION_LINKS,
                   parent_item = nil, child_item_variant = nil)
-    return '' if items.total_length <= per_page
-    num_pages = (items.total_length / per_page.to_f).ceil
+    return '' if count <= per_page
+    num_pages = (count / per_page.to_f).ceil
     first_page = [1, current_page - (max_links / 2.0).floor].max
     last_page = [first_page + max_links - 1, num_pages].min
     first_page = last_page - max_links + 1 if

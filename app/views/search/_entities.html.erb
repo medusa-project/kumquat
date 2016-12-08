@@ -4,7 +4,7 @@
                     show_remove_from_favorites_buttons: true) %>
 
   <div class="text-center">
-    <%= paginate_items(@entities, @limit, @current_page) %>
+    <%= paginate_items(@entities.total_length, @limit, @current_page) %>
   </div>
 <% else %>
   <div class="pt-no-results">

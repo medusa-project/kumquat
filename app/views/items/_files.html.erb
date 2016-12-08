@@ -13,5 +13,5 @@
 <% end %>
 
 <div class="text-center">
-  <%= paginate_files(@item, @files, @limit, @current_page) %>
+  <%= paginate_files(@item, @files.total_length, @limit, @current_page) %>
 </div>
