@@ -34,7 +34,7 @@
 
 <% if @related_agents.any? %>
   <hr>
-  <h2>Related Agents</h2>
+  <h2>Related Agents <span class="badge"><%= @related_agents.length %></span></h2>
   <ul>
     <% @related_agents.each do |agent| %>
       <li><%= link_to agent.name, agent %></li>
@@ -44,7 +44,7 @@
 
 <% if @related_objects.any? %>
   <hr>
-  <h2>Related Items</h2>
+  <h2>Related Items <span class="badge"><%= @related_objects.count %></span></h2>
   <div class="pt-results pt-flex-results">
     <%= items_as_flex(@related_objects) %>
   </div>
