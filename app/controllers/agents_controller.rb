@@ -7,7 +7,7 @@ class AgentsController < WebsiteController
     @agent = Agent.find(params[:id])
     fresh_when(etag: @agent) if Rails.env.production?
 
-    @related_agents = @agent.related_agents
+    @related_agents = @agent.bidirectional_related_agents
     @related_objects = @agent.related_objects # TODO: respect authorization
     @related_collections = @agent.related_collections # TODO: respect authorization
 

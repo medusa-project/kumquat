@@ -15,10 +15,12 @@
 //= require jquery.cookie
 //= require bootstrap-sprockets
 //= require local_time
+//= require jquery.grid-a-licious.min.js
 
 //= require ajax
 //= require peartree
 //= require models/item
+//= require agents
 //= require collections
 //= require favorites
 //= require items

@@ -30,29 +30,22 @@
 
 <h1><%= @agent.name %></h1>
 
-<% if @related_collections.any? %>
-  <h2>Related Collections</h2>
-  <ul>
-    <% @related_collections.each do |col| %>
-      <li><%= link_to col.title, col %></li>
-    <% end %>
-  </ul>
-<% end %>
-
-<% if @related_objects.any? %>
-  <h2>Related Items</h2>
-  <ul>
-    <% @related_objects.each do |item| %>
-      <li><%= link_to item.title, item %></li>
-    <% end %>
-  </ul>
-<% end %>
+<p><%= @agent.description %></p>
 
 <% if @related_agents.any? %>
+  <hr>
   <h2>Related Agents</h2>
   <ul>
     <% @related_agents.each do |agent| %>
       <li><%= link_to agent.name, agent %></li>
     <% end %>
   </ul>
+<% end %>
+
+<% if @related_objects.any? %>
+  <hr>
+  <h2>Related Items</h2>
+  <div class="pt-results pt-flex-results">
+    <%= items_as_flex(@related_objects) %>
+  </div>
 <% end %>

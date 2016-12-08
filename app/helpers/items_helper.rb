@@ -271,6 +271,31 @@ module ItemsHelper
   end
 
   ##
+  # @param items [Enumerable<Items>]
+  # @return [String]
+  #
+  def items_as_flex(items)
+    # needs to be kept in sync with the width defined in agents.js
+    thumb_width = 300
+    html = ''
+    items.each do |item|
+      html += '<div class="pt-object">'
+      html +=    link_to(item) do
+        raw('<div class="pt-thumbnail">' +
+                thumbnail_tag(item.effective_representative_item, thumb_width) +
+            '</div>')
+      end
+      html += '  <h4 class="pt-title">'
+      html +=      link_to(item.title, item)
+      html +=      remove_from_favorites_button(item)
+      html +=      add_to_favorites_button(item)
+      html += '  </h4>'
+      html += '</div>'
+    end
+    raw(html)
+  end
+
+  ##
   # @param entities [Relation<SolrQuerying>]
   # @param start [integer]
   # @param options [Hash] with available keys:
@@ -335,17 +360,11 @@ module ItemsHelper
       if entity.kind_of?(Item)
         # remove-from-favorites button
         if options[:show_remove_from_favorites_buttons]
-          html += ' <button class="btn btn-xs btn-danger ' +
-              'pt-remove-from-favorites" data-item-id="' + entity.repository_id + '">'
-          html += '<i class="fa fa-heart"></i> Remove'
-          html += '</button>'
+          html += remove_from_favorites_button(entity)
         end
         # add-to-favorites button
         if options[:show_add_to_favorites_buttons]
-          html += ' <button class="btn btn-default btn-xs ' +
-              'pt-add-to-favorites" data-item-id="' + entity.repository_id + '">'
-          html += '<i class="fa fa-heart-o"></i>'
-          html += '</button>'
+          html += add_to_favorites_button(entity)
         end
       end
 
@@ -1051,6 +1070,18 @@ module ItemsHelper
 
   private
 
+  ##
+  # @param item [Item]
+  # @return [String] HTML <button> element
+  #
+  def add_to_favorites_button(item)
+    html = '<button class="btn btn-default btn-xs ' +
+        'pt-add-to-favorites" data-item-id="' + item.repository_id + '">'
+    html += '  <i class="fa fa-heart-o"></i>'
+    html += '</button>'
+    raw(html)
+  end
+
   def audio_player_for(item)
     bs = item.bytestreams.select{ |bs| bs.bytestream_type == Bytestream::Type::ACCESS_MASTER }.first
     url = item_access_master_bytestream_url(item, disposition: 'inline')
@@ -1424,6 +1455,18 @@ module ItemsHelper
       end
     end
     html += '</div>'
+    raw(html)
+  end
+
+  ##
+  # @param item [Item]
+  # @return [String] HTML <button> element
+  #
+  def remove_from_favorites_button(item)
+    html = '<button class="btn btn-xs btn-danger ' +
+        'pt-remove-from-favorites" data-item-id="' + item.repository_id + '">'
+    html += '  <i class="fa fa-heart"></i> Remove'
+    html += '</button>'
     raw(html)
   end
 
