@@ -39,10 +39,18 @@
     <% @agent_relations.each do |relation| %>
       <% if relation.agent.id == @agent.id %>
         <li><%= relation.agent_relation_type&.name %>
-          <%= link_to relation.related_agent.name, relation.related_agent %></li>
+          <%= link_to relation.related_agent.name, relation.related_agent %>
+          <% if relation.dates.present? %>
+            <small>(<%= relation.dates %>)</small>
+          <% end %>
+        </li>
       <% else %>
         <li><%= link_to relation.agent.name, relation.agent %>
-          <%= relation.agent_relation_type.name %> <%= @agent.name %></li>
+          <%= relation.agent_relation_type.name %> <%= @agent.name %>
+          <% if relation.dates.present? %>
+              <small>(<%= relation.dates %>)</small>
+          <% end %>
+        </li>
       <% end %>
     <% end %>
   </ul>
