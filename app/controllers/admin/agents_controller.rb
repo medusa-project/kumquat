@@ -73,7 +73,9 @@ module Admin
       @agents = Agent.all.order(:name).offset(@start).limit(@limit)
 
       if params[:q].present?
-        @agents = @agents.where('LOWER(name) LIKE ?', "%#{params[:q].downcase}%")
+        q = "%#{params[:q].downcase}%"
+        @agents = @agents.joins('LEFT JOIN agent_uris ON agent_uris.agent_id = agents.id').
+            where('LOWER(name) LIKE ? OR LOWER(agent_uris.uri) LIKE ?', q, q)
       end
 
       @new_agent = Agent.new
