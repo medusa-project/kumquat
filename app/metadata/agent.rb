@@ -60,7 +60,7 @@ class Agent < ActiveRecord::Base
   def related_objects
     Item.joins('LEFT JOIN entity_elements ON entity_elements.item_id = items.id').
         where('entity_elements.uri IN (?)', self.agent_uris.map(&:uri)).
-        where('variant IS NULL OR variant IN (?)',
+        where('variant IS NULL OR variant = ? OR variant IN (?)', '',
               [Item::Variants::DIRECTORY, Item::Variants::FILE])
   end
 
