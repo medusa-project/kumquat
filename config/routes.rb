@@ -79,7 +79,9 @@ Rails.application.routes.draw do
   match '/cdm/landingpage/collection/:alias',
         to: 'contentdm#redirect_to_dls_collection', via: :all
 
-  resources :agents, only: :show
+  resources :agents, only: :show do
+    match '/items', to: 'agents#items', via: 'get', as: :items
+  end
   match '/auth/:provider/callback', to: 'sessions#create', via: [:get, :post],
         as: :auth # used by omniauth
   resources :collections, only: [:index, :show] do

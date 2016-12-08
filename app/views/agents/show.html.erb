@@ -58,8 +58,8 @@
 
 <% if @related_objects.any? %>
   <hr>
-  <h2>Related Items <span class="badge"><%= @related_objects.count %></span></h2>
-  <div class="pt-results pt-flex-results">
-    <%= items_as_flex(@related_objects) %>
+  <h2>Related Items <span class="badge"><%= @related_object_count %></span></h2>
+  <div id="pt-items">
+    <%= render partial: 'items' %>
   </div>
 <% end %>

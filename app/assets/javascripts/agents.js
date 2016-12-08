@@ -5,6 +5,8 @@
  */
 var PTAgentView = function() {
 
+    var self = this;
+
     this.init = function() {
         $(document).on(PearTree.Events.ITEM_ADDED_TO_FAVORITES, function(event, item) {
             $('.pt-results button.pt-remove-from-favorites[data-item-id="' + item.id + '"]').show();
@@ -44,8 +46,7 @@ var PTAgentView = function() {
             }
         });
 
-        // http://suprb.com/apps/gridalicious/
-        $('.pt-flex-results').gridalicious({ width: 260, selector: '.pt-object' });
+        self.layout();
     };
 
     /**
@@ -57,6 +58,11 @@ var PTAgentView = function() {
         return item;
     };
 
+    this.layout = function() {
+        // http://suprb.com/apps/gridalicious/
+        $('.pt-flex-results').gridalicious({ width: 260, selector: '.pt-object' });
+    };
+
     var updateFavoritesCount = function() {
         var badge = $('.pt-favorites-count');
         badge.text(PTItem.numFavorites());
@@ -66,7 +72,8 @@ var PTAgentView = function() {
 
 var ready = function() {
     if ($('body#agents_show').length) {
-        new PTAgentView().init();
+        PearTree.view = new PTAgentView();
+        PearTree.view.init();
     }
 };
 
