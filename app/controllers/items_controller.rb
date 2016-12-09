@@ -315,15 +315,10 @@ class ItemsController < WebsiteController
         end
 
         set_files_ivar
-        if @files.total_length > 0
-          @relative_child = @files.first
-        else
+        if @files.total_length == 0
           set_pages_ivar
-          @relative_child = @parent ? @item : @pages.first
         end
 
-        @previous_item = @relative_child ? @relative_child.previous : nil
-        @next_item = @relative_child ? @relative_child.next : nil
       end
       format.json do
         render json: @item.decorate(context: { web: true })
@@ -410,8 +405,8 @@ class ItemsController < WebsiteController
 
   ##
   # The browse context is "what the user is doing" -- needed in item view in
-  # order to display appropriate navigational controls, either "back to
-  # results" or "back to collection" etc.
+  # order to display appropriate navigational controls, such as "back to
+  # results" or "next item" etc.
   #
   def set_browse_context
     session[:browse_context_url] = request.url
