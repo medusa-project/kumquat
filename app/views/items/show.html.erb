@@ -1,8 +1,20 @@
 <% provide :title, @item.title %>
 <% provide :body_id, 'items_show' %>
 
-<%= breadcrumb(item: @item, context: session[:browse_context],
-               context_url: session[:browse_context_url]) %>
+<% if @previous_result or @next_result %>
+  <div class="row">
+    <div class="col-sm-8 col-md-9">
+      <%= breadcrumb(item: @item, context: session[:browse_context],
+                     context_url: session[:browse_context_url]) %>
+    </div>
+    <div class="col-sm-4 col-md-3">
+      <%= render partial: 'navigation_buttons' %>
+    </div>
+  </div>
+<% else %>
+  <%= breadcrumb(item: @item, context: session[:browse_context],
+                 context_url: session[:browse_context_url]) %>
+<% end %>
 
 <div class="btn-group pull-right" role="group">
   <button class="btn btn-danger pt-remove-from-favorites"

@@ -1,0 +1,14 @@
+<div class="text-right pt-result-navigation">
+  <div class="btn-group">
+    <% if @previous_result %>
+      <%= link_to @previous_result, class: 'btn btn-default btn-sm' do %>
+        <i class="fa fa-arrow-left"></i> Previous Result
+      <% end %>
+    <% end %>
+    <% if @next_result %>
+      <%= link_to @next_result, class: 'btn btn-default btn-sm' do %>
+        Next Result <i class="fa fa-arrow-right"></i>
+      <% end %>
+    <% end %>
+  </div>
+</div>

@@ -211,22 +211,9 @@ class ItemsController < WebsiteController
     end
 
     @start = params[:start].to_i
+    params[:start] = @start
     @limit = Option::integer(Option::Key::RESULTS_PER_PAGE)
-    finder = ItemFinder.new.
-        client_hostname(request.host).
-        client_ip(request.remote_ip).
-        client_user(current_user).
-        collection_id(params[:collection_id]).
-        query(params[:q]).
-        include_children(params[:q].present?).
-        exclude_variants([Item::Variants::FRONT_MATTER, Item::Variants::INDEX,
-                          Item::Variants::KEY, Item::Variants::PAGE,
-                          Item::Variants::TABLE_OF_CONTENTS,
-                          Item::Variants::TITLE]).
-        filter_queries(params[:fq]).
-        sort(params[:sort]).
-        start(@start).
-        limit(@limit)
+    finder = item_finder_for(params)
     @items = finder.to_a
 
     @current_page = finder.page
@@ -246,6 +233,8 @@ class ItemsController < WebsiteController
       end
       format.html do
         fresh_when(etag: @items) if Rails.env.production?
+        session[:first_result_id] = @items.first.repository_id
+        session[:last_result_id] = @items.last.repository_id
       end
       format.js
       format.json do
@@ -319,6 +308,31 @@ class ItemsController < WebsiteController
           set_pages_ivar
         end
 
+        # Find the previous and next result based on the results URL in the
+        # session.
+        results_url = session[:browse_context_url]
+        if results_url.present?
+          uri = URI.parse(results_url)
+          query = Rack::Utils.parse_nested_query(uri.query) || {}
+          query[:start] = session[:start].to_i if query[:start].blank?
+          limit = Option::integer(Option::Key::RESULTS_PER_PAGE)
+          if session[:first_result_id] == @item.repository_id
+            query[:start] -= limit / 2.0
+          elsif session[:last_result_id] == @item.repository_id
+            query[:start] += limit / 2.0
+          end
+          finder = item_finder_for(query)
+          results = finder.to_a
+          results.each_with_index do |result, index|
+            if result.repository_id == @item.repository_id
+              @previous_result = results[index - 1] if index - 1 >= 0
+              @next_result = results[index + 1] if index + 1 < results.length
+            end
+          end
+
+          session[:first_result_id] = results.first.repository_id
+          session[:last_result_id] = results.last.repository_id
+        end
       end
       format.json do
         render json: @item.decorate(context: { web: true })
@@ -377,6 +391,40 @@ class ItemsController < WebsiteController
       return false
     end
     true
+  end
+
+  ##
+  # Returns an ItemFinder for the given query (either params or parsed out of
+  # the request URI) and saves its builder arguments to the session. This is
+  # so that a similar instance can be constructed in show-item view to enable
+  # paging through the results.
+  #
+  # @param query [ActionController::Parameters,Hash]
+  # @return [ItemFinder]
+  #
+  def item_finder_for(query)
+    session[:collection_id] = query[:collection_id] if query[:collection_id].present?
+    session[:q] = query[:q] if query[:q].present?
+    session[:fq] = query[:fq] if query[:fq].present?
+    session[:sort] = query[:sort] if query[:sort].present?
+    session[:start] = query[:start].to_i if query[:start].present?
+    session[:start] = 0 if session[:start] < 0
+
+    ItemFinder.new.
+        client_hostname(request.host).
+        client_ip(request.remote_ip).
+        client_user(current_user).
+        collection_id(session[:collection_id]).
+        query(session[:q]).
+        include_children(session[:q].present?).
+        exclude_variants([Item::Variants::FRONT_MATTER, Item::Variants::INDEX,
+                          Item::Variants::KEY, Item::Variants::PAGE,
+                          Item::Variants::TABLE_OF_CONTENTS,
+                          Item::Variants::TITLE]).
+        filter_queries(session[:fq]).
+        sort(session[:sort]).
+        start(session[:start]).
+        limit(Option::integer(Option::Key::RESULTS_PER_PAGE))
   end
 
   def load_item
