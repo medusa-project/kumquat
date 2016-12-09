@@ -24,7 +24,9 @@
       </span>
     <% end %>
     <table id="pt-agent-uris" border="0">
-      <% for index in 0..(f.object.agent_uris.length - 1) %>
+      <% num_fields = f.object.agent_uris.length == 0 ?
+          0 : f.object.agent_uris.length - 1 %>
+      <% for index in 0..num_fields %>
         <% uri = f.object.agent_uris[index] %>
         <tr>
           <td>
