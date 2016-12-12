@@ -421,7 +421,7 @@ module ItemsHelper
     defs = defs.select(&:visible) unless options[:admin]
     defs.each do |e_def|
       elements = item.elements.
-          select{ |e| e.name == e_def.name and e.value.present? }
+          select{ |e| e.name == e_def.name and (e.value.present? or e.uri.present?) }
       next if elements.empty?
       html += "<dt>#{e_def.label}</dt>"
       html += '<dd>'
@@ -455,7 +455,7 @@ module ItemsHelper
     defs = defs.select(&:visible) unless options[:admin]
     defs.each do |e_def|
       elements = item.elements.
-          select{ |e| e.name == e_def.name and e.value.present? }
+          select{ |e| e.name == e_def.name and (e.value.present? or e.uri.present?) }
       next if elements.empty?
       html += '<tr>'
       html += "<td>#{e_def.label}</td>"
