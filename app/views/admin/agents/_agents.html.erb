@@ -3,7 +3,6 @@
     <th style="width: 1px"></th>
     <th style="width: 1px"></th>
     <th>Name</th>
-    <th>URI</th>
   </thead>
   <tbody>
     <% @agents.each do |agent| %>
@@ -24,7 +23,6 @@
           <% end %>
         </td>
         <td><%= link_to agent.name, admin_agent_path(agent) %></td>
-        <td><%= link_to agent.uri, admin_agent_path(agent) %></td>
       </tr>
     <% end %>
   </tbody>

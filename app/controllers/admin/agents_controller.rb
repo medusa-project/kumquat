@@ -9,7 +9,12 @@ module Admin
       @agent = Agent.new(sanitized_agent_params)
       begin
         ActiveRecord::Base.transaction do
+          params[:agent_uris].select{ |k, v| v[:uri]&.present? }.each do |k, v|
+            @agent.agent_uris.build(uri: v[:uri],
+                                    primary: (v[:primary] == 'true'))
+          end
           @agent.save!
+
           if params[:agent_relation]
             relation = AgentRelation.new(sanitized_agent_relation_params)
             relation.related_agent = @agent
@@ -26,6 +31,7 @@ module Admin
         keep_flash
         render 'create'
       else
+        Solr.instance.commit
         response.headers['X-PearTree-Result'] = 'success'
         flash['success'] = "Agent \"#{@agent.name}\" created."
         keep_flash
@@ -36,10 +42,11 @@ module Admin
     def destroy
       agent = Agent.find(params[:id])
       begin
-        agent.destroy!
+        ActiveRecord::Base.transaction { agent.destroy! }
       rescue => e
         handle_error(e)
       else
+        Solr.instance.commit
         flash['success'] = "Agent \"#{agent.name}\" deleted."
       ensure
         redirect_to admin_agents_path
@@ -66,10 +73,13 @@ module Admin
       @agents = Agent.all.order(:name).offset(@start).limit(@limit)
 
       if params[:q].present?
-        @agents = @agents.where('LOWER(name) LIKE ?', "%#{params[:q].downcase}%")
+        q = "%#{params[:q].downcase}%"
+        @agents = @agents.joins('LEFT JOIN agent_uris ON agent_uris.agent_id = agents.id').
+            where('LOWER(name) LIKE ? OR LOWER(agent_uris.uri) LIKE ?', q, q)
       end
 
       @new_agent = Agent.new
+      @new_agent.agent_uris.build
     end
 
     ##
@@ -78,13 +88,14 @@ module Admin
     def show
       @agent = Agent.find(params[:id])
       @new_agent = Agent.new
+      @new_agent.agent_uris.build
       @new_agent_relation = @agent.agent_relations.build
       @relating_agents = AgentRelation.where(related_agent: @agent)
       @related_agents = AgentRelation.where(agent: @agent)
 
       @num_item_references = Item.
-          joins('LEFT JOIN item_elements ON item_elements.item_id = items.id').
-          where('item_elements.uri': @agent.uri).count
+          joins('LEFT JOIN entity_elements ON entity_elements.item_id = items.id').
+          where('entity_elements.uri IN (?)', @agent.agent_uris.map(&:uri)).count
       @num_collection_references = 0 # TODO: fix
       @num_agent_references = @relating_agents.count + @related_agents.count
     end
@@ -95,17 +106,24 @@ module Admin
     def update
       agent = Agent.find(params[:id])
       begin
-        agent.update!(sanitized_agent_params)
+        ActiveRecord::Base.transaction do
+          agent.agent_uris.destroy_all
+          params[:agent_uris].select{ |k, v| v[:uri]&.present? }.each do |k, v|
+            agent.agent_uris.build(uri: v[:uri],
+                                   primary: (v[:primary] == 'true'))
+          end
+          agent.update!(sanitized_agent_params)
+        end
       rescue ActiveRecord::RecordInvalid
         response.headers['X-PearTree-Result'] = 'error'
         render partial: 'shared/validation_messages',
                locals: { entity: agent }
       rescue => e
         response.headers['X-PearTree-Result'] = 'error'
-        handle_error(e)
-        keep_flash
-        render 'update'
+        render partial: 'shared/validation_messages',
+               locals: { entity: e }
       else
+        Solr.instance.commit
         response.headers['X-PearTree-Result'] = 'success'
         flash['success'] = "Agent \"#{agent.name}\" updated."
         keep_flash

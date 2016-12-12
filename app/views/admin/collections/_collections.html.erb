@@ -23,5 +23,5 @@
 </table>
 
 <div class="text-center">
-  <%= paginate_items(@collections, @limit, @current_page) %>
+  <%= paginate_items(@collections.total_length, @limit, @current_page) %>
 </div>

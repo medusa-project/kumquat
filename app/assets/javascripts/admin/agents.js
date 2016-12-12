@@ -1,4 +1,60 @@
+var PTAdminAgentEditForm = function() {
+
+    this.init = function() {
+        var updateRowIndices = function(table) {
+            table.find('tr').each(function(index, element) {
+                $(element).find('input').each(function() {
+                    var input = $(this);
+                    var newId = input.attr('id')
+                        .replace(/_[0-9]_/, '_' + index + '_');
+                    var newName = input.attr('name')
+                        .replace(/\[[0-9]]/, '[' + index + ']');
+                    input.attr('id', newId);
+                    input.attr('name', newName);
+                });
+            });
+        };
+        $('button.pt-add').on('click', function() {
+            var lastRow = $(this).prev('table').find('tr:last');
+            var clone = lastRow.clone(true);
+            clone.find('input[type=text]').val('');
+            clone.find('input[type=radio]').prop('checked', false);
+            lastRow.after(clone);
+            updateRowIndices($(this).prev('table'));
+            return false;
+        });
+        $('button.pt-remove').on('click', function() {
+            var form = $(this).closest('form');
+            var row = $(this).closest('tr');
+            var siblings = row.siblings();
+            if (siblings.length > 0) {
+                row.remove();
+                if (siblings.find('input[type=radio]:checked').length < 1) {
+                    console.log(siblings.filter(':first').find('input[type=radio]').length);
+                    siblings.filter(':first').find('input[type=radio]')
+                        .prop('checked', true);
+                }
+            }
+            updateRowIndices(row.closest('table'));
+            return false;
+        });
+        // When a radio is checked, uncheck all the others. The radios all have
+        // different names, so this won't happen automatically.
+        $('input[type=radio]').on('click', function() {
+            var clickedRadio = $(this);
+            $('table#pt-agent-uris').find('input[type=radio]').each(function() {
+                if ($(this).attr('name') != clickedRadio.attr('name')) {
+                    $(this).prop('checked', false);
+                }
+            });
+        });
+    };
+
+};
+
 /**
+ * Handles list-agents view.
+ *
  * @constructor
  */
 var PTAdminAgentsView = function() {
@@ -18,6 +74,21 @@ var PTAdminAgentsView = function() {
             });
         });
         $('a[disabled="disabled"]').on('click', function() { return false; });
+
+        new PTAdminAgentEditForm().init();
+    };
+
+};
+
+/**
+ * Handles show-agent view.
+ *
+ * @constructor
+ */
+var PTAdminAgentView = function() {
+
+    this.init = function() {
+        new PTAdminAgentEditForm().init();
     };
 
 };
@@ -25,6 +96,9 @@ var PTAdminAgentsView = function() {
 var ready = function() {
     if ($('body#admin_agents_index').length) {
         PearTree.view = new PTAdminAgentsView();
+        PearTree.view.init();
+    } else if ($('body#agents_show').length) {
+        PearTree.view = new PTAdminAgentView();
         PearTree.view.init();
     }
 };

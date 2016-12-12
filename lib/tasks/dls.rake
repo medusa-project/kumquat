@@ -1,5 +1,21 @@
 namespace :dls do
 
+  namespace :agents do
+
+    desc 'Reindex all agents'
+    task :reindex => :environment do |task, args|
+      # Reindex existing collections
+      Agent.all.each { |agent| agent.index_in_solr }
+      # Remove indexed documents whose entities have disappeared.
+      # (For these, Relation will contain a string ID in place of an instance.)
+      Agent.solr.all.limit(99999).select{ |a| a.to_s == a }.each do |agent_id|
+        Solr.delete_by_id(agent_id)
+      end
+      Solr.instance.commit
+    end
+
+  end
+
   namespace :bytestreams do
 
     desc 'Update bytestreams in all collections'
@@ -125,6 +141,20 @@ namespace :dls do
       Task.where(status: Task::Status::WAITING).destroy_all
     end
 
+  end
+
+  # One-time migration created 2016-12-05
+  task :migrate_elements => :environment do |task, args|
+    ActiveRecord::Base.transaction do
+      sql = "UPDATE entity_elements SET type = 'ItemElement' WHERE type IS NULL"
+      ActiveRecord::Base.connection.execute(sql)
+
+      Collection.all.each do |col|
+        col.elements.build(name: 'title', value: col.title)
+        col.elements.build(name: 'description', value: col.description)
+        col.save!
+      end
+    end
   end
 
   def reindex_collections

@@ -9,4 +9,13 @@ class AgentRelation < ActiveRecord::Base
         value == record.agent
   end
 
+  ##
+  # @param agent [Agent]
+  # @return [Enumerable<Agent>] All AgentRelations related to the given agent.
+  #
+  def self.related_to_agent(agent)
+    AgentRelation.where('agent_id = ? OR related_agent_id = ?',
+                        agent.id, agent.id)
+  end
+
 end

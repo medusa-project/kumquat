@@ -1,0 +1,11 @@
+body#admin_agents_index, body#agents_show {
+  #pt-agent-uris {
+    width: 100%;
+    td {
+      padding: 4px 0px;
+    }
+    td:nth-child(2) {
+      padding-left: 8px;
+    }
+  }
+}

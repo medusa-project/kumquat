@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161205175322) do
+ActiveRecord::Schema.define(version: 20161207163426) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -55,8 +55,17 @@ ActiveRecord::Schema.define(version: 20161205175322) do
 
   add_index "agent_types", ["name"], name: "index_agent_types_on_name", unique: true, using: :btree
 
+  create_table "agent_uris", force: :cascade do |t|
+    t.string   "uri",                        null: false
+    t.integer  "agent_id"
+    t.boolean  "primary",    default: false
+    t.datetime "created_at",                 null: false
+    t.datetime "updated_at",                 null: false
+  end
+
+  add_index "agent_uris", ["uri"], name: "index_agent_uris_on_uri", unique: true, using: :btree
+
   create_table "agents", force: :cascade do |t|
-    t.string   "uri",           null: false
     t.string   "name",          null: false
     t.datetime "begin_date"
     t.datetime "end_date"
@@ -70,7 +79,6 @@ ActiveRecord::Schema.define(version: 20161205175322) do
   add_index "agents", ["begin_date"], name: "index_agents_on_begin_date", using: :btree
   add_index "agents", ["end_date"], name: "index_agents_on_end_date", using: :btree
   add_index "agents", ["name"], name: "index_agents_on_name", using: :btree
-  add_index "agents", ["uri"], name: "index_agents_on_uri", unique: true, using: :btree
 
   create_table "bytestreams", force: :cascade do |t|
     t.integer  "bytestream_type"
@@ -155,14 +163,7 @@ ActiveRecord::Schema.define(version: 20161205175322) do
     t.datetime "updated_at",  null: false
   end
 
-  create_table "hosts", force: :cascade do |t|
-    t.string   "pattern"
-    t.integer  "role_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
-  create_table "item_elements", force: :cascade do |t|
+  create_table "entity_elements", force: :cascade do |t|
     t.string   "name"
     t.string   "value"
     t.datetime "created_at",    null: false
@@ -170,9 +171,18 @@ ActiveRecord::Schema.define(version: 20161205175322) do
     t.integer  "item_id"
     t.integer  "vocabulary_id"
     t.string   "uri"
+    t.string   "type"
+    t.integer  "collection_id"
   end
 
-  add_index "item_elements", ["item_id"], name: "index_item_elements_on_item_id", using: :btree
+  add_index "entity_elements", ["item_id"], name: "index_entity_elements_on_item_id", using: :btree
+
+  create_table "hosts", force: :cascade do |t|
+    t.string   "pattern"
+    t.integer  "role_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
 
   create_table "items", force: :cascade do |t|
     t.string   "repository_id",                                                             null: false
@@ -319,15 +329,17 @@ ActiveRecord::Schema.define(version: 20161205175322) do
   add_foreign_key "agent_relations", "agent_relation_types", on_update: :cascade, on_delete: :restrict
   add_foreign_key "agent_relations", "agents", column: "related_agent_id", on_update: :cascade, on_delete: :cascade
   add_foreign_key "agent_relations", "agents", on_update: :cascade, on_delete: :cascade
+  add_foreign_key "agent_uris", "agents", on_update: :cascade, on_delete: :cascade
   add_foreign_key "agents", "agent_rules", on_update: :cascade, on_delete: :restrict
   add_foreign_key "agents", "agent_types", on_update: :cascade, on_delete: :restrict
   add_foreign_key "bytestreams", "items", on_delete: :cascade
   add_foreign_key "collections_roles", "collections", on_update: :cascade, on_delete: :cascade
   add_foreign_key "collections_roles", "roles", column: "allowed_role_id", on_update: :cascade, on_delete: :cascade
   add_foreign_key "collections_roles", "roles", column: "denied_role_id", on_update: :cascade, on_delete: :cascade
+  add_foreign_key "entity_elements", "collections", on_update: :cascade, on_delete: :cascade
+  add_foreign_key "entity_elements", "items", on_delete: :cascade
+  add_foreign_key "entity_elements", "vocabularies", on_delete: :restrict
   add_foreign_key "hosts", "roles", on_update: :cascade, on_delete: :cascade
-  add_foreign_key "item_elements", "items", on_delete: :cascade
-  add_foreign_key "item_elements", "vocabularies", on_delete: :restrict
   add_foreign_key "items_roles", "items", on_update: :cascade, on_delete: :cascade
   add_foreign_key "items_roles", "roles", column: "allowed_role_id", on_update: :cascade, on_delete: :cascade
   add_foreign_key "items_roles", "roles", column: "denied_role_id", on_update: :cascade, on_delete: :cascade

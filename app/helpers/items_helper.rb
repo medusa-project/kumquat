@@ -271,6 +271,31 @@ module ItemsHelper
   end
 
   ##
+  # @param items [Enumerable<Items>]
+  # @return [String]
+  #
+  def items_as_flex(items)
+    # needs to be kept in sync with the width defined in agents.js
+    thumb_width = 300
+    html = ''
+    items.each do |item|
+      html += '<div class="pt-object">'
+      html +=    link_to(item) do
+        raw('<div class="pt-thumbnail">' +
+                thumbnail_tag(item.effective_representative_item, thumb_width) +
+            '</div>')
+      end
+      html += '  <h4 class="pt-title">'
+      html +=      link_to(item.title, item)
+      html +=      remove_from_favorites_button(item)
+      html +=      add_to_favorites_button(item)
+      html += '  </h4>'
+      html += '</div>'
+    end
+    raw(html)
+  end
+
+  ##
   # @param entities [Relation<SolrQuerying>]
   # @param start [integer]
   # @param options [Hash] with available keys:
@@ -335,17 +360,11 @@ module ItemsHelper
       if entity.kind_of?(Item)
         # remove-from-favorites button
         if options[:show_remove_from_favorites_buttons]
-          html += ' <button class="btn btn-xs btn-danger ' +
-              'pt-remove-from-favorites" data-item-id="' + entity.repository_id + '">'
-          html += '<i class="fa fa-heart"></i> Remove'
-          html += '</button>'
+          html += remove_from_favorites_button(entity)
         end
         # add-to-favorites button
         if options[:show_add_to_favorites_buttons]
-          html += ' <button class="btn btn-default btn-xs ' +
-              'pt-add-to-favorites" data-item-id="' + entity.repository_id + '">'
-          html += '<i class="fa fa-heart-o"></i>'
-          html += '</button>'
+          html += add_to_favorites_button(entity)
         end
       end
 
@@ -407,11 +426,11 @@ module ItemsHelper
       html += "<dt>#{e_def.label}</dt>"
       html += '<dd>'
       if elements.length == 1
-        html += auto_link(elements.first.value)
+        html += metadata_value_for_element(elements.first)
       else
         html += '<ul>'
         elements.each do |element|
-          html += "<li>#{auto_link(element.value)}</li>"
+          html += "<li>#{metadata_value_for_element(element)}</li>"
         end
         html += '</ul>'
       end
@@ -442,11 +461,11 @@ module ItemsHelper
       html += "<td>#{e_def.label}</td>"
       html += '<td>'
       if elements.length == 1
-        html += auto_link(elements.first.value)
+        html += metadata_value_for_element(elements.first)
       else
         html += '<ul>'
         elements.each do |element|
-          html += "<li>#{auto_link(element.value)}</li>"
+          html += "<li>#{raw(metadata_value_for_element(element))}</li>"
         end
         html += '</ul>'
       end
@@ -542,40 +561,54 @@ module ItemsHelper
   end
 
   ##
-  # Returns pagination for files in show-item view.
+  # Returns item pagination for agent view.
   #
-  # @param items [Relation]
+  # @param agent [Agent]
+  # @param count [Integer]
   # @param per_page [Integer]
   # @param current_page [Integer]
   # @param max_links [Integer] (ideally odd)
   #
-  def paginate_files(parent_item, items, per_page, current_page, max_links = 9)
-    do_paginate(items, per_page, current_page, true, max_links, parent_item,
-                Item::Variants::FILE)
+  def paginate_agent_items(agent, count, per_page, current_page, max_links = 9)
+    do_paginate(count, per_page, current_page, true, max_links, agent,
+                :agent_item)
+  end
+
+  ##
+  # Returns pagination for files in show-item view.
+  #
+  # @param count [Integer]
+  # @param per_page [Integer]
+  # @param current_page [Integer]
+  # @param max_links [Integer] (ideally odd)
+  #
+  def paginate_files(parent_item, count, per_page, current_page, max_links = 9)
+    do_paginate(count, per_page, current_page, true, max_links,
+                parent_item, Item::Variants::FILE)
   end
 
   ##
   # Returns pagination for item results view.
   #
-  # @param items [Relation]
+  # @param count [Integer]
   # @param per_page [Integer]
   # @param current_page [Integer]
   # @param max_links [Integer] (ideally odd)
   #
-  def paginate_items(items, per_page, current_page, max_links = 9)
-    do_paginate(items, per_page, current_page, true, max_links)
+  def paginate_items(count, per_page, current_page, max_links = 9)
+    do_paginate(count, per_page, current_page, true, max_links)
   end
 
   ##
   # Returns pagination for pages in show-item view.
   #
-  # @param items [Relation]
+  # @param count [Integer]
   # @param per_page [Integer]
   # @param current_page [Integer]
   # @param max_links [Integer] (ideally odd)
   #
-  def paginate_pages(parent_item, items, per_page, current_page, max_links = 9)
-    do_paginate(items, per_page, current_page, true, max_links, parent_item,
+  def paginate_pages(parent_item, count, per_page, current_page, max_links = 9)
+    do_paginate(count, per_page, current_page, true, max_links, parent_item,
                 Item::Variants::PAGE)
   end
 
@@ -770,60 +803,69 @@ module ItemsHelper
   end
 
   ##
-  # @param item [Item]
+  # @param entity [Item, Agent]
   # @return [String] HTML string
   #
-  def share_button(item)
+  def share_button(entity)
+    title = entity.respond_to?(:title) ? entity.title : entity.name
+    description = entity.description
+    url = entity.kind_of?(Item) ? item_url(entity) : agent_url(entity)
+
     html = '<div class="btn-group">
       <button type="button" class="btn btn-default dropdown-toggle"
             data-toggle="dropdown" aria-expanded="false">
         <i class="fa fa-share-alt"></i> Share <span class="caret"></span>
       </button>'
     html += '<ul class="dropdown-menu" role="menu">'
-    description = item.description ? CGI::escape(item.description) : nil
-    # share
-    html += '<li>'
-    html += link_to('#', onclick: 'return false;', data: { toggle: 'modal',
-                                                           target: '#pt-cite-modal' }) do
-      raw('<i class="fa fa-pencil"></i> Cite')
+    # cite
+    if entity.kind_of?(Item)
+      html += '<li>'
+      html += link_to('#', onclick: 'return false;', data: { toggle: 'modal',
+                                                             target: '#pt-cite-modal' }) do
+        raw('<i class="fa fa-pencil"></i> Cite')
+      end
+      html += '</li>'
+      html += '<li class="divider"></li>'
     end
-    html += '</li>'
-    html += '<li class="divider"></li>'
     # email
     html += '<li>'
-    html += link_to("mailto:?subject=#{item.title}&body=#{item_url(item)}") do
+    html += link_to("mailto:?subject=#{CGI::escape(title)}&body=#{CGI::escape(url)}") do
       raw('<i class="fa fa-envelope"></i> Email')
     end
     html += '</li>'
     html += '<li class="divider"></li>'
     # facebook
     html += '<li>'
-    html += link_to("https://www.facebook.com/sharer/sharer.php?u=#{CGI::escape(item_url(item))}") do
+    html += link_to("https://www.facebook.com/sharer/sharer.php?u=#{CGI::escape(url)}") do
       raw('<i class="fa fa-facebook-square"></i> Facebook')
     end
     html += '</li>'
     # linkedin
     html += '<li>'
-    html += link_to("http://www.linkedin.com/shareArticle?mini=true&url=#{CGI::escape(item_url(item))}&title=#{CGI::escape(item.title)}&summary=#{description}") do
+    html += link_to("http://www.linkedin.com/shareArticle?mini=true&url=#{CGI::escape(url)}&title=#{CGI::escape(title)}&summary=#{description}") do
       raw('<i class="fa fa-linkedin-square"></i> LinkedIn')
     end
     html += '</li>'
     # twitter
     html += '<li>'
-    html += link_to("http://twitter.com/home?status=#{CGI::escape(item.title)}%20#{CGI::escape(item_url(item))}") do
+    html += link_to("http://twitter.com/home?status=#{CGI::escape(title)}%20#{CGI::escape(url)}") do
       raw('<i class="fa fa-twitter-square"></i> Twitter')
     end
     html += '</li>'
     # google+
     html += '<li>'
-    html += link_to("https://plus.google.com/share?url=#{CGI::escape(item.title)}%20#{CGI::escape(item_url(item))}") do
+    html += link_to("https://plus.google.com/share?url=#{CGI::escape(title)}%20#{CGI::escape(url)}") do
       raw('<i class="fa fa-google-plus-square"></i> Google+')
     end
     html += '</li>'
     # pinterest
-    url = "http://pinterest.com/pin/create/button/?url=#{CGI::escape(item_url(item))}&description=#{CGI::escape(item.title)}"
-    iiif_url = iiif_image_url(item, 512)
-    url += "&media=#{CGI::escape(iiif_url)}" if iiif_url
+    url = "http://pinterest.com/pin/create/button/?url=#{CGI::escape(url)}&description=#{CGI::escape(title)}"
+    if entity.kind_of?(Item)
+      iiif_url = iiif_image_url(entity, 512)
+      if iiif_url
+        url += "&media=#{CGI::escape(iiif_url)}"
+      end
+    end
     html += '<li>'
     html += link_to(url) do
       raw('<i class="fa fa-pinterest-square"></i> Pinterest')
@@ -1042,6 +1084,18 @@ module ItemsHelper
 
   private
 
+  ##
+  # @param item [Item]
+  # @return [String] HTML <button> element
+  #
+  def add_to_favorites_button(item)
+    html = '<button class="btn btn-default btn-xs ' +
+        'pt-add-to-favorites" data-item-id="' + item.repository_id + '">'
+    html += '  <i class="fa fa-heart-o"></i>'
+    html += '</button>'
+    raw(html)
+  end
+
   def audio_player_for(item)
     bs = item.bytestreams.select{ |bs| bs.bytestream_type == Bytestream::Type::ACCESS_MASTER }.first
     url = item_access_master_bytestream_url(item, disposition: 'inline')
@@ -1162,19 +1216,20 @@ module ItemsHelper
   end
 
   ##
-  # @param items [Relation]
+  # @param count [Integer] Total number of items in the result set
   # @param per_page [Integer]
   # @param current_page [Integer]
   # @param remote [Boolean]
   # @param max_links [Integer] (ideally odd)
-  # @param parent_item [Item]
-  # @param child_item_variant [Item::Variant]
+  # @param owning_entity [Item]
+  # @param item_variant [Item::Variants, Symbol, nil] One of the Item::Variants
+  #                     constants, or :agent_item, or nil.
   #
-  def do_paginate(items, per_page, current_page, remote = false,
+  def do_paginate(count, per_page, current_page, remote = false,
                   max_links = ApplicationHelper::MAX_PAGINATION_LINKS,
-                  parent_item = nil, child_item_variant = nil)
-    return '' if items.total_length <= per_page
-    num_pages = (items.total_length / per_page.to_f).ceil
+                  owning_entity = nil, item_variant = nil)
+    return '' if count <= per_page
+    num_pages = (count / per_page.to_f).ceil
     first_page = [1, current_page - (max_links / 2.0).floor].max
     last_page = [first_page + max_links - 1, num_pages].min
     first_page = last_page - max_links + 1 if
@@ -1185,45 +1240,67 @@ module ItemsHelper
     next_start = (next_page - 1) * per_page
     last_start = (num_pages - 1) * per_page
 
-    case child_item_variant
+    # TODO: DRY this
+    case item_variant
       when Item::Variants::FILE
-        first_link = link_to(item_files_path(parent_item,
+        first_link = link_to(item_files_path(owning_entity,
                                              params.except(:start).symbolize_keys),
                              remote: remote, 'aria-label': 'First') do
           raw('<span aria-hidden="true">First</span>')
         end
-        prev_link = link_to(item_files_path(parent_item,
+        prev_link = link_to(item_files_path(owning_entity,
                                             params.merge(start: prev_start).symbolize_keys),
                             remote: remote, 'aria-label': 'Previous') do
           raw('<span aria-hidden="true">&laquo;</span>')
         end
-        next_link = link_to(item_files_path(parent_item,
+        next_link = link_to(item_files_path(owning_entity,
                                             params.merge(start: next_start).symbolize_keys),
                             remote: remote, 'aria-label': 'Next') do
           raw('<span aria-hidden="true">&raquo;</span>')
         end
-        last_link = link_to(item_files_path(parent_item,
+        last_link = link_to(item_files_path(owning_entity,
                                             params.merge(start: last_start).symbolize_keys),
                             remote: remote, 'aria-label': 'Last') do
           raw('<span aria-hidden="true">Last</span>')
         end
       when Item::Variants::PAGE
-        first_link = link_to(item_pages_path(parent_item,
+        first_link = link_to(item_pages_path(owning_entity,
                                              params.except(:start).symbolize_keys),
                              remote: remote, 'aria-label': 'First') do
           raw('<span aria-hidden="true">First</span>')
         end
-        prev_link = link_to(item_pages_path(parent_item,
+        prev_link = link_to(item_pages_path(owning_entity,
                                             params.merge(start: prev_start).symbolize_keys),
                             remote: remote, 'aria-label': 'Previous') do
           raw('<span aria-hidden="true">&laquo;</span>')
         end
-        next_link = link_to(item_pages_path(parent_item,
+        next_link = link_to(item_pages_path(owning_entity,
                                             params.merge(start: next_start).symbolize_keys),
                             remote: remote, 'aria-label': 'Next') do
           raw('<span aria-hidden="true">&raquo;</span>')
         end
-        last_link = link_to(item_pages_path(parent_item,
+        last_link = link_to(item_pages_path(owning_entity,
+                                            params.merge(start: last_start).symbolize_keys),
+                            remote: remote, 'aria-label': 'Last') do
+          raw('<span aria-hidden="true">Last</span>')
+        end
+      when :agent_item
+        first_link = link_to(agent_items_path(owning_entity,
+                                             params.except(:start).symbolize_keys),
+                             remote: remote, 'aria-label': 'First') do
+          raw('<span aria-hidden="true">First</span>')
+        end
+        prev_link = link_to(agent_items_path(owning_entity,
+                                            params.merge(start: prev_start).symbolize_keys),
+                            remote: remote, 'aria-label': 'Previous') do
+          raw('<span aria-hidden="true">&laquo;</span>')
+        end
+        next_link = link_to(agent_items_path(owning_entity,
+                                            params.merge(start: next_start).symbolize_keys),
+                            remote: remote, 'aria-label': 'Next') do
+          raw('<span aria-hidden="true">&raquo;</span>')
+        end
+        last_link = link_to(agent_items_path(owning_entity,
                                             params.merge(start: last_start).symbolize_keys),
                             remote: remote, 'aria-label': 'Last') do
           raw('<span aria-hidden="true">Last</span>')
@@ -1254,17 +1331,24 @@ module ItemsHelper
         "<li #{current_page == prev_page ? 'class="disabled"' : ''}>#{prev_link}</li>"
     (first_page..last_page).each do |page|
       start = (page - 1) * per_page
-      case child_item_variant
+      case item_variant
         when Item::Variants::FILE
-          path = (start == 0) ? item_files_path(parent_item, params.except(:start).symbolize_keys) :
-              item_files_path(parent_item, params.merge(start: start).symbolize_keys)
+          path = (start == 0) ? item_files_path(owning_entity, params.except(:start).symbolize_keys) :
+              item_files_path(owning_entity, params.merge(start: start).symbolize_keys)
           page_link = link_to(path, remote: remote) do
             raw("#{page} #{(page == current_page) ?
                 '<span class="sr-only">(current)</span>' : ''}")
           end
         when Item::Variants::PAGE
-          path = (start == 0) ? item_pages_path(parent_item, params.except(:start).symbolize_keys) :
-              item_pages_path(parent_item, params.merge(start: start).symbolize_keys)
+          path = (start == 0) ? item_pages_path(owning_entity, params.except(:start).symbolize_keys) :
+              item_pages_path(owning_entity, params.merge(start: start).symbolize_keys)
+          page_link = link_to(path, remote: remote) do
+            raw("#{page} #{(page == current_page) ?
+                '<span class="sr-only">(current)</span>' : ''}")
+          end
+        when :agent_item
+          path = (start == 0) ? agent_items_path(owning_entity, params.except(:start).symbolize_keys) :
+              agent_items_path(owning_entity, params.merge(start: start).symbolize_keys)
           page_link = link_to(path, remote: remote) do
             raw("#{page} #{(page == current_page) ?
                 '<span class="sr-only">(current)</span>' : ''}")
@@ -1373,6 +1457,29 @@ module ItemsHelper
     raw(panel + '</ul></div></div>')
   end
 
+  ##
+  # If the element has a string value but no URI, or a URI not corresponding to
+  # an agent URI, returns the string value with URIs auto-linked.
+  #
+  # If the element has a string value and a URI corresponding to an agent URI,
+  # returns the string value linking to the corresponding show-agent page.
+  #
+  # If the element has a URI corresponding to an agent URI but no string value,
+  # returns the agent name linking to the corresponding show-agent page.
+  #
+  # @param element [EntityElement]
+  # @return [String] HTML string
+  #
+  def metadata_value_for_element(element)
+    if element.agent
+      label = element.value.present? ? element.value : element.agent.name
+      value = link_to(label, element.agent)
+    else
+      value = auto_link(element.value)
+    end
+    value
+  end
+
   def pdf_viewer_for(item)
     bs = item.bytestreams.select{ |bs| bs.bytestream_type == Bytestream::Type::ACCESS_MASTER }.first
     url = item_access_master_bytestream_url(item, disposition: 'inline')
@@ -1392,6 +1499,18 @@ module ItemsHelper
       end
     end
     html += '</div>'
+    raw(html)
+  end
+
+  ##
+  # @param item [Item]
+  # @return [String] HTML <button> element
+  #
+  def remove_from_favorites_button(item)
+    html = '<button class="btn btn-xs btn-danger ' +
+        'pt-remove-from-favorites" data-item-id="' + item.repository_id + '">'
+    html += '  <i class="fa fa-heart"></i> Remove'
+    html += '</button>'
     raw(html)
   end
 

@@ -26,6 +26,7 @@
 class Item < ActiveRecord::Base
 
   include AuthorizableByRole
+  include Describable
   include SolrQuerying
 
   class SolrFields
@@ -329,13 +330,6 @@ class Item < ActiveRecord::Base
     self.collection_repository_id = collection.repository_id
   end
 
-  ##
-  # @return [Element]
-  #
-  def description
-    self.element(:description)&.value
-  end
-
   def delete_from_solr # TODO: change to Item.solr.delete()
     Solr.instance.delete(self.solr_id)
   end
@@ -408,17 +402,6 @@ class Item < ActiveRecord::Base
     # If still no statement available, use the collection's statement.
     rs = RightsStatement.for_uri(self.collection.rightsstatements_org_uri) unless rs
     rs
-  end
-
-  ##
-  # Convenience method that retrieves one element with the given name from the
-  # instance's `elements` relationship.
-  #
-  # @param name [String, Symbol] Element name
-  # @return [ItemElement]
-  #
-  def element(name)
-    self.elements.select{ |e| e.name == name.to_s }.first
   end
 
   ##
@@ -766,13 +749,6 @@ class Item < ActiveRecord::Base
   #
   def solr_id
     self.repository_id
-  end
-
-  ##
-  # @return [Element]
-  #
-  def subtitle
-    self.element(:alternativeTitle)&.value
   end
 
   ##

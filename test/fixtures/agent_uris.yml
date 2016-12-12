@@ -1,0 +1,11 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  agent: one
+  uri: http://example.org/uri1
+  primary: true
+
+two:
+  agent: one
+  uri: http://example.org/uri2
+  primary: false
