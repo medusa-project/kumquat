@@ -14,6 +14,7 @@ module Admin
                                     primary: (v[:primary] == 'true'))
           end
           @agent.save!
+
         end
       rescue ActiveRecord::RecordInvalid
         response.headers['X-PearTree-Result'] = 'error'
@@ -64,7 +65,7 @@ module Admin
       @start = params[:start] ? params[:start].to_i : 0
       @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
 
-      @agents = Agent.all.order(:name).offset(@start).limit(@limit)
+      @agents = Agent.all.order(:name)
 
       if params[:q].present?
         q = "%#{params[:q].downcase}%"
@@ -75,10 +76,16 @@ module Admin
 
       respond_to do |format|
         format.html do
+          @agents = @agents.offset(@start).limit(@limit)
           @new_agent = Agent.new
           @new_agent.agent_uris.build
         end
+        format.js do
+          @agent_count = @agents.count
+          @agents = @agents.offset(@start).limit(@limit)
+        end
         format.json do
+          @agents = @agents.offset(0).limit(10)
           render json: @agents
         end
       end
@@ -114,7 +121,7 @@ module Admin
             agent.agent_uris.build(uri: v[:uri],
                                    primary: (v[:primary] == 'true'))
           end
-          agent.update!(sanitized_params)
+          agent.update!(sanitized_agent_params)
         end
       rescue ActiveRecord::RecordInvalid
         response.headers['X-PearTree-Result'] = 'error'
