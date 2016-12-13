@@ -122,7 +122,7 @@ module Admin
             agent.agent_uris.build(uri: v[:uri],
                                    primary: (v[:primary] == 'true'))
           end
-          agent.update!(sanitized_agent_params)
+          agent.update!(sanitized_params)
         end
       rescue ActiveRecord::RecordInvalid
         response.headers['X-PearTree-Result'] = 'error'
