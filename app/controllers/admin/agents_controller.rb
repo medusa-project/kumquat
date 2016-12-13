@@ -76,6 +76,7 @@ module Admin
 
       respond_to do |format|
         format.html do
+          @agent_count = @agents.count
           @agents = @agents.offset(@start).limit(@limit)
           @new_agent = Agent.new
           @new_agent.agent_uris.build
