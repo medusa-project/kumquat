@@ -30,7 +30,6 @@ var PTAdminAgentEditForm = function() {
             if (siblings.length > 0) {
                 row.remove();
                 if (siblings.find('input[type=radio]:checked').length < 1) {
-                    console.log(siblings.filter(':first').find('input[type=radio]').length);
                     siblings.filter(':first').find('input[type=radio]')
                         .prop('checked', true);
                 }
@@ -46,6 +45,35 @@ var PTAdminAgentEditForm = function() {
                 if ($(this).attr('name') != clickedRadio.attr('name')) {
                     $(this).prop('checked', false);
                 }
+            });
+        });
+    };
+
+};
+
+var PTAdminAgentRelationForm = function() {
+
+    this.init = function() {
+        $('input#agent_relation_related_agent_id').on('keyup', function() {
+            $(this).parents('.form-group').find('.pt-suggestions').remove();
+
+            var input = $(this);
+            var agents_url = $('[name=root_url]').val() +
+                '/admin/agents.json?q=' + input.val();
+
+            $.getJSON(agents_url, function(data) {
+                var suggestionsDiv = '<div class="pt-suggestions"><ul>';
+                data.forEach(function(agent) {
+                    suggestionsDiv += '<li>' + agent['name'] + '</li>'
+                });
+                suggestionsDiv += '</ul></div>';
+                input.parent().append(suggestionsDiv);
+
+                $('.pt-suggestions li').on('click', function() {
+                    input.val($(this).text());
+                    $(this).parent().remove();
+                    return false;
+                });
             });
         });
     };
@@ -89,6 +117,7 @@ var PTAdminAgentView = function() {
 
     this.init = function() {
         new PTAdminAgentEditForm().init();
+        new PTAdminAgentRelationForm().init();
     };
 
 };
@@ -97,7 +126,7 @@ var ready = function() {
     if ($('body#admin_agents_index').length) {
         PearTree.view = new PTAdminAgentsView();
         PearTree.view.init();
-    } else if ($('body#agents_show').length) {
+    } else if ($('body#admin_agents_show').length) {
         PearTree.view = new PTAdminAgentView();
         PearTree.view.init();
     }

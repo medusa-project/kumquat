@@ -6,7 +6,7 @@ module Admin
     # XHR only
     #
     def create
-      @agent = Agent.new(sanitized_agent_params)
+      @agent = Agent.new(sanitized_params)
       begin
         ActiveRecord::Base.transaction do
           params[:agent_uris].select{ |k, v| v[:uri]&.present? }.each do |k, v|
@@ -14,12 +14,6 @@ module Admin
                                     primary: (v[:primary] == 'true'))
           end
           @agent.save!
-
-          if params[:agent_relation]
-            relation = AgentRelation.new(sanitized_agent_relation_params)
-            relation.related_agent = @agent
-            relation.save!
-          end
         end
       rescue ActiveRecord::RecordInvalid
         response.headers['X-PearTree-Result'] = 'error'
@@ -74,12 +68,20 @@ module Admin
 
       if params[:q].present?
         q = "%#{params[:q].downcase}%"
-        @agents = @agents.joins('LEFT JOIN agent_uris ON agent_uris.agent_id = agents.id').
+        @agents = @agents.select('DISTINCT(agents.*)').
+            joins('LEFT JOIN agent_uris ON agent_uris.agent_id = agents.id').
             where('LOWER(name) LIKE ? OR LOWER(agent_uris.uri) LIKE ?', q, q)
       end
 
-      @new_agent = Agent.new
-      @new_agent.agent_uris.build
+      respond_to do |format|
+        format.html do
+          @new_agent = Agent.new
+          @new_agent.agent_uris.build
+        end
+        format.json do
+          render json: @agents
+        end
+      end
     end
 
     ##
@@ -112,7 +114,7 @@ module Admin
             agent.agent_uris.build(uri: v[:uri],
                                    primary: (v[:primary] == 'true'))
           end
-          agent.update!(sanitized_agent_params)
+          agent.update!(sanitized_params)
         end
       rescue ActiveRecord::RecordInvalid
         response.headers['X-PearTree-Result'] = 'error'
@@ -133,14 +135,9 @@ module Admin
 
     private
 
-    def sanitized_agent_params
+    def sanitized_params
       params.require(:agent).permit(:agent_rule_id, :agent_type_id,
                                     :description, :name, :uri)
-    end
-
-    def sanitized_agent_relation_params
-      params.require(:agent_relation).permit(:agent_id, :related_agent_id,
-                                             :agent_relation_type_id)
     end
 
   end

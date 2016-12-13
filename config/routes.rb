@@ -119,6 +119,7 @@ Rails.application.routes.draw do
     resources :agents
     resources :agent_relation_types, except: :show,
               path: 'agent-relation-types'
+    resources :agent_relations, except: [:index, :show], path: 'agent-relations'
     resources :agent_rules, except: :show, path: 'agent-rules'
     resources :agent_types, except: :show, path: 'agent-types'
     resources :elements, except: :show, path: 'elements'

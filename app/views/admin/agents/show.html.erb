@@ -1,5 +1,5 @@
 <% provide :title, @agent.name %>
-<% provide :body_id, 'agents_show' %>
+<% provide :body_id, 'admin_agents_show' %>
 <% provide :active_nav, 'metadata' %>
 
 <ol class="breadcrumb">
@@ -84,7 +84,7 @@
 <div class="btn-group pull-right">
   <!-- Add Referred Agent button -->
   <button type="button" class="btn btn-default" data-toggle="modal"
-          data-target="#pt-add-agent-modal">
+          data-target="#pt-agent-relation-modal">
     <span class="fa fa-plus"></span> Add Referred Agent
   </button>
 </div>
@@ -160,10 +160,10 @@
   </tr>
 </table>
 
-
-<%= render partial: 'add_agent_panel', locals: { agent: @new_agent,
-                                                 agent_relation: @new_agent_relation,
-                                                 context: :new } %>
+<%= render partial: 'admin/agent_relations/agent_relation_panel', locals: {
+    agent: @agent,
+    agent_relation: @new_agent_relation,
+    context: :new } %>
 
 <div class="modal fade" id="pt-edit-agent-modal" tabindex="-1" role="dialog"
      aria-labelledby="pt-edit-agent-modal-label">
