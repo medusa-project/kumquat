@@ -54,7 +54,7 @@ var PTAdminAgentEditForm = function() {
 var PTAdminAgentRelationForm = function() {
 
     this.init = function() {
-        $('input#agent_relation_related_agent_id').on('keyup', function() {
+        $('input.pt-autocomplete').on('keyup', function() {
             $(this).parents('.form-group').find('.pt-suggestions').remove();
 
             var input = $(this);
@@ -116,6 +116,16 @@ var PTAdminAgentsView = function() {
 var PTAdminAgentView = function() {
 
     this.init = function() {
+        $('button.pt-edit-agent-relation').on('click', function() {
+            var agent_relation_id = $(this).data('agent-relation-id');
+            var ROOT_URL = $('input[name="root_url"]').val();
+            var url = ROOT_URL + '/admin/agent-relations/' + agent_relation_id + '/edit';
+            $.get(url, function(data) {
+                $('#pt-agent-relation-modal .modal-body').html(data);
+                new PTAdminAgentRelationForm().init();
+            });
+        });
+
         new PTAdminAgentEditForm().init();
         new PTAdminAgentRelationForm().init();
     };

@@ -7,7 +7,12 @@ module Admin
     #
     def create
       p = sanitized_params
-      p[:related_agent_id] = Agent.find_by_name(p[:related_agent_id]).id
+      if p[:agent_id].present?
+        p[:agent_id] = Agent.find_by_name(p[:agent_id])&.id
+      end
+      if p[:related_agent_id].present?
+        p[:related_agent_id] = Agent.find_by_name(p[:related_agent_id])&.id
+      end
       @agent_relation = AgentRelation.new(p)
       begin
         ActiveRecord::Base.transaction { @agent_relation.save! }
@@ -48,9 +53,8 @@ module Admin
     #
     def edit
       agent_relation = AgentRelation.find(params[:id])
-      render partial: 'admin/agent_relations/form',
-             locals: { agent: agent_relation.agent,
-                       agent_relation: agent_relation,
+      render partial: 'admin/agent_relations/relating_agent_form',
+             locals: { agent_relation: agent_relation,
                        context: :edit }
     end
 
@@ -60,9 +64,14 @@ module Admin
     def update
       agent_relation = AgentRelation.find(params[:id])
       begin
-        ActiveRecord::Base.transaction do
-          agent_relation.update!(sanitized_params)
+        p = sanitized_params
+        if p[:agent_id].present?
+          p[:agent_id] = Agent.find_by_name(p[:agent_id])&.id
         end
+        if p[:related_agent_id].present?
+          p[:related_agent_id] = Agent.find_by_name(p[:related_agent_id])&.id
+        end
+        ActiveRecord::Base.transaction { agent_relation.update!(p) }
       rescue ActiveRecord::RecordInvalid
         response.headers['X-PearTree-Result'] = 'error'
         render partial: 'shared/validation_messages',

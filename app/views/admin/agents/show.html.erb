@@ -84,8 +84,8 @@
 <div class="btn-group pull-right">
   <!-- Add Referred Agent button -->
   <button type="button" class="btn btn-default" data-toggle="modal"
-          data-target="#pt-agent-relation-modal">
-    <span class="fa fa-plus"></span> Add Referred Agent
+          data-target="#pt-relating-agent-modal">
+    Add Referred Relationship <span class="fa fa-arrow-right"></span>
   </button>
 </div>
 
@@ -95,17 +95,36 @@
   <table class="table">
     <thead>
       <tr>
-        <th>Name</th>
-        <th>Relationship Type</th>
-        <th>URI</th>
+        <th colspan="2">Relationship</th>
+        <th>Agent</th>
+        <th>Relation Type</th>
+        <th>Referred Agent</th>
+        <th>Dates</th>
       </tr>
     </thead>
     <tbody>
       <% @related_agents.each do |relation| %>
         <tr>
-          <td><%= link_to relation.related_agent.name, admin_agent_path(relation.related_agent) %></td>
+          <td style="width: 1px">
+            <button type="button" class="btn btn-default btn-xs pt-edit-agent-relation"
+                    data-toggle="modal" data-target="#pt-agent-relation-modal"
+                    data-agent-relation-id="<%= relation.id %>">
+              <i class="fa fa-pencil"></i> Edit
+            </button>
+          </td>
+          <td style="width: 1px">
+            <%= link_to admin_agent_relation_path(relation),
+                        class: 'btn btn-danger btn-xs', method: :delete,
+                        data: { confirm: 'Are you sure you want to remove '\
+                          'this relationship?' } do %>
+                <i class="fa fa-minus"></i> Remove
+            <% end %>
+          </td>
+          <td><%= @agent.name %></td>
           <td><%= relation.agent_relation_type&.name %></td>
-          <td><%= relation.related_agent.primary_uri %></td>
+          <td><%= link_to relation.related_agent.name,
+                          admin_agent_path(relation.related_agent) %></td>
+          <td><%= relation.dates %></td>
         </tr>
       <% end %>
     </tbody>
@@ -116,23 +135,50 @@
 
 <hr>
 
+<div class="btn-group pull-right">
+  <!-- Add Referred Agent button -->
+  <button type="button" class="btn btn-default" data-toggle="modal"
+          data-target="#pt-related-agent-modal">
+    <span class="fa fa-arrow-left"></span> Add Referring Relationship
+  </button>
+</div>
+
 <h2>Referred To By</h2>
 
 <% if @relating_agents.count > 0 %>
   <table class="table">
     <thead>
       <tr>
-        <th>Name</th>
-        <th>Relationship Type</th>
-        <th>URI</th>
+        <th colspan="2">Relationship</th>
+        <th>Agent</th>
+        <th>Relation Type</th>
+        <th>Referred Agent</th>
+        <th>Dates</th>
       </tr>
     </thead>
     <tbody>
       <% @relating_agents.each do |relation| %>
         <tr>
-          <td><%= link_to relation.agent.name, admin_agent_path(relation.agent) %></td>
+          <td style="width: 1px">
+            <button type="button" class="btn btn-default btn-xs pt-edit-agent-relation"
+                    data-toggle="modal" data-target="#pt-agent-relation-modal"
+                    data-agent-relation-id="<%= relation.id %>">
+              <i class="fa fa-pencil"></i> Edit
+            </button>
+          </td>
+          <td style="width: 1px">
+            <%= link_to admin_agent_relation_path(relation),
+                        class: 'btn btn-danger btn-xs', method: :delete,
+                        data: { confirm: 'Are you sure you want to remove '\
+                        'this relationship?' } do %>
+                <i class="fa fa-minus"></i> Remove
+            <% end %>
+          </td>
+          <td><%= link_to relation.agent.name,
+                          admin_agent_path(relation.agent) %></td>
           <td><%= relation.agent_relation_type&.name %></td>
-          <td><%= relation.agent.primary_uri %></td>
+          <td><%= @agent.name %></td>
+          <td><%= relation.dates %></td>
         </tr>
       <% end %>
     </tbody>
@@ -160,8 +206,18 @@
   </tr>
 </table>
 
+
 <%= render partial: 'admin/agent_relations/agent_relation_panel', locals: {
+    agent_relation: @new_agent_relation,
+    context: :new } %>
+
+<%= render partial: 'admin/agent_relations/related_agent_panel', locals: {
     agent: @agent,
+    agent_relation: @new_agent_relation,
+    context: :new } %>
+
+<%= render partial: 'admin/agent_relations/relating_agent_panel', locals: {
+    related_agent: @agent,
     agent_relation: @new_agent_relation,
     context: :new } %>
 

@@ -1,5 +1,5 @@
 <%
-  # @param agent [Agent] Owning agent
+  # Form for editing the owned side of an AgentRelation.
   # @param agent_relation [AgentRelation]
   # @param context [Symbol] :new or :edit
 %>
@@ -10,19 +10,25 @@
     %>
   </div>
 
-  <%= f.hidden_field(:agent_id, value: agent.id) %>
+  <div class="form-group">
+    <%= f.label :agent_id, 'Agent' %>
+    <%= f.text_field :agent_id, value: f.object.agent&.name,
+                     class: 'form-control pt-autocomplete', autocomplete: 'off' %>
+  </div>
 
   <div class="form-group">
-    <%= f.label :agent_relation_type_id, 'Type' %>
+    <%= f.label :agent_relation_type_id, 'Relation Type' %>
     <%= select_tag 'agent_relation[agent_relation_type_id]',
-                   options_from_collection_for_select(AgentRelationType.all.order(:name), 'id', 'name'),
+                   options_from_collection_for_select(AgentRelationType.all.order(:name),
+                                                      'id', 'name', f.object.agent_relation_type_id),
                    include_blank: false,
                    class: 'form-control' %>
   </div>
 
   <div class="form-group">
-    <%= f.label :related_agent_id, 'Related Agent' %>
-    <%= f.text_field :related_agent_id, class: 'form-control', autocomplete: 'off' %>
+    <%= f.label :related_agent_id, 'Referred Agent' %>
+    <%= f.text_field :related_agent_id, value: f.object.related_agent&.name,
+                     class: 'form-control pt-autocomplete', autocomplete: 'off' %>
   </div>
 
   <div class="form-group">

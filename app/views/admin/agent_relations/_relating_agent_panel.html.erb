@@ -1,20 +1,22 @@
 <% # Accepts the following locals:
+   # agent [Agent]
    # agent_relation [AgentRelation]
    # context [Symbol] :new or :edit
 %>
 
-<div class="modal fade" id="pt-agent-relation-modal" tabindex="-1" role="dialog"
-     aria-labelledby="pt-agent-relation-modal-label">
+<div class="modal fade" id="pt-relating-agent-modal" tabindex="-1" role="dialog"
+     aria-labelledby="pt-relating-agent-modal-label">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
-        <h4 class="modal-title" id="pt-agent-relation-modal-label">Edit Agent Relationship</h4>
+        <h4 class="modal-title" id="pt-related-agent-modal-label">Add Referred Relationship</h4>
       </div>
       <div class="modal-body">
         <%= render partial: 'admin/agent_relations/relating_agent_form', locals: {
+            related_agent: related_agent,
             agent_relation: agent_relation,
             context: context } %>
       </div>
