@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161213154023) do
+ActiveRecord::Schema.define(version: 20161213163237) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -78,7 +78,7 @@ ActiveRecord::Schema.define(version: 20161213154023) do
 
   add_index "agents", ["begin_date"], name: "index_agents_on_begin_date", using: :btree
   add_index "agents", ["end_date"], name: "index_agents_on_end_date", using: :btree
-  add_index "agents", ["name"], name: "index_agents_on_name", using: :btree
+  add_index "agents", ["name"], name: "index_agents_on_name", unique: true, using: :btree
 
   create_table "bytestreams", force: :cascade do |t|
     t.integer  "bytestream_type"
