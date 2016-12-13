@@ -38,14 +38,7 @@ xml.tag!('OAI-PMH',
               'xsi:schemaLocation' => 'http://www.openarchives.org/OAI/2.0/oai_dc/ '\
               'http://www.openarchives.org/OAI/2.0/oai_dc.xsd'
           }) do
-            @item.elements.each do |element|
-              # oai_dc supports only unqualified DC.
-              dc_element = @item.collection.metadata_profile.elements.
-                  where(name: element.name).first&.dc_map
-              if dc_element.present? and element.value.present?
-                xml.tag!("dc:#{dc_element}", element.value)
-              end
-            end
+            oai_pmh_elements_for(@item, xml)
           end
         end
       end
