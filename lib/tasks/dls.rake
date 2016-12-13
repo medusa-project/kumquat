@@ -143,20 +143,6 @@ namespace :dls do
 
   end
 
-  # One-time migration created 2016-12-05
-  task :migrate_elements => :environment do |task, args|
-    ActiveRecord::Base.transaction do
-      sql = "UPDATE entity_elements SET type = 'ItemElement' WHERE type IS NULL"
-      ActiveRecord::Base.connection.execute(sql)
-
-      Collection.all.each do |col|
-        col.elements.build(name: 'title', value: col.title)
-        col.elements.build(name: 'description', value: col.description)
-        col.save!
-      end
-    end
-  end
-
   def reindex_collections
     # Reindex existing collections
     Collection.all.each { |col| col.index_in_solr }
