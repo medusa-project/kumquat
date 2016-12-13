@@ -59,15 +59,15 @@ class Collection < ActiveRecord::Base
   has_many :child_collection_joins, class_name: 'CollectionJoin',
            primary_key: :repository_id, foreign_key: :parent_repository_id,
            dependent: :destroy
-  has_many :children, -> { order('title ASC') },
-           through: :child_collection_joins, source: :child_collection
+  has_many :children, through: :child_collection_joins,
+           source: :child_collection
   has_many :elements, class_name: 'CollectionElement', inverse_of: :collection,
            dependent: :destroy
   has_many :parent_collection_joins, class_name: 'CollectionJoin',
            primary_key: :repository_id, foreign_key: :child_repository_id,
            dependent: :destroy
-  has_many :parents, -> { order('title ASC') },
-           through: :parent_collection_joins, source: :parent_collection
+  has_many :parents, through: :parent_collection_joins,
+           source: :parent_collection
 
   has_and_belongs_to_many :allowed_roles, class_name: 'Role',
                           association_foreign_key: :allowed_role_id
