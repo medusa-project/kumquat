@@ -30,9 +30,8 @@
   <%= render 'agents' %>
 </div>
 
-<%= render partial: 'add_agent_panel', locals: { agent: @new_agent,
-                                                 agent_relation: nil,
-                                                 context: :new } %>
+<%= render partial: 'agent_panel', locals: { agent: @new_agent,
+                                             context: :new } %>
 
 <!-- Edit-agent modal -->
 <div class="modal fade" id="pt-edit-agent-modal" tabindex="-1" role="dialog"

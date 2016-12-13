@@ -52,18 +52,6 @@
     </button>
   </div>
 
-  <% if agent_relation %>
-    <div class="form-group">
-      <%= hidden_field_tag 'agent_relation[agent_id]', agent_relation.agent_id %>
-      <%= hidden_field_tag 'agent_relation[related_agent_id]', agent_relation.related_agent_id %>
-      <%= label_tag 'agent_relation_agent_relation_type_id', 'Relation Type' %>
-      <%= select_tag 'agent_relation[agent_relation_type_id]',
-                     options_from_collection_for_select(AgentRelationType.all.order(:name), 'id', 'name'),
-                     include_blank: false,
-                     class: 'form-control' %>
-    </div>
-  <% end %>
-
   <div class="form-group">
     <%= label_tag :agent_rule, 'Agent Rule' %>
     <%= select_tag 'agent[agent_rule_id]',

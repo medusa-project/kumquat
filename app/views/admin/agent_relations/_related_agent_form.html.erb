@@ -1,0 +1,51 @@
+<%
+  # Form for editing the owning side of an AgentRelation.
+  # @param agent_relation [AgentRelation]
+  # @param context [Symbol] :new or :edit
+%>
+
+<%= form_for([:admin, agent_relation], remote: true) do |f| %>
+  <div class="pt-error-messages">
+    <% # populated via ajax by shared/_validation_messages.js.erb
+    %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :related_agent_id, 'Agent' %>
+    <%= f.text_field :related_agent_id, value: f.object.related_agent&.name,
+                     class: 'form-control pt-autocomplete', autocomplete: 'off' %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :agent_relation_type_id, 'Relation Type' %>
+    <%= select_tag 'agent_relation[agent_relation_type_id]',
+                   options_from_collection_for_select(AgentRelationType.all.order(:name),
+                                                      'id', 'name', f.object.agent_relation_type_id),
+                   include_blank: false,
+                   class: 'form-control' %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :agent_id, 'Referred Agent' %>
+    <%= f.text_field :agent_id, value: f.object.agent&.name,
+                     class: 'form-control pt-autocomplete', autocomplete: 'off' %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :dates %>
+    <%= f.text_field :dates, class: 'form-control' %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :description %>
+    <%= f.text_area :description, class: 'form-control' %>
+  </div>
+
+  <div class="clearfix">
+    <div class="pull-right">
+      <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+      <%= f.submit(context == :new ? 'Create Relationship' : 'Edit Relationship',
+                   class: 'btn btn-primary') %>
+    </div>
+  </div>
+<% end %>
