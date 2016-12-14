@@ -357,7 +357,8 @@ class ItemsController < WebsiteController
       format.zip do # Used for downloading pages into a zip file.
         query = {
             collection_id: @item.collection_repository_id,
-            q: "#{Item::SolrFields::PARENT_ITEM}:#{@item.repository_id}"
+            q: "#{Item::SolrFields::PARENT_ITEM}:#{@item.repository_id}",
+            start: params[:start]
         }
         # Redirect to the ZipDownloader Rack app, preserving the query string.
         redirect_to "/items/download?#{query.to_query}"
