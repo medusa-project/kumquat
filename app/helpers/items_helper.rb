@@ -613,6 +613,37 @@ module ItemsHelper
   end
 
   ##
+  # Returns what the user is searching for.
+  #
+  # @param q [String] From params
+  # @param fq [Array<String>] From params
+  # @param profile [MetadataProfile]
+  # @return [String]
+  #
+  def query_summary(q, fq, profile)
+    query = ''
+    if fq&.any? or q.present?
+      query = '<ul class="pt-query-summary">'
+      if q.present?
+        query += "<li>Filter: <span class=\"pt-query-summary-value\">\"#{h(q)}\"</span></li>"
+      end
+      fq&.each do |fq_|
+        parts = fq_.split(':')
+        if parts.length == 2
+          name = parts[0].chomp(EntityElement.solr_facet_suffix).
+              chomp(EntityElement.solr_suffix)
+          label = profile.elements.select{ |e| e.name == name }.first.label
+          value = parts[1].chomp('"').reverse.chomp('"').reverse
+
+          query += "<li>#{label}: <span class=\"pt-query-summary-value\">#{value}</span></li>"
+        end
+      end
+      query += '</ul>'
+    end
+    raw(query)
+  end
+
+  ##
   # @param item [Item]
   # @param options [Hash]
   # @option options [Boolean] :pretty_print
