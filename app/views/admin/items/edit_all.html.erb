@@ -34,8 +34,19 @@
 
   <h1>Edit Items</h1>
 
-  <p>Metadata profile: <%= link_to @metadata_profile.name,
-                                   admin_metadata_profile_path(@metadata_profile) %></p>
+    <div class="panel panel-default">
+      <div class="panel-body">
+        <div class="row">
+          <div class="col-sm-6">
+            <%= query_summary(params[:q], params[:fq], @metadata_profile) %>
+          </div>
+          <div class="col-sm-6 text-right">
+            Metadata profile: <%= link_to @metadata_profile.name,
+                                          admin_metadata_profile_path(@metadata_profile) %>
+          </div>
+        </div>
+      </div>
+    </div>
 
   <div id="pt-items">
     <%= render partial: 'edit_all_items' %>

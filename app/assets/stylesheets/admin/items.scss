@@ -1,14 +1,7 @@
 body#items_index {
-  .pt-search {
-    .pt-collections {
-      max-height: 15em;
-      overflow-y: scroll;
-      ol {
-        list-style:none;
-        margin-left:0px;
-        padding-left:0px;
-      }
-    }
+  div.pt-filter {
+    margin-bottom: 1em;
+    width: 16em;
   }
 
   /*
@@ -220,6 +213,17 @@ body#items_edit {
 }
 
 body#items_edit_all {
+  .pt-query-summary {
+    margin: 0px;
+    padding-left: 0px;
+    li {
+      margin-left: 1em;
+      padding-left: 0px;
+      .pt-query-summary-value {
+        font-weight: bold;
+      }
+    }
+  }
   table.table {
     .pt-thumbnail {
       font-size: 70px;

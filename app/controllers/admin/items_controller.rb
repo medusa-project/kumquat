@@ -81,52 +81,31 @@ module Admin
       @collection = Collection.find_by_repository_id(params[:collection_id])
       raise ActiveRecord::RecordNotFound unless @collection
 
-      if params[:clear]
-        redirect_to admin_collection_items_url(@collection)
-        return
-      end
-
-      @items = Item.solr.
-          filter(Item::SolrFields::COLLECTION => @collection.repository_id).
-          filter(Item::SolrFields::PARENT_ITEM => :null).
-          where(params[:q])
-
-      # fields
-      field_input_present = false
-      if params[:elements] and params[:elements].any?
-        params[:elements].each_with_index do |element, index|
-          if params[:terms].length > index and !params[:terms][index].blank?
-            @items = @items.where("#{element}:#{params[:terms][index]}")
-            field_input_present = true
-          end
-        end
-      end
-
-      if params[:published].present? and params[:published] != 'any'
-        @items = @items.filter(Item::SolrFields::PUBLISHED => params[:published].to_i ? 'true' : 'false')
-      end
-
       @start = params[:start] ? params[:start].to_i : 0
       @limit = Option::integer(Option::Key::RESULTS_PER_PAGE)
 
-      # if there is no user-entered query, sort by title. Otherwise, use
-      # the default sort, which is by relevance
-      unless field_input_present
-        @items = @items.order(ItemElement.named('title').solr_single_valued_field)
-      end
-      @items = @items.start(@start).limit(@limit)
+      finder = ItemFinder.new.
+          collection_id(@collection.repository_id).
+          query(params[:q]).
+          include_children(false).
+          include_unpublished(true).
+          exclude_variants([Item::Variants::FRONT_MATTER, Item::Variants::INDEX,
+                            Item::Variants::KEY, Item::Variants::PAGE,
+                            Item::Variants::TABLE_OF_CONTENTS,
+                            Item::Variants::TITLE]).
+          filter_queries(params[:fq]).
+          sort(params[:sort]).
+          start(@start).
+          limit(@limit)
+      @items = finder.to_a
 
-      @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
-      @num_results_shown = [@limit, @items.total_length].min
+      @current_page = finder.page
+      @count = finder.count
+      @num_results_shown = [@limit, @count].min
+      @metadata_profile = finder.effective_metadata_profile
 
       respond_to do |format|
-        format.html do
-          # These are used by the search form.
-          @elements_for_select = MetadataProfileElement.order(:name).
-              map{ |p| [p.label, p.solr_multi_valued_field] }.uniq
-          @elements_for_select.
-              unshift([ 'Any Element', Item::SolrFields::SEARCH_ALL ])
-        end
+        format.html
         format.js
         format.tsv do
           headers['Content-Disposition'] = 'attachment; filename="items.tsv"'

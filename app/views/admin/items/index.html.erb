@@ -4,7 +4,7 @@
 
 <%= admin_breadcrumb(collection: @collection) %>
 
-<h1>Items in <%= @collection.title %></h1>
+<h1><%= @collection.title %>: Items</h1>
 
 <div class="clearfix" style="margin-bottom: 1em">
   <div class="btn-group pull-right" role="group">
@@ -23,7 +23,9 @@
       </button>
       <ul class="dropdown-menu" role="menu">
         <li <%= @collection.metadata_profile ? '' : 'disabled="disabled"' %>>
-          <%= link_to 'Edit', admin_collection_edit_all_items_path(@collection) %>
+          <%= link_to 'Edit Result Set',
+                      admin_collection_edit_all_items_path(@collection),
+                      id: 'pt-edit-metadata-link' %>
         </li>
         <li class="divider"></li>
         <li <%= (@collection.package_profile and @collection.medusa_file_group) ? '' : 'disabled="disabled"' %>>
@@ -45,103 +47,37 @@
   </div>
 </div>
 
-<% if @num_results_shown > 0 %>
-  <div class="panel panel-default">
-    <div id="pt-search-status" class="panel-body">
-      <%= search_status(@items, @start, @num_results_shown) %>
+<%= form_tag(params, method: :get, class: 'pt-filter') do %>
+  <div class="row">
+    <div class="col-sm-3 col-lg 2 pt-facets pt-panel-facets">
+      <%= render partial: 'facets' %>
+    </div>
+
+    <div class="col-sm-9 col-lg-10">
+      <% params.each do |k, v| %>
+        <%= hidden_field_tag(k, v) %>
+      <% end %>
+      <div class="input-group pt-filter">
+        <span class="input-group-addon"><i class="fa fa-search"></i></span>
+        <%= search_field_tag :q, params[:q], class: 'form-control',
+                             placeholder: 'Filter' %>
+      </div>
+
+      <% if @num_results_shown > 0 %>
+        <div class="panel panel-default">
+          <div id="pt-search-status" class="panel-body">
+            <%= search_status(@items, @start, @num_results_shown) %>
+          </div>
+        </div>
+      <% end %>
+
+      <div id="pt-items" class="pt-list-results">
+        <%= render partial: 'items' %>
+      </div>
     </div>
   </div>
 <% end %>
 
-<div id="pt-items" class="pt-list-results">
-  <%= render partial: 'items' %>
-</div>
-
-<!-- Sync modal panel -->
-<div class="modal fade" id="pt-sync-modal" tabindex="-1" role="dialog"
-     aria-labelledby="pt-sync-modal-label">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <%= form_tag(admin_collection_items_sync_path(@collection)) do %>
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title" id="pt-import-modal-label">Sync Items</h4>
-        </div>
-        <div class="modal-body">
-          <div class="alert alert-info">Before syncing, please verify that
-            the collection's file group and package profile are set
-            correctly, and that its content conforms to the package profile.</div>
-          <div class="radio">
-            <label>
-              <%= radio_button_tag('ingest_mode',
-                                   MedusaIngester::IngestMode::CREATE_ONLY, true,
-                                   'aria-described-by' => 'pt-create-only-help') %>
-              Create
-            </label>
-            <span id="pt-create-only-help" class="help-block">
-              Create any items present in Medusa but not the DLS. Don't touch
-              existing DLS items.
-            </span>
-          </div>
-          <div class="checkbox" style="padding-left: 1em">
-            <label>
-              <%= check_box_tag('options[extract_metadata]', 'true', true) %>
-              Extract embedded file metadata into DLS metadata
-            </label>
-          </div>
-          <div class="checkbox" style="padding-left: 1em">
-            <label>
-              <%= check_box_tag('options[include_date_created]', 'true', true) %>
-              Extract creation date from embedded file metadata
-            </label>
-          </div>
-          <div class="radio">
-            <label>
-              <%= radio_button_tag('ingest_mode',
-                                   MedusaIngester::IngestMode::UPDATE_BYTESTREAMS, false,
-                                   'aria-described-by' => 'pt-update-bytestreams-help') %>
-              Update Bytestreams
-            </label>
-            <span id="pt-update-bytestreams-help" class="help-block">
-              Update existing DLS items' bytestreams based on their corresponding
-              files in Medusa.
-            </span>
-          </div>
-          <div class="alert alert-danger">
-          <div class="radio">
-            <label>
-              <%= radio_button_tag('ingest_mode',
-                                   MedusaIngester::IngestMode::REPLACE_METADATA, false,
-                                   'aria-described-by' => 'pt-replace-metadata-help') %>
-              Replace Metadata <span class="label label-danger">dangerous!</span>
-            </label>
-            <span id="pt-replace-metadata-help" class="help-block">
-              Replaces DLS items' metadata with embedded metadata extracted
-              from their bytestream(s).
-            </span>
-          </div>
-          </div>
-          <div class="radio">
-            <label>
-              <%= radio_button_tag('ingest_mode',
-                                   MedusaIngester::IngestMode::DELETE_MISSING, false,
-                                   'aria-described-by' => 'pt-delete-missing-help') %>
-              Delete Missing
-            </label>
-            <span id="pt-delete-missing-help" class="help-block">
-              Delete any items present in the DLS but not Medusa.
-            </span>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-primary">Sync</button>
-        </div>
-      <% end %>
-    </div>
-  </div>
-</div>
-
+<%= render partial: 'sync_panel' %>
 <%= render partial: 'import_panel' %>
 <%= render partial: 'export_panel' %>
