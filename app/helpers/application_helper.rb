@@ -85,6 +85,8 @@ module ApplicationHelper
       end
     elsif entity == Collection or entity.kind_of?(Collection)
       icon = 'fa-folder-open-o'
+    elsif entity == Agent or entity.kind_of?(Agent)
+      icon = 'fa-user-circle'
     end
     raw("<i title=\"#{type_of(entity)}\" class=\"fa #{icon} pt-icon\"></i>")
   end
@@ -233,6 +235,8 @@ module ApplicationHelper
       end
     elsif entity.kind_of?(Collection) or entity == Collection
       type = 'Collection'
+    elsif entity.kind_of?(Agent) or entity == Agent
+      type = 'Agent'
     end
     type
   end
