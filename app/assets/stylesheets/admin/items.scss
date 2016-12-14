@@ -1,14 +1,7 @@
 body#items_index {
-  .pt-search {
-    .pt-collections {
-      max-height: 15em;
-      overflow-y: scroll;
-      ol {
-        list-style:none;
-        margin-left:0px;
-        padding-left:0px;
-      }
-    }
+  div.pt-filter {
+    margin-bottom: 1em;
+    width: 16em;
   }
 
   /*

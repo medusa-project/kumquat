@@ -52,6 +52,15 @@
     </div>
 
     <div class="col-sm-9 col-lg-10">
+      <% params.each do |k, v| %>
+        <%= hidden_field_tag(k, v) %>
+      <% end %>
+      <div class="input-group pt-filter">
+        <span class="input-group-addon"><i class="fa fa-search"></i></span>
+        <%= search_field_tag :q, params[:q], class: 'form-control',
+                             placeholder: 'Filter' %>
+      </div>
+
       <% if @num_results_shown > 0 %>
         <div class="panel panel-default">
           <div id="pt-search-status" class="panel-body">
