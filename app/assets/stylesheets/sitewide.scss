@@ -32,3 +32,23 @@ div.alert-info {
 .tab-content {
   padding-top:1em;
 }
+
+.pt-facets {
+  @media (min-width: $screen-sm-min) {
+    padding-right: 0px;
+  }
+  div.checkbox {
+    margin:0.2em 0em;
+  }
+}
+
+.pt-panel-facets {
+  .panel-body {
+    ul {
+      list-style:none;
+      margin-bottom:0em;
+      margin-left: 0em;
+      padding-left: 0px;
+    }
+  }
+}

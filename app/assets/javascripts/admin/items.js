@@ -118,6 +118,8 @@ var PTAdminItemsEditView = function() {
 var PTAdminItemsView = function() {
 
     this.init = function() {
+        PearTree.initFacets();
+
         $('#pt-export-modal button[type=submit]').on('click', function() {
             $('#pt-export-modal').modal('hide');
         });

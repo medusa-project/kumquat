@@ -4,7 +4,7 @@
 
 <%= admin_breadcrumb(collection: @collection) %>
 
-<h1>Items in <%= @collection.title %></h1>
+<h1><%= @collection.title %>: Items</h1>
 
 <div class="clearfix" style="margin-bottom: 1em">
   <div class="btn-group pull-right" role="group">
@@ -45,17 +45,27 @@
   </div>
 </div>
 
-<% if @num_results_shown > 0 %>
-  <div class="panel panel-default">
-    <div id="pt-search-status" class="panel-body">
-      <%= search_status(@items, @start, @num_results_shown) %>
+<%= form_tag(params, method: :get, class: 'pt-filter') do %>
+  <div class="row">
+    <div class="col-sm-3 col-lg 2 pt-facets pt-panel-facets">
+      <%= render partial: 'facets' %>
+    </div>
+
+    <div class="col-sm-9 col-lg-10">
+      <% if @num_results_shown > 0 %>
+        <div class="panel panel-default">
+          <div id="pt-search-status" class="panel-body">
+            <%= search_status(@items, @start, @num_results_shown) %>
+          </div>
+        </div>
+      <% end %>
+
+      <div id="pt-items" class="pt-list-results">
+        <%= render partial: 'items' %>
+      </div>
     </div>
   </div>
 <% end %>
-
-<div id="pt-items" class="pt-list-results">
-  <%= render partial: 'items' %>
-</div>
 
 <%= render partial: 'sync_panel' %>
 <%= render partial: 'import_panel' %>
