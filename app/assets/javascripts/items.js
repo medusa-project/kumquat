@@ -345,6 +345,7 @@ var PTItemsView = function() {
                 // Create hidden element counterparts of each checked checkbox,
                 // as checkboxes can't have values.
                 var form = $(this).parents('form:first');
+                // Remove any existing ones
                 form.find('[name="fq[]"]').remove();
                 form.find('[name=pt-facet-term]:checked').each(function() {
                     var input = $('<input type="hidden" name="fq[]">');
@@ -353,6 +354,7 @@ var PTItemsView = function() {
                 });
 
                 $.ajax({
+                    // e.g. /collections/:id/items
                     url: $('[name=pt-current-path]').val(),
                     method: 'GET',
                     data: form.serialize(),

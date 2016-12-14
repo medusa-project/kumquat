@@ -404,8 +404,8 @@ class ItemsController < WebsiteController
   #
   def item_finder_for(query)
     session[:collection_id] = query[:collection_id] if query[:collection_id].present?
-    session[:q] = query[:q] if query[:q].present?
-    session[:fq] = query[:fq] if query[:fq].present?
+    session[:q] = query[:q]
+    session[:fq] = query[:fq]
     session[:sort] = query[:sort] if query[:sort].present?
     session[:start] = query[:start].to_i if query[:start].present?
     session[:start] = 0 if session[:start] < 0
