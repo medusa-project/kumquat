@@ -1,3 +1,5 @@
+<% # requires the following locals: items [Enumerable<Item>] %>
+
 <div class="modal fade" id="pt-download-zip-modal" tabindex="-1" role="dialog"
      aria-labelledby="pt-download-zip-modal-label">
   <div class="modal-dialog" role="document">
@@ -17,7 +19,7 @@
           multiple gigabytes in size.</div>
 
         <div id="pt-batch-buttons">
-          <% (@items.total_length / AbstractZipDownloader::BATCH_SIZE.to_f).ceil.times do |i| %>
+          <% (items.total_length / AbstractZipDownloader::BATCH_SIZE.to_f).ceil.times do |i| %>
             <%= link_to("Batch #{i + 1}",
                         params.merge({ format: :zip, start: i * AbstractZipDownloader::BATCH_SIZE }),
                         class: 'btn btn-primary') %>

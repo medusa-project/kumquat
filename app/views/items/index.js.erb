@@ -1,4 +1,4 @@
 $('#pt-items').html('<%= escape_javascript(render('items')) %>');
 $('.pt-facets').html('<%= escape_javascript(render('facets')) %>');
 $('#pt-search-status').html('<%= search_status(@items, @start, @num_results_shown) %>');
-$('#pt-download-zip-modal-container').html('<%= escape_javascript(render('download_zip_panel')) %>');
+$('#pt-download-zip-modal-container').html('<%= escape_javascript(render('download_zip_panel', locals: { items: @items })) %>');
