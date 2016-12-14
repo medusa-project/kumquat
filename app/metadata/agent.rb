@@ -26,8 +26,26 @@ class Agent < ActiveRecord::Base
   after_commit :index_in_solr, on: [:create, :update]
   after_commit :delete_from_solr, on: :destroy
 
+  ##
+  # @param id [String]
+  # @return [Agent]
+  #
+  def self.find_by_repository_id(id)
+    # This logic must be kept in sync with that of solr_id().
+    Agent.find(id.gsub(/[^0-9]/, ''))
+  end
+
   def delete_from_solr
     Solr.instance.delete(self.solr_id)
+  end
+
+  ##
+  # Implemented to assist in cross-entity search.
+  #
+  # @return [self]
+  #
+  def effective_representative_item
+    self
   end
 
   ##
@@ -68,7 +86,17 @@ class Agent < ActiveRecord::Base
   # @return [String]
   #
   def solr_id
+    # This logic must be kept in sync with that of find_by_repository_id().
     "agent-#{self.id}"
+  end
+
+  ##
+  # Alias of name().
+  #
+  # @return [String]
+  #
+  def title
+    name
   end
 
   ##

@@ -44,11 +44,19 @@ class EntityFinder < AbstractFinder
     @results = Relation.new(SolrQuerying)
 
     unless @include_unpublished
-      @results.filter("((#{Configuration.instance.solr_class_field}:\"Item\" "\
-            "AND #{Item::SolrFields::PUBLISHED}:true "\
-            "AND #{Item::SolrFields::COLLECTION_PUBLISHED}:true) OR "\
-          "(#{Configuration.instance.solr_class_field}:\"Collection\" "\
-            "AND #{Collection::SolrFields::PUBLISHED}:true))")
+      @results.filter("("\
+          "  (#{Configuration.instance.solr_class_field}:\"Item\" "\
+          "    AND #{Item::SolrFields::PUBLISHED}:true "\
+          "    AND #{Item::SolrFields::COLLECTION_PUBLISHED}:true"\
+          "  ) "\
+          "  OR ("\
+          "    #{Configuration.instance.solr_class_field}:\"Collection\" "\
+          "    AND #{Collection::SolrFields::PUBLISHED}:true"\
+          "  )"\
+          "  OR ("\
+          "    #{Configuration.instance.solr_class_field}:\"Agent\" "\
+          "  )"\
+          ")")
     end
     if @exclude_item_variants.any?
       @results = @results.filter("-#{Item::SolrFields::VARIANT}:(#{@exclude_item_variants.join(' OR ')})")
