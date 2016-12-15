@@ -703,6 +703,10 @@ class Item < ActiveRecord::Base
     end
   end
 
+  def purge_cached_images
+    ImageServer.instance.purge_item_from_cache(self)
+  end
+
   ##
   # @return [Item, nil] The instance's assigned representative item, which may
   #                     be nil. For the purposes of getting "the"

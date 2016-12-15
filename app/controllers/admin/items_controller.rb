@@ -194,6 +194,25 @@ module Admin
     end
 
     ##
+    # Responds to POST /admin/collections/:collection_id/items/:item_id/purge-cached-images
+    #
+    def purge_cached_images
+      item = Item.find_by_repository_id(params[:item_id])
+      raise ActiveRecord::RecordNotFound unless item
+      begin
+        item.purge_cached_images
+      rescue => e
+        handle_error(e)
+        redirect_to :back
+      else
+        flash['success'] = 'All images relating to this item have been purged '\
+        'from the image server cache. You may need to clear your browser '\
+        'cache to see any changes take effect.'
+        redirect_to :back
+      end
+    end
+
+    ##
     # Finds and replaces values across metadata elements.
     #
     # Responds to POST /admin/collections/:collection_id/items/replace-metadata

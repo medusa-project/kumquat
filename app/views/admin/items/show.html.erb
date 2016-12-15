@@ -10,6 +10,11 @@
               class: 'btn btn-default' do %>
     <i class="fa fa-pencil"></i> Edit
   <% end %>
+  <!-- Purge Cached Images button -->
+  <%= link_to admin_collection_item_purge_cached_images_path(@item.collection, @item),
+              class: 'btn btn-default', method: 'post' do %>
+      <i class="fa fa-trash"></i> Purge Cached Images
+  <% end %>
   <!-- View button -->
   <button type="button" class="btn btn-default dropdown-toggle"
           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
