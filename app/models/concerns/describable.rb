@@ -19,7 +19,7 @@ module Describable
   # @return [EntityElement]
   #
   def element(name)
-    self.elements.select{ |e| e.name == name.to_s }.first
+    self.elements.where(name: name).limit(1).first
   end
 
   ##

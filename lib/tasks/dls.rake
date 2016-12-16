@@ -78,6 +78,16 @@ namespace :dls do
 
   end
 
+  namespace :images do
+
+    desc 'Purge an item\'s images from the image server cache'
+    task :purge, [:uuid] => :environment do |task, args|
+      item = Item.find_by_repository_id(args[:uuid])
+      item.purge_cached_images
+    end
+
+  end
+
   namespace :items do
 
     desc 'Delete all items from a collection'

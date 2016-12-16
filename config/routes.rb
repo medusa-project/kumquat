@@ -131,7 +131,10 @@ Rails.application.routes.draw do
     resources :collections, except: [:new, :create, :delete] do
       match '/items/edit', to: 'items#edit_all', via: 'get', as: 'edit_all_items'
       match '/items/update', to: 'items#update_all', via: 'post'
-      resources :items, concerns: :publishable
+      resources :items, concerns: :publishable do
+        match '/purge-cached-images', to: 'items#purge_cached_images',
+              via: 'post'
+      end
       match '/items/import', to: 'items#import', via: 'post'
       match '/items/batch-change-metadata', to: 'items#batch_change_metadata',
             via: 'post'
