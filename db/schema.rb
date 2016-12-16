@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161213154023) do
+ActiveRecord::Schema.define(version: 20161216162212) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -174,6 +174,7 @@ ActiveRecord::Schema.define(version: 20161213154023) do
   end
 
   add_index "entity_elements", ["item_id"], name: "index_entity_elements_on_item_id", using: :btree
+  add_index "entity_elements", ["name"], name: "index_entity_elements_on_name", using: :btree
 
   create_table "hosts", force: :cascade do |t|
     t.string   "pattern"
