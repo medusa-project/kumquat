@@ -5,9 +5,10 @@ gem 'rails', '4.2.7'
 gem 'bootstrap-sass', '~> 3.3.6'
 gem 'barby' # provides QR codes in print representations
 gem 'browser'
+gem 'curb' # Used by the Medusa Downloader Client
 gem 'daemons' # enables bin/delayed_job start/stop
 gem 'delayed_job_active_record'
-gem 'draper'
+gem 'draper' # Provides decorators
 gem 'font-awesome-sass', '~> 4.7.0'
 gem 'httpclient', git: 'git://github.com/medusa-project/httpclient.git'
 gem 'jbuilder', '~> 2.0' # JSON DSL: https://github.com/rails/jbuilder
@@ -23,7 +24,6 @@ gem 'rsolr'
 gem 'sass-rails', '~> 5.0'
 gem 'uglifier', '>= 1.3.0' # JavaScript asset compressor
 gem 'yomu' # text extraction from PDF, .docx, etc.
-gem 'zip_tricks'
 
 group :development do
   gem 'capistrano-bundler'

@@ -103,5 +103,6 @@
 <% end %>
 
 <div id="pt-download-zip-modal-container">
-  <%= render partial: 'download_zip_panel', locals: { items: @items } %>
+  <%= render partial: 'download_zip_panel', locals: {
+      num_downloadable_items: @num_downloadable_items } %>
 </div>

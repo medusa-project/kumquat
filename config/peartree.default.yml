@@ -20,6 +20,10 @@ development: &development
   :solr_class_field: class_si
   :solr_default_search_field: searchall_natsort_en_im
   :solr_more_like_this_endpoint: /mlt
+  :downloader:
+    :url: http://download.library.illinois.edu:8080
+    :user:
+    :password:
 
 test:
   :repository_pathname: /repo
@@ -43,6 +47,10 @@ test:
   :solr_class_field: class_si
   :solr_default_search_field: searchall_natsort_en_im
   :solr_more_like_this_endpoint: /mlt
+  :downloader:
+    :url: http://download.library.illinois.edu:8080
+    :user:
+    :password:
 
 production: &production
   :repository_pathname: /repo
@@ -73,3 +81,7 @@ production: &production
   :solr_class_field: class_si
   :solr_default_search_field: searchall_natsort_en_im
   :solr_more_like_this_endpoint: /mlt
+  :downloader:
+    :url: http://download.library.illinois.edu:8080
+    :user:
+    :password:
