@@ -192,7 +192,6 @@ GEM
     uglifier (2.7.2)
       execjs (>= 0.3.0)
       json (>= 1.8.0)
-    yomu (0.1.5)
     zip_tricks (4.2.0)
 
 PLATFORMS
@@ -224,7 +223,6 @@ DEPENDENCIES
   sass-rails (~> 5.0)
   thin
   uglifier (>= 1.3.0)
-  yomu
   zip_tricks
 
 BUNDLED WITH
