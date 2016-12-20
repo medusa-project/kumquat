@@ -46,7 +46,6 @@ GEM
     autoprefixer-rails (6.1.2)
       execjs
       json
-    barby (0.6.2)
     bootstrap-sass (3.3.6)
       autoprefixer-rails (>= 5.2.1)
       sass (>= 3.3.4)
@@ -200,7 +199,6 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  barby
   bootstrap-sass (~> 3.3.6)
   browser
   capistrano-bundler
