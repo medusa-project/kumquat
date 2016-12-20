@@ -234,7 +234,7 @@ class ItemsController < WebsiteController
         query(params[:q]).
         include_children(true).
         filter_queries(params[:fq]).
-        sort(params[:sort]).
+        sort(Item::SolrFields::GROUPED_SORT).
         start(params[:download_start]).
         limit(DownloaderClient::BATCH_SIZE)
     @num_downloadable_items = download_finder.count
