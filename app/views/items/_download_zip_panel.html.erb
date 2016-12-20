@@ -1,4 +1,4 @@
-<% # requires the following locals: items [Enumerable<Item>] %>
+<% # requires the following locals: num_downloadable_items [Fixnum] %>
 
 <div class="modal fade" id="pt-download-zip-modal" tabindex="-1" role="dialog"
      aria-labelledby="pt-download-zip-modal-label">
@@ -10,18 +10,18 @@
         <h4 class="modal-title" id="pt-download-zip-modal-label">Download Zip File</h4>
       </div>
       <div class="modal-body">
-        <p>Zip files include access masters and JSON metadata for all of the
-          items in the current result set, including their children. They are
-          segmented into batches, and limited to
-          <%= AbstractZipDownloader::BATCH_SIZE %> items per batch.</p>
+        <p>Zip files include access and preservation masters for all of the
+          items in the current result set. Because of the potentially huge
+          amount of data in question, they are segmented into batches, and
+          limited to <%= DownloaderClient::BATCH_SIZE %> items per batch.</p>
         <div class="alert alert-warning">
           <i class="fa fa-exclamation-triangle"></i> Each batch file may be
           multiple gigabytes in size.</div>
 
         <div id="pt-batch-buttons">
-          <% (items.total_length / AbstractZipDownloader::BATCH_SIZE.to_f).ceil.times do |i| %>
+          <% (num_downloadable_items / DownloaderClient::BATCH_SIZE.to_f).ceil.times do |i| %>
             <%= link_to("Batch #{i + 1}",
-                        params.merge({ format: :zip, start: i * AbstractZipDownloader::BATCH_SIZE }),
+                        params.merge({ format: :zip, download_start: i * DownloaderClient::BATCH_SIZE }),
                         class: 'btn btn-primary') %>
           <% end %>
         </div>

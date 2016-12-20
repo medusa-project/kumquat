@@ -102,8 +102,8 @@
         <% end %>
         <% if @item.is_compound? and client_supports_zip_download? %>
           <li>
-            <%= link_to('', 'data-toggle': 'modal', 'data-target': '#pt-download-zip-modal') do %>
-              <i class="fa fa-file-zip-o"></i>&nbsp;&nbsp;Download Zip File&hellip;
+            <%= link_to(params.merge({ format: :zip })) do %>
+              <i class="fa fa-file-zip-o"></i>&nbsp;&nbsp;Zip File&hellip;
             <% end %>
           </li>
         <% end %>
@@ -203,7 +203,6 @@
 
 <%= render partial: 'cite_panel', locals: { item: @item } %>
 <%= render partial: 'download_panel', locals: { item: @item } %>
-<%= render partial: 'download_zip_panel', locals: { items: @item.items_from_solr } %>
 <%= render partial: 'embed_image_panel', locals: { item: @item } %>
 
 <script type="application/ld+json">

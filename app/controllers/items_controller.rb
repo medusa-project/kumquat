@@ -226,6 +226,19 @@ class ItemsController < WebsiteController
       @suggestions = finder.suggestions
     end
 
+    download_finder = ItemFinder.new.
+        client_hostname(request.host).
+        client_ip(request.remote_ip).
+        client_user(current_user).
+        collection_id(params[:collection_id]).
+        query(params[:q]).
+        include_children(true).
+        filter_queries(params[:fq]).
+        sort(params[:sort]).
+        start(params[:download_start]).
+        limit(DownloaderClient::BATCH_SIZE)
+    @num_downloadable_items = download_finder.count
+
     respond_to do |format|
       format.atom do
         @updated = @items.any? ?
@@ -250,8 +263,20 @@ class ItemsController < WebsiteController
           }
       end
       format.zip do
-        # Redirect to the ZipDownloader Rack app, preserving the query string.
-        redirect_to "/items/download?#{params.to_query}"
+        items = download_finder.to_a
+
+        client = DownloaderClient.new
+        start = params[:download_start].to_i + 1
+        end_ = params[:download_start].to_i + items.length
+        zip_name = "items-#{start}-#{end_}"
+        begin
+          download_url = client.download_url(items, zip_name)
+        rescue => e
+          flash['error'] = "#{e}"
+          redirect_to :back
+        else
+          redirect_to download_url, status: 303
+        end
       end
     end
   end
@@ -355,13 +380,16 @@ class ItemsController < WebsiteController
         end
       end
       format.zip do # Used for downloading pages into a zip file.
-        query = {
-            collection_id: @item.collection_repository_id,
-            q: "#{Item::SolrFields::PARENT_ITEM}:#{@item.repository_id}",
-            start: params[:start]
-        }
-        # Redirect to the ZipDownloader Rack app, preserving the query string.
-        redirect_to "/items/download?#{query.to_query}"
+        client = DownloaderClient.new
+        begin
+          items = @item.items.any? ? @item.items : [@item]
+          download_url = client.download_url(items, 'item')
+        rescue => e
+          flash['error'] = "#{e}"
+          redirect_to :back
+        else
+          redirect_to download_url, status: 303
+        end
       end
     end
   end
