@@ -4,32 +4,19 @@ module IiifPresentationHelper
 
   ##
   # @param subitem [Item] Subitem or page
+  # @return [Hash<Symbol,Object>]
   #
   def iiif_canvas_for(subitem)
-    case subitem.variant
-      when Item::Variants::PAGE
-        struct = {
-            '@id': item_iiif_canvas_url(subitem, subitem.repository_id),
-            '@type': 'sc:Canvas',
-            'label': subitem.title,
-            height: canvas_height(subitem),
-            width: canvas_width(subitem),
-            metadata: iiif_metadata_for(subitem)
-        }
-        struct[:images] = iiif_images_for(subitem, 'access') if subitem.is_image?
-        return struct
-      else
-        struct = {
-            '@id': item_iiif_canvas_url(subitem, subitem.repository_id),
-            '@type': 'sc:Canvas',
-            label: subitem.title,
-            height: canvas_height(subitem),
-            width: canvas_width(subitem),
-            metadata: iiif_metadata_for(subitem)
-        }
-        struct[:images] = iiif_images_for(subitem, 'access') if subitem.is_image?
-        return struct
-    end
+    struct = {
+        '@id': item_iiif_canvas_url(subitem, subitem.repository_id),
+        '@type': 'sc:Canvas',
+        label: subitem.title,
+        height: canvas_height(subitem),
+        width: canvas_width(subitem),
+        metadata: iiif_metadata_for(subitem)
+    }
+    struct[:images] = iiif_images_for(subitem, 'access') if subitem.is_image?
+    struct
   end
 
   ##
