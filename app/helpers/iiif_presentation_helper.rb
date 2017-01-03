@@ -76,7 +76,8 @@ module IiifPresentationHelper
         elements << {
             label: pe.label,
             value: item_elements.length > 1 ?
-                item_elements.map(&:value) : item_elements.first.value }
+                item_elements.map(&:value) : item_elements.first.value
+        }
       end
     end
     elements
@@ -92,7 +93,7 @@ module IiifPresentationHelper
     {
         '@id': item_iiif_range_url(item, variant),
         '@type': 'sc:Range',
-        label: variant.titleize,
+        label: subitem.title,
         canvases: [ item_iiif_canvas_url(subitem, subitem.repository_id) ]
     }
   end
@@ -147,7 +148,7 @@ module IiifPresentationHelper
           {
               '@id': item_iiif_sequence_url(item, :item),
               '@type': 'sc:Sequence',
-              label: 'Item',
+              label: item.title,
               canvases: iiif_canvases_for(item)
           }
       ]
