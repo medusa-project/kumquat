@@ -1220,10 +1220,11 @@ module ItemsHelper
   def compound_viewer_for(object, selected_item = nil)
     canvas_index = 0
     if selected_item
-      # Uncomment if large directories ever cause problems.
-      #if object.items_in_iiif_presentation_order.count > 1000
-      #  return image_viewer_for(selected_item)
-      #end
+      # If the object contains more than this many items, disable the gallery
+      # view to allow the UI to load in a reasonable amount of time.
+      if object.items_in_iiif_presentation_order.count > 800
+        return image_viewer_for(selected_item)
+      end
       object.items_in_iiif_presentation_order.each_with_index do |subitem, index|
         if subitem.repository_id == selected_item.repository_id
           canvas_index = index
