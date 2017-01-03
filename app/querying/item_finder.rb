@@ -89,23 +89,6 @@ class ItemFinder < AbstractFinder
     @items
   end
 
-  ##
-  # @return [String]
-  #
-  def to_s
-    "Collection: #{@collection_id}\n"\
-    "Query: #{@query}\n"\
-    "Sort: #{@sort}\n"\
-    "Start: #{@start}\n"\
-    "Limit: #{@limit}\n"\
-    "Client Host: #{@client_hostname}\n"\
-    "Client IP: #{@client_ip}\n"\
-    "Client User: #{@client_user}\n"\
-    "Include children: #{@include_children}\n"\
-    "Include unpublished: #{@include_unpublished}\n"\
-    "Num Results: #{@items&.length}\n"
-  end
-
   private
 
   def load
