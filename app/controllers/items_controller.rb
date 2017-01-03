@@ -233,8 +233,8 @@ class ItemsController < WebsiteController
       end
       format.html do
         fresh_when(etag: @items) if Rails.env.production?
-        session[:first_result_id] = @items.first.repository_id
-        session[:last_result_id] = @items.last.repository_id
+        session[:first_result_id] = @items.first&.repository_id
+        session[:last_result_id] = @items.last&.repository_id
       end
       format.js
       format.json do
@@ -330,8 +330,8 @@ class ItemsController < WebsiteController
             end
           end
 
-          session[:first_result_id] = results.first.repository_id
-          session[:last_result_id] = results.last.repository_id
+          session[:first_result_id] = results.first&.repository_id
+          session[:last_result_id] = results.last&.repository_id
         end
       end
       format.json do
