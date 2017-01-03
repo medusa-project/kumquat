@@ -8,22 +8,31 @@
     </div>
   </div>
 
-  <div class="form-group">
-    <%= f.label :contentdm_alias, 'CONTENTdm Alias ("CISOROOT")' %>
-    <%= f.text_field(:contentdm_alias, class: 'form-control') %>
-  </div>
+  <hr>
 
   <div class="form-group">
     <%= f.label :medusa_file_group_id, 'Medusa File Group UUID' %>
-    <%= f.text_field(:medusa_file_group_id, class: 'form-control') %>
+    <%= f.text_field(:medusa_file_group_id, class: 'form-control',
+                     disabled: @collection.items.any?) %>
   </div>
 
   <div class="form-group">
     <%= f.label :medusa_cfs_directory_id, 'Medusa CFS Directory UUID' %>
-    <%= f.text_field(:medusa_cfs_directory_id, class: 'form-control') %>
+    <%= f.text_field(:medusa_cfs_directory_id, class: 'form-control',
+                     disabled: @collection.items.any?) %>
     <span class="help-block">If omitted, the root CFS directory of the
     file group will be used.</span>
   </div>
+
+  <div class="form-group">
+    <%= f.label :package_profile_id, 'Medusa Package Profile' %>
+    <%= select(:collection, :package_profile_id,
+               @package_profile_options_for_select, {},
+               class: 'form-control',
+               disabled: @collection.items.any?) %>
+  </div>
+
+  <hr>
 
   <div class="form-group">
     <%= f.label :metadata_profile_id, 'Metadata Profile' %>
@@ -33,10 +42,8 @@
   </div>
 
   <div class="form-group">
-    <%= f.label :package_profile_id, 'Package Profile' %>
-    <%= select(:collection, :package_profile_id,
-               @package_profile_options_for_select, {},
-               class: 'form-control') %>
+    <%= f.label :contentdm_alias, 'CONTENTdm Alias ("CISOROOT")' %>
+    <%= f.text_field(:contentdm_alias, class: 'form-control') %>
   </div>
 
   <div class="form-group">
