@@ -704,8 +704,7 @@ LIMIT 1000;
       self.access_systems = struct['access_systems'].map{ |t| t['name'] }
       self.access_url = struct['access_url']
       if struct['description'].present?
-        self.description = self.elements.build(name: 'description',
-                                               value: struct['description'])
+        self.elements.build(name: 'description', value: struct['description'])
       end
       self.description_html = struct['description_html']
       self.medusa_repository_id = struct['repository_path'].gsub(/[^0-9+]/, '').to_i
