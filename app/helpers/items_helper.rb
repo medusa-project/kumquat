@@ -1091,6 +1091,11 @@ module ItemsHelper
       frag.xpath('.//*').first['width'] = '100%'
       frag.xpath('.//*').first['height'] = '400'
       return raw(frag.to_html.strip)
+    # IMET-473: image files should be presented in the same manner as compound
+    # objects, with a gallery viewer showing all of the other images in the
+    # same directory.
+    elsif item.variant == Item::Variants::FILE
+      return compound_viewer_for(item.parent, item)
     elsif item.is_compound?
       return compound_viewer_for(item)
     elsif item.is_pdf?
@@ -1207,23 +1212,36 @@ module ItemsHelper
   end
 
   ##
-  # @param item [Item]
+  # @param object [Item] Compound object (needs to have a corresponding IIIF
+  #                      presentation manifest).
+  # @param selected_item [Item]
   # @return [String]
   #
-  def compound_viewer_for(item)
-    html = ''
-    if item.is_compound?
-      # Configuration is in /public/uvconfig_compound.json;
-      # See http://universalviewer.io/examples/ for config structure.
-      # UV seems to want its height to be defined in a style attribute.
-      html += "<div id=\"pt-compound-viewer\" class=\"uv\" "\
-        "data-locale=\"en-GB:English (GB)\" "\
-        "data-config=\"#{asset_path('uvconfig_compound.json')}\" "\
-        "data-uri=\"#{item_iiif_manifest_url(item)}\" "\
-        "data-sequenceindex=\"0\" data-canvasindex=\"0\" "\
-        "data-rotation=\"0\" style=\"height:600px; background-color:#000;\"></div>"
-      html += javascript_include_tag('/universalviewer/lib/embed.js', id: 'embedUV')
+  def compound_viewer_for(object, selected_item = nil)
+    canvas_index = 0
+    if selected_item
+      # Uncomment if large directories ever cause problems.
+      #if object.items_in_iiif_presentation_order.count > 1000
+      #  return image_viewer_for(selected_item)
+      #end
+      object.items_in_iiif_presentation_order.each_with_index do |subitem, index|
+        if subitem.repository_id == selected_item.repository_id
+          canvas_index = index
+          break
+        end
+      end
     end
+
+    # Configuration is in /public/uvconfig_compound.json;
+    # See http://universalviewer.io/examples/ for config structure.
+    # UV seems to want its height to be defined in a style attribute.
+    html = "<div id=\"pt-compound-viewer\" class=\"uv\" "\
+      "data-locale=\"en-GB:English (GB)\" "\
+      "data-config=\"#{asset_path('uvconfig_compound.json')}\" "\
+      "data-uri=\"#{item_iiif_manifest_url(object)}\" "\
+      "data-sequenceindex=\"0\" data-canvasindex=\"#{canvas_index}\" "\
+      "data-rotation=\"0\" style=\"height:600px; background-color:#000;\"></div>"
+    html += javascript_include_tag('/universalviewer/lib/embed.js', id: 'embedUV')
     raw(html)
   end
 
@@ -1404,7 +1422,7 @@ module ItemsHelper
   ##
   # @param bs [Bytestream]
   # @return [Boolean] Whether the given bytestream is presumed safe to feed to
-  #                   an IIIF server (won't bog it down too much).
+  #                   an IIIF image server (won't bog it down too much).
   #
   def iiif_safe?(bs)
     max_size = 30000000 # arbitrary
