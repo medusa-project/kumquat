@@ -125,7 +125,7 @@ module ItemsHelper
         raw('<div class="pt-thumbnail">' +
             thumbnail_tag(child, DEFAULT_THUMBNAIL_SIZE, :square) +
           '</div>' +
-          '<div class="pt-label">' +
+          '<div class="pt-label" title="' + child.title + '">' +
             truncate(child.title, length: PAGE_TITLE_LENGTH) +
           '</div>')
       end
