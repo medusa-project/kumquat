@@ -4,32 +4,19 @@ module IiifPresentationHelper
 
   ##
   # @param subitem [Item] Subitem or page
+  # @return [Hash<Symbol,Object>]
   #
   def iiif_canvas_for(subitem)
-    case subitem.variant
-      when Item::Variants::PAGE
-        struct = {
-            '@id': item_iiif_canvas_url(subitem, subitem.repository_id),
-            '@type': 'sc:Canvas',
-            'label': subitem.title,
-            height: canvas_height(subitem),
-            width: canvas_width(subitem),
-            metadata: iiif_metadata_for(subitem)
-        }
-        struct[:images] = iiif_images_for(subitem, 'access') if subitem.is_image?
-        return struct
-      else
-        struct = {
-            '@id': item_iiif_canvas_url(subitem, subitem.repository_id),
-            '@type': 'sc:Canvas',
-            label: subitem.title,
-            height: canvas_height(subitem),
-            width: canvas_width(subitem),
-            metadata: iiif_metadata_for(subitem)
-        }
-        struct[:images] = iiif_images_for(subitem, 'access') if subitem.is_image?
-        return struct
-    end
+    struct = {
+        '@id': item_iiif_canvas_url(subitem, subitem.repository_id),
+        '@type': 'sc:Canvas',
+        label: subitem.title,
+        height: canvas_height(subitem),
+        width: canvas_width(subitem),
+        metadata: iiif_metadata_for(subitem)
+    }
+    struct[:images] = iiif_images_for(subitem, 'access') if subitem.is_image?
+    struct
   end
 
   ##
@@ -37,11 +24,7 @@ module IiifPresentationHelper
   # @return [Array]
   #
   def iiif_canvases_for(item)
-    # If any child items have a page number, order by that. Otherwise, order
-    # by title. (IMET-414)
-    items = item.items_from_solr.order(Item::SolrFields::PAGE_NUMBER,
-                                       Item::SolrFields::SUBPAGE_NUMBER,
-                                       Item::SolrFields::TITLE).limit(9999).to_a
+    items = item.items_in_iiif_presentation_order.to_a
     if items.any?
       return items.map { |subitem| iiif_canvas_for(subitem) }
     else
@@ -93,7 +76,8 @@ module IiifPresentationHelper
         elements << {
             label: pe.label,
             value: item_elements.length > 1 ?
-                item_elements.map(&:value) : item_elements.first.value }
+                item_elements.map(&:value) : item_elements.first.value
+        }
       end
     end
     elements
@@ -109,7 +93,7 @@ module IiifPresentationHelper
     {
         '@id': item_iiif_range_url(item, variant),
         '@type': 'sc:Range',
-        label: variant.titleize,
+        label: subitem.title,
         canvases: [ item_iiif_canvas_url(subitem, subitem.repository_id) ]
     }
   end
@@ -164,7 +148,7 @@ module IiifPresentationHelper
           {
               '@id': item_iiif_sequence_url(item, :item),
               '@type': 'sc:Sequence',
-              label: 'Item',
+              label: item.title,
               canvases: iiif_canvases_for(item)
           }
       ]

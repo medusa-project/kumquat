@@ -579,6 +579,19 @@ class Item < ActiveRecord::Base
   end
 
   ##
+  # If any child items have a page number, orders by that. Otherwise, orders
+  # by title. (IMET-414)
+  #
+  # @return [Relation<Item>] Subitems in the order they should appear in an
+  #                          IIIF presentation API canvas.
+  #
+  def items_in_iiif_presentation_order
+    self.items_from_solr.order(SolrFields::PAGE_NUMBER,
+                               SolrFields::SUBPAGE_NUMBER,
+                               SolrFields::TITLE).limit(9999)
+  end
+
+  ##
   # @return [Item] The item's key item, if available.
   #
   def key_item
