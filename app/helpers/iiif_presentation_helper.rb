@@ -24,11 +24,7 @@ module IiifPresentationHelper
   # @return [Array]
   #
   def iiif_canvases_for(item)
-    # If any child items have a page number, order by that. Otherwise, order
-    # by title. (IMET-414)
-    items = item.items_from_solr.order(Item::SolrFields::PAGE_NUMBER,
-                                       Item::SolrFields::SUBPAGE_NUMBER,
-                                       Item::SolrFields::TITLE).limit(9999).to_a
+    items = item.items_in_iiif_presentation_order.to_a
     if items.any?
       return items.map { |subitem| iiif_canvas_for(subitem) }
     else
