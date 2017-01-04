@@ -1220,6 +1220,10 @@ module ItemsHelper
   def compound_viewer_for(object, selected_item = nil)
     canvas_index = 0
     if selected_item
+      # If the selected item is at the top level within a collection, object
+      # may be nil, in which case the compound viewer won't work.
+      return image_viewer_for(selected_item) unless object
+
       # If the object contains more than this many items, disable the gallery
       # view to allow the UI to load in a reasonable amount of time.
       if object.items_in_iiif_presentation_order.count > 800
