@@ -111,8 +111,22 @@ var PTItemView = function() {
     var PTDownloadPanel = function() {
 
         var init = function() {
-            $('#pt-download').on('click', function() {
-                var download_modal = $('#pt-download-modal');
+            var download_modal = $('#pt-download-modal');
+
+            // When a thumbnail radio is clicked, show its corresponding
+            // download options.
+            var downloadable_items =
+                download_modal.find('input[name="pt-downloadable-item"]');
+            if (downloadable_items.length > 0) {
+                downloadable_items.on('click', function () {
+                    download_modal.find('.pt-download-option').hide();
+                    download_modal.find('.pt-download-option[data-item-id=' +
+                        $(this).data('item-id') + ']').show();
+                });
+                $('input[name="pt-downloadable-item"]:checked').trigger('click');
+            }
+
+            $('#pt-download-button').on('click', function() {
                 var source_file = download_modal.find('input[name="download-url"]:checked');
                 var url;
                 if (source_file.length > 0) {
