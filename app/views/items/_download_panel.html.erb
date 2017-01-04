@@ -1,8 +1,14 @@
 <% # requires the following locals: item %>
 
+<%
+  display_thumbs = (item.variant == Item::Variants::FILE and item.parent)
+  items = display_thumbs ?
+      item.parent.items_in_iiif_presentation_order.limit(999).to_a : []
+%>
+
 <div class="modal fade" id="pt-download-modal" tabindex="-1" role="dialog"
      aria-labelledby="pt-download-modal-label" data-backdrop="false">
-  <div class="modal-dialog modal-sm" role="document">
+  <div class="modal-dialog <%= display_thumbs ? '' : 'modal-sm' %>" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -11,26 +17,37 @@
         <h3 class="modal-title" id="pt-download-modal-label">Download</h3>
       </div>
       <div class="modal-body">
-        <% item.bytestreams.select{ |bs| bs.exists? }.each do |bs|
-          if bs.bytestream_type == Bytestream::Type::ACCESS_MASTER
-            url = item_access_master_bytestream_url(item)
-          elsif bs.bytestream_type == Bytestream::Type::PRESERVATION_MASTER
-            url = item_preservation_master_bytestream_url(item)
-          end
-          if url %>
-            <div class="radio">
-              <label>
-                <%= radio_button_tag('download-url', url) %>
-                <%= bs.human_readable_type %>
-                <br>
-                <small><%= download_label_for_bytestream(bs) %></small>
-              </label>
+        <% if display_thumbs %>
+          <div class="row">
+            <div class="col-xs-7">
+              <div id="pt-image-select">
+                <% items.each do |subitem| %>
+                  <div class="radio">
+                    <label>
+                      <%= radio_button_tag('pt-downloadable-item', nil,
+                                           (item.repository_id == subitem.repository_id),
+                                           data: {
+                                               'item-id': subitem.repository_id
+                                           }) %>
+                      <%= thumbnail_tag(subitem) %>
+                      <%= subitem.title %>
+                    </label>
+                  </div>
+                <% end %>
+              </div>
             </div>
-          <% end %>
+            <div class="col-xs-5">
+              <% items.each do |subitem| %>
+                <%= download_radios_for_item(subitem) %>
+              <% end %>
+            </div>
+          </div>
+        <% else %>
+          <%= download_radios_for_item(item) %>
         <% end %>
       </div>
       <div class="modal-footer">
-        <a id="pt-download" class="btn btn-primary" type="button" download
+        <a id="pt-download-button" class="btn btn-primary" type="button" download
            href="">Download</a>
       </div>
     </div>
