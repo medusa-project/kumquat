@@ -55,7 +55,7 @@ module ItemsHelper
         end
         html += '</table>'
 
-        html += "</div>" # .tab-pane
+        html += '</div>' # .tab-pane
       end
       html += '</div>' # .tab-content
     end
@@ -69,6 +69,35 @@ module ItemsHelper
     # Uses the `browser` gem.
     !browser.device.console? and !browser.device.mobile? and
         !browser.device.tablet? and !browser.device.tv?
+  end
+
+  ##
+  # @param item [Item] Compound object
+  #
+  def compound_object_bytestream_info_table(item)
+    subitems = item.items_in_iiif_presentation_order.limit(999).to_a
+    html = ''
+    if subitems.any?
+      html += '<table class="table">'
+      html += '  <tr>'
+      html += '    <th>Item</th>'
+      html += '    <th>File Type</th>'
+      html += '    <th>Filename</th>'
+      html += '  </tr>'
+      subitems.each do |subitem|
+        subitem.bytestreams.each_with_index do |bs, index|
+          html += '<tr>'
+          if index == 0
+            html += "  <td rowspan=\"#{subitem.bytestreams.length}\">#{subitem.title}</td>"
+          end
+          html += "  <td>#{bs.human_readable_type}</td>"
+          html += "  <td>#{link_to(bs.filename, bs.medusa_url, target: '_blank')}</td>"
+          html += '</tr>'
+        end
+      end
+      html += '</table>'
+    end
+    raw(html)
   end
 
   ##
