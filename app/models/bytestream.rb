@@ -30,6 +30,14 @@ class Bytestream < ActiveRecord::Base
   end
 
   ##
+  # @return [String, nil]
+  #
+  def filename
+    self.repository_relative_pathname.present? ?
+        File.basename(self.repository_relative_pathname) : nil
+  end
+
+  ##
   # @return [String]
   #
   def human_readable_name
