@@ -2,7 +2,6 @@
 
 collection1:
   access_url: MyString
-  description: MyString
   description_html: MyString
   medusa_cfs_directory_id: a530c1f0-5ca8-0132-3334-0050569601ca-8
   medusa_file_group_id: 3783d1f0-5ca7-0132-3334-0050569601ca-2
@@ -13,11 +12,9 @@ collection1:
   repository_id: d250c1f0-5ca8-0132-3334-0050569601ca-8
   representative_image: MyString
   representative_item_id: MyString
-  title: MyString
 
 collection2:
   access_url: MyString
-  description: MyString
   description_html: MyString
   medusa_file_group_id: 3783d1f0-5ca7-0132-3334-0050569601ca-2
   metadata_profile: metadata_profile_2
@@ -27,11 +24,9 @@ collection2:
   repository_id: c28af1f0-5ca8-0132-3334-0050569601ca-8
   representative_image: MyString
   representative_item_id: MyString
-  title: MyString
 
 iptc_collection:
   access_url: MyString
-  description: MyString
   description_html: MyString
   medusa_file_group_id:
   metadata_profile: metadata_profile_2
@@ -41,11 +36,9 @@ iptc_collection:
   repository_id: 34d204d0-05d1-0130-c5bb-0019b9e633c5-e
   representative_image: MyString
   representative_item_id: MyString
-  title: MyString
 
 single_item_object_collection:
   access_url: MyString
-  description: MyString
   description_html: MyString
   medusa_file_group_id: ab365b70-0b09-0134-1d54-0050569601ca-f
   metadata_profile: metadata_profile_2
@@ -55,4 +48,3 @@ single_item_object_collection:
   repository_id: c678c1f0-5ca8-0132-3334-0050569601ca-8
   representative_image: MyString
   representative_item_id: MyString
-  title: MyString
