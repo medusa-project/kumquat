@@ -12,4 +12,4 @@ two:
   related_agent_id: 1
   dates: MyString
   description: MyText
-  agent_relation_type: one
+  agent_relation_type: two

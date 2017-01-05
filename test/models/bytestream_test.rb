@@ -29,6 +29,17 @@ class BytestreamTest < ActiveSupport::TestCase
     assert(!@bs.exists?)
   end
 
+  # filename
+
+  test 'filename() should return the filename with pathname set' do
+    assert_equal('banquets_002.jpg', @bs.filename)
+  end
+
+  test 'filename() should return nil with no with pathname set' do
+    @bs.repository_relative_pathname = nil
+    assert_nil(@bs.filename)
+  end
+
   # human_readable_type()
 
   test 'human_readable_type should work properly' do
