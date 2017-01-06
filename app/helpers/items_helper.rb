@@ -1502,11 +1502,13 @@ module ItemsHelper
   # @return [String] HTML string
   #
   def metadata_value_for_element(element)
+    label = element.value.present? ? element.value : ''
+    label = label.gsub('<', '&lt;').gsub('>', '&gt;')
     if element.agent
-      label = element.value.present? ? element.value : element.agent.name
+      label = label.present? ? label : element.agent.name
       value = link_to(label, element.agent)
     else
-      value = auto_link(element.value)
+      value = auto_link(label)
     end
     value
   end
