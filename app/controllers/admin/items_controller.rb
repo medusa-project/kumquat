@@ -54,6 +54,7 @@ module Admin
           collection_id(@collection.repository_id).
           query(params[:q]).
           include_children(true).
+          include_unpublished(true).
           filter_queries(params[:fq]).
           start(@start).
           limit(@limit)
