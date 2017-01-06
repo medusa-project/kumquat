@@ -121,6 +121,12 @@ namespace :dls do
       Solr.instance.commit
     end
 
+    desc 'Delete all item Solr documents in a collection'
+    task :clear_collection_index, [:uuid] => :environment do |task, args|
+      Solr.instance.delete_by_query("#{Item::SolrFields::COLLECTION}:#{args[:uuid]}")
+      Solr.instance.commit
+    end
+
     desc 'Sync items from Medusa (modes: create_only, update_bytestreams, delete_missing)'
     task :sync, [:collection_uuid, :mode] => :environment do |task, args|
       SyncItemsJob.new(args[:collection_uuid], args[:mode],

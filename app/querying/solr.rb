@@ -28,6 +28,14 @@ class Solr
     client.delete_by_id(id)
   end
 
+  ##
+  # @param query [String]
+  #
+  def delete_by_query(query)
+    Rails.logger.info("Solr.delete_by_query(): #{query}")
+    client.delete_by_query(query)
+  end
+
   alias_method :delete_by_id, :delete
 
   def get(endpoint, options = {})
