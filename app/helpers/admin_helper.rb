@@ -139,9 +139,14 @@ module AdminHelper
       html += '<table class="table table-condensed">'
       elements.each do |element|
         if element.value.present?
+          # Some URLs will be enclosed in angle brackets, which will foil
+          # auto_link().
+          haystack = element.value.gsub('<', '&lt; ').gsub('>', ' &gt;')
+          value = auto_link(haystack, html: { target: '_blank' }).
+              gsub('&lt; ', '&lt;').gsub(' &gt;', '&gt;')
           html += "<tr>"
           html += "<td style=\"width:1px\"><span class=\"label label-default\">String</span></td>"
-          html += "<td>#{auto_link(element.value.gsub('<', '&lt;').gsub('>', '&gt;'))}</td>"
+          html += "<td>#{value}</td>"
           html += "</tr>"
         end
         if element.uri.present?

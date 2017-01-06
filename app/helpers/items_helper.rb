@@ -1583,12 +1583,14 @@ module ItemsHelper
   #
   def metadata_value_for_element(element)
     label = element.value.present? ? element.value : ''
-    label = label.gsub('<', '&lt;').gsub('>', '&gt;')
     if element.agent
+      label = label.gsub('<', '&lt;').gsub('>', '&gt;')
       label = label.present? ? label : element.agent.name
       value = link_to(label, element.agent)
     else
-      value = auto_link(label)
+      label = label.gsub('<', '&lt; ').gsub('>', ' &gt;')
+      value = auto_link(label, html: { target: '_blank' }).
+          gsub('&lt; ', '&lt;').gsub(' &gt;', '&gt;')
     end
     value
   end
