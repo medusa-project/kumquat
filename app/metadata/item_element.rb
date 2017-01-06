@@ -75,7 +75,7 @@ class ItemElement < EntityElement
           elsif part.present?
             # part may be prefixed with a vocabulary key.
             subparts = part.split(':')
-            if subparts.length > 1 and !%w(http https ftp).include?(subparts[0])
+            if subparts.length > 1 and Vocabulary.pluck(:key).include?(subparts[0])
               e.vocabulary = vocabulary_override || Vocabulary.find_by_key(subparts[0])
               e.value = subparts[1..subparts.length].join(':')
             else
