@@ -42,7 +42,7 @@ class ItemElementTest < ActiveSupport::TestCase
     elements = ItemElement.elements_from_tsv_string('title', 'cats')
     assert_equal 1, elements.length
     assert_equal ItemElement.new(name: 'title', value: 'cats',
-                                 vocabulary: Vocabulary::uncontrolled), elements[0]
+                                 vocabulary: vocabularies(:uncontrolled)), elements[0]
 
     # kitchen sink
     elements = ItemElement.elements_from_tsv_string(
@@ -54,6 +54,13 @@ class ItemElementTest < ActiveSupport::TestCase
     assert_equal ItemElement.new(name: 'title', value: 'dogs',
                                  vocabulary: vocabularies(:lcsh),
                                  uri: 'http://example.org/dogs'), elements[1]
+
+    # try to fool it with angle brackets
+    elements = ItemElement.elements_from_tsv_string(
+        'title', 'VidiPax <http://example.org/cats>')
+    assert_equal 1, elements.length
+    assert_equal ItemElement.new(name: 'title', value: 'VidiPax <http://example.org/cats>',
+                                 vocabulary: vocabularies(:uncontrolled)), elements[0]
   end
 
 end
