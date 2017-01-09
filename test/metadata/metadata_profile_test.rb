@@ -8,7 +8,7 @@ class MetadataProfileTest < ActiveSupport::TestCase
   end
 
   test 'default_elements should work' do
-    assert_equal 6, MetadataProfile.default_elements.length
+    assert_equal 8, MetadataProfile.default_elements.length
   end
 
   test 'from_json should work' do

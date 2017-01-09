@@ -67,8 +67,13 @@ cd2d4601-c451-0133-1d17-0050569601ca-8\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n"
     item.elements.destroy_all
     item.elements.build(name: 'title', value: 'aaaaaaaa-e946-0133-1d3d-0050569601ca-f')
     item.save
-    expected = "uuid\tparentId\tpreservationMasterPathname\taccessMasterPathname\tvariant\tpageNumber\tsubpageNumber\tlatitude\tlongitude\tcontentdmAlias\tcontentdmPointer\ttitle\tdescription\tlcsh:subject\ttgm:subject
-6e406030-5ce3-0132-3334-0050569601ca-3\ta53add10-5ca8-0132-3334-0050569601ca-7\t\t\tFile\t\t\t\t\t\t\taaaaaaaa-e946-0133-1d3d-0050569601ca-f\t\t\t\n"
+    expected = "uuid\tparentId\tpreservationMasterPathname\tpreservationMasterFilename\taccessMasterPathname\taccessMasterFilename\tvariant\tpageNumber\tsubpageNumber\tlatitude\tlongitude\tcontentdmAlias\tcontentdmPointer\ttitle\tdescription\tlcsh:subject\ttgm:subject
+a53add10-5ca8-0132-3334-0050569601ca-7\t\t\t\t\t\tDirectory\t\t\t\t\t\t\t\t\t\t
+6e406030-5ce3-0132-3334-0050569601ca-3\ta53add10-5ca8-0132-3334-0050569601ca-7\t\t\t\t\tFile\t\t\t\t\t\t\taaaaaaaa-e946-0133-1d3d-0050569601ca-f\t\t\t
+be8d3500-c451-0133-1d17-0050569601ca-9\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t
+d29edba0-c451-0133-1d17-0050569601ca-c\tbe8d3500-c451-0133-1d17-0050569601ca-9\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t
+d29950d0-c451-0133-1d17-0050569601ca-2\tbe8d3500-c451-0133-1d17-0050569601ca-9\tMyString\tMyString\tMyString\tMyString\t\t\t\t\t\t\t\t\t\t\t
+cd2d4601-c451-0133-1d17-0050569601ca-8\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n"
     assert_equal expected, @col.items_as_tsv(only_undescribed: true)
   end
 
@@ -282,8 +287,8 @@ cd2d4601-c451-0133-1d17-0050569601ca-8\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n"
     assert_equal 'tigersZZZ', item.element(:cat).value
   end
 
-  test 'replace_item_element_values() should work with :end matching mode and
-  :matched_part replace mode' do
+  test 'replace_item_element_values() should work with end matching mode and
+  matched_part replace mode' do
     item = items(:item1)
     item.elements.build(name: 'cat', value: 'ZZZtigers')
     item.save!
@@ -319,7 +324,7 @@ cd2d4601-c451-0133-1d17-0050569601ca-8\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n"
   # to_s()
 
   test 'to_s should return the title' do
-    assert_equal 'MyString', @col.title
+    assert_equal 'd250c1f0-5ca8-0132-3334-0050569601ca-8', @col.title
   end
 
   # to_solr()
@@ -342,7 +347,8 @@ cd2d4601-c451-0133-1d17-0050569601ca-8\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n"
     assert_equal @col.title, doc[Collection::SolrFields::METADATA_TITLE]
     assert_equal @col.published, doc[Collection::SolrFields::PUBLISHED]
     assert_empty doc[Collection::SolrFields::PARENT_COLLECTIONS]
-    assert_equal @col.published_in_dls, doc[Collection::SolrFields::PUBLISHED_IN_DLS]
+    assert_equal @col.published_in_dls,
+                 doc[Collection::SolrFields::PUBLISHED_IN_DLS]
     assert_equal @col.medusa_repository.title,
                  doc[Collection::SolrFields::REPOSITORY_TITLE]
     assert_equal @col.representative_item_id,

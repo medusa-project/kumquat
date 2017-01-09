@@ -542,7 +542,7 @@ LIMIT 1000;
   # @raises [ArgumentError]
   #
   def replace_item_element_values(matching_mode, find_value, element_name,
-                                  replace_mode, replace_value, task)
+                                  replace_mode, replace_value, task = nil)
     ActiveRecord::Base.transaction do
       num_items = self.items.count
       self.items.each_with_index do |item, index|
@@ -696,7 +696,13 @@ LIMIT 1000;
     response = Medusa.client.get(self.medusa_url('json'),
                                  follow_redirect: true)
     json_str = response.body
-    struct = JSON.parse(json_str)
+    begin
+      struct = JSON.parse(json_str)
+    rescue JSON::ParserError => e
+      if e.message.include?('UUID not found')
+        raise ActiveRecord::RecordNotFound, self.repository_id
+      end
+    end
 
     ActiveRecord::Base.transaction do
       self.elements.destroy_all

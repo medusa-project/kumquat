@@ -14,7 +14,7 @@ class PackageProfileTest < ActiveSupport::TestCase
 
     # map profile
     assert_equal 1, all[1].id
-    assert_equal 'Map', all[1].name
+    assert_equal 'Compound Object', all[1].name
   end
 
   # find
