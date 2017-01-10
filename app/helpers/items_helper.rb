@@ -126,6 +126,7 @@ module ItemsHelper
         html += '</div>'
       end
     end
+    raw(html)
   end
 
   ##
