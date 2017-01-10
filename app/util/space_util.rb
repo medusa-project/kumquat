@@ -32,7 +32,8 @@ class SpaceUtil
         end
       end
     end
-    coordinates[:latitude].present? and coordinates[:longitude].present? ?
+
+    (coordinates[:latitude].present? and coordinates[:longitude].present?) ?
         coordinates : nil
   end
 

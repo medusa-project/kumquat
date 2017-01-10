@@ -13,11 +13,6 @@ class BytestreamTest < ActiveSupport::TestCase
     assert_equal(expected, @bs.byte_size)
   end
 
-  test 'byte_size should return nil with invalid pathname set' do
-    @bs.repository_relative_pathname = '/bogus'
-    assert_nil(@bs.byte_size)
-  end
-
   # exists?()
 
   test 'exists? should return true with valid pathname set' do

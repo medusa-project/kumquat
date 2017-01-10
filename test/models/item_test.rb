@@ -79,6 +79,7 @@ class ItemTest < ActiveSupport::TestCase
     assert_nil @item.description
 
     @item.elements.build(name: 'description', value: 'cats')
+    @item.save
     assert_equal 'cats', @item.description
   end
 
@@ -111,19 +112,18 @@ class ItemTest < ActiveSupport::TestCase
   # effective_rights_statement()
 
   test 'effective_rights_statement() should return the statement of the instance' do
-    assert_equal 'Test rights statement', @item.effective_rights_statement
+    assert_equal 'Sample Rights', @item.effective_rights_statement
   end
 
   test 'effective_rights_statement() should fall back to a parent statement' do
     @item = items(:free_form_dir1_file1)
-    @item.rights_statement = nil
-    @item.parent.rights_statement = 'cats'
-    assert_equal 'cats', @item.effective_rights_statement
+    assert_equal 'Sample Rights', @item.effective_rights_statement
   end
 
   test 'effective_rights_statement() should fall back to the collection
   rights statement' do
-    @item.rights_statement = nil
+    @item.elements.destroy_all
+    @item.save
     @item.collection.rights_statement = 'cats'
     assert_equal 'cats', @item.effective_rights_statement
   end
@@ -388,9 +388,11 @@ class ItemTest < ActiveSupport::TestCase
   test 'subtitle() should return the title element value, or nil if none
   exists' do
     @item.elements.destroy_all
+    @item.save
     assert_nil @item.subtitle
 
-    @item.elements.build(name: 'subtitle', value: 'cats')
+    @item.elements.build(name: 'alternativeTitle', value: 'cats')
+    @item.save
     assert_equal 'cats', @item.subtitle
   end
 
@@ -398,9 +400,11 @@ class ItemTest < ActiveSupport::TestCase
 
   test 'title() should return the title element value, or nil if none exists' do
     @item.elements.destroy_all
-    assert_nil @item.title
+    @item.save
+    assert_equal 'a1234567-5ca8-0132-3334-0050569601ca-8', @item.title
 
     @item.elements.build(name: 'title', value: 'cats')
+    @item.save
     assert_equal 'cats', @item.title
   end
 

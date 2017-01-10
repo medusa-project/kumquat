@@ -8,6 +8,10 @@ lcsh:
   key: lcsh
   name: Library of Congress Subject Headings
 
+rights:
+  key: rights
+  name: RightsStatements.org
+
 tgm:
   key: tgm
   name: Thesaurus of Graphic Materials
