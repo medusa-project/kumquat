@@ -1,20 +1,8 @@
 <% provide :title, @item.title %>
 <% provide :body_id, 'items_show' %>
 
-<% if @previous_result or @next_result or session[:browse_context_url] %>
-  <div class="row">
-    <div class="col-sm-7 col-md-8 col-lg-9">
-      <%= breadcrumb(item: @item, context: session[:browse_context],
-                     context_url: session[:browse_context_url]) %>
-    </div>
-    <div class="col-sm-5 col-md-4 col-lg-3">
-      <%= render partial: 'navigation_buttons' %>
-    </div>
-  </div>
-<% else %>
-  <%= breadcrumb(item: @item, context: session[:browse_context],
-                 context_url: session[:browse_context_url]) %>
-<% end %>
+<%= breadcrumb(item: @item, context: session[:browse_context],
+               context_url: session[:browse_context_url]) %>
 
 <div class="btn-group pull-right" role="group">
   <button class="btn btn-danger pt-remove-from-favorites"
@@ -132,6 +120,13 @@
 </div>
 
 <%= item_page_title(@item) %>
+
+<% if @previous_result or @next_result or session[:browse_context_url] %>
+  <% # IMET-487: center the nav buttons above the viewer %>
+  <div class="text-center">
+    <%= render partial: 'navigation_buttons' %>
+  </div>
+<% end %>
 
 <div class="pt-viewer">
   <%= viewer_for(@item) %>
