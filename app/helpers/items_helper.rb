@@ -256,11 +256,13 @@ module ItemsHelper
   #
   def iiif_image_url(item, size, shape = :default)
     url = nil
-    if item.is_image? or item.is_pdf?
+    if item.is_image? or item.is_pdf? or item.is_video?
       bs = item.access_master_bytestream || item.preservation_master_bytestream
       if bs.repository_relative_pathname and iiif_safe?(bs)
         shape = (shape == :square) ? 'square' : 'full'
-        url = sprintf('%s/%s/!%d,%d/0/default.jpg',
+        # ?time= is a nonstandard argument supported only by Cantaloupe,
+        # applicable only to videos.
+        url = sprintf('%s/%s/!%d,%d/0/default.jpg?time=00:00:20',
                       item.iiif_url, shape, size, size)
       end
     end
