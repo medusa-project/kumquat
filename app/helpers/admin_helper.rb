@@ -368,6 +368,11 @@ module AdminHelper
   def admin_system_info_data(item)
     data = {}
     data['Repository ID'] = item.repository_id
+
+    item.bytestreams.each do |bs|
+      data["#{bs.human_readable_type} Filename"] = bs.filename
+    end
+
     data['Published'] = "<span class=\"label #{item.published ? 'label-success' : 'label-danger'}\">"\
         "#{item.published ? 'Published' : 'Unpublished' }</span>"
 
