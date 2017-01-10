@@ -441,9 +441,9 @@ class Item < ActiveRecord::Base
   def iiif_identifier
     id = nil
     bs = self.access_master_bytestream
-    if !bs or (!bs.is_image? and !bs.is_pdf?)
+    if !bs or (!bs.is_image? and !bs.is_pdf? and !bs.is_video?)
       bs = self.preservation_master_bytestream
-      if !bs or (!bs.is_image? and !bs.is_pdf?)
+      if !bs or (!bs.is_image? and !bs.is_pdf? and !bs.is_video?)
         bs = nil
       end
     end
