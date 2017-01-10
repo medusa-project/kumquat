@@ -48,12 +48,15 @@ var PTItemView = function() {
                 }
             };
             $('[name=pt-citation-format]').on('change', function() {
-                var author = $('[name=pt-citation-author]').val();
-                var date = $('[name=pt-citation-date-created]').val();
+                var container = $(this).parent();
+                var item_id = container.data('item-id');
+
+                var author = container.find('[name=pt-citation-author]').val();
+                var date = container.find('[name=pt-citation-date-created]').val();
                 var dateObj = new Date(date);
-                var source = $('[name=pt-citation-source]').val();
-                var title = $('[name=pt-citation-title]').val();
-                var url = $('[name=pt-citation-url]').val();
+                var source = container.find('[name=pt-citation-source]').val();
+                var title = container.find('[name=pt-citation-title]').val();
+                var url = container.find('[name=pt-citation-url]').val();
                 var citation = '';
 
                 switch ($(this).val()) {
@@ -98,7 +101,7 @@ var PTItemView = function() {
                         citation = title + source + date + url;
                         break;
                 }
-                $('#pt-citation').html(citation);
+                container.find('.pt-citation').html(citation);
             }).trigger('change');
         }; init();
     };
@@ -119,8 +122,8 @@ var PTItemView = function() {
                 download_modal.find('input[name="pt-downloadable-item"]');
             if (downloadable_items.length > 0) {
                 downloadable_items.on('click', function () {
-                    download_modal.find('.pt-download-option').hide();
-                    download_modal.find('.pt-download-option[data-item-id=' +
+                    download_modal.find('.pt-download-option, .pt-citation-info').hide();
+                    download_modal.find('[data-item-id=' +
                         $(this).data('item-id') + ']').show();
                 });
                 $('input[name="pt-downloadable-item"]:checked').trigger('click');
