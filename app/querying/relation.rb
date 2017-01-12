@@ -112,6 +112,7 @@ class Relation
   def limit(limit)
     reset_results
     @limit = limit
+    @limit = 99999999 if @limit == 0
     self
   end
 
