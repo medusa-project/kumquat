@@ -236,7 +236,7 @@ class ItemsController < WebsiteController
         filter_queries(params[:fq]).
         sort(Item::SolrFields::GROUPED_SORT).
         start(params[:download_start]).
-        limit(DownloaderClient::BATCH_SIZE)
+        limit(params[:limit] || DownloaderClient::BATCH_SIZE)
     @num_downloadable_items = download_finder.count
 
     respond_to do |format|

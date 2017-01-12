@@ -1,4 +1,6 @@
-<% # requires the following locals: num_downloadable_items [Fixnum] %>
+<% # requires the following locals: num_downloadable_items [Fixnum]
+   num_batches = (num_downloadable_items / DownloaderClient::BATCH_SIZE.to_f).ceil
+%>
 
 <div class="modal fade" id="pt-download-zip-modal" tabindex="-1" role="dialog"
      aria-labelledby="pt-download-zip-modal-label">
@@ -11,20 +13,37 @@
       </div>
       <div class="modal-body">
         <p>Zip files include access and preservation masters for all of the
-          items in the current result set. Because of the potentially huge
-          amount of data in question, they are segmented into batches, and
-          limited to <%= DownloaderClient::BATCH_SIZE %> items per batch.</p>
-        <div class="alert alert-warning">
-          <i class="fa fa-exclamation-triangle"></i> Each batch file may be
-          multiple gigabytes in size.</div>
+          items in the current result set.</p>
 
-        <div id="pt-batch-buttons">
-          <% (num_downloadable_items / DownloaderClient::BATCH_SIZE.to_f).ceil.times do |i| %>
-            <%= link_to("Batch #{i + 1}",
-                        params.merge({ format: :zip, download_start: i * DownloaderClient::BATCH_SIZE }),
-                        class: 'btn btn-primary') %>
-          <% end %>
+        <hr>
+
+        <% if num_batches > 1 %>
+          <h3>All items in one zip file</h3>
+        <% end %>
+
+        <div class="text-center">
+          <%= link_to('Download',
+                      params.except(:start).merge({ format: :zip, download_start: 0, limit: 0 }),
+                      class: 'btn btn-primary') %>
         </div>
+
+        <% if num_batches > 1 %>
+          <hr>
+
+          <h3>Items in batches</h3>
+
+          <p>Batches can make large downloads more manageable. Batched zip files
+            are limited to <%= DownloaderClient::BATCH_SIZE %> items per batch.</p>
+          <div id="pt-batch-buttons">
+            <% num_batches.times do |i| %>
+              <%= link_to("Batch #{i + 1}",
+                          params.except(:start).merge({ format: :zip,
+                                         download_start: i * DownloaderClient::BATCH_SIZE,
+                                         limit: DownloaderClient::BATCH_SIZE }),
+                          class: 'btn btn-primary') %>
+            <% end %>
+          </div>
+        <% end %>
       </div>
     </div>
   </div>
