@@ -1113,17 +1113,12 @@ class Item < ActiveRecord::Base
   # @return [ItemElement]
   #
   def elements_for_value(value, dest_elem)
-    elements = []
-    if value.respond_to?(:each)
-      value.select(&:present?).each do |val|
-        elements << ItemElement.new(name: dest_elem, value: val,
-                                    vocabulary: Vocabulary.uncontrolled)
-      end
-    elsif value.present?
-      elements << ItemElement.new(name: dest_elem, value: value,
-                                  vocabulary: Vocabulary.uncontrolled)
+    value = [value] unless value.respond_to?(:each)
+    # "-" is a junk value that has been known to exist in our IPTC metadata.
+    value.select{ |v| v.present? and v != '-' }.map do |val|
+      ItemElement.new(name: dest_elem, value: val,
+                      vocabulary: Vocabulary.uncontrolled)
     end
-    elements
   end
 
   ##
