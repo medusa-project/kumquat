@@ -75,6 +75,8 @@
         <td>
           <span class="label <%= @collection.published_in_dls ? 'label-success' : 'label-danger' %>">
           <%= @collection.published_in_dls ? 'Published' : 'Unpublished' %></span>
+          <span class="label <%= @collection.harvestable ? 'label-success' : 'label-danger' %>">
+          <%= @collection.harvestable ? 'Harvestable' : 'Unharvestable' %></span>
         </td>
       </tr>
       <tr>

@@ -85,6 +85,7 @@ module Admin
 
     def sanitized_params
       params.require(:collection).permit(:id, :contentdm_alias,
+                                         :harvestable,
                                          :medusa_cfs_directory_id,
                                          :medusa_file_group_id,
                                          :metadata_profile_id,
