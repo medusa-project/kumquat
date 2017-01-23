@@ -56,7 +56,8 @@ class DownloaderClient
           })
         end
       else
-        Rails.logger.info("Item has no bytestreams: #{item.repository_id}")
+        CustomLogger.instance.
+            info("Item has no bytestreams: #{item.repository_id}")
       end
     end
 

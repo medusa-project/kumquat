@@ -202,7 +202,7 @@ class Bytestream < ActiveRecord::Base
         end
       end
     rescue JSON::ParserError => e
-      Rails.logger.warn("Bytestream.read_metadata(): #{e}")
+      CustomLogger.instance.warn("Bytestream.read_metadata(): #{e}")
     end
   end
 

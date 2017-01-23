@@ -34,7 +34,7 @@ class ApplicationController < ActionController::Base
   # @param e [Exception, String]
   #
   def handle_error(e)
-    Rails.logger.warn(e)
+    CustomLogger.instance.warn(e)
     flash['error'] = "#{e}"
   end
 

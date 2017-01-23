@@ -89,7 +89,8 @@ class Relation
       batch = self.limit(limit).start(offset)
       page += 1
 
-      Rails.logger.debug("Relation.find_each(): limit: #{limit} | offset: #{offset}")
+      CustomLogger.instance.
+          debug("Relation.find_each(): limit: #{limit} | offset: #{offset}")
 
       batch.select{ |x| x }.each{ |x| yield x }
 
@@ -290,7 +291,7 @@ class Relation
 
       @solr_response = Solr.instance.get(endpoint, params: params)
 
-      Rails.logger.debug("Solr response:\n#{@solr_response}")
+      CustomLogger.instance.debug("Solr response:\n#{@solr_response}")
 
       if !@more_like_this and @solr_response['facet_counts']
         @results.facet_fields = solr_facet_fields_to_objects(
@@ -311,7 +312,7 @@ class Relation
           entity = class_.find_by_repository_id(doc[Configuration.instance.solr_id_field])
           @results << entity || doc[Configuration.instance.solr_id_field]
         rescue => e
-          Rails.logger.error("#{e} (#{doc['id']}) (#{e.backtrace})")
+          CustomLogger.instance.error("#{e} (#{doc['id']}) (#{e.backtrace})")
           @results.total_length -= 1
         end
       end

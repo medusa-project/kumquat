@@ -1130,11 +1130,12 @@ class Item < ActiveRecord::Base
     # Get the bytestream from which the metadata will be extracted
     bs = self.preservation_master_bytestream || self.access_master_bytestream
     unless bs
-      Rails.logger.info('Item.elements_from_embedded_metadata(): no bytestreams')
+      CustomLogger.instance.
+          info('Item.elements_from_embedded_metadata(): no bytestreams')
       return
     end
 
-    Rails.logger.debug("Item.elements_from_embedded_metadata: using "\
+    CustomLogger.instance.debug("Item.elements_from_embedded_metadata: using "\
         "#{bs.human_readable_type} (#{bs.absolute_local_pathname})")
 
     # Get its embedded IIM metadata

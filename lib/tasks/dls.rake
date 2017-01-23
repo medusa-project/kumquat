@@ -106,7 +106,7 @@ namespace :dls do
       Item.uncached do
         Item.all.find_each.with_index do |item, index|
           item.index_in_solr
-          Rails.logger.debug("peartree:reindex: "\
+          CustomLogger.instance.debug("peartree:reindex: "\
             "#{((index / num_entities.to_f) * 100).round(2)}%")
         end
       end

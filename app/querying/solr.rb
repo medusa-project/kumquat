@@ -7,16 +7,18 @@ class Solr
 
   SCHEMA = YAML.load(File.read(File.join(__dir__, 'schema.yml')))
 
+  @@logger = CustomLogger.instance
+
   ##
   # @param doc [Hash]
   #
   def add(doc)
-    Rails.logger.info("Solr.add(): #{doc['id']}")
+    @@logger.info("Solr.add(): #{doc['id']}")
     client.add(doc)
   end
 
   def commit
-    Rails.logger.info('Solr.commit()')
+    @@logger.info('Solr.commit()')
     client.commit
   end
 
@@ -24,7 +26,7 @@ class Solr
   # @param id [String]
   #
   def delete(id)
-    Rails.logger.info("Solr.delete(): #{id}")
+    @@logger.info("Solr.delete(): #{id}")
     client.delete_by_id(id)
   end
 
@@ -32,14 +34,14 @@ class Solr
   # @param query [String]
   #
   def delete_by_query(query)
-    Rails.logger.info("Solr.delete_by_query(): #{query}")
+    @@logger.info("Solr.delete_by_query(): #{query}")
     client.delete_by_query(query)
   end
 
   alias_method :delete_by_id, :delete
 
   def get(endpoint, options = {})
-    Rails.logger.debug("Solr.get(): requesting #{endpoint}; #{options}")
+    @@logger.debug("Solr.get(): requesting #{endpoint}; #{options}")
     client.get(endpoint, options)
   end
 
@@ -47,7 +49,7 @@ class Solr
   # Deletes everything.
   #
   def purge
-    Rails.logger.info('Solr.purge()')
+    @@logger.info('Solr.purge()')
     client.update(data: '<delete><query>*:*</query></delete>')
   end
 
@@ -77,7 +79,7 @@ class Solr
     url = Configuration.instance.solr_url.chomp('/') + '/' +
         Configuration.instance.solr_core
 
-    Rails.logger.debug('Solr.update_schema(): retrieving current schema')
+    @@logger.debug('Solr.update_schema(): retrieving current schema')
     response = http.get("#{url}/schema")
     current = JSON.parse(response.body)
 
@@ -91,11 +93,11 @@ class Solr
       current['schema']['fieldTypes'].
           map{ |sf| sf['name'] }.include?(kf['name'])
     end
-    Rails.logger.debug('Solr.update_schema(): adding fieldTypes')
+    @@logger.debug('Solr.update_schema(): adding fieldTypes')
     post_fields(http, url, 'add-field-type', field_types_to_add)
 
     # Replace (update) existing fieldTypes
-    Rails.logger.debug('Solr.update_schema(): updating fieldTypes')
+    @@logger.debug('Solr.update_schema(): updating fieldTypes')
     post_fields(http, url, 'replace-field-type', SCHEMA['fieldTypes'])
 
     # ************************ DYNAMIC FIELDS *************************
@@ -105,7 +107,7 @@ class Solr
       !SCHEMA['dynamicFields'].map{ |sf| sf['name'] }.include?(cf['name'])
     end
     dynamic_fields_to_delete.each do |df|
-      Rails.logger.debug('Solr.update_schema(): deleting dynamicFields')
+      @@logger.debug('Solr.update_schema(): deleting dynamicFields')
       post_fields(http, url, 'delete-dynamic-field', { 'name' => df['name'] })
     end
 
@@ -114,11 +116,11 @@ class Solr
       current['schema']['dynamicFields'].
           map{ |sf| sf['name'] }.include?(kf['name'])
     end
-    Rails.logger.debug('Solr.update_schema(): adding dynamicFields')
+    @@logger.debug('Solr.update_schema(): adding dynamicFields')
     post_fields(http, url, 'add-dynamic-field', dynamic_fields_to_add)
 
     # Replace (update) existing dynamic fields
-    Rails.logger.debug('Solr.update_schema(): updating dynamicFields')
+    @@logger.debug('Solr.update_schema(): updating dynamicFields')
     post_fields(http, url, 'replace-dynamic-field', SCHEMA['dynamicFields'])
 
     # ************************ COPY FIELDS *************************
@@ -128,7 +130,7 @@ class Solr
       !SCHEMA['copyFields'].map{ |sf| "#{sf['source']}#{sf['dest']}" }.
           include?("#{kf['source']}#{kf['dest']}") if SCHEMA['copyFields']
     end
-    Rails.logger.debug('Solr.update_schema(): deleting copyFields')
+    @@logger.debug('Solr.update_schema(): deleting copyFields')
     post_fields(http, url, 'delete-copy-field', copy_fields_to_delete)
 
     # Add new copyFields
@@ -138,7 +140,7 @@ class Solr
             map{ |sf| "#{sf['source']}#{sf['dest']}" }.
             include?("#{kf['source']}#{kf['dest']}")
       end
-      Rails.logger.debug('Solr.update_schema(): adding copyFields')
+      @@logger.debug('Solr.update_schema(): adding copyFields')
       post_fields(http, url, 'add-copy-field', copy_fields_to_add)
     end
   end
