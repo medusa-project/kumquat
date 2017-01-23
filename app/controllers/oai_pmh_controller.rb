@@ -102,7 +102,8 @@ class OaiPmhController < ApplicationController
   end
 
   def do_list_sets
-    @results = Collection.where(published: true, published_in_dls: true).
+    @results = Collection.
+        where(published: true, published_in_dls: true, harvestable: true).
         order(:repository_id)
     @total_num_results = @results.count
     @results_offset = offset
@@ -146,14 +147,20 @@ class OaiPmhController < ApplicationController
                            'this repository.' }
     end
 
-    @results = Item.where(published: true).order(created_at: :asc)
+    @results = Item.joins('LEFT JOIN collections ON collections.repository_id '\
+            '= items.collection_repository_id').
+        where('collections.harvestable': true,
+              'collections.published': true,
+              'collections.published_in_dls': true,
+              published: true).
+        order(created_at: :asc)
 
     from = to = Time.now
     from = Time.parse(params[:from]).utc.iso8601 if params[:from]
     to = Time.parse(params[:until]).utc.iso8601 if params[:until]
     if from != to
-      @results = @results.where('created_at > ?', from).
-          where('created_at < ?', to)
+      @results = @results.where('items.created_at > ?', from).
+          where('items.created_at < ?', to)
     end
     if params[:set]
       @results = @results.where(collection_repository_id: params[:set])
