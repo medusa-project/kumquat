@@ -32,6 +32,7 @@ class Collection < ActiveRecord::Base
     DENIED_ROLES = 'denied_roles_sim'
     DESCRIPTION = 'description_txti'
     DESCRIPTION_HTML = 'description_html_txti'
+    HARVESTABLE = 'harvestable_bi'
     ID = 'id'
     LAST_INDEXED = 'last_indexed_dti'
     METADATA_DESCRIPTION = "#{ItemElement::solr_prefix}description_txti"
@@ -663,6 +664,7 @@ LIMIT 1000;
     doc[SolrFields::ACCESS_URL] = self.access_url
     doc[SolrFields::DESCRIPTION] = self.description
     doc[SolrFields::DESCRIPTION_HTML] = self.description_html
+    doc[SolrFields::HARVESTABLE] = self.harvestable
 
     # Copy description and title into a "metadata" field in order to have Solr
     # copy them into a searchall field.

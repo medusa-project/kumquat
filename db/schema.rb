@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161216162212) do
+ActiveRecord::Schema.define(version: 20170123182047) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -105,7 +105,7 @@ ActiveRecord::Schema.define(version: 20161216162212) do
   add_index "collection_joins", ["parent_repository_id"], name: "index_collection_joins_on_parent_repository_id", using: :btree
 
   create_table "collections", force: :cascade do |t|
-    t.string   "repository_id",            null: false
+    t.string   "repository_id",                           null: false
     t.string   "description_html"
     t.string   "access_url"
     t.boolean  "published"
@@ -114,8 +114,8 @@ ActiveRecord::Schema.define(version: 20161216162212) do
     t.string   "representative_item_id"
     t.integer  "metadata_profile_id"
     t.string   "medusa_file_group_id"
-    t.datetime "created_at",               null: false
-    t.datetime "updated_at",               null: false
+    t.datetime "created_at",                              null: false
+    t.datetime "updated_at",                              null: false
     t.text     "resource_types"
     t.string   "medusa_cfs_directory_id"
     t.integer  "package_profile_id"
@@ -125,6 +125,7 @@ ActiveRecord::Schema.define(version: 20161216162212) do
     t.string   "rightsstatements_org_uri"
     t.string   "contentdm_alias"
     t.string   "physical_collection_url"
+    t.boolean  "harvestable",              default: true
   end
 
   add_index "collections", ["metadata_profile_id"], name: "index_collections_on_metadata_profile_id", using: :btree

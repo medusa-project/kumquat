@@ -3,6 +3,7 @@
 collection1:
   access_url: MyString
   description_html: MyString
+  harvestable: true
   medusa_cfs_directory_id: a530c1f0-5ca8-0132-3334-0050569601ca-8
   medusa_file_group_id: 3783d1f0-5ca7-0132-3334-0050569601ca-2
   medusa_repository_id: 23
@@ -17,6 +18,7 @@ collection1:
 collection2:
   access_url: MyString
   description_html: MyString
+  harvestable: true
   medusa_file_group_id: 3783d1f0-5ca7-0132-3334-0050569601ca-2
   metadata_profile: metadata_profile_2
   package_profile_id: <%= PackageProfile::COMPOUND_OBJECT_PROFILE.id %>
@@ -29,6 +31,7 @@ collection2:
 iptc_collection:
   access_url: MyString
   description_html: MyString
+  harvestable: true
   medusa_file_group_id:
   metadata_profile: metadata_profile_2
   package_profile_id: <%= PackageProfile::SINGLE_ITEM_OBJECT_PROFILE.id %>
@@ -41,6 +44,7 @@ iptc_collection:
 single_item_object_collection:
   access_url: MyString
   description_html: MyString
+  harvestable: true
   medusa_file_group_id: ab365b70-0b09-0134-1d54-0050569601ca-f
   metadata_profile: metadata_profile_2
   package_profile_id: <%= PackageProfile::SINGLE_ITEM_OBJECT_PROFILE.id %>
