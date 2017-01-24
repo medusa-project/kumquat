@@ -13,12 +13,14 @@ item1_one:
   repository_relative_pathname: MyString
   item: item1
   media_type: text/plain
+  byte_size: 123
 
 item1_two:
   binary_type: <%= Binary::Type::ACCESS_MASTER %>
   repository_relative_pathname: MyString
   item: item1
   media_type: text/plain
+  byte_size: 123
 
 three:
   binary_type: <%= Binary::Type::ACCESS_MASTER %>

@@ -58,6 +58,7 @@ class Item < ActiveRecord::Base
     SEARCH_ALL = 'searchall_natsort_en_im'
     SUBPAGE_NUMBER = 'subpage_number_ii'
     TITLE = 'title_natsort_en_i'
+    TOTAL_BYTE_SIZE = 'total_byte_size_li'
     VARIANT = 'variant_si'
   end
 
@@ -852,6 +853,8 @@ class Item < ActiveRecord::Base
     doc[SolrFields::REPRESENTATIVE_ITEM_ID] = self.representative_item_repository_id
     doc[SolrFields::SUBPAGE_NUMBER] = self.subpage_number
     doc[SolrFields::TITLE] = self.title
+    doc[SolrFields::TOTAL_BYTE_SIZE] = self.bytestreams.map{ |b| b.byte_size }.
+        select{ |s| s }.sum
     doc[SolrFields::VARIANT] = self.variant
     bs = self.binaries.
         select{ |b| b.binary_type == Binary::Type::ACCESS_MASTER }.first
