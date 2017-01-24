@@ -13,7 +13,7 @@ class OaiPmhController < ApplicationController
   before_action :validate_request
 
   MAX_LIST_RESULTS = 100
-  SUPPORTED_METADATA_FORMATS = ['oai_dc']
+  SUPPORTED_METADATA_FORMATS = %w(oai_dc oai_qdc)
 
   def initialize
     super
@@ -22,6 +22,7 @@ class OaiPmhController < ApplicationController
 
   def index
     @host = request.host_with_port
+    @metadata_format = params[:metadataPrefix]
     response.content_type = 'text/xml'
 
     template = nil
@@ -63,10 +64,10 @@ class OaiPmhController < ApplicationController
                          'unknown or illegal in this repository.' }
       end
     end
-    if params[:metadataPrefix].blank?
+    if @metadata_format.blank?
       @errors << { code: 'badArgument',
                    description: 'Missing metadataPrefix argument.' }
-    elsif !SUPPORTED_METADATA_FORMATS.include?(params[:metadataPrefix])
+    elsif !SUPPORTED_METADATA_FORMATS.include?(@metadata_format)
       @errors << { code: 'cannotDisseminateFormat',
                    description: 'The metadata format identified by the '\
                        'metadataPrefix argument is not supported by this '\
@@ -137,10 +138,10 @@ class OaiPmhController < ApplicationController
   end
 
   def preprocessing_for_list_identifiers_or_records
-    if params[:metadataPrefix].blank?
+    if @metadata_format.blank?
       @errors << { code: 'badArgument',
                    description: 'Missing metadataPrefix argument.' }
-    elsif !SUPPORTED_METADATA_FORMATS.include?(params[:metadataPrefix])
+    elsif !SUPPORTED_METADATA_FORMATS.include?(@metadata_format)
       @errors << { code: 'cannotDisseminateFormat',
                    description: 'The metadata format identified by '\
                            'the metadataPrefix argument is not supported by '\

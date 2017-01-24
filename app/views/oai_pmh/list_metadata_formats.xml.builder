@@ -20,7 +20,7 @@ xml.tag!('OAI-PMH',
   # 3.2 #4, 3.6
   if @errors.any?
     @errors.each do |error|
-      xml.tag!('error', { 'code' => error[:code] }, error[:description])
+      xml.tag!('error', { 'code': error[:code] }, error[:description])
     end
   else
     # 4.4
@@ -29,7 +29,13 @@ xml.tag!('OAI-PMH',
         xml.tag!('metadataPrefix', 'oai_dc')
         xml.tag!('schema', 'http://www.openarchives.org/OAI/2.0/oai_dc.xsd')
         xml.tag!('metadataNamespace',
-                'http://www.openarchives.org/OAI/2.0/oai_dc/')
+                 'http://www.openarchives.org/OAI/2.0/oai_dc/')
+      end
+      xml.tag!('metadataFormat') do
+        xml.tag!('metadataPrefix', 'oai_qdc')
+        xml.tag!('schema',
+                 'http://dublincore.org/schemas/xmls/qdc/2003/04/02/appqualifieddc.xsd')
+        xml.tag!('metadataNamespace', 'http://oclc.org/appqualifieddc/')
       end
     end
   end
