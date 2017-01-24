@@ -233,11 +233,13 @@ class ItemsController < WebsiteController
         collection_id(params[:collection_id]).
         query(params[:q]).
         include_children(true).
+        stats(true).
         filter_queries(params[:fq]).
         sort(Item::SolrFields::GROUPED_SORT).
         start(params[:download_start]).
         limit(params[:limit] || DownloaderClient::BATCH_SIZE)
     @num_downloadable_items = download_finder.count
+    @total_byte_size = download_finder.total_byte_size
 
     respond_to do |format|
       format.atom do

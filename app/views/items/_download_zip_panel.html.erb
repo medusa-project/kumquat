@@ -1,5 +1,8 @@
-<% # requires the following locals: num_downloadable_items [Fixnum]
-   num_batches = (num_downloadable_items / DownloaderClient::BATCH_SIZE.to_f).ceil
+<%
+  # requires the following locals:
+  # num_downloadable_items [Fixnum]
+  # total_byte_size [Integer]
+  num_batches = (num_downloadable_items / DownloaderClient::BATCH_SIZE.to_f).ceil
 %>
 
 <div class="modal fade" id="pt-download-zip-modal" tabindex="-1" role="dialog"
@@ -23,8 +26,11 @@
 
         <div class="text-center">
           <%= link_to('Download',
-                      params.except(:start).merge({ format: :zip, download_start: 0, limit: 0 }),
+                      params.except(:start).
+                          merge({ format: :zip, download_start: 0, limit: 0 }),
                       class: 'btn btn-primary') %>
+          <p class="help-block">Estimated size: less than
+            <%= number_to_human_size(total_byte_size) %></p>
         </div>
 
         <% if num_batches > 1 %>
