@@ -47,7 +47,7 @@ module CollectionsHelper
         # invalid UUID has been entered), this will raise an error.
         bs = col.representative_image_bytestream
       rescue => e
-        Rails.logger.warn("collections_as_cards(): #{e} (#{col})")
+        CustomLogger.instance.warn("collections_as_cards(): #{e} (#{col})")
       end
       if bs
         img_url = bytestream_image_url(bs, thumb_size, :square)

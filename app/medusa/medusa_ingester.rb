@@ -12,6 +12,8 @@ class MedusaIngester
     UPDATE_BYTESTREAMS = :update_bytestreams
   end
 
+  @@logger = CustomLogger.instance
+
   ##
   # Retrieves the current list of Medusa collections from the Medusa REST API
   # and creates or updates the local Collection counterpart instances.
@@ -24,7 +26,7 @@ class MedusaIngester
     url = sprintf('%s/collections.json', config.medusa_url.chomp('/'))
 
     # 1. Download the list of collections from Medusa
-    Rails.logger.info('MedusaIngester.sync_collections(): '\
+    @@logger.info('MedusaIngester.sync_collections(): '\
         'downloading collection list')
     response = Medusa.client.get(url, follow_redirect: true)
     struct = JSON.parse(response.body)
@@ -45,7 +47,7 @@ class MedusaIngester
       #    not any items within them, to be safe)
       Collection.all.each do |col|
         if struct.select { |st| st['uuid'] == col.repository_id }.empty?
-          Rails.logger.info('MedusaIngester.sync_collections(): '\
+          @@logger.info('MedusaIngester.sync_collections(): '\
               "deleting #{col.title} (#{col.repository_id})")
           col.destroy!
         end
@@ -151,11 +153,11 @@ class MedusaIngester
       cfs_dir.directories.each do |dir|
         item = Item.find_by_repository_id(dir.uuid)
         if item
-          Rails.logger.info("MedusaIngester.create_free_form_items(): "\
+          @@logger.info("MedusaIngester.create_free_form_items(): "\
               "skipping item #{dir.uuid}")
           status[:num_skipped] += 1
         else
-          Rails.logger.info("MedusaIngester.create_free_form_items(): "\
+          @@logger.info("MedusaIngester.create_free_form_items(): "\
               "creating item #{dir.uuid}")
           item = Item.new(repository_id: dir.uuid,
                           parent_repository_id: (cfs_dir.uuid != top_cfs_dir.uuid) ? cfs_dir.uuid : nil,
@@ -180,12 +182,12 @@ class MedusaIngester
       cfs_dir.files.each do |file|
         item = Item.find_by_repository_id(file.uuid)
         if item
-          Rails.logger.info("MedusaIngester.create_free_form_items(): "\
+          @@logger.info("MedusaIngester.create_free_form_items(): "\
                 "skipping item #{file.uuid}")
           status[:num_skipped] += 1
           next
         else
-          Rails.logger.info("MedusaIngester.create_free_form_items(): "\
+          @@logger.info("MedusaIngester.create_free_form_items(): "\
                 "creating item #{file.uuid}")
           item = Item.new(repository_id: file.uuid,
                           parent_repository_id: (cfs_dir.uuid != top_cfs_dir.uuid) ? cfs_dir.uuid : nil,
@@ -265,12 +267,12 @@ class MedusaIngester
     directories.each_with_index do |top_item_dir, index|
       item = Item.find_by_repository_id(top_item_dir.uuid)
       if item
-        Rails.logger.info("MedusaIngester.create_compound_items(): "\
+        @@logger.info("MedusaIngester.create_compound_items(): "\
             "skipping item #{top_item_dir.uuid}")
         status[:num_skipped] += 1
         next
       else
-        Rails.logger.info("MedusaIngester.create_compound_items(): "\
+        @@logger.info("MedusaIngester.create_compound_items(): "\
             "creating item #{top_item_dir.uuid}")
         item = Item.new(repository_id: top_item_dir.uuid,
                         collection_repository_id: collection.repository_id)
@@ -287,12 +289,12 @@ class MedusaIngester
               # Find or create the child item.
               child = Item.find_by_repository_id(pres_file.uuid)
               if child
-                Rails.logger.info("MedusaIngester.create_compound_items(): "\
+                @@logger.info("MedusaIngester.create_compound_items(): "\
                     "skipping child item #{pres_file.uuid}")
                 status[:num_skipped] += 1
                 next
               else
-                Rails.logger.info("MedusaIngester.create_compound_items(): "\
+                @@logger.info("MedusaIngester.create_compound_items(): "\
                     "creating child item #{pres_file.uuid}")
                 child = Item.new(repository_id: pres_file.uuid,
                                  collection_repository_id: collection.repository_id,
@@ -349,18 +351,18 @@ class MedusaIngester
                 options[:extract_metadata]
           else
             msg = "Preservation directory #{pres_dir.uuid} is empty."
-            Rails.logger.warn("MedusaIngester.create_compound_items(): #{msg}")
+            @@logger.warn("MedusaIngester.create_compound_items(): #{msg}")
             warnings << msg
           end
         else
           msg = "Directory #{top_item_dir.uuid} is missing a preservation "\
               "directory."
-          Rails.logger.warn("MedusaIngester.create_compound_items(): #{msg}")
+          @@logger.warn("MedusaIngester.create_compound_items(): #{msg}")
           warnings << msg
         end
       else
         msg = "Directory #{top_item_dir.uuid} does not have any subdirectories."
-        Rails.logger.warn("MedusaIngester.create_compound_items(): #{msg}")
+        @@logger.warn("MedusaIngester.create_compound_items(): #{msg}")
         warnings << msg
       end
 
@@ -393,12 +395,12 @@ class MedusaIngester
       # Find or create the child item.
       item = Item.find_by_repository_id(file.uuid)
       if item
-        Rails.logger.info("MedusaIngester.create_single_items(): skipping "\
+        @@logger.info("MedusaIngester.create_single_items(): skipping "\
             "item #{file.uuid}")
         status[:num_skipped] += 1
         next
       else
-        Rails.logger.info("MedusaIngester.create_single_items(): creating "\
+        @@logger.info("MedusaIngester.create_single_items(): creating "\
             "item #{file.uuid}")
         item = Item.new(repository_id: file.uuid,
                         collection_repository_id: collection.repository_id)
@@ -441,7 +443,7 @@ class MedusaIngester
   def delete_missing_items(collection, task = nil)
     # Compile a list of all item UUIDs currently in the Medusa file group.
     medusa_items = free_form_items_in(collection.effective_medusa_cfs_directory)
-    Rails.logger.debug("MedusaIngester.delete_missing_items(): "\
+    @@logger.debug("MedusaIngester.delete_missing_items(): "\
         "#{medusa_items.length} items in CFS directory")
 
     case collection.package_profile
@@ -463,7 +465,7 @@ class MedusaIngester
     num_items = items.count
     items.each_with_index do |item, index|
       unless medusa_items.include?(item.repository_id)
-        Rails.logger.info("MedusaIngester.delete_missing_items(): deleting "\
+        @@logger.info("MedusaIngester.delete_missing_items(): deleting "\
           "#{item.repository_id}")
         item.destroy!
         status[:num_deleted] += 1
@@ -521,18 +523,18 @@ class MedusaIngester
         else
           msg = "Preservation master file #{pres_master_file.uuid} has no "\
               "access master counterpart."
-          Rails.logger.warn("MedusaIngester.compound_access_master_bytestream(): #{msg}")
+          @@logger.warn("MedusaIngester.compound_access_master_bytestream(): #{msg}")
           raise IllegalContentError, msg
         end
       else
         msg = "Access master directory #{access_dir.uuid} has no files."
-        Rails.logger.warn("MedusaIngester.compound_access_master_bytestream(): #{msg}")
+        @@logger.warn("MedusaIngester.compound_access_master_bytestream(): #{msg}")
         raise IllegalContentError, msg
       end
     else
       msg = "Item directory #{item_cfs_dir.uuid} is missing an access "\
           "master subdirectory."
-      Rails.logger.warn("MedusaIngester.compound_access_master_bytestream(): #{msg}")
+      @@logger.warn("MedusaIngester.compound_access_master_bytestream(): #{msg}")
       raise IllegalContentError, msg
     end
   end
@@ -571,7 +573,7 @@ class MedusaIngester
     items = collection.items.where('variant != ?', Item::Variants::DIRECTORY)
     num_items = items.count
     items.each_with_index do |item, index|
-      Rails.logger.info("MedusaIngester.replace_metadata(): #{item.repository_id}")
+      @@logger.info("MedusaIngester.replace_metadata(): #{item.repository_id}")
       update_item_from_embedded_metadata(item)
       item.save!
       stats[:num_updated] += 1
@@ -635,7 +637,7 @@ class MedusaIngester
       begin
         ImageServer.instance.purge_item_from_cache(item)
       rescue => e
-        Rails.logger.error("MedusaIngester.update_bytestreams(): failed to "\
+        @@logger.error("MedusaIngester.update_bytestreams(): failed to "\
             "purge item from image server cache: #{e}")
       end
     end
@@ -683,7 +685,7 @@ class MedusaIngester
         num_walked += 1
         item = Item.find_by_repository_id(file.uuid)
         if item
-          Rails.logger.info("MedusaIngester.update_free_form_bytestreams(): "\
+          @@logger.info("MedusaIngester.update_free_form_bytestreams(): "\
                             "updating bytestreams for item: #{file.uuid}")
 
           item.bytestreams.destroy_all
@@ -747,7 +749,7 @@ class MedusaIngester
                 # Find the child item.
                 child = Item.find_by_repository_id(pres_file.uuid)
                 if child
-                  Rails.logger.info("MedusaIngester.update_compound_bytestreams(): "\
+                  @@logger.info("MedusaIngester.update_compound_bytestreams(): "\
                       "updating child item #{pres_file.uuid}")
 
                   child.bytestreams.destroy_all
@@ -767,12 +769,12 @@ class MedusaIngester
                   end
                   stats[:num_updated] += 1
                 else
-                  Rails.logger.warn("MedusaIngester.update_compound_bytestreams(): "\
+                  @@logger.warn("MedusaIngester.update_compound_bytestreams(): "\
                       "skipping child item #{pres_file.uuid} (no item)")
                 end
               end
             elsif pres_dir.files.length == 1
-              Rails.logger.info("MedusaIngester.update_compound_bytestreams(): "\
+              @@logger.info("MedusaIngester.update_compound_bytestreams(): "\
                     "updating item #{item.repository_id}")
 
               item.bytestreams.destroy_all
@@ -795,23 +797,23 @@ class MedusaIngester
               stats[:num_updated] += 1
             else
               msg = "Preservation directory #{pres_dir.uuid} is empty."
-              Rails.logger.warn("MedusaIngester.update_compound_bytestreams(): #{msg}")
+              @@logger.warn("MedusaIngester.update_compound_bytestreams(): #{msg}")
               warnings << msg
             end
           else
             msg = "Directory #{top_item_dir.uuid} is missing a preservation "\
                 "directory."
-            Rails.logger.warn("MedusaIngester.update_compound_bytestreams(): #{msg}")
+            @@logger.warn("MedusaIngester.update_compound_bytestreams(): #{msg}")
             warnings << msg
           end
         else
           msg = "Directory #{top_item_dir.uuid} does not have any subdirectories."
-          Rails.logger.warn("MedusaIngester.update_compound_bytestreams(): #{msg}")
+          @@logger.warn("MedusaIngester.update_compound_bytestreams(): #{msg}")
           warnings << msg
         end
       else
         msg = "No item for directory: #{top_item_dir.uuid}"
-        Rails.logger.warn("MedusaIngester.update_compound_bytestreams(): #{msg}")
+        @@logger.warn("MedusaIngester.update_compound_bytestreams(): #{msg}")
         warnings << msg
       end
       task.update(percent_complete: index / num_directories.to_f) if task

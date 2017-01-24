@@ -47,7 +47,7 @@ class ItemXmlIngester
   # @return [Integer] The given count plus one.
   #
   def ingest_file(pathname, schema_version, count = 0)
-    Rails.logger.info("Ingesting #{pathname} (#{count})")
+    CustomLogger.instance.info("Ingesting #{pathname} (#{count})")
     ingest_xml(File.read(pathname), schema_version)
     count += 1
     count
@@ -74,7 +74,7 @@ class ItemXmlIngester
   # @raise [RuntimeError]
   #
   def validate_file(pathname, schema_version, count = 0)
-    Rails.logger.info("Validating #{pathname} (#{count})")
+    CustomLogger.instance.info("Validating #{pathname} (#{count})")
 
     doc = Nokogiri::XML(File.read(pathname), &:noblanks)
     doc.encoding = 'utf-8'

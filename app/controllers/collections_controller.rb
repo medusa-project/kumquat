@@ -64,7 +64,7 @@ class CollectionsController < WebsiteController
           @representative_image_bytestream =
               @collection.representative_image_bytestream
         rescue => e
-          Rails.logger.error("#{e}")
+          CustomLogger.instance.error("#{e}")
         end
       end
       format.json { render json: @collection.decorate }

@@ -2,6 +2,8 @@ require 'csv'
 
 class ItemTsvIngester
 
+  @@logger = CustomLogger.instance
+
   ##
   # Ingests items from the given TSV file.
   #
@@ -11,7 +13,7 @@ class ItemTsvIngester
   #
   def ingest_pathname(pathname, task = nil)
     pathname = File.expand_path(pathname)
-    Rails.logger.info("ItemTsvIngester.ingest_pathname(): "\
+    @@logger.info("ItemTsvIngester.ingest_pathname(): "\
         "ingesting from #{pathname}...")
 
     num_rows = File.read(pathname).scan(/\n/).count
@@ -26,12 +28,12 @@ class ItemTsvIngester
         struct = tsv_row.to_hash
         item = Item.find_by_repository_id(struct['uuid'])
         if item
-          Rails.logger.info("ItemTsvIngester.ingest_pathname(): "\
+          @@logger.info("ItemTsvIngester.ingest_pathname(): "\
               "#{struct['uuid']} #{progress}")
           item.update_from_tsv(struct)
           num_ingested += 1
         else
-          Rails.logger.warn("ItemTsvIngester.ingest_pathname(): "\
+          @@logger.warn("ItemTsvIngester.ingest_pathname(): "\
               "does not exist: #{struct['uuid']} #{progress}")
         end
 

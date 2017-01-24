@@ -25,6 +25,8 @@ class Relation
     @operator = :and
     @order = nil
     @start = 0
+    @stats = nil
+    @stats_field = nil
     @where_clauses = []
     reset_results
   end
@@ -89,7 +91,8 @@ class Relation
       batch = self.limit(limit).start(offset)
       page += 1
 
-      Rails.logger.debug("Relation.find_each(): limit: #{limit} | offset: #{offset}")
+      CustomLogger.instance.
+          debug("Relation.find_each(): limit: #{limit} | offset: #{offset}")
 
       batch.select{ |x| x }.each{ |x| yield x }
 
@@ -201,6 +204,28 @@ class Relation
   end
 
   ##
+  # @return [Hash] Hash of stats, or nil if the stats component has not been
+  #                enabled. (See `stats_field()`.)
+  #
+  def stats
+    load
+    @stats
+  end
+
+  ##
+  # Enables the [Stats component]
+  # (https://cwiki.apache.org/confluence/display/solr/The+Stats+Component)
+  # set to generate stats for the given field.
+  #
+  # @param field [String]
+  # @return [Relation] self
+  #
+  def stats_field(field)
+    @stats_field = field
+    self
+  end
+
+  ##
   # Search using a string:
   #
   # where('solr_field:"value"')
@@ -287,10 +312,14 @@ class Relation
           params['facet.field'] = self.facetable_fields
         end
       end
+      if @stats_field
+        params['stats'] = true
+        params['stats.field'] = @stats_field
+      end
 
       @solr_response = Solr.instance.get(endpoint, params: params)
 
-      Rails.logger.debug("Solr response:\n#{@solr_response}")
+      CustomLogger.instance.debug("Solr response:\n#{@solr_response}")
 
       if !@more_like_this and @solr_response['facet_counts']
         @results.facet_fields = solr_facet_fields_to_objects(
@@ -298,6 +327,7 @@ class Relation
       end
 
       @results.total_length = @solr_response['response']['numFound'].to_i
+      @stats = @solr_response['stats']['stats_fields'] if @stats_field
 
       docs = @solr_response['response']['docs']
       docs.each do |doc|
@@ -311,7 +341,7 @@ class Relation
           entity = class_.find_by_repository_id(doc[Configuration.instance.solr_id_field])
           @results << entity || doc[Configuration.instance.solr_id_field]
         rescue => e
-          Rails.logger.error("#{e} (#{doc['id']}) (#{e.backtrace})")
+          CustomLogger.instance.error("#{e} (#{doc['id']}) (#{e.backtrace})")
           @results.total_length -= 1
         end
       end

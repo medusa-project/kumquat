@@ -9,11 +9,12 @@ class ItemFinder < AbstractFinder
     @include_children = false
     @include_variants = []
     @media_types = []
+    @stats = false
   end
 
   ##
   # @param collection_id [Integer]
-  # @return [self]
+  # @return [ItemFinder] self
   #
   def collection_id(collection_id)
     @collection_id = collection_id
@@ -41,7 +42,7 @@ class ItemFinder < AbstractFinder
 
   ##
   # @param variants [Array<String>] Array of Item::Variants constant values.
-  # @return [self]
+  # @return [ItemFinder] self
   #
   def exclude_variants(variants)
     @exclude_variants = variants
@@ -50,7 +51,7 @@ class ItemFinder < AbstractFinder
 
   ##
   # @param boolean [Boolean]
-  # @return [self]
+  # @return [ItemFinder] self
   #
   def include_children(boolean)
     @include_children = boolean
@@ -60,7 +61,7 @@ class ItemFinder < AbstractFinder
   ##
   # @param variants [Array<String>] Array of Item::Variants constant values.
   #                                 Supply a nil value to specify no variant.
-  # @return [self]
+  # @return [ItemFinder] self
   #
   def include_variants(variants)
     @include_variants = variants.map do |v|
@@ -72,9 +73,20 @@ class ItemFinder < AbstractFinder
 
   ##
   # @param types [Enumerable<String>,String]
+  # @return [ItemFinder] self
   #
   def media_types(types)
     @media_types = types.respond_to?(:each) ? types : [types]
+    self
+  end
+
+  ##
+  # Enables statistics.
+  # @param bool [Boolean]
+  # @return [ItemFinder] self
+  #
+  def stats(bool)
+    @stats = bool
     self
   end
 
@@ -87,6 +99,20 @@ class ItemFinder < AbstractFinder
   def to_a
     load
     @items
+  end
+
+  ##
+  # For this to work, `stats()` must have been called with an argument of
+  # `true`.
+  #
+  # @return [Integer]
+  # @raises [ActiveRecord::RecordNotFound] If a collection ID that does not
+  #                                        exist has been assigned to the
+  #                                        instance.
+  #
+  def total_byte_size
+    load
+    @items.stats[Item::SolrFields::TOTAL_BYTE_SIZE]['sum'].to_i
   end
 
   private
@@ -112,6 +138,10 @@ class ItemFinder < AbstractFinder
     end
 
     @items = @items.where(@query) if @query
+
+    if @stats
+      @items = @items.stats_field(Item::SolrFields::TOTAL_BYTE_SIZE)
+    end
 
     role_keys = roles.map(&:key)
     if role_keys.any?

@@ -28,7 +28,8 @@ class TimeUtil
       begin
         return Time.parse(iso8601)
       rescue ArgumentError
-        Rails.logger.warn("TimeUtil.string_date_to_time: unable to parse \"#{iso8601}\"")
+        CustomLogger.instance.
+            warn("TimeUtil.string_date_to_time: unable to parse \"#{iso8601}\"")
       end
     end
     nil

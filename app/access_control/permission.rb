@@ -39,24 +39,26 @@ class Permission < ActiveRecord::Base
   # database.
   #
   def self.sync_to_database
+    logger = CustomLogger.instance
+
     const_keys = Permission::Permissions.constants(false).map do |const|
       Permission::Permissions.const_get(const)
     end
 
     ActiveRecord::Base.transaction do
       # Create permissions that don't exist in the database.
-      Rails.logger.info('Permission.sync_to_database(): creating permissions')
+      logger.info('Permission.sync_to_database(): creating permissions')
       const_keys.each do |key|
         Permission.create!(key: key) unless Permission.find_by_key(key)
       end
       # Delete database permissions that no longer exist in the Permissions
       # class.
-      Rails.logger.info('Permission.sync_to_database(): deleting obsolete '\
+      logger.info('Permission.sync_to_database(): deleting obsolete '\
           'permissions')
       Permission.where('key NOT IN (?)', const_keys).delete_all
 
       # Ensure that the administrator role has all permissions.
-      Rails.logger.info('Permission.sync_to_database(): granting all '\
+      logger.info('Permission.sync_to_database(): granting all '\
           'permissions to the administrator role')
       admin = Role.find_by_key(:admin)
       if admin

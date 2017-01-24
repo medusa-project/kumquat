@@ -1,4 +1,5 @@
 $('#pt-items').html('<%= escape_javascript(render('items')) %>');
 $('.pt-facets').html('<%= escape_javascript(render('facets')) %>');
 $('#pt-search-status').html('<%= search_status(@items, @start, @num_results_shown) %>');
-$('#pt-download-zip-modal-container').html('<%= escape_javascript(render(partial: 'download_zip_panel', locals: { num_downloadable_items: @num_downloadable_items })) %>');
+$('#pt-download-zip-modal-container').html('<%= escape_javascript(render(partial: 'download_zip_panel', locals: { num_downloadable_items: @num_downloadable_items,
+                                                                                                                  total_byte_size: @total_byte_size })) %>');

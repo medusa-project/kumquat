@@ -69,8 +69,12 @@ Rails.application.routes.draw do
   # Intercept CONTENTdm reference URLs for redirection.
   match '/cdm/ref/collection/:alias/:pointer',
         to: 'contentdm#redirect_to_dls_item', via: :all
+  match '/cdm/ref/collection/:alias/id/:pointer',
+        to: 'contentdm#redirect_to_dls_item', via: :all
   # Intercept CONTENTdm single-item URLs for redirection.
   match '/cdm/singleitem/collection/:alias/id/:pointer',
+        to: 'contentdm#redirect_to_dls_item', via: :all
+  match '/cdm/singleitem/collection/:alias/id/:pointer/rec/:noop',
         to: 'contentdm#redirect_to_dls_item', via: :all
   # Intercept CONTENTdm compound object URLs for redirection.
   match '/cdm/compoundobject/collection/:alias/id/:pointer',

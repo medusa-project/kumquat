@@ -58,6 +58,7 @@ class Item < ActiveRecord::Base
     SEARCH_ALL = 'searchall_natsort_en_im'
     SUBPAGE_NUMBER = 'subpage_number_ii'
     TITLE = 'title_natsort_en_i'
+    TOTAL_BYTE_SIZE = 'total_byte_size_li'
     VARIANT = 'variant_si'
   end
 
@@ -852,6 +853,8 @@ class Item < ActiveRecord::Base
     doc[SolrFields::REPRESENTATIVE_ITEM_ID] = self.representative_item_repository_id
     doc[SolrFields::SUBPAGE_NUMBER] = self.subpage_number
     doc[SolrFields::TITLE] = self.title
+    doc[SolrFields::TOTAL_BYTE_SIZE] = self.bytestreams.map{ |b| b.byte_size }.
+        select{ |s| s }.sum
     doc[SolrFields::VARIANT] = self.variant
     bs = self.bytestreams.
         select{ |b| b.bytestream_type == Bytestream::Type::ACCESS_MASTER }.first
@@ -1130,11 +1133,12 @@ class Item < ActiveRecord::Base
     # Get the bytestream from which the metadata will be extracted
     bs = self.preservation_master_bytestream || self.access_master_bytestream
     unless bs
-      Rails.logger.info('Item.elements_from_embedded_metadata(): no bytestreams')
+      CustomLogger.instance.
+          info('Item.elements_from_embedded_metadata(): no bytestreams')
       return
     end
 
-    Rails.logger.debug("Item.elements_from_embedded_metadata: using "\
+    CustomLogger.instance.debug("Item.elements_from_embedded_metadata: using "\
         "#{bs.human_readable_type} (#{bs.absolute_local_pathname})")
 
     # Get its embedded IIM metadata

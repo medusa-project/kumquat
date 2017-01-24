@@ -20,7 +20,9 @@ class ContentdmController < ApplicationController
   ##
   # Responds to:
   # GET /cdm/ref/collection/:alias/:pointer
+  # GET /cdm/ref/collection/:alias/id/:pointer
   # GET /cdm/singleitem/collection/:alias/id/:pointer
+  # GET /cdm/singleitem/collection/:alias/id/:pointer/rec/:noop
   # GET /cdm/compoundobject/collection/:alias/id/:pointer
   #
   def redirect_to_dls_item
