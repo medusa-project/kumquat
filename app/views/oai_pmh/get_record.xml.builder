@@ -31,14 +31,11 @@ xml.tag!('OAI-PMH',
           xml.tag!('setSpec', @item.collection.repository_id)
         end
         xml.tag!('metadata') do
-          xml.tag!('oai_dc:dc', {
-              'xmlns:oai_dc' => 'http://www.openarchives.org/OAI/2.0/oai_dc/',
-              'xmlns:dc' => 'http://purl.org/dc/elements/1.1/',
-              'xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance',
-              'xsi:schemaLocation' => 'http://www.openarchives.org/OAI/2.0/oai_dc/ '\
-              'http://www.openarchives.org/OAI/2.0/oai_dc.xsd'
-          }) do
-            oai_pmh_elements_for(@item, xml)
+          case @metadata_format
+            when 'oai_qdc'
+              oai_pmh_qdc_elements_for(@item, xml)
+            else
+              oai_pmh_dc_elements_for(@item, xml)
           end
         end
       end
