@@ -44,6 +44,7 @@ namespace :dls do
             File.size(pathname) : nil
         bs.save!
       end
+      puts 'Done. Run dls:items:index to index the updated sizes.'
     end
 
     desc 'Update the dimensions of all bytestreams'
@@ -106,7 +107,7 @@ namespace :dls do
       Item.uncached do
         Item.all.find_each.with_index do |item, index|
           item.index_in_solr
-          CustomLogger.instance.debug("peartree:reindex: "\
+          CustomLogger.instance.debug("reindex: "\
             "#{((index / num_entities.to_f) * 100).round(2)}%")
         end
       end
