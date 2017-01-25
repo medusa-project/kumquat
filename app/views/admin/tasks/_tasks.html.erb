@@ -1,42 +1,28 @@
 <% if @tasks.any? %>
-  <table class="table table-striped">
+  <table class="table">
     <thead>
       <tr>
         <th>Task</th>
         <th>Status</th>
         <th>Progress</th>
         <th>Started</th>
-        <th>Completed In</th>
       </tr>
     </thead>
     <tbody>
       <% @tasks.each do |task| %>
-        <tr>
+        <tr class="<%= (@selected_id == task.id) ? 'bg-primary' : '' %>">
           <td>
             <%= link_to(task.status_text, admin_task_path(task)) %>
-            <% if task.detail %>
-              <span class="text-danger"><%= h(task.detail) %></span>
-            <% end %>
           </td>
           <td>
             <span class="label <%= bootstrap_class_for_task_status(task.status) %>">
               <%= Task::Status::to_s(task.status) %>
             </span>
-            <% if task.status == Task::Status::FAILED and task.backtrace.present? %>
-              <button type="button" class="btn btn-default btn-xs"
-                      data-toggle="popover" data-placement="auto bottom"
-                      title="Stack Trace" data-content="<pre><%= task.backtrace %></pre>">Trace</button>
-            <% end %>
           </td>
           <td><%= (task.indeterminate and task.percent_complete < 1) ?
                       'Indeterminate' :
                       (task.percent_complete * 100).round(1).to_s + '%' %></td>
           <td><%= task.started_at ? local_time_ago(task.started_at) : '' %></td>
-          <td>
-            <% if task.completed_at %>
-              <%= distance_of_time_in_words(task.created_at, task.completed_at, include_seconds: true) %>
-            <% end %>
-          </td>
         </tr>
       <% end %>
     </tbody>

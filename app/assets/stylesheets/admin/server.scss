@@ -4,8 +4,8 @@ body#server {
   }
 }
 
-body#tasks {
-  .popover {
-    max-width: 80%;
+body#admin_tasks, body#admin_task_show {
+  .bg-primary a {
+    color: white;
   }
 }
