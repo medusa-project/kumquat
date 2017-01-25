@@ -61,8 +61,8 @@ class CollectionsController < WebsiteController
     respond_to do |format|
       format.html do
         begin
-          @representative_image_bytestream =
-              @collection.representative_image_bytestream
+          @representative_image_binary =
+              @collection.representative_image_binary
         rescue => e
           CustomLogger.instance.error("#{e}")
         end

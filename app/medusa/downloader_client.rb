@@ -35,8 +35,8 @@ class DownloaderClient
 
     targets = []
     items.each do |item|
-      access_bs = item.access_master_bytestream
-      pres_bs = item.preservation_master_bytestream
+      access_bs = item.access_master_binary
+      pres_bs = item.preservation_master_binary
       if access_bs or pres_bs
         # Add a containing directory for the item.
         item_zip_path = '/' + File.basename((access_bs&.repository_relative_pathname ||
@@ -57,7 +57,7 @@ class DownloaderClient
         end
       else
         CustomLogger.instance.
-            info("Item has no bytestreams: #{item.repository_id}")
+            info("Item has no binaries: #{item.repository_id}")
       end
     end
 

@@ -41,22 +41,22 @@
 
 <h1><%= collection_page_title(@collection) %></h1>
 
-<% if @representative_image_bytestream %>
+<% if @representative_image_binary %>
   <div class="row">
     <div class="col-sm-6 col-md-7 col-lg-8">
       <%= render partial: 'description' %>
     </div>
     <div class="col-sm-6 col-md-5 col-lg-4">
       <div class="pt-main-image">
-        <% if @representative_image_bytestream.item %>
-          <%= link_to @representative_image_bytestream.item do %>
-            <%= thumbnail_tag(@representative_image_bytestream, 512) %>
+        <% if @representative_image_binary.item %>
+          <%= link_to @representative_image_binary.item do %>
+            <%= thumbnail_tag(@representative_image_binary, 512) %>
           <% end %>
-          <%= link_to @representative_image_bytestream.item, class: 'pt-title' do %>
-            <%= @representative_image_bytestream.item.title %>
+          <%= link_to @representative_image_binary.item, class: 'pt-title' do %>
+            <%= @representative_image_binary.item.title %>
           <% end %>
         <% else %>
-          <%= thumbnail_tag(@representative_image_bytestream, 512) %>
+          <%= thumbnail_tag(@representative_image_binary, 512) %>
         <% end %>
       </div>
     </div>

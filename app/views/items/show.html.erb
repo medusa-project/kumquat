@@ -66,7 +66,7 @@
     </ul>
   </div>
 
-  <% if @item.is_image? or @item.is_compound? or @item.bytestreams.any? %>
+  <% if @item.is_image? or @item.is_compound? or @item.binaries.any? %>
     <div class="btn-group">
       <button type="button" class="btn btn-default dropdown-toggle"
               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -81,7 +81,7 @@
               <i class="fa fa-external-link"></i>&nbsp;&nbsp;Embed Image</a>
           </li>
         <% end %>
-        <% if @item.bytestreams.any? %>
+        <% if @item.binaries.any? %>
           <li>
             <a href="#" onclick="return false;" data-toggle="modal"
                data-target="#pt-download-modal">
@@ -168,27 +168,27 @@
 <% end %>
 
 <% if @item.is_compound? %>
-  <% # For compound objects, display a table of all page bytestreams. (IMET-469) %>
+  <% # For compound objects, display a table of all page binaries. (IMET-469) %>
   <section>
     <h2>
-      <a role="button" data-toggle="collapse" href="#pt-compound-bytestream-info"
-         aria-expanded="false" aria-controls="pt-compound-bytestream-info">
+      <a role="button" data-toggle="collapse" href="#pt-compound-binary-info"
+         aria-expanded="false" aria-controls="pt-compound-binary-info">
         File Info</a>
     </h2>
-    <div id="pt-compound-bytestream-info" class="collapse">
-      <%= compound_object_bytestream_info_table(@item) %>
+    <div id="pt-compound-binary-info" class="collapse">
+      <%= compound_object_binary_info_table(@item) %>
     </div>
   </section>
-<% elsif @item.bytestreams.any? %>
-  <% @item.bytestreams.each do |bs| %>
+<% elsif @item.binaries.any? %>
+  <% @item.binaries.each do |bs| %>
     <section>
       <h2>
-        <a role="button" data-toggle="collapse" href="#pt-bytestream-<%= bs.id %>"
-           aria-expanded="false" aria-controls="pt-bytestream-<%= bs.id %>">
+        <a role="button" data-toggle="collapse" href="#pt-binary-<%= bs.id %>"
+           aria-expanded="false" aria-controls="pt-binary-<%= bs.id %>">
           <%= bs.human_readable_type %> File</a>
       </h2>
-      <div id="pt-bytestream-<%= bs.id %>" class="collapse">
-        <%= bytestream_metadata_as_table(bs) %>
+      <div id="pt-binary-<%= bs.id %>" class="collapse">
+        <%= binary_metadata_as_table(bs) %>
       </div>
     </section>
   <% end %>

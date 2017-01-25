@@ -39,12 +39,12 @@
           <div class="radio">
             <label>
               <%= radio_button_tag('ingest_mode',
-                                   MedusaIngester::IngestMode::UPDATE_BYTESTREAMS, false,
-                                   'aria-described-by' => 'pt-update-bytestreams-help') %>
-              Update Bytestreams
+                                   MedusaIngester::IngestMode::UPDATE_BINARIES, false,
+                                   'aria-described-by' => 'pt-update-binaries-help') %>
+              Update Binaries
             </label>
-            <span id="pt-update-bytestreams-help" class="help-block">
-            Update existing DLS items' bytestreams based on their corresponding
+            <span id="pt-update-binaries-help" class="help-block">
+            Update existing DLS items' binaries based on their corresponding
             files in Medusa.</span>
           </div>
           <div class="alert alert-danger">
@@ -57,7 +57,7 @@
               </label>
               <span id="pt-replace-metadata-help" class="help-block">
               Replaces DLS items' metadata with embedded metadata extracted
-              from their bytestream(s).</span>
+              from their binaries.</span>
             </div>
           </div>
           <div class="radio">

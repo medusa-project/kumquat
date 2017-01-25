@@ -4,13 +4,13 @@ module ItemsHelper
   PAGE_TITLE_LENGTH = 35
 
   ##
-  # @param bs [Bytestream]
+  # @param binary [Binary]
   # @param options [Hash<Symbol,Object>]
   # @option options [Boolean] :admin
   # @return [String]
   #
-  def bytestream_metadata_as_table(bs, options = {})
-    data = bytestream_metadata_for(bs, options)
+  def binary_metadata_as_table(binary, options = {})
+    data = binary_metadata_for(binary, options)
     html = ''
     if data.any?
       categories = data.map{ |f| f[:category] }.uniq.
@@ -19,7 +19,7 @@ module ItemsHelper
       # create the category tabs
       html += '<ul class="nav nav-tabs" role="tablist">'
       categories.each_with_index do |category, index|
-        tab_id = "pt-metadata-tab-#{bs.bytestream_type}-#{category.gsub(' ', '')}"
+        tab_id = "pt-metadata-tab-#{binary.binary_type}-#{category.gsub(' ', '')}"
         class_ = (index == 0) ? 'active' : ''
         html += "<li role=\"presentation\" class=\"#{class_}\">
           <a href=\"##{tab_id}\" aria-controls=\"#{tab_id}\"
@@ -31,7 +31,7 @@ module ItemsHelper
       # create the category tab panes
       html += '<div class="tab-content">'
       categories.each_with_index do |category, index|
-        tab_id = "pt-metadata-tab-#{bs.bytestream_type}-#{category.gsub(' ', '')}"
+        tab_id = "pt-metadata-tab-#{binary.binary_type}-#{category.gsub(' ', '')}"
         class_ = (index == 0) ? 'active' : ''
         html += "<div role=\"tabpanel\" class=\"tab-pane #{class_}\"
             id=\"#{tab_id}\">"
@@ -74,7 +74,7 @@ module ItemsHelper
   ##
   # @param item [Item] Compound object
   #
-  def compound_object_bytestream_info_table(item)
+  def compound_object_binary_info_table(item)
     subitems = item.items_in_iiif_presentation_order.limit(999).to_a
     html = ''
     if subitems.any?
@@ -85,10 +85,10 @@ module ItemsHelper
       html += '    <th>Filename</th>'
       html += '  </tr>'
       subitems.each do |subitem|
-        subitem.bytestreams.each_with_index do |bs, index|
+        subitem.binaries.each_with_index do |bs, index|
           html += '<tr>'
           if index == 0
-            html += "  <td rowspan=\"#{subitem.bytestreams.length}\">#{subitem.title}</td>"
+            html += "  <td rowspan=\"#{subitem.binaries.length}\">#{subitem.title}</td>"
           end
           html += "  <td>#{bs.human_readable_type}</td>"
           html += "  <td>#{link_to(bs.filename, bs.medusa_url, target: '_blank')}</td>"
@@ -106,11 +106,11 @@ module ItemsHelper
   #
   def download_radios_for_item(item)
     html = ''
-    item.bytestreams.select{ |bs| bs.exists? }.each do |bs|
-      if bs.bytestream_type == Bytestream::Type::ACCESS_MASTER
-        url = item_access_master_bytestream_url(item)
-      elsif bs.bytestream_type == Bytestream::Type::PRESERVATION_MASTER
-        url = item_preservation_master_bytestream_url(item)
+    item.binaries.select{ |bs| bs.exists? }.each do |bs|
+      if bs.binary_type == Binary::Type::ACCESS_MASTER
+        url = item_access_master_binary_url(item)
+      elsif bs.binary_type == Binary::Type::PRESERVATION_MASTER
+        url = item_preservation_master_binary_url(item)
       end
       if url
         html += "<div class=\"radio pt-download-option\" data-item-id=\"#{item.repository_id}\">"
@@ -120,7 +120,7 @@ module ItemsHelper
         html +=      bs.human_readable_type
         html += '    <br>'
         html += '    <small>'
-        html +=        download_label_for_bytestream(bs)
+        html +=        download_label_for_binary(bs)
         html += '    </small>'
         html += '  </label>'
         html += '</div>'
@@ -229,20 +229,19 @@ module ItemsHelper
         item.is_audio? or item.is_video?
       return true
     elsif item.is_text?
-      bs = item.access_master_bytestream || item.preservation_master_bytestream
+      bs = item.access_master_binary || item.preservation_master_binary
       return bs.exists?
     end
     false
   end
 
   ##
-  # @param bs [Bytestream]
-  # @return [String, nil] Base IIIF URL or nil if the bytestream is not an
-  #                       image
+  # @param binary [Binary]
+  # @return [String, nil] Base IIIF URL or nil if the binary is not an image.
   #
-  def iiif_bytestream_url(bs)
-    if bs and (bs.is_image? or bs.is_pdf?)
-      id = bs.repository_relative_pathname.reverse.chomp('/').reverse
+  def iiif_binary_url(binary)
+    if binary and (binary.is_image? or binary.is_pdf?)
+      id = binary.repository_relative_pathname.reverse.chomp('/').reverse
       return Configuration.instance.iiif_url + '/' + CGI.escape(id)
     end
     nil
@@ -257,7 +256,7 @@ module ItemsHelper
   def iiif_image_url(item, size, shape = :default)
     url = nil
     if item.is_image? or item.is_pdf? or item.is_video?
-      bs = item.access_master_bytestream || item.preservation_master_bytestream
+      bs = item.access_master_binary || item.preservation_master_binary
       if bs.repository_relative_pathname and iiif_safe?(bs)
         shape = (shape == :square) ? 'square' : 'full'
         # ?time= is a nonstandard argument supported only by Cantaloupe,
@@ -754,44 +753,44 @@ module ItemsHelper
     ###################### CreativeWork properties ########################
 
     # associatedMedia
-    if item.bytestreams.any?
+    if item.binaries.any?
       struct[:associatedMedia] = []
 
-      bs = item.access_master_bytestream
-      if bs
+      binary = item.access_master_binary
+      if binary
         media = {}
-        if bs.is_audio?
+        if binary.is_audio?
           media[:'@type'] = 'AudioObject'
-        elsif bs.is_image?
+        elsif binary.is_image?
           media[:'@type'] = 'ImageObject'
-        elsif bs.is_video?
+        elsif binary.is_video?
           media[:'@type'] = 'VideoObject'
         else
           media[:'@type'] = 'MediaObject'
         end
-        media[:contentUrl] = item_access_master_bytestream_url(item)
-        size = bs.byte_size
+        media[:contentUrl] = item_access_master_binary_url(item)
+        size = binary.byte_size
         media[:contentSize] = size if size
-        media[:fileFormat] = bs.media_type
+        media[:fileFormat] = binary.media_type
         struct[:associatedMedia] << media
       end
 
-      bs = item.preservation_master_bytestream
-      if bs
+      binary = item.preservation_master_binary
+      if binary
         media = {}
-        if bs.is_audio?
+        if binary.is_audio?
           media[:'@type'] = 'AudioObject'
-        elsif bs.is_image?
+        elsif binary.is_image?
           media[:'@type'] = 'ImageObject'
-        elsif bs.is_video?
+        elsif binary.is_video?
           media[:'@type'] = 'VideoObject'
         else
           media[:'@type'] = 'MediaObject'
         end
-        media[:contentUrl] = item_preservation_master_bytestream_url(item)
-        size = bs.byte_size
+        media[:contentUrl] = item_preservation_master_binary_url(item)
+        size = binary.byte_size
         media[:contentSize] = size if size
-        media[:fileFormat] = bs.media_type
+        media[:fileFormat] = binary.media_type
         struct[:associatedMedia] << media
       end
     end
@@ -1065,20 +1064,20 @@ module ItemsHelper
   end
 
   ##
-  # @param entity [Item, Bytestream] or some other object suitable for passing
-  #                                  to `icon_for`
+  # @param entity [Item, Binary] or some other object suitable for passing to
+  #                              `icon_for`
   # @param size [Integer]
   # @param shape [Symbol] :default or :square
   # @return [String]
   #
   def thumbnail_tag(entity, size = DEFAULT_THUMBNAIL_SIZE, shape = :default)
     url = nil
-    if entity.kind_of?(Bytestream)
-      url = bytestream_image_url(entity, size, shape)
+    if entity.kind_of?(Binary)
+      url = binary_image_url(entity, size, shape)
     elsif entity.kind_of?(Collection)
-      bs = entity.representative_image_bytestream
+      bs = entity.representative_image_binary
       if bs
-        url = bytestream_image_url(bs, size, shape)
+        url = binary_image_url(bs, size, shape)
       end
     elsif entity.kind_of?(Item)
       url = iiif_image_url(entity, size, shape)
@@ -1095,16 +1094,16 @@ module ItemsHelper
   end
 
   ##
-  # @param entity [Item, Bytestream] or some other object suitable for passing
-  #                                  to `icon_for`
+  # @param entity [Item, Binary] or some other object suitable for passing to
+  #                              `icon_for`
   # @param size [Integer]
   # @param shape [Symbol] :default or :square
   # @return [String]
   #
   def thumbnail_url(entity, size = DEFAULT_THUMBNAIL_SIZE, shape = :default)
     url = nil
-    if entity.kind_of?(Bytestream)
-      url = bytestream_image_url(entity, size, shape)
+    if entity.kind_of?(Binary)
+      url = binary_image_url(entity, size, shape)
     elsif entity.kind_of?(Item)
       url = iiif_image_url(entity, size, shape)
     end
@@ -1165,7 +1164,7 @@ module ItemsHelper
     elsif item.is_audio?
       return audio_player_for(item)
     elsif item.is_text?
-      bs = item.access_master_bytestream || item.preservation_master_bytestream
+      bs = item.access_master_binary || item.preservation_master_binary
       pathname = bs.absolute_local_pathname
       begin
         return raw("<pre>#{File.read(pathname)}</pre>")
@@ -1193,15 +1192,15 @@ module ItemsHelper
   end
 
   def audio_player_for(item)
-    bs = item.bytestreams.select{ |bs| bs.bytestream_type == Bytestream::Type::ACCESS_MASTER }.first
-    url = item_access_master_bytestream_url(item, disposition: 'inline')
-    unless bs
-      bs = item.bytestreams.select{ |bs| bs.bytestream_type == Bytestream::Type::PRESERVATION_MASTER }.first
-      url = item_preservation_master_bytestream_url(item, disposition: 'inline')
+    binary = item.binaries.select{ |bs| bs.binary_type == Binary::Type::ACCESS_MASTER }.first
+    url = item_access_master_binary_url(item, disposition: 'inline')
+    unless binary
+      binary = item.binaries.select{ |bs| bs.binary_type == Binary::Type::PRESERVATION_MASTER }.first
+      url = item_preservation_master_binary_url(item, disposition: 'inline')
     end
     html = ''
-    if bs
-      html += "<audio src=\"#{url}\" type=\"#{bs.media_type}\" controls>
+    if binary
+      html += "<audio src=\"#{url}\" type=\"#{binary.media_type}\" controls>
           <a href=\"#{url}\">Download audio</a>
       </audio>"
     end
@@ -1209,54 +1208,54 @@ module ItemsHelper
   end
 
   ##
-  # @param bs [Bytestream]
+  # @param binary [Binary]
   # @param size [Integer]
   # @param shape [Symbol] :default or :square
   # @return [String, nil] Image URL or nil if the item is not an image
   #
-  def bytestream_image_url(bs, size, shape = :default)
+  def binary_image_url(binary, size, shape = :default)
     url = nil
-    if (bs.is_image? or bs.is_pdf?) and bs.repository_relative_pathname
+    if (binary.is_image? or binary.is_pdf?) and binary.repository_relative_pathname
       shape = (shape == :square) ? 'square' : 'full'
       url = sprintf('%s/%s/!%d,%d/0/default.jpg',
-                     iiif_bytestream_url(bs), shape, size, size)
+                     iiif_binary_url(binary), shape, size, size)
     end
     url
   end
 
   ##
-  # @param bytestream [Bytestream]
+  # @param binary [Binary]
   # @param options [Hash<Symbol,Object>]
   # @option options [Boolean] :admin
   # @return [Array<Hash<Symbol,Object>>] Array of hashes with :label,
   #                                      :category, and :value keys.
   #
-  def bytestream_metadata_for(bytestream, options = {})
+  def binary_metadata_for(binary, options = {})
     data = []
-    if bytestream
+    if binary
       if options[:admin]
         data << {
             label: 'Pathname',
             category: 'File',
-            value: bytestream.absolute_local_pathname
+            value: binary.absolute_local_pathname
         }
       else
         data << {
             label: 'Filename',
             category: 'File',
-            value: File.basename(bytestream.absolute_local_pathname)
+            value: File.basename(binary.absolute_local_pathname)
         }
       end
-      if bytestream.cfs_file_uuid.present?
+      if binary.cfs_file_uuid.present?
         data << {
             label: 'Medusa CFS File',
             category: 'File',
-            value: link_to(bytestream.cfs_file_uuid, bytestream.medusa_url,
+            value: link_to(binary.cfs_file_uuid, binary.medusa_url,
                            target: '_blank')
         }
       end
       begin
-        bytestream.metadata.each do |field|
+        binary.metadata.each do |field|
           data << {
               label: field[:label],
               category: field[:category],
@@ -1485,21 +1484,21 @@ module ItemsHelper
   end
 
   ##
-  # @param bs [Bytestream]
-  # @return [Boolean] Whether the given bytestream is presumed safe to feed to
-  #                   an IIIF image server (won't bog it down too much).
+  # @param binary [Binary]
+  # @return [Boolean] Whether the given binary is presumed safe to feed to an
+  #                   image server (won't bog it down too much).
   #
-  def iiif_safe?(bs)
+  def iiif_safe?(binary)
     max_size = 30000000 # arbitrary
 
-    return false if !bs or bs.repository_relative_pathname.blank?
+    return false if !binary or binary.repository_relative_pathname.blank?
 
     # Large TIFF preservation masters are probably neither tiled nor
     # multiresolution, so are going to be very inefficient to read.
-    if bs.bytestream_type == Bytestream::Type::PRESERVATION_MASTER and
-        bs.media_type == 'image/tiff'
+    if binary.binary_type == Binary::Type::PRESERVATION_MASTER and
+        binary.media_type == 'image/tiff'
       begin
-        return false if bs.byte_size > max_size
+        return false if binary.byte_size > max_size
       rescue
         return false
       end
@@ -1511,8 +1510,8 @@ module ItemsHelper
     html = ''
     # If there is no access master, and the preservation master is too large,
     # render an alert instead of the viewer.
-    if !item.access_master_bytestream and
-        !iiif_safe?(item.preservation_master_bytestream)
+    if !item.access_master_binary and
+        !iiif_safe?(item.preservation_master_binary)
       html += '<div class="alert alert-info">Preservation master image is too
           large to display, and no access master is available.</div>'
     else
@@ -1599,11 +1598,11 @@ module ItemsHelper
   end
 
   def pdf_viewer_for(item)
-    bs = item.bytestreams.select{ |bs| bs.bytestream_type == Bytestream::Type::ACCESS_MASTER }.first
-    url = item_access_master_bytestream_url(item, disposition: 'inline')
+    bs = item.binaries.select{ |bs| bs.binary_type == Binary::Type::ACCESS_MASTER }.first
+    url = item_access_master_binary_url(item, disposition: 'inline')
     unless bs
-      bs = item.bytestreams.select{ |bs| bs.bytestream_type == Bytestream::Type::PRESERVATION_MASTER }.first
-      url = item_preservation_master_bytestream_url(item, disposition: 'inline')
+      bs = item.binaries.select{ |bs| bs.binary_type == Binary::Type::PRESERVATION_MASTER }.first
+      url = item_preservation_master_binary_url(item, disposition: 'inline')
     end
 
     html = '<div id="pt-pdf-viewer">'
@@ -1633,9 +1632,9 @@ module ItemsHelper
   end
 
   def video_player_for(item)
-    bs = item.access_master_bytestream
+    bs = item.access_master_binary
     tag = "<video controls id=\"pt-video-player\">
-      <source src=\"#{item_access_master_bytestream_url(item)}\"
+      <source src=\"#{item_access_master_binary_url(item)}\"
               type=\"#{bs.media_type}\">
         Your browser does not support the video tag.
     </video>"
@@ -1643,13 +1642,13 @@ module ItemsHelper
   end
 
   ##
-  # @param [Bytestream] bytestream
+  # @param binary [Binary]
   #
-  def download_label_for_bytestream(bytestream)
+  def download_label_for_binary(binary)
     dimensions = nil
-    size = bytestream.byte_size
+    size = binary.byte_size
     size = "(#{number_to_human_size(size)})" if size
-    raw("#{bytestream.human_readable_name} #{dimensions} #{size}")
+    raw("#{binary.human_readable_name} #{dimensions} #{size}")
   end
 
   def tech_metadata_for(item)

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161216162212) do
+ActiveRecord::Schema.define(version: 20170125152104) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -81,8 +81,8 @@ ActiveRecord::Schema.define(version: 20161216162212) do
   add_index "agents", ["end_date"], name: "index_agents_on_end_date", using: :btree
   add_index "agents", ["name"], name: "index_agents_on_name", unique: true, using: :btree
 
-  create_table "bytestreams", force: :cascade do |t|
-    t.integer  "bytestream_type"
+  create_table "binaries", force: :cascade do |t|
+    t.integer  "binary_type"
     t.string   "media_type",                                  default: "unknown/unknown"
     t.datetime "created_at",                                                              null: false
     t.datetime "updated_at",                                                              null: false
@@ -94,7 +94,7 @@ ActiveRecord::Schema.define(version: 20161216162212) do
     t.decimal  "height",                       precision: 6
   end
 
-  add_index "bytestreams", ["item_id"], name: "index_bytestreams_on_item_id", using: :btree
+  add_index "binaries", ["item_id"], name: "index_binaries_on_item_id", using: :btree
 
   create_table "collection_joins", force: :cascade do |t|
     t.string "parent_repository_id", null: false
@@ -332,7 +332,7 @@ ActiveRecord::Schema.define(version: 20161216162212) do
   add_foreign_key "agent_uris", "agents", on_update: :cascade, on_delete: :cascade
   add_foreign_key "agents", "agent_rules", on_update: :cascade, on_delete: :restrict
   add_foreign_key "agents", "agent_types", on_update: :cascade, on_delete: :restrict
-  add_foreign_key "bytestreams", "items", on_delete: :cascade
+  add_foreign_key "binaries", "items", on_delete: :cascade
   add_foreign_key "collections_roles", "collections", on_update: :cascade, on_delete: :cascade
   add_foreign_key "collections_roles", "roles", column: "allowed_role_id", on_update: :cascade, on_delete: :cascade
   add_foreign_key "collections_roles", "roles", column: "denied_role_id", on_update: :cascade, on_delete: :cascade

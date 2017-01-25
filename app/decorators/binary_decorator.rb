@@ -1,7 +1,7 @@
 ##
 # Assists in creating an optimized JSON serialization.
 #
-class BytestreamDecorator < Draper::Decorator
+class BinaryDecorator < Draper::Decorator
   delegate_all
   include Draper::LazyHelpers
 
@@ -16,10 +16,10 @@ class BytestreamDecorator < Draper::Decorator
 
   def serializable_hash(opts)
     struct = object.serializable_hash(opts)
-    if object.bytestream_type == Bytestream::Type::PRESERVATION_MASTER
-      struct[:url] = item_preservation_master_bytestream_url(object.item)
+    if object.binary_type == Binary::Type::PRESERVATION_MASTER
+      struct[:url] = item_preservation_master_binary_url(object.item)
     else
-      struct[:url] = item_access_master_bytestream_url(object.item)
+      struct[:url] = item_access_master_binary_url(object.item)
     end
     struct
   end

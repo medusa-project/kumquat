@@ -32,17 +32,17 @@ class MedusaCfsFileTest < ActiveSupport::TestCase
                  @cfs.repository_relative_pathname)
   end
 
-  # to_bytestream()
+  # to_binary()
 
-  test 'to_bytestream() should return a correct bytestream' do
-    bs = @cfs.to_bytestream(Bytestream::Type::PRESERVATION_MASTER)
-    assert_equal Bytestream::Type::PRESERVATION_MASTER, bs.bytestream_type
+  test 'to_binary() should return a correct binary' do
+    binary = @cfs.to_binary(Binary::Type::PRESERVATION_MASTER)
+    assert_equal Binary::Type::PRESERVATION_MASTER, binary.binary_type
     assert_equal @cfs.repository_relative_pathname,
-                 bs.repository_relative_pathname
-    assert_equal 13173904, bs.byte_size
-    assert_equal 'image/jp2', bs.media_type
-    assert_equal 3372, bs.width
-    assert_equal 4000, bs.height
+                 binary.repository_relative_pathname
+    assert_equal 13173904, binary.byte_size
+    assert_equal 'image/jp2', binary.media_type
+    assert_equal 3372, binary.width
+    assert_equal 4000, binary.height
   end
 
   # url()
