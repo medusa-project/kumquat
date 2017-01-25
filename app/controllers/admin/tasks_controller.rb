@@ -11,6 +11,13 @@ module Admin
       render partial: 'tasks' if request.xhr?
     end
 
+    ##
+    # Responds to GET /admin/tasks/:id
+    #
+    def show
+      @task = Task.find(params[:id])
+    end
+
   end
 
 end

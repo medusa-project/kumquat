@@ -1,0 +1,46 @@
+<% provide :title, "Tasks: #{@task.name}" %>
+<% provide :body_id, 'tasks_show' %>
+<% provide :active_nav, 'server' %>
+
+<ol class="breadcrumb">
+  <li><%= link_to 'Home', admin_root_path %></li>
+  <li class="active"><%= link_to 'Tasks', admin_tasks_path %></li>
+  <li class="active"><%= @task.status_text %></li>
+</ol>
+
+<h1><%= @task.status_text %></h1>
+
+<% if @task.detail.present? %>
+  <span class="text-danger"><%= h(@task.detail) %></span>
+<% end %>
+
+<dl>
+  <dt>Status</dt>
+  <dd>
+    <span class="label <%= bootstrap_class_for_task_status(@task.status) %>">
+      <%= Task::Status::to_s(@task.status) %>
+    </span>
+  </dd>
+  <dt>Progress</dt>
+  <dd>
+    <%= (@task.indeterminate and @task.percent_complete < 1) ?
+            'Indeterminate' :
+            (@task.percent_complete * 100).round(1).to_s + '%' %>
+  </dd>
+  <dt>Started</dt>
+  <dd><%= @task.started_at ? local_time_ago(@task.started_at) : '' %></dd>
+  <dt>Completed In</dt>
+  <dd>
+    <% if @task.completed_at %>
+      <%= distance_of_time_in_words(@task.created_at, @task.completed_at,
+                                    include_seconds: true) %>
+    <% end %>
+  </dd>
+  <dt>Class</dt>
+  <dd><%= @task.name %></dd>
+</dl>
+
+<% if @task.status == Task::Status::FAILED and @task.backtrace.present? %>
+  <h2>Trace</h2>
+  <pre><%= @task.backtrace %></pre>
+<% end %>

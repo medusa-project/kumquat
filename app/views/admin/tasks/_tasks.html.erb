@@ -13,7 +13,7 @@
       <% @tasks.each do |task| %>
         <tr>
           <td>
-            <%= task.status_text %>
+            <%= link_to(task.status_text, admin_task_path(task)) %>
             <% if task.detail %>
               <span class="text-danger"><%= h(task.detail) %></span>
             <% end %>
