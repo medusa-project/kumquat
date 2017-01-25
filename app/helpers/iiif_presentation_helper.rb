@@ -39,7 +39,7 @@ module IiifPresentationHelper
   #
   def iiif_images_for(item, annotation_name)
     images = []
-    bs = item.access_master_bytestream || item.preservation_master_bytestream
+    bs = item.access_master_binary || item.preservation_master_binary
     if bs
       images << {
           '@type': 'oa:Annotation',
@@ -51,7 +51,7 @@ module IiifPresentationHelper
               'format': bs.media_type,
               service: {
                   '@context': 'http://iiif.io/api/image/2/context.json',
-                  '@id': iiif_bytestream_url(bs),
+                  '@id': iiif_binary_url(bs),
                   profile: 'http://iiif.io/api/image/2/profiles/level2.json'
               },
               height: bs.height,
@@ -159,14 +159,14 @@ module IiifPresentationHelper
   private
 
   def canvas_height(item)
-    bs = item.access_master_bytestream || item.preservation_master_bytestream
+    bs = item.access_master_binary || item.preservation_master_binary
     height = bs&.height || MIN_CANVAS_SIZE
     height = MIN_CANVAS_SIZE if height < MIN_CANVAS_SIZE
     height
   end
 
   def canvas_width(item)
-    bs = item.access_master_bytestream || item.preservation_master_bytestream
+    bs = item.access_master_binary || item.preservation_master_binary
     width = bs&.width || MIN_CANVAS_SIZE
     width = MIN_CANVAS_SIZE if width < MIN_CANVAS_SIZE
     width

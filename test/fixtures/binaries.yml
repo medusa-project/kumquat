@@ -1,7 +1,7 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 iptc:
-  bytestream_type: <%= Bytestream::Type::ACCESS_MASTER %>
+  binary_type: <%= Binary::Type::ACCESS_MASTER %>
   repository_relative_pathname: /136/310/3707005/access/online/Illini_Union_Photographs/binder_5/banquets/banquets_002.jpg
   cfs_file_uuid: 7400e0a0-5ce3-0132-3334-0050569601ca-c
   item: iptc_item
@@ -9,33 +9,33 @@ iptc:
   byte_size: 1629599
 
 item1_one:
-  bytestream_type: <%= Bytestream::Type::PRESERVATION_MASTER %>
+  binary_type: <%= Binary::Type::PRESERVATION_MASTER %>
   repository_relative_pathname: MyString
   item: item1
   media_type: text/plain
   byte_size: 123
 
 item1_two:
-  bytestream_type: <%= Bytestream::Type::ACCESS_MASTER %>
+  binary_type: <%= Binary::Type::ACCESS_MASTER %>
   repository_relative_pathname: MyString
   item: item1
   media_type: text/plain
   byte_size: 123
 
 three:
-  bytestream_type: 1
+  binary_type: <%= Binary::Type::ACCESS_MASTER %>
   repository_relative_pathname: MyString
   item: item2
   media_type: image/jpeg
 
 map_obj1_page1_preservation:
-  bytestream_type: <%= Bytestream::Type::PRESERVATION_MASTER %>
+  binary_type: <%= Binary::Type::PRESERVATION_MASTER %>
   repository_relative_pathname: MyString
   item: map_obj1_page1
   media_type: image/jpeg
 
 map_obj1_page1_access:
-  bytestream_type: <%= Bytestream::Type::ACCESS_MASTER %>
+  binary_type: <%= Binary::Type::ACCESS_MASTER %>
   repository_relative_pathname: MyString
   item: map_obj1_page1
   media_type: image/jpeg

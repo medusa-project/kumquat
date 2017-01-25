@@ -72,12 +72,12 @@ class MedusaCfsFile
   end
 
   ##
-  # @param bytestream_type [Bytestream::Type]
-  # @return [Bytestream] Fully initialized bytestream instance (not persisted).
+  # @param binary_type [Binary::Type]
+  # @return [Binary] Fully initialized binary instance (not persisted).
   #
-  def to_bytestream(bytestream_type)
-    bs = Bytestream.new
-    bs.bytestream_type = bytestream_type
+  def to_binary(binary_type)
+    bs = Binary.new
+    bs.binary_type = binary_type
     bs.cfs_file_uuid = self.uuid
     bs.repository_relative_pathname =
         '/' + self.repository_relative_pathname.reverse.chomp('/').reverse

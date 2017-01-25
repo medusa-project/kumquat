@@ -218,21 +218,21 @@ class Collection < ActiveRecord::Base
 SELECT items.repository_id,
   items.parent_repository_id,
   (SELECT repository_relative_pathname
-    FROM bytestreams
-    WHERE bytestreams.item_id = items.id
-      AND bytestreams.bytestream_type = 0) AS pres_pathname,
+    FROM binaries
+    WHERE binaries.item_id = items.id
+      AND binaries.binary_type = 0) AS pres_pathname,
   (SELECT substring(repository_relative_pathname from '[^/]+$')
-    FROM bytestreams
-    WHERE bytestreams.item_id = items.id
-      AND bytestreams.bytestream_type = 0) AS pres_filename,
+    FROM binaries
+    WHERE binaries.item_id = items.id
+      AND binaries.binary_type = 0) AS pres_filename,
   (SELECT repository_relative_pathname
-    FROM bytestreams
-    WHERE bytestreams.item_id = items.id
-      AND bytestreams.bytestream_type = 1) AS access_pathname,
+    FROM binaries
+    WHERE binaries.item_id = items.id
+      AND binaries.binary_type = 1) AS access_pathname,
   (SELECT substring(repository_relative_pathname from '[^/]+$')
-    FROM bytestreams
-    WHERE bytestreams.item_id = items.id
-      AND bytestreams.bytestream_type = 1) AS access_filename,
+    FROM binaries
+    WHERE binaries.item_id = items.id
+      AND binaries.binary_type = 1) AS access_filename,
   items.variant,
   items.page_number,
   items.subpage_number,
@@ -293,24 +293,24 @@ LIMIT 1000;
     sql = "SELECT items.repository_id,
       items.parent_repository_id,
       (SELECT repository_relative_pathname
-        FROM bytestreams
-        WHERE bytestreams.item_id = items.id
-          AND bytestreams.bytestream_type = #{Bytestream::Type::PRESERVATION_MASTER})
+        FROM binaries
+        WHERE binaries.item_id = items.id
+          AND binaries.binary_type = #{Binary::Type::PRESERVATION_MASTER})
             AS pres_pathname,
       (SELECT substring(repository_relative_pathname from '[^/]+$')
-        FROM bytestreams
-        WHERE bytestreams.item_id = items.id
-          AND bytestreams.bytestream_type = #{Bytestream::Type::PRESERVATION_MASTER})
+        FROM binaries
+        WHERE binaries.item_id = items.id
+          AND binaries.binary_type = #{Binary::Type::PRESERVATION_MASTER})
             AS pres_filename,
       (SELECT repository_relative_pathname
-        FROM bytestreams
-        WHERE bytestreams.item_id = items.id
-          AND bytestreams.bytestream_type = #{Bytestream::Type::ACCESS_MASTER})
+        FROM binaries
+        WHERE binaries.item_id = items.id
+          AND binaries.binary_type = #{Binary::Type::ACCESS_MASTER})
             AS access_pathname,
       (SELECT substring(repository_relative_pathname from '[^/]+$')
-        FROM bytestreams
-        WHERE bytestreams.item_id = items.id
-          AND bytestreams.bytestream_type = #{Bytestream::Type::ACCESS_MASTER})
+        FROM binaries
+        WHERE binaries.item_id = items.id
+          AND binaries.binary_type = #{Binary::Type::ACCESS_MASTER})
             AS access_filename,
       items.variant,
       items.page_number,
@@ -603,19 +603,19 @@ LIMIT 1000;
   end
 
   ##
-  # @return [Bytestream,nil] Best representative image bytestream based on the
-  #                          representative item set in Medusa, if available,
-  #                          or the representative image, if not.
+  # @return [Binary,nil] Best representative image binary based on the
+  #                      representative item set in Medusa, if available, or
+  #                      the representative image, if not.
   #
-  def representative_image_bytestream
+  def representative_image_binary
     bs = nil
     if self.representative_item
       item = self.representative_item
-      bs = item.access_master_bytestream || item.preservation_master_bytestream
+      bs = item.access_master_binary || item.preservation_master_binary
     elsif self.representative_image.present?
       cfs_file = MedusaCfsFile.new
       cfs_file.uuid = self.representative_image
-      bs = Bytestream.new
+      bs = Binary.new
       bs.cfs_file_uuid = cfs_file.uuid
       bs.repository_relative_pathname = cfs_file.repository_relative_pathname
       bs.infer_media_type

@@ -16,9 +16,9 @@ namespace :dls do
 
   end
 
-  namespace :bytestreams do
+  namespace :binaries do
 
-    desc 'Update bytestreams in all collections'
+    desc 'Update binaries in all collections'
     task :update => :environment do |task|
       ActiveRecord::Base.transaction do
         Collection.all.each do |collection|
@@ -26,7 +26,7 @@ namespace :dls do
           puts collection.title
           warnings = []
           MedusaIngester.new.ingest_items(collection,
-                                          MedusaIngester::IngestMode::UPDATE_BYTESTREAMS,
+                                          MedusaIngester::IngestMode::UPDATE_BINARIES,
                                           { extract_metadata: false },
                                           warnings)
           warnings.each { |w| puts w }
@@ -35,9 +35,9 @@ namespace :dls do
       Solr.instance.commit
     end
 
-    desc 'Update the sizes of all bytestreams'
+    desc 'Update the sizes of all binaries'
     task :update_byte_sizes => :environment do |task|
-      Bytestream.where('repository_relative_pathname IS NOT NULL').each do |bs|
+      Binary.where('repository_relative_pathname IS NOT NULL').each do |bs|
         puts bs.repository_relative_pathname
         pathname = bs.absolute_local_pathname
         bs.byte_size = (pathname and File.exist?(pathname) and File.file?(pathname)) ?
@@ -47,9 +47,9 @@ namespace :dls do
       puts 'Done. Run dls:items:index to index the updated sizes.'
     end
 
-    desc 'Update the dimensions of all bytestreams'
+    desc 'Update the dimensions of all binaries'
     task :update_dimensions => :environment do |task|
-      Bytestream.where('repository_relative_pathname IS NOT NULL').each do |bs|
+      Binary.where('repository_relative_pathname IS NOT NULL').each do |bs|
         puts bs.repository_relative_pathname
         bs.read_dimensions
         bs.save!
@@ -128,7 +128,7 @@ namespace :dls do
       Solr.instance.commit
     end
 
-    desc 'Sync items from Medusa (modes: create_only, update_bytestreams, delete_missing)'
+    desc 'Sync items from Medusa (modes: create_only, update_binaries, delete_missing)'
     task :sync, [:collection_uuid, :mode] => :environment do |task, args|
       SyncItemsJob.new(args[:collection_uuid], args[:mode],
                        extract_metadata: false).perform_in_foreground

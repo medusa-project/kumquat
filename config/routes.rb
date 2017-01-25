@@ -96,12 +96,12 @@ Rails.application.routes.draw do
   end
   resources :favorites, only: :index
   resources :items, only: [:create, :destroy, :index, :show] do
-    match '/access-master', to: 'items#access_master_bytestream', via: 'get',
-          as: :access_master_bytestream
+    match '/access-master', to: 'items#access_master_binary', via: 'get',
+          as: :access_master_binary
     match '/files', to: 'items#files', via: 'get', as: :files
     match '/pages', to: 'items#pages', via: 'get', as: :pages
-    match '/preservation-master', to: 'items#preservation_master_bytestream',
-          via: 'get', as: :preservation_master_bytestream
+    match '/preservation-master', to: 'items#preservation_master_binary',
+          via: 'get', as: :preservation_master_binary
     # IIIF Presentation API 2.1 routes
     match '/annotation/:name', to: 'items#annotation', via: 'get',
           as: 'iiif_annotation'
@@ -163,7 +163,7 @@ Rails.application.routes.draw do
           via: 'get', as: 'server_search_server_status'
     match '/settings', to: 'settings#index', via: 'get'
     match '/settings', to: 'settings#update', via: 'patch'
-    match '/tasks', to: 'tasks#index', via: 'get'
+    resources :tasks
     resources :users, param: :username do
       match '/enable', to: 'users#enable', via: 'patch', as: 'enable'
       match '/disable', to: 'users#disable', via: 'patch', as: 'disable'

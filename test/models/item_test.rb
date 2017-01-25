@@ -41,15 +41,15 @@ class ItemTest < ActiveSupport::TestCase
         end_with?(Item::TSV_LINE_BREAK)
   end
 
-  # access_master_bytestream()
+  # access_master_binary()
 
-  test 'access_master_bytestream() should return the access master bytestream,
-  or nil if none exists' do
-    assert_equal Bytestream::Type::ACCESS_MASTER,
-                 @item.access_master_bytestream.bytestream_type
+  test 'access_master_binary() should return the access master binary, or nil
+  if none exists' do
+    assert_equal Binary::Type::ACCESS_MASTER,
+                 @item.access_master_binary.binary_type
 
-    @item.bytestreams.destroy_all
-    assert_nil @item.access_master_bytestream
+    @item.binaries.destroy_all
+    assert_nil @item.access_master_binary
   end
 
   # bib_id()
@@ -166,25 +166,25 @@ class ItemTest < ActiveSupport::TestCase
 
   # iiif_identifier()
 
-  test 'iiif_identifier should use the access master bytestream by default' do
-    @item.access_master_bytestream.repository_relative_pathname = '/bla/bla/cats cats.jpg'
-    @item.access_master_bytestream.media_type = 'image/jpeg'
-    @item.bytestreams.where(bytestream_type: Bytestream::Type::PRESERVATION_MASTER).destroy_all
+  test 'iiif_identifier should use the access master binary by default' do
+    @item.access_master_binary.repository_relative_pathname = '/bla/bla/cats cats.jpg'
+    @item.access_master_binary.media_type = 'image/jpeg'
+    @item.binaries.where(binary_type: Binary::Type::PRESERVATION_MASTER).destroy_all
     assert_equal 'bla/bla/cats cats.jpg', @item.iiif_identifier
   end
 
-  test 'iiif_identifier should fall back to the preservation master bytestream' do
-    @item.bytestreams.where(bytestream_type: Bytestream::Type::ACCESS_MASTER).destroy_all
-    @item.preservation_master_bytestream.repository_relative_pathname = '/bla/bla/cats cats.jpg'
-    @item.preservation_master_bytestream.media_type = 'image/jpeg'
+  test 'iiif_identifier should fall back to the preservation master binary' do
+    @item.binaries.where(binary_type: Binary::Type::ACCESS_MASTER).destroy_all
+    @item.preservation_master_binary.repository_relative_pathname = '/bla/bla/cats cats.jpg'
+    @item.preservation_master_binary.media_type = 'image/jpeg'
     assert_equal 'bla/bla/cats cats.jpg', @item.iiif_identifier
   end
 
   # iiif_info_url()
 
   test 'iiif_info_url() should work' do
-    @item.access_master_bytestream.repository_relative_pathname = '/bla/bla/cats cats.jpg'
-    @item.access_master_bytestream.media_type = 'image/jpeg'
+    @item.access_master_binary.repository_relative_pathname = '/bla/bla/cats cats.jpg'
+    @item.access_master_binary.media_type = 'image/jpeg'
     assert_equal Configuration.instance.iiif_url +
                      '/bla%2Fbla%2Fcats+cats.jpg/info.json', @item.iiif_info_url
   end
@@ -192,8 +192,8 @@ class ItemTest < ActiveSupport::TestCase
   # iiif_url()
 
   test 'iiif_url() should work' do
-    @item.access_master_bytestream.repository_relative_pathname = '/bla/bla/cats cats.jpg'
-    @item.access_master_bytestream.media_type = 'image/jpeg'
+    @item.access_master_binary.repository_relative_pathname = '/bla/bla/cats cats.jpg'
+    @item.access_master_binary.media_type = 'image/jpeg'
     assert_equal Configuration.instance.iiif_url +
                      '/bla%2Fbla%2Fcats+cats.jpg', @item.iiif_url
   end
@@ -227,15 +227,15 @@ class ItemTest < ActiveSupport::TestCase
     assert @item.valid?
   end
 
-  # preservation_master_bytestream()
+  # preservation_master_binary()
 
-  test 'preservation_master_bytestream() should return the preservation
-  master bytestream, or nil if none exists' do
-    assert_equal Bytestream::Type::PRESERVATION_MASTER,
-                 @item.preservation_master_bytestream.bytestream_type
+  test 'preservation_master_binary() should return the preservation
+  master binary, or nil if none exists' do
+    assert_equal Binary::Type::PRESERVATION_MASTER,
+                 @item.preservation_master_binary.binary_type
 
-    @item.bytestreams.destroy_all
-    assert_nil @item.preservation_master_bytestream
+    @item.binaries.destroy_all
+    assert_nil @item.preservation_master_binary
   end
 
   # repository_id
@@ -449,14 +449,14 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal 246, doc[Item::SolrFields::TOTAL_BYTE_SIZE]
     assert_equal @item.variant, doc[Item::SolrFields::VARIANT]
 
-    bs = @item.bytestreams.
-        select{ |b| b.bytestream_type == Bytestream::Type::ACCESS_MASTER }.first
+    bs = @item.binaries.
+        select{ |b| b.binary_type == Binary::Type::ACCESS_MASTER }.first
     assert_equal bs.media_type, doc[Item::SolrFields::ACCESS_MASTER_MEDIA_TYPE]
     assert_equal bs.repository_relative_pathname,
                  doc[Item::SolrFields::ACCESS_MASTER_PATHNAME]
 
-    bs = @item.bytestreams.
-        select{ |b| b.bytestream_type == Bytestream::Type::PRESERVATION_MASTER }.first
+    bs = @item.binaries.
+        select{ |b| b.binary_type == Binary::Type::PRESERVATION_MASTER }.first
     assert_equal bs.media_type,
                  doc[Item::SolrFields::PRESERVATION_MASTER_MEDIA_TYPE]
     assert_equal bs.repository_relative_pathname,

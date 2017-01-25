@@ -73,7 +73,6 @@ GEM
     coffee-script-source (1.9.1.1)
     colorize (0.7.7)
     concurrent-ruby (1.0.2)
-    curb (0.9.3)
     daemons (1.2.3)
     delayed_job (4.1.1)
       activesupport (>= 3.0, < 5.0)
@@ -203,7 +202,6 @@ DEPENDENCIES
   capistrano-bundler
   capistrano-rails
   capistrano-rvm
-  curb
   daemons
   delayed_job_active_record
   draper

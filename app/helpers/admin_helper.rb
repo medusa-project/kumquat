@@ -369,7 +369,7 @@ module AdminHelper
     data = {}
     data['Repository ID'] = item.repository_id
 
-    item.bytestreams.each do |bs|
+    item.binaries.each do |bs|
       data["#{bs.human_readable_type} Filename"] = bs.filename
     end
 

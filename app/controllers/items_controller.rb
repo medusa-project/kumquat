@@ -20,27 +20,27 @@ class ItemsController < WebsiteController
   skip_before_action :verify_authenticity_token, only: [:create, :destroy]
 
   # Other actions
-  before_action :load_item, only: [:access_master_bytestream, :files,
+  before_action :load_item, only: [:access_master_binary, :files,
                                    :iiif_annotation, :iiif_canvas,
                                    :iiif_manifest, :iiif_sequence, :pages,
-                                   :preservation_master_bytestream, :show]
-  before_action :authorize_item, only: [:access_master_bytestream, :files,
+                                   :preservation_master_binary, :show]
+  before_action :authorize_item, only: [:access_master_binary, :files,
                                         :iiif_annotation, :iiif_canvas,
                                         :iiif_manifest, :iiif_sequence, :pages,
-                                        :preservation_master_bytestream]
+                                        :preservation_master_binary]
   before_action :authorize_item, only: :show, unless: :using_api?
   before_action :set_browse_context, only: :index
 
   ##
-  # Retrieves an item's access master bytestream.
+  # Retrieves an item's access master binary.
   #
   # Responds to GET /items/:item_id/access-master
   #
   # The default is to send with a Content-Disposition of `attachment`. Supply a
   # `disposition` query variable of `inline` to override.
   #
-  def access_master_bytestream
-    send_bytestream(@item, Bytestream::Type::ACCESS_MASTER, params[:disposition])
+  def access_master_binary
+    send_binary(@item, Binary::Type::ACCESS_MASTER, params[:disposition])
   end
 
   ##
@@ -99,8 +99,8 @@ class ItemsController < WebsiteController
     valid_names = %w(access preservation)
     if valid_names.include?(params[:name])
       @annotation_name = params[:name]
-      @bytestream = @annotation_name == 'access' ?
-          @item.access_master_bytestream : @item.preservation_master_bytestream
+      @binary = @annotation_name == 'access' ?
+          @item.access_master_binary : @item.preservation_master_binary
       render 'items/iiif_presentation_api/annotation',
              formats: :json,
              content_type: 'application/json'
@@ -297,16 +297,16 @@ class ItemsController < WebsiteController
   end
 
   ##
-  # Retrieves an item's preservation master bytestream.
+  # Retrieves an item's preservation master binary.
   #
   # Responds to GET /items/:id/preservation-master
   #
   # The default is to send with a Content-Disposition of `attachment`. Supply a
   # `disposition` query variable of `inline` to override.
   #
-  def preservation_master_bytestream
-    send_bytestream(@item, Bytestream::Type::PRESERVATION_MASTER,
-                    params[:disposition])
+  def preservation_master_binary
+    send_binary(@item, Binary::Type::PRESERVATION_MASTER,
+                params[:disposition])
   end
 
   ##
@@ -464,17 +464,17 @@ class ItemsController < WebsiteController
   end
 
   ##
-  # Streams one of an item's bytestreams, or redirects to a bytestream's URL,
-  # if it has one.
+  # Streams one of an item's binaries, or redirects to a binary's URL, if it
+  # has one.
   #
   # @param item [Item]
-  # @param type [Integer] One of the `Bytestream::Type` constants
+  # @param type [Integer] One of the `Binary::Type` constants
   # @param disposition [String] `inline` or `attachment`
   #
-  def send_bytestream(item, type, disposition)
+  def send_binary(item, type, disposition)
     disposition = 'attachment' unless %w(attachment inline).include?(disposition)
 
-    bs = item.bytestreams.where(bytestream_type: type).select(&:exists?).first
+    bs = item.binaries.where(binary_type: type).select(&:exists?).first
     if bs
       send_file(bs.absolute_local_pathname, disposition: disposition)
     else

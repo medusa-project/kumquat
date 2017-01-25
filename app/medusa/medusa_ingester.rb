@@ -6,10 +6,10 @@ class MedusaIngester
     # Deletes DLS entities that have gone missing in Medusa, but does not
     # create or update anything.
     DELETE_MISSING = :delete_missing
-    # Replaces DLS items' metadata with that found in embedded metadata.
+    # Replaces items' metadata with that found in embedded metadata.
     REPLACE_METADATA = :replace_metadata
-    # Updates existing DLS items' bytestreams.
-    UPDATE_BYTESTREAMS = :update_bytestreams
+    # Updates existing items' binaries.
+    UPDATE_BINARIES = :update_binaries
   end
 
   @@logger = CustomLogger.instance
@@ -90,8 +90,8 @@ class MedusaIngester
       case mode.to_sym
         when IngestMode::DELETE_MISSING
           stats.merge!(delete_missing_items(collection, task))
-        when IngestMode::UPDATE_BYTESTREAMS
-          stats.merge!(update_bytestreams(collection, warnings, task))
+        when IngestMode::UPDATE_BINARIES
+          stats.merge!(update_binaries(collection, warnings, task))
         when IngestMode::REPLACE_METADATA
           stats.merge!(replace_metadata(collection, task))
         else
@@ -195,8 +195,8 @@ class MedusaIngester
                           variant: Item::Variants::FILE)
           item.elements.build(name: 'title', value: file.name)
 
-          # Create its corresponding bytestream.
-          bs = file.to_bytestream(Bytestream::Type::ACCESS_MASTER)
+          # Create its corresponding binary.
+          bs = file.to_binary(Binary::Type::ACCESS_MASTER)
           bs.item = item
           bs.save!
 
@@ -302,9 +302,9 @@ class MedusaIngester
                 status[:num_created] += 1
               end
 
-              # Create the preservation master bytestream.
-              child.bytestreams << pres_file.
-                  to_bytestream(Bytestream::Type::PRESERVATION_MASTER)
+              # Create the preservation master binary.
+              child.binaries << pres_file.
+                  to_binary(Binary::Type::PRESERVATION_MASTER)
 
               # Set the child's variant.
               basename = File.basename(pres_file.repository_relative_pathname)
@@ -320,10 +320,10 @@ class MedusaIngester
                 child.variant = Item::Variants::PAGE
               end
 
-              # Find and create the access master bytestream.
+              # Find and create the access master binary.
               begin
-                bs = compound_access_master_bytestream(top_item_dir, pres_file)
-                child.bytestreams << bs
+                child.binaries <<
+                    compound_access_master_binary(top_item_dir, pres_file)
               rescue IllegalContentError => e
                 warnings << "#{e}"
               end
@@ -334,15 +334,15 @@ class MedusaIngester
               child.save!
             end
           elsif pres_dir.files.length == 1
-            # Create the preservation master bytestream.
+            # Create the preservation master binary.
             pres_file = pres_dir.files.first
-            item.bytestreams << pres_file.
-                to_bytestream(Bytestream::Type::PRESERVATION_MASTER)
+            item.binaries << pres_file.
+                to_binary(Binary::Type::PRESERVATION_MASTER)
 
-            # Find and create the access master bytestream.
+            # Find and create the access master binary.
             begin
-              bs = compound_access_master_bytestream(top_item_dir, pres_file)
-              item.bytestreams << bs
+              item.binaries <<
+                  compound_access_master_binary(top_item_dir, pres_file)
             rescue IllegalContentError => e
               warnings << "#{e}"
             end
@@ -407,18 +407,18 @@ class MedusaIngester
         status[:num_created] += 1
       end
 
-      # Create the preservation master bytestream.
-      bs = item.bytestreams.build
+      # Create the preservation master binary.
+      bs = item.binaries.build
       bs.cfs_file_uuid = file.uuid
-      bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
+      bs.binary_type = Binary::Type::PRESERVATION_MASTER
       bs.repository_relative_pathname =
           '/' + file.repository_relative_pathname.reverse.chomp('/').reverse
       bs.byte_size = File.size(bs.absolute_local_pathname)
       bs.media_type = file.media_type
 
-      # Find and create the access master bytestream.
+      # Find and create the access master binary.
       begin
-        item.bytestreams << single_item_access_master_bytestream(cfs_dir, file)
+        item.binaries << single_item_access_master_binary(cfs_dir, file)
       rescue IllegalContentError => e
         warnings << "#{e}"
       end
@@ -506,10 +506,10 @@ class MedusaIngester
   ##
   # @param item_cfs_dir [MedusaCfsDirectory]
   # @param pres_master_file [MedusaCfsFile]
-  # @return [Bytestream]
+  # @return [Binary]
   # @raises [IllegalContentError]
   #
-  def compound_access_master_bytestream(item_cfs_dir, pres_master_file)
+  def compound_access_master_binary(item_cfs_dir, pres_master_file)
     access_dir = item_cfs_dir.directories.
         select{ |d| d.name == 'access' }.first
     if access_dir
@@ -519,22 +519,22 @@ class MedusaIngester
             select{ |f| f.name.chomp(File.extname(f.name)) ==
             pres_master_name.chomp(File.extname(pres_master_name)) }.first
         if access_file
-          return access_file.to_bytestream(Bytestream::Type::ACCESS_MASTER)
+          return access_file.to_binary(Binary::Type::ACCESS_MASTER)
         else
           msg = "Preservation master file #{pres_master_file.uuid} has no "\
               "access master counterpart."
-          @@logger.warn("MedusaIngester.compound_access_master_bytestream(): #{msg}")
+          @@logger.warn("MedusaIngester.compound_access_master_binary(): #{msg}")
           raise IllegalContentError, msg
         end
       else
         msg = "Access master directory #{access_dir.uuid} has no files."
-        @@logger.warn("MedusaIngester.compound_access_master_bytestream(): #{msg}")
+        @@logger.warn("MedusaIngester.compound_access_master_binary(): #{msg}")
         raise IllegalContentError, msg
       end
     else
       msg = "Item directory #{item_cfs_dir.uuid} is missing an access "\
           "master subdirectory."
-      @@logger.warn("MedusaIngester.compound_access_master_bytestream(): #{msg}")
+      @@logger.warn("MedusaIngester.compound_access_master_binary(): #{msg}")
       raise IllegalContentError, msg
     end
   end
@@ -588,12 +588,12 @@ class MedusaIngester
   ##
   # @param cfs_dir [MedusaCfsDirectory]
   # @param pres_master_file [MedusaCfsFile]
-  # @return [Bytestream]
+  # @return [Binary]
   # @raises [IllegalContentError]
   #
-  def single_item_access_master_bytestream(cfs_dir, pres_master_file)
+  def single_item_access_master_binary(cfs_dir, pres_master_file)
     # Works the same way.
-    compound_access_master_bytestream(cfs_dir, pres_master_file)
+    compound_access_master_binary(cfs_dir, pres_master_file)
   end
 
   ##
@@ -616,28 +616,27 @@ class MedusaIngester
   # @param task [Task] Supply to receive status updates.
   # @return [Hash<Symbol, Integer>]
   #
-  def update_bytestreams(collection, warnings = [], task = nil)
+  def update_binaries(collection, warnings = [], task = nil)
     case collection.package_profile
       when PackageProfile::COMPOUND_OBJECT_PROFILE
-        stats = update_compound_bytestreams(collection, warnings, task)
+        stats = update_compound_binaries(collection, warnings, task)
       when PackageProfile::FREE_FORM_PROFILE
-        stats = update_free_form_bytestreams(collection, task)
+        stats = update_free_form_binaries(collection, task)
       when PackageProfile::SINGLE_ITEM_OBJECT_PROFILE
-        stats = update_single_item_bytestreams(collection, warnings, task)
+        stats = update_single_item_binaries(collection, warnings, task)
       else
         raise IllegalContentError,
-              "update_bytestreams(): unrecognized package profile: "\
+              "update_binaries(): unrecognized package profile: "\
                     "#{collection.package_profile}"
     end
 
-    # The bytestreams have been updated, but the image server may still have
-    # cached versions of the old ones. Here, we will use the Cantaloupe API to
-    # purge them.
+    # The binaries have been updated, but the image server may still have
+    # cached versions of the old ones. Here, we will purge them.
     collection.items.each do |item|
       begin
         ImageServer.instance.purge_item_from_cache(item)
       rescue => e
-        @@logger.error("MedusaIngester.update_bytestreams(): failed to "\
+        @@logger.error("MedusaIngester.update_binaries(): failed to "\
             "purge item from image server cache: #{e}")
       end
     end
@@ -650,7 +649,7 @@ class MedusaIngester
   # @param task [Task] Supply to receive status updates.
   # @return [Hash<Symbol,Integer>] Hash with a :num_updated key.
   #
-  def update_free_form_bytestreams(collection, task = nil)
+  def update_free_form_binaries(collection, task = nil)
     if task
       # Compile a count of filesystem nodes in order to display progress
       # updates.
@@ -668,15 +667,15 @@ class MedusaIngester
     # @param num_walked [Integer] For internal use.
     # @return [Hash<Symbol,Integer>] Hash with a :num_updated key.
     #
-    def update_free_form_bytestreams_in_tree(cfs_dir, top_cfs_dir, stats,
-                                             task = nil, num_nodes = 0,
-                                             num_walked = 0)
+    def update_free_form_binaries_in_tree(cfs_dir, top_cfs_dir, stats,
+                                          task = nil, num_nodes = 0,
+                                          num_walked = 0)
       cfs_dir.directories.each do |dir|
         if task and num_walked % 10 == 0
           task.update(percent_complete: num_walked / num_nodes.to_f)
         end
         num_walked += 1
-        update_free_form_bytestreams_in_tree(dir, top_cfs_dir, stats)
+        update_free_form_binaries_in_tree(dir, top_cfs_dir, stats)
       end
       cfs_dir.files.each do |file|
         if task and num_walked % 10 == 0
@@ -685,12 +684,12 @@ class MedusaIngester
         num_walked += 1
         item = Item.find_by_repository_id(file.uuid)
         if item
-          @@logger.info("MedusaIngester.update_free_form_bytestreams(): "\
-                            "updating bytestreams for item: #{file.uuid}")
+          @@logger.info("MedusaIngester.update_free_form_binary(): "\
+                            "updating binaries for item: #{file.uuid}")
 
-          item.bytestreams.destroy_all
+          item.binaries.destroy_all
 
-          bs = file.to_bytestream(Bytestream::Type::ACCESS_MASTER)
+          bs = file.to_binary(Binary::Type::ACCESS_MASTER)
           bs.item = item
           bs.save!
 
@@ -700,14 +699,14 @@ class MedusaIngester
     end
 
     stats = { num_updated: 0 }
-    update_free_form_bytestreams_in_tree(
+    update_free_form_binaries_in_tree(
         collection.effective_medusa_cfs_directory,
         collection.effective_medusa_cfs_directory, stats, task, num_nodes)
     stats
   end
 
   ##
-  # Populates an item's metadata from its embedded bytestream metadata.
+  # Populates an item's metadata from its embedded binary metadata.
   #
   # @param item [Item]
   # @param options [Hash]
@@ -730,7 +729,7 @@ class MedusaIngester
   # @param task [Task] Supply to receive progress updates.
   # @return [Hash<Symbol,Integer>] Hash with a :num_updated key.
   #
-  def update_compound_bytestreams(collection, warnings = [], task = nil)
+  def update_compound_binaries(collection, warnings = [], task = nil)
     stats = { num_updated: 0 }
     directories = collection.effective_medusa_cfs_directory.directories
     num_directories = directories.length
@@ -749,19 +748,19 @@ class MedusaIngester
                 # Find the child item.
                 child = Item.find_by_repository_id(pres_file.uuid)
                 if child
-                  @@logger.info("MedusaIngester.update_compound_bytestreams(): "\
+                  @@logger.info("MedusaIngester.update_compound_binaries(): "\
                       "updating child item #{pres_file.uuid}")
 
-                  child.bytestreams.destroy_all
+                  child.binaries.destroy_all
 
-                  # Create the preservation master bytestream.
-                  bs = pres_file.to_bytestream(Bytestream::Type::PRESERVATION_MASTER)
+                  # Create the preservation master binary.
+                  bs = pres_file.to_binary(Binary::Type::PRESERVATION_MASTER)
                   bs.item = child
                   bs.save!
 
-                  # Find and create the access master bytestream.
+                  # Find and create the access master binary.
                   begin
-                    bs = compound_access_master_bytestream(top_item_dir, pres_file)
+                    bs = compound_access_master_binary(top_item_dir, pres_file)
                     bs.item = child
                     bs.save!
                   rescue IllegalContentError => e
@@ -769,25 +768,24 @@ class MedusaIngester
                   end
                   stats[:num_updated] += 1
                 else
-                  @@logger.warn("MedusaIngester.update_compound_bytestreams(): "\
+                  @@logger.warn("MedusaIngester.update_compound_binaries(): "\
                       "skipping child item #{pres_file.uuid} (no item)")
                 end
               end
             elsif pres_dir.files.length == 1
-              @@logger.info("MedusaIngester.update_compound_bytestreams(): "\
+              @@logger.info("MedusaIngester.update_compound_binaries(): "\
                     "updating item #{item.repository_id}")
 
-              item.bytestreams.destroy_all
+              item.binaries.destroy_all
 
-              # Create the preservation master bytestream.
-              pres_file = pres_dir.files.first
-              item.bytestreams << pres_file.
-                  to_bytestream(Bytestream::Type::PRESERVATION_MASTER)
+              # Create the preservation master binary.
+              item.binaries << pres_dir.files.first.
+                  to_binary(Binary::Type::PRESERVATION_MASTER)
 
-              # Find and create the access master bytestream.
+              # Find and create the access master binary.
               begin
-                bs = compound_access_master_bytestream(top_item_dir, pres_file)
-                item.bytestreams << bs
+                item.binaries <<
+                    compound_access_master_binary(top_item_dir, pres_file)
               rescue IllegalContentError => e
                 warnings << "#{e}"
               end
@@ -797,23 +795,23 @@ class MedusaIngester
               stats[:num_updated] += 1
             else
               msg = "Preservation directory #{pres_dir.uuid} is empty."
-              @@logger.warn("MedusaIngester.update_compound_bytestreams(): #{msg}")
+              @@logger.warn("MedusaIngester.update_compound_binaries(): #{msg}")
               warnings << msg
             end
           else
             msg = "Directory #{top_item_dir.uuid} is missing a preservation "\
                 "directory."
-            @@logger.warn("MedusaIngester.update_compound_bytestreams(): #{msg}")
+            @@logger.warn("MedusaIngester.update_compound_binaries(): #{msg}")
             warnings << msg
           end
         else
           msg = "Directory #{top_item_dir.uuid} does not have any subdirectories."
-          @@logger.warn("MedusaIngester.update_compound_bytestreams(): #{msg}")
+          @@logger.warn("MedusaIngester.update_compound_binaries(): #{msg}")
           warnings << msg
         end
       else
         msg = "No item for directory: #{top_item_dir.uuid}"
-        @@logger.warn("MedusaIngester.update_compound_bytestreams(): #{msg}")
+        @@logger.warn("MedusaIngester.update_compound_binaries(): #{msg}")
         warnings << msg
       end
       task.update(percent_complete: index / num_directories.to_f) if task
@@ -828,7 +826,7 @@ class MedusaIngester
   # @param task [Task] Supply to receive progress updates.
   # @return [Hash<Symbol,Integer>] Hash with a :num_updated key.
   #
-  def update_single_item_bytestreams(collection, warnings = [], task = nil)
+  def update_single_item_binaries(collection, warnings = [], task = nil)
     cfs_dir = collection.effective_medusa_cfs_directory
     pres_dir = cfs_dir.directories.select{ |d| d.name == 'preservation' }.first
 
@@ -838,21 +836,21 @@ class MedusaIngester
     files.each_with_index do |file, index|
       item = Item.find_by_repository_id(file.uuid)
       if item
-        item.bytestreams.destroy_all
+        item.binaries.destroy_all
 
-        # Create the preservation master bytestream.
-        bs = item.bytestreams.build
+        # Create the preservation master binary.
+        bs = item.binaries.build
         bs.cfs_file_uuid = file.uuid
-        bs.bytestream_type = Bytestream::Type::PRESERVATION_MASTER
+        bs.binary_type = Binary::Type::PRESERVATION_MASTER
         bs.repository_relative_pathname =
             '/' + file.repository_relative_pathname.reverse.chomp('/').reverse
         bs.byte_size = File.size(bs.absolute_local_pathname)
         bs.media_type = file.media_type
         bs.save!
 
-        # Find and create the access master bytestream.
+        # Find and create the access master binary.
         begin
-          bs = single_item_access_master_bytestream(cfs_dir, file)
+          bs = single_item_access_master_binary(cfs_dir, file)
           bs.item = item
           bs.save!
         rescue IllegalContentError => e

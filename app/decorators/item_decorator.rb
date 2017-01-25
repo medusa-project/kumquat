@@ -42,7 +42,7 @@ class ItemDecorator < Draper::Decorator
       struct[:parent] = self.parent ? item_url(self.parent) : nil
       struct[:representative_item] = self.representative_item ?
           item_url(self.representative_item) : nil
-      struct[:bytestreams] = BytestreamDecorator.decorate_collection(self.bytestreams)
+      struct[:binaries] = BinaryDecorator.decorate_collection(self.binaries)
     end
 
     # Populate the elements array

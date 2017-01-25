@@ -1,4 +1,4 @@
-class Bytestream < ActiveRecord::Base
+class Binary < ActiveRecord::Base
 
   ##
   # Must be kept in sync with the return value of human_readable_type().
@@ -8,7 +8,7 @@ class Bytestream < ActiveRecord::Base
     PRESERVATION_MASTER = 0
   end
 
-  belongs_to :item, inverse_of: :bytestreams, touch: true
+  belongs_to :item, inverse_of: :binaries, touch: true
 
   @@formats = YAML::load(File.read("#{Rails.root}/lib/formats.yml"))
 
@@ -21,7 +21,7 @@ class Bytestream < ActiveRecord::Base
   end
 
   ##
-  # @return [Boolean] If the bytestream is a file and the file exists, returns
+  # @return [Boolean] If the binary is a file and the file exists, returns
   #                   true.
   #
   def exists?
@@ -49,10 +49,10 @@ class Bytestream < ActiveRecord::Base
   # @return [String]
   #
   def human_readable_type
-    case self.bytestream_type
-      when Bytestream::Type::ACCESS_MASTER
+    case self.binary_type
+      when Type::ACCESS_MASTER
         return 'Access Master'
-      when Bytestream::Type::PRESERVATION_MASTER
+      when Type::PRESERVATION_MASTER
         return 'Preservation Master'
     end
     nil
@@ -75,8 +75,8 @@ class Bytestream < ActiveRecord::Base
   end
 
   ##
-  # @return [Boolean] Whether the bytestream is of a still or moving raster
-  #                   image with pixel dimensions.
+  # @return [Boolean] Whether the binary is of a still or moving raster image
+  #                   with pixel dimensions.
   #
   def is_raster?
     is_image? or is_video?
@@ -202,7 +202,7 @@ class Bytestream < ActiveRecord::Base
         end
       end
     rescue JSON::ParserError => e
-      CustomLogger.instance.warn("Bytestream.read_metadata(): #{e}")
+      CustomLogger.instance.warn("Binary.read_metadata(): #{e}")
     end
   end
 

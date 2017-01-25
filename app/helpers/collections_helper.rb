@@ -43,14 +43,14 @@ module CollectionsHelper
     html = ''
     collections.each do |col|
       begin
-        # If the reference to the bytestream is invalid (for example, an
-        # invalid UUID has been entered), this will raise an error.
-        bs = col.representative_image_bytestream
+        # If the reference to the binary is invalid (for example, an invalid
+        # UUID has been entered), this will raise an error.
+        bs = col.representative_image_binary
       rescue => e
         CustomLogger.instance.warn("collections_as_cards(): #{e} (#{col})")
       end
       if bs
-        img_url = bytestream_image_url(bs, thumb_size, :square)
+        img_url = binary_image_url(bs, thumb_size, :square)
       else
         img_url = image_url('folder-open-o-600.png')
       end

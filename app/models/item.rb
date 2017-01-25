@@ -2,8 +2,8 @@
 # Encapsulates a unit of intellectual content.
 #
 # All items reside in a collection. An item may have one or more child items,
-# as may any of those, forming a tree. It may also have one or more
-# Bytestreams, each corresponding to a file in Medusa.
+# as may any of those, forming a tree. It may also have one or more Binaries,
+# each corresponding to a file in Medusa.
 #
 # Items have a number of properties of their own as well as a one-to-many
 # relationship with ItemElement, which encapsulates a metadata element. The set
@@ -102,7 +102,7 @@ class Item < ActiveRecord::Base
   has_and_belongs_to_many :effective_denied_roles, class_name: 'Role',
                           association_foreign_key: :effective_denied_role_id
 
-  has_many :bytestreams, inverse_of: :item, dependent: :destroy
+  has_many :binaries, inverse_of: :item, dependent: :destroy
   has_many :elements, class_name: 'ItemElement', inverse_of: :item,
            dependent: :destroy
 
@@ -287,11 +287,11 @@ class Item < ActiveRecord::Base
   end
 
   ##
-  # @return [Bytestream]
+  # @return [Binary]
   #
-  def access_master_bytestream
-    self.bytestreams.
-        select{ |b| b.bytestream_type == Bytestream::Type::ACCESS_MASTER }.first
+  def access_master_binary
+    self.binaries.
+        select{ |b| b.binary_type == Binary::Type::ACCESS_MASTER }.first
   end
 
   ##
@@ -441,9 +441,9 @@ class Item < ActiveRecord::Base
   #
   def iiif_identifier
     id = nil
-    bs = self.access_master_bytestream
+    bs = self.access_master_binary
     if !bs or (!bs.is_image? and !bs.is_pdf? and !bs.is_video?)
-      bs = self.preservation_master_bytestream
+      bs = self.preservation_master_binary
       if !bs or (!bs.is_image? and !bs.is_pdf? and !bs.is_video?)
         bs = nil
       end
@@ -504,7 +504,7 @@ class Item < ActiveRecord::Base
   # @return [Boolean]
   #
   def is_audio?
-    bs = self.access_master_bytestream || self.preservation_master_bytestream
+    bs = self.access_master_binary || self.preservation_master_binary
     bs&.is_audio?
   end
 
@@ -520,7 +520,7 @@ class Item < ActiveRecord::Base
   # @return [Boolean]
   #
   def is_image?
-    bs = self.access_master_bytestream || self.preservation_master_bytestream
+    bs = self.access_master_binary || self.preservation_master_binary
     bs&.is_image?
   end
 
@@ -528,7 +528,7 @@ class Item < ActiveRecord::Base
   # @return [Boolean]
   #
   def is_pdf?
-    bs = self.access_master_bytestream || self.preservation_master_bytestream
+    bs = self.access_master_binary || self.preservation_master_binary
     bs&.is_pdf?
   end
 
@@ -536,7 +536,7 @@ class Item < ActiveRecord::Base
   # @return [Boolean]
   #
   def is_text?
-    bs = self.access_master_bytestream || self.preservation_master_bytestream
+    bs = self.access_master_binary || self.preservation_master_binary
     bs&.is_text?
   end
 
@@ -544,7 +544,7 @@ class Item < ActiveRecord::Base
   # @return [Boolean]
   #
   def is_video?
-    bs = self.access_master_bytestream || self.preservation_master_bytestream
+    bs = self.access_master_binary || self.preservation_master_binary
     bs&.is_video?
   end
 
@@ -674,11 +674,11 @@ class Item < ActiveRecord::Base
   end
 
   ##
-  # @return [Bytestream, nil]
+  # @return [Binary, nil]
   #
-  def preservation_master_bytestream
-    self.bytestreams.
-        select{ |b| b.bytestream_type == Bytestream::Type::PRESERVATION_MASTER }.first
+  def preservation_master_binary
+    self.binaries.
+        select{ |b| b.binary_type == Binary::Type::PRESERVATION_MASTER }.first
   end
 
   ##
@@ -856,14 +856,14 @@ class Item < ActiveRecord::Base
     doc[SolrFields::TOTAL_BYTE_SIZE] = self.bytestreams.map{ |b| b.byte_size }.
         select{ |s| s }.sum
     doc[SolrFields::VARIANT] = self.variant
-    bs = self.bytestreams.
-        select{ |b| b.bytestream_type == Bytestream::Type::ACCESS_MASTER }.first
+    bs = self.binaries.
+        select{ |b| b.binary_type == Binary::Type::ACCESS_MASTER }.first
     if bs
       doc[SolrFields::ACCESS_MASTER_MEDIA_TYPE] = bs.media_type
       doc[SolrFields::ACCESS_MASTER_PATHNAME] = bs.repository_relative_pathname
     end
-    bs = self.bytestreams.
-        select{ |b| b.bytestream_type == Bytestream::Type::PRESERVATION_MASTER }.first
+    bs = self.binaries.
+        select{ |b| b.binary_type == Binary::Type::PRESERVATION_MASTER }.first
     if bs
       doc[SolrFields::PRESERVATION_MASTER_MEDIA_TYPE] = bs.media_type
       doc[SolrFields::PRESERVATION_MASTER_PATHNAME] = bs.repository_relative_pathname
@@ -879,7 +879,7 @@ class Item < ActiveRecord::Base
 
   ##
   # Transactionally updates an instance's metadata elements from the metadata
-  # embedded within its preservation or access master bytestream.
+  # embedded within its preservation or access master binary.
   #
   # @param options [Hash<Symbol,Object>]
   # @option options [Boolean] :include_date_created
@@ -1130,11 +1130,11 @@ class Item < ActiveRecord::Base
   # @return [Array<ItemElement>]
   #
   def elements_from_embedded_metadata(options = {})
-    # Get the bytestream from which the metadata will be extracted
-    bs = self.preservation_master_bytestream || self.access_master_bytestream
+    # Get the binary from which the metadata will be extracted
+    bs = self.preservation_master_binary || self.access_master_binary
     unless bs
       CustomLogger.instance.
-          info('Item.elements_from_embedded_metadata(): no bytestreams')
+          info('Item.elements_from_embedded_metadata(): no binaries')
       return
     end
 

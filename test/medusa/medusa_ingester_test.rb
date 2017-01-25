@@ -67,20 +67,20 @@ class MedusaIngesterTest < ActiveSupport::TestCase
     # Inspect an individual directory item more thoroughly.
     item = Item.find_by_repository_id('a53add10-5ca8-0132-3334-0050569601ca-7')
     #assert_equal 1, item.items.length
-    assert_equal 0, item.bytestreams.length
+    assert_equal 0, item.binaries.length
     assert_equal Item::Variants::DIRECTORY, item.variant
 
     # Inspect an individual file item more thoroughly.
     item = Item.find_by_repository_id('6e3c33c0-5ce3-0132-3334-0050569601ca-f')
-    item.bytestreams.each do |bs|
-      assert_equal Bytestream::Type::ACCESS_MASTER, bs.bytestream_type
+    item.binaries.each do |bs|
+      assert_equal Binary::Type::ACCESS_MASTER, bs.binary_type
     end
     assert_empty item.items
-    assert_equal 1, item.bytestreams.length
+    assert_equal 1, item.binaries.length
     assert_equal Item::Variants::FILE, item.variant
     assert_equal 1, item.elements.length
     assert_equal 'animals_001.jpg', item.title
-    bs = item.bytestreams.first
+    bs = item.binaries.first
     assert_equal 1757527, bs.byte_size
     assert_equal 'image/jpeg', bs.media_type
     assert_equal '/136/310/3707005/access/online/Illini_Union_Photographs/binder_10/animals/animals_001.jpg',
@@ -138,14 +138,14 @@ class MedusaIngesterTest < ActiveSupport::TestCase
     item = Item.find_by_repository_id('2066c390-e946-0133-1d3d-0050569601ca-d')
     assert_nil item.variant
     assert_empty item.items
-    assert_equal 2, item.bytestreams.length
-    bs = item.bytestreams.select{ |b| b.bytestream_type == Bytestream::Type::PRESERVATION_MASTER }.first
+    assert_equal 2, item.binaries.length
+    bs = item.binaries.select{ |b| b.binary_type == Binary::Type::PRESERVATION_MASTER }.first
     assert_equal 'image/tiff', bs.media_type
     assert_equal 28184152, bs.byte_size
     assert_equal '/59/2257/afm0002389/preservation/afm0002389.tif',
                  bs.repository_relative_pathname
 
-    bs = item.bytestreams.select{ |b| b.bytestream_type == Bytestream::Type::ACCESS_MASTER }.first
+    bs = item.binaries.select{ |b| b.binary_type == Binary::Type::ACCESS_MASTER }.first
     assert_equal 'image/jp2', bs.media_type
     assert_equal 9665238, bs.byte_size
     assert_equal '/59/2257/afm0002389/access/afm0002389.jp2',
@@ -178,21 +178,21 @@ class MedusaIngesterTest < ActiveSupport::TestCase
     item = Item.find_by_repository_id(item_uuid)
     assert_nil item.variant
     assert_equal 4, item.items.length
-    assert_equal 0, item.bytestreams.length
+    assert_equal 0, item.binaries.length
 
     # Inspect the first child item.
     child = item.items.
         select{ |it| it.repository_id == '458f3300-e949-0133-1d3d-0050569601ca-7' }.first
     assert_equal Item::Variants::PAGE, child.variant
-    assert_equal 2, child.bytestreams.length
+    assert_equal 2, child.binaries.length
 
-    bs = child.bytestreams.select{ |b| b.bytestream_type == Bytestream::Type::PRESERVATION_MASTER }.first
+    bs = child.binaries.select{ |b| b.binary_type == Binary::Type::PRESERVATION_MASTER }.first
     assert_equal 'image/tiff', bs.media_type
     assert_equal 43204936, bs.byte_size
     assert_equal '/59/2257/afm0003060/preservation/afm0003060a.tif',
                  bs.repository_relative_pathname
 
-    bs = child.bytestreams.select{ |b| b.bytestream_type == Bytestream::Type::ACCESS_MASTER }.first
+    bs = child.binaries.select{ |b| b.binary_type == Binary::Type::ACCESS_MASTER }.first
     assert_equal 'image/jp2', bs.media_type
     assert_equal 15095518, bs.byte_size
     assert_equal '/59/2257/afm0003060/access/afm0003060a.jp2',
@@ -227,16 +227,16 @@ class MedusaIngesterTest < ActiveSupport::TestCase
     # Inspect an individual item more thoroughly.
     item = Item.find_by_repository_id('7b7e08f0-0b13-0134-1d55-0050569601ca-a')
     assert_empty item.items
-    assert_equal 2, item.bytestreams.length
-    bs = item.bytestreams.
-        select{ |b| b.bytestream_type == Bytestream::Type::PRESERVATION_MASTER }.first
+    assert_equal 2, item.binaries.length
+    bs = item.binaries.
+        select{ |b| b.binary_type == Binary::Type::PRESERVATION_MASTER }.first
     assert_equal 'image/tiff', bs.media_type
     assert_equal 575834922, bs.byte_size
     assert_equal '/55/2358/preservation/03501042_001_souscrivez.TIF',
                  bs.repository_relative_pathname
 
-    bs = item.bytestreams.
-        select{ |b| b.bytestream_type == Bytestream::Type::ACCESS_MASTER }.first
+    bs = item.binaries.
+        select{ |b| b.binary_type == Binary::Type::ACCESS_MASTER }.first
     assert_equal 'image/jp2', bs.media_type
     assert_equal 128493361, bs.byte_size
     assert_equal '/55/2358/access/03501042_001_souscrivez.jp2',
@@ -341,7 +341,7 @@ class MedusaIngesterTest < ActiveSupport::TestCase
     # TODO: write this
   end
 
-  test 'ingest_items with IngestMode::UPDATE_BYTESTREAMS and free-form profile
+  test 'ingest_items with IngestMode::UPDATE_BINARIES and free-form profile
   collection' do
     # Set up the fixture data.
     collection = collections(:collection1)
@@ -357,29 +357,29 @@ class MedusaIngesterTest < ActiveSupport::TestCase
     # Record initial conditions.
     start_num_items = Item.count
 
-    # Delete all their bytestreams.
-    Bytestream.destroy_all
+    # Delete all of their binaries.
+    Binary.destroy_all
 
     # "Ingest" the items again.
     result = @instance.ingest_items(
-        collection, MedusaIngester::IngestMode::UPDATE_BYTESTREAMS)
+        collection, MedusaIngester::IngestMode::UPDATE_BINARIES)
 
-    # Assert that the bytestreams were created.
-    assert_equal Bytestream.count, result[:num_updated]
-    Bytestream.all.each do |bs|
-      assert_equal Bytestream::Type::ACCESS_MASTER, bs.bytestream_type
+    # Assert that the binaries were created.
+    assert_equal Binary.count, result[:num_updated]
+    Binary.all.each do |bs|
+      assert_equal Binary::Type::ACCESS_MASTER, bs.binary_type
     end
     assert_equal start_num_items, Item.count
-    assert_equal Item.where(variant: Item::Variants::FILE).count, Bytestream.count
+    assert_equal Item.where(variant: Item::Variants::FILE).count, Binary.count
     Item.where(variant: Item::Variants::FILE).each do |it|
-      assert_equal 1, it.bytestreams.count
+      assert_equal 1, it.binaries.count
     end
     Item.where(variant: Item::Variants::DIRECTORY).each do |it|
-      assert_empty it.bytestreams
+      assert_empty it.binaries
     end
   end
 
-  test 'ingest_items with IngestMode::UPDATE_BYTESTREAMS and compound object
+  test 'ingest_items with IngestMode::UPDATE_BINARIES and compound object
   profile collection' do
     # Set up the fixture data.
     item_uuid = '3aa7dd70-e946-0133-1d3d-0050569601ca-d'
@@ -400,27 +400,27 @@ class MedusaIngesterTest < ActiveSupport::TestCase
     # Record initial conditions.
     start_num_items = Item.count
 
-    # Delete all bytestreams.
-    Bytestream.destroy_all
+    # Delete all binaries.
+    Binary.destroy_all
 
     # "Ingest" the items again.
     result = @instance.ingest_items(
-        collection, MedusaIngester::IngestMode::UPDATE_BYTESTREAMS)
+        collection, MedusaIngester::IngestMode::UPDATE_BINARIES)
 
-    # Assert that the bytestreams were created.
+    # Assert that the binaries were created.
     assert_equal 4, result[:num_updated]
-    assert_equal Bytestream.count, result[:num_updated] * 2
+    assert_equal Binary.count, result[:num_updated] * 2
     assert_equal start_num_items, Item.count
-    assert_equal Item.count * 2 - 2, Bytestream.count
+    assert_equal Item.count * 2 - 2, Binary.count
     Item.where(variant: Item::Variants::PAGE).each do |it|
-      assert_equal 2, it.bytestreams.count
+      assert_equal 2, it.binaries.count
     end
     Item.where('variant != ?', Item::Variants::PAGE).each do |it|
-      assert_equal 2, it.bytestreams.count
+      assert_equal 2, it.binaries.count
     end
   end
 
-  test 'ingest_items with IngestMode::UPDATE_BYTESTREAMS and single-item object
+  test 'ingest_items with IngestMode::UPDATE_BINARIES and single-item object
   profile collection' do
     # Set up the fixture data.
     collection = collections(:single_item_object_collection)
@@ -435,19 +435,19 @@ class MedusaIngesterTest < ActiveSupport::TestCase
     # Record initial conditions.
     start_num_items = Item.count
 
-    # Delete all bytestreams.
-    Bytestream.destroy_all
+    # Delete all binaries.
+    Binary.destroy_all
 
     # "Ingest" the items again.
     result = @instance.ingest_items(
-        collection, MedusaIngester::IngestMode::UPDATE_BYTESTREAMS)
+        collection, MedusaIngester::IngestMode::UPDATE_BINARIES)
 
-    # Assert that the bytestreams were created.
+    # Assert that the binaries were created.
     assert_equal 4, result[:num_updated]
-    assert_equal Bytestream.count, result[:num_updated] * 2
+    assert_equal Binary.count, result[:num_updated] * 2
     assert_equal start_num_items, Item.count
-    assert_equal Item.count * 2, Bytestream.count
-    Item.all.each { |it| assert_equal 2, it.bytestreams.count }
+    assert_equal Item.count * 2, Binary.count
+    Item.all.each { |it| assert_equal 2, it.binaries.count }
   end
 
 end
