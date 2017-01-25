@@ -4,7 +4,6 @@ gem 'rails', '4.2.7'
 
 gem 'bootstrap-sass', '~> 3.3.6'
 gem 'browser'
-gem 'curb' # Used by the Medusa Downloader Client
 gem 'daemons' # enables bin/delayed_job start/stop
 gem 'delayed_job_active_record'
 gem 'draper' # Provides decorators
