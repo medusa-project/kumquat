@@ -162,9 +162,7 @@ class MedusaIngester
                           collection_repository_id: collection.repository_id,
                           variant: Item::Variants::DIRECTORY)
           # Assign a title of the directory name.
-          e = item.elements.build
-          e.name = 'title'
-          e.value = dir.name
+          item.elements.build(name: 'title', value: dir.name)
           item.save!
           status[:num_created] += 1
         end
@@ -274,6 +272,8 @@ class MedusaIngester
             "creating item #{top_item_dir.uuid}")
         item = Item.new(repository_id: top_item_dir.uuid,
                         collection_repository_id: collection.repository_id)
+        # Assign a title of the directory name.
+        item.elements.build(name: 'title', value: top_item_dir.name)
         status[:num_created] += 1
       end
       if top_item_dir.directories.any?
@@ -297,6 +297,8 @@ class MedusaIngester
                 child = Item.new(repository_id: pres_file.uuid,
                                  collection_repository_id: collection.repository_id,
                                  parent_repository_id: item.repository_id)
+                # Assign a title of the filename.
+                child.elements.build(name: 'title', value: pres_file.name)
                 status[:num_created] += 1
               end
 
