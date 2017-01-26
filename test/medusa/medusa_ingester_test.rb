@@ -136,9 +136,11 @@ class MedusaIngesterTest < ActiveSupport::TestCase
 
     # Inspect an individual item more thoroughly.
     item = Item.find_by_repository_id('2066c390-e946-0133-1d3d-0050569601ca-d')
+    assert_equal 'afm0002389', item.title
     assert_nil item.variant
     assert_empty item.items
     assert_equal 2, item.binaries.length
+
     bs = item.binaries.select{ |b| b.binary_type == Binary::Type::PRESERVATION_MASTER }.first
     assert_equal 'image/tiff', bs.media_type
     assert_equal 28184152, bs.byte_size
@@ -176,6 +178,7 @@ class MedusaIngesterTest < ActiveSupport::TestCase
 
     # Inspect the item.
     item = Item.find_by_repository_id(item_uuid)
+    assert_equal 'afm0003060', item.title
     assert_nil item.variant
     assert_equal 4, item.items.length
     assert_equal 0, item.binaries.length
@@ -183,6 +186,7 @@ class MedusaIngesterTest < ActiveSupport::TestCase
     # Inspect the first child item.
     child = item.items.
         select{ |it| it.repository_id == '458f3300-e949-0133-1d3d-0050569601ca-7' }.first
+    assert_equal 'afm0003060a.tif', child.title
     assert_equal Item::Variants::PAGE, child.variant
     assert_equal 2, child.binaries.length
 
