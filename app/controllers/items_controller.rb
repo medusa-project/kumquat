@@ -16,17 +16,20 @@ class ItemsController < WebsiteController
   before_action :authorize_api_user, only: [:create, :destroy]
   before_action :check_api_content_type, only: :create
   before_action :enable_cors, only: [:iiif_annotation, :iiif_canvas,
-                                     :iiif_manifest, :iiif_sequence]
+                                     :iiif_manifest, :iiif_media_sequence,
+                                     :iiif_sequence]
   skip_before_action :verify_authenticity_token, only: [:create, :destroy]
 
   # Other actions
   before_action :load_item, only: [:access_master_binary, :files,
                                    :iiif_annotation, :iiif_canvas,
-                                   :iiif_manifest, :iiif_sequence, :pages,
+                                   :iiif_manifest, :iiif_media_sequence,
+                                   :iiif_sequence, :pages,
                                    :preservation_master_binary, :show]
   before_action :authorize_item, only: [:access_master_binary, :files,
                                         :iiif_annotation, :iiif_canvas,
-                                        :iiif_manifest, :iiif_sequence, :pages,
+                                        :iiif_manifest, :iiif_media_sequence,
+                                        :iiif_sequence, :pages,
                                         :preservation_master_binary]
   before_action :authorize_item, only: :show, unless: :using_api?
   before_action :set_browse_context, only: :index
@@ -138,6 +141,39 @@ class ItemsController < WebsiteController
     render 'items/iiif_presentation_api/manifest',
            formats: :json,
            content_type: 'application/json'
+  end
+
+  ##
+  # Serves IIIF Presentation API 2.1 media sequences.
+  #
+  # Responds to GET /items/:id/media-sequence/:name
+  #
+  def iiif_media_sequence
+    @media_sequence_name = params[:name]
+    case @media_sequence_name
+      when 'item'
+        if @item.items.count > 0
+          @start_canvas_item = @item.items.first
+          render 'items/iiif_presentation_api/media_sequence',
+                 formats: :json,
+                 content_type: 'application/json'
+        else
+          render text: 'This object does not have an item media sequence.',
+                 status: :not_found
+        end
+      when 'page'
+        if @item.pages.count > 0
+          @start_canvas_item = @item.title_item || @item.pages.first
+          render 'items/iiif_presentation_api/media_sequence',
+                 formats: :json,
+                 content_type: 'application/json'
+        else
+          render text: 'This object does not have a page media sequence.',
+                 status: :not_found
+        end
+      else
+        render text: 'Sequence not available.', status: :not_found
+    end
   end
 
   ##

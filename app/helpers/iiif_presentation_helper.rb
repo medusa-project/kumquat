@@ -67,6 +67,31 @@ module IiifPresentationHelper
   # @param item [Item]
   # @return [Array]
   #
+  def iiif_media_sequences_for(item)
+    if item.variant == Item::Variants::FILE and item.is_pdf?
+      sequences = [
+          {
+              '@id': item_iiif_media_sequence_url(item, :page),
+              '@type': 'ixif:MediaSequence',
+              label: 'XSequence 0',
+              elements: [
+                  '@id': item_access_master_binary_url(item),
+                  '@type': 'foaf:Document',
+                  format: item.access_master_binary.media_type,
+                  label: item.title,
+                  metadata: [],
+                  thumbnail: thumbnail_url(item)
+              ]
+          }
+      ]
+    end
+    sequences
+  end
+
+  ##
+  # @param item [Item]
+  # @return [Array]
+  #
   def iiif_metadata_for(item)
     elements = []
     item.collection.metadata_profile.elements.select(&:visible).each do |pe|
