@@ -55,6 +55,9 @@ else
                 format: 'application/json' })
 end
 
+# List of media sequences
+json.mediaSequences iiif_media_sequences_for(@item)
+
 # List of sequences
 json.sequences iiif_sequences_for(@item)
 
