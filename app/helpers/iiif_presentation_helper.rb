@@ -75,9 +75,9 @@ module IiifPresentationHelper
               '@type': 'ixif:MediaSequence',
               label: 'XSequence 0',
               elements: [
-                  '@id': item_access_master_binary_url(item),
+                  '@id': item_access_master_bytestream_url(item),
                   '@type': 'foaf:Document',
-                  format: item.access_master_binary.media_type,
+                  format: item.access_master_bytestream.media_type,
                   label: item.title,
                   metadata: [],
                   thumbnail: thumbnail_url(item)
