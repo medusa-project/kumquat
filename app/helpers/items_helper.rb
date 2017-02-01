@@ -1153,7 +1153,7 @@ module ItemsHelper
     # IMET-473: image files should be presented in the same manner as compound
     # objects, with a gallery viewer showing all of the other images in the
     # same directory.
-    elsif item.variant == Item::Variants::FILE
+    elsif item.variant == Item::Variants::FILE and !item.is_pdf?
       return compound_viewer_for(item.parent, item)
     elsif item.is_compound?
       return compound_viewer_for(item)
