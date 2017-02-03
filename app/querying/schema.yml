@@ -24,6 +24,8 @@
 #########################################################################
 
 fieldTypes:
+    # Natural/human sort field whose goal is to sort pretty much like Finder
+    # or Explorer would sort files.
   - name: 'text_en_natural'
     class: 'solr.TextField'
     autoGeneratePhraseQueries: 'true'
@@ -50,11 +52,6 @@ fieldTypes:
         - class: 'solr.PatternReplaceFilterFactory'
           pattern: '0*([0-9]{6,})'
           replacement: '$1'
-          replace: 'all'
-          # Remove all but alphanumeric characters
-        - class: 'solr.PatternReplaceFilterFactory'
-          pattern: '([^a-z0-9])'
-          replacement:
           replace: 'all'
 
 #########################################################################
