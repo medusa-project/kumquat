@@ -81,8 +81,8 @@ class MedusaCfsFile
     bs.cfs_file_uuid = self.uuid
     bs.repository_relative_pathname =
         '/' + self.repository_relative_pathname.reverse.chomp('/').reverse
-    bs.byte_size = File.size(bs.absolute_local_pathname)
     bs.infer_media_type # The type of the CFS file is likely to be vague.
+    bs.read_size
     bs.read_dimensions
     bs
   end

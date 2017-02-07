@@ -142,6 +142,13 @@ class Binary < ActiveRecord::Base
     end
   end
 
+  ##
+  # @return [Integer]
+  #
+  def read_size
+    self.byte_size = File.size(self.absolute_local_pathname)
+  end
+
   def serializable_hash(opts)
     {
         type: self.human_readable_type,
