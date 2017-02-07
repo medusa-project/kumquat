@@ -462,35 +462,47 @@ LIMIT 1000;
   end
 
   ##
-  # @return [Integer] Number of public objects in the collection.
-  #
-  def num_public_objects
-    unless @num_public_objects
-      query = Item.solr.
-          where(Item::SolrFields::COLLECTION => self.repository_id).
-          where(Item::SolrFields::PUBLISHED => true).
-          where(Item::SolrFields::COLLECTION_PUBLISHED => true)
-      if self.package_profile != PackageProfile::FREE_FORM_PROFILE
-        query = query.where(Item::SolrFields::PARENT_ITEM => :null)
-      end
-      @num_public_objects = query.count
-    end
-    @num_public_objects
-  end
-
-  ##
   # @return [Integer] Number of objects in the collection, public or not.
   #
   def num_objects
     unless @num_objects
-      query = Item.solr.
-          where(Item::SolrFields::COLLECTION => self.repository_id)
-      if self.package_profile != PackageProfile::FREE_FORM_PROFILE
-        query = query.where(Item::SolrFields::PARENT_ITEM => :null)
+      case self.package_profile
+        when PackageProfile::FREE_FORM_PROFILE
+          query = Item.solr.
+              where(Item::SolrFields::COLLECTION => self.repository_id).
+              where(Item::SolrFields::VARIANT => Item::Variants::FILE)
+        else
+          query = Item.solr.
+              where(Item::SolrFields::COLLECTION => self.repository_id).
+              where(Item::SolrFields::PARENT_ITEM => :null)
       end
       @num_objects = query.count
     end
     @num_objects
+  end
+
+  ##
+  # @return [Integer] Number of public objects in the collection.
+  #
+  def num_public_objects
+    unless @num_public_objects
+      case self.package_profile
+        when PackageProfile::FREE_FORM_PROFILE
+          query = Item.solr.
+              where(Item::SolrFields::COLLECTION => self.repository_id).
+              where(Item::SolrFields::PUBLISHED => true).
+              where(Item::SolrFields::COLLECTION_PUBLISHED => true).
+              where(Item::SolrFields::VARIANT => Item::Variants::FILE)
+        else
+          query = Item.solr.
+              where(Item::SolrFields::COLLECTION => self.repository_id).
+              where(Item::SolrFields::PUBLISHED => true).
+              where(Item::SolrFields::COLLECTION_PUBLISHED => true).
+              where(Item::SolrFields::PARENT_ITEM => :null)
+      end
+      @num_public_objects = query.count
+    end
+    @num_public_objects
   end
 
   ##
