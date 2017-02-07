@@ -35,16 +35,18 @@ namespace :dls do
       Solr.instance.commit
     end
 
-    desc 'Update the sizes of all binaries'
-    task :update_byte_sizes => :environment do |task|
-      Binary.where('repository_relative_pathname IS NOT NULL').each do |bs|
-        puts bs.repository_relative_pathname
+    desc 'Populate the sizes of all binaries'
+    task :populate_byte_sizes => :environment do |task|
+      Binary.where(byte_size: nil).
+          where('repository_relative_pathname IS NOT NULL').each do |bs|
         pathname = bs.absolute_local_pathname
+        puts pathname
         bs.byte_size = (pathname and File.exist?(pathname) and File.file?(pathname)) ?
             File.size(pathname) : nil
         bs.save!
+        bs.item.index_in_solr
       end
-      puts 'Done. Run dls:items:index to index the updated sizes.'
+      puts 'Done.'
     end
 
     desc 'Update the dimensions of all binaries'

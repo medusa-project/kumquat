@@ -477,21 +477,37 @@ class ItemsController < WebsiteController
     session[:start] = query[:start].to_i if query[:start].present?
     session[:start] = 0 if session[:start] < 0
 
-    ItemFinder.new.
-        client_hostname(request.host).
-        client_ip(request.remote_ip).
-        client_user(current_user).
-        collection_id(session[:collection_id]).
-        query(session[:q]).
-        include_children(session[:q].present?).
-        exclude_variants([Item::Variants::FRONT_MATTER, Item::Variants::INDEX,
-                          Item::Variants::KEY, Item::Variants::PAGE,
-                          Item::Variants::TABLE_OF_CONTENTS,
-                          Item::Variants::TITLE]).
-        filter_queries(session[:fq]).
-        sort(session[:sort]).
-        start(session[:start]).
-        limit(Option::integer(Option::Key::RESULTS_PER_PAGE))
+    # display=leaves is used in free-form collections to show files flattened.
+    if params[:display] == 'leaves'
+      ItemFinder.new.
+          client_hostname(request.host).
+          client_ip(request.remote_ip).
+          client_user(current_user).
+          collection_id(session[:collection_id]).
+          query(session[:q]).
+          include_children(true).
+          include_variants([Item::Variants::FILE]).
+          filter_queries(session[:fq]).
+          sort(session[:sort]).
+          start(session[:start]).
+          limit(Option::integer(Option::Key::RESULTS_PER_PAGE))
+    else
+      ItemFinder.new.
+          client_hostname(request.host).
+          client_ip(request.remote_ip).
+          client_user(current_user).
+          collection_id(session[:collection_id]).
+          query(session[:q]).
+          include_children(session[:q].present?).
+          exclude_variants([Item::Variants::FRONT_MATTER, Item::Variants::INDEX,
+                            Item::Variants::KEY, Item::Variants::PAGE,
+                            Item::Variants::TABLE_OF_CONTENTS,
+                            Item::Variants::TITLE]).
+          filter_queries(session[:fq]).
+          sort(session[:sort]).
+          start(session[:start]).
+          limit(Option::integer(Option::Key::RESULTS_PER_PAGE))
+    end
   end
 
   def load_item
