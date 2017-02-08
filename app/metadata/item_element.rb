@@ -61,6 +61,9 @@ class ItemElement < EntityElement
       raise ArgumentError, "Element does not exist: #{element_name}"
     end
 
+    # Strip out newlines and tabs.
+    string = string.gsub("\r", '').gsub("\n", '').gsub("\t", '')
+
     elements = []
     if string.present?
       string.split(Item::TSV_MULTI_VALUE_SEPARATOR).select(&:present?).each do |raw_value|
