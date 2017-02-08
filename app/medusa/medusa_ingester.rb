@@ -415,8 +415,8 @@ class MedusaIngester
       bs.binary_type = Binary::Type::PRESERVATION_MASTER
       bs.repository_relative_pathname =
           '/' + file.repository_relative_pathname.reverse.chomp('/').reverse
-      bs.byte_size = File.size(bs.absolute_local_pathname)
       bs.media_type = file.media_type
+      bs.read_size
 
       # Find and create the access master binary.
       begin
@@ -846,8 +846,8 @@ class MedusaIngester
         bs.binary_type = Binary::Type::PRESERVATION_MASTER
         bs.repository_relative_pathname =
             '/' + file.repository_relative_pathname.reverse.chomp('/').reverse
-        bs.byte_size = File.size(bs.absolute_local_pathname)
         bs.media_type = file.media_type
+        bs.read_size
         bs.save!
 
         # Find and create the access master binary.
