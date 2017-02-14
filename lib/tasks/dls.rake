@@ -24,12 +24,7 @@ namespace :dls do
         Collection.all.each do |collection|
           next if collection.items.count == 0
           puts collection.title
-          warnings = []
-          MedusaIngester.new.ingest_items(collection,
-                                          MedusaIngester::IngestMode::UPDATE_BINARIES,
-                                          { extract_metadata: false },
-                                          warnings)
-          warnings.each { |w| puts w }
+          MedusaIngester.new.update_binaries(collection)
         end
       end
       Solr.instance.commit
