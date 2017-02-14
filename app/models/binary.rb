@@ -8,6 +8,8 @@ class Binary < ActiveRecord::Base
     PRESERVATION_MASTER = 0
   end
 
+  # touch: true means when the instance is saved, the owning item's updated_at
+  # property will be updated.
   belongs_to :item, inverse_of: :binaries, touch: true
 
   @@formats = YAML::load(File.read("#{Rails.root}/lib/formats.yml"))
@@ -76,7 +78,7 @@ class Binary < ActiveRecord::Base
 
   ##
   # @return [Boolean] Whether the binary is of a still or moving raster image
-  #                   with pixel dimensions.
+  #                   (video) with pixel dimensions.
   #
   def is_raster?
     is_image? or is_video?
