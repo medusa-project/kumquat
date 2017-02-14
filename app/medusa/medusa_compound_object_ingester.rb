@@ -268,8 +268,9 @@ class MedusaCompoundObjectIngester
               item.binaries.destroy_all
 
               # Create the preservation master binary.
-              item.binaries << pres_dir.files.first.
-                  to_binary(Binary::Type::PRESERVATION_MASTER)
+              pres_file = pres_dir.files.first
+              item.binaries <<
+                  pres_file.to_binary(Binary::Type::PRESERVATION_MASTER)
 
               # Find and create the access master binary.
               begin
