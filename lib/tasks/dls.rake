@@ -30,6 +30,15 @@ namespace :dls do
       Solr.instance.commit
     end
 
+    desc 'Update binaries in a collection'
+    task :update_collection, [:uuid] => :environment do |task, args|
+      collection = Collection.find_by_repository_id(args[:uuid])
+      ActiveRecord::Base.transaction do
+        MedusaIngester.new.update_binaries(collection)
+      end
+      Solr.instance.commit
+    end
+
     desc 'Populate the sizes of all binaries'
     task :populate_byte_sizes => :environment do |task|
       Binary.where(byte_size: nil).
