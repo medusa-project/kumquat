@@ -336,6 +336,7 @@ module Admin
             end
           end
         end
+        Solr.instance.commit
         flash['success'] = "#{num_updated} items updated."
       end
       redirect_to :back
