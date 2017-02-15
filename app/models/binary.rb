@@ -60,6 +60,45 @@ class Binary < ActiveRecord::Base
     nil
   end
 
+  ##
+  # @return [String] IIIF Image API identifier of the binary, regardless of
+  #                  whether it is compatible with an image server.
+  #
+  def iiif_image_identifier
+    self.cfs_file_uuid
+  end
+
+  ##
+  # @return [String] IIIF Image API URL of the binary, regardless of whether it
+  #                  is compatible with an image server.
+  #
+  def iiif_image_url
+    Configuration.instance.iiif_url + '/' +
+        CGI.escape(self.iiif_image_identifier)
+  end
+
+  ##
+  # @return [String] IIIF info.json URL.
+  #
+  def iiif_info_url
+    self.iiif_image_url + '/info.json'
+  end
+
+  ##
+  # @return [Boolean] Whether the instance is presumed safe to feed to an
+  #                   image server (won't bog it down too much).
+  #
+  def iiif_safe?
+    max_tiff_size = 30000000 # arbitrary
+    return false if self.repository_relative_pathname.blank?
+    return false unless self.is_image? or self.is_pdf? or self.is_video?
+    # Large TIFF preservation masters are probably neither tiled nor
+    # multiresolution, so are going to be very inefficient to read.
+    return false if self.media_type == 'image/tiff' and
+        self.byte_size > max_tiff_size
+    true
+  end
+
   def infer_media_type
     self.media_type = MIME::Types.of(self.absolute_local_pathname).first.to_s
   end

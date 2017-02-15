@@ -18,17 +18,16 @@ module Admin
       @limit = Option::integer(Option::Key::RESULTS_PER_PAGE)
       @start = params[:start] ? params[:start].to_i : 0
 
-      @collections = Collection.solr.order(Collection::SolrFields::TITLE).limit(@limit)
+      @collections = Collection.solr.order(Collection::SolrFields::TITLE).
+          start(@start).limit(@limit)
       # Will be true when searching/filtering.
       if params[:published].present?
         where = "(*#{params[:q].gsub(' ', '*')}*)"
-        @collections.where("#{Collection::SolrFields::TITLE}:#{where}").
+        @collections = @collections.where("#{Collection::SolrFields::TITLE}:#{where}").
             filter(Collection::SolrFields::PUBLISHED =>
                        params[:published].to_s == '1' ? true : false).
             filter(Collection::SolrFields::PUBLISHED_IN_DLS =>
                        params[:published_in_dls].to_s == '1' ? true : false)
-      else
-        @collections.start(@start)
       end
       @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
     end

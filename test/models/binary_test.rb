@@ -56,6 +56,26 @@ class BinaryTest < ActiveSupport::TestCase
     assert_equal 'Access Master', binaries(:item1_two).human_readable_type
   end
 
+  # iiif_image_identifier()
+
+  test 'iiif_image_identifier() should return the correct identifier' do
+    assert_equal @binary.cfs_file_uuid, @binary.iiif_image_identifier
+  end
+
+  # iiif_image_url()
+
+  test 'iiif_image_url() should return the correct URL' do
+    assert_equal Configuration.instance.iiif_url + '/' + @binary.cfs_file_uuid,
+                 @binary.iiif_image_url
+  end
+
+  # iiif_info_url()
+
+  test 'iiif_info_url() should return the correct URL' do
+    assert_equal Configuration.instance.iiif_url + '/' + @binary.cfs_file_uuid + '/info.json',
+                 @binary.iiif_info_url
+  end
+
   # infer_media_type()
 
   test 'infer_media_type() should work properly' do

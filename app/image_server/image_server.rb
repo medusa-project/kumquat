@@ -24,7 +24,7 @@ class ImageServer
   # @raises [Exception]
   #
   def purge_item_from_cache(item)
-    identifier = item.iiif_identifier
+    identifier = item.iiif_image_binary&.iiif_image_identifier
     if identifier
       uri = Configuration.instance.image_server_api_endpoint +
           '/cache/' + CGI::escape(identifier)
