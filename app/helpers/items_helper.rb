@@ -236,18 +236,6 @@ module ItemsHelper
   end
 
   ##
-  # @param binary [Binary]
-  # @return [String, nil] Base IIIF URL or nil if the binary is not an image.
-  #
-  def iiif_binary_url(binary)
-    if binary and (binary.is_image? or binary.is_pdf?)
-      id = binary.repository_relative_pathname.reverse.chomp('/').reverse
-      return Configuration.instance.iiif_url + '/' + CGI.escape(id)
-    end
-    nil
-  end
-
-  ##
   # @param item [Item]
   # @param size [Integer]
   # @param shape [Symbol] :default or :square
@@ -1215,10 +1203,10 @@ module ItemsHelper
   #
   def binary_image_url(binary, size, shape = :default)
     url = nil
-    if (binary.is_image? or binary.is_pdf?) and binary.repository_relative_pathname
+    if binary.is_image? or binary.is_pdf?
       shape = (shape == :square) ? 'square' : 'full'
       url = sprintf('%s/%s/!%d,%d/0/default.jpg',
-                     iiif_binary_url(binary), shape, size, size)
+                     binary.iiif_image_url, shape, size, size)
     end
     url
   end

@@ -51,7 +51,7 @@ module IiifPresentationHelper
               'format': bs.media_type,
               service: {
                   '@context': 'http://iiif.io/api/image/2/context.json',
-                  '@id': iiif_binary_url(bs),
+                  '@id': bs.iiif_image_url,
                   profile: 'http://iiif.io/api/image/2/profiles/level2.json'
               },
               height: bs.height,

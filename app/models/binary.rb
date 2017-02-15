@@ -60,6 +60,14 @@ class Binary < ActiveRecord::Base
     nil
   end
 
+  ##
+  # @return [String] IIIF Image API URL of the binary, regardless of whether it
+  #                  is compatible with an image server.
+  #
+  def iiif_image_url
+    Configuration.instance.iiif_url + '/' + CGI.escape(self.cfs_file_uuid)
+  end
+
   def infer_media_type
     self.media_type = MIME::Types.of(self.absolute_local_pathname).first.to_s
   end
