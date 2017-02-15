@@ -243,15 +243,13 @@ module ItemsHelper
   #
   def iiif_image_url(item, size, shape = :default)
     url = nil
-    if item.is_image? or item.is_pdf? or item.is_video?
-      bs = item.access_master_binary || item.preservation_master_binary
-      if bs.repository_relative_pathname and iiif_safe?(bs)
-        shape = (shape == :square) ? 'square' : 'full'
-        # ?time= is a nonstandard argument supported only by Cantaloupe,
-        # applicable only to videos.
-        url = sprintf('%s/%s/!%d,%d/0/default.jpg?time=00:00:20',
-                      item.iiif_url, shape, size, size)
-      end
+    bin = item.iiif_image_binary
+    if bin
+      shape = (shape == :square) ? 'square' : 'full'
+      # ?time= is a nonstandard argument supported only by Cantaloupe,
+      # applicable only to videos.
+      url = sprintf('%s/%s/!%d,%d/0/default.jpg?time=00:00:20',
+                    bin.iiif_image_url, shape, size, size)
     end
     url
   end
@@ -1471,35 +1469,12 @@ module ItemsHelper
     raw(html)
   end
 
-  ##
-  # @param binary [Binary]
-  # @return [Boolean] Whether the given binary is presumed safe to feed to an
-  #                   image server (won't bog it down too much).
-  #
-  def iiif_safe?(binary)
-    max_size = 30000000 # arbitrary
-
-    return false if !binary or binary.repository_relative_pathname.blank?
-
-    # Large TIFF preservation masters are probably neither tiled nor
-    # multiresolution, so are going to be very inefficient to read.
-    if binary.binary_type == Binary::Type::PRESERVATION_MASTER and
-        binary.media_type == 'image/tiff'
-      begin
-        return false if binary.byte_size > max_size
-      rescue
-        return false
-      end
-    end
-    true
-  end
-
   def image_viewer_for(item)
     html = ''
     # If there is no access master, and the preservation master is too large,
     # render an alert instead of the viewer.
     if !item.access_master_binary and
-        !iiif_safe?(item.preservation_master_binary)
+        !item.preservation_master_binary&.iiif_safe?
       html += '<div class="alert alert-info">Preservation master image is too
           large to display, and no access master is available.</div>'
     else

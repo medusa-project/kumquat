@@ -30,8 +30,8 @@ parent_item = item.is_compound? ? item : item.parent
                       <%= radio_button_tag('pt-embeddable-item', nil,
                                            (item.is_compound? ? (index == 0) : (item == subitem)),
                                            data: {
-                                               'iiif-url': subitem.iiif_url,
-                                               'iiif-info-url': subitem.iiif_info_url,
+                                               'iiif-url': subitem.iiif_image_binary&.iiif_image_url,
+                                               'iiif-info-url': subitem.iiif_image_binary&.iiif_info_url,
                                                title: subitem.title
                                            }) %>
                       <%= thumbnail_tag(subitem) %>
@@ -52,8 +52,8 @@ parent_item = item.is_compound? ? item : item.parent
           <% else %>
             <div class="col-sm-6">
               <%= hidden_field_tag('pt-embeddable-item', nil, data: {
-                  'iiif-url': item.iiif_url,
-                  'iiif-info-url': item.iiif_info_url,
+                  'iiif-url': item.iiif_image_binary&.iiif_image_url,
+                  'iiif-info-url': item.iiif_image_binary&.iiif_info_url,
                   title: item.title
               }) %>
               <div id="iiif-download"></div>

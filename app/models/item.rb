@@ -437,51 +437,26 @@ class Item < ActiveRecord::Base
   end
 
   ##
-  # @return [String,nil]
-  #
-  def iiif_identifier
-    id = nil
-    bs = self.access_master_binary
-    if !bs or (!bs.is_image? and !bs.is_pdf? and !bs.is_video?)
-      bs = self.preservation_master_binary
-      if !bs or (!bs.is_image? and !bs.is_pdf? and !bs.is_video?)
-        bs = nil
-      end
-    end
-    if bs
-      id = bs.repository_relative_pathname.reverse.chomp('/').reverse
-    end
-    id
-  end
-
-  ##
-  # @return [String, nil] IIIF info.json URL, or nil if the instance is not an
-  #                       image.
-  #
-  def iiif_info_url
-    url = self.iiif_url
-    url ? "#{url}/info.json" : nil
-  end
-
-  ##
-  # @return [String,nil]
-  #
-  def iiif_url
-    url = nil
-    id = self.iiif_identifier
-    if id
-      url = Configuration.instance.iiif_url + '/' + CGI.escape(id)
-    end
-    url
-  end
-
-  ##
   # @return [Boolean]
   #
   def has_iiif_manifest?
     self.is_compound? or
         [Variants::DIRECTORY, Variants::FILE].include?(self.variant) or
         !self.variant
+  end
+
+  ##
+  # @return [Binary,nil] Best binary to use with an IIIF image server.
+  #
+  def iiif_image_binary
+    bs = self.access_master_binary
+    if !bs or !bs.iiif_safe?
+      bs = self.preservation_master_binary
+      if !bs or !bs.iiif_safe?
+        bs = nil
+      end
+    end
+    bs
   end
 
   ##

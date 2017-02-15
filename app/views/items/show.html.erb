@@ -34,7 +34,7 @@
           <i class="fa fa-code"></i>&nbsp;JSON
         <% end %>
       </li>
-      <% iiif_url = @item.iiif_url %>
+      <% iiif_url = @item.iiif_image_binary&.iiif_image_url %>
       <% if iiif_url %>
         <li>
           <%= link_to iiif_url, target: '_blank' do %>

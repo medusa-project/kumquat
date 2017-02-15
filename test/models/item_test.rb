@@ -170,32 +170,14 @@ class ItemTest < ActiveSupport::TestCase
     @item.access_master_binary.repository_relative_pathname = '/bla/bla/cats cats.jpg'
     @item.access_master_binary.media_type = 'image/jpeg'
     @item.binaries.where(binary_type: Binary::Type::PRESERVATION_MASTER).destroy_all
-    assert_equal 'bla/bla/cats cats.jpg', @item.iiif_identifier
+    assert_equal 'bla/bla/cats cats.jpg', @item.iiif_image_binary.iiif_image_identifier
   end
 
   test 'iiif_identifier should fall back to the preservation master binary' do
     @item.binaries.where(binary_type: Binary::Type::ACCESS_MASTER).destroy_all
     @item.preservation_master_binary.repository_relative_pathname = '/bla/bla/cats cats.jpg'
     @item.preservation_master_binary.media_type = 'image/jpeg'
-    assert_equal 'bla/bla/cats cats.jpg', @item.iiif_identifier
-  end
-
-  # iiif_info_url()
-
-  test 'iiif_info_url() should work' do
-    @item.access_master_binary.repository_relative_pathname = '/bla/bla/cats cats.jpg'
-    @item.access_master_binary.media_type = 'image/jpeg'
-    assert_equal Configuration.instance.iiif_url +
-                     '/bla%2Fbla%2Fcats+cats.jpg/info.json', @item.iiif_info_url
-  end
-
-  # iiif_url()
-
-  test 'iiif_url() should work' do
-    @item.access_master_binary.repository_relative_pathname = '/bla/bla/cats cats.jpg'
-    @item.access_master_binary.media_type = 'image/jpeg'
-    assert_equal Configuration.instance.iiif_url +
-                     '/bla%2Fbla%2Fcats+cats.jpg', @item.iiif_url
+    assert_equal 'bla/bla/cats cats.jpg', @item.iiif_image_binary.iiif_image_identifier
   end
 
   # migrate_elements()
