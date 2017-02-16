@@ -6,43 +6,6 @@ class WebsiteController < ApplicationController
   def setup
     super
 
-    @num_items = ItemFinder.new.include_children(true).limit(1).count
-
-    @num_items = ItemFinder.new.
-        client_hostname(request.host).
-        client_ip(request.remote_ip).
-        client_user(current_user).
-        include_children(true).
-        limit(1).count
-    @num_audio_items = ItemFinder.new.
-        client_hostname(request.host).
-        client_ip(request.remote_ip).
-        client_user(current_user).
-        include_children(true).
-        media_types('audio/*').
-        limit(1).count
-    @num_document_items = ItemFinder.new.
-        client_hostname(request.host).
-        client_ip(request.remote_ip).
-        client_user(current_user).
-        include_children(true).
-        media_types('application/pdf').
-        limit(1).count
-    @num_image_items = ItemFinder.new.
-        client_hostname(request.host).
-        client_ip(request.remote_ip).
-        client_user(current_user).
-        include_children(true).
-        media_types('image/*').
-        limit(1).count
-    @num_video_items = ItemFinder.new.
-        client_hostname(request.host).
-        client_ip(request.remote_ip).
-        client_user(current_user).
-        include_children(true).
-        media_types('video/*').
-        limit(1).count
-
     # Data for the nav bar search. If there is a single collection in the
     # current context, use the fields of its metadata profile. Otherwise, use
     # the fields of the default metadata profile.

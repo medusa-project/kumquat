@@ -69,35 +69,20 @@
             </a>
             <ul class="dropdown-menu" role="menu">
               <li>
-                <%= link_to(items_path) do %>
-                  All Items
-                  <span class="badge pt-count"><%= number_with_delimiter(@num_items) %></span>
-                <% end %>
+                <%= link_to('All Items', items_path) %>
               </li>
               <li class="divider"></li>
               <li>
-                <%= link_to(items_path(q: "#{Item::SolrFields::ACCESS_MASTER_MEDIA_TYPE}:image/*")) do %>
-                  Images
-                  <span class="badge pt-count"><%= number_with_delimiter(@num_image_items) %></span>
-                <% end %>
+                <%= link_to('Images', items_path(q: "#{Item::SolrFields::ACCESS_MASTER_MEDIA_TYPE}:image/*")) %>
               </li>
               <li>
-                <%= link_to(items_path(q: "#{Item::SolrFields::ACCESS_MASTER_MEDIA_TYPE}:application/pdf")) do %>
-                  Documents
-                  <span class="badge pt-count"><%= number_with_delimiter(@num_document_items) %></span>
-                <% end %>
+                <%= link_to('Documents', items_path(q: "#{Item::SolrFields::ACCESS_MASTER_MEDIA_TYPE}:application/pdf")) %>
               </li>
               <li>
-                <%= link_to(items_path(q: "#{Item::SolrFields::ACCESS_MASTER_MEDIA_TYPE}:video/*")) do %>
-                  Videos
-                  <span class="badge pt-count"><%= number_with_delimiter(@num_video_items) %></span>
-                <% end %>
+                <%= link_to('Videos', items_path(q: "#{Item::SolrFields::ACCESS_MASTER_MEDIA_TYPE}:video/*")) %>
               </li>
               <li>
-                <%= link_to(items_path(q: "#{Item::SolrFields::ACCESS_MASTER_MEDIA_TYPE}:audio/*")) do %>
-                  Sound Recordings
-                  <span class="badge pt-count"><%= number_with_delimiter(@num_audio_items) %></span>
-                <% end %>
+                <%= link_to('Sound Recordings', items_path(q: "#{Item::SolrFields::ACCESS_MASTER_MEDIA_TYPE}:audio/*")) %>
               </li>
             </ul>
           </li>
