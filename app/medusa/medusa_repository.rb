@@ -39,13 +39,13 @@ class MedusaRepository
   def reload
     raise 'reload() called without ID set' unless self.id.present?
 
-    json_str = Medusa.client.get(self.url + '.json', follow_redirect: true).body
-    rep = JSON.parse(json_str)
-    if rep['status'].to_i < 300 and !Rails.env.test?
+    response = Medusa.client.get(self.url + '.json', follow_redirect: true)
+    json_str = response.body
+    if response.status < 300 and !Rails.env.test?
       FileUtils.mkdir_p("#{Rails.root}/tmp/cache/medusa")
       File.open(cache_pathname, 'wb') { |f| f.write(json_str) }
     end
-    self.medusa_representation = rep
+    self.medusa_representation = JSON.parse(json_str)
     @loaded = true
   end
 
