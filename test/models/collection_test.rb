@@ -68,7 +68,6 @@ cd2d4601-c451-0133-1d17-0050569601ca-8\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n"
     item.elements.build(name: 'title', value: 'aaaaaaaa-e946-0133-1d3d-0050569601ca-f')
     item.save
     expected = "uuid\tparentId\tpreservationMasterPathname\tpreservationMasterFilename\taccessMasterPathname\taccessMasterFilename\tvariant\tpageNumber\tsubpageNumber\tlatitude\tlongitude\tcontentdmAlias\tcontentdmPointer\ttitle\tdescription\tlcsh:subject\ttgm:subject
-a53add10-5ca8-0132-3334-0050569601ca-7\t\t\t\t\t\tDirectory\t\t\t\t\t\t\t\t\t\t
 6e406030-5ce3-0132-3334-0050569601ca-3\ta53add10-5ca8-0132-3334-0050569601ca-7\t\t\t\t\tFile\t\t\t\t\t\t\taaaaaaaa-e946-0133-1d3d-0050569601ca-f\t\t\t
 be8d3500-c451-0133-1d17-0050569601ca-9\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t
 d29edba0-c451-0133-1d17-0050569601ca-c\tbe8d3500-c451-0133-1d17-0050569601ca-9\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t
@@ -79,22 +78,24 @@ cd2d4601-c451-0133-1d17-0050569601ca-8\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n"
 
   # medusa_cfs_directory_id
 
-  test 'medusa_cfs_directory_id must be a UUID' do
-    @col.medusa_cfs_directory_id = 123
+  test 'medusa_cfs_directory_id must be a valid Medusa directory ID' do
+    # set it to a file group UUID
+    @col.medusa_cfs_directory_id = '7afc3e80-b41b-0134-234d-0050569601ca-7'
     assert !@col.valid?
-
-    @col.medusa_cfs_directory_id = '8acdb390-96b6-0133-1ce8-0050569601ca-4'
-    assert @col.valid?
+    # set it to a file UUID
+    @col.medusa_cfs_directory_id = '6cc533c0-cebf-0134-238a-0050569601ca-3'
+    assert !@col.valid?
   end
 
   # meduse_file_group_id
 
-  test 'medusa_file_group_id must be a UUID' do
-    @col.medusa_file_group_id = 123
+  test 'medusa_file_group_id must be a valid Medusa file group ID' do
+    # set it to a directory UUID
+    @col.medusa_file_group_id = '7b1f3340-b41b-0134-234d-0050569601ca-8'
     assert !@col.valid?
-
-    @col.medusa_file_group_id = '8acdb390-96b6-0133-1ce8-0050569601ca-4'
-    assert @col.valid?
+    # set it to a file UUID
+    @col.medusa_file_group_id = '6cc533c0-cebf-0134-238a-0050569601ca-3'
+    assert !@col.valid?
   end
 
   # migrate_item_elements()

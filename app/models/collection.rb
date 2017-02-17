@@ -75,17 +75,10 @@ class Collection < ActiveRecord::Base
   has_and_belongs_to_many :denied_roles, class_name: 'Role',
                           association_foreign_key: :denied_role_id
 
-  validates_format_of :medusa_cfs_directory_id,
-                      with: UUID_REGEX,
-                      message: 'UUID is invalid',
-                      allow_blank: true
-  validates_format_of :medusa_file_group_id,
-                      with: UUID_REGEX,
-                      message: 'UUID is invalid',
-                      allow_blank: true
   validates_format_of :repository_id,
                       with: UUID_REGEX,
                       message: 'UUID is invalid'
+  validate :validate_medusa_uuids
 
   before_validation :do_before_validation
 
@@ -683,7 +676,6 @@ LIMIT 1000;
     doc[SolrFields::METADATA_DESCRIPTION] = self.description
     doc[SolrFields::METADATA_TITLE] = self.title
 
-    doc[SolrFields::PARENT_COLLECTIONS] = self.parents.map(&:repository_id)
     # TODO: this won't work with unpersisted CollectionJoins
     #doc[SolrFields::PARENT_COLLECTIONS] = self.parents.map(&:repository_id)
     doc[SolrFields::PARENT_COLLECTIONS] =
@@ -761,6 +753,20 @@ LIMIT 1000;
     self.medusa_file_group_id&.strip!
     self.representative_image&.strip!
     self.representative_item_id&.strip!
+  end
+
+  def validate_medusa_uuids
+    client = MedusaClient.new
+    if self.medusa_file_group_id.present? and
+        self.medusa_file_group_id_changed? and
+        client.class_of_uuid(self.medusa_file_group_id) != MedusaFileGroup
+      errors.add(:medusa_file_group_id, 'is not a Medusa file group UUID')
+    end
+    if self.medusa_cfs_directory_id.present? and
+        self.medusa_cfs_directory_id_changed? and
+        client.class_of_uuid(self.medusa_cfs_directory_id) != MedusaCfsDirectory
+      errors.add(:medusa_cfs_directory_id, 'is not a Medusa directory UUID')
+    end
   end
 
 end

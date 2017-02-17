@@ -52,9 +52,10 @@ class MedusaCfsFile
   def reload_instance
     raise 'reload_instance() called without UUID set' unless self.uuid.present?
 
-    json_str = Medusa.client.get(self.url + '.json', follow_redirect: true).body
+    response = Medusa.client.get(self.url + '.json', follow_redirect: true)
+    json_str = response.body
     rep = JSON.parse(json_str)
-    if rep['status'].to_i < 300 and !Rails.env.test?
+    if response.status < 300 and !Rails.env.test?
       FileUtils.mkdir_p("#{Rails.root}/tmp/cache/medusa")
       File.open(cache_pathname, 'wb') { |f| f.write(json_str) }
     end
