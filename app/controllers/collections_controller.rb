@@ -45,9 +45,9 @@ class CollectionsController < WebsiteController
       format.html
       format.js
       format.json do
-        render json: @collections.to_a.map do |c|
+        render json: @collections.to_a.map { |c|
           { id: c.repository_id, url: collection_url(c) }
-        end
+        }
       end
     end
   end
