@@ -455,7 +455,7 @@ LIMIT 1000;
   end
 
   ##
-  # @return [Integer] Number of objects in the collection, public or not.
+  # @return [Integer] Number of objects in the collection. The result is cached.
   #
   def num_objects
     unless @num_objects
@@ -476,6 +476,7 @@ LIMIT 1000;
 
   ##
   # @return [Integer] Number of public objects in the collection.
+  #                   The result is cached.
   #
   def num_public_objects
     unless @num_public_objects
@@ -708,6 +709,7 @@ LIMIT 1000;
       if e.message.include?('UUID not found')
         raise ActiveRecord::RecordNotFound, self.repository_id
       end
+      raise e
     end
 
     ActiveRecord::Base.transaction do
