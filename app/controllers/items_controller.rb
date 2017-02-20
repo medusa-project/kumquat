@@ -12,13 +12,9 @@ class ItemsController < WebsiteController
   # Number of children to display per page in show-item view.
   PAGES_LIMIT = 15
 
-  # API actions
-  before_action :authorize_api_user, only: [:create, :destroy]
-  before_action :check_api_content_type, only: :create
   before_action :enable_cors, only: [:iiif_annotation, :iiif_canvas,
                                      :iiif_manifest, :iiif_media_sequence,
                                      :iiif_sequence]
-  skip_before_action :verify_authenticity_token, only: [:create, :destroy]
 
   # Other actions
   before_action :load_item, only: [:access_master_binary, :files,
@@ -31,7 +27,7 @@ class ItemsController < WebsiteController
                                         :iiif_manifest, :iiif_media_sequence,
                                         :iiif_sequence, :pages,
                                         :preservation_master_binary]
-  before_action :authorize_item, only: :show, unless: :using_api?
+  before_action :authorize_item, only: :show
   before_action :set_browse_context, only: :index
 
   ##
@@ -44,38 +40,6 @@ class ItemsController < WebsiteController
   #
   def access_master_binary
     send_binary(@item, Binary::Type::ACCESS_MASTER, params[:disposition])
-  end
-
-  ##
-  # Responds to POST /items (protected by Basic auth)
-  #
-  def create
-    # curl -X POST -u api_user:secret --silent -H "Content-Type: application/xml" -d @"/path/to/file.xml" localhost:3000/items?version=2
-    begin
-      item = ItemXmlIngester.new.ingest_xml(request.body.read,
-                                            params[:version].to_i)
-      url = item_url(item)
-      render text: "OK: #{url}\n", status: :created, location: url
-    rescue => e
-      render text: "#{e}\n\n#{e.backtrace.join("\n")}\n", status: :bad_request
-    end
-  end
-
-  ##
-  # Responds to DELETE /items/:id
-  #
-  def destroy
-    item = Item.find_by_repository_id(params[:id])
-    begin
-      raise ActiveRecord::RecordNotFound unless item
-      item.destroy!
-    rescue ActiveRecord::RecordNotFound => e
-      render text: "#{e}", status: :not_found
-    rescue => e
-      render text: "#{e}", status: :internal_server_error
-    else
-      render text: 'Success'
-    end
   end
 
   ##
@@ -400,23 +364,6 @@ class ItemsController < WebsiteController
       format.json do
         render json: @item.decorate(context: { web: true })
       end
-      format.xml do
-        # Authorization is required for unpublished items.
-        if (@item.collection.published and @item.published) or authorize_api_user
-          version = ItemXmlIngester::SCHEMA_VERSIONS.max
-          if params[:version]
-            if ItemXmlIngester::SCHEMA_VERSIONS.include?(params[:version].to_i)
-              version = params[:version].to_i
-            else
-              render text: "Invalid schema version. Available versions: "\
-                           "#{ItemXmlIngester::SCHEMA_VERSIONS.join(', ')}",
-                     status: :bad_request
-              return
-            end
-          end
-          render xml: @item.to_dls_xml(version)
-        end
-      end
       format.zip do # Used for downloading pages into a zip file.
         client = DownloaderClient.new
         begin
@@ -434,30 +381,9 @@ class ItemsController < WebsiteController
 
   private
 
-  ##
-  # Authenticates a user via HTTP Basic and authorizes by IP address.
-  #
-  def authorize_api_user
-    authenticate_or_request_with_http_basic do |username, secret|
-      config = ::Configuration.instance
-      if username == config.api_user and secret == config.api_secret
-        return config.api_ips.select{ |ip| request.remote_ip.start_with?(ip) }.any?
-      end
-    end
-    false
-  end
-
   def authorize_item
     return unless authorize(@item.collection)
     return unless authorize(@item)
-  end
-
-  def check_api_content_type
-    if request.content_type != 'application/xml'
-      render text: 'Invalid content type.', status: :unsupported_media_type
-      return false
-    end
-    true
   end
 
   ##
@@ -566,10 +492,6 @@ class ItemsController < WebsiteController
     @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
     @pages = @item.pages_from_solr.order(Item::SolrFields::TITLE).
         start(@start).limit(@limit).to_a
-  end
-
-  def using_api?
-    request.format == :xml
   end
 
 end

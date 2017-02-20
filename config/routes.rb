@@ -95,7 +95,7 @@ Rails.application.routes.draw do
           as: 'iiif_presentation'
   end
   resources :favorites, only: :index
-  resources :items, only: [:create, :destroy, :index, :show] do
+  resources :items, only: [:index, :show] do
     match '/access-master', to: 'items#access_master_binary', via: 'get',
           as: :access_master_binary
     match '/files', to: 'items#files', via: 'get', as: :files
