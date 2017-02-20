@@ -21,11 +21,14 @@ class CollectionDecorator < Draper::Decorator
         description: self.description,
         description_html: self.description_html,
         access_url: self.access_url,
+        physical_collection_url: self.physical_collection_url,
         representative_image: self.representative_image,
         representative_item: self.representative_item ?
             item_url(self.representative_item) : nil,
         repository_title: self.medusa_repository.title,
-        resource_types: self.resource_types
+        resource_types: self.resource_types,
+        access_systems: self.access_systems,
+        rights_statement: self.rightsstatements_org_uri
     }
   end
 
