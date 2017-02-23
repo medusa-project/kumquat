@@ -1,6 +1,19 @@
 ##
 # Syncs items in collections that use the Compound Object package profile.
 #
+# The compound object profile looks like:
+# * item_dir
+#     * access
+#         * page1.jp2
+#         * page2.jp2
+#     * preservation
+#         * page1.tif
+#         * page2.tif
+#     * supplementary (optional)
+#         * file (0-*)
+#     * composite
+#         * file (0-*)
+#
 # Clients that don't want to concern themselves with package profiles can
 # use MedusaIngester instead.
 #
@@ -126,6 +139,22 @@ class MedusaCompoundObjectIngester
           msg = "Directory #{top_item_dir.uuid} is missing a preservation "\
               "directory."
           @@logger.warn("MedusaCompoundObjectIngester.create_items(): #{msg}")
+        end
+
+        supplementary_dir = top_item_dir.directories.
+            select{ |d| d.name == 'supplementary' }.first
+        if supplementary_dir
+          supplementary_dir.files.each do |supp_file|
+            item.binaries << supp_file.to_binary(Binary::Type::SUPPLEMENTARY)
+          end
+        end
+
+        composite_dir = top_item_dir.directories.
+            select{ |d| d.name == 'composite' }.first
+        if composite_dir
+          composite_dir.files.each do |comp_file|
+            item.binaries << comp_file.to_binary(Binary::Type::COMPOSITE)
+          end
         end
       else
         msg = "Directory #{top_item_dir.uuid} does not have any subdirectories."
@@ -291,6 +320,29 @@ class MedusaCompoundObjectIngester
                 "directory."
             @@logger.warn("MedusaCompoundObjectIngester.update_binaries(): #{msg}")
           end
+
+          extra_item_binaries = []
+          supplementary_dir = top_item_dir.directories.
+              select{ |d| d.name == 'supplementary' }.first
+          if supplementary_dir
+            supplementary_dir.files.each do |supp_file|
+              extra_item_binaries << supp_file.to_binary(Binary::Type::SUPPLEMENTARY)
+            end
+          end
+
+          composite_dir = top_item_dir.directories.
+              select{ |d| d.name == 'composite' }.first
+          if composite_dir
+            composite_dir.files.each do |comp_file|
+              extra_item_binaries << comp_file.to_binary(Binary::Type::COMPOSITE)
+            end
+          end
+
+          if extra_item_binaries.any?
+            item.binaries += extra_item_binaries
+            item.save!
+            stats[:num_updated] += 1
+          end
         else
           msg = "Directory #{top_item_dir.uuid} does not have any subdirectories."
           @@logger.warn("MedusaCompoundObjectIngester.update_binaries(): #{msg}")
@@ -301,7 +353,6 @@ class MedusaCompoundObjectIngester
       end
       task.update(percent_complete: index / num_directories.to_f) if task
     end
-    stats
 
     # The binaries have been updated, but the image server may still have
     # cached versions of the old ones. Here, we will purge them.
