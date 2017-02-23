@@ -5,7 +5,9 @@ class Binary < ActiveRecord::Base
   #
   class Type
     ACCESS_MASTER = 1
+    COMPOSITE = 3
     PRESERVATION_MASTER = 0
+    SUPPLEMENTARY = 2
   end
 
   # touch: true means when the instance is saved, the owning item's updated_at
@@ -54,8 +56,12 @@ class Binary < ActiveRecord::Base
     case self.binary_type
       when Type::ACCESS_MASTER
         return 'Access Master'
+      when Type::COMPOSITE
+        return 'Composite'
       when Type::PRESERVATION_MASTER
         return 'Preservation Master'
+      when Type::SUPPLEMENTARY
+        return 'Supplementary'
     end
     nil
   end
