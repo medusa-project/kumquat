@@ -78,11 +78,10 @@ class MedusaCompoundObjectIngesterTest < ActiveSupport::TestCase
 
   test 'create_items() should work with compound items' do
     # Set up the fixture data.
-    item_uuid = '3aa7dd70-e946-0133-1d3d-0050569601ca-d'
-    collection = collections(:collection2)
-    collection.medusa_cfs_directory_id = '19c62760-e894-0133-1d3c-0050569601ca-d'
+    item_uuid = '441c6170-c0e6-0134-2373-0050569601ca-5'
+    collection = collections(:myers_collection)
     cfs_dir = collection.effective_medusa_cfs_directory
-    tree = JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_compound_object_tree.json'))
+    tree = JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_myers_collection_tree.json'))
     # Extract a small slice of the tree containing only one top-level item.
     tree['subdirectories'] = tree['subdirectories'].
         select{ |d| d['uuid'] == item_uuid }
@@ -92,32 +91,43 @@ class MedusaCompoundObjectIngesterTest < ActiveSupport::TestCase
     # Run the ingest.
     result = @instance.create_items(collection)
 
-    assert_equal 5, result[:num_created]
+    assert_equal 9, result[:num_created]
 
     # Inspect the parent item.
     item = Item.find_by_repository_id(item_uuid)
-    assert_equal 'afm0003060', item.title
+    assert_equal '1477', item.title
     assert_nil item.variant
-    assert_equal 4, item.items.length
-    assert_equal 0, item.binaries.length
+    assert_equal 8, item.items.length
+    assert_equal 1, item.binaries.length
 
     # Inspect the first child item.
     child = item.items.
-        select{ |it| it.repository_id == '458f3300-e949-0133-1d3d-0050569601ca-7' }.first
-    assert_equal 'afm0003060a.tif', child.title
+        select{ |it| it.repository_id == 'c12cd550-c559-0134-2373-0050569601ca-d' }.first
+    assert_equal '2014_12996_227_001.tif', child.title
     assert_equal Item::Variants::PAGE, child.variant
     assert_equal 2, child.binaries.length
 
-    bs = child.binaries.select{ |b| b.binary_type == Binary::Type::PRESERVATION_MASTER }.first
-    assert_equal 'image/tiff', bs.media_type
-    assert_equal 43204936, bs.byte_size
-    assert_equal '/59/2257/afm0003060/preservation/afm0003060a.tif',
+    # Inspect its supplementary binary.
+    bs = item.binaries.select{ |b| b.binary_type == Binary::Type::SUPPLEMENTARY }.first
+    assert_equal 'application/pdf', bs.media_type
+    assert_equal 95195, bs.byte_size
+    assert_equal '/1164/2754/1477/supplementary/1531.pdf',
                  bs.repository_relative_pathname
 
+    # TODO: inspect composite binary (not available in this collection)
+
+    # Inspect the first child's preservation master.
+    bs = child.binaries.select{ |b| b.binary_type == Binary::Type::PRESERVATION_MASTER }.first
+    assert_equal 'image/tiff', bs.media_type
+    assert_equal 305057420, bs.byte_size
+    assert_equal '/1164/2754/1477/preservation/2014_12996_227_001.tif',
+                 bs.repository_relative_pathname
+
+    # Inspect the first child's access master.
     bs = child.binaries.select{ |b| b.binary_type == Binary::Type::ACCESS_MASTER }.first
     assert_equal 'image/jp2', bs.media_type
-    assert_equal 15095518, bs.byte_size
-    assert_equal '/59/2257/afm0003060/access/afm0003060a.jp2',
+    assert_equal 215051029, bs.byte_size
+    assert_equal '/1164/2754/1477/access/2014_12996_227_001.jp2',
                  bs.repository_relative_pathname
   end
 
@@ -251,11 +261,10 @@ class MedusaCompoundObjectIngesterTest < ActiveSupport::TestCase
 
   test 'update_binaries() should work' do
     # Set up the fixture data.
-    item_uuid = '3aa7dd70-e946-0133-1d3d-0050569601ca-d'
-    collection = collections(:collection2)
-    collection.medusa_cfs_directory_id = '19c62760-e894-0133-1d3c-0050569601ca-d'
+    item_uuid = '441c6170-c0e6-0134-2373-0050569601ca-5'
+    collection = collections(:myers_collection)
     cfs_dir = collection.effective_medusa_cfs_directory
-    tree = JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_compound_object_tree.json'))
+    tree = JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_myers_collection_tree.json'))
     # Extract a small slice of the tree containing only one top-level item.
     tree['subdirectories'] = tree['subdirectories'].
         select{ |d| d['uuid'] == item_uuid }
@@ -263,7 +272,7 @@ class MedusaCompoundObjectIngesterTest < ActiveSupport::TestCase
 
     # Ingest some items.
     result = @instance.create_items(collection)
-    assert_equal 5, result[:num_created]
+    assert_equal 9, result[:num_created]
 
     # Record initial conditions.
     start_num_items = Item.count
@@ -275,16 +284,19 @@ class MedusaCompoundObjectIngesterTest < ActiveSupport::TestCase
     result = @instance.update_binaries(collection)
 
     # Assert that the binaries were created.
-    assert_equal 4, result[:num_updated]
-    assert_equal Binary.count, result[:num_updated] * 2
+    assert_equal 9, result[:num_updated]
+    assert_equal 17, Binary.count
     assert_equal start_num_items, Item.count
-    assert_equal Item.count * 2 - 2, Binary.count
+    Item.where(variant: nil).each do |it|
+      assert_equal 1, it.binaries.count
+    end
     Item.where(variant: Item::Variants::PAGE).each do |it|
       assert_equal 2, it.binaries.count
     end
     Item.where('variant != ?', Item::Variants::PAGE).each do |it|
       assert_equal 2, it.binaries.count
     end
+    # TODO: test composite content (not available in this collection)
   end
 
 end
