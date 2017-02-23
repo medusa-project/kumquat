@@ -255,6 +255,8 @@ class MedusaCompoundObjectIngester
     directories.each_with_index do |top_item_dir, index|
       item = Item.find_by_repository_id(top_item_dir.uuid)
       if item
+        item.binaries.destroy_all
+
         if top_item_dir.directories.any?
           pres_dir = top_item_dir.directories.
               select{ |d| d.name == 'preservation' }.first
