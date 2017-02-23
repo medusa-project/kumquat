@@ -377,7 +377,7 @@ module AdminHelper
         "#{item.published ? 'Published' : 'Unpublished' }</span>"
 
     iiif_url = item.iiif_image_binary&.iiif_image_url
-    data['IIIF URL'] = iiif_url.present? ?
+    data['Primary IIIF Image URL'] = iiif_url.present? ?
         link_to(iiif_url, iiif_url, target: '_blank') : 'None'
 
     data['Variant'] = item.variant
