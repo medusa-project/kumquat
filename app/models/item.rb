@@ -680,6 +680,14 @@ class Item < ActiveRecord::Base
   end
 
   ##
+  # @return [Binary]
+  #
+  def supplementary_binary
+    self.binaries.
+        select{ |b| b.binary_type == Binary::Type::SUPPLEMENTARY }.first
+  end
+
+  ##
   # @return [Item] The item's table-of-contents item, if available.
   #
   def table_of_contents_item
