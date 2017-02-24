@@ -378,6 +378,18 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal 'cats', @item.subtitle
   end
 
+  # supplementary_binary()
+
+  test 'supplementary_binary() should return the supplementary binary, or nil
+  if none exists' do
+    item = Item.new
+    assert_nil item.supplementary_binary
+
+    item.binaries.build(binary_type: Binary::Type::SUPPLEMENTARY)
+    assert_equal Binary::Type::SUPPLEMENTARY,
+                 item.supplementary_binary.binary_type
+  end
+
   # title()
 
   test 'title() should return the title element value, or nil if none exists' do

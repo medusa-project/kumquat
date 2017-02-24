@@ -88,6 +88,7 @@ Rails.application.routes.draw do
   end
   match '/auth/:provider/callback', to: 'sessions#create', via: [:get, :post],
         as: :auth # used by omniauth
+  resources :binaries, only: :show
   resources :collections, only: [:index, :show] do
     resources :items, only: :index
     # IIIF Presentation API 2.1 routes
