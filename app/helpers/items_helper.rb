@@ -232,11 +232,10 @@ module ItemsHelper
   # @return [Boolean]
   #
   def has_viewer?(item)
-    if item.embed_tag.present? or item.is_pdf? or item.is_image? or
-        item.is_audio? or item.is_video?
     # This logic needs to be kept in sync with viewer_for_item().
+    if item.embed_tag.present? or item.is_compound? or item.is_image?
       return true
-    elsif item.is_text?
+    elsif item.is_pdf? or item.is_audio? or item.is_video? or item.is_text?
       bs = item.access_master_binary || item.preservation_master_binary
       return bs.exists?
     end
@@ -1131,6 +1130,25 @@ module ItemsHelper
   end
 
   ##
+  # Returns a viewer for the given binary.
+  #
+  # @param binary [Binary]
+  # @return [String] HTML string
+  #
+  def viewer_for_binary(binary)
+    if binary.is_pdf?
+      return pdf_viewer_for(binary)
+    elsif binary.is_audio?
+      return audio_player_for(binary)
+    elsif binary.is_video?
+      return video_player_for(binary)
+    elsif binary.is_text?
+      return text_viewer_for(binary)
+    end
+    nil
+  end
+
+  ##
   # Returns a viewer for the given item.
   #
   # @param item [Item]
@@ -1145,31 +1163,29 @@ module ItemsHelper
       frag.xpath('.//@height').remove
       # These must be kept in sync with the viewer CSS dimensions.
       frag.xpath('.//*').first['width'] = '100%'
-      frag.xpath('.//*').first['height'] = '400'
+      frag.xpath('.//*').first['height'] = '600'
       return raw(frag.to_html.strip)
     # IMET-473: image files should be presented in the same manner as compound
     # objects, with a gallery viewer showing all of the other images in the
     # same directory.
-    elsif item.variant == Item::Variants::FILE and !item.is_pdf?
+    elsif item.variant == Item::Variants::FILE and item.is_image?
       return compound_viewer_for(item.parent, item)
     elsif item.is_compound?
       return compound_viewer_for(item)
-    elsif item.is_pdf?
-      return pdf_viewer_for(item)
     elsif item.is_image?
       return image_viewer_for(item)
+    elsif item.is_pdf?
+      binary = item.access_master_binary || item.preservation_master_binary
+      return pdf_viewer_for(binary)
     elsif item.is_audio?
-      return audio_player_for(item)
-    elsif item.is_text?
-      bs = item.access_master_binary || item.preservation_master_binary
-      pathname = bs.absolute_local_pathname
-      begin
-        return raw("<pre>#{File.read(pathname)}</pre>")
-      rescue Errno::ENOENT # File not found
-        return ''
-      end
+      binary = item.access_master_binary || item.preservation_master_binary
+      return audio_player_for(binary)
     elsif item.is_video?
-      return video_player_for(item)
+      binary = item.access_master_binary || item.preservation_master_binary
+      return video_player_for(binary)
+    elsif item.is_text?
+      binary = item.access_master_binary || item.preservation_master_binary
+      return text_viewer_for(binary)
     end
     nil
   end
@@ -1188,16 +1204,12 @@ module ItemsHelper
     raw(html)
   end
 
-  def audio_player_for(item)
-    binary = item.binaries.select{ |bs| bs.binary_type == Binary::Type::ACCESS_MASTER }.first
-    url = item_access_master_binary_url(item, disposition: 'inline')
-    unless binary
-      binary = item.binaries.select{ |bs| bs.binary_type == Binary::Type::PRESERVATION_MASTER }.first
-      url = item_preservation_master_binary_url(item, disposition: 'inline')
-    end
+  def audio_player_for(binary)
     html = ''
     if binary
-      html += "<audio src=\"#{url}\" type=\"#{binary.media_type}\" controls>
+      url = binary_url(binary, disposition: 'inline')
+      html += "<audio id=\"pt-audio-player\" src=\"#{url}\" "\
+          "type=\"#{binary.media_type}\" controls>
           <a href=\"#{url}\">Download audio</a>
       </audio>"
     end
@@ -1571,25 +1583,18 @@ module ItemsHelper
     value
   end
 
-  def pdf_viewer_for(item)
-    bs = item.binaries.select{ |bs| bs.binary_type == Binary::Type::ACCESS_MASTER }.first
-    url = item_access_master_binary_url(item, disposition: 'inline')
-    unless bs
-      bs = item.binaries.select{ |bs| bs.binary_type == Binary::Type::PRESERVATION_MASTER }.first
-      url = item_preservation_master_binary_url(item, disposition: 'inline')
-    end
-
-    html = '<div id="pt-pdf-viewer">'
-    if bs
-      viewer_url = asset_path('/pdfjs/web/viewer.html?file=' + url)
+  def pdf_viewer_for(binary)
+    html = ''
+    if binary
+      binary_url = binary_url(binary)
+      viewer_url = asset_path('/pdfjs/web/viewer.html?file=' + binary_url)
+      html += '<div id="pt-pdf-viewer">'
       html += "<iframe src=\"#{viewer_url}\" height=\"100%\" width=\"100%\"></iframe>"
-
-      html += link_to(viewer_url, target: '_blank',
-                      class: 'btn btn-default') do
+      html += link_to(viewer_url, target: '_blank', class: 'btn btn-default') do
         content_tag(:span, '', class: 'fa fa-file-pdf-o') + ' Open in New Window'
       end
+      html += '</div>'
     end
-    html += '</div>'
     raw(html)
   end
 
@@ -1605,11 +1610,29 @@ module ItemsHelper
     raw(html)
   end
 
-  def video_player_for(item)
-    bs = item.access_master_binary
+  ##
+  # @param binary [Binary]
+  # @return [String] HTML <pre> element
+  #
+  def text_viewer_for(binary)
+    html = ''
+    if binary
+      begin
+        html += raw("<pre>#{File.read(binary.absolute_local_pathname)}</pre>")
+      rescue Errno::ENOENT # File not found
+      end
+    end
+    html
+  end
+
+  ##
+  # @param binary [Binary]
+  # @return [String] HTML <video> element
+  #
+  def video_player_for(binary)
     tag = "<video controls id=\"pt-video-player\">
-      <source src=\"#{item_access_master_binary_url(item)}\"
-              type=\"#{bs.media_type}\">
+      <source src=\"#{binary_url(binary)}\"
+              type=\"#{binary.media_type}\">
         Your browser does not support the video tag.
     </video>"
     raw(tag)
