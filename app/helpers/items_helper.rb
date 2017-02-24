@@ -232,9 +232,9 @@ module ItemsHelper
   # @return [Boolean]
   #
   def has_viewer?(item)
-    # This logic needs to be kept in sync with viewer_for().
     if item.embed_tag.present? or item.is_pdf? or item.is_image? or
         item.is_audio? or item.is_video?
+    # This logic needs to be kept in sync with viewer_for_item().
       return true
     elsif item.is_text?
       bs = item.access_master_binary || item.preservation_master_binary
@@ -1131,9 +1131,12 @@ module ItemsHelper
   end
 
   ##
-  # @param item [Item]
+  # Returns a viewer for the given item.
   #
-  def viewer_for(item)
+  # @param item [Item]
+  # @return [String] HTML string
+  #
+  def viewer_for_item(item)
     # This logic needs to be kept in sync with has_viewer?().
     if item.embed_tag.present?
       # Replace hard-coded width/height attribute values.
