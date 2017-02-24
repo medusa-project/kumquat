@@ -208,6 +208,10 @@ class Binary < ActiveRecord::Base
     }
   end
 
+  def to_param
+    cfs_file_uuid
+  end
+
   private
 
   ##
