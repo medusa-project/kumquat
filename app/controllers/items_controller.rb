@@ -396,7 +396,7 @@ class ItemsController < WebsiteController
   # @return [ItemFinder]
   #
   def item_finder_for(query)
-    session[:collection_id] = query[:collection_id] if query[:collection_id].present?
+    session[:collection_id] = query[:collection_id]
     session[:q] = query[:q]
     session[:fq] = query[:fq]
     session[:sort] = query[:sort] if query[:sort].present?
