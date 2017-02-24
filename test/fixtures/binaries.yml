@@ -39,3 +39,4 @@ map_obj1_page1_access:
   repository_relative_pathname: MyString
   item: map_obj1_page1
   media_type: image/jpeg
+  cfs_file_uuid: MyString
