@@ -137,6 +137,19 @@
                        @item.effective_rights_statement) %>
 <% end %>
 
+<% if @item.supplementary_binary %>
+  <section id="pt-supplementary-section">
+    <h2>
+      <a role="button" data-toggle="collapse" href="#pt-binary-<%= @item.supplementary_binary.id %>"
+         aria-expanded="false" aria-controls="pt-binary-<%= @item.supplementary_binary.id %>">
+        Supplementary File</a>
+    </h2>
+    <div id="pt-binary-<%= @item.supplementary_binary.id %>" class="collapse">
+      <%= viewer_for_binary(@item.supplementary_binary) %>
+    </div>
+  </section>
+<% end %>
+
 <% if @item.variant == Item::Variants::DIRECTORY %>
   <section id="pt-files-section">
     <%= render partial: 'files' %>
