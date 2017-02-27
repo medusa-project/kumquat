@@ -9,7 +9,23 @@ var PTTaskRefresher = function() {
 
         var tasks_url = $('input[name="pt-tasks-url"]').val();
         $.get(tasks_url, function (data) {
-            $('#pt-tasks-list').html(data);
+            var tasks_list = $('#pt-tasks-list');
+            tasks_list.html(data);
+
+            // If we are in show-task view, get the ID of the task being viewed
+            // and update the info in the show pane from the tasks list.
+            var task_id = $('input[name=pt-task-id]').val();
+
+            var task_row = tasks_list.find('tr[data-id=' + task_id + ']');
+            var title = task_row.find('.pt-title').text();
+            var status = task_row.find('.pt-status').html();
+            var progress = task_row.find('.pt-progress').text();
+            var started = task_row.find('.pt-started').text();
+
+            $('h1.pt-title').text(title);
+            $('dd.pt-status').html(status);
+            $('dd.pt-progress').text(progress);
+            $('dd.pt-started').text(started);
         });
     };
 
