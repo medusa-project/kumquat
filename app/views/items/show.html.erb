@@ -121,12 +121,32 @@
 
 <%= item_page_title(@item) %>
 
-<% if @previous_result or @next_result or session[:browse_context_url] %>
+<% if @previous_result or @next_result or session[:browse_context_url] or
+    @item.supplementary_binary %>
+  <% if @item.supplementary_binary %>
+    <% # DLD-6: button that pops open the supplementary section is aligned to
+       # the right of the nav buttons %>
+    <div style="float:right">
+      <a role="button" class="btn btn-default btn-sm" data-toggle="collapse"
+         href="#pt-binary-<%= @item.supplementary_binary.id %>"
+         aria-expanded="false" aria-controls="pt-binary-<%= @item.supplementary_binary.id %>">
+        <span class="fa fa-plus-square-o"></span> Supplementary File</a>
+    </div>
+  <% end %>
+
   <% # IMET-487: center the nav buttons above the viewer %>
-  <div class="text-center">
+  <div style="margin: 0 auto; width: 300px; text-align: center">
     <%= render partial: 'navigation_buttons' %>
   </div>
+
+  <% if @item.supplementary_binary %>
+    <div id="pt-binary-<%= @item.supplementary_binary.id %>" class="collapse">
+      <%= viewer_for_binary(@item.supplementary_binary) %>
+    </div>
+    <div class="clearfix">&nbsp;</div>
+  <% end %>
 <% end %>
+
 
 <div class="pt-viewer">
   <%= viewer_for_item(@item) %>
@@ -135,19 +155,6 @@
 <% if has_viewer?(@item) %>
   <%= rights_statement(@item.effective_rightsstatements_org_statement,
                        @item.effective_rights_statement) %>
-<% end %>
-
-<% if @item.supplementary_binary %>
-  <section id="pt-supplementary-section">
-    <h2>
-      <a role="button" data-toggle="collapse" href="#pt-binary-<%= @item.supplementary_binary.id %>"
-         aria-expanded="false" aria-controls="pt-binary-<%= @item.supplementary_binary.id %>">
-        Supplementary File</a>
-    </h2>
-    <div id="pt-binary-<%= @item.supplementary_binary.id %>" class="collapse">
-      <%= viewer_for_binary(@item.supplementary_binary) %>
-    </div>
-  </section>
 <% end %>
 
 <% if @item.variant == Item::Variants::DIRECTORY %>
