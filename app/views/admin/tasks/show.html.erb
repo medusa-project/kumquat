@@ -8,6 +8,7 @@
 </ol>
 
 <%= hidden_field_tag('pt-tasks-url', admin_tasks_url(selected_id: @task.id)) %>
+<%= hidden_field_tag('pt-task-id', @task.id) %>
 
 <div class="row">
   <div class="col-sm-6" id="pt-tasks-list">
@@ -15,11 +16,11 @@
   </div>
 
   <div class="col-sm-6">
-    <h1><%= @task.status_text %></h1>
+    <h1 class="pt-title"><%= @task.status_text %></h1>
 
     <dl>
       <dt>Status</dt>
-      <dd>
+      <dd class="pt-status">
         <p>
           <span class="label <%= bootstrap_class_for_task_status(@task.status) %>">
             <%= Task::Status::to_s(@task.status) %>
@@ -30,13 +31,14 @@
         <% end %>
       </dd>
       <dt>Progress</dt>
-      <dd>
+      <dd class="pt-progress">
         <%= (@task.indeterminate and @task.percent_complete < 1) ?
                 'Indeterminate' :
                 (@task.percent_complete * 100).round(1).to_s + '%' %>
       </dd>
       <dt>Started</dt>
-      <dd><%= @task.started_at ? local_time_ago(@task.started_at) : '' %></dd>
+      <dd class="pt-started">
+        <%= @task.started_at ? local_time_ago(@task.started_at) : '' %></dd>
       <% if @task.completed_at %>
         <dt>Completed In</dt>
         <dd>
