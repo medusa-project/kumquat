@@ -20,10 +20,16 @@ var PTCollectionsView = function() {
                     form.append(input);
                 });
 
+                var query = form.serialize();
+
+                window.history.pushState(
+                    { "html": null, "pageTitle": document.title },
+                    '', '/collections?' + query);
+
                 $.ajax({
                     url: '/collections?',
                     method: 'GET',
-                    data: form.serialize(),
+                    data: query,
                     dataType: 'script',
                     success: function(result) {
                         eval(result);
