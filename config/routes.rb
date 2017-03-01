@@ -119,6 +119,7 @@ Rails.application.routes.draw do
   match '/signin', to: 'sessions#new', via: 'get'
   match '/signout', to: 'sessions#destroy', via: 'delete'
 
+  # Control Panel routes.
   namespace :admin do
     root 'dashboard#index'
 
@@ -181,4 +182,10 @@ Rails.application.routes.draw do
     match '/vocabularies/import', to: 'vocabularies#import', via: 'post',
           as: 'vocabulary_import'
   end
+
+  # REST API routes.
+  namespace :api do
+    root 'landing#index'
+  end
+
 end
