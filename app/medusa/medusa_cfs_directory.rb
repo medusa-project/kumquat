@@ -13,7 +13,7 @@ class MedusaCfsDirectory
   end
 
   ##
-  # @return [Array<MedusaCfsDirectory>]
+  # @return [Enumerable<MedusaCfsDirectory>]
   #
   def directories
     load_contents
@@ -21,7 +21,7 @@ class MedusaCfsDirectory
   end
 
   ##
-  # @return [Array<MedusaCfsFile>]
+  # @return [Enumerable<MedusaCfsFile>]
   #
   def files
     load_contents

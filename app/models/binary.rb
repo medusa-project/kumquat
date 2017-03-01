@@ -147,8 +147,8 @@ class Binary < ActiveRecord::Base
   # Returns metadata for human consumption that is not guaranteed to be in any
   # particular format.
   #
-  # @return [Array<Hash<Symbol,String>>] Array of hashes with :label,
-  #                                      :category, and :value keys.
+  # @return [Enumerable<Hash<Symbol,String>>] Array of hashes with :label,
+  #                                          :category, and :value keys.
   #
   def metadata
     read_metadata unless @metadata_read

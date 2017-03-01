@@ -41,7 +41,8 @@ class ItemFinder < AbstractFinder
   end
 
   ##
-  # @param variants [Array<String>] Array of Item::Variants constant values.
+  # @param variants [Enumerable<String>] Array of Item::Variants constant
+  #                                      values.
   # @return [ItemFinder] self
   #
   def exclude_variants(variants)
@@ -59,8 +60,9 @@ class ItemFinder < AbstractFinder
   end
 
   ##
-  # @param variants [Array<String>] Array of Item::Variants constant values.
-  #                                 Supply a nil value to specify no variant.
+  # @param variants [Enumerable<String>, nil] Array of Item::Variants constant
+  #                                           values. Supply nil to specify no
+  #                                           variant.
   # @return [ItemFinder] self
   #
   def include_variants(variants)

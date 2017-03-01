@@ -35,7 +35,7 @@ class MetadataProfile < ActiveRecord::Base
   end
 
   ##
-  # @return [Array<MetadataProfileElement>]
+  # @return [Enumerable<MetadataProfileElement>]
   #
   def self.default_elements
     defs = []

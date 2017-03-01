@@ -104,7 +104,7 @@ class Collection < ActiveRecord::Base
   end
 
   ##
-  # @return [Array<Hash>] Array of hashes with `:name` and `:label` keys
+  # @return [Enumerable<Hash>] Array of hashes with `:name` and `:label` keys
   #
   def self.solr_facet_fields
     # These should be defined in the order they should appear.

@@ -1102,7 +1102,7 @@ class Item < ActiveRecord::Base
   ##
   # @param options [Hash<Symbol,Object>]
   # @option options [Boolean] :include_date_created
-  # @return [Array<ItemElement>]
+  # @return [Enumerable<ItemElement>]
   #
   def elements_from_embedded_metadata(options = {})
     # Get the binary from which the metadata will be extracted
