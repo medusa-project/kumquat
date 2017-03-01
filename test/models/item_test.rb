@@ -57,7 +57,7 @@ class ItemTest < ActiveSupport::TestCase
   test 'as_json() should return the correct structure' do
     struct = @item.as_json
     assert_equal @item.repository_id, struct['repository_id']
-    # We'll trust that all the other properties are there.
+    # We'll trust that all the other properties are present.
     assert_equal 5, struct['elements'].length
   end
 
@@ -483,7 +483,7 @@ class ItemTest < ActiveSupport::TestCase
     struct = @item.as_json
     struct['contentdm_alias'] = 'cats'
     struct['contentdm_pointer'] = 99
-    struct['date'] = '2017-03-01T16:25:15Z'
+    struct['date'] = '2014-03-01T16:25:15Z'
     struct['embed_tag'] = '<embed></embed>'
     struct['full_text'] = 'Some full text'
     struct['latitude'] = 123.45
@@ -504,7 +504,7 @@ class ItemTest < ActiveSupport::TestCase
 
     assert_equal 'cats', @item.contentdm_alias
     assert_equal 99, @item.contentdm_pointer
-    assert_equal '2017-03-01T16:25:15Z', @item.date.utc.iso8601
+    assert_equal 2014, @item.date.year
     assert_equal 'Some full text', @item.full_text
     assert_equal 123.45, @item.latitude
     assert_equal 234.56, @item.longitude
@@ -515,7 +515,7 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal 61, @item.subpage_number
     assert_equal Item::Variants::PAGE, @item.variant
 
-    assert_equal 4, @item.elements.length
+    assert_equal 5, @item.elements.length
     description = @item.elements.select{ |e| e.name == 'description' }.first
     assert_equal 'Something', description.value
     assert_equal 'http://example.org/something', description.uri

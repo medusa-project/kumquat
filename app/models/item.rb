@@ -316,6 +316,7 @@ class Item < ActiveRecord::Base
   #
   def as_json(options = {})
     struct = super(options)
+    struct['date'] = self.date.utc.iso8601
     # Add ItemElements
     struct['elements'] = []
     self.elements.each do |e|
@@ -892,7 +893,7 @@ class Item < ActiveRecord::Base
   # This method must be kept in sync with as_json().
   #
   # @param json [String]
-  # @return [Item]
+  # @return [void]
   # @raises [ArgumentError]
   #
   def update_from_json(json)
@@ -900,10 +901,10 @@ class Item < ActiveRecord::Base
     ActiveRecord::Base.transaction do
       # INSTANCE PROPERTIES
       # collection_repository_id is not modifiable
-      # created_at is not modifiable
       self.contentdm_alias = struct['contentdm_alias']
       self.contentdm_pointer = struct['contentdm_pointer']
-      self.date = struct['date']
+      # created_at is not modifiable
+      self.date = TimeUtil.string_date_to_time(struct['date'])
       self.embed_tag = struct['embed_tag']
       self.full_text = struct['full_text']
       # id is not modifiable
@@ -920,8 +921,8 @@ class Item < ActiveRecord::Base
       self.variant = struct['variant']
 
       # ELEMENTS
-      # These need to be deleted first, otherwise it would be impossible for
-      # an update to remove them.
+      # Current elements need to be deleted first, otherwise it would be
+      # impossible for an update to remove them.
       self.elements.destroy_all
 
       if struct['elements'].respond_to?(:each)
