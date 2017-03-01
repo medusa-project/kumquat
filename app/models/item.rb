@@ -1,27 +1,62 @@
 ##
 # Encapsulates a unit of intellectual content.
 #
+# # Structure
+#
 # All items reside in a collection. An item may have one or more child items,
-# as may any of those, forming a tree. It may also have one or more Binaries,
-# each corresponding to a file in Medusa.
+# as may any of those, forming a tree. The tree structure depends on the
+# collection's package profile. The "free-form" profile allows an arbitrary
+# structure; other profiles are more rigid.
 #
-# Items have a number of properties of their own as well as a one-to-many
-# relationship with ItemElement, which encapsulates a metadata element. The set
-# of elements that an item contains is typically shaped by its collection's
-# metadata profile, although there is no constraint in place to keep an item
-# from being associated with other elements.
+# An item may also have one or more Binaries, each corresponding to a file in
+# Medusa.
 #
-# Note that Medusa is not item-aware; items are a DLS entity. Item IDs
-# correspond to Medusa file/directory IDs depending on a collection's content
-# profile. These IDs are stored in `repository_id`, NOT `id`.
+# # Identifiers
+#
+# Medusa is not item-aware; items are a DLS entity. Item IDs correspond to
+# Medusa file/directory IDs depending on a collection's package profile. These
+# IDs are stored in `repository_id`, NOT `id`, which is only used internally by
+# ActiveRecord.
 #
 # Items have a soft pointer to their collection and parent item based on
 # repository ID, rather than a belongs_to/has_many on their database ID.
 # This is to be able to establish structure outside of the application.
+# Repository IDs are the same in all instances of the application.
 #
-# Items are searchable via ActiveRecord as well as via Solr. Instances are
-# automatically indexed in Solr (see `to_solr`) and the Solr search
-# functionality is available via the `solr` class method.
+# # Description
+#
+# Items have a number of properties of their own as well as a one-to-many
+# relationship with ItemElement, which encapsulates a metadata element.
+# Properties are used/needed by the system, and ItemElements are basically
+# free-form strings.
+#
+# ## Properties
+#
+# ### Adding a property:
+#
+# 1) Add a column for it on Item
+# 2) Add it to Item::SolrFields
+# 3) Add it to app/metadata/metadata.yml
+# 4) Add serialization code to Item.tsv_header, as_json, to_solr, and
+#    Collection.items_as_tsv
+# 5) Add deserialization code to Item.update_from_json and update_from_tsv
+# 6) Update fixtures and tests
+# 7) Reindex (if necessary)
+#
+# ## Descriptive Metadata
+#
+# The set of elements that an item contains is typically shaped by its
+# collection's metadata profile, although there is no constraint in place to
+# keep an item from being associated with elements not in the profile.
+#
+# # Indexing
+#
+# Items are searchable via ActiveRecord as well as via Solr (see ItemFinder).
+# The Solr search functionality is available via the `solr` class method.
+#
+# Instances are automatically indexed in Solr (see `to_solr`) upon transaction
+# commital. They are **not** indexed on save. For this reason, **instances
+# should only be updated within a transaction.**
 #
 class Item < ActiveRecord::Base
 
