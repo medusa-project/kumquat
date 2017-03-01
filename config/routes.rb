@@ -186,6 +186,7 @@ Rails.application.routes.draw do
   # REST API routes.
   namespace :api do
     root 'landing#index'
+    resources :collections, only: [:index, :show, :update]
     resources :items, only: [:index, :show, :destroy]
     match '/items/:id', to: 'items#update', via: :put
   end
