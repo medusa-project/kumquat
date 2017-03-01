@@ -52,6 +52,15 @@ class ItemTest < ActiveSupport::TestCase
     assert_nil @item.access_master_binary
   end
 
+  # as_json()
+
+  test 'as_json() should return the correct structure' do
+    struct = @item.as_json
+    assert_equal @item.repository_id, struct['repository_id']
+    # We'll trust that all the other properties are there.
+    assert_equal 5, struct['elements'].length
+  end
+
   # bib_id()
 
   test 'bib_id() should return the bibId element value, or nil if none exists' do

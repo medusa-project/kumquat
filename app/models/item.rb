@@ -308,6 +308,23 @@ class Item < ActiveRecord::Base
   end
 
   ##
+  # This method must be kept in sync with update_from_json().
+  #
+  # @return [Hash] Complete JSON representation of the instance. This may
+  #                include private information that is not appropriate for
+  #                public consumption.
+  #
+  def as_json(options = {})
+    struct = super(options)
+    # Add ItemElements
+    struct['elements'] = []
+    self.elements.each do |e|
+      struct['elements'] << e.as_json
+    end
+    struct
+  end
+
+  ##
   # @return [String, nil] Value of the bibId element.
   #
   def bib_id
