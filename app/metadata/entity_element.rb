@@ -70,6 +70,14 @@ class EntityElement < ActiveRecord::Base
     agent
   end
 
+  def as_json(options = {})
+    struct = super(options)
+    struct['string'] = self.value
+    struct['uri'] = self.uri
+    struct['vocabulary'] = self.vocabulary&.key || Vocabulary::uncontrolled.key
+    struct.except('value')
+  end
+
   def serializable_hash(opts)
     opts ||= {}
     super(opts.merge(only: [ :name, :value ]))
