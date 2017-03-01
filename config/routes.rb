@@ -132,7 +132,6 @@ Rails.application.routes.draw do
     resources :elements, except: :show, path: 'elements'
     match '/elements/import', to: 'elements#import', via: 'post',
           as: 'elements_import'
-    match '/elements/schema', to: 'elements#schema', via: 'get'
     match '/collections/sync', to: 'collections#sync', via: 'patch',
           as: 'collections_sync'
     resources :collections, except: [:new, :create, :delete] do

@@ -99,13 +99,6 @@ module Admin
     end
 
     ##
-    # Responds to GET /elements/schema
-    #
-    def schema
-      render xml: Item.xml_schema
-    end
-
-    ##
     # XHR only
     #
     def update
