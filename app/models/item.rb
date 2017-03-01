@@ -36,12 +36,11 @@
 #
 # 1) Add a column for it on Item
 # 2) Add it to Item::SolrFields
-# 3) Add it to app/metadata/metadata.yml
-# 4) Add serialization code to Item.tsv_header, as_json, to_solr, and
+# 3) Add serialization code to Item.tsv_header, as_json, to_solr, and
 #    Collection.items_as_tsv
-# 5) Add deserialization code to Item.update_from_json and update_from_tsv
-# 6) Update fixtures and tests
-# 7) Reindex (if necessary)
+# 4) Add deserialization code to Item.update_from_json and update_from_tsv
+# 5) Update fixtures and tests
+# 6) Reindex (if necessary)
 #
 # ## Descriptive Metadata
 #

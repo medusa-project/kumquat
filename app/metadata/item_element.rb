@@ -6,28 +6,11 @@ class ItemElement < EntityElement
 
   belongs_to :item, inverse_of: :elements, touch: true
 
-  @@element_properties = YAML::load_file(File.join(__dir__, 'metadata.yml'))
-
   ##
   # @return [Enumerable<ItemElement>]
   #
   def self.all_available
-    # Technical elements
-    all_elements = @@element_properties.map do |name, props|
-      ItemElement.new(name: name)
-    end
-    # Descriptive elements
-    all_elements += all_descriptive
-    all_elements
-  end
-
-  ##
-  # @return [Enumerable<ItemElement>]
-  #
-  def self.all_descriptive
-    Element.all.map do |elem|
-      ItemElement.new(name: elem.name)
-    end
+    Element.all.map { |e| ItemElement.new(name: e.name) }
   end
 
   ##
@@ -84,9 +67,8 @@ class ItemElement < EntityElement
   end
 
   ##
-  # @return [ItemElement] ItemElement with the given name, or nil if the given
-  #                       name is not an available technical or descriptive
-  #                       element name.
+  # @return [ItemElement, nil] ItemElement with the given name, or nil if the
+  #                            given name is not an available element name.
   #
   def self.named(name)
     all_available.select{ |e| e.name == name }.first

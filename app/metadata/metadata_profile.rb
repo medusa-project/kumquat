@@ -39,7 +39,7 @@ class MetadataProfile < ActiveRecord::Base
   #
   def self.default_elements
     defs = []
-    ItemElement.all_descriptive.each_with_index do |elem, index|
+    ItemElement.all_available.each_with_index do |elem, index|
       dc_map = DublinCoreElement.all.map(&:name).include?(elem.name) ? elem.name : nil
       dcterms_map = DublinCoreTerm.all.map(&:name).include?(elem.name) ? elem.name : nil
       profile_elem = MetadataProfileElement.new(
