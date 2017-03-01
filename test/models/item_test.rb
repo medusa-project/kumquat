@@ -477,6 +477,51 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal '2012-10-10T00:00:00Z', @item.date.iso8601
   end
 
+  # update_from_json
+
+  test 'update_from_json should work' do
+    struct = @item.as_json
+    struct['contentdm_alias'] = 'cats'
+    struct['contentdm_pointer'] = 99
+    struct['date'] = '2017-03-01T16:25:15Z'
+    struct['embed_tag'] = '<embed></embed>'
+    struct['full_text'] = 'Some full text'
+    struct['latitude'] = 123.45
+    struct['longitude'] = 234.56
+    struct['page_number'] = 60
+    struct['published'] = true
+    struct['representative_item_repository_id'] =
+        'd29950d0-c451-0133-1d17-0050569601ca-2'
+    struct['subpage_number'] = 61
+    struct['variant'] = Item::Variants::PAGE
+    desc = struct['elements'].select{ |e| e['name'] == 'description' }.first
+    desc['string'] = 'Something'
+    desc['uri'] = 'http://example.org/something'
+
+    json = JSON.generate(struct)
+
+    @item.update_from_json(json)
+
+    assert_equal 'cats', @item.contentdm_alias
+    assert_equal 99, @item.contentdm_pointer
+    assert_equal '2017-03-01T16:25:15Z', @item.date.utc.iso8601
+    assert_equal 'Some full text', @item.full_text
+    assert_equal 123.45, @item.latitude
+    assert_equal 234.56, @item.longitude
+    assert_equal 60, @item.page_number
+    assert @item.published
+    assert_equal 'd29950d0-c451-0133-1d17-0050569601ca-2',
+                 @item.representative_item_repository_id
+    assert_equal 61, @item.subpage_number
+    assert_equal Item::Variants::PAGE, @item.variant
+
+    assert_equal 4, @item.elements.length
+    description = @item.elements.select{ |e| e.name == 'description' }.first
+    assert_equal 'Something', description.value
+    assert_equal 'http://example.org/something', description.uri
+    assert_equal 'uncontrolled', description.vocabulary.key
+  end
+
   # update_from_tsv
 
   test 'update_from_tsv should work' do

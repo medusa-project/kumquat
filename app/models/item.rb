@@ -886,6 +886,62 @@ class Item < ActiveRecord::Base
   end
 
   ##
+  # Updates an instance from a JSON representation compatible with the structure
+  # returned by as_json().
+  #
+  # This method must be kept in sync with as_json().
+  #
+  # @param json [String]
+  # @return [Item]
+  # @raises [ArgumentError]
+  #
+  def update_from_json(json)
+    struct = JSON.parse(json)
+    ActiveRecord::Base.transaction do
+      # INSTANCE PROPERTIES
+      # collection_repository_id is not modifiable
+      # created_at is not modifiable
+      self.contentdm_alias = struct['contentdm_alias']
+      self.contentdm_pointer = struct['contentdm_pointer']
+      self.date = struct['date']
+      self.embed_tag = struct['embed_tag']
+      self.full_text = struct['full_text']
+      # id is not modifiable
+      self.latitude = struct['latitude']
+      self.longitude = struct['longitude']
+      self.page_number = struct['page_number']
+      # parent_repository_id is not modifiable
+      self.published = struct['published']
+      # repository_id is not modifiable
+      self.representative_item_repository_id =
+          struct['representative_item_repository_id']
+      self.subpage_number = struct['subpage_number']
+      # updated_at is not modifiable
+      self.variant = struct['variant']
+
+      # ELEMENTS
+      # These need to be deleted first, otherwise it would be impossible for
+      # an update to remove them.
+      self.elements.destroy_all
+
+      if struct['elements'].respond_to?(:each)
+        struct['elements'].each do |se|
+          # Add a new element
+          ie = ItemElement.named(se['name'])
+          if ie
+            ie.uri = se['uri']&.strip
+            ie.value = se['string']&.strip
+            ie.vocabulary = Vocabulary.find_by_key(se['vocabulary'])
+            self.elements << ie
+          end
+        end
+      end
+
+      self.save!
+    end
+  end
+
+  ##
   # Updates an instance from a hash representing a TSV row.
   #
   # @param row [Hash<String,String>] Item serialized as a TSV row
