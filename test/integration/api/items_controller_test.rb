@@ -95,6 +95,14 @@ module Api
       assert_response :not_found
     end
 
+    test 'update() with invalid content type should return 405' do
+      item = items(:item1)
+      json = item.to_json
+      headers = valid_headers.merge('Content-Type' => 'unknown/unknown')
+      put('/api/items/' + item.repository_id, json, headers)
+      assert_response :unsupported_media_type
+    end
+
     test 'update() should return 200' do
       item = items(:item1)
       json = item.to_json

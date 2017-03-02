@@ -2,6 +2,8 @@ module Api
 
   class ItemsController < ApiController
 
+    before_action :enforce_json_content_type, only: :update
+
     ##
     # Responds to DELETE /api/items/:id
     #

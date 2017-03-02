@@ -25,8 +25,8 @@ module Api
       false
     end
 
-    def enforce_xml_content_type
-      if request.content_type != 'application/xml'
+    def enforce_json_content_type
+      if request.content_type != 'application/json'
         render text: 'Invalid content type.', status: :unsupported_media_type
         return false
       end
