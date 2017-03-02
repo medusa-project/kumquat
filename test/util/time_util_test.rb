@@ -2,6 +2,10 @@ require 'test_helper'
 
 class TimeUtilTest < ActiveSupport::TestCase
 
+  test 'string_date_to_time with a nil argument should return nil' do
+    assert_nil TimeUtil.string_date_to_time(nil)
+  end
+
   test 'string_date_to_time with an unrecognizable argument should return nil' do
     assert_nil TimeUtil.string_date_to_time('cats')
   end
