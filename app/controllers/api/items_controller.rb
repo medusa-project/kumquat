@@ -22,7 +22,7 @@ module Api
     end
 
     ##
-    # Responds to GET /api/items
+    # Responds to GET /api/items and /api/collections/:collection_id/items
     #
     def index
       @start = params[:start].to_i
