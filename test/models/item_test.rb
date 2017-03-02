@@ -476,8 +476,8 @@ class ItemTest < ActiveSupport::TestCase
     struct['date'] = '2014-03-01T16:25:15Z'
     struct['embed_tag'] = '<embed></embed>'
     struct['full_text'] = 'Some full text'
-    struct['latitude'] = 123.45
-    struct['longitude'] = 234.56
+    struct['latitude'] = 23.45
+    struct['longitude'] = -34.56
     struct['page_number'] = 60
     struct['published'] = true
     struct['representative_item_repository_id'] =
@@ -496,8 +496,8 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal 99, @item.contentdm_pointer
     assert_equal 2014, @item.date.year
     assert_equal 'Some full text', @item.full_text
-    assert_equal 123.45, @item.latitude
-    assert_equal 234.56, @item.longitude
+    assert_equal 23.45, @item.latitude
+    assert_equal -34.56, @item.longitude
     assert_equal 60, @item.page_number
     assert @item.published
     assert_equal 'd29950d0-c451-0133-1d17-0050569601ca-2',
@@ -510,6 +510,17 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal 'Something', description.value
     assert_equal 'http://example.org/something', description.uri
     assert_equal 'uncontrolled', description.vocabulary.key
+  end
+
+  test 'update_from_json should raise an error with invalid data' do
+    struct = @item.as_json
+    struct['latitude'] = 130.234
+
+    json = JSON.generate(struct)
+
+    assert_raises ActiveRecord::RecordInvalid do
+      @item.update_from_json(json)
+    end
   end
 
   # update_from_tsv
