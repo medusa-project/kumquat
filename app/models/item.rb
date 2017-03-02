@@ -227,7 +227,7 @@ class Item < ActiveRecord::Base
   #
   def as_json(options = {})
     struct = super(options)
-    struct['date'] = self.date.utc.iso8601
+    struct['date'] = self.date&.utc&.iso8601
     # Add ItemElements
     struct['elements'] = []
     self.elements.each do |e|
