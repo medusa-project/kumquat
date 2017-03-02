@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'rails', '4.2.7'
+gem 'rails', '4.2.8'
 
 gem 'bootstrap-sass', '~> 3.3.6'
 gem 'browser'
