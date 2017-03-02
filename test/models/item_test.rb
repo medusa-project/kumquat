@@ -58,6 +58,7 @@ class ItemTest < ActiveSupport::TestCase
     struct = @item.as_json
     assert_equal @item.repository_id, struct['repository_id']
     # We'll trust that all the other properties are present.
+    assert_equal 2, struct['binaries'].length
     assert_equal 5, struct['elements'].length
   end
 
