@@ -110,11 +110,7 @@ class Item < ActiveRecord::Base
     # @return [Enumerable<String>] String values of all variants.
     #
     def self.all
-      all = []
-      self.constants.each do |const|
-        all << self.const_get(const)
-      end
-      all
+      self.constants.map{ |c| self.const_get(c) }
     end
   end
 
