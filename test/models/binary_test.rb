@@ -14,6 +14,21 @@ class BinaryTest < ActiveSupport::TestCase
                  @binary.absolute_local_pathname
   end
 
+  # as_json()
+
+  test 'as_json() should return the correct structure' do
+    b = binaries(:iptc)
+    struct = b.as_json
+    assert_equal b.human_readable_type, struct['binary_type']
+    assert_equal 'image/jpeg', struct['media_type']
+    assert_equal '/136/310/3707005/access/online/Illini_Union_Photographs/binder_5/banquets/banquets_002.jpg',
+                 struct['repository_relative_pathname']
+    assert_equal '7400e0a0-5ce3-0132-3334-0050569601ca-c', struct['cfs_file_uuid']
+    assert_equal 1629599, struct['byte_size']
+    assert_nil struct['width']
+    assert_nil struct['height']
+  end
+
   # byte_size()
 
   test 'byte_size() should return the correct size' do
