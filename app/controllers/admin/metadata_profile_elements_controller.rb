@@ -45,7 +45,7 @@ module Admin
     def edit
       element = MetadataProfileElement.find(params[:id])
       profile = element.metadata_profile
-      name_options_for_select = ItemElement.all_descriptive.
+      name_options_for_select = ItemElement.all_available.
           map{ |t| [ t.name, t.name ] }
       dublin_core_elements = DublinCoreElement.all.
           sort{ |e, f| e.label <=> f.label }.

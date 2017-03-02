@@ -52,6 +52,15 @@ class ItemTest < ActiveSupport::TestCase
     assert_nil @item.access_master_binary
   end
 
+  # as_json()
+
+  test 'as_json() should return the correct structure' do
+    struct = @item.as_json
+    assert_equal @item.repository_id, struct['repository_id']
+    # We'll trust that all the other properties are present.
+    assert_equal 5, struct['elements'].length
+  end
+
   # bib_id()
 
   test 'bib_id() should return the bibId element value, or nil if none exists' do
@@ -402,16 +411,6 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal 'cats', @item.title
   end
 
-  # to_dls_xml(schema_version)
-
-  test 'to_dls_xml() should work with version 3' do
-    Item.all.each do |item|
-      xml = item.to_dls_xml(3)
-      doc = Nokogiri::XML(xml, &:noblanks)
-      # TODO: write this
-    end
-  end
-
   # to_solr
 
   test 'to_solr should work' do
@@ -478,6 +477,62 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal 1, @item.elements.
         select{ |e| e.name == 'dateCreated' and e.value == '2012-10-10' }.length
     assert_equal '2012-10-10T00:00:00Z', @item.date.iso8601
+  end
+
+  # update_from_json
+
+  test 'update_from_json should work' do
+    struct = @item.as_json
+    struct['contentdm_alias'] = 'cats'
+    struct['contentdm_pointer'] = 99
+    struct['date'] = '2014-03-01T16:25:15Z'
+    struct['embed_tag'] = '<embed></embed>'
+    struct['full_text'] = 'Some full text'
+    struct['latitude'] = 23.45
+    struct['longitude'] = -34.56
+    struct['page_number'] = 60
+    struct['published'] = true
+    struct['representative_item_repository_id'] =
+        'd29950d0-c451-0133-1d17-0050569601ca-2'
+    struct['subpage_number'] = 61
+    struct['variant'] = Item::Variants::PAGE
+    desc = struct['elements'].select{ |e| e['name'] == 'description' }.first
+    desc['string'] = 'Something'
+    desc['uri'] = 'http://example.org/something'
+
+    json = JSON.generate(struct)
+
+    @item.update_from_json(json)
+
+    assert_equal 'cats', @item.contentdm_alias
+    assert_equal 99, @item.contentdm_pointer
+    assert_equal 2014, @item.date.year
+    assert_equal 'Some full text', @item.full_text
+    assert_equal 23.45, @item.latitude
+    assert_equal -34.56, @item.longitude
+    assert_equal 60, @item.page_number
+    assert @item.published
+    assert_equal 'd29950d0-c451-0133-1d17-0050569601ca-2',
+                 @item.representative_item_repository_id
+    assert_equal 61, @item.subpage_number
+    assert_equal Item::Variants::PAGE, @item.variant
+
+    assert_equal 5, @item.elements.length
+    description = @item.elements.select{ |e| e.name == 'description' }.first
+    assert_equal 'Something', description.value
+    assert_equal 'http://example.org/something', description.uri
+    assert_equal 'uncontrolled', description.vocabulary.key
+  end
+
+  test 'update_from_json should raise an error with invalid data' do
+    struct = @item.as_json
+    struct['latitude'] = 130.234
+
+    json = JSON.generate(struct)
+
+    assert_raises ActiveRecord::RecordInvalid do
+      @item.update_from_json(json)
+    end
   end
 
   # update_from_tsv
@@ -562,104 +617,6 @@ class ItemTest < ActiveSupport::TestCase
     assert_raises ArgumentError do
       @item.update_from_tsv(row)
     end
-  end
-
-  # update_from_xml
-
-  test 'update_from_xml should work' do
-    xml = '<?xml version="1.0" encoding="utf-8"?>'
-    xml += '<dls:Object xmlns:dls="http://digital.library.illinois.edu/terms#">'
-    # technical elements
-    xml += '<dls:repositoryId>e12adef0-5ca8-0132-3334-0050569601ca-8</dls:repositoryId>'
-    xml += '<dls:representativeItemId>e12adef0-5ca8-0132-3334-0050569601ca-8</dls:representativeItemId>'
-    xml += '<dls:published>true</dls:published>'
-    xml += '<dls:fullText>full text</dls:fullText>'
-    xml += '<dls:pageNumber>3</dls:pageNumber>'
-    xml += '<dls:subpageNumber>1</dls:subpageNumber>'
-    xml += '<dls:latitude>45.52</dls:latitude>'
-    xml += '<dls:longitude>-120.564</dls:longitude>'
-    xml += "<dls:variant>#{Item::Variants::PAGE}</dls:variant>"
-    xml += '<dls:contentdmAlias>cats</dls:contentdmAlias>'
-    xml += '<dls:contentdmPointer>123</dls:contentdmPointer>'
-    xml += '<dls:allowedRoles>'
-    xml +=   '<key>admins</key>'
-    xml += '</dls:allowedRoles>'
-    xml += '<dls:deniedRoles>'
-    xml +=   '<key>users</key>'
-    xml += '</dls:deniedRoles>'
-
-    # descriptive elements
-    xml += '<dls:date vocabularyKey="uncontrolled" dataType="string">1984</dls:date>'
-    xml += '<dls:description vocabularyKey="uncontrolled" dataType="string">Cats</dls:description>'
-    xml += '<dls:description vocabularyKey="lcsh" dataType="string">More cats</dls:description>'
-    xml += '<dls:description vocabularyKey="uncontrolled" dataType="URI">http://example.org/cats</dls:description>'
-    xml += '<dls:title vocabularyKey="uncontrolled" dataType="string">Cats</dls:title>'
-    xml += '</dls:Object>'
-
-    doc = Nokogiri::XML(xml, &:noblanks)
-    doc.encoding = 'utf-8'
-
-    @item.update_from_xml(doc, 3)
-
-    assert_equal 'cats', @item.contentdm_alias
-    assert_equal 123, @item.contentdm_pointer
-    assert_equal 1984, @item.date.year
-    assert_equal 'full text', @item.full_text
-    assert_equal 45.52, @item.latitude
-    assert_equal -120.564, @item.longitude
-    assert_equal 3, @item.page_number
-    assert @item.published
-    assert_equal 'e12adef0-5ca8-0132-3334-0050569601ca-8', @item.repository_id
-    assert_equal 'e12adef0-5ca8-0132-3334-0050569601ca-8', @item.representative_item_repository_id
-    assert_equal 1, @item.subpage_number
-    assert_equal Item::Variants::PAGE, @item.variant
-    assert_equal 1, @item.allowed_roles.length
-    assert_equal 'admins', @item.allowed_roles.first.key
-    assert_equal 1, @item.denied_roles.length
-    assert_equal 'users', @item.denied_roles.first.key
-
-    descriptions = @item.elements.select{ |e| e.name == 'description' }
-    assert_equal 3, descriptions.length
-    assert_equal 1, descriptions.select{ |e| e.value == 'Cats' }.length
-    assert_equal 1, descriptions.select{ |e| e.value == 'More cats' }.length
-    assert_equal 1, descriptions.select{ |e| e.uri == 'http://example.org/cats' }.length
-    assert_equal 'uncontrolled', descriptions.first.vocabulary.key
-    assert_equal 'lcsh', descriptions[1].vocabulary.key
-
-    assert_equal('Cats', @item.title)
-  end
-
-  test 'update_from_xml should auto-normalize lat/long from date or dateCreated
-  element' do
-    xml = '<?xml version="1.0" encoding="utf-8"?>'
-    xml += '<dls:Object xmlns:dls="http://digital.library.illinois.edu/terms#">'
-    xml += '<dls:repositoryId>e12adef0-5ca8-0132-3334-0050569601ca-8</dls:repositoryId>'
-    xml += '<dls:published>true</dls:published>'
-    xml += '<dls:date vocabularyKey="uncontrolled" dataType="string">1964</dls:date>'
-    xml += '</dls:Object>'
-
-    doc = Nokogiri::XML(xml, &:noblanks)
-    doc.encoding = 'utf-8'
-
-    @item.update_from_xml(doc, 3)
-    assert_equal 1964, @item.date.year
-  end
-
-  test 'update_from_xml should auto-normalize lat/long from coordinates element
-  when latitude and longitude elements are empty' do
-    xml = '<?xml version="1.0" encoding="utf-8"?>'
-    xml += '<dls:Object xmlns:dls="http://digital.library.illinois.edu/terms#">'
-    xml += '<dls:repositoryId>e12adef0-5ca8-0132-3334-0050569601ca-8</dls:repositoryId>'
-    xml += '<dls:published>true</dls:published>'
-    xml += '<dls:coordinates vocabularyKey="uncontrolled" dataType="string">W 90⁰26\'05"/ N 40⁰39\'51"</dls:coordinates>'
-    xml += '</dls:Object>'
-
-    doc = Nokogiri::XML(xml, &:noblanks)
-    doc.encoding = 'utf-8'
-
-    @item.update_from_xml(doc, 3)
-    assert_equal 39.25243, @item.latitude.to_f
-    assert_equal -152.23423, @item.longitude.to_f
   end
 
 end

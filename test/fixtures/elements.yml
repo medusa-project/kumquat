@@ -15,6 +15,9 @@ dateCreated:
 description:
   name: description
 
+rights:
+  name: rights
+
 subject:
   name: subject
 

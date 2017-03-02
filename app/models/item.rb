@@ -1,27 +1,61 @@
 ##
 # Encapsulates a unit of intellectual content.
 #
+# # Structure
+#
 # All items reside in a collection. An item may have one or more child items,
-# as may any of those, forming a tree. It may also have one or more Binaries,
-# each corresponding to a file in Medusa.
+# as may any of those, forming a tree. The tree structure depends on the
+# collection's package profile. The "free-form" profile allows an arbitrary
+# structure; other profiles are more rigid.
 #
-# Items have a number of properties of their own as well as a one-to-many
-# relationship with ItemElement, which encapsulates a metadata element. The set
-# of elements that an item contains is typically shaped by its collection's
-# metadata profile, although there is no constraint in place to keep an item
-# from being associated with other elements.
+# An item may also have one or more Binaries, each corresponding to a file in
+# Medusa.
 #
-# Note that Medusa is not item-aware; items are a DLS entity. Item IDs
-# correspond to Medusa file/directory IDs depending on a collection's content
-# profile. These IDs are stored in `repository_id`, NOT `id`.
+# # Identifiers
+#
+# Medusa is not item-aware; items are a DLS entity. Item IDs correspond to
+# Medusa file/directory IDs depending on a collection's package profile. These
+# IDs are stored in `repository_id`, NOT `id`, which is only used internally by
+# ActiveRecord.
 #
 # Items have a soft pointer to their collection and parent item based on
 # repository ID, rather than a belongs_to/has_many on their database ID.
 # This is to be able to establish structure outside of the application.
+# Repository IDs are the same in all instances of the application.
 #
-# Items are searchable via ActiveRecord as well as via Solr. Instances are
-# automatically indexed in Solr (see `to_solr`) and the Solr search
-# functionality is available via the `solr` class method.
+# # Description
+#
+# Items have a number of properties of their own as well as a one-to-many
+# relationship with ItemElement, which encapsulates a metadata element.
+# Properties are used/needed by the system, and ItemElements are basically
+# free-form strings.
+#
+# ## Properties
+#
+# ### Adding a property:
+#
+# 1) Add a column for it on Item
+# 2) Add it to Item::SolrFields
+# 3) Add serialization code to Item.tsv_header, as_json, to_solr, and
+#    Collection.items_as_tsv
+# 4) Add deserialization code to Item.update_from_json and update_from_tsv
+# 5) Update fixtures and tests
+# 6) Reindex (if necessary)
+#
+# ## Descriptive Metadata
+#
+# The set of elements that an item contains is typically shaped by its
+# collection's metadata profile, although there is no constraint in place to
+# keep an item from being associated with elements not in the profile.
+#
+# # Indexing
+#
+# Items are searchable via ActiveRecord as well as via Solr (see ItemFinder).
+# The Solr search functionality is available via the `solr` class method.
+#
+# Instances are automatically indexed in Solr (see `to_solr`) upon transaction
+# commital. They are **not** indexed on save. For this reason, **instances
+# should only be updated within a transaction.**
 #
 class Item < ActiveRecord::Base
 
@@ -76,11 +110,7 @@ class Item < ActiveRecord::Base
     # @return [Enumerable<String>] String values of all variants.
     #
     def self.all
-      all = []
-      self.constants.each do |const|
-        all << self.const_get(const)
-      end
-      all
+      self.constants.map{ |c| self.const_get(c) }
     end
   end
 
@@ -106,20 +136,40 @@ class Item < ActiveRecord::Base
   has_many :elements, class_name: 'ItemElement', inverse_of: :item,
            dependent: :destroy
 
-  validates_format_of :collection_repository_id,
-                      with: UUID_REGEX,
+  # VALIDATIONS
+
+  # collection_repository_id
+  validates_format_of :collection_repository_id, with: UUID_REGEX,
                       message: 'UUID is invalid'
-  validates_format_of :parent_repository_id,
-                      with: UUID_REGEX,
-                      message: 'UUID is invalid',
-                      allow_blank: true
-  validates_format_of :repository_id,
-                      with: UUID_REGEX,
+  # latitude
+  validates :latitude, numericality: { greater_than_or_equal_to: -90,
+                                       less_than_or_equal_to: 90 },
+            allow_blank: true
+  # longitude
+  validates :longitude, numericality: { greater_than_or_equal_to: -180,
+                                        less_than_or_equal_to: 180 },
+            allow_blank: true
+  # page_number
+  validates :page_number, numericality: { only_integer: true,
+                                          greater_than_or_equal_to: 1 },
+            allow_blank: true
+  # parent_repository_id
+  validates_format_of :parent_repository_id, with: UUID_REGEX,
+                      message: 'UUID is invalid', allow_blank: true
+  # repository_id
+  validates_format_of :repository_id, with: UUID_REGEX,
                       message: 'UUID is invalid'
-  validates_format_of :representative_item_repository_id,
-                      with: UUID_REGEX,
-                      message: 'UUID is invalid',
-                      allow_blank: true
+  # representative_item_repository_id
+  validates_format_of :representative_item_repository_id, with: UUID_REGEX,
+                      message: 'UUID is invalid', allow_blank: true
+  # subpage_number
+  validates :subpage_number, numericality: { only_integer: true,
+                                             greater_than_or_equal_to: 1 },
+            allow_blank: true
+  # variant
+  validates :variant, inclusion: { in: Variants.all }, allow_blank: true
+
+  # ACTIVERECORD CALLBACKS
 
   before_save :prune_identical_elements, :set_effective_roles
   after_update :propagate_roles
@@ -148,145 +198,6 @@ class Item < ActiveRecord::Base
   end
 
   ##
-  # @return [String]
-  #
-  def self.xml_schema
-    builder = Nokogiri::XML::Builder.new do |xml|
-      xml.schema('xmlns:xs': 'http://www.w3.org/2001/XMLSchema',
-                 'xmlns:dls': 'http://digital.library.illinois.edu/terms#',
-                 targetNamespace: 'http://digital.library.illinois.edu/terms#',
-                 elementFormDefault: 'qualified',
-                 attributeFormDefault: 'unqualified') do
-        xml['xs'].complexType(name: 'Item') do
-          xml['xs'].sequence do
-            xml.comment('******************* TECHNICAL ELEMENTS *******************')
-
-            xml.comment('DLS UUID of the item. REQUIRED.')
-            xml['xs'].element(name: 'repositoryId', minOccurs: 1, maxOccurs: 1) do
-              xml['xs'].simpleType do
-                xml['xs'].restriction(base: 'xs:token') do
-                  xml['xs'].pattern(value: UUID_REGEX)
-                end
-              end
-            end
-
-            xml.comment('Medusa UUID of the collection in which the item resides. REQUIRED.')
-            xml['xs'].element(name: 'collectionId', minOccurs: 1, maxOccurs: 1) do
-              xml['xs'].simpleType do
-                xml['xs'].restriction(base: 'xs:token') do
-                  xml['xs'].pattern(value: UUID_REGEX)
-                end
-              end
-            end
-
-            xml.comment('repositoryId of the item that best represents the entity, '\
-            'for the purposes of e.g. rendering a thumbnail image. For example, for '\
-            'a compound object, it could be the first page.')
-            xml['xs'].element(name: 'representativeItemId', minOccurs: 0, maxOccurs: 1) do
-              xml['xs'].simpleType do
-                xml['xs'].restriction(base: 'xs:token') do
-                  xml['xs'].pattern(value: UUID_REGEX)
-                end
-              end
-            end
-
-            xml.comment('Whether the item is publicly accessible. Will default to '\
-            'true if not supplied.')
-            xml['xs'].element(name: 'published', type: 'xs:boolean',
-                              minOccurs: 0, maxOccurs: 1)
-
-            xml['xs'].comment('"Full text" of the item, which will viewable and indexed '\
-            'for searching.')
-            xml['xs'].element(name: 'fullText', type: 'xs:string',
-                              minOccurs: 0, maxOccurs: 1)
-
-            xml['xs'].comment('Page number of an item with a variant of "Page," '\
-            'starting at 1. Used for sorting and previous/next navigation.')
-            xml['xs'].element(name: 'pageNumber', type: 'xs:positiveInteger',
-                              minOccurs: 0, maxOccurs: 1)
-
-            xml['xs'].comment('Subpage number of an item that is a fragment of a page, '\
-            'starting at 1.')
-            xml['xs'].element(name: 'subpageNumber', type: 'xs:positiveInteger',
-                              minOccurs: 0, maxOccurs: 1)
-
-            xml['xs'].comment('Spatial longitude in decimal degrees.')
-            xml['xs'].element(name: 'longitude', type: 'xs:float',
-                              minOccurs: 0, maxOccurs: 1)
-
-            xml['xs'].comment('Spatial latitude in decimal degrees.')
-            xml['xs'].element(name: 'latitude', type: 'xs:float',
-                              minOccurs: 0, maxOccurs: 1)
-
-            xml.comment('A way of refining the type of an item, which may affect '\
-            'how it is displayed. (Generally, "compound object" pages require '\
-            'a value of "Page".)')
-            xml['xs'].element(name: 'variant', minOccurs: 0, maxOccurs: 1) do
-              xml['xs'].simpleType do
-                xml['xs'].restriction(base: 'xs:token') do
-                  Item::Variants::constants.each do |const|
-                    xml['xs'].enumeration(value: const.to_s.downcase.camelize)
-                  end
-                end
-              end
-            end
-
-            xml.comment('CONTENTdm alias ("CISOROOT") of the item, if it '\
-            'originated in CONTENTdm.')
-            xml['xs'].element(name: 'contentdmAlias', type: 'xs:token',
-                              minOccurs: 0, maxOccurs: 1)
-
-            xml.comment('CONTENTdm pointer ("CISOPTR") of the item, if it '\
-            'originated in CONTENTdm.')
-            xml['xs'].element(name: 'contentdmPointer', type: 'xs:positiveInteger',
-                              minOccurs: 0, maxOccurs: 1)
-
-            xml.comment('Allowed role keys.')
-            xml['xs'].element(name: 'allowedRoles', minOccurs: 0, maxOccurs: 1) do
-              xml['xs'].complexType do
-                xml['xs'].sequence do
-                  xml['xs'].element(name: 'key', type: 'xs:token',
-                                    minOccurs: 1, maxOccurs: 'unbounded')
-                end
-              end
-            end
-
-            xml.comment('Denied role keys.')
-            xml['xs'].element(name: 'deniedRoles', minOccurs: 0, maxOccurs: 1) do
-              xml['xs'].complexType do
-                xml['xs'].sequence do
-                  xml['xs'].element(name: 'key', type: 'xs:token',
-                                    minOccurs: 1, maxOccurs: 'unbounded')
-                end
-              end
-            end
-
-            xml.comment('******************* DESCRIPTIVE ELEMENTS *******************')
-
-            Element.all.order(:name).each do |e|
-              xml['xs'].element(name: e.name, type: 'xs:normalizedString',
-                                minOccurs: 0, maxOccurs: 'unbounded') do
-                xml['xs'].complexType do
-                  xml['xs'].attribute(name: 'vocabularyKey', type: 'xs:token', use: 'required')
-                  xml['xs'].attribute(name: 'dataType', type: 'DataType', use: 'required')
-                end
-              end
-            end
-          end
-        end
-
-        xml['xs'].simpleType(name: 'DataType') do
-          xml['xs'].restriction(base: 'xs:token') do
-            xml['xs'].enumeration(value: 'string')
-            xml['xs'].enumeration(value: 'URI')
-          end
-        end
-      end
-    end
-    builder.to_xml
-  end
-
-  ##
   # @return [Binary]
   #
   def access_master_binary
@@ -305,6 +216,24 @@ class Item < ActiveRecord::Base
       p = p.parent
     end
     parents
+  end
+
+  ##
+  # This method must be kept in sync with update_from_json().
+  #
+  # @return [Hash] Complete JSON representation of the instance. This may
+  #                include private information that is not appropriate for
+  #                public consumption.
+  #
+  def as_json(options = {})
+    struct = super(options)
+    struct['date'] = self.date.utc.iso8601
+    # Add ItemElements
+    struct['elements'] = []
+    self.elements.each do |e|
+      struct['elements'] << e.as_json
+    end
+    struct
   end
 
   ##
@@ -783,17 +712,6 @@ class Item < ActiveRecord::Base
   end
 
   ##
-  # @param schema_version [Integer] One of the versions in
-  #                                 `ItemXmlIngester::SCHEMA_VERSIONS`
-  #
-  def to_dls_xml(schema_version)
-    case schema_version.to_i
-      when 3
-        return to_dls_xml_v3
-    end
-  end
-
-  ##
   # @return [Hash]
   #
   def to_solr
@@ -872,6 +790,62 @@ class Item < ActiveRecord::Base
     ActiveRecord::Base.transaction do
       self.elements.destroy_all
       self.elements += elements_from_embedded_metadata(options)
+      self.save!
+    end
+  end
+
+  ##
+  # Updates an instance from a JSON representation compatible with the structure
+  # returned by as_json().
+  #
+  # This method must be kept in sync with as_json().
+  #
+  # @param json [String]
+  # @return [void]
+  # @raises [ArgumentError]
+  #
+  def update_from_json(json)
+    struct = JSON.parse(json)
+    ActiveRecord::Base.transaction do
+      # INSTANCE PROPERTIES
+      # collection_repository_id is not modifiable
+      self.contentdm_alias = struct['contentdm_alias']
+      self.contentdm_pointer = struct['contentdm_pointer']
+      # created_at is not modifiable
+      self.date = TimeUtil.string_date_to_time(struct['date'])
+      self.embed_tag = struct['embed_tag']
+      self.full_text = struct['full_text']
+      # id is not modifiable
+      self.latitude = struct['latitude']
+      self.longitude = struct['longitude']
+      self.page_number = struct['page_number']
+      # parent_repository_id is not modifiable
+      self.published = struct['published']
+      # repository_id is not modifiable
+      self.representative_item_repository_id =
+          struct['representative_item_repository_id']
+      self.subpage_number = struct['subpage_number']
+      # updated_at is not modifiable
+      self.variant = struct['variant']
+
+      # ELEMENTS
+      # Current elements need to be deleted first, otherwise it would be
+      # impossible for an update to remove them.
+      self.elements.destroy_all
+
+      if struct['elements'].respond_to?(:each)
+        struct['elements'].each do |se|
+          # Add a new element
+          ie = ItemElement.named(se['name'])
+          if ie
+            ie.uri = se['uri']&.strip
+            ie.value = se['string']&.strip
+            ie.vocabulary = Vocabulary.find_by_key(se['vocabulary'])
+            self.elements << ie
+          end
+        end
+      end
+
       self.save!
     end
   end
@@ -968,120 +942,6 @@ class Item < ActiveRecord::Base
         self.elements += ItemElement::elements_from_tsv_string(
             element_name, raw_value, vocabulary)
       end
-      self.save!
-    end
-  end
-
-  ##
-  # Updates an instance from valid DLS XML.
-  #
-  # @param node [Nokogiri::XML::Node]
-  # @param schema_version [Integer]
-  # @return [Item]
-  # @raises [ArgumentError]
-  #
-  def update_from_xml(node, schema_version)
-    case schema_version
-      when 3
-        namespaces = ItemXmlIngester::XML_V3_NAMESPACES
-        prefix = 'dls'
-    end
-
-    ActiveRecord::Base.transaction do
-      # These need to be deleted first, otherwise it would be impossible for
-      # an update to remove them.
-      self.elements.destroy_all
-      self.allowed_roles.clear
-      self.denied_roles.clear
-
-      # CONTENTdm alias
-      alias_ = node.xpath("//#{prefix}:contentdmAlias", namespaces).first
-      self.contentdm_alias = alias_.content.strip if alias_
-
-      # CONTENTdm pointer
-      ptr = node.xpath("//#{prefix}:contentdmPointer", namespaces).first
-      self.contentdm_pointer = ptr.content.strip.to_i if ptr
-
-      # date
-      date = node.xpath("//#{prefix}:date", namespaces).first ||
-          node.xpath("//#{prefix}:dateCreated", namespaces).first
-      self.date = TimeUtil.string_date_to_time(date.content.strip) if date
-
-      # full text
-      ft = node.xpath("//#{prefix}:fullText", namespaces).first
-      self.full_text = ft.content.strip if ft
-
-      # latitude
-      lat = node.xpath("//#{prefix}:latitude", namespaces).first
-      self.latitude = lat.content.strip.to_f if lat
-
-      # longitude
-      long = node.xpath("//#{prefix}:longitude", namespaces).first
-      self.longitude = long.content.strip.to_f if long
-
-      # latitude/longitude (normalized)
-      coordinates = node.xpath("//#{prefix}:coordinates", namespaces).first
-      if self.latitude.blank? and self.longitude.blank? and coordinates
-        lat_long = SpaceUtil.string_coordinates_to_coordinates(coordinates)
-        if lat_long
-          self.latitude = lat_long[:latitude]
-          self.longitude = lat_long[:longitude]
-        end
-      end
-
-      # page number
-      page = node.xpath("//#{prefix}:pageNumber", namespaces).first
-      self.page_number = page.content.strip.to_i if page
-
-      # published
-      published = node.xpath("//#{prefix}:published", namespaces).first
-      self.published = %w(true 1).include?(published.content.strip) if published
-
-      # repository ID
-      rep_id = node.xpath("//#{prefix}:repositoryId", namespaces).first
-      self.repository_id = rep_id.content.strip if rep_id
-
-      # representative item ID
-      rep_item_id = node.xpath("//#{prefix}:representativeItemId", namespaces).first
-      self.representative_item_repository_id = rep_item_id.content.strip if rep_item_id
-
-      # roles (allowed)
-      node.xpath("//#{prefix}:allowedRoles/key", namespaces).each do |key|
-        role = Role.find_by_key(key.content)
-        raise ArgumentError, "Role does not exist: #{key}" unless role
-        self.allowed_roles << role
-      end
-
-      # roles (denied)
-      node.xpath("//#{prefix}:deniedRoles/key", namespaces).each do |key|
-        role = Role.find_by_key(key.content)
-        raise ArgumentError, "Role does not exist: #{key}" unless role
-        self.denied_roles << role
-      end
-
-      # subpage number
-      page = node.xpath("//#{prefix}:subpageNumber", namespaces).first
-      self.subpage_number = page.content.strip.to_i if page
-
-      node.xpath("//#{prefix}:*", namespaces).
-          select{ |node| ItemElement.all_descriptive.map(&:name).include?(node.name) }.
-          each do |node|
-        # Add a new element
-        e = ItemElement.named(node.name)
-        case node['dataType']
-          when 'URI'
-            e.uri = node.content.strip
-          else
-            e.value = node.content.strip
-        end
-        e.vocabulary = Vocabulary.find_by_key(node['vocabularyKey'])
-        self.elements << e
-      end
-
-      # variant
-      variant = node.xpath("//#{prefix}:variant", namespaces).first
-      self.variant = variant.content.strip if variant
-
       self.save!
     end
   end
@@ -1279,121 +1139,6 @@ class Item < ActiveRecord::Base
     else
       inherit_roles
     end
-  end
-
-  def to_dls_xml_v3
-    builder = Nokogiri::XML::Builder.new do |xml|
-      xml['dls'].Object('xmlns:dls' => ItemXmlIngester::XML_V3_NAMESPACES['dls']) {
-        xml['dls'].repositoryId {
-          xml.text(self.repository_id)
-        }
-        xml['dls'].collectionId {
-          xml.text(self.collection_repository_id)
-        }
-        if self.parent_repository_id.present?
-          xml['dls'].parentId {
-            xml.text(self.parent_repository_id)
-          }
-        end
-        if self.representative_item_repository_id.present?
-          xml['dls'].representativeItemId {
-            xml.text(self.representative_item_repository_id)
-          }
-        end
-        xml['dls'].published {
-          xml.text(self.published ? 'true' : 'false')
-        }
-        if self.full_text.present?
-          xml['dls'].fullText {
-            xml.text(self.full_text)
-          }
-        end
-        if self.page_number.present?
-          xml['dls'].pageNumber {
-            xml.text(self.page_number)
-          }
-        end
-        if self.subpage_number.present?
-          xml['dls'].subpageNumber {
-            xml.text(self.subpage_number)
-          }
-        end
-        if self.latitude.present?
-          xml['dls'].latitude {
-            xml.text(self.latitude)
-          }
-        end
-        if self.longitude.present?
-          xml['dls'].longitude {
-            xml.text(self.longitude)
-          }
-        end
-        if self.created_at.present?
-          xml['dls'].created {
-            xml.text(self.created_at.utc.iso8601)
-          }
-        end
-        if self.updated_at.present?
-          xml['dls'].lastModified {
-            xml.text(self.updated_at.utc.iso8601)
-          }
-        end
-        if self.variant.present?
-          xml['dls'].variant {
-            xml.text(self.variant)
-          }
-        end
-        if self.contentdm_alias.present?
-          xml['dls'].contentdmAlias {
-            xml.text(self.contentdm_alias)
-          }
-        end
-        if self.contentdm_pointer.present?
-          xml['dls'].contentdmPointer {
-            xml.text(self.contentdm_pointer)
-          }
-        end
-
-        if self.allowed_roles.any?
-          xml['dls'].allowedRoles {
-            self.allowed_roles.map(&:key).each do |role|
-              xml['dls'].key {
-                xml.text(role)
-              }
-            end
-          }
-        end
-        if self.denied_roles.any?
-          xml['dls'].deniedRoles {
-            self.denied_roles.map(&:key).each do |role|
-              xml['dls'].key {
-                xml.text(role)
-              }
-            end
-          }
-        end
-
-        self.elements.order(:name).each do |element|
-          vocab_key = element.vocabulary ?
-              element.vocabulary.key : Vocabulary::uncontrolled.key
-
-          if element.value.present?
-            xml['dls'].send(element.name,
-                            vocabularyKey: vocab_key,
-                            dataType: 'string') {
-              xml.text(element.value)
-            }
-          elsif element.uri.present?
-            xml['dls'].send(element.name,
-                            vocabularyKey: vocab_key,
-                            dataType: 'URI') {
-              xml.text(element.uri)
-            }
-          end
-        end
-      }
-    end
-    builder.to_xml
   end
 
 end

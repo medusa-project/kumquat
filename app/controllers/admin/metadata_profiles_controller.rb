@@ -104,7 +104,7 @@ module Admin
           @new_element = @profile.elements.build
           @element_options_for_select =
               @profile.elements.map{ |t| [ t.name, t.id ] }
-          @name_options_for_select = ItemElement.all_descriptive.
+          @name_options_for_select = ItemElement.all_available.
               sort{ |e, f| e.name <=> f.name }.
               map{ |t| [ t.name, t.name ] }
           @dublin_core_elements = DublinCoreElement.all.

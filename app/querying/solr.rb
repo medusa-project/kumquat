@@ -173,19 +173,4 @@ class Solr
     end
   end
 
-  ##
-  # Returns a list of fields that will be copied into a "search-all" field
-  # for easy searching.
-  #
-  # @return [Array] Array of strings
-  #
-  def search_all_fields
-    dest = Item::SolrFields::SEARCH_ALL
-    fields = ItemElement.all_available.map do |t|
-      { source: t.solr_multi_valued_field, dest: dest }
-    end
-    fields << { source: Item::SolrFields::FULL_TEXT, dest: dest }
-    fields
-  end
-
 end
