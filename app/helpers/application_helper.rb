@@ -93,7 +93,7 @@ module ApplicationHelper
 
   ##
   # @param search_term [String]
-  # @param suggestions [Array<String>]
+  # @param suggestions [Enumerable<String>]
   # @return [String] HTML string
   #
   def no_results_help(search_term, suggestions)

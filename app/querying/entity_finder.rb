@@ -18,7 +18,7 @@ class EntityFinder < AbstractFinder
   end
 
   ##
-  # @param variants [Array<String>] Array of Item::Variants constant values.
+  # @param variants [Enumerable<String>] Array of Item::Variants constant values.
   # @return [self]
   #
   def exclude_item_variants(variants)

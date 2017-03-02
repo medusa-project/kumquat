@@ -668,7 +668,7 @@ module ItemsHelper
   # Returns what the user is searching for.
   #
   # @param q [String] From params
-  # @param fq [Array<String>] From params
+  # @param fq [Enumerable<String>] From params
   # @param profile [MetadataProfile]
   # @return [String]
   #
@@ -1236,8 +1236,8 @@ module ItemsHelper
   # @param binary [Binary]
   # @param options [Hash<Symbol,Object>]
   # @option options [Boolean] :admin
-  # @return [Array<Hash<Symbol,Object>>] Array of hashes with :label,
-  #                                      :category, and :value keys.
+  # @return [Enumerable<Hash<Symbol,Object>>] Array of hashes with :label,
+  #                                          :category, and :value keys.
   #
   def binary_metadata_for(binary, options = {})
     data = []

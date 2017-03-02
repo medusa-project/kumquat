@@ -83,7 +83,7 @@ class RightsStatement
   ]
 
   ##
-  # @return [Array<RightsStatement>]
+  # @return [Enumerable<RightsStatement>]
   #
   def self.all_statements
     statements = ALL_STATEMENTS.map do |struct|

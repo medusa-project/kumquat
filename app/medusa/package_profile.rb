@@ -35,7 +35,7 @@ class PackageProfile
   attr_accessor :name
 
   ##
-  # @return [Array<PackageProfile>]
+  # @return [Enumerable<PackageProfile>]
   #
   def self.all
     PROFILES.map do |profile|

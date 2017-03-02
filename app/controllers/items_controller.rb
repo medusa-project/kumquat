@@ -322,11 +322,7 @@ class ItemsController < WebsiteController
         @relative_parent = @parent ? @parent : @item
 
         if @item.variant == Item::Variants::PAGE
-          render 'errors/error', status: :forbidden, locals: {
-              status_code: 403,
-              status_message: 'Forbidden',
-              message: 'This item is an object page.'
-          }
+          redirect_to @item.parent, status: 303
           return
         end
 

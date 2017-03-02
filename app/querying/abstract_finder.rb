@@ -105,7 +105,7 @@ class AbstractFinder
   end
 
   ##
-  # @return [Array<String>]
+  # @return [Enumerable<String>]
   #
   def suggestions
     suggestions = []
