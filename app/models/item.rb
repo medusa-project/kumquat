@@ -228,6 +228,9 @@ class Item < ActiveRecord::Base
   def as_json(options = {})
     struct = super(options)
     struct['date'] = self.date&.utc&.iso8601
+    # Add children
+    struct['children'] = []
+    self.items.each { |it| struct['children'] << it.as_json.select{ |k, v| k == 'repository_id' } }
     # Add binaries
     struct['binaries'] = []
     self.binaries.each { |b| struct['binaries'] << b.as_json.except(:item_id) }
