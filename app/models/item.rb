@@ -136,20 +136,40 @@ class Item < ActiveRecord::Base
   has_many :elements, class_name: 'ItemElement', inverse_of: :item,
            dependent: :destroy
 
-  validates_format_of :collection_repository_id,
-                      with: UUID_REGEX,
+  # VALIDATIONS
+
+  # collection_repository_id
+  validates_format_of :collection_repository_id, with: UUID_REGEX,
                       message: 'UUID is invalid'
-  validates_format_of :parent_repository_id,
-                      with: UUID_REGEX,
-                      message: 'UUID is invalid',
-                      allow_blank: true
-  validates_format_of :repository_id,
-                      with: UUID_REGEX,
+  # latitude
+  validates :latitude, numericality: { greater_than_or_equal_to: -90,
+                                       less_than_or_equal_to: 90 },
+            allow_blank: true
+  # longitude
+  validates :longitude, numericality: { greater_than_or_equal_to: -180,
+                                        less_than_or_equal_to: 180 },
+            allow_blank: true
+  # page_number
+  validates :page_number, numericality: { only_integer: true,
+                                          greater_than_or_equal_to: 1 },
+            allow_blank: true
+  # parent_repository_id
+  validates_format_of :parent_repository_id, with: UUID_REGEX,
+                      message: 'UUID is invalid', allow_blank: true
+  # repository_id
+  validates_format_of :repository_id, with: UUID_REGEX,
                       message: 'UUID is invalid'
-  validates_format_of :representative_item_repository_id,
-                      with: UUID_REGEX,
-                      message: 'UUID is invalid',
-                      allow_blank: true
+  # representative_item_repository_id
+  validates_format_of :representative_item_repository_id, with: UUID_REGEX,
+                      message: 'UUID is invalid', allow_blank: true
+  # subpage_number
+  validates :subpage_number, numericality: { only_integer: true,
+                                             greater_than_or_equal_to: 1 },
+            allow_blank: true
+  # variant
+  validates :variant, inclusion: { in: Variants.all }, allow_blank: true
+
+  # ACTIVERECORD CALLBACKS
 
   before_save :prune_identical_elements, :set_effective_roles
   after_update :propagate_roles
