@@ -28,7 +28,7 @@ resides in the
 
 ## 3) Install Ruby
 
-`$ rvm install "$(< .ruby-version)"`
+`$ rvm install "$(< .ruby-version)" --autolibs=0`
 
 ## 4) Install Bundler
 
