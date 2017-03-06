@@ -347,7 +347,7 @@ class ItemsController < WebsiteController
           finder = item_finder_for(query)
           results = finder.to_a
           results.each_with_index do |result, index|
-            if result.repository_id == @item.repository_id
+            if result&.repository_id == @item.repository_id
               @previous_result = results[index - 1] if index - 1 >= 0
               @next_result = results[index + 1] if index + 1 < results.length
             end
