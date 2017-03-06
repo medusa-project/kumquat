@@ -10,6 +10,20 @@ class EntityElementTest < ActiveSupport::TestCase
     assert_equal agent_uris(:one).uri, e.agent.primary_uri
   end
 
+  # as_json()
+
+  test 'as_json() should return the correct structure' do
+    e = ItemElement.new(name: 'title',
+                        value: 'cats',
+                        uri: 'http://example.org/cats',
+                        vocabulary: Vocabulary::uncontrolled)
+    struct = e.as_json
+    assert_equal 'title', struct['name']
+    assert_equal 'cats', struct['string']
+    assert_equal 'http://example.org/cats', struct['uri']
+    assert_equal Vocabulary::uncontrolled.key, struct['vocabulary']
+  end
+
   # tsv_string_from_elements()
 
   test 'tsv_string_from_elements() should raise an error if given elements with multiple names' do

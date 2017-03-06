@@ -10,22 +10,13 @@ class CollectionElement < EntityElement
   # @return [Enumerable<CollectionElement>]
   #
   def self.all_available
-    all_descriptive
-  end
-
-  ##
-  # @return [Enumerable<CollectionElement>]
-  #
-  def self.all_descriptive
-    Element.all.map do |elem|
-      CollectionElement.new(name: elem.name)
-    end
+    Element.all.map { |e| CollectionElement.new(name: e.name) }
   end
 
   ##
   # @return [CollectionElement] CollectionElement with the given name, or nil
-  #                             if the given name is not an available technical
-  #                             or descriptive element name.
+  #                             if the given name is not an available element
+  #                             name.
   #
   def self.named(name)
     all_available.select{ |e| e.name == name }.first

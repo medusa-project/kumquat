@@ -22,6 +22,17 @@ class Binary < ActiveRecord::Base
         self.repository_relative_pathname
   end
 
+  def as_json(options = {})
+    struct = super(options).stringify_keys # TODO: why is this almost empty?
+    struct['binary_type'] = self.human_readable_type
+    struct['repository_relative_pathname'] = self.repository_relative_pathname
+    struct['cfs_file_uuid'] = self.cfs_file_uuid
+    struct['byte_size'] = self.byte_size
+    struct['width'] = self.width
+    struct['height'] = self.height
+    struct.except('type')
+  end
+
   ##
   # @return [Boolean] If the binary is a file and the file exists, returns
   #                   true.

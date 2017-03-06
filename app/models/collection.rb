@@ -104,10 +104,10 @@ class Collection < ActiveRecord::Base
   end
 
   ##
-  # @return [Enumerable<Hash>] Array of hashes with `:name` and `:label` keys
+  # @return [Enumerable<Hash>] Array of hashes with `:name`, `:label`, and `id`
+  #                            keys in the order they should appear.
   #
   def self.solr_facet_fields
-    # These should be defined in the order they should appear.
     [
         { name: SolrFields::REPOSITORY_TITLE, label: 'Repository',
           id: 'pt-repository-facet' },
@@ -121,8 +121,8 @@ class Collection < ActiveRecord::Base
   ##
   # @param element_name [String] Element to replace.
   # @param replace_values [Enumerable<Hash<Symbol,String>] Enumerable of hashes
-  #                                                        with :string and
-  #                                                        :uri keys.
+  #                                                        with `:string` and
+  #                                                        `:uri` keys.
   # @param task [Task] Supply to track progress.
   # @return [void]
   # @raises [ArgumentError]
@@ -149,6 +149,9 @@ class Collection < ActiveRecord::Base
     end
   end
 
+  ##
+  # @return [void]
+  #
   def delete_from_solr
     Solr.instance.delete(self.solr_id)
   end
@@ -174,20 +177,29 @@ class Collection < ActiveRecord::Base
     self.medusa_cfs_directory || self.medusa_file_group&.cfs_directory
   end
 
+  ##
+  # @return [MetadataProfile] The profile assigned to the instance, or the
+  #                           default profile if none is assigned.
   def effective_metadata_profile
     self.metadata_profile || MetadataProfile.default
   end
 
+  ##
+  # @return [Item]
+  #
   def effective_representative_item
-    self.representative_item || self
+    self.representative_item || self # TODO: this is a little weird
   end
 
+  ##
+  # @return [void]
+  #
   def index_in_solr
     Solr.instance.add(self.to_solr)
   end
 
   ##
-  # @return [ActiveRecord::Relation<Item>]
+  # @return [ActiveRecord::Relation<Item>] All items in the collection.
   #
   def items
     Item.where(collection_repository_id: self.repository_id)
@@ -203,73 +215,15 @@ class Collection < ActiveRecord::Base
   #                  not customizable.
   #
   def items_as_tsv(options = {})
-    # N.B. The return value must remain synchronized with that of
-    # Item.tsv_header().
-    # We use a native PostgreSQL query because going through ActiveRecord is
-    # just too slow.
-=begin Sample query:
-SELECT items.repository_id,
-  items.parent_repository_id,
-  (SELECT repository_relative_pathname
-    FROM binaries
-    WHERE binaries.item_id = items.id
-      AND binaries.binary_type = 0) AS pres_pathname,
-  (SELECT substring(repository_relative_pathname from '[^/]+$')
-    FROM binaries
-    WHERE binaries.item_id = items.id
-      AND binaries.binary_type = 0) AS pres_filename,
-  (SELECT repository_relative_pathname
-    FROM binaries
-    WHERE binaries.item_id = items.id
-      AND binaries.binary_type = 1) AS access_pathname,
-  (SELECT substring(repository_relative_pathname from '[^/]+$')
-    FROM binaries
-    WHERE binaries.item_id = items.id
-      AND binaries.binary_type = 1) AS access_filename,
-  items.variant,
-  items.page_number,
-  items.subpage_number,
-  items.latitude,
-  items.longitude,
-  items.contentdm_alias,
-  items.contentdm_pointer,
-  array_to_string(
-    array(
-      SELECT replace(replace(coalesce(value, '') || '&&<' || coalesce(uri, '') || '>', '&&<>', ''), '||&&', '')
-        FROM entity_elements
-        WHERE entity_elements.item_id = items.id
-          AND (entity_elements.vocabulary_id IS NULL OR entity_elements.vocabulary_id = 11)
-          AND entity_elements.name = 'subject'
-          AND (value IS NOT NULL OR uri IS NOT NULL)
-          AND (length(value) > 0 OR length(uri) > 0)
-    ), '||') AS uncontrolled_subject,
-  array_to_string(
-    array(
-      SELECT replace(replace(coalesce(value, '') || '&&<' || coalesce(uri, '') || '>', '&&<>', ''), '||&&', '')
-        FROM entity_elements
-        WHERE entity_elements.item_id = items.id
-          AND (entity_elements.vocabulary_id = 11)
-          AND entity_elements.name = 'subject'
-          AND (value IS NOT NULL OR uri IS NOT NULL)
-          AND (length(value) > 0 OR length(uri) > 0)
-    ), '||') AS lcsh_subject
-FROM items
-WHERE items.collection_repository_id = '8132f520-e3fb-012f-c5b6-0019b9e633c5-f'
-ORDER BY
-  case
-    when items.parent_repository_id IS NULL then
-      items.repository_id
-    else
-      items.parent_repository_id
-  end, items.page_number, items.subpage_number, pres_pathname NULLS FIRST
-LIMIT 1000;
-=end
+    # We use a PostgreSQL query because going through ActiveRecord (which we
+    # used to do via Item.to_tsv() in a loop) is just too slow.
+    # N.B. The return value must remain in sync with that of Item.tsv_header().
     element_subselects = self.effective_metadata_profile.elements.map do |ed|
       subselects = []
       ed.vocabularies.sort{ |v| v.key <=> v.key }.each do |vocab|
         vocab_id = (vocab == Vocabulary.uncontrolled) ?
             "IS NULL OR entity_elements.vocabulary_id = #{Vocabulary.uncontrolled.id}" : "= #{vocab.id}"
-        subselects << "array_to_string(
+        subselects << "          array_to_string(
             array(
               SELECT replace(replace(coalesce(value, '') || '#{Item::TSV_URI_VALUE_SEPARATOR}<' || coalesce(uri, '') || '>', '#{Item::TSV_URI_VALUE_SEPARATOR}<>', ''), '||#{Item::TSV_URI_VALUE_SEPARATOR}', '')
               FROM entity_elements
@@ -313,24 +267,25 @@ LIMIT 1000;
       items.contentdm_alias,
       items.contentdm_pointer,
       #{element_subselects.join(",\n")}
-    FROM items "
+    FROM items\n"
     # If we are supposed to include only undescribed items, join the
     # entity_elements table and search for title elements whose values match a
     # UUID regex. (IMET-382)
     if options[:only_undescribed]
-      sql += 'LEFT JOIN entity_elements ON entity_elements.item_id = items.id '
+      sql += "    LEFT JOIN entity_elements ON entity_elements.item_id = items.id\n"
     end
-    sql += "WHERE items.collection_repository_id = $1 "
+    sql += "    WHERE items.collection_repository_id = $1\n"
     if options[:only_undescribed]
-      sql += "AND (entity_elements.value ~* '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}' OR entity_elements.item_id IS NULL) "
+      sql += "      AND (entity_elements.value ~* '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}' OR entity_elements.item_id IS NULL)\n"
     end
-    sql += "ORDER BY
+    sql += "    ORDER BY
       case
         when items.parent_repository_id IS NULL then
           items.repository_id
         else
           items.parent_repository_id
-      end, items.page_number, items.subpage_number, pres_pathname NULLS FIRST"
+      end,
+      items.page_number, items.subpage_number, pres_pathname NULLS FIRST"
 
     values = [[ nil, self.repository_id ]]
 

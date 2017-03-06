@@ -119,6 +119,7 @@ Rails.application.routes.draw do
   match '/signin', to: 'sessions#new', via: 'get'
   match '/signout', to: 'sessions#destroy', via: 'delete'
 
+  # Control Panel routes.
   namespace :admin do
     root 'dashboard#index'
 
@@ -131,7 +132,6 @@ Rails.application.routes.draw do
     resources :elements, except: :show, path: 'elements'
     match '/elements/import', to: 'elements#import', via: 'post',
           as: 'elements_import'
-    match '/elements/schema', to: 'elements#schema', via: 'get'
     match '/collections/sync', to: 'collections#sync', via: 'patch',
           as: 'collections_sync'
     resources :collections, except: [:new, :create, :delete] do
@@ -181,4 +181,15 @@ Rails.application.routes.draw do
     match '/vocabularies/import', to: 'vocabularies#import', via: 'post',
           as: 'vocabulary_import'
   end
+
+  # REST API routes.
+  namespace :api do
+    root 'landing#index'
+    resources :collections, only: [:index, :show, :update] do
+      resources :items, only: :index
+    end
+    resources :items, only: [:index, :show, :destroy]
+    match '/items/:id', to: 'items#update', via: :put
+  end
+
 end
