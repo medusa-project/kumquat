@@ -191,7 +191,7 @@ class Item < ActiveRecord::Base
       # uncontrolled vocabulary which will not have a vocabKey prefix.
       columns += ed.vocabularies.sort{ |v| v.key <=> v.key }.map do |vocab|
         vocab.key != Vocabulary::UNCONTROLLED_KEY ?
-            "#{vocab.key}:#{ed.name}" : ed.name
+            "#{vocab.key}:#{ed.label}" : ed.label
       end
     end
     columns.join("\t") + TSV_LINE_BREAK
