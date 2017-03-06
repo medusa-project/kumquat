@@ -178,16 +178,18 @@ class ItemTest < ActiveSupport::TestCase
 
   test 'iiif_identifier should use the access master binary by default' do
     @item.access_master_binary.repository_relative_pathname = '/bla/bla/cats cats.jpg'
+    @item.access_master_binary.cfs_file_uuid = 'this is a uuid'
     @item.access_master_binary.media_type = 'image/jpeg'
     @item.binaries.where(binary_type: Binary::Type::PRESERVATION_MASTER).destroy_all
-    assert_equal 'bla/bla/cats cats.jpg', @item.iiif_image_binary.iiif_image_identifier
+    assert_equal 'this is a uuid', @item.iiif_image_binary.iiif_image_identifier
   end
 
   test 'iiif_identifier should fall back to the preservation master binary' do
     @item.binaries.where(binary_type: Binary::Type::ACCESS_MASTER).destroy_all
     @item.preservation_master_binary.repository_relative_pathname = '/bla/bla/cats cats.jpg'
+    @item.preservation_master_binary.cfs_file_uuid = 'this is a uuid'
     @item.preservation_master_binary.media_type = 'image/jpeg'
-    assert_equal 'bla/bla/cats cats.jpg', @item.iiif_image_binary.iiif_image_identifier
+    assert_equal 'this is a uuid', @item.iiif_image_binary.iiif_image_identifier
   end
 
   # migrate_elements()

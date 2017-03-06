@@ -6,8 +6,8 @@ class VocabularyTest < ActiveSupport::TestCase
     json = <<-HEREDOC
     {
       "id": 15,
-      "key": "rs",
-      "name": "RightsStatements.org",
+      "key": "new",
+      "name": "NewVocabulary",
       "created_at": "2016-08-26 15:39:02 UTC",
       "updated_at": "2016-08-26 15:39:02 UTC",
       "vocabulary_terms": [
@@ -31,8 +31,8 @@ class VocabularyTest < ActiveSupport::TestCase
     }
     HEREDOC
     vocab = Vocabulary.from_json(json)
-    assert_equal 'rs', vocab.key
-    assert_equal 'RightsStatements.org', vocab.name
+    assert_equal 'new', vocab.key
+    assert_equal 'NewVocabulary', vocab.name
     assert_equal 2, vocab.vocabulary_terms.length
 
     term = vocab.vocabulary_terms.first
@@ -77,12 +77,12 @@ class VocabularyTest < ActiveSupport::TestCase
 
   test 'from_json should raise an error when importing JSON that contains '\
   'a name that already exists' do
-    Vocabulary.create!(key: 'bogus', name: 'RightsStatements.org')
+    Vocabulary.create!(key: 'new', name: 'NewVocabulary')
     json = <<-HEREDOC
     {
       "id": 15,
       "key": "rs",
-      "name": "RightsStatements.org",
+      "name": "NewVocabulary",
       "created_at": "2016-08-26 15:39:02 UTC",
       "updated_at": "2016-08-26 15:39:02 UTC",
       "vocabulary_terms": [
