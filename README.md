@@ -1,3 +1,7 @@
+This is a basic getting-started guide for developers. All other documentation
+resides in the
+[SCARS Wiki](https://wiki.illinois.edu/wiki/pages/viewpage.action?spaceKey=scrs&title=Medusa+DLS).
+
 # Dependencies
 
 * Local read-only NCSA condo mount
@@ -24,7 +28,7 @@
 
 ## 3) Install Ruby
 
-`$ rvm install "$(< .ruby-version)"`
+`$ rvm install "$(< .ruby-version)" --autolibs=0`
 
 ## 4) Install Bundler
 
