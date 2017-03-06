@@ -117,7 +117,7 @@ class Item < ActiveRecord::Base
   # In the order they should appear in the TSV, left-to-right.
   NON_DESCRIPTIVE_TSV_COLUMNS = %w(uuid parentId preservationMasterPathname
     preservationMasterFilename accessMasterPathname accessMasterFilename
-    variant pageNumber subpageNumber date latitude longitude contentdmAlias
+    variant pageNumber subpageNumber latitude longitude contentdmAlias
     contentdmPointer)
   TSV_LINE_BREAK = "\n"
   TSV_MULTI_VALUE_SEPARATOR = '||'

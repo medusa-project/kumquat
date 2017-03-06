@@ -16,7 +16,7 @@ class ItemTest < ActiveSupport::TestCase
 
   test 'tsv_header should return the correct columns' do
     cols = Item.tsv_header(@item.collection.metadata_profile).strip.split("\t")
-    assert_equal 20, cols.length
+    assert_equal 19, cols.length
     assert_equal 'uuid', cols[0]
     assert_equal 'parentId', cols[1]
     assert_equal 'preservationMasterPathname', cols[2]
@@ -26,17 +26,16 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal 'variant', cols[6]
     assert_equal 'pageNumber', cols[7]
     assert_equal 'subpageNumber', cols[8]
-    assert_equal 'date', cols[9]
-    assert_equal 'latitude', cols[10]
-    assert_equal 'longitude', cols[11]
-    assert_equal 'contentdmAlias', cols[12]
-    assert_equal 'contentdmPointer', cols[13]
-    assert_equal 'Title', cols[14]
-    assert_equal 'Coordinates', cols[15]
-    assert_equal 'Date Created', cols[16]
-    assert_equal 'Description', cols[17]
-    assert_equal 'lcsh:Subject', cols[18]
-    assert_equal 'tgm:Subject', cols[19]
+    assert_equal 'latitude', cols[9]
+    assert_equal 'longitude', cols[10]
+    assert_equal 'contentdmAlias', cols[11]
+    assert_equal 'contentdmPointer', cols[12]
+    assert_equal 'Title', cols[13]
+    assert_equal 'Coordinates', cols[14]
+    assert_equal 'Date Created', cols[15]
+    assert_equal 'Description', cols[16]
+    assert_equal 'lcsh:Subject', cols[17]
+    assert_equal 'tgm:Subject', cols[18]
   end
 
   test 'tsv_header should end with a line break' do
@@ -548,7 +547,6 @@ class ItemTest < ActiveSupport::TestCase
     # technical elements
     row['contentdmAlias'] = 'cats'
     row['contentdmPointer'] = '123'
-    row['date'] = '1984'
     row['latitude'] = '45.52'
     row['longitude'] = '-120.564'
     row['pageNumber'] = '3'
@@ -568,7 +566,6 @@ class ItemTest < ActiveSupport::TestCase
 
     assert_equal 'cats', @item.contentdm_alias
     assert_equal 123, @item.contentdm_pointer
-    assert_equal 1984, @item.date.year
     assert_equal 45.52, @item.latitude
     assert_equal -120.564, @item.longitude
     assert_equal 3, @item.page_number
