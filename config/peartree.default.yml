@@ -1,15 +1,20 @@
 development: &development
+  # Pathname of the Medusa root on the NCSA condo mount.
   :repository_pathname: /repo
+  # URL of the IIIF Image API 2.1 endpoint.
   :iiif_url: http://localhost:8182/iiif/2
+  # Cantaloupe-specific.
   :image_server_api_endpoint: http://localhost:8182
   :image_server_api_user: admin
   :image_server_api_secret: secret
   :medusa_url: https://medusa.library.illinois.edu/
-  :medusa_user: machine_user
-  :medusa_secret: FoifWowdeth3
+  :medusa_user:
+  :medusa_secret:
   :medusa_cache_ttl: 2592000
+  # User authorized to use the REST API, at /api.
   :api_user: api_user
   :api_secret: secret
+  # Client IP addresses allowed to access the REST API.
   :api_ips:
     - 127.0.
   :solr_url: http://localhost:8983/solr/
