@@ -114,9 +114,10 @@ class Item < ActiveRecord::Base
     end
   end
 
+  # In the order they should appear in the TSV, left-to-right.
   NON_DESCRIPTIVE_TSV_COLUMNS = %w(uuid parentId preservationMasterPathname
     preservationMasterFilename accessMasterPathname accessMasterFilename
-    variant pageNumber subpageNumber latitude longitude contentdmAlias
+    variant pageNumber subpageNumber date latitude longitude contentdmAlias
     contentdmPointer)
   TSV_LINE_BREAK = "\n"
   TSV_MULTI_VALUE_SEPARATOR = '||'
@@ -914,29 +915,34 @@ class Item < ActiveRecord::Base
 
       # Descriptive metadata elements.
       row.each do |heading, raw_value|
-        # Vocabulary columns will have a heading of "vocabKey:elementName",
+        # Vocabulary columns will have a heading of "vocabKey:elementLabel",
         # except uncontrolled columns which will have a heading of just
-        # "elementName".
+        # "elementLabel".
         heading_parts = heading.to_s.split(':')
-        element_name = heading_parts.last
+        element_label = heading_parts.last
+        element_name = self.collection.metadata_profile.elements.
+            select{ |e| e.label == element_label }.first&.name
 
         # Skip non-descriptive columns.
-        next if NON_DESCRIPTIVE_TSV_COLUMNS.include?(element_name)
+        next if NON_DESCRIPTIVE_TSV_COLUMNS.include?(element_label)
 
-        # Get the vocabulary based on the column heading.
-        vocabulary = nil
-        if heading_parts.length > 1
-          vocabulary = Vocabulary.find_by_key(heading_parts.first)
-          unless vocabulary
-            raise ArgumentError, "Column contains an unrecognized vocabulary "\
-                "key: #{heading_parts.first}"
+        if element_name
+          # Get the vocabulary based on the prefix in the column heading.
+          vocabulary = nil
+          if heading_parts.length > 1
+            vocabulary = Vocabulary.find_by_key(heading_parts.first)
+            unless vocabulary
+              raise ArgumentError, "Column contains an unrecognized vocabulary "\
+                  "key: #{heading_parts.first}"
+            end
           end
-        end
 
-        # To avoid data loss, we will accept any available descriptive element,
-        # whether or not it is present in the collection's metadata profile.
-        self.elements += ItemElement::elements_from_tsv_string(
-            element_name, raw_value, vocabulary)
+          self.elements += ItemElement::elements_from_tsv_string(
+              element_name, raw_value, vocabulary)
+        else
+          raise ArgumentError, "Column contains an element not present in the "\
+              "metadata profile: #{element_label}"
+        end
       end
       self.save!
     end

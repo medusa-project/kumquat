@@ -16,7 +16,7 @@ class ItemTest < ActiveSupport::TestCase
 
   test 'tsv_header should return the correct columns' do
     cols = Item.tsv_header(@item.collection.metadata_profile).strip.split("\t")
-    assert_equal 17, cols.length
+    assert_equal 20, cols.length
     assert_equal 'uuid', cols[0]
     assert_equal 'parentId', cols[1]
     assert_equal 'preservationMasterPathname', cols[2]
@@ -26,14 +26,17 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal 'variant', cols[6]
     assert_equal 'pageNumber', cols[7]
     assert_equal 'subpageNumber', cols[8]
-    assert_equal 'latitude', cols[9]
-    assert_equal 'longitude', cols[10]
-    assert_equal 'contentdmAlias', cols[11]
-    assert_equal 'contentdmPointer', cols[12]
-    assert_equal 'Title', cols[13]
-    assert_equal 'Description', cols[14]
-    assert_equal 'lcsh:Subject', cols[15]
-    assert_equal 'tgm:Subject', cols[16]
+    assert_equal 'date', cols[9]
+    assert_equal 'latitude', cols[10]
+    assert_equal 'longitude', cols[11]
+    assert_equal 'contentdmAlias', cols[12]
+    assert_equal 'contentdmPointer', cols[13]
+    assert_equal 'Title', cols[14]
+    assert_equal 'Coordinates', cols[15]
+    assert_equal 'Date Created', cols[16]
+    assert_equal 'Description', cols[17]
+    assert_equal 'lcsh:Subject', cols[18]
+    assert_equal 'tgm:Subject', cols[19]
   end
 
   test 'tsv_header should end with a line break' do
@@ -541,13 +544,13 @@ class ItemTest < ActiveSupport::TestCase
     row['variant'] = Item::Variants::PAGE
 
     # descriptive elements
-    row['description'] = 'Cats' +
+    row['Description'] = 'Cats' +
         Item::TSV_MULTI_VALUE_SEPARATOR +
         'cats' + Item::TSV_URI_VALUE_SEPARATOR + '<http://example.org/cats1>' +
         Item::TSV_MULTI_VALUE_SEPARATOR +
         'and more cats' + Item::TSV_URI_VALUE_SEPARATOR + '<http://example.org/cats2>'
-    row['title'] = 'Cats & Stuff'
-    row['lcsh:subject'] = 'Cats'
+    row['Title'] = 'Cats & Stuff'
+    row['lcsh:Subject'] = 'Cats'
 
     @item.update_from_tsv(row)
 
@@ -560,7 +563,7 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal 1, @item.subpage_number
     assert_equal Item::Variants::PAGE, @item.variant
 
-    assert_equal 6, @item.elements.length # all of the above plus date
+    assert_equal 5, @item.elements.length
     assert_equal 1, @item.elements.select{ |e| e.name == 'title' and
         e.value == 'Cats & Stuff' }.length
     assert_equal 1, @item.elements.select{ |e| e.name == 'description' and
@@ -571,29 +574,26 @@ class ItemTest < ActiveSupport::TestCase
         e.value == 'Cats' and e.vocabulary == vocabularies(:lcsh) }.length
   end
 
-  test 'update_from_tsv should auto-normalize date from date or dateCreated
-  elements' do
-    row = { 'date' => '1995-02-23' }
-    @item.update_from_tsv(row)
-    assert_equal 1995, @item.date.year
-
-    row = { 'dateCreated' => '1992-01-13' }
+=begin TODO: auto-normalize date and lat/long in a before_save callback instead of here
+  test 'update_from_tsv should auto-normalize date from dateCreated
+  element' do
+    row = { 'Date Created' => '1992-01-13' }
     @item.update_from_tsv(row)
     assert_equal 1992, @item.date.year
   end
 
   test 'update_from_tsv should auto-normalize lat/long from coordinates element
   when latitude and longitude columns are empty' do
-    row = { 'coordinates' => 'W 90⁰26\'05"/ N 40⁰39\'51"' }
+    row = { 'Coordinates' => 'W 90⁰26\'05"/ N 40⁰39\'51"' }
     @item.update_from_tsv(row)
     assert_equal 39.25243, @item.latitude.to_f
     assert_equal -152.23423, @item.longitude.to_f
   end
-
+=end
   test 'update_from_tsv should raise an error if given an invalid element name' do
     row = {}
-    row['title'] = 'Cats'
-    row['totallyBogus'] = 'Felines'
+    row['Title'] = 'Cats'
+    row['TotallyBogus'] = 'Felines'
 
     assert_raises ArgumentError do
       @item.update_from_tsv(row)
@@ -602,8 +602,8 @@ class ItemTest < ActiveSupport::TestCase
 
   test 'update_from_tsv should raise an error if given an invalid vocabulary prefix' do
     row = {}
-    row['title'] = 'Cats'
-    row['bogus:subject'] = 'Felines'
+    row['Title'] = 'Cats'
+    row['bogus:Subject'] = 'Felines'
 
     assert_raises ArgumentError do
       @item.update_from_tsv(row)
