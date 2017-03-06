@@ -30,10 +30,10 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal 'longitude', cols[10]
     assert_equal 'contentdmAlias', cols[11]
     assert_equal 'contentdmPointer', cols[12]
-    assert_equal 'title', cols[13]
-    assert_equal 'description', cols[14]
-    assert_equal 'lcsh:subject', cols[15]
-    assert_equal 'tgm:subject', cols[16]
+    assert_equal 'Title', cols[13]
+    assert_equal 'Description', cols[14]
+    assert_equal 'lcsh:Subject', cols[15]
+    assert_equal 'tgm:Subject', cols[16]
   end
 
   test 'tsv_header should end with a line break' do
