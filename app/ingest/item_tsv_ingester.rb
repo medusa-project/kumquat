@@ -8,15 +8,23 @@ class ItemTsvIngester
   # Ingests items from the given TSV file.
   #
   # @param pathname [String] Absolute pathname of a TSV file.
+  # @param original_filename [String] Filename of the TSV file as it was
+  #                                   submitted to the application.
   # @param task [Task] Supply to receive progress updates.
   # @return [Integer] Number of items created or updated.
   #
-  def ingest_pathname(pathname, task = nil)
+  def ingest_pathname(pathname, original_filename = nil, task = nil)
     pathname = File.expand_path(pathname)
-    @@logger.info("ItemTsvIngester.ingest_pathname(): "\
-        "ingesting from #{pathname}...")
-
+    filename = original_filename || File.basename(pathname)
     num_rows = File.read(pathname).scan(/\n/).count
+
+    if task
+      task.update(status_text: "Importing metadata for #{num_rows} items "\
+      "from TSV (#{filename})")
+    end
+    @@logger.info("ItemTsvIngester.ingest_pathname(): "\
+        "ingesting metadata for #{num_rows} items from #{pathname}...")
+
     num_ingested = 0
     ActiveRecord::Base.transaction do
       # Treat the zero-byte as the quote character in order to allow quotes in
