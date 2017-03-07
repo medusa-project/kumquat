@@ -97,12 +97,14 @@ class Item < ActiveRecord::Base
   end
 
   class Variants
+    COMPOSITE = 'Composite'
     DIRECTORY = 'Directory'
     FILE = 'File'
     FRONT_MATTER = 'FrontMatter'
     INDEX = 'Index'
     KEY = 'Key'
     PAGE = 'Page'
+    SUPPLEMENT = 'Supplement'
     TABLE_OF_CONTENTS = 'TableOfContents'
     TITLE = 'Title'
 
@@ -679,11 +681,10 @@ class Item < ActiveRecord::Base
   end
 
   ##
-  # @return [Binary]
+  # @return [Item]
   #
-  def supplementary_binary
-    self.binaries.
-        select{ |b| b.binary_type == Binary::Type::SUPPLEMENTARY }.first
+  def supplementary_item
+    self.items.where(variant: Variants::SUPPLEMENT).limit(1).first
   end
 
   ##

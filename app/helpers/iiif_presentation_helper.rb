@@ -15,7 +15,9 @@ module IiifPresentationHelper
         width: canvas_width(subitem),
         metadata: iiif_metadata_for(subitem)
     }
-    struct[:images] = iiif_images_for(subitem, 'access') if subitem.is_image?
+    if subitem.is_image? or subitem.is_pdf?
+      struct[:images] = iiif_images_for(subitem, 'access')
+    end
     struct
   end
 
