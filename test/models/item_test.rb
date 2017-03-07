@@ -390,16 +390,18 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal 'cats', @item.subtitle
   end
 
-  # supplementary_binary()
+  # supplementary_item()
 
-  test 'supplementary_binary() should return the supplementary binary, or nil
-  if none exists' do
-    item = Item.new
-    assert_nil item.supplementary_binary
+  test 'supplementary_item() should return the supplementary item, or nil if
+  none exists' do
+    item = items(:item1)
+    assert_nil item.supplementary_item
 
-    item.binaries.build(binary_type: Binary::Type::SUPPLEMENTARY)
-    assert_equal Binary::Type::SUPPLEMENTARY,
-                 item.supplementary_binary.binary_type
+    Item.create!(repository_id: SecureRandom.uuid,
+                 collection_repository_id: item.collection_repository_id,
+                 parent_repository_id: item.repository_id,
+                 variant: Item::Variants::SUPPLEMENT)
+    assert_equal Item::Variants::SUPPLEMENT, item.supplementary_item.variant
   end
 
   # title()
