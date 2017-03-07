@@ -20,12 +20,13 @@ var PTTaskRefresher = function() {
             var title = task_row.find('.pt-title').text();
             var status = task_row.find('.pt-status').html();
             var progress = task_row.find('.pt-progress').text();
-            var started = task_row.find('.pt-started').text();
+            var started = task_row.find('.pt-started').clone();
 
             $('h1.pt-title').text(title);
             $('dd.pt-status').html(status);
             $('dd.pt-progress').text(progress);
-            $('dd.pt-started').text(started);
+            $('dd.pt-started').empty().append(started);
+            LocalTime.run(); // from the local_time gem
         });
     };
 
