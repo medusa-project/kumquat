@@ -97,12 +97,14 @@ class Item < ActiveRecord::Base
   end
 
   class Variants
+    COMPOSITE = 'Composite'
     DIRECTORY = 'Directory'
     FILE = 'File'
     FRONT_MATTER = 'FrontMatter'
     INDEX = 'Index'
     KEY = 'Key'
     PAGE = 'Page'
+    SUPPLEMENT = 'Supplement'
     TABLE_OF_CONTENTS = 'TableOfContents'
     TITLE = 'Title'
 

@@ -75,23 +75,15 @@ module ItemsHelper
   # @param item [Item] Compound object
   #
   def compound_object_binary_info_table(item)
-    binaries = item.binaries
     subitems = item.items_in_iiif_presentation_order.limit(999).to_a
     html = ''
-    if subitems.any? or binaries.any?
+    if subitems.any?
       html += '<table class="table">'
       html += '  <tr>'
       html += '    <th>Item</th>'
       html += '    <th>File Type</th>'
       html += '    <th>Filename</th>'
       html += '  </tr>'
-      binaries.each do |binary|
-        html += '<tr>'
-        html += "  <td>#{item.title}</td>"
-        html += "  <td>#{binary.human_readable_type}</td>"
-        html += "  <td>#{link_to(binary.filename, binary.medusa_url, target: '_blank')}</td>"
-        html += '</tr>'
-      end
       subitems.each do |subitem|
         subitem.binaries.each_with_index do |bs, index|
           html += '<tr>'

@@ -145,7 +145,26 @@ class MedusaCompoundObjectIngester
             select{ |d| d.name == 'supplementary' }.first
         if supplementary_dir
           supplementary_dir.files.each do |supp_file|
-            item.binaries << supp_file.to_binary(Binary::Type::SUPPLEMENTARY)
+            # Find or create the supplementary item.
+            child = Item.find_by_repository_id(supp_file.uuid)
+            if child
+              @@logger.info("MedusaCompoundObjectIngester.create_items(): "\
+                    "skipping supplementary item #{supp_file.uuid}")
+              status[:num_skipped] += 1
+              next
+            else
+              @@logger.info("MedusaCompoundObjectIngester.create_items(): "\
+                    "creating supplementary item #{supp_file.uuid}")
+              child = Item.new(repository_id: supp_file.uuid,
+                               collection_repository_id: collection.repository_id,
+                               parent_repository_id: item.repository_id,
+                               variant: Item::Variants::SUPPLEMENT)
+              # Assign a title of the filename.
+              child.elements.build(name: 'title', value: supp_file.name)
+              child.binaries << supp_file.to_binary(Binary::Type::PRESERVATION_MASTER)
+              child.save!
+              status[:num_created] += 1
+            end
           end
         end
 
@@ -153,7 +172,26 @@ class MedusaCompoundObjectIngester
             select{ |d| d.name == 'composite' }.first
         if composite_dir
           composite_dir.files.each do |comp_file|
-            item.binaries << comp_file.to_binary(Binary::Type::COMPOSITE)
+            # Find or create the composite item.
+            child = Item.find_by_repository_id(comp_file.uuid)
+            if child
+              @@logger.info("MedusaCompoundObjectIngester.create_items(): "\
+                    "skipping composite item #{comp_file.uuid}")
+              status[:num_skipped] += 1
+              next
+            else
+              @@logger.info("MedusaCompoundObjectIngester.create_items(): "\
+                    "creating composite item #{comp_file.uuid}")
+              child = Item.new(repository_id: comp_file.uuid,
+                               collection_repository_id: collection.repository_id,
+                               parent_repository_id: item.repository_id,
+                               variant: Item::Variants::COMPOSITE)
+              # Assign a title of the filename.
+              child.elements.build(name: 'title', value: comp_file.name)
+              child.binaries << comp_file.to_binary(Binary::Type::PRESERVATION_MASTER)
+              child.save!
+              status[:num_created] += 1
+            end
           end
         end
       else
@@ -252,11 +290,11 @@ class MedusaCompoundObjectIngester
     directories = collection.effective_medusa_cfs_directory.directories
     num_directories = directories.length
 
+    collection.items.each { |item| item.binaries.destroy_all }
+
     directories.each_with_index do |top_item_dir, index|
       item = Item.find_by_repository_id(top_item_dir.uuid)
       if item
-        item.binaries.destroy_all
-
         if top_item_dir.directories.any?
           pres_dir = top_item_dir.directories.
               select{ |d| d.name == 'preservation' }.first
@@ -323,27 +361,42 @@ class MedusaCompoundObjectIngester
             @@logger.warn("MedusaCompoundObjectIngester.update_binaries(): #{msg}")
           end
 
-          extra_item_binaries = []
+          # Update supplementary item binaries.
           supplementary_dir = top_item_dir.directories.
               select{ |d| d.name == 'supplementary' }.first
           if supplementary_dir
             supplementary_dir.files.each do |supp_file|
-              extra_item_binaries << supp_file.to_binary(Binary::Type::SUPPLEMENTARY)
+              item = Item.find_by_repository_id(supp_file.uuid)
+              if item
+                item.binaries.destroy_all
+                item.binaries << supp_file.to_binary(Binary::Type::PRESERVATION_MASTER)
+                item.save!
+                stats[:num_updated] += 1
+              else
+                msg = "Supplementary file #{supp_file.uuid} is missing an "\
+                    "item counterpart."
+                @@logger.warn("MedusaCompoundObjectIngester.update_binaries(): #{msg}")
+              end
             end
           end
 
+          # Update compoosite item binaries.
           composite_dir = top_item_dir.directories.
               select{ |d| d.name == 'composite' }.first
           if composite_dir
             composite_dir.files.each do |comp_file|
-              extra_item_binaries << comp_file.to_binary(Binary::Type::COMPOSITE)
+              item = Item.find_by_repository_id(comp_file.uuid)
+              if item
+                item.binaries.destroy_all
+                item.binaries << comp_file.to_binary(Binary::Type::PRESERVATION_MASTER)
+                item.save!
+                stats[:num_updated] += 1
+              else
+                msg = "Composite file #{comp_file.uuid} is missing an "\
+                    "item counterpart."
+                @@logger.warn("MedusaCompoundObjectIngester.update_binaries(): #{msg}")
+              end
             end
-          end
-
-          if extra_item_binaries.any?
-            item.binaries += extra_item_binaries
-            item.save!
-            stats[:num_updated] += 1
           end
         else
           msg = "Directory #{top_item_dir.uuid} does not have any subdirectories."
