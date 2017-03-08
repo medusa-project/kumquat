@@ -69,10 +69,13 @@ module IiifPresentationHelper
   def iiif_canvases_for(item)
     items = item.items_in_iiif_presentation_order.to_a
     if items.any?
-      return items.map { |subitem| iiif_canvas_for(subitem) }
-    else
-      return [ iiif_canvas_for(item) ]
+      # Composite and supplement items are included in the annotation list
+      # instead.
+      return items.select{ |it| ![Item::Variants::COMPOSITE,
+                                  Item::Variants::SUPPLEMENT].include?(it.variant) }.
+          map { |subitem| iiif_canvas_for(subitem) }
     end
+    [ iiif_canvas_for(item) ]
   end
 
   ##
