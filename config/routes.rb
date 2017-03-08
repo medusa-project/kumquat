@@ -84,40 +84,40 @@ Rails.application.routes.draw do
         to: 'contentdm#redirect_to_dls_collection', via: :all
 
   resources :agents, only: :show do
-    match '/items', to: 'agents#items', via: 'get', as: :items
+    match '/items', to: 'agents#items', via: :get, as: 'items'
   end
   match '/auth/:provider/callback', to: 'sessions#create', via: [:get, :post],
-        as: :auth # used by omniauth
+        as: 'auth' # used by omniauth
   resources :collections, only: [:index, :show] do
     resources :items, only: :index
     # IIIF Presentation API 2.1 routes
-    match '/presentation', to: 'collections#iiif_presentation', via: 'get',
+    match '/presentation', to: 'collections#iiif_presentation', via: :get,
           as: 'iiif_presentation'
   end
   resources :favorites, only: :index
   resources :items, only: [:index, :show] do
-    match '/access-master', to: 'items#access_master_binary', via: 'get',
-          as: :access_master_binary
-    match '/files', to: 'items#files', via: 'get', as: :files
-    match '/pages', to: 'items#pages', via: 'get', as: :pages
+    match '/access-master', to: 'items#access_master_binary', via: :get,
+          as: 'access_master_binary'
+    match '/files', to: 'items#files', via: :get, as: 'files'
+    match '/pages', to: 'items#pages', via: :get, as: 'pages'
     match '/preservation-master', to: 'items#preservation_master_binary',
-          via: 'get', as: :preservation_master_binary
+          via: :get, as: 'preservation_master_binary'
     # IIIF Presentation API 2.1 routes
-    match '/annotation/:name', to: 'items#annotation', via: 'get',
+    match '/annotation/:name', to: 'items#iiif_annotation', via: :get,
           as: 'iiif_annotation'
-    match '/canvas/:id', to: 'items#iiif_canvas', via: 'get', as: 'iiif_canvas'
-    match '/manifest', to: 'items#iiif_manifest', via: 'get',
+    match '/canvas/:id', to: 'items#iiif_canvas', via: :get, as: 'iiif_canvas'
+    match '/manifest', to: 'items#iiif_manifest', via: :get,
           as: 'iiif_manifest'
-    match '/media-sequence/:name', to: 'items#iiif_media_sequence', via: 'get',
+    match '/media-sequence/:name', to: 'items#iiif_media_sequence', via: :get,
           as: 'iiif_media_sequence'
-    match '/range/:name', to: 'items#iiif_range', via: 'get', as: 'iiif_range'
-    match '/sequence/:name', to: 'items#iiif_sequence', via: 'get',
+    match '/range/:name', to: 'items#iiif_range', via: :get, as: 'iiif_range'
+    match '/sequence/:name', to: 'items#iiif_sequence', via: :get,
           as: 'iiif_sequence'
   end
   match '/oai-pmh', to: 'oai_pmh#index', via: %w(get post), as: 'oai_pmh'
-  match '/search', to: 'search#search', via: 'get'
-  match '/signin', to: 'sessions#new', via: 'get'
-  match '/signout', to: 'sessions#destroy', via: 'delete'
+  match '/search', to: 'search#search', via: :get
+  match '/signin', to: 'sessions#new', via: :get
+  match '/signout', to: 'sessions#destroy', via: :delete
 
   # Control Panel routes.
   namespace :admin do
@@ -130,55 +130,55 @@ Rails.application.routes.draw do
     resources :agent_rules, except: :show, path: 'agent-rules'
     resources :agent_types, except: :show, path: 'agent-types'
     resources :elements, except: :show, path: 'elements'
-    match '/elements/import', to: 'elements#import', via: 'post',
+    match '/elements/import', to: 'elements#import', via: :post,
           as: 'elements_import'
-    match '/collections/sync', to: 'collections#sync', via: 'patch',
+    match '/collections/sync', to: 'collections#sync', via: :patch,
           as: 'collections_sync'
     resources :collections, except: [:new, :create, :delete] do
-      match '/items/edit', to: 'items#edit_all', via: 'get', as: 'edit_all_items'
-      match '/items/update', to: 'items#update_all', via: 'post'
+      match '/items/edit', to: 'items#edit_all', via: :get, as: 'edit_all_items'
+      match '/items/update', to: 'items#update_all', via: :post
       resources :items, concerns: :publishable do
         match '/purge-cached-images', to: 'items#purge_cached_images',
-              via: 'post'
+              via: :post
       end
-      match '/items/import', to: 'items#import', via: 'post'
+      match '/items/import', to: 'items#import', via: :post
       match '/items/batch-change-metadata', to: 'items#batch_change_metadata',
-            via: 'post'
-      match '/items/migrate-metadata', to: 'items#migrate_metadata', via: 'post'
-      match '/items/replace-metadata', to: 'items#replace_metadata', via: 'post'
-      match '/items/sync', to: 'items#sync', via: 'post'
+            via: :post
+      match '/items/migrate-metadata', to: 'items#migrate_metadata', via: :post
+      match '/items/replace-metadata', to: 'items#replace_metadata', via: :post
+      match '/items/sync', to: 'items#sync', via: :post
     end
     resources :metadata_profile_elements,
               only: [:create, :update, :destroy, :edit]
     resources :metadata_profiles, path: 'metadata-profiles' do
-      match '/clone', to: 'metadata_profiles#clone', via: 'patch', as: 'clone'
+      match '/clone', to: 'metadata_profiles#clone', via: :patch, as: 'clone'
       match '/delete-elements', to: 'metadata_profiles#delete_elements',
-            via: 'post', as: 'delete_elements'
+            via: :post, as: 'delete_elements'
     end
     match '/metadata-profiles/import', to: 'metadata_profiles#import',
-          via: 'post', as: 'metadata_profile_import'
+          via: :post, as: 'metadata_profile_import'
     resources :roles, param: :key
-    match '/server', to: 'server#index', via: 'get'
+    match '/server', to: 'server#index', via: :get
     match '/server/image-server-status', to: 'server#image_server_status',
-          via: 'get', as: 'server_image_server_status'
+          via: :get, as: 'server_image_server_status'
     match '/server/search-server-status', to: 'server#search_server_status',
-          via: 'get', as: 'server_search_server_status'
-    match '/settings', to: 'settings#index', via: 'get'
-    match '/settings', to: 'settings#update', via: 'patch'
+          via: :get, as: 'server_search_server_status'
+    match '/settings', to: 'settings#index', via: :get
+    match '/settings', to: 'settings#update', via: :patch
     resources :tasks
     resources :users, param: :username do
-      match '/enable', to: 'users#enable', via: 'patch', as: 'enable'
-      match '/disable', to: 'users#disable', via: 'patch', as: 'disable'
-      match '/roles', to: 'users#change_roles', via: 'patch', as: 'change_roles'
+      match '/enable', to: 'users#enable', via: :patch, as: 'enable'
+      match '/disable', to: 'users#disable', via: :patch, as: 'disable'
+      match '/roles', to: 'users#change_roles', via: :patch, as: 'change_roles'
     end
     resources :vocabulary_terms, except: :index, path: 'vocabulary-terms'
     resources :vocabularies do
       match '/delete-vocabulary-terms',
             to: 'vocabularies#delete_vocabulary_terms',
-            via: 'post', as: 'delete_vocabulary_terms'
-      match '/terms', to: 'vocabularies#terms', via: 'get'
+            via: :post, as: 'delete_vocabulary_terms'
+      match '/terms', to: 'vocabularies#terms', via: :get
     end
-    match '/vocabularies/import', to: 'vocabularies#import', via: 'post',
+    match '/vocabularies/import', to: 'vocabularies#import', via: :post,
           as: 'vocabulary_import'
   end
 
