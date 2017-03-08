@@ -273,6 +273,27 @@ class Item < ActiveRecord::Base
     self.items.where(variant: Variants::COMPOSITE).limit(1).first
   end
 
+  ##
+  # @return [String]
+  # @see http://dublincore.org/documents/dcmi-type-vocabulary/#H7
+  #
+  def dc_type
+    type = nil
+    # TODO: Software
+    if self.is_compound?
+      type = 'Collection'
+    elsif self.is_image?
+      type = 'StillImage'
+    elsif self.is_video?
+      type = 'MovingImage'
+    elsif self.is_audio?
+      type = 'Sound'
+    elsif self.is_pdf? or self.is_text?
+      type = 'Text'
+    end
+    type
+  end
+
   def delete_from_solr # TODO: change to Item.solr.delete()
     Solr.instance.delete(self.solr_id)
   end
