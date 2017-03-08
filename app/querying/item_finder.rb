@@ -154,7 +154,7 @@ class ItemFinder < AbstractFinder
       # Exclude documents that have denied roles matching one of the user
       # roles.
       @items = @items.filter("-#{Item::SolrFields::EFFECTIVE_DENIED_ROLES}:(#{role_keys.join(' OR ')})")
-    else
+    elsif @client_ip.present? or @client_hostname.present?
       @items = @items.filter("*:* -#{Item::SolrFields::EFFECTIVE_ALLOWED_ROLES}:[* TO *]")
     end
 

@@ -42,6 +42,19 @@ class CollectionTest < ActiveSupport::TestCase
     assert elements.map(&:uri).include?('http://example.org/cougar')
   end
 
+  # effective_metadata_profile()
+
+  test 'effective_metadata_profile() should return the assigned metadata
+  profile' do
+    assert_equal @col.metadata_profile, @col.effective_metadata_profile
+  end
+
+  test 'effective_metadata_profile() should return the default metadata
+  profile if not assigned' do
+    @col.metadata_profile = nil
+    assert_equal MetadataProfile.default, @col.effective_metadata_profile
+  end
+
   # items()
 
   test 'items should return all items' do
@@ -76,6 +89,18 @@ cd2d4601-c451-0133-1d17-0050569601ca-8\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n"
     assert_equal expected, @col.items_as_tsv(only_undescribed: true)
   end
 
+  # medusa_cfs_directory()
+
+  test 'medusa_cfs_directory() should return nil if medusa_cfs_directory_id is
+  nil' do
+    @col.medusa_cfs_directory_id = nil
+    assert_nil @col.medusa_cfs_directory
+  end
+
+  test 'medusa_cfs_directory() should return a MedusaCfsDirectory' do
+    assert_equal @col.medusa_cfs_directory.uuid, @col.medusa_cfs_directory_id
+  end
+
   # medusa_cfs_directory_id
 
   test 'medusa_cfs_directory_id must be a valid Medusa directory ID' do
@@ -87,6 +112,17 @@ cd2d4601-c451-0133-1d17-0050569601ca-8\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n"
     assert !@col.valid?
   end
 
+  # medusa_file_group()
+
+  test 'medusa_file_group() should return nil if medusa_file_group_id is nil' do
+    @col.medusa_file_group_id = nil
+    assert_nil @col.medusa_file_group
+  end
+
+  test 'medusa_file_group() should return a MedusaFileGroup' do
+    assert_equal @col.medusa_file_group.uuid, @col.medusa_file_group_id
+  end
+
   # meduse_file_group_id
 
   test 'medusa_file_group_id must be a valid Medusa file group ID' do
@@ -96,6 +132,40 @@ cd2d4601-c451-0133-1d17-0050569601ca-8\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n"
     # set it to a file UUID
     @col.medusa_file_group_id = '6cc533c0-cebf-0134-238a-0050569601ca-3'
     assert !@col.valid?
+  end
+
+  # medusa_repository()
+
+  test 'medusa_repository() should return nil if medusa_repository_id is nil' do
+    @col.medusa_repository_id = nil
+    assert_nil @col.medusa_repository
+  end
+
+  test 'medusa_repository() should return a MedusaRepository' do
+    assert_equal @col.medusa_repository.id, @col.medusa_repository_id
+  end
+
+  # medusa_url()
+
+  test 'medusa_url() should return nil when the repository ID is nil' do
+    @col.repository_id = nil
+    assert_nil @col.medusa_url
+  end
+
+  # medusa_url()
+
+  test 'medusa_url should return the correct URL' do
+    # without format
+    expected = sprintf('%s/uuids/%s',
+                       Configuration.instance.medusa_url.chomp('/'),
+                       @col.repository_id)
+    assert_equal(expected, @col.medusa_url)
+
+    # with format
+    expected = sprintf('%s/uuids/%s.json',
+                       Configuration.instance.medusa_url.chomp('/'),
+                       @col.repository_id)
+    assert_equal(expected, @col.medusa_url('json'))
   end
 
   # migrate_item_elements()
@@ -140,22 +210,6 @@ cd2d4601-c451-0133-1d17-0050569601ca-8\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n"
   test 'package_profile= should set a PackageProfile' do
     @col.package_profile = PackageProfile::COMPOUND_OBJECT_PROFILE
     assert_equal @col.package_profile_id, PackageProfile::COMPOUND_OBJECT_PROFILE.id
-  end
-
-  # medusa_url()
-
-  test 'medusa_url should return the correct URL' do
-    # without format
-    expected = sprintf('%s/uuids/%s',
-                       Configuration.instance.medusa_url.chomp('/'),
-                       @col.repository_id)
-    assert_equal(expected, @col.medusa_url)
-
-    # with format
-    expected = sprintf('%s/uuids/%s.json',
-                       Configuration.instance.medusa_url.chomp('/'),
-                       @col.repository_id)
-    assert_equal(expected, @col.medusa_url('json'))
   end
 
   # replace_item_element_values()
