@@ -12,18 +12,19 @@ class ItemsController < WebsiteController
   # Number of children to display per page in show-item view.
   PAGES_LIMIT = 15
 
-  before_action :enable_cors, only: [:iiif_annotation, :iiif_canvas,
-                                     :iiif_manifest, :iiif_media_sequence,
-                                     :iiif_sequence]
+  before_action :enable_cors, only: [:iiif_annotation, :iiif_annotation_list,
+                                     :iiif_canvas, :iiif_layer, :iiif_manifest,
+                                     :iiif_media_sequence, :iiif_sequence]
 
   # Other actions
   before_action :load_item, only: [:access_master_binary, :files,
-                                   :iiif_annotation, :iiif_canvas,
-                                   :iiif_manifest, :iiif_media_sequence,
-                                   :iiif_sequence, :pages,
+                                   :iiif_annotation, :iiif_annotation_list,
+                                   :iiif_canvas, :iiif_layer, :iiif_manifest,
+                                   :iiif_media_sequence, :iiif_sequence, :pages,
                                    :preservation_master_binary, :show]
   before_action :authorize_item, only: [:access_master_binary, :files,
-                                        :iiif_annotation, :iiif_canvas,
+                                        :iiif_annotation, :iiif_annotation_list,
+                                        :iiif_canvas, :iiif_layer,
                                         :iiif_manifest, :iiif_media_sequence,
                                         :iiif_sequence, :pages,
                                         :preservation_master_binary]
@@ -77,6 +78,23 @@ class ItemsController < WebsiteController
   end
 
   ##
+  # Serves IIIF Presentation API 2.1 annotation lists.
+  #
+  # Responds to GET /items/:id/list/:name
+  #
+  # @see http://iiif.io/api/presentation/2.1/#annotation-list
+  #
+  def iiif_annotation_list
+    @annotation_list_name = params[:name]
+    if Item.find_by_repository_id(@annotation_list_name)
+      render 'items/iiif_presentation_api/annotation_list',
+             formats: :json, content_type: 'application/json'
+    else
+      render text: 'No such annotation list.', status: :not_found
+    end
+  end
+
+  ##
   # Serves IIIF Presentation API 2.1 canvases.
   #
   # Responds to GET /items/:id/canvas/:name
@@ -95,6 +113,23 @@ class ItemsController < WebsiteController
   end
 
   ##
+  # Serves IIIF Presentation API 2.1 layers.
+  #
+  # Responds to GET /items/:id/layer/:name
+  #
+  # @see http://iiif.io/api/presentation/2.1/#layer
+  #
+  def iiif_layer
+    @layer_name = params[:name]
+    if Item.find_by_repository_id(@layer_name)
+      render 'items/iiif_presentation_api/layer',
+             formats: :json, content_type: 'application/json'
+    else
+      render text: 'No such layer.', status: :not_found
+    end
+  end
+
+  ##
   # Serves IIIF Presentation API 2.1 manifests.
   #
   # Responds to GET /items/:id/manifest
@@ -103,8 +138,7 @@ class ItemsController < WebsiteController
   #
   def iiif_manifest
     render 'items/iiif_presentation_api/manifest',
-           formats: :json,
-           content_type: 'application/json'
+           formats: :json, content_type: 'application/json'
   end
 
   ##
@@ -143,23 +177,18 @@ class ItemsController < WebsiteController
   ##
   # Serves IIIF Presentation API 2.1 ranges.
   #
-  # Responds to GET /items/:id/range/:name where :name is a value of an
-  # Item::Variants constant.
+  # Responds to GET /items/:id/range/:name where :name is a subitem repository
+  # ID.
   #
   # @see http://iiif.io/api/presentation/2.1/#range
   #
   def iiif_range
-    all_ranges = Item::Variants::all
-    if all_ranges.include?(params[:name])
-      @range = params[:name]
-      @item = Item.find_by_repository_id(params[:item_id])
-      if @item
-        render 'items/iiif_presentation_api/range',
-               formats: :json,
-               content_type: 'application/json'
-      else
-        render text: 'No such item.', status: :not_found
-      end
+    @subitem = Item.find_by_repository_id(params[:name])
+    @item = @subitem.parent
+    if @subitem
+      render 'items/iiif_presentation_api/range',
+             formats: :json,
+             content_type: 'application/json'
     else
       render text: 'No such range.', status: :not_found
     end

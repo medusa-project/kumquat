@@ -121,11 +121,31 @@
 
 <%= item_page_title(@item) %>
 
-<% if @previous_result or @next_result or session[:browse_context_url] %>
+<% if @previous_result or @next_result or session[:browse_context_url] or
+  @item.supplementary_item %>
+  <% bin = @item.supplementary_item&.preservation_master_binary %>
+  <% if bin %>
+    <% # DLD-6: button that pops open the supplementary section is aligned to
+       # the right of the nav buttons %>
+    <div style="float:right">
+      <a role="button" class="btn btn-default btn-sm" data-toggle="collapse"
+         href="#pt-binary-<%= bin.id %>"
+         aria-expanded="false" aria-controls="pt-binary-<%= bin.id %>">
+        <span class="fa fa-plus-square-o"></span> Supplementary File</a>
+    </div>
+    <div class="clearfix"></div>
+  <% end %>
+
   <% # IMET-487: center the nav buttons above the viewer %>
   <div style="margin: 0 auto; width: 300px; text-align: center">
     <%= render partial: 'navigation_buttons' %>
   </div>
+
+  <% if bin %>
+    <div id="pt-binary-<%= bin.id %>" class="collapse">
+      <%= viewer_for_binary(bin) %>
+    </div>
+  <% end %>
 <% end %>
 
 <div class="pt-viewer">
