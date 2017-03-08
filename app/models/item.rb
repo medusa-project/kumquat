@@ -176,6 +176,31 @@ class Item < ActiveRecord::Base
   after_commit :index_in_solr, on: [:create, :update]
   after_commit :delete_from_solr, on: :destroy
 
+  def self.num_free_form_items
+    sql = "SELECT COUNT(items.id) AS count
+      FROM items
+      LEFT JOIN collections
+      ON collections.repository_id = items.collection_repository_id
+      WHERE collections.package_profile_id = #{PackageProfile::FREE_FORM_PROFILE.id}
+      AND items.variant = '#{Item::Variants::FILE}'"
+    result = ActiveRecord::Base.connection.execute(sql)
+    result[0]['count'].to_i
+  end
+
+  ##
+  # @return [Integer] Number of objects in the instance.
+  #
+  def self.num_objects
+    sql = "SELECT COUNT(items.id) AS count
+      FROM items
+      LEFT JOIN collections
+      ON collections.repository_id = items.collection_repository_id
+      WHERE collections.package_profile_id != #{PackageProfile::FREE_FORM_PROFILE.id}
+      AND items.variant IS NULL"
+    result = ActiveRecord::Base.connection.execute(sql)
+    result[0]['count'].to_i + num_free_form_items
+  end
+
   ##
   # Returns a tab-separated list of applicable technical elements, plus one
   # column per element definition in the item's collection's metadata profile.

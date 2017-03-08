@@ -165,6 +165,7 @@ Rails.application.routes.draw do
           via: :get, as: 'server_search_server_status'
     match '/settings', to: 'settings#index', via: :get
     match '/settings', to: 'settings#update', via: :patch
+    match '/statistics', to: 'statistics#index', via: :get
     resources :tasks
     resources :users, param: :username do
       match '/enable', to: 'users#enable', via: :patch, as: 'enable'
