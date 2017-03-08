@@ -321,7 +321,12 @@ class ItemsController < WebsiteController
         @parent = @item.parent
         @relative_parent = @parent ? @parent : @item
 
-        if @item.variant == Item::Variants::PAGE
+        # If the item has a parent and variant and the variant is not FILE or
+        # DIRECTORY, redirect to its parent. This is to force compound object
+        # pages and other child items to be viewed within the context of the
+        # object itself.
+        if @item.parent and @item.variant and
+            ![Item::Variants::DIRECTORY, Item::Variants::FILE].include?(@item.variant)
           redirect_to @item.parent, status: 303
           return
         end

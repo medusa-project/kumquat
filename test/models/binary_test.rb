@@ -93,6 +93,29 @@ class BinaryTest < ActiveSupport::TestCase
                  @binary.iiif_info_url
   end
 
+  # iiif_safe?()
+
+  test 'iiif_safe?() should return false if the pathname is empty' do
+    @binary.repository_relative_pathname = nil
+    assert !@binary.iiif_safe?
+  end
+
+  test 'iiif_safe?() should return false if the instance is not IIIF-compatible' do
+    @binary.media_type = 'application/octet-stream'
+    assert !@binary.iiif_safe?
+
+    @binary.media_type = 'text/plain'
+    assert !@binary.iiif_safe?
+  end
+
+  test 'iiif_safe?() should return false if a TIFF image is too big' do
+    # TODO: write this
+  end
+
+  test 'iiif_safe?() should return true in all other cases' do
+    assert @binary.iiif_safe?
+  end
+
   # infer_media_type()
 
   test 'infer_media_type() should work properly' do
