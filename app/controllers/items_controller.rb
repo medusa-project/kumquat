@@ -177,23 +177,18 @@ class ItemsController < WebsiteController
   ##
   # Serves IIIF Presentation API 2.1 ranges.
   #
-  # Responds to GET /items/:id/range/:name where :name is a value of an
-  # Item::Variants constant.
+  # Responds to GET /items/:id/range/:name where :name is a subitem repository
+  # ID.
   #
   # @see http://iiif.io/api/presentation/2.1/#range
   #
   def iiif_range
-    all_ranges = Item::Variants::all
-    if all_ranges.include?(params[:name])
-      @range = params[:name]
-      @item = Item.find_by_repository_id(params[:item_id])
-      if @item
-        render 'items/iiif_presentation_api/range',
-               formats: :json,
-               content_type: 'application/json'
-      else
-        render text: 'No such item.', status: :not_found
-      end
+    @subitem = Item.find_by_repository_id(params[:name])
+    @item = @subitem.parent
+    if @subitem
+      render 'items/iiif_presentation_api/range',
+             formats: :json,
+             content_type: 'application/json'
     else
       render text: 'No such range.', status: :not_found
     end

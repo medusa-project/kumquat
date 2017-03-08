@@ -181,17 +181,22 @@ module IiifPresentationHelper
 
   ##
   # @param item [Item] Compound object
-  # @param variant [String] One of the Item::Variants constant values
+  # @param subitem [Item] Item
   # @return [Hash]
   #
-  def iiif_range_for(item, variant)
-    subitem = item.items.where(variant: variant).first
-    {
-        '@id': item_iiif_range_url(item, variant),
+  def iiif_range_for(item, subitem)
+    struct = {
+        '@id': item_iiif_range_url(item, subitem.repository_id),
         '@type': 'sc:Range',
-        label: subitem.title,
-        canvases: [ item_iiif_canvas_url(subitem, subitem.repository_id) ]
+        label: subitem.title
     }
+    if [Item::Variants::COMPOSITE, Item::Variants::SUPPLEMENT].
+        include?(subitem.variant)
+      struct[:contentLayer] = item_iiif_layer_url(item, subitem.repository_id)
+    else
+      struct[:canvases] = [ item_iiif_canvas_url(subitem, subitem.repository_id) ]
+    end
+    struct
   end
 
   ##
@@ -201,7 +206,7 @@ module IiifPresentationHelper
   #
   def iiif_ranges_for(item)
     ranges = item.items.where('variant NOT IN (?)', [Item::Variants::PAGE]).map do |subitem|
-      iiif_range_for(item, subitem.variant)
+      iiif_range_for(item, subitem)
     end
 
     top_range = ranges.select{ |r| r[:label] == Item::Variants::TITLE.titleize }.first ||
