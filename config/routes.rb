@@ -107,6 +107,9 @@ Rails.application.routes.draw do
     match '/annotation/:name', to: 'items#iiif_annotation', via: :get,
           as: 'iiif_annotation'
     match '/canvas/:id', to: 'items#iiif_canvas', via: :get, as: 'iiif_canvas'
+    match '/layer/:name', to: 'items#iiif_layer', via: :get, as: 'iiif_layer'
+    match '/list/:name', to: 'items#iiif_annotation_list', via: :get,
+          as: 'iiif_annotation_list'
     match '/manifest', to: 'items#iiif_manifest', via: :get,
           as: 'iiif_manifest'
     match '/media-sequence/:name', to: 'items#iiif_media_sequence', via: :get,
