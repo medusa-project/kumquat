@@ -1,7 +1,7 @@
 module IiifPresentationHelper
 
   LAYER_LABEL = 'Additional Content'
-  MIN_CANVAS_SIZE = 1200
+  MIN_CANVAS_SIZE = 1200 # http://iiif.io/api/presentation/2.1/#canvas
 
   ##
   # @param item [Item] Compound object.
@@ -25,7 +25,7 @@ module IiifPresentationHelper
               '@type': "dctypes:#{dc_type}",
               format: binary.media_type
           },
-          on: item_iiif_canvas_url(item, list_name)
+          on: item_iiif_layer_url(item, list_name)
       }
       end
     end
