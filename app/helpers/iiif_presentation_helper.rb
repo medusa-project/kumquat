@@ -135,6 +135,7 @@ module IiifPresentationHelper
   # @return [Array]
   #
   def iiif_media_sequences_for(item)
+    sequences = nil
     if item.variant == Item::Variants::FILE and item.is_pdf?
       sequences = [
           {
