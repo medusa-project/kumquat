@@ -266,6 +266,13 @@ class Item < ActiveRecord::Base
     self.collection_repository_id = collection.repository_id
   end
 
+  ##
+  # @return [Item]
+  #
+  def composite_item
+    self.items.where(variant: Variants::COMPOSITE).limit(1).first
+  end
+
   def delete_from_solr # TODO: change to Item.solr.delete()
     Solr.instance.delete(self.solr_id)
   end
