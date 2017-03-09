@@ -4,6 +4,9 @@ module Admin
 
     before_action :modify_collections_rbac, only: [:edit, :update, :sync]
 
+    ##
+    # Responds to GET /admin/collections/:id/edit
+    #
     def edit
       @collection = Collection.find_by_repository_id(params[:id])
       raise ActiveRecord::RecordNotFound unless @collection
@@ -14,6 +17,9 @@ module Admin
           map{ |t| [ t.name, t.id ] }
     end
 
+    ##
+    # Responds to GET /admin/collections
+    #
     def index
       @limit = Option::integer(Option::Key::RESULTS_PER_PAGE)
       @start = params[:start] ? params[:start].to_i : 0
@@ -32,6 +38,9 @@ module Admin
       @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
     end
 
+    ##
+    # Responds to GET /admin/collections/:id
+    #
     def show
       @collection = Collection.find_by_repository_id(params[:id])
       raise ActiveRecord::RecordNotFound unless @collection
@@ -52,6 +61,9 @@ module Admin
       redirect_to :back
     end
 
+    ##
+    # Responds to POST /admin/collections/:id
+    #
     def update
       begin
         collection = Collection.find_by_repository_id(params[:id])
@@ -65,6 +77,9 @@ module Admin
         # We will also need to update the effective allowed/denied roles
         # of each item in the collection, which will take some time, so we
         # will do it in the background.
+        # This will also cause items to be reindexed. If the collection's
+        # "published" status was changed, it will propagate to items once the
+        # job is done and commits Solr.
         PropagateRolesToItemsJob.perform_later(collection.repository_id)
       rescue => e
         handle_error(e)
