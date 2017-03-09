@@ -2,6 +2,11 @@ require 'test_helper'
 
 class SpaceUtilTest < ActiveSupport::TestCase
 
+  test 'string_coordinates_to_coordinates() with a nil argument should return
+  nil' do
+    assert_nil SpaceUtil.string_coordinates_to_coordinates(nil)
+  end
+
   test 'string_coordinates_to_coordinates() with an unrecognizable argument
   should return nil' do
     assert_nil SpaceUtil.string_coordinates_to_coordinates('cats')
