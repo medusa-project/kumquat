@@ -63,6 +63,12 @@ class CollectionsController < WebsiteController
         begin
           @representative_image_binary =
               @collection.representative_image_binary
+          @is_free_form = (@collection.package_profile ==
+              PackageProfile::FREE_FORM_PROFILE)
+          # Show the "Browse Folder Tree" button only if the collection is
+          # free-form and has no child items.
+          @show_browse_tree_button = @is_free_form ?
+              (@collection.items.where('parent_repository_id IS NOT NULL').count > 0) : false
         rescue => e
           CustomLogger.instance.error("#{e}")
         end
