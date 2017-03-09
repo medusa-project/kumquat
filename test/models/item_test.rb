@@ -388,6 +388,47 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal 'users', item.effective_denied_roles.first.key
   end
 
+  test 'save() should set normalized coordinates if latitude and longitude are
+  blank' do
+    @item.latitude = nil
+    @item.longitude = nil
+    @item.element(:coordinates)&.destroy!
+    @item.elements.build(name: 'coordinates',
+                         value: 'W 90⁰26\'05"/ N 40⁰39\'51"')
+    @item.save!
+    assert_in_delta 40.664, @item.latitude.to_f, 0.001
+    assert_in_delta -90.434, @item.longitude.to_f, 0.001
+  end
+
+  test 'save() should not overwrite latitude/longitude if either are present' do
+    initial_lat = 54.24234
+    initial_long = -123.234
+    @item.latitude = initial_lat
+    @item.longitude = initial_long
+    @item.elements.build(name: 'coordinates',
+                         value: 'W 90⁰26\'05"/ N 40⁰39\'51"')
+    @item.save!
+    assert_equal initial_lat, @item.latitude
+    assert_equal initial_long, @item.longitude
+  end
+
+  test 'save() should set a normalized date, if blank, from a date element' do
+    @item.date = nil
+    @item.element(:date)&.destroy!
+    @item.element(:dateCreated)&.destroy!
+    @item.elements.build(name: 'date', value: '2010-01-02')
+    @item.save!
+    assert_equal Time.parse('2010-01-02').year, @item.date.year
+  end
+
+  test 'save() should not overwrite the normalized date if present' do
+    initial_date = Time.now
+    @item.date = Time.now
+    @item.elements.build(name: 'date', value: '2010-01-02')
+    @item.save!
+    assert_equal initial_date.year, @item.date.year
+  end
+
   # solr_id()
 
   test 'solr_id() should return the Solr document ID' do
@@ -600,22 +641,6 @@ class ItemTest < ActiveSupport::TestCase
         e.value == 'Cats' and e.vocabulary == vocabularies(:lcsh) }.length
   end
 
-=begin TODO: auto-normalize date and lat/long in a before_save callback instead of here
-  test 'update_from_tsv should auto-normalize date from dateCreated
-  element' do
-    row = { 'Date Created' => '1992-01-13' }
-    @item.update_from_tsv(row)
-    assert_equal 1992, @item.date.year
-  end
-
-  test 'update_from_tsv should auto-normalize lat/long from coordinates element
-  when latitude and longitude columns are empty' do
-    row = { 'Coordinates' => 'W 90⁰26\'05"/ N 40⁰39\'51"' }
-    @item.update_from_tsv(row)
-    assert_equal 39.25243, @item.latitude.to_f
-    assert_equal -152.23423, @item.longitude.to_f
-  end
-=end
   test 'update_from_tsv should raise an error if given an invalid element name' do
     row = {}
     row['Title'] = 'Cats'

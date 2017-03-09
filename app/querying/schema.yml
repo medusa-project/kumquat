@@ -302,9 +302,3 @@ dynamicFields:
     multiValued: true
   - name: 'random_*'
     type: random
-  - name: '*_facet'
-    type: string
-    docValues: true
-    multiValued: true
-    indexed: true
-    stored: true
