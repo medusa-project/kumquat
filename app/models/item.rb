@@ -171,7 +171,8 @@ class Item < ActiveRecord::Base
 
   # ACTIVERECORD CALLBACKS
 
-  before_save :prune_identical_elements, :set_effective_roles
+  before_save :prune_identical_elements, :set_effective_roles,
+              :set_normalized_coords, :set_normalized_date
   after_update :propagate_roles
   after_commit :index_in_solr, on: [:create, :update]
   after_commit :delete_from_solr, on: :destroy
@@ -882,25 +883,13 @@ class Item < ActiveRecord::Base
       self.contentdm_pointer = row['contentdmPointer'].strip if row['contentdmPointer']
 
       # date (normalized)
-      date = row['date'] || row['dateCreated']
-      if date
-        self.date = TimeUtil.string_date_to_time(date.strip)
-      end
+      self.date = TimeUtil.string_date_to_time(row['normalizedDate'])
 
       # latitude
       self.latitude = row['latitude'].strip.to_f if row['latitude']
 
       # longitude
       self.longitude = row['longitude'].strip.to_f if row['longitude']
-
-      # latitude/longitude (normalized)
-      if self.latitude.blank? and self.longitude.blank? and row['coordinates']
-        lat_long = SpaceUtil.string_coordinates_to_coordinates(row['coordinates'])
-        if lat_long
-          self.latitude = lat_long[:latitude]
-          self.longitude = lat_long[:longitude]
-        end
-      end
 
       # page number
       self.page_number = row['pageNumber'].strip.to_i if row['pageNumber']
@@ -1007,10 +996,6 @@ class Item < ActiveRecord::Base
     # Date Created
     if options[:include_date_created].to_s != 'false'
       elements += elements_for_iim_value('Date Created', 'dateCreated', iim_metadata)
-
-      # Try to add a normalized date.
-      date_elem = iim_metadata.select{ |e| e[:label] == 'Date Created' }.first
-      self.date = TimeUtil.string_date_to_time(date_elem[:value]) if date_elem
     end
 
     # Creator
@@ -1134,6 +1119,37 @@ class Item < ActiveRecord::Base
       end
     else
       inherit_roles
+    end
+  end
+
+  ##
+  # Tries to set the normalized latitude/longitude from a metadata element, if
+  # the former are empty.
+  #
+  def set_normalized_coords
+    if self.latitude.blank? and self.longitude.blank?
+      coords_elem = self.elements.select{ |e| e.name == 'coordinates' }.first
+      if coords_elem
+        coords = SpaceUtil.string_coordinates_to_coordinates(coords_elem.value)
+        if coords
+          self.latitude = coords[:latitude]
+          self.longitude = coords[:longitude]
+        end
+      end
+    end
+  end
+
+  ##
+  # Tries to set the normalized date from a date element, if the former is
+  # empty.
+  #
+  def set_normalized_date
+    if self.date.blank?
+      date_elem = self.elements.select{ |e| e.name == 'date' }.first ||
+          self.elements.select{ |e| e.name == 'dateCreated' }.first
+      if date_elem
+        self.date = TimeUtil.string_date_to_time(date_elem.value)
+      end
     end
   end
 
