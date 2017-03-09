@@ -1,30 +1,36 @@
-This is a basic getting-started guide for developers. All other documentation
-resides in the
-[SCARS Wiki](https://wiki.illinois.edu/wiki/pages/viewpage.action?spaceKey=scrs&title=Medusa+DLS).
+This is a basic getting-started guide for developers.
+
+# Quick Links
+
+* [SCARS Wiki](https://wiki.illinois.edu/wiki/pages/viewpage.action?spaceKey=scrs&title=Medusa+DLS)
+* [Issue tracker](https://bugs.library.illinois.edu/secure/RapidBoard.jspa?rapidView=20062)
 
 # Dependencies
 
-* Local read-only NCSA condo mount
+* Local read-only Medusa NCSA condo mount
 * PostgreSQL 9.x
 * Solr 5+ with a managed schema core
 * [Cantaloupe](https://medusa-project.github.io/cantaloupe/) 3.3+
-    * (Any other Image API 2.1 server will mostly work, but Cantaloupe provides
-    some helpful features for remote cache management.)
+    * [Kakadu](http://kakadusoftware.com/downloads/) or
+      [OpenJPEG](http://www.openjpeg.org) will also be required.
+    * (Any other IIIF Image API 2.1 server should mostly work, but Cantaloupe
+      provides some bonus features like PDF thumbnails and remote cache
+      management.)
 * exiv2
 
 # Installation
 
-## 1) Clone the repository:
-
-`$ git clone https://github.com/medusa-project/PearTree.git`
-
-`$ cd PearTree`
-
-## 2) Install RVM:
+## 1) Install RVM:
 
 `$ \curl -sSL https://get.rvm.io | bash -s stable`
 
 `$ source ~/.bash_profile`
+
+## 2) Clone the repository:
+
+`$ git clone https://github.com/medusa-project/PearTree.git`
+
+`$ cd PearTree`
 
 ## 3) Install Ruby
 
@@ -116,24 +122,46 @@ collection.)
    `bundle exec rake jobs:workoff` to start it. When complete, the collection
    should be fully populated with metadata.
 
+## 9) Configure the image server
+
+1. Make a copy of `config/cantaloupe/delegates-n.n-sample.rb` and modify the
+   constants at the beginning of the file.
+2. Make a copy of the sample config file supplied with the image server, and
+   make the following configuration changes:
+
+`delegate_script.enabled = true`
+
+`delegate_script.pathname = <path to the script you just copied>`
+
+`endpoint.api.enabled = true`
+
+`endpoint.api.username = :image_server_api_user: from PearTree's config.yml`
+
+`endpoint.api.secret = :image_server_api_secret: from PearTree's config.yml`
+
+`FilesystemResolver.lookup_strategy = ScriptLookupStrategy`
+
+Additionally, if using OpenJPEG rather than Kakadu, set
+`processor.jp2 = OpenJpegProcessor`.
+
+### Run it
+
+`java -Dcantaloupe.config=cantaloupe.properties -jar Cantaloupe-n.n.war`
+
+[Test it](http://localhost:8182/iiif/2/7b7e08f0-0b13-0134-1d55-0050569601ca-a/full/500,/0/default.jpg)
+
 # Usage Notes
 
 ## Jobs
 
 Most long-running operations are invoked in background jobs, in order to keep
 the user interface responsive. After firing one of these off -- such as a sync
--- use `bundle exec rake jobs:workoff` to start it.
+-- use `bundle exec rake jobs:workoff` to run it.
+
+The job worker, [Delayed::Job](https://github.com/collectiveidea/delayed_job/),
+can also run continually, using `rake jobs:work`. This is how it runs in
+production, but it won't pick up code changes while running.
 
 ## Using Shibboleth locally
 
-Log in using user `admin` and password `admin@example.org`.
-
-# Development Notes
-
-## Branching
-
-This project uses the Gitflow workflow with the following exceptions:
-
-* There is no `hotfixes` branch; fixes are applied directly to `master` and
-  merged back into `develop`.
-* Tags are not used.
+Log in as user `admin` and password `admin@example.org`.
