@@ -78,6 +78,7 @@ class EntityFinder < AbstractFinder
     end
 
     @results = @results.filter(@filter_queries)
+    @results = @results.default_field(@default_field) if @default_field
 
     metadata_profile = MetadataProfile.default
     @results = @results.facetable_fields(metadata_profile.solr_facet_fields)
