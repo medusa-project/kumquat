@@ -54,6 +54,17 @@ var PearTree = {
             return false;
         });
 
+        var submitForm = function () {
+            var forms = $('form.pt-filter');
+            $.get(forms.attr('action'),
+                forms.serialize(),
+                function () {
+                    input.removeClass('active');
+                },
+                'script');
+            return false;
+        };
+
         var input_timer;
         $('form.pt-filter input').on('keyup', function () {
             var input = $(this);
@@ -61,17 +72,11 @@ var PearTree = {
 
             clearTimeout(input_timer);
             var msec = 500; // wait this long after user has stopped typing
-            var forms = $('form.pt-filter');
-            input_timer = setTimeout(function () {
-                $.get(forms.attr('action'),
-                    forms.serialize(),
-                    function () {
-                        input.removeClass('active');
-                    },
-                    'script');
-                return false;
-            }, msec);
+            input_timer = setTimeout(submitForm, msec);
             return false;
+        });
+        $('form.pt-filter select').on('change', function() {
+            submitForm();
         });
     },
 

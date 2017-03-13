@@ -95,6 +95,7 @@ module Admin
                             Item::Variants::TABLE_OF_CONTENTS,
                             Item::Variants::TITLE]).
           filter_queries(params[:fq]).
+          default_field(params[:df]).
           sort(params[:sort]).
           start(@start).
           limit(@limit)

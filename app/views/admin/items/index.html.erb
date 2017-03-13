@@ -57,10 +57,20 @@
       <% params.each do |k, v| %>
         <%= hidden_field_tag(k, v) %>
       <% end %>
-      <div class="input-group pt-filter">
-        <span class="input-group-addon"><i class="fa fa-search"></i></span>
-        <%= search_field_tag :q, params[:q], class: 'form-control',
-                             placeholder: 'Filter' %>
+
+      <div class="form-inline pt-filter">
+        <div class="input-group">
+          <span class="input-group-addon"><i class="fa fa-search"></i></span>
+          <%= search_field_tag :q, params[:q], class: 'form-control',
+                               placeholder: 'Filter' %>
+        </div>
+
+        <select class="form-control" name="df">
+          <option value="<%= Item::SolrFields::SEARCH_ALL %>">Any Field</option>
+          <% @metadata_profile.elements.each do |e| %>
+            <option value="<%= e.solr_multi_valued_field %>"><%= e.label %></option>
+          <% end %>
+        </select>
       </div>
 
       <% if @num_results_shown > 0 %>
