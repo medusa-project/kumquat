@@ -161,6 +161,7 @@ class ItemFinder < AbstractFinder
     @items = @items.filter(Item::SolrFields::PARENT_ITEM => :null) unless @include_children
 
     @items = @items.filter(@filter_queries)
+    @items = @items.default_field(@default_field) if @default_field
 
     if @collection_id
       @collection = Collection.find_by_repository_id(@collection_id)

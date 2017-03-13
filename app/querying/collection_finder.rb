@@ -62,6 +62,7 @@ class CollectionFinder < AbstractFinder
     end
 
     @collections = @collections.filter(Collection::SolrFields::PARENT_COLLECTIONS => :null) unless @include_children
+    @collections = @collections.default_field(@default_field) if @default_field
 
     @collections = @collections.where(@query) if @query
 
