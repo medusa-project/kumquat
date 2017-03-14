@@ -47,31 +47,23 @@ module AdminHelper
   # @return [String]
   #
   def admin_item_element_edit_tag(profile_element, element, vocabulary)
-    terms = vocabulary.vocabulary_terms.order(:string)
-
     html = '<table class="table-condensed pt-element" style="width:100%">
       <tr>
         <th style="text-align: right; width: 1px"><span class="label label-default">String</span></th>
         <td>'
-    if vocabulary == Vocabulary.uncontrolled
+    if vocabulary == Vocabulary.uncontrolled # uncontrolled gets a textarea
       html += text_area_tag("elements[#{profile_element.name}][#{vocabulary.id}][][string]",
                             element&.value,
                             id: "elements[#{profile_element.name}][#{vocabulary.id}][string]",
                             class: 'form-control',
+                            autocomplete: 'off',
                             data: { controlled: 'false' })
-    elsif terms.any?
-      html += select_tag("elements[#{profile_element.name}][#{vocabulary.id}][][string]",
-                         options_for_select(terms.map(&:string)),
-                         id: "elements[#{profile_element.name}][#{vocabulary.id}][string]",
-                         class: 'form-control',
-                         data: { controlled: 'true',
-                                 type: 'string',
-                                 'vocabulary-id': vocabulary.id })
-    else
+    else # controlled gets a one-line text field
       html += text_field_tag("elements[#{profile_element.name}][#{vocabulary.id}][][string]",
                              element&.value,
                              id: "elements[#{profile_element.name}][#{vocabulary.id}][string]",
                              class: 'form-control',
+                             autocomplete: 'off',
                              data: { controlled: 'true',
                                      'vocabulary-id': vocabulary.id })
     end
@@ -90,29 +82,13 @@ module AdminHelper
         <tr>
           <th style="text-align: right; width: 1px"><span class="label label-primary">URI</span></th>
           <td>'
-    if vocabulary == Vocabulary.uncontrolled
-      html += text_field_tag("elements[#{profile_element.name}][#{vocabulary.id}][][uri]",
-                             element&.uri,
-                             id: "elements[#{profile_element.name}][#{vocabulary.id}][uri]",
-                             class: 'form-control',
-                             data: { controlled: 'false',
-                                     'vocabulary-id': vocabulary.id})
-    elsif vocabulary.vocabulary_terms.any?
-      html += select_tag("elements[#{profile_element.name}][#{vocabulary.id}][][uri]",
-                         options_for_select(terms.map(&:uri)),
-                         id: "elements[#{profile_element.name}][#{vocabulary.id}][uri]",
-                         class: 'form-control',
-                         data: { controlled: 'true',
-                                 type: 'uri',
-                                 'vocabulary-id': vocabulary.id })
-    else
-      html += text_field_tag("elements[#{profile_element.name}][#{vocabulary.id}][][uri]",
-                             element&.uri,
-                             id: "elements[#{profile_element.name}][#{vocabulary.id}][uri]",
-                             class: 'form-control',
-                             data: { controlled: 'true',
-                                     'vocabulary-id': vocabulary.id})
-    end
+    html += text_field_tag("elements[#{profile_element.name}][#{vocabulary.id}][][uri]",
+                           element&.uri,
+                           id: "elements[#{profile_element.name}][#{vocabulary.id}][uri]",
+                           class: 'form-control',
+                           autocomplete: 'off',
+                           data: { controlled: (vocabulary == Vocabulary.uncontrolled) ? 'false' : 'true',
+                                   'vocabulary-id': vocabulary.id})
     html += '</td>
         </tr>
       </table>'
