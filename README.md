@@ -8,6 +8,7 @@ This is a basic getting-started guide for developers.
 # Dependencies
 
 * Local read-only Medusa NCSA condo mount
+* Admin access to the public and staging DLS instances
 * PostgreSQL 9.x
 * Solr 5+ with a managed schema core
 * [Cantaloupe](https://medusa-project.github.io/cantaloupe/) 3.3+
