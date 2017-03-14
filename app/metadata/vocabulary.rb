@@ -20,8 +20,9 @@ class Vocabulary < ActiveRecord::Base
   validates :name, presence: true, length: { maximum: 100 },
             uniqueness: { case_sensitive: false }
 
-  before_update :restrict_uncontrolled_changes
+  before_update :restrict_changes_to_required_vocabs
 
+  AGENT_KEY = 'agent'
   UNCONTROLLED_KEY = 'uncontrolled'
 
   ##
@@ -60,13 +61,20 @@ class Vocabulary < ActiveRecord::Base
   ##
   # @return [Vocabulary] The uncontrolled vocabulary.
   #
+  def self.agent
+    Vocabulary.find_by_key(AGENT_KEY)
+  end
+
+  ##
+  # @return [Vocabulary] The uncontrolled vocabulary.
+  #
   def self.uncontrolled
     Vocabulary.find_by_key(UNCONTROLLED_KEY)
   end
 
   ##
-  # Overrides parent to serialize an instance to JSON with its child
-  # vocabulary terms included.
+  # Overrides parent to serialize an instance to JSON with its child vocabulary
+  # terms included.
   #
   # @param options [Hash]
   # @return [String]
@@ -76,10 +84,10 @@ class Vocabulary < ActiveRecord::Base
   end
 
   ##
-  # @return [Boolean] True if the instance is the uncontrolled instance.
+  # @return [Boolean] True if the instance is not a system-required vocabulary.
   #
   def readonly?
-    self.key == UNCONTROLLED_KEY
+    self.key == UNCONTROLLED_KEY or self.key == AGENT_KEY
   end
 
   def to_s
@@ -88,8 +96,8 @@ class Vocabulary < ActiveRecord::Base
 
   private
 
-  def restrict_uncontrolled_changes
-    self.key_was != UNCONTROLLED_KEY
+  def restrict_changes_to_required_vocabs
+    self.key_was != UNCONTROLLED_KEY and self.key_was != AGENT_KEY
   end
 
 end
