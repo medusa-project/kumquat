@@ -2,6 +2,12 @@ require 'test_helper'
 
 class VocabularyTest < ActiveSupport::TestCase
 
+  # agent()
+
+  test 'agent() should return the agent vocabulary' do
+    assert_equal Vocabulary::AGENT_KEY, Vocabulary.agent.key
+  end
+
   # from_json()
 
   test 'from_json should work' do
@@ -110,6 +116,12 @@ class VocabularyTest < ActiveSupport::TestCase
     assert_raises ArgumentError do
       Vocabulary.from_json(json)
     end
+  end
+
+  # uncontrolled()
+
+  test 'uncontrolled() should return the uncontrolled vocabulary' do
+    assert_equal Vocabulary::UNCONTROLLED_KEY, Vocabulary.uncontrolled.key
   end
 
   # readonly?()
