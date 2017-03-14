@@ -8,7 +8,7 @@
   <li class="active"><%= @vocabulary.name %></li>
 </ol>
 
-<% if @vocabulary.key != 'uncontrolled' %>
+<% unless @vocabulary.readonly? %>
   <div class="btn-group pull-right">
     <!-- Edit button -->
     <button type="button" class="btn btn-default" data-toggle="modal"
@@ -31,10 +31,9 @@
 
 <h1><%= @vocabulary.name %> <small><%= @vocabulary.key %></small></h1>
 
-<% if @vocabulary.key != 'uncontrolled' %>
+<%= form_tag(admin_vocabulary_delete_vocabulary_terms_path(@vocabulary), method: :post) do %>
 
-  <%= form_tag(admin_vocabulary_delete_vocabulary_terms_path(@vocabulary), method: :post) do %>
-
+  <% unless @vocabulary.readonly? %>
     <div class="btn-group pull-right">
       <button type="button" class="btn btn-default" data-toggle="modal"
               data-target="#pt-add-term-modal">
@@ -44,7 +43,9 @@
         <i class="fa fa-trash"></i> Delete Checked
       </button>
     </div>
+  <% end %>
 
+  <% if @vocabulary.key != Vocabulary::UNCONTROLLED_KEY %>
     <h2>Terms <span class="badge"><%= @vocabulary.vocabulary_terms.count %></span></h2>
 
     <% if @vocabulary.vocabulary_terms.any? %>
@@ -61,12 +62,16 @@
           <% @vocabulary.vocabulary_terms.each do |term| %>
             <tr>
               <td style="width:1px">
-                <%= check_box_tag('vocabulary_terms[]', term.id) %>
+                <% unless @vocabulary.readonly? %>
+                  <%= check_box_tag('vocabulary_terms[]', term.id) %>
+                <% end %>
               </td>
               <td style="width:1px">
-                <button type="button" class="btn btn-default btn-xs pt-edit-term"
-                        data-toggle="modal" data-target="#pt-edit-term-modal"
-                        data-term-id="<%= term.id %>">Edit</button>
+                <% unless @vocabulary.readonly? %>
+                  <button type="button" class="btn btn-default btn-xs pt-edit-term"
+                          data-toggle="modal" data-target="#pt-edit-term-modal"
+                          data-term-id="<%= term.id %>">Edit</button>
+                <% end %>
               </td>
               <td><%= term.string %></td>
               <td><%= link_to term.uri, term.uri, target: '_blank' %></td>
@@ -75,9 +80,7 @@
         </tbody>
       </table>
     <% end %>
-
   <% end %>
-
 <% end %>
 
 <div class="modal fade" id="pt-edit-vocabulary-modal" tabindex="-1" role="dialog"
