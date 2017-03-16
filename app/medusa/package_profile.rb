@@ -81,30 +81,20 @@ class PackageProfile
   private
 
   ##
-  # @param uuid [String]
-  # @return [String] Absolute URI of the Medusa collection resource, or nil
-  #                  if the instance does not have an ID.
-  #
-  def medusa_url(uuid)
-    sprintf('%s/uuids/%s.json', Configuration.instance.medusa_url.chomp('/'),
-            uuid)
-  end
-
-  ##
   # @param item_id [String]
   # @return [String]
   #
   def free_form_parent_id_from_medusa(item_id) # TODO: move this
     parent_id = nil
     client = Medusa.client
-    response = client.get(medusa_url(item_id), follow_redirect: true)
+    response = client.get(Medusa.url(item_id), follow_redirect: true)
     if response.status < 300
       json = response.body
       struct = JSON.parse(json)
       if struct['parent_directory']
         # Top-level items in a file group will have no parent_directory key,
         # so check one level up.
-        json = client.get(medusa_url(struct['parent_directory']['uuid']),
+        json = client.get(Medusa.url(struct['parent_directory']['uuid']),
                           follow_redirect: true).body
         struct2 = JSON.parse(json)
         if struct2['parent_directory']
@@ -123,7 +113,7 @@ class PackageProfile
   #
   def compound_parent_id_from_medusa(item_id) # TODO: move this
     client = Medusa.client
-    json = client.get(medusa_url(item_id), follow_redirect: true).body
+    json = client.get(Medusa.url(item_id), follow_redirect: true).body
     struct = JSON.parse(json)
 
     # Top-level items will have `access`, `metadata`, and/or `preservation`
@@ -135,7 +125,7 @@ class PackageProfile
       # `preservation`.
     elsif struct['directory'] and
         %w(access preservation).include?(struct['directory']['name'])
-      json = client.get(medusa_url(struct['directory']['uuid']),
+      json = client.get(Medusa.url(struct['directory']['uuid']),
                         follow_redirect: true).body
       struct2 = JSON.parse(json)
       return struct2['parent_directory']['uuid']
