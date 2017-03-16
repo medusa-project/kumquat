@@ -73,36 +73,9 @@ class PackageProfile
       when 0
         return MedusaFreeFormIngester.parent_id_from_medusa(item_id)
       when 1
-        return compound_parent_id_from_medusa(item_id)
+        return MedusaCompoundObjectIngester.parent_id_from_medusa(item_id)
     end
     nil
-  end
-
-  private
-
-  ##
-  # @param item_id [String]
-  # @return [String]
-  #
-  def compound_parent_id_from_medusa(item_id) # TODO: move this
-    client = Medusa.client
-    json = client.get(Medusa.url(item_id), follow_redirect: true).body
-    struct = JSON.parse(json)
-
-    # Top-level items will have `access`, `metadata`, and/or `preservation`
-    # subdirectories.
-    if struct['subdirectories']&.
-        select{ |n| %w(access metadata preservation).include?(n['name']) }&.any?
-      return nil
-      # Child items will reside in a directory called `access` or
-      # `preservation`.
-    elsif struct['directory'] and
-        %w(access preservation).include?(struct['directory']['name'])
-      json = client.get(Medusa.url(struct['directory']['uuid']),
-                        follow_redirect: true).body
-      struct2 = JSON.parse(json)
-      return struct2['parent_directory']['uuid']
-    end
   end
 
 end

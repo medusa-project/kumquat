@@ -9,6 +9,29 @@ class MedusaCompoundObjectIngesterTest < ActiveSupport::TestCase
     Item.destroy_all
   end
 
+  # parent_id_from_medusa() (with map profile)
+
+  test 'parent_id_from_medusa() should return nil with top-level items' do
+    # https://medusa.library.illinois.edu/cfs_files/9799301.json
+    item = 'ae3991e0-c451-0133-1d17-0050569601ca-b'
+    assert_nil MedusaCompoundObjectIngester.parent_id_from_medusa(item)
+  end
+
+  test 'parent_id_from_medusa() should return the parent UUID with pages' do
+    # https://medusa.library.illinois.edu/cfs_files/9799301.json
+    page = 'd853fad0-c451-0133-1d17-0050569601ca-7'
+    # https://medusa.library.illinois.edu/cfs_directories/413276.json
+    expected_parent = 'ae3991e0-c451-0133-1d17-0050569601ca-b'
+    assert_equal expected_parent,
+                 MedusaCompoundObjectIngester.parent_id_from_medusa(page)
+  end
+
+  test 'parent_id_from_medusa() should return nil for non-item content' do
+    # https://medusa.library.illinois.edu/cfs_directories/414759.json
+    bogus = 'd83e6f60-c451-0133-1d17-0050569601ca-8'
+    assert_nil MedusaCompoundObjectIngester.parent_id_from_medusa(bogus)
+  end
+
   # create_items()
 
   test 'create_items() with collection file group not set should raise an error' do

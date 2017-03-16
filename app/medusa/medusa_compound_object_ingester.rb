@@ -1,12 +1,34 @@
 ##
 # Syncs items in collections that use the Compound Object package profile.
 #
-# Clients that don't want to concern themselves with package profiles can
-# use MedusaIngester instead.
-#
 class MedusaCompoundObjectIngester
 
   @@logger = CustomLogger.instance
+
+  ##
+  # @param item_id [String]
+  # @return [String]
+  #
+  def self.parent_id_from_medusa(item_id)
+    client = Medusa.client
+    json = client.get(Medusa.url(item_id), follow_redirect: true).body
+    struct = JSON.parse(json)
+
+    # Top-level items will have `access`, `metadata`, and/or `preservation`
+    # subdirectories.
+    if struct['subdirectories']&.
+        select{ |n| %w(access metadata preservation).include?(n['name']) }&.any?
+      return nil
+      # Child items will reside in a directory called `access` or
+      # `preservation`.
+    elsif struct['directory'] and
+        %w(access preservation).include?(struct['directory']['name'])
+      json = client.get(Medusa.url(struct['directory']['uuid']),
+                        follow_redirect: true).body
+      struct2 = JSON.parse(json)
+      return struct2['parent_directory']['uuid']
+    end
+  end
 
   ##
   # Creates new DLS items for any Medusa items that do not already exist in
@@ -18,7 +40,7 @@ class MedusaCompoundObjectIngester
   # @option options [Boolean] :include_date_created
   # @param task [Task] Supply to receive progress updates.
   # @return [Hash<Symbol,Integer>] Hash with :num_created, :num_updated,
-  #                                :num_deleted, and/or :num_skipped keys.
+  #                                and :num_skipped keys.
   # @raises [ArgumentError] If the collection's file group or package profile
   #                         are not set, or if the file group is invalid.
   # @raises [IllegalContentError]
