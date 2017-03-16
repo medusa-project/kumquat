@@ -71,7 +71,7 @@ class PackageProfile
     raise ArgumentError, 'No ID provided' unless item_id
     case self.id
       when 0
-        return free_form_parent_id_from_medusa(item_id)
+        return MedusaFreeFormIngester.parent_id_from_medusa(item_id)
       when 1
         return compound_parent_id_from_medusa(item_id)
     end
@@ -79,33 +79,6 @@ class PackageProfile
   end
 
   private
-
-  ##
-  # @param item_id [String]
-  # @return [String]
-  #
-  def free_form_parent_id_from_medusa(item_id) # TODO: move this
-    parent_id = nil
-    client = Medusa.client
-    response = client.get(Medusa.url(item_id), follow_redirect: true)
-    if response.status < 300
-      json = response.body
-      struct = JSON.parse(json)
-      if struct['parent_directory']
-        # Top-level items in a file group will have no parent_directory key,
-        # so check one level up.
-        json = client.get(Medusa.url(struct['parent_directory']['uuid']),
-                          follow_redirect: true).body
-        struct2 = JSON.parse(json)
-        if struct2['parent_directory']
-          parent_id = struct['parent_directory']['uuid']
-        end
-      elsif struct['directory']
-        parent_id = struct['directory']['uuid']
-      end
-    end
-    parent_id
-  end
 
   ##
   # @param item_id [String]

@@ -9,6 +9,23 @@ class MedusaFreeFormIngesterTest < ActiveSupport::TestCase
     Item.destroy_all
   end
 
+  # parent_id_from_medusa()
+
+  test 'parent_id_from_medusa() should return nil with top-level items' do
+    # https://medusa.library.illinois.edu/cfs_directories/414021.json
+    item = 'be8d3500-c451-0133-1d17-0050569601ca-9'
+    assert_nil MedusaFreeFormIngester.parent_id_from_medusa(item)
+  end
+
+  test 'parent_id_from_medusa() should return the parent UUID with pages' do
+    # https://medusa.library.illinois.edu/cfs_directories/111150.json
+    page = 'a536b060-5ca8-0132-3334-0050569601ca-8'
+    # https://medusa.library.illinois.edu/cfs_directories/111144.json
+    expected_parent = 'a53194a0-5ca8-0132-3334-0050569601ca-8'
+    assert_equal expected_parent,
+                 MedusaFreeFormIngester.parent_id_from_medusa(page)
+  end
+
   # create_items()
 
   test 'create_items() with collection file group not set should raise an error' do
