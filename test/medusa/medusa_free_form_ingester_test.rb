@@ -297,7 +297,7 @@ class MedusaFreeFormIngesterTest < ActiveSupport::TestCase
     result = @instance.update_binaries(collection)
 
     # Assert that the binaries were created.
-    assert_equal Binary.count, result[:num_updated]
+    assert_equal Binary.count, result[:num_created]
     Binary.all.each do |bs|
       assert_equal Binary::Type::ACCESS_MASTER, bs.binary_type
     end

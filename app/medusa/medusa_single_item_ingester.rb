@@ -108,7 +108,8 @@ class MedusaSingleItemIngester < MedusaAbstractIngester
   ##
   # @param collection [Collection]
   # @param task [Task] Supply to receive status updates.
-  # @return [Hash<Symbol, Integer>]
+  # @return [Hash<Symbol, Integer>] Hash with :num_created key referring to the
+  #                                 total number of binaries in the collection.
   # @raises [ArgumentError] If the collection's file group or package profile
   #                         are not set or invalid.
   #
@@ -118,7 +119,7 @@ class MedusaSingleItemIngester < MedusaAbstractIngester
     cfs_dir = collection.effective_medusa_cfs_directory
     pres_dir = cfs_dir.directories.select{ |d| d.name == 'preservation' }.first
 
-    stats = { num_updated: 0 }
+    stats = { num_created: 0 }
     files = pres_dir.files
     num_files = files.length
     files.each_with_index do |file, index|
@@ -135,17 +136,17 @@ class MedusaSingleItemIngester < MedusaAbstractIngester
         bs.media_type = file.media_type
         bs.read_size
         bs.save!
+        stats[:num_created] += 1
 
         # Find and create the access master binary.
         begin
           bs = access_master_binary(cfs_dir, file)
           bs.item = item
           bs.save!
+          stats[:num_created] += 1
         rescue IllegalContentError => e
           @@logger.warn("MedusaSingleItemIngester.update_binaries(): #{e}")
         end
-
-        stats[:num_updated] += 1
       end
 
       if task and index % 10 == 0

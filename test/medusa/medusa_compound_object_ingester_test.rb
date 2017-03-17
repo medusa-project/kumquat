@@ -318,9 +318,6 @@ class MedusaCompoundObjectIngesterTest < ActiveSupport::TestCase
     result = @instance.create_items(collection)
     assert_equal 5, result[:num_created]
 
-    # Record initial conditions.
-    start_num_items = Item.count
-
     # Delete all binaries.
     Binary.destroy_all
 
@@ -328,16 +325,8 @@ class MedusaCompoundObjectIngesterTest < ActiveSupport::TestCase
     result = @instance.update_binaries(collection)
 
     # Assert that the binaries were created.
-    assert_equal 4, result[:num_updated]
-    assert_equal Binary.count, result[:num_updated] * 2
-    assert_equal start_num_items, Item.count
-    assert_equal Item.count * 2 - 2, Binary.count
-    Item.where(variant: Item::Variants::PAGE).each do |it|
-      assert_equal 2, it.binaries.count
-    end
-    Item.where('variant != ?', Item::Variants::PAGE).each do |it|
-      assert_equal 2, it.binaries.count
-    end
+    assert_equal 8, result[:num_created]
+    assert_equal Binary.count, result[:num_created]
   end
 
 end

@@ -105,7 +105,8 @@ class MedusaFreeFormIngester < MedusaAbstractIngester
   #
   # @param collection [Collection]
   # @param task [Task] Supply to receive progress updates.
-  # @return [Hash<Symbol,Integer>] Hash with a :num_updated key.
+  # @return [Hash<Symbol, Integer>] Hash with :num_created key referring to the
+  #                                 total number of binaries in the collection.
   # @raises [ArgumentError] If the collection's file group or package profile
   #                         are not set or invalid.
   # @raises [IllegalContentError]
@@ -114,7 +115,7 @@ class MedusaFreeFormIngester < MedusaAbstractIngester
     check_collection(collection, PackageProfile::FREE_FORM_PROFILE)
 
     num_nodes = task ? count_tree_nodes(collection.effective_medusa_cfs_directory) : 0
-    stats = { num_updated: 0 }
+    stats = { num_created: 0 }
     update_binaries_in_tree(
         collection.effective_medusa_cfs_directory,
         collection.effective_medusa_cfs_directory, stats, task, num_nodes)
@@ -261,7 +262,8 @@ class MedusaFreeFormIngester < MedusaAbstractIngester
   # @param task [Task] Supply to receive progress updates.
   # @param num_nodes [Integer]
   # @param num_walked [Integer] For internal use.
-  # @return [Hash<Symbol,Integer>] Hash with a :num_updated key.
+  # @return [Hash<Symbol, Integer>] Hash with :num_created key referring to the
+  #                                 total number of binaries in the collection.
   #
   def update_binaries_in_tree(cfs_dir, top_cfs_dir, stats, task = nil,
                               num_nodes = 0, num_walked = 0)
@@ -285,7 +287,7 @@ class MedusaFreeFormIngester < MedusaAbstractIngester
         bs = file.to_binary(Binary::Type::ACCESS_MASTER)
         bs.item = item
         bs.save!
-        stats[:num_updated] += 1
+        stats[:num_created] += 1
       end
     end
   end

@@ -238,9 +238,6 @@ class MedusaSingleItemIngesterTest < ActiveSupport::TestCase
     # Ingest some items.
     @instance.create_items(collection)
 
-    # Record initial conditions.
-    start_num_items = Item.count
-
     # Delete all binaries.
     Binary.destroy_all
 
@@ -248,10 +245,8 @@ class MedusaSingleItemIngesterTest < ActiveSupport::TestCase
     result = @instance.update_binaries(collection)
 
     # Assert that the binaries were created.
-    assert_equal 4, result[:num_updated]
-    assert_equal Binary.count, result[:num_updated] * 2
-    assert_equal start_num_items, Item.count
-    assert_equal Item.count * 2, Binary.count
+    assert_equal 8, result[:num_created]
+    assert_equal Binary.count, result[:num_created]
     Item.all.each { |it| assert_equal 2, it.binaries.count }
   end
 

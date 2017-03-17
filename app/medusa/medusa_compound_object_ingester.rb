@@ -201,14 +201,15 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
   #
   # @param collection [Collection]
   # @param task [Task] Supply to receive status updates.
-  # @return [Hash<Symbol, Integer>]
+  # @return [Hash<Symbol, Integer>] Hash with :num_created key referring to the
+  #                                 total number of binaries in the collection.
   # @raises [ArgumentError] If the collection's file group or package profile
   #                         are not set, or if the file group is invalid.
   #
   def update_binaries(collection, task = nil)
     check_collection(collection, PackageProfile::COMPOUND_OBJECT_PROFILE)
 
-    stats = { num_updated: 0 }
+    stats = { num_created: 0 }
     directories = collection.effective_medusa_cfs_directory.directories
     num_directories = directories.length
 
@@ -235,16 +236,17 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
                   bs = pres_file.to_binary(Binary::Type::PRESERVATION_MASTER)
                   bs.item = child
                   bs.save!
+                  stats[:num_created] += 1
 
                   # Find and create the access master binary.
                   begin
                     bs = access_master_binary(top_item_dir, pres_file)
                     bs.item = child
                     bs.save!
+                    stats[:num_created] += 1
                   rescue IllegalContentError => e
                     @@logger.warn("MedusaCompoundObjectIngester.update_binaries(): #{e}")
                   end
-                  stats[:num_updated] += 1
                 else
                   @@logger.warn("MedusaCompoundObjectIngester.update_binaries(): "\
                       "skipping child item #{pres_file.uuid} (no item)")
@@ -260,17 +262,17 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
               pres_file = pres_dir.files.first
               item.binaries <<
                   pres_file.to_binary(Binary::Type::PRESERVATION_MASTER)
+              stats[:num_created] += 1
 
               # Find and create the access master binary.
               begin
                 item.binaries << access_master_binary(top_item_dir, pres_file)
+                stats[:num_created] += 1
               rescue IllegalContentError => e
                 @@logger.warn("MedusaCompoundObjectIngester.update_binaries(): #{e}")
               end
 
               item.save!
-
-              stats[:num_updated] += 1
             else
               msg = "Preservation directory #{pres_dir.uuid} is empty."
               @@logger.warn("MedusaCompoundObjectIngester.update_binaries(): #{msg}")
