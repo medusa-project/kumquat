@@ -208,6 +208,18 @@ class Binary < ActiveRecord::Base
     }
   end
 
+  ##
+  # @return [String] The instance's repository-relative pathname, or its CFS
+  #                  file UUID, or the return value of super -- whichever is
+  #                  present first.
+  #
+  def to_s
+    str = self.repository_relative_pathname
+    str = self.cfs_file_uuid if str.blank?
+    str = super if str.blank?
+    str
+  end
+
   private
 
   ##
