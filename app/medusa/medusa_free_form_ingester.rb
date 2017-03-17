@@ -4,7 +4,7 @@
 # Clients that don't want to concern themselves with package profiles can
 # use MedusaIngester instead.
 #
-class MedusaFreeFormIngester
+class MedusaFreeFormIngester < MedusaAbstractIngester
 
   @@logger = CustomLogger.instance
 
@@ -51,7 +51,7 @@ class MedusaFreeFormIngester
   # @raises [IllegalContentError]
   #
   def create_items(collection, options = {}, task = nil)
-    check_collection(collection)
+    check_collection(collection, PackageProfile::FREE_FORM_PROFILE)
     num_nodes = task ? count_tree_nodes(collection.effective_medusa_cfs_directory) : 0
     status = { num_created: 0, num_skipped: 0, num_walked: 0 }
     create_items_in_tree(collection, collection.effective_medusa_cfs_directory,
@@ -70,7 +70,7 @@ class MedusaFreeFormIngester
   #                         are not set or invalid.
   #
   def delete_missing_items(collection, task = nil)
-    check_collection(collection)
+    check_collection(collection, PackageProfile::FREE_FORM_PROFILE)
 
     # Compile a list of all item UUIDs currently in the Medusa file group.
     medusa_items = items_in(collection.effective_medusa_cfs_directory)
@@ -110,7 +110,7 @@ class MedusaFreeFormIngester
   #                         are not set or invalid.
   #
   def replace_metadata(collection, task = nil)
-    check_collection(collection)
+    check_collection(collection, PackageProfile::FREE_FORM_PROFILE)
 
     stats = { num_updated: 0 }
     # Iterate only file-variant items, as they are the only ones with embedded
@@ -142,7 +142,7 @@ class MedusaFreeFormIngester
   # @raises [IllegalContentError]
   #
   def update_binaries(collection, task = nil)
-    check_collection(collection)
+    check_collection(collection, PackageProfile::FREE_FORM_PROFILE)
 
     num_nodes = task ? count_tree_nodes(collection.effective_medusa_cfs_directory) : 0
     stats = { num_updated: 0 }
@@ -164,21 +164,6 @@ class MedusaFreeFormIngester
   end
 
   private
-
-  ##
-  # @param collection [Collection]
-  # @raises [ArgumentError]
-  #
-  def check_collection(collection)
-    raise ArgumentError, 'Collection file group is not set' unless
-        collection.medusa_file_group
-    raise ArgumentError, 'Collection package profile is not set' unless
-        collection.package_profile
-    raise ArgumentError, 'Collection package profile is set incorrectly' unless
-        collection.package_profile == PackageProfile::FREE_FORM_PROFILE
-    raise ArgumentError, 'Collection\'s Medusa CFS directory is invalid' unless
-        collection.effective_medusa_cfs_directory
-  end
 
   ##
   # @param cfs_dir [MedusaCfsDirectory]
@@ -333,23 +318,6 @@ class MedusaFreeFormIngester
         bs.save!
         stats[:num_updated] += 1
       end
-    end
-  end
-
-  ##
-  # Populates an item's metadata from its embedded binary metadata.
-  #
-  # @param item [Item]
-  # @param options [Hash]
-  # @option options [Boolean] :include_date_created
-  #
-  def update_item_from_embedded_metadata(item, options = {})
-    initial_title = item.title
-    item.update_from_embedded_metadata(options)
-    # If there is no title present in the new metadata, restore the initial
-    # title.
-    if item.elements.select{ |e| e.name == 'title' }.empty?
-      item.elements.build(name: 'title', value: initial_title)
     end
   end
 

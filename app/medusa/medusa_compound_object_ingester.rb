@@ -1,7 +1,7 @@
 ##
 # Syncs items in collections that use the Compound Object package profile.
 #
-class MedusaCompoundObjectIngester
+class MedusaCompoundObjectIngester < MedusaAbstractIngester
 
   @@logger = CustomLogger.instance
 
@@ -42,7 +42,7 @@ class MedusaCompoundObjectIngester
   # @raises [IllegalContentError]
   #
   def create_items(collection, options = {}, task = nil)
-    check_collection(collection)
+    check_collection(collection, PackageProfile::COMPOUND_OBJECT_PROFILE)
     options = options.symbolize_keys
 
     status = { num_created: 0, num_updated: 0, num_skipped: 0 }
@@ -168,7 +168,7 @@ class MedusaCompoundObjectIngester
   # @raises [IllegalContentError]
   #
   def delete_missing_items(collection, task = nil)
-    check_collection(collection)
+    check_collection(collection, PackageProfile::COMPOUND_OBJECT_PROFILE)
 
     # Compile a list of all item UUIDs currently in the Medusa file group.
     medusa_items = items_in(collection.effective_medusa_cfs_directory)
@@ -206,7 +206,7 @@ class MedusaCompoundObjectIngester
   #                         are not set, or if the file group is invalid.
   #
   def replace_metadata(collection, task = nil)
-    check_collection(collection)
+    check_collection(collection, PackageProfile::COMPOUND_OBJECT_PROFILE)
 
     stats = { num_updated: 0 }
     items = collection.items
@@ -235,7 +235,7 @@ class MedusaCompoundObjectIngester
   #                         are not set, or if the file group is invalid.
   #
   def update_binaries(collection, task = nil)
-    check_collection(collection)
+    check_collection(collection, PackageProfile::COMPOUND_OBJECT_PROFILE)
 
     stats = { num_updated: 0 }
     directories = collection.effective_medusa_cfs_directory.directories
@@ -373,21 +373,6 @@ class MedusaCompoundObjectIngester
   end
 
   ##
-  # @param collection [Collection]
-  # @raises [ArgumentError]
-  #
-  def check_collection(collection)
-    raise ArgumentError, 'Collection file group is not set' unless
-        collection.medusa_file_group
-    raise ArgumentError, 'Collection package profile is not set' unless
-        collection.package_profile
-    raise ArgumentError, 'Collection package profile is set incorrectly' unless
-        collection.package_profile == PackageProfile::COMPOUND_OBJECT_PROFILE
-    raise ArgumentError, 'Collection\'s Medusa CFS directory is invalid' unless
-        collection.effective_medusa_cfs_directory
-  end
-
-  ##
   # @return [Set<String>] Set of all item UUIDs in a CFS directory using the
   #                       compound object content profile.
   #
@@ -408,23 +393,6 @@ class MedusaCompoundObjectIngester
       end
     end
     medusa_item_uuids
-  end
-
-  ##
-  # Populates an item's metadata from its embedded binary metadata.
-  #
-  # @param item [Item]
-  # @param options [Hash]
-  # @option options [Boolean] :include_date_created
-  #
-  def update_item_from_embedded_metadata(item, options = {})
-    initial_title = item.title
-    item.update_from_embedded_metadata(options)
-    # If there is no title present in the new metadata, restore the initial
-    # title.
-    if item.elements.select{ |e| e.name == 'title' }.empty?
-      item.elements.build(name: 'title', value: initial_title)
-    end
   end
 
 end
