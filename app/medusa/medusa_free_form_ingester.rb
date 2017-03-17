@@ -100,37 +100,6 @@ class MedusaFreeFormIngester < MedusaAbstractIngester
   end
 
   ##
-  # Replaces existing DLS metadata for all items in the given collection with
-  # metadata drawn from embedded file metadata, such as IPTC.
-  #
-  # @param collection [Collection]
-  # @param task [Task] Supply to receive progress updates.
-  # @return [Hash<Symbol,Integer>] Hash with a :num_updated key.
-  # @raises [ArgumentError] If the collection's file group or package profile
-  #                         are not set or invalid.
-  #
-  def replace_metadata(collection, task = nil)
-    check_collection(collection, PackageProfile::FREE_FORM_PROFILE)
-
-    stats = { num_updated: 0 }
-    # Iterate only file-variant items, as they are the only ones with embedded
-    # metadata.
-    items = collection.items.where(variant: Item::Variants::FILE)
-    num_items = items.count
-    items.each_with_index do |item, index|
-      @@logger.info("MedusaFreeFormIngester.replace_metadata(): #{item.repository_id}")
-      update_item_from_embedded_metadata(item)
-      item.save!
-      stats[:num_updated] += 1
-
-      if task and index % 10 == 0
-        task.update(percent_complete: index / num_items.to_f)
-      end
-    end
-    stats
-  end
-
-  ##
   # Updates the binaries attached to each item in the given collection based on
   # the contents of the items in Medusa.
   #

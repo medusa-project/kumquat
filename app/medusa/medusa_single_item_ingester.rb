@@ -107,33 +107,6 @@ class MedusaSingleItemIngester < MedusaAbstractIngester
 
   ##
   # @param collection [Collection]
-  # @param task [Task] Supply to receive progress updates.
-  # @return [Hash<Symbol,Integer>] Hash with a :num_updated key.
-  # @raises [ArgumentError] If the collection's file group or package profile
-  #                         are not set or invalid.
-  #
-  def replace_metadata(collection, task = nil)
-    check_collection(collection, PackageProfile::SINGLE_ITEM_OBJECT_PROFILE)
-
-    stats = { num_updated: 0 }
-    items = collection.items
-    num_items = items.count
-    items.each_with_index do |item, index|
-      @@logger.info("MedusaSingleItemIngester.replace_metadata(): "\
-          "#{item.repository_id}")
-      update_item_from_embedded_metadata(item)
-      item.save!
-      stats[:num_updated] += 1
-
-      if task and index % 10 == 0
-        task.update(percent_complete: index / num_items.to_f)
-      end
-    end
-    stats
-  end
-
-  ##
-  # @param collection [Collection]
   # @param task [Task] Supply to receive status updates.
   # @return [Hash<Symbol, Integer>]
   # @raises [ArgumentError] If the collection's file group or package profile
