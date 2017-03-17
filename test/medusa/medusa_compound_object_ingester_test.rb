@@ -179,6 +179,16 @@ class MedusaCompoundObjectIngesterTest < ActiveSupport::TestCase
     end
   end
 
+  test 'delete_missing_items() with collection package profile set incorrectly
+  should raise an error' do
+    collection = collections(:mixed_media_collection)
+    collection.package_profile = PackageProfile::SINGLE_ITEM_OBJECT_PROFILE
+
+    assert_raises ArgumentError do
+      @instance.delete_missing_items(collection)
+    end
+  end
+
   test 'delete_missing_items() with no effective collection CFS directory should raise an error' do
     collection = collections(:collection1)
     collection.medusa_cfs_directory_id = nil
@@ -266,6 +276,16 @@ class MedusaCompoundObjectIngesterTest < ActiveSupport::TestCase
   test 'update_binaries() with collection package profile not set should raise an error' do
     collection = collections(:collection1)
     collection.package_profile = nil
+
+    assert_raises ArgumentError do
+      @instance.update_binaries(collection)
+    end
+  end
+
+  test 'update_binaries() with collection package profile set incorrectly
+  should raise an error' do
+    collection = collections(:collection1)
+    collection.package_profile = PackageProfile::FREE_FORM_PROFILE
 
     assert_raises ArgumentError do
       @instance.update_binaries(collection)
