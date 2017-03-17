@@ -92,6 +92,10 @@ class MedusaCfsDirectory
     @repository_relative_pathname
   end
 
+  def to_s
+    "#{self.uuid} #{self.repository_relative_pathname}"
+  end
+
   ##
   # @return [String] Absolute URI of the Medusa CFS directory resource, or nil
   #                  if the instance does not have a UUID.
