@@ -8,6 +8,8 @@ This is a basic getting-started guide for developers.
 # Dependencies
 
 * Local read-only Medusa NCSA condo mount
+    * Request from Library IT
+    * sudo mount -t nfs -o ro cnfs.ncsa.illinois.edu:/condo/library /mnt/whatever
 * Admin access to the public and staging DLS instances
 * PostgreSQL 9.x
 * Solr 5+ with a managed schema core
