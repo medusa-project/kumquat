@@ -6,7 +6,7 @@ class PackageProfileTest < ActiveSupport::TestCase
 
   test 'all() should return the correct profiles' do
     all = PackageProfile.all
-    assert_equal 3, all.length
+    assert_equal 4, all.length
 
     # free-form profile
     assert_equal 0, all[0].id
@@ -15,6 +15,14 @@ class PackageProfileTest < ActiveSupport::TestCase
     # map profile
     assert_equal 1, all[1].id
     assert_equal 'Compound Object', all[1].name
+
+    # single-item object profile
+    assert_equal 2, all[2].id
+    assert_equal 'Single-Item Object', all[2].name
+
+    # mixed media profile
+    assert_equal 3, all[3].id
+    assert_equal 'Mixed Media', all[3].name
   end
 
   # find
@@ -46,7 +54,7 @@ class PackageProfileTest < ActiveSupport::TestCase
 
   # parent_id_from_medusa
 
-  test 'parent_id_from_medusa should raise an error when no ID is provided' do
+  test 'parent_id_from_medusa() should raise an error when no ID is provided' do
     assert_raises ArgumentError do
       PackageProfile::FREE_FORM_PROFILE.parent_id_from_medusa(nil)
     end
@@ -54,14 +62,14 @@ class PackageProfileTest < ActiveSupport::TestCase
 
   # parent_id_from_medusa (with free-form profile)
 
-  test 'parent_id_from_medusa with the free-form profile should return nil
+  test 'parent_id_from_medusa() with the free-form profile should return nil
         with top-level items' do
     # https://medusa.library.illinois.edu/cfs_directories/414021.json
     item = 'be8d3500-c451-0133-1d17-0050569601ca-9'
     assert_nil PackageProfile::FREE_FORM_PROFILE.parent_id_from_medusa(item)
   end
 
-  test 'parent_id_from_medusa with the free-form profile should return the
+  test 'parent_id_from_medusa() with the free-form profile should return the
         parent UUID with pages' do
     # https://medusa.library.illinois.edu/cfs_directories/111150.json
     page = 'a536b060-5ca8-0132-3334-0050569601ca-8'
@@ -73,14 +81,14 @@ class PackageProfileTest < ActiveSupport::TestCase
 
   # parent_id_from_medusa (with map profile)
 
-  test 'parent_id_from_medusa with the map profile should return nil with
+  test 'parent_id_from_medusa() with the map profile should return nil with
         top-level items' do
     # https://medusa.library.illinois.edu/cfs_files/9799301.json
     item = 'ae3991e0-c451-0133-1d17-0050569601ca-b'
     assert_nil PackageProfile::COMPOUND_OBJECT_PROFILE.parent_id_from_medusa(item)
   end
 
-  test 'parent_id_from_medusa with the map profile should return the parent
+  test 'parent_id_from_medusa() with the map profile should return the parent
         UUID with pages' do
     # https://medusa.library.illinois.edu/cfs_files/9799301.json
     page = 'd853fad0-c451-0133-1d17-0050569601ca-7'
@@ -90,11 +98,43 @@ class PackageProfileTest < ActiveSupport::TestCase
                  PackageProfile::COMPOUND_OBJECT_PROFILE.parent_id_from_medusa(page)
   end
 
-  test 'parent_id_from_medusa with the map profile should return nil for
+  test 'parent_id_from_medusa() with the map profile should return nil for
         non-item content' do
     # https://medusa.library.illinois.edu/cfs_directories/414759.json
     bogus = 'd83e6f60-c451-0133-1d17-0050569601ca-8'
     assert_nil PackageProfile::COMPOUND_OBJECT_PROFILE.parent_id_from_medusa(bogus)
+  end
+
+  # parent_id_from_medusa (with mixed media profile)
+
+  test 'parent_id_from_medusa() with the mixed media profile should return nil
+        with top-level items' do
+    # https://medusa.library.illinois.edu/cfs_directories/1273904.json
+    item = 'bc5d68c0-ea4e-0134-23c2-0050569601ca-2'
+    assert_nil MedusaMixedMediaIngester.parent_id_from_medusa(item)
+  end
+
+  test 'parent_id_from_medusa() with the mixed media profile should return the
+        parent UUID with pages' do
+    # https://medusa.library.illinois.edu/cfs_directories/1274132.json
+    page = 'cdd5cdc0-ea4e-0134-23c2-0050569601ca-8'
+    # https://medusa.library.illinois.edu/cfs_directories/1273904.json
+    expected_parent = 'bc5d68c0-ea4e-0134-23c2-0050569601ca-2'
+    assert_equal expected_parent,
+                 MedusaMixedMediaIngester.parent_id_from_medusa(page)
+  end
+
+  test 'parent_id_from_medusa() with the mixed media profile should return nil
+        for non-item content' do
+    # access folder
+    # https://medusa.library.illinois.edu/cfs_directories/1275947.json
+    bogus = '8df7b5e0-ea51-0134-23c2-0050569601ca-0'
+    assert_nil MedusaMixedMediaIngester.parent_id_from_medusa(bogus)
+
+    # preservation folder
+    # https://medusa.library.illinois.edu/cfs_directories/1275948.json
+    bogus = '948a3a80-ea51-0134-23c2-0050569601ca-5'
+    assert_nil MedusaMixedMediaIngester.parent_id_from_medusa(bogus)
   end
 
 end
