@@ -174,6 +174,8 @@ class MedusaFreeFormIngester
         collection.medusa_file_group
     raise ArgumentError, 'Collection package profile is not set' unless
         collection.package_profile
+    raise ArgumentError, 'Collection package profile is set incorrectly' unless
+        collection.package_profile == PackageProfile::FREE_FORM_PROFILE
     raise ArgumentError, 'Collection\'s Medusa CFS directory is invalid' unless
         collection.effective_medusa_cfs_directory
   end
