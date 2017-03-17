@@ -14,20 +14,16 @@ class MedusaCompoundObjectIngester
     json = client.get(Medusa.url(item_id), follow_redirect: true).body
     struct = JSON.parse(json)
 
-    # Top-level items will have `access`, `metadata`, and/or `preservation`
-    # subdirectories.
-    if struct['subdirectories']&.
-        select{ |n| %w(access metadata preservation).include?(n['name']) }&.any?
-      return nil
-      # Child items will reside in a directory called `access` or
-      # `preservation`.
-    elsif struct['directory'] and
+    # Child items will reside in a directory called `access` or
+    # `preservation`.
+    if struct['directory'] and
         %w(access preservation).include?(struct['directory']['name'])
       json = client.get(Medusa.url(struct['directory']['uuid']),
                         follow_redirect: true).body
       struct2 = JSON.parse(json)
       return struct2['parent_directory']['uuid']
     end
+    nil
   end
 
   ##
