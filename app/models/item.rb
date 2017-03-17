@@ -784,6 +784,8 @@ class Item < ActiveRecord::Base
   # @raises [IOError]
   #
   def update_from_embedded_metadata(options = {})
+    return unless self.binaries.count > 0
+
     ActiveRecord::Base.transaction do
       self.elements.destroy_all
       self.elements += elements_from_embedded_metadata(options)
