@@ -438,17 +438,20 @@ class Item < ActiveRecord::Base
   end
 
   ##
-  # @return [Binary,nil] Best binary to use with an IIIF image server.
+  # @return [Binary, nil] Best binary to use with an IIIF image server.
   #
   def iiif_image_binary
-    bs = self.access_master_binary
-    if !bs or !bs.iiif_safe?
-      bs = self.preservation_master_binary
-      if !bs or !bs.iiif_safe?
-        bs = nil
+    binary = self.representative_binary
+    if !binary or !binary.iiif_safe?
+      binary = self.access_master_binary
+      if !binary or !binary.iiif_safe?
+        binary = self.preservation_master_binary
+        if !binary or !binary.iiif_safe?
+          binary = nil
+        end
       end
     end
-    bs
+    binary
   end
 
   ##
