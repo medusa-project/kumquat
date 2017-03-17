@@ -139,6 +139,8 @@ class Item < ActiveRecord::Base
   has_many :elements, class_name: 'ItemElement', inverse_of: :item,
            dependent: :destroy
 
+  belongs_to :representative_binary, class_name: 'Binary'
+
   # VALIDATIONS
 
   # collection_repository_id

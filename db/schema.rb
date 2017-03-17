@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170207150142) do
+ActiveRecord::Schema.define(version: 20170317191828) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -203,6 +203,7 @@ ActiveRecord::Schema.define(version: 20170207150142) do
     t.integer  "contentdm_pointer"
     t.string   "contentdm_alias"
     t.string   "embed_tag"
+    t.integer  "representative_binary_id"
   end
 
   add_index "items", ["collection_repository_id"], name: "index_items_on_collection_repository_id", using: :btree
