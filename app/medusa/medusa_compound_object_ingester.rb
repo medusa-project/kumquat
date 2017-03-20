@@ -50,7 +50,6 @@ class MedusaCompoundObjectIngester
         @@logger.info("MedusaCompoundObjectIngester.create_items(): "\
             "skipping item #{top_item_dir.uuid}")
         status[:num_skipped] += 1
-        next
       else
         @@logger.info("MedusaCompoundObjectIngester.create_items(): "\
             "creating item #{top_item_dir.uuid}")
@@ -74,7 +73,6 @@ class MedusaCompoundObjectIngester
                 @@logger.info("MedusaCompoundObjectIngester.create_items(): "\
                     "skipping child item #{pres_file.uuid}")
                 status[:num_skipped] += 1
-                next
               else
                 @@logger.info("MedusaCompoundObjectIngester.create_items(): "\
                     "creating child item #{pres_file.uuid}")
@@ -151,7 +149,6 @@ class MedusaCompoundObjectIngester
               @@logger.info("MedusaCompoundObjectIngester.create_items(): "\
                     "skipping supplementary item #{supp_file.uuid}")
               status[:num_skipped] += 1
-              next
             else
               @@logger.info("MedusaCompoundObjectIngester.create_items(): "\
                     "creating supplementary item #{supp_file.uuid}")
@@ -178,7 +175,6 @@ class MedusaCompoundObjectIngester
               @@logger.info("MedusaCompoundObjectIngester.create_items(): "\
                     "skipping composite item #{comp_file.uuid}")
               status[:num_skipped] += 1
-              next
             else
               @@logger.info("MedusaCompoundObjectIngester.create_items(): "\
                     "creating composite item #{comp_file.uuid}")
