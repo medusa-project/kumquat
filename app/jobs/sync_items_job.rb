@@ -17,10 +17,10 @@ class SyncItemsJob < Job
                                            self.task)
     Solr.instance.commit
 
-    self.task.status_text += ": #{result[:num_created]} created; "\
-        "#{result[:num_updated]} updated; "\
-        "#{result[:num_deleted]} deleted; "\
-        "#{result[:num_skipped]} skipped"
+    self.task.status_text += ": #{result[:num_created].to_i} created; "\
+        "#{result[:num_updated].to_i} updated; "\
+        "#{result[:num_deleted].to_i} deleted; "\
+        "#{result[:num_skipped].to_i} skipped"
     self.task.succeeded
   end
 
