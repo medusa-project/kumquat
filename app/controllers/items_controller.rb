@@ -14,7 +14,8 @@ class ItemsController < WebsiteController
 
   before_action :enable_cors, only: [:iiif_annotation, :iiif_annotation_list,
                                      :iiif_canvas, :iiif_layer, :iiif_manifest,
-                                     :iiif_media_sequence, :iiif_sequence]
+                                     :iiif_media_sequence, :iiif_range,
+                                     :iiif_sequence]
 
   # Other actions
   before_action :load_item, only: [:access_master_binary, :files,
