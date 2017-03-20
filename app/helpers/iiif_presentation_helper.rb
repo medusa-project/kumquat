@@ -1,6 +1,47 @@
 module IiifPresentationHelper
 
-  MIN_CANVAS_SIZE = 1200
+  LAYER_LABEL = 'Additional Content'
+  MIN_CANVAS_SIZE = 1200 # http://iiif.io/api/presentation/2.1/#canvas
+
+  ##
+  # @param item [Item] Compound object.
+  # @param list_name [String] Should be the same as the name of the canvas
+  #                           that the annotation list is ascribed to.
+  # @see http://iiif.io/api/presentation/2.1/#annotation-list
+  #
+  def iiif_annotation_list_for(item, list_name)
+    resources = []
+    item.items.where('variant IN (?)', [Item::Variants::COMPOSITE,
+                                        Item::Variants::SUPPLEMENT]).each do |child|
+      binary = child.access_master_binary || child.preservation_master_binary
+      dc_type = child.dc_type
+      if binary and dc_type
+      resources << {
+          '@type': 'oa:Annotation',
+          motivation: 'sc:painting',
+          resource: {
+              '@id': item_url(child),
+              # http://dublincore.org/documents/dcmi-type-vocabulary/#H7
+              '@type': "dctypes:#{dc_type}",
+              format: binary.media_type
+          },
+          on: item_iiif_layer_url(item, list_name)
+      }
+      end
+    end
+
+    {
+        '@context': 'http://iiif.io/api/presentation/2/context.json',
+        '@id': item_iiif_annotation_list_url(item, list_name),
+        '@type': 'sc:AnnotationList',
+        within: {
+            '@id': item_iiif_layer_url(item, item.repository_id),
+            '@type': 'sc:Layer',
+            label: LAYER_LABEL
+        },
+        resources: resources
+    }
+  end
 
   ##
   # @param subitem [Item] Subitem or page
@@ -15,7 +56,9 @@ module IiifPresentationHelper
         width: canvas_width(subitem),
         metadata: iiif_metadata_for(subitem)
     }
-    struct[:images] = iiif_images_for(subitem, 'access') if subitem.is_image?
+    if subitem.is_image? or subitem.is_pdf?
+      struct[:images] = iiif_images_for(subitem, 'access')
+    end
     struct
   end
 
@@ -26,10 +69,13 @@ module IiifPresentationHelper
   def iiif_canvases_for(item)
     items = item.items_in_iiif_presentation_order.to_a
     if items.any?
-      return items.map { |subitem| iiif_canvas_for(subitem) }
-    else
-      return [ iiif_canvas_for(item) ]
+      # Composite and supplement items are included in the annotation list
+      # instead.
+      return items.select{ |it| ![Item::Variants::COMPOSITE,
+                                  Item::Variants::SUPPLEMENT].include?(it.variant) }.
+          map { |subitem| iiif_canvas_for(subitem) }
     end
+    [ iiif_canvas_for(item) ]
   end
 
   ##
@@ -39,8 +85,8 @@ module IiifPresentationHelper
   #
   def iiif_images_for(item, annotation_name)
     images = []
-    bs = item.access_master_binary || item.preservation_master_binary
-    if bs
+    bin = item.access_master_binary || item.preservation_master_binary
+    if bin
       images << {
           '@type': 'oa:Annotation',
           '@id': item_iiif_annotation_url(item, annotation_name),
@@ -48,14 +94,14 @@ module IiifPresentationHelper
           resource: {
               '@id': iiif_image_url(item, 1000),
               '@type': 'dctypes:Image',
-              'format': bs.media_type,
+              'format': bin.media_type,
               service: {
                   '@context': 'http://iiif.io/api/image/2/context.json',
-                  '@id': bs.iiif_image_url,
+                  '@id': bin.iiif_image_url,
                   profile: 'http://iiif.io/api/image/2/profiles/level2.json'
               },
-              height: bs.height,
-              width: bs.width
+              height: bin.height,
+              width: bin.width
           },
           on: item_iiif_canvas_url(item, item.repository_id)
       }
@@ -64,10 +110,35 @@ module IiifPresentationHelper
   end
 
   ##
+  # @param item [Item] Compound object.
+  # @param layer_name [String] Should be the same as the name of the canvas
+  #                            that the layer is ascribed to.
+  # @see http://iiif.io/api/presentation/2.1/#layer
+  #
+  def iiif_layer_for(item, layer_name)
+    struct = {
+        '@context': 'http://iiif.io/api/presentation/2/context.json',
+        '@id': item_iiif_layer_url(item, layer_name),
+        '@type': 'sc:Layer',
+        label: LAYER_LABEL
+    }
+
+    items = item.items.where('variant IN (?)', [Item::Variants::COMPOSITE,
+                                                Item::Variants::SUPPLEMENT])
+    if items.any?
+      struct[:otherContent] = items.map do |it|
+        item_iiif_annotation_list_url(item, it.repository_id)
+      end
+    end
+    struct
+  end
+
+  ##
   # @param item [Item]
   # @return [Array]
   #
   def iiif_media_sequences_for(item)
+    sequences = nil
     if item.variant == Item::Variants::FILE and item.is_pdf?
       sequences = [
           {
@@ -110,17 +181,22 @@ module IiifPresentationHelper
 
   ##
   # @param item [Item] Compound object
-  # @param variant [String] One of the Item::Variants constant values
+  # @param subitem [Item] Item
   # @return [Hash]
   #
-  def iiif_range_for(item, variant)
-    subitem = item.items.where(variant: variant).first
-    {
-        '@id': item_iiif_range_url(item, variant),
+  def iiif_range_for(item, subitem)
+    struct = {
+        '@id': item_iiif_range_url(item, subitem.repository_id),
         '@type': 'sc:Range',
-        label: subitem.title,
-        canvases: [ item_iiif_canvas_url(subitem, subitem.repository_id) ]
+        label: subitem.title
     }
+    if [Item::Variants::COMPOSITE, Item::Variants::SUPPLEMENT].
+        include?(subitem.variant)
+      struct[:contentLayer] = item_iiif_layer_url(item, subitem.repository_id)
+    else
+      struct[:canvases] = [ item_iiif_canvas_url(subitem, subitem.repository_id) ]
+    end
+    struct
   end
 
   ##
@@ -130,7 +206,7 @@ module IiifPresentationHelper
   #
   def iiif_ranges_for(item)
     ranges = item.items.where('variant NOT IN (?)', [Item::Variants::PAGE]).map do |subitem|
-      iiif_range_for(item, subitem.variant)
+      iiif_range_for(item, subitem)
     end
 
     top_range = ranges.select{ |r| r[:label] == Item::Variants::TITLE.titleize }.first ||
@@ -184,15 +260,15 @@ module IiifPresentationHelper
   private
 
   def canvas_height(item)
-    bs = item.access_master_binary || item.preservation_master_binary
-    height = bs&.height || MIN_CANVAS_SIZE
+    bin = item.access_master_binary || item.preservation_master_binary
+    height = bin&.height || MIN_CANVAS_SIZE
     height = MIN_CANVAS_SIZE if height < MIN_CANVAS_SIZE
     height
   end
 
   def canvas_width(item)
-    bs = item.access_master_binary || item.preservation_master_binary
-    width = bs&.width || MIN_CANVAS_SIZE
+    bin = item.access_master_binary || item.preservation_master_binary
+    width = bin&.width || MIN_CANVAS_SIZE
     width = MIN_CANVAS_SIZE if width < MIN_CANVAS_SIZE
     width
   end

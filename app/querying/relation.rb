@@ -17,6 +17,7 @@ class Relation
     @caller = caller
     @calling_class = (caller.kind_of?(Class) or caller == SolrQuerying) ?
         caller : caller.class
+    @default_field = Configuration.instance.solr_default_search_field
     @facet = true
     @facetable_fields = []
     @filter_clauses = []
@@ -41,6 +42,15 @@ class Relation
   #
   def count
     self.to_a.total_length
+  end
+
+  ##
+  # @param field [String]
+  # @return [self]
+  #
+  def default_field(field)
+    @default_field = field
+    self
   end
 
   ##
@@ -290,7 +300,7 @@ class Relation
       params = {
           'q' => query,
           'q.op' => @operator.to_s.upcase,
-          'df' => Configuration.instance.solr_default_search_field,
+          'df' => @default_field,
           'fl' => [Configuration.instance.solr_id_field,
                    Configuration.instance.solr_class_field],
           'fq' => filter,

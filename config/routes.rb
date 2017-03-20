@@ -88,6 +88,7 @@ Rails.application.routes.draw do
   end
   match '/auth/:provider/callback', to: 'sessions#create', via: [:get, :post],
         as: 'auth' # used by omniauth
+  resources :binaries, only: :show
   resources :collections, only: [:index, :show] do
     resources :items, only: :index
     # IIIF Presentation API 2.1 routes
@@ -106,6 +107,9 @@ Rails.application.routes.draw do
     match '/annotation/:name', to: 'items#iiif_annotation', via: :get,
           as: 'iiif_annotation'
     match '/canvas/:id', to: 'items#iiif_canvas', via: :get, as: 'iiif_canvas'
+    match '/layer/:name', to: 'items#iiif_layer', via: :get, as: 'iiif_layer'
+    match '/list/:name', to: 'items#iiif_annotation_list', via: :get,
+          as: 'iiif_annotation_list'
     match '/manifest', to: 'items#iiif_manifest', via: :get,
           as: 'iiif_manifest'
     match '/media-sequence/:name', to: 'items#iiif_media_sequence', via: :get,
@@ -165,6 +169,7 @@ Rails.application.routes.draw do
           via: :get, as: 'server_search_server_status'
     match '/settings', to: 'settings#index', via: :get
     match '/settings', to: 'settings#update', via: :patch
+    match '/statistics', to: 'statistics#index', via: :get
     resources :tasks
     resources :users, param: :username do
       match '/enable', to: 'users#enable', via: :patch, as: 'enable'

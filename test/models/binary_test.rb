@@ -67,8 +67,10 @@ class BinaryTest < ActiveSupport::TestCase
   # human_readable_type()
 
   test 'human_readable_type should work properly' do
-    assert_equal 'Preservation Master', binaries(:item1_one).human_readable_type
-    assert_equal 'Access Master', binaries(:item1_two).human_readable_type
+    assert_equal 'Access Master',
+                 Binary.new(binary_type: Binary::Type::ACCESS_MASTER).human_readable_type
+    assert_equal 'Preservation Master',
+                 Binary.new(binary_type: Binary::Type::PRESERVATION_MASTER).human_readable_type
   end
 
   # iiif_image_identifier()

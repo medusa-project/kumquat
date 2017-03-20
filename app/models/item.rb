@@ -97,12 +97,14 @@ class Item < ActiveRecord::Base
   end
 
   class Variants
+    COMPOSITE = 'Composite'
     DIRECTORY = 'Directory'
     FILE = 'File'
     FRONT_MATTER = 'FrontMatter'
     INDEX = 'Index'
     KEY = 'Key'
     PAGE = 'Page'
+    SUPPLEMENT = 'Supplement'
     TABLE_OF_CONTENTS = 'TableOfContents'
     TITLE = 'Title'
 
@@ -114,6 +116,7 @@ class Item < ActiveRecord::Base
     end
   end
 
+  # In the order they should appear in the TSV, left-to-right.
   NON_DESCRIPTIVE_TSV_COLUMNS = %w(uuid parentId preservationMasterPathname
     preservationMasterFilename accessMasterPathname accessMasterFilename
     variant pageNumber subpageNumber latitude longitude contentdmAlias
@@ -177,6 +180,31 @@ class Item < ActiveRecord::Base
   after_commit :index_in_solr, on: [:create, :update]
   after_commit :delete_from_solr, on: :destroy
 
+  def self.num_free_form_items
+    sql = "SELECT COUNT(items.id) AS count
+      FROM items
+      LEFT JOIN collections
+      ON collections.repository_id = items.collection_repository_id
+      WHERE collections.package_profile_id = #{PackageProfile::FREE_FORM_PROFILE.id}
+      AND items.variant = '#{Item::Variants::FILE}'"
+    result = ActiveRecord::Base.connection.execute(sql)
+    result[0]['count'].to_i
+  end
+
+  ##
+  # @return [Integer] Number of objects in the instance.
+  #
+  def self.num_objects
+    sql = "SELECT COUNT(items.id) AS count
+      FROM items
+      LEFT JOIN collections
+      ON collections.repository_id = items.collection_repository_id
+      WHERE collections.package_profile_id != #{PackageProfile::FREE_FORM_PROFILE.id}
+      AND items.variant IS NULL"
+    result = ActiveRecord::Base.connection.execute(sql)
+    result[0]['count'].to_i + num_free_form_items
+  end
+
   ##
   # Returns a tab-separated list of applicable technical elements, plus one
   # column per element definition in the item's collection's metadata profile.
@@ -192,7 +220,7 @@ class Item < ActiveRecord::Base
       # uncontrolled vocabulary which will not have a vocabKey prefix.
       columns += ed.vocabularies.sort{ |v| v.key <=> v.key }.map do |vocab|
         vocab.key != Vocabulary::UNCONTROLLED_KEY ?
-            "#{vocab.key}:#{ed.name}" : ed.name
+            "#{vocab.key}:#{ed.label}" : ed.label
       end
     end
     columns.join("\t") + TSV_LINE_BREAK
@@ -263,6 +291,34 @@ class Item < ActiveRecord::Base
   #
   def collection=(collection)
     self.collection_repository_id = collection.repository_id
+  end
+
+  ##
+  # @return [Item]
+  #
+  def composite_item
+    self.items.where(variant: Variants::COMPOSITE).limit(1).first
+  end
+
+  ##
+  # @return [String]
+  # @see http://dublincore.org/documents/dcmi-type-vocabulary/#H7
+  #
+  def dc_type
+    type = nil
+    # TODO: Software
+    if self.is_compound?
+      type = 'Collection'
+    elsif self.is_image?
+      type = 'StillImage'
+    elsif self.is_video?
+      type = 'MovingImage'
+    elsif self.is_audio?
+      type = 'Sound'
+    elsif self.is_pdf? or self.is_text?
+      type = 'Text'
+    end
+    type
   end
 
   def delete_from_solr # TODO: change to Item.solr.delete()
@@ -679,6 +735,13 @@ class Item < ActiveRecord::Base
   end
 
   ##
+  # @return [Item]
+  #
+  def supplementary_item
+    self.items.where(variant: Variants::SUPPLEMENT).limit(1).first
+  end
+
+  ##
   # @return [Item] The item's table-of-contents item, if available.
   #
   def table_of_contents_item
@@ -905,29 +968,34 @@ class Item < ActiveRecord::Base
 
       # Descriptive metadata elements.
       row.each do |heading, raw_value|
-        # Vocabulary columns will have a heading of "vocabKey:elementName",
+        # Vocabulary columns will have a heading of "vocabKey:elementLabel",
         # except uncontrolled columns which will have a heading of just
-        # "elementName".
+        # "elementLabel".
         heading_parts = heading.to_s.split(':')
-        element_name = heading_parts.last
+        element_label = heading_parts.last
+        element_name = self.collection.metadata_profile.elements.
+            select{ |e| e.label == element_label }.first&.name
 
         # Skip non-descriptive columns.
-        next if NON_DESCRIPTIVE_TSV_COLUMNS.include?(element_name)
+        next if NON_DESCRIPTIVE_TSV_COLUMNS.include?(element_label)
 
-        # Get the vocabulary based on the column heading.
-        vocabulary = nil
-        if heading_parts.length > 1
-          vocabulary = Vocabulary.find_by_key(heading_parts.first)
-          unless vocabulary
-            raise ArgumentError, "Column contains an unrecognized vocabulary "\
-                "key: #{heading_parts.first}"
+        if element_name
+          # Get the vocabulary based on the prefix in the column heading.
+          vocabulary = nil
+          if heading_parts.length > 1
+            vocabulary = Vocabulary.find_by_key(heading_parts.first)
+            unless vocabulary
+              raise ArgumentError, "Column contains an unrecognized vocabulary "\
+                  "key: #{heading_parts.first}"
+            end
           end
-        end
 
-        # To avoid data loss, we will accept any available descriptive element,
-        # whether or not it is present in the collection's metadata profile.
-        self.elements += ItemElement::elements_from_tsv_string(
-            element_name, raw_value, vocabulary)
+          self.elements += ItemElement::elements_from_tsv_string(
+              element_name, raw_value, vocabulary)
+        else
+          raise ArgumentError, "Column contains an element not present in the "\
+              "metadata profile: #{element_label}"
+        end
       end
       self.save!
     end

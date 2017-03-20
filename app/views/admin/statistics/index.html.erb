@@ -1,0 +1,84 @@
+<% provide :title, 'Statistics' %>
+<% provide :body_id, 'statistics' %>
+<% provide :active_nav, 'server' %>
+
+<ol class="breadcrumb">
+  <li><%= link_to 'Home', admin_root_path %></li>
+  <li class="active">Statistics</li>
+</ol>
+
+<h1>Statistics</h1>
+
+<h2>Collections</h2>
+
+<table class="table">
+  <tr>
+    <td>Collections</td>
+    <td><%= number_with_delimiter(@num_collections) %></td>
+  </tr>
+  <tr>
+    <td>Publicly-Available Collections</td>
+    <td><%= number_with_delimiter(@num_public_collections) %></td>
+  </tr>
+</table>
+
+<hr>
+
+<h2>Items</h2>
+
+<table class="table">
+  <tr>
+    <td>Objects</td>
+    <td><%= number_with_delimiter(@num_objects) %></td>
+  </tr>
+  <tr>
+    <td>Items</td>
+    <td><%= number_with_delimiter(@num_items) %></td>
+  </tr>
+  <tr>
+    <td>Free-Form Items</td>
+    <td><%= number_with_delimiter(@num_free_form_items) %></td>
+  </tr>
+  <tr>
+    <td>Binaries</td>
+    <td><%= number_with_delimiter(@num_binaries) %></td>
+  </tr>
+</table>
+
+<hr>
+
+<h2>Metadata</h2>
+
+<table class="table">
+  <tr>
+    <td>Available Descriptive Elements</td>
+    <td><%= number_with_delimiter(@num_available_elements) %></td>
+  </tr>
+  <tr>
+    <td>Ascribed Descriptive Elements</td>
+    <td><%= number_with_delimiter(@num_ascribed_elements) %></td>
+  </tr>
+  <tr>
+    <td>Metadata Profiles</td>
+    <td><%= number_with_delimiter(@num_metadata_profiles) %></td>
+  </tr>
+  <tr>
+    <td>Agents</td>
+    <td><%= number_with_delimiter(@num_agents) %></td>
+  </tr>
+  <tr>
+    <td>Vocabularies</td>
+    <td><%= number_with_delimiter(@num_vocabularies) %></td>
+  </tr>
+</table>
+
+<hr>
+
+<h2>Users</h2>
+
+<table class="table">
+  <tr>
+    <td>Users</td>
+    <td><%= number_with_delimiter(@num_users) %></td>
+  </tr>
+</table>

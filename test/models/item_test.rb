@@ -16,7 +16,7 @@ class ItemTest < ActiveSupport::TestCase
 
   test 'tsv_header should return the correct columns' do
     cols = Item.tsv_header(@item.collection.metadata_profile).strip.split("\t")
-    assert_equal 17, cols.length
+    assert_equal 19, cols.length
     assert_equal 'uuid', cols[0]
     assert_equal 'parentId', cols[1]
     assert_equal 'preservationMasterPathname', cols[2]
@@ -30,10 +30,12 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal 'longitude', cols[10]
     assert_equal 'contentdmAlias', cols[11]
     assert_equal 'contentdmPointer', cols[12]
-    assert_equal 'title', cols[13]
-    assert_equal 'description', cols[14]
-    assert_equal 'lcsh:subject', cols[15]
-    assert_equal 'tgm:subject', cols[16]
+    assert_equal 'Title', cols[13]
+    assert_equal 'Coordinates', cols[14]
+    assert_equal 'Date Created', cols[15]
+    assert_equal 'Description', cols[16]
+    assert_equal 'lcsh:Subject', cols[17]
+    assert_equal 'tgm:Subject', cols[18]
   end
 
   test 'tsv_header should end with a line break' do
@@ -81,6 +83,21 @@ class ItemTest < ActiveSupport::TestCase
     assert @item.valid?
   end
 
+  # composite_item()
+
+  test 'composite_item() should return the composite item, or nil if none
+  exists' do
+    item = items(:item1)
+    assert_nil item.composite_item
+
+    id = SecureRandom.uuid
+    Item.create!(repository_id: id,
+                 collection_repository_id: item.collection_repository_id,
+                 parent_repository_id: item.repository_id,
+                 variant: Item::Variants::COMPOSITE)
+    assert_equal id, item.composite_item.repository_id
+  end
+
   # description()
 
   test 'description() should return the description element value, or nil if
@@ -106,7 +123,7 @@ class ItemTest < ActiveSupport::TestCase
         representative_item_repository_id is not set' do
     @item = items(:map_obj1)
     @item.representative_item_repository_id = nil
-    assert_equal 'be8d3500-c451-0133-1d17-0050569601ca-9',
+    assert_equal 'd29950d0-c451-0133-1d17-0050569601ca-2',
                  @item.effective_representative_item.repository_id
   end
 
@@ -431,6 +448,20 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal 'cats', @item.subtitle
   end
 
+  # supplementary_item()
+
+  test 'supplementary_item() should return the supplementary item, or nil if
+  none exists' do
+    item = items(:item1)
+    assert_nil item.supplementary_item
+
+    Item.create!(repository_id: SecureRandom.uuid,
+                 collection_repository_id: item.collection_repository_id,
+                 parent_repository_id: item.repository_id,
+                 variant: Item::Variants::SUPPLEMENT)
+    assert_equal Item::Variants::SUPPLEMENT, item.supplementary_item.variant
+  end
+
   # title()
 
   test 'title() should return the title element value, or nil if none exists' do
@@ -574,7 +605,6 @@ class ItemTest < ActiveSupport::TestCase
     # technical elements
     row['contentdmAlias'] = 'cats'
     row['contentdmPointer'] = '123'
-    row['date'] = '1984'
     row['latitude'] = '45.52'
     row['longitude'] = '-120.564'
     row['pageNumber'] = '3'
@@ -582,26 +612,25 @@ class ItemTest < ActiveSupport::TestCase
     row['variant'] = Item::Variants::PAGE
 
     # descriptive elements
-    row['description'] = 'Cats' +
+    row['Description'] = 'Cats' +
         Item::TSV_MULTI_VALUE_SEPARATOR +
         'cats' + Item::TSV_URI_VALUE_SEPARATOR + '<http://example.org/cats1>' +
         Item::TSV_MULTI_VALUE_SEPARATOR +
         'and more cats' + Item::TSV_URI_VALUE_SEPARATOR + '<http://example.org/cats2>'
-    row['title'] = 'Cats & Stuff'
-    row['lcsh:subject'] = 'Cats'
+    row['Title'] = 'Cats & Stuff'
+    row['lcsh:Subject'] = 'Cats'
 
     @item.update_from_tsv(row)
 
     assert_equal 'cats', @item.contentdm_alias
     assert_equal 123, @item.contentdm_pointer
-    assert_equal 1984, @item.date.year
     assert_equal 45.52, @item.latitude
     assert_equal -120.564, @item.longitude
     assert_equal 3, @item.page_number
     assert_equal 1, @item.subpage_number
     assert_equal Item::Variants::PAGE, @item.variant
 
-    assert_equal 6, @item.elements.length # all of the above plus date
+    assert_equal 5, @item.elements.length
     assert_equal 1, @item.elements.select{ |e| e.name == 'title' and
         e.value == 'Cats & Stuff' }.length
     assert_equal 1, @item.elements.select{ |e| e.name == 'description' and
@@ -614,8 +643,8 @@ class ItemTest < ActiveSupport::TestCase
 
   test 'update_from_tsv should raise an error if given an invalid element name' do
     row = {}
-    row['title'] = 'Cats'
-    row['totallyBogus'] = 'Felines'
+    row['Title'] = 'Cats'
+    row['TotallyBogus'] = 'Felines'
 
     assert_raises ArgumentError do
       @item.update_from_tsv(row)
@@ -624,8 +653,8 @@ class ItemTest < ActiveSupport::TestCase
 
   test 'update_from_tsv should raise an error if given an invalid vocabulary prefix' do
     row = {}
-    row['title'] = 'Cats'
-    row['bogus:subject'] = 'Felines'
+    row['Title'] = 'Cats'
+    row['bogus:Subject'] = 'Felines'
 
     assert_raises ArgumentError do
       @item.update_from_tsv(row)

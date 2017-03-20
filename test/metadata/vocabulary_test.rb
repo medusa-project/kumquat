@@ -2,6 +2,14 @@ require 'test_helper'
 
 class VocabularyTest < ActiveSupport::TestCase
 
+  # agent()
+
+  test 'agent() should return the agent vocabulary' do
+    assert_equal Vocabulary::AGENT_KEY, Vocabulary.agent.key
+  end
+
+  # from_json()
+
   test 'from_json should work' do
     json = <<-HEREDOC
     {
@@ -108,6 +116,43 @@ class VocabularyTest < ActiveSupport::TestCase
     assert_raises ArgumentError do
       Vocabulary.from_json(json)
     end
+  end
+
+  # uncontrolled()
+
+  test 'uncontrolled() should return the uncontrolled vocabulary' do
+    assert_equal Vocabulary::UNCONTROLLED_KEY, Vocabulary.uncontrolled.key
+  end
+
+  # readonly?()
+
+  test 'readonly?() should return true for the uncontrolled and agent
+  vocabularies' do
+    assert Vocabulary.new(key: Vocabulary::UNCONTROLLED_KEY).readonly?
+    assert Vocabulary.new(key: Vocabulary::AGENT_KEY).readonly?
+  end
+
+  test 'readonly?() should return false for all other vocabularies' do
+    assert !Vocabulary.new(key: 'cats').readonly?
+  end
+
+  # save()
+
+  test 'save() should restrict changes of the uncontrolled and agent
+  vocabulary keys' do
+    voc = vocabularies(:uncontrolled)
+    voc.key = 'dogs'
+    assert !voc.save
+
+    voc = vocabularies(:agent)
+    voc.key = 'dogs'
+    assert !voc.save
+  end
+
+  test 'save() should allow changes of all other vocabulary keys' do
+    voc = Vocabulary.create!(key: 'cats', name: 'Cats')
+    voc.key = 'dogs'
+    assert voc.save
   end
 
 end

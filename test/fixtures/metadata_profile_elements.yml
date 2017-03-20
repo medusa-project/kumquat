@@ -14,12 +14,40 @@ default_profile_title:
   vocabularies:
     - uncontrolled
 
+default_profile_coordinates:
+  metadata_profile: default_metadata_profile
+  dc_map: spatial
+  dcterms_map: spatial
+  facetable: false
+  index: 1
+  label: Coordinates
+  name: coordinates
+  searchable: false
+  sortable: false
+  visible: true
+  vocabularies:
+    - uncontrolled
+
+default_profile_dateCreated:
+  metadata_profile: default_metadata_profile
+  dc_map: created
+  dcterms_map: created
+  facetable: false
+  index: 2
+  label: Date Created
+  name: dateCreated
+  searchable: false
+  sortable: true
+  visible: true
+  vocabularies:
+    - uncontrolled
+
 default_profile_description:
   metadata_profile: default_metadata_profile
   dc_map: description
   dcterms_map: description
   facetable: false
-  index: 1
+  index: 3
   label: Description
   name: description
   searchable: false
@@ -33,7 +61,7 @@ default_profile_subject:
   dc_map: subject
   dcterms_map: subject
   facetable: true
-  index: 2
+  index: 4
   label: Subject
   name: subject
   searchable: true

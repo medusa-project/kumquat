@@ -1,6 +1,7 @@
 class AbstractFinder
 
   def initialize
+    @default_field = nil
     @include_unpublished = false
     @start = 0
     @limit = 999999
@@ -31,6 +32,15 @@ class AbstractFinder
   #
   def client_user(user)
     @client_user = user
+    self
+  end
+
+  ##
+  # @param field [String]
+  # @return [self]
+  #
+  def default_field(field)
+    @default_field = field
     self
   end
 
