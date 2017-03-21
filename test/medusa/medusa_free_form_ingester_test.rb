@@ -104,9 +104,11 @@ class MedusaFreeFormIngesterTest < ActiveSupport::TestCase
     assert_equal Item::Variants::FILE, item.variant
     assert_equal 1, item.elements.length
     assert_equal 'animals_001.jpg', item.title
+
     bs = item.binaries.first
     assert_equal 1757527, bs.byte_size
     assert_equal 'image/jpeg', bs.media_type
+    assert_equal Binary::MediaCategory::IMAGE, bs.media_category
     assert_equal '/136/310/3707005/access/online/Illini_Union_Photographs/binder_10/animals/animals_001.jpg',
                  bs.repository_relative_pathname
   end
@@ -147,16 +149,6 @@ class MedusaFreeFormIngesterTest < ActiveSupport::TestCase
   test 'delete_missing_items() with collection package profile not set should raise an error' do
     collection = collections(:collection1)
     collection.package_profile = nil
-
-    assert_raises ArgumentError do
-      @instance.delete_missing_items(collection)
-    end
-  end
-
-  test 'delete_missing_items() with collection package profile set incorrectly
-  should raise an error' do
-    collection = collections(:collection1)
-    collection.package_profile = PackageProfile::COMPOUND_OBJECT_PROFILE
 
     assert_raises ArgumentError do
       @instance.delete_missing_items(collection)

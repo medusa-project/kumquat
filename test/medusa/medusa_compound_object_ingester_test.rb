@@ -96,17 +96,19 @@ class MedusaCompoundObjectIngesterTest < ActiveSupport::TestCase
     assert_empty item.items
     assert_equal 2, item.binaries.length
 
-    bs = item.binaries.select{ |b| b.binary_type == Binary::Type::PRESERVATION_MASTER }.first
-    assert_equal 'image/tiff', bs.media_type
-    assert_equal 28184152, bs.byte_size
+    bin = item.binaries.select{ |b| b.binary_type == Binary::Type::PRESERVATION_MASTER }.first
+    assert_equal 'image/tiff', bin.media_type
+    assert_equal 28184152, bin.byte_size
+    assert_equal Binary::MediaCategory::IMAGE, bin.media_category
     assert_equal '/59/2257/afm0002389/preservation/afm0002389.tif',
-                 bs.repository_relative_pathname
+                 bin.repository_relative_pathname
 
-    bs = item.binaries.select{ |b| b.binary_type == Binary::Type::ACCESS_MASTER }.first
-    assert_equal 'image/jp2', bs.media_type
-    assert_equal 9665238, bs.byte_size
+    bin = item.binaries.select{ |b| b.binary_type == Binary::Type::ACCESS_MASTER }.first
+    assert_equal 'image/jp2', bin.media_type
+    assert_equal 9665238, bin.byte_size
+    assert_equal Binary::MediaCategory::IMAGE, bin.media_category
     assert_equal '/59/2257/afm0002389/access/afm0002389.jp2',
-                 bs.repository_relative_pathname
+                 bin.repository_relative_pathname
   end
 
   test 'create_items() should work with compound items' do
@@ -142,18 +144,20 @@ class MedusaCompoundObjectIngesterTest < ActiveSupport::TestCase
     assert_equal 2, child.binaries.length
 
     # Inspect the first child's preservation master.
-    bs = child.binaries.select{ |b| b.binary_type == Binary::Type::PRESERVATION_MASTER }.first
-    assert_equal 'image/tiff', bs.media_type
-    assert_equal 305057420, bs.byte_size
+    bin = child.binaries.select{ |b| b.binary_type == Binary::Type::PRESERVATION_MASTER }.first
+    assert_equal 'image/tiff', bin.media_type
+    assert_equal 305057420, bin.byte_size
+    assert_equal Binary::MediaCategory::IMAGE, bin.media_category
     assert_equal '/1164/2754/1477/preservation/2014_12996_227_001.tif',
-                 bs.repository_relative_pathname
+                 bin.repository_relative_pathname
 
     # Inspect the first child's access master.
-    bs = child.binaries.select{ |b| b.binary_type == Binary::Type::ACCESS_MASTER }.first
-    assert_equal 'image/jp2', bs.media_type
-    assert_equal 215051029, bs.byte_size
+    bin = child.binaries.select{ |b| b.binary_type == Binary::Type::ACCESS_MASTER }.first
+    assert_equal 'image/jp2', bin.media_type
+    assert_equal 215051029, bin.byte_size
+    assert_equal Binary::MediaCategory::IMAGE, bin.media_category
     assert_equal '/1164/2754/1477/access/2014_12996_227_001.jp2',
-                 bs.repository_relative_pathname
+                 bin.repository_relative_pathname
 
     # Inspect the supplementary child item.
     child = item.items.select{ |it| it.variant == Item::Variants::SUPPLEMENT }.first
@@ -161,6 +165,7 @@ class MedusaCompoundObjectIngesterTest < ActiveSupport::TestCase
     bin = child.binaries.first
     assert_equal 'application/pdf', bin.media_type
     assert_equal 95195, bin.byte_size
+    assert_equal Binary::MediaCategory::DOCUMENT, bin.media_category
     assert_equal '/1164/2754/1477/supplementary/1531.pdf',
                  bin.repository_relative_pathname
 
@@ -195,16 +200,6 @@ class MedusaCompoundObjectIngesterTest < ActiveSupport::TestCase
   test 'delete_missing_items() with collection package profile set incorrectly
   should raise an error' do
     collection = collections(:collection1)
-    collection.package_profile = PackageProfile::SINGLE_ITEM_OBJECT_PROFILE
-
-    assert_raises ArgumentError do
-      @instance.delete_missing_items(collection)
-    end
-  end
-
-  test 'delete_missing_items() with collection package profile set incorrectly
-  should raise an error' do
-    collection = collections(:mixed_media_collection)
     collection.package_profile = PackageProfile::SINGLE_ITEM_OBJECT_PROFILE
 
     assert_raises ArgumentError do
@@ -361,18 +356,20 @@ class MedusaCompoundObjectIngesterTest < ActiveSupport::TestCase
     assert_equal 2, child.binaries.length
 
     # Inspect the first child's preservation master.
-    bs = child.binaries.select{ |b| b.binary_type == Binary::Type::PRESERVATION_MASTER }.first
-    assert_equal 'image/tiff', bs.media_type
-    assert_equal 305057420, bs.byte_size
+    bin = child.binaries.select{ |b| b.binary_type == Binary::Type::PRESERVATION_MASTER }.first
+    assert_equal 'image/tiff', bin.media_type
+    assert_equal 305057420, bin.byte_size
+    assert_equal Binary::MediaCategory::IMAGE, bin.media_category
     assert_equal '/1164/2754/1477/preservation/2014_12996_227_001.tif',
-                 bs.repository_relative_pathname
+                 bin.repository_relative_pathname
 
     # Inspect the first child's access master.
-    bs = child.binaries.select{ |b| b.binary_type == Binary::Type::ACCESS_MASTER }.first
-    assert_equal 'image/jp2', bs.media_type
-    assert_equal 215051029, bs.byte_size
+    bin = child.binaries.select{ |b| b.binary_type == Binary::Type::ACCESS_MASTER }.first
+    assert_equal 'image/jp2', bin.media_type
+    assert_equal 215051029, bin.byte_size
+    assert_equal Binary::MediaCategory::IMAGE, bin.media_category
     assert_equal '/1164/2754/1477/access/2014_12996_227_001.jp2',
-                 bs.repository_relative_pathname
+                 bin.repository_relative_pathname
 
     # Inspect the supplementary item.
     child = item.items.select{ |it| it.variant == Item::Variants::SUPPLEMENT }.first
@@ -380,6 +377,7 @@ class MedusaCompoundObjectIngesterTest < ActiveSupport::TestCase
     bin = child.binaries.first
     assert_equal 'application/pdf', bin.media_type
     assert_equal 95195, bin.byte_size
+    assert_equal Binary::MediaCategory::DOCUMENT, bin.media_category
     assert_equal '/1164/2754/1477/supplementary/1531.pdf',
                  bin.repository_relative_pathname
 

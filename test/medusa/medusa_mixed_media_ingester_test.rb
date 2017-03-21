@@ -113,6 +113,7 @@ class MedusaMixedMediaIngesterTest < ActiveSupport::TestCase
         select{ |b| b.binary_type == Binary::Type::PRESERVATION_MASTER }.first
     assert_equal 'image/tiff', bs.media_type
     assert_equal 60623897, bs.byte_size
+    assert_equal Binary::MediaCategory::IMAGE, bs.media_category
     assert_equal 'e717ad00-ea6a-0134-23c2-0050569601ca-f', bs.cfs_file_uuid
     assert_equal '/1108/2833/1676/001/preservation/images/120993_008_001.tif',
                  bs.repository_relative_pathname
@@ -121,6 +122,7 @@ class MedusaMixedMediaIngesterTest < ActiveSupport::TestCase
         select{ |b| b.binary_type == Binary::Type::ACCESS_MASTER }.first
     assert_equal 'image/jp2', bs.media_type
     assert_equal 3419163, bs.byte_size
+    assert_equal Binary::MediaCategory::IMAGE, bs.media_category
     assert_equal 'e6c511a0-ea6a-0134-23c2-0050569601ca-2', bs.cfs_file_uuid
     assert_equal '/1108/2833/1676/001/access/images/120993_008_001.jp2',
                  bs.repository_relative_pathname
@@ -324,6 +326,7 @@ class MedusaMixedMediaIngesterTest < ActiveSupport::TestCase
         select{ |b| b.binary_type == Binary::Type::PRESERVATION_MASTER }.first
     assert_equal 'image/tiff', bs.media_type
     assert_equal 60623897, bs.byte_size
+    assert_equal Binary::MediaCategory::IMAGE, bs.media_category
     assert_equal 'e717ad00-ea6a-0134-23c2-0050569601ca-f', bs.cfs_file_uuid
     assert_equal '/1108/2833/1676/001/preservation/images/120993_008_001.tif',
                  bs.repository_relative_pathname
@@ -332,6 +335,7 @@ class MedusaMixedMediaIngesterTest < ActiveSupport::TestCase
         select{ |b| b.binary_type == Binary::Type::ACCESS_MASTER }.first
     assert_equal 'image/jp2', bs.media_type
     assert_equal 3419163, bs.byte_size
+    assert_equal Binary::MediaCategory::IMAGE, bs.media_category
     assert_equal 'e6c511a0-ea6a-0134-23c2-0050569601ca-2', bs.cfs_file_uuid
     assert_equal '/1108/2833/1676/001/access/images/120993_008_001.jp2',
                  bs.repository_relative_pathname
