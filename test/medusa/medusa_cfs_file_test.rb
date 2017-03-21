@@ -41,6 +41,7 @@ class MedusaCfsFileTest < ActiveSupport::TestCase
                  binary.repository_relative_pathname
     assert_equal 13173904, binary.byte_size
     assert_equal 'image/jp2', binary.media_type
+    assert_equal Binary::MediaCategory::IMAGE, binary.media_category
     assert_equal 3372, binary.width
     assert_equal 4000, binary.height
   end
