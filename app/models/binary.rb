@@ -29,6 +29,7 @@ class Binary < ActiveRecord::Base
     BINARY = 5
     IMAGE = 0
     DOCUMENT = 1
+    TEXT = 6
     THREE_D = 4
     VIDEO = 2
 
@@ -38,6 +39,10 @@ class Binary < ActiveRecord::Base
     #                   given media type; or nil.
     #
     def self.media_category_for_media_type(media_type)
+      case media_type
+        when 'text/plain'
+          return TEXT
+      end
       formats = Binary.class_variable_get(:'@@formats')
       formats = formats.select{ |f| f['media_types'].include?(media_type) }
       formats.any? ? formats.first['media_category'] : nil

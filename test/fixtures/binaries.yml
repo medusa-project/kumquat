@@ -6,6 +6,7 @@ iptc:
   cfs_file_uuid: 7400e0a0-5ce3-0132-3334-0050569601ca-c
   item: iptc_item
   media_type: image/jpeg
+  media_category: <%= Binary::MediaCategory::IMAGE %>
   byte_size: 1629599
 
 item1_one:
@@ -13,6 +14,7 @@ item1_one:
   repository_relative_pathname: MyString
   item: item1
   media_type: text/plain
+  media_category: <%= Binary::MediaCategory::TEXT %>
   byte_size: 123
 
 item1_two:
@@ -20,6 +22,7 @@ item1_two:
   repository_relative_pathname: MyString
   item: item1
   media_type: text/plain
+  media_category: <%= Binary::MediaCategory::TEXT %>
   byte_size: 123
 
 three:
@@ -33,6 +36,7 @@ map_obj1_page1_preservation:
   repository_relative_pathname: MyString
   item: map_obj1_page1
   media_type: image/jpeg
+  media_category: <%= Binary::MediaCategory::IMAGE %>
 
 map_obj1_page1_access:
   binary_type: <%= Binary::Type::ACCESS_MASTER %>
@@ -40,3 +44,4 @@ map_obj1_page1_access:
   item: map_obj1_page1
   media_type: image/jpeg
   cfs_file_uuid: MyString
+  media_category: <%= Binary::MediaCategory::IMAGE %>

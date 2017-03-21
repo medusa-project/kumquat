@@ -141,7 +141,7 @@
 
 - name: Text
   label: Plain Text
-  media_category: 1
+  media_category: 6
   media_types:
     - text/plain
   extensions:

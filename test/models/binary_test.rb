@@ -18,6 +18,8 @@ class BinaryTest < ActiveSupport::TestCase
                    Binary::MediaCategory::media_category_for_media_type('application/pdf')
       assert_equal Binary::MediaCategory::IMAGE,
                    Binary::MediaCategory::media_category_for_media_type('image/jpeg')
+      assert_equal Binary::MediaCategory::TEXT,
+                   Binary::MediaCategory::media_category_for_media_type('text/plain')
     end
 
   end
