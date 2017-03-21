@@ -20,6 +20,31 @@
 class Binary < ActiveRecord::Base
 
   ##
+  # Broad category that applies to a binary. This may be different from the
+  # one in `media_type`; for example, the main image and a 3D model texture
+  # may both be JPEGs. This would make them distinguishable.
+  #
+  class MediaCategory
+    AUDIO = 3
+    BINARY = 5
+    IMAGE = 0
+    DOCUMENT = 1
+    THREE_D = 4
+    VIDEO = 2
+
+    ##
+    # @param media_type [String]
+    # @return [Integer, nil] MediaCategory constant value best fitting the
+    #                   given media type; or nil.
+    #
+    def self.media_category_for_media_type(media_type)
+      formats = Binary.class_variable_get(:'@@formats')
+      formats = formats.select{ |f| f['media_types'].include?(media_type) }
+      formats.any? ? formats.first['media_category'] : nil
+    end
+  end
+
+  ##
   # Must be kept in sync with the return value of human_readable_type().
   #
   class Type

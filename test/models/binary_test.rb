@@ -2,6 +2,26 @@ require 'test_helper'
 
 class BinaryTest < ActiveSupport::TestCase
 
+  class MediaCategoryTest < ActiveSupport::TestCase
+
+    test 'media_category_for_media_type() should return nil for a nil media type' do
+      assert_nil Binary::MediaCategory::media_category_for_media_type(nil)
+    end
+
+    test 'media_category_for_media_type() should return nil for an unrecognized
+    media type' do
+      assert_nil Binary::MediaCategory::media_category_for_media_type('image/bogus')
+    end
+
+    test 'media_category_for_media_type() should work' do
+      assert_equal Binary::MediaCategory::DOCUMENT,
+                   Binary::MediaCategory::media_category_for_media_type('application/pdf')
+      assert_equal Binary::MediaCategory::IMAGE,
+                   Binary::MediaCategory::media_category_for_media_type('image/jpeg')
+    end
+
+  end
+
   def setup
     @binary = binaries(:iptc)
   end

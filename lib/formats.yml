@@ -1,40 +1,185 @@
+# media categories are Binary::MediaCategory constant values.
+
 - name: AIFF
   label: AIFF
+  media_category: 3
   media_types:
+    - audio/x-aiff
     - audio/aiff
+  extensions:
+    - aiff
+    - aif
+    - aifc
+
 - name: Binary
   label: Binary
+  media_category: 5
   media_types:
     - application/octet-stream
+  extensions:
+    - bin
+    - exe
+    - lib
+    - so
+
+- name: DOCX
+  label: Office Open XML Document
+  media_category: 1
+  media_types:
+    - application/vnd.openxmlformats-officedocument.wordprocessingml.document
+  extensions:
+    - docx
+    - docm
+
 - name: GIF
   label: GIF
+  media_category: 0
   media_types:
     - image/gif
+  extensions:
+    - gif
+
 - name: JPEG
   label: JPEG
+  media_category: 0
   media_types:
     - image/jpeg
+  extensions:
+    - jpg
+    - jpeg
+    - jpe
+    - jif
+    - jfif
+    - jfi
+
 - name: JPEG2000
   label: JPEG2000
+  media_category: 0
   media_types:
     - image/jp2
+  extensions:
+    - jp2
+    - j2k
+
 - name: MP3
   label: MP3
+  media_category: 3
   media_types:
-    - audio/mp3
+    - audio/mpeg
+  extensions:
+    - mp3
+
+- name: MPEG-1 Video
+  label: MPEG-1 Video
+  media_category: 2
+  media_types:
+    - video/mpeg
+  extensions:
+    - mpg
+    - mpeg
+    - mp1
+    - mpv
+
+- name: MTL
+  label: Material Library
+  media_category: 4
+  media_types:
+    - application/octet-stream
+  extensions:
+    - mtl
+
+- name: OBJ
+  label: OBJ
+  media_category: 4
+  media_types:
+    - text/plain
+  extensions:
+    - obj
+
+- name: PDF
+  label: PDF
+  media_category: 1
+  media_types:
+    - application/pdf
+  extensions:
+    - pdf
+
 - name: PNG
   label: PNG
+  media_category: 0
   media_types:
     - image/png
-- name: Pyramidal TIFF
-  label: Pyramidal TIFF
+  extensions:
+    - png
+
+- name: PPTX
+  label: Office Open XML Presentation
+  media_category: 1
   media_types:
-    - image/ptif
+    - application/vnd.openxmlformats-officedocument.presentationml.presentation
+  extensions:
+    - pptx
+    - pptm
+
+- name: QuickTime
+  label: QuickTime
+  media_category: 2
+  media_types:
+    - video/quicktime
+  extensions:
+    - mov
+    - qt
+
+- name: RTF
+  label: Rich Text Format
+  media_category: 1
+  media_types:
+    - text/rtf
+    - application/rdf
+  extensions:
+    - rtf
+
+- name: Text
+  label: Plain Text
+  media_category: 1
+  media_types:
+    - text/plain
+  extensions:
+    - txt
+
 - name: TIFF
   label: TIFF
+  media_category: 0
   media_types:
     - image/tiff
+  extensions:
+    - tif
+    - tiff
+    - ptif
+
 - name: Wave
-  label: Wave Audio
+  label: Wave
+  media_category: 3
   media_types:
     - audio/wav
+    - audio/x-wav
+  extensions:
+    - wav
+
+- name: XLSX
+  label: Office Open XML Workbook
+  media_category: 1
+  media_types:
+    - application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+  extensions:
+    - xlsx
+    - xlsm
+
+- name: ZIP
+  label: ZIP
+  media_category: 5
+  media_types:
+    - application/zip
+  extensions:
+    - zip
+    - zipx
