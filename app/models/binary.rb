@@ -105,6 +105,29 @@ class Binary < ActiveRecord::Base
   ##
   # @return [String]
   #
+  def human_readable_media_category
+    case self.media_category
+      when MediaCategory::AUDIO
+        return 'Audio'
+      when MediaCategory::BINARY
+        return 'Binary'
+      when MediaCategory::IMAGE
+        return 'Image'
+      when MediaCategory::DOCUMENT
+        return 'Document'
+      when MediaCategory::TEXT
+        return 'Text'
+      when MediaCategory::THREE_D
+        return '3D'
+      when MediaCategory::VIDEO
+        return 'Video'
+    end
+    nil
+  end
+
+  ##
+  # @return [String]
+  #
   def human_readable_name
     formats = @@formats.select{ |f| f['media_types'].include?(self.media_type) }
     formats.any? ? formats.first['label'] : self.media_type

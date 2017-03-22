@@ -92,6 +92,32 @@ class BinaryTest < ActiveSupport::TestCase
     assert_nil(@binary.filename)
   end
 
+  # human_readable_media_category()
+
+  test 'human_readable_media_category() should work properly' do
+    assert_equal 'Audio',
+                 Binary.new(media_category: Binary::MediaCategory::AUDIO).
+                     human_readable_media_category
+    assert_equal 'Binary',
+                 Binary.new(media_category: Binary::MediaCategory::BINARY).
+                     human_readable_media_category
+    assert_equal 'Image',
+                 Binary.new(media_category: Binary::MediaCategory::IMAGE).
+                     human_readable_media_category
+    assert_equal 'Document',
+                 Binary.new(media_category: Binary::MediaCategory::DOCUMENT).
+                     human_readable_media_category
+    assert_equal 'Text',
+                 Binary.new(media_category: Binary::MediaCategory::TEXT).
+                     human_readable_media_category
+    assert_equal '3D',
+                 Binary.new(media_category: Binary::MediaCategory::THREE_D).
+                     human_readable_media_category
+    assert_equal 'Video',
+                 Binary.new(media_category: Binary::MediaCategory::VIDEO).
+                     human_readable_media_category
+  end
+
   # human_readable_name()
 
   test 'human_readable_name() should work properly' do
