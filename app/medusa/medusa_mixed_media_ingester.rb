@@ -1,6 +1,30 @@
 ##
 # Syncs items in collections that use the Mixed Media package profile.
 #
+# The mixed media profile looks like:
+# * item_dir
+#     * child_dir
+#         * access
+#             * 3d (optional)
+#                 * file
+#             * audio (optional)
+#                 * file
+#             * images (optional)
+#                 * file
+#             * video (optional)
+#                 * file
+#         * preservation
+#             * 3d (optional)
+#                 * file
+#             * audio (optional)
+#                 * file
+#             * images (optional)
+#                 * file
+#             * video (optional)
+#                 * file
+#         * supplementary (optional)
+#             * file (0-*)
+#
 class MedusaMixedMediaIngester < MedusaAbstractIngester
 
   @@logger = CustomLogger.instance
@@ -94,7 +118,8 @@ class MedusaMixedMediaIngester < MedusaAbstractIngester
                   pres_type_dir.files.each do |pres_file|
                     # Create the preservation master binary.
                     child.binaries << pres_file.
-                        to_binary(Binary::Type::PRESERVATION_MASTER)
+                        to_binary(Binary::Type::PRESERVATION_MASTER,
+                                  media_category_for_master_type(pres_type_dir.name))
 
                     # Set the child's variant.
                     basename = File.basename(pres_file.repository_relative_pathname)
@@ -136,7 +161,8 @@ class MedusaMixedMediaIngester < MedusaAbstractIngester
                 if access_type_dir.files.any?
                   access_type_dir.files.each_with_index do |access_file, afi|
                     # Create the access master binary.
-                    binary = access_file.to_binary(Binary::Type::ACCESS_MASTER)
+                    binary = access_file.to_binary(Binary::Type::ACCESS_MASTER,
+                                                   media_category_for_master_type(access_type_dir.name))
                     child.binaries << binary
 
                     if afi == 0 and access_type_dir.name == 'images'
@@ -252,7 +278,8 @@ class MedusaMixedMediaIngester < MedusaAbstractIngester
                     pres_type_dir.files.each do |pres_file|
                       # Create the preservation master binary.
                       child.binaries << pres_file.
-                          to_binary(Binary::Type::PRESERVATION_MASTER)
+                          to_binary(Binary::Type::PRESERVATION_MASTER,
+                                    media_category_for_master_type(pres_type_dir.name))
                       status[:num_created] += 1
                     end
                   else
@@ -279,7 +306,8 @@ class MedusaMixedMediaIngester < MedusaAbstractIngester
                   if access_type_dir.files.any?
                     access_type_dir.files.each_with_index do |access_file, afi|
                       # Create the access master binary.
-                      binary = access_file.to_binary(Binary::Type::ACCESS_MASTER)
+                      binary = access_file.to_binary(Binary::Type::ACCESS_MASTER,
+                                                     media_category_for_master_type(access_type_dir.name))
                       child.binaries << binary
 
                       if afi == 0 and access_type_dir.name == 'images'
@@ -346,6 +374,25 @@ class MedusaMixedMediaIngester < MedusaAbstractIngester
       end
     end
     medusa_item_uuids
+  end
+
+  ##
+  # @param type [String] Name of a directory within a "preservation" or
+  #                      "access" directory.
+  # @return [Integer] One of the Binary::MediaCategory constant values.
+  #
+  def media_category_for_master_type(type)
+    case type
+      when '3d'
+        return Binary::MediaCategory::THREE_D
+      when 'audio'
+        return Binary::MediaCategory::AUDIO
+      when 'images'
+        return Binary::MediaCategory::IMAGE
+      when 'video'
+        return Binary::MediaCategory::VIDEO
+    end
+    nil
   end
 
 end
