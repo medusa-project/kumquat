@@ -46,6 +46,13 @@ class MedusaCfsFileTest < ActiveSupport::TestCase
     assert_equal 4000, binary.height
   end
 
+  test 'to_binary() should override the media category when supplied' do
+    binary = @cfs.to_binary(Binary::Type::PRESERVATION_MASTER,
+                            Binary::MediaCategory::VIDEO)
+    assert_equal Binary::Type::PRESERVATION_MASTER, binary.binary_type
+    assert_equal Binary::MediaCategory::VIDEO, binary.media_category
+  end
+
   # url()
 
   test 'url() should return the correct url' do
