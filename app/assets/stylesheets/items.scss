@@ -253,6 +253,12 @@ body#items_show {
     .row .pt-download-option {
       display: none;
     }
+    $icon-size: 100px;
+    .pt-icon {
+      color: #a0a0a0;
+      font-size: $icon-size;
+      margin-right: 20px;
+    }
   }
 
   #pt-embed-image-modal {
