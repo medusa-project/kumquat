@@ -41,16 +41,22 @@ namespace :dls do
 
     desc 'Populate the sizes of all binaries'
     task :populate_byte_sizes => :environment do |task|
-      Binary.where(byte_size: nil).
-          where('repository_relative_pathname IS NOT NULL').each do |bs|
-        pathname = bs.absolute_local_pathname
-        puts pathname
-        bs.byte_size = (pathname and File.exist?(pathname) and File.file?(pathname)) ?
-            File.size(pathname) : nil
-        bs.save!
-        bs.item.index_in_solr
+      Binary.uncached do
+        binaries = Binary.where(byte_size: nil).
+            where('repository_relative_pathname IS NOT NULL')
+        count = binaries.count
+        puts "#{count} binaries to update"
+
+        binaries.find_each.with_index do |binary, index|
+          puts "(#{((index / count.to_f) * 100).round(2)}%) "\
+              "#{binary.repository_relative_pathname} "
+
+          pathname = binary.absolute_local_pathname
+          binary.byte_size = (pathname and File.exist?(pathname) and File.file?(pathname)) ?
+              File.size(pathname) : nil
+          binary.save!
+        end
       end
-      puts 'Done.'
     end
 
     desc 'Populate the dimensions of all binaries'
