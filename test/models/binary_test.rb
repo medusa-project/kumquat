@@ -53,13 +53,19 @@ class BinaryTest < ActiveSupport::TestCase
     assert(!@binary.exists?)
   end
 
+  test 'exists?() should return false with nil pathname set' do
+    @binary.repository_relative_pathname = nil
+    assert(!@binary.exists?)
+  end
+
   # filename()
 
-  test 'filename() should return the filename with pathname set' do
+  test 'filename() should return the filename when repository_relative_pathname
+  is set' do
     assert_equal('banquets_002.jpg', @binary.filename)
   end
 
-  test 'filename() should return nil with no with pathname set' do
+  test 'filename() should return nil when repository_relative_pathname is nil' do
     @binary.repository_relative_pathname = nil
     assert_nil(@binary.filename)
   end
@@ -115,7 +121,10 @@ class BinaryTest < ActiveSupport::TestCase
   end
 
   test 'iiif_safe?() should return false if a TIFF image is too big' do
-    # TODO: write this
+    @binary.media_type = 'image/tiff'
+    assert @binary.iiif_safe?
+    @binary.byte_size = 30000001
+    assert !@binary.iiif_safe?
   end
 
   test 'iiif_safe?() should return true in all other cases' do
