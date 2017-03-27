@@ -14,6 +14,12 @@ class BinaryTest < ActiveSupport::TestCase
                  @binary.absolute_local_pathname
   end
 
+  test 'absolute_local_pathname() should return nil when
+  repository_relative_pathname is nil' do
+    @binary.repository_relative_pathname = nil
+    assert_nil @binary.absolute_local_pathname
+  end
+
   # as_json()
 
   test 'as_json() should return the correct structure' do

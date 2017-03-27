@@ -37,8 +37,11 @@ class Binary < ActiveRecord::Base
   # @return [String, nil]
   #
   def absolute_local_pathname
-    Configuration.instance.repository_pathname +
-        self.repository_relative_pathname
+    if self.repository_relative_pathname.present?
+      return Configuration.instance.repository_pathname +
+          self.repository_relative_pathname
+    end
+    nil
   end
 
   def as_json(options = {})
