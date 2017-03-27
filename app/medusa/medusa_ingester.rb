@@ -157,10 +157,12 @@ class MedusaIngester
   #
   def ingester_for(collection)
     case collection.package_profile
-      when PackageProfile::FREE_FORM_PROFILE
-        ingester = MedusaFreeFormIngester.new
       when PackageProfile::COMPOUND_OBJECT_PROFILE
         ingester = MedusaCompoundObjectIngester.new
+      when PackageProfile::FREE_FORM_PROFILE
+        ingester = MedusaFreeFormIngester.new
+      when PackageProfile::MIXED_MEDIA_PROFILE
+        ingester = MedusaMixedMediaIngester.new
       when PackageProfile::SINGLE_ITEM_OBJECT_PROFILE
         ingester = MedusaSingleItemIngester.new
       else

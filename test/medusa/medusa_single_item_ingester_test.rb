@@ -67,19 +67,20 @@ class MedusaSingleItemIngesterTest < ActiveSupport::TestCase
     item = Item.find_by_repository_id('7b7e08f0-0b13-0134-1d55-0050569601ca-a')
     assert_empty item.items
     assert_equal 2, item.binaries.length
-    bs = item.binaries.
+    binary = item.binaries.
         select{ |b| b.binary_type == Binary::Type::PRESERVATION_MASTER }.first
-    assert_equal 'image/tiff', bs.media_type
-    assert_equal 575834922, bs.byte_size
+    assert_equal 'image/tiff', binary.media_type
+    assert_equal Binary::MediaCategory::IMAGE, binary.media_category
+    assert_equal 575834922, binary.byte_size
     assert_equal '/55/2358/preservation/03501042_001_souscrivez.TIF',
-                 bs.repository_relative_pathname
+                 binary.repository_relative_pathname
 
-    bs = item.binaries.
+    binary = item.binaries.
         select{ |b| b.binary_type == Binary::Type::ACCESS_MASTER }.first
-    assert_equal 'image/jp2', bs.media_type
-    assert_equal 128493361, bs.byte_size
+    assert_equal 'image/jp2', binary.media_type
+    assert_equal 128493361, binary.byte_size
     assert_equal '/55/2358/access/03501042_001_souscrivez.jp2',
-                 bs.repository_relative_pathname
+                 binary.repository_relative_pathname
   end
 
   test 'create_items() should extract metadata when told to' do

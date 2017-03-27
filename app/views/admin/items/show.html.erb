@@ -139,26 +139,12 @@
       </div>
 
       <div role="tabpanel" class="tab-pane" id="pt-binaries">
-        <% if @item.binaries.any? %>
-          <ul class="nav nav-tabs" role="tablist">
-            <% @item.binaries.each_with_index do |bs, index| %>
-              <li role="presentation" class="<%= index == 0 ? 'active' : '' %>">
-                <a href="#pt-bs-<%= bs.binary_type %>" aria-controls="home"
-                   role="tab" data-toggle="tab">
-                  <%= bs.human_readable_type %>
-                </a>
-              </li>
-            <% end %>
-          </ul>
-
-          <div class="tab-content">
-            <% @item.binaries.each_with_index do |bs, index| %>
-              <div role="tabpanel" class="tab-pane <%= index == 0 ? 'active' : '' %>"
-                   id="pt-bs-<%= bs.binary_type %>">
-                <%= binary_metadata_as_table(bs, admin: true) %>
-              </div>
-            <% end %>
-          </div>
+        <% @item.binaries.each do |bin| %>
+          <h2><%= bin.human_readable_type %>
+            <%= bin.human_readable_media_category.present? ?
+                    "(#{bin.human_readable_media_category})" : nil %></h2>
+          <%= binary_metadata_as_table(bin, admin: true) %>
+          <hr>
         <% end %>
       </div>
 

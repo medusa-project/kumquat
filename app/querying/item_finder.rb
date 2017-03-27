@@ -8,7 +8,6 @@ class ItemFinder < AbstractFinder
     @exclude_variants = []
     @include_children = false
     @include_variants = []
-    @media_types = []
     @stats = false
   end
 
@@ -74,15 +73,6 @@ class ItemFinder < AbstractFinder
   end
 
   ##
-  # @param types [Enumerable<String>,String]
-  # @return [ItemFinder] self
-  #
-  def media_types(types)
-    @media_types = types.respond_to?(:each) ? types : [types]
-    self
-  end
-
-  ##
   # Enables statistics.
   # @param bool [Boolean]
   # @return [ItemFinder] self
@@ -127,9 +117,6 @@ class ItemFinder < AbstractFinder
     unless @include_unpublished
       @items = @items.filter(Item::SolrFields::PUBLISHED => true).
           filter(Item::SolrFields::COLLECTION_PUBLISHED => true)
-    end
-    if @media_types.any?
-      @items = @items.filter(Item::SolrFields::ACCESS_MASTER_MEDIA_TYPE => "(#{@media_types.join(' OR ')})")
     end
 
     if @include_variants.any?

@@ -82,13 +82,15 @@ module ItemsHelper
       html += '<table class="table">'
       html += '  <tr>'
       html += '    <th>Item</th>'
-      html += '    <th>File Type</th>'
+      html += '    <th>Master Type</th>'
+      html += '    <th>Category</th>'
       html += '    <th>Filename</th>'
       html += '  </tr>'
       binaries.each do |binary|
         html += '<tr>'
         html += "  <td>#{item.title}</td>"
         html += "  <td>#{binary.human_readable_type}</td>"
+        html += "  <td>#{binary.human_readable_media_category}</td>"
         html += "  <td>#{link_to(binary.filename, binary.medusa_url, target: '_blank')}</td>"
         html += '</tr>'
       end
@@ -99,6 +101,7 @@ module ItemsHelper
             html += "  <td rowspan=\"#{subitem.binaries.length}\">#{subitem.title}</td>"
           end
           html += "  <td>#{bs.human_readable_type}</td>"
+          html += "  <td>#{bs.human_readable_media_category}</td>"
           html += "  <td>#{link_to(bs.filename, bs.medusa_url, target: '_blank')}</td>"
           html += '</tr>'
         end
@@ -114,15 +117,15 @@ module ItemsHelper
   #
   def download_radios_for_item(item)
     html = ''
-    item.binaries.select{ |bs| bs.exists? }.each do |bs|
+    item.binaries.each do |binary|
       html += "<div class=\"radio pt-download-option\" data-item-id=\"#{item.repository_id}\">"
       html += '  <label>'
-      html +=      radio_button_tag('download-url', binary_url(bs),
+      html +=      radio_button_tag('download-url', binary_url(binary),
                                     data: { 'item-id': item.repository_id })
-      html +=      bs.human_readable_type
+      html +=      binary.human_readable_type
       html += '    <br>'
       html += '    <small>'
-      html +=        download_label_for_binary(bs)
+      html +=        download_label_for_binary(binary)
       html += '    </small>'
       html += '  </label>'
       html += '</div>'
@@ -226,13 +229,10 @@ module ItemsHelper
   #
   def has_viewer?(item)
     # This logic needs to be kept in sync with viewer_for_item().
-    if item.embed_tag.present? or item.is_compound? or item.is_image?
+    if item.embed_tag.present? or item.is_compound?
       return true
-    elsif item.is_pdf? or item.is_audio? or item.is_video? or item.is_text?
-      bs = item.access_master_binary || item.preservation_master_binary
-      return bs.exists?
     end
-    false
+    item.effective_viewer_binary ? true : false
   end
 
   ##
@@ -719,7 +719,8 @@ module ItemsHelper
     struct[:description] = description.value if description
 
     # image
-    if item.is_image? or item.is_pdf?
+    iiif_image_binary = item.iiif_image_binary
+    if iiif_image_binary
       # schema.org does not recommend any particular sizes, so make one up.
       # We don't want to expose a master image to search engines as it might
       # be huge and/or in a format they can't use.
@@ -742,8 +743,7 @@ module ItemsHelper
     if item.binaries.any?
       struct[:associatedMedia] = []
 
-      binary = item.access_master_binary
-      if binary
+      item.binaries.each do |binary|
         media = {}
         if binary.is_audio?
           media[:'@type'] = 'AudioObject'
@@ -754,26 +754,7 @@ module ItemsHelper
         else
           media[:'@type'] = 'MediaObject'
         end
-        media[:contentUrl] = item_access_master_binary_url(item)
-        size = binary.byte_size
-        media[:contentSize] = size if size
-        media[:fileFormat] = binary.media_type
-        struct[:associatedMedia] << media
-      end
-
-      binary = item.preservation_master_binary
-      if binary
-        media = {}
-        if binary.is_audio?
-          media[:'@type'] = 'AudioObject'
-        elsif binary.is_image?
-          media[:'@type'] = 'ImageObject'
-        elsif binary.is_video?
-          media[:'@type'] = 'VideoObject'
-        else
-          media[:'@type'] = 'MediaObject'
-        end
-        media[:contentUrl] = item_preservation_master_binary_url(item)
+        media[:contentUrl] = binary_url(binary)
         size = binary.byte_size
         media[:contentSize] = size if size
         media[:fileFormat] = binary.media_type
@@ -856,7 +837,7 @@ module ItemsHelper
     struct[:text] = item.full_text if item.full_text.present?
 
     # thumbnailUrl
-    if item.is_image? or item.is_pdf?
+    if iiif_image_binary
       struct[:thumbnailUrl] = iiif_image_url(item, ItemsHelper::DEFAULT_THUMBNAIL_SIZE)
     end
 
@@ -1161,24 +1142,27 @@ module ItemsHelper
     # IMET-473: image files should be presented in the same manner as compound
     # objects, with a gallery viewer showing all of the other images in the
     # same directory.
-    elsif item.variant == Item::Variants::FILE and item.is_image?
+    elsif item.variant == Item::Variants::FILE and
+        item.effective_viewer_binary&.media_category == Binary::MediaCategory::IMAGE
       return compound_viewer_for(item.parent, item)
     elsif item.is_compound?
       return compound_viewer_for(item)
-    elsif item.is_image?
-      return image_viewer_for(item)
-    elsif item.is_pdf?
-      binary = item.access_master_binary || item.preservation_master_binary
-      return pdf_viewer_for(binary)
-    elsif item.is_audio?
-      binary = item.access_master_binary || item.preservation_master_binary
-      return audio_player_for(binary)
-    elsif item.is_video?
-      binary = item.access_master_binary || item.preservation_master_binary
-      return video_player_for(binary)
-    elsif item.is_text?
-      binary = item.access_master_binary || item.preservation_master_binary
-      return text_viewer_for(binary)
+    else
+      binary = item.effective_viewer_binary
+      case binary&.media_category
+        when Binary::MediaCategory::AUDIO
+          return audio_player_for(binary)
+        when Binary::MediaCategory::DOCUMENT
+          return pdf_viewer_for(binary)
+        when Binary::MediaCategory::IMAGE
+          return image_viewer_for(item)
+        when Binary::MediaCategory::TEXT
+          return text_viewer_for(binary)
+        when Binary::MediaCategory::THREE_D
+          return '3D viewer goes here' # TODO: write this
+        when Binary::MediaCategory::VIDEO
+          return video_player_for(binary)
+      end
     end
     nil
   end
@@ -1235,17 +1219,16 @@ module ItemsHelper
   def binary_metadata_for(binary, options = {})
     data = []
     if binary
+      data << {
+          label: 'Filename',
+          category: 'File',
+          value: File.basename(binary.absolute_local_pathname)
+      }
       if options[:admin]
         data << {
             label: 'Pathname',
             category: 'File',
             value: binary.absolute_local_pathname
-        }
-      else
-        data << {
-            label: 'Filename',
-            category: 'File',
-            value: File.basename(binary.absolute_local_pathname)
         }
       end
       if binary.cfs_file_uuid.present?
@@ -1487,13 +1470,8 @@ module ItemsHelper
 
   def image_viewer_for(item)
     html = ''
-    # If there is no access master, and the preservation master is too large,
-    # render an alert instead of the viewer.
-    if !item.access_master_binary and
-        !item.preservation_master_binary&.iiif_safe?
-      html += '<div class="alert alert-info">Preservation master image is too
-          large to display, and no access master is available.</div>'
-    else
+    binary = item.iiif_image_binary
+    if binary
       # Configuration is in /public/uvconfig_single.json;
       # See http://universalviewer.io/examples/ for config structure.
       # UV seems to want its height to be defined in a style attribute.
@@ -1504,6 +1482,9 @@ module ItemsHelper
       "data-sequenceindex=\"0\" data-canvasindex=\"0\" "\
       "data-rotation=\"0\" style=\"margin: 0 auto; width: 96%; height:600px; background-color:#000;\"></div>"
       html += javascript_include_tag('/universalviewer/lib/embed.js', id: 'embedUV')
+    else
+      html += '<div class="alert alert-info">No image viewer-compatible
+          binaries are associated with this item.</div>'
     end
     raw(html)
   end

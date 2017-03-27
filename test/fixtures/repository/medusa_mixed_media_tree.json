@@ -1,0 +1,697 @@
+{
+    "files": [],
+    "id": 1273898,
+    "name": "1108/2833",
+    "parent_id": 2833,
+    "parent_type": "FileGroup",
+    "relative_pathname": "1108/2833",
+    "subdirectories": [
+        {
+            "files": [],
+            "id": 1273899,
+            "name": "1676",
+            "parent_id": 1273898,
+            "parent_type": "CfsDirectory",
+            "relative_pathname": "1108/2833/1676",
+            "subdirectories": [
+                {
+                    "files": [],
+                    "id": 1274745,
+                    "name": "001",
+                    "parent_id": 1273899,
+                    "parent_type": "CfsDirectory",
+                    "relative_pathname": "1108/2833/1676/001",
+                    "subdirectories": [
+                        {
+                            "files": [],
+                            "id": 1277166,
+                            "name": "access",
+                            "parent_id": 1274745,
+                            "parent_type": "CfsDirectory",
+                            "relative_pathname": "1108/2833/1676/001/access",
+                            "subdirectories": [
+                                {
+                                    "files": [
+                                        {
+                                            "content_type": "application/octet-stream",
+                                            "id": 48715144,
+                                            "md5_sum": "a9f790e5d188773435bd76973be883b9",
+                                            "mtime": "2017-03-09T00:33:40.000Z",
+                                            "name": "120993_008_001.jp2",
+                                            "relative_pathname": "1108/2833/1676/001/access/images/120993_008_001.jp2",
+                                            "size": 3419163,
+                                            "uuid": "e6c511a0-ea6a-0134-23c2-0050569601ca-2"
+                                        }
+                                    ],
+                                    "id": 1280772,
+                                    "name": "images",
+                                    "parent_id": 1277166,
+                                    "parent_type": "CfsDirectory",
+                                    "relative_pathname": "1108/2833/1676/001/access/images",
+                                    "uuid": "fa5c1d30-ea56-0134-23c2-0050569601ca-8"
+                                }
+                            ],
+                            "uuid": "8881c530-ea52-0134-23c2-0050569601ca-5"
+                        },
+                        {
+                            "files": [],
+                            "id": 1277167,
+                            "name": "preservation",
+                            "parent_id": 1274745,
+                            "parent_type": "CfsDirectory",
+                            "relative_pathname": "1108/2833/1676/001/preservation",
+                            "subdirectories": [
+                                {
+                                    "files": [
+                                        {
+                                            "content_type": "image/tiff",
+                                            "id": 48715145,
+                                            "md5_sum": "312d6edaa82e485e4e259432920bd0d5",
+                                            "mtime": "2017-03-09T00:38:16.000Z",
+                                            "name": "120993_008_001.tif",
+                                            "relative_pathname": "1108/2833/1676/001/preservation/images/120993_008_001.tif",
+                                            "size": 60623897,
+                                            "uuid": "e717ad00-ea6a-0134-23c2-0050569601ca-f"
+                                        }
+                                    ],
+                                    "id": 1280773,
+                                    "name": "images",
+                                    "parent_id": 1277167,
+                                    "parent_type": "CfsDirectory",
+                                    "relative_pathname": "1108/2833/1676/001/preservation/images",
+                                    "uuid": "fadb8870-ea56-0134-23c2-0050569601ca-1"
+                                }
+                            ],
+                            "uuid": "88a01690-ea52-0134-23c2-0050569601ca-8"
+                        }
+                    ],
+                    "uuid": "51f81d20-ea50-0134-23c2-0050569601ca-0"
+                },
+                {
+                    "files": [],
+                    "id": 1274746,
+                    "name": "002",
+                    "parent_id": 1273899,
+                    "parent_type": "CfsDirectory",
+                    "relative_pathname": "1108/2833/1676/002",
+                    "subdirectories": [
+                        {
+                            "files": [],
+                            "id": 1277168,
+                            "name": "access",
+                            "parent_id": 1274746,
+                            "parent_type": "CfsDirectory",
+                            "relative_pathname": "1108/2833/1676/002/access",
+                            "subdirectories": [
+                                {
+                                    "files": [
+                                        {
+                                            "content_type": "application/octet-stream",
+                                            "id": 48715146,
+                                            "md5_sum": "278c42d1d456be039e14fec4a23de554",
+                                            "mtime": "2017-03-09T00:33:55.000Z",
+                                            "name": "120993_008_002.jp2",
+                                            "relative_pathname": "1108/2833/1676/002/access/images/120993_008_002.jp2",
+                                            "size": 2041837,
+                                            "uuid": "e78de850-ea6a-0134-23c2-0050569601ca-c"
+                                        }
+                                    ],
+                                    "id": 1280774,
+                                    "name": "images",
+                                    "parent_id": 1277168,
+                                    "parent_type": "CfsDirectory",
+                                    "relative_pathname": "1108/2833/1676/002/access/images",
+                                    "uuid": "fb18e360-ea56-0134-23c2-0050569601ca-7"
+                                }
+                            ],
+                            "uuid": "88f57220-ea52-0134-23c2-0050569601ca-2"
+                        },
+                        {
+                            "files": [],
+                            "id": 1277169,
+                            "name": "preservation",
+                            "parent_id": 1274746,
+                            "parent_type": "CfsDirectory",
+                            "relative_pathname": "1108/2833/1676/002/preservation",
+                            "subdirectories": [
+                                {
+                                    "files": [
+                                        {
+                                            "content_type": "image/tiff",
+                                            "id": 48715147,
+                                            "md5_sum": "9208c98f7f741b59fda2860d523656b2",
+                                            "mtime": "2017-03-09T00:38:16.000Z",
+                                            "name": "120993_008_002.tif",
+                                            "relative_pathname": "1108/2833/1676/002/preservation/images/120993_008_002.tif",
+                                            "size": 116647721,
+                                            "uuid": "e7b95d40-ea6a-0134-23c2-0050569601ca-1"
+                                        }
+                                    ],
+                                    "id": 1280775,
+                                    "name": "images",
+                                    "parent_id": 1277169,
+                                    "parent_type": "CfsDirectory",
+                                    "relative_pathname": "1108/2833/1676/002/preservation/images",
+                                    "uuid": "fba6c380-ea56-0134-23c2-0050569601ca-3"
+                                }
+                            ],
+                            "uuid": "8900ce40-ea52-0134-23c2-0050569601ca-9"
+                        }
+                    ],
+                    "uuid": "51ffa160-ea50-0134-23c2-0050569601ca-e"
+                },
+                {
+                    "files": [],
+                    "id": 1274747,
+                    "name": "003",
+                    "parent_id": 1273899,
+                    "parent_type": "CfsDirectory",
+                    "relative_pathname": "1108/2833/1676/003",
+                    "subdirectories": [
+                        {
+                            "files": [],
+                            "id": 1277170,
+                            "name": "access",
+                            "parent_id": 1274747,
+                            "parent_type": "CfsDirectory",
+                            "relative_pathname": "1108/2833/1676/003/access",
+                            "subdirectories": [
+                                {
+                                    "files": [
+                                        {
+                                            "content_type": "application/octet-stream",
+                                            "id": 48715148,
+                                            "md5_sum": "c01932195067a46a4ac1f7c578d79286",
+                                            "mtime": "2017-03-09T00:33:50.000Z",
+                                            "name": "120993_008_003.jp2",
+                                            "relative_pathname": "1108/2833/1676/003/access/images/120993_008_003.jp2",
+                                            "size": 2803690,
+                                            "uuid": "e868e610-ea6a-0134-23c2-0050569601ca-e"
+                                        }
+                                    ],
+                                    "id": 1280776,
+                                    "name": "images",
+                                    "parent_id": 1277170,
+                                    "parent_type": "CfsDirectory",
+                                    "relative_pathname": "1108/2833/1676/003/access/images",
+                                    "uuid": "fbf93b80-ea56-0134-23c2-0050569601ca-f"
+                                }
+                            ],
+                            "uuid": "893a97d0-ea52-0134-23c2-0050569601ca-a"
+                        },
+                        {
+                            "files": [],
+                            "id": 1277171,
+                            "name": "preservation",
+                            "parent_id": 1274747,
+                            "parent_type": "CfsDirectory",
+                            "relative_pathname": "1108/2833/1676/003/preservation",
+                            "subdirectories": [
+                                {
+                                    "files": [
+                                        {
+                                            "content_type": "image/tiff",
+                                            "id": 48715149,
+                                            "md5_sum": "254eeb68b18cd7a0d640d62e0a3ae797",
+                                            "mtime": "2017-03-09T00:38:16.000Z",
+                                            "name": "120993_008_003.tif",
+                                            "relative_pathname": "1108/2833/1676/003/preservation/images/120993_008_003.tif",
+                                            "size": 60623897,
+                                            "uuid": "e8a90aa0-ea6a-0134-23c2-0050569601ca-4"
+                                        }
+                                    ],
+                                    "id": 1280777,
+                                    "name": "images",
+                                    "parent_id": 1277171,
+                                    "parent_type": "CfsDirectory",
+                                    "relative_pathname": "1108/2833/1676/003/preservation/images",
+                                    "uuid": "fc4a1670-ea56-0134-23c2-0050569601ca-4"
+                                }
+                            ],
+                            "uuid": "89457e20-ea52-0134-23c2-0050569601ca-2"
+                        }
+                    ],
+                    "uuid": "52034cf0-ea50-0134-23c2-0050569601ca-a"
+                },
+                {
+                    "files": [],
+                    "id": 1274748,
+                    "name": "004",
+                    "parent_id": 1273899,
+                    "parent_type": "CfsDirectory",
+                    "relative_pathname": "1108/2833/1676/004",
+                    "subdirectories": [
+                        {
+                            "files": [],
+                            "id": 1277172,
+                            "name": "access",
+                            "parent_id": 1274748,
+                            "parent_type": "CfsDirectory",
+                            "relative_pathname": "1108/2833/1676/004/access",
+                            "subdirectories": [
+                                {
+                                    "files": [
+                                        {
+                                            "content_type": "application/octet-stream",
+                                            "id": 48715150,
+                                            "md5_sum": "a2b86bdf00cbb2287a8071b86ed78f6a",
+                                            "mtime": "2017-03-09T00:34:05.000Z",
+                                            "name": "120993_008_004.jp2",
+                                            "relative_pathname": "1108/2833/1676/004/access/images/120993_008_004.jp2",
+                                            "size": 2016775,
+                                            "uuid": "e990aac0-ea6a-0134-23c2-0050569601ca-a"
+                                        }
+                                    ],
+                                    "id": 1280778,
+                                    "name": "images",
+                                    "parent_id": 1277172,
+                                    "parent_type": "CfsDirectory",
+                                    "relative_pathname": "1108/2833/1676/004/access/images",
+                                    "uuid": "fc9f39d0-ea56-0134-23c2-0050569601ca-6"
+                                }
+                            ],
+                            "uuid": "896771f0-ea52-0134-23c2-0050569601ca-a"
+                        },
+                        {
+                            "files": [],
+                            "id": 1277173,
+                            "name": "preservation",
+                            "parent_id": 1274748,
+                            "parent_type": "CfsDirectory",
+                            "relative_pathname": "1108/2833/1676/004/preservation",
+                            "subdirectories": [
+                                {
+                                    "files": [
+                                        {
+                                            "content_type": "image/tiff",
+                                            "id": 48715151,
+                                            "md5_sum": "9145619718dc67c8f7f42abf2f5c34b9",
+                                            "mtime": "2017-03-09T00:38:16.000Z",
+                                            "name": "120993_008_004.tif",
+                                            "relative_pathname": "1108/2833/1676/004/preservation/images/120993_008_004.tif",
+                                            "size": 116647721,
+                                            "uuid": "e9d46340-ea6a-0134-23c2-0050569601ca-9"
+                                        }
+                                    ],
+                                    "id": 1280779,
+                                    "name": "images",
+                                    "parent_id": 1277173,
+                                    "parent_type": "CfsDirectory",
+                                    "relative_pathname": "1108/2833/1676/004/preservation/images",
+                                    "uuid": "fd326c00-ea56-0134-23c2-0050569601ca-9"
+                                }
+                            ],
+                            "uuid": "8970f640-ea52-0134-23c2-0050569601ca-0"
+                        }
+                    ],
+                    "uuid": "520d3120-ea50-0134-23c2-0050569601ca-a"
+                },
+                {
+                    "files": [],
+                    "id": 1274749,
+                    "name": "005",
+                    "parent_id": 1273899,
+                    "parent_type": "CfsDirectory",
+                    "relative_pathname": "1108/2833/1676/005",
+                    "subdirectories": [
+                        {
+                            "files": [],
+                            "id": 1277174,
+                            "name": "access",
+                            "parent_id": 1274749,
+                            "parent_type": "CfsDirectory",
+                            "relative_pathname": "1108/2833/1676/005/access",
+                            "subdirectories": [
+                                {
+                                    "files": [
+                                        {
+                                            "content_type": "application/octet-stream",
+                                            "id": 48715152,
+                                            "md5_sum": "e0be09cd476798089c9c8f154f4d1110",
+                                            "mtime": "2017-03-09T00:34:01.000Z",
+                                            "name": "120993_008_005.jp2",
+                                            "relative_pathname": "1108/2833/1676/005/access/images/120993_008_005.jp2",
+                                            "size": 1411311,
+                                            "uuid": "ea6e6480-ea6a-0134-23c2-0050569601ca-3"
+                                        }
+                                    ],
+                                    "id": 1280780,
+                                    "name": "images",
+                                    "parent_id": 1277174,
+                                    "parent_type": "CfsDirectory",
+                                    "relative_pathname": "1108/2833/1676/005/access/images",
+                                    "uuid": "ff617570-ea56-0134-23c2-0050569601ca-b"
+                                }
+                            ],
+                            "uuid": "89d6f2a0-ea52-0134-23c2-0050569601ca-0"
+                        },
+                        {
+                            "files": [],
+                            "id": 1277175,
+                            "name": "preservation",
+                            "parent_id": 1274749,
+                            "parent_type": "CfsDirectory",
+                            "relative_pathname": "1108/2833/1676/005/preservation",
+                            "subdirectories": [
+                                {
+                                    "files": [
+                                        {
+                                            "content_type": "image/tiff",
+                                            "id": 48715153,
+                                            "md5_sum": "1f5c154c01dafd6ad3c9728008d37880",
+                                            "mtime": "2017-03-09T00:38:16.000Z",
+                                            "name": "120993_008_005.tif",
+                                            "relative_pathname": "1108/2833/1676/005/preservation/images/120993_008_005.tif",
+                                            "size": 97355291,
+                                            "uuid": "ea9507b0-ea6a-0134-23c2-0050569601ca-0"
+                                        }
+                                    ],
+                                    "id": 1280781,
+                                    "name": "images",
+                                    "parent_id": 1277175,
+                                    "parent_type": "CfsDirectory",
+                                    "relative_pathname": "1108/2833/1676/005/preservation/images",
+                                    "uuid": "fffd4670-ea56-0134-23c2-0050569601ca-a"
+                                }
+                            ],
+                            "uuid": "89dfeda0-ea52-0134-23c2-0050569601ca-7"
+                        }
+                    ],
+                    "uuid": "521313f0-ea50-0134-23c2-0050569601ca-f"
+                },
+                {
+                    "files": [],
+                    "id": 1274754,
+                    "name": "010",
+                    "parent_id": 1273899,
+                    "parent_type": "CfsDirectory",
+                    "relative_pathname": "1108/2833/1676/010",
+                    "subdirectories": [
+                        {
+                            "files": [],
+                            "id": 1277184,
+                            "name": "access",
+                            "parent_id": 1274754,
+                            "parent_type": "CfsDirectory",
+                            "relative_pathname": "1108/2833/1676/010/access",
+                            "subdirectories": [
+                                {
+                                    "files": [
+                                        {
+                                            "content_type": "text/plain",
+                                            "id": 48715162,
+                                            "md5_sum": "ed67e8ffac9747d4106d119c5b9e0794",
+                                            "mtime": "2013-07-19T21:45:13.000Z",
+                                            "name": "2004_120993_008.mtl",
+                                            "relative_pathname": "1108/2833/1676/010/access/3d/2004_120993_008.mtl",
+                                            "size": 298,
+                                            "uuid": "eefb87c0-ea6a-0134-23c2-0050569601ca-c"
+                                        },
+                                        {
+                                            "content_type": "text/plain",
+                                            "id": 48715163,
+                                            "md5_sum": "ebb16f445e94dd08b594ce31b9831f42",
+                                            "mtime": "2013-07-19T21:45:13.000Z",
+                                            "name": "2004_120993_008.obj",
+                                            "relative_pathname": "1108/2833/1676/010/access/3d/2004_120993_008.obj",
+                                            "size": 1898977,
+                                            "uuid": "ef03a360-ea6a-0134-23c2-0050569601ca-6"
+                                        },
+                                        {
+                                            "content_type": "image/jpeg",
+                                            "id": 48715164,
+                                            "md5_sum": "33fe5e832b143a9dda8ac55ebf3716dd",
+                                            "mtime": "2013-07-19T21:45:12.000Z",
+                                            "name": "texture.jpg",
+                                            "relative_pathname": "1108/2833/1676/010/access/3d/texture.jpg",
+                                            "size": 1426961,
+                                            "uuid": "ef0dd350-ea6a-0134-23c2-0050569601ca-f"
+                                        }
+                                    ],
+                                    "id": 1280790,
+                                    "name": "3d",
+                                    "parent_id": 1277184,
+                                    "parent_type": "CfsDirectory",
+                                    "relative_pathname": "1108/2833/1676/010/access/3d",
+                                    "uuid": "098cbd20-ea57-0134-23c2-0050569601ca-b"
+                                }
+                            ],
+                            "uuid": "8c8cd320-ea52-0134-23c2-0050569601ca-a"
+                        },
+                        {
+                            "files": [],
+                            "id": 1277185,
+                            "name": "preservation",
+                            "parent_id": 1274754,
+                            "parent_type": "CfsDirectory",
+                            "relative_pathname": "1108/2833/1676/010/preservation",
+                            "subdirectories": [
+                                {
+                                    "files": [
+                                        {
+                                            "content_type": "application/octet-stream",
+                                            "id": 48715168,
+                                            "md5_sum": "9838958c3bceeb56b87f864d50134995",
+                                            "mtime": "2013-07-30T16:47:47.000Z",
+                                            "name": "2004_120993_008__120993_008\uf022Foto3Dmtl1F.rgb",
+                                            "relative_pathname": "1108/2833/1676/010/preservation/3d/2004_120993_008__120993_008\uf022Foto3Dmtl1F.rgb",
+                                            "size": 7255613,
+                                            "uuid": "efa2d680-ea6a-0134-23c2-0050569601ca-3"
+                                        },
+                                        {
+                                            "content_type": "application/octet-stream",
+                                            "id": 48715169,
+                                            "md5_sum": "a1495461036ee2603a684c3b52c6759b",
+                                            "mtime": "2013-07-30T16:47:51.000Z",
+                                            "name": "2004_120993_008_maya.mb",
+                                            "relative_pathname": "1108/2833/1676/010/preservation/3d/2004_120993_008_maya.mb",
+                                            "size": 1502148,
+                                            "uuid": "efaa9390-ea6a-0134-23c2-0050569601ca-b"
+                                        },
+                                        {
+                                            "content_type": "text/plain",
+                                            "id": 48715165,
+                                            "md5_sum": "ed67e8ffac9747d4106d119c5b9e0794",
+                                            "mtime": "2013-07-19T21:45:13.000Z",
+                                            "name": "2004_120993_008.mtl",
+                                            "relative_pathname": "1108/2833/1676/010/preservation/3d/2004_120993_008.mtl",
+                                            "size": 298,
+                                            "uuid": "ef8d5520-ea6a-0134-23c2-0050569601ca-e"
+                                        },
+                                        {
+                                            "content_type": "text/plain",
+                                            "id": 48715166,
+                                            "md5_sum": "ebb16f445e94dd08b594ce31b9831f42",
+                                            "mtime": "2013-07-19T21:45:13.000Z",
+                                            "name": "2004_120993_008.obj",
+                                            "relative_pathname": "1108/2833/1676/010/preservation/3d/2004_120993_008.obj",
+                                            "size": 1898977,
+                                            "uuid": "ef92b360-ea6a-0134-23c2-0050569601ca-e"
+                                        },
+                                        {
+                                            "content_type": "model/vrml",
+                                            "id": 48715167,
+                                            "md5_sum": "12744ce643dafac9ba6b6b6f5d076097",
+                                            "mtime": "2013-07-30T16:48:25.000Z",
+                                            "name": "2004_120993_008.wrl",
+                                            "relative_pathname": "1108/2833/1676/010/preservation/3d/2004_120993_008.wrl",
+                                            "size": 2948143,
+                                            "uuid": "ef9b43f0-ea6a-0134-23c2-0050569601ca-9"
+                                        },
+                                        {
+                                            "content_type": "image/jpeg",
+                                            "id": 48715171,
+                                            "md5_sum": "f4f9b6b5cfa70107618e551ab20df3e4",
+                                            "mtime": "2013-07-30T16:43:57.000Z",
+                                            "name": "texture_1_1_1.jpg",
+                                            "relative_pathname": "1108/2833/1676/010/preservation/3d/texture_1_1_1.jpg",
+                                            "size": 2171825,
+                                            "uuid": "efbe4050-ea6a-0134-23c2-0050569601ca-1"
+                                        },
+                                        {
+                                            "content_type": "image/jpeg",
+                                            "id": 48715170,
+                                            "md5_sum": "33fe5e832b143a9dda8ac55ebf3716dd",
+                                            "mtime": "2013-07-19T21:45:12.000Z",
+                                            "name": "texture.jpg",
+                                            "relative_pathname": "1108/2833/1676/010/preservation/3d/texture.jpg",
+                                            "size": 1426961,
+                                            "uuid": "efb23d80-ea6a-0134-23c2-0050569601ca-d"
+                                        }
+                                    ],
+                                    "id": 1280791,
+                                    "name": "3d",
+                                    "parent_id": 1277185,
+                                    "parent_type": "CfsDirectory",
+                                    "relative_pathname": "1108/2833/1676/010/preservation/3d",
+                                    "uuid": "09c5f380-ea57-0134-23c2-0050569601ca-1"
+                                }
+                            ],
+                            "uuid": "8c9685b0-ea52-0134-23c2-0050569601ca-e"
+                        }
+                    ],
+                    "uuid": "5231e8a0-ea50-0134-23c2-0050569601ca-e"
+                }
+            ],
+            "uuid": "bb60d790-ea4e-0134-23c2-0050569601ca-d"
+        },
+        {
+            "files": [],
+            "id": 1273900,
+            "name": "1686",
+            "parent_id": 1273898,
+            "parent_type": "CfsDirectory",
+            "relative_pathname": "1108/2833/1686",
+            "subdirectories": [
+                {
+                    "files": [],
+                    "id": 1274755,
+                    "name": "001",
+                    "parent_id": 1273900,
+                    "parent_type": "CfsDirectory",
+                    "relative_pathname": "1108/2833/1686/001",
+                    "subdirectories": [
+                        {
+                            "files": [],
+                            "id": 1277186,
+                            "name": "access",
+                            "parent_id": 1274755,
+                            "parent_type": "CfsDirectory",
+                            "relative_pathname": "1108/2833/1686/001/access",
+                            "subdirectories": [
+                                {
+                                    "files": [
+                                        {
+                                            "content_type": "application/octet-stream",
+                                            "id": 48715172,
+                                            "md5_sum": "c5cb1c25149701df791305c6e835a1aa",
+                                            "mtime": "2017-03-09T00:34:24.000Z",
+                                            "name": "120993_009_001.jp2",
+                                            "relative_pathname": "1108/2833/1686/001/access/images/120993_009_001.jp2",
+                                            "size": 14221700,
+                                            "uuid": "f0694070-ea6a-0134-23c2-0050569601ca-c"
+                                        }
+                                    ],
+                                    "id": 1280792,
+                                    "name": "images",
+                                    "parent_id": 1277186,
+                                    "parent_type": "CfsDirectory",
+                                    "relative_pathname": "1108/2833/1686/001/access/images",
+                                    "uuid": "0a4f2c50-ea57-0134-23c2-0050569601ca-f"
+                                }
+                            ],
+                            "uuid": "8ccb41c0-ea52-0134-23c2-0050569601ca-b"
+                        },
+                        {
+                            "files": [],
+                            "id": 1277187,
+                            "name": "preservation",
+                            "parent_id": 1274755,
+                            "parent_type": "CfsDirectory",
+                            "relative_pathname": "1108/2833/1686/001/preservation",
+                            "subdirectories": [
+                                {
+                                    "files": [
+                                        {
+                                            "content_type": "image/tiff",
+                                            "id": 48715173,
+                                            "md5_sum": "a3d91e11102a91075cc63408b66da8ae",
+                                            "mtime": "2017-03-09T00:38:16.000Z",
+                                            "name": "120993_009_001.tif",
+                                            "relative_pathname": "1108/2833/1686/001/preservation/images/120993_009_001.tif",
+                                            "size": 75702311,
+                                            "uuid": "f0b98c00-ea6a-0134-23c2-0050569601ca-1"
+                                        }
+                                    ],
+                                    "id": 1280793,
+                                    "name": "images",
+                                    "parent_id": 1277187,
+                                    "parent_type": "CfsDirectory",
+                                    "relative_pathname": "1108/2833/1686/001/preservation/images",
+                                    "uuid": "0ab4bc80-ea57-0134-23c2-0050569601ca-3"
+                                }
+                            ],
+                            "uuid": "8cdb4ef0-ea52-0134-23c2-0050569601ca-c"
+                        }
+                    ],
+                    "uuid": "65e98010-ea50-0134-23c2-0050569601ca-b"
+                },
+                {
+                    "files": [],
+                    "id": 1274756,
+                    "name": "002",
+                    "parent_id": 1273900,
+                    "parent_type": "CfsDirectory",
+                    "relative_pathname": "1108/2833/1686/002",
+                    "subdirectories": [
+                        {
+                            "files": [],
+                            "id": 1277188,
+                            "name": "access",
+                            "parent_id": 1274756,
+                            "parent_type": "CfsDirectory",
+                            "relative_pathname": "1108/2833/1686/002/access",
+                            "subdirectories": [
+                                {
+                                    "files": [
+                                        {
+                                            "content_type": "application/octet-stream",
+                                            "id": 48715174,
+                                            "md5_sum": "3eee751145f46635cfb470d9678137e2",
+                                            "mtime": "2017-03-09T00:34:06.000Z",
+                                            "name": "120993_009_002.jp2",
+                                            "relative_pathname": "1108/2833/1686/002/access/images/120993_009_002.jp2",
+                                            "size": 7820997,
+                                            "uuid": "f12ca5c0-ea6a-0134-23c2-0050569601ca-3"
+                                        }
+                                    ],
+                                    "id": 1280794,
+                                    "name": "images",
+                                    "parent_id": 1277188,
+                                    "parent_type": "CfsDirectory",
+                                    "relative_pathname": "1108/2833/1686/002/access/images",
+                                    "uuid": "0b1f38d0-ea57-0134-23c2-0050569601ca-f"
+                                }
+                            ],
+                            "uuid": "8d1a5a00-ea52-0134-23c2-0050569601ca-e"
+                        },
+                        {
+                            "files": [],
+                            "id": 1277189,
+                            "name": "preservation",
+                            "parent_id": 1274756,
+                            "parent_type": "CfsDirectory",
+                            "relative_pathname": "1108/2833/1686/002/preservation",
+                            "subdirectories": [
+                                {
+                                    "files": [
+                                        {
+                                            "content_type": "image/tiff",
+                                            "id": 48715175,
+                                            "md5_sum": "8c90939244117eea7dbd842b2f7ec568",
+                                            "mtime": "2017-03-09T00:38:16.000Z",
+                                            "name": "120993_009_002.tif",
+                                            "relative_pathname": "1108/2833/1686/002/preservation/images/120993_009_002.tif",
+                                            "size": 42105707,
+                                            "uuid": "f16a7df0-ea6a-0134-23c2-0050569601ca-2"
+                                        }
+                                    ],
+                                    "id": 1280795,
+                                    "name": "images",
+                                    "parent_id": 1277189,
+                                    "parent_type": "CfsDirectory",
+                                    "relative_pathname": "1108/2833/1686/002/preservation/images",
+                                    "uuid": "0b7aa610-ea57-0134-23c2-0050569601ca-d"
+                                }
+                            ],
+                            "uuid": "8d229ff0-ea52-0134-23c2-0050569601ca-1"
+                        }
+                    ],
+                    "uuid": "65f336a0-ea50-0134-23c2-0050569601ca-7"
+                }
+            ],
+            "uuid": "bc0b9fb0-ea4e-0134-23c2-0050569601ca-b"
+        }
+    ],
+    "uuid": "153112b0-ea3d-0134-23ce-0050569601ca-3"
+}

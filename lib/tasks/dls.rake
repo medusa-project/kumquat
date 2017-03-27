@@ -62,6 +62,16 @@ namespace :dls do
       end
     end
 
+    desc 'Update the media category of all binaries'
+    task :update_media_categories => :environment do |task|
+      Binary.where('media_type IS NOT NULL').each do |bs|
+        bs.media_category = Binary::MediaCategory::media_category_for_media_type(bs.media_type)
+        puts "#{bs.media_category} #{bs.repository_relative_pathname}"
+        bs.save!
+      end
+      Solr.instance.commit
+    end
+
   end
 
   namespace :collections do

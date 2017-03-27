@@ -74,18 +74,24 @@ class MedusaCfsFile
 
   ##
   # @param binary_type [Binary::Type]
+  # @param media_category [Binary::MediaCategory] If nil, will be inferred from
+  #                                               the media type.
   # @return [Binary] Fully initialized binary instance (not persisted).
   #
-  def to_binary(binary_type)
-    bs = Binary.new
-    bs.binary_type = binary_type
-    bs.cfs_file_uuid = self.uuid
-    bs.repository_relative_pathname =
+  def to_binary(binary_type, media_category = nil)
+    bin = Binary.new
+    bin.binary_type = binary_type
+    bin.cfs_file_uuid = self.uuid
+    bin.repository_relative_pathname =
         '/' + self.repository_relative_pathname.reverse.chomp('/').reverse
-    bs.infer_media_type # The type of the CFS file is likely to be vague.
-    bs.read_size
-    bs.read_dimensions
-    bs
+    # The type of the CFS file is likely to be vague, so let's see if we can do
+    # better.
+    bin.infer_media_type
+    bin.media_category = media_category ||
+        Binary::MediaCategory::media_category_for_media_type(bin.media_type)
+    bin.read_size
+    bin.read_dimensions
+    bin
   end
 
   def to_s

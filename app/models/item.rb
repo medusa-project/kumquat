@@ -64,8 +64,6 @@ class Item < ActiveRecord::Base
   include SolrQuerying
 
   class SolrFields
-    ACCESS_MASTER_MEDIA_TYPE = 'access_master_media_type_si'
-    ACCESS_MASTER_PATHNAME = 'access_master_pathname_si'
     CLASS = 'class_si'
     COLLECTION = 'collection_si'
     # The owning collection's published status is stored to expedite queries.
@@ -85,8 +83,7 @@ class Item < ActiveRecord::Base
     LAST_INDEXED = 'last_indexed_dti'
     PAGE_NUMBER = 'page_number_ii'
     PARENT_ITEM = 'parent_item_si'
-    PRESERVATION_MASTER_MEDIA_TYPE = 'preservation_master_media_type_si'
-    PRESERVATION_MASTER_PATHNAME = 'preservation_master_pathname_si'
+    PRIMARY_MEDIA_CATEGORY = 'primary_media_category_ii'
     PUBLISHED = 'published_bi'
     REPRESENTATIVE_ITEM_ID = 'representative_item_id_si'
     SEARCH_ALL = 'searchall_natsort_en_im'
@@ -138,6 +135,8 @@ class Item < ActiveRecord::Base
   has_many :binaries, inverse_of: :item, dependent: :destroy
   has_many :elements, class_name: 'ItemElement', inverse_of: :item,
            dependent: :destroy
+
+  belongs_to :representative_binary, class_name: 'Binary'
 
   # VALIDATIONS
 
@@ -221,14 +220,6 @@ class Item < ActiveRecord::Base
   end
 
   ##
-  # @return [Binary]
-  #
-  def access_master_binary
-    self.binaries.
-        select{ |b| b.binary_type == Binary::Type::ACCESS_MASTER }.first
-  end
-
-  ##
   # @return [Enumerable<Item>] All parents in order from closest to farthest.
   #
   def all_parents
@@ -303,14 +294,19 @@ class Item < ActiveRecord::Base
     # TODO: Software
     if self.is_compound?
       type = 'Collection'
-    elsif self.is_image?
-      type = 'StillImage'
-    elsif self.is_video?
-      type = 'MovingImage'
-    elsif self.is_audio?
-      type = 'Sound'
-    elsif self.is_pdf? or self.is_text?
-      type = 'Text'
+    else
+      binary = self.effective_viewer_binary
+      if binary
+        if binary.is_image?
+          type = 'StillImage'
+        elsif binary.is_video?
+          type = 'MovingImage'
+        elsif binary.is_audio?
+          type = 'Sound'
+        elsif binary.is_pdf? or binary.is_text?
+          type = 'Text'
+        end
+      end
     end
     type
   end
@@ -390,6 +386,47 @@ class Item < ActiveRecord::Base
   end
 
   ##
+  # Returns the binary best suited for a primary viewer (image, video, audio,
+  # etc.) in the following order of preference:
+  #
+  # 1. The representative binary
+  # 2. If the instance's variant is SUPPLEMENT, any binary
+  # 3. Any access master of Binary::MediaCategory::IMAGE
+  # 4. Any access master
+  # 5. Any preservation master of Binary::MediaCategory::IMAGE
+  # 6. Any preservation master
+  #
+  # @return [Binary, nil]
+  #
+  def effective_viewer_binary
+    bin = self.representative_binary
+    unless bin
+      if self.variant == Variants::SUPPLEMENT
+        bin = self.binaries.first
+      end
+      unless bin
+        bin = self.binaries.
+            select{ |b| b.binary_type == Binary::Type::ACCESS_MASTER and
+            b.media_category == Binary::MediaCategory::IMAGE }.first
+        unless bin
+          bin = self.binaries.
+              select{ |b| b.binary_type == Binary::Type::ACCESS_MASTER }.first
+          unless bin
+            bin = self.binaries.
+                select{ |b| b.binary_type == Binary::Type::PRESERVATION_MASTER and
+                b.media_category == Binary::MediaCategory::IMAGE }.first
+            unless bin
+              bin = self.binaries.
+                  select{ |b| b.media_category == Binary::MediaCategory::IMAGE }.first
+            end
+          end
+        end
+      end
+    end
+    bin
+  end
+
+  ##
   # Queries the database to obtain a Relation of all children that have a
   # variant of Variant::FILE or Variant::DIRECTORY.
   #
@@ -430,17 +467,46 @@ class Item < ActiveRecord::Base
   end
 
   ##
-  # @return [Binary,nil] Best binary to use with an IIIF image server.
+  # Returns the best binary to use with an IIIF image server, guaranteed to be
+  # compatible with it, in the following order of preference:
+  #
+  # 1. The representative binary
+  # 2. If the instance's variant is SUPPLEMENT, any binary
+  # 3. If the instance is compound, the iiif_image_binary of the first page
+  # 4. Any access master of Binary::MediaCategory::IMAGE
+  # 5. Any access master with media type "application/pdf"
+  # 6. Any preservation master of Binary::MediaCategory::IMAGE
+  #
+  # @return [Binary, nil]
   #
   def iiif_image_binary
-    bs = self.access_master_binary
-    if !bs or !bs.iiif_safe?
-      bs = self.preservation_master_binary
-      if !bs or !bs.iiif_safe?
-        bs = nil
+    bin = self.representative_binary
+    if !bin or !bin.iiif_safe?
+      if self.variant == Variants::SUPPLEMENT
+        bin = self.binaries.first
+      elsif self.is_compound?
+        bin = self.pages.first&.iiif_image_binary
+      end
+      if !bin or !bin.iiif_safe?
+        bin = self.binaries.
+            select{ |b| b.binary_type == Binary::Type::ACCESS_MASTER and
+            b.media_category == Binary::MediaCategory::IMAGE }.first
+        if !bin or !bin.iiif_safe?
+          bin = self.binaries.
+              select{ |b| b.binary_type == Binary::Type::ACCESS_MASTER and
+              b.media_type == 'application/pdf' }.first
+          if !bin or !bin.iiif_safe?
+            bin = self.binaries.
+                select{ |b| b.binary_type == Binary::Type::PRESERVATION_MASTER and
+                b.media_category == Binary::MediaCategory::IMAGE }.first
+            if !bin or !bin.iiif_safe?
+              bin = nil
+            end
+          end
+        end
       end
     end
-    bs
+    bin
   end
 
   ##
@@ -460,51 +526,11 @@ class Item < ActiveRecord::Base
   end
 
   ##
-  # @return [Boolean]
-  #
-  def is_audio?
-    bs = self.access_master_binary || self.preservation_master_binary
-    bs&.is_audio?
-  end
-
-  ##
   # @return [Boolean] Whether the instance has any children with a "page"
   #                   variant.
   #
   def is_compound?
     self.pages.count > 0
-  end
-
-  ##
-  # @return [Boolean]
-  #
-  def is_image?
-    bs = self.access_master_binary || self.preservation_master_binary
-    bs&.is_image?
-  end
-
-  ##
-  # @return [Boolean]
-  #
-  def is_pdf?
-    bs = self.access_master_binary || self.preservation_master_binary
-    bs&.is_pdf?
-  end
-
-  ##
-  # @return [Boolean]
-  #
-  def is_text?
-    bs = self.access_master_binary || self.preservation_master_binary
-    bs&.is_text?
-  end
-
-  ##
-  # @return [Boolean]
-  #
-  def is_video?
-    bs = self.access_master_binary || self.preservation_master_binary
-    bs&.is_video?
   end
 
   ##
@@ -633,14 +659,6 @@ class Item < ActiveRecord::Base
   end
 
   ##
-  # @return [Binary, nil]
-  #
-  def preservation_master_binary
-    self.binaries.
-        select{ |b| b.binary_type == Binary::Type::PRESERVATION_MASTER }.first
-  end
-
-  ##
   # @return [Item, nil] The previous item in a compound object, relative to the
   #                     instance, or nil if none or not applicable.
   # @see next()
@@ -652,6 +670,27 @@ class Item < ActiveRecord::Base
                              page_number: self.page_number - 1).limit(1).first
     end
     prev_item
+  end
+
+  ##
+  # Infers the primary media category of the instance by analyzing its
+  # binaries' media categories.
+  #
+  # @return [Integer, nil] One of the Binary::MediaCategory constant values.
+  #
+  def primary_media_category
+    counts = {}
+    self.binaries.each do |bin|
+      mc = bin.media_category
+      if mc.present?
+        if counts.key?(mc)
+          counts[mc] += 1
+        else
+          counts[mc] = 1
+        end
+      end
+    end
+    counts.max_by{ |k,v| v }&.first
   end
 
   ##
@@ -804,6 +843,7 @@ class Item < ActiveRecord::Base
     end
     doc[SolrFields::PAGE_NUMBER] = self.page_number
     doc[SolrFields::PARENT_ITEM] = self.parent_repository_id
+    doc[SolrFields::PRIMARY_MEDIA_CATEGORY] = self.primary_media_category
     doc[SolrFields::PUBLISHED] = self.published
     doc[SolrFields::REPRESENTATIVE_ITEM_ID] = self.representative_item_repository_id
     doc[SolrFields::SUBPAGE_NUMBER] = self.subpage_number
@@ -811,18 +851,7 @@ class Item < ActiveRecord::Base
     doc[SolrFields::TOTAL_BYTE_SIZE] = self.binaries.map{ |b| b.byte_size }.
         select{ |s| s }.sum
     doc[SolrFields::VARIANT] = self.variant
-    bs = self.binaries.
-        select{ |b| b.binary_type == Binary::Type::ACCESS_MASTER }.first
-    if bs
-      doc[SolrFields::ACCESS_MASTER_MEDIA_TYPE] = bs.media_type
-      doc[SolrFields::ACCESS_MASTER_PATHNAME] = bs.repository_relative_pathname
-    end
-    bs = self.binaries.
-        select{ |b| b.binary_type == Binary::Type::PRESERVATION_MASTER }.first
-    if bs
-      doc[SolrFields::PRESERVATION_MASTER_MEDIA_TYPE] = bs.media_type
-      doc[SolrFields::PRESERVATION_MASTER_PATHNAME] = bs.repository_relative_pathname
-    end
+
     self.elements.each do |element|
       doc[element.solr_multi_valued_field] ||= []
       doc[element.solr_multi_valued_field] << element.value
@@ -1022,12 +1051,20 @@ class Item < ActiveRecord::Base
   # @return [Enumerable<ItemElement>]
   #
   def elements_from_embedded_metadata(options = {})
-    # Get the binary from which the metadata will be extracted
-    bs = self.preservation_master_binary || self.access_master_binary
+    elements = []
+
+    # Get the binary from which the metadata will be extracted.
+    # First, try to get the preservation master image.
+    bs = self.binaries.select{ |b| b.binary_type == Binary::Type::PRESERVATION_MASTER and
+        b.media_category == Binary::MediaCategory::IMAGE }.first
+    # If that wasn't available, try to get any image.
     unless bs
-      CustomLogger.instance.
-          info('Item.elements_from_embedded_metadata(): no binaries')
-      return
+      bs = self.binaries.select{ |b| b.media_category == Binary::MediaCategory::IMAGE }.first
+      unless bs
+        CustomLogger.instance.
+            info('Item.elements_from_embedded_metadata(): no binaries')
+        return elements
+      end
     end
 
     CustomLogger.instance.debug("Item.elements_from_embedded_metadata: using "\
@@ -1035,8 +1072,6 @@ class Item < ActiveRecord::Base
 
     # Get its embedded IIM metadata
     iim_metadata = bs.metadata.select{ |m| m[:category] == 'IPTC' }
-
-    elements = []
 
     # See discussion in IMET-246
     # See: https://docs.google.com/spreadsheets/d/15Wf75vzP-rW-lrYzLHATjv1bI3xcMMSVbdBShy4t55A/edit

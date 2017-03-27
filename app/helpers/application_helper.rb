@@ -66,15 +66,15 @@ module ApplicationHelper
     if entity == Item
       icon = 'fa-cube'
     elsif entity.kind_of?(Item)
-      if entity.is_audio?
+      if entity.effective_viewer_binary&.is_audio?
         icon = 'fa-volume-up'
-      elsif entity.is_image?
+      elsif entity.effective_viewer_binary&.is_image?
         icon = 'fa-picture-o'
-      elsif entity.is_pdf?
+      elsif entity.effective_viewer_binary&.is_pdf?
         icon = 'fa-file-pdf-o'
-      elsif entity.is_text?
+      elsif entity.effective_viewer_binary&.is_text?
         icon = 'fa-file-text-o'
-      elsif entity.is_video?
+      elsif entity.effective_viewer_binary&.is_video?
         icon = 'fa-film'
       elsif entity.variant == Item::Variants::DIRECTORY
         icon = 'fa-folder-open-o'
@@ -216,15 +216,15 @@ module ApplicationHelper
     if entity == Item
       type = 'Item'
     elsif entity.kind_of?(Item)
-      if entity.is_audio?
+      if entity.effective_viewer_binary&.is_audio?
         type = 'Audio'
-      elsif entity.is_image?
+      elsif entity.effective_viewer_binary&.is_image?
         type = 'Image'
-      elsif entity.is_pdf?
+      elsif entity.effective_viewer_binary&.is_pdf?
         type = 'PDF'
-      elsif entity.is_text?
+      elsif entity.effective_viewer_binary&.is_text?
         type = 'Text'
-      elsif entity.is_video?
+      elsif entity.effective_viewer_binary&.is_video?
         type = 'Video'
       elsif entity.variant == Item::Variants::FILE
         type = 'File'

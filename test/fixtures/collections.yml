@@ -41,6 +41,19 @@ iptc_collection:
   representative_image: MyString
   representative_item_id: MyString
 
+mixed_media_collection:
+  access_url: MyString
+  description_html: MyString
+  harvestable: true
+  medusa_file_group_id: 14696a50-ea3d-0134-23ce-0050569601ca-1
+  metadata_profile: metadata_profile_2
+  package_profile_id: <%= PackageProfile::MIXED_MEDIA_PROFILE.id %>
+  published: false
+  published_in_dls: false
+  repository_id: fe824900-6c8d-0134-1e34-0050569601ca-b
+  representative_image: MyString
+  representative_item_id: MyString
+
 # This collection contains "supplementary" binaries.
 myers_collection:
   access_url:

@@ -6,6 +6,8 @@ require 'csv'
 # of this class representing a given profile is associated with a [Collection]
 # representing a Medusa collection.
 #
+# [Documentation of profiles](https://wiki.illinois.edu/wiki/display/LibraryDigitalPreservation/Digital+Library+Package+Profiles)
+#
 class PackageProfile
 
   # Note: constants for quickly accessing a particular profile are defined
@@ -23,6 +25,10 @@ class PackageProfile
       {
           id: 2,
           name: 'Single-Item Object'
+      },
+      {
+          id: 3,
+          name: 'Mixed Media'
       }
   ]
 
@@ -50,9 +56,19 @@ class PackageProfile
     self.all.select{ |p| p.id == id.to_i }.first
   end
 
+  # [Documentation](https://wiki.illinois.edu/wiki/display/LibraryDigitalPreservation/Compound-item+Object+Package)
+  # [Documentation of Sheet Music Compound Object (a compatible
+  # superset)](https://wiki.illinois.edu/wiki/display/LibraryDigitalPreservation/Sheet+Music+Compound+Object)
   COMPOUND_OBJECT_PROFILE = PackageProfile.find(1)
+
+  # [Documentation](https://wiki.illinois.edu/wiki/display/LibraryDigitalPreservation/Free-Form+Package)
   FREE_FORM_PROFILE = PackageProfile.find(0)
+
+  # [Documentation](https://wiki.illinois.edu/wiki/display/LibraryDigitalPreservation/Single-item+Object+Package)
   SINGLE_ITEM_OBJECT_PROFILE = PackageProfile.find(2)
+
+  # [Documentation](https://wiki.illinois.edu/wiki/display/LibraryDigitalPreservation/Mixed-Media+Object+package)
+  MIXED_MEDIA_PROFILE = PackageProfile.find(3)
 
   def ==(obj)
     obj.kind_of?(self.class) and obj.id == self.id
@@ -74,6 +90,8 @@ class PackageProfile
         return MedusaFreeFormIngester.parent_id_from_medusa(item_id)
       when 1
         return MedusaCompoundObjectIngester.parent_id_from_medusa(item_id)
+      when 3
+        return MedusaMixedMediaIngester.parent_id_from_medusa(item_id)
     end
     nil
   end

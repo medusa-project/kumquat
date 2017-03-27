@@ -36,6 +36,7 @@ class ItemsHelperTest < ActionView::TestCase
 
   test 'viewer_for_item() should work for non-PDF file items' do
     item = items(:free_form_dir1_file1)
+    item.binaries.build(media_category: Binary::MediaCategory::IMAGE)
     assert viewer_for_item(item).include?('id="pt-compound-viewer"')
   end
 
@@ -51,19 +52,23 @@ class ItemsHelperTest < ActionView::TestCase
 
   test 'viewer_for_item() should work for PDF items' do
     item = items(:map_obj1_page1)
-    item.access_master_binary.media_type = 'application/pdf'
+    item.binaries.select{ |b| b.binary_type == Binary::Type::ACCESS_MASTER }.
+        first.media_category = Binary::MediaCategory::DOCUMENT
     assert viewer_for_item(item).include?('id="pt-pdf-viewer"')
   end
 
   test 'viewer_for_item() should work for audio items' do
     item = items(:map_obj1_page1)
-    item.access_master_binary.media_type = 'audio/mp3'
+    item.binaries.select{ |b| b.binary_type == Binary::Type::ACCESS_MASTER }.
+        first.media_category = Binary::MediaCategory::AUDIO
     assert viewer_for_item(item).include?('id="pt-audio-player"')
   end
 
   test 'viewer_for_item() should work for video items' do
     item = items(:map_obj1_page1)
-    item.access_master_binary.media_type = 'video/mpeg'
+    am = item.binaries.select{ |b| b.binary_type == Binary::Type::ACCESS_MASTER }.first
+    am.media_type = 'video/mpeg'
+    am.media_category = Binary::MediaCategory::media_category_for_media_type(am.media_type)
     assert viewer_for_item(item).include?('id="pt-video-player"')
   end
 
