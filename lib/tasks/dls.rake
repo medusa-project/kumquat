@@ -53,12 +53,21 @@ namespace :dls do
       puts 'Done.'
     end
 
-    desc 'Update the dimensions of all binaries'
-    task :update_dimensions => :environment do |task|
-      Binary.where('repository_relative_pathname IS NOT NULL').each do |bs|
-        puts bs.repository_relative_pathname
-        bs.read_dimensions
-        bs.save!
+    desc 'Populate the dimensions of all binaries'
+    task :populate_dimensions => :environment do |task|
+      Binary.uncached do
+        binaries = Binary.where('(width IS NULL OR height IS NULL) AND '\
+            'repository_relative_pathname IS NOT NULL')
+        count = binaries.count
+        puts "#{count} binaries to update"
+
+        binaries.find_each.with_index do |binary, index|
+          puts "(#{((index / count.to_f) * 100).round(2)}%) "\
+              "#{binary.repository_relative_pathname} "
+
+          binary.read_dimensions
+          binary.save!
+        end
       end
     end
 
