@@ -1,7 +1,5 @@
 class LandingController < WebsiteController
 
-  IMAGE_MEDIA_TYPES = %w(image/jp2 image/jpeg image/png image/tiff)
-
   ##
   # Responds to GET /
   #
