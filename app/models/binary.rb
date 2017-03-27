@@ -1,3 +1,22 @@
+##
+# Represents a file.
+#
+# Binaries are attached to Items. An Item may have zero or more Binaries. A
+# binary can only belong to one item. When an item is deleted, all of its
+# binaries are deleted along with it.
+#
+# Binaries are analogous to "CFS files" in Medusa, and can be constructed by
+# MedusaCfsFile.to_binary().
+#
+# A binary may have a master type of access or preservation. Preservation
+# masters are typically in a preservation-optimized format/encoding, and access
+# masters are typically a derivation of the preservation master that may be
+# smaller or more compatible with viewer software etc.
+#
+# A binary has a media (MIME) type, which may be different from the Medusa
+# CFS file's media type (which is often vague). When they differ, the Binary's
+# media type is usually more specific.
+#
 class Binary < ActiveRecord::Base
 
   ##
