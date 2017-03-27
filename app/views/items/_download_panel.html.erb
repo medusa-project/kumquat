@@ -4,7 +4,8 @@
   # TODO: this is messy
   display_thumbs = (item.variant == Item::Variants::FILE and item.parent and item.is_image?)
   items = display_thumbs ?
-      item.parent.items_in_iiif_presentation_order.limit(999).to_a : []
+      item.parent.items_in_iiif_presentation_order.limit(999).to_a.
+          reject{ |it| it.variant == Item::Variants::DIRECTORY } : []
 %>
 
 <div class="modal fade" id="pt-download-modal" tabindex="-1" role="dialog"
