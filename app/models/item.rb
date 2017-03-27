@@ -181,14 +181,8 @@ class Item < ActiveRecord::Base
   after_commit :delete_from_solr, on: :destroy
 
   def self.num_free_form_items
-    sql = "SELECT COUNT(items.id) AS count
-      FROM items
-      LEFT JOIN collections
-      ON collections.repository_id = items.collection_repository_id
-      WHERE collections.package_profile_id = #{PackageProfile::FREE_FORM_PROFILE.id}
-      AND items.variant = '#{Item::Variants::FILE}'"
-    result = ActiveRecord::Base.connection.execute(sql)
-    result[0]['count'].to_i
+    # TODO: Either include directories or rename to num_free_form_files()
+    Item.solr.where(SolrFields::VARIANT => Variants::FILE).count
   end
 
   ##
