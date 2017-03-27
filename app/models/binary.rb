@@ -94,16 +94,16 @@ class Binary < ActiveRecord::Base
   end
 
   ##
-  # @return [String] IIIF Image API identifier of the binary, regardless of
-  #                  whether it is compatible with an image server.
+  # @return [String] IIIF Image API identifier of the instance.
   #
   def iiif_image_identifier
     self.cfs_file_uuid
   end
 
   ##
-  # @return [String] IIIF Image API URL of the binary, regardless of whether it
-  #                  is compatible with an image server.
+  # @return [String] IIIF Image API URL of the instance, regardless of whether
+  #                  it is compatible with an image server.
+  # @see iiif_safe?()
   #
   def iiif_image_url
     Configuration.instance.iiif_url + '/' +
@@ -111,7 +111,7 @@ class Binary < ActiveRecord::Base
   end
 
   ##
-  # @return [String] IIIF info.json URL.
+  # @return [String] IIIF Image API info.json URL.
   #
   def iiif_info_url
     self.iiif_image_url + '/info.json'
@@ -165,7 +165,7 @@ class Binary < ActiveRecord::Base
   end
 
   ##
-  # @return [String, nil]
+  # @return [String, nil] URL of the binary's equivalent Medusa CFS file.
   #
   def medusa_url
     url = nil
@@ -255,6 +255,9 @@ class Binary < ActiveRecord::Base
   #
   def read_metadata
     @metadata = []
+
+    return unless self.is_image?
+
     pathname = self.absolute_local_pathname
 
     raise IOError, "Does not exist: #{pathname}" unless File.exist?(pathname)
