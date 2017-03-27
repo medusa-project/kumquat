@@ -13,7 +13,7 @@ module IiifPresentationHelper
     resources = []
     item.items.where('variant IN (?)', [Item::Variants::COMPOSITE,
                                         Item::Variants::SUPPLEMENT]).each do |child|
-      binary = child.access_master_binary || child.preservation_master_binary
+      binary = child.effective_viewer_binary
       dc_type = child.dc_type
       if binary and dc_type
       resources << {
@@ -44,48 +44,13 @@ module IiifPresentationHelper
   end
 
   ##
-  # @param subitem [Item] Subitem or page
-  # @return [Hash<Symbol,Object>]
-  #
-  def iiif_canvas_for(subitem)
-    struct = {
-        '@id': item_iiif_canvas_url(subitem, subitem.repository_id),
-        '@type': 'sc:Canvas',
-        label: subitem.title,
-        height: canvas_height(subitem),
-        width: canvas_width(subitem),
-        metadata: iiif_metadata_for(subitem)
-    }
-    if subitem.is_image? or subitem.is_pdf?
-      struct[:images] = iiif_images_for(subitem, 'access')
-    end
-    struct
-  end
-
-  ##
   # @param item [Item]
+  # @param annotation_name [String]
   # @return [Array]
   #
-  def iiif_canvases_for(item)
-    items = item.items_in_iiif_presentation_order.to_a
-    if items.any?
-      # Composite and supplement items are included in the annotation list
-      # instead.
-      return items.select{ |it| ![Item::Variants::COMPOSITE,
-                                  Item::Variants::SUPPLEMENT].include?(it.variant) }.
-          map { |subitem| iiif_canvas_for(subitem) }
-    end
-    [ iiif_canvas_for(item) ]
-  end
-
-  ##
-  # @param item [Item]
-  # @param annotation_name [String] 'access' or 'preservation'
-  # @return [Array]
-  #
-  def iiif_images_for(item, annotation_name)
+  def iiif_annotations_for(item, annotation_name)
     images = []
-    bin = item.access_master_binary || item.preservation_master_binary
+    bin = item.effective_viewer_binary
     if bin
       images << {
           '@type': 'oa:Annotation',
@@ -110,6 +75,43 @@ module IiifPresentationHelper
   end
 
   ##
+  # @param subitem [Item] Subitem or page
+  # @return [Hash<Symbol,Object>]
+  #
+  def iiif_canvas_for(subitem)
+    struct = {
+        '@id': item_iiif_canvas_url(subitem, subitem.repository_id),
+        '@type': 'sc:Canvas',
+        label: subitem.title,
+        height: canvas_height(subitem),
+        width: canvas_width(subitem),
+        metadata: iiif_metadata_for(subitem)
+    }
+    binary = subitem.iiif_image_binary
+    if binary
+      struct[:images] = iiif_annotations_for(subitem, 'access')
+    end
+    struct
+  end
+
+  ##
+  # @param item [Item]
+  # @return [Array]
+  #
+  def iiif_canvases_for(item)
+    items = item.items_in_iiif_presentation_order.to_a
+    if items.any?
+      # Directory items are not viewable and composite and supplement items are
+      # included in the annotation list instead.
+      return items.reject{ |it| [Item::Variants::COMPOSITE,
+                                 Item::Variants::DIRECTORY,
+                                 Item::Variants::SUPPLEMENT].include?(it.variant) }.
+          map { |subitem| iiif_canvas_for(subitem) }
+    end
+    [ iiif_canvas_for(item) ]
+  end
+
+  ##
   # @param item [Item] Compound object.
   # @param layer_name [String] Should be the same as the name of the canvas
   #                            that the layer is ascribed to.
@@ -131,32 +133,6 @@ module IiifPresentationHelper
       end
     end
     struct
-  end
-
-  ##
-  # @param item [Item]
-  # @return [Array]
-  #
-  def iiif_media_sequences_for(item)
-    sequences = nil
-    if item.variant == Item::Variants::FILE and item.is_pdf?
-      sequences = [
-          {
-              '@id': item_iiif_media_sequence_url(item, :page),
-              '@type': 'ixif:MediaSequence',
-              label: 'XSequence 0',
-              elements: [
-                  '@id': item_access_master_binary_url(item),
-                  '@type': 'foaf:Document',
-                  format: item.access_master_binary.media_type,
-                  label: item.title,
-                  metadata: [],
-                  thumbnail: thumbnail_url(item)
-              ]
-          }
-      ]
-    end
-    sequences
   end
 
   ##
@@ -260,16 +236,21 @@ module IiifPresentationHelper
   private
 
   def canvas_height(item)
-    bin = item.access_master_binary || item.preservation_master_binary
-    height = bin&.height || MIN_CANVAS_SIZE
-    height = MIN_CANVAS_SIZE if height < MIN_CANVAS_SIZE
+    # "It is recommended that if there is (at the time of implementation) a
+    # single image that depicts the page, then the dimensions of the image are
+    # used as the dimensions of the canvas for simplicity. If there are
+    # multiple full images, then the dimensions of the largest image should be
+    # used. If the largest image’s dimensions are less than 1200 pixels on
+    # either edge, then the canvas’s dimensions should be double those of the
+    # image."
+    height = MIN_CANVAS_SIZE
+    item.binaries.each { |b| height = b.height if b.height and b.height > height }
     height
   end
 
   def canvas_width(item)
-    bin = item.access_master_binary || item.preservation_master_binary
-    width = bin&.width || MIN_CANVAS_SIZE
-    width = MIN_CANVAS_SIZE if width < MIN_CANVAS_SIZE
+    width = MIN_CANVAS_SIZE
+    item.binaries.each { |b| width = b.width if b.width and b.width > width }
     width
   end
 

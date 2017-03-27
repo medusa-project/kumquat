@@ -43,17 +43,6 @@ class ItemTest < ActiveSupport::TestCase
         end_with?(Item::TSV_LINE_BREAK)
   end
 
-  # access_master_binary()
-
-  test 'access_master_binary() should return the access master binary, or nil
-  if none exists' do
-    assert_equal Binary::Type::ACCESS_MASTER,
-                 @item.access_master_binary.binary_type
-
-    @item.binaries.destroy_all
-    assert_nil @item.access_master_binary
-  end
-
   # as_json()
 
   test 'as_json() should return the correct structure' do
@@ -191,24 +180,6 @@ class ItemTest < ActiveSupport::TestCase
     assert_nil @item.element('bogus')
   end
 
-  # iiif_identifier()
-
-  test 'iiif_identifier should use the access master binary by default' do
-    @item.access_master_binary.repository_relative_pathname = '/bla/bla/cats cats.jpg'
-    @item.access_master_binary.cfs_file_uuid = 'this is a uuid'
-    @item.access_master_binary.media_type = 'image/jpeg'
-    @item.binaries.where(binary_type: Binary::Type::PRESERVATION_MASTER).destroy_all
-    assert_equal 'this is a uuid', @item.iiif_image_binary.iiif_image_identifier
-  end
-
-  test 'iiif_identifier should fall back to the preservation master binary' do
-    @item.binaries.where(binary_type: Binary::Type::ACCESS_MASTER).destroy_all
-    @item.preservation_master_binary.repository_relative_pathname = '/bla/bla/cats cats.jpg'
-    @item.preservation_master_binary.cfs_file_uuid = 'this is a uuid'
-    @item.preservation_master_binary.media_type = 'image/jpeg'
-    assert_equal 'this is a uuid', @item.iiif_image_binary.iiif_image_identifier
-  end
-
   # migrate_elements()
 
   test 'migrate_elements() should work' do
@@ -236,17 +207,6 @@ class ItemTest < ActiveSupport::TestCase
 
     @item.parent_repository_id = '8acdb390-96b6-0133-1ce8-0050569601ca-4'
     assert @item.valid?
-  end
-
-  # preservation_master_binary()
-
-  test 'preservation_master_binary() should return the preservation
-  master binary, or nil if none exists' do
-    assert_equal Binary::Type::PRESERVATION_MASTER,
-                 @item.preservation_master_binary.binary_type
-
-    @item.binaries.destroy_all
-    assert_nil @item.preservation_master_binary
   end
 
   # repository_id
@@ -497,6 +457,8 @@ class ItemTest < ActiveSupport::TestCase
                  doc[Item::SolrFields::LAT_LONG]
     assert_equal @item.page_number, doc[Item::SolrFields::PAGE_NUMBER]
     assert_equal @item.parent_repository_id, doc[Item::SolrFields::PARENT_ITEM]
+    assert_equal @item.primary_media_category,
+                 doc[Item::SolrFields::PRIMARY_MEDIA_CATEGORY]
     assert_equal @item.published, doc[Item::SolrFields::PUBLISHED]
     assert_equal @item.representative_item_repository_id,
                  doc[Item::SolrFields::REPRESENTATIVE_ITEM_ID]
@@ -504,19 +466,6 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal @item.title, doc[Item::SolrFields::TITLE]
     assert_equal 246, doc[Item::SolrFields::TOTAL_BYTE_SIZE]
     assert_equal @item.variant, doc[Item::SolrFields::VARIANT]
-
-    bs = @item.binaries.
-        select{ |b| b.binary_type == Binary::Type::ACCESS_MASTER }.first
-    assert_equal bs.media_type, doc[Item::SolrFields::ACCESS_MASTER_MEDIA_TYPE]
-    assert_equal bs.repository_relative_pathname,
-                 doc[Item::SolrFields::ACCESS_MASTER_PATHNAME]
-
-    bs = @item.binaries.
-        select{ |b| b.binary_type == Binary::Type::PRESERVATION_MASTER }.first
-    assert_equal bs.media_type,
-                 doc[Item::SolrFields::PRESERVATION_MASTER_MEDIA_TYPE]
-    assert_equal bs.repository_relative_pathname,
-                 doc[Item::SolrFields::PRESERVATION_MASTER_PATHNAME]
 
     title = @item.elements.select{ |e| e.name == 'title' }.first
     assert_equal [title.value], doc[title.solr_multi_valued_field]

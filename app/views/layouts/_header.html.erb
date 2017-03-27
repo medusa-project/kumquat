@@ -73,16 +73,20 @@
               </li>
               <li class="divider"></li>
               <li>
-                <%= link_to('Images', items_path(q: "#{Item::SolrFields::ACCESS_MASTER_MEDIA_TYPE}:image/*")) %>
+                <%= link_to('Images',
+                            items_path(q: "#{Item::SolrFields::PRIMARY_MEDIA_CATEGORY}:#{Binary::MediaCategory::IMAGE}")) %>
               </li>
               <li>
-                <%= link_to('Documents', items_path(q: "#{Item::SolrFields::ACCESS_MASTER_MEDIA_TYPE}:application/pdf")) %>
+                <%= link_to('Documents',
+                            items_path(q: "#{Item::SolrFields::PRIMARY_MEDIA_CATEGORY}:#{Binary::MediaCategory::DOCUMENT}")) %>
               </li>
               <li>
-                <%= link_to('Videos', items_path(q: "#{Item::SolrFields::ACCESS_MASTER_MEDIA_TYPE}:video/*")) %>
+                <%= link_to('Videos',
+                            items_path(q: "#{Item::SolrFields::PRIMARY_MEDIA_CATEGORY}:#{Binary::MediaCategory::VIDEO}")) %>
               </li>
               <li>
-                <%= link_to('Sound Recordings', items_path(q: "#{Item::SolrFields::ACCESS_MASTER_MEDIA_TYPE}:audio/*")) %>
+                <%= link_to('Sound Recordings',
+                            items_path(q: "#{Item::SolrFields::PRIMARY_MEDIA_CATEGORY}:#{Binary::MediaCategory::AUDIO}")) %>
               </li>
             </ul>
           </li>

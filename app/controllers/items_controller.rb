@@ -14,35 +14,19 @@ class ItemsController < WebsiteController
 
   before_action :enable_cors, only: [:iiif_annotation, :iiif_annotation_list,
                                      :iiif_canvas, :iiif_layer, :iiif_manifest,
-                                     :iiif_media_sequence, :iiif_range,
-                                     :iiif_sequence]
+                                     :iiif_range, :iiif_sequence]
 
   # Other actions
-  before_action :load_item, only: [:access_master_binary, :files,
-                                   :iiif_annotation, :iiif_annotation_list,
-                                   :iiif_canvas, :iiif_layer, :iiif_manifest,
-                                   :iiif_media_sequence, :iiif_range,
-                                   :iiif_sequence, :pages,
-                                   :preservation_master_binary, :show]
-  before_action :authorize_item, only: [:access_master_binary, :files,
-                                        :iiif_annotation, :iiif_annotation_list,
-                                        :iiif_canvas, :iiif_layer,
-                                        :iiif_manifest, :iiif_media_sequence,
+  before_action :load_item, only: [:files, :iiif_annotation,
+                                   :iiif_annotation_list, :iiif_canvas,
+                                   :iiif_layer, :iiif_manifest, :iiif_range,
+                                   :iiif_sequence, :pages, :show]
+  before_action :authorize_item, only: [:files, :iiif_annotation,
+                                        :iiif_annotation_list, :iiif_canvas,
+                                        :iiif_layer, :iiif_manifest,
                                         :iiif_range, :iiif_sequence, :pages,
-                                        :preservation_master_binary, :show]
+                                        :show]
   before_action :set_browse_context, only: :index
-
-  ##
-  # Retrieves an item's access master binary.
-  #
-  # Responds to GET /items/:item_id/access-master
-  #
-  # The default is to send with a Content-Disposition of `attachment`. Supply a
-  # `disposition` query variable of `inline` to override.
-  #
-  def access_master_binary
-    send_binary(@item, Binary::Type::ACCESS_MASTER, params[:disposition])
-  end
 
   ##
   # Responds to GET /item/:id/files (XHR only)
@@ -58,23 +42,21 @@ class ItemsController < WebsiteController
   end
 
   ##
-  # Serves IIIF Presentation API 2.1 annotations.
+  # Serves IIIF Presentation API 2.1 image resources.
   #
   # Responds to GET /items/:id/annotation/:name
   #
-  # @see http://iiif.io/api/presentation/2.1/#annotation
+  # @see http://iiif.io/api/presentation/2.1/#image-resources
   #
-  def iiif_annotation
+  def iiif_annotation # TODO: rename to iiif_image_resource
     valid_names = %w(access preservation)
     if valid_names.include?(params[:name])
       @annotation_name = params[:name]
-      @binary = @annotation_name == 'access' ?
-          @item.access_master_binary : @item.preservation_master_binary
+      @binary = @item.iiif_image_binary
       render 'items/iiif_presentation_api/annotation',
-             formats: :json,
-             content_type: 'application/json'
+             formats: :json, content_type: 'application/json'
     else
-      render text: 'No such annotation.', status: :not_found
+      render text: 'No such image resource.', status: :not_found
     end
   end
 
@@ -140,39 +122,6 @@ class ItemsController < WebsiteController
   def iiif_manifest
     render 'items/iiif_presentation_api/manifest',
            formats: :json, content_type: 'application/json'
-  end
-
-  ##
-  # Serves IIIF Presentation API 2.1 media sequences.
-  #
-  # Responds to GET /items/:id/media-sequence/:name
-  #
-  def iiif_media_sequence
-    @media_sequence_name = params[:name]
-    case @media_sequence_name
-      when 'item'
-        if @item.items.count > 0
-          @start_canvas_item = @item.items.first
-          render 'items/iiif_presentation_api/media_sequence',
-                 formats: :json,
-                 content_type: 'application/json'
-        else
-          render text: 'This object does not have an item media sequence.',
-                 status: :not_found
-        end
-      when 'page'
-        if @item.pages.count > 0
-          @start_canvas_item = @item.title_item || @item.pages.first
-          render 'items/iiif_presentation_api/media_sequence',
-                 formats: :json,
-                 content_type: 'application/json'
-        else
-          render text: 'This object does not have a page media sequence.',
-                 status: :not_found
-        end
-      else
-        render text: 'Sequence not available.', status: :not_found
-    end
   end
 
   ##
@@ -327,19 +276,6 @@ class ItemsController < WebsiteController
   end
 
   ##
-  # Retrieves an item's preservation master binary.
-  #
-  # Responds to GET /items/:id/preservation-master
-  #
-  # The default is to send with a Content-Disposition of `attachment`. Supply a
-  # `disposition` query variable of `inline` to override.
-  #
-  def preservation_master_binary
-    send_binary(@item, Binary::Type::PRESERVATION_MASTER,
-                params[:disposition])
-  end
-
-  ##
   # Responds to GET /items/:id
   #
   def show
@@ -470,25 +406,6 @@ class ItemsController < WebsiteController
   def load_item
     @item = Item.find_by_repository_id(params[:item_id] || params[:id])
     raise ActiveRecord::RecordNotFound unless @item
-  end
-
-  ##
-  # Streams one of an item's binaries, or redirects to a binary's URL, if it
-  # has one.
-  #
-  # @param item [Item]
-  # @param type [Integer] One of the `Binary::Type` constants
-  # @param disposition [String] `inline` or `attachment`
-  #
-  def send_binary(item, type, disposition)
-    disposition = 'attachment' unless %w(attachment inline).include?(disposition)
-
-    bs = item.binaries.where(binary_type: type).select(&:exists?).first
-    if bs
-      send_file(bs.absolute_local_pathname, disposition: disposition)
-    else
-      render status: 404, text: 'Not found.'
-    end
   end
 
   ##

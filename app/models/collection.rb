@@ -242,22 +242,26 @@ class Collection < ActiveRecord::Base
       (SELECT repository_relative_pathname
         FROM binaries
         WHERE binaries.item_id = items.id
-          AND binaries.binary_type = #{Binary::Type::PRESERVATION_MASTER})
+          AND binaries.binary_type = #{Binary::Type::PRESERVATION_MASTER}
+          LIMIT 1)
             AS pres_pathname,
       (SELECT substring(repository_relative_pathname from '[^/]+$')
         FROM binaries
         WHERE binaries.item_id = items.id
-          AND binaries.binary_type = #{Binary::Type::PRESERVATION_MASTER})
+          AND binaries.binary_type = #{Binary::Type::PRESERVATION_MASTER}
+          LIMIT 1)
             AS pres_filename,
       (SELECT repository_relative_pathname
         FROM binaries
         WHERE binaries.item_id = items.id
-          AND binaries.binary_type = #{Binary::Type::ACCESS_MASTER})
+          AND binaries.binary_type = #{Binary::Type::ACCESS_MASTER}
+          LIMIT 1)
             AS access_pathname,
       (SELECT substring(repository_relative_pathname from '[^/]+$')
         FROM binaries
         WHERE binaries.item_id = items.id
-          AND binaries.binary_type = #{Binary::Type::ACCESS_MASTER})
+          AND binaries.binary_type = #{Binary::Type::ACCESS_MASTER}
+          LIMIT 1)
             AS access_filename,
       items.variant,
       items.page_number,
@@ -569,19 +573,19 @@ class Collection < ActiveRecord::Base
   #                      the representative image, if not.
   #
   def representative_image_binary
-    bs = nil
+    binary = nil
     if self.representative_item
       item = self.representative_item
-      bs = item.access_master_binary || item.preservation_master_binary
+      binary = item.iiif_image_binary
     elsif self.representative_image.present?
       cfs_file = MedusaCfsFile.new
       cfs_file.uuid = self.representative_image
-      bs = Binary.new
-      bs.cfs_file_uuid = cfs_file.uuid
-      bs.repository_relative_pathname = cfs_file.repository_relative_pathname
-      bs.infer_media_type
+      binary = Binary.new
+      binary.cfs_file_uuid = cfs_file.uuid
+      binary.repository_relative_pathname = cfs_file.repository_relative_pathname
+      binary.infer_media_type
     end
-    bs
+    binary
   end
 
   def representative_item

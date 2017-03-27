@@ -30,6 +30,7 @@ three:
   repository_relative_pathname: MyString
   item: item2
   media_type: image/jpeg
+  media_category: <%= Binary::MediaCategory::IMAGE %>
 
 map_obj1_page1_preservation:
   binary_type: <%= Binary::Type::PRESERVATION_MASTER %>
