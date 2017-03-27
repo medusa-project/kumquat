@@ -17,12 +17,20 @@
 # CFS file's media type (which is often vague). When they differ, the Binary's
 # media type is usually more specific.
 #
+# A binary may also reside in a media category (see the inner enum-like
+# MediaCategory class), which helps to differentiate binaries that have the
+# same media type but different uses. This especially comes into play in
+# collections that use the Mixed Media package profile. Selecting the right
+# binary to use in a given context generally means querying the item's
+# binaries.
+#
 class Binary < ActiveRecord::Base
 
   ##
-  # Broad category that applies to a binary. This may be different from the
-  # one in `media_type`; for example, the main image and a 3D model texture
-  # may both be JPEGs. This would make them distinguishable.
+  # Broad category in which a binary can be considered to reside. This may be
+  # different from the one in `media_type`; for example, the main image and a
+  # 3D model texture may both be JPEGs, but be in different categories, and
+  # when displaying an image viewer, we want to select the main image.
   #
   class MediaCategory
     AUDIO = 3
@@ -43,6 +51,8 @@ class Binary < ActiveRecord::Base
         when 'text/plain'
           return TEXT
       end
+      # TODO: this code finds the first but not necessarily best match, which
+      # is the reason for the override above. Pretty sloppy
       formats = Binary.class_variable_get(:'@@formats')
       formats = formats.select{ |f| f['media_types'].include?(media_type) }
       formats.any? ? formats.first['media_category'] : nil
@@ -77,6 +87,7 @@ class Binary < ActiveRecord::Base
   def as_json(options = {})
     struct = super(options).stringify_keys # TODO: why is this almost empty?
     struct['binary_type'] = self.human_readable_type
+    struct['media_category'] = self.human_readable_media_category
     struct['repository_relative_pathname'] = self.repository_relative_pathname
     struct['cfs_file_uuid'] = self.cfs_file_uuid
     struct['byte_size'] = self.byte_size

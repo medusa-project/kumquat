@@ -48,6 +48,7 @@ class BinaryTest < ActiveSupport::TestCase
     b = binaries(:iptc)
     struct = b.as_json
     assert_equal b.human_readable_type, struct['binary_type']
+    assert_equal b.human_readable_media_category, struct['media_category']
     assert_equal 'image/jpeg', struct['media_type']
     assert_equal '/136/310/3707005/access/online/Illini_Union_Photographs/binder_5/banquets/banquets_002.jpg',
                  struct['repository_relative_pathname']
