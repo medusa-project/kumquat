@@ -115,24 +115,17 @@ module ItemsHelper
   def download_radios_for_item(item)
     html = ''
     item.binaries.select{ |bs| bs.exists? }.each do |bs|
-      if bs.binary_type == Binary::Type::ACCESS_MASTER
-        url = item_access_master_binary_url(item)
-      elsif bs.binary_type == Binary::Type::PRESERVATION_MASTER
-        url = item_preservation_master_binary_url(item)
-      end
-      if url
-        html += "<div class=\"radio pt-download-option\" data-item-id=\"#{item.repository_id}\">"
-        html += '  <label>'
-        html +=      radio_button_tag('download-url', url,
-                                      data: { 'item-id': item.repository_id })
-        html +=      bs.human_readable_type
-        html += '    <br>'
-        html += '    <small>'
-        html +=        download_label_for_binary(bs)
-        html += '    </small>'
-        html += '  </label>'
-        html += '</div>'
-      end
+      html += "<div class=\"radio pt-download-option\" data-item-id=\"#{item.repository_id}\">"
+      html += '  <label>'
+      html +=      radio_button_tag('download-url', binary_url(bs),
+                                    data: { 'item-id': item.repository_id })
+      html +=      bs.human_readable_type
+      html += '    <br>'
+      html += '    <small>'
+      html +=        download_label_for_binary(bs)
+      html += '    </small>'
+      html += '  </label>'
+      html += '</div>'
     end
     raw(html)
   end
