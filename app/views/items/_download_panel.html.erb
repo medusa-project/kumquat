@@ -21,7 +21,7 @@
       <div class="modal-body">
         <% if display_thumbs %>
           <div class="row">
-            <div class="col-xs-5">
+            <div class="col-sm-6">
               <div id="pt-image-select">
                 <% items.each do |subitem| %>
                   <div class="radio">
@@ -32,13 +32,13 @@
                                                'item-id': subitem.repository_id
                                            }) %>
                       <%= thumbnail_tag(subitem) %>
-                      <%= subitem.title %>
+                      <%= truncate(subitem.title, length: 30) %>
                     </label>
                   </div>
                 <% end %>
               </div>
             </div>
-            <div class="col-xs-7">
+            <div class="col-sm-6">
               <% items.each do |subitem| %>
                 <div class="pt-citation-info" data-item-id="<%= subitem.repository_id %>">
                   <div class="alert alert-info">
