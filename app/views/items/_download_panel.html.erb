@@ -1,7 +1,8 @@
-<% # requires the following locals: item %>
+<% # requires the following locals: item
 
-<%
-  display_thumbs = (item.variant == Item::Variants::FILE and item.parent)
+  # display_thumbs logic must be kept in sync with ItemsHelper.viewer_for_item().
+  # TODO: this is messy
+  display_thumbs = (item.variant == Item::Variants::FILE and item.parent and item.is_image?)
   items = display_thumbs ?
       item.parent.items_in_iiif_presentation_order.limit(999).to_a : []
 %>
