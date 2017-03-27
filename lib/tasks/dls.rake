@@ -113,8 +113,7 @@ namespace :dls do
       Item.uncached do
         Item.all.find_each.with_index do |item, index|
           item.index_in_solr
-          CustomLogger.instance.debug("reindex: "\
-            "#{((index / num_entities.to_f) * 100).round(2)}%")
+          puts "reindex: #{((index / num_entities.to_f) * 100).round(2)}%"
         end
       end
       Solr.instance.commit
