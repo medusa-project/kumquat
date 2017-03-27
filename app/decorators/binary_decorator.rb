@@ -16,11 +16,7 @@ class BinaryDecorator < Draper::Decorator
 
   def serializable_hash(opts)
     struct = object.serializable_hash(opts)
-    if object.binary_type == Binary::Type::PRESERVATION_MASTER
-      struct[:url] = item_preservation_master_binary_url(object.item)
-    else
-      struct[:url] = item_access_master_binary_url(object.item)
-    end
+    struct[:url] = binary_url(object)
     struct
   end
 
