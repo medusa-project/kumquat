@@ -200,6 +200,10 @@ class Binary < ActiveRecord::Base
     self.media_type = MIME::Types.of(self.absolute_local_pathname).first.to_s
   end
 
+  def is_3d?
+    (self.media_category == MediaCategory::THREE_D)
+  end
+
   def is_audio?
     self.media_type and self.media_type.start_with?('audio/')
   end
