@@ -296,25 +296,7 @@ class Item < ActiveRecord::Base
   # @see http://dublincore.org/documents/dcmi-type-vocabulary/#H7
   #
   def dc_type
-    type = nil
-    # TODO: Software
-    if self.is_compound?
-      type = 'Collection'
-    else
-      binary = self.effective_viewer_binary
-      if binary
-        if binary.is_image?
-          type = 'StillImage'
-        elsif binary.is_video?
-          type = 'MovingImage'
-        elsif binary.is_audio?
-          type = 'Sound'
-        elsif binary.is_pdf? or binary.is_text?
-          type = 'Text'
-        end
-      end
-    end
-    type
+    self.is_compound? ? 'Collection' : self.effective_viewer_binary&.dc_type
   end
 
   def delete_from_solr # TODO: change to Item.solr.delete()
