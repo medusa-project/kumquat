@@ -224,10 +224,11 @@ module ItemsHelper
   end
 
   ##
-  # @param item [Item]
+  # @param item [Item, nil]
   # @return [Boolean]
   #
   def has_viewer?(item)
+    return false unless item
     # This logic needs to be kept in sync with viewer_for_item().
     if item.embed_tag.present? or item.is_compound?
       return true
@@ -1130,6 +1131,7 @@ module ItemsHelper
   #
   def viewer_for_item(item)
     # This logic needs to be kept in sync with has_viewer?().
+    return nil unless item
     if item.embed_tag.present?
       # Replace hard-coded width/height attribute values.
       frag = Nokogiri::HTML::DocumentFragment.parse(item.embed_tag)
