@@ -29,6 +29,25 @@ class ItemsController < WebsiteController
   before_action :set_browse_context, only: :index
 
   ##
+  # Retrieves a binary by its filename.
+  #
+  # An item shouldn't have multipple binaries with the same filename, but if
+  # it does, a random match will be sent.
+  #
+  # Responds to GET /items/:item_id/binaries/:filename
+  #
+  def binary
+    filename = [params[:filename], params[:format]].join('.')
+    binary = @item.binaries.where('repository_relative_pathname LIKE ?',
+                                  "%/#{filename}").limit(1).first
+    if binary
+      send_file(binary.absolute_local_pathname)
+    else
+      render status: 404, text: 'Binary not found'
+    end
+  end
+
+  ##
   # Responds to GET /item/:id/files (XHR only)
   #
   def files
