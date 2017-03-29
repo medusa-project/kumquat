@@ -1620,29 +1620,31 @@ module ItemsHelper
     html = ''
     three_d_binaries = item.binaries.
         select{ |b| b.media_category == Binary::MediaCategory::THREE_D }
-
     obj_binary = three_d_binaries.
         select{ |b| b.filename&.downcase.end_with?('.obj') }.first
     if obj_binary
       mtl_binary = three_d_binaries.
           select{ |b| b.filename&.downcase.end_with?('.mtl') }.first
-      viewer_url = asset_path('/threejs-viewer/3dviewer.min.js')
-      model_path = File.dirname(item_binary_path(item, obj_binary))
+      # All items with OBJ models should also have one of these.
+      if mtl_binary
+        viewer_url = asset_path('/threejs-viewer/3dviewer.min.js')
+        model_path = File.dirname(item_binary_path(item, obj_binary))
 
-      # Initialize the viewer but don't display it yet. It will be displayed
-      # via JS the first time its container div is shown.
-      html += "<div id=\"pt-3d-viewer\" class=\"pt-viewer\"></div>
-      <script src=\"#{viewer_url}\"></script>
-      <script>
-          $(document).ready(function() {
-              PearTree.view.threeDViewer = new ThreeJSViewer({
-                  'containerId': 'pt-3d-viewer',
-                  'modelPath': '#{model_path}/',
-                  'objFile': '#{obj_binary.filename}',
-                  'mtlFile': '#{mtl_binary.filename}'
-              });
-          });
-      </script>"
+        # Initialize the viewer but don't display it yet. It will be displayed
+        # via JS the first time its container div is shown.
+        html += "<div id=\"pt-3d-viewer\" class=\"pt-viewer\"></div>
+        <script src=\"#{viewer_url}\"></script>
+        <script>
+            $(document).ready(function() {
+                PearTree.view.threeDViewer = new ThreeJSViewer({
+                    'containerId': 'pt-3d-viewer',
+                    'modelPath': '#{model_path}/',
+                    'objFile': '#{obj_binary.filename}',
+                    'mtlFile': '#{mtl_binary.filename}'
+                });
+            });
+        </script>"
+      end
     end
     raw(html)
   end
