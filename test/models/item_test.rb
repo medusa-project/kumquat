@@ -5,11 +5,14 @@ class ItemTest < ActiveSupport::TestCase
   setup do
     @item = items(:item1)
     assert @item.valid?
+  end
 
-    @collection = collections(:collection1)
-    @tsv = File.read(__dir__ + '/../fixtures/repository/lincoln.tsv')
-    @tsv_array = CSV.parse(@tsv, headers: true, col_sep: "\t").
-        map{ |row| row.to_hash }
+  # Item.num_free_form_items()
+
+  test 'num_free_form_items should return a correct count' do
+    Item.all.each { |it| it.index_in_solr }
+    Solr.instance.commit
+    assert_equal 2, Item.num_free_form_items
   end
 
   # Item.tsv_header()
