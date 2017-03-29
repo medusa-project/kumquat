@@ -146,6 +146,7 @@ Rails.application.routes.draw do
       match '/items/migrate-metadata', to: 'items#migrate_metadata', via: :post
       match '/items/replace-metadata', to: 'items#replace_metadata', via: :post
       match '/items/sync', to: 'items#sync', via: :post
+      match '/statistics', to: 'collections#statistics', via: :get
     end
     resources :metadata_profile_elements,
               only: [:create, :update, :destroy, :edit]

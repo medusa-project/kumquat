@@ -5,16 +5,20 @@
 <%= admin_breadcrumb(collection: @collection) %>
 
 <div class="btn-group pull-right" role="group">
-  <!-- Items button -->
+  <!-- Objects button -->
   <%= link_to admin_collection_items_path(@collection),
               class: 'btn btn-default' do %>
-    <%= icon_for(Item) %>
-    <%= number_with_delimiter(@collection.num_objects) %> objects
+    <%= icon_for(Item) %> Objects
   <% end %>
   <!-- Edit button -->
   <%= link_to edit_admin_collection_path(@collection),
               class: 'btn btn-default' do %>
     <i class="fa fa-pencil-square-o"></i> Edit
+  <% end %>
+  <!-- Statistics button -->
+  <%= link_to admin_collection_statistics_path(@collection),
+              class: 'btn btn-default' do %>
+    <i class="fa fa-bar-chart-o"></i> Statistics
   <% end %>
   <!-- View menu -->
   <button type="button" class="btn btn-default dropdown-toggle"
