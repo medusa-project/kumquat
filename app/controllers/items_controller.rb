@@ -16,20 +16,8 @@ class ItemsController < WebsiteController
                                      :iiif_canvas, :iiif_layer, :iiif_manifest,
                                      :iiif_media_sequence, :iiif_range,
                                      :iiif_sequence]
-
-  # Other actions
-  before_action :load_item, only: [:access_master_binary, :files,
-                                   :iiif_annotation, :iiif_annotation_list,
-                                   :iiif_canvas, :iiif_layer, :iiif_manifest,
-                                   :iiif_media_sequence, :iiif_range,
-                                   :iiif_sequence, :pages,
-                                   :preservation_master_binary, :show]
-  before_action :authorize_item, only: [:access_master_binary, :files,
-                                        :iiif_annotation, :iiif_annotation_list,
-                                        :iiif_canvas, :iiif_layer,
-                                        :iiif_manifest, :iiif_media_sequence,
-                                        :iiif_range, :iiif_sequence, :pages,
-                                        :preservation_master_binary, :show]
+  before_action :load_item, except: :index
+  before_action :authorize_item, except: :index
   before_action :set_browse_context, only: :index
 
   ##
