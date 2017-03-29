@@ -197,7 +197,16 @@ class Binary < ActiveRecord::Base
   end
 
   def infer_media_type
-    self.media_type = MIME::Types.of(self.absolute_local_pathname).first.to_s
+    case File.extname(self.repository_relative_pathname).downcase
+      when '.mtl'
+        self.media_type = 'text/plain'
+      when '.obj'
+        self.media_type = 'text/plain'
+      else
+        # TODO: the mime-types gem only reads the extension, not the header,
+        # and only recognizes a limited number of extensions.
+        self.media_type = MIME::Types.of(self.absolute_local_pathname).first.to_s
+    end
   end
 
   def is_audio?
