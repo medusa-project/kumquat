@@ -290,25 +290,7 @@ class Item < ActiveRecord::Base
   # @see http://dublincore.org/documents/dcmi-type-vocabulary/#H7
   #
   def dc_type
-    type = nil
-    # TODO: Software
-    if self.is_compound?
-      type = 'Collection'
-    else
-      binary = self.effective_viewer_binary
-      if binary
-        if binary.is_image?
-          type = 'StillImage'
-        elsif binary.is_video?
-          type = 'MovingImage'
-        elsif binary.is_audio?
-          type = 'Sound'
-        elsif binary.is_pdf? or binary.is_text?
-          type = 'Text'
-        end
-      end
-    end
-    type
+    self.is_compound? ? 'Collection' : self.effective_viewer_binary&.dc_type
   end
 
   def delete_from_solr # TODO: change to Item.solr.delete()
@@ -779,6 +761,19 @@ class Item < ActiveRecord::Base
   #
   def table_of_contents_item
     self.items.where(variant: Variants::TABLE_OF_CONTENTS).limit(1).first
+  end
+
+  ##
+  # @return [Item] The item's 3D model item, if available.
+  #
+  def three_d_item
+    self.items.each do |item|
+      if item.binaries.
+          select{ |b| b.media_category == Binary::MediaCategory::THREE_D }.any?
+        return item
+      end
+    end
+    nil
   end
 
   ##

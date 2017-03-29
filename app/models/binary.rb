@@ -97,6 +97,26 @@ class Binary < ActiveRecord::Base
   end
 
   ##
+  # @return [String]
+  # @see http://dublincore.org/documents/dcmi-type-vocabulary/#H7
+  #
+  def dc_type
+    type = nil
+    if self.is_3d?
+      type = 'PhysicalObject'
+    elsif self.is_image?
+      type = 'StillImage'
+    elsif self.is_video?
+      type = 'MovingImage'
+    elsif self.is_audio?
+      type = 'Sound'
+    elsif self.is_pdf? or self.is_text?
+      type = 'Text'
+    end
+    type
+  end
+
+  ##
   # @return [Boolean] If the binary is a file and the file exists, returns
   #                   true.
   #
@@ -198,6 +218,10 @@ class Binary < ActiveRecord::Base
 
   def infer_media_type
     self.media_type = MIME::Types.of(self.absolute_local_pathname).first.to_s
+  end
+
+  def is_3d?
+    (self.media_category == MediaCategory::THREE_D)
   end
 
   def is_audio?

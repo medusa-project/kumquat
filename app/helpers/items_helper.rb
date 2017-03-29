@@ -224,10 +224,11 @@ module ItemsHelper
   end
 
   ##
-  # @param item [Item]
+  # @param item [Item, nil]
   # @return [Boolean]
   #
   def has_viewer?(item)
+    return false unless item
     # This logic needs to be kept in sync with viewer_for_item().
     if item.embed_tag.present? or item.is_compound?
       return true
@@ -1106,6 +1107,8 @@ module ItemsHelper
   ##
   # Returns a viewer for the given binary.
   #
+  # **Does not work for 3D model binaries.**
+  #
   # @param binary [Binary]
   # @return [String] HTML string
   #
@@ -1130,6 +1133,7 @@ module ItemsHelper
   #
   def viewer_for_item(item)
     # This logic needs to be kept in sync with has_viewer?().
+    return nil unless item
     if item.embed_tag.present?
       # Replace hard-coded width/height attribute values.
       frag = Nokogiri::HTML::DocumentFragment.parse(item.embed_tag)
@@ -1159,7 +1163,7 @@ module ItemsHelper
         when Binary::MediaCategory::TEXT
           return text_viewer_for(binary)
         when Binary::MediaCategory::THREE_D
-          return '3D viewer goes here' # TODO: write this
+          return three_d_viewer_for(item)
         when Binary::MediaCategory::VIDEO
           return video_player_for(binary)
       end
@@ -1597,6 +1601,50 @@ module ItemsHelper
       end
     end
     html
+  end
+
+  ##
+  # Initializes a ThreeJSViewer. To display it, call
+  # PearTree.view.threeDViewer.start() via JavaScript.
+  #
+  # ThreeJSViewer is not DLS-specific and is maintained in a separate project
+  # in order to keep it decoupled and cleaner. The built minified script is
+  # copied to /public.
+  #
+  # @see https://github.com/medusa-project/threejs-viewer
+  #
+  # @param item [Item]
+  # @return [String] HTML string
+  #
+  def three_d_viewer_for(item)
+    html = ''
+    three_d_binaries = item.binaries.
+        select{ |b| b.media_category == Binary::MediaCategory::THREE_D }
+
+    obj_binary = three_d_binaries.
+        select{ |b| b.filename&.downcase.end_with?('.obj') }.first
+    if obj_binary
+      mtl_binary = three_d_binaries.
+          select{ |b| b.filename&.downcase.end_with?('.mtl') }.first
+      viewer_url = asset_path('/threejs-viewer/3dviewer.min.js')
+      model_path = File.dirname(item_binary_path(item, obj_binary))
+
+      # Initialize the viewer but don't display it yet. It will be displayed
+      # via JS the first time its container div is shown.
+      html += "<div id=\"pt-3d-viewer\" class=\"pt-viewer\"></div>
+      <script src=\"#{viewer_url}\"></script>
+      <script>
+          $(document).ready(function() {
+              PearTree.view.threeDViewer = new ThreeJSViewer({
+                  'containerId': 'pt-3d-viewer',
+                  'modelPath': '#{model_path}/',
+                  'objFile': '#{obj_binary.filename}',
+                  'mtlFile': '#{mtl_binary.filename}'
+              });
+          });
+      </script>"
+    end
+    raw(html)
   end
 
   ##

@@ -425,6 +425,21 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal Item::Variants::SUPPLEMENT, item.supplementary_item.variant
   end
 
+  # three_d_item()
+
+  test 'three_d_item() should return the 3D model item, or nil if none exists' do
+    item = items(:item1)
+    assert_nil item.three_d_item
+
+    subitem = Item.new(repository_id: SecureRandom.uuid,
+                       collection_repository_id: item.collection_repository_id,
+                       parent_repository_id: item.repository_id)
+    subitem.binaries.build(media_category: Binary::MediaCategory::THREE_D)
+    subitem.save!
+
+    assert_equal subitem,item.three_d_item
+  end
+
   # title()
 
   test 'title() should return the title element value, or nil if none exists' do

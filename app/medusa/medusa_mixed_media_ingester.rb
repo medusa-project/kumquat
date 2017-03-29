@@ -25,6 +25,8 @@
 #         * supplementary (optional)
 #             * file (0-*)
 #
+# @see https://wiki.illinois.edu/wiki/display/LibraryDigitalPreservation/Mixed-Media+Object+package
+#
 class MedusaMixedMediaIngester < MedusaAbstractIngester
 
   @@logger = CustomLogger.instance
@@ -184,6 +186,23 @@ class MedusaMixedMediaIngester < MedusaAbstractIngester
             @@logger.warn("MedusaMixedMediaIngester.create_items(): #{msg}")
           end
 
+          # If the child item has any supplementary binaries, set its variant
+          # to supplement and create them.
+          supp_dir = child_dir.directories.
+              select{ |d| d.name == 'supplementary' }.first
+          if supp_dir
+            child.variant = Item::Variants::SUPPLEMENT
+            if supp_dir.files.any?
+              supp_dir.files.each do |file|
+                # Create the supplementary binary.
+                child.binaries << file.to_binary(Binary::Type::ACCESS_MASTER)
+              end
+            else
+              msg = "Supplementary directory #{supp_dir.uuid} is empty."
+              @@logger.warn("MedusaMixedMediaIngester.create_items(): #{msg}")
+            end
+          end
+
           child.save!
         end
       end
@@ -328,6 +347,22 @@ class MedusaMixedMediaIngester < MedusaAbstractIngester
               msg = "Directory #{child_dir.uuid} is missing an access "\
                 "directory."
               @@logger.warn("MedusaMixedMediaIngester.update_binaries(): #{msg}")
+            end
+
+            # Create the child's supplementary binaries.
+            supp_dir = child_dir.directories.
+                select{ |d| d.name == 'supplementary' }.first
+            if supp_dir
+              if supp_dir.files.any?
+                supp_dir.files.each do |file|
+                  # Create the supplementary binary.
+                  child.binaries << file.to_binary(Binary::Type::ACCESS_MASTER)
+                  status[:num_created] += 1
+                end
+              else
+                msg = "Supplementary directory #{supp_dir.uuid} is empty."
+                @@logger.warn("MedusaMixedMediaIngester.update_binaries(): #{msg}")
+              end
             end
 
             child.save!

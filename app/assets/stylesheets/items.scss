@@ -57,8 +57,10 @@ body#items_show {
     /* Styles are defined inline. */
   }
 
-  /* Compound viewer styles (for UniversalViewer) are in a style="" attribute,
-  for reasons known only to UV. */
+  #pt-3d-viewer {
+    height: 600px;
+    width: 100%;
+  }
 
   #pt-pdf-viewer {
     height: 600px;
