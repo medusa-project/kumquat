@@ -17,6 +17,7 @@ class BinaryDecorator < Draper::Decorator
   def serializable_hash(opts)
     struct = object.serializable_hash(opts)
     struct[:url] = binary_url(object)
+    struct[:byte_size] = object.byte_size
     struct
   end
 

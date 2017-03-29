@@ -41,24 +41,39 @@ namespace :dls do
 
     desc 'Populate the sizes of all binaries'
     task :populate_byte_sizes => :environment do |task|
-      Binary.where(byte_size: nil).
-          where('repository_relative_pathname IS NOT NULL').each do |bs|
-        pathname = bs.absolute_local_pathname
-        puts pathname
-        bs.byte_size = (pathname and File.exist?(pathname) and File.file?(pathname)) ?
-            File.size(pathname) : nil
-        bs.save!
-        bs.item.index_in_solr
+      Binary.uncached do
+        binaries = Binary.where(byte_size: nil).
+            where('repository_relative_pathname IS NOT NULL')
+        count = binaries.count
+        puts "#{count} binaries to update"
+
+        binaries.find_each.with_index do |binary, index|
+          puts "(#{((index / count.to_f) * 100).round(2)}%) "\
+              "#{binary.repository_relative_pathname} "
+
+          pathname = binary.absolute_local_pathname
+          binary.byte_size = (pathname and File.exist?(pathname) and File.file?(pathname)) ?
+              File.size(pathname) : nil
+          binary.save!
+        end
       end
-      puts 'Done.'
     end
 
-    desc 'Update the dimensions of all binaries'
-    task :update_dimensions => :environment do |task|
-      Binary.where('repository_relative_pathname IS NOT NULL').each do |bs|
-        puts bs.repository_relative_pathname
-        bs.read_dimensions
-        bs.save!
+    desc 'Populate the dimensions of all binaries'
+    task :populate_dimensions => :environment do |task|
+      Binary.uncached do
+        binaries = Binary.where('(width IS NULL OR height IS NULL) AND '\
+            'repository_relative_pathname IS NOT NULL')
+        count = binaries.count
+        puts "#{count} binaries to update"
+
+        binaries.find_each.with_index do |binary, index|
+          puts "(#{((index / count.to_f) * 100).round(2)}%) "\
+              "#{binary.repository_relative_pathname} "
+
+          binary.read_dimensions
+          binary.save!
+        end
       end
     end
 
@@ -133,8 +148,7 @@ namespace :dls do
       Item.uncached do
         Item.all.find_each.with_index do |item, index|
           item.index_in_solr
-          CustomLogger.instance.debug("reindex: "\
-            "#{((index / num_entities.to_f) * 100).round(2)}%")
+          puts "reindex: #{((index / num_entities.to_f) * 100).round(2)}%"
         end
       end
       Solr.instance.commit
