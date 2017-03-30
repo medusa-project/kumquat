@@ -661,8 +661,8 @@ class Collection < ActiveRecord::Base
       raise ActiveRecord::RecordNotFound,
             'update_from_medusa() called without repository_id set'
     end
-    response = Medusa.client.get(self.medusa_url('json'),
-                                 follow_redirect: true)
+    client = MedusaClient.new
+    response = client.get(self.medusa_url('json'))
     json_str = response.body
     begin
       struct = JSON.parse(json_str)
