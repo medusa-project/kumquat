@@ -16,7 +16,8 @@ class MedusaCfsFile
     url = Configuration.instance.medusa_url.chomp('/') +
         '/uuids/' + uuid.to_s + '.json'
     # It's a file if Medusa redirects to a /cfs_files/ URI.
-    response = Medusa.client.head(url, follow_redirect: false)
+    client = MedusaClient.new
+    response = client.head(url, follow_redirect: false)
     response.header['Location'].to_s.include?('/cfs_files/')
   end
 
@@ -52,7 +53,8 @@ class MedusaCfsFile
   def reload_instance
     raise 'reload_instance() called without UUID set' unless self.uuid.present?
 
-    response = Medusa.client.get(self.url + '.json', follow_redirect: true)
+    client = MedusaClient.new
+    response = client.get(self.url + '.json')
     json_str = response.body
     rep = JSON.parse(json_str)
     if response.status < 300 and !Rails.env.test?

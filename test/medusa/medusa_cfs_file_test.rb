@@ -9,10 +9,11 @@ class MedusaCfsFileTest < ActiveSupport::TestCase
 
   # file?()
 
-  test 'file?() should work properly' do
-    # directory
+  test 'file?() should work properly with directories' do
     assert !MedusaCfsFile.file?('a5379ae0-5ca8-0132-3334-0050569601ca-b')
-    # file
+  end
+
+  test 'file?() should work properly with files' do
     assert MedusaCfsFile.file?('6e3c33c0-5ce3-0132-3334-0050569601ca-f')
   end
 

@@ -19,7 +19,7 @@ class ItemTest < ActiveSupport::TestCase
 
   test 'tsv_header should return the correct columns' do
     cols = Item.tsv_header(@item.collection.metadata_profile).strip.split("\t")
-    assert_equal 19, cols.length
+    assert_equal 20, cols.length
     assert_equal 'uuid', cols[0]
     assert_equal 'parentId', cols[1]
     assert_equal 'preservationMasterPathname', cols[2]
@@ -35,10 +35,11 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal 'contentdmPointer', cols[12]
     assert_equal 'Title', cols[13]
     assert_equal 'Coordinates', cols[14]
-    assert_equal 'Date Created', cols[15]
-    assert_equal 'Description', cols[16]
-    assert_equal 'lcsh:Subject', cols[17]
-    assert_equal 'tgm:Subject', cols[18]
+    assert_equal 'Creator', cols[15]
+    assert_equal 'Date Created', cols[16]
+    assert_equal 'Description', cols[17]
+    assert_equal 'lcsh:Subject', cols[18]
+    assert_equal 'tgm:Subject', cols[19]
   end
 
   test 'tsv_header should end with a line break' do
@@ -482,7 +483,7 @@ class ItemTest < ActiveSupport::TestCase
                  doc[Item::SolrFields::REPRESENTATIVE_ITEM_ID]
     assert_equal @item.subpage_number, doc[Item::SolrFields::SUBPAGE_NUMBER]
     assert_equal @item.title, doc[Item::SolrFields::TITLE]
-    assert_equal 246, doc[Item::SolrFields::TOTAL_BYTE_SIZE]
+    assert_equal 4211798, doc[Item::SolrFields::TOTAL_BYTE_SIZE]
     assert_equal @item.variant, doc[Item::SolrFields::VARIANT]
 
     title = @item.elements.select{ |e| e.name == 'title' }.first

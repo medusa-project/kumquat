@@ -72,9 +72,10 @@ class MedusaCfsDirectory
     raise 'reload_instance() called without UUID set' unless self.uuid.present?
 
     url = self.url + '.json'
-    CustomLogger.instance.debug('MedusaCfsDirectory.reload_instance: loading ' + url);
+    CustomLogger.instance.debug('MedusaCfsDirectory.reload_instance: loading ' + url)
 
-    response = Medusa.client.get(self.url + '.json', follow_redirect: true)
+    client = MedusaClient.new
+    response = client.get(self.url + '.json')
     json_str = response.body
     if response.status < 300 and !Rails.env.test?
       FileUtils.mkdir_p("#{Rails.root}/tmp/cache/medusa")
@@ -127,7 +128,8 @@ class MedusaCfsDirectory
       url = Configuration.instance.medusa_url.chomp('/') +
           '/cfs_directories/' + self.id.to_s + '/show_tree.json'
       CustomLogger.instance.debug('MedusaCfsDirectory.load_contents(): loading ' + url)
-      json_str = Medusa.client.get(url, follow_redirect: true).body
+      client = MedusaClient.new
+      json_str = client.get(url, follow_redirect: true).body
       tree = JSON.parse(json_str)
     end
 
