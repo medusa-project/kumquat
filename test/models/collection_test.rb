@@ -68,8 +68,8 @@ class CollectionTest < ActiveSupport::TestCase
         'uuid', 'parentId', 'preservationMasterPathname',
         'preservationMasterFilename', 'accessMasterPathname',
         'accessMasterFilename', 'variant', 'pageNumber', 'subpageNumber',
-        'latitude', 'longitude', 'contentdmAlias',
-        'contentdmPointer', 'Title', 'Coordinates', 'Date Created',
+        'latitude', 'longitude', 'contentdmAlias', 'contentdmPointer',
+        'IGNORE', 'Title', 'Coordinates', 'Creator', 'Date Created',
         'Description', 'lcsh:Subject', 'tgm:Subject'
     ]
     expected_values = [
@@ -87,8 +87,10 @@ class CollectionTest < ActiveSupport::TestCase
             'longitude': '-152.2342300',
             'contentdmAlias': nil,
             'contentdmPointer': nil,
+            'IGNORE': '4',
             'Title': 'My Great Title',
             'Coordinates': nil,
+            'Creator': nil,
             'Date Created': nil,
             'Description': 'About something',
             'lcsh:Subject': 'Cats&&<http://example.org/cats1>',
@@ -108,8 +110,10 @@ class CollectionTest < ActiveSupport::TestCase
             'longitude': nil,
             'contentdmAlias': nil,
             'contentdmPointer': nil,
+            'IGNORE': '1',
             'Title': nil,
             'Coordinates': nil,
+            'Creator': nil,
             'Date Created': nil,
             'Description': nil,
             'lcsh:Subject': nil,
@@ -129,8 +133,10 @@ class CollectionTest < ActiveSupport::TestCase
             'longitude': nil,
             'contentdmAlias': nil,
             'contentdmPointer': nil,
+            'IGNORE': '0',
             'Title': nil,
             'Coordinates': nil,
+            'Creator': nil,
             'Date Created': nil,
             'Description': nil,
             'lcsh:Subject': nil,
@@ -150,8 +156,10 @@ class CollectionTest < ActiveSupport::TestCase
             'longitude': nil,
             'contentdmAlias': nil,
             'contentdmPointer': nil,
+            'IGNORE': '0',
             'Title': nil,
             'Coordinates': nil,
+            'Creator': nil,
             'Date Created': nil,
             'Description': nil,
             'lcsh:Subject': nil,
@@ -171,8 +179,10 @@ class CollectionTest < ActiveSupport::TestCase
             'longitude': nil,
             'contentdmAlias': nil,
             'contentdmPointer': nil,
+            'IGNORE': '0',
             'Title': nil,
             'Coordinates': nil,
+            'Creator': nil,
             'Date Created': nil,
             'Description': nil,
             'lcsh:Subject': nil,
@@ -192,8 +202,10 @@ class CollectionTest < ActiveSupport::TestCase
             'longitude': nil,
             'contentdmAlias': nil,
             'contentdmPointer': nil,
+            'IGNORE': '0',
             'Title': nil,
             'Coordinates': nil,
+            'Creator': nil,
             'Date Created': nil,
             'Description': nil,
             'lcsh:Subject': nil,
@@ -213,8 +225,10 @@ class CollectionTest < ActiveSupport::TestCase
             'longitude': nil,
             'contentdmAlias': nil,
             'contentdmPointer': nil,
+            'IGNORE': '0',
             'Title': nil,
             'Coordinates': nil,
+            'Creator': nil,
             'Date Created': nil,
             'Description': nil,
             'lcsh:Subject': nil,
@@ -227,15 +241,18 @@ class CollectionTest < ActiveSupport::TestCase
   test 'items_as_tsv should work with the only_undescribed: true option' do
     item = @col.items.order(:repository_id).first
     item.elements.destroy_all
-    item.elements.build(name: 'title', value: 'some new title')
+    item.elements.build(name: 'description', value: 'some new description')
     item.save
+
+    # The gist of this test is that there should not be any IGNORE column
+    # values > 0.
 
     expected_header = [
         'uuid', 'parentId', 'preservationMasterPathname',
         'preservationMasterFilename', 'accessMasterPathname',
         'accessMasterFilename', 'variant', 'pageNumber', 'subpageNumber',
-        'latitude', 'longitude', 'contentdmAlias',
-        'contentdmPointer', 'Title', 'Coordinates', 'Date Created',
+        'latitude', 'longitude', 'contentdmAlias', 'contentdmPointer',
+        'IGNORE', 'Title', 'Coordinates', 'Creator', 'Date Created',
         'Description', 'lcsh:Subject', 'tgm:Subject'
     ]
     expected_values = [
@@ -253,8 +270,10 @@ class CollectionTest < ActiveSupport::TestCase
             'longitude': nil,
             'contentdmAlias': nil,
             'contentdmPointer': nil,
+            'IGNORE': '0',
             'Title': nil,
             'Coordinates': nil,
+            'Creator': nil,
             'Date Created': nil,
             'Description': nil,
             'lcsh:Subject': nil,
@@ -274,8 +293,10 @@ class CollectionTest < ActiveSupport::TestCase
             'longitude': nil,
             'contentdmAlias': nil,
             'contentdmPointer': nil,
+            'IGNORE': '0',
             'Title': nil,
             'Coordinates': nil,
+            'Creator': nil,
             'Date Created': nil,
             'Description': nil,
             'lcsh:Subject': nil,
@@ -295,8 +316,10 @@ class CollectionTest < ActiveSupport::TestCase
             'longitude': nil,
             'contentdmAlias': nil,
             'contentdmPointer': nil,
+            'IGNORE': '0',
             'Title': nil,
             'Coordinates': nil,
+            'Creator': nil,
             'Date Created': nil,
             'Description': nil,
             'lcsh:Subject': nil,
@@ -316,8 +339,10 @@ class CollectionTest < ActiveSupport::TestCase
             'longitude': nil,
             'contentdmAlias': nil,
             'contentdmPointer': nil,
+            'IGNORE': '0',
             'Title': nil,
             'Coordinates': nil,
+            'Creator': nil,
             'Date Created': nil,
             'Description': nil,
             'lcsh:Subject': nil,

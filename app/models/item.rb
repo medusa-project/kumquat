@@ -117,7 +117,7 @@ class Item < ActiveRecord::Base
   NON_DESCRIPTIVE_TSV_COLUMNS = %w(uuid parentId preservationMasterPathname
     preservationMasterFilename accessMasterPathname accessMasterFilename
     variant pageNumber subpageNumber latitude longitude contentdmAlias
-    contentdmPointer)
+    contentdmPointer IGNORE)
   TSV_LINE_BREAK = "\n"
   TSV_MULTI_VALUE_SEPARATOR = '||'
   TSV_URI_VALUE_SEPARATOR = '&&'

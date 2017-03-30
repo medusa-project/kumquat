@@ -218,7 +218,9 @@ class Collection < ActiveRecord::Base
     # We use a PostgreSQL query because going through ActiveRecord (which we
     # used to do via Item.to_tsv() in a loop) is just too slow.
     # N.B. The return value must remain in sync with that of Item.tsv_header().
-    element_subselects = self.effective_metadata_profile.elements.map do |ed|
+
+    element_subselects = []
+    self.effective_metadata_profile.elements.each do |ed|
       subselects = []
       ed.vocabularies.sort{ |v| v.key <=> v.key }.each do |vocab|
         vocab_id = (vocab == Vocabulary.uncontrolled) ?
@@ -234,62 +236,62 @@ class Collection < ActiveRecord::Base
                 AND (length(value) > 0 OR length(uri) > 0)
             ), '#{Item::TSV_MULTI_VALUE_SEPARATOR}') AS #{vocab.key}_#{ed.name}"
       end
-      subselects.join(",\n")
+      element_subselects << subselects.join(",\n") if subselects.any?
     end
+    element_subselects = element_subselects.join(",\n")
 
-    sql = "SELECT items.repository_id,
-      items.parent_repository_id,
-      (SELECT repository_relative_pathname
-        FROM binaries
-        WHERE binaries.item_id = items.id
-          AND binaries.binary_type = #{Binary::Type::PRESERVATION_MASTER}
-          LIMIT 1)
-            AS pres_pathname,
-      (SELECT substring(repository_relative_pathname from '[^/]+$')
-        FROM binaries
-        WHERE binaries.item_id = items.id
-          AND binaries.binary_type = #{Binary::Type::PRESERVATION_MASTER}
-          LIMIT 1)
-            AS pres_filename,
-      (SELECT repository_relative_pathname
-        FROM binaries
-        WHERE binaries.item_id = items.id
-          AND binaries.binary_type = #{Binary::Type::ACCESS_MASTER}
-          LIMIT 1)
-            AS access_pathname,
-      (SELECT substring(repository_relative_pathname from '[^/]+$')
-        FROM binaries
-        WHERE binaries.item_id = items.id
-          AND binaries.binary_type = #{Binary::Type::ACCESS_MASTER}
-          LIMIT 1)
-            AS access_filename,
-      items.variant,
-      items.page_number,
-      items.subpage_number,
-      items.latitude,
-      items.longitude,
-      items.contentdm_alias,
-      items.contentdm_pointer,
-      #{element_subselects.join(",\n")}
-    FROM items\n"
-    # If we are supposed to include only undescribed items, join the
-    # entity_elements table and search for title elements whose values match a
-    # UUID regex. (IMET-382)
+    sql = "SELECT * FROM (
+      SELECT items.repository_id,
+        items.parent_repository_id,
+        (SELECT repository_relative_pathname
+          FROM binaries
+          WHERE binaries.item_id = items.id
+            AND binaries.binary_type = #{Binary::Type::PRESERVATION_MASTER}
+          LIMIT 1) AS pres_pathname,
+        (SELECT substring(repository_relative_pathname from '[^/]+$')
+          FROM binaries
+          WHERE binaries.item_id = items.id
+            AND binaries.binary_type = #{Binary::Type::PRESERVATION_MASTER}
+          LIMIT 1) AS pres_filename,
+        (SELECT repository_relative_pathname
+          FROM binaries
+          WHERE binaries.item_id = items.id
+            AND binaries.binary_type = #{Binary::Type::ACCESS_MASTER}
+          LIMIT 1) AS access_pathname,
+        (SELECT substring(repository_relative_pathname from '[^/]+$')
+          FROM binaries
+          WHERE binaries.item_id = items.id
+            AND binaries.binary_type = #{Binary::Type::ACCESS_MASTER}
+          LIMIT 1) AS access_filename,
+        items.variant,
+        items.page_number,
+        items.subpage_number,
+        items.latitude,
+        items.longitude,
+        items.contentdm_alias,
+        items.contentdm_pointer,
+        (SELECT COUNT(id)
+          FROM entity_elements
+          WHERE entity_elements.item_id = items.id
+            AND entity_elements.name != 'title') AS non_title_count,
+        #{element_subselects}
+      FROM items
+      WHERE items.collection_repository_id = $1
+      ORDER BY
+        case
+          when items.parent_repository_id IS NULL then
+            items.repository_id
+          else
+            items.parent_repository_id
+        end,
+        items.page_number, items.subpage_number, pres_pathname NULLS FIRST
+    ) a\n"
+
+    # If we are supposed to include only undescribed items, consider items
+    # that have no elements or only a title element undescribed. (DLD-26)
     if options[:only_undescribed]
-      sql += "    LEFT JOIN entity_elements ON entity_elements.item_id = items.id\n"
+      sql += "      WHERE non_title_count < 1"
     end
-    sql += "    WHERE items.collection_repository_id = $1\n"
-    if options[:only_undescribed]
-      sql += "      AND (entity_elements.value ~* '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}' OR entity_elements.item_id IS NULL)\n"
-    end
-    sql += "    ORDER BY
-      case
-        when items.parent_repository_id IS NULL then
-          items.repository_id
-        else
-          items.parent_repository_id
-      end,
-      items.page_number, items.subpage_number, pres_pathname NULLS FIRST"
 
     values = [[ nil, self.repository_id ]]
 
