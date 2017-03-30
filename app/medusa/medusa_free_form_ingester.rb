@@ -14,16 +14,15 @@ class MedusaFreeFormIngester < MedusaAbstractIngester
   #
   def self.parent_id_from_medusa(item_id)
     parent_id = nil
-    client = Medusa.client
-    response = client.get(Medusa.url(item_id), follow_redirect: true)
+    client = MedusaClient.new
+    response = client.get(Medusa.url(item_id))
     if response.status < 300
       json = response.body
       struct = JSON.parse(json)
       if struct['parent_directory']
         # Top-level items in a file group will have no parent_directory key,
         # so check one level up.
-        json = client.get(Medusa.url(struct['parent_directory']['uuid']),
-                          follow_redirect: true).body
+        json = client.get(Medusa.url(struct['parent_directory']['uuid'])).body
         struct2 = JSON.parse(json)
         if struct2['parent_directory']
           parent_id = struct['parent_directory']['uuid']

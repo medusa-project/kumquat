@@ -75,7 +75,8 @@ class MedusaIngester
     # Download the list of collections from Medusa.
     @@logger.info('MedusaIngester.sync_collections(): '\
         'downloading collection list')
-    response = Medusa.client.get(url, follow_redirect: true)
+    client = MedusaClient.new
+    response = client.get(url)
     struct = JSON.parse(response.body)
 
     ActiveRecord::Base.transaction do
