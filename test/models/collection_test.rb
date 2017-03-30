@@ -64,29 +64,316 @@ class CollectionTest < ActiveSupport::TestCase
   # items_as_tsv()
 
   test 'items_as_tsv should work' do
-    expected = "uuid\tparentId\tpreservationMasterPathname\tpreservationMasterFilename\taccessMasterPathname\taccessMasterFilename\tvariant\tpageNumber\tsubpageNumber\tlatitude\tlongitude\tcontentdmAlias\tcontentdmPointer\ttitle\tdescription\tlcsh:subject\ttgm:subject
-a1234567-5ca8-0132-3334-0050569601ca-8\t\tMyString\tMyString\tMyString\tMyString\t\t\t\t39.2524300\t-152.2342300\t\t\tMy Great Title\tAbout something\tCats&&<http://example.org/cats1>\tMore cats&&<http://example.org/cats2>
-a53add10-5ca8-0132-3334-0050569601ca-7\t\t\t\t\t\tDirectory\t\t\t\t\t\t\t\t\t\t
-6e406030-5ce3-0132-3334-0050569601ca-3\ta53add10-5ca8-0132-3334-0050569601ca-7\t\t\t\t\tFile\t\t\t\t\t\t\t\t\t\t
-be8d3500-c451-0133-1d17-0050569601ca-9\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t
-d29edba0-c451-0133-1d17-0050569601ca-c\tbe8d3500-c451-0133-1d17-0050569601ca-9\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t
-d29950d0-c451-0133-1d17-0050569601ca-2\tbe8d3500-c451-0133-1d17-0050569601ca-9\tMyString\tMyString\tMyString\tMyString\t\t\t\t\t\t\t\t\t\t\t
-cd2d4601-c451-0133-1d17-0050569601ca-8\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n"
-    assert_equal expected, @col.items_as_tsv
+    expected_header = [
+        'uuid', 'parentId', 'preservationMasterPathname',
+        'preservationMasterFilename', 'accessMasterPathname',
+        'accessMasterFilename', 'variant', 'pageNumber', 'subpageNumber',
+        'latitude', 'longitude', 'contentdmAlias', 'contentdmPointer',
+        'IGNORE', 'Title', 'Coordinates', 'Creator', 'Date Created',
+        'Description', 'lcsh:Subject', 'tgm:Subject'
+    ]
+    expected_values = [
+        {
+            'uuid': 'a1234567-5ca8-0132-3334-0050569601ca-8',
+            'parentId': nil,
+            'preservationMasterPathname': 'MyString',
+            'preservationMasterFilename': 'MyString',
+            'accessMasterPathname': 'MyString',
+            'accessMasterFilename': 'MyString',
+            'variant': nil,
+            'pageNumber': nil,
+            'subpageNumber': nil,
+            'latitude': '39.2524300',
+            'longitude': '-152.2342300',
+            'contentdmAlias': nil,
+            'contentdmPointer': nil,
+            'IGNORE': '4',
+            'Title': 'My Great Title',
+            'Coordinates': nil,
+            'Creator': nil,
+            'Date Created': nil,
+            'Description': 'About something',
+            'lcsh:Subject': 'Cats&&<http://example.org/cats1>',
+            'tgm:Subject': 'More cats&&<http://example.org/cats2>'
+        },
+        {
+            'uuid': 'a53add10-5ca8-0132-3334-0050569601ca-7',
+            'parentId': nil,
+            'preservationMasterPathname': nil,
+            'preservationMasterFilename': nil,
+            'accessMasterPathname': nil,
+            'accessMasterFilename': nil,
+            'variant': 'Directory',
+            'pageNumber': nil,
+            'subpageNumber': nil,
+            'latitude': nil,
+            'longitude': nil,
+            'contentdmAlias': nil,
+            'contentdmPointer': nil,
+            'IGNORE': '1',
+            'Title': nil,
+            'Coordinates': nil,
+            'Creator': nil,
+            'Date Created': nil,
+            'Description': nil,
+            'lcsh:Subject': nil,
+            'tgm:Subject': nil
+        },
+        {
+            'uuid': '6e406030-5ce3-0132-3334-0050569601ca-3',
+            'parentId': 'a53add10-5ca8-0132-3334-0050569601ca-7',
+            'preservationMasterPathname': nil,
+            'preservationMasterFilename': nil,
+            'accessMasterPathname': nil,
+            'accessMasterFilename': nil,
+            'variant': 'File',
+            'pageNumber': nil,
+            'subpageNumber': nil,
+            'latitude': nil,
+            'longitude': nil,
+            'contentdmAlias': nil,
+            'contentdmPointer': nil,
+            'IGNORE': '0',
+            'Title': nil,
+            'Coordinates': nil,
+            'Creator': nil,
+            'Date Created': nil,
+            'Description': nil,
+            'lcsh:Subject': nil,
+            'tgm:Subject': nil
+        },
+        {
+            'uuid': 'be8d3500-c451-0133-1d17-0050569601ca-9',
+            'parentId': nil,
+            'preservationMasterPathname': nil,
+            'preservationMasterFilename': nil,
+            'accessMasterPathname': nil,
+            'accessMasterFilename': nil,
+            'variant': nil,
+            'pageNumber': nil,
+            'subpageNumber': nil,
+            'latitude': nil,
+            'longitude': nil,
+            'contentdmAlias': nil,
+            'contentdmPointer': nil,
+            'IGNORE': '0',
+            'Title': nil,
+            'Coordinates': nil,
+            'Creator': nil,
+            'Date Created': nil,
+            'Description': nil,
+            'lcsh:Subject': nil,
+            'tgm:Subject': nil
+        },
+        {
+            'uuid': 'd29edba0-c451-0133-1d17-0050569601ca-c',
+            'parentId': 'be8d3500-c451-0133-1d17-0050569601ca-9',
+            'preservationMasterPathname': nil,
+            'preservationMasterFilename': nil,
+            'accessMasterPathname': nil,
+            'accessMasterFilename': nil,
+            'variant': 'Page',
+            'pageNumber': nil,
+            'subpageNumber': nil,
+            'latitude': nil,
+            'longitude': nil,
+            'contentdmAlias': nil,
+            'contentdmPointer': nil,
+            'IGNORE': '0',
+            'Title': nil,
+            'Coordinates': nil,
+            'Creator': nil,
+            'Date Created': nil,
+            'Description': nil,
+            'lcsh:Subject': nil,
+            'tgm:Subject': nil
+        },
+        {
+            'uuid': 'd29950d0-c451-0133-1d17-0050569601ca-2',
+            'parentId': 'be8d3500-c451-0133-1d17-0050569601ca-9',
+            'preservationMasterPathname': 'MyString',
+            'preservationMasterFilename': 'MyString',
+            'accessMasterPathname': 'MyString',
+            'accessMasterFilename': 'MyString',
+            'variant': 'Page',
+            'pageNumber': nil,
+            'subpageNumber': nil,
+            'latitude': nil,
+            'longitude': nil,
+            'contentdmAlias': nil,
+            'contentdmPointer': nil,
+            'IGNORE': '0',
+            'Title': nil,
+            'Coordinates': nil,
+            'Creator': nil,
+            'Date Created': nil,
+            'Description': nil,
+            'lcsh:Subject': nil,
+            'tgm:Subject': nil
+        },
+        {
+            'uuid': 'cd2d4601-c451-0133-1d17-0050569601ca-8',
+            'parentId': nil,
+            'preservationMasterPathname': nil,
+            'preservationMasterFilename': nil,
+            'accessMasterPathname': nil,
+            'accessMasterFilename': nil,
+            'variant': nil,
+            'pageNumber': nil,
+            'subpageNumber': nil,
+            'latitude': nil,
+            'longitude': nil,
+            'contentdmAlias': nil,
+            'contentdmPointer': nil,
+            'IGNORE': '0',
+            'Title': nil,
+            'Coordinates': nil,
+            'Creator': nil,
+            'Date Created': nil,
+            'Description': nil,
+            'lcsh:Subject': nil,
+            'tgm:Subject': nil
+        }
+    ]
+    assert_equal to_tsv(expected_header, expected_values), @col.items_as_tsv
   end
 
   test 'items_as_tsv should work with the only_undescribed: true option' do
     item = @col.items.order(:repository_id).first
     item.elements.destroy_all
-    item.elements.build(name: 'title', value: 'aaaaaaaa-e946-0133-1d3d-0050569601ca-f')
+    item.elements.build(name: 'title', value: 'some new title')
     item.save
-    expected = "uuid\tparentId\tpreservationMasterPathname\tpreservationMasterFilename\taccessMasterPathname\taccessMasterFilename\tvariant\tpageNumber\tsubpageNumber\tlatitude\tlongitude\tcontentdmAlias\tcontentdmPointer\ttitle\tdescription\tlcsh:subject\ttgm:subject
-6e406030-5ce3-0132-3334-0050569601ca-3\ta53add10-5ca8-0132-3334-0050569601ca-7\t\t\t\t\tFile\t\t\t\t\t\t\taaaaaaaa-e946-0133-1d3d-0050569601ca-f\t\t\t
-be8d3500-c451-0133-1d17-0050569601ca-9\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t
-d29edba0-c451-0133-1d17-0050569601ca-c\tbe8d3500-c451-0133-1d17-0050569601ca-9\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t
-d29950d0-c451-0133-1d17-0050569601ca-2\tbe8d3500-c451-0133-1d17-0050569601ca-9\tMyString\tMyString\tMyString\tMyString\t\t\t\t\t\t\t\t\t\t\t
-cd2d4601-c451-0133-1d17-0050569601ca-8\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n"
-    assert_equal expected, @col.items_as_tsv(only_undescribed: true)
+
+    # The gist of this test is that there should not be any IGNORE column
+    # values > 0.
+
+    expected_header = [
+        'uuid', 'parentId', 'preservationMasterPathname',
+        'preservationMasterFilename', 'accessMasterPathname',
+        'accessMasterFilename', 'variant', 'pageNumber', 'subpageNumber',
+        'latitude', 'longitude', 'contentdmAlias', 'contentdmPointer',
+        'IGNORE', 'Title', 'Coordinates', 'Creator', 'Date Created',
+        'Description', 'lcsh:Subject', 'tgm:Subject'
+    ]
+    expected_values = [
+        {
+            'uuid': '6e406030-5ce3-0132-3334-0050569601ca-3',
+            'parentId': 'a53add10-5ca8-0132-3334-0050569601ca-7',
+            'preservationMasterPathname': nil,
+            'preservationMasterFilename': nil,
+            'accessMasterPathname': nil,
+            'accessMasterFilename': nil,
+            'variant': 'File',
+            'pageNumber': nil,
+            'subpageNumber': nil,
+            'latitude': nil,
+            'longitude': nil,
+            'contentdmAlias': nil,
+            'contentdmPointer': nil,
+            'IGNORE': '0',
+            'Title': 'some new title',
+            'Coordinates': nil,
+            'Creator': nil,
+            'Date Created': nil,
+            'Description': nil,
+            'lcsh:Subject': nil,
+            'tgm:Subject': nil
+        },
+        {
+            'uuid': 'be8d3500-c451-0133-1d17-0050569601ca-9',
+            'parentId': nil,
+            'preservationMasterPathname': nil,
+            'preservationMasterFilename': nil,
+            'accessMasterPathname': nil,
+            'accessMasterFilename': nil,
+            'variant': nil,
+            'pageNumber': nil,
+            'subpageNumber': nil,
+            'latitude': nil,
+            'longitude': nil,
+            'contentdmAlias': nil,
+            'contentdmPointer': nil,
+            'IGNORE': '0',
+            'Title': nil,
+            'Coordinates': nil,
+            'Creator': nil,
+            'Date Created': nil,
+            'Description': nil,
+            'lcsh:Subject': nil,
+            'tgm:Subject': nil
+        },
+        {
+            'uuid': 'd29edba0-c451-0133-1d17-0050569601ca-c',
+            'parentId': 'be8d3500-c451-0133-1d17-0050569601ca-9',
+            'preservationMasterPathname': nil,
+            'preservationMasterFilename': nil,
+            'accessMasterPathname': nil,
+            'accessMasterFilename': nil,
+            'variant': 'Page',
+            'pageNumber': nil,
+            'subpageNumber': nil,
+            'latitude': nil,
+            'longitude': nil,
+            'contentdmAlias': nil,
+            'contentdmPointer': nil,
+            'IGNORE': '0',
+            'Title': nil,
+            'Coordinates': nil,
+            'Creator': nil,
+            'Date Created': nil,
+            'Description': nil,
+            'lcsh:Subject': nil,
+            'tgm:Subject': nil
+        },
+        {
+            'uuid': 'd29950d0-c451-0133-1d17-0050569601ca-2',
+            'parentId': 'be8d3500-c451-0133-1d17-0050569601ca-9',
+            'preservationMasterPathname': 'MyString',
+            'preservationMasterFilename': 'MyString',
+            'accessMasterPathname': 'MyString',
+            'accessMasterFilename': 'MyString',
+            'variant': 'Page',
+            'pageNumber': nil,
+            'subpageNumber': nil,
+            'latitude': nil,
+            'longitude': nil,
+            'contentdmAlias': nil,
+            'contentdmPointer': nil,
+            'IGNORE': '0',
+            'Title': nil,
+            'Coordinates': nil,
+            'Creator': nil,
+            'Date Created': nil,
+            'Description': nil,
+            'lcsh:Subject': nil,
+            'tgm:Subject': nil
+        },
+        {
+            'uuid': 'cd2d4601-c451-0133-1d17-0050569601ca-8',
+            'parentId': nil,
+            'preservationMasterPathname': nil,
+            'preservationMasterFilename': nil,
+            'accessMasterPathname': nil,
+            'accessMasterFilename': nil,
+            'variant': nil,
+            'pageNumber': nil,
+            'subpageNumber': nil,
+            'latitude': nil,
+            'longitude': nil,
+            'contentdmAlias': nil,
+            'contentdmPointer': nil,
+            'IGNORE': '0',
+            'Title': nil,
+            'Coordinates': nil,
+            'Creator': nil,
+            'Date Created': nil,
+            'Description': nil,
+            'lcsh:Subject': nil,
+            'tgm:Subject': nil
+        }
+    ]
+    assert_equal to_tsv(expected_header, expected_values),
+                 @col.items_as_tsv(only_undescribed: true)
   end
 
   # medusa_cfs_directory()
@@ -434,6 +721,19 @@ cd2d4601-c451-0133-1d17-0050569601ca-8\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n"
     c.update_from_medusa
 
     assert_equal 'Sanborn Fire Insurance Maps', c.title
+  end
+
+  private
+
+  ##
+  # @param header [Array]
+  # @param values [Array<Hash<String,Object>>]
+  # @return [String]
+  #
+  def to_tsv(header, values)
+    header.join("\t") + Item::TSV_LINE_BREAK +
+        values.map { |v| v.values.join("\t") }.join(Item::TSV_LINE_BREAK) +
+        Item::TSV_LINE_BREAK
   end
 
 end
