@@ -50,6 +50,10 @@ class MedusaClient
     self.class.http_client.get(url, args)
   end
 
+  def get_uuid(url, *args)
+    get(url_for_uuid(url), args)
+  end
+
   def head(url, *args)
     args = merge_args(args)
     self.class.http_client.head(url, args)
@@ -65,6 +69,15 @@ class MedusaClient
       return extra_args
     end
     args
+  end
+
+  ##
+  # @param uuid [String]
+  # @return [String, nil] URI of the corresponding Medusa resource.
+  #
+  def url_for_uuid(uuid)
+    sprintf('%s/uuids/%s.json', Configuration.instance.medusa_url.chomp('/'),
+            uuid)
   end
 
 end
