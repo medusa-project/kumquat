@@ -36,8 +36,8 @@ class MedusaMixedMediaIngester < MedusaAbstractIngester
   # @return [String]
   #
   def self.parent_id_from_medusa(item_id)
-    client = Medusa.client
-    json = client.get(Medusa.url(item_id), follow_redirect: true).body
+    client = MedusaClient.new
+    json = client.get_uuid(item_id).body
     struct = JSON.parse(json)
 
     # Child items will have subdirectories called `access` and/or
