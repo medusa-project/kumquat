@@ -26,9 +26,6 @@
             <%= Task::Status::to_s(@task.status) %>
           </span>
         </p>
-        <% if @task.detail.present? %>
-          <p class="text-danger"><%= h(@task.detail) %></p>
-        <% end %>
       </dd>
       <dt>Progress</dt>
       <dd class="pt-progress">
@@ -49,6 +46,10 @@
       <dt>Class</dt>
       <dd><%= @task.name %></dd>
     </dl>
+
+    <% if @task.detail.present? %>
+      <p class="text-danger"><%= h(@task.detail) %></p>
+    <% end %>
 
     <% if @task.status == Task::Status::FAILED and @task.backtrace.present? %>
       <h2>Stack Trace</h2>

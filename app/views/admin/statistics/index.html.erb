@@ -39,9 +39,18 @@
     <td>Free-Form Items</td>
     <td><%= number_with_delimiter(@num_free_form_items) %></td>
   </tr>
+</table>
+
+<h2>Binaries</h2>
+
+<table class="table">
   <tr>
     <td>Binaries</td>
     <td><%= number_with_delimiter(@num_binaries) %></td>
+  </tr>
+  <tr>
+    <td>Unique Extensions</td>
+    <td><%= @unique_extensions.join(', ') %></td>
   </tr>
 </table>
 

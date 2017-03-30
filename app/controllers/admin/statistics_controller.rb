@@ -12,7 +12,16 @@ module Admin
       @num_objects = Item.num_objects
       @num_items = Item.count
       @num_free_form_items = Item.num_free_form_items
+
+      # Binaries section
       @num_binaries = Binary.count
+
+      sql = "SELECT DISTINCT regexp_matches(lower(repository_relative_pathname),'\\.(\\w+)$') AS extension
+      FROM binaries
+      WHERE repository_relative_pathname ~ '\\.'
+      ORDER BY extension ASC"
+      @unique_extensions = ActiveRecord::Base.connection.execute(sql).
+          map{ |r| ".#{r['extension'].gsub('{', '').gsub('}', '')}" }
 
       # Metadata section
       @num_available_elements = Element.count
