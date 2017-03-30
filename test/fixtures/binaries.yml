@@ -1,5 +1,17 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
+###################### Item: free_form_dir1_file1 #######################
+
+free_form_dir1_file1_one:
+  binary_type: <%= Binary::Type::PRESERVATION_MASTER %>
+  repository_relative_pathname: /136/310/3707005/access/online/Illini_Union_Photographs/binder_9/memorial_stadium_assembly_hall/memorial_stadium_assembly_hall_015b.jpg
+  cfs_file_uuid: b6b3df00-da69-0133-1d2e-0050569601ca-d
+  item: free_form_dir1_file1
+  media_type: image/jpeg
+  byte_size: 1732720
+
+########################## Item: iptc_item ###########################
+
 iptc:
   binary_type: <%= Binary::Type::ACCESS_MASTER %>
   repository_relative_pathname: /136/310/3707005/access/online/Illini_Union_Photographs/binder_5/banquets/banquets_002.jpg
@@ -9,28 +21,38 @@ iptc:
   media_category: <%= Binary::MediaCategory::IMAGE %>
   byte_size: 1629599
 
+########################## Item: item1 ###########################
+
 item1_one:
   binary_type: <%= Binary::Type::PRESERVATION_MASTER %>
-  repository_relative_pathname: MyString
+  repository_relative_pathname: /136/310/3707005/access/online/Illini_Union_Photographs/binder_9/memorial_stadium_assembly_hall/memorial_stadium_assembly_hall_020a.jpg
+  cfs_file_uuid: b6dd0740-da69-0133-1d2e-0050569601ca-0
   item: item1
-  media_type: text/plain
-  media_category: <%= Binary::MediaCategory::TEXT %>
-  byte_size: 123
+  media_type: image/jpeg
+  media_category: <%= Binary::MediaCategory::IMAGE %>
+  byte_size: 2087378
 
 item1_two:
   binary_type: <%= Binary::Type::ACCESS_MASTER %>
-  repository_relative_pathname: MyString
+  repository_relative_pathname: /136/310/3707005/access/online/Illini_Union_Photographs/binder_9/memorial_stadium_assembly_hall/memorial_stadium_assembly_hall_017b.jpg
+  cfs_file_uuid: b695f860-da69-0133-1d2e-0050569601ca-1
   item: item1
-  media_type: text/plain
-  media_category: <%= Binary::MediaCategory::TEXT %>
-  byte_size: 123
+  media_type: image/jpeg
+  media_category: <%= Binary::MediaCategory::IMAGE %>
+  byte_size: 2124420
+
+########################## Item: item2 ###########################
 
 three:
   binary_type: <%= Binary::Type::ACCESS_MASTER %>
-  repository_relative_pathname: MyString
+  repository_relative_pathname: /136/310/3707005/access/online/Illini_Union_Photographs/binder_5/banquets/banquets_001.jpg
+  cfs_file_uuid: 74001920-5ce3-0132-3334-0050569601ca-e
   item: item2
   media_type: image/jpeg
   media_category: <%= Binary::MediaCategory::IMAGE %>
+  byte_size: 1565585
+
+########################## Item: map_obj1_page1 ###########################
 
 map_obj1_page1_preservation:
   binary_type: <%= Binary::Type::PRESERVATION_MASTER %>
