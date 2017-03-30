@@ -10,7 +10,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
 
   test 'show() should restrict access to role-restricted items' do
     role = Role.new(key: 'test', name: 'Test')
-    role.hosts.build(pattern: 'localhost')
+    role.hosts.build(pattern: 'www.example.com')
     role.save!
     item = items(:item1)
     item.denied_roles << role
