@@ -29,12 +29,10 @@ xml.tag!('OAI-PMH',
                Option::string(Option::Key::WEBSITE_NAME))
       xml.tag!('baseURL', root_url)
       xml.tag!('protocolVersion', '2.0')
+      xml.tag!('adminEmail', Option::string(Option::Key::ADMINISTRATOR_EMAIL))
       xml.tag!('earliestDatestamp', @earliest_datestamp)
       xml.tag!('deletedRecord', 'no')
       xml.tag!('granularity', 'YYYY-MM-DDThh:mm:ssZ')
-      xml.tag!('adminEmail', Option::string(Option::Key::ADMINISTRATOR_EMAIL))
-      # this one is optional
-      xml.tag!('description', strip_tags(Option::string(Option::Key::WEBSITE_INTRO_TEXT)))
     end
   end
 

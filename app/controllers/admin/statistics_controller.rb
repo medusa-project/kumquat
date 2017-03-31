@@ -16,12 +16,13 @@ module Admin
       # Binaries section
       @num_binaries = Binary.count
 
-      sql = "SELECT DISTINCT regexp_matches(lower(repository_relative_pathname),'\\.(\\w+)$') AS extension
+      sql = "SELECT regexp_matches(lower(repository_relative_pathname),'\\.(\\w+)$') AS extension,
+        COUNT(id) AS count
       FROM binaries
       WHERE repository_relative_pathname ~ '\\.'
+      GROUP BY extension
       ORDER BY extension ASC"
-      @unique_extensions = ActiveRecord::Base.connection.execute(sql).
-          map{ |r| ".#{r['extension'].gsub('{', '').gsub('}', '')}" }
+      @extension_counts = ActiveRecord::Base.connection.execute(sql)
 
       # Metadata section
       @num_available_elements = Element.count
