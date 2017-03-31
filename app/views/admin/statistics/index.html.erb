@@ -45,13 +45,15 @@
 
 <table class="table">
   <tr>
-    <td>Binaries</td>
-    <td><%= number_with_delimiter(@num_binaries) %></td>
+    <td>Total</td>
+    <td><%= @num_binaries %></td>
   </tr>
-  <tr>
-    <td>Unique Extensions</td>
-    <td><%= @unique_extensions.join(', ') %></td>
-  </tr>
+  <% @extension_counts.each do |ext| %>
+    <tr>
+      <td>.<%= ext['extension'].gsub(/[\\{\\}]/, '') %></td>
+      <td><%= number_with_delimiter(ext['count']) %></td>
+    </tr>
+  <% end %>
 </table>
 
 <hr>

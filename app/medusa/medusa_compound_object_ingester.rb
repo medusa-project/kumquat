@@ -26,16 +26,15 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
   # @return [String]
   #
   def self.parent_id_from_medusa(item_id)
-    client = Medusa.client
-    json = client.get(Medusa.url(item_id), follow_redirect: true).body
+    client = MedusaClient.new
+    json = client.get_uuid(item_id).body
     struct = JSON.parse(json)
 
     # Child items will reside in a directory called `access` or
     # `preservation`.
     if struct['directory'] and
         %w(access preservation).include?(struct['directory']['name'])
-      json = client.get(Medusa.url(struct['directory']['uuid']),
-                        follow_redirect: true).body
+      json = client.get_uuid(struct['directory']['uuid']).body
       struct2 = JSON.parse(json)
       return struct2['parent_directory']['uuid']
     end
