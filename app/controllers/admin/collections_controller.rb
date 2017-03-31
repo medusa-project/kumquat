@@ -71,15 +71,16 @@ module Admin
       result = ActiveRecord::Base.connection.execute(sql)
       @num_binaries = result[0]['count'].to_i
 
-      sql = "SELECT DISTINCT regexp_matches(lower(repository_relative_pathname),'\\.(\\w+)$') AS extension
+      sql = "SELECT regexp_matches(lower(repository_relative_pathname),'\\.(\\w+)$') AS extension,
+        COUNT(binaries.id) AS count
       FROM binaries
       LEFT JOIN items ON binaries.item_id = items.id
       LEFT JOIN collections ON items.collection_repository_id = collections.repository_id
       WHERE collections.repository_id = '#{@collection.repository_id}'
         AND repository_relative_pathname ~ '\\.'
+      GROUP BY extension
       ORDER BY extension ASC"
-      @unique_extensions = ActiveRecord::Base.connection.execute(sql).
-          map{ |r| ".#{r['extension'].gsub('{', '').gsub('}', '')}" }
+      @extension_counts = ActiveRecord::Base.connection.execute(sql)
 
       # Metadata section
       sql = "SELECT COUNT(entity_elements.id) AS count
