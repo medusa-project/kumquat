@@ -122,6 +122,7 @@ module ItemsHelper
       html += '  <label>'
       html +=      radio_button_tag('download-url', binary_url(binary),
                                     false, data: { 'item-id': item.repository_id })
+      html +=      binary.human_readable_type
       html += '    <br>'
       html += '    <small>'
       html +=        download_label_for_binary(binary)
