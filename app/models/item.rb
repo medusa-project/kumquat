@@ -814,8 +814,8 @@ class Item < ActiveRecord::Base
     # An item is considered described if it has any elements other than title,
     # or is in a collection using the free-form package profile.
     if self.collection.package_profile == PackageProfile::FREE_FORM_PROFILE
-      doc[SolrFields::DESCRIBED] = (self.variant == Item::Variants::DIRECTORY) or
-          self.elements.select{ |e| e.name == 'title' }.any?
+      doc[SolrFields::DESCRIBED] = ((self.variant == Item::Variants::DIRECTORY) or
+          self.elements.select{ |e| e.name == 'title' }.any?)
     else
       doc[SolrFields::DESCRIBED] =
           self.elements.reject{ |e| e.name == 'title' }.any?
