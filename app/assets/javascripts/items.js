@@ -125,6 +125,8 @@ var PTItemView = function() {
                     download_modal.find('.pt-download-option, .pt-citation-info').hide();
                     download_modal.find('[data-item-id=' +
                         $(this).data('item-id') + ']').show();
+                    download_modal.find('input[name="download-url"][data-item-id="' +
+                        $(this).data('item-id') + '"]').trigger('click');
                 });
                 $('input[name="pt-downloadable-item"]:checked').trigger('click');
             }
