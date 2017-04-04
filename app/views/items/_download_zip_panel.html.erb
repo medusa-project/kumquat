@@ -29,8 +29,10 @@
                       params.except(:start).
                           merge({ format: :zip, download_start: 0, limit: 0 }),
                       class: 'btn btn-primary') %>
-          <p class="help-block">Estimated size: less than
-            <%= number_to_human_size(total_byte_size) %></p>
+          <% if total_byte_size > 0 %>
+            <p class="help-block">Estimated size: less than
+              <%= number_to_human_size(total_byte_size) %></p>
+          <% end %>
         </div>
 
         <% if num_batches > 1 %>
