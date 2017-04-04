@@ -20,6 +20,7 @@ class FavoritesController < WebsiteController
     @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
     @num_results_shown = [@limit, @items.total_length].min
     @num_downloadable_items = @num_results_shown
+    @total_byte_size = 0
 
     purge_invalid_favorites
 
