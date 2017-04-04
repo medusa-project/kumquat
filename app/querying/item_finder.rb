@@ -84,6 +84,7 @@ class ItemFinder < AbstractFinder
 
   ##
   # Enables statistics.
+  #
   # @param bool [Boolean]
   # @return [ItemFinder] self
   #
@@ -137,6 +138,10 @@ class ItemFinder < AbstractFinder
     end
     if @exclude_variants.any?
       @items = @items.filter("-#{Item::SolrFields::VARIANT}:(#{@exclude_variants.join(' OR ')})")
+    end
+
+    if @only_described
+      @items = @items.filter("-#{Item::SolrFields::DESCRIBED}:false")
     end
 
     @items = @items.where(@query) if @query

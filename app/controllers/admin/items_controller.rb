@@ -55,6 +55,7 @@ module Admin
           query(params[:q]).
           include_children(true).
           include_unpublished(true).
+          only_described(false).
           filter_queries(params[:fq]).
           start(@start).
           limit(@limit)
@@ -90,6 +91,7 @@ module Admin
           query(params[:q]).
           include_children(false).
           include_unpublished(true).
+          only_described(false).
           exclude_variants([Item::Variants::FRONT_MATTER, Item::Variants::INDEX,
                             Item::Variants::KEY, Item::Variants::PAGE,
                             Item::Variants::TABLE_OF_CONTENTS,
