@@ -118,7 +118,7 @@ module ItemsHelper
       html += "<div class=\"radio pt-download-option\" data-item-id=\"#{item.repository_id}\">"
       html += '  <label>'
       html +=      radio_button_tag('download-url', binary_url(bs),
-                                    data: { 'item-id': item.repository_id })
+                                    false, data: { 'item-id': item.repository_id })
       html +=      bs.human_readable_type
       html += '    <br>'
       html += '    <small>'
