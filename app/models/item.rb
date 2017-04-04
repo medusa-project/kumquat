@@ -813,10 +813,13 @@ class Item < ActiveRecord::Base
     doc[SolrFields::DATE] = self.date.utc.iso8601 if self.date
     # An item is considered described if it has any elements other than title,
     # or is in a collection using the free-form package profile.
-    doc[SolrFields::DESCRIBED] =
-        self.elements.reject{ |e| e.name == 'title' }.any? or
-        (self.collection.package_profile == PackageProfile::FREE_FORM_PROFILE and
-            self.elements.select{ |e| e.name == 'title' }.any?)
+    if self.collection.package_profile == PackageProfile::FREE_FORM_PROFILE
+      doc[SolrFields::DESCRIBED] = (self.variant == Item::Variants::DIRECTORY) or
+          self.elements.select{ |e| e.name == 'title' }.any?
+    else
+      doc[SolrFields::DESCRIBED] =
+          self.elements.reject{ |e| e.name == 'title' }.any?
+    end
     doc[SolrFields::EFFECTIVE_ALLOWED_ROLES] =
         self.effective_allowed_roles.map(&:key)
     doc[SolrFields::EFFECTIVE_DENIED_ROLES] =
