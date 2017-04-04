@@ -35,6 +35,7 @@ module Api
           query(params[:q]).
           include_children(true).
           include_unpublished(true).
+          only_described(false).
           filter_queries(params[:fq]).
           sort(params[:sort]).
           start(@start).

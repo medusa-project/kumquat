@@ -71,6 +71,7 @@ class Item < ActiveRecord::Base
     COLLECTION_PUBLISHED = 'collection_published_bi'
     CREATED = 'created_dti'
     DATE = 'date_dti'
+    DESCRIBED = 'described_bi'
     EFFECTIVE_ALLOWED_ROLES = 'effective_allowed_roles_sim'
     EFFECTIVE_DENIED_ROLES = 'effective_denied_roles_sim'
     FULL_TEXT = 'full_text_txti'
@@ -810,6 +811,12 @@ class Item < ActiveRecord::Base
     doc[SolrFields::COLLECTION_PUBLISHED] = (self.collection.published and
         self.collection.published_in_dls)
     doc[SolrFields::DATE] = self.date.utc.iso8601 if self.date
+    # An item is considered described if it has any elements other than title,
+    # or is in a collection using the free-form package profile.
+    doc[SolrFields::DESCRIBED] =
+        self.elements.reject{ |e| e.name == 'title' }.any? or
+        (self.collection.package_profile == PackageProfile::FREE_FORM_PROFILE and
+            self.elements.select{ |e| e.name == 'title' }.any?)
     doc[SolrFields::EFFECTIVE_ALLOWED_ROLES] =
         self.effective_allowed_roles.map(&:key)
     doc[SolrFields::EFFECTIVE_DENIED_ROLES] =

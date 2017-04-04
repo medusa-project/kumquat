@@ -3,6 +3,7 @@ class AbstractFinder
   def initialize
     @default_field = nil
     @include_unpublished = false
+    @only_described = true
     @start = 0
     @limit = 999999
     @loaded = false
@@ -67,6 +68,15 @@ class AbstractFinder
   #
   def limit(limit)
     @limit = limit.to_i
+    self
+  end
+
+  ##
+  # @param boolean [Boolean]
+  # @return [ItemFinder] self
+  #
+  def only_described(boolean)
+    @only_described = boolean
     self
   end
 

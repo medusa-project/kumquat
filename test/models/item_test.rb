@@ -467,6 +467,7 @@ class ItemTest < ActiveSupport::TestCase
                  doc[Item::SolrFields::GROUPED_SORT]
     assert doc[Item::SolrFields::COLLECTION_PUBLISHED]
     assert_equal @item.date.utc.iso8601, doc[Item::SolrFields::DATE]
+    assert doc[Item::SolrFields::DESCRIBED]
     assert_equal @item.effective_allowed_roles.map(&:key),
                  doc[Item::SolrFields::EFFECTIVE_ALLOWED_ROLES]
     assert_equal @item.effective_denied_roles.map(&:key),

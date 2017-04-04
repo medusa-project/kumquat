@@ -222,6 +222,7 @@ class ItemsController < WebsiteController
         collection_id(params[:collection_id]).
         query(params[:q]).
         include_children(true).
+        only_described(true).
         stats(true).
         filter_queries(params[:fq]).
         sort(Item::SolrFields::GROUPED_SORT).
@@ -389,6 +390,7 @@ class ItemsController < WebsiteController
           collection_id(session[:collection_id]).
           query(session[:q]).
           include_children(true).
+          only_described(true).
           include_variants([Item::Variants::FILE]).
           filter_queries(session[:fq]).
           sort(session[:sort]).
@@ -402,6 +404,7 @@ class ItemsController < WebsiteController
           collection_id(session[:collection_id]).
           query(session[:q]).
           include_children(session[:q].present?).
+          only_described(true).
           exclude_variants([Item::Variants::FRONT_MATTER, Item::Variants::INDEX,
                             Item::Variants::KEY, Item::Variants::PAGE,
                             Item::Variants::TABLE_OF_CONTENTS,
