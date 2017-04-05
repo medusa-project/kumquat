@@ -89,7 +89,7 @@ module ItemsHelper
       binaries.each do |binary|
         html += '<tr>'
         html += "  <td>#{item.title}</td>"
-        html += "  <td>#{binary.human_readable_type}</td>"
+        html += "  <td>#{binary.human_readable_master_type}</td>"
         html += "  <td>#{binary.human_readable_media_category}</td>"
         html += "  <td>#{link_to(binary.filename, binary.medusa_url, target: '_blank')}</td>"
         html += '</tr>'
@@ -100,7 +100,7 @@ module ItemsHelper
           if index == 0
             html += "  <td rowspan=\"#{subitem.binaries.length}\">#{subitem.title}</td>"
           end
-          html += "  <td>#{bs.human_readable_type}</td>"
+          html += "  <td>#{bs.human_readable_master_type}</td>"
           html += "  <td>#{bs.human_readable_media_category}</td>"
           html += "  <td>#{link_to(bs.filename, bs.medusa_url, target: '_blank')}</td>"
           html += '</tr>'
@@ -122,7 +122,7 @@ module ItemsHelper
       html += '  <label>'
       html +=      radio_button_tag('download-url', binary_url(binary),
                                     false, data: { 'item-id': item.repository_id })
-      html +=      binary.human_readable_type
+      html +=      binary.human_readable_master_type
       html += '    <br>'
       html += '    <small>'
       html +=        download_label_for_binary(binary)

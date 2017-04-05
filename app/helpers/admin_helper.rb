@@ -346,7 +346,7 @@ module AdminHelper
     data['Repository ID'] = item.repository_id
 
     item.binaries.each do |bs|
-      data["#{bs.human_readable_type} Filename"] = bs.filename
+      data["#{bs.human_readable_master_type} Filename"] = bs.filename
     end
 
     data['Published'] = "<span class=\"label #{item.published ? 'label-success' : 'label-danger'}\">"\

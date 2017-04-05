@@ -27,7 +27,7 @@
 class Binary < ActiveRecord::Base
 
   ##
-  # Must be kept in sync with the return value of human_readable_type().
+  # Must be kept in sync with the return value of human_readable_master_type().
   #
   class MasterType
     ACCESS = 1
@@ -86,7 +86,7 @@ class Binary < ActiveRecord::Base
 
   def as_json(options = {})
     struct = super(options).stringify_keys # TODO: why is this almost empty?
-    struct['master_type'] = self.human_readable_type
+    struct['master_type'] = self.human_readable_master_type
     struct['media_category'] = self.human_readable_media_category
     struct['repository_relative_pathname'] = self.repository_relative_pathname
     struct['cfs_file_uuid'] = self.cfs_file_uuid
@@ -159,15 +159,7 @@ class Binary < ActiveRecord::Base
   ##
   # @return [String]
   #
-  def human_readable_name
-    formats = @@formats.select{ |f| f['media_types'].include?(self.media_type) }
-    formats.any? ? formats.first['label'] : self.media_type
-  end
-
-  ##
-  # @return [String]
-  #
-  def human_readable_type
+  def human_readable_master_type
     case self.master_type
       when MasterType::ACCESS
         return 'Access Master'
@@ -175,6 +167,14 @@ class Binary < ActiveRecord::Base
         return 'Preservation Master'
     end
     nil
+  end
+
+  ##
+  # @return [String]
+  #
+  def human_readable_name
+    formats = @@formats.select{ |f| f['media_types'].include?(self.media_type) }
+    formats.any? ? formats.first['label'] : self.media_type
   end
 
   ##
@@ -322,7 +322,7 @@ class Binary < ActiveRecord::Base
 
   def serializable_hash(opts)
     {
-        type: self.human_readable_type,
+        type: self.human_readable_master_type,
         media_type: self.media_type
     }
   end
