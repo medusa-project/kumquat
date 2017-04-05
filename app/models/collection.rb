@@ -243,26 +243,38 @@ class Collection < ActiveRecord::Base
     sql = "SELECT * FROM (
       SELECT items.repository_id,
         items.parent_repository_id,
-        (SELECT repository_relative_pathname
-          FROM binaries
-          WHERE binaries.item_id = items.id
-            AND binaries.master_type = #{Binary::MasterType::PRESERVATION}
-          LIMIT 1) AS pres_pathname,
-        (SELECT substring(repository_relative_pathname from '[^/]+$')
-          FROM binaries
-          WHERE binaries.item_id = items.id
-            AND binaries.master_type = #{Binary::MasterType::PRESERVATION}
-          LIMIT 1) AS pres_filename,
-        (SELECT repository_relative_pathname
-          FROM binaries
-          WHERE binaries.item_id = items.id
-            AND binaries.master_type = #{Binary::MasterType::ACCESS}
-          LIMIT 1) AS access_pathname,
-        (SELECT substring(repository_relative_pathname from '[^/]+$')
-          FROM binaries
-          WHERE binaries.item_id = items.id
-            AND binaries.master_type = #{Binary::MasterType::ACCESS}
-          LIMIT 1) AS access_filename,
+        (SELECT array_to_string(
+          array(
+            SELECT repository_relative_pathname
+            FROM binaries
+            WHERE binaries.item_id = items.id
+              AND binaries.master_type = #{Binary::MasterType::PRESERVATION}
+            ORDER BY repository_relative_pathname
+          ), '#{Item::TSV_MULTI_VALUE_SEPARATOR}')) AS pres_pathname,
+        (SELECT array_to_string(
+          array(
+            SELECT substring(repository_relative_pathname from '[^/]+$')
+            FROM binaries
+            WHERE binaries.item_id = items.id
+              AND binaries.master_type = #{Binary::MasterType::PRESERVATION}
+            ORDER BY repository_relative_pathname
+          ), '#{Item::TSV_MULTI_VALUE_SEPARATOR}')) AS pres_filename,
+        (SELECT array_to_string(
+          array(
+            SELECT repository_relative_pathname
+            FROM binaries
+            WHERE binaries.item_id = items.id
+              AND binaries.master_type = #{Binary::MasterType::ACCESS}
+            ORDER BY repository_relative_pathname
+          ), '#{Item::TSV_MULTI_VALUE_SEPARATOR}')) AS access_pathname,
+        (SELECT array_to_string(
+          array(
+            SELECT substring(repository_relative_pathname from '[^/]+$')
+            FROM binaries
+            WHERE binaries.item_id = items.id
+              AND binaries.master_type = #{Binary::MasterType::ACCESS}
+            ORDER BY repository_relative_pathname
+          ), '#{Item::TSV_MULTI_VALUE_SEPARATOR}')) AS access_filename,
         items.variant,
         items.page_number,
         items.subpage_number,
