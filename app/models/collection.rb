@@ -283,8 +283,9 @@ class Collection < ActiveRecord::Base
             items.repository_id
           else
             items.parent_repository_id
-        end,
-        items.page_number, items.subpage_number, pres_pathname NULLS FIRST
+        end NULLS FIRST,
+        items.page_number NULLS FIRST, items.subpage_number NULLS FIRST,
+        pres_pathname NULLS FIRST
     ) a\n"
 
     # If we are supposed to include only undescribed items, consider items
