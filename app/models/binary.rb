@@ -27,6 +27,14 @@
 class Binary < ActiveRecord::Base
 
   ##
+  # Must be kept in sync with the return value of human_readable_type().
+  #
+  class MasterType
+    ACCESS = 1
+    PRESERVATION = 0
+  end
+
+  ##
   # Broad category in which a binary can be considered to reside. This may be
   # different from the one in `media_type`; for example, the main image and a
   # 3D model texture may both be JPEGs, but be in different categories, and
@@ -59,14 +67,6 @@ class Binary < ActiveRecord::Base
     end
   end
 
-  ##
-  # Must be kept in sync with the return value of human_readable_type().
-  #
-  class Type
-    ACCESS_MASTER = 1
-    PRESERVATION_MASTER = 0
-  end
-
   # touch: true means when the instance is saved, the owning item's updated_at
   # property will be updated.
   belongs_to :item, inverse_of: :binaries, touch: true
@@ -86,7 +86,7 @@ class Binary < ActiveRecord::Base
 
   def as_json(options = {})
     struct = super(options).stringify_keys # TODO: why is this almost empty?
-    struct['binary_type'] = self.human_readable_type
+    struct['master_type'] = self.human_readable_type
     struct['media_category'] = self.human_readable_media_category
     struct['repository_relative_pathname'] = self.repository_relative_pathname
     struct['cfs_file_uuid'] = self.cfs_file_uuid
@@ -168,10 +168,10 @@ class Binary < ActiveRecord::Base
   # @return [String]
   #
   def human_readable_type
-    case self.binary_type
-      when Type::ACCESS_MASTER
+    case self.master_type
+      when MasterType::ACCESS
         return 'Access Master'
-      when Type::PRESERVATION_MASTER
+      when MasterType::PRESERVATION
         return 'Preservation Master'
     end
     nil

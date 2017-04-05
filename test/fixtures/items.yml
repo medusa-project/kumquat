@@ -59,6 +59,7 @@ map_obj1:
 map_obj1_page1:
   collection_repository_id: d250c1f0-5ca8-0132-3334-0050569601ca-8
   date: <%= Time.parse('2015-08-10') %>
+  page_number: 1
   published: true
   repository_id: d29950d0-c451-0133-1d17-0050569601ca-2
   parent_repository_id: be8d3500-c451-0133-1d17-0050569601ca-9
@@ -67,6 +68,7 @@ map_obj1_page1:
 map_obj1_page2:
   collection_repository_id: d250c1f0-5ca8-0132-3334-0050569601ca-8
   date: <%= Time.parse('2015-08-10') %>
+  page_number: 2
   published: true
   repository_id: d29edba0-c451-0133-1d17-0050569601ca-c
   parent_repository_id: be8d3500-c451-0133-1d17-0050569601ca-9

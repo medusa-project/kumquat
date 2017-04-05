@@ -120,7 +120,7 @@ class MedusaMixedMediaIngester < MedusaAbstractIngester
                   pres_type_dir.files.each do |pres_file|
                     # Create the preservation master binary.
                     child.binaries << pres_file.
-                        to_binary(Binary::Type::PRESERVATION_MASTER,
+                        to_binary(Binary::MasterType::PRESERVATION,
                                   media_category_for_master_type(pres_type_dir.name))
 
                     # Set the child's variant.
@@ -163,7 +163,7 @@ class MedusaMixedMediaIngester < MedusaAbstractIngester
                 if access_type_dir.files.any?
                   access_type_dir.files.each_with_index do |access_file, afi|
                     # Create the access master binary.
-                    binary = access_file.to_binary(Binary::Type::ACCESS_MASTER,
+                    binary = access_file.to_binary(Binary::MasterType::ACCESS,
                                                    media_category_for_master_type(access_type_dir.name))
                     child.binaries << binary
 
@@ -195,7 +195,7 @@ class MedusaMixedMediaIngester < MedusaAbstractIngester
             if supp_dir.files.any?
               supp_dir.files.each do |file|
                 # Create the supplementary binary.
-                child.binaries << file.to_binary(Binary::Type::ACCESS_MASTER)
+                child.binaries << file.to_binary(Binary::MasterType::ACCESS)
               end
             else
               msg = "Supplementary directory #{supp_dir.uuid} is empty."
@@ -297,7 +297,7 @@ class MedusaMixedMediaIngester < MedusaAbstractIngester
                     pres_type_dir.files.each do |pres_file|
                       # Create the preservation master binary.
                       child.binaries << pres_file.
-                          to_binary(Binary::Type::PRESERVATION_MASTER,
+                          to_binary(Binary::MasterType::PRESERVATION,
                                     media_category_for_master_type(pres_type_dir.name))
                       status[:num_created] += 1
                     end
@@ -325,7 +325,7 @@ class MedusaMixedMediaIngester < MedusaAbstractIngester
                   if access_type_dir.files.any?
                     access_type_dir.files.each_with_index do |access_file, afi|
                       # Create the access master binary.
-                      binary = access_file.to_binary(Binary::Type::ACCESS_MASTER,
+                      binary = access_file.to_binary(Binary::MasterType::ACCESS,
                                                      media_category_for_master_type(access_type_dir.name))
                       child.binaries << binary
 
@@ -356,7 +356,7 @@ class MedusaMixedMediaIngester < MedusaAbstractIngester
               if supp_dir.files.any?
                 supp_dir.files.each do |file|
                   # Create the supplementary binary.
-                  child.binaries << file.to_binary(Binary::Type::ACCESS_MASTER)
+                  child.binaries << file.to_binary(Binary::MasterType::ACCESS)
                   status[:num_created] += 1
                 end
               else

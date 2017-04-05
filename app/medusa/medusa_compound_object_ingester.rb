@@ -106,7 +106,7 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
 
               # Create the preservation master binary.
               child.binaries << pres_file.
-                  to_binary(Binary::Type::PRESERVATION_MASTER)
+                  to_binary(Binary::MasterType::PRESERVATION)
 
               # Set the child's variant.
               basename = File.basename(pres_file.repository_relative_pathname)
@@ -138,7 +138,7 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
             # Create the preservation master binary.
             pres_file = pres_dir.files.first
             item.binaries << pres_file.
-                to_binary(Binary::Type::PRESERVATION_MASTER)
+                to_binary(Binary::MasterType::PRESERVATION)
 
             # Find and create the access master binary.
             begin
@@ -178,7 +178,7 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
                                variant: Item::Variants::SUPPLEMENT)
               # Assign a title of the filename.
               child.elements.build(name: 'title', value: supp_file.name)
-              child.binaries << supp_file.to_binary(Binary::Type::PRESERVATION_MASTER)
+              child.binaries << supp_file.to_binary(Binary::MasterType::PRESERVATION)
               child.save!
               status[:num_created] += 1
             end
@@ -204,7 +204,7 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
                                variant: Item::Variants::COMPOSITE)
               # Assign a title of the filename.
               child.elements.build(name: 'title', value: comp_file.name)
-              child.binaries << comp_file.to_binary(Binary::Type::PRESERVATION_MASTER)
+              child.binaries << comp_file.to_binary(Binary::MasterType::PRESERVATION)
               child.save!
               status[:num_created] += 1
             end
@@ -302,7 +302,7 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
                   child.binaries.destroy_all
 
                   # Create the preservation master binary.
-                  bs = pres_file.to_binary(Binary::Type::PRESERVATION_MASTER)
+                  bs = pres_file.to_binary(Binary::MasterType::PRESERVATION)
                   bs.item = child
                   bs.save!
                   stats[:num_created] += 1
@@ -330,7 +330,7 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
               # Create the preservation master binary.
               pres_file = pres_dir.files.first
               item.binaries <<
-                  pres_file.to_binary(Binary::Type::PRESERVATION_MASTER)
+                  pres_file.to_binary(Binary::MasterType::PRESERVATION)
               stats[:num_created] += 1
 
               # Find and create the access master binary.
@@ -360,7 +360,7 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
               item = Item.find_by_repository_id(supp_file.uuid)
               if item
                 item.binaries.destroy_all
-                item.binaries << supp_file.to_binary(Binary::Type::PRESERVATION_MASTER)
+                item.binaries << supp_file.to_binary(Binary::MasterType::PRESERVATION)
                 item.save!
                 stats[:num_created] += 1
               else
@@ -379,7 +379,7 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
               item = Item.find_by_repository_id(comp_file.uuid)
               if item
                 item.binaries.destroy_all
-                item.binaries << comp_file.to_binary(Binary::Type::PRESERVATION_MASTER)
+                item.binaries << comp_file.to_binary(Binary::MasterType::PRESERVATION)
                 item.save!
                 stats[:num_created] += 1
               else
@@ -431,7 +431,7 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
             select{ |f| f.name.chomp(File.extname(f.name)) ==
             pres_master_name.chomp(File.extname(pres_master_name)) }.first
         if access_file
-          return access_file.to_binary(Binary::Type::ACCESS_MASTER)
+          return access_file.to_binary(Binary::MasterType::ACCESS)
         else
           msg = "Preservation master file #{pres_master_file.uuid} has no "\
               "access master counterpart."

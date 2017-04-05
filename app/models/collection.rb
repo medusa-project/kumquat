@@ -246,22 +246,22 @@ class Collection < ActiveRecord::Base
         (SELECT repository_relative_pathname
           FROM binaries
           WHERE binaries.item_id = items.id
-            AND binaries.binary_type = #{Binary::Type::PRESERVATION_MASTER}
+            AND binaries.master_type = #{Binary::MasterType::PRESERVATION}
           LIMIT 1) AS pres_pathname,
         (SELECT substring(repository_relative_pathname from '[^/]+$')
           FROM binaries
           WHERE binaries.item_id = items.id
-            AND binaries.binary_type = #{Binary::Type::PRESERVATION_MASTER}
+            AND binaries.master_type = #{Binary::MasterType::PRESERVATION}
           LIMIT 1) AS pres_filename,
         (SELECT repository_relative_pathname
           FROM binaries
           WHERE binaries.item_id = items.id
-            AND binaries.binary_type = #{Binary::Type::ACCESS_MASTER}
+            AND binaries.master_type = #{Binary::MasterType::ACCESS}
           LIMIT 1) AS access_pathname,
         (SELECT substring(repository_relative_pathname from '[^/]+$')
           FROM binaries
           WHERE binaries.item_id = items.id
-            AND binaries.binary_type = #{Binary::Type::ACCESS_MASTER}
+            AND binaries.master_type = #{Binary::MasterType::ACCESS}
           LIMIT 1) AS access_filename,
         items.variant,
         items.page_number,
@@ -283,8 +283,9 @@ class Collection < ActiveRecord::Base
             items.repository_id
           else
             items.parent_repository_id
-        end,
-        items.page_number, items.subpage_number, pres_pathname NULLS FIRST
+        end NULLS FIRST,
+        items.page_number NULLS FIRST, items.subpage_number NULLS FIRST,
+        pres_pathname NULLS FIRST
     ) a\n"
 
     # If we are supposed to include only undescribed items, consider items

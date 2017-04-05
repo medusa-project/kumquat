@@ -75,14 +75,14 @@ class MedusaCfsFile
   end
 
   ##
-  # @param binary_type [Binary::Type]
+  # @param master_type [Binary::Type]
   # @param media_category [Binary::MediaCategory] If nil, will be inferred from
   #                                               the media type.
   # @return [Binary] Fully initialized binary instance (not persisted).
   #
-  def to_binary(binary_type, media_category = nil)
+  def to_binary(master_type, media_category = nil)
     bin = Binary.new
-    bin.binary_type = binary_type
+    bin.master_type = master_type
     bin.cfs_file_uuid = self.uuid
     bin.repository_relative_pathname =
         '/' + self.repository_relative_pathname.reverse.chomp('/').reverse
