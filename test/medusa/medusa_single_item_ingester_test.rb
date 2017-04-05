@@ -68,7 +68,7 @@ class MedusaSingleItemIngesterTest < ActiveSupport::TestCase
     assert_empty item.items
     assert_equal 2, item.binaries.length
     binary = item.binaries.
-        select{ |b| b.binary_type == Binary::Type::PRESERVATION_MASTER }.first
+        select{ |b| b.master_type == Binary::Type::PRESERVATION_MASTER }.first
     assert_equal 'image/tiff', binary.media_type
     assert_equal Binary::MediaCategory::IMAGE, binary.media_category
     assert_equal 575834922, binary.byte_size
@@ -76,7 +76,7 @@ class MedusaSingleItemIngesterTest < ActiveSupport::TestCase
                  binary.repository_relative_pathname
 
     binary = item.binaries.
-        select{ |b| b.binary_type == Binary::Type::ACCESS_MASTER }.first
+        select{ |b| b.master_type == Binary::Type::ACCESS_MASTER }.first
     assert_equal 'image/jp2', binary.media_type
     assert_equal 128493361, binary.byte_size
     assert_equal '/55/2358/access/03501042_001_souscrivez.jp2',

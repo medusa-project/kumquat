@@ -86,7 +86,7 @@ class Binary < ActiveRecord::Base
 
   def as_json(options = {})
     struct = super(options).stringify_keys # TODO: why is this almost empty?
-    struct['binary_type'] = self.human_readable_type
+    struct['master_type'] = self.human_readable_type
     struct['media_category'] = self.human_readable_media_category
     struct['repository_relative_pathname'] = self.repository_relative_pathname
     struct['cfs_file_uuid'] = self.cfs_file_uuid
@@ -168,7 +168,7 @@ class Binary < ActiveRecord::Base
   # @return [String]
   #
   def human_readable_type
-    case self.binary_type
+    case self.master_type
       when Type::ACCESS_MASTER
         return 'Access Master'
       when Type::PRESERVATION_MASTER

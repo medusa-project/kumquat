@@ -110,7 +110,7 @@ class MedusaMixedMediaIngesterTest < ActiveSupport::TestCase
 
     # Inspect its first child item's binaries.
     bs = child.binaries.
-        select{ |b| b.binary_type == Binary::Type::PRESERVATION_MASTER }.first
+        select{ |b| b.master_type == Binary::Type::PRESERVATION_MASTER }.first
     assert_equal 'image/tiff', bs.media_type
     assert_equal 60623897, bs.byte_size
     assert_equal Binary::MediaCategory::IMAGE, bs.media_category
@@ -119,7 +119,7 @@ class MedusaMixedMediaIngesterTest < ActiveSupport::TestCase
                  bs.repository_relative_pathname
 
     bs = child.binaries.
-        select{ |b| b.binary_type == Binary::Type::ACCESS_MASTER }.first
+        select{ |b| b.master_type == Binary::Type::ACCESS_MASTER }.first
     assert_equal 'image/jp2', bs.media_type
     assert_equal 3419163, bs.byte_size
     assert_equal Binary::MediaCategory::IMAGE, bs.media_category
@@ -323,7 +323,7 @@ class MedusaMixedMediaIngesterTest < ActiveSupport::TestCase
 
     # Inspect its first child item's binaries.
     bs = child.binaries.
-        select{ |b| b.binary_type == Binary::Type::PRESERVATION_MASTER }.first
+        select{ |b| b.master_type == Binary::Type::PRESERVATION_MASTER }.first
     assert_equal 'image/tiff', bs.media_type
     assert_equal 60623897, bs.byte_size
     assert_equal Binary::MediaCategory::IMAGE, bs.media_category
@@ -332,7 +332,7 @@ class MedusaMixedMediaIngesterTest < ActiveSupport::TestCase
                  bs.repository_relative_pathname
 
     bs = child.binaries.
-        select{ |b| b.binary_type == Binary::Type::ACCESS_MASTER }.first
+        select{ |b| b.master_type == Binary::Type::ACCESS_MASTER }.first
     assert_equal 'image/jp2', bs.media_type
     assert_equal 3419163, bs.byte_size
     assert_equal Binary::MediaCategory::IMAGE, bs.media_category

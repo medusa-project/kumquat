@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170320204343) do
+ActiveRecord::Schema.define(version: 20170404195912) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -82,7 +82,7 @@ ActiveRecord::Schema.define(version: 20170320204343) do
   add_index "agents", ["name"], name: "index_agents_on_name", unique: true, using: :btree
 
   create_table "binaries", force: :cascade do |t|
-    t.integer  "binary_type"
+    t.integer  "master_type"
     t.string   "media_type",                                  default: "unknown/unknown"
     t.datetime "created_at",                                                              null: false
     t.datetime "updated_at",                                                              null: false

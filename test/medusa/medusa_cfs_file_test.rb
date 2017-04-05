@@ -37,7 +37,7 @@ class MedusaCfsFileTest < ActiveSupport::TestCase
 
   test 'to_binary() should return a correct binary' do
     binary = @cfs.to_binary(Binary::Type::PRESERVATION_MASTER)
-    assert_equal Binary::Type::PRESERVATION_MASTER, binary.binary_type
+    assert_equal Binary::Type::PRESERVATION_MASTER, binary.master_type
     assert_equal @cfs.repository_relative_pathname,
                  binary.repository_relative_pathname
     assert_equal 13173904, binary.byte_size
@@ -50,7 +50,7 @@ class MedusaCfsFileTest < ActiveSupport::TestCase
   test 'to_binary() should override the media category when supplied' do
     binary = @cfs.to_binary(Binary::Type::PRESERVATION_MASTER,
                             Binary::MediaCategory::VIDEO)
-    assert_equal Binary::Type::PRESERVATION_MASTER, binary.binary_type
+    assert_equal Binary::Type::PRESERVATION_MASTER, binary.master_type
     assert_equal Binary::MediaCategory::VIDEO, binary.media_category
   end
 

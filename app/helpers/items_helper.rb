@@ -19,7 +19,7 @@ module ItemsHelper
       # create the category tabs
       html += '<ul class="nav nav-tabs" role="tablist">'
       categories.each_with_index do |category, index|
-        tab_id = "pt-metadata-tab-#{binary.binary_type}-#{category.gsub(' ', '')}"
+        tab_id = "pt-metadata-tab-#{binary.master_type}-#{category.gsub(' ', '')}"
         class_ = (index == 0) ? 'active' : ''
         html += "<li role=\"presentation\" class=\"#{class_}\">
           <a href=\"##{tab_id}\" aria-controls=\"#{tab_id}\"
@@ -31,7 +31,7 @@ module ItemsHelper
       # create the category tab panes
       html += '<div class="tab-content">'
       categories.each_with_index do |category, index|
-        tab_id = "pt-metadata-tab-#{binary.binary_type}-#{category.gsub(' ', '')}"
+        tab_id = "pt-metadata-tab-#{binary.master_type}-#{category.gsub(' ', '')}"
         class_ = (index == 0) ? 'active' : ''
         html += "<div role=\"tabpanel\" class=\"tab-pane #{class_}\"
             id=\"#{tab_id}\">"

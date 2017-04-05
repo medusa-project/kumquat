@@ -97,7 +97,7 @@ class MedusaFreeFormIngesterTest < ActiveSupport::TestCase
     # Inspect an individual file item more thoroughly.
     item = Item.find_by_repository_id('6e3c33c0-5ce3-0132-3334-0050569601ca-f')
     item.binaries.each do |bs|
-      assert_equal Binary::Type::ACCESS_MASTER, bs.binary_type
+      assert_equal Binary::Type::ACCESS_MASTER, bs.master_type
     end
     assert_empty item.items
     assert_equal 1, item.binaries.length
@@ -301,7 +301,7 @@ class MedusaFreeFormIngesterTest < ActiveSupport::TestCase
     # Assert that the binaries were created.
     assert_equal Binary.count, result[:num_created]
     Binary.all.each do |bs|
-      assert_equal Binary::Type::ACCESS_MASTER, bs.binary_type
+      assert_equal Binary::Type::ACCESS_MASTER, bs.master_type
     end
     assert_equal start_num_items, Item.count
     assert_equal Item.where(variant: Item::Variants::FILE).count, Binary.count

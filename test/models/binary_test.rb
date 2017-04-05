@@ -47,7 +47,7 @@ class BinaryTest < ActiveSupport::TestCase
   test 'as_json() should return the correct structure' do
     b = binaries(:iptc)
     struct = b.as_json
-    assert_equal b.human_readable_type, struct['binary_type']
+    assert_equal b.human_readable_type, struct['master_type']
     assert_equal b.human_readable_media_category, struct['media_category']
     assert_equal 'image/jpeg', struct['media_type']
     assert_equal '/136/310/3707005/access/online/Illini_Union_Photographs/binder_5/banquets/banquets_002.jpg',
@@ -129,9 +129,9 @@ class BinaryTest < ActiveSupport::TestCase
 
   test 'human_readable_type should work properly' do
     assert_equal 'Access Master',
-                 Binary.new(binary_type: Binary::Type::ACCESS_MASTER).human_readable_type
+                 Binary.new(master_type: Binary::Type::ACCESS_MASTER).human_readable_type
     assert_equal 'Preservation Master',
-                 Binary.new(binary_type: Binary::Type::PRESERVATION_MASTER).human_readable_type
+                 Binary.new(master_type: Binary::Type::PRESERVATION_MASTER).human_readable_type
   end
 
   # iiif_image_identifier()
