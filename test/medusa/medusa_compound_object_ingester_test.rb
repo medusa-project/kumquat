@@ -96,14 +96,14 @@ class MedusaCompoundObjectIngesterTest < ActiveSupport::TestCase
     assert_empty item.items
     assert_equal 2, item.binaries.length
 
-    bin = item.binaries.select{ |b| b.master_type == Binary::Type::PRESERVATION_MASTER }.first
+    bin = item.binaries.select{ |b| b.master_type == Binary::MasterType::PRESERVATION }.first
     assert_equal 'image/tiff', bin.media_type
     assert_equal 28184152, bin.byte_size
     assert_equal Binary::MediaCategory::IMAGE, bin.media_category
     assert_equal '/59/2257/afm0002389/preservation/afm0002389.tif',
                  bin.repository_relative_pathname
 
-    bin = item.binaries.select{ |b| b.master_type == Binary::Type::ACCESS_MASTER }.first
+    bin = item.binaries.select{ |b| b.master_type == Binary::MasterType::ACCESS }.first
     assert_equal 'image/jp2', bin.media_type
     assert_equal 9665238, bin.byte_size
     assert_equal Binary::MediaCategory::IMAGE, bin.media_category
@@ -144,7 +144,7 @@ class MedusaCompoundObjectIngesterTest < ActiveSupport::TestCase
     assert_equal 2, child.binaries.length
 
     # Inspect the first child's preservation master.
-    bin = child.binaries.select{ |b| b.master_type == Binary::Type::PRESERVATION_MASTER }.first
+    bin = child.binaries.select{ |b| b.master_type == Binary::MasterType::PRESERVATION }.first
     assert_equal 'image/tiff', bin.media_type
     assert_equal 305057420, bin.byte_size
     assert_equal Binary::MediaCategory::IMAGE, bin.media_category
@@ -152,7 +152,7 @@ class MedusaCompoundObjectIngesterTest < ActiveSupport::TestCase
                  bin.repository_relative_pathname
 
     # Inspect the first child's access master.
-    bin = child.binaries.select{ |b| b.master_type == Binary::Type::ACCESS_MASTER }.first
+    bin = child.binaries.select{ |b| b.master_type == Binary::MasterType::ACCESS }.first
     assert_equal 'image/jp2', bin.media_type
     assert_equal 215051029, bin.byte_size
     assert_equal Binary::MediaCategory::IMAGE, bin.media_category
@@ -356,7 +356,7 @@ class MedusaCompoundObjectIngesterTest < ActiveSupport::TestCase
     assert_equal 2, child.binaries.length
 
     # Inspect the first child's preservation master.
-    bin = child.binaries.select{ |b| b.master_type == Binary::Type::PRESERVATION_MASTER }.first
+    bin = child.binaries.select{ |b| b.master_type == Binary::MasterType::PRESERVATION }.first
     assert_equal 'image/tiff', bin.media_type
     assert_equal 305057420, bin.byte_size
     assert_equal Binary::MediaCategory::IMAGE, bin.media_category
@@ -364,7 +364,7 @@ class MedusaCompoundObjectIngesterTest < ActiveSupport::TestCase
                  bin.repository_relative_pathname
 
     # Inspect the first child's access master.
-    bin = child.binaries.select{ |b| b.master_type == Binary::Type::ACCESS_MASTER }.first
+    bin = child.binaries.select{ |b| b.master_type == Binary::MasterType::ACCESS }.first
     assert_equal 'image/jp2', bin.media_type
     assert_equal 215051029, bin.byte_size
     assert_equal Binary::MediaCategory::IMAGE, bin.media_category

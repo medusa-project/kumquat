@@ -41,7 +41,7 @@ class DownloaderClient
       item_zip_path = '/' + (item.bib_id || item.repository_id)
 
       item.binaries.each do |binary|
-        type_path = (binary.master_type == Binary::Type::PRESERVATION_MASTER) ?
+        type_path = (binary.master_type == Binary::MasterType::PRESERVATION) ?
             '/preservation' : '/access'
         category_path = binary.media_category.present? ?
             "/#{binary.human_readable_media_category.downcase}" : ''

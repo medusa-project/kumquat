@@ -207,7 +207,7 @@ class MedusaFreeFormIngester < MedusaAbstractIngester
         item.elements.build(name: 'title', value: file.name)
 
         # Create its corresponding binary.
-        bs = file.to_binary(Binary::Type::ACCESS_MASTER)
+        bs = file.to_binary(Binary::MasterType::ACCESS)
         bs.item = item
         bs.save!
 
@@ -283,7 +283,7 @@ class MedusaFreeFormIngester < MedusaAbstractIngester
         @@logger.info("MedusaFreeFormIngester.update_binaries_in_tree(): "\
                             "updating binaries for item: #{file.uuid}")
         item.binaries.destroy_all
-        bs = file.to_binary(Binary::Type::ACCESS_MASTER)
+        bs = file.to_binary(Binary::MasterType::ACCESS)
         bs.item = item
         bs.save!
         stats[:num_created] += 1

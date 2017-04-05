@@ -24,7 +24,7 @@
                 <%= thumbnail_tag(item) %>
             <% end %>
           </div>
-          <%= item.binaries.select{ |b| b.master_type == Binary::Type::PRESERVATION_MASTER }.first&.filename %>
+          <%= item.binaries.select{ |b| b.master_type == Binary::MasterType::PRESERVATION }.first&.filename %>
         </td>
         <td>
           <%= select_tag("items[#{item.repository_id}][variant]",

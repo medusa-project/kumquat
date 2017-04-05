@@ -389,14 +389,14 @@ class Item < ActiveRecord::Base
       end
       unless bin
         bin = self.binaries.
-            select{ |b| b.master_type == Binary::Type::ACCESS_MASTER and
+            select{ |b| b.master_type == Binary::MasterType::ACCESS and
             b.media_category == Binary::MediaCategory::IMAGE }.first
         unless bin
           bin = self.binaries.
-              select{ |b| b.master_type == Binary::Type::ACCESS_MASTER }.first
+              select{ |b| b.master_type == Binary::MasterType::ACCESS }.first
           unless bin
             bin = self.binaries.
-                select{ |b| b.master_type == Binary::Type::PRESERVATION_MASTER and
+                select{ |b| b.master_type == Binary::MasterType::PRESERVATION and
                 b.media_category == Binary::MediaCategory::IMAGE }.first
             unless bin
               bin = self.binaries.
@@ -472,15 +472,15 @@ class Item < ActiveRecord::Base
       end
       if !bin or !bin.iiif_safe?
         bin = self.binaries.
-            select{ |b| b.master_type == Binary::Type::ACCESS_MASTER and
+            select{ |b| b.master_type == Binary::MasterType::ACCESS and
             b.media_category == Binary::MediaCategory::IMAGE }.first
         if !bin or !bin.iiif_safe?
           bin = self.binaries.
-              select{ |b| b.master_type == Binary::Type::ACCESS_MASTER and
+              select{ |b| b.master_type == Binary::MasterType::ACCESS and
               b.media_type == 'application/pdf' }.first
           if !bin or !bin.iiif_safe?
             bin = self.binaries.
-                select{ |b| b.master_type == Binary::Type::PRESERVATION_MASTER and
+                select{ |b| b.master_type == Binary::MasterType::PRESERVATION and
                 b.media_category == Binary::MediaCategory::IMAGE }.first
             if !bin or !bin.iiif_safe?
               bin = nil
@@ -1060,7 +1060,7 @@ class Item < ActiveRecord::Base
 
     # Get the binary from which the metadata will be extracted.
     # First, try to get the preservation master image.
-    bs = self.binaries.select{ |b| b.master_type == Binary::Type::PRESERVATION_MASTER and
+    bs = self.binaries.select{ |b| b.master_type == Binary::MasterType::PRESERVATION and
         b.media_category == Binary::MediaCategory::IMAGE }.first
     # If that wasn't available, try to get any image.
     unless bs

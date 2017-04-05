@@ -129,9 +129,9 @@ class BinaryTest < ActiveSupport::TestCase
 
   test 'human_readable_type should work properly' do
     assert_equal 'Access Master',
-                 Binary.new(master_type: Binary::Type::ACCESS_MASTER).human_readable_type
+                 Binary.new(master_type: Binary::MasterType::ACCESS).human_readable_type
     assert_equal 'Preservation Master',
-                 Binary.new(master_type: Binary::Type::PRESERVATION_MASTER).human_readable_type
+                 Binary.new(master_type: Binary::MasterType::PRESERVATION).human_readable_type
   end
 
   # iiif_image_identifier()

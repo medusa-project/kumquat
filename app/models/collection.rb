@@ -246,22 +246,22 @@ class Collection < ActiveRecord::Base
         (SELECT repository_relative_pathname
           FROM binaries
           WHERE binaries.item_id = items.id
-            AND binaries.master_type = #{Binary::Type::PRESERVATION_MASTER}
+            AND binaries.master_type = #{Binary::MasterType::PRESERVATION}
           LIMIT 1) AS pres_pathname,
         (SELECT substring(repository_relative_pathname from '[^/]+$')
           FROM binaries
           WHERE binaries.item_id = items.id
-            AND binaries.master_type = #{Binary::Type::PRESERVATION_MASTER}
+            AND binaries.master_type = #{Binary::MasterType::PRESERVATION}
           LIMIT 1) AS pres_filename,
         (SELECT repository_relative_pathname
           FROM binaries
           WHERE binaries.item_id = items.id
-            AND binaries.master_type = #{Binary::Type::ACCESS_MASTER}
+            AND binaries.master_type = #{Binary::MasterType::ACCESS}
           LIMIT 1) AS access_pathname,
         (SELECT substring(repository_relative_pathname from '[^/]+$')
           FROM binaries
           WHERE binaries.item_id = items.id
-            AND binaries.master_type = #{Binary::Type::ACCESS_MASTER}
+            AND binaries.master_type = #{Binary::MasterType::ACCESS}
           LIMIT 1) AS access_filename,
         items.variant,
         items.page_number,

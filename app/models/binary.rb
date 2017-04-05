@@ -27,6 +27,14 @@
 class Binary < ActiveRecord::Base
 
   ##
+  # Must be kept in sync with the return value of human_readable_type().
+  #
+  class MasterType
+    ACCESS = 1
+    PRESERVATION = 0
+  end
+
+  ##
   # Broad category in which a binary can be considered to reside. This may be
   # different from the one in `media_type`; for example, the main image and a
   # 3D model texture may both be JPEGs, but be in different categories, and
@@ -57,14 +65,6 @@ class Binary < ActiveRecord::Base
       formats = formats.select{ |f| f['media_types'].include?(media_type) }
       formats.any? ? formats.first['media_category'] : nil
     end
-  end
-
-  ##
-  # Must be kept in sync with the return value of human_readable_type().
-  #
-  class Type
-    ACCESS_MASTER = 1
-    PRESERVATION_MASTER = 0
   end
 
   # touch: true means when the instance is saved, the owning item's updated_at
@@ -169,9 +169,9 @@ class Binary < ActiveRecord::Base
   #
   def human_readable_type
     case self.master_type
-      when Type::ACCESS_MASTER
+      when MasterType::ACCESS
         return 'Access Master'
-      when Type::PRESERVATION_MASTER
+      when MasterType::PRESERVATION
         return 'Preservation Master'
     end
     nil
