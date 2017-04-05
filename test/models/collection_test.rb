@@ -64,22 +64,21 @@ class CollectionTest < ActiveSupport::TestCase
   # items_as_tsv()
 
   test 'items_as_tsv should work' do
-    expected_header = [
-        'uuid', 'parentId', 'preservationMasterPathname',
-        'preservationMasterFilename', 'accessMasterPathname',
-        'accessMasterFilename', 'variant', 'pageNumber', 'subpageNumber',
-        'latitude', 'longitude', 'contentdmAlias', 'contentdmPointer',
-        'IGNORE', 'Title', 'Coordinates', 'Creator', 'Date Created',
-        'Description', 'lcsh:Subject', 'tgm:Subject'
-    ]
+    expected_header = %w(uuid parentId preservationMasterPathname
+        preservationMasterFilename preservationMasterUUID accessMasterPathname
+        accessMasterFilename accessMasterUUID variant pageNumber subpageNumber
+        latitude longitude contentdmAlias contentdmPointer IGNORE Title
+        Coordinates Creator Date\ Created Description lcsh:Subject tgm:Subject)
     expected_values = [
         {
             'uuid': 'a1234567-5ca8-0132-3334-0050569601ca-8',
             'parentId': nil,
             'preservationMasterPathname': '/136/310/3707005/access/online/Illini_Union_Photographs/binder_9/memorial_stadium_assembly_hall/memorial_stadium_assembly_hall_020a.jpg',
             'preservationMasterFilename': 'memorial_stadium_assembly_hall_020a.jpg',
+            'preservationMasterUUID': 'b6dd0740-da69-0133-1d2e-0050569601ca-0',
             'accessMasterPathname': '/136/310/3707005/access/online/Illini_Union_Photographs/binder_9/memorial_stadium_assembly_hall/memorial_stadium_assembly_hall_017b.jpg',
             'accessMasterFilename': 'memorial_stadium_assembly_hall_017b.jpg',
+            'accessMasterUUID': 'b695f860-da69-0133-1d2e-0050569601ca-1',
             'variant': nil,
             'pageNumber': nil,
             'subpageNumber': nil,
@@ -101,8 +100,10 @@ class CollectionTest < ActiveSupport::TestCase
             'parentId': nil,
             'preservationMasterPathname': nil,
             'preservationMasterFilename': nil,
+            'preservationMasterUUID': nil,
             'accessMasterPathname': nil,
             'accessMasterFilename': nil,
+            'accessMasterUUID': nil,
             'variant': 'Directory',
             'pageNumber': nil,
             'subpageNumber': nil,
@@ -124,8 +125,10 @@ class CollectionTest < ActiveSupport::TestCase
             'parentId': 'a53add10-5ca8-0132-3334-0050569601ca-7',
             'preservationMasterPathname': '/136/310/3707005/access/online/Illini_Union_Photographs/binder_9/memorial_stadium_assembly_hall/memorial_stadium_assembly_hall_015b.jpg',
             'preservationMasterFilename': 'memorial_stadium_assembly_hall_015b.jpg',
+            'preservationMasterUUID': 'b6b3df00-da69-0133-1d2e-0050569601ca-d',
             'accessMasterPathname': nil,
             'accessMasterFilename': nil,
+            'accessMasterUUID': nil,
             'variant': 'File',
             'pageNumber': nil,
             'subpageNumber': nil,
@@ -147,8 +150,10 @@ class CollectionTest < ActiveSupport::TestCase
             'parentId': nil,
             'preservationMasterPathname': nil,
             'preservationMasterFilename': nil,
+            'preservationMasterUUID': nil,
             'accessMasterPathname': nil,
             'accessMasterFilename': nil,
+            'accessMasterUUID': nil,
             'variant': nil,
             'pageNumber': nil,
             'subpageNumber': nil,
@@ -170,8 +175,10 @@ class CollectionTest < ActiveSupport::TestCase
             'parentId': 'be8d3500-c451-0133-1d17-0050569601ca-9',
             'preservationMasterPathname': 'MyString',
             'preservationMasterFilename': 'MyString',
+            'preservationMasterUUID': nil,
             'accessMasterPathname': 'MyString',
             'accessMasterFilename': 'MyString',
+            'accessMasterUUID': 'MyString',
             'variant': 'Page',
             'pageNumber': '1',
             'subpageNumber': nil,
@@ -193,8 +200,10 @@ class CollectionTest < ActiveSupport::TestCase
             'parentId': 'be8d3500-c451-0133-1d17-0050569601ca-9',
             'preservationMasterPathname': nil,
             'preservationMasterFilename': nil,
+            'preservationMasterUUID': nil,
             'accessMasterPathname': nil,
             'accessMasterFilename': nil,
+            'accessMasterUUID': nil,
             'variant': 'Page',
             'pageNumber': '2',
             'subpageNumber': nil,
@@ -216,8 +225,10 @@ class CollectionTest < ActiveSupport::TestCase
             'parentId': nil,
             'preservationMasterPathname': nil,
             'preservationMasterFilename': nil,
+            'preservationMasterUUID': nil,
             'accessMasterPathname': nil,
             'accessMasterFilename': nil,
+            'accessMasterUUID': nil,
             'variant': nil,
             'pageNumber': nil,
             'subpageNumber': nil,
@@ -247,22 +258,21 @@ class CollectionTest < ActiveSupport::TestCase
     # The gist of this test is that there should not be any IGNORE column
     # values > 0.
 
-    expected_header = [
-        'uuid', 'parentId', 'preservationMasterPathname',
-        'preservationMasterFilename', 'accessMasterPathname',
-        'accessMasterFilename', 'variant', 'pageNumber', 'subpageNumber',
-        'latitude', 'longitude', 'contentdmAlias', 'contentdmPointer',
-        'IGNORE', 'Title', 'Coordinates', 'Creator', 'Date Created',
-        'Description', 'lcsh:Subject', 'tgm:Subject'
-    ]
+    expected_header = %w(uuid parentId preservationMasterPathname
+        preservationMasterFilename preservationMasterUUID accessMasterPathname
+        accessMasterFilename accessMasterUUID variant pageNumber subpageNumber
+        latitude longitude contentdmAlias contentdmPointer IGNORE Title
+        Coordinates Creator Date\ Created Description lcsh:Subject tgm:Subject)
     expected_values = [
         {
             'uuid': 'be8d3500-c451-0133-1d17-0050569601ca-9',
             'parentId': nil,
             'preservationMasterPathname': nil,
             'preservationMasterFilename': nil,
+            'preservationMasterUUID': nil,
             'accessMasterPathname': nil,
             'accessMasterFilename': nil,
+            'accessMasterUUID': nil,
             'variant': nil,
             'pageNumber': nil,
             'subpageNumber': nil,
@@ -284,8 +294,10 @@ class CollectionTest < ActiveSupport::TestCase
             'parentId': 'be8d3500-c451-0133-1d17-0050569601ca-9',
             'preservationMasterPathname': 'MyString',
             'preservationMasterFilename': 'MyString',
+            'preservationMasterUUID': nil,
             'accessMasterPathname': 'MyString',
             'accessMasterFilename': 'MyString',
+            'accessMasterUUID': 'MyString',
             'variant': 'Page',
             'pageNumber': '1',
             'subpageNumber': nil,
@@ -307,8 +319,10 @@ class CollectionTest < ActiveSupport::TestCase
             'parentId': 'be8d3500-c451-0133-1d17-0050569601ca-9',
             'preservationMasterPathname': nil,
             'preservationMasterFilename': nil,
+            'preservationMasterUUID': nil,
             'accessMasterPathname': nil,
             'accessMasterFilename': nil,
+            'accessMasterUUID': nil,
             'variant': 'Page',
             'pageNumber': '2',
             'subpageNumber': nil,
@@ -330,8 +344,10 @@ class CollectionTest < ActiveSupport::TestCase
             'parentId': nil,
             'preservationMasterPathname': nil,
             'preservationMasterFilename': nil,
+            'preservationMasterUUID': nil,
             'accessMasterPathname': nil,
             'accessMasterFilename': nil,
+            'accessMasterUUID': nil,
             'variant': nil,
             'pageNumber': nil,
             'subpageNumber': nil,
