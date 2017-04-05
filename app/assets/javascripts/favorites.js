@@ -33,6 +33,18 @@ var PTFavoritesView = function() {
             $('#pt-download-menu').show();
         }
         $('.pt-remove-from-favorites').show();
+
+        // When the download-zip button is clicked, check if any items are,
+        // selected, and if so, append them to an "ids" key in the URL query.
+        $('#pt-download-zip-modal a.btn').on('click', function() {
+            var ids = []
+            $('[name="pt-selected-items[]"]:checked').each(function() {
+                ids.push($(this).val());
+            });
+            if (ids.length) {
+                $(this).attr('href', $(this).attr('href') + '&ids=' + ids.join(','));
+            }
+        });
     };
 
 };
