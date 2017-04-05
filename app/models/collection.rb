@@ -261,6 +261,14 @@ class Collection < ActiveRecord::Base
           ), '#{Item::TSV_MULTI_VALUE_SEPARATOR}')) AS pres_filename,
         (SELECT array_to_string(
           array(
+            SELECT cfs_file_uuid
+            FROM binaries
+            WHERE binaries.item_id = items.id
+              AND binaries.master_type = #{Binary::MasterType::PRESERVATION}
+            ORDER BY repository_relative_pathname
+          ), '#{Item::TSV_MULTI_VALUE_SEPARATOR}')) AS pres_uuid,
+        (SELECT array_to_string(
+          array(
             SELECT repository_relative_pathname
             FROM binaries
             WHERE binaries.item_id = items.id
@@ -275,6 +283,14 @@ class Collection < ActiveRecord::Base
               AND binaries.master_type = #{Binary::MasterType::ACCESS}
             ORDER BY repository_relative_pathname
           ), '#{Item::TSV_MULTI_VALUE_SEPARATOR}')) AS access_filename,
+        (SELECT array_to_string(
+          array(
+            SELECT cfs_file_uuid
+            FROM binaries
+            WHERE binaries.item_id = items.id
+              AND binaries.master_type = #{Binary::MasterType::ACCESS}
+            ORDER BY repository_relative_pathname
+          ), '#{Item::TSV_MULTI_VALUE_SEPARATOR}')) AS access_uuid,
         items.variant,
         items.page_number,
         items.subpage_number,
