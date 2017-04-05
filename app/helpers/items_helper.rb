@@ -1640,7 +1640,8 @@ module ItemsHelper
                     'containerId': 'pt-3d-viewer',
                     'modelPath': '#{model_path}/',
                     'objFile': '#{obj_binary.filename}',
-                    'mtlFile': '#{mtl_binary.filename}'
+                    'mtlFile': '#{mtl_binary.filename}',
+                    'ambientLightIntensity': 2.0
                 });
             });
         </script>"
