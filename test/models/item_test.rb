@@ -19,7 +19,7 @@ class ItemTest < ActiveSupport::TestCase
 
   test 'tsv_header should return the correct columns' do
     cols = Item.tsv_header(@item.collection.metadata_profile).strip.split("\t")
-    assert_equal 20, cols.length
+    assert_equal 21, cols.length
     assert_equal 'uuid', cols[0]
     assert_equal 'parentId', cols[1]
     assert_equal 'preservationMasterPathname', cols[2]
@@ -33,29 +33,19 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal 'longitude', cols[10]
     assert_equal 'contentdmAlias', cols[11]
     assert_equal 'contentdmPointer', cols[12]
-    assert_equal 'Title', cols[13]
-    assert_equal 'Coordinates', cols[14]
-    assert_equal 'Creator', cols[15]
-    assert_equal 'Date Created', cols[16]
-    assert_equal 'Description', cols[17]
-    assert_equal 'lcsh:Subject', cols[18]
-    assert_equal 'tgm:Subject', cols[19]
+    assert_equal 'IGNORE', cols[13]
+    assert_equal 'Title', cols[14]
+    assert_equal 'Coordinates', cols[15]
+    assert_equal 'Creator', cols[16]
+    assert_equal 'Date Created', cols[17]
+    assert_equal 'Description', cols[18]
+    assert_equal 'lcsh:Subject', cols[19]
+    assert_equal 'tgm:Subject', cols[20]
   end
 
   test 'tsv_header should end with a line break' do
     assert Item.tsv_header(@item.collection.metadata_profile).
         end_with?(Item::TSV_LINE_BREAK)
-  end
-
-  # access_master_binary()
-
-  test 'access_master_binary() should return the access master binary, or nil
-  if none exists' do
-    assert_equal Binary::Type::ACCESS_MASTER,
-                 @item.access_master_binary.binary_type
-
-    @item.binaries.destroy_all
-    assert_nil @item.access_master_binary
   end
 
   # as_json()
@@ -195,24 +185,6 @@ class ItemTest < ActiveSupport::TestCase
     assert_nil @item.element('bogus')
   end
 
-  # iiif_identifier()
-
-  test 'iiif_identifier should use the access master binary by default' do
-    @item.access_master_binary.repository_relative_pathname = '/bla/bla/cats cats.jpg'
-    @item.access_master_binary.cfs_file_uuid = 'this is a uuid'
-    @item.access_master_binary.media_type = 'image/jpeg'
-    @item.binaries.where(binary_type: Binary::Type::PRESERVATION_MASTER).destroy_all
-    assert_equal 'this is a uuid', @item.iiif_image_binary.iiif_image_identifier
-  end
-
-  test 'iiif_identifier should fall back to the preservation master binary' do
-    @item.binaries.where(binary_type: Binary::Type::ACCESS_MASTER).destroy_all
-    @item.preservation_master_binary.repository_relative_pathname = '/bla/bla/cats cats.jpg'
-    @item.preservation_master_binary.cfs_file_uuid = 'this is a uuid'
-    @item.preservation_master_binary.media_type = 'image/jpeg'
-    assert_equal 'this is a uuid', @item.iiif_image_binary.iiif_image_identifier
-  end
-
   # migrate_elements()
 
   test 'migrate_elements() should work' do
@@ -240,17 +212,6 @@ class ItemTest < ActiveSupport::TestCase
 
     @item.parent_repository_id = '8acdb390-96b6-0133-1ce8-0050569601ca-4'
     assert @item.valid?
-  end
-
-  # preservation_master_binary()
-
-  test 'preservation_master_binary() should return the preservation
-  master binary, or nil if none exists' do
-    assert_equal Binary::Type::PRESERVATION_MASTER,
-                 @item.preservation_master_binary.binary_type
-
-    @item.binaries.destroy_all
-    assert_nil @item.preservation_master_binary
   end
 
   # repository_id
@@ -466,6 +427,21 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal Item::Variants::SUPPLEMENT, item.supplementary_item.variant
   end
 
+  # three_d_item()
+
+  test 'three_d_item() should return the 3D model item, or nil if none exists' do
+    item = items(:item1)
+    assert_nil item.three_d_item
+
+    subitem = Item.new(repository_id: SecureRandom.uuid,
+                       collection_repository_id: item.collection_repository_id,
+                       parent_repository_id: item.repository_id)
+    subitem.binaries.build(media_category: Binary::MediaCategory::THREE_D)
+    subitem.save!
+
+    assert_equal subitem,item.three_d_item
+  end
+
   # title()
 
   test 'title() should return the title element value, or nil if none exists' do
@@ -491,6 +467,7 @@ class ItemTest < ActiveSupport::TestCase
                  doc[Item::SolrFields::GROUPED_SORT]
     assert doc[Item::SolrFields::COLLECTION_PUBLISHED]
     assert_equal @item.date.utc.iso8601, doc[Item::SolrFields::DATE]
+    assert doc[Item::SolrFields::DESCRIBED]
     assert_equal @item.effective_allowed_roles.map(&:key),
                  doc[Item::SolrFields::EFFECTIVE_ALLOWED_ROLES]
     assert_equal @item.effective_denied_roles.map(&:key),
@@ -501,6 +478,8 @@ class ItemTest < ActiveSupport::TestCase
                  doc[Item::SolrFields::LAT_LONG]
     assert_equal @item.page_number, doc[Item::SolrFields::PAGE_NUMBER]
     assert_equal @item.parent_repository_id, doc[Item::SolrFields::PARENT_ITEM]
+    assert_equal @item.primary_media_category,
+                 doc[Item::SolrFields::PRIMARY_MEDIA_CATEGORY]
     assert_equal @item.published, doc[Item::SolrFields::PUBLISHED]
     assert_equal @item.representative_item_repository_id,
                  doc[Item::SolrFields::REPRESENTATIVE_ITEM_ID]
@@ -508,19 +487,6 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal @item.title, doc[Item::SolrFields::TITLE]
     assert_equal 4211798, doc[Item::SolrFields::TOTAL_BYTE_SIZE]
     assert_equal @item.variant, doc[Item::SolrFields::VARIANT]
-
-    bs = @item.binaries.
-        select{ |b| b.binary_type == Binary::Type::ACCESS_MASTER }.first
-    assert_equal bs.media_type, doc[Item::SolrFields::ACCESS_MASTER_MEDIA_TYPE]
-    assert_equal bs.repository_relative_pathname,
-                 doc[Item::SolrFields::ACCESS_MASTER_PATHNAME]
-
-    bs = @item.binaries.
-        select{ |b| b.binary_type == Binary::Type::PRESERVATION_MASTER }.first
-    assert_equal bs.media_type,
-                 doc[Item::SolrFields::PRESERVATION_MASTER_MEDIA_TYPE]
-    assert_equal bs.repository_relative_pathname,
-                 doc[Item::SolrFields::PRESERVATION_MASTER_PATHNAME]
 
     title = @item.elements.select{ |e| e.name == 'title' }.first
     assert_equal [title.value], doc[title.solr_multi_valued_field]

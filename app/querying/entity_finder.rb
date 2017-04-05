@@ -62,6 +62,10 @@ class EntityFinder < AbstractFinder
       @results = @results.filter("-#{Item::SolrFields::VARIANT}:(#{@exclude_item_variants.join(' OR ')})")
     end
 
+    if @only_described
+      @results = @results.filter("-#{Item::SolrFields::DESCRIBED}:false")
+    end
+
     @results = @results.where(@query) if @query
 
     role_keys = roles.map(&:key)

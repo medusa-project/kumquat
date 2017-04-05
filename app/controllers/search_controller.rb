@@ -22,6 +22,7 @@ class SearchController < WebsiteController
                                Item::Variants::PAGE,
                                Item::Variants::TABLE_OF_CONTENTS,
                                Item::Variants::TITLE]).
+        only_described(true).
         query(params[:q]).
         filter_queries(params[:fq]).
         sort(params[:sort]).

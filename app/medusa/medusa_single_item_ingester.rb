@@ -23,7 +23,7 @@ class MedusaSingleItemIngester < MedusaAbstractIngester
     cfs_dir = collection.effective_medusa_cfs_directory
     pres_dir = cfs_dir.directories.select{ |d| d.name == 'preservation' }.first
 
-    status = { num_created: 0, num_updated: 0, num_skipped: 0 }
+    status = { num_created: 0, num_skipped: 0 }
     files = pres_dir.files
     num_files = files.length
     files.each_with_index do |file, index|
@@ -43,13 +43,7 @@ class MedusaSingleItemIngester < MedusaAbstractIngester
       end
 
       # Create the preservation master binary.
-      bs = item.binaries.build
-      bs.cfs_file_uuid = file.uuid
-      bs.binary_type = Binary::Type::PRESERVATION_MASTER
-      bs.repository_relative_pathname =
-          '/' + file.repository_relative_pathname.reverse.chomp('/').reverse
-      bs.media_type = file.media_type
-      bs.read_size
+      item.binaries << file.to_binary(Binary::MasterType::PRESERVATION)
 
       # Find and create the access master binary.
       begin
@@ -128,25 +122,18 @@ class MedusaSingleItemIngester < MedusaAbstractIngester
         item.binaries.destroy_all
 
         # Create the preservation master binary.
-        bs = item.binaries.build
-        bs.cfs_file_uuid = file.uuid
-        bs.binary_type = Binary::Type::PRESERVATION_MASTER
-        bs.repository_relative_pathname =
-            '/' + file.repository_relative_pathname.reverse.chomp('/').reverse
-        bs.media_type = file.media_type
-        bs.read_size
-        bs.save!
+        item.binaries << file.to_binary(Binary::MasterType::PRESERVATION)
         stats[:num_created] += 1
 
         # Find and create the access master binary.
         begin
-          bs = access_master_binary(cfs_dir, file)
-          bs.item = item
-          bs.save!
+          item.binaries << access_master_binary(cfs_dir, file)
           stats[:num_created] += 1
         rescue IllegalContentError => e
           @@logger.warn("MedusaSingleItemIngester.update_binaries(): #{e}")
         end
+
+        item.save!
       end
 
       if task and index % 10 == 0
@@ -185,7 +172,7 @@ class MedusaSingleItemIngester < MedusaAbstractIngester
             select{ |f| f.name.chomp(File.extname(f.name)) ==
             pres_master_name.chomp(File.extname(pres_master_name)) }.first
         if access_file
-          return access_file.to_binary(Binary::Type::ACCESS_MASTER)
+          return access_file.to_binary(Binary::MasterType::ACCESS)
         else
           msg = "Preservation master file #{pres_master_file.uuid} has no "\
               "access master counterpart."

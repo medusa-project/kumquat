@@ -2,6 +2,28 @@ require 'test_helper'
 
 class BinaryTest < ActiveSupport::TestCase
 
+  class MediaCategoryTest < ActiveSupport::TestCase
+
+    test 'media_category_for_media_type() should return nil for a nil media type' do
+      assert_nil Binary::MediaCategory::media_category_for_media_type(nil)
+    end
+
+    test 'media_category_for_media_type() should return nil for an unrecognized
+    media type' do
+      assert_nil Binary::MediaCategory::media_category_for_media_type('image/bogus')
+    end
+
+    test 'media_category_for_media_type() should work' do
+      assert_equal Binary::MediaCategory::DOCUMENT,
+                   Binary::MediaCategory::media_category_for_media_type('application/pdf')
+      assert_equal Binary::MediaCategory::IMAGE,
+                   Binary::MediaCategory::media_category_for_media_type('image/jpeg')
+      assert_equal Binary::MediaCategory::TEXT,
+                   Binary::MediaCategory::media_category_for_media_type('text/plain')
+    end
+
+  end
+
   def setup
     @binary = binaries(:iptc)
   end
@@ -25,7 +47,8 @@ class BinaryTest < ActiveSupport::TestCase
   test 'as_json() should return the correct structure' do
     b = binaries(:iptc)
     struct = b.as_json
-    assert_equal b.human_readable_type, struct['binary_type']
+    assert_equal b.human_readable_type, struct['master_type']
+    assert_equal b.human_readable_media_category, struct['media_category']
     assert_equal 'image/jpeg', struct['media_type']
     assert_equal '/136/310/3707005/access/online/Illini_Union_Photographs/binder_5/banquets/banquets_002.jpg',
                  struct['repository_relative_pathname']
@@ -70,6 +93,32 @@ class BinaryTest < ActiveSupport::TestCase
     assert_nil(@binary.filename)
   end
 
+  # human_readable_media_category()
+
+  test 'human_readable_media_category() should work properly' do
+    assert_equal 'Audio',
+                 Binary.new(media_category: Binary::MediaCategory::AUDIO).
+                     human_readable_media_category
+    assert_equal 'Binary',
+                 Binary.new(media_category: Binary::MediaCategory::BINARY).
+                     human_readable_media_category
+    assert_equal 'Image',
+                 Binary.new(media_category: Binary::MediaCategory::IMAGE).
+                     human_readable_media_category
+    assert_equal 'Document',
+                 Binary.new(media_category: Binary::MediaCategory::DOCUMENT).
+                     human_readable_media_category
+    assert_equal 'Text',
+                 Binary.new(media_category: Binary::MediaCategory::TEXT).
+                     human_readable_media_category
+    assert_equal '3D',
+                 Binary.new(media_category: Binary::MediaCategory::THREE_D).
+                     human_readable_media_category
+    assert_equal 'Video',
+                 Binary.new(media_category: Binary::MediaCategory::VIDEO).
+                     human_readable_media_category
+  end
+
   # human_readable_name()
 
   test 'human_readable_name() should work properly' do
@@ -80,9 +129,9 @@ class BinaryTest < ActiveSupport::TestCase
 
   test 'human_readable_type should work properly' do
     assert_equal 'Access Master',
-                 Binary.new(binary_type: Binary::Type::ACCESS_MASTER).human_readable_type
+                 Binary.new(master_type: Binary::MasterType::ACCESS).human_readable_type
     assert_equal 'Preservation Master',
-                 Binary.new(binary_type: Binary::Type::PRESERVATION_MASTER).human_readable_type
+                 Binary.new(master_type: Binary::MasterType::PRESERVATION).human_readable_type
   end
 
   # iiif_image_identifier()

@@ -17,14 +17,54 @@
 # CFS file's media type (which is often vague). When they differ, the Binary's
 # media type is usually more specific.
 #
+# A binary may also reside in a media category (see the inner enum-like
+# MediaCategory class), which helps to differentiate binaries that have the
+# same media type but different uses. This especially comes into play in
+# collections that use the Mixed Media package profile. Selecting the right
+# binary to use in a given context generally means querying the item's
+# binaries.
+#
 class Binary < ActiveRecord::Base
 
   ##
   # Must be kept in sync with the return value of human_readable_type().
   #
-  class Type
-    ACCESS_MASTER = 1
-    PRESERVATION_MASTER = 0
+  class MasterType
+    ACCESS = 1
+    PRESERVATION = 0
+  end
+
+  ##
+  # Broad category in which a binary can be considered to reside. This may be
+  # different from the one in `media_type`; for example, the main image and a
+  # 3D model texture may both be JPEGs, but be in different categories, and
+  # when displaying an image viewer, we want to select the main image.
+  #
+  class MediaCategory
+    AUDIO = 3
+    BINARY = 5
+    IMAGE = 0
+    DOCUMENT = 1
+    TEXT = 6
+    THREE_D = 4
+    VIDEO = 2
+
+    ##
+    # @param media_type [String]
+    # @return [Integer, nil] MediaCategory constant value best fitting the
+    #                   given media type; or nil.
+    #
+    def self.media_category_for_media_type(media_type)
+      case media_type
+        when 'text/plain'
+          return TEXT
+      end
+      # TODO: this code finds the first but not necessarily best match, which
+      # is the reason for the override above. Pretty sloppy
+      formats = Binary.class_variable_get(:'@@formats')
+      formats = formats.select{ |f| f['media_types'].include?(media_type) }
+      formats.any? ? formats.first['media_category'] : nil
+    end
   end
 
   # touch: true means when the instance is saved, the owning item's updated_at
@@ -46,13 +86,34 @@ class Binary < ActiveRecord::Base
 
   def as_json(options = {})
     struct = super(options).stringify_keys # TODO: why is this almost empty?
-    struct['binary_type'] = self.human_readable_type
+    struct['master_type'] = self.human_readable_type
+    struct['media_category'] = self.human_readable_media_category
     struct['repository_relative_pathname'] = self.repository_relative_pathname
     struct['cfs_file_uuid'] = self.cfs_file_uuid
     struct['byte_size'] = self.byte_size
     struct['width'] = self.width
     struct['height'] = self.height
     struct.except('type')
+  end
+
+  ##
+  # @return [String]
+  # @see http://dublincore.org/documents/dcmi-type-vocabulary/#H7
+  #
+  def dc_type
+    type = nil
+    if self.is_3d?
+      type = 'PhysicalObject'
+    elsif self.is_image?
+      type = 'StillImage'
+    elsif self.is_video?
+      type = 'MovingImage'
+    elsif self.is_audio?
+      type = 'Sound'
+    elsif self.is_pdf? or self.is_text?
+      type = 'Text'
+    end
+    type
   end
 
   ##
@@ -75,6 +136,29 @@ class Binary < ActiveRecord::Base
   ##
   # @return [String]
   #
+  def human_readable_media_category
+    case self.media_category
+      when MediaCategory::AUDIO
+        return 'Audio'
+      when MediaCategory::BINARY
+        return 'Binary'
+      when MediaCategory::IMAGE
+        return 'Image'
+      when MediaCategory::DOCUMENT
+        return 'Document'
+      when MediaCategory::TEXT
+        return 'Text'
+      when MediaCategory::THREE_D
+        return '3D'
+      when MediaCategory::VIDEO
+        return 'Video'
+    end
+    nil
+  end
+
+  ##
+  # @return [String]
+  #
   def human_readable_name
     formats = @@formats.select{ |f| f['media_types'].include?(self.media_type) }
     formats.any? ? formats.first['label'] : self.media_type
@@ -84,10 +168,10 @@ class Binary < ActiveRecord::Base
   # @return [String]
   #
   def human_readable_type
-    case self.binary_type
-      when Type::ACCESS_MASTER
+    case self.master_type
+      when MasterType::ACCESS
         return 'Access Master'
-      when Type::PRESERVATION_MASTER
+      when MasterType::PRESERVATION
         return 'Preservation Master'
     end
     nil
@@ -133,7 +217,20 @@ class Binary < ActiveRecord::Base
   end
 
   def infer_media_type
-    self.media_type = MIME::Types.of(self.absolute_local_pathname).first.to_s
+    case File.extname(self.repository_relative_pathname).downcase
+      when '.mtl'
+        self.media_type = 'text/plain'
+      when '.obj'
+        self.media_type = 'text/plain'
+      else
+        # TODO: the mime-types gem only reads the extension, not the header,
+        # and only recognizes a limited number of extensions.
+        self.media_type = MIME::Types.of(self.absolute_local_pathname).first.to_s
+    end
+  end
+
+  def is_3d?
+    (self.media_category == MediaCategory::THREE_D)
   end
 
   def is_audio?

@@ -35,33 +35,25 @@ class DownloaderClient
 
     targets = []
     items.each do |item|
-      access_bs = item.access_master_binary
-      pres_bs = item.preservation_master_binary
-      if access_bs or pres_bs
-        # Add a containing directory for the item.
-        item_zip_path = '/' + File.basename((access_bs&.repository_relative_pathname ||
-            pres_bs&.repository_relative_pathname), '.*')
-        if access_bs
-          targets.push({
-              'type': 'file',
-              'path': access_bs.repository_relative_pathname,
-              'zip_path': item_zip_path + '/access'
-          })
-        end
-        if pres_bs
-          targets.push({
-              'type': 'file',
-              'path': pres_bs.repository_relative_pathname,
-              'zip_path': item_zip_path + '/preservation'
-          })
-        end
-      else
-        CustomLogger.instance.
-            info("Item has no binaries: #{item.repository_id}")
+      next if item.binaries.count < 1
+
+      # Add a containing directory for the item.
+      item_zip_path = '/' + (item.bib_id || item.repository_id)
+
+      item.binaries.each do |binary|
+        type_path = (binary.master_type == Binary::MasterType::PRESERVATION) ?
+            '/preservation' : '/access'
+        category_path = binary.media_category.present? ?
+            "/#{binary.human_readable_media_category.downcase}" : ''
+        targets.push({
+                         'type': 'file',
+                         'path': binary.repository_relative_pathname,
+                         'zip_path': item_zip_path + type_path + category_path
+                     })
       end
     end
 
-    if targets.count == 0
+    if targets.count < 1
       raise ArgumentError, 'No files to download.'
     end
 

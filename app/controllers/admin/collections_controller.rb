@@ -52,6 +52,48 @@ module Admin
     end
 
     ##
+    # Responds to GET /admin/collections/:id/statistics
+    #
+    def statistics
+      @collection = Collection.find_by_repository_id(params[:collection_id])
+      raise ActiveRecord::RecordNotFound unless @collection
+
+      # Items section
+      @num_objects = @collection.num_objects
+      @num_items = @collection.num_items
+
+      # Binaries section
+      sql = "SELECT COUNT(binaries.id) AS count
+      FROM binaries
+      LEFT JOIN items ON binaries.item_id = items.id
+      LEFT JOIN collections ON items.collection_repository_id = collections.repository_id
+      WHERE collections.repository_id = '#{@collection.repository_id}'"
+      result = ActiveRecord::Base.connection.execute(sql)
+      @num_binaries = result[0]['count'].to_i
+
+      sql = "SELECT regexp_matches(lower(repository_relative_pathname),'\\.(\\w+)$') AS extension,
+        COUNT(binaries.id) AS count
+      FROM binaries
+      LEFT JOIN items ON binaries.item_id = items.id
+      LEFT JOIN collections ON items.collection_repository_id = collections.repository_id
+      WHERE collections.repository_id = '#{@collection.repository_id}'
+        AND repository_relative_pathname ~ '\\.'
+      GROUP BY extension
+      ORDER BY extension ASC"
+      @extension_counts = ActiveRecord::Base.connection.execute(sql)
+
+      # Metadata section
+      sql = "SELECT COUNT(entity_elements.id) AS count
+      FROM entity_elements
+      LEFT JOIN items ON entity_elements.item_id = items.id
+      LEFT JOIN collections ON items.collection_repository_id = collections.repository_id
+      WHERE collections.repository_id = '#{@collection.repository_id}'"
+      result = ActiveRecord::Base.connection.execute(sql)
+      @num_ascribed_elements = result[0]['count'].to_i +
+          @collection.elements.count
+    end
+
+    ##
     # Responds to PATCH /admin/collections/sync
     #
     def sync

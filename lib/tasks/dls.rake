@@ -77,6 +77,26 @@ namespace :dls do
       end
     end
 
+    desc 'Populate the media category of all binaries'
+    task :populate_media_categories => :environment do |task|
+      Binary.uncached do
+        binaries = Binary.where(media_category: nil).
+            where('media_type IS NOT NULL')
+        count = binaries.count
+        puts "#{count} binaries to update"
+
+        binaries.find_each.with_index do |binary, index|
+          puts "(#{((index / count.to_f) * 100).round(2)}%) "\
+              "#{binary.repository_relative_pathname} "
+
+          binary.media_category =
+              Binary::MediaCategory::media_category_for_media_type(binary.media_type)
+          binary.save!
+        end
+      end
+      Solr.instance.commit
+    end
+
   end
 
   namespace :collections do

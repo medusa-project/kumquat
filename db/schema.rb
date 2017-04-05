@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170207150142) do
+ActiveRecord::Schema.define(version: 20170404195912) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -82,7 +82,7 @@ ActiveRecord::Schema.define(version: 20170207150142) do
   add_index "agents", ["name"], name: "index_agents_on_name", unique: true, using: :btree
 
   create_table "binaries", force: :cascade do |t|
-    t.integer  "binary_type"
+    t.integer  "master_type"
     t.string   "media_type",                                  default: "unknown/unknown"
     t.datetime "created_at",                                                              null: false
     t.datetime "updated_at",                                                              null: false
@@ -92,6 +92,7 @@ ActiveRecord::Schema.define(version: 20170207150142) do
     t.decimal  "byte_size",                    precision: 15
     t.decimal  "width",                        precision: 6
     t.decimal  "height",                       precision: 6
+    t.integer  "media_category"
   end
 
   add_index "binaries", ["item_id"], name: "index_binaries_on_item_id", using: :btree
@@ -203,6 +204,7 @@ ActiveRecord::Schema.define(version: 20170207150142) do
     t.integer  "contentdm_pointer"
     t.string   "contentdm_alias"
     t.string   "embed_tag"
+    t.integer  "representative_binary_id"
   end
 
   add_index "items", ["collection_repository_id"], name: "index_items_on_collection_repository_id", using: :btree

@@ -5,6 +5,8 @@
  */
 var PTItemView = function() {
 
+    var three_d_viewer_loaded = false;
+
     var self = this;
 
     /**
@@ -125,6 +127,8 @@ var PTItemView = function() {
                     download_modal.find('.pt-download-option, .pt-citation-info').hide();
                     download_modal.find('[data-item-id=' +
                         $(this).data('item-id') + ']').show();
+                    download_modal.find('input[name="download-url"][data-item-id="' +
+                        $(this).data('item-id') + '"]').trigger('click');
                 });
                 $('input[name="pt-downloadable-item"]:checked').trigger('click');
             }
@@ -326,6 +330,15 @@ var PTItemView = function() {
             $('.pt-add-to-favorites').show();
         }
 
+        // The 3D viewer is initially not loaded. Load it the first time its
+        // container div appears.
+        $('#pt-3d-viewer-container').on('shown.bs.collapse', function() {
+            if (!three_d_viewer_loaded) {
+                PearTree.view.threeDViewer.start();
+                three_d_viewer_loaded = true;
+            }
+        });
+
         new PTCitationPanel();
         new PTDownloadPanel();
         new PTEmbedPanel();
@@ -419,9 +432,11 @@ var PTItemsView = function() {
 
 var ready = function() {
     if ($('body#items_index').length) {
-        new PTItemsView().init();
+        PearTree.view = new PTItemsView();
+        PearTree.view.init();
     } else if ($('body#items_show').length) {
-        new PTItemView().init();
+        PearTree.view = new PTItemView();
+        PearTree.view.init();
     }
 };
 

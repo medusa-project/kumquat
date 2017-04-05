@@ -66,7 +66,8 @@
     </ul>
   </div>
 
-  <% if @item.is_image? or @item.is_compound? or @item.binaries.any? %>
+  <% if @item.effective_viewer_binary&.media_category == Binary::MediaCategory::IMAGE or
+      @item.is_compound? or @item.binaries.any? %>
     <div class="btn-group">
       <button type="button" class="btn btn-default dropdown-toggle"
               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -74,7 +75,8 @@
         Download <span class="caret"></span>
       </button>
       <ul class="dropdown-menu dropdown-menu-right" role="menu">
-        <% if @item.is_image? or @item.is_compound? %>
+        <% if @item.effective_viewer_binary&.media_category == Binary::MediaCategory::IMAGE or
+            @item.is_compound? %>
           <li>
             <a href="#" onclick="return false;" data-toggle="modal"
                data-target="#pt-embed-image-modal">
@@ -122,19 +124,25 @@
 <%= item_page_title(@item) %>
 
 <% if @previous_result or @next_result or session[:browse_context_url] or
-  @item.supplementary_item %>
-  <% bin = @item.supplementary_item&.preservation_master_binary %>
+  @item.supplementary_item or @item.three_d_item %>
+  <% bin = @item.supplementary_item&.effective_viewer_binary %>
   <div style="margin-bottom:16px">
-    <% if bin %>
-      <% # DLD-6: button that pops open the supplementary section is aligned to
-         # the right of the nav buttons %>
-      <div style="float:right">
+    <% # DLD-6: button that pops open the supplementary section is aligned to
+       # the right of the nav buttons %>
+    <div style="float:right">
+      <% if bin %>
         <a role="button" class="btn btn-default btn-sm" data-toggle="collapse"
            href="#pt-binary-<%= bin.id %>"
            aria-expanded="false" aria-controls="pt-binary-<%= bin.id %>">
-          <span class="fa fa-plus-square-o"></span> Supplementary File</a>
-      </div>
-    <% end %>
+          <i class="fa fa-plus-square-o"></i> Supplementary File</a>
+      <% end %>
+      <% if @item.three_d_item %>
+        <a role="button" class="btn btn-default btn-sm" data-toggle="collapse"
+           href="#pt-3d-viewer-container"
+           aria-expanded="false" aria-controls="pt-3d-viewer-container">
+          <i class="fa fa-plus-square-o"></i> 3D Model</a>
+      <% end %>
+    </div>
 
     <% # IMET-487: center the nav buttons above the viewer %>
     <div style="margin: 0 auto; width: 300px; text-align: center">
@@ -145,6 +153,11 @@
   <% if bin %>
     <div id="pt-binary-<%= bin.id %>" class="collapse">
       <%= viewer_for_binary(bin) %>
+    </div>
+  <% end %>
+  <% if @item.three_d_item %>
+    <div id="pt-3d-viewer-container" class="collapse">
+      <%= viewer_for_item(@item.three_d_item) %>
     </div>
   <% end %>
 <% end %>

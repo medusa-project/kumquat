@@ -97,12 +97,9 @@ Rails.application.routes.draw do
   end
   resources :favorites, only: :index
   resources :items, only: [:index, :show] do
-    match '/access-master', to: 'items#access_master_binary', via: :get,
-          as: 'access_master_binary'
+    match '/binaries/:filename', to: 'items#binary', via: :get, as: 'binary'
     match '/files', to: 'items#files', via: :get, as: 'files'
     match '/pages', to: 'items#pages', via: :get, as: 'pages'
-    match '/preservation-master', to: 'items#preservation_master_binary',
-          via: :get, as: 'preservation_master_binary'
     # IIIF Presentation API 2.1 routes
     match '/annotation/:name', to: 'items#iiif_annotation', via: :get,
           as: 'iiif_annotation'
@@ -112,8 +109,6 @@ Rails.application.routes.draw do
           as: 'iiif_annotation_list'
     match '/manifest', to: 'items#iiif_manifest', via: :get,
           as: 'iiif_manifest'
-    match '/media-sequence/:name', to: 'items#iiif_media_sequence', via: :get,
-          as: 'iiif_media_sequence'
     match '/range/:name', to: 'items#iiif_range', via: :get, as: 'iiif_range'
     match '/sequence/:name', to: 'items#iiif_sequence', via: :get,
           as: 'iiif_sequence'
@@ -151,6 +146,7 @@ Rails.application.routes.draw do
       match '/items/migrate-metadata', to: 'items#migrate_metadata', via: :post
       match '/items/replace-metadata', to: 'items#replace_metadata', via: :post
       match '/items/sync', to: 'items#sync', via: :post
+      match '/statistics', to: 'collections#statistics', via: :get
     end
     resources :metadata_profile_elements,
               only: [:create, :update, :destroy, :edit]
