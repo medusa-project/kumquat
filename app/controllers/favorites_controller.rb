@@ -34,7 +34,8 @@ class FavoritesController < WebsiteController
         if params[:ids].present?
           ids = params[:ids].split(',')
           if ids.any?
-            @items = Item.solr.operator(:or).where("id:(#{ids.join(' ')})")
+            @items = Item.solr.operator(:or).where("id:(#{ids.join(' ')})").
+                limit(9999)
           end
         end
 
