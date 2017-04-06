@@ -572,41 +572,6 @@ module ItemsHelper
   end
 
   ##
-  # @param pages [Relation<Item>]
-  # @param selected_item [Item]
-  # @param options [Hash] with available keys: `:link_to_admin` [Boolean]
-  #
-  def pages_as_list(pages, selected_item, options = {})
-    return nil unless pages.any?
-    html = '<ol>'
-    pages.each do |page|
-      link_target = options[:link_to_admin] ?
-          admin_collection_item_path(page.collection, page) : item_path(page)
-      html += '<li>'
-      if selected_item&.repository_id == page.repository_id
-        html += '<div class="pt-current">'
-        html += '<div class="pt-thumbnail">' +
-                    thumbnail_tag(page, DEFAULT_THUMBNAIL_SIZE, :square) +
-            '</div>'
-        html += '<span class=\"pt-title\">' +
-            truncate(page.title, length: PAGE_TITLE_LENGTH) + '</span>'
-      else
-        html += '<div>'
-        html += link_to(link_target) do
-          raw('<div class="pt-thumbnail">' +
-                  thumbnail_tag(page, DEFAULT_THUMBNAIL_SIZE, :square) + '</div>')
-        end
-        html += link_to(truncate(page.title, length: PAGE_TITLE_LENGTH),
-                        link_target, class: 'pt-title')
-        html += '</div>'
-      end
-      html += '</li>'
-    end
-    html += '</ol>'
-    raw(html)
-  end
-
-  ##
   # Returns item pagination for agent view.
   #
   # @param agent [Agent]
@@ -1365,27 +1330,6 @@ module ItemsHelper
                             remote: remote, 'aria-label': 'Last') do
           raw('<span aria-hidden="true">Last</span>')
         end
-      when Item::Variants::PAGE
-        first_link = link_to(item_pages_path(owning_entity,
-                                             params.except(:start).symbolize_keys),
-                             remote: remote, 'aria-label': 'First') do
-          raw('<span aria-hidden="true">First</span>')
-        end
-        prev_link = link_to(item_pages_path(owning_entity,
-                                            params.merge(start: prev_start).symbolize_keys),
-                            remote: remote, 'aria-label': 'Previous') do
-          raw('<span aria-hidden="true">&laquo;</span>')
-        end
-        next_link = link_to(item_pages_path(owning_entity,
-                                            params.merge(start: next_start).symbolize_keys),
-                            remote: remote, 'aria-label': 'Next') do
-          raw('<span aria-hidden="true">&raquo;</span>')
-        end
-        last_link = link_to(item_pages_path(owning_entity,
-                                            params.merge(start: last_start).symbolize_keys),
-                            remote: remote, 'aria-label': 'Last') do
-          raw('<span aria-hidden="true">Last</span>')
-        end
       when :agent_item
         first_link = link_to(agent_items_path(owning_entity,
                                              params.except(:start).symbolize_keys),
@@ -1437,13 +1381,6 @@ module ItemsHelper
         when Item::Variants::FILE
           path = (start == 0) ? item_files_path(owning_entity, params.except(:start).symbolize_keys) :
               item_files_path(owning_entity, params.merge(start: start).symbolize_keys)
-          page_link = link_to(path, remote: remote) do
-            raw("#{page} #{(page == current_page) ?
-                '<span class="sr-only">(current)</span>' : ''}")
-          end
-        when Item::Variants::PAGE
-          path = (start == 0) ? item_pages_path(owning_entity, params.except(:start).symbolize_keys) :
-              item_pages_path(owning_entity, params.merge(start: start).symbolize_keys)
           page_link = link_to(path, remote: remote) do
             raw("#{page} #{(page == current_page) ?
                 '<span class="sr-only">(current)</span>' : ''}")

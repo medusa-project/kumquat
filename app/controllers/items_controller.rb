@@ -274,19 +274,6 @@ class ItemsController < WebsiteController
   end
 
   ##
-  # Responds to GET /item/:id/pages (XHR only)
-  #
-  def pages
-    if request.xhr?
-      fresh_when(etag: @item) if Rails.env.production?
-      set_pages_ivar
-      render 'items/pages'
-    else
-      render status: 406, text: 'Not Acceptable'
-    end
-  end
-
-  ##
   # Responds to GET /items/:id
   #
   def show
@@ -309,9 +296,6 @@ class ItemsController < WebsiteController
         end
 
         set_files_ivar
-        if @files.total_length == 0
-          set_pages_ivar
-        end
 
         # Find the previous and next result based on the results URL in the
         # session.
@@ -445,14 +429,6 @@ class ItemsController < WebsiteController
         order({Item::SolrFields::VARIANT => :asc},
               {Item::SolrFields::TITLE => :asc}).
         start(@start).limit(@limit)
-  end
-
-  def set_pages_ivar
-    @start = params[:start] ? params[:start].to_i : 0
-    @limit = PAGES_LIMIT
-    @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
-    @pages = @item.pages_from_solr.order(Item::SolrFields::TITLE).
-        start(@start).limit(@limit).to_a
   end
 
 end

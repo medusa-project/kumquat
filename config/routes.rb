@@ -99,7 +99,6 @@ Rails.application.routes.draw do
   resources :items, only: [:index, :show] do
     match '/binaries/:filename', to: 'items#binary', via: :get, as: 'binary'
     match '/files', to: 'items#files', via: :get, as: 'files'
-    match '/pages', to: 'items#pages', via: :get, as: 'pages'
     # IIIF Presentation API 2.1 routes
     match '/annotation/:name', to: 'items#iiif_annotation', via: :get,
           as: 'iiif_annotation'
