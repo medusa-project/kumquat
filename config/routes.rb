@@ -99,7 +99,6 @@ Rails.application.routes.draw do
   resources :items, only: [:index, :show] do
     match '/binaries/:filename', to: 'items#binary', via: :get, as: 'binary'
     match '/files', to: 'items#files', via: :get, as: 'files'
-    match '/pages', to: 'items#pages', via: :get, as: 'pages'
     # IIIF Presentation API 2.1 routes
     match '/annotation/:name', to: 'items#iiif_annotation', via: :get,
           as: 'iiif_annotation'
@@ -112,6 +111,9 @@ Rails.application.routes.draw do
     match '/range/:name', to: 'items#iiif_range', via: :get, as: 'iiif_range'
     match '/sequence/:name', to: 'items#iiif_sequence', via: :get,
           as: 'iiif_sequence'
+    # Wellcome Library API extension
+    match '/xsequence/:name', to: 'items#iiif_media_sequence', via: :get,
+          as: 'iiif_media_sequence'
   end
   match '/oai-pmh', to: 'oai_pmh#index', via: %w(get post), as: 'oai_pmh'
   match '/search', to: 'search#search', via: :get

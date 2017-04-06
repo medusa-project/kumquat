@@ -58,5 +58,10 @@ end
 # List of sequences
 json.sequences iiif_sequences_for(@item)
 
+# List of IxIF media sequences (API extension)
+# Disabled due to a potential Safari bug
+# (see https://github.com/UniversalViewer/universalviewer/issues/372)
+#json.mediaSequences iiif_media_sequences_for(@item)
+
 # List of ranges
 json.structures iiif_ranges_for(@item)

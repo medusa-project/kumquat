@@ -1073,7 +1073,7 @@ class Item < ActiveRecord::Base
     end
 
     CustomLogger.instance.debug("Item.elements_from_embedded_metadata: using "\
-        "#{bs.human_readable_type} (#{bs.absolute_local_pathname})")
+        "#{bs.human_readable_master_type} (#{bs.absolute_local_pathname})")
 
     # Get its embedded IIM metadata
     iim_metadata = bs.metadata.select{ |m| m[:category] == 'IPTC' }
