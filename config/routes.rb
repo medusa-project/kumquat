@@ -111,6 +111,9 @@ Rails.application.routes.draw do
     match '/range/:name', to: 'items#iiif_range', via: :get, as: 'iiif_range'
     match '/sequence/:name', to: 'items#iiif_sequence', via: :get,
           as: 'iiif_sequence'
+    # Wellcome Library API extension
+    match '/xsequence/:name', to: 'items#iiif_media_sequence', via: :get,
+          as: 'iiif_media_sequence'
   end
   match '/oai-pmh', to: 'oai_pmh#index', via: %w(get post), as: 'oai_pmh'
   match '/search', to: 'search#search', via: :get
