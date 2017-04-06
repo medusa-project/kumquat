@@ -14,7 +14,8 @@ class ItemsController < WebsiteController
 
   before_action :enable_cors, only: [:iiif_annotation, :iiif_annotation_list,
                                      :iiif_canvas, :iiif_layer, :iiif_manifest,
-                                     :iiif_range, :iiif_sequence]
+                                     :iiif_media_sequence, :iiif_range,
+                                     :iiif_sequence]
   before_action :load_item, except: :index
   before_action :authorize_item, except: :index
   before_action :set_browse_context, only: :index
@@ -131,6 +132,20 @@ class ItemsController < WebsiteController
   #
   def iiif_manifest
     render 'items/iiif_presentation_api/manifest',
+           formats: :json, content_type: 'application/json'
+  end
+
+  ##
+  # Serves media sequences -- an IIIF Presentation API extension by the
+  # Wellcome Library that enables the UniversalViewer to work with certain
+  # non-image content.
+  #
+  # Responds to GET /items/:id/xsequence/:name
+  #
+  # @see https://gist.github.com/tomcrane/7f86ac08d3b009c8af7c
+  #
+  def iiif_media_sequence
+    render 'items/iiif_presentation_api/media_sequence',
            formats: :json, content_type: 'application/json'
   end
 

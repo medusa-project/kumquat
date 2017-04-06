@@ -58,5 +58,8 @@ end
 # List of sequences
 json.sequences iiif_sequences_for(@item)
 
+# List of IxIF media sequences (API extension)
+json.mediaSequences iiif_media_sequences_for(@item)
+
 # List of ranges
 json.structures iiif_ranges_for(@item)

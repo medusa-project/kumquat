@@ -136,8 +136,47 @@ module IiifPresentationHelper
   end
 
   ##
+  # Media sequences are a Wellcome Library extension to the IIIF Presentation
+  # API that enable the UniversalViewer to display non-image content.
+  #
+  # See: https://gist.github.com/tomcrane/7f86ac08d3b009c8af7c
+  #
   # @param item [Item]
   # @return [Array]
+  #
+  def iiif_media_sequences_for(item)
+    sequences = []
+    item.items.each do |child|
+      # Audio
+      # Example: http://wellcomelibrary.org/iiif/b17307922/manifest
+      child.binaries.
+          select{ |b| b.media_category == Binary::MediaCategory::AUDIO and
+          b.binary_type == Binary::Type::ACCESS_MASTER }.each do |bin|
+        sequences << {
+            '@id': item_iiif_media_sequence_url(item, bin.filename),
+            '@type': 'ixif:MediaSequence',
+            'label': "XSequence #{bin.filename}",
+            'elements': [
+                '@id': binary_url(bin),
+                '@type': "dctypes:#{bin.dc_type}",
+                'format': bin.media_type,
+                'label': child.title,
+                'metadata': iiif_metadata_for(child),
+                'thumbnail': thumbnail_url(child.iiif_image_binary),
+                rendering: {
+                    '@id': binary_url(bin),
+                    format: bin.media_type
+                }
+            ]
+        }
+      end
+    end
+    sequences
+  end
+
+  ##
+  # @param item [Item]
+  # @return [Array<Hash>]
   #
   def iiif_metadata_for(item)
     elements = []
