@@ -151,7 +151,7 @@ module IiifPresentationHelper
       # Example: http://wellcomelibrary.org/iiif/b17307922/manifest
       child.binaries.
           select{ |b| b.media_category == Binary::MediaCategory::AUDIO and
-          b.binary_type == Binary::Type::ACCESS_MASTER }.each do |bin|
+          b.master_type == Binary::MasterType::ACCESS }.each do |bin|
         sequences << {
             '@id': item_iiif_media_sequence_url(item, bin.filename),
             '@type': 'ixif:MediaSequence',
