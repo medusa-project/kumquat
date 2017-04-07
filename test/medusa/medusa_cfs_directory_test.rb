@@ -23,18 +23,28 @@ class MedusaCfsDirectoryTest < ActiveSupport::TestCase
     assert_equal 1, @dir.files.length
   end
 
+  # id()
+
   test 'id should return the ID' do
     assert_equal 407393, @dir.id
   end
+
+  # pathname()
 
   test 'pathname should return the correct pathname' do
     assert_equal(Configuration.instance.repository_pathname.chomp('/') + '/162/2204',
                  @dir.pathname)
   end
 
+  # repository_relative_pathname()
+
   test 'repository_relative_pathname should return the correct repository-relative pathname' do
-    assert_equal('/162/2204', @dir.repository_relative_pathname)
+    @dir = MedusaCfsDirectory.new
+    @dir.uuid = 'd20a6200-c451-0133-1d17-0050569601ca-1'
+    assert_equal('/162/2204/1601831/access', @dir.repository_relative_pathname)
   end
+
+  # url()
 
   test 'url should return the correct url' do
     assert_equal(Configuration.instance.medusa_url.chomp('/') +

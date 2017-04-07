@@ -50,8 +50,7 @@
         </li>
       <% end %>
       <% if @item.bib_id %>
-        <li><%= link_to "http://vufind.carli.illinois.edu/vf-uiu/Record/uiu_#{@item.bib_id}",
-                        target: '_blank' do %>
+        <li><%= link_to @item.catalog_record_url, target: '_blank' do %>
             <i class="fa fa-book"></i>&nbsp;&nbsp;Library Catalog Record
           <% end %>
         </li>
@@ -66,13 +65,13 @@
     </ul>
   </div>
 
-  <% if @item.effective_viewer_binary&.media_category == Binary::MediaCategory::IMAGE or
+  <% if @item.variant == Item::Variants::DIRECTORY or
+      @item.effective_viewer_binary&.media_category == Binary::MediaCategory::IMAGE or
       @item.is_compound? or @item.binaries.any? %>
     <div class="btn-group">
       <button type="button" class="btn btn-default dropdown-toggle"
               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-        <i class="fa fa-download"></i>
-        Download <span class="caret"></span>
+        <i class="fa fa-download"></i> Download <span class="caret"></span>
       </button>
       <ul class="dropdown-menu dropdown-menu-right" role="menu">
         <% if @item.effective_viewer_binary&.media_category == Binary::MediaCategory::IMAGE or
@@ -90,9 +89,11 @@
               <i class="fa fa-file-o"></i>&nbsp;&nbsp;Download File</a>
           </li>
         <% end %>
-        <% if @item.is_compound? and client_supports_zip_download? %>
+        <% if (@item.variant == Item::Variants::DIRECTORY or @item.is_compound?) and
+            client_supports_zip_download? %>
           <li>
-            <%= link_to(params.merge({ format: :zip })) do %>
+            <%= link_to('', 'data-toggle': 'modal',
+                        'data-target': '#pt-download-zip-modal') do %>
               <i class="fa fa-file-zip-o"></i>&nbsp;&nbsp;Zip File&hellip;
             <% end %>
           </li>
@@ -245,8 +246,12 @@
 </section>
 
 <%= render partial: 'cite_panel', locals: { item: @item } %>
-<%= render partial: 'download_panel', locals: { item: @item } %>
 <%= render partial: 'embed_image_panel', locals: { item: @item } %>
+<%= render partial: 'download_panel', locals: { item: @item } %>
+<%= render partial: 'download_zip_panel', locals: {
+    context: (@item.variant == Item::Variants::DIRECTORY) ? :directory : :item,
+    num_downloadable_items: 0, # these are potentially expensive to calculate.
+    total_byte_size: 0 } %>
 
 <script type="application/ld+json">
   <%= schema_org_json_ld(@item) %>

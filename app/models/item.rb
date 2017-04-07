@@ -15,47 +15,86 @@
 #
 # Medusa is not item-aware; items are a DLS entity. Item IDs correspond to
 # Medusa file/directory IDs depending on a collection's package profile. These
-# IDs are stored in `repository_id`, NOT `id`, which is only used internally by
+# IDs are stored in `repository_id`, NOT `id`, which is only used by
 # ActiveRecord.
 #
 # Items have a soft pointer to their collection and parent item based on
 # repository ID, rather than a belongs_to/has_many on their database ID.
-# This is to be able to establish structure outside of the application.
-# Repository IDs are the same in all instances of the application.
+# This is in order to establish structure outside of the application.
+# Repository IDs are the same in all instances of the application that use the
+# same Medusa content.
 #
 # # Description
 #
 # Items have a number of properties of their own as well as a one-to-many
 # relationship with ItemElement, which encapsulates a metadata element.
-# Properties are used/needed by the system, and ItemElements are basically
-# free-form strings.
+# Properties are used by the system, and ItemElements contain free-form strings
+# and/or URIs.
 #
 # ## Properties
 #
 # ### Adding a property:
 #
 # 1) Add a column for it on Item
-# 2) Add it to Item::SolrFields
-# 3) Add serialization code to Item.tsv_header, as_json, to_solr, and
-#    Collection.items_as_tsv
-# 4) Add deserialization code to Item.update_from_json and update_from_tsv
-# 5) Update fixtures and tests
-# 6) Reindex (if necessary)
+# 2) Add it to Item::SolrFields (if it needs to be)
+# 3) Add serialization code to as_json and to_solr
+# 4) If it needs to appear in TSV, add it to Item.tsv_header,
+#    Collection.items_as_tsv, and/or Item.update_from_tsv
+# 5) Add deserialization code to Item.update_from_json and update_from_tsv
+# 6) Update fixtures and tests
+# 7) Reindex (if necessary)
 #
 # ## Descriptive Metadata
 #
-# The set of elements that an item contains is typically shaped by its
-# collection's metadata profile, although there is no constraint in place to
-# keep an item from being associated with elements not in the profile.
+# The set of elements that an item will contain is shaped by its collection's
+# metadata profile, but there is no constraint in place to keep an item from
+# being associated with elements not in the profile. This is a safety feature,
+# so that deleting an element from a profile does not delete it from any items
+# contained in the collections to which the profile is assigned.
 #
 # # Indexing
 #
-# Items are searchable via ActiveRecord as well as via Solr (see ItemFinder).
-# The Solr search functionality is available via the `solr` class method.
+# Items are searchable via ActiveRecord as well as via Solr. Solr search
+# functionality is available via the `solr` class method. There is also a
+# higher-level Solr query interface provided by ItemFinder, which takes
+# authorization, public visiblity, etc. into account.
 #
 # Instances are automatically indexed in Solr (see `to_solr`) upon transaction
-# commital. They are **not** indexed on save. For this reason, **instances
-# should only be updated within a transaction.**
+# commit. They are **not** indexed on save. For this reason, **instances
+# should always be created, updated, and deleted within a transaction.**
+#
+# # Attributes
+#
+# * collection_repository_id: See "Identifiers" above.
+# * contentdm_alias:      String collection alias of items that have been
+#                         migrated out of CONTENTdm, used for URL redirection.
+# * contentdm_pointer:    Integer pointer of items that have been migrated out
+#                         of CONTENTdm, used for URL redirection.
+# * created_at:           Managed by ActiveRecord.
+# * date:                 Normalized date, for date-based queries.
+# * embed_tag:            HTML snippet that will be used to display an
+#                         alternative object viewer.
+# * full_text:            Full plain text; for example, a transcript or OCR.
+# * latitude:             Normalized latitude in decimal degrees.
+# * longitude:            Normalized longitude in decimal degrees.
+# * page_number:          Literal page number of a page-variant item.
+# * parent_repository_id: See "Identifiers" above.
+# * published:            Controls public availability. Unpublished items
+#                         shouldn't appear in public search results or be
+#                         accessible in any other way publicly.
+# * repository_id:        See "Identifiers" above.
+# * representative_binary_id: Medusa UUID of an alternative binary designated
+#                             to stand in as a representation of the item.
+# * representative_item_repository_id: Repository ID of another item designated
+#                                      to stand in as a representatation of the
+#                                      item. For example, using a different
+#                                      item to provide a thumbnail image for an
+#                                      item that is not very photogenic.
+# * subpage_number:       Subpage number of a page-variant item. Only used when
+#                         there are multiple items corresponding to a single
+#                         page of a physical object.
+# * updated_at:           Managed by ActiveRecord.
+# * variant:              Like a subclass. Used often in queries.
 #
 class Item < ActiveRecord::Base
 
@@ -260,6 +299,16 @@ class Item < ActiveRecord::Base
   #
   def bib_id
     self.elements.select{ |e| e.name == 'bibId' }.first&.value
+  end
+
+  ##
+  # @return [String, nil] URL of the instance in the library OPAC. Will be
+  #                       non-nil only if the instance's bib ID is non-nil.
+  #
+  def catalog_record_url
+    bibid = self.bib_id
+    bibid.present? ?
+        "http://vufind.carli.illinois.edu/vf-uiu/Record/uiu_#{bibid}" : nil
   end
 
   ##
@@ -497,8 +546,6 @@ class Item < ActiveRecord::Base
   #
   def index_in_solr
     Solr.instance.add(self.to_solr)
-    # To improve performance, we will avoid saving here, as this will be
-    # called in an after_commit callback 99.99% of the time.
   end
 
   ##
@@ -580,13 +627,12 @@ class Item < ActiveRecord::Base
   #
   def migrate_elements(source_name, dest_name)
     ActiveRecord::Base.transaction do
-      # Get all of the elements with the same name as the source element...
-      source_elements = self.elements.select{ |e| e.name == source_name }
-      # Clone them into elements with the destination name...
-      source_elements.each do |src_e|
-        self.elements.build(name: dest_name,
-                            value: src_e.value,
-                            vocabulary: src_e.vocabulary)
+      # Get all of the elements with the same name as the source element
+      self.elements.select{ |e| e.name == source_name }.each do |src_e|
+        # Clone them into elements with the destination name.
+        new_e = src_e.dup
+        new_e.name = dest_name
+        self.elements << new_e
         src_e.destroy!
       end
       self.save!
@@ -602,7 +648,7 @@ class Item < ActiveRecord::Base
     next_item = nil
     if self.parent and self.page_number
       next_item = Item.where(parent_repository_id: self.parent.repository_id,
-                page_number: self.page_number + 1).limit(1).first
+                             page_number: self.page_number + 1).limit(1).first
     end
     next_item
   end

@@ -37,6 +37,7 @@
 <p class="pt-no-favorites">You have no items in your favorites.</p>
 
 <%= render partial: 'items/download_zip_panel', locals: {
+    context: :favorites,
     num_downloadable_items: @num_downloadable_items,
     total_num_items: @num_downloadable_items,
     total_byte_size: 0 } %>

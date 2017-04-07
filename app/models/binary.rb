@@ -24,6 +24,23 @@
 # binary to use in a given context generally means querying the item's
 # binaries.
 #
+# # Attributes
+#
+# * byte_size:      Size of the binary's contents in bytes.
+# * cfs_file_uuid:  UUID of the binary's corresponding file in Medusa.
+# * created_at:     Managed by ActiveRecord.
+# * height:         Native pixel height of a raster binary (image or video).
+# * item_id:        Database ID of the binary's owning item.
+# * master_type:    One of the Binary::MasterType constant values; see its
+#                   class documentation.
+# * media_category: One of the Binary::MediaCategory constant values; see its
+#                   class documentation.
+# * media_type:     Best-fit IANA media (MIME) type.
+# * repository_relative_pathname: Pathname of the binary relative to the
+#                                 repository root directory.
+# * updated_at:     Managed by ActiveRecord.
+# * width:          Native pixel width of a raster binary (image or video).
+#
 class Binary < ActiveRecord::Base
 
   ##
