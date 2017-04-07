@@ -67,6 +67,20 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal 'cats', @item.bib_id
   end
 
+  # catalog_record_url()
+
+  test 'catalog_record_url() should return nil when bib_id() returns nil' do
+    @item.elements.where(name: 'bibId').destroy_all
+    assert_nil @item.catalog_record_url
+  end
+
+  test 'catalog_record_url() should return the catalog record URL when bib_id()
+  returns a string' do
+    @item.elements.build(name: 'bibId', value: '12345')
+    assert_equal 'http://vufind.carli.illinois.edu/vf-uiu/Record/uiu_12345',
+                 @item.catalog_record_url
+  end
+
   # collection_repository_id
 
   test 'collection_repository_id must be a UUID' do
