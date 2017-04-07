@@ -590,13 +590,12 @@ class Item < ActiveRecord::Base
   #
   def migrate_elements(source_name, dest_name)
     ActiveRecord::Base.transaction do
-      # Get all of the elements with the same name as the source element...
-      source_elements = self.elements.select{ |e| e.name == source_name }
-      # Clone them into elements with the destination name...
-      source_elements.each do |src_e|
-        self.elements.build(name: dest_name,
-                            value: src_e.value,
-                            vocabulary: src_e.vocabulary)
+      # Get all of the elements with the same name as the source element
+      self.elements.select{ |e| e.name == source_name }.each do |src_e|
+        # Clone them into elements with the destination name.
+        new_e = src_e.dup
+        new_e.name = dest_name
+        self.elements << new_e
         src_e.destroy!
       end
       self.save!
