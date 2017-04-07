@@ -88,7 +88,7 @@ class MedusaCfsDirectory
   def repository_relative_pathname
     unless @repository_relative_pathname
       load_instance
-      @repository_relative_pathname = "/#{self.medusa_representation['name']}"
+      @repository_relative_pathname = "/#{self.medusa_representation['relative_pathname']}"
     end
     @repository_relative_pathname
   end
