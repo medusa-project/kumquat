@@ -349,7 +349,7 @@ class ItemsController < WebsiteController
           # contain content for each item in the object.
           if @item.variant == Item::Variants::DIRECTORY
             if @item.items.any?
-              items = @item.items(true)
+              items = @item.all_files
               zip_name = 'files'
               profile = PackageProfile::FREE_FORM_PROFILE
             else

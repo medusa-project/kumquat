@@ -260,6 +260,32 @@ class Item < ActiveRecord::Base
   end
 
   ##
+  # @return [Enumerable<Item>] All items with a variant of Variants::FILE
+  #                            that are children of the instance, at any level
+  #                            in the tree.
+  #
+  def all_files
+    sql = 'WITH RECURSIVE q AS (
+        SELECT h, 1 AS level, ARRAY[repository_id] AS breadcrumb
+        FROM items h
+        WHERE repository_id = $1
+        UNION ALL
+        SELECT hi, q.level + 1 AS level, breadcrumb || repository_id
+        FROM q
+        JOIN items hi
+          ON hi.parent_repository_id = (q.h).repository_id
+      )
+      SELECT (q.h).repository_id
+      FROM q
+      WHERE (q.h).variant = $2
+      ORDER BY breadcrumb'
+    values = [[ nil, self.repository_id, ], [ nil, Variants::FILE ]]
+
+    results = ActiveRecord::Base.connection.exec_query(sql, 'SQL', values)
+    Item.where('repository_id IN (?)', results.map{ |row| row['repository_id'] })
+  end
+
+  ##
   # @return [Enumerable<Item>] All parents in order from closest to farthest.
   #
   def all_parents
@@ -465,7 +491,8 @@ class Item < ActiveRecord::Base
   # @return [Relation]
   # @see files_from_solr()
   #
-  def files
+  def files # TODO: why does this return directory variants? consider renaming
+    # TODO: replace with files_from_solr() or use whichever implementation is faster
     self.items.where(variant: [Variants::FILE, Variants::DIRECTORY])
   end
 
@@ -476,7 +503,7 @@ class Item < ActiveRecord::Base
   # @return [Relation]
   # @see files()
   #
-  def files_from_solr
+  def files_from_solr # TODO: why does this return directory variants? consider renaming
     Item.solr.where(Item::SolrFields::PARENT_ITEM => self.repository_id).
         where("(#{Item::SolrFields::VARIANT}:#{Item::Variants::FILE} OR "\
             "#{Item::SolrFields::VARIANT}:#{Item::Variants::DIRECTORY})")

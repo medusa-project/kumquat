@@ -33,6 +33,12 @@ class ItemTest < ActiveSupport::TestCase
         end_with?(Item::TSV_LINE_BREAK)
   end
 
+  # all_files()
+
+  test 'all_files() should return the correct items' do
+    assert_equal 1, items(:free_form_dir1).all_files.count
+  end
+
   # as_json()
 
   test 'as_json() should return the correct structure' do
