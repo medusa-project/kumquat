@@ -1596,7 +1596,10 @@ module ItemsHelper
     html = ''
     if binary
       begin
-        html += raw("<pre>#{File.read(binary.absolute_local_pathname)}</pre>")
+        str = File.read(binary.absolute_local_pathname).to_s
+        if str.valid_encoding?
+          html += raw("<pre>#{str}</pre>")
+        end
       rescue Errno::ENOENT # File not found
       end
     end
