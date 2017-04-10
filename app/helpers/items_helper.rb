@@ -1207,6 +1207,11 @@ module ItemsHelper
             value: binary.absolute_local_pathname
         }
       end
+      data << {
+          label: 'Media Type',
+          category: 'File',
+          value: binary.media_type
+      }
       if binary.cfs_file_uuid.present?
         data << {
             label: 'Medusa CFS File',
@@ -1540,7 +1545,10 @@ module ItemsHelper
     html = ''
     if binary
       begin
-        html += raw("<pre>#{File.read(binary.absolute_local_pathname)}</pre>")
+        str = File.read(binary.absolute_local_pathname).to_s
+        if str.valid_encoding?
+          html += raw("<pre>#{str}</pre>")
+        end
       rescue Errno::ENOENT # File not found
       end
     end
