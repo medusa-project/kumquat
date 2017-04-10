@@ -552,32 +552,32 @@ class Item < ActiveRecord::Base
       if !bin or !bin.iiif_safe?
         [
             {
-                master_type: Binary::Type::ACCESS_MASTER,
+                master_type: Binary::MasterType::ACCESS,
                 media_category: Binary::MediaCategory::IMAGE
             },
             {
-                master_type: Binary::Type::ACCESS_MASTER,
+                master_type: Binary::MasterType::ACCESS,
                 media_category: Binary::MediaCategory::VIDEO
             },
             {
-                master_type: Binary::Type::ACCESS_MASTER,
+                master_type: Binary::MasterType::ACCESS,
                 media_type: 'application/pdf'
             },
             {
-                master_type: Binary::Type::PRESERVATION_MASTER,
+                master_type: Binary::MasterType::PRESERVATION,
                 media_category: Binary::MediaCategory::IMAGE
             },
             {
-                master_type: Binary::Type::PRESERVATION_MASTER,
+                master_type: Binary::MasterType::PRESERVATION,
                 media_category: Binary::MediaCategory::VIDEO
             },
             {
-                master_type: Binary::Type::PRESERVATION_MASTER,
+                master_type: Binary::MasterType::PRESERVATION,
                 media_type: 'application/pdf'
             }
         ].each do |pref|
           bin = self.binaries.select do |b|
-            b.binary_type == pref[:master_type] and
+            b.master_type == pref[:master_type] and
                 (pref[:media_category] ?
                     (b.media_category == pref[:media_category]) :
                     (b.media_type == pref[:media_type]))
