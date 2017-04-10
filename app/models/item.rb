@@ -457,8 +457,11 @@ class Item < ActiveRecord::Base
   # 2. If the instance's variant is SUPPLEMENT, any binary
   # 3. If the instance is compound, the iiif_image_binary of the first page
   # 4. Any access master of Binary::MediaCategory::IMAGE
-  # 5. Any access master with media type "application/pdf"
-  # 6. Any preservation master of Binary::MediaCategory::IMAGE
+  # 5. Any access master of Binary::MediaCategory::VIDEO
+  # 6. Any access master with media type "application/pdf"
+  # 7. Any preservation master of Binary::MediaCategory::IMAGE
+  # 8. Any preservation master of Binary::MediaCategory::VIDEO
+  # 9. Any preservation master with media type "application/pdf"
   #
   # @return [Binary, nil]
   #
@@ -471,21 +474,40 @@ class Item < ActiveRecord::Base
         bin = self.pages.first&.iiif_image_binary
       end
       if !bin or !bin.iiif_safe?
-        bin = self.binaries.
-            select{ |b| b.binary_type == Binary::Type::ACCESS_MASTER and
-            b.media_category == Binary::MediaCategory::IMAGE }.first
-        if !bin or !bin.iiif_safe?
-          bin = self.binaries.
-              select{ |b| b.binary_type == Binary::Type::ACCESS_MASTER and
-              b.media_type == 'application/pdf' }.first
-          if !bin or !bin.iiif_safe?
-            bin = self.binaries.
-                select{ |b| b.binary_type == Binary::Type::PRESERVATION_MASTER and
-                b.media_category == Binary::MediaCategory::IMAGE }.first
-            if !bin or !bin.iiif_safe?
-              bin = nil
-            end
+        [
+            {
+                master_type: Binary::MasterType::ACCESS,
+                media_category: Binary::MediaCategory::IMAGE
+            },
+            {
+                master_type: Binary::MasterType::ACCESS,
+                media_category: Binary::MediaCategory::VIDEO
+            },
+            {
+                master_type: Binary::MasterType::ACCESS,
+                media_type: 'application/pdf'
+            },
+            {
+                master_type: Binary::MasterType::PRESERVATION,
+                media_category: Binary::MediaCategory::IMAGE
+            },
+            {
+                master_type: Binary::MasterType::PRESERVATION,
+                media_category: Binary::MediaCategory::VIDEO
+            },
+            {
+                master_type: Binary::MasterType::PRESERVATION,
+                media_type: 'application/pdf'
+            }
+        ].each do |pref|
+          bin = self.binaries.select do |b|
+            b.master_type == pref[:master_type] and
+                (pref[:media_category] ?
+                    (b.media_category == pref[:media_category]) :
+                    (b.media_type == pref[:media_type]))
           end
+          bin = bin.first
+          break if bin
         end
       end
     end
