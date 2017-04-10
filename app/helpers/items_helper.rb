@@ -1200,6 +1200,11 @@ module ItemsHelper
             value: binary.absolute_local_pathname
         }
       end
+      data << {
+          label: 'Media Type',
+          category: 'File',
+          value: binary.media_type
+      }
       if binary.cfs_file_uuid.present?
         data << {
             label: 'Medusa CFS File',
