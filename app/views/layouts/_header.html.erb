@@ -59,7 +59,7 @@
         <ul class="nav navbar-nav">
           <li id="collections-nav">
             <%= link_to collections_path do %>
-                <span class="fa fa-folder-open"></span> Collections
+              <span class="fa fa-folder-open"></span> Collections
             <% end %>
           </li>
           <li class="dropdown" id="items-nav">
@@ -74,19 +74,19 @@
               <li class="divider"></li>
               <li>
                 <%= link_to('Images',
-                            items_path(q: "#{Item::SolrFields::PRIMARY_MEDIA_CATEGORY}:#{Binary::MediaCategory::IMAGE}")) %>
+                            items_path(fq: "#{Item::SolrFields::PRIMARY_MEDIA_CATEGORY}:\"#{Binary::MediaCategory::IMAGE}\"")) %>
               </li>
               <li>
                 <%= link_to('Documents',
-                            items_path(q: "#{Item::SolrFields::PRIMARY_MEDIA_CATEGORY}:#{Binary::MediaCategory::DOCUMENT}")) %>
+                            items_path(fq: "#{Item::SolrFields::PRIMARY_MEDIA_CATEGORY}:\"#{Binary::MediaCategory::DOCUMENT}\"")) %>
               </li>
               <li>
                 <%= link_to('Videos',
-                            items_path(q: "#{Item::SolrFields::PRIMARY_MEDIA_CATEGORY}:#{Binary::MediaCategory::VIDEO}")) %>
+                            items_path(fq: "#{Item::SolrFields::PRIMARY_MEDIA_CATEGORY}:\"#{Binary::MediaCategory::VIDEO}\"")) %>
               </li>
               <li>
                 <%= link_to('Sound Recordings',
-                            items_path(q: "#{Item::SolrFields::PRIMARY_MEDIA_CATEGORY}:#{Binary::MediaCategory::AUDIO}")) %>
+                            items_path(fq: "#{Item::SolrFields::PRIMARY_MEDIA_CATEGORY}:\"#{Binary::MediaCategory::AUDIO}\"")) %>
               </li>
             </ul>
           </li>
