@@ -492,6 +492,14 @@ class CollectionTest < ActiveSupport::TestCase
     assert_equal @col.package_profile_id, PackageProfile::COMPOUND_OBJECT_PROFILE.id
   end
 
+  # purge()
+
+  test 'purge() should purge all items' do
+    assert @col.items.count > 0
+    @col.purge
+    assert @col.items.count == 0
+  end
+
   # replace_item_element_values()
 
   test 'replace_item_element_values() should work with :exact_match matching

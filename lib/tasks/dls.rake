@@ -134,9 +134,7 @@ namespace :dls do
 
     desc 'Delete all items from a collection'
     task :purge_collection, [:uuid] => :environment do |task, args|
-      ActiveRecord::Base.transaction do
-        Item.where(collection_repository_id: args[:uuid]).destroy_all
-      end
+      Collection.find_by_repository_id(args[:uuid]).purge
       Solr.instance.commit
     end
 
