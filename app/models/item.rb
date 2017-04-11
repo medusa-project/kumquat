@@ -151,6 +151,14 @@ class Item < ActiveRecord::Base
     def self.all
       self.constants.map{ |c| self.const_get(c) }
     end
+
+    ##
+    # @return [Enumerable<String>] String values of all variants that are
+    #                              not filesystem-related.
+    #
+    def self.non_filesystem_variants
+      self.all.reject{ |v| [FILE, DIRECTORY].include?(v) }
+    end
   end
 
   # In the order they should appear in the TSV, left-to-right.
