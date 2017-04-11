@@ -249,7 +249,7 @@ module ItemsHelper
       shape = (shape == :square) ? 'square' : 'full'
       # ?time= is a nonstandard argument supported only by Cantaloupe,
       # applicable only to videos.
-      url = sprintf('%s/%s/!%d,%d/0/default.jpg?time=00:00:20',
+      url = sprintf('%s/%s/!%d,%d/0/default.jpg?time=00:00:01',
                     bin.iiif_image_url, shape, size, size)
     end
     url
