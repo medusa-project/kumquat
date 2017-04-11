@@ -404,10 +404,7 @@ class ItemsController < WebsiteController
           query(session[:q]).
           include_children(session[:q].present?).
           only_described(true).
-          exclude_variants([Item::Variants::FRONT_MATTER, Item::Variants::INDEX,
-                            Item::Variants::KEY, Item::Variants::PAGE,
-                            Item::Variants::TABLE_OF_CONTENTS,
-                            Item::Variants::TITLE]).
+          exclude_variants(Item::Variants::non_filesystem_variants).
           filter_queries(session[:fq]).
           sort(session[:sort]).
           start(session[:start]).
