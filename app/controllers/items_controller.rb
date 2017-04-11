@@ -418,7 +418,7 @@ class ItemsController < WebsiteController
           client_user(current_user).
           collection_id(session[:collection_id]).
           query(session[:q]).
-          include_children(session[:q].present?).
+          include_children(!(@collection and @collection.package_profile == PackageProfile::FREE_FORM_PROFILE)).
           only_described(true).
           exclude_variants([Item::Variants::FRONT_MATTER, Item::Variants::INDEX,
                             Item::Variants::KEY, Item::Variants::PAGE,
