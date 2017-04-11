@@ -79,7 +79,7 @@ class Job < ActiveJob::Base
   end
 
   def do_after_perform
-    self.task.succeeded
+    self.task&.succeeded
   end
 
   private
