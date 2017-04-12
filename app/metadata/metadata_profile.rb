@@ -108,7 +108,7 @@ class MetadataProfile < ActiveRecord::Base
           if vocab
             profile_elem.vocabularies << vocab
           else
-            raise "Vocabulary does not exist: #{v['key']}" # TODO: move this to Vocabulary validation
+            raise "Vocabulary does not exist: #{v['key']}"
           end
         end
         profile_elem.save!

@@ -695,8 +695,6 @@ class Collection < ActiveRecord::Base
     doc[SolrFields::METADATA_DESCRIPTION] = self.description
     doc[SolrFields::METADATA_TITLE] = self.title
 
-    # TODO: this won't work with unpersisted CollectionJoins
-    #doc[SolrFields::PARENT_COLLECTIONS] = self.parents.map(&:repository_id)
     doc[SolrFields::PARENT_COLLECTIONS] =
         self.parent_collection_joins.map(&:parent_repository_id)
     doc[SolrFields::PHYSICAL_COLLECTION_URL] = self.physical_collection_url

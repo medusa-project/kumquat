@@ -7,12 +7,20 @@ class ItemTest < ActiveSupport::TestCase
     assert @item.valid?
   end
 
+  # Item.num_free_form_files()
+
+  test 'num_free_form_files should return a correct count' do
+    Item.all.each { |it| it.index_in_solr }
+    Solr.instance.commit
+    assert_equal 2, Item.num_free_form_files
+  end
+
   # Item.num_free_form_items()
 
   test 'num_free_form_items should return a correct count' do
     Item.all.each { |it| it.index_in_solr }
     Solr.instance.commit
-    assert_equal 2, Item.num_free_form_items
+    assert_equal 3, Item.num_free_form_items
   end
 
   # Item.tsv_header()

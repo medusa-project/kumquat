@@ -437,7 +437,7 @@ class ItemsController < WebsiteController
     @start = params[:start] ? params[:start].to_i : 0
     @limit = PAGES_LIMIT
     @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
-    @files = @item.files_from_solr.
+    @files = @item.filesystem_variants_from_solr.
         order({Item::SolrFields::VARIANT => :asc},
               {Item::SolrFields::TITLE => :asc}).
         start(@start).limit(@limit)

@@ -227,23 +227,32 @@ class Item < ActiveRecord::Base
   after_commit :index_in_solr, on: [:create, :update]
   after_commit :delete_from_solr, on: :destroy
 
-  def self.num_free_form_items
-    # TODO: Either include directories or rename to num_free_form_files()
+  ##
+  # @return [Integer]
+  #
+  def self.num_free_form_files
     Item.solr.where(SolrFields::VARIANT => Variants::FILE).count
   end
 
   ##
-  # @return [Integer] Number of objects in the instance.
+  # @return [Integer]
+  #
+  def self.num_free_form_items
+    Item.solr.where(SolrFields::VARIANT => [Variants::DIRECTORY, Variants::FILE]).count
+  end
+
+  ##
+  # @return [Integer] Number of objects in the database.
   #
   def self.num_objects
     sql = "SELECT COUNT(items.id) AS count
       FROM items
       LEFT JOIN collections
-      ON collections.repository_id = items.collection_repository_id
+        ON collections.repository_id = items.collection_repository_id
       WHERE collections.package_profile_id != #{PackageProfile::FREE_FORM_PROFILE.id}
-      AND items.variant IS NULL"
+        AND items.variant IS NULL"
     result = ActiveRecord::Base.connection.execute(sql)
-    result[0]['count'].to_i + num_free_form_items
+    result[0]['count'].to_i + num_free_form_files
   end
 
   ##
@@ -497,10 +506,9 @@ class Item < ActiveRecord::Base
   # variant of Variant::FILE or Variant::DIRECTORY.
   #
   # @return [Relation]
-  # @see files_from_solr()
   #
   def files # TODO: why does this return directory variants? consider renaming
-    # TODO: replace with files_from_solr() or use whichever implementation is faster
+    # TODO: replace with filesystem_variants_from_solr() or use whichever implementation is faster
     self.items.where(variant: [Variants::FILE, Variants::DIRECTORY])
   end
 
@@ -509,10 +517,9 @@ class Item < ActiveRecord::Base
   # variant of Variant::FILE or Variant::DIRECTORY.
   #
   # @return [Relation]
-  # @see files()
   #
-  def files_from_solr # TODO: why does this return directory variants? consider renaming
-    Item.solr.where(Item::SolrFields::PARENT_ITEM => self.repository_id).
+  def filesystem_variants_from_solr
+    self.items_from_solr.
         where("(#{Item::SolrFields::VARIANT}:#{Item::Variants::FILE} OR "\
             "#{Item::SolrFields::VARIANT}:#{Item::Variants::DIRECTORY})")
   end
@@ -652,11 +659,11 @@ class Item < ActiveRecord::Base
   end
 
   ##
-  # If any child items have a page number, orders by that. Otherwise, orders
+  # If any child items have a page number, orders by that. Otherwise, order
   # by title. (IMET-414)
   #
   # @return [Relation<Item>] Subitems in the order they should appear in an
-  #                          IIIF presentation API canvas.
+  #                          IIIF Presentation API canvas.
   #
   def items_in_iiif_presentation_order
     self.items_from_solr.order(SolrFields::PAGE_NUMBER,
