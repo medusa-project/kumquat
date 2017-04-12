@@ -1,4 +1,4 @@
-class ImportItemsFromTsvJob < Job
+class UpdateItemsFromTsvJob < Job
 
   queue_as :default
 
@@ -8,7 +8,7 @@ class ImportItemsFromTsvJob < Job
   #                     position 1.
   #
   def perform(*args)
-    self.task.update(status_text: 'Importing item metadata from TSV')
+    self.task.update(status_text: 'Updating item metadata from TSV')
 
     ItemTsvIngester.new.ingest_pathname(args[0], args[1], self.task)
     Solr.instance.commit

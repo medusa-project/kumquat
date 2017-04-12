@@ -176,7 +176,7 @@ namespace :dls do
 
     desc 'Update items from a TSV file'
     task :update_from_tsv, [:pathname] => :environment do |task, args|
-      ImportItemsFromTsvJob.new(args[:pathname]).perform_in_foreground
+      UpdateItemsFromTsvJob.new(args[:pathname]).perform_in_foreground
     end
 
   end
