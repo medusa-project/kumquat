@@ -1,6 +1,6 @@
 require 'csv'
 
-class ItemTsvIngester
+class ItemTsvUpdater
 
   @@logger = CustomLogger.instance
 
@@ -22,7 +22,7 @@ class ItemTsvIngester
       task.update(status_text: "Importing metadata for #{num_rows} items "\
       "from TSV (#{filename})")
     end
-    @@logger.info("ItemTsvIngester.ingest_pathname(): "\
+    @@logger.info("ItemTsvUpdater.ingest_pathname(): "\
         "ingesting metadata for #{num_rows} items from #{pathname}...")
 
     num_ingested = 0
@@ -36,12 +36,12 @@ class ItemTsvIngester
         struct = tsv_row.to_hash
         item = Item.find_by_repository_id(struct['uuid'])
         if item
-          @@logger.info("ItemTsvIngester.ingest_pathname(): "\
+          @@logger.info("ItemTsvUpdater.ingest_pathname(): "\
               "#{struct['uuid']} #{progress}")
           item.update_from_tsv(struct)
           num_ingested += 1
         else
-          @@logger.warn("ItemTsvIngester.ingest_pathname(): "\
+          @@logger.warn("ItemTsvUpdater.ingest_pathname(): "\
               "does not exist: #{struct['uuid']} #{progress}")
         end
 

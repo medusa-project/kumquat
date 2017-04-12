@@ -1,9 +1,9 @@
 require 'test_helper'
 
-class ItemTsvIngesterTest < ActiveSupport::TestCase
+class ItemTsvUpdaterTest < ActiveSupport::TestCase
 
   setup do
-    @ingester = ItemTsvIngester.new
+    @instance = ItemTsvUpdater.new
     @tsv_pathname = __dir__ + '/../fixtures/repository/lincoln.tsv'
   end
 
@@ -20,7 +20,7 @@ class ItemTsvIngesterTest < ActiveSupport::TestCase
                    collection_repository_id: 'd250c1f0-5ca8-0132-3334-0050569601ca-8')
     end
 
-    assert_equal 6, @ingester.ingest_pathname(@tsv_pathname)
+    assert_equal 6, @instance.ingest_pathname(@tsv_pathname)
 
     # Check their metadata
     assert_equal 'Meserve Lincoln Photograph No. 1',
