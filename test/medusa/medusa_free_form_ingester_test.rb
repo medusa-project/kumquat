@@ -237,47 +237,50 @@ class MedusaFreeFormIngesterTest < ActiveSupport::TestCase
     # TODO: write this
   end
 
-  # update_binaries()
+  # recreate_binaries()
 
-  test 'update_binaries() with collection file group not set should raise an error' do
+  test 'recreate_binaries() with collection file group not set should raise an
+  error' do
     collection = collections(:collection1)
     collection.medusa_file_group_id = nil
 
     assert_raises ArgumentError do
-      @instance.update_binaries(collection)
+      @instance.recreate_binaries(collection)
     end
   end
 
-  test 'update_binaries() with collection package profile not set should raise an error' do
+  test 'recreate_binaries() with collection package profile not set should
+  raise an error' do
     collection = collections(:collection1)
     collection.package_profile = nil
 
     assert_raises ArgumentError do
-      @instance.update_binaries(collection)
+      @instance.recreate_binaries(collection)
     end
   end
 
-  test 'update_binaries() with collection package profile set incorrectly
+  test 'recreate_binaries() with collection package profile set incorrectly
   should raise an error' do
     collection = collections(:collection1)
     collection.package_profile = PackageProfile::COMPOUND_OBJECT_PROFILE
 
     assert_raises ArgumentError do
-      @instance.update_binaries(collection)
+      @instance.recreate_binaries(collection)
     end
   end
 
-  test 'update_binaries with no effective collection CFS directory should raise an error' do
+  test 'recreate_binaries with no effective collection CFS directory should
+  raise an error' do
     collection = collections(:collection1)
     collection.medusa_cfs_directory_id = nil
     collection.medusa_file_group_id = nil
 
     assert_raises ArgumentError do
-      @instance.update_binaries(collection)
+      @instance.recreate_binaries(collection)
     end
   end
 
-  test 'update_binaries() should work' do
+  test 'recreate_binaries() should work' do
     # Set up the fixture data.
     collection = collections(:collection1)
     collection.medusa_cfs_directory_id = 'ac1a9850-0b09-0134-1d54-0050569601ca-a'
@@ -287,7 +290,7 @@ class MedusaFreeFormIngesterTest < ActiveSupport::TestCase
     cfs_dir.json_tree = tree
 
     # Ingest some items.
-    @instance.update_binaries(collection)
+    @instance.recreate_binaries(collection)
 
     # Record initial conditions.
     start_num_items = Item.count
@@ -295,8 +298,8 @@ class MedusaFreeFormIngesterTest < ActiveSupport::TestCase
     # Delete all of their binaries.
     Binary.destroy_all
 
-    # Update binaries again.
-    result = @instance.update_binaries(collection)
+    # Recreate binaries again.
+    result = @instance.recreate_binaries(collection)
 
     # Assert that the binaries were created.
     assert_equal Binary.count, result[:num_created]

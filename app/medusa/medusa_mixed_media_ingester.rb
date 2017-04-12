@@ -263,7 +263,7 @@ class MedusaMixedMediaIngester < MedusaAbstractIngester
   # @raises [ArgumentError] If the collection's file group or package profile
   #                         are not set, or if the file group is invalid.
   #
-  def update_binaries(collection, task = nil)
+  def recreate_binaries(collection, task = nil)
     check_collection(collection, PackageProfile::MIXED_MEDIA_PROFILE)
 
     status = { num_created: 0 }
@@ -283,7 +283,7 @@ class MedusaMixedMediaIngester < MedusaAbstractIngester
           # Find the child item.
           child = Item.find_by_repository_id(child_dir.uuid)
           if child
-            @@logger.info("MedusaCompoundObjectIngester.update_binaries(): "\
+            @@logger.info("MedusaCompoundObjectIngester.recreate_binaries(): "\
                       "updating child item #{child.repository_id}")
             child.binaries.destroy_all
 
@@ -303,17 +303,17 @@ class MedusaMixedMediaIngester < MedusaAbstractIngester
                     end
                   else
                     msg = "Preservation directory #{pres_type_dir.uuid} has no files."
-                    @@logger.warn("MedusaMixedMediaIngester.update_binaries(): #{msg}")
+                    @@logger.warn("MedusaMixedMediaIngester.recreate_binaries(): #{msg}")
                   end
                 end
               else
                 msg = "Preservation directory #{pres_dir.uuid} has no subdirectories."
-                @@logger.warn("MedusaMixedMediaIngester.update_binaries(): #{msg}")
+                @@logger.warn("MedusaMixedMediaIngester.recreate_binaries(): #{msg}")
               end
             else
               msg = "Directory #{child_dir.uuid} is missing a preservation "\
               "directory."
-              @@logger.warn("MedusaMixedMediaIngester.update_binaries(): #{msg}")
+              @@logger.warn("MedusaMixedMediaIngester.recreate_binaries(): #{msg}")
             end
 
             # Create the child's access binaries.
@@ -336,17 +336,17 @@ class MedusaMixedMediaIngester < MedusaAbstractIngester
                     end
                   else
                     msg = "Access directory #{access_type_dir.uuid} has no files."
-                    @@logger.warn("MedusaMixedMediaIngester.update_binaries(): #{msg}")
+                    @@logger.warn("MedusaMixedMediaIngester.recreate_binaries(): #{msg}")
                   end
                 end
               else
                 msg = "Access directory #{pres_dir.uuid} has no subdirectories."
-                @@logger.warn("MedusaMixedMediaIngester.update_binaries(): #{msg}")
+                @@logger.warn("MedusaMixedMediaIngester.recreate_binaries(): #{msg}")
               end
             else
               msg = "Directory #{child_dir.uuid} is missing an access "\
                 "directory."
-              @@logger.warn("MedusaMixedMediaIngester.update_binaries(): #{msg}")
+              @@logger.warn("MedusaMixedMediaIngester.recreate_binaries(): #{msg}")
             end
 
             # Create the child's supplementary binaries.
@@ -361,19 +361,19 @@ class MedusaMixedMediaIngester < MedusaAbstractIngester
                 end
               else
                 msg = "Supplementary directory #{supp_dir.uuid} is empty."
-                @@logger.warn("MedusaMixedMediaIngester.update_binaries(): #{msg}")
+                @@logger.warn("MedusaMixedMediaIngester.recreate_binaries(): #{msg}")
               end
             end
 
             child.save!
           else
             msg = "No item for directory: #{top_item_dir.uuid}"
-            @@logger.warn("MedusaMixedMediaIngester.update_binaries(): #{msg}")
+            @@logger.warn("MedusaMixedMediaIngester.recreate_binaries(): #{msg}")
           end
         end
       else
         msg = "Directory #{top_item_dir.uuid} has no subdirectories."
-        @@logger.warn("MedusaMixedMediaIngester.update_binaries(): #{msg}")
+        @@logger.warn("MedusaMixedMediaIngester.recreate_binaries(): #{msg}")
       end
 
       task.update(percent_complete: index / num_directories.to_f) if task
@@ -386,7 +386,7 @@ class MedusaMixedMediaIngester < MedusaAbstractIngester
       begin
         ImageServer.instance.purge_item_from_cache(item)
       rescue => e
-        @@logger.error("MedusaMixedMediaIngester.update_binaries(): "\
+        @@logger.error("MedusaMixedMediaIngester.recreate_binaries(): "\
             "failed to purge item from image server cache: #{e}")
       end
     end

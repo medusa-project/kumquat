@@ -107,7 +107,7 @@ class MedusaSingleItemIngester < MedusaAbstractIngester
   # @raises [ArgumentError] If the collection's file group or package profile
   #                         are not set or invalid.
   #
-  def update_binaries(collection, task = nil)
+  def recreate_binaries(collection, task = nil)
     check_collection(collection, PackageProfile::SINGLE_ITEM_OBJECT_PROFILE)
 
     cfs_dir = collection.effective_medusa_cfs_directory
@@ -130,7 +130,7 @@ class MedusaSingleItemIngester < MedusaAbstractIngester
           item.binaries << access_master_binary(cfs_dir, file)
           stats[:num_created] += 1
         rescue IllegalContentError => e
-          @@logger.warn("MedusaSingleItemIngester.update_binaries(): #{e}")
+          @@logger.warn("MedusaSingleItemIngester.recreate_binaries(): #{e}")
         end
 
         item.save!
@@ -147,7 +147,7 @@ class MedusaSingleItemIngester < MedusaAbstractIngester
       begin
         ImageServer.instance.purge_item_from_cache(item)
       rescue => e
-        @@logger.error("MedusaSingleItemIngester.update_binaries(): failed to "\
+        @@logger.error("MedusaSingleItemIngester.recreate_binaries(): failed to "\
             "purge item from image server cache: #{e}")
       end
     end

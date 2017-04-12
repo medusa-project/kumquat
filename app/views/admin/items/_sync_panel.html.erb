@@ -39,9 +39,9 @@
           <div class="radio">
             <label>
               <%= radio_button_tag('ingest_mode',
-                                   MedusaIngester::IngestMode::UPDATE_BINARIES, false,
+                                   MedusaIngester::IngestMode::RECREATE_BINARIES, false,
                                    'aria-described-by' => 'pt-update-binaries-help') %>
-              Update Binaries
+              Recreate Binaries
             </label>
             <span id="pt-update-binaries-help" class="help-block">
             Update existing DLS items' binaries based on their corresponding

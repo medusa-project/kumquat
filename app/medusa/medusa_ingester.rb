@@ -8,8 +8,8 @@ class MedusaIngester
     DELETE_MISSING = :delete_missing
     # Replaces items' metadata with that found in embedded metadata.
     REPLACE_METADATA = :replace_metadata
-    # Updates existing items' binaries.
-    UPDATE_BINARIES = :update_binaries
+    # Recreates existing items' binaries.
+    RECREATE_BINARIES = :recreate_binaries
   end
 
   @@logger = CustomLogger.instance
@@ -125,18 +125,18 @@ class MedusaIngester
         self.create_items(collection, options, task)
       when IngestMode::DELETE_MISSING
         self.delete_missing_items(collection, task)
+      when IngestMode::RECREATE_BINARIES
+        self.recreate_binaries(collection, task)
       when IngestMode::REPLACE_METADATA
         self.replace_metadata(collection, task)
-      when IngestMode::UPDATE_BINARIES
-        self.update_binaries(collection, task)
       else
         raise ArgumentError, "Unknown sync mode: #{sync_mode}"
     end
   end
 
   ##
-  # Updates the binaries attached to each item in the given collection based on
-  # the contents of the items in Medusa.
+  # Recreates the binaries attached to each item in the given collection based
+  # on the contents of the item directories in Medusa.
   #
   # @param collection [Collection]
   # @param task [Task] Supply to receive progress updates.
@@ -145,8 +145,8 @@ class MedusaIngester
   #                         are not set or invalid.
   # @raises [IllegalContentError]
   #
-  def update_binaries(collection, task = nil)
-    ingester_for(collection).update_binaries(collection, task)
+  def recreate_binaries(collection, task = nil)
+    ingester_for(collection).recreate_binaries(collection, task)
   end
 
   private
