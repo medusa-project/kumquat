@@ -53,6 +53,9 @@ class Job < ActiveJob::Base
   #
   def task
     @task = Task.find_by_job_id(self.job_id || self.object_id) unless @task
+    # @task will still be nil at this point when testing, so create a dummy
+    # instance.
+    @task = Task.new unless @task
     @task
   end
 

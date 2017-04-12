@@ -6,7 +6,7 @@ class PropagateRolesToChildrenJob < Job
   queue_as :default
 
   ##
-  # @param args [Array] One-element array with collection UUID at position 0.
+  # @param args [Array] One-element array with item UUID at position 0.
   #
   def perform(*args)
     item = Item.find_by_repository_id(args[0])

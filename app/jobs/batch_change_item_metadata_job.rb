@@ -5,7 +5,8 @@ class BatchChangeItemMetadataJob < Job
   ##
   # @param args [Array] Three-element array with collection UUID at position 0;
   #                     element name at position 1; and array of replacement
-  #                     values at position 2.
+  #                     values (as hashes with :string and :uri keys) at
+  #                     position 2.
   # @raises [ArgumentError]
   #
   def perform(*args)

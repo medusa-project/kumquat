@@ -68,6 +68,20 @@ myers_collection:
   representative_image:
   representative_item_id:
 
+# This is one of the smallest collections (currently 8 items).
+olin:
+  access_url:
+  description_html:
+  harvestable: true
+  medusa_file_group_id: 38c8c5f0-5ca7-0132-3334-0050569601ca-9
+  metadata_profile: default_metadata_profile
+  package_profile_id: <%= PackageProfile::FREE_FORM_PROFILE.id %>
+  published: true
+  published_in_dls: true
+  repository_id: 81154880-e3fb-012f-c5b6-0019b9e633c5-9
+  representative_image:
+  representative_item_id:
+
 single_item_object_collection:
   access_url: MyString
   description_html: MyString
