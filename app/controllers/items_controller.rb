@@ -12,10 +12,10 @@ class ItemsController < WebsiteController
   # Number of children to display per page in show-item view.
   PAGES_LIMIT = 15
 
-  before_action :enable_cors, only: [:iiif_annotation, :iiif_annotation_list,
-                                     :iiif_canvas, :iiif_layer, :iiif_manifest,
-                                     :iiif_media_sequence, :iiif_range,
-                                     :iiif_sequence]
+  before_action :enable_cors, only: [:iiif_annotation_list, :iiif_canvas,
+                                     :iiif_image_resource, :iiif_layer,
+                                     :iiif_manifest, :iiif_media_sequence,
+                                     :iiif_range, :iiif_sequence]
   before_action :load_item, except: :index
   before_action :authorize_item, except: :index
   before_action :set_browse_context, only: :index
@@ -53,25 +53,6 @@ class ItemsController < WebsiteController
   end
 
   ##
-  # Serves IIIF Presentation API 2.1 image resources.
-  #
-  # Responds to GET /items/:id/annotation/:name
-  #
-  # @see http://iiif.io/api/presentation/2.1/#image-resources
-  #
-  def iiif_annotation # TODO: rename to iiif_image_resource
-    valid_names = %w(access preservation)
-    if valid_names.include?(params[:name])
-      @annotation_name = params[:name]
-      @binary = @item.iiif_image_binary
-      render 'items/iiif_presentation_api/annotation',
-             formats: :json, content_type: 'application/json'
-    else
-      render text: 'No such image resource.', status: :not_found
-    end
-  end
-
-  ##
   # Serves IIIF Presentation API 2.1 annotation lists.
   #
   # Responds to GET /items/:id/list/:name
@@ -103,6 +84,25 @@ class ItemsController < WebsiteController
              content_type: 'application/json'
     else
       render text: 'No such canvas.', status: :not_found
+    end
+  end
+
+  ##
+  # Serves IIIF Presentation API 2.1 image resources.
+  #
+  # Responds to GET /items/:id/annotation/:name
+  #
+  # @see http://iiif.io/api/presentation/2.1/#image-resources
+  #
+  def iiif_image_resource
+    valid_names = %w(access preservation)
+    if valid_names.include?(params[:name])
+      @image_resource_name = params[:name]
+      @binary = @item.iiif_image_binary
+      render 'items/iiif_presentation_api/image_resource',
+             formats: :json, content_type: 'application/json'
+    else
+      render text: 'No such image resource.', status: :not_found
     end
   end
 

@@ -100,8 +100,8 @@ Rails.application.routes.draw do
     match '/binaries/:filename', to: 'items#binary', via: :get, as: 'binary'
     match '/files', to: 'items#files', via: :get, as: 'files'
     # IIIF Presentation API 2.1 routes
-    match '/annotation/:name', to: 'items#iiif_annotation', via: :get,
-          as: 'iiif_annotation'
+    match '/annotation/:name', to: 'items#iiif_image_resource', via: :get,
+          as: 'iiif_image_resource'
     match '/canvas/:id', to: 'items#iiif_canvas', via: :get, as: 'iiif_canvas'
     match '/layer/:name', to: 'items#iiif_layer', via: :get, as: 'iiif_layer'
     match '/list/:name', to: 'items#iiif_annotation_list', via: :get,
