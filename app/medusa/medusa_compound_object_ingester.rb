@@ -271,7 +271,7 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
   # @raises [ArgumentError] If the collection's file group or package profile
   #                         are not set, or if the file group is invalid.
   #
-  def update_binaries(collection, task = nil)
+  def recreate_binaries(collection, task = nil)
     check_collection(collection, PackageProfile::COMPOUND_OBJECT_PROFILE)
 
     stats = { num_created: 0 }
@@ -296,7 +296,7 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
                 # Find the child item.
                 child = Item.find_by_repository_id(pres_file.uuid)
                 if child
-                  @@logger.info("MedusaCompoundObjectIngester.update_binaries(): "\
+                  @@logger.info("MedusaCompoundObjectIngester.recreate_binaries(): "\
                       "updating child item #{pres_file.uuid}")
 
                   child.binaries.destroy_all
@@ -314,15 +314,15 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
                     bs.save!
                     stats[:num_created] += 1
                   rescue IllegalContentError => e
-                    @@logger.warn("MedusaCompoundObjectIngester.update_binaries(): #{e}")
+                    @@logger.warn("MedusaCompoundObjectIngester.recreate_binaries(): #{e}")
                   end
                 else
-                  @@logger.warn("MedusaCompoundObjectIngester.update_binaries(): "\
+                  @@logger.warn("MedusaCompoundObjectIngester.recreate_binaries(): "\
                       "skipping child item #{pres_file.uuid} (no item)")
                 end
               end
             elsif pres_dir.files.length == 1
-              @@logger.info("MedusaCompoundObjectIngester.update_binaries(): "\
+              @@logger.info("MedusaCompoundObjectIngester.recreate_binaries(): "\
                     "updating item #{item.repository_id}")
 
               item.binaries.destroy_all
@@ -338,18 +338,18 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
                 item.binaries << access_master_binary(top_item_dir, pres_file)
                 stats[:num_created] += 1
               rescue IllegalContentError => e
-                @@logger.warn("MedusaCompoundObjectIngester.update_binaries(): #{e}")
+                @@logger.warn("MedusaCompoundObjectIngester.recreate_binaries(): #{e}")
               end
 
               item.save!
             else
               msg = "Preservation directory #{pres_dir.uuid} is empty."
-              @@logger.warn("MedusaCompoundObjectIngester.update_binaries(): #{msg}")
+              @@logger.warn("MedusaCompoundObjectIngester.recreate_binaries(): #{msg}")
             end
           else
             msg = "Directory #{top_item_dir.uuid} is missing a preservation "\
                 "directory."
-            @@logger.warn("MedusaCompoundObjectIngester.update_binaries(): #{msg}")
+            @@logger.warn("MedusaCompoundObjectIngester.recreate_binaries(): #{msg}")
           end
 
           # Update supplementary item binaries.
@@ -366,7 +366,7 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
               else
                 msg = "Supplementary file #{supp_file.uuid} is missing an "\
                     "item counterpart."
-                @@logger.warn("MedusaCompoundObjectIngester.update_binaries(): #{msg}")
+                @@logger.warn("MedusaCompoundObjectIngester.recreate_binaries(): #{msg}")
               end
             end
           end
@@ -385,17 +385,17 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
               else
                 msg = "Composite file #{comp_file.uuid} is missing an "\
                     "item counterpart."
-                @@logger.warn("MedusaCompoundObjectIngester.update_binaries(): #{msg}")
+                @@logger.warn("MedusaCompoundObjectIngester.recreate_binaries(): #{msg}")
               end
             end
           end
         else
           msg = "Directory #{top_item_dir.uuid} does not have any subdirectories."
-          @@logger.warn("MedusaCompoundObjectIngester.update_binaries(): #{msg}")
+          @@logger.warn("MedusaCompoundObjectIngester.recreate_binaries(): #{msg}")
         end
       else
         msg = "No item for directory: #{top_item_dir.uuid}"
-        @@logger.warn("MedusaCompoundObjectIngester.update_binaries(): #{msg}")
+        @@logger.warn("MedusaCompoundObjectIngester.recreate_binaries(): #{msg}")
       end
       task.update(percent_complete: index / num_directories.to_f) if task
     end
@@ -406,7 +406,7 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
       begin
         ImageServer.instance.purge_item_from_cache(item)
       rescue => e
-        @@logger.error("MedusaCompoundObjectIngester.update_binaries(): "\
+        @@logger.error("MedusaCompoundObjectIngester.recreate_binaries(): "\
             "failed to purge item from image server cache: #{e}")
       end
     end

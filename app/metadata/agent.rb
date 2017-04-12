@@ -44,7 +44,7 @@ class Agent < ActiveRecord::Base
   #
   # @return [self]
   #
-  def effective_representative_item
+  def effective_representative_item # TODO: remove this
     self
   end
 

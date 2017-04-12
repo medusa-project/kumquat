@@ -9,7 +9,7 @@ gem 'daemons' # enables bin/delayed_job start/stop
 gem 'delayed_job_active_record'
 gem 'draper' # Provides decorators
 gem 'font-awesome-sass', '~> 4.7.0'
-gem 'httpclient', git: 'git://github.com/medusa-project/httpclient.git'
+gem 'httpclient'
 gem 'jbuilder', '~> 2.0' # JSON DSL: https://github.com/rails/jbuilder
 gem 'jquery-cookie-rails'
 gem 'jquery-rails'

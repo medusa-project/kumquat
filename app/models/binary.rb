@@ -24,10 +24,27 @@
 # binary to use in a given context generally means querying the item's
 # binaries.
 #
+# # Attributes
+#
+# * byte_size:      Size of the binary's contents in bytes.
+# * cfs_file_uuid:  UUID of the binary's corresponding file in Medusa.
+# * created_at:     Managed by ActiveRecord.
+# * height:         Native pixel height of a raster binary (image or video).
+# * item_id:        Database ID of the binary's owning item.
+# * master_type:    One of the Binary::MasterType constant values; see its
+#                   class documentation.
+# * media_category: One of the Binary::MediaCategory constant values; see its
+#                   class documentation.
+# * media_type:     Best-fit IANA media (MIME) type.
+# * repository_relative_pathname: Pathname of the binary relative to the
+#                                 repository root directory.
+# * updated_at:     Managed by ActiveRecord.
+# * width:          Native pixel width of a raster binary (image or video).
+#
 class Binary < ActiveRecord::Base
 
   ##
-  # Must be kept in sync with the return value of human_readable_type().
+  # Must be kept in sync with the return value of human_readable_master_type().
   #
   class MasterType
     ACCESS = 1
@@ -86,7 +103,7 @@ class Binary < ActiveRecord::Base
 
   def as_json(options = {})
     struct = super(options).stringify_keys # TODO: why is this almost empty?
-    struct['master_type'] = self.human_readable_type
+    struct['master_type'] = self.human_readable_master_type
     struct['media_category'] = self.human_readable_media_category
     struct['repository_relative_pathname'] = self.repository_relative_pathname
     struct['cfs_file_uuid'] = self.cfs_file_uuid
@@ -159,15 +176,7 @@ class Binary < ActiveRecord::Base
   ##
   # @return [String]
   #
-  def human_readable_name
-    formats = @@formats.select{ |f| f['media_types'].include?(self.media_type) }
-    formats.any? ? formats.first['label'] : self.media_type
-  end
-
-  ##
-  # @return [String]
-  #
-  def human_readable_type
+  def human_readable_master_type
     case self.master_type
       when MasterType::ACCESS
         return 'Access Master'
@@ -175,6 +184,14 @@ class Binary < ActiveRecord::Base
         return 'Preservation Master'
     end
     nil
+  end
+
+  ##
+  # @return [String]
+  #
+  def human_readable_name
+    formats = @@formats.select{ |f| f['media_types'].include?(self.media_type) }
+    formats.any? ? formats.first['label'] : self.media_type
   end
 
   ##
@@ -322,7 +339,7 @@ class Binary < ActiveRecord::Base
 
   def serializable_hash(opts)
     {
-        type: self.human_readable_type,
+        type: self.human_readable_master_type,
         media_type: self.media_type
     }
   end

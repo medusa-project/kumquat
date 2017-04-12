@@ -18,23 +18,23 @@ namespace :dls do
 
   namespace :binaries do
 
-    desc 'Update binaries in all collections'
-    task :update => :environment do |task|
+    desc 'Recreate binaries in all collections'
+    task :recreate => :environment do |task|
       ActiveRecord::Base.transaction do
         Collection.all.each do |collection|
           next if collection.items.count == 0
           puts collection.title
-          MedusaIngester.new.update_binaries(collection)
+          MedusaIngester.new.recreate_binaries(collection)
         end
       end
       Solr.instance.commit
     end
 
-    desc 'Update binaries in a collection'
-    task :update_collection, [:uuid] => :environment do |task, args|
+    desc 'Recreate binaries in a collection'
+    task :recreate_in_collection, [:uuid] => :environment do |task, args|
       collection = Collection.find_by_repository_id(args[:uuid])
       ActiveRecord::Base.transaction do
-        MedusaIngester.new.update_binaries(collection)
+        MedusaIngester.new.recreate_binaries(collection)
       end
       Solr.instance.commit
     end
@@ -168,7 +168,7 @@ namespace :dls do
       Solr.instance.commit
     end
 
-    desc 'Sync items from Medusa (modes: create_only, update_binaries, delete_missing)'
+    desc 'Sync items from Medusa (modes: create_only, recreate_binaries, delete_missing)'
     task :sync, [:collection_uuid, :mode] => :environment do |task, args|
       SyncItemsJob.new(args[:collection_uuid], args[:mode],
                        extract_metadata: false).perform_in_foreground
@@ -176,7 +176,7 @@ namespace :dls do
 
     desc 'Update items from a TSV file'
     task :update_from_tsv, [:pathname] => :environment do |task, args|
-      ImportItemsFromTsvJob.new(args[:pathname]).perform_in_foreground
+      UpdateItemsFromTsvJob.new(args[:pathname]).perform_in_foreground
     end
 
   end

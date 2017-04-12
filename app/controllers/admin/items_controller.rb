@@ -92,10 +92,7 @@ module Admin
           include_children(false).
           include_unpublished(true).
           only_described(false).
-          exclude_variants([Item::Variants::FRONT_MATTER, Item::Variants::INDEX,
-                            Item::Variants::KEY, Item::Variants::PAGE,
-                            Item::Variants::TABLE_OF_CONTENTS,
-                            Item::Variants::TITLE]).
+          exclude_variants(Item::Variants::non_filesystem_variants).
           filter_queries(params[:fq]).
           default_field(params[:df]).
           sort(params[:sort]).
@@ -140,7 +137,7 @@ module Admin
             tsv = params[:tsv].read.force_encoding('UTF-8')
             tempfile.write(tsv)
             tempfile.close
-            ImportItemsFromTsvJob.perform_later(tempfile.path,
+            UpdateItemsFromTsvJob.perform_later(tempfile.path,
                                                 params[:tsv].original_filename)
           rescue => e
             tempfile.unlink

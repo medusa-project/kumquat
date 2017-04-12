@@ -44,37 +44,6 @@ module IiifPresentationHelper
   end
 
   ##
-  # @param item [Item]
-  # @param annotation_name [String]
-  # @return [Array]
-  #
-  def iiif_annotations_for(item, annotation_name)
-    images = []
-    bin = item.effective_viewer_binary
-    if bin
-      images << {
-          '@type': 'oa:Annotation',
-          '@id': item_iiif_annotation_url(item, annotation_name),
-          motivation: 'sc:painting',
-          resource: {
-              '@id': iiif_image_url(item, 1000),
-              '@type': 'dctypes:Image',
-              'format': bin.media_type,
-              service: {
-                  '@context': 'http://iiif.io/api/image/2/context.json',
-                  '@id': bin.iiif_image_url,
-                  profile: 'http://iiif.io/api/image/2/profiles/level2.json'
-              },
-              height: bin.height,
-              width: bin.width
-          },
-          on: item_iiif_canvas_url(item, item.repository_id)
-      }
-    end
-    images
-  end
-
-  ##
   # @param subitem [Item] Subitem or page
   # @return [Hash<Symbol,Object>]
   #
@@ -89,7 +58,7 @@ module IiifPresentationHelper
     }
     binary = subitem.iiif_image_binary
     if binary
-      struct[:images] = iiif_annotations_for(subitem, 'access')
+      struct[:images] = iiif_image_resources_for(subitem, 'access')
     end
     struct
   end
@@ -109,6 +78,37 @@ module IiifPresentationHelper
           map { |subitem| iiif_canvas_for(subitem) }
     end
     [ iiif_canvas_for(item) ]
+  end
+
+  ##
+  # @param item [Item]
+  # @param resource_name [String]
+  # @return [Array]
+  #
+  def iiif_image_resources_for(item, resource_name)
+    images = []
+    bin = item.effective_viewer_binary
+    if bin
+      images << {
+          '@type': 'oa:Annotation',
+          '@id': item_iiif_image_resource_url(item, resource_name),
+          motivation: 'sc:painting',
+          resource: {
+              '@id': iiif_image_url(item, 1000),
+              '@type': 'dctypes:Image',
+              'format': bin.media_type,
+              service: {
+                  '@context': 'http://iiif.io/api/image/2/context.json',
+                  '@id': bin.iiif_image_url,
+                  profile: 'http://iiif.io/api/image/2/profiles/level2.json'
+              },
+              height: bin.height,
+              width: bin.width
+          },
+          on: item_iiif_canvas_url(item, item.repository_id)
+      }
+    end
+    images
   end
 
   ##
@@ -136,8 +136,47 @@ module IiifPresentationHelper
   end
 
   ##
+  # Media sequences are a Wellcome Library extension to the IIIF Presentation
+  # API that enable the UniversalViewer to display non-image content.
+  #
+  # See: https://gist.github.com/tomcrane/7f86ac08d3b009c8af7c
+  #
   # @param item [Item]
   # @return [Array]
+  #
+  def iiif_media_sequences_for(item)
+    sequences = []
+    item.items.each do |child|
+      # Audio
+      # Example: http://wellcomelibrary.org/iiif/b17307922/manifest
+      child.binaries.
+          select{ |b| b.media_category == Binary::MediaCategory::AUDIO and
+          b.master_type == Binary::MasterType::ACCESS }.each do |bin|
+        sequences << {
+            '@id': item_iiif_media_sequence_url(item, bin.filename),
+            '@type': 'ixif:MediaSequence',
+            'label': "XSequence #{bin.filename}",
+            'elements': [
+                '@id': binary_url(bin),
+                '@type': "dctypes:#{bin.dc_type}",
+                'format': bin.media_type,
+                'label': child.title,
+                'metadata': iiif_metadata_for(child),
+                'thumbnail': thumbnail_url(child.iiif_image_binary),
+                rendering: {
+                    '@id': binary_url(bin),
+                    format: bin.media_type
+                }
+            ]
+        }
+      end
+    end
+    sequences
+  end
+
+  ##
+  # @param item [Item]
+  # @return [Array<Hash>]
   #
   def iiif_metadata_for(item)
     elements = []

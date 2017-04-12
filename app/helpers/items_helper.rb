@@ -89,7 +89,7 @@ module ItemsHelper
       binaries.each do |binary|
         html += '<tr>'
         html += "  <td>#{item.title}</td>"
-        html += "  <td>#{binary.human_readable_type}</td>"
+        html += "  <td>#{binary.human_readable_master_type}</td>"
         html += "  <td>#{binary.human_readable_media_category}</td>"
         html += "  <td>#{link_to(binary.filename, binary.medusa_url, target: '_blank')}</td>"
         html += '</tr>'
@@ -100,7 +100,7 @@ module ItemsHelper
           if index == 0
             html += "  <td rowspan=\"#{subitem.binaries.length}\">#{subitem.title}</td>"
           end
-          html += "  <td>#{bs.human_readable_type}</td>"
+          html += "  <td>#{bs.human_readable_master_type}</td>"
           html += "  <td>#{bs.human_readable_media_category}</td>"
           html += "  <td>#{link_to(bs.filename, bs.medusa_url, target: '_blank')}</td>"
           html += '</tr>'
@@ -122,7 +122,7 @@ module ItemsHelper
       html += '  <label>'
       html +=      radio_button_tag('download-url', binary_url(binary),
                                     false, data: { 'item-id': item.repository_id })
-      html +=      binary.human_readable_type
+      html +=      binary.human_readable_master_type
       html += '    <br>'
       html += '    <small>'
       html +=        download_label_for_binary(binary)
@@ -249,7 +249,7 @@ module ItemsHelper
       shape = (shape == :square) ? 'square' : 'full'
       # ?time= is a nonstandard argument supported only by Cantaloupe,
       # applicable only to videos.
-      url = sprintf('%s/%s/!%d,%d/0/default.jpg?time=00:00:20',
+      url = sprintf('%s/%s/!%d,%d/0/default.jpg?time=00:00:01',
                     bin.iiif_image_url, shape, size, size)
     end
     url
@@ -568,41 +568,6 @@ module ItemsHelper
         </option>"
     end
     html += '</select>'
-    raw(html)
-  end
-
-  ##
-  # @param pages [Relation<Item>]
-  # @param selected_item [Item]
-  # @param options [Hash] with available keys: `:link_to_admin` [Boolean]
-  #
-  def pages_as_list(pages, selected_item, options = {})
-    return nil unless pages.any?
-    html = '<ol>'
-    pages.each do |page|
-      link_target = options[:link_to_admin] ?
-          admin_collection_item_path(page.collection, page) : item_path(page)
-      html += '<li>'
-      if selected_item&.repository_id == page.repository_id
-        html += '<div class="pt-current">'
-        html += '<div class="pt-thumbnail">' +
-                    thumbnail_tag(page, DEFAULT_THUMBNAIL_SIZE, :square) +
-            '</div>'
-        html += '<span class=\"pt-title\">' +
-            truncate(page.title, length: PAGE_TITLE_LENGTH) + '</span>'
-      else
-        html += '<div>'
-        html += link_to(link_target) do
-          raw('<div class="pt-thumbnail">' +
-                  thumbnail_tag(page, DEFAULT_THUMBNAIL_SIZE, :square) + '</div>')
-        end
-        html += link_to(truncate(page.title, length: PAGE_TITLE_LENGTH),
-                        link_target, class: 'pt-title')
-        html += '</div>'
-      end
-      html += '</li>'
-    end
-    html += '</ol>'
     raw(html)
   end
 
@@ -1235,6 +1200,11 @@ module ItemsHelper
             value: binary.absolute_local_pathname
         }
       end
+      data << {
+          label: 'Media Type',
+          category: 'File',
+          value: binary.media_type
+      }
       if binary.cfs_file_uuid.present?
         data << {
             label: 'Medusa CFS File',
@@ -1365,27 +1335,6 @@ module ItemsHelper
                             remote: remote, 'aria-label': 'Last') do
           raw('<span aria-hidden="true">Last</span>')
         end
-      when Item::Variants::PAGE
-        first_link = link_to(item_pages_path(owning_entity,
-                                             params.except(:start).symbolize_keys),
-                             remote: remote, 'aria-label': 'First') do
-          raw('<span aria-hidden="true">First</span>')
-        end
-        prev_link = link_to(item_pages_path(owning_entity,
-                                            params.merge(start: prev_start).symbolize_keys),
-                            remote: remote, 'aria-label': 'Previous') do
-          raw('<span aria-hidden="true">&laquo;</span>')
-        end
-        next_link = link_to(item_pages_path(owning_entity,
-                                            params.merge(start: next_start).symbolize_keys),
-                            remote: remote, 'aria-label': 'Next') do
-          raw('<span aria-hidden="true">&raquo;</span>')
-        end
-        last_link = link_to(item_pages_path(owning_entity,
-                                            params.merge(start: last_start).symbolize_keys),
-                            remote: remote, 'aria-label': 'Last') do
-          raw('<span aria-hidden="true">Last</span>')
-        end
       when :agent_item
         first_link = link_to(agent_items_path(owning_entity,
                                              params.except(:start).symbolize_keys),
@@ -1437,13 +1386,6 @@ module ItemsHelper
         when Item::Variants::FILE
           path = (start == 0) ? item_files_path(owning_entity, params.except(:start).symbolize_keys) :
               item_files_path(owning_entity, params.merge(start: start).symbolize_keys)
-          page_link = link_to(path, remote: remote) do
-            raw("#{page} #{(page == current_page) ?
-                '<span class="sr-only">(current)</span>' : ''}")
-          end
-        when Item::Variants::PAGE
-          path = (start == 0) ? item_pages_path(owning_entity, params.except(:start).symbolize_keys) :
-              item_pages_path(owning_entity, params.merge(start: start).symbolize_keys)
           page_link = link_to(path, remote: remote) do
             raw("#{page} #{(page == current_page) ?
                 '<span class="sr-only">(current)</span>' : ''}")
@@ -1596,7 +1538,10 @@ module ItemsHelper
     html = ''
     if binary
       begin
-        html += raw("<pre>#{File.read(binary.absolute_local_pathname)}</pre>")
+        str = File.read(binary.absolute_local_pathname).to_s
+        if str.valid_encoding?
+          html += raw("<pre>#{str}</pre>")
+        end
       rescue Errno::ENOENT # File not found
       end
     end
@@ -1640,7 +1585,8 @@ module ItemsHelper
                     'containerId': 'pt-3d-viewer',
                     'modelPath': '#{model_path}/',
                     'objFile': '#{obj_binary.filename}',
-                    'mtlFile': '#{mtl_binary.filename}'
+                    'mtlFile': '#{mtl_binary.filename}',
+                    'ambientLightIntensity': 2.0
                 });
             });
         </script>"

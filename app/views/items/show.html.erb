@@ -50,8 +50,7 @@
         </li>
       <% end %>
       <% if @item.bib_id %>
-        <li><%= link_to "http://vufind.carli.illinois.edu/vf-uiu/Record/uiu_#{@item.bib_id}",
-                        target: '_blank' do %>
+        <li><%= link_to @item.catalog_record_url, target: '_blank' do %>
             <i class="fa fa-book"></i>&nbsp;&nbsp;Library Catalog Record
           <% end %>
         </li>
@@ -219,7 +218,7 @@
       <h2>
         <a role="button" data-toggle="collapse" href="#pt-binary-<%= bs.id %>"
            aria-expanded="false" aria-controls="pt-binary-<%= bs.id %>">
-          <%= bs.human_readable_type %> File</a>
+          <%= bs.human_readable_master_type %> File</a>
       </h2>
       <div id="pt-binary-<%= bs.id %>" class="collapse">
         <%= binary_metadata_as_table(bs) %>

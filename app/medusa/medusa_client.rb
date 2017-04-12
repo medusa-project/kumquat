@@ -30,15 +30,17 @@ class MedusaClient
     url = Configuration.instance.medusa_url.chomp('/') + '/uuids/' +
         uuid.to_s.strip + '.json'
     begin
-    response = get(url, follow_redirect: false)
-    location = response.header['location'].first
-    if location.include?('/bit_level_file_groups/')
-      return MedusaFileGroup
-    elsif location.include?('/cfs_directories/')
-      return MedusaCfsDirectory
-    elsif location.include?('/cfs_files/')
-      return MedusaCfsFile
-    end
+      response = get(url, follow_redirect: false)
+      location = response.header['location'].first
+      if location
+        if location.include?('/bit_level_file_groups/')
+          return MedusaFileGroup
+        elsif location.include?('/cfs_directories/')
+          return MedusaCfsDirectory
+        elsif location.include?('/cfs_files/')
+          return MedusaCfsFile
+        end
+      end
     rescue HTTPClient::BadResponseError
       # no-op
     end

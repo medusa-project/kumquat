@@ -280,47 +280,49 @@ class MedusaCompoundObjectIngesterTest < ActiveSupport::TestCase
     # metadata (or at least any that is used).
   end
 
-  # update_binaries()
+  # recreate_binaries()
 
-  test 'update_binaries() with collection file group not set should raise an error' do
+  test 'recreate_binaries() with collection file group not set should raise an
+  error' do
     collection = collections(:collection1)
     collection.medusa_file_group_id = nil
 
     assert_raises ArgumentError do
-      @instance.update_binaries(collection)
+      @instance.recreate_binaries(collection)
     end
   end
 
-  test 'update_binaries() with collection package profile not set should raise an error' do
+  test 'recreate_binaries() with collection package profile not set should
+  raise an error' do
     collection = collections(:collection1)
     collection.package_profile = nil
 
     assert_raises ArgumentError do
-      @instance.update_binaries(collection)
+      @instance.recreate_binaries(collection)
     end
   end
 
-  test 'update_binaries() with collection package profile set incorrectly
+  test 'recreate_binaries() with collection package profile set incorrectly
   should raise an error' do
     collection = collections(:collection1)
     collection.package_profile = PackageProfile::FREE_FORM_PROFILE
 
     assert_raises ArgumentError do
-      @instance.update_binaries(collection)
+      @instance.recreate_binaries(collection)
     end
   end
 
-  test 'update_binaries() with no effective collection CFS directory should raise an error' do
+  test 'recreate_binaries() with no effective collection CFS directory should raise an error' do
     collection = collections(:collection1)
     collection.medusa_cfs_directory_id = nil
     collection.medusa_file_group_id = nil
 
     assert_raises ArgumentError do
-      @instance.update_binaries(collection)
+      @instance.recreate_binaries(collection)
     end
   end
 
-  test 'update_binaries() should work' do
+  test 'recreate_binaries() should work' do
     # Set up the fixture data.
     item_uuid = '441c6170-c0e6-0134-2373-0050569601ca-5'
     collection = collections(:myers_collection)
@@ -339,8 +341,8 @@ class MedusaCompoundObjectIngesterTest < ActiveSupport::TestCase
     # Delete all binaries.
     Binary.destroy_all
 
-    # Update binaries.
-    result = @instance.update_binaries(collection)
+    # Recreate binaries.
+    result = @instance.recreate_binaries(collection)
 
     # Assert that the binaries were created.
     assert_equal 17, result[:num_created]

@@ -12,8 +12,9 @@ class ItemsController < WebsiteController
   # Number of children to display per page in show-item view.
   PAGES_LIMIT = 15
 
-  before_action :enable_cors, only: [:iiif_annotation, :iiif_annotation_list,
-                                     :iiif_canvas, :iiif_layer, :iiif_manifest,
+  before_action :enable_cors, only: [:iiif_annotation_list, :iiif_canvas,
+                                     :iiif_image_resource, :iiif_layer,
+                                     :iiif_manifest, :iiif_media_sequence,
                                      :iiif_range, :iiif_sequence]
   before_action :load_item, except: :index
   before_action :authorize_item, except: :index
@@ -48,25 +49,6 @@ class ItemsController < WebsiteController
       render 'items/files'
     else
       render status: 406, text: 'Not Acceptable'
-    end
-  end
-
-  ##
-  # Serves IIIF Presentation API 2.1 image resources.
-  #
-  # Responds to GET /items/:id/annotation/:name
-  #
-  # @see http://iiif.io/api/presentation/2.1/#image-resources
-  #
-  def iiif_annotation # TODO: rename to iiif_image_resource
-    valid_names = %w(access preservation)
-    if valid_names.include?(params[:name])
-      @annotation_name = params[:name]
-      @binary = @item.iiif_image_binary
-      render 'items/iiif_presentation_api/annotation',
-             formats: :json, content_type: 'application/json'
-    else
-      render text: 'No such image resource.', status: :not_found
     end
   end
 
@@ -106,6 +88,25 @@ class ItemsController < WebsiteController
   end
 
   ##
+  # Serves IIIF Presentation API 2.1 image resources.
+  #
+  # Responds to GET /items/:id/annotation/:name
+  #
+  # @see http://iiif.io/api/presentation/2.1/#image-resources
+  #
+  def iiif_image_resource
+    valid_names = %w(access preservation)
+    if valid_names.include?(params[:name])
+      @image_resource_name = params[:name]
+      @binary = @item.iiif_image_binary
+      render 'items/iiif_presentation_api/image_resource',
+             formats: :json, content_type: 'application/json'
+    else
+      render text: 'No such image resource.', status: :not_found
+    end
+  end
+
+  ##
   # Serves IIIF Presentation API 2.1 layers.
   #
   # Responds to GET /items/:id/layer/:name
@@ -131,6 +132,20 @@ class ItemsController < WebsiteController
   #
   def iiif_manifest
     render 'items/iiif_presentation_api/manifest',
+           formats: :json, content_type: 'application/json'
+  end
+
+  ##
+  # Serves media sequences -- an IIIF Presentation API extension by the
+  # Wellcome Library that enables the UniversalViewer to work with certain
+  # non-image content.
+  #
+  # Responds to GET /items/:id/xsequence/:name
+  #
+  # @see https://gist.github.com/tomcrane/7f86ac08d3b009c8af7c
+  #
+  def iiif_media_sequence
+    render 'items/iiif_presentation_api/media_sequence',
            formats: :json, content_type: 'application/json'
   end
 
@@ -274,19 +289,6 @@ class ItemsController < WebsiteController
   end
 
   ##
-  # Responds to GET /item/:id/pages (XHR only)
-  #
-  def pages
-    if request.xhr?
-      fresh_when(etag: @item) if Rails.env.production?
-      set_pages_ivar
-      render 'items/pages'
-    else
-      render status: 406, text: 'Not Acceptable'
-    end
-  end
-
-  ##
   # Responds to GET /items/:id
   #
   def show
@@ -309,9 +311,6 @@ class ItemsController < WebsiteController
         end
 
         set_files_ivar
-        if @files.total_length == 0
-          set_pages_ivar
-        end
 
         # Find the previous and next result based on the results URL in the
         # session.
@@ -403,12 +402,9 @@ class ItemsController < WebsiteController
           client_user(current_user).
           collection_id(session[:collection_id]).
           query(session[:q]).
-          include_children(session[:q].present?).
+          include_children(!(@collection and @collection.package_profile == PackageProfile::FREE_FORM_PROFILE)).
           only_described(true).
-          exclude_variants([Item::Variants::FRONT_MATTER, Item::Variants::INDEX,
-                            Item::Variants::KEY, Item::Variants::PAGE,
-                            Item::Variants::TABLE_OF_CONTENTS,
-                            Item::Variants::TITLE]).
+          exclude_variants(Item::Variants::non_filesystem_variants).
           filter_queries(session[:fq]).
           sort(session[:sort]).
           start(session[:start]).
@@ -441,18 +437,10 @@ class ItemsController < WebsiteController
     @start = params[:start] ? params[:start].to_i : 0
     @limit = PAGES_LIMIT
     @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
-    @files = @item.files_from_solr.
+    @files = @item.filesystem_variants_from_solr.
         order({Item::SolrFields::VARIANT => :asc},
               {Item::SolrFields::TITLE => :asc}).
         start(@start).limit(@limit)
-  end
-
-  def set_pages_ivar
-    @start = params[:start] ? params[:start].to_i : 0
-    @limit = PAGES_LIMIT
-    @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
-    @pages = @item.pages_from_solr.order(Item::SolrFields::TITLE).
-        start(@start).limit(@limit).to_a
   end
 
 end

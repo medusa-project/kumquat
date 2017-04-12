@@ -110,12 +110,12 @@ class MedusaFreeFormIngester < MedusaAbstractIngester
   #                         are not set or invalid.
   # @raises [IllegalContentError]
   #
-  def update_binaries(collection, task = nil)
+  def recreate_binaries(collection, task = nil)
     check_collection(collection, PackageProfile::FREE_FORM_PROFILE)
 
     num_nodes = task ? count_tree_nodes(collection.effective_medusa_cfs_directory) : 0
     stats = { num_created: 0 }
-    update_binaries_in_tree(
+    recreate_binaries_in_tree(
         collection.effective_medusa_cfs_directory,
         collection.effective_medusa_cfs_directory, stats, task, num_nodes)
 
@@ -125,7 +125,7 @@ class MedusaFreeFormIngester < MedusaAbstractIngester
       begin
         ImageServer.instance.purge_item_from_cache(item)
       rescue => e
-        @@logger.error("MedusaFreeFormIngester.update_binaries(): failed to "\
+        @@logger.error("MedusaFreeFormIngester.recreate_binaries(): failed to "\
             "purge item from image server cache: #{e}")
       end
     end
@@ -264,14 +264,14 @@ class MedusaFreeFormIngester < MedusaAbstractIngester
   # @return [Hash<Symbol, Integer>] Hash with :num_created key referring to the
   #                                 total number of binaries in the collection.
   #
-  def update_binaries_in_tree(cfs_dir, top_cfs_dir, stats, task = nil,
+  def recreate_binaries_in_tree(cfs_dir, top_cfs_dir, stats, task = nil,
                               num_nodes = 0, num_walked = 0)
     cfs_dir.directories.each do |dir|
       if task and num_walked % 10 == 0
         task.update(percent_complete: num_walked / num_nodes.to_f)
       end
       num_walked += 1
-      update_binaries_in_tree(dir, top_cfs_dir, stats)
+      recreate_binaries_in_tree(dir, top_cfs_dir, stats)
     end
     cfs_dir.files.each do |file|
       if task and num_walked % 10 == 0
@@ -280,7 +280,7 @@ class MedusaFreeFormIngester < MedusaAbstractIngester
       num_walked += 1
       item = Item.find_by_repository_id(file.uuid)
       if item
-        @@logger.info("MedusaFreeFormIngester.update_binaries_in_tree(): "\
+        @@logger.info("MedusaFreeFormIngester.recreate_binaries_in_tree(): "\
                             "updating binaries for item: #{file.uuid}")
         item.binaries.destroy_all
         bs = file.to_binary(Binary::MasterType::ACCESS)

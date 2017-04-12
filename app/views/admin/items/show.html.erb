@@ -41,8 +41,7 @@
     <% end %>
     <% if @item.bib_id %>
       <li>
-        <%= link_to "http://vufind.carli.illinois.edu/vf-uiu/Record/uiu_#{@item.bib_id}",
-                    target: '_blank' do %>
+        <%= link_to @item.catalog_record_url, target: '_blank' do %>
           <i class="fa fa-book"></i>&nbsp;&nbsp;Library Catalog Record
         <% end %>
       </li>
@@ -140,7 +139,7 @@
 
       <div role="tabpanel" class="tab-pane" id="pt-binaries">
         <% @item.binaries.each do |bin| %>
-          <h2><%= bin.human_readable_type %>
+          <h2><%= bin.human_readable_master_type %>
             <%= bin.human_readable_media_category.present? ?
                     "(#{bin.human_readable_media_category})" : nil %></h2>
           <%= binary_metadata_as_table(bin, admin: true) %>

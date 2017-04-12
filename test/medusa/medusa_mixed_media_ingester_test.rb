@@ -245,47 +245,49 @@ class MedusaMixedMediaIngesterTest < ActiveSupport::TestCase
     # (or at least any that is used).
   end
 
-  # update_binaries()
+  # recreate_binaries()
 
-  test 'update_binaries() with collection file group not set should raise an error' do
+  test 'recreate_binaries() with collection file group not set should raise an
+  error' do
     collection = collections(:collection1)
     collection.medusa_file_group_id = nil
 
     assert_raises ArgumentError do
-      @instance.update_binaries(collection)
+      @instance.recreate_binaries(collection)
     end
   end
 
-  test 'update_binaries() with collection package profile not set should raise an error' do
+  test 'recreate_binaries() with collection package profile not set should
+  raise an error' do
     collection = collections(:collection1)
     collection.package_profile = nil
 
     assert_raises ArgumentError do
-      @instance.update_binaries(collection)
+      @instance.recreate_binaries(collection)
     end
   end
 
-  test 'update_binaries() with collection package profile set incorrectly
+  test 'recreate_binaries() with collection package profile set incorrectly
   should raise an error' do
     collection = collections(:collection1)
     collection.package_profile = PackageProfile::COMPOUND_OBJECT_PROFILE
 
     assert_raises ArgumentError do
-      @instance.update_binaries(collection)
+      @instance.recreate_binaries(collection)
     end
   end
 
-  test 'update_binaries() with no effective collection CFS directory should raise an error' do
+  test 'recreate_binaries() with no effective collection CFS directory should raise an error' do
     collection = collections(:collection1)
     collection.medusa_cfs_directory_id = nil
     collection.medusa_file_group_id = nil
 
     assert_raises ArgumentError do
-      @instance.update_binaries(collection)
+      @instance.recreate_binaries(collection)
     end
   end
 
-  test 'update_binaries() should work' do
+  test 'recreate_binaries() should work' do
     # Set up the fixture data.
     item_uuid = 'bb60d790-ea4e-0134-23c2-0050569601ca-d'
     collection = collections(:mixed_media_collection)
@@ -303,8 +305,8 @@ class MedusaMixedMediaIngesterTest < ActiveSupport::TestCase
     # Delete all binaries.
     Binary.destroy_all
 
-    # Update binaries.
-    result = @instance.update_binaries(collection)
+    # Recreate binaries.
+    result = @instance.recreate_binaries(collection)
 
     # Assert that the binaries were created.
     assert_equal 24, result[:num_created]

@@ -7,12 +7,20 @@ class ItemTest < ActiveSupport::TestCase
     assert @item.valid?
   end
 
+  # Item.num_free_form_files()
+
+  test 'num_free_form_files should return a correct count' do
+    Item.all.each { |it| it.index_in_solr }
+    Solr.instance.commit
+    assert_equal 2, Item.num_free_form_files
+  end
+
   # Item.num_free_form_items()
 
   test 'num_free_form_items should return a correct count' do
     Item.all.each { |it| it.index_in_solr }
     Solr.instance.commit
-    assert_equal 2, Item.num_free_form_items
+    assert_equal 3, Item.num_free_form_items
   end
 
   # Item.tsv_header()
@@ -48,6 +56,12 @@ class ItemTest < ActiveSupport::TestCase
         end_with?(Item::TSV_LINE_BREAK)
   end
 
+  # all_files()
+
+  test 'all_files() should return the correct items' do
+    assert_equal 1, items(:free_form_dir1).all_files.count
+  end
+
   # as_json()
 
   test 'as_json() should return the correct structure' do
@@ -65,6 +79,20 @@ class ItemTest < ActiveSupport::TestCase
 
     @item.elements.build(name: 'bibId', value: 'cats')
     assert_equal 'cats', @item.bib_id
+  end
+
+  # catalog_record_url()
+
+  test 'catalog_record_url() should return nil when bib_id() returns nil' do
+    @item.elements.where(name: 'bibId').destroy_all
+    assert_nil @item.catalog_record_url
+  end
+
+  test 'catalog_record_url() should return the catalog record URL when bib_id()
+  returns a string' do
+    @item.elements.build(name: 'bibId', value: '12345')
+    assert_equal 'http://vufind.carli.illinois.edu/vf-uiu/Record/uiu_12345',
+                 @item.catalog_record_url
   end
 
   # collection_repository_id
