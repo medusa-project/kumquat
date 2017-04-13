@@ -421,6 +421,19 @@ var PTItemsView = function() {
                 }
             }
         });
+        if ($('#jstree').length > 0) {
+            $('#jstree').jstree({
+                core : {
+                    data : {
+                        url : function (node) {
+                            return node.id === '#' ?
+                                getCollectionURL() :
+                            '/items/'+node.id+'/treedata.json';
+                        }
+                    }
+                }
+            });
+        }
     };
 
     var updateFavoritesCount = function() {
@@ -428,6 +441,11 @@ var PTItemsView = function() {
         badge.text(PTItem.numFavorites());
     };
 
+};
+
+var getCollectionURL = function() {
+    var ID = window.location.pathname.split("/")[2];
+    return '/collections/'+ID+'/items/treedata.json';
 };
 
 var ready = function() {

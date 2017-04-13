@@ -16,8 +16,8 @@ class ItemsController < WebsiteController
                                      :iiif_image_resource, :iiif_layer,
                                      :iiif_manifest, :iiif_media_sequence,
                                      :iiif_range, :iiif_sequence]
-  before_action :load_item, except: :index
-  before_action :authorize_item, except: :index
+  before_action :load_item, except: [:index, :tree_data]
+  before_action :authorize_item, except: [:index, :tree_data]
   before_action :set_browse_context, only: :index
 
   ##
@@ -208,6 +208,7 @@ class ItemsController < WebsiteController
   # Responds to GET /items
   #
   def index
+    logger.info("got here")
     if params[:collection_id]
       @collection = Collection.find_by_repository_id(params[:collection_id])
       raise ActiveRecord::RecordNotFound unless @collection
@@ -355,6 +356,49 @@ class ItemsController < WebsiteController
       end
     end
   end
+
+
+  def tree_data
+    respond_to do |format|
+      if params[:collection_id]
+        @collection = Collection.find_by_repository_id(params[:collection_id])
+        raise ActiveRecord::RecordNotFound unless @collection
+        return unless authorize(@collection)
+      end
+
+      @start = params[:start].to_i
+      finder = item_finder_for(params)
+      @items = finder.to_a
+      tree_data = @items.map do |item|
+        node_hash = Hash.new
+        node_hash["id"]=item.repository_id
+        node_hash["text"]=item.title
+        node_hash["children"]=true
+        node_hash
+      end
+
+      format.json do
+        render json:
+            tree_data
+       end
+      end
+  end
+
+  def item_tree_node
+    respond_to do |format|
+      tree_data = @item.items.map do |child|
+        node_hash = Hash.new
+        node_hash["id"]=child.repository_id
+        node_hash["text"]=child.title
+        node_hash["children"]=true
+        node_hash
+      end
+      format.json do
+        render json: tree_data
+      end
+    end
+  end
+
 
   private
 

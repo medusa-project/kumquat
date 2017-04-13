@@ -1,8 +1,14 @@
 <% if @count > 0 %>
-  <%= items_as_list(@items, @start, show_collections: !@collection,
+    <% if @collection.package_profile == PackageProfile::FREE_FORM_PROFILE %>
+        <div id="jstree">
+
+
+        </div>
+    <% else %>
+    <%= items_as_list(@items, @start, show_collections: !@collection,
                     show_add_to_favorites_buttons: true,
                     show_remove_from_favorites_buttons: true) %>
-
+    <% end %>
   <div class="text-center">
     <%= paginate_items(@items.total_length, @limit, @current_page) %>
   </div>
