@@ -132,6 +132,18 @@ namespace :dls do
 
   namespace :items do
 
+    desc 'Delete all item Solr documents in a collection'
+    task :clear_collection_index, [:uuid] => :environment do |task, args|
+      Solr.instance.delete_by_query("#{Item::SolrFields::COLLECTION}:#{args[:uuid]}")
+      Solr.instance.commit
+    end
+
+    desc 'Print an item\'s Solr document'
+    task :print_solr_document, [:uuid] => :environment do |task, args|
+      item = Item.find_by_repository_id(args[:uuid])
+      puts JSON.pretty_generate(item.solr_document)
+    end
+
     desc 'Delete all items from a collection'
     task :purge_collection, [:uuid] => :environment do |task, args|
       ActiveRecord::Base.transaction do
@@ -159,12 +171,6 @@ namespace :dls do
       Item.where(collection_repository_id: args[:uuid]).each do |item|
         item.index_in_solr
       end
-      Solr.instance.commit
-    end
-
-    desc 'Delete all item Solr documents in a collection'
-    task :clear_collection_index, [:uuid] => :environment do |task, args|
-      Solr.instance.delete_by_query("#{Item::SolrFields::COLLECTION}:#{args[:uuid]}")
       Solr.instance.commit
     end
 
