@@ -432,8 +432,11 @@ var PTItemsView = function() {
                         }
                     }
                 }
+            }).bind("select_node.jstree", function (e, data) {
+                var href = data.node.a_attr.href;
+                document.location.href = href;
             });
-        }
+        };
     };
 
     var updateFavoritesCount = function() {

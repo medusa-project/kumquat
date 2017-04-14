@@ -370,11 +370,7 @@ class ItemsController < WebsiteController
       finder = item_finder_for(params)
       @items = finder.to_a
       tree_data = @items.map do |item|
-        node_hash = Hash.new
-        node_hash["id"]=item.repository_id
-        node_hash["text"]=item.title
-        node_hash["children"]=true
-        node_hash
+        tree_hash item
       end
 
       format.json do
@@ -387,11 +383,7 @@ class ItemsController < WebsiteController
   def item_tree_node
     respond_to do |format|
       tree_data = @item.items.map do |child|
-        node_hash = Hash.new
-        node_hash["id"]=child.repository_id
-        node_hash["text"]=child.title
-        node_hash["children"]=true
-        node_hash
+        tree_hash child
       end
       format.json do
         render json: tree_data
@@ -400,7 +392,18 @@ class ItemsController < WebsiteController
   end
 
 
+
+
   private
+
+  def tree_hash(item)
+    node_hash = Hash.new
+    node_hash["id"]=item.repository_id
+    node_hash["text"]=item.title
+    node_hash["children"]=item.items.size>0
+    node_hash["a_attr"]={"href": item_path(item)}
+    node_hash
+  end
 
   def authorize_item
     return unless authorize(@item.collection)
