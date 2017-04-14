@@ -782,10 +782,11 @@ module ItemsHelper
 
     # mainEntity
     if item.parent
+      root_parent = item.all_parents.last
       struct[:mainEntity] = {
           '@type': 'CreativeWork',
-          name: item.root_parent.title,
-          url: item_url(item.root_parent)
+          name: root_parent.title,
+          url: item_url(root_parent)
       }
     end
 

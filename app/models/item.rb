@@ -744,7 +744,6 @@ class Item < ActiveRecord::Base
   ##
   # @return [Item, nil]
   # @see all_parents()
-  # @see root_parent()
   #
   def parent
     @parent = Item.find_by_repository_id(self.parent_repository_id) unless @parent
@@ -829,20 +828,6 @@ class Item < ActiveRecord::Base
   #
   def rightsstatements_org_statement
     RightsStatement.for_uri(self.element(:accessRights)&.uri)
-  end
-
-  ##
-  # @return [Item, nil]
-  # @see parent()
-  # @see all_parents()
-  #
-  def root_parent
-    p = self.parent
-    while p
-      break unless p.parent
-      p = p.parent
-    end
-    p
   end
 
   ##
