@@ -76,6 +76,7 @@ module Admin
           include_unpublished(true).
           only_described(false).
           filter_queries(params[:fq]).
+          default_field(params[:df]).
           start(@start).
           limit(@limit)
       if @collection.package_profile == PackageProfile::FREE_FORM_PROFILE
