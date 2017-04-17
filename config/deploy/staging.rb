@@ -34,7 +34,7 @@ server 'kumquat-dev.library.illinois.edu', user: 'peartree',
 
 # Default branch is :master
 #ask :branch, 'staging'
-set :branch, 'staging2'
+set :branch, 'staging'
 
 # Custom SSH Options
 # ==================
