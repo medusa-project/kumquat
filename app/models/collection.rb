@@ -584,6 +584,20 @@ class Collection < ActiveRecord::Base
   end
 
   ##
+  # Deletes all items in the collection. Does not commit the index.
+  #
+  # @return [Integer] Number of items purged.
+  #
+  def purge
+    items = self.items
+    count = items.count
+    ActiveRecord::Base.transaction do
+      items.destroy_all
+    end
+    count
+  end
+
+  ##
   # @param matching_mode [Symbol] :exact_match, :contain, :start, or :end
   # @param find_value [String] Value to search for.
   # @param element_name [String] Element in which to search.

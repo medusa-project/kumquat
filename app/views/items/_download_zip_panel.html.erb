@@ -22,8 +22,8 @@ num_batches = (num_downloadable_items / DownloaderClient::BATCH_SIZE.to_f).ceil
             <p>Zip files include access and preservation master files for all
               of the items in the current result set.</p>
           <% when :favorites %>
-            <p>Zip files include access and preservation master files for all
-              of your favorites.</p>
+            <p>Zip files include access and preservation masters for all checked
+              favorites, or all favorites, if none are checked.</p>
           <% when :item %>
             <p>Zip files include access and preservation master files for the
               current item and all child items.</p>
