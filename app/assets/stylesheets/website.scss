@@ -220,10 +220,18 @@ description on the right.
   li {
     margin-bottom: 1em;
     margin-left:2em;
-    div:first-child {
+    input[type=checkbox] {
+      margin: 0px 10px;
+    }
+    div.pt-checkbox-result-container {
+      width: 90%;
+    }
+    div.pt-non-checkbox-result-container {
+      width: 100%;
+    }
+    div {
       display: inline-block;
       vertical-align: middle;
-      width: 100%;
       div.pt-thumbnail {
         float:left;
         font-size: $icon-size;

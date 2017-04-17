@@ -1,8 +1,12 @@
+##
+# Favorites are saved in a cookie named "favorites".
+#
 class FavoritesController < WebsiteController
 
   COOKIE_DELIMITER = ','
 
-  before_action :set_browse_context, only: :index
+  before_action :set_browse_context
+  after_action :purge_invalid_favorites
 
   def index
     @start = params[:start] ? params[:start].to_i : 0
@@ -22,11 +26,19 @@ class FavoritesController < WebsiteController
     @num_downloadable_items = @num_results_shown
     @total_byte_size = 0
 
-    purge_invalid_favorites
-
     respond_to do |format|
       format.html
       format.zip do
+        # First, check if there are any selected items present in the params.
+        # If so, include only those. Otherwise, include all favorites.
+        if params[:ids].present?
+          ids = params[:ids].split(',')
+          if ids.any?
+            @items = Item.solr.operator(:or).where("id:(#{ids.join(' ')})").
+                limit(9999)
+          end
+        end
+
         client = DownloaderClient.new
         begin
           download_url = client.download_url(@items.to_a, 'favorites')
