@@ -64,7 +64,6 @@ GEM
       coffee-script-source
       execjs
     coffee-script-source (1.9.1.1)
-    colorize (0.7.7)
     concurrent-ruby (1.0.5)
     curb (0.9.3)
     daemons (1.2.4)
@@ -110,7 +109,7 @@ GEM
     multi_json (1.11.2)
     net-scp (1.2.1)
       net-ssh (>= 2.6.5)
-    net-ssh (3.0.1)
+    net-ssh (4.1.0)
     nokogiri (1.7.0.1)
       mini_portile2 (~> 2.1.0)
     omniauth (1.2.2)
@@ -169,8 +168,7 @@ GEM
       actionpack (>= 4.0)
       activesupport (>= 4.0)
       sprockets (>= 3.0.0)
-    sshkit (1.7.1)
-      colorize (>= 0.7.0)
+    sshkit (1.13.1)
       net-scp (>= 1.1.2)
       net-ssh (>= 2.8.0)
     thin (1.7.0)
