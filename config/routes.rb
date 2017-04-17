@@ -90,6 +90,7 @@ Rails.application.routes.draw do
         as: 'auth' # used by omniauth
   resources :binaries, only: :show
   resources :collections, only: [:index, :show] do
+    match 'items/treedata', to: 'items#tree_data', via: [:get, :post]
     resources :items, only: :index
     # IIIF Presentation API 2.1 routes
     match '/presentation', to: 'collections#iiif_presentation', via: :get,
@@ -97,6 +98,7 @@ Rails.application.routes.draw do
   end
   resources :favorites, only: :index
   resources :items, only: [:index, :show] do
+    match '/treedata', to: 'items#item_tree_node', via: [:get, :post]
     match '/binaries/:filename', to: 'items#binary', via: :get, as: 'binary'
     match '/files', to: 'items#files', via: :get, as: 'files'
     # IIIF Presentation API 2.1 routes
