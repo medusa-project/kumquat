@@ -341,11 +341,27 @@ class ItemsController < WebsiteController
       format.json do
         render json: @item.decorate(context: { web: true })
       end
-      format.zip do # Used for downloading pages into a zip file.
+      format.zip do
         client = DownloaderClient.new
         begin
-          items = @item.items.any? ? @item.items : [@item]
-          download_url = client.download_url(items, 'item')
+          # For directories, the zip file will contain content for each
+          # file-variant item at any sublevel. For compound objects, it will
+          # contain content for each item in the object.
+          if @item.variant == Item::Variants::DIRECTORY
+            if @item.items.any?
+              items = @item.all_files
+              zip_name = 'files'
+              profile = PackageProfile::FREE_FORM_PROFILE
+            else
+              flash['error'] = 'This directory is empty.'
+              redirect_to :back
+            end
+          else
+            items = @item.items.any? ? @item.items : [@item]
+            zip_name = 'item'
+            profile = nil
+          end
+          download_url = client.download_url(items, zip_name, profile)
         rescue => e
           flash['error'] = "#{e}"
           redirect_to :back
