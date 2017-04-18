@@ -15,4 +15,19 @@ class MetadataProfileElementTest < ActiveSupport::TestCase
     assert e.controlled?
   end
 
+  # validate()
+
+  test 'validate() should require unique names' do
+    @element.metadata_profile.elements.each_with_index do |e, i|
+      e.name = 'title'
+      if i == 0
+        e.save!
+      else
+        assert_raises ActiveRecord::RecordInvalid do
+          e.save!
+        end
+      end
+    end
+  end
+
 end
