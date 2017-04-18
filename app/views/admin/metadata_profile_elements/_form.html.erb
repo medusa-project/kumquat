@@ -1,10 +1,15 @@
-<% position_options = options_for_select(
-    [['Nothing (First)', 0]] +
-    element.metadata_profile.elements.order(:index).
-        reject{ |e| e.index == element.index }.
-        map{ |e| [e.label, (e.index > element.index.to_i) ? e.index : e.index + 1] },
-    selected: element.index) %>
-
+<%
+  # Requires the following locals:
+  #
+  # element [MetadataProfileElement]
+  # metadata_profile [MetadataProfile]
+  # name_options_for_select [Array]
+  # position_options_for_select [Array]
+  # dublin_core_elements [Array<Array>] Array of arrays with label and name strings
+  # dublin_core_terms [Array<Array>] Array of arrays with label and name strings
+  # vocabularies [Enumerable<Vocabulary>]
+  # context [Symbol] :new or :edit
+%>
 <%= form_for([:admin, element], remote: true) do |f| %>
   <div class="pt-error-messages">
     <% # populated via ajax by shared/_validation_messages.js.erb
@@ -25,7 +30,9 @@
 
   <div class="form-group">
     <%= f.label :index, 'Position After' %>
-    <%= f.select :index, position_options, {}, class: 'form-control' %>
+    <%= f.select :index, position_options_for_select,
+                 { selected: element.index },
+                 class: 'form-control' %>
   </div>
 
   <div class="form-group">
@@ -33,7 +40,7 @@
 
     <%= hidden_field_tag('metadata_profile_element[vocabulary_ids][]', nil) %>
 
-    <% Vocabulary.order(:name).each do |vocab| %>
+    <% vocabularies.each do |vocab| %>
       <div class="checkbox">
         <%= label_tag do %>
           <%= check_box_tag :vocabulary_ids, vocab.id,
