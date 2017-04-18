@@ -47,6 +47,12 @@ module Admin
       profile = element.metadata_profile
       name_options_for_select = ItemElement.all_available.
           map{ |t| [ t.name, t.name ] }
+
+      position_options_for_select = [['Nothing (First)', 0]]
+      profile.elements.where('id != ?', element.id).order(:index).each_with_index do |e, i|
+        position_options_for_select << [e.label, i + 1]
+      end
+
       dublin_core_elements = DublinCoreElement.all.
           sort{ |e, f| e.label <=> f.label }.
           map { |p| [ p.label, p.name ] }
@@ -57,8 +63,10 @@ module Admin
              locals: { element: element,
                        metadata_profile: profile,
                        name_options_for_select: name_options_for_select,
+                       position_options_for_select: position_options_for_select,
                        dublin_core_elements: dublin_core_elements,
                        dublin_core_terms: dublin_core_terms,
+                       vocabularies: Vocabulary.order(:name),
                        context: :edit }
     end
 
