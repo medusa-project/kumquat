@@ -15,4 +15,9 @@ class MetadataProfileElementTest < ActiveSupport::TestCase
     assert e.controlled?
   end
 
+  test 'validate() should disallow negative indexes' do
+    @element.index = -1
+    assert !@element.validate
+  end
+
 end

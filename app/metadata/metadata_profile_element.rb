@@ -6,6 +6,9 @@ class MetadataProfileElement < ActiveRecord::Base
   belongs_to :metadata_profile, inverse_of: :elements
   has_and_belongs_to_many :vocabularies
 
+  validates :index, numericality: { only_integer: true,
+                                    greater_than_or_equal_to: 0 },
+            allow_blank: false
   validates_uniqueness_of :name, scope: :metadata_profile_id
 
   after_save :adjust_profile_element_indexes_after_save
