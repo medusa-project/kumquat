@@ -27,6 +27,7 @@ class Permission < ActiveRecord::Base
     MODIFY_ROLES = 'roles.modify'
     MODIFY_SETTINGS = 'settings.modify'
     MODIFY_USERS = 'users.modify'
+    PURGE_ITEMS_FROM_COLLECTION = 'collections.purge_items'
   end
 
   has_and_belongs_to_many :roles
