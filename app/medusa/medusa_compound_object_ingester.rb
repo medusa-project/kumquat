@@ -14,9 +14,6 @@
 #     * composite
 #         * file (0-*)
 #
-# Clients that don't want to concern themselves with package profiles can
-# use MedusaIngester instead.
-#
 class MedusaCompoundObjectIngester < MedusaAbstractIngester
 
   @@logger = CustomLogger.instance
@@ -65,8 +62,10 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
     num_directories = directories.length
 
     directories.each_with_index do |top_item_dir, index|
+      object_exists = false
       item = Item.find_by_repository_id(top_item_dir.uuid)
       if item
+        object_exists = true
         @@logger.info("MedusaCompoundObjectIngester.create_items(): "\
             "skipping item #{top_item_dir.uuid}")
         status[:num_skipped] += 1
@@ -79,6 +78,8 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
         item.elements.build(name: 'title', value: top_item_dir.name)
         status[:num_created] += 1
       end
+      # Whether or not the object already exists, scan the filesystem for new
+      # child items to add.
       if top_item_dir.directories.any?
         pres_dir = top_item_dir.directories.
             select{ |d| d.name == 'preservation' }.first
@@ -101,40 +102,41 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
                                  parent_repository_id: item.repository_id)
                 # Assign a title of the filename.
                 child.elements.build(name: 'title', value: pres_file.name)
+
+                # Set the variant.
+                basename = File.basename(pres_file.repository_relative_pathname)
+                if basename.include?('_frontmatter')
+                  child.variant = Item::Variants::FRONT_MATTER
+                elsif basename.include?('_index')
+                  child.variant = Item::Variants::INDEX
+                elsif basename.include?('_key')
+                  child.variant = Item::Variants::KEY
+                elsif basename.include?('_title')
+                  child.variant = Item::Variants::TITLE
+                else
+                  child.variant = Item::Variants::PAGE
+                end
+
+                # Create the preservation master binary.
+                child.binaries << pres_file.
+                    to_binary(Binary::MasterType::PRESERVATION)
+
+                # Find and create the access master binary.
+                begin
+                  child.binaries << access_master_binary(top_item_dir, pres_file)
+                rescue IllegalContentError => e
+                  @@logger.warn("MedusaCompoundObjectIngester.create_items(): #{e}")
+                end
+
+                child.update_from_embedded_metadata(options) if
+                    options[:extract_metadata]
+
+                child.save!
+
                 status[:num_created] += 1
               end
-
-              # Create the preservation master binary.
-              child.binaries << pres_file.
-                  to_binary(Binary::MasterType::PRESERVATION)
-
-              # Set the child's variant.
-              basename = File.basename(pres_file.repository_relative_pathname)
-              if basename.include?('_frontmatter')
-                child.variant = Item::Variants::FRONT_MATTER
-              elsif basename.include?('_index')
-                child.variant = Item::Variants::INDEX
-              elsif basename.include?('_key')
-                child.variant = Item::Variants::KEY
-              elsif basename.include?('_title')
-                child.variant = Item::Variants::TITLE
-              else
-                child.variant = Item::Variants::PAGE
-              end
-
-              # Find and create the access master binary.
-              begin
-                child.binaries << access_master_binary(top_item_dir, pres_file)
-              rescue IllegalContentError => e
-                @@logger.warn("MedusaCompoundObjectIngester.create_items(): #{e}")
-              end
-
-              child.update_from_embedded_metadata(options) if
-                  options[:extract_metadata]
-
-              child.save!
             end
-          elsif pres_dir.files.length == 1
+          elsif pres_dir.files.length == 1 and !object_exists
             # Create the preservation master binary.
             pres_file = pres_dir.files.first
             item.binaries << pres_file.
