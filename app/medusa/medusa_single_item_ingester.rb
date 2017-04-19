@@ -39,22 +39,23 @@ class MedusaSingleItemIngester < MedusaAbstractIngester
           "item #{file.uuid}")
         item = Item.new(repository_id: file.uuid,
                         collection_repository_id: collection.repository_id)
+
+        # Create the preservation master binary.
+        item.binaries << file.to_binary(Binary::MasterType::PRESERVATION)
+
+        # Find and create the access master binary.
+        begin
+          item.binaries << access_master_binary(cfs_dir, file)
+        rescue IllegalContentError => e
+          @@logger.warn("MedusaSingleItemIngester.create_items(): #{e}")
+        end
+
+        item.update_from_embedded_metadata(options) if options[:extract_metadata]
+
+        item.save!
+
         status[:num_created] += 1
       end
-
-      # Create the preservation master binary.
-      item.binaries << file.to_binary(Binary::MasterType::PRESERVATION)
-
-      # Find and create the access master binary.
-      begin
-        item.binaries << access_master_binary(cfs_dir, file)
-      rescue IllegalContentError => e
-        @@logger.warn("MedusaSingleItemIngester.create_items(): #{e}")
-      end
-
-      item.update_from_embedded_metadata(options) if options[:extract_metadata]
-
-      item.save!
 
       if task and index % 10 == 0
         task.update(percent_complete: index / num_files.to_f)
