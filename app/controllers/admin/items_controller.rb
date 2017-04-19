@@ -2,6 +2,7 @@ module Admin
 
   class ItemsController < ControlPanelController
 
+    before_action :purge_items_rbac, only: :destroy_all
     before_action :modify_items_rbac, only: [:batch_change_metadata,
                                              :destroy_all, :edit, :import,
                                              :migrate_metadata,
@@ -368,6 +369,11 @@ module Admin
     def modify_items_rbac
       redirect_to(admin_root_url) unless
           current_user.can?(Permission::Permissions::MODIFY_ITEMS)
+    end
+
+    def purge_items_rbac
+      redirect_to(admin_collection_url(params[:collection_id])) unless
+          current_user.can?(Permission::Permissions::PURGE_ITEMS_FROM_COLLECTION)
     end
 
     def sanitized_params
