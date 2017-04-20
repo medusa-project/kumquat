@@ -299,7 +299,7 @@ class Collection < ActiveRecord::Base
         items.parent_repository_id,
         (SELECT array_to_string(
           array(
-            SELECT repository_relative_pathname
+            SELECT DISTINCT repository_relative_pathname
             FROM binaries
             WHERE binaries.item_id = items.id
               AND binaries.master_type = #{Binary::MasterType::PRESERVATION}
@@ -323,7 +323,7 @@ class Collection < ActiveRecord::Base
           ), '#{Item::TSV_MULTI_VALUE_SEPARATOR}')) AS pres_uuid,
         (SELECT array_to_string(
           array(
-            SELECT repository_relative_pathname
+            SELECT DISTINCT repository_relative_pathname
             FROM binaries
             WHERE binaries.item_id = items.id
               AND binaries.master_type = #{Binary::MasterType::ACCESS}
