@@ -1,72 +1,41 @@
-# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+# illini_union collection
 
-item1:
-  collection_repository_id: d250c1f0-5ca8-0132-3334-0050569601ca-8
-  date: <%= Time.parse('2015-05-15') %>
-  full_text: MyText
-  latitude: 39.25243
-  longitude: -152.23423
-  page_number:
-  parent_repository_id:
-  published: true
-  repository_id: a1234567-5ca8-0132-3334-0050569601ca-8
-  representative_item_repository_id:
-  subpage_number:
-  variant:
-
-item2:
-  collection_repository_id: c28af1f0-5ca8-0132-3334-0050569601ca-8
-  date: <%= Time.parse('2015-08-10') %>
-  full_text: MyText
-  page_number: 1
-  parent_repository_id:
-  published: false
-  latitude: 45.105254
-  longitude: -10.2234234
-  repository_id: a6b34567-5ca8-0132-3334-0050569601ca-8
-  representative_item_repository_id:
-  subpage_number:
-  variant: Page
-
-free_form_dir1:
-  collection_repository_id: d250c1f0-5ca8-0132-3334-0050569601ca-8
+illini_union_dir1:
+  collection_repository_id: 34d204d0-05d1-0130-c5bb-0019b9e633c5-e
   date: <%= Time.parse('2015-08-10') %>
   published: true
   repository_id: a53add10-5ca8-0132-3334-0050569601ca-7
   variant: Directory
 
-free_form_dir1_file1:
-  collection_repository_id: d250c1f0-5ca8-0132-3334-0050569601ca-8
+illini_union_dir1_file1:
+  collection_repository_id: 34d204d0-05d1-0130-c5bb-0019b9e633c5-e
   date: <%= Time.parse('2015-08-10') %>
   published: true
   repository_id: 6e406030-5ce3-0132-3334-0050569601ca-3
   parent_repository_id: a53add10-5ca8-0132-3334-0050569601ca-7
   variant: File
 
-iptc_item:
-  collection_repository_id: 34d204d0-05d1-0130-c5bb-0019b9e633c5-e
-  parent_repository_id:
-  published: true
-  repository_id: 7400e0a0-5ce3-0132-3334-0050569601ca-c
-  variant: File
+# sanborn collection
 
-map_obj1:
-  collection_repository_id: d250c1f0-5ca8-0132-3334-0050569601ca-8
+sanborn_obj1:
+  collection_repository_id: 6ff64b00-072d-0130-c5bb-0019b9e633c5-2
   date: <%= Time.parse('2015-08-10') %>
   published: true
   repository_id: be8d3500-c451-0133-1d17-0050569601ca-9
 
-map_obj1_page1:
-  collection_repository_id: d250c1f0-5ca8-0132-3334-0050569601ca-8
+sanborn_obj1_page1:
+  collection_repository_id: 6ff64b00-072d-0130-c5bb-0019b9e633c5-2
   date: <%= Time.parse('2015-08-10') %>
+  latitude: 45
+  longitude: -120
   page_number: 1
   published: true
   repository_id: d29950d0-c451-0133-1d17-0050569601ca-2
   parent_repository_id: be8d3500-c451-0133-1d17-0050569601ca-9
   variant: <%= Item::Variants::PAGE %>
 
-map_obj1_page2:
-  collection_repository_id: d250c1f0-5ca8-0132-3334-0050569601ca-8
+sanborn_obj1_page2:
+  collection_repository_id: 6ff64b00-072d-0130-c5bb-0019b9e633c5-2
   date: <%= Time.parse('2015-08-10') %>
   page_number: 2
   published: true
@@ -74,8 +43,8 @@ map_obj1_page2:
   parent_repository_id: be8d3500-c451-0133-1d17-0050569601ca-9
   variant: <%= Item::Variants::PAGE %>
 
-map_obj2:
-  collection_repository_id: d250c1f0-5ca8-0132-3334-0050569601ca-8
+sanborn_obj2:
+  collection_repository_id: 6ff64b00-072d-0130-c5bb-0019b9e633c5-2
   date: <%= Time.parse('2015-08-10') %>
   published: true
   repository_id: cd2d4601-c451-0133-1d17-0050569601ca-8

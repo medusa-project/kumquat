@@ -4,6 +4,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
 
   def setup
     @valid_xml = File.read(__dir__ + '/../fixtures/repository/item.xml')
+    @item = items(:illini_union_dir1_file1)
   end
 
   # show() access control
@@ -12,18 +13,17 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     role = Role.new(key: 'test', name: 'Test')
     role.hosts.build(pattern: 'www.example.com')
     role.save!
-    item = items(:item1)
-    item.denied_roles << role
-    item.save!
+    @item.denied_roles << role
+    @item.save!
 
-    get('/items/' + item.repository_id)
+    get('/items/' + @item.repository_id)
     assert_response :forbidden
   end
 
   # show() with JSON
 
   test 'show() JSON should return 200' do
-    get('/items/' + items(:item1).repository_id + '.json')
+    get('/items/' + @item.repository_id + '.json')
     assert_response :success
   end
 

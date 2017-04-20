@@ -4,6 +4,14 @@ default_metadata_profile:
   name: Default Profile
   default: true
 
+lincoln:
+  name: Lincoln
+  default: false
+
 metadata_profile_2:
   name: Other Profile
+  default: false
+
+sanborn:
+  name: Sanborn Maps
   default: false

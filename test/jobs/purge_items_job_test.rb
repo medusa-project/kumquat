@@ -5,7 +5,7 @@ class PurgeItemsJobTest < ActiveSupport::TestCase
   # perform()
 
   test 'perform() should work properly' do
-    col = collections(:collection1)
+    col = collections(:illini_union)
     assert col.items.count > 0
     PurgeItemsJob.perform_now(col.repository_id)
     assert col.items.count == 0

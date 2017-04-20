@@ -84,3 +84,134 @@ default_profile_subject:
   vocabularies:
     - lcsh
     - tgm
+
+# metadata profile: lincoln
+
+lincoln_creator:
+  metadata_profile: lincoln
+  dc_map: creator
+  dcterms_map: creator
+  facetable: false
+  index: 0
+  label: Creator
+  name: creator
+  searchable: true
+  sortable: true
+  visible: true
+  vocabularies:
+    - uncontrolled
+
+lincoln_dateCreated:
+  metadata_profile: lincoln
+  dc_map: created
+  dcterms_map: created
+  facetable: false
+  index: 0
+  label: Date Created
+  name: dateCreated
+  searchable: true
+  sortable: true
+  visible: true
+  vocabularies:
+    - uncontrolled
+
+lincoln_title:
+  metadata_profile: lincoln
+  dc_map: title
+  dcterms_map: title
+  facetable: false
+  index: 0
+  label: Title
+  name: title
+  searchable: true
+  sortable: true
+  visible: true
+  vocabularies:
+    - uncontrolled
+
+# metadata profile: sanborn
+
+sanborn_title:
+  metadata_profile: sanborn
+  dc_map: title
+  dcterms_map: title
+  facetable: false
+  index: 0
+  label: Title
+  name: title
+  searchable: true
+  sortable: true
+  visible: true
+  vocabularies:
+    - uncontrolled
+
+sanborn_coordinates:
+  metadata_profile: sanborn
+  dc_map: spatial
+  dcterms_map: spatial
+  facetable: false
+  index: 1
+  label: Coordinates
+  name: coordinates
+  searchable: false
+  sortable: false
+  visible: true
+  vocabularies:
+    - uncontrolled
+
+sanborn_creator:
+  metadata_profile: sanborn
+  dc_map: creator
+  dcterms_map: creator
+  facetable: true
+  index: 2
+  label: Creator
+  name: creator
+  searchable: true
+  sortable: true
+  visible: true
+  vocabularies:
+    - uncontrolled
+
+sanborn_dateCreated:
+  metadata_profile: sanborn
+  dc_map: created
+  dcterms_map: created
+  facetable: false
+  index: 3
+  label: Date Created
+  name: dateCreated
+  searchable: false
+  sortable: true
+  visible: true
+  vocabularies:
+    - uncontrolled
+
+sanborn_description:
+  metadata_profile: sanborn
+  dc_map: description
+  dcterms_map: description
+  facetable: false
+  index: 4
+  label: Description
+  name: description
+  searchable: false
+  sortable: true
+  visible: true
+  vocabularies:
+    - uncontrolled
+
+sanborn_subject:
+  metadata_profile: sanborn
+  dc_map: subject
+  dcterms_map: subject
+  facetable: true
+  index: 5
+  label: Subject
+  name: subject
+  searchable: true
+  sortable: false
+  visible: true
+  vocabularies:
+    - lcsh
+    - tgm
