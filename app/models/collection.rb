@@ -610,6 +610,13 @@ class Collection < ActiveRecord::Base
   #
   def replace_item_element_values(matching_mode, find_value, element_name,
                                   replace_mode, replace_value, task = nil)
+    unless [:whole_value, :matched_part].include?(replace_mode)
+      raise ArgumentError, "Illegal replace mode: #{replace_mode}"
+    end
+    unless [:exact_match, :contain, :start, :end].include?(matching_mode)
+      raise ArgumentError, "Illegal matching mode: #{matching_mode}"
+    end
+
     ActiveRecord::Base.transaction do
       num_items = self.items.count
       self.items.each_with_index do |item, index|
@@ -627,8 +634,6 @@ class Collection < ActiveRecord::Base
                     element.value = replace_value
                   when :matched_part
                     element.value.gsub!(find_value, replace_value)
-                  else
-                    raise ArgumentError, "Illegal replace mode: #{replace_mode}"
                 end
                 element.save!
               end
@@ -639,8 +644,6 @@ class Collection < ActiveRecord::Base
                     element.value = replace_value
                   when :matched_part
                     element.value.gsub!(find_value, replace_value)
-                  else
-                    raise ArgumentError, "Illegal replace mode: #{replace_mode}"
                 end
                 element.save!
               end
@@ -651,13 +654,9 @@ class Collection < ActiveRecord::Base
                     element.value = replace_value
                   when :matched_part
                     element.value.gsub!(find_value, replace_value)
-                  else
-                    raise ArgumentError, "Illegal replace mode: #{replace_mode}"
                 end
                 element.save!
               end
-            else
-              raise ArgumentError, "Illegal matching mode: #{matching_mode}"
           end
 
           if task and index % 10 == 0

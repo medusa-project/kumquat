@@ -10,7 +10,7 @@ require 'test_helper'
 class OaiPmhControllerTest < ActionDispatch::IntegrationTest
 
   setup do
-    @valid_identifier = 'oai:www.example.com:a1234567-5ca8-0132-3334-0050569601ca-8'
+    @valid_identifier = 'oai:www.example.com:' + items(:sanborn_obj1).repository_id
   end
 
   # 2.5.1
@@ -214,7 +214,7 @@ class OaiPmhControllerTest < ActionDispatch::IntegrationTest
   test 'ListSets should return a list when correct arguments are passed and
   results are available' do
     get '/oai-pmh', verb: 'ListSets', metadataPrefix: 'oai_dc'
-    assert_select 'ListSets > set > setSpec', 'd250c1f0-5ca8-0132-3334-0050569601ca-8'
+    assert_select 'ListSets > set > setSpec', collections(:sanborn).repository_id
   end
 
   private

@@ -17,7 +17,7 @@ class ItemTsvUpdaterTest < ActiveSupport::TestCase
     CSV.parse(tsv, headers: true, col_sep: "\t", quote_char: "\x00").
         map{ |row| row.to_hash }.each do |row|
       Item.create!(repository_id: row['uuid'],
-                   collection_repository_id: 'd250c1f0-5ca8-0132-3334-0050569601ca-8')
+                   collection_repository_id: '6ff23a90-95b4-0131-1105-0050569601ca-f')
     end
 
     assert_equal 6, @instance.ingest_pathname(@tsv_pathname)

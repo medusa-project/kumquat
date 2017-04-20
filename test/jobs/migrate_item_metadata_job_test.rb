@@ -5,7 +5,7 @@ class MigrateItemMetadataJobTest < ActiveSupport::TestCase
   # perform()
 
   test 'perform() should invoke Collection.migrate_item_elements()' do
-    col = collections(:collection1)
+    col = collections(:illini_union)
     assert col.items.count > 0
 
     src_element_name = 'bogus'

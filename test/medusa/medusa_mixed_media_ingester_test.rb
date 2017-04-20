@@ -3,7 +3,8 @@ require 'test_helper'
 class MedusaMixedMediaIngesterTest < ActiveSupport::TestCase
 
   setup do
-    @instance = MedusaMixedMediaIngester.new
+    @ingester = MedusaMixedMediaIngester.new
+    @collection = collections(:sousa)
 
     # These will only get in the way.
     Item.destroy_all
@@ -41,54 +42,51 @@ class MedusaMixedMediaIngesterTest < ActiveSupport::TestCase
   # create_items()
 
   test 'create_items() with collection file group not set should raise an error' do
-    collection = collections(:collection1)
-    collection.medusa_file_group_id = nil
+    @collection.medusa_file_group_id = nil
 
     assert_raises ArgumentError do
-      @instance.create_items(collection)
+      @ingester.create_items(@collection)
     end
   end
 
-  test 'create_items() with collection package profile not set should raise an error' do
-    collection = collections(:collection1)
-    collection.package_profile = nil
+  test 'create_items() with collection package profile not set should raise an
+  error' do
+    @collection.package_profile = nil
 
     assert_raises ArgumentError do
-      @instance.create_items(collection)
+      @ingester.create_items(@collection)
     end
   end
 
   test 'create_items() with collection package profile set incorrectly should
   raise an error' do
-    collection = collections(:collection1)
-    collection.package_profile = PackageProfile::COMPOUND_OBJECT_PROFILE
+    @collection.package_profile = PackageProfile::COMPOUND_OBJECT_PROFILE
 
     assert_raises ArgumentError do
-      @instance.create_items(collection)
+      @ingester.create_items(@collection)
     end
   end
 
-  test 'create_items() with no effective collection CFS directory should raise an error' do
-    collection = collections(:collection1)
-    collection.medusa_cfs_directory_id = nil
-    collection.medusa_file_group_id = nil
+  test 'create_items() with no effective collection CFS directory should raise
+  an error' do
+    @collection.medusa_cfs_directory_id = nil
+    @collection.medusa_file_group_id = nil
 
     assert_raises ArgumentError do
-      @instance.create_items(collection)
+      @ingester.create_items(@collection)
     end
   end
 
   test 'create_items() should work with compound items' do
     # Set up the fixture data.
     item_uuid = 'bb60d790-ea4e-0134-23c2-0050569601ca-d'
-    collection = collections(:mixed_media_collection)
-    cfs_dir = collection.effective_medusa_cfs_directory
+    cfs_dir = @collection.effective_medusa_cfs_directory
     cfs_dir.json_tree =
         JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_mixed_media_tree.json'))
     assert_equal 2, cfs_dir.directories.length
 
     # Run the ingest.
-    result = @instance.create_items(collection)
+    result = @ingester.create_items(@collection)
 
     assert_equal 10, result[:num_created]
 
@@ -140,56 +138,54 @@ class MedusaMixedMediaIngesterTest < ActiveSupport::TestCase
 
   # delete_missing()
 
-  test 'delete_missing_items() with collection file group not set should raise an error' do
-    collection = collections(:mixed_media_collection)
-    collection.medusa_file_group_id = nil
+  test 'delete_missing_items() with collection file group not set should raise
+  an error' do
+    @collection.medusa_file_group_id = nil
 
     assert_raises ArgumentError do
-      @instance.delete_missing_items(collection)
+      @ingester.delete_missing_items(@collection)
     end
   end
 
-  test 'delete_missing_items() with collection package profile not set should raise an error' do
-    collection = collections(:mixed_media_collection)
-    collection.package_profile = nil
+  test 'delete_missing_items() with collection package profile not set should
+  raise an error' do
+    @collection.package_profile = nil
 
     assert_raises ArgumentError do
-      @instance.delete_missing_items(collection)
+      @ingester.delete_missing_items(@collection)
     end
   end
 
   test 'delete_missing_items() with collection package profile set incorrectly
   should raise an error' do
-    collection = collections(:mixed_media_collection)
-    collection.package_profile = PackageProfile::COMPOUND_OBJECT_PROFILE
+    @collection.package_profile = PackageProfile::COMPOUND_OBJECT_PROFILE
 
     assert_raises ArgumentError do
-      @instance.delete_missing_items(collection)
+      @ingester.delete_missing_items(@collection)
     end
   end
 
-  test 'delete_missing_items() with no effective collection CFS directory should raise an error' do
-    collection = collections(:mixed_media_collection)
-    collection.medusa_cfs_directory_id = nil
-    collection.medusa_file_group_id = nil
+  test 'delete_missing_items() with no effective collection CFS directory
+  should raise an error' do
+    @collection.medusa_cfs_directory_id = nil
+    @collection.medusa_file_group_id = nil
 
     assert_raises ArgumentError do
-      @instance.delete_missing_items(collection)
+      @ingester.delete_missing_items(@collection)
     end
   end
 
   test 'delete_missing_items() should work' do
     # Set up the fixture data.
-    collection = collections(:mixed_media_collection)
-    collection.medusa_cfs_directory_id = 'bc0b9fb0-ea4e-0134-23c2-0050569601ca-b'
-    cfs_dir = collection.effective_medusa_cfs_directory
+    @collection.medusa_cfs_directory_id = 'bc0b9fb0-ea4e-0134-23c2-0050569601ca-b'
+    cfs_dir = @collection.effective_medusa_cfs_directory
     tree = JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_mixed_media_tree.json'))
     # Extract a small slice of the tree.
     tree['subdirectories'] = tree['subdirectories'][0..1]
     cfs_dir.json_tree = tree
 
     # Ingest some items.
-    @instance.create_items(collection)
+    @ingester.create_items(@collection)
 
     # Record initial conditions.
     start_num_items = Item.count
@@ -200,7 +196,7 @@ class MedusaMixedMediaIngesterTest < ActiveSupport::TestCase
     cfs_dir.json_tree = tree
 
     # Delete the items.
-    result = @instance.delete_missing_items(collection)
+    result = @ingester.delete_missing_items(@collection)
 
     # Assert that they were deleted.
     assert_equal start_num_items - 2, Item.count
@@ -211,32 +207,29 @@ class MedusaMixedMediaIngesterTest < ActiveSupport::TestCase
 
   test 'replace_metadata() with collection file group not set should raise an
   error' do
-    collection = collections(:mixed_media_collection)
-    collection.medusa_file_group_id = nil
+    @collection.medusa_file_group_id = nil
 
     assert_raises ArgumentError do
-      @instance.replace_metadata(collection)
+      @ingester.replace_metadata(@collection)
     end
   end
 
   test 'replace_metadata() with collection package profile not set should raise
   an error' do
-    collection = collections(:mixed_media_collection)
-    collection.package_profile = nil
+    @collection.package_profile = nil
 
     assert_raises ArgumentError do
-      @instance.replace_metadata(collection)
+      @ingester.replace_metadata(@collection)
     end
   end
 
   test 'replace_metadata() with no effective collection CFS directory should
   raise an error' do
-    collection = collections(:mixed_media_collection)
-    collection.medusa_cfs_directory_id = nil
-    collection.medusa_file_group_id = nil
+    @collection.medusa_cfs_directory_id = nil
+    @collection.medusa_file_group_id = nil
 
     assert_raises ArgumentError do
-      @instance.replace_metadata(collection)
+      @ingester.replace_metadata(@collection)
     end
   end
 
@@ -249,54 +242,50 @@ class MedusaMixedMediaIngesterTest < ActiveSupport::TestCase
 
   test 'recreate_binaries() with collection file group not set should raise an
   error' do
-    collection = collections(:collection1)
-    collection.medusa_file_group_id = nil
+    @collection.medusa_file_group_id = nil
 
     assert_raises ArgumentError do
-      @instance.recreate_binaries(collection)
+      @ingester.recreate_binaries(@collection)
     end
   end
 
   test 'recreate_binaries() with collection package profile not set should
   raise an error' do
-    collection = collections(:collection1)
-    collection.package_profile = nil
+    @collection.package_profile = nil
 
     assert_raises ArgumentError do
-      @instance.recreate_binaries(collection)
+      @ingester.recreate_binaries(@collection)
     end
   end
 
   test 'recreate_binaries() with collection package profile set incorrectly
   should raise an error' do
-    collection = collections(:collection1)
-    collection.package_profile = PackageProfile::COMPOUND_OBJECT_PROFILE
+    @collection.package_profile = PackageProfile::COMPOUND_OBJECT_PROFILE
 
     assert_raises ArgumentError do
-      @instance.recreate_binaries(collection)
+      @ingester.recreate_binaries(@collection)
     end
   end
 
-  test 'recreate_binaries() with no effective collection CFS directory should raise an error' do
-    collection = collections(:collection1)
-    collection.medusa_cfs_directory_id = nil
-    collection.medusa_file_group_id = nil
+  test 'recreate_binaries() with no effective collection CFS directory should
+  raise an error' do
+    @collection.medusa_cfs_directory_id = nil
+    @collection.medusa_file_group_id = nil
 
     assert_raises ArgumentError do
-      @instance.recreate_binaries(collection)
+      @ingester.recreate_binaries(@collection)
     end
   end
 
   test 'recreate_binaries() should work' do
     # Set up the fixture data.
     item_uuid = 'bb60d790-ea4e-0134-23c2-0050569601ca-d'
-    collection = collections(:mixed_media_collection)
-    cfs_dir = collection.effective_medusa_cfs_directory
+    cfs_dir = @collection.effective_medusa_cfs_directory
     cfs_dir.json_tree =
         JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_mixed_media_tree.json'))
 
     # Ingest some items.
-    result = @instance.create_items(collection)
+    result = @ingester.create_items(@collection)
     assert_equal 10, result[:num_created]
 
     # Record initial conditions.
@@ -306,7 +295,7 @@ class MedusaMixedMediaIngesterTest < ActiveSupport::TestCase
     Binary.destroy_all
 
     # Recreate binaries.
-    result = @instance.recreate_binaries(collection)
+    result = @ingester.recreate_binaries(@collection)
 
     # Assert that the binaries were created.
     assert_equal 24, result[:num_created]
