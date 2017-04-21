@@ -39,10 +39,10 @@ class TimeUtil
       elsif date.match(/^[0-9]{4}$/)
         iso8601 = "#{date}-01-01T00:00:00Z"
       # [YYYY]
-      elsif date.match(/^\[[0-9]{4}]$/)
+      elsif date.match(/^\[[0-9]{4}\]$/)
         iso8601 = "#{date.gsub(/[^0-9]/, '')}-01-01T00:00:00Z"
       # [YYYY?]
-      elsif date.match(/^\[[0-9]{4}\?]$/)
+      elsif date.match(/^\[[0-9]{4}\?\]$/)
         iso8601 = "#{date.gsub(/[^0-9]/, '')}-01-01T00:00:00Z"
       # ISO-8601 formats
       # See: http://www.pelagodesign.com/blog/2009/05/20/iso-8601-date-validation-that-doesnt-suck/
