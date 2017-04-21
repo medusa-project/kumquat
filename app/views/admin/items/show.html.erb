@@ -102,10 +102,6 @@
       </li>
 
       <li role="presentation">
-        <a href="#pt-viewer" aria-controls="pt-viewer" role="tab" data-toggle="tab">Viewer</a>
-      </li>
-
-      <li role="presentation">
         <a href="#pt-full-text" aria-controls="pt-full-text" role="tab" data-toggle="tab">Full Text</a>
       </li>
 
@@ -144,14 +140,6 @@
                     "(#{bin.human_readable_media_category})" : nil %></h2>
           <%= binary_metadata_as_table(bin, admin: true) %>
           <hr>
-        <% end %>
-      </div>
-
-      <div role="tabpanel" class="tab-pane" id="pt-viewer">
-        <%= viewer_for_item(@item) %>
-        <% if @item.embed_tag.present? %>
-          <h2>Embed Tag</h2>
-          <p><%= @item.embed_tag %></p>
         <% end %>
       </div>
 
