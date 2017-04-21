@@ -82,7 +82,7 @@ class MedusaMixedMediaIngesterTest < ActiveSupport::TestCase
     item_uuid = 'bb60d790-ea4e-0134-23c2-0050569601ca-d'
     cfs_dir = @collection.effective_medusa_cfs_directory
     cfs_dir.json_tree =
-        JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_mixed_media_tree.json'))
+        JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_sousa_tree.json'))
     assert_equal 2, cfs_dir.directories.length
 
     # Run the ingest.
@@ -179,7 +179,7 @@ class MedusaMixedMediaIngesterTest < ActiveSupport::TestCase
     # Set up the fixture data.
     @collection.medusa_cfs_directory_id = 'bc0b9fb0-ea4e-0134-23c2-0050569601ca-b'
     cfs_dir = @collection.effective_medusa_cfs_directory
-    tree = JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_mixed_media_tree.json'))
+    tree = JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_sousa_tree.json'))
     # Extract a small slice of the tree.
     tree['subdirectories'] = tree['subdirectories'][0..1]
     cfs_dir.json_tree = tree
@@ -282,7 +282,7 @@ class MedusaMixedMediaIngesterTest < ActiveSupport::TestCase
     item_uuid = 'bb60d790-ea4e-0134-23c2-0050569601ca-d'
     cfs_dir = @collection.effective_medusa_cfs_directory
     cfs_dir.json_tree =
-        JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_mixed_media_tree.json'))
+        JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_sousa_tree.json'))
 
     # Ingest some items.
     result = @ingester.create_items(@collection)

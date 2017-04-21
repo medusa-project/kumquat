@@ -79,7 +79,7 @@ class MedusaCompoundObjectIngesterTest < ActiveSupport::TestCase
     # Set up the fixture data.
     @collection.medusa_cfs_directory_id = '19c62760-e894-0133-1d3c-0050569601ca-d'
     cfs_dir = @collection.effective_medusa_cfs_directory
-    tree = JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_compound_object_tree.json'))
+    tree = JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_sanborn_tree.json'))
     # Extract a small slice of the tree containing only four items.
     tree['subdirectories'] = tree['subdirectories'][0..3]
     cfs_dir.json_tree = tree
@@ -117,7 +117,7 @@ class MedusaCompoundObjectIngesterTest < ActiveSupport::TestCase
     # Set up the fixture data.
     item_uuid = '441c6170-c0e6-0134-2373-0050569601ca-5'
     cfs_dir = @collection.effective_medusa_cfs_directory
-    tree = JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_myers_collection_tree.json'))
+    tree = JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_myers_tree.json'))
     # Extract a small slice of the tree containing only one top-level item.
     tree['subdirectories'] = tree['subdirectories'].
         select{ |d| d['uuid'] == item_uuid }
@@ -174,11 +174,61 @@ class MedusaCompoundObjectIngesterTest < ActiveSupport::TestCase
   end
 
   test 'create_items() should extract metadata when told to' do
-    # TODO: write this
+    # Set up the fixture data. (Master files must have embedded metadata.)
+    cfs_dir = @collection.effective_medusa_cfs_directory
+    tree = JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_mapping_history_tree.json'))
+    cfs_dir.json_tree = tree
+
+    # Run the ingest.
+    @ingester.create_items(@collection, extract_metadata: true)
+
+    # Inspect the first child item.
+    child = Item.find_by_repository_id('43782f30-c576-0134-2373-0050569601ca-1')
+    assert_equal 'Mapping History - Map and Geography Library', child.title
+  end
+
+  test 'create_items() should not extract metadata when told not to' do
+    # Set up the fixture data. (Master files must have embedded metadata.)
+    cfs_dir = @collection.effective_medusa_cfs_directory
+    tree = JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_mapping_history_tree.json'))
+    cfs_dir.json_tree = tree
+
+    # Run the ingest.
+    @ingester.create_items(@collection, extract_metadata: false)
+
+    # Inspect the first child item.
+    child = Item.find_by_repository_id('43782f30-c576-0134-2373-0050569601ca-1')
+    assert_equal '1607587', child.title
   end
 
   test 'create_items() should not modify existing items' do
-    # TODO: write this
+    # Set up the fixture data.
+    @collection.medusa_cfs_directory_id = 'f6e4d080-a863-0134-233d-0050569601ca-2'
+    cfs_dir = @collection.effective_medusa_cfs_directory
+    tree = JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_mapping_history_tree.json'))
+    # Slice off some items from the ingest data.
+    tree['subdirectories'] = tree['subdirectories'][0..1]
+    cfs_dir.json_tree = tree
+
+    # Ingest them.
+    @ingester.create_items(@collection)
+    assert_equal 2, Item.count
+
+    # Record initial conditions.
+    item = Item.find_by_repository_id('43782f30-c576-0134-2373-0050569601ca-1')
+    assert_equal '1607587', item.title
+
+    # Set up the next batch of fixture data.
+    tree = JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_mapping_history_tree.json'))
+    cfs_dir.json_tree = tree
+
+    # Ingest all of the items.
+    @ingester.create_items(@collection, extract_metadata: true)
+    assert_equal 4, Item.count
+
+    # Assert that the item's title hasn't changed.
+    item = Item.find_by_repository_id('43782f30-c576-0134-2373-0050569601ca-1')
+    assert_equal '1607587', item.title
   end
 
   # delete_missing()
@@ -224,7 +274,7 @@ class MedusaCompoundObjectIngesterTest < ActiveSupport::TestCase
     # Set up the fixture data.
     @collection.medusa_cfs_directory_id = '19c62760-e894-0133-1d3c-0050569601ca-d'
     cfs_dir = @collection.effective_medusa_cfs_directory
-    tree = JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_compound_object_tree.json'))
+    tree = JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_sanborn_tree.json'))
     # Extract a small slice of the tree.
     tree['subdirectories'] = tree['subdirectories'][0..9]
     cfs_dir.json_tree = tree
@@ -325,7 +375,7 @@ class MedusaCompoundObjectIngesterTest < ActiveSupport::TestCase
     # Set up the fixture data.
     item_uuid = '441c6170-c0e6-0134-2373-0050569601ca-5'
     cfs_dir = @collection.effective_medusa_cfs_directory
-    tree = JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_myers_collection_tree.json'))
+    tree = JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_myers_tree.json'))
     # Extract a small slice of the tree containing only one top-level item.
     tree['subdirectories'] = tree['subdirectories'].
         select{ |d| d['uuid'] == item_uuid }

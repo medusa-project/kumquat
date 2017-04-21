@@ -3,7 +3,6 @@ require 'test_helper'
 class ItemsControllerTest < ActionDispatch::IntegrationTest
 
   def setup
-    @valid_xml = File.read(__dir__ + '/../fixtures/repository/item.xml')
     @item = items(:illini_union_dir1_file1)
   end
 

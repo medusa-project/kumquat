@@ -30,4 +30,19 @@ class TimeUtilTest < ActiveSupport::TestCase
                  TimeUtil.string_date_to_time('1923')
   end
 
+  test 'string_date_to_time should work with [YYYY]' do
+    assert_equal Time.parse('1923-01-01 00:00:00Z'),
+                 TimeUtil.string_date_to_time('[1923]')
+  end
+
+  test 'string_date_to_time should work with [YYYY?]' do
+    assert_equal Time.parse('1923-01-01 00:00:00Z'),
+                 TimeUtil.string_date_to_time('[1923?]')
+  end
+
+  test 'string_date_to_time should work with ISO 8601' do
+    assert_equal Time.parse('1923-02-12 06:00:00Z'),
+                 TimeUtil.string_date_to_time('1923-02-12 00:00:00Z')
+  end
+
 end
