@@ -51,7 +51,7 @@ class MedusaSingleItemIngesterTest < ActiveSupport::TestCase
   test 'create_items() should work' do
     # Set up the fixture data.
     cfs_dir = @collection.effective_medusa_cfs_directory
-    tree = JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_single_item_tree.json'))
+    tree = JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_ww1posters_tree.json'))
     cfs_dir.json_tree = tree
 
     # Run the ingest.
@@ -81,11 +81,53 @@ class MedusaSingleItemIngesterTest < ActiveSupport::TestCase
                  binary.repository_relative_pathname
   end
 
+=begin TODO: find a single-item collection that contains embedded metadata (currently none do) and write these
   test 'create_items() should extract metadata when told to' do
-    # Currently no collections with this profile contain embedded metadata (or
-    # at least any that is used).
+
   end
 
+  test 'create_items() should not extract metadata when told not to' do
+    # Set up the fixture data.
+    cfs_dir = @collection.effective_medusa_cfs_directory
+    tree = JSON.parse(File.read(__dir__ + '/../fixtures/repository/XXXXXXX'))
+    cfs_dir.json_tree = tree
+
+    # Run the ingest.
+    @ingester.create_items(@collection, extract_metadata: false)
+
+    # Inspect an item.
+    item = Item.find_by_repository_id('7b7e08f0-0b13-0134-1d55-0050569601ca-a')
+    assert_equal item.repository_id, item.title
+  end
+
+  test 'create_items() should not modify existing items' do
+    # Set up the fixture data.
+    cfs_dir = @collection.effective_medusa_cfs_directory
+    tree = JSON.parse(File.read(__dir__ + '/../fixtures/repository/XXXXXXX'))
+    # Slice off some items from the ingest data.
+    tree['subdirectories'].select{ |d| d['name'] == 'preservation' }[0]['files'] =
+        tree['subdirectories'].select{ |d| d['name'] == 'preservation' }[0]['files'][0..2]
+    cfs_dir.json_tree = tree
+
+    # Ingest the items.
+    @ingester.create_items(@collection)
+    # TODO: write this
+
+    # Record initial conditions.
+    assert_equal 3, Item.count
+
+    # Set up the next batch of fixture data.
+    tree = JSON.parse(File.read(__dir__ + '/../fixtures/repository/XXXXXXX'))
+    cfs_dir.json_tree = tree
+
+    # Ingest all of the items.
+    @ingester.create_items(@collection, extract_metadata: true)
+    # TODO: write this
+
+    # Assert that none of the existing items changed.
+    assert_equal 4, Item.count
+  end
+=end
   # delete_missing_items()
 
   test 'delete_missing_items() with collection file group not set should raise
@@ -128,7 +170,7 @@ class MedusaSingleItemIngesterTest < ActiveSupport::TestCase
   test 'delete_missing_items() should work' do
     # Set up the fixture data.
     cfs_dir = @collection.effective_medusa_cfs_directory
-    tree = JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_single_item_tree.json'))
+    tree = JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_ww1posters_tree.json'))
     cfs_dir.json_tree = tree
 
     # Ingest some items.
@@ -227,7 +269,7 @@ class MedusaSingleItemIngesterTest < ActiveSupport::TestCase
   test 'recreate_binaries() should work' do
     # Set up the fixture data.
     cfs_dir = @collection.effective_medusa_cfs_directory
-    tree = JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_single_item_tree.json'))
+    tree = JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_ww1posters_tree.json'))
     cfs_dir.json_tree = tree
 
     # Ingest some items.

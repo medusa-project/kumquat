@@ -69,7 +69,7 @@ class MedusaFreeFormIngesterTest < ActiveSupport::TestCase
     # Set up the fixture data.
     @collection.medusa_cfs_directory_id = 'a53add10-5ca8-0132-3334-0050569601ca-7'
     cfs_dir = @collection.effective_medusa_cfs_directory
-    tree = JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_free_form_tree.json'))
+    tree = JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_illini_union_tree.json'))
     # Extract a small slice of the tree.
     tree = tree['subdirectories'][0]
     tree['subdirectories'] = tree['subdirectories'][0..0]
@@ -115,7 +115,7 @@ class MedusaFreeFormIngesterTest < ActiveSupport::TestCase
     # Set up the fixture data.
     @collection.medusa_cfs_directory_id = 'a53add10-5ca8-0132-3334-0050569601ca-7'
     cfs_dir = @collection.effective_medusa_cfs_directory
-    tree = JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_free_form_tree.json'))
+    tree = JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_illini_union_tree.json'))
     # Extract a small slice of the tree.
     tree = tree['subdirectories'][0]['subdirectories'][0]
     tree['files'] = tree['files'][0..1]
@@ -175,7 +175,7 @@ class MedusaFreeFormIngesterTest < ActiveSupport::TestCase
     # Set up the fixture data.
     @collection.medusa_cfs_directory_id = '19c62760-e894-0133-1d3c-0050569601ca-d'
     cfs_dir = @collection.effective_medusa_cfs_directory
-    tree = JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_compound_object_tree.json'))
+    tree = JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_sanborn_tree.json'))
     # Extract a small slice of the tree.
     tree['subdirectories'] = tree['subdirectories'][0..1]
     cfs_dir.json_tree = tree
@@ -276,7 +276,7 @@ class MedusaFreeFormIngesterTest < ActiveSupport::TestCase
     @collection.medusa_cfs_directory_id = 'ac1a9850-0b09-0134-1d54-0050569601ca-a'
     cfs_dir = @collection.effective_medusa_cfs_directory
     # Not a typo; we're treating this as a free-form tree.
-    tree = JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_single_item_tree.json'))
+    tree = JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_ww1posters_tree.json'))
     cfs_dir.json_tree = tree
 
     # Ingest some items.
