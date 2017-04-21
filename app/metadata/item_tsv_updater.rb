@@ -5,13 +5,15 @@ class ItemTsvUpdater
   @@logger = CustomLogger.instance
 
   ##
-  # Ingests items from the given TSV file.
+  # Updates items from the given TSV file.
+  #
+  # This does not create or delete any items. (For that, use MedusaIngester.)
   #
   # @param pathname [String] Absolute pathname of a TSV file.
   # @param original_filename [String] Filename of the TSV file as it was
   #                                   submitted to the application.
   # @param task [Task] Supply to receive progress updates.
-  # @return [Integer] Number of items created or updated.
+  # @return [Integer] Number of items updated.
   #
   def ingest_pathname(pathname, original_filename = nil, task = nil)
     pathname = File.expand_path(pathname)
