@@ -192,12 +192,10 @@ class Item < ActiveRecord::Base
   validates_format_of :collection_repository_id, with: UUID_REGEX,
                       message: 'UUID is invalid'
   # latitude
-  validates :latitude, numericality: { greater_than_or_equal_to: -90,
-                                       less_than_or_equal_to: 90 },
+  validates :latitude, numericality: { greater_than: -90, less_than: 90 },
             allow_blank: true
   # longitude
-  validates :longitude, numericality: { greater_than_or_equal_to: -180,
-                                        less_than_or_equal_to: 180 },
+  validates :longitude, numericality: { greater_than: -180, less_than: 180 },
             allow_blank: true
   # page_number
   validates :page_number, numericality: { only_integer: true,
@@ -386,7 +384,7 @@ class Item < ActiveRecord::Base
     self.is_compound? ? 'Collection' : self.effective_viewer_binary&.dc_type
   end
 
-  def delete_from_solr # TODO: change to Item.solr.delete()
+  def delete_from_solr
     Solr.instance.delete(self.solr_id)
   end
 
