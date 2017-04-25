@@ -75,5 +75,9 @@
 </div>
 
 <div id="pt-items" class="pt-results pt-list-results">
-  <%= render partial: 'items' %>
+  <% if @tree %>
+    <%= render partial: 'tree' %>
+  <% else %>
+    <%= render partial: 'items' %>
+  <% end %>
 </div>

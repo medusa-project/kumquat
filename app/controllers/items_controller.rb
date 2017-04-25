@@ -16,8 +16,8 @@ class ItemsController < WebsiteController
                                      :iiif_image_resource, :iiif_layer,
                                      :iiif_manifest, :iiif_media_sequence,
                                      :iiif_range, :iiif_sequence]
-  before_action :load_item, except: [:index, :tree_data]
-  before_action :authorize_item, except: [:index, :tree_data]
+  before_action :load_item, except: [:index, :tree_data, :tree]
+  before_action :authorize_item, except: [:index, :tree_data, :tree]
   before_action :set_browse_context, only: :index
 
   ##
@@ -208,7 +208,6 @@ class ItemsController < WebsiteController
   # Responds to GET /items
   #
   def index
-    logger.info("got here")
     if params[:collection_id]
       @collection = Collection.find_by_repository_id(params[:collection_id])
       raise ActiveRecord::RecordNotFound unless @collection
@@ -357,6 +356,58 @@ class ItemsController < WebsiteController
     end
   end
 
+  def tree
+    if params[:collection_id]
+      @collection = Collection.find_by_repository_id(params[:collection_id])
+      raise ActiveRecord::RecordNotFound unless @collection
+      return unless authorize(@collection)
+    end
+
+    @start = params[:start].to_i
+    params[:start] = @start
+    @limit = Option::integer(Option::Key::RESULTS_PER_PAGE)
+    finder = item_finder_for(params)
+    @items = finder.to_a
+
+    @current_page = finder.page
+    @count = finder.count
+    @num_results_shown = [@limit, @count].min
+    @metadata_profile = finder.effective_metadata_profile
+
+    # If there are no results, get some search suggestions.
+    if @count < 1 and params[:q].present?
+      @suggestions = finder.suggestions
+    end
+    @tree=true
+    download_finder = ItemFinder.new.
+        client_hostname(request.host).
+        client_ip(request.remote_ip).
+        client_user(current_user).
+        collection_id(params[:collection_id]).
+        query(params[:q]).
+        include_children(true).
+        only_described(true).
+        stats(true).
+        filter_queries(params[:fq]).
+        sort(Item::SolrFields::GROUPED_SORT).
+        start(params[:download_start]).
+        limit(params[:limit] || DownloaderClient::BATCH_SIZE)
+    @num_downloadable_items = download_finder.count
+    @total_byte_size = download_finder.total_byte_size
+    respond_to do |format|
+
+      format.html do
+        if @collection.package_profile == PackageProfile::FREE_FORM_PROFILE
+          fresh_when(etag: @items) if Rails.env.production?
+          session[:first_result_id] = @items.first&.repository_id
+          session[:last_result_id] = @items.last&.repository_id
+          render 'items/index'
+        else
+          redirect_to collection_items_path()
+        end
+      end
+    end
+  end
 
   def tree_data
     respond_to do |format|
@@ -390,6 +441,8 @@ class ItemsController < WebsiteController
       end
     end
   end
+
+
 
 
 

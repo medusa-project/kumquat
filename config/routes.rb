@@ -91,6 +91,7 @@ Rails.application.routes.draw do
   resources :binaries, only: :show
   resources :collections, only: [:index, :show] do
     match 'items/treedata', to: 'items#tree_data', via: [:get, :post]
+    match 'tree', to: 'items#tree', via: :get
     resources :items, only: :index
     # IIIF Presentation API 2.1 routes
     match '/presentation', to: 'collections#iiif_presentation', via: :get,
