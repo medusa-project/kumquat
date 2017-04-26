@@ -443,7 +443,15 @@ class ItemsController < WebsiteController
   end
 
 
+  def item_ajax_html
 
+    respond_to do |format|
+      format.html do
+        set_files_ivar
+        render "items/show", layout: false
+      end
+    end
+  end
 
 
 
@@ -454,6 +462,7 @@ class ItemsController < WebsiteController
     node_hash["id"]=item.repository_id
     node_hash["text"]=item.title
     node_hash["children"]=item.items.size>0
+    if item.items.size==0 then node_hash["icon"]="jstree-file" end
     node_hash["a_attr"]={"href": item_path(item)}
     node_hash
   end
