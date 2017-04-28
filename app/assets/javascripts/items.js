@@ -433,17 +433,29 @@ var PTItemsView = function() {
                     }
                 }
             }).bind("select_node.jstree", function (e, data) {
-                var href = data.node.a_attr.href;
-                document.location.href = href;
+                if (data.node.icon==='jstree-file') {
+                    $.ajax({
+                        url: '/items/' + data.node.id+'.html?ajax=true',
+                        method: 'GET',
+                        success: function (result) {
+                            $('#item-info').html(result);
+                            $('#item-info ol.breadcrumb').remove();
+                            var view = new PTItemView();
+                            view.init();
+                        }
+                    });
+                } else {
+                    var href = data.node.a_attr.href;
+                    document.location.href = href;
+                }
             });
-        };
+        }
     };
 
     var updateFavoritesCount = function() {
         var badge = $('.pt-favorites-count');
         badge.text(PTItem.numFavorites());
     };
-
 };
 
 var getCollectionURL = function() {

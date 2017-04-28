@@ -293,7 +293,6 @@ class ItemsController < WebsiteController
   #
   def show
     fresh_when(etag: @item) if Rails.env.production?
-
     respond_to do |format|
       format.atom
       format.html do
@@ -337,6 +336,9 @@ class ItemsController < WebsiteController
           session[:first_result_id] = results.first&.repository_id
           session[:last_result_id] = results.last&.repository_id
         end
+        if (params["ajax"]=="true")
+          render layout: false
+        end
       end
       format.json do
         render json: @item.decorate(context: { web: true })
@@ -357,6 +359,7 @@ class ItemsController < WebsiteController
   end
 
   def tree
+    #TODO refactor, figure out how to make this DRY
     if params[:collection_id]
       @collection = Collection.find_by_repository_id(params[:collection_id])
       raise ActiveRecord::RecordNotFound unless @collection
@@ -438,17 +441,6 @@ class ItemsController < WebsiteController
       end
       format.json do
         render json: tree_data
-      end
-    end
-  end
-
-
-  def item_ajax_html
-
-    respond_to do |format|
-      format.html do
-        set_files_ivar
-        render "items/show", layout: false
       end
     end
   end
