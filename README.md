@@ -153,7 +153,14 @@ Additionally, if using OpenJPEG rather than Kakadu, set
 
 [Test it](http://localhost:8182/iiif/2/7b7e08f0-0b13-0134-1d55-0050569601ca-a/full/500,/0/default.jpg)
 
-# Usage Notes
+# Notes
+
+## Tests
+
+Test fixtures are based on production Medusa data.
+`test/fixtures/collections.yml` contains the collections used for testing.
+There are a few different ones which are used for testing different types of
+content; see the index at the beginning of the file.
 
 ## Jobs
 

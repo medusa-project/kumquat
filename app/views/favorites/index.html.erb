@@ -26,7 +26,7 @@
 <% if @items.count > 0 %>
   <div class="pt-results pt-list-results">
     <%= items_as_list(@items, @start, show_remove_from_favorites_buttons: true,
-                      show_collections: true) %>
+                      show_checkboxes: true, show_collections: true) %>
   </div>
 
   <div class="text-center">
@@ -37,6 +37,7 @@
 <p class="pt-no-favorites">You have no items in your favorites.</p>
 
 <%= render partial: 'items/download_zip_panel', locals: {
+    context: :favorites,
     num_downloadable_items: @num_downloadable_items,
     total_num_items: @num_downloadable_items,
     total_byte_size: 0 } %>

@@ -9,7 +9,7 @@ class BatchChangeItemMetadataJobTest < ActiveSupport::TestCase
   # perform()
 
   test 'perform() should change all matching elements' do
-    col = collections(:collection1)
+    col = collections(:illini_union)
     assert col.items.count > 0
 
     element_name = 'title'

@@ -94,7 +94,8 @@ class AbstractFinder
   def query(string) # TODO: separate query() and query_field() methods
     if string.present?
       parts = string.split(':')
-      value = "*#{parts.last.gsub(' ', '*')}*"
+      value = parts.last.gsub(' ', '*')
+      value = "(#{value} OR *#{value}*)"
       if parts.length > 1
         @query = "#{parts.first}:#{value}"
       else

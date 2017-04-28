@@ -141,6 +141,8 @@ Rails.application.routes.draw do
           as: 'collections_sync'
     resources :collections, except: [:new, :create, :delete] do
       match '/items/edit', to: 'items#edit_all', via: :get, as: 'edit_all_items'
+      match '/items', to: 'items#destroy_all', via: :delete,
+            as: 'destroy_all_items'
       match '/items/update', to: 'items#update_all', via: :post
       resources :items, concerns: :publishable do
         match '/purge-cached-images', to: 'items#purge_cached_images',

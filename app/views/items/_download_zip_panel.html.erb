@@ -1,8 +1,10 @@
 <%
-  # requires the following locals:
-  # num_downloadable_items [Fixnum]
-  # total_byte_size [Integer]
-  num_batches = (num_downloadable_items / DownloaderClient::BATCH_SIZE.to_f).ceil
+# Requires the following locals:
+# context [Symbol] :directory, :item, :results, or :favorites
+# num_downloadable_items [Fixnum]
+# total_byte_size [Integer]
+
+num_batches = (num_downloadable_items / DownloaderClient::BATCH_SIZE.to_f).ceil
 %>
 
 <div class="modal fade" id="pt-download-zip-modal" tabindex="-1" role="dialog"
@@ -15,8 +17,19 @@
         <h4 class="modal-title" id="pt-download-zip-modal-label">Download Zip File</h4>
       </div>
       <div class="modal-body">
-        <p>Zip files include access and preservation masters for all of the
-          items in the current result set.</p>
+        <% case context %>
+          <% when :results %>
+            <p>Zip files include access and preservation master files for all
+              of the items in the current result set.</p>
+          <% when :favorites %>
+            <p>Zip files include access and preservation masters for all checked
+              favorites, or all favorites, if none are checked.</p>
+          <% when :item %>
+            <p>Zip files include access and preservation master files for the
+              current item and all child items.</p>
+          <% when :directory %>
+            <p>Zip files include all files in the current folder tree.</p>
+        <% end %>
 
         <hr>
 

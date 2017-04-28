@@ -1,0 +1,23 @@
+<!-- Purge Items panel -->
+<div class="modal fade" id="pt-purge-items-modal" tabindex="-1" role="dialog"
+     aria-labelledby="pt-purge-items-modal-label">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="pt-purge-items-modal-label">Purge Items</h4>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-danger">All items in the collection will be deleted.
+          This cannot be undone.</div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <%= link_to 'Purge Items', admin_collection_destroy_all_items_path(@collection),
+                    method: 'delete', class: 'btn btn-primary' %>
+      </div>
+
+    </div>
+  </div>
+</div>

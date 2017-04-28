@@ -297,26 +297,54 @@ class Collection < ActiveRecord::Base
     sql = "SELECT * FROM (
       SELECT items.repository_id,
         items.parent_repository_id,
-        (SELECT repository_relative_pathname
-          FROM binaries
-          WHERE binaries.item_id = items.id
-            AND binaries.master_type = #{Binary::MasterType::PRESERVATION}
-          LIMIT 1) AS pres_pathname,
-        (SELECT substring(repository_relative_pathname from '[^/]+$')
-          FROM binaries
-          WHERE binaries.item_id = items.id
-            AND binaries.master_type = #{Binary::MasterType::PRESERVATION}
-          LIMIT 1) AS pres_filename,
-        (SELECT repository_relative_pathname
-          FROM binaries
-          WHERE binaries.item_id = items.id
-            AND binaries.master_type = #{Binary::MasterType::ACCESS}
-          LIMIT 1) AS access_pathname,
-        (SELECT substring(repository_relative_pathname from '[^/]+$')
-          FROM binaries
-          WHERE binaries.item_id = items.id
-            AND binaries.master_type = #{Binary::MasterType::ACCESS}
-          LIMIT 1) AS access_filename,
+        (SELECT array_to_string(
+          array(
+            SELECT DISTINCT repository_relative_pathname
+            FROM binaries
+            WHERE binaries.item_id = items.id
+              AND binaries.master_type = #{Binary::MasterType::PRESERVATION}
+            ORDER BY repository_relative_pathname
+          ), '#{Item::TSV_MULTI_VALUE_SEPARATOR}')) AS pres_pathname,
+        (SELECT array_to_string(
+          array(
+            SELECT substring(repository_relative_pathname from '[^/]+$')
+            FROM binaries
+            WHERE binaries.item_id = items.id
+              AND binaries.master_type = #{Binary::MasterType::PRESERVATION}
+            ORDER BY repository_relative_pathname
+          ), '#{Item::TSV_MULTI_VALUE_SEPARATOR}')) AS pres_filename,
+        (SELECT array_to_string(
+          array(
+            SELECT cfs_file_uuid
+            FROM binaries
+            WHERE binaries.item_id = items.id
+              AND binaries.master_type = #{Binary::MasterType::PRESERVATION}
+            ORDER BY repository_relative_pathname
+          ), '#{Item::TSV_MULTI_VALUE_SEPARATOR}')) AS pres_uuid,
+        (SELECT array_to_string(
+          array(
+            SELECT DISTINCT repository_relative_pathname
+            FROM binaries
+            WHERE binaries.item_id = items.id
+              AND binaries.master_type = #{Binary::MasterType::ACCESS}
+            ORDER BY repository_relative_pathname
+          ), '#{Item::TSV_MULTI_VALUE_SEPARATOR}')) AS access_pathname,
+        (SELECT array_to_string(
+          array(
+            SELECT substring(repository_relative_pathname from '[^/]+$')
+            FROM binaries
+            WHERE binaries.item_id = items.id
+              AND binaries.master_type = #{Binary::MasterType::ACCESS}
+            ORDER BY repository_relative_pathname
+          ), '#{Item::TSV_MULTI_VALUE_SEPARATOR}')) AS access_filename,
+        (SELECT array_to_string(
+          array(
+            SELECT cfs_file_uuid
+            FROM binaries
+            WHERE binaries.item_id = items.id
+              AND binaries.master_type = #{Binary::MasterType::ACCESS}
+            ORDER BY repository_relative_pathname
+          ), '#{Item::TSV_MULTI_VALUE_SEPARATOR}')) AS access_uuid,
         items.variant,
         items.page_number,
         items.subpage_number,
@@ -556,6 +584,20 @@ class Collection < ActiveRecord::Base
   end
 
   ##
+  # Deletes all items in the collection. Does not commit the index.
+  #
+  # @return [Integer] Number of items purged.
+  #
+  def purge
+    items = self.items
+    count = items.count
+    ActiveRecord::Base.transaction do
+      items.destroy_all
+    end
+    count
+  end
+
+  ##
   # @param matching_mode [Symbol] :exact_match, :contain, :start, or :end
   # @param find_value [String] Value to search for.
   # @param element_name [String] Element in which to search.
@@ -568,6 +610,13 @@ class Collection < ActiveRecord::Base
   #
   def replace_item_element_values(matching_mode, find_value, element_name,
                                   replace_mode, replace_value, task = nil)
+    unless [:whole_value, :matched_part].include?(replace_mode)
+      raise ArgumentError, "Illegal replace mode: #{replace_mode}"
+    end
+    unless [:exact_match, :contain, :start, :end].include?(matching_mode)
+      raise ArgumentError, "Illegal matching mode: #{matching_mode}"
+    end
+
     ActiveRecord::Base.transaction do
       num_items = self.items.count
       self.items.each_with_index do |item, index|
@@ -585,8 +634,6 @@ class Collection < ActiveRecord::Base
                     element.value = replace_value
                   when :matched_part
                     element.value.gsub!(find_value, replace_value)
-                  else
-                    raise ArgumentError, "Illegal replace mode: #{replace_mode}"
                 end
                 element.save!
               end
@@ -597,8 +644,6 @@ class Collection < ActiveRecord::Base
                     element.value = replace_value
                   when :matched_part
                     element.value.gsub!(find_value, replace_value)
-                  else
-                    raise ArgumentError, "Illegal replace mode: #{replace_mode}"
                 end
                 element.save!
               end
@@ -609,13 +654,9 @@ class Collection < ActiveRecord::Base
                     element.value = replace_value
                   when :matched_part
                     element.value.gsub!(find_value, replace_value)
-                  else
-                    raise ArgumentError, "Illegal replace mode: #{replace_mode}"
                 end
                 element.save!
               end
-            else
-              raise ArgumentError, "Illegal matching mode: #{matching_mode}"
           end
 
           if task and index % 10 == 0

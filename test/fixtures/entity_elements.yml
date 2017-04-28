@@ -1,47 +1,22 @@
-# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+# item: sanborn_obj1_page1
 
-item1_title:
-  item: item1
+sanborn_obj1_page1_description:
+  item: sanborn_obj1_page1
+  name: description
+  value: My Great Description
+  vocabulary: uncontrolled
+  type: ItemElement
+
+sanborn_obj1_page1_rights:
+  item: sanborn_obj1_page1
+  name: rights
+  value: Sample Rights
+  vocabulary: rights
+  type: ItemElement
+
+sanborn_obj1_page1_title:
+  item: sanborn_obj1_page1
   name: title
   value: My Great Title
   vocabulary: uncontrolled
-  type: ItemElement
-
-item1_description:
-  item: item1
-  name: description
-  value: About something
-  vocabulary: uncontrolled
-  type: ItemElement
-
-item1_rights:
-  item: item1
-  name: rights
-  value: Sample Rights
-  uri: http://example.org/sampleRights
-  vocabulary: rights
-  type: ItemElement
-
-item1_subject1:
-  item: item1
-  name: subject
-  value: Cats
-  uri: http://example.org/cats1
-  vocabulary: lcsh
-  type: ItemElement
-
-item1_subject2:
-  item: item1
-  name: subject
-  value: More cats
-  uri: http://example.org/cats2
-  vocabulary: tgm
-  type: ItemElement
-
-free_form_dir1_rights:
-  item: free_form_dir1
-  name: rights
-  value: Sample Rights
-  uri: http://example.org/sampleRights
-  vocabulary: rights
   type: ItemElement

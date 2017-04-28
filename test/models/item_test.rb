@@ -3,7 +3,7 @@ require 'test_helper'
 class ItemTest < ActiveSupport::TestCase
 
   setup do
-    @item = items(:item1)
+    @item = items(:sanborn_obj1_page1)
     assert @item.valid?
   end
 
@@ -26,29 +26,14 @@ class ItemTest < ActiveSupport::TestCase
   # Item.tsv_header()
 
   test 'tsv_header should return the correct columns' do
-    cols = Item.tsv_header(@item.collection.metadata_profile).strip.split("\t")
-    assert_equal 21, cols.length
-    assert_equal 'uuid', cols[0]
-    assert_equal 'parentId', cols[1]
-    assert_equal 'preservationMasterPathname', cols[2]
-    assert_equal 'preservationMasterFilename', cols[3]
-    assert_equal 'accessMasterPathname', cols[4]
-    assert_equal 'accessMasterFilename', cols[5]
-    assert_equal 'variant', cols[6]
-    assert_equal 'pageNumber', cols[7]
-    assert_equal 'subpageNumber', cols[8]
-    assert_equal 'latitude', cols[9]
-    assert_equal 'longitude', cols[10]
-    assert_equal 'contentdmAlias', cols[11]
-    assert_equal 'contentdmPointer', cols[12]
-    assert_equal 'IGNORE', cols[13]
-    assert_equal 'Title', cols[14]
-    assert_equal 'Coordinates', cols[15]
-    assert_equal 'Creator', cols[16]
-    assert_equal 'Date Created', cols[17]
-    assert_equal 'Description', cols[18]
-    assert_equal 'lcsh:Subject', cols[19]
-    assert_equal 'tgm:Subject', cols[20]
+    expected = %w(uuid parentId preservationMasterPathname
+    preservationMasterFilename preservationMasterUUID accessMasterPathname
+    accessMasterFilename accessMasterUUID variant pageNumber subpageNumber
+    latitude longitude contentdmAlias contentdmPointer IGNORE Title Coordinates
+    Creator Date\ Created Description lcsh:Subject tgm:Subject)
+    cols = Item.tsv_header(@item.collection.metadata_profile).
+        strip.split("\t")
+    assert_equal expected, cols
   end
 
   test 'tsv_header should end with a line break' do
@@ -59,7 +44,7 @@ class ItemTest < ActiveSupport::TestCase
   # all_files()
 
   test 'all_files() should return the correct items' do
-    assert_equal 1, items(:free_form_dir1).all_files.count
+    assert_equal 1, items(:illini_union_dir1).all_files.count
   end
 
   # as_json()
@@ -69,7 +54,7 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal @item.repository_id, struct['repository_id']
     # We'll trust that all the other properties are present.
     assert_equal 2, struct['binaries'].length
-    assert_equal 5, struct['elements'].length
+    assert_equal 3, struct['elements'].length
   end
 
   # bib_id()
@@ -109,15 +94,14 @@ class ItemTest < ActiveSupport::TestCase
 
   test 'composite_item() should return the composite item, or nil if none
   exists' do
-    item = items(:item1)
-    assert_nil item.composite_item
+    assert_nil @item.composite_item
 
     id = SecureRandom.uuid
     Item.create!(repository_id: id,
-                 collection_repository_id: item.collection_repository_id,
-                 parent_repository_id: item.repository_id,
+                 collection_repository_id: @item.collection_repository_id,
+                 parent_repository_id: @item.repository_id,
                  variant: Item::Variants::COMPOSITE)
-    assert_equal id, item.composite_item.repository_id
+    assert_equal id, @item.composite_item.repository_id
   end
 
   # description()
@@ -143,7 +127,7 @@ class ItemTest < ActiveSupport::TestCase
 
   test 'effective_representative_item should return the first page when
         representative_item_repository_id is not set' do
-    @item = items(:map_obj1)
+    @item = items(:sanborn_obj1)
     @item.representative_item_repository_id = nil
     assert_equal 'd29950d0-c451-0133-1d17-0050569601ca-2',
                  @item.effective_representative_item.repository_id
@@ -151,7 +135,7 @@ class ItemTest < ActiveSupport::TestCase
 
   test 'effective_representative_item should return the instance when
         representative_item_repository_id is not set and it has no pages' do
-    @item = items(:map_obj1)
+    @item = items(:sanborn_obj1)
     @item.representative_item_repository_id = nil
     @item.items.delete_all
     assert_equal @item.repository_id,
@@ -165,8 +149,9 @@ class ItemTest < ActiveSupport::TestCase
   end
 
   test 'effective_rights_statement() should fall back to a parent statement' do
-    @item = items(:free_form_dir1_file1)
-    assert_equal 'Sample Rights', @item.effective_rights_statement
+    @item.elements.destroy_all
+    assert_equal @item.collection.rights_statement,
+                 @item.effective_rights_statement
   end
 
   test 'effective_rights_statement() should fall back to the collection
@@ -189,7 +174,6 @@ class ItemTest < ActiveSupport::TestCase
 
   test 'effective_rightsstatements_org_statement() should fall back to a parent
   statement' do
-    @item = items(:free_form_dir1_file1)
     @item.elements.where(name: 'accessRights').destroy_all
     @item.parent.elements.build(name: 'accessRights',
                                 uri: 'http://rightsstatements.org/vocab/NoC-OKLR/1.0/')
@@ -254,15 +238,22 @@ class ItemTest < ActiveSupport::TestCase
 
   # representative_item()
 
-  test 'representative_item() should work properly' do
-    # nil representative item
+  test 'representative_item() should return nil when
+  representative_item_repository_id is nil' do
     assert_nil(@item.representative_item)
-    # nonexistent representative item
+  end
+
+  test 'representative_item() should return nil when
+  representative_item_repository_id is invalid' do
     @item.representative_item_repository_id = 'bogus'
     assert_nil(@item.representative_item)
-    # for an existent representative item, it should return the representative item
-    col = Collection.find_by_repository_id('d250c1f0-5ca8-0132-3334-0050569601ca-8')
-    assert_equal('MyString', col.representative_item_id)
+  end
+
+  test 'representative_item() should return an item when
+  representative_item_repository_id is valid' do
+    @item.representative_item_repository_id =
+        items(:illini_union_dir1_file1).repository_id
+    assert_kind_of Item, @item.representative_item
   end
 
   # representative_item_repository_id
@@ -306,7 +297,7 @@ class ItemTest < ActiveSupport::TestCase
 
   test 'save() should copy allowed_roles and denied_roles into
   effective_allowed_roles and effective_denied_roles when they exist' do
-    item = items(:map_obj1_page1)
+    item = items(:sanborn_obj1_page1)
 
     # Create initial allowed and denied roles.
     item.allowed_roles << roles(:admins)
@@ -334,7 +325,7 @@ class ItemTest < ActiveSupport::TestCase
   test 'save() should copy parent allowed_roles and denied_roles into
   effective_allowed_roles and effective_denied_roles when they are not set on
   the instance' do
-    item = items(:map_obj1_page1)
+    item = items(:sanborn_obj1_page1)
 
     # Create initial allowed and denied roles.
     item.parent.allowed_roles << roles(:admins)
@@ -351,7 +342,7 @@ class ItemTest < ActiveSupport::TestCase
   test 'save() should copy collection allowed_roles and denied_roles into
   effective_allowed_roles and effective_denied_roles when they are not set on
   the instance nor a parent' do
-    item = items(:map_obj1_page1)
+    item = items(:sanborn_obj1_page1)
 
     # Create initial allowed and denied roles.
     item.collection.allowed_roles << roles(:admins)
@@ -367,7 +358,7 @@ class ItemTest < ActiveSupport::TestCase
 
   test 'save() should propagate allowed_roles and denied_roles into
   effective_allowed_roles and effective_denied_roles of children' do
-    item = items(:map_obj1_page1)
+    item = items(:sanborn_obj1_page1)
     parent = item.parent
 
     parent.allowed_roles << roles(:admins)
@@ -445,41 +436,40 @@ class ItemTest < ActiveSupport::TestCase
 
   test 'supplementary_item() should return the supplementary item, or nil if
   none exists' do
-    item = items(:item1)
-    assert_nil item.supplementary_item
+    assert_nil @item.supplementary_item
 
     Item.create!(repository_id: SecureRandom.uuid,
-                 collection_repository_id: item.collection_repository_id,
-                 parent_repository_id: item.repository_id,
+                 collection_repository_id: @item.collection_repository_id,
+                 parent_repository_id: @item.repository_id,
                  variant: Item::Variants::SUPPLEMENT)
-    assert_equal Item::Variants::SUPPLEMENT, item.supplementary_item.variant
+    assert_equal Item::Variants::SUPPLEMENT, @item.supplementary_item.variant
   end
 
   # three_d_item()
 
   test 'three_d_item() should return the 3D model item, or nil if none exists' do
-    item = items(:item1)
-    assert_nil item.three_d_item
+    assert_nil @item.three_d_item
 
     subitem = Item.new(repository_id: SecureRandom.uuid,
-                       collection_repository_id: item.collection_repository_id,
-                       parent_repository_id: item.repository_id)
+                       collection_repository_id: @item.collection_repository_id,
+                       parent_repository_id: @item.repository_id)
     subitem.binaries.build(media_category: Binary::MediaCategory::THREE_D)
     subitem.save!
 
-    assert_equal subitem,item.three_d_item
+    assert_equal subitem, @item.three_d_item
   end
 
   # title()
 
-  test 'title() should return the title element value, or nil if none exists' do
+  test 'title() should return the repository ID if no title element value
+  exists' do
     @item.elements.destroy_all
     @item.save
-    assert_equal 'a1234567-5ca8-0132-3334-0050569601ca-8', @item.title
+    assert_equal @item.repository_id, @item.title
+  end
 
-    @item.elements.build(name: 'title', value: 'cats')
-    @item.save
-    assert_equal 'cats', @item.title
+  test 'title() should return the title element value if it exists' do
+    assert_equal 'My Great Title', @item.title
   end
 
   # to_solr
@@ -491,7 +481,7 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal @item.class.to_s, doc[Item::SolrFields::CLASS]
     assert_equal @item.collection_repository_id,
                  doc[Item::SolrFields::COLLECTION]
-    assert_equal "#{@item.repository_id}-000000-ZZZZZZ-ZZZZZZ-#{@item.title}",
+    assert_equal "#{@item.parent_repository_id}-Page-1-ZZZZZZ-#{@item.title}",
                  doc[Item::SolrFields::GROUPED_SORT]
     assert doc[Item::SolrFields::COLLECTION_PUBLISHED]
     assert_equal @item.date.utc.iso8601, doc[Item::SolrFields::DATE]
@@ -513,22 +503,20 @@ class ItemTest < ActiveSupport::TestCase
                  doc[Item::SolrFields::REPRESENTATIVE_ITEM_ID]
     assert_equal @item.subpage_number, doc[Item::SolrFields::SUBPAGE_NUMBER]
     assert_equal @item.title, doc[Item::SolrFields::TITLE]
-    assert_equal 4211798, doc[Item::SolrFields::TOTAL_BYTE_SIZE]
+    assert_equal @item.binaries.map(&:byte_size).sum,
+                 doc[Item::SolrFields::TOTAL_BYTE_SIZE]
     assert_equal @item.variant, doc[Item::SolrFields::VARIANT]
 
     title = @item.elements.select{ |e| e.name == 'title' }.first
     assert_equal [title.value], doc[title.solr_multi_valued_field]
     description = @item.elements.select{ |e| e.name == 'description' }.first
     assert_equal [description.value], doc[description.solr_multi_valued_field]
-    subjects = @item.elements.select{ |e| e.name == 'subject' }
-    assert_equal subjects.map(&:value),
-                 doc[subjects.first.solr_multi_valued_field]
   end
 
   # update_from_embedded_metadata
 
   test 'update_from_embedded_metadata should work' do
-    @item = items(:iptc_item)
+    @item = items(:illini_union_dir1_file1)
     @item.update_from_embedded_metadata(include_date_created: true)
 
     assert_equal 1, @item.elements.
@@ -537,7 +525,7 @@ class ItemTest < ActiveSupport::TestCase
         select{ |e| e.name == 'creator' and e.value == 'University of Illinois Library' }.length
     assert_equal 1, @item.elements.
         select{ |e| e.name == 'dateCreated' and e.value == '2012-10-10' }.length
-    assert_equal '2012-10-10T00:00:00Z', @item.date.iso8601
+    assert_equal '2015-08-10T05:00:00Z', @item.date.iso8601
   end
 
   # update_from_json
@@ -578,7 +566,7 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal 61, @item.subpage_number
     assert_equal Item::Variants::PAGE, @item.variant
 
-    assert_equal 5, @item.elements.length
+    assert_equal 3, @item.elements.length
     description = @item.elements.select{ |e| e.name == 'description' }.first
     assert_equal 'Something', description.value
     assert_equal 'http://example.org/something', description.uri

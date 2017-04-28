@@ -9,7 +9,7 @@ class PropagateRolesToItemsJobTest < ActiveSupport::TestCase
   # propagation is done in the test of Collection.
   #
   test 'perform() should return' do
-    col = collections(:collection1)
+    col = collections(:illini_union)
     PropagateRolesToItemsJob.perform_now(col.repository_id)
   end
 

@@ -343,12 +343,14 @@ module ItemsHelper
 
   ##
   # @param entities [Relation<SolrQuerying>]
-  # @param start [integer]
-  # @param options [Hash] with available keys:
-  # :link_to_admin (boolean), :show_remove_from_favorites_buttons (boolean),
-  # :show_add_to_favorites_buttons (boolean),
-  # :show_collections (boolean),
-  # :thumbnail_size (integer)
+  # @param start [integer] Offset.
+  # @param options [Hash] Hash with optional keys.
+  # @option options [Boolean] :link_to_admin
+  # @option options [Boolean] :show_remove_from_favorites_buttons
+  # @option options [Boolean] :show_add_to_favorites_buttons
+  # @option options [Boolean] :show_collections
+  # @option options [Boolean] :show_checkboxes
+  # @option options [Integer] :thumbnail_size
   #
   def items_as_list(entities, start, options = {}) # TODO: rename to entities_as_list(), move to ApplicationHelper, and replace CollectionsHelper.collections_as_list()
     html = "<ol start=\"#{start + 1}\">"
@@ -358,8 +360,13 @@ module ItemsHelper
       else
         link_target = polymorphic_path(entity)
       end
-      html += '<li>'\
-        '<div>'
+      html += '<li>'
+      if options[:show_checkboxes]
+        html += check_box_tag('pt-selected-items[]', entity.repository_id)
+        html += '<div class="pt-checkbox-result-container">'
+      else
+        html += '<div class="pt-non-checkbox-result-container">'
+      end
       html += link_to(link_target, class: 'pt-thumbnail-link') do
         size = options[:thumbnail_size] ?
             options[:thumbnail_size] : DEFAULT_THUMBNAIL_SIZE
@@ -782,10 +789,11 @@ module ItemsHelper
 
     # mainEntity
     if item.parent
+      root_parent = item.all_parents.last
       struct[:mainEntity] = {
           '@type': 'CreativeWork',
-          name: item.root_parent.title,
-          url: item_url(item.root_parent)
+          name: root_parent.title,
+          url: item_url(root_parent)
       }
     end
 
