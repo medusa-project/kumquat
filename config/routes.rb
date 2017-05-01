@@ -91,6 +91,7 @@ Rails.application.routes.draw do
   resources :binaries, only: :show
   resources :collections, only: [:index, :show] do
     match 'items/treedata', to: 'items#tree_data', via: [:get, :post]
+    match 'tree', to: 'items#tree', via: :get
     resources :items, only: :index
     # IIIF Presentation API 2.1 routes
     match '/presentation', to: 'collections#iiif_presentation', via: :get,
@@ -99,6 +100,7 @@ Rails.application.routes.draw do
   resources :favorites, only: :index
   resources :items, only: [:index, :show] do
     match '/treedata', to: 'items#item_tree_node', via: [:get, :post]
+    match '/ajax_html', to: 'items#item_ajax_html', via: :get
     match '/binaries/:filename', to: 'items#binary', via: :get, as: 'binary'
     match '/files', to: 'items#files', via: :get, as: 'files'
     # IIIF Presentation API 2.1 routes
