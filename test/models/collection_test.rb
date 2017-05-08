@@ -422,7 +422,7 @@ class CollectionTest < ActiveSupport::TestCase
   end
 
   test 'medusa_repository() should return a MedusaRepository' do
-    assert_equal @col.medusa_repository.id, @col.medusa_repository_id
+    assert_equal @col.medusa_repository.medusa_database_id, @col.medusa_repository_id
   end
 
   # medusa_url()

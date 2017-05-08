@@ -3,8 +3,7 @@ require 'test_helper'
 class MedusaCfsFileTest < ActiveSupport::TestCase
 
   def setup
-    @cfs = MedusaCfsFile.new
-    @cfs.uuid = 'd25db810-c451-0133-1d17-0050569601ca-3'
+    @file = medusa_cfs_files(:one)
   end
 
   # file?()
@@ -17,12 +16,29 @@ class MedusaCfsFileTest < ActiveSupport::TestCase
     assert MedusaCfsFile.file?('6e3c33c0-5ce3-0132-3334-0050569601ca-f')
   end
 
+  # with_uuid()
+
+  test 'with_uuid() should return an instance when given a UUID' do
+    file = MedusaCfsFile.with_uuid(@file.uuid)
+    assert_equal @file.repository_relative_pathname,
+                 file.repository_relative_pathname
+    assert_equal @file.media_type, file.media_type
+  end
+
+  test 'with_uuid() should cache returned instances' do
+    MedusaCfsFile.destroy_all
+
+    assert_nil MedusaCfsFile.find_by_uuid(@file.uuid)
+    MedusaCfsFile.with_uuid(@file.uuid)
+    assert_not_nil MedusaCfsFile.find_by_uuid(@file.uuid)
+  end
+
   # pathname()
 
   test 'pathname() should return the correct pathname' do
     assert_equal(Configuration.instance.repository_pathname.chomp('/') +
                      '/162/2204/1601831/access/1601831_001.jp2',
-                 @cfs.pathname)
+                 @file.pathname)
   end
 
   # repository_relative_pathname()
@@ -30,15 +46,15 @@ class MedusaCfsFileTest < ActiveSupport::TestCase
   test 'repository_relative_pathname() should return the correct
   repository-relative pathname' do
     assert_equal('/162/2204/1601831/access/1601831_001.jp2',
-                 @cfs.repository_relative_pathname)
+                 @file.repository_relative_pathname)
   end
 
   # to_binary()
 
   test 'to_binary() should return a correct binary' do
-    binary = @cfs.to_binary(Binary::MasterType::PRESERVATION)
+    binary = @file.to_binary(Binary::MasterType::PRESERVATION)
     assert_equal Binary::MasterType::PRESERVATION, binary.master_type
-    assert_equal @cfs.repository_relative_pathname,
+    assert_equal @file.repository_relative_pathname,
                  binary.repository_relative_pathname
     assert_equal 13173904, binary.byte_size
     assert_equal 'image/jp2', binary.media_type
@@ -48,8 +64,8 @@ class MedusaCfsFileTest < ActiveSupport::TestCase
   end
 
   test 'to_binary() should override the media category when supplied' do
-    binary = @cfs.to_binary(Binary::MasterType::PRESERVATION,
-                            Binary::MediaCategory::VIDEO)
+    binary = @file.to_binary(Binary::MasterType::PRESERVATION,
+                             Binary::MediaCategory::VIDEO)
     assert_equal Binary::MasterType::PRESERVATION, binary.master_type
     assert_equal Binary::MediaCategory::VIDEO, binary.media_category
   end
@@ -59,7 +75,7 @@ class MedusaCfsFileTest < ActiveSupport::TestCase
   test 'url() should return the correct url' do
     assert_equal(Configuration.instance.medusa_url.chomp('/') +
                      '/uuids/d25db810-c451-0133-1d17-0050569601ca-3',
-                 @cfs.url)
+                 @file.url)
   end
 
 end

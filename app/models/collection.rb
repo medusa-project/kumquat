@@ -59,9 +59,9 @@
 # * repository_id:            The collection's effective UUID, copied from
 #                             Medusa.
 # * representative_image:     UUID of a Medusa image file representing the
-#                             collection for use in e.g. thunbnails.
-#                             `representative_image` should be used instead, if
-#                             possible.
+#                             collection for use in e.g. thumbnails.
+#                             `representative_item_id` should be used instead,
+#                             if possible.
 # * representative_item_id:   Repository ID of an Item representating the
 #                             collection for use in e.g. thumbnails.
 # * resource_types:           Serialized array of resource types contained
@@ -397,8 +397,7 @@ class Collection < ActiveRecord::Base
     unless @cfs_directory
       @cfs_directory = nil
       if self.medusa_cfs_directory_id.present?
-        @cfs_directory = MedusaCfsDirectory.new
-        @cfs_directory.uuid = self.medusa_cfs_directory_id
+        @cfs_directory = MedusaCfsDirectory.with_uuid(self.medusa_cfs_directory_id)
       end
     end
     @cfs_directory
@@ -411,8 +410,7 @@ class Collection < ActiveRecord::Base
    unless @file_group
      @file_group = nil
      if self.medusa_file_group_id
-       @file_group = MedusaFileGroup.new
-       @file_group.uuid = self.medusa_file_group_id
+       @file_group = MedusaFileGroup.with_uuid(self.medusa_file_group_id)
      end
    end
    @file_group
@@ -425,8 +423,8 @@ class Collection < ActiveRecord::Base
     unless @medusa_repository
       @medusa_repository = nil
       if self.medusa_repository_id
-        @medusa_repository = MedusaRepository.new
-        @medusa_repository.id = self.medusa_repository_id
+        @medusa_repository = MedusaRepository.with_medusa_database_id(
+            self.medusa_repository_id)
       end
     end
     @medusa_repository
@@ -679,8 +677,7 @@ class Collection < ActiveRecord::Base
       item = self.representative_item
       binary = item.iiif_image_binary
     elsif self.representative_image.present?
-      cfs_file = MedusaCfsFile.new
-      cfs_file.uuid = self.representative_image
+      cfs_file = MedusaCfsFile.with_uuid(self.representative_image)
       binary = Binary.new
       binary.cfs_file_uuid = cfs_file.uuid
       binary.repository_relative_pathname = cfs_file.repository_relative_pathname

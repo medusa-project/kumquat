@@ -1,20 +1,32 @@
-class MedusaFileGroup
+##
+# Represents a Medusa file group.
+#
+# Instances' properties are loaded from Medusa automatically and cached.
+# Acquire instances with `with_uuid()`.
+#
+class MedusaFileGroup < ActiveRecord::Base
 
-  # @!attribute uuid
-  #   @return [Integer]
-  attr_accessor :uuid
+  ##
+  # @param uuid [String]
+  # @return [MedusaCfsDirectory]
+  #
+  def self.with_uuid(uuid)
+    fg = MedusaFileGroup.find_by_uuid(uuid)
+    unless fg
+      fg = MedusaFileGroup.new
+      fg.uuid = uuid
+      fg.load_from_medusa
+      fg.save!
+    end
+    fg
+  end
 
-  # @!attribute medusa_representation
-  #   @return [Hash]
-  attr_accessor :medusa_representation
-
+  ##
+  # @return [MedusaCfsDirectory]
+  #
   def cfs_directory
-    unless @cfs_directory
-      load
-      if self.medusa_representation['cfs_directory']
-        @cfs_directory = MedusaCfsDirectory.new
-        @cfs_directory.uuid = self.medusa_representation['cfs_directory']['uuid']
-      end
+    if !@cfs_directory and self.cfs_directory_uuid.present?
+      @cfs_directory = MedusaCfsDirectory.with_uuid(self.cfs_directory_uuid)
     end
     @cfs_directory
   end
@@ -25,26 +37,20 @@ class MedusaFileGroup
   #
   # @return [void]
   #
-  def reload
-    raise 'reload() called without UUID set' unless self.uuid.present?
+  def load_from_medusa
+    raise 'load_from_medusa() called without UUID set' unless self.uuid.present?
 
     client = MedusaClient.new
     response = client.get(self.url + '.json')
-    json_str = response.body
-    if response.status < 300 and !Rails.env.test?
-      FileUtils.mkdir_p("#{Rails.root}/tmp/cache/medusa")
-      File.open(cache_pathname, 'wb') { |f| f.write(json_str) }
-    end
-    self.medusa_representation = JSON.parse(json_str)
-    @loaded = true
-  end
 
-  def title
-    unless @title
-      load
-      @title = self.medusa_representation['title']
+    if response.status < 300
+      CustomLogger.instance.debug('MedusaFileGroup.load_from_medusa(): loading ' + self.url)
+      struct = JSON.parse(response.body)
+      if struct['cfs_directory']
+        self.cfs_directory_uuid = struct['cfs_directory']['uuid']
+      end
+      self.title = struct['title']
     end
-    @title
   end
 
   ##
@@ -57,38 +63,6 @@ class MedusaFileGroup
           '/uuids/' + self.uuid.to_s
     end
     nil
-  end
-
-  private
-
-  def cache_pathname
-    "#{Rails.root}/tmp/cache/medusa/file_group_#{self.uuid}.json"
-  end
-
-  ##
-  # Populates `medusa_representation`.
-  #
-  # @return [void]
-  # @raises [RuntimeError] If the instance's UUID is not set
-  # @raises [HTTPClient::BadResponseError]
-  #
-  def load
-    return if @loaded
-    raise 'load() called without UUID set' unless self.uuid.present?
-
-    if Rails.env.test?
-      reload
-    else
-      ttl = Configuration.instance.medusa_cache_ttl
-      if File.exist?(cache_pathname) and File.mtime(cache_pathname).
-          between?(Time.at(Time.now.to_i - ttl), Time.now)
-        json_str = File.read(cache_pathname)
-        self.medusa_representation = JSON.parse(json_str)
-      else
-        reload
-      end
-    end
-    @loaded = true
   end
 
 end
