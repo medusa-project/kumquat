@@ -15,6 +15,9 @@ class LandingController < WebsiteController
         limit(COLLECTIONS_LIMIT)
     @dls_collections = finder.to_a
 
+    # Get a count of all collections.
+    @num_all_collections = Collection.all.where(published: true).count
+
     fresh_when(etag: @dls_collections) if Rails.env.production?
   end
 
