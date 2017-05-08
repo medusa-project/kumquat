@@ -1,33 +1,24 @@
-class MedusaRepository
-
-  # @!attribute id
-  #   @return [Integer]
-  attr_accessor :id
-
-  # @!attribute medusa_representation
-  #   @return [Hash]
-  attr_accessor :medusa_representation
+##
+# Represents a Medusa repository node.
+#
+# Instances' properties are loaded from Medusa automatically and cached.
+# Acquire instances with `with_medusa_database_id()`.
+#
+class MedusaRepository < ActiveRecord::Base
 
   ##
-  # @return [String]
+  # @param id [Integer]
+  # @return [MedusaRepository]
   #
-  def contact_email
-    unless @contact_email
-      load
-      @contact_email = self.medusa_representation['contact_email']
+  def self.with_medusa_database_id(id)
+    repo = MedusaRepository.find_by_medusa_database_id(id)
+    unless repo
+      repo = MedusaRepository.new
+      repo.medusa_database_id = id
+      repo.load_from_medusa
+      repo.save!
     end
-    @contact_email
-  end
-
-  ##
-  # @return [String]
-  #
-  def email
-    unless @email
-      load
-      @email = self.medusa_representation['email']
-    end
-    @email
+    repo
   end
 
   ##
@@ -36,26 +27,20 @@ class MedusaRepository
   #
   # @return [void]
   #
-  def reload
-    raise 'reload() called without ID set' unless self.id.present?
+  def load_from_medusa
+    raise 'load_from_medusa() called without ID set' unless
+        self.medusa_database_id.present?
 
     client = MedusaClient.new
     response = client.get(self.url + '.json')
-    json_str = response.body
-    if response.status < 300 and !Rails.env.test?
-      FileUtils.mkdir_p("#{Rails.root}/tmp/cache/medusa")
-      File.open(cache_pathname, 'wb') { |f| f.write(json_str) }
-    end
-    self.medusa_representation = JSON.parse(json_str)
-    @loaded = true
-  end
 
-  def title
-    unless @title
-      load
-      @title = self.medusa_representation['title']
+    if response.status < 300
+      CustomLogger.instance.debug('MedusaRepository.load_from_medusa(): loading ' + self.url)
+      struct = JSON.parse(response.body)
+      self.contact_email = struct['contact_email']
+      self.email = struct['email']
+      self.title = struct['title']
     end
-    @title
   end
 
   ##
@@ -63,43 +48,11 @@ class MedusaRepository
   # if the instance does not have an ID.
   #
   def url
-    if self.id
+    if self.medusa_database_id
       return Configuration.instance.medusa_url.chomp('/') +
-          '/repositories/' + self.id.to_s
+          '/repositories/' + self.medusa_database_id.to_s
     end
     nil
-  end
-
-  private
-
-  def cache_pathname
-    "#{Rails.root}/tmp/cache/medusa/repository_#{self.id}.json"
-  end
-
-  ##
-  # Populates `medusa_representation`.
-  #
-  # @return [void]
-  # @raises [RuntimeError] If the instance's ID is not set
-  # @raises [HTTPClient::BadResponseError]
-  #
-  def load
-    return if @loaded
-    raise 'load() called without ID set' unless self.id.present?
-
-    if Rails.env.test?
-      reload
-    else
-      ttl = Configuration.instance.medusa_cache_ttl
-      if File.exist?(cache_pathname) and File.mtime(cache_pathname).
-          between?(Time.at(Time.now.to_i - ttl), Time.now)
-        json_str = File.read(cache_pathname)
-        self.medusa_representation = JSON.parse(json_str)
-      else
-        reload
-      end
-    end
-    @loaded = true
   end
 
 end

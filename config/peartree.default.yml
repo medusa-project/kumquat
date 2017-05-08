@@ -10,7 +10,6 @@ development: &development
   :medusa_url: https://medusa.library.illinois.edu/
   :medusa_user:
   :medusa_secret:
-  :medusa_cache_ttl: 2592000
   # User authorized to use the REST API, at /api.
   :api_user: api_user
   :api_secret: secret
@@ -39,7 +38,6 @@ test:
   :medusa_url: https://medusa.library.illinois.edu/
   :medusa_user: machine_user
   :medusa_secret: FoifWowdeth3
-  :medusa_cache_ttl: 0
   :api_user: api_user
   :api_secret: secret
   :api_ips:
@@ -66,7 +64,6 @@ production: &production
   :medusa_url: https://medusa.library.illinois.edu/
   :medusa_user: machine_user
   :medusa_secret: FoifWowdeth3
-  :medusa_cache_ttl: 2592000
   :api_user: api_user
   :api_secret: secret
   :api_ips: # https://answers.uillinois.edu/illinois/page.php?id=47572

@@ -1,0 +1,6 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  uuid: 7dd36d20-c12b-0133-1d0f-0050569601ca-d
+  cfs_directory_uuid: 7e927880-c12b-0133-1d0f-0050569601ca-4
+  title: Content
