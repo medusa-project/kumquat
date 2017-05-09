@@ -3,32 +3,27 @@ require 'test_helper'
 class MedusaRepositoryTest < ActiveSupport::TestCase
 
   def setup
-    @repo = MedusaRepository.new
-    @repo.id = 32
+    @repo = medusa_repositories(:one)
   end
 
-  # contact_email()
+  # with_medusa_database_id()
 
-  test 'contact_email() should return the email' do
-    assert_equal 'jmj@illinois.edu', @repo.contact_email
+  test 'with_medusa_database_id() should return an instance when given a UUID' do
+    file = MedusaRepository.with_medusa_database_id(@repo.medusa_database_id)
+    assert_equal @repo.title, file.title
   end
 
-  # email()
-
-  test 'email() should return the email' do
-    assert_equal 'jmj@uiuc.edu', @repo.email
-  end
-
-  # title()
-
-  test 'title() should return the title' do
-    assert_equal 'Map and Geography Library', @repo.title
+  test 'with_medusa_database_id() should cache returned instances' do
+    MedusaRepository.destroy_all
+    assert_nil MedusaRepository.find_by_medusa_database_id(@repo.medusa_database_id)
+    MedusaRepository.with_medusa_database_id(@repo.medusa_database_id)
+    assert_not_nil MedusaRepository.find_by_medusa_database_id(@repo.medusa_database_id)
   end
 
   # url()
 
   test 'url() should return the URL' do
-    assert_equal Configuration.instance.medusa_url + 'repositories/32',
+    assert_equal Configuration.instance.medusa_url + 'repositories/' + @repo.medusa_database_id.to_s,
                  @repo.url
   end
 

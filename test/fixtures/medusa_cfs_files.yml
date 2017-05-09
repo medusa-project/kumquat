@@ -1,0 +1,7 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  uuid: d25db810-c451-0133-1d17-0050569601ca-3
+  repository_relative_pathname: /162/2204/1601831/access/1601831_001.jp2
+  media_type: image/jp2
+  directory_uuid: be8d3500-c451-0133-1d17-0050569601ca-9

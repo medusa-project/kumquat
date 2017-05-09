@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170404195912) do
+ActiveRecord::Schema.define(version: 20170508173553) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -220,6 +220,49 @@ ActiveRecord::Schema.define(version: 20170404195912) do
     t.integer "effective_allowed_role_id"
     t.integer "effective_denied_role_id"
   end
+
+  create_table "medusa_cfs_directories", force: :cascade do |t|
+    t.string   "uuid",                         null: false
+    t.string   "parent_uuid"
+    t.string   "repository_relative_pathname", null: false
+    t.integer  "medusa_database_id"
+    t.datetime "created_at",                   null: false
+    t.datetime "updated_at",                   null: false
+  end
+
+  add_index "medusa_cfs_directories", ["uuid"], name: "index_medusa_cfs_directories_on_uuid", using: :btree
+
+  create_table "medusa_cfs_files", force: :cascade do |t|
+    t.string   "uuid",                         null: false
+    t.string   "directory_uuid",               null: false
+    t.string   "media_type"
+    t.string   "repository_relative_pathname", null: false
+    t.datetime "created_at",                   null: false
+    t.datetime "updated_at",                   null: false
+  end
+
+  add_index "medusa_cfs_files", ["uuid"], name: "index_medusa_cfs_files_on_uuid", using: :btree
+
+  create_table "medusa_file_groups", force: :cascade do |t|
+    t.string   "uuid"
+    t.string   "cfs_directory_uuid"
+    t.string   "title"
+    t.datetime "created_at",         null: false
+    t.datetime "updated_at",         null: false
+  end
+
+  add_index "medusa_file_groups", ["uuid"], name: "index_medusa_file_groups_on_uuid", using: :btree
+
+  create_table "medusa_repositories", force: :cascade do |t|
+    t.integer  "medusa_database_id"
+    t.string   "contact_email"
+    t.string   "email"
+    t.string   "title"
+    t.datetime "created_at",         null: false
+    t.datetime "updated_at",         null: false
+  end
+
+  add_index "medusa_repositories", ["medusa_database_id"], name: "index_medusa_repositories_on_medusa_database_id", using: :btree
 
   create_table "metadata_profile_elements", force: :cascade do |t|
     t.integer  "metadata_profile_id"
