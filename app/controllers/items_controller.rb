@@ -420,7 +420,7 @@ class ItemsController < WebsiteController
           fresh_when(etag: @items) if Rails.env.production?
           session[:first_result_id] = @items.first&.repository_id
           session[:last_result_id] = @items.last&.repository_id
-          render 'items/index'
+          render 'items/tree'
         else
           redirect_to collection_items_path()
         end

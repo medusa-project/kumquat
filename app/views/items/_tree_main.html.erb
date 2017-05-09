@@ -3,14 +3,11 @@
     <% params.each do |k, v| %>
         <%= hidden_field_tag(k, v) %>
     <% end %>
-    <div class="input-group">
-      <span class="input-group-addon"><i class="fa fa-search"></i></span>
-      <%= search_field_tag :q, params[:q], class: 'form-control',
-                           placeholder: 'Filter' %>
-    </div>
+
   </div>
   <div class="col-xs-6">
-    <%= render partial: 'index_button_group' %>
+      <!-- View menu -->
+      <%= render partial: 'index_button_group' %>
       <!-- Download menu, disabled in cross-collection contexts to limit the
       downloading of huge amounts of content. -->
       <% if @collection and client_supports_zip_download? %>
@@ -22,29 +19,37 @@
             <ul class="dropdown-menu dropdown-menu-right">
               <li>
                 <%= link_to('', 'data-toggle': 'modal', 'data-target': '#pt-download-zip-modal') do %>
-                    <i class="fa fa-file-zip-o"></i>&nbsp;&nbsp;Zip File&hellip;
-                <% end %>
-              </li>
-            </ul>
-          </div>
+                <i class="fa fa-file-zip-o"></i>&nbsp;&nbsp;Zip File&hellip;
+      <% end %>
+      </li>
+      </ul>
+      </div>
       <% end %>
     </div>
   </div>
 </div>
 
-<div class="panel panel-default pt-results-summary">
-  <div class="panel-body">
-    <div class="row">
-      <div class="col-sm-8" id="pt-search-status">
-        <%= search_status(@items, @start, @num_results_shown) %>
-      </div>
-      <div class="col-sm-4 pull-right">
-        <%= sort_menu(@metadata_profile) %>
+
+
+
+<% if @tree %>
+    <div id="pt-items" class="pt-results pt-list-results">
+      <%= render partial: 'tree' %>
+    </div>
+<% else %>
+    <div class="panel panel-default pt-results-summary">
+      <div class="panel-body">
+        <div class="row">
+          <div class="col-sm-8" id="pt-search-status">
+            <%= search_status(@items, @start, @num_results_shown) %>
+          </div>
+          <div class="col-sm-4 pull-right">
+            <%= sort_menu(@metadata_profile) %>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-</div>
-
-<div id="pt-items" class="pt-results pt-list-results">
-  <%= render partial: 'items' %>
-</div>
+    <div id="pt-items" class="pt-results pt-list-results">
+      <%= render partial: 'items' %>
+    </div>
+<% end %>
