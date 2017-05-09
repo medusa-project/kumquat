@@ -15,5 +15,5 @@
 <div class="pt-spacer">&nbsp;</div>
 
 <div id="pt-see-more" class="text-center">
-  <%= link_to(raw("#{Collection.all.where(published: true).count - @dls_collections.length} more collections&hellip;"), collections_path) %>
+  <%= link_to(raw("#{@num_all_collections - @dls_collections.length} more collections&hellip;"), collections_path) %>
 </div>

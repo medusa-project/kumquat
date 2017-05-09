@@ -1,0 +1,7 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  medusa_database_id: 32
+  contact_email: jmj@illinois.edu
+  email: jmj@uiuc.edu
+  title: Map and Geography Library

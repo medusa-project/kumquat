@@ -1,12 +1,10 @@
-class MedusaCfsFile
-
-  # @!attribute uuid
-  #   @return [Integer]
-  attr_accessor :uuid
-
-  # @!attribute medusa_representation
-  #   @return [Hash]
-  attr_accessor :medusa_representation
+##
+# Represents a Medusa CFS file node.
+#
+# Instances' properties are loaded from Medusa automatically and cached.
+# Acquire instances with `with_uuid()`.
+#
+class MedusaCfsFile < ActiveRecord::Base
 
   ##
   # @param uuid [String] Medusa UUID
@@ -22,11 +20,45 @@ class MedusaCfsFile
   end
 
   ##
-  # @return [String]
+  # @param uuid [String]
+  # @return [MedusaCfsFile]
   #
-  def media_type
-    load_instance
-    self.medusa_representation['content_type']
+  def self.with_uuid(uuid)
+    file = MedusaCfsFile.find_by_uuid(uuid)
+    unless file
+      file = MedusaCfsFile.new
+      file.uuid = uuid
+      file.load_from_medusa
+      file.save!
+    end
+    file
+  end
+
+  ##
+  # @return [MedusaCfsDirectory]
+  #
+  def directory
+    MedusaCfsDirectory.find_by_uuid(self.directory_uuid)
+  end
+
+  ##
+  # Updates the instance with current properties from Medusa.
+  #
+  # @return [void]
+  #
+  def load_from_medusa
+    raise 'load_from_medusa() called without UUID set' unless self.uuid.present?
+
+    client = MedusaClient.new
+    response = client.get(self.url + '.json')
+
+    if response.status < 300
+      CustomLogger.instance.debug('MedusaCfsFile.load_from_medusa(): loading ' + self.url)
+      struct = JSON.parse(response.body)
+      self.media_type = struct['content_type']
+      self.repository_relative_pathname = "/#{struct['relative_pathname']}"
+      self.directory_uuid = struct['directory']['uuid']
+    end
   end
 
   ##
@@ -42,36 +74,6 @@ class MedusaCfsFile
   def pathname
     Configuration.instance.repository_pathname.chomp('/') +
         self.repository_relative_pathname
-  end
-
-  ##
-  # Downloads and caches the instance's Medusa representation and populates
-  # the instance with it.
-  #
-  # @return [void]
-  #
-  def reload_instance
-    raise 'reload_instance() called without UUID set' unless self.uuid.present?
-
-    client = MedusaClient.new
-    response = client.get(self.url + '.json')
-    json_str = response.body
-    rep = JSON.parse(json_str)
-    if response.status < 300 and !Rails.env.test?
-      FileUtils.mkdir_p("#{Rails.root}/tmp/cache/medusa")
-      File.open(cache_pathname, 'wb') { |f| f.write(json_str) }
-    end
-    self.medusa_representation = rep
-    @instance_loaded = true
-  end
-
-  def repository_relative_pathname
-    unless @repository_relative_pathname
-      load_instance
-      @repository_relative_pathname =
-          "/#{self.medusa_representation['relative_pathname']}"
-    end
-    @repository_relative_pathname
   end
 
   ##
@@ -111,38 +113,6 @@ class MedusaCfsFile
           '/uuids/' + self.uuid.to_s.strip
     end
     url
-  end
-
-  private
-
-  def cache_pathname
-    "#{Rails.root}/tmp/cache/medusa/cfs_file_#{self.uuid}.json"
-  end
-
-  ##
-  # Populates `medusa_representation`.
-  #
-  # @return [void]
-  # @raises [RuntimeError] If the instance's UUID is not set
-  # @raises [HTTPClient::BadResponseError]
-  #
-  def load_instance
-    return if @instance_loaded
-    raise 'load_instance() called without UUID set' unless self.uuid.present?
-
-    if Rails.env.test?
-      reload_instance
-    else
-      ttl = Configuration.instance.medusa_cache_ttl
-      if File.exist?(cache_pathname) and File.mtime(cache_pathname).
-          between?(Time.at(Time.now.to_i - ttl), Time.now)
-        json_str = File.read(cache_pathname)
-        self.medusa_representation = JSON.parse(json_str)
-      else
-        reload_instance
-      end
-    end
-    @instance_loaded = true
   end
 
 end

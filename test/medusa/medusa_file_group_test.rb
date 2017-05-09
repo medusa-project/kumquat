@@ -3,21 +3,28 @@ require 'test_helper'
 class MedusaFileGroupTest < ActiveSupport::TestCase
 
   def setup
-    @fg = MedusaFileGroup.new
-    @fg.uuid = '7dd36d20-c12b-0133-1d0f-0050569601ca-d'
+    @fg = medusa_file_groups(:one)
   end
 
-  test 'cfs_directory should return the correct CFS directory' do
-    assert_equal('7e927880-c12b-0133-1d0f-0050569601ca-4', @fg.cfs_directory.uuid)
+  # with_uuid()
+
+  test 'with_uuid() should return an instance when given a UUID' do
+    file = MedusaFileGroup.with_uuid(@fg.uuid)
+    assert_equal @fg.title, file.title
   end
 
-  test 'title should return the correct title' do
-    assert_equal('Content', @fg.title)
+  test 'with_uuid() should cache returned instances' do
+    MedusaFileGroup.destroy_all
+    assert_nil MedusaFileGroup.find_by_uuid(@fg.uuid)
+    MedusaFileGroup.with_uuid(@fg.uuid)
+    assert_not_nil MedusaFileGroup.find_by_uuid(@fg.uuid)
   end
+
+  # url()
 
   test 'url should return the correct url' do
     assert_equal(Configuration.instance.medusa_url.chomp('/') +
-                     '/uuids/7dd36d20-c12b-0133-1d0f-0050569601ca-d',
+                     '/uuids/' + @fg.uuid,
                  @fg.url)
   end
 
