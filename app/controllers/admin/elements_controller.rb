@@ -88,13 +88,22 @@ module Admin
     # Responds to GET /elements
     #
     def index
-      @elements = Element.all.order(:name)
       respond_to do |format|
-        format.html { @new_element = Element.new }
-        format.json {
-          headers['Content-Disposition'] = "attachment; filename=elements.json"
+        format.html do
+          sql = 'SELECT elements.id, elements.name, elements.description,
+              COUNT(entity_elements.name) AS count
+            FROM elements
+            LEft JOIN entity_elements ON entity_elements.name = elements.name
+            GROUP BY elements.id, elements.name
+            ORDER BY elements.name'
+          @elements = ActiveRecord::Base.connection.exec_query(sql)
+          @new_element = Element.new
+        end
+        format.json do
+          @elements = Element.all.order(:name)
+          headers['Content-Disposition'] = 'attachment; filename=elements.json'
           render text: JSON.pretty_generate(@elements.as_json)
-        }
+        end
       end
     end
 
