@@ -208,44 +208,7 @@ class ItemsController < WebsiteController
   # Responds to GET /items
   #
   def index
-    if params[:collection_id]
-      @collection = Collection.find_by_repository_id(params[:collection_id])
-      raise ActiveRecord::RecordNotFound unless @collection
-      return unless authorize(@collection)
-    end
-
-    @start = params[:start].to_i
-    params[:start] = @start
-    @limit = Option::integer(Option::Key::RESULTS_PER_PAGE)
-    finder = item_finder_for(params)
-    @items = finder.to_a
-
-    @current_page = finder.page
-    @count = finder.count
-    @num_results_shown = [@limit, @count].min
-    @metadata_profile = finder.effective_metadata_profile
-
-    # If there are no results, get some search suggestions.
-    if @count < 1 and params[:q].present?
-      @suggestions = finder.suggestions
-    end
-
-    download_finder = ItemFinder.new.
-        client_hostname(request.host).
-        client_ip(request.remote_ip).
-        client_user(current_user).
-        collection_id(params[:collection_id]).
-        query(params[:q]).
-        include_children(true).
-        only_described(true).
-        stats(true).
-        filter_queries(params[:fq]).
-        sort(Item::SolrFields::GROUPED_SORT).
-        start(params[:download_start]).
-        limit(params[:limit] || DownloaderClient::BATCH_SIZE)
-    @num_downloadable_items = download_finder.count
-    @total_byte_size = download_finder.total_byte_size
-
+    setup_index_view
     respond_to do |format|
       format.atom do
         @updated = @items.any? ?
@@ -375,44 +338,8 @@ class ItemsController < WebsiteController
   end
 
   def tree
-    #TODO refactor, figure out how to make this DRY
-    if params[:collection_id]
-      @collection = Collection.find_by_repository_id(params[:collection_id])
-      raise ActiveRecord::RecordNotFound unless @collection
-      return unless authorize(@collection)
-    end
+    setup_index_view
 
-    @start = params[:start].to_i
-    params[:start] = @start
-    @limit = Option::integer(Option::Key::RESULTS_PER_PAGE)
-    finder = item_finder_for(params)
-    @items = finder.to_a
-
-    @current_page = finder.page
-    @count = finder.count
-    @num_results_shown = [@limit, @count].min
-    @metadata_profile = finder.effective_metadata_profile
-
-    # If there are no results, get some search suggestions.
-    if @count < 1 and params[:q].present?
-      @suggestions = finder.suggestions
-    end
-    @tree=true
-    download_finder = ItemFinder.new.
-        client_hostname(request.host).
-        client_ip(request.remote_ip).
-        client_user(current_user).
-        collection_id(params[:collection_id]).
-        query(params[:q]).
-        include_children(true).
-        only_described(true).
-        stats(true).
-        filter_queries(params[:fq]).
-        sort(Item::SolrFields::GROUPED_SORT).
-        start(params[:download_start]).
-        limit(params[:limit] || DownloaderClient::BATCH_SIZE)
-    @num_downloadable_items = download_finder.count
-    @total_byte_size = download_finder.total_byte_size
     respond_to do |format|
 
       format.html do
@@ -420,7 +347,6 @@ class ItemsController < WebsiteController
           fresh_when(etag: @items) if Rails.env.production?
           session[:first_result_id] = @items.first&.repository_id
           session[:last_result_id] = @items.last&.repository_id
-          render 'items/tree'
         else
           redirect_to collection_items_path()
         end
@@ -445,7 +371,7 @@ class ItemsController < WebsiteController
 
       format.json do
         render json:
-            tree_data
+            create_tree_root(tree_data, @collection)
        end
       end
   end
@@ -465,6 +391,47 @@ class ItemsController < WebsiteController
 
   private
 
+  def setup_index_view
+
+    if params[:collection_id]
+      @collection = Collection.find_by_repository_id(params[:collection_id])
+      raise ActiveRecord::RecordNotFound unless @collection
+      return unless authorize(@collection)
+    end
+
+    @start = params[:start].to_i
+    params[:start] = @start
+    @limit = Option::integer(Option::Key::RESULTS_PER_PAGE)
+    finder = item_finder_for(params)
+    @items = finder.to_a
+
+    @current_page = finder.page
+    @count = finder.count
+    @num_results_shown = [@limit, @count].min
+    @metadata_profile = finder.effective_metadata_profile
+
+    # If there are no results, get some search suggestions.
+    if @count < 1 and params[:q].present?
+      @suggestions = finder.suggestions
+    end
+
+    download_finder = ItemFinder.new.
+        client_hostname(request.host).
+        client_ip(request.remote_ip).
+        client_user(current_user).
+        collection_id(params[:collection_id]).
+        query(params[:q]).
+        include_children(true).
+        only_described(true).
+        stats(true).
+        filter_queries(params[:fq]).
+        sort(Item::SolrFields::GROUPED_SORT).
+        start(params[:download_start]).
+        limit(params[:limit] || DownloaderClient::BATCH_SIZE)
+    @num_downloadable_items = download_finder.count
+    @total_byte_size = download_finder.total_byte_size
+  end
+
   def tree_hash(item)
     node_hash = Hash.new
     node_hash["id"]=item.repository_id
@@ -472,6 +439,14 @@ class ItemsController < WebsiteController
     node_hash["children"]=item.items.size>0
     if item.items.size==0 then node_hash["icon"]="jstree-file" end
     node_hash["a_attr"]={"href": item_path(item)}
+    node_hash
+  end
+
+  def create_tree_root(tree_hash_array, collection)
+    node_hash = Hash.new
+    node_hash["id"]="#"
+    node_hash["text"]=collection.title
+    node_hash["children"]=tree_hash_array
     node_hash
   end
 

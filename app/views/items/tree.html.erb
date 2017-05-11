@@ -1,2 +1,5 @@
 <% provide(:body_id, 'items_index') %>
-  <%= render partial: 'tree_main', locals: {tree: @tree} %>
+<% provide(:title, @collection.title) %>
+<% provide(:active_nav, 'collections') %>
+<h1><%= @collection.title %></h1>
+  <%= render partial: 'tree_main' %>
