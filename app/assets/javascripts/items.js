@@ -372,39 +372,39 @@ var PTItemsView = function() {
         PearTree.initFacets();
 
         // submit the sort form on change
-        $('select[name="sort"]').on('change', function() {
+        $('select[name="sort"]').on('change', function () {
             $.ajax({
                 url: $('[name=pt-current-path]').val(),
                 method: 'GET',
                 data: $(this).parents('form:first').serialize(),
                 dataType: 'script',
-                success: function(result) {
+                success: function (result) {
                     eval(result);
                 }
             });
         });
 
-        $(document).on(PearTree.Events.ITEM_ADDED_TO_FAVORITES, function(event, item) {
+        $(document).on(PearTree.Events.ITEM_ADDED_TO_FAVORITES, function (event, item) {
             $('.pt-results button.pt-remove-from-favorites[data-item-id="' + item.id + '"]').show();
             $('.pt-results button.pt-add-to-favorites[data-item-id="' + item.id + '"]').hide();
             updateFavoritesCount();
         });
-        $(document).on(PearTree.Events.ITEM_REMOVED_FROM_FAVORITES, function(event, item) {
+        $(document).on(PearTree.Events.ITEM_REMOVED_FROM_FAVORITES, function (event, item) {
             $('.pt-results button.pt-remove-from-favorites[data-item-id="' + item.id + '"]').hide();
             $('.pt-results button.pt-add-to-favorites[data-item-id="' + item.id + '"]').show();
             updateFavoritesCount();
         });
-        $('button.pt-add-to-favorites').on('click', function() {
+        $('button.pt-add-to-favorites').on('click', function () {
             var item = new PTItem();
             item.id = $(this).data('item-id');
             item.addToFavorites();
         });
-        $('button.pt-remove-from-favorites').on('click', function() {
+        $('button.pt-remove-from-favorites').on('click', function () {
             var item = new PTItem();
             item.id = $(this).data('item-id');
             item.removeFromFavorites();
         });
-        $('button.pt-remove-from-favorites, button.pt-add-to-favorites').each(function() {
+        $('button.pt-remove-from-favorites, button.pt-add-to-favorites').each(function () {
             var item = new PTItem();
             item.id = $(this).data('item-id');
             if (item.isFavorite()) {
@@ -423,39 +423,64 @@ var PTItemsView = function() {
         });
         if ($('#jstree').length > 0) {
             $('#jstree').jstree({
-                core : {
-                    data : {
-                        url : function (node) {
+                core: {
+                    data: {
+                        url: function (node) {
                             return node.id === '#' ?
                                 getCollectionURL() :
-                            '/items/'+node.id+'/treedata.json';
+                            '/items/' + node.id + '/treedata.json';
                         }
                     }
                 }
             }).bind("select_node.jstree", function (e, data) {
-                if (data.node.icon==='jstree-file') {
-                    $.ajax({
-                        url: '/items/' + data.node.id+'.html?ajax=true',
-                        method: 'GET',
-                        success: function (result) {
-                            $('#item-info').html(result);
-                            $('#item-info ol.breadcrumb').remove();
-                            var view = new PTItemView();
-                            view.init();
-                        }
-                    });
-                } else {
-                    var href = data.node.a_attr.href;
-                    document.location.href = href;
-                }
+                $.ajax({
+                    url: '/items/' + data.node.id + '.html?ajax=true',
+                    method: 'GET',
+                    success: function(result) {
+                        tree_node_callback(result);
+                    }
+                })
             });
-        }
+        };
+
     };
 
     var updateFavoritesCount = function() {
         var badge = $('.pt-favorites-count');
         badge.text(PTItem.numFavorites());
     };
+};
+
+var tree_node_callback = function (result) {
+    $('#item-info').html(result);
+    $('#item-info ol.breadcrumb').remove();
+    $('#item-info .pt-result-navigation').remove();
+    $('#item-info .btn-group').removeClass('pull-right');
+    var view = new PTItemView();
+    view.init();
+    //$(".pagination a").hover(function (e){
+    //    e.preventDefault();
+    //});
+    $(".pagination a").not(".disabled").click(function (e){
+        e.preventDefault();
+        console.log(e.isDefaultPrevented());
+        $.ajax({
+            url: get_pagination_link(this.getAttribute("href")),
+            method: "GET",
+            success: function(result) {
+                console.log(result)
+                tree_node_callback(result)
+            }
+
+        });
+    });
+};
+
+var get_pagination_link = function(anchor_href){
+    var href_array = anchor_href.split("/files");
+    return href_array[0]+href_array[1]
+
+
 };
 
 var getCollectionURL = function() {
