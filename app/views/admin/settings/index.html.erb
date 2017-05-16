@@ -11,6 +11,30 @@
 
 <%= form_tag(admin_settings_path, method: :patch) do %>
 
+  <h2>Status</h2>
+
+  <table class="table">
+    <tr>
+      <td><%= label_tag("options[#{Option::Key::SERVER_STATUS}]",
+                        'Status') %></td>
+      <td>
+        <%= select_tag("options[#{Option::Key::SERVER_STATUS}]",
+                       options_for_select(@status_options,
+                                          Option::string(Option::Key::SERVER_STATUS))) %>
+      </td>
+    </tr>
+
+    <tr>
+      <td><%= label_tag("options[#{Option::Key::SERVER_STATUS_MESSAGE}]",
+                        'Status Message') %></td>
+      <td>
+        <%= text_area_tag("options[#{Option::Key::SERVER_STATUS_MESSAGE}]",
+                          Option::string(Option::Key::SERVER_STATUS_MESSAGE),
+                          class: 'form-control') %>
+      </td>
+    </tr>
+  </table>
+
   <h2>General</h2>
 
   <table class="table">
@@ -69,7 +93,7 @@
         <%= label_tag("options[#{Option::Key::WEBSITE_INTRO_TEXT}]",
                       'Introductory Text') %>
         <p class="info">Appears on the <%= link_to 'landing page', root_url %>.
-          The following HTML tags are supported: <code>&lt;br&gt;</code>
+          The following HTML tags are allowed: <code>&lt;br&gt;</code>
           <code>&lt;p&gt;</code></p>
       </td>
       <td>
