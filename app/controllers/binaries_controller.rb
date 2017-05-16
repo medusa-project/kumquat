@@ -10,7 +10,12 @@ class BinariesController < WebsiteController
   # Responds to GET /binaries/:id
   #
   def show
-    send_file(@binary.absolute_local_pathname)
+    if Option::string(Option::Key::SERVER_STATUS) == 'storage_offline'
+      render text: Option::string(Option::Key::SERVER_STATUS_MESSAGE),
+             status: :service_unavailable
+    else
+      send_file(@binary.absolute_local_pathname)
+    end
   end
 
   private
