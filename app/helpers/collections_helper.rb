@@ -42,12 +42,15 @@ module CollectionsHelper
     thumb_size = 500
     html = ''
     collections.each do |col|
-      begin
-        # If the reference to the binary is invalid (for example, an invalid
-        # UUID has been entered), this will raise an error.
-        bs = col.representative_image_binary
-      rescue => e
-        CustomLogger.instance.warn("collections_as_cards(): #{e} (#{col})")
+      bs = nil
+      if Option::string(Option::Key::SERVER_STATUS) != 'storage_offline'
+        begin
+          # If the reference to the binary is invalid (for example, an invalid
+          # UUID has been entered), this will raise an error.
+          bs = col.representative_image_binary
+        rescue => e
+          CustomLogger.instance.warn("collections_as_cards(): #{e} (#{col})")
+        end
       end
       if bs
         img_url = binary_image_url(bs, thumb_size, :square)

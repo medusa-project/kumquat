@@ -30,6 +30,9 @@ class WebsiteController < ApplicationController
     @elements_for_select = profile_elements.where(searchable: true).
         order(:label).map{ |ed| [ ed.label, ed.solr_multi_valued_field ] }
     @elements_for_select.unshift([ 'Any Field', Item::SolrFields::SEARCH_ALL ])
+
+    @storage_offline =
+        (Option::string(Option::Key::SERVER_STATUS) == 'storage_offline')
   end
 
   protected
