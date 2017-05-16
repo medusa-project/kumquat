@@ -28,6 +28,13 @@
     <%= render 'layouts/header' %>
 
     <div class="container-fluid">
+      <% if Option::string(Option::Key::SERVER_STATUS) != 'online' %>
+        <div class="pt-flash alert alert-warning">
+          <i class="fa fa-warning"></i>
+          <%= Option::string(Option::Key::SERVER_STATUS_MESSAGE) %>
+        </div>
+      <% end %>
+
       <% flash.each do |type, message| %>
         <div class="pt-flash alert alert-dismissable <%= bootstrap_class_for(type) %>">
           <button type="button" class="close" data-dismiss="alert"
