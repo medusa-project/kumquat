@@ -28,7 +28,8 @@
     <%= render 'layouts/header' %>
 
     <div class="container-fluid">
-      <% if Option::string(Option::Key::SERVER_STATUS) != 'online' %>
+      <% if Option::string(Option::Key::SERVER_STATUS) != 'online' and
+          Option::string(Option::Key::SERVER_STATUS_MESSAGE).present? %>
         <div class="pt-flash alert alert-warning">
           <i class="fa fa-warning"></i>
           <%= Option::string(Option::Key::SERVER_STATUS_MESSAGE) %>
