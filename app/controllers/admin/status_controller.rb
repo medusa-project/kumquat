@@ -1,13 +1,13 @@
 module Admin
 
-  class ServerController < ControlPanelController
+  class StatusController < ControlPanelController
 
     def index
     end
 
     ##
-    # Responds to GET /admin/server/image-server-status with either HTTP 200
-    # or 503
+    # Responds to GET /admin/status/image-server with either HTTP 200
+    # or 503.
     #
     def image_server_status
       config = ::Configuration.instance
@@ -25,8 +25,8 @@ module Admin
     end
 
     ##
-    # Responds to GET /admin/server/search-server-status with either HTTP 200
-    # or 503
+    # Responds to GET /admin/status/search-server with either HTTP 200
+    # or 503.
     #
     def search_server_status
       solr = Solr.instance
