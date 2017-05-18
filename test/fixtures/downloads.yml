@@ -1,0 +1,7 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  key: <%= SecureRandom.hex %>
+  filename: bogus.zip
+  percent_complete: 0.0
+  status: 0
