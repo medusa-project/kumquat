@@ -6,7 +6,7 @@ var PTDownloadView = function() {
     var init = function() {
         setTimeout(function() {
             window.location.reload();
-        }, 5000);
+        }, 10000);
     };
     init();
 
