@@ -148,8 +148,9 @@ module AdminHelper
     html = '<ul>'
     html += "  <li><strong>#{icon_for(item)} #{item.title}</strong>"
     subitems = item.items_from_solr.
-        order(Item::SolrFields::PAGE_NUMBER, Item::SolrFields::TITLE).
-        limit(9999).to_a
+        order(Item::SolrFields::PAGE_NUMBER,
+              Item::SolrFields::REPRESENTATIVE_FILENAME,
+              Item::SolrFields::TITLE).limit(9999).to_a
     if subitems.any?
       html += '  <ul>'
       subitems.each do |child|
