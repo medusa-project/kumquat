@@ -236,6 +236,12 @@ class ItemTest < ActiveSupport::TestCase
     assert @item.valid?
   end
 
+  # representative_filename()
+
+  test 'representative_filename() should return the representative filename' do
+    assert_equal '1601831_001', @item.representative_filename
+  end
+
   # representative_item()
 
   test 'representative_item() should return nil when
@@ -499,6 +505,8 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal @item.primary_media_category,
                  doc[Item::SolrFields::PRIMARY_MEDIA_CATEGORY]
     assert_equal @item.published, doc[Item::SolrFields::PUBLISHED]
+    assert_equal @item.representative_filename,
+                 doc[Item::SolrFields::REPRESENTATIVE_FILENAME]
     assert_equal @item.representative_item_repository_id,
                  doc[Item::SolrFields::REPRESENTATIVE_ITEM_ID]
     assert_equal @item.subpage_number, doc[Item::SolrFields::SUBPAGE_NUMBER]
