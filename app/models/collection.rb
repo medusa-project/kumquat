@@ -269,30 +269,34 @@ class Collection < ActiveRecord::Base
   #                  not customizable.
   #
   def items_as_tsv(options = {})
+    # N.B. The return value must remain in sync with that of Item.tsv_header().
     # We use a PostgreSQL query because going through ActiveRecord (which we
     # used to do via Item.to_tsv() in a loop) is just too slow.
-    # N.B. The return value must remain in sync with that of Item.tsv_header().
 
     element_subselects = []
-    self.effective_metadata_profile.elements.each do |ed|
-      subselects = []
-      ed.vocabularies.sort{ |v| v.key <=> v.key }.each do |vocab|
-        vocab_id = (vocab == Vocabulary.uncontrolled) ?
-            "IS NULL OR entity_elements.vocabulary_id = #{Vocabulary.uncontrolled.id}" : "= #{vocab.id}"
-        subselects << "          array_to_string(
-            array(
-              SELECT replace(replace(coalesce(value, '') || '#{Item::TSV_URI_VALUE_SEPARATOR}<' || coalesce(uri, '') || '>', '#{Item::TSV_URI_VALUE_SEPARATOR}<>', ''), '||#{Item::TSV_URI_VALUE_SEPARATOR}', '')
-              FROM entity_elements
-              WHERE entity_elements.item_id = items.id
-                AND (entity_elements.vocabulary_id #{vocab_id})
-                AND entity_elements.name = '#{ed.name}'
-                AND (value IS NOT NULL OR uri IS NOT NULL)
-                AND (length(value) > 0 OR length(uri) > 0)
-            ), '#{Item::TSV_MULTI_VALUE_SEPARATOR}') AS #{vocab.key}_#{ed.name}"
+    metadata_profile = self.effective_metadata_profile
+    if metadata_profile
+      metadata_profile.elements.each do |ed|
+        subselects = []
+        ed.vocabularies.sort{ |v| v.key <=> v.key }.each do |vocab|
+          vocab_id = (vocab == Vocabulary.uncontrolled) ?
+              "IS NULL OR entity_elements.vocabulary_id = #{Vocabulary.uncontrolled.id}" : "= #{vocab.id}"
+          subselects << "          array_to_string(
+              array(
+                SELECT replace(replace(coalesce(value, '') || '#{Item::TSV_URI_VALUE_SEPARATOR}<' || coalesce(uri, '') || '>', '#{Item::TSV_URI_VALUE_SEPARATOR}<>', ''), '||#{Item::TSV_URI_VALUE_SEPARATOR}', '')
+                FROM entity_elements
+                WHERE entity_elements.item_id = items.id
+                  AND (entity_elements.vocabulary_id #{vocab_id})
+                  AND entity_elements.name = '#{ed.name}'
+                  AND (value IS NOT NULL OR uri IS NOT NULL)
+                  AND (length(value) > 0 OR length(uri) > 0)
+              ), '#{Item::TSV_MULTI_VALUE_SEPARATOR}') AS #{vocab.key}_#{ed.name}"
+        end
+        element_subselects << subselects.join(",\n") if subselects.any?
       end
-      element_subselects << subselects.join(",\n") if subselects.any?
     end
-    element_subselects = element_subselects.join(",\n")
+    element_subselects = element_subselects.any? ?
+        ',' + element_subselects.join(",\n") : ''
 
     sql = "SELECT * FROM (
       SELECT items.repository_id,
@@ -355,7 +359,7 @@ class Collection < ActiveRecord::Base
         (SELECT COUNT(id)
           FROM entity_elements
           WHERE entity_elements.item_id = items.id
-            AND entity_elements.name != 'title') AS non_title_count,
+            AND entity_elements.name != 'title') AS non_title_count
         #{element_subselects}
       FROM items
       WHERE items.collection_repository_id = $1
