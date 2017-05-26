@@ -318,7 +318,24 @@ body#items_index, body#items_show {
     }
   }
 }
-
+body#items_index {
+  #collection-tree-row{
+    height:550px;
+    border-style: solid;
+    border-color: #dddddd;
+  }
+  #jstree {
+    //width:400px;
+    max-height:545px;
+    height:545px;
+    border-right-style: solid;
+    border-right-color: #dddddd;
+  }
+  #item-info {
+    max-height: 545px;
+    height: 545px;
+  }
+}
 .pagination {
   > li > a {
     color: rgb(4, 74, 136);
