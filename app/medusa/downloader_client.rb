@@ -9,16 +9,11 @@ class DownloaderClient
   ##
   # @param items [Enumerable<Item>]
   # @param zip_name [String]
-  # @param package_profile [PackageProfile] Determines the directory layout of
-  #                                         the items within the zip file.
-  #                                         Only
-  #                                         PackageProfile::FREE_FORM_PROFILE
-  #                                         is treated any differently.
   # @return [String] Download URL to redirect to.
   # @raises [ArgumentError] If illegal arguments have been supplied.
   # @raises [IOError] If there is an error communicating with the downloader.
   #
-  def download_url(items, zip_name, package_profile = nil)
+  def download_url(items, zip_name)
     if !items.respond_to?(:each)
       raise ArgumentError, 'Invalid items argument.'
     elsif items.length < 1
@@ -33,7 +28,7 @@ class DownloaderClient
         targets.push({
                          'type': 'file',
                          'path': binary.repository_relative_pathname,
-                         'zip_path': zip_dirname(binary, package_profile)
+                         'zip_path': zip_dirname(binary)
                      })
       end
     end
@@ -68,25 +63,12 @@ class DownloaderClient
 
   ##
   # @param binary [Binary]
-  # @param package_profile [PackageProfile]
   # @return [String] Path of the given binary within the zip file.
   #
-  def zip_dirname(binary, package_profile)
-    case package_profile
-      when PackageProfile::FREE_FORM_PROFILE
-        # Preserve the binary's pathname starting at its collection's effective
-        # root pathname.
-        root = binary.item.collection.effective_medusa_cfs_directory.
-            repository_relative_pathname
-        return File.dirname(binary.repository_relative_pathname.gsub(/^#{root}/, ''))
-      else
-        item_dirname = '/' + (binary.item.bib_id || binary.item.repository_id)
-        type_path = (binary.master_type == Binary::MasterType::PRESERVATION) ?
-            '/preservation' : '/access'
-        category_path = binary.media_category.present? ?
-            "/#{binary.human_readable_media_category.downcase}" : ''
-        return item_dirname + type_path + category_path
-    end
+  def zip_dirname(binary)
+    root = binary.item.collection.effective_medusa_cfs_directory.
+        repository_relative_pathname
+    File.dirname(binary.repository_relative_pathname.gsub(/^#{root}/, ''))
   end
 
 end

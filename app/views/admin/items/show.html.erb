@@ -67,7 +67,8 @@
 
 <% if @item.parent %>
   <h1 class="pt-compound-title">
-    <small><%= link_to @item.parent.title, @item.parent %></small>
+    <small><%= link_to @item.parent.title,
+                       admin_collection_item_path(@item.parent.collection, @item.parent) %></small>
     <br>&nbsp;&nbsp;&#8627; <%= @item.title %>
   </h1>
 <% else %>

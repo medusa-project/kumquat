@@ -13,6 +13,8 @@ class Option < ActiveRecord::Base
     OAI_PMH_ENABLED = 'oai_pmh.enabled'
     ORGANIZATION_NAME = 'organization.name'
     RESULTS_PER_PAGE = 'website.results_per_page'
+    SERVER_STATUS = 'status'
+    SERVER_STATUS_MESSAGE = 'status_message'
     WEBSITE_NAME = 'website.name'
   end
 

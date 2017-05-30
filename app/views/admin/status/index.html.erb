@@ -1,5 +1,5 @@
-<% provide :title, 'Server' %>
-<% provide :body_id, 'server' %>
+<% provide :title, 'Server Status' %>
+<% provide :body_id, 'status' %>
 <% provide :active_nav, 'server' %>
 
 <ol class="breadcrumb">
@@ -16,7 +16,10 @@
       <div class="panel-heading">
         <h3 class="panel-title">
           PearTree
-          <span class="label label-success label-sm pt-service-status">Online</span>
+          <%= admin_label_for_server_status %>
+          <%= link_to admin_settings_path, class: 'btn btn-xs btn-default' do %>
+            <i class="fa fa-pencil"></i> Edit
+          <% end %>
         </h3>
       </div>
       <div class="panel-body">
@@ -42,7 +45,7 @@
         <h3 class="panel-title">
           Search Server
           <span class="label label-success pt-service-status hidden"
-                data-check="<%= admin_server_search_server_status_url %>"></span>
+                data-check="<%= admin_search_server_status_url %>"></span>
         </h3>
       </div>
       <div class="panel-body">
@@ -61,7 +64,7 @@
         <h3 class="panel-title">
           Image Server
           <span class="label label-success pt-service-status hidden"
-                data-check="<%= admin_server_image_server_status_url %>"></span>
+                data-check="<%= admin_image_server_status_url %>"></span>
         </h3>
       </div>
       <div class="panel-body">

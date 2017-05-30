@@ -1012,25 +1012,28 @@ module ItemsHelper
   # @return [String]
   #
   def thumbnail_tag(entity, size = DEFAULT_THUMBNAIL_SIZE, shape = :default)
+    html = ''
     url = nil
-    if entity.kind_of?(Binary)
-      url = binary_image_url(entity, size, shape)
-    elsif entity.kind_of?(Collection)
-      bs = entity.representative_image_binary
-      if bs
-        url = binary_image_url(bs, size, shape)
+    if Option::string(Option::Key::SERVER_STATUS) != 'storage_offline'
+      if entity.kind_of?(Binary)
+        url = binary_image_url(entity, size, shape)
+      elsif entity.kind_of?(Collection)
+        bs = entity.representative_image_binary
+        if bs
+          url = binary_image_url(bs, size, shape)
+        end
+      elsif entity.kind_of?(Item)
+        url = iiif_image_url(entity, size, shape)
       end
-    elsif entity.kind_of?(Item)
-      url = iiif_image_url(entity, size, shape)
     end
 
-    html = ''
     if url
       # No alt because it may appear in a huge font size if the image is 404.
       html += image_tag(url, class: 'pt-thumbnail', alt: '')
     else
       html += icon_for(entity) # ApplicationHelper
     end
+
     raw(html)
   end
 
