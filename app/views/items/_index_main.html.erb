@@ -11,26 +11,9 @@
   </div>
   <div class="col-xs-6">
     <%= render partial: 'index_button_group' %>
-      <!-- Download menu, disabled in cross-collection contexts to limit the
-      downloading of huge amounts of content. -->
-      <% if @collection and client_supports_zip_download? %>
-          <div class="btn-group">
-            <button type="button" class="btn btn-default dropdown-toggle"
-                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              <i class="fa fa-download"></i> Download <span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu dropdown-menu-right">
-              <li>
-                <%= link_to('', 'data-toggle': 'modal', 'data-target': '#pt-download-zip-modal') do %>
-                    <i class="fa fa-file-zip-o"></i>&nbsp;&nbsp;Zip File&hellip;
-                <% end %>
-              </li>
-            </ul>
-          </div>
-      <% end %>
-    </div>
   </div>
 </div>
+
 
 <div class="panel panel-default pt-results-summary">
   <div class="panel-body">
