@@ -433,13 +433,7 @@ var PTItemsView = function() {
                     }
                 }
             }).bind("select_node.jstree", function (e, data) {
-                $.ajax({
-                    url: build_node_url(data),
-                    method: 'GET',
-                    success: function(result) {
-                        tree_node_callback(result);
-                    }
-                })
+                get_item_info(build_node_url(data));
             });
         }
 
@@ -475,7 +469,6 @@ var tree_node_callback = function (result) {
             url: get_pagination_link(this.getAttribute("href")),
             method: "GET",
             success: function(result) {
-                console.log(result)
                 tree_node_callback(result)
             }
 
@@ -483,11 +476,19 @@ var tree_node_callback = function (result) {
     });
 };
 var trigger_root_node = function(){
-    var root_node_id = $("[name='root-collection-node']").attr("id");
-    console.log(root_node_id);
-    $('#jstree').jstree('select_node', root_node_id);
-
+    get_item_info('/collections/'+window.location.pathname.split("/")[2]+'/tree.html?ajax=true');
 };
+
+var get_item_info = function(ajax_url){
+    $.ajax({
+        url: ajax_url,
+        method: 'GET',
+        success: function(result) {
+            tree_node_callback(result);
+        }
+    })
+};
+
 var get_pagination_link = function(anchor_href){
     var href_array = anchor_href.split("/files");
     return href_array[0]+href_array[1]
@@ -510,7 +511,6 @@ var ready = function() {
     }
     if ($('#jstree').length){
         trigger_root_node();
-        $("a[name=root-collection-node]").trigger("click");
     }
 };
 
