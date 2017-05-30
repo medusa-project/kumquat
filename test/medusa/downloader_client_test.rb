@@ -23,20 +23,11 @@ class DownloaderClientTest < ActiveSupport::TestCase
 
   # zip_dirname()
 
-  test 'zip_dirname() should return the correct path for the free-form
-  package profile' do
+  test 'zip_dirname() should return the correct path' do
     item = items(:illini_union_dir1_file1)
     binary = item.binaries.select{ |b| b.master_type == Binary::MasterType::ACCESS }.first
     assert_equal '/3707005/access/online/Illini_Union_Photographs/binder_5/banquets',
-                 @instance.send(:zip_dirname, binary, PackageProfile::FREE_FORM_PROFILE)
-  end
-
-  test 'zip_dirname() should return the correct path for all other package
-  profiles' do
-    item = items(:illini_union_dir1_file1)
-    binary = item.binaries.select{ |b| b.master_type == Binary::MasterType::ACCESS }.first
-    assert_equal "/#{item.repository_id}/access/image",
-                 @instance.send(:zip_dirname, binary, PackageProfile::COMPOUND_OBJECT_PROFILE)
+                 @instance.send(:zip_dirname, binary)
   end
 
 end
