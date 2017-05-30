@@ -351,7 +351,6 @@ class ItemsController < WebsiteController
             if @item.items.any?
               items = @item.all_files
               zip_name = 'files'
-              profile = PackageProfile::FREE_FORM_PROFILE
             else
               flash['error'] = 'This directory is empty.'
               redirect_to :back
@@ -359,9 +358,8 @@ class ItemsController < WebsiteController
           else
             items = @item.items.any? ? @item.items : [@item]
             zip_name = 'item'
-            profile = nil
           end
-          download_url = client.download_url(items, zip_name, profile)
+          download_url = client.download_url(items, zip_name)
         rescue => e
           flash['error'] = "#{e}"
           redirect_to :back

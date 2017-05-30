@@ -162,11 +162,11 @@ Rails.application.routes.draw do
     match '/metadata-profiles/import', to: 'metadata_profiles#import',
           via: :post, as: 'metadata_profile_import'
     resources :roles, param: :key
-    match '/server', to: 'server#index', via: :get
-    match '/server/image-server-status', to: 'server#image_server_status',
-          via: :get, as: 'server_image_server_status'
-    match '/server/search-server-status', to: 'server#search_server_status',
-          via: :get, as: 'server_search_server_status'
+    match '/status', to: 'status#index', via: :get
+    match '/status/image-server', to: 'status#image_server_status',
+          via: :get, as: 'image_server_status'
+    match '/status/search-server', to: 'status#search_server_status',
+          via: :get, as: 'search_server_status'
     match '/settings', to: 'settings#index', via: :get
     match '/settings', to: 'settings#update', via: :patch
     match '/statistics', to: 'statistics#index', via: :get

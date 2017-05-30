@@ -41,14 +41,14 @@ var PTServerStatusMonitor = function() {
 var monitor;
 
 var ready = function() {
-    if ($('body#server').length) {
+    if ($('body#status').length) {
         monitor = new PTServerStatusMonitor();
         monitor.start();
     }
 };
 
 var teardown = function() {
-    if ($('body#server').length && monitor) {
+    if ($('body#status').length && monitor) {
         monitor.stop();
     }
 };
