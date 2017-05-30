@@ -345,6 +345,9 @@ class ItemsController < WebsiteController
           fresh_when(etag: @items) if Rails.env.production?
           session[:first_result_id] = @items.first&.repository_id
           session[:last_result_id] = @items.last&.repository_id
+          if params["ajax"]=="true"
+            render "tree_root", layout: false
+          end
         else
           redirect_to collection_items_path()
         end
@@ -442,8 +445,10 @@ class ItemsController < WebsiteController
 
   def create_tree_root(tree_hash_array, collection)
     node_hash = Hash.new
-    node_hash["id"]="#"
+    node_hash["id"]=collection.repository_id
     node_hash["text"]=collection.title
+    node_hash["state"] = {:opened => true, :selected => true}
+    node_hash["a_attr"] = {:name => "root-collection-node"}
     node_hash["children"]=tree_hash_array
     node_hash
   end

@@ -434,14 +434,14 @@ var PTItemsView = function() {
                 }
             }).bind("select_node.jstree", function (e, data) {
                 $.ajax({
-                    url: '/items/' + data.node.id + '.html?ajax=true',
+                    url: build_node_url(data),
                     method: 'GET',
                     success: function(result) {
                         tree_node_callback(result);
                     }
                 })
             });
-        };
+        }
 
     };
 
@@ -451,6 +451,13 @@ var PTItemsView = function() {
     };
 };
 
+
+var build_node_url = function(data){
+  if (data.node.a_attr["name"]==="root-collection-node"){
+      return '/collections/' + data.node.id + '/tree.html?ajax=true';
+  }
+  return '/items/' + data.node.id + '.html?ajax=true';
+};
 var tree_node_callback = function (result) {
     $('#item-info').html(result);
     $('#item-info ol.breadcrumb').remove();
@@ -475,7 +482,12 @@ var tree_node_callback = function (result) {
         });
     });
 };
+var trigger_root_node = function(){
+    var root_node_id = $("[name='root-collection-node']").attr("id");
+    console.log(root_node_id);
+    $('#jstree').jstree('select_node', root_node_id);
 
+};
 var get_pagination_link = function(anchor_href){
     var href_array = anchor_href.split("/files");
     return href_array[0]+href_array[1]
@@ -495,6 +507,10 @@ var ready = function() {
     } else if ($('body#items_show').length) {
         PearTree.view = new PTItemView();
         PearTree.view.init();
+    }
+    if ($('#jstree').length){
+        trigger_root_node();
+        $("a[name=root-collection-node]").trigger("click");
     }
 };
 
