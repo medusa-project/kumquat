@@ -103,7 +103,6 @@ Rails.application.routes.draw do
   resources :favorites, only: :index
   resources :items, only: [:index, :show] do
     match '/treedata', to: 'items#item_tree_node', via: [:get, :post]
-    match '/ajax_html', to: 'items#item_ajax_html', via: :get
     match '/binaries/:filename', to: 'items#binary', via: :get, as: 'binary'
     match '/files', to: 'items#files', via: :get, as: 'files'
     # IIIF Presentation API 2.1 routes
