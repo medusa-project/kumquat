@@ -134,15 +134,16 @@
 
 <% if (@previous_result or @next_result or session[:browse_context_url] or
   @item.supplementary_item or @item.three_d_item) and !@storage_offline %>
-  <% bin = @item.supplementary_item&.effective_viewer_binary %>
+  <% supp_item = @item.supplementary_item %>
+  <% supp_bin = supp_item&.effective_viewer_binary %>
   <div style="margin-bottom:16px">
     <% # DLD-6: button that pops open the supplementary section is aligned to
        # the right of the nav buttons %>
     <div style="float:right">
-      <% if bin %>
+      <% if supp_bin %>
         <a role="button" class="btn btn-default btn-sm" data-toggle="collapse"
-           href="#pt-binary-<%= bin.id %>"
-           aria-expanded="false" aria-controls="pt-binary-<%= bin.id %>">
+           href="#pt-binary-<%= supp_bin.id %>"
+           aria-expanded="false" aria-controls="pt-binary-<%= supp_bin.id %>">
           <i class="fa fa-plus-square-o"></i> Supplementary File</a>
       <% end %>
       <% if @item.three_d_item %>
@@ -159,9 +160,16 @@
     </div>
   </div>
 
-  <% if bin %>
-    <div id="pt-binary-<%= bin.id %>" class="collapse">
-      <%= viewer_for_binary(bin) %>
+  <% if supp_bin %>
+    <div id="pt-binary-<%= supp_bin.id %>" class="collapse">
+      <div class="row">
+        <div class="col-sm-9">
+          <%= viewer_for_binary(supp_bin) %>
+        </div>
+        <div class="col-sm-3">
+          <%= metadata_as_list(supp_item) %>
+        </div>
+      </div>
     </div>
   <% end %>
   <% if @item.three_d_item %>
