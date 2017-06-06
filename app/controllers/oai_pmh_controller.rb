@@ -213,6 +213,7 @@ class OaiPmhController < ApplicationController
     end
 
     # Verb-specific argument validation
+    required_args = allowed_args = nil
     case params[:verb]
       when 'GetRecord' # 4.1
         required_args = allowed_args = %w(identifier metadataPrefix)
