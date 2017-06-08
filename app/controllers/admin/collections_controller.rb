@@ -28,8 +28,8 @@ module Admin
           start(@start).limit(@limit)
       # Will be true when searching/filtering.
       if params[:published].present?
-        where = "(*#{params[:q].gsub(' ', '*')}*)"
-        @collections = @collections.where("#{Collection::SolrFields::TITLE}:#{where}").
+        @collections = @collections.
+            where("(*#{params[:q].gsub(' ', '*')}*)").
             filter(Collection::SolrFields::PUBLISHED =>
                        params[:published].to_s == '1' ? true : false).
             filter(Collection::SolrFields::PUBLISHED_IN_DLS =>

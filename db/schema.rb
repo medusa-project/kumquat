@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170531144224) do
+ActiveRecord::Schema.define(version: 20170608153727) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -130,8 +130,10 @@ ActiveRecord::Schema.define(version: 20170531144224) do
     t.string   "contentdm_alias"
     t.string   "physical_collection_url"
     t.boolean  "harvestable",              default: false
+    t.string   "external_id"
   end
 
+  add_index "collections", ["external_id"], name: "index_collections_on_external_id", using: :btree
   add_index "collections", ["harvestable"], name: "index_collections_on_harvestable", using: :btree
   add_index "collections", ["metadata_profile_id"], name: "index_collections_on_metadata_profile_id", using: :btree
   add_index "collections", ["published"], name: "index_collections_on_published", using: :btree

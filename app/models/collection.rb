@@ -33,6 +33,7 @@
 #                             N.B. There may also be a description element in
 #                             the `elements` relationship containing a plain
 #                             text description, also copied from Medusa.
+# * external_id:              Value of the Medusa "external ID" field.
 # * harvestable:              Controls visiblity of the collection's contents
 #                             in the OAI-PMH (or whatever) harvesting
 #                             endpoints.
@@ -86,6 +87,7 @@ class Collection < ActiveRecord::Base
     DENIED_ROLES = 'denied_roles_sim'
     DESCRIPTION = 'description_txti'
     DESCRIPTION_HTML = 'description_html_txti'
+    EXTERNAL_ID = 'external_id_si'
     HARVESTABLE = 'harvestable_bi'
     ID = 'id'
     LAST_INDEXED = 'last_indexed_dti'
@@ -730,6 +732,7 @@ class Collection < ActiveRecord::Base
     doc[SolrFields::ACCESS_URL] = self.access_url
     doc[SolrFields::DESCRIPTION] = self.description
     doc[SolrFields::DESCRIPTION_HTML] = self.description_html
+    doc[SolrFields::EXTERNAL_ID] = self.external_id
     doc[SolrFields::HARVESTABLE] = self.harvestable
 
     # Copy description and title into a "metadata" field in order to have Solr
@@ -779,6 +782,7 @@ class Collection < ActiveRecord::Base
         self.elements.build(name: 'description', value: struct['description'])
       end
       self.description_html = struct['description_html']
+      self.external_id = struct['external_id']
       self.medusa_repository_id = struct['repository_path'].gsub(/[^0-9+]/, '').to_i
       self.physical_collection_url = struct['physical_collection_url']
       self.published = struct['publish']
