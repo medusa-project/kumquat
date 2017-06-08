@@ -36,8 +36,11 @@ var PTControlPanel = function() {
             }
         });
 
-        $(document).ajaxError(function(event, request) {
-            console.log('ajaxError');
+        $(document).ajaxError(function(event, request, settings, error) {
+            console.error(event);
+            console.error(request);
+            console.error(settings);
+            console.error(error);
         });
     };
 
