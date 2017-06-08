@@ -593,6 +593,7 @@ class CollectionTest < ActiveSupport::TestCase
                  doc[Collection::SolrFields::DENIED_ROLES].sort
     assert_equal @collection.description, doc[Collection::SolrFields::DESCRIPTION]
     assert_equal @collection.description_html, doc[Collection::SolrFields::DESCRIPTION_HTML]
+    assert_equal @collection.external_id, doc[Collection::SolrFields::EXTERNAL_ID]
     assert_equal @collection.harvestable, doc[Collection::SolrFields::HARVESTABLE]
     assert_equal @collection.description, doc[Collection::SolrFields::METADATA_DESCRIPTION]
     assert_equal @collection.title, doc[Collection::SolrFields::METADATA_TITLE]
