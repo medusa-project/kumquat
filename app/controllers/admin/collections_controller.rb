@@ -39,6 +39,7 @@ module Admin
 
       respond_to do |format|
         format.html
+        format.js
         format.tsv do
           download = Download.create
           DownloadAllTsvJob.perform_later(download)
