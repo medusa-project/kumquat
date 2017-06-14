@@ -125,6 +125,7 @@ class Item < ActiveRecord::Base
     PARENT_ITEM = 'parent_item_si'
     PRIMARY_MEDIA_CATEGORY = 'primary_media_category_ii'
     PUBLISHED = 'published_bi'
+    REPRESENTATIVE_FILENAME = 'representative_filename_si'
     REPRESENTATIVE_ITEM_ID = 'representative_item_id_si'
     SEARCH_ALL = 'searchall_natsort_en_im'
     SUBPAGE_NUMBER = 'subpage_number_ii'
@@ -810,6 +811,16 @@ class Item < ActiveRecord::Base
   end
 
   ##
+  # @return [String]
+  #
+  def representative_filename
+    bin = self.binaries.where('repository_relative_pathname IS NOT NULL').
+        where('media_category != ?', Binary::MediaCategory::THREE_D).
+        order(:master_type).limit(1).first
+    bin&.filename&.split('.')&.first
+  end
+
+  ##
   # @return [Item, nil] The instance's assigned representative item, which may
   #                     be nil. For the purposes of getting "the"
   #                     representative item, `effective_representative_item`
@@ -943,6 +954,7 @@ class Item < ActiveRecord::Base
     doc[SolrFields::PARENT_ITEM] = self.parent_repository_id
     doc[SolrFields::PRIMARY_MEDIA_CATEGORY] = self.primary_media_category
     doc[SolrFields::PUBLISHED] = self.published
+    doc[SolrFields::REPRESENTATIVE_FILENAME] = self.representative_filename
     doc[SolrFields::REPRESENTATIVE_ITEM_ID] = self.representative_item_repository_id
     doc[SolrFields::SUBPAGE_NUMBER] = self.subpage_number
     doc[SolrFields::TITLE] = self.title
