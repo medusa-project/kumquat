@@ -12,7 +12,7 @@ class ContentdmController < ApplicationController
   # Responds to GET /cdm4/browse.php
   #
   def v4_collection
-    col = Collection.find_by_contentdm_alias(params[:CISOROOT])
+    col = Collection.find_by_contentdm_alias(sanitize_alias(params[:CISOROOT]))
     if col
       redirect_to collection_url(col), status: 301
     else
@@ -41,7 +41,7 @@ class ContentdmController < ApplicationController
     if identifier
       parts = identifier.split(',')
       if parts.length == 2
-        redirect_to_best_match(parts[0].gsub(/[^0-9A-Za-z]/i, ''), parts[1].to_i)
+        redirect_to_best_match(sanitize_alias(parts[0]), parts[1].to_i)
         return
       end
     end
@@ -79,6 +79,7 @@ class ContentdmController < ApplicationController
   private
 
   def redirect_to_best_match(alias_, pointer)
+    alias_ = sanitize_alias(alias_)
     item = Item.where(contentdm_alias: alias_,
                       contentdm_pointer: pointer).limit(1).first
     if item
@@ -98,6 +99,10 @@ class ContentdmController < ApplicationController
         end
       end
     end
+  end
+
+  def sanitize_alias(alias_)
+    alias_.gsub(/[^A-Za-z0-9_]/i, '')
   end
 
 end
