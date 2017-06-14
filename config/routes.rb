@@ -95,6 +95,9 @@ Rails.application.routes.draw do
     match '/presentation', to: 'collections#iiif_presentation', via: :get,
           as: 'iiif_presentation'
   end
+  resources :downloads, only: :show, param: :key do
+    match '/file', to: 'downloads#file', via: :get, as: 'file'
+  end
   resources :favorites, only: :index
   resources :items, only: [:index, :show] do
     match '/binaries/:filename', to: 'items#binary', via: :get, as: 'binary'

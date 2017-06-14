@@ -36,6 +36,16 @@ module Admin
                        params[:published_in_dls].to_s == '1' ? true : false)
       end
       @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
+
+      respond_to do |format|
+        format.html
+        format.js
+        format.tsv do
+          download = Download.create
+          DownloadAllTsvJob.perform_later(download)
+          redirect_to download_url(download)
+        end
+      end
     end
 
     ##

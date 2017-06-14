@@ -1,0 +1,16 @@
+<% provide(:body_id, 'preparing_download') %>
+
+<% percent = (@download.percent_complete * 100).round %>
+
+<p>Your file is being prepared. When it's ready, a download button will appear
+  below.</p>
+
+<div class="progress">
+  <div class="progress-bar progress-bar-success progress-bar-striped active"
+       role="progressbar" aria-valuenow="<%= percent %>"
+       aria-valuemin="0" aria-valuemax="100" style="width: <%= percent %>%">
+    <span class="sr-only"><%= percent %>% complete</span>
+  </div>
+</div>
+
+<p id="pt-progress-percent" class="text-success"><%= percent %>%</p>

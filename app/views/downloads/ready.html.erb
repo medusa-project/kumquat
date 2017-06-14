@@ -1,0 +1,7 @@
+<% provide(:body_id, 'download_ready') %>
+
+<p>Your file is ready.</p>
+
+<%= link_to download_file_url(@download), class: 'btn btn-lg btn-success' do %>
+  <i class="fa fa-download"></i> Download
+<% end %>
