@@ -38,6 +38,8 @@ class Download < ActiveRecord::Base
   before_create :assign_key
   after_destroy :delete_file
 
+  DOWNLOADS_DIRECTORY = File.join(Rails.root, 'tmp', 'downloads')
+
   ##
   # @param max_age_seconds [Integer]
   # @return [void]
@@ -60,7 +62,7 @@ class Download < ActiveRecord::Base
   # @return [String]
   #
   def pathname
-    File.join(Rails.root, 'tmp', 'downloads', self.filename)
+    File.join(DOWNLOADS_DIRECTORY, self.filename)
   end
 
   ##
