@@ -66,22 +66,50 @@ Rails.application.routes.draw do
   match '/404', to: 'errors#not_found', via: :all
   match '/500', to: 'errors#internal_server_error', via: :all
 
-  # Intercept CONTENTdm reference URLs for redirection.
+  # Intercept v4 CONTENTdm reference URLs.
+  match '/u',
+        to: 'contentdm#v4_reference_url', via: :all
+  # Intercept v6 CONTENTdm reference URLs.
   match '/cdm/ref/collection/:alias/:pointer',
-        to: 'contentdm#redirect_to_dls_item', via: :all
+        to: 'contentdm#v6_item', via: :all
   match '/cdm/ref/collection/:alias/id/:pointer',
-        to: 'contentdm#redirect_to_dls_item', via: :all
-  # Intercept CONTENTdm single-item URLs for redirection.
+        to: 'contentdm#v6_item', via: :all
+  # Intercept v4 CONTENTdm single-item URLs.
+  match '/cdm4/item_viewer.php',
+        to: 'contentdm#v4_item', via: :all
+  # Intercept v6 CONTENTdm single-item URLs.
   match '/cdm/singleitem/collection/:alias/id/:pointer',
-        to: 'contentdm#redirect_to_dls_item', via: :all
+        to: 'contentdm#v6_item', via: :all
   match '/cdm/singleitem/collection/:alias/id/:pointer/rec/:noop',
-        to: 'contentdm#redirect_to_dls_item', via: :all
-  # Intercept CONTENTdm compound object URLs for redirection.
+        to: 'contentdm#v6_item', via: :all
+  # Intercept v4 CONTENTdm compound object URLs.
+  match '/cdm4/document.php',
+        to: 'contentdm#v4_item', via: :all
+  # Intercept v6 CONTENTdm compound object URLs.
   match '/cdm/compoundobject/collection/:alias/id/:pointer',
-        to: 'contentdm#redirect_to_dls_item', via: :all
-  # Intercept CONTENTdm collection pages for redirection.
+        to: 'contentdm#v6_item', via: :all
+  # Intercept v4 CONTENTdm collection pages.
+  match '/cdm4/browse.php',
+        to: 'contentdm#v4_collection', via: :all
+  # Intercept v6 CONTENTdm collection pages.
   match '/cdm/landingpage/collection/:alias',
-        to: 'contentdm#redirect_to_dls_collection', via: :all
+        to: 'contentdm#v6_collection', via: :all
+  # Intercept other v4 CONTENTdm pages.
+  match '/cdm4/about.php',
+        to: redirect('/collections', status: 301), via: :all
+  match '/cdm4/favorites.php',
+        to: redirect('/favorites', status: 301), via: :all
+  match '/cdm4/help.php',
+        to: redirect('/', status: 301), via: :all
+  match '/cdm4/search.php',
+        to: redirect('/', status: 301), via: :all
+  # Intercept other v6 CONTENTdm pages.
+  match '/cdm/about',
+        to: redirect('/', status: 301), via: :all
+  match '/cdm/favorites',
+        to: redirect('/favorites', status: 301), via: :all
+  match '/cdm/search',
+        to: redirect('/items', status: 301), via: :all
 
   resources :agents, only: :show do
     match '/items', to: 'agents#items', via: :get, as: 'items'
