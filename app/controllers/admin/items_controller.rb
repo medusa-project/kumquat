@@ -132,9 +132,8 @@ module Admin
         format.tsv do
           only_undescribed = (params[:only_undescribed] == 'true')
           # TSV generation is roughly O(n) with number of items. If there are
-          # more than 1000 items in the collection, do the download
-          # asynchronously.
-          if @collection.items.count > 1000
+          # more than n items in the collection, do the download asynchronously.
+          if @collection.items.count > 2000
             download = Download.create
             DownloadTsvJob.perform_later(@collection, download,
                                          only_undescribed)
