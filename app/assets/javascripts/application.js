@@ -23,6 +23,7 @@
 //= require models/item
 //= require agents
 //= require collections
+//= require downloads
 //= require favorites
 //= require items
 //= require search

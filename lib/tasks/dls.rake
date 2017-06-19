@@ -120,6 +120,20 @@ namespace :dls do
 
   end
 
+  namespace :downloads do
+
+    desc 'Clean up old downloads'
+    task :cleanup => :environment do |task, args|
+      Download.cleanup(60 * 60 * 24) # max 1 day old
+    end
+
+    desc 'Clear all downloads'
+    task :clear => :environment do |task, args|
+      Download.destroy_all
+    end
+
+  end
+
   namespace :images do
 
     desc 'Purge an item\'s images from the image server cache'

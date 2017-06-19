@@ -21,8 +21,13 @@ class OaiPmhController < ApplicationController
   end
 
   def index
+    if @errors.any? # validate_request() may have added some
+      template = 'error.xml.builder'
+      render template
+      return
+    end
+
     @host = request.host_with_port
-    @metadata_format = params[:metadataPrefix]
     response.content_type = 'text/xml'
 
     template = nil
@@ -51,27 +56,13 @@ class OaiPmhController < ApplicationController
   protected
 
   def do_get_record
-    if params[:identifier].blank?
-      @errors << { code: 'badArgument',
-                   description: 'Missing identifier argument.' }
+    @item = item_for_oai_pmh_identifier(params[:identifier], @host)
+    if @item
+      @identifier = oai_pmh_identifier_for(@item, @host)
     else
-      @item = item_for_oai_pmh_identifier(params[:identifier], @host)
-      if @item
-        @identifier = oai_pmh_identifier_for(@item, @host)
-      else
-        @errors << { code: 'idDoesNotExist',
-                     description: 'The value of the identifier argument is '\
-                         'unknown or illegal in this repository.' }
-      end
-    end
-    if @metadata_format.blank?
-      @errors << { code: 'badArgument',
-                   description: 'Missing metadataPrefix argument.' }
-    elsif !SUPPORTED_METADATA_FORMATS.include?(@metadata_format)
-      @errors << { code: 'cannotDisseminateFormat',
-                   description: 'The metadata format identified by the '\
-                       'metadataPrefix argument is not supported by this '\
-                       'object.' }
+      @errors << { code: 'idDoesNotExist',
+                   description: 'The value of the identifier argument is '\
+                       'unknown or illegal in this repository.' }
     end
     'get_record.xml.builder'
   end
@@ -138,16 +129,6 @@ class OaiPmhController < ApplicationController
   end
 
   def preprocessing_for_list_identifiers_or_records
-    if @metadata_format.blank?
-      @errors << { code: 'badArgument',
-                   description: 'Missing metadataPrefix argument.' }
-    elsif !SUPPORTED_METADATA_FORMATS.include?(@metadata_format)
-      @errors << { code: 'cannotDisseminateFormat',
-                   description: 'The metadata format identified by '\
-                           'the metadataPrefix argument is not supported by '\
-                           'this repository.' }
-    end
-
     @results = Item.joins('LEFT JOIN collections ON collections.repository_id '\
             '= items.collection_repository_id').
         where('collections.harvestable': true,
@@ -192,6 +173,33 @@ class OaiPmhController < ApplicationController
     (Time.now + 1.hour).utc.iso8601
   end
 
+  ##
+  # @param required [Array<String>]
+  # @param allowed [Array<String>]
+  #
+  def validate_arguments(required, allowed)
+    # Ignore these
+    ignore = %w(action controller verb)
+    allowed -= ignore
+    required -= ignore
+
+    # Check that all required args are present in the params hash.
+    required.each do |arg|
+      if params[arg].blank?
+        @errors << { code: 'badArgument',
+                     description: "Missing #{arg} argument." }
+      end
+    end
+
+    # Check that the params hash contains only allowed keys.
+    (params.to_hash.keys - ignore).each do |key|
+      unless allowed.include?(key)
+        @errors << { code: 'badArgument',
+                     description: "Illegal argument: #{key}" }
+      end
+    end
+  end
+
   def validate_request
     # POST requests must have a Content-Type of
     # application/x-www-form-urlencoded (3.1.1.2)
@@ -202,6 +210,39 @@ class OaiPmhController < ApplicationController
           description: 'Content-Type of POST requests must be '\
           '"application/x-www-form-urlencoded"'
       }
+    end
+
+    # Verb-specific argument validation
+    required_args = allowed_args = nil
+    case params[:verb]
+      when 'GetRecord' # 4.1
+        required_args = allowed_args = %w(identifier metadataPrefix)
+      when 'Identify' # 4.2
+        allowed_args = required_args = %w()
+      when 'ListIdentifiers' # 4.3
+        allowed_args = %w(from metadataPrefix resumptionToken set until)
+        required_args = %w(metadataPrefix)
+      when 'ListMetadataFormats' # 4.4
+        allowed_args = %w(identifier)
+        required_args = %w()
+      when 'ListRecords' # 4.5
+        allowed_args = %w(from metadataPrefix set resumptionToken until)
+        required_args = %w(metadataPrefix)
+      when 'ListSets' # 4.6
+        allowed_args = %w(resumptionToken)
+        required_args = %w()
+    end
+    if required_args and allowed_args
+      validate_arguments(required_args, allowed_args)
+    end
+
+    # metadataPrefix validation
+    if params[:metadataPrefix] and
+        !SUPPORTED_METADATA_FORMATS.include?(params[:metadataPrefix])
+      @errors << { code: 'cannotDisseminateFormat',
+                   description: 'The metadata format identified by the '\
+                     'metadataPrefix argument is not supported by this '\
+                     'repository.' }
     end
   end
 

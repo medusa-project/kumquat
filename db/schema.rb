@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170508173553) do
+ActiveRecord::Schema.define(version: 20170608153727) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -96,6 +96,9 @@ ActiveRecord::Schema.define(version: 20170508173553) do
   end
 
   add_index "binaries", ["item_id"], name: "index_binaries_on_item_id", using: :btree
+  add_index "binaries", ["master_type"], name: "index_binaries_on_master_type", using: :btree
+  add_index "binaries", ["media_category"], name: "index_binaries_on_media_category", using: :btree
+  add_index "binaries", ["media_type"], name: "index_binaries_on_media_type", using: :btree
 
   create_table "collection_joins", force: :cascade do |t|
     t.string "parent_repository_id", null: false
@@ -127,8 +130,11 @@ ActiveRecord::Schema.define(version: 20170508173553) do
     t.string   "contentdm_alias"
     t.string   "physical_collection_url"
     t.boolean  "harvestable",              default: false
+    t.string   "external_id"
   end
 
+  add_index "collections", ["external_id"], name: "index_collections_on_external_id", using: :btree
+  add_index "collections", ["harvestable"], name: "index_collections_on_harvestable", using: :btree
   add_index "collections", ["metadata_profile_id"], name: "index_collections_on_metadata_profile_id", using: :btree
   add_index "collections", ["published"], name: "index_collections_on_published", using: :btree
   add_index "collections", ["published_in_dls"], name: "index_collections_on_published_in_dls", using: :btree
@@ -157,12 +163,23 @@ ActiveRecord::Schema.define(version: 20170508173553) do
 
   add_index "delayed_jobs", ["priority", "run_at"], name: "delayed_jobs_priority", using: :btree
 
+  create_table "downloads", force: :cascade do |t|
+    t.string   "key",                            null: false
+    t.integer  "status",           default: 0,   null: false
+    t.string   "filename"
+    t.float    "percent_complete", default: 0.0
+    t.datetime "created_at",                     null: false
+    t.datetime "updated_at",                     null: false
+  end
+
   create_table "elements", force: :cascade do |t|
     t.string   "name"
     t.string   "description"
     t.datetime "created_at",  null: false
     t.datetime "updated_at",  null: false
   end
+
+  add_index "elements", ["name"], name: "index_elements_on_name", unique: true, using: :btree
 
   create_table "entity_elements", force: :cascade do |t|
     t.string   "name"
@@ -176,8 +193,11 @@ ActiveRecord::Schema.define(version: 20170508173553) do
     t.integer  "collection_id"
   end
 
+  add_index "entity_elements", ["collection_id"], name: "index_entity_elements_on_collection_id", using: :btree
   add_index "entity_elements", ["item_id"], name: "index_entity_elements_on_item_id", using: :btree
   add_index "entity_elements", ["name"], name: "index_entity_elements_on_name", using: :btree
+  add_index "entity_elements", ["type"], name: "index_entity_elements_on_type", using: :btree
+  add_index "entity_elements", ["vocabulary_id"], name: "index_entity_elements_on_vocabulary_id", using: :btree
 
   create_table "hosts", force: :cascade do |t|
     t.string   "pattern"
@@ -212,6 +232,7 @@ ActiveRecord::Schema.define(version: 20170508173553) do
   add_index "items", ["published"], name: "index_items_on_published", using: :btree
   add_index "items", ["repository_id"], name: "index_items_on_repository_id", unique: true, using: :btree
   add_index "items", ["representative_item_repository_id"], name: "index_items_on_representative_item_repository_id", using: :btree
+  add_index "items", ["variant"], name: "index_items_on_variant", using: :btree
 
   create_table "items_roles", force: :cascade do |t|
     t.integer "item_id"
@@ -279,7 +300,13 @@ ActiveRecord::Schema.define(version: 20170508173553) do
     t.string   "dcterms_map"
   end
 
+  add_index "metadata_profile_elements", ["facetable"], name: "index_metadata_profile_elements_on_facetable", using: :btree
+  add_index "metadata_profile_elements", ["index"], name: "index_metadata_profile_elements_on_index", using: :btree
   add_index "metadata_profile_elements", ["metadata_profile_id"], name: "index_metadata_profile_elements_on_metadata_profile_id", using: :btree
+  add_index "metadata_profile_elements", ["name"], name: "index_metadata_profile_elements_on_name", using: :btree
+  add_index "metadata_profile_elements", ["searchable"], name: "index_metadata_profile_elements_on_searchable", using: :btree
+  add_index "metadata_profile_elements", ["sortable"], name: "index_metadata_profile_elements_on_sortable", using: :btree
+  add_index "metadata_profile_elements", ["visible"], name: "index_metadata_profile_elements_on_visible", using: :btree
 
   create_table "metadata_profile_elements_vocabularies", id: false, force: :cascade do |t|
     t.integer "metadata_profile_element_id", null: false
@@ -294,7 +321,9 @@ ActiveRecord::Schema.define(version: 20170508173553) do
     t.integer  "default_sortable_element_id"
   end
 
+  add_index "metadata_profiles", ["default"], name: "index_metadata_profiles_on_default", using: :btree
   add_index "metadata_profiles", ["default_sortable_element_id"], name: "index_metadata_profiles_on_default_sortable_element_id", using: :btree
+  add_index "metadata_profiles", ["name"], name: "index_metadata_profiles_on_name", using: :btree
 
   create_table "options", force: :cascade do |t|
     t.string   "key"
@@ -353,12 +382,16 @@ ActiveRecord::Schema.define(version: 20170508173553) do
     t.datetime "updated_at", null: false
   end
 
+  add_index "users", ["username"], name: "index_users_on_username", unique: true, using: :btree
+
   create_table "vocabularies", force: :cascade do |t|
     t.string   "key"
     t.string   "name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
+
+  add_index "vocabularies", ["key"], name: "index_vocabularies_on_key", unique: true, using: :btree
 
   create_table "vocabulary_terms", force: :cascade do |t|
     t.string   "string"

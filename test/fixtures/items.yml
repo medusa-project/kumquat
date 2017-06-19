@@ -22,6 +22,8 @@ sanborn_obj1:
   date: <%= Time.parse('2015-08-10') %>
   published: true
   repository_id: be8d3500-c451-0133-1d17-0050569601ca-9
+  contentdm_alias: sanborn
+  contentdm_pointer: 150
 
 sanborn_obj1_page1:
   collection_repository_id: 6ff64b00-072d-0130-c5bb-0019b9e633c5-2

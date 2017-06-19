@@ -322,7 +322,8 @@ class CollectionTest < ActiveSupport::TestCase
   end
 
   test 'medusa_repository() should return a MedusaRepository' do
-    assert_equal @collection.medusa_repository.id, @collection.medusa_repository_id
+    assert_equal @collection.medusa_repository.medusa_database_id,
+                 @collection.medusa_repository_id
   end
 
   # medusa_url()
@@ -593,6 +594,7 @@ class CollectionTest < ActiveSupport::TestCase
                  doc[Collection::SolrFields::DENIED_ROLES].sort
     assert_equal @collection.description, doc[Collection::SolrFields::DESCRIPTION]
     assert_equal @collection.description_html, doc[Collection::SolrFields::DESCRIPTION_HTML]
+    assert_equal @collection.external_id, doc[Collection::SolrFields::EXTERNAL_ID]
     assert_equal @collection.harvestable, doc[Collection::SolrFields::HARVESTABLE]
     assert_equal @collection.description, doc[Collection::SolrFields::METADATA_DESCRIPTION]
     assert_equal @collection.title, doc[Collection::SolrFields::METADATA_TITLE]

@@ -61,6 +61,8 @@ fieldTypes:
 copyFields:
   - source: 'collection_si'
     dest: 'collection_si_facet'
+  - source: 'external_id_si'
+    dest: 'searchall_natsort_en_im'
   - source: 'metadata_*'
     dest: 'searchall_natsort_en_im'
   - source: 'metadata_*'
