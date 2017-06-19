@@ -335,6 +335,19 @@ body#items_index {
     max-height: 545px;
     height: 545px;
   }
+  #pt-pdf-viewer {
+    height: 600px;
+    margin: 0 auto;
+    max-width: 1200px;
+    iframe {
+      height: 93%;
+    }
+  }
+
+  #pt-video-player {
+    margin: 0 auto;
+    width: 96%;
+  }
 }
 .pagination {
   > li > a {

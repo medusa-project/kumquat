@@ -453,12 +453,15 @@ var build_node_url = function(data){
   return '/items/' + data.node.id + '.html?ajax=true';
 };
 var tree_node_callback = function (result) {
-    $('#item-info').html(result);
+    //reset flag used by embed.js
+    window.embedScriptIncluded = false;
+        $('#item-info').html(result);
     $('#item-info ol.breadcrumb').remove();
     $('#item-info .pt-result-navigation').remove();
     $('#item-info .btn-group').removeClass('pull-right');
     var view = new PTItemView();
     view.init();
+
     //$(".pagination a").hover(function (e){
     //    e.preventDefault();
     //});
