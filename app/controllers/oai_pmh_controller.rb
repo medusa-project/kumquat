@@ -59,6 +59,7 @@ class OaiPmhController < ApplicationController
     @item = item_for_oai_pmh_identifier(params[:identifier], @host)
     if @item
       @identifier = oai_pmh_identifier_for(@item, @host)
+      @metadata_format = params[:metadataPrefix]
     else
       @errors << { code: 'idDoesNotExist',
                    description: 'The value of the identifier argument is '\
