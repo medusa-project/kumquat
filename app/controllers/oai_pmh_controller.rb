@@ -136,6 +136,7 @@ class OaiPmhController < ApplicationController
               'collections.published': true,
               'collections.published_in_dls': true,
               published: true).
+        where('items.variant IS NULL OR items.variant = ?', Item::Variants::FILE).
         order(created_at: :asc)
 
     from = to = Time.now
