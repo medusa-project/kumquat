@@ -25,13 +25,11 @@ module OaiPmhHelper
         'xsi:schemaLocation' => 'http://www.openarchives.org/OAI/2.0/oai_dc/ '\
                   'http://www.openarchives.org/OAI/2.0/oai_dc.xsd'
     }) do
-      item.elements.each do |element|
+      item.elements_in_profile_order.select{ |e| e.value.present? }.each do |ie|
         # oai_dc supports only unqualified DC.
         dc_element = item.collection.metadata_profile.elements.
-            select{ |e| e.name == element.name }.first&.dc_map
-        if dc_element.present? and element.value.present?
-          xml.tag!("dc:#{dc_element}", element.value)
-        end
+            select{ |pe| pe.name == ie.name }.first&.dc_map
+        xml.tag!("dc:#{dc_element}", ie.value) if dc_element.present?
       end
       # Add a dc:identifier element containing the item URI (IMET-391)
       xml.tag!('dc:identifier', item_url(item))
@@ -52,12 +50,11 @@ module OaiPmhHelper
         'xsi:schemaLocation' => 'http://oclc.org/appqualifieddc/ '\
                       'http://dublincore.org/schemas/xmls/qdc/2003/04/02/appqualifieddc.xsd'
     }) do
-      item.elements.each do |element|
+      item.elements_in_profile_order.select{ |e| e.value.present? }.each do |ie|
+        # oai_dc supports only unqualified DC.
         dc_element = item.collection.metadata_profile.elements.
-            select{ |e| e.name == element.name }.first&.dcterms_map
-        if dc_element.present? and element.value.present?
-          xml.tag!("dcterms:#{dc_element}", element.value)
-        end
+            select{ |pe| pe.name == ie.name }.first&.dc_map
+        xml.tag!("dcterms:#{dc_element}", ie.value) if dc_element.present?
       end
       # Add a dcterms:identifier element containing the item URI (IMET-391)
       xml.tag!('dcterms:identifier', item_url(item))
