@@ -233,7 +233,7 @@ class ItemsController < WebsiteController
           }
       end
       format.zip do
-        items = download_finder.to_a
+        items = @download_finder.to_a
 
         client = DownloaderClient.new
         start = params[:download_start].to_i + 1
@@ -339,7 +339,15 @@ class ItemsController < WebsiteController
     setup_index_view
 
     respond_to do |format|
-
+      format.atom do
+        redirect_to collection_items_path(format: :atom)
+      end
+      format.json do
+        redirect_to collection_items_path(format: :json)
+      end
+      format.zip do
+        redirect_to collection_items_path(format: :zip)
+      end
       format.html do
         if @collection.package_profile == PackageProfile::FREE_FORM_PROFILE
           fresh_when(etag: @items) if Rails.env.production?
@@ -416,7 +424,7 @@ class ItemsController < WebsiteController
       @suggestions = finder.suggestions
     end
 
-    download_finder = ItemFinder.new.
+    @download_finder = ItemFinder.new.
         client_hostname(request.host).
         client_ip(request.remote_ip).
         client_user(current_user).
@@ -429,8 +437,8 @@ class ItemsController < WebsiteController
         sort(Item::SolrFields::GROUPED_SORT).
         start(params[:download_start]).
         limit(params[:limit] || DownloaderClient::BATCH_SIZE)
-    @num_downloadable_items = download_finder.count
-    @total_byte_size = download_finder.total_byte_size
+    @num_downloadable_items = @download_finder.count
+    @total_byte_size = @download_finder.total_byte_size
   end
 
   def tree_hash(item)

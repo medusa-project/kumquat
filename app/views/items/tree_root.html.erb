@@ -1,6 +1,12 @@
 <h1><%= @collection.title %></h1>
 <div class="col-xs-6">
   <%= render partial: 'index_button_group' %>
+  <div id="pt-download-zip-modal-container">
+    <%= render partial: 'download_zip_panel', locals: {
+        context: :results,
+        num_downloadable_items: @num_downloadable_items,
+        total_byte_size: @total_byte_size } %>
+  </div>
 
 
 

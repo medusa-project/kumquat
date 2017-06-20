@@ -459,6 +459,7 @@ var tree_node_callback = function (result) {
     $('#item-info ol.breadcrumb').remove();
     $('#item-info .pt-result-navigation').remove();
     $('#item-info .btn-group').removeClass('pull-right');
+    $('#item-info .view-dropdown').removeClass('dropdown-menu-right');
     var view = new PTItemView();
     view.init();
 
