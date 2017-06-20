@@ -501,6 +501,20 @@ class Item < ActiveRecord::Base
   end
 
   ##
+  # @return [Enumerable<ItemElement>] The instance's ItemElements in the order
+  #                                   of the elements in the collection's
+  #                                   metadata profile.
+  #
+  def elements_in_profile_order
+    elements = []
+    self.collection.metadata_profile.elements.each do |mpe|
+      element = self.element(mpe.name)
+      elements << element if element
+    end
+    elements
+  end
+
+  ##
   # Queries the database to obtain a Relation of all children that have a
   # variant of Variant::FILE or Variant::DIRECTORY.
   #
