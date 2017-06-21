@@ -450,15 +450,19 @@ var build_node_url = function(data){
   if (data.node.a_attr["name"]==="root-collection-node"){
       return '/collections/' + data.node.id + '/tree.html?ajax=true';
   }
-  return '/items/' + data.node.id + '.html?ajax=true';
+  return '/items/' + data.node.id + '.html?tree-node-type='+data.node.a_attr["class"];
 };
 var tree_node_callback = function (result) {
-    $('#item-info').html(result);
+    //reset flag used by embed.js
+    window.embedScriptIncluded = false;
+        $('#item-info').html(result);
     $('#item-info ol.breadcrumb').remove();
     $('#item-info .pt-result-navigation').remove();
     $('#item-info .btn-group').removeClass('pull-right');
+    $('#item-info .view-dropdown').removeClass('dropdown-menu-right');
     var view = new PTItemView();
     view.init();
+
     //$(".pagination a").hover(function (e){
     //    e.preventDefault();
     //});
