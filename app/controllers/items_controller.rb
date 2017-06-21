@@ -299,8 +299,10 @@ class ItemsController < WebsiteController
           session[:first_result_id] = results.first&.repository_id
           session[:last_result_id] = results.last&.repository_id
         end
-        if (params["ajax"]=="true")
+        if params["tree-node-type"]=="file_node"
           render layout: false
+        elsif params["tree-node-type"]=="directory_node"
+          render "tree_show_directory_item", layout: false
         end
       end
       format.json do
@@ -346,7 +348,7 @@ class ItemsController < WebsiteController
         redirect_to collection_items_path(format: :json)
       end
       format.zip do
-        redirect_to collection_items_path(format: :zip)
+        redirect_to collection_items_path(format: :zip, params: params)
       end
       format.html do
         if @collection.package_profile == PackageProfile::FREE_FORM_PROFILE
@@ -447,16 +449,26 @@ class ItemsController < WebsiteController
     node_hash["text"]=item.title
     node_hash["children"]=item.items.size>0
     if item.items.size==0 then node_hash["icon"]="jstree-file" end
-    node_hash["a_attr"]={"href": item_path(item)}
+    node_hash["a_attr"]=attr_hash_for item
     node_hash
   end
+  def attr_hash_for(item)
+    attr_hash = {"href": item_path(item)}
+    if item.variant == Item::Variants::DIRECTORY
+      attr_hash["class"]="directory_node"
+    elsif item.variant == Item::Variants::FILE
+      attr_hash["class"]="file_node"
+    end
+    attr_hash
+  end
+
 
   def create_tree_root(tree_hash_array, collection)
     node_hash = Hash.new
     node_hash["id"]=collection.repository_id
     node_hash["text"]=collection.title
     node_hash["state"] = {:opened => true, :selected => true}
-    node_hash["a_attr"] = {:name => "root-collection-node"}
+    node_hash["a_attr"] = {:name => "root-collection-node", "class": "root-collection-node"}
     node_hash["children"]=tree_hash_array
     node_hash
   end

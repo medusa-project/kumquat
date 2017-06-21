@@ -1,0 +1,15 @@
+<section>
+  <h2>
+    <a role="button" data-toggle="collapse" href="#pt-technical-info"
+       aria-expanded="false" aria-controls="pt-technical-info">
+      Technical Info</a>
+  </h2>
+  <div id="pt-technical-info" class="collapse">
+    <div class="visible-xs">
+      <%= tech_metadata_as_list(@item) %>
+    </div>
+    <div class="hidden-xs">
+      <%= tech_metadata_as_table(@item) %>
+    </div>
+  </div>
+</section>

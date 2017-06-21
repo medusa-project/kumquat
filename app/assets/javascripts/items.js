@@ -450,7 +450,7 @@ var build_node_url = function(data){
   if (data.node.a_attr["name"]==="root-collection-node"){
       return '/collections/' + data.node.id + '/tree.html?ajax=true';
   }
-  return '/items/' + data.node.id + '.html?ajax=true';
+  return '/items/' + data.node.id + '.html?tree-node-type='+data.node.a_attr["class"];
 };
 var tree_node_callback = function (result) {
     //reset flag used by embed.js

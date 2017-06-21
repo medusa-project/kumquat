@@ -334,6 +334,14 @@ body#items_index {
   #item-info {
     max-height: 545px;
     height: 545px;
+    padding-top: 7px;
+
+    #item-show-buttons{
+      margin-bottom: 7px;
+    }
+    #file-tree-stats{
+      margin-top: 20px;
+    }
   }
   #pt-pdf-viewer {
     height: 600px;
