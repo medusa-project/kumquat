@@ -59,6 +59,7 @@ class OaiPmhController < ApplicationController
     @item = item_for_oai_pmh_identifier(params[:identifier], @host)
     if @item
       @identifier = oai_pmh_identifier_for(@item, @host)
+      @metadata_format = params[:metadataPrefix]
     else
       @errors << { code: 'idDoesNotExist',
                    description: 'The value of the identifier argument is '\
@@ -135,6 +136,8 @@ class OaiPmhController < ApplicationController
               'collections.published': true,
               'collections.published_in_dls': true,
               published: true).
+        where('items.variant IS NULL OR items.variant = \'\' OR items.variant = ?',
+              Item::Variants::FILE).
         order(created_at: :asc)
 
     from = to = Time.now
