@@ -386,7 +386,7 @@ module ItemsHelper
         if num_pages > 0
           info_parts << "#{num_pages} pages"
         else
-          num_files = entity.files.count
+          num_files = entity.filesystem_variants.count
           if num_files > 0
             info_parts << "#{num_files} files"
           else

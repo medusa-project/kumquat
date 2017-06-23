@@ -505,10 +505,9 @@ class Item < ActiveRecord::Base
   # Queries the database to obtain a Relation of all children that have a
   # variant of Variant::FILE or Variant::DIRECTORY.
   #
-  # @return [Relation]
+  # @return [Relation<Item>]
   #
-  def files # TODO: why does this return directory variants? consider renaming
-    # TODO: replace with filesystem_variants_from_solr() or use whichever implementation is faster
+  def filesystem_variants
     self.items.where(variant: [Variants::FILE, Variants::DIRECTORY])
   end
 
@@ -516,7 +515,7 @@ class Item < ActiveRecord::Base
   # Queries Solr to obtain a Relation of all children that have a
   # variant of Variant::FILE or Variant::DIRECTORY.
   #
-  # @return [Relation]
+  # @return [Relation<Item>]
   #
   def filesystem_variants_from_solr
     self.items_from_solr.
