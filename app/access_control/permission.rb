@@ -16,7 +16,11 @@
 #
 # To rename a permission:
 #
-# 1. TODO: Write this
+# 1. Rename the string value of the Permissions constant
+# 2. `rails generate migration RenameXPermissiontToY`
+# 3. In the migration file, add
+#    `execute("UPDATE permissions SET key = 'y' WHERE key = 'x'")`
+# 4. rake db:migrate
 #
 class Permission < ActiveRecord::Base
 

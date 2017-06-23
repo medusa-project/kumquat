@@ -1005,8 +1005,7 @@ module ItemsHelper
   end
 
   ##
-  # @param entity [Item, Binary] or some other object suitable for passing to
-  #                              `icon_for`
+  # @param entity [Object]
   # @param size [Integer]
   # @param shape [Symbol] :default or :square
   # @return [String]
