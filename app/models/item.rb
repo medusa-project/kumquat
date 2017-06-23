@@ -401,7 +401,7 @@ class Item < ActiveRecord::Base
   # @return [Item]
   # @see representative_item
   #
-  def effective_representative_item
+  def effective_representative_entity
     self.representative_item || self.pages.first || self
   end
 
@@ -823,9 +823,9 @@ class Item < ActiveRecord::Base
   ##
   # @return [Item, nil] The instance's assigned representative item, which may
   #                     be nil. For the purposes of getting "the"
-  #                     representative item, `effective_representative_item`
+  #                     representative item, `effective_representative_entity`
   #                     should be used instead.
-  # @see effective_representative_item
+  # @see effective_representative_entity
   #
   def representative_item
     Item.find_by_repository_id(self.representative_item_repository_id)

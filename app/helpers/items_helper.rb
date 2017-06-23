@@ -328,7 +328,7 @@ module ItemsHelper
       html += '<div class="pt-object">'
       html +=    link_to(item) do
         raw('<div class="pt-thumbnail">' +
-                thumbnail_tag(item.effective_representative_item, thumb_width) +
+                thumbnail_tag(item.effective_representative_entity, thumb_width) +
             '</div>')
       end
       html += '  <h4 class="pt-title">'
@@ -371,7 +371,7 @@ module ItemsHelper
         size = options[:thumbnail_size] ?
             options[:thumbnail_size] : DEFAULT_THUMBNAIL_SIZE
         raw('<div class="pt-thumbnail">' +
-          thumbnail_tag(entity.effective_representative_item, size, :square) +
+          thumbnail_tag(entity.effective_representative_entity, size, :square) +
         '</div>')
       end
       html += '<span class="pt-label">'

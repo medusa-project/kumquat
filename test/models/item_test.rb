@@ -116,30 +116,30 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal 'cats', @item.description
   end
 
-  # effective_representative_item()
+  # effective_representative_entity()
 
-  test 'effective_representative_item should return the representative item
+  test 'effective_representative_entity should return the representative item
         when it is assigned' do
     id = 'a53add10-5ca8-0132-3334-0050569601ca-7'
     @item.representative_item_repository_id = id
-    assert_equal id, @item.effective_representative_item.repository_id
+    assert_equal id, @item.effective_representative_entity.repository_id
   end
 
-  test 'effective_representative_item should return the first page when
+  test 'effective_representative_entity should return the first page when
         representative_item_repository_id is not set' do
     @item = items(:sanborn_obj1)
     @item.representative_item_repository_id = nil
     assert_equal 'd29950d0-c451-0133-1d17-0050569601ca-2',
-                 @item.effective_representative_item.repository_id
+                 @item.effective_representative_entity.repository_id
   end
 
-  test 'effective_representative_item should return the instance when
+  test 'effective_representative_entity should return the instance when
         representative_item_repository_id is not set and it has no pages' do
     @item = items(:sanborn_obj1)
     @item.representative_item_repository_id = nil
     @item.items.delete_all
     assert_equal @item.repository_id,
-                 @item.effective_representative_item.repository_id
+                 @item.effective_representative_entity.repository_id
   end
 
   # effective_rights_statement()
