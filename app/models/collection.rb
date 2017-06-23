@@ -77,6 +77,7 @@ class Collection < ActiveRecord::Base
 
   include AuthorizableByRole
   include Describable
+  include Representable
   include SolrQuerying
 
   class SolrFields

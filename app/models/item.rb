@@ -100,6 +100,7 @@ class Item < ActiveRecord::Base
 
   include AuthorizableByRole
   include Describable
+  include Representable
   include SolrQuerying
 
   class SolrFields

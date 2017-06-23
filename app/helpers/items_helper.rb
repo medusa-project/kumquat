@@ -317,7 +317,7 @@ module ItemsHelper
   end
 
   ##
-  # @param items [Enumerable<Items>]
+  # @param items [Enumerable<Representable>]
   # @return [String]
   #
   def items_as_flex(items)
@@ -342,7 +342,7 @@ module ItemsHelper
   end
 
   ##
-  # @param entities [Relation<SolrQuerying>]
+  # @param entities [Relation<Representable>]
   # @param start [integer] Offset.
   # @param options [Hash] Hash with optional keys.
   # @option options [Boolean] :link_to_admin

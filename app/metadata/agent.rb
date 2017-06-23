@@ -1,5 +1,6 @@
 class Agent < ActiveRecord::Base
 
+  include Representable
   include SolrQuerying
 
   class SolrFields
