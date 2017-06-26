@@ -185,11 +185,11 @@ module ItemsHelper
       html += '<li>'
       html += link_to(link_target, class: 'pt-title') do
         raw('<div class="pt-thumbnail">' +
-            thumbnail_tag(child, DEFAULT_THUMBNAIL_SIZE, :square) +
-          '</div>' +
-          '<div class="pt-label" title="' + child.title + '">' +
-            truncate(child.title, length: PAGE_TITLE_LENGTH) +
-          '</div>')
+                thumbnail_tag(child, DEFAULT_THUMBNAIL_SIZE, :square) +
+                '</div>' +
+                '<div class="pt-label" title="' + child.title + '">' +
+                truncate(child.title, length: PAGE_TITLE_LENGTH) +
+                '</div>')
       end
       html += '</li>'
     end
@@ -329,7 +329,7 @@ module ItemsHelper
       html +=    link_to(item) do
         raw('<div class="pt-thumbnail">' +
                 thumbnail_tag(item.effective_representative_item, thumb_width) +
-            '</div>')
+                '</div>')
       end
       html += '  <h4 class="pt-title">'
       html +=      link_to(item.title, item)
@@ -371,8 +371,8 @@ module ItemsHelper
         size = options[:thumbnail_size] ?
             options[:thumbnail_size] : DEFAULT_THUMBNAIL_SIZE
         raw('<div class="pt-thumbnail">' +
-          thumbnail_tag(entity.effective_representative_item, size, :square) +
-        '</div>')
+                thumbnail_tag(entity.effective_representative_item, size, :square) +
+                '</div>')
       end
       html += '<span class="pt-label">'
       html += link_to(entity.title, link_target)
@@ -1119,9 +1119,11 @@ module ItemsHelper
       frag.xpath('.//*').first['width'] = '100%'
       frag.xpath('.//*').first['height'] = '600'
       return raw(frag.to_html.strip)
-    # IMET-473: image files should be presented in the same manner as compound
-    # objects, with a gallery viewer showing all of the other images in the
-    # same directory.
+    elsif is_free_form_image? item
+      return compound_viewer_for(item)
+      # IMET-473: image files should be presented in the same manner as compound
+      # objects, with a gallery viewer showing all of the other images in the
+      # same directory.
     elsif item.variant == Item::Variants::FILE and
         item.effective_viewer_binary&.media_category == Binary::MediaCategory::IMAGE
       return compound_viewer_for(item.parent, item)
@@ -1184,7 +1186,7 @@ module ItemsHelper
     if binary.is_image? or binary.is_pdf?
       shape = (shape == :square) ? 'square' : 'full'
       url = sprintf('%s/%s/!%d,%d/0/default.jpg',
-                     binary.iiif_image_url, shape, size, size)
+                    binary.iiif_image_url, shape, size, size)
     end
     url
   end
@@ -1348,22 +1350,22 @@ module ItemsHelper
         end
       when :agent_item
         first_link = link_to(agent_items_path(owning_entity,
-                                             params.except(:start).symbolize_keys),
+                                              params.except(:start).symbolize_keys),
                              remote: remote, 'aria-label': 'First') do
           raw('<span aria-hidden="true">First</span>')
         end
         prev_link = link_to(agent_items_path(owning_entity,
-                                            params.merge(start: prev_start).symbolize_keys),
+                                             params.merge(start: prev_start).symbolize_keys),
                             remote: remote, 'aria-label': 'Previous') do
           raw('<span aria-hidden="true">&laquo;</span>')
         end
         next_link = link_to(agent_items_path(owning_entity,
-                                            params.merge(start: next_start).symbolize_keys),
+                                             params.merge(start: next_start).symbolize_keys),
                             remote: remote, 'aria-label': 'Next') do
           raw('<span aria-hidden="true">&raquo;</span>')
         end
         last_link = link_to(agent_items_path(owning_entity,
-                                            params.merge(start: last_start).symbolize_keys),
+                                             params.merge(start: last_start).symbolize_keys),
                             remote: remote, 'aria-label': 'Last') do
           raw('<span aria-hidden="true">Last</span>')
         end
@@ -1444,6 +1446,12 @@ module ItemsHelper
           binaries are associated with this item.</div>'
     end
     raw(html)
+  end
+
+  def is_free_form_image?(item)
+    item.variant == Item::Variants::FILE and
+        item.effective_viewer_binary&.media_category == Binary::MediaCategory::IMAGE and
+        item.collection.package_profile_id==PackageProfile::FREE_FORM_PROFILE.id
   end
 
   def item_facet_panel(title, terms, for_collections = false)
