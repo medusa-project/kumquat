@@ -130,10 +130,20 @@ module Admin
         format.html
         format.js
         format.tsv do
-          headers['Content-Disposition'] = 'attachment; filename="items.tsv"'
-          headers['Content-Disposition'] = 'text/tab-separated-values'
-          render text: @collection.items_as_tsv(only_undescribed:
-                                                    (params[:only_undescribed] == 'true'))
+          only_undescribed = (params[:only_undescribed] == 'true')
+          # TSV generation is roughly O(n) with number of items. If there are
+          # more than n items in the collection, do the download asynchronously.
+          if @collection.items.count > 2000
+            download = Download.create
+            DownloadTsvJob.perform_later(@collection, download,
+                                         only_undescribed)
+            redirect_to download_url(download)
+          else
+            headers['Content-Disposition'] = 'attachment; filename="items.tsv"'
+            headers['Content-Disposition'] = 'text/tab-separated-values'
+            render text: @collection.items_as_tsv(only_undescribed:
+                                                      only_undescribed)
+          end
         end
       end
     end
