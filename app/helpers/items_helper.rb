@@ -317,7 +317,7 @@ module ItemsHelper
   end
 
   ##
-  # @param items [Enumerable<Items>]
+  # @param items [Enumerable<Representable>]
   # @return [String]
   #
   def items_as_flex(items)
@@ -328,7 +328,7 @@ module ItemsHelper
       html += '<div class="pt-object">'
       html +=    link_to(item) do
         raw('<div class="pt-thumbnail">' +
-                thumbnail_tag(item.effective_representative_item, thumb_width) +
+                thumbnail_tag(item.effective_representative_entity, thumb_width) +
             '</div>')
       end
       html += '  <h4 class="pt-title">'
@@ -342,7 +342,7 @@ module ItemsHelper
   end
 
   ##
-  # @param entities [Relation<SolrQuerying>]
+  # @param entities [Relation<Representable>]
   # @param start [integer] Offset.
   # @param options [Hash] Hash with optional keys.
   # @option options [Boolean] :link_to_admin
@@ -371,7 +371,7 @@ module ItemsHelper
         size = options[:thumbnail_size] ?
             options[:thumbnail_size] : DEFAULT_THUMBNAIL_SIZE
         raw('<div class="pt-thumbnail">' +
-          thumbnail_tag(entity.effective_representative_item, size, :square) +
+          thumbnail_tag(entity.effective_representative_entity, size, :square) +
         '</div>')
       end
       html += '<span class="pt-label">'
@@ -386,7 +386,7 @@ module ItemsHelper
         if num_pages > 0
           info_parts << "#{num_pages} pages"
         else
-          num_files = entity.files.count
+          num_files = entity.filesystem_variants.count
           if num_files > 0
             info_parts << "#{num_files} files"
           else
@@ -1005,8 +1005,7 @@ module ItemsHelper
   end
 
   ##
-  # @param entity [Item, Binary] or some other object suitable for passing to
-  #                              `icon_for`
+  # @param entity [Object]
   # @param size [Integer]
   # @param shape [Symbol] :default or :square
   # @return [String]

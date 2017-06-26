@@ -77,6 +77,7 @@ class Collection < ActiveRecord::Base
 
   include AuthorizableByRole
   include Describable
+  include Representable
   include SolrQuerying
 
   class SolrFields
@@ -241,10 +242,10 @@ class Collection < ActiveRecord::Base
   end
 
   ##
-  # @return [Item]
+  # @return [Item, Collection]
   #
-  def effective_representative_item
-    self.representative_item || self # TODO: this is a little weird
+  def effective_representative_entity
+    self.representative_item || self
   end
 
   ##
