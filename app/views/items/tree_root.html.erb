@@ -1,6 +1,32 @@
 <h1><%= @collection.title %></h1>
 <div class="col-xs-6">
   <%= render partial: 'index_button_group' %>
+  <% files = @collection.items %>
+  <% collection_children = files.select{|item| item.parent_repository_id.nil?} %>
+  <% if collection_children.any? %>
+      <section id="file-tree-stats">
+        <% total_dir_children = collection_children.select{ |item| item.variant == Item::Variants::DIRECTORY } %>
+        <% total_nondir_children = collection_children.select{ |item| item.variant == Item::Variants::FILE} %>
+        <h2>Subfolders <span class="badge"><%= total_dir_children.count %></span></h2>
+        <h2>Files <span class="badge"><%= total_nondir_children.count %></span></h2>
+      </section>
+  <% end %>
+  <% if files.any? %>
+      <section id="collection-total-stats">
+        <h2>Collection Totals </h2>
+        <% total_dirs = files.select{ |item| item.variant == Item::Variants::DIRECTORY } %>
+        <% total_nondirs = files.select{ |item| item.variant == Item::Variants::FILE} %>
+        <h2>Total Collection Subfolders <span class="badge"><%= total_dirs.count %></span></h2>
+        <h2>Total Collection Files <span class="badge"><%= total_nondirs.count %></span></h2>
+      </section>
+  <% end %>
+
+  <div id="pt-download-zip-modal-container">
+    <%= render partial: 'download_zip_panel', locals: {
+        context: :results,
+        num_downloadable_items: @num_downloadable_items,
+        total_byte_size: @total_byte_size } %>
+  </div>
 
 
 
