@@ -189,6 +189,10 @@ class ContentdmControllerTest < ActionDispatch::IntegrationTest
     assert_response :moved_permanently
     assert_redirected_to search_url + '?q=test'
 
+    get('/cdm/search/searchterm/test/mode/bogus/page/2')
+    assert_response :moved_permanently
+    assert_redirected_to search_url + '?q=test'
+
     get('/cdm/search/searchterm/test/mode/bogus/order/bogus')
     assert_response :moved_permanently
     assert_redirected_to search_url + '?q=test'

@@ -101,6 +101,7 @@ class ContentdmController < ApplicationController
   # Responds to:
   #
   # * GET /cdm/search/searchterm/:term
+  # * GET /cdm/search/searchterm/:term/mode/:mode/page/:page
   # * GET /cdm/search/searchterm/:term/mode/:mode/order/:order
   #
   def v6_search_results
