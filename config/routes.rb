@@ -120,7 +120,11 @@ Rails.application.routes.draw do
         to: redirect('/items', status: 301), via: :all
   match '/cdm/search/collection/:alias',
         to: 'contentdm#v6_collection_items', via: :all
+  match '/cdm/search/collection/:alias/searchterm/:term/field/:field/mode/:mode/conn/:conn/order/:order',
+        to: 'contentdm#v6_collection_items', via: :all
   match '/cdm/search/searchterm/:term',
+        to: 'contentdm#v6_search_results', via: :all
+  match '/cdm/search/searchterm/:term/mode/:mode',
         to: 'contentdm#v6_search_results', via: :all
   match '/cdm/search/searchterm/:term/mode/:mode/page/:page',
         to: 'contentdm#v6_search_results', via: :all

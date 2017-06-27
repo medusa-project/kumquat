@@ -82,12 +82,18 @@ class ContentdmController < ApplicationController
   ##
   # Handles CONTENTdm v6 collection items URLs.
   #
-  # Responds to GET /cdm/search/collection/:alias
+  # Responds to:
+  # * GET /cdm/search/collection/:alias
+  # * GET /cdm/search/collection/:alias/searchterm/:term/field/:field/mode/:mode/conn/:conn/order/:order
   #
   def v6_collection_items
     col = Collection.find_by_contentdm_alias(sanitize_alias(params[:alias]))
     if col
-      redirect_to collection_items_url(col), status: 301
+      if params[:term]
+        redirect_to collection_items_url(col, q: params[:term]), status: 301
+      else
+        redirect_to collection_items_url(col), status: 301
+      end
     else
       redirect_to collections_url, status: 303
     end
@@ -115,6 +121,7 @@ class ContentdmController < ApplicationController
   # Responds to:
   #
   # * GET /cdm/search/searchterm/:term
+  # * GET /cdm/search/searchterm/:term/mode/:mode
   # * GET /cdm/search/searchterm/:term/mode/:mode/page/:page
   # * GET /cdm/search/searchterm/:term/mode/:mode/order/:order
   # * GET /cdm/search/searchterm/:term/mode/:mode/order/:order/ad/desc
