@@ -58,7 +58,7 @@ module ApplicationHelper
   end
 
   ##
-  # @param entity [Entity]
+  # @param entity [Object]
   # @return [String] HTML <i> tag
   #
   def icon_for(entity)
@@ -208,7 +208,7 @@ module ApplicationHelper
   end
 
   ##
-  # @param entity [Entity]
+  # @param entity [Object]
   # @return [String] Text description of the entity's type
   #
   def type_of(entity)

@@ -100,6 +100,7 @@ class Item < ActiveRecord::Base
 
   include AuthorizableByRole
   include Describable
+  include Representable
   include SolrQuerying
 
   class SolrFields
@@ -401,7 +402,7 @@ class Item < ActiveRecord::Base
   # @return [Item]
   # @see representative_item
   #
-  def effective_representative_item
+  def effective_representative_entity
     self.representative_item || self.pages.first || self
   end
 
@@ -518,10 +519,9 @@ class Item < ActiveRecord::Base
   # Queries the database to obtain a Relation of all children that have a
   # variant of Variant::FILE or Variant::DIRECTORY.
   #
-  # @return [Relation]
+  # @return [Relation<Item>]
   #
-  def files # TODO: why does this return directory variants? consider renaming
-    # TODO: replace with filesystem_variants_from_solr() or use whichever implementation is faster
+  def filesystem_variants
     self.items.where(variant: [Variants::FILE, Variants::DIRECTORY])
   end
 
@@ -529,7 +529,7 @@ class Item < ActiveRecord::Base
   # Queries Solr to obtain a Relation of all children that have a
   # variant of Variant::FILE or Variant::DIRECTORY.
   #
-  # @return [Relation]
+  # @return [Relation<Item>]
   #
   def filesystem_variants_from_solr
     self.items_from_solr.
@@ -837,9 +837,9 @@ class Item < ActiveRecord::Base
   ##
   # @return [Item, nil] The instance's assigned representative item, which may
   #                     be nil. For the purposes of getting "the"
-  #                     representative item, `effective_representative_item`
+  #                     representative item, `effective_representative_entity`
   #                     should be used instead.
-  # @see effective_representative_item
+  # @see effective_representative_entity
   #
   def representative_item
     Item.find_by_repository_id(self.representative_item_repository_id)
