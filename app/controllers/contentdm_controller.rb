@@ -21,6 +21,20 @@ class ContentdmController < ApplicationController
   end
 
   ##
+  # Handles CONTENTdm v4 results URLs.
+  #
+  # Responds to GET /cdm4/results.php
+  #
+  def v4_collection_items
+    col = Collection.find_by_contentdm_alias(sanitize_alias(params[:CISOROOT]))
+    if col
+      redirect_to collection_items_url(col), status: 301
+    else
+      redirect_to collections_url, status: 303
+    end
+  end
+
+  ##
   # Handles CONTENTdm v4 item URLs.
   #
   # Responds to:
@@ -71,9 +85,19 @@ class ContentdmController < ApplicationController
   # * GET /cdm/singleitem/collection/:alias/id/:pointer
   # * GET /cdm/singleitem/collection/:alias/id/:pointer/rec/:noop
   # * GET /cdm/compoundobject/collection/:alias/id/:pointer
+  # * GET /cdm/compoundobject/collection/:alias/id/:pointer/show/:pointer/rec/:noop
   #
   def v6_item
     redirect_to_best_match(params[:alias], params[:pointer])
+  end
+
+  ##
+  # Handles CONTENTdm 6 search results URLs.
+  #
+  # Responds to GET /cdm/search/searchterm/:term
+  #
+  def v6_search_results
+    redirect_to search_url(q: params[:term]), status: 301
   end
 
   private
@@ -102,7 +126,7 @@ class ContentdmController < ApplicationController
   end
 
   def sanitize_alias(alias_)
-    alias_.gsub(/[^A-Za-z0-9_]/i, '')
+    alias_&.gsub(/[^A-Za-z0-9_]/i, '')
   end
 
 end

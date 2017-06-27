@@ -88,6 +88,8 @@ Rails.application.routes.draw do
   # Intercept v6 CONTENTdm compound object URLs.
   match '/cdm/compoundobject/collection/:alias/id/:pointer',
         to: 'contentdm#v6_item', via: :all
+  match '/cdm/compoundobject/collection/:alias/id/:pointer/show/:noop1/rec/:noop2',
+        to: 'contentdm#v6_item', via: :all
   # Intercept v4 CONTENTdm collection pages.
   match '/cdm4/browse.php',
         to: 'contentdm#v4_collection', via: :all
@@ -101,6 +103,8 @@ Rails.application.routes.draw do
         to: redirect('/favorites', status: 301), via: :all
   match '/cdm4/help.php',
         to: redirect('/', status: 301), via: :all
+  match '/cdm4/results.php',
+        to: 'contentdm#v4_collection_items', via: :all
   match '/cdm4/search.php',
         to: redirect('/', status: 301), via: :all
   # Intercept other v6 CONTENTdm pages.
@@ -110,6 +114,8 @@ Rails.application.routes.draw do
         to: redirect('/favorites', status: 301), via: :all
   match '/cdm/search',
         to: redirect('/items', status: 301), via: :all
+  match '/cdm/search/searchterm/:term',
+        to: 'contentdm#v6_search_results', via: :all
 
   resources :agents, only: :show do
     match '/items', to: 'agents#items', via: :get, as: 'items'
