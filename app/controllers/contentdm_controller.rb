@@ -80,6 +80,20 @@ class ContentdmController < ApplicationController
   end
 
   ##
+  # Handles CONTENTdm v6 collection items URLs.
+  #
+  # Responds to GET /cdm/search/collection/:alias
+  #
+  def v6_collection_items
+    col = Collection.find_by_contentdm_alias(sanitize_alias(params[:alias]))
+    if col
+      redirect_to collection_items_url(col), status: 301
+    else
+      redirect_to collections_url, status: 303
+    end
+  end
+
+  ##
   # Handles CONTENTdm v6 item URLs.
   #
   # Responds to:

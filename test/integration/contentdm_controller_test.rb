@@ -142,6 +142,12 @@ class ContentdmControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to collection_items_url(@item.collection)
   end
 
+  test 'v6 results pages' do
+    get("/cdm/search/collection/#{@item.contentdm_alias}")
+    assert_response :moved_permanently
+    assert_redirected_to collection_items_url(@item.collection)
+  end
+
   test 'v4 about page' do
     get('/cdm4/about.php')
     assert_response :moved_permanently
