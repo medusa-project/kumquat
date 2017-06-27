@@ -65,12 +65,35 @@ class ContentdmController < ApplicationController
   ##
   # Handles CONTENTdm v6 collection URLs.
   #
-  # Responds to GET /cdm/landingpage/collection/:alias
+  # Responds to:
+  #
+  # * GET /cdm/landingpage/collection/:alias
+  # * GET /cdm/about/collection/:alias
   #
   def v6_collection
     col = Collection.find_by_contentdm_alias(params[:alias])
     if col
       redirect_to collection_url(col), status: 301
+    else
+      redirect_to collections_url, status: 303
+    end
+  end
+
+  ##
+  # Handles CONTENTdm v6 collection items URLs.
+  #
+  # Responds to:
+  # * GET /cdm/search/collection/:alias
+  # * GET /cdm/search/collection/:alias/searchterm/:term/field/:field/mode/:mode/conn/:conn/order/:order
+  #
+  def v6_collection_items
+    col = Collection.find_by_contentdm_alias(sanitize_alias(params[:alias]))
+    if col
+      if params[:term]
+        redirect_to collection_items_url(col, q: params[:term]), status: 301
+      else
+        redirect_to collection_items_url(col), status: 301
+      end
     else
       redirect_to collections_url, status: 303
     end
@@ -85,6 +108,7 @@ class ContentdmController < ApplicationController
   # * GET /cdm/singleitem/collection/:alias/id/:pointer
   # * GET /cdm/singleitem/collection/:alias/id/:pointer/rec/:noop
   # * GET /cdm/compoundobject/collection/:alias/id/:pointer
+  # * GET /cdm/compoundobject/collection/:alias/id/:pointer/rec/:noop
   # * GET /cdm/compoundobject/collection/:alias/id/:pointer/show/:pointer/rec/:noop
   #
   def v6_item
@@ -94,7 +118,13 @@ class ContentdmController < ApplicationController
   ##
   # Handles CONTENTdm 6 search results URLs.
   #
-  # Responds to GET /cdm/search/searchterm/:term
+  # Responds to:
+  #
+  # * GET /cdm/search/searchterm/:term
+  # * GET /cdm/search/searchterm/:term/mode/:mode
+  # * GET /cdm/search/searchterm/:term/mode/:mode/page/:page
+  # * GET /cdm/search/searchterm/:term/mode/:mode/order/:order
+  # * GET /cdm/search/searchterm/:term/mode/:mode/order/:order/ad/desc
   #
   def v6_search_results
     redirect_to search_url(q: params[:term]), status: 301

@@ -88,6 +88,8 @@ Rails.application.routes.draw do
   # Intercept v6 CONTENTdm compound object URLs.
   match '/cdm/compoundobject/collection/:alias/id/:pointer',
         to: 'contentdm#v6_item', via: :all
+  match '/cdm/compoundobject/collection/:alias/id/:pointer/rec/:noop',
+        to: 'contentdm#v6_item', via: :all
   match '/cdm/compoundobject/collection/:alias/id/:pointer/show/:noop1/rec/:noop2',
         to: 'contentdm#v6_item', via: :all
   # Intercept v4 CONTENTdm collection pages.
@@ -95,6 +97,8 @@ Rails.application.routes.draw do
         to: 'contentdm#v4_collection', via: :all
   # Intercept v6 CONTENTdm collection pages.
   match '/cdm/landingpage/collection/:alias',
+        to: 'contentdm#v6_collection', via: :all
+  match '/cdm/about/collection/:alias',
         to: 'contentdm#v6_collection', via: :all
   # Intercept other v4 CONTENTdm pages.
   match '/cdm4/about.php',
@@ -114,7 +118,19 @@ Rails.application.routes.draw do
         to: redirect('/favorites', status: 301), via: :all
   match '/cdm/search',
         to: redirect('/items', status: 301), via: :all
+  match '/cdm/search/collection/:alias',
+        to: 'contentdm#v6_collection_items', via: :all
+  match '/cdm/search/collection/:alias/searchterm/:term/field/:field/mode/:mode/conn/:conn/order/:order',
+        to: 'contentdm#v6_collection_items', via: :all
   match '/cdm/search/searchterm/:term',
+        to: 'contentdm#v6_search_results', via: :all
+  match '/cdm/search/searchterm/:term/mode/:mode',
+        to: 'contentdm#v6_search_results', via: :all
+  match '/cdm/search/searchterm/:term/mode/:mode/page/:page',
+        to: 'contentdm#v6_search_results', via: :all
+  match '/cdm/search/searchterm/:term/mode/:mode/order/:order',
+        to: 'contentdm#v6_search_results', via: :all
+  match '/cdm/search/searchterm/:term/mode/:mode/order/:order/ad/desc',
         to: 'contentdm#v6_search_results', via: :all
 
   resources :agents, only: :show do

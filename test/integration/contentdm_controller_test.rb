@@ -75,6 +75,10 @@ class ContentdmControllerTest < ActionDispatch::IntegrationTest
     assert_response :moved_permanently
     assert_redirected_to @item
 
+    get("/cdm/compoundobject/collection/#{@item.contentdm_alias}/id/#{@item.contentdm_pointer}/rec/3")
+    assert_response :moved_permanently
+    assert_redirected_to @item
+
     get("/cdm/compoundobject/collection/#{@item.contentdm_alias}/id/#{@item.contentdm_pointer}/show/#{@item.contentdm_pointer}/rec/3")
     assert_response :moved_permanently
     assert_redirected_to @item
@@ -85,7 +89,11 @@ class ContentdmControllerTest < ActionDispatch::IntegrationTest
     assert_response :see_other
     assert_redirected_to root_url
 
-    get("/cdm/compoundobject/collection/bogus/id/10/show/10/rec/3")
+    get('/cdm/compoundobject/collection/bogus/id/10/rec/3')
+    assert_response :see_other
+    assert_redirected_to root_url
+
+    get('/cdm/compoundobject/collection/bogus/id/10/show/10/rec/3')
     assert_response :see_other
     assert_redirected_to root_url
   end
@@ -106,10 +114,18 @@ class ContentdmControllerTest < ActionDispatch::IntegrationTest
     get("/cdm/landingpage/collection/#{@item.contentdm_alias}")
     assert_response :moved_permanently
     assert_redirected_to @item.collection
+
+    get("/cdm/about/collection/#{@item.contentdm_alias}")
+    assert_response :moved_permanently
+    assert_redirected_to @item.collection
   end
 
   test 'v6 collection pages with nonexistent collection' do
     get('/cdm/landingpage/collection/bogus')
+    assert_response :see_other
+    assert_redirected_to collections_url
+
+    get('/cdm/about/collection/bogus')
     assert_response :see_other
     assert_redirected_to collections_url
   end
@@ -124,6 +140,16 @@ class ContentdmControllerTest < ActionDispatch::IntegrationTest
     get("/cdm4/results.php?CISOROOT=#{@item.contentdm_alias}")
     assert_response :moved_permanently
     assert_redirected_to collection_items_url(@item.collection)
+  end
+
+  test 'v6 results pages' do
+    get("/cdm/search/collection/#{@item.contentdm_alias}")
+    assert_response :moved_permanently
+    assert_redirected_to collection_items_url(@item.collection)
+
+    get("/cdm/search/collection/#{@item.contentdm_alias}/searchterm/cats/field/subjec/mode/exact/conn/and/order/nosort")
+    assert_response :moved_permanently
+    assert_redirected_to collection_items_url(@item.collection) + '?q=cats'
   end
 
   test 'v4 about page' do
@@ -170,6 +196,22 @@ class ContentdmControllerTest < ActionDispatch::IntegrationTest
 
   test 'v6 search results' do
     get('/cdm/search/searchterm/test')
+    assert_response :moved_permanently
+    assert_redirected_to search_url + '?q=test'
+
+    get('/cdm/search/searchterm/test/mode/bogus')
+    assert_response :moved_permanently
+    assert_redirected_to search_url + '?q=test'
+
+    get('/cdm/search/searchterm/test/mode/bogus/page/2')
+    assert_response :moved_permanently
+    assert_redirected_to search_url + '?q=test'
+
+    get('/cdm/search/searchterm/test/mode/bogus/order/bogus')
+    assert_response :moved_permanently
+    assert_redirected_to search_url + '?q=test'
+
+    get('/cdm/search/searchterm/test/mode/bogus/order/bogus/ad/desc')
     assert_response :moved_permanently
     assert_redirected_to search_url + '?q=test'
   end
