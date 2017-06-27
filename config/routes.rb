@@ -126,6 +126,8 @@ Rails.application.routes.draw do
         to: 'contentdm#v6_search_results', via: :all
   match '/cdm/search/searchterm/:term/mode/:mode/order/:order',
         to: 'contentdm#v6_search_results', via: :all
+  match '/cdm/search/searchterm/:term/mode/:mode/order/:order/ad/desc',
+        to: 'contentdm#v6_search_results', via: :all
 
   resources :agents, only: :show do
     match '/items', to: 'agents#items', via: :get, as: 'items'
