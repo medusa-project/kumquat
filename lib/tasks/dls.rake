@@ -134,6 +134,33 @@ namespace :dls do
 
   end
 
+  namespace :elements do
+
+    desc 'Generate a report of all names'
+    task :names => :environment do |task, args|
+      sql = "SELECT collections.repository_id AS collection_id,
+          items.repository_id AS item_id, entity_elements.name,
+          entity_elements.value, entity_elements.uri
+        FROM entity_elements
+        LEFT JOIN items ON entity_elements.item_id = items.id
+        LEFT JOIN collections ON collections.repository_id = items.collection_repository_id
+        WHERE entity_elements.type = $1
+          AND entity_elements.name IN ($2, $3)
+          AND collections.published = true
+        ORDER BY collection_id, item_id, entity_elements.name,
+          entity_elements.value ASC"
+
+      values = [[ nil, 'ItemElement' ], [ nil, 'creator' ], [nil, 'contributor']]
+
+      tsv = "collection_id\titem_id\telement_name\telement_value\telement_uri" + Item::TSV_LINE_BREAK
+      ActiveRecord::Base.connection.exec_query(sql, 'SQL', values).each do |row|
+        tsv += row.values.join("\t") + Item::TSV_LINE_BREAK
+      end
+      puts tsv
+    end
+
+  end
+
   namespace :images do
 
     desc 'Purge an item\'s images from the image server cache'
