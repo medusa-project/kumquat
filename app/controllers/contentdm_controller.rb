@@ -95,7 +95,10 @@ class ContentdmController < ApplicationController
   #
   # Responds to:
   # * GET /cdm/search/collection/:alias
+  # * GET /cdm/search/collection/:alias/searchterm/:term/mode/:mode/page/:page
+  # * GET /cdm/search/collection/:alias/searchterm/:term/mode/:mode/order/:title
   # * GET /cdm/search/collection/:alias/searchterm/:term/field/:field/mode/:mode/conn/:conn/order/:order
+  # * GET /cdm/search/collection/:alias/searchterm/:term/field/:field/mode/:mode/conn/:conn/order/:order/page/:page
   #
   def v6_collection_items
     col = Collection.find_by_contentdm_alias(sanitize_alias(params[:alias]))

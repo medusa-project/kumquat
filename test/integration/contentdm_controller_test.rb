@@ -158,9 +158,31 @@ class ContentdmControllerTest < ActionDispatch::IntegrationTest
     assert_response :moved_permanently
     assert_redirected_to collection_items_url(@item.collection)
 
+    get("/cdm/search/collection/#{@item.contentdm_alias}/searchterm/cats/mode/exact/order/title")
+    assert_response :moved_permanently
+    assert_redirected_to collection_items_url(@item.collection) + '?q=cats'
+
+    get("/cdm/search/collection/#{@item.contentdm_alias}/searchterm/cats/mode/exact/page/2")
+    assert_response :moved_permanently
+    assert_redirected_to collection_items_url(@item.collection) + '?q=cats'
+
     get("/cdm/search/collection/#{@item.contentdm_alias}/searchterm/cats/field/subjec/mode/exact/conn/and/order/nosort")
     assert_response :moved_permanently
     assert_redirected_to collection_items_url(@item.collection) + '?q=cats'
+
+    get("/cdm/search/collection/#{@item.contentdm_alias}/searchterm/cats/field/subjec/mode/exact/conn/and/order/nosort/page/2")
+    assert_response :moved_permanently
+    assert_redirected_to collection_items_url(@item.collection) + '?q=cats'
+  end
+
+  test 'v4 OAI-PMH' do
+    get('/cgi-bin/oai.exe')
+    assert_response :moved_permanently
+    assert_redirected_to oai_pmh_url
+
+    get('/cgi-bin/oai2.exe')
+    assert_response :moved_permanently
+    assert_redirected_to oai_pmh_url
   end
 
   test 'v4 about page' do
@@ -197,6 +219,12 @@ class ContentdmControllerTest < ActionDispatch::IntegrationTest
     get('/cdm/favorites')
     assert_response :moved_permanently
     assert_redirected_to favorites_url
+  end
+
+  test 'v6 OAI-PMH' do
+    get('/oai/oai.php')
+    assert_response :moved_permanently
+    assert_redirected_to oai_pmh_url
   end
 
   test 'v6 search page' do

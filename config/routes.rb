@@ -206,6 +206,11 @@ Rails.application.routes.draw do
         to: 'contentdm#v4_collection_items', via: :all
   match '/cdm4/search.php',
         to: redirect('/', status: 301), via: :all
+  # OAI-PMH
+  match '/cgi-bin/oai.exe',
+        to: redirect('/oai-pmh'), via: :all
+  match '/cgi-bin/oai2.exe',
+        to: redirect('/oai-pmh'), via: :all
   # Other pages
   match '/cdm4/about.php',
         to: redirect('/collections', status: 301), via: :all
@@ -243,7 +248,13 @@ Rails.application.routes.draw do
         to: redirect('/items', status: 301), via: :all
   match '/cdm/search/collection/:alias',
         to: 'contentdm#v6_collection_items', via: :all
+  match '/cdm/search/collection/:alias/searchterm/:term/mode/:mode/page/:page',
+        to: 'contentdm#v6_collection_items', via: :all
+  match '/cdm/search/collection/:alias/searchterm/:term/mode/:mode/order/:order',
+        to: 'contentdm#v6_collection_items', via: :all
   match '/cdm/search/collection/:alias/searchterm/:term/field/:field/mode/:mode/conn/:conn/order/:order',
+        to: 'contentdm#v6_collection_items', via: :all
+  match '/cdm/search/collection/:alias/searchterm/:term/field/:field/mode/:mode/conn/:conn/order/:order/page/:page',
         to: 'contentdm#v6_collection_items', via: :all
   match '/cdm/search/searchterm/:term',
         to: 'contentdm#v6_search_results', via: :all
@@ -255,6 +266,9 @@ Rails.application.routes.draw do
         to: 'contentdm#v6_search_results', via: :all
   match '/cdm/search/searchterm/:term/mode/:mode/order/:order/ad/desc',
         to: 'contentdm#v6_search_results', via: :all
+  # OAI-PMH
+  match '/oai/oai.php',
+        to: redirect('/oai-pmh'), via: :all
   # Other pages
   match '/cdm/about',
         to: redirect('/', status: 301), via: :all
@@ -263,7 +277,7 @@ Rails.application.routes.draw do
   # I don't even know what these are; maybe used by the Project Client?
   match '/projects/*glob',
         to: 'contentdm#gone', via: :all
-  match '/ui/cdm/*glob',
+  match '/ui/*glob',
         to: 'contentdm#gone', via: :all
   match '/utils/*glob',
         to: 'contentdm#gone', via: :all
