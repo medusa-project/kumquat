@@ -92,22 +92,28 @@ class MedusaMixedMediaIngester < MedusaAbstractIngester
 
       if top_item_dir.directories.any?
         top_item_dir.directories.each do |child_dir|
-          # Find or create the child item.
-          child = Item.find_by_repository_id(child_dir.uuid)
-          if child
-            @@logger.info("MedusaMixedMediaIngester.create_items(): "\
-                  "skipping child item #{child_dir.uuid}")
-            status[:num_skipped] += 1
-            next
+          # If the item directory contains only one child directory, assemble
+          # the item as standalone with no children.
+          if top_item_dir.directories.length == 1
+            child = item
           else
-            @@logger.info("MedusaMixedMediaIngester.create_items(): "\
+            # Find or create the child item.
+            child = Item.find_by_repository_id(child_dir.uuid)
+            if child
+              @@logger.info("MedusaMixedMediaIngester.create_items(): "\
+                  "skipping child item #{child_dir.uuid}")
+              status[:num_skipped] += 1
+              next
+            else
+              @@logger.info("MedusaMixedMediaIngester.create_items(): "\
                   "creating child item #{child_dir.uuid}")
-            child = Item.new(repository_id: child_dir.uuid,
-                             collection_repository_id: collection.repository_id,
-                             parent_repository_id: item.repository_id)
-            # Assign a title of the filename.
-            child.elements.build(name: 'title', value: child_dir.name)
-            status[:num_created] += 1
+              child = Item.new(repository_id: child_dir.uuid,
+                               collection_repository_id: collection.repository_id,
+                               parent_repository_id: item.repository_id)
+              # Assign a title of the filename.
+              child.elements.build(name: 'title', value: child_dir.name)
+              status[:num_created] += 1
+            end
           end
 
           # Create the child item's preservation binaries.
@@ -123,18 +129,22 @@ class MedusaMixedMediaIngester < MedusaAbstractIngester
                         to_binary(Binary::MasterType::PRESERVATION,
                                   media_category_for_master_type(pres_type_dir.name))
 
-                    # Set the child's variant.
-                    basename = File.basename(pres_file.repository_relative_pathname)
-                    if basename.include?('_frontmatter')
-                      child.variant = Item::Variants::FRONT_MATTER
-                    elsif basename.include?('_index')
-                      child.variant = Item::Variants::INDEX
-                    elsif basename.include?('_key')
-                      child.variant = Item::Variants::KEY
-                    elsif basename.include?('_title')
-                      child.variant = Item::Variants::TITLE
-                    else
-                      child.variant = Item::Variants::PAGE
+                    # Set the child's variant (if it indeed is a child and
+                    # not a top-level item referred by a variable named
+                    # `child`).
+                    if child.parent
+                      basename = File.basename(pres_file.repository_relative_pathname)
+                      if basename.include?('_frontmatter')
+                        child.variant = Item::Variants::FRONT_MATTER
+                      elsif basename.include?('_index')
+                        child.variant = Item::Variants::INDEX
+                      elsif basename.include?('_key')
+                        child.variant = Item::Variants::KEY
+                      elsif basename.include?('_title')
+                        child.variant = Item::Variants::TITLE
+                      else
+                        child.variant = Item::Variants::PAGE
+                      end
                     end
 
                     child.update_from_embedded_metadata(options) if
@@ -280,8 +290,15 @@ class MedusaMixedMediaIngester < MedusaAbstractIngester
 
       if top_item_dir.directories.any?
         top_item_dir.directories.each do |child_dir|
-          # Find the child item.
-          child = Item.find_by_repository_id(child_dir.uuid)
+          # If the item directory contains only one child directory, assemble
+          # the item as standalone with no children.
+          if top_item_dir.directories.length == 1
+            child = item
+          else
+            # Find the child item.
+            child = Item.find_by_repository_id(child_dir.uuid)
+          end
+
           if child
             @@logger.info("MedusaCompoundObjectIngester.recreate_binaries(): "\
                       "updating child item #{child.repository_id}")
