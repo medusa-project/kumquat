@@ -92,6 +92,17 @@ module ApplicationHelper
   end
 
   ##
+  # Overrides Rails' implementation to use the correct scheme.
+  #
+  # @param image [String]
+  # @param options [Hash]
+  # @return [String]
+  #
+  def image_url(image, options = {})
+    URI.join(root_url, image_path(image, options))
+  end
+
+  ##
   # @param search_term [String]
   # @param suggestions [Enumerable<String>]
   # @return [String] HTML string

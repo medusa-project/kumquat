@@ -6,6 +6,17 @@ class ContentdmControllerTest < ActionDispatch::IntegrationTest
     @item = items(:sanborn_obj1)
   end
 
+  test 'gone' do
+    get('/ui/cdm/bla/bla')
+    assert_response :gone
+
+    get('/utils/getthumbnail/collection/alias/id/2')
+    assert_response :gone
+
+    get('/projects/test')
+    assert_response :gone
+  end
+
   test 'v4 reference URLs with valid item' do
     get("/u?/#{@item.contentdm_alias},#{@item.contentdm_pointer}")
     assert_response :moved_permanently

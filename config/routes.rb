@@ -66,72 +66,7 @@ Rails.application.routes.draw do
   match '/404', to: 'errors#not_found', via: :all
   match '/500', to: 'errors#internal_server_error', via: :all
 
-  # Intercept v4 CONTENTdm reference URLs.
-  match '/u',
-        to: 'contentdm#v4_reference_url', via: :all
-  # Intercept v6 CONTENTdm reference URLs.
-  match '/cdm/ref/collection/:alias/:pointer',
-        to: 'contentdm#v6_item', via: :all
-  match '/cdm/ref/collection/:alias/id/:pointer',
-        to: 'contentdm#v6_item', via: :all
-  # Intercept v4 CONTENTdm single-item URLs.
-  match '/cdm4/item_viewer.php',
-        to: 'contentdm#v4_item', via: :all
-  # Intercept v6 CONTENTdm single-item URLs.
-  match '/cdm/singleitem/collection/:alias/id/:pointer',
-        to: 'contentdm#v6_item', via: :all
-  match '/cdm/singleitem/collection/:alias/id/:pointer/rec/:noop',
-        to: 'contentdm#v6_item', via: :all
-  # Intercept v4 CONTENTdm compound object URLs.
-  match '/cdm4/document.php',
-        to: 'contentdm#v4_item', via: :all
-  # Intercept v6 CONTENTdm compound object URLs.
-  match '/cdm/compoundobject/collection/:alias/id/:pointer',
-        to: 'contentdm#v6_item', via: :all
-  match '/cdm/compoundobject/collection/:alias/id/:pointer/rec/:noop',
-        to: 'contentdm#v6_item', via: :all
-  match '/cdm/compoundobject/collection/:alias/id/:pointer/show/:noop1/rec/:noop2',
-        to: 'contentdm#v6_item', via: :all
-  # Intercept v4 CONTENTdm collection pages.
-  match '/cdm4/browse.php',
-        to: 'contentdm#v4_collection', via: :all
-  # Intercept v6 CONTENTdm collection pages.
-  match '/cdm/landingpage/collection/:alias',
-        to: 'contentdm#v6_collection', via: :all
-  match '/cdm/about/collection/:alias',
-        to: 'contentdm#v6_collection', via: :all
-  # Intercept other v4 CONTENTdm pages.
-  match '/cdm4/about.php',
-        to: redirect('/collections', status: 301), via: :all
-  match '/cdm4/favorites.php',
-        to: redirect('/favorites', status: 301), via: :all
-  match '/cdm4/help.php',
-        to: redirect('/', status: 301), via: :all
-  match '/cdm4/results.php',
-        to: 'contentdm#v4_collection_items', via: :all
-  match '/cdm4/search.php',
-        to: redirect('/', status: 301), via: :all
-  # Intercept other v6 CONTENTdm pages.
-  match '/cdm/about',
-        to: redirect('/', status: 301), via: :all
-  match '/cdm/favorites',
-        to: redirect('/favorites', status: 301), via: :all
-  match '/cdm/search',
-        to: redirect('/items', status: 301), via: :all
-  match '/cdm/search/collection/:alias',
-        to: 'contentdm#v6_collection_items', via: :all
-  match '/cdm/search/collection/:alias/searchterm/:term/field/:field/mode/:mode/conn/:conn/order/:order',
-        to: 'contentdm#v6_collection_items', via: :all
-  match '/cdm/search/searchterm/:term',
-        to: 'contentdm#v6_search_results', via: :all
-  match '/cdm/search/searchterm/:term/mode/:mode',
-        to: 'contentdm#v6_search_results', via: :all
-  match '/cdm/search/searchterm/:term/mode/:mode/page/:page',
-        to: 'contentdm#v6_search_results', via: :all
-  match '/cdm/search/searchterm/:term/mode/:mode/order/:order',
-        to: 'contentdm#v6_search_results', via: :all
-  match '/cdm/search/searchterm/:term/mode/:mode/order/:order/ad/desc',
-        to: 'contentdm#v6_search_results', via: :all
+  ######################### Public website routes ###########################
 
   resources :agents, only: :show do
     match '/items', to: 'agents#items', via: :get, as: 'items'
@@ -176,7 +111,8 @@ Rails.application.routes.draw do
   match '/signin', to: 'sessions#new', via: :get
   match '/signout', to: 'sessions#destroy', via: :delete
 
-  # Control Panel routes.
+  ######################### Control Panel routes ###########################
+
   namespace :admin do
     root 'dashboard#index'
 
@@ -243,7 +179,8 @@ Rails.application.routes.draw do
           as: 'vocabulary_import'
   end
 
-  # REST API routes.
+  ############################ REST API routes ##############################
+
   namespace :api do
     root 'landing#index'
     resources :collections, only: [:index, :show, :update] do
@@ -252,5 +189,86 @@ Rails.application.routes.draw do
     resources :items, only: [:index, :show, :destroy]
     match '/items/:id', to: 'items#update', via: :put
   end
+
+  ######################## CONTENTdm v4/5 redirects #########################
+
+  # Reference URLs
+  match '/u',
+        to: 'contentdm#v4_reference_url', via: :all
+  # Single-item URLs
+  match '/cdm4/item_viewer.php',
+        to: 'contentdm#v4_item', via: :all
+  # Compound object URLs
+  match '/cdm4/document.php',
+        to: 'contentdm#v4_item', via: :all
+  # Collection pages
+  match '/cdm4/browse.php',
+        to: 'contentdm#v4_collection', via: :all
+  # Search results pages
+  match '/cdm4/results.php',
+        to: 'contentdm#v4_collection_items', via: :all
+  match '/cdm4/search.php',
+        to: redirect('/', status: 301), via: :all
+  # Other pages
+  match '/cdm4/about.php',
+        to: redirect('/collections', status: 301), via: :all
+  match '/cdm4/favorites.php',
+        to: redirect('/favorites', status: 301), via: :all
+  match '/cdm4/help.php',
+        to: redirect('/', status: 301), via: :all
+
+  ######################### CONTENTdm v6 redirects ##########################
+
+  # Reference URLs
+  match '/cdm/ref/collection/:alias/:pointer',
+        to: 'contentdm#v6_item', via: :all
+  match '/cdm/ref/collection/:alias/id/:pointer',
+        to: 'contentdm#v6_item', via: :all
+  # Single-item URLs
+  match '/cdm/singleitem/collection/:alias/id/:pointer',
+        to: 'contentdm#v6_item', via: :all
+  match '/cdm/singleitem/collection/:alias/id/:pointer/rec/:noop',
+        to: 'contentdm#v6_item', via: :all
+  # Compound object URLs
+  match '/cdm/compoundobject/collection/:alias/id/:pointer',
+        to: 'contentdm#v6_item', via: :all
+  match '/cdm/compoundobject/collection/:alias/id/:pointer/rec/:noop',
+        to: 'contentdm#v6_item', via: :all
+  match '/cdm/compoundobject/collection/:alias/id/:pointer/show/:noop1/rec/:noop2',
+        to: 'contentdm#v6_item', via: :all
+  # Collection pages
+  match '/cdm/landingpage/collection/:alias',
+        to: 'contentdm#v6_collection', via: :all
+  match '/cdm/about/collection/:alias',
+        to: 'contentdm#v6_collection', via: :all
+  # Search results pages
+  match '/cdm/search',
+        to: redirect('/items', status: 301), via: :all
+  match '/cdm/search/collection/:alias',
+        to: 'contentdm#v6_collection_items', via: :all
+  match '/cdm/search/collection/:alias/searchterm/:term/field/:field/mode/:mode/conn/:conn/order/:order',
+        to: 'contentdm#v6_collection_items', via: :all
+  match '/cdm/search/searchterm/:term',
+        to: 'contentdm#v6_search_results', via: :all
+  match '/cdm/search/searchterm/:term/mode/:mode',
+        to: 'contentdm#v6_search_results', via: :all
+  match '/cdm/search/searchterm/:term/mode/:mode/page/:page',
+        to: 'contentdm#v6_search_results', via: :all
+  match '/cdm/search/searchterm/:term/mode/:mode/order/:order',
+        to: 'contentdm#v6_search_results', via: :all
+  match '/cdm/search/searchterm/:term/mode/:mode/order/:order/ad/desc',
+        to: 'contentdm#v6_search_results', via: :all
+  # Other pages
+  match '/cdm/about',
+        to: redirect('/', status: 301), via: :all
+  match '/cdm/favorites',
+        to: redirect('/favorites', status: 301), via: :all
+  # I don't even know what these are; maybe used by the Project Client?
+  match '/projects/*glob',
+        to: 'contentdm#gone', via: :all
+  match '/ui/cdm/*glob',
+        to: 'contentdm#gone', via: :all
+  match '/utils/*glob',
+        to: 'contentdm#gone', via: :all
 
 end
