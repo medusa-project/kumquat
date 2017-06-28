@@ -211,6 +211,9 @@ Rails.application.routes.draw do
         to: redirect('/oai-pmh'), via: :all
   match '/cgi-bin/oai2.exe',
         to: redirect('/oai-pmh'), via: :all
+  # Admin
+  match '/cgi-bin/admin/start.exe',
+        to: redirect('/admin'), via: :all
   # Other pages
   match '/cdm4/about.php',
         to: redirect('/collections', status: 301), via: :all

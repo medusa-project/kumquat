@@ -185,6 +185,12 @@ class ContentdmControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to oai_pmh_url
   end
 
+  test 'v4 admin page' do
+    get('/cgi-bin/admin/start.exe')
+    assert_response :moved_permanently
+    assert_redirected_to admin_root_url
+  end
+
   test 'v4 about page' do
     get('/cdm4/about.php')
     assert_response :moved_permanently
