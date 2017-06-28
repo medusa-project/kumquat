@@ -6,6 +6,17 @@
 class ContentdmController < ApplicationController
 
   ##
+  # Responds to:
+  #
+  # * GET /projects/*
+  # * GET /ui/cdm/*
+  # * GET /utils/*
+  #
+  def gone
+    render text: 'This resource no longer exists.', status: :gone
+  end
+
+  ##
   # Handles CONTENTdm v4 results URLs. (CONTENTdm 4 doesn't have
   # collection-specific pages, so these redirect to DLS collection pages.)
   #
@@ -90,7 +101,8 @@ class ContentdmController < ApplicationController
     col = Collection.find_by_contentdm_alias(sanitize_alias(params[:alias]))
     if col
       if params[:term]
-        redirect_to collection_items_url(col, q: params[:term]), status: 301
+        redirect_to collection_items_url(col, q: sanitize_term(params[:term])),
+                    status: 301
       else
         redirect_to collection_items_url(col), status: 301
       end
@@ -127,7 +139,7 @@ class ContentdmController < ApplicationController
   # * GET /cdm/search/searchterm/:term/mode/:mode/order/:order/ad/desc
   #
   def v6_search_results
-    redirect_to search_url(q: params[:term]), status: 301
+    redirect_to search_url(q: sanitize_term(params[:term])), status: 301
   end
 
   private
@@ -157,6 +169,14 @@ class ContentdmController < ApplicationController
 
   def sanitize_alias(alias_)
     alias_&.gsub(/[^A-Za-z0-9_]/i, '')
+  end
+
+  ##
+  # CONTENTdm has its own allowed term syntax which we don't support.
+  # This will filter the term to allow only alphanumerics and spaces.
+  #
+  def sanitize_term(term)
+    term.gsub(/[^a-z0-9 ]/i, '')
   end
 
 end
