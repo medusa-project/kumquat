@@ -179,6 +179,30 @@ namespace :dls do
       Solr.instance.commit
     end
 
+    ##
+    # One-time-use task that changes item structure per DLD-32.
+    #
+    desc 'Migrate Mixed-Media single-page compound objects to standalone items'
+    task :migrate_mixed_media => :environment do |task, args|
+      ActiveRecord::Base.transaction do
+        Collection.where(package_profile_id: PackageProfile::MIXED_MEDIA_PROFILE.id).each do |col|
+          col.items.where(parent_repository_id: nil).each do |item|
+            if item.items.count == 1
+              puts "#{col.title}: migrating #{item.repository_id}"
+
+              child = item.items.first
+
+              child.binaries.each do |bin|
+                item.binaries << bin.dup
+              end
+
+              child.destroy!
+            end
+          end
+        end
+      end
+    end
+
     desc 'Print an item\'s Solr document'
     task :print_solr_document, [:uuid] => :environment do |task, args|
       item = Item.find_by_repository_id(args[:uuid])
