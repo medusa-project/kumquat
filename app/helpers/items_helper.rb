@@ -84,14 +84,18 @@ module ItemsHelper
       html += '    <th>Item</th>'
       html += '    <th>Master Type</th>'
       html += '    <th>Category</th>'
-      html += '    <th>Filename</th>'
+      if signed_in?
+        html += '    <th>Filename</th>'
+      end
       html += '  </tr>'
       binaries.each do |binary|
         html += '<tr>'
         html += "  <td>#{item.title}</td>"
         html += "  <td>#{binary.human_readable_master_type}</td>"
         html += "  <td>#{binary.human_readable_media_category}</td>"
-        html += "  <td>#{link_to(binary.filename, binary.medusa_url, target: '_blank')}</td>"
+        if signed_in?
+          html += "  <td>#{link_to(binary.filename, binary.medusa_url, target: '_blank')}</td>"
+        end
         html += '</tr>'
       end
       subitems.each do |subitem|
@@ -102,7 +106,9 @@ module ItemsHelper
           end
           html += "  <td>#{bs.human_readable_master_type}</td>"
           html += "  <td>#{bs.human_readable_media_category}</td>"
-          html += "  <td>#{link_to(bs.filename, bs.medusa_url, target: '_blank')}</td>"
+          if signed_in?
+            html += "  <td>#{link_to(bs.filename, bs.medusa_url, target: '_blank')}</td>"
+          end
           html += '</tr>'
         end
       end
@@ -1215,7 +1221,7 @@ module ItemsHelper
           category: 'File',
           value: binary.media_type
       }
-      if binary.cfs_file_uuid.present?
+      if binary.cfs_file_uuid.present? and signed_in?
         data << {
             label: 'Medusa CFS File',
             category: 'File',
