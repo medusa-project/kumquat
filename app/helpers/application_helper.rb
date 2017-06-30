@@ -241,7 +241,7 @@ module ApplicationHelper
         type = 'File'
       elsif entity.variant == Item::Variants::DIRECTORY
         type = 'File Folder'
-      elsif entity.items.any?
+      elsif entity.pages.any?
         type = 'Multi-Page Item'
       end
     elsif entity.kind_of?(Collection) or entity == Collection

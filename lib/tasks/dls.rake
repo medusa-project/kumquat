@@ -183,7 +183,7 @@ namespace :dls do
     # One-time-use task that changes item structure per DLD-32.
     #
     desc 'Migrate Mixed-Media single-page compound objects to standalone items'
-    task :migrate_mixed_media, [:uuid] => :environment do |task, args|
+    task :migrate_mixed_media => :environment do |task, args|
       ActiveRecord::Base.transaction do
         Collection.where(package_profile_id: PackageProfile::MIXED_MEDIA_PROFILE.id).each do |col|
           col.items.where(parent_repository_id: nil).each do |item|
@@ -192,9 +192,6 @@ namespace :dls do
 
               child = item.items.first
 
-              child.elements.each do |child_e|
-                item.elements << child_e.dup
-              end
               child.binaries.each do |bin|
                 item.binaries << bin.dup
               end
