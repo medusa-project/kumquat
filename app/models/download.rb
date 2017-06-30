@@ -65,7 +65,7 @@ class Download < ActiveRecord::Base
   # @return [String, nil]
   #
   def pathname
-    self.pathname.present? ? File.join(DOWNLOADS_DIRECTORY, self.filename) : nil
+    self.filename.present? ? File.join(DOWNLOADS_DIRECTORY, self.filename) : nil
   end
 
   ##
