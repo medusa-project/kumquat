@@ -29,25 +29,19 @@ class FavoritesController < WebsiteController
     respond_to do |format|
       format.html
       format.zip do
-        # First, check if there are any selected items present in the params.
+        # See the documentation for format.zip() in ItemsController.index().
+        #
+        # Check if there are any selected items present in the params.
         # If so, include only those. Otherwise, include all favorites.
         if params[:ids].present?
-          ids = params[:ids].split(',')
-          if ids.any?
-            @items = Item.solr.operator(:or).where("id:(#{ids.join(' ')})").
-                limit(9999)
-          end
+          item_ids = params[:ids].split(',')
+        else
+          item_ids = @items.to_a.map(&:repository_id)
         end
 
-        client = DownloaderClient.new
-        begin
-          download_url = client.download_url(@items.to_a, 'favorites')
-        rescue => e
-          flash['error'] = "#{e}"
-          redirect_to :back
-        else
-          redirect_to download_url, status: 303
-        end
+        download = Download.create
+        DownloadZipJob.perform_later(item_ids, 'favorites', download)
+        redirect_to download_url(download)
       end
     end
   end

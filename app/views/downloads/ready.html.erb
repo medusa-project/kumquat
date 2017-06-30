@@ -2,6 +2,12 @@
 
 <p>Your file is ready.</p>
 
-<%= link_to download_file_url(@download), class: 'btn btn-lg btn-success' do %>
+<% if @download.filename.present? %>
+  <% url = download_file_url(@download) %>
+<% else %>
+  <% url = @download.url %>
+<% end %>
+
+<%= link_to url, class: 'btn btn-lg btn-success' do %>
   <i class="fa fa-download"></i> Download
 <% end %>
