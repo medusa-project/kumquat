@@ -270,20 +270,21 @@ class ItemsController < WebsiteController
           }
       end
       format.zip do
-        items = download_finder.to_a
+        # Use the Medusa Downloader to generate a zip of items from
+        # download_finder. It takes the downloader time to generate the zip
+        # file manifest, which would block the web server if we did it here
+        # (DLD-94), so the strategy is to do it using the asynchronous
+        # download feature, and then stream the zip out to the user via the
+        # download button when it's ready to start streaming.
+        item_ids = download_finder.to_a.map(&:repository_id)
 
-        client = DownloaderClient.new
         start = params[:download_start].to_i + 1
-        end_ = params[:download_start].to_i + items.length
+        end_ = params[:download_start].to_i + item_ids.length
         zip_name = "items-#{start}-#{end_}"
-        begin
-          download_url = client.download_url(items, zip_name)
-        rescue => e
-          flash['error'] = "#{e}"
-          redirect_to :back
-        else
-          redirect_to download_url, status: 303
-        end
+
+        download = Download.create
+        DownloadZipJob.perform_later(item_ids, zip_name, download)
+        redirect_to download_url(download)
       end
     end
   end
@@ -342,30 +343,29 @@ class ItemsController < WebsiteController
         render json: @item.decorate(context: { web: true })
       end
       format.zip do
-        client = DownloaderClient.new
-        begin
-          # For directories, the zip file will contain content for each
-          # file-variant item at any sublevel. For compound objects, it will
-          # contain content for each item in the object.
-          if @item.variant == Item::Variants::DIRECTORY
-            if @item.items.any?
-              items = @item.all_files
-              zip_name = 'files'
-            else
-              flash['error'] = 'This directory is empty.'
-              redirect_to :back
-            end
+        # See the documentation for format.zip in index().
+        #
+        # For directories, the zip file will contain content for each
+        # file-variant item at any sublevel. For compound objects, it will
+        # contain content for each item in the object.
+        if @item.variant == Item::Variants::DIRECTORY
+          if @item.items.any?
+            items = @item.all_files
+            zip_name = 'files'
           else
-            items = @item.items.any? ? @item.items : [@item]
-            zip_name = 'item'
+            flash['error'] = 'This directory is empty.'
+            redirect_to :back
           end
-          download_url = client.download_url(items, zip_name)
-        rescue => e
-          flash['error'] = "#{e}"
-          redirect_to :back
         else
-          redirect_to download_url, status: 303
+          items = @item.items.any? ? @item.items : [@item]
+          zip_name = 'item'
         end
+
+        item_ids = items.map(&:repository_id)
+
+        download = Download.create
+        DownloadZipJob.perform_later(item_ids, zip_name, download)
+        redirect_to download_url(download)
       end
     end
   end
