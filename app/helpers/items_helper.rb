@@ -84,18 +84,14 @@ module ItemsHelper
       html += '    <th>Item</th>'
       html += '    <th>Master Type</th>'
       html += '    <th>Category</th>'
-      if signed_in?
-        html += '    <th>Filename</th>'
-      end
+      html += '    <th>Filename</th>'
       html += '  </tr>'
       binaries.each do |binary|
         html += '<tr>'
         html += "  <td>#{item.title}</td>"
         html += "  <td>#{binary.human_readable_master_type}</td>"
         html += "  <td>#{binary.human_readable_media_category}</td>"
-        if signed_in?
-          html += "  <td>#{link_to(binary.filename, binary.medusa_url, target: '_blank')}</td>"
-        end
+        html += "  <td>#{link_to(binary.filename, binary.medusa_url, target: '_blank')}</td>"
         html += '</tr>'
       end
       subitems.each do |subitem|
@@ -106,9 +102,7 @@ module ItemsHelper
           end
           html += "  <td>#{bs.human_readable_master_type}</td>"
           html += "  <td>#{bs.human_readable_media_category}</td>"
-          if signed_in?
-            html += "  <td>#{link_to(bs.filename, bs.medusa_url, target: '_blank')}</td>"
-          end
+          html += "  <td>#{link_to(bs.filename, bs.medusa_url, target: '_blank')}</td>"
           html += '</tr>'
         end
       end
@@ -542,7 +536,7 @@ module ItemsHelper
   def metadata_section(item)
     html = "<h2><a role=\"button\" data-toggle=\"collapse\"
       href=\"#pt-metadata\" aria-expanded=\"true\" aria-controls=\"pt-metadata\">
-      Descriptive Info</a></h2>
+      Descriptive Information</a></h2>
         <div id=\"pt-metadata\" class=\"collapse in\">
           <div class=\"visible-xs\">
             #{metadata_as_list(item)}
@@ -1221,7 +1215,7 @@ module ItemsHelper
           category: 'File',
           value: binary.media_type
       }
-      if binary.cfs_file_uuid.present? and signed_in?
+      if binary.cfs_file_uuid.present?
         data << {
             label: 'Medusa CFS File',
             category: 'File',

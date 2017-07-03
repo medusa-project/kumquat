@@ -220,46 +220,40 @@
   </section>
 <% end %>
 
-<% if @item.is_compound? %>
-  <% # For compound objects, display a table of all page binaries. (IMET-469) %>
-  <section>
-    <h2>
-      <a role="button" data-toggle="collapse" href="#pt-compound-binary-info"
-         aria-expanded="false" aria-controls="pt-compound-binary-info">
-        File Info</a>
-    </h2>
-    <div id="pt-compound-binary-info" class="collapse">
-      <%= compound_object_binary_info_table(@item) %>
-    </div>
-  </section>
-<% elsif @item.binaries.any? %>
-  <% @item.binaries.each do |bs| %>
-    <section>
-      <h2>
-        <a role="button" data-toggle="collapse" href="#pt-binary-<%= bs.id %>"
-           aria-expanded="false" aria-controls="pt-binary-<%= bs.id %>">
-          <%= bs.human_readable_master_type %> File</a>
-      </h2>
-      <div id="pt-binary-<%= bs.id %>" class="collapse">
-        <%= binary_metadata_as_table(bs) %>
-      </div>
-    </section>
-  <% end %>
-<% end %>
-
 <section>
   <h2>
-    <a role="button" data-toggle="collapse" href="#pt-technical-info"
-       aria-expanded="false" aria-controls="pt-technical-info">
-      Technical Info</a>
+    <% if signed_in? %>
+      <a role="button" data-toggle="collapse" href="#pt-staff-info"
+         aria-expanded="false" aria-controls="pt-staff-info">
+        Staff Information</a>
+    <% else %>
+      Staff Information
+      <%= link_to signin_path, class: 'btn btn-danger btn-xs' do %>
+        <i class="fa fa-lock"></i> Sign In
+      <% end %>
+    <% end %>
   </h2>
-  <div id="pt-technical-info" class="collapse">
-    <div class="visible-xs">
-      <%= tech_metadata_as_list(@item) %>
-    </div>
-    <div class="hidden-xs">
-      <%= tech_metadata_as_table(@item) %>
-    </div>
+  <div id="pt-staff-info" class="collapse">
+    <% if signed_in? %>
+      <% if @item.is_compound? %>
+        <% # For compound objects, display a table of all page binaries. (IMET-469) %>
+        <h3>Files</h3>
+        <%= compound_object_binary_info_table(@item) %>
+      <% elsif @item.binaries.any? %>
+        <% @item.binaries.each do |bs| %>
+              <h3><%= bs.human_readable_master_type %> File</h3>
+          <%= binary_metadata_as_table(bs) %>
+        <% end %>
+      <% end %>
+
+      <h3>Object</h3>
+      <div class="visible-xs">
+        <%= tech_metadata_as_list(@item) %>
+      </div>
+      <div class="hidden-xs">
+        <%= tech_metadata_as_table(@item) %>
+      </div>
+    <% end %>
   </div>
 </section>
 
