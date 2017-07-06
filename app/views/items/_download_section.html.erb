@@ -16,11 +16,13 @@
         <% if client_supports_zip_download? %>
           <%= link_to('',
                       class: 'btn btn-default',
+                      target: '_blank',
                       'data-toggle': 'modal',
                       'data-target': '#pt-download-zip-modal') do %>
             <i class="fa fa-file-zip-o"></i>&nbsp;&nbsp;Zip of Masters&hellip;
           <% end %>
           <%= link_to(item_url(item, format: :zip, contents: :jpegs),
+                      target: '_blank',
                       class: 'btn btn-default') do %>
             <i class="fa fa-file-zip-o"></i>&nbsp;&nbsp;Zip of JPEGs&hellip;
           <% end %>
