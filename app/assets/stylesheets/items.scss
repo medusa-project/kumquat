@@ -232,6 +232,24 @@ body#items_show {
     }
   }
 
+  #pt-download {
+    td:first-child {
+      width: 1px;
+    }
+    .pt-thumbnail {
+      display: table-cell;
+      font-size: 90px;
+      height: 100px;
+      max-height: 100px;
+      padding-bottom: 0px;
+      img {
+        margin-top: -17px;
+        max-height: 100px;
+        max-width: 100px;
+      }
+    }
+  }
+
   #pt-cite-modal {
     select {
       margin-bottom: 1em;

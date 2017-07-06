@@ -5,6 +5,11 @@
     <% item.binaries.each do |binary| %>
       <tr>
         <td>
+          <div class="pt-thumbnail">
+            <%= thumbnail_tag(binary, ItemsHelper::DEFAULT_THUMBNAIL_SIZE, :square) %>
+          </div>
+        </td>
+        <td>
           <b><%= binary.human_readable_master_type %></b>
           <br><%= binary.human_readable_media_category %>
         </td>
