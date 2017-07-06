@@ -61,7 +61,8 @@ num_batches = (num_downloadable_items / DownloaderClient::BATCH_SIZE.to_f).ceil
                           params.except(:start).merge({ format: :zip,
                                          download_start: i * DownloaderClient::BATCH_SIZE,
                                          limit: DownloaderClient::BATCH_SIZE }),
-                          class: 'btn btn-primary') %>
+                          class: 'btn btn-primary',
+                          target: '_blank') %>
             <% end %>
           </div>
         <% end %>
