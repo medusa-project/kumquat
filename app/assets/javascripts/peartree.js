@@ -123,6 +123,37 @@ var PearTree = {
     },
 
     /**
+     * Enables smooth scrolling to anchors. This is called by PearTree.init()
+     * to take effect globally, but is safe to call again to use a different
+     * offset.
+     *
+     * @param offset [Integer]
+     */
+    smoothAnchorScroll: function(offset) {
+        if (!offset && offset !== 0) {
+            offset = 0;
+        }
+        var top_padding = $('nav.navbar.navbar-default').height() + 10 + offset;
+        var root = $('html, body');
+
+        $('a[href^="#"]').off('click').on('click', function(e) {
+            // avoid interfering with other Bootstrap components
+            if ($(this).data('toggle') === 'collapse' ||
+                $(this).data('toggle') === 'tab') {
+                return;
+            }
+            e.preventDefault();
+
+            var target = this.hash;
+            root.stop().animate({
+                'scrollTop': $(target).offset().top - top_padding
+            }, 500, 'swing', function () {
+                window.location.hash = target;
+            });
+        });
+    },
+
+    /**
      * Application-level initialization.
      */
     init: function() {
@@ -150,6 +181,8 @@ var PearTree = {
         collapses.on('hide.bs.collapse', function () {
             setToggleState(toggleForCollapse($(this)), false);
         });
+
+        PearTree.smoothAnchorScroll(0);
     },
 
     /**

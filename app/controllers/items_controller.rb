@@ -331,7 +331,12 @@ class ItemsController < WebsiteController
         item_ids = items.map(&:repository_id)
 
         download = Download.create
-        DownloadZipJob.perform_later(item_ids, zip_name, download)
+        case params[:contents]
+          when 'jpegs'
+            CreateZipOfJpegsJob.perform_later(item_ids, zip_name, download)
+          else
+            DownloadZipJob.perform_later(item_ids, zip_name, download)
+        end
         redirect_to download_url(download)
       end
     end

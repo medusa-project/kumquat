@@ -26,7 +26,7 @@ num_batches = (num_downloadable_items / DownloaderClient::BATCH_SIZE.to_f).ceil
               favorites, or all favorites, if none are checked.</p>
           <% when :item %>
             <p>Zip files include access and preservation master files for the
-              current item and all child items.</p>
+              current object.</p>
           <% when :directory %>
             <p>Zip files include all files in the current folder tree.</p>
         <% end %>
