@@ -54,6 +54,8 @@ class DownloaderClient
     client.perform
     response_hash = JSON.parse(client.body_str)
     unless response_hash.has_key?('download_url')
+      CustomLogger.instance.error("DownloaderClient.download_url(): "\
+          "#{client.body_str}")
       raise IOError, response_hash['error']
     end
     response_hash['download_url']
