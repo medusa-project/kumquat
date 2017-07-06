@@ -67,43 +67,6 @@
     </ul>
   </div>
 
-  <% if (@item.variant == Item::Variants::DIRECTORY or
-      @item.effective_viewer_binary&.media_category == Binary::MediaCategory::IMAGE or
-      @item.is_compound? or @item.binaries.any?) and !@storage_offline %>
-      <div class="btn-group">
-        <button type="button" class="btn btn-default dropdown-toggle"
-                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          <i class="fa fa-download"></i> Download <span class="caret"></span>
-        </button>
-        <ul class="dropdown-menu dropdown-menu-right" role="menu">
-          <% if @item.effective_viewer_binary&.media_category == Binary::MediaCategory::IMAGE or
-              @item.is_compound? %>
-              <li>
-                <a href="#" onclick="return false;" data-toggle="modal"
-                   data-target="#pt-embed-image-modal">
-                  <i class="fa fa-external-link"></i>&nbsp;&nbsp;Embed Image</a>
-              </li>
-          <% end %>
-          <% if @item.binaries.any? %>
-              <li>
-                <a href="#" onclick="return false;" data-toggle="modal"
-                   data-target="#pt-download-modal">
-                  <i class="fa fa-file-o"></i>&nbsp;&nbsp;Download File</a>
-              </li>
-          <% end %>
-          <% if (@item.variant == Item::Variants::DIRECTORY or @item.is_compound?) and
-              client_supports_zip_download? %>
-              <li>
-                <%= link_to('', 'data-toggle': 'modal',
-                            'data-target': '#pt-download-zip-modal') do %>
-                    <i class="fa fa-file-zip-o"></i>&nbsp;&nbsp;Zip File&hellip;
-                <% end %>
-              </li>
-          <% end %>
-        </ul>
-      </div>
-  <% end %>
-
   <% mailto = curator_mailto(@item) %>
   <% if mailto %>
       <div class="btn-group">
