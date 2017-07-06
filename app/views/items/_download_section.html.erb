@@ -20,11 +20,13 @@
                       'data-target': '#pt-download-zip-modal') do %>
             <i class="fa fa-file-zip-o"></i>&nbsp;&nbsp;Zip of Masters&hellip;
           <% end %>
+          <%= link_to(item_url(item, format: :zip, contents: :jpegs),
+                      class: 'btn btn-default') do %>
+            <i class="fa fa-file-zip-o"></i>&nbsp;&nbsp;Zip of JPEGs&hellip;
+          <% end %>
         <% end %>
 
         <!-- coming soon
-        <a href="#" class="btn btn-default">
-          <i class="fa fa-zip"></i> Zip of JPEGs</a>
         <a href="#" class="btn btn-default">
           <i class="fa fa-pdf"></i> PDF</a>
         -->
