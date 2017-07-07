@@ -155,8 +155,8 @@ var PTItemView = function() {
      */
     var PTEmbedPanel = function() {
 
-        var MIN_SIZE = 200;
-        var NUM_BUTTON_SIZE_TIERS = 6;
+        var MIN_IMAGE_SIZE = 200;
+        var NUM_BUTTON_SIZE_TIERS = 5;
 
         var image_url;
         var image_info_url;
@@ -191,30 +191,40 @@ var PTItemView = function() {
             var container = $('#iiif-download');
             container.empty();
             var full_width = iiif_info['width'];
+            var full_height = iiif_info['height'];
+
+            // The 'sizes' array includes sizes only up to 1/2 size. Add the
+            // full size to make it available as a download option.
+            iiif_info['sizes'].push({
+                'width': full_width,
+                'height': full_height
+            });
+
             var num_sizes = iiif_info['sizes'].length;
 
-            // find the number of usable sizes in order to calculate button
-            // size tiers.
+            // find the number of usable sizes (i.e. sizes above
+            // MIN_IMAGE_SIZE) in order to calculate button size tiers.
             var num_usable_sizes = 0;
             for (var i = 0; i < num_sizes; i++) {
                 var width = iiif_info['sizes'][i]['width'];
                 var height = iiif_info['sizes'][i]['height'];
-                if (width >= MIN_SIZE && height >= MIN_SIZE) {
+                if (width >= MIN_IMAGE_SIZE && height >= MIN_IMAGE_SIZE) {
                     num_usable_sizes++;
                 }
             }
 
-            // Create a button for each size tier up to the maximum.
-            for (var i = 0, size_i = 0; i < num_sizes; i++) {
+            // Create a button for each size tier from the maximum down to the
+            // minimum.
+            for (var i = num_sizes - 1, size_i = num_sizes - 1; i >= 0; i--) {
                 width = iiif_info['sizes'][i]['width'];
                 height = iiif_info['sizes'][i]['height'];
 
-                if (width >= MIN_SIZE && height >= MIN_SIZE) {
+                if (width >= MIN_IMAGE_SIZE && height >= MIN_IMAGE_SIZE) {
                     var size_class = 'pt-size-' +
-                        Math.ceil(size_i / num_usable_sizes * NUM_BUTTON_SIZE_TIERS);
+                        Math.floor(size_i / num_usable_sizes * NUM_BUTTON_SIZE_TIERS);
                     var percent = Math.round(width / full_width * 100);
-                    var checked = (size_i === 0) ? 'checked' : '';
-                    var active = (size_i === 0) ? 'active' : '';
+                    var checked = (size_i === num_sizes - 1) ? 'checked' : '';
+                    var active = (size_i === num_sizes - 1) ? 'active' : '';
                     container.append(
                         '<div class="radio btn btn-default ' + size_class + ' ' + active + '">' +
                             '<label>' +
@@ -222,9 +232,11 @@ var PTItemView = function() {
                                 width + '&times;' + height + ' pixels (' + percent + '%)' +
                             '</label>' +
                         '</div><br>');
-                    size_i++;
+                    size_i--;
                 }
             }
+
+            container.append('<hr>');
 
             var qualities_div = $('<div class="form-inline"></div>');
             iiif_info['profile'][1]['qualities'].forEach(function (item) {
@@ -246,6 +258,7 @@ var PTItemView = function() {
                 }
             });
             container.append(qualities_div);
+            container.append('<hr>');
 
             var formats_div = $('<div class="form-inline"></div>');
             iiif_info['profile'][1]['formats'].forEach(function (item) {
