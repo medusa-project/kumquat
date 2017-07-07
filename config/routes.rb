@@ -85,6 +85,8 @@ Rails.application.routes.draw do
   resources :downloads, only: :show, param: :key do
     match '/file', to: 'downloads#file', via: :get, as: 'file'
   end
+  match '/download-image/:identifier/:region/:size/:rotation/:quality',
+        to: 'image_server#download_image', via: :get, as: 'download_image'
   resources :favorites, only: :index
   resources :items, only: [:index, :show] do
     match '/treedata', to: 'items#item_tree_node', via: [:get, :post]
