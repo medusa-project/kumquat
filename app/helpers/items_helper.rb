@@ -1014,14 +1014,14 @@ module ItemsHelper
     html = ''
     url = nil
     if Option::string(Option::Key::SERVER_STATUS) != 'storage_offline'
-      if entity.kind_of?(Binary)
+      if entity.kind_of?(Binary) and entity.iiif_safe?
         url = binary_image_url(entity, size, shape)
       elsif entity.kind_of?(Collection)
-        bs = entity.representative_image_binary
-        if bs
-          url = binary_image_url(bs, size, shape)
+        bin = entity.representative_image_binary
+        if bin&.iiif_safe?
+          url = binary_image_url(bin, size, shape)
         end
-      elsif entity.kind_of?(Item)
+      elsif entity.kind_of?(Item) and entity.iiif_image_binary&.iiif_safe?
         url = iiif_image_url(entity, size, shape)
       end
     end
