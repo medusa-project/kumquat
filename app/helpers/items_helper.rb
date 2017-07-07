@@ -238,19 +238,21 @@ module ItemsHelper
 
   ##
   # @param item [Item]
-  # @param size [Integer]
-  # @param shape [Symbol] :default or :square
+  # @param region [Symbol] :default or :square
+  # @param size [Symbol,Integer] Integer or :full
+  # @param format [Symbol]
   # @return [String, nil] Image URL or nil if the item is not an image
   #
-  def iiif_image_url(item, size, shape = :default)
+  def iiif_image_url(item, region = :default, size = :full, format = :jpg)
     url = nil
     bin = item.iiif_image_binary
     if bin
-      shape = (shape == :square) ? 'square' : 'full'
-      # ?time= is a nonstandard argument supported only by Cantaloupe,
-      # applicable only to videos.
-      url = sprintf('%s/%s/!%d,%d/0/default.jpg?time=00:00:01',
-                    bin.iiif_image_url, shape, size, size)
+      region = (region == :square) ? 'square' : 'full'
+      size = (size == :full) ? 'full' : "!#{size},#{size}"
+      # ?time= is a nonstandard argument supported only by Cantaloupe
+      # (FfmpegProcessor), applicable only to videos.
+      url = sprintf('%s/%s/%s/0/default.%s?time=00:00:01',
+                    bin.iiif_image_url, region, size, format)
     end
     url
   end
@@ -699,7 +701,7 @@ module ItemsHelper
       # be huge and/or in a format they can't use.
       struct[:image] = {
           '@type': 'ImageObject',
-          'contentUrl': iiif_image_url(item, 1024)
+          'contentUrl': iiif_image_url(item, :default, 1024)
       }
     end
 
@@ -812,7 +814,8 @@ module ItemsHelper
 
     # thumbnailUrl
     if iiif_image_binary
-      struct[:thumbnailUrl] = iiif_image_url(item, ItemsHelper::DEFAULT_THUMBNAIL_SIZE)
+      struct[:thumbnailUrl] = iiif_image_url(item, :default,
+                                             ItemsHelper::DEFAULT_THUMBNAIL_SIZE)
     end
 
     options[:pretty_print] ? JSON.pretty_generate(struct) : JSON.generate(struct)
@@ -892,7 +895,7 @@ module ItemsHelper
     # pinterest
     url = "http://pinterest.com/pin/create/button/?url=#{CGI::escape(url)}&description=#{CGI::escape(title)}"
     if entity.kind_of?(Item)
-      iiif_url = iiif_image_url(entity, 512)
+      iiif_url = iiif_image_url(entity, :default, 512)
       if iiif_url
         url += "&media=#{CGI::escape(iiif_url)}"
       end
@@ -1022,7 +1025,7 @@ module ItemsHelper
           url = binary_image_url(bin, size, shape)
         end
       elsif entity.kind_of?(Item) and entity.iiif_image_binary&.iiif_safe?
-        url = iiif_image_url(entity, size, shape)
+        url = iiif_image_url(entity, shape, size)
       end
     end
 
@@ -1048,7 +1051,7 @@ module ItemsHelper
     if entity.kind_of?(Binary)
       url = binary_image_url(entity, size, shape)
     elsif entity.kind_of?(Item)
-      url = iiif_image_url(entity, size, shape)
+      url = iiif_image_url(entity, shape, size)
     end
     url
   end

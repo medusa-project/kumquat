@@ -33,10 +33,13 @@
         -->
       </div>
 
-      <% if item.is_compound? %>
-        <% item.pages.each do |page| %>
-          <h3><%= page.title %></h3>
-          <%= render partial: 'download_table', locals: { item: page } %>
+      <% if item.items.any? %>
+        <% item.items.each do |subitem| %>
+          <%= render partial: 'download_table', locals: { item: subitem } %>
+        <% end %>
+      <% elsif item.variant == Item::Variants::FILE %>
+        <% item.parent.items_in_iiif_presentation_order.each do |sibling| %>
+          <%= render partial: 'download_table', locals: { item: sibling } %>
         <% end %>
       <% else %>
         <%= render partial: 'download_table', locals: { item: item } %>
