@@ -34,7 +34,7 @@
       </div>
 
       <% if item.items.any? %>
-        <% item.items.each do |subitem| %>
+        <% item.items_in_iiif_presentation_order.each do |subitem| %>
           <%= render partial: 'download_table', locals: { item: subitem } %>
         <% end %>
       <% elsif item.variant == Item::Variants::FILE %>
