@@ -58,6 +58,10 @@ module ApplicationHelper
   end
 
   ##
+  # Returns the most appropriate icon for the given object, which may be an
+  # Item, Binary, Collection, etc. If the object is unrecognized, a generic
+  # icon will be returned.
+  #
   # @param entity [Object]
   # @return [String] HTML <i> tag
   #
@@ -82,6 +86,18 @@ module ApplicationHelper
         icon = 'fa-file-o'
       elsif entity.items.any?
         icon = 'fa-cubes'
+      end
+    elsif entity.kind_of?(Binary)
+      if entity.is_audio?
+        icon = 'fa-volume-up'
+      elsif entity.is_image?
+        icon = 'fa-picture-o'
+      elsif entity.is_pdf?
+        icon = 'fa-file-pdf-o'
+      elsif entity.is_text?
+        icon = 'fa-file-text-o'
+      elsif entity.is_video?
+        icon = 'fa-film'
       end
     elsif entity == Collection or entity.kind_of?(Collection)
       icon = 'fa-folder-open-o'

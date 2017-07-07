@@ -2,8 +2,13 @@
 
 <table class="table">
   <tbody>
-    <% item.binaries.each do |binary| %>
+    <% item.binaries.order(master_type: :desc).each do |binary| %>
       <tr>
+        <td>
+          <div class="pt-thumbnail">
+            <%= thumbnail_tag(binary, ItemsHelper::DEFAULT_THUMBNAIL_SIZE, :square) %>
+          </div>
+        </td>
         <td>
           <b><%= binary.human_readable_master_type %></b>
           <br><%= binary.human_readable_media_category %>
