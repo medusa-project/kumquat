@@ -94,7 +94,7 @@ module IiifPresentationHelper
           '@id': item_iiif_image_resource_url(item, resource_name),
           motivation: 'sc:painting',
           resource: {
-              '@id': iiif_image_url(item, 1000),
+              '@id': iiif_image_url(item, :default, 1000),
               '@type': 'dctypes:Image',
               'format': bin.media_type,
               service: {
