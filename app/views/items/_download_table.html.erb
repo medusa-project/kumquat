@@ -2,37 +2,53 @@
 
 <table class="table">
   <tbody>
-    <% item.binaries.order(master_type: :desc).each do |binary| %>
-      <tr>
-        <td>
-          <div class="pt-thumbnail">
-            <%= thumbnail_tag(binary, ItemsHelper::DEFAULT_THUMBNAIL_SIZE, :square) %>
-          </div>
-        </td>
-        <td>
-          <b><%= binary.human_readable_master_type %></b>
-          <br><%= binary.human_readable_media_category %>
-        </td>
-        <td>
-          <%= link_to binary_url(binary), class: 'btn btn-default btn-sm',
+    <tr>
+      <td>
+        <div class="pt-thumbnail">
+          <%= thumbnail_tag(item, ItemsHelper::DEFAULT_THUMBNAIL_SIZE, :square) %>
+        </div>
+      </td>
+      <td>
+        <%= item.title %>
+      </td>
+      <td>
+        <div class="btn-group">
+          <%= link_to iiif_image_url(item, :default, :full, :jpg),
+                      class: 'btn btn-default btn-sm',
                       target: '_blank' do %>
-            <i class="fa fa-image"></i>
-            <%= "#{binary.human_readable_name} (#{number_to_human_size(binary.byte_size)})" %>
+            <i class="fa fa-image"></i> JPEG
           <% end %>
 
-          <% if binary.iiif_safe? and
-              binary.media_category == Binary::MediaCategory::IMAGE %>
+          <% access_master = item.binaries.select{ |b| b.master_type == Binary::MasterType::ACCESS }.first %>
+          <% if access_master %>
+            <%= link_to binary_path(access_master),
+                        class: 'btn btn-default btn-sm',
+                        target: '_blank' do %>
+              <i class="fa fa-image"></i> <%= access_master.human_readable_name %>
+            <% end %>
+          <% end %>
+
+          <% pres_master = item.binaries.select{ |b| b.master_type == Binary::MasterType::PRESERVATION }.first %>
+          <% if pres_master %>
+            <%= link_to binary_path(pres_master),
+                        class: 'btn btn-default btn-sm',
+                        target: '_blank' do %>
+              <i class="fa fa-image"></i> <%= pres_master.human_readable_name %> Master
+            <% end %>
+          <% end %>
+
+          <% if item.effective_viewer_binary&.iiif_safe? %>
             <a href="#" class="btn btn-default btn-sm"
                onclick="return false;"
                data-toggle="modal"
                data-target="#pt-custom-image-modal"
-               data-iiif-url="<%= binary.iiif_image_url %>"
-               data-iiif-info-url="<%= binary.iiif_info_url %>"
+               data-iiif-url="<%= item.effective_viewer_binary.iiif_image_url %>"
+               data-iiif-info-url="<%= item.effective_viewer_binary.iiif_info_url %>"
                data-title="<%= item.title %>">
-              <i class="fa fa-image"></i> Custom Image Format&hellip;</a>
+              <i class="fa fa-image"></i> Custom Image Embed&hellip;</a>
           <% end %>
-        </td>
-      </tr>
-    <% end %>
+        </div>
+      </td>
+    </tr>
   </tbody>
 </table>
