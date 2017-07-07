@@ -6,6 +6,9 @@ class IiifImageConverter
   @@logger = CustomLogger.instance
 
   ##
+  # Converts a single image binary to the given format and writes it as a file
+  # in the given directory.
+  #
   # @param binary [Binary]
   # @param directory [String] Directory pathname in which to create the new
   #                           image.
@@ -17,8 +20,10 @@ class IiifImageConverter
     if binary.media_type == 'image/jpeg'
       # The binary is already a JPEG, so just copy it over.
       new_pathname = directory + binary.repository_relative_pathname
+
       @@logger.debug("ImageConverter.convert_binary(): copying "\
           "#{binary.absolute_local_pathname} to #{new_pathname}")
+
       FileUtils.mkdir_p(File.dirname(new_pathname))
       FileUtils.cp(binary.absolute_local_pathname, new_pathname)
       return new_pathname
@@ -52,31 +57,51 @@ class IiifImageConverter
   end
 
   ##
+  # Converts all relevant image binaries associated with an item (or its
+  # children, depending on what kind of item it is) to the given format and
+  # writes them as files in the given directory.
+  #
   # @param item [Item]
   # @param directory [String] Directory pathname in which to create the new
   #                           images.
   # @param format [Symbol] IIIF image format extension.
+  # @param task [Task] Supply to receive progress updates.
+  # @return [void]
   #
-  def convert_images(item, directory, format)
+  def convert_images(item, directory, format, task = nil)
+    # If the item is a directory variant, convert all of the files within it,
+    # at any level in the tree.
     if item.variant == Item::Variants::DIRECTORY
       item.all_files.each do |file|
-        file.binaries.each do |bin|
+        file.binaries.each do |bin| # there should be only one
           convert_binary(bin, directory, format)
         end
       end
+    # If the item has any child items, convert those.
     elsif item.items.any?
       item.items.each do |subitem|
-        subitem.binaries.where(master_type: Binary::MasterType::ACCESS,
-                               media_category: Binary::MediaCategory::IMAGE).each do |bin|
+        binaries = subitem.binaries.where(
+            master_type: Binary::MasterType::ACCESS,
+            media_category: Binary::MediaCategory::IMAGE)
+        count = binaries.count
+        binaries.each_with_index do |bin, index|
+          task&.progress = index / count.to_f
           convert_binary(bin, directory, format)
         end
       end
+    # The item has no child items, so it's likely either standalone or a file
+    # variant.
     else
-      item.binaries.where(master_type: Binary::MasterType::ACCESS,
-                          media_category: Binary::MediaCategory::IMAGE).each do |bin|
+      binaries = item.binaries.where(
+          master_type: Binary::MasterType::ACCESS,
+          media_category: Binary::MediaCategory::IMAGE)
+      count = binaries.count
+      binaries.each_with_index do |bin, index|
+        task&.progress = index / count.to_f
         convert_binary(bin, directory, format)
       end
     end
+    task&.succeeded
   end
 
 end

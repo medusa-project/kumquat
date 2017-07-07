@@ -19,7 +19,7 @@ class CreateZipOfJpegsJob < Job
 
     Dir.mktmpdir do |tmpdir|
       items.each do |item|
-        converter.convert_images(item, tmpdir, :jpg)
+        converter.convert_images(item, tmpdir, :jpg, self.task)
       end
 
       # Create the downloads directory if it doesn't exist.
