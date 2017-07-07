@@ -14,14 +14,17 @@
           <br><%= binary.human_readable_media_category %>
         </td>
         <td>
-          <%= link_to binary.human_readable_name, binary_url(binary) %>
-          <br><%= number_to_human_size(binary.byte_size) %>
-        </td>
-        <td>
+          <%= link_to binary_url(binary), class: 'btn btn-default btn-sm',
+                      target: '_blank' do %>
+            <i class="fa fa-image"></i>
+            <%= "#{binary.human_readable_name} (#{number_to_human_size(binary.byte_size)})" %>
+          <% end %>
+
           <% if binary.iiif_safe? and
               binary.media_category == Binary::MediaCategory::IMAGE %>
             <a href="#" class="btn btn-default btn-sm"
-               onclick="return false;" data-toggle="modal"
+               onclick="return false;"
+               data-toggle="modal"
                data-target="#pt-custom-image-modal"
                data-iiif-url="<%= binary.iiif_image_url %>"
                data-iiif-info-url="<%= binary.iiif_info_url %>"
