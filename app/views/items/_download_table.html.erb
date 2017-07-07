@@ -2,7 +2,7 @@
 
 <table class="table">
   <tbody>
-    <% item.binaries.each do |binary| %>
+    <% item.binaries.order(master_type: :desc).each do |binary| %>
       <tr>
         <td>
           <div class="pt-thumbnail">
