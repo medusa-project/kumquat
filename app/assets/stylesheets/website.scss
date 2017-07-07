@@ -283,23 +283,3 @@ div.pt-thumbnail {
     vertical-align: top;
   }
 }
-
-body#landing, body#collections_show {
-  .pt-main-image {
-    text-align: center;
-    img {
-      display:block;
-      margin: 0 auto;
-      max-height: 450px;
-      max-width: 90%;
-      padding-bottom: 0.4em;
-    }
-    .pt-title {
-      color:black;
-      font-size: 1.2em;
-    }
-    .pt-collection-title {
-      color:#606060;
-    }
-  }
-}
