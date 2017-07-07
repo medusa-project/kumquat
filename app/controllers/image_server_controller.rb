@@ -31,7 +31,7 @@ class ImageServerController < WebsiteController
         '.' + format
     client = ImageServer.instance.client
 
-    send_data client.get(url), disposition: 'attachment', filename: filename
+    send_data client.get(url).body, disposition: 'attachment', filename: filename
   end
 
 end
