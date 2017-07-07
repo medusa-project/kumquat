@@ -29,9 +29,9 @@ class ImageServerController < WebsiteController
 
     filename = File.basename(binary.filename, File.extname(binary.filename)) +
         '.' + format
+    client = ImageServer.instance.client
 
-    send_data Net::HTTP.get(URI.parse(url)), disposition: 'attachment',
-              filename: filename
+    send_data client.get(url), disposition: 'attachment', filename: filename
   end
 
 end
