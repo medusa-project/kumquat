@@ -237,15 +237,10 @@ description on the right.
         font-size: $icon-size;
         height: $max-image-height;
         margin-right: 20px;
-        text-align: center;
         width: $max-image-width;
-        i {
-          display: block;
-        }
         img {
           max-height: $max-image-height;
           max-width: $max-image-width;
-          vertical-align:top;
         }
       }
       .pt-label {
@@ -270,6 +265,22 @@ description on the right.
 .pt-no-results {
   ul {
     margin-left: 0.5em;
+  }
+}
+
+div.pt-thumbnail {
+  color: #a0a0a0;
+  display: table-cell;
+  padding: 0px;
+  text-align: center;
+  vertical-align: middle;
+  i {
+    display: block;
+  }
+  img {
+    display: block;
+    margin: 0 auto;
+    vertical-align: top;
   }
 }
 
