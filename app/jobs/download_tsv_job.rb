@@ -13,6 +13,8 @@ class DownloadTsvJob < Job
     download = args[1]
     only_undescribed = args[2]
 
+    download.update(indeterminate: true)
+
     self.task.update!(status_text: "Generating TSV for #{collection.title}")
 
     Dir.mktmpdir do |tmpdir|

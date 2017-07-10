@@ -27,10 +27,11 @@ class DownloadsController < ApplicationController
     @download = Download.find_by_key(params[:key])
     raise ActiveRecord::RecordNotFound unless @download
 
-    #@download = Download.new(percent_complete: 0.45234, key: 'asdfasdf')
-    #render :ready
-
-    render @download.ready? ? :ready : :preparing
+    # Use for testing.
+    #@download = Download.new(key: 'asdfasdf',
+    #                         status: Download::Status::READY,
+    #                         indeterminate: false,
+    #                         percent_complete: Random.new.rand(0..100) / 100.0)
   end
 
 end

@@ -5,3 +5,4 @@ one:
   filename: bogus.zip
   percent_complete: 0.0
   status: 0
+  indeterminate: false
