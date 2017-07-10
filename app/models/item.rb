@@ -107,7 +107,7 @@ class Item < ActiveRecord::Base
     CLASS = 'class_si'
     COLLECTION = 'collection_si'
     # The owning collection's published status is stored to expedite queries.
-    # Naturally, when it changes, its items will need to be reindexed.
+    # When it changes, all of its items will need to be reindexed.
     COLLECTION_PUBLISHED = 'collection_published_bi'
     CREATED = 'created_dti'
     DATE = 'date_dti'
@@ -115,9 +115,6 @@ class Item < ActiveRecord::Base
     EFFECTIVE_ALLOWED_ROLES = 'effective_allowed_roles_sim'
     EFFECTIVE_DENIED_ROLES = 'effective_denied_roles_sim'
     FULL_TEXT = 'full_text_txti'
-    # Concatenation of various compound object page components or path
-    # components (see to_solr()) used for sorting items grouped structurally.
-    GROUPED_SORT = 'grouped_sort_natsort_en_i'
     ID = 'id'
     LAST_MODIFIED = 'last_modified_dti'
     LAT_LONG = 'lat_long_loc'
@@ -129,6 +126,9 @@ class Item < ActiveRecord::Base
     REPRESENTATIVE_FILENAME = 'representative_filename_si'
     REPRESENTATIVE_ITEM_ID = 'representative_item_id_si'
     SEARCH_ALL = 'searchall_natsort_en_im'
+    # Concatenation of various compound object page components or path
+    # components (see to_solr()) used for sorting items grouped structurally.
+    STRUCTURAL_SORT = 'grouped_sort_natsort_en_i' # TODO: rename this and reindex
     SUBPAGE_NUMBER = 'subpage_number_ii'
     TITLE = 'title_natsort_en_i'
     TOTAL_BYTE_SIZE = 'total_byte_size_li'
@@ -947,14 +947,14 @@ class Item < ActiveRecord::Base
 
     if [Variants::FILE, Variants::DIRECTORY].include?(self.variant)
       # (parent title)-(parent title)-(parent title)-(title)
-      doc[SolrFields::GROUPED_SORT] =
+      doc[SolrFields::STRUCTURAL_SORT] =
           (all_parents.map(&:title).reverse + [self.title]).join('-')
     else
       # parents: (repository ID)-(variant)-(page)-(subpage)-(title)
       # children: (parent ID)-(variant)-(page)-(subpage)-(title)
       sort_first_token = '000000'
       sort_last_token = 'ZZZZZZ'
-      doc[SolrFields::GROUPED_SORT] =
+      doc[SolrFields::STRUCTURAL_SORT] =
           "#{self.parent_repository_id.present? ? self.parent_repository_id : self.repository_id}-"\
           "#{self.variant.present? ? self.variant : sort_first_token}-"\
           "#{self.page_number.present? ? self.page_number : sort_last_token}-"\

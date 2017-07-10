@@ -83,9 +83,9 @@ module Admin
       if @collection.package_profile == PackageProfile::FREE_FORM_PROFILE
         finder = finder.
             exclude_variants([Item::Variants::DIRECTORY]).
-            sort(Item::SolrFields::GROUPED_SORT => :asc)
+            sort(Item::SolrFields::STRUCTURAL_SORT => :asc)
       else
-        finder = finder.sort(Item::SolrFields::GROUPED_SORT => :asc)
+        finder = finder.sort(Item::SolrFields::STRUCTURAL_SORT => :asc)
       end
 
       @items = finder.to_a

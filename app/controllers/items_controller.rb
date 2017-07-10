@@ -240,7 +240,7 @@ class ItemsController < WebsiteController
         only_described(true).
         stats(true).
         filter_queries(params[:fq]).
-        sort(Item::SolrFields::GROUPED_SORT).
+        sort(Item::SolrFields::STRUCTURAL_SORT).
         start(params[:download_start]).
         limit(params[:limit] || DownloaderClient::BATCH_SIZE)
     @num_downloadable_items = download_finder.count
