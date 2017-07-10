@@ -115,7 +115,7 @@ module ApplicationHelper
   # @return [String]
   #
   def image_url(image, options = {})
-    URI.join(root_url, image_path(image, options))
+    URI.join(root_url, image_path(image, options)).to_s
   end
 
   ##
@@ -257,7 +257,7 @@ module ApplicationHelper
         type = 'File'
       elsif entity.variant == Item::Variants::DIRECTORY
         type = 'File Folder'
-      elsif entity.pages.any?
+      elsif entity.pages.count > 1
         type = 'Multi-Page Item'
       end
     elsif entity.kind_of?(Collection) or entity == Collection
