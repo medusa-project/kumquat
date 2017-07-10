@@ -5,8 +5,8 @@
   display_thumbs = (item.variant == Item::Variants::FILE and item.parent and
       item.effective_viewer_binary&.media_category == Binary::MediaCategory::IMAGE)
   items = display_thumbs ?
-      item.parent.items_in_structural_order.limit(999).to_a.
-          reject{ |it| it.variant == Item::Variants::DIRECTORY } : []
+      item.parent.items_from_solr.order(Item::SolrFields::STRUCTURAL_SORT).
+          limit(999).to_a.reject{ |it| it.variant == Item::Variants::DIRECTORY } : []
 %>
 
 <div class="modal fade" id="pt-download-modal" tabindex="-1" role="dialog"
