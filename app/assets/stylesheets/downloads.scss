@@ -1,18 +1,18 @@
-body#preparing_download, body#download_ready {
-  #pt-page-content {
+body#download_status {
+  #pt-download-status {
     display: flex;
     flex-direction: column;
+    font-size: 1.5em;
     align-items: center;
-    font-size: 2em;
     text-align: center;
 
     div.progress {
-      margin-top: 1em;
+      margin-top: 3em;
       width: 50%;
     }
 
     #pt-progress-percent {
-      font-size: 3em;
+      font-size: 2.5em;
     }
   }
 }
