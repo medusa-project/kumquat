@@ -115,7 +115,7 @@ module ApplicationHelper
   # @return [String]
   #
   def image_url(image, options = {})
-    URI.join(root_url, image_path(image, options))
+    URI.join(root_url, image_path(image, options)).to_s
   end
 
   ##
