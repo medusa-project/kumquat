@@ -73,43 +73,6 @@
     </ul>
   </div>
 
-  <% if (@item.variant == Item::Variants::DIRECTORY or
-      @item.effective_viewer_binary&.media_category == Binary::MediaCategory::IMAGE or
-      @item.is_compound? or @item.binaries.any?) and !@storage_offline %>
-    <div class="btn-group">
-      <button type="button" class="btn btn-default dropdown-toggle"
-              data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-        <i class="fa fa-download"></i> Download <span class="caret"></span>
-      </button>
-      <ul class="dropdown-menu dropdown-menu-right" role="menu">
-        <% if @item.effective_viewer_binary&.media_category == Binary::MediaCategory::IMAGE or
-            @item.is_compound? %>
-          <li>
-            <a href="#" onclick="return false;" data-toggle="modal"
-               data-target="#pt-embed-image-modal">
-              <i class="fa fa-external-link"></i>&nbsp;&nbsp;Embed Image</a>
-          </li>
-        <% end %>
-        <% if @item.binaries.any? %>
-          <li>
-            <a href="#" onclick="return false;" data-toggle="modal"
-               data-target="#pt-download-modal">
-              <i class="fa fa-file-o"></i>&nbsp;&nbsp;Download File</a>
-          </li>
-        <% end %>
-        <% if (@item.variant == Item::Variants::DIRECTORY or @item.is_compound?) and
-            client_supports_zip_download? %>
-          <li>
-            <%= link_to('', 'data-toggle': 'modal',
-                        'data-target': '#pt-download-zip-modal') do %>
-              <i class="fa fa-file-zip-o"></i>&nbsp;&nbsp;Zip File&hellip;
-            <% end %>
-          </li>
-        <% end %>
-      </ul>
-    </div>
-  <% end %>
-
   <% mailto = curator_mailto(@item) %>
   <% if mailto %>
     <div class="btn-group">
@@ -185,8 +148,16 @@
   </div>
 
   <% if has_viewer?(@item) %>
-    <%= rights_statement(@item.effective_rightsstatements_org_statement,
-                         @item.effective_rights_statement) %>
+    <div class="row">
+      <div class="col-sm-10">
+        <%= rights_statement(@item.effective_rightsstatements_org_statement,
+                             @item.effective_rights_statement) %>
+      </div>
+      <div class="col-sm-2">
+        <a href="#pt-download-section" class="btn btn-lg btn-success">
+          <i class="fa fa-download"></i> Download</a>
+      </div>
+    </div>
   <% end %>
 <% end %>
 
@@ -222,13 +193,8 @@
 
 <%= render partial: 'staff_info' %>
 
+<%= render partial: 'download_section', locals: { item: @item } %>
 <%= render partial: 'cite_panel', locals: { item: @item } %>
-<%= render partial: 'embed_image_panel', locals: { item: @item } %>
-<%= render partial: 'download_panel', locals: { item: @item } %>
-<%= render partial: 'download_zip_panel', locals: {
-    context: (@item.variant == Item::Variants::DIRECTORY) ? :directory : :item,
-    num_downloadable_items: 0, # these are potentially expensive to calculate.
-    total_byte_size: 0 } %>
 
 <script type="application/ld+json">
   <%= schema_org_json_ld(@item) %>

@@ -1,0 +1,57 @@
+<% # Requires the following locals: item %>
+
+<% if (item.variant == Item::Variants::DIRECTORY or
+    item.effective_viewer_binary&.media_category == Binary::MediaCategory::IMAGE or
+    item.is_compound? or item.binaries.any?) and !@storage_offline %>
+
+  <section id="pt-download-section">
+    <h2>
+      <a role="button" data-toggle="collapse" href="#pt-download"
+         aria-expanded="true" aria-controls="pt-download">Download</a>
+    </h2>
+
+    <div id="pt-download" class="collapse">
+
+      <div class="btn-group" style="margin: 0.4em 0em 0.8em 0em">
+        <% if client_supports_zip_download? %>
+          <%= link_to('',
+                      class: 'btn btn-default',
+                      'data-toggle': 'modal',
+                      'data-target': '#pt-download-zip-modal') do %>
+            <i class="fa fa-file-zip-o"></i>&nbsp;&nbsp;Zip of Masters&hellip;
+          <% end %>
+          <%= link_to(item_url(item, format: :zip, contents: :jpegs),
+                      target: '_blank',
+                      class: 'btn btn-default') do %>
+            <i class="fa fa-file-zip-o"></i>&nbsp;&nbsp;Zip of JPEGs
+          <% end %>
+        <% end %>
+
+        <!-- coming soon
+        <a href="#" class="btn btn-default">
+          <i class="fa fa-pdf"></i> PDF</a>
+        -->
+      </div>
+
+      <% if item.items.any? %>
+        <% item.items_in_iiif_presentation_order.each do |subitem| %>
+          <%= render partial: 'download_table', locals: { item: subitem } %>
+        <% end %>
+      <% elsif item.variant == Item::Variants::FILE %>
+        <% item.parent.items_in_iiif_presentation_order.each do |sibling| %>
+          <%= render partial: 'download_table', locals: { item: sibling } %>
+        <% end %>
+      <% else %>
+        <%= render partial: 'download_table', locals: { item: item } %>
+      <% end %>
+
+    </div>
+  </section>
+
+  <%= render partial: 'custom_image_panel' %>
+  <%= render partial: 'download_zip_panel', locals: {
+      context: (@item.variant == Item::Variants::DIRECTORY) ? :directory : :item,
+      num_downloadable_items: 0, # these are potentially expensive to calculate.
+      total_byte_size: 0 } %>
+
+<% end %>

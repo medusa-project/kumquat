@@ -1,0 +1,55 @@
+<% # Requires the following locals: item %>
+
+<table class="table">
+  <tbody>
+    <tr>
+      <td>
+        <div class="pt-thumbnail">
+          <%= thumbnail_tag(item, ItemsHelper::DEFAULT_THUMBNAIL_SIZE, :square) %>
+        </div>
+      </td>
+      <td>
+        <%= item.title %>
+      </td>
+      <td>
+        <div class="btn-group">
+          <% if item&.iiif_image_binary&.iiif_image_identifier %>
+            <%= link_to download_image_url(item.iiif_image_binary.iiif_image_identifier, 'full', 'full', 0, 'default', 'jpg'),
+                        class: 'btn btn-default btn-sm' do %>
+              <i class="fa fa-image"></i> JPEG
+            <% end %>
+          <% end %>
+
+          <% access_master = item.binaries.select{ |b| b.master_type == Binary::MasterType::ACCESS }.first %>
+          <% if access_master %>
+            <%= link_to binary_path(access_master),
+                        class: 'btn btn-default btn-sm',
+                        target: '_blank' do %>
+              <i class="fa fa-image"></i> <%= access_master.human_readable_name %>
+            <% end %>
+          <% end %>
+
+          <% pres_master = item.binaries.select{ |b| b.master_type == Binary::MasterType::PRESERVATION }.first %>
+          <% if pres_master %>
+            <%= link_to binary_path(pres_master),
+                        class: 'btn btn-default btn-sm',
+                        target: '_blank' do %>
+              <i class="fa fa-image"></i> <%= pres_master.human_readable_name %> Master
+            <% end %>
+          <% end %>
+
+          <% if item.effective_viewer_binary&.iiif_safe? %>
+            <a href="#" class="btn btn-default btn-sm"
+               onclick="return false;"
+               data-toggle="modal"
+               data-target="#pt-custom-image-modal"
+               data-iiif-url="<%= item.effective_viewer_binary.iiif_image_url %>"
+               data-iiif-info-url="<%= item.effective_viewer_binary.iiif_info_url %>"
+               data-title="<%= item.title %>">
+              <i class="fa fa-image"></i> Custom Image Embed&hellip;</a>
+          <% end %>
+        </div>
+      </td>
+    </tr>
+  </tbody>
+</table>
