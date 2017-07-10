@@ -76,7 +76,8 @@ module ItemsHelper
   #
   def compound_object_binary_info_table(item)
     binaries = item.binaries
-    subitems = item.items_in_iiif_presentation_order.limit(999).to_a
+    subitems = item.items_from_solr.order(Item::SolrFields::STRUCTURAL_SORT).
+        limit(999).to_a
     html = ''
     if subitems.any? or binaries.any?
       html += '<table class="table">'
@@ -1257,10 +1258,12 @@ module ItemsHelper
 
       # If the object contains more than this many items, disable the gallery
       # view to allow the UI to load in a reasonable amount of time.
-      if object.items_in_iiif_presentation_order.count > 800
+      items = object.items_from_solr.order(Item::SolrFields::STRUCTURAL_SORT).
+          limit(999)
+      if items.count > 800
         return image_viewer_for(selected_item)
       end
-      object.items_in_iiif_presentation_order.each_with_index do |subitem, index|
+      items.each_with_index do |subitem, index|
         if subitem.repository_id == selected_item.repository_id
           canvas_index = index
           break
