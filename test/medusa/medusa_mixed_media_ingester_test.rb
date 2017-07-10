@@ -152,7 +152,6 @@ class MedusaMixedMediaIngesterTest < ActiveSupport::TestCase
     child = item.items.
         select{ |it| it.repository_id == '51f81d20-ea50-0134-23c2-0050569601ca-0' }.first
     assert_equal '001', child.title
-    assert_equal Item::Variants::PAGE, child.variant
     assert_equal 2, child.binaries.length
     assert_equal 'e6c511a0-ea6a-0134-23c2-0050569601ca-2',
                  child.representative_binary.cfs_file_uuid
