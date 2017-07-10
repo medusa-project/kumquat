@@ -678,9 +678,10 @@ class Item < ActiveRecord::Base
   # @return [Relation<Item>] Subitems in the order they should appear in an
   #                          IIIF Presentation API canvas.
   #
-  def items_in_iiif_presentation_order
+  def items_in_structural_order
     self.items_from_solr.order(SolrFields::PAGE_NUMBER,
                                SolrFields::SUBPAGE_NUMBER,
+                               SolrFields::REPRESENTATIVE_FILENAME,
                                SolrFields::TITLE).limit(9999)
   end
 
