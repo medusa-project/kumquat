@@ -220,48 +220,7 @@
   </section>
 <% end %>
 
-<% if @item.is_compound? %>
-  <% # For compound objects, display a table of all page binaries. (IMET-469) %>
-  <section>
-    <h2>
-      <a role="button" data-toggle="collapse" href="#pt-compound-binary-info"
-         aria-expanded="false" aria-controls="pt-compound-binary-info">
-        File Info</a>
-    </h2>
-    <div id="pt-compound-binary-info" class="collapse">
-      <%= compound_object_binary_info_table(@item) %>
-    </div>
-  </section>
-<% elsif @item.binaries.any? %>
-  <% @item.binaries.each do |bs| %>
-    <section>
-      <h2>
-        <a role="button" data-toggle="collapse" href="#pt-binary-<%= bs.id %>"
-           aria-expanded="false" aria-controls="pt-binary-<%= bs.id %>">
-          <%= bs.human_readable_master_type %> File</a>
-      </h2>
-      <div id="pt-binary-<%= bs.id %>" class="collapse">
-        <%= binary_metadata_as_table(bs) %>
-      </div>
-    </section>
-  <% end %>
-<% end %>
-
-<section>
-  <h2>
-    <a role="button" data-toggle="collapse" href="#pt-technical-info"
-       aria-expanded="false" aria-controls="pt-technical-info">
-      Technical Info</a>
-  </h2>
-  <div id="pt-technical-info" class="collapse">
-    <div class="visible-xs">
-      <%= tech_metadata_as_list(@item) %>
-    </div>
-    <div class="hidden-xs">
-      <%= tech_metadata_as_table(@item) %>
-    </div>
-  </div>
-</section>
+<%= render partial: 'staff_info' %>
 
 <%= render partial: 'cite_panel', locals: { item: @item } %>
 <%= render partial: 'embed_image_panel', locals: { item: @item } %>

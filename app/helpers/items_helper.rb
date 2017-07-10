@@ -536,7 +536,7 @@ module ItemsHelper
   def metadata_section(item)
     html = "<h2><a role=\"button\" data-toggle=\"collapse\"
       href=\"#pt-metadata\" aria-expanded=\"true\" aria-controls=\"pt-metadata\">
-      Descriptive Info</a></h2>
+      Descriptive Information</a></h2>
         <div id=\"pt-metadata\" class=\"collapse in\">
           <div class=\"visible-xs\">
             #{metadata_as_list(item)}
