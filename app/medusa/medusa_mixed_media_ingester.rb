@@ -201,8 +201,8 @@ class MedusaMixedMediaIngester < MedusaAbstractIngester
           supp_dir = child_dir.directories.
               select{ |d| d.name == 'supplementary' }.first
           if supp_dir
-            child.variant = Item::Variants::SUPPLEMENT
             if supp_dir.files.any?
+              child.variant = Item::Variants::SUPPLEMENT
               supp_dir.files.each do |file|
                 # Create the supplementary binary.
                 child.binaries << file.to_binary(Binary::MasterType::ACCESS)
