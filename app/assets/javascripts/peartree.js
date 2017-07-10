@@ -43,11 +43,18 @@ var PearTree = {
     },
 
     /**
-     * Provides an ajax filter field.
+     * Provides an ajax filter field. This will contain HTML like:
+     *
+     * <form class="pt-filter">
+     *     <input type="text">
+     *     <select> <!-- optional -->
+     * </form>
      *
      * @constructor
      */
     FilterField: function() {
+        var INPUT_DELAY_MSEC = 500;
+
         $('form.pt-filter').submit(function () {
             $.get(this.action, $(this).serialize(), null, 'script');
             $(this).nextAll('input').addClass('active');
@@ -56,25 +63,29 @@ var PearTree = {
 
         var submitForm = function () {
             var forms = $('form.pt-filter');
-            $.get(forms.attr('action'),
-                forms.serialize(),
-                function () {
-                    input.removeClass('active');
-                },
-                'script');
+            $.ajax({
+                url: forms.attr('action'),
+                method: 'GET',
+                data: forms.serialize(),
+                dataType: 'script',
+                success: function(result) {}
+            });
             return false;
         };
 
         var input_timer;
+        // When text is typed in the filter field...
         $('form.pt-filter input').on('keyup', function () {
-            var input = $(this);
-            input.addClass('active');
-
+            // Reset the typing-delay counter.
             clearTimeout(input_timer);
-            var msec = 500; // wait this long after user has stopped typing
-            input_timer = setTimeout(submitForm, msec);
+
+            // After the user has stopped typing, wait a bit and then submit
+            // the form via AJAX.
+            input_timer = setTimeout(submitForm, INPUT_DELAY_MSEC);
             return false;
         });
+        // When a select menu accompanying the filter field is changed,
+        // resubmit the form via AJAX.
         $('form.pt-filter select').on('change', function() {
             submitForm();
         });
