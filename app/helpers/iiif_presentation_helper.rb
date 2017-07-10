@@ -68,7 +68,7 @@ module IiifPresentationHelper
   # @return [Array]
   #
   def iiif_canvases_for(item)
-    items = item.items_in_iiif_presentation_order.to_a
+    items = item.items_in_structural_order.to_a
     if items.any?
       # Directory items are not viewable and composite and supplement items are
       # included in the annotation list instead.

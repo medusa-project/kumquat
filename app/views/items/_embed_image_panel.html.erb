@@ -22,7 +22,7 @@ parent_item = item.is_compound? ? item : item.parent
             <div class="col-sm-4">
               <h4>Select an Image&hellip;</h4>
               <div id="pt-image-select">
-                <% parent_item.items_in_iiif_presentation_order.
+                <% parent_item.items_in_structural_order.
                     filter(Item::SolrFields::PRIMARY_MEDIA_CATEGORY => "(#{Binary::MediaCategory::IMAGE})").
                     limit(999).to_a.each_with_index do |subitem, index| %>
                   <div class="radio">
