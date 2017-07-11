@@ -44,7 +44,8 @@
             </button>
 
             <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="pt-user-menu">
-              <li><%= link_to 'Sign Out', signout_path, method: :delete %></li>
+              <li><%= link_to 'Sign Out', signout_path(referer: request.url),
+                              method: :delete %></li>
             </ul>
           </div>
         <% else %>
