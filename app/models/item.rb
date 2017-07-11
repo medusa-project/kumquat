@@ -136,11 +136,15 @@ class Item < ActiveRecord::Base
   end
 
   class Variants
+    BACK_COVER = 'BackCover'
     COMPOSITE = 'Composite'
     DIRECTORY = 'Directory'
     FILE = 'File'
+    FRONT_COVER = 'FrontCover'
     FRONT_MATTER = 'FrontMatter'
     INDEX = 'Index'
+    INSIDE_BACK_COVER = 'InsideBackCover'
+    INSIDE_FRONT_COVER = 'InsideFrontCover'
     KEY = 'Key'
     PAGE = 'Page'
     SUPPLEMENT = 'Supplement'
