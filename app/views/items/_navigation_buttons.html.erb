@@ -6,7 +6,7 @@
       <% end %>
     <% end %>
     <% if session[:browse_context_url] %>
-      <%= link_to @next_result, class: 'btn btn-default btn-sm' do %>
+      <%= link_to session[:browse_context_url], class: 'btn btn-default btn-sm' do %>
         <i class="fa fa-mail-reply"></i> Back To Results
       <% end %>
     <% end %>
