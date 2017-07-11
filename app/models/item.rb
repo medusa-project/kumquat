@@ -135,6 +135,9 @@ class Item < ActiveRecord::Base
     VARIANT = 'variant_si'
   end
 
+  ##
+  # N.B. When modifying these, modify sort_key_for_variant() as well.
+  #
   class Variants
     BACK_COVER = 'BackCover'
     COMPOSITE = 'Composite'
@@ -910,7 +913,8 @@ class Item < ActiveRecord::Base
   end
 
   ##
-  # @return [Hash]
+  # @return [Hash] The instance's Solr representation. Modifying this will
+  #                require a reindex.
   #
   def to_solr
     doc = {}
@@ -1368,33 +1372,35 @@ class Item < ActiveRecord::Base
   end
 
   def sort_key_for_variant(variant)
+    # N.B. The key should start above 000, as that is the absolute-sort-first
+    # token.
     case variant
       when Variants::FRONT_COVER
-        return '000'
-      when Variants::INSIDE_FRONT_COVER
         return '010'
-      when Variants::TITLE
+      when Variants::INSIDE_FRONT_COVER
         return '020'
-      when Variants::FRONT_MATTER
+      when Variants::TITLE
         return '030'
-      when Variants::TABLE_OF_CONTENTS
+      when Variants::FRONT_MATTER
         return '040'
-      when Variants::KEY
+      when Variants::TABLE_OF_CONTENTS
         return '050'
-      when Variants::PAGE
+      when Variants::KEY
         return '060'
-      when Variants::INDEX
+      when Variants::PAGE
         return '070'
-      when Variants::INSIDE_BACK_COVER
+      when Variants::INDEX
         return '080'
-      when Variants::BACK_COVER
+      when Variants::INSIDE_BACK_COVER
         return '090'
-      when Variants::SUPPLEMENT
+      when Variants::BACK_COVER
         return '100'
-      when Variants::COMPOSITE
+      when Variants::SUPPLEMENT
         return '110'
+      when Variants::COMPOSITE
+        return '120'
       else
-        return '000'
+        return '005'
     end
   end
 
