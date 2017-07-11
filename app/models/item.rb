@@ -136,11 +136,15 @@ class Item < ActiveRecord::Base
   end
 
   class Variants
+    BACK_COVER = 'BackCover'
     COMPOSITE = 'Composite'
     DIRECTORY = 'Directory'
     FILE = 'File'
+    FRONT_COVER = 'FrontCover'
     FRONT_MATTER = 'FrontMatter'
     INDEX = 'Index'
+    INSIDE_BACK_COVER = 'InsideBackCover'
+    INSIDE_FRONT_COVER = 'InsideFrontCover'
     KEY = 'Key'
     PAGE = 'Page'
     SUPPLEMENT = 'Supplement'
@@ -942,7 +946,7 @@ class Item < ActiveRecord::Base
       sort_last_token = 'ZZZZZZ'
       doc[SolrFields::STRUCTURAL_SORT] =
           "#{self.parent_repository_id.present? ? self.parent_repository_id : self.repository_id}-"\
-          "#{self.variant.present? ? self.variant : sort_first_token}-"\
+          "#{self.variant.present? ? sort_key_for_variant(self.variant) : sort_first_token}-"\
           "#{self.page_number.present? ? self.page_number : sort_last_token}-"\
           "#{self.subpage_number.present? ? self.subpage_number : sort_last_token}-"\
           "#{self.title.present? ? self.title : sort_last_token}"
@@ -1360,6 +1364,37 @@ class Item < ActiveRecord::Base
       if date_elem
         self.date = TimeUtil.string_date_to_time(date_elem.value)
       end
+    end
+  end
+
+  def sort_key_for_variant(variant)
+    case variant
+      when Variants::FRONT_COVER
+        return '000'
+      when Variants::INSIDE_FRONT_COVER
+        return '010'
+      when Variants::TITLE
+        return '020'
+      when Variants::FRONT_MATTER
+        return '030'
+      when Variants::TABLE_OF_CONTENTS
+        return '040'
+      when Variants::KEY
+        return '050'
+      when Variants::PAGE
+        return '060'
+      when Variants::INDEX
+        return '070'
+      when Variants::INSIDE_BACK_COVER
+        return '080'
+      when Variants::BACK_COVER
+        return '090'
+      when Variants::SUPPLEMENT
+        return '100'
+      when Variants::COMPOSITE
+        return '110'
+      else
+        return '000'
     end
   end
 

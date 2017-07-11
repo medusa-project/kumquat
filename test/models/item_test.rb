@@ -487,7 +487,7 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal @item.class.to_s, doc[Item::SolrFields::CLASS]
     assert_equal @item.collection_repository_id,
                  doc[Item::SolrFields::COLLECTION]
-    assert_equal "#{@item.parent_repository_id}-Page-1-ZZZZZZ-#{@item.title}",
+    assert_equal "#{@item.parent_repository_id}-060-1-ZZZZZZ-#{@item.title}",
                  doc[Item::SolrFields::STRUCTURAL_SORT]
     assert doc[Item::SolrFields::COLLECTION_PUBLISHED]
     assert_equal @item.date.utc.iso8601, doc[Item::SolrFields::DATE]
