@@ -329,11 +329,11 @@ module AdminHelper
 
   def admin_system_info_as_list(item)
     html = '<dl class="visible-xs hidden-sm">'
-    admin_system_info_data(item).each do |label, value|
-      if value.respond_to?(:each)
-        value = "<ul>#{value.map{ |v| "<li>#{v}</li>" }.join}</ul>"
+    admin_system_info_data(item).each do |info|
+      if info[:value].respond_to?(:each)
+        info[:value] = "<ul>#{info[:value].map{ |v| "<li>#{v}</li>" }.join}</ul>"
       end
-      html += "<dt>#{label}</dt><dd>#{value}</dd>"
+      html += "<dt>#{info[:label]}</dt><dd>#{info[:value]}</dd>"
     end
     html += '</dl>'
     raw(html)
@@ -341,11 +341,11 @@ module AdminHelper
 
   def admin_system_info_as_table(item)
     html = '<table class="table hidden-xs">'
-    admin_system_info_data(item).each do |label, value|
-      if value.respond_to?(:each)
-        value = "<ul>#{value.map{ |v| "<li>#{v}</li>" }.join}</ul>"
+    admin_system_info_data(item).each do |info|
+      if info[:value].respond_to?(:each)
+        info[:value] = "<ul>#{info[:value].map{ |v| "<li>#{v}</li>" }.join}</ul>"
       end
-      html += "<tr><td>#{label}</td><td>#{value}</td></tr>"
+      html += "<tr><td>#{info[:label]}</td><td>#{info[:value]}</td></tr>"
     end
     html += '</table>'
     raw(html)
@@ -353,56 +353,99 @@ module AdminHelper
 
   private
 
+  ##
+  # @return [Array<Hash<Symbol,String>] Array of hashes with :label, :value,
+  #                                     and :help keys.
+  #
   def admin_system_info_data(item)
-    data = {}
-    data['Repository ID'] = item.repository_id
+    data = []
 
+    # Repository ID
+    data << { label: 'Repository ID', value: item.repository_id }
+
+    # Binary filenames
     item.binaries.each do |bs|
-      data["#{bs.human_readable_master_type} Filename"] = bs.filename
+      data << { label: "#{bs.human_readable_master_type} Filename",
+                value: bs.filename}
     end
 
-    data['Published'] = "<span class=\"label #{item.published ? 'label-success' : 'label-danger'}\">"\
-        "#{item.published ? 'Published' : 'Unpublished' }</span>"
+    # Published
+    data << { label: 'Published',
+              value: "<span class=\"label #{item.published ? 'label-success' : 'label-danger'}\">"\
+                  "#{item.published ? 'Published' : 'Unpublished' }</span>"}
 
+    # Primary IIIF Image URL
     iiif_url = item.iiif_image_binary&.iiif_image_url
-    data['Primary IIIF Image URL'] = iiif_url.present? ?
-        link_to(iiif_url, iiif_url, target: '_blank') : 'None'
+    data << { label: 'Primary IIIF Image URL',
+              value: iiif_url.present? ?
+                  link_to(iiif_url, iiif_url, target: '_blank') : 'None' }
 
-    data['Variant'] = item.variant
+    # Variant
+    data << { label: 'Variant', value: item.variant }
 
-    data['Representative Item'] = item.representative_item ?
-      link_to(item.representative_item.title,
-                      admin_collection_item_path(item.representative_item.collection,
-                                                 item.representative_item)) : ''
-    data['Page Number'] = item.page_number
-    data['Subpage Number'] = item.subpage_number
-    data['Normalized Date'] = item.date
-    data['Normalized Longitude'] = item.longitude
-    data['Normalized Latitude'] = item.latitude
-    data['CONTENTdm Alias'] = item.contentdm_alias
-    data['CONTENTdm Pointer'] = item.contentdm_pointer
-    data['RightsStatements.org (assigned)'] = item.rightsstatements_org_statement ?
-        link_to(item.rightsstatements_org_statement.name,
-                item.rightsstatements_org_statement.info_uri,
-                target: '_blank') : ''
-    data['RightsStatements.org (effective)'] = item.effective_rightsstatements_org_statement ?
-        link_to(item.effective_rightsstatements_org_statement.name,
-                item.effective_rightsstatements_org_statement.info_uri,
-                target: '_blank') : ''
+    # Representative Item
+    data << { label: 'Representative Item',
+              value: item.representative_item ?
+                  link_to(item.representative_item.title,
+                          admin_collection_item_path(item.representative_item.collection,
+                                                     item.representative_item)) : '' }
+    # Page Number
+    data << { label: 'Page Number', value: item.page_number }
 
-    data['Allowed Roles (assigned)'] = item.allowed_roles.any? ?
-        item.allowed_roles.map(&:name) : 'Any'
+    # Subpage Number
+    data << { label: 'Subpage Number', value: item.subpage_number }
+
+    # Normalized Date
+    data << { label: 'Normalized Date', value: item.date }
+
+    # Normalized Longitude
+    data << { label: 'Normalized Longitude', value: item.longitude }
+
+    # Normalized Latitude
+    data << { label: 'Normalized Latitude', value: item.latitude }
+
+    # CONTENTdm Alias
+    data << { label: 'CONTENTdm Alias', value: item.contentdm_alias }
+
+    # CONTENTdm Pointer
+    data << { label: 'CONTENTdm Pointer', value: item.contentdm_pointer }
+
+    # RightsStatements.org (assigned)
+    data << { label: 'RightsStatements.org (assigned)',
+              value: item.rightsstatements_org_statement ?
+                  link_to(item.rightsstatements_org_statement.name,
+                          item.rightsstatements_org_statement.info_uri,
+                          target: '_blank') : '' }
+    # RightsStatements.org (effective)
+    data << { label: 'RightsStatements.org (effective)',
+              value: item.effective_rightsstatements_org_statement ?
+                  link_to(item.effective_rightsstatements_org_statement.name,
+                          item.effective_rightsstatements_org_statement.info_uri,
+                          target: '_blank') : '' }
+    # Allowed Roles (assigned)
+    data << { label: 'Allowed Roles (assigned)',
+              value: item.allowed_roles.any? ?
+                  item.allowed_roles.map(&:name) : 'Any' }
+    # Allowed Roles (effective)
     effective_allowed_roles = item.effective_allowed_roles
-    data['Allowed Roles (effective)'] = effective_allowed_roles.any? ?
-        effective_allowed_roles.map(&:name) : 'Any'
-    data['Denied Roles (assigned)'] = item.denied_roles.any? ?
-        item.denied_roles.map(&:name) : 'None'
+    data << { label: 'Allowed Roles (effective)',
+              value: effective_allowed_roles.any? ?
+                  effective_allowed_roles.map(&:name) : 'Any' }
+    # Denied Roles (assigned)
+    data << { label: 'Denied Roles (assigned)',
+              value: item.denied_roles.any? ?
+                  item.denied_roles.map(&:name) : 'None' }
+    # Denied Roles (effective)
     effective_denied_roles = item.effective_denied_roles
-    data['Denied Roles (effective)'] = effective_denied_roles.any? ?
-        effective_denied_roles.map(&:name) : 'None'
+    data << { label: 'Denied Roles (effective)',
+              value: effective_denied_roles.any? ?
+                  effective_denied_roles.map(&:name) : 'None' }
+    # Created
+    data << { label: 'Created', value: local_time(item.created_at) }
 
-    data['Created'] = local_time(item.created_at)
-    data['Last Modified'] = local_time(item.updated_at)
+    # Last Modified
+    data << { label: 'Last Modified', value: local_time(item.updated_at) }
+
     data
   end
 
