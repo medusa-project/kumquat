@@ -13,12 +13,12 @@ class Solr
   # @param doc [Hash]
   #
   def add(doc)
-    @@logger.info("Solr.add(): #{doc['id']}")
+    @@logger.debug("Solr.add(): #{doc['id']}")
     client.add(doc)
   end
 
   def commit
-    @@logger.info('Solr.commit()')
+    @@logger.debug('Solr.commit()')
     client.commit
   end
 
@@ -26,7 +26,7 @@ class Solr
   # @param id [String]
   #
   def delete(id)
-    @@logger.info("Solr.delete(): #{id}")
+    @@logger.debug("Solr.delete(): #{id}")
     client.delete_by_id(id)
   end
 
@@ -34,7 +34,7 @@ class Solr
   # @param query [String]
   #
   def delete_by_query(query)
-    @@logger.info("Solr.delete_by_query(): #{query}")
+    @@logger.debug("Solr.delete_by_query(): #{query}")
     client.delete_by_query(query)
   end
 
