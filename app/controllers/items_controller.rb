@@ -417,7 +417,7 @@ class ItemsController < WebsiteController
 
     @start = params[:start].to_i
     params[:start] = @start
-    @limit = Option::integer(Option::Key::RESULTS_PER_PAGE)
+    @limit = Option::integer(Option::Keys::RESULTS_PER_PAGE)
     finder = item_finder_for(params)
     @items = finder.to_a
 
