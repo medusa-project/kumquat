@@ -1,8 +1,7 @@
 <div class="container-fluid">
-  <%= image_tag('beta.png', class: 'uiuc-beta-badge', alt: 'Beta') %>
   <header>
     <div class="row lib-shared-header">
-      <div class="col-xs-12">
+      <div class="col-sm-11 col-xs-9">
         <h1 class="sr-only">University Library, University of Illinois at Urbana-Champaign</h1>
         <div class="table-row">
           <div class="table-cell">
@@ -34,6 +33,24 @@
             </a>
           </div>
         </div>
+      </div>
+      <div class="col-sm-1 col-xs-3 pt-user">
+        <% if signed_in? %>
+          <div class="dropdown">
+            <button class="btn btn-default btn-xs dropdown-toggle" type="button"
+                    id="pt-user-menu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+              <i class="fa fa-user"></i> <%= current_user %>
+              <span class="caret"></span>
+            </button>
+
+            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="pt-user-menu">
+              <li><%= link_to 'Sign Out', signout_path(referer: request.url),
+                              method: :delete %></li>
+            </ul>
+          </div>
+        <% else %>
+          <%= link_to 'Sign In', signin_path, class: 'btn btn-xs btn-default' %>
+        <% end%>
       </div>
     </div>
   </header>

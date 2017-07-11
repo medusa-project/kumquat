@@ -32,7 +32,7 @@ class WebsiteController < ApplicationController
     @elements_for_select.unshift([ 'Any Field', Item::SolrFields::SEARCH_ALL ])
 
     @storage_offline =
-        (Option::string(Option::Key::SERVER_STATUS) == 'storage_offline')
+        (Option::string(Option::Keys::SERVER_STATUS) == 'storage_offline')
   end
 
   protected

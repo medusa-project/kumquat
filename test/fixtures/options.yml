@@ -1,21 +1,21 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 administrator_email:
-  key: <%= Option::Key::ADMINISTRATOR_EMAIL %>
+  key: <%= Option::Keys::ADMINISTRATOR_EMAIL %>
   value: '{"value" : "admin@example.org"}'
 
 oai_pmh_enabled:
-  key: <%= Option::Key::OAI_PMH_ENABLED %>
+  key: <%= Option::Keys::OAI_PMH_ENABLED %>
   value: '{"value" : 1}'
 
 results_per_page:
-  key: <%= Option::Key::RESULTS_PER_PAGE %>
+  key: <%= Option::Keys::RESULTS_PER_PAGE %>
   value: '{"value" : 20}'
 
 website_intro_text:
-  key: <%= Option::Key::WEBSITE_INTRO_TEXT %>
+  key: <%= Option::Keys::WEBSITE_INTRO_TEXT %>
   value: '{"value" : "bah humbug"}'
 
 website_name:
-  key: <%= Option::Key::WEBSITE_NAME %>
+  key: <%= Option::Keys::WEBSITE_NAME %>
   value: '{"value" : "My Great Website"}'

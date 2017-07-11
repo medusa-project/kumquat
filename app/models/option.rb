@@ -1,11 +1,11 @@
 ##
-# Encapsulates a key-value option. Keys should be one of the Option::Key
+# Encapsulates a key-value option. Keys should be one of the Option::Keys
 # constants. Values are stored as JSON internally. Simple values can be
 # accessed using the boolean, integer, or string class methods.
 #
 class Option < ActiveRecord::Base
 
-  class Key
+  class Keys
     ADMINISTRATOR_EMAIL = 'website.administrator.email'
     COPYRIGHT_STATEMENT = 'website.copyright_statement'
     FACET_TERM_LIMIT = 'website.facet_term_limit'

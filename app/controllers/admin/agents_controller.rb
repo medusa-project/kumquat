@@ -61,7 +61,7 @@ module Admin
     # Responds to GET /admin/agents
     #
     def index
-      @limit = Option::integer(Option::Key::RESULTS_PER_PAGE)
+      @limit = Option::integer(Option::Keys::RESULTS_PER_PAGE)
       @start = params[:start] ? params[:start].to_i : 0
       @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
 

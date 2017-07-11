@@ -43,7 +43,7 @@ module CollectionsHelper
     html = ''
     collections.each do |col|
       bs = nil
-      if Option::string(Option::Key::SERVER_STATUS) != 'storage_offline'
+      if Option::string(Option::Keys::SERVER_STATUS) != 'storage_offline'
         begin
           # If the reference to the binary is invalid (for example, an invalid
           # UUID has been entered), this will raise an error.
@@ -91,7 +91,7 @@ module CollectionsHelper
       <div class=\"panel-body\">
         <ul>"
     terms.each_with_index do |term, i|
-      break if i >= Option::integer(Option::Key::FACET_TERM_LIMIT)
+      break if i >= Option::integer(Option::Keys::FACET_TERM_LIMIT)
       next if term.count < 1
       checked = (params[:fq] and params[:fq].include?(term.facet_query)) ?
           'checked' : nil
