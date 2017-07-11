@@ -113,7 +113,7 @@ class OaiPmhController < ApplicationController
   def check_pmh_enabled
     render text: 'This server\'s OAI-PMH endpoint is disabled.',
            status: :service_unavailable unless
-        Option::boolean(Option::Key::OAI_PMH_ENABLED)
+        Option::boolean(Option::Keys::OAI_PMH_ENABLED)
   end
 
   ##

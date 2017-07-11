@@ -2,7 +2,7 @@
 <% provide :title, 'Home' %>
 
 <div id="pt-description">
-  <%= sanitize(Option::string(Option::Key::WEBSITE_INTRO_TEXT).gsub("\n", '<br>'),
+  <%= sanitize(Option::string(Option::Keys::WEBSITE_INTRO_TEXT).gsub("\n", '<br>'),
                tags: %w(p br), attributes: %w()) %>
 </div>
 

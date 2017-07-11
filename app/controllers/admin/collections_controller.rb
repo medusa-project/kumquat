@@ -21,7 +21,7 @@ module Admin
     # Responds to GET /admin/collections
     #
     def index
-      @limit = Option::integer(Option::Key::RESULTS_PER_PAGE)
+      @limit = Option::integer(Option::Keys::RESULTS_PER_PAGE)
       @start = params[:start] ? params[:start].to_i : 0
 
       @collections = Collection.solr.order(Collection::SolrFields::TITLE).

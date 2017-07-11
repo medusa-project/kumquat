@@ -1017,7 +1017,7 @@ module ItemsHelper
   def thumbnail_tag(entity, size = DEFAULT_THUMBNAIL_SIZE, shape = :default)
     html = ''
     url = nil
-    if Option::string(Option::Key::SERVER_STATUS) != 'storage_offline'
+    if Option::string(Option::Keys::SERVER_STATUS) != 'storage_offline'
       if entity.kind_of?(Binary) and entity.iiif_safe?
         url = binary_image_url(entity, size, shape)
       elsif entity.kind_of?(Collection)
@@ -1459,7 +1459,7 @@ module ItemsHelper
       <div class=\"panel-body\">
         <ul>"
     terms.each_with_index do |term, i|
-      break if i >= Option::integer(Option::Key::FACET_TERM_LIMIT)
+      break if i >= Option::integer(Option::Keys::FACET_TERM_LIMIT)
       next if term.count < 1
       checked = (params[:fq] and params[:fq].include?(term.facet_query)) ?
           'checked' : nil

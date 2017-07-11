@@ -216,7 +216,7 @@ class ItemsController < WebsiteController
 
     @start = params[:start].to_i
     params[:start] = @start
-    @limit = Option::integer(Option::Key::RESULTS_PER_PAGE)
+    @limit = Option::integer(Option::Keys::RESULTS_PER_PAGE)
     finder = item_finder_for(params)
     @items = finder.to_a
 
@@ -320,7 +320,7 @@ class ItemsController < WebsiteController
           uri = URI.parse(results_url)
           query = Rack::Utils.parse_nested_query(uri.query) || {}
           query[:start] = session[:start].to_i if query[:start].blank?
-          limit = Option::integer(Option::Key::RESULTS_PER_PAGE)
+          limit = Option::integer(Option::Keys::RESULTS_PER_PAGE)
           if session[:first_result_id] == @item.repository_id
             query[:start] -= limit / 2.0
           elsif session[:last_result_id] == @item.repository_id
@@ -413,7 +413,7 @@ class ItemsController < WebsiteController
           filter_queries(session[:fq]).
           sort(session[:sort]).
           start(session[:start]).
-          limit(Option::integer(Option::Key::RESULTS_PER_PAGE))
+          limit(Option::integer(Option::Keys::RESULTS_PER_PAGE))
     else
       ItemFinder.new.
           client_hostname(request.host).
@@ -427,7 +427,7 @@ class ItemsController < WebsiteController
           filter_queries(session[:fq]).
           sort(session[:sort]).
           start(session[:start]).
-          limit(Option::integer(Option::Key::RESULTS_PER_PAGE))
+          limit(Option::integer(Option::Keys::RESULTS_PER_PAGE))
     end
   end
 
