@@ -333,7 +333,13 @@ module AdminHelper
       if info[:value].respond_to?(:each)
         info[:value] = "<ul>#{info[:value].map{ |v| "<li>#{v}</li>" }.join}</ul>"
       end
-      html += "<dt>#{info[:label]}</dt><dd>#{info[:value]}</dd>"
+      html += "<dt>#{info[:label]}"
+      if info[:help]
+        html += " <a data-toggle=\"popover\" data-content=\"#{info[:help]}\">"\
+            "<i class=\"fa fa-question-circle\"></i></a>"
+      end
+      html += "</dt>"
+      html += "<dd>#{info[:value]}</dd>"
     end
     html += '</dl>'
     raw(html)
@@ -345,7 +351,12 @@ module AdminHelper
       if info[:value].respond_to?(:each)
         info[:value] = "<ul>#{info[:value].map{ |v| "<li>#{v}</li>" }.join}</ul>"
       end
-      html += "<tr><td>#{info[:label]}</td><td>#{info[:value]}</td></tr>"
+      html += "<tr><td>#{info[:label]}"
+      if info[:help]
+        html += " <a data-toggle=\"popover\" data-content=\"#{info[:help]}\">"\
+            "<i class=\"fa fa-question-circle\"></i></a>"
+      end
+      html += "</td><td>#{info[:value]}</td></tr>"
     end
     html += '</table>'
     raw(html)
@@ -381,7 +392,8 @@ module AdminHelper
                   link_to(iiif_url, iiif_url, target: '_blank') : 'None' }
 
     # Variant
-    data << { label: 'Variant', value: item.variant }
+    data << { label: 'Variant', value: item.variant,
+              help: "Available variants are: #{Item::Variants::all.map{ |v| "<code>#{v}</code>" }.sort.join(' ')}" }
 
     # Representative Item
     data << { label: 'Representative Item',
