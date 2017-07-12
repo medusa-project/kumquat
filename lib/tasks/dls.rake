@@ -104,7 +104,7 @@ namespace :dls do
     desc 'Publish a collection'
     task :publish, [:uuid] => :environment do |task, args|
       Collection.find_by_repository_id(args[:uuid]).
-          update!(published: true, published_in_dls: true)
+          update!(published_in_medusa: true, published_in_dls: true)
     end
 
     desc 'Reindex all collections'
@@ -146,7 +146,7 @@ namespace :dls do
         LEFT JOIN collections ON collections.repository_id = items.collection_repository_id
         WHERE entity_elements.type = $1
           AND entity_elements.name IN ($2, $3)
-          AND collections.published = true
+          AND collections.published_in_medusa = true
         ORDER BY collection_id, item_id, entity_elements.name,
           entity_elements.value ASC"
 

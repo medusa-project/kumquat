@@ -21,7 +21,7 @@ class WebsiteController < ApplicationController
         client_hostname(request.host).
         client_ip(request.remote_ip).
         client_user(current_user).
-        include_unpublished(false).
+        include_unpublished_in_medusa(false).
         include_unpublished_in_dls(false).
         order(Collection::SolrFields::TITLE).
         limit(99999)

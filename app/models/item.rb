@@ -921,8 +921,7 @@ class Item < ActiveRecord::Base
     doc[SolrFields::ID] = self.solr_id
     doc[SolrFields::CLASS] = self.class.to_s
     doc[SolrFields::COLLECTION] = self.collection_repository_id
-    doc[SolrFields::COLLECTION_PUBLISHED] = (self.collection.published and
-        self.collection.published_in_dls)
+    doc[SolrFields::COLLECTION_PUBLISHED] = self.collection.published
     doc[SolrFields::DATE] = self.date.utc.iso8601 if self.date
     # An item is considered described if it has any elements other than title,
     # or is in a collection using the free-form package profile.

@@ -26,7 +26,7 @@ class CollectionsController < WebsiteController
         client_ip(request.remote_ip).
         client_user(current_user).
         include_children(false).
-        include_unpublished(false).
+        include_unpublished_in_medusa(false).
         include_unpublished_in_dls(true).
         filter_queries(params[:fq]).
         query(params[:q]).

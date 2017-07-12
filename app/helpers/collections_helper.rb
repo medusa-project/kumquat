@@ -74,7 +74,7 @@ module CollectionsHelper
   def effective_collection_access_url(collection)
     if collection.published_in_dls
       return collection_items_path(collection)
-    elsif collection.published and collection.access_url and
+    elsif collection.published_in_medusa and collection.access_url and
         collection.access_url.length > 0
       return collection.access_url
     end

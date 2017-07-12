@@ -39,7 +39,7 @@ illini_union:
   medusa_file_group_id: 37d86ed0-5ca7-0132-3334-0050569601ca-0
   metadata_profile: metadata_profile_2
   package_profile_id: <%= PackageProfile::FREE_FORM_PROFILE.id %>
-  published: true
+  published_in_medusa: true
   published_in_dls: true
   repository_id: 34d204d0-05d1-0130-c5bb-0019b9e633c5-e
   representative_image: MyString
@@ -52,7 +52,7 @@ lincoln:
   medusa_file_group_id: 50eb52c0-0b06-0134-1d54-0050569601ca-a
   metadata_profile: lincoln
   package_profile_id: <%= PackageProfile::SINGLE_ITEM_OBJECT_PROFILE.id %>
-  published: true
+  published_in_medusa: true
   published_in_dls: true
   repository_id: 6ff23a90-95b4-0131-1105-0050569601ca-f
 
@@ -64,7 +64,7 @@ mapping_history:
   medusa_file_group_id: f6b70da0-a863-0134-233d-0050569601ca-f
   metadata_profile: metadata_profile_2
   package_profile_id: <%= PackageProfile::MIXED_MEDIA_PROFILE.id %>
-  published: true
+  published_in_medusa: true
   published_in_dls: true
   repository_id: 2a99ff50-a613-0134-2339-0050569601ca-4
   representative_image: MyString
@@ -79,7 +79,7 @@ myers:
   medusa_file_group_id: e773a090-c09b-0134-2371-0050569601ca-c
   metadata_profile: default_metadata_profile
   package_profile_id: <%= PackageProfile::COMPOUND_OBJECT_PROFILE.id %>
-  published: true
+  published_in_medusa: true
   published_in_dls: true
   repository_id: 692ae4c0-c09b-0134-2371-0050569601ca-6
   representative_image:
@@ -92,7 +92,7 @@ olin:
   medusa_file_group_id: 38c8c5f0-5ca7-0132-3334-0050569601ca-9
   metadata_profile: default_metadata_profile
   package_profile_id: <%= PackageProfile::FREE_FORM_PROFILE.id %>
-  published: true
+  published_in_medusa: true
   published_in_dls: true
   repository_id: 81154880-e3fb-012f-c5b6-0019b9e633c5-9
   representative_image:
@@ -106,7 +106,7 @@ sanborn:
   medusa_repository_id: 32
   metadata_profile: sanborn
   package_profile_id: <%= PackageProfile::COMPOUND_OBJECT_PROFILE.id %>
-  published: true
+  published_in_medusa: true
   published_in_dls: true
   repository_id: 6ff64b00-072d-0130-c5bb-0019b9e633c5-2
   rights_statement: Sample rights statement
@@ -121,7 +121,7 @@ sousa:
   medusa_file_group_id: 14696a50-ea3d-0134-23ce-0050569601ca-1
   metadata_profile: metadata_profile_2
   package_profile_id: <%= PackageProfile::MIXED_MEDIA_PROFILE.id %>
-  published: true
+  published_in_medusa: true
   published_in_dls: true
   repository_id: fe824900-6c8d-0134-1e34-0050569601ca-b
   representative_image: MyString

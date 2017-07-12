@@ -12,8 +12,8 @@
         <td><%= link_to col.title, admin_collection_path(col) %></td>
         <td><%= number_with_delimiter(col.num_objects) %>
           (<%= number_with_delimiter(col.num_items) %>)</td>
-        <td class="text-center <%= col.published ? 'bg-success' : 'bg-danger' %>">
-          <%= boolean(col.published) %>
+        <td class="text-center <%= col.published_in_medusa ? 'bg-success' : 'bg-danger' %>">
+          <%= boolean(col.published_in_medusa) %>
         </td>
         <td class="text-center <%= col.published_in_dls ? 'bg-success' : 'bg-danger' %>">
           <%= boolean(col.published_in_dls) %>
