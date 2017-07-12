@@ -1203,6 +1203,11 @@ module ItemsHelper
     data = []
     if binary
       data << {
+          label: 'Media Category',
+          category: 'File',
+          value: binary.human_readable_media_category
+      }
+      data << {
           label: 'Filename',
           category: 'File',
           value: File.basename(binary.absolute_local_pathname)
