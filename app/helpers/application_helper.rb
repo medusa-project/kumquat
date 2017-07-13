@@ -119,6 +119,19 @@ module ApplicationHelper
   end
 
   ##
+  # Returns a deferred img tag (with data-src set instead of src) for
+  # lazy-loading using JavaScript.
+  #
+  # @param source [String]
+  # @param options [Hash]
+  # @return [String]
+  #
+  def lazy_image_tag(source, options = {})
+    image_tag(source, options).gsub(' src=', ' data-src=').
+        gsub('<img ', '<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" ')
+  end
+
+  ##
   # @param search_term [String]
   # @param suggestions [Enumerable<String>]
   # @return [String] HTML string

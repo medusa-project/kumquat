@@ -1012,9 +1012,11 @@ module ItemsHelper
   # @param entity [Object]
   # @param size [Integer]
   # @param shape [Symbol] :default or :square
+  # @param lazy [Boolean]
   # @return [String]
   #
-  def thumbnail_tag(entity, size = DEFAULT_THUMBNAIL_SIZE, shape = :default)
+  def thumbnail_tag(entity, size = DEFAULT_THUMBNAIL_SIZE, shape = :default,
+                    lazy = false) # TODO: use an options hash
     html = ''
     url = nil
     if Option::string(Option::Key::SERVER_STATUS) != 'storage_offline'
@@ -1032,7 +1034,11 @@ module ItemsHelper
 
     if url
       # No alt because it may appear in a huge font size if the image is 404.
-      html += image_tag(url, class: 'pt-thumbnail', alt: '')
+      if lazy
+        html += lazy_image_tag(url, class: 'pt-thumbnail', alt: '')
+      else
+        html += image_tag(url, class: 'pt-thumbnail', alt: '')
+      end
     else
       html += icon_for(entity) # ApplicationHelper
     end
