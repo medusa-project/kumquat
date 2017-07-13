@@ -133,6 +133,13 @@ var PearTree = {
 
     },
 
+    loadLazyImages: function() {
+        $('img[data-src]').each(function(index, img) {
+            img = $(img);
+            img.attr('src', img.data('src'));
+        });
+    },
+
     /**
      * Enables smooth scrolling to anchors. This is called by PearTree.init()
      * to take effect globally, but is safe to call again to use a different
