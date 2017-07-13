@@ -140,6 +140,7 @@ class ContentdmController < ApplicationController
   # * GET /cdm/search/searchterm/:term/mode/:mode/page/:page
   # * GET /cdm/search/searchterm/:term/mode/:mode/order/:order
   # * GET /cdm/search/searchterm/:term/mode/:mode/order/:order/ad/desc
+  # * GET /cdm/search/searchterm/:term/mode/:mode/order/:order/page/:page
   #
   def v6_search_results
     redirect_to search_url(q: sanitize_term(params[:term])), status: 301
