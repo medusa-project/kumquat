@@ -271,6 +271,8 @@ Rails.application.routes.draw do
         to: 'contentdm#v6_search_results', via: :all
   match '/cdm/search/searchterm/:term/mode/:mode/order/:order/ad/desc',
         to: 'contentdm#v6_search_results', via: :all
+  match '/cdm/search/searchterm/:term/mode/:mode/order/:order/page/:page',
+        to: 'contentdm#v6_search_results', via: :all
   # OAI-PMH
   match '/oai/oai.php',
         to: redirect('/oai-pmh'), via: :all
