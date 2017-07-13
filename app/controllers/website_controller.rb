@@ -21,8 +21,6 @@ class WebsiteController < ApplicationController
         client_hostname(request.host).
         client_ip(request.remote_ip).
         client_user(current_user).
-        include_unpublished_in_medusa(false).
-        include_unpublished_in_dls(false).
         order(Collection::SolrFields::TITLE).
         limit(99999)
     @searchable_collections = finder.to_a
@@ -56,16 +54,6 @@ class WebsiteController < ApplicationController
         return false
       end
     end
-    if model&.respond_to?(:published)
-      unless model.published
-        render 'errors/error', status: :forbidden, locals: {
-            status_code: 403,
-            status_message: 'Forbidden',
-            message: "This #{model.class.to_s.downcase} is not published."
-        }
-        return false
-      end
-    end
     true
   end
 
@@ -77,9 +65,6 @@ class WebsiteController < ApplicationController
     authorized = true
     if model&.respond_to?(:authorized_by_any_roles?) # AuthorizableByRole method
       authorized = model.authorized_by_any_roles?(request_roles)
-    end
-    if model&.respond_to?(:published)
-      authorized = model.published
     end
     authorized
   end
