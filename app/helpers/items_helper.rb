@@ -186,7 +186,7 @@ module ItemsHelper
       html += '<li>'
       html += link_to(link_target, class: 'pt-title') do
         raw('<div class="pt-thumbnail">' +
-            thumbnail_tag(child, DEFAULT_THUMBNAIL_SIZE, :square) +
+            thumbnail_tag(child, shape: :square) +
           '</div>' +
           '<div class="pt-label" title="' + child.title + '">' +
             truncate(child.title, length: PAGE_TITLE_LENGTH) +
@@ -200,14 +200,10 @@ module ItemsHelper
 
   ##
   # @param item [Item]
-  # @param options [Hash]
-  # @option options [Integer] :size Thumbnail size
+  # @param options [Hash] Options to pass to thumbnail_tag().
   # @return [String]
   #
-  def front_matter_item_panel(item, options)
-    unless options[:size]
-      options[:size] = DEFAULT_THUMBNAIL_SIZE
-    end
+  def front_matter_item_panel(item, options = {})
     html = ''
     if item.front_matter_item
       html += "<div class=\"panel panel-default pt-front-matter-item\">
@@ -216,7 +212,7 @@ module ItemsHelper
           </div>
           <div class=\"panel-body\">"
       html += link_to(item.front_matter_item) do
-        thumbnail_tag(item.front_matter_item, options[:size])
+        thumbnail_tag(item.front_matter_item, options)
       end
       html += '</div>
               </div>'
@@ -260,14 +256,10 @@ module ItemsHelper
 
   ##
   # @param item [Item]
-  # @param options [Hash]
-  # @option options [Integer] :size Thumbnail size
+  # @param options [Hash] Options to pass to thumbnail_tag().
   # @return [String]
   #
-  def index_item_panel(item, options)
-    unless options[:size]
-      options[:size] = DEFAULT_THUMBNAIL_SIZE
-    end
+  def index_item_panel(item, options = {})
     html = ''
     if item.index_item
       html += "<div class=\"panel panel-default pt-index-item\">
@@ -276,7 +268,7 @@ module ItemsHelper
           </div>
           <div class=\"panel-body\">"
       html += link_to(item.index_item) do
-        thumbnail_tag(item.index_item, options[:size])
+        thumbnail_tag(item.index_item, options)
       end
       html += '</div>
               </div>'
@@ -331,7 +323,7 @@ module ItemsHelper
       html += '<div class="pt-object">'
       html +=    link_to(item) do
         raw('<div class="pt-thumbnail">' +
-                thumbnail_tag(item.effective_representative_entity, thumb_width) +
+                thumbnail_tag(item.effective_representative_entity, size: thumb_width) +
             '</div>')
       end
       html += '  <h4 class="pt-title">'
@@ -374,7 +366,7 @@ module ItemsHelper
         size = options[:thumbnail_size] ?
             options[:thumbnail_size] : DEFAULT_THUMBNAIL_SIZE
         raw('<div class="pt-thumbnail">' +
-          thumbnail_tag(entity.effective_representative_entity, size, :square) +
+          thumbnail_tag(entity.effective_representative_entity, size: size, shape: :square) +
         '</div>')
       end
       html += '<span class="pt-label">'
@@ -438,14 +430,10 @@ module ItemsHelper
 
   ##
   # @param item [Item]
-  # @param options [Hash]
-  # @option options [Integer] :size Thumbnail size
+  # @param options [Hash] Options to pass to thumbnail_tag().
   # @return [String]
   #
-  def key_item_panel(item, options)
-    unless options[:size]
-      options[:size] = DEFAULT_THUMBNAIL_SIZE
-    end
+  def key_item_panel(item, options = {})
     html = ''
     if item.key_item
       html += "<div class=\"panel panel-default pt-key-item\">
@@ -454,7 +442,7 @@ module ItemsHelper
           </div>
           <div class=\"panel-body\">"
       html += link_to(item.key_item) do
-        thumbnail_tag(item.key_item, options[:size])
+        thumbnail_tag(item.key_item, options)
       end
       html += '</div>
               </div>'
@@ -926,7 +914,7 @@ module ItemsHelper
         html += '<li>'
         html += '<div class="pt-thumbnail">'
         html += link_to(item_path(item)) do
-          thumbnail_tag(item, DEFAULT_THUMBNAIL_SIZE, :square)
+          thumbnail_tag(item, shape: :square)
         end
         html += '</div>'
         html += link_to(truncate(item.title, length: 40),
@@ -1010,31 +998,37 @@ module ItemsHelper
 
   ##
   # @param entity [Object]
-  # @param size [Integer]
-  # @param shape [Symbol] :default or :square
-  # @param lazy [Boolean]
+  # @param options [Hash]
+  # @option options [Integer] :size Defaults to DEFAULT_THUMBNAIL_SIZE
+  # @option options [Symbol] :shape :default or :square, defaults to :default
+  # @option options [Boolean] :lazy If true, the data-src attribute will be
+  #                                 set instead of src; defaults to false.
   # @return [String]
   #
-  def thumbnail_tag(entity, size = DEFAULT_THUMBNAIL_SIZE, shape = :default,
-                    lazy = false) # TODO: use an options hash
+  def thumbnail_tag(entity, options = {})
+    options = {} unless options.kind_of?(Hash)
+    options[:size] = DEFAULT_THUMBNAIL_SIZE unless options.keys.include?(:size)
+    options[:shape] = :default unless options.keys.include?(:shape)
+    options[:lazy] = false unless options.keys.include?(:lazy)
+
     html = ''
     url = nil
     if Option::string(Option::Keys::SERVER_STATUS) != 'storage_offline'
       if entity.kind_of?(Binary) and entity.iiif_safe?
-        url = binary_image_url(entity, size, shape)
+        url = binary_image_url(entity, options[:size], options[:shape])
       elsif entity.kind_of?(Collection)
         bin = entity.representative_image_binary
         if bin&.iiif_safe?
-          url = binary_image_url(bin, size, shape)
+          url = binary_image_url(bin, options[:size], options[:shape])
         end
       elsif entity.kind_of?(Item) and entity.iiif_image_binary&.iiif_safe?
-        url = iiif_image_url(entity, shape, size)
+        url = iiif_image_url(entity, options[:shape], options[:size])
       end
     end
 
     if url
       # No alt because it may appear in a huge font size if the image is 404.
-      if lazy
+      if options[:lazy]
         html += lazy_image_tag(url, class: 'pt-thumbnail', alt: '')
       else
         html += image_tag(url, class: 'pt-thumbnail', alt: '')
@@ -1065,14 +1059,10 @@ module ItemsHelper
 
   ##
   # @param item [Item]
-  # @param options [Hash]
-  # @option options [Integer] :size Thumbnail size
+  # @param options [Hash] Options to pass to thumbnail_tag().
   # @return [String]
   #
-  def title_item_panel(item, options)
-    unless options[:size]
-      options[:size] = DEFAULT_THUMBNAIL_SIZE
-    end
+  def title_item_panel(item, options = {})
     html = ''
     if item.title_item
       html += "<div class=\"panel panel-default pt-title-item\">
@@ -1081,7 +1071,7 @@ module ItemsHelper
           </div>
           <div class=\"panel-body\">"
       html += link_to(item.title_item) do
-        thumbnail_tag(item.title_item, options[:size])
+        thumbnail_tag(item.title_item, options)
       end
       html += '</div>
               </div>'
