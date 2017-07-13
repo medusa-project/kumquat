@@ -51,12 +51,13 @@
 #                             profile.
 # * physical_collection_url:  URL of the collection's archival collection
 #                             counterpart.
-# * published:                "Published" status of the collection, copied from
-#                             Medusa. Must be true in order for the collection
-#                             or any of its items to be publicly accessible.
-# * published_in_dls:         Both this and `published` must be true for the
-#                             collection or any of its contents to be publicly
-#                             accessible in the DLS.
+# * published_in_medusa:      "Published" status of the collection in Medusa.
+#                             This and `published_in_dls` must be true in order
+#                             for the collection or any or any of its items to
+#                             be publicly accessible.
+# * published_in_dls:         Both this and `published_in_medusa` must be true
+#                             for the collection or any of its contents to be
+#                             publicly accessible.
 # * repository_id:            The collection's effective UUID, copied from
 #                             Medusa.
 # * representative_image:     UUID of a Medusa image file representing the
@@ -96,8 +97,8 @@ class Collection < ActiveRecord::Base
     METADATA_TITLE = "#{ItemElement::solr_prefix}title_txti"
     PARENT_COLLECTIONS = 'parent_collections_sim'
     PHYSICAL_COLLECTION_URL = 'physical_collection_url_si'
-    PUBLISHED = 'published_bi'
     PUBLISHED_IN_DLS = 'published_in_dls_bi'
+    PUBLISHED_IN_MEDUSA = 'published_bi' # TODO: rename this to published_in_medusa_bi
     REPOSITORY_TITLE = 'repository_title_si'
     REPRESENTATIVE_IMAGE = 'representative_image_si'
     REPRESENTATIVE_ITEM = 'representative_item_si'
@@ -589,6 +590,13 @@ class Collection < ActiveRecord::Base
   end
 
   ##
+  # @return [Boolean]
+  #
+  def published
+    published_in_medusa and published_in_dls
+  end
+
+  ##
   # Deletes all items in the collection. Does not commit the index.
   #
   # @return [Integer] Number of items purged.
@@ -744,7 +752,7 @@ class Collection < ActiveRecord::Base
     doc[SolrFields::PARENT_COLLECTIONS] =
         self.parent_collection_joins.map(&:parent_repository_id)
     doc[SolrFields::PHYSICAL_COLLECTION_URL] = self.physical_collection_url
-    doc[SolrFields::PUBLISHED] = self.published
+    doc[SolrFields::PUBLISHED_IN_MEDUSA] = self.published_in_medusa
     doc[SolrFields::PUBLISHED_IN_DLS] = self.published_in_dls
     doc[SolrFields::REPOSITORY_TITLE] = self.medusa_repository&.title
     doc[SolrFields::REPRESENTATIVE_ITEM] = self.representative_item_id
@@ -786,7 +794,7 @@ class Collection < ActiveRecord::Base
       self.external_id = struct['external_id']
       self.medusa_repository_id = struct['repository_path'].gsub(/[^0-9+]/, '').to_i
       self.physical_collection_url = struct['physical_collection_url']
-      self.published = struct['publish']
+      self.published_in_medusa = struct['publish']
       self.representative_image = struct['representative_image']
       self.representative_item_id = struct['representative_item']
       self.resource_types = struct['resource_types'].map do |t| # titleize these

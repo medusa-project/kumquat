@@ -136,9 +136,7 @@
 
       <div role="tabpanel" class="tab-pane" id="pt-binaries">
         <% @item.binaries.each do |bin| %>
-          <h2><%= bin.human_readable_master_type %>
-            <%= bin.human_readable_media_category.present? ?
-                    "(#{bin.human_readable_media_category})" : nil %></h2>
+          <h2><%= bin.human_readable_master_type %></h2>
           <%= binary_metadata_as_table(bin, admin: true) %>
           <hr>
         <% end %>
