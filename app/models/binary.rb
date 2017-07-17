@@ -233,7 +233,7 @@ class Binary < ActiveRecord::Base
     # Large TIFF preservation masters are probably neither tiled nor
     # multiresolution, so are going to be very inefficient to read.
     return false if self.media_type == 'image/tiff' and
-        self.byte_size > max_tiff_size
+        self.byte_size and self.byte_size > max_tiff_size
     true
   end
 

@@ -90,7 +90,7 @@ class Download < ActiveRecord::Base
 
   def delete_file
     if self.filename.present? and File.exists?(self.pathname)
-      CustomLogger.debug("Download.delete_file(): deleting #{self.pathname}")
+      CustomLogger.instance.debug("Download.delete_file(): deleting #{self.pathname}")
       File.delete(self.pathname)
     end
   end
