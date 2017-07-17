@@ -343,6 +343,11 @@ class ItemsController < WebsiteController
       format.json do
         render json: @item.decorate(context: { web: true })
       end
+      format.pdf do
+        download = Download.create
+        CreatePdfJob.perform_later(@item, download)
+        redirect_to download_url(download)
+      end
       format.zip do
         # See the documentation for format.zip in index().
         #
