@@ -48,13 +48,13 @@
       <div class="pt-main-image">
         <% if @representative_image_binary.item %>
           <%= link_to @representative_image_binary.item do %>
-            <%= thumbnail_tag(@representative_image_binary, 512) %>
+            <%= thumbnail_tag(@representative_image_binary, size: 512) %>
           <% end %>
           <%= link_to @representative_image_binary.item, class: 'pt-title' do %>
             <%= @representative_image_binary.item.title %>
           <% end %>
         <% else %>
-          <%= thumbnail_tag(@representative_image_binary, 512) %>
+          <%= thumbnail_tag(@representative_image_binary, size: 512) %>
         <% end %>
       </div>
     </div>
