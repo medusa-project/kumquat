@@ -1,7 +1,7 @@
 <div class="container-fluid">
   <header>
     <div class="row lib-shared-header">
-      <div class="col-sm-11 col-xs-9">
+      <div class="col-sm-10 col-xs-8">
         <h1 class="sr-only">University Library, University of Illinois at Urbana-Champaign</h1>
         <div class="table-row">
           <div class="table-cell">
@@ -34,7 +34,7 @@
           </div>
         </div>
       </div>
-      <div class="col-sm-1 col-xs-3 pt-user">
+      <div class="col-sm-2 col-xs-4 pt-user">
         <% if signed_in? %>
           <div class="dropdown">
             <button class="btn btn-default btn-xs dropdown-toggle" type="button"
@@ -51,6 +51,7 @@
         <% else %>
           <%= link_to 'Sign In', signin_path, class: 'btn btn-xs btn-default' %>
         <% end%>
+        <div class="label label-warning">BETA</div>
       </div>
     </div>
   </header>
