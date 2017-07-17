@@ -22,7 +22,7 @@ class DownloadAllTsvJobTest < ActiveSupport::TestCase
 
   test 'perform() should update the download object' do
     DownloadAllTsvJob.perform_now(@download)
-    assert_equal Download::Status::READY, @download.status
+    assert_equal Task::Status::SUCCEEDED, @download.task.status
     assert File.exists?(@download.pathname)
   end
 
