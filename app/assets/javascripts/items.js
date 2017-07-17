@@ -342,6 +342,12 @@ var PTItemView = function() {
             $('#pt-download').collapse('show');
         });
 
+        // Lazy-load thumbnail images in the download section when it gets
+        // expanded.
+        $('#pt-download-section').on('shown.bs.collapse', function() {
+            PearTree.loadLazyImages();
+        });
+
         // The 3D viewer is initially not loaded. Load it the first time its
         // container div appears.
         $('#pt-3d-viewer-container').on('shown.bs.collapse', function() {

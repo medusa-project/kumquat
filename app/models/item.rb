@@ -135,12 +135,19 @@ class Item < ActiveRecord::Base
     VARIANT = 'variant_si'
   end
 
+  ##
+  # N.B. When modifying these, modify sort_key_for_variant() as well.
+  #
   class Variants
+    BACK_COVER = 'BackCover'
     COMPOSITE = 'Composite'
     DIRECTORY = 'Directory'
     FILE = 'File'
+    FRONT_COVER = 'FrontCover'
     FRONT_MATTER = 'FrontMatter'
     INDEX = 'Index'
+    INSIDE_BACK_COVER = 'InsideBackCover'
+    INSIDE_FRONT_COVER = 'InsideFrontCover'
     KEY = 'Key'
     PAGE = 'Page'
     SUPPLEMENT = 'Supplement'
@@ -906,15 +913,15 @@ class Item < ActiveRecord::Base
   end
 
   ##
-  # @return [Hash]
+  # @return [Hash] The instance's Solr representation. Modifying this will
+  #                require a reindex.
   #
   def to_solr
     doc = {}
     doc[SolrFields::ID] = self.solr_id
     doc[SolrFields::CLASS] = self.class.to_s
     doc[SolrFields::COLLECTION] = self.collection_repository_id
-    doc[SolrFields::COLLECTION_PUBLISHED] = (self.collection.published and
-        self.collection.published_in_dls)
+    doc[SolrFields::COLLECTION_PUBLISHED] = self.collection.published
     doc[SolrFields::DATE] = self.date.utc.iso8601 if self.date
     # An item is considered described if it has any elements other than title,
     # or is in a collection using the free-form package profile.
@@ -942,7 +949,7 @@ class Item < ActiveRecord::Base
       sort_last_token = 'ZZZZZZ'
       doc[SolrFields::STRUCTURAL_SORT] =
           "#{self.parent_repository_id.present? ? self.parent_repository_id : self.repository_id}-"\
-          "#{self.variant.present? ? self.variant : sort_first_token}-"\
+          "#{self.variant.present? ? sort_key_for_variant(self.variant) : sort_first_token}-"\
           "#{self.page_number.present? ? self.page_number : sort_last_token}-"\
           "#{self.subpage_number.present? ? self.subpage_number : sort_last_token}-"\
           "#{self.title.present? ? self.title : sort_last_token}"
@@ -1360,6 +1367,39 @@ class Item < ActiveRecord::Base
       if date_elem
         self.date = TimeUtil.string_date_to_time(date_elem.value)
       end
+    end
+  end
+
+  def sort_key_for_variant(variant)
+    # N.B. The key should start above 000, as that is the absolute-sort-first
+    # token.
+    case variant
+      when Variants::FRONT_COVER
+        return '010'
+      when Variants::INSIDE_FRONT_COVER
+        return '020'
+      when Variants::TITLE
+        return '030'
+      when Variants::FRONT_MATTER
+        return '040'
+      when Variants::TABLE_OF_CONTENTS
+        return '050'
+      when Variants::KEY
+        return '060'
+      when Variants::PAGE
+        return '070'
+      when Variants::INDEX
+        return '080'
+      when Variants::INSIDE_BACK_COVER
+        return '090'
+      when Variants::BACK_COVER
+        return '100'
+      when Variants::SUPPLEMENT
+        return '110'
+      when Variants::COMPOSITE
+        return '120'
+      else
+        return '005'
     end
   end
 

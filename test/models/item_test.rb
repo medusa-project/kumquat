@@ -459,7 +459,8 @@ class ItemTest < ActiveSupport::TestCase
     subitem = Item.new(repository_id: SecureRandom.uuid,
                        collection_repository_id: @item.collection_repository_id,
                        parent_repository_id: @item.repository_id)
-    subitem.binaries.build(media_category: Binary::MediaCategory::THREE_D)
+    subitem.binaries.build(media_category: Binary::MediaCategory::THREE_D,
+                           byte_size: 0)
     subitem.save!
 
     assert_equal subitem, @item.three_d_item
@@ -487,7 +488,7 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal @item.class.to_s, doc[Item::SolrFields::CLASS]
     assert_equal @item.collection_repository_id,
                  doc[Item::SolrFields::COLLECTION]
-    assert_equal "#{@item.parent_repository_id}-Page-1-ZZZZZZ-#{@item.title}",
+    assert_equal "#{@item.parent_repository_id}-070-1-ZZZZZZ-#{@item.title}",
                  doc[Item::SolrFields::STRUCTURAL_SORT]
     assert doc[Item::SolrFields::COLLECTION_PUBLISHED]
     assert_equal @item.date.utc.iso8601, doc[Item::SolrFields::DATE]

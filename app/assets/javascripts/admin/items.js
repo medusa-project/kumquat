@@ -229,6 +229,12 @@ var PTAdminItemsView = function() {
 
 };
 
+var PTAdminItemView = function() {
+    this.init = function() {
+        $('[data-toggle=popover]').popover({ 'html' : true });
+    }
+};
+
 var ready = function() {
     if ($('body#items_edit').length) {
         PearTree.view = new PTAdminItemEditView();
@@ -238,6 +244,9 @@ var ready = function() {
         PearTree.view.init();
     } else if ($('body#items_index').length) {
         PearTree.view = new PTAdminItemsView();
+        PearTree.view.init();
+    } else if ($('body#admin_items_show').length) {
+        PearTree.view = new PTAdminItemView();
         PearTree.view.init();
     }
 };

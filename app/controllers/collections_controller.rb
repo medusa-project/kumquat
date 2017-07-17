@@ -2,6 +2,7 @@ class CollectionsController < WebsiteController
 
   before_action :load_collection, only: [:iiif_presentation, :show]
   before_action :authorize_collection, only: [:iiif_presentation, :show]
+  before_action :check_published, only: [:iiif_presentation, :show]
   before_action :enable_cors, only: :iiif_presentation
 
   ##
@@ -26,7 +27,7 @@ class CollectionsController < WebsiteController
         client_ip(request.remote_ip).
         client_user(current_user).
         include_children(false).
-        include_unpublished(false).
+        include_unpublished_in_medusa(false).
         include_unpublished_in_dls(true).
         filter_queries(params[:fq]).
         query(params[:q]).
@@ -81,6 +82,12 @@ class CollectionsController < WebsiteController
 
   def authorize_collection
     authorize(@collection)
+  end
+
+  def check_published
+    unless @collection.published
+      render 'unpublished', status: :forbidden
+    end
   end
 
   def load_collection

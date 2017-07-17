@@ -18,6 +18,7 @@ class ItemsController < WebsiteController
                                      :iiif_range, :iiif_sequence]
   before_action :load_item, except: :index
   before_action :authorize_item, except: :index
+  before_action :check_published, except: :index
   before_action :set_browse_context, only: :index
 
   ##
@@ -380,6 +381,12 @@ class ItemsController < WebsiteController
   def authorize_item
     return unless authorize(@item.collection)
     return unless authorize(@item)
+  end
+
+  def check_published
+    unless @item.published and @item.collection.published
+      render 'unpublished', status: :forbidden
+    end
   end
 
   ##

@@ -2,7 +2,6 @@ class AbstractFinder
 
   def initialize
     @default_field = nil
-    @include_unpublished = false
     @only_described = true
     @start = 0
     @limit = 999999
@@ -51,14 +50,6 @@ class AbstractFinder
   #
   def filter_queries(queries)
     @filter_queries = queries
-    self
-  end
-
-  ##
-  # @param boolean [Boolean]
-  # @return [self]
-  def include_unpublished(boolean)
-    @include_unpublished = boolean
     self
   end
 

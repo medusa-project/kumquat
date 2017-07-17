@@ -27,11 +27,11 @@ module Admin
       @collections = Collection.solr.order(Collection::SolrFields::TITLE).
           start(@start).limit(@limit)
       # Will be true when searching/filtering.
-      if params[:published].present?
+      if params[:published_in_medusa].present?
         @collections = @collections.
             where("(*#{params[:q].gsub(' ', '*')}*)").
-            filter(Collection::SolrFields::PUBLISHED =>
-                       params[:published].to_s == '1' ? true : false).
+            filter(Collection::SolrFields::PUBLISHED_IN_MEDUSA =>
+                       params[:published_in_medusa].to_s == '1' ? true : false).
             filter(Collection::SolrFields::PUBLISHED_IN_DLS =>
                        params[:published_in_dls].to_s == '1' ? true : false)
       end
@@ -130,7 +130,7 @@ module Admin
         # of each item in the collection, which will take some time, so we
         # will do it in the background.
         # This will also cause items to be reindexed. If the collection's
-        # "published" status was changed, it will propagate to items once the
+        # published status was changed, it will propagate to items once the
         # job is done and commits Solr.
         PropagateRolesToItemsJob.perform_later(collection.repository_id)
       rescue => e
