@@ -24,7 +24,7 @@ class CreateZipOfJpegsJobTest < ActiveSupport::TestCase
   test 'perform() should update the download object' do
     items = [items(:illini_union_dir1_file1).repository_id]
     CreateZipOfJpegsJob.perform_now(items, 'items', @download)
-    assert_equal Download::Status::READY, @download.status
+    assert_equal Task::Status::SUCCEEDED, @download.task.status
     assert File.exists?(@download.pathname)
   end
 
