@@ -273,6 +273,9 @@ Rails.application.routes.draw do
         to: 'contentdm#v6_search_results', via: :all
   match '/cdm/search/searchterm/:term/mode/:mode/order/:order/page/:page',
         to: 'contentdm#v6_search_results', via: :all
+  # Images
+  match '/utils/getthumbnail/collection/:alias/id/:pointer',
+        to: 'contentdm#v6_thumbnail', via: :all
   # OAI-PMH
   match '/oai/oai.php',
         to: redirect('/oai-pmh'), via: :all
@@ -285,8 +288,6 @@ Rails.application.routes.draw do
   match '/projects/*glob',
         to: 'contentdm#gone', via: :all
   match '/ui/*glob',
-        to: 'contentdm#gone', via: :all
-  match '/utils/*glob',
         to: 'contentdm#gone', via: :all
 
 end
