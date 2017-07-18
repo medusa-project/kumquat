@@ -26,6 +26,8 @@ var PTCollectionsView = function() {
                     { "html": null, "pageTitle": document.title },
                     '', '/collections?' + query);
 
+                console.debug("Requesting /collections?" + query);
+
                 $.ajax({
                     url: '/collections?',
                     method: 'GET',

@@ -58,7 +58,11 @@ module ApplicationHelper
   end
 
   ##
-  # @param entity [Entity]
+  # Returns the most appropriate icon for the given object, which may be an
+  # Item, Binary, Collection, etc. If the object is unrecognized, a generic
+  # icon will be returned.
+  #
+  # @param entity [Object]
   # @return [String] HTML <i> tag
   #
   def icon_for(entity)
@@ -83,12 +87,48 @@ module ApplicationHelper
       elsif entity.items.any?
         icon = 'fa-cubes'
       end
+    elsif entity.kind_of?(Binary)
+      if entity.is_audio?
+        icon = 'fa-volume-up'
+      elsif entity.is_image?
+        icon = 'fa-picture-o'
+      elsif entity.is_pdf?
+        icon = 'fa-file-pdf-o'
+      elsif entity.is_text?
+        icon = 'fa-file-text-o'
+      elsif entity.is_video?
+        icon = 'fa-film'
+      end
     elsif entity == Collection or entity.kind_of?(Collection)
       icon = 'fa-folder-open-o'
     elsif entity == Agent or entity.kind_of?(Agent)
       icon = 'fa-user-circle'
     end
     raw("<i title=\"#{type_of(entity)}\" class=\"fa #{icon} pt-icon\"></i>")
+  end
+
+  ##
+  # Overrides Rails' implementation to use the correct scheme.
+  #
+  # @param image [String]
+  # @param options [Hash]
+  # @return [String]
+  #
+  def image_url(image, options = {})
+    URI.join(root_url, image_path(image, options)).to_s
+  end
+
+  ##
+  # Returns a deferred img tag (with data-src set instead of src) for
+  # lazy-loading using JavaScript.
+  #
+  # @param source [String]
+  # @param options [Hash]
+  # @return [String]
+  #
+  def lazy_image_tag(source, options = {})
+    image_tag(source, options).gsub(' src=', ' data-src=').
+        gsub('<img ', '<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" ')
   end
 
   ##
@@ -208,7 +248,7 @@ module ApplicationHelper
   end
 
   ##
-  # @param entity [Entity]
+  # @param entity [Object]
   # @return [String] Text description of the entity's type
   #
   def type_of(entity)
@@ -230,7 +270,7 @@ module ApplicationHelper
         type = 'File'
       elsif entity.variant == Item::Variants::DIRECTORY
         type = 'File Folder'
-      elsif entity.items.any?
+      elsif entity.pages.count > 1
         type = 'Multi-Page Item'
       end
     elsif entity.kind_of?(Collection) or entity == Collection

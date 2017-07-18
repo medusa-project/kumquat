@@ -68,7 +68,8 @@ module IiifPresentationHelper
   # @return [Array]
   #
   def iiif_canvases_for(item)
-    items = item.items_in_iiif_presentation_order.to_a
+    items = item.items_from_solr.order(Item::SolrFields::STRUCTURAL_SORT).
+        limit(9999).to_a
     if items.any?
       # Directory items are not viewable and composite and supplement items are
       # included in the annotation list instead.
@@ -94,7 +95,7 @@ module IiifPresentationHelper
           '@id': item_iiif_image_resource_url(item, resource_name),
           motivation: 'sc:painting',
           resource: {
-              '@id': iiif_image_url(item, 1000),
+              '@id': iiif_image_url(item, :default, 1000),
               '@type': 'dctypes:Image',
               'format': bin.media_type,
               service: {

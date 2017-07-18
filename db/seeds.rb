@@ -7,19 +7,19 @@
 #   Mayor.create(name: 'Emanuel', city: cities.first)
 
 # Options
-Option.create!(key: Option::Key::ADMINISTRATOR_EMAIL,
+Option.create!(key: Option::Keys::ADMINISTRATOR_EMAIL,
                value: 'admin@example.org')
-Option.create!(key: Option::Key::COPYRIGHT_STATEMENT,
+Option.create!(key: Option::Keys::COPYRIGHT_STATEMENT,
                value: 'Copyright © 2015 My Great Organization. All rights reserved.')
-Option.create!(key: Option::Key::FACET_TERM_LIMIT, value: 10)
-Option.create!(key: Option::Key::OAI_PMH_ENABLED, value: true)
-Option.create!(key: Option::Key::ORGANIZATION_NAME,
+Option.create!(key: Option::Keys::FACET_TERM_LIMIT, value: 10)
+Option.create!(key: Option::Keys::OAI_PMH_ENABLED, value: true)
+Option.create!(key: Option::Keys::ORGANIZATION_NAME,
                value: 'My Great Organization')
-Option.create!(key: Option::Key::WEBSITE_NAME,
+Option.create!(key: Option::Keys::WEBSITE_NAME,
                value: 'My Great Organization Digital Collections')
-Option.create!(key: Option::Key::WEBSITE_INTRO_TEXT,
+Option.create!(key: Option::Keys::WEBSITE_INTRO_TEXT,
                value: 'Behold our great collections.')
-Option.create!(key: Option::Key::RESULTS_PER_PAGE, value: 30)
+Option.create!(key: Option::Keys::RESULTS_PER_PAGE, value: 30)
 
 # Roles
 roles = {}
@@ -70,21 +70,21 @@ if Rails.env.development?
 end
 
 # Overwrite some default options for internal demo purposes
-option = Option.find_by_key(Option::Key::COPYRIGHT_STATEMENT)
+option = Option.find_by_key(Option::Keys::COPYRIGHT_STATEMENT)
 option.value = 'Copyright © 2015 The Board of Trustees at the '\
 'University of Illinois. All rights reserved.'
 option.save!
 
-option = Option.find_by_key(Option::Key::ORGANIZATION_NAME)
+option = Option.find_by_key(Option::Keys::ORGANIZATION_NAME)
 option.value = 'University of Illinois at Urbana-Champaign Library'
 option.save!
 
-option = Option.find_by_key(Option::Key::WEBSITE_NAME)
+option = Option.find_by_key(Option::Keys::WEBSITE_NAME)
 option.value = 'University of Illinois at Urbana-Champaign Library Digital '\
 'Image Collections'
 option.save!
 
-option = Option.find_by_key(Option::Key::WEBSITE_INTRO_TEXT)
+option = Option.find_by_key(Option::Keys::WEBSITE_INTRO_TEXT)
 option.value = "The digital collections of the Library of the University of "\
 "Illinois at Urbana-Champaign are built from the rich special collections "\
 "of its Rare Book & Manuscript Library; Illinois History and Lincoln "\

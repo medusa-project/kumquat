@@ -116,30 +116,30 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal 'cats', @item.description
   end
 
-  # effective_representative_item()
+  # effective_representative_entity()
 
-  test 'effective_representative_item should return the representative item
+  test 'effective_representative_entity should return the representative item
         when it is assigned' do
     id = 'a53add10-5ca8-0132-3334-0050569601ca-7'
     @item.representative_item_repository_id = id
-    assert_equal id, @item.effective_representative_item.repository_id
+    assert_equal id, @item.effective_representative_entity.repository_id
   end
 
-  test 'effective_representative_item should return the first page when
+  test 'effective_representative_entity should return the first page when
         representative_item_repository_id is not set' do
     @item = items(:sanborn_obj1)
     @item.representative_item_repository_id = nil
     assert_equal 'd29950d0-c451-0133-1d17-0050569601ca-2',
-                 @item.effective_representative_item.repository_id
+                 @item.effective_representative_entity.repository_id
   end
 
-  test 'effective_representative_item should return the instance when
+  test 'effective_representative_entity should return the instance when
         representative_item_repository_id is not set and it has no pages' do
     @item = items(:sanborn_obj1)
     @item.representative_item_repository_id = nil
     @item.items.delete_all
     assert_equal @item.repository_id,
-                 @item.effective_representative_item.repository_id
+                 @item.effective_representative_entity.repository_id
   end
 
   # effective_rights_statement()
@@ -459,7 +459,8 @@ class ItemTest < ActiveSupport::TestCase
     subitem = Item.new(repository_id: SecureRandom.uuid,
                        collection_repository_id: @item.collection_repository_id,
                        parent_repository_id: @item.repository_id)
-    subitem.binaries.build(media_category: Binary::MediaCategory::THREE_D)
+    subitem.binaries.build(media_category: Binary::MediaCategory::THREE_D,
+                           byte_size: 0)
     subitem.save!
 
     assert_equal subitem, @item.three_d_item
@@ -487,8 +488,8 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal @item.class.to_s, doc[Item::SolrFields::CLASS]
     assert_equal @item.collection_repository_id,
                  doc[Item::SolrFields::COLLECTION]
-    assert_equal "#{@item.parent_repository_id}-Page-1-ZZZZZZ-#{@item.title}",
-                 doc[Item::SolrFields::GROUPED_SORT]
+    assert_equal "#{@item.parent_repository_id}-070-1-ZZZZZZ-#{@item.title}",
+                 doc[Item::SolrFields::STRUCTURAL_SORT]
     assert doc[Item::SolrFields::COLLECTION_PUBLISHED]
     assert_equal @item.date.utc.iso8601, doc[Item::SolrFields::DATE]
     assert doc[Item::SolrFields::DESCRIBED]

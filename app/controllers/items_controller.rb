@@ -18,6 +18,8 @@ class ItemsController < WebsiteController
                                      :iiif_range, :iiif_sequence]
   before_action :load_item, except: [:index, :tree_data, :tree]
   before_action :authorize_item, except: [:index, :tree_data, :tree]
+
+  before_action :check_published, except: :index
   before_action :set_browse_context, only: :index
 
   ##
@@ -209,6 +211,7 @@ class ItemsController < WebsiteController
   #
   def index
     setup_index_view
+
     respond_to do |format|
       format.atom do
         @updated = @items.any? ?
@@ -233,20 +236,21 @@ class ItemsController < WebsiteController
           }
       end
       format.zip do
-        items = @download_finder.to_a
+        # Use the Medusa Downloader to generate a zip of items from
+        # download_finder. It takes the downloader time to generate the zip
+        # file manifest, which would block the web server if we did it here
+        # (DLD-94), so the strategy is to do it using the asynchronous
+        # download feature, and then stream the zip out to the user via the
+        # download button when it's ready to start streaming.
+        item_ids = download_finder.to_a.map(&:repository_id)
 
-        client = DownloaderClient.new
         start = params[:download_start].to_i + 1
-        end_ = params[:download_start].to_i + items.length
+        end_ = params[:download_start].to_i + item_ids.length
         zip_name = "items-#{start}-#{end_}"
-        begin
-          download_url = client.download_url(items, zip_name)
-        rescue => e
-          flash['error'] = "#{e}"
-          redirect_to :back
-        else
-          redirect_to download_url, status: 303
-        end
+
+        download = Download.create
+        DownloadZipJob.perform_later(item_ids, zip_name, download)
+        redirect_to download_url(download)
       end
     end
   end
@@ -281,7 +285,7 @@ class ItemsController < WebsiteController
           uri = URI.parse(results_url)
           query = Rack::Utils.parse_nested_query(uri.query) || {}
           query[:start] = session[:start].to_i if query[:start].blank?
-          limit = Option::integer(Option::Key::RESULTS_PER_PAGE)
+          limit = Option::integer(Option::Keys::RESULTS_PER_PAGE)
           if session[:first_result_id] == @item.repository_id
             query[:start] -= limit / 2.0
           elsif session[:last_result_id] == @item.repository_id
@@ -309,30 +313,34 @@ class ItemsController < WebsiteController
         render json: @item.decorate(context: { web: true })
       end
       format.zip do
-        client = DownloaderClient.new
-        begin
-          # For directories, the zip file will contain content for each
-          # file-variant item at any sublevel. For compound objects, it will
-          # contain content for each item in the object.
-          if @item.variant == Item::Variants::DIRECTORY
-            if @item.items.any?
-              items = @item.all_files
-              zip_name = 'files'
-            else
-              flash['error'] = 'This directory is empty.'
-              redirect_to :back
-            end
+        # See the documentation for format.zip in index().
+        #
+        # For directories, the zip file will contain content for each
+        # file-variant item at any sublevel. For compound objects, it will
+        # contain content for each item in the object.
+        if @item.variant == Item::Variants::DIRECTORY
+          if @item.items.any?
+            items = @item.all_files
+            zip_name = 'files'
           else
-            items = @item.items.any? ? @item.items : [@item]
-            zip_name = 'item'
+            flash['error'] = 'This directory is empty.'
+            redirect_to :back
           end
-          download_url = client.download_url(items, zip_name)
-        rescue => e
-          flash['error'] = "#{e}"
-          redirect_to :back
         else
-          redirect_to download_url, status: 303
+          items = @item.items.any? ? @item.items : [@item]
+          zip_name = 'item'
         end
+
+        item_ids = items.map(&:repository_id)
+
+        download = Download.create
+        case params[:contents]
+          when 'jpegs'
+            CreateZipOfJpegsJob.perform_later(item_ids, zip_name, download)
+          else
+            DownloadZipJob.perform_later(item_ids, zip_name, download)
+        end
+        redirect_to download_url(download)
       end
     end
   end
@@ -478,6 +486,12 @@ class ItemsController < WebsiteController
     return unless authorize(@item)
   end
 
+  def check_published
+    unless @item.published and @item.collection.published
+      render 'unpublished', status: :forbidden
+    end
+  end
+
   ##
   # Returns an ItemFinder for the given query (either params or parsed out of
   # the request URI) and saves its builder arguments to the session. This is
@@ -509,7 +523,7 @@ class ItemsController < WebsiteController
           filter_queries(session[:fq]).
           sort(session[:sort]).
           start(session[:start]).
-          limit(Option::integer(Option::Key::RESULTS_PER_PAGE))
+          limit(Option::integer(Option::Keys::RESULTS_PER_PAGE))
     else
       ItemFinder.new.
           client_hostname(request.host).
@@ -523,7 +537,7 @@ class ItemsController < WebsiteController
           filter_queries(session[:fq]).
           sort(session[:sort]).
           start(session[:start]).
-          limit(Option::integer(Option::Key::RESULTS_PER_PAGE))
+          limit(Option::integer(Option::Keys::RESULTS_PER_PAGE))
     end
   end
 

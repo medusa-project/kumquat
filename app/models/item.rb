@@ -100,13 +100,14 @@ class Item < ActiveRecord::Base
 
   include AuthorizableByRole
   include Describable
+  include Representable
   include SolrQuerying
 
   class SolrFields
     CLASS = 'class_si'
     COLLECTION = 'collection_si'
     # The owning collection's published status is stored to expedite queries.
-    # Naturally, when it changes, its items will need to be reindexed.
+    # When it changes, all of its items will need to be reindexed.
     COLLECTION_PUBLISHED = 'collection_published_bi'
     CREATED = 'created_dti'
     DATE = 'date_dti'
@@ -114,9 +115,6 @@ class Item < ActiveRecord::Base
     EFFECTIVE_ALLOWED_ROLES = 'effective_allowed_roles_sim'
     EFFECTIVE_DENIED_ROLES = 'effective_denied_roles_sim'
     FULL_TEXT = 'full_text_txti'
-    # Concatenation of various compound object page components or path
-    # components (see to_solr()) used for sorting items grouped structurally.
-    GROUPED_SORT = 'grouped_sort_natsort_en_i'
     ID = 'id'
     LAST_MODIFIED = 'last_modified_dti'
     LAT_LONG = 'lat_long_loc'
@@ -128,18 +126,28 @@ class Item < ActiveRecord::Base
     REPRESENTATIVE_FILENAME = 'representative_filename_si'
     REPRESENTATIVE_ITEM_ID = 'representative_item_id_si'
     SEARCH_ALL = 'searchall_natsort_en_im'
+    # Concatenation of various compound object page components or path
+    # components (see to_solr()) used for sorting items grouped structurally.
+    STRUCTURAL_SORT = 'grouped_sort_natsort_en_i' # TODO: rename this and reindex
     SUBPAGE_NUMBER = 'subpage_number_ii'
     TITLE = 'title_natsort_en_i'
     TOTAL_BYTE_SIZE = 'total_byte_size_li'
     VARIANT = 'variant_si'
   end
 
+  ##
+  # N.B. When modifying these, modify sort_key_for_variant() as well.
+  #
   class Variants
+    BACK_COVER = 'BackCover'
     COMPOSITE = 'Composite'
     DIRECTORY = 'Directory'
     FILE = 'File'
+    FRONT_COVER = 'FrontCover'
     FRONT_MATTER = 'FrontMatter'
     INDEX = 'Index'
+    INSIDE_BACK_COVER = 'InsideBackCover'
+    INSIDE_FRONT_COVER = 'InsideFrontCover'
     KEY = 'Key'
     PAGE = 'Page'
     SUPPLEMENT = 'Supplement'
@@ -401,7 +409,7 @@ class Item < ActiveRecord::Base
   # @return [Item]
   # @see representative_item
   #
-  def effective_representative_item
+  def effective_representative_entity
     self.representative_item || self.pages.first || self
   end
 
@@ -501,13 +509,26 @@ class Item < ActiveRecord::Base
   end
 
   ##
+  # @return [Enumerable<ItemElement>] The instance's ItemElements in the order
+  #                                   of the elements in the collection's
+  #                                   metadata profile.
+  #
+  def elements_in_profile_order
+    elements = []
+    self.collection.metadata_profile.elements.each do |mpe|
+      element = self.element(mpe.name)
+      elements << element if element
+    end
+    elements
+  end
+
+  ##
   # Queries the database to obtain a Relation of all children that have a
   # variant of Variant::FILE or Variant::DIRECTORY.
   #
-  # @return [Relation]
+  # @return [Relation<Item>]
   #
-  def files # TODO: why does this return directory variants? consider renaming
-    # TODO: replace with filesystem_variants_from_solr() or use whichever implementation is faster
+  def filesystem_variants
     self.items.where(variant: [Variants::FILE, Variants::DIRECTORY])
   end
 
@@ -515,7 +536,7 @@ class Item < ActiveRecord::Base
   # Queries Solr to obtain a Relation of all children that have a
   # variant of Variant::FILE or Variant::DIRECTORY.
   #
-  # @return [Relation]
+  # @return [Relation<Item>]
   #
   def filesystem_variants_from_solr
     self.items_from_solr.
@@ -655,19 +676,6 @@ class Item < ActiveRecord::Base
   #
   def items_from_solr
     Item.solr.where(Item::SolrFields::PARENT_ITEM => self.repository_id)
-  end
-
-  ##
-  # If any child items have a page number, orders by that. Otherwise, order
-  # by title. (IMET-414)
-  #
-  # @return [Relation<Item>] Subitems in the order they should appear in an
-  #                          IIIF Presentation API canvas.
-  #
-  def items_in_iiif_presentation_order
-    self.items_from_solr.order(SolrFields::PAGE_NUMBER,
-                               SolrFields::SUBPAGE_NUMBER,
-                               SolrFields::TITLE).limit(9999)
   end
 
   ##
@@ -823,9 +831,9 @@ class Item < ActiveRecord::Base
   ##
   # @return [Item, nil] The instance's assigned representative item, which may
   #                     be nil. For the purposes of getting "the"
-  #                     representative item, `effective_representative_item`
+  #                     representative item, `effective_representative_entity`
   #                     should be used instead.
-  # @see effective_representative_item
+  # @see effective_representative_entity
   #
   def representative_item
     Item.find_by_repository_id(self.representative_item_repository_id)
@@ -905,15 +913,15 @@ class Item < ActiveRecord::Base
   end
 
   ##
-  # @return [Hash]
+  # @return [Hash] The instance's Solr representation. Modifying this will
+  #                require a reindex.
   #
   def to_solr
     doc = {}
     doc[SolrFields::ID] = self.solr_id
     doc[SolrFields::CLASS] = self.class.to_s
     doc[SolrFields::COLLECTION] = self.collection_repository_id
-    doc[SolrFields::COLLECTION_PUBLISHED] = (self.collection.published and
-        self.collection.published_in_dls)
+    doc[SolrFields::COLLECTION_PUBLISHED] = self.collection.published
     doc[SolrFields::DATE] = self.date.utc.iso8601 if self.date
     # An item is considered described if it has any elements other than title,
     # or is in a collection using the free-form package profile.
@@ -932,16 +940,16 @@ class Item < ActiveRecord::Base
 
     if [Variants::FILE, Variants::DIRECTORY].include?(self.variant)
       # (parent title)-(parent title)-(parent title)-(title)
-      doc[SolrFields::GROUPED_SORT] =
+      doc[SolrFields::STRUCTURAL_SORT] =
           (all_parents.map(&:title).reverse + [self.title]).join('-')
     else
       # parents: (repository ID)-(variant)-(page)-(subpage)-(title)
       # children: (parent ID)-(variant)-(page)-(subpage)-(title)
       sort_first_token = '000000'
       sort_last_token = 'ZZZZZZ'
-      doc[SolrFields::GROUPED_SORT] =
+      doc[SolrFields::STRUCTURAL_SORT] =
           "#{self.parent_repository_id.present? ? self.parent_repository_id : self.repository_id}-"\
-          "#{self.variant.present? ? self.variant : sort_first_token}-"\
+          "#{self.variant.present? ? sort_key_for_variant(self.variant) : sort_first_token}-"\
           "#{self.page_number.present? ? self.page_number : sort_last_token}-"\
           "#{self.subpage_number.present? ? self.subpage_number : sort_last_token}-"\
           "#{self.title.present? ? self.title : sort_last_token}"
@@ -1359,6 +1367,39 @@ class Item < ActiveRecord::Base
       if date_elem
         self.date = TimeUtil.string_date_to_time(date_elem.value)
       end
+    end
+  end
+
+  def sort_key_for_variant(variant)
+    # N.B. The key should start above 000, as that is the absolute-sort-first
+    # token.
+    case variant
+      when Variants::FRONT_COVER
+        return '010'
+      when Variants::INSIDE_FRONT_COVER
+        return '020'
+      when Variants::TITLE
+        return '030'
+      when Variants::FRONT_MATTER
+        return '040'
+      when Variants::TABLE_OF_CONTENTS
+        return '050'
+      when Variants::KEY
+        return '060'
+      when Variants::PAGE
+        return '070'
+      when Variants::INDEX
+        return '080'
+      when Variants::INSIDE_BACK_COVER
+        return '090'
+      when Variants::BACK_COVER
+        return '100'
+      when Variants::SUPPLEMENT
+        return '110'
+      when Variants::COMPOSITE
+        return '120'
+      else
+        return '005'
     end
   end
 

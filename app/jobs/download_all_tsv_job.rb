@@ -28,7 +28,7 @@ class DownloadAllTsvJob < Job
       end
 
       # Create the downloads directory if it doesn't exist.
-      zip_dir = File.join(Rails.root, 'tmp', 'downloads')
+      zip_dir = Download::DOWNLOADS_DIRECTORY
       FileUtils.mkdir_p(zip_dir)
       # Create the zip file within the downloads directory.
       zip_filename = "tsv-#{Time.now.to_formatted_s(:number)}.zip"

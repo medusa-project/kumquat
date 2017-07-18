@@ -77,6 +77,57 @@ class MedusaMixedMediaIngesterTest < ActiveSupport::TestCase
     end
   end
 
+  ##
+  # Object packages that have only one child directory are created as
+  # standalone items.
+  #
+  test 'create_items() should work with non-compound items' do
+    # Set up the fixture data.
+    item_uuid = 'bb60d790-ea4e-0134-23c2-0050569601ca-d'
+    cfs_dir = @collection.effective_medusa_cfs_directory
+    tree = JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_sousa_tree.json'))
+    # Whittle it down to one item directory containing one child directory.
+    tree['subdirectories'] = tree['subdirectories'].slice(0, 1)
+    tree['subdirectories'].first['subdirectories'] =
+        tree['subdirectories'].first['subdirectories'].slice(0, 1)
+    cfs_dir.json_tree = tree
+
+    # Run the ingest.
+    result = @ingester.create_items(@collection)
+
+    assert_equal 1, result[:num_created]
+
+    # Inspect the item.
+    item = Item.find_by_repository_id(item_uuid)
+    assert_equal '1676', item.title
+    assert_nil item.variant
+    assert_equal 0, item.items.length
+    assert_equal 2, item.binaries.length
+    assert_nil item.variant
+    assert_equal 'e6c511a0-ea6a-0134-23c2-0050569601ca-2',
+                 item.representative_binary.cfs_file_uuid
+
+    # Inspect the item's preservation master binary.
+    bin = item.binaries.
+        select{ |b| b.master_type == Binary::MasterType::PRESERVATION }.first
+    assert_equal 'image/tiff', bin.media_type
+    assert_equal 60623897, bin.byte_size
+    assert_equal Binary::MediaCategory::IMAGE, bin.media_category
+    assert_equal 'e717ad00-ea6a-0134-23c2-0050569601ca-f', bin.cfs_file_uuid
+    assert_equal '/1108/2833/1676/001/preservation/images/120993_008_001.tif',
+                 bin.repository_relative_pathname
+
+    # Inspect the item's access master binary.
+    bin = item.binaries.
+        select{ |b| b.master_type == Binary::MasterType::ACCESS }.first
+    assert_equal 'image/jp2', bin.media_type
+    assert_equal 3419163, bin.byte_size
+    assert_equal Binary::MediaCategory::IMAGE, bin.media_category
+    assert_equal 'e6c511a0-ea6a-0134-23c2-0050569601ca-2', bin.cfs_file_uuid
+    assert_equal '/1108/2833/1676/001/access/images/120993_008_001.jp2',
+                 bin.repository_relative_pathname
+  end
+
   test 'create_items() should work with compound items' do
     # Set up the fixture data.
     item_uuid = 'bb60d790-ea4e-0134-23c2-0050569601ca-d'
@@ -101,7 +152,6 @@ class MedusaMixedMediaIngesterTest < ActiveSupport::TestCase
     child = item.items.
         select{ |it| it.repository_id == '51f81d20-ea50-0134-23c2-0050569601ca-0' }.first
     assert_equal '001', child.title
-    assert_equal Item::Variants::PAGE, child.variant
     assert_equal 2, child.binaries.length
     assert_equal 'e6c511a0-ea6a-0134-23c2-0050569601ca-2',
                  child.representative_binary.cfs_file_uuid

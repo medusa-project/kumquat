@@ -15,21 +15,21 @@
 
   <table class="table">
     <tr>
-      <td><%= label_tag("options[#{Option::Key::SERVER_STATUS}]",
+      <td><%= label_tag("options[#{Option::Keys::SERVER_STATUS}]",
                         'Status') %></td>
       <td>
-        <%= select_tag("options[#{Option::Key::SERVER_STATUS}]",
+        <%= select_tag("options[#{Option::Keys::SERVER_STATUS}]",
                        options_for_select(@status_options,
-                                          Option::string(Option::Key::SERVER_STATUS))) %>
+                                          Option::string(Option::Keys::SERVER_STATUS))) %>
       </td>
     </tr>
 
     <tr>
-      <td><%= label_tag("options[#{Option::Key::SERVER_STATUS_MESSAGE}]",
+      <td><%= label_tag("options[#{Option::Keys::SERVER_STATUS_MESSAGE}]",
                         'Status Message') %></td>
       <td>
-        <%= text_area_tag("options[#{Option::Key::SERVER_STATUS_MESSAGE}]",
-                          Option::string(Option::Key::SERVER_STATUS_MESSAGE),
+        <%= text_area_tag("options[#{Option::Keys::SERVER_STATUS_MESSAGE}]",
+                          Option::string(Option::Keys::SERVER_STATUS_MESSAGE),
                           class: 'form-control') %>
       </td>
     </tr>
@@ -39,39 +39,39 @@
 
   <table class="table">
     <tr>
-      <td><%= label_tag("options[#{Option::Key::ORGANIZATION_NAME}]",
+      <td><%= label_tag("options[#{Option::Keys::ORGANIZATION_NAME}]",
                         'Organization Name') %></td>
       <td>
-        <%= text_field_tag("options[#{Option::Key::ORGANIZATION_NAME}]",
-                           Option::string(Option::Key::ORGANIZATION_NAME),
+        <%= text_field_tag("options[#{Option::Keys::ORGANIZATION_NAME}]",
+                           Option::string(Option::Keys::ORGANIZATION_NAME),
                            class: 'form-control') %>
       </td>
     </tr>
     <tr>
-      <td><%= label_tag("options[#{Option::Key::ADMINISTRATOR_EMAIL}]",
+      <td><%= label_tag("options[#{Option::Keys::ADMINISTRATOR_EMAIL}]",
                         'Administrator Email') %></td>
       <td>
-        <%= text_field_tag("options[#{Option::Key::ADMINISTRATOR_EMAIL}]",
-                           Option::string(Option::Key::ADMINISTRATOR_EMAIL),
+        <%= text_field_tag("options[#{Option::Keys::ADMINISTRATOR_EMAIL}]",
+                           Option::string(Option::Keys::ADMINISTRATOR_EMAIL),
                            class: 'form-control') %>
       </td>
     </tr>
     <tr>
-      <td><%= label_tag("options[#{Option::Key::COPYRIGHT_STATEMENT}]",
+      <td><%= label_tag("options[#{Option::Keys::COPYRIGHT_STATEMENT}]",
                         'Copyright Statement') %></td>
       <td>
-        <%= text_field_tag("options[#{Option::Key::COPYRIGHT_STATEMENT}]",
-                           Option::string(Option::Key::COPYRIGHT_STATEMENT),
+        <%= text_field_tag("options[#{Option::Keys::COPYRIGHT_STATEMENT}]",
+                           Option::string(Option::Keys::COPYRIGHT_STATEMENT),
                            class: 'form-control') %>
       </td>
     </tr>
     <tr>
-      <td><%= label_tag("options[#{Option::Key::OAI_PMH_ENABLED}]",
+      <td><%= label_tag("options[#{Option::Keys::OAI_PMH_ENABLED}]",
                         'Enable OAI-PMH') %></td>
       <td>
-        <%= hidden_field_tag("options[#{Option::Key::OAI_PMH_ENABLED}]", 0) %>
-        <%= check_box_tag("options[#{Option::Key::OAI_PMH_ENABLED}]", 1,
-                          Option::boolean(Option::Key::OAI_PMH_ENABLED)) %>
+        <%= hidden_field_tag("options[#{Option::Keys::OAI_PMH_ENABLED}]", 0) %>
+        <%= check_box_tag("options[#{Option::Keys::OAI_PMH_ENABLED}]", 1,
+                          Option::boolean(Option::Keys::OAI_PMH_ENABLED)) %>
       </td>
     </tr>
   </table>
@@ -80,43 +80,43 @@
 
   <table class="table">
     <tr>
-      <td><%= label_tag("options[#{Option::Key::WEBSITE_NAME}]",
+      <td><%= label_tag("options[#{Option::Keys::WEBSITE_NAME}]",
                         'Name') %></td>
       <td>
-        <%= text_field_tag("options[#{Option::Key::WEBSITE_NAME}]",
-                           Option::string(Option::Key::WEBSITE_NAME),
+        <%= text_field_tag("options[#{Option::Keys::WEBSITE_NAME}]",
+                           Option::string(Option::Keys::WEBSITE_NAME),
                            class: 'form-control') %>
       </td>
     </tr>
     <tr>
       <td>
-        <%= label_tag("options[#{Option::Key::WEBSITE_INTRO_TEXT}]",
+        <%= label_tag("options[#{Option::Keys::WEBSITE_INTRO_TEXT}]",
                       'Introductory Text') %>
         <p class="info">Appears on the <%= link_to 'landing page', root_url %>.
           The following HTML tags are allowed: <code>&lt;br&gt;</code>
           <code>&lt;p&gt;</code></p>
       </td>
       <td>
-        <%= text_area_tag("options[#{Option::Key::WEBSITE_INTRO_TEXT}]",
-                          Option::string(Option::Key::WEBSITE_INTRO_TEXT),
+        <%= text_area_tag("options[#{Option::Keys::WEBSITE_INTRO_TEXT}]",
+                          Option::string(Option::Keys::WEBSITE_INTRO_TEXT),
                           class: 'form-control', rows: 12) %>
       </td>
     </tr>
     <tr>
-      <td><%= label_tag("options[#{Option::Key::RESULTS_PER_PAGE}]",
+      <td><%= label_tag("options[#{Option::Keys::RESULTS_PER_PAGE}]",
                         'Results Per Page') %></td>
       <td>
-        <%= number_field_tag("options[#{Option::Key::RESULTS_PER_PAGE}]",
-                             Option::integer(Option::Key::RESULTS_PER_PAGE),
+        <%= number_field_tag("options[#{Option::Keys::RESULTS_PER_PAGE}]",
+                             Option::integer(Option::Keys::RESULTS_PER_PAGE),
                              class: 'form-control') %>
       </td>
     </tr>
     <tr>
-      <td><%= label_tag("options[#{Option::Key::FACET_TERM_LIMIT}]",
+      <td><%= label_tag("options[#{Option::Keys::FACET_TERM_LIMIT}]",
                         'Facet Term Limit') %></td>
       <td>
-        <%= number_field_tag("options[#{Option::Key::FACET_TERM_LIMIT}]",
-                             Option::integer(Option::Key::FACET_TERM_LIMIT),
+        <%= number_field_tag("options[#{Option::Keys::FACET_TERM_LIMIT}]",
+                             Option::integer(Option::Keys::FACET_TERM_LIMIT),
                              class: 'form-control') %>
       </td>
     </tr>

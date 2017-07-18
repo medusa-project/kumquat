@@ -43,11 +43,18 @@ var PearTree = {
     },
 
     /**
-     * Provides an ajax filter field.
+     * Provides an ajax filter field. This will contain HTML like:
+     *
+     * <form class="pt-filter">
+     *     <input type="text">
+     *     <select> <!-- optional -->
+     * </form>
      *
      * @constructor
      */
     FilterField: function() {
+        var INPUT_DELAY_MSEC = 500;
+
         $('form.pt-filter').submit(function () {
             $.get(this.action, $(this).serialize(), null, 'script');
             $(this).nextAll('input').addClass('active');
@@ -56,25 +63,29 @@ var PearTree = {
 
         var submitForm = function () {
             var forms = $('form.pt-filter');
-            $.get(forms.attr('action'),
-                forms.serialize(),
-                function () {
-                    input.removeClass('active');
-                },
-                'script');
+            $.ajax({
+                url: forms.attr('action'),
+                method: 'GET',
+                data: forms.serialize(),
+                dataType: 'script',
+                success: function(result) {}
+            });
             return false;
         };
 
         var input_timer;
+        // When text is typed in the filter field...
         $('form.pt-filter input').on('keyup', function () {
-            var input = $(this);
-            input.addClass('active');
-
+            // Reset the typing-delay counter.
             clearTimeout(input_timer);
-            var msec = 500; // wait this long after user has stopped typing
-            input_timer = setTimeout(submitForm, msec);
+
+            // After the user has stopped typing, wait a bit and then submit
+            // the form via AJAX.
+            input_timer = setTimeout(submitForm, INPUT_DELAY_MSEC);
             return false;
         });
+        // When a select menu accompanying the filter field is changed,
+        // resubmit the form via AJAX.
         $('form.pt-filter select').on('change', function() {
             submitForm();
         });
@@ -122,6 +133,44 @@ var PearTree = {
 
     },
 
+    loadLazyImages: function() {
+        $('img[data-src]').each(function(index, img) {
+            img = $(img);
+            img.attr('src', img.data('src'));
+        });
+    },
+
+    /**
+     * Enables smooth scrolling to anchors. This is called by PearTree.init()
+     * to take effect globally, but is safe to call again to use a different
+     * offset.
+     *
+     * @param offset [Integer]
+     */
+    smoothAnchorScroll: function(offset) {
+        if (!offset && offset !== 0) {
+            offset = 0;
+        }
+        var top_padding = $('nav.navbar.navbar-default').height() + 10 + offset;
+        var root = $('html, body');
+
+        $('a[href^="#"]').off('click').on('click', function(e) {
+            // avoid interfering with other Bootstrap components
+            if ($(this).data('toggle') === 'collapse' ||
+                $(this).data('toggle') === 'tab') {
+                return;
+            }
+            e.preventDefault();
+
+            var target = this.hash;
+            root.stop().animate({
+                'scrollTop': $(target).offset().top - top_padding
+            }, 500, 'swing', function () {
+                window.location.hash = target;
+            });
+        });
+    },
+
     /**
      * Application-level initialization.
      */
@@ -150,6 +199,8 @@ var PearTree = {
         collapses.on('hide.bs.collapse', function () {
             setToggleState(toggleForCollapse($(this)), false);
         });
+
+        PearTree.smoothAnchorScroll(0);
     },
 
     /**

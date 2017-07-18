@@ -2,11 +2,11 @@
 <html>
   <head>
     <title><%= yield :title %> |
-      <%= Option.string(Option::Key::WEBSITE_NAME) %></title>
+      <%= Option.string(Option::Keys::WEBSITE_NAME) %></title>
 
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="copyright" content="<%= Option.string(Option::Key::COPYRIGHT_STATEMENT) %>">
+    <meta name="copyright" content="<%= Option.string(Option::Keys::COPYRIGHT_STATEMENT) %>">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <%= csrf_meta_tags %>
     <%= favicon_link_tag %>
@@ -28,11 +28,11 @@
     <%= render 'layouts/header' %>
 
     <div class="container-fluid">
-      <% if Option::string(Option::Key::SERVER_STATUS) != 'online' and
-          Option::string(Option::Key::SERVER_STATUS_MESSAGE).present? %>
+      <% if Option::string(Option::Keys::SERVER_STATUS) != 'online' and
+          Option::string(Option::Keys::SERVER_STATUS_MESSAGE).present? %>
         <div class="pt-flash alert alert-warning">
           <i class="fa fa-warning"></i>
-          <%= Option::string(Option::Key::SERVER_STATUS_MESSAGE) %>
+          <%= Option::string(Option::Keys::SERVER_STATUS_MESSAGE) %>
         </div>
       <% end %>
 

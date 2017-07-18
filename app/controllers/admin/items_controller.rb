@@ -83,9 +83,9 @@ module Admin
       if @collection.package_profile == PackageProfile::FREE_FORM_PROFILE
         finder = finder.
             exclude_variants([Item::Variants::DIRECTORY]).
-            sort(Item::SolrFields::GROUPED_SORT => :asc)
+            sort(Item::SolrFields::STRUCTURAL_SORT => :asc)
       else
-        finder = finder.sort(Item::SolrFields::GROUPED_SORT => :asc)
+        finder = finder.sort(Item::SolrFields::STRUCTURAL_SORT => :asc)
       end
 
       @items = finder.to_a
@@ -105,7 +105,7 @@ module Admin
       raise ActiveRecord::RecordNotFound unless @collection
 
       @start = params[:start] ? params[:start].to_i : 0
-      @limit = Option::integer(Option::Key::RESULTS_PER_PAGE)
+      @limit = Option::integer(Option::Keys::RESULTS_PER_PAGE)
 
       finder = ItemFinder.new.
           collection_id(@collection.repository_id).
@@ -130,10 +130,20 @@ module Admin
         format.html
         format.js
         format.tsv do
-          headers['Content-Disposition'] = 'attachment; filename="items.tsv"'
-          headers['Content-Disposition'] = 'text/tab-separated-values'
-          render text: @collection.items_as_tsv(only_undescribed:
-                                                    (params[:only_undescribed] == 'true'))
+          only_undescribed = (params[:only_undescribed] == 'true')
+          # TSV generation is roughly O(n) with number of items. If there are
+          # more than n items in the collection, do the download asynchronously.
+          if @collection.items.count > 2000
+            download = Download.create
+            DownloadTsvJob.perform_later(@collection, download,
+                                         only_undescribed)
+            redirect_to download_url(download)
+          else
+            headers['Content-Disposition'] = 'attachment; filename="items.tsv"'
+            headers['Content-Disposition'] = 'text/tab-separated-values'
+            render text: @collection.items_as_tsv(only_undescribed:
+                                                      only_undescribed)
+          end
         end
       end
     end

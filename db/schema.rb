@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170608153727) do
+ActiveRecord::Schema.define(version: 20170712194707) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -89,7 +89,7 @@ ActiveRecord::Schema.define(version: 20170608153727) do
     t.integer  "item_id"
     t.string   "repository_relative_pathname"
     t.string   "cfs_file_uuid"
-    t.decimal  "byte_size",                    precision: 15
+    t.decimal  "byte_size",                    precision: 15,                             null: false
     t.decimal  "width",                        precision: 6
     t.decimal  "height",                       precision: 6
     t.integer  "media_category"
@@ -105,15 +105,15 @@ ActiveRecord::Schema.define(version: 20170608153727) do
     t.string "child_repository_id",  null: false
   end
 
-  add_index "collection_joins", ["child_repository_id"], name: "index_collection_joins_on_child_repository_id", using: :btree
-  add_index "collection_joins", ["parent_repository_id"], name: "index_collection_joins_on_parent_repository_id", using: :btree
+  add_index "collection_joins", ["child_repository_id"], name: "index_collection_joins_on_child_identifier", using: :btree
+  add_index "collection_joins", ["parent_repository_id"], name: "index_collection_joins_on_parent_identifier", using: :btree
 
   create_table "collections", force: :cascade do |t|
     t.string   "repository_id",                            null: false
     t.string   "description_html"
     t.string   "access_url"
-    t.boolean  "published"
-    t.boolean  "published_in_dls"
+    t.boolean  "published_in_medusa"
+    t.boolean  "published_in_dls",         default: false
     t.string   "representative_image"
     t.string   "representative_item_id"
     t.integer  "metadata_profile_id"
@@ -136,9 +136,9 @@ ActiveRecord::Schema.define(version: 20170608153727) do
   add_index "collections", ["external_id"], name: "index_collections_on_external_id", using: :btree
   add_index "collections", ["harvestable"], name: "index_collections_on_harvestable", using: :btree
   add_index "collections", ["metadata_profile_id"], name: "index_collections_on_metadata_profile_id", using: :btree
-  add_index "collections", ["published"], name: "index_collections_on_published", using: :btree
-  add_index "collections", ["published_in_dls"], name: "index_collections_on_published_in_dls", using: :btree
-  add_index "collections", ["repository_id"], name: "index_collections_on_repository_id", unique: true, using: :btree
+  add_index "collections", ["published_in_dls"], name: "index_collections_on_published", using: :btree
+  add_index "collections", ["published_in_medusa"], name: "index_collections_on_published_in_medusa", using: :btree
+  add_index "collections", ["repository_id"], name: "index_collections_on_identifier", unique: true, using: :btree
   add_index "collections", ["representative_item_id"], name: "index_collections_on_representative_item_id", using: :btree
 
   create_table "collections_roles", force: :cascade do |t|
@@ -164,12 +164,14 @@ ActiveRecord::Schema.define(version: 20170608153727) do
   add_index "delayed_jobs", ["priority", "run_at"], name: "delayed_jobs_priority", using: :btree
 
   create_table "downloads", force: :cascade do |t|
-    t.string   "key",                            null: false
-    t.integer  "status",           default: 0,   null: false
+    t.string   "key",                              null: false
+    t.integer  "status",           default: 0,     null: false
     t.string   "filename"
     t.float    "percent_complete", default: 0.0
-    t.datetime "created_at",                     null: false
-    t.datetime "updated_at",                     null: false
+    t.datetime "created_at",                       null: false
+    t.datetime "updated_at",                       null: false
+    t.string   "url"
+    t.boolean  "indeterminate",    default: false
   end
 
   create_table "elements", force: :cascade do |t|
@@ -227,11 +229,11 @@ ActiveRecord::Schema.define(version: 20170608153727) do
     t.integer  "representative_binary_id"
   end
 
-  add_index "items", ["collection_repository_id"], name: "index_items_on_collection_repository_id", using: :btree
-  add_index "items", ["parent_repository_id"], name: "index_items_on_parent_repository_id", using: :btree
+  add_index "items", ["collection_repository_id"], name: "index_items_on_collection_identifier", using: :btree
+  add_index "items", ["parent_repository_id"], name: "index_items_on_parent_identifier", using: :btree
   add_index "items", ["published"], name: "index_items_on_published", using: :btree
-  add_index "items", ["repository_id"], name: "index_items_on_repository_id", unique: true, using: :btree
-  add_index "items", ["representative_item_repository_id"], name: "index_items_on_representative_item_repository_id", using: :btree
+  add_index "items", ["repository_id"], name: "index_items_on_identifier", unique: true, using: :btree
+  add_index "items", ["representative_item_repository_id"], name: "index_items_on_representative_item_identifier", using: :btree
   add_index "items", ["variant"], name: "index_items_on_variant", using: :btree
 
   create_table "items_roles", force: :cascade do |t|
@@ -283,7 +285,7 @@ ActiveRecord::Schema.define(version: 20170608153727) do
     t.datetime "updated_at",         null: false
   end
 
-  add_index "medusa_repositories", ["medusa_database_id"], name: "index_medusa_repositories_on_medusa_database_id", using: :btree
+  add_index "medusa_repositories", ["medusa_database_id"], name: "index_medusa_repository_names_on_medusa_database_id", using: :btree
 
   create_table "metadata_profile_elements", force: :cascade do |t|
     t.integer  "metadata_profile_id"

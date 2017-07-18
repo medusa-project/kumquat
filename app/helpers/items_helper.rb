@@ -76,7 +76,8 @@ module ItemsHelper
   #
   def compound_object_binary_info_table(item)
     binaries = item.binaries
-    subitems = item.items_in_iiif_presentation_order.limit(999).to_a
+    subitems = item.items_from_solr.order(Item::SolrFields::STRUCTURAL_SORT).
+        limit(999).to_a
     html = ''
     if subitems.any? or binaries.any?
       html += '<table class="table">'
@@ -185,11 +186,11 @@ module ItemsHelper
       html += '<li>'
       html += link_to(link_target, class: 'pt-title') do
         raw('<div class="pt-thumbnail">' +
-                thumbnail_tag(child, DEFAULT_THUMBNAIL_SIZE, :square) +
-                '</div>' +
-                '<div class="pt-label" title="' + child.title + '">' +
-                truncate(child.title, length: PAGE_TITLE_LENGTH) +
-                '</div>')
+            thumbnail_tag(child, shape: :square) +
+          '</div>' +
+          '<div class="pt-label" title="' + child.title + '">' +
+            truncate(child.title, length: PAGE_TITLE_LENGTH) +
+          '</div>')
       end
       html += '</li>'
     end
@@ -199,14 +200,10 @@ module ItemsHelper
 
   ##
   # @param item [Item]
-  # @param options [Hash]
-  # @option options [Integer] :size Thumbnail size
+  # @param options [Hash] Options to pass to thumbnail_tag().
   # @return [String]
   #
-  def front_matter_item_panel(item, options)
-    unless options[:size]
-      options[:size] = DEFAULT_THUMBNAIL_SIZE
-    end
+  def front_matter_item_panel(item, options = {})
     html = ''
     if item.front_matter_item
       html += "<div class=\"panel panel-default pt-front-matter-item\">
@@ -215,7 +212,7 @@ module ItemsHelper
           </div>
           <div class=\"panel-body\">"
       html += link_to(item.front_matter_item) do
-        thumbnail_tag(item.front_matter_item, options[:size])
+        thumbnail_tag(item.front_matter_item, options)
       end
       html += '</div>
               </div>'
@@ -238,33 +235,31 @@ module ItemsHelper
 
   ##
   # @param item [Item]
-  # @param size [Integer]
-  # @param shape [Symbol] :default or :square
+  # @param region [Symbol] :default or :square
+  # @param size [Symbol,Integer] Integer or :full
+  # @param format [Symbol]
   # @return [String, nil] Image URL or nil if the item is not an image
   #
-  def iiif_image_url(item, size, shape = :default)
+  def iiif_image_url(item, region = :default, size = :full, format = :jpg)
     url = nil
     bin = item.iiif_image_binary
     if bin
-      shape = (shape == :square) ? 'square' : 'full'
-      # ?time= is a nonstandard argument supported only by Cantaloupe,
-      # applicable only to videos.
-      url = sprintf('%s/%s/!%d,%d/0/default.jpg?time=00:00:01',
-                    bin.iiif_image_url, shape, size, size)
+      region = (region == :square) ? 'square' : 'full'
+      size = (size == :full) ? 'full' : "!#{size},#{size}"
+      # ?time= is a nonstandard argument supported only by Cantaloupe
+      # (FfmpegProcessor), applicable only to videos.
+      url = sprintf('%s/%s/%s/0/default.%s?time=00:00:01',
+                    bin.iiif_image_url, region, size, format)
     end
     url
   end
 
   ##
   # @param item [Item]
-  # @param options [Hash]
-  # @option options [Integer] :size Thumbnail size
+  # @param options [Hash] Options to pass to thumbnail_tag().
   # @return [String]
   #
-  def index_item_panel(item, options)
-    unless options[:size]
-      options[:size] = DEFAULT_THUMBNAIL_SIZE
-    end
+  def index_item_panel(item, options = {})
     html = ''
     if item.index_item
       html += "<div class=\"panel panel-default pt-index-item\">
@@ -273,7 +268,7 @@ module ItemsHelper
           </div>
           <div class=\"panel-body\">"
       html += link_to(item.index_item) do
-        thumbnail_tag(item.index_item, options[:size])
+        thumbnail_tag(item.index_item, options)
       end
       html += '</div>
               </div>'
@@ -317,7 +312,7 @@ module ItemsHelper
   end
 
   ##
-  # @param items [Enumerable<Items>]
+  # @param items [Enumerable<Representable>]
   # @return [String]
   #
   def items_as_flex(items)
@@ -328,8 +323,8 @@ module ItemsHelper
       html += '<div class="pt-object">'
       html +=    link_to(item) do
         raw('<div class="pt-thumbnail">' +
-                thumbnail_tag(item.effective_representative_item, thumb_width) +
-                '</div>')
+                thumbnail_tag(item.effective_representative_entity, size: thumb_width) +
+            '</div>')
       end
       html += '  <h4 class="pt-title">'
       html +=      link_to(item.title, item)
@@ -342,7 +337,7 @@ module ItemsHelper
   end
 
   ##
-  # @param entities [Relation<SolrQuerying>]
+  # @param entities [Relation<Representable>]
   # @param start [integer] Offset.
   # @param options [Hash] Hash with optional keys.
   # @option options [Boolean] :link_to_admin
@@ -371,8 +366,8 @@ module ItemsHelper
         size = options[:thumbnail_size] ?
             options[:thumbnail_size] : DEFAULT_THUMBNAIL_SIZE
         raw('<div class="pt-thumbnail">' +
-                thumbnail_tag(entity.effective_representative_item, size, :square) +
-                '</div>')
+          thumbnail_tag(entity.effective_representative_entity, size: size, shape: :square) +
+        '</div>')
       end
       html += '<span class="pt-label">'
       html += link_to(entity.title, link_target)
@@ -383,10 +378,10 @@ module ItemsHelper
 
       if entity.kind_of?(Item)
         num_pages = entity.pages.count
-        if num_pages > 0
+        if num_pages > 1
           info_parts << "#{num_pages} pages"
         else
-          num_files = entity.files.count
+          num_files = entity.filesystem_variants.count
           if num_files > 0
             info_parts << "#{num_files} files"
           else
@@ -435,14 +430,10 @@ module ItemsHelper
 
   ##
   # @param item [Item]
-  # @param options [Hash]
-  # @option options [Integer] :size Thumbnail size
+  # @param options [Hash] Options to pass to thumbnail_tag().
   # @return [String]
   #
-  def key_item_panel(item, options)
-    unless options[:size]
-      options[:size] = DEFAULT_THUMBNAIL_SIZE
-    end
+  def key_item_panel(item, options = {})
     html = ''
     if item.key_item
       html += "<div class=\"panel panel-default pt-key-item\">
@@ -451,7 +442,7 @@ module ItemsHelper
           </div>
           <div class=\"panel-body\">"
       html += link_to(item.key_item) do
-        thumbnail_tag(item.key_item, options[:size])
+        thumbnail_tag(item.key_item, options)
       end
       html += '</div>
               </div>'
@@ -536,7 +527,7 @@ module ItemsHelper
   def metadata_section(item)
     html = "<h2><a role=\"button\" data-toggle=\"collapse\"
       href=\"#pt-metadata\" aria-expanded=\"true\" aria-controls=\"pt-metadata\">
-      Descriptive Info</a></h2>
+      Descriptive Information</a></h2>
         <div id=\"pt-metadata\" class=\"collapse in\">
           <div class=\"visible-xs\">
             #{metadata_as_list(item)}
@@ -699,7 +690,7 @@ module ItemsHelper
       # be huge and/or in a format they can't use.
       struct[:image] = {
           '@type': 'ImageObject',
-          'contentUrl': iiif_image_url(item, 1024)
+          'contentUrl': iiif_image_url(item, :default, 1024)
       }
     end
 
@@ -812,7 +803,8 @@ module ItemsHelper
 
     # thumbnailUrl
     if iiif_image_binary
-      struct[:thumbnailUrl] = iiif_image_url(item, ItemsHelper::DEFAULT_THUMBNAIL_SIZE)
+      struct[:thumbnailUrl] = iiif_image_url(item, :default,
+                                             ItemsHelper::DEFAULT_THUMBNAIL_SIZE)
     end
 
     options[:pretty_print] ? JSON.pretty_generate(struct) : JSON.generate(struct)
@@ -892,7 +884,7 @@ module ItemsHelper
     # pinterest
     url = "http://pinterest.com/pin/create/button/?url=#{CGI::escape(url)}&description=#{CGI::escape(title)}"
     if entity.kind_of?(Item)
-      iiif_url = iiif_image_url(entity, 512)
+      iiif_url = iiif_image_url(entity, :default, 512)
       if iiif_url
         url += "&media=#{CGI::escape(iiif_url)}"
       end
@@ -922,7 +914,7 @@ module ItemsHelper
         html += '<li>'
         html += '<div class="pt-thumbnail">'
         html += link_to(item_path(item)) do
-          thumbnail_tag(item, DEFAULT_THUMBNAIL_SIZE, :square)
+          thumbnail_tag(item, shape: :square)
         end
         html += '</div>'
         html += link_to(truncate(item.title, length: 40),
@@ -1005,31 +997,42 @@ module ItemsHelper
   end
 
   ##
-  # @param entity [Item, Binary] or some other object suitable for passing to
-  #                              `icon_for`
-  # @param size [Integer]
-  # @param shape [Symbol] :default or :square
+  # @param entity [Object]
+  # @param options [Hash]
+  # @option options [Integer] :size Defaults to DEFAULT_THUMBNAIL_SIZE
+  # @option options [Symbol] :shape :default or :square, defaults to :default
+  # @option options [Boolean] :lazy If true, the data-src attribute will be
+  #                                 set instead of src; defaults to false.
   # @return [String]
   #
-  def thumbnail_tag(entity, size = DEFAULT_THUMBNAIL_SIZE, shape = :default)
+  def thumbnail_tag(entity, options = {})
+    options = {} unless options.kind_of?(Hash)
+    options[:size] = DEFAULT_THUMBNAIL_SIZE unless options.keys.include?(:size)
+    options[:shape] = :default unless options.keys.include?(:shape)
+    options[:lazy] = false unless options.keys.include?(:lazy)
+
     html = ''
     url = nil
-    if Option::string(Option::Key::SERVER_STATUS) != 'storage_offline'
-      if entity.kind_of?(Binary)
-        url = binary_image_url(entity, size, shape)
+    if Option::string(Option::Keys::SERVER_STATUS) != 'storage_offline'
+      if entity.kind_of?(Binary) and entity.iiif_safe?
+        url = binary_image_url(entity, options[:size], options[:shape])
       elsif entity.kind_of?(Collection)
-        bs = entity.representative_image_binary
-        if bs
-          url = binary_image_url(bs, size, shape)
+        bin = entity.representative_image_binary
+        if bin&.iiif_safe?
+          url = binary_image_url(bin, options[:size], options[:shape])
         end
-      elsif entity.kind_of?(Item)
-        url = iiif_image_url(entity, size, shape)
+      elsif entity.kind_of?(Item) and entity.iiif_image_binary&.iiif_safe?
+        url = iiif_image_url(entity, options[:shape], options[:size])
       end
     end
 
     if url
       # No alt because it may appear in a huge font size if the image is 404.
-      html += image_tag(url, class: 'pt-thumbnail', alt: '')
+      if options[:lazy]
+        html += lazy_image_tag(url, class: 'pt-thumbnail', alt: '')
+      else
+        html += image_tag(url, class: 'pt-thumbnail', alt: '')
+      end
     else
       html += icon_for(entity) # ApplicationHelper
     end
@@ -1049,21 +1052,17 @@ module ItemsHelper
     if entity.kind_of?(Binary)
       url = binary_image_url(entity, size, shape)
     elsif entity.kind_of?(Item)
-      url = iiif_image_url(entity, size, shape)
+      url = iiif_image_url(entity, shape, size)
     end
     url
   end
 
   ##
   # @param item [Item]
-  # @param options [Hash]
-  # @option options [Integer] :size Thumbnail size
+  # @param options [Hash] Options to pass to thumbnail_tag().
   # @return [String]
   #
-  def title_item_panel(item, options)
-    unless options[:size]
-      options[:size] = DEFAULT_THUMBNAIL_SIZE
-    end
+  def title_item_panel(item, options = {})
     html = ''
     if item.title_item
       html += "<div class=\"panel panel-default pt-title-item\">
@@ -1072,7 +1071,7 @@ module ItemsHelper
           </div>
           <div class=\"panel-body\">"
       html += link_to(item.title_item) do
-        thumbnail_tag(item.title_item, options[:size])
+        thumbnail_tag(item.title_item, options)
       end
       html += '</div>
               </div>'
@@ -1202,6 +1201,11 @@ module ItemsHelper
     data = []
     if binary
       data << {
+          label: 'Media Category',
+          category: 'File',
+          value: binary.human_readable_media_category
+      }
+      data << {
           label: 'Filename',
           category: 'File',
           value: File.basename(binary.absolute_local_pathname)
@@ -1257,10 +1261,12 @@ module ItemsHelper
 
       # If the object contains more than this many items, disable the gallery
       # view to allow the UI to load in a reasonable amount of time.
-      if object.items_in_iiif_presentation_order.count > 800
+      items = object.items_from_solr.order(Item::SolrFields::STRUCTURAL_SORT).
+          limit(999)
+      if items.count > 800
         return image_viewer_for(selected_item)
       end
-      object.items_in_iiif_presentation_order.each_with_index do |subitem, index|
+      items.each_with_index do |subitem, index|
         if subitem.repository_id == selected_item.repository_id
           canvas_index = index
           break
@@ -1462,7 +1468,7 @@ module ItemsHelper
       <div class=\"panel-body\">
         <ul>"
     terms.each_with_index do |term, i|
-      break if i >= Option::integer(Option::Key::FACET_TERM_LIMIT)
+      break if i >= Option::integer(Option::Keys::FACET_TERM_LIMIT)
       next if term.count < 1
       checked = (params[:fq] and params[:fq].include?(term.facet_query)) ?
           'checked' : nil

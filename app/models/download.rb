@@ -20,13 +20,16 @@
 # # Attributes
 #
 # * created_at:       Managed by ActiveRecord.
-# * filename:         Filename of the file to be downloaded.
+# * filename:         Filename of the file to be downloaded. (`url` can be
+#                     used instead.
 # * key:              Random alphanumeric "public ID." Should be hard to guess
 #                     so that someone can't retrieve someone else's download.
 # * percent_complete: Float from 0 to 1 to keep the user informed of
 #                     preparation progress.
 # * status:           Must be set to one of the Status constant values.
 # * updated_at:       Managed by ActiveRecord.
+# * url:              URL to redirect to rather than downloading a local file.
+#                     Must be publicly accessible.
 #
 class Download < ActiveRecord::Base
 
@@ -37,6 +40,8 @@ class Download < ActiveRecord::Base
 
   before_create :assign_key
   after_destroy :delete_file
+
+  DOWNLOADS_DIRECTORY = File.join(Rails.root, 'tmp', 'downloads')
 
   ##
   # @param max_age_seconds [Integer]
@@ -57,10 +62,10 @@ class Download < ActiveRecord::Base
   end
 
   ##
-  # @return [String]
+  # @return [String, nil]
   #
   def pathname
-    File.join(Rails.root, 'tmp', 'downloads', self.filename)
+    self.filename.present? ? File.join(DOWNLOADS_DIRECTORY, self.filename) : nil
   end
 
   ##

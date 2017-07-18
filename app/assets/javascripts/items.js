@@ -146,79 +146,85 @@ var PTItemView = function() {
     /**
      * Encapsulates the embed-image panel.
      *
+     * The panel is opened by an anchor with data-iiif-url, data-iiif-info-url,
+     * and data-title attributes. The size and qualitu options are presented
+     * dynamically based on the support declared by the image server in the
+     * IIIF information response.
+     *
      * @constructor
      */
     var PTEmbedPanel = function() {
 
-        var MIN_SIZE = 200;
-        var NUM_BUTTON_SIZE_TIERS = 6;
+        var MIN_IMAGE_SIZE = 200;
+        var NUM_BUTTON_SIZE_TIERS = 5;
 
+        var image_url;
+        var image_info_url;
         var modal_loaded = false;
+        var title;
 
         var init = function() {
-            var embed_modal = $('#pt-embed-image-modal');
-            embed_modal.on('show.bs.modal', function() {
-                if (modal_loaded) {
-                    return;
-                }
+            var embed_modal = $('#pt-custom-image-modal');
+            embed_modal.on('show.bs.modal', function(e) {
+                // Get the element that was clicked to open the panel.
+                var clicked_button = $(e.relatedTarget);
+                // Read its relevant data attributes.
+                image_url = clicked_button.data('iiif-url');
+                image_info_url = clicked_button.data('iiif-info-url');
+                title = clicked_button.data('title').trim().replace(/"/g, '&quot;');
 
-                $('input[type=radio][name=pt-embeddable-item]').on('click', function() {
-                    loadIiifInfo();
+                // Load the image's IIIF info.
+                $.ajax({
+                    dataType: 'json',
+                    url: image_info_url,
+                    data: null,
+                    success: function(data) {
+                        renderContents(data);
+                    }
                 });
-                loadIiifInfo();
 
                 modal_loaded = true;
             });
         }; init();
 
-        var loadIiifInfo = function() {
-            // Find the info URL to load; it may be in a radio (for compound
-            // objects) or hidden input (for single items).
-            var input = $('input[name=pt-embeddable-item]');
-            var tmp = input.filter(':checked');
-            if (tmp.length > 0) {
-                input = tmp;
-            }
-
-            $.ajax({
-                dataType: 'json',
-                url: input.data('iiif-info-url'),
-                data: null,
-                success: function(data) {
-                    renderContents(input.data('iiif-url'), data,
-                        input.data('title'));
-                }
-            });
-        };
-
-        var renderContents = function(iiif_url, iiif_info, item_title) {
+        var renderContents = function(iiif_info) {
             var container = $('#iiif-download');
             container.empty();
             var full_width = iiif_info['width'];
+            var full_height = iiif_info['height'];
+
+            // The 'sizes' array includes sizes only up to 1/2 size. Add the
+            // full size to make it available as a download option.
+            iiif_info['sizes'].push({
+                'width': full_width,
+                'height': full_height
+            });
+
             var num_sizes = iiif_info['sizes'].length;
 
-            // find the number of usable sizes in order to calculate button
-            // size tiers.
+            // find the number of usable sizes (i.e. sizes above
+            // MIN_IMAGE_SIZE) in order to calculate button size tiers.
             var num_usable_sizes = 0;
             for (var i = 0; i < num_sizes; i++) {
                 var width = iiif_info['sizes'][i]['width'];
                 var height = iiif_info['sizes'][i]['height'];
-                if (width >= MIN_SIZE && height >= MIN_SIZE) {
+                if (width >= MIN_IMAGE_SIZE && height >= MIN_IMAGE_SIZE) {
                     num_usable_sizes++;
                 }
             }
 
-            // Create a button for each size tier up to the maximum.
-            for (var i = 0, size_i = 0; i < num_sizes; i++) {
+            // Create a button for each size tier from the maximum down to the
+            // minimum.
+            for (var i = num_sizes - 1, size_i = num_sizes - 1; i >= 0; i--) {
                 width = iiif_info['sizes'][i]['width'];
                 height = iiif_info['sizes'][i]['height'];
 
-                if (width >= MIN_SIZE && height >= MIN_SIZE) {
+                if (width >= MIN_IMAGE_SIZE && height >= MIN_IMAGE_SIZE) {
                     var size_class = 'pt-size-' +
-                        Math.ceil(size_i / num_usable_sizes * NUM_BUTTON_SIZE_TIERS);
+                        Math.floor(size_i / num_usable_sizes * NUM_BUTTON_SIZE_TIERS);
                     var percent = Math.round(width / full_width * 100);
-                    var checked = (size_i == 0) ? 'checked' : '';
-                    var active = (size_i == 0) ? 'active' : '';
+                    var checked = (size_i === num_sizes - 1) ? 'checked' : '';
+                    var active = (size_i === num_sizes - 1) ? 'active' : '';
                     container.append(
                         '<div class="radio btn btn-default ' + size_class + ' ' + active + '">' +
                             '<label>' +
@@ -226,17 +232,19 @@ var PTItemView = function() {
                                 width + '&times;' + height + ' pixels (' + percent + '%)' +
                             '</label>' +
                         '</div><br>');
-                    size_i++;
+                    size_i--;
                 }
             }
+
+            container.append('<hr>');
 
             var qualities_div = $('<div class="form-inline"></div>');
             iiif_info['profile'][1]['qualities'].forEach(function (item) {
                 // Exclude the "default" quality.
-                if (item == 'color' || item == 'gray' || item == 'bitonal') {
+                if (item === 'color' || item === 'gray' || item === 'bitonal') {
                     var checked = '';
                     var container_class = '';
-                    if (item == 'color') {
+                    if (item === 'color') {
                         checked = 'checked';
                         container_class = 'active';
                     }
@@ -250,19 +258,20 @@ var PTItemView = function() {
                 }
             });
             container.append(qualities_div);
+            container.append('<hr>');
 
             var formats_div = $('<div class="form-inline"></div>');
             iiif_info['profile'][1]['formats'].forEach(function (item) {
                 var checked = '';
                 var container_class = '';
-                if (item == 'jpg') {
+                if (item === 'jpg') {
                     checked = 'checked';
                     container_class = 'active';
                 }
                 var label = item.toUpperCase();
-                if (label == 'JPG') {
+                if (label === 'JPG') {
                     label = 'JPEG';
-                } else if (label == 'TIF') {
+                } else if (label === 'TIF') {
                     label = 'TIFF';
                 }
                 formats_div.append(
@@ -275,14 +284,13 @@ var PTItemView = function() {
             });
             container.append(formats_div);
 
-            var embed_modal = $('#pt-embed-image-modal');
+            var embed_modal = $('#pt-custom-image-modal');
 
             var displayUrl = function() {
                 var size = embed_modal.find('input[name="size"]:checked').val();
                 var quality = embed_modal.find('input[name="quality"]:checked').val();
                 var format = embed_modal.find('input[name="format"]:checked').val();
-                var url = iiif_url + '/full/' + size + '/0/' + quality + '.' + format;
-                var title = item_title.trim().replace(/"/g, '&quot;');
+                var url = image_url + '/full/' + size + '/0/' + quality + '.' + format;
 
                 $('#pt-preview-link').attr('href', url).show();
                 $('#pt-embed-link').val('<img src="' + url + '" alt="' + title + '">');
@@ -329,6 +337,16 @@ var PTItemView = function() {
             $('.pt-remove-from-favorites').hide();
             $('.pt-add-to-favorites').show();
         }
+
+        $('a[href=#pt-download-section]').on('click', function() {
+            $('#pt-download').collapse('show');
+        });
+
+        // Lazy-load thumbnail images in the download section when it gets
+        // expanded.
+        $('#pt-download-section').on('shown.bs.collapse', function() {
+            PearTree.loadLazyImages();
+        });
 
         // The 3D viewer is initially not loaded. Load it the first time its
         // container div appears.
