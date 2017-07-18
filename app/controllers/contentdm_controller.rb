@@ -5,12 +5,13 @@
 #
 class ContentdmController < ApplicationController
 
+  THUMBNAIL_SIZE = ItemsHelper::DEFAULT_THUMBNAIL_SIZE
+
   ##
   # Responds to:
   #
   # * GET /projects/*
   # * GET /ui/cdm/*
-  # * GET /utils/*
   #
   def gone
     render text: 'This resource no longer exists.', status: :gone
@@ -146,27 +147,50 @@ class ContentdmController < ApplicationController
     redirect_to search_url(q: sanitize_term(params[:term])), status: 301
   end
 
+  ##
+  # Responds to GET /utils/getthumbnail/collection/:alias/id/:pointer
+  #
+  def v6_thumbnail
+    item = item_for(params[:alias], params[:pointer])
+
+    if item
+      item = item.effective_representative_entity
+      bin = item.binaries.where(master_type: Binary::MasterType::ACCESS,
+                                media_category: Binary::MediaCategory::IMAGE).limit(1).first
+      if bin
+        redirect_to sprintf('%s/full/!%d,%d/0/default.jpg',
+                            bin.iiif_image_url, THUMBNAIL_SIZE, THUMBNAIL_SIZE),
+                    status: 301
+        return
+      end
+    end
+    render text: 'Not found.', status: 404
+  end
+
   private
 
-  def redirect_to_best_match(alias_, pointer)
-    alias_ = sanitize_alias(alias_)
+  def item_for(alias_, pointer)
     item = Item.where(contentdm_alias: alias_,
                       contentdm_pointer: pointer).limit(1).first
-    if item
-      redirect_to item_url(item), status: 301
-    else
+    unless item
       item = Item.joins('LEFT JOIN collections ON items.collection_repository_id = collections.repository_id').
           where('collections.contentdm_alias': alias_,
                 contentdm_pointer: pointer).limit(1).first
-      if item
-        redirect_to item_url(item), status: 301
+    end
+    item
+  end
+
+  def redirect_to_best_match(alias_, pointer)
+    alias_ = sanitize_alias(alias_)
+    item = item_for(alias_, pointer)
+    if item
+      redirect_to item_url(item), status: 301
+    else
+      col = Collection.find_by_contentdm_alias(alias_)
+      if col
+        redirect_to collection_url(col), status: 303
       else
-        col = Collection.find_by_contentdm_alias(alias_)
-        if col
-          redirect_to collection_url(col), status: 303
-        else
-          redirect_to root_url, status: 303
-        end
+        redirect_to root_url, status: 303
       end
     end
   end
