@@ -460,24 +460,9 @@ var tree_node_callback = function (result) {
     $('#item-info .pt-result-navigation').remove();
     $('#item-info .btn-group').removeClass('pull-right');
     $('#item-info .view-dropdown').removeClass('dropdown-menu-right');
+    PearTree.init();
     var view = new PTItemView();
     view.init();
-
-    //$(".pagination a").hover(function (e){
-    //    e.preventDefault();
-    //});
-    $(".pagination a").not(".disabled").click(function (e){
-        e.preventDefault();
-        console.log(e.isDefaultPrevented());
-        $.ajax({
-            url: get_pagination_link(this.getAttribute("href")),
-            method: "GET",
-            success: function(result) {
-                tree_node_callback(result)
-            }
-
-        });
-    });
 };
 var trigger_root_node = function(){
     get_item_info('/collections/'+window.location.pathname.split("/")[2]+'/tree.html?ajax=true');
