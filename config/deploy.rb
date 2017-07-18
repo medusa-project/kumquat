@@ -7,7 +7,7 @@ set :repo_url, 'https://github.com/medusa-project/PearTree.git'
 # Default branch is :master
 # ask :branch, `git rev-parse --abbrev-ref HEAD`.chomp
 
-set :home, '/home/peartree'
+set :home, '/home/lib-medusa-dls'
 
 set :bin, "#{fetch(:home)}/bin"
 
