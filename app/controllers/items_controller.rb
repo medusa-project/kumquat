@@ -16,10 +16,11 @@ class ItemsController < WebsiteController
                                      :iiif_image_resource, :iiif_layer,
                                      :iiif_manifest, :iiif_media_sequence,
                                      :iiif_range, :iiif_sequence]
+
   before_action :load_item, except: [:index, :tree_data, :tree]
   before_action :authorize_item, except: [:index, :tree_data, :tree]
 
-  before_action :check_published, except: :index
+  before_action :check_published, except: [:index, :tree_data, :tree]
   before_action :set_browse_context, only: :index
 
   ##
@@ -211,7 +212,6 @@ class ItemsController < WebsiteController
   #
   def index
     setup_index_view
-
     respond_to do |format|
       format.atom do
         @updated = @items.any? ?
@@ -420,7 +420,7 @@ class ItemsController < WebsiteController
 
     @start = params[:start].to_i
     params[:start] = @start
-    @limit = Option::integer(Option::Key::RESULTS_PER_PAGE)
+    @limit = Option::integer(Option::Keys::RESULTS_PER_PAGE)
     finder = item_finder_for(params)
     @items = finder.to_a
 
@@ -434,7 +434,7 @@ class ItemsController < WebsiteController
       @suggestions = finder.suggestions
     end
 
-    @download_finder = ItemFinder.new.
+    download_finder = ItemFinder.new.
         client_hostname(request.host).
         client_ip(request.remote_ip).
         client_user(current_user).
@@ -444,11 +444,11 @@ class ItemsController < WebsiteController
         only_described(true).
         stats(true).
         filter_queries(params[:fq]).
-        sort(Item::SolrFields::GROUPED_SORT).
+        sort(Item::SolrFields::STRUCTURAL_SORT).
         start(params[:download_start]).
         limit(params[:limit] || DownloaderClient::BATCH_SIZE)
-    @num_downloadable_items = @download_finder.count
-    @total_byte_size = @download_finder.total_byte_size
+    @num_downloadable_items = download_finder.count
+    @total_byte_size = download_finder.total_byte_size
   end
 
   def tree_hash(item)

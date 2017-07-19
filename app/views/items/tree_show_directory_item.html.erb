@@ -12,7 +12,6 @@
 <% end %>
 <%= render partial: 'show_technical_info' %>
 <%= render partial: 'cite_panel', locals: { item: @item } %>
-<%= render partial: 'download_panel', locals: { item: @item } %>
 <%= render partial: 'download_zip_panel', locals: {
     context: (@item.variant == Item::Variants::DIRECTORY) ? :directory : :item,
     num_downloadable_items: 0, # these are potentially expensive to calculate.
