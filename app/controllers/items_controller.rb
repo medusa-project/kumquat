@@ -16,9 +16,10 @@ class ItemsController < WebsiteController
                                      :iiif_image_resource, :iiif_layer,
                                      :iiif_manifest, :iiif_media_sequence,
                                      :iiif_range, :iiif_sequence]
+
   before_action :load_item, except: [:index, :tree_data, :tree]
   before_action :authorize_item, except: [:index, :tree_data, :tree]
-  before_action :check_published, except: :index
+  before_action :check_published, except: [:index, :tree_data, :tree]
   before_action :set_browse_context, only: :index
 
   ##
@@ -437,7 +438,7 @@ class ItemsController < WebsiteController
       @suggestions = finder.suggestions
     end
 
-    @download_finder = ItemFinder.new.
+    download_finder = ItemFinder.new.
         client_hostname(request.host).
         client_ip(request.remote_ip).
         client_user(current_user).
