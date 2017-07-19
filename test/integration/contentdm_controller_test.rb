@@ -171,6 +171,10 @@ class ContentdmControllerTest < ActionDispatch::IntegrationTest
     assert_response :moved_permanently
     assert_redirected_to collection_items_url(@item.collection) + '?q=cats'
 
+    get("/cdm/search/collection/#{@item.contentdm_alias}/searchterm/cats/field/subjec/mode/exact/conn/and/order/nosort/ad/bogus")
+    assert_response :moved_permanently
+    assert_redirected_to collection_items_url(@item.collection) + '?q=cats'
+
     get("/cdm/search/collection/#{@item.contentdm_alias}/searchterm/cats/field/subjec/mode/exact/conn/and/order/nosort/page/2")
     assert_response :moved_permanently
     assert_redirected_to collection_items_url(@item.collection) + '?q=cats'
@@ -262,6 +266,10 @@ class ContentdmControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to search_url + '?q=test'
 
     get('/cdm/search/searchterm/test/mode/bogus/order/bogus/ad/desc/page/1')
+    assert_response :moved_permanently
+    assert_redirected_to search_url + '?q=test'
+
+    get('/cdm/search/searchterm/test/order/bogus')
     assert_response :moved_permanently
     assert_redirected_to search_url + '?q=test'
   end

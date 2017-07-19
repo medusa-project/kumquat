@@ -261,6 +261,8 @@ Rails.application.routes.draw do
         to: 'contentdm#v6_collection_items', via: :all
   match '/cdm/search/collection/:alias/searchterm/:term/field/:field/mode/:mode/conn/:conn/order/:order',
         to: 'contentdm#v6_collection_items', via: :all
+  match '/cdm/search/collection/:alias/searchterm/:term/field/:field/mode/:mode/conn/:conn/order/:order/ad/:ad',
+        to: 'contentdm#v6_collection_items', via: :all
   match '/cdm/search/collection/:alias/searchterm/:term/field/:field/mode/:mode/conn/:conn/order/:order/page/:page',
         to: 'contentdm#v6_collection_items', via: :all
   match '/cdm/search/searchterm/:term',
@@ -274,6 +276,10 @@ Rails.application.routes.draw do
   match '/cdm/search/searchterm/:term/mode/:mode/order/:order/ad/:ad',
         to: 'contentdm#v6_search_results', via: :all
   match '/cdm/search/searchterm/:term/mode/:mode/order/:order/ad/:ad/page/:page',
+        to: 'contentdm#v6_search_results', via: :all
+  match '/cdm/search/searchterm/:term/mode/:mode/order/:order/page/:page',
+        to: 'contentdm#v6_search_results', via: :all
+  match '/cdm/search/searchterm/:term/order/:order',
         to: 'contentdm#v6_search_results', via: :all
   # Images
   match '/utils/getthumbnail/collection/:alias/id/:pointer',
