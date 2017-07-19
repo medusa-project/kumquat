@@ -96,6 +96,7 @@ class ContentdmController < ApplicationController
   #
   # Responds to:
   # * GET /cdm/search/collection/:alias
+  # * GET /cdm/search/collection/:alias/order/:order/ad/:ad
   # * GET /cdm/search/collection/:alias/searchterm/:term/mode/:mode/page/:page
   # * GET /cdm/search/collection/:alias/searchterm/:term/mode/:mode/order/:title
   # * GET /cdm/search/collection/:alias/searchterm/:term/field/:field/mode/:mode/conn/:conn/order/:order
@@ -140,7 +141,8 @@ class ContentdmController < ApplicationController
   # * GET /cdm/search/searchterm/:term/mode/:mode
   # * GET /cdm/search/searchterm/:term/mode/:mode/page/:page
   # * GET /cdm/search/searchterm/:term/mode/:mode/order/:order
-  # * GET /cdm/search/searchterm/:term/mode/:mode/order/:order/ad/desc
+  # * GET /cdm/search/searchterm/:term/mode/:mode/order/:order/ad/:ad
+  # * GET /cdm/search/searchterm/:term/mode/:mode/order/:order/ad/:ad/page/:page
   #
   def v6_search_results
     redirect_to search_url(q: sanitize_term(params[:term])), status: 301

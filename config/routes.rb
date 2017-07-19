@@ -253,6 +253,8 @@ Rails.application.routes.draw do
         to: redirect('/items', status: 301), via: :all
   match '/cdm/search/collection/:alias',
         to: 'contentdm#v6_collection_items', via: :all
+  match '/cdm/search/collection/:alias/order/:order/ad/:ad',
+        to: 'contentdm#v6_collection_items', via: :all
   match '/cdm/search/collection/:alias/searchterm/:term/mode/:mode/page/:page',
         to: 'contentdm#v6_collection_items', via: :all
   match '/cdm/search/collection/:alias/searchterm/:term/mode/:mode/order/:order',
@@ -269,7 +271,9 @@ Rails.application.routes.draw do
         to: 'contentdm#v6_search_results', via: :all
   match '/cdm/search/searchterm/:term/mode/:mode/order/:order',
         to: 'contentdm#v6_search_results', via: :all
-  match '/cdm/search/searchterm/:term/mode/:mode/order/:order/ad/desc',
+  match '/cdm/search/searchterm/:term/mode/:mode/order/:order/ad/:ad',
+        to: 'contentdm#v6_search_results', via: :all
+  match '/cdm/search/searchterm/:term/mode/:mode/order/:order/ad/:ad/page/:page',
         to: 'contentdm#v6_search_results', via: :all
   # Images
   match '/utils/getthumbnail/collection/:alias/id/:pointer',
