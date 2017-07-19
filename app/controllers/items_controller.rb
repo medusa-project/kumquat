@@ -449,7 +449,7 @@ class ItemsController < WebsiteController
         filter_queries(params[:fq]).
         sort(Item::SolrFields::STRUCTURAL_SORT).
         start(params[:download_start]).
-        limit(params[:limit] || DownloaderClient::BATCH_SIZE)
+        limit(params[:limit] || MedusaDownloaderClient::BATCH_SIZE)
     @num_downloadable_items = @download_finder.count
     @total_byte_size = @download_finder.total_byte_size
   end
