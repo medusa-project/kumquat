@@ -4,7 +4,7 @@
 # num_downloadable_items [Fixnum]
 # total_byte_size [Integer]
 
-num_batches = (num_downloadable_items / DownloaderClient::BATCH_SIZE.to_f).ceil
+num_batches = (num_downloadable_items / MedusaDownloaderClient::BATCH_SIZE.to_f).ceil
 %>
 
 <div class="modal fade" id="pt-download-zip-modal" tabindex="-1" role="dialog"
@@ -54,13 +54,13 @@ num_batches = (num_downloadable_items / DownloaderClient::BATCH_SIZE.to_f).ceil
           <h3>Items in batches</h3>
 
           <p>Batches can make large downloads more manageable. Batched zip files
-            are limited to <%= DownloaderClient::BATCH_SIZE %> items per batch.</p>
+            are limited to <%= MedusaDownloaderClient::BATCH_SIZE %> items per batch.</p>
           <div id="pt-batch-buttons">
             <% num_batches.times do |i| %>
               <%= link_to("Batch #{i + 1}",
                           params.except(:start).merge({ format: :zip,
-                                         download_start: i * DownloaderClient::BATCH_SIZE,
-                                         limit: DownloaderClient::BATCH_SIZE }),
+                                         download_start: i * MedusaDownloaderClient::BATCH_SIZE,
+                                         limit: MedusaDownloaderClient::BATCH_SIZE }),
                           class: 'btn btn-primary',
                           target: '_blank') %>
             <% end %>
