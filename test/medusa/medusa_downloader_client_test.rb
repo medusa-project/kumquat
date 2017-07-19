@@ -1,9 +1,9 @@
 require 'test_helper'
 
-class DownloaderClientTest < ActiveSupport::TestCase
+class MedusaDownloaderClientTest < ActiveSupport::TestCase
 
   def setup
-    @instance = DownloaderClient.new
+    @instance = MedusaDownloaderClient.new
   end
 
   # download_url()
