@@ -438,7 +438,7 @@ class ItemsController < WebsiteController
       @suggestions = finder.suggestions
     end
 
-    @download_finder = ItemFinder.new.
+    download_finder = ItemFinder.new.
         client_hostname(request.host).
         client_ip(request.remote_ip).
         client_user(current_user).
