@@ -242,7 +242,7 @@ class ItemsController < WebsiteController
         # (DLD-94), so the strategy is to do it using the asynchronous
         # download feature, and then stream the zip out to the user via the
         # download button when it's ready to start streaming.
-        item_ids = download_finder.to_a.map(&:repository_id)
+        item_ids = @download_finder.to_a.map(&:repository_id)
 
         start = params[:download_start].to_i + 1
         end_ = params[:download_start].to_i + item_ids.length
@@ -434,7 +434,7 @@ class ItemsController < WebsiteController
       @suggestions = finder.suggestions
     end
 
-    download_finder = ItemFinder.new.
+    @download_finder = ItemFinder.new.
         client_hostname(request.host).
         client_ip(request.remote_ip).
         client_user(current_user).
@@ -447,8 +447,8 @@ class ItemsController < WebsiteController
         sort(Item::SolrFields::STRUCTURAL_SORT).
         start(params[:download_start]).
         limit(params[:limit] || DownloaderClient::BATCH_SIZE)
-    @num_downloadable_items = download_finder.count
-    @total_byte_size = download_finder.total_byte_size
+    @num_downloadable_items = @download_finder.count
+    @total_byte_size = @download_finder.total_byte_size
   end
 
   def tree_hash(item)
