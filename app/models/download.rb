@@ -6,13 +6,16 @@
 #
 # 1. The user clicks a download button.
 # 2. The responding controller creates a Download instance, invokes an
-#    asynchronous ActiveJob to prepare the file for download, and redirects
-#    to the download instance's URL.
-# 3. The job does its work, periodically updating the Download instance's
+#    asynchronous ActiveJob to prepare the file for download, and redirects to
+#    the download instance's URL.
+# 3. The job associates the Download with a Task. (This enables progress
+#    tracking.)
+# 4. The job does its work, periodically updating the associated Task's
 #    `percent_complete` attribute to keep the user informed. When done, it
-#    sets `pathname` to the file's pathname, and `status` to Status::READY.
-# 4. The user reloads the page, sees a download link, and follows it to
-#    download the file.
+#    sets `filename` to the file's filename, and sets the Task's status to
+#    `Task::Status::SUCCEEDED`.
+# 5. The user reloads the page (or it reloads automatically via AJAX), sees a
+#    download link, and follows it to download the file.
 #
 # Periodically, old Download records and their corresponding files should be
 # cleaned up using the `dls:downloads:cleanup` rake task.
@@ -24,24 +27,23 @@
 #                     used instead.
 # * key:              Random alphanumeric "public ID." Should be hard to guess
 #                     so that someone can't retrieve someone else's download.
-# * percent_complete: Float from 0 to 1 to keep the user informed of
-#                     preparation progress.
-# * status:           Must be set to one of the Status constant values.
 # * updated_at:       Managed by ActiveRecord.
 # * url:              URL to redirect to rather than downloading a local file.
 #                     Must be publicly accessible.
 #
 class Download < ActiveRecord::Base
 
-  class Status
-    PREPARING = 0
-    READY = 1
-  end
+  belongs_to :task, inverse_of: :download
 
   before_create :assign_key
   after_destroy :delete_file
 
   DOWNLOADS_DIRECTORY = File.join(Rails.root, 'tmp', 'downloads')
+
+  # Instances will often be updated from inside transactions, outside of which
+  # any updates would not be visible. So, we use a different database
+  # connection, to which they won't propagate.
+  establish_connection "#{Rails.env}_2".to_sym
 
   ##
   # @param max_age_seconds [Integer]
@@ -72,7 +74,7 @@ class Download < ActiveRecord::Base
   # @return [Boolean]
   #
   def ready?
-    (self.status == Status::READY)
+    self.task and self.task.status == Task::Status::SUCCEEDED
   end
 
   ##
@@ -90,7 +92,7 @@ class Download < ActiveRecord::Base
 
   def delete_file
     if self.filename.present? and File.exists?(self.pathname)
-      CustomLogger.debug("Download.delete_file(): deleting #{self.pathname}")
+      CustomLogger.instance.debug("Download.delete_file(): deleting #{self.pathname}")
       File.delete(self.pathname)
     end
   end

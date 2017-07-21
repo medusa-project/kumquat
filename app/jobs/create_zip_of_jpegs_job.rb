@@ -12,7 +12,8 @@ class CreateZipOfJpegsJob < Job
     zip_name = args[1]
     download = args[2]
 
-    self.task&.update!(status_text: "Converting JPEGs for #{item_ids.length} items")
+    self.task&.update!(download: download,
+                       status_text: "Converting JPEGs for #{item_ids.length} items")
 
     items = item_ids.map { |id| Item.find_by_repository_id(id) }
     converter = IiifImageConverter.new
@@ -34,11 +35,9 @@ class CreateZipOfJpegsJob < Job
       # -r: recurse into directories
       `zip -jr #{zip_pathname} #{tmpdir}`
 
-      download.update(filename: zip_filename, percent_complete: 1,
-                      status: Download::Status::READY)
+      download.update(filename: zip_filename)
+      self.task&.succeeded
     end
-
-    self.task&.succeeded
   end
 
 end

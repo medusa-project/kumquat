@@ -10,9 +10,6 @@ class ContentdmControllerTest < ActionDispatch::IntegrationTest
     get('/ui/cdm/bla/bla')
     assert_response :gone
 
-    get('/utils/getthumbnail/collection/alias/id/2')
-    assert_response :gone
-
     get('/projects/test')
     assert_response :gone
   end
@@ -158,6 +155,10 @@ class ContentdmControllerTest < ActionDispatch::IntegrationTest
     assert_response :moved_permanently
     assert_redirected_to collection_items_url(@item.collection)
 
+    get("/cdm/search/collection/#{@item.contentdm_alias}/order/title/ad/noop")
+    assert_response :moved_permanently
+    assert_redirected_to collection_items_url(@item.collection)
+
     get("/cdm/search/collection/#{@item.contentdm_alias}/searchterm/cats/mode/exact/order/title")
     assert_response :moved_permanently
     assert_redirected_to collection_items_url(@item.collection) + '?q=cats'
@@ -263,6 +264,22 @@ class ContentdmControllerTest < ActionDispatch::IntegrationTest
     get('/cdm/search/searchterm/test/mode/bogus/order/bogus/page/1')
     assert_response :moved_permanently
     assert_redirected_to search_url + '?q=test'
+
+    get('/cdm/search/searchterm/test/mode/bogus/order/bogus/ad/desc/page/1')
+    assert_response :moved_permanently
+    assert_redirected_to search_url + '?q=test'
+  end
+
+  test 'v6 thumbnail' do
+    get("/utils/getthumbnail/collection/#{@item.contentdm_alias}/id/#{@item.contentdm_pointer}")
+    assert_response :moved_permanently
+
+    bin = @item.effective_representative_entity.binaries.
+        where(master_type: Binary::MasterType::ACCESS).first
+    assert_redirected_to sprintf('%s/full/!%d,%d/0/default.jpg',
+                                 bin.iiif_image_url,
+                                 ContentdmController::THUMBNAIL_SIZE,
+                                 ContentdmController::THUMBNAIL_SIZE)
   end
 
 end

@@ -18,6 +18,7 @@ gem 'mime-types', '~> 2.6'
 gem 'omniauth'
 gem 'omniauth-shibboleth'
 gem 'pg'
+gem 'prawn' # used to generate PDFs of compound objects
 gem 'rails_autolink'
 gem 'rsolr'
 gem 'sass-rails', '~> 5.0'

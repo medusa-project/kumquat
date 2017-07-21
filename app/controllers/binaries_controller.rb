@@ -10,7 +10,16 @@ class BinariesController < WebsiteController
   # Responds to GET /binaries/:id
   #
   def show
-    send_file(@binary.absolute_local_pathname)
+    pathname = @binary.absolute_local_pathname
+    if File.exists?(pathname)
+      if File.readable?(pathname)
+        send_file(pathname)
+      else
+        raise IOError, 'File is not readable.'
+      end
+    else
+      raise IOError, 'File does not exist.'
+    end
   end
 
   private

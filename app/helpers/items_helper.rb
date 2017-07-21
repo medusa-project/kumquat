@@ -186,11 +186,11 @@ module ItemsHelper
       html += '<li>'
       html += link_to(link_target, class: 'pt-title') do
         raw('<div class="pt-thumbnail">' +
-            thumbnail_tag(child, shape: :square) +
-          '</div>' +
-          '<div class="pt-label" title="' + child.title + '">' +
-            truncate(child.title, length: PAGE_TITLE_LENGTH) +
-          '</div>')
+                thumbnail_tag(child, shape: :square) +
+                '</div>' +
+                '<div class="pt-label" title="' + child.title + '">' +
+                truncate(child.title, length: PAGE_TITLE_LENGTH) +
+                '</div>')
       end
       html += '</li>'
     end

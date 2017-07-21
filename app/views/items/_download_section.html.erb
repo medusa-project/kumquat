@@ -27,17 +27,19 @@
           <% end %>
         <% end %>
 
-        <!-- coming soon
-        <a href="#" class="btn btn-default">
-          <i class="fa fa-pdf"></i> PDF</a>
-        -->
+        <% if item.is_compound? %>
+          <%= link_to(item_url(item, format: :pdf), class: 'btn btn-default',
+                      target: '_blank') do %>
+            <i class="fa fa-file-pdf-o"></i> PDF
+          <% end %>
+        <% end %>
       </div>
 
       <% if item.items.any? %>
         <% item.items_from_solr.order(Item::SolrFields::STRUCTURAL_SORT).limit(999).each do |subitem| %>
           <%= render partial: 'download_table', locals: { item: subitem } %>
         <% end %>
-      <% elsif item.variant == Item::Variants::FILE %>
+      <% elsif item.variant == Item::Variants::FILE and item.parent %>
         <% item.parent.items_from_solr.order(Item::SolrFields::STRUCTURAL_SORT).limit(999).each do |sibling| %>
           <%= render partial: 'download_table', locals: { item: sibling } %>
         <% end %>

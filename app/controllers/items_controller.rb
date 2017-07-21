@@ -19,7 +19,6 @@ class ItemsController < WebsiteController
 
   before_action :load_item, except: [:index, :tree_data, :tree]
   before_action :authorize_item, except: [:index, :tree_data, :tree]
-
   before_action :check_published, except: [:index, :tree_data, :tree]
   before_action :set_browse_context, only: :index
 
@@ -312,6 +311,11 @@ class ItemsController < WebsiteController
       format.json do
         render json: @item.decorate(context: { web: true })
       end
+      format.pdf do
+        download = Download.create
+        CreatePdfJob.perform_later(@item, download)
+        redirect_to download_url(download)
+      end
       format.zip do
         # See the documentation for format.zip in index().
         #
@@ -446,7 +450,7 @@ class ItemsController < WebsiteController
         filter_queries(params[:fq]).
         sort(Item::SolrFields::STRUCTURAL_SORT).
         start(params[:download_start]).
-        limit(params[:limit] || DownloaderClient::BATCH_SIZE)
+        limit(params[:limit] || MedusaDownloaderClient::BATCH_SIZE)
     @num_downloadable_items = @download_finder.count
     @total_byte_size = @download_finder.total_byte_size
   end
