@@ -10,12 +10,9 @@
       <h2>Files <span class="badge"><%= nondirs.count %></span></h2>
     </section>
 <% end %>
-
+<%= render partial: 'download_section', locals: { item: @item } %>
+<%= render partial: 'staff_info' %>
 <%= render partial: 'cite_panel', locals: { item: @item } %>
-<%= render partial: 'download_zip_panel', locals: {
-    context: (@item.variant == Item::Variants::DIRECTORY) ? :directory : :item,
-    num_downloadable_items: 0, # these are potentially expensive to calculate.
-    total_byte_size: 0 } %>
 
 <script type="application/ld+json">
   <%= schema_org_json_ld(@item) %>
