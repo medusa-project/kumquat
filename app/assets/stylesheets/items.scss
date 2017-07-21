@@ -290,6 +290,7 @@ body#items_index, body#items_show {
     }
   }
 }
+// styles for free-form collection tree view
 body#items_index {
   #collection-tree-row{
     height:550px;
@@ -322,6 +323,9 @@ body#items_index {
     iframe {
       height: 93%;
     }
+  }
+  #tree-breadcrumb-row{
+    padding-left: 40px;
   }
 
   #pt-video-player {
