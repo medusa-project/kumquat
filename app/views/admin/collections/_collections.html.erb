@@ -1,3 +1,7 @@
+<div class="text-center">
+  <%= paginate_items(@collections.total_length, @limit, @current_page) %>
+</div>
+
 <table class="table table-striped">
   <thead>
     <th>Collection</th>

@@ -23,18 +23,9 @@
 
 <h1>My Favorites</h1>
 
-<% if @items.count > 0 %>
-  <div class="pt-results pt-list-results">
-    <%= items_as_list(@items, @start, show_remove_from_favorites_buttons: true,
-                      show_checkboxes: true, show_collections: true) %>
-  </div>
-
-  <div class="text-center">
-    <%= paginate_items(@items.total_length, @limit, @current_page) %>
-  </div>
-<% end %>
-
-<p class="pt-no-favorites">You have no items in your favorites.</p>
+<div id="pt-favorites">
+  <%= render partial: 'favorites' %>
+</div>
 
 <%= render partial: 'items/download_zip_panel', locals: {
     context: :favorites,

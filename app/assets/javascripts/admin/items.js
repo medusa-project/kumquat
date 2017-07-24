@@ -198,6 +198,14 @@ var PTAdminItemsEditView = function() {
             }
             return false;
         });
+
+        self.attachEventListeners();
+    };
+
+    this.attachEventListeners = function() {
+        $('.pagination a').on('click', function() {
+            $('#pt-items')[0].scrollIntoView({behavior: "smooth"});
+        });
     };
 
 };
@@ -206,6 +214,8 @@ var PTAdminItemsEditView = function() {
  * @constructor
  */
 var PTAdminItemsView = function() {
+
+    var self = this;
 
     this.init = function() {
         new PearTree.FilterField();
@@ -224,6 +234,14 @@ var PTAdminItemsView = function() {
                 !$('input[value="create_only"]').prop('checked'));
             extract_creation_checkbox.prop('disabled',
                 !$('input[value="create_only"]').prop('checked'));
+        });
+
+        self.attachEventListeners();
+    };
+
+    this.attachEventListeners = function() {
+        $('.pagination a').on('click', function() {
+            $('form.pt-filter')[0].scrollIntoView({behavior: "smooth"});
         });
     };
 

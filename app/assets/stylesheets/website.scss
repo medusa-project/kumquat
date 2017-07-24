@@ -119,6 +119,15 @@ section {
   }
 }
 
+.pagination {
+  > li > a {
+    color: rgb(4, 74, 136);
+  }
+  > li.active > a {
+    background-color: rgb(4, 74, 136);
+  }
+}
+
 .pt-count.badge {
   background-color: #b3b3b3;
   font-size: 0.7em;

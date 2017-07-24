@@ -19,11 +19,6 @@ var PTFavoritesView = function() {
                     }
                 });
         });
-        $('button.pt-remove-from-favorites').on('click', function() {
-            var item = new PTItem();
-            item.id = $(this).data('item-id');
-            item.removeFromFavorites();
-        });
 
         if (PTItem.numFavorites() < 1) {
             $('.pt-no-favorites').show();
@@ -44,6 +39,18 @@ var PTFavoritesView = function() {
             if (ids.length) {
                 $(this).attr('href', $(this).attr('href') + '&ids=' + ids.join(','));
             }
+        });
+    };
+
+    this.attachEventListeners = function() {
+        $('button.pt-remove-from-favorites').on('click', function() {
+            var item = new PTItem();
+            item.id = $(this).data('item-id');
+            item.removeFromFavorites();
+        });
+
+        $('.pagination a').on('click', function() {
+            $('.pt-results')[0].scrollIntoView({behavior: "smooth"});
         });
     };
 

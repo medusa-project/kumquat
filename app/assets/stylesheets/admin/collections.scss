@@ -3,7 +3,9 @@
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
 body#admin_collections_index div#pt-page-content {
-
+  .pagination {
+    margin: 0px;
+  }
 }
 
 body#collections_show {

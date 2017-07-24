@@ -385,6 +385,8 @@ var PTItemView = function() {
  */
 var PTItemsView = function() {
 
+    var self = this;
+
     this.init = function() {
         new PearTree.FilterField();
         PearTree.initFacets();
@@ -412,7 +414,28 @@ var PTItemsView = function() {
             $('.pt-results button.pt-add-to-favorites[data-item-id="' + item.id + '"]').show();
             updateFavoritesCount();
         });
-        $('button.pt-add-to-favorites').on('click', function () {
+
+        if ($('#jstree').length > 0) {
+            $('#jstree').jstree({
+                core: {
+                    data: {
+                        url: function (node) {
+                            return node.id === '#' ?
+                                getCollectionURL() :
+                                '/items/' + node.id + '/treedata.json';
+                        }
+                    }
+                }
+            }).bind("select_node.jstree", function (e, data) {
+                get_item_info(build_node_url(data));
+            });
+        }
+
+        self.attachEventListeners();
+    };
+
+    this.attachEventListeners = function() {
+        $('button.pt-add-to-favorites').on('click', function() {
             var item = new PTItem();
             item.id = $(this).data('item-id');
             item.addToFavorites();
@@ -439,22 +462,9 @@ var PTItemsView = function() {
                 }
             }
         });
-        if ($('#jstree').length > 0) {
-            $('#jstree').jstree({
-                core: {
-                    data: {
-                        url: function (node) {
-                            return node.id === '#' ?
-                                getCollectionURL() :
-                            '/items/' + node.id + '/treedata.json';
-                        }
-                    }
-                }
-            }).bind("select_node.jstree", function (e, data) {
-                get_item_info(build_node_url(data));
-            });
-        }
-
+        $('.pagination a').on('click', function() {
+            $('form.pt-filter')[0].scrollIntoView({behavior: "smooth"});
+        });
     };
 
     var updateFavoritesCount = function() {
