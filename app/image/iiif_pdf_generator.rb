@@ -5,11 +5,11 @@
 #
 class IiifPdfGenerator
 
+  DOCUMENT_DPI = 72 # This is maintained by Prawn and should not be changed here.
   IMAGE_DPI = 150
   MARGIN_INCHES = 0.5
   PAGE_WIDTH_INCHES = 8.5
   PAGE_HEIGHT_INCHES = 11
-  PDF_DPI = 72 # This is used by Prawn and should not be changed.
 
   @@logger = CustomLogger.instance
 
@@ -25,7 +25,7 @@ class IiifPdfGenerator
   def generate_pdf(item, task = nil)
     children = item.items_from_solr.order(Item::SolrFields::STRUCTURAL_SORT).limit(9999)
     if children.any?
-      pdf = pdf_skeleton(item)
+      doc = pdf_document(item)
 
       children.each_with_index do |child, child_index|
         count = children.count
@@ -35,13 +35,13 @@ class IiifPdfGenerator
             master_type: Binary::MasterType::ACCESS,
             media_category: Binary::MediaCategory::IMAGE).each do |bin|
           if child_index > 0
-            pdf.start_new_page
+            doc.start_new_page
           end
-          add_image(bin, pdf)
+          add_image(bin, doc)
         end
       end
       pathname = pdf_temp_file
-      pdf.render_file(pathname)
+      doc.render_file(pathname)
 
       FileUtils.rm_rf(image_temp_dir)
 
@@ -61,15 +61,18 @@ class IiifPdfGenerator
   # given PDF document.
   #
   # @param binary [Binary]
-  # @param pdf [Prawn::Document]
+  # @param doc [Prawn::Document]
   # @return [String] Pathname of the converted image.
   #
-  def add_image(binary, pdf)
+  def add_image(binary, doc)
     if binary.is_image?
       if binary.iiif_safe?
         # Download an optimally-sized JPEG derivative of image to a temp file.
-        hres = IMAGE_DPI / PDF_DPI.to_f * pdf.bounds.width
-        vres = IMAGE_DPI / PDF_DPI.to_f * pdf.bounds.height
+        hres = IMAGE_DPI / DOCUMENT_DPI.to_f * doc.bounds.width
+        vres = IMAGE_DPI / DOCUMENT_DPI.to_f * doc.bounds.height
+        @@logger.debug("IiifPdfGenerator.add_image(): "\
+              "document: #{doc.bounds.width}x#{doc.bounds.height}; "\
+              "image box: #{hres}x#{vres}")
 
         url = "#{binary.iiif_image_url}/full/!#{hres.to_i},#{vres.to_i}/0/default.jpg"
 
@@ -85,17 +88,8 @@ class IiifPdfGenerator
           end
         end
 
-        if hres / pdf.bounds.width.to_f > vres / pdf.bounds.height.to_f
-          pdf.image image_pathname,
-                    position: :center,
-                    vposition: :center,
-                    height: pdf.bounds.height
-        else
-          pdf.image image_pathname,
-                    position: :center,
-                    vposition: :center,
-                    width: pdf.bounds.width
-        end
+        doc.image(image_pathname, position: :center, vposition: :center,
+                  fit: [doc.bounds.width, doc.bounds.height])
 
         return image_pathname
       else
@@ -112,7 +106,7 @@ class IiifPdfGenerator
   # @param item [Item] Compound object.
   # @return [Prawn::Document]
   #
-  def pdf_skeleton(item)
+  def pdf_document(item)
     pdf = Prawn::Document.new(
         margin: MARGIN_INCHES * 72, # 1 inch = 72 points
         info: {
