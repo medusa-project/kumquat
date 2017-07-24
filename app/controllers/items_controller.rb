@@ -328,7 +328,7 @@ class ItemsController < WebsiteController
             zip_name = 'files'
           else
             flash['error'] = 'This directory is empty.'
-            redirect_to :back
+            redirect_to @item
           end
         else
           items = @item.items.any? ? @item.items : [@item]

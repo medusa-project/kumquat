@@ -11,7 +11,7 @@ class ContentdmController < ApplicationController
   # Responds to:
   #
   # * GET /projects/*
-  # * GET /ui/cdm/*
+  # * GET /ui/*
   #
   def gone
     render text: 'This resource no longer exists.', status: :gone
@@ -100,6 +100,7 @@ class ContentdmController < ApplicationController
   # * GET /cdm/search/collection/:alias/searchterm/:term/mode/:mode/page/:page
   # * GET /cdm/search/collection/:alias/searchterm/:term/mode/:mode/order/:title
   # * GET /cdm/search/collection/:alias/searchterm/:term/field/:field/mode/:mode/conn/:conn/order/:order
+  # * GET /cdm/search/collection/:alias/searchterm/:term/field/:field/mode/:mode/conn/:conn/order/:order/ad/:ad
   # * GET /cdm/search/collection/:alias/searchterm/:term/field/:field/mode/:mode/conn/:conn/order/:order/page/:page
   #
   def v6_collection_items
@@ -144,6 +145,7 @@ class ContentdmController < ApplicationController
   # * GET /cdm/search/searchterm/:term/mode/:mode/order/:order/ad/:ad
   # * GET /cdm/search/searchterm/:term/mode/:mode/order/:order/page/:page
   # * GET /cdm/search/searchterm/:term/mode/:mode/order/:order/ad/:ad/page/:page
+  # * GET /cdm/search/searchterm/:term/order/:order
   #
   def v6_search_results
     redirect_to search_url(q: sanitize_term(params[:term])), status: 301
