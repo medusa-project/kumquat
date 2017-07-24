@@ -333,44 +333,50 @@ module Admin
     # Responds to POST /admin/items/update
     #
     def update_all
-      if params[:items].respond_to?(:each)
-        num_updated = 0
-        ActiveRecord::Base.transaction do
-          params[:items].each do |id, element_params|
-            item = Item.find_by_repository_id(id)
-            if item
-              item.elements.destroy_all
-              # Entry values (textarea contents) use the same syntax as TSV.
-              element_params.each do |name, entry_value|
-                case name
-                  when 'variant'
-                    item.variant = Item::Variants::all.include?(entry_value) ?
-                        entry_value : nil
-                  when 'page'
-                    item.page_number = entry_value.length > 0 ?
-                        entry_value.to_i : nil
-                  when 'subpage'
-                    item.subpage_number = entry_value.length > 0 ?
-                        entry_value.to_i : nil
-                  when 'latitude'
-                    item.latitude = entry_value.length > 0 ?
-                        entry_value.to_f : nil
-                  when 'longitude'
-                    item.longitude = entry_value.length > 0 ?
-                        entry_value.to_f : nil
-                  else
-                    item.elements += ItemElement.elements_from_tsv_string(name,
-                                                                          entry_value)
-                end
+      num_updated = 0
+      ActiveRecord::Base.transaction do
+        params[:items].each do |id, element_params|
+          item = Item.find_by_repository_id(id)
+          if item
+            item.elements.destroy_all
+            # Entry values (textarea contents) use the same syntax as TSV.
+            element_params.each do |name, entry_value|
+              case name
+                when 'variant'
+                  item.variant = Item::Variants::all.include?(entry_value) ?
+                      entry_value : nil
+                when 'page'
+                  item.page_number = entry_value.length > 0 ?
+                      entry_value.to_i : nil
+                when 'subpage'
+                  item.subpage_number = entry_value.length > 0 ?
+                      entry_value.to_i : nil
+                when 'latitude'
+                  item.latitude = entry_value.length > 0 ?
+                      entry_value.to_f : nil
+                when 'longitude'
+                  item.longitude = entry_value.length > 0 ?
+                      entry_value.to_f : nil
+                else
+                  item.elements += ItemElement.elements_from_tsv_string(name,
+                                                                        entry_value)
               end
-              item.save!
-              num_updated += 1
             end
+            item.save!
+            num_updated += 1
           end
         end
-        Solr.instance.commit
-        flash['success'] = "#{num_updated} items updated."
       end
+
+      # TODO: I don't know why this is necessary. The items should get
+      # reindexed above when the transaction commits.
+      params[:items].each do |id, element_params|
+        Item.find_by_repository_id(id).index_in_solr
+      end
+
+      Solr.instance.commit
+
+      flash['success'] = "#{num_updated} items updated."
       redirect_to :back
     end
 
