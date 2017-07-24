@@ -18,6 +18,7 @@ class ItemsController < WebsiteController
                                      :iiif_range, :iiif_sequence]
   before_action :load_item, except: :index
   before_action :authorize_item, except: :index
+  before_action :check_published, except: :index
   before_action :set_browse_context, only: :index
 
   ##
@@ -216,7 +217,7 @@ class ItemsController < WebsiteController
 
     @start = params[:start].to_i
     params[:start] = @start
-    @limit = Option::integer(Option::Key::RESULTS_PER_PAGE)
+    @limit = Option::integer(Option::Keys::RESULTS_PER_PAGE)
     finder = item_finder_for(params)
     @items = finder.to_a
 
@@ -242,7 +243,7 @@ class ItemsController < WebsiteController
         filter_queries(params[:fq]).
         sort(Item::SolrFields::STRUCTURAL_SORT).
         start(params[:download_start]).
-        limit(params[:limit] || DownloaderClient::BATCH_SIZE)
+        limit(params[:limit] || MedusaDownloaderClient::BATCH_SIZE)
     @num_downloadable_items = download_finder.count
     @total_byte_size = download_finder.total_byte_size
 
@@ -320,7 +321,7 @@ class ItemsController < WebsiteController
           uri = URI.parse(results_url)
           query = Rack::Utils.parse_nested_query(uri.query) || {}
           query[:start] = session[:start].to_i if query[:start].blank?
-          limit = Option::integer(Option::Key::RESULTS_PER_PAGE)
+          limit = Option::integer(Option::Keys::RESULTS_PER_PAGE)
           if session[:first_result_id] == @item.repository_id
             query[:start] -= limit / 2.0
           elsif session[:last_result_id] == @item.repository_id
@@ -382,6 +383,12 @@ class ItemsController < WebsiteController
     return unless authorize(@item)
   end
 
+  def check_published
+    unless @item.published and @item.collection.published
+      render 'unpublished', status: :forbidden
+    end
+  end
+
   ##
   # Returns an ItemFinder for the given query (either params or parsed out of
   # the request URI) and saves its builder arguments to the session. This is
@@ -413,7 +420,7 @@ class ItemsController < WebsiteController
           filter_queries(session[:fq]).
           sort(session[:sort]).
           start(session[:start]).
-          limit(Option::integer(Option::Key::RESULTS_PER_PAGE))
+          limit(Option::integer(Option::Keys::RESULTS_PER_PAGE))
     else
       ItemFinder.new.
           client_hostname(request.host).
@@ -427,7 +434,7 @@ class ItemsController < WebsiteController
           filter_queries(session[:fq]).
           sort(session[:sort]).
           start(session[:start]).
-          limit(Option::integer(Option::Key::RESULTS_PER_PAGE))
+          limit(Option::integer(Option::Keys::RESULTS_PER_PAGE))
     end
   end
 

@@ -95,9 +95,9 @@ class OaiPmhController < ApplicationController
   end
 
   def do_list_sets
-    @results = Collection.
-        where(published: true, published_in_dls: true, harvestable: true).
-        order(:repository_id)
+    @results = Collection.where(published_in_medusa: true,
+                                published_in_dls: true,
+                                harvestable: true).order(:repository_id)
     @total_num_results = @results.count
     @results_offset = offset
     @results = @results.offset(@results_offset)
@@ -113,7 +113,7 @@ class OaiPmhController < ApplicationController
   def check_pmh_enabled
     render text: 'This server\'s OAI-PMH endpoint is disabled.',
            status: :service_unavailable unless
-        Option::boolean(Option::Key::OAI_PMH_ENABLED)
+        Option::boolean(Option::Keys::OAI_PMH_ENABLED)
   end
 
   ##
@@ -133,7 +133,7 @@ class OaiPmhController < ApplicationController
     @results = Item.joins('LEFT JOIN collections ON collections.repository_id '\
             '= items.collection_repository_id').
         where('collections.harvestable': true,
-              'collections.published': true,
+              'collections.published_in_medusa': true,
               'collections.published_in_dls': true,
               published: true).
         where('items.variant IS NULL OR items.variant = \'\' OR items.variant = ?',

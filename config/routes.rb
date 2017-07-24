@@ -210,12 +210,12 @@ Rails.application.routes.draw do
         to: redirect('/', status: 301), via: :all
   # OAI-PMH
   match '/cgi-bin/oai.exe',
-        to: redirect('/oai-pmh'), via: :all
+        to: redirect('/oai-pmh', status: 301), via: :all
   match '/cgi-bin/oai2.exe',
-        to: redirect('/oai-pmh'), via: :all
+        to: redirect('/oai-pmh', status: 301), via: :all
   # Admin
   match '/cgi-bin/admin/start.exe',
-        to: redirect('/admin'), via: :all
+        to: redirect('/admin', status: 301), via: :all
   # Other pages
   match '/cdm4/about.php',
         to: redirect('/collections', status: 301), via: :all
@@ -286,7 +286,7 @@ Rails.application.routes.draw do
         to: 'contentdm#v6_thumbnail', via: :all
   # OAI-PMH
   match '/oai/oai.php',
-        to: redirect('/oai-pmh'), via: :all
+        to: redirect('/oai-pmh', status: 301), via: :all
   # Other pages
   match '/cdm/about',
         to: redirect('/', status: 301), via: :all

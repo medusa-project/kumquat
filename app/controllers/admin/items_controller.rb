@@ -105,7 +105,7 @@ module Admin
       raise ActiveRecord::RecordNotFound unless @collection
 
       @start = params[:start] ? params[:start].to_i : 0
-      @limit = Option::integer(Option::Key::RESULTS_PER_PAGE)
+      @limit = Option::integer(Option::Keys::RESULTS_PER_PAGE)
 
       finder = ItemFinder.new.
           collection_id(@collection.repository_id).

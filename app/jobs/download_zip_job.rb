@@ -19,7 +19,7 @@ class DownloadZipJob < Job
 
     items = item_ids.map { |id| Item.find_by_repository_id(id) }
 
-    client = DownloaderClient.new
+    client = MedusaDownloaderClient.new
     download_url = client.download_url(items, zip_name)
 
     download.update(url: download_url, percent_complete: 1,

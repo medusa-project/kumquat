@@ -143,6 +143,7 @@ class ContentdmController < ApplicationController
   # * GET /cdm/search/searchterm/:term/mode/:mode/page/:page
   # * GET /cdm/search/searchterm/:term/mode/:mode/order/:order
   # * GET /cdm/search/searchterm/:term/mode/:mode/order/:order/ad/:ad
+  # * GET /cdm/search/searchterm/:term/mode/:mode/order/:order/page/:page
   # * GET /cdm/search/searchterm/:term/mode/:mode/order/:order/ad/:ad/page/:page
   # * GET /cdm/search/searchterm/:term/order/:order
   #

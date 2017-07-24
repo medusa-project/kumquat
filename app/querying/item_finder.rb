@@ -7,6 +7,7 @@ class ItemFinder < AbstractFinder
     super
     @exclude_variants = []
     @include_children = false
+    @include_unpublished = false
     @include_variants = []
     @stats = false
   end
@@ -55,6 +56,15 @@ class ItemFinder < AbstractFinder
   #
   def include_children(boolean)
     @include_children = boolean
+    self
+  end
+
+  ##
+  # @param boolean [Boolean]
+  # @return [ItemFinder] self
+  #
+  def include_unpublished(boolean)
+    @include_unpublished = boolean
     self
   end
 

@@ -104,7 +104,7 @@ namespace :dls do
     desc 'Publish a collection'
     task :publish, [:uuid] => :environment do |task, args|
       Collection.find_by_repository_id(args[:uuid]).
-          update!(published: true, published_in_dls: true)
+          update!(published_in_medusa: true, published_in_dls: true)
     end
 
     desc 'Reindex all collections'
@@ -146,7 +146,7 @@ namespace :dls do
         LEFT JOIN collections ON collections.repository_id = items.collection_repository_id
         WHERE entity_elements.type = $1
           AND entity_elements.name IN ($2, $3)
-          AND collections.published = true
+          AND collections.published_in_medusa = true
         ORDER BY collection_id, item_id, entity_elements.name,
           entity_elements.value ASC"
 
@@ -179,30 +179,6 @@ namespace :dls do
       Solr.instance.commit
     end
 
-    ##
-    # One-time-use task that changes item structure per DLD-32.
-    #
-    desc 'Migrate Mixed-Media single-page compound objects to standalone items'
-    task :migrate_mixed_media => :environment do |task, args|
-      ActiveRecord::Base.transaction do
-        Collection.where(package_profile_id: PackageProfile::MIXED_MEDIA_PROFILE.id).each do |col|
-          col.items.where(parent_repository_id: nil).each do |item|
-            if item.items.count == 1
-              puts "#{col.title}: migrating #{item.repository_id}"
-
-              child = item.items.first
-
-              child.binaries.each do |bin|
-                item.binaries << bin.dup
-              end
-
-              child.destroy!
-            end
-          end
-        end
-      end
-    end
-
     desc 'Print an item\'s Solr document'
     task :print_solr_document, [:uuid] => :environment do |task, args|
       item = Item.find_by_repository_id(args[:uuid])
@@ -215,8 +191,17 @@ namespace :dls do
       Solr.instance.commit
     end
 
+    desc 'Reindex an item and all of its children'
+    task :reindex, [:uuid] => :environment do |task, args|
+      item = Item.find_by_repository_id(args[:uuid])
+      item.all_children.each do |child|
+        child.index_in_solr
+      end
+      Solr.instance.commit
+    end
+
     desc 'Reindex all items'
-    task :reindex => :environment do |task, args|
+    task :reindex_all => :environment do |task, args|
       num_entities = Item.count
       # Item.uncached{} in conjunction with find_each() circumvents ActiveRecord
       # caching that could lead to memory exhaustion.

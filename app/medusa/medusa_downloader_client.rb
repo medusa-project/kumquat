@@ -2,7 +2,7 @@
 # Client for downloading item content via the
 # [Medusa Downloader](https://github.com/medusa-project/medusa-downloader).
 #
-class DownloaderClient
+class MedusaDownloaderClient
 
   BATCH_SIZE = 200
 
@@ -54,7 +54,7 @@ class DownloaderClient
     client.perform
     response_hash = JSON.parse(client.body_str)
     unless response_hash.has_key?('download_url')
-      CustomLogger.instance.error("DownloaderClient.download_url(): "\
+      CustomLogger.instance.error("MedusaDownloaderClient.download_url(): "\
           "#{client.body_str}")
       raise IOError, response_hash['error']
     end

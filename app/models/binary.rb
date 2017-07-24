@@ -88,6 +88,10 @@ class Binary < ActiveRecord::Base
   # property will be updated.
   belongs_to :item, inverse_of: :binaries, touch: true
 
+  validates :byte_size, numericality: { only_integer: true,
+                                        greater_than_or_equal_to: 0 },
+            allow_blank: false
+
   @@formats = YAML::load(File.read("#{Rails.root}/lib/formats.yml"))
 
   ##

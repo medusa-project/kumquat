@@ -20,7 +20,7 @@
           <%= hidden_field_tag('pt-citation-author', item.element(:creator)&.value) %>
           <%= hidden_field_tag('pt-citation-date-created', item.created_at.iso8601) %>
           <%= hidden_field_tag('pt-citation-source',
-                               Option::string(Option::Key::ORGANIZATION_NAME)) %>
+                               Option::string(Option::Keys::ORGANIZATION_NAME)) %>
           <%= hidden_field_tag('pt-citation-title', item.title) %>
           <%= hidden_field_tag('pt-citation-url', item_url(item)) %>
 
