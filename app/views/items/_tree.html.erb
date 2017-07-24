@@ -2,7 +2,12 @@
     <p>Back to <%= link_to @collection.title, collection_path(@collection) %></p>
 </div>
 <div id="tree-disclaimer-row" class="row">
-  <p>The <%= @collection.title %> are managed by the <%= @collection.medusa_repository.title %> and do not feature precise descriptive information for each item. Discover their contents by browsing the folders and files below. For more information, contact an archivist at <%= @collection.medusa_repository.email %>.</p>
+  <div class="col-sm-6 col-md-7 col-lg-8">
+    <div id="free-form-disclaimer"><p>The <%= @collection.title %> are managed by the <%= @collection.medusa_repository.title %> and do not feature precise descriptive information for each item.
+      Discover their contents by browsing the folders and files below. For more information, contact an archivist at <a href="email:<%= @collection.medusa_repository.email %>"><%= @collection.medusa_repository.email %></a>.</p>
+    </div>
+  </div>
+
 </div>
 <div id="collection-tree-row" class="row">
   <div id="jstree" class="col-md-3 pre-scrollable">
