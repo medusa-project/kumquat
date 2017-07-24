@@ -1297,10 +1297,13 @@ module ItemsHelper
     mailto = nil
     email = item.collection.medusa_repository&.email
     if email.present?
-      subject = 'Feedback about a digital collections item'
-      body = "Item: #{item_url(item)}%0D"
-      body += "%0D"
-      body += "(Enter your comment here.)%0D"
+      # https://bugs.library.illinois.edu/browse/DLD-89
+      website_name = Option::string(Option::Keys::WEBSITE_NAME)
+      subject = sprintf('%s: %s', website_name, item.title)
+      body = sprintf("This email was sent to you from the %s by a patron "\
+                     "wishing to contact the curator of %s for more information.",
+                     website_name, item_url(item))
+      body += "%0D%0D(Enter your comment here.)%0D"
       mailto = "mailto:#{email}?subject=#{subject}&body=#{body}"
     end
     mailto
