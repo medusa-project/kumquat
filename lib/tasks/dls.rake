@@ -191,8 +191,17 @@ namespace :dls do
       Solr.instance.commit
     end
 
+    desc 'Reindex an item and all of its children'
+    task :reindex, [:uuid] => :environment do |task, args|
+      item = Item.find_by_repository_id(args[:uuid])
+      item.all_children.each do |child|
+        child.index_in_solr
+      end
+      Solr.instance.commit
+    end
+
     desc 'Reindex all items'
-    task :reindex => :environment do |task, args|
+    task :reindex_all => :environment do |task, args|
       num_entities = Item.count
       # Item.uncached{} in conjunction with find_each() circumvents ActiveRecord
       # caching that could lead to memory exhaustion.

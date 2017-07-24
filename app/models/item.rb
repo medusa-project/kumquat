@@ -284,6 +284,30 @@ class Item < ActiveRecord::Base
   end
 
   ##
+  # @return [Enumerable<Item>] All items that are children of the instance, at
+  #                            any level in the tree.
+  #
+  def all_children
+    sql = 'WITH RECURSIVE q AS (
+        SELECT h, 1 AS level, ARRAY[repository_id] AS breadcrumb
+        FROM items h
+        WHERE repository_id = $1
+        UNION ALL
+        SELECT hi, q.level + 1 AS level, breadcrumb || repository_id
+        FROM q
+        JOIN items hi
+          ON hi.parent_repository_id = (q.h).repository_id
+      )
+      SELECT (q.h).repository_id
+      FROM q
+      ORDER BY breadcrumb'
+    values = [[ nil, self.repository_id, ]]
+
+    results = ActiveRecord::Base.connection.exec_query(sql, 'SQL', values)
+    Item.where('repository_id IN (?)', results.map{ |row| row['repository_id'] })
+  end
+
+  ##
   # @return [Enumerable<Item>] All items with a variant of Variants::FILE
   #                            that are children of the instance, at any level
   #                            in the tree.
