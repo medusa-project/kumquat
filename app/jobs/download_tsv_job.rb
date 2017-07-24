@@ -13,9 +13,9 @@ class DownloadTsvJob < Job
     download = args[1]
     only_undescribed = args[2]
 
-    download.update(indeterminate: true)
-
-    self.task.update!(status_text: "Generating TSV for #{collection.title}")
+    self.task.update!(download: download,
+                      indeterminate: true,
+                      status_text: "Generating TSV for #{collection.title}")
 
     Dir.mktmpdir do |tmpdir|
       tsv_filename = "#{CGI::escape(collection.title)}-#{Time.now.to_formatted_s(:number)}.tsv"
@@ -35,10 +35,9 @@ class DownloadTsvJob < Job
       # Move the TSV file into the downloads directory.
       FileUtils.move(tsv_pathname, dl_dir)
 
-      download.update(filename: tsv_filename, percent_complete: 1,
-                      status: Download::Status::READY)
+      download.update(filename: tsv_filename)
+      self.task&.succeeded
     end
-    self.task.succeeded
   end
 
 end

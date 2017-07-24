@@ -14,16 +14,16 @@ class DownloadZipJob < Job
 
     download.update(indeterminate: true)
 
-    self.task&.update!(status_text: "Requesting a #{item_ids.length}-item zip "\
-        "file from the Medusa Downloader")
+    self.task&.update!(download: download,
+                       status_text: "Requesting a #{item_ids.length}-item zip "\
+                       "file from the Medusa Downloader")
 
     items = item_ids.map { |id| Item.find_by_repository_id(id) }
 
     client = MedusaDownloaderClient.new
     download_url = client.download_url(items, zip_name)
 
-    download.update(url: download_url, percent_complete: 1,
-                    status: Download::Status::READY)
+    download.update(url: download_url)
 
     self.task&.succeeded
   end

@@ -27,10 +27,12 @@
           <% end %>
         <% end %>
 
-        <!-- coming soon
-        <a href="#" class="btn btn-default">
-          <i class="fa fa-pdf"></i> PDF</a>
-        -->
+        <% if item.is_compound? %>
+          <%= link_to(item_url(item, format: :pdf), class: 'btn btn-default',
+                      target: '_blank') do %>
+            <i class="fa fa-file-pdf-o"></i> PDF
+          <% end %>
+        <% end %>
       </div>
 
       <% if item.items.any? %>

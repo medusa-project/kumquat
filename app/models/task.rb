@@ -53,10 +53,11 @@ class Task < ActiveRecord::Base
 
   end
 
+  has_one :download, inverse_of: :task
+
   # Instances will often be updated from inside transactions, outside of which
   # any updates would not be visible. So, we use a different database
-  # connection, to which ActiveRecord::Base.transaction fortunately does not
-  # propagate.
+  # connection, to which they won't propagate.
   establish_connection "#{Rails.env}_2".to_sym
 
   after_initialize :init
