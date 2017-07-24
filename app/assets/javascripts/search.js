@@ -1,6 +1,7 @@
 var ready = function() {
     if ($('#search_index').length) {
-        new PTItemsView().init();
+        PearTree.view = new PTItemsView();
+        PearTree.view.init();
     }
 };
 

@@ -3,3 +3,5 @@ $('.pt-facets').html('<%= escape_javascript(render('facets')) %>');
 $('#pt-search-status').html('<%= search_status(@items, @start, @num_results_shown) %>');
 $('#pt-edit-metadata-link').attr('href',
     '<%= raw(admin_collection_edit_all_items_path(@collection, q: params[:q], fq: params[:fq], df: params[:df])) %>');
+
+PearTree.view.attachEventListeners();

@@ -385,6 +385,8 @@ var PTItemView = function() {
  */
 var PTItemsView = function() {
 
+    var self = this;
+
     this.init = function() {
         new PearTree.FilterField();
         PearTree.initFacets();
@@ -412,6 +414,11 @@ var PTItemsView = function() {
             $('.pt-results button.pt-add-to-favorites[data-item-id="' + item.id + '"]').show();
             updateFavoritesCount();
         });
+
+        self.attachEventListeners();
+    };
+
+    this.attachEventListeners = function() {
         $('button.pt-add-to-favorites').on('click', function() {
             var item = new PTItem();
             item.id = $(this).data('item-id');
@@ -438,6 +445,10 @@ var PTItemsView = function() {
                     $(this).hide();
                 }
             }
+        });
+
+        $('.pagination a').on('click', function() {
+            $('form.pt-filter')[0].scrollIntoView({behavior: "smooth"});
         });
     };
 
