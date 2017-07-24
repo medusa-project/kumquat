@@ -330,7 +330,12 @@ body#items_index {
   #tree-disclaimer-row{
     padding-left: 50px;
   }
-
+  #free-form-disclaimer{
+    p {
+      font-size: 1em;
+      margin-bottom: 3px;
+    }
+  }
 
   #pt-video-player {
     margin: 0 auto;
