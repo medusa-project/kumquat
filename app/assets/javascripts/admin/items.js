@@ -160,30 +160,17 @@ var PTAdminItemsEditView = function() {
 
     var ELEMENT_LIMIT = 4;
 
-    var dirty;
+    var dirty = false;
     var self = this;
 
     this.init = function() {
-        dirty = false;
-        $('textarea').on('propertychange keyup change', function() {
-            dirty = true;
-            $(this).addClass('pt-dirty');
-        });
-        // When the form is dirty and a link is clicked, prompt to save changes
-        // before proceeding.
-        $('a').on('click', function() {
-            if (dirty) {
-                var confirm = window.confirm('Proceed without saving changes?');
-                if (!confirm) {
-                    return false;
-                }
-            }
-        });
-        $(document).ajaxSuccess(function(event, request) {
-            self.init();
-        });
+        self.attachEventListeners();
+    };
 
-        $('button.pt-add-element').on('click', function() {
+    this.attachEventListeners = function() {
+        dirty = false;
+
+        $('button.pt-add-element').off().on('click', function() {
             // limit to ELEMENT_LIMIT fields
             if ($(this).parents('.pt-elements').find('.form-group').length < ELEMENT_LIMIT) {
                 var clone = $(this).prev('.form-group').clone(true);
@@ -192,19 +179,29 @@ var PTAdminItemsEditView = function() {
             }
             return false;
         });
-        $('button.pt-remove-element').on('click', function() {
+        $('button.pt-remove-element').off().on('click', function() {
             if ($(this).parents('.pt-elements').find('.form-group').length > 1) {
                 $(this).closest('.form-group').remove();
             }
             return false;
         });
 
-        self.attachEventListeners();
-    };
-
-    this.attachEventListeners = function() {
         $('.pagination a').on('click', function() {
             $('#pt-items')[0].scrollIntoView({behavior: "smooth"});
+        });
+
+        // When a value is changed, mark the form as dirty.
+        $('input[type=number], textarea').off().on('propertychange keyup change', function() {
+            dirty = true;
+            $(this).addClass('pt-dirty');
+        });
+
+        // When the form is dirty and a link is clicked, prompt to save changes
+        // before proceeding.
+        $('a').off().on('click', function() {
+            if (dirty) {
+                return window.confirm('Proceed without saving changes?');
+            }
         });
     };
 
