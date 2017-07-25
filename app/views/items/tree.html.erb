@@ -1,5 +1,7 @@
 <% provide(:body_id, 'items_index') %>
 <% provide(:title, @collection.title) %>
 <% provide(:active_nav, 'collections') %>
+<%= breadcrumb(collection: @collection, context: session[:browse_context],
+    context_url: session[:browse_context_url]) %>
 <h1><%= @collection.title %></h1>
   <%= render partial: 'tree_main' %>
