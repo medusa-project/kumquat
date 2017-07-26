@@ -199,28 +199,6 @@ module ItemsHelper
   end
 
   ##
-  # @param item [Item]
-  # @param options [Hash] Options to pass to thumbnail_tag().
-  # @return [String]
-  #
-  def front_matter_item_panel(item, options = {})
-    html = ''
-    if item.front_matter_item
-      html += "<div class=\"panel panel-default pt-front-matter-item\">
-          <div class=\"panel-heading\">
-            <h2 class=\"panel-title\">Front Matter</h2>
-          </div>
-          <div class=\"panel-body\">"
-      html += link_to(item.front_matter_item) do
-        thumbnail_tag(item.front_matter_item, options)
-      end
-      html += '</div>
-              </div>'
-    end
-    raw(html)
-  end
-
-  ##
   # @param item [Item, nil]
   # @return [Boolean]
   #
@@ -252,28 +230,6 @@ module ItemsHelper
                     bin.iiif_image_url, region, size, format)
     end
     url
-  end
-
-  ##
-  # @param item [Item]
-  # @param options [Hash] Options to pass to thumbnail_tag().
-  # @return [String]
-  #
-  def index_item_panel(item, options = {})
-    html = ''
-    if item.index_item
-      html += "<div class=\"panel panel-default pt-index-item\">
-          <div class=\"panel-heading\">
-            <h2 class=\"panel-title\">Index</h2>
-          </div>
-          <div class=\"panel-body\">"
-      html += link_to(item.index_item) do
-        thumbnail_tag(item.index_item, options)
-      end
-      html += '</div>
-              </div>'
-    end
-    raw(html)
   end
 
   ##
@@ -332,120 +288,6 @@ module ItemsHelper
       html +=      add_to_favorites_button(item)
       html += '  </h4>'
       html += '</div>'
-    end
-    raw(html)
-  end
-
-  ##
-  # @param entities [Relation<Representable>]
-  # @param start [integer] Offset.
-  # @param options [Hash] Hash with optional keys.
-  # @option options [Boolean] :link_to_admin
-  # @option options [Boolean] :show_remove_from_favorites_buttons
-  # @option options [Boolean] :show_add_to_favorites_buttons
-  # @option options [Boolean] :show_collections
-  # @option options [Boolean] :show_checkboxes
-  # @option options [Integer] :thumbnail_size
-  #
-  def items_as_list(entities, start, options = {}) # TODO: rename to entities_as_list(), move to ApplicationHelper, and replace CollectionsHelper.collections_as_list()
-    html = "<ol start=\"#{start + 1}\">"
-    entities.each do |entity|
-      if options[:link_to_admin] and entity.kind_of?(Item)
-        link_target = admin_collection_item_path(entity.collection, entity)
-      else
-        link_target = polymorphic_path(entity)
-      end
-      html += '<li>'
-      if options[:show_checkboxes]
-        html += check_box_tag('pt-selected-items[]', entity.repository_id)
-        html += '<div class="pt-checkbox-result-container">'
-      else
-        html += '<div class="pt-non-checkbox-result-container">'
-      end
-      html += link_to(link_target, class: 'pt-thumbnail-link') do
-        size = options[:thumbnail_size] ?
-            options[:thumbnail_size] : DEFAULT_THUMBNAIL_SIZE
-        raw('<div class="pt-thumbnail">' +
-          thumbnail_tag(entity.effective_representative_entity, size: size, shape: :square) +
-        '</div>')
-      end
-      html += '<span class="pt-label">'
-      html += link_to(entity.title, link_target)
-
-      # info line
-      info_parts = []
-      info_parts << "#{icon_for(entity)}#{type_of(entity)}"
-
-      if entity.kind_of?(Item)
-        num_pages = entity.pages.count
-        if num_pages > 1
-          info_parts << "#{num_pages} pages"
-        else
-          num_files = entity.filesystem_variants.count
-          if num_files > 0
-            info_parts << "#{num_files} files"
-          else
-            num_children = entity.items.count
-            if num_children > 0
-              info_parts << "#{num_children} sub-items"
-            end
-          end
-        end
-
-        date = entity.date
-        if date
-          info_parts << date.year
-        end
-
-        if options[:show_collections] and entity.collection
-          info_parts << link_to(entity.collection.title,
-                                collection_path(entity.collection))
-        end
-      end
-
-      html += "<br><span class=\"pt-info-line\">#{info_parts.join(' | ')}</span>"
-
-      if entity.kind_of?(Item)
-        # remove-from-favorites button
-        if options[:show_remove_from_favorites_buttons]
-          html += remove_from_favorites_button(entity)
-        end
-        # add-to-favorites button
-        if options[:show_add_to_favorites_buttons]
-          html += add_to_favorites_button(entity)
-        end
-      end
-
-      html += '</span>'
-      html += '<br>'
-      html += '<span class="pt-description">'
-      html += truncate(entity.description.to_s, length: 380)
-      html += '</span>'
-      html += '</div>'
-      html += '</li>'
-    end
-    html += '</ol>'
-    raw(html)
-  end
-
-  ##
-  # @param item [Item]
-  # @param options [Hash] Options to pass to thumbnail_tag().
-  # @return [String]
-  #
-  def key_item_panel(item, options = {})
-    html = ''
-    if item.key_item
-      html += "<div class=\"panel panel-default pt-key-item\">
-          <div class=\"panel-heading\">
-            <h2 class=\"panel-title\">Key</h2>
-          </div>
-          <div class=\"panel-body\">"
-      html += link_to(item.key_item) do
-        thumbnail_tag(item.key_item, options)
-      end
-      html += '</div>
-              </div>'
     end
     raw(html)
   end
@@ -540,33 +382,11 @@ module ItemsHelper
   end
 
   ##
-  # @return [Relation]
-  #
-  def more_like_this
-    Relation.new(self).more_like_this
-  end
-
-  ##
   # @return [Integer]
   #
   def num_favorites
     cookies[:favorites] ?
         cookies[:favorites].split(FavoritesController::COOKIE_DELIMITER).length : 0
-  end
-
-  def page_select_menu(item)
-    pages = item.parent ? item.parent.pages : item.pages
-    pages = pages
-
-    html = '<select class="form-control input-sm pt-page-select">'
-    pages.each_with_index do |page, index|
-      selected = (page.repository_id == item.repository_id) ? 'selected' : ''
-      html += "<option value=\"#{item_path(page)}\" #{selected}>
-        #{page.title} (#{index + 1} of #{pages.count})
-        </option>"
-    end
-    html += '</select>'
-    raw(html)
   end
 
   ##
@@ -901,32 +721,6 @@ module ItemsHelper
   end
 
   ##
-  # @param item [Item]
-  # @param limit [Integer]
-  # @return [String] HTML unordered list
-  #
-  def similar_items_as_list(item, limit = 5)
-    html = ''
-    items = item.more_like_this.limit(limit)
-    if items.any?
-      html += '<ul>'
-      items.each do |item|
-        html += '<li>'
-        html += '<div class="pt-thumbnail">'
-        html += link_to(item_path(item)) do
-          thumbnail_tag(item, shape: :square)
-        end
-        html += '</div>'
-        html += link_to(truncate(item.title, length: 40),
-                        item_path(item), class: 'pt-title')
-        html += '</li>'
-      end
-      html += '</ul>'
-    end
-    raw(html)
-  end
-
-  ##
   # Returns a sort pulldown menu for the given metadata profile. If there are
   # no sortable elements in the profile, returns a zero-length string.
   #
@@ -1055,28 +849,6 @@ module ItemsHelper
       url = iiif_image_url(entity, shape, size)
     end
     url
-  end
-
-  ##
-  # @param item [Item]
-  # @param options [Hash] Options to pass to thumbnail_tag().
-  # @return [String]
-  #
-  def title_item_panel(item, options = {})
-    html = ''
-    if item.title_item
-      html += "<div class=\"panel panel-default pt-title-item\">
-          <div class=\"panel-heading\">
-            <h2 class=\"panel-title\">Title</h2>
-          </div>
-          <div class=\"panel-body\">"
-      html += link_to(item.title_item) do
-        thumbnail_tag(item.title_item, options)
-      end
-      html += '</div>
-              </div>'
-    end
-    raw(html)
   end
 
   ##
