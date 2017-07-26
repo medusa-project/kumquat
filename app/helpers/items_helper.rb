@@ -448,13 +448,6 @@ module ItemsHelper
   end
 
   ##
-  # @return [Relation]
-  #
-  def more_like_this
-    Relation.new(self).more_like_this
-  end
-
-  ##
   # @return [Integer]
   #
   def num_favorites
