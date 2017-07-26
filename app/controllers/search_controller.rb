@@ -16,12 +16,8 @@ class SearchController < WebsiteController
         client_hostname(request.host).
         client_ip(request.remote_ip).
         client_user(current_user).
-        exclude_item_variants([Item::Variants::DIRECTORY,
-                               Item::Variants::FRONT_MATTER,
-                               Item::Variants::INDEX, Item::Variants::KEY,
-                               Item::Variants::PAGE,
-                               Item::Variants::TABLE_OF_CONTENTS,
-                               Item::Variants::TITLE]).
+        # exclude all variants except File
+        exclude_item_variants(Item::Variants::all.reject{ |v| v == Item::Variants::FILE }).
         only_described(true).
         query(params[:q]).
         filter_queries(params[:fq]).
