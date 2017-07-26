@@ -462,21 +462,6 @@ module ItemsHelper
         cookies[:favorites].split(FavoritesController::COOKIE_DELIMITER).length : 0
   end
 
-  def page_select_menu(item)
-    pages = item.parent ? item.parent.pages : item.pages
-    pages = pages
-
-    html = '<select class="form-control input-sm pt-page-select">'
-    pages.each_with_index do |page, index|
-      selected = (page.repository_id == item.repository_id) ? 'selected' : ''
-      html += "<option value=\"#{item_path(page)}\" #{selected}>
-        #{page.title} (#{index + 1} of #{pages.count})
-        </option>"
-    end
-    html += '</select>'
-    raw(html)
-  end
-
   ##
   # Returns item pagination for agent view.
   #
