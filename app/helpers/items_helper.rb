@@ -199,28 +199,6 @@ module ItemsHelper
   end
 
   ##
-  # @param item [Item]
-  # @param options [Hash] Options to pass to thumbnail_tag().
-  # @return [String]
-  #
-  def front_matter_item_panel(item, options = {})
-    html = ''
-    if item.front_matter_item
-      html += "<div class=\"panel panel-default pt-front-matter-item\">
-          <div class=\"panel-heading\">
-            <h2 class=\"panel-title\">Front Matter</h2>
-          </div>
-          <div class=\"panel-body\">"
-      html += link_to(item.front_matter_item) do
-        thumbnail_tag(item.front_matter_item, options)
-      end
-      html += '</div>
-              </div>'
-    end
-    raw(html)
-  end
-
-  ##
   # @param item [Item, nil]
   # @return [Boolean]
   #
@@ -252,28 +230,6 @@ module ItemsHelper
                     bin.iiif_image_url, region, size, format)
     end
     url
-  end
-
-  ##
-  # @param item [Item]
-  # @param options [Hash] Options to pass to thumbnail_tag().
-  # @return [String]
-  #
-  def index_item_panel(item, options = {})
-    html = ''
-    if item.index_item
-      html += "<div class=\"panel panel-default pt-index-item\">
-          <div class=\"panel-heading\">
-            <h2 class=\"panel-title\">Index</h2>
-          </div>
-          <div class=\"panel-body\">"
-      html += link_to(item.index_item) do
-        thumbnail_tag(item.index_item, options)
-      end
-      html += '</div>
-              </div>'
-    end
-    raw(html)
   end
 
   ##
@@ -332,28 +288,6 @@ module ItemsHelper
       html +=      add_to_favorites_button(item)
       html += '  </h4>'
       html += '</div>'
-    end
-    raw(html)
-  end
-
-  ##
-  # @param item [Item]
-  # @param options [Hash] Options to pass to thumbnail_tag().
-  # @return [String]
-  #
-  def key_item_panel(item, options = {})
-    html = ''
-    if item.key_item
-      html += "<div class=\"panel panel-default pt-key-item\">
-          <div class=\"panel-heading\">
-            <h2 class=\"panel-title\">Key</h2>
-          </div>
-          <div class=\"panel-body\">"
-      html += link_to(item.key_item) do
-        thumbnail_tag(item.key_item, options)
-      end
-      html += '</div>
-              </div>'
     end
     raw(html)
   end
@@ -915,28 +849,6 @@ module ItemsHelper
       url = iiif_image_url(entity, shape, size)
     end
     url
-  end
-
-  ##
-  # @param item [Item]
-  # @param options [Hash] Options to pass to thumbnail_tag().
-  # @return [String]
-  #
-  def title_item_panel(item, options = {})
-    html = ''
-    if item.title_item
-      html += "<div class=\"panel panel-default pt-title-item\">
-          <div class=\"panel-heading\">
-            <h2 class=\"panel-title\">Title</h2>
-          </div>
-          <div class=\"panel-body\">"
-      html += link_to(item.title_item) do
-        thumbnail_tag(item.title_item, options)
-      end
-      html += '</div>
-              </div>'
-    end
-    raw(html)
   end
 
   ##
