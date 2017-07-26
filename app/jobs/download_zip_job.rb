@@ -12,9 +12,8 @@ class DownloadZipJob < Job
     zip_name = args[1]
     download = args[2]
 
-    download.update(indeterminate: true)
-
     self.task&.update!(download: download,
+                       indeterminate: true,
                        status_text: "Requesting a #{item_ids.length}-item zip "\
                        "file from the Medusa Downloader")
 
