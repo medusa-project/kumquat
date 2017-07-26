@@ -598,8 +598,8 @@ class CollectionTest < ActiveSupport::TestCase
     assert_equal @collection.harvestable, doc[Collection::SolrFields::HARVESTABLE]
     assert_equal @collection.description, doc[Collection::SolrFields::METADATA_DESCRIPTION]
     assert_equal @collection.title, doc[Collection::SolrFields::METADATA_TITLE]
-    assert_equal @collection.published_in_medusa,
-                 doc[Collection::SolrFields::PUBLISHED_IN_MEDUSA]
+    assert_equal @collection.public_in_medusa,
+                 doc[Collection::SolrFields::PUBLIC_IN_MEDUSA]
     assert_empty doc[Collection::SolrFields::PARENT_COLLECTIONS]
     assert_equal @collection.published_in_dls,
                  doc[Collection::SolrFields::PUBLISHED_IN_DLS]

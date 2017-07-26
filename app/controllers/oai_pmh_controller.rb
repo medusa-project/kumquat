@@ -95,7 +95,7 @@ class OaiPmhController < ApplicationController
   end
 
   def do_list_sets
-    @results = Collection.where(published_in_medusa: true,
+    @results = Collection.where(public_in_medusa: true,
                                 published_in_dls: true,
                                 harvestable: true).order(:repository_id)
     @total_num_results = @results.count
@@ -133,7 +133,7 @@ class OaiPmhController < ApplicationController
     @results = Item.joins('LEFT JOIN collections ON collections.repository_id '\
             '= items.collection_repository_id').
         where('collections.harvestable': true,
-              'collections.published_in_medusa': true,
+              'collections.public_in_medusa': true,
               'collections.published_in_dls': true,
               published: true).
         where('items.variant IS NULL OR items.variant = \'\' OR items.variant = ?',

@@ -13,7 +13,7 @@ module Api
 
       finder = CollectionFinder.new.
           include_children(true).
-          include_unpublished_in_medusa(true).
+          include_private_in_medusa(true).
           include_unpublished_in_dls(true).
           filter_queries(params[:fq]).
           query(params[:q]).

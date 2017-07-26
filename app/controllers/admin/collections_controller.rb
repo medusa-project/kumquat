@@ -27,11 +27,11 @@ module Admin
       @collections = Collection.solr.order(Collection::SolrFields::TITLE).
           start(@start).limit(@limit)
       # Will be true when searching/filtering.
-      if params[:published_in_medusa].present?
+      if params[:public_in_medusa].present?
         @collections = @collections.
             where("(*#{params[:q].gsub(' ', '*')}*)").
-            filter(Collection::SolrFields::PUBLISHED_IN_MEDUSA =>
-                       params[:published_in_medusa].to_s == '1' ? true : false).
+            filter(Collection::SolrFields::PUBLIC_IN_MEDUSA =>
+                       params[:public_in_medusa].to_s == '1' ? true : false).
             filter(Collection::SolrFields::PUBLISHED_IN_DLS =>
                        params[:published_in_dls].to_s == '1' ? true : false)
       end
