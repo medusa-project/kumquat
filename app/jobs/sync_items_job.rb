@@ -11,7 +11,7 @@ class SyncItemsJob < Job
   def perform(*args)
     collection = Collection.find_by_repository_id(args[0])
 
-    self.task.update(status_text: "Syncing items in #{collection.title}")
+    self.task.update(status_text: "Importing items in #{collection.title}")
 
     result = MedusaIngester.new.sync_items(collection, args[1], args[2],
                                            self.task)

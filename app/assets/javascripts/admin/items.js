@@ -222,7 +222,7 @@ var PTAdminItemsView = function() {
             $('#pt-export-modal').modal('hide');
         });
 
-        // Enable certain checkboxes in the sync panel only when the "create"
+        // Enable certain checkboxes in the import panel only when the "create"
         // radio is selected.
         var extract_metadata_checkbox = $('input[name="options[extract_metadata]"]');
         var extract_creation_checkbox = $('input[name="options[include_date_created]"]');
