@@ -25,10 +25,10 @@
 
 <% if @items.count > 0 %>
   <div class="pt-results pt-list-results">
-    <%= items_as_list(@items, @start,
-                      show_remove_from_favorites_buttons: true,
-                      show_checkboxes: client_supports_zip_download?,
-                      show_collections: true) %>
+    <%= entities_as_list(@items, @start,
+                         show_remove_from_favorites_buttons: true,
+                         show_checkboxes: client_supports_zip_download?,
+                         show_collections: true) %>
   </div>
 
   <div class="text-center">

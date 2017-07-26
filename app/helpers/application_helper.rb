@@ -58,6 +58,98 @@ module ApplicationHelper
   end
 
   ##
+  # Returns an ordered list of the given entities (Items, Collections, Agents).
+  #
+  # @param entities [Relation<Representable>]
+  # @param start [integer] Offset.
+  # @param options [Hash] Hash with optional keys.
+  # @option options [Boolean] :link_to_admin
+  # @option options [Boolean] :show_remove_from_favorites_buttons
+  # @option options [Boolean] :show_add_to_favorites_buttons
+  # @option options [Boolean] :show_collections
+  # @option options [Boolean] :show_checkboxes
+  # @return [String] HTML string.
+  #
+  def entities_as_list(entities, start, options = {})
+    html = "<ol start=\"#{start + 1}\">"
+    entities.each do |entity|
+      if options[:link_to_admin] and entity.kind_of?(Item)
+        link_target = admin_collection_item_path(entity.collection, entity)
+      else
+        link_target = polymorphic_path(entity)
+      end
+      html += '<li>'
+      if options[:show_checkboxes]
+        html += check_box_tag('pt-selected-items[]', entity.repository_id)
+        html += '<div class="pt-checkbox-result-container">'
+      else
+        html += '<div class="pt-non-checkbox-result-container">'
+      end
+      html += link_to(link_target, class: 'pt-thumbnail-link') do
+        raw('<div class="pt-thumbnail">' +
+                thumbnail_tag(entity.effective_representative_entity, size: DEFAULT_THUMBNAIL_SIZE, shape: :square) +
+                '</div>')
+      end
+      html += '<span class="pt-label">'
+      html += link_to(entity.title, link_target)
+
+      # info line
+      info_parts = []
+      info_parts << "#{icon_for(entity)}#{type_of(entity)}"
+
+      if entity.kind_of?(Item)
+        num_pages = entity.pages.count
+        if num_pages > 1
+          info_parts << "#{num_pages} pages"
+        else
+          num_files = entity.filesystem_variants.count
+          if num_files > 0
+            info_parts << "#{num_files} files"
+          else
+            num_children = entity.items.count
+            if num_children > 0
+              info_parts << "#{num_children} sub-items"
+            end
+          end
+        end
+
+        date = entity.date
+        if date
+          info_parts << date.year
+        end
+
+        if options[:show_collections] and entity.collection
+          info_parts << link_to(entity.collection.title,
+                                collection_path(entity.collection))
+        end
+      end
+
+      html += "<br><span class=\"pt-info-line\">#{info_parts.join(' | ')}</span>"
+
+      if entity.kind_of?(Item)
+        # remove-from-favorites button
+        if options[:show_remove_from_favorites_buttons]
+          html += remove_from_favorites_button(entity)
+        end
+        # add-to-favorites button
+        if options[:show_add_to_favorites_buttons]
+          html += add_to_favorites_button(entity)
+        end
+      end
+
+      html += '</span>'
+      html += '<br>'
+      html += '<span class="pt-description">'
+      html += truncate(entity.description.to_s, length: 380)
+      html += '</span>'
+      html += '</div>'
+      html += '</li>'
+    end
+    html += '</ol>'
+    raw(html)
+  end
+
+  ##
   # Returns the most appropriate icon for the given object, which may be an
   # Item, Binary, Collection, etc. If the object is unrecognized, a generic
   # icon will be returned.
