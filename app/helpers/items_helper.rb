@@ -809,32 +809,6 @@ module ItemsHelper
   end
 
   ##
-  # @param item [Item]
-  # @param limit [Integer]
-  # @return [String] HTML unordered list
-  #
-  def similar_items_as_list(item, limit = 5)
-    html = ''
-    items = item.more_like_this.limit(limit)
-    if items.any?
-      html += '<ul>'
-      items.each do |item|
-        html += '<li>'
-        html += '<div class="pt-thumbnail">'
-        html += link_to(item_path(item)) do
-          thumbnail_tag(item, shape: :square)
-        end
-        html += '</div>'
-        html += link_to(truncate(item.title, length: 40),
-                        item_path(item), class: 'pt-title')
-        html += '</li>'
-      end
-      html += '</ul>'
-    end
-    raw(html)
-  end
-
-  ##
   # Returns a sort pulldown menu for the given metadata profile. If there are
   # no sortable elements in the profile, returns a zero-length string.
   #
