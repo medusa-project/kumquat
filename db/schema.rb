@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170717173540) do
+ActiveRecord::Schema.define(version: 20170726180139) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -112,7 +112,7 @@ ActiveRecord::Schema.define(version: 20170717173540) do
     t.string   "repository_id",                            null: false
     t.string   "description_html"
     t.string   "access_url"
-    t.boolean  "published_in_medusa"
+    t.boolean  "public_in_medusa"
     t.boolean  "published_in_dls",         default: false
     t.string   "representative_image"
     t.string   "representative_item_id"
@@ -136,8 +136,8 @@ ActiveRecord::Schema.define(version: 20170717173540) do
   add_index "collections", ["external_id"], name: "index_collections_on_external_id", using: :btree
   add_index "collections", ["harvestable"], name: "index_collections_on_harvestable", using: :btree
   add_index "collections", ["metadata_profile_id"], name: "index_collections_on_metadata_profile_id", using: :btree
+  add_index "collections", ["public_in_medusa"], name: "index_collections_on_public_in_medusa", using: :btree
   add_index "collections", ["published_in_dls"], name: "index_collections_on_published", using: :btree
-  add_index "collections", ["published_in_medusa"], name: "index_collections_on_published_in_medusa", using: :btree
   add_index "collections", ["repository_id"], name: "index_collections_on_identifier", unique: true, using: :btree
   add_index "collections", ["representative_item_id"], name: "index_collections_on_representative_item_id", using: :btree
 

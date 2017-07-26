@@ -7,7 +7,7 @@ class CollectionFinder < AbstractFinder
     super
     @include_children = false
     @include_unpublished_in_dls = false
-    @include_unpublished_in_medusa = false
+    @include_private_in_medusa = false
     @sort = Collection::SolrFields::TITLE
   end
 
@@ -41,8 +41,8 @@ class CollectionFinder < AbstractFinder
   # @param boolean [Boolean]
   # @return [self]
   #
-  def include_unpublished_in_medusa(boolean)
-    @include_unpublished_in_medusa = boolean
+  def include_private_in_medusa(boolean)
+    @include_private_in_medusa = boolean
     self
   end
 
@@ -64,8 +64,8 @@ class CollectionFinder < AbstractFinder
 
     @collections = Collection.solr.all
 
-    unless @include_unpublished_in_medusa
-      @collections = @collections.filter(Collection::SolrFields::PUBLISHED_IN_MEDUSA => true)
+    unless @include_private_in_medusa
+      @collections = @collections.filter(Collection::SolrFields::PUBLIC_IN_MEDUSA => true)
     end
     unless @include_unpublished_in_dls
       @collections = @collections.filter(Collection::SolrFields::PUBLISHED_IN_DLS => true)

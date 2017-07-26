@@ -72,10 +72,10 @@
         <td><%= @collection.external_id %></td>
       </tr>
       <tr>
-        <td>Medusa</td>
+        <td>Medusa Collection Metadata</td>
         <td>
-          <span class="label <%= @collection.published_in_medusa ? 'label-success' : 'label-danger' %>">
-          <%= @collection.published_in_medusa ? 'Published' : 'Unpublished' %></span>
+          <span class="label <%= @collection.public_in_medusa ? 'label-success' : 'label-danger' %>">
+          <%= @collection.public_in_medusa ? 'Public' : 'Private' %></span>
         </td>
       </tr>
       <tr>

@@ -16,7 +16,7 @@ class LandingController < WebsiteController
     @dls_collections = finder.to_a
 
     # Get a count of all published collections.
-    @num_all_collections = Collection.all.where(published_in_medusa: true,
+    @num_all_collections = Collection.all.where(public_in_medusa: true,
                                                 published_in_dls: true).count
 
     fresh_when(etag: @dls_collections) if Rails.env.production?
