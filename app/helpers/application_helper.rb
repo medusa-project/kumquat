@@ -47,6 +47,8 @@ module ApplicationHelper
         end
       when 'items'
         case action_name
+          when 'tree'
+            return results_breadcrumb(options[:collection], options[:context])
           when 'index'
             return results_breadcrumb(options[:collection], options[:context])
           when 'show'
