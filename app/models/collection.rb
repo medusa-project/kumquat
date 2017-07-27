@@ -536,16 +536,14 @@ class Collection < ActiveRecord::Base
         when PackageProfile::FREE_FORM_PROFILE
           query = Item.solr.
               where(Item::SolrFields::COLLECTION => self.repository_id).
-              where(Item::SolrFields::PUBLISHED => true).
               where(Item::SolrFields::DESCRIBED => true).
-              where(Item::SolrFields::COLLECTION_PUBLISHED => true).
+              where(Item::SolrFields::EFFECTIVELY_PUBLISHED => true).
               where(Item::SolrFields::VARIANT => Item::Variants::FILE)
         else
           query = Item.solr.
               where(Item::SolrFields::COLLECTION => self.repository_id).
-              where(Item::SolrFields::PUBLISHED => true).
+              where(Item::SolrFields::EFFECTIVELY_PUBLISHED => true).
               where(Item::SolrFields::DESCRIBED => true).
-              where(Item::SolrFields::COLLECTION_PUBLISHED => true).
               where(Item::SolrFields::PARENT_ITEM => :null)
       end
       @num_public_objects = query.count
