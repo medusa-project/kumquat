@@ -6,7 +6,7 @@
                 target: @collection.published_in_dls ? '' : '_blank') do %>
       <%= icon_for(Item) %> <%= number_with_delimiter(@collection.num_public_objects) %> Digital Items
     <% end %>
-  <% else %>
+  <% elsif @collection.access_url.present? %>
     <%= link_to(@collection.access_url,
                 class: 'btn btn-lg btn-default',
                 target: @collection.published_in_dls ? '' : '_blank') do %>
