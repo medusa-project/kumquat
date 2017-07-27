@@ -1,6 +1,9 @@
 ##
-# Provides a high-level interface to query across all entity classes. Results
-# may include any entity that includes SolrQuerying.
+# Provides a high-level interface to query across entity classes. Results may
+# include instances of any class that includes SolrQuerying.
+#
+# N.B. All entities being searched must have an indexed
+# `effectively_published_bi` field.
 #
 class EntityFinder < AbstractFinder
 
@@ -45,6 +48,10 @@ class EntityFinder < AbstractFinder
 
     if @exclude_item_variants.any?
       @results = @results.filter("-#{Item::SolrFields::VARIANT}:(#{@exclude_item_variants.join(' OR ')})")
+    end
+
+    unless @include_unpublished
+      @results = @results.filter('effectively_published_bi': true)
     end
 
     if @only_described

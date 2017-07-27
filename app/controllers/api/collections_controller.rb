@@ -13,8 +13,7 @@ module Api
 
       finder = CollectionFinder.new.
           include_children(true).
-          include_unpublished_in_medusa(true).
-          include_unpublished_in_dls(true).
+          include_unpublished(true).
           filter_queries(params[:fq]).
           query(params[:q]).
           order(Collection::SolrFields::TITLE).

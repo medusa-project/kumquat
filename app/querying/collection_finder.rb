@@ -6,8 +6,6 @@ class CollectionFinder < AbstractFinder
   def initialize
     super
     @include_children = false
-    @include_unpublished_in_dls = false
-    @include_unpublished_in_medusa = false
     @sort = Collection::SolrFields::TITLE
   end
 
@@ -29,24 +27,6 @@ class CollectionFinder < AbstractFinder
   end
 
   ##
-  # @param boolean [Boolean]
-  # @return [self]
-  #
-  def include_unpublished_in_dls(boolean)
-    @include_unpublished_in_dls = boolean
-    self
-  end
-
-  ##
-  # @param boolean [Boolean]
-  # @return [self]
-  #
-  def include_unpublished_in_medusa(boolean)
-    @include_unpublished_in_medusa = boolean
-    self
-  end
-
-  ##
   # @return [Enumerable<Collection>]
   # @raises [ActiveRecord::RecordNotFound] If a collection ID that does not
   #                                        exist has been assigned to the
@@ -64,14 +44,14 @@ class CollectionFinder < AbstractFinder
 
     @collections = Collection.solr.all
 
-    unless @include_unpublished_in_medusa
-      @collections = @collections.filter(Collection::SolrFields::PUBLISHED_IN_MEDUSA => true)
-    end
-    unless @include_unpublished_in_dls
-      @collections = @collections.filter(Collection::SolrFields::PUBLISHED_IN_DLS => true)
+    unless @include_unpublished
+      @collections = @collections.filter(Collection::SolrFields::EFFECTIVELY_PUBLISHED => true)
     end
 
-    @collections = @collections.filter(Collection::SolrFields::PARENT_COLLECTIONS => :null) unless @include_children
+    unless @include_children
+      @collections = @collections.filter(Collection::SolrFields::PARENT_COLLECTIONS => :null)
+    end
+
     @collections = @collections.default_field(@default_field) if @default_field
 
     @collections = @collections.where(@query) if @query
