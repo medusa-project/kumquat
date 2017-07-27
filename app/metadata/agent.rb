@@ -6,6 +6,7 @@ class Agent < ActiveRecord::Base
   class SolrFields
     CLASS = 'class_si'
     DESCRIPTION = "#{EntityElement::solr_prefix}_description_txti"
+    EFFECTIVELY_PUBLISHED = 'effectively_published_bi'
     NAME = "#{EntityElement::solr_prefix}_title_txti"
     ID = 'id'
   end
@@ -41,7 +42,7 @@ class Agent < ActiveRecord::Base
   end
 
   ##
-  # Implemented to assist in cross-entity search.
+  # Assists in cross-entity search.
   #
   # @return [self]
   #
@@ -108,6 +109,7 @@ class Agent < ActiveRecord::Base
     doc[SolrFields::ID] = self.solr_id
     doc[SolrFields::CLASS] = self.class.to_s
     doc[SolrFields::DESCRIPTION] = self.description.to_s
+    doc[SolrFields::EFFECTIVELY_PUBLISHED] = true
     doc[SolrFields::NAME] = self.name.to_s
     doc
   end

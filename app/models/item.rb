@@ -107,13 +107,16 @@ class Item < ActiveRecord::Base
     CLASS = 'class_si'
     COLLECTION = 'collection_si'
     # The owning collection's published status is stored to expedite queries.
-    # When it changes, all of its items will need to be reindexed.
+    # When it changes, all of its items will need to be reindexed. TODO: replace with EFFECTIVELY_PUBLISHED
     COLLECTION_PUBLISHED = 'collection_published_bi'
     CREATED = 'created_dti'
     DATE = 'date_dti'
     DESCRIBED = 'described_bi'
     EFFECTIVE_ALLOWED_ROLES = 'effective_allowed_roles_sim'
     EFFECTIVE_DENIED_ROLES = 'effective_denied_roles_sim'
+    # An item might be published but it's collection might not be, making it
+    # still effectively unpublished.
+    EFFECTIVELY_PUBLISHED = 'effectively_published_bi'
     FULL_TEXT = 'full_text_txti'
     ID = 'id'
     LAST_MODIFIED = 'last_modified_dti'
@@ -960,6 +963,8 @@ class Item < ActiveRecord::Base
         self.effective_allowed_roles.map(&:key)
     doc[SolrFields::EFFECTIVE_DENIED_ROLES] =
         self.effective_denied_roles.map(&:key)
+    doc[SolrFields::EFFECTIVELY_PUBLISHED] =
+        self.published and self.collection.published
     doc[SolrFields::FULL_TEXT] = self.full_text
 
     if [Variants::FILE, Variants::DIRECTORY].include?(self.variant)
