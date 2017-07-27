@@ -497,6 +497,7 @@ class ItemTest < ActiveSupport::TestCase
                  doc[Item::SolrFields::EFFECTIVE_ALLOWED_ROLES]
     assert_equal @item.effective_denied_roles.map(&:key),
                  doc[Item::SolrFields::EFFECTIVE_DENIED_ROLES]
+    assert doc[Item::SolrFields::EFFECTIVELY_PUBLISHED]
     assert_equal @item.full_text, doc[Item::SolrFields::FULL_TEXT]
     assert_not_empty doc[Item::SolrFields::LAST_INDEXED]
     assert_equal "#{@item.latitude},#{@item.longitude}",
