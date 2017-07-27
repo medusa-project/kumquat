@@ -2,7 +2,7 @@ class CollectionsController < WebsiteController
 
   before_action :load_collection, only: [:iiif_presentation, :show]
   before_action :authorize_collection, only: [:iiif_presentation, :show]
-  before_action :check_published, only: [:iiif_presentation, :show]
+  before_action :check_published, only: :iiif_presentation
   before_action :enable_cors, only: :iiif_presentation
 
   ##
@@ -55,6 +55,9 @@ class CollectionsController < WebsiteController
 
   ##
   # Responds to GET /collections/:id
+  #
+  # N.B. Unpublished collections are allowed to be shown, but any items
+  # residing in them are NOT.
   #
   def show
     fresh_when(etag: @collection) if Rails.env.production?
