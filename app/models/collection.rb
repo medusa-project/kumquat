@@ -419,7 +419,7 @@ class Collection < ActiveRecord::Base
   def medusa_file_group
    unless @file_group
      @file_group = nil
-     if self.medusa_file_group_id
+     if self.medusa_file_group_id.present?
        @file_group = MedusaFileGroup.with_uuid(self.medusa_file_group_id)
      end
    end
