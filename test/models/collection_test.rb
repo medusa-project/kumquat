@@ -580,35 +580,49 @@ class CollectionTest < ActiveSupport::TestCase
 
   # to_solr()
 
-  test 'to_solr return the correct Solr document' do
+  test 'to_solr returns the correct Solr document' do
     doc = @collection.to_solr
 
-    assert_equal @collection.solr_id, doc[Collection::SolrFields::ID]
-    assert_equal @collection.class.to_s, doc[Collection::SolrFields::CLASS]
+    assert_equal @collection.solr_id,
+                 doc[Collection::SolrFields::ID]
+    assert_equal @collection.class.to_s,
+                 doc[Collection::SolrFields::CLASS]
     assert_not_empty doc[Collection::SolrFields::LAST_INDEXED]
-    assert_equal @collection.access_systems, doc[Collection::SolrFields::ACCESS_SYSTEMS]
-    assert_equal @collection.access_url, doc[Collection::SolrFields::ACCESS_URL]
+    assert_equal @collection.access_systems,
+                 doc[Collection::SolrFields::ACCESS_SYSTEMS]
+    assert_equal @collection.access_url,
+                 doc[Collection::SolrFields::ACCESS_URL]
     assert_equal @collection.allowed_roles.map(&:key).sort,
                  doc[Collection::SolrFields::ALLOWED_ROLES].sort
     assert_equal @collection.denied_roles.map(&:key).sort,
                  doc[Collection::SolrFields::DENIED_ROLES].sort
-    assert_equal @collection.description, doc[Collection::SolrFields::DESCRIPTION]
-    assert_equal @collection.description_html, doc[Collection::SolrFields::DESCRIPTION_HTML]
-    assert_equal @collection.external_id, doc[Collection::SolrFields::EXTERNAL_ID]
-    assert_equal @collection.harvestable, doc[Collection::SolrFields::HARVESTABLE]
-    assert_equal @collection.description, doc[Collection::SolrFields::METADATA_DESCRIPTION]
-    assert_equal @collection.title, doc[Collection::SolrFields::METADATA_TITLE]
+    assert_equal @collection.description,
+                 doc[Collection::SolrFields::DESCRIPTION]
+    assert_equal @collection.description_html,
+                 doc[Collection::SolrFields::DESCRIPTION_HTML]
+    assert_equal @collection.external_id,
+                 doc[Collection::SolrFields::EXTERNAL_ID]
+    assert_equal @collection.harvestable,
+                 doc[Collection::SolrFields::HARVESTABLE]
+    assert_equal @collection.description,
+                 doc[Collection::SolrFields::METADATA_DESCRIPTION]
+    assert_equal @collection.title,
+                 doc[Collection::SolrFields::METADATA_TITLE]
+    assert_empty doc[Collection::SolrFields::PARENT_COLLECTIONS]
+    assert_equal @collection.published,
+                 doc[Collection::SolrFields::EFFECTIVELY_PUBLISHED]
     assert_equal @collection.public_in_medusa,
                  doc[Collection::SolrFields::PUBLIC_IN_MEDUSA]
-    assert_empty doc[Collection::SolrFields::PARENT_COLLECTIONS]
     assert_equal @collection.published_in_dls,
                  doc[Collection::SolrFields::PUBLISHED_IN_DLS]
     assert_equal @collection.medusa_repository.title,
                  doc[Collection::SolrFields::REPOSITORY_TITLE]
     assert_equal @collection.representative_item_id,
                  doc[Collection::SolrFields::REPRESENTATIVE_ITEM]
-    assert_equal @collection.resource_types, doc[Collection::SolrFields::RESOURCE_TYPES]
-    assert_equal @collection.title, doc[Collection::SolrFields::TITLE]
+    assert_equal @collection.resource_types,
+                 doc[Collection::SolrFields::RESOURCE_TYPES]
+    assert_equal @collection.title,
+                 doc[Collection::SolrFields::TITLE]
   end
 
   # update_from_medusa()

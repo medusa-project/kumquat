@@ -90,6 +90,8 @@ class Collection < ActiveRecord::Base
     DENIED_ROLES = 'denied_roles_sim'
     DESCRIPTION = 'description_txti'
     DESCRIPTION_HTML = 'description_html_txti'
+    # Contains the result of PUBLISHED_IN_DLS && PUBLISHED_IN_MEDUSA.
+    EFFECTIVELY_PUBLISHED = 'effectively_published_bi'
     EXTERNAL_ID = 'external_id_si'
     HARVESTABLE = 'harvestable_bi'
     ID = 'id'
@@ -742,6 +744,7 @@ class Collection < ActiveRecord::Base
     doc[SolrFields::ACCESS_URL] = self.access_url
     doc[SolrFields::DESCRIPTION] = self.description
     doc[SolrFields::DESCRIPTION_HTML] = self.description_html
+    doc[SolrFields::EFFECTIVELY_PUBLISHED] = self.published
     doc[SolrFields::EXTERNAL_ID] = self.external_id
     doc[SolrFields::HARVESTABLE] = self.harvestable
 
@@ -749,7 +752,6 @@ class Collection < ActiveRecord::Base
     # copy them into a searchall field.
     doc[SolrFields::METADATA_DESCRIPTION] = self.description
     doc[SolrFields::METADATA_TITLE] = self.title
-
     doc[SolrFields::PARENT_COLLECTIONS] =
         self.parent_collection_joins.map(&:parent_repository_id)
     doc[SolrFields::PHYSICAL_COLLECTION_URL] = self.physical_collection_url
