@@ -7,7 +7,6 @@ class ItemFinder < AbstractFinder
     super
     @exclude_variants = []
     @include_children = false
-    @include_unpublished = false
     @include_variants = []
     @stats = false
   end
@@ -56,15 +55,6 @@ class ItemFinder < AbstractFinder
   #
   def include_children(boolean)
     @include_children = boolean
-    self
-  end
-
-  ##
-  # @param boolean [Boolean]
-  # @return [ItemFinder] self
-  #
-  def include_unpublished(boolean)
-    @include_unpublished = boolean
     self
   end
 
@@ -126,8 +116,7 @@ class ItemFinder < AbstractFinder
     @items = Item.solr.all
 
     unless @include_unpublished
-      @items = @items.filter(Item::SolrFields::PUBLISHED => true).
-          filter(Item::SolrFields::COLLECTION_PUBLISHED => true)
+      @items = @items.filter(Item::SolrFields::EFFECTIVELY_PUBLISHED => true)
     end
 
     if @include_variants.any?

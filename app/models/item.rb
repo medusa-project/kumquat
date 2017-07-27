@@ -106,9 +106,6 @@ class Item < ActiveRecord::Base
   class SolrFields
     CLASS = 'class_si'
     COLLECTION = 'collection_si'
-    # The owning collection's published status is stored to expedite queries.
-    # When it changes, all of its items will need to be reindexed. TODO: replace with EFFECTIVELY_PUBLISHED
-    COLLECTION_PUBLISHED = 'collection_published_bi'
     CREATED = 'created_dti'
     DATE = 'date_dti'
     DESCRIBED = 'described_bi'
@@ -948,7 +945,6 @@ class Item < ActiveRecord::Base
     doc[SolrFields::ID] = self.solr_id
     doc[SolrFields::CLASS] = self.class.to_s
     doc[SolrFields::COLLECTION] = self.collection_repository_id
-    doc[SolrFields::COLLECTION_PUBLISHED] = self.collection.published
     doc[SolrFields::DATE] = self.date.utc.iso8601 if self.date
     # An item is considered described if it has any elements other than title,
     # or is in a collection using the free-form package profile.
