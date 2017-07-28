@@ -113,28 +113,6 @@ module ItemsHelper
   end
 
   ##
-  # @param item [Item]
-  # @return [String]
-  #
-  def download_radios_for_item(item)
-    html = ''
-    item.binaries.each do |binary|
-      html += "<div class=\"radio pt-download-option\" data-item-id=\"#{item.repository_id}\">"
-      html += '  <label>'
-      html +=      radio_button_tag('download-url', binary_url(binary),
-                                    false, data: { 'item-id': item.repository_id })
-      html +=      binary.human_readable_master_type
-      html += '    <br>'
-      html += '    <small>'
-      html +=        download_label_for_binary(binary)
-      html += '    </small>'
-      html += '  </label>'
-      html += '</div>'
-    end
-    raw(html)
-  end
-
-  ##
   # @param items [Relation]
   # @param options [Hash] Options hash
   # @option options [Boolean] :show_collection_facet
