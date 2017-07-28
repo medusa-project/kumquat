@@ -41,7 +41,7 @@ module ApplicationHelper
       when 'collections'
         case action_name
           when 'index'
-            return collections_view_breadcrumb
+            return nil # no breadcrumb in this view
           when 'show'
             return collection_view_breadcrumb(options[:collection])
         end
@@ -393,14 +393,10 @@ module ApplicationHelper
   def collection_view_breadcrumb(collection)
     html = "<ol class=\"breadcrumb\">"\
       "<li>#{link_to 'Home', root_path}</li>"\
-      "<li>#{link_to 'Collections', collections_path}</li>"
+      "<li>#{repository_link(collection)}</li>"
     html += collection_structure_breadcrumb(collection)
-    html += "</ol>"
+    html += '</ol>'
     raw(html)
-  end
-
-  def collections_view_breadcrumb
-    nil # no breadcrumb in this view
   end
 
   def item_structure_breadcrumb(item)
@@ -437,7 +433,7 @@ module ApplicationHelper
       else
         html = "<ol class=\"breadcrumb\">"
         html += "<li>#{link_to 'Home', root_path}</li>"
-        html += "<li>#{link_to 'Collections', collections_path}</li>"
+        html += "<li>#{repository_link(item.collection)}</li>"
         html += "<li>#{link_to item.collection.title, collection_path(item.collection)}</li>"
         html += "<li>#{link_to 'Items', collection_items_path(item.collection)}</li>"
         html += item_structure_breadcrumb(item)
@@ -446,11 +442,16 @@ module ApplicationHelper
     raw(html)
   end
 
+  def repository_link(collection)
+    fq = "#{Collection::SolrFields::REPOSITORY_TITLE}:\"#{collection.medusa_repository.title}\""
+    link_to collection.medusa_repository.title, collections_path(fq: fq)
+  end
+
   def results_breadcrumb(collection, context)
     if context == ItemsController::BrowseContext::BROWSING_COLLECTION
       html = "<ol class=\"breadcrumb\">"\
                 "<li>#{link_to('Home', root_path)}</li>"\
-                "<li>#{link_to('Collections', collections_path)}</li>"\
+                "<li>#{repository_link(collection)}</li>"\
                 "<li>#{link_to(truncate(collection.title, length: 50), collection_path(collection))}</li>"\
                 "<li class=\"active\">Items</li>"\
               "</ol>"

@@ -422,6 +422,13 @@ class Item < ActiveRecord::Base
   end
 
   ##
+  # @return [Boolean] Whether the variant is Variants::DIRECTORY.
+  #
+  def directory?
+    self.variant == Variants::DIRECTORY
+  end
+
+  ##
   # Returns the instance's effective representative item based on the following
   # order of preference:
   #
@@ -544,6 +551,13 @@ class Item < ActiveRecord::Base
       elements << element if element
     end
     elements
+  end
+
+  ##
+  # @return [Boolean] Whether the variant is Variants::FILE.
+  #
+  def file?
+    self.variant == Variants::FILE
   end
 
   ##
@@ -869,6 +883,16 @@ class Item < ActiveRecord::Base
   #
   def rightsstatements_org_statement
     RightsStatement.for_uri(self.element(:accessRights)&.uri)
+  end
+
+  ##
+  # @return [Item] The root parent, or the instance itself if it has no parent.
+  #
+  def root_parent
+    if self.parent
+      return all_parents.last
+    end
+    self
   end
 
   ##

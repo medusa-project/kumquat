@@ -20,7 +20,7 @@ class ItemTest < ActiveSupport::TestCase
   test 'num_free_form_items should return a correct count' do
     Item.all.each { |it| it.index_in_solr }
     Solr.instance.commit
-    assert_equal 3, Item.num_free_form_items
+    assert_equal 4, Item.num_free_form_items
   end
 
   # Item.tsv_header()
@@ -44,7 +44,18 @@ class ItemTest < ActiveSupport::TestCase
   # all_files()
 
   test 'all_files() should return the correct items' do
-    assert_equal 1, items(:illini_union_dir1).all_files.count
+    assert_equal 1, items(:illini_union_dir1_dir1).all_files.count
+  end
+
+  # all_parents()
+
+  test 'all_parents() should return the parents' do
+    result = items(:illini_union_dir1_dir1_file1).all_parents
+    assert_equal 2, result.count
+    assert_equal items(:illini_union_dir1_dir1).repository_id,
+                 result[0].repository_id
+    assert_equal items(:illini_union_dir1).repository_id,
+                 result[1].repository_id
   end
 
   # as_json()
@@ -114,6 +125,19 @@ class ItemTest < ActiveSupport::TestCase
     @item.elements.build(name: 'description', value: 'cats')
     @item.save
     assert_equal 'cats', @item.description
+  end
+
+  # directory?()
+
+  test 'directory?() returns the correct value' do
+    @item.variant = nil
+    assert !@item.directory?
+
+    @item.variant = Item::Variants::FILE
+    assert !@item.directory?
+
+    @item.variant = Item::Variants::DIRECTORY
+    assert @item.directory?
   end
 
   # effective_representative_entity()
@@ -197,6 +221,20 @@ class ItemTest < ActiveSupport::TestCase
     assert_nil @item.element('bogus')
   end
 
+  # file?()
+
+  test 'file?() returns the correct value' do
+    @item.variant = nil
+    assert !@item.file?
+
+    @item.variant = Item::Variants::DIRECTORY
+
+    assert !@item.file?
+
+    @item.variant = Item::Variants::FILE
+    assert @item.file?
+  end
+
   # migrate_elements()
 
   test 'migrate_elements() should work' do
@@ -258,7 +296,7 @@ class ItemTest < ActiveSupport::TestCase
   test 'representative_item() should return an item when
   representative_item_repository_id is valid' do
     @item.representative_item_repository_id =
-        items(:illini_union_dir1_file1).repository_id
+        items(:illini_union_dir1_dir1_file1).repository_id
     assert_kind_of Item, @item.representative_item
   end
 
@@ -270,6 +308,19 @@ class ItemTest < ActiveSupport::TestCase
 
     @item.representative_item_repository_id = '8acdb390-96b6-0133-1ce8-0050569601ca-4'
     assert @item.valid?
+  end
+
+  # root_parent()
+
+  test 'root_parent returns the root parent, if available' do
+    @item = items(:illini_union_dir1_dir1_file1)
+    assert_equal items(:illini_union_dir1).repository_id,
+                 @item.root_parent.repository_id
+  end
+
+  test 'root_parent returns the instance if it has no parents' do
+    @item = items(:sanborn_obj1)
+    assert_same @item, @item.root_parent
   end
 
   # save
@@ -525,7 +576,7 @@ class ItemTest < ActiveSupport::TestCase
   # update_from_embedded_metadata
 
   test 'update_from_embedded_metadata should work' do
-    @item = items(:illini_union_dir1_file1)
+    @item = items(:illini_union_dir1_dir1_file1)
     @item.update_from_embedded_metadata(include_date_created: true)
 
     assert_equal 1, @item.elements.
