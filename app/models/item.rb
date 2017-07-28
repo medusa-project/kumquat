@@ -422,6 +422,13 @@ class Item < ActiveRecord::Base
   end
 
   ##
+  # @return [Boolean] Whether the variant is Variants::DIRECTORY.
+  #
+  def directory?
+    self.variant == Variants::DIRECTORY
+  end
+
+  ##
   # Returns the instance's effective representative item based on the following
   # order of preference:
   #
@@ -544,6 +551,13 @@ class Item < ActiveRecord::Base
       elements << element if element
     end
     elements
+  end
+
+  ##
+  # @return [Boolean] Whether the variant is Variants::FILE.
+  #
+  def file?
+    self.variant == Variants::FILE
   end
 
   ##

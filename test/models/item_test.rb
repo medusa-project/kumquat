@@ -116,6 +116,19 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal 'cats', @item.description
   end
 
+  # directory?()
+
+  test 'directory?() returns the correct value' do
+    @item.variant = nil
+    assert !@item.directory?
+
+    @item.variant = Item::Variants::FILE
+    assert !@item.directory?
+
+    @item.variant = Item::Variants::DIRECTORY
+    assert @item.directory?
+  end
+
   # effective_representative_entity()
 
   test 'effective_representative_entity should return the representative item
@@ -195,6 +208,20 @@ class ItemTest < ActiveSupport::TestCase
   test 'element() should work' do
     assert_equal 'My Great Title', @item.element('title').value
     assert_nil @item.element('bogus')
+  end
+
+  # file?()
+
+  test 'file?() returns the correct value' do
+    @item.variant = nil
+    assert !@item.file?
+
+    @item.variant = Item::Variants::DIRECTORY
+
+    assert !@item.file?
+
+    @item.variant = Item::Variants::FILE
+    assert @item.file?
   end
 
   # migrate_elements()
