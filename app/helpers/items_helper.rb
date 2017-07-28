@@ -429,19 +429,6 @@ module ItemsHelper
   end
 
   ##
-  # Returns pagination for pages in show-item view.
-  #
-  # @param count [Integer]
-  # @param per_page [Integer]
-  # @param current_page [Integer]
-  # @param max_links [Integer] (ideally odd)
-  #
-  def paginate_pages(parent_item, count, per_page, current_page, max_links = 9)
-    do_paginate(count, per_page, current_page, true, max_links, parent_item,
-                Item::Variants::PAGE)
-  end
-
-  ##
   # Returns what the user is searching for.
   #
   # @param q [String] From params
