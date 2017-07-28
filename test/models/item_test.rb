@@ -310,6 +310,19 @@ class ItemTest < ActiveSupport::TestCase
     assert @item.valid?
   end
 
+  # root_parent()
+
+  test 'root_parent returns the root parent, if available' do
+    @item = items(:illini_union_dir1_dir1_file1)
+    assert_equal items(:illini_union_dir1).repository_id,
+                 @item.root_parent.repository_id
+  end
+
+  test 'root_parent returns the instance if it has no parents' do
+    @item = items(:sanborn_obj1)
+    assert_same @item, @item.root_parent
+  end
+
   # save
 
   test 'save() should prune identical elements' do

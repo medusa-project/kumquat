@@ -886,6 +886,16 @@ class Item < ActiveRecord::Base
   end
 
   ##
+  # @return [Item] The root parent, or the instance itself if it has no parent.
+  #
+  def root_parent
+    if self.parent
+      return all_parents.last
+    end
+    self
+  end
+
+  ##
   # @return [Hash]
   #
   def solr_document
