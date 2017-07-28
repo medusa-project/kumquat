@@ -5,7 +5,7 @@ module Api
   class ItemsControllerTest < ActionDispatch::IntegrationTest
 
     setup do
-      @item = items(:illini_union_dir1_file1)
+      @item = items(:illini_union_dir1_dir1_file1)
     end
 
     # delete()

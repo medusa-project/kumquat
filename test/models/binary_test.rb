@@ -25,7 +25,7 @@ class BinaryTest < ActiveSupport::TestCase
   end
 
   setup do
-    @binary = binaries(:illini_union_dir1_file1)
+    @binary = binaries(:illini_union_dir1_dir1_file1)
   end
 
   # absolute_local_pathname()
@@ -45,7 +45,7 @@ class BinaryTest < ActiveSupport::TestCase
   # as_json()
 
   test 'as_json() should return the correct structure' do
-    b = binaries(:illini_union_dir1_file1)
+    b = binaries(:illini_union_dir1_dir1_file1)
     struct = b.as_json
     assert_equal b.human_readable_master_type, struct['master_type']
     assert_equal b.human_readable_media_category, struct['media_category']
