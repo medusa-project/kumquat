@@ -594,7 +594,7 @@ class Collection < ActiveRecord::Base
   # @return [Boolean]
   #
   def published
-    public_in_medusa and published_in_dls
+    published_in_medusa and (published_in_dls or access_url.present?)
   end
 
   ##
