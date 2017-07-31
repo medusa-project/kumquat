@@ -183,6 +183,10 @@ body#items_show {
   }
 
   #pt-download {
+    td {
+      height: 120px;
+      vertical-align: middle;
+    }
     td:first-child {
       width: 1px;
     }
@@ -197,6 +201,15 @@ body#items_show {
         max-height: $image_thumb_size;
         max-width: $image_thumb_size;
         vertical-align: middle;
+      }
+    }
+    tr.selected {
+      background-color: $color_uiuc-blue;
+      color: white;
+      .btn-default {
+        background-color: $color_uiuc-blue;
+        border: 1px solid white;
+        color: white;
       }
     }
   }
@@ -278,9 +291,9 @@ body#items_index, body#items_show {
 
 .pagination {
   > li > a {
-    color: rgb(4, 74, 136);
+    color: $color_uiuc-blue;
   }
   > li.active > a {
-    background-color: rgb(4, 74, 136);
+    background-color: $color_uiuc-blue;
   }
 }
