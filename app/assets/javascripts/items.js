@@ -322,13 +322,16 @@ var PTItemView = function() {
             }
         });
 
-        // When an item is selected in the viewer, highlight the corresponding
-        // item in the download panel. (UV will also fire this on load.)
+        // When there are >1 items in the viewer and one is selected, highlight
+        // the corresponding item in the download panel. (UV will also fire
+        // this on load.)
         $(document).bind('uv.onCanvasIndexChanged', function(event, index) {
-            $('#pt-download table tr')
-                .removeClass('selected')
-                .filter(':nth-child(' + (index + 1) + ')')
-                .addClass('selected');
+            var rows = $('#pt-download table tr');
+            if (rows.length > 1) {
+                rows.removeClass('selected')
+                    .filter(':nth-child(' + (index + 1) + ')')
+                    .addClass('selected');
+            }
         });
 
         new PTCitationPanel();
