@@ -113,28 +113,6 @@ module ItemsHelper
   end
 
   ##
-  # @param item [Item]
-  # @return [String]
-  #
-  def download_radios_for_item(item)
-    html = ''
-    item.binaries.each do |binary|
-      html += "<div class=\"radio pt-download-option\" data-item-id=\"#{item.repository_id}\">"
-      html += '  <label>'
-      html +=      radio_button_tag('download-url', binary_url(binary),
-                                    false, data: { 'item-id': item.repository_id })
-      html +=      binary.human_readable_master_type
-      html += '    <br>'
-      html += '    <small>'
-      html +=        download_label_for_binary(binary)
-      html += '    </small>'
-      html += '  </label>'
-      html += '</div>'
-    end
-    raw(html)
-  end
-
-  ##
   # @param items [Relation]
   # @param options [Hash] Options hash
   # @option options [Boolean] :show_collection_facet
@@ -399,7 +377,7 @@ module ItemsHelper
   # @param max_links [Integer] (ideally odd)
   #
   def paginate_agent_items(agent, count, per_page, current_page, max_links = 9)
-    do_paginate(count, per_page, current_page, true, max_links, agent,
+    do_paginate(count, per_page, current_page, max_links, agent,
                 :agent_item)
   end
 
@@ -412,7 +390,7 @@ module ItemsHelper
   # @param max_links [Integer] (ideally odd)
   #
   def paginate_files(parent_item, count, per_page, current_page, max_links = 9)
-    do_paginate(count, per_page, current_page, true, max_links,
+    do_paginate(count, per_page, current_page, max_links,
                 parent_item, Item::Variants::FILE)
   end
 
@@ -425,20 +403,7 @@ module ItemsHelper
   # @param max_links [Integer] (ideally odd)
   #
   def paginate_items(count, per_page, current_page, max_links = 9)
-    do_paginate(count, per_page, current_page, true, max_links)
-  end
-
-  ##
-  # Returns pagination for pages in show-item view.
-  #
-  # @param count [Integer]
-  # @param per_page [Integer]
-  # @param current_page [Integer]
-  # @param max_links [Integer] (ideally odd)
-  #
-  def paginate_pages(parent_item, count, per_page, current_page, max_links = 9)
-    do_paginate(count, per_page, current_page, true, max_links, parent_item,
-                Item::Variants::PAGE)
+    do_paginate(count, per_page, current_page, max_links)
   end
 
   ##
@@ -1085,13 +1050,12 @@ module ItemsHelper
   # @param count [Integer] Total number of items in the result set
   # @param per_page [Integer]
   # @param current_page [Integer]
-  # @param remote [Boolean]
   # @param max_links [Integer] (ideally odd)
   # @param owning_entity [Item]
   # @param item_variant [Item::Variants, Symbol, nil] One of the Item::Variants
   #                     constants, or :agent_item, or nil.
   #
-  def do_paginate(count, per_page, current_page, remote = false,
+  def do_paginate(count, per_page, current_page,
                   max_links = ApplicationHelper::MAX_PAGINATION_LINKS,
                   owning_entity = nil, item_variant = nil)
     return '' if count <= per_page
@@ -1111,60 +1075,60 @@ module ItemsHelper
       when Item::Variants::FILE
         first_link = link_to(item_files_path(owning_entity,
                                              params.except(:start).symbolize_keys),
-                             remote: remote, 'aria-label': 'First') do
+                             remote: true, 'aria-label': 'First') do
           raw('<span aria-hidden="true">First</span>')
         end
         prev_link = link_to(item_files_path(owning_entity,
                                             params.merge(start: prev_start).symbolize_keys),
-                            remote: remote, 'aria-label': 'Previous') do
+                            remote: true, 'aria-label': 'Previous') do
           raw('<span aria-hidden="true">&laquo;</span>')
         end
         next_link = link_to(item_files_path(owning_entity,
                                             params.merge(start: next_start).symbolize_keys),
-                            remote: remote, 'aria-label': 'Next') do
+                            remote: true, 'aria-label': 'Next') do
           raw('<span aria-hidden="true">&raquo;</span>')
         end
         last_link = link_to(item_files_path(owning_entity,
                                             params.merge(start: last_start).symbolize_keys),
-                            remote: remote, 'aria-label': 'Last') do
+                            remote: true, 'aria-label': 'Last') do
           raw('<span aria-hidden="true">Last</span>')
         end
       when :agent_item
         first_link = link_to(agent_items_path(owning_entity,
-                                              params.except(:start).symbolize_keys),
-                             remote: remote, 'aria-label': 'First') do
+                                             params.except(:start).symbolize_keys),
+                             remote: true, 'aria-label': 'First') do
           raw('<span aria-hidden="true">First</span>')
         end
         prev_link = link_to(agent_items_path(owning_entity,
-                                             params.merge(start: prev_start).symbolize_keys),
-                            remote: remote, 'aria-label': 'Previous') do
+                                            params.merge(start: prev_start).symbolize_keys),
+                            remote: true, 'aria-label': 'Previous') do
           raw('<span aria-hidden="true">&laquo;</span>')
         end
         next_link = link_to(agent_items_path(owning_entity,
-                                             params.merge(start: next_start).symbolize_keys),
-                            remote: remote, 'aria-label': 'Next') do
+                                            params.merge(start: next_start).symbolize_keys),
+                            remote: true, 'aria-label': 'Next') do
           raw('<span aria-hidden="true">&raquo;</span>')
         end
         last_link = link_to(agent_items_path(owning_entity,
-                                             params.merge(start: last_start).symbolize_keys),
-                            remote: remote, 'aria-label': 'Last') do
+                                            params.merge(start: last_start).symbolize_keys),
+                            remote: true, 'aria-label': 'Last') do
           raw('<span aria-hidden="true">Last</span>')
         end
       else
         first_link = link_to(params.except(:start),
-                             remote: remote, 'aria-label': 'First') do
+                             remote: true, 'aria-label': 'First') do
           raw('<span aria-hidden="true">First</span>')
         end
         prev_link = link_to(params.merge(start: prev_start).symbolize_keys,
-                            remote: remote, 'aria-label': 'Previous') do
+                            remote: true, 'aria-label': 'Previous') do
           raw('<span aria-hidden="true">&laquo;</span>')
         end
         next_link = link_to(params.merge(start: next_start).symbolize_keys,
-                            remote: remote, 'aria-label': 'Next') do
+                            remote: true, 'aria-label': 'Next') do
           raw('<span aria-hidden="true">&raquo;</span>')
         end
         last_link = link_to(params.merge(start: last_start).symbolize_keys,
-                            remote: remote, 'aria-label': 'Last') do
+                            remote: true, 'aria-label': 'Last') do
           raw('<span aria-hidden="true">Last</span>')
         end
     end
@@ -1180,20 +1144,20 @@ module ItemsHelper
         when Item::Variants::FILE
           path = (start == 0) ? item_files_path(owning_entity, params.except(:start).symbolize_keys) :
               item_files_path(owning_entity, params.merge(start: start).symbolize_keys)
-          page_link = link_to(path, remote: remote) do
+          page_link = link_to(path, remote: true) do
             raw("#{page} #{(page == current_page) ?
                 '<span class="sr-only">(current)</span>' : ''}")
           end
         when :agent_item
           path = (start == 0) ? agent_items_path(owning_entity, params.except(:start).symbolize_keys) :
               agent_items_path(owning_entity, params.merge(start: start).symbolize_keys)
-          page_link = link_to(path, remote: remote) do
+          page_link = link_to(path, remote: true) do
             raw("#{page} #{(page == current_page) ?
                 '<span class="sr-only">(current)</span>' : ''}")
           end
         else
           page_link = link_to((start == 0) ? params.except(:start) :
-                                  params.merge(start: start).symbolize_keys, remote: remote) do
+                                  params.merge(start: start).symbolize_keys, remote: true) do
             raw("#{page} #{(page == current_page) ?
                 '<span class="sr-only">(current)</span>' : ''}")
           end
