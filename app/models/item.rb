@@ -74,7 +74,6 @@
 # * date:                 Normalized date, for date-based queries.
 # * embed_tag:            HTML snippet that will be used to display an
 #                         alternative object viewer.
-# * full_text:            Full plain text; for example, a transcript or OCR.
 # * latitude:             Normalized latitude in decimal degrees.
 # * longitude:            Normalized longitude in decimal degrees.
 # * page_number:          Literal page number of a page-variant item.
@@ -114,7 +113,6 @@ class Item < ActiveRecord::Base
     # An item might be published but it's collection might not be, making it
     # still effectively unpublished.
     EFFECTIVELY_PUBLISHED = 'effectively_published_bi'
-    FULL_TEXT = 'full_text_txti'
     ID = 'id'
     LAST_MODIFIED = 'last_modified_dti'
     LAT_LONG = 'lat_long_loc'
@@ -985,7 +983,6 @@ class Item < ActiveRecord::Base
         self.effective_denied_roles.map(&:key)
     doc[SolrFields::EFFECTIVELY_PUBLISHED] =
         self.published and self.collection.published
-    doc[SolrFields::FULL_TEXT] = self.full_text
 
     if [Variants::FILE, Variants::DIRECTORY].include?(self.variant)
       # (parent title)-(parent title)-(parent title)-(title)
@@ -1066,7 +1063,6 @@ class Item < ActiveRecord::Base
       # created_at is not modifiable
       self.date = TimeUtil.string_date_to_time(struct['date'])
       self.embed_tag = struct['embed_tag']
-      self.full_text = struct['full_text']
       # id is not modifiable
       self.latitude = struct['latitude']
       self.longitude = struct['longitude']

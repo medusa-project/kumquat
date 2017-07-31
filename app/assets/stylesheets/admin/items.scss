@@ -110,8 +110,10 @@ body#admin_items_show {
 
   #pt-structure ul {
     list-style: none;
-    margin-left: 1.5em;
     padding-left: 0em;
+    ul {
+      margin-left: 1.5em;
+    }
   }
 
   #pt-viewer p {
