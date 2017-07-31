@@ -103,10 +103,6 @@
       </li>
 
       <li role="presentation">
-        <a href="#pt-full-text" aria-controls="pt-full-text" role="tab" data-toggle="tab">Full Text</a>
-      </li>
-
-      <li role="presentation">
         <a href="#pt-schema-org" aria-controls="pt-schema-org" role="tab" data-toggle="tab">schema.org</a>
       </li>
     </ul>
@@ -139,12 +135,6 @@
           <h2><%= bin.human_readable_master_type %></h2>
           <%= binary_metadata_as_table(bin, admin: true) %>
           <hr>
-        <% end %>
-      </div>
-
-      <div role="tabpanel" class="tab-pane" id="pt-full-text">
-        <% if @item.full_text.present? %>
-          <pre><%= @item.full_text %></pre>
         <% end %>
       </div>
 

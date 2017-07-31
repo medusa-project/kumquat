@@ -548,7 +548,6 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal @item.effective_denied_roles.map(&:key),
                  doc[Item::SolrFields::EFFECTIVE_DENIED_ROLES]
     assert doc[Item::SolrFields::EFFECTIVELY_PUBLISHED]
-    assert_equal @item.full_text, doc[Item::SolrFields::FULL_TEXT]
     assert_not_empty doc[Item::SolrFields::LAST_INDEXED]
     assert_equal "#{@item.latitude},#{@item.longitude}",
                  doc[Item::SolrFields::LAT_LONG]
@@ -596,7 +595,6 @@ class ItemTest < ActiveSupport::TestCase
     struct['contentdm_pointer'] = 99
     struct['date'] = '2014-03-01T16:25:15Z'
     struct['embed_tag'] = '<embed></embed>'
-    struct['full_text'] = 'Some full text'
     struct['latitude'] = 23.45
     struct['longitude'] = -34.56
     struct['page_number'] = 60
@@ -616,7 +614,6 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal 'cats', @item.contentdm_alias
     assert_equal 99, @item.contentdm_pointer
     assert_equal 2014, @item.date.year
-    assert_equal 'Some full text', @item.full_text
     assert_equal 23.45, @item.latitude
     assert_equal -34.56, @item.longitude
     assert_equal 60, @item.page_number

@@ -583,9 +583,6 @@ module ItemsHelper
     # temporalCoverage (Google doesn't recognize)
     #struct[:temporalCoverage] = item.date.utc.iso8601 if item.date
 
-    # text
-    struct[:text] = item.full_text if item.full_text.present?
-
     # thumbnailUrl
     if iiif_image_binary
       struct[:thumbnailUrl] = iiif_image_url(item, :default,
