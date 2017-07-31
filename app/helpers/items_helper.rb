@@ -852,8 +852,11 @@ module ItemsHelper
       frag.xpath('.//*').first['width'] = '100%'
       frag.xpath('.//*').first['height'] = '600'
       return raw(frag.to_html.strip)
-    elsif is_free_form_image? item
-      return compound_viewer_for(item)
+    elsif is_free_form_file? item
+      return free_form_viewer_for(item)
+    # elsif is_free_form_without_image? item
+    #   return viewer_unavailable_message_for(item)
+
       # IMET-473: image files should be presented in the same manner as compound
       # objects, with a gallery viewer showing all of the other images in the
       # same directory.
@@ -1169,6 +1172,26 @@ module ItemsHelper
     raw(html)
   end
 
+  def free_form_viewer_for(item)
+    binary = item.effective_viewer_binary
+    case binary&.media_category
+      when Binary::MediaCategory::AUDIO
+        return audio_player_for(binary)
+      when Binary::MediaCategory::DOCUMENT
+        return pdf_viewer_for(binary)
+      when Binary::MediaCategory::IMAGE
+        return image_viewer_for(item)
+      when Binary::MediaCategory::TEXT
+        return text_viewer_for(binary)
+      when Binary::MediaCategory::THREE_D
+        return three_d_viewer_for(item)
+      when Binary::MediaCategory::VIDEO
+        return video_player_for(binary)
+      else
+        return viewer_unavailable_message_for(item)
+    end
+  end
+
   def image_viewer_for(item)
     html = ''
     binary = item.iiif_image_binary
@@ -1190,9 +1213,8 @@ module ItemsHelper
     raw(html)
   end
 
-  def is_free_form_image?(item)
+  def is_free_form_file?(item)
     item.variant == Item::Variants::FILE and
-        item.effective_viewer_binary&.media_category == Binary::MediaCategory::IMAGE and
         item.collection.package_profile_id==PackageProfile::FREE_FORM_PROFILE.id
   end
 
@@ -1367,6 +1389,11 @@ module ItemsHelper
         Your browser does not support the video tag.
     </video>"
     raw(tag)
+  end
+
+  def viewer_unavailable_message_for(item)
+    raw('<div class="alert alert-info">No image viewer-compatible
+          binaries are associated with this item.</div>')
   end
 
   ##
