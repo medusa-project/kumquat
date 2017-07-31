@@ -35,17 +35,21 @@
         <% end %>
       </div>
 
-      <% if item.items.any? %>
-        <% item.items_from_solr.order(Item::SolrFields::STRUCTURAL_SORT).limit(999).each do |subitem| %>
-          <%= render partial: 'download_table', locals: { item: subitem } %>
-        <% end %>
-      <% elsif item.variant == Item::Variants::FILE and item.parent %>
-        <% item.parent.items_from_solr.order(Item::SolrFields::STRUCTURAL_SORT).limit(999).each do |sibling| %>
-          <%= render partial: 'download_table', locals: { item: sibling } %>
-        <% end %>
-      <% else %>
-        <%= render partial: 'download_table', locals: { item: item } %>
-      <% end %>
+      <table class="table">
+        <tbody>
+          <% if item.items.any? %>
+            <% item.items_from_solr.order(Item::SolrFields::STRUCTURAL_SORT).limit(999).each do |subitem| %>
+              <%= render partial: 'download_table_rows', locals: { item: subitem } %>
+            <% end %>
+          <% elsif item.variant == Item::Variants::FILE and item.parent %>
+            <% item.parent.items_from_solr.order(Item::SolrFields::STRUCTURAL_SORT).limit(999).each do |sibling| %>
+              <%= render partial: 'download_table_rows', locals: { item: sibling } %>
+            <% end %>
+          <% else %>
+            <%= render partial: 'download_table_rows', locals: { item: item } %>
+          <% end %>
+        </tbody>
+      </table>
 
     </div>
   </section>
