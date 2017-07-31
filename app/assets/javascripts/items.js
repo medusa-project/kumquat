@@ -109,41 +109,6 @@ var PTItemView = function() {
     };
 
     /**
-     * Encapsulates the download panel.
-     *
-     * @constructor
-     */
-    var PTDownloadPanel = function() {
-
-        var init = function() {
-            var download_modal = $('#pt-download-modal');
-
-            // When a thumbnail radio is clicked, show its corresponding
-            // download options.
-            var downloadable_items =
-                download_modal.find('input[name="pt-downloadable-item"]');
-            if (downloadable_items.length > 0) {
-                downloadable_items.on('click', function () {
-                    download_modal.find('.pt-download-option, .pt-citation-info').hide();
-                    download_modal.find('[data-item-id=' +
-                        $(this).data('item-id') + ']').show();
-                    download_modal.find('input[name="download-url"][data-item-id="' +
-                        $(this).data('item-id') + '"]').trigger('click');
-                });
-                $('input[name="pt-downloadable-item"]:checked').trigger('click');
-            }
-
-            $('#pt-download-button').on('click', function() {
-                var source_file = download_modal.find('input[name="download-url"]:checked');
-                var url;
-                if (source_file.length > 0) {
-                    $(this).attr('href', source_file.val());
-                }
-            });
-        }; init();
-    };
-
-    /**
      * Encapsulates the embed-image panel.
      *
      * The panel is opened by an anchor with data-iiif-url, data-iiif-info-url,
@@ -358,7 +323,6 @@ var PTItemView = function() {
         });
 
         new PTCitationPanel();
-        new PTDownloadPanel();
         new PTEmbedPanel();
     };
 

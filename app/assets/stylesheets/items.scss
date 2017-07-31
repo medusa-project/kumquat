@@ -207,7 +207,7 @@ body#items_show {
     }
   }
 
-  #pt-download-modal, #pt-custom-image-modal {
+  #pt-custom-image-modal {
     #pt-image-select {
       max-height: 500px;
       overflow-y: scroll;
@@ -218,21 +218,6 @@ body#items_show {
         width: 30%;
       }
     }
-  }
-
-  #pt-download-modal {
-    .row .pt-download-option {
-      display: none;
-    }
-    $icon-size: 100px;
-    .pt-icon {
-      color: #a0a0a0;
-      font-size: $icon-size;
-      margin-right: 20px;
-    }
-  }
-
-  #pt-custom-image-modal {
     #iiif-download {
       div.radio {
         margin-right: 0.4em;
