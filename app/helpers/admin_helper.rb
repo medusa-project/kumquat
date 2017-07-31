@@ -192,16 +192,7 @@ module AdminHelper
     end
     html = add_parents(item, html)
 
-    # 3. Add the collection context around the items
-    chtml = '<ul>'
-    link = link_to(item.collection.title,
-                   admin_collection_path(item.collection))
-    chtml += "  <li>#{icon_for(item.collection)} #{link}"
-    chtml +=      html
-    chtml += '  </li>'
-    chtml += '</ul>'
-
-    raw(chtml)
+    raw(html)
   end
 
   def bootstrap_class_for_task_status(status)
