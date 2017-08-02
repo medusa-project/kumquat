@@ -154,6 +154,8 @@ Rails.application.routes.draw do
           via: :post, as: 'metadata_profile_import'
     resources :roles, param: :key
     match '/status', to: 'status#index', via: :get
+    match '/status/downloader', to: 'status#downloader_status',
+          via: :get, as: 'downloader_status'
     match '/status/image-server', to: 'status#image_server_status',
           via: :get, as: 'image_server_status'
     match '/status/search-server', to: 'status#search_server_status',

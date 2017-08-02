@@ -2,6 +2,20 @@ module Admin
 
   class StatusController < ControlPanelController
 
+    ##
+    # Responds to GET /admin/status/downloader with either HTTP 200 or 503.
+    #
+    def downloader_status
+      client = MedusaDownloaderClient.new
+      begin
+        client.head
+      rescue IOError
+        render text: 'offline', status: 503
+      else
+        render text: 'online'
+      end
+    end
+
     def index
     end
 

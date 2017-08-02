@@ -61,6 +61,24 @@ class MedusaDownloaderClient
     response_hash['download_url']
   end
 
+  ##
+  # Issues an HTTP HEAD request to check whether the server is up.
+  #
+  # @raises [IOError] If the server does not respond as expected.
+  #
+  def head
+    config = ::Configuration.instance
+
+    url = config.downloader[:url]
+    client = Curl::Easy.new(url)
+    client.http_auth_types = :digest
+    client.username = config.downloader[:user]
+    client.password = config.downloader[:password]
+    client.head
+    client.perform
+    raise IOError, client.status if client.response_code != 200
+  end
+
   private
 
   ##

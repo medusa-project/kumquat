@@ -21,6 +21,14 @@ class MedusaDownloaderClientTest < ActiveSupport::TestCase
     end
   end
 
+  # head()
+
+  test 'head() works' do
+    assert_nothing_raised do
+      @instance.head
+    end
+  end
+
   # zip_dirname()
 
   test 'zip_dirname() should return the correct path' do
