@@ -439,7 +439,11 @@ class Item < ActiveRecord::Base
   # @see representative_item
   #
   def effective_representative_entity
-    self.representative_item || self.pages.first || self
+    self.representative_item ||
+        self.items.where(variant: Variants::FRONT_COVER).first ||
+        self.items.where(variant: Variants::TITLE).first ||
+        self.pages.first ||
+        self
   end
 
   ##
