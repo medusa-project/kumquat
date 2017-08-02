@@ -56,9 +56,9 @@
 #                             `published_in_dls` must be true in order for the
 #                             collection or any or any of its items to be
 #                             publicly accessible.
-# * published_in_dls:         Both this and `public_in_medusa` must be true for
-#                             the collection or any of its contents to be
-#                             publicly accessible.
+# * published_in_dls:         "Published" status of the collection in the DLS.
+#                             N.B. use `published()` to test a collection's
+#                             effective "published" status.
 # * repository_id:            The collection's effective UUID, copied from
 #                             Medusa.
 # * representative_image:     UUID of a Medusa image file representing the
@@ -591,7 +591,7 @@ class Collection < ActiveRecord::Base
   end
 
   ##
-  # @return [Boolean]
+  # @return [Boolean] The instance's effective "published" status.
   #
   def published
     published_in_medusa and (published_in_dls or access_url.present?)
