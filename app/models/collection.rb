@@ -90,7 +90,7 @@ class Collection < ActiveRecord::Base
     DENIED_ROLES = 'denied_roles_sim'
     DESCRIPTION = 'description_txti'
     DESCRIPTION_HTML = 'description_html_txti'
-    # Contains the result of PUBLISHED_IN_DLS && PUBLISHED_IN_MEDUSA.
+    # Contains the result of PUBLIC_IN_DLS && PUBLISHED_IN_MEDUSA.
     EFFECTIVELY_PUBLISHED = 'effectively_published_bi'
     EXTERNAL_ID = 'external_id_si'
     HARVESTABLE = 'harvestable_bi'
@@ -594,7 +594,7 @@ class Collection < ActiveRecord::Base
   # @return [Boolean] The instance's effective "published" status.
   #
   def published
-    published_in_medusa and (published_in_dls or access_url.present?)
+    public_in_medusa and (published_in_dls or access_url.present?)
   end
 
   ##
