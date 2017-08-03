@@ -71,11 +71,12 @@ module IiifPresentationHelper
     items = item.items_from_solr.order(Item::SolrFields::STRUCTURAL_SORT).
         limit(9999).to_a
     if items.any?
-      # Directory items are not viewable and composite and supplement items are
-      # included in the annotation list instead.
+      # Directory and 3D items are not viewable, and composite and supplement
+      # items are included in the annotation list instead.
       return items.reject{ |it| [Item::Variants::COMPOSITE,
                                  Item::Variants::DIRECTORY,
-                                 Item::Variants::SUPPLEMENT].include?(it.variant) }.
+                                 Item::Variants::SUPPLEMENT,
+                                 Item::Variants::THREE_D_MODEL].include?(it.variant) }.
           map { |subitem| iiif_canvas_for(subitem) }
     end
     [ iiif_canvas_for(item) ]
