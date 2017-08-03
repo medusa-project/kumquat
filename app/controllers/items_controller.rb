@@ -344,9 +344,15 @@ class ItemsController < WebsiteController
         render json: @item.decorate(context: { web: true })
       end
       format.pdf do
-        download = Download.create
-        CreatePdfJob.perform_later(@item, download)
-        redirect_to download_url(download)
+        # PDF download is only available for compound objects.
+        if @item.variant.blank?
+          download = Download.create
+          CreatePdfJob.perform_later(@item, download)
+          redirect_to download_url(download)
+        else
+          flash['error'] = 'PDF downloads are only available for compound objects.'
+          redirect_to @item
+        end
       end
       format.zip do
         # See the documentation for format.zip in index().
