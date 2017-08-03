@@ -563,16 +563,6 @@ class Item < ActiveRecord::Base
   end
 
   ##
-  # Queries the database to obtain a Relation of all children that have a
-  # variant of Variant::FILE or Variant::DIRECTORY.
-  #
-  # @return [Relation<Item>]
-  #
-  def filesystem_variants
-    self.items.where(variant: [Variants::FILE, Variants::DIRECTORY])
-  end
-
-  ##
   # Queries Solr to obtain a Relation of all children that have a
   # variant of Variant::FILE or Variant::DIRECTORY.
   #
