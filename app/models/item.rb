@@ -150,6 +150,7 @@ class Item < ActiveRecord::Base
     PAGE = 'Page'
     SUPPLEMENT = 'Supplement'
     TABLE_OF_CONTENTS = 'TableOfContents'
+    THREE_D_MODEL = '3DModel'
     TITLE = 'Title'
 
     ##
@@ -1410,8 +1411,7 @@ class Item < ActiveRecord::Base
   end
 
   def sort_key_for_variant(variant)
-    # N.B. The key should start above 000, as that is the absolute-sort-first
-    # token.
+    # N.B. The key should start above 000, as that is the absolute-first token.
     case variant
       when Variants::FRONT_COVER
         return '010'
@@ -1437,6 +1437,8 @@ class Item < ActiveRecord::Base
         return '110'
       when Variants::COMPOSITE
         return '120'
+      when Variants::THREE_D_MODEL
+        return '130'
       else
         return '005'
     end
