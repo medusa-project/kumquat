@@ -351,9 +351,12 @@ class ItemsController < WebsiteController
       format.zip do
         # See the documentation for format.zip in index().
         #
-        # For directories, the zip file will contain content for each
-        # file-variant item at any sublevel. For compound objects, it will
-        # contain content for each item in the object.
+        # * For Directory-variant items, the zip file will contain content for
+        #   each File-variant item at any sublevel.
+        # * For File-variant items, the zip file will contain content for each
+        #   of the items in the parent Directory-variant item.
+        # * For compound objects, it will contain content for each item in the
+        #   object.
         if @item.variant == Item::Variants::DIRECTORY
           if @item.items.any?
             items = @item.all_files
@@ -361,7 +364,11 @@ class ItemsController < WebsiteController
           else
             flash['error'] = 'This directory is empty.'
             redirect_to @item
+            return
           end
+        elsif @item.varient == Item::Variants::FILE
+          items = @item.parent.items
+          zip_name = 'files'
         else
           items = @item.items.any? ? @item.items : [@item]
           zip_name = 'item'
