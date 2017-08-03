@@ -73,10 +73,13 @@ module IiifPresentationHelper
     if items.any?
       # Directory items are not viewable and composite and supplement items are
       # included in the annotation list instead.
-      return items.reject{ |it| [Item::Variants::COMPOSITE,
-                                 Item::Variants::DIRECTORY,
-                                 Item::Variants::SUPPLEMENT].include?(it.variant) }.
-          map { |subitem| iiif_canvas_for(subitem) }
+      displayable_children = items.reject do |it|
+        [Item::Variants::COMPOSITE, Item::Variants::DIRECTORY,
+         Item::Variants::SUPPLEMENT].include?(it.variant)
+      end
+      if displayable_children.any?
+        return displayable_children.map { |child| iiif_canvas_for(child) }
+      end
     end
     [ iiif_canvas_for(item) ]
   end
