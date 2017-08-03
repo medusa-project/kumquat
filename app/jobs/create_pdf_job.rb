@@ -3,8 +3,8 @@ class CreatePdfJob < Job
   queue_as :download
 
   ##
-  # @param args [Array] Three-element array with array of Items at
-  #                     position 0 and Download instance at position 1.
+  # @param args [Array] Two-element array with Item at position 0 and Download
+  #                     instance at position 1.
   #
   def perform(*args)
     item = args[0]
