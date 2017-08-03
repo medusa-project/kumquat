@@ -105,18 +105,6 @@ class Binary < ActiveRecord::Base
     nil
   end
 
-  def as_json(options = {})
-    struct = super(options).stringify_keys # TODO: why is this almost empty?
-    struct['master_type'] = self.human_readable_master_type
-    struct['media_category'] = self.human_readable_media_category
-    struct['repository_relative_pathname'] = self.repository_relative_pathname
-    struct['cfs_file_uuid'] = self.cfs_file_uuid
-    struct['byte_size'] = self.byte_size
-    struct['width'] = self.width
-    struct['height'] = self.height
-    struct.except('type')
-  end
-
   ##
   # @return [String]
   # @see http://dublincore.org/documents/dcmi-type-vocabulary/#H7
@@ -339,13 +327,6 @@ class Binary < ActiveRecord::Base
   #
   def read_size
     self.byte_size = File.size(self.absolute_local_pathname)
-  end
-
-  def serializable_hash(opts)
-    {
-        type: self.human_readable_master_type,
-        media_type: self.media_type
-    }
   end
 
   def to_param
