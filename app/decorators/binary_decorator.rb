@@ -15,10 +15,17 @@ class BinaryDecorator < Draper::Decorator
   #   end
 
   def serializable_hash(opts)
-    struct = object.serializable_hash(opts)
-    struct[:url] = binary_url(object)
-    struct[:byte_size] = object.byte_size
-    struct
+    {
+        id: binary.cfs_file_uuid,
+        url: binary_url(object),
+        master_type: object.human_readable_master_type,
+        media_category: object.human_readable_media_category,
+        byte_size: object.byte_size,
+        width: object.width,
+        height: object.height,
+        created_at: binary.created_at,
+        updated_at: binary.updated_at,
+    }
   end
 
 end
