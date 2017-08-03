@@ -55,8 +55,10 @@ module Admin
       raise ActiveRecord::RecordNotFound unless @item
 
       @variants = Item::Variants.constants.map do |v|
-        [v.to_s.downcase.gsub('_', ' ').titleize, v.to_s.downcase.camelize]
+        value = Item::Variants::const_get(v)
+        [value, value]
       end
+      @variants.sort!
     end
 
     ##

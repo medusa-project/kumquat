@@ -38,7 +38,8 @@
       <table class="table">
         <tbody>
           <% if item.items.any? %>
-            <% item.items_from_solr.order(Item::SolrFields::STRUCTURAL_SORT).limit(999).each do |subitem| %>
+            <% item.items_from_solr.order(Item::SolrFields::STRUCTURAL_SORT).
+                limit(999).reject{ |it| it.variant == Item::Variants::THREE_D_MODEL }.each do |subitem| %>
               <%= render partial: 'download_table_rows', locals: { item: subitem } %>
             <% end %>
           <% elsif item.variant == Item::Variants::FILE and item.parent %>
