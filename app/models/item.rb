@@ -395,20 +395,6 @@ class Item < ActiveRecord::Base
   end
 
   ##
-  # @param collection [Collection]
-  #
-  def collection=(collection)
-    self.collection_repository_id = collection.repository_id
-  end
-
-  ##
-  # @return [Item]
-  #
-  def composite_item
-    self.items.where(variant: Variants::COMPOSITE).limit(1).first
-  end
-
-  ##
   # @return [String]
   # @see http://dublincore.org/documents/dcmi-type-vocabulary/#H7
   #
@@ -576,13 +562,6 @@ class Item < ActiveRecord::Base
   end
 
   ##
-  # @return [Item] The item's key item, if available.
-  #
-  def front_matter_item
-    self.items.where(variant: Variants::FRONT_MATTER).limit(1).first
-  end
-
-  ##
   # @return [Boolean]
   #
   def has_iiif_manifest?
@@ -664,13 +643,6 @@ class Item < ActiveRecord::Base
   end
 
   ##
-  # @return [Item] The item's index item, if available.
-  #
-  def index_item
-    self.items.where(variant: Variants::INDEX).limit(1).first
-  end
-
-  ##
   # @return [Boolean] Whether the instance has any children with a "page"
   #                   variant.
   #
@@ -710,13 +682,6 @@ class Item < ActiveRecord::Base
   end
 
   ##
-  # @return [Item] The item's key item, if available.
-  #
-  def key_item
-    self.items.where(variant: Variants::KEY).limit(1).first
-  end
-
-  ##
   # Transactionally migrates elements with the given source name to new
   # elements with the given destination name, and then deletes the source
   # elements.
@@ -739,20 +704,6 @@ class Item < ActiveRecord::Base
       end
       self.save!
     end
-  end
-
-  ##
-  # @return [Item, nil] The next item in a compound object, relative to the
-  #                     instance, or nil if none or not applicable.
-  # @see previous()
-  #
-  def next
-    next_item = nil
-    if self.parent and self.page_number
-      next_item = Item.where(parent_repository_id: self.parent.repository_id,
-                             page_number: self.page_number + 1).limit(1).first
-    end
-    next_item
   end
 
   ##
@@ -786,20 +737,6 @@ class Item < ActiveRecord::Base
   def parent
     @parent = Item.find_by_repository_id(self.parent_repository_id) unless @parent
     @parent
-  end
-
-  ##
-  # @return [Item, nil] The previous item in a compound object, relative to the
-  #                     instance, or nil if none or not applicable.
-  # @see next()
-  #
-  def previous
-    prev_item = nil
-    if self.parent and self.page_number
-      prev_item = Item.where(parent_repository_id: self.parent.repository_id,
-                             page_number: self.page_number - 1).limit(1).first
-    end
-    prev_item
   end
 
   ##
@@ -911,13 +848,6 @@ class Item < ActiveRecord::Base
   end
 
   ##
-  # @return [Item] The item's table-of-contents item, if available.
-  #
-  def table_of_contents_item
-    self.items.where(variant: Variants::TABLE_OF_CONTENTS).limit(1).first
-  end
-
-  ##
   # @return [Item] The item's 3D model item, if available.
   #
   def three_d_item
@@ -936,13 +866,6 @@ class Item < ActiveRecord::Base
   def title
     t = self.element(:title)&.value
     t.present? ? t : self.repository_id
-  end
-
-  ##
-  # @return [Item] The item's title item, if available.
-  #
-  def title_item
-    self.items.where(variant: Variants::TITLE).limit(1).first
   end
 
   def to_param
@@ -977,7 +900,7 @@ class Item < ActiveRecord::Base
     doc[SolrFields::EFFECTIVE_DENIED_ROLES] =
         self.effective_denied_roles.map(&:key)
     doc[SolrFields::EFFECTIVELY_PUBLISHED] =
-        self.published and self.collection.published
+        (self.published and self.collection.published)
 
     if [Variants::FILE, Variants::DIRECTORY].include?(self.variant)
       # (parent title)-(parent title)-(parent title)-(title)
