@@ -101,20 +101,6 @@ class ItemTest < ActiveSupport::TestCase
     assert @item.valid?
   end
 
-  # composite_item()
-
-  test 'composite_item() should return the composite item, or nil if none
-  exists' do
-    assert_nil @item.composite_item
-
-    id = SecureRandom.uuid
-    Item.create!(repository_id: id,
-                 collection_repository_id: @item.collection_repository_id,
-                 parent_repository_id: @item.repository_id,
-                 variant: Item::Variants::COMPOSITE)
-    assert_equal id, @item.composite_item.repository_id
-  end
-
   # description()
 
   test 'description() should return the description element value, or nil if

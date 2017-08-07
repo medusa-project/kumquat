@@ -193,7 +193,9 @@ class ItemsController < WebsiteController
         end
       when 'page'
         if @item.pages.count > 0
-          @start_canvas_item = @item.title_item || @item.pages.first
+          @start_canvas_item =
+              @item.items.where(variant: Variants::TITLE).limit(1).first ||
+                  @item.pages.first
           render 'items/iiif_presentation_api/sequence',
                  formats: :json,
                  content_type: 'application/json'
