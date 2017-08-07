@@ -973,6 +973,13 @@ module ItemsHelper
             value: "#{binary.width}&times;#{binary.height}"
         }
       end
+      if binary.duration.present?
+        data << {
+            label: 'Duration',
+            category: 'File',
+            value: distance_of_time_in_words(binary.duration)
+        }
+      end
       if binary.cfs_file_uuid.present?
         data << {
             label: 'Medusa CFS File',
