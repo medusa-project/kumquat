@@ -852,7 +852,7 @@ module ItemsHelper
       frag.xpath('.//*').first['width'] = '100%'
       frag.xpath('.//*').first['height'] = '600'
       return raw(frag.to_html.strip)
-    elsif is_free_form_file? item
+    elsif item.file?
       return free_form_viewer_for(item)
     # elsif is_free_form_without_image? item
     #   return viewer_unavailable_message_for(item)
@@ -1225,11 +1225,6 @@ module ItemsHelper
           binaries are associated with this item.</div>'
     end
     raw(html)
-  end
-
-  def is_free_form_file?(item)
-    item.variant == Item::Variants::FILE and
-        item.collection.package_profile_id==PackageProfile::FREE_FORM_PROFILE.id
   end
 
   def item_facet_panel(title, terms, for_collections = false)
