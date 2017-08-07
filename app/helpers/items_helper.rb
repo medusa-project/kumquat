@@ -959,6 +959,20 @@ module ItemsHelper
           category: 'File',
           value: binary.media_type
       }
+      if binary.byte_size.present?
+        data << {
+            label: 'Size',
+            category: 'File',
+            value: number_to_human_size(binary.byte_size)
+        }
+      end
+      if binary.width.present? and binary.height.present?
+        data << {
+            label: 'Dimensions',
+            category: 'File',
+            value: "#{binary.width}&times;#{binary.height}"
+        }
+      end
       if binary.cfs_file_uuid.present?
         data << {
             label: 'Medusa CFS File',
