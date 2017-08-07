@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170731163638) do
+ActiveRecord::Schema.define(version: 20170807191410) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -93,6 +93,7 @@ ActiveRecord::Schema.define(version: 20170731163638) do
     t.decimal  "width",                        precision: 6
     t.decimal  "height",                       precision: 6
     t.integer  "media_category"
+    t.integer  "duration"
   end
 
   add_index "binaries", ["item_id"], name: "index_binaries_on_item_id", using: :btree

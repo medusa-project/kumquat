@@ -20,6 +20,7 @@ This is a basic getting-started guide for developers.
       provides some bonus features like PDF thumbnails and remote cache
       management.)
 * exiv2
+* ffmpeg
 
 # Installation
 

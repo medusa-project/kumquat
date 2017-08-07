@@ -39,7 +39,7 @@ namespace :dls do
       Solr.instance.commit
     end
 
-    desc 'Populate the sizes of all binaries'
+    desc 'Populate the byte sizes of all binaries'
     task :populate_byte_sizes => :environment do |task|
       Binary.uncached do
         binaries = Binary.where(byte_size: nil).
@@ -72,6 +72,24 @@ namespace :dls do
               "#{binary.repository_relative_pathname} "
 
           binary.read_dimensions
+          binary.save!
+        end
+      end
+    end
+
+    desc 'Populate the durations of all binaries'
+    task :populate_durations => :environment do |task|
+      Binary.uncached do
+        binaries = Binary.where(duration: nil).
+            where('repository_relative_pathname IS NOT NULL')
+        count = binaries.count
+        puts "#{count} binaries to update"
+
+        binaries.find_each.with_index do |binary, index|
+          puts "(#{((index / count.to_f) * 100).round(2)}%) "\
+              "#{binary.repository_relative_pathname} "
+
+          binary.read_duration
           binary.save!
         end
       end

@@ -1,3 +1,14 @@
+# item: folksong_obj1
+
+folksong_obj1_preservation:
+  item: folksong_obj1
+  byte_size: 63798956
+  cfs_file_uuid: 2bfcad10-fb82-0134-23e3-0050569601ca-0
+  master_type: <%= Binary::MasterType::PRESERVATION %>
+  media_category: <%= Binary::MediaCategory::AUDIO %>
+  media_type: audio/wav
+  repository_relative_pathname: /1206/2888/14/001/preservation/audio/NeilRosenbergJuly2007.wav
+
 # item: illini_union_dir1_dir1_file1
 
 illini_union_dir1_dir1_file1:
@@ -8,6 +19,17 @@ illini_union_dir1_dir1_file1:
   media_type: image/jpeg
   media_category: <%= Binary::MediaCategory::IMAGE %>
   repository_relative_pathname: /136/310/3707005/access/online/Illini_Union_Photographs/binder_5/banquets/banquets_002.jpg
+
+# item: olin_obj1
+
+olin_obj1_preservation:
+  item: olin_obj1
+  byte_size: 3554482180
+  cfs_file_uuid: 1635fa90-5cc8-0132-3334-0050569601ca-3
+  master_type: <%= Binary::MasterType::PRESERVATION %>
+  media_category: <%= Binary::MediaCategory::VIDEO %>
+  media_type: video/mpeg
+  repository_relative_pathname: /52/612/001.mpg
 
 # item: sanborn_obj1_page1
 

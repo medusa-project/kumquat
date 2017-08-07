@@ -5,23 +5,25 @@
 #
 # Index of collections
 #
-#                 |  P. Profiles   |    Contents    | Features |
-#                 |----------------|----------------|----------|
-#                 | CO  FF  MM  SI | 3D  EM  IM  SU | SM       |
-#                 |----------------|----------------|----------|
-# illini_union    |     X          |     X   X      |          |
-# lincoln         |             X  |         X      |          |
-# mapping_history | X              |     X   X      |          |
-# myers           | X              |         X   X  |          |
-# olin            |     X          |                | X        |
-# sanborn         | X              |         X      |          |
-# sousa           |         X      | X       X      |          |
+#                 |  P. Profiles   |    Contents        | Features |
+#                 |----------------|--------------------|----------|
+#                 | CO  FF  MM  SI | AU  3D  EM  IM  SU | SM       |
+#                 |----------------|--------------------|----------|
+# folksong        |         X      | X                  |          |
+# illini_union    |     X          |         X   X      |          |
+# lincoln         |             X  |             X      |          |
+# mapping_history | X              |         X   X      |          |
+# myers           | X              |             X   X  |          |
+# olin            |     X          |                    | X        |
+# sanborn         | X              |             X      |          |
+# sousa           |         X      |     X       X      |          |
 #
 # CO: compound object package profile
 # FF: free-form package profile
 # MM: mixed-media package profile
 # SI: single-item package profile
 #
+# AU: contains audio
 # 3D: contains 3D items
 # EM: contains embedded file metadata
 # IM: contains images
@@ -29,6 +31,19 @@
 #
 # SM: very small (<10 items)
 #
+
+folksong:
+  access_url: MyString
+  description_html: MyString
+  harvestable: true
+  medusa_file_group_id: 7b4b1060-fb81-0134-23f2-0050569601ca-a
+  metadata_profile: metadata_profile_2
+  package_profile_id: <%= PackageProfile::MIXED_MEDIA_PROFILE.id %>
+  public_in_medusa: true
+  published_in_dls: true
+  repository_id: 4e16ced0-fb81-0134-23f2-0050569601ca-6
+  representative_image: MyString
+  representative_item_id: MyString
 
 # Digital Surrogates from the Illini Union Photographic Subject File, ca.1940-1998
 # https://digital.library.illinois.edu/collections/34d204d0-05d1-0130-c5bb-0019b9e633c5-e

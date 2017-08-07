@@ -93,8 +93,7 @@ class MedusaCfsFile < ActiveRecord::Base
     bin.infer_media_type
     bin.media_category = media_category ||
         Binary::MediaCategory::media_category_for_media_type(bin.media_type)
-    bin.read_size
-    bin.read_dimensions
+    bin.read_characteristics
     bin
   end
 

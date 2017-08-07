@@ -1,6 +1,21 @@
 class TimeUtil
 
   ##
+  # @param hms [String] Duration in `hh:mm:ss.ms` format
+  # @return [Float] Seconds.
+  # @raises [ArgumentError]
+  #
+  def self.hms_to_seconds(hms)
+    if hms
+      parts = hms.split(':')
+      if parts.length == 3
+        return parts[0].to_i * 60 * 60 + parts[1].to_i * 60 + parts[2].to_f
+      end
+    end
+    raise ArgumentError, "#{hms} is not in a supported format."
+  end
+
+  ##
   # Tries to create a Time instance from an arbitrary date string as would
   # appear in metadata.
   #

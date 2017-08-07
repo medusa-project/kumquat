@@ -204,6 +204,29 @@ class BinaryTest < ActiveSupport::TestCase
     # TODO: write this
   end
 
+  # read_duration()
+
+  test 'read_duration() should work on audio' do
+    @binary = binaries(:folksong_obj1_preservation)
+    @binary.duration = nil
+    @binary.read_duration
+    assert_equal 1993, @binary.duration
+  end
+
+  test 'read_duration() should work on video' do
+    @binary = binaries(:olin_obj1_preservation)
+    @binary.duration = nil
+    @binary.read_duration
+    assert_equal 1846, @binary.duration
+  end
+
+  test 'read_duration() should raise an error with missing files' do
+    @binary.repository_relative_pathname = 'bogus'
+    assert_raises Errno::ENOENT do
+      @binary.read_duration
+    end
+  end
+
   # read_size()
 
   test 'read_size() should work properly' do

@@ -29,6 +29,7 @@
 # * byte_size:      Size of the binary's contents in bytes.
 # * cfs_file_uuid:  UUID of the binary's corresponding file in Medusa.
 # * created_at:     Managed by ActiveRecord.
+# * duration:       Duration of audio/video, in seconds.
 # * height:         Native pixel height of a raster binary (image or video).
 # * item_id:        Database ID of the binary's owning item.
 # * master_type:    One of the Binary::MasterType constant values; see its
@@ -295,6 +296,15 @@ class Binary < ActiveRecord::Base
   end
 
   ##
+  # @return [void]
+  #
+  def read_characteristics
+    read_size
+    read_dimensions
+    read_duration
+  end
+
+  ##
   # Populates the width and height properties by reading the dimensions from
   # the source image or video.
   #
@@ -319,6 +329,29 @@ class Binary < ActiveRecord::Base
       end
     elsif is_video?
       # TODO: write this
+    end
+  end
+
+  ##
+  # Populates the width and height properties by reading the dimensions from
+  # the source image or video.
+  #
+  # @return [void]
+  # @raises [Errno::ENOENT] If the file does not exist.
+  #
+  def read_duration
+    raise Errno::ENOENT unless self.exists?
+    if is_audio? or is_video?
+      # Redirect ffprobe stderr output to stdout.
+      output = `ffprobe "#{self.absolute_local_pathname.gsub('"', '\\"')}" 2>&1`
+      result = output.match(/[0-9][0-9]:[0-5][0-9]:[0-5][0-9]/)
+      if result and result.length > 0
+        begin
+          self.duration = TimeUtil.hms_to_seconds(result[0])
+        rescue ArgumentError => e
+          CustomLogger.instance.warn("Binary.read_duration(): #{e}")
+        end
+      end
     end
   end
 

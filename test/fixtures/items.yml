@@ -1,3 +1,10 @@
+# folksong collection
+
+folksong_obj1: # https://medusa.library.illinois.edu/cfs_directories/1286218.json
+  collection_repository_id: 4e16ced0-fb81-0134-23f2-0050569601ca-6
+  published: true
+  repository_id: 1559e0b0-fb82-0134-23e3-0050569601ca-b
+
 # illini_union collection
 
 illini_union_dir1: # https://medusa.library.illinois.edu/cfs_directories/111145.json
@@ -22,6 +29,14 @@ illini_union_dir1_dir1_file1: # https://medusa.library.illinois.edu/cfs_files/50
   repository_id: 6e406030-5ce3-0132-3334-0050569601ca-3
   parent_repository_id: a53add10-5ca8-0132-3334-0050569601ca-7
   variant: File
+
+# olin collection
+
+olin_obj1:
+  collection_repository_id: 81154880-e3fb-012f-c5b6-0019b9e633c5-9
+  date: <%= Time.parse('2015-08-10') %>
+  published: true
+  repository_id: 1635fa90-5cc8-0132-3334-0050569601ca-3
 
 # sanborn collection
 
