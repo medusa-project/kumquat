@@ -46,7 +46,7 @@
 <table class="table">
   <tr>
     <td>Total</td>
-    <td><%= @num_binaries %></td>
+    <td><%= number_with_delimiter(@num_binaries) %></td>
   </tr>
   <% @extension_counts.each do |ext| %>
     <tr>

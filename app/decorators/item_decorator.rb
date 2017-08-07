@@ -29,7 +29,8 @@ class ItemDecorator < Draper::Decorator
         page_number: self.page_number,
         subpage_number: self.subpage_number,
         variant: self.variant,
-        full_text: self.full_text,
+        created_at: self.created_at,
+        updated_at: self.updated_at,
         parent: self.parent ? self.parent.repository_id : nil,
         representative_item: self.representative_item ?
             self.representative_item.repository_id : nil,

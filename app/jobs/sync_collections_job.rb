@@ -6,7 +6,7 @@ class SyncCollectionsJob < Job
   # @param args [Hash]
   #
   def perform(*args)
-    self.task.update!(status_text: 'Syncing collections')
+    self.task.update!(status_text: 'Indexing collections metadata from Medusas')
 
     MedusaIngester.new.sync_collections(self.task)
     Solr.instance.commit

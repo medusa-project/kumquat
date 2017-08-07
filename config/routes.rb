@@ -75,6 +75,8 @@ Rails.application.routes.draw do
         as: 'auth' # used by omniauth
   resources :binaries, only: :show
   resources :collections, only: [:index, :show] do
+    match 'items/treedata', to: 'items#tree_data', via: [:get, :post]
+    match 'tree', to: 'items#tree', via: :get
     resources :items, only: :index
     # IIIF Presentation API 2.1 routes
     match '/presentation', to: 'collections#iiif_presentation', via: :get,
@@ -87,6 +89,7 @@ Rails.application.routes.draw do
         to: 'image_server#download_image', via: :get, as: 'download_image'
   resources :favorites, only: :index
   resources :items, only: [:index, :show] do
+    match '/treedata', to: 'items#item_tree_node', via: [:get, :post]
     match '/binaries/:filename', to: 'items#binary', via: :get, as: 'binary'
     match '/files', to: 'items#files', via: :get, as: 'files'
     # IIIF Presentation API 2.1 routes
@@ -154,6 +157,8 @@ Rails.application.routes.draw do
           via: :post, as: 'metadata_profile_import'
     resources :roles, param: :key
     match '/status', to: 'status#index', via: :get
+    match '/status/downloader', to: 'status#downloader_status',
+          via: :get, as: 'downloader_status'
     match '/status/image-server', to: 'status#image_server_status',
           via: :get, as: 'image_server_status'
     match '/status/search-server', to: 'status#search_server_status',

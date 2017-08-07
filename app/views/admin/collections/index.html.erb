@@ -5,9 +5,9 @@
 <%= admin_breadcrumb %>
 
 <div class="btn-group pull-right" role="group">
-  <!-- Sync button -->
+  <!-- Index button -->
   <%= link_to admin_collections_sync_path, method: 'patch', class: 'btn btn-default' do %>
-    <i class="fa fa-refresh"></i> Sync
+    <i class="fa fa-refresh"></i> Index Collections Metadata From Medusa
   <% end %>
 
   <!-- Metadata menu -->
@@ -54,9 +54,9 @@
                            class: 'form-control' %>
       <div class="checkbox">
         <label>
-          <%= hidden_field_tag(:published_in_medusa, '0') %>
-          <%= check_box_tag(:published_in_medusa, '1') %>
-          Published in Medusa
+          <%= hidden_field_tag(:public_in_medusa, '0') %>
+          <%= check_box_tag(:public_in_medusa, '1') %>
+          Public in Medusa
         </label>
       </div>
       <div class="checkbox">

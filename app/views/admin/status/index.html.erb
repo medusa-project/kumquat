@@ -15,7 +15,7 @@
     <div class="panel panel-default" id="website">
       <div class="panel-heading">
         <h3 class="panel-title">
-          PearTree
+          Application
           <%= admin_label_for_server_status %>
           <%= link_to admin_settings_path, class: 'btn btn-xs btn-default' do %>
             <i class="fa fa-pencil"></i> Edit
@@ -73,6 +73,25 @@
           <dd id="image-server-uri">
             <%= link_to Configuration.instance.iiif_url,
                         Configuration.instance.iiif_url %>
+          </dd>
+        </dl>
+      </div>
+    </div>
+
+    <div class="panel panel-default pt-dynamic-status" id="pt-downloader">
+      <div class="panel-heading">
+        <h3 class="panel-title">
+          Medusa Downloader
+          <span class="label label-success pt-service-status hidden"
+                data-check="<%= admin_downloader_status_url %>"></span>
+        </h3>
+      </div>
+      <div class="panel-body">
+        <dl>
+          <dt>URL</dt>
+          <dd id="image-server-uri">
+            <%= link_to Configuration.instance.downloader[:uurl],
+                        Configuration.instance.downloader[:url] %>
           </dd>
         </dl>
       </div>

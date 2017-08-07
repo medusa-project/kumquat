@@ -13,7 +13,7 @@ class CreateZipOfJpegsJobTest < ActiveSupport::TestCase
   # perform()
 
   test 'perform() should assemble the expected zip file' do
-    items = [items(:illini_union_dir1_file1).repository_id]
+    items = [items(:illini_union_dir1_dir1_file1).repository_id]
     CreateZipOfJpegsJob.perform_now(items, 'items', @download)
     Dir.mktmpdir do |tmpdir|
       `unzip #{@download.pathname} -d #{tmpdir}`
@@ -22,7 +22,7 @@ class CreateZipOfJpegsJobTest < ActiveSupport::TestCase
   end
 
   test 'perform() should update the download object' do
-    items = [items(:illini_union_dir1_file1).repository_id]
+    items = [items(:illini_union_dir1_dir1_file1).repository_id]
     CreateZipOfJpegsJob.perform_now(items, 'items', @download)
     assert_equal Task::Status::SUCCEEDED, @download.task.status
     assert File.exists?(@download.pathname)

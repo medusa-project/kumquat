@@ -30,6 +30,9 @@ body#items_index #pt-page-content, body#search_index #pt-page-content {
     width: 15em;
   }
 
+  .pagination {
+    margin: 0em 0em 1em 0em;
+  }
 }
 
 body#items_show {
@@ -183,6 +186,10 @@ body#items_show {
   }
 
   #pt-download {
+    td {
+      height: 120px;
+      vertical-align: middle;
+    }
     td:first-child {
       width: 1px;
     }
@@ -199,6 +206,15 @@ body#items_show {
         vertical-align: middle;
       }
     }
+    tr.selected {
+      background-color: $color_uiuc-blue;
+      color: white;
+      .btn-default {
+        background-color: $color_uiuc-blue;
+        border: 1px solid white;
+        color: white;
+      }
+    }
   }
 
   #pt-cite-modal {
@@ -207,7 +223,7 @@ body#items_show {
     }
   }
 
-  #pt-download-modal, #pt-custom-image-modal {
+  #pt-custom-image-modal {
     #pt-image-select {
       max-height: 500px;
       overflow-y: scroll;
@@ -218,21 +234,6 @@ body#items_show {
         width: 30%;
       }
     }
-  }
-
-  #pt-download-modal {
-    .row .pt-download-option {
-      display: none;
-    }
-    $icon-size: 100px;
-    .pt-icon {
-      color: #a0a0a0;
-      font-size: $icon-size;
-      margin-right: 20px;
-    }
-  }
-
-  #pt-custom-image-modal {
     #iiif-download {
       div.radio {
         margin-right: 0.4em;
@@ -290,12 +291,60 @@ body#items_index, body#items_show {
     }
   }
 }
+// styles for free-form collection tree view
+body#items_index {
+  #collection-tree-row{
+    height:550px;
+    border-style: solid;
+    border-color: #dddddd;
+  }
+  #jstree {
+    //width:400px;
+    max-height:545px;
+    height:545px;
+    border-right-style: solid;
+    border-right-color: #dddddd;
+  }
+  #item-info {
+    max-height: 545px;
+    height: 545px;
+    padding-top: 7px;
 
+    #item-show-buttons{
+      margin-bottom: 7px;
+    }
+    #file-tree-stats{
+      margin-top: 20px;
+    }
+  }
+  #pt-pdf-viewer {
+    height: 600px;
+    margin: 0 auto;
+    max-width: 1200px;
+    iframe {
+      height: 93%;
+    }
+  }
+  #tree-disclaimer-row{
+    padding-left: 20px;
+  }
+  #free-form-disclaimer{
+    p {
+      font-size: 1em;
+      margin-top: 7px;
+    }
+  }
+
+  #pt-video-player {
+    margin: 0 auto;
+    width: 96%;
+  }
+}
 .pagination {
   > li > a {
-    color: rgb(4, 74, 136);
+    color: $color_uiuc-blue;
   }
   > li.active > a {
-    background-color: rgb(4, 74, 136);
+    background-color: $color_uiuc-blue;
   }
 }

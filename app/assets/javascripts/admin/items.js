@@ -186,6 +186,10 @@ var PTAdminItemsEditView = function() {
             return false;
         });
 
+        $('.pagination a').on('click', function() {
+            $('#pt-items')[0].scrollIntoView({behavior: "smooth"});
+        });
+
         // When a value is changed, mark the form as dirty.
         $('input[type=number], textarea').off().on('propertychange keyup change', function() {
             dirty = true;
@@ -208,6 +212,8 @@ var PTAdminItemsEditView = function() {
  */
 var PTAdminItemsView = function() {
 
+    var self = this;
+
     this.init = function() {
         new PearTree.FilterField();
         PearTree.initFacets();
@@ -216,7 +222,7 @@ var PTAdminItemsView = function() {
             $('#pt-export-modal').modal('hide');
         });
 
-        // Enable certain checkboxes in the sync panel only when the "create"
+        // Enable certain checkboxes in the import panel only when the "create"
         // radio is selected.
         var extract_metadata_checkbox = $('input[name="options[extract_metadata]"]');
         var extract_creation_checkbox = $('input[name="options[include_date_created]"]');
@@ -225,6 +231,14 @@ var PTAdminItemsView = function() {
                 !$('input[value="create_only"]').prop('checked'));
             extract_creation_checkbox.prop('disabled',
                 !$('input[value="create_only"]').prop('checked'));
+        });
+
+        self.attachEventListeners();
+    };
+
+    this.attachEventListeners = function() {
+        $('.pagination a').on('click', function() {
+            $('form.pt-filter')[0].scrollIntoView({behavior: "smooth"});
         });
     };
 

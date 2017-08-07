@@ -113,28 +113,6 @@ module ItemsHelper
   end
 
   ##
-  # @param item [Item]
-  # @return [String]
-  #
-  def download_radios_for_item(item)
-    html = ''
-    item.binaries.each do |binary|
-      html += "<div class=\"radio pt-download-option\" data-item-id=\"#{item.repository_id}\">"
-      html += '  <label>'
-      html +=      radio_button_tag('download-url', binary_url(binary),
-                                    false, data: { 'item-id': item.repository_id })
-      html +=      binary.human_readable_master_type
-      html += '    <br>'
-      html += '    <small>'
-      html +=        download_label_for_binary(binary)
-      html += '    </small>'
-      html += '  </label>'
-      html += '</div>'
-    end
-    raw(html)
-  end
-
-  ##
   # @param items [Relation]
   # @param options [Hash] Options hash
   # @option options [Boolean] :show_collection_facet
@@ -186,37 +164,15 @@ module ItemsHelper
       html += '<li>'
       html += link_to(link_target, class: 'pt-title') do
         raw('<div class="pt-thumbnail">' +
-            thumbnail_tag(child, shape: :square) +
-          '</div>' +
-          '<div class="pt-label" title="' + child.title + '">' +
-            truncate(child.title, length: PAGE_TITLE_LENGTH) +
-          '</div>')
+                thumbnail_tag(child, shape: :square) +
+                '</div>' +
+                '<div class="pt-label" title="' + child.title + '">' +
+                truncate(child.title, length: PAGE_TITLE_LENGTH) +
+                '</div>')
       end
       html += '</li>'
     end
     html += '</ol>'
-    raw(html)
-  end
-
-  ##
-  # @param item [Item]
-  # @param options [Hash] Options to pass to thumbnail_tag().
-  # @return [String]
-  #
-  def front_matter_item_panel(item, options = {})
-    html = ''
-    if item.front_matter_item
-      html += "<div class=\"panel panel-default pt-front-matter-item\">
-          <div class=\"panel-heading\">
-            <h2 class=\"panel-title\">Front Matter</h2>
-          </div>
-          <div class=\"panel-body\">"
-      html += link_to(item.front_matter_item) do
-        thumbnail_tag(item.front_matter_item, options)
-      end
-      html += '</div>
-              </div>'
-    end
     raw(html)
   end
 
@@ -252,28 +208,6 @@ module ItemsHelper
                     bin.iiif_image_url, region, size, format)
     end
     url
-  end
-
-  ##
-  # @param item [Item]
-  # @param options [Hash] Options to pass to thumbnail_tag().
-  # @return [String]
-  #
-  def index_item_panel(item, options = {})
-    html = ''
-    if item.index_item
-      html += "<div class=\"panel panel-default pt-index-item\">
-          <div class=\"panel-heading\">
-            <h2 class=\"panel-title\">Index</h2>
-          </div>
-          <div class=\"panel-body\">"
-      html += link_to(item.index_item) do
-        thumbnail_tag(item.index_item, options)
-      end
-      html += '</div>
-              </div>'
-    end
-    raw(html)
   end
 
   ##
@@ -332,120 +266,6 @@ module ItemsHelper
       html +=      add_to_favorites_button(item)
       html += '  </h4>'
       html += '</div>'
-    end
-    raw(html)
-  end
-
-  ##
-  # @param entities [Relation<Representable>]
-  # @param start [integer] Offset.
-  # @param options [Hash] Hash with optional keys.
-  # @option options [Boolean] :link_to_admin
-  # @option options [Boolean] :show_remove_from_favorites_buttons
-  # @option options [Boolean] :show_add_to_favorites_buttons
-  # @option options [Boolean] :show_collections
-  # @option options [Boolean] :show_checkboxes
-  # @option options [Integer] :thumbnail_size
-  #
-  def items_as_list(entities, start, options = {}) # TODO: rename to entities_as_list(), move to ApplicationHelper, and replace CollectionsHelper.collections_as_list()
-    html = "<ol start=\"#{start + 1}\">"
-    entities.each do |entity|
-      if options[:link_to_admin] and entity.kind_of?(Item)
-        link_target = admin_collection_item_path(entity.collection, entity)
-      else
-        link_target = polymorphic_path(entity)
-      end
-      html += '<li>'
-      if options[:show_checkboxes]
-        html += check_box_tag('pt-selected-items[]', entity.repository_id)
-        html += '<div class="pt-checkbox-result-container">'
-      else
-        html += '<div class="pt-non-checkbox-result-container">'
-      end
-      html += link_to(link_target, class: 'pt-thumbnail-link') do
-        size = options[:thumbnail_size] ?
-            options[:thumbnail_size] : DEFAULT_THUMBNAIL_SIZE
-        raw('<div class="pt-thumbnail">' +
-          thumbnail_tag(entity.effective_representative_entity, size: size, shape: :square) +
-        '</div>')
-      end
-      html += '<span class="pt-label">'
-      html += link_to(entity.title, link_target)
-
-      # info line
-      info_parts = []
-      info_parts << "#{icon_for(entity)}#{type_of(entity)}"
-
-      if entity.kind_of?(Item)
-        num_pages = entity.pages.count
-        if num_pages > 1
-          info_parts << "#{num_pages} pages"
-        else
-          num_files = entity.filesystem_variants.count
-          if num_files > 0
-            info_parts << "#{num_files} files"
-          else
-            num_children = entity.items.count
-            if num_children > 0
-              info_parts << "#{num_children} sub-items"
-            end
-          end
-        end
-
-        date = entity.date
-        if date
-          info_parts << date.year
-        end
-
-        if options[:show_collections] and entity.collection
-          info_parts << link_to(entity.collection.title,
-                                collection_path(entity.collection))
-        end
-      end
-
-      html += "<br><span class=\"pt-info-line\">#{info_parts.join(' | ')}</span>"
-
-      if entity.kind_of?(Item)
-        # remove-from-favorites button
-        if options[:show_remove_from_favorites_buttons]
-          html += remove_from_favorites_button(entity)
-        end
-        # add-to-favorites button
-        if options[:show_add_to_favorites_buttons]
-          html += add_to_favorites_button(entity)
-        end
-      end
-
-      html += '</span>'
-      html += '<br>'
-      html += '<span class="pt-description">'
-      html += truncate(entity.description.to_s, length: 380)
-      html += '</span>'
-      html += '</div>'
-      html += '</li>'
-    end
-    html += '</ol>'
-    raw(html)
-  end
-
-  ##
-  # @param item [Item]
-  # @param options [Hash] Options to pass to thumbnail_tag().
-  # @return [String]
-  #
-  def key_item_panel(item, options = {})
-    html = ''
-    if item.key_item
-      html += "<div class=\"panel panel-default pt-key-item\">
-          <div class=\"panel-heading\">
-            <h2 class=\"panel-title\">Key</h2>
-          </div>
-          <div class=\"panel-body\">"
-      html += link_to(item.key_item) do
-        thumbnail_tag(item.key_item, options)
-      end
-      html += '</div>
-              </div>'
     end
     raw(html)
   end
@@ -540,33 +360,11 @@ module ItemsHelper
   end
 
   ##
-  # @return [Relation]
-  #
-  def more_like_this
-    Relation.new(self).more_like_this
-  end
-
-  ##
   # @return [Integer]
   #
   def num_favorites
     cookies[:favorites] ?
         cookies[:favorites].split(FavoritesController::COOKIE_DELIMITER).length : 0
-  end
-
-  def page_select_menu(item)
-    pages = item.parent ? item.parent.pages : item.pages
-    pages = pages
-
-    html = '<select class="form-control input-sm pt-page-select">'
-    pages.each_with_index do |page, index|
-      selected = (page.repository_id == item.repository_id) ? 'selected' : ''
-      html += "<option value=\"#{item_path(page)}\" #{selected}>
-        #{page.title} (#{index + 1} of #{pages.count})
-        </option>"
-    end
-    html += '</select>'
-    raw(html)
   end
 
   ##
@@ -579,7 +377,7 @@ module ItemsHelper
   # @param max_links [Integer] (ideally odd)
   #
   def paginate_agent_items(agent, count, per_page, current_page, max_links = 9)
-    do_paginate(count, per_page, current_page, true, max_links, agent,
+    do_paginate(count, per_page, current_page, max_links, agent,
                 :agent_item)
   end
 
@@ -592,7 +390,7 @@ module ItemsHelper
   # @param max_links [Integer] (ideally odd)
   #
   def paginate_files(parent_item, count, per_page, current_page, max_links = 9)
-    do_paginate(count, per_page, current_page, true, max_links,
+    do_paginate(count, per_page, current_page, max_links,
                 parent_item, Item::Variants::FILE)
   end
 
@@ -605,20 +403,7 @@ module ItemsHelper
   # @param max_links [Integer] (ideally odd)
   #
   def paginate_items(count, per_page, current_page, max_links = 9)
-    do_paginate(count, per_page, current_page, true, max_links)
-  end
-
-  ##
-  # Returns pagination for pages in show-item view.
-  #
-  # @param count [Integer]
-  # @param per_page [Integer]
-  # @param current_page [Integer]
-  # @param max_links [Integer] (ideally odd)
-  #
-  def paginate_pages(parent_item, count, per_page, current_page, max_links = 9)
-    do_paginate(count, per_page, current_page, true, max_links, parent_item,
-                Item::Variants::PAGE)
+    do_paginate(count, per_page, current_page, max_links)
   end
 
   ##
@@ -798,9 +583,6 @@ module ItemsHelper
     # temporalCoverage (Google doesn't recognize)
     #struct[:temporalCoverage] = item.date.utc.iso8601 if item.date
 
-    # text
-    struct[:text] = item.full_text if item.full_text.present?
-
     # thumbnailUrl
     if iiif_image_binary
       struct[:thumbnailUrl] = iiif_image_url(item, :default,
@@ -897,32 +679,6 @@ module ItemsHelper
 
     html += '</ul>'
     html += '</div>'
-    raw(html)
-  end
-
-  ##
-  # @param item [Item]
-  # @param limit [Integer]
-  # @return [String] HTML unordered list
-  #
-  def similar_items_as_list(item, limit = 5)
-    html = ''
-    items = item.more_like_this.limit(limit)
-    if items.any?
-      html += '<ul>'
-      items.each do |item|
-        html += '<li>'
-        html += '<div class="pt-thumbnail">'
-        html += link_to(item_path(item)) do
-          thumbnail_tag(item, shape: :square)
-        end
-        html += '</div>'
-        html += link_to(truncate(item.title, length: 40),
-                        item_path(item), class: 'pt-title')
-        html += '</li>'
-      end
-      html += '</ul>'
-    end
     raw(html)
   end
 
@@ -1058,28 +814,6 @@ module ItemsHelper
   end
 
   ##
-  # @param item [Item]
-  # @param options [Hash] Options to pass to thumbnail_tag().
-  # @return [String]
-  #
-  def title_item_panel(item, options = {})
-    html = ''
-    if item.title_item
-      html += "<div class=\"panel panel-default pt-title-item\">
-          <div class=\"panel-heading\">
-            <h2 class=\"panel-title\">Title</h2>
-          </div>
-          <div class=\"panel-body\">"
-      html += link_to(item.title_item) do
-        thumbnail_tag(item.title_item, options)
-      end
-      html += '</div>
-              </div>'
-    end
-    raw(html)
-  end
-
-  ##
   # Returns a viewer for the given binary.
   #
   # **Does not work for 3D model binaries.**
@@ -1118,9 +852,14 @@ module ItemsHelper
       frag.xpath('.//*').first['width'] = '100%'
       frag.xpath('.//*').first['height'] = '600'
       return raw(frag.to_html.strip)
-    # IMET-473: image files should be presented in the same manner as compound
-    # objects, with a gallery viewer showing all of the other images in the
-    # same directory.
+    elsif is_free_form_file? item
+      return free_form_viewer_for(item)
+    # elsif is_free_form_without_image? item
+    #   return viewer_unavailable_message_for(item)
+
+      # IMET-473: image files should be presented in the same manner as compound
+      # objects, with a gallery viewer showing all of the other images in the
+      # same directory.
     elsif item.variant == Item::Variants::FILE and
         item.effective_viewer_binary&.media_category == Binary::MediaCategory::IMAGE
       return compound_viewer_for(item.parent, item)
@@ -1183,7 +922,7 @@ module ItemsHelper
     if binary.is_image? or binary.is_pdf?
       shape = (shape == :square) ? 'square' : 'full'
       url = sprintf('%s/%s/!%d,%d/0/default.jpg',
-                     binary.iiif_image_url, shape, size, size)
+                    binary.iiif_image_url, shape, size, size)
     end
     url
   end
@@ -1295,10 +1034,13 @@ module ItemsHelper
     mailto = nil
     email = item.collection.medusa_repository&.email
     if email.present?
-      subject = 'Feedback about a digital collections item'
-      body = "Item: #{item_url(item)}%0D"
-      body += "%0D"
-      body += "(Enter your comment here.)%0D"
+      # https://bugs.library.illinois.edu/browse/DLD-89
+      website_name = Option::string(Option::Keys::WEBSITE_NAME)
+      subject = sprintf('%s: %s', website_name, item.title)
+      body = sprintf("This email was sent to you from the %s by a patron "\
+                     "wishing to contact the curator of %s for more information.",
+                     website_name, item_url(item))
+      body += "%0D%0D(Enter your comment here.)%0D"
       mailto = "mailto:#{email}?subject=#{subject}&body=#{body}"
     end
     mailto
@@ -1308,13 +1050,12 @@ module ItemsHelper
   # @param count [Integer] Total number of items in the result set
   # @param per_page [Integer]
   # @param current_page [Integer]
-  # @param remote [Boolean]
   # @param max_links [Integer] (ideally odd)
   # @param owning_entity [Item]
   # @param item_variant [Item::Variants, Symbol, nil] One of the Item::Variants
   #                     constants, or :agent_item, or nil.
   #
-  def do_paginate(count, per_page, current_page, remote = false,
+  def do_paginate(count, per_page, current_page,
                   max_links = ApplicationHelper::MAX_PAGINATION_LINKS,
                   owning_entity = nil, item_variant = nil)
     return '' if count <= per_page
@@ -1334,60 +1075,60 @@ module ItemsHelper
       when Item::Variants::FILE
         first_link = link_to(item_files_path(owning_entity,
                                              params.except(:start).symbolize_keys),
-                             remote: remote, 'aria-label': 'First') do
+                             remote: true, 'aria-label': 'First') do
           raw('<span aria-hidden="true">First</span>')
         end
         prev_link = link_to(item_files_path(owning_entity,
                                             params.merge(start: prev_start).symbolize_keys),
-                            remote: remote, 'aria-label': 'Previous') do
+                            remote: true, 'aria-label': 'Previous') do
           raw('<span aria-hidden="true">&laquo;</span>')
         end
         next_link = link_to(item_files_path(owning_entity,
                                             params.merge(start: next_start).symbolize_keys),
-                            remote: remote, 'aria-label': 'Next') do
+                            remote: true, 'aria-label': 'Next') do
           raw('<span aria-hidden="true">&raquo;</span>')
         end
         last_link = link_to(item_files_path(owning_entity,
                                             params.merge(start: last_start).symbolize_keys),
-                            remote: remote, 'aria-label': 'Last') do
+                            remote: true, 'aria-label': 'Last') do
           raw('<span aria-hidden="true">Last</span>')
         end
       when :agent_item
         first_link = link_to(agent_items_path(owning_entity,
                                              params.except(:start).symbolize_keys),
-                             remote: remote, 'aria-label': 'First') do
+                             remote: true, 'aria-label': 'First') do
           raw('<span aria-hidden="true">First</span>')
         end
         prev_link = link_to(agent_items_path(owning_entity,
                                             params.merge(start: prev_start).symbolize_keys),
-                            remote: remote, 'aria-label': 'Previous') do
+                            remote: true, 'aria-label': 'Previous') do
           raw('<span aria-hidden="true">&laquo;</span>')
         end
         next_link = link_to(agent_items_path(owning_entity,
                                             params.merge(start: next_start).symbolize_keys),
-                            remote: remote, 'aria-label': 'Next') do
+                            remote: true, 'aria-label': 'Next') do
           raw('<span aria-hidden="true">&raquo;</span>')
         end
         last_link = link_to(agent_items_path(owning_entity,
                                             params.merge(start: last_start).symbolize_keys),
-                            remote: remote, 'aria-label': 'Last') do
+                            remote: true, 'aria-label': 'Last') do
           raw('<span aria-hidden="true">Last</span>')
         end
       else
         first_link = link_to(params.except(:start),
-                             remote: remote, 'aria-label': 'First') do
+                             remote: true, 'aria-label': 'First') do
           raw('<span aria-hidden="true">First</span>')
         end
         prev_link = link_to(params.merge(start: prev_start).symbolize_keys,
-                            remote: remote, 'aria-label': 'Previous') do
+                            remote: true, 'aria-label': 'Previous') do
           raw('<span aria-hidden="true">&laquo;</span>')
         end
         next_link = link_to(params.merge(start: next_start).symbolize_keys,
-                            remote: remote, 'aria-label': 'Next') do
+                            remote: true, 'aria-label': 'Next') do
           raw('<span aria-hidden="true">&raquo;</span>')
         end
         last_link = link_to(params.merge(start: last_start).symbolize_keys,
-                            remote: remote, 'aria-label': 'Last') do
+                            remote: true, 'aria-label': 'Last') do
           raw('<span aria-hidden="true">Last</span>')
         end
     end
@@ -1403,20 +1144,20 @@ module ItemsHelper
         when Item::Variants::FILE
           path = (start == 0) ? item_files_path(owning_entity, params.except(:start).symbolize_keys) :
               item_files_path(owning_entity, params.merge(start: start).symbolize_keys)
-          page_link = link_to(path, remote: remote) do
+          page_link = link_to(path, remote: true) do
             raw("#{page} #{(page == current_page) ?
                 '<span class="sr-only">(current)</span>' : ''}")
           end
         when :agent_item
           path = (start == 0) ? agent_items_path(owning_entity, params.except(:start).symbolize_keys) :
               agent_items_path(owning_entity, params.merge(start: start).symbolize_keys)
-          page_link = link_to(path, remote: remote) do
+          page_link = link_to(path, remote: true) do
             raw("#{page} #{(page == current_page) ?
                 '<span class="sr-only">(current)</span>' : ''}")
           end
         else
           page_link = link_to((start == 0) ? params.except(:start) :
-                                  params.merge(start: start).symbolize_keys, remote: remote) do
+                                  params.merge(start: start).symbolize_keys, remote: true) do
             raw("#{page} #{(page == current_page) ?
                 '<span class="sr-only">(current)</span>' : ''}")
           end
@@ -1429,6 +1170,26 @@ module ItemsHelper
     html += '</ul>' +
         '</nav>'
     raw(html)
+  end
+
+  def free_form_viewer_for(item)
+    binary = item.effective_viewer_binary
+    case binary&.media_category
+      when Binary::MediaCategory::AUDIO
+        return audio_player_for(binary)
+      when Binary::MediaCategory::DOCUMENT
+        return pdf_viewer_for(binary)
+      when Binary::MediaCategory::IMAGE
+        return image_viewer_for(item)
+      when Binary::MediaCategory::TEXT
+        return text_viewer_for(binary)
+      when Binary::MediaCategory::THREE_D
+        return three_d_viewer_for(item)
+      when Binary::MediaCategory::VIDEO
+        return video_player_for(binary)
+      else
+        return viewer_unavailable_message_for(item)
+    end
   end
 
   def image_viewer_for(item)
@@ -1450,6 +1211,11 @@ module ItemsHelper
           binaries are associated with this item.</div>'
     end
     raw(html)
+  end
+
+  def is_free_form_file?(item)
+    item.variant == Item::Variants::FILE and
+        item.collection.package_profile_id==PackageProfile::FREE_FORM_PROFILE.id
   end
 
   def item_facet_panel(title, terms, for_collections = false)
@@ -1623,6 +1389,11 @@ module ItemsHelper
         Your browser does not support the video tag.
     </video>"
     raw(tag)
+  end
+
+  def viewer_unavailable_message_for(item)
+    raw('<div class="alert alert-info">No image viewer-compatible
+          binaries are associated with this item.</div>')
   end
 
   ##

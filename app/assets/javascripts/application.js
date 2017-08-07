@@ -16,6 +16,7 @@
 //= require bootstrap-sprockets
 //= require local_time
 //= require jquery.grid-a-licious.min.js
+//= require jstree
 
 //= require ajax
 //= require peartree

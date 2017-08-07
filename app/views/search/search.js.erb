@@ -1,3 +1,4 @@
 $('#pt-items').html('<%= escape_javascript(render('entities')) %>');
 $('.pt-facets').html('<%= escape_javascript(render('facets')) %>');
 $('#pt-search-status').html('<%= search_status(@entities, @start, @num_results_shown) %>');
+PearTree.view.attachEventListeners();

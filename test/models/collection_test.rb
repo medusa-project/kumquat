@@ -126,12 +126,12 @@ class CollectionTest < ActiveSupport::TestCase
         {
             'uuid': 'd29edba0-c451-0133-1d17-0050569601ca-c',
             'parentId': 'be8d3500-c451-0133-1d17-0050569601ca-9',
-            'preservationMasterPathname': nil,
-            'preservationMasterFilename': nil,
-            'preservationMasterUUID': nil,
-            'accessMasterPathname': nil,
-            'accessMasterFilename': nil,
-            'accessMasterUUID': nil,
+            'preservationMasterPathname': '/162/2204/1601831/preservation/1601831_002.tif',
+            'preservationMasterFilename': '1601831_002.tif',
+            'preservationMasterUUID': 'd29edba0-c451-0133-1d17-0050569601ca-c',
+            'accessMasterPathname': '/162/2204/1601831/access/1601831_002.jp2',
+            'accessMasterFilename': '1601831_002.jp2',
+            'accessMasterUUID': 'd2650710-c451-0133-1d17-0050569601ca-1',
             'variant': 'Page',
             'pageNumber': '2',
             'subpageNumber': nil,
@@ -214,12 +214,12 @@ class CollectionTest < ActiveSupport::TestCase
         {
             'uuid': 'd29edba0-c451-0133-1d17-0050569601ca-c',
             'parentId': 'be8d3500-c451-0133-1d17-0050569601ca-9',
-            'preservationMasterPathname': nil,
-            'preservationMasterFilename': nil,
-            'preservationMasterUUID': nil,
-            'accessMasterPathname': nil,
-            'accessMasterFilename': nil,
-            'accessMasterUUID': nil,
+            'preservationMasterPathname': '/162/2204/1601831/preservation/1601831_002.tif',
+            'preservationMasterFilename': '1601831_002.tif',
+            'preservationMasterUUID': 'd29edba0-c451-0133-1d17-0050569601ca-c',
+            'accessMasterPathname': '/162/2204/1601831/access/1601831_002.jp2',
+            'accessMasterFilename': '1601831_002.jp2',
+            'accessMasterUUID': 'd2650710-c451-0133-1d17-0050569601ca-1',
             'variant': 'Page',
             'pageNumber': '2',
             'subpageNumber': nil,
@@ -611,8 +611,8 @@ class CollectionTest < ActiveSupport::TestCase
     assert_empty doc[Collection::SolrFields::PARENT_COLLECTIONS]
     assert_equal @collection.published,
                  doc[Collection::SolrFields::EFFECTIVELY_PUBLISHED]
-    assert_equal @collection.published_in_medusa,
-                 doc[Collection::SolrFields::PUBLISHED_IN_MEDUSA]
+    assert_equal @collection.public_in_medusa,
+                 doc[Collection::SolrFields::PUBLIC_IN_MEDUSA]
     assert_equal @collection.published_in_dls,
                  doc[Collection::SolrFields::PUBLISHED_IN_DLS]
     assert_equal @collection.medusa_repository.title,

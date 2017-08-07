@@ -8,11 +8,11 @@
 
 <div class="clearfix" style="margin-bottom: 1em">
   <div class="btn-group pull-right" role="group">
-    <!-- Sync button -->
+    <!-- Import button -->
     <button type="button" class="btn btn-default" data-toggle="modal"
-            data-target="#pt-sync-modal"
+            data-target="#pt-import-modal"
             <%= (@collection.package_profile and @collection.medusa_file_group) ? '' : 'disabled="disabled"' %>>
-      <i class="fa fa-refresh"></i> Sync&hellip;
+      <i class="fa fa-refresh"></i> Import&hellip;
     </button>
 
     <!-- Metadata -->
@@ -30,7 +30,7 @@
         <li class="divider"></li>
         <li <%= (@collection.package_profile and @collection.medusa_file_group) ? '' : 'disabled="disabled"' %>>
           <%= link_to raw('Import From TSV&hellip;'), '',
-                      'data-toggle': 'modal', 'data-target': '#pt-import-modal' %>
+                      'data-toggle': 'modal', 'data-target': '#pt-import-tsv-modal' %>
         </li>
         <li>
           <%= link_to raw('Export As TSV&hellip;'), '',
@@ -96,7 +96,7 @@
   </div>
 <% end %>
 
-<%= render partial: 'sync_panel' %>
 <%= render partial: 'import_panel' %>
+<%= render partial: 'import_tsv_panel' %>
 <%= render partial: 'export_panel' %>
 <%= render partial: 'purge_items_panel' %>

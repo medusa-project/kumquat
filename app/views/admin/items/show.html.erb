@@ -80,16 +80,17 @@
 <% end %>
 
 <div class="row">
-  <div class="col-sm-3 col-lg-2">
+
+  <div class="col-sm-2" id="pt-structure">
+    <%= admin_structure_of_item(@item) %>
+  </div>
+
+  <div class="col-sm-2">
     <div class="pt-thumbnail">
       <%= thumbnail_tag(@item) %>
     </div>
     <ul class="nav nav-pills nav-stacked" role="tablist">
       <li role="presentation" class="active">
-        <a href="#pt-structure" aria-controls="pt-structure" role="tab" data-toggle="tab">Structure</a>
-      </li>
-
-      <li role="presentation">
         <a href="#pt-system-info" aria-controls="pt-system-info" role="tab" data-toggle="tab">System Info</a>
       </li>
 
@@ -103,22 +104,15 @@
       </li>
 
       <li role="presentation">
-        <a href="#pt-full-text" aria-controls="pt-full-text" role="tab" data-toggle="tab">Full Text</a>
-      </li>
-
-      <li role="presentation">
         <a href="#pt-schema-org" aria-controls="pt-schema-org" role="tab" data-toggle="tab">schema.org</a>
       </li>
     </ul>
   </div>
 
-  <div class="col-sm-9 col-lg-10">
+  <div class="col-sm-8">
     <div class="tab-content">
-      <div role="tabpanel" class="tab-pane active" id="pt-structure">
-        <%= admin_structure_of_item(@item) %>
-      </div>
 
-      <div role="tabpanel" class="tab-pane" id="pt-system-info">
+      <div role="tabpanel" class="tab-pane active" id="pt-system-info">
         <%= admin_system_info_as_list(@item) %>
         <%= admin_system_info_as_table(@item) %>
       </div>
@@ -139,12 +133,6 @@
           <h2><%= bin.human_readable_master_type %></h2>
           <%= binary_metadata_as_table(bin, admin: true) %>
           <hr>
-        <% end %>
-      </div>
-
-      <div role="tabpanel" class="tab-pane" id="pt-full-text">
-        <% if @item.full_text.present? %>
-          <pre><%= @item.full_text %></pre>
         <% end %>
       </div>
 

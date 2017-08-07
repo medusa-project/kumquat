@@ -41,12 +41,14 @@ module ApplicationHelper
       when 'collections'
         case action_name
           when 'index'
-            return collections_view_breadcrumb
+            return nil # no breadcrumb in this view
           when 'show'
             return collection_view_breadcrumb(options[:collection])
         end
       when 'items'
         case action_name
+          when 'tree'
+            return results_breadcrumb(options[:collection], options[:context])
           when 'index'
             return results_breadcrumb(options[:collection], options[:context])
           when 'show'
@@ -55,6 +57,103 @@ module ApplicationHelper
         end
     end
     nil
+  end
+
+  ##
+  # Returns an ordered list of the given entities (Items, Collections, Agents).
+  #
+  # @param entities [Relation<Representable>]
+  # @param start [integer] Offset.
+  # @param options [Hash] Hash with optional keys.
+  # @option options [Boolean] :link_to_admin
+  # @option options [Boolean] :show_remove_from_favorites_buttons
+  # @option options [Boolean] :show_add_to_favorites_buttons
+  # @option options [Boolean] :show_collections
+  # @option options [Boolean] :show_checkboxes
+  # @return [String] HTML string.
+  #
+  def entities_as_list(entities, start, options = {})
+    html = "<ol start=\"#{start + 1}\">"
+    entities.each do |entity|
+      if options[:link_to_admin] and entity.kind_of?(Item)
+        link_target = admin_collection_item_path(entity.collection, entity)
+      else
+        link_target = polymorphic_path(entity)
+      end
+      html += '<li>'
+      if options[:show_checkboxes]
+        html += check_box_tag('pt-selected-items[]', entity.repository_id)
+        html += '<div class="pt-checkbox-result-container">'
+      else
+        html += '<div class="pt-non-checkbox-result-container">'
+      end
+      html += link_to(link_target, class: 'pt-thumbnail-link') do
+        raw('<div class="pt-thumbnail">' +
+                thumbnail_tag(entity.effective_representative_entity,
+                              size: ItemsHelper::DEFAULT_THUMBNAIL_SIZE,
+                              shape: :square) +
+                '</div>')
+      end
+      html += '<span class="pt-label">'
+      html += link_to(entity.title, link_target)
+
+      # info line
+      info_parts = []
+      info_parts << "#{icon_for(entity)}#{type_of(entity)}"
+
+      if entity.kind_of?(Item)
+        num_pages = entity.pages.count
+        if num_pages > 1
+          page_count = "#{num_pages} pages"
+          three_d_item = entity.three_d_item
+          page_count += ' + 3D model' if three_d_item
+          info_parts << page_count
+        else
+          num_files = entity.items.where(variant: Item::Variants::FILE).count
+          if num_files > 0
+            info_parts << "#{num_files} files"
+          else
+            num_children = entity.items.count
+            if num_children > 0
+              info_parts << "#{num_children} sub-items"
+            end
+          end
+        end
+
+        date = entity.date
+        if date
+          info_parts << date.year
+        end
+
+        if options[:show_collections] and entity.collection
+          info_parts << link_to(entity.collection.title,
+                                collection_path(entity.collection))
+        end
+      end
+
+      html += "<br><span class=\"pt-info-line\">#{info_parts.join(' | ')}</span>"
+
+      if entity.kind_of?(Item)
+        # remove-from-favorites button
+        if options[:show_remove_from_favorites_buttons]
+          html += remove_from_favorites_button(entity)
+        end
+        # add-to-favorites button
+        if options[:show_add_to_favorites_buttons]
+          html += add_to_favorites_button(entity)
+        end
+      end
+
+      html += '</span>'
+      html += '<br>'
+      html += '<span class="pt-description">'
+      html += truncate(entity.description.to_s, length: 380)
+      html += '</span>'
+      html += '</div>'
+      html += '</li>'
+    end
+    html += '</ol>'
+    raw(html)
   end
 
   ##
@@ -297,14 +396,10 @@ module ApplicationHelper
   def collection_view_breadcrumb(collection)
     html = "<ol class=\"breadcrumb\">"\
       "<li>#{link_to 'Home', root_path}</li>"\
-      "<li>#{link_to 'Collections', collections_path}</li>"
+      "<li>#{repository_link(collection)}</li>"
     html += collection_structure_breadcrumb(collection)
-    html += "</ol>"
+    html += '</ol>'
     raw(html)
-  end
-
-  def collections_view_breadcrumb
-    nil # no breadcrumb in this view
   end
 
   def item_structure_breadcrumb(item)
@@ -341,7 +436,7 @@ module ApplicationHelper
       else
         html = "<ol class=\"breadcrumb\">"
         html += "<li>#{link_to 'Home', root_path}</li>"
-        html += "<li>#{link_to 'Collections', collections_path}</li>"
+        html += "<li>#{repository_link(item.collection)}</li>"
         html += "<li>#{link_to item.collection.title, collection_path(item.collection)}</li>"
         html += "<li>#{link_to 'Items', collection_items_path(item.collection)}</li>"
         html += item_structure_breadcrumb(item)
@@ -350,11 +445,16 @@ module ApplicationHelper
     raw(html)
   end
 
+  def repository_link(collection)
+    fq = "#{Collection::SolrFields::REPOSITORY_TITLE}:\"#{collection.medusa_repository.title}\""
+    link_to collection.medusa_repository.title, collections_path(fq: fq)
+  end
+
   def results_breadcrumb(collection, context)
     if context == ItemsController::BrowseContext::BROWSING_COLLECTION
       html = "<ol class=\"breadcrumb\">"\
                 "<li>#{link_to('Home', root_path)}</li>"\
-                "<li>#{link_to('Collections', collections_path)}</li>"\
+                "<li>#{repository_link(collection)}</li>"\
                 "<li>#{link_to(truncate(collection.title, length: 50), collection_path(collection))}</li>"\
                 "<li class=\"active\">Items</li>"\
               "</ol>"

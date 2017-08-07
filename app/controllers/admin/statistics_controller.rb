@@ -5,7 +5,7 @@ module Admin
     def index
       # Collections section
       @num_collections = Collection.count
-      @num_public_collections = Collection.where(published_in_medusa: true,
+      @num_public_collections = Collection.where(public_in_medusa: true,
                                                  published_in_dls: true).count
 
       # Items section

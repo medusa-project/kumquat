@@ -27,11 +27,11 @@ module Admin
       @collections = Collection.solr.order(Collection::SolrFields::TITLE).
           start(@start).limit(@limit)
       # Will be true when searching/filtering.
-      if params[:published_in_medusa].present?
+      if params[:public_in_medusa].present?
         @collections = @collections.
             where("(*#{params[:q].gsub(' ', '*')}*)").
-            filter(Collection::SolrFields::PUBLISHED_IN_MEDUSA =>
-                       params[:published_in_medusa].to_s == '1' ? true : false).
+            filter(Collection::SolrFields::PUBLIC_IN_MEDUSA =>
+                       params[:public_in_medusa].to_s == '1' ? true : false).
             filter(Collection::SolrFields::PUBLISHED_IN_DLS =>
                        params[:published_in_dls].to_s == '1' ? true : false)
       end
@@ -104,11 +104,20 @@ module Admin
     end
 
     ##
+    # Sync collections from Medusa.
+    #
+    # N.B. After being available for some time, the end-user terminology for
+    # this feature was changed to "index" as part of a broader Medusa-wide
+    # terminology change (DLD-112). I decided to keep referring to it
+    # internally as "syncing" because that is a better description of what's
+    # happening, and also because "index" has a particular meaning that is
+    # already being used to describe indexing in Solr. -- alexd@illinois.edu
+    #
     # Responds to PATCH /admin/collections/sync
     #
     def sync
       SyncCollectionsJob.perform_later
-      flash['success'] = 'Syncing collections in the background.
+      flash['success'] = 'Indexing collections in the background.
         (This will take a minute.)'
       redirect_to :back
     end

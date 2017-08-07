@@ -10,7 +10,7 @@ class FavoritesController < WebsiteController
 
   def index
     @start = params[:start] ? params[:start].to_i : 0
-    @limit = 50
+    @limit = Option::integer(Option::Keys::RESULTS_PER_PAGE)
     @items = Item.solr.none
 
     if cookies[:favorites].present?
@@ -28,6 +28,7 @@ class FavoritesController < WebsiteController
 
     respond_to do |format|
       format.html
+      format.js
       format.zip do
         # See the documentation for format.zip() in ItemsController.index().
         #

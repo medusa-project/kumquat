@@ -21,10 +21,18 @@ class MedusaDownloaderClientTest < ActiveSupport::TestCase
     end
   end
 
+  # head()
+
+  test 'head() works' do
+    assert_nothing_raised do
+      @instance.head
+    end
+  end
+
   # zip_dirname()
 
   test 'zip_dirname() should return the correct path' do
-    item = items(:illini_union_dir1_file1)
+    item = items(:illini_union_dir1_dir1_file1)
     binary = item.binaries.select{ |b| b.master_type == Binary::MasterType::ACCESS }.first
     assert_equal '/3707005/access/online/Illini_Union_Photographs/binder_5/banquets',
                  @instance.send(:zip_dirname, binary)

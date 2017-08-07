@@ -1,7 +1,12 @@
 <% if @count > 0 %>
-  <%= items_as_list(@entities, @start, show_collections: false,
-                    show_add_to_favorites_buttons: true,
-                    show_remove_from_favorites_buttons: true) %>
+  <div class="text-center">
+    <%= paginate_items(@entities.total_length, @limit, @current_page) %>
+  </div>
+
+  <%= entities_as_list(@entities, @start,
+                       show_collections: false,
+                       show_add_to_favorites_buttons: true,
+                       show_remove_from_favorites_buttons: true) %>
 
   <div class="text-center">
     <%= paginate_items(@entities.total_length, @limit, @current_page) %>

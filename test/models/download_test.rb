@@ -4,7 +4,6 @@ class DownloadTest < ActiveSupport::TestCase
 
   setup do
     @download = downloads(:one)
-    assert_equal Download::Status::PREPARING, @download.status
   end
 
   # cleanup()
@@ -39,9 +38,9 @@ class DownloadTest < ActiveSupport::TestCase
   # ready?()
 
   test 'ready?() should return the correct value' do
-    @download.status = Download::Status::PREPARING
+    @download.task = Task.new(status: Task::Status::RUNNING)
     assert !@download.ready?
-    @download.status = Download::Status::READY
+    @download.task.status = Task::Status::SUCCEEDED
     assert @download.ready?
   end
 

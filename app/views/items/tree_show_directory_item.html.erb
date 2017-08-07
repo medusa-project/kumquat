@@ -1,0 +1,19 @@
+<%= render partial: 'show_button_group' %>
+<%= breadcrumb(item: @item, context: session[:browse_context],
+               context_url: session[:browse_context_url]) %>
+<%= item_page_title(@item) %>
+<% if @files.any? %>
+    <section id="file-tree-stats">
+      <% dirs = @files.select{ |item| item.variant == Item::Variants::DIRECTORY } %>
+      <% nondirs = @files.select{ |item| item.variant == Item::Variants::FILE} %>
+      <h2>Subfolders <span class="badge"><%= dirs.count %></span></h2>
+      <h2>Files <span class="badge"><%= nondirs.count %></span></h2>
+    </section>
+<% end %>
+<%= render partial: 'download_section', locals: { item: @item } %>
+<%= render partial: 'staff_info' %>
+<%= render partial: 'cite_panel', locals: { item: @item } %>
+
+<script type="application/ld+json">
+  <%= schema_org_json_ld(@item) %>
+</script>

@@ -8,9 +8,6 @@
   <li role="presentation">
     <a href="#pt-metadata" aria-controls="pt-metadata" role="tab" data-toggle="tab">Metadata</a>
   </li>
-  <li role="presentation">
-    <a href="#pt-full-text" aria-controls="pt-full-text" role="tab" data-toggle="tab">Full Text</a>
-  </li>
 </ul>
 
 <%= form_for([:admin, @item.collection, @item]) do |f| %>
@@ -156,11 +153,6 @@
       </table>
     </div>
 
-    <div role="tabpanel" class="tab-pane" id="pt-full-text">
-      <div class="form-group">
-        <%= f.text_area :full_text, class: 'form-control' %>
-      </div>
-    </div>
   </div>
 
   <%= f.submit 'Save', class: 'btn btn-primary' %>

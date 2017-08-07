@@ -1,19 +1,24 @@
+<div class="text-center">
+  <%= paginate_items(@collections.total_length, @limit, @current_page) %>
+</div>
+
 <table class="table table-striped">
   <thead>
     <th>Collection</th>
-    <th>Objects (Items)</th>
-    <th class="text-center">Published in Medusa</th>
-    <th class="text-center">Published in DLS</th>
+    <th>Objects</th>
+    <th>Items</th>
+    <th class="text-center">Public in Medusa</th>
+    <th class="text-center">Published</th>
     <th class="text-center">Harvestable</th>
   </thead>
   <tbody>
     <% @collections.each do |col| %>
       <tr>
         <td><%= link_to col.title, admin_collection_path(col) %></td>
-        <td><%= number_with_delimiter(col.num_objects) %>
-          (<%= number_with_delimiter(col.num_items) %>)</td>
-        <td class="text-center <%= col.published_in_medusa ? 'bg-success' : 'bg-danger' %>">
-          <%= boolean(col.published_in_medusa) %>
+        <td><%= number_with_delimiter(col.num_objects) %></td>
+        <td><%= number_with_delimiter(col.num_items) %></td>
+        <td class="text-center <%= col.public_in_medusa ? 'bg-success' : 'bg-danger' %>">
+          <%= boolean(col.public_in_medusa) %>
         </td>
         <td class="text-center <%= col.published_in_dls ? 'bg-success' : 'bg-danger' %>">
           <%= boolean(col.published_in_dls) %>

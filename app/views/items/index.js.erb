@@ -4,3 +4,4 @@ $('#pt-search-status').html('<%= search_status(@items, @start, @num_results_show
 $('#pt-download-zip-modal-container').html('<%= escape_javascript(render(partial: 'download_zip_panel', locals: { context: :results,
                                                                                                                   num_downloadable_items: @num_downloadable_items,
                                                                                                                   total_byte_size: @total_byte_size })) %>');
+PearTree.view.attachEventListeners();

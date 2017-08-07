@@ -28,7 +28,9 @@ class CollectionDecorator < Draper::Decorator
         repository_title: self.medusa_repository.title,
         resource_types: self.resource_types,
         access_systems: self.access_systems,
-        rights_statement: self.rightsstatements_org_uri
+        rights_statement: self.rightsstatements_org_uri,
+        created_at: self.created_at,
+        updated_at: self.updated_at
     }
   end
 

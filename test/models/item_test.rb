@@ -20,7 +20,7 @@ class ItemTest < ActiveSupport::TestCase
   test 'num_free_form_items should return a correct count' do
     Item.all.each { |it| it.index_in_solr }
     Solr.instance.commit
-    assert_equal 3, Item.num_free_form_items
+    assert_equal 4, Item.num_free_form_items
   end
 
   # Item.tsv_header()
@@ -44,7 +44,18 @@ class ItemTest < ActiveSupport::TestCase
   # all_files()
 
   test 'all_files() should return the correct items' do
-    assert_equal 1, items(:illini_union_dir1).all_files.count
+    assert_equal 1, items(:illini_union_dir1_dir1).all_files.count
+  end
+
+  # all_parents()
+
+  test 'all_parents() should return the parents' do
+    result = items(:illini_union_dir1_dir1_file1).all_parents
+    assert_equal 2, result.count
+    assert_equal items(:illini_union_dir1_dir1).repository_id,
+                 result[0].repository_id
+    assert_equal items(:illini_union_dir1).repository_id,
+                 result[1].repository_id
   end
 
   # as_json()
@@ -90,20 +101,6 @@ class ItemTest < ActiveSupport::TestCase
     assert @item.valid?
   end
 
-  # composite_item()
-
-  test 'composite_item() should return the composite item, or nil if none
-  exists' do
-    assert_nil @item.composite_item
-
-    id = SecureRandom.uuid
-    Item.create!(repository_id: id,
-                 collection_repository_id: @item.collection_repository_id,
-                 parent_repository_id: @item.repository_id,
-                 variant: Item::Variants::COMPOSITE)
-    assert_equal id, @item.composite_item.repository_id
-  end
-
   # description()
 
   test 'description() should return the description element value, or nil if
@@ -114,6 +111,19 @@ class ItemTest < ActiveSupport::TestCase
     @item.elements.build(name: 'description', value: 'cats')
     @item.save
     assert_equal 'cats', @item.description
+  end
+
+  # directory?()
+
+  test 'directory?() returns the correct value' do
+    @item.variant = nil
+    assert !@item.directory?
+
+    @item.variant = Item::Variants::FILE
+    assert !@item.directory?
+
+    @item.variant = Item::Variants::DIRECTORY
+    assert @item.directory?
   end
 
   # effective_representative_entity()
@@ -197,6 +207,20 @@ class ItemTest < ActiveSupport::TestCase
     assert_nil @item.element('bogus')
   end
 
+  # file?()
+
+  test 'file?() returns the correct value' do
+    @item.variant = nil
+    assert !@item.file?
+
+    @item.variant = Item::Variants::DIRECTORY
+
+    assert !@item.file?
+
+    @item.variant = Item::Variants::FILE
+    assert @item.file?
+  end
+
   # migrate_elements()
 
   test 'migrate_elements() should work' do
@@ -258,7 +282,7 @@ class ItemTest < ActiveSupport::TestCase
   test 'representative_item() should return an item when
   representative_item_repository_id is valid' do
     @item.representative_item_repository_id =
-        items(:illini_union_dir1_file1).repository_id
+        items(:illini_union_dir1_dir1_file1).repository_id
     assert_kind_of Item, @item.representative_item
   end
 
@@ -270,6 +294,19 @@ class ItemTest < ActiveSupport::TestCase
 
     @item.representative_item_repository_id = '8acdb390-96b6-0133-1ce8-0050569601ca-4'
     assert @item.valid?
+  end
+
+  # root_parent()
+
+  test 'root_parent returns the root parent, if available' do
+    @item = items(:illini_union_dir1_dir1_file1)
+    assert_equal items(:illini_union_dir1).repository_id,
+                 @item.root_parent.repository_id
+  end
+
+  test 'root_parent returns the instance if it has no parents' do
+    @item = items(:sanborn_obj1)
+    assert_same @item, @item.root_parent
   end
 
   # save
@@ -497,7 +534,6 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal @item.effective_denied_roles.map(&:key),
                  doc[Item::SolrFields::EFFECTIVE_DENIED_ROLES]
     assert doc[Item::SolrFields::EFFECTIVELY_PUBLISHED]
-    assert_equal @item.full_text, doc[Item::SolrFields::FULL_TEXT]
     assert_not_empty doc[Item::SolrFields::LAST_INDEXED]
     assert_equal "#{@item.latitude},#{@item.longitude}",
                  doc[Item::SolrFields::LAT_LONG]
@@ -525,7 +561,7 @@ class ItemTest < ActiveSupport::TestCase
   # update_from_embedded_metadata
 
   test 'update_from_embedded_metadata should work' do
-    @item = items(:illini_union_dir1_file1)
+    @item = items(:illini_union_dir1_dir1_file1)
     @item.update_from_embedded_metadata(include_date_created: true)
 
     assert_equal 1, @item.elements.
@@ -545,7 +581,6 @@ class ItemTest < ActiveSupport::TestCase
     struct['contentdm_pointer'] = 99
     struct['date'] = '2014-03-01T16:25:15Z'
     struct['embed_tag'] = '<embed></embed>'
-    struct['full_text'] = 'Some full text'
     struct['latitude'] = 23.45
     struct['longitude'] = -34.56
     struct['page_number'] = 60
@@ -565,7 +600,6 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal 'cats', @item.contentdm_alias
     assert_equal 99, @item.contentdm_pointer
     assert_equal 2014, @item.date.year
-    assert_equal 'Some full text', @item.full_text
     assert_equal 23.45, @item.latitude
     assert_equal -34.56, @item.longitude
     assert_equal 60, @item.page_number

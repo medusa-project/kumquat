@@ -1,13 +1,21 @@
 # illini_union collection
 
-illini_union_dir1:
+illini_union_dir1: # https://medusa.library.illinois.edu/cfs_directories/111145.json
+  collection_repository_id: 34d204d0-05d1-0130-c5bb-0019b9e633c5-e
+  date: <%= Time.parse('2015-08-10') %>
+  published: true
+  repository_id: a53264b0-5ca8-0132-3334-0050569601ca-8
+  variant: Directory
+
+illini_union_dir1_dir1: # https://medusa.library.illinois.edu/cfs_directories/111155.json
   collection_repository_id: 34d204d0-05d1-0130-c5bb-0019b9e633c5-e
   date: <%= Time.parse('2015-08-10') %>
   published: true
   repository_id: a53add10-5ca8-0132-3334-0050569601ca-7
+  parent_repository_id: a53264b0-5ca8-0132-3334-0050569601ca-8
   variant: Directory
 
-illini_union_dir1_file1:
+illini_union_dir1_dir1_file1: # https://medusa.library.illinois.edu/cfs_files/5061801.json
   collection_repository_id: 34d204d0-05d1-0130-c5bb-0019b9e633c5-e
   date: <%= Time.parse('2015-08-10') %>
   published: true

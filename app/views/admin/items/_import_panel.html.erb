@@ -1,20 +1,74 @@
+<!-- Import modal panel -->
 <div class="modal fade" id="pt-import-modal" tabindex="-1" role="dialog"
      aria-labelledby="pt-import-modal-label">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
-      <%= form_tag(admin_collection_items_import_path(@collection, format: :tsv),
-                   { multipart: true }) do %>
+      <%= form_tag(admin_collection_items_sync_path(@collection)) do %>
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title" id="pt-import-modal-label">Import TSV</h4>
+          <h4 class="modal-title" id="pt-import-modal-label">Import Items</h4>
         </div>
         <div class="modal-body">
-          <div class="alert alert-warning">To avoid out-of-memory errors, please
-            divide uploaded files into segments of no more than 4,000 rows
-            each, and import each one individually.</div>
-          <div class="form-group">
-            <%= file_field_tag('tsv') %>
+          <div class="alert alert-info">Before importing, please verify that
+            the collection's file group and package profile are set
+            correctly, and that its content conforms to the package profile.</div>
+          <div class="radio">
+            <label>
+              <%= radio_button_tag('ingest_mode',
+                                   MedusaIngester::IngestMode::CREATE_ONLY, true,
+                                   'aria-described-by' => 'pt-create-only-help') %>
+              Create
+            </label>
+            <span id="pt-create-only-help" class="help-block">
+            Create any items present in Medusa but not the DLS. Don't touch
+            existing DLS items.</span>
+          </div>
+          <div class="checkbox" style="padding-left: 1em">
+            <label>
+              <%= check_box_tag('options[extract_metadata]', 'true', false) %>
+              Extract embedded file metadata
+            </label>
+          </div>
+          <div class="checkbox" style="padding-left: 1em">
+            <label>
+              <%= check_box_tag('options[include_date_created]', 'true', false) %>
+              Extract creation date from embedded file metadata
+            </label>
+          </div>
+          <div class="radio">
+            <label>
+              <%= radio_button_tag('ingest_mode',
+                                   MedusaIngester::IngestMode::RECREATE_BINARIES, false,
+                                   'aria-described-by' => 'pt-update-binaries-help') %>
+              Recreate Binaries
+            </label>
+            <span id="pt-update-binaries-help" class="help-block">
+            Update existing DLS items' binaries based on their corresponding
+            files in Medusa.</span>
+          </div>
+          <div class="alert alert-danger">
+            <div class="radio">
+              <label>
+                <%= radio_button_tag('ingest_mode',
+                                     MedusaIngester::IngestMode::REPLACE_METADATA, false,
+                                     'aria-described-by' => 'pt-replace-metadata-help') %>
+                Replace Metadata <span class="label label-danger">dangerous!</span>
+              </label>
+              <span id="pt-replace-metadata-help" class="help-block">
+              Replaces DLS items' metadata with embedded metadata extracted
+              from their binaries.</span>
+            </div>
+          </div>
+          <div class="radio">
+            <label>
+              <%= radio_button_tag('ingest_mode',
+                                   MedusaIngester::IngestMode::DELETE_MISSING, false,
+                                   'aria-described-by' => 'pt-delete-missing-help') %>
+              Delete Missing
+            </label>
+            <span id="pt-delete-missing-help" class="help-block">
+            Delete any items present in the DLS but not Medusa.</span>
           </div>
         </div>
         <div class="modal-footer">

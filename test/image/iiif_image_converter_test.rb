@@ -52,7 +52,7 @@ class IiifImageConverterTest < ActiveSupport::TestCase
 
   test 'convert_images() with directory-variant' do
     Dir.mktmpdir do |tmpdir|
-      item = items(:illini_union_dir1)
+      item = items(:illini_union_dir1_dir1)
       format = 'png'
 
       @instance.convert_images(item, tmpdir, format)
@@ -65,7 +65,7 @@ class IiifImageConverterTest < ActiveSupport::TestCase
 
   test 'convert_images() with file-variant' do
     Dir.mktmpdir do |tmpdir|
-      item = items(:illini_union_dir1_file1)
+      item = items(:illini_union_dir1_dir1_file1)
       format = 'png'
 
       @instance.convert_images(item, tmpdir, format)

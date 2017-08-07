@@ -10,7 +10,7 @@ class IiifPdfGeneratorTest < ActiveSupport::TestCase
 
   test 'generate_pdf() should return nil when given a non-compound-object' do
     # File
-    assert_nil @instance.generate_pdf(items(:illini_union_dir1_file1))
+    assert_nil @instance.generate_pdf(items(:illini_union_dir1_dir1_file1))
     # Page
     assert_nil @instance.generate_pdf(items(:sanborn_obj1_page1))
   end

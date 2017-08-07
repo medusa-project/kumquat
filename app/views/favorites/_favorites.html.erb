@@ -1,0 +1,18 @@
+<% if @items.count > 0 %>
+  <div class="text-center">
+    <%= paginate_items(@items.total_length, @limit, @current_page) %>
+  </div>
+
+  <div class="pt-results pt-list-results">
+    <%= entities_as_list(@items, @start,
+                         show_remove_from_favorites_buttons: true,
+                         show_checkboxes: client_supports_zip_download?,
+                         show_collections: true) %>
+  </div>
+
+  <div class="text-center">
+    <%= paginate_items(@items.total_length, @limit, @current_page) %>
+  </div>
+<% else %>
+  <p class="pt-no-favorites">You have no items in your favorites.</p>
+<% end %>

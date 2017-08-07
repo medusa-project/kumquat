@@ -86,19 +86,13 @@ class Task < ActiveRecord::Base
 
     write_attribute(:status, status)
 
-    if status == Status::SUCCEEDED
-      self.percent_complete = 1
-      self.completed_at = Time.now
-    end
+    succeed if status == Status::SUCCEEDED
   end
 
   private
 
   def auto_complete
-    if (1 - self.percent_complete).abs <= 0.0000001
-      self.status = Status::SUCCEEDED
-      self.completed_at = Time.now
-    end
+    succeed if (1 - self.percent_complete).abs <= 0.0000001
   end
 
   def constrain_progress
@@ -107,6 +101,14 @@ class Task < ActiveRecord::Base
     elsif self.percent_complete > 1
       self.percent_complete = 1
     end
+  end
+
+  def succeed
+    write_attribute(:status, Status::SUCCEEDED)
+    self.percent_complete = 1
+    self.completed_at = Time.now
+    self.backtrace = nil
+    self.detail = nil
   end
 
 end

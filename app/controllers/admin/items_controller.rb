@@ -55,8 +55,10 @@ module Admin
       raise ActiveRecord::RecordNotFound unless @item
 
       @variants = Item::Variants.constants.map do |v|
-        [v.to_s.downcase.gsub('_', ' ').titleize, v.to_s.downcase.camelize]
+        value = Item::Variants::const_get(v)
+        [value, value]
       end
+      @variants.sort!
     end
 
     ##
@@ -149,6 +151,8 @@ module Admin
     end
 
     ##
+    # Imports item metadata from TSV.
+    #
     # Responds to POST /admin/collections/:collection_id/items/import
     #
     def import
@@ -262,6 +266,14 @@ module Admin
     end
 
     ##
+    # Syncs items from Medusa.
+    #
+    # N.B. After being available for some time, the end-user terminology for
+    # this feature was changed to "import" as part of a broader Medusa-wide
+    # terminology change (DLD-112). I decided to keep referring to it
+    # internally as "syncing" because that is a better description of what's
+    # happening. -- alexd@illinois.edu
+    #
     # Responds to POST /admin/collections/:collection_id/items/sync
     #
     def sync
@@ -277,7 +289,7 @@ module Admin
         handle_error(e)
         redirect_to admin_collection_items_url(col)
       else
-        flash['success'] = 'Syncing items in the background. This '\
+        flash['success'] = 'Importing items in the background. This '\
         'may take a while.'
         redirect_to admin_collection_items_url(col)
       end
@@ -396,8 +408,8 @@ module Admin
       # Metadata elements are not included here, as they are processed
       # separately.
       params.require(:item).permit(:id, :contentdm_alias, :contentdm_pointer,
-                                   :embed_tag, :full_text, :latitude,
-                                   :longitude, :page_number, :published,
+                                   :embed_tag, :latitude, :longitude,
+                                   :page_number, :published,
                                    :representative_item_id, :subpage_number,
                                    :variant, allowed_role_ids: [],
                                    denied_role_ids: [])

@@ -109,41 +109,6 @@ var PTItemView = function() {
     };
 
     /**
-     * Encapsulates the download panel.
-     *
-     * @constructor
-     */
-    var PTDownloadPanel = function() {
-
-        var init = function() {
-            var download_modal = $('#pt-download-modal');
-
-            // When a thumbnail radio is clicked, show its corresponding
-            // download options.
-            var downloadable_items =
-                download_modal.find('input[name="pt-downloadable-item"]');
-            if (downloadable_items.length > 0) {
-                downloadable_items.on('click', function () {
-                    download_modal.find('.pt-download-option, .pt-citation-info').hide();
-                    download_modal.find('[data-item-id=' +
-                        $(this).data('item-id') + ']').show();
-                    download_modal.find('input[name="download-url"][data-item-id="' +
-                        $(this).data('item-id') + '"]').trigger('click');
-                });
-                $('input[name="pt-downloadable-item"]:checked').trigger('click');
-            }
-
-            $('#pt-download-button').on('click', function() {
-                var source_file = download_modal.find('input[name="download-url"]:checked');
-                var url;
-                if (source_file.length > 0) {
-                    $(this).attr('href', source_file.val());
-                }
-            });
-        }; init();
-    };
-
-    /**
      * Encapsulates the embed-image panel.
      *
      * The panel is opened by an anchor with data-iiif-url, data-iiif-info-url,
@@ -357,8 +322,19 @@ var PTItemView = function() {
             }
         });
 
+        // When there are >1 items in the viewer and one is selected, highlight
+        // the corresponding item in the download panel. (UV will also fire
+        // this on load.)
+        $(document).bind('uv.onCanvasIndexChanged', function(event, index) {
+            var rows = $('#pt-download table tr');
+            if (rows.length > 1) {
+                rows.removeClass('selected')
+                    .filter(':nth-child(' + (index + 1) + ')')
+                    .addClass('selected');
+            }
+        });
+
         new PTCitationPanel();
-        new PTDownloadPanel();
         new PTEmbedPanel();
     };
 
@@ -385,44 +361,67 @@ var PTItemView = function() {
  */
 var PTItemsView = function() {
 
+    var self = this;
+
     this.init = function() {
         new PearTree.FilterField();
         PearTree.initFacets();
 
         // submit the sort form on change
-        $('select[name="sort"]').on('change', function() {
+        $('select[name="sort"]').on('change', function () {
             $.ajax({
                 url: $('[name=pt-current-path]').val(),
                 method: 'GET',
                 data: $(this).parents('form:first').serialize(),
                 dataType: 'script',
-                success: function(result) {
+                success: function (result) {
                     eval(result);
                 }
             });
         });
 
-        $(document).on(PearTree.Events.ITEM_ADDED_TO_FAVORITES, function(event, item) {
+        $(document).on(PearTree.Events.ITEM_ADDED_TO_FAVORITES, function (event, item) {
             $('.pt-results button.pt-remove-from-favorites[data-item-id="' + item.id + '"]').show();
             $('.pt-results button.pt-add-to-favorites[data-item-id="' + item.id + '"]').hide();
             updateFavoritesCount();
         });
-        $(document).on(PearTree.Events.ITEM_REMOVED_FROM_FAVORITES, function(event, item) {
+        $(document).on(PearTree.Events.ITEM_REMOVED_FROM_FAVORITES, function (event, item) {
             $('.pt-results button.pt-remove-from-favorites[data-item-id="' + item.id + '"]').hide();
             $('.pt-results button.pt-add-to-favorites[data-item-id="' + item.id + '"]').show();
             updateFavoritesCount();
         });
+
+        if ($('#jstree').length > 0) {
+            $('#jstree').jstree({
+                core: {
+                    data: {
+                        url: function (node) {
+                            return node.id === '#' ?
+                                getCollectionURL() :
+                                '/items/' + node.id + '/treedata.json';
+                        }
+                    }
+                }
+            }).bind("select_node.jstree", function (e, data) {
+                get_item_info(build_node_url(data));
+            });
+        }
+
+        self.attachEventListeners();
+    };
+
+    this.attachEventListeners = function() {
         $('button.pt-add-to-favorites').on('click', function() {
             var item = new PTItem();
             item.id = $(this).data('item-id');
             item.addToFavorites();
         });
-        $('button.pt-remove-from-favorites').on('click', function() {
+        $('button.pt-remove-from-favorites').on('click', function () {
             var item = new PTItem();
             item.id = $(this).data('item-id');
             item.removeFromFavorites();
         });
-        $('button.pt-remove-from-favorites, button.pt-add-to-favorites').each(function() {
+        $('button.pt-remove-from-favorites, button.pt-add-to-favorites').each(function () {
             var item = new PTItem();
             item.id = $(this).data('item-id');
             if (item.isFavorite()) {
@@ -439,13 +438,60 @@ var PTItemsView = function() {
                 }
             }
         });
+        $('.pagination a').on('click', function() {
+            $('form.pt-filter')[0].scrollIntoView({behavior: "smooth"});
+        });
     };
 
     var updateFavoritesCount = function() {
         var badge = $('.pt-favorites-count');
         badge.text(PTItem.numFavorites());
     };
+};
 
+
+var build_node_url = function(data){
+  if (data.node.a_attr["name"]==="root-collection-node"){
+      return '/collections/' + data.node.id + '/tree.html?ajax=true';
+  }
+  return '/items/' + data.node.id + '.html?tree-node-type='+data.node.a_attr["class"];
+};
+var tree_node_callback = function (result) {
+    //reset flag used by embed.js
+    window.embedScriptIncluded = false;
+        $('#item-info').html(result);
+    $('#item-info ol.breadcrumb').remove();
+    $('#item-info .pt-result-navigation').remove();
+    $('#item-info .btn-group').removeClass('pull-right');
+    $('#item-info .view-dropdown').removeClass('dropdown-menu-right');
+    PearTree.init();
+    var view = new PTItemView();
+    view.init();
+};
+var trigger_root_node = function(){
+    get_item_info('/collections/'+window.location.pathname.split("/")[2]+'/tree.html?ajax=true');
+};
+
+var get_item_info = function(ajax_url){
+    $.ajax({
+        url: ajax_url,
+        method: 'GET',
+        success: function(result) {
+            tree_node_callback(result);
+        }
+    })
+};
+
+var get_pagination_link = function(anchor_href){
+    var href_array = anchor_href.split("/files");
+    return href_array[0]+href_array[1]
+
+
+};
+
+var getCollectionURL = function() {
+    var ID = window.location.pathname.split("/")[2];
+    return '/collections/'+ID+'/items/treedata.json';
 };
 
 var ready = function() {
@@ -455,6 +501,9 @@ var ready = function() {
     } else if ($('body#items_show').length) {
         PearTree.view = new PTItemView();
         PearTree.view.init();
+    }
+    if ($('#jstree').length){
+        trigger_root_node();
     }
 };
 
