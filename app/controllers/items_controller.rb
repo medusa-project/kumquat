@@ -182,7 +182,8 @@ class ItemsController < WebsiteController
     case @sequence_name
       when 'item'
         if @item.items.count > 0
-          @start_canvas_item = @item.items.first
+          @start_canvas_item = @item.items_from_solr.
+              order(Item::SolrFields::STRUCTURAL_SORT).limit(1).first
           render 'items/iiif_presentation_api/sequence',
                  formats: :json,
                  content_type: 'application/json'
