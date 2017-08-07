@@ -107,7 +107,7 @@ module ApplicationHelper
           page_count += ' + 3D model' if three_d_item
           info_parts << page_count
         else
-          num_files = entity.items.where(variant: Variants::FILE).count
+          num_files = entity.items.where(variant: Item::Variants::FILE).count
           if num_files > 0
             info_parts << "#{num_files} files"
           else
