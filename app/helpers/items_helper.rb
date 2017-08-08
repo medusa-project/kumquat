@@ -190,22 +190,38 @@ module ItemsHelper
   end
 
   ##
+  # Returns an IIIF Image API 2.1 URL.
+  #
   # @param item [Item]
   # @param region [Symbol] :default or :square
-  # @param size [Symbol,Integer] Integer or :full
-  # @param format [Symbol]
-  # @return [String, nil] Image URL or nil if the item is not an image
+  # @param size [Symbol,Integer] Bounding box size or :full
+  # @param format [Symbol] One of the formats allowed by the Image API.
+  # @return [String, nil] Image URL, or nil if the item has no IIIF image
+  #                       binary.
   #
   def iiif_image_url(item, region = :default, size = :full, format = :jpg)
     url = nil
     bin = item.iiif_image_binary
     if bin
       region = (region == :square) ? 'square' : 'full'
-      size = (size == :full) ? 'full' : "!#{size},#{size}"
-      # ?time= is a nonstandard argument supported only by Cantaloupe
-      # (FfmpegProcessor), applicable only to videos.
-      url = sprintf('%s/%s/%s/0/default.%s?time=00:00:01',
-                    bin.iiif_image_url, region, size, format)
+      size = (size == :full) ? 'full' : "!#{size},#{size}" # fit within a `size` box
+      time = ''
+      if bin.duration.present?
+        # ?time=hh:mm:ss is a nonstandard argument supported only by
+        # Cantaloupe's FfmpegProcessor. All other processors will ignore it.
+        # If it's missing, the first frame will be returned.
+        #
+        # For videos of all lengths, the time needs to be enough to advance
+        # past title frames but not longer than the duration. It would be
+        # easier to hard-code something like 00:00:10, but there are actually
+        # some videos in the repository that are two seconds long.
+        # FfmpegProcessor doesn't allow a percentage argument because ffprobe
+        # doesn't. (DLD-102)
+        seconds = bin.duration * 0.2
+        time = '?time=' + TimeUtil.seconds_to_hms(seconds)
+      end
+      url = sprintf('%s/%s/%s/0/default.%s%s',
+                    bin.iiif_image_url, region, size, format, time)
     end
     url
   end
