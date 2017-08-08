@@ -81,6 +81,7 @@ namespace :dls do
     task :populate_durations => :environment do |task|
       Binary.uncached do
         binaries = Binary.where(duration: nil).
+            where('media_type LIKE \'audio/%\' OR media_type LIKE \'video/%\'').
             where('repository_relative_pathname IS NOT NULL')
         count = binaries.count
         puts "#{count} binaries to update"
@@ -89,8 +90,12 @@ namespace :dls do
           puts "(#{((index / count.to_f) * 100).round(2)}%) "\
               "#{binary.repository_relative_pathname} "
 
-          binary.read_duration
-          binary.save!
+          begin
+            binary.read_duration
+            binary.save!
+          rescue => e
+            CustomLogger.instance.error("#{e}")
+          end
         end
       end
     end
