@@ -1,3 +1,6 @@
+##
+# Helper class for converting times and durations.
+#
 class TimeUtil
 
   ##
@@ -16,8 +19,36 @@ class TimeUtil
   end
 
   ##
-  # Tries to create a Time instance from an arbitrary date string as would
-  # appear in metadata.
+  # @param seconds [Float]
+  # @return [String] String in hh:mm:ss format.
+  #
+  def self.seconds_to_hms(seconds)
+    if seconds.to_f == seconds
+      seconds = seconds.to_f
+      # hours
+      hr = seconds / 60.0 / 60.0
+      floor = hr.floor
+      rem = hr - floor
+      hr = floor
+      # minutes
+      min = rem * 60
+      floor = min.floor
+      rem = min - floor
+      min = floor
+      # seconds
+      sec = rem * 60
+
+      return sprintf('%s:%s:%s',
+                     hr.round.to_s.rjust(2, '0'),
+                     min.round.to_s.rjust(2, '0'),
+                     sec.round.to_s.rjust(2, '0'))
+    end
+    raise ArgumentError, "#{seconds} is not in a supported format."
+  end
+
+  ##
+  # Tries to create a Time instance from an arbitrary date string as might
+  # appear in MARC, DC, or some other free-form metadata.
   #
   # Supported string formats:
   #
@@ -28,7 +59,6 @@ class TimeUtil
   # * YYYY
   # * [YYYY]
   # * [YYYY?]
-  #
   #
   # @param date [String]
   # @return [Time] Time instance in UTC.
@@ -60,7 +90,7 @@ class TimeUtil
       elsif date.match(/^\[[0-9]{4}\?\]$/)
         iso8601 = "#{date.gsub(/[^0-9]/, '')}-01-01T00:00:00Z"
       # ISO-8601 formats
-      # See: http://www.pelagodesign.com/blog/2009/05/20/iso-8601-date-validation-that-doesnt-suck/
+      # Credit: http://www.pelagodesign.com/blog/2009/05/20/iso-8601-date-validation-that-doesnt-suck/
       elsif date.match(/^([\+-]?\d{4}(?!\d{2}\b))((-?)((0[1-9]|1[0-2])(\3([12]\d|0[1-9]|3[01]))?|W([0-4]\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\d|[12]\d{2}|3([0-5]\d|6[1-6])))([T\s]((([01]\d|2[0-3])((:?)[0-5]\d)?|24\:?00)([\.,]\d+(?!:))?)?(\17[0-5]\d([\.,]\d+)?)?([zZ]|([\+-])([01]\d|2[0-3]):?([0-5]\d)?)?)?)?$/)
         iso8601 = date
       end
