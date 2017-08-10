@@ -851,13 +851,7 @@ class Item < ActiveRecord::Base
   # @return [Item] The item's 3D model item, if available.
   #
   def three_d_item
-    self.items.each do |item|
-      if item.binaries.
-          select{ |b| b.media_category == Binary::MediaCategory::THREE_D }.any?
-        return item
-      end
-    end
-    nil
+    self.items.where(variant: Variants::THREE_D_MODEL).limit(1).first
   end
 
   ##
