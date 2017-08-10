@@ -89,18 +89,31 @@ class AbstractFinder
   end
 
   ##
-  # @param string [String]
+  # @param string [String] `fieldname:query` or `query`
   # @return [self]
   #
   def query(string) # TODO: separate query() and query_field() methods
     if string.present?
       parts = string.split(':')
-      value = parts.last.gsub(' ', '*')
-      value = "(#{value} OR *#{value}*)"
       if parts.length > 1
-        @query = "#{parts.first}:#{value}"
+        field = parts.first
+        query = parts[1..parts.length].join(':')
       else
-        @query = value
+        field = nil
+        query = string
+      end
+
+      # The search-all field has a different type from all the rest, so the
+      # query syntax will have to be different.
+      if (!field.nil? and field == Item::SolrFields::SEARCH_ALL) or
+          (field.nil? and (@default_field.blank? or @default_field == Item::SolrFields::SEARCH_ALL))
+        query = query.gsub(' ', '*')
+        query = "(#{query} OR *#{query}*)"
+        @query = field ? "#{field}:#{query}" : query
+      else # We are searching a text_general field.
+        query = "(#{query} OR #{query}*)"
+        @query = '{!complexphrase inOrder=true}'
+        @query += field ? "#{field}:#{query}" : query
       end
     end
     self
