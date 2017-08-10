@@ -111,7 +111,7 @@ module Admin
 
       finder = ItemFinder.new.
           collection_id(@collection.repository_id).
-          query(params[:q]).
+          query("#{params[:df]}:#{params[:q]}").
           include_children(false).
           include_unpublished(true).
           only_described(false).
