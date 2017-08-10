@@ -196,6 +196,14 @@ var PTAdminItemsEditView = function() {
             $(this).addClass('pt-dirty');
         });
 
+        // Make the table header stick to the top when scrolling. (DLD-124)
+        // Uses jquery.stickytableheaders.min.js
+        // https://github.com/jmosbech/StickyTableHeaders
+        $('table').stickyTableHeaders({
+            fixedOffset: $('#pt-navbar-collapse'),
+            cacheHeaderHeight: true
+        });
+
         // When the form is dirty and a link is clicked, prompt to save changes
         // before proceeding.
         $('a').off().on('click', function() {
