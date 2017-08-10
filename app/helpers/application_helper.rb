@@ -156,6 +156,16 @@ module ApplicationHelper
     raw(html)
   end
 
+  def feedback_link
+    subject = 'Feedback on ' + Option::string(Option::Keys::WEBSITE_NAME)
+    body = 'Page URL: ' + request.url
+    link = sprintf('mailto:%s?subject=%s&body=%s',
+                   Option::string(Option::Keys::ADMINISTRATOR_EMAIL),
+                   subject,
+                   body)
+    raw(link_to('Feedback', link))
+  end
+
   ##
   # Returns the most appropriate icon for the given object, which may be an
   # Item, Binary, Collection, etc. If the object is unrecognized, a generic
