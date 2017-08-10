@@ -4,13 +4,7 @@ namespace :dls do
 
     desc 'Reindex all agents'
     task :reindex => :environment do |task, args|
-      # Reindex existing collections
-      Agent.all.each { |agent| agent.index_in_solr }
-      # Remove indexed documents whose entities have disappeared.
-      # (For these, Relation will contain a string ID in place of an instance.)
-      Agent.solr.all.limit(99999).select{ |a| a.to_s == a }.each do |agent_id|
-        Solr.delete_by_id(agent_id)
-      end
+      reindex_agents
       Solr.instance.commit
     end
 
@@ -51,10 +45,13 @@ namespace :dls do
           puts "(#{((index / count.to_f) * 100).round(2)}%) "\
               "#{binary.repository_relative_pathname} "
 
-          pathname = binary.absolute_local_pathname
-          binary.byte_size = (pathname and File.exist?(pathname) and File.file?(pathname)) ?
-              File.size(pathname) : nil
-          binary.save!
+          begin
+            binary.read_size
+            binary.save!
+          rescue => e
+            puts e
+            CustomLogger.instance.error("#{e}")
+          end
         end
       end
     end
@@ -223,25 +220,15 @@ namespace :dls do
       Solr.instance.commit
     end
 
-    desc 'Reindex an item and all of its children'
+    desc 'Reindex an item and all of its children. Omit uuid to index all items'
     task :reindex, [:uuid] => :environment do |task, args|
-      item = Item.find_by_repository_id(args[:uuid])
-      item.all_children.each do |child|
-        child.index_in_solr
-      end
-      Solr.instance.commit
-    end
-
-    desc 'Reindex all items'
-    task :reindex_all => :environment do |task, args|
-      num_entities = Item.count
-      # Item.uncached{} in conjunction with find_each() circumvents ActiveRecord
-      # caching that could lead to memory exhaustion.
-      Item.uncached do
-        Item.all.find_each.with_index do |item, index|
-          item.index_in_solr
-          puts "reindex: #{((index / num_entities.to_f) * 100).round(2)}%"
+      if args[:uuid].present?
+        item = Item.find_by_repository_id(args[:uuid])
+        item.all_children.push(item).each do |it|
+          it.index_in_solr
         end
+      else
+        reindex_items
       end
       Solr.instance.commit
     end
@@ -286,13 +273,47 @@ namespace :dls do
 
   end
 
+  desc 'Reindex everything'
+  task :reindex => :environment do |task, args|
+    reindex_agents
+    reindex_collections
+    reindex_items
+    Solr.instance.commit
+  end
+
+  def reindex_agents
+    Agent.uncached do
+      # Reindex existing agents
+      Agent.all.find_each { |agent| agent.index_in_solr }
+      # Remove indexed documents whose entities have disappeared.
+      # (For these, Relation will contain a string ID in place of an instance.)
+      Agent.solr.all.limit(99999).select{ |a| a.to_s == a }.each do |agent_id|
+        Solr.delete_by_id(agent_id)
+      end
+    end
+  end
+
   def reindex_collections
-    # Reindex existing collections
-    Collection.all.each { |col| col.index_in_solr }
-    # Remove indexed documents whose entities have disappeared.
-    # (For these, Relation will contain a string ID in place of an instance.)
-    Collection.solr.all.limit(99999).select{ |c| c.to_s == c }.each do |col_id|
-      Solr.delete_by_id(col_id)
+    Collection.uncached do
+      # Reindex existing collections
+      Collection.all.find_each { |col| col.index_in_solr }
+      # Remove indexed documents whose entities have disappeared.
+      # (For these, Relation will contain a string ID in place of an instance.)
+      Collection.solr.all.limit(99999).select{ |c| c.to_s == c }.each do |col_id|
+        Solr.delete_by_id(col_id)
+      end
+    end
+  end
+
+  def reindex_items
+    num_entities = Item.count
+    # Item.uncached{} in conjunction with find_each() circumvents ActiveRecord
+    # caching that could lead to memory exhaustion.
+    Item.uncached do
+      Item.all.find_each.with_index do |item, index|
+        item.index_in_solr
+        puts "reindex items: #{((index / num_entities.to_f) * 100).round(2)}%"
+      end
     end
   end
 

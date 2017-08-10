@@ -13,6 +13,7 @@
 //= require jquery
 //= require jquery_ujs
 //= require bootstrap-sprockets
+//= require jquery.stickytableheaders.min.js
 //= require ../peartree
 //= require local_time
 //= require_tree .
