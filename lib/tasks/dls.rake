@@ -62,8 +62,9 @@ namespace :dls do
     desc 'Populate the dimensions of all binaries'
     task :populate_dimensions => :environment do |task|
       Binary.uncached do
-        binaries = Binary.where('(width IS NULL OR height IS NULL) AND '\
-            'repository_relative_pathname IS NOT NULL')
+        binaries = Binary.where('(width IS NULL OR height IS NULL)').
+            where('media_type LIKE \'image/%\' OR media_type LIKE \'video/%\'').
+            where('repository_relative_pathname IS NOT NULL')
         count = binaries.count
         puts "#{count} binaries to update"
 
@@ -71,8 +72,13 @@ namespace :dls do
           puts "(#{((index / count.to_f) * 100).round(2)}%) "\
               "#{binary.repository_relative_pathname} "
 
-          binary.read_dimensions
-          binary.save!
+          begin
+            binary.read_dimensions
+            binary.save!
+          rescue => e
+            puts e
+            CustomLogger.instance.error("#{e}")
+          end
         end
       end
     end
@@ -159,6 +165,9 @@ namespace :dls do
 
   namespace :elements do
 
+    ##
+    # This was requested by mhan3@illinois.edu in June 2017.
+    #
     desc 'Generate a report of all names'
     task :names => :environment do |task, args|
       sql = "SELECT collections.repository_id AS collection_id,
