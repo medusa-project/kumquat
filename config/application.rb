@@ -32,5 +32,10 @@ module PearTree
 
     # Enables dynamic error pages.
     config.exceptions_app = self.routes
+
+    # Make pages embeddable within other websites. (Spurlock needs this as of
+    # 8/2017.)
+    config.action_dispatch.default_headers =
+        config.action_dispatch.default_headers.delete('X-Frame-Options')
   end
 end
