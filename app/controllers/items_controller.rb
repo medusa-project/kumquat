@@ -343,7 +343,7 @@ class ItemsController < WebsiteController
             redirect_to @item
             return
           end
-        elsif @item.varient == Item::Variants::FILE
+        elsif @item.variant == Item::Variants::FILE
           items = @item.parent.items
           zip_name = 'files'
         else
