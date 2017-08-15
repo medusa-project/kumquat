@@ -108,11 +108,14 @@ body#admin_items_show {
     max-width: 200px;
   }
 
-  #pt-structure ul {
-    list-style: none;
-    padding-left: 0em;
+  #pt-structure {
+    overflow-wrap: break-word;
     ul {
-      margin-left: 1.5em;
+      list-style: none;
+      padding-left: 0em;
+      ul {
+        margin-left: 1.5em;
+      }
     }
   }
 
