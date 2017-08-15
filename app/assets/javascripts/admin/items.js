@@ -251,13 +251,13 @@ var PTAdminItemView = function() {
 };
 
 var ready = function() {
-    if ($('body#items_edit').length) {
+    if ($('body#admin_items_edit').length) {
         PearTree.view = new PTAdminItemEditView();
         PearTree.view.init();
-    } else if ($('body#items_edit_all').length) {
+    } else if ($('body#admin_items_edit_all').length) {
         PearTree.view = new PTAdminItemsEditView();
         PearTree.view.init();
-    } else if ($('body#items_index').length) {
+    } else if ($('body#admin_items_index').length) {
         PearTree.view = new PTAdminItemsView();
         PearTree.view.init();
     } else if ($('body#admin_items_show').length) {

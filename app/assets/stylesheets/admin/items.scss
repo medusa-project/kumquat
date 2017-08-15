@@ -1,4 +1,4 @@
-body#items_index {
+body#admin_items_index {
   div.pt-filter {
     margin-bottom: 1em;
   }
@@ -182,7 +182,7 @@ body#admin_items_show {
 
 }
 
-body#items_edit {
+body#admin_items_edit {
   .pt-autocomplete-results {
     background-color: white;
     border: 1px solid #ccc;
@@ -214,7 +214,7 @@ body#items_edit {
   }
 }
 
-body#items_edit_all {
+body#admin_items_edit_all {
   .pt-query-summary {
     margin: 0px;
     padding-left: 0px;
