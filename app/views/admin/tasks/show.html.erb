@@ -4,7 +4,8 @@
 
 <ol class="breadcrumb">
   <li><%= link_to 'Home', admin_root_path %></li>
-  <li class="active">Tasks</li>
+  <li><%= link_to 'Tasks', admin_tasks_path %></li>
+  <li class="active">Task ID <%= @task.id %></li>
 </ol>
 
 <%= hidden_field_tag('pt-tasks-url', admin_tasks_url(selected_id: @task.id)) %>
