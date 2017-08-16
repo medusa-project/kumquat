@@ -334,7 +334,8 @@ var PTItemView = function() {
                 index = initial_index;
                 // UV doesn't have a "selectCanvasIndex(index)" method as of
                 // version 2.0.
-                $('div#thumb' + index + ' > img').trigger('click');
+                console.log("Selecting index: " + index);
+                $('div#thumb' + index + ' img').trigger('click');
                 initial_index = null;
             }
 
