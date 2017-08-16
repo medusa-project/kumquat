@@ -1,4 +1,4 @@
-body#items_index {
+body#admin_items_index {
   div.pt-filter {
     margin-bottom: 1em;
   }
@@ -108,11 +108,14 @@ body#admin_items_show {
     max-width: 200px;
   }
 
-  #pt-structure ul {
-    list-style: none;
-    padding-left: 0em;
+  #pt-structure {
+    overflow-wrap: break-word;
     ul {
-      margin-left: 1.5em;
+      list-style: none;
+      padding-left: 0em;
+      ul {
+        margin-left: 1.5em;
+      }
     }
   }
 
@@ -182,7 +185,7 @@ body#admin_items_show {
 
 }
 
-body#items_edit {
+body#admin_items_edit {
   .pt-autocomplete-results {
     background-color: white;
     border: 1px solid #ccc;
@@ -214,7 +217,7 @@ body#items_edit {
   }
 }
 
-body#items_edit_all {
+body#admin_items_edit_all {
   .pt-query-summary {
     margin: 0px;
     padding-left: 0px;

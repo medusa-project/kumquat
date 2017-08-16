@@ -35,7 +35,7 @@ body#items_index #pt-page-content, body#search_index #pt-page-content {
   }
 }
 
-body#items_show {
+body#items_show, #pt-item-view { /* pt-item-view is used in free-form tree view. */
   .pt-compound-title {
     margin-top:-0.3em;
     small {
@@ -291,8 +291,9 @@ body#items_index, body#items_show {
     }
   }
 }
+
 // styles for free-form collection tree view
-body#items_index {
+body#tree_browser {
   #collection-tree-row{
     height:550px;
     border-style: solid;
@@ -305,7 +306,7 @@ body#items_index {
     border-right-style: solid;
     border-right-color: #dddddd;
   }
-  #item-info {
+  #pt-item-view {
     max-height: 545px;
     height: 545px;
     padding-top: 7px;

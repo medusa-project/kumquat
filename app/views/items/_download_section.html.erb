@@ -1,8 +1,6 @@
-<% # Requires the following locals: item %>
-
-<% if (item.variant == Item::Variants::DIRECTORY or
-    item.effective_viewer_binary&.media_category == Binary::MediaCategory::IMAGE or
-    item.is_compound? or item.binaries.any?) and !@storage_offline %>
+<% if (@containing_item.variant == Item::Variants::DIRECTORY or
+    @containing_item.effective_viewer_binary&.media_category == Binary::MediaCategory::IMAGE or
+    @containing_item.is_compound? or @containing_item.binaries.any?) and !@storage_offline %>
 
   <section id="pt-download-section">
     <h2>
@@ -20,16 +18,15 @@
                       'data-target': '#pt-download-zip-modal') do %>
             <i class="fa fa-file-zip-o"></i>&nbsp;&nbsp;Zip of Masters&hellip;
           <% end %>
-          <%= link_to(item_url(item, format: :zip, contents: :jpegs),
-                      target: '_blank',
-                      class: 'btn btn-default') do %>
+          <%= link_to(item_url(@containing_item, format: :zip, contents: :jpegs),
+                      target: '_blank', class: 'btn btn-default') do %>
             <i class="fa fa-file-zip-o"></i>&nbsp;&nbsp;Zip of JPEGs
           <% end %>
         <% end %>
 
-        <% if item.is_compound? %>
-          <%= link_to(item_url(item, format: :pdf), class: 'btn btn-default',
-                      target: '_blank') do %>
+        <% if @containing_item.is_compound? %>
+          <%= link_to(item_url(@containing_item, format: :pdf),
+                      class: 'btn btn-default', target: '_blank') do %>
             <i class="fa fa-file-pdf-o"></i> PDF
           <% end %>
         <% end %>
@@ -37,17 +34,12 @@
 
       <table class="table">
         <tbody>
-          <% if item.items.any? %>
-            <% item.items_from_solr.order(Item::SolrFields::STRUCTURAL_SORT).
-                limit(999).reject{ |it| it.variant == Item::Variants::THREE_D_MODEL }.each do |subitem| %>
+          <% if @downloadable_items.any? %>
+            <% @downloadable_items.each do |subitem| %>
               <%= render partial: 'download_table_rows', locals: { item: subitem } %>
             <% end %>
-          <% elsif item.variant == Item::Variants::FILE and item.parent %>
-            <% item.parent.items_from_solr.order(Item::SolrFields::STRUCTURAL_SORT).limit(999).each do |sibling| %>
-              <%= render partial: 'download_table_rows', locals: { item: sibling } %>
-            <% end %>
           <% else %>
-            <%= render partial: 'download_table_rows', locals: { item: item } %>
+            <%= render partial: 'download_table_rows', locals: { item: @containing_item } %>
           <% end %>
         </tbody>
       </table>
@@ -57,7 +49,7 @@
 
   <%= render partial: 'custom_image_panel' %>
   <%= render partial: 'download_zip_panel', locals: {
-      context: (@item.variant == Item::Variants::DIRECTORY) ? :directory : :item,
+      context: @containing_item.directory? ? :directory : :item,
       num_downloadable_items: 0, # these are potentially expensive to calculate.
       total_byte_size: 0 } %>
 
