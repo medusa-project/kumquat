@@ -340,7 +340,7 @@ var PTItemView = function() {
                     $('#pt-compound-viewer iframe').contents()
                         .find('div#thumb' + index + ' img').trigger('click');
                     initial_index = null;
-                }, 100);
+                }, 500);
             }
 
             console.debug('Selected canvas index: ' + index);
