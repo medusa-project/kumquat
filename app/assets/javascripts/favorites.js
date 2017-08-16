@@ -40,9 +40,11 @@ var PTFavoritesView = function() {
                 $(this).attr('href', $(this).attr('href') + '&ids=' + ids.join(','));
             }
         });
+
+        attachEventListeners();
     };
 
-    this.attachEventListeners = function() {
+    var attachEventListeners = function() {
         $('button.pt-remove-from-favorites').on('click', function() {
             var item = new PTItem();
             item.id = $(this).data('item-id');
