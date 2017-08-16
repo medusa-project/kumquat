@@ -1,4 +1,6 @@
-<% mailto = curator_mailto(@item) %>
+<% # requires the following locals: item [Item] %>
+
+<% mailto = curator_mailto(item) %>
 <% if mailto %>
   <div class="btn-group">
     <button type="button" class="btn btn-default dropdown-toggle"

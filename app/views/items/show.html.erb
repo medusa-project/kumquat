@@ -1,16 +1,16 @@
-<% provide :title, @item.title %>
+<% provide :title, @root_item.title %>
 <% provide :body_id, 'items_show' %>
 
-<%= breadcrumb(item: @item, context: session[:browse_context],
+<%= breadcrumb(item: @root_item, context: session[:browse_context],
                context_url: session[:browse_context_url]) %>
 
 <%= render partial: 'show_button_group' %>
 
-<%= item_page_title(@item) %>
+<%= item_page_title(@root_item) %>
 
 <% if (@previous_result or @next_result or session[:browse_context_url] or
-  @item.supplementary_item or @item.three_d_item) and !@storage_offline %>
-  <% supp_item = @item.supplementary_item %>
+  @root_item.supplementary_item or @root_item.three_d_item) and !@storage_offline %>
+  <% supp_item = @root_item.supplementary_item %>
   <% supp_bin = supp_item&.effective_viewer_binary %>
   <div style="margin-bottom:16px">
     <% # DLD-6: button that pops open the supplementary section is aligned to
@@ -22,7 +22,7 @@
            aria-expanded="false" aria-controls="pt-binary-<%= supp_bin.id %>">
           <i class="fa fa-plus-square-o"></i> Supplementary File</a>
       <% end %>
-      <% if @item.three_d_item %>
+      <% if @root_item.three_d_item %>
         <a role="button" class="btn btn-default btn-sm" data-toggle="collapse"
            href="#pt-3d-viewer-container"
            aria-expanded="false" aria-controls="pt-3d-viewer-container">
@@ -48,23 +48,23 @@
       </div>
     </div>
   <% end %>
-  <% if @item.three_d_item %>
+  <% if @root_item.three_d_item %>
     <div id="pt-3d-viewer-container" class="collapse">
-      <%= viewer_for_item(@item.three_d_item) %>
+      <%= viewer_for_item(@root_item.three_d_item) %>
     </div>
   <% end %>
 <% end %>
 
 <% unless @storage_offline %>
   <div class="pt-viewer">
-    <%= viewer_for_item(@item) %>
+    <%= viewer_for_item(@root_item) %>
   </div>
 
-  <% if has_viewer?(@item) %>
+  <% if has_viewer?(@root_item) %>
     <div class="row">
       <div class="col-sm-10">
-        <%= rights_statement(@item.effective_rightsstatements_org_statement,
-                             @item.effective_rights_statement) %>
+        <%= rights_statement(@root_item.effective_rightsstatements_org_statement,
+                             @root_item.effective_rights_statement) %>
       </div>
       <div class="col-sm-2">
         <a href="#pt-download-section" class="btn btn-lg btn-success">
@@ -74,28 +74,36 @@
   <% end %>
 <% end %>
 
-<% if @item.variant == Item::Variants::DIRECTORY %>
+<% if @root_item.variant == Item::Variants::DIRECTORY %>
   <section id="pt-files-section">
     <%= render partial: 'files' %>
   </section>
 <% end %>
 
-<% unless has_viewer?(@item) %>
-  <%= rights_statement(@item.effective_rightsstatements_org_statement,
-                       @item.effective_rights_statement) %>
+<% unless has_viewer?(@root_item) %>
+  <%= rights_statement(@root_item.effective_rightsstatements_org_statement,
+                       @root_item.effective_rights_statement) %>
 <% end %>
 
-<% if @item.elements.reject{ |e| e.name == 'title' }.any? %>
+<% if @root_item.elements.reject{ |e| e.name == 'title' }.any? %>
   <section>
-    <%= metadata_section(@item) %>
+    <%= metadata_section(@root_item) %>
   </section>
 <% end %>
 
-<%= render partial: 'download_section', locals: { item: @item } %>
+<%= render partial: 'download_section' %>
 <%= render partial: 'staff_info' %>
 
-<%= render partial: 'cite_panel', locals: { item: @item } %>
+<%= render partial: 'cite_panel', locals: { item: @root_item } %>
 
 <script type="application/ld+json">
-  <%= schema_org_json_ld(@item) %>
+  <%= schema_org_json_ld(@root_item) %>
 </script>
+
+<% # We will refer to these in JS to determine which item to select in the viewer. %>
+<% @downloadable_items.each_with_index do |dl_item, index| %>
+  <% if dl_item.repository_id == @selected_item.repository_id %>
+    <%= hidden_field_tag('pt-download-item-index', index) %>
+  <% end %>
+  <%= hidden_field_tag('pt-download-item-id', dl_item.repository_id) %>
+<% end %>

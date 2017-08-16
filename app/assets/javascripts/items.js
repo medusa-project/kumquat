@@ -322,15 +322,37 @@ var PTItemView = function() {
             }
         });
 
-        // When there are >1 items in the viewer and one is selected, highlight
-        // the corresponding item in the download panel. (UV will also fire
-        // this on load.)
+        var initial_index = $('[name=pt-download-item-index]').val();
+
+        // This acts as both a canvas-index-changed and on-load-complete
+        // listener, because UV doesn't have the latter, unless I'm missing
+        // something:
+        // https://github.com/UniversalViewer/universalviewer/blob/master/src/modules/uv-shared-module/BaseCommands.ts
         $(document).bind('uv.onCanvasIndexChanged', function(event, index) {
+            // Select the item in the viewer corresponding to the current URL.
+            if (initial_index) {
+                index = initial_index;
+                // UV doesn't have a "selectCanvasIndex(index)" method as of
+                // version 2.0.
+                $('div#thumb' + index + ' > img').trigger('click');
+                initial_index = null;
+            }
+
+            // When there are >1 items in the viewer:
+            // (N.B. The viewer and the download table will always contain the
+            // same items in the same order.)
             var rows = $('#pt-download table tr');
             if (rows.length > 1) {
+                // Highlight the corresponding item in the download table.
+                // (UV will also fire this on load.)
                 rows.removeClass('selected')
                     .filter(':nth-child(' + (index + 1) + ')')
                     .addClass('selected');
+
+                // Update the URL in the location bar.
+                var item_id = $('[name=pt-download-item-id]').eq(index).val();
+                window.history.replaceState({ id: item_id, index: index }, '',
+                    '/items/' + item_id);
             }
         });
 
@@ -355,7 +377,7 @@ var PTItemView = function() {
 };
 
 /**
- * Represents items view, a.k.a. results view.
+ * Handles linear items view, a.k.a. results view.
  *
  * @constructor
  */
@@ -380,6 +402,17 @@ var PTItemsView = function() {
             });
         });
 
+        attachEventListeners();
+    };
+
+    var attachEventListeners = function() {
+        $('.pagination a').on('click', function() {
+            $('form.pt-filter')[0].scrollIntoView({behavior: "smooth"});
+        });
+        self.attachFavoritesListeners();
+    };
+
+    this.attachFavoritesListeners = function() {
         $(document).on(PearTree.Events.ITEM_ADDED_TO_FAVORITES, function (event, item) {
             $('.pt-results button.pt-remove-from-favorites[data-item-id="' + item.id + '"]').show();
             $('.pt-results button.pt-add-to-favorites[data-item-id="' + item.id + '"]').hide();
@@ -390,38 +423,17 @@ var PTItemsView = function() {
             $('.pt-results button.pt-add-to-favorites[data-item-id="' + item.id + '"]').show();
             updateFavoritesCount();
         });
-
-        if ($('#jstree').length > 0) {
-            $('#jstree').jstree({
-                core: {
-                    data: {
-                        url: function (node) {
-                            return node.id === '#' ?
-                                getCollectionURL() :
-                                '/items/' + node.id + '/treedata.json';
-                        }
-                    }
-                }
-            }).bind("select_node.jstree", function (e, data) {
-                get_item_info(build_node_url(data));
-            });
-        }
-
-        self.attachEventListeners();
-    };
-
-    this.attachEventListeners = function() {
         $('button.pt-add-to-favorites').on('click', function() {
             var item = new PTItem();
             item.id = $(this).data('item-id');
             item.addToFavorites();
         });
-        $('button.pt-remove-from-favorites').on('click', function () {
+        $('button.pt-remove-from-favorites').on('click', function() {
             var item = new PTItem();
             item.id = $(this).data('item-id');
             item.removeFromFavorites();
         });
-        $('button.pt-remove-from-favorites, button.pt-add-to-favorites').each(function () {
+        $('button.pt-remove-from-favorites, button.pt-add-to-favorites').each(function() {
             var item = new PTItem();
             item.id = $(this).data('item-id');
             if (item.isFavorite()) {
@@ -438,72 +450,202 @@ var PTItemsView = function() {
                 }
             }
         });
-        $('.pagination a').on('click', function() {
-            $('form.pt-filter')[0].scrollIntoView({behavior: "smooth"});
-        });
     };
 
     var updateFavoritesCount = function() {
-        var badge = $('.pt-favorites-count');
-        badge.text(PTItem.numFavorites());
+        $('.pt-favorites-count').text(PTItem.numFavorites());
     };
+
 };
 
+/**
+ * Handles free-form tree view.
+ *
+ * @constructor
+ */
+var PTTreeBrowserView = function() {
 
-var build_node_url = function(data){
-  if (data.node.a_attr["name"]==="root-collection-node"){
-      return '/collections/' + data.node.id + '/tree.html?ajax=true';
-  }
-  return '/items/' + data.node.id + '.html?tree-node-type='+data.node.a_attr["class"];
-};
-var tree_node_callback = function (result) {
-    //reset flag used by embed.js
-    window.embedScriptIncluded = false;
-        $('#item-info').html(result);
-    $('#item-info ol.breadcrumb').remove();
-    $('#item-info .pt-result-navigation').remove();
-    $('#item-info .btn-group').removeClass('pull-right');
-    $('#item-info .view-dropdown').removeClass('dropdown-menu-right');
-    PearTree.init();
-    var view = new PTItemView();
-    view.init();
-};
-var trigger_root_node = function(){
-    get_item_info('/collections/'+window.location.pathname.split("/")[2]+'/tree.html?ajax=true');
-};
+    this.init = function() {
+        initializeTree();
+        new PTItemsView().attachFavoritesListeners();
+    };
 
-var get_item_info = function(ajax_url){
-    $.ajax({
-        url: ajax_url,
-        method: 'GET',
-        success: function(result) {
-            tree_node_callback(result);
+    /**
+     * @see https://www.jstree.com/api/#/
+     */
+    var initializeTree = function() {
+        var jstree = $('#jstree');
+        if (jstree.length > 0) {
+            jstree.jstree({
+                core: {
+                    multiple: false,
+                    data: {
+                        url: function (node) {
+                            return node.id === '#' ?
+                                getCollectionURL() :
+                                '/items/' + node.id + '/treedata.json';
+                        }
+                    }
+                }
+            }).bind('ready.jstree', function() {
+                // When we are entering the view, it may be to a URL like:
+                // /collections/:id/tree#:item_id
+                // If :item_id is present, we need to rewrite the URL as:
+                // /items/:id and traverse the tree to the node corresponding
+                // to that ID.
+                var target_id = window.location.hash.substring(1);
+                if (target_id) {
+                    drillDownToID(target_id);
+                }
+            }).bind("select_node.jstree", function (e, data) {
+                loadItemView(buildAjaxNodeURL(data));
+
+                // Add the selected item ID to the hash portion of the URL.
+                console.debug('Navigating to ' + data.node.id);
+                window.history.replaceState({id: data.node.id}, '',
+                    buildPublicNodeURL(data));
+            });
+
+            trigger_root_node();
         }
-    })
-};
+    };
 
-var get_pagination_link = function(anchor_href){
-    var href_array = anchor_href.split("/files");
-    return href_array[0]+href_array[1]
+    /**
+     * Drills down through the tree to the leaf node corresponding to the item
+     * with the given ID.
+     *
+     * @param id Item ID.
+     */
+    var drillDownToID = function(id) {
+        console.debug("Drilling down to ID " + id);
 
+        /**
+         * Recursive function that drills down the tree to a specific leaf
+         * node.
+         *
+         * @param nodes Array of node IDs in order from root to leaf.
+         * @param level Used internally; supply 0 to start.
+         * @param onComplete Callback function.
+         */
+        var drillDown = function(nodes, level, onComplete) {
+            var jstree = $('#jstree');
+            if (level < nodes.length) {
+                var id = nodes[level];
+                jstree.jstree('open_node', '#' + id, function() {
+                    level += 1;
+                    drillDown(nodes, level, onComplete);
+                });
+            } else {
+                onComplete();
+            }
+        };
 
-};
+        /**
+         * Assembles a list of parent IDs of the given item ID,
+         * which is passed to the callback function.
+         *
+         * @param id Item ID.
+         * @param parents Array of parents. Supply an empty array
+         *                to start.
+         * @param onComplete Callback function.
+         */
+        var traceLineage = function(id, parents, onComplete) {
+            console.debug('Finding parent of ' + id);
+            $.ajax({
+                url: '/items/' + id + '.json',
+                dataType: 'json',
+                method: 'GET',
+                success: function(result) {
+                    if (result.parent) {
+                        var parts = result.parent.split('/');
+                        var parent = parts[parts.length - 1];
+                        console.debug('Parent of ' + id + ' is ' + parent);
+                        parents.push(parent);
+                        traceLineage(parent, parents, onComplete);
+                    } else {
+                        onComplete(parents.reverse());
+                    }
+                },
+                error: function(result) {
+                    console.error(result);
+                }
+            });
+        };
 
-var getCollectionURL = function() {
-    var ID = window.location.pathname.split("/")[2];
-    return '/collections/'+ID+'/items/treedata.json';
+        traceLineage(id, [], function(parents) {
+            drillDown(parents, 0, function() {
+                var jstree = $('#jstree');
+                jstree.jstree('deselect_all');
+                jstree.jstree('select_node', '#' + id);
+                window.history.replaceState({id: id}, '', '/items/' + id);
+                console.debug('Drill-down complete');
+            });
+        });
+    };
+
+    var buildAjaxNodeURL = function(data) {
+        if (data.node.a_attr["name"] === 'root-collection-node') {
+            return '/collections/' + data.node.id + '/tree.html?ajax=true';
+        }
+        return '/items/' + data.node.id + '.html?tree-node-type=' +
+            data.node.a_attr["class"];
+    };
+
+    var buildPublicNodeURL = function(data) {
+        var url;
+        if (data.node.a_attr.class.includes('Collection')) {
+            url = '/collections/' + data.node.id + '/tree'
+        } else {
+            url = '/items/' + data.node.id
+        }
+        return url;
+    }
+
+    var tree_node_callback = function(result) {
+        //reset flag used by embed.js
+        window.embedScriptIncluded = false;
+        $('#pt-item-view').html(result);
+        $('#pt-item-view ol.breadcrumb').remove();
+        $('#pt-item-view .pt-result-navigation').remove();
+        $('#pt-item-view .btn-group').removeClass('pull-right');
+        $('#pt-item-view .view-dropdown').removeClass('dropdown-menu-right');
+        PearTree.init();
+        var view = new PTItemView();
+        view.init();
+    };
+
+    var trigger_root_node = function() {
+        loadItemView('/collections/' +
+            window.location.pathname.split("/")[2]+'/tree.html?ajax=true');
+    };
+
+    var getCollectionURL = function() {
+        var ID = window.location.pathname.split("/")[2];
+        return '/collections/'+ID+'/items/treedata.json';
+    };
+
+    var loadItemView = function(ajax_url) {
+        $.ajax({
+            url: ajax_url,
+            method: 'GET',
+            success: function(result) {
+                tree_node_callback(result);
+            }
+        });
+    };
+
 };
 
 var ready = function() {
-    if ($('body#items_index').length) {
+    if ($('body#tree_browser').length) {
+        PearTree.view = new PTTreeBrowserView();
+        PearTree.view.init();
+    } if ($('body#items_index').length) {
         PearTree.view = new PTItemsView();
         PearTree.view.init();
     } else if ($('body#items_show').length) {
         PearTree.view = new PTItemView();
         PearTree.view.init();
-    }
-    if ($('#jstree').length){
-        trigger_root_node();
     }
 };
 

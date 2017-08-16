@@ -25,8 +25,8 @@ class ItemsController < WebsiteController
   ##
   # Retrieves a binary by its filename.
   #
-  # An item shouldn't have multipple binaries with the same filename, but if
-  # it does, a random match will be sent.
+  # An item shouldn't have multiple binaries with the same filename, but if
+  # it does, one of them will be sent at random.
   #
   # Responds to GET /items/:item_id/binaries/:filename
   #
@@ -265,50 +265,76 @@ class ItemsController < WebsiteController
     respond_to do |format|
       format.atom
       format.html do
-        @parent = @item.parent
-        @relative_parent = @parent ? @parent : @item
-
-        # If the item has a parent and variant and the variant is not FILE or
-        # DIRECTORY, redirect to its parent. This is to force compound object
-        # pages and other child items to be viewed within the context of the
-        # object itself.
-        if @item.parent and @item.variant and
-            ![Item::Variants::DIRECTORY, Item::Variants::FILE].include?(@item.variant)
-          redirect_to @item.parent, status: 303
-          return
-        end
-
         set_files_ivar
 
-        # Find the previous and next result based on the results URL in the
-        # session.
-        results_url = session[:browse_context_url]
-        if results_url.present?
-          uri = URI.parse(results_url)
-          query = Rack::Utils.parse_nested_query(uri.query) || {}
-          query[:start] = session[:start].to_i if query[:start].blank?
-          limit = Option::integer(Option::Keys::RESULTS_PER_PAGE)
-          if session[:first_result_id] == @item.repository_id
-            query[:start] -= limit / 2.0
-          elsif session[:last_result_id] == @item.repository_id
-            query[:start] += limit / 2.0
-          end
-          finder = item_finder_for(query)
-          results = finder.to_a
-          results.each_with_index do |result, index|
-            if result&.repository_id == @item.repository_id
-              @previous_result = results[index - 1] if index - 1 >= 0
-              @next_result = results[index + 1] if index + 1 < results.length
-            end
-          end
+        if @item.file? or @item.directory?
+          if request.xhr?
+            # See comments in the else block for an explanation of what these
+            # are. We set them here as well in order to be able to share the
+            # same view templates.
+            @root_item = @item
+            @selected_item = @item
+            @containing_item = @item.directory? ? @item : @item.parent
+            @downloadable_items = @item.directory? ?
+                                      @item.items_from_solr.order(Item::SolrFields::STRUCTURAL_SORT).limit(9999) :
+                                      [@item]
 
-          session[:first_result_id] = results.first&.repository_id
-          session[:last_result_id] = results.last&.repository_id
-        end
-        if params["tree-node-type"]=="file_node"
-          render layout: false
-        elsif params["tree-node-type"]=="directory_node"
-          render "tree_show_directory_item", layout: false
+            if params['tree-node-type'].include?('file_node')
+              render layout: false
+            elsif params['tree-node-type'].include?('directory_node')
+              render 'tree_show_directory_item', layout: false
+            end
+          else
+            redirect_to collection_tree_path(@item.collection) + '#' +
+                            @item.repository_id
+          end
+        else
+          # DLD-98 calls for the URL in the browser bar to change when an item
+          # is selected in the viewer. In other words, each item in the viewer
+          # needs to have its own URL and dereferencing that URL should load
+          # the same page with a different viewer item selected. We refer to
+          # this item as @selected_item.
+          @selected_item = @item
+          @item = nil
+
+          # @containing_item is the immediate parent of @selected_item. If
+          # @selected_item has no parent, @containing_item === @selected_item.
+          @containing_item = @selected_item.parent || @selected_item
+
+          # @root_item is the root parent of @selected_item. If @selected_item
+          # has no parent, @selected_item === @root_item. @root_item is now the
+          # main item that will be displayed in the view.
+          @root_item = @selected_item.parent ?
+                      @selected_item.root_parent : @selected_item
+
+          # All items within the containing item are downloadable.
+          @downloadable_items = @containing_item.items_from_solr.
+              order(Item::SolrFields::STRUCTURAL_SORT).limit(9999)
+
+          # Find the previous and next result based on the results URL in the
+          # session.
+          results_url = session[:browse_context_url]
+          if results_url.present?
+            query = UrlUtil.parse_query(results_url).symbolize_keys
+            query[:start] = session[:start].to_i if query[:start].blank?
+            limit = Option::integer(Option::Keys::RESULTS_PER_PAGE)
+            if session[:first_result_id] == @containing_item.repository_id
+              query[:start] -= limit / 2.0
+            elsif session[:last_result_id] == @containing_item.repository_id
+              query[:start] += limit / 2.0
+            end
+            finder = item_finder_for(query)
+            results = finder.to_a
+            results.each_with_index do |result, index|
+              if result&.repository_id == @containing_item.repository_id
+                @previous_result = results[index - 1] if index - 1 >= 0
+                @next_result = results[index + 1] if index + 1 < results.length
+              end
+            end
+
+            session[:first_result_id] = results.first&.repository_id
+            session[:last_result_id] = results.last&.repository_id
+          end
         end
       end
       format.json do
@@ -316,7 +342,7 @@ class ItemsController < WebsiteController
       end
       format.pdf do
         # PDF download is only available for compound objects.
-        if @item.variant.blank?
+        if @item.is_compound?
           download = Download.create
           CreatePdfJob.perform_later(@item, download)
           redirect_to download_url(download)
@@ -383,11 +409,11 @@ class ItemsController < WebsiteController
           fresh_when(etag: @items) if Rails.env.production?
           session[:first_result_id] = @items.first&.repository_id
           session[:last_result_id] = @items.last&.repository_id
-          if params["ajax"]=="true"
-            render "tree_root", layout: false
+          if request.xhr?
+            render 'tree_root', layout: false
           end
         else
-          redirect_to collection_items_path()
+          redirect_to collection_items_path
         end
       end
     end
@@ -431,7 +457,6 @@ class ItemsController < WebsiteController
   private
 
   def setup_index_view
-
     if params[:collection_id]
       @collection = Collection.find_by_repository_id(params[:collection_id])
       raise ActiveRecord::RecordNotFound unless @collection
@@ -481,11 +506,11 @@ class ItemsController < WebsiteController
     node_hash
   end
   def attr_hash_for(item)
-    attr_hash = {"href": item_path(item)}
-    if item.variant == Item::Variants::DIRECTORY
-      attr_hash["class"]="directory_node"
-    elsif item.variant == Item::Variants::FILE
-      attr_hash["class"]="file_node"
+    attr_hash = {href: item_path(item)}
+    if item.directory?
+      attr_hash['class'] = 'directory_node Item'
+    elsif item.file?
+      attr_hash['class'] = 'file_node Item'
     end
     attr_hash
   end
@@ -493,11 +518,14 @@ class ItemsController < WebsiteController
 
   def create_tree_root(tree_hash_array, collection)
     node_hash = Hash.new
-    node_hash["id"]=collection.repository_id
-    node_hash["text"]=collection.title
-    node_hash["state"] = {:opened => true, :selected => true}
-    node_hash["a_attr"] = {:name => "root-collection-node", "class": "root-collection-node"}
-    node_hash["children"]=tree_hash_array
+    node_hash['id'] = collection.repository_id
+    node_hash['text'] = collection.title
+    node_hash['state'] = {opened: true, selected: true}
+    # We will check the class in JS to determine what URL to route to
+    # (/collections/:id or /items/:id).
+    node_hash['a_attr'] = {name: 'root-collection-node',
+                           class: 'root-collection-node Collection'}
+    node_hash['children'] = tree_hash_array
     node_hash
   end
 
