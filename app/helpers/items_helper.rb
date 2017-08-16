@@ -1329,12 +1329,12 @@ module ItemsHelper
       begin
         str = File.read(binary.absolute_local_pathname).to_s
         if str.valid_encoding?
-          html += raw("<pre>#{str}</pre>")
+          html += "<pre>#{str}</pre>"
         end
       rescue Errno::ENOENT # File not found
       end
     end
-    html
+    raw(html)
   end
 
   ##
