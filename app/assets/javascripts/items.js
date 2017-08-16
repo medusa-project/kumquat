@@ -331,13 +331,19 @@ var PTItemView = function() {
         $(document).bind('uv.onCanvasIndexChanged', function(event, index) {
             // Select the item in the viewer corresponding to the current URL.
             if (initial_index) {
+                console.debug("Initially selected index: " + initial_index);
                 index = initial_index;
                 // UV doesn't have a "selectCanvasIndex(index)" method as of
-                // version 2.0.
-                console.log("Selecting index: " + index);
-                $('div#thumb' + index + ' img').trigger('click');
-                initial_index = null;
+                // version 2.0. We can't do this quite yet but there is no
+                // event to let us know when it's safe, hence the delay.
+                setTimeout(function() {
+                    $('#pt-compound-viewer iframe').contents()
+                        .find('div#thumb' + index + ' img').trigger('click');
+                    initial_index = null;
+                }, 100);
             }
+
+            console.debug('Selected canvas index: ' + index);
 
             // When there are >1 items in the viewer:
             // (N.B. The viewer and the download table will always contain the
