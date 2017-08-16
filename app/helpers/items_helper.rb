@@ -854,13 +854,11 @@ module ItemsHelper
       return raw(frag.to_html.strip)
     elsif item.file?
       return free_form_viewer_for(item)
-    # elsif is_free_form_without_image? item
-    #   return viewer_unavailable_message_for(item)
 
       # IMET-473: image files should be presented in the same manner as compound
       # objects, with a gallery viewer showing all of the other images in the
       # same directory.
-    elsif item.variant == Item::Variants::FILE and
+    elsif item.file? and
         item.effective_viewer_binary&.media_category == Binary::MediaCategory::IMAGE
       return compound_viewer_for(item.parent, item)
     elsif item.is_compound?
@@ -1202,7 +1200,7 @@ module ItemsHelper
       when Binary::MediaCategory::VIDEO
         return video_player_for(binary)
       else
-        return viewer_unavailable_message_for(item)
+        return viewer_unavailable_message
     end
   end
 
@@ -1221,8 +1219,7 @@ module ItemsHelper
       "data-rotation=\"0\" style=\"margin: 0 auto; width: 96%; height:600px; background-color:#000;\"></div>"
       html += javascript_include_tag('/universalviewer/lib/embed.js', id: 'embedUV')
     else
-      html += '<div class="alert alert-info">No image viewer-compatible
-          binaries are associated with this item.</div>'
+      html += viewer_unavailable_message
     end
     raw(html)
   end
@@ -1400,9 +1397,11 @@ module ItemsHelper
     raw(tag)
   end
 
-  def viewer_unavailable_message_for(item)
-    raw('<div class="alert alert-info">No image viewer-compatible
-          binaries are associated with this item.</div>')
+  ##
+  # @return [String] Bootstrap alert div.
+  #
+  def viewer_unavailable_message
+    raw('<div class="alert alert-info">This item has no displayable content.</div>')
   end
 
   ##
