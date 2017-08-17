@@ -191,12 +191,12 @@ module ItemsHelper
 
   ##
   # @param item [Item]
-  # @param region [Symbol] :default or :square
-  # @param size [Symbol,Integer] Integer or :full
+  # @param region [Symbol] :full or :square
+  # @param size [Symbol,Integer] Bounding box size; Integer or :full
   # @param format [Symbol]
   # @return [String, nil] Image URL or nil if the item is not an image
   #
-  def iiif_image_url(item, region = :default, size = :full, format = :jpg)
+  def iiif_image_url(item, region = :full, size = :full, format = :jpg)
     url = nil
     bin = item.iiif_image_binary
     if bin
@@ -365,6 +365,29 @@ module ItemsHelper
   def num_favorites
     cookies[:favorites] ?
         cookies[:favorites].split(FavoritesController::COOKIE_DELIMITER).length : 0
+  end
+
+  ##
+  # Requested in DLD-116.
+  #
+  # @param item [Item]
+  # @return [String]
+  # @see [Open Graph Protocol](http://ogp.me)
+  #
+  def open_graph_meta_tags(item)
+    html = sprintf('<meta property="og:title" content="%s" />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="%s" />
+        <meta property="og:image" content="%s" />
+        <meta property="og:description" content="%s" />
+        <meta property="og:site_name" content="%s" />
+        <meta property="og:image:type" content="image/jpeg" />
+        <meta property="og:image:alt" content="%s" />',
+                   item.title, item_url(item),
+                   iiif_image_url(item, :full, 1200),
+                   item.description,
+                   Option::string(Option::Keys::WEBSITE_NAME), item.title)
+    raw(html)
   end
 
   ##
