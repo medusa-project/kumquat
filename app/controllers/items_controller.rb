@@ -370,7 +370,7 @@ class ItemsController < WebsiteController
             return
           end
         elsif @item.variant == Item::Variants::FILE
-          items = @item.parent.items
+          items = @item.parent ? @item.parent.items : @item.collection.items
           zip_name = 'files'
         else
           items = @item.items.any? ? @item.items : [@item]
