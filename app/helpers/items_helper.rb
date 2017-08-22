@@ -1447,7 +1447,7 @@ module ItemsHelper
   # @return [String] Bootstrap alert div.
   #
   def viewer_unavailable_message
-    raw('<div class="alert alert-info">This item has no displayable content.</div>')
+    raw('<div class="alert alert-info">No previewer is available for this file type. To view it, use the Download button.</div>')
   end
 
   ##
