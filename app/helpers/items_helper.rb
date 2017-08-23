@@ -405,7 +405,8 @@ module ItemsHelper
                    item_url(item),
                    item.description,
                    Option::string(Option::Keys::WEBSITE_NAME),
-                   iiif_image_url(item, :full, 1200),
+                   # Facebook may have trouble with https:// images; see DLD-116.
+                   iiif_image_url(item, :full, 1200).gsub('https://', 'http://'),
                    item.title)
     raw(html)
   end
