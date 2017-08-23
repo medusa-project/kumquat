@@ -264,8 +264,8 @@ description on the right.
         margin-right: 20px;
         width: $max-image-width;
         img {
-          max-height: $max-image-height;
-          max-width: $max-image-width;
+          height: $max-image-height;
+          width: $max-image-width;
         }
       }
       .pt-label {
