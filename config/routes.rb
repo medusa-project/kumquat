@@ -161,6 +161,8 @@ Rails.application.routes.draw do
           via: :get, as: 'downloader_status'
     match '/status/image-server', to: 'status#image_server_status',
           via: :get, as: 'image_server_status'
+    match '/status/job-worker', to: 'status#job_worker_status',
+          via: :get, as: 'job_worker_status'
     match '/status/search-server', to: 'status#search_server_status',
           via: :get, as: 'search_server_status'
     match '/settings', to: 'settings#index', via: :get
