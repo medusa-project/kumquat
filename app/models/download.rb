@@ -91,7 +91,7 @@ class Download < ActiveRecord::Base
   # @return [Boolean]
   #
   def ready?
-    self.task and self.task.status == Task::Status::SUCCEEDED
+    self.task&.succeeded?
   end
 
   ##

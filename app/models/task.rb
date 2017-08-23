@@ -74,6 +74,10 @@ class Task < ActiveRecord::Base
 
   alias_method :succeeded, :done
 
+  def failed?
+    self.status == Status::FAILED
+  end
+
   def progress=(float)
     self.percent_complete = float.to_f
     self.save!
@@ -87,6 +91,10 @@ class Task < ActiveRecord::Base
     write_attribute(:status, status)
 
     succeed if status == Status::SUCCEEDED
+  end
+
+  def succeeded?
+    self.status == Status::SUCCEEDED
   end
 
   private

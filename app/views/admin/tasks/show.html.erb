@@ -60,7 +60,7 @@
       <p class="text-danger"><%= h(@task.detail) %></p>
     <% end %>
 
-    <% if @task.status == Task::Status::FAILED and @task.backtrace.present? %>
+    <% if @task.failed? and @task.backtrace.present? %>
       <h2>Stack Trace</h2>
       <pre><%= raw(@task.backtrace.split('", "').join('",<br>"')) %></pre>
     <% end %>
