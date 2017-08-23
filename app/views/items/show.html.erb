@@ -1,6 +1,6 @@
 <% provide :title, @root_item.title %>
 <% provide :body_id, 'items_show' %>
-<% provide :meta_tags, open_graph_meta_tags(@item) %>
+<% provide :meta_tags, open_graph_meta_tags(@root_item) %>
 
 <%= breadcrumb(item: @root_item, context: session[:browse_context],
                context_url: session[:browse_context_url]) %>
