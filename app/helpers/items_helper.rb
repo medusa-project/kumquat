@@ -2,6 +2,8 @@ module ItemsHelper
 
   DEFAULT_THUMBNAIL_SIZE = 256
   PAGE_TITLE_LENGTH = 35
+  VIEWER_HEIGHT = '600px'
+  VIEWER_WIDTH = '96%'
 
   ##
   # @param binary [Binary]
@@ -1054,7 +1056,7 @@ module ItemsHelper
       "data-config=\"#{asset_path('uvconfig_compound.json')}\" "\
       "data-uri=\"#{item_iiif_manifest_url(object)}\" "\
       "data-sequenceindex=\"0\" data-canvasindex=\"#{canvas_index}\" "\
-      "data-rotation=\"0\" style=\"height:600px; background-color:#000;\"></div>"
+      "data-rotation=\"0\" style=\"margin: 0 auto; width:#{VIEWER_WIDTH}; height:#{VIEWER_HEIGHT}; background-color:#000;\"></div>"
     html += javascript_include_tag('/universalviewer/lib/embed.js', id: 'embedUV')
     raw(html)
   end
@@ -1239,7 +1241,7 @@ module ItemsHelper
       "data-config=\"#{asset_path('uvconfig_single.json')}\" "\
       "data-uri=\"#{item_iiif_manifest_url(item)}\" "\
       "data-sequenceindex=\"0\" data-canvasindex=\"0\" "\
-      "data-rotation=\"0\" style=\"margin: 0 auto; width: 96%; height:600px; background-color:#000;\"></div>"
+      "data-rotation=\"0\" style=\"margin: 0 auto; width:#{VIEWER_WIDTH}; height:#{VIEWER_HEIGHT}; background-color:#000;\"></div>"
       html += javascript_include_tag('/universalviewer/lib/embed.js', id: 'embedUV')
     else
       html += viewer_unavailable_message
