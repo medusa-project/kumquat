@@ -153,9 +153,9 @@ namespace :dls do
       Download.cleanup(60 * 60 * 24) # max 1 day old
     end
 
-    desc 'Clear all downloads'
-    task :clear => :environment do |task, args|
-      Download.destroy_all
+    desc 'Expire all downloads'
+    task :expire => :environment do |task, args|
+      Download.all.each { |dl| dl.expire }
     end
 
   end

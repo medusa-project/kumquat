@@ -9,7 +9,9 @@ class DownloadsController < ApplicationController
     download = Download.find_by_key(params[:download_key])
     raise ActiveRecord::RecordNotFound unless download
 
-    if File.exists?(download.pathname)
+    if download.expired
+      render text: 'This download is expired.', status: :gone
+    elsif File.exists?(download.pathname)
       send_file(download.pathname)
     else
       CustomLogger.instance.error("DownloadsController.file(): "\
@@ -26,6 +28,10 @@ class DownloadsController < ApplicationController
   def show
     @download = Download.find_by_key(params[:key])
     raise ActiveRecord::RecordNotFound unless @download
+
+    if @download.expired
+      render 'expired', status: :gone
+    end
   end
 
 end

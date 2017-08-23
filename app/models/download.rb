@@ -18,11 +18,16 @@
 #    download link, and follows it to download the file.
 #
 # Periodically, old Download records and their corresponding files should be
-# cleaned up using the `dls:downloads:cleanup` rake task.
+# cleaned up using the `dls:downloads:cleanup` rake task. This will mark them
+# as expired and delete their corresponding files. Expired instances are kept
+# around for record-keeping.
 #
 # # Attributes
 #
 # * created_at:       Managed by ActiveRecord.
+# * expired:          When a download is expired, it is no longer usable and
+#                     its associated file is no longer available. Client code
+#                     should call expire() rather than setting this directly.
 # * filename:         Filename of the file to be downloaded. (`url` can be
 #                     used instead.
 # * key:              Random alphanumeric "public ID." Should be hard to guess
@@ -36,6 +41,7 @@ class Download < ActiveRecord::Base
   belongs_to :task, inverse_of: :download
 
   before_create :assign_key
+  # Downloads shouldn't be destroyed, but just in case.
   after_destroy :delete_file
 
   DOWNLOADS_DIRECTORY = File.join(Rails.root, 'tmp', 'downloads')
@@ -51,16 +57,27 @@ class Download < ActiveRecord::Base
   #
   def self.cleanup(max_age_seconds)
     max_age_seconds = max_age_seconds.to_i
-    num_deleted = 0
+    num_expired = 0
     Download.all.each do |download|
-      # Delete the instance if it is more than max_age_seconds old.
+      # Expire the instance if it is more than max_age_seconds old.
       if Time.now.to_i - download.updated_at.to_i > max_age_seconds
-        download.destroy!
-        num_deleted += 1
+        download.expire
+        num_expired += 1
       end
     end
-    CustomLogger.instance.info("Download.cleanup(): deleted #{num_deleted} "\
+    CustomLogger.instance.info("Download.cleanup(): expired #{num_expired} "\
           "instances > #{max_age_seconds} seconds old.")
+  end
+
+  ##
+  # Sets the instance's `expired` attribute to true and deletes its
+  # corresponding file.
+  #
+  # @return [void]
+  #
+  def expire
+    delete_file
+    self.update!(expired: true)
   end
 
   ##
