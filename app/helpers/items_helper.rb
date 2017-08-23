@@ -977,11 +977,6 @@ module ItemsHelper
     data = []
     if binary
       data << {
-          label: 'Media Category',
-          category: 'File',
-          value: binary.human_readable_media_category
-      }
-      data << {
           label: 'Filename',
           category: 'File',
           value: File.basename(binary.absolute_local_pathname)
@@ -993,6 +988,11 @@ module ItemsHelper
             value: binary.absolute_local_pathname
         }
       end
+      data << {
+          label: 'Media Category',
+          category: 'File',
+          value: binary.human_readable_media_category
+      }
       data << {
           label: 'Media Type',
           category: 'File',
@@ -1027,6 +1027,11 @@ module ItemsHelper
                            target: '_blank')
         }
       end
+      data << {
+          label: 'DLS ID',
+          category: 'File',
+          value: link_to(binary.id, binary_url(binary))
+      }
       begin
         binary.metadata.each do |field|
           data << {
