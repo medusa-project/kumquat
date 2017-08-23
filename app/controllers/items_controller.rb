@@ -319,9 +319,9 @@ class ItemsController < WebsiteController
             query[:start] = session[:start].to_i if query[:start].blank?
             limit = Option::integer(Option::Keys::RESULTS_PER_PAGE)
             if session[:first_result_id] == @containing_item.repository_id
-              query[:start] -= limit / 2.0
+              query[:start] = query[:start].to_i - limit / 2.0
             elsif session[:last_result_id] == @containing_item.repository_id
-              query[:start] += limit / 2.0
+              query[:start] = query[:start].to_i + limit / 2.0
             end
             finder = item_finder_for(query)
             results = finder.to_a
