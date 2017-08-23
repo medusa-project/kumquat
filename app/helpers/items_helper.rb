@@ -396,15 +396,18 @@ module ItemsHelper
     html = sprintf('<meta property="og:title" content="%s" />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="%s" />
-        <meta property="og:image" content="%s" />
         <meta property="og:description" content="%s" />
         <meta property="og:site_name" content="%s" />
+        <meta property="og:image:url" content="%s" />
         <meta property="og:image:type" content="image/jpeg" />
         <meta property="og:image:alt" content="%s" />',
-                   item.title, item_url(item),
-                   iiif_image_url(item, :full, 1200),
+                   item.title,
+                   item_url(item),
                    item.description,
-                   Option::string(Option::Keys::WEBSITE_NAME), item.title)
+                   Option::string(Option::Keys::WEBSITE_NAME),
+                   # Facebook may have trouble with https:// images; see DLD-116.
+                   iiif_image_url(item, :full, 1200).gsub('https://', 'http://'),
+                   item.title)
     raw(html)
   end
 
