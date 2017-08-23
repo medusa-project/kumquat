@@ -46,6 +46,14 @@
       <% end %>
       <dt>Class</dt>
       <dd><%= @task.name %></dd>
+      <% if @task.download %>
+        <dt>Downloadable Resource</dt>
+        <dd><%= @task.download.filename ?
+                    link_to(@task.download.filename, download_url(@task.download)) :
+                    link_to(@task.download.url, @task.download.url) %></dd>
+        <dt>Client IP</dt>
+        <dd><%= @task.download.ip_address %></dd>
+      <% end %>
     </dl>
 
     <% if @task.detail.present? %>
