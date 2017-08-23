@@ -1,5 +1,5 @@
 <% provide :title, 'Server Status' %>
-<% provide :body_id, 'status' %>
+<% provide :body_id, 'admin_status' %>
 <% provide :active_nav, 'server' %>
 
 <ol class="breadcrumb">
@@ -34,6 +34,22 @@
           <dd><%= Rails.root %></dd>
           <dt>Repository Root</dt>
           <dd><%= Configuration.instance.repository_pathname %></dd>
+        </dl>
+      </div>
+    </div>
+
+    <div class="panel panel-default pt-dynamic-status">
+      <div class="panel-heading">
+        <h3 class="panel-title">
+          Job Worker
+          <span class="label label-success pt-service-status hidden"
+                data-check="<%= admin_job_worker_status_url %>"></span>
+        </h3>
+      </div>
+      <div class="panel-body">
+        <dl>
+          <dt>PID</dt>
+          <dd data-name="pid"></dd>
         </dl>
       </div>
     </div>
@@ -81,7 +97,7 @@
     <div class="panel panel-default pt-dynamic-status" id="pt-downloader">
       <div class="panel-heading">
         <h3 class="panel-title">
-          Medusa Downloader
+          Downloader
           <span class="label label-success pt-service-status hidden"
                 data-check="<%= admin_downloader_status_url %>"></span>
         </h3>
