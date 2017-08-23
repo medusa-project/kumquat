@@ -40,7 +40,7 @@ class FavoritesController < WebsiteController
           item_ids = @items.to_a.map(&:repository_id)
         end
 
-        download = Download.create
+        download = Download.create(ip_address: request.remote_ip)
         DownloadZipJob.perform_later(item_ids, 'favorites', download)
         redirect_to download_url(download)
       end

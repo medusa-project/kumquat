@@ -41,7 +41,7 @@ module Admin
         format.html
         format.js
         format.tsv do
-          download = Download.create
+          download = Download.create(ip_address: request.remote_ip)
           DownloadAllTsvJob.perform_later(download)
           redirect_to download_url(download)
         end

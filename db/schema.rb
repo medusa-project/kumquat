@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170807191410) do
+ActiveRecord::Schema.define(version: 20170823193243) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -165,13 +165,18 @@ ActiveRecord::Schema.define(version: 20170807191410) do
   add_index "delayed_jobs", ["priority", "run_at"], name: "delayed_jobs_priority", using: :btree
 
   create_table "downloads", force: :cascade do |t|
-    t.string   "key",        null: false
+    t.string   "key",                        null: false
     t.string   "filename"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at",                 null: false
+    t.datetime "updated_at",                 null: false
     t.string   "url"
     t.integer  "task_id"
+    t.boolean  "expired",    default: false
+    t.string   "ip_address"
   end
+
+  add_index "downloads", ["expired"], name: "index_downloads_on_expired", using: :btree
+  add_index "downloads", ["ip_address"], name: "index_downloads_on_ip_address", using: :btree
 
   create_table "elements", force: :cascade do |t|
     t.string   "name"
@@ -225,6 +230,7 @@ ActiveRecord::Schema.define(version: 20170807191410) do
     t.string   "contentdm_alias"
     t.string   "embed_tag"
     t.integer  "representative_binary_id"
+    t.string   "folder_name"
   end
 
   add_index "items", ["collection_repository_id"], name: "index_items_on_collection_identifier", using: :btree

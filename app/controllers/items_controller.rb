@@ -250,7 +250,7 @@ class ItemsController < WebsiteController
         end_ = params[:download_start].to_i + item_ids.length
         zip_name = "items-#{start}-#{end_}"
 
-        download = Download.create
+        download = Download.create(ip_address: request.remote_ip)
         DownloadZipJob.perform_later(item_ids, zip_name, download)
         redirect_to download_url(download)
       end
@@ -343,7 +343,7 @@ class ItemsController < WebsiteController
       format.pdf do
         # PDF download is only available for compound objects.
         if @item.is_compound?
-          download = Download.create
+          download = Download.create(ip_address: request.remote_ip)
           CreatePdfJob.perform_later(@item, download)
           redirect_to download_url(download)
         else
@@ -379,7 +379,7 @@ class ItemsController < WebsiteController
 
         item_ids = items.map(&:repository_id)
 
-        download = Download.create
+        download = Download.create(ip_address: request.remote_ip)
         case params[:contents]
           when 'jpegs'
             CreateZipOfJpegsJob.perform_later(item_ids, zip_name, download)

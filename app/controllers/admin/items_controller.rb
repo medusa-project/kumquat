@@ -136,7 +136,7 @@ module Admin
           # TSV generation is roughly O(n) with number of items. If there are
           # more than n items in the collection, do the download asynchronously.
           if @collection.items.count > 2000
-            download = Download.create
+            download = Download.create(ip_address: request.remote_ip)
             DownloadTsvJob.perform_later(@collection, download,
                                          only_undescribed)
             redirect_to download_url(download)
