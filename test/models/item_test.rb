@@ -495,7 +495,8 @@ class ItemTest < ActiveSupport::TestCase
 
     subitem = Item.new(repository_id: SecureRandom.uuid,
                        collection_repository_id: @item.collection_repository_id,
-                       parent_repository_id: @item.repository_id)
+                       parent_repository_id: @item.repository_id,
+                       variant: Item::Variants::THREE_D_MODEL)
     subitem.binaries.build(media_category: Binary::MediaCategory::THREE_D,
                            byte_size: 0)
     subitem.save!

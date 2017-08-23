@@ -37,7 +37,7 @@ class ItemsHelperTest < ActionView::TestCase
   test 'viewer_for_item() should work for non-PDF file items' do
     item = items(:illini_union_dir1_dir1_file1)
     item.binaries.build(media_category: Binary::MediaCategory::IMAGE)
-    assert viewer_for_item(item).include?('id="pt-compound-viewer"')
+    assert viewer_for_item(item).include?('id="pt-image-viewer"')
   end
 
   test 'viewer_for_item() should work for compound items' do
