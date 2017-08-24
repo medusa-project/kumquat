@@ -2,6 +2,18 @@ module ApplicationHelper
 
   MAX_PAGINATION_LINKS = 9
 
+  ##
+  # Adds a full-window AJAX shade element to the DOM. This will be initially
+  # hidden via CSS, and can be toggled on and off by PearTree.AJAXShade.show()
+  # and hide().
+  #
+  # @return [String]
+  #
+  def ajax_shade
+    html = '<div id="pt-ajax-shade"></div>'
+    raw(html)
+  end
+
   def bootstrap_class_for(flash_type)
     case flash_type.to_sym
       when :success

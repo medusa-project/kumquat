@@ -5,6 +5,8 @@
 <%= admin_breadcrumb(collection: @collection) %>
 
 <%= form_tag(controller: 'admin/items', action: 'update_all', method: :post) do %>
+  <%= hidden_field_tag 'pt-collection-id', @collection.repository_id %>
+
   <div class="btn-group pull-right" role="group">
     <!-- Metadata -->
     <div class="btn-group">
