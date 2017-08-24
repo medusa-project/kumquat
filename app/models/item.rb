@@ -415,6 +415,21 @@ class Item < ActiveRecord::Base
   end
 
   ##
+  # An item is considered described if it has any elements other than `title`,
+  # or is in a collection using the free-form package profile.
+  #
+  # @return [Boolean]
+  #
+  def described?
+    if self.collection.free_form?
+      return ((self.variant == Variants::DIRECTORY) or
+          self.elements.select{ |e| e.name == 'title' }.any?)
+    else
+      return self.elements.reject{ |e| e.name == 'title' }.any?
+    end
+  end
+
+  ##
   # @return [Boolean] Whether the variant is Variants::DIRECTORY.
   #
   def directory?
