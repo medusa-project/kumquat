@@ -380,12 +380,6 @@ module Admin
         end
       end
 
-      # TODO: I don't know why this is necessary. The items should get
-      # reindexed above when the transaction commits.
-      params[:items].each do |id, element_params|
-        Item.find_by_repository_id(id).index_in_solr
-      end
-
       Solr.instance.commit
 
       flash['success'] = "#{num_updated} items updated."
