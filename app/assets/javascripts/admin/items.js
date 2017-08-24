@@ -162,6 +162,7 @@ var PTAdminItemsEditView = function() {
 
     var dirty = false;
     var self = this;
+    var shade = new PearTree.AJAXShade();
 
     this.init = function() {
         self.attachEventListeners();
@@ -170,23 +171,7 @@ var PTAdminItemsEditView = function() {
     this.attachEventListeners = function() {
         dirty = false;
 
-        $('button.pt-add-element').off().on('click', function() {
-            // limit to ELEMENT_LIMIT fields
-            if ($(this).parents('.pt-elements').find('.form-group').length < ELEMENT_LIMIT) {
-                var clone = $(this).prev('.form-group').clone(true);
-                clone.val(null);
-                $(this).before(clone);
-            }
-            return false;
-        });
-        $('button.pt-remove-element').off().on('click', function() {
-            if ($(this).parents('.pt-elements').find('.form-group').length > 1) {
-                $(this).closest('.form-group').remove();
-            }
-            return false;
-        });
-
-        $('.pagination a').on('click', function() {
+        $('.pagination a').off().on('click', function() {
             $('#pt-items')[0].scrollIntoView({behavior: "smooth"});
         });
 
@@ -211,11 +196,45 @@ var PTAdminItemsEditView = function() {
                 return window.confirm('Proceed without saving changes?');
             }
         });
+
+        // Intercept submit button clicks to POST via AJAX. Otherwise, page 1
+        // will be loaded upon form submission.
+        $('input[type=submit]').off().on('click', function(e) {
+            e.preventDefault();
+
+            shade.show();
+
+            var collection_id = $('input[name=pt-collection-id]').val();
+            $.ajax({
+                type: 'POST',
+                url: '/admin/collections/' + collection_id + '/items/update',
+                data: $("form").serialize(),
+                success: function(result) {
+                    resetDirty();
+                },
+                error: function(xhr, status, error) {
+                    console.error(error);
+                    console.error(xhr);
+                    console.error(status);
+                    alert('Error: ' + error);
+                },
+                complete: function(result) {
+                    shade.hide();
+                }
+            });
+        });
+    };
+
+    var resetDirty = function() {
+        dirty = false;
+        $('input[type=number], textarea').removeClass('pt-dirty');
     };
 
 };
 
 /**
+ * Manages item results view.
+ *
  * @constructor
  */
 var PTAdminItemsView = function() {
