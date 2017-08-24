@@ -395,6 +395,9 @@ class Item < ActiveRecord::Base
   end
 
   ##
+  # This is dangerous and should only be used in testing. The DLS/Medusa
+  # architecture does not allow items to be moved between collections.
+  #
   # @param collection [Collection]
   #
   def collection=(collection)
