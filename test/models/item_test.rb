@@ -568,7 +568,7 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal "#{@item.parent_repository_id}-070-1-ZZZZZZ-#{@item.title}",
                  doc[Item::SolrFields::STRUCTURAL_SORT]
     assert_equal @item.date.utc.iso8601, doc[Item::SolrFields::DATE]
-    assert doc[Item::SolrFields::DESCRIBED]
+    assert_equal @item.described?, doc[Item::SolrFields::DESCRIBED]
     assert_equal @item.effective_allowed_roles.map(&:key),
                  doc[Item::SolrFields::EFFECTIVE_ALLOWED_ROLES]
     assert_equal @item.effective_denied_roles.map(&:key),
