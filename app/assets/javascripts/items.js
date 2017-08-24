@@ -572,9 +572,6 @@ var PTTreeBrowserView = function() {
                     } else {
                         onComplete(parents.reverse());
                     }
-                },
-                error: function(result) {
-                    console.error(result);
                 }
             });
         };
