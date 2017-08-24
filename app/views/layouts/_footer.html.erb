@@ -1,4 +1,9 @@
 <footer class="container-fluid s-lib-side-borders" role="contentinfo">
+  <div class="row lg-feedback-footer">
+    <div class="col-md-12 feedback-footer" aria-label="Feedback info">
+      <p><%= feedback_link %></p>
+    </div>
+  </div>
   <div class="row lg-copyright-footer">
     <div class="col-md-12 copyright-footer" aria-label="university library copyright info">
       <p>
@@ -7,8 +12,7 @@
                         alt: 'University of Illinois Logo') %>
         </a>
       </p>
-      <p><%= Option::string(Option::Keys::COPYRIGHT_STATEMENT) %>&nbsp;&nbsp;&nbsp;&nbsp;
-        <%= feedback_link %></p>
+      <p><%= Option::string(Option::Keys::COPYRIGHT_STATEMENT) %></p>
     </div>
   </div>
 </footer>

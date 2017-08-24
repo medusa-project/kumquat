@@ -1,5 +1,7 @@
 /* Styles for the narrow top UIUC Library header. */
 
+/* Library styles */
+
 header {
   padding-left: 0px;
 }
@@ -69,5 +71,22 @@ header {
   }
   .navbar-nav > li > a:hover {
     background-color: #e7e7e7;
+  }
+}
+
+/* Additional DLS styles */
+
+header .pt-user {
+  color: white;
+  font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+  font-size: 0.9em;
+  text-align: right;
+  white-space: nowrap;
+
+  .btn-default, .btn-default:hover, .btn-default:focus,
+  .btn-default.dropdown-toggle, .btn-default.dropdown-toggle:hover, .btn-default.dropdown-toggle:focus {
+    background-color: rgba(0,0,0,0);
+    border: 0px;
+    color: white;
   }
 }

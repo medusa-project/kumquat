@@ -1,6 +1,9 @@
 /**
  * Styles in use across the the public website.
- * For sitewide styles, use sitewide.css.
+ *
+ * N.B. 1: For sitewide styles, use sitewide.css.
+ *
+ * N.B. 2: Header and footer styles are in header.scss and footer.scss.
  */
 
 @font-face {
@@ -17,21 +20,6 @@
 @media print {
   header, footer, .btn, .pt-facets, audio, video {
     display: none;
-  }
-}
-
-header .pt-user {
-  color: white;
-  font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
-  font-size: 0.9em;
-  text-align: right;
-  white-space: nowrap;
-
-  .btn-default, .btn-default:hover, .btn-default:focus,
-  .btn-default.dropdown-toggle, .btn-default.dropdown-toggle:hover, .btn-default.dropdown-toggle:focus {
-    background-color: rgba(0,0,0,0);
-    border: 0px;
-    color: white;
   }
 }
 
@@ -306,13 +294,5 @@ div.pt-thumbnail {
     display: block;
     margin: 0 auto;
     vertical-align: top;
-  }
-}
-
-footer {
-  a, a:active, a:hover, a:visited {
-    color: white;
-    font-size: 1.3em;
-    font-weight: bold;
   }
 }

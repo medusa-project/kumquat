@@ -159,11 +159,14 @@ module ApplicationHelper
   def feedback_link
     subject = 'Feedback on ' + Option::string(Option::Keys::WEBSITE_NAME)
     body = 'Page URL: ' + request.url
-    link = sprintf('mailto:%s?subject=%s&body=%s',
-                   Option::string(Option::Keys::ADMINISTRATOR_EMAIL),
-                   subject,
-                   body)
-    raw(link_to('Feedback', link))
+    url = sprintf('mailto:%s?subject=%s&body=%s',
+                  Option::string(Option::Keys::ADMINISTRATOR_EMAIL),
+                  subject,
+                  body)
+    link = link_to('Contact us', url)
+    html = sprintf('The Digital Collections are a product of the University Library.
+      %s for questions and to provide feedback.', link)
+    raw(html)
   end
 
   ##

@@ -1,3 +1,7 @@
+/* Styles for the UIUC Library footer. */
+
+/* Library styles */
+
 footer {
   margin-top: 2em;
   padding-left: 1em;
@@ -51,4 +55,21 @@ footer .text-block {
 
 .text-block {
   display:block;
+}
+
+/* Additional DLS styles */
+
+/* This is copied from IDB. */
+.lg-feedback-footer {
+  background-color: #f3f2f2;
+  color: #333333;
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+  line-height: 1.42;
+  padding-top: 15px;
+  text-align: center;
+
+  p {
+    margin: 0px 0px 10px;
+  }
 }
