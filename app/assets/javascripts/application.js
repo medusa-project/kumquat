@@ -18,7 +18,6 @@
 //= require jquery.grid-a-licious.min.js
 //= require jstree
 
-//= require ajax
 //= require peartree
 //= require models/item
 //= require agents
