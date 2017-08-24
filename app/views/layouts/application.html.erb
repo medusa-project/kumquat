@@ -5,7 +5,6 @@
       <%= Option.string(Option::Keys::WEBSITE_NAME) %></title>
 
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="copyright" content="<%= Option.string(Option::Keys::COPYRIGHT_STATEMENT) %>">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <%= csrf_meta_tags %>
@@ -29,21 +28,8 @@
     <%= render 'layouts/header' %>
 
     <div class="container-fluid">
-      <% if Option::string(Option::Keys::SERVER_STATUS) != 'online' and
-          Option::string(Option::Keys::SERVER_STATUS_MESSAGE).present? %>
-        <div class="pt-flash alert alert-warning">
-          <i class="fa fa-warning"></i>
-          <%= Option::string(Option::Keys::SERVER_STATUS_MESSAGE) %>
-        </div>
-      <% end %>
-
-      <% flash.each do |type, message| %>
-        <div class="pt-flash alert alert-dismissable <%= bootstrap_class_for(type) %>">
-          <button type="button" class="close" data-dismiss="alert"
-                  aria-hidden="true">&times;</button>
-          <%= message %>
-        </div>
-      <% end %>
+      <%= server_status_message %>
+      <%= flashes %>
 
       <div id="pt-page-content">
         <%= yield.force_encoding(Encoding::UTF_8) %>

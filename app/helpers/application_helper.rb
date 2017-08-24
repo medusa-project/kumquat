@@ -167,6 +167,21 @@ module ApplicationHelper
   end
 
   ##
+  # @return [String] Bootstrap alerts for each flash message.
+  #
+  def flashes
+    html = ''
+    flash.each do |type, message|
+      html += "<div class=\"pt-flash alert alert-dismissable #{bootstrap_class_for(type)}\">
+          <button type=\"button\" class=\"close\" data-dismiss=\"alert\"
+                  aria-hidden=\"true\">&times;</button>
+          #{message}
+        </div>"
+    end
+    raw(html)
+  end
+
+  ##
   # Returns the most appropriate icon for the given object, which may be an
   # Item, Binary, Collection, etc. If the object is unrecognized, a generic
   # icon will be returned.
@@ -351,6 +366,22 @@ module ApplicationHelper
           <div class=\"media-body\">
             #{title}#{text}
           </div>
+        </div>"
+    end
+    raw(html)
+  end
+
+  ##
+  # @return [String] Bootstrap alert div, or an empty string if there is no
+  #                  server status message.
+  #
+  def server_status_message
+    status = Option::string(Option::Keys::SERVER_STATUS)
+    message = Option::string(Option::Keys::SERVER_STATUS_MESSAGE)
+    html = ''
+    if status != 'online' and message.present?
+      html += "<div class=\"pt-flash alert alert-warning\">
+          <i class=\"fa fa-warning\"></i> #{message}
         </div>"
     end
     raw(html)
