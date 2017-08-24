@@ -17,6 +17,7 @@
 //= require local_time
 //= require jquery.grid-a-licious.min.js
 //= require jstree
+//= require spin.min
 
 //= require ajax
 //= require peartree

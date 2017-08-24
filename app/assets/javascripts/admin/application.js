@@ -16,4 +16,5 @@
 //= require jquery.stickytableheaders.min.js
 //= require ../peartree
 //= require local_time
+//= require spin.min
 //= require_tree .
