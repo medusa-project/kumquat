@@ -65,6 +65,7 @@ class CollectionsController < WebsiteController
         begin
           @representative_image_binary =
               @collection.representative_image_binary
+          @representative_item = @collection.representative_item
           @is_free_form = (@collection.package_profile ==
               PackageProfile::FREE_FORM_PROFILE)
           # Show the "Browse Folder Tree" button only if the collection is

@@ -253,6 +253,13 @@ class Collection < ActiveRecord::Base
   end
 
   ##
+  # @return [Boolean]
+  #
+  def free_form?
+    self.package_profile_id == PackageProfile::FREE_FORM_PROFILE.id
+  end
+
+  ##
   # @return [void]
   #
   def index_in_solr

@@ -102,6 +102,7 @@ class AbstractFinder
         field = nil
         query = string
       end
+      query = Solr.escape(query)
 
       # The search-all field has a different type from all the rest, so the
       # query syntax will have to be different.

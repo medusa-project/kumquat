@@ -19,7 +19,6 @@
 //= require jstree
 //= require spin.min
 
-//= require ajax
 //= require peartree
 //= require models/item
 //= require agents

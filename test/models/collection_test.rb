@@ -58,6 +58,18 @@ class CollectionTest < ActiveSupport::TestCase
     assert_equal MetadataProfile.default, @collection.effective_metadata_profile
   end
 
+  # free_form?()
+
+  test 'free_form?() returns true when the package profile is free-form' do
+    @collection.package_profile = PackageProfile::FREE_FORM_PROFILE
+    assert @collection.free_form?
+  end
+
+  test 'free_form?() returns false when the package profile is not free-form' do
+    @collection.package_profile = PackageProfile::COMPOUND_OBJECT_PROFILE
+    assert !@collection.free_form?
+  end
+
   # items()
 
   test 'items should return all items' do

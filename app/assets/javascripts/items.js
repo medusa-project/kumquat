@@ -409,10 +409,13 @@ var PTItemsView = function() {
             });
         });
 
-        attachEventListeners();
+        self.attachEventListeners();
     };
 
-    var attachEventListeners = function() {
+    /**
+     * This needs to be public as it's called from index.js.
+     */
+    this.attachEventListeners = function() {
         $('.pagination a').on('click', function() {
             $('form.pt-filter')[0].scrollIntoView({behavior: "smooth"});
         });
@@ -572,9 +575,6 @@ var PTTreeBrowserView = function() {
                     } else {
                         onComplete(parents.reverse());
                     }
-                },
-                error: function(result) {
-                    console.error(result);
                 }
             });
         };

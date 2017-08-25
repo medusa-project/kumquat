@@ -101,6 +101,45 @@ class ItemTest < ActiveSupport::TestCase
     assert @item.valid?
   end
 
+  # described?()
+
+  test 'described?() returns true when the item is in a free-form collection
+  and has a title element' do
+    @item.collection = collections(:illini_union)
+    @item.elements.destroy_all
+    @item.elements.build(name: 'title', value: 'cats')
+    assert @item.described?
+  end
+
+  test 'described?() returns true when the item is in a free-form collection
+  and has directory variant' do
+    @item.collection = collections(:illini_union)
+    @item.elements.destroy_all
+    @item.variant = Item::Variants::DIRECTORY
+    assert @item.described?
+  end
+
+  test 'described?() returns false when the item is in a free-form collection,
+  has no title element, and is not directory-variant' do
+    @item.collection = collections(:illini_union)
+    @item.elements.destroy_all
+    @item.variant = nil
+    assert !@item.described?
+  end
+
+  test 'described?() returns true when the item is in a non-free-form collection
+  and has an element other than title' do
+    @item.elements.destroy_all
+    @item.elements.build(name: 'subject', value: 'cats')
+    assert @item.described?
+  end
+
+  test 'described?() returns false when the item is in a non-free-form collection
+  and does not have a title element' do
+    @item.elements.destroy_all
+    assert !@item.described?
+  end
+
   # description()
 
   test 'description() should return the description element value, or nil if
@@ -529,7 +568,7 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal "#{@item.parent_repository_id}-070-1-ZZZZZZ-#{@item.title}",
                  doc[Item::SolrFields::STRUCTURAL_SORT]
     assert_equal @item.date.utc.iso8601, doc[Item::SolrFields::DATE]
-    assert doc[Item::SolrFields::DESCRIBED]
+    assert_equal @item.described?, doc[Item::SolrFields::DESCRIBED]
     assert_equal @item.effective_allowed_roles.map(&:key),
                  doc[Item::SolrFields::EFFECTIVE_ALLOWED_ROLES]
     assert_equal @item.effective_denied_roles.map(&:key),
