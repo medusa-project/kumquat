@@ -18,7 +18,11 @@ class Solr
   # @return [String]
   #
   def self.escape(query)
-    query.to_s.gsub(/(\+|-|(&&)|(\|\|)|!|\(|\)|{|}|\[|\]|\^|"|~|\*|\?|:|\\)/, 'NOSPACE \\0').
+    query.to_s.
+        # strip parentheses
+        gsub(/[()]/, '').
+        # escape the protected sequences
+        gsub(/(\+|-|(&&)|(\|\|)|!|\(|\)|{|}|\[|\]|\^|"|~|\*|\?|:|\\)/, 'NOSPACE \\0').
         gsub('NOSPACE ', '\\')
   end
 
