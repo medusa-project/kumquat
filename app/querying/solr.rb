@@ -10,6 +10,19 @@ class Solr
   @@logger = CustomLogger.instance
 
   ##
+  # Escapes the protected Solr sequences:
+  #
+  #     + - && || ! ( ) { } [ ] ^ " ~ * ? : \
+  #
+  # @param query [String]
+  # @return [String]
+  #
+  def self.escape(query)
+    query.to_s.gsub(/(\+|-|(&&)|(\|\|)|!|\(|\)|{|}|\[|\]|\^|"|~|\*|\?|:|\\)/, 'NOSPACE \\0').
+        gsub('NOSPACE ', '\\')
+  end
+
+  ##
   # @param doc [Hash]
   #
   def add(doc)
