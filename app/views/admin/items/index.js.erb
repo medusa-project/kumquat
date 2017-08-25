@@ -1,7 +1,7 @@
 $('#pt-items').html('<%= escape_javascript(render('items')) %>');
 $('.pt-facets').html('<%= escape_javascript(render('facets')) %>');
-$('#pt-search-status').html('<%= search_status(@items, @start, @num_results_shown) %>');
+$('#pt-search-status').html('<%= escape_javascript(search_status(@items, @start, @num_results_shown)) %>');
 $('#pt-edit-metadata-link').attr('href',
-    '<%= raw(admin_collection_edit_all_items_path(@collection, q: params[:q], fq: params[:fq], df: params[:df])) %>');
+    '<%= escape_javascript(raw(admin_collection_edit_all_items_path(@collection, q: params[:q], fq: params[:fq], df: params[:df]))) %>');
 
 PearTree.view.attachEventListeners();

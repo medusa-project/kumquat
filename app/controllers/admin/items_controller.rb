@@ -74,7 +74,7 @@ module Admin
       @limit = 20
       finder = ItemFinder.new.
           collection_id(@collection.repository_id).
-          query(params[:q]).
+          query(params[:q].present? ? "#{params[:df]}:#{params[:q]}" : nil).
           include_children(true).
           include_unpublished(true).
           only_described(false).
