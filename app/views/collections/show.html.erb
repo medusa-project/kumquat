@@ -46,12 +46,12 @@
     </div>
     <div class="col-sm-6 col-md-5 col-lg-4">
       <div class="pt-main-image">
-        <% if @representative_image_binary.item %>
-          <%= link_to @representative_image_binary.item do %>
+        <% if @representative_item %>
+          <%= link_to @representative_item do %>
             <%= thumbnail_tag(@representative_image_binary, size: 512) %>
           <% end %>
-          <%= link_to @representative_image_binary.item, class: 'pt-title' do %>
-            <%= @representative_image_binary.item.title %>
+          <%= link_to @representative_item, class: 'pt-title' do %>
+            <%= @representative_item.title %>
           <% end %>
         <% else %>
           <%= thumbnail_tag(@representative_image_binary, size: 512) %>
