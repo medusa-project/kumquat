@@ -30,6 +30,11 @@ var PearTree = {
                     dataType: 'script',
                     success: function(result) {
                         eval(result);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error(xhr.responseText);
+                        console.error(status);
+                        console.error(error);
                     }
                 });
             });
