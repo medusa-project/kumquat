@@ -249,7 +249,26 @@ class Collection < ActiveRecord::Base
   # @return [Item, Collection]
   #
   def effective_representative_entity
-    self.representative_item || self
+    self.effective_representative_item || self
+  end
+
+  ##
+  # @return [Binary,nil] Best representative image binary based on the
+  #                      representative item set in Medusa, if available, or
+  #                      the representative image, if not.
+  # @see representative_image_binary()
+  #
+  def effective_representative_image_binary
+    self.representative_item&.iiif_image_binary ||
+        self.representative_image_binary
+  end
+
+  ##
+  # @return [Item, nil] Item that effectively represents the instance.
+  # @see representative_item()
+  #
+  def effective_representative_item
+    self.representative_item || self.representative_image_binary&.item
   end
 
   ##
@@ -283,7 +302,7 @@ class Collection < ActiveRecord::Base
   #                  not customizable.
   #
   def items_as_tsv(options = {})
-    # N.B. The return value must remain in sync with that of Item.tsv_header().
+    # N.B.: The return value must remain in sync with that of Item.tsv_header().
     # We use a PostgreSQL query because going through ActiveRecord (which we
     # used to do via Item.to_tsv() in a loop) is just too slow.
 
@@ -689,25 +708,27 @@ class Collection < ActiveRecord::Base
   end
 
   ##
-  # @return [Binary,nil] Best representative image binary based on the
-  #                      representative item set in Medusa, if available, or
-  #                      the representative image, if not.
+  # @return [Binary, nil] Binary corresponding to the `representative_image`
+  #                       attribute.
   #
   def representative_image_binary
     binary = nil
-    if self.representative_item
-      item = self.representative_item
-      binary = item.iiif_image_binary
-    elsif self.representative_image.present?
-      cfs_file = MedusaCfsFile.with_uuid(self.representative_image)
-      binary = Binary.new
-      binary.cfs_file_uuid = cfs_file.uuid
-      binary.repository_relative_pathname = cfs_file.repository_relative_pathname
-      binary.infer_media_type
+    if self.representative_image.present?
+      # This may be nil, which may mean that it resides in a different file
+      # group, or doesn't comply with the package profile.
+      binary = Binary.find_by_cfs_file_uuid(self.representative_image)
+      unless binary
+        cfs_file = MedusaCfsFile.with_uuid(self.representative_image)
+        binary = cfs_file.to_binary(Binary::MasterType::ACCESS)
+      end
     end
     binary
   end
 
+  ##
+  # @return [Item, nil] Item assigned to represent the instance. May be nil.
+  # @see effective_representative_item()
+  #
   def representative_item
     item = nil
     if self.representative_item_id.present?
