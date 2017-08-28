@@ -130,6 +130,30 @@
         </td>
       </tr>
       <tr>
+        <td>Representative Item</td>
+        <td>
+          <% @representative_item = @collection.representative_item %>
+          <% if @representative_item %>
+            <%= link_to(@representative_item.title,
+                      admin_collection_item_path(@collection, @representative_item)) %>
+          <% else %>
+            None
+          <% end %>
+        </td>
+      </tr>
+      <tr>
+        <td>Representative Image</td>
+        <td>
+          <% @representative_image = @collection.representative_image %>
+          <% if @representative_image %>
+            <%= link_to(@representative_image,
+                        MedusaCfsFile.with_uuid(@representative_image).url, target: '_blank') %>
+          <% else %>
+            None
+          <% end %>
+        </td>
+      </tr>
+      <tr>
         <td>CONTENTdm Alias</td>
         <td>
           <% if @collection.contentdm_alias.present? %>
