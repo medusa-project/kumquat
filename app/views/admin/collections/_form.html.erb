@@ -32,7 +32,8 @@
   <div class="form-group">
     <%= f.label :package_profile_id, 'Medusa Package Profile' %>
     <%= select(:collection, :package_profile_id,
-               @package_profile_options_for_select, {},
+               @package_profile_options_for_select,
+               { include_blank: 'None (External Content)' },
                class: 'form-control',
                disabled: @collection.items.any?) %>
   </div>
