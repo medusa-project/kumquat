@@ -145,7 +145,7 @@
         <td>Representative Image</td>
         <td>
           <% @representative_image = @collection.representative_image %>
-          <% if @representative_image %>
+          <% if @representative_image.present? %>
             <%= link_to(@representative_image,
                         MedusaCfsFile.with_uuid(@representative_image).url, target: '_blank') %>
           <% else %>
