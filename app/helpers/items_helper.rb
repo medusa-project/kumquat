@@ -817,7 +817,7 @@ module ItemsHelper
       if entity.kind_of?(Binary) and entity.iiif_safe?
         url = binary_image_url(entity, options[:size], options[:shape])
       elsif entity.kind_of?(Collection)
-        bin = entity.representative_image_binary
+        bin = entity.effective_representative_image_binary
         if bin&.iiif_safe?
           url = binary_image_url(bin, options[:size], options[:shape])
         end

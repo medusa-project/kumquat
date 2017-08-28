@@ -8,7 +8,7 @@ json.label @collection.title
 json.description @collection.description
 
 # Thumbnail image
-bs = @collection.representative_image_binary
+bs = @collection.effective_representative_image_binary
 if bs
   thumb_url = thumbnail_url(bs)
   json.thumbnail do

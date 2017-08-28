@@ -47,7 +47,7 @@ module CollectionsHelper
         begin
           # If the reference to the binary is invalid (for example, an invalid
           # UUID has been entered), this will raise an error.
-          bs = col.representative_image_binary
+          bs = col.effective_representative_image_binary
         rescue => e
           CustomLogger.instance.warn("collections_as_cards(): #{e} (#{col})")
         end
