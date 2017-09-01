@@ -41,6 +41,7 @@ num_batches = (num_downloadable_items / MedusaDownloaderClient::BATCH_SIZE.to_f)
           <%= link_to('Download',
                       params.except(:start).
                           merge({ format: :zip, download_start: 0, limit: 0 }),
+                      target: '_blank',
                       class: 'btn btn-primary') %>
           <% if total_byte_size > 0 %>
             <p class="help-block">Estimated size: less than
