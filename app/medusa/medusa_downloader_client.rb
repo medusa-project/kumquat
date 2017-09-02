@@ -25,11 +25,14 @@ class MedusaDownloaderClient
     targets = []
     items.each do |item|
       item.binaries.each do |binary|
-        targets.push({
-                         'type': 'file',
-                         'path': binary.repository_relative_pathname,
-                         'zip_path': zip_dirname(binary)
-                     })
+        zip_dirname = zip_dirname(binary)
+        if zip_dirname
+          targets.push({
+                           'type': 'file',
+                           'path': binary.repository_relative_pathname,
+                           'zip_path': zip_dirname
+                       })
+        end
       end
     end
 
@@ -86,9 +89,9 @@ class MedusaDownloaderClient
   # @return [String] Path of the given binary within the zip file.
   #
   def zip_dirname(binary)
-    root = binary.item.collection.effective_medusa_cfs_directory.
+    root = binary.item.collection.effective_medusa_cfs_directory&.
         repository_relative_pathname
-    File.dirname(binary.repository_relative_pathname.gsub(/^#{root}/, ''))
+    root ? File.dirname(binary.repository_relative_pathname.gsub(/^#{root}/, '')) : nil
   end
 
 end
