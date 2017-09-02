@@ -2,4 +2,7 @@ body#admin_task_show {
   .bg-primary a, .bg-primary a:hover, .bg-primary a:active {
     color: white;
   }
+  td:first-child {
+    word-break: break-all;
+  }
 }
