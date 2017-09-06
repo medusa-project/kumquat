@@ -1,4 +1,4 @@
-class AgentType < ActiveRecord::Base
+class AgentType < ApplicationRecord
 
   has_many :agents, inverse_of: :agent_types
 

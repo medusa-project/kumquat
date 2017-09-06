@@ -7,6 +7,10 @@ module Admin
       REPLACE = 'replace'
     end
 
+    PERMITTED_PARAMS = [:description, :name]
+
+    before_action :set_permitted_params
+
     ##
     # XHR only
     #
@@ -102,7 +106,7 @@ module Admin
         format.json do
           @elements = Element.all.order(:name)
           headers['Content-Disposition'] = 'attachment; filename=elements.json'
-          render text: JSON.pretty_generate(@elements.as_json)
+          render plain: JSON.pretty_generate(@elements.as_json)
         end
       end
     end
@@ -134,7 +138,11 @@ module Admin
     private
 
     def sanitized_params
-      params.require(:element).permit(:description, :name)
+      params.require(:element).permit(PERMITTED_PARAMS)
+    end
+
+    def set_permitted_params
+      @permitted_params = params.permit(PERMITTED_PARAMS)
     end
 
   end

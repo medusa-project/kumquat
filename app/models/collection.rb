@@ -75,7 +75,7 @@
 #                             TODO: store this in an accessRights CollectionElement
 # * updated_at:               Managed by ActiveRecord.
 #
-class Collection < ActiveRecord::Base
+class Collection < ApplicationRecord
 
   include AuthorizableByRole
   include Describable

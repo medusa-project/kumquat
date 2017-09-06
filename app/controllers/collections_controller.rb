@@ -1,9 +1,12 @@
 class CollectionsController < WebsiteController
 
+  PERMITTED_PARAMS = [:_, :fq, :q, :utf8]
+
   before_action :load_collection, only: [:iiif_presentation, :show]
   before_action :authorize_collection, only: [:iiif_presentation, :show]
   before_action :check_published, only: :iiif_presentation
   before_action :enable_cors, only: :iiif_presentation
+  before_action :set_sanitized_params, only: [:index, :show]
 
   ##
   # Serves IIIF Presentation API 2.1 collections.
@@ -54,7 +57,7 @@ class CollectionsController < WebsiteController
   ##
   # Responds to GET /collections/:id
   #
-  # N.B. Unpublished collections are allowed to be shown, but any items
+  # N.B.: Unpublished collections are allowed to be shown, but any items
   # residing in them are NOT.
   #
   def show
@@ -86,14 +89,16 @@ class CollectionsController < WebsiteController
   end
 
   def check_published
-    unless @collection.published
-      render 'unpublished', status: :forbidden
-    end
+    render 'unpublished', status: :forbidden unless @collection.published
   end
 
   def load_collection
     @collection = Collection.find_by_repository_id(params[:collection_id] || params[:id])
     raise ActiveRecord::RecordNotFound unless @collection
+  end
+
+  def set_sanitized_params
+    @permitted_params = params.permit(PERMITTED_PARAMS)
   end
 
 end

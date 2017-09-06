@@ -10,14 +10,14 @@ class DownloadsController < ApplicationController
     raise ActiveRecord::RecordNotFound unless download
 
     if download.expired
-      render text: 'This download is expired.', status: :gone
+      render plain: 'This download is expired.', status: :gone
     elsif File.exists?(download.pathname)
       send_file(download.pathname)
     else
       CustomLogger.instance.error("DownloadsController.file(): "\
           "Download #{download.id}: "\
           "file does not exist: #{download.pathname}")
-      render text: "File does not exist for download #{download.key}.",
+      render plain: "File does not exist for download #{download.key}.",
              status: :not_found
     end
   end

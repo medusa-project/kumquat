@@ -6,7 +6,7 @@
 # elements are instead MetadataProfileElements and item elements are
 # ItemElements.
 #
-class Element < ActiveRecord::Base
+class Element < ApplicationRecord
 
   validates :name, presence: true, format: { with: /\A[-a-zA-Z0-9]+\Z/ },
             uniqueness: { case_sensitive: false }

@@ -13,9 +13,7 @@ xml.tag!('OAI-PMH',
   xml.tag!('responseDate', Time.now.utc.iso8601)
 
   # 3.2 #3
-  query = @errors.select{ |e| %w(badVerb badArgument).include?(e[:code]) }.any? ?
-      {} : params.except('controller', 'action')
-  xml.tag!('request', query, oai_pmh_url)
+  xml.tag!('request', @query, oai_pmh_url)
 
   # 3.2 #4, 3.6
   if @errors.any?

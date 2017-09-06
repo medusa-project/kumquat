@@ -1,7 +1,7 @@
 ##
 # Encapsulates an element in a metadata profile.
 #
-class MetadataProfileElement < ActiveRecord::Base
+class MetadataProfileElement < ApplicationRecord
 
   belongs_to :metadata_profile, inverse_of: :elements
   has_and_belongs_to_many :vocabularies

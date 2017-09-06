@@ -13,11 +13,11 @@ module Api
         raise ActiveRecord::RecordNotFound unless item
         item.destroy!
       rescue ActiveRecord::RecordNotFound => e
-        render text: "#{e}", status: :not_found
+        render plain: "#{e}", status: :not_found
       rescue => e
-        render text: "#{e}", status: :internal_server_error
+        render plain: "#{e}", status: :internal_server_error
       else
-        render text: 'Success'
+        render plain: 'Success'
       end
     end
 
@@ -79,11 +79,11 @@ module Api
 
         item.update_from_json(request.body.read)
       rescue ActiveRecord::RecordNotFound => e
-        render text: "#{e}", status: :not_found
+        render plain: "#{e}", status: :not_found
       rescue => e
-        render text: "#{e}", status: :internal_server_error
+        render plain: "#{e}", status: :internal_server_error
       else
-        render text: 'Success'
+        render plain: 'Success'
       end
     end
 

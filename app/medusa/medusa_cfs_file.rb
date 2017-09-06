@@ -4,7 +4,7 @@
 # Instances' properties are loaded from Medusa automatically and cached.
 # Acquire instances with `with_uuid()`.
 #
-class MedusaCfsFile < ActiveRecord::Base
+class MedusaCfsFile < ApplicationRecord
 
   ##
   # @param uuid [String] Medusa UUID

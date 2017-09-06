@@ -1,4 +1,4 @@
-class VocabularyTerm < ActiveRecord::Base
+class VocabularyTerm < ApplicationRecord
 
   belongs_to :vocabulary, inverse_of: :vocabulary_terms
 

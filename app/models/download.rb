@@ -36,7 +36,7 @@
 # * url:              URL to redirect to rather than downloading a local file.
 #                     Must be publicly accessible.
 #
-class Download < ActiveRecord::Base
+class Download < ApplicationRecord
 
   belongs_to :task, inverse_of: :download
 

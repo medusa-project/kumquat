@@ -1,7 +1,7 @@
 ##
 # Encapsulates a role in a role-based access control (RBAC) system.
 #
-class Role < ActiveRecord::Base
+class Role < ApplicationRecord
 
   has_many :hosts, -> { order(:pattern) }, dependent: :destroy
 

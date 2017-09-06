@@ -1,4 +1,4 @@
-class AgentRule < ActiveRecord::Base
+class AgentRule < ApplicationRecord
 
   has_many :agents, inverse_of: :agent_rules
 

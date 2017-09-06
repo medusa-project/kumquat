@@ -42,7 +42,7 @@
 # * updated_at:     Managed by ActiveRecord.
 # * width:          Native pixel width of a raster binary (image or video).
 #
-class Binary < ActiveRecord::Base
+class Binary < ApplicationRecord
 
   ##
   # Must be kept in sync with the return value of human_readable_master_type().

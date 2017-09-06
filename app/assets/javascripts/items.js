@@ -303,7 +303,7 @@ var PTItemView = function() {
             $('.pt-add-to-favorites').show();
         }
 
-        $('a[href=#pt-download-section]').on('click', function() {
+        $('a[href="#pt-download-section"]').on('click', function() {
             $('#pt-download').collapse('show');
         });
 
@@ -396,7 +396,7 @@ var PTItemsView = function() {
         new PearTree.FilterField();
         PearTree.initFacets();
 
-        // submit the sort form on change
+        // Submit the sort form on change.
         $('select[name="sort"]').on('change', function () {
             $.ajax({
                 url: $('[name=pt-current-path]').val(),
@@ -407,6 +407,26 @@ var PTItemsView = function() {
                     eval(result);
                 }
             });
+        });
+
+        // Show the add-to- or remove-from-favorites button for each item
+        // depending on whether it's already a favorite.
+        $('button.pt-remove-from-favorites, button.pt-add-to-favorites').each(function() {
+            var item = new PTItem();
+            item.id = $(this).data('item-id');
+            if (item.isFavorite()) {
+                if ($(this).hasClass('pt-remove-from-favorites')) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            } else {
+                if ($(this).hasClass('pt-add-to-favorites')) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            }
         });
 
         self.attachEventListeners();
@@ -433,32 +453,17 @@ var PTItemsView = function() {
             $('.pt-results button.pt-add-to-favorites[data-item-id="' + item.id + '"]').show();
             updateFavoritesCount();
         });
-        $('button.pt-add-to-favorites').on('click', function() {
+        $('button.pt-add-to-favorites').on('click', function(e) {
             var item = new PTItem();
             item.id = $(this).data('item-id');
             item.addToFavorites();
+            e.preventDefault();
         });
-        $('button.pt-remove-from-favorites').on('click', function() {
+        $('button.pt-remove-from-favorites').on('click', function(e) {
             var item = new PTItem();
             item.id = $(this).data('item-id');
             item.removeFromFavorites();
-        });
-        $('button.pt-remove-from-favorites, button.pt-add-to-favorites').each(function() {
-            var item = new PTItem();
-            item.id = $(this).data('item-id');
-            if (item.isFavorite()) {
-                if ($(this).hasClass('pt-remove-from-favorites')) {
-                    $(this).show();
-                } else {
-                    $(this).hide();
-                }
-            } else {
-                if ($(this).hasClass('pt-add-to-favorites')) {
-                    $(this).show();
-                } else {
-                    $(this).hide();
-                }
-            }
+            e.preventDefault();
         });
     };
 

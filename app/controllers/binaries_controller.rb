@@ -32,7 +32,7 @@ class BinariesController < WebsiteController
 
   def check_storage
     if Option::string(Option::Keys::SERVER_STATUS) == 'storage_offline'
-      render text: Option::string(Option::Keys::SERVER_STATUS_MESSAGE),
+      render plain: Option::string(Option::Keys::SERVER_STATUS_MESSAGE),
              status: :service_unavailable
     end
   end

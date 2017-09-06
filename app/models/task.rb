@@ -17,7 +17,7 @@
 #     # done
 #     task.done
 #
-class Task < ActiveRecord::Base
+class Task < ApplicationRecord
 
   ##
   # Enum-like class.
@@ -73,6 +73,11 @@ class Task < ActiveRecord::Base
   end
 
   alias_method :succeeded, :done
+
+  def fail
+    self.status = Status::FAILED
+    self.save!
+  end
 
   def failed?
     self.status == Status::FAILED

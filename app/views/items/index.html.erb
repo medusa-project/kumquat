@@ -11,7 +11,7 @@
   <% provide(:active_nav, 'items') %>
 <% end %>
 
-<%= form_tag(params, method: :get, class: 'pt-filter') do %>
+<%= form_tag(@permitted_params, method: :get, class: 'pt-filter') do %>
   <% facet_panels = facets_as_panels(@items,
                                      metadata_profile: @metadata_profile,
                                      show_collection_facet: session[:browse_context] != ItemsController::BrowseContext::BROWSING_COLLECTION) %>
@@ -26,7 +26,7 @@
       </div>
     </div>
   <% else %>
-      <%= render partial: 'index_main' %>
+    <%= render partial: 'index_main' %>
   <% end %>
 <% end %>
 

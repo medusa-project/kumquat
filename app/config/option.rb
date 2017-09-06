@@ -3,7 +3,7 @@
 # constants. Values are stored as JSON internally. Simple values can be
 # accessed using the boolean, integer, or string class methods.
 #
-class Option < ActiveRecord::Base
+class Option < ApplicationRecord
 
   class Keys
     ADMINISTRATOR_EMAIL = 'website.administrator.email'
@@ -28,7 +28,7 @@ class Option < ActiveRecord::Base
   #
   def self.boolean(key)
     v = value_for(key)
-    ActiveRecord::ConnectionAdapters::Column::TRUE_VALUES.include?(v)
+    ['true', '1', true, 1].include?(v)
   end
 
   ##

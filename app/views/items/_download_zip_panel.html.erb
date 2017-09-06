@@ -39,7 +39,7 @@ num_batches = (num_downloadable_items / MedusaDownloaderClient::BATCH_SIZE.to_f)
 
         <div class="text-center">
           <%= link_to('Download',
-                      params.except(:start).
+                      @permitted_params.except(:start).
                           merge({ format: :zip, download_start: 0, limit: 0 }),
                       target: '_blank',
                       class: 'btn btn-primary') %>
@@ -59,7 +59,8 @@ num_batches = (num_downloadable_items / MedusaDownloaderClient::BATCH_SIZE.to_f)
           <div id="pt-batch-buttons">
             <% num_batches.times do |i| %>
               <%= link_to("Batch #{i + 1}",
-                          params.except(:start).merge({ format: :zip,
+                          @permitted_params.except(:start).merge({
+                                         format: :zip,
                                          download_start: i * MedusaDownloaderClient::BATCH_SIZE,
                                          limit: MedusaDownloaderClient::BATCH_SIZE }),
                           class: 'btn btn-primary',

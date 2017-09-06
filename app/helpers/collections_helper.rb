@@ -95,10 +95,9 @@ module CollectionsHelper
       next if term.count < 1
       checked = (params[:fq] and params[:fq].include?(term.facet_query)) ?
           'checked' : nil
-      checked_params = term.removed_from_params(params.deep_dup)
-      unchecked_params = term.added_to_params(params.deep_dup)
-      checked_params.delete(:start)
-      unchecked_params.delete(:start)
+      permitted_params = params.permit(CollectionsController::PERMITTED_PARAMS)
+      checked_params = term.removed_from_params(permitted_params.deep_dup).except(:start)
+      unchecked_params = term.added_to_params(permitted_params.deep_dup).except(:start)
       term_label = truncate(term.label, length: 80)
 
       panel += "<li class=\"pt-term\">"

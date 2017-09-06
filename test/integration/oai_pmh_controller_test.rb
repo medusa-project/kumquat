@@ -26,33 +26,34 @@ class OaiPmhControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'verb argument must be legal' do
-    get '/oai-pmh', verb: 'cats'
+    get '/oai-pmh', params: { verb: 'cats' }
     assert_select 'error', 'Illegal verb argument.'
   end
 
   # 3.1.1.2
   test 'POST requests with an incorrect content type cause an error' do
-    post '/oai-pmh', { verb: 'Identify' }, { 'Content-Type': 'text/plain' }
+    post '/oai-pmh', params: { verb: 'Identify' },
+         headers: { 'Content-Type': 'text/plain' }
     assert_select 'error', 'Content-Type of POST requests must be '\
     '"application/x-www-form-urlencoded"'
   end
 
   # 3.1.1.2
   test 'POST requests with the correct content type work' do
-    post '/oai-pmh', { verb: 'Identify' },
-         { 'Content-Type': 'application/x-www-form-urlencoded' }
+    post '/oai-pmh', params: { verb: 'Identify' },
+         headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
     assert_select 'Identify > deletedRecord', 'no'
   end
 
   # 3.1.2.1
   test 'response content type must be text/xml' do
-    get '/oai-pmh', verb: 'Identify'
+    get '/oai-pmh', params: { verb: 'Identify' }
     assert response.headers['Content-Type'].start_with?('text/xml')
   end
 
   # 3.2
   test 'response content type must be UTF-8' do
-    get '/oai-pmh', verb: 'Identify'
+    get '/oai-pmh', params: { verb: 'Identify' }
     assert response.headers['Content-Type'].downcase.include?('charset=utf-8')
   end
 
@@ -66,6 +67,7 @@ class OaiPmhControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'Identify responses must validate against the OAI-PMH XML schema' do
+    get '/oai-pmh', params: { verb: 'Identify' }
     assert xsd_validate({ verb: 'Identify' })
   end
 
@@ -88,44 +90,44 @@ class OaiPmhControllerTest < ActionDispatch::IntegrationTest
 
   # 3.3.1
   test 'Identify response should include the correct date granularity' do
-    get '/oai-pmh', verb: 'Identify'
+    get '/oai-pmh', params: { verb: 'Identify' }
     assert_select 'Identify > granularity', 'YYYY-MM-DDThh:mm:ssZ'
   end
 
   # 4.1 GetRecord
   test 'GetRecord returns a record when only correct arguments are passed' do
-    get '/oai-pmh', verb: 'GetRecord', metadataPrefix: 'oai_dc',
-        identifier: @valid_identifier
+    get '/oai-pmh', params: { verb: 'GetRecord', metadataPrefix: 'oai_dc',
+        identifier: @valid_identifier }
     assert_select 'GetRecord > record > header > identifier', @valid_identifier
   end
 
   test 'GetRecord returns errors when required arguments are missing' do
-    get '/oai-pmh', verb: 'GetRecord'
+    get '/oai-pmh', params: { verb: 'GetRecord' }
     assert_select 'error', 'Missing identifier argument.'
     assert_select 'error', 'Missing metadataPrefix argument.'
   end
 
   test 'GetRecord returns errors when illegal arguments are provided' do
-    get '/oai-pmh', verb: 'GetRecord', cats: 'cats', dogs: 'dogs'
+    get '/oai-pmh', params: { verb: 'GetRecord', cats: 'cats', dogs: 'dogs' }
     assert_select 'error', 'Illegal argument: cats'
     assert_select 'error', 'Illegal argument: dogs'
   end
 
   test 'GetRecord returns errors when arguments are invalid' do
-    get '/oai-pmh', verb: 'GetRecord', identifier: @valid_identifier,
-        metadataPrefix: 'cats'
+    get '/oai-pmh', params: { verb: 'GetRecord', identifier: @valid_identifier,
+        metadataPrefix: 'cats' }
     assert_select 'error', 'The metadata format identified by the '\
     'metadataPrefix argument is not supported by this repository.'
 
-    get '/oai-pmh', verb: 'GetRecord', metadataPrefix: 'oai_dc',
-        identifier: 'cats'
+    get '/oai-pmh', params: { verb: 'GetRecord', metadataPrefix: 'oai_dc',
+        identifier: 'cats' }
     assert_select 'error', 'The value of the identifier argument is unknown '\
     'or illegal in this repository.'
   end
 
   # 4.2 Identify
   test 'Identify returns correct information' do
-    get '/oai-pmh', verb: 'Identify'
+    get '/oai-pmh', params: { verb: 'Identify' }
     assert_select 'Identify > repositoryName',
                   Option::string(Option::Keys::WEBSITE_NAME)
     assert_select 'Identify > baseURL', 'http://www.example.com/'
@@ -139,7 +141,7 @@ class OaiPmhControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'Identify returns errors when illegal arguments are provided' do
-    get '/oai-pmh', verb: 'Identify', cats: 'cats', dogs: 'dogs'
+    get '/oai-pmh', params: { verb: 'Identify', cats: 'cats', dogs: 'dogs' }
     assert_select 'error', 'Illegal argument: cats'
     assert_select 'error', 'Illegal argument: dogs'
   end
@@ -147,49 +149,53 @@ class OaiPmhControllerTest < ActionDispatch::IntegrationTest
   # 4.3 ListIdentifiers
   test 'ListIdentifiers returns a list when correct arguments are passed and
   results are available' do
-    get '/oai-pmh', verb: 'ListIdentifiers', metadataPrefix: 'oai_dc'
+    get '/oai-pmh', params: { verb: 'ListIdentifiers',
+                              metadataPrefix: 'oai_dc' }
     assert_select 'ListIdentifiers > header > identifier',
                   @valid_identifier
 
-    get '/oai-pmh', verb: 'ListIdentifiers', metadataPrefix: 'oai_dc',
-        from: '2012-01-01', until: '2030-01-01'
+    get '/oai-pmh', params: { verb: 'ListIdentifiers',
+                              metadataPrefix: 'oai_dc',
+                              from: '2012-01-01',
+                              until: '2030-01-01' }
     assert_select 'ListIdentifiers > header > identifier',
                   @valid_identifier
   end
 
   test 'ListIdentifiers returns an error when correct arguments are passed and
   no results are available' do
-    get '/oai-pmh', verb: 'ListIdentifiers', metadataPrefix: 'oai_dc',
-        from: '1985-01-01', until: '1985-01-02'
+    get '/oai-pmh', params: { verb: 'ListIdentifiers', metadataPrefix: 'oai_dc',
+        from: '1985-01-01', until: '1985-01-02' }
     assert_select 'error', 'No matching records.'
   end
 
   test 'ListIdentifiers returns errors when certain arguments are missing' do
-    get '/oai-pmh', verb: 'ListIdentifiers'
+    get '/oai-pmh', params: { verb: 'ListIdentifiers' }
     assert_select 'error', 'Missing metadataPrefix argument.'
   end
 
   test 'ListIdentifiers returns errors when illegal arguments are provided' do
-    get '/oai-pmh', verb: 'ListIdentifiers', cats: 'cats', dogs: 'dogs'
+    get '/oai-pmh', params: { verb: 'ListIdentifiers', cats: 'cats', dogs: 'dogs' }
     assert_select 'error', 'Illegal argument: cats'
     assert_select 'error', 'Illegal argument: dogs'
   end
 
   test 'ListIdentifiers returns errors when arguments are invalid' do
-    get '/oai-pmh', verb: 'ListIdentifiers', metadataPrefix: 'cats'
+    get '/oai-pmh', params: { verb: 'ListIdentifiers', metadataPrefix: 'cats' }
     assert_select 'error', 'The metadata format identified by the '\
     'metadataPrefix argument is not supported by this repository.'
   end
 
   # 4.4 ListMetadataFormats
   test 'ListMetadataFormats returns a list when no arguments are provided' do
-    get '/oai-pmh', verb: 'ListMetadataFormats'
+    get '/oai-pmh', params: { verb: 'ListMetadataFormats' }
     assert_select 'ListMetadataFormats > metadataFormat > metadataPrefix',
                   'oai_dc'
   end
 
   test 'ListMetadataFormats accepts an optional identifier argument' do
-    get '/oai-pmh', verb: 'ListMetadataFormats', identifier: @valid_identifier
+    get '/oai-pmh', params: { verb: 'ListMetadataFormats',
+                              identifier: @valid_identifier }
     assert_select 'ListMetadataFormats > metadataFormat > metadataPrefix',
                   'oai_dc'
   end
@@ -201,13 +207,14 @@ class OaiPmhControllerTest < ActionDispatch::IntegrationTest
 
   test 'ListMetadataFormats returns errors when illegal arguments are
   provided' do
-    get '/oai-pmh', verb: 'ListMetadataFormats', cats: 'cats', dogs: 'dogs'
+    get '/oai-pmh', params: { verb: 'ListMetadataFormats', cats: 'cats',
+                              dogs: 'dogs' }
     assert_select 'error', 'Illegal argument: cats'
     assert_select 'error', 'Illegal argument: dogs'
   end
 
   test 'ListMetadataFormats returns errors when arguments are invalid' do
-    get '/oai-pmh', verb: 'ListMetadataFormats', identifier: 'bogus'
+    get '/oai-pmh', params: { verb: 'ListMetadataFormats', identifier: 'bogus' }
     assert_select 'error', 'The value of the identifier argument is unknown '\
     'or illegal in this repository.'
   end
@@ -215,36 +222,36 @@ class OaiPmhControllerTest < ActionDispatch::IntegrationTest
   # 4.5 ListRecords
   test 'ListRecords returns a list when correct arguments are passed and
   results are available' do
-    get '/oai-pmh', verb: 'ListRecords', metadataPrefix: 'oai_dc'
+    get '/oai-pmh', params: { verb: 'ListRecords', metadataPrefix: 'oai_dc' }
     assert_select 'ListRecords > record > header > identifier',
                   @valid_identifier
 
-    get '/oai-pmh', verb: 'ListRecords', metadataPrefix: 'oai_dc',
-        from: '2012-01-01', until: '2030-01-01'
+    get '/oai-pmh', params: { verb: 'ListRecords', metadataPrefix: 'oai_dc',
+        from: '2012-01-01', until: '2030-01-01' }
     assert_select 'ListRecords > record > header > identifier',
                   @valid_identifier
   end
 
   test 'ListRecords returns an error when correct arguments are passed and no
   results are available' do
-    get '/oai-pmh', verb: 'ListRecords', metadataPrefix: 'oai_dc',
-        from: '1985-01-01', until: '1985-01-02'
+    get '/oai-pmh', params: { verb: 'ListRecords', metadataPrefix: 'oai_dc',
+        from: '1985-01-01', until: '1985-01-02' }
     assert_select 'error', 'No matching records.'
   end
 
   test 'ListRecords returns errors when certain arguments are missing' do
-    get '/oai-pmh', verb: 'ListRecords'
+    get '/oai-pmh', params: { verb: 'ListRecords' }
     assert_select 'error', 'Missing metadataPrefix argument.'
   end
 
   test 'ListRecords returns errors when illegal arguments are provided' do
-    get '/oai-pmh', verb: 'ListRecords', cats: 'cats', dogs: 'dogs'
+    get '/oai-pmh', params: { verb: 'ListRecords', cats: 'cats', dogs: 'dogs' }
     assert_select 'error', 'Illegal argument: cats'
     assert_select 'error', 'Illegal argument: dogs'
   end
 
   test 'ListRecords returns errors when arguments are invalid' do
-    get '/oai-pmh', verb: 'ListRecords', metadataPrefix: 'cats'
+    get '/oai-pmh', params: { verb: 'ListRecords', metadataPrefix: 'cats' }
     assert_select 'error', 'The metadata format identified by the '\
     'metadataPrefix argument is not supported by this repository.'
   end
@@ -252,20 +259,20 @@ class OaiPmhControllerTest < ActionDispatch::IntegrationTest
   # 4.6 ListSets
   test 'ListSets returns a list when correct arguments are passed and results
   are available' do
-    get '/oai-pmh', verb: 'ListSets'
+    get '/oai-pmh', params: { verb: 'ListSets' }
     assert_select 'ListSets > set > setSpec', collections(:sanborn).repository_id
   end
 
   test 'ListSets returns errors when illegal arguments are provided' do
-    get '/oai-pmh', verb: 'ListSets', cats: 'cats', dogs: 'dogs'
+    get '/oai-pmh', params: { verb: 'ListSets', cats: 'cats', dogs: 'dogs' }
     assert_select 'error', 'Illegal argument: cats'
     assert_select 'error', 'Illegal argument: dogs'
   end
 
   private
 
-  def xsd_validate(params)
-    get '/oai-pmh', params
+  def xsd_validate(params_)
+    get '/oai-pmh', params: params_
     doc = Nokogiri::XML(response.body)
     xsd = Nokogiri::XML::Schema(
         File.read(File.join(Rails.root, 'test', 'integration', 'OAI-PMH.xsd')))

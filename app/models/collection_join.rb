@@ -1,4 +1,4 @@
-class CollectionJoin < ActiveRecord::Base
+class CollectionJoin < ApplicationRecord
 
   # We use repository IDs for joins because the collection hierarchy is defined
   # externally to the DLS. This makes it easier to carry over to the DLS.

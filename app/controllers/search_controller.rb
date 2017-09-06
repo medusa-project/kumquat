@@ -3,6 +3,10 @@
 #
 class SearchController < WebsiteController
 
+  PERMITTED_PARAMS = [:_, :collection_id, { fq: [] }, :q, :sort, :start, :utf8]
+
+  before_action :search, :set_sanitized_params
+
   ##
   # Responds to GET /search
   #
@@ -45,6 +49,12 @@ class SearchController < WebsiteController
       end
       format.js
     end
+  end
+
+  private
+
+  def set_sanitized_params
+    @permitted_params = params.permit(PERMITTED_PARAMS)
   end
 
 end

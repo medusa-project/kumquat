@@ -5,7 +5,7 @@
 <h1 id="pt-page-title">Collections
   <span id="pt-count" class="badge"><%= @collections.length %></span></h1>
 
-<%= form_tag(params, method: :get, class: 'pt-filter') do %>
+<%= form_tag(@permitted_params, method: :get, class: 'pt-filter') do %>
   <div class="row">
     <div class="col-sm-3 col-lg-2 pt-facets pt-panel-facets">
       <%= render partial: 'facets' %>
