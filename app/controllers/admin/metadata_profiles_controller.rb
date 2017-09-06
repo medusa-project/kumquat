@@ -2,6 +2,10 @@ module Admin
 
   class MetadataProfilesController < ControlPanelController
 
+    PERMITTED_PARAMS = [:default, :default_sortable_element_id, :name]
+
+    before_action :set_permitted_params
+
     ##
     # Responds to PATCH /admin/metadata-profiles/:id/clone
     #
@@ -125,7 +129,7 @@ module Admin
         format.json do
           filename = "#{CGI.escape(@profile.name)}.json"
           headers['Content-Disposition'] = "attachment; filename=#{filename}"
-          render text: JSON.pretty_generate(@profile.as_json)
+          render plain: JSON.pretty_generate(@profile.as_json)
         end
       end
     end
@@ -170,10 +174,12 @@ module Admin
 
     private
 
+    def set_permitted_params
+      @permitted_params = params.permit(PERMITTED_PARAMS)
+    end
+
     def sanitized_params
-      params.require(:metadata_profile).permit(:default,
-                                               :default_sortable_element_id,
-                                               :name)
+      params.require(:metadata_profile).permit(PERMITTED_PARAMS)
     end
 
   end

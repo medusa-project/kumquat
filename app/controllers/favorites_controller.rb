@@ -5,7 +5,7 @@ class FavoritesController < WebsiteController
 
   COOKIE_DELIMITER = ','
 
-  before_action :set_browse_context
+  before_action :set_browse_context, :set_sanitized_params
   after_action :purge_invalid_favorites
 
   def index
@@ -68,6 +68,10 @@ class FavoritesController < WebsiteController
   def set_browse_context
     session[:browse_context_url] = request.url
     session[:browse_context] = ItemsController::BrowseContext::FAVORITES
+  end
+
+  def set_sanitized_params
+    @permitted_params = params.permit(:start)
   end
 
 end

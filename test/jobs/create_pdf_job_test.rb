@@ -8,7 +8,7 @@ class CreatePdfJobTest < ActiveSupport::TestCase
   end
 
   teardown do
-    File.delete(@download.pathname)
+    @download.destroy!
   end
 
   # perform()

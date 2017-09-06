@@ -12,7 +12,7 @@
 # Comments are allowed anywhere in the pattern, starting with
 # COMMENT_CHARACTER.
 #
-class Host < ActiveRecord::Base
+class Host < ApplicationRecord
 
   COMMENT_CHARACTER = '#'
 

@@ -10,7 +10,7 @@
 # collection's metadata profile, and display each of its elements that match,
 # in the order defined by the profile.
 #
-class MetadataProfile < ActiveRecord::Base
+class MetadataProfile < ApplicationRecord
 
   belongs_to :default_sortable_element, class_name: 'MetadataProfileElement'
   has_many :collections, inverse_of: :metadata_profile,

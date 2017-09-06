@@ -2,11 +2,19 @@ module Admin
 
   class ItemsController < ControlPanelController
 
+    PERMITTED_PARAMS = [:id, :contentdm_alias, :contentdm_pointer,
+                        :embed_tag, :latitude, :longitude,
+                        :page_number, :published,
+                        :representative_item_id, :subpage_number,
+                        :variant, allowed_role_ids: [],
+                        denied_role_ids: []]
+
     before_action :purge_items_rbac, only: :destroy_all
     before_action :modify_items_rbac, only: [:batch_change_metadata,
                                              :destroy_all, :edit, :import,
                                              :migrate_metadata,
                                              :replace_metadata, :sync, :update]
+    before_action :set_permitted_params, only: [:index, :show]
 
     ##
     # Batch-changes metadata elements.
@@ -143,8 +151,8 @@ module Admin
           else
             headers['Content-Disposition'] = 'attachment; filename="items.tsv"'
             headers['Content-Disposition'] = 'text/tab-separated-values'
-            render text: @collection.items_as_tsv(only_undescribed:
-                                                      only_undescribed)
+            render plain: @collection.items_as_tsv(only_undescribed:
+                                                       only_undescribed)
           end
         end
       end
@@ -257,12 +265,7 @@ module Admin
       @item = Item.find_by_repository_id(params[:id])
       raise ActiveRecord::RecordNotFound unless @item
 
-      respond_to do |format|
-        format.html { @pages = @item.parent ? @item.parent.items : @item.items }
-        #format.jsonld { render text: @item.admin_rdf_graph(uri).to_jsonld }
-        #format.rdfxml { render text: @item.admin_rdf_graph(uri).to_rdfxml }
-        #format.ttl { render text: @item.admin_rdf_graph(uri).to_ttl }
-      end
+      @pages = @item.parent ? @item.parent.items : @item.items
     end
 
     ##
@@ -407,12 +410,11 @@ module Admin
     def sanitized_params
       # Metadata elements are not included here, as they are processed
       # separately.
-      params.require(:item).permit(:id, :contentdm_alias, :contentdm_pointer,
-                                   :embed_tag, :latitude, :longitude,
-                                   :page_number, :published,
-                                   :representative_item_id, :subpage_number,
-                                   :variant, allowed_role_ids: [],
-                                   denied_role_ids: [])
+      params.require(:item).permit(PERMITTED_PARAMS)
+    end
+
+    def set_permitted_params
+      @permitted_params = params.permit(PERMITTED_PARAMS)
     end
 
   end

@@ -1,7 +1,8 @@
 source 'https://rubygems.org'
 
-gem 'rails', '4.2.9'
+gem 'rails', '5.0.5'
 
+gem 'activemodel-serializers-xml'
 gem 'bootstrap-sass', '~> 3.3.6'
 gem 'browser'
 gem 'curb'
@@ -11,8 +12,8 @@ gem 'draper' # Provides decorators
 gem 'font-awesome-sass', '~> 4.7.0'
 gem 'httpclient'
 gem 'jbuilder', '~> 2.0' # JSON DSL: https://github.com/rails/jbuilder
-gem 'jquery-cookie-rails'
 gem 'jquery-rails'
+gem 'js_cookie_rails'
 gem 'local_time'
 gem 'mime-types', '~> 2.6'
 gem 'omniauth'
@@ -28,7 +29,7 @@ group :development do
   gem 'capistrano-bundler'
   gem 'capistrano-rails'
   gem 'capistrano-rvm'
-  gem 'thin' # supports chunked/streaming responses
+  gem 'puma' # supports chunked/streaming responses
 end
 
 group :production do

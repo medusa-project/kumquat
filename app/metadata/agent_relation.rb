@@ -1,4 +1,4 @@
-class AgentRelation < ActiveRecord::Base
+class AgentRelation < ApplicationRecord
 
   belongs_to :agent, class_name: 'Agent'
   belongs_to :related_agent, class_name: 'Agent', foreign_key: :related_agent_id

@@ -15,11 +15,13 @@ class DownloadTest < ActiveSupport::TestCase
     d2 = Download.create
     d3 = Download.create
 
-    d1.update(updated_at: 25.hours.ago)
+    assert_equal 0, Download.where(expired: true).count
+
+    d1.update(updated_at: 28.hours.ago)
 
     Download.cleanup(60 * 60 * 24) # 1 day
 
-    assert_equal 2, Download.count
+    assert_equal 1, Download.where(expired: true).count
   end
 
   # create()

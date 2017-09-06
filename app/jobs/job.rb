@@ -2,7 +2,7 @@
 # Wraps ActiveJob::Base with actions on Tasks that enable the job to be
 # monitored via ActiveRecord queries. Most application jobs should extend this.
 #
-class Job < ActiveJob::Base
+class Job < ApplicationJob
 
   before_enqueue :do_before_enqueue
   after_enqueue :do_after_enqueue

@@ -49,6 +49,10 @@ class OaiPmhController < ApplicationController
       else
         @errors << { code: 'badVerb', description: 'Illegal verb argument.' }
     end
+
+    @query = @errors.select{ |e| %w(badVerb badArgument).include?(e[:code]) }.any? ?
+                 {} : params.except('controller', 'action').to_unsafe_hash
+
     template = 'error.xml.builder' if @errors.any?
     render template
   end
@@ -111,7 +115,7 @@ class OaiPmhController < ApplicationController
   private
 
   def check_pmh_enabled
-    render text: 'This server\'s OAI-PMH endpoint is disabled.',
+    render plain: 'This server\'s OAI-PMH endpoint is disabled.',
            status: :service_unavailable unless
         Option::boolean(Option::Keys::OAI_PMH_ENABLED)
   end
@@ -195,7 +199,7 @@ class OaiPmhController < ApplicationController
     end
 
     # Check that the params hash contains only allowed keys.
-    (params.to_hash.keys - ignore).each do |key|
+    (params.to_unsafe_hash.keys - ignore).each do |key|
       unless allowed.include?(key)
         @errors << { code: 'badArgument',
                      description: "Illegal argument: #{key}" }

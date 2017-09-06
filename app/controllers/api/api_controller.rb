@@ -29,7 +29,7 @@ module Api
 
     def enforce_json_content_type
       if request.content_type != 'application/json'
-        render text: 'Invalid content type.', status: :unsupported_media_type
+        render plain: 'Invalid content type.', status: :unsupported_media_type
         return false
       end
       true

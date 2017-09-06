@@ -1,7 +1,7 @@
 <% provide(:body_id, 'search_index') %>
 <% provide(:title, 'Search') %>
 
-<%= form_tag(params, method: :get, class: 'pt-filter') do %>
+<%= form_tag(@permitted_params, method: :get, class: 'pt-filter') do %>
   <div class="row">
     <div class="pt-facets pt-panel-facets">
       <%= render partial: 'facets' %>
@@ -10,7 +10,7 @@
     <div class="col-sm-9 col-lg-10">
       <div class="row">
         <div class="col-xs-6">
-          <% params.each do |k, v| %>
+          <% @permitted_params.each do |k, v| %>
             <%= hidden_field_tag(k, v) %>
           <% end %>
           <div class="input-group">
@@ -29,7 +29,7 @@
               </button>
               <ul class="dropdown-menu dropdown-menu-right">
                 <li>
-                  <%= link_to params.merge(format: :atom) do %>
+                  <%= link_to @permitted_params.merge(format: :atom) do %>
                     <i class="fa fa-rss"></i>&nbsp;&nbsp;Atom
                   <% end %>
                 </li>

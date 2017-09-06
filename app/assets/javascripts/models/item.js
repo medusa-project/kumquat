@@ -13,20 +13,20 @@ var PTItem = function() {
 
     this.addToFavorites = function() {
         if (!self.isFavorite()) {
-            var favorites = $.cookie(FAVORITES_COOKIE_NAME);
+            var favorites = Cookies.get(FAVORITES_COOKIE_NAME);
             var cookie = self.id;
             if (favorites && favorites.length > 0) {
                 var parts = favorites.split(',');
                 parts.push(self.id);
                 cookie = parts.join(',');
             }
-            $.cookie(FAVORITES_COOKIE_NAME, cookie, { path: COOKIE_PATH });
+            Cookies.set(FAVORITES_COOKIE_NAME, cookie, { path: COOKIE_PATH });
             $(document).trigger(PearTree.Events.ITEM_ADDED_TO_FAVORITES, self);
         }
     };
 
     this.isFavorite = function() {
-        var favorites = $.cookie(FAVORITES_COOKIE_NAME);
+        var favorites = Cookies.get(FAVORITES_COOKIE_NAME);
         if (favorites) {
             return favorites.indexOf(self.id) > -1;
         }
@@ -35,10 +35,10 @@ var PTItem = function() {
 
     this.removeFromFavorites = function() {
         if (self.isFavorite()) {
-            var favorites = $.cookie(FAVORITES_COOKIE_NAME);
+            var favorites = Cookies.get(FAVORITES_COOKIE_NAME);
             var parts = favorites.split(',');
             parts.splice($.inArray(self.id, parts), 1);
-            $.cookie(FAVORITES_COOKIE_NAME, parts.join(','),
+            Cookies.set(FAVORITES_COOKIE_NAME, parts.join(','),
                 { path: COOKIE_PATH });
             $(document).trigger(PearTree.Events.ITEM_REMOVED_FROM_FAVORITES,
                 self);
@@ -48,7 +48,7 @@ var PTItem = function() {
 };
 
 PTItem.numFavorites = function() {
-    var favorites = $.cookie(FAVORITES_COOKIE_NAME);
+    var favorites = Cookies.get(FAVORITES_COOKIE_NAME);
     if (favorites && favorites.length > 0) {
         return favorites.split(',').length;
     }

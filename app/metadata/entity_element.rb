@@ -5,7 +5,7 @@
 # This class is "abstract" and intended to be used as a base class with
 # single-table inheritance.
 #
-class EntityElement < ActiveRecord::Base
+class EntityElement < ApplicationRecord
 
   belongs_to :vocabulary
 

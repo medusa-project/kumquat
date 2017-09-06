@@ -4,7 +4,7 @@
 # Instances' properties are loaded from Medusa automatically and cached.
 # Acquire instances with `with_uuid()`.
 #
-class MedusaCfsDirectory < ActiveRecord::Base
+class MedusaCfsDirectory < ApplicationRecord
 
   after_initialize :reset
 

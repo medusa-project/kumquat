@@ -14,7 +14,7 @@ class ContentdmController < ApplicationController
   # * GET /ui/*
   #
   def gone
-    render text: 'This resource no longer exists.', status: :gone
+    render plain: 'This resource no longer exists.', status: :gone
   end
 
   ##
@@ -168,7 +168,7 @@ class ContentdmController < ApplicationController
         return
       end
     end
-    render text: 'Not found.', status: 404
+    render plain: 'Not found.', status: 404
   end
 
   private

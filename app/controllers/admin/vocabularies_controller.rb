@@ -2,6 +2,10 @@ module Admin
 
   class VocabulariesController < ControlPanelController
 
+    PERMITTED_PARAMS = [:key, :name]
+
+    before_action :set_permitted_params
+
     def create
       @vocabulary = Vocabulary.new(sanitized_params)
       begin
@@ -94,7 +98,7 @@ module Admin
         format.json do
           filename = "#{CGI.escape(@vocabulary.name)}.json"
           headers['Content-Disposition'] = "attachment; filename=#{filename}"
-          render text: JSON.pretty_generate(@vocabulary.as_json)
+          render plain: JSON.pretty_generate(@vocabulary.as_json)
         end
       end
     end
@@ -157,7 +161,11 @@ module Admin
     private
 
     def sanitized_params
-      params.require(:vocabulary).permit(:key, :name)
+      params.require(:vocabulary).permit(PERMITTED_PARAMS)
+    end
+
+    def set_permitted_params
+      @permitted_params = params.permit(PERMITTED_PARAMS)
     end
 
   end

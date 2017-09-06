@@ -168,11 +168,13 @@ var PearTree = {
             e.preventDefault();
 
             var target = this.hash;
-            root.stop().animate({
-                'scrollTop': $(target).offset().top - top_padding
-            }, 500, 'swing', function () {
-                window.location.hash = target;
-            });
+            if (target) {
+                root.stop().animate({
+                    'scrollTop': $(target).offset().top - top_padding
+                }, 500, 'swing', function () {
+                    window.location.hash = target;
+                });
+            }
         });
     },
 

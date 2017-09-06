@@ -12,9 +12,9 @@
 //
 //= require jquery
 //= require jquery_ujs
-//= require jquery.cookie
+//= require js.cookie
 //= require bootstrap-sprockets
-//= require local_time
+//= require local-time
 //= require jquery.grid-a-licious.min.js
 //= require jstree
 

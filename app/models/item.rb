@@ -95,7 +95,7 @@
 # * updated_at:           Managed by ActiveRecord.
 # * variant:              Like a subclass. Used often in queries.
 #
-class Item < ActiveRecord::Base
+class Item < ApplicationRecord
 
   include AuthorizableByRole
   include Describable

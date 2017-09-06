@@ -11,6 +11,8 @@ class ItemsController < WebsiteController
 
   # Number of children to display per page in show-item view.
   PAGES_LIMIT = 15
+  PERMITTED_PARAMS = [:_, :collection_id, :df, :display, { fq: [] }, :q, :sort,
+                      :start, :utf8]
 
   before_action :enable_cors, only: [:iiif_annotation_list, :iiif_canvas,
                                      :iiif_image_resource, :iiif_layer,
@@ -21,6 +23,7 @@ class ItemsController < WebsiteController
   before_action :authorize_item, except: [:index, :tree_data, :tree]
   before_action :check_published, except: [:index, :tree_data, :tree]
   before_action :set_browse_context, only: :index
+  before_action :set_sanitized_params, only: [:index, :show, :tree]
 
   ##
   # Retrieves a binary by its filename.
@@ -67,7 +70,7 @@ class ItemsController < WebsiteController
       render 'items/iiif_presentation_api/annotation_list',
              formats: :json, content_type: 'application/json'
     else
-      render text: 'No such annotation list.', status: :not_found
+      render plain: 'No such annotation list.', status: :not_found
     end
   end
 
@@ -85,7 +88,7 @@ class ItemsController < WebsiteController
              formats: :json,
              content_type: 'application/json'
     else
-      render text: 'No such canvas.', status: :not_found
+      render plain: 'No such canvas.', status: :not_found
     end
   end
 
@@ -102,9 +105,10 @@ class ItemsController < WebsiteController
       @image_resource_name = params[:name]
       @binary = @item.iiif_image_binary
       render 'items/iiif_presentation_api/image_resource',
-             formats: :json, content_type: 'application/json'
+             formats: :json,
+             content_type: 'application/json'
     else
-      render text: 'No such image resource.', status: :not_found
+      render plain: 'No such image resource.', status: :not_found
     end
   end
 
@@ -119,9 +123,10 @@ class ItemsController < WebsiteController
     @layer_name = params[:name]
     if Item.find_by_repository_id(@layer_name)
       render 'items/iiif_presentation_api/layer',
-             formats: :json, content_type: 'application/json'
+             formats: :json,
+             content_type: 'application/json'
     else
-      render text: 'No such layer.', status: :not_found
+      render plain: 'No such layer.', status: :not_found
     end
   end
 
@@ -148,7 +153,8 @@ class ItemsController < WebsiteController
   #
   def iiif_media_sequence
     render 'items/iiif_presentation_api/media_sequence',
-           formats: :json, content_type: 'application/json'
+           formats: :json,
+           content_type: 'application/json'
   end
 
   ##
@@ -167,7 +173,7 @@ class ItemsController < WebsiteController
              formats: :json,
              content_type: 'application/json'
     else
-      render text: 'No such range.', status: :not_found
+      render plain: 'No such range.', status: :not_found
     end
   end
 
@@ -189,7 +195,7 @@ class ItemsController < WebsiteController
                  formats: :json,
                  content_type: 'application/json'
         else
-          render text: 'This object does not have an item sequence.',
+          render plain: 'This object does not have an item sequence.',
                  status: :not_found
         end
       when 'page'
@@ -201,11 +207,11 @@ class ItemsController < WebsiteController
                  formats: :json,
                  content_type: 'application/json'
         else
-          render text: 'This object does not have a page sequence.',
+          render plain: 'This object does not have a page sequence.',
                  status: :not_found
         end
       else
-        render text: 'Sequence not available.', status: :not_found
+        render plain: 'Sequence not available.', status: :not_found
     end
   end
 
@@ -618,6 +624,10 @@ class ItemsController < WebsiteController
         order({Item::SolrFields::VARIANT => :asc},
               {Item::SolrFields::TITLE => :asc}).
         start(@start).limit(@limit)
+  end
+
+  def set_sanitized_params
+    @permitted_params = params.permit(PERMITTED_PARAMS)
   end
 
 end

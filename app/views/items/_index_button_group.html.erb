@@ -7,42 +7,42 @@
     </button>
     <ul class="dropdown-menu dropdown-menu-right view-dropdown">
       <li>
-        <%= link_to params.merge(format: :atom) do %>
-            <i class="fa fa-rss"></i>&nbsp;&nbsp;Atom
+        <%= link_to @permitted_params.merge(format: :atom) do %>
+          <i class="fa fa-rss"></i>&nbsp;&nbsp;Atom
         <% end %>
       </li>
       <li>
-        <%= link_to params.merge(format: :json) do %>
-            <i class="fa fa-code"></i>&nbsp;JSON
+        <%= link_to @permitted_params.merge(format: :json) do %>
+          <i class="fa fa-code"></i>&nbsp;JSON
         <% end %>
       </li>
       <% if @collection %>
-          <li class="divider"></li>
-          <li>
-            <%= link_to admin_collection_items_path(@collection,
-                                                    params.except(:action, :collection_id, :controller, :format)),
-                        target: '_blank' do %>
-                <i class="fa fa-lock"></i>&nbsp;&nbsp;Admin View
-            <% end %>
-          </li>
+        <li class="divider"></li>
+        <li>
+          <%= link_to admin_collection_items_path(@collection,
+                                                  @permitted_params.except(:action, :collection_id, :controller, :format)),
+                      target: '_blank' do %>
+            <i class="fa fa-lock"></i>&nbsp;&nbsp;Admin View
+          <% end %>
+        </li>
       <% end %>
     </ul>
   </div>
   <!-- Download menu, disabled in cross-collection contexts to limit the
       downloading of huge amounts of content. -->
   <% if @collection and !@storage_offline and client_supports_zip_download? %>
-      <div class="btn-group">
-        <button type="button" class="btn btn-default dropdown-toggle"
-                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          <i class="fa fa-download"></i> Download <span class="caret"></span>
-        </button>
-        <ul class="dropdown-menu dropdown-menu-right">
-          <li>
-            <%= link_to('', 'data-toggle': 'modal', 'data-target': '#pt-download-zip-modal') do %>
-                <i class="fa fa-file-zip-o"></i>&nbsp;&nbsp;Zip File&hellip;
-            <% end %>
-          </li>
-        </ul>
-      </div>
+    <div class="btn-group">
+      <button type="button" class="btn btn-default dropdown-toggle"
+              data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <i class="fa fa-download"></i> Download <span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu dropdown-menu-right">
+        <li>
+          <%= link_to('', 'data-toggle': 'modal', 'data-target': '#pt-download-zip-modal') do %>
+            <i class="fa fa-file-zip-o"></i>&nbsp;&nbsp;Zip File&hellip;
+          <% end %>
+        </li>
+      </ul>
+    </div>
   <% end %>
 </div>

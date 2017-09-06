@@ -16,7 +16,7 @@
       <i class="fa fa-pencil"></i> Edit
     </button>
     <!-- Export button -->
-    <%= link_to params.merge(format: 'json'), class: 'btn btn-default' do %>
+    <%= link_to @permitted_params.merge(format: 'json'), class: 'btn btn-default' do %>
       <i class="fa fa-download"></i> Export
     <% end %>
     <!-- Delete button -->

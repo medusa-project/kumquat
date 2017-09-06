@@ -1,6 +1,6 @@
 <div class="row">
   <div class="col-xs-6">
-    <% params.each do |k, v| %>
+    <% @permitted_params.each do |k, v| %>
         <%= hidden_field_tag(k, v) %>
     <% end %>
     <div class="input-group">

@@ -22,7 +22,7 @@
 #    `execute("UPDATE permissions SET key = 'y' WHERE key = 'x'")`
 # 4. rake db:migrate
 #
-class Permission < ActiveRecord::Base
+class Permission < ApplicationRecord
 
   class Permissions
     ACCESS_CONTROL_PANEL = 'control_panel.access'

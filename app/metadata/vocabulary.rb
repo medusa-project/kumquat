@@ -9,7 +9,7 @@
 # value. The application depends on this instance (with a key of
 # "uncontrolled") always existing.
 #
-class Vocabulary < ActiveRecord::Base
+class Vocabulary < ApplicationRecord
 
   has_and_belongs_to_many :metadata_profile_elements
   has_many :vocabulary_terms, -> { order(:string, :uri) },

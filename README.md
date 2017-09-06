@@ -58,15 +58,15 @@ This is a basic getting-started guide for developers.
 
 ## 7) Initialize the application
 
-`$ bundle exec rake db:setup`
+`$ bin/rails db:setup`
 
-`$ bundle exec rake solr:update_schema`
+`$ bin/rails solr:update_schema`
 
 ## 8) Load some data
 
 ### Sync collections with Medusa
 
-`$ bundle exec rake dls:collections:sync`
+`$ bin/rails dls:collections:sync`
 
 ### Load the master element list
 
@@ -109,7 +109,7 @@ collection.)
 2. Click the `0 objects` button.
 3. Click the `Sync` button.
 4. In the `Sync Items` panel, make sure `Create` is checked, and click `Sync.`
-   This will invoke a background job. Use `bundle exec rake jobs:workoff` to
+   This will invoke a background job. Use `bin/rails jobs:workoff` to
    start it. Wait for it to complete.
 
 ### Import the collection's metadata
@@ -123,7 +123,7 @@ collection.)
    [the same view](http://localhost:3000/admin/collections/81180450-e3fb-012f-c5b6-0019b9e633c5-2)
    on your local instance.
 5. Import the TSV. This will invoke a background job. Use
-   `bundle exec rake jobs:workoff` to start it. When complete, the collection
+   `bin/rails jobs:workoff` to start it. When complete, the collection
    should be fully populated with metadata.
 
 ## 9) Configure the image server
@@ -167,10 +167,10 @@ content; see the index at the beginning of the file.
 
 Most long-running operations are invoked in background jobs, in order to keep
 the user interface responsive. After firing one of these off -- such as a sync
--- use `bundle exec rake jobs:workoff` to run it.
+-- use `bin/rails jobs:workoff` to run it.
 
 The job worker, [Delayed::Job](https://github.com/collectiveidea/delayed_job/),
-can also run continually, using `rake jobs:work`. This is how it runs in
+can also run continually, using `bin/rails jobs:work`. This is how it runs in
 production, but it won't pick up code changes while running.
 
 ## Using Shibboleth locally

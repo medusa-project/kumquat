@@ -2,7 +2,7 @@
 # N.B. Every instance must have a corresponding VocabularyTerm instance.
 # These are auto-managed by ActiveRecord callbacks.
 #
-class AgentUri < ActiveRecord::Base
+class AgentUri < ApplicationRecord
 
   belongs_to :agent, inverse_of: :agent_uris
 
