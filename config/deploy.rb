@@ -1,5 +1,5 @@
 # config valid only for current version of Capistrano
-lock '3.4.0'
+lock '3.9.0'
 
 set :application, 'peartree'
 set :repo_url, 'https://github.com/medusa-project/PearTree.git'
@@ -16,9 +16,6 @@ set :bin, "#{fetch(:home)}/bin"
 set :deploy_to, "#{fetch(:home)}/peartree-capistrano"
 
 set :rails_env, 'production'
-
-# Default value for :scm is :git
-# set :scm, :git
 
 # Default value for :format is :pretty
 # set :format, :pretty
