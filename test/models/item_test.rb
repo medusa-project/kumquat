@@ -12,7 +12,8 @@ class ItemTest < ActiveSupport::TestCase
   test 'num_free_form_files should return a correct count' do
     Item.all.each { |it| it.index_in_solr }
     Solr.instance.commit
-    assert_equal 2, Item.num_free_form_files
+    assert_equal Item.solr.where(Item::SolrFields::VARIANT => Item::Variants::FILE).count,
+                 Item.num_free_form_files
   end
 
   # Item.num_free_form_items()
@@ -20,8 +21,8 @@ class ItemTest < ActiveSupport::TestCase
   test 'num_free_form_items should return a correct count' do
     Item.all.each { |it| it.index_in_solr }
     Solr.instance.commit
-    assert_equal Item.solr.where(Item::SolrFields::VARIANT => Variants::FILE).count,
-        Item.num_free_form_items
+    assert_equal Item.solr.where(Item::SolrFields::VARIANT => [Item::Variants::DIRECTORY, Item::Variants::FILE]).count,
+                 Item.num_free_form_items
   end
 
   # Item.tsv_header()

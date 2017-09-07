@@ -16,10 +16,10 @@ module Admin
         clone.save!
       rescue => e
         handle_error(e)
-        redirect_to :back
       else
         flash['success'] = "Cloned #{profile.name} as \"#{clone.name}\"."
-        redirect_to admin_metadata_profile_path(clone)
+      ensure
+        redirect_back fallback_location: admin_metadata_profile_path(clone)
       end
     end
 
@@ -60,7 +60,7 @@ module Admin
       else
         flash['error'] = 'No elements to delete (none checked).'
       end
-      redirect_to :back
+      redirect_back fallback_location: admin_metadata_profile_path(params[:id])
     end
 
     def destroy
@@ -167,7 +167,7 @@ module Admin
         else
           response.headers['X-PearTree-Result'] = 'success'
           flash['success'] = "Metadata profile \"#{@profile.name}\" updated."
-          redirect_to :back
+          redirect_back fallback_location: admin_metadata_profile_path(@profile)
         end
       end
     end

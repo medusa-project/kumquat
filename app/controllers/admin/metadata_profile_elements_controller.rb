@@ -35,7 +35,7 @@ module Admin
       else
         flash['success'] = "Element \"#{element.label}\" deleted."
       ensure
-        redirect_to :back
+        redirect_back fallback_location: admin_metadata_profiles_path
       end
     end
 

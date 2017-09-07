@@ -15,12 +15,12 @@ module Api
       headers = valid_headers.merge(
           'Authorization' => ActionController::HttpAuthentication::Basic.
               encode_credentials('bogus', 'bogus'))
-      get('/api/collections', nil, headers)
+      get '/api/collections', headers: headers
       assert_response :unauthorized
     end
 
     test 'index() with valid credentials should return 200' do
-      get('/api/collections', nil, valid_headers)
+      get '/api/collections', headers: valid_headers
       assert_response :success
     end
 

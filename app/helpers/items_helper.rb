@@ -1091,7 +1091,7 @@ module ItemsHelper
     # UV seems to want its height to be defined in a style attribute.
     html = "<div id=\"pt-compound-viewer\" class=\"uv\" "\
       "data-locale=\"en-GB:English (GB)\" "\
-      "data-config=\"#{asset_path('uvconfig_compound.json')}\" "\
+      "data-config=\"#{asset_path('uvconfig_compound.json', skip_pipeline: true)}\" "\
       "data-uri=\"#{item_iiif_manifest_url(object)}\" "\
       "data-sequenceindex=\"0\" data-canvasindex=\"#{canvas_index}\" "\
       "data-rotation=\"0\" style=\"margin: 0 auto; width:#{VIEWER_WIDTH}; height:#{VIEWER_HEIGHT}; background-color:#000;\"></div>"
@@ -1274,7 +1274,7 @@ module ItemsHelper
       # UV seems to want its height to be defined in a style attribute.
       html += "<div id=\"pt-image-viewer\" class=\"uv\" "\
       "data-locale=\"en-GB:English (GB)\" "\
-      "data-config=\"#{asset_path('uvconfig_single.json')}\" "\
+      "data-config=\"#{asset_path('uvconfig_single.json', skip_pipeline: true)}\" "\
       "data-uri=\"#{item_iiif_manifest_url(item)}\" "\
       "data-sequenceindex=\"0\" data-canvasindex=\"0\" "\
       "data-rotation=\"0\" style=\"margin: 0 auto; width:#{VIEWER_WIDTH}; height:#{VIEWER_HEIGHT}; background-color:#000;\"></div>"

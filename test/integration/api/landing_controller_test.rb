@@ -7,7 +7,7 @@ module Api
     # index()
 
     test 'index() should display the landing page' do
-      get('/api', nil, valid_headers)
+      get '/api', headers: valid_headers
       assert_response :ok
     end
 

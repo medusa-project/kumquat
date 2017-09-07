@@ -35,7 +35,7 @@ module Admin
       else
         flash['success'] = "Vocabulary term \"#{term}\" deleted."
       ensure
-        redirect_to :back
+        redirect_back fallback_location: admin_vocabulary_terms_path
       end
     end
 

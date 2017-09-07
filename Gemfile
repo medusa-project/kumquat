@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'rails', '5.0.5'
+gem 'rails', '5.1.3'
 
 gem 'activemodel-serializers-xml'
 gem 'bootstrap-sass', '~> 3.3.6'

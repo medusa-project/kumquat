@@ -40,7 +40,7 @@ module Admin
         render :index
       else
         flash['success'] = 'Settings updated.'
-        redirect_to :back
+        redirect_back fallback_location: admin_settings_path
       end
     end
 
