@@ -29,7 +29,7 @@ module Admin
         render 'new'
       else
         flash['success'] = "User #{user.username} updated."
-        redirect_to :back
+        redirect_back fallback_location: admin_user_path(user)
       end
     end
 
@@ -83,7 +83,7 @@ module Admin
       else
         flash['success'] = "User #{user.username} disabled."
       ensure
-        redirect_to :back
+        redirect_back fallback_location: admin_user_path(user)
       end
     end
 
@@ -108,7 +108,7 @@ module Admin
       else
         flash['success'] = "User #{user.username} enabled."
       ensure
-        redirect_to :back
+        redirect_back fallback_location: admin_user_path(user)
       end
     end
 

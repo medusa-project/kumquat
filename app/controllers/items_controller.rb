@@ -11,8 +11,8 @@ class ItemsController < WebsiteController
 
   # Number of children to display per page in show-item view.
   PAGES_LIMIT = 15
-  PERMITTED_PARAMS = [:_, :collection_id, :df, :display, { fq: [] }, :q, :sort,
-                      :start, :utf8]
+  PERMITTED_PARAMS = [:_, :collection_id, :df, :display, { fq: [] }, :id, :q,
+                      :sort, :start, :utf8]
 
   before_action :enable_cors, only: [:iiif_annotation_list, :iiif_canvas,
                                      :iiif_image_resource, :iiif_layer,

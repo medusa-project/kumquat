@@ -44,7 +44,7 @@ module Admin
         Solr.instance.commit
         flash['success'] = 'Agent relationship removed.'
       ensure
-        redirect_to :back
+        redirect_back fallback_location: admin_agent_relations_path
       end
     end
 

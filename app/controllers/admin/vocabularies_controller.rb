@@ -42,7 +42,7 @@ module Admin
       else
         flash['error'] = 'No vocabulary terms to delete (none checked).'
       end
-      redirect_to :back
+      redirect_back fallback_location: admin_vocabulary_path(params[:id])
     end
 
     def destroy
@@ -153,7 +153,7 @@ module Admin
         else
           response.headers['X-PearTree-Result'] = 'success'
           flash['success'] = "Vocabulary \"#{@vocabulary.name}\" updated."
-          redirect_to :back
+          redirect_back fallback_location: admin_vocabulary_path(@vocabulary)
         end
       end
     end

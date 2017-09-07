@@ -1,6 +1,6 @@
 class CollectionsController < WebsiteController
 
-  PERMITTED_PARAMS = [:_, :fq, :q, :utf8]
+  PERMITTED_PARAMS = [:_, :fq, :id, :q, :utf8]
 
   before_action :load_collection, only: [:iiif_presentation, :show]
   before_action :authorize_collection, only: [:iiif_presentation, :show]

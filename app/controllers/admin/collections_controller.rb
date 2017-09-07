@@ -119,7 +119,7 @@ module Admin
       SyncCollectionsJob.perform_later
       flash['success'] = 'Indexing collections in the background.
         (This will take a minute.)'
-      redirect_to :back
+      redirect_back fallback_location: admin_collections_path
     end
 
     ##

@@ -20,7 +20,7 @@ class Vocabulary < ApplicationRecord
   validates :name, presence: true, length: { maximum: 100 },
             uniqueness: { case_sensitive: false }
 
-  before_update :restrict_changes_to_required_vocabs
+  validate :restrict_changes_to_required_vocabs
 
   AGENT_KEY = 'agent'
   UNCONTROLLED_KEY = 'uncontrolled'
@@ -97,7 +97,11 @@ class Vocabulary < ApplicationRecord
   private
 
   def restrict_changes_to_required_vocabs
-    self.key_was != UNCONTROLLED_KEY and self.key_was != AGENT_KEY
+    if self.key_changed?
+      if self.key_was == UNCONTROLLED_KEY or self.key_was == AGENT_KEY
+        errors.add(:key, 'Key cannot be changed.')
+      end
+    end
   end
 
 end

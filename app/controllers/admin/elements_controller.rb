@@ -44,7 +44,7 @@ module Admin
       else
         flash['success'] = "Element \"#{element.name}\" deleted."
       ensure
-        redirect_to :back
+        redirect_back fallback_location: admin_elements_path
       end
     end
 

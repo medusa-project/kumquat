@@ -227,12 +227,12 @@ module Admin
         item.purge_cached_images
       rescue => e
         handle_error(e)
-        redirect_to :back
       else
         flash['success'] = 'All images relating to this item have been purged '\
         'from the image server cache. You may need to clear your browser '\
         'cache to see any changes take effect.'
-        redirect_to :back
+      ensure
+        redirect_back fallback_location: admin_collection_item_path(item.collection, item)
       end
     end
 
@@ -386,7 +386,7 @@ module Admin
       Solr.instance.commit
 
       flash['success'] = "#{num_updated} items updated."
-      redirect_to :back
+      redirect_back fallback_location: admin_collections_path
     end
 
     private
