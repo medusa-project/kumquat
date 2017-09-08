@@ -156,18 +156,10 @@ Rails.application.routes.draw do
     match '/metadata-profiles/import', to: 'metadata_profiles#import',
           via: :post, as: 'metadata_profile_import'
     resources :roles, param: :key
-    match '/status', to: 'status#index', via: :get
-    match '/status/downloader', to: 'status#downloader_status',
-          via: :get, as: 'downloader_status'
-    match '/status/image-server', to: 'status#image_server_status',
-          via: :get, as: 'image_server_status'
-    match '/status/job-worker', to: 'status#job_worker_status',
-          via: :get, as: 'job_worker_status'
-    match '/status/search-server', to: 'status#search_server_status',
-          via: :get, as: 'search_server_status'
     match '/settings', to: 'settings#index', via: :get
     match '/settings', to: 'settings#update', via: :patch
     match '/statistics', to: 'statistics#index', via: :get
+    match '/status', to: 'status#index', via: :get
     resources :tasks
     resources :users, param: :username do
       match '/enable', to: 'users#enable', via: :patch, as: 'enable'

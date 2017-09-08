@@ -5,41 +5,38 @@ var PTServerStatusMonitor = function() {
 
     var refresh = function() {
         console.log('Refreshing server status...');
-        $('.pt-dynamic-status').each(function(index, el) {
-            el = $(el);
-            var status = el.find('.pt-service-status:first');
-            var check_url = status.data('check');
 
-            var showOffline = function() {
-                status.addClass('label-danger')
-                    .removeClass('label-success hidden')
-                    .text('Offline');
-            };
+        var service_table = $('table#pt-status');
+        var check_url = $('input[name=pt-status-url]').val();
 
-            $.ajax({
-                url: check_url,
-                data: {},
-                success: function(xhr, statusText) {
-                    if (xhr.status === 'online') {
-                        status.addClass('label-success')
-                            .removeClass('label-danger hidden')
-                            .text('Online');
+        $.ajax({
+            url: check_url,
+            dataType: 'json',
+            success: function(xhr, statusText) {
+                service_table.empty();
 
-                        // Update various <dd> fields based on additional
-                        // info returned in the JSON response.
-                        var fields = el.find('dd');
-                        $.each(fields.data(), function(k, v) {
-                            fields.filter('[data-name=' + v + ']').text(xhr[v]);
-                        });
-                    } else {
-                        showOffline();
+                $.each(xhr, function(index, service) {
+                    var row = '<tr>';
+                    row += '<td>' + service.service + '</td>';
+                    switch (service.status) {
+                        case 'online':
+                            row += '<td><span class="label label-success">Online</span></td>';
+                            break;
+                        default:
+                            row += '<td><span class="label label-danger">Offline</span></td>';
+                            break;
                     }
-                },
-                error: function(xhr, statusText, err) {
-                    showOffline();
-                }
-            });
+                    row += '</tr>';
+                    service_table.append(row);
+                });
+            },
+            error: function(xhr, statusText, e) {
+                console.error(xhr);
+                console.error(statusText);
+                console.error(e);
+            }
         });
+
     };
 
     this.start = function() {
@@ -63,12 +60,5 @@ var ready = function() {
     }
 };
 
-var teardown = function() {
-    if ($('body#admin_status').length && monitor) {
-        monitor.stop();
-    }
-};
-
 $(document).ready(ready);
 $(document).on('page:load', ready);
-$(document).on('page:before-change', teardown);
