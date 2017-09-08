@@ -280,7 +280,8 @@ class ItemsController < WebsiteController
             # same view templates.
             @root_item = @item
             @selected_item = @item
-            @containing_item = @item.directory? ? @item : @item.parent
+            @containing_item = (@item.directory? or !@item.parent) ?
+                                   @item : @item.parent
             @downloadable_items = @item.directory? ?
                                       @item.items_from_solr.order(Item::SolrFields::STRUCTURAL_SORT).limit(9999) :
                                       [@item]
