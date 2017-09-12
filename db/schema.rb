@@ -1,4 +1,3 @@
-# encoding: UTF-8
 # This file is auto-generated from the current state of the database. Instead
 # of editing this file, please use the migrations feature of Active Record to
 # incrementally modify your database, and then regenerate this schema definition.
@@ -16,232 +15,238 @@ ActiveRecord::Schema.define(version: 20170912195504) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
-  create_table "agent_relation_types", force: :cascade do |t|
-    t.string   "name",        null: false
-    t.text     "description"
-    t.datetime "created_at",  null: false
-    t.datetime "updated_at",  null: false
-    t.string   "uri",         null: false
-  end
-
-  create_table "agent_relations", force: :cascade do |t|
-    t.integer  "agent_id",               null: false
-    t.integer  "related_agent_id",       null: false
-    t.string   "dates"
-    t.text     "description"
-    t.datetime "created_at",             null: false
-    t.datetime "updated_at",             null: false
-    t.integer  "agent_relation_type_id", null: false
-  end
-
-  add_index "agent_relations", ["agent_id", "agent_relation_type_id", "related_agent_id"], name: "by_relationship", unique: true, using: :btree
-  add_index "agent_relations", ["agent_id"], name: "index_agent_relations_on_agent_id", using: :btree
-  add_index "agent_relations", ["related_agent_id"], name: "index_agent_relations_on_related_agent_id", using: :btree
-
-  create_table "agent_rules", force: :cascade do |t|
-    t.string   "name",         null: false
-    t.string   "abbreviation"
-    t.datetime "created_at",   null: false
-    t.datetime "updated_at",   null: false
-  end
-
-  add_index "agent_rules", ["abbreviation"], name: "index_agent_rules_on_abbreviation", unique: true, using: :btree
-  add_index "agent_rules", ["name"], name: "index_agent_rules_on_name", unique: true, using: :btree
-
-  create_table "agent_types", force: :cascade do |t|
-    t.string   "name",       null: false
+  create_table "agent_relation_types", id: :serial, force: :cascade do |t|
+    t.string "name", null: false
+    t.text "description"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "uri", null: false
   end
 
-  add_index "agent_types", ["name"], name: "index_agent_types_on_name", unique: true, using: :btree
-
-  create_table "agent_uris", force: :cascade do |t|
-    t.string   "uri",                        null: false
-    t.integer  "agent_id"
-    t.boolean  "primary",    default: false
-    t.datetime "created_at",                 null: false
-    t.datetime "updated_at",                 null: false
+  create_table "agent_relations", id: :serial, force: :cascade do |t|
+    t.integer "agent_id", null: false
+    t.integer "related_agent_id", null: false
+    t.string "dates"
+    t.text "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "agent_relation_type_id", null: false
+    t.index ["agent_id", "agent_relation_type_id", "related_agent_id"], name: "by_relationship", unique: true
+    t.index ["agent_id"], name: "index_agent_relations_on_agent_id"
+    t.index ["related_agent_id"], name: "index_agent_relations_on_related_agent_id"
   end
 
-  add_index "agent_uris", ["uri"], name: "index_agent_uris_on_uri", unique: true, using: :btree
+  create_table "agent_rules", id: :serial, force: :cascade do |t|
+    t.string "name", null: false
+    t.string "abbreviation"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["abbreviation"], name: "index_agent_rules_on_abbreviation", unique: true
+    t.index ["name"], name: "index_agent_rules_on_name", unique: true
+  end
 
-  create_table "agents", force: :cascade do |t|
-    t.string   "name",          null: false
+  create_table "agent_types", id: :serial, force: :cascade do |t|
+    t.string "name", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_agent_types_on_name", unique: true
+  end
+
+  create_table "agent_uris", id: :serial, force: :cascade do |t|
+    t.string "uri", null: false
+    t.integer "agent_id"
+    t.boolean "primary", default: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["uri"], name: "index_agent_uris_on_uri", unique: true
+  end
+
+  create_table "agents", id: :serial, force: :cascade do |t|
+    t.string "name", null: false
     t.datetime "begin_date"
     t.datetime "end_date"
-    t.text     "description"
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
-    t.integer  "agent_rule_id"
-    t.integer  "agent_type_id"
+    t.text "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "agent_rule_id"
+    t.integer "agent_type_id"
+    t.index ["begin_date"], name: "index_agents_on_begin_date"
+    t.index ["end_date"], name: "index_agents_on_end_date"
+    t.index ["name"], name: "index_agents_on_name", unique: true
   end
 
-  add_index "agents", ["begin_date"], name: "index_agents_on_begin_date", using: :btree
-  add_index "agents", ["end_date"], name: "index_agents_on_end_date", using: :btree
-  add_index "agents", ["name"], name: "index_agents_on_name", unique: true, using: :btree
-
-  create_table "binaries", force: :cascade do |t|
-    t.integer  "master_type"
-    t.string   "media_type",                                  default: "unknown/unknown"
-    t.datetime "created_at",                                                              null: false
-    t.datetime "updated_at",                                                              null: false
-    t.integer  "item_id"
-    t.string   "repository_relative_pathname"
-    t.string   "cfs_file_uuid"
-    t.decimal  "byte_size",                    precision: 15,                             null: false
-    t.decimal  "width",                        precision: 6
-    t.decimal  "height",                       precision: 6
-    t.integer  "media_category"
-    t.integer  "duration"
+  create_table "binaries", id: :serial, force: :cascade do |t|
+    t.integer "master_type"
+    t.string "media_type", default: "unknown/unknown"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "item_id"
+    t.string "repository_relative_pathname"
+    t.string "cfs_file_uuid"
+    t.decimal "byte_size", precision: 15, null: false
+    t.decimal "width", precision: 6
+    t.decimal "height", precision: 6
+    t.integer "media_category"
+    t.integer "duration"
+    t.index ["item_id"], name: "index_binaries_on_item_id"
+    t.index ["master_type"], name: "index_binaries_on_master_type"
+    t.index ["media_category"], name: "index_binaries_on_media_category"
+    t.index ["media_type"], name: "index_binaries_on_media_type"
+    t.index ["repository_relative_pathname"], name: "index_binaries_on_repository_relative_pathname", unique: true
   end
 
-  add_index "binaries", ["item_id"], name: "index_binaries_on_item_id", using: :btree
-  add_index "binaries", ["master_type"], name: "index_binaries_on_master_type", using: :btree
-  add_index "binaries", ["media_category"], name: "index_binaries_on_media_category", using: :btree
-  add_index "binaries", ["media_type"], name: "index_binaries_on_media_type", using: :btree
-  add_index "binaries", ["repository_relative_pathname"], name: "index_binaries_on_repository_relative_pathname", unique: true, using: :btree
-
-  create_table "collection_joins", force: :cascade do |t|
+  create_table "collection_joins", id: :serial, force: :cascade do |t|
     t.string "parent_repository_id", null: false
-    t.string "child_repository_id",  null: false
+    t.string "child_repository_id", null: false
+    t.index ["child_repository_id"], name: "index_collection_joins_on_child_identifier"
+    t.index ["parent_repository_id"], name: "index_collection_joins_on_parent_identifier"
   end
 
-  add_index "collection_joins", ["child_repository_id"], name: "index_collection_joins_on_child_identifier", using: :btree
-  add_index "collection_joins", ["parent_repository_id"], name: "index_collection_joins_on_parent_identifier", using: :btree
-
-  create_table "collections", force: :cascade do |t|
-    t.string   "repository_id",                            null: false
-    t.string   "description_html"
-    t.string   "access_url"
-    t.boolean  "public_in_medusa"
-    t.boolean  "published_in_dls",         default: false
-    t.string   "representative_image"
-    t.string   "representative_item_id"
-    t.integer  "metadata_profile_id"
-    t.string   "medusa_file_group_id"
-    t.datetime "created_at",                               null: false
-    t.datetime "updated_at",                               null: false
-    t.text     "resource_types"
-    t.string   "medusa_cfs_directory_id"
-    t.integer  "package_profile_id"
-    t.text     "access_systems"
-    t.integer  "medusa_repository_id"
-    t.text     "rights_statement"
-    t.string   "rightsstatements_org_uri"
-    t.string   "contentdm_alias"
-    t.string   "physical_collection_url"
-    t.boolean  "harvestable",              default: false
-    t.string   "external_id"
+  create_table "collections", id: :serial, force: :cascade do |t|
+    t.string "repository_id", null: false
+    t.string "description_html"
+    t.string "access_url"
+    t.boolean "public_in_medusa"
+    t.boolean "published_in_dls", default: false
+    t.string "representative_image"
+    t.string "representative_item_id"
+    t.integer "metadata_profile_id"
+    t.string "medusa_file_group_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.text "resource_types"
+    t.string "medusa_cfs_directory_id"
+    t.integer "package_profile_id"
+    t.text "access_systems"
+    t.integer "medusa_repository_id"
+    t.text "rights_statement"
+    t.string "rightsstatements_org_uri"
+    t.string "contentdm_alias"
+    t.string "physical_collection_url"
+    t.boolean "harvestable", default: false
+    t.string "external_id"
+    t.index ["external_id"], name: "index_collections_on_external_id"
+    t.index ["harvestable"], name: "index_collections_on_harvestable"
+    t.index ["metadata_profile_id"], name: "index_collections_on_metadata_profile_id"
+    t.index ["public_in_medusa"], name: "index_collections_on_public_in_medusa"
+    t.index ["published_in_dls"], name: "index_collections_on_published"
+    t.index ["repository_id"], name: "index_collections_on_identifier", unique: true
+    t.index ["representative_item_id"], name: "index_collections_on_representative_item_id"
   end
 
-  add_index "collections", ["external_id"], name: "index_collections_on_external_id", using: :btree
-  add_index "collections", ["harvestable"], name: "index_collections_on_harvestable", using: :btree
-  add_index "collections", ["metadata_profile_id"], name: "index_collections_on_metadata_profile_id", using: :btree
-  add_index "collections", ["public_in_medusa"], name: "index_collections_on_public_in_medusa", using: :btree
-  add_index "collections", ["published_in_dls"], name: "index_collections_on_published", using: :btree
-  add_index "collections", ["repository_id"], name: "index_collections_on_identifier", unique: true, using: :btree
-  add_index "collections", ["representative_item_id"], name: "index_collections_on_representative_item_id", using: :btree
-
-  create_table "collections_roles", force: :cascade do |t|
+  create_table "collections_roles", id: :serial, force: :cascade do |t|
     t.integer "collection_id"
     t.integer "allowed_role_id"
     t.integer "denied_role_id"
   end
 
-  create_table "delayed_jobs", force: :cascade do |t|
-    t.integer  "priority",   default: 0, null: false
-    t.integer  "attempts",   default: 0, null: false
-    t.text     "handler",                null: false
-    t.text     "last_error"
+  create_table "delayed_jobs", id: :serial, force: :cascade do |t|
+    t.integer "priority", default: 0, null: false
+    t.integer "attempts", default: 0, null: false
+    t.text "handler", null: false
+    t.text "last_error"
     t.datetime "run_at"
     t.datetime "locked_at"
     t.datetime "failed_at"
-    t.string   "locked_by"
-    t.string   "queue"
+    t.string "locked_by"
+    t.string "queue"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.index ["priority", "run_at"], name: "delayed_jobs_priority"
   end
 
-  add_index "delayed_jobs", ["priority", "run_at"], name: "delayed_jobs_priority", using: :btree
-
-  create_table "downloads", force: :cascade do |t|
-    t.string   "key",                        null: false
-    t.string   "filename"
-    t.datetime "created_at",                 null: false
-    t.datetime "updated_at",                 null: false
-    t.string   "url"
-    t.integer  "task_id"
-    t.boolean  "expired",    default: false
-    t.string   "ip_address"
+  create_table "downloads", id: :serial, force: :cascade do |t|
+    t.string "key", null: false
+    t.string "filename"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "url"
+    t.integer "task_id"
+    t.boolean "expired", default: false
+    t.string "ip_address"
+    t.index ["expired"], name: "index_downloads_on_expired"
+    t.index ["ip_address"], name: "index_downloads_on_ip_address"
   end
 
-  add_index "downloads", ["expired"], name: "index_downloads_on_expired", using: :btree
-  add_index "downloads", ["ip_address"], name: "index_downloads_on_ip_address", using: :btree
-
-  create_table "elements", force: :cascade do |t|
-    t.string   "name"
-    t.string   "description"
-    t.datetime "created_at",  null: false
-    t.datetime "updated_at",  null: false
+  create_table "elements", id: :serial, force: :cascade do |t|
+    t.string "name"
+    t.string "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_elements_on_name", unique: true
   end
 
-  add_index "elements", ["name"], name: "index_elements_on_name", unique: true, using: :btree
-
-  create_table "entity_elements", force: :cascade do |t|
-    t.string   "name"
-    t.string   "value"
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
-    t.integer  "item_id"
-    t.integer  "vocabulary_id"
-    t.string   "uri"
-    t.string   "type"
-    t.integer  "collection_id"
+  create_table "entity_elements", id: :serial, force: :cascade do |t|
+    t.string "name"
+    t.string "value"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "item_id"
+    t.integer "vocabulary_id"
+    t.string "uri"
+    t.string "type"
+    t.integer "collection_id"
+    t.index ["collection_id"], name: "index_entity_elements_on_collection_id"
+    t.index ["item_id"], name: "index_entity_elements_on_item_id"
+    t.index ["name"], name: "index_entity_elements_on_name"
+    t.index ["type"], name: "index_entity_elements_on_type"
+    t.index ["vocabulary_id"], name: "index_entity_elements_on_vocabulary_id"
   end
 
-  add_index "entity_elements", ["collection_id"], name: "index_entity_elements_on_collection_id", using: :btree
-  add_index "entity_elements", ["item_id"], name: "index_entity_elements_on_item_id", using: :btree
-  add_index "entity_elements", ["name"], name: "index_entity_elements_on_name", using: :btree
-  add_index "entity_elements", ["type"], name: "index_entity_elements_on_type", using: :btree
-  add_index "entity_elements", ["vocabulary_id"], name: "index_entity_elements_on_vocabulary_id", using: :btree
-
-  create_table "hosts", force: :cascade do |t|
-    t.string   "pattern"
-    t.integer  "role_id"
+  create_table "hosts", id: :serial, force: :cascade do |t|
+    t.string "pattern"
+    t.integer "role_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
 
-  create_table "items", force: :cascade do |t|
-    t.string   "repository_id",                                                             null: false
-    t.string   "collection_repository_id"
-    t.string   "parent_repository_id"
-    t.string   "representative_item_repository_id"
-    t.string   "variant"
-    t.integer  "page_number"
-    t.integer  "subpage_number"
-    t.datetime "date"
-    t.boolean  "published",                                                  default: true
-    t.decimal  "latitude",                          precision: 10, scale: 7
-    t.decimal  "longitude",                         precision: 10, scale: 7
-    t.datetime "created_at",                                                                null: false
-    t.datetime "updated_at",                                                                null: false
-    t.integer  "contentdm_pointer"
-    t.string   "contentdm_alias"
-    t.string   "embed_tag"
-    t.integer  "representative_binary_id"
-    t.string   "folder_name"
+  create_table "item_sets", id: :serial, force: :cascade do |t|
+    t.string "name", null: false
+    t.string "collection_repository_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
-  add_index "items", ["collection_repository_id"], name: "index_items_on_collection_identifier", using: :btree
-  add_index "items", ["parent_repository_id"], name: "index_items_on_parent_identifier", using: :btree
-  add_index "items", ["published"], name: "index_items_on_published", using: :btree
-  add_index "items", ["repository_id"], name: "index_items_on_identifier", unique: true, using: :btree
-  add_index "items", ["representative_item_repository_id"], name: "index_items_on_representative_item_identifier", using: :btree
-  add_index "items", ["variant"], name: "index_items_on_variant", using: :btree
+  create_table "item_sets_items", id: :serial, force: :cascade do |t|
+    t.integer "item_set_id"
+    t.integer "item_id"
+  end
 
-  create_table "items_roles", force: :cascade do |t|
+  create_table "item_sets_users", id: :serial, force: :cascade do |t|
+    t.integer "item_set_id"
+    t.integer "user_id"
+    t.index ["item_set_id"], name: "index_item_sets_users_on_item_set_id"
+    t.index ["user_id"], name: "index_item_sets_users_on_user_id"
+  end
+
+  create_table "items", id: :serial, force: :cascade do |t|
+    t.string "repository_id", null: false
+    t.string "collection_repository_id"
+    t.string "parent_repository_id"
+    t.string "representative_item_repository_id"
+    t.string "variant"
+    t.integer "page_number"
+    t.integer "subpage_number"
+    t.datetime "date"
+    t.boolean "published", default: true
+    t.decimal "latitude", precision: 10, scale: 7
+    t.decimal "longitude", precision: 10, scale: 7
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "contentdm_pointer"
+    t.string "contentdm_alias"
+    t.string "embed_tag"
+    t.integer "representative_binary_id"
+    t.string "folder_name"
+    t.index ["collection_repository_id"], name: "index_items_on_collection_identifier"
+    t.index ["parent_repository_id"], name: "index_items_on_parent_identifier"
+    t.index ["published"], name: "index_items_on_published"
+    t.index ["repository_id"], name: "index_items_on_identifier", unique: true
+    t.index ["representative_item_repository_id"], name: "index_items_on_representative_item_identifier"
+    t.index ["variant"], name: "index_items_on_variant"
+  end
+
+  create_table "items_roles", id: :serial, force: :cascade do |t|
     t.integer "item_id"
     t.integer "allowed_role_id"
     t.integer "denied_role_id"
@@ -249,168 +254,157 @@ ActiveRecord::Schema.define(version: 20170912195504) do
     t.integer "effective_denied_role_id"
   end
 
-  create_table "medusa_cfs_directories", force: :cascade do |t|
-    t.string   "uuid",                         null: false
-    t.string   "parent_uuid"
-    t.string   "repository_relative_pathname", null: false
-    t.integer  "medusa_database_id"
-    t.datetime "created_at",                   null: false
-    t.datetime "updated_at",                   null: false
+  create_table "medusa_cfs_directories", id: :serial, force: :cascade do |t|
+    t.string "uuid", null: false
+    t.string "parent_uuid"
+    t.string "repository_relative_pathname", null: false
+    t.integer "medusa_database_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["uuid"], name: "index_medusa_cfs_directories_on_uuid"
   end
 
-  add_index "medusa_cfs_directories", ["uuid"], name: "index_medusa_cfs_directories_on_uuid", using: :btree
-
-  create_table "medusa_cfs_files", force: :cascade do |t|
-    t.string   "uuid",                         null: false
-    t.string   "directory_uuid",               null: false
-    t.string   "media_type"
-    t.string   "repository_relative_pathname", null: false
-    t.datetime "created_at",                   null: false
-    t.datetime "updated_at",                   null: false
+  create_table "medusa_cfs_files", id: :serial, force: :cascade do |t|
+    t.string "uuid", null: false
+    t.string "directory_uuid", null: false
+    t.string "media_type"
+    t.string "repository_relative_pathname", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["uuid"], name: "index_medusa_cfs_files_on_uuid"
   end
 
-  add_index "medusa_cfs_files", ["uuid"], name: "index_medusa_cfs_files_on_uuid", using: :btree
-
-  create_table "medusa_file_groups", force: :cascade do |t|
-    t.string   "uuid"
-    t.string   "cfs_directory_uuid"
-    t.string   "title"
-    t.datetime "created_at",         null: false
-    t.datetime "updated_at",         null: false
+  create_table "medusa_file_groups", id: :serial, force: :cascade do |t|
+    t.string "uuid"
+    t.string "cfs_directory_uuid"
+    t.string "title"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["uuid"], name: "index_medusa_file_groups_on_uuid"
   end
 
-  add_index "medusa_file_groups", ["uuid"], name: "index_medusa_file_groups_on_uuid", using: :btree
-
-  create_table "medusa_repositories", force: :cascade do |t|
-    t.integer  "medusa_database_id"
-    t.string   "contact_email"
-    t.string   "email"
-    t.string   "title"
-    t.datetime "created_at",         null: false
-    t.datetime "updated_at",         null: false
+  create_table "medusa_repositories", id: :integer, default: -> { "nextval('medusa_repository_names_id_seq'::regclass)" }, force: :cascade do |t|
+    t.integer "medusa_database_id"
+    t.string "contact_email"
+    t.string "email"
+    t.string "title"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["medusa_database_id"], name: "index_medusa_repository_names_on_medusa_database_id"
   end
 
-  add_index "medusa_repositories", ["medusa_database_id"], name: "index_medusa_repository_names_on_medusa_database_id", using: :btree
-
-  create_table "metadata_profile_elements", force: :cascade do |t|
-    t.integer  "metadata_profile_id"
-    t.string   "name"
-    t.string   "label"
-    t.integer  "index"
-    t.boolean  "searchable"
-    t.boolean  "facetable"
-    t.boolean  "visible"
-    t.datetime "created_at",                          null: false
-    t.datetime "updated_at",                          null: false
-    t.boolean  "sortable",            default: false
-    t.string   "dc_map"
-    t.string   "dcterms_map"
+  create_table "metadata_profile_elements", id: :serial, force: :cascade do |t|
+    t.integer "metadata_profile_id"
+    t.string "name"
+    t.string "label"
+    t.integer "index"
+    t.boolean "searchable"
+    t.boolean "facetable"
+    t.boolean "visible"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.boolean "sortable", default: false
+    t.string "dc_map"
+    t.string "dcterms_map"
+    t.index ["facetable"], name: "index_metadata_profile_elements_on_facetable"
+    t.index ["index"], name: "index_metadata_profile_elements_on_index"
+    t.index ["metadata_profile_id"], name: "index_metadata_profile_elements_on_metadata_profile_id"
+    t.index ["name"], name: "index_metadata_profile_elements_on_name"
+    t.index ["searchable"], name: "index_metadata_profile_elements_on_searchable"
+    t.index ["sortable"], name: "index_metadata_profile_elements_on_sortable"
+    t.index ["visible"], name: "index_metadata_profile_elements_on_visible"
   end
-
-  add_index "metadata_profile_elements", ["facetable"], name: "index_metadata_profile_elements_on_facetable", using: :btree
-  add_index "metadata_profile_elements", ["index"], name: "index_metadata_profile_elements_on_index", using: :btree
-  add_index "metadata_profile_elements", ["metadata_profile_id"], name: "index_metadata_profile_elements_on_metadata_profile_id", using: :btree
-  add_index "metadata_profile_elements", ["name"], name: "index_metadata_profile_elements_on_name", using: :btree
-  add_index "metadata_profile_elements", ["searchable"], name: "index_metadata_profile_elements_on_searchable", using: :btree
-  add_index "metadata_profile_elements", ["sortable"], name: "index_metadata_profile_elements_on_sortable", using: :btree
-  add_index "metadata_profile_elements", ["visible"], name: "index_metadata_profile_elements_on_visible", using: :btree
 
   create_table "metadata_profile_elements_vocabularies", id: false, force: :cascade do |t|
     t.integer "metadata_profile_element_id", null: false
-    t.integer "vocabulary_id",               null: false
+    t.integer "vocabulary_id", null: false
   end
 
-  create_table "metadata_profiles", force: :cascade do |t|
-    t.string   "name"
-    t.boolean  "default",                     default: false
-    t.datetime "created_at",                                  null: false
-    t.datetime "updated_at",                                  null: false
-    t.integer  "default_sortable_element_id"
+  create_table "metadata_profiles", id: :serial, force: :cascade do |t|
+    t.string "name"
+    t.boolean "default", default: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "default_sortable_element_id"
+    t.index ["default"], name: "index_metadata_profiles_on_default"
+    t.index ["default_sortable_element_id"], name: "index_metadata_profiles_on_default_sortable_element_id"
+    t.index ["name"], name: "index_metadata_profiles_on_name"
   end
 
-  add_index "metadata_profiles", ["default"], name: "index_metadata_profiles_on_default", using: :btree
-  add_index "metadata_profiles", ["default_sortable_element_id"], name: "index_metadata_profiles_on_default_sortable_element_id", using: :btree
-  add_index "metadata_profiles", ["name"], name: "index_metadata_profiles_on_name", using: :btree
+  create_table "options", id: :serial, force: :cascade do |t|
+    t.string "key"
+    t.string "value"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["key"], name: "index_options_on_key", unique: true
+  end
 
-  create_table "options", force: :cascade do |t|
-    t.string   "key"
-    t.string   "value"
+  create_table "permissions", id: :serial, force: :cascade do |t|
+    t.string "key"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
 
-  add_index "options", ["key"], name: "index_options_on_key", unique: true, using: :btree
-
-  create_table "permissions", force: :cascade do |t|
-    t.string   "key"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
-  create_table "permissions_roles", force: :cascade do |t|
+  create_table "permissions_roles", id: :serial, force: :cascade do |t|
     t.integer "permission_id"
     t.integer "role_id"
   end
 
-  create_table "roles", force: :cascade do |t|
-    t.string   "key"
-    t.string   "name"
-    t.boolean  "required"
+  create_table "roles", id: :serial, force: :cascade do |t|
+    t.string "key"
+    t.string "name"
+    t.boolean "required"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["key"], name: "index_roles_on_key"
   end
 
-  add_index "roles", ["key"], name: "index_roles_on_key", using: :btree
-
-  create_table "roles_users", force: :cascade do |t|
+  create_table "roles_users", id: :serial, force: :cascade do |t|
     t.integer "user_id"
     t.integer "role_id"
   end
 
-  create_table "tasks", force: :cascade do |t|
-    t.string   "name"
-    t.decimal  "status"
-    t.string   "status_text"
-    t.string   "job_id"
-    t.float    "percent_complete", default: 0.0
+  create_table "tasks", id: :serial, force: :cascade do |t|
+    t.string "name"
+    t.decimal "status"
+    t.string "status_text"
+    t.string "job_id"
+    t.float "percent_complete", default: 0.0
     t.datetime "completed_at"
-    t.datetime "created_at",                       null: false
-    t.datetime "updated_at",                       null: false
-    t.boolean  "indeterminate",    default: false
-    t.text     "detail"
-    t.text     "backtrace"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.boolean "indeterminate", default: false
+    t.text "detail"
+    t.text "backtrace"
     t.datetime "started_at"
   end
 
-  create_table "users", force: :cascade do |t|
-    t.string   "username",   null: false
-    t.boolean  "enabled"
+  create_table "users", id: :serial, force: :cascade do |t|
+    t.string "username", null: false
+    t.boolean "enabled"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["username"], name: "index_users_on_username", unique: true
   end
 
-  add_index "users", ["username"], name: "index_users_on_username", unique: true, using: :btree
-
-  create_table "vocabularies", force: :cascade do |t|
-    t.string   "key"
-    t.string   "name"
+  create_table "vocabularies", id: :serial, force: :cascade do |t|
+    t.string "key"
+    t.string "name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["key"], name: "index_vocabularies_on_key", unique: true
   end
 
-  add_index "vocabularies", ["key"], name: "index_vocabularies_on_key", unique: true, using: :btree
-
-  create_table "vocabulary_terms", force: :cascade do |t|
-    t.string   "string"
-    t.string   "uri"
-    t.integer  "vocabulary_id"
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
+  create_table "vocabulary_terms", id: :serial, force: :cascade do |t|
+    t.string "string"
+    t.string "uri"
+    t.integer "vocabulary_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["string"], name: "index_vocabulary_terms_on_string"
+    t.index ["uri"], name: "index_vocabulary_terms_on_uri"
+    t.index ["vocabulary_id"], name: "index_vocabulary_terms_on_vocabulary_id"
   end
-
-  add_index "vocabulary_terms", ["string"], name: "index_vocabulary_terms_on_string", using: :btree
-  add_index "vocabulary_terms", ["uri"], name: "index_vocabulary_terms_on_uri", using: :btree
-  add_index "vocabulary_terms", ["vocabulary_id"], name: "index_vocabulary_terms_on_vocabulary_id", using: :btree
 
   add_foreign_key "agent_relations", "agent_relation_types", on_update: :cascade, on_delete: :restrict
   add_foreign_key "agent_relations", "agents", column: "related_agent_id", on_update: :cascade, on_delete: :cascade
@@ -426,6 +420,10 @@ ActiveRecord::Schema.define(version: 20170912195504) do
   add_foreign_key "entity_elements", "items", on_delete: :cascade
   add_foreign_key "entity_elements", "vocabularies", on_delete: :restrict
   add_foreign_key "hosts", "roles", on_update: :cascade, on_delete: :cascade
+  add_foreign_key "item_sets_items", "item_sets", on_update: :cascade, on_delete: :cascade
+  add_foreign_key "item_sets_items", "items", on_update: :cascade, on_delete: :cascade
+  add_foreign_key "item_sets_users", "item_sets", on_update: :cascade, on_delete: :cascade
+  add_foreign_key "item_sets_users", "users", on_update: :cascade, on_delete: :cascade
   add_foreign_key "items_roles", "items", on_update: :cascade, on_delete: :cascade
   add_foreign_key "items_roles", "roles", column: "allowed_role_id", on_update: :cascade, on_delete: :cascade
   add_foreign_key "items_roles", "roles", column: "denied_role_id", on_update: :cascade, on_delete: :cascade
