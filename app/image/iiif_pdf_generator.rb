@@ -23,7 +23,7 @@ class IiifPdfGenerator
   #                       images to add to the PDF.
   #
   def generate_pdf(item, task = nil)
-    children = item.items_from_solr.order(Item::SolrFields::STRUCTURAL_SORT).limit(9999)
+    children = item.finder.order(Item::IndexFields::STRUCTURAL_SORT).to_a
     if children.any?
       doc = pdf_document(item)
 

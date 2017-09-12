@@ -95,19 +95,19 @@
               <li class="divider"></li>
               <li>
                 <%= link_to('Images',
-                            items_path('fq[]': "#{Item::SolrFields::PRIMARY_MEDIA_CATEGORY}:\"#{Binary::MediaCategory::IMAGE}\"")) %>
+                            items_path('fq[]': "#{Item::IndexFields::PRIMARY_MEDIA_CATEGORY}:#{Binary::MediaCategory::IMAGE}")) %>
               </li>
               <li>
                 <%= link_to('Documents',
-                            items_path('fq[]': "#{Item::SolrFields::PRIMARY_MEDIA_CATEGORY}:\"#{Binary::MediaCategory::DOCUMENT}\"")) %>
+                            items_path('fq[]': "#{Item::IndexFields::PRIMARY_MEDIA_CATEGORY}:#{Binary::MediaCategory::DOCUMENT}")) %>
               </li>
               <li>
                 <%= link_to('Videos',
-                            items_path('fq[]': "#{Item::SolrFields::PRIMARY_MEDIA_CATEGORY}:\"#{Binary::MediaCategory::VIDEO}\"")) %>
+                            items_path('fq[]': "#{Item::IndexFields::PRIMARY_MEDIA_CATEGORY}:#{Binary::MediaCategory::VIDEO}")) %>
               </li>
               <li>
                 <%= link_to('Sound Recordings',
-                            items_path('fq[]': "#{Item::SolrFields::PRIMARY_MEDIA_CATEGORY}:\"#{Binary::MediaCategory::AUDIO}\"")) %>
+                            items_path('fq[]': "#{Item::IndexFields::PRIMARY_MEDIA_CATEGORY}:#{Binary::MediaCategory::AUDIO}")) %>
               </li>
             </ul>
           </li>

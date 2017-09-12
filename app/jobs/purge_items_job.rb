@@ -12,7 +12,6 @@ class PurgeItemsJob < Job
     self.task&.update(status_text: "Purging items in #{collection.title}")
 
     count = collection.purge
-    Solr.instance.commit
 
     if self.task
       self.task.status_text += ": purged #{count} items"

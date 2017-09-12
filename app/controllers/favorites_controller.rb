@@ -8,23 +8,40 @@ class FavoritesController < WebsiteController
   before_action :set_browse_context, :set_sanitized_params
   after_action :purge_invalid_favorites
 
+  ##
+  # Responds to GET /favorites
+  #
   def index
-    @start = params[:start] ? params[:start].to_i : 0
-    @limit = Option::integer(Option::Keys::RESULTS_PER_PAGE)
-    @items = Item.solr.none
+    @items = nil
+    @count = 0
+    @num_results_shown = 0
+    @total_byte_size = 0
+
+    if request.format == :zip
+      @start = 0
+      @limit = ElasticsearchClient::MAX_RESULT_WINDOW
+    else
+      @start = params[:start] ? params[:start].to_i : 0
+      @limit = Option::integer(Option::Keys::RESULTS_PER_PAGE)
+    end
 
     if cookies[:favorites].present?
       ids = cookies[:favorites].split(COOKIE_DELIMITER)
       if ids.any?
-        @items = Item.solr.operator(:or).where("id:(#{ids.join(' ')})")
+        finder = ItemFinder.new.
+            user_roles(request_roles).
+            filter(Item::IndexFields::REPOSITORY_ID, ids).
+            start(@start).
+            limit(@limit)
+        @items = finder.to_a
+        @count = finder.count
+        @num_results_shown = @items.length
+        @total_byte_size = finder.total_byte_size
       end
     end
 
-    @items = @items.start(@start).limit(@limit)
     @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
-    @num_results_shown = [@limit, @items.total_length].min
     @num_downloadable_items = @num_results_shown
-    @total_byte_size = 0
 
     respond_to do |format|
       format.html
@@ -37,7 +54,7 @@ class FavoritesController < WebsiteController
         if params[:ids].present?
           item_ids = params[:ids].split(',')
         else
-          item_ids = @items.to_a.map(&:repository_id)
+          item_ids = @items.map(&:repository_id)
         end
 
         download = Download.create(ip_address: request.remote_ip)

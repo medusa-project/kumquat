@@ -10,6 +10,9 @@
     <% if @collection.published_in_dls %>
       <span class="input-group-addon"><i class="fa fa-search"></i></span>
       <%= search_field_tag :q, params[:q], class: 'form-control', placeholder: 'Search This Collection' %>
+      <% if @collection.free_form? %>
+        <%= hidden_field_tag(:display, 'leaves') %>
+      <% end %>
     <% end %>
 
     <div class="input-group-btn">

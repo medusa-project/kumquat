@@ -6,6 +6,15 @@ class AgentTest < ActiveSupport::TestCase
     @agent = agents(:one)
   end
 
+  # as_indexed_json()
+
+  test 'as_indexed_json() returns the correct structure' do
+    doc = @agent.as_indexed_json
+    assert_equal @agent.description, doc[Agent::IndexFields::DESCRIPTION]
+    assert doc[Agent::IndexFields::EFFECTIVELY_PUBLISHED]
+    assert_equal @agent.name, doc[Agent::IndexFields::NAME]
+  end
+
   # primary_uri()
 
   test 'primary_uri() should return the primary URI' do
@@ -21,17 +30,6 @@ class AgentTest < ActiveSupport::TestCase
   test 'primary_uri() should return nil when the agent has no URIs' do
     @agent.agent_uris.destroy_all
     assert_nil @agent.primary_uri
-  end
-
-  # to_solr()
-
-  test 'to_solr returns the correct Solr document' do
-    doc = @agent.to_solr
-    assert_equal @agent.solr_id, doc[Agent::SolrFields::ID]
-    assert_equal @agent.class.to_s, doc[Agent::SolrFields::CLASS]
-    assert_equal @agent.description, doc[Agent::SolrFields::DESCRIPTION]
-    assert doc[Agent::SolrFields::EFFECTIVELY_PUBLISHED]
-    assert_equal @agent.name, doc[Agent::SolrFields::NAME]
   end
 
 end

@@ -1,13 +1,9 @@
 <div class="row">
   <div class="col-xs-6">
     <% @permitted_params.each do |k, v| %>
-        <%= hidden_field_tag(k, v) %>
+      <%= hidden_field_tag(k, v) %>
     <% end %>
-    <div class="input-group">
-      <span class="input-group-addon"><i class="fa fa-search"></i></span>
-      <%= search_field_tag :q, params[:q], class: 'form-control',
-                           placeholder: 'Filter' %>
-    </div>
+    <%= item_filter_field %>
   </div>
   <div class="col-xs-6">
     <%= render partial: 'index_button_group' %>
@@ -19,7 +15,7 @@
   <div class="panel-body">
     <div class="row">
       <div class="col-sm-8" id="pt-search-status">
-        <%= search_status(@items, @start, @num_results_shown) %>
+        <%= search_status(@count, @start, @num_results_shown) %>
       </div>
       <div class="col-sm-4 pull-right">
         <%= sort_menu(@metadata_profile) %>

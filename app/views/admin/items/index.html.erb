@@ -102,29 +102,14 @@
       <% end %>
 
       <div class="form-inline pt-filter">
-        <div class="input-group">
-          <span class="input-group-addon"><i class="fa fa-search"></i></span>
-          <%= search_field_tag :q, params[:q], class: 'form-control',
-                               placeholder: 'Filter' %>
-        </div>
-
-        <select class="form-control" name="df">
-          <optgroup label="System Fields">
-            <option value="<%= Item::SolrFields::ID %>">ID</option>
-          </optgroup>
-          <optgroup label="Metadata Profile Elements">
-            <option value="<%= Item::SolrFields::SEARCH_ALL %>" selected>Any Element</option>
-            <% @metadata_profile.elements.each do |e| %>
-              <option value="<%= e.solr_multi_valued_field %>"><%= e.label %></option>
-            <% end %>
-          </optgroup>
-        </select>
+        <%= item_filter_field %>
+        <%= item_filter_field_element_menu(@metadata_profile) %>
       </div>
 
       <% if @num_results_shown > 0 %>
         <div class="panel panel-default">
           <div id="pt-search-status" class="panel-body">
-            <%= search_status(@items, @start, @num_results_shown) %>
+            <%= search_status(@count, @start, @num_results_shown) %>
           </div>
         </div>
       <% end %>

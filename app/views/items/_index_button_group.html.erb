@@ -7,12 +7,12 @@
     </button>
     <ul class="dropdown-menu dropdown-menu-right view-dropdown">
       <li>
-        <%= link_to @permitted_params.merge(format: :atom) do %>
+        <%= link_to @permitted_params.merge(format: :atom), id: 'pt-view-as-atom' do %>
           <i class="fa fa-rss"></i>&nbsp;&nbsp;Atom
         <% end %>
       </li>
       <li>
-        <%= link_to @permitted_params.merge(format: :json) do %>
+        <%= link_to @permitted_params.merge(format: :json), id: 'pt-view-as-json' do %>
           <i class="fa fa-code"></i>&nbsp;JSON
         <% end %>
       </li>

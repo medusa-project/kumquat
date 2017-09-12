@@ -1,3 +1,1 @@
-<%= facets_as_panels(@items,
-                     metadata_profile: @metadata_profile,
-                     show_collection_facet: false) %>
+<%= facets_as_panels(@facets, ItemsController::PERMITTED_PARAMS) %>

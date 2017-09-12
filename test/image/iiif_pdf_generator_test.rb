@@ -3,9 +3,8 @@ require 'test_helper'
 class IiifPdfGeneratorTest < ActiveSupport::TestCase
 
   setup do
-    Solr.instance.purge
-    Item.all.each { |it| it.index_in_solr }
-    Solr.instance.commit
+    Item.all.each { |it| it.reindex }
+    sleep 2
 
     @instance = IiifPdfGenerator.new
   end

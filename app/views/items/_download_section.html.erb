@@ -51,7 +51,7 @@
   <%= render partial: 'custom_image_panel' %>
   <%= render partial: 'download_zip_panel', locals: {
       context: @containing_item.directory? ? :directory : :item,
-      num_downloadable_items: 0, # these are potentially expensive to calculate.
-      total_byte_size: 0 } %>
+      num_downloadable_items: 0, # this is potentially expensive to calculate.
+      total_byte_size: @total_byte_size } %>
 
 <% end %>

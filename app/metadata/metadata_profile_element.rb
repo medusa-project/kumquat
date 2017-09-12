@@ -32,24 +32,25 @@ class MetadataProfileElement < ApplicationRecord
     clone
   end
 
-  def solr_facet_field
-    e = ItemElement.new
-    e.name = self.name
-    e.name == 'collection' ?
-        Item::SolrFields::COLLECTION + ItemElement.solr_facet_suffix :
-        e.solr_facet_field
+  ##
+  # @return [String]
+  #
+  def indexed_field
+    ItemElement.new(name: self.name).indexed_field
   end
 
-  def solr_multi_valued_field
-    e = ItemElement.new
-    e.name = self.name
-    e.solr_multi_valued_field
+  ##
+  # @return [String]
+  #
+  def indexed_keyword_field
+    ItemElement.new(name: self.name).indexed_keyword_field
   end
 
-  def solr_single_valued_field
-    e = ItemElement.new
-    e.name = self.name
-    e.solr_single_valued_field
+  ##
+  # @return [String]
+  #
+  def indexed_sort_field
+    ItemElement.new(name: self.name).indexed_sort_field
   end
 
   def to_s

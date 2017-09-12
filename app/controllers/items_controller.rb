@@ -189,8 +189,8 @@ class ItemsController < WebsiteController
     case @sequence_name
       when 'item'
         if @item.items.count > 0
-          @start_canvas_item = @item.items_from_solr.
-              order(Item::SolrFields::STRUCTURAL_SORT).limit(1).first
+          @start_canvas_item = @item.finder.
+              order(Item::IndexFields::STRUCTURAL_SORT).limit(1).first
           render 'items/iiif_presentation_api/sequence',
                  formats: :json,
                  content_type: 'application/json'
@@ -234,7 +234,7 @@ class ItemsController < WebsiteController
       format.json do
         render json: {
             start: @start,
-            numResults: @items.count,
+            numResults: @count,
             results: @items.map { |item|
               {
                   id: item.repository_id,
@@ -281,9 +281,12 @@ class ItemsController < WebsiteController
             @selected_item = @item
             @containing_item = (@item.directory? or !@item.parent) ?
                                    @item : @item.parent
+
+            download_finder = @item.finder.
+                order(Item::IndexFields::STRUCTURAL_SORT)
             @downloadable_items = @item.directory? ?
-                                      @item.items_from_solr.order(Item::SolrFields::STRUCTURAL_SORT).limit(9999) :
-                                      [@item]
+                                      download_finder.to_a : [@item]
+            @total_byte_size = download_finder.total_byte_size
 
             if params['tree-node-type'].include?('file_node')
               render layout: false
@@ -314,8 +317,10 @@ class ItemsController < WebsiteController
                       @selected_item.root_parent : @selected_item
 
           # All items within the containing item are downloadable.
-          @downloadable_items = @containing_item.items_from_solr.
-              order(Item::SolrFields::STRUCTURAL_SORT).limit(9999)
+          finder = @containing_item.finder.
+              order(Item::IndexFields::STRUCTURAL_SORT)
+          @total_byte_size = finder.total_byte_size
+          @downloadable_items = finder.to_a
 
           # Find the previous and next result based on the results URL in the
           # session.
@@ -332,7 +337,7 @@ class ItemsController < WebsiteController
             finder = item_finder_for(query)
             results = finder.to_a
             results.each_with_index do |result, index|
-              if result&.repository_id == @containing_item.repository_id
+              if result.repository_id == @containing_item.repository_id
                 @previous_result = results[index - 1] if index - 1 >= 0
                 @next_result = results[index + 1] if index + 1 < results.length
               end
@@ -437,9 +442,7 @@ class ItemsController < WebsiteController
       @start = params[:start].to_i
       finder = item_finder_for(params)
       @items = finder.to_a
-      tree_data = @items.map do |item|
-        tree_hash item
-      end
+      tree_data = @items.map { |item| tree_hash(item) }
 
       format.json do
         render json:
@@ -475,11 +478,13 @@ class ItemsController < WebsiteController
     @limit = Option::integer(Option::Keys::RESULTS_PER_PAGE)
     finder = item_finder_for(params)
     @items = finder.to_a
+    @facets = finder.facets
 
     @current_page = finder.page
     @count = finder.count
     @num_results_shown = [@limit, @count].min
-    @metadata_profile = finder.effective_metadata_profile
+    @metadata_profile = @collection&.effective_metadata_profile ||
+        MetadataProfile.default
 
     # If there are no results, get some search suggestions.
     if @count < 1 and params[:q].present?
@@ -487,16 +492,13 @@ class ItemsController < WebsiteController
     end
 
     @download_finder = ItemFinder.new.
-        client_hostname(request.host).
-        client_ip(request.remote_ip).
-        client_user(current_user).
-        collection_id(params[:collection_id]).
-        query(params[:q]).
-        include_children(true).
+        user_roles(request_roles).
+        collection(@collection).
+        facet_filters(params[:fq]).
+        query_all(params[:q]).
+        search_children(true).
         only_described(true).
-        stats(true).
-        filter_queries(params[:fq]).
-        sort(Item::SolrFields::STRUCTURAL_SORT).
+        order(Item::IndexFields::STRUCTURAL_SORT).
         start(params[:download_start]).
         limit(params[:limit] || MedusaDownloaderClient::BATCH_SIZE)
     @num_downloadable_items = @download_finder.count
@@ -553,7 +555,7 @@ class ItemsController < WebsiteController
   # so that a similar instance can be constructed in show-item view to enable
   # paging through the results.
   #
-  # @param query [ActionController::Parameters,Hash]
+  # @param query [ActionController::Parameters, Hash]
   # @return [ItemFinder]
   #
   def item_finder_for(query)
@@ -567,32 +569,30 @@ class ItemsController < WebsiteController
     # display=leaves is used in free-form collections to show files flattened.
     if params[:display] == 'leaves'
       ItemFinder.new.
-          client_hostname(request.host).
-          client_ip(request.remote_ip).
-          client_user(current_user).
-          collection_id(session[:collection_id]).
-          query(session[:q]).
-          include_children(true).
+          user_roles(request_roles).
+          collection(Collection.find_by_repository_id(session[:collection_id])).
+          facet_filters(session[:fq]).
+          query_all(session[:q]).
+          search_children(true).
           only_described(true).
-          include_variants([Item::Variants::FILE]).
-          filter_queries(session[:fq]).
-          sort(session[:sort]).
+          include_variants(Item::Variants::FILE).
+          order(session[:sort]).
           start(session[:start]).
           limit(Option::integer(Option::Keys::RESULTS_PER_PAGE))
     else
       ItemFinder.new.
-          client_hostname(request.host).
-          client_ip(request.remote_ip).
-          client_user(current_user).
-          collection_id(session[:collection_id]).
-          query(session[:q]).
-          include_children(!(@collection and @collection.package_profile == PackageProfile::FREE_FORM_PROFILE)).
+          user_roles(request_roles).
+          collection(Collection.find_by_repository_id(session[:collection_id])).
+          facet_filters(session[:fq]).
+          query_all(session[:q]).
+          search_children(@collection&.package_profile != PackageProfile::FREE_FORM_PROFILE).
           only_described(true).
-          exclude_variants(Item::Variants::non_filesystem_variants).
-          filter_queries(session[:fq]).
-          sort(session[:sort]).
+          exclude_variants(*Item::Variants::non_filesystem_variants).
+          order(session[:sort]).
           start(session[:start]).
-          limit(@collection&.free_form? ? 99999 : Option::integer(Option::Keys::RESULTS_PER_PAGE))
+          limit(@collection&.free_form? ?
+                    ElasticsearchClient::MAX_RESULT_WINDOW :
+                    Option::integer(Option::Keys::RESULTS_PER_PAGE))
     end
   end
 
@@ -621,10 +621,13 @@ class ItemsController < WebsiteController
     @start = params[:start] ? params[:start].to_i : 0
     @limit = PAGES_LIMIT
     @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
-    @files = @item.filesystem_variants_from_solr.
-        order({Item::SolrFields::VARIANT => :asc},
-              {Item::SolrFields::TITLE => :asc}).
-        start(@start).limit(@limit)
+    finder = @item.finder.
+        include_variants(Item::Variants::FILE, Item::Variants::DIRECTORY).
+        order(Item::IndexFields::VARIANT, :asc).
+        order(Item::IndexFields::TITLE, :asc).
+        start(@start).
+        limit(@limit)
+    @files = finder.to_a
   end
 
   def set_sanitized_params

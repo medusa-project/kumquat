@@ -18,7 +18,6 @@ class MigrateItemMetadataJob < Job
 
     collection.migrate_item_elements(source_element, dest_element, self.task)
 
-    Solr.instance.commit
     self.task.succeeded
   end
 

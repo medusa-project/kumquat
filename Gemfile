@@ -9,6 +9,7 @@ gem 'curb'
 gem 'daemons' # enables bin/delayed_job start/stop
 gem 'delayed_job_active_record'
 gem 'draper' # Provides decorators
+gem 'elasticsearch-model', '~> 5.0'
 gem 'font-awesome-sass', '~> 4.7.0'
 gem 'httpclient'
 gem 'jbuilder', '~> 2.0' # JSON DSL: https://github.com/rails/jbuilder
@@ -22,7 +23,6 @@ gem 'omniauth-shibboleth'
 gem 'pg'
 gem 'prawn' # used to generate PDFs of compound objects
 gem 'rails_autolink'
-gem 'rsolr'
 gem 'sass-rails', '~> 5.0'
 gem 'uglifier', '>= 1.3.0' # JavaScript asset compressor
 

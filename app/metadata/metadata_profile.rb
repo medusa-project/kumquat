@@ -170,8 +170,11 @@ class MetadataProfile < ApplicationRecord
     clone
   end
 
-  def solr_facet_fields
-    self.elements.select{ |d| d.facetable }.map{ |d| d.solr_facet_field }
+  ##
+  # @return [Enumerable<MetadataProfileElement>]
+  #
+  def facet_elements
+    self.elements.where(facetable: true)
   end
 
   private

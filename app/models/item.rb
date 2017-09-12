@@ -36,11 +36,11 @@
 # ### Adding a property:
 #
 # 1) Add a column for it on Item
-# 2) Add it to Item::SolrFields (if it needs to be)
-# 3) Add serialization code to as_json and to_solr
-# 4) If it needs to appear in TSV, add it to Item.tsv_header, the various
-#    ItemTsvExporter methods, and/or Item.update_from_tsv
-# 5) Add deserialization code to Item.update_from_json and update_from_tsv
+# 2) Add it to Item::IndexFields (if it needs to be indexed)
+# 3) Add serialization code to as_json() and as_indexed_json()
+# 4) Add deserialization code to update_from_json()
+# 5) If it needs to appear in TSV, add it to tsv_header(),
+#    ItemTsvExporter, and/or update_from_tsv()
 # 6) Update fixtures and tests
 # 7) Reindex (if necessary)
 #
@@ -54,14 +54,20 @@
 #
 # # Indexing
 #
-# Items are searchable via ActiveRecord as well as via Solr. Solr search
-# functionality is available via the `solr` class method. There is also a
-# higher-level Solr query interface provided by ItemFinder, which takes
-# authorization, public visiblity, etc. into account.
+# Items are searchable via ActiveRecord as well as via Elasticsearch. ES search
+# functionality is provided by the elasticsearch-model gem which provides a
+# `search` class method. But, in many cases, it's better to use the higher-
+# level query interface provided by ItemFinder, which is easier to use, and
+# takes authorization, public visiblity, etc. into account.
 #
-# Instances are automatically indexed in Solr (see `to_solr`) upon transaction
-# commit. They are **not** indexed on save. For this reason, **instances
-# should always be created, updated, and deleted within a transaction.**
+# Instances are automatically indexed in Elasticsearch (see
+# `as_indexed_json()`) upon transaction commit. They are **not** indexed on
+# save. For this reason, **instances should always be created, updated, and
+# deleted within transactions.**
+#
+# The index schema is defined in CURRENT_INDEX_SCHEMA and
+# NEXT_INDEX_SCHEMA. See ElasticsearchClient for information
+# about how this works.
 #
 # # Attributes
 #
@@ -85,7 +91,7 @@
 # * representative_binary_id: Medusa UUID of an alternative binary designated
 #                             to stand in as a representation of the item.
 # * representative_item_repository_id: Repository ID of another item designated
-#                                      to stand in as a representatation of the
+#                                      to stand in as a representation of the
 #                                      item. For example, using a different
 #                                      item to provide a thumbnail image for an
 #                                      item that is not very photogenic.
@@ -93,45 +99,48 @@
 #                         there are multiple items corresponding to a single
 #                         page of a physical object.
 # * updated_at:           Managed by ActiveRecord.
-# * variant:              Like a subclass. Used often in queries.
+# * variant:              Like a subclass. Used to differentiate types of
+#                         items.
+#
+# @see https://github.com/elastic/elasticsearch-rails/blob/master/elasticsearch-model/README.md
 #
 class Item < ApplicationRecord
 
   include AuthorizableByRole
   include Describable
+  include Elasticsearch::Model
   include Representable
-  include SolrQuerying
 
-  class SolrFields
-    CLASS = 'class_si'
-    COLLECTION = 'collection_si'
-    CREATED = 'created_dti'
-    DATE = 'date_dti'
-    DESCRIBED = 'described_bi'
-    EFFECTIVE_ALLOWED_ROLES = 'effective_allowed_roles_sim'
-    EFFECTIVE_DENIED_ROLES = 'effective_denied_roles_sim'
-    # An item might be published but it's collection might not be, making it
-    # still effectively unpublished.
-    EFFECTIVELY_PUBLISHED = 'effectively_published_bi'
-    ID = 'id'
-    ITEM_SETS = 'item_set_sim'
-    LAST_MODIFIED = 'last_modified_dti'
-    LAT_LONG = 'lat_long_loc'
-    LAST_INDEXED = 'last_indexed_dti'
-    PAGE_NUMBER = 'page_number_ii'
-    PARENT_ITEM = 'parent_item_si'
-    PRIMARY_MEDIA_CATEGORY = 'primary_media_category_ii'
-    PUBLISHED = 'published_bi'
-    REPRESENTATIVE_FILENAME = 'representative_filename_si'
-    REPRESENTATIVE_ITEM_ID = 'representative_item_id_si'
-    SEARCH_ALL = 'searchall_natsort_en_im'
+  class IndexFields
+    COLLECTION = 'collection'
+    CREATED = 'date_created'
+    DATE = 'date'
+    DESCRIBED = 'described'
+    EFFECTIVE_ALLOWED_ROLES = 'effective_allowed_roles'
+    EFFECTIVE_DENIED_ROLES = 'effective_denied_roles'
+    # N.B.: An item might be published but it's collection might not be, making
+    # it still effectively unpublished. This will take that into account.
+    EFFECTIVELY_PUBLISHED = 'effectively_published'
+    ITEM_SETS = 'item_sets'
+    LAST_MODIFIED = 'last_modified'
+    LAT_LONG = 'lat_long'
+    LAST_INDEXED = 'date_last_indexed'
+    PAGE_NUMBER = 'page_number'
+    PARENT_ITEM = 'parent_item'
+    PRIMARY_MEDIA_CATEGORY = 'primary_media_category'
+    PUBLISHED = 'published'
+    REPOSITORY_ID = 'repository_id'
+    REPRESENTATIVE_FILENAME = 'representative_filename'
+    REPRESENTATIVE_ITEM = 'representative_item_id'
+    SEARCH_ALL = '_all'
     # Concatenation of various compound object page components or path
-    # components (see to_solr()) used for sorting items grouped structurally.
-    STRUCTURAL_SORT = 'grouped_sort_natsort_en_i' # TODO: rename this and reindex
-    SUBPAGE_NUMBER = 'subpage_number_ii'
-    TITLE = 'title_natsort_en_i'
-    TOTAL_BYTE_SIZE = 'total_byte_size_li'
-    VARIANT = 'variant_si'
+    # components (see as_indexed_json()) used for sorting items grouped
+    # structurally.
+    STRUCTURAL_SORT = 'structural_sort'
+    SUBPAGE_NUMBER = 'subpage_number'
+    TITLE = ItemElement.new(name: 'title').indexed_keyword_field
+    TOTAL_BYTE_SIZE = 'total_byte_size'
+    VARIANT = 'variant'
   end
 
   ##
@@ -169,6 +178,46 @@ class Item < ApplicationRecord
       self.all.reject{ |v| [FILE, DIRECTORY].include?(v) }
     end
   end
+
+  ##
+  # N.B.: See the docs for this same constant in Agent.
+  #
+  CURRENT_INDEX_SCHEMA = {
+      settings: {
+          number_of_shards: 1
+      },
+      mappings: {
+          self.to_s.downcase => {
+              date_detection: false,
+              dynamic_templates: [
+                  EntityElement::ELASTICSEARCH_DYNAMIC_TEMPLATE
+              ],
+              properties: {
+                  IndexFields::COLLECTION => { type: 'keyword' },
+                  IndexFields::DATE => { type: 'date' },
+                  IndexFields::DESCRIBED => { type: 'boolean' },
+                  IndexFields::EFFECTIVE_ALLOWED_ROLES => { type: 'keyword' },
+                  IndexFields::EFFECTIVE_DENIED_ROLES => { type: 'keyword' },
+                  IndexFields::EFFECTIVELY_PUBLISHED => { type: 'boolean' },
+                  IndexFields::LAST_INDEXED => { type: 'date' },
+                  IndexFields::LAT_LONG => { type: 'geo_point' },
+                  IndexFields::PAGE_NUMBER => { type: 'short' },
+                  IndexFields::PARENT_ITEM => { type: 'keyword' },
+                  IndexFields::PRIMARY_MEDIA_CATEGORY => { type: 'keyword' },
+                  IndexFields::PUBLISHED => { type: 'boolean' },
+                  IndexFields::REPOSITORY_ID => { type: 'keyword' },
+                  IndexFields::REPRESENTATIVE_FILENAME => { type: 'keyword' },
+                  IndexFields::REPRESENTATIVE_ITEM => { type: 'keyword' },
+                  IndexFields::STRUCTURAL_SORT => { type: 'keyword' },
+                  IndexFields::SUBPAGE_NUMBER => { type: 'short' },
+                  IndexFields::TOTAL_BYTE_SIZE => { type: 'long' },
+                  IndexFields::VARIANT => { type: 'keyword' }
+              }
+          }
+      }
+  }
+
+  NEXT_INDEX_SCHEMA = nil
 
   # In the order they should appear in the TSV, left-to-right.
   NON_DESCRIPTIVE_TSV_COLUMNS = %w(uuid parentId preservationMasterPathname
@@ -232,35 +281,62 @@ class Item < ApplicationRecord
   before_save :prune_identical_elements, :set_effective_roles,
               :set_normalized_coords, :set_normalized_date
   after_update :propagate_roles
-  after_commit :index_in_solr, on: [:create, :update]
-  after_commit :delete_from_solr, on: :destroy
+  after_commit :index_in_elasticsearch, on: [:create, :update]
+  after_commit :delete_from_elasticsearch, on: :destroy
+
+  # Used by the Elasticsearch client for CRUD actions only (not index changes).
+  index_name ElasticsearchClient.current_index_name(self)
 
   ##
   # @return [Integer]
   #
   def self.num_free_form_files
-    Item.solr.where(SolrFields::VARIANT => Variants::FILE).count
+    ItemFinder.new.
+        include_variants(*Variants::FILE).
+        only_described(false).
+        include_unpublished(true).
+        search_children(true).
+        count
   end
 
   ##
   # @return [Integer]
   #
   def self.num_free_form_items
-    Item.solr.where(SolrFields::VARIANT => [Variants::DIRECTORY, Variants::FILE]).count
+    ItemFinder.new.
+        include_variants(Variants::FILE, Variants::DIRECTORY).
+        only_described(false).
+        search_children(true).
+        include_unpublished(true).
+        count
   end
 
   ##
   # @return [Integer] Number of objects in the database.
   #
   def self.num_objects
-    sql = "SELECT COUNT(items.id) AS count
-      FROM items
-      LEFT JOIN collections
-        ON collections.repository_id = items.collection_repository_id
-      WHERE collections.package_profile_id != #{PackageProfile::FREE_FORM_PROFILE.id}
-        AND items.variant IS NULL"
-    result = ActiveRecord::Base.connection.execute(sql)
-    result[0]['count'].to_i + num_free_form_files
+    num_free_form_files + ItemFinder.new.
+        only_described(false).
+        include_unpublished(true).
+        search_children(false).
+        exclude_variants(Variants::FILE, Variants::DIRECTORY).
+        count
+  end
+
+  ##
+  # @param index [Symbol] :current or :next
+  # @return [void]
+  #
+  def self.reindex_all(index = :current)
+    num_items = Item.count
+    Item.uncached do
+      Item.all.find_each.with_index do |item, i|
+        item.reindex(index)
+
+        pct_complete = (i / num_items.to_f) * 100
+        CustomLogger.instance.debug("Item.reindex_all(): #{pct_complete.round(2)}%")
+      end
+    end
   end
 
   ##
@@ -302,7 +378,7 @@ class Item < ApplicationRecord
       SELECT (q.h).repository_id
       FROM q
       ORDER BY breadcrumb'
-    values = [[ nil, self.repository_id, ]]
+    values = [[ nil, self.repository_id ]]
 
     results = ActiveRecord::Base.connection.exec_query(sql, 'SQL', values)
     Item.where('repository_id IN (?)', results.map{ |row| row['repository_id'] })
@@ -348,7 +424,57 @@ class Item < ApplicationRecord
   end
 
   ##
-  # This method must be kept in sync with update_from_json().
+  # @return [Hash] Indexable JSON representation of the instance.
+  #
+  def as_indexed_json(options = {})
+    doc = {}
+    doc[IndexFields::COLLECTION] = self.collection_repository_id
+    doc[IndexFields::DATE] = self.date.utc.iso8601 if self.date
+    doc[IndexFields::DESCRIBED] = self.described?
+    doc[IndexFields::EFFECTIVE_ALLOWED_ROLES] =
+        self.effective_allowed_roles.pluck(:key)
+    doc[IndexFields::EFFECTIVE_DENIED_ROLES] =
+        self.effective_denied_roles.pluck(:key)
+    doc[IndexFields::EFFECTIVELY_PUBLISHED] =
+        (self.published and self.collection.published)
+    doc[IndexFields::ITEM_SETS] = self.item_sets.pluck(:id)
+    doc[IndexFields::LAST_INDEXED] = Time.now.utc.iso8601
+    if self.latitude and self.longitude
+      doc[IndexFields::LAT_LONG] = { lon: self.longitude, lat: self.latitude }
+    end
+    doc[IndexFields::PAGE_NUMBER] = self.page_number
+    doc[IndexFields::PARENT_ITEM] = self.parent_repository_id
+    doc[IndexFields::PRIMARY_MEDIA_CATEGORY] = self.primary_media_category
+    doc[IndexFields::PUBLISHED] = self.published
+    doc[IndexFields::REPOSITORY_ID] = self.repository_id
+    doc[IndexFields::REPRESENTATIVE_FILENAME] = self.representative_filename
+    doc[IndexFields::REPRESENTATIVE_ITEM] = self.representative_item_repository_id
+    doc[IndexFields::STRUCTURAL_SORT] = structural_sort_key
+    doc[IndexFields::SUBPAGE_NUMBER] = self.subpage_number
+    doc[IndexFields::TOTAL_BYTE_SIZE] = self.binaries.pluck(:byte_size).sum
+    doc[IndexFields::VARIANT] = self.variant
+
+    # Index metadata elements into dynamic fields.
+    self.elements.each do |element|
+      # ES will automatically create a one or more multi fields for this.
+      # See: https://www.elastic.co/guide/en/elasticsearch/reference/0.90/mapping-multi-field-type.html
+      doc[element.indexed_field] = element.value
+    end
+
+    # We also need to index parent metadata fields. These are needed when we
+    # want to find parents matching a query, and include them and all of their
+    # children in results.
+    if self.parent
+      self.parent.elements.each do |element|
+        doc[element.parent_indexed_field] = element.value
+      end
+    end
+
+    doc
+  end
+
+  ##
+  # N.B.: This method must be kept in sync with update_from_json().
   #
   # @return [Hash] Complete JSON representation of the instance. This may
   #                include private information that is not appropriate for
@@ -415,10 +541,6 @@ class Item < ApplicationRecord
     self.is_compound? ? 'Collection' : self.effective_viewer_binary&.dc_type
   end
 
-  def delete_from_solr
-    Solr.instance.delete(self.solr_id)
-  end
-
   ##
   # An item is considered described if it has any elements other than `title`,
   # or is in a collection using the free-form package profile.
@@ -457,7 +579,7 @@ class Item < ApplicationRecord
     self.representative_item ||
         self.items.where(variant: Variants::FRONT_COVER).first ||
         self.items.where(variant: Variants::TITLE).first ||
-        self.pages.first ||
+        self.pages.limit(1).to_a.first ||
         self
   end
 
@@ -578,18 +700,6 @@ class Item < ApplicationRecord
   end
 
   ##
-  # Queries Solr to obtain a Relation of all children that have a
-  # variant of Variant::FILE or Variant::DIRECTORY.
-  #
-  # @return [Relation<Item>]
-  #
-  def filesystem_variants_from_solr
-    self.items_from_solr.
-        where("(#{Item::SolrFields::VARIANT}:#{Item::Variants::FILE} OR "\
-            "#{Item::SolrFields::VARIANT}:#{Item::Variants::DIRECTORY})")
-  end
-
-  ##
   # @return [Boolean]
   #
   def has_iiif_manifest?
@@ -664,18 +774,11 @@ class Item < ApplicationRecord
   end
 
   ##
-  # @return [void]
-  #
-  def index_in_solr
-    Solr.instance.add(self.to_solr)
-  end
-
-  ##
   # @return [Boolean] Whether the instance has any children with a "page"
   #                   variant.
   #
   def is_compound?
-    self.pages.count > 0
+    self.variant.blank? and self.pages.count > 0
   end
 
   ##
@@ -701,12 +804,10 @@ class Item < ApplicationRecord
   end
 
   ##
-  # Queries Solr to obtain a Relation of all children.
+  # @return [ItemFinder] ItemFinder initialized to search for child items.
   #
-  # @return [Relation<Item>]
-  #
-  def items_from_solr
-    Item.solr.where(Item::SolrFields::PARENT_ITEM => self.repository_id)
+  def finder
+    ItemFinder.new.parent_item(self).search_children(true)
   end
 
   ##
@@ -735,27 +836,25 @@ class Item < ApplicationRecord
   end
 
   ##
-  # Queries the database to obtain a Relation of all children that have a
-  # variant of Variant::PAGE.
+  # @return [ItemFinder] ItemFinder initialized to return all children with a
+  #                      variant of Variants::PAGE.
   #
-  # @return [Relation]
-  # @see pages_from_solr()
+=begin
+  def pages TODO: why is this so slow?
+    self.finder.include_variants(Variants::PAGE).
+        order(IndexFields::PAGE_NUMBER, :asc).
+        order(IndexFields::SUBPAGE_NUMBER, :asc)
+  end
+=end
+
+  ##
+  # @return [ActiveRecord::Relation<Item>] All children with a variant of
+  #                                        Variants::PAGE.
   #
   def pages
     self.items.where(variant: Variants::PAGE).
-        order(:page_number, :subpage_number)
-  end
-
-  ##
-  # Queries Solr to obtain a Relation of all children that have a
-  # variant of Variant::PAGE.
-  #
-  # @return [Relation]
-  # @see pages()
-  #
-  def pages_from_solr
-    Item.solr.where(Item::SolrFields::PARENT_ITEM => self.repository_id).
-        where(Item::SolrFields::VARIANT => Item::Variants::PAGE)
+        order(IndexFields::PAGE_NUMBER => :asc).
+        order(IndexFields::SUBPAGE_NUMBER => :asc)
   end
 
   ##
@@ -811,6 +910,14 @@ class Item < ApplicationRecord
   end
 
   ##
+  # @param index [Symbol] :current or :next
+  # @return [void]
+  #
+  def reindex(index = :current)
+    index_in_elasticsearch(index)
+  end
+
+  ##
   # @return [String]
   #
   def representative_filename
@@ -850,21 +957,6 @@ class Item < ApplicationRecord
   end
 
   ##
-  # @return [Hash]
-  #
-  def solr_document
-    Solr.instance.get('select', params: {
-        q: "#{Item::SolrFields::ID}:#{self.repository_id}" })
-  end
-
-  ##
-  # @return [String] The repository ID.
-  #
-  def solr_id
-    self.repository_id
-  end
-
-  ##
   # @return [Item]
   #
   def supplementary_item
@@ -895,66 +987,6 @@ class Item < ApplicationRecord
   end
 
   ##
-  # @return [Hash] The instance's Solr representation. Modifying this will
-  #                require a reindex.
-  #
-  def to_solr
-    doc = {}
-    doc[SolrFields::ID] = self.solr_id
-    doc[SolrFields::CLASS] = self.class.to_s
-    doc[SolrFields::COLLECTION] = self.collection_repository_id
-    doc[SolrFields::DATE] = self.date.utc.iso8601 if self.date
-    doc[SolrFields::DESCRIBED] = self.described?
-    doc[SolrFields::EFFECTIVE_ALLOWED_ROLES] =
-        self.effective_allowed_roles.map(&:key)
-    doc[SolrFields::EFFECTIVE_DENIED_ROLES] =
-        self.effective_denied_roles.map(&:key)
-    doc[SolrFields::EFFECTIVELY_PUBLISHED] =
-        (self.published and self.collection.published)
-
-    if [Variants::FILE, Variants::DIRECTORY].include?(self.variant)
-      # (parent title)-(parent title)-(parent title)-(title)
-      doc[SolrFields::STRUCTURAL_SORT] =
-          (all_parents.map(&:title).reverse + [self.title]).join('-')
-    else
-      # parents: (repository ID)-(variant)-(page)-(subpage)-(title)
-      # children: (parent ID)-(variant)-(page)-(subpage)-(title)
-      sort_first_token = 'aaa'
-      sort_last_token = 'zzz'
-      doc[SolrFields::STRUCTURAL_SORT] =
-          "#{self.parent_repository_id.present? ? self.parent_repository_id : self.repository_id}-"\
-          "#{self.variant.present? ? sort_key_for_variant() : sort_first_token}-"\
-          "#{self.page_number.present? ? self.page_number : sort_last_token}-"\
-          "#{self.subpage_number.present? ? self.subpage_number : sort_last_token}-"\
-          "#{self.title.present? ? self.title : sort_last_token}"
-    end
-    doc[SolrFields::ITEM_SETS] = self.item_sets.map(&:id)
-    doc[SolrFields::LAST_INDEXED] = Time.now.utc.iso8601
-    if self.latitude and self.longitude
-      doc[SolrFields::LAT_LONG] = "#{self.latitude},#{self.longitude}"
-    end
-    doc[SolrFields::PAGE_NUMBER] = self.page_number
-    doc[SolrFields::PARENT_ITEM] = self.parent_repository_id
-    doc[SolrFields::PRIMARY_MEDIA_CATEGORY] = self.primary_media_category
-    doc[SolrFields::PUBLISHED] = self.published
-    doc[SolrFields::REPRESENTATIVE_FILENAME] = self.representative_filename
-    doc[SolrFields::REPRESENTATIVE_ITEM_ID] = self.representative_item_repository_id
-    doc[SolrFields::SUBPAGE_NUMBER] = self.subpage_number
-    doc[SolrFields::TITLE] = self.title
-    doc[SolrFields::TOTAL_BYTE_SIZE] = self.binaries.map{ |b| b.byte_size }.
-        select{ |s| s }.sum
-    doc[SolrFields::VARIANT] = self.variant
-
-    self.elements.each do |element|
-      doc[element.solr_multi_valued_field] ||= []
-      doc[element.solr_multi_valued_field] << element.value
-      doc[element.solr_single_valued_field] = element.value
-    end
-
-    doc
-  end
-
-  ##
   # Transactionally updates an instance's metadata elements from the metadata
   # embedded within its preservation or access master binary.
   #
@@ -976,7 +1008,7 @@ class Item < ApplicationRecord
   # Updates an instance from a JSON representation compatible with the structure
   # returned by as_json().
   #
-  # This method must be kept in sync with as_json().
+  # N.B.: This method must be kept in sync with as_json().
   #
   # @param json [String]
   # @return [void]
@@ -1118,6 +1150,16 @@ class Item < ApplicationRecord
 
   private
 
+  def delete_from_elasticsearch
+    logger = CustomLogger.instance
+    begin
+      logger.debug(['Deleting document... ',
+                    __elasticsearch__.delete_document].join)
+    rescue Elasticsearch::Transport::Transport::Errors::NotFound => e
+      logger.warn("Item.delete_from_elasticsearch(): #{e}")
+    end
+  end
+
   def elements_for_iim_value(iim_elem_label, dest_elem, iim_metadata)
     src_elem = iim_metadata.select{ |e| e[:label] == iim_elem_label }.first
     src_elem ? elements_for_value(src_elem[:value], dest_elem) : []
@@ -1242,6 +1284,17 @@ class Item < ApplicationRecord
   end
 
   ##
+  # @param index [Symbol] :current or :next
+  # @return [void]
+  #
+  def index_in_elasticsearch(index = :current)
+    ElasticsearchClient.instance.index_document(index,
+                                                self.class,
+                                                self.id,
+                                                as_indexed_json)
+  end
+
+  ##
   # @return [void]
   #
   def inherit_roles
@@ -1314,33 +1367,26 @@ class Item < ApplicationRecord
   end
 
   ##
-  # Tries to set the normalized latitude/longitude from a metadata element, if
-  # the former are empty.
+  # Tries to set the normalized latitude/longitude from a `coordinates` element.
   #
   def set_normalized_coords
-    if self.latitude.blank? and self.longitude.blank?
-      coords_elem = self.elements.select{ |e| e.name == 'coordinates' }.first
-      if coords_elem
-        coords = SpaceUtil.string_coordinates_to_coordinates(coords_elem.value)
-        if coords
-          self.latitude = coords[:latitude]
-          self.longitude = coords[:longitude]
-        end
+    coords_elem = self.element(:coordinates)
+    if coords_elem
+      coords = SpaceUtil.string_coordinates_to_coordinates(coords_elem.value)
+      if coords
+        self.latitude = coords[:latitude]
+        self.longitude = coords[:longitude]
       end
     end
   end
 
   ##
-  # Tries to set the normalized date from a date element, if the former is
-  # empty.
+  # Tries to set the normalized date from a `date` or `dateCreated` element.
   #
   def set_normalized_date
-    if self.date.blank?
-      date_elem = self.elements.select{ |e| e.name == 'date' }.first ||
-          self.elements.select{ |e| e.name == 'dateCreated' }.first
-      if date_elem
-        self.date = TimeUtil.string_date_to_time(date_elem.value)
-      end
+    date_elem = self.element(:date) || self.element(:dateCreated)
+    if date_elem
+      self.date = TimeUtil.string_date_to_time(date_elem.value)
     end
   end
 
@@ -1375,6 +1421,25 @@ class Item < ApplicationRecord
       else
         return 'baa' # N.B.: "aaa" is the absolute first-sort token.
     end
+  end
+
+  ##
+  # @return [String]
+  #
+  def structural_sort_key
+    if [Variants::FILE, Variants::DIRECTORY].include?(self.variant)
+      # (parent title)-(parent title)-(parent title)-(title)
+      return (all_parents.map(&:title).reverse + [self.title]).join('-')
+    end
+    # parents: (repository ID)-(variant key)-(page)-(subpage)-(title)
+    # children: (parent ID)-(variant key)-(page)-(subpage)-(title)
+    sort_first_token = 'aaa'
+    sort_last_token = 'zzz'
+    "#{self.parent_repository_id.present? ? self.parent_repository_id : self.repository_id}-"\
+        "#{self.variant.present? ? sort_key_for_variant() : sort_first_token}-"\
+        "#{self.page_number.present? ? self.page_number : sort_last_token}-"\
+        "#{self.subpage_number.present? ? self.subpage_number : sort_last_token}-"\
+        "#{self.title.present? ? self.title : sort_last_token}"
   end
 
 end

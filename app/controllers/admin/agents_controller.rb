@@ -25,7 +25,6 @@ module Admin
         keep_flash
         render 'create'
       else
-        Solr.instance.commit
         response.headers['X-PearTree-Result'] = 'success'
         flash['success'] = "Agent \"#{@agent.name}\" created."
         keep_flash
@@ -40,7 +39,6 @@ module Admin
       rescue => e
         handle_error(e)
       else
-        Solr.instance.commit
         flash['success'] = "Agent \"#{agent.name}\" deleted."
       ensure
         redirect_to admin_agents_path
@@ -132,7 +130,6 @@ module Admin
         render partial: 'shared/validation_messages',
                locals: { entity: e }
       else
-        Solr.instance.commit
         response.headers['X-PearTree-Result'] = 'success'
         flash['success'] = "Agent \"#{agent.name}\" updated."
         keep_flash

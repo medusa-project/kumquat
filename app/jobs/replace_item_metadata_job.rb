@@ -29,7 +29,6 @@ class ReplaceItemMetadataJob < Job
                                            element_name, replace_mode,
                                            replace_value, self.task)
 
-    Solr.instance.commit
     self.task.succeeded
   end
 

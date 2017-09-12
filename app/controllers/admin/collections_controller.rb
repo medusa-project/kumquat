@@ -24,18 +24,22 @@ module Admin
       @limit = Option::integer(Option::Keys::RESULTS_PER_PAGE)
       @start = params[:start] ? params[:start].to_i : 0
 
-      @collections = Collection.solr.order(Collection::SolrFields::TITLE).
-          start(@start).limit(@limit)
-      # Will be true when searching/filtering.
-      if params[:public_in_medusa].present?
-        @collections = @collections.
-            where("(*#{params[:q].gsub(' ', '*')}*)").
-            filter(Collection::SolrFields::PUBLIC_IN_MEDUSA =>
-                       params[:public_in_medusa].to_s == '1' ? true : false).
-            filter(Collection::SolrFields::PUBLISHED_IN_DLS =>
-                       params[:published_in_dls].to_s == '1' ? true : false)
+      finder = CollectionFinder.new.
+          query_all(params[:q]).
+          order(Collection::IndexFields::TITLE).
+          start(@start).
+          limit(@limit)
+
+      if params[:public_in_medusa] == '1'
+        finder = finder.filter(Collection::IndexFields::PUBLIC_IN_MEDUSA, true)
       end
+      if params[:published_in_dls] == '1'
+        finder = finder.filter(Collection::IndexFields::PUBLISHED_IN_DLS, true)
+      end
+
+      @collections = finder.to_a
       @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
+      @count = finder.count
 
       respond_to do |format|
         format.html
@@ -127,7 +131,7 @@ module Admin
     # terminology change (DLD-112). I decided to keep referring to it
     # internally as "syncing" because that is a better description of what's
     # happening, and also because "index" has a particular meaning that is
-    # already being used to describe indexing in Solr. -- alexd@illinois.edu
+    # already being used to describe indexing in Elasticsearch. -- @adolski
     #
     # Responds to PATCH /admin/collections/sync
     #
@@ -149,14 +153,13 @@ module Admin
         ActiveRecord::Base.transaction do # trigger after_commit callbacks
           collection.update!(sanitized_params)
         end
-        Solr.instance.commit
 
         # We will also need to update the effective allowed/denied roles
         # of each item in the collection, which will take some time, so we
         # will do it in the background.
         # This will also cause items to be reindexed. If the collection's
         # published status was changed, it will propagate to items once the
-        # job is done and commits Solr.
+        # job is done.
         PropagateRolesToItemsJob.perform_later(collection.repository_id)
       rescue => e
         handle_error(e)

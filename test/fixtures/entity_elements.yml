@@ -1,3 +1,12 @@
+# collection: sanborn
+
+sanborn_title:
+  collection: sanborn
+  name: title
+  value: Sanborn Fire Insurance Maps
+  vocabulary: uncontrolled
+  type: CollectionElement
+
 # item: sanborn_obj1_page1
 
 sanborn_obj1_page1_description:

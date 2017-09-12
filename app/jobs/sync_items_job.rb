@@ -15,7 +15,6 @@ class SyncItemsJob < Job
 
     result = MedusaIngester.new.sync_items(collection, args[1], args[2],
                                            self.task)
-    Solr.instance.commit
 
     self.task.status_text += ": #{result[:num_created].to_i} created; "\
         "#{result[:num_updated].to_i} updated; "\

@@ -26,20 +26,13 @@ class CollectionsController < WebsiteController
   #
   def index
     finder = CollectionFinder.new.
-        client_hostname(request.host).
-        client_ip(request.remote_ip).
-        client_user(current_user).
-        include_children(false).
-        filter_queries(params[:fq]).
-        query(params[:q]).
-        order(Collection::SolrFields::TITLE).
-        limit(99999)
+        user_roles(request_roles).
+        facet_filters(params[:fq]).
+        query_all(params[:q]).
+        order(Collection::IndexFields::TITLE)
     @collections = finder.to_a
-
-    # If there are no results, get some search suggestions.
-    if @collections.length < 1 and params[:q].present?
-      @suggestions = finder.suggestions
-    end
+    @facets = finder.facets
+    @suggestions = finder.suggestions
 
     fresh_when(etag: @collections) if Rails.env.production?
 
@@ -47,7 +40,7 @@ class CollectionsController < WebsiteController
       format.html
       format.js
       format.json do
-        render json: @collections.to_a.map { |c|
+        render json: @collections.map { |c|
           { id: c.repository_id, url: collection_url(c) }
         }
       end

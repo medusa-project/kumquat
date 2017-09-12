@@ -7,6 +7,16 @@ admins:
   permissions:
     - can_access_control_panel
 
+catalogers:
+  key: catalogers
+  name: Catalogers
+  required: false
+
+students:
+  key: students
+  name: Students
+  required: false
+
 users:
   key: users
   name: Users

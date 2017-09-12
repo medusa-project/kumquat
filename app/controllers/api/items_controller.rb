@@ -12,7 +12,8 @@ module Api
       begin
         raise ActiveRecord::RecordNotFound unless item
         item.destroy!
-      rescue ActiveRecord::RecordNotFound => e
+      rescue ActiveRecord::RecordNotFound,
+          Elasticsearch::Transport::Transport::Errors::NotFound => e
         render plain: "#{e}", status: :not_found
       rescue => e
         render plain: "#{e}", status: :internal_server_error
@@ -31,13 +32,13 @@ module Api
       @limit = MAX_RESULTS_LIMIT if @limit > MAX_RESULTS_LIMIT
 
       finder = ItemFinder.new.
-          collection_id(params[:collection_id]).
-          query(params[:q]).
-          include_children(true).
+          collection(Collection.find_by_repository_id(params[:collection_id])).
+          query_all(params[:q]).
+          search_children(true).
           include_unpublished(true).
           only_described(false).
-          filter_queries(params[:fq]).
-          sort(params[:sort]).
+          facet_filters(params[:fq]).
+          order(params[:sort]).
           start(@start).
           limit(@limit)
 
