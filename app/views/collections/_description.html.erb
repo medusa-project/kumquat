@@ -35,7 +35,7 @@
 <div id="tree-disclaimer-row" class="row">
   <div class="col-sm-6 col-md-7 col-lg-12">
     <div id="free-form-disclaimer">
-      <div class="alert alert-info"><p>The <%= @collection.title %> are managed by the <%= @collection.medusa_repository.title %> and do not feature precise descriptive information for each item.
+      <div id="free-form-alert" class="alert alert-info"><p>The <%= @collection.title %> are managed by the <%= @collection.medusa_repository.title %> and do not feature precise descriptive information for each item.
        Discover their contents by <%= link_to "browsing", collection_tree_path(@collection) %> the folders and files. For more information, contact an archivist at <a href="mailto:<%= @collection.medusa_repository.email %>"><%= @collection.medusa_repository.email %></a>.</p>
       </div>
     </div>

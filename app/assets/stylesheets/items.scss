@@ -349,3 +349,10 @@ body#tree_browser {
     background-color: $color_uiuc-blue;
   }
 }
+
+#free-form-alert {
+  a:link {color: #2353ab; text-decoration: underline; }
+  a:active {color: #464fab; text-decoration: underline; }
+  a:visited {color: #106ca2; text-decoration: underline; }
+  a:hover {color: #25527c; text-decoration: none; }
+}
