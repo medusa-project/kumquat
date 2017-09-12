@@ -39,6 +39,9 @@ class CollectionsControllerTest < ActionDispatch::IntegrationTest
     get '/projects/' + @collection.contentdm_alias
     assert_redirected_to '/collections/' + @collection.repository_id
 
+    get '/projects/' + @collection.contentdm_alias.upcase
+    assert_redirected_to '/collections/' + @collection.repository_id
+
     get '/projects/' + @collection.contentdm_alias + '/cats.html'
     assert_redirected_to '/collections/' + @collection.repository_id
   end
