@@ -80,6 +80,15 @@ class CollectionsController < WebsiteController
     end
   end
 
+  ##
+  # Responds to GET /projects/:alias
+  #
+  def show_contentdm
+    col = Collection.find_by_contentdm_alias(params[:alias])
+    raise ActiveRecord::RecordNotFound unless col
+    redirect_to col
+  end
+
   private
 
   def authorize_collection
