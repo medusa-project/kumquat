@@ -33,5 +33,18 @@ class CollectionsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  # show_contentdm
+
+  test 'show_contentdm() should redirect' do
+    get '/projects/' + @collection.contentdm_alias
+    assert_redirected_to '/collections/' + @collection.repository_id
+
+    get '/projects/' + @collection.contentdm_alias.upcase
+    assert_redirected_to '/collections/' + @collection.repository_id
+
+    get '/projects/' + @collection.contentdm_alias + '/cats.html'
+    assert_redirected_to '/collections/' + @collection.repository_id
+  end
+
 end
 

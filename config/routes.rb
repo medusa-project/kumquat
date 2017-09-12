@@ -188,6 +188,11 @@ Rails.application.routes.draw do
     match '/items/:id', to: 'items#update', via: :put
   end
 
+  ############# Redirects from images.library.uiuc/illinois.edu #############
+
+  match '/projects/:alias', to: 'collections#show_contentdm', via: :get
+  match '/projects/:alias/*glob', to: 'collections#show_contentdm', via: :get
+
   ######################## CONTENTdm v4/5 redirects #########################
 
   # Reference URLs
@@ -291,9 +296,7 @@ Rails.application.routes.draw do
         to: redirect('/', status: 301), via: :all
   match '/cdm/favorites',
         to: redirect('/favorites', status: 301), via: :all
-  # I don't even know what these are; maybe used by the Project Client?
-  match '/projects/*glob',
-        to: 'contentdm#gone', via: :all
+  # I don't know what this is; maybe used by the Project Client?
   match '/ui/*glob',
         to: 'contentdm#gone', via: :all
 
