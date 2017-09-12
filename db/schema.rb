@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170823193243) do
+ActiveRecord::Schema.define(version: 20170912195504) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -100,6 +100,7 @@ ActiveRecord::Schema.define(version: 20170823193243) do
   add_index "binaries", ["master_type"], name: "index_binaries_on_master_type", using: :btree
   add_index "binaries", ["media_category"], name: "index_binaries_on_media_category", using: :btree
   add_index "binaries", ["media_type"], name: "index_binaries_on_media_type", using: :btree
+  add_index "binaries", ["repository_relative_pathname"], name: "index_binaries_on_repository_relative_pathname", unique: true, using: :btree
 
   create_table "collection_joins", force: :cascade do |t|
     t.string "parent_repository_id", null: false
