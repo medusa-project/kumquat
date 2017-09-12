@@ -4,10 +4,23 @@
 #
 class Job < ApplicationJob
 
+  WORKER_PIDS_PATH = File.join(Rails.root, 'tmp', 'pids')
+
   before_enqueue :do_before_enqueue
   after_enqueue :do_after_enqueue
   before_perform :do_before_perform
   after_perform :do_after_perform
+
+  ##
+  # @return [Enumerable<Integer>]
+  #
+  def self.worker_pids
+    pids = Set.new
+    Dir.glob(WORKER_PIDS_PATH + '/**/delayed_job*.pid').each do |file|
+      pids << File.read(file).to_i
+    end
+    pids
+  end
 
   ##
   # The main job execution method. In this method, implementations should
