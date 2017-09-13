@@ -295,7 +295,6 @@ body#items_index, body#items_show {
 // styles for free-form collection tree view
 body#tree_browser {
   #collection-tree-row{
-    height:550px;
     border-style: solid;
     border-color: #dddddd;
   }
@@ -339,6 +338,12 @@ body#tree_browser {
   #pt-video-player {
     margin: 0 auto;
     width: 96%;
+  }
+}
+@media (max-width: 992px) {
+  #pt-item-view {
+    border-top-style: solid;
+    border-color: #dddddd;
   }
 }
 .pagination {
