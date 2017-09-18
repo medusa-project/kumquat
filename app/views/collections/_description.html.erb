@@ -4,13 +4,13 @@
     <%= link_to(collection_items_path(@collection, options),
                 class: 'btn btn-lg btn-default',
                 target: @collection.published_in_dls ? '' : '_blank') do %>
-      <%= icon_for(Item) %> <%= number_with_delimiter(@collection.num_public_objects) %> Digital Items
+      <%= icon_for(Item) %> <%= number_with_delimiter(@collection.num_public_objects) %> Objects
     <% end %>
   <% elsif @collection.access_url.present? %>
     <%= link_to(@collection.access_url,
                 class: 'btn btn-lg btn-default',
                 target: @collection.published_in_dls ? '' : '_blank') do %>
-      <%= icon_for(Item) %> View Digital Items
+      <%= icon_for(Item) %> View Objects
     <% end %>
   <% end %>
 
@@ -31,15 +31,16 @@
   <%= raw(@collection.description_html) ||
           simple_format(auto_link(@collection.description)) %>
 </div>
+
 <% if @collection.package_profile == PackageProfile::FREE_FORM_PROFILE %>
-<div id="tree-disclaimer-row" class="row">
-  <div class="col-sm-6 col-md-7 col-lg-12">
-    <div id="free-form-disclaimer">
-      <div class="alert alert-info"><p>The <%= @collection.title %> are managed by the <%= @collection.medusa_repository.title %> and do not feature precise descriptive information for each item.
-       Discover their contents by <%= link_to "browsing", collection_tree_path(@collection) %> the folders and files. For more information, contact an archivist at <a href="mailto:<%= @collection.medusa_repository.email %>"><%= @collection.medusa_repository.email %></a>.</p>
+  <div id="tree-disclaimer-row" class="row">
+    <div class="col-sm-6 col-md-7 col-lg-12">
+      <div id="free-form-disclaimer">
+        <div class="alert alert-info"><p>The <%= @collection.title %> are managed by the <%= @collection.medusa_repository.title %> and do not feature precise descriptive information for each item.
+         Discover their contents by <%= link_to "browsing", collection_tree_path(@collection) %> the folders and files. For more information, contact an archivist at <a href="mailto:<%= @collection.medusa_repository.email %>"><%= @collection.medusa_repository.email %></a>.</p>
+        </div>
       </div>
     </div>
   </div>
-</div>
 <% end %>
 
