@@ -56,35 +56,43 @@
   <% end %>
 <% end %>
 
-<% unless @storage_offline %>
-  <div class="pt-viewer">
-    <%= viewer_for_item(@root_item) %>
-  </div>
-
-  <% if has_viewer?(@root_item) %>
-    <div class="row">
-      <div class="col-sm-10">
-        <%= rights_statement(@root_item.effective_rightsstatements_org_statement,
-                             @root_item.effective_rights_statement) %>
-      </div>
-      <div class="col-sm-2">
-        <a href="#pt-download-section" class="btn btn-lg btn-success">
-          <i class="fa fa-download"></i> Download</a>
-      </div>
+<section>
+  <% if @storage_offline %>
+    <h4>Persistent URL</h4>
+    <span class="pt-persistent-url"><%= item_url(@root_item) %></span>
+  <% else %>
+    <div class="pt-viewer">
+      <%= viewer_for_item(@root_item) %>
     </div>
-  <% end %>
-<% end %>
 
-<% if @root_item.variant == Item::Variants::DIRECTORY %>
+    <% if has_viewer?(@root_item) %>
+      <div class="row">
+        <div class="col-sm-10 pt-persistent-url-container">
+          <h4>Persistent URL</h4>
+          <span class="pt-persistent-url"><%= item_url(@root_item) %></span>
+        </div>
+        <div class="col-sm-2">
+          <a href="#pt-download-section" class="btn btn-lg btn-success">
+            <i class="fa fa-download"></i> Download</a>
+        </div>
+      </div>
+    <% else %>
+      <h4>Persistent URL</h4>
+      <span class="pt-persistent-url"><%= item_url(@root_item) %></span>
+    <% end %>
+  <% end %>
+</section>
+
+<% if @root_item.directory? %>
   <section id="pt-files-section">
     <%= render partial: 'files' %>
   </section>
 <% end %>
 
-<% unless has_viewer?(@root_item) %>
+<section>
   <%= rights_statement(@root_item.effective_rightsstatements_org_statement,
                        @root_item.effective_rights_statement) %>
-<% end %>
+</section>
 
 <% if @root_item.elements.reject{ |e| e.name == 'title' }.any? %>
   <section>
@@ -94,7 +102,6 @@
 
 <%= render partial: 'download_section' %>
 <%= render partial: 'staff_info' %>
-
 <%= render partial: 'cite_panel', locals: { item: @root_item } %>
 
 <script type="application/ld+json">
