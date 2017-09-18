@@ -87,7 +87,7 @@ class Vocabulary < ActiveRecord::Base
   # @return [Boolean] True if the instance is not a system-required vocabulary.
   #
   def readonly?
-    self.key == UNCONTROLLED_KEY or self.key == AGENT_KEY
+    [UNCONTROLLED_KEY, AGENT_KEY].include?(self.key) and !self.new_record?
   end
 
   def to_s
