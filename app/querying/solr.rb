@@ -48,13 +48,6 @@ class Solr
   end
 
   ##
-  # @return [void]
-  #
-  def delete_all
-    delete_by_query('*:*')
-  end
-
-  ##
   # @param query [String]
   #
   def delete_by_query(query)
