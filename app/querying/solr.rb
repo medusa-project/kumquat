@@ -67,7 +67,7 @@ class Solr
   #
   def purge
     @@logger.info('Solr.purge()')
-    client.update(data: '<delete><query>*:*</query></delete>')
+    client.delete_by_query('*:*')
   end
 
   ##
