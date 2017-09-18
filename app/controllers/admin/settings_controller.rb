@@ -22,7 +22,7 @@ module Admin
     def update
       begin
         ActiveRecord::Base.transaction do
-          params[:options].each_key do |key|
+          params[:options].to_unsafe_hash.each_key do |key|
             option = Option.find_by_key(key)
             if option # if the option already exists
               if option.value != params[:options][key] # if the option has a new value
