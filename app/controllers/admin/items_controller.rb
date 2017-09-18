@@ -287,7 +287,7 @@ module Admin
         params[:options] = {} unless params[:options].kind_of?(Hash)
         SyncItemsJob.perform_later(params[:collection_id],
                                    params[:ingest_mode],
-                                   params[:options])
+                                   params[:options].to_unsafe_hash)
       rescue => e
         handle_error(e)
         redirect_to admin_collection_items_url(col)
