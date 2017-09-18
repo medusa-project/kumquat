@@ -79,16 +79,6 @@ body#items_show, #pt-item-view { /* pt-item-view is used in free-form tree view.
     width: 96%;
   }
 
-  .pt-title-item, .pt-key-item, .pt-front-matter-item, .pt-index-item {
-    .panel-body {
-      text-align: center;
-      img {
-        max-height: 178px;
-        max-width: 178px;
-      }
-    }
-  }
-
   .pt-directories {
     $font_thumb_size: 35px;
     $image_thumb_size: 50px;
