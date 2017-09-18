@@ -285,7 +285,6 @@ body#items_index, body#items_show {
 // styles for free-form collection tree view
 body#tree_browser {
   #collection-tree-row{
-    height:550px;
     border-style: solid;
     border-color: #dddddd;
   }
@@ -331,6 +330,12 @@ body#tree_browser {
     width: 96%;
   }
 }
+@media (max-width: 992px) {
+  #pt-item-view {
+    border-top-style: solid;
+    border-color: #dddddd;
+  }
+}
 .pagination {
   > li > a {
     color: $color_uiuc-blue;
@@ -338,4 +343,11 @@ body#tree_browser {
   > li.active > a {
     background-color: $color_uiuc-blue;
   }
+}
+
+#free-form-alert {
+  a:link {color: #2353ab; text-decoration: underline; }
+  a:active {color: #464fab; text-decoration: underline; }
+  a:visited {color: #106ca2; text-decoration: underline; }
+  a:hover {color: #25527c; text-decoration: none; }
 }
