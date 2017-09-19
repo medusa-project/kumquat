@@ -1306,7 +1306,7 @@ module ItemsHelper
       if for_collections
         term_label = Collection.find_by_repository_id(term.name)&.title
       else
-        term_label = truncate(term.label, length: 80)
+        term_label = term.label
       end
       term_label = truncate(term_label, length: 80)
 
