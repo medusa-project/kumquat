@@ -9,7 +9,7 @@
     <% if @collection.package_profile_id==PackageProfile::FREE_FORM_PROFILE.id %>
         <div id="free-form-view-toggle" class="btn-group">
         <a href="#" class="btn btn-primary btn-lg active" role="button" aria-pressed="true">Searchable File List</a>
-        <%= link_to "Browseable File View", collection_tree_path, class: "btn btn-lg btn-primary", role: "button" %>
+        <%= link_to "Browseable File View", collection_tree_path, class: "btn btn-primary btn-lg", role: "button" %>
         </div>
     <% end %>
   </h1>
