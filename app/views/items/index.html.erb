@@ -5,7 +5,14 @@
 <% if @collection %>
   <% provide(:title, @collection.title) %>
   <% provide(:active_nav, 'collections') %>
-  <h1><%= @collection.title %></h1>
+  <h1><%= @collection.title %>
+    <% if @collection.package_profile_id==PackageProfile::FREE_FORM_PROFILE.id %>
+        <div id="free-form-view-toggle" class="btn-group">
+        <a href="#" class="btn btn-primary btn-lg active" role="button" aria-pressed="true">Searchable File List</a>
+        <%= link_to "Browseable File View", collection_tree_path, class: "btn btn-lg btn-primary", role: "button" %>
+        </div>
+    <% end %>
+  </h1>
 <% else %>
   <% provide(:title, 'Items') %>
   <% provide(:active_nav, 'items') %>
