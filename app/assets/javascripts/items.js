@@ -363,6 +363,24 @@ var PTItemView = function() {
             }
         });
 
+        // Copy the permalink to the clipboard when a copy-permalink button is
+        // clicked. This uses clipboard.js: https://clipboardjs.com
+        var clipboard = new Clipboard('.pt-copy-permalink');
+        clipboard.on('success', function(e) {
+            // Remove the button and add a "copied" message in its place.
+            var button = $(e.trigger);
+            button.parent().append('<small>' +
+                    '<span class="text-success">' +
+                        '<i class="fa fa-check"></i> Copied' +
+                    '</span>'+
+                '</small>');
+            button.remove();
+        });
+        clipboard.on('error', function(e) {
+            console.error('Action:', e.action);
+            console.error('Trigger:', e.trigger);
+        });
+
         new PTCitationPanel();
         new PTEmbedPanel();
     };
