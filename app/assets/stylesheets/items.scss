@@ -344,6 +344,10 @@ body#tree_browser {
     background-color: $color_uiuc-blue;
   }
 }
+#free-form-view-toggle{
+  margin-left: 25px;
+  margin-bottom: 10px;
+}
 
 #free-form-alert {
   a:link {color: #2353ab; text-decoration: underline; }
