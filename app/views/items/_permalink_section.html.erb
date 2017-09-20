@@ -1,9 +1,15 @@
-<h4>Permalink
-  <button class="btn btn-default btn-xs pt-copy-permalink"
-          data-clipboard-text="<%= item_url(@root_item) %>"
-          type="button">
-    <i class="fa fa-clipboard"></i> Copy
-  </button>
-</h4>
-
-<%= item_url(@root_item) %>
+<div class="media">
+  <div class="media-left">
+    <i class="fa fa-link"></i>
+  </div>
+  <div class="media-body">
+    <h4 class="media-heading">Permalink
+      <button class="btn btn-default btn-xs pt-copy-permalink"
+              data-clipboard-text="<%= item_url(@root_item) %>"
+              type="button">
+        <i class="fa fa-clipboard"></i> Copy
+      </button>
+    </h4>
+    <%= item_url(@root_item) %>
+  </div>
+</div>

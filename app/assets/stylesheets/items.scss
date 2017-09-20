@@ -158,15 +158,20 @@ body#items_show, #pt-item-view { /* pt-item-view is used in free-form tree view.
     }
   }
 
-  div.pt-rights {
+  .media {
+    .media-left {
+      img {
+        width: 150px;
+      }
+      i {
+        font-size: 4em;
+        margin-right: 6px;
+      }
+    }
+  }
+
+  .pt-rights {
     margin-bottom: 2em;
-    .media-left img {
-      width: 200px;
-    }
-    i {
-      font-size: 5em;
-      margin-right: 6px;
-    }
   }
 
   table.pt-metadata {
