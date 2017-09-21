@@ -239,6 +239,46 @@ module ItemsHelper
   end
 
   ##
+  # Requested in DLD-116.
+  #
+  # @param item [Item]
+  # @return [String]
+  # @see [Open Graph Protocol](http://ogp.me)
+  # @see [Facebook Sharing Best Practices](https://developers.facebook.com/docs/sharing/best-practices)
+  #
+  def item_meta_tags(item)
+    html = sprintf(
+        '<meta property="article:author" content="%s" />
+        <meta property="article:publisher" content="%s" />
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="%s" />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="%s" />
+        <meta property="og:description" content="%s" />
+        <meta property="og:site_name" content="%s" />',
+                   item.element(:creator) ||
+                       Option::string(Option::Keys::WEBSITE_NAME),
+                   item.element(:publisher) ||
+                       Option::string(Option::Keys::WEBSITE_NAME),
+                   item.title,
+                   item_url(item),
+                   item.description,
+                   Option::string(Option::Keys::WEBSITE_NAME))
+
+    # N.B.: Minimum Facebook image size is 200x200, but they recommend at
+    # least 1200x630. Images may be up to 8MB.
+    image_url = iiif_image_url(item, :full, 2400)
+    if image_url
+      html += sprintf('<meta property="og:image" content="%s" />
+        <meta property="og:image:type" content="image/jpeg" />
+        <meta property="og:image:alt" content="%s" />',
+                      image_url, item.title)
+    end
+
+    raw(html)
+  end
+
+  ##
   # @param item [Item]
   # @return [String] HTML string
   #
@@ -383,37 +423,6 @@ module ItemsHelper
   def num_favorites
     cookies[:favorites] ?
         cookies[:favorites].split(FavoritesController::COOKIE_DELIMITER).length : 0
-  end
-
-  ##
-  # Requested in DLD-116.
-  #
-  # @param item [Item]
-  # @return [String]
-  # @see [Open Graph Protocol](http://ogp.me)
-  #
-  def open_graph_meta_tags(item)
-    html = sprintf('<meta property="og:title" content="%s" />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="%s" />
-        <meta property="og:description" content="%s" />
-        <meta property="og:site_name" content="%s" />',
-                   item.title,
-                   item_url(item),
-                   item.description,
-                   Option::string(Option::Keys::WEBSITE_NAME))
-
-    image_url = iiif_image_url(item, :full, 1200)
-    if image_url
-      html += sprintf('<meta property="og:image:url" content="%s" />
-        <meta property="og:image:type" content="image/jpeg" />
-        <meta property="og:image:alt" content="%s" />',
-                      # Facebook may have trouble with https:// images; see DLD-116.
-                      image_url.gsub('https://', 'http://'),
-                      item.title)
-    end
-
-    raw(html)
   end
 
   ##
