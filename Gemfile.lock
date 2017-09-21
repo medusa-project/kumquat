@@ -115,6 +115,7 @@ GEM
     net-scp (1.2.1)
       net-ssh (>= 2.6.5)
     net-ssh (4.2.0)
+    netaddr (1.5.1)
     nio4r (2.1.0)
     nokogiri (1.8.0)
       mini_portile2 (~> 2.2.0)
@@ -222,6 +223,7 @@ DEPENDENCIES
   js_cookie_rails
   local_time
   mime-types (~> 2.6)
+  netaddr
   omniauth
   omniauth-shibboleth
   passenger

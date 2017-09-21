@@ -4,71 +4,34 @@ class HostTest < ActiveSupport::TestCase
 
   # comment()
 
-  test 'comment() should work' do
+  test 'comment() returns the comment' do
     host = Host.new(pattern: '123.123.* # some range')
     assert_equal 'some range', host.comment
     host = Host.new(pattern: '# 123.123.*')
     assert_equal '123.123.*', host.comment
     host = Host.new(pattern: '* # some range')
     assert_equal 'some range', host.comment
+  end
+
+  test 'comment() returns nil when there is no comment' do
     host = Host.new(pattern: '123.123.*')
     assert_nil host.comment
     host = Host.new(pattern: '*')
     assert_nil host.comment
   end
 
-  # comment()
+  # commented_out?()
 
-  test 'commented_out?() should work' do
-    host = Host.new(pattern: '123.123.* # some range')
-    assert !host.commented_out?
+  test 'commented_out?() returns true when the pattern is commented out' do
     host = Host.new(pattern: '# 123.123.*')
     assert host.commented_out?
+  end
+
+  test 'commented_out?() returns false when the pattern is not commented out' do
+    host = Host.new(pattern: '123.123.* # some range')
+    assert !host.commented_out?
     host = Host.new(pattern: '123.123.*')
     assert !host.commented_out?
-  end
-
-  # ip?()
-
-  test 'ip?() should work' do
-    host = Host.new(pattern: '123.123.*')
-    assert host.ip?('123.123.*')
-    host = Host.new(pattern: '123.123.10.1')
-    assert host.ip?('123.123.10.1')
-    host = Host.new(pattern: 'example.org')
-    assert !host.ip?('example.org')
-    host = Host.new(pattern: '*.example.org')
-    assert !host.ip?('*.example.org')
-  end
-
-  # ip_range?()
-
-  test 'ip_range?() should work' do
-    host = Host.new(pattern: '123.123.*')
-    assert !host.ip_range?('123.123.*')
-    host = Host.new(pattern: '123.123.10.1')
-    assert !host.ip_range?('123.123.10.1')
-    host = Host.new(pattern: 'example.org')
-    assert !host.ip_range?('example.org')
-
-    host = Host.new(pattern: 'example-example.org')
-    assert !host.ip_range?('example-example.org')
-
-    host = Host.new(pattern: '123.123.*-123.124.*')
-    assert host.ip_range?('123.123.*-123.124.*')
-  end
-
-  # pattern
-
-  test 'pattern can contain only certain characters' do
-    Host.create!(pattern: 'ABCabc123.*#_-')
-
-    assert_raises ActiveRecord::RecordInvalid do
-      Host.create!(pattern: 'abc abc')
-    end
-    assert_raises ActiveRecord::RecordInvalid do
-      Host.create!(pattern: '123. 242.*')
-    end
   end
 
   # pattern_matches?()
@@ -78,19 +41,25 @@ class HostTest < ActiveSupport::TestCase
     assert !host.pattern_matches?('123.123.123.123')
   end
 
-  test 'pattern_matches?() should work with IP addresses' do
+  test 'pattern_matches?() should work with IPs' do
     host = Host.new(pattern: '123.123.*')
     assert host.pattern_matches?('123.123.123.123')
     assert host.pattern_matches?('123.123.234.234')
     assert !host.pattern_matches?('214.123.123.123')
   end
 
-  test 'pattern_matches?() should work with IP address ranges' do
+  test 'pattern_matches?() should work with IP wildcard ranges' do
     host = Host.new(pattern: '123.123.*-123.130.*')
     assert host.pattern_matches?('123.123.123.123')
     assert host.pattern_matches?('123.123.127.*')
     assert !host.pattern_matches?('123.120.123.*')
     assert !host.pattern_matches?('123.131.123.*')
+  end
+
+  test 'pattern_matches?() should work with IP CIDR ranges' do
+    host = Host.new(pattern: '123.123.0.0/16')
+    assert host.pattern_matches?('123.123.123.123')
+    assert !host.pattern_matches?('123.125.123.123')
   end
 
   test 'pattern_matches?() should work with hostnames' do
@@ -100,18 +69,67 @@ class HostTest < ActiveSupport::TestCase
     assert !host.pattern_matches?('dogs.example.com')
   end
 
-  # within_range?()
+  # uncommented_pattern()
 
-  test 'within_range?() should work' do
-    host = Host.new(pattern: '123.123.*-123.130.*')
-    assert host.within_range?('123.126.12.10', '123.123.*', '123.130.*')
-    assert !host.within_range?('123.122.16.2', '123.123.*', '123.130.*')
-    assert !host.within_range?('123.131.16.2', '123.123.*', '123.130.*')
+  test 'uncommented_pattern() returns the pattern without comments' do
+    host = Host.new(pattern: '*.example.org # this is a host')
+    assert_equal '*.example.org', host.uncommented_pattern
+
+    host.pattern = '*.example.org'
+    assert_equal '*.example.org', host.uncommented_pattern
   end
 
-  test 'within_range?() should return false when pattern is commented out' do
-    host = Host.new(pattern: '# 123.123.*-123.130.*')
-    assert !host.within_range?('123.126.12.10', '123.123.*', '123.130.*')
+  # validate()
+
+  test 'validate() should check for the presence of a pattern' do
+    host = Host.new(pattern: '')
+    assert !host.valid?
+  end
+
+  test 'validate() should reject invalid general patterns' do
+    host = Host.new(pattern: '# only a comment')
+    assert !host.valid?
+
+    host.pattern = '*'
+    assert !host.valid?
+
+    host.pattern = '* # some comment'
+    assert !host.valid?
+  end
+
+  test 'validate() should reject invalid host patterns' do
+    host = Host.new(pattern: 'host.example.*')
+    assert !host.valid?
+
+    host.pattern = '?.example.org'
+    assert !host.valid?
+
+    host.pattern = 'ex_ample.org'
+    assert !host.valid?
+  end
+
+  test 'validate() should reject invalid IP patterns' do
+    host = Host.new(pattern: '1234.2342.2342.2342')
+    assert !host.valid?
+  end
+
+  test 'validate() should allow valid host patterns' do
+    host = Host.new(pattern: 'CATS-dogs-123.example.org # comment')
+    assert host.valid?
+
+    host.pattern = '*.example.org # comment'
+    assert host.valid?
+  end
+
+  test 'validate() should allow valid IP patterns' do
+    host = Host.new(pattern: '123.123.123.123 # comment')
+    assert host.valid?
+
+    host.pattern = '123.123.* # comment'
+    assert host.valid?
+
+    host.pattern = '123.123.0.0/16 # comment'
+    assert host.valid?
   end
 
 end
