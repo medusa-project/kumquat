@@ -123,28 +123,6 @@ namespace :dls do
       Solr.instance.commit
     end
 
-    desc 'Prune duplicate binaries'
-    task :prune_dupes => :environment do |task|
-      ActiveRecord::Base.transaction do
-        num_dupes = 0
-        Item.uncached do
-          Item.all.find_each do |item|
-            pathnames = []
-            item.binaries.each do |bin|
-              if pathnames.include?(bin.repository_relative_pathname)
-                puts "DUPE: #{item.id}: #{bin}"
-                num_dupes += 1
-                bin.destroy!
-              else
-                pathnames << bin.repository_relative_pathname
-              end
-            end
-          end
-        end
-        puts "Total dupes: #{num_dupes}"
-      end
-    end
-
   end
 
   namespace :collections do
