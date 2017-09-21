@@ -250,7 +250,6 @@ module ItemsHelper
     html = sprintf(
         '<meta property="article:author" content="%s" />
         <meta property="article:publisher" content="%s" />
-        <meta property="og:type" content="website" />
         <meta property="og:title" content="%s" />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="%s" />
@@ -269,6 +268,7 @@ module ItemsHelper
     # least 1200x630. Images may be up to 8MB.
     image_url = iiif_image_url(item, :full, 2400)
     if image_url
+      html + "\n"
       html += sprintf('<meta property="og:image" content="%s" />
         <meta property="og:image:type" content="image/jpeg" />
         <meta property="og:image:alt" content="%s" />',
