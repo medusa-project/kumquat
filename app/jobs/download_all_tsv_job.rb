@@ -35,6 +35,10 @@ class DownloadAllTsvJob < Job
         # Create the zip file within the downloads directory.
         zip_filename = "tsv-#{download.key}.zip"
         zip_pathname = File.join(DESTINATION_DIR, zip_filename)
+
+        CustomLogger.instance.info("DownloadAllTsvJob.perform(): "\
+          "creating zip: #{zip_pathname}")
+
         # -j: don't record directory names
         # -r: recurse into directories
         `zip -jr #{zip_pathname} #{tmpdir}`
