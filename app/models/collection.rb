@@ -259,8 +259,16 @@ class Collection < ApplicationRecord
   # @see representative_image_binary()
   #
   def effective_representative_image_binary
-    self.representative_item&.iiif_image_binary ||
-        self.representative_image_binary
+    bin = self.representative_item&.iiif_image_binary
+    unless bin
+      begin
+        bin = self.representative_image_binary
+      rescue => e
+        CustomLogger.instance.warn(
+            "Collection.effective_representative_image_binary(): #{e}")
+      end
+    end
+    bin
   end
 
   ##
@@ -268,7 +276,16 @@ class Collection < ApplicationRecord
   # @see representative_item()
   #
   def effective_representative_item
-    self.representative_item || self.representative_image_binary&.item
+    item = self.representative_item
+    unless item
+      begin
+        item = self.representative_image_binary&.item
+      rescue => e
+        CustomLogger.instance.warn(
+            "Collection.effective_representative_item(): #{e}")
+      end
+    end
+    item
   end
 
   ##

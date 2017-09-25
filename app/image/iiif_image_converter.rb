@@ -34,7 +34,9 @@ class IiifImageConverter
           '.' + format
 
       if binary.iiif_safe?
-        url = binary.iiif_image_url + '/full/full/0/default.' + format
+        # ?cache=false is supported by Cantaloupe to help reduce the cache size.
+        url = binary.iiif_image_url + '/full/full/0/default.' + format +
+            '?cache=false'
 
         @@logger.debug("Creating #{new_pathname}")
         FileUtils.mkdir_p(File.dirname(new_pathname))

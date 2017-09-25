@@ -1,5 +1,7 @@
 class DownloadAllTsvJob < Job
 
+  DESTINATION_DIR = Download::DOWNLOADS_DIRECTORY
+
   queue_as :download
 
   ##
@@ -23,22 +25,33 @@ class DownloadAllTsvJob < Job
             "(#{(self.task.percent_complete * 100).round(2)}%)")
         File.open(tsv_file, 'w') { |file| file.write(col.items_as_tsv) }
 
-        # Update the progress on both the job's task and the download.
         self.task.progress = index / collections.length.to_f
       end
 
       # Create the downloads directory if it doesn't exist.
-      zip_dir = Download::DOWNLOADS_DIRECTORY
-      FileUtils.mkdir_p(zip_dir)
-      # Create the zip file within the downloads directory.
-      zip_filename = "tsv-#{Time.now.to_formatted_s(:number)}.zip"
-      zip_pathname = File.join(zip_dir, zip_filename)
-      # -j: don't record directory names
-      # -r: recurse into directories
-      `zip -jr #{zip_pathname} #{tmpdir}`
+      FileUtils.mkdir_p(DESTINATION_DIR)
 
-      download.update(filename: zip_filename)
-      self.task&.succeeded
+      if Dir.exists?(DESTINATION_DIR)
+        # Create the zip file within the downloads directory.
+        zip_filename = "tsv-#{download.key}.zip"
+        zip_pathname = File.join(DESTINATION_DIR, zip_filename)
+
+        CustomLogger.instance.info("DownloadAllTsvJob.perform(): "\
+          "creating zip: #{zip_pathname}")
+
+        # -j: don't record directory names
+        # -r: recurse into directories
+        `zip -jr #{zip_pathname} #{tmpdir}`
+
+        if File.exists?(zip_pathname)
+          download.update(filename: zip_filename)
+          self.task&.succeeded
+        else
+          raise IOError, "File does not exist: #{zip_pathname}"
+        end
+      else
+        raise IOError, "Unable to create directory: #{DESTINATION_DIR}"
+      end
     end
   end
 
