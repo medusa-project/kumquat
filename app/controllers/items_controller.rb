@@ -592,7 +592,7 @@ class ItemsController < WebsiteController
           filter_queries(session[:fq]).
           sort(session[:sort]).
           start(session[:start]).
-          limit(Option::integer(Option::Keys::RESULTS_PER_PAGE))
+          limit(99999)
     end
   end
 
