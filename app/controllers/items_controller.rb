@@ -592,7 +592,7 @@ class ItemsController < WebsiteController
           filter_queries(session[:fq]).
           sort(session[:sort]).
           start(session[:start]).
-          limit(99999)
+          limit(@collection&.free_form? ? 99999 : Option::integer(Option::Keys::RESULTS_PER_PAGE))
     end
   end
 
