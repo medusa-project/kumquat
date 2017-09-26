@@ -1,6 +1,6 @@
 ##
 # Module included by models that have a has_many `elements` relationship to
-# EntityElements.
+# EntityElement subclasses.
 #
 module Describable
 
