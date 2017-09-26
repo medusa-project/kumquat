@@ -371,7 +371,7 @@ class Item < ApplicationRecord
   # @return [String, nil] Value of the bibId element.
   #
   def bib_id
-    self.elements.select{ |e| e.name == 'bibId' }.first&.value
+    self.element(:bibId)&.value
   end
 
   ##
