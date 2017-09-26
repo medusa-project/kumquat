@@ -83,7 +83,9 @@ class CollectionsController < WebsiteController
   end
 
   ##
-  # Responds to GET /projects/:alias
+  # Responds to GET /projects/:alias.
+  #
+  # N.B.: This is a route from images.library.illinois.edu, not CONTENTdm.
   #
   def show_contentdm
     col = Collection.where('LOWER(contentdm_alias) = ?',

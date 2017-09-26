@@ -102,7 +102,6 @@ module ApplicationHelper
       html += link_to(link_target, class: 'pt-thumbnail-link') do
         raw('<div class="pt-thumbnail">' +
                 thumbnail_tag(entity.effective_representative_entity,
-                              size: ItemsHelper::DEFAULT_THUMBNAIL_SIZE,
                               shape: :square) +
                 '</div>')
       end

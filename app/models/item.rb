@@ -371,7 +371,7 @@ class Item < ApplicationRecord
   # @return [String, nil] Value of the bibId element.
   #
   def bib_id
-    self.elements.select{ |e| e.name == 'bibId' }.first&.value
+    self.element(:bibId)&.value
   end
 
   ##
@@ -808,6 +808,9 @@ class Item < ApplicationRecord
     end
   end
 
+  ##
+  # @return [void]
+  #
   def purge_cached_images
     ImageServer.instance.purge_item_from_cache(self)
   end
