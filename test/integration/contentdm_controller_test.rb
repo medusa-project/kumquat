@@ -9,9 +9,6 @@ class ContentdmControllerTest < ActionDispatch::IntegrationTest
   test 'gone' do
     get('/ui/cdm/bla/bla')
     assert_response :gone
-
-    get('/projects/test')
-    assert_response :gone
   end
 
   test 'v4 reference URLs with valid item' do
