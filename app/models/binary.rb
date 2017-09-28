@@ -96,6 +96,15 @@ class Binary < ApplicationRecord
   @@formats = YAML::load(File.read("#{Rails.root}/lib/formats.yml"))
 
   ##
+  # @return [Integer] Total byte size of all binaries in the system.
+  #
+  def self.total_byte_size
+    sql = 'SELECT SUM(byte_size) AS sum FROM binaries'
+    result = Binary.connection.exec_query(sql, 'SQL', [])
+    result[0]['sum'].to_i
+  end
+
+  ##
   # @return [String, nil]
   #
   def absolute_local_pathname

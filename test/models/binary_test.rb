@@ -28,6 +28,12 @@ class BinaryTest < ActiveSupport::TestCase
     @binary = binaries(:illini_union_dir1_dir1_file1)
   end
 
+  # total_byte_size()
+
+  test 'total_byte_size() returns an accurate figure' do
+    assert Binary.total_byte_size > 100000
+  end
+
   # absolute_local_pathname()
 
   test 'absolute_local_pathname() should return the correct pathname' do

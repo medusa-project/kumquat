@@ -48,6 +48,10 @@
     <td>Total</td>
     <td><%= number_with_delimiter(@num_binaries) %></td>
   </tr>
+  <tr>
+    <td>Total Size</td>
+    <td><%= number_to_human_size(@total_binary_size) %></td>
+  </tr>
   <% @extension_counts.each do |ext| %>
     <tr>
       <td>.<%= ext['extension'].gsub(/[\\{\\}]/, '') %></td>
