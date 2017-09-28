@@ -20,7 +20,7 @@
   <div class="form-group">
     <%= f.label :users %>
 
-    <% User.all.each do |user| %>
+    <% User.all.order(:username).each do |user| %>
       <div class="checkbox">
         <%= label_tag do %>
           <%= check_box_tag :user_ids, user.id,
