@@ -6,7 +6,8 @@
                      link_to_admin: true,
                      show_collections: false,
                      show_add_to_favorites_buttons: false,
-                     show_remove_from_favorites_buttons: false) %>
+                     show_remove_from_favorites_buttons: false,
+                     show_checkboxes: true) %>
 
 <div class="text-center">
   <%= paginate_items(@items.total_length, @limit, @current_page) %>

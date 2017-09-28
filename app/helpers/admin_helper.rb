@@ -1,6 +1,39 @@
 module AdminHelper
 
   ##
+  # @param options [Hash]
+  # @option options [Collection] :collection
+  # @option options [Item] :item
+  # @option options [ItemSet] :item_set
+  # @return [String]
+  #
+  def admin_breadcrumb(options = {})
+    case controller_name
+      when 'collections'
+        case action_name
+          when 'index'
+            return admin_collections_view_breadcrumb
+          when 'show'
+            return admin_collection_view_breadcrumb(options[:collection])
+        end
+      when 'items'
+        case action_name
+          when 'edit'
+            return admin_item_edit_view_breadcrumb(options[:item])
+          when 'edit_all'
+            return admin_items_edit_view_breadcrumb(options[:collection])
+          when 'index'
+            return admin_results_breadcrumb(options[:collection])
+          when 'show'
+            return admin_item_view_breadcrumb(options[:item])
+        end
+      when 'item_sets'
+        return admin_item_set_view_breadcrumb(options[:item_set])
+    end
+    nil
+  end
+
+  ##
   # @param collection [Collection]
   # @return [String]
   #
@@ -210,35 +243,42 @@ module AdminHelper
     end
   end
 
-  ##
-  # @param options [Hash]
-  # @option options [Collection] :collection
-  # @option options [Item] :item
-  # @return [String]
-  #
-  def admin_breadcrumb(options = {})
-    case controller_name
-      when 'collections'
-        case action_name
-          when 'index'
-            return admin_collections_view_breadcrumb
-          when 'show'
-            return admin_collection_view_breadcrumb(options[:collection])
-        end
-      when 'items'
-        case action_name
-          when 'edit'
-            return admin_item_edit_view_breadcrumb(options[:item])
-          when 'edit_all'
-            return admin_items_edit_view_breadcrumb(options[:collection])
-          when 'index'
-            return admin_results_breadcrumb(options[:collection])
-          when 'show'
-            return admin_item_view_breadcrumb(options[:item])
-        end
+  def admin_system_info_as_list(item)
+    html = '<dl class="visible-xs hidden-sm">'
+    admin_system_info_data(item).each do |info|
+      if info[:value].respond_to?(:each)
+        info[:value] = "<ul>#{info[:value].map{ |v| "<li>#{v}</li>" }.join}</ul>"
+      end
+      html += "<dt>#{info[:label]}"
+      if info[:help]
+        html += " <a data-toggle=\"popover\" data-content=\"#{info[:help]}\">"\
+            "<i class=\"fa fa-question-circle\"></i></a>"
+      end
+      html += "</dt>"
+      html += "<dd>#{info[:value]}</dd>"
     end
-    nil
+    html += '</dl>'
+    raw(html)
   end
+
+  def admin_system_info_as_table(item)
+    html = '<table class="table hidden-xs">'
+    admin_system_info_data(item).each do |info|
+      if info[:value].respond_to?(:each)
+        info[:value] = "<ul>#{info[:value].map{ |v| "<li>#{v}</li>" }.join}</ul>"
+      end
+      html += "<tr><td>#{info[:label]}"
+      if info[:help]
+        html += " <a data-toggle=\"popover\" data-content=\"#{info[:help]}\">"\
+            "<i class=\"fa fa-question-circle\"></i></a>"
+      end
+      html += "</td><td>#{info[:value]}</td></tr>"
+    end
+    html += '</table>'
+    raw(html)
+  end
+
+  private
 
   def admin_collection_view_breadcrumb(collection)
     html = "<ol class=\"breadcrumb\">"\
@@ -286,6 +326,17 @@ module AdminHelper
     raw(html)
   end
 
+  def admin_item_set_view_breadcrumb(item_set)
+    html = "<ol class=\"breadcrumb\">"
+    html += "<li>#{link_to 'Home', admin_root_path}</li>"
+    html += "<li>#{link_to 'Collections', admin_collections_path}</li>"
+    html += "<li>#{link_to item_set.collection.title, admin_collection_path(item_set.collection)}</li>"
+    html += "<li>Sets</li>"
+    html += "<li class=\"active\">#{item_set}</li>"
+    html += "</ol>"
+    raw(html)
+  end
+
   def admin_item_view_breadcrumb(item)
     html = "<ol class=\"breadcrumb\">"
     html += "<li>#{link_to 'Home', admin_root_path}</li>"
@@ -317,43 +368,6 @@ module AdminHelper
     "</ol>"
     raw(html)
   end
-
-  def admin_system_info_as_list(item)
-    html = '<dl class="visible-xs hidden-sm">'
-    admin_system_info_data(item).each do |info|
-      if info[:value].respond_to?(:each)
-        info[:value] = "<ul>#{info[:value].map{ |v| "<li>#{v}</li>" }.join}</ul>"
-      end
-      html += "<dt>#{info[:label]}"
-      if info[:help]
-        html += " <a data-toggle=\"popover\" data-content=\"#{info[:help]}\">"\
-            "<i class=\"fa fa-question-circle\"></i></a>"
-      end
-      html += "</dt>"
-      html += "<dd>#{info[:value]}</dd>"
-    end
-    html += '</dl>'
-    raw(html)
-  end
-
-  def admin_system_info_as_table(item)
-    html = '<table class="table hidden-xs">'
-    admin_system_info_data(item).each do |info|
-      if info[:value].respond_to?(:each)
-        info[:value] = "<ul>#{info[:value].map{ |v| "<li>#{v}</li>" }.join}</ul>"
-      end
-      html += "<tr><td>#{info[:label]}"
-      if info[:help]
-        html += " <a data-toggle=\"popover\" data-content=\"#{info[:help]}\">"\
-            "<i class=\"fa fa-question-circle\"></i></a>"
-      end
-      html += "</td><td>#{info[:value]}</td></tr>"
-    end
-    html += '</table>'
-    raw(html)
-  end
-
-  private
 
   ##
   # @return [Array<Hash<Symbol,String>] Array of hashes with :label, :value,

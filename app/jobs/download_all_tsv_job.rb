@@ -23,7 +23,9 @@ class DownloadAllTsvJob < Job
         CustomLogger.instance.info(
             "DownloadAllTsvJob.perform(): generating #{tsv_file} "\
             "(#{(self.task.percent_complete * 100).round(2)}%)")
-        File.open(tsv_file, 'w') { |file| file.write(col.items_as_tsv) }
+        File.open(tsv_file, 'w') do |file|
+          file.write(ItemTsvExporter.new.items_in_collection(col))
+        end
 
         self.task.progress = index / collections.length.to_f
       end

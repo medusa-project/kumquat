@@ -247,11 +247,15 @@ class Binary < ApplicationRecord
     self.media_type and self.media_type.start_with?('audio/')
   end
 
+  def is_document?
+    (self.media_category == MediaCategory::DOCUMENT)
+  end
+
   def is_image?
     self.media_type and self.media_type.start_with?('image/')
   end
 
-  def is_pdf?
+  def is_pdf? # TODO: replace with is_document?()
     self.media_type and self.media_type == 'application/pdf'
   end
 

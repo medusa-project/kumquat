@@ -4,7 +4,7 @@
 
 <%= admin_breadcrumb(collection: @collection) %>
 
-<h1><%= @collection.title %>: Items</h1>
+<h1>Items <small><%= @collection.title %></small></h1>
 
 <div class="clearfix" style="margin-bottom: 1em">
   <div class="btn-group pull-right" role="group">
@@ -36,6 +36,28 @@
           <%= link_to raw('Export As TSV&hellip;'), '',
                       'data-toggle': 'modal', 'data-target': '#pt-export-modal' %>
         </li>
+      </ul>
+    </div>
+
+    <!-- Sets button -->
+    <div class="btn-group">
+      <button type="button" class="btn btn-default dropdown-toggle"
+              data-toggle="dropdown" aria-expanded="false">
+        <i class="fa fa-list"></i> Sets <span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu" role="menu">
+        <li>
+          <%= link_to raw('Add All Results&hellip;'), '',
+                      'data-toggle': 'modal', 'data-target': '#pt-add-all-results-to-set-modal' %>
+        </li>
+        <li>
+          <%= link_to raw('Add Checked Results&hellip;'), '',
+                      'data-toggle': 'modal', 'data-target': '#pt-add-checked-items-to-set-modal' %>
+        </li>
+        <li class="divider"></li>
+        <% @collection.item_sets.order(:name).each do |set| %>
+          <li><%= link_to set, admin_collection_item_set_path(@collection, set) %></li>
+        <% end %>
       </ul>
     </div>
 
@@ -96,7 +118,9 @@
   </div>
 <% end %>
 
+<%= render partial: 'add_all_results_to_set_panel' %>
+<%= render partial: 'add_checked_items_to_set_panel' %>
 <%= render partial: 'import_panel' %>
-<%= render partial: 'import_tsv_panel' %>
+<%= render partial: 'import_tsv_panel', locals: { collection: @collection } %>
 <%= render partial: 'export_panel' %>
 <%= render partial: 'purge_items_panel' %>

@@ -2,3 +2,23 @@
 
 <h1>Dashboard</h1>
 
+<% if @item_sets.any? %>
+  <h2>My Sets</h2>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Collection</th>
+        <th>Set</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @item_sets.each do |set| %>
+        <tr>
+          <td><%= link_to set.collection, admin_collection_path(set.collection) %></td>
+          <td><%= link_to set, admin_collection_item_set_path(set.collection, set) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% end %>

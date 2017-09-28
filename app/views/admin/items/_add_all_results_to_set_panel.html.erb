@@ -1,0 +1,30 @@
+<div class="modal fade" id="pt-add-all-results-to-set-modal" tabindex="-1" role="dialog"
+     aria-labelledby="pt-add-all-results-to-set-modal-label">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <%= form_tag(admin_collection_items_add_query_to_item_set_path(@collection)) do %>
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">Add Results To Set</h4>
+        </div>
+        <div class="modal-body">
+          <div class="alert alert-warning">
+            This may take a while for large numbers of results.
+          </div>
+
+          <%= select_tag(:item_set, options_for_select(current_user.item_sets.where(collection_repository_id: @collection.repository_id).map { |s| [s.name, s.id] }),
+                         class: 'form-control') %>
+
+          <div id="pt-add-all-results-to-set-modal-query">
+            <% # will be populated by index.js.erb %>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Add Results</button>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

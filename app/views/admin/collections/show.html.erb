@@ -1,8 +1,10 @@
 <% provide :title, @collection.title %>
-<% provide :body_id, 'collections_show' %>
+<% provide :body_id, 'admin_collections_show' %>
 <% provide :active_nav, 'entities' %>
 
 <%= admin_breadcrumb(collection: @collection) %>
+
+<%= hidden_field_tag 'pt-collection-id', @collection.repository_id %>
 
 <div class="btn-group pull-right" role="group">
   <!-- Objects button -->
@@ -23,8 +25,7 @@
   <!-- View menu -->
   <button type="button" class="btn btn-default dropdown-toggle"
           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-    <i class="fa fa-eye"></i>
-    View <span class="caret"></span>
+    <i class="fa fa-eye"></i> View <span class="caret"></span>
   </button>
   <ul class="dropdown-menu dropdown-menu-right" role="menu">
     <li>
@@ -53,160 +54,19 @@
 <h1><%= @collection.title %></h1>
 
 <div class="row">
-
-  <div class="col-sm-4">
-    <h3>Parents &amp; Children</h3>
-    <%= admin_collection_hierarchy(@collection) %>
-  </div>
-
-  <div class="col-sm-8">
-    <h3>Technical Info</h3>
-
-    <table class="table">
-      <tr>
-        <td>ID</td>
-        <td><%= @collection.repository_id %></td>
-      </tr>
-      <tr>
-        <td>External ID</td>
-        <td><%= @collection.external_id %></td>
-      </tr>
-      <tr>
-        <td>Medusa Collection Metadata</td>
-        <td>
-          <span class="label <%= @collection.public_in_medusa ? 'label-success' : 'label-danger' %>">
-          <%= @collection.public_in_medusa ? 'Public' : 'Private' %></span>
-        </td>
-      </tr>
-      <tr>
-        <td>DLS</td>
-        <td>
-          <span class="label <%= @collection.published_in_dls ? 'label-success' : 'label-danger' %>">
-          <%= @collection.published_in_dls ? 'Published' : 'Unpublished' %></span>
-          <span class="label <%= @collection.harvestable ? 'label-success' : 'label-danger' %>">
-          <%= @collection.harvestable ? 'Harvestable' : 'Unharvestable' %></span>
-        </td>
-      </tr>
-      <tr>
-        <td>Metadata Profile</td>
-        <td>
-          <% if @collection.metadata_profile %>
-              <%= link_to(@collection.metadata_profile.name,
-                          admin_metadata_profile_path(@collection.metadata_profile)) %>
-          <% else %>
-              <%= link_to("Default (#{MetadataProfile.default.name})",
-                          admin_metadata_profile_path(MetadataProfile.default)) %>
-          <% end %>
-        </td>
-      </tr>
-      <tr>
-        <td>Package Profile</td>
-        <td>
-          <%= @collection.package_profile ?
-                  @collection.package_profile.name : 'None' %>
-        </td>
-      </tr>
-      <tr>
-        <td>Medusa File Group</td>
-        <td>
-          <% if @file_group %>
-              <%= link_to("#{@file_group.title} (#{@file_group.uuid})",
-                          @file_group.url, target: '_blank') %>
-          <% else %>
-              None
-          <% end %>
-        </td>
-      </tr>
-      <tr>
-        <td>Medusa CFS Directory</td>
-        <td>
-          <% if @collection.medusa_cfs_directory %>
-              <%= link_to(@collection.medusa_cfs_directory_id,
-                          @collection.medusa_cfs_directory.url,
-                          target: '_blank') %>
-          <% else %>
-              Same as File Group
-          <% end %>
-        </td>
-      </tr>
-      <tr>
-        <td>Representative Item</td>
-        <td>
-          <% @representative_item = @collection.representative_item %>
-          <% if @representative_item %>
-            <%= link_to(@representative_item.title,
-                      admin_collection_item_path(@collection, @representative_item)) %>
-          <% else %>
-            None
-          <% end %>
-        </td>
-      </tr>
-      <tr>
-        <td>Representative Image</td>
-        <td>
-          <% @representative_image = @collection.representative_image %>
-          <% if @representative_image.present? %>
-            <%= link_to(@representative_image,
-                        MedusaCfsFile.with_uuid(@representative_image).url, target: '_blank') %>
-          <% else %>
-            None
-          <% end %>
-        </td>
-      </tr>
-      <tr>
-        <td>CONTENTdm Alias</td>
-        <td>
-          <% if @collection.contentdm_alias.present? %>
-              <%= @collection.contentdm_alias %>
-          <% else %>
-              None
-          <% end %>
-        </td>
-      </tr>
-      <tr>
-        <td>Rights Statement</td>
-        <td>
-          <%= @collection.rights_statement.present? ?
-                  @collection.rights_statement : 'None' %>
-        </td>
-      </tr>
-      <tr>
-        <td>RightsStatements.org</td>
-        <td>
-          <%= @collection.rightsstatements_org_statement ?
-                  @collection.rightsstatements_org_statement.name : 'None' %>
-        </td>
-      </tr>
-      <tr>
-        <td>Allowed Roles</td>
-        <td>
-          <% if @collection.allowed_roles.any? %>
-            <ul>
-              <% @collection.allowed_roles.each do |role| %>
-                <li><%= link_to role.name, admin_role_path(role) %></li>
-              <% end %>
-            </ul>
-          <% else %>
-            Any
-          <% end %>
-        </td>
-      </tr>
-      <tr>
-        <td>Denied Roles</td>
-        <td>
-          <% if @collection.denied_roles.any? %>
-            <ul>
-              <% @collection.denied_roles.each do |role| %>
-                <li><%= link_to role.name, admin_role_path(role) %></li>
-              <% end %>
-            </ul>
-          <% else %>
-            None
-          <% end %>
-        </td>
-      </tr>
-    </table>
-  </div>
-
+  <% if @collection.children.count > 0 || @collection.parents.count > 0 %>
+    <div class="col-sm-4">
+      <%= admin_collection_hierarchy(@collection) %>
+    </div>
+    <div class="col-sm-8">
+      <%= render partial: 'show' %>
+    </div>
+  <% else %>
+    <div class="col-xs-12">
+      <%= render partial: 'show' %>
+    </div>
+  <% end %>
 </div>
 
+<%= render partial: 'admin/item_sets/add_set_panel' %>
+<%= render partial: 'admin/item_sets/edit_set_panel' %>

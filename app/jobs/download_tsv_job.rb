@@ -24,8 +24,10 @@ class DownloadTsvJob < Job
       CustomLogger.instance.info(
           "DownloadTsvJob.perform(): generating #{tsv_pathname}")
 
+      exporter = ItemTsvExporter.new
       File.open(tsv_pathname, 'w') do |file|
-        file.write(collection.items_as_tsv(only_undescribed: only_undescribed))
+        file.write(exporter.items_in_collection(collection,
+                                                only_undescribed: only_undescribed))
       end
 
       # Create the downloads directory if it doesn't exist.

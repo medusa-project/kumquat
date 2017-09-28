@@ -1153,7 +1153,8 @@ module ItemsHelper
     prev_start = (prev_page - 1) * per_page
     next_start = (next_page - 1) * per_page
     last_start = (num_pages - 1) * per_page
-    allowed_params = params.permit(ItemsController::PERMITTED_PARAMS).except(:start)
+    allowed_params = params.permit(ItemsController::PERMITTED_PARAMS +
+                                       Admin::ItemsController::PERMITTED_PARAMS).except(:start)
 
     case item_variant
       when Item::Variants::FILE

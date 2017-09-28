@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170912195504) do
+ActiveRecord::Schema.define(version: 20170928164630) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -210,13 +210,13 @@ ActiveRecord::Schema.define(version: 20170912195504) do
   create_table "item_sets_items", id: :serial, force: :cascade do |t|
     t.integer "item_set_id"
     t.integer "item_id"
+    t.index ["item_set_id", "item_id"], name: "index_item_sets_items_on_item_set_id_and_item_id", unique: true
   end
 
   create_table "item_sets_users", id: :serial, force: :cascade do |t|
     t.integer "item_set_id"
     t.integer "user_id"
-    t.index ["item_set_id"], name: "index_item_sets_users_on_item_set_id"
-    t.index ["user_id"], name: "index_item_sets_users_on_user_id"
+    t.index ["item_set_id", "user_id"], name: "index_item_sets_users_on_item_set_id_and_user_id", unique: true
   end
 
   create_table "items", id: :serial, force: :cascade do |t|

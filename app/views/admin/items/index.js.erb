@@ -4,4 +4,11 @@ $('#pt-search-status').html('<%= j(search_status(@items, @start, @num_results_sh
 $('#pt-edit-metadata-link').attr('href',
     '<%= j(raw(admin_collection_edit_all_items_path(@collection, q: params[:q], fq: params[:fq], df: params[:df]))) %>');
 
+var inputs = '<input type="hidden" name="q" value="<%= j(params[:q]) %>">' +
+    '<input type="hidden" name="df" value="<%= j(params[:df]) %>">';
+<% params[:fq]&.each do |fq| %>
+  inputs += '<input type="hidden" name="fq[]" value="<%= j(fq) %>">';
+<% end %>
+$('#pt-add-all-results-to-set-modal-query').html(inputs);
+
 PearTree.view.attachEventListeners();

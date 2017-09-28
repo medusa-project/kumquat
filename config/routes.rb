@@ -130,6 +130,11 @@ Rails.application.routes.draw do
     match '/collections/sync', to: 'collections#sync', via: :patch,
           as: 'collections_sync'
     resources :collections, except: [:new, :create, :delete] do
+      resources :item_sets, except: :index do
+        match '/all-items', to: 'item_sets#remove_all_items', via: :delete
+        match '/items', to: 'item_sets#items', via: :get
+        match '/items', to: 'item_sets#remove_items', via: :delete
+      end
       match '/items/edit', to: 'items#edit_all', via: :get, as: 'edit_all_items'
       match '/items', to: 'items#destroy_all', via: :delete,
             as: 'destroy_all_items'
@@ -138,6 +143,10 @@ Rails.application.routes.draw do
         match '/purge-cached-images', to: 'items#purge_cached_images',
               via: :post
       end
+      match '/items/add-items-to-item-set', to: 'items#add_items_to_item_set',
+            via: :post
+      match '/items/add-query-to-item-set', to: 'items#add_query_to_item_set',
+            via: :post
       match '/items/import', to: 'items#import', via: :post
       match '/items/batch-change-metadata', to: 'items#batch_change_metadata',
             via: :post

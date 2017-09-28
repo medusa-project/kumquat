@@ -212,7 +212,7 @@ module ApplicationHelper
         icon = 'fa-volume-up'
       elsif entity.effective_viewer_binary&.is_image?
         icon = 'fa-picture-o'
-      elsif entity.effective_viewer_binary&.is_pdf?
+      elsif entity.effective_viewer_binary&.is_document?
         icon = 'fa-file-pdf-o'
       elsif entity.effective_viewer_binary&.is_text?
         icon = 'fa-file-text-o'
@@ -241,6 +241,8 @@ module ApplicationHelper
       icon = 'fa-folder-open-o'
     elsif entity == Agent or entity.kind_of?(Agent)
       icon = 'fa-user-circle'
+    elsif entity == User or entity.kind_of?(User)
+      icon = 'fa-user'
     end
     raw("<i title=\"#{type_of(entity)}\" class=\"fa #{icon} pt-icon\"></i>")
   end
@@ -410,12 +412,14 @@ module ApplicationHelper
     if entity == Item
       type = 'Item'
     elsif entity.kind_of?(Item)
-      if entity.effective_viewer_binary&.is_audio?
+      if entity.effective_viewer_binary&.is_3d?
+        type = '3D'
+      elsif entity.effective_viewer_binary&.is_audio?
         type = 'Audio'
       elsif entity.effective_viewer_binary&.is_image?
         type = 'Image'
-      elsif entity.effective_viewer_binary&.is_pdf?
-        type = 'PDF'
+      elsif entity.effective_viewer_binary&.is_document?
+        type = 'Document'
       elsif entity.effective_viewer_binary&.is_text?
         type = 'Text'
       elsif entity.effective_viewer_binary&.is_video?
@@ -427,10 +431,8 @@ module ApplicationHelper
       elsif entity.pages.count > 1
         type = 'Multi-Page Item'
       end
-    elsif entity.kind_of?(Collection) or entity == Collection
-      type = 'Collection'
-    elsif entity.kind_of?(Agent) or entity == Agent
-      type = 'Agent'
+    else
+      type = entity.kind_of?(Class) ? entity.name : entity.class.name
     end
     type
   end
