@@ -303,10 +303,10 @@ class Collection < ApplicationRecord
   end
 
   ##
-  # @return [ActiveRecord::Relation<Item>] All items in the collection.
+  # @return [Enumerable<Set>]
   #
-  def items
-    Item.where(collection_repository_id: self.repository_id)
+  def item_sets
+    ItemSet.where(collection_repository_id: self.repository_id)
   end
 
   ##
@@ -437,6 +437,10 @@ class Collection < ApplicationRecord
       tsv += row.values.join("\t") + Item::TSV_LINE_BREAK
     end
     tsv
+  # @return [ActiveRecord::Relation<Item>] All items in the collection.
+  #
+  def items
+    Item.where(collection_repository_id: self.repository_id)
   end
 
   ##

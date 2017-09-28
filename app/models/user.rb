@@ -1,5 +1,6 @@
 class User < ApplicationRecord
 
+  has_and_belongs_to_many :item_sets
   has_and_belongs_to_many :roles
 
   validates :username, presence: true, length: { maximum: 50 },

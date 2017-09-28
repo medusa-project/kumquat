@@ -114,6 +114,7 @@ class Item < ApplicationRecord
     # still effectively unpublished.
     EFFECTIVELY_PUBLISHED = 'effectively_published_bi'
     ID = 'id'
+    ITEM_SETS = 'item_set_sim'
     LAST_MODIFIED = 'last_modified_dti'
     LAT_LONG = 'lat_long_loc'
     LAST_INDEXED = 'last_indexed_dti'
@@ -187,6 +188,7 @@ class Item < ApplicationRecord
                           association_foreign_key: :effective_allowed_role_id
   has_and_belongs_to_many :effective_denied_roles, class_name: 'Role',
                           association_foreign_key: :effective_denied_role_id
+  has_and_belongs_to_many :item_sets
 
   has_many :binaries, inverse_of: :item, dependent: :destroy
   has_many :elements, class_name: 'ItemElement', inverse_of: :item,
@@ -933,6 +935,7 @@ class Item < ApplicationRecord
           "#{self.subpage_number.present? ? self.subpage_number : sort_last_token}-"\
           "#{self.title.present? ? self.title : sort_last_token}"
     end
+    doc[SolrFields::ITEM_SETS] = self.item_sets.map(&:id)
     doc[SolrFields::LAST_INDEXED] = Time.now.utc.iso8601
     if self.latitude and self.longitude
       doc[SolrFields::LAT_LONG] = "#{self.latitude},#{self.longitude}"
