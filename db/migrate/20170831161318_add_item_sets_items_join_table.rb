@@ -1,4 +1,4 @@
-class AddItemSetsItemsJoinTable < ActiveRecord::Migration
+class AddItemSetsItemsJoinTable < ActiveRecord::Migration[4.2]
   def change
     create_table :item_sets_items do |t|
       t.integer :item_set_id
