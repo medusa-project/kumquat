@@ -1,4 +1,4 @@
-class CreateItemSets < ActiveRecord::Migration
+class CreateItemSets < ActiveRecord::Migration[4.2]
   def change
     create_table :item_sets do |t|
       t.string :name, null: false
