@@ -33,7 +33,7 @@ class DownloadAllTsvJob < Job
 
       if Dir.exists?(DESTINATION_DIR)
         # Create the zip file within the downloads directory.
-        zip_filename = "tsv-#{download.key}.zip"
+        zip_filename = "tsv-#{Time.now.to_formatted_s(:number)}.zip"
         zip_pathname = File.join(DESTINATION_DIR, zip_filename)
 
         CustomLogger.instance.info("DownloadAllTsvJob.perform(): "\
