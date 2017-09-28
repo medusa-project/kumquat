@@ -2,9 +2,9 @@ module Admin
 
   class ItemsController < ControlPanelController
 
-    PERMITTED_PARAMS = [:id, :contentdm_alias, :contentdm_pointer,
-                        :embed_tag, :latitude, :longitude,
-                        :page_number, :published,
+    PERMITTED_PARAMS = [:id, :contentdm_alias, :contentdm_pointer, :df,
+                        :embed_tag, :'fq[]', :item_set, :latitude, :longitude,
+                        :page_number, :published, :q,
                         :representative_item_id, :subpage_number,
                         :variant, allowed_role_ids: [],
                         denied_role_ids: []]
@@ -15,6 +15,62 @@ module Admin
                                              :migrate_metadata,
                                              :replace_metadata, :sync, :update]
     before_action :set_permitted_params, only: [:index, :show]
+
+    ##
+    # Adds the items with the given IDs to the given item set.
+    #
+    # Responds to POST /admin/collections/:collection_id/items/add-items-to-item-set
+    #
+    def add_items_to_item_set
+      item_ids = params[:items]
+      if item_ids.any?
+        item_set = ItemSet.find(params[:item_set])
+        ActiveRecord::Base.transaction do
+          item_ids.each do |item_id|
+            item_set.items << Item.find_by_repository_id(item_id)
+          end
+          item_set.save!
+        end
+        Solr.instance.commit
+
+        flash['success'] = "Added #{item_ids.length} items to #{item_set}."
+      end
+
+      redirect_back fallback_location: admin_collection_items_path(params[:collection_id])
+    end
+
+    ##
+    # Adds the results from the given query to the given item set.
+    #
+    # Query syntax is the same as for item results view.
+    #
+    # Responds to POST /admin/collections/:collection_id/items/add-query-to-item-set
+    #
+    def add_query_to_item_set
+      collection = Collection.find_by_repository_id(params[:collection_id])
+      raise ActiveRecord::RecordNotFound unless collection
+
+      item_set = ItemSet.find(params[:item_set])
+      raise ActiveRecord::RecordNotFound unless item_set
+
+      finder = item_finder_for(collection, 0, 99999)
+      results = finder.to_a
+      count = finder.count
+
+      begin
+        ActiveRecord::Base.transaction do
+          item_set.items = results
+          item_set.save!
+        end
+        Solr.instance.commit
+      rescue => e
+        flash['error'] = "#{e}"
+      else
+        flash['success'] = "Added #{count} items to #{item_set}."
+      ensure
+        redirect_back fallback_location: admin_collection_items_path(collection)
+      end
+    end
 
     ##
     # Batch-changes metadata elements.
@@ -77,29 +133,42 @@ module Admin
       raise ActiveRecord::RecordNotFound unless @collection
 
       @metadata_profile = @collection.effective_metadata_profile
+      @item_set = nil
 
       @start = params[:start].to_i
       @limit = 20
-      finder = ItemFinder.new.
-          collection_id(@collection.repository_id).
-          query(params[:q].present? ? "#{params[:df]}:#{params[:q]}" : nil).
-          include_children(true).
-          include_unpublished(true).
-          only_described(false).
-          filter_queries(params[:fq]).
-          default_field(params[:df]).
-          start(@start).
-          limit(@limit)
-      if @collection.package_profile == PackageProfile::FREE_FORM_PROFILE
-        finder = finder.
-            exclude_variants([Item::Variants::DIRECTORY]).
-            sort(Item::SolrFields::STRUCTURAL_SORT => :asc)
-      else
-        finder = finder.sort(Item::SolrFields::STRUCTURAL_SORT => :asc)
-      end
 
-      @items = finder.to_a
-      @current_page = finder.page
+      # If there is an ItemSet ID in the URL, we want to edit all of the items
+      # in that set. Otherwise, we want to edit items from the collection item
+      # results.
+      if params[:item_set]
+        @item_set = ItemSet.find(params[:item_set])
+        @items = @item_set.items_from_solr.
+            order(Item::SolrFields::STRUCTURAL_SORT => :asc).
+            start(@start).limit(@limit)
+        @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
+      else
+        finder = ItemFinder.new.
+            collection_id(@collection.repository_id).
+            query(params[:q].present? ? "#{params[:df]}:#{params[:q]}" : nil).
+            include_children(true).
+            include_unpublished(true).
+            only_described(false).
+            filter_queries(params[:fq]).
+            default_field(params[:df]).
+            start(@start).
+            limit(@limit)
+        if @collection.package_profile == PackageProfile::FREE_FORM_PROFILE
+          finder = finder.
+              exclude_variants([Item::Variants::DIRECTORY]).
+              sort(Item::SolrFields::STRUCTURAL_SORT => :asc)
+        else
+          finder = finder.sort(Item::SolrFields::STRUCTURAL_SORT => :asc)
+        end
+
+        @items = finder.to_a
+        @current_page = finder.page
+      end
 
       respond_to do |format|
         format.html
@@ -117,18 +186,7 @@ module Admin
       @start = params[:start] ? params[:start].to_i : 0
       @limit = Option::integer(Option::Keys::RESULTS_PER_PAGE)
 
-      finder = ItemFinder.new.
-          collection_id(@collection.repository_id).
-          query(params[:q].present? ? "#{params[:df]}:#{params[:q]}" : nil).
-          include_children(false).
-          include_unpublished(true).
-          only_described(false).
-          exclude_variants(Item::Variants::non_filesystem_variants).
-          filter_queries(params[:fq]).
-          default_field(params[:df]).
-          sort(params[:sort]).
-          start(@start).
-          limit(@limit)
+      finder = item_finder_for(@collection, @start, @limit)
       @items = finder.to_a
 
       @current_page = finder.page
@@ -186,11 +244,11 @@ module Admin
           rescue => e
             tempfile.unlink
             handle_error(e)
-            redirect_to admin_collection_items_url(col)
+            redirect_back fallback_location: admin_collection_items_url(col)
           else
-            flash['success'] = 'Importing items in the background. This '\
+            flash['success'] = 'Updating items in the background. This '\
             'may take a while.'
-            redirect_to admin_collection_items_url(col)
+            redirect_back fallback_location: admin_collection_items_url(col)
           end
         end
       end
@@ -391,6 +449,21 @@ module Admin
     end
 
     private
+
+    def item_finder_for(collection, start, limit)
+      ItemFinder.new.
+          collection_id(collection.repository_id).
+          query(params[:q].present? ? "#{params[:df]}:#{params[:q]}" : nil).
+          include_children(false).
+          include_unpublished(true).
+          only_described(false).
+          exclude_variants(Item::Variants::non_filesystem_variants).
+          filter_queries(params[:fq]).
+          default_field(params[:df]).
+          sort(params[:sort]).
+          start(start).
+          limit(limit)
+    end
 
     def modify_items_rbac
       redirect_to(admin_root_url) unless

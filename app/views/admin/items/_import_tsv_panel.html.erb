@@ -1,8 +1,14 @@
+<%
+# Requires the following locals:
+#
+# collection [Collection]
+%>
+
 <div class="modal fade" id="pt-import-tsv-modal" tabindex="-1" role="dialog"
      aria-labelledby="pt-import-tsv-modal-label">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
-      <%= form_tag(admin_collection_items_import_path(@collection, format: :tsv),
+      <%= form_tag(admin_collection_items_import_path(collection, format: :tsv),
                    { multipart: true }) do %>
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -13,6 +19,13 @@
           <div class="alert alert-warning">To avoid out-of-memory errors, please
             divide uploaded files into segments of no more than 4,000 rows
             each, and import each one individually.</div>
+
+          <% if controller_name == 'item_sets' %>
+            <div class="alert alert-info">All items in the TSV will be updated,
+              whether or not they are present in this set. Any items not present
+              in this set will not be added to it..</div>
+          <% end %>
+
           <div class="form-group">
             <%= file_field_tag('tsv') %>
           </div>

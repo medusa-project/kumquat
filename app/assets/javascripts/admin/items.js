@@ -245,6 +245,14 @@ var PTAdminItemsView = function() {
         new PearTree.FilterField();
         PearTree.initFacets();
 
+        self.attachEventListeners();
+    };
+
+    this.attachEventListeners = function() {
+        $('.pagination a').on('click', function() {
+            $('form.pt-filter')[0].scrollIntoView({behavior: "smooth"});
+        });
+
         $('#pt-export-modal button[type=submit]').on('click', function() {
             $('#pt-export-modal').modal('hide');
         });
@@ -260,12 +268,19 @@ var PTAdminItemsView = function() {
                 !$('input[value="create_only"]').prop('checked'));
         });
 
-        self.attachEventListeners();
-    };
+        // When the add-checked-items-to-set modal is shown, copy the selected
+        // item IDs in the results into hidden inputs in the modal form.
+        $('#pt-add-checked-items-to-set-modal').on('shown.bs.modal', function() {
+            var modal_body = $(this).find('.modal-body');
+            modal_body.find('[name="items[]"]').remove();
 
-    this.attachEventListeners = function() {
-        $('.pagination a').on('click', function() {
-            $('form.pt-filter')[0].scrollIntoView({behavior: "smooth"});
+            var checked_items = [];
+            $('[name="pt-selected-items[]"]:checked').each(function() {
+                checked_items.push($(this).val());
+            });
+            for (var i = 0; i < checked_items.length; i++) {
+                modal_body.append('<input type="hidden" name="items[]" value="' + checked_items[i] + '">');
+            }
         });
     };
 
