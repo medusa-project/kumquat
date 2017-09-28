@@ -38,8 +38,8 @@
 # 1) Add a column for it on Item
 # 2) Add it to Item::SolrFields (if it needs to be)
 # 3) Add serialization code to as_json and to_solr
-# 4) If it needs to appear in TSV, add it to Item.tsv_header,
-#    Collection.items_as_tsv, and/or Item.update_from_tsv
+# 4) If it needs to appear in TSV, add it to Item.tsv_header, the various
+#    ItemTsvExporter methods, and/or Item.update_from_tsv
 # 5) Add deserialization code to Item.update_from_json and update_from_tsv
 # 6) Update fixtures and tests
 # 7) Reindex (if necessary)

@@ -150,9 +150,10 @@ module Admin
             redirect_to download_url(download)
           else
             headers['Content-Disposition'] = 'attachment; filename="items.tsv"'
-            headers['Content-Disposition'] = 'text/tab-separated-values'
-            render plain: @collection.items_as_tsv(only_undescribed:
-                                                       only_undescribed)
+            headers['Content-Type'] = 'text/tab-separated-values'
+            exporter = ItemTsvExporter.new
+            render plain: exporter.items_in_collection(@collection,
+                                                       only_undescribed: only_undescribed)
           end
         end
       end
