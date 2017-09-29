@@ -15,6 +15,7 @@ module Admin
 
       # Binaries section
       @num_binaries = Binary.count
+      @total_binary_size = Binary.total_byte_size
 
       sql = "SELECT regexp_matches(lower(repository_relative_pathname),'\\.(\\w+)$') AS extension,
         COUNT(id) AS count

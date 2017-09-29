@@ -3,7 +3,7 @@ module ItemsHelper
   DEFAULT_THUMBNAIL_SIZE = 256
   PAGE_TITLE_LENGTH = 35
   VIEWER_HEIGHT = '600px'
-  VIEWER_WIDTH = '96%'
+  VIEWER_WIDTH = '95%'
 
   ##
   # @param binary [Binary]
