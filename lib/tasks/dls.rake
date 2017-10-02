@@ -192,10 +192,19 @@ namespace :dls do
 
   namespace :images do
 
-    desc 'Purge an item\'s images from the image server cache'
-    task :purge, [:uuid] => :environment do |task, args|
+    desc 'Purge all images associated with an item from the image server cache'
+    task :purge_item, [:uuid] => :environment do |task, args|
       item = Item.find_by_repository_id(args[:uuid])
       item.purge_cached_images
+    end
+
+    desc 'Purge all images associated with any item in a collection from the image server cache'
+    task :purge_collection, [:uuid] => :environment do |task, args|
+      Item.uncached do
+        Item.where(collection_repository_id: args[:uuid]).find_each do |item|
+          item.purge_cached_images
+        end
+      end
     end
 
   end
