@@ -248,17 +248,11 @@ module ItemsHelper
   #
   def item_meta_tags(item)
     html = sprintf(
-        '<meta property="article:author" content="%s" />
-        <meta property="article:publisher" content="%s" />
-        <meta property="og:title" content="%s" />
+        '<meta property="og:title" content="%s" />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="%s" />
         <meta property="og:description" content="%s" />
         <meta property="og:site_name" content="%s" />',
-                   item.element(:creator) ||
-                       Option::string(Option::Keys::WEBSITE_NAME),
-                   item.element(:publisher) ||
-                       Option::string(Option::Keys::WEBSITE_NAME),
                    item.title,
                    item_url(item),
                    item.description,

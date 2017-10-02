@@ -40,12 +40,12 @@ class SearchController < WebsiteController
     end
 
     respond_to do |format|
-      format.atom do
-        @updated = @entities.any? ?
-            @entities.map(&:updated_at).sort{ |d| d <=> d }.last : Time.now
-      end
       format.html do
         fresh_when(etag: @entities) if Rails.env.production?
+      end
+      format.atom do
+        @updated = @entities.any? ?
+                       @entities.map(&:updated_at).sort{ |d| d <=> d }.last : Time.now
       end
       format.js
     end

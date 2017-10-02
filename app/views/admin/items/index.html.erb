@@ -67,13 +67,26 @@
       <i class="fa fa-globe"></i> Public View
     <% end %>
 
-    <!-- Purge Items button -->
-    <% if current_user.can?(Permission::Permissions::PURGE_ITEMS_FROM_COLLECTION) %>
-      <button type="button" class="btn btn-danger" data-toggle="modal"
-              data-target="#pt-purge-items-modal">
-        <i class="fa fa-trash"></i> Purge Items
+    <!-- Purge button -->
+    <div class="btn-group">
+      <button type="button" class="btn btn-danger dropdown-toggle"
+              data-toggle="dropdown" aria-expanded="false">
+        <i class="fa fa-trash"></i> Purge <span class="caret"></span>
       </button>
-    <% end %>
+      <ul class="dropdown-menu dropdown-menu-right" role="menu">
+        <% if current_user.can?(Permission::Permissions::PURGE_ITEMS_FROM_COLLECTION) %>
+          <li>
+            <%= link_to raw('Items From Collection'), '',
+                        'data-toggle': 'modal', 'data-target': '#pt-purge-items-modal' %>
+          </li>
+        <% end %>
+          <li>
+            <%= link_to 'Cached Images From Image Server',
+                        admin_collection_purge_cached_images_path(@collection),
+                        method: 'post' %>
+          </li>
+      </ul>
+    </div>
   </div>
 </div>
 

@@ -221,14 +221,14 @@ class ItemsController < WebsiteController
   def index
     setup_index_view
     respond_to do |format|
-      format.atom do
-        @updated = @items.any? ?
-            @items.map(&:updated_at).sort{ |d| d <=> d }.last : Time.now
-      end
       format.html do
         fresh_when(etag: @items) if Rails.env.production?
         session[:first_result_id] = @items.first&.repository_id
         session[:last_result_id] = @items.last&.repository_id
+      end
+      format.atom do
+        @updated = @items.any? ?
+            @items.map(&:updated_at).sort{ |d| d <=> d }.last : Time.now
       end
       format.js
       format.json do
@@ -269,7 +269,6 @@ class ItemsController < WebsiteController
   def show
     fresh_when(etag: @item) if Rails.env.production?
     respond_to do |format|
-      format.atom
       format.html do
         set_files_ivar
 
@@ -344,6 +343,7 @@ class ItemsController < WebsiteController
           end
         end
       end
+      format.atom
       format.json do
         render json: @item.decorate(context: { web: true })
       end
@@ -402,15 +402,6 @@ class ItemsController < WebsiteController
     setup_index_view
 
     respond_to do |format|
-      format.atom do
-        redirect_to collection_items_path(format: :atom)
-      end
-      format.json do
-        redirect_to collection_items_path(format: :json)
-      end
-      format.zip do
-        redirect_to collection_items_path(format: :zip, params: params)
-      end
       format.html do
         if @collection.package_profile == PackageProfile::FREE_FORM_PROFILE
           fresh_when(etag: @items) if Rails.env.production?
@@ -422,6 +413,15 @@ class ItemsController < WebsiteController
         else
           redirect_to collection_items_path
         end
+      end
+      format.atom do
+        redirect_to collection_items_path(format: :atom)
+      end
+      format.json do
+        redirect_to collection_items_path(format: :json)
+      end
+      format.zip do
+        redirect_to collection_items_path(format: :zip, params: params)
       end
     end
   end

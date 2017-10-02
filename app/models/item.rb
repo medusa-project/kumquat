@@ -811,13 +811,6 @@ class Item < ApplicationRecord
   end
 
   ##
-  # @return [void]
-  #
-  def purge_cached_images
-    ImageServer.instance.purge_item_from_cache(self)
-  end
-
-  ##
   # @return [String]
   #
   def representative_filename
