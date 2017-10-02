@@ -224,7 +224,7 @@ module Admin
       item = Item.find_by_repository_id(params[:item_id])
       raise ActiveRecord::RecordNotFound unless item
       begin
-        item.purge_cached_images
+        ImageServer.instance.purge_item_images_from_cache(item)
       rescue => e
         handle_error(e)
       else

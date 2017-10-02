@@ -49,6 +49,22 @@ module Admin
     end
 
     ##
+    # Responds to POST /admin/collections/:collection_id/purge-cached-images
+    #
+    def purge_cached_images
+      collection = Collection.find_by_repository_id(params[:collection_id])
+      raise ActiveRecord::RecordNotFound unless collection
+
+      PurgeCollectionItemsFromImageServerCacheJob.
+          perform_later(collection.repository_id)
+
+      flash['success'] = 'Purging images in the background. (This may take a
+          minute.) When complete, you may need to clear your browser cache to
+          see any changes take effect.'
+      redirect_back fallback_location: admin_collection_path(collection)
+    end
+
+    ##
     # Responds to GET /admin/collections/:id
     #
     def show

@@ -413,7 +413,7 @@ class MedusaMixedMediaIngester < MedusaAbstractIngester
     # cached versions of the old ones. Here, we will purge them.
     collection.items.each do |item|
       begin
-        ImageServer.instance.purge_item_from_cache(item)
+        ImageServer.instance.purge_item_images_from_cache(item)
       rescue => e
         @@logger.error("MedusaMixedMediaIngester.recreate_binaries(): "\
             "failed to purge item from image server cache: #{e}")
