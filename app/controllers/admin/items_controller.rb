@@ -59,7 +59,9 @@ module Admin
 
       begin
         ActiveRecord::Base.transaction do
-          item_set.items = results
+          results.each do |item|
+            item_set.items << item
+          end
           item_set.save!
         end
         Solr.instance.commit
