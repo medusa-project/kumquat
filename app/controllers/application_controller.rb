@@ -6,9 +6,10 @@ class ApplicationController < ActionController::Base
   include SessionsHelper
 
   before_action :setup
-  after_action :flash_in_response_headers
+  after_action :flash_in_response_headers, :log_execution_time
 
   def setup
+    @start_time = Time.now
   end
 
   def admin_user
@@ -92,6 +93,11 @@ class ApplicationController < ActionController::Base
           flash['success'].blank?
       flash.clear unless @keep_flash
     end
+  end
+
+  def log_execution_time
+    CustomLogger.instance.info("#{controller_name.capitalize}Controller.#{action_name}(): "\
+        "executed in #{(Time.now - @start_time) * 1000}ms")
   end
 
 end
