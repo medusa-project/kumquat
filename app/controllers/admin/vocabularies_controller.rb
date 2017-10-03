@@ -31,18 +31,19 @@ module Admin
     # Responds to POST /vocabularies/:id/delete-vocabulary-terms
     #
     def delete_vocabulary_terms
+      vocab = Vocabulary.find(params[:vocabulary_id])
       if params[:vocabulary_terms]&.respond_to?(:each)
         count = params[:vocabulary_terms].length
         if count > 0
           ActiveRecord::Base.transaction do
-            VocabularyTerm.destroy_all(id: params[:vocabulary_terms])
+            vocab.vocabulary_terms.where(id: params[:vocabulary_terms]).destroy_all
           end
           flash['success'] = "Deleted #{count} vocabulary term(s)."
         end
       else
         flash['error'] = 'No vocabulary terms to delete (none checked).'
       end
-      redirect_back fallback_location: admin_vocabulary_path(params[:id])
+      redirect_back fallback_location: admin_vocabulary_path(vocab)
     end
 
     def destroy
