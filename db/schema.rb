@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170928164630) do
+ActiveRecord::Schema.define(version: 20171003190136) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -131,6 +131,7 @@ ActiveRecord::Schema.define(version: 20170928164630) do
     t.index ["public_in_medusa"], name: "index_collections_on_public_in_medusa"
     t.index ["published_in_dls"], name: "index_collections_on_published"
     t.index ["repository_id"], name: "index_collections_on_identifier", unique: true
+    t.index ["repository_id"], name: "index_collections_on_repository_id", unique: true
     t.index ["representative_item_id"], name: "index_collections_on_representative_item_id"
   end
 
@@ -283,7 +284,7 @@ ActiveRecord::Schema.define(version: 20170928164630) do
     t.index ["uuid"], name: "index_medusa_file_groups_on_uuid"
   end
 
-  create_table "medusa_repositories", id: :serial, force: :cascade do |t|
+  create_table "medusa_repositories", id: :integer, default: -> { "nextval('medusa_repository_names_id_seq'::regclass)" }, force: :cascade do |t|
     t.integer "medusa_database_id"
     t.string "contact_email"
     t.string "email"
