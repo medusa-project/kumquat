@@ -15,3 +15,7 @@ metadata_profile_2:
 sanborn:
   name: Sanborn Maps
   default: false
+
+unused:
+  name: Unused Profile
+  default: false

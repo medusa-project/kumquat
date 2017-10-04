@@ -4,18 +4,10 @@ admins:
   key: admins
   name: Administrators
   required: true
+  permissions:
+    - can_access_control_panel
 
 users:
   key: users
   name: Users
-  required: false
-
-skiers:
-  key: skiers
-  name: Skiers
-  required: false
-
-cellists:
-  key: cellists
-  name: Cellists
   required: false
