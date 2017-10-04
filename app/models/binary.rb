@@ -357,10 +357,10 @@ class Binary < ApplicationRecord
     if is_audio? or is_video?
       # Redirect ffprobe stderr output to stdout.
       output = `ffprobe "#{self.absolute_local_pathname.gsub('"', '\\"')}" 2>&1`
-      result = output.match(/[0-9][0-9]:[0-5][0-9]:[0-5][0-9]/)
+      result = output.match(/Duration: [0-9][0-9]:[0-5][0-9]:[0-5][0-9]/)
       if result and result.length > 0
         begin
-          self.duration = TimeUtil.hms_to_seconds(result[0])
+          self.duration = TimeUtil.hms_to_seconds(result[0].gsub('Duration: ', ''))
         rescue ArgumentError => e
           CustomLogger.instance.warn("Binary.read_duration(): #{e}")
         end
