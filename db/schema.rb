@@ -284,7 +284,7 @@ ActiveRecord::Schema.define(version: 20171003190136) do
     t.index ["uuid"], name: "index_medusa_file_groups_on_uuid"
   end
 
-  create_table "medusa_repositories", id: :integer, default: -> { "nextval('medusa_repository_names_id_seq'::regclass)" }, force: :cascade do |t|
+  create_table "medusa_repositories", id: :serial, force: :cascade do |t|
     t.integer "medusa_database_id"
     t.string "contact_email"
     t.string "email"
