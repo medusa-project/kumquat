@@ -109,11 +109,11 @@
         </div>
 
         <select class="form-control" name="df">
-          <option value="<%= Item::SolrFields::SEARCH_ALL %>">Any Field</option>
           <optgroup label="System Fields">
             <option value="<%= Item::SolrFields::ID %>">ID</option>
           </optgroup>
           <optgroup label="Metadata Profile Elements">
+            <option value="<%= Item::SolrFields::SEARCH_ALL %>" selected>Any Element</option>
             <% @metadata_profile.elements.each do |e| %>
               <option value="<%= e.solr_multi_valued_field %>"><%= e.label %></option>
             <% end %>
