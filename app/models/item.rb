@@ -919,11 +919,11 @@ class Item < ApplicationRecord
     else
       # parents: (repository ID)-(variant)-(page)-(subpage)-(title)
       # children: (parent ID)-(variant)-(page)-(subpage)-(title)
-      sort_first_token = '000000'
-      sort_last_token = 'ZZZZZZ'
+      sort_first_token = 'aaa'
+      sort_last_token = 'zzz'
       doc[SolrFields::STRUCTURAL_SORT] =
           "#{self.parent_repository_id.present? ? self.parent_repository_id : self.repository_id}-"\
-          "#{self.variant.present? ? sort_key_for_variant(self.variant) : sort_first_token}-"\
+          "#{self.variant.present? ? sort_key_for_variant() : sort_first_token}-"\
           "#{self.page_number.present? ? self.page_number : sort_last_token}-"\
           "#{self.subpage_number.present? ? self.subpage_number : sort_last_token}-"\
           "#{self.title.present? ? self.title : sort_last_token}"
@@ -1344,37 +1344,36 @@ class Item < ApplicationRecord
     end
   end
 
-  def sort_key_for_variant(variant)
-    # N.B. The key should start above 000, as that is the absolute-first token.
-    case variant
+  def sort_key_for_variant
+    case self.variant
       when Variants::FRONT_COVER
-        return '010'
+        return 'caa'
       when Variants::INSIDE_FRONT_COVER
-        return '020'
+        return 'daa'
       when Variants::TITLE
-        return '030'
+        return 'eaa'
       when Variants::FRONT_MATTER
-        return '040'
+        return 'faa'
       when Variants::TABLE_OF_CONTENTS
-        return '050'
+        return 'gaa'
       when Variants::KEY
-        return '060'
+        return 'haa'
       when Variants::PAGE
-        return '070'
+        return 'iaa'
       when Variants::INDEX
-        return '080'
+        return 'jaa'
       when Variants::INSIDE_BACK_COVER
-        return '090'
+        return 'kaa'
       when Variants::BACK_COVER
-        return '100'
+        return 'laa'
       when Variants::SUPPLEMENT
-        return '110'
+        return 'maa'
       when Variants::COMPOSITE
-        return '120'
+        return 'naa'
       when Variants::THREE_D_MODEL
-        return '130'
+        return 'oaa'
       else
-        return '005'
+        return 'baa' # N.B.: "aaa" is the absolute first-sort token.
     end
   end
 
