@@ -156,16 +156,12 @@ module Admin
       else
         begin
           @profile.update!(sanitized_params)
-        rescue ActiveRecord::RecordInvalid
-          response.headers['X-PearTree-Result'] = 'error'
-          render 'show'
         rescue => e
-          response.headers['X-PearTree-Result'] = 'error'
           handle_error(e)
-          render 'show'
         else
           response.headers['X-PearTree-Result'] = 'success'
           flash['success'] = "Metadata profile \"#{@profile.name}\" updated."
+        ensure
           redirect_back fallback_location: admin_metadata_profile_path(@profile)
         end
       end

@@ -36,6 +36,7 @@ class ApplicationController < ActionController::Base
   #
   def handle_error(e)
     CustomLogger.instance.warn(e)
+    response.headers['X-PearTree-Result'] = 'error'
     flash['error'] = "#{e}"
   end
 
