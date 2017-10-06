@@ -21,7 +21,6 @@ module Admin
         render partial: 'shared/validation_messages',
                locals: { entity: @agent }
       rescue => e
-        response.headers['X-PearTree-Result'] = 'error'
         handle_error(e)
         keep_flash
         render 'create'

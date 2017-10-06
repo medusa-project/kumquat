@@ -15,7 +15,6 @@ module Admin
         render partial: 'shared/validation_messages',
                locals: { entity: @vocabulary }
       rescue => e
-        response.headers['X-PearTree-Result'] = 'error'
         handle_error(e)
         keep_flash
         render 'create'
@@ -131,7 +130,6 @@ module Admin
           render partial: 'shared/validation_messages',
                  locals: { entity: @vocabulary }
         rescue => e
-          response.headers['X-PearTree-Result'] = 'error'
           handle_error(e)
           keep_flash
           render 'update'
@@ -148,7 +146,6 @@ module Admin
           response.headers['X-PearTree-Result'] = 'error'
           render 'show'
         rescue => e
-          response.headers['X-PearTree-Result'] = 'error'
           handle_error(e)
           render 'show'
         else
