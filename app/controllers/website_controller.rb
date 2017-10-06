@@ -5,30 +5,6 @@ class WebsiteController < ApplicationController
 
   def setup
     super
-
-    # Data for the nav bar search. If there is a single collection in the
-    # current context, use the fields of its metadata profile. Otherwise, use
-    # the fields of the default metadata profile.
-    collection = self.collection
-    if collection
-      profile_elements = collection.effective_metadata_profile.elements
-    else
-      profile_elements = MetadataProfile.where(default: true).limit(1).first.
-          elements
-    end
-
-    finder = CollectionFinder.new.
-        client_hostname(request.host).
-        client_ip(request.remote_ip).
-        client_user(current_user).
-        order(Collection::SolrFields::TITLE).
-        limit(99999)
-    @searchable_collections = finder.to_a
-
-    @elements_for_select = profile_elements.where(searchable: true).
-        order(:label).map{ |ed| [ ed.label, ed.solr_multi_valued_field ] }
-    @elements_for_select.unshift([ 'Any Field', Item::SolrFields::SEARCH_ALL ])
-
     @storage_offline =
         (Option::string(Option::Keys::SERVER_STATUS) == 'storage_offline')
   end
