@@ -230,7 +230,8 @@ namespace :dls do
     task :reindex, [:uuid] => :environment do |task, args|
       if args[:uuid].present?
         item = Item.find_by_repository_id(args[:uuid])
-        item.all_children.push(item).each do |it|
+        item.index_in_solr
+        item.all_children.each do |it|
           it.index_in_solr
         end
       else
