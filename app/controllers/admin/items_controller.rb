@@ -389,13 +389,14 @@ module Admin
           ActiveRecord::Base.transaction do # trigger after_commit callbacks
             item.update!(sanitized_params)
           end
-          Solr.instance.commit
 
           # We will also need to update the effective allowed/denied roles
           # of each child item, which may take some time, so we will do it in
           # the background.
           PropagateRolesToChildrenJob.perform_later(item.repository_id)
         end
+
+        Solr.instance.commit
       rescue => e
         handle_error(e)
         redirect_to edit_admin_collection_item_path(item.collection, item)
