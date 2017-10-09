@@ -23,16 +23,7 @@ module Admin
       begin
         ActiveRecord::Base.transaction do
           params[:options].to_unsafe_hash.each_key do |key|
-            option = Option.find_by_key(key)
-            if option # if the option already exists
-              if option.value != params[:options][key] # if the option has a new value
-                option.value = params[:options][key]
-                option.save!
-              end
-            else # it doesn't exist, so create it
-              option = Option.new(key: key, value: params[:options][key])
-              option.save!
-            end
+            Option.set(key, params[:options][key])
           end
         end
       rescue => e
