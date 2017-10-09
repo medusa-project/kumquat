@@ -41,6 +41,23 @@ class Option < ApplicationRecord
   end
 
   ##
+  # @param key [String]
+  # @param value [Object]
+  # @return [Option]
+  #
+  def self.set(key, value)
+    option = Option.find_by_key(key)
+    if option # if the option already exists
+      if option.value != value # and it has a new value
+        option.update!(value: value)
+      end
+    else # it doesn't exist, so create it
+      option = Option.create!(key: key, value: value)
+    end
+    option
+  end
+
+  ##
   # @return The value associated with the given key as a string. If there is
   # no value associated with the given key, returns an empty string.
   #
