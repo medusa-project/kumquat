@@ -17,10 +17,10 @@ module Admin
         end
       rescue => e
         @users = User.order(:username)
-        flash[:error] = "#{e}"
+        flash['error'] = "#{e}"
         render 'new'
       else
-        flash[:success] = "Role \"#{@role.name}\" created."
+        flash['success'] = "Role \"#{@role.name}\" created."
         redirect_to admin_role_url(@role)
       end
     end
@@ -31,10 +31,10 @@ module Admin
       begin
         role.destroy!
       rescue => e
-        flash[:error] = "#{e}"
+        flash['error'] = "#{e}"
         redirect_to admin_role_url(role)
       else
-        flash[:success] = "Role \"#{role.name}\" deleted."
+        flash['success'] = "Role \"#{role.name}\" deleted."
         redirect_to admin_roles_url
       end
     end
@@ -76,10 +76,10 @@ module Admin
         end
       rescue => e
         @users = User.order(:username)
-        flash[:error] = "#{e}"
+        flash['error'] = "#{e}"
         render 'edit'
       else
-        flash[:success] = "Role \"#{@role.name}\" updated."
+        flash['success'] = "Role \"#{@role.name}\" updated."
         redirect_to admin_role_url(@role)
       end
     end
