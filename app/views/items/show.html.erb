@@ -80,12 +80,6 @@
   <% end %>
 </section>
 
-<% if @root_item.directory? %>
-  <section id="pt-files-section">
-    <%= render partial: 'files' %>
-  </section>
-<% end %>
-
 <section>
   <%= rights_statement(@root_item.effective_rightsstatements_org_statement,
                        @root_item.effective_rights_statement) %>
