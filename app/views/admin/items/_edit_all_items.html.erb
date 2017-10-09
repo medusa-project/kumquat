@@ -50,18 +50,6 @@
                                      class: 'form-control input-sm') %>
               </td>
             </tr>
-            <tr>
-              <td>Lat:</td>
-              <td>
-                <%= number_field_tag("items[#{item.repository_id}][latitude]", item.latitude,
-                                     class: 'form-control input-sm') %>
-              </td>
-              <td>Long:</td>
-              <td>
-                <%= number_field_tag("items[#{item.repository_id}][longitude]", item.longitude,
-                                     class: 'form-control input-sm') %>
-              </td>
-            </tr>
           </table>
         </td>
         <% @metadata_profile.elements.each do |pe| %>

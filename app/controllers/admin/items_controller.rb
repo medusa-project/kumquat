@@ -3,10 +3,9 @@ module Admin
   class ItemsController < ControlPanelController
 
     PERMITTED_PARAMS = [:id, :contentdm_alias, :contentdm_pointer, :df,
-                        :embed_tag, :'fq[]', :item_set, :latitude, :longitude,
-                        :page_number, :published, :q,
-                        :representative_item_id, :subpage_number,
-                        :variant, allowed_role_ids: [],
+                        :embed_tag, :'fq[]', :item_set, :page_number,
+                        :published, :q, :representative_item_id,
+                        :subpage_number, :variant, allowed_role_ids: [],
                         denied_role_ids: []]
 
     before_action :purge_items_rbac, only: :destroy_all
@@ -428,12 +427,6 @@ module Admin
                 when 'subpage'
                   item.subpage_number = entry_value.length > 0 ?
                       entry_value.to_i : nil
-                when 'latitude'
-                  item.latitude = entry_value.length > 0 ?
-                      entry_value.to_f : nil
-                when 'longitude'
-                  item.longitude = entry_value.length > 0 ?
-                      entry_value.to_f : nil
                 else
                   item.elements += ItemElement.elements_from_tsv_string(name,
                                                                         entry_value)
