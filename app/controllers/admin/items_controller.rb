@@ -33,7 +33,7 @@ module Admin
         end
         Solr.instance.commit
 
-        flash['success'] = "Added #{item_ids.length} items to #{item_set}."
+        flash['success'] = "Added #{item_ids.length} item(s) to #{item_set}."
       end
 
       redirect_back fallback_location: admin_collection_items_path(params[:collection_id])
