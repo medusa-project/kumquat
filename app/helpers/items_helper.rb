@@ -259,8 +259,9 @@ module ItemsHelper
                    Option::string(Option::Keys::WEBSITE_NAME))
 
     # N.B.: Minimum Facebook image size is 200x200, but they recommend at
-    # least 1200x630. Images may be up to 8MB.
-    image_url = iiif_image_url(item, :full, 2400)
+    # least 1200x630. Images may be up to "8Mb" (is that megabytes or
+    # megabits?).
+    image_url = iiif_image_url(item, :full, 1600)
     if image_url
       html + "\n"
       html += sprintf('<meta property="og:image" content="%s" />
