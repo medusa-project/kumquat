@@ -539,6 +539,20 @@ var PTTreeBrowserView = function() {
                     buildPublicNodeURL(data));
             });
 
+            // DLD-132: when an arrow key is used to change the tree selection,
+            // the selected item should load without having to press enter.
+            // jstree provides a hover_node event, but it doesn't distinguish
+            // between input methods, so we have to do this manually.
+            $(document).on('keyup', function(e) {
+                var activeElement = $(document.activeElement);
+                if (activeElement.hasClass('jstree-hovered')) {
+                    if (e.which === 38 || e.which === 40) { // arrow up or down
+                        jstree.jstree('deselect_all');
+                        jstree.jstree('select_node', '#' + activeElement.parent().attr('id'));
+                    }
+                }
+            });
+
             trigger_root_node();
         }
     };
