@@ -217,7 +217,49 @@ class Item < ApplicationRecord
       }
   }
 
-  NEXT_INDEX_SCHEMA = nil
+  NEXT_INDEX_SCHEMA = {
+      settings: {
+          number_of_shards: 1
+      },
+      mappings: {
+          self.to_s.downcase => {
+              date_detection: false,
+              dynamic_templates: [
+                  EntityElement::ELASTICSEARCH_DYNAMIC_TEMPLATE
+              ],
+              properties: {
+                  IndexFields::COLLECTION => { type: 'keyword' },
+                  IndexFields::DATE => { type: 'date' },
+                  IndexFields::DESCRIBED => { type: 'boolean' },
+                  IndexFields::EFFECTIVE_ALLOWED_ROLES => { type: 'keyword' },
+                  IndexFields::EFFECTIVE_DENIED_ROLES => { type: 'keyword' },
+                  IndexFields::EFFECTIVELY_PUBLISHED => { type: 'boolean' },
+                  IndexFields::LAST_INDEXED => { type: 'date' },
+                  IndexFields::LAT_LONG => { type: 'geo_point' },
+                  IndexFields::PAGE_NUMBER => { type: 'short' },
+                  IndexFields::PARENT_ITEM => {
+                      type: 'keyword',
+                      include_in_all: false
+                  },
+                  IndexFields::PRIMARY_MEDIA_CATEGORY => { type: 'keyword' },
+                  IndexFields::PUBLISHED => { type: 'boolean' },
+                  IndexFields::REPOSITORY_ID => {
+                      type: 'keyword',
+                      include_in_all: false
+                  },
+                  IndexFields::REPRESENTATIVE_FILENAME => { type: 'keyword' },
+                  IndexFields::REPRESENTATIVE_ITEM => {
+                      type: 'keyword',
+                      include_in_all: false
+                  },
+                  IndexFields::STRUCTURAL_SORT => { type: 'keyword' },
+                  IndexFields::SUBPAGE_NUMBER => { type: 'short' },
+                  IndexFields::TOTAL_BYTE_SIZE => { type: 'long' },
+                  IndexFields::VARIANT => { type: 'keyword' }
+              }
+          }
+      }
+  }
 
   # In the order they should appear in the TSV, left-to-right.
   NON_DESCRIPTIVE_TSV_COLUMNS = %w(uuid parentId preservationMasterPathname
