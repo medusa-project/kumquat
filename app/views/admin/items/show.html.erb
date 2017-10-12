@@ -48,21 +48,21 @@
           <i class="fa fa-code"></i>&nbsp;JSON
         <% end %>
       </li>
-    <% end %>
-    <% if @item.bib_id %>
+      <% if @item.bib_id %>
+        <li>
+          <%= link_to @item.catalog_record_url, target: '_blank' do %>
+            <i class="fa fa-book"></i>&nbsp;&nbsp;Library Catalog Record
+          <% end %>
+        </li>
+      <% end %>
+      <li class="divider"></li>
       <li>
-        <%= link_to @item.catalog_record_url, target: '_blank' do %>
-          <i class="fa fa-book"></i>&nbsp;&nbsp;Library Catalog Record
+        <%= link_to @item, target: '_blank' do %>
+          <i class="fa fa-globe"></i>&nbsp;&nbsp;Public View
         <% end %>
       </li>
-    <% end %>
-    <li class="divider"></li>
-    <li>
-      <%= link_to @item, target: '_blank' do %>
-        <i class="fa fa-globe"></i>&nbsp;&nbsp;Public View
-      <% end %>
-    </li>
-  </ul>
+    </ul>
+  </div>
 </div>
 
 <% if @item.parent %>
