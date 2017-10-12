@@ -128,12 +128,12 @@ class VocabularyTest < ActiveSupport::TestCase
 
   test 'readonly?() should return true for the uncontrolled and agent
   vocabularies' do
-    assert Vocabulary.new(key: Vocabulary::UNCONTROLLED_KEY).readonly?
-    assert Vocabulary.new(key: Vocabulary::AGENT_KEY).readonly?
+    assert vocabularies(:uncontrolled).readonly?
+    assert vocabularies(:agent).readonly?
   end
 
   test 'readonly?() should return false for all other vocabularies' do
-    assert !Vocabulary.new(key: 'cats').readonly?
+    assert !Vocabulary.create!(key: 'cats', name: 'Cats').readonly?
   end
 
   # save()

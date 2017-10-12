@@ -24,7 +24,7 @@ class CreatePdfJob < Job
       dest_pathname = File.join(dest_dir, "item-#{Time.now.to_formatted_s(:number)}.pdf")
       FileUtils.move(temp_pathname, dest_pathname)
 
-      download.update(filename: File.basename(dest_pathname))
+      download.update!(filename: File.basename(dest_pathname))
 
       self.task&.succeeded
     else

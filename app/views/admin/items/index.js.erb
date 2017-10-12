@@ -1,6 +1,6 @@
 $('#pt-items').html('<%= j(render('items')) %>');
 $('.pt-facets').html('<%= j(render('facets')) %>');
-$('#pt-search-status').html('<%= j(search_status(@items, @start, @num_results_shown)) %>');
+$('#pt-search-status').html('<%= j(search_status(@count, @start, @num_results_shown)) %>');
 $('#pt-edit-metadata-link').attr('href',
     '<%= j(raw(admin_collection_edit_all_items_path(@collection, q: params[:q], fq: params[:fq], df: params[:df]))) %>');
 

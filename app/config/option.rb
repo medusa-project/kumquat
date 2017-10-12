@@ -8,13 +8,15 @@ class Option < ApplicationRecord
   class Keys
     ADMINISTRATOR_EMAIL = 'website.administrator.email'
     COPYRIGHT_STATEMENT = 'website.copyright_statement'
+    CURRENT_INDEX_VERSION = 'elasticsearch.current_index_version'
     FACET_TERM_LIMIT = 'website.facet_term_limit'
-    WEBSITE_INTRO_TEXT = 'website.intro_text'
+    NEXT_INDEX_VERSION = 'elasticsearch.next_index_version'
     OAI_PMH_ENABLED = 'oai_pmh.enabled'
     ORGANIZATION_NAME = 'organization.name'
     RESULTS_PER_PAGE = 'website.results_per_page'
     SERVER_STATUS = 'status'
     SERVER_STATUS_MESSAGE = 'status_message'
+    WEBSITE_INTRO_TEXT = 'website.intro_text'
     WEBSITE_NAME = 'website.name'
   end
 
@@ -24,20 +26,21 @@ class Option < ApplicationRecord
   validates :key, presence: true, uniqueness: { case_sensitive: false }
 
   ##
-  # @return The value associated with the given key as a Boolean.
+  # @return [Boolean] Value associated with the given key as a boolean, or nil
+  #                   if there is no value associated with the given key.
   #
   def self.boolean(key)
     v = value_for(key)
-    ['true', '1', true, 1].include?(v)
+    v ? ['true', '1', true, 1].include?(v) : nil
   end
 
   ##
-  # @return The value associated with the given key as an integer. If there
-  # is no value associated with the given key, returns 0.
+  # @return [Integer] Value associated with the given key as an integer, or nil
+  #                   if there is no value associated with the given key.
   #
   def self.integer(key)
     v = value_for(key)
-    v ? v.to_i : 0
+    v ? v.to_i : nil
   end
 
   ##
@@ -58,19 +61,25 @@ class Option < ApplicationRecord
   end
 
   ##
-  # @return The value associated with the given key as a string. If there is
-  # no value associated with the given key, returns an empty string.
+  # @return [String,nil] Value associated with the given key as a string, or nil
+  #                      if there is no value associated with the given key.
   #
   def self.string(key)
     v = value_for(key)
-    v ? v.to_s : ''
+    v ? v.to_s : nil
   end
 
+  ##
+  # @return [Object] Raw value.
+  #
   def value
     json = JSON.parse(read_attribute(:value))
-    json ? json[JSON_KEY] : nil
+    json[JSON_KEY]
   end
 
+  ##
+  # @param value [Object] Raw value to set.
+  #
   def value=(value)
     write_attribute(:value, JSON.generate({JSON_KEY => value}))
   end
@@ -78,18 +87,8 @@ class Option < ApplicationRecord
   private
 
   def self.value_for(key)
-    options = Option.where(key: key).limit(1)
-    if options.any?
-      begin
-        json = JSON.parse(options[0].value)
-        if json
-          return json[JSON_KEY]
-        end
-      rescue
-        return options[0].value
-      end
-    end
-    nil
+    opt = Option.where(key: key).limit(1).first
+    opt&.value
   end
 
 end

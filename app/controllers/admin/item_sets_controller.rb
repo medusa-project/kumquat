@@ -54,7 +54,10 @@ module Admin
     #
     def items
       @item_set = ItemSet.find(params[:item_set_id])
-      @items = @item_set.items_from_solr.order(Item::SolrFields::TITLE).limit(99999)
+      finder = ItemFinder.new
+                   .filter(Item::IndexFields::ITEM_SETS, @item_set.id)
+                   .order(Item::IndexFields::TITLE)
+      @items = finder.to_a
 
       headers['Content-Disposition'] = 'attachment; filename="items.tsv"'
       headers['Content-Type'] = 'text/tab-separated-values'
@@ -82,7 +85,6 @@ module Admin
       ActiveRecord::Base.transaction do
         item_set.items.destroy_all
       end
-      Solr.instance.commit
 
       flash['success'] = "Removed all items from #{item_set}."
 
@@ -101,7 +103,6 @@ module Admin
         ActiveRecord::Base.transaction do
           item_set.items.delete(items_to_delete)
         end
-        Solr.instance.commit
 
         flash['success'] = "Removed #{item_ids.length} items from #{item_set}."
       else
@@ -120,9 +121,14 @@ module Admin
       @start = params[:start].to_i
       @limit = Option::integer(Option::Keys::RESULTS_PER_PAGE)
       @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
-      @items = @item_set.items_from_solr.
-          order(Item::SolrFields::TITLE).start(@start).limit(@limit)
-      @count = @items.count
+
+      finder = ItemFinder.new
+                   .filter(Item::IndexFields::ITEM_SETS, @item_set.id)
+                   .order(Item::IndexFields::TITLE)
+                   .start(@start)
+                   .limit(@limit)
+      @items = finder.to_a
+      @count = finder.count
     end
 
     ##

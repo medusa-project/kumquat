@@ -1,6 +1,6 @@
 <% if @count > 0 %>
   <div class="text-center">
-    <%= paginate_items(@entities.total_length, @limit, @current_page) %>
+    <%= paginate_items(@count, @limit, @current_page) %>
   </div>
 
   <%= entities_as_list(@entities, @start,
@@ -9,7 +9,7 @@
                        show_remove_from_favorites_buttons: true) %>
 
   <div class="text-center">
-    <%= paginate_items(@entities.total_length, @limit, @current_page) %>
+    <%= paginate_items(@count, @limit, @current_page) %>
   </div>
 <% else %>
   <div class="pt-no-results">

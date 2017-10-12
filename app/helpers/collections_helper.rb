@@ -1,25 +1,6 @@
 module CollectionsHelper
 
   ##
-  # @param collections [Relation]
-  #
-  def collection_facets_as_panels(collections)
-    return nil unless collections.facet_fields # nothing to do
-
-    html = ''
-    Collection::solr_facet_fields.each do |field|
-      result_facet = collections.facet_fields.
-          select{ |f| f.field == field[:name] }.first
-      next unless result_facet and
-          result_facet.terms.select{ |t| t.count > 0 }.any?
-
-      html += collection_facet_panel(field[:label], field[:id],
-                                     result_facet.terms)
-    end
-    raw(html)
-  end
-
-  ##
   # @param collection [Collection]
   # @return [String] HTML string
   #
@@ -79,41 +60,6 @@ module CollectionsHelper
       return collection.access_url
     end
     nil
-  end
-
-  private
-
-  def collection_facet_panel(title, id, terms)
-    panel = "<div class=\"panel panel-default\" id=\"#{id}\">
-      <div class=\"panel-heading\">
-        <h3 class=\"panel-title\">#{title}</h3>
-      </div>
-      <div class=\"panel-body\">
-        <ul>"
-    terms.each_with_index do |term, i|
-      break if i >= Option::integer(Option::Keys::FACET_TERM_LIMIT)
-      next if term.count < 1
-      checked = (params[:fq] and params[:fq].include?(term.facet_query)) ?
-          'checked' : nil
-      permitted_params = params.permit(CollectionsController::PERMITTED_PARAMS)
-      checked_params = term.removed_from_params(permitted_params.deep_dup).except(:start)
-      unchecked_params = term.added_to_params(permitted_params.deep_dup).except(:start)
-      term_label = truncate(term.label, length: 80)
-
-      panel += "<li class=\"pt-term\">"
-      panel += "  <div class=\"checkbox\">"
-      panel += "    <label>"
-      panel += "      <input type=\"checkbox\" name=\"pt-facet-term\" #{checked} "\
-               "          data-query=\"#{term.facet_query.gsub('"', '&quot;')}\" "\
-               "          data-checked-href=\"#{url_for(unchecked_params)}\" "\
-               "          data-unchecked-href=\"#{url_for(checked_params)}\">"
-      panel += "      <span class=\"pt-term-name\">#{term_label}</span> "
-      panel += "      <span class=\"pt-count badge\">#{term.count}</span>"
-      panel += "    </label>"
-      panel += "  </div>"
-      panel += "</li>"
-    end
-    raw(panel + '</ul></div></div>')
   end
 
 end

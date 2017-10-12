@@ -78,8 +78,7 @@ module ItemsHelper
   #
   def compound_object_binary_info_table(item)
     binaries = item.binaries
-    subitems = item.items_from_solr.order(Item::SolrFields::STRUCTURAL_SORT).
-        limit(999).to_a
+    subitems = item.finder.order(Item::IndexFields::STRUCTURAL_SORT).to_a
     html = ''
     if subitems.any? or binaries.any?
       html += '<table class="table">'
@@ -112,47 +111,6 @@ module ItemsHelper
       html += '</table>'
     end
     raw(html)
-  end
-
-  ##
-  # @param items [Relation]
-  # @param options [Hash] Options hash
-  # @option options [Boolean] :show_collection_facet
-  # @option options [MetadataProfile] :metadata_profile
-  #
-  def facets_as_panels(items, options = {})
-    return nil unless items.facet_fields # nothing to do
-
-    # get the list of facets to display from the appropriate metadata profile
-    collection_element = MetadataProfileElement.new(name: 'collection',
-                                                    facetable: true)
-    profile_facetable_elements = [collection_element] +
-        options[:metadata_profile].elements.where(facetable: true).
-            order(:index)
-
-    num_facets = 0
-    html = ''
-    profile_facetable_elements.each do |element|
-      result_facet = items.facet_fields.
-          select{ |f| f.field == element.solr_facet_field }.first
-      next unless result_facet and
-          result_facet.terms.select{ |t| t.count > 0 }.any?
-      is_collection_facet =
-          (result_facet.field == Item::SolrFields::COLLECTION + ItemElement.solr_facet_suffix)
-      if is_collection_facet
-        if !options[:show_collection_facet]
-          next
-        else
-          num_facets += 1
-          html += item_facet_panel('Collection', result_facet.terms, true)
-        end
-      else
-        num_facets += 1
-        html += item_facet_panel(element.label, result_facet.terms, false)
-      end
-    end
-    # There is no point in having only one facet.
-    num_facets > 1 ? raw(html) : ''
   end
 
   ##
@@ -236,6 +194,36 @@ module ItemsHelper
     cookies[:favorites] and cookies[:favorites].
         split(FavoritesController::COOKIE_DELIMITER).
         select{ |f| f == item.repository_id }.any?
+  end
+
+  ##
+  # @return [String]
+  #
+  def item_filter_field
+    html = "<div class=\"input-group\">
+        <span class=\"input-group-addon\"><i class=\"fa fa-search\"></i></span>
+        #{search_field_tag(:q, params[:q], class: 'form-control',
+                           placeholder: 'Filter')}
+      </div>"
+    raw(html)
+  end
+
+  ##
+  # @param metadata_profile [MetadataProfile]
+  # @return [String] HTML select menu.
+  #
+  def item_filter_field_element_menu(metadata_profile)
+    html = "<select class=\"form-control\" name=\"df\">
+        <option value=\"#{Item::IndexFields::SEARCH_ALL}\">Any Field</option>
+        <optgroup label=\"System Fields\">
+          <option value=\"#{Item::IndexFields::REPOSITORY_ID}\">ID</option>
+        </optgroup>
+        <optgroup label=\"Metadata Profile Elements\">"
+    metadata_profile.elements.each do |e|
+      html += "<option value=\"#{e.indexed_field}\">#{e.label}</option>"
+    end
+    html += '</optgroup></select>'
+    raw(html)
   end
 
   ##
@@ -477,8 +465,7 @@ module ItemsHelper
       fq&.each do |fq_|
         parts = fq_.split(':')
         if parts.length == 2
-          name = parts[0].chomp(EntityElement.solr_facet_suffix).
-              chomp(EntityElement.solr_suffix)
+          name = EntityElement.element_name_for_indexed_field(parts[0])
           label = profile.elements.select{ |e| e.name == name }.first.label
           value = parts[1].chomp('"').reverse.chomp('"').reverse
 
@@ -649,15 +636,16 @@ module ItemsHelper
   # Returns the status of a search or browse action, e.g. "Showing n of n
   # items".
   #
-  # @param items [Relation]
+  # @param total_num_results [Integer]
   # @param start [Integer]
   # @param num_results_shown [Integer]
   # @return [String]
   #
-  def search_status(items, start, num_results_shown)
-    total = items.total_length
-    last = [total, start + num_results_shown].min
-    raw("Showing #{start + 1}&ndash;#{last} of #{number_with_delimiter(total)} items")
+  def search_status(total_num_results, start, num_results_shown)
+    last = [total_num_results, start + num_results_shown].min
+    raw(sprintf("Showing %d&ndash;%d of %s items",
+                start + 1, last,
+                number_with_delimiter(total_num_results)))
   end
 
   ##
@@ -760,14 +748,14 @@ module ItemsHelper
       # If there is an element in the ?sort= query, select that. Otherwise,
       # select the metadata profile's default sort element.
       selected_element = sortable_elements.
-          select{ |e| e.solr_single_valued_field == params[:sort] }.first
+          select{ |e| e.indexed_sort_field == params[:sort] }.first
       if !selected_element and default_sortable_element
         selected_element =
             sortable_elements.find_by_name(default_sortable_element.name)
       end
       sortable_elements.each do |e|
         selected = (e == selected_element) ? 'selected' : ''
-        html += "<option value=\"#{e.solr_single_valued_field}\" #{selected}>"\
+        html += "<option value=\"#{e.indexed_sort_field}\" #{selected}>"\
           "Sort by #{e.label}</option>"
       end
       html += '</select>
@@ -1077,7 +1065,7 @@ module ItemsHelper
 
       # If the object contains more than this many items, disable the gallery
       # view to allow the UI to load in a reasonable amount of time.
-      items = object.items_from_solr.order(Item::SolrFields::STRUCTURAL_SORT).
+      items = object.finder.order(Item::IndexFields::STRUCTURAL_SORT).
           limit(999)
       if items.count > 800
         return image_viewer_for(selected_item)
@@ -1288,47 +1276,6 @@ module ItemsHelper
       html += viewer_unavailable_message
     end
     raw(html)
-  end
-
-  def item_facet_panel(title, terms, for_collections = false)
-    panel = "<div class=\"panel panel-default\">
-      <div class=\"panel-heading\">
-        <h3 class=\"panel-title\">#{title}</h3>
-      </div>
-      <div class=\"panel-body\">
-        <ul>"
-    terms.each_with_index do |term, i|
-      break if i >= Option::integer(Option::Keys::FACET_TERM_LIMIT)
-      next if term.count < 1
-      checked = (params[:fq] and params[:fq].include?(term.facet_query)) ?
-          'checked' : nil
-      permitted_params = params.permit(ItemsController::PERMITTED_PARAMS)
-      checked_params = term.removed_from_params(permitted_params.deep_dup)
-      unchecked_params = term.added_to_params(permitted_params.deep_dup)
-      checked_params.delete(:start)
-      unchecked_params.delete(:start)
-
-      if for_collections
-        term_label = Collection.find_by_repository_id(term.name)&.title
-      else
-        term_label = term.label
-      end
-      term_label = truncate(term_label, length: 80)
-
-      panel += "<li class=\"pt-term\">"
-      panel += "  <div class=\"checkbox\">"
-      panel += "    <label>"
-      panel += "      <input type=\"checkbox\" name=\"pt-facet-term\" #{checked} "\
-               "          data-query=\"#{term.facet_query.gsub('"', '&quot;')}\" "\
-               "          data-checked-href=\"#{url_for(unchecked_params)}\" "\
-               "          data-unchecked-href=\"#{url_for(checked_params)}\">"
-      panel += "      <span class=\"pt-term-name\">#{term_label}</span> "
-      panel += "      <span class=\"pt-count badge\">#{term.count}</span>"
-      panel += "    </label>"
-      panel += "  </div>"
-      panel += "</li>"
-    end
-    raw(panel + '</ul></div></div>')
   end
 
   ##

@@ -17,18 +17,17 @@ class SearchController < WebsiteController
     # EntityFinder will search across entity classes and return both Items and
     # Collections.
     finder = EntityFinder.new.
-        client_hostname(request.host).
-        client_ip(request.remote_ip).
-        client_user(current_user).
+        user_roles(request_roles).
         # exclude all variants except File
-        exclude_item_variants(Item::Variants::all.reject{ |v| v == Item::Variants::FILE }).
+        exclude_item_variants(*Item::Variants::all.reject{ |v| v == Item::Variants::FILE }).
         only_described(true).
-        query(params[:q]).
-        filter_queries(params[:fq]).
-        sort(params[:sort]).
+        query_all(params[:q]).
+        facet_filters(params[:fq]).
+        order(params[:sort]).
         start(@start).
         limit(@limit)
     @entities = finder.to_a
+    @facets = finder.facets
     @current_page = finder.page
     @count = finder.count
     @num_results_shown = [@limit, @count].min
@@ -48,6 +47,18 @@ class SearchController < WebsiteController
                        @entities.map(&:updated_at).sort{ |d| d <=> d }.last : Time.now
       end
       format.js
+      format.json do
+        render json: {
+            start: @start,
+            numResults: @count,
+            results: @entities.map { |entity|
+              {
+                  id: entity.repository_id,
+                  url: url_for(entity)
+              }
+            }
+        }
+      end
     end
   end
 

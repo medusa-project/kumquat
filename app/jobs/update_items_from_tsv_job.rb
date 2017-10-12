@@ -11,7 +11,6 @@ class UpdateItemsFromTsvJob < Job
     self.task.update(status_text: 'Updating item metadata from TSV')
 
     ItemTsvUpdater.new.ingest_pathname(args[0], args[1], self.task)
-    Solr.instance.commit
 
     File.delete(args[0]) if File.exist?(args[0])
 

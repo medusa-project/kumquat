@@ -30,7 +30,6 @@ module Admin
           end
           item_set.save!
         end
-        Solr.instance.commit
 
         flash['success'] = "Added #{item_ids.length} item(s) to #{item_set}."
       end
@@ -52,7 +51,7 @@ module Admin
       item_set = ItemSet.find(params[:item_set])
       raise ActiveRecord::RecordNotFound unless item_set
 
-      finder = item_finder_for(collection, 0, 99999)
+      finder = item_finder_for(collection)
       results = finder.to_a
       count = finder.count
 
@@ -63,7 +62,6 @@ module Admin
           end
           item_set.save!
         end
-        Solr.instance.commit
       rescue => e
         flash['error'] = "#{e}"
       else
@@ -135,41 +133,40 @@ module Admin
 
       @metadata_profile = @collection.effective_metadata_profile
       @item_set = nil
-
       @start = params[:start].to_i
       @limit = 20
 
-      # If there is an ItemSet ID in the URL, we want to edit all of the items
-      # in that set. Otherwise, we want to edit items from the collection item
-      # results.
+      # If there is an ItemSet ID in the URL, we want to edit all of its items.
+      # Otherwise, we want to edit items from the collection item results.
       if params[:item_set]
         @item_set = ItemSet.find(params[:item_set])
-        @items = @item_set.items_from_solr.
-            order(Item::SolrFields::STRUCTURAL_SORT => :asc).
-            start(@start).limit(@limit)
-        @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
-      else
         finder = ItemFinder.new.
-            collection_id(@collection.repository_id).
-            query(params[:q].present? ? "#{params[:df]}:#{params[:q]}" : nil).
-            include_children(true).
+            filter(Item::IndexFields::REPOSITORY_ID,
+                   @item_set.items.pluck(:repository_id)).
             include_unpublished(true).
             only_described(false).
-            filter_queries(params[:fq]).
-            default_field(params[:df]).
+            order(Item::IndexFields::STRUCTURAL_SORT, :asc).
             start(@start).
             limit(@limit)
-        if @collection.package_profile == PackageProfile::FREE_FORM_PROFILE
-          finder = finder.
-              exclude_variants([Item::Variants::DIRECTORY]).
-              sort(Item::SolrFields::STRUCTURAL_SORT => :asc)
-        else
-          finder = finder.sort(Item::SolrFields::STRUCTURAL_SORT => :asc)
+      else
+        finder = ItemFinder.new.
+            collection(@collection).
+            query(params[:df], params[:q]).
+            facet_filters(params[:fq]).
+            include_children_in_results(true).
+            include_unpublished(true).
+            only_described(false).
+            order(Item::IndexFields::STRUCTURAL_SORT, :asc).
+            start(@start).
+            limit(@limit)
+        if @collection.free_form?
+          finder = finder.exclude_variants(*Item::Variants::DIRECTORY)
         end
-
-        @items = finder.to_a
-        @current_page = finder.page
       end
+
+      @items = finder.to_a
+      @current_page = finder.page
+      @count = finder.count
 
       respond_to do |format|
         format.html
@@ -189,11 +186,12 @@ module Admin
 
       finder = item_finder_for(@collection, @start, @limit)
       @items = finder.to_a
+      @facets = finder.facets
 
       @current_page = finder.page
       @count = finder.count
       @num_results_shown = [@limit, @count].min
-      @metadata_profile = finder.effective_metadata_profile
+      @metadata_profile = @collection.effective_metadata_profile
 
       respond_to do |format|
         format.html
@@ -394,8 +392,6 @@ module Admin
           # the background.
           PropagateRolesToChildrenJob.perform_later(item.repository_id)
         end
-
-        Solr.instance.commit
       rescue => e
         handle_error(e)
         redirect_to edit_admin_collection_item_path(item.collection, item)
@@ -438,25 +434,23 @@ module Admin
         end
       end
 
-      Solr.instance.commit
-
       flash['success'] = "#{num_updated} items updated."
       redirect_back fallback_location: admin_collections_path
     end
 
     private
 
-    def item_finder_for(collection, start, limit)
+    def item_finder_for(collection, start = 0,
+                        limit = ElasticsearchClient::MAX_RESULT_WINDOW)
       ItemFinder.new.
-          collection_id(collection.repository_id).
-          query(params[:q].present? ? "#{params[:df]}:#{params[:q]}" : nil).
-          include_children(false).
+          collection(collection).
+          query(params[:df], params[:q]).
+          search_children(false).
           include_unpublished(true).
           only_described(false).
-          exclude_variants(Item::Variants::non_filesystem_variants).
-          filter_queries(params[:fq]).
-          default_field(params[:df]).
-          sort(params[:sort]).
+          exclude_variants(*Item::Variants::non_filesystem_variants).
+          facet_filters(params[:fq]).
+          order(params[:sort]).
           start(start).
           limit(limit)
     end

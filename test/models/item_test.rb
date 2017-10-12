@@ -5,24 +5,36 @@ class ItemTest < ActiveSupport::TestCase
   setup do
     @item = items(:sanborn_obj1_page1)
     assert @item.valid?
+
+    ElasticsearchClient.instance.recreate_all_indexes
   end
 
   # Item.num_free_form_files()
 
-  test 'num_free_form_files should return a correct count' do
-    Item.all.each { |it| it.index_in_solr }
-    Solr.instance.commit
-    assert_equal Item.solr.where(Item::SolrFields::VARIANT => Item::Variants::FILE).count,
+  test 'num_free_form_files() should return a correct count' do
+    Item.all.each(&:reindex)
+    sleep 2
+    assert_equal Item.where(variant: Item::Variants::FILE).count,
                  Item.num_free_form_files
   end
 
   # Item.num_free_form_items()
 
-  test 'num_free_form_items should return a correct count' do
-    Item.all.each { |it| it.index_in_solr }
-    Solr.instance.commit
-    assert_equal Item.solr.where(Item::SolrFields::VARIANT => [Item::Variants::DIRECTORY, Item::Variants::FILE]).count,
+  test 'num_free_form_items() should return a correct count' do
+    Item.all.each(&:reindex)
+    sleep 2
+    assert_equal Item.where(variant: [Item::Variants::FILE, Item::Variants::DIRECTORY]).count,
                  Item.num_free_form_items
+  end
+
+  # Item.num_objects()
+
+  test 'num_objects() should return a correct count' do
+    Item.all.each(&:reindex)
+    sleep 2
+    assert_equal Item.where('variant = ? OR variant IS NULL',
+                            Item::Variants::FILE).count,
+                 Item.num_objects
   end
 
   # Item.tsv_header()
@@ -60,6 +72,56 @@ class ItemTest < ActiveSupport::TestCase
                  result[1].repository_id
   end
 
+  # as_indexed_json()
+
+  test 'as_indexed_json() returns the correct structure' do
+    doc = @item.as_indexed_json
+
+    assert_equal @item.collection_repository_id,
+                 doc[Item::IndexFields::COLLECTION]
+    assert_equal @item.date.utc.iso8601,
+                 doc[Item::IndexFields::DATE]
+    assert_equal @item.described?,
+                 doc[Item::IndexFields::DESCRIBED]
+    assert_equal @item.effective_allowed_roles.map(&:key),
+                 doc[Item::IndexFields::EFFECTIVE_ALLOWED_ROLES]
+    assert_equal @item.effective_denied_roles.map(&:key),
+                 doc[Item::IndexFields::EFFECTIVE_DENIED_ROLES]
+    assert doc[Item::IndexFields::EFFECTIVELY_PUBLISHED]
+    assert_equal @item.item_sets.pluck(:id),
+                 doc[Item::IndexFields::ITEM_SETS]
+    assert_not_empty doc[Item::IndexFields::LAST_INDEXED]
+    assert_equal({ lat: @item.latitude, lon: @item.longitude },
+                 doc[Item::IndexFields::LAT_LONG])
+    assert_equal @item.page_number,
+                 doc[Item::IndexFields::PAGE_NUMBER]
+    assert_equal @item.parent_repository_id,
+                 doc[Item::IndexFields::PARENT_ITEM]
+    assert_equal @item.primary_media_category,
+                 doc[Item::IndexFields::PRIMARY_MEDIA_CATEGORY]
+    assert_equal @item.published,
+                 doc[Item::IndexFields::PUBLISHED]
+    assert_equal @item.repository_id,
+                 doc[Item::IndexFields::REPOSITORY_ID]
+    assert_equal @item.representative_filename,
+                 doc[Item::IndexFields::REPRESENTATIVE_FILENAME]
+    assert_equal @item.representative_item_repository_id,
+                 doc[Item::IndexFields::REPRESENTATIVE_ITEM]
+    assert_equal "#{@item.parent_repository_id}-iaa-1-zzz-#{@item.title}",
+                 doc[Item::IndexFields::STRUCTURAL_SORT]
+    assert_equal @item.subpage_number,
+                 doc[Item::IndexFields::SUBPAGE_NUMBER]
+    assert_equal @item.binaries.map(&:byte_size).sum,
+                 doc[Item::IndexFields::TOTAL_BYTE_SIZE]
+    assert_equal @item.variant,
+                 doc[Item::IndexFields::VARIANT]
+
+    title = @item.element(:title)
+    assert_equal title.value, doc[title.indexed_field]
+    description = @item.element(:description)
+    assert_equal description.value, doc[description.indexed_field]
+  end
+
   # as_json()
 
   test 'as_json() should return the correct structure' do
@@ -76,6 +138,7 @@ class ItemTest < ActiveSupport::TestCase
     assert_nil @item.bib_id
 
     @item.elements.build(name: 'bibId', value: 'cats')
+    @item.save!
     assert_equal 'cats', @item.bib_id
   end
 
@@ -89,6 +152,7 @@ class ItemTest < ActiveSupport::TestCase
   test 'catalog_record_url() should return the catalog record URL when bib_id()
   returns a string' do
     @item.elements.build(name: 'bibId', value: '12345')
+    @item.save!
     assert_equal 'http://vufind.carli.illinois.edu/vf-uiu/Record/uiu_12345',
                  @item.catalog_record_url
   end
@@ -395,15 +459,15 @@ class ItemTest < ActiveSupport::TestCase
 
     # Clear them out and change them.
     item.allowed_roles.destroy_all
-    item.allowed_roles << roles(:skiers)
+    item.allowed_roles << roles(:students)
     item.denied_roles.destroy_all
-    item.denied_roles << roles(:cellists)
+    item.denied_roles << roles(:catalogers)
     # Assert that they get propagated to effective roles.
     item.save!
     assert_equal 1, item.effective_allowed_roles.length
-    assert_equal 'skiers', item.effective_allowed_roles.first.key
+    assert_equal 'students', item.effective_allowed_roles.first.key
     assert_equal 1, item.effective_denied_roles.length
-    assert_equal 'cellists', item.effective_denied_roles.first.key
+    assert_equal 'catalogers', item.effective_denied_roles.first.key
   end
 
   test 'save() should copy parent allowed_roles and denied_roles into
@@ -456,10 +520,7 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal 'users', item.effective_denied_roles.first.key
   end
 
-  test 'save() should set normalized coordinates if latitude and longitude are
-  blank' do
-    @item.latitude = nil
-    @item.longitude = nil
+  test 'save() should set normalized coordinates' do
     @item.element(:coordinates)&.destroy!
     @item.elements.build(name: 'coordinates',
                          value: 'W 90⁰26\'05"/ N 40⁰39\'51"')
@@ -468,39 +529,22 @@ class ItemTest < ActiveSupport::TestCase
     assert_in_delta -90.434, @item.longitude.to_f, 0.001
   end
 
-  test 'save() should not overwrite latitude/longitude if either are present' do
-    initial_lat = 54.24234
-    initial_long = -123.234
-    @item.latitude = initial_lat
-    @item.longitude = initial_long
-    @item.elements.build(name: 'coordinates',
-                         value: 'W 90⁰26\'05"/ N 40⁰39\'51"')
-    @item.save!
-    assert_equal initial_lat, @item.latitude
-    assert_equal initial_long, @item.longitude
-  end
-
-  test 'save() should set a normalized date, if blank, from a date element' do
-    @item.date = nil
+  test 'save() should set a normalized date from a date element' do
     @item.element(:date)&.destroy!
     @item.element(:dateCreated)&.destroy!
     @item.elements.build(name: 'date', value: '2010-01-02')
+    @item.elements.build(name: 'dateCreated', value: '1995-01-02')
     @item.save!
     assert_equal Time.parse('2010-01-02').year, @item.date.year
   end
 
-  test 'save() should not overwrite the normalized date if present' do
-    initial_date = Time.now
-    @item.date = Time.now
-    @item.elements.build(name: 'date', value: '2010-01-02')
+  test 'save() should set a normalized date from a dateCreated element if there
+  is no date element' do
+    @item.element(:date)&.destroy!
+    @item.element(:dateCreated)&.destroy!
+    @item.elements.build(name: 'dateCreated', value: '2010-01-02')
     @item.save!
-    assert_equal initial_date.year, @item.date.year
-  end
-
-  # solr_id()
-
-  test 'solr_id() should return the Solr document ID' do
-    assert_equal @item.repository_id, @item.solr_id
+    assert_equal Time.parse('2010-01-02').year, @item.date.year
   end
 
   # subtitle()
@@ -558,53 +602,11 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal 'My Great Title', @item.title
   end
 
-  # to_solr
-
-  test 'to_solr should work' do
-    doc = @item.to_solr
-
-    assert_equal @item.solr_id, doc[Item::SolrFields::ID]
-    assert_equal @item.class.to_s, doc[Item::SolrFields::CLASS]
-    assert_equal @item.collection_repository_id,
-                 doc[Item::SolrFields::COLLECTION]
-    assert_equal "#{@item.parent_repository_id}-070-1-ZZZZZZ-#{@item.title}",
-                 doc[Item::SolrFields::STRUCTURAL_SORT]
-    assert_equal @item.date.utc.iso8601, doc[Item::SolrFields::DATE]
-    assert_equal @item.described?, doc[Item::SolrFields::DESCRIBED]
-    assert_equal @item.effective_allowed_roles.map(&:key),
-                 doc[Item::SolrFields::EFFECTIVE_ALLOWED_ROLES]
-    assert_equal @item.effective_denied_roles.map(&:key),
-                 doc[Item::SolrFields::EFFECTIVE_DENIED_ROLES]
-    assert doc[Item::SolrFields::EFFECTIVELY_PUBLISHED]
-    assert_equal @item.item_sets.map(&:id), doc[Item::SolrFields::ITEM_SETS]
-    assert_not_empty doc[Item::SolrFields::LAST_INDEXED]
-    assert_equal "#{@item.latitude},#{@item.longitude}",
-                 doc[Item::SolrFields::LAT_LONG]
-    assert_equal @item.page_number, doc[Item::SolrFields::PAGE_NUMBER]
-    assert_equal @item.parent_repository_id, doc[Item::SolrFields::PARENT_ITEM]
-    assert_equal @item.primary_media_category,
-                 doc[Item::SolrFields::PRIMARY_MEDIA_CATEGORY]
-    assert_equal @item.published, doc[Item::SolrFields::PUBLISHED]
-    assert_equal @item.representative_filename,
-                 doc[Item::SolrFields::REPRESENTATIVE_FILENAME]
-    assert_equal @item.representative_item_repository_id,
-                 doc[Item::SolrFields::REPRESENTATIVE_ITEM_ID]
-    assert_equal @item.subpage_number, doc[Item::SolrFields::SUBPAGE_NUMBER]
-    assert_equal @item.title, doc[Item::SolrFields::TITLE]
-    assert_equal @item.binaries.map(&:byte_size).sum,
-                 doc[Item::SolrFields::TOTAL_BYTE_SIZE]
-    assert_equal @item.variant, doc[Item::SolrFields::VARIANT]
-
-    title = @item.elements.select{ |e| e.name == 'title' }.first
-    assert_equal [title.value], doc[title.solr_multi_valued_field]
-    description = @item.elements.select{ |e| e.name == 'description' }.first
-    assert_equal [description.value], doc[description.solr_multi_valued_field]
-  end
-
   # update_from_embedded_metadata
 
-  test 'update_from_embedded_metadata should work' do
+  test 'update_from_embedded_metadata() should work' do
     @item = items(:illini_union_dir1_dir1_file1)
+    @item.elements.destroy_all
     @item.update_from_embedded_metadata(include_date_created: true)
 
     assert_equal 1, @item.elements.
@@ -613,12 +615,12 @@ class ItemTest < ActiveSupport::TestCase
         select{ |e| e.name == 'creator' and e.value == 'University of Illinois Library' }.length
     assert_equal 1, @item.elements.
         select{ |e| e.name == 'dateCreated' and e.value == '2012-10-10' }.length
-    assert_equal '2015-08-10T05:00:00Z', @item.date.iso8601
+    assert_equal '2012-10-10T00:00:00Z', @item.date.iso8601
   end
 
   # update_from_json
 
-  test 'update_from_json should work' do
+  test 'update_from_json() should work' do
     struct = @item.as_json
     struct['contentdm_alias'] = 'cats'
     struct['contentdm_pointer'] = 99

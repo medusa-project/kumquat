@@ -12,11 +12,11 @@ module Api
       @limit = MAX_RESULTS_LIMIT if @limit > MAX_RESULTS_LIMIT
 
       finder = CollectionFinder.new.
-          include_children(true).
+          search_children(true).
           include_unpublished(true).
-          filter_queries(params[:fq]).
-          query(params[:q]).
-          order(Collection::SolrFields::TITLE).
+          facet_filters(params[:fq]).
+          query_all(params[:q]).
+          order(Collection::IndexFields::TITLE).
           start(@start).
           limit(@limit)
       @count = finder.count

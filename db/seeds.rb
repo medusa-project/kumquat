@@ -7,19 +7,19 @@
 #   Mayor.create(name: 'Emanuel', city: cities.first)
 
 # Options
-Option.create!(key: Option::Keys::ADMINISTRATOR_EMAIL,
-               value: 'admin@example.org')
-Option.create!(key: Option::Keys::COPYRIGHT_STATEMENT,
-               value: 'Copyright © 2015 My Great Organization. All rights reserved.')
-Option.create!(key: Option::Keys::FACET_TERM_LIMIT, value: 10)
-Option.create!(key: Option::Keys::OAI_PMH_ENABLED, value: true)
-Option.create!(key: Option::Keys::ORGANIZATION_NAME,
-               value: 'My Great Organization')
-Option.create!(key: Option::Keys::WEBSITE_NAME,
-               value: 'My Great Organization Digital Collections')
-Option.create!(key: Option::Keys::WEBSITE_INTRO_TEXT,
-               value: 'Behold our great collections.')
-Option.create!(key: Option::Keys::RESULTS_PER_PAGE, value: 30)
+Option.set(Option::Keys::ADMINISTRATOR_EMAIL, 'admin@example.org')
+Option.set(Option::Keys::COPYRIGHT_STATEMENT,
+           'Copyright © 2015 My Great Organization. All rights reserved.')
+Option.set(Option::Keys::CURRENT_INDEX_VERSION, 1)
+Option.set(Option::Keys::FACET_TERM_LIMIT, 10)
+Option.set(Option::Keys::NEXT_INDEX_VERSION, 2)
+Option.set(Option::Keys::OAI_PMH_ENABLED, true)
+Option.set(Option::Keys::ORGANIZATION_NAME, 'My Great Organization')
+Option.set(Option::Keys::WEBSITE_NAME,
+               'My Great Organization Digital Collections')
+Option.set(Option::Keys::WEBSITE_INTRO_TEXT,
+               'Behold our great collections.')
+Option.set(Option::Keys::RESULTS_PER_PAGE, 30)
 
 # Roles
 roles = {}
@@ -103,5 +103,3 @@ option.value = "The digital collections of the Library of the University of "\
 "international digital initiatives, such as the Digital Public Library of "\
 "America and the Biodiversity Heritage Library."
 option.save!
-
-Solr.instance.commit

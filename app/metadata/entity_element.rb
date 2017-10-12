@@ -9,7 +9,46 @@ class EntityElement < ApplicationRecord
 
   belongs_to :vocabulary
 
+  INDEX_FIELD_PREFIX = 'dls_'
+  KEYWORD_FIELD_SUFFIX = '.keyword'
+  SORT_FIELD_SUFFIX = '.sort'
+
+  ELASTICSEARCH_DYNAMIC_TEMPLATE = {
+      # All metadata elements will be of text type, with a special multi value
+      # field for human sorting.
+      metadata_elements: {
+          match: INDEX_FIELD_PREFIX + '*',
+          mapping: {
+              type: 'text',
+              fields: {
+                  keyword: {
+                      type: 'keyword'
+                  },
+                  sort: {
+                      # N.B.: As of ES 5.6, this type requires the ICU plugin:
+                      # bin/elasticsearch-plugin install analysis-icu
+                      # See: # https://www.elastic.co/guide/en/elasticsearch/plugins/current/analysis-icu-collation-keyword-field.html
+                      type: 'icu_collation_keyword',
+                      index: false,
+                      numeric: true,
+                      language: 'en',
+                      strength: 'quaternary',
+                      alternate: 'shifted'
+                  }
+              }
+          }
+      }
+  }
+
   validates_presence_of :name
+
+  ##
+  # @param field [String] Indexed keyword field name.
+  # @return [String] Element name.
+  #
+  def self.element_name_for_indexed_field(field)
+    field.gsub(INDEX_FIELD_PREFIX, '')
+  end
 
   ##
   # @param elements [Enumerable<ItemElement>] Collection of elements. All must
@@ -46,22 +85,6 @@ class EntityElement < ApplicationRecord
     values.join(Item::TSV_MULTI_VALUE_SEPARATOR)
   end
 
-  def self.solr_facet_suffix
-    '_facet'
-  end
-
-  def self.solr_prefix
-    'metadata_'
-  end
-
-  def self.solr_sortable_suffix
-    '_si'
-  end
-
-  def self.solr_suffix
-    '_txtim'
-  end
-
   def agent
     agent = nil
     if self.uri.present?
@@ -78,30 +101,40 @@ class EntityElement < ApplicationRecord
     struct.except('value')
   end
 
+  ##
+  # @return [String] Name of the indexed field for the instance.
+  # @see indexed_keyword_field()
+  #
+  def indexed_field
+    [INDEX_FIELD_PREFIX, self.name].join
+  end
+
+  ##
+  # @return [String] Name of the indexed keyword field for the instance.
+  # @see indexed_field()
+  #
+  def indexed_keyword_field
+    [INDEX_FIELD_PREFIX, self.name, KEYWORD_FIELD_SUFFIX].join
+  end
+
+  ##
+  # @return [String] Name of the indexed sort field for the instance.
+  # @see indexed_field()
+  #
+  def indexed_sort_field
+    [INDEX_FIELD_PREFIX, self.name, SORT_FIELD_SUFFIX].join
+  end
+
+  ##
+  # @return [String] Name of the parent indexed field for the instance.
+  #
+  def parent_indexed_field
+    [INDEX_FIELD_PREFIX, 'parent_', self.name].join
+  end
+
   def serializable_hash(opts)
     opts ||= {}
     super(opts.merge(only: [ :name, :value ]))
-  end
-
-  ##
-  # @return [String] Name of the Solr facet field.
-  #
-  def solr_facet_field
-    "#{self.name}#{EntityElement.solr_suffix}#{EntityElement.solr_facet_suffix}"
-  end
-
-  ##
-  # @return [String] Name of the multi-valued Solr field.
-  #
-  def solr_multi_valued_field
-    "#{EntityElement.solr_prefix}#{self.name}#{EntityElement.solr_suffix}"
-  end
-
-  ##
-  # @return [String] Name of the single-valued Solr field.
-  #
-  def solr_single_valued_field
-    "#{EntityElement.solr_prefix}#{self.name}#{EntityElement.solr_sortable_suffix}"
   end
 
   def to_s

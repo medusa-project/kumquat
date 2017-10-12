@@ -30,28 +30,25 @@ class ItemSet < ActiveRecord::Base
   end
 
   ##
-  # @return [Relation<Item>]
-  #
-  def items_from_solr
-    Item.solr.where(Item::SolrFields::ITEM_SETS => self.id)
-  end
-
-  ##
-  # @return [Integer] Number of objects in the collection. The result is cached.
+  # @return [Integer] Number of objects in the instance. The result is cached.
   #
   def num_objects
     unless @num_objects
       case self.collection.package_profile
         when PackageProfile::FREE_FORM_PROFILE
-          query = Item.solr.
-              where(Item::SolrFields::ITEM_SETS => self.id).
-              where(Item::SolrFields::VARIANT => Item::Variants::FILE)
+          @num_objects = ItemFinder.new.
+              item_set(self).
+              search_children(false).
+              include_variants(*Item::Variants::FILE).
+              limit(0).
+              count
         else
-          query = Item.solr.
-              where(Item::SolrFields::ITEM_SETS => self.id).
-              where(Item::SolrFields::PARENT_ITEM => :null)
+          @num_objects = ItemFinder.new.
+              item_set(self).
+              search_children(false).
+              limit(0).
+              count
       end
-      @num_objects = query.count
     end
     @num_objects
   end
@@ -63,7 +60,7 @@ class ItemSet < ActiveRecord::Base
   private
 
   def index_item(item)
-    item.index_in_solr
+    item.reindex
   end
 
 end

@@ -16,14 +16,7 @@ development: &development
   # Client IP addresses allowed to access the REST API.
   :api_ips:
     - 127.0.
-  :solr_url: http://localhost:8983/solr/
-  :solr_core: peartree
-  :solr_default_facetable_fields:
-    - subject_txti
-  :solr_id_field: id
-  :solr_class_field: class_si
-  :solr_default_search_field: searchall_natsort_en_im
-  :solr_more_like_this_endpoint: /mlt
+  :elasticsearch_endpoint: http://localhost:9200
   :downloader:
     :url: http://download.library.illinois.edu:8080
     :user:
@@ -42,14 +35,7 @@ test:
   :api_secret: secret
   :api_ips:
     - 127.0.
-  :solr_url: http://localhost:8983/solr/
-  :solr_core: peartree
-  :solr_default_facetable_fields:
-    - subject_txti
-  :solr_id_field: id
-  :solr_class_field: class_si
-  :solr_default_search_field: searchall_natsort_en_im
-  :solr_more_like_this_endpoint: /mlt
+  :elasticsearch_endpoint: http://localhost:9200
   :downloader:
     :url: http://download.library.illinois.edu:8080
     :user:
@@ -75,14 +61,7 @@ production: &production
     - 2620:0:e00:
     - 172.16.
     - 10.192.
-  :solr_url: http://localhost:8983/solr/
-  :solr_core: peartree
-  :solr_default_facetable_fields:
-    - subject_txti
-  :solr_id_field: id
-  :solr_class_field: class_si
-  :solr_default_search_field: searchall_natsort_en_im
-  :solr_more_like_this_endpoint: /mlt
+  :elasticsearch_endpoint: http://localhost:9200
   :downloader:
     :url: http://download.library.illinois.edu:8080
     :user:

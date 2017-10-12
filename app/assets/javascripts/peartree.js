@@ -16,6 +16,7 @@ var PearTree = {
                 // Create hidden input counterparts of each checked checkbox, as
                 // checkboxes' values can't change.
                 var form = $(this).parents('form:first');
+                form.find('[name="fq"]').remove();
                 form.find('[name="fq[]"]').remove();
                 form.find('[name=pt-facet-term]:checked').each(function() {
                     var input = $('<input type="hidden" name="fq[]">');

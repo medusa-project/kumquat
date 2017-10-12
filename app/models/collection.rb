@@ -13,10 +13,11 @@
 # profile, which defines how collection content is structured in Medusa in
 # terms of its file/directory layout.
 #
-# Being an ActiveRecord entity, collections are searchable via ActiveRecord as
-# well as via Solr. Instances are automatically indexed in Solr (see `to_solr`)
-# in an after_commit callback, and the Solr search functionality is available
-# via the `solr` class method.
+# Collections are searchable via ActiveRecord as well as via Elasticsearch.
+# Instances are automatically indexed in ES (see `as_indexed_json()`) in an
+# after_commit callback, and the ES search functionality is available
+# via the `search` class method. A higher-level CollectionFinder is also
+# available.
 #
 # # Attributes
 #
@@ -75,40 +76,73 @@
 #                             TODO: store this in an accessRights CollectionElement
 # * updated_at:               Managed by ActiveRecord.
 #
+# @see https://github.com/elastic/elasticsearch-rails/blob/master/elasticsearch-model/README.md
+#
 class Collection < ApplicationRecord
 
   include AuthorizableByRole
   include Describable
+  include Elasticsearch::Model
   include Representable
-  include SolrQuerying
 
-  class SolrFields
-    ACCESS_SYSTEMS = 'access_systems_sim'
-    ACCESS_URL = 'access_url_si'
-    ALLOWED_ROLES = 'allowed_roles_sim'
-    CLASS = 'class_si'
-    DENIED_ROLES = 'denied_roles_sim'
-    DESCRIPTION = 'description_txti'
-    DESCRIPTION_HTML = 'description_html_txti'
+  class IndexFields
+    ACCESS_SYSTEMS = 'access_systems'
+    ACCESS_URL = 'access_url'
+    ALLOWED_ROLES = 'allowed_roles'
+    DENIED_ROLES = 'denied_roles'
+    DESCRIPTION = CollectionElement.new(name: 'description').indexed_field
     # Contains the result of PUBLIC_IN_DLS && PUBLISHED_IN_MEDUSA.
-    EFFECTIVELY_PUBLISHED = 'effectively_published_bi'
-    EXTERNAL_ID = 'external_id_si'
-    HARVESTABLE = 'harvestable_bi'
-    ID = 'id'
-    LAST_INDEXED = 'last_indexed_dti'
-    METADATA_DESCRIPTION = "#{ItemElement::solr_prefix}description_txti"
-    METADATA_TITLE = "#{ItemElement::solr_prefix}title_txti"
-    PARENT_COLLECTIONS = 'parent_collections_sim'
-    PHYSICAL_COLLECTION_URL = 'physical_collection_url_si'
-    PUBLIC_IN_MEDUSA = 'published_bi' # TODO: rename this to public_in_medusa_bi
-    PUBLISHED_IN_DLS = 'published_in_dls_bi'
-    REPOSITORY_TITLE = 'repository_title_si'
-    REPRESENTATIVE_IMAGE = 'representative_image_si'
-    REPRESENTATIVE_ITEM = 'representative_item_si'
-    RESOURCE_TYPES = 'resource_types_sim'
-    SEARCH_ALL = 'searchall_natsort_en_im'
-    TITLE = 'title_natsort_en_i'
+    EFFECTIVELY_PUBLISHED = 'effectively_published'
+    EXTERNAL_ID = 'external_id'
+    HARVESTABLE = 'harvestable'
+    LAST_INDEXED = 'date_last_indexed'
+    PARENT_COLLECTIONS = 'parent_collections'
+    PUBLIC_IN_MEDUSA = 'public_in_medusa'
+    PUBLISHED_IN_DLS = 'published_in_dls'
+    REPOSITORY_ID = 'repository_id'
+    REPOSITORY_TITLE = 'repository_title'
+    REPRESENTATIVE_IMAGE = 'representative_image'
+    REPRESENTATIVE_ITEM = 'representative_item'
+    RESOURCE_TYPES = 'resource_types'
+    SEARCH_ALL = '_all'
+    TITLE = CollectionElement.new(name: 'title').indexed_keyword_field
   end
+
+  ##
+  # N.B.: See the docs for this same constant in Agent.
+  #
+  CURRENT_INDEX_SCHEMA = {
+      settings: {
+          number_of_shards: 1
+      },
+      mappings: {
+          self.to_s.downcase => {
+              date_detection: false,
+              dynamic_templates: [
+                  EntityElement::ELASTICSEARCH_DYNAMIC_TEMPLATE
+              ],
+              properties: {
+                  IndexFields::ACCESS_SYSTEMS => { type: 'keyword' },
+                  IndexFields::ACCESS_URL => { type: 'keyword' },
+                  IndexFields::ALLOWED_ROLES => { type: 'keyword' },
+                  IndexFields::DENIED_ROLES => { type: 'keyword' },
+                  IndexFields::EFFECTIVELY_PUBLISHED => { type: 'boolean' },
+                  IndexFields::EXTERNAL_ID => { type: 'keyword' },
+                  IndexFields::HARVESTABLE => { type: 'boolean' },
+                  IndexFields::LAST_INDEXED => { type: 'date' },
+                  IndexFields::PARENT_COLLECTIONS => { type: 'keyword' },
+                  IndexFields::PUBLIC_IN_MEDUSA => { type: 'boolean' },
+                  IndexFields::PUBLISHED_IN_DLS => { type: 'boolean' },
+                  IndexFields::REPOSITORY_ID => { type: 'keyword' },
+                  IndexFields::REPOSITORY_TITLE => { type: 'keyword' },
+                  IndexFields::REPRESENTATIVE_ITEM => { type: 'keyword' },
+                  IndexFields::RESOURCE_TYPES => { type: 'keyword' }
+              }
+          }
+      }
+  }
+
+  NEXT_INDEX_SCHEMA = nil
 
   UUID_REGEX = /\A[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/
 
@@ -150,8 +184,26 @@ class Collection < ApplicationRecord
   #
   #after_update :propagate_host_authorization
 
-  after_commit :index_in_solr, on: [:create, :update]
-  after_commit :delete_from_solr, on: :destroy
+  after_commit :index_in_elasticsearch, on: [:create, :update]
+  after_commit :delete_from_elasticsearch, on: :destroy
+
+  # Used by the Elasticsearch client for CRUD actions only (not index changes).
+  index_name ElasticsearchClient.current_index_name(self)
+
+  ##
+  # @return [Enumerable<Hash>] Array of hashes with `:name`, `:label`, and `id`
+  #                            keys in the order they should appear.
+  #
+  def self.facet_fields
+    [
+        { name: IndexFields::REPOSITORY_TITLE, label: 'Repository',
+          id: 'pt-repository-facet' },
+        { name: IndexFields::RESOURCE_TYPES, label: 'Resource Type',
+          id: 'pt-resource-type-facet' },
+        { name: IndexFields::ACCESS_SYSTEMS, label: 'Access Systems',
+          id: 'pt-access-systems-facet' }
+    ]
+  end
 
   ##
   # @param id [Integer] Medusa collection ID
@@ -165,18 +217,55 @@ class Collection < ApplicationRecord
   end
 
   ##
-  # @return [Enumerable<Hash>] Array of hashes with `:name`, `:label`, and `id`
-  #                            keys in the order they should appear.
+  # @param index [Symbol] :current or :next
+  # @return [void]
   #
-  def self.solr_facet_fields
-    [
-        { name: SolrFields::REPOSITORY_TITLE, label: 'Repository',
-          id: 'pt-repository-facet' },
-        { name: SolrFields::RESOURCE_TYPES, label: 'Resource Type',
-          id: 'pt-resource-type-facet' },
-        { name: SolrFields::ACCESS_SYSTEMS, label: 'Access Systems',
-          id: 'pt-access-systems-facet' }
-    ]
+  def self.reindex_all(index = :current)
+    Collection.uncached do
+      count = Collection.count
+      Collection.all.find_each.with_index do |col, i|
+        col.reindex(index)
+
+        pct_complete = (i / count.to_f) * 100
+        CustomLogger.instance.debug("Collection.reindex_all(): #{pct_complete.round(2)}%")
+      end
+      # Remove indexed documents whose entities have disappeared.
+      # TODO: fix this
+      #Collection.solr.all.limit(99999).select{ |c| c.to_s == c }.each do |col_id|
+      #  Solr.delete_by_id(col_id)
+      #end
+    end
+  end
+
+  ##
+  # @return [Hash] Indexable JSON representation of the instance.
+  #
+  def as_indexed_json(options = {})
+    doc = {}
+    doc[IndexFields::ACCESS_SYSTEMS] = self.access_systems
+    doc[IndexFields::ACCESS_URL] = self.access_url
+    doc[IndexFields::ALLOWED_ROLES] = self.allowed_roles.map(&:key)
+    doc[IndexFields::DENIED_ROLES] = self.denied_roles.map(&:key)
+    doc[IndexFields::EFFECTIVELY_PUBLISHED] = self.published
+    doc[IndexFields::EXTERNAL_ID] = self.external_id
+    doc[IndexFields::HARVESTABLE] = self.harvestable
+    doc[IndexFields::LAST_INDEXED] = Time.now.utc.iso8601
+    doc[IndexFields::PARENT_COLLECTIONS] =
+        self.parent_collection_joins.map(&:parent_repository_id)
+    doc[IndexFields::PUBLIC_IN_MEDUSA] = self.public_in_medusa
+    doc[IndexFields::PUBLISHED_IN_DLS] = self.published_in_dls
+    doc[IndexFields::REPOSITORY_ID] = self.repository_id
+    doc[IndexFields::REPOSITORY_TITLE] = self.medusa_repository&.title
+    doc[IndexFields::REPRESENTATIVE_ITEM] = self.representative_item_id
+    doc[IndexFields::RESOURCE_TYPES] = self.resource_types
+
+    self.elements.each do |element|
+      # ES will automatically create a one or more multi fields for this.
+      # See: https://www.elastic.co/guide/en/elasticsearch/reference/0.90/mapping-multi-field-type.html
+      doc[element.indexed_field] = element.value
+    end
+
+    doc
   end
 
   ##
@@ -211,13 +300,6 @@ class Collection < ApplicationRecord
   end
 
   ##
-  # @return [void]
-  #
-  def delete_from_solr
-    Solr.instance.delete(self.solr_id)
-  end
-
-  ##
   # Satisfies the AuthorizableByRole module contract.
   #
   alias_method :effective_allowed_roles, :allowed_roles
@@ -241,6 +323,7 @@ class Collection < ApplicationRecord
   ##
   # @return [MetadataProfile] The profile assigned to the instance, or the
   #                           default profile if none is assigned.
+  #
   def effective_metadata_profile
     self.metadata_profile || MetadataProfile.default
   end
@@ -296,14 +379,8 @@ class Collection < ApplicationRecord
   end
 
   ##
-  # @return [void]
-  #
-  def index_in_solr
-    Solr.instance.add(self.to_solr)
-  end
-
-  ##
   # @return [Enumerable<Set>]
+  # @return [ActiveRecord::Relation<Item>] All items in the collection.
   #
   def item_sets
     ItemSet.where(collection_repository_id: self.repository_id)
@@ -419,11 +496,18 @@ class Collection < ApplicationRecord
 
   ##
   # @return [Integer] Number of items in the collection regardless of hierarchy
-  #                   level or public accessibility.
+  #                   level or public accessibility. The result is cached.
   #
   def num_items
-    @num_items = Item.solr.
-        where(Item::SolrFields::COLLECTION => self.repository_id).count unless @num_items
+    unless @num_items
+      @num_items = ItemFinder.new.
+          collection(self).
+          search_children(true).
+          include_unpublished(true).
+          only_described(false).
+          limit(0).
+          count
+    end
     @num_items
   end
 
@@ -431,18 +515,23 @@ class Collection < ApplicationRecord
   # @return [Integer] Number of objects in the collection. The result is cached.
   #
   def num_objects
-    unless @num_objects
+    unless @num__objects
       case self.package_profile
         when PackageProfile::FREE_FORM_PROFILE
-          query = Item.solr.
-              where(Item::SolrFields::COLLECTION => self.repository_id).
-              where(Item::SolrFields::VARIANT => Item::Variants::FILE)
+          @num_objects = ItemFinder.new.
+              collection(self).
+              only_described(false).
+              include_unpublished(true).
+              include_variants(*Item::Variants::FILE).
+              count
         else
-          query = Item.solr.
-              where(Item::SolrFields::COLLECTION => self.repository_id).
-              where(Item::SolrFields::PARENT_ITEM => :null)
+          @num_objects = ItemFinder.new.
+              collection(self).
+              only_described(false).
+              include_unpublished(true).
+              search_children(false).
+              count
       end
-      @num_objects = query.count
     end
     @num_objects
   end
@@ -455,19 +544,18 @@ class Collection < ApplicationRecord
     unless @num_public_objects
       case self.package_profile
         when PackageProfile::FREE_FORM_PROFILE
-          query = Item.solr.
-              where(Item::SolrFields::COLLECTION => self.repository_id).
-              where(Item::SolrFields::DESCRIBED => true).
-              where(Item::SolrFields::EFFECTIVELY_PUBLISHED => true).
-              where(Item::SolrFields::VARIANT => Item::Variants::FILE)
+          @num_public_objects = ItemFinder.new.
+              collection(self).
+              only_described(true).
+              include_variants(*Item::Variants::FILE).
+              count
         else
-          query = Item.solr.
-              where(Item::SolrFields::COLLECTION => self.repository_id).
-              where(Item::SolrFields::EFFECTIVELY_PUBLISHED => true).
-              where(Item::SolrFields::DESCRIBED => true).
-              where(Item::SolrFields::PARENT_ITEM => :null)
+          @num_public_objects = ItemFinder.new.
+              collection(self).
+              only_described(true).
+              search_children(false).
+              count
       end
-      @num_public_objects = query.count
     end
     @num_public_objects
   end
@@ -529,6 +617,14 @@ class Collection < ApplicationRecord
       items.destroy_all
     end
     count
+  end
+
+  ##
+  # @param index [Symbol] :current or :next
+  # @return [void]
+  #
+  def reindex(index = :current)
+    index_in_elasticsearch(index)
   end
 
   ##
@@ -638,50 +734,12 @@ class Collection < ApplicationRecord
     RightsStatement.for_uri(self.rightsstatements_org_uri)
   end
 
-  def solr_id
-    self.repository_id
-  end
-
   def to_param
     self.repository_id
   end
 
   def to_s
     self.title
-  end
-
-  ##
-  # @return [Hash]
-  #
-  def to_solr
-    doc = {}
-    doc[SolrFields::ID] = self.solr_id
-    doc[SolrFields::ALLOWED_ROLES] = self.allowed_roles.map(&:key)
-    doc[SolrFields::CLASS] = self.class.to_s
-    doc[SolrFields::DENIED_ROLES] = self.denied_roles.map(&:key)
-    doc[SolrFields::LAST_INDEXED] = Time.now.utc.iso8601
-    doc[SolrFields::ACCESS_SYSTEMS] = self.access_systems
-    doc[SolrFields::ACCESS_URL] = self.access_url
-    doc[SolrFields::DESCRIPTION] = self.description
-    doc[SolrFields::DESCRIPTION_HTML] = self.description_html
-    doc[SolrFields::EFFECTIVELY_PUBLISHED] = self.published
-    doc[SolrFields::EXTERNAL_ID] = self.external_id
-    doc[SolrFields::HARVESTABLE] = self.harvestable
-
-    # Copy description and title into a "metadata" field in order to have Solr
-    # copy them into a searchall field.
-    doc[SolrFields::METADATA_DESCRIPTION] = self.description
-    doc[SolrFields::METADATA_TITLE] = self.title
-    doc[SolrFields::PARENT_COLLECTIONS] =
-        self.parent_collection_joins.map(&:parent_repository_id)
-    doc[SolrFields::PHYSICAL_COLLECTION_URL] = self.physical_collection_url
-    doc[SolrFields::PUBLIC_IN_MEDUSA] = self.public_in_medusa
-    doc[SolrFields::PUBLISHED_IN_DLS] = self.published_in_dls
-    doc[SolrFields::REPOSITORY_TITLE] = self.medusa_repository&.title
-    doc[SolrFields::REPRESENTATIVE_ITEM] = self.representative_item_id
-    doc[SolrFields::RESOURCE_TYPES] = self.resource_types
-    doc[SolrFields::TITLE] = self.title
-    doc
   end
 
   ##
@@ -744,11 +802,32 @@ class Collection < ApplicationRecord
 
   private
 
+  def delete_from_elasticsearch
+    logger = CustomLogger.instance
+    begin
+      logger.debug(['Deleting document... ',
+                    __elasticsearch__.delete_document].join)
+    rescue Elasticsearch::Transport::Transport::Errors::NotFound => e
+      logger.warn("Collection.delete_from_elasticsearch(): #{e}")
+    end
+  end
+
   def do_before_validation
     self.medusa_cfs_directory_id&.strip!
     self.medusa_file_group_id&.strip!
     self.representative_image&.strip!
     self.representative_item_id&.strip!
+  end
+
+  ##
+  # @param index [Symbol] :current or :next
+  # @return [void]
+  #
+  def index_in_elasticsearch(index = :current)
+    ElasticsearchClient.instance.index_document(index,
+                                                self.class,
+                                                self.id,
+                                                as_indexed_json)
   end
 
   def validate_medusa_uuids

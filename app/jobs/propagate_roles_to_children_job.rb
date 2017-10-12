@@ -16,7 +16,6 @@ class PropagateRolesToChildrenJob < Job
 
     item.propagate_roles(self.task)
 
-    Solr.instance.commit
     self.task.succeeded
   end
 

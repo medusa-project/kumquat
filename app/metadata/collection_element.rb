@@ -6,6 +6,14 @@ class CollectionElement < EntityElement
 
   belongs_to :collection, inverse_of: :elements, touch: true
 
+  # N.B.: This is needed to ward off the following
+  # ActiveRecord::SubclassNotFound error: "Invalid single-table inheritance
+  # type: CollectionElement is not a subclass of CollectionElement"
+  # which cropped up in the development environment after including the
+  # elasticsearch-model gem 5.0.1.
+  # See: https://github.com/galetahub/ckeditor/issues/739#issuecomment-303773864
+  self.inheritance_column = nil
+
   ##
   # @return [Enumerable<CollectionElement>]
   #

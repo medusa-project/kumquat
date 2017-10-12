@@ -1,7 +1,18 @@
-$('#pt-items').html('<%= escape_javascript(render('items')) %>');
-$('.pt-facets').html('<%= escape_javascript(render('facets')) %>');
-$('#pt-search-status').html('<%= escape_javascript(search_status(@items, @start, @num_results_shown)) %>');
-$('#pt-download-zip-modal-container').html('<%= escape_javascript(render(partial: 'download_zip_panel', locals: { context: :results,
-                                                                                                                  num_downloadable_items: @num_downloadable_items,
-                                                                                                                  total_byte_size: @total_byte_size })) %>');
+$('#pt-items').html('<%=j render('items') %>');
+$('.pt-facets').html('<%=j render('facets') %>');
+$('#pt-search-status').html('<%=j search_status(@count, @start, @num_results_shown) %>');
+$('#pt-download-zip-modal-container').html('<%=j render(partial: 'download_zip_panel', locals: { context: :results,
+                                                                                                 num_downloadable_items: @num_downloadable_items,
+                                                                                                 total_byte_size: @total_byte_size }) %>');
+<% if @collection
+  atom_url = collection_items_path(@permitted_params.merge(format: 'atom'))
+  json_url = collection_items_path(@permitted_params.merge(format: 'json'))
+else
+  atom_url = items_path(@permitted_params.merge(format: 'atom'))
+  json_url = items_path(@permitted_params.merge(format: 'json'))
+end %>
+
+$('#pt-view-as-atom').attr('href', '<%= atom_url %>');
+$('#pt-view-as-json').attr('href', '<%= json_url %>');
+
 PearTree.view.attachEventListeners();

@@ -21,7 +21,6 @@ class BatchChangeItemMetadataJob < Job
     collection.change_item_element_values(element_name, replace_values,
                                           self.task)
 
-    Solr.instance.commit
     self.task.succeeded
   end
 

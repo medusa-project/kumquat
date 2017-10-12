@@ -5,8 +5,6 @@ require 'test_helper'
 #
 # http://www.openarchives.org/OAI/openarchivesprotocol.html
 #
-# A test instance of Solr must be running.
-#
 class OaiPmhControllerTest < ActionDispatch::IntegrationTest
 
   setup do

@@ -48,38 +48,21 @@
           <i class="fa fa-code"></i>&nbsp;JSON
         <% end %>
       </li>
-      <% if @item.has_iiif_manifest? %>
-        <li>
-          <%= link_to item_iiif_manifest_path(@item), target: '_blank' do %>
-            <i class="fa fa-code"></i>&nbsp;IIIF Presentation Manifest
-          <% end %>
-        </li>
-      <% end %>
-      <% if @item.bib_id %>
-        <li>
-          <%= link_to @item.catalog_record_url, target: '_blank' do %>
-            <i class="fa fa-book"></i>&nbsp;&nbsp;Library Catalog Record
-          <% end %>
-        </li>
-      <% end %>
-      <% if Rails.env.development? %>
-        <li class="divider"></li>
-        <li>
-          <%= link_to(Configuration.instance.solr_url.chomp('/') + '/' +
-                          Configuration.instance.solr_core +
-                          "/select?wt=json&indent=true&q=id:#{@item.repository_id}", target: '_blank') do %>
-            <i class="fa fa-search"></i>&nbsp;&nbsp;Solr (DEVELOPMENT)
-          <% end %>
-        </li>
-      <% end %>
-      <li class="divider"></li>
+    <% end %>
+    <% if @item.bib_id %>
       <li>
-        <%= link_to @item, target: '_blank' do %>
-          <i class="fa fa-globe"></i>&nbsp;&nbsp;Public View
+        <%= link_to @item.catalog_record_url, target: '_blank' do %>
+          <i class="fa fa-book"></i>&nbsp;&nbsp;Library Catalog Record
         <% end %>
       </li>
-    </ul>
-  </div>
+    <% end %>
+    <li class="divider"></li>
+    <li>
+      <%= link_to @item, target: '_blank' do %>
+        <i class="fa fa-globe"></i>&nbsp;&nbsp;Public View
+      <% end %>
+    </li>
+  </ul>
 </div>
 
 <% if @item.parent %>

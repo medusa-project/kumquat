@@ -193,8 +193,7 @@ module AdminHelper
     # 1. Build the item structure excluding parents
     html = '<ul>'
     html += "  <li><strong>#{icon_for(item)} #{item.title}</strong>"
-    subitems = item.items_from_solr.order(Item::SolrFields::STRUCTURAL_SORT).
-        limit(9999).to_a
+    subitems = item.finder.order(Item::IndexFields::STRUCTURAL_SORT).to_a
     if subitems.any?
       html += '  <ul>'
       subitems.each do |child|

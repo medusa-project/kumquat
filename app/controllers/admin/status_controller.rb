@@ -13,7 +13,7 @@ module Admin
               application_status,
               downloader_status,
               image_server_status,
-              search_server_status
+              elasticsearch_status
           ]
           struct += job_worker_status
           render json: struct
@@ -40,6 +40,15 @@ module Admin
       struct
     end
 
+    def elasticsearch_status
+      index = ElasticsearchClient.current_index_name(Collection)
+      {
+          service: 'Elasticsearch',
+          status: ElasticsearchClient.instance.index_exists?(index) ?
+                      'online' : 'offline'
+      }
+    end
+
     def image_server_status
       struct = { service: 'Image Server' }
       config = ::Configuration.instance
@@ -61,18 +70,6 @@ module Admin
       Job.worker_pids.map do |pid|
         { service: 'Job Worker', status: 'online', pid: pid }
       end
-    end
-
-    def search_server_status
-      struct = { service: 'Search Server' }
-      begin
-        Solr.instance.get('select', params: { q: '*:*', start: 0, rows: 1 })
-      rescue RSolr::Error::Http
-        struct[:status] = 'offline'
-      else
-        struct[:status] = 'online'
-      end
-      struct
     end
 
   end

@@ -25,7 +25,6 @@ module Admin
         keep_flash
         render 'create'
       else
-        Solr.instance.commit
         response.headers['X-PearTree-Result'] = 'success'
         flash['success'] = 'Agent relationship created.'
         keep_flash
@@ -40,7 +39,6 @@ module Admin
       rescue => e
         handle_error(e)
       else
-        Solr.instance.commit
         flash['success'] = 'Agent relationship removed.'
       ensure
         redirect_back fallback_location: admin_agent_relations_path
@@ -80,7 +78,6 @@ module Admin
         render partial: 'shared/validation_messages',
                locals: { entity: e }
       else
-        Solr.instance.commit
         response.headers['X-PearTree-Result'] = 'success'
         flash['success'] = 'Agent relationship updated.'
         keep_flash

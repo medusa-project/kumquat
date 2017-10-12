@@ -74,7 +74,7 @@ module ApplicationHelper
   ##
   # Returns an ordered list of the given entities (Items, Collections, Agents).
   #
-  # @param entities [Relation<Representable>]
+  # @param entities [Enumerable<Representable>]
   # @param start [integer] Offset.
   # @param options [Hash] Hash with optional keys.
   # @option options [Boolean] :link_to_admin
@@ -164,6 +164,20 @@ module ApplicationHelper
       html += '</li>'
     end
     html += '</ol>'
+    raw(html)
+  end
+
+  ##
+  # @param facets [Enumerable<Facet>]
+  # @param permitted_params [ActionController::Parameters]
+  # @return [String] HTML string
+  #
+  def facets_as_panels(facets, permitted_params)
+    return nil unless facets
+    html = ''
+    facets.select{ |f| f.terms.any? }.each do |facet|
+      html += facet_panel(facet, params.permit(permitted_params))
+    end
     raw(html)
   end
 
@@ -459,6 +473,39 @@ module ApplicationHelper
     raw(html)
   end
 
+  ##
+  # @param facet [Facet]
+  #
+  def facet_panel(facet, permitted_params)
+    panel = "<div class=\"panel panel-default\" id=\"#{facet.field}\">
+      <div class=\"panel-heading\">
+        <h3 class=\"panel-title\">#{facet.name}</h3>
+      </div>
+      <div class=\"panel-body\">
+        <ul>"
+    facet.terms[0..Option::integer(Option::Keys::FACET_TERM_LIMIT)].each do |term|
+      checked = (params[:fq] and params[:fq].include?(term.query)) ?
+                    'checked' : nil
+      checked_params = term.removed_from_params(permitted_params.deep_dup).except(:start)
+      unchecked_params = term.added_to_params(permitted_params.deep_dup).except(:start)
+      term_label = truncate(term.label, length: 80)
+
+      panel += "<li class=\"pt-term\">"\
+               "  <div class=\"checkbox\">"\
+               "    <label>"\
+               "      <input type=\"checkbox\" name=\"pt-facet-term\" #{checked} "\
+               "          data-query=\"#{term.query.gsub('"', '&quot;')}\" "\
+               "          data-checked-href=\"#{url_for(unchecked_params)}\" "\
+               "          data-unchecked-href=\"#{url_for(checked_params)}\">"\
+               "      <span class=\"pt-term-name\">#{term_label}</span> "\
+               "      <span class=\"pt-count badge\">#{term.count}</span>"\
+               "    </label>"\
+               "  </div>"\
+               "</li>"
+    end
+    raw(panel + '</ul></div></div>')
+  end
+
   def item_structure_breadcrumb(item)
     html = ''
     parent = item.parent
@@ -503,7 +550,7 @@ module ApplicationHelper
   end
 
   def repository_link(collection)
-    fq = "#{Collection::SolrFields::REPOSITORY_TITLE}:\"#{collection.medusa_repository.title}\""
+    fq = "#{Collection::IndexFields::REPOSITORY_TITLE}:\"#{collection.medusa_repository.title}\""
     link_to collection.medusa_repository.title, collections_path(fq: fq)
   end
 

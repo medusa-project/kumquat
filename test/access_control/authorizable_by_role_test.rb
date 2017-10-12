@@ -21,9 +21,9 @@ class AuthorizableByRoleTest < ActiveSupport::TestCase
 
   test 'authorized_by_any_roles?() should return true if given an allowed role
   and a denied role' do
-    @collection.allowed_roles << roles(:cellists)
+    @collection.allowed_roles << roles(:catalogers)
     @collection.denied_roles << roles(:users)
-    assert @collection.authorized_by_any_roles?([roles(:users), roles(:cellists)])
+    assert @collection.authorized_by_any_roles?([roles(:users), roles(:catalogers)])
   end
 
   # authorized_by_role?()

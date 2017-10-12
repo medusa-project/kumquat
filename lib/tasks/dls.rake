@@ -5,7 +5,6 @@ namespace :dls do
     desc 'Reindex all agents'
     task :reindex => :environment do |task, args|
       reindex_agents
-      Solr.instance.commit
     end
 
   end
@@ -21,7 +20,6 @@ namespace :dls do
           MedusaIngester.new.recreate_binaries(collection)
         end
       end
-      Solr.instance.commit
     end
 
     desc 'Recreate binaries in a collection'
@@ -30,7 +28,6 @@ namespace :dls do
       ActiveRecord::Base.transaction do
         MedusaIngester.new.recreate_binaries(collection)
       end
-      Solr.instance.commit
     end
 
     desc 'Populate the byte sizes of all binaries'
@@ -120,7 +117,6 @@ namespace :dls do
           binary.save!
         end
       end
-      Solr.instance.commit
     end
 
   end
@@ -136,7 +132,6 @@ namespace :dls do
     desc 'Reindex all collections'
     task :reindex => :environment do |task, args|
       reindex_collections
-      Solr.instance.commit
     end
 
     desc 'Sync collections from Medusa'
@@ -208,44 +203,28 @@ namespace :dls do
 
   namespace :items do
 
-    desc 'Delete all item Solr documents in a collection'
-    task :clear_collection_index, [:uuid] => :environment do |task, args|
-      Solr.instance.delete_by_query("#{Item::SolrFields::COLLECTION}:#{args[:uuid]}")
-      Solr.instance.commit
-    end
-
-    desc 'Print an item\'s Solr document'
-    task :print_solr_document, [:uuid] => :environment do |task, args|
-      item = Item.find_by_repository_id(args[:uuid])
-      puts JSON.pretty_generate(item.solr_document)
-    end
-
     desc 'Delete all items from a collection'
     task :purge_collection, [:uuid] => :environment do |task, args|
       Collection.find_by_repository_id(args[:uuid]).purge
-      Solr.instance.commit
     end
 
     desc 'Reindex an item and all of its children. Omit uuid to index all items'
     task :reindex, [:uuid] => :environment do |task, args|
       if args[:uuid].present?
         item = Item.find_by_repository_id(args[:uuid])
-        item.index_in_solr
-        item.all_children.each do |it|
-          it.index_in_solr
+        item.all_children.push(item).each do |it|
+          it.reindex
         end
       else
         reindex_items
       end
-      Solr.instance.commit
     end
 
     desc 'Reindex items in a collection'
     task :reindex_collection, [:uuid] => :environment do |task, args|
       Item.where(collection_repository_id: args[:uuid]).each do |item|
-        item.index_in_solr
+        item.reindex
       end
-      Solr.instance.commit
     end
 
     desc 'Sync items from Medusa (modes: create_only, recreate_binaries, delete_missing)'
@@ -280,48 +259,16 @@ namespace :dls do
 
   end
 
-  desc 'Reindex everything'
-  task :reindex => :environment do |task, args|
-    reindex_agents
-    reindex_collections
-    reindex_items
-    Solr.instance.commit
-  end
-
   def reindex_agents
-    Agent.uncached do
-      # Reindex existing agents
-      Agent.all.find_each { |agent| agent.index_in_solr }
-      # Remove indexed documents whose entities have disappeared.
-      # (For these, Relation will contain a string ID in place of an instance.)
-      Agent.solr.all.limit(99999).select{ |a| a.to_s == a }.each do |agent_id|
-        Solr.delete_by_id(agent_id)
-      end
-    end
+    Agent.reindex_all
   end
 
   def reindex_collections
-    Collection.uncached do
-      # Reindex existing collections
-      Collection.all.find_each { |col| col.index_in_solr }
-      # Remove indexed documents whose entities have disappeared.
-      # (For these, Relation will contain a string ID in place of an instance.)
-      Collection.solr.all.limit(99999).select{ |c| c.to_s == c }.each do |col_id|
-        Solr.delete_by_id(col_id)
-      end
-    end
+    Collection.reindex_all
   end
 
   def reindex_items
-    num_entities = Item.count
-    # Item.uncached{} in conjunction with find_each() circumvents ActiveRecord
-    # caching that could lead to memory exhaustion.
-    Item.uncached do
-      Item.all.find_each.with_index do |item, index|
-        item.index_in_solr
-        puts "reindex items: #{((index / num_entities.to_f) * 100).round(2)}%"
-      end
-    end
+    Item.reindex_all
   end
 
 end
