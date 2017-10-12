@@ -214,11 +214,11 @@ module ItemsHelper
   #
   def item_filter_field_element_menu(metadata_profile)
     html = "<select class=\"form-control\" name=\"df\">
-        <option value=\"#{Item::IndexFields::SEARCH_ALL}\">Any Field</option>
         <optgroup label=\"System Fields\">
           <option value=\"#{Item::IndexFields::REPOSITORY_ID}\">ID</option>
         </optgroup>
-        <optgroup label=\"Metadata Profile Elements\">"
+        <optgroup label=\"Metadata Profile Elements\">
+          <option value=\"#{Item::IndexFields::SEARCH_ALL}\" selected>Any Element</option>"
     metadata_profile.elements.each do |e|
       html += "<option value=\"#{e.indexed_field}\">#{e.label}</option>"
     end
