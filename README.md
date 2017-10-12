@@ -3,7 +3,8 @@ This is a basic getting-started guide for developers.
 # Quick Links
 
 * [SCARS Wiki](https://wiki.illinois.edu/wiki/pages/viewpage.action?spaceKey=scrs&title=Medusa+DLS)
-* [Issue tracker](https://bugs.library.illinois.edu/secure/RapidBoard.jspa?rapidView=20062)
+    * This contains general design documentation.
+* [Kanban board](https://bugs.library.illinois.edu/secure/RapidBoard.jspa?rapidView=20062)
 
 # Dependencies
 
@@ -17,11 +18,12 @@ This is a basic getting-started guide for developers.
       is also required
 * [Cantaloupe](https://medusa-project.github.io/cantaloupe/) 3.3+
     * [Kakadu](http://kakadusoftware.com/downloads/) or
-      [OpenJPEG](http://www.openjpeg.org) will also be required.
-    * (Any other IIIF Image API 2.1 server should mostly work, but Cantaloupe
-      provides some bonus features like PDF thumbnails, video stills, remote
-      cache management, and compatibility with some less common image formats
-      found in Medusa.)
+      [OpenJPEG](http://www.openjpeg.org) (2.2.0 or later) will also be
+      required.
+    * Other IIIF Image API 2.1 servers should generally work, but Cantaloupe
+      provides some bonus features like PDF & video thumbnails, remote
+      cache management, and compatibility with some less-common image formats
+      found in Medusa.
 * exiv2
 * ffmpeg
 
@@ -131,7 +133,7 @@ collection.)
    `bin/rails jobs:workoff` to start it. When complete, the collection
    should be fully populated with metadata.
 
-## 10) Configure the image server
+## 10) Configure Cantaloupe
 
 1. Make a copy of `config/cantaloupe/delegates-n.n-sample.rb` and modify the
    constants at the beginning of the file.
@@ -159,9 +161,29 @@ Additionally, if using OpenJPEG rather than Kakadu, set
 
 [Test it](http://localhost:8182/iiif/2/7b7e08f0-0b13-0134-1d55-0050569601ca-a/full/500,/0/default.jpg)
 
+# Upgrading
+
+## Upgrading the database schema
+
+`bin/rails db:migrate`
+
+## Upgrading the Elasticsearch index schema(s)
+
+Rather than trying to change the existing indexes in place, the procedure is to
+create a new set of indexes, populate them with documents, and then switch the
+the application over to use them. The necessary steps are:
+
+1. `bin/rails elasticsearch:create_next_indexes`
+2. `bin/rails elasticsearch:populate_next_indexes`
+3. `bin/rails elasticsearch:migrate_schema_versions`
+4. Restart Rails
+
 # Notes
 
 ## Tests
+
+Medusa storage must be mounted and Elasticsearch and Cantaloupe must be running
+in order for all of the tests to pass.
 
 Test fixtures are based on production Medusa data.
 `test/fixtures/collections.yml` contains the collections used for testing.
