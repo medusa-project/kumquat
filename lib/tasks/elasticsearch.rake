@@ -4,59 +4,97 @@
 
 namespace :elasticsearch do
 
-  desc 'Create a current index for the given model'
-  task :create_current_index, [:model] => :environment do |task, args|
-    class_ = args[:model].constantize
-    create_current_index(class_)
-  end
+  namespace :indexes do
 
-  desc 'Create all current indexes'
-  task :create_current_indexes => :environment do |task, args|
-    EntityFinder::ENTITIES.each do |class_|
+    desc 'Create a current index for the given model'
+    task :create_current, [:model] => :environment do |task, args|
+      class_ = args[:model].constantize
       create_current_index(class_)
     end
-  end
 
-  desc 'Get the current index name for the given model'
-  task :current_index_name, [:model] => :environment do |task, args|
-    class_ = args[:model].constantize
-    puts ElasticsearchClient.current_index_name(class_)
-  end
-
-  desc 'Create all next indexes'
-  task :create_next_indexes => :environment do |task, args|
-    EntityFinder::ENTITIES.each do |class_|
-      create_next_index(class_)
+    desc 'Create all current indexes'
+    task :create_all_current => :environment do |task, args|
+      EntityFinder::ENTITIES.each do |class_|
+        create_current_index(class_)
+      end
     end
-  end
 
-  desc 'Delete a current index'
-  task :delete_current_index, [:model] => :environment do |task, args|
-    class_ = args[:model].constantize
-    delete_current_index(class_)
-  end
+    desc 'Create all latest indexes'
+    task :create_all_latest => :environment do |task, args|
+      EntityFinder::ENTITIES.each do |class_|
+        create_latest_index(class_)
+      end
+    end
 
-  desc 'Delete all current indexes'
-  task :delete_current_indexes => :environment do |task, args|
-    EntityFinder::ENTITIES.each do |class_|
+    desc 'Delete an index by name'
+    task :delete, [:name] => :environment do |task, args|
+      ElasticsearchClient.instance.delete_index(args[:name])
+    end
+
+    desc 'Delete a current index'
+    task :delete_current, [:model] => :environment do |task, args|
+      class_ = args[:model].constantize
       delete_current_index(class_)
     end
-  end
 
-  desc 'Delete an index by name'
-  task :delete_index, [:name] => :environment do |task, args|
-    ElasticsearchClient.instance.delete_index(args[:name])
-  end
+    desc 'Delete all current indexes'
+    task :delete_all_current => :environment do |task, args|
+      EntityFinder::ENTITIES.each do |class_|
+        delete_current_index(class_)
+      end
+    end
 
-  desc 'List indexes'
-  task :list_indexes => :environment do |task, args|
-    puts ElasticsearchClient.instance.indexes
-  end
+    desc 'Delete all latest indexes'
+    task :delete_all_latest => :environment do |task, args|
+      if ElasticsearchIndex.current_index_version !=
+          ElasticsearchIndex.latest_index_version
+        EntityFinder::ENTITIES.each do |class_|
+          delete_latest_index(class_)
+        end
+      else
+        STDERR.puts 'Latest index version is the same as the current version. '\
+            'Use delete_all_current if you\'re sure you want to delete them.'
 
-  desc 'Migrate schema_versions'
-  task :migrate_schema_versions => :environment do |task, args|
-    ElasticsearchClient.instance.migrate_schemas
-    puts 'Done. Restart required.'
+      end
+    end
+
+    desc 'List indexes'
+    task :list => :environment do |task, args|
+      puts ElasticsearchClient.instance.indexes
+    end
+
+    desc 'Migrate to the latest schema_version'
+    task :migrate_to_latest => :environment do |task, args|
+      ElasticsearchIndex.migrate_to_latest
+      puts 'Done. Restart required.'
+    end
+
+    desc 'Populate/reindex the current indexes with documents'
+    task :populate_current => :environment do |task, args|
+      EntityFinder::ENTITIES.each do |class_|
+        class_.reindex_all(:current)
+      end
+    end
+
+    desc 'Populate/reindex the latest indexes with documents'
+    task :populate_latest => :environment do |task, args|
+      EntityFinder::ENTITIES.each do |class_|
+        class_.reindex_all(:latest)
+      end
+    end
+
+    desc 'Rollback to the previous schema version'
+    task :rollback_to_previous => :environment do |task, args|
+      ElasticsearchClient.instance.rollback_schemas
+      puts 'Done. Restart required.'
+    end
+
+    desc 'Show schema versions'
+    task :schema_versions => :environment do |task, args|
+      puts "Current: #{ElasticsearchIndex.current_index_version}"
+      puts "Latest: #{ElasticsearchIndex.latest_index_version}"
+    end
+
   end
 
   desc 'Execute an arbitrary query'
@@ -74,52 +112,24 @@ namespace :elasticsearch do
     puts 'cURL equivalent: ' + curl_cmd
   end
 
-  desc 'Populate the current indexes with documents'
-  task :reindex_current_indexes => :environment do |task, args|
-    EntityFinder::ENTITIES.each do |class_|
-      class_.reindex_all(:current)
-    end
-  end
-
-  desc 'Populate the next indexes with documents'
-  task :reindex_next_indexes => :environment do |task, args|
-    EntityFinder::ENTITIES.each do |class_|
-      class_.reindex_all(:next)
-    end
-  end
-
-  desc 'Rollback schema_versions'
-  task :rollback_schema_versions => :environment do |task, args|
-    ElasticsearchClient.instance.rollback_schemas
-    puts 'Done. Restart required.'
-  end
-
-  desc 'Show schema versions'
-  task :schema_versions => :environment do |task, args|
-    puts "Current: #{ElasticsearchClient.current_index_version}"
-    puts "Next: #{ElasticsearchClient.next_index_version}"
-  end
-
   def create_current_index(class_)
-    index_name = ElasticsearchClient.current_index_name(class_)
-    schema = class_::CURRENT_INDEX_SCHEMA
-    ElasticsearchClient.instance.create_index(index_name, schema)
+    index = ElasticsearchIndex.current_index(class_)
+    ElasticsearchClient.instance.create_index(index.name, index.schema)
   end
 
   def delete_current_index(class_)
-    index_name = ElasticsearchClient.current_index_name(class_)
-    ElasticsearchClient.instance.delete_index(index_name)
+    index = ElasticsearchIndex.current_index(class_)
+    ElasticsearchClient.instance.delete_index(index.name)
   end
 
-  def create_next_index(class_)
-    index_name = ElasticsearchClient.next_index_name(class_)
-    schema = class_::NEXT_INDEX_SCHEMA
-    ElasticsearchClient.instance.create_index(index_name, schema)
+  def create_latest_index(class_)
+    index = ElasticsearchIndex.latest_index(class_)
+    ElasticsearchClient.instance.create_index(index.name, index.schema)
   end
 
-  def delete_next_index(class_)
-    index_name = ElasticsearchClient.next_index_name(class_)
-    ElasticsearchClient.instance.delete_index(index_name)
+  def delete_latest_index(class_)
+    index = ElasticsearchIndex.latest_index(class_)
+    ElasticsearchClient.instance.delete_index(index.name)
   end
 
 end

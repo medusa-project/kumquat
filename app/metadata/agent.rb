@@ -14,44 +14,6 @@ class Agent < ApplicationRecord
     SEARCH_ALL = '_all'
   end
 
-  ##
-  # N.B.: The
-  # [elasticsearch-model gem](https://github.com/elastic/elasticsearch-rails/tree/master/elasticsearch-model)
-  # provides a DSL for defining the schema, but it works with a constant index
-  # name which is incompatible with the way the application migrates to new
-  # index versions. Also, this has the benefit of being defined exactly the way
-  # it's going to be sent to Elasticsearch.
-  #
-  # @see NEXT_INDEX_SCHEMA
-  # @see: https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-create-index.html
-  #
-  CURRENT_INDEX_SCHEMA = {
-      settings: {
-          number_of_shards: 1
-      },
-      mappings: {
-          self.to_s.downcase => {
-              date_detection: false,
-              dynamic_templates: [
-                  EntityElement::ELASTICSEARCH_DYNAMIC_TEMPLATE
-              ],
-              properties: {
-                  IndexFields::DESCRIPTION => {
-                      analyzer: 'english',
-                      fielddata: true,
-                      index_options: 'offsets',
-                      type: 'text'
-                  },
-                  IndexFields::EFFECTIVELY_PUBLISHED => { type: 'boolean' },
-                  IndexFields::LAST_INDEXED => { type: 'date' },
-                  IndexFields::NAME => { type: 'keyword' }
-              }
-          }
-      }
-  }
-
-  NEXT_INDEX_SCHEMA = nil
-
   belongs_to :agent_rule, inverse_of: :agents
   belongs_to :agent_type, inverse_of: :agents
 
@@ -70,7 +32,7 @@ class Agent < ApplicationRecord
   after_commit :delete_from_elasticsearch, on: :destroy
 
   # Used by the Elasticsearch client for CRUD actions only (not index changes).
-  index_name ElasticsearchClient.current_index_name(self)
+  index_name ElasticsearchIndex.current_index(self).name
 
   ##
   # @param id [String]
@@ -82,7 +44,7 @@ class Agent < ApplicationRecord
   end
 
   ##
-  # @param index [Symbol] :current or :next
+  # @param index [Symbol] :current or :latest
   # @return [void]
   #
   def self.reindex_all(index = :current)
@@ -103,6 +65,8 @@ class Agent < ApplicationRecord
   end
 
   ##
+  # N.B.: Changing this normally requires adding a new index schema version.
+  #
   # @return [Hash] Indexable JSON representation of the instance.
   #
   def as_indexed_json(options = {})
@@ -140,7 +104,7 @@ class Agent < ApplicationRecord
   end
 
   ##
-  # @param index [Symbol] :current or :next
+  # @param index [Symbol] :current or :latest
   # @return [void]
   #
   def reindex(index = :current)
@@ -193,7 +157,7 @@ class Agent < ApplicationRecord
   end
 
   ##
-  # @param index [Symbol] :current or :next
+  # @param index [Symbol] :current or :latest
   # @return [void]
   #
   def index_in_elasticsearch(index = :current)
