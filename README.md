@@ -67,7 +67,7 @@ This is a basic getting-started guide for developers.
 
 ## 8) Create the Elasticsearch indexes
 
-`$ bin/rails elasticsearch:create_current_indexes`
+`$ bin/rails elasticsearch:indexes:create_all_latest`
 
 ## 9) Load some data
 
