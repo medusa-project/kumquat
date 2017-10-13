@@ -41,11 +41,10 @@ module Admin
     end
 
     def elasticsearch_status
-      index = ElasticsearchClient.current_index_name(Collection)
+      index = ElasticsearchIndex.current_index(Collection)
       {
           service: 'Elasticsearch',
-          status: ElasticsearchClient.instance.index_exists?(index) ?
-                      'online' : 'offline'
+          status: index.exists? ? 'online' : 'offline'
       }
     end
 

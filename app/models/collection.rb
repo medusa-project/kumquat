@@ -108,42 +108,6 @@ class Collection < ApplicationRecord
     TITLE = CollectionElement.new(name: 'title').indexed_keyword_field
   end
 
-  ##
-  # N.B.: See the docs for this same constant in Agent.
-  #
-  CURRENT_INDEX_SCHEMA = {
-      settings: {
-          number_of_shards: 1
-      },
-      mappings: {
-          self.to_s.downcase => {
-              date_detection: false,
-              dynamic_templates: [
-                  EntityElement::ELASTICSEARCH_DYNAMIC_TEMPLATE
-              ],
-              properties: {
-                  IndexFields::ACCESS_SYSTEMS => { type: 'keyword' },
-                  IndexFields::ACCESS_URL => { type: 'keyword' },
-                  IndexFields::ALLOWED_ROLES => { type: 'keyword' },
-                  IndexFields::DENIED_ROLES => { type: 'keyword' },
-                  IndexFields::EFFECTIVELY_PUBLISHED => { type: 'boolean' },
-                  IndexFields::EXTERNAL_ID => { type: 'keyword' },
-                  IndexFields::HARVESTABLE => { type: 'boolean' },
-                  IndexFields::LAST_INDEXED => { type: 'date' },
-                  IndexFields::PARENT_COLLECTIONS => { type: 'keyword' },
-                  IndexFields::PUBLIC_IN_MEDUSA => { type: 'boolean' },
-                  IndexFields::PUBLISHED_IN_DLS => { type: 'boolean' },
-                  IndexFields::REPOSITORY_ID => { type: 'keyword' },
-                  IndexFields::REPOSITORY_TITLE => { type: 'keyword' },
-                  IndexFields::REPRESENTATIVE_ITEM => { type: 'keyword' },
-                  IndexFields::RESOURCE_TYPES => { type: 'keyword' }
-              }
-          }
-      }
-  }
-
-  NEXT_INDEX_SCHEMA = nil
-
   UUID_REGEX = /\A[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/
 
   serialize :access_systems
@@ -188,7 +152,7 @@ class Collection < ApplicationRecord
   after_commit :delete_from_elasticsearch, on: :destroy
 
   # Used by the Elasticsearch client for CRUD actions only (not index changes).
-  index_name ElasticsearchClient.current_index_name(self)
+  index_name ElasticsearchIndex.current_index(self).name
 
   ##
   # @return [Enumerable<Hash>] Array of hashes with `:name`, `:label`, and `id`
@@ -217,7 +181,7 @@ class Collection < ApplicationRecord
   end
 
   ##
-  # @param index [Symbol] :current or :next
+  # @param index [Symbol] :current or :latest
   # @return [void]
   #
   def self.reindex_all(index = :current)
@@ -238,6 +202,8 @@ class Collection < ApplicationRecord
   end
 
   ##
+  # N.B.: Changing this normally requires adding a new index schema version.
+  #
   # @return [Hash] Indexable JSON representation of the instance.
   #
   def as_indexed_json(options = {})
@@ -620,7 +586,7 @@ class Collection < ApplicationRecord
   end
 
   ##
-  # @param index [Symbol] :current or :next
+  # @param index [Symbol] :current or :latest
   # @return [void]
   #
   def reindex(index = :current)
@@ -820,7 +786,7 @@ class Collection < ApplicationRecord
   end
 
   ##
-  # @param index [Symbol] :current or :next
+  # @param index [Symbol] :current or :latest
   # @return [void]
   #
   def index_in_elasticsearch(index = :current)

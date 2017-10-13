@@ -6,11 +6,7 @@ administrator_email:
 
 current_index_version:
   key: <%= Option::Keys::CURRENT_INDEX_VERSION %>
-  value: '{"value" : 1}'
-
-next_index_version:
-  key: <%= Option::Keys::NEXT_INDEX_VERSION %>
-  value: '{"value" : 2}'
+  value: '{"value" : 0}'
 
 oai_pmh_enabled:
   key: <%= Option::Keys::OAI_PMH_ENABLED %>

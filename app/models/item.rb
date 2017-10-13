@@ -65,10 +65,6 @@
 # save. For this reason, **instances should always be created, updated, and
 # deleted within transactions.**
 #
-# The index schema is defined in CURRENT_INDEX_SCHEMA and
-# NEXT_INDEX_SCHEMA. See ElasticsearchClient for information
-# about how this works.
-#
 # # Attributes
 #
 # * collection_repository_id: See "Identifiers" above.
@@ -179,88 +175,6 @@ class Item < ApplicationRecord
     end
   end
 
-  ##
-  # N.B.: See the docs for this same constant in Agent.
-  #
-  CURRENT_INDEX_SCHEMA = {
-      settings: {
-          number_of_shards: 1
-      },
-      mappings: {
-          self.to_s.downcase => {
-              date_detection: false,
-              dynamic_templates: [
-                  EntityElement::ELASTICSEARCH_DYNAMIC_TEMPLATE
-              ],
-              properties: {
-                  IndexFields::COLLECTION => { type: 'keyword' },
-                  IndexFields::DATE => { type: 'date' },
-                  IndexFields::DESCRIBED => { type: 'boolean' },
-                  IndexFields::EFFECTIVE_ALLOWED_ROLES => { type: 'keyword' },
-                  IndexFields::EFFECTIVE_DENIED_ROLES => { type: 'keyword' },
-                  IndexFields::EFFECTIVELY_PUBLISHED => { type: 'boolean' },
-                  IndexFields::LAST_INDEXED => { type: 'date' },
-                  IndexFields::LAT_LONG => { type: 'geo_point' },
-                  IndexFields::PAGE_NUMBER => { type: 'short' },
-                  IndexFields::PARENT_ITEM => { type: 'keyword' },
-                  IndexFields::PRIMARY_MEDIA_CATEGORY => { type: 'keyword' },
-                  IndexFields::PUBLISHED => { type: 'boolean' },
-                  IndexFields::REPOSITORY_ID => { type: 'keyword' },
-                  IndexFields::REPRESENTATIVE_FILENAME => { type: 'keyword' },
-                  IndexFields::REPRESENTATIVE_ITEM => { type: 'keyword' },
-                  IndexFields::STRUCTURAL_SORT => { type: 'keyword' },
-                  IndexFields::SUBPAGE_NUMBER => { type: 'short' },
-                  IndexFields::TOTAL_BYTE_SIZE => { type: 'long' },
-                  IndexFields::VARIANT => { type: 'keyword' }
-              }
-          }
-      }
-  }
-
-  NEXT_INDEX_SCHEMA = {
-      settings: {
-          number_of_shards: 1
-      },
-      mappings: {
-          self.to_s.downcase => {
-              date_detection: false,
-              dynamic_templates: [
-                  EntityElement::ELASTICSEARCH_DYNAMIC_TEMPLATE
-              ],
-              properties: {
-                  IndexFields::COLLECTION => { type: 'keyword' },
-                  IndexFields::DATE => { type: 'date' },
-                  IndexFields::DESCRIBED => { type: 'boolean' },
-                  IndexFields::EFFECTIVE_ALLOWED_ROLES => { type: 'keyword' },
-                  IndexFields::EFFECTIVE_DENIED_ROLES => { type: 'keyword' },
-                  IndexFields::EFFECTIVELY_PUBLISHED => { type: 'boolean' },
-                  IndexFields::LAST_INDEXED => { type: 'date' },
-                  IndexFields::LAT_LONG => { type: 'geo_point' },
-                  IndexFields::PAGE_NUMBER => { type: 'short' },
-                  IndexFields::PARENT_ITEM => {
-                      type: 'keyword',
-                      include_in_all: false
-                  },
-                  IndexFields::PRIMARY_MEDIA_CATEGORY => { type: 'keyword' },
-                  IndexFields::PUBLISHED => { type: 'boolean' },
-                  IndexFields::REPOSITORY_ID => {
-                      type: 'keyword',
-                      include_in_all: false
-                  },
-                  IndexFields::REPRESENTATIVE_FILENAME => { type: 'keyword' },
-                  IndexFields::REPRESENTATIVE_ITEM => {
-                      type: 'keyword',
-                      include_in_all: false
-                  },
-                  IndexFields::STRUCTURAL_SORT => { type: 'keyword' },
-                  IndexFields::SUBPAGE_NUMBER => { type: 'short' },
-                  IndexFields::TOTAL_BYTE_SIZE => { type: 'long' },
-                  IndexFields::VARIANT => { type: 'keyword' }
-              }
-          }
-      }
-  }
-
   # In the order they should appear in the TSV, left-to-right.
   NON_DESCRIPTIVE_TSV_COLUMNS = %w(uuid parentId preservationMasterPathname
     preservationMasterFilename preservationMasterUUID accessMasterPathname
@@ -327,7 +241,7 @@ class Item < ApplicationRecord
   after_commit :delete_from_elasticsearch, on: :destroy
 
   # Used by the Elasticsearch client for CRUD actions only (not index changes).
-  index_name ElasticsearchClient.current_index_name(self)
+  index_name ElasticsearchIndex.current_index(self).name
 
   ##
   # @return [Integer]
@@ -366,7 +280,7 @@ class Item < ApplicationRecord
   end
 
   ##
-  # @param index [Symbol] :current or :next
+  # @param index [Symbol] :current or :latest
   # @return [void]
   #
   def self.reindex_all(index = :current)
@@ -466,6 +380,8 @@ class Item < ApplicationRecord
   end
 
   ##
+  # N.B.: Changing this normally requires adding a new index schema version.
+  #
   # @return [Hash] Indexable JSON representation of the instance.
   #
   def as_indexed_json(options = {})
@@ -952,7 +868,7 @@ class Item < ApplicationRecord
   end
 
   ##
-  # @param index [Symbol] :current or :next
+  # @param index [Symbol] :current or :latest
   # @return [void]
   #
   def reindex(index = :current)
@@ -1326,7 +1242,7 @@ class Item < ApplicationRecord
   end
 
   ##
-  # @param index [Symbol] :current or :next
+  # @param index [Symbol] :current or :latest
   # @return [void]
   #
   def index_in_elasticsearch(index = :current)

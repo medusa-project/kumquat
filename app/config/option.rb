@@ -10,7 +10,6 @@ class Option < ApplicationRecord
     COPYRIGHT_STATEMENT = 'website.copyright_statement'
     CURRENT_INDEX_VERSION = 'elasticsearch.current_index_version'
     FACET_TERM_LIMIT = 'website.facet_term_limit'
-    NEXT_INDEX_VERSION = 'elasticsearch.next_index_version'
     OAI_PMH_ENABLED = 'oai_pmh.enabled'
     ORGANIZATION_NAME = 'organization.name'
     RESULTS_PER_PAGE = 'website.results_per_page'

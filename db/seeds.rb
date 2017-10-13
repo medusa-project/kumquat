@@ -10,9 +10,9 @@
 Option.set(Option::Keys::ADMINISTRATOR_EMAIL, 'admin@example.org')
 Option.set(Option::Keys::COPYRIGHT_STATEMENT,
            'Copyright © 2015 My Great Organization. All rights reserved.')
-Option.set(Option::Keys::CURRENT_INDEX_VERSION, 1)
+Option.set(Option::Keys::CURRENT_INDEX_VERSION,
+           ElasticsearchIndex.latest_index_version)
 Option.set(Option::Keys::FACET_TERM_LIMIT, 10)
-Option.set(Option::Keys::NEXT_INDEX_VERSION, 2)
 Option.set(Option::Keys::OAI_PMH_ENABLED, true)
 Option.set(Option::Keys::ORGANIZATION_NAME, 'My Great Organization')
 Option.set(Option::Keys::WEBSITE_NAME,

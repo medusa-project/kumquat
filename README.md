@@ -173,9 +173,9 @@ Rather than trying to change the existing indexes in place, the procedure is to
 create a new set of indexes, populate them with documents, and then switch the
 the application over to use them. The necessary steps are:
 
-1. `bin/rails elasticsearch:create_next_indexes`
-2. `bin/rails elasticsearch:populate_next_indexes`
-3. `bin/rails elasticsearch:migrate_schema_versions`
+1. `bin/rails elasticsearch:indexes:create_all_latest`
+2. `bin/rails elasticsearch:indexes:populate_latest`
+3. `bin/rails elasticsearch:indexes:migrate_to_latest`
 4. Restart Rails
 
 # Notes

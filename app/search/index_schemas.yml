@@ -1,0 +1,169 @@
+##
+# Master list of all index schemas. This is an array of hashes with
+# `agent`, `collection`, and `model` keys, with the array index being the
+# version.
+
+############################### VERSION 0 #################################
+
+--- !map:HashWithIndifferentAccess
+- agent:
+    settings:
+      number_of_shards: 1
+    mappings:
+      agent:
+        date_detection: false
+        dynamic_templates:
+        - metadata_elements:
+            match: dls*
+            mapping:
+              type: text
+              fields:
+                keyword:
+                  type: keyword
+                sort:
+                  type: icu_collation_keyword
+                  index: false
+                  numeric: true
+                  language: en
+                  strength: quaternary
+                  alternate: shifted
+        properties:
+          description:
+            analyzer: english
+            fielddata: true
+            index_options: offsets
+            type: text
+          effectively_published:
+            type: boolean
+          date_last_indexed:
+            type: date
+          name:
+            type: keyword
+  collection:
+    settings:
+      number_of_shards: 1
+    mappings:
+      collection:
+        date_detection: false
+        dynamic_templates:
+        - metadata_elements:
+            match: dls*
+            mapping:
+              type: text
+              fields:
+                keyword:
+                  type: keyword
+                sort:
+                  type: icu_collation_keyword
+                  index: false
+                  numeric: true
+                  language: en
+                  strength: quaternary
+                  alternate: shifted
+        properties:
+          access_systems:
+            type: keyword
+          access_url:
+            type: keyword
+          allowed_roles:
+            type: keyword
+            include_in_all: false
+          denied_roles:
+            type: keyword
+            include_in_all: false
+          effectively_published:
+            type: boolean
+          external_id:
+            type: keyword
+          harvestable:
+            type: boolean
+          date_last_indexed:
+            type: date
+          parent_collections:
+            type: keyword
+            include_in_all: false
+          public_in_medusa:
+            type: boolean
+          published_in_dls:
+            type: boolean
+          repository_id:
+            type: keyword
+            include_in_all: false
+          repository_title:
+            type: keyword
+          representative_item:
+            type: keyword
+            include_in_all: false
+          resource_types:
+            type: keyword
+            include_in_all: false
+  item:
+    settings:
+      number_of_shards: 1
+    mappings:
+      item:
+        date_detection: false
+        dynamic_templates:
+        - metadata_elements:
+            match: dls*
+            mapping:
+              type: text
+              fields:
+                keyword:
+                  type: keyword
+                sort:
+                  type: icu_collation_keyword
+                  index: false
+                  numeric: true
+                  language: en
+                  strength: quaternary
+                  alternate: shifted
+        properties:
+          collection:
+            type: keyword
+            include_in_all: false
+          date:
+            type: date
+          described:
+            type: boolean
+          effective_allowed_roles:
+            type: keyword
+            include_in_all: false
+          effective_denied_roles:
+            type: keyword
+            include_in_all: false
+          effectively_published:
+            type: boolean
+          date_last_indexed:
+            type: date
+          lat_long:
+            type: geo_point
+          page_number:
+            type: short
+          parent_item:
+            type: keyword
+            include_in_all: false
+          primary_media_category:
+            type: keyword
+          published:
+            type: boolean
+          repository_id:
+            type: keyword
+            include_in_all: false
+          representative_filename:
+            type: keyword
+          representative_item:
+            type: keyword
+            include_in_all: false
+          structural_sort:
+            type: keyword
+            include_in_all: false
+          subpage_number:
+            type: short
+          total_byte_size:
+            type: long
+          variant:
+            type: keyword
+            include_in_all: false
+
+############################### VERSION 1 #################################

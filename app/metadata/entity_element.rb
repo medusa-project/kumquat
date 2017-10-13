@@ -13,33 +13,6 @@ class EntityElement < ApplicationRecord
   KEYWORD_FIELD_SUFFIX = '.keyword'
   SORT_FIELD_SUFFIX = '.sort'
 
-  ELASTICSEARCH_DYNAMIC_TEMPLATE = {
-      # All metadata elements will be of text type, with a special multi value
-      # field for human sorting.
-      metadata_elements: {
-          match: INDEX_FIELD_PREFIX + '*',
-          mapping: {
-              type: 'text',
-              fields: {
-                  keyword: {
-                      type: 'keyword'
-                  },
-                  sort: {
-                      # N.B.: As of ES 5.6, this type requires the ICU plugin:
-                      # bin/elasticsearch-plugin install analysis-icu
-                      # See: # https://www.elastic.co/guide/en/elasticsearch/plugins/current/analysis-icu-collation-keyword-field.html
-                      type: 'icu_collation_keyword',
-                      index: false,
-                      numeric: true,
-                      language: 'en',
-                      strength: 'quaternary',
-                      alternate: 'shifted'
-                  }
-              }
-          }
-      }
-  }
-
   validates_presence_of :name
 
   ##
