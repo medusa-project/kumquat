@@ -42,11 +42,11 @@ class MedusaDownloaderClient
 
     config = ::Configuration.instance
 
-    url = "#{config.downloader[:url]}/downloads/create"
+    url = "#{config.downloader_url}/downloads/create"
     client = Curl::Easy.new(url)
     client.http_auth_types = :digest
-    client.username = config.downloader[:user]
-    client.password = config.downloader[:password]
+    client.username = config.downloader_user
+    client.password = config.downloader_password
     client.post_body = {
         'root': 'medusa',
         'zip_name': "#{zip_name.chomp('.zip')}",
@@ -72,11 +72,11 @@ class MedusaDownloaderClient
   def head
     config = ::Configuration.instance
 
-    url = config.downloader[:url]
+    url = config.downloader_url
     client = Curl::Easy.new(url)
     client.http_auth_types = :digest
-    client.username = config.downloader[:user]
-    client.password = config.downloader[:password]
+    client.username = config.downloader_user
+    client.password = config.downloader_password
     client.head
     client.perform
     raise IOError, client.status if client.response_code != 200

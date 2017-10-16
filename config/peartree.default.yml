@@ -17,10 +17,9 @@ development: &development
   :api_ips:
     - 127.0.
   :elasticsearch_endpoint: http://localhost:9200
-  :downloader:
-    :url: http://download.library.illinois.edu:8080
-    :user:
-    :password:
+  :downloader_url: http://download.library.illinois.edu:8080
+  :downloader_user:
+  :downloader_password:
   :shibboleth_host: kumquat-dev.library.illinois.edu
   :shibboleth_uid_field: eppn
   :shibboleth_extra_fields:
@@ -51,10 +50,9 @@ test:
   :api_ips:
     - 127.0.
   :elasticsearch_endpoint: http://localhost:9200
-  :downloader:
-    :url: http://download.library.illinois.edu:8080
-    :user:
-    :password:
+  :downloader_url: http://download.library.illinois.edu:8080
+  :downloader_user:
+  :downloader_password:
   :shibboleth_host: kumquat-dev.library.illinois.edu
   :shibboleth_uid_field: eppn
   :shibboleth_extra_fields:
@@ -92,10 +90,9 @@ production: &production
     - 172.16.
     - 10.192.
   :elasticsearch_endpoint: http://localhost:9200
-  :downloader:
-    :url: http://download.library.illinois.edu:8080
-    :user:
-    :password:
+  :downloader_url: http://download.library.illinois.edu:8080
+  :downloader_user:
+  :downloader_password:
   :shibboleth_host: kumquat-dev.library.illinois.edu
   :shibboleth_uid_field: eppn
   :shibboleth_extra_fields:
