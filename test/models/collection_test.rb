@@ -49,9 +49,9 @@ class CollectionTest < ActiveSupport::TestCase
                  doc[Collection::IndexFields::ACCESS_SYSTEMS]
     assert_equal @collection.access_url,
                  doc[Collection::IndexFields::ACCESS_URL]
-    assert_equal @collection.allowed_roles.map(&:key).sort,
+    assert_equal @collection.allowed_roles.pluck(:key).sort,
                  doc[Collection::IndexFields::ALLOWED_ROLES].sort
-    assert_equal @collection.denied_roles.map(&:key).sort,
+    assert_equal @collection.denied_roles.pluck(:key).sort,
                  doc[Collection::IndexFields::DENIED_ROLES].sort
     assert_equal @collection.published,
                  doc[Collection::IndexFields::EFFECTIVELY_PUBLISHED]

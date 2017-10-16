@@ -131,7 +131,7 @@ class MetadataProfile < ApplicationRecord
       # The instance requires an ID for MetadataProfileElement validations.
       self.save! if self.id.nil?
       MetadataProfile.default_elements.each do |ed|
-        unless self.elements.map(&:name).include?(ed.name)
+        unless self.elements.pluck(:name).include?(ed.name)
           self.elements << ed
         end
       end

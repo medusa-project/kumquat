@@ -190,7 +190,7 @@ module IiifPresentationHelper
         elements << {
             label: pe.label,
             value: item_elements.length > 1 ?
-                item_elements.map(&:value) : item_elements.first.value
+                item_elements.pluck(:value) : item_elements.first.value
         }
       end
     end

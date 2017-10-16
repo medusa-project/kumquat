@@ -38,7 +38,7 @@ class ItemElement < EntityElement
   #
   def self.elements_from_tsv_string(element_name, string,
       vocabulary_override = nil)
-    unless Element.all.map(&:name).include?(element_name)
+    unless Element.all.pluck(:name).include?(element_name)
       raise ArgumentError, "Element does not exist: #{element_name}"
     end
 

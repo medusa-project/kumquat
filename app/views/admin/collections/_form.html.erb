@@ -72,7 +72,7 @@
           <div class="checkbox">
             <label>
               <%= check_box_tag :role_ids, role.id,
-                                f.object.allowed_roles.map(&:id).include?(role.id),
+                                f.object.allowed_roles.pluck(:id).include?(role.id),
                                 name: 'collection[allowed_role_ids][]' %>
               <%= role.name %>
             </label>
@@ -89,7 +89,7 @@
           <div class="checkbox">
             <label>
               <%= check_box_tag :role_ids, role.id,
-                                f.object.denied_roles.map(&:id).include?(role.id),
+                                f.object.denied_roles.pluck(:id).include?(role.id),
                                 name: 'collection[denied_role_ids][]' %>
               <%= role.name %>
             </label>

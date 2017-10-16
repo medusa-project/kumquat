@@ -18,7 +18,7 @@ class AgentDecorator < Draper::Decorator
     {
         name: self.name,
         description: self.description,
-        uris: self.agent_uris.map(&:uri),
+        uris: self.agent_uris.pluck(:uri),
         agent_relations: context[:agent_relations].map{ |r|
           {
               subject: {

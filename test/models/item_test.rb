@@ -83,9 +83,9 @@ class ItemTest < ActiveSupport::TestCase
                  doc[Item::IndexFields::DATE]
     assert_equal @item.described?,
                  doc[Item::IndexFields::DESCRIBED]
-    assert_equal @item.effective_allowed_roles.map(&:key),
+    assert_equal @item.effective_allowed_roles.pluck(:key),
                  doc[Item::IndexFields::EFFECTIVE_ALLOWED_ROLES]
-    assert_equal @item.effective_denied_roles.map(&:key),
+    assert_equal @item.effective_denied_roles.pluck(:key),
                  doc[Item::IndexFields::EFFECTIVE_DENIED_ROLES]
     assert doc[Item::IndexFields::EFFECTIVELY_PUBLISHED]
     assert_equal @item.item_sets.pluck(:id),
@@ -111,7 +111,7 @@ class ItemTest < ActiveSupport::TestCase
                  doc[Item::IndexFields::STRUCTURAL_SORT]
     assert_equal @item.subpage_number,
                  doc[Item::IndexFields::SUBPAGE_NUMBER]
-    assert_equal @item.binaries.map(&:byte_size).sum,
+    assert_equal @item.binaries.pluck(:byte_size).sum,
                  doc[Item::IndexFields::TOTAL_BYTE_SIZE]
     assert_equal @item.variant,
                  doc[Item::IndexFields::VARIANT]

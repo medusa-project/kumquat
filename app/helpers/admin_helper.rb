@@ -441,21 +441,21 @@ module AdminHelper
     # Allowed Roles (assigned)
     data << { label: 'Allowed Roles (assigned)',
               value: item.allowed_roles.any? ?
-                  item.allowed_roles.map(&:name) : 'Any' }
+                  item.allowed_roles.pluck(:name) : 'Any' }
     # Allowed Roles (effective)
     effective_allowed_roles = item.effective_allowed_roles
     data << { label: 'Allowed Roles (effective)',
               value: effective_allowed_roles.any? ?
-                  effective_allowed_roles.map(&:name) : 'Any' }
+                  effective_allowed_roles.pluck(:name) : 'Any' }
     # Denied Roles (assigned)
     data << { label: 'Denied Roles (assigned)',
               value: item.denied_roles.any? ?
-                  item.denied_roles.map(&:name) : 'None' }
+                  item.denied_roles.pluck(:name) : 'None' }
     # Denied Roles (effective)
     effective_denied_roles = item.effective_denied_roles
     data << { label: 'Denied Roles (effective)',
               value: effective_denied_roles.any? ?
-                  effective_denied_roles.map(&:name) : 'None' }
+                  effective_denied_roles.pluck(:name) : 'None' }
     # Created
     data << { label: 'Created', value: local_time(item.created_at) }
 

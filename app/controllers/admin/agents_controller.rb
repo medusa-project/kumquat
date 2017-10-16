@@ -102,7 +102,7 @@ module Admin
 
       @num_item_references = Item.
           joins('LEFT JOIN entity_elements ON entity_elements.item_id = items.id').
-          where('entity_elements.uri IN (?)', @agent.agent_uris.map(&:uri)).count
+          where('entity_elements.uri IN (?)', @agent.agent_uris.pluck(:uri)).count
       @num_collection_references = 0 # TODO: fix
       @num_agent_references = @relating_agents.count + @related_agents.count
     end

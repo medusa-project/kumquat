@@ -13,7 +13,7 @@ module Admin
       user = User.find_by_username params[:user_username]
       raise ActiveRecord::RecordNotFound unless user
 
-      role_ids = user.roles.map(&:id)
+      role_ids = user.roles.pluck(:id)
       if params[:do].to_s == 'join'
         role_ids << params[:role_id].to_i
       else

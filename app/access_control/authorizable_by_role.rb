@@ -20,10 +20,10 @@ module AuthorizableByRole
   # @return [Boolean]
   #
   def authorized_by_role?(role)
-    if self.effective_denied_roles.map(&:key).include?(role.key)
+    if self.effective_denied_roles.pluck(:key).include?(role.key)
       return false
     elsif self.effective_allowed_roles.any? and
-        !self.effective_allowed_roles.map(&:key).include?(role.key)
+        !self.effective_allowed_roles.pluck(:key).include?(role.key)
       return false
     end
     true

@@ -210,14 +210,14 @@ class Collection < ApplicationRecord
     doc = {}
     doc[IndexFields::ACCESS_SYSTEMS] = self.access_systems
     doc[IndexFields::ACCESS_URL] = self.access_url
-    doc[IndexFields::ALLOWED_ROLES] = self.allowed_roles.map(&:key)
-    doc[IndexFields::DENIED_ROLES] = self.denied_roles.map(&:key)
+    doc[IndexFields::ALLOWED_ROLES] = self.allowed_roles.pluck(:key)
+    doc[IndexFields::DENIED_ROLES] = self.denied_roles.pluck(:key)
     doc[IndexFields::EFFECTIVELY_PUBLISHED] = self.published
     doc[IndexFields::EXTERNAL_ID] = self.external_id
     doc[IndexFields::HARVESTABLE] = self.harvestable
     doc[IndexFields::LAST_INDEXED] = Time.now.utc.iso8601
     doc[IndexFields::PARENT_COLLECTIONS] =
-        self.parent_collection_joins.map(&:parent_repository_id)
+        self.parent_collection_joins.pluck(:parent_repository_id)
     doc[IndexFields::PUBLIC_IN_MEDUSA] = self.public_in_medusa
     doc[IndexFields::PUBLISHED_IN_DLS] = self.published_in_dls
     doc[IndexFields::REPOSITORY_ID] = self.repository_id
@@ -441,8 +441,8 @@ class Collection < ApplicationRecord
     end
 
     # Check that the source and destination element have the same vocabularies.
-    source_vocabs = source_def.vocabularies.map(&:key).uniq
-    dest_vocabs = dest_def.vocabularies.map(&:key).uniq
+    source_vocabs = source_def.vocabularies.pluck(:key).uniq
+    dest_vocabs = dest_def.vocabularies.pluck(:key).uniq
     if source_vocabs != dest_vocabs
       raise ArgumentError, 'Source and destination elements have different '\
           'assigned vocabularies.'

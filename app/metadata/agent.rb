@@ -116,7 +116,7 @@ class Agent < ApplicationRecord
   #
   def related_collections
     Collection.joins('LEFT JOIN entity_elements ON entity_elements.collection_id = collections.id').
-        where('entity_elements.uri IN (?)', self.agent_uris.map(&:uri))
+        where('entity_elements.uri IN (?)', self.agent_uris.pluck(:uri))
   end
 
   ##
@@ -124,7 +124,7 @@ class Agent < ApplicationRecord
   #
   def related_objects
     Item.joins('LEFT JOIN entity_elements ON entity_elements.item_id = items.id').
-        where('entity_elements.uri IN (?)', self.agent_uris.map(&:uri)).
+        where('entity_elements.uri IN (?)', self.agent_uris.pluck(:uri)).
         where('variant IS NULL OR variant = ? OR variant IN (?)', '',
               [Item::Variants::DIRECTORY, Item::Variants::FILE])
   end
