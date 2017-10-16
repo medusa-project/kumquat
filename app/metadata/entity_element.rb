@@ -46,7 +46,7 @@ class EntityElement < ApplicationRecord
         uri = "<#{uri}>"
       end
       if string.present? and uri.present?
-        string = "#{string}#{Item::TSV_URI_VALUE_SEPARATOR}#{uri}"
+        string = "#{string}#{ItemTsvExporter::URI_VALUE_SEPARATOR}#{uri}"
       end
       if string.blank? and uri.present?
         string = uri
@@ -55,7 +55,7 @@ class EntityElement < ApplicationRecord
         values << string
       end
     end
-    values.join(Item::TSV_MULTI_VALUE_SEPARATOR)
+    values.join(ItemTsvExporter::MULTI_VALUE_SEPARATOR)
   end
 
   def agent

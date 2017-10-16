@@ -1,5 +1,9 @@
 class ItemTsvExporter
 
+  LINE_BREAK = "\n"
+  MULTI_VALUE_SEPARATOR = '||'
+  URI_VALUE_SEPARATOR = '&&'
+
   ##
   # Requires PostgreSQL.
   #
@@ -23,14 +27,14 @@ class ItemTsvExporter
     # If we are supposed to include only undescribed items, consider items
     # that have no elements or only a title element undescribed. (DLD-26)
     if options[:only_undescribed]
-      sql += "      WHERE non_title_count < 1"
+      sql += '      WHERE non_title_count < 1'
     end
 
     values = [[ nil, collection.repository_id ]]
 
     tsv = Item.tsv_header(metadata_profile)
     ActiveRecord::Base.connection.exec_query(sql, 'SQL', values).each do |row|
-      tsv += row.values.join("\t") + Item::TSV_LINE_BREAK
+      tsv += row.values.join("\t") + LINE_BREAK
     end
     tsv
   end
@@ -59,7 +63,7 @@ class ItemTsvExporter
 
     tsv = Item.tsv_header(metadata_profile)
     ActiveRecord::Base.connection.exec_query(sql, 'SQL', values).each do |row|
-      tsv += row.values.join("\t") + Item::TSV_LINE_BREAK
+      tsv += row.values.join("\t") + LINE_BREAK
     end
     tsv
   end
@@ -76,14 +80,14 @@ class ItemTsvExporter
                          "IS NULL OR entity_elements.vocabulary_id = #{Vocabulary.uncontrolled.id}" : "= #{vocab.id}"
           subselects << "          array_to_string(
               array(
-                SELECT replace(replace(coalesce(value, '') || '#{Item::TSV_URI_VALUE_SEPARATOR}<' || coalesce(uri, '') || '>', '#{Item::TSV_URI_VALUE_SEPARATOR}<>', ''), '||#{Item::TSV_URI_VALUE_SEPARATOR}', '')
+                SELECT replace(replace(coalesce(value, '') || '#{URI_VALUE_SEPARATOR}<' || coalesce(uri, '') || '>', '#{URI_VALUE_SEPARATOR}<>', ''), '||#{URI_VALUE_SEPARATOR}', '')
                 FROM entity_elements
                 WHERE entity_elements.item_id = items.id
                   AND (entity_elements.vocabulary_id #{vocab_id})
                   AND entity_elements.name = '#{ed.name}'
                   AND (value IS NOT NULL OR uri IS NOT NULL)
                   AND (length(value) > 0 OR length(uri) > 0)
-              ), '#{Item::TSV_MULTI_VALUE_SEPARATOR}') AS #{vocab.key}_#{ed.name}"
+              ), '#{MULTI_VALUE_SEPARATOR}') AS #{vocab.key}_#{ed.name}"
         end
         element_subselects << subselects.join(",\n") if subselects.any?
       end
@@ -101,7 +105,7 @@ class ItemTsvExporter
             WHERE binaries.item_id = items.id
               AND binaries.master_type = #{Binary::MasterType::PRESERVATION}
             ORDER BY repository_relative_pathname
-          ), '#{Item::TSV_MULTI_VALUE_SEPARATOR}')) AS pres_pathname,
+          ), '#{MULTI_VALUE_SEPARATOR}')) AS pres_pathname,
         (SELECT array_to_string(
           array(
             SELECT substring(repository_relative_pathname from '[^/]+$')
@@ -109,7 +113,7 @@ class ItemTsvExporter
             WHERE binaries.item_id = items.id
               AND binaries.master_type = #{Binary::MasterType::PRESERVATION}
             ORDER BY repository_relative_pathname
-          ), '#{Item::TSV_MULTI_VALUE_SEPARATOR}')) AS pres_filename,
+          ), '#{MULTI_VALUE_SEPARATOR}')) AS pres_filename,
         (SELECT array_to_string(
           array(
             SELECT cfs_file_uuid
@@ -117,7 +121,7 @@ class ItemTsvExporter
             WHERE binaries.item_id = items.id
               AND binaries.master_type = #{Binary::MasterType::PRESERVATION}
             ORDER BY repository_relative_pathname
-          ), '#{Item::TSV_MULTI_VALUE_SEPARATOR}')) AS pres_uuid,
+          ), '#{MULTI_VALUE_SEPARATOR}')) AS pres_uuid,
         (SELECT array_to_string(
           array(
             SELECT DISTINCT repository_relative_pathname
@@ -125,7 +129,7 @@ class ItemTsvExporter
             WHERE binaries.item_id = items.id
               AND binaries.master_type = #{Binary::MasterType::ACCESS}
             ORDER BY repository_relative_pathname
-          ), '#{Item::TSV_MULTI_VALUE_SEPARATOR}')) AS access_pathname,
+          ), '#{MULTI_VALUE_SEPARATOR}')) AS access_pathname,
         (SELECT array_to_string(
           array(
             SELECT substring(repository_relative_pathname from '[^/]+$')
@@ -133,7 +137,7 @@ class ItemTsvExporter
             WHERE binaries.item_id = items.id
               AND binaries.master_type = #{Binary::MasterType::ACCESS}
             ORDER BY repository_relative_pathname
-          ), '#{Item::TSV_MULTI_VALUE_SEPARATOR}')) AS access_filename,
+          ), '#{MULTI_VALUE_SEPARATOR}')) AS access_filename,
         (SELECT array_to_string(
           array(
             SELECT cfs_file_uuid
@@ -141,7 +145,7 @@ class ItemTsvExporter
             WHERE binaries.item_id = items.id
               AND binaries.master_type = #{Binary::MasterType::ACCESS}
             ORDER BY repository_relative_pathname
-          ), '#{Item::TSV_MULTI_VALUE_SEPARATOR}')) AS access_uuid,
+          ), '#{MULTI_VALUE_SEPARATOR}')) AS access_uuid,
         items.variant,
         items.page_number,
         items.subpage_number,

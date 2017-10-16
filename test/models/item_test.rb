@@ -52,7 +52,7 @@ class ItemTest < ActiveSupport::TestCase
 
   test 'tsv_header should end with a line break' do
     assert Item.tsv_header(@item.collection.metadata_profile).
-        end_with?(Item::TSV_LINE_BREAK)
+        end_with?(ItemTsvExporter::LINE_BREAK)
   end
 
   # all_files()
@@ -751,10 +751,10 @@ class ItemTest < ActiveSupport::TestCase
 
     # descriptive elements
     row['Description'] = 'Cats' +
-        Item::TSV_MULTI_VALUE_SEPARATOR +
-        'cats' + Item::TSV_URI_VALUE_SEPARATOR + '<http://example.org/cats1>' +
-        Item::TSV_MULTI_VALUE_SEPARATOR +
-        'and more cats' + Item::TSV_URI_VALUE_SEPARATOR + '<http://example.org/cats2>'
+        ItemTsvExporter::MULTI_VALUE_SEPARATOR +
+        'cats' + ItemTsvExporter::URI_VALUE_SEPARATOR + '<http://example.org/cats1>' +
+        ItemTsvExporter::MULTI_VALUE_SEPARATOR +
+        'and more cats' + ItemTsvExporter::URI_VALUE_SEPARATOR + '<http://example.org/cats2>'
     row['Title'] = 'Cats & Stuff'
     row['lcsh:Subject'] = 'Cats'
 

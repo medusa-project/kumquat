@@ -176,9 +176,10 @@ namespace :dls do
 
       values = [[ nil, 'ItemElement' ], [ nil, 'creator' ], [nil, 'contributor']]
 
-      tsv = "collection_id\titem_id\telement_name\telement_value\telement_uri" + Item::TSV_LINE_BREAK
+      tsv = "collection_id\titem_id\telement_name\telement_value\telement_uri" +
+          ItemTsvExporter::LINE_BREAK
       ActiveRecord::Base.connection.exec_query(sql, 'SQL', values).each do |row|
-        tsv += row.values.join("\t") + Item::TSV_LINE_BREAK
+        tsv += row.values.join("\t") + ItemTsvExporter::LINE_BREAK
       end
       puts tsv
     end

@@ -180,9 +180,6 @@ class Item < ApplicationRecord
     preservationMasterFilename preservationMasterUUID accessMasterPathname
     accessMasterFilename accessMasterUUID variant pageNumber subpageNumber
     latitude longitude contentdmAlias contentdmPointer IGNORE)
-  TSV_LINE_BREAK = "\n"
-  TSV_MULTI_VALUE_SEPARATOR = '||'
-  TSV_URI_VALUE_SEPARATOR = '&&'
 
   has_and_belongs_to_many :allowed_roles, class_name: 'Role',
                           association_foreign_key: :allowed_role_id
@@ -318,7 +315,7 @@ class Item < ApplicationRecord
             "#{vocab.key}:#{ed.label}" : ed.label
       end
     end
-    columns.join("\t") + TSV_LINE_BREAK
+    columns.join("\t") + ItemTsvExporter::LINE_BREAK
   end
 
   ##

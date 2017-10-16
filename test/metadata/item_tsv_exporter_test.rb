@@ -339,9 +339,9 @@ class ItemTsvExporterTest < ActiveSupport::TestCase
   # @return [String]
   #
   def to_tsv(header, values)
-    header.join("\t") + Item::TSV_LINE_BREAK +
-        values.map { |v| v.values.join("\t") }.join(Item::TSV_LINE_BREAK) +
-        Item::TSV_LINE_BREAK
+    header.join("\t") + ItemTsvExporter::LINE_BREAK +
+        values.map { |v| v.values.join("\t") }.join(ItemTsvExporter::LINE_BREAK) +
+        ItemTsvExporter::LINE_BREAK
   end
 
 end

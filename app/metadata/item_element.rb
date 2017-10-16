@@ -47,12 +47,12 @@ class ItemElement < EntityElement
       # Strip out newlines and tabs.
       string = string.gsub("\r", '').gsub("\n", '').gsub("\t", '')
 
-      string.split(Item::TSV_MULTI_VALUE_SEPARATOR).select(&:present?).each do |raw_value|
+      string.split(ItemTsvExporter::MULTI_VALUE_SEPARATOR).select(&:present?).each do |raw_value|
         e = ItemElement.named(element_name)
         # raw_value may be an arbitrary string; it may be a URI (enclosed
         # in angle brackets); or it may be both, joined with
-        # Item::TSV_URI_VALUE_SEPARATOR.
-        value_parts = raw_value.split(Item::TSV_URI_VALUE_SEPARATOR)
+        # ItemTsvExporter::URI_VALUE_SEPARATOR.
+        value_parts = raw_value.split(ItemTsvExporter::URI_VALUE_SEPARATOR)
         value_parts.each do |part|
           if part.start_with?('<') and part.end_with?('>') and part.length > 2
             e.uri = part[1..part.length - 2]
