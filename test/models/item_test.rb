@@ -305,6 +305,36 @@ class ItemTest < ActiveSupport::TestCase
                  @item.effective_rightsstatements_org_statement.uri
   end
 
+  # effectively_published()
+
+  test 'effectively_published() should return true when the instance and its
+  collection are both published' do
+    @item.published = true
+    @item.collection.published_in_dls = true
+    assert @item.effectively_published
+  end
+
+  test 'effectively_published() should return false when the instance is
+  published but its collection is not' do
+    @item.published = true
+    @item.collection.published_in_dls = false
+    assert !@item.effectively_published
+  end
+
+  test 'effectively_published() should return false when the instance is not
+  published but its collection is' do
+    @item.published = false
+    @item.collection.published_in_dls = true
+    assert !@item.effectively_published
+  end
+
+  test 'effectively_published() should return false when neither the instance
+  nor its collection are published' do
+    @item.published = false
+    @item.collection.published_in_dls = false
+    assert !@item.effectively_published
+  end
+
   # element()
 
   test 'element() should work' do
@@ -353,6 +383,40 @@ class ItemTest < ActiveSupport::TestCase
 
     @item.parent_repository_id = '8acdb390-96b6-0133-1ce8-0050569601ca-4'
     assert @item.valid?
+  end
+
+  # propagate_heritable_properties()
+
+  test 'propagate_heritable_properties() should propagate roles to children' do
+    # Clear all roles on the item and its children.
+    @item.allowed_roles.destroy_all
+    @item.denied_roles.destroy_all
+    @item.save!
+
+    @item.items.each do |it|
+      it.allowed_roles.destroy_all
+      it.denied_roles.destroy_all
+      it.save!
+
+      assert_equal 0, it.effective_allowed_roles.count
+      assert_equal 0, it.effective_denied_roles.count
+    end
+
+    # Add roles to the item.
+    @item.allowed_roles << roles(:admins)
+    @item.denied_roles << roles(:catalogers)
+
+    # Propagate heritable properties.
+    @item.propagate_heritable_properties
+
+    # Assert that the item's children have inherited the roles.
+    @item.items.each do |it|
+      assert_equal 1, it.effective_allowed_roles.count
+      assert it.effective_allowed_roles.include?(roles(:admins))
+
+      assert_equal 1, it.effective_denied_roles.count
+      assert it.effective_denied_roles.include?(roles(:catalogers))
+    end
   end
 
   # repository_id

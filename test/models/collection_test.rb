@@ -363,10 +363,38 @@ class CollectionTest < ActiveSupport::TestCase
                  PackageProfile::COMPOUND_OBJECT_PROFILE.id
   end
 
-  # propagate_roles()
+  # propagate_heritable_properties()
 
-  test 'propagate_roles() should propagate roles to items' do
-    # TODO: write this
+  test 'propagate_heritable_properties() should propagate roles to items' do
+    # Clear all roles on the collection and its items.
+    @collection.allowed_roles.destroy_all
+    @collection.denied_roles.destroy_all
+    @collection.save!
+
+    @collection.items.each do |it|
+      it.allowed_roles.destroy_all
+      it.denied_roles.destroy_all
+      it.save!
+
+      assert_equal 0, it.effective_allowed_roles.count
+      assert_equal 0, it.effective_denied_roles.count
+    end
+
+    # Add roles to the collection.
+    @collection.allowed_roles << roles(:admins)
+    @collection.denied_roles << roles(:catalogers)
+
+    # Propagate heritable properties.
+    @collection.propagate_heritable_properties
+
+    # Assert that the collection's items have inherited the roles.
+    @collection.items.each do |it|
+      assert_equal 1, it.effective_allowed_roles.count
+      assert it.effective_allowed_roles.include?(roles(:admins))
+
+      assert_equal 1, it.effective_denied_roles.count
+      assert it.effective_denied_roles.include?(roles(:catalogers))
+    end
   end
 
   # published()

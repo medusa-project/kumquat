@@ -154,13 +154,11 @@ module Admin
           collection.update!(sanitized_params)
         end
 
-        # We will also need to update the effective allowed/denied roles
-        # of each item in the collection, which will take some time, so we
-        # will do it in the background.
-        # This will also cause items to be reindexed. If the collection's
-        # published status was changed, it will propagate to items once the
-        # job is done.
-        PropagateRolesToItemsJob.perform_later(collection.repository_id)
+        # We will also need to propagate various collection properties
+        # (published status, allowed/denied roles, etc.) to the items contained
+        # within the collection. This will take some time, so we'll do it in
+        # the background.
+        PropagatePropertiesToItemsJob.perform_later(collection.repository_id)
       rescue => e
         handle_error(e)
         redirect_to edit_admin_collection_path(collection)

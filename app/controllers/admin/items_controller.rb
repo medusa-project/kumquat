@@ -387,10 +387,10 @@ module Admin
             item.update!(sanitized_params)
           end
 
-          # We will also need to update the effective allowed/denied roles
-          # of each child item, which may take some time, so we will do it in
-          # the background.
-          PropagateRolesToChildrenJob.perform_later(item.repository_id)
+          # We will also need to propagate various item properties (published
+          # status, allowed/denied roles, etc.) to its child items. This will
+          # take some time, so we'll do it in the background.
+          PropagatePropertiesToChildrenJob.perform_later(item.repository_id)
         end
       rescue => e
         handle_error(e)

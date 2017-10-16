@@ -549,10 +549,10 @@ class Collection < ApplicationRecord
   # @param task [Task] Supply to receive progress updates.
   # @return [void]
   #
-  def propagate_roles(task = nil)
+  def propagate_heritable_properties(task = nil)
     ActiveRecord::Base.transaction do
-      # Save callbacks will call this method on direct children, so there is
-      # no need to crawl deeper levels of the item tree.
+      # after_save callbacks will call this method on direct children, so there
+      # is no need to crawl deeper levels of the item tree.
       num_items = self.items.count
       self.items.where(parent_repository_id: nil).each_with_index do |item, index|
         item.save!

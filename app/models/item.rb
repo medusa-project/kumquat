@@ -236,7 +236,7 @@ class Item < ApplicationRecord
 
   before_save :prune_identical_elements, :set_effective_roles,
               :set_normalized_coords, :set_normalized_date
-  after_update :propagate_roles
+  after_update :propagate_heritable_properties
   after_commit :index_in_elasticsearch, on: [:create, :update]
   after_commit :delete_from_elasticsearch, on: :destroy
 
@@ -393,8 +393,7 @@ class Item < ApplicationRecord
         self.effective_allowed_roles.pluck(:key)
     doc[IndexFields::EFFECTIVE_DENIED_ROLES] =
         self.effective_denied_roles.pluck(:key)
-    doc[IndexFields::EFFECTIVELY_PUBLISHED] =
-        (self.published and self.collection.published)
+    doc[IndexFields::EFFECTIVELY_PUBLISHED] = self.effectively_published
     doc[IndexFields::ITEM_SETS] = self.item_sets.pluck(:id)
     doc[IndexFields::LAST_INDEXED] = Time.now.utc.iso8601
     if self.latitude and self.longitude
@@ -637,6 +636,14 @@ class Item < ApplicationRecord
   end
 
   ##
+  # @return [Boolean] Whether the instance and its collection are both
+  #                   published.
+  #
+  def effectively_published
+    self.published and self.collection.published
+  end
+
+  ##
   # @return [Enumerable<ItemElement>] The instance's ItemElements in the order
   #                                   of the elements in the collection's
   #                                   metadata profile.
@@ -671,14 +678,14 @@ class Item < ApplicationRecord
   # compatible with it, in the following order of preference:
   #
   # 1. The representative binary
-  # 2. If the instance's variant is SUPPLEMENT, any binary
-  # 3. If the instance is compound, the iiif_image_binary of the first page
-  # 4. Any access master of Binary::MediaCategory::IMAGE
-  # 5. Any access master of Binary::MediaCategory::VIDEO
-  # 6. Any access master with media type "application/pdf"
-  # 7. Any preservation master of Binary::MediaCategory::IMAGE
-  # 8. Any preservation master of Binary::MediaCategory::VIDEO
-  # 9. Any preservation master with media type "application/pdf"
+  # 2. If the instance's variant is `SUPPLEMENT`, any binary
+  # 3. If the instance is compound, the `iiif_image_binary` of the first page
+  # 4. Any access master of `Binary::MediaCategory::IMAGE`
+  # 5. Any access master of `Binary::MediaCategory::VIDEO`
+  # 6. Any access master with media type `application/pdf`
+  # 7. Any preservation master of `Binary::MediaCategory::IMAGE`
+  # 8. Any preservation master of `Binary::MediaCategory::VIDEO`
+  # 9. Any preservation master with media type `application/pdf`
   #
   # @return [Binary, nil]
   #
@@ -828,7 +835,7 @@ class Item < ApplicationRecord
   # Infers the primary media category of the instance by analyzing its
   # binaries' media categories.
   #
-  # @return [Integer, nil] One of the Binary::MediaCategory constant values.
+  # @return [Integer, nil] One of the `Binary::MediaCategory` constant values.
   #
   def primary_media_category
     counts = {}
@@ -846,13 +853,13 @@ class Item < ApplicationRecord
   end
 
   ##
-  # Propagates roles from the instance to all of its descendents. This is an
-  # O(n) operation.
+  # Propagates roles from the instance to all of its children. This is an O(n)
+  # operation.
   #
   # @param task [Task] Supply to receive progress updates.
   # @return [void]
   #
-  def propagate_roles(task = nil)
+  def propagate_heritable_properties(task = nil)
     ActiveRecord::Base.transaction do
       # Save callbacks will call this method on direct children, so there is
       # no need to crawl deeper levels of the child subtree.
