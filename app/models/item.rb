@@ -39,8 +39,8 @@
 # 2) Add it to Item::IndexFields (if it needs to be indexed)
 # 3) Add serialization code to as_json() and as_indexed_json()
 # 4) Add deserialization code to update_from_json()
-# 5) If it needs to appear in TSV, add it to tsv_header(),
-#    ItemTsvExporter, and/or update_from_tsv()
+# 5) If it needs to appear in TSV, add it to `tsv_columns()`,
+#    `ItemTsvExporter`, and/or `update_from_tsv()`
 # 6) Update fixtures and tests
 # 7) Reindex (if necessary)
 #
@@ -298,13 +298,13 @@ class Item < ApplicationRecord
   end
 
   ##
-  # Returns a tab-separated list of applicable technical elements, plus one
-  # column per element definition in the item's collection's metadata profile.
+  # Returns an Enumerable of technical attributes, plus one element per
+  # metadata profile element.
   #
   # @param metadata_profile [MetadataProfile]
-  # @return [String] Tab-separated values with trailing newline.
+  # @return [Enumerable<String>] Enumerable of column names.
   #
-  def self.tsv_header(metadata_profile)
+  def self.tsv_columns(metadata_profile)
     columns = NON_DESCRIPTIVE_TSV_COLUMNS
     metadata_profile.elements.each do |ed|
       # There will be one column per MetadataProfileElement vocabulary. Column
@@ -315,7 +315,7 @@ class Item < ApplicationRecord
             "#{vocab.key}:#{ed.label}" : ed.label
       end
     end
-    columns.join("\t") + ItemTsvExporter::LINE_BREAK
+    columns
   end
 
   ##

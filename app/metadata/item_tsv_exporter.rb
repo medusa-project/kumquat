@@ -15,7 +15,8 @@ class ItemTsvExporter
   #                  not customizable.
   #
   def items_in_collection(collection, options = {})
-    # N.B.: The return value must remain in sync with that of Item.tsv_header().
+    # N.B.: The return value must remain in sync with that of
+    # Item.tsv_columns().
 
     metadata_profile = collection.effective_metadata_profile
     sql = select_clause(metadata_profile) +
@@ -32,7 +33,7 @@ class ItemTsvExporter
 
     values = [[ nil, collection.repository_id ]]
 
-    tsv = Item.tsv_header(metadata_profile)
+    tsv = Item.tsv_columns(metadata_profile).join("\t") + LINE_BREAK
     ActiveRecord::Base.connection.exec_query(sql, 'SQL', values).each do |row|
       tsv += row.values.join("\t") + LINE_BREAK
     end
@@ -49,7 +50,8 @@ class ItemTsvExporter
   #                  not customizable.
   #
   def items_in_item_set(item_set)
-    # N.B.: The return value must remain in sync with that of Item.tsv_header().
+    # N.B.: The return value must remain in sync with that of
+    # Item.tsv_columns().
 
     metadata_profile = item_set.collection.effective_metadata_profile
     sql = select_clause(metadata_profile) +
@@ -61,7 +63,7 @@ class ItemTsvExporter
 
     values = [[ nil, item_set.id ]]
 
-    tsv = Item.tsv_header(metadata_profile)
+    tsv = Item.tsv_columns(metadata_profile).join("\t") + LINE_BREAK
     ActiveRecord::Base.connection.exec_query(sql, 'SQL', values).each do |row|
       tsv += row.values.join("\t") + LINE_BREAK
     end

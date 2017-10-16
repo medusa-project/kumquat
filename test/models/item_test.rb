@@ -37,22 +37,16 @@ class ItemTest < ActiveSupport::TestCase
                  Item.num_objects
   end
 
-  # Item.tsv_header()
+  # Item.tsv_columns()
 
-  test 'tsv_header should return the correct columns' do
+  test 'tsv_columns() should return the correct columns' do
     expected = %w(uuid parentId preservationMasterPathname
     preservationMasterFilename preservationMasterUUID accessMasterPathname
     accessMasterFilename accessMasterUUID variant pageNumber subpageNumber
     latitude longitude contentdmAlias contentdmPointer IGNORE Title Coordinates
     Creator Date\ Created Description lcsh:Subject tgm:Subject)
-    cols = Item.tsv_header(@item.collection.metadata_profile).
-        strip.split("\t")
-    assert_equal expected, cols
-  end
-
-  test 'tsv_header should end with a line break' do
-    assert Item.tsv_header(@item.collection.metadata_profile).
-        end_with?(ItemTsvExporter::LINE_BREAK)
+    actual = Item.tsv_columns(@item.collection.metadata_profile)
+    assert_equal expected, actual
   end
 
   # all_files()
