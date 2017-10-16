@@ -183,7 +183,6 @@ class Item < ApplicationRecord
   TSV_LINE_BREAK = "\n"
   TSV_MULTI_VALUE_SEPARATOR = '||'
   TSV_URI_VALUE_SEPARATOR = '&&'
-  UUID_REGEX = /\A[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/
 
   has_and_belongs_to_many :allowed_roles, class_name: 'Role',
                           association_foreign_key: :allowed_role_id
@@ -204,7 +203,8 @@ class Item < ApplicationRecord
   # VALIDATIONS
 
   # collection_repository_id
-  validates_format_of :collection_repository_id, with: UUID_REGEX,
+  validates_format_of :collection_repository_id,
+                      with: StringUtils::UUID_REGEX,
                       message: 'UUID is invalid'
   # latitude
   validates :latitude, numericality: { greater_than: -90, less_than: 90 },
@@ -217,14 +217,19 @@ class Item < ApplicationRecord
                                           greater_than_or_equal_to: 1 },
             allow_blank: true
   # parent_repository_id
-  validates_format_of :parent_repository_id, with: UUID_REGEX,
-                      message: 'UUID is invalid', allow_blank: true
+  validates_format_of :parent_repository_id,
+                      with: StringUtils::UUID_REGEX,
+                      message: 'UUID is invalid',
+                      allow_blank: true
   # repository_id
-  validates_format_of :repository_id, with: UUID_REGEX,
+  validates_format_of :repository_id,
+                      with: StringUtils::UUID_REGEX,
                       message: 'UUID is invalid'
   # representative_item_repository_id
-  validates_format_of :representative_item_repository_id, with: UUID_REGEX,
-                      message: 'UUID is invalid', allow_blank: true
+  validates_format_of :representative_item_repository_id,
+                      with: StringUtils::UUID_REGEX,
+                      message: 'UUID is invalid',
+                      allow_blank: true
   # subpage_number
   validates :subpage_number, numericality: { only_integer: true,
                                              greater_than_or_equal_to: 1 },

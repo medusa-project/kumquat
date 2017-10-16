@@ -11,7 +11,7 @@ class ItemSet < ActiveRecord::Base
   has_and_belongs_to_many :users
 
   # collection_repository_id
-  validates_format_of :collection_repository_id, with: Item::UUID_REGEX,
+  validates_format_of :collection_repository_id, with: StringUtils::UUID_REGEX,
                       message: 'UUID is invalid'
   # name
   validates :name, presence: true, length: { minimum: 4 }

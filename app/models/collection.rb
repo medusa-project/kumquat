@@ -108,8 +108,6 @@ class Collection < ApplicationRecord
     TITLE = CollectionElement.new(name: 'title').indexed_keyword_field
   end
 
-  UUID_REGEX = /\A[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/
-
   serialize :access_systems
   serialize :resource_types
 
@@ -135,7 +133,7 @@ class Collection < ApplicationRecord
                           association_foreign_key: :denied_role_id
 
   validates_format_of :repository_id,
-                      with: UUID_REGEX,
+                      with: StringUtils::UUID_REGEX,
                       message: 'UUID is invalid'
   validate :validate_medusa_uuids
 
