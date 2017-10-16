@@ -59,8 +59,6 @@ This is a basic getting-started guide for developers.
 
 `$ cp config/peartree.template.yml config/peartree.yml` and edit as necessary
 
-`$ cp config/shibboleth.template.yml config/shibboleth.yml`
-
 ## 7) Create and seed the database
 
 `$ bin/rails db:setup`

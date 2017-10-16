@@ -14,9 +14,9 @@ class SessionsController < WebsiteController
       if user and user.enabled
         return_url = clear_and_return_return_path
         sign_in user
-        #We can access other information via auth_hash[:extra][:raw_info][key]
-        #where key is a string from config/shibboleth.yml (and of course these
-        #have to correspond to passed attributes)
+        # We can access other information via auth_hash[:extra][:raw_info][key]
+        # where key is one of the shibboleth* keys in the application
+        # configuration (which have to correspond to passed attributes).
         redirect_to return_url
         return
       end
@@ -37,7 +37,7 @@ class SessionsController < WebsiteController
   def new
     session[:referer] = request.env['HTTP_REFERER']
     if Rails.env.production?
-      redirect_to(shibboleth_login_path(PearTree::Application.shibboleth_host))
+      redirect_to(shibboleth_login_path(Configuration.instance.shibboleth_host))
     else
       redirect_to('/auth/developer')
     end
