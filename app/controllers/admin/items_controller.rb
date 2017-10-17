@@ -80,8 +80,9 @@ module Admin
       col = Collection.find_by_repository_id(params[:collection_id])
       raise ActiveRecord::RecordNotFound unless col
       begin
-        BatchChangeItemMetadataJob.perform_later(
-            col.repository_id, params[:element], params[:replace_values])
+        BatchChangeItemMetadataJob.perform_later(col,
+                                                 params[:element].to_s,
+                                                 params[:replace_values].map(&:to_unsafe_hash))
       rescue => e
         handle_error(e)
         redirect_to admin_collection_edit_all_items_url(col)
@@ -263,8 +264,8 @@ module Admin
       col = Collection.find_by_repository_id(params[:collection_id])
       raise ActiveRecord::RecordNotFound unless col
       begin
-        MigrateItemMetadataJob.perform_later(
-            col.repository_id, params[:source_element], params[:dest_element])
+        MigrateItemMetadataJob.perform_later(col, params[:source_element],
+                                             params[:dest_element])
       rescue => e
         handle_error(e)
         redirect_to admin_collection_edit_all_items_url(col)
@@ -303,9 +304,12 @@ module Admin
       col = Collection.find_by_repository_id(params[:collection_id])
       raise ActiveRecord::RecordNotFound unless col
       begin
-        ReplaceItemMetadataJob.perform_later(
-            col.repository_id, params[:matching_mode], params[:find_value],
-            params[:element], params[:replace_mode], params[:replace_value])
+        ReplaceItemMetadataJob.perform_later(col,
+                                             params[:matching_mode],
+                                             params[:find_value],
+                                             params[:element],
+                                             params[:replace_mode],
+                                             params[:replace_value])
       rescue => e
         handle_error(e)
         redirect_to admin_collection_edit_all_items_url(col)

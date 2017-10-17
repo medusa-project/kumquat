@@ -233,37 +233,6 @@ class Collection < ApplicationRecord
   end
 
   ##
-  # @param element_name [String] Element to replace.
-  # @param replace_values [Enumerable<Hash<Symbol,String>] Enumerable of hashes
-  #                                                        with `:string` and
-  #                                                        `:uri` keys.
-  # @param task [Task] Supply to track progress.
-  # @return [void]
-  # @raises [ArgumentError]
-  #
-  def change_item_element_values(element_name, replace_values, task = nil)
-    raise ArgumentError, 'replace_values must be an Enumerable' unless
-        replace_values.respond_to?(:each)
-    ActiveRecord::Base.transaction do
-      num_items = self.items.count
-      self.items.each_with_index do |item, index|
-        item.elements.where(name: element_name).destroy_all
-        replace_values.each do |hash|
-          hash = hash.symbolize_keys
-          item.elements.build(name: element_name,
-                              value: hash[:string],
-                              uri: hash[:uri])
-        end
-        item.save!
-
-        if task and index % 10 == 0
-          task.update(percent_complete: index / num_items.to_f)
-        end
-      end
-    end
-  end
-
-  ##
   # Satisfies the AuthorizableByRole module contract.
   #
   alias_method :effective_allowed_roles, :allowed_roles
@@ -420,45 +389,6 @@ class Collection < ApplicationRecord
   end
 
   ##
-  # @param source_element [String] Element name.
-  # @param dest_element [String] Element name.
-  # @param task [Task] Supply to receive progress updates.
-  # @return [void]
-  # @raises [ArgumentError]
-  #
-  def migrate_item_elements(source_element, dest_element, task = nil)
-    # Check that the destination element is present in the instance's
-    # metadata profile.
-    source_def = self.metadata_profile.elements.
-        select{ |e| e.name == source_element }.first
-    dest_def = self.metadata_profile.elements.
-        select{ |e| e.name == dest_element }.first
-    unless dest_def
-      raise ArgumentError, "#{dest_element} element is not present in the "\
-          "metadata profile."
-    end
-
-    # Check that the source and destination element have the same vocabularies.
-    source_vocabs = source_def.vocabularies.pluck(:key).uniq
-    dest_vocabs = dest_def.vocabularies.pluck(:key).uniq
-    if source_vocabs != dest_vocabs
-      raise ArgumentError, 'Source and destination elements have different '\
-          'assigned vocabularies.'
-    end
-
-    ActiveRecord::Base.transaction do
-      num_items = self.items.count
-      self.items.each_with_index do |item, index|
-        item.migrate_elements(source_element, dest_element)
-
-        if task and index % 10 == 0
-          task.update(percent_complete: index / num_items.to_f)
-        end
-      end
-    end
-  end
-
-  ##
   # @return [Integer] Number of items in the collection regardless of hierarchy
   #                   level or public accessibility. The result is cached.
   #
@@ -589,76 +519,6 @@ class Collection < ApplicationRecord
   #
   def reindex(index = :current)
     index_in_elasticsearch(index)
-  end
-
-  ##
-  # @param matching_mode [Symbol] :exact_match, :contain, :start, or :end
-  # @param find_value [String] Value to search for.
-  # @param element_name [String] Element in which to search.
-  # @param replace_mode [Symbol] What part of the matches to replace:
-  #                              :whole_value or :matched_part
-  # @param replace_value [String] Value to replace the matches with.
-  # @param task [Task] Supply to receive status updates.
-  # @return [void]
-  # @raises [ArgumentError]
-  #
-  def replace_item_element_values(matching_mode, find_value, element_name,
-                                  replace_mode, replace_value, task = nil)
-    unless [:whole_value, :matched_part].include?(replace_mode)
-      raise ArgumentError, "Illegal replace mode: #{replace_mode}"
-    end
-    unless [:exact_match, :contain, :start, :end].include?(matching_mode)
-      raise ArgumentError, "Illegal matching mode: #{matching_mode}"
-    end
-
-    ActiveRecord::Base.transaction do
-      num_items = self.items.count
-      self.items.each_with_index do |item, index|
-        item.elements.where(name: element_name).each do |element|
-          case matching_mode
-            when :exact_match
-              if element.value == find_value
-                element.value = replace_value
-                element.save!
-              end
-            when :contain
-              if element.value&.include?(find_value)
-                case replace_mode
-                  when :whole_value
-                    element.value = replace_value
-                  when :matched_part
-                    element.value.gsub!(find_value, replace_value)
-                end
-                element.save!
-              end
-            when :start
-              if element.value&.start_with?(find_value)
-                case replace_mode
-                  when :whole_value
-                    element.value = replace_value
-                  when :matched_part
-                    element.value.gsub!(find_value, replace_value)
-                end
-                element.save!
-              end
-            when :end
-              if element.value&.end_with?(find_value)
-                case replace_mode
-                  when :whole_value
-                    element.value = replace_value
-                  when :matched_part
-                    element.value.gsub!(find_value, replace_value)
-                end
-                element.save!
-              end
-          end
-
-          if task and index % 10 == 0
-            task.update(percent_complete: index / num_items.to_f)
-          end
-        end
-      end
-    end
   end
 
   ##

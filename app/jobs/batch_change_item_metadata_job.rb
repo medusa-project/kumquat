@@ -3,22 +3,35 @@ class BatchChangeItemMetadataJob < Job
   queue_as :default
 
   ##
-  # @param args [Array] Three-element array with collection UUID at position 0;
-  #                     element name at position 1; and array of replacement
-  #                     values (as hashes with :string and :uri keys) at
-  #                     position 2.
+  # @param args [Array] Three-element array. Position 0 contains either a
+  #                     Collection UUID, an ItemSet ID, or an Enumerable of
+  #                     Item UUIDs.
+  #                     Position 1 contains an element name. Position 2
+  #                     contains an array of replacement values, as hashes with
+  #                     :string and :uri keys.
   # @raises [ArgumentError]
   #
   def perform(*args)
-    collection = Collection.find_by_repository_id(args[0])
+    if args[0].kind_of?(Collection)
+      items = args[0].items
+      what = args[0].title
+    elsif args[0].kind_of?(ItemSet)
+      items = args[0].items
+      what = args[0].name
+    elsif args[0].respond_to?(:each)
+      items = args[0]
+      what = "#{args[0].length} items"
+    else
+      raise ArgumentError, 'Illegal first argument'
+    end
 
     element_name = args[1]
     replace_values = args[2]
 
-    self.task.update!(status_text: "Changing \"#{element_name}\" element "\
-        "values in #{collection.title}")
+    self.task.update!(status_text: "Changing #{element_name} element values "\
+        "in #{what}")
 
-    collection.change_item_element_values(element_name, replace_values,
+    ItemUpdater.new.change_element_values(items, element_name, replace_values,
                                           self.task)
 
     self.task.succeeded

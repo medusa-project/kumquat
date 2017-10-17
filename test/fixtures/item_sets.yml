@@ -3,3 +3,6 @@
 sanborn:
   name: Sanborn
   collection_repository_id: 6ff64b00-072d-0130-c5bb-0019b9e633c5-2
+  items:
+    - sanborn_obj1
+    - sanborn_obj2

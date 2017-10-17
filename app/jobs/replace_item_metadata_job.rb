@@ -3,16 +3,31 @@ class ReplaceItemMetadataJob < Job
   queue_as :default
 
   ##
-  # @param args [Array] Six-element array with collection UUID at position 0;
-  #                     matching mode (`exact_match`, `contain`, `start`, or
-  #                     `end`) at position 1; value to find at position 2;
-  #                     element name at position 3; replace mode (`whole_value`
-  #                     or `matched_part`) at position 4; and value to replace
-  #                     with at position 5.
+  # @param args [Array] Six-element array. Position 0 contains either a
+  #                     Collection UUID, an ItemSet ID, or an Enumerable of
+  #                     Item UUIDs.
+  #                     Position 1 contains a matching mode: `exact_match`,
+  #                     `contain`, `start`, or end`.
+  #                     Position 2 contains the value to find.
+  #                     Position 3 contains an element name.
+  #                     Position 4 contains the replace mode: `whole_value` or
+  #                     `matched_part`.
+  #                     Position 5 contains the value to replace with.
   # @raises [ArgumentError]
   #
   def perform(*args)
-    collection = Collection.find_by_repository_id(args[0])
+    if args[0].kind_of?(Collection)
+      items = args[0].items
+      what = args[0].title
+    elsif args[0].kind_of?(ItemSet)
+      items = args[0].items
+      what = args[0].name
+    elsif args[0].respond_to?(:each)
+      items = args[0]
+      what = "#{args[0].length} items"
+    else
+      raise ArgumentError, 'Illegal first argument'
+    end
 
     matching_mode = args[1].to_sym
     find_value = args[2]
@@ -20,12 +35,10 @@ class ReplaceItemMetadataJob < Job
     replace_mode = args[4].to_sym
     replace_value = args[5]
 
-
     self.task.update(status_text: "Replacing instances of \"#{find_value}\" "\
-        "with \"#{replace_value}\" in #{element_name} element in "\
-        "#{collection.title}")
+        "with \"#{replace_value}\" in #{element_name} element in #{what}")
 
-    collection.replace_item_element_values(matching_mode, find_value,
+    ItemUpdater.new.replace_element_values(items, matching_mode, find_value,
                                            element_name, replace_mode,
                                            replace_value, self.task)
 
