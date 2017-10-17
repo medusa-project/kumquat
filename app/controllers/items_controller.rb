@@ -290,12 +290,15 @@ class ItemsController < WebsiteController
 
             if params['tree-node-type'].include?('file_node')
               render layout: false
+              return
             elsif params['tree-node-type'].include?('directory_node')
               render 'tree_show_directory_item', layout: false
+              return
             end
           else
             redirect_to collection_tree_path(@item.collection) + '#' +
                             @item.repository_id
+            return
           end
         else
           # DLD-98 calls for the URL in the browser bar to change when an item
@@ -403,6 +406,11 @@ class ItemsController < WebsiteController
     end
   end
 
+  ##
+  # Handles free-form tree view.
+  #
+  # Responds to GET /collections/:collection_id/tree
+  #
   def tree
     setup_index_view
 
@@ -445,10 +453,9 @@ class ItemsController < WebsiteController
       tree_data = @items.map { |item| tree_hash(item) }
 
       format.json do
-        render json:
-            create_tree_root(tree_data, @collection)
-       end
+        render json: create_tree_root(tree_data, @collection)
       end
+    end
   end
 
   def item_tree_node

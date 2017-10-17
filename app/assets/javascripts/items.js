@@ -498,6 +498,8 @@ var PTItemsView = function() {
  */
 var PTTreeBrowserView = function() {
 
+    var NODE_SELECTION_DELAY = 600;
+
     this.init = function() {
         initializeTree();
         new PTItemsView().attachFavoritesListeners();
@@ -543,13 +545,19 @@ var PTTreeBrowserView = function() {
             // the selected item should load without having to press enter.
             // jstree provides a hover_node event, but it doesn't distinguish
             // between input methods, so we have to do this manually.
+            // We also do the selection on a cancellable timer so that closely
+            // spaced key presses don't fire off a flurry of AJAX requests.
+            var timeoutID;
             $(document).on('keyup', function(e) {
                 if (e.which === 38 || e.which === 40) { // arrow up or down
                     var activeElement = $(document.activeElement);
                     if (activeElement.hasClass('jstree-hovered')) {
-                        jstree.jstree('deselect_all');
-                        jstree.jstree('select_node',
-                            '#' + activeElement.parent().attr('id'));
+                        clearInterval(timeoutID);
+                        timeoutID = setTimeout(function () {
+                            jstree.jstree('deselect_all');
+                            jstree.jstree('select_node', '#' +
+                                activeElement.parent().attr('id'));
+                        }, NODE_SELECTION_DELAY);
                     }
                 }
             });
