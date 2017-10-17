@@ -10,7 +10,7 @@ class UpdateItemsFromTsvJob < Job
   def perform(*args)
     self.task.update(status_text: 'Updating item metadata from TSV')
 
-    ItemTsvUpdater.new.ingest_pathname(args[0], args[1], self.task)
+    ItemUpdater.new.update_from_tsv(args[0], args[1], self.task)
 
     File.delete(args[0]) if File.exist?(args[0])
 

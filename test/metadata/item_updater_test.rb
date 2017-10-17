@@ -217,4 +217,25 @@ class ItemUpdaterTest < ActiveSupport::TestCase
     assert_equal 'ZZZlions', item.element(:cat).value
   end
 
+  # update_from_tsv()
+
+  test 'update_from_tsv() should update items from valid TSV' do
+    Item.destroy_all
+    tsv_pathname = __dir__ + '/../fixtures/repository/lincoln.tsv'
+
+    # Create the items
+    tsv = File.read(tsv_pathname)
+    CSV.parse(tsv, headers: true, col_sep: "\t", quote_char: "\x00").
+        map{ |row| row.to_hash }.each do |row|
+      Item.create!(repository_id: row['uuid'],
+                   collection_repository_id: '6ff23a90-95b4-0131-1105-0050569601ca-f')
+    end
+
+    assert_equal 6, @instance.update_from_tsv(tsv_pathname)
+
+    # Check their metadata
+    assert_equal 'Meserve Lincoln Photograph No. 1',
+                 Item.find_by_repository_id('06639370-0b08-0134-1d55-0050569601ca-4').title
+  end
+
 end

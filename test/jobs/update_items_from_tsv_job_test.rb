@@ -6,7 +6,7 @@ class UpdateItemsFromTsvJobTest < ActiveSupport::TestCase
 
   ##
   # This is a minimal test that perform() returns. Testing of the actual TSV
-  # updating happens in the test of ItemTsvUpdater.
+  # updating happens in the test of ItemUpdater.
   #
   test 'perform() should not crash' do
     file = Tempfile.new('test')
