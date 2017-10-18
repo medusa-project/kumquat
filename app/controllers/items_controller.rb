@@ -638,8 +638,7 @@ class ItemsController < WebsiteController
     @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
     finder = @item.finder.
         include_variants(Item::Variants::FILE, Item::Variants::DIRECTORY).
-        order(Item::IndexFields::VARIANT, :asc).
-        order(Item::IndexFields::TITLE, :asc).
+        order(Item::IndexFields::STRUCTURAL_SORT).
         start(@start).
         limit(@limit)
     @files = finder.to_a
