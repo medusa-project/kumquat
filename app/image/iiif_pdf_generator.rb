@@ -23,7 +23,7 @@ class IiifPdfGenerator
   #                       images to add to the PDF.
   #
   def generate_pdf(item, task = nil)
-    children = item.finder.order(Item::IndexFields::STRUCTURAL_SORT).to_a
+    children = item.finder.to_a
     if children.any?
       doc = pdf_document(item)
 
