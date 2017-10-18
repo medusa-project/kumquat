@@ -1385,19 +1385,26 @@ class Item < ApplicationRecord
   # @return [String]
   #
   def structural_sort_key
+    key = nil
     if [Variants::FILE, Variants::DIRECTORY].include?(self.variant)
       # (parent title)-(parent title)-(parent title)-(title)
-      return (all_parents.map(&:title).reverse + [self.title]).join('-')
+      key = (all_parents.map(&:title).reverse + [self.title]).join('-')
+    else
+      sort_first_token = 'aaa'
+      sort_last_token = 'zzz'
+      # parents: (repository ID)-(variant key)-(page)-(subpage)-(title)
+      # children: (parent ID)-(variant key)-(page)-(subpage)-(title)
+      #
+      # N.B. Numbers need to be left-padded with zeroes in order to
+      # natural-sort.
+      key = sprintf('%s-%s-%s-%s-%s',
+              self.parent_repository_id.present? ? self.parent_repository_id : self.repository_id,
+              self.variant.present? ? sort_key_for_variant() : sort_first_token,
+              self.page_number.present? ? self.page_number.to_s.rjust(5, '0') : sort_last_token,
+              self.subpage_number.present? ? self.subpage_number.to_s.rjust(3, '0') : sort_last_token,
+              self.title.present? ? self.title : sort_last_token)
     end
-    # parents: (repository ID)-(variant key)-(page)-(subpage)-(title)
-    # children: (parent ID)-(variant key)-(page)-(subpage)-(title)
-    sort_first_token = 'aaa'
-    sort_last_token = 'zzz'
-    "#{self.parent_repository_id.present? ? self.parent_repository_id : self.repository_id}-"\
-        "#{self.variant.present? ? sort_key_for_variant() : sort_first_token}-"\
-        "#{self.page_number.present? ? self.page_number : sort_last_token}-"\
-        "#{self.subpage_number.present? ? self.subpage_number : sort_last_token}-"\
-        "#{self.title.present? ? self.title : sort_last_token}"
+    key
   end
 
 end
