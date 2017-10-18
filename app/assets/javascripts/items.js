@@ -517,7 +517,7 @@ var PTTreeBrowserView = function() {
                     data: {
                         url: function (node) {
                             return node.id === '#' ?
-                                getCollectionURL() :
+                                getRootTreeDataURL() :
                                 '/items/' + node.id + '/treedata.json';
                         }
                     }
@@ -672,7 +672,7 @@ var PTTreeBrowserView = function() {
             window.location.pathname.split("/")[2]+'/tree.html?ajax=true');
     };
 
-    var getCollectionURL = function() {
+    var getRootTreeDataURL = function() {
         var ID = window.location.pathname.split("/")[2];
         return '/collections/'+ID+'/items/treedata.json';
     };

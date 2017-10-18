@@ -189,8 +189,7 @@ class ItemsController < WebsiteController
     case @sequence_name
       when 'item'
         if @item.items.count > 0
-          @start_canvas_item = @item.finder.
-              order(Item::IndexFields::STRUCTURAL_SORT).limit(1).first
+          @start_canvas_item = @item.finder.limit(1).first
           render 'items/iiif_presentation_api/sequence',
                  formats: :json,
                  content_type: 'application/json'
@@ -282,8 +281,7 @@ class ItemsController < WebsiteController
             @containing_item = (@item.directory? or !@item.parent) ?
                                    @item : @item.parent
 
-            download_finder = @item.finder.
-                order(Item::IndexFields::STRUCTURAL_SORT)
+            download_finder = @item.finder
             @downloadable_items = @item.directory? ?
                                       download_finder.to_a : [@item]
             @total_byte_size = download_finder.total_byte_size
@@ -320,8 +318,7 @@ class ItemsController < WebsiteController
                       @selected_item.root_parent : @selected_item
 
           # All items within the containing item are downloadable.
-          finder = @containing_item.finder.
-              order(Item::IndexFields::STRUCTURAL_SORT)
+          finder = @containing_item.finder
           @total_byte_size = finder.total_byte_size
           @downloadable_items = finder.to_a
 
@@ -439,28 +436,39 @@ class ItemsController < WebsiteController
     end
   end
 
+  ##
+  # Returns a JSON representation of a collection's item tree structure, for
+  # free-form tree view.
+  #
+  # Responds to GET /collections/:id/items/treedata
+  #
   def tree_data
+    @collection = Collection.find_by_repository_id(params[:collection_id])
+    raise ActiveRecord::RecordNotFound unless @collection
+    return unless authorize(@collection)
+
+    @start = params[:start].to_i
+    finder = item_finder_for(params)
+    finder = finder.order(Item::IndexFields::STRUCTURAL_SORT, :desc)
+    @items = finder.to_a
+    tree_data = @items.map { |item| tree_hash(item) }
+
     respond_to do |format|
-      if params[:collection_id]
-        @collection = Collection.find_by_repository_id(params[:collection_id])
-        raise ActiveRecord::RecordNotFound unless @collection
-        return unless authorize(@collection)
-      end
-
-      @start = params[:start].to_i
-      finder = item_finder_for(params)
-      @items = finder.to_a
-      tree_data = @items.map { |item| tree_hash(item) }
-
       format.json do
         render json: create_tree_root(tree_data, @collection)
       end
     end
   end
 
+  ##
+  # Returns a JSON representation of an item's tree structure, for free-form
+  # tree view.
+  #
+  # Responds to GET /items/:id/treedata
+  #
   def item_tree_node
     respond_to do |format|
-      tree_data = @item.items.map do |child|
+      tree_data = @item.finder.to_a.map do |child|
         tree_hash child
       end
       format.json do
@@ -521,6 +529,7 @@ class ItemsController < WebsiteController
     node_hash["a_attr"]=attr_hash_for item
     node_hash
   end
+
   def attr_hash_for(item)
     attr_hash = {href: item_path(item)}
     if item.directory?
@@ -530,7 +539,6 @@ class ItemsController < WebsiteController
     end
     attr_hash
   end
-
 
   def create_tree_root(tree_hash_array, collection)
     node_hash = Hash.new
@@ -630,8 +638,7 @@ class ItemsController < WebsiteController
     @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
     finder = @item.finder.
         include_variants(Item::Variants::FILE, Item::Variants::DIRECTORY).
-        order(Item::IndexFields::VARIANT, :asc).
-        order(Item::IndexFields::TITLE, :asc).
+        order(Item::IndexFields::STRUCTURAL_SORT).
         start(@start).
         limit(@limit)
     @files = finder.to_a
