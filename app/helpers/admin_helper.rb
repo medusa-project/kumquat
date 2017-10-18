@@ -193,7 +193,8 @@ module AdminHelper
     # 1. Build the item structure excluding parents
     html = '<ul>'
     html += "  <li><strong>#{icon_for(item)} #{item.title}</strong>"
-    subitems = item.finder.order(Item::IndexFields::STRUCTURAL_SORT).to_a
+    subitems = item.finder.only_described(false).
+        order(Item::IndexFields::STRUCTURAL_SORT).to_a
     if subitems.any?
       html += '  <ul>'
       subitems.each do |child|
