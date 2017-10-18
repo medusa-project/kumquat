@@ -16,25 +16,27 @@
     <i class="fa fa-trash"></i> Purge Cached Images
   <% end %>
   <!-- Sets button -->
-  <div class="btn-group">
-    <button type="button" class="btn btn-default dropdown-toggle"
-            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-      <i class="fa fa-plus"></i>
-      Add To Set <span class="caret"></span>
-    </button>
-    <ul class="dropdown-menu" role="menu">
-      <% @item.collection.item_sets.joins(:users).
-          where(users: { id: current_user.id }).each do |set| %>
-        <li>
-          <%= link_to set.name,
-                      admin_collection_items_add_items_to_item_set_path(@item.collection,
-                                                                        'items[]': @item.repository_id,
-                                                                        item_set: set.id),
-                      method: :post %>
-        </li>
-      <% end %>
-    </ul>
-  </div>
+  <% if @item.collection.item_sets.count > 0 %>
+    <div class="btn-group">
+      <button type="button" class="btn btn-default dropdown-toggle"
+              data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <i class="fa fa-plus"></i>
+        Add To Set <span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu" role="menu">
+        <% @item.collection.item_sets.joins(:users).
+            where(users: { id: current_user.id }).each do |set| %>
+          <li>
+            <%= link_to set.name,
+                        admin_collection_items_add_items_to_item_set_path(@item.collection,
+                                                                          'items[]': @item.repository_id,
+                                                                          item_set: set.id),
+                        method: :post %>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
   <!-- View button -->
   <div class="btn-group">
     <button type="button" class="btn btn-default dropdown-toggle"
