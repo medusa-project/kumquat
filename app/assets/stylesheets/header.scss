@@ -17,7 +17,7 @@ header {
 .table-cell {
   display: table-cell;
 }
-@media (max-width: 400px) {
+@media (max-width: 580px) {
   .banner-image-university {
     display: none;
   }
@@ -27,7 +27,7 @@ header {
     display: none;
   }
 }
-@media (max-width: 880px) {
+@media (max-width: 1020px) {
   .banner-image-uiuc {
     display: none;
   }
