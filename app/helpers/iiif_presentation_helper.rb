@@ -68,7 +68,7 @@ module IiifPresentationHelper
   # @return [Array]
   #
   def iiif_canvases_for(item)
-    items = item.finder.order(Item::IndexFields::STRUCTURAL_SORT).to_a
+    items = item.finder.to_a
     if items.any?
       # Directory and 3D items are not viewable, and composite and supplement
       # items are included in the annotation list instead.

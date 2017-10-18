@@ -765,7 +765,8 @@ class Item < ApplicationRecord
   # @return [ItemFinder] ItemFinder initialized to search for child items.
   #
   def finder
-    ItemFinder.new.parent_item(self).search_children(true)
+    ItemFinder.new.parent_item(self).search_children(true).
+        order(Item::IndexFields::STRUCTURAL_SORT)
   end
 
   ##

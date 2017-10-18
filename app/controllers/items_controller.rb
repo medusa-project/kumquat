@@ -189,8 +189,7 @@ class ItemsController < WebsiteController
     case @sequence_name
       when 'item'
         if @item.items.count > 0
-          @start_canvas_item = @item.finder.
-              order(Item::IndexFields::STRUCTURAL_SORT).limit(1).first
+          @start_canvas_item = @item.finder.limit(1).first
           render 'items/iiif_presentation_api/sequence',
                  formats: :json,
                  content_type: 'application/json'
@@ -282,8 +281,7 @@ class ItemsController < WebsiteController
             @containing_item = (@item.directory? or !@item.parent) ?
                                    @item : @item.parent
 
-            download_finder = @item.finder.
-                order(Item::IndexFields::STRUCTURAL_SORT)
+            download_finder = @item.finder
             @downloadable_items = @item.directory? ?
                                       download_finder.to_a : [@item]
             @total_byte_size = download_finder.total_byte_size
@@ -320,8 +318,7 @@ class ItemsController < WebsiteController
                       @selected_item.root_parent : @selected_item
 
           # All items within the containing item are downloadable.
-          finder = @containing_item.finder.
-              order(Item::IndexFields::STRUCTURAL_SORT)
+          finder = @containing_item.finder
           @total_byte_size = finder.total_byte_size
           @downloadable_items = finder.to_a
 
