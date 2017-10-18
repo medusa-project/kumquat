@@ -436,19 +436,24 @@ class ItemsController < WebsiteController
     end
   end
 
+  ##
+  # Returns a JSON representation of a collection's item tree structure, for
+  # free-form tree view.
+  #
+  # Responds to GET /collections/:id/items/treedata
+  #
   def tree_data
+    @collection = Collection.find_by_repository_id(params[:collection_id])
+    raise ActiveRecord::RecordNotFound unless @collection
+    return unless authorize(@collection)
+
+    @start = params[:start].to_i
+    finder = item_finder_for(params)
+    finder = finder.order(Item::IndexFields::STRUCTURAL_SORT, :desc)
+    @items = finder.to_a
+    tree_data = @items.map { |item| tree_hash(item) }
+
     respond_to do |format|
-      if params[:collection_id]
-        @collection = Collection.find_by_repository_id(params[:collection_id])
-        raise ActiveRecord::RecordNotFound unless @collection
-        return unless authorize(@collection)
-      end
-
-      @start = params[:start].to_i
-      finder = item_finder_for(params)
-      @items = finder.to_a
-      tree_data = @items.map { |item| tree_hash(item) }
-
       format.json do
         render json: create_tree_root(tree_data, @collection)
       end
