@@ -455,9 +455,15 @@ class ItemsController < WebsiteController
     end
   end
 
+  ##
+  # Returns a JSON representation of an item's tree structure, for free-form
+  # tree view.
+  #
+  # Responds to GET /items/:id/treedata
+  #
   def item_tree_node
     respond_to do |format|
-      tree_data = @item.items.map do |child|
+      tree_data = @item.finder.to_a.map do |child|
         tree_hash child
       end
       format.json do
@@ -518,6 +524,7 @@ class ItemsController < WebsiteController
     node_hash["a_attr"]=attr_hash_for item
     node_hash
   end
+
   def attr_hash_for(item)
     attr_hash = {href: item_path(item)}
     if item.directory?
@@ -527,7 +534,6 @@ class ItemsController < WebsiteController
     end
     attr_hash
   end
-
 
   def create_tree_root(tree_hash_array, collection)
     node_hash = Hash.new
