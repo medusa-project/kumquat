@@ -54,7 +54,7 @@ class Agent < ApplicationRecord
         agent.reindex(index)
 
         pct_complete = (i / count.to_f) * 100
-        CustomLogger.instance.debug("Agent.reindex_all(): #{pct_complete.round(2)}%")
+        puts "Agent.reindex_all(): #{pct_complete.round(2)}%"
       end
       # Remove indexed documents whose entities have disappeared.
       # TODO: fix this
