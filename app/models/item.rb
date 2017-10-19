@@ -801,8 +801,8 @@ class Item < ApplicationRecord
 =begin
   def pages TODO: why is this so slow?
     self.finder.include_variants(Variants::PAGE).
-        order(IndexFields::PAGE_NUMBER, :asc).
-        order(IndexFields::SUBPAGE_NUMBER, :asc)
+        order(IndexFields::PAGE_NUMBER).
+        order(IndexFields::SUBPAGE_NUMBER)
   end
 =end
 
