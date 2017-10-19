@@ -292,7 +292,7 @@ class Item < ApplicationRecord
         item.reindex(index)
 
         pct_complete = (i / num_items.to_f) * 100
-        CustomLogger.instance.debug("Item.reindex_all(): #{pct_complete.round(2)}%")
+        puts "Item.reindex_all(): #{pct_complete.round(2)}%"
       end
     end
   end
@@ -1395,26 +1395,29 @@ class Item < ApplicationRecord
   # @return [String]
   #
   def structural_sort_key
-    # N.B. For natural sort, numbers need to be left-padded with zeroes.
+    # N.B.:
+    # - Numbers are left-padded with zeroes to achieve natural sort.
+    # - Titles are lowercased to achieve case-insensitivity.
     if [Variants::FILE, Variants::DIRECTORY].include?(self.variant)
       # (parent title)-(parent title)-(parent title)-(title)
-      key = (all_parents.map{ |it| zero_pad_numbers(it.title) }.reverse + [zero_pad_numbers(self.title)]).join('-')
+      key = (all_parents.map{ |it| zero_pad_numbers(it.title.downcase) }.reverse +
+          [zero_pad_numbers(self.title.downcase)]).join('-')
     else
       sort_first_token = 'aaa'
       sort_last_token = 'zzz'
-      # parents: (repository ID)-(variant key)-(page)-(subpage)-(title)
-      # children: (parent ID)-(variant key)-(page)-(subpage)-(title)
+      # Parents: (repository ID)-(variant key)-(page)-(subpage)-(title)
+      # Children: (parent ID)-(variant key)-(page)-(subpage)-(title)
       key = sprintf('%s-%s-%s-%s-%s',
               self.parent_repository_id || self.repository_id,
               self.variant.present? ? sort_key_for_variant : sort_first_token,
               self.page_number.present? ? zero_pad_numbers(self.page_number) : sort_last_token,
               self.subpage_number.present? ? zero_pad_numbers(self.subpage_number) : sort_last_token,
-              self.title.present? ? zero_pad_numbers(self.title) : sort_last_token)
+              self.title.present? ? zero_pad_numbers(self.title.downcase) : sort_last_token)
     end
     key
   end
 
-  def zero_pad_numbers(str, padding = 16) # TODO: move to StringUtils
+  def zero_pad_numbers(str, padding = 16)
     str.to_s.gsub(/\d+/) { |match| match.rjust(padding, '0') }
   end
 

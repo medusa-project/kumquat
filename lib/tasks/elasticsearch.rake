@@ -81,11 +81,12 @@ namespace :elasticsearch do
       EntityFinder::ENTITIES.each do |class_|
         class_.reindex_all(:latest)
       end
+      puts 'Done populating latest indexes. Don\'t forget to migrate to them!'
     end
 
     desc 'Rollback to the previous schema version'
     task :rollback_to_previous => :environment do |task, args|
-      ElasticsearchClient.instance.rollback_schemas
+      ElasticsearchIndex.rollback_to_previous
       puts 'Done. Restart required.'
     end
 

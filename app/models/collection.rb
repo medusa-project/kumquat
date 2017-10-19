@@ -189,7 +189,7 @@ class Collection < ApplicationRecord
         col.reindex(index)
 
         pct_complete = (i / count.to_f) * 100
-        CustomLogger.instance.debug("Collection.reindex_all(): #{pct_complete.round(2)}%")
+        puts "Collection.reindex_all(): #{pct_complete.round(2)}%"
       end
       # Remove indexed documents whose entities have disappeared.
       # TODO: fix this
