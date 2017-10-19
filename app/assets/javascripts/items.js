@@ -658,7 +658,7 @@ var PTTreeBrowserView = function() {
     var setItemViewHTML = function(result) {
         //reset flag used by embed.js
         window.embedScriptIncluded = false;
-        $('#pt-item-view').html(result);
+        $('#pt-free-form-item-view').html(result);
         PearTree.init();
         PearTree.view = new PTItemView();
         PearTree.view.init();
