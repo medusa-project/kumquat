@@ -1,0 +1,83 @@
+<%= render partial: 'show_button_group', locals: { item: @item } %>
+
+<%= item_page_title(@item) %>
+
+<% if (@item.supplementary_item or @item.three_d_item) and !@storage_offline %>
+  <% supp_item = @item.supplementary_item %>
+  <% supp_bin = supp_item&.effective_viewer_binary %>
+  <div style="margin-bottom:16px">
+    <% # DLD-6: button that pops open the supplementary section is aligned to
+       # the right of the nav buttons %>
+    <div style="float:right">
+      <% if supp_bin %>
+        <a role="button" class="btn btn-default btn-sm" data-toggle="collapse"
+           href="#pt-binary-<%= supp_bin.id %>"
+           aria-expanded="false" aria-controls="pt-binary-<%= supp_bin.id %>">
+          <i class="fa fa-plus-square-o"></i> Supplementary File</a>
+      <% end %>
+      <% if @item.three_d_item %>
+        <a role="button" class="btn btn-default btn-sm" data-toggle="collapse"
+           href="#pt-3d-viewer-container"
+           aria-expanded="false" aria-controls="pt-3d-viewer-container">
+          <i class="fa fa-plus-square-o"></i> 3D Model</a>
+      <% end %>
+    </div>
+  </div>
+
+  <% if supp_bin %>
+    <div id="pt-binary-<%= supp_bin.id %>" class="collapse">
+      <div class="row">
+        <div class="col-sm-9">
+          <%= viewer_for_binary(supp_bin) %>
+        </div>
+        <div class="col-sm-3">
+          <%= metadata_as_list(supp_item) %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+  <% if @item.three_d_item %>
+    <div id="pt-3d-viewer-container" class="collapse">
+      <%= viewer_for_item(@item.three_d_item) %>
+    </div>
+  <% end %>
+<% end %>
+
+<section>
+  <% if @storage_offline %>
+    <%= render partial: 'permalink_section', locals: { item: @item } %>
+  <% else %>
+    <div class="pt-viewer">
+      <%= viewer_for_item(@item) %>
+    </div>
+
+    <% if has_viewer?(@item) %>
+      <div class="row">
+        <div class="col-sm-10">
+          <%= render partial: 'permalink_section', locals: { item: @item } %>
+        </div>
+        <div class="col-sm-2">
+          <a href="#pt-download-section" class="btn btn-lg btn-success">
+            <i class="fa fa-download"></i> Download</a>
+        </div>
+      </div>
+    <% else %>
+      <%= render partial: 'permalink_section', locals: { item: @item } %>
+    <% end %>
+  <% end %>
+</section>
+
+<section>
+  <%= rights_statement(@item.effective_rightsstatements_org_statement,
+                       @item.effective_rights_statement) %>
+</section>
+
+<% if @item.elements.reject{ |e| e.name == 'title' }.any? %>
+  <section>
+    <%= metadata_section(@item) %>
+  </section>
+<% end %>
+
+<%= render partial: 'download_section', locals: { item: @item } %>
+<%= render partial: 'staff_info' %>
+<%= render partial: 'cite_panel', locals: { item: @item } %>

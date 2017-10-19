@@ -5,7 +5,7 @@
 <%= breadcrumb(item: @root_item, context: session[:browse_context],
                context_url: session[:browse_context_url]) %>
 
-<%= render partial: 'show_button_group' %>
+<%= render partial: 'show_button_group', locals: { item: @root_item } %>
 
 <%= item_page_title(@root_item) %>
 
@@ -58,7 +58,7 @@
 
 <section>
   <% if @storage_offline %>
-    <%= render partial: 'permalink_section' %>
+    <%= render partial: 'permalink_section', locals: { item: @root_item } %>
   <% else %>
     <div class="pt-viewer">
       <%= viewer_for_item(@root_item) %>
@@ -67,7 +67,7 @@
     <% if has_viewer?(@root_item) %>
       <div class="row">
         <div class="col-sm-10">
-          <%= render partial: 'permalink_section' %>
+          <%= render partial: 'permalink_section', locals: { item: @root_item } %>
         </div>
         <div class="col-sm-2">
           <a href="#pt-download-section" class="btn btn-lg btn-success">
@@ -75,7 +75,7 @@
         </div>
       </div>
     <% else %>
-      <%= render partial: 'permalink_section' %>
+      <%= render partial: 'permalink_section', locals: { item: @root_item } %>
     <% end %>
   <% end %>
 </section>
@@ -91,7 +91,7 @@
   </section>
 <% end %>
 
-<%= render partial: 'download_section' %>
+<%= render partial: 'download_section', locals: { item: @root_item } %>
 <%= render partial: 'staff_info' %>
 <%= render partial: 'cite_panel', locals: { item: @root_item } %>
 

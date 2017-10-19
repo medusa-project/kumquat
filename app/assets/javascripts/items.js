@@ -533,7 +533,7 @@ var PTTreeBrowserView = function() {
                     drillDownToID(target_id);
                 }
             }).bind("select_node.jstree", function (e, data) {
-                loadItemView(buildAjaxNodeURL(data));
+                retrieveItemView(buildAjaxNodeURL(data));
 
                 // Add the selected item ID to the hash portion of the URL.
                 console.debug('Navigating to ' + data.node.id);
@@ -562,7 +562,8 @@ var PTTreeBrowserView = function() {
                 }
             });
 
-            trigger_root_node();
+            retrieveItemView('/collections/' +
+                window.location.pathname.split("/")[2]+'/tree.html?ajax=true');
         }
     };
 
@@ -654,22 +655,13 @@ var PTTreeBrowserView = function() {
         return url;
     }
 
-    var tree_node_callback = function(result) {
+    var setItemViewHTML = function(result) {
         //reset flag used by embed.js
         window.embedScriptIncluded = false;
         $('#pt-item-view').html(result);
-        $('#pt-item-view ol.breadcrumb').remove();
-        $('#pt-item-view .pt-result-navigation').remove();
-        $('#pt-item-view .btn-group').removeClass('pull-right');
-        $('#pt-item-view .view-dropdown').removeClass('dropdown-menu-right');
         PearTree.init();
-        var view = new PTItemView();
-        view.init();
-    };
-
-    var trigger_root_node = function() {
-        loadItemView('/collections/' +
-            window.location.pathname.split("/")[2]+'/tree.html?ajax=true');
+        PearTree.view = new PTItemView();
+        PearTree.view.init();
     };
 
     var getRootTreeDataURL = function() {
@@ -677,12 +669,12 @@ var PTTreeBrowserView = function() {
         return '/collections/'+ID+'/items/treedata.json';
     };
 
-    var loadItemView = function(ajax_url) {
+    var retrieveItemView = function(ajax_url) {
         $.ajax({
             url: ajax_url,
             method: 'GET',
             success: function(result) {
-                tree_node_callback(result);
+                setItemViewHTML(result);
             }
         });
     };

@@ -1,3 +1,8 @@
+<%
+  # Requires the following locals:
+  # item [Item]
+%>
+
 <div class="media">
   <div class="media-left">
     <i class="fa fa-link"></i>
@@ -5,11 +10,11 @@
   <div class="media-body">
     <h4 class="media-heading">Permalink
       <button class="btn btn-default btn-xs pt-copy-permalink"
-              data-clipboard-text="<%= item_url(@root_item) %>"
+              data-clipboard-text="<%= item_url(item) %>"
               type="button">
         <i class="fa fa-clipboard"></i> Copy
       </button>
     </h4>
-    <%= item_url(@root_item) %>
+    <%= item_url(item) %>
   </div>
 </div>
