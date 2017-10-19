@@ -35,9 +35,8 @@ body#items_index #pt-page-content, body#search_index #pt-page-content {
   }
 }
 
-body#items_show, #pt-item-view { /* pt-item-view is used in free-form tree view. */
+body#items_show, #pt-free-form-item-view {
   .pt-compound-title {
-    margin-top:-0.3em;
     small {
       vertical-align:middle;
       a {
@@ -221,7 +220,7 @@ body#tree_browser {
     border-right-style: solid;
     border-right-color: #dddddd;
   }
-  #pt-item-view {
+  #pt-free-form-item-view {
     max-height: 545px;
     height: 545px;
     padding-top: 7px;
@@ -257,7 +256,7 @@ body#tree_browser {
   }
 }
 @media (max-width: 992px) {
-  #pt-item-view {
+  #pt-free-form-item-view {
     border-top-style: solid;
     border-color: #dddddd;
   }
