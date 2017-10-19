@@ -290,7 +290,7 @@ class Item < ApplicationRecord
         item.reindex(index)
 
         pct_complete = (i / num_items.to_f) * 100
-        CustomLogger.instance.debug("Item.reindex_all(): #{pct_complete.round(2)}%")
+        puts "Item.reindex_all(): #{pct_complete.round(2)}%"
       end
     end
   end
