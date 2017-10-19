@@ -146,7 +146,7 @@ module Admin
                    @item_set.items.pluck(:repository_id)).
             include_unpublished(true).
             only_described(false).
-            order(Item::IndexFields::STRUCTURAL_SORT, :asc).
+            order(Item::IndexFields::STRUCTURAL_SORT).
             start(@start).
             limit(@limit)
       else
@@ -157,7 +157,7 @@ module Admin
             include_children_in_results(true).
             include_unpublished(true).
             only_described(false).
-            order(Item::IndexFields::STRUCTURAL_SORT, :asc).
+            order(Item::IndexFields::STRUCTURAL_SORT).
             start(@start).
             limit(@limit)
         if @collection.free_form?

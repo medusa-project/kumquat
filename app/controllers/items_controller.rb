@@ -448,8 +448,7 @@ class ItemsController < WebsiteController
     return unless authorize(@collection)
 
     @start = params[:start].to_i
-    finder = item_finder_for(params)
-    finder = finder.order(Item::IndexFields::STRUCTURAL_SORT, :desc)
+    finder = item_finder_for(params).order(Item::IndexFields::STRUCTURAL_SORT)
     @items = finder.to_a
     tree_data = @items.map { |item| tree_hash(item) }
 

@@ -75,12 +75,19 @@ class AbstractFinder
   end
 
   ##
-  # @param field [String]
-  # @param direction [Symbol] :asc or :desc
+  # @param orders [Enumerable<String>, Enumerable<Hash<String,Symbol>>]
+  #               Enumerable of string field names and/or hashes with field
+  #               name => direction pairs (`:asc` or `:desc`).
   # @return [self]
   #
-  def order(field, direction = :asc)
-    @orders << { field: field.to_s, direction: direction.to_sym }
+  def order(orders)
+    @orders = [] # reset them
+    if orders.respond_to?(:keys)
+      @orders << { field: orders.keys.first,
+                   direction: orders[orders.keys.first] }
+    else
+      @orders << { field: orders.to_s, direction: :asc }
+    end
     self
   end
 
