@@ -1,15 +1,20 @@
+<%
+  # Requires the following locals:
+  # item [Item]
+%>
+
 <div id="item-show-buttons" class="btn-group pull-right" role="group">
   <button class="btn btn-danger pt-remove-from-favorites"
-          data-item-id="<%= @root_item.repository_id %>">
+          data-item-id="<%= item.repository_id %>">
     <i class="fa fa-heart-o"></i> Remove From Favorites
   </button>
 
   <button class="btn btn-default pt-add-to-favorites"
-          data-item-id="<%= @root_item.repository_id %>">
+          data-item-id="<%= item.repository_id %>">
     <i class="fa fa-heart"></i> Add To Favorites
   </button>
 
-  <%= share_button(@root_item) %>
+  <%= share_button(item) %>
 
   <div class="btn-group">
     <button type="button" class="btn btn-default dropdown-toggle"
@@ -28,7 +33,7 @@
           <i class="fa fa-code"></i>&nbsp;JSON
         <% end %>
       </li>
-      <% iiif_url = @root_item.iiif_image_binary&.iiif_image_url %>
+      <% iiif_url = item.iiif_image_binary&.iiif_image_url %>
       <% if iiif_url %>
         <li>
           <%= link_to iiif_url, target: '_blank' do %>
@@ -36,31 +41,31 @@
           <% end %>
         </li>
       <% end %>
-      <% if @root_item.has_iiif_manifest? %>
+      <% if item.has_iiif_manifest? %>
         <li>
-          <%= link_to item_iiif_manifest_path(@root_item), target: '_blank' do %>
+          <%= link_to item_iiif_manifest_path(item), target: '_blank' do %>
             <i class="fa fa-code"></i>&nbsp;IIIF Manifest
           <% end %>
         </li>
       <% end %>
-      <% if @root_item.bib_id %>
+      <% if item.bib_id %>
         <li>
-          <%= link_to @root_item.catalog_record_url, target: '_blank' do %>
+          <%= link_to item.catalog_record_url, target: '_blank' do %>
             <i class="fa fa-book"></i>&nbsp;&nbsp;Library Catalog Record
           <% end %>
         </li>
       <% end %>
-      <% if @root_item.collection.physical_collection_url.present? %>
+      <% if item.collection.physical_collection_url.present? %>
         <li>
-          <%= link_to @root_item.collection.physical_collection_url,
+          <%= link_to item.collection.physical_collection_url,
                       target: '_blank' do %>
-            <%= icon_for(@root_item.collection) %>&nbsp;&nbsp;Physical Collection
+            <%= icon_for(item.collection) %>&nbsp;&nbsp;Physical Collection
           <% end %>
         </li>
       <% end %>
       <li class="divider"></li>
       <li>
-        <%= link_to admin_collection_item_path(@root_item.collection, @root_item),
+        <%= link_to admin_collection_item_path(item.collection, item),
                     target: '_blank' do %>
           <i class="fa fa-lock"></i>&nbsp;&nbsp;Admin View
         <% end %>
@@ -68,6 +73,6 @@
     </ul>
   </div>
 
-  <%= render partial: 'email_curator_button', locals: { item: @root_item } %>
+  <%= render partial: 'email_curator_button', locals: { item: item } %>
 
 </div>

@@ -1,6 +1,10 @@
-<% if (@containing_item.variant == Item::Variants::DIRECTORY or
-    @containing_item.effective_viewer_binary&.media_category == Binary::MediaCategory::IMAGE or
-    @containing_item.is_compound? or @containing_item.binaries.any?) and !@storage_offline %>
+<%
+  # Requires the following locals:
+  # item [Item]
+%>
+
+<% if (item.directory? or item.is_compound? or item.binaries.any? or
+    item.effective_viewer_binary&.media_category == Binary::MediaCategory::IMAGE) and !@storage_offline %>
 
   <section id="pt-download-section">
     <h2>
@@ -19,14 +23,14 @@
                       'data-target': '#pt-download-zip-modal') do %>
             <i class="fa fa-file-zip-o"></i>&nbsp;&nbsp;Zip of Masters&hellip;
           <% end %>
-          <%= link_to(item_url(@containing_item, format: :zip, contents: :jpegs),
+          <%= link_to(item_url(item, format: :zip, contents: :jpegs),
                       target: '_blank', class: 'btn btn-default') do %>
             <i class="fa fa-file-zip-o"></i>&nbsp;&nbsp;Zip of JPEGs
           <% end %>
         <% end %>
 
-        <% if @containing_item.is_compound? %>
-          <%= link_to(item_url(@containing_item, format: :pdf),
+        <% if item.is_compound? %>
+          <%= link_to(item_url(item, format: :pdf),
                       class: 'btn btn-default', target: '_blank') do %>
             <i class="fa fa-file-pdf-o"></i> PDF
           <% end %>
@@ -40,7 +44,7 @@
               <%= render partial: 'download_table_rows', locals: { item: subitem } %>
             <% end %>
           <% else %>
-            <%= render partial: 'download_table_rows', locals: { item: @containing_item } %>
+            <%= render partial: 'download_table_rows', locals: { item: item } %>
           <% end %>
         </tbody>
       </table>
@@ -50,7 +54,7 @@
 
   <%= render partial: 'custom_image_panel' %>
   <%= render partial: 'download_zip_panel', locals: {
-      context: @containing_item.directory? ? :directory : :item,
+      context: item.directory? ? :directory : :item,
       num_downloadable_items: 0, # this is potentially expensive to calculate.
       total_byte_size: @total_byte_size } %>
 

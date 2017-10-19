@@ -423,19 +423,6 @@ module ItemsHelper
   end
 
   ##
-  # Returns pagination for files in show-item view.
-  #
-  # @param count [Integer]
-  # @param per_page [Integer]
-  # @param current_page [Integer]
-  # @param max_links [Integer] (ideally odd)
-  #
-  def paginate_files(parent_item, count, per_page, current_page, max_links = 9)
-    do_paginate(count, per_page, current_page, max_links,
-                parent_item, Item::Variants::FILE)
-  end
-
-  ##
   # Returns pagination for item results view.
   #
   # @param count [Integer]
@@ -1139,26 +1126,6 @@ module ItemsHelper
                                        Admin::ItemsController::PERMITTED_PARAMS).except(:start)
 
     case item_variant
-      when Item::Variants::FILE
-        first_link = link_to(item_files_path(owning_entity, allowed_params),
-                             remote: true, 'aria-label': 'First') do
-          raw('<span aria-hidden="true">First</span>')
-        end
-        prev_link = link_to(item_files_path(owning_entity,
-                                            allowed_params.merge(start: prev_start)),
-                            remote: true, 'aria-label': 'Previous') do
-          raw('<span aria-hidden="true">&laquo;</span>')
-        end
-        next_link = link_to(item_files_path(owning_entity,
-                                            allowed_params.merge(start: next_start)),
-                            remote: true, 'aria-label': 'Next') do
-          raw('<span aria-hidden="true">&raquo;</span>')
-        end
-        last_link = link_to(item_files_path(owning_entity,
-                                            allowed_params.merge(start: last_start)),
-                            remote: true, 'aria-label': 'Last') do
-          raw('<span aria-hidden="true">Last</span>')
-        end
       when :agent_item
         first_link = link_to(agent_items_path(owning_entity, allowed_params),
                              remote: true, 'aria-label': 'First') do
@@ -1206,13 +1173,6 @@ module ItemsHelper
     (first_page..last_page).each do |page|
       start = (page - 1) * per_page
       case item_variant
-        when Item::Variants::FILE
-          path = (start == 0) ? item_files_path(owning_entity, allowed_params) :
-              item_files_path(owning_entity, allowed_params.merge(start: start))
-          page_link = link_to(path, remote: true) do
-            raw("#{page} #{(page == current_page) ?
-                '<span class="sr-only">(current)</span>' : ''}")
-          end
         when :agent_item
           path = (start == 0) ? agent_items_path(owning_entity, allowed_params) :
               agent_items_path(owning_entity, allowed_params.merge(start: start))

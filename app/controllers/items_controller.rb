@@ -45,19 +45,6 @@ class ItemsController < WebsiteController
   end
 
   ##
-  # Responds to GET /item/:id/files (XHR only)
-  #
-  def files
-    if request.xhr?
-      fresh_when(etag: @item) if Rails.env.production?
-      set_files_ivar
-      render 'items/files'
-    else
-      render status: 406, text: 'Not Acceptable'
-    end
-  end
-
-  ##
   # Serves IIIF Presentation API 2.1 annotation lists.
   #
   # Responds to GET /items/:id/list/:name
@@ -269,28 +256,24 @@ class ItemsController < WebsiteController
     fresh_when(etag: @item) if Rails.env.production?
     respond_to do |format|
       format.html do
-        set_files_ivar
-
+        # Free-form items are handled differently from the rest: different
+        # controller ivars, different templates...
         if @item.file? or @item.directory?
           if request.xhr?
-            # See comments in the else block for an explanation of what these
-            # are. We set them here as well in order to be able to share the
-            # same view templates.
-            @root_item = @item
-            @selected_item = @item
-            @containing_item = (@item.directory? or !@item.parent) ?
-                                   @item : @item.parent
-
             download_finder = @item.finder
             @downloadable_items = @item.directory? ?
                                       download_finder.to_a : [@item]
             @total_byte_size = download_finder.total_byte_size
 
             if params['tree-node-type'].include?('file_node')
-              render layout: false
+              render 'show_file', layout: false
               return
             elsif params['tree-node-type'].include?('directory_node')
-              render 'tree_show_directory_item', layout: false
+              @num_subdirs = @item.items.
+                  where(variant: Item::Variants::DIRECTORY).count
+              @num_subfiles = @item.items.
+                  where(variant: Item::Variants::FILE).count
+              render 'show_directory', layout: false
               return
             end
           else
@@ -372,7 +355,7 @@ class ItemsController < WebsiteController
         #   of the items in the parent Directory-variant item.
         # * For compound objects, it will contain content for each item in the
         #   object.
-        if @item.variant == Item::Variants::DIRECTORY
+        if @item.directory?
           if @item.items.any?
             items = @item.all_files
             zip_name = 'files'
@@ -381,7 +364,7 @@ class ItemsController < WebsiteController
             redirect_to @item
             return
           end
-        elsif @item.variant == Item::Variants::FILE
+        elsif @item.file?
           items = @item.parent ? @item.parent.items : @item.collection.items
           zip_name = 'files'
         else
@@ -404,7 +387,7 @@ class ItemsController < WebsiteController
   end
 
   ##
-  # Handles free-form tree view.
+  # Handles the root of free-form tree view.
   #
   # Responds to GET /collections/:collection_id/tree
   #
@@ -413,12 +396,10 @@ class ItemsController < WebsiteController
 
     respond_to do |format|
       format.html do
-        if @collection.package_profile == PackageProfile::FREE_FORM_PROFILE
+        if @collection.free_form?
           fresh_when(etag: @items) if Rails.env.production?
-          session[:first_result_id] = @items.first&.repository_id
-          session[:last_result_id] = @items.last&.repository_id
           if request.xhr?
-            render 'tree_root', layout: false
+            render 'show_collection_summary', layout: false
           end
         else
           redirect_to collection_items_path
@@ -629,18 +610,6 @@ class ItemsController < WebsiteController
     else
       session[:browse_context] = BrowseContext::BROWSING_COLLECTION
     end
-  end
-
-  def set_files_ivar
-    @start = params[:start] ? params[:start].to_i : 0
-    @limit = PAGES_LIMIT
-    @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
-    finder = @item.finder.
-        include_variants(Item::Variants::FILE, Item::Variants::DIRECTORY).
-        order(Item::IndexFields::STRUCTURAL_SORT).
-        start(@start).
-        limit(@limit)
-    @files = finder.to_a
   end
 
   def set_sanitized_params

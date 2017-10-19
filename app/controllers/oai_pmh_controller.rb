@@ -185,6 +185,8 @@ class OaiPmhController < ApplicationController
   # @param allowed [Array<String>]
   #
   def validate_arguments(required, allowed)
+    params_hash = params.to_unsafe_hash
+
     # Ignore these
     ignore = %w(action controller verb)
     allowed -= ignore
@@ -193,13 +195,21 @@ class OaiPmhController < ApplicationController
     # Check that all required args are present in the params hash.
     required.each do |arg|
       if params[arg].blank?
-        @errors << { code: 'badArgument',
-                     description: "Missing #{arg} argument." }
+        # Make an exception for metadataPrefix, which is permitted to be
+        # blank when resumptionToken is present.
+        if arg == 'metadataPrefix' and
+            params_hash.keys.include?('resumptionToken') and
+            required.include?('metadataPrefix')
+          # ok
+        else
+          @errors << { code: 'badArgument',
+                       description: "Missing #{arg} argument." }
+        end
       end
     end
 
     # Check that the params hash contains only allowed keys.
-    (params.to_unsafe_hash.keys - ignore).each do |key|
+    (params_hash.keys - ignore).each do |key|
       unless allowed.include?(key)
         @errors << { code: 'badArgument',
                      description: "Illegal argument: #{key}" }
@@ -244,7 +254,7 @@ class OaiPmhController < ApplicationController
     end
 
     # metadataPrefix validation
-    if params[:metadataPrefix] and
+    if params[:metadataPrefix].present? and
         !SUPPORTED_METADATA_FORMATS.include?(params[:metadataPrefix])
       @errors << { code: 'cannotDisseminateFormat',
                    description: 'The metadata format identified by the '\

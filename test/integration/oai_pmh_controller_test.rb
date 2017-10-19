@@ -184,6 +184,13 @@ class OaiPmhControllerTest < ActionDispatch::IntegrationTest
     'metadataPrefix argument is not supported by this repository.'
   end
 
+  test 'ListIdentifiers does not require metadataPrefix when resumptionToken is
+  present' do
+    get '/oai-pmh', params: { verb: 'ListIdentifiers', resumptionToken: 'offset:1' }
+    assert_select 'ListIdentifiers > header > identifier',
+                  @valid_identifier
+  end
+
   # 4.4 ListMetadataFormats
   test 'ListMetadataFormats returns a list when no arguments are provided' do
     get '/oai-pmh', params: { verb: 'ListMetadataFormats' }
@@ -254,6 +261,13 @@ class OaiPmhControllerTest < ActionDispatch::IntegrationTest
     'metadataPrefix argument is not supported by this repository.'
   end
 
+  test 'ListRecords does not require metadataPrefix when resumptionToken is
+  present' do
+    get '/oai-pmh', params: { verb: 'ListRecords', resumptionToken: 'offset:1' }
+    assert_select 'ListRecords > record > header > identifier',
+                  @valid_identifier
+  end
+
   # 4.6 ListSets
   test 'ListSets returns a list when correct arguments are passed and results
   are available' do
@@ -265,6 +279,12 @@ class OaiPmhControllerTest < ActionDispatch::IntegrationTest
     get '/oai-pmh', params: { verb: 'ListSets', cats: 'cats', dogs: 'dogs' }
     assert_select 'error', 'Illegal argument: cats'
     assert_select 'error', 'Illegal argument: dogs'
+  end
+
+  test 'ListSets does not require metadataPrefix when resumptionToken is
+  present' do
+    get '/oai-pmh', params: { verb: 'ListSets', resumptionToken: 'offset:1' }
+    assert_select 'ListSets > set > setSpec', collections(:sanborn).repository_id
   end
 
   private
