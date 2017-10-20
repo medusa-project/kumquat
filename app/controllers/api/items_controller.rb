@@ -34,6 +34,7 @@ module Api
       finder = ItemFinder.new.
           collection(Collection.find_by_repository_id(params[:collection_id])).
           query_all(params[:q]).
+          aggregations(false).
           search_children(true).
           include_unpublished(true).
           only_described(false).

@@ -491,6 +491,7 @@ class ItemsController < WebsiteController
         collection(@collection).
         facet_filters(params[:fq]).
         query_all(params[:q]).
+        aggregations(false).
         search_children(true).
         only_described(true).
         order(Item::IndexFields::STRUCTURAL_SORT).

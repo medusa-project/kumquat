@@ -12,6 +12,7 @@ module Api
       @limit = MAX_RESULTS_LIMIT if @limit > MAX_RESULTS_LIMIT
 
       finder = CollectionFinder.new.
+          aggregations(false).
           search_children(true).
           include_unpublished(true).
           facet_filters(params[:fq]).

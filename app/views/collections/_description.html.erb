@@ -2,15 +2,17 @@
   <% if @show_browse_tree_button %>
       <%= link_to(collection_tree_path(@collection),
                   class: 'btn btn-lg btn-default') do %>
-          <%= icon_for(Collection) %> Browse Collection
+        <%= icon_for(@collection) %> Browse Collection
       <% end %>
   <% elsif @collection.published_in_dls %>
     <% options = @collection.free_form? ? { display: 'leaves' } : nil %>
     <%= link_to(collection_items_path(@collection, options),
               class: 'btn btn-lg btn-default',
               target: @collection.published_in_dls ? '' : '_blank') do %>
-    <%= icon_for(Item) %> <%= number_with_delimiter(@collection.num_public_objects) %> Items
-  <% end %>
+      <%= icon_for(Item) %>
+      <%= number_with_delimiter(@num_public_objects) %>
+      <%= 'Item'.pluralize(@num_public_objects) %>
+    <% end %>
   <% elsif @collection.access_url.present? %>
     <%= link_to(@collection.access_url,
                 class: 'btn btn-lg btn-default',
@@ -18,8 +20,6 @@
       <%= icon_for(Item) %> View Items
     <% end %>
   <% end %>
-
-
 
   <% if @collection.physical_collection_url.present? %>
     <%= link_to('Physical Collection', @collection.physical_collection_url,
@@ -32,15 +32,13 @@
           simple_format(auto_link(@collection.description)) %>
 </div>
 
-<% if @collection.package_profile == PackageProfile::FREE_FORM_PROFILE %>
-  <div id="tree-disclaimer-row" class="row">
-    <div class="col-sm-6 col-md-7 col-lg-12">
-      <div id="free-form-disclaimer">
-        <div class="alert alert-info"><p>The <%= @collection.title %> are managed by the <%= @collection.medusa_repository.title %> and do not feature precise descriptive information for each item.
-         Discover their contents by <%= link_to "browsing", collection_tree_path(@collection) %> the folders and files. For more information, contact an archivist at <a href="mailto:<%= @collection.medusa_repository.email %>"><%= @collection.medusa_repository.email %></a>.</p>
-        </div>
-      </div>
-    </div>
+<% if @collection.free_form? %>
+  <div class="alert alert-info">
+    <p>The <%= @collection.title %> are managed by the <%= @collection.medusa_repository.title %>
+      and do not feature precise descriptive information for each item. Discover
+      their contents by <%= link_to 'browsing', collection_tree_path(@collection) %>
+      the folders and files. For more information, contact an archivist at
+      <a href="mailto:<%= @collection.medusa_repository.email %>"><%= @collection.medusa_repository.email %></a>.</p>
   </div>
 <% end %>
 

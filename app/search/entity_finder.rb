@@ -147,12 +147,14 @@ class EntityFinder < AbstractFinder
       end
 
       # Aggregations
-      j.aggregations do
-        # TODO: collection
-        metadata_profile.facet_elements.each do |field|
-          j.set! field.indexed_keyword_field do
-            j.terms do
-              j.field field.indexed_keyword_field
+      if @aggregations
+        j.aggregations do
+          # TODO: collection
+          metadata_profile.facet_elements.each do |field|
+            j.set! field.indexed_keyword_field do
+              j.terms do
+                j.field field.indexed_keyword_field
+              end
             end
           end
         end

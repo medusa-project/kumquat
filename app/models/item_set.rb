@@ -38,6 +38,7 @@ class ItemSet < ActiveRecord::Base
         when PackageProfile::FREE_FORM_PROFILE
           @num_objects = ItemFinder.new.
               item_set(self).
+              aggregations(false).
               search_children(false).
               include_variants(*Item::Variants::FILE).
               limit(0).
@@ -45,6 +46,7 @@ class ItemSet < ActiveRecord::Base
         else
           @num_objects = ItemFinder.new.
               item_set(self).
+              aggregations(false).
               search_children(false).
               limit(0).
               count

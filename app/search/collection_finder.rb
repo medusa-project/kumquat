@@ -36,7 +36,7 @@ class CollectionFinder < AbstractFinder
     result = Collection.search(build_query)
 
     # Assemble the response aggregations into Facets.
-    result.response.aggregations.each do |agg|
+    result.response.aggregations&.each do |agg|
       facet = Facet.new
       facet.name = Collection.facet_fields.select{ |f| f[:name] == agg[0] }.
           first[:label]
@@ -141,11 +141,13 @@ class CollectionFinder < AbstractFinder
       end
 
       # Aggregations
-      j.aggregations do
-        Collection.facet_fields.each do |facet|
-          j.set! facet[:name] do
-            j.terms do
-              j.field facet[:name]
+      if @aggregations
+        j.aggregations do
+          Collection.facet_fields.each do |facet|
+            j.set! facet[:name] do
+              j.terms do
+                j.field facet[:name]
+              end
             end
           end
         end
