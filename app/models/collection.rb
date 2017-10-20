@@ -396,6 +396,7 @@ class Collection < ApplicationRecord
     unless @num_items
       @num_items = ItemFinder.new.
           collection(self).
+          aggregations(false).
           search_children(true).
           include_unpublished(true).
           only_described(false).
@@ -414,6 +415,7 @@ class Collection < ApplicationRecord
         when PackageProfile::FREE_FORM_PROFILE
           @num_objects = ItemFinder.new.
               collection(self).
+              aggregations(false).
               only_described(false).
               include_unpublished(true).
               include_variants(*Item::Variants::FILE).
@@ -421,6 +423,7 @@ class Collection < ApplicationRecord
         else
           @num_objects = ItemFinder.new.
               collection(self).
+              aggregations(false).
               only_described(false).
               include_unpublished(true).
               search_children(false).
@@ -440,12 +443,14 @@ class Collection < ApplicationRecord
         when PackageProfile::FREE_FORM_PROFILE
           @num_public_objects = ItemFinder.new.
               collection(self).
+              aggregations(false).
               only_described(true).
               include_variants(*Item::Variants::FILE).
               count
         else
           @num_public_objects = ItemFinder.new.
               collection(self).
+              aggregations(false).
               only_described(true).
               search_children(false).
               count

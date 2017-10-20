@@ -1,6 +1,7 @@
 class AbstractFinder
 
   def initialize
+    @aggregations = true
     @filters = {} # Hash<String,Object>
     @limit = ElasticsearchClient::MAX_RESULT_WINDOW
     @orders = [] # Array<Hash<Symbol,String>> with :field and :direction keys
@@ -14,6 +15,17 @@ class AbstractFinder
     @result_facets = []
     @result_instances = []
     @result_suggestions = []
+  end
+
+  ##
+  # @param boolean [Boolean] Whether to compile aggregations (for faceting) in
+  #                          results. Disabling these when they are not needed
+  #                          may improve performance.
+  # @return [self]
+  #
+  def aggregations(boolean)
+    @aggregations = boolean
+    self
   end
 
   ##
@@ -177,7 +189,7 @@ class AbstractFinder
     response = get_response
 
     # Assemble the response aggregations into Facets.
-    response.response.aggregations.each do |agg|
+    response.response.aggregations&.each do |agg|
       element = metadata_profile.facet_elements.
           select{ |e| e.indexed_keyword_field == agg[0] }.first
       if element

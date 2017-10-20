@@ -25,6 +25,7 @@ module Admin
       @start = params[:start] ? params[:start].to_i : 0
 
       finder = CollectionFinder.new.
+          aggregations(false).
           query_all(params[:q]).
           order(Collection::IndexFields::TITLE).
           start(@start).
