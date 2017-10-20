@@ -3,7 +3,8 @@ Rails.application.config.middleware.use OmniAuth::Builder do
     opts = YAML.load_file(File.join(Rails.root, 'config', 'peartree.yml'))[Rails.env]
     provider :shibboleth, opts.
         select{ |k,v| k.to_s.start_with?('shibboleth_') }.
-        map{ |k,v| { k.to_s.gsub('shibboleth_', '').to_sym => v } }
+        map{ |k,v| { k.to_s.gsub('shibboleth_', '').to_sym => v } }.
+        reduce(:merge)
   else
     provider :developer
   end
