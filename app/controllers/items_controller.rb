@@ -18,10 +18,13 @@ class ItemsController < WebsiteController
                                      :iiif_range, :iiif_sequence]
 
   before_action :load_item, except: [:index, :tree_data, :tree]
+  before_action :authorize_collection, except: :index
   before_action :authorize_item, except: [:index, :tree_data, :tree]
   before_action :check_published, except: [:index, :tree_data, :tree]
   before_action :set_browse_context, only: :index
   before_action :set_sanitized_params, only: [:index, :show, :tree]
+
+  rescue_from UnpublishedError, with: :rescue_unpublished
 
   ##
   # Retrieves a binary by its filename.
@@ -469,11 +472,18 @@ class ItemsController < WebsiteController
 
   private
 
+  def authorize_collection
+    authorize(@item.collection)
+  end
+
+  def authorize_item
+    authorize(@item)
+  end
+
   def setup_index_view
     if params[:collection_id]
       @collection = Collection.find_by_repository_id(params[:collection_id])
       raise ActiveRecord::RecordNotFound unless @collection
-      return unless authorize(@collection)
     end
 
     @start = params[:start].to_i
@@ -542,15 +552,8 @@ class ItemsController < WebsiteController
     node_hash
   end
 
-  def authorize_item
-    return unless authorize(@item.collection)
-    return unless authorize(@item)
-  end
-
   def check_published
-    unless @item.published and @item.collection.published
-      render 'unpublished', status: :forbidden
-    end
+    raise UnpublishedError unless @item.published and @item.collection.published
   end
 
   ##
@@ -603,6 +606,10 @@ class ItemsController < WebsiteController
   def load_item
     @item = Item.find_by_repository_id(params[:item_id] || params[:id])
     raise ActiveRecord::RecordNotFound unless @item
+  end
+
+  def rescue_unpublished
+    render 'unpublished', status: :forbidden
   end
 
   ##
