@@ -1,4 +1,7 @@
-<% # Requires the following locals: item %>
+<%
+  # Requires the following locals:
+  # item [Item]
+%>
 
 <tr>
   <td>
@@ -44,9 +47,8 @@
            data-iiif-url="<%= item.effective_viewer_binary.iiif_image_url %>"
            data-iiif-info-url="<%= item.effective_viewer_binary.iiif_info_url %>"
            data-title="<%= item.title %>">
-          <i class="fa fa-image"></i> Custom Image Embed&hellip;</a>
+          <i class="fa fa-image"></i> Custom Image&hellip;</a>
       <% end %>
     </div>
   </td>
 </tr>
-

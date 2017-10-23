@@ -78,6 +78,7 @@
   </section>
 <% end %>
 
-<%= render partial: 'download_section', locals: { item: @item } %>
+<%= render partial: 'download_section', locals: { item: @item,
+                                                  expanded: false } %>
 <%= render partial: 'staff_info' %>
 <%= render partial: 'cite_panel', locals: { item: @item } %>

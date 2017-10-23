@@ -260,7 +260,8 @@ class ItemsController < WebsiteController
         # controller ivars, different templates...
         if @item.file? or @item.directory?
           if request.xhr?
-            download_finder = @item.finder
+            download_finder = @item.finder.
+                exclude_variants(*Item::Variants::DIRECTORY)
             @downloadable_items = @item.directory? ?
                                       download_finder.to_a : [@item]
             @total_byte_size = download_finder.total_byte_size
@@ -269,10 +270,6 @@ class ItemsController < WebsiteController
               render 'show_file', layout: false
               return
             elsif params['tree-node-type'].include?('directory_node')
-              @num_subdirs = @item.items.
-                  where(variant: Item::Variants::DIRECTORY).count
-              @num_subfiles = @item.items.
-                  where(variant: Item::Variants::FILE).count
               render 'show_directory', layout: false
               return
             end
@@ -399,6 +396,10 @@ class ItemsController < WebsiteController
         if @collection.free_form?
           fresh_when(etag: @items) if Rails.env.production?
           if request.xhr?
+            @num_directories = @collection.items.
+                where(variant: Item::Variants::DIRECTORY).count
+            @num_files = @collection.items.
+                where(variant: Item::Variants::FILE).count
             render 'show_collection_summary', layout: false
           end
         else

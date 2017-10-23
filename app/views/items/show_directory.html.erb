@@ -2,11 +2,7 @@
 
 <%= item_page_title(@item) %>
 
-<section id="file-tree-stats">
-  <h2>Subfolders <span class="badge"><%= @num_subdirs %></span></h2>
-  <h2>Files <span class="badge"><%= @num_subfiles %></span></h2>
-</section>
-
-<%= render partial: 'download_section', locals: { item: @item } %>
+<%= render partial: 'download_section', locals: { item: @item,
+                                                  expanded: true } %>
 <%= render partial: 'staff_info' %>
 <%= render partial: 'cite_panel', locals: { item: @item } %>
