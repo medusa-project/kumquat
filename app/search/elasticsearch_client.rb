@@ -17,6 +17,7 @@ class ElasticsearchClient
   # @param name [String] Index name.
   # @param schema [Hash] Schema structure that can be encoded as JSON.
   # @return [Boolean]
+  # @raises [IOError]
   #
   def create_index(name, schema)
     @@logger.info("ElasticsearchClient.create_index(): creating #{name}...")
@@ -25,14 +26,15 @@ class ElasticsearchClient
     if response.status == 200
       @@logger.info("ElasticsearchClient.create_index(): created #{name}")
     else
-      @@logger.info("ElasticsearchClient.create_index(): "\
-          "got #{response.status} for #{name}:\n#{JSON.pretty_generate(JSON.parse(response.body))}")
+      raise IOError, "Got #{response.status} for #{name}:\n"\
+          "#{JSON.pretty_generate(JSON.parse(response.body))}"
     end
   end
 
   ##
   # @param name [String] Index name.
   # @return [Boolean]
+  # @raises [IOError]
   #
   def delete_index(name)
     @@logger.info("ElasticsearchClient.delete_index(): deleting #{name}...")
@@ -41,8 +43,7 @@ class ElasticsearchClient
     if response.status == 200
       @@logger.info("ElasticsearchClient.delete_index(): #{name} deleted")
     else
-      @@logger.info("ElasticsearchClient.delete_index(): "\
-          "got #{response.status} for #{name}")
+      raise IOError, "Got #{response.status} for #{name}"
     end
   end
 
@@ -52,6 +53,7 @@ class ElasticsearchClient
   # @param id [String] Document ID.
   # @param doc [Hash] Hash that can be encoded as JSON.
   # @return [void]
+  # @raises [IOError]
   #
   def index_document(index, class_, id, doc)
     case index
@@ -69,7 +71,7 @@ class ElasticsearchClient
         "#{index_name}/#{id}")
     response = @@http_client.put(url, JSON.generate(doc))
     if response.status >= 400
-      @@logger.error("ElasticsearchClient.index_document(): #{response.body}")
+      raise IOError, response.body
     end
   end
 
@@ -106,6 +108,7 @@ class ElasticsearchClient
 
   ##
   # @return [void]
+  # @raises [IOError]
   #
   def recreate_all_indexes
     EntityFinder::ENTITIES.each do |class_|
@@ -116,6 +119,7 @@ class ElasticsearchClient
   ##
   # @param class_ [Elasticsearch::Model] Elasticsearch model class.
   # @return [void]
+  # @raises [IOError]
   #
   def recreate_index(class_)
     index = ElasticsearchIndex.current_index(class_)
