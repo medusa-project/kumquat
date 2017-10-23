@@ -267,7 +267,9 @@ module ItemsHelper
   #
   def item_page_title(item)
     html = ''
-    if item.parent or item.items.any?
+    if item.collection.free_form?
+      html += "<h1 class=\"pt-title\">#{icon_for(item)} #{item.title}</h1>"
+    elsif item.parent or item.items.any?
       relative_parent = item.parent ? item.parent : item
       relative_child = item.parent ? item : relative_parent
       html += '<h1 class="pt-title pt-compound-title">'
