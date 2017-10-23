@@ -9,8 +9,6 @@ class ItemsController < WebsiteController
     FAVORITES = 3
   end
 
-  # Number of children to display per page in show-item view.
-  PAGES_LIMIT = 15
   PERMITTED_PARAMS = [:_, :collection_id, :df, :display, { fq: [] }, :id, :q,
                       :sort, :start, :utf8]
 
@@ -232,10 +230,10 @@ class ItemsController < WebsiteController
       format.zip do
         # Use the Medusa Downloader to generate a zip of items from
         # download_finder. It takes the downloader time to generate the zip
-        # file manifest, which would block the web server if we did it here
-        # (DLD-94), so the strategy is to do it using the asynchronous
-        # download feature, and then stream the zip out to the user via the
-        # download button when it's ready to start streaming.
+        # file manifest, which would block the web server if we did it here,
+        # so the strategy is to do it using the asynchronous download feature,
+        # and then stream the zip out to the user via the  download button when
+        # it's ready to start streaming.
         item_ids = @download_finder.to_a.map(&:repository_id)
 
         start = params[:download_start].to_i + 1
@@ -259,9 +257,15 @@ class ItemsController < WebsiteController
         # Free-form items are handled differently from the rest: different
         # controller ivars, different templates...
         if @item.file? or @item.directory?
+          # Only XHR requests are allowed for a file or directory variant.
+          # These will generally be in response to a selection in the tree
+          # browser and should render either a show-file or show-directory
+          # template with no layout.
           if request.xhr?
             download_finder = @item.finder.
                 exclude_variants(*Item::Variants::DIRECTORY)
+            # If the item is a directory, its contents are downloadable.
+            # Otherwise, it's a file and it itself is downloadable.
             @downloadable_items = @item.directory? ?
                                       download_finder.to_a : [@item]
             @total_byte_size = download_finder.total_byte_size
@@ -274,6 +278,8 @@ class ItemsController < WebsiteController
               return
             end
           else
+            # Non-XHR requests for free-form items are not allowed. Redirect
+            # to the item's HTML representation.
             redirect_to collection_tree_path(@item.collection) + '#' +
                             @item.repository_id
             return
@@ -281,9 +287,9 @@ class ItemsController < WebsiteController
         else
           # DLD-98 calls for the URL in the browser bar to change when an item
           # is selected in the viewer. In other words, each item in the viewer
-          # needs to have its own URL and dereferencing that URL should load
-          # the same page with a different viewer item selected. We refer to
-          # this item as @selected_item.
+          # needs to have its own URL and dereferencing it should load the same
+          # page with a different viewer item selected. We refer to this item
+          # as @selected_item, and nil out @item to prevent confusion.
           @selected_item = @item
           @item = nil
 
@@ -348,10 +354,11 @@ class ItemsController < WebsiteController
         #
         # * For Directory-variant items, the zip file will contain content for
         #   each File-variant item at any sublevel.
-        # * For File-variant items, the zip file will contain content for each
-        #   of the items in the parent Directory-variant item.
-        # * For compound objects, it will contain content for each item in the
-        #   object.
+        # * For File-variant items, it will contain content for each of the
+        #   File-variant items in the parent Directory-variant item, or each of
+        #   the File-variant items in the parent collection if there is no
+        #   Directory-variant parent.
+        # * For compound objects, it will contain content for each subitem.
         if @item.directory?
           if @item.items.any?
             items = @item.all_files
