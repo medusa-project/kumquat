@@ -91,7 +91,8 @@
   </section>
 <% end %>
 
-<%= render partial: 'download_section', locals: { item: @root_item } %>
+<%= render partial: 'download_section', locals: { item: @root_item,
+                                                  expanded: false } %>
 <%= render partial: 'staff_info' %>
 <%= render partial: 'cite_panel', locals: { item: @root_item } %>
 

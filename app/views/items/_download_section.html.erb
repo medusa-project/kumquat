@@ -1,6 +1,7 @@
 <%
   # Requires the following locals:
   # item [Item]
+  # expanded [Boolean]
 %>
 
 <% if (item.directory? or item.is_compound? or item.binaries.any? or
@@ -12,7 +13,7 @@
          aria-expanded="true" aria-controls="pt-download">Download</a>
     </h2>
 
-    <div id="pt-download" class="collapse">
+    <div id="pt-download" class="collapse <%= expanded ? 'in' : '' %>">
 
       <div class="btn-group" style="margin: 0.4em 0em 0.8em 0em">
         <% if client_supports_zip_download? %>

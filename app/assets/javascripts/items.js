@@ -312,6 +312,10 @@ var PTItemView = function() {
         $('#pt-download-section').on('shown.bs.collapse', function() {
             PearTree.loadLazyImages();
         });
+        // Or, when it's being rendered in its expanded state.
+        if ($('#pt-download').hasClass('in')) {
+            $('#pt-download-section').trigger('shown.bs.collapse');
+        }
 
         // The 3D viewer is initially not loaded. Load it the first time its
         // container div appears.
