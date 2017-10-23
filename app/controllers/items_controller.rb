@@ -260,7 +260,8 @@ class ItemsController < WebsiteController
         # controller ivars, different templates...
         if @item.file? or @item.directory?
           if request.xhr?
-            download_finder = @item.finder
+            download_finder = @item.finder.
+                exclude_variants(*Item::Variants::DIRECTORY)
             @downloadable_items = @item.directory? ?
                                       download_finder.to_a : [@item]
             @total_byte_size = download_finder.total_byte_size
