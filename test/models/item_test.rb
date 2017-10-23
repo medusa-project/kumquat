@@ -101,7 +101,7 @@ class ItemTest < ActiveSupport::TestCase
                  doc[Item::IndexFields::REPRESENTATIVE_FILENAME]
     assert_equal @item.representative_item_repository_id,
                  doc[Item::IndexFields::REPRESENTATIVE_ITEM]
-    assert_equal "#{@item.parent_repository_id}-iaa-1-zzz-#{@item.title}",
+    assert_equal "#{@item.parent_repository_id}-iaa-0000000000000001-zzz-#{@item.title.downcase}",
                  doc[Item::IndexFields::STRUCTURAL_SORT]
     assert_equal @item.subpage_number,
                  doc[Item::IndexFields::SUBPAGE_NUMBER]
