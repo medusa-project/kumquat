@@ -44,7 +44,7 @@
             <% @downloadable_items.each do |subitem| %>
               <%= render partial: 'download_table_rows', locals: { item: subitem } %>
             <% end %>
-          <% else %>
+          <% elsif !item.directory? %>
             <%= render partial: 'download_table_rows', locals: { item: item } %>
           <% end %>
         </tbody>
