@@ -9,8 +9,6 @@ class ItemsController < WebsiteController
     FAVORITES = 3
   end
 
-  # Number of children to display per page in show-item view.
-  PAGES_LIMIT = 15
   PERMITTED_PARAMS = [:_, :collection_id, :df, :display, { fq: [] }, :id, :q,
                       :sort, :start, :utf8]
 
