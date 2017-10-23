@@ -269,10 +269,6 @@ class ItemsController < WebsiteController
               render 'show_file', layout: false
               return
             elsif params['tree-node-type'].include?('directory_node')
-              @num_subdirs = @item.items.
-                  where(variant: Item::Variants::DIRECTORY).count
-              @num_subfiles = @item.items.
-                  where(variant: Item::Variants::FILE).count
               render 'show_directory', layout: false
               return
             end
