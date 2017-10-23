@@ -395,6 +395,10 @@ class ItemsController < WebsiteController
         if @collection.free_form?
           fresh_when(etag: @items) if Rails.env.production?
           if request.xhr?
+            @num_directories = @collection.items.
+                where(variant: Item::Variants::DIRECTORY).count
+            @num_files = @collection.items.
+                where(variant: Item::Variants::FILE).count
             render 'show_collection_summary', layout: false
           end
         else
