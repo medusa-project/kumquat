@@ -8,6 +8,8 @@ class CollectionsController < WebsiteController
   before_action :enable_cors, only: :iiif_presentation
   before_action :set_sanitized_params, only: [:index, :show]
 
+  rescue_from UnpublishedError, with: :rescue_unpublished
+
   ##
   # Serves IIIF Presentation API 2.1 collections.
   #
@@ -94,12 +96,16 @@ class CollectionsController < WebsiteController
   end
 
   def check_published
-    render 'unpublished', status: :forbidden unless @collection.published
+    raise UnpublishedError unless @ollection.published
   end
 
   def load_collection
     @collection = Collection.find_by_repository_id(params[:collection_id] || params[:id])
     raise ActiveRecord::RecordNotFound unless @collection
+  end
+
+  def rescue_unpublished
+    render 'unpublished', status: :forbidden
   end
 
   def set_sanitized_params

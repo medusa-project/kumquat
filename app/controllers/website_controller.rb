@@ -12,8 +12,7 @@ class WebsiteController < ApplicationController
   protected
 
   ##
-  # Renders an error template if the request is not authorized to access the
-  # given model.
+  # Raises an error if the request is not authorized to access the given model.
   #
   # @param model [Object]
   # @return [Boolean]
@@ -21,16 +20,10 @@ class WebsiteController < ApplicationController
   def authorize(model)
     if model&.respond_to?(:authorized_by_any_roles?) # AuthorizableByRole method
       unless model.authorized_by_any_roles?(request_roles)
-        render 'errors/error', status: :forbidden, locals: {
-            status_code: 403,
-            status_message: 'Forbidden',
-            message: "You are not authorized to access this "\
+        raise AuthorizationError, "You are not authorized to access this "\
               "#{model.class.to_s.downcase}."
-        }
-        return false
       end
     end
-    true
   end
 
   ##
