@@ -17,10 +17,9 @@ class ItemsController < WebsiteController
                                      :iiif_manifest, :iiif_media_sequence,
                                      :iiif_range, :iiif_sequence]
 
-  before_action :load_item, except: [:index, :tree_data, :tree]
-  before_action :authorize_collection, except: :index
-  before_action :authorize_item, except: [:index, :tree_data, :tree]
-  before_action :check_published, except: [:index, :tree_data, :tree]
+  before_action :load_item, except: [:index, :tree, :tree_data]
+  before_action :authorize_item, except: [:index, :tree, :tree_data]
+  before_action :check_published, except: [:index, :tree, :tree_data]
   before_action :set_browse_context, only: :index
   before_action :set_sanitized_params, only: [:index, :show, :tree]
 
@@ -437,18 +436,14 @@ class ItemsController < WebsiteController
   def tree_data
     @collection = Collection.find_by_repository_id(params[:collection_id])
     raise ActiveRecord::RecordNotFound unless @collection
-    return unless authorize(@collection)
+    authorize(@collection)
 
     @start = params[:start].to_i
     finder = item_finder_for(params).order(Item::IndexFields::STRUCTURAL_SORT)
     @items = finder.to_a
     tree_data = @items.map { |item| tree_hash(item) }
 
-    respond_to do |format|
-      format.json do
-        render json: create_tree_root(tree_data, @collection)
-      end
-    end
+    render json: create_tree_root(tree_data, @collection)
   end
 
   ##
@@ -472,12 +467,9 @@ class ItemsController < WebsiteController
 
   private
 
-  def authorize_collection
-    authorize(@item.collection)
-  end
-
   def authorize_item
     authorize(@item)
+    authorize(@item.collection)
   end
 
   def setup_index_view
