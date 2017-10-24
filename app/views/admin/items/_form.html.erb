@@ -1,16 +1,20 @@
-<ul class="nav nav-tabs" role="tablist">
-  <li role="presentation" class="active">
-    <a href="#pt-system-info" aria-controls="pt-system-info" role="tab" data-toggle="tab">System Info</a>
-  </li>
-  <li role="presentation">
-    <a href="#pt-access" aria-controls="pt-access" role="tab" data-toggle="tab">Access</a>
-  </li>
-  <li role="presentation">
-    <a href="#pt-metadata" aria-controls="pt-metadata" role="tab" data-toggle="tab">Metadata</a>
-  </li>
-</ul>
-
 <%= form_for([:admin, @item.collection, @item]) do |f| %>
+  <div class="pull-right">
+    <%= f.submit 'Save', class: 'btn btn-primary' %>
+  </div>
+
+  <ul class="nav nav-tabs" role="tablist">
+    <li role="presentation" class="active">
+      <a href="#pt-system-info" aria-controls="pt-system-info" role="tab" data-toggle="tab">System Info</a>
+    </li>
+    <li role="presentation">
+      <a href="#pt-access" aria-controls="pt-access" role="tab" data-toggle="tab">Access</a>
+    </li>
+    <li role="presentation">
+      <a href="#pt-metadata" aria-controls="pt-metadata" role="tab" data-toggle="tab">Metadata</a>
+    </li>
+  </ul>
+
   <div class="tab-content">
     <div role="tabpanel" class="tab-pane active" id="pt-system-info">
       <table class="table pt-elements">
