@@ -12,7 +12,7 @@
 <% if (@previous_result or @next_result or session[:browse_context_url] or
   @root_item.supplementary_item or @root_item.three_d_item) and !@storage_offline %>
   <% supp_item = @root_item.supplementary_item %>
-  <% supp_bin = supp_item&.effective_viewer_binary %>
+  <% supp_bin = supp_item&.effective_image_binary %>
   <div style="margin-bottom:16px">
     <% # DLD-6: button that pops open the supplementary section is aligned to
        # the right of the nav buttons %>
@@ -93,7 +93,7 @@
 
 <%= render partial: 'download_section', locals: { item: @root_item,
                                                   expanded: false } %>
-<%= render partial: 'staff_info' %>
+<%= render partial: 'staff_info', locals: { item: @root_item } %>
 <%= render partial: 'cite_panel', locals: { item: @root_item } %>
 
 <script type="application/ld+json">

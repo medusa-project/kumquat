@@ -192,8 +192,18 @@ class Binary < ApplicationRecord
   # @return [String]
   #
   def human_readable_name
+    name = nil
     formats = @@formats.select{ |f| f['media_types'].include?(self.media_type) }
-    formats.any? ? formats.first['label'] : self.media_type
+    if formats.any?
+      name = formats.first['label']
+    end
+    if name.blank?
+      name = self.media_type
+    end
+    if name.blank?
+      name = 'Unknown Type'
+    end
+    name
   end
 
   ##

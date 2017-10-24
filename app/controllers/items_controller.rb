@@ -90,7 +90,7 @@ class ItemsController < WebsiteController
     valid_names = %w(access preservation)
     if valid_names.include?(params[:name])
       @image_resource_name = params[:name]
-      @binary = @item.iiif_image_binary
+      @binary = @item.effective_image_binary
       render 'items/iiif_presentation_api/image_resource',
              formats: :json,
              content_type: 'application/json'
@@ -557,7 +557,7 @@ class ItemsController < WebsiteController
     session[:fq] = query[:fq]
     session[:sort] = query[:sort] if query[:sort].present?
     session[:start] = query[:start].to_i if query[:start].present?
-    session[:start] = 0 if session[:start] < 0
+    session[:start] = 0 if session[:start].to_i < 0
 
     # display=leaves is used in free-form collections to show files flattened.
     if params[:display] == 'leaves'

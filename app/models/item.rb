@@ -500,7 +500,7 @@ class Item < ApplicationRecord
   # @see http://dublincore.org/documents/dcmi-type-vocabulary/#H7
   #
   def dc_type
-    self.is_compound? ? 'Collection' : self.effective_viewer_binary&.dc_type
+    self.is_compound? ? 'Collection' : self.effective_image_binary&.dc_type
   end
 
   ##
@@ -523,6 +523,71 @@ class Item < ApplicationRecord
   #
   def directory?
     self.variant == Variants::DIRECTORY
+  end
+
+  ##
+  # Returns the best binary to use with an IIIF image server, guaranteed to be
+  # compatible with it, in the following order of preference:
+  #
+  # 1. The representative binary
+  # 2. If the instance's variant is `SUPPLEMENT`, any binary
+  # 3. If the instance is compound, the `iiif_image_binary` of the first page
+  # 4. Any access master of `Binary::MediaCategory::IMAGE`
+  # 5. Any access master of `Binary::MediaCategory::VIDEO`
+  # 6. Any access master with media type `application/pdf`
+  # 7. Any preservation master of `Binary::MediaCategory::IMAGE`
+  # 8. Any preservation master of `Binary::MediaCategory::VIDEO`
+  # 9. Any preservation master with media type `application/pdf`
+  #
+  # @return [Binary, nil]
+  #
+  def effective_image_binary
+    bin = self.representative_binary
+    if !bin or !bin.iiif_safe?
+      if self.variant == Variants::SUPPLEMENT
+        bin = self.binaries.first
+      elsif self.is_compound?
+        bin = self.pages.first&.iiif_image_binary
+      end
+      if !bin or !bin.iiif_safe?
+        [
+            {
+                master_type: Binary::MasterType::ACCESS,
+                media_category: Binary::MediaCategory::IMAGE
+            },
+            {
+                master_type: Binary::MasterType::ACCESS,
+                media_category: Binary::MediaCategory::VIDEO
+            },
+            {
+                master_type: Binary::MasterType::ACCESS,
+                media_type: 'application/pdf'
+            },
+            {
+                master_type: Binary::MasterType::PRESERVATION,
+                media_category: Binary::MediaCategory::IMAGE
+            },
+            {
+                master_type: Binary::MasterType::PRESERVATION,
+                media_category: Binary::MediaCategory::VIDEO
+            },
+            {
+                master_type: Binary::MasterType::PRESERVATION,
+                media_type: 'application/pdf'
+            }
+        ].each do |pref|
+          bin = self.binaries.select do |b|
+            b.master_type == pref[:master_type] and
+                (pref[:media_category] ?
+                     (b.media_category == pref[:media_category]) :
+                     (b.media_type == pref[:media_type]))
+          end
+          bin = bin.first
+          break if bin
+        end
+      end
+    end
+    bin
   end
 
   ##
@@ -600,47 +665,6 @@ class Item < ApplicationRecord
   end
 
   ##
-  # Returns the binary best suited for a primary viewer (image, video, audio,
-  # etc.) in the following order of preference:
-  #
-  # 1. The representative binary
-  # 2. If the instance's variant is SUPPLEMENT, any binary
-  # 3. Any access master of Binary::MediaCategory::IMAGE
-  # 4. Any access master
-  # 5. Any preservation master of Binary::MediaCategory::IMAGE
-  # 6. Any preservation master
-  #
-  # @return [Binary, nil]
-  #
-  def effective_viewer_binary
-    bin = self.representative_binary
-    unless bin
-      if self.variant == Variants::SUPPLEMENT
-        bin = self.binaries.first
-      end
-      unless bin
-        bin = self.binaries.
-            select{ |b| b.master_type == Binary::MasterType::ACCESS and
-            b.media_category == Binary::MediaCategory::IMAGE }.first
-        unless bin
-          bin = self.binaries.
-              select{ |b| b.master_type == Binary::MasterType::ACCESS }.first
-          unless bin
-            bin = self.binaries.
-                select{ |b| b.master_type == Binary::MasterType::PRESERVATION and
-                b.media_category == Binary::MediaCategory::IMAGE }.first
-            unless bin
-              bin = self.binaries.
-                  select{ |b| b.media_category == Binary::MediaCategory::IMAGE }.first
-            end
-          end
-        end
-      end
-    end
-    bin
-  end
-
-  ##
   # @return [Boolean] Whether the instance and its collection are both
   #                   published.
   #
@@ -676,71 +700,6 @@ class Item < ApplicationRecord
     self.is_compound? or
         [Variants::DIRECTORY, Variants::FILE].include?(self.variant) or
         !self.variant
-  end
-
-  ##
-  # Returns the best binary to use with an IIIF image server, guaranteed to be
-  # compatible with it, in the following order of preference:
-  #
-  # 1. The representative binary
-  # 2. If the instance's variant is `SUPPLEMENT`, any binary
-  # 3. If the instance is compound, the `iiif_image_binary` of the first page
-  # 4. Any access master of `Binary::MediaCategory::IMAGE`
-  # 5. Any access master of `Binary::MediaCategory::VIDEO`
-  # 6. Any access master with media type `application/pdf`
-  # 7. Any preservation master of `Binary::MediaCategory::IMAGE`
-  # 8. Any preservation master of `Binary::MediaCategory::VIDEO`
-  # 9. Any preservation master with media type `application/pdf`
-  #
-  # @return [Binary, nil]
-  #
-  def iiif_image_binary
-    bin = self.representative_binary
-    if !bin or !bin.iiif_safe?
-      if self.variant == Variants::SUPPLEMENT
-        bin = self.binaries.first
-      elsif self.is_compound?
-        bin = self.pages.first&.iiif_image_binary
-      end
-      if !bin or !bin.iiif_safe?
-        [
-            {
-                master_type: Binary::MasterType::ACCESS,
-                media_category: Binary::MediaCategory::IMAGE
-            },
-            {
-                master_type: Binary::MasterType::ACCESS,
-                media_category: Binary::MediaCategory::VIDEO
-            },
-            {
-                master_type: Binary::MasterType::ACCESS,
-                media_type: 'application/pdf'
-            },
-            {
-                master_type: Binary::MasterType::PRESERVATION,
-                media_category: Binary::MediaCategory::IMAGE
-            },
-            {
-                master_type: Binary::MasterType::PRESERVATION,
-                media_category: Binary::MediaCategory::VIDEO
-            },
-            {
-                master_type: Binary::MasterType::PRESERVATION,
-                media_type: 'application/pdf'
-            }
-        ].each do |pref|
-          bin = self.binaries.select do |b|
-            b.master_type == pref[:master_type] and
-                (pref[:media_category] ?
-                    (b.media_category == pref[:media_category]) :
-                    (b.media_type == pref[:media_type]))
-          end
-          bin = bin.first
-          break if bin
-        end
-      end
-    end
-    bin
   end
 
   ##

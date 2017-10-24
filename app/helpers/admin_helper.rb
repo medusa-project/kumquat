@@ -390,7 +390,7 @@ module AdminHelper
                   "#{item.published ? 'Published' : 'Unpublished' }</span>"}
 
     # Primary IIIF Image URL
-    iiif_url = item.iiif_image_binary&.iiif_image_url
+    iiif_url = item.effective_image_binary&.iiif_image_url
     data << { label: 'Primary IIIF Image URL',
               value: iiif_url.present? ?
                   link_to(iiif_url, iiif_url, target: '_blank') : 'None' }
