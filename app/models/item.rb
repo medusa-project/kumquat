@@ -500,7 +500,7 @@ class Item < ApplicationRecord
   # @see http://dublincore.org/documents/dcmi-type-vocabulary/#H7
   #
   def dc_type
-    self.is_compound? ? 'Collection' : self.effective_viewer_binary&.dc_type
+    self.is_compound? ? 'Collection' : self.iiif_image_binary&.dc_type
   end
 
   ##
@@ -597,47 +597,6 @@ class Item < ApplicationRecord
     # If still no statement available, use the collection's statement.
     rs = RightsStatement.for_uri(self.collection.rightsstatements_org_uri) unless rs
     rs
-  end
-
-  ##
-  # Returns the binary best suited for a primary viewer (image, video, audio,
-  # etc.) in the following order of preference:
-  #
-  # 1. The representative binary
-  # 2. If the instance's variant is SUPPLEMENT, any binary
-  # 3. Any access master of Binary::MediaCategory::IMAGE
-  # 4. Any access master
-  # 5. Any preservation master of Binary::MediaCategory::IMAGE
-  # 6. Any preservation master
-  #
-  # @return [Binary, nil]
-  #
-  def effective_viewer_binary
-    bin = self.representative_binary
-    unless bin
-      if self.variant == Variants::SUPPLEMENT
-        bin = self.binaries.first
-      end
-      unless bin
-        bin = self.binaries.
-            select{ |b| b.master_type == Binary::MasterType::ACCESS and
-            b.media_category == Binary::MediaCategory::IMAGE }.first
-        unless bin
-          bin = self.binaries.
-              select{ |b| b.master_type == Binary::MasterType::ACCESS }.first
-          unless bin
-            bin = self.binaries.
-                select{ |b| b.master_type == Binary::MasterType::PRESERVATION and
-                b.media_category == Binary::MediaCategory::IMAGE }.first
-            unless bin
-              bin = self.binaries.
-                  select{ |b| b.media_category == Binary::MediaCategory::IMAGE }.first
-            end
-          end
-        end
-      end
-    end
-    bin
   end
 
   ##

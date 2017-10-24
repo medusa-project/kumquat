@@ -4,7 +4,7 @@
 %>
 
 <% if (item.directory? or item.is_compound? or item.binaries.any? or
-    item.effective_viewer_binary&.media_category == Binary::MediaCategory::IMAGE) and !@storage_offline %>
+    item.iiif_image_binary&.media_category == Binary::MediaCategory::IMAGE) and !@storage_offline %>
 
   <section id="pt-download-section">
     <h2>
