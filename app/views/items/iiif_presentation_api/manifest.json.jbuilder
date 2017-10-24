@@ -27,7 +27,7 @@ if thumb_url
   end
 end
 
-json.logo image_url('Illinois-Logo-Reversed-Blue-RGB-100.png')
+json.logo image_url('Illinois-Logo-Reversed-Orange-RGB-100.png')
 json.related({ '@id': item_url(@item), format: 'text/html' })
 json.seeAlso [ { '@id': item_url(@item, format: :json), format: 'application/json' },
                { '@id': item_url(@item, format: :atom), format: 'application/atom+xml' } ]
