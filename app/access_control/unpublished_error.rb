@@ -1,0 +1,2 @@
+class UnpublishedError < RuntimeError
+end

@@ -144,6 +144,7 @@ module Admin
         finder = ItemFinder.new.
             filter(Item::IndexFields::REPOSITORY_ID,
                    @item_set.items.pluck(:repository_id)).
+            aggregations(false).
             include_unpublished(true).
             only_described(false).
             order(Item::IndexFields::STRUCTURAL_SORT).
@@ -154,6 +155,7 @@ module Admin
             collection(@collection).
             query(params[:df], params[:q]).
             facet_filters(params[:fq]).
+            aggregations(false).
             include_children_in_results(true).
             include_unpublished(true).
             only_described(false).

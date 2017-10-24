@@ -30,6 +30,7 @@ class FavoritesController < WebsiteController
       if ids.any?
         finder = ItemFinder.new.
             user_roles(request_roles).
+            aggregations(false).
             filter(Item::IndexFields::REPOSITORY_ID, ids).
             start(@start).
             limit(@limit)

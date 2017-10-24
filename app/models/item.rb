@@ -251,6 +251,7 @@ class Item < ApplicationRecord
   def self.num_free_form_files
     ItemFinder.new.
         include_variants(*Variants::FILE).
+        aggregations(false).
         only_described(false).
         include_unpublished(true).
         search_children(true).
@@ -263,6 +264,7 @@ class Item < ApplicationRecord
   def self.num_free_form_items
     ItemFinder.new.
         include_variants(Variants::FILE, Variants::DIRECTORY).
+        aggregations(false).
         only_described(false).
         search_children(true).
         include_unpublished(true).
@@ -274,6 +276,7 @@ class Item < ApplicationRecord
   #
   def self.num_objects
     num_free_form_files + ItemFinder.new.
+        aggregations(false).
         only_described(false).
         include_unpublished(true).
         search_children(false).
@@ -774,7 +777,10 @@ class Item < ApplicationRecord
   # @return [ItemFinder] ItemFinder initialized to search for child items.
   #
   def finder
-    ItemFinder.new.parent_item(self).search_children(true).
+    ItemFinder.new.
+        parent_item(self).
+        aggregations(false).
+        search_children(true).
         order(Item::IndexFields::STRUCTURAL_SORT)
   end
 

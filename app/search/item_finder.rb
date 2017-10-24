@@ -130,7 +130,7 @@ class ItemFinder < AbstractFinder
     response = get_response
 
     # Assemble the response aggregations into Facets.
-    response.response.aggregations.each do |agg|
+    response.response.aggregations&.each do |agg|
       element = metadata_profile.facet_elements.
           select{ |e| e.indexed_keyword_field == agg[0] }.first
       if element
@@ -303,11 +303,13 @@ class ItemFinder < AbstractFinder
 
       # Aggregations
       j.aggregations do
-        # Facetable elements in the metadata profile
-        metadata_profile.facet_elements.each do |field|
-          j.set! field.indexed_keyword_field do
-            j.terms do
-              j.field field.indexed_keyword_field
+        if @aggregations
+          # Facetable elements in the metadata profile
+          metadata_profile.facet_elements.each do |field|
+            j.set! field.indexed_keyword_field do
+              j.terms do
+                j.field field.indexed_keyword_field
+              end
             end
           end
         end
