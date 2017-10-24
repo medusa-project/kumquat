@@ -90,7 +90,7 @@ class ItemsController < WebsiteController
     valid_names = %w(access preservation)
     if valid_names.include?(params[:name])
       @image_resource_name = params[:name]
-      @binary = @item.iiif_image_binary
+      @binary = @item.effective_image_binary
       render 'items/iiif_presentation_api/image_resource',
              formats: :json,
              content_type: 'application/json'

@@ -61,6 +61,7 @@ class CollectionsController < WebsiteController
     respond_to do |format|
       format.html do
         begin
+          @num_public_objects = @collection.num_public_objects
           # One or both of these may be nil.
           @representative_image_binary =
               @collection.effective_representative_image_binary
