@@ -146,7 +146,7 @@ module ItemsHelper
     if item.embed_tag.present? or item.is_compound?
       return true
     end
-    item.iiif_image_binary ? true : false
+    item.effective_image_binary ? true : false
   end
 
   ##
@@ -161,7 +161,7 @@ module ItemsHelper
   #
   def iiif_image_url(item, region = :full, size = :full, format = :jpg)
     url = nil
-    bin = item.iiif_image_binary
+    bin = item.effective_image_binary
     if bin
       region = (region == :square) ? 'square' : 'full'
       size = (size == :full) ? 'full' : "!#{size},#{size}" # fit within a `size` box
@@ -495,7 +495,7 @@ module ItemsHelper
     struct[:description] = description.value if description
 
     # image
-    iiif_image_binary = item.iiif_image_binary
+    iiif_image_binary = item.effective_image_binary
     if iiif_image_binary
       # schema.org does not recommend any particular sizes, so make one up.
       # We don't want to expose a master image to search engines as it might
@@ -807,7 +807,7 @@ module ItemsHelper
         if bin&.iiif_safe?
           url = binary_image_url(bin, options[:size], options[:shape])
         end
-      elsif entity.kind_of?(Item) and entity.iiif_image_binary&.iiif_safe?
+      elsif entity.kind_of?(Item) and entity.effective_image_binary&.iiif_safe?
         url = iiif_image_url(entity, options[:shape], options[:size])
       end
     end
@@ -889,12 +889,12 @@ module ItemsHelper
       # objects, with a gallery viewer showing all of the other images in the
       # same directory.
     elsif item.file? and
-        item.iiif_image_binary&.media_category == Binary::MediaCategory::IMAGE
+        item.effective_image_binary&.media_category == Binary::MediaCategory::IMAGE
       return compound_viewer_for(item.parent, item)
     elsif item.is_compound?
       return compound_viewer_for(item)
     else
-      binary = item.iiif_image_binary
+      binary = item.effective_image_binary
       case binary&.media_category
         when Binary::MediaCategory::AUDIO
           return audio_player_for(binary)
@@ -1198,7 +1198,7 @@ module ItemsHelper
   end
 
   def free_form_viewer_for(item)
-    binary = item.iiif_image_binary
+    binary = item.effective_image_binary
     case binary&.media_category
       when Binary::MediaCategory::AUDIO
         return audio_player_for(binary)
@@ -1219,7 +1219,7 @@ module ItemsHelper
 
   def image_viewer_for(item)
     html = ''
-    binary = item.iiif_image_binary
+    binary = item.effective_image_binary
     if binary
       # Configuration is in /public/uvconfig_single.json;
       # See http://universalviewer.io/examples/ for config structure.

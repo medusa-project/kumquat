@@ -275,7 +275,7 @@ class Collection < ApplicationRecord
   # @see representative_image_binary()
   #
   def effective_representative_image_binary
-    bin = self.representative_item&.iiif_image_binary
+    bin = self.representative_item&.effective_image_binary
     unless bin
       begin
         bin = self.representative_image_binary

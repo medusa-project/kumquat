@@ -4,7 +4,7 @@
 
 <% if (@item.supplementary_item or @item.three_d_item) and !@storage_offline %>
   <% supp_item = @item.supplementary_item %>
-  <% supp_bin = supp_item&.iiif_image_binary %>
+  <% supp_bin = supp_item&.effective_image_binary %>
   <div style="margin-bottom:16px">
     <% # DLD-6: button that pops open the supplementary section is aligned to
        # the right of the nav buttons %>

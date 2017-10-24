@@ -222,15 +222,15 @@ module ApplicationHelper
     if entity == Item
       icon = 'fa-cube'
     elsif entity.kind_of?(Item)
-      if entity.iiif_image_binary&.is_audio?
+      if entity.effective_image_binary&.is_audio?
         icon = 'fa-volume-up'
-      elsif entity.iiif_image_binary&.is_image?
+      elsif entity.effective_image_binary&.is_image?
         icon = 'fa-picture-o'
-      elsif entity.iiif_image_binary&.is_document?
+      elsif entity.effective_image_binary&.is_document?
         icon = 'fa-file-pdf-o'
-      elsif entity.iiif_image_binary&.is_text?
+      elsif entity.effective_image_binary&.is_text?
         icon = 'fa-file-text-o'
-      elsif entity.iiif_image_binary&.is_video?
+      elsif entity.effective_image_binary&.is_video?
         icon = 'fa-film'
       elsif entity.variant == Item::Variants::DIRECTORY
         icon = 'fa-folder-open-o'
@@ -426,17 +426,17 @@ module ApplicationHelper
     if entity == Item
       type = 'Item'
     elsif entity.kind_of?(Item)
-      if entity.iiif_image_binary&.is_3d?
+      if entity.effective_image_binary&.is_3d?
         type = '3D'
-      elsif entity.iiif_image_binary&.is_audio?
+      elsif entity.effective_image_binary&.is_audio?
         type = 'Audio'
-      elsif entity.iiif_image_binary&.is_image?
+      elsif entity.effective_image_binary&.is_image?
         type = 'Image'
-      elsif entity.iiif_image_binary&.is_document?
+      elsif entity.effective_image_binary&.is_document?
         type = 'Document'
-      elsif entity.iiif_image_binary&.is_text?
+      elsif entity.effective_image_binary&.is_text?
         type = 'Text'
-      elsif entity.iiif_image_binary&.is_video?
+      elsif entity.effective_image_binary&.is_video?
         type = 'Video'
       elsif entity.variant == Item::Variants::FILE
         type = 'File'

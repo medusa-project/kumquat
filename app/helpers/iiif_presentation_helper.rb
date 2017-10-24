@@ -13,7 +13,7 @@ module IiifPresentationHelper
     resources = []
     item.items.where('variant IN (?)', [Item::Variants::COMPOSITE,
                                         Item::Variants::SUPPLEMENT]).each do |child|
-      binary = child.iiif_image_binary
+      binary = child.effective_image_binary
       dc_type = child.dc_type
       if binary and dc_type
       resources << {
@@ -56,7 +56,7 @@ module IiifPresentationHelper
         width: canvas_width(subitem),
         metadata: iiif_metadata_for(subitem)
     }
-    binary = subitem.iiif_image_binary
+    binary = subitem.effective_image_binary
     if binary
       struct[:images] = iiif_image_resources_for(subitem, 'access')
     end
@@ -90,7 +90,7 @@ module IiifPresentationHelper
   #
   def iiif_image_resources_for(item, resource_name)
     images = []
-    bin = item.iiif_image_binary
+    bin = item.effective_image_binary
     if bin
       images << {
           '@type': 'oa:Annotation',
@@ -165,7 +165,7 @@ module IiifPresentationHelper
                 'format': bin.media_type,
                 'label': child.title,
                 'metadata': iiif_metadata_for(child),
-                'thumbnail': thumbnail_url(child.iiif_image_binary),
+                'thumbnail': thumbnail_url(child.effective_image_binary),
                 rendering: {
                     '@id': binary_url(bin),
                     format: bin.media_type
