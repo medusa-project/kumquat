@@ -26,7 +26,7 @@
         <%= link_to binary_path(access_master),
                     class: 'btn btn-default btn-sm',
                     target: '_blank' do %>
-          <i class="fa fa-image"></i> <%= access_master.human_readable_name %>
+          <%= icon_for(access_master) %> <%= access_master.human_readable_name %>
         <% end %>
       <% end %>
 
@@ -35,7 +35,7 @@
         <%= link_to binary_path(pres_master),
                     class: 'btn btn-default btn-sm',
                     target: '_blank' do %>
-          <i class="fa fa-image"></i> <%= pres_master.human_readable_name %> Master
+          <%= icon_for(pres_master) %> <%= pres_master.human_readable_name %> Master
         <% end %>
       <% end %>
 
