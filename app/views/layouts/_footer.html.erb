@@ -8,12 +8,14 @@
     <div class="col-md-12 copyright-footer" aria-label="university library copyright info">
       <p>
         <a href="http://illinois.edu" aria-label="University of Illinois website link">
-          <%= image_tag('Illinois-Logo-Reversed-Orange-RGB-100.png',
-                        width: 35, height: 50,
+          <%= image_tag('illinois_wordmark_footer.svg',
+                        width: '137',
                         alt: 'University of Illinois Logo') %>
         </a>
       </p>
-      <p><%= Option::string(Option::Keys::COPYRIGHT_STATEMENT) %></p>
+      <p class="copyright-p">
+        <%= Option::string(Option::Keys::COPYRIGHT_STATEMENT) %>
+      </p>
     </div>
   </div>
 </footer>
