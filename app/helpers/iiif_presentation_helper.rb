@@ -13,7 +13,7 @@ module IiifPresentationHelper
     resources = []
     item.items.where('variant IN (?)', [Item::Variants::COMPOSITE,
                                         Item::Variants::SUPPLEMENT]).each do |child|
-      binary = child.effective_viewer_binary
+      binary = child.iiif_image_binary
       dc_type = child.dc_type
       if binary and dc_type
       resources << {
@@ -90,7 +90,7 @@ module IiifPresentationHelper
   #
   def iiif_image_resources_for(item, resource_name)
     images = []
-    bin = item.effective_viewer_binary
+    bin = item.iiif_image_binary
     if bin
       images << {
           '@type': 'oa:Annotation',

@@ -36,13 +36,13 @@
         <% end %>
       <% end %>
 
-      <% if item.effective_viewer_binary&.iiif_safe? %>
+      <% if item.iiif_image_binary&.iiif_safe? %>
         <a href="#" class="btn btn-default btn-sm"
            onclick="return false;"
            data-toggle="modal"
            data-target="#pt-custom-image-modal"
-           data-iiif-url="<%= item.effective_viewer_binary.iiif_image_url %>"
-           data-iiif-info-url="<%= item.effective_viewer_binary.iiif_info_url %>"
+           data-iiif-url="<%= item.iiif_image_binary.iiif_image_url %>"
+           data-iiif-info-url="<%= item.iiif_image_binary.iiif_info_url %>"
            data-title="<%= item.title %>">
           <i class="fa fa-image"></i> Custom Image Embed&hellip;</a>
       <% end %>

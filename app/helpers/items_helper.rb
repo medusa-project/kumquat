@@ -146,7 +146,7 @@ module ItemsHelper
     if item.embed_tag.present? or item.is_compound?
       return true
     end
-    item.effective_viewer_binary ? true : false
+    item.iiif_image_binary ? true : false
   end
 
   ##
@@ -889,12 +889,12 @@ module ItemsHelper
       # objects, with a gallery viewer showing all of the other images in the
       # same directory.
     elsif item.file? and
-        item.effective_viewer_binary&.media_category == Binary::MediaCategory::IMAGE
+        item.iiif_image_binary&.media_category == Binary::MediaCategory::IMAGE
       return compound_viewer_for(item.parent, item)
     elsif item.is_compound?
       return compound_viewer_for(item)
     else
-      binary = item.effective_viewer_binary
+      binary = item.iiif_image_binary
       case binary&.media_category
         when Binary::MediaCategory::AUDIO
           return audio_player_for(binary)
@@ -1198,7 +1198,7 @@ module ItemsHelper
   end
 
   def free_form_viewer_for(item)
-    binary = item.effective_viewer_binary
+    binary = item.iiif_image_binary
     case binary&.media_category
       when Binary::MediaCategory::AUDIO
         return audio_player_for(binary)
