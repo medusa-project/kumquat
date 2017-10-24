@@ -205,7 +205,43 @@ class ItemsController < WebsiteController
   # Responds to GET /items
   #
   def index
-    setup_index_view
+    if params[:collection_id]
+      @collection = Collection.find_by_repository_id(params[:collection_id])
+      raise ActiveRecord::RecordNotFound unless @collection
+    end
+
+    @start = params[:start].to_i
+    params[:start] = @start
+    @limit = Option::integer(Option::Keys::RESULTS_PER_PAGE)
+    finder = item_finder_for(params)
+    @items = finder.to_a
+    @facets = finder.facets
+
+    @current_page = finder.page
+    @count = finder.count
+    @num_results_shown = [@limit, @count].min
+    @metadata_profile = @collection&.effective_metadata_profile ||
+        MetadataProfile.default
+
+    # If there are no results, get some search suggestions.
+    if @count < 1 and params[:q].present?
+      @suggestions = finder.suggestions
+    end
+
+    @download_finder = ItemFinder.new.
+        user_roles(request_roles).
+        collection(@collection).
+        facet_filters(params[:fq]).
+        query_all(params[:q]).
+        aggregations(false).
+        search_children(true).
+        only_described(true).
+        order(Item::IndexFields::STRUCTURAL_SORT).
+        start(params[:download_start]).
+        limit(params[:limit] || MedusaDownloaderClient::BATCH_SIZE)
+    @num_downloadable_items = @download_finder.count
+    @total_byte_size = @download_finder.total_byte_size
+
     respond_to do |format|
       format.html do
         fresh_when(etag: @items) if Rails.env.production?
@@ -398,13 +434,23 @@ class ItemsController < WebsiteController
   # Responds to GET /collections/:collection_id/tree
   #
   def tree
-    setup_index_view
+    if params[:collection_id]
+      @collection = Collection.find_by_repository_id(params[:collection_id])
+      raise ActiveRecord::RecordNotFound unless @collection
+    end
 
     respond_to do |format|
       format.html do
         if @collection.free_form?
           fresh_when(etag: @items) if Rails.env.production?
           if request.xhr?
+            download_finder = ItemFinder.new.
+                user_roles(request_roles).
+                collection(@collection).
+                include_children_in_results(true).
+                aggregations(false)
+            @num_downloadable_items = download_finder.count
+            @total_byte_size = download_finder.total_byte_size
             @num_directories = @collection.items.
                 where(variant: Item::Variants::DIRECTORY).count
             @num_files = @collection.items.
@@ -441,7 +487,7 @@ class ItemsController < WebsiteController
     @start = params[:start].to_i
     finder = item_finder_for(params).order(Item::IndexFields::STRUCTURAL_SORT)
     @items = finder.to_a
-    tree_data = @items.map { |item| tree_hash(item) }
+    tree_data = @items.map { |item| item_tree_hash(item) }
 
     render json: create_tree_root(tree_data, @collection)
   end
@@ -453,14 +499,7 @@ class ItemsController < WebsiteController
   # Responds to GET /items/:id/treedata
   #
   def item_tree_node
-    respond_to do |format|
-      tree_data = @item.finder.to_a.map do |child|
-        tree_hash child
-      end
-      format.json do
-        render json: tree_data
-      end
-    end
+    render json: @item.finder.to_a.map { |child| item_tree_hash(child) }
   end
 
 
@@ -472,63 +511,18 @@ class ItemsController < WebsiteController
     authorize(@item.collection)
   end
 
-  def setup_index_view
-    if params[:collection_id]
-      @collection = Collection.find_by_repository_id(params[:collection_id])
-      raise ActiveRecord::RecordNotFound unless @collection
-    end
-
-    @start = params[:start].to_i
-    params[:start] = @start
-    @limit = Option::integer(Option::Keys::RESULTS_PER_PAGE)
-    finder = item_finder_for(params)
-    @items = finder.to_a
-    @facets = finder.facets
-
-    @current_page = finder.page
-    @count = finder.count
-    @num_results_shown = [@limit, @count].min
-    @metadata_profile = @collection&.effective_metadata_profile ||
-        MetadataProfile.default
-
-    # If there are no results, get some search suggestions.
-    if @count < 1 and params[:q].present?
-      @suggestions = finder.suggestions
-    end
-
-    @download_finder = ItemFinder.new.
-        user_roles(request_roles).
-        collection(@collection).
-        facet_filters(params[:fq]).
-        query_all(params[:q]).
-        aggregations(false).
-        search_children(true).
-        only_described(true).
-        order(Item::IndexFields::STRUCTURAL_SORT).
-        start(params[:download_start]).
-        limit(params[:limit] || MedusaDownloaderClient::BATCH_SIZE)
-    @num_downloadable_items = @download_finder.count
-    @total_byte_size = @download_finder.total_byte_size
-  end
-
-  def tree_hash(item)
-    node_hash = Hash.new
-    node_hash["id"]=item.repository_id
-    node_hash["text"]=item.title
-    node_hash["children"]=item.items.size>0
-    if item.items.size==0 then node_hash["icon"]="jstree-file" end
-    node_hash["a_attr"]=attr_hash_for item
-    node_hash
-  end
-
-  def attr_hash_for(item)
-    attr_hash = {href: item_path(item)}
-    if item.directory?
-      attr_hash['class'] = 'directory_node Item'
-    elsif item.file?
-      attr_hash['class'] = 'file_node Item'
-    end
-    attr_hash
+  def item_tree_hash(item)
+    num_subitems = item.items.count
+    {
+        id: item.repository_id,
+        text: item.title,
+        children: (num_subitems > 0),
+        icon: (num_subitems == 0) ? 'jstree_file' : nil,
+        a_attr: {
+            href: item_path(item),
+            class: item.directory? ? 'directory_node Item' : 'file_node Item'
+        }
+    }
   end
 
   def create_tree_root(tree_hash_array, collection)
