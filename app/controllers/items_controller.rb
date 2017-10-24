@@ -557,7 +557,7 @@ class ItemsController < WebsiteController
     session[:fq] = query[:fq]
     session[:sort] = query[:sort] if query[:sort].present?
     session[:start] = query[:start].to_i if query[:start].present?
-    session[:start] = 0 if session[:start] < 0
+    session[:start] = 0 if session[:start].to_i < 0
 
     # display=leaves is used in free-form collections to show files flattened.
     if params[:display] == 'leaves'
