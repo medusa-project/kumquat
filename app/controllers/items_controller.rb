@@ -351,13 +351,22 @@ class ItemsController < WebsiteController
         #
         # * For Directory-variant items, the zip file will contain content for
         #   each File-variant item at any sublevel.
-        # * For File-variant items, the zip file will contain content for each
-        #   of the items in the parent Directory-variant item.
-        # * For compound objects, it will contain content for each item in the
-        #   object.
+        # * For File-variant items that have a Directory-variant parent, the
+        #   zip file will contain content for each of the items in the parent.
+        # * For File-variant items that don't have a parent, the zip file will
+        #   contain content for each of the items in the collection.
+        # * For compound objects, the zip file will contain content for each
+        #   item in the object.
+        #
+        # All of the above also have to take authorization into account, and
+        # only include authorized content in zip files.
+        #
         if @item.directory?
           if @item.items.any?
-            items = @item.all_files
+            items = @item.finder.
+                user_roles(request_roles).
+                include_variants(*Item::Variants::FILE).
+                include_children_in_results(true).to_a
             zip_name = 'files'
           else
             flash['error'] = 'This directory is empty.'
@@ -365,10 +374,24 @@ class ItemsController < WebsiteController
             return
           end
         elsif @item.file?
-          items = @item.parent ? @item.parent.items : @item.collection.items
+          if @item.parent
+            items = @item.parent.finder.
+                user_roles(request_roles).
+                include_variants(*Item::Variants::FILE).
+                include_children_in_results(true).to_a
+          else
+            items = ItemFinder.new.
+                aggregations(false).
+                user_roles(request_roles).
+                collection(@item.collection).
+                include_variants(*Item::Variants::FILE)
+                include_children_in_results(true).to_a
+          end
           zip_name = 'files'
         else
-          items = @item.items.any? ? @item.items : [@item]
+          items = @item.finder.
+              user_roles(request_roles).
+              include_children_in_results(true).to_a + [@item]
           zip_name = 'item'
         end
 
