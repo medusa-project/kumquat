@@ -9,7 +9,6 @@ class AgentsController < WebsiteController
   #
   def items
     if request.xhr?
-      fresh_when(etag: @agent) if Rails.env.production?
       set_items_ivars
       render 'items'
     else
@@ -21,8 +20,6 @@ class AgentsController < WebsiteController
   # Responds to GET /agents/:id
   #
   def show
-    fresh_when(etag: @agent) if Rails.env.production?
-
     @agent_relations = AgentRelation.related_to_agent(@agent)
     set_items_ivars
     @related_collections = @agent.related_collections # TODO: respect authorization
