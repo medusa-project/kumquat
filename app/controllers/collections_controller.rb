@@ -36,8 +36,6 @@ class CollectionsController < WebsiteController
     @facets = finder.facets
     @suggestions = finder.suggestions
 
-    fresh_when(etag: @collections) if Rails.env.production?
-
     respond_to do |format|
       format.html
       format.js
@@ -56,8 +54,6 @@ class CollectionsController < WebsiteController
   # residing in them are NOT.
   #
   def show
-    fresh_when(etag: @collection) if Rails.env.production?
-
     respond_to do |format|
       format.html do
         begin

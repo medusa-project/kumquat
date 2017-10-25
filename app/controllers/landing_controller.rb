@@ -20,8 +20,6 @@ class LandingController < WebsiteController
         user_roles(request_roles).
         aggregations(false).
         count
-
-    fresh_when(etag: @dls_collections) if Rails.env.production?
   end
 
 end
