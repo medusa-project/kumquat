@@ -1,3 +1,8 @@
+<%
+  # Requires the following locals:
+  # item [Item]
+%>
+
 <% if signed_in? %>
   <section>
     <h2>
@@ -6,12 +11,12 @@
         Staff Information</a>
     </h2>
     <div id="pt-staff-info" class="collapse">
-      <% if @root_item.is_compound? %>
+      <% if item.is_compound? %>
         <% # For compound objects, display a table of all page binaries. (IMET-469) %>
         <h3>Files</h3>
-        <%= compound_object_binary_info_table(@root_item) %>
-      <% elsif @root_item.binaries.any? %>
-        <% @root_item.binaries.each do |bs| %>
+        <%= compound_object_binary_info_table(item) %>
+      <% elsif item.binaries.any? %>
+        <% item.binaries.each do |bs| %>
           <h3><%= bs.human_readable_master_type %> File</h3>
           <%= binary_metadata_as_table(bs) %>
         <% end %>
@@ -19,10 +24,10 @@
 
       <h3>Object</h3>
       <div class="visible-xs">
-        <%= tech_metadata_as_list(@root_item) %>
+        <%= tech_metadata_as_list(item) %>
       </div>
       <div class="hidden-xs">
-        <%= tech_metadata_as_table(@root_item) %>
+        <%= tech_metadata_as_table(item) %>
       </div>
     </div>
   </section>
