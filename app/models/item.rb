@@ -531,7 +531,8 @@ class Item < ApplicationRecord
   #
   # 1. The representative binary
   # 2. If the instance's variant is `SUPPLEMENT`, any binary
-  # 3. If the instance is compound, the `iiif_image_binary` of the first page
+  # 3. If the instance is compound, the `effective_image_binary()` of the
+  #    first page
   # 4. Any access master of `Binary::MediaCategory::IMAGE`
   # 5. Any access master of `Binary::MediaCategory::VIDEO`
   # 6. Any access master with media type `application/pdf`
@@ -547,7 +548,7 @@ class Item < ApplicationRecord
       if self.variant == Variants::SUPPLEMENT
         bin = self.binaries.first
       elsif self.is_compound?
-        bin = self.pages.first&.iiif_image_binary
+        bin = self.pages.first&.effective_image_binary
       end
       if !bin or !bin.iiif_safe?
         [

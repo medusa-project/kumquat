@@ -1,14 +1,20 @@
 <div class="text-center pt-browse-buttons">
   <% if @show_browse_tree_button %>
-      <%= link_to(collection_tree_path(@collection),
-                  class: 'btn btn-lg btn-default') do %>
-        <%= icon_for(@collection) %> Browse Collection
-      <% end %>
-  <% elsif @collection.published_in_dls %>
-    <% options = @collection.free_form? ? { display: 'leaves' } : nil %>
-    <%= link_to(collection_items_path(@collection, options),
-              class: 'btn btn-lg btn-default',
-              target: @collection.published_in_dls ? '' : '_blank') do %>
+    <%= link_to(collection_tree_path(@collection),
+                class: 'btn btn-lg btn-default') do %>
+      <%= icon_for(@collection) %> Browse Collection
+    <% end %>
+  <% elsif @collection.published_in_dls
+    # If the collection contains only one item, link straight to it.
+    if @num_public_objects == 1
+      link_target = item_path(@collection.items.first)
+    else
+      options = @collection.free_form? ? { display: 'leaves' } : nil
+      link_target = collection_items_path(@collection, options)
+    end %>
+    <%= link_to(link_target,
+                class: 'btn btn-lg btn-default',
+                target: @collection.published_in_dls ? '' : '_blank') do %>
       <%= icon_for(Item) %>
       <%= number_with_delimiter(@num_public_objects) %>
       <%= 'Item'.pluralize(@num_public_objects) %>

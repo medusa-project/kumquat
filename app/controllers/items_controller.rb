@@ -244,7 +244,6 @@ class ItemsController < WebsiteController
 
     respond_to do |format|
       format.html do
-        fresh_when(etag: @items) if Rails.env.production?
         session[:first_result_id] = @items.first&.repository_id
         session[:last_result_id] = @items.last&.repository_id
       end
@@ -289,7 +288,6 @@ class ItemsController < WebsiteController
   # Responds to GET /items/:id
   #
   def show
-    fresh_when(etag: @item) if Rails.env.production?
     respond_to do |format|
       format.html do
         # Free-form items are handled differently from the rest: different
@@ -392,14 +390,22 @@ class ItemsController < WebsiteController
         #
         # * For Directory-variant items, the zip file will contain content for
         #   each File-variant item at any sublevel.
-        # * For File-variant items, it will contain content for each of the
-        #   File-variant items in the parent Directory-variant item, or each of
-        #   the File-variant items in the parent collection if there is no
-        #   Directory-variant parent.
-        # * For compound objects, it will contain content for each subitem.
+        # * For File-variant items that have a Directory-variant parent, the
+        #   zip file will contain content for each of the items in the parent.
+        # * For File-variant items that don't have a parent, the zip file will
+        #   contain content for each of the items in the collection.
+        # * For compound objects, the zip file will contain content for each
+        #   item in the object.
+        #
+        # All of the above also have to take authorization into account, and
+        # only include authorized content in zip files.
+        #
         if @item.directory?
           if @item.items.any?
-            items = @item.all_files
+            items = @item.finder.
+                user_roles(request_roles).
+                include_variants(*Item::Variants::FILE).
+                include_children_in_results(true).to_a
             zip_name = 'files'
           else
             flash['error'] = 'This directory is empty.'
@@ -407,10 +413,24 @@ class ItemsController < WebsiteController
             return
           end
         elsif @item.file?
-          items = @item.parent ? @item.parent.items : @item.collection.items
+          if @item.parent
+            items = @item.parent.finder.
+                user_roles(request_roles).
+                include_variants(*Item::Variants::FILE).
+                include_children_in_results(true).to_a
+          else
+            items = ItemFinder.new.
+                aggregations(false).
+                user_roles(request_roles).
+                collection(@item.collection).
+                include_variants(*Item::Variants::FILE)
+                include_children_in_results(true).to_a
+          end
           zip_name = 'files'
         else
-          items = @item.items.any? ? @item.items : [@item]
+          items = @item.finder.
+              user_roles(request_roles).
+              include_children_in_results(true).to_a + [@item]
           zip_name = 'item'
         end
 
@@ -442,7 +462,6 @@ class ItemsController < WebsiteController
     respond_to do |format|
       format.html do
         if @collection.free_form?
-          fresh_when(etag: @items) if Rails.env.production?
           if request.xhr?
             download_finder = ItemFinder.new.
                 user_roles(request_roles).

@@ -68,19 +68,18 @@ module IiifPresentationHelper
   # @return [Array]
   #
   def iiif_canvases_for(item)
-    items = item.finder.to_a
-    if items.any?
-      # Directory and 3D items are not viewable, and composite and supplement
-      # items are included in the annotation list instead.
-      displayable_children = items.reject do |it|
-        [Item::Variants::COMPOSITE, Item::Variants::DIRECTORY,
-         Item::Variants::SUPPLEMENT, Item::Variants::THREE_D_MODEL].include?(it.variant)
-      end
-      if displayable_children.any?
-        return displayable_children.map { |child| iiif_canvas_for(child) }
-      end
+    # Directory and 3D items are not viewable, and composite and supplement
+    # items are included in the annotation list instead.
+    finder = item.finder.exclude_variants(Item::Variants::COMPOSITE,
+                                          Item::Variants::DIRECTORY,
+                                          Item::Variants::SUPPLEMENT,
+                                          Item::Variants::THREE_D_MODEL)
+    if finder.count > 0
+      canvases = finder.to_a.map { |child| iiif_canvas_for(child) }
+    else
+      canvases = [ iiif_canvas_for(item) ]
     end
-    [ iiif_canvas_for(item) ]
+    canvases
   end
 
   ##
