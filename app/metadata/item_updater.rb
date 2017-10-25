@@ -1,3 +1,5 @@
+require 'csv'
+
 ##
 # Batch-updates item metadata.
 #
