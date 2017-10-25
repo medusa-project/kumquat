@@ -208,7 +208,6 @@ class ItemsController < WebsiteController
     setup_index_view
     respond_to do |format|
       format.html do
-        fresh_when(etag: @items) if Rails.env.production?
         session[:first_result_id] = @items.first&.repository_id
         session[:last_result_id] = @items.last&.repository_id
       end
@@ -253,7 +252,6 @@ class ItemsController < WebsiteController
   # Responds to GET /items/:id
   #
   def show
-    fresh_when(etag: @item) if Rails.env.production?
     respond_to do |format|
       format.html do
         # Free-form items are handled differently from the rest: different
@@ -420,7 +418,6 @@ class ItemsController < WebsiteController
     respond_to do |format|
       format.html do
         if @collection.free_form?
-          fresh_when(etag: @items) if Rails.env.production?
           if request.xhr?
             render 'show_collection_summary', layout: false
           end
