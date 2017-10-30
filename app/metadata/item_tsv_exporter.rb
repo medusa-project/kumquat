@@ -1,3 +1,5 @@
+require 'csv'
+
 class ItemTsvExporter
 
   LINE_BREAK = "\n"

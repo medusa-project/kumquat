@@ -32,6 +32,7 @@ group :development do
   gem 'capistrano-rails'
   gem 'capistrano-rvm'
   gem 'puma' # supports chunked/streaming responses
+  gem 'rails-erd', require: false # generate a model diagram with `bundle exec erd`
 end
 
 group :production do

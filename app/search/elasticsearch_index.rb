@@ -123,7 +123,7 @@ class ElasticsearchIndex
   # @return [Boolean]
   #
   def exists?
-    ElasticsearchClient.index_exists?(self.name)
+    ElasticsearchClient.instance.index_exists?(self.name)
   end
 
   def to_s

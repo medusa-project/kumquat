@@ -1,10 +1,10 @@
+# We need a config/shibboleth.yml file with the options
 Rails.application.config.middleware.use OmniAuth::Builder do
   if Rails.env.production?
-    opts = YAML.load_file(File.join(Rails.root, 'config', 'peartree.yml'))[Rails.env]
-    provider :shibboleth, opts.
-        select{ |k,v| k.to_s.start_with?('shibboleth_') }.
-        map{ |k,v| { k.to_s.gsub('shibboleth_', '').to_sym => v } }.
-        reduce(:merge)
+    opts = YAML.load_file(File.join(Rails.root, 'config', 'shibboleth.yml'))[Rails.env]
+    provider :shibboleth, opts.symbolize_keys
+    PearTree::Application.shibboleth_host = opts['host']
+
   else
     provider :developer
   end

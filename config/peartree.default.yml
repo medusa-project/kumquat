@@ -20,21 +20,6 @@ development: &development
   :downloader_url: http://download.library.illinois.edu:8080
   :downloader_user:
   :downloader_password:
-  :shibboleth_host: kumquat-dev.library.illinois.edu
-  :shibboleth_uid_field: eppn
-  :shibboleth_extra_fields:
-    - eppn
-    - givenName
-    - mail
-    - org_dn
-    - sn
-    - telephoneNumber
-    - uid
-    - entitlement
-    - unscoped_affiliation
-  :shibboleth_request_type: header
-  :shibboleth_info_fields:
-    :email: mail
 
 test:
   :repository_pathname: /repo
@@ -53,21 +38,6 @@ test:
   :downloader_url: http://download.library.illinois.edu:8080
   :downloader_user:
   :downloader_password:
-  :shibboleth_host: kumquat-dev.library.illinois.edu
-  :shibboleth_uid_field: eppn
-  :shibboleth_extra_fields:
-    - eppn
-    - givenName
-    - mail
-    - org_dn
-    - sn
-    - telephoneNumber
-    - uid
-    - entitlement
-    - unscoped_affiliation
-  :shibboleth_request_type: header
-  :shibboleth_info_fields:
-    :email: mail
 
 production: &production
   :repository_pathname: /repo
@@ -93,18 +63,3 @@ production: &production
   :downloader_url: http://download.library.illinois.edu:8080
   :downloader_user:
   :downloader_password:
-  :shibboleth_host: kumquat-dev.library.illinois.edu
-  :shibboleth_uid_field: eppn
-  :shibboleth_extra_fields:
-    - eppn
-    - givenName
-    - mail
-    - org_dn
-    - sn
-    - telephoneNumber
-    - uid
-    - entitlement
-    - unscoped_affiliation
-  :shibboleth_request_type: header
-  :shibboleth_info_fields:
-    :email: mail

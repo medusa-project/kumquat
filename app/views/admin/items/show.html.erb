@@ -112,6 +112,17 @@
   </div>
 
   <div class="col-sm-8">
+    <% # Display a warning if the item is not free-form and has a preservation
+       # master binary but no access master. %>
+    <% if !@item.collection.free_form? and
+        @item.binaries.select{ |b| b.master_type == Binary::MasterType::PRESERVATION }.first and
+        !@item.binaries.select{ |b| b.master_type == Binary::MasterType::ACCESS }.first %>
+      <div class="alert alert-danger">
+        <i class="fa fa-warning"></i> This item has no access master binary.
+        Its Medusa package may be malformed.
+      </div>
+    <% end %>
+
     <div class="tab-content">
 
       <div role="tabpanel" class="tab-pane active" id="pt-system-info">
