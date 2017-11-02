@@ -9,6 +9,6 @@ var inputs = '<input type="hidden" name="q" value="<%= j(params[:q]) %>">' +
 <% params[:fq]&.each do |fq| %>
   inputs += '<input type="hidden" name="fq[]" value="<%= j(fq) %>">';
 <% end %>
-$('#pt-add-all-results-to-set-modal-query').html(inputs);
+$('.pt-query').html(inputs);
 
 PearTree.view.attachEventListeners();
