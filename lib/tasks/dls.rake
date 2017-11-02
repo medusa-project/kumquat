@@ -184,6 +184,33 @@ namespace :dls do
       puts tsv
     end
 
+    ##
+    # This was requested by lampron2@illinois.edu on 11/2/2017.
+    #
+    desc 'Generate a report for PL'
+    task :types_genres => :environment do |task, args|
+      sql = "SELECT collections.repository_id AS collection_id,
+          items.repository_id AS item_id, entity_elements.name,
+          entity_elements.value, entity_elements.uri
+        FROM entity_elements
+        LEFT JOIN items ON entity_elements.item_id = items.id
+        LEFT JOIN collections ON collections.repository_id = items.collection_repository_id
+        WHERE entity_elements.type = $1
+          AND entity_elements.name IN ($2, $3)
+          AND collections.public_in_medusa = true
+        ORDER BY collection_id, item_id, entity_elements.name,
+          entity_elements.value ASC"
+
+      values = [[ nil, 'ItemElement' ], [ nil, 'type' ], [nil, 'genre']]
+
+      tsv = "collection_id\titem_id\telement_name\telement_value\telement_uri" +
+          ItemTsvExporter::LINE_BREAK
+      ActiveRecord::Base.connection.exec_query(sql, 'SQL', values).each do |row|
+        tsv += row.values.join("\t") + ItemTsvExporter::LINE_BREAK
+      end
+      puts tsv
+    end
+
   end
 
   namespace :images do
