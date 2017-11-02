@@ -13,7 +13,7 @@ class EntityFinder < AbstractFinder
     super
     @exclude_item_variants = []
     @include_unpublished = false
-    @only_described = true
+    @only_described = false
   end
 
   ##

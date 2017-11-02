@@ -1,14 +1,20 @@
 $('#pt-items').html('<%= j(render('items')) %>');
 $('.pt-facets').html('<%= j(render('facets')) %>');
 $('#pt-search-status').html('<%= j(search_status(@count, @start, @num_results_shown)) %>');
+
+<% query = { q: params[:q], fq: params[:fq], df: params[:df] } %>
 $('#pt-edit-metadata-link').attr('href',
-    '<%= j(raw(admin_collection_edit_all_items_path(@collection, q: params[:q], fq: params[:fq], df: params[:df]))) %>');
+    '<%= j(raw(admin_collection_edit_all_items_path(@collection, query))) %>');
+$('#pt-publish-results-link').attr('href',
+    '<%= j(raw(admin_collection_items_publish_path(@collection, query))) %>');
+$('#pt-unpublish-results-link').attr('href',
+    '<%= j(raw(admin_collection_items_unpublish_path(@collection, query))) %>');
 
 var inputs = '<input type="hidden" name="q" value="<%= j(params[:q]) %>">' +
     '<input type="hidden" name="df" value="<%= j(params[:df]) %>">';
 <% params[:fq]&.each do |fq| %>
   inputs += '<input type="hidden" name="fq[]" value="<%= j(fq) %>">';
 <% end %>
-$('#pt-add-all-results-to-set-modal-query').html(inputs);
+$('.pt-query').html(inputs);
 
 PearTree.view.attachEventListeners();

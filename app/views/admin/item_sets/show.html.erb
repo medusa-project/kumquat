@@ -23,7 +23,7 @@
         <%= link_to 'Edit Items',
                     admin_collection_edit_all_items_path(@item_set.collection,
                                                          item_set: @item_set.id),
-                    id: 'pt-edit-metadata-link' %>
+                    id: 'pt-edit-result-set-metadata-link' %>
       </li>
       <li class="divider"></li>
       <li <%= (@item_set.collection.package_profile and @item_set.collection.medusa_file_group) ? '' : 'disabled="disabled"' %>>

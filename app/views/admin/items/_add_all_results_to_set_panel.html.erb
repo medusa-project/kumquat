@@ -16,7 +16,7 @@
           <%= select_tag(:item_set, options_for_select(current_user.item_sets.where(collection_repository_id: @collection.repository_id).map { |s| [s.name, s.id] }),
                          class: 'form-control') %>
 
-          <div id="pt-add-all-results-to-set-modal-query">
+          <div class="pt-query">
             <% # will be populated by index.js.erb %>
           </div>
         </div>

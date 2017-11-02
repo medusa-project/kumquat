@@ -399,7 +399,6 @@ class Collection < ApplicationRecord
           aggregations(false).
           search_children(true).
           include_unpublished(true).
-          only_described(false).
           limit(0).
           count
     end
@@ -416,7 +415,6 @@ class Collection < ApplicationRecord
           @num_objects = ItemFinder.new.
               collection(self).
               aggregations(false).
-              only_described(false).
               include_unpublished(true).
               include_variants(*Item::Variants::FILE).
               count
@@ -424,7 +422,6 @@ class Collection < ApplicationRecord
           @num_objects = ItemFinder.new.
               collection(self).
               aggregations(false).
-              only_described(false).
               include_unpublished(true).
               search_children(false).
               count
@@ -444,14 +441,12 @@ class Collection < ApplicationRecord
           @num_public_objects = ItemFinder.new.
               collection(self).
               aggregations(false).
-              only_described(true).
               include_variants(*Item::Variants::FILE).
               count
         else
           @num_public_objects = ItemFinder.new.
               collection(self).
               aggregations(false).
-              only_described(true).
               search_children(false).
               count
       end
