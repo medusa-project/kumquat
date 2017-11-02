@@ -279,6 +279,8 @@ module ApplicationHelper
       icon = 'fa-folder-open-o'
     elsif entity == Agent or entity.kind_of?(Agent)
       icon = 'fa-user-circle'
+    elsif entity == ItemSet or entity.kind_of?(ItemSet)
+      icon = 'fa-circle-o'
     elsif entity == User or entity.kind_of?(User)
       icon = 'fa-user'
     end
