@@ -28,6 +28,19 @@
                       id: 'pt-edit-metadata-link' %>
         </li>
         <li class="divider"></li>
+        <li <%= @collection.metadata_profile ? '' : 'disabled="disabled"' %>>
+          <%= link_to raw('Batch Change&hellip;'), '',
+                      'data-toggle': 'modal', 'data-target': '#pt-batch-change-modal' %>
+        </li>
+        <li <%= @collection.metadata_profile ? '' : 'disabled="disabled"' %>>
+          <%= link_to raw('Find and Replace&hellip;'), '',
+                      'data-toggle': 'modal', 'data-target': '#pt-find-replace-modal' %>
+        </li>
+        <li <%= @collection.metadata_profile ? '' : 'disabled="disabled"' %>>
+          <%= link_to raw('Migrate Element Values&hellip;'), '',
+                      'data-toggle': 'modal', 'data-target': '#pt-migrate-modal' %>
+        </li>
+        <li class="divider"></li>
         <li <%= (@collection.package_profile and @collection.medusa_file_group) ? '' : 'disabled="disabled"' %>>
           <%= link_to raw('Import From TSV&hellip;'), '',
                       'data-toggle': 'modal', 'data-target': '#pt-import-tsv-modal' %>
@@ -121,6 +134,9 @@
   </div>
 <% end %>
 
+<%= render partial: 'batch_change_metadata_panel' %>
+<%= render partial: 'replace_metadata_panel' %>
+<%= render partial: 'migrate_metadata_panel' %>
 <%= render partial: 'add_all_results_to_set_panel' %>
 <%= render partial: 'add_checked_items_to_set_panel' %>
 <%= render partial: 'import_panel' %>
