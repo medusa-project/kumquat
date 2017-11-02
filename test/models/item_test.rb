@@ -793,4 +793,16 @@ class ItemTest < ActiveSupport::TestCase
     end
   end
 
+  # walk_tree()
+
+  test 'walk_tree() should walk the tree' do
+    count = 0
+    @item = items(:sanborn_obj1)
+    @item.walk_tree do |item|
+      assert_kind_of(Item, item)
+      count += 1
+    end
+    assert_equal count, @item.all_children.length
+  end
+
 end

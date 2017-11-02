@@ -238,7 +238,10 @@ class Item < ApplicationRecord
 
   before_save :prune_identical_elements, :set_effective_roles,
               :set_normalized_coords, :set_normalized_date
-  after_update :propagate_heritable_properties
+  # This is commented out because, even though it has to happen, it is
+  # potentially very time-consuming. It will therefore need to be invoked in a
+  # background job whenever instances are updated.
+  #after_update :propagate_heritable_properties
   after_commit :index_in_elasticsearch, on: [:create, :update]
   after_commit :delete_from_elasticsearch, on: :destroy
 
@@ -324,6 +327,7 @@ class Item < ApplicationRecord
   ##
   # @return [Enumerable<Item>] All items that are children of the instance, at
   #                            any level in the tree.
+  # @see walk_tree()
   #
   def all_children
     sql = 'WITH RECURSIVE q AS (
@@ -830,10 +834,10 @@ class Item < ApplicationRecord
   #
   def propagate_heritable_properties(task = nil)
     ActiveRecord::Base.transaction do
-      # Save callbacks will call this method on direct children, so there is
-      # no need to crawl deeper levels of the child subtree.
       num_items = self.items.count
-      self.items.each_with_index do |item, index|
+
+      self.walk_tree do |item, index|
+        # Propagation will be carried out in before_save callbacks.
         item.save!
 
         if task and index % 10 == 0
@@ -1080,6 +1084,15 @@ class Item < ApplicationRecord
       end
       self.save!
     end
+  end
+
+  ##
+  # Accepts a block to perform on the instance and all subitems in the tree.
+  #
+  def walk_tree(&block)
+    index = 0
+    yield(self, index)
+    walk(self, index, &block)
   end
 
   private
@@ -1381,6 +1394,14 @@ class Item < ApplicationRecord
               self.title.present? ? zero_pad_numbers(self.title.downcase) : sort_last_token)
     end
     key
+  end
+
+  def walk(item, index, &block)
+    item.items.each do |subitem|
+      index += 1
+      yield(subitem, index)
+      walk(subitem, index, &block)
+    end
   end
 
   def zero_pad_numbers(str, padding = 16)
