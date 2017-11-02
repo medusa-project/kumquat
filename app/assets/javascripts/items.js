@@ -513,6 +513,7 @@ var PTTreeBrowserView = function() {
      * @see https://www.jstree.com/api/#/
      */
     var initializeTree = function() {
+        var load_collection_summary = true;
         var jstree = $('#jstree');
         if (jstree.length > 0) {
             jstree.jstree({
@@ -535,6 +536,7 @@ var PTTreeBrowserView = function() {
                 var target_id = window.location.hash.substring(1);
                 if (target_id) {
                     drillDownToID(target_id);
+                    load_collection_summary = false;
                 }
             }).bind("select_node.jstree", function (e, data) {
                 retrieveItemView(buildAjaxNodeURL(data));
@@ -566,8 +568,10 @@ var PTTreeBrowserView = function() {
                 }
             });
 
-            retrieveItemView('/collections/' +
-                window.location.pathname.split("/")[2]+'/tree.html?ajax=true');
+            if (load_collection_summary) {
+                retrieveItemView('/collections/' +
+                    window.location.pathname.split("/")[2] + '/tree.html?ajax=true');
+            }
         }
     };
 
