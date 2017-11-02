@@ -280,6 +280,13 @@ module Admin
     end
 
     ##
+    # Responds to PATCH /admin/:collections/:collection_id/items/publish
+    #
+    def publish
+      publish_or_unpublish(true)
+    end
+
+    ##
     # Responds to POST /admin/collections/:collection_id/items/:item_id/purge-cached-images
     #
     def purge_cached_images
@@ -362,6 +369,13 @@ module Admin
       ensure
         redirect_to admin_collection_items_url(col)
       end
+    end
+
+    ##
+    # Responds to PATCH /admin/:collections/:collection_id/items/unpublish
+    #
+    def unpublish
+      publish_or_unpublish(false)
     end
 
     def update
@@ -476,6 +490,28 @@ module Admin
     def modify_items_rbac
       redirect_to(admin_root_url) unless
           current_user.can?(Permission::Permissions::MODIFY_ITEMS)
+    end
+
+    def publish_or_unpublish(publish)
+      col = Collection.find_by_repository_id(params[:collection_id])
+      raise ActiveRecord::RecordNotFound unless col
+
+      begin
+        finder = editing_item_finder_for(col)
+        items = finder.to_a.select{ |i| i }
+        if publish
+          PublishItemsJob.perform_later(items)
+        else
+          UnpublishItemsJob.perform_later(items)
+        end
+      rescue => e
+        handle_error(e)
+      else
+        flash['success'] = "#{publish ? 'P' : 'Unp'}ublishing #{items.length} "\
+            "items in the background."
+      ensure
+        redirect_back fallback_location: admin_collection_items_path(col)
+      end
     end
 
     def purge_items_rbac
