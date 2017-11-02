@@ -82,6 +82,7 @@ module ApplicationHelper
   # @option options [Boolean] :show_add_to_favorites_buttons
   # @option options [Boolean] :show_collections
   # @option options [Boolean] :show_checkboxes
+  # @option options [Boolean] :show_published_status
   # @return [String] HTML string.
   #
   def entities_as_list(entities, start, options = {})
@@ -139,6 +140,12 @@ module ApplicationHelper
         if options[:show_collections] and entity.collection
           info_parts << link_to(entity.collection.title,
                                 collection_path(entity.collection))
+        end
+      end
+
+      if options[:show_published_status] and entity.respond_to?(:published)
+        unless entity.published
+          info_parts << '<span class="label label-danger"><i class="fa fa-globe"></i> Unpublished</label>'
         end
       end
 
