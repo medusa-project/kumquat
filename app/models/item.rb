@@ -252,7 +252,6 @@ class Item < ApplicationRecord
     ItemFinder.new.
         include_variants(*Variants::FILE).
         aggregations(false).
-        only_described(false).
         include_unpublished(true).
         search_children(true).
         count
@@ -265,7 +264,6 @@ class Item < ApplicationRecord
     ItemFinder.new.
         include_variants(Variants::FILE, Variants::DIRECTORY).
         aggregations(false).
-        only_described(false).
         search_children(true).
         include_unpublished(true).
         count
@@ -277,7 +275,6 @@ class Item < ApplicationRecord
   def self.num_objects
     num_free_form_files + ItemFinder.new.
         aggregations(false).
-        only_described(false).
         include_unpublished(true).
         search_children(false).
         exclude_variants(Variants::FILE, Variants::DIRECTORY).

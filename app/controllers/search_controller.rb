@@ -20,7 +20,6 @@ class SearchController < WebsiteController
         user_roles(request_roles).
         # exclude all variants except File
         exclude_item_variants(*Item::Variants::all.reject{ |v| v == Item::Variants::FILE }).
-        only_described(true).
         query_all(params[:q]).
         facet_filters(params[:fq]).
         order(params[:sort]).

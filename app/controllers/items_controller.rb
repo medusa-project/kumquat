@@ -235,7 +235,6 @@ class ItemsController < WebsiteController
         query_all(params[:q]).
         aggregations(false).
         search_children(true).
-        only_described(true).
         order(Item::IndexFields::STRUCTURAL_SORT).
         start(params[:download_start]).
         limit(params[:limit] || MedusaDownloaderClient::BATCH_SIZE)
@@ -586,7 +585,6 @@ class ItemsController < WebsiteController
           facet_filters(session[:fq]).
           query_all(session[:q]).
           search_children(true).
-          only_described(true).
           include_variants(Item::Variants::FILE).
           order(session[:sort]).
           start(session[:start]).
@@ -598,7 +596,6 @@ class ItemsController < WebsiteController
           facet_filters(session[:fq]).
           query_all(session[:q]).
           search_children(@collection&.package_profile != PackageProfile::FREE_FORM_PROFILE).
-          only_described(true).
           exclude_variants(*Item::Variants::non_filesystem_variants).
           order(session[:sort]).
           start(session[:start]).

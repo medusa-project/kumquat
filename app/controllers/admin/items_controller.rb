@@ -146,7 +146,6 @@ module Admin
                    @item_set.items.pluck(:repository_id)).
             aggregations(false).
             include_unpublished(true).
-            only_described(false).
             order(Item::IndexFields::STRUCTURAL_SORT).
             start(@start).
             limit(@limit)
@@ -158,7 +157,6 @@ module Admin
             aggregations(false).
             include_children_in_results(true).
             include_unpublished(true).
-            only_described(false).
             order(Item::IndexFields::STRUCTURAL_SORT).
             start(@start).
             limit(@limit)
@@ -453,7 +451,6 @@ module Admin
           query(params[:df], params[:q]).
           search_children(false).
           include_unpublished(true).
-          only_described(false).
           exclude_variants(*Item::Variants::non_filesystem_variants).
           facet_filters(params[:fq]).
           order(params[:sort]).

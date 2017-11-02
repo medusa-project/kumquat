@@ -13,7 +13,7 @@ class ItemFinder < AbstractFinder
     @include_unpublished = false
     @include_variants = []
     @item_set = nil
-    @only_described = true
+    @only_described = false
     @parent_item = nil
     @search_children = false
 
