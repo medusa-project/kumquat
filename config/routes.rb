@@ -163,6 +163,8 @@ Rails.application.routes.draw do
       match '/clone', to: 'metadata_profiles#clone', via: :patch, as: 'clone'
       match '/delete-elements', to: 'metadata_profiles#delete_elements',
             via: :post, as: 'delete_elements'
+      match '/reindex-items', to: 'metadata_profiles#reindex_items',
+            via: :post, as: 'reindex_items'
     end
     match '/metadata-profiles/import', to: 'metadata_profiles#import',
           via: :post, as: 'metadata_profile_import'
