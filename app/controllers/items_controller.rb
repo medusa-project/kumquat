@@ -255,11 +255,12 @@ class ItemsController < WebsiteController
       format.json do
         render json: {
             start: @start,
+            limit: @limit,
             numResults: @count,
             results: @items.map { |item|
               {
                   id: item.repository_id,
-                  url: item_url(item)
+                  url: item_url(item, format: :json)
               }
             }
           }

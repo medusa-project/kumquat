@@ -17,12 +17,16 @@ class BinaryDecorator < Draper::Decorator
   def serializable_hash(opts)
     {
         id: binary.cfs_file_uuid,
-        url: binary_url(object),
+        content_uri: binary_url(object),
+        item_uri: item_url(object.item, format: :json),
+        pathname: object.repository_relative_pathname,
+        media_type: object.media_type,
         master_type: object.human_readable_master_type,
         media_category: object.human_readable_media_category,
         byte_size: object.byte_size,
         width: object.width,
         height: object.height,
+        duration: object.duration,
         created_at: binary.created_at,
         updated_at: binary.updated_at,
     }

@@ -15,23 +15,24 @@ class CollectionDecorator < Draper::Decorator
   #   end
 
   def serializable_hash(opts)
-    {
+    struct = {
         id: self.repository_id,
-        title: self.title,
-        description: self.description,
-        description_html: self.description_html,
-        access_url: self.access_url,
-        physical_collection_url: self.physical_collection_url,
-        representative_image: self.representative_image,
-        representative_item: self.representative_item ?
-            item_url(self.representative_item) : nil,
+        public_uri: collection_url(self),
+        access_uri: self.access_url,
+        physical_collection_uri: self.physical_collection_url,
+        representative_image_uri: binary_url(self.representative_image, format: :json),
+        representative_item_uri: self.representative_item ?
+            item_url(self.representative_item, format: :json) : nil,
         repository_title: self.medusa_repository.title,
         resource_types: self.resource_types,
         access_systems: self.access_systems,
         rights_statement: self.rightsstatements_org_uri,
+        elements: self.elements_in_profile_order(only_visible: true).map(&:decorate),
         created_at: self.created_at,
         updated_at: self.updated_at
     }
+
+    struct
   end
 
 end
