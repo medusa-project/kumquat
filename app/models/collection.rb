@@ -305,6 +305,26 @@ class Collection < ApplicationRecord
   end
 
   ##
+  # @param options [Hash]
+  # @option options [Boolean] :only_visible
+  # @return [Enumerable<ItemElement>] The instance's CollectionElements in the
+  #                                   order of the elements in the instance's
+  #                                   metadata profile.
+  #
+  def elements_in_profile_order(options = {})
+    elements = []
+    mp_elements = self.metadata_profile.elements
+    if options[:only_visible]
+      mp_elements = mp_elements.where(visible: true)
+    end
+    mp_elements.each do |mpe|
+      element = self.element(mpe.name)
+      elements << element if element
+    end
+    elements
+  end
+
+  ##
   # @return [Boolean]
   #
   def free_form?
