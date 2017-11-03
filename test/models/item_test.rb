@@ -562,22 +562,6 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal 'users', item.effective_denied_roles.first.key
   end
 
-  test 'save() should propagate allowed_roles and denied_roles into
-  effective_allowed_roles and effective_denied_roles of children' do
-    item = items(:sanborn_obj1_page1)
-    parent = item.parent
-
-    parent.allowed_roles << roles(:admins)
-    parent.denied_roles << roles(:users)
-
-    # Assert that they get propagated to child effective roles.
-    parent.save!
-    assert_equal 1, item.effective_allowed_roles.length
-    assert_equal 'admins', item.effective_allowed_roles.first.key
-    assert_equal 1, item.effective_denied_roles.length
-    assert_equal 'users', item.effective_denied_roles.first.key
-  end
-
   test 'save() should set normalized coordinates' do
     @item.element(:coordinates)&.destroy!
     @item.elements.build(name: 'coordinates',
@@ -715,7 +699,7 @@ class ItemTest < ActiveSupport::TestCase
 
   test 'update_from_json should raise an error with invalid data' do
     struct = @item.as_json
-    struct['latitude'] = 130.234
+    struct['variant'] = 'bogus'
 
     json = JSON.generate(struct)
 
