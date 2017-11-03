@@ -78,6 +78,20 @@ class AbstractFinder
   end
 
   ##
+  # @return [Integer]
+  #
+  def get_limit
+    @limit
+  end
+
+  ##
+  # @return [Integer]
+  #
+  def get_start
+    @start
+  end
+
+  ##
   # @param limit [Integer]
   # @return [self]
   #
