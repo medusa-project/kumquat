@@ -128,7 +128,7 @@ class Item < ApplicationRecord
     REPOSITORY_ID = 'repository_id'
     REPRESENTATIVE_FILENAME = 'representative_filename'
     REPRESENTATIVE_ITEM = 'representative_item_id'
-    SEARCH_ALL = '_all'
+    SEARCH_ALL = ElasticsearchIndex::SEARCH_ALL_FIELD
     # Concatenation of various compound object page components or path
     # components (see as_indexed_json()) used for sorting items grouped
     # structurally.
@@ -392,6 +392,7 @@ class Item < ApplicationRecord
   #
   def as_indexed_json(options = {})
     doc = {}
+    search_all_values = []
     doc[IndexFields::COLLECTION] = self.collection_repository_id
     doc[IndexFields::DATE] = self.date.utc.iso8601 if self.date
     doc[IndexFields::DESCRIBED] = self.described?
@@ -422,6 +423,15 @@ class Item < ApplicationRecord
       # ES will automatically create a one or more multi fields for this.
       # See: https://www.elastic.co/guide/en/elasticsearch/reference/0.90/mapping-multi-field-type.html
       doc[element.indexed_field] = element.value
+
+      # If the element is searchable in the collection's metadata profile, or
+      # if the collection doesn't have a metadata profile, add its value to the
+      # search-all field.
+      if !self.collection.metadata_profile or
+          self.collection.metadata_profile.elements.
+              select{ |mpe| mpe.name == element.name }.first&.searchable
+        search_all_values << doc[element.indexed_field]
+      end
     end
 
     # We also need to index parent metadata fields. These are needed when we
@@ -432,6 +442,8 @@ class Item < ApplicationRecord
         doc[element.parent_indexed_field] = element.value
       end
     end
+
+    doc[IndexFields::SEARCH_ALL] = search_all_values.join(' ')
 
     doc
   end

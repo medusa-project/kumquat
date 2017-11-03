@@ -13,6 +13,7 @@ class AgentTest < ActiveSupport::TestCase
     assert_equal @agent.description, doc[Agent::IndexFields::DESCRIPTION]
     assert doc[Agent::IndexFields::EFFECTIVELY_PUBLISHED]
     assert_equal @agent.name, doc[Agent::IndexFields::NAME]
+    assert_not_empty doc[Agent::IndexFields::SEARCH_ALL]
   end
 
   # primary_uri()
