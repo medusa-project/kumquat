@@ -26,6 +26,7 @@
   <!-- Delete button -->
   <%= link_to admin_metadata_profile_path(@profile), method: :delete,
               class: 'btn btn-danger',
+              disabled: @profile.collections.count > 0,
               data: { confirm: 'Are you sure you want to delete this '\
                       'profile?' } do %>
     <i class="fa fa-trash"></i> Delete Profile
