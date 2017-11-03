@@ -109,6 +109,7 @@ class ItemTest < ActiveSupport::TestCase
                  doc[Item::IndexFields::TOTAL_BYTE_SIZE]
     assert_equal @item.variant,
                  doc[Item::IndexFields::VARIANT]
+    assert_not_empty doc[Item::IndexFields::SEARCH_ALL]
 
     title = @item.element(:title)
     assert_equal title.value, doc[title.indexed_field]

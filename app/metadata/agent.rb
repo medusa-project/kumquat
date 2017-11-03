@@ -11,7 +11,7 @@ class Agent < ApplicationRecord
     EFFECTIVELY_PUBLISHED = Item::IndexFields::EFFECTIVELY_PUBLISHED
     LAST_INDEXED = 'date_last_indexed'
     NAME = 'name'
-    SEARCH_ALL = '_all'
+    SEARCH_ALL = ElasticsearchIndex::SEARCH_ALL_FIELD
   end
 
   belongs_to :agent_rule, inverse_of: :agents
@@ -75,6 +75,10 @@ class Agent < ApplicationRecord
     doc[IndexFields::EFFECTIVELY_PUBLISHED] = true
     doc[IndexFields::LAST_INDEXED] = Time.now.utc.iso8601
     doc[IndexFields::NAME] = self.name.to_s
+    doc[IndexFields::SEARCH_ALL] = [
+        doc[IndexFields::NAME],
+        doc[IndexFields::DESCRIPTION]
+    ].join(' ')
     doc
   end
 

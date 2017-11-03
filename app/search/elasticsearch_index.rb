@@ -33,6 +33,7 @@ class ElasticsearchIndex
 
   # Prefixed to all index names used by the application.
   APPLICATION_INDEX_PREFIX = 'dls'
+  SEARCH_ALL_FIELD = 'search_all'
 
   ##
   # Array of definitions for all index schema versions. The array index is the
