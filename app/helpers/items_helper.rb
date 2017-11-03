@@ -219,7 +219,7 @@ module ItemsHelper
         </optgroup>
         <optgroup label=\"Metadata Profile Elements\">
           <option value=\"#{Item::IndexFields::SEARCH_ALL}\" selected>Any Element</option>"
-    metadata_profile.elements.each do |e|
+    metadata_profile.elements.select(&:searchable).each do |e|
       html += "<option value=\"#{e.indexed_field}\">#{e.label}</option>"
     end
     html += '</optgroup></select>'
