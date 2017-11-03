@@ -121,7 +121,7 @@ class AbstractFinder
   # @return [Integer]
   #
   def page
-    (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
+    ((@start / @limit.to_f).ceil + 1 if @limit > 0) || 1
   end
 
   ##
