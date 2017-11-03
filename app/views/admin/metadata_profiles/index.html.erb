@@ -30,6 +30,7 @@
     <th style="width:1px"></th>
     <th style="width:1px"></th>
     <th>Name</th>
+    <th>Collections</th>
   </thead>
   <tbody>
     <% @profiles.each do |profile| %>
@@ -53,6 +54,7 @@
           <% end %>
         </td>
         <td><%= link_to profile.name, admin_metadata_profile_path(profile) %></td>
+        <td><%= profile.collections.count %></td>
       </tr>
     <% end %>
   </tbody>
