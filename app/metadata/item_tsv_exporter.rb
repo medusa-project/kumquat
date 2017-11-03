@@ -153,8 +153,6 @@ class ItemTsvExporter
         items.variant,
         items.page_number,
         items.subpage_number,
-        items.latitude,
-        items.longitude,
         items.contentdm_alias,
         items.contentdm_pointer,
         (SELECT COUNT(id)

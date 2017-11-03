@@ -179,7 +179,7 @@ class Item < ApplicationRecord
   NON_DESCRIPTIVE_TSV_COLUMNS = %w(uuid parentId preservationMasterPathname
     preservationMasterFilename preservationMasterUUID accessMasterPathname
     accessMasterFilename accessMasterUUID variant pageNumber subpageNumber
-    latitude longitude contentdmAlias contentdmPointer IGNORE)
+    contentdmAlias contentdmPointer IGNORE)
 
   has_and_belongs_to_many :allowed_roles, class_name: 'Role',
                           association_foreign_key: :allowed_role_id
@@ -687,13 +687,19 @@ class Item < ApplicationRecord
   end
 
   ##
+  # @param options [Hash]
+  # @option options [Boolean] :only_visible
   # @return [Enumerable<ItemElement>] The instance's ItemElements in the order
   #                                   of the elements in the collection's
   #                                   metadata profile.
   #
-  def elements_in_profile_order
+  def elements_in_profile_order(options = {})
     elements = []
-    self.collection.metadata_profile.elements.each do |mpe|
+    mp_elements = self.collection.metadata_profile.elements
+    if options[:only_visible]
+      mp_elements = mp_elements.where(visible: true)
+    end
+    mp_elements.each do |mpe|
       element = self.element(mpe.name)
       elements << element if element
     end
@@ -969,11 +975,11 @@ class Item < ApplicationRecord
       self.contentdm_alias = struct['contentdm_alias']
       self.contentdm_pointer = struct['contentdm_pointer']
       # created_at is not modifiable
-      self.date = TimeUtil.string_date_to_time(struct['date'])
+      # date is not modifiable
       self.embed_tag = struct['embed_tag']
       # id is not modifiable
-      self.latitude = struct['latitude']
-      self.longitude = struct['longitude']
+      # latitude is not modifiable
+      # longitude is not modifiable
       self.page_number = struct['page_number']
       # parent_repository_id is not modifiable
       self.published = struct['published']
@@ -1040,15 +1046,6 @@ class Item < ApplicationRecord
 
       # CONTENTdm pointer ("CISOPTR")
       self.contentdm_pointer = row['contentdmPointer'].strip if row['contentdmPointer']
-
-      # date (normalized)
-      self.date = TimeUtil.string_date_to_time(row['normalizedDate'])
-
-      # latitude
-      self.latitude = row['latitude'].strip.to_f if row['latitude']
-
-      # longitude
-      self.longitude = row['longitude'].strip.to_f if row['longitude']
 
       # page number
       self.page_number = row['pageNumber'].strip.to_i if row['pageNumber']

@@ -9,6 +9,7 @@ class ItemsController < WebsiteController
     FAVORITES = 3
   end
 
+  MAX_RESULT_WINDOW = 100
   PERMITTED_PARAMS = [:_, :collection_id, :df, :display, { fq: [] }, :id, :q,
                       :sort, :start, :utf8]
 
@@ -210,15 +211,14 @@ class ItemsController < WebsiteController
       raise ActiveRecord::RecordNotFound unless @collection
     end
 
-    @start = params[:start].to_i
-    params[:start] = @start
-    @limit = Option::integer(Option::Keys::RESULTS_PER_PAGE)
     finder = item_finder_for(params)
     @items = finder.to_a
     @facets = finder.facets
 
     @current_page = finder.page
     @count = finder.count
+    @start = finder.get_start
+    @limit = finder.get_limit
     @num_results_shown = [@limit, @count].min
     @metadata_profile = @collection&.effective_metadata_profile ||
         MetadataProfile.default
@@ -254,11 +254,12 @@ class ItemsController < WebsiteController
       format.json do
         render json: {
             start: @start,
+            limit: @limit,
             numResults: @count,
             results: @items.map { |item|
               {
                   id: item.repository_id,
-                  url: item_url(item)
+                  url: item_url(item, format: :json)
               }
             }
           }
@@ -576,6 +577,10 @@ class ItemsController < WebsiteController
     session[:sort] = query[:sort] if query[:sort].present?
     session[:start] = query[:start].to_i if query[:start].present?
     session[:start] = 0 if session[:start].to_i < 0
+    session[:limit] = query[:limit].to_i if query[:limit].present?
+    if session[:limit].to_i < 0 or session[:limit].to_i > MAX_RESULT_WINDOW
+      session[:limit] = Option::integer(Option::Keys::RESULTS_PER_PAGE)
+    end
 
     # display=leaves is used in free-form collections to show files flattened.
     if params[:display] == 'leaves'
@@ -588,7 +593,7 @@ class ItemsController < WebsiteController
           include_variants(Item::Variants::FILE).
           order(session[:sort]).
           start(session[:start]).
-          limit(Option::integer(Option::Keys::RESULTS_PER_PAGE))
+          limit(session[:limit])
     else
       ItemFinder.new.
           user_roles(request_roles).
@@ -600,8 +605,7 @@ class ItemsController < WebsiteController
           order(session[:sort]).
           start(session[:start]).
           limit(@collection&.free_form? ?
-                    ElasticsearchClient::MAX_RESULT_WINDOW :
-                    Option::integer(Option::Keys::RESULTS_PER_PAGE))
+                    ElasticsearchClient::MAX_RESULT_WINDOW : session[:limit])
     end
   end
 

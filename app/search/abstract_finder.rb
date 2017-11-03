@@ -78,6 +78,20 @@ class AbstractFinder
   end
 
   ##
+  # @return [Integer]
+  #
+  def get_limit
+    @limit
+  end
+
+  ##
+  # @return [Integer]
+  #
+  def get_start
+    @start
+  end
+
+  ##
   # @param limit [Integer]
   # @return [self]
   #
@@ -107,7 +121,7 @@ class AbstractFinder
   # @return [Integer]
   #
   def page
-    (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
+    ((@start / @limit.to_f).ceil + 1 if @limit > 0) || 1
   end
 
   ##
