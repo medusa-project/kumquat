@@ -12,7 +12,7 @@ class ItemTsvExporterTest < ActiveSupport::TestCase
     expected_header = %w(uuid parentId preservationMasterPathname
         preservationMasterFilename preservationMasterUUID accessMasterPathname
         accessMasterFilename accessMasterUUID variant pageNumber subpageNumber
-        latitude longitude contentdmAlias contentdmPointer IGNORE Title
+        contentdmAlias contentdmPointer IGNORE Title
         Coordinates Creator Date\ Created Description lcsh:Subject tgm:Subject)
     expected_values = [
         {
@@ -27,8 +27,6 @@ class ItemTsvExporterTest < ActiveSupport::TestCase
             'variant': nil,
             'pageNumber': nil,
             'subpageNumber': nil,
-            'latitude': nil,
-            'longitude': nil,
             'contentdmAlias': 'sanborn',
             'contentdmPointer': 150,
             'IGNORE': '0',
@@ -52,8 +50,6 @@ class ItemTsvExporterTest < ActiveSupport::TestCase
             'variant': 'Page',
             'pageNumber': '1',
             'subpageNumber': nil,
-            'latitude': '45.0000000',
-            'longitude': '-120.0000000',
             'contentdmAlias': nil,
             'contentdmPointer': nil,
             'IGNORE': '2',
@@ -77,8 +73,6 @@ class ItemTsvExporterTest < ActiveSupport::TestCase
             'variant': 'Page',
             'pageNumber': '2',
             'subpageNumber': nil,
-            'latitude': nil,
-            'longitude': nil,
             'contentdmAlias': nil,
             'contentdmPointer': nil,
             'IGNORE': '0',
@@ -102,8 +96,6 @@ class ItemTsvExporterTest < ActiveSupport::TestCase
             'variant': nil,
             'pageNumber': nil,
             'subpageNumber': nil,
-            'latitude': nil,
-            'longitude': nil,
             'contentdmAlias': nil,
             'contentdmPointer': nil,
             'IGNORE': '0',
@@ -125,7 +117,7 @@ class ItemTsvExporterTest < ActiveSupport::TestCase
     expected_header = %w(uuid parentId preservationMasterPathname
         preservationMasterFilename preservationMasterUUID accessMasterPathname
         accessMasterFilename accessMasterUUID variant pageNumber subpageNumber
-        latitude longitude contentdmAlias contentdmPointer IGNORE Title
+        contentdmAlias contentdmPointer IGNORE Title
         Coordinates Creator Date\ Created Description lcsh:Subject tgm:Subject)
 
     # There should not be any IGNORE column values > 0.
@@ -142,8 +134,6 @@ class ItemTsvExporterTest < ActiveSupport::TestCase
             'variant': nil,
             'pageNumber': nil,
             'subpageNumber': nil,
-            'latitude': nil,
-            'longitude': nil,
             'contentdmAlias': 'sanborn',
             'contentdmPointer': 150,
             'IGNORE': '0',
@@ -167,8 +157,6 @@ class ItemTsvExporterTest < ActiveSupport::TestCase
             'variant': 'Page',
             'pageNumber': '2',
             'subpageNumber': nil,
-            'latitude': nil,
-            'longitude': nil,
             'contentdmAlias': nil,
             'contentdmPointer': nil,
             'IGNORE': '0',
@@ -192,8 +180,6 @@ class ItemTsvExporterTest < ActiveSupport::TestCase
             'variant': nil,
             'pageNumber': nil,
             'subpageNumber': nil,
-            'latitude': nil,
-            'longitude': nil,
             'contentdmAlias': nil,
             'contentdmPointer': nil,
             'IGNORE': '0',
@@ -217,7 +203,7 @@ class ItemTsvExporterTest < ActiveSupport::TestCase
     expected_header = %w(uuid parentId preservationMasterPathname
         preservationMasterFilename preservationMasterUUID accessMasterPathname
         accessMasterFilename accessMasterUUID variant pageNumber subpageNumber
-        latitude longitude contentdmAlias contentdmPointer IGNORE Title
+        contentdmAlias contentdmPointer IGNORE Title
         Coordinates Creator Date\ Created Description lcsh:Subject tgm:Subject)
     expected_values = [
         {
@@ -232,8 +218,6 @@ class ItemTsvExporterTest < ActiveSupport::TestCase
             'variant': nil,
             'pageNumber': nil,
             'subpageNumber': nil,
-            'latitude': nil,
-            'longitude': nil,
             'contentdmAlias': 'sanborn',
             'contentdmPointer': 150,
             'IGNORE': '0',
@@ -257,8 +241,6 @@ class ItemTsvExporterTest < ActiveSupport::TestCase
             'variant': 'Page',
             'pageNumber': '1',
             'subpageNumber': nil,
-            'latitude': '45.0000000',
-            'longitude': '-120.0000000',
             'contentdmAlias': nil,
             'contentdmPointer': nil,
             'IGNORE': '2',
@@ -282,8 +264,6 @@ class ItemTsvExporterTest < ActiveSupport::TestCase
             'variant': 'Page',
             'pageNumber': '2',
             'subpageNumber': nil,
-            'latitude': nil,
-            'longitude': nil,
             'contentdmAlias': nil,
             'contentdmPointer': nil,
             'IGNORE': '0',
@@ -307,8 +287,6 @@ class ItemTsvExporterTest < ActiveSupport::TestCase
             'variant': nil,
             'pageNumber': nil,
             'subpageNumber': nil,
-            'latitude': nil,
-            'longitude': nil,
             'contentdmAlias': nil,
             'contentdmPointer': nil,
             'IGNORE': '0',

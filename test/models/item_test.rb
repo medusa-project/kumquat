@@ -43,7 +43,7 @@ class ItemTest < ActiveSupport::TestCase
     expected = %w(uuid parentId preservationMasterPathname
     preservationMasterFilename preservationMasterUUID accessMasterPathname
     accessMasterFilename accessMasterUUID variant pageNumber subpageNumber
-    latitude longitude contentdmAlias contentdmPointer IGNORE Title Coordinates
+    contentdmAlias contentdmPointer IGNORE Title Coordinates
     Creator Date\ Created Description lcsh:Subject tgm:Subject)
     actual = Item.tsv_columns(@item.collection.metadata_profile)
     assert_equal expected, actual
@@ -737,8 +737,6 @@ class ItemTest < ActiveSupport::TestCase
     # technical elements
     row['contentdmAlias'] = 'cats'
     row['contentdmPointer'] = '123'
-    row['latitude'] = '45.52'
-    row['longitude'] = '-120.564'
     row['pageNumber'] = '3'
     row['subpageNumber'] = '1'
     row['variant'] = Item::Variants::PAGE
@@ -756,8 +754,6 @@ class ItemTest < ActiveSupport::TestCase
 
     assert_equal 'cats', @item.contentdm_alias
     assert_equal 123, @item.contentdm_pointer
-    assert_equal 45.52, @item.latitude
-    assert_equal -120.564, @item.longitude
     assert_equal 3, @item.page_number
     assert_equal 1, @item.subpage_number
     assert_equal Item::Variants::PAGE, @item.variant

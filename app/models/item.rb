@@ -179,7 +179,7 @@ class Item < ApplicationRecord
   NON_DESCRIPTIVE_TSV_COLUMNS = %w(uuid parentId preservationMasterPathname
     preservationMasterFilename preservationMasterUUID accessMasterPathname
     accessMasterFilename accessMasterUUID variant pageNumber subpageNumber
-    latitude longitude contentdmAlias contentdmPointer IGNORE)
+    contentdmAlias contentdmPointer IGNORE)
 
   has_and_belongs_to_many :allowed_roles, class_name: 'Role',
                           association_foreign_key: :allowed_role_id
