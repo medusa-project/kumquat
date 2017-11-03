@@ -960,11 +960,11 @@ class Item < ApplicationRecord
       self.contentdm_alias = struct['contentdm_alias']
       self.contentdm_pointer = struct['contentdm_pointer']
       # created_at is not modifiable
-      self.date = TimeUtil.string_date_to_time(struct['date'])
+      # date is not modifiable
       self.embed_tag = struct['embed_tag']
       # id is not modifiable
-      self.latitude = struct['latitude']
-      self.longitude = struct['longitude']
+      # latitude is not modifiable
+      # longitude is not modifiable
       self.page_number = struct['page_number']
       # parent_repository_id is not modifiable
       self.published = struct['published']
@@ -1031,15 +1031,6 @@ class Item < ApplicationRecord
 
       # CONTENTdm pointer ("CISOPTR")
       self.contentdm_pointer = row['contentdmPointer'].strip if row['contentdmPointer']
-
-      # date (normalized)
-      self.date = TimeUtil.string_date_to_time(row['normalizedDate'])
-
-      # latitude
-      self.latitude = row['latitude'].strip.to_f if row['latitude']
-
-      # longitude
-      self.longitude = row['longitude'].strip.to_f if row['longitude']
 
       # page number
       self.page_number = row['pageNumber'].strip.to_i if row['pageNumber']

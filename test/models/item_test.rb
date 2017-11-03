@@ -682,10 +682,7 @@ class ItemTest < ActiveSupport::TestCase
     struct = @item.as_json
     struct['contentdm_alias'] = 'cats'
     struct['contentdm_pointer'] = 99
-    struct['date'] = '2014-03-01T16:25:15Z'
     struct['embed_tag'] = '<embed></embed>'
-    struct['latitude'] = 23.45
-    struct['longitude'] = -34.56
     struct['page_number'] = 60
     struct['published'] = true
     struct['representative_item_repository_id'] =
@@ -702,9 +699,6 @@ class ItemTest < ActiveSupport::TestCase
 
     assert_equal 'cats', @item.contentdm_alias
     assert_equal 99, @item.contentdm_pointer
-    assert_equal 2014, @item.date.year
-    assert_equal 23.45, @item.latitude
-    assert_equal -34.56, @item.longitude
     assert_equal 60, @item.page_number
     assert @item.published
     assert_equal 'd29950d0-c451-0133-1d17-0050569601ca-2',
