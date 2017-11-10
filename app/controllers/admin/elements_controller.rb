@@ -94,11 +94,15 @@ module Admin
       respond_to do |format|
         format.html do
           sql = 'SELECT elements.id, elements.name, elements.description,
-              COUNT(entity_elements.name) AS count
-            FROM elements
-            LEft JOIN entity_elements ON entity_elements.name = elements.name
-            GROUP BY elements.id, elements.name
-            ORDER BY elements.name'
+              (SELECT COUNT(metadata_profile_elements.name)
+                FROM metadata_profile_elements
+                WHERE metadata_profile_elements.name = elements.name) AS metadata_profile_count,
+              (SELECT COUNT(entity_elements.name)
+                FROM entity_elements
+                WHERE entity_elements.name = elements.name) AS entity_count
+              FROM elements
+              GROUP BY elements.id, elements.name
+              ORDER BY elements.name;'
           @elements = ActiveRecord::Base.connection.exec_query(sql)
           @new_element = Element.new
         end
