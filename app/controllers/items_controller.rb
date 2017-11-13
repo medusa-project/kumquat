@@ -10,6 +10,7 @@ class ItemsController < WebsiteController
   end
 
   MAX_RESULT_WINDOW = 100
+  MIN_RESULT_WINDOW = 10
   PERMITTED_PARAMS = [:_, :collection_id, :df, :display, { fq: [] }, :id, :q,
                       :sort, :start, :utf8]
 
@@ -578,7 +579,8 @@ class ItemsController < WebsiteController
     session[:start] = query[:start].to_i if query[:start].present?
     session[:start] = 0 if session[:start].to_i < 0
     session[:limit] = query[:limit].to_i if query[:limit].present?
-    if session[:limit].to_i < 0 or session[:limit].to_i > MAX_RESULT_WINDOW
+    if session[:limit].to_i < MIN_RESULT_WINDOW or
+        session[:limit].to_i > MAX_RESULT_WINDOW
       session[:limit] = Option::integer(Option::Keys::RESULTS_PER_PAGE)
     end
 

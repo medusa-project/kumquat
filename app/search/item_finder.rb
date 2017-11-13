@@ -309,6 +309,7 @@ class ItemFinder < AbstractFinder
             j.set! field.indexed_keyword_field do
               j.terms do
                 j.field field.indexed_keyword_field
+                j.size Option::integer(Option::Keys::FACET_TERM_LIMIT)
               end
             end
           end
