@@ -185,7 +185,7 @@ module Admin
       raise ActiveRecord::RecordNotFound unless @collection
 
       @start = params[:start] ? params[:start].to_i : 0
-      @limit = Option::integer(Option::Keys::RESULTS_PER_PAGE)
+      @limit = Option::integer(Option::Keys::DEFAULT_RESULT_WINDOW)
 
       finder = item_finder_for(@collection, @start, @limit)
       @items = finder.to_a

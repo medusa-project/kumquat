@@ -22,7 +22,7 @@ class FavoritesController < WebsiteController
       @limit = ElasticsearchClient::MAX_RESULT_WINDOW
     else
       @start = params[:start] ? params[:start].to_i : 0
-      @limit = Option::integer(Option::Keys::RESULTS_PER_PAGE)
+      @limit = Option::integer(Option::Keys::DEFAULT_RESULT_WINDOW)
     end
 
     if cookies[:favorites].present?

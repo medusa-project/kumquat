@@ -120,7 +120,7 @@ module Admin
       @item_set = ItemSet.find(params[:id])
 
       @start = params[:start].to_i
-      @limit = Option::integer(Option::Keys::RESULTS_PER_PAGE)
+      @limit = Option::integer(Option::Keys::DEFAULT_RESULT_WINDOW)
       @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
 
       finder = ItemFinder.new.
