@@ -388,17 +388,25 @@ module ItemsHelper
   # @return [String]
   #
   def metadata_section(item)
-    html = "<h2><a role=\"button\" data-toggle=\"collapse\"
-      href=\"#pt-metadata\" aria-expanded=\"true\" aria-controls=\"pt-metadata\">
-      Descriptive Information</a></h2>
-        <div id=\"pt-metadata\" class=\"collapse in\">
-          <div class=\"visible-xs\">
-            #{metadata_as_list(item)}
-          </div>
-          <div class=\"hidden-xs\">
-            #{metadata_as_table(item)}
-          </div>
-        </div>"
+    html = "<h2>
+        <a role=\"button\" data-toggle=\"collapse\"
+        href=\"#pt-metadata\" aria-expanded=\"true\" aria-controls=\"pt-metadata\">
+        Descriptive Information</a>"
+    if current_user
+      html += ' ' + link_to(edit_admin_collection_item_path(item.collection, item),
+                      class: 'btn btn-default btn-xs btn-warning', target: '_blank') do
+        raw('<i class="fa fa-pencil"></i> Edit')
+      end
+    end
+    html += "</h2>
+      <div id=\"pt-metadata\" class=\"collapse in\">
+        <div class=\"visible-xs\">
+          #{metadata_as_list(item)}
+        </div>
+        <div class=\"hidden-xs\">
+          #{metadata_as_table(item)}
+        </div>
+      </div>"
     raw(html)
   end
 
