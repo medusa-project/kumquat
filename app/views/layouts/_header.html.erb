@@ -49,11 +49,9 @@
               <li><%= link_to 'Sign Out', signout_path(referer: request.url),
                               method: :delete %></li>
             </ul>
-            <div class="label label-warning">BETA</div>
           </div>
         <% else %>
           <%= link_to 'Sign In', signin_path, class: 'btn btn-xs btn-default' %>
-          <div class="label label-warning">BETA</div>
         <% end%>
       </div>
     </div>
