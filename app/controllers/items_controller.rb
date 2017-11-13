@@ -577,9 +577,9 @@ class ItemsController < WebsiteController
     session[:q] = query[:q]
     session[:fq] = query[:fq]
     session[:sort] = query[:sort] if query[:sort].present?
-    session[:start] = query[:start].to_i if query[:start].present?
+    session[:start] = query[:start].to_i
     session[:start] = 0 if session[:start].to_i < 0
-    session[:limit] = query[:limit].to_i if query[:limit].present?
+    session[:limit] = query[:limit].to_i
     if session[:limit].to_i < MIN_RESULT_WINDOW or
         session[:limit].to_i > MAX_RESULT_WINDOW
       session[:limit] = Option::integer(Option::Keys::RESULTS_PER_PAGE)
