@@ -282,6 +282,20 @@ var PTAdminItemsView = function() {
                 modal_body.append('<input type="hidden" name="items[]" value="' + checked_items[i] + '">');
             }
         });
+
+        // When the "Publish Checked Results" or "Unpublish Checked Results"
+        // menu items are clicked, copy the selected item IDs into their hrefs.
+        $('#pt-publish-checked-results-link, #pt-unpublish-checked-results-link').on('click', function() {
+            var checked_items = [];
+            $('[name="pt-selected-items[]"]:checked').each(function() {
+                checked_items.push($(this).val());
+            });
+
+            var href = $(this).attr('href');
+            var pos = href.indexOf('?');
+            var url = (pos > 0) ? href.substring(0, pos - 1) : href;
+            $(this).attr('href', url + '?id[]=' + checked_items.join('&id[]='));
+        });
     };
 
 };

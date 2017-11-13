@@ -496,21 +496,39 @@ module Admin
       col = Collection.find_by_repository_id(params[:collection_id])
       raise ActiveRecord::RecordNotFound unless col
 
-      begin
-        finder = editing_item_finder_for(col)
-        items = finder.to_a.select{ |i| i }
-        if publish
-          PublishItemsJob.perform_later(items)
+      # If we are (un)publishing only checked items, params[:id] will not
+      # be empty.
+      if params[:id].respond_to?(:each) and params[:id].any?
+        begin
+          items = params[:id].map{ |id| Item.find_by_repository_id(id) }
+          items.each do |item|
+            item.update!(published: publish)
+          end
+        rescue => e
+          handle_error(e)
         else
-          UnpublishItemsJob.perform_later(items)
+          flash['success'] = "#{publish ? 'P' : 'Unp'}ublished #{items.length} "\
+            "items."
+        ensure
+          redirect_back fallback_location: admin_collection_items_path(col)
         end
-      rescue => e
-        handle_error(e)
       else
-        flash['success'] = "#{publish ? 'P' : 'Unp'}ublishing #{items.length} "\
+        begin
+          finder = editing_item_finder_for(col)
+          items = finder.to_a.select{ |i| i }
+          if publish
+            PublishItemsJob.perform_later(items)
+          else
+            UnpublishItemsJob.perform_later(items)
+          end
+        rescue => e
+          handle_error(e)
+        else
+          flash['success'] = "#{publish ? 'P' : 'Unp'}ublishing #{items.length} "\
             "items in the background."
-      ensure
-        redirect_back fallback_location: admin_collection_items_path(col)
+        ensure
+          redirect_back fallback_location: admin_collection_items_path(col)
+        end
       end
     end
 

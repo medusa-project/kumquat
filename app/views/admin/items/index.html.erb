@@ -65,9 +65,11 @@
           <%= link_to raw('Add Checked Results&hellip;'), '',
                       'data-toggle': 'modal', 'data-target': '#pt-add-checked-items-to-set-modal' %>
         </li>
-        <li class="divider"></li>
-        <% @collection.item_sets.order(:name).each do |set| %>
-          <li><%= link_to set, admin_collection_item_set_path(@collection, set) %></li>
+        <% if @collection.item_sets.count > 0 %>
+          <li class="divider"></li>
+          <% @collection.item_sets.order(:name).each do |set| %>
+            <li><%= link_to set, admin_collection_item_set_path(@collection, set) %></li>
+          <% end %>
         <% end %>
       </ul>
     </div>
@@ -78,18 +80,31 @@
               data-toggle="dropdown" aria-expanded="false">
         <i class="fa fa-globe"></i> Public <span class="caret"></span>
       </button>
-      <ul class="dropdown-menu" role="menu">
+      <ul class="dropdown-menu dropdown-menu-right" role="menu">
         <li>
           <%= link_to 'Publish All Results',
                       admin_collection_items_publish_path(@collection),
                       method: :patch,
-                      id: 'pt-publish-results-link'%>
+                      id: 'pt-publish-results-link' %>
         </li>
+        <li>
+          <%= link_to 'Publish Checked Results',
+                      admin_collection_items_publish_path(@collection),
+                      method: :patch,
+                      id: 'pt-publish-checked-results-link' %>
+        </li>
+        <li class="divider"></li>
         <li>
           <%= link_to 'Unpublish All Results',
                       admin_collection_items_unpublish_path(@collection),
                       method: :patch,
                       id: 'pt-unpublish-results-link' %>
+        </li>
+        <li>
+          <%= link_to 'Unpublish Checked Results',
+                      admin_collection_items_unpublish_path(@collection),
+                      method: :patch,
+                      id: 'pt-unpublish-checked-results-link'%>
         </li>
         <li class="divider"></li>
         <li>
