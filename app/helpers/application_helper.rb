@@ -82,6 +82,7 @@ module ApplicationHelper
   # @option options [Boolean] :show_add_to_favorites_buttons
   # @option options [Boolean] :show_collections
   # @option options [Boolean] :show_checkboxes
+  # @option options [Boolean] :show_published_status
   # @return [String] HTML string.
   #
   def entities_as_list(entities, start, options = {})
@@ -139,6 +140,12 @@ module ApplicationHelper
         if options[:show_collections] and entity.collection
           info_parts << link_to(entity.collection.title,
                                 collection_path(entity.collection))
+        end
+      end
+
+      if options[:show_published_status] and entity.respond_to?(:published)
+        unless entity.published
+          info_parts << '<span class="label label-danger"><i class="fa fa-globe"></i> Unpublished</label>'
         end
       end
 
@@ -279,6 +286,8 @@ module ApplicationHelper
       icon = 'fa-folder-open-o'
     elsif entity == Agent or entity.kind_of?(Agent)
       icon = 'fa-user-circle'
+    elsif entity == ItemSet or entity.kind_of?(ItemSet)
+      icon = 'fa-circle-o'
     elsif entity == User or entity.kind_of?(User)
       icon = 'fa-user'
     end
@@ -507,7 +516,7 @@ module ApplicationHelper
       </div>
       <div class=\"panel-body\">
         <ul>"
-    facet.terms[0..Option::integer(Option::Keys::FACET_TERM_LIMIT)].each do |term|
+    facet.terms.each do |term|
       checked = (params[:fq] and params[:fq].include?(term.query)) ?
                     'checked' : nil
       checked_params = term.removed_from_params(permitted_params.deep_dup).except(:start)

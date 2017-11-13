@@ -513,6 +513,8 @@ var PTTreeBrowserView = function() {
      * @see https://www.jstree.com/api/#/
      */
     var initializeTree = function() {
+        var target_id = window.location.hash.substring(1);
+
         var jstree = $('#jstree');
         if (jstree.length > 0) {
             jstree.jstree({
@@ -532,7 +534,6 @@ var PTTreeBrowserView = function() {
                 // If :item_id is present, we need to rewrite the URL as:
                 // /items/:id and traverse the tree to the node corresponding
                 // to that ID.
-                var target_id = window.location.hash.substring(1);
                 if (target_id) {
                     drillDownToID(target_id);
                 }
@@ -566,8 +567,10 @@ var PTTreeBrowserView = function() {
                 }
             });
 
-            retrieveItemView('/collections/' +
-                window.location.pathname.split("/")[2]+'/tree.html?ajax=true');
+            if (!target_id) {
+                retrieveItemView('/collections/' +
+                    window.location.pathname.split("/")[2] + '/tree.html?ajax=true');
+            }
         }
     };
 

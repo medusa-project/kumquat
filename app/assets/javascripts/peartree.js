@@ -229,6 +229,12 @@ var PearTree = {
      * Application-level initialization.
      */
     init: function() {
+        // Disable disabled anchors.
+        $('a[disabled="disabled"]').click(function(e){
+            e.preventDefault();
+            return false;
+        });
+
         // make the active nav bar nav active
         $('.navbar-nav li').removeClass('active');
         $('.navbar-nav li#' + $('body').attr('data-nav') + '-nav')

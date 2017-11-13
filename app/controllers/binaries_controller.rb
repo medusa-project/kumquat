@@ -10,7 +10,11 @@ class BinariesController < WebsiteController
   # Responds to GET /binaries/:id
   #
   def show
-    send_file(@binary.absolute_local_pathname)
+    if request.format == 'json'
+      render json: @binary.decorate
+    else
+      send_file(@binary.absolute_local_pathname)
+    end
   end
 
   private

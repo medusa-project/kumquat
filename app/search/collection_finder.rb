@@ -147,6 +147,7 @@ class CollectionFinder < AbstractFinder
             j.set! facet[:name] do
               j.terms do
                 j.field facet[:name]
+                j.size @bucket_limit
               end
             end
           end

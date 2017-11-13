@@ -100,6 +100,36 @@ module Admin
       @new_profile = MetadataProfile.new
     end
 
+    ##
+    # When an element's searchability status is changed, all items in all
+    # collections related to the profile need to be reindexed. This is not
+    # done automatically because elements are updated individually and each
+    # reindex could take a long time. So, after an element update, the user is
+    # notified via flash message that they will need to do this when they are
+    # ready.
+    #
+    # Responds to POST /admin/metadata-profiles/:id/reindex-items
+    #
+    def reindex_items
+      profile = MetadataProfile.find(params[:metadata_profile_id])
+      begin
+        profile.collections.each do |col|
+          ReindexItemsJob.perform_later(col)
+        end
+      rescue => e
+        handle_error(e)
+      else
+        flash['success'] = "Reindexing items in #{profile.collections.length} "\
+            "#{'collection'.pluralize(profile.collections.length)} in the "\
+            "background. This may take a while."
+      ensure
+        redirect_back fallback_location: admin_metadata_profile_path(profile)
+      end
+    end
+
+    ##
+    # Responds to /admin/metadata-profiles/:id
+    #
     def show
       @profile = MetadataProfile.find(params[:id])
 

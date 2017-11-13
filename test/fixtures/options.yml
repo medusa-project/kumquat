@@ -8,13 +8,13 @@ current_index_version:
   key: <%= Option::Keys::CURRENT_INDEX_VERSION %>
   value: '{"value" : 0}'
 
+default_result_window:
+  key: <%= Option::Keys::DEFAULT_RESULT_WINDOW %>
+  value: '{"value" : 20}'
+
 oai_pmh_enabled:
   key: <%= Option::Keys::OAI_PMH_ENABLED %>
   value: '{"value" : 1}'
-
-results_per_page:
-  key: <%= Option::Keys::RESULTS_PER_PAGE %>
-  value: '{"value" : 20}'
 
 website_intro_text:
   key: <%= Option::Keys::WEBSITE_INTRO_TEXT %>

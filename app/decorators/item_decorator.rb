@@ -23,54 +23,27 @@ class ItemDecorator < Draper::Decorator
   #   end
 
   def serializable_hash(opts)
-    struct = {
-        id: self.repository_id,
-        collection: self.collection ? self.collection.repository_id : nil,
-        page_number: self.page_number,
-        subpage_number: self.subpage_number,
-        variant: self.variant,
-        created_at: self.created_at,
-        updated_at: self.updated_at,
-        parent: self.parent ? self.parent.repository_id : nil,
-        representative_item: self.representative_item ?
-            self.representative_item.repository_id : nil,
-        elements: [],
-        children: []
+    {
+        class: Item.to_s,
+        id: object.repository_id,
+        public_uri: item_url(self),
+        parent_uri: object.parent ? item_url(object.parent, format: :json) : nil,
+        collection_uri: object.collection ?
+                        collection_url(object.collection, format: :json) : nil,
+        page_number: object.page_number,
+        subpage_number: object.subpage_number,
+        normalized_date: object.date,
+        normalized_latitude: object.latitude,
+        normalized_longitude: object.longitude,
+        variant: object.variant,
+        representative_item_uri: object.representative_item ?
+            item_url(object.representative_item, format: :json) : nil,
+        elements: object.elements_in_profile_order(only_visible: true).map(&:decorate),
+        binaries: object.binaries.map{ |b| binary_url(b, format: :json) },
+        children: object.items.map{ |i| item_url(i, format: :json) },
+        created_at: object.created_at,
+        updated_at: object.updated_at,
     }
-
-    if context[:web]
-      struct[:collection] = self.collection ? collection_url(self.collection) : nil
-      struct[:parent] = self.parent ? item_url(self.parent) : nil
-      struct[:representative_item] = self.representative_item ?
-          item_url(self.representative_item) : nil
-      struct[:binaries] = BinaryDecorator.decorate_collection(self.binaries)
-    end
-
-    # Populate the elements array
-    self.elements.each do |element|
-      profile_element = self.collection.metadata_profile.elements.
-          select{ |ed| ed.name == element.name }.first
-      struct[:elements] << {
-          name: element.name,
-          vocabulary: element.vocabulary&.name,
-          value: element.value.present? ? element.value : nil,
-          uri: element.uri.present? ? element.uri : nil,
-          mappings: {
-              dc: profile_element&.dc_map.present? ? profile_element.dc_map : nil,
-              dcterms: profile_element&.dcterms_map.present? ? profile_element.dcterms_map : nil
-          }
-      }
-    end
-
-    # Populate the children array
-    self.items.each do |subitem|
-      subitem = { id: subitem.repository_id }
-      if context[:web]
-        subitem[:url] = item_url(subitem)
-      end
-      struct[:children] << subitem
-    end
-    struct
   end
 
 end

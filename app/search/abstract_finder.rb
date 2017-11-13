@@ -2,6 +2,7 @@ class AbstractFinder
 
   def initialize
     @aggregations = true
+    @bucket_limit = Option::integer(Option::Keys::FACET_TERM_LIMIT)
     @filters = {} # Hash<String,Object>
     @limit = ElasticsearchClient::MAX_RESULT_WINDOW
     @orders = [] # Array<Hash<Symbol,String>> with :field and :direction keys
@@ -58,6 +59,15 @@ class AbstractFinder
   end
 
   ##
+  # @param limit [Integer] Maximum number of buckets that will be returned in a
+  #                        facet.
+  # @return [self]
+  #
+  def bucket_limit(limit)
+    @bucket_limit = limit
+  end
+
+  ##
   # @return [Enumerable<Facet>] Result facets.
   #
   def facets
@@ -75,6 +85,20 @@ class AbstractFinder
   def filter(field, value)
     @filters.merge!({ field => value })
     self
+  end
+
+  ##
+  # @return [Integer]
+  #
+  def get_limit
+    @limit
+  end
+
+  ##
+  # @return [Integer]
+  #
+  def get_start
+    @start
   end
 
   ##
@@ -107,7 +131,7 @@ class AbstractFinder
   # @return [Integer]
   #
   def page
-    (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
+    ((@start / @limit.to_f).ceil + 1 if @limit > 0) || 1
   end
 
   ##
@@ -129,7 +153,7 @@ class AbstractFinder
   # @return [self]
   #
   def query_all(query)
-    query('_all', query)
+    query(ElasticsearchIndex::SEARCH_ALL_FIELD, query)
     self
   end
 

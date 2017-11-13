@@ -43,7 +43,7 @@ class ItemTest < ActiveSupport::TestCase
     expected = %w(uuid parentId preservationMasterPathname
     preservationMasterFilename preservationMasterUUID accessMasterPathname
     accessMasterFilename accessMasterUUID variant pageNumber subpageNumber
-    latitude longitude contentdmAlias contentdmPointer IGNORE Title Coordinates
+    contentdmAlias contentdmPointer IGNORE Title Coordinates
     Creator Date\ Created Description lcsh:Subject tgm:Subject)
     actual = Item.tsv_columns(@item.collection.metadata_profile)
     assert_equal expected, actual
@@ -109,6 +109,7 @@ class ItemTest < ActiveSupport::TestCase
                  doc[Item::IndexFields::TOTAL_BYTE_SIZE]
     assert_equal @item.variant,
                  doc[Item::IndexFields::VARIANT]
+    assert_not_empty doc[Item::IndexFields::SEARCH_ALL]
 
     title = @item.element(:title)
     assert_equal title.value, doc[title.indexed_field]
@@ -562,22 +563,6 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal 'users', item.effective_denied_roles.first.key
   end
 
-  test 'save() should propagate allowed_roles and denied_roles into
-  effective_allowed_roles and effective_denied_roles of children' do
-    item = items(:sanborn_obj1_page1)
-    parent = item.parent
-
-    parent.allowed_roles << roles(:admins)
-    parent.denied_roles << roles(:users)
-
-    # Assert that they get propagated to child effective roles.
-    parent.save!
-    assert_equal 1, item.effective_allowed_roles.length
-    assert_equal 'admins', item.effective_allowed_roles.first.key
-    assert_equal 1, item.effective_denied_roles.length
-    assert_equal 'users', item.effective_denied_roles.first.key
-  end
-
   test 'save() should set normalized coordinates' do
     @item.element(:coordinates)&.destroy!
     @item.elements.build(name: 'coordinates',
@@ -682,10 +667,7 @@ class ItemTest < ActiveSupport::TestCase
     struct = @item.as_json
     struct['contentdm_alias'] = 'cats'
     struct['contentdm_pointer'] = 99
-    struct['date'] = '2014-03-01T16:25:15Z'
     struct['embed_tag'] = '<embed></embed>'
-    struct['latitude'] = 23.45
-    struct['longitude'] = -34.56
     struct['page_number'] = 60
     struct['published'] = true
     struct['representative_item_repository_id'] =
@@ -702,9 +684,6 @@ class ItemTest < ActiveSupport::TestCase
 
     assert_equal 'cats', @item.contentdm_alias
     assert_equal 99, @item.contentdm_pointer
-    assert_equal 2014, @item.date.year
-    assert_equal 23.45, @item.latitude
-    assert_equal -34.56, @item.longitude
     assert_equal 60, @item.page_number
     assert @item.published
     assert_equal 'd29950d0-c451-0133-1d17-0050569601ca-2',
@@ -721,7 +700,7 @@ class ItemTest < ActiveSupport::TestCase
 
   test 'update_from_json should raise an error with invalid data' do
     struct = @item.as_json
-    struct['latitude'] = 130.234
+    struct['variant'] = 'bogus'
 
     json = JSON.generate(struct)
 
@@ -737,8 +716,6 @@ class ItemTest < ActiveSupport::TestCase
     # technical elements
     row['contentdmAlias'] = 'cats'
     row['contentdmPointer'] = '123'
-    row['latitude'] = '45.52'
-    row['longitude'] = '-120.564'
     row['pageNumber'] = '3'
     row['subpageNumber'] = '1'
     row['variant'] = Item::Variants::PAGE
@@ -756,8 +733,6 @@ class ItemTest < ActiveSupport::TestCase
 
     assert_equal 'cats', @item.contentdm_alias
     assert_equal 123, @item.contentdm_pointer
-    assert_equal 45.52, @item.latitude
-    assert_equal -120.564, @item.longitude
     assert_equal 3, @item.page_number
     assert_equal 1, @item.subpage_number
     assert_equal Item::Variants::PAGE, @item.variant
@@ -791,6 +766,18 @@ class ItemTest < ActiveSupport::TestCase
     assert_raises ArgumentError do
       @item.update_from_tsv(row)
     end
+  end
+
+  # walk_tree()
+
+  test 'walk_tree() should walk the tree' do
+    count = 0
+    @item = items(:sanborn_obj1)
+    @item.walk_tree do |item|
+      assert_kind_of(Item, item)
+      count += 1
+    end
+    assert_equal count, @item.all_children.length
   end
 
 end

@@ -128,7 +128,7 @@ class Item < ApplicationRecord
     REPOSITORY_ID = 'repository_id'
     REPRESENTATIVE_FILENAME = 'representative_filename'
     REPRESENTATIVE_ITEM = 'representative_item_id'
-    SEARCH_ALL = '_all'
+    SEARCH_ALL = ElasticsearchIndex::SEARCH_ALL_FIELD
     # Concatenation of various compound object page components or path
     # components (see as_indexed_json()) used for sorting items grouped
     # structurally.
@@ -179,7 +179,7 @@ class Item < ApplicationRecord
   NON_DESCRIPTIVE_TSV_COLUMNS = %w(uuid parentId preservationMasterPathname
     preservationMasterFilename preservationMasterUUID accessMasterPathname
     accessMasterFilename accessMasterUUID variant pageNumber subpageNumber
-    latitude longitude contentdmAlias contentdmPointer IGNORE)
+    contentdmAlias contentdmPointer IGNORE)
 
   has_and_belongs_to_many :allowed_roles, class_name: 'Role',
                           association_foreign_key: :allowed_role_id
@@ -238,7 +238,10 @@ class Item < ApplicationRecord
 
   before_save :prune_identical_elements, :set_effective_roles,
               :set_normalized_coords, :set_normalized_date
-  after_update :propagate_heritable_properties
+  # This is commented out because, even though it has to happen, it is
+  # potentially very time-consuming. It will therefore need to be invoked in a
+  # background job whenever instances are updated.
+  #after_update :propagate_heritable_properties
   after_commit :index_in_elasticsearch, on: [:create, :update]
   after_commit :delete_from_elasticsearch, on: :destroy
 
@@ -252,7 +255,6 @@ class Item < ApplicationRecord
     ItemFinder.new.
         include_variants(*Variants::FILE).
         aggregations(false).
-        only_described(false).
         include_unpublished(true).
         search_children(true).
         count
@@ -265,7 +267,6 @@ class Item < ApplicationRecord
     ItemFinder.new.
         include_variants(Variants::FILE, Variants::DIRECTORY).
         aggregations(false).
-        only_described(false).
         search_children(true).
         include_unpublished(true).
         count
@@ -277,7 +278,6 @@ class Item < ApplicationRecord
   def self.num_objects
     num_free_form_files + ItemFinder.new.
         aggregations(false).
-        only_described(false).
         include_unpublished(true).
         search_children(false).
         exclude_variants(Variants::FILE, Variants::DIRECTORY).
@@ -324,6 +324,7 @@ class Item < ApplicationRecord
   ##
   # @return [Enumerable<Item>] All items that are children of the instance, at
   #                            any level in the tree.
+  # @see walk_tree()
   #
   def all_children
     sql = 'WITH RECURSIVE q AS (
@@ -391,6 +392,7 @@ class Item < ApplicationRecord
   #
   def as_indexed_json(options = {})
     doc = {}
+    search_all_values = []
     doc[IndexFields::COLLECTION] = self.collection_repository_id
     doc[IndexFields::DATE] = self.date.utc.iso8601 if self.date
     doc[IndexFields::DESCRIBED] = self.described?
@@ -421,6 +423,15 @@ class Item < ApplicationRecord
       # ES will automatically create a one or more multi fields for this.
       # See: https://www.elastic.co/guide/en/elasticsearch/reference/0.90/mapping-multi-field-type.html
       doc[element.indexed_field] = element.value
+
+      # If the element is searchable in the collection's metadata profile, or
+      # if the collection doesn't have a metadata profile, add its value to the
+      # search-all field.
+      if !self.collection.metadata_profile or
+          self.collection.metadata_profile.elements.
+              select{ |mpe| mpe.name == element.name }.first&.searchable
+        search_all_values << doc[element.indexed_field]
+      end
     end
 
     # We also need to index parent metadata fields. These are needed when we
@@ -431,6 +442,8 @@ class Item < ApplicationRecord
         doc[element.parent_indexed_field] = element.value
       end
     end
+
+    doc[IndexFields::SEARCH_ALL] = search_all_values.join(' ')
 
     doc
   end
@@ -674,13 +687,19 @@ class Item < ApplicationRecord
   end
 
   ##
+  # @param options [Hash]
+  # @option options [Boolean] :only_visible
   # @return [Enumerable<ItemElement>] The instance's ItemElements in the order
   #                                   of the elements in the collection's
   #                                   metadata profile.
   #
-  def elements_in_profile_order
+  def elements_in_profile_order(options = {})
     elements = []
-    self.collection.metadata_profile.elements.each do |mpe|
+    mp_elements = self.collection.metadata_profile.elements
+    if options[:only_visible]
+      mp_elements = mp_elements.where(visible: true)
+    end
+    mp_elements.each do |mpe|
       element = self.element(mpe.name)
       elements << element if element
     end
@@ -830,10 +849,10 @@ class Item < ApplicationRecord
   #
   def propagate_heritable_properties(task = nil)
     ActiveRecord::Base.transaction do
-      # Save callbacks will call this method on direct children, so there is
-      # no need to crawl deeper levels of the child subtree.
       num_items = self.items.count
-      self.items.each_with_index do |item, index|
+
+      self.walk_tree do |item, index|
+        # Propagation will be carried out in before_save callbacks.
         item.save!
 
         if task and index % 10 == 0
@@ -956,11 +975,11 @@ class Item < ApplicationRecord
       self.contentdm_alias = struct['contentdm_alias']
       self.contentdm_pointer = struct['contentdm_pointer']
       # created_at is not modifiable
-      self.date = TimeUtil.string_date_to_time(struct['date'])
+      # date is not modifiable
       self.embed_tag = struct['embed_tag']
       # id is not modifiable
-      self.latitude = struct['latitude']
-      self.longitude = struct['longitude']
+      # latitude is not modifiable
+      # longitude is not modifiable
       self.page_number = struct['page_number']
       # parent_repository_id is not modifiable
       self.published = struct['published']
@@ -1028,15 +1047,6 @@ class Item < ApplicationRecord
       # CONTENTdm pointer ("CISOPTR")
       self.contentdm_pointer = row['contentdmPointer'].strip if row['contentdmPointer']
 
-      # date (normalized)
-      self.date = TimeUtil.string_date_to_time(row['normalizedDate'])
-
-      # latitude
-      self.latitude = row['latitude'].strip.to_f if row['latitude']
-
-      # longitude
-      self.longitude = row['longitude'].strip.to_f if row['longitude']
-
       # page number
       self.page_number = row['pageNumber'].strip.to_i if row['pageNumber']
 
@@ -1080,6 +1090,15 @@ class Item < ApplicationRecord
       end
       self.save!
     end
+  end
+
+  ##
+  # Accepts a block to perform on the instance and all subitems in the tree.
+  #
+  def walk_tree(&block)
+    index = 0
+    yield(self, index)
+    walk(self, index, &block)
   end
 
   private
@@ -1381,6 +1400,14 @@ class Item < ApplicationRecord
               self.title.present? ? zero_pad_numbers(self.title.downcase) : sort_last_token)
     end
     key
+  end
+
+  def walk(item, index, &block)
+    item.items.each do |subitem|
+      index += 1
+      yield(subitem, index)
+      walk(subitem, index, &block)
+    end
   end
 
   def zero_pad_numbers(str, padding = 16)

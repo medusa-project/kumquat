@@ -54,11 +54,6 @@ Rails.application.routes.draw do
   #     resources :products
   #   end
 
-  concern :publishable do
-    patch 'publish'
-    patch 'unpublish'
-  end
-
   root 'landing#index'
 
   # Error routes that work in conjunction with
@@ -139,7 +134,9 @@ Rails.application.routes.draw do
       match '/items', to: 'items#destroy_all', via: :delete,
             as: 'destroy_all_items'
       match '/items/update', to: 'items#update_all', via: :post
-      resources :items, concerns: :publishable do
+      match '/items/publish', to: 'items#publish', via: :patch
+      match '/items/unpublish', to: 'items#unpublish', via: :patch
+      resources :items do
         match '/purge-cached-images', to: 'items#purge_cached_images',
               via: :post
       end
@@ -163,6 +160,8 @@ Rails.application.routes.draw do
       match '/clone', to: 'metadata_profiles#clone', via: :patch, as: 'clone'
       match '/delete-elements', to: 'metadata_profiles#delete_elements',
             via: :post, as: 'delete_elements'
+      match '/reindex-items', to: 'metadata_profiles#reindex_items',
+            via: :post, as: 'reindex_items'
     end
     match '/metadata-profiles/import', to: 'metadata_profiles#import',
           via: :post, as: 'metadata_profile_import'

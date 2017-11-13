@@ -33,7 +33,8 @@
       <th style="width: 1px"></th>
       <th>Element</th>
       <th>Description</th>
-      <th>Occurrences</th>
+      <th>Metadata Profile Occurrences</th>
+      <th>Entity Occurrences</th>
     </tr>
   </thead>
   <tbody>
@@ -62,7 +63,8 @@
         </td>
         <td><%= row['name'] %></td>
         <td><%= row['description'] %></td>
-        <td><%= number_with_delimiter(row['count']) %></td>
+        <td><%= number_with_delimiter(row['metadata_profile_count']) %></td>
+        <td><%= number_with_delimiter(row['entity_count']) %></td>
       </tr>
     <% end %>
   </tbody>

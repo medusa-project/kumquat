@@ -13,7 +13,7 @@ class EntityFinder < AbstractFinder
     super
     @exclude_item_variants = []
     @include_unpublished = false
-    @only_described = true
+    @only_described = false
   end
 
   ##
@@ -154,6 +154,7 @@ class EntityFinder < AbstractFinder
             j.set! field.indexed_keyword_field do
               j.terms do
                 j.field field.indexed_keyword_field
+                j.size @bucket_limit
               end
             end
           end

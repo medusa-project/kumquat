@@ -13,7 +13,7 @@ class ItemFinder < AbstractFinder
     @include_unpublished = false
     @include_variants = []
     @item_set = nil
-    @only_described = true
+    @only_described = false
     @parent_item = nil
     @search_children = false
 
@@ -309,6 +309,7 @@ class ItemFinder < AbstractFinder
             j.set! field.indexed_keyword_field do
               j.terms do
                 j.field field.indexed_keyword_field
+                j.size @bucket_limit
               end
             end
           end

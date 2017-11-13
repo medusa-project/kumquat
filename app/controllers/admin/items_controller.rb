@@ -51,7 +51,7 @@ module Admin
       item_set = ItemSet.find(params[:item_set])
       raise ActiveRecord::RecordNotFound unless item_set
 
-      finder = item_finder_for(collection)
+      finder = querying_item_finder_for(collection)
       results = finder.to_a
       count = finder.count
 
@@ -63,7 +63,7 @@ module Admin
           item_set.save!
         end
       rescue => e
-        flash['error'] = "#{e}"
+        handle_error(e)
       else
         flash['success'] = "Added #{count} items to #{item_set}."
       ensure
@@ -80,16 +80,17 @@ module Admin
       col = Collection.find_by_repository_id(params[:collection_id])
       raise ActiveRecord::RecordNotFound unless col
       begin
-        BatchChangeItemMetadataJob.perform_later(col,
+        finder = editing_item_finder_for(col)
+        BatchChangeItemMetadataJob.perform_later(finder.to_a.select{ |e| e },
                                                  params[:element].to_s,
                                                  params[:replace_values].map(&:to_unsafe_hash))
       rescue => e
         handle_error(e)
-        redirect_to admin_collection_edit_all_items_url(col)
       else
         flash['success'] = 'Batch-changing metadata values in the background. '\
         'This should take less than a minute.'
-        redirect_to admin_collection_edit_all_items_url(col)
+      ensure
+        redirect_back fallback_location: admin_collection_items_path(col)
       end
     end
 
@@ -103,10 +104,10 @@ module Admin
         PurgeItemsJob.perform_later(col.repository_id)
       rescue => e
         handle_error(e)
-        redirect_to admin_collection_items_url(col)
       else
         flash['success'] = 'Purging items in the background. '\
             'This should take less than a minute.'
+      ensure
         redirect_to admin_collection_items_url(col)
       end
     end
@@ -146,7 +147,6 @@ module Admin
                    @item_set.items.pluck(:repository_id)).
             aggregations(false).
             include_unpublished(true).
-            only_described(false).
             order(Item::IndexFields::STRUCTURAL_SORT).
             start(@start).
             limit(@limit)
@@ -158,7 +158,6 @@ module Admin
             aggregations(false).
             include_children_in_results(true).
             include_unpublished(true).
-            only_described(false).
             order(Item::IndexFields::STRUCTURAL_SORT).
             start(@start).
             limit(@limit)
@@ -185,9 +184,9 @@ module Admin
       raise ActiveRecord::RecordNotFound unless @collection
 
       @start = params[:start] ? params[:start].to_i : 0
-      @limit = Option::integer(Option::Keys::RESULTS_PER_PAGE)
+      @limit = Option::integer(Option::Keys::DEFAULT_RESULT_WINDOW)
 
-      finder = item_finder_for(@collection, @start, @limit)
+      finder = querying_item_finder_for(@collection, @start, @limit)
       @items = finder.to_a
       @facets = finder.facets
 
@@ -266,16 +265,25 @@ module Admin
       col = Collection.find_by_repository_id(params[:collection_id])
       raise ActiveRecord::RecordNotFound unless col
       begin
-        MigrateItemMetadataJob.perform_later(col, params[:source_element],
+        finder = editing_item_finder_for(col)
+        MigrateItemMetadataJob.perform_later(finder.to_a.select{ |e| e },
+                                             params[:source_element],
                                              params[:dest_element])
       rescue => e
         handle_error(e)
-        redirect_to admin_collection_edit_all_items_url(col)
       else
         flash['success'] = 'Migrating metadata elements in the background. '\
         'This should take less than a minute.'
-        redirect_to admin_collection_edit_all_items_url(col)
+      ensure
+        redirect_back fallback_location: admin_collection_items_path(col)
       end
+    end
+
+    ##
+    # Responds to PATCH /admin/:collections/:collection_id/items/publish
+    #
+    def publish
+      publish_or_unpublish(true)
     end
 
     ##
@@ -306,7 +314,8 @@ module Admin
       col = Collection.find_by_repository_id(params[:collection_id])
       raise ActiveRecord::RecordNotFound unless col
       begin
-        ReplaceItemMetadataJob.perform_later(col,
+        finder = editing_item_finder_for(col)
+        ReplaceItemMetadataJob.perform_later(finder.to_a.select{ |e| e },
                                              params[:matching_mode],
                                              params[:find_value],
                                              params[:element],
@@ -314,11 +323,11 @@ module Admin
                                              params[:replace_value])
       rescue => e
         handle_error(e)
-        redirect_to admin_collection_edit_all_items_url(col)
       else
         flash['success'] = 'Replacing metadata values in the background. '\
         'This should take less than a minute.'
-        redirect_to admin_collection_edit_all_items_url(col)
+      ensure
+        redirect_back fallback_location: admin_collection_items_path(col)
       end
     end
 
@@ -354,12 +363,19 @@ module Admin
                                    params[:options].to_unsafe_hash)
       rescue => e
         handle_error(e)
-        redirect_to admin_collection_items_url(col)
       else
         flash['success'] = 'Importing items in the background. This '\
         'may take a while.'
+      ensure
         redirect_to admin_collection_items_url(col)
       end
+    end
+
+    ##
+    # Responds to PATCH /admin/:collections/:collection_id/items/unpublish
+    #
+    def unpublish
+      publish_or_unpublish(false)
     end
 
     def update
@@ -400,9 +416,9 @@ module Admin
         end
       rescue => e
         handle_error(e)
-        redirect_to edit_admin_collection_item_path(item.collection, item)
       else
         flash['success'] = "Item \"#{item.title}\" updated."
+      ensure
         redirect_to edit_admin_collection_item_path(item.collection, item)
       end
     end
@@ -446,14 +462,24 @@ module Admin
 
     private
 
-    def item_finder_for(collection, start = 0,
-                        limit = ElasticsearchClient::MAX_RESULT_WINDOW)
+    def editing_item_finder_for(collection)
       ItemFinder.new.
           collection(collection).
           query(params[:df], params[:q]).
           search_children(false).
           include_unpublished(true).
-          only_described(false).
+          include_children_in_results(!collection.free_form?).
+          facet_filters(params[:fq]).
+          aggregations(false)
+    end
+
+    def querying_item_finder_for(collection, start = 0,
+                                 limit = ElasticsearchClient::MAX_RESULT_WINDOW)
+      ItemFinder.new.
+          collection(collection).
+          query(params[:df], params[:q]).
+          search_children(false).
+          include_unpublished(true).
           exclude_variants(*Item::Variants::non_filesystem_variants).
           facet_filters(params[:fq]).
           order(params[:sort]).
@@ -464,6 +490,28 @@ module Admin
     def modify_items_rbac
       redirect_to(admin_root_url) unless
           current_user.can?(Permission::Permissions::MODIFY_ITEMS)
+    end
+
+    def publish_or_unpublish(publish)
+      col = Collection.find_by_repository_id(params[:collection_id])
+      raise ActiveRecord::RecordNotFound unless col
+
+      begin
+        finder = editing_item_finder_for(col)
+        items = finder.to_a.select{ |i| i }
+        if publish
+          PublishItemsJob.perform_later(items)
+        else
+          UnpublishItemsJob.perform_later(items)
+        end
+      rescue => e
+        handle_error(e)
+      else
+        flash['success'] = "#{publish ? 'P' : 'Unp'}ublishing #{items.length} "\
+            "items in the background."
+      ensure
+        redirect_back fallback_location: admin_collection_items_path(col)
+      end
     end
 
     def purge_items_rbac

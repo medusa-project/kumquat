@@ -37,7 +37,6 @@ module Api
           aggregations(false).
           search_children(true).
           include_unpublished(true).
-          only_described(false).
           facet_filters(params[:fq]).
           order(params[:sort]).
           start(@start).

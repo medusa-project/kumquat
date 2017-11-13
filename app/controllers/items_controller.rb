@@ -9,6 +9,8 @@ class ItemsController < WebsiteController
     FAVORITES = 3
   end
 
+  MAX_RESULT_WINDOW = 100
+  MIN_RESULT_WINDOW = 10
   PERMITTED_PARAMS = [:_, :collection_id, :df, :display, { fq: [] }, :id, :q,
                       :sort, :start, :utf8]
 
@@ -210,15 +212,14 @@ class ItemsController < WebsiteController
       raise ActiveRecord::RecordNotFound unless @collection
     end
 
-    @start = params[:start].to_i
-    params[:start] = @start
-    @limit = Option::integer(Option::Keys::RESULTS_PER_PAGE)
     finder = item_finder_for(params)
     @items = finder.to_a
     @facets = finder.facets
 
     @current_page = finder.page
     @count = finder.count
+    @start = finder.get_start
+    @limit = finder.get_limit
     @num_results_shown = [@limit, @count].min
     @metadata_profile = @collection&.effective_metadata_profile ||
         MetadataProfile.default
@@ -235,7 +236,6 @@ class ItemsController < WebsiteController
         query_all(params[:q]).
         aggregations(false).
         search_children(true).
-        only_described(true).
         order(Item::IndexFields::STRUCTURAL_SORT).
         start(params[:download_start]).
         limit(params[:limit] || MedusaDownloaderClient::BATCH_SIZE)
@@ -255,11 +255,12 @@ class ItemsController < WebsiteController
       format.json do
         render json: {
             start: @start,
+            limit: @limit,
             numResults: @count,
             results: @items.map { |item|
               {
                   id: item.repository_id,
-                  url: item_url(item)
+                  url: item_url(item, format: :json)
               }
             }
           }
@@ -350,7 +351,7 @@ class ItemsController < WebsiteController
           if results_url.present?
             query = UrlUtil.parse_query(results_url).symbolize_keys
             query[:start] = session[:start].to_i if query[:start].blank?
-            limit = Option::integer(Option::Keys::RESULTS_PER_PAGE)
+            limit = Option::integer(Option::Keys::DEFAULT_RESULT_WINDOW)
             if session[:first_result_id] == @root_item.repository_id
               query[:start] = query[:start].to_i - limit / 2.0
             elsif session[:last_result_id] == @root_item.repository_id
@@ -372,7 +373,7 @@ class ItemsController < WebsiteController
       end
       format.atom
       format.json do
-        render json: @item.decorate(context: { web: true })
+        render json: @item.decorate
       end
       format.pdf do
         # PDF download is only available for compound objects.
@@ -575,8 +576,13 @@ class ItemsController < WebsiteController
     session[:q] = query[:q]
     session[:fq] = query[:fq]
     session[:sort] = query[:sort] if query[:sort].present?
-    session[:start] = query[:start].to_i if query[:start].present?
+    session[:start] = query[:start].to_i
     session[:start] = 0 if session[:start].to_i < 0
+    session[:limit] = query[:limit].to_i
+    if session[:limit].to_i < MIN_RESULT_WINDOW or
+        session[:limit].to_i > MAX_RESULT_WINDOW
+      session[:limit] = Option::integer(Option::Keys::DEFAULT_RESULT_WINDOW)
+    end
 
     # display=leaves is used in free-form collections to show files flattened.
     if params[:display] == 'leaves'
@@ -586,11 +592,10 @@ class ItemsController < WebsiteController
           facet_filters(session[:fq]).
           query_all(session[:q]).
           search_children(true).
-          only_described(true).
           include_variants(Item::Variants::FILE).
           order(session[:sort]).
           start(session[:start]).
-          limit(Option::integer(Option::Keys::RESULTS_PER_PAGE))
+          limit(session[:limit])
     else
       ItemFinder.new.
           user_roles(request_roles).
@@ -598,13 +603,11 @@ class ItemsController < WebsiteController
           facet_filters(session[:fq]).
           query_all(session[:q]).
           search_children(@collection&.package_profile != PackageProfile::FREE_FORM_PROFILE).
-          only_described(true).
           exclude_variants(*Item::Variants::non_filesystem_variants).
           order(session[:sort]).
           start(session[:start]).
           limit(@collection&.free_form? ?
-                    ElasticsearchClient::MAX_RESULT_WINDOW :
-                    Option::integer(Option::Keys::RESULTS_PER_PAGE))
+                    ElasticsearchClient::MAX_RESULT_WINDOW : session[:limit])
     end
   end
 

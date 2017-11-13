@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171003190136) do
+ActiveRecord::Schema.define(version: 20171103200514) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -238,7 +238,6 @@ ActiveRecord::Schema.define(version: 20171003190136) do
     t.string "contentdm_alias"
     t.string "embed_tag"
     t.integer "representative_binary_id"
-    t.string "folder_name"
     t.index ["collection_repository_id"], name: "index_items_on_collection_identifier"
     t.index ["parent_repository_id"], name: "index_items_on_parent_identifier"
     t.index ["published"], name: "index_items_on_published"

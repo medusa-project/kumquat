@@ -103,11 +103,11 @@
       </td>
     </tr>
     <tr>
-      <td><%= label_tag("options[#{Option::Keys::RESULTS_PER_PAGE}]",
+      <td><%= label_tag("options[#{Option::Keys::DEFAULT_RESULT_WINDOW}]",
                         'Results Per Page') %></td>
       <td>
-        <%= number_field_tag("options[#{Option::Keys::RESULTS_PER_PAGE}]",
-                             Option::integer(Option::Keys::RESULTS_PER_PAGE),
+        <%= number_field_tag("options[#{Option::Keys::DEFAULT_RESULT_WINDOW}]",
+                             Option::integer(Option::Keys::DEFAULT_RESULT_WINDOW),
                              class: 'form-control') %>
       </td>
     </tr>

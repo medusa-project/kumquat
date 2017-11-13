@@ -104,7 +104,7 @@ class Collection < ApplicationRecord
     REPRESENTATIVE_IMAGE = 'representative_image'
     REPRESENTATIVE_ITEM = 'representative_item'
     RESOURCE_TYPES = 'resource_types'
-    SEARCH_ALL = '_all'
+    SEARCH_ALL = ElasticsearchIndex::SEARCH_ALL_FIELD
     TITLE = CollectionElement.new(name: 'title').indexed_keyword_field
   end
 
@@ -206,6 +206,7 @@ class Collection < ApplicationRecord
   #
   def as_indexed_json(options = {})
     doc = {}
+    search_all_values = []
     doc[IndexFields::ACCESS_SYSTEMS] = self.access_systems
     doc[IndexFields::ACCESS_URL] = self.access_url
     doc[IndexFields::ALLOWED_ROLES] = self.allowed_roles.pluck(:key)
@@ -224,10 +225,20 @@ class Collection < ApplicationRecord
     doc[IndexFields::RESOURCE_TYPES] = self.resource_types
 
     self.elements.each do |element|
-      # ES will automatically create a one or more multi fields for this.
+      # ES will automatically create one or more multi fields for this.
       # See: https://www.elastic.co/guide/en/elasticsearch/reference/0.90/mapping-multi-field-type.html
       doc[element.indexed_field] = element.value
+
+      # If the element is searchable in the collection's metadata profile, or
+      # if the collection doesn't have a metadata profile, add its value to the
+      # search-all field.
+      if !self.metadata_profile or self.metadata_profile.elements.
+          select{ |mpe| mpe.name == element.name }.first&.searchable
+        search_all_values << doc[element.indexed_field]
+      end
     end
+
+    doc[IndexFields::SEARCH_ALL] = search_all_values.join(' ')
 
     doc
   end
@@ -302,6 +313,26 @@ class Collection < ApplicationRecord
       end
     end
     item
+  end
+
+  ##
+  # @param options [Hash]
+  # @option options [Boolean] :only_visible
+  # @return [Enumerable<ItemElement>] The instance's CollectionElements in the
+  #                                   order of the elements in the instance's
+  #                                   metadata profile.
+  #
+  def elements_in_profile_order(options = {})
+    elements = []
+    mp_elements = self.metadata_profile.elements
+    if options[:only_visible]
+      mp_elements = mp_elements.where(visible: true)
+    end
+    mp_elements.each do |mpe|
+      element = self.element(mpe.name)
+      elements << element if element
+    end
+    elements
   end
 
   ##
@@ -399,7 +430,6 @@ class Collection < ApplicationRecord
           aggregations(false).
           search_children(true).
           include_unpublished(true).
-          only_described(false).
           limit(0).
           count
     end
@@ -416,7 +446,6 @@ class Collection < ApplicationRecord
           @num_objects = ItemFinder.new.
               collection(self).
               aggregations(false).
-              only_described(false).
               include_unpublished(true).
               include_variants(*Item::Variants::FILE).
               count
@@ -424,7 +453,6 @@ class Collection < ApplicationRecord
           @num_objects = ItemFinder.new.
               collection(self).
               aggregations(false).
-              only_described(false).
               include_unpublished(true).
               search_children(false).
               count
@@ -444,14 +472,12 @@ class Collection < ApplicationRecord
           @num_public_objects = ItemFinder.new.
               collection(self).
               aggregations(false).
-              only_described(true).
               include_variants(*Item::Variants::FILE).
               count
         else
           @num_public_objects = ItemFinder.new.
               collection(self).
               aggregations(false).
-              only_described(true).
               search_children(false).
               count
       end
