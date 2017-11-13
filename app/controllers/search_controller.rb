@@ -12,7 +12,7 @@ class SearchController < WebsiteController
   #
   def search
     @start = params[:start].to_i
-    @limit = Option::integer(Option::Keys::RESULTS_PER_PAGE)
+    @limit = Option::integer(Option::Keys::DEFAULT_RESULT_WINDOW)
 
     # EntityFinder will search across entity classes and return both Items and
     # Collections.

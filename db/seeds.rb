@@ -19,7 +19,7 @@ Option.set(Option::Keys::WEBSITE_NAME,
                'My Great Organization Digital Collections')
 Option.set(Option::Keys::WEBSITE_INTRO_TEXT,
                'Behold our great collections.')
-Option.set(Option::Keys::RESULTS_PER_PAGE, 30)
+Option.set(Option::Keys::DEFAULT_RESULT_WINDOW, 30)
 
 # Roles
 roles = {}

@@ -351,7 +351,7 @@ class ItemsController < WebsiteController
           if results_url.present?
             query = UrlUtil.parse_query(results_url).symbolize_keys
             query[:start] = session[:start].to_i if query[:start].blank?
-            limit = Option::integer(Option::Keys::RESULTS_PER_PAGE)
+            limit = Option::integer(Option::Keys::DEFAULT_RESULT_WINDOW)
             if session[:first_result_id] == @root_item.repository_id
               query[:start] = query[:start].to_i - limit / 2.0
             elsif session[:last_result_id] == @root_item.repository_id
@@ -581,7 +581,7 @@ class ItemsController < WebsiteController
     session[:limit] = query[:limit].to_i
     if session[:limit].to_i < MIN_RESULT_WINDOW or
         session[:limit].to_i > MAX_RESULT_WINDOW
-      session[:limit] = Option::integer(Option::Keys::RESULTS_PER_PAGE)
+      session[:limit] = Option::integer(Option::Keys::DEFAULT_RESULT_WINDOW)
     end
 
     # display=leaves is used in free-form collections to show files flattened.

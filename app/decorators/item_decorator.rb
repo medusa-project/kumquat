@@ -23,7 +23,7 @@ class ItemDecorator < Draper::Decorator
   #   end
 
   def serializable_hash(opts)
-    struct = {
+    {
         id: object.repository_id,
         public_uri: item_url(self),
         parent_uri: object.parent ? item_url(object.parent, format: :json) : nil,
@@ -38,24 +38,11 @@ class ItemDecorator < Draper::Decorator
         representative_item_uri: object.representative_item ?
             item_url(object.representative_item, format: :json) : nil,
         elements: object.elements_in_profile_order(only_visible: true).map(&:decorate),
-        children: [],
+        binaries: object.binaries.map{ |b| binary_url(b, format: :json) },
+        children: object.items.map{ |i| item_url(i, format: :json) },
         created_at: object.created_at,
         updated_at: object.updated_at,
     }
-
-    if context[:web]
-      struct[:binaries] = object.binaries.map{ |b| binary_url(b, format: :json) }
-    end
-
-    # Populate the children array
-    object.items.each do |subitem|
-      subitem = { id: subitem.repository_id }
-      if context[:web]
-        subitem[:uri] = item_url(subitem, format: :json)
-      end
-      struct[:children] << subitem
-    end
-    struct
   end
 
 end
