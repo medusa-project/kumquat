@@ -16,6 +16,7 @@ class BinaryDecorator < Draper::Decorator
 
   def serializable_hash(opts)
     {
+        class: Binary.to_s,
         id: binary.cfs_file_uuid,
         content_uri: binary_url(object),
         item_uri: item_url(object.item, format: :json),

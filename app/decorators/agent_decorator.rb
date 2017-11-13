@@ -16,9 +16,11 @@ class AgentDecorator < Draper::Decorator
 
   def serializable_hash(opts)
     {
-        name: self.name,
-        description: self.description,
-        uris: self.agent_uris.pluck(:uri),
+        class: Agent.to_s,
+        id: object.id,
+        name: object.name,
+        description: object.description,
+        uris: object.agent_uris.pluck(:uri),
         agent_relations: context[:agent_relations].map{ |r|
           {
               subject: {
@@ -35,12 +37,8 @@ class AgentDecorator < Draper::Decorator
               }
           }
         },
-        related_collections: context[:related_collections].map{ |c|
-          { uri: collection_url(c) }
-        },
-        related_objects: context[:related_objects].map{ |o|
-          { uri: item_url(o) }
-        }
+        related_collections: context[:related_collections].map{ |c| collection_url(c) },
+        related_objects: context[:related_objects].map{ |o| item_url(o) }
     }
   end
 

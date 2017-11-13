@@ -24,6 +24,7 @@ class ItemDecorator < Draper::Decorator
 
   def serializable_hash(opts)
     {
+        class: Item.to_s,
         id: object.repository_id,
         public_uri: item_url(self),
         parent_uri: object.parent ? item_url(object.parent, format: :json) : nil,
