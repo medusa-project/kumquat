@@ -2,6 +2,7 @@ class AbstractFinder
 
   def initialize
     @aggregations = true
+    @bucket_limit = Option::integer(Option::Keys::FACET_TERM_LIMIT)
     @filters = {} # Hash<String,Object>
     @limit = ElasticsearchClient::MAX_RESULT_WINDOW
     @orders = [] # Array<Hash<Symbol,String>> with :field and :direction keys
@@ -55,6 +56,15 @@ class AbstractFinder
       end
     end
     self
+  end
+
+  ##
+  # @param limit [Integer] Maximum number of buckets that will be returned in a
+  #                        facet.
+  # @return [self]
+  #
+  def bucket_limit(limit)
+    @bucket_limit = limit
   end
 
   ##
