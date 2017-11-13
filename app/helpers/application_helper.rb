@@ -514,7 +514,7 @@ module ApplicationHelper
       </div>
       <div class=\"panel-body\">
         <ul>"
-    facet.terms[0..Option::integer(Option::Keys::FACET_TERM_LIMIT)].each do |term|
+    facet.terms.each do |term|
       checked = (params[:fq] and params[:fq].include?(term.query)) ?
                     'checked' : nil
       checked_params = term.removed_from_params(permitted_params.deep_dup).except(:start)
