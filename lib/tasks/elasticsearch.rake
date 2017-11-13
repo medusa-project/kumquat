@@ -26,6 +26,11 @@ namespace :elasticsearch do
       end
     end
 
+    desc 'Print the current schema version'
+    task :current_version => :environment do
+      puts ElasticsearchIndex.current_index_version
+    end
+
     desc 'Delete an index by name'
     task :delete, [:name] => :environment do |task, args|
       ElasticsearchClient.instance.delete_index(args[:name])
