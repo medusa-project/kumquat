@@ -374,7 +374,7 @@ class ItemsController < WebsiteController
       end
       format.atom
       format.json do
-        render json: @item.decorate(context: { web: true })
+        render json: @item.decorate
       end
       format.pdf do
         # PDF download is only available for compound objects.
