@@ -72,6 +72,9 @@
     </div>
   </section>
 
-  <%= f.submit(context == :new ? 'Create Role' : 'Save Changes',
-               class: 'btn btn-primary') %>
+  <div class="pull-right">
+    <%= f.submit(context == :new ? 'Create Role' : 'Save Changes',
+                 class: 'btn btn-primary') %>
+  </div>
+
 <% end %>

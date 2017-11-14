@@ -28,7 +28,9 @@
     <% end %>
   </div>
 
-  <%= f.submit(context == :new ? 'Create User' : 'Save Changes',
-               class: 'btn btn-primary') %>
+  <div class="pull-right">
+    <%= f.submit(context == :new ? 'Create User' : 'Save Changes',
+                 class: 'btn btn-primary') %>
+  </div>
 
 <% end %>

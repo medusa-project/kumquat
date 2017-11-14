@@ -1,6 +1,6 @@
 <%= form_for([:admin, @item.collection, @item]) do |f| %>
   <div class="pull-right">
-    <%= f.submit 'Save', class: 'btn btn-primary' %>
+    <%= f.submit 'Save Changes', class: 'btn btn-primary' %>
   </div>
 
   <ul class="nav nav-tabs" role="tablist">
@@ -147,6 +147,8 @@
 
   </div>
 
-  <%= f.submit 'Save', class: 'btn btn-primary' %>
+  <div class="pull-right">
+    <%= f.submit 'Save Changes', class: 'btn btn-primary' %>
+  </div>
 
 <% end %>
