@@ -231,11 +231,31 @@ module ItemsHelper
   #
   # @param item [Item]
   # @return [String]
+  # @see [Getting Started With Cards](https://developer.twitter.com/en/docs/tweets/optimize-with-cards/guides/getting-started)
   # @see [Open Graph Protocol](http://ogp.me)
   # @see [Facebook Sharing Best Practices](https://developers.facebook.com/docs/sharing/best-practices)
   #
   def item_meta_tags(item)
+    # N.B.: Minimum Twitter image size is 280x150 and maximum byte size is 1MB.
+    image_url = iiif_image_url(item, :full, 800)
+
+    # Twitter tags
     html = sprintf(
+        '<meta name="twitter:card" content="%s"/>
+        <meta name="twitter:title" content="%s" />
+        <meta name="twitter:description" content="%s" />',
+        image_url ? 'summary_large_image' : 'summary',
+        truncate(item.title, length: 70),
+        truncate(item.description, length: 200))
+    if image_url
+      html += "\n"
+      html += sprintf('<meta name="twitter:image:src" content="%s" />',
+                      image_url)
+    end
+
+    # OpenGraph tags, used notably by Facebook, but Twitter also falls back to
+    # them
+    html += sprintf(
         '<meta property="og:title" content="%s" />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="%s" />
