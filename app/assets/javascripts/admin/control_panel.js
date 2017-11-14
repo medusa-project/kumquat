@@ -17,6 +17,16 @@ var PTControlPanel = function() {
         if (last_tab) {
             $('a[href="' + last_tab + '"]').click();
         }
+
+        // If the URL has a fragment, select the corresponding tab.
+        if (window.location.hash) {
+            $('a[href="' + window.location.hash + '"]').click();
+            // Scroll the page to the top. Have to do this on a timer because
+            // the tab-showing triggered by the above click is asynchronous.
+            setTimeout(function() {
+                document.body.scrollTop = document.documentElement.scrollTop = 0;
+            }, 50);
+        }
     };
 
 };
