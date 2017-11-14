@@ -231,11 +231,33 @@ module ItemsHelper
   #
   # @param item [Item]
   # @return [String]
+  # @see [Getting Started With Cards](https://developer.twitter.com/en/docs/tweets/optimize-with-cards/guides/getting-started)
   # @see [Open Graph Protocol](http://ogp.me)
   # @see [Facebook Sharing Best Practices](https://developers.facebook.com/docs/sharing/best-practices)
   #
   def item_meta_tags(item)
-    html = sprintf(
+    # N.B.: Minimum Twitter image size is 300x157 and maximum size is
+    # 4096x4096 / 5MB.
+    image_url = iiif_image_url(item, :full, 1600)
+
+    html = ''
+
+    # Twitter tags
+    html += sprintf(
+        '<meta name="twitter:card" content="%s"/>
+        <meta name="twitter:title" content="%s" />
+        <meta name="twitter:description" content="%s" />',
+        image_url ? 'summary_large_image' : 'summary',
+        truncate(item.title, length: 70),
+        truncate(item.description, length: 200))
+    if image_url
+      html += "\n" + sprintf('<meta name="twitter:image" content="%s" />',
+                      image_url)
+    end
+
+    # OpenGraph tags, used notably by Facebook, but Twitter also falls back to
+    # them
+    html += "\n" + sprintf(
         '<meta property="og:title" content="%s" />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="%s" />
@@ -249,10 +271,8 @@ module ItemsHelper
     # N.B.: Minimum Facebook image size is 200x200, but they recommend at
     # least 1200x630. Images may be up to "8Mb" (is that megabytes or
     # megabits?).
-    image_url = iiif_image_url(item, :full, 1600)
     if image_url
-      html + "\n"
-      html += sprintf('<meta property="og:image" content="%s" />
+      html += "\n" + sprintf('<meta property="og:image" content="%s" />
         <meta property="og:image:type" content="image/jpeg" />
         <meta property="og:image:alt" content="%s" />',
                       image_url, item.title)
@@ -685,9 +705,9 @@ module ItemsHelper
       raw('<i class="fa fa-linkedin-square"></i> LinkedIn')
     end
     html += '</li>'
-    # twitter
+    # twitter: https://dev.twitter.com/web/tweet-button/web-intent
     html += '<li>'
-    html += link_to("http://twitter.com/home?status=#{CGI::escape(title)}%20#{CGI::escape(url)}") do
+    html += link_to("https://twitter.com/intent/tweet?url=#{url}&text=#{CGI::escape(truncate(title, length: 140))}") do
       raw('<i class="fa fa-twitter-square"></i> Twitter')
     end
     html += '</li>'
