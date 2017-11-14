@@ -683,9 +683,9 @@ module ItemsHelper
       raw('<i class="fa fa-linkedin-square"></i> LinkedIn')
     end
     html += '</li>'
-    # twitter
+    # twitter: https://dev.twitter.com/web/tweet-button/web-intent
     html += '<li>'
-    html += link_to("http://twitter.com/home?status=#{CGI::escape(title)}%20#{CGI::escape(url)}") do
+    html += link_to("https://twitter.com/intent/tweet?url=#{CGI::escape(url)}&text=#{CGI::escape(truncate(title, length: 150))}") do
       raw('<i class="fa fa-twitter-square"></i> Twitter')
     end
     html += '</li>'
