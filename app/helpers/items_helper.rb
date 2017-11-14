@@ -391,14 +391,8 @@ module ItemsHelper
     html = "<h2>
         <a role=\"button\" data-toggle=\"collapse\"
         href=\"#pt-metadata\" aria-expanded=\"true\" aria-controls=\"pt-metadata\">
-        Descriptive Information</a>"
-    if current_user
-      html += ' ' + link_to(edit_admin_collection_item_path(item.collection, item),
-                      class: 'btn btn-default btn-xs btn-warning', target: '_blank') do
-        raw('<i class="fa fa-pencil"></i> Edit')
-      end
-    end
-    html += "</h2>
+        Descriptive Information</a>
+      </h2>
       <div id=\"pt-metadata\" class=\"collapse in\">
         <div class=\"visible-xs\">
           #{metadata_as_list(item)}
