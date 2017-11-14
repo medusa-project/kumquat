@@ -34,6 +34,21 @@ class MetadataProfileElementTest < ActiveSupport::TestCase
     end
   end
 
+  # data_type
+
+  test 'data_type must be in the range of DataType constants' do
+    assert @element.valid?
+
+    @element.data_type = nil
+    assert !@element.valid?
+
+    @element.data_type = -1
+    assert !@element.valid?
+
+    @element.data_type = 25
+    assert !@element.valid?
+  end
+
   # destroy()
 
   test 'destroy() should update indexes in the owning profile' do
@@ -43,6 +58,16 @@ class MetadataProfileElementTest < ActiveSupport::TestCase
     profile.elements.order(:index).each_with_index do |e, i|
       assert_equal i, e.index
     end
+  end
+
+  # human_readable_data_type()
+
+  test 'human_readable_data_type() returns the correct string' do
+    @element.data_type = MetadataProfileElement::DataType::SINGLE_LINE_STRING
+    assert_equal 'Single-Line String', @element.human_readable_data_type
+
+    @element.data_type = MetadataProfileElement::DataType::MULTI_LINE_STRING
+    assert_equal 'Multi-Line String', @element.human_readable_data_type
   end
 
   # update()

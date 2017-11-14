@@ -83,6 +83,7 @@
               <th>Element</th>
               <th>Vocabularies</th>
               <th>Mappings</th>
+              <th>Data Type</th>
               <th class="text-center">Visible</th>
               <th class="text-center">Searchable</th>
               <th class="text-center">Sortable</th>
@@ -132,6 +133,9 @@
                       <td><%= DublinCoreTerm.label_for(element.dcterms_map) %></td>
                     </tr>
                   </table>
+                </td>
+                <td>
+                  <%= element.human_readable_data_type %>
                 </td>
                 <td class="text-center <%= element.visible ? 'bg-success' : 'bg-danger' %>">
                   <%= boolean(element.visible) %>

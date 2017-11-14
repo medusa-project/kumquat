@@ -44,28 +44,10 @@ module Admin
     def edit
       element = MetadataProfileElement.find(params[:id])
       profile = element.metadata_profile
-      name_options_for_select = ItemElement.all_available.
-          map{ |t| [ t.name, t.name ] }
 
-      position_options_for_select = [['Nothing (First)', 0]]
-      profile.elements.where('id != ?', element.id).order(:index).each_with_index do |e, i|
-        position_options_for_select << [e.label, i + 1]
-      end
-
-      dublin_core_elements = DublinCoreElement.all.
-          sort{ |e, f| e.label <=> f.label }.
-          map { |p| [ p.label, p.name ] }
-      dublin_core_terms = DublinCoreTerm.all.
-          sort{ |e, f| e.label <=> f.label }.
-          map { |p| [ p.label, p.name ] }
       render partial: 'admin/metadata_profile_elements/form',
              locals: { element: element,
                        metadata_profile: profile,
-                       name_options_for_select: name_options_for_select,
-                       position_options_for_select: position_options_for_select,
-                       dublin_core_elements: dublin_core_elements,
-                       dublin_core_terms: dublin_core_terms,
-                       vocabularies: Vocabulary.order(:name),
                        context: :edit }
     end
 
@@ -96,7 +78,7 @@ module Admin
 
     def sanitized_params
       params.require(:metadata_profile_element).permit(
-          :dc_map, :dcterms_map, :facetable, :index, :label,
+          :data_type, :dc_map, :dcterms_map, :facetable, :index, :label,
           :metadata_profile_id, :name, :searchable, :sortable,
           :visible, vocabulary_ids: [])
     end
