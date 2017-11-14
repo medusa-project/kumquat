@@ -140,9 +140,12 @@ body#admin_items_edit {
       }
     }
   }
+  input[type=text] {
+    font-family: monospace;
+  }
   textarea {
     font-family: monospace;
-    min-height: 200px;
+    min-height: 75px;
   }
 }
 
