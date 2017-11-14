@@ -63,7 +63,7 @@
         <% end %>
       </li>
       <li>
-        <%= link_to(edit_admin_collection_item_path(item.collection, item),
+        <%= link_to(edit_admin_collection_item_path(item.collection, item) + '#pt-metadata',
                     target: '_blank') do %>
           <i class="fa fa-pencil"></i> Edit
         <% end %>

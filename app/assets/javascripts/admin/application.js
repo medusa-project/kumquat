@@ -12,6 +12,7 @@
 //
 //= require jquery
 //= require jquery_ujs
+//= require js.cookie
 //= require bootstrap-sprockets
 //= require jquery.stickytableheaders.min.js
 //= require ../peartree
