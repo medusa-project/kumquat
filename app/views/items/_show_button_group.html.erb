@@ -40,7 +40,7 @@
           <% end %>
         </li>
       <% end %>
-      <% if item.bib_id %>
+      <% if item.bib_id.present? %>
         <li>
           <%= link_to item.catalog_record_url, target: '_blank' do %>
             <i class="fa fa-book"></i>&nbsp;&nbsp;Library Catalog Record
@@ -60,6 +60,12 @@
         <%= link_to admin_collection_item_path(item.collection, item),
                     target: '_blank' do %>
           <i class="fa fa-lock"></i>&nbsp;&nbsp;Admin View
+        <% end %>
+      </li>
+      <li>
+        <%= link_to(edit_admin_collection_item_path(item.collection, item),
+                    target: '_blank') do %>
+          <i class="fa fa-pencil"></i> Edit
         <% end %>
       </li>
     </ul>
