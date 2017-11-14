@@ -136,25 +136,8 @@ module Admin
       respond_to do |format|
         format.html do
           @new_element = @profile.elements.build
-
           @element_options_for_select =
               @profile.elements.map{ |t| [ t.name, t.id ] }
-          @name_options_for_select = ItemElement.all_available.
-              sort{ |e, f| e.name <=> f.name }.
-              map{ |t| [ t.name, t.name ] }
-
-          @position_options_for_select = [['Nothing (First)', 0]]
-          @profile.elements.order(:index).each_with_index do |e, i|
-            @position_options_for_select << [e.label, i + 1]
-          end
-
-          @vocabularies = Vocabulary.order(:name)
-          @dublin_core_elements = DublinCoreElement.all.
-              sort{ |e, f| e.label <=> f.label }.
-              map { |p| [ p.label, p.name ] }
-          @dublin_core_terms = DublinCoreTerm.all.
-              sort{ |e, f| e.label <=> f.label }.
-              map { |p| [ p.label, p.name ] }
         end
         format.json do
           filename = "#{CGI.escape(@profile.name)}.json"

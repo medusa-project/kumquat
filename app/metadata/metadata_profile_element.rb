@@ -3,9 +3,19 @@
 #
 class MetadataProfileElement < ApplicationRecord
 
+  ##
+  # Allowed data types for the `MetadataProfileElement.data_type` attribute.
+  #
+  class DataType
+    SINGLE_LINE_STRING = 0
+    MULTI_LINE_STRING = 1
+  end
+
   belongs_to :metadata_profile, inverse_of: :elements
   has_and_belongs_to_many :vocabularies
 
+  validates_inclusion_of :data_type,
+                         in: 0..DataType.constants.map { |c| DataType.const_get(c) }.max
   validates :index, numericality: { only_integer: true,
                                     greater_than_or_equal_to: 0 },
             allow_blank: false
@@ -30,6 +40,15 @@ class MetadataProfileElement < ApplicationRecord
     clone = super
     clone.vocabulary_ids = self.vocabulary_ids
     clone
+  end
+
+  def human_readable_data_type
+    case self.data_type
+      when DataType::MULTI_LINE_STRING
+        'Multi-Line String'
+      else
+        'Single-Line String'
+    end
   end
 
   ##

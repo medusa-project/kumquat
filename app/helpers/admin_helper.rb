@@ -84,14 +84,14 @@ module AdminHelper
       <tr>
         <th style="text-align: right; width: 1px"><span class="label label-default">String</span></th>
         <td>'
-    if vocabulary == Vocabulary.uncontrolled # uncontrolled gets a textarea
+    if profile_element.data_type == MetadataProfileElement::DataType::MULTI_LINE_STRING
       html += text_area_tag("elements[#{profile_element.name}][#{vocabulary.id}][][string]",
                             element&.value,
                             id: "elements[#{profile_element.name}][#{vocabulary.id}][string]",
                             class: 'form-control',
                             autocomplete: 'off',
                             data: { controlled: 'false' })
-    else # controlled gets a one-line text field
+    else
       html += text_field_tag("elements[#{profile_element.name}][#{vocabulary.id}][][string]",
                              element&.value,
                              id: "elements[#{profile_element.name}][#{vocabulary.id}][string]",

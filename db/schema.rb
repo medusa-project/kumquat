@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171103200514) do
+ActiveRecord::Schema.define(version: 20171114152247) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -306,6 +306,7 @@ ActiveRecord::Schema.define(version: 20171103200514) do
     t.boolean "sortable", default: false
     t.string "dc_map"
     t.string "dcterms_map"
+    t.integer "data_type", default: 0, null: false
     t.index ["facetable"], name: "index_metadata_profile_elements_on_facetable"
     t.index ["index"], name: "index_metadata_profile_elements_on_index"
     t.index ["metadata_profile_id"], name: "index_metadata_profile_elements_on_metadata_profile_id"

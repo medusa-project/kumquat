@@ -3,13 +3,32 @@
   #
   # element [MetadataProfileElement]
   # metadata_profile [MetadataProfile]
-  # name_options_for_select [Array]
-  # position_options_for_select [Array]
-  # dublin_core_elements [Array<Array>] Array of arrays with label and name strings
-  # dublin_core_terms [Array<Array>] Array of arrays with label and name strings
-  # vocabularies [Enumerable<Vocabulary>]
   # context [Symbol] :new or :edit
 %>
+
+<%
+dublin_core_elements = DublinCoreElement.all.
+    sort{ |e, f| e.label <=> f.label }.
+    map { |p| [ p.label, p.name ] }
+dublin_core_terms = DublinCoreTerm.all.
+    sort{ |e, f| e.label <=> f.label }.
+    map { |p| [ p.label, p.name ] }
+
+data_type_options_for_select = MetadataProfileElement::DataType.constants.
+    map{ |c| [ c.to_s.humanize, MetadataProfileElement::DataType.const_get(c) ] }
+
+name_options_for_select = ItemElement.all_available.
+    sort{ |e, f| e.name <=> f.name }.
+    map{ |t| [ t.name, t.name ] }
+
+position_options_for_select = [['Nothing (First)', 0]]
+metadata_profile.elements.where('id != ?', element.id).order(:index).each_with_index do |e, i|
+  position_options_for_select << [e.label, i + 1]
+end
+
+vocabularies = Vocabulary.order(:name)
+%>
+
 <%= form_for([:admin, element], remote: true) do |f| %>
   <div class="pt-error-messages">
     <% # populated via ajax by shared/_validation_messages.js.erb
@@ -66,6 +85,13 @@
                dublin_core_terms,
                { include_blank: true, selected: f.object.dcterms_map },
                { class: 'form-control' }) %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :data_type %>
+    <%= f.select(:data_type, data_type_options_for_select,
+                 { selected: element.data_type },
+                 class: 'form-control') %>
   </div>
 
   <div class="checkbox">
