@@ -272,7 +272,7 @@ module ItemsHelper
     # least 1200x630. Images may be up to "8Mb" (is that megabytes or
     # megabits?).
     if image_url
-      html =+ "\n" + sprintf('<meta property="og:image" content="%s" />
+      html += "\n" + sprintf('<meta property="og:image" content="%s" />
         <meta property="og:image:type" content="image/jpeg" />
         <meta property="og:image:alt" content="%s" />',
                       image_url, item.title)
