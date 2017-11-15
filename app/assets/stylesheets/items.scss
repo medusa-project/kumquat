@@ -248,6 +248,9 @@ body#tree_browser {
     border-color: #dddddd;
   }
 }
+.nav-pills {
+  margin-bottom: 1em;
+}
 .pagination {
   > li > a {
     color: $color_uiuc-blue;
@@ -255,10 +258,6 @@ body#tree_browser {
   > li.active > a {
     background-color: $color_uiuc-blue;
   }
-}
-#free-form-view-toggle{
-  margin-left: 25px;
-  margin-bottom: 10px;
 }
 
 #free-form-alert {

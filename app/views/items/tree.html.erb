@@ -3,13 +3,19 @@
 <% provide(:active_nav, 'collections') %>
 <%= breadcrumb(collection: @collection, context: ItemsController::BrowseContext::BROWSING_COLLECTION) %>
 
-  <h1>
-    <%= @collection.title %>
-    <div id="free-form-view-toggle" class="btn-group">
-      <%= link_to "Searchable File List", collection_items_path(display: "leaves"), class: "btn btn-primary btn-lg", role: "button" %>
-      <a href="#" class="btn btn-primary btn-lg active" role="button" aria-pressed="true">Browseable File View</a>
-    </div>
-  </h1>
+<h1><%= @collection.title %></h1>
 
+<ul class="nav nav-pills">
+  <li role="presentation" class="active">
+    <%= link_to '#', role: 'button' do %>
+      <i class="fa fa-level-down"></i> Tree
+    <% end %>
+  </li>
+  <li role="presentation">
+    <%= link_to collection_items_path(display: 'leaves'), role: 'button' do %>
+      <i class="fa fa-bars"></i> List
+    <% end %>
+  </li>
+</ul>
 
 <%= render partial: 'tree' %>
