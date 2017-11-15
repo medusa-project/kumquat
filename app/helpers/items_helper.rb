@@ -664,16 +664,16 @@ module ItemsHelper
   # @return [String] HTML string
   #
   def share_button(entity)
-    title = entity.respond_to?(:title) ? entity.title : entity.name
-    description = entity.description
-    url = entity.kind_of?(Item) ? item_url(entity) : agent_url(entity)
+    title = CGI::escape(entity.respond_to?(:title) ? entity.title : entity.name)
+    description = CGI::escape(entity.description.to_s)
+    url = CGI::escape(polymorphic_url(entity))
 
     html = '<div class="btn-group">
       <button type="button" class="btn btn-default dropdown-toggle"
             data-toggle="dropdown" aria-expanded="false">
         <i class="fa fa-share-alt"></i> Share <span class="caret"></span>
-      </button>'
-    html += '<ul class="dropdown-menu" role="menu">'
+      </button>
+      <ul class="dropdown-menu" role="menu">'
     # cite
     if entity.kind_of?(Item)
       html += '<li>'
@@ -685,8 +685,6 @@ module ItemsHelper
       html += '<li class="divider"></li>'
     end
     # email
-    title = title.gsub(/[&=]/, '')
-    url = CGI::escape(url)
     html += '<li>'
     html += link_to("mailto:?subject=#{title}&body=#{url}") do
       raw('<i class="fa fa-envelope"></i> Email')
@@ -695,30 +693,34 @@ module ItemsHelper
     html += '<li class="divider"></li>'
     # facebook
     html += '<li>'
-    html += link_to("https://www.facebook.com/sharer/sharer.php?u=#{CGI::escape(url)}") do
+    html += link_to("https://www.facebook.com/sharer/sharer.php?u=#{url}",
+                    target: '_blank') do
       raw('<i class="fa fa-facebook-square"></i> Facebook')
     end
     html += '</li>'
     # linkedin
     html += '<li>'
-    html += link_to("http://www.linkedin.com/shareArticle?mini=true&url=#{CGI::escape(url)}&title=#{CGI::escape(title)}&summary=#{description}") do
+    html += link_to("http://www.linkedin.com/shareArticle?mini=true&url=#{url}&title=#{title}&summary=#{description}",
+                    target: '_blank') do
       raw('<i class="fa fa-linkedin-square"></i> LinkedIn')
     end
     html += '</li>'
     # twitter: https://dev.twitter.com/web/tweet-button/web-intent
     html += '<li>'
-    html += link_to("https://twitter.com/intent/tweet?url=#{url}&text=#{CGI::escape(truncate(title, length: 140))}") do
+    html += link_to("https://twitter.com/intent/tweet?url=#{url}&text=#{truncate(title, length: 140)}",
+                    target: '_blank') do
       raw('<i class="fa fa-twitter-square"></i> Twitter')
     end
     html += '</li>'
     # google+
     html += '<li>'
-    html += link_to("https://plus.google.com/share?url=#{CGI::escape(title)}%20#{CGI::escape(url)}") do
+    html += link_to("https://plus.google.com/share?url=#{title} #{url}",
+                    target: '_blank') do
       raw('<i class="fa fa-google-plus-square"></i> Google+')
     end
     html += '</li>'
     # pinterest
-    url = "http://pinterest.com/pin/create/button/?url=#{CGI::escape(url)}&description=#{CGI::escape(title)}"
+    url = "http://pinterest.com/pin/create/button/?url=#{url}&description=#{title}"
     if entity.kind_of?(Item)
       iiif_url = iiif_image_url(entity, :default, 512)
       if iiif_url
@@ -726,13 +728,12 @@ module ItemsHelper
       end
     end
     html += '<li>'
-    html += link_to(url) do
+    html += link_to(url, target: '_blank') do
       raw('<i class="fa fa-pinterest-square"></i> Pinterest')
     end
-    html += '</li>'
-
-    html += '</ul>'
-    html += '</div>'
+    html += '</li>
+        </ul>
+      </div>'
     raw(html)
   end
 

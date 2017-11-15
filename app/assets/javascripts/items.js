@@ -620,9 +620,9 @@ var PTTreeBrowserView = function() {
                 dataType: 'json',
                 method: 'GET',
                 success: function(result) {
-                    if (result.parent) {
-                        var parts = result.parent.split('/');
-                        var parent = parts[parts.length - 1];
+                    if (result.parent_uri) {
+                        var parts = result.parent_uri.split('/');
+                        var parent = parts[parts.length - 1].replace('.json', '');
                         console.debug('Parent of ' + id + ' is ' + parent);
                         parents.push(parent);
                         traceLineage(parent, parents, onComplete);
