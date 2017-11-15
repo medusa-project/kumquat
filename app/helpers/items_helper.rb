@@ -693,25 +693,25 @@ module ItemsHelper
     html += '<li class="divider"></li>'
     # facebook
     html += '<li>'
-    html += link_to("https://www.facebook.com/sharer/sharer.php?u=#{CGI::escape(url)}") do
+    html += link_to("https://www.facebook.com/sharer/sharer.php?u=#{CGI::escape(url)}", target: '_blank') do
       raw('<i class="fa fa-facebook-square"></i> Facebook')
     end
     html += '</li>'
     # linkedin
     html += '<li>'
-    html += link_to("http://www.linkedin.com/shareArticle?mini=true&url=#{CGI::escape(url)}&title=#{CGI::escape(title)}&summary=#{description}") do
+    html += link_to("http://www.linkedin.com/shareArticle?mini=true&url=#{CGI::escape(url)}&title=#{CGI::escape(title)}&summary=#{CGI::escape(description)}", target: '_blank') do
       raw('<i class="fa fa-linkedin-square"></i> LinkedIn')
     end
     html += '</li>'
     # twitter: https://dev.twitter.com/web/tweet-button/web-intent
     html += '<li>'
-    html += link_to("https://twitter.com/intent/tweet?url=#{url}&text=#{CGI::escape(truncate(title, length: 140))}") do
+    html += link_to("https://twitter.com/intent/tweet?url=#{url}&text=#{CGI::escape(truncate(title, length: 140))}", target: '_blank') do
       raw('<i class="fa fa-twitter-square"></i> Twitter')
     end
     html += '</li>'
     # google+
     html += '<li>'
-    html += link_to("https://plus.google.com/share?url=#{CGI::escape(title)}%20#{CGI::escape(url)}") do
+    html += link_to("https://plus.google.com/share?url=#{CGI::escape(title)}%20#{CGI::escape(url)}", target: '_blank') do
       raw('<i class="fa fa-google-plus-square"></i> Google+')
     end
     html += '</li>'
@@ -724,7 +724,7 @@ module ItemsHelper
       end
     end
     html += '<li>'
-    html += link_to(url) do
+    html += link_to(url, target: '_blank') do
       raw('<i class="fa fa-pinterest-square"></i> Pinterest')
     end
     html += '</li>'
