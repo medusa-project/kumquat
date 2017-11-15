@@ -7,10 +7,10 @@
 
 <%= form_tag(@permitted_params, method: :get, class: 'pt-filter') do %>
   <div class="row">
-    <div class="col-sm-3 col-lg-2 pt-facets pt-panel-facets">
+    <div class="hidden-xs col-sm-3 col-lg-2 pt-facets pt-panel-facets">
       <%= render partial: 'facets' %>
     </div>
-    <div class="col-sm-9 col-lg-10">
+    <div class="col-xs-12 col-sm-9 col-lg-10">
       <div class="input-group">
         <span class="input-group-addon"><i class="fa fa-search"></i></span>
         <%= search_field_tag :q, params[:q], placeholder: 'Filter',

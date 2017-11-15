@@ -59,7 +59,7 @@
 </div>
 
 <div class="uiuc-plain-banner">
-  <nav class="navbar navbar-default" role="navigation" id="pt-main-nav">
+  <nav class="navbar navbar-default" role="navigation">
     <div class="container-fluid">
       <!-- Brand and toggle get grouped for better mobile display -->
       <div class="navbar-header">
@@ -118,11 +118,13 @@
         </ul>
 
         <%= form_tag(search_path, method: :get, class: 'navbar-form navbar-right') do %>
-          <div class="form-group">
+          <div class="input-group">
             <%= search_field_tag(:q, '', class: 'form-control', placeholder: 'Search') %>
-            <button type="submit" class="btn btn-default">
-              <i class="fa fa-search"></i> <span class="sr-only">Search</span>
-            </button>
+            <span class="input-group-btn">
+              <button type="submit" class="btn btn-default">
+                <i class="fa fa-search"></i> <span class="sr-only">Search</span>
+              </button>
+            </span>
           </div>
         <% end %>
       </div> <!-- /.navbar-collapse -->
