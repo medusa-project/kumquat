@@ -92,17 +92,6 @@ section {
   padding-top: 15px;
 }
 
-#pt-main-nav {
-  border-radius: 0px;
-
-  .navbar-collapse {
-    padding-left: 0px;
-  }
-  input[type=search] {
-    width: 12em;
-  }
-}
-
 .pagination {
   > li > a {
     color: rgb(4, 74, 136);
@@ -129,36 +118,27 @@ div.pt-cards {
     text-overflow: ellipsis;
     div.pt-card-content {
       position: absolute;
-      left: 10px;
-      right: 10px;
-      top: 10px;
-      bottom: 10px;
+      left: 5px;
+      right: 5px;
+      top: 5px;
+      bottom: 5px;
       img {
         width: 100%;
       }
       .pt-title {
-        font-size: 1.2em;
+        font-size: 1em;
         padding-top: 0.2em;
       }
     }
   }
 
-  @media only screen and (max-width : 350px) {
-    div.pt-card {
-      width: 100%;
-      padding-bottom: 118%;
-    }
-  }
-  @media only screen and (min-width : 351px) and (max-width : 480px) {
-    div.pt-card {
-      width: 100%;
-      padding-bottom: 110%;
-    }
-  }
-  @media only screen and (min-width : 481px) and (max-width : 620px) {
+  @media only screen and (max-width : 620px) {
     div.pt-card {
       width: 50%;
-      padding-bottom: 60%;
+      padding-bottom: 62.5%;
+      .pt-title {
+        font-size: 0.8em;
+      }
     }
   }
   @media only screen and (min-width : 621px) and (max-width : 800px) {
@@ -171,12 +151,27 @@ div.pt-cards {
     div.pt-card {
       width: 25%;
       padding-bottom: 34%;
+      .pt-title {
+        font-size: 1.2em;
+      }
     }
   }
-  @media only screen and (min-width : 1091px) {
+  @media only screen and (min-width : 1091px) and (max-width : 1350px) {
     div.pt-card {
       width: 20%;
       padding-bottom: 26%;
+      .pt-title {
+        font-size: 1.2em;
+      }
+    }
+  }
+  @media only screen and (min-width : 1351px) {
+    div.pt-card {
+      width: 16.66%;
+      padding-bottom: 22.5%;
+      .pt-title {
+        font-size: 1.2em;
+      }
     }
   }
 }
