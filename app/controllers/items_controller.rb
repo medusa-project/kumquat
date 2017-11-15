@@ -309,17 +309,22 @@ class ItemsController < WebsiteController
 
             if params['tree-node-type'].include?('file_node')
               render 'show_file', layout: false
-              return
             elsif params['tree-node-type'].include?('directory_node')
               render 'show_directory', layout: false
-              return
             end
+          # We don't want to send crawler bots to the tree view because it's
+          # all dynamic and they won't be able to see anything. So, give them
+          # the show template.
+          elsif request.user_agent.include?('Twitterbot')
+            @root_item = @item
+            @downloadable_items = []
+            @total_byte_size = 0
+            render 'show'
           else
             # Non-XHR requests for free-form items are not allowed. Redirect
             # to the item's HTML representation.
             redirect_to collection_tree_path(@item.collection) + '#' +
                             @item.repository_id
-            return
           end
         else
           # DLD-98 calls for the URL in the browser bar to change when an item

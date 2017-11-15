@@ -45,17 +45,20 @@ module IiifPresentationHelper
 
   ##
   # @param subitem [Item] Subitem or page
+  # @param include_metadata [Boolean]
   # @return [Hash<Symbol,Object>]
   #
-  def iiif_canvas_for(subitem)
+  def iiif_canvas_for(subitem, include_metadata)
     struct = {
         '@id': item_iiif_canvas_url(subitem, subitem.repository_id),
         '@type': 'sc:Canvas',
         label: subitem.title,
         height: canvas_height(subitem),
-        width: canvas_width(subitem),
-        metadata: iiif_metadata_for(subitem)
+        width: canvas_width(subitem)
     }
+    if include_metadata
+      struct[:metadata] = iiif_metadata_for(subitem)
+    end
     binary = subitem.effective_image_binary
     if binary
       struct[:images] = iiif_image_resources_for(subitem, 'access')
@@ -75,9 +78,9 @@ module IiifPresentationHelper
                                           Item::Variants::SUPPLEMENT,
                                           Item::Variants::THREE_D_MODEL)
     if finder.count > 0
-      canvases = finder.to_a.map { |child| iiif_canvas_for(child) }
+      canvases = finder.to_a.map { |child| iiif_canvas_for(child, true) }
     else
-      canvases = [ iiif_canvas_for(item) ]
+      canvases = [ iiif_canvas_for(item, (item.file? or item.directory?)) ]
     end
     canvases
   end
