@@ -38,6 +38,10 @@ class CollectionsController < WebsiteController
 
     respond_to do |format|
       format.html
+      format.atom do
+        @updated = @collections.any? ?
+                       @collections.map(&:updated_at).sort{ |d| d <=> d }.last : Time.now
+      end
       format.js
       format.json do
         render json: @collections.map { |c|
