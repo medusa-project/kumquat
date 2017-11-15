@@ -260,7 +260,7 @@ class ItemsController < WebsiteController
             results: @items.map { |item|
               {
                   id: item.repository_id,
-                  url: item_url(item, format: :json)
+                  uri: item_url(item, format: :json)
               }
             }
           }
