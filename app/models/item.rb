@@ -513,7 +513,7 @@ class Item < ApplicationRecord
   # @see http://dublincore.org/documents/dcmi-type-vocabulary/#H7
   #
   def dc_type
-    self.is_compound? ? 'Collection' : self.effective_image_binary&.dc_type
+    self.is_compound? ? 'Collection' : self.effective_viewer_binary&.dc_type
   end
 
   ##
@@ -554,54 +554,58 @@ class Item < ApplicationRecord
   # 9. Any preservation master with media type `application/pdf`
   #
   # @return [Binary, nil]
+  # @see effective_viewer_binary()
   #
   def effective_image_binary
-    bin = self.representative_binary
-    if !bin or !bin.iiif_safe?
-      if self.variant == Variants::SUPPLEMENT
-        bin = self.binaries.first
-      elsif self.is_compound?
-        bin = self.finder.limit(1).to_a.first&.effective_image_binary
-      end
+    unless @effective_image_binary
+      bin = self.representative_binary
       if !bin or !bin.iiif_safe?
-        [
-            {
-                master_type: Binary::MasterType::ACCESS,
-                media_category: Binary::MediaCategory::IMAGE
-            },
-            {
-                master_type: Binary::MasterType::ACCESS,
-                media_category: Binary::MediaCategory::VIDEO
-            },
-            {
-                master_type: Binary::MasterType::ACCESS,
-                media_type: 'application/pdf'
-            },
-            {
-                master_type: Binary::MasterType::PRESERVATION,
-                media_category: Binary::MediaCategory::IMAGE
-            },
-            {
-                master_type: Binary::MasterType::PRESERVATION,
-                media_category: Binary::MediaCategory::VIDEO
-            },
-            {
-                master_type: Binary::MasterType::PRESERVATION,
-                media_type: 'application/pdf'
-            }
-        ].each do |pref|
-          bin = self.binaries.select do |b|
-            b.master_type == pref[:master_type] and
-                (pref[:media_category] ?
-                     (b.media_category == pref[:media_category]) :
-                     (b.media_type == pref[:media_type]))
+        if self.variant == Variants::SUPPLEMENT
+          bin = self.binaries.first
+        elsif self.is_compound?
+          bin = self.finder.limit(1).to_a.first&.effective_image_binary
+        end
+        if !bin or !bin.iiif_safe?
+          [
+              {
+                  master_type: Binary::MasterType::ACCESS,
+                  media_category: Binary::MediaCategory::IMAGE
+              },
+              {
+                  master_type: Binary::MasterType::ACCESS,
+                  media_category: Binary::MediaCategory::VIDEO
+              },
+              {
+                  master_type: Binary::MasterType::ACCESS,
+                  media_type: 'application/pdf'
+              },
+              {
+                  master_type: Binary::MasterType::PRESERVATION,
+                  media_category: Binary::MediaCategory::IMAGE
+              },
+              {
+                  master_type: Binary::MasterType::PRESERVATION,
+                  media_category: Binary::MediaCategory::VIDEO
+              },
+              {
+                  master_type: Binary::MasterType::PRESERVATION,
+                  media_type: 'application/pdf'
+              }
+          ].each do |pref|
+            bin = self.binaries.select do |b|
+              b.master_type == pref[:master_type] and
+                  (pref[:media_category] ?
+                       (b.media_category == pref[:media_category]) :
+                       (b.media_type == pref[:media_type]))
+            end
+            bin = bin.first
+            break if bin
           end
-          bin = bin.first
-          break if bin
         end
       end
+      @effective_image_binary = bin
     end
-    bin
+    @effective_image_binary
   end
 
   ##
@@ -676,6 +680,65 @@ class Item < ApplicationRecord
     # If still no statement available, use the collection's statement.
     rs = RightsStatement.for_uri(self.collection.rightsstatements_org_uri) unless rs
     rs
+  end
+
+  ##
+  # Returns the best binary to use for a main viewer. It may or may not be an
+  # image.
+  #
+  # 1. The representative binary
+  # 2. If the instance's variant is `SUPPLEMENT`, any binary
+  # 3. If the instance is compound, the `effective_image_binary()` of the
+  #    first child, sorted structurally
+  # 4. Any access master of `Binary::MediaCategory::IMAGE`
+  # 5. Any other access master
+  # 6. Any preservation master of `Binary::MediaCategory::IMAGE`
+  # 7. Any other preservation master
+  #
+  # @return [Binary, nil]
+  # @see effective_image_binary()
+  #
+  def effective_viewer_binary
+    unless @effective_viewer_binary
+      bin = self.representative_binary
+      if !bin or !bin.iiif_safe?
+        if self.variant == Variants::SUPPLEMENT
+          bin = self.binaries.first
+        elsif self.is_compound?
+          bin = self.finder.limit(1).to_a.first&.effective_image_binary
+        end
+        if !bin or !bin.iiif_safe?
+          [
+              {
+                  master_type: Binary::MasterType::ACCESS,
+                  media_category: Binary::MediaCategory::IMAGE
+              },
+              {
+                  master_type: Binary::MasterType::ACCESS,
+                  media_category: nil
+              },
+              {
+                  master_type: Binary::MasterType::PRESERVATION,
+                  media_category: Binary::MediaCategory::IMAGE
+              },
+              {
+                  master_type: Binary::MasterType::PRESERVATION,
+                  media_category: nil
+              }
+          ].each do |pref|
+            bin = self.binaries.select do |b|
+              b.master_type == pref[:master_type] and
+                  (pref[:media_category] ?
+                       (b.media_category == pref[:media_category]) : true)
+            end
+            bin = bin.first
+            break if bin
+          end
+        end
+      end
+      @effective_viewer_binary = bin
+    end
+    @effective_viewer_binary
   end
 
   ##
