@@ -146,7 +146,7 @@ module ItemsHelper
     if item.embed_tag.present? or item.is_compound?
       return true
     end
-    item.effective_image_binary ? true : false
+    item.effective_viewer_binary ? true : false
   end
 
   ##
@@ -915,7 +915,7 @@ module ItemsHelper
     elsif item.is_compound?
       return compound_viewer_for(item)
     else
-      binary = item.effective_image_binary
+      binary = item.effective_viewer_binary
       case binary&.media_category
         when Binary::MediaCategory::AUDIO
           return audio_player_for(binary)
@@ -1219,7 +1219,7 @@ module ItemsHelper
   end
 
   def free_form_viewer_for(item)
-    binary = item.effective_image_binary
+    binary = item.effective_viewer_binary
     case binary&.media_category
       when Binary::MediaCategory::AUDIO
         return audio_player_for(binary)
