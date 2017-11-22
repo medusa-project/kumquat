@@ -32,16 +32,31 @@ class CollectionsController < WebsiteController
         facet_filters(params[:fq]).
         query_all(params[:q]).
         order(Collection::IndexFields::TITLE)
+    @start = finder.get_start
+    @limit = finder.get_limit
+    @count = finder.count
     @collections = finder.to_a
     @facets = finder.facets
     @suggestions = finder.suggestions
 
     respond_to do |format|
       format.html
+      format.atom do
+        @updated = @collections.any? ?
+                       @collections.map(&:updated_at).sort{ |d| d <=> d }.last : Time.now
+      end
       format.js
       format.json do
-        render json: @collections.map { |c|
-          { id: c.repository_id, url: collection_url(c) }
+        render json: {
+            start: @start,
+            limit: @limit,
+            numResults: @count,
+            results: @collections.map { |col|
+              {
+                  id: col.repository_id,
+                  uri: collection_url(col, format: :json)
+              }
+            }
         }
       end
     end

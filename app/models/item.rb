@@ -628,6 +628,8 @@ class Item < ApplicationRecord
         self
   end
 
+  alias_method :effective_representative_image_binary, :effective_image_binary
+
   ##
   # @return [String, nil] Rights statement assigned to the instance, if
   #                       present; otherwise, the closest ancestor statement,

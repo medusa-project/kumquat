@@ -11,10 +11,40 @@
       <%= render partial: 'facets' %>
     </div>
     <div class="col-xs-12 col-sm-9 col-lg-10">
-      <div class="input-group">
-        <span class="input-group-addon"><i class="fa fa-search"></i></span>
-        <%= search_field_tag :q, params[:q], placeholder: 'Filter',
-                             class: 'form-control' %>
+      <div class="row">
+        <div class="col-xs-6">
+          <div class="input-group">
+            <span class="input-group-addon"><i class="fa fa-search"></i></span>
+            <%= search_field_tag :q, params[:q], placeholder: 'Filter',
+                                 class: 'form-control' %>
+          </div>
+        </div>
+        <div class="col-xs-6">
+          <div class="btn-group pull-right">
+            <button type="button" class="btn btn-default dropdown-toggle"
+                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i class="fa fa-eye"></i> View <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-right view-dropdown">
+              <li>
+                <%= link_to @permitted_params.merge(format: :atom), id: 'pt-view-as-atom' do %>
+                  <i class="fa fa-rss"></i>&nbsp;&nbsp;Atom
+                <% end %>
+              </li>
+              <li>
+                <%= link_to @permitted_params.merge(format: :json), id: 'pt-view-as-json' do %>
+                  <i class="fa fa-code"></i>&nbsp;JSON
+                <% end %>
+              </li>
+              <li class="divider"></li>
+              <li>
+                <%= link_to admin_collections_path, target: '_blank' do %>
+                  <i class="fa fa-lock"></i>&nbsp;&nbsp;Admin View
+                <% end %>
+              </li>
+            </ul>
+          </div>
+        </div>
       </div>
 
       <div id="pt-collections" class="pt-cards">

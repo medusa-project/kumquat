@@ -70,6 +70,6 @@
   <hr>
   <h2>Subcollections</h2>
   <div class="pt-cards">
-    <%= collections_as_cards(@collection.children.where(public_in_medusa: true)) %>
+    <%= entities_as_cards(@collection.children.where(public_in_medusa: true)) %>
   </div>
 <% end %>
