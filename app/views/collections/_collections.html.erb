@@ -1,5 +1,5 @@
 <% if @collections.length > 0 %>
-  <%= collections_as_cards(@collections) %>
+  <%= entities_as_cards(@collections) %>
 <% else %>
   <div class="pt-no-results">
     <%= no_results_help(params[:q], @suggestions) %>

@@ -1,5 +1,6 @@
 module ApplicationHelper
 
+  CARD_IMAGE_SIZE = 500
   MAX_PAGINATION_LINKS = 9
 
   ##
@@ -72,6 +73,63 @@ module ApplicationHelper
   end
 
   ##
+  # @param entities [Enumerable<Collection>, Enumerable<Item>]
+  # @param options [Hash] Hash with optional keys.
+  # @option options [Boolean] :show_remove_from_favorites_buttons
+  # @option options [Boolean] :show_add_to_favorites_buttons
+  # @return [String]
+  #
+  def entities_as_cards(entities, options = {})
+    html = ''
+    entities.each do |entity|
+      bs = nil
+      if Option::string(Option::Keys::SERVER_STATUS) != 'storage_offline'
+        begin
+          # If the entity is a Collection and the reference to the binary is
+          # invalid (for example, an invalid UUID has been entered), this will
+          # raise an error.
+          bs = entity.effective_representative_image_binary
+        rescue => e
+          CustomLogger.instance.warn("entities_as_cards(): #{e} (#{entity})")
+        end
+      end
+      if bs
+        img_url = binary_image_url(bs, CARD_IMAGE_SIZE, :square)
+      else
+        case entity.class.to_s
+          when 'Collection'
+            img_url = image_url('fa-folder-open-o-600.png')
+          else
+            img_url = image_url('fa-cube-600.png')
+        end
+      end
+      html += '<div class="pt-card">'
+      html += '  <div class="pt-card-content">'
+      html +=      link_to(entity) do
+        raw("<img src=\"#{img_url}\">")
+      end
+      html += '    <h4 class="pt-title">'
+      html +=        link_to(entity.title, entity)
+
+      if entity.class.to_s == 'Item'
+        # remove-from-favorites button
+        if options[:show_remove_from_favorites_buttons]
+          html += remove_from_favorites_button(entity)
+        end
+        # add-to-favorites button
+        if options[:show_add_to_favorites_buttons]
+          html += add_to_favorites_button(entity)
+        end
+      end
+
+      html += '</h4>
+          </div>
+      </div>'
+    end
+    raw(html)
+  end
+
+  ##
   # Returns an ordered list of the given entities (Items, Collections, Agents).
   #
   # @param entities [Enumerable<Representable>]
@@ -113,7 +171,7 @@ module ApplicationHelper
       info_parts = []
       info_parts << "#{icon_for(entity)}#{type_of(entity)}"
 
-      if entity.kind_of?(Item)
+      if entity.class.to_s == 'Item'
         num_pages = entity.pages.count
         if num_pages > 1
           page_count = "#{num_pages} pages"
@@ -151,7 +209,7 @@ module ApplicationHelper
 
       html += "<br><span class=\"pt-info-line\">#{info_parts.join(' | ')}</span>"
 
-      if entity.kind_of?(Item)
+      if entity.class.to_s == 'Item'
         # remove-from-favorites button
         if options[:show_remove_from_favorites_buttons]
           html += remove_from_favorites_button(entity)
