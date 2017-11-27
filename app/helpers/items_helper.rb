@@ -863,7 +863,7 @@ module ItemsHelper
   def thumbnail_tag(entity, options = {})
     options = {} unless options.kind_of?(Hash)
     options[:size] = DEFAULT_THUMBNAIL_SIZE unless options.keys.include?(:size)
-    options[:shape] = :default unless options.keys.include?(:shape)
+    options[:shape] = 'full' unless options.keys.include?(:shape)
     options[:lazy] = false unless options.keys.include?(:lazy)
 
     html = ''
