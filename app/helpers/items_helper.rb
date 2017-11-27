@@ -209,42 +209,6 @@ module ItemsHelper
     item.effective_viewer_binary ? true : false
   end
 
-  ##
-  # Returns an IIIF Image API 2.1 URL.
-  #
-  # @param item [Item]
-  # @param region [Symbol] :full or :square
-  # @param size [Symbol,Integer] Bounding box size or :full
-  # @param format [Symbol] One of the formats allowed by the Image API.
-  # @return [String, nil] Image URL, or nil if the item has no IIIF image
-  #                       binary.
-  #
-  def iiif_image_url(item, region = :full, size = :full, format = :jpg)
-    url = nil
-    bin = item.effective_image_binary
-    if bin
-      region = (region == :square) ? 'square' : 'full'
-      size = (size == :full) ? 'full' : "!#{size},#{size}" # fit within a `size` box
-      time = ''
-      if bin.duration.present?
-        # ?time=hh:mm:ss is a nonstandard argument supported only by
-        # Cantaloupe's FfmpegProcessor. All other processors will ignore it.
-        # If it's missing, the first frame will be returned.
-        #
-        # For videos of all lengths, the time needs to be enough to advance
-        # past title frames but not longer than the duration. It would be
-        # easier to hard-code something like 00:00:10, but there are actually
-        # some videos in the repository that are two seconds long.
-        # FfmpegProcessor doesn't allow a percentage argument because ffprobe
-        # doesn't. (DLD-102)
-        seconds = bin.duration * 0.2
-        time = '?time=' + TimeUtil.seconds_to_hms(seconds)
-      end
-      url = sprintf('%s/%s/%s/0/default.%s%s',
-                    bin.iiif_image_url, region, size, format, time)
-    end
-    url
-  end
 
   ##
   # @param item [Item]
@@ -287,6 +251,43 @@ module ItemsHelper
   end
 
   ##
+  # Returns an IIIF Image API 2.1 URL for an item.
+  #
+  # @param item [Item]
+  # @param region [Symbol] :full or :square
+  # @param size [Symbol,Integer] Bounding box size or :full
+  # @param format [Symbol] One of the formats allowed by the Image API.
+  # @return [String, nil] Image URL, or nil if the item has no IIIF image
+  #                       binary.
+  #
+  def item_image_url(item, region = :full, size = :full, format = :jpg)
+    url = nil
+    bin = item.effective_image_binary
+    if bin
+      region = (region == :square) ? 'square' : 'full'
+      size = (size == :full) ? 'full' : "!#{size},#{size}" # fit within a `size` box
+      time = ''
+      if bin.duration.present?
+        # ?time=hh:mm:ss is a nonstandard argument supported only by
+        # Cantaloupe's FfmpegProcessor. All other processors will ignore it.
+        # If it's missing, the first frame will be returned.
+        #
+        # For videos of all lengths, the time needs to be enough to advance
+        # past title frames but not longer than the duration. It would be
+        # easier to hard-code something like 00:00:10, but there are actually
+        # some videos in the repository that are two seconds long.
+        # FfmpegProcessor doesn't allow a percentage argument because ffprobe
+        # doesn't. (DLD-102)
+        seconds = bin.duration * 0.2
+        time = '?time=' + TimeUtil.seconds_to_hms(seconds)
+      end
+      url = sprintf('%s/%s/%s/0/default.%s%s',
+                    bin.iiif_image_url, region, size, format, time)
+    end
+    url
+  end
+
+  ##
   # Requested in DLD-116.
   #
   # @param item [Item]
@@ -298,7 +299,7 @@ module ItemsHelper
   def item_meta_tags(item)
     # N.B.: Minimum Twitter image size is 300x157 and maximum size is
     # 4096x4096 / 5MB.
-    image_url = iiif_image_url(item, :full, 1600)
+    image_url = item_image_url(item, :full, 1600)
 
     html = ''
 
@@ -586,7 +587,7 @@ module ItemsHelper
       # be huge and/or in a format they can't use.
       struct[:image] = {
           '@type': 'ImageObject',
-          'contentUrl': iiif_image_url(item, :default, 1024)
+          'contentUrl': item_image_url(item, :default, 1024)
       }
     end
 
@@ -696,7 +697,7 @@ module ItemsHelper
 
     # thumbnailUrl
     if iiif_image_binary
-      struct[:thumbnailUrl] = iiif_image_url(item, :default,
+      struct[:thumbnailUrl] = item_image_url(item, :default,
                                              ItemsHelper::DEFAULT_THUMBNAIL_SIZE)
     end
 
@@ -765,7 +766,7 @@ module ItemsHelper
     # pinterest
     url = "http://pinterest.com/pin/create/button/?url=#{url}&description=#{title}"
     if entity.kind_of?(Item)
-      iiif_url = iiif_image_url(entity, :default, 512)
+      iiif_url = item_image_url(entity, :default, 512)
       if iiif_url
         url += "&media=#{CGI::escape(iiif_url)}"
       end
@@ -880,7 +881,7 @@ module ItemsHelper
                                  size: options[:size])
         end
       elsif entity.kind_of?(Item) and entity.effective_image_binary&.iiif_safe?
-        url = iiif_image_url(entity,
+        url = item_image_url(entity,
                              region: options[:shape],
                              size: options[:size])
       end
@@ -912,7 +913,7 @@ module ItemsHelper
     if entity.kind_of?(Binary)
       url = binary_image_url(entity, region: shape, size: size)
     elsif entity.kind_of?(Item)
-      url = iiif_image_url(entity, shape, size)
+      url = item_image_url(entity, shape, size)
     end
     url
   end
