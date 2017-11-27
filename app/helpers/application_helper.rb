@@ -202,8 +202,10 @@ module ApplicationHelper
       end
 
       if options[:show_published_status] and entity.respond_to?(:published)
-        unless entity.published
-          info_parts << '<span class="label label-danger"><i class="fa fa-globe"></i> Unpublished</label>'
+        if entity.published
+          info_parts << '<span class="label label-success"><i class="fa fa-check"></i> Published</label>'
+        else
+          info_parts << '<span class="label label-danger"><i class="fa fa-lock"></i> Unpublished</label>'
         end
       end
 
