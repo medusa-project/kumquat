@@ -8,6 +8,66 @@ module ItemsHelper
   ##
   # @param binary [Binary]
   # @param options [Hash<Symbol,Object>]
+  # @option options [String] :region
+  # @option options [String] :size
+  # @option options [Integer] :rotation
+  # @option options [String] :color
+  # @option options [String] :content_disposition
+  # @option options [String] :filename
+  # @option options [Boolean] :cache
+  # @return [String, nil] Image URL, or nil if the binary is not compatible
+  #                       with the image server or safe for it to serve.
+  #
+  def binary_image_url(binary, options = {})
+    url = nil
+    query = {}
+
+    if binary.iiif_safe?
+      options[:region] = 'full' if options[:region].blank?
+      if options[:size].blank?
+        options[:size] = 'full'
+      elsif options[:size].to_i == options[:size]
+        options[:size] = "!#{options[:size]},#{options[:size]}"
+      end
+      options[:rotation] = 0 if options[:rotation].blank?
+      options[:color] = 'default' if options[:color].blank?
+      options[:format] = 'jpg' if options[:format].blank?
+
+      url = sprintf('%s/%s/%s/%d/%s.%s',
+                    binary.iiif_image_url,
+                    options[:region],
+                    options[:size],
+                    options[:rotation],
+                    options[:color],
+                    options[:format])
+
+      if options[:content_disposition].present?
+        if options[:content_disposition] == 'attachment'
+          if options[:filename].present?
+            filename = options[:filename]
+          else
+            filename = File.basename(binary.filename, File.extname(binary.filename)) +
+                '.' + options[:format]
+          end
+          value = "attachment; filename=\"#{filename}\""
+        else
+          value = options[:content_disposition]
+        end
+        query['response-content-disposition'] = value
+      end
+
+      if options.keys.include?(:cache) and !options[:cache]
+        query['cache'] = 'false'
+      end
+    end
+
+    url += '?' + query.to_query if query.keys.any?
+    url
+  end
+
+  ##
+  # @param binary [Binary]
+  # @param options [Hash<Symbol,Object>]
   # @option options [Boolean] :admin
   # @return [String]
   #
@@ -809,14 +869,20 @@ module ItemsHelper
     url = nil
     if Option::string(Option::Keys::SERVER_STATUS) != 'storage_offline'
       if entity.kind_of?(Binary) and entity.iiif_safe?
-        url = binary_image_url(entity, options[:size], options[:shape])
+        url = binary_image_url(entity,
+                               region: options[:shape],
+                               size: options[:size])
       elsif entity.kind_of?(Collection)
         bin = entity.effective_representative_image_binary
         if bin&.iiif_safe?
-          url = binary_image_url(bin, options[:size], options[:shape])
+          url = binary_image_url(bin,
+                                 region: options[:shape],
+                                 size: options[:size])
         end
       elsif entity.kind_of?(Item) and entity.effective_image_binary&.iiif_safe?
-        url = iiif_image_url(entity, options[:shape], options[:size])
+        url = iiif_image_url(entity,
+                             region: options[:shape],
+                             size: options[:size])
       end
     end
 
@@ -844,7 +910,7 @@ module ItemsHelper
   def thumbnail_url(entity, size = DEFAULT_THUMBNAIL_SIZE, shape = :default)
     url = nil
     if entity.kind_of?(Binary)
-      url = binary_image_url(entity, size, shape)
+      url = binary_image_url(entity, region: shape, size: size)
     elsif entity.kind_of?(Item)
       url = iiif_image_url(entity, shape, size)
     end
@@ -945,22 +1011,6 @@ module ItemsHelper
       </audio>"
     end
     raw(html)
-  end
-
-  ##
-  # @param binary [Binary]
-  # @param size [Integer]
-  # @param shape [Symbol] :default or :square
-  # @return [String, nil] Image URL or nil if the item is not an image
-  #
-  def binary_image_url(binary, size, shape = :default)
-    url = nil
-    if binary.is_image? or binary.is_pdf?
-      shape = (shape == :square) ? 'square' : 'full'
-      url = sprintf('%s/%s/!%d,%d/0/default.jpg',
-                    binary.iiif_image_url, shape, size, size)
-    end
-    url
   end
 
   ##

@@ -16,14 +16,10 @@ This is a basic getting-started guide for developers.
 * Elasticsearch 5.6
     * The [ICU Analysis Plugin](https://www.elastic.co/guide/en/elasticsearch/plugins/current/analysis-icu.html)
       is also required
-* [Cantaloupe](https://medusa-project.github.io/cantaloupe/) 3.3+
+* [Cantaloupe](https://medusa-project.github.io/cantaloupe/) 3.4+
     * [Kakadu](http://kakadusoftware.com/downloads/) or
       [OpenJPEG](http://www.openjpeg.org) (2.2.0 or later) will also be
       required.
-    * Other IIIF Image API 2.1 servers should generally work, but Cantaloupe
-      provides some bonus features like PDF & video thumbnails, remote
-      cache management, and compatibility with some less-common image formats
-      found in Medusa.
 * exiv2
 * ffmpeg
 
