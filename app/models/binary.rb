@@ -74,6 +74,8 @@ class Binary < ApplicationRecord
     #
     def self.media_category_for_media_type(media_type)
       case media_type
+        when 'image/vnd.adobe.photoshop'
+          return IMAGE
         when 'text/plain'
           return TEXT
       end
