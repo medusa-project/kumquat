@@ -665,7 +665,6 @@ module ItemsHelper
   #
   def share_button(entity)
     title = CGI::escape(entity.respond_to?(:title) ? entity.title : entity.name)
-    description = CGI::escape(entity.description.to_s)
     url = CGI::escape(polymorphic_url(entity))
 
     html = '<div class="btn-group">
@@ -697,22 +696,10 @@ module ItemsHelper
       raw('<i class="fa fa-facebook-square"></i> Facebook')
     end
     html += '</li>'
-    # linkedin
-    html += '<li>'
-    html += link_to("http://www.linkedin.com/shareArticle?mini=true&url=#{url}&title=#{title}&summary=#{description}") do
-      raw('<i class="fa fa-linkedin-square"></i> LinkedIn')
-    end
-    html += '</li>'
     # twitter: https://dev.twitter.com/web/tweet-button/web-intent
     html += '<li>'
     html += link_to("https://twitter.com/intent/tweet?url=#{url}&text=#{truncate(title, length: 140)}") do
       raw('<i class="fa fa-twitter-square"></i> Twitter')
-    end
-    html += '</li>'
-    # google+
-    html += '<li>'
-    html += link_to("https://plus.google.com/share?url=#{title} #{url}") do
-      raw('<i class="fa fa-google-plus-square"></i> Google+')
     end
     html += '</li>'
     # pinterest
