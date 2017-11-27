@@ -8,6 +8,66 @@ module ItemsHelper
   ##
   # @param binary [Binary]
   # @param options [Hash<Symbol,Object>]
+  # @option options [String] :region
+  # @option options [String] :size
+  # @option options [Integer] :rotation
+  # @option options [String] :color
+  # @option options [String] :content_disposition
+  # @option options [String] :filename
+  # @option options [Boolean] :cache
+  # @return [String, nil] Image URL, or nil if the binary is not compatible
+  #                       with the image server or safe for it to serve.
+  #
+  def binary_image_url(binary, options = {})
+    url = nil
+    query = {}
+
+    if binary.iiif_safe?
+      options[:region] = 'full' if options[:region].blank?
+      if options[:size].blank?
+        options[:size] = 'full'
+      elsif options[:size].to_i == options[:size]
+        options[:size] = "!#{options[:size]},#{options[:size]}"
+      end
+      options[:rotation] = 0 if options[:rotation].blank?
+      options[:color] = 'default' if options[:color].blank?
+      options[:format] = 'jpg' if options[:format].blank?
+
+      url = sprintf('%s/%s/%s/%d/%s.%s',
+                    binary.iiif_image_url,
+                    options[:region],
+                    options[:size],
+                    options[:rotation],
+                    options[:color],
+                    options[:format])
+
+      if options[:content_disposition].present?
+        if options[:content_disposition] == 'attachment'
+          if options[:filename].present?
+            filename = options[:filename]
+          else
+            filename = File.basename(binary.filename, File.extname(binary.filename)) +
+                '.' + options[:format]
+          end
+          value = "attachment; filename=\"#{filename}\""
+        else
+          value = options[:content_disposition]
+        end
+        query['response-content-disposition'] = value
+      end
+
+      if options.keys.include?(:cache) and !options[:cache]
+        query['cache'] = 'false'
+      end
+    end
+
+    url += '?' + query.to_query if query.keys.any?
+    url
+  end
+
+  ##
+  # @param binary [Binary]
+  # @param options [Hash<Symbol,Object>]
   # @option options [Boolean] :admin
   # @return [String]
   #
@@ -149,42 +209,6 @@ module ItemsHelper
     item.effective_viewer_binary ? true : false
   end
 
-  ##
-  # Returns an IIIF Image API 2.1 URL.
-  #
-  # @param item [Item]
-  # @param region [Symbol] :full or :square
-  # @param size [Symbol,Integer] Bounding box size or :full
-  # @param format [Symbol] One of the formats allowed by the Image API.
-  # @return [String, nil] Image URL, or nil if the item has no IIIF image
-  #                       binary.
-  #
-  def iiif_image_url(item, region = :full, size = :full, format = :jpg)
-    url = nil
-    bin = item.effective_image_binary
-    if bin
-      region = (region == :square) ? 'square' : 'full'
-      size = (size == :full) ? 'full' : "!#{size},#{size}" # fit within a `size` box
-      time = ''
-      if bin.duration.present?
-        # ?time=hh:mm:ss is a nonstandard argument supported only by
-        # Cantaloupe's FfmpegProcessor. All other processors will ignore it.
-        # If it's missing, the first frame will be returned.
-        #
-        # For videos of all lengths, the time needs to be enough to advance
-        # past title frames but not longer than the duration. It would be
-        # easier to hard-code something like 00:00:10, but there are actually
-        # some videos in the repository that are two seconds long.
-        # FfmpegProcessor doesn't allow a percentage argument because ffprobe
-        # doesn't. (DLD-102)
-        seconds = bin.duration * 0.2
-        time = '?time=' + TimeUtil.seconds_to_hms(seconds)
-      end
-      url = sprintf('%s/%s/%s/0/default.%s%s',
-                    bin.iiif_image_url, region, size, format, time)
-    end
-    url
-  end
 
   ##
   # @param item [Item]
@@ -227,6 +251,43 @@ module ItemsHelper
   end
 
   ##
+  # Returns an IIIF Image API 2.1 URL for an item.
+  #
+  # @param item [Item]
+  # @param region [Symbol] :full or :square
+  # @param size [Symbol,Integer] Bounding box size or :full
+  # @param format [Symbol] One of the formats allowed by the Image API.
+  # @return [String, nil] Image URL, or nil if the item has no IIIF image
+  #                       binary.
+  #
+  def item_image_url(item, region = :full, size = :full, format = :jpg)
+    url = nil
+    bin = item.effective_image_binary
+    if bin
+      region = (region == :square) ? 'square' : 'full'
+      size = (size == :full) ? 'full' : "!#{size},#{size}" # fit within a `size` box
+      time = ''
+      if bin.duration.present?
+        # ?time=hh:mm:ss is a nonstandard argument supported only by
+        # Cantaloupe's FfmpegProcessor. All other processors will ignore it.
+        # If it's missing, the first frame will be returned.
+        #
+        # For videos of all lengths, the time needs to be enough to advance
+        # past title frames but not longer than the duration. It would be
+        # easier to hard-code something like 00:00:10, but there are actually
+        # some videos in the repository that are two seconds long.
+        # FfmpegProcessor doesn't allow a percentage argument because ffprobe
+        # doesn't. (DLD-102)
+        seconds = bin.duration * 0.2
+        time = '?time=' + TimeUtil.seconds_to_hms(seconds)
+      end
+      url = sprintf('%s/%s/%s/0/default.%s%s',
+                    bin.iiif_image_url, region, size, format, time)
+    end
+    url
+  end
+
+  ##
   # Requested in DLD-116.
   #
   # @param item [Item]
@@ -238,7 +299,7 @@ module ItemsHelper
   def item_meta_tags(item)
     # N.B.: Minimum Twitter image size is 300x157 and maximum size is
     # 4096x4096 / 5MB.
-    image_url = iiif_image_url(item, :full, 1600)
+    image_url = item_image_url(item, :full, 1600)
 
     html = ''
 
@@ -526,7 +587,7 @@ module ItemsHelper
       # be huge and/or in a format they can't use.
       struct[:image] = {
           '@type': 'ImageObject',
-          'contentUrl': iiif_image_url(item, :default, 1024)
+          'contentUrl': item_image_url(item, :default, 1024)
       }
     end
 
@@ -636,7 +697,7 @@ module ItemsHelper
 
     # thumbnailUrl
     if iiif_image_binary
-      struct[:thumbnailUrl] = iiif_image_url(item, :default,
+      struct[:thumbnailUrl] = item_image_url(item, :default,
                                              ItemsHelper::DEFAULT_THUMBNAIL_SIZE)
     end
 
@@ -705,7 +766,7 @@ module ItemsHelper
     # pinterest
     url = "http://pinterest.com/pin/create/button/?url=#{url}&description=#{title}"
     if entity.kind_of?(Item)
-      iiif_url = iiif_image_url(entity, :default, 512)
+      iiif_url = item_image_url(entity, :default, 512)
       if iiif_url
         url += "&media=#{CGI::escape(iiif_url)}"
       end
@@ -809,14 +870,20 @@ module ItemsHelper
     url = nil
     if Option::string(Option::Keys::SERVER_STATUS) != 'storage_offline'
       if entity.kind_of?(Binary) and entity.iiif_safe?
-        url = binary_image_url(entity, options[:size], options[:shape])
+        url = binary_image_url(entity,
+                               region: options[:shape],
+                               size: options[:size])
       elsif entity.kind_of?(Collection)
         bin = entity.effective_representative_image_binary
         if bin&.iiif_safe?
-          url = binary_image_url(bin, options[:size], options[:shape])
+          url = binary_image_url(bin,
+                                 region: options[:shape],
+                                 size: options[:size])
         end
       elsif entity.kind_of?(Item) and entity.effective_image_binary&.iiif_safe?
-        url = iiif_image_url(entity, options[:shape], options[:size])
+        url = item_image_url(entity,
+                             region: options[:shape],
+                             size: options[:size])
       end
     end
 
@@ -844,9 +911,9 @@ module ItemsHelper
   def thumbnail_url(entity, size = DEFAULT_THUMBNAIL_SIZE, shape = :default)
     url = nil
     if entity.kind_of?(Binary)
-      url = binary_image_url(entity, size, shape)
+      url = binary_image_url(entity, region: shape, size: size)
     elsif entity.kind_of?(Item)
-      url = iiif_image_url(entity, shape, size)
+      url = item_image_url(entity, shape, size)
     end
     url
   end
@@ -945,22 +1012,6 @@ module ItemsHelper
       </audio>"
     end
     raw(html)
-  end
-
-  ##
-  # @param binary [Binary]
-  # @param size [Integer]
-  # @param shape [Symbol] :default or :square
-  # @return [String, nil] Image URL or nil if the item is not an image
-  #
-  def binary_image_url(binary, size, shape = :default)
-    url = nil
-    if binary.is_image? or binary.is_pdf?
-      shape = (shape == :square) ? 'square' : 'full'
-      url = sprintf('%s/%s/!%d,%d/0/default.jpg',
-                    binary.iiif_image_url, shape, size, size)
-    end
-    url
   end
 
   ##

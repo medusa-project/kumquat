@@ -52,16 +52,15 @@ module Cantaloupe
   #         `status_code` must be an integer from 300 to 399.
   #
   def self.authorized?(identifier, full_size, operations, resulting_size,
-      output_format, request_uri, request_headers, client_ip,
-      cookies)
+                       output_format, request_uri, request_headers, client_ip,
+                       cookies)
     true
   end
 
   ##
   # Used to add additional keys to an information JSON response, including
   # `attribution`, `license`, `logo`, `service`, and other custom keys. See
-  # the [Image API specification]
-  # (http://iiif.io/api/image/2.1/#image-information).
+  # the [Image API specification](http://iiif.io/api/image/2.1/#image-information).
   #
   # @param identifier [String] Image identifier
   # @return [Hash] Hash that will be merged into IIIF Image API 2.x
@@ -84,10 +83,11 @@ module Cantaloupe
 
     ##
     # @param identifier [String] Image identifier
+    # @param context [Hash] Context for this request
     # @return [String,nil] Absolute pathname of the image corresponding to the
     #                      given identifier, or nil if not found.
     #
-    def self.get_pathname(identifier)
+    def self.get_pathname(identifier, context)
       uri = URI.parse("#{MEDUSA_URL}/uuids/#{URI.escape(identifier)}.json")
 
       attempts = 0
@@ -124,10 +124,12 @@ module Cantaloupe
 
     ##
     # @param identifier [String] Image identifier
-    # @return [String,nil] S3 object key of the image corresponding to the
-    #                      given identifier, or nil if not found.
+    # @param context [Hash] Context for this request
+    # @return [String,Hash<String,Object>,nil] S3 object key of the image 
+    #					corresponding to the given identifier, 
+    #                   or Hash including bucket and key, or nil if not found.
     #
-    def self.get_object_key(identifier)
+    def self.get_object_key(identifier, context)
     end
 
   end
@@ -136,10 +138,11 @@ module Cantaloupe
 
     ##
     # @param identifier [String] Image identifier
+    # @param context [Hash] Context for this request
     # @return [String,nil] Blob key of the image corresponding to the given
     #                      identifier, or nil if not found.
     #
-    def self.get_blob_key(identifier)
+    def self.get_blob_key(identifier, context)
     end
 
   end
@@ -148,10 +151,12 @@ module Cantaloupe
 
     ##
     # @param identifier [String] Image identifier
-    # @return [String,nil] URL of the image corresponding to the given
-    #                      identifier, or nil if not found.
+    # @param context [Hash] Context for this request
+    # @return [String,Hash<String,String>,nil] String URL of the image
+    #         corresponding to the given identifier; or a hash with `uri`,
+    #         `username`, and `secret` keys; or nil if not found.
     #
-    def self.get_url(identifier)
+    def self.get_url(identifier, context)
     end
 
   end
@@ -160,19 +165,19 @@ module Cantaloupe
 
     ##
     # @param identifier [String] Image identifier
+    # @param context [Hash] Context for this request
     # @return [String] Identifier of the image corresponding to the given
     #                  identifier in the database.
     #
-    def self.get_database_identifier(identifier)
+    def self.get_database_identifier(identifier, context)
     end
 
     ##
-    # Returns an SQL statement that can be used to retrieve the media (MIME)
-    # type of an image. If the media type is stored in the database, this can
-    # return an SQL statement to retrieve it, in which case the "SELECT" and
-    # "FROM" clauses should be in uppercase in order to be autodetected. If
-    # commented out, the media type will be inferred from the identifier
-    # extension (if present).
+    # Returns either the media (MIME) type of an image, or an SQL statement
+    # that can be used to retrieve it, if it is stored in the database. In the
+    # latter case, the "SELECT" and "FROM" clauses should be in uppercase in
+    # order to be autodetected. If nil is returned, the media type will be
+    # inferred from the extension in the identifier (if present).
     #
     def self.get_media_type
     end
@@ -219,7 +224,7 @@ module Cantaloupe
   #         Return false for no overlay.
   #
   def self.overlay(identifier, operations, resulting_size, output_format,
-      request_uri, request_headers, client_ip, cookies)
+                   request_uri, request_headers, client_ip, cookies)
     false
   end
 
@@ -244,4 +249,4 @@ module Cantaloupe
 end
 
 # Uncomment to test on the command line (`ruby delegates.rb`)
-#puts Cantaloupe::FilesystemResolver::get_pathname('7b7e08f0-0b13-0134-1d55-0050569601ca-a')
+#puts Cantaloupe::FilesystemResolver::get_pathname('7b7e08f0-0b13-0134-1d55-0050569601ca-a', {})
