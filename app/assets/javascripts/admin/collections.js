@@ -71,12 +71,23 @@ var PTAdminCollectionView = function() {
 
 };
 
+var PTAdminEditCollectionView = function() {
+
+    this.init = function() {
+        new PearTree.DirtyFormListener('form').listen();
+    };
+
+};
+
 var ready = function() {
     if ($('body#admin_collections_index').length) {
         PearTree.view = new PTAdminCollectionsView();
         PearTree.view.init();
     } else if ($('body#admin_collections_show').length) {
         PearTree.view = new PTAdminCollectionView();
+        PearTree.view.init();
+    } else if ($('body#admin_edit_collection').length) {
+        PearTree.view = new PTAdminEditCollectionView();
         PearTree.view.init();
     }
 };
