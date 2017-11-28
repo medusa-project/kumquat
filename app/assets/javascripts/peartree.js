@@ -95,6 +95,41 @@ var PearTree = {
     },
 
     /**
+     * Marks changed form fields as dirty.
+     *
+     * @param form_selector jQuery form selector
+     * @constructor
+     */
+    DirtyFormListener: function(form_selector) {
+
+        var DIRTY_CLASS = 'pt-dirty';
+
+        this.listen = function() {
+            // When the value of a text input changes, mark it as dirty.
+            // (DLD-197)
+            var inputs = $(form_selector)
+                .find('input[type=text], input[type=number], select, textarea');
+            inputs.each(function () {
+                $(this).removeClass(DIRTY_CLASS);
+                $(this).data('initial-value', $(this).val());
+            });
+            inputs.on('propertychange keyup change', function () {
+                var initial_value = $(this).data('initial-value');
+                if (initial_value === undefined) {
+                    initial_value = '';
+                }
+                if ((initial_value && $(this).val() === initial_value) ||
+                    (!initial_value && !$(this).val())) {
+                    $(this).removeClass(DIRTY_CLASS);
+                } else {
+                    $(this).addClass(DIRTY_CLASS);
+                }
+            });
+        }
+
+    },
+
+    /**
      * Provides an ajax filter field. This will contain HTML like:
      *
      * <form class="pt-filter">
