@@ -52,10 +52,4 @@ var ready = function() {
     }
 };
 
-var teardown = function() {
-    task_refresher.stop();
-};
-
 $(document).ready(ready);
-$(document).on('page:load', ready);
-$(document).on('page:before-change', teardown);
