@@ -5,7 +5,11 @@
 #
 # `oai:host:port:repository_id`
 #
-# Resumption token format:
+# Resumption token:
+#
+# The resumption token is ROT-18-encoded to make it appear opaque and
+# discourage clients from changing it, even though if they do, it's not a big
+# deal. The decoded format is:
 #
 # `set:n|from:n|until:n|start:n|metadataPrefix:n`
 #
@@ -178,7 +182,8 @@ class OaiPmhController < ApplicationController
 
   def parse_resumption_token(key)
     if params[:resumptionToken].present?
-      params[:resumptionToken].split(RESUMPTION_TOKEN_COMPONENT_SEPARATOR).each do |component|
+      decoded = StringUtils.rot18(params[:resumptionToken])
+      decoded.split(RESUMPTION_TOKEN_COMPONENT_SEPARATOR).each do |component|
         kv = component.split(RESUMPTION_TOKEN_KEY_VALUE_SEPARATOR)
         return kv[1] if kv.length == 2 and kv[0] == key
       end
@@ -227,7 +232,7 @@ class OaiPmhController < ApplicationController
   end
 
   def resumption_token(set, from, until_, current_start, metadata_prefix)
-    [
+    token = [
         ['set', set],
         ['from', from],
         ['until', until_],
@@ -237,6 +242,7 @@ class OaiPmhController < ApplicationController
         select{ |a| a[1].present? }.
         map{ |a| a.join(RESUMPTION_TOKEN_KEY_VALUE_SEPARATOR) }.
         join(RESUMPTION_TOKEN_COMPONENT_SEPARATOR)
+    StringUtils.rot18(token)
   end
 
   def resumption_token_expiration_date
