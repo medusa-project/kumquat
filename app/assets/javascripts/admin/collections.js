@@ -8,7 +8,7 @@ var PTAdminCollectionsView = function() {
     var self = this;
 
     this.init = function() {
-        new PearTree.FilterField();
+        new Application.FilterField();
 
         $('input[type=checkbox]').on('change', function() {
             $('form.pt-filter').submit();
@@ -81,16 +81,15 @@ var PTAdminEditCollectionView = function() {
 
 var ready = function() {
     if ($('body#admin_collections_index').length) {
-        PearTree.view = new PTAdminCollectionsView();
-        PearTree.view.init();
+        Application.view = new PTAdminCollectionsView();
+        Application.view.init();
     } else if ($('body#admin_collections_show').length) {
-        PearTree.view = new PTAdminCollectionView();
-        PearTree.view.init();
+        Application.view = new PTAdminCollectionView();
+        Application.view.init();
     } else if ($('body#admin_edit_collection').length) {
-        PearTree.view = new PTAdminEditCollectionView();
-        PearTree.view.init();
+        Application.view = new PTAdminEditCollectionView();
+        Application.view.init();
     }
 };
 
 $(document).ready(ready);
-$(document).on('page:load', ready);

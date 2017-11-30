@@ -1,5 +1,5 @@
 ##
-# Cantaloupe delegate script for use with PearTree
+# Cantaloupe delegate script for use with Kumquat
 #
 # This script overrides Cantaloupe::FilesystemResolver::get_pathname() to
 # allow use of Medusa file UUIDs as IIIF Image API identifiers.

@@ -6,7 +6,7 @@
 var PTCollectionsView = function() {
 
     var init = function() {
-        new PearTree.FilterField();
+        new Application.FilterField();
 
         var addFacetEventListeners = function() {
             $('[name="pt-facet-term"]').on('change', function() {
@@ -76,9 +76,8 @@ var PTCollectionsView = function() {
 
 var ready = function() {
     if ($('body#collections_index').length) {
-        PearTree.view = new PTCollectionsView();
+        Application.view = new PTCollectionsView();
     }
 };
 
 $(document).ready(ready);
-$(document).on('page:load', ready);

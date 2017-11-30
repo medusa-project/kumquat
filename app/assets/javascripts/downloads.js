@@ -25,9 +25,8 @@ var PTDownloadView = function() {
 
 var ready = function() {
     if ($('body#download_status').length) {
-        PearTree.view = new PTDownloadView();
+        Application.view = new PTDownloadView();
     }
 };
 
 $(document).ready(ready);
-$(document).on('page:load', ready);

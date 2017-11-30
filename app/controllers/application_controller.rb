@@ -36,7 +36,7 @@ class ApplicationController < ActionController::Base
   #
   def handle_error(e)
     CustomLogger.instance.warn(e)
-    response.headers['X-PearTree-Result'] = 'error'
+    response.headers['X-Kumquat-Result'] = 'error'
     flash['error'] = "#{e}"
   end
 
@@ -84,13 +84,13 @@ class ApplicationController < ActionController::Base
   #
   def flash_in_response_headers
     if request.xhr?
-      response.headers['X-PearTree-Message-Type'] = 'error' unless
+      response.headers['X-Kumquat-Message-Type'] = 'error' unless
           flash['error'].blank?
-      response.headers['X-PearTree-Message-Type'] = 'success' unless
+      response.headers['X-Kumquat-Message-Type'] = 'success' unless
           flash['success'].blank?
-      response.headers['X-PearTree-Message'] = flash['error'] unless
+      response.headers['X-Kumquat-Message'] = flash['error'] unless
           flash['error'].blank?
-      response.headers['X-PearTree-Message'] = flash['success'] unless
+      response.headers['X-Kumquat-Message'] = flash['success'] unless
           flash['success'].blank?
       flash.clear unless @keep_flash
     end
