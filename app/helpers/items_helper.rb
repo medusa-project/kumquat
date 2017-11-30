@@ -882,8 +882,8 @@ module ItemsHelper
         end
       elsif entity.kind_of?(Item) and entity.effective_image_binary&.iiif_safe?
         url = item_image_url(entity,
-                             region: options[:shape],
-                             size: options[:size])
+                             options[:shape],
+                             options[:size])
       end
     end
 
