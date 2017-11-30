@@ -24,6 +24,7 @@ gem 'pg'
 gem 'prawn' # used to generate PDFs of compound objects
 gem 'rails_autolink'
 gem 'sass-rails', '~> 5.0'
+gem 'therubyracer'
 gem 'tzinfo-data'
 gem 'uglifier', '>= 1.3.0' # JavaScript asset compressor
 
