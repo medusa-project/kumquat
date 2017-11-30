@@ -8,12 +8,12 @@ var PTAgentView = function() {
     var self = this;
 
     this.init = function() {
-        $(document).on(PearTree.Events.ITEM_ADDED_TO_FAVORITES, function(event, item) {
+        $(document).on(Application.Events.ITEM_ADDED_TO_FAVORITES, function(event, item) {
             $('.pt-results button.pt-remove-from-favorites[data-item-id="' + item.id + '"]').show();
             $('.pt-results button.pt-add-to-favorites[data-item-id="' + item.id + '"]').hide();
             updateFavoritesCount();
         });
-        $(document).on(PearTree.Events.ITEM_REMOVED_FROM_FAVORITES, function(event, item) {
+        $(document).on(Application.Events.ITEM_REMOVED_FROM_FAVORITES, function(event, item) {
             $('.pt-results button.pt-remove-from-favorites[data-item-id="' + item.id + '"]').hide();
             $('.pt-results button.pt-add-to-favorites[data-item-id="' + item.id + '"]').show();
             updateFavoritesCount();
@@ -80,10 +80,9 @@ var PTAgentView = function() {
 
 var ready = function() {
     if ($('body#agents_show').length) {
-        PearTree.view = new PTAgentView();
-        PearTree.view.init();
+        Application.view = new PTAgentView();
+        Application.view.init();
     }
 };
 
 $(document).ready(ready);
-$(document).on('page:load', ready);

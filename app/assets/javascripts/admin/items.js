@@ -161,7 +161,7 @@ var PTAdminItemEditView = function() {
 var PTAdminItemsEditView = function() {
 
     var self = this;
-    var shade = new PearTree.AJAXShade();
+    var shade = new Application.AJAXShade();
 
     this.init = function() {
         self.attachEventListeners();
@@ -230,8 +230,8 @@ var PTAdminItemsView = function() {
     var self = this;
 
     this.init = function() {
-        new PearTree.FilterField();
-        PearTree.initFacets();
+        new Application.FilterField();
+        Application.initFacets();
 
         self.attachEventListeners();
     };
@@ -296,19 +296,18 @@ var PTAdminItemView = function() {
 
 var ready = function() {
     if ($('body#admin_items_edit').length) {
-        PearTree.view = new PTAdminItemEditView();
-        PearTree.view.init();
+        Application.view = new PTAdminItemEditView();
+        Application.view.init();
     } else if ($('body#admin_items_edit_all').length) {
-        PearTree.view = new PTAdminItemsEditView();
-        PearTree.view.init();
+        Application.view = new PTAdminItemsEditView();
+        Application.view.init();
     } else if ($('body#admin_items_index').length) {
-        PearTree.view = new PTAdminItemsView();
-        PearTree.view.init();
+        Application.view = new PTAdminItemsView();
+        Application.view.init();
     } else if ($('body#admin_items_show').length) {
-        PearTree.view = new PTAdminItemView();
-        PearTree.view.init();
+        Application.view = new PTAdminItemView();
+        Application.view.init();
     }
 };
 
 $(document).ready(ready);
-$(document).on('page:load', ready);

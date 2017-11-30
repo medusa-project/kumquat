@@ -42,14 +42,24 @@ class ImageServer
   #
   # @param item [Item]
   # @return [void]
-  # @raises [Exception]
+  # @raises [IOError]
   #
   def purge_item_images_from_cache(item)
     identifier = item.effective_image_binary&.iiif_image_identifier
     if identifier
-      uri = Configuration.instance.image_server_api_endpoint +
-          '/cache/' + CGI::escape(identifier)
-      client.delete(uri)
+      uri = Configuration.instance.image_server_api_endpoint + '/tasks'
+      headers = {
+          'Content-Type': 'application/json'
+      }
+      body = JSON.generate({
+          verb: 'PurgeItemFromCache',
+          identifier: identifier
+      })
+
+      response = client.post(uri, body, headers)
+      if response.status != 200
+        raise IOError, "Unexpected response from image server: #{response.status}"
+      end
     end
   end
 

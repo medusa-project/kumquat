@@ -10,7 +10,7 @@ module Admin
       begin
         @agent_rule.save!
       rescue ActiveRecord::RecordInvalid
-        response.headers['X-PearTree-Result'] = 'error'
+        response.headers['X-Kumquat-Result'] = 'error'
         render partial: 'shared/validation_messages',
                locals: { entity: @agent_rule }
       rescue => e
@@ -18,7 +18,7 @@ module Admin
         keep_flash
         render 'create'
       else
-        response.headers['X-PearTree-Result'] = 'success'
+        response.headers['X-Kumquat-Result'] = 'success'
         flash['success'] = "Agent rule \"#{@agent_rule.name}\" created."
         keep_flash
         render 'create' # create.js.erb will reload the page
@@ -63,7 +63,7 @@ module Admin
       begin
         agent_rule.update!(sanitized_params)
       rescue ActiveRecord::RecordInvalid
-        response.headers['X-PearTree-Result'] = 'error'
+        response.headers['X-Kumquat-Result'] = 'error'
         render partial: 'shared/validation_messages',
                locals: { entity: agent_rule }
       rescue => e
@@ -71,7 +71,7 @@ module Admin
         keep_flash
         render 'update'
       else
-        response.headers['X-PearTree-Result'] = 'success'
+        response.headers['X-Kumquat-Result'] = 'success'
         flash['success'] = "Agent \"#{agent_rule.name}\" updated."
         keep_flash
         render 'update' # update.js.erb will reload the page

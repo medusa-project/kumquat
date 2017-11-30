@@ -1,6 +1,6 @@
 /**
  * A control panel object available in all Control Panel views as
- * PearTree.ControlPanel.
+ * Application.ControlPanel.
  *
  * @constructor
  */
@@ -32,9 +32,8 @@ var PTControlPanel = function() {
 };
 
 var ready = function() {
-    PearTree.ControlPanel = new PTControlPanel();
-    PearTree.ControlPanel.init();
+    Application.ControlPanel = new PTControlPanel();
+    Application.ControlPanel.init();
 };
 
 $(document).ready(ready);
-$(document).on('page:load', ready);

@@ -21,7 +21,7 @@ var PTItem = function() {
                 cookie = parts.join(',');
             }
             Cookies.set(FAVORITES_COOKIE_NAME, cookie, { path: COOKIE_PATH });
-            $(document).trigger(PearTree.Events.ITEM_ADDED_TO_FAVORITES, self);
+            $(document).trigger(Application.Events.ITEM_ADDED_TO_FAVORITES, self);
         }
     };
 
@@ -40,7 +40,7 @@ var PTItem = function() {
             parts.splice($.inArray(self.id, parts), 1);
             Cookies.set(FAVORITES_COOKIE_NAME, parts.join(','),
                 { path: COOKIE_PATH });
-            $(document).trigger(PearTree.Events.ITEM_REMOVED_FROM_FAVORITES,
+            $(document).trigger(Application.Events.ITEM_REMOVED_FROM_FAVORITES,
                 self);
         }
     };
