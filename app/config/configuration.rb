@@ -1,5 +1,5 @@
 ##
-# Singleton interface to the application configuration (/config/peartree.yml).
+# Singleton interface to the application configuration (/config/kumquat.yml).
 #
 # Usage:
 #
@@ -11,7 +11,7 @@ class Configuration
   include Singleton
 
   def initialize
-    @config = YAML.load_file(File.join(Rails.root, 'config', 'peartree.yml'))[Rails.env]
+    @config = YAML.load_file(File.join(Rails.root, 'config', 'kumquat.yml'))[Rails.env]
   end
 
   ##

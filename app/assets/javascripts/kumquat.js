@@ -1,4 +1,4 @@
-var PearTree = {
+var Application = {
 
     Events: {
         ITEM_ADDED_TO_FAVORITES: 'PTItemAddedToFavorites',
@@ -149,7 +149,7 @@ var PearTree = {
 
         /**
          * @param text
-         * @param type Value of the X-PearTree-Message-Type header
+         * @param type Value of the X-Kumquat-Message-Type header
          * @return void
          */
         set: function(text, type) {
@@ -193,7 +193,7 @@ var PearTree = {
     },
 
     /**
-     * Enables smooth scrolling to anchors. This is called by PearTree.init()
+     * Enables smooth scrolling to anchors. This is called by Application.init()
      * to take effect globally, but is safe to call again to use a different
      * offset.
      *
@@ -260,18 +260,18 @@ var PearTree = {
             setToggleState(toggleForCollapse($(this)), false);
         });
 
-        PearTree.smoothAnchorScroll(0);
+        Application.smoothAnchorScroll(0);
 
         // These global AJAX success and error callbacks save the work of
         // defining local ones in many $.ajax() calls.
         //
-        // This one sets the flash if there are `X-PearTree-Message` and
-        // `X-PearTree-Message-Type` response headers. These would be set by
-        // an ApplicationController after_filter. `X-PearTree-Result` is
+        // This one sets the flash if there are `X-Kumquat-Message` and
+        // `X-Kumquat-Message-Type` response headers. These would be set by
+        // an ApplicationController after_filter. `X-Kumquat-Result` is
         // another header that, if set, can contain "success" or "error",
         // indicating the result of a form submission.
         $(document).ajaxSuccess(function(event, request) {
-            var result_type = request.getResponseHeader('X-PearTree-Message-Type');
+            var result_type = request.getResponseHeader('X-Kumquat-Message-Type');
             var edit_panel = $('.pt-edit-panel.in');
 
             if (result_type && edit_panel.length) {
@@ -280,9 +280,9 @@ var PearTree = {
                 } else if (result_type === 'error') {
                     edit_panel.find('.modal-body').animate({ scrollTop: 0 }, 'fast');
                 }
-                var message = request.getResponseHeader('X-PearTree-Message');
+                var message = request.getResponseHeader('X-Kumquat-Message');
                 if (message && result_type) {
-                    PearTree.Flash.set(message, result_type);
+                    Application.Flash.set(message, result_type);
                 }
             }
         });
@@ -302,7 +302,7 @@ var PearTree = {
 };
 
 var ready = function() {
-    PearTree.init();
+    Application.init();
 };
 
 $(document).ready(ready);

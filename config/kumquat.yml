@@ -1,0 +1,54 @@
+development: &development
+  :aws_access_key_id: AKIAIAWIKSWCTZ27MEYQ
+  :aws_secret_key: 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
+  :aws_region: us-east-1
+  :repository_pathname: /Volumes/library/medusa/production/root
+  :iiif_url: http://localhost:8189/iiif/2
+  :image_server_api_endpoint: http://localhost:8189
+  :image_server_api_user: admin
+  :image_server_api_secret: secret
+  :mail_delivery_method: smtp
+  :mail_smtp_host: express-smtp.cites.uiuc.edu
+  :mail_smtp_port: 25
+  :mail_authentication: plain
+  :mail_enable_starttls_auto: false
+  :medusa_url: https://medusa.library.illinois.edu/
+  :medusa_user: machine_user
+  :medusa_secret: 1QuetJovnia
+  :api_user: api_user
+  :api_secret: secret
+  :api_ips:
+    - 127.0.
+  :elasticsearch_endpoint: http://localhost:9200
+  :downloader_url: http://download.library.illinois.edu:8080
+  :downloader_user: dls
+  :downloader_password: gu4F^vsw@A
+
+test:
+  :aws_access_key_id: AKIAIAWIKSWCTZ27MEYQ
+  :aws_secret_key: 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
+  :aws_region: us-east-1
+  :repository_pathname: /Volumes/library/medusa/production/root
+  :iiif_url: http://localhost:8189/iiif/2
+  :image_server_api_endpoint: http://localhost:8189
+  :image_server_api_user: admin
+  :image_server_api_secret: secret
+  :mail_delivery_method: smtp
+  :mail_smtp_host: express-smtp.cites.uiuc.edu
+  :mail_smtp_port: 25
+  :mail_authentication: plain
+  :mail_enable_starttls_auto: false
+  :medusa_url: https://medusa.library.illinois.edu/
+  :medusa_user: machine_user
+  :medusa_secret: 1QuetJovnia
+  :api_user: api_user
+  :api_secret: secret
+  :api_ips:
+    - 127.0.
+  :elasticsearch_endpoint: http://localhost:9200
+  :downloader_url: http://download.library.illinois.edu:8080
+  :downloader_user: dls
+  :downloader_password: gu4F^vsw@A
+
+production:
+  <<: *development

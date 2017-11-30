@@ -1,6 +1,6 @@
 development: &development
   adapter: postgresql
-  database: peartree_development
+  database: kumquat_development
   host: localhost
   port: 5432
   min_messages: warning
@@ -15,7 +15,7 @@ development_2:
 # Do not set this db to the same as development or production.
 test: &test
   adapter: postgresql
-  database: peartree_test
+  database: kumquat_test
   host: localhost
   port: 5432
   min_messages: warning
@@ -27,7 +27,7 @@ test_2:
 
 production: &production
   adapter: postgresql
-  database: peartree_production
+  database: kumquat_production
   host: localhost
   port: 5432
   min_messages: warning

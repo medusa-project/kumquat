@@ -33,9 +33,9 @@ This is a basic getting-started guide for developers.
 
 ## 2) Clone the repository:
 
-`$ git clone https://github.com/medusa-project/PearTree.git`
+`$ git clone https://github.com/medusa-project/kumquat.git`
 
-`$ cd PearTree`
+`$ cd kumquat`
 
 ## 3) Install Ruby
 
@@ -53,7 +53,7 @@ This is a basic getting-started guide for developers.
 
 `$ cp config/database.template.yml config/database.yml` and edit as necessary
 
-`$ cp config/peartree.template.yml config/peartree.yml` and edit as necessary
+`$ cp config/kumquat.template.yml config/kumquat.yml` and edit as necessary
 
 `$ cp config/shibboleth.template.yml config/shibboleth.yml`
 
@@ -142,9 +142,9 @@ collection.)
 
 `endpoint.api.enabled = true`
 
-`endpoint.api.username = :image_server_api_user: from PearTree's config.yml`
+`endpoint.api.username = :image_server_api_user: from kumquat.yml`
 
-`endpoint.api.secret = :image_server_api_secret: from PearTree's config.yml`
+`endpoint.api.secret = :image_server_api_secret: from kumquat.yml`
 
 `FilesystemResolver.lookup_strategy = ScriptLookupStrategy`
 

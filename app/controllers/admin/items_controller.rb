@@ -231,7 +231,7 @@ module Admin
         format.tsv do
           # Can't pass an uploaded file to an ActiveJob, so it will be saved
           # to this temp file, whose pathname gets passed to the job.
-          tempfile = Tempfile.new('peartree-uploaded-items.tsv')
+          tempfile = Tempfile.new('uploaded-items.tsv')
           # The finalizer would otherwise delete it.
           ObjectSpace.undefine_finalizer(tempfile)
 

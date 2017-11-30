@@ -281,12 +281,12 @@ var PTItemView = function() {
     };
 
     this.init = function() {
-        $(document).on(PearTree.Events.ITEM_ADDED_TO_FAVORITES, function(event, item) {
+        $(document).on(Application.Events.ITEM_ADDED_TO_FAVORITES, function(event, item) {
             $('.pt-add-to-favorites').hide();
             $('.pt-remove-from-favorites').show();
             updateFavoritesCount();
         });
-        $(document).on(PearTree.Events.ITEM_REMOVED_FROM_FAVORITES, function(event, item) {
+        $(document).on(Application.Events.ITEM_REMOVED_FROM_FAVORITES, function(event, item) {
             $('.pt-remove-from-favorites').hide();
             $('.pt-add-to-favorites').show();
             updateFavoritesCount();
@@ -310,7 +310,7 @@ var PTItemView = function() {
         // Lazy-load thumbnail images in the download section when it gets
         // expanded.
         $('#pt-download-section').on('shown.bs.collapse', function() {
-            PearTree.loadLazyImages();
+            Application.loadLazyImages();
         });
         // Or, when it's being rendered in its expanded state.
         if ($('#pt-download').hasClass('in')) {
@@ -321,7 +321,7 @@ var PTItemView = function() {
         // container div appears.
         $('#pt-3d-viewer-container').on('shown.bs.collapse', function() {
             if (!three_d_viewer_loaded) {
-                PearTree.view.threeDViewer.start();
+                Application.view.threeDViewer.start();
                 three_d_viewer_loaded = true;
             }
         });
@@ -415,8 +415,8 @@ var PTItemsView = function() {
     var self = this;
 
     this.init = function() {
-        new PearTree.FilterField();
-        PearTree.initFacets();
+        new Application.FilterField();
+        Application.initFacets();
 
         // Submit the sort form on change.
         $('select[name="sort"]').on('change', function () {
@@ -465,12 +465,12 @@ var PTItemsView = function() {
     };
 
     this.attachFavoritesListeners = function() {
-        $(document).on(PearTree.Events.ITEM_ADDED_TO_FAVORITES, function (event, item) {
+        $(document).on(Application.Events.ITEM_ADDED_TO_FAVORITES, function (event, item) {
             $('.pt-results button.pt-remove-from-favorites[data-item-id="' + item.id + '"]').show();
             $('.pt-results button.pt-add-to-favorites[data-item-id="' + item.id + '"]').hide();
             updateFavoritesCount();
         });
-        $(document).on(PearTree.Events.ITEM_REMOVED_FROM_FAVORITES, function (event, item) {
+        $(document).on(Application.Events.ITEM_REMOVED_FROM_FAVORITES, function (event, item) {
             $('.pt-results button.pt-remove-from-favorites[data-item-id="' + item.id + '"]').hide();
             $('.pt-results button.pt-add-to-favorites[data-item-id="' + item.id + '"]').show();
             updateFavoritesCount();
@@ -666,9 +666,9 @@ var PTTreeBrowserView = function() {
         //reset flag used by embed.js
         window.embedScriptIncluded = false;
         $('#pt-free-form-item-view').html(result);
-        PearTree.init();
-        PearTree.view = new PTItemView();
-        PearTree.view.init();
+        Application.init();
+        Application.view = new PTItemView();
+        Application.view.init();
     };
 
     var getRootTreeDataURL = function() {
@@ -690,14 +690,14 @@ var PTTreeBrowserView = function() {
 
 var ready = function() {
     if ($('body#tree_browser').length) {
-        PearTree.view = new PTTreeBrowserView();
-        PearTree.view.init();
+        Application.view = new PTTreeBrowserView();
+        Application.view.init();
     } if ($('body#items_index').length) {
-        PearTree.view = new PTItemsView();
-        PearTree.view.init();
+        Application.view = new PTItemsView();
+        Application.view.init();
     } else if ($('body#items_show').length) {
-        PearTree.view = new PTItemView();
-        PearTree.view.init();
+        Application.view = new PTItemView();
+        Application.view.init();
     }
 };
 
