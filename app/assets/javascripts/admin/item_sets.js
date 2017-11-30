@@ -58,8 +58,8 @@ var PTAdminItemSetView = function() {
 
 var ready = function() {
     if ($('body#admin_item_sets_show').length) {
-        PearTree.view = new PTAdminItemSetView();
-        PearTree.view.init();
+        Application.view = new PTAdminItemSetView();
+        Application.view.init();
     }
 };
 

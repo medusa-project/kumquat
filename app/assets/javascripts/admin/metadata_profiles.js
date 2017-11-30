@@ -22,7 +22,7 @@ var PTAdminMetadataProfileView = function() {
 
 var ready = function() {
     if ($('body#metadata_profiles_show').length) {
-        PearTree.view = new PTAdminMetadataProfileView();
+        Application.view = new PTAdminMetadataProfileView();
     }
 };
 

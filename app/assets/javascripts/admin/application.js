@@ -15,7 +15,7 @@
 //= require js.cookie
 //= require bootstrap-sprockets
 //= require jquery.stickytableheaders.min.js
-//= require ../peartree
+//= require ../kumquat
 //= require local-time
 //= require spin.min
 //= require_tree .

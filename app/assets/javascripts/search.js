@@ -1,7 +1,7 @@
 var ready = function() {
     if ($('#search_index').length) {
-        PearTree.view = new PTItemsView();
-        PearTree.view.init();
+        Application.view = new PTItemsView();
+        Application.view.init();
     }
 };
 

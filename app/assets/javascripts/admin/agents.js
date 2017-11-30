@@ -88,7 +88,7 @@ var PTAdminAgentRelationForm = function() {
 var PTAdminAgentsView = function() {
 
     this.init = function() {
-        new PearTree.FilterField();
+        new Application.FilterField();
         $('form.pt-filter input').on('change', function() {
             $('form.pt-filter').submit();
         });
@@ -134,11 +134,11 @@ var PTAdminAgentView = function() {
 
 var ready = function() {
     if ($('body#admin_agents_index').length) {
-        PearTree.view = new PTAdminAgentsView();
-        PearTree.view.init();
+        Application.view = new PTAdminAgentsView();
+        Application.view.init();
     } else if ($('body#admin_agents_show').length) {
-        PearTree.view = new PTAdminAgentView();
-        PearTree.view.init();
+        Application.view = new PTAdminAgentView();
+        Application.view.init();
     }
 };
 

@@ -12,7 +12,7 @@ module Admin
         item_set = ItemSet.new(sanitized_params)
         item_set.save!
       rescue ActiveRecord::RecordInvalid
-        response.headers['X-PearTree-Result'] = 'error'
+        response.headers['X-Kumquat-Result'] = 'error'
         render partial: 'shared/validation_messages',
                locals: { entity: item_set }
       rescue => e
@@ -20,7 +20,7 @@ module Admin
         keep_flash
         render 'create'
       else
-        response.headers['X-PearTree-Result'] = 'success'
+        response.headers['X-Kumquat-Result'] = 'success'
         flash['success'] = "Set \"#{item_set}\" created."
         keep_flash
         render 'create' # create.js.erb will reload the page
@@ -141,7 +141,7 @@ module Admin
       begin
         item_set.update!(sanitized_params)
       rescue ActiveRecord::RecordInvalid
-        response.headers['X-PearTree-Result'] = 'error'
+        response.headers['X-Kumquat-Result'] = 'error'
         render partial: 'shared/validation_messages',
                locals: { entity: item_set }
       rescue => e
@@ -149,7 +149,7 @@ module Admin
         keep_flash
         render 'update'
       else
-        response.headers['X-PearTree-Result'] = 'success'
+        response.headers['X-Kumquat-Result'] = 'success'
         flash['success'] = "Set \"#{item_set}\" updated."
         keep_flash
         render 'update' # update.js.erb will reload the page

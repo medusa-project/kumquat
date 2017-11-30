@@ -11,7 +11,7 @@ module Admin
       begin
         @vocabulary.save!
       rescue ActiveRecord::RecordInvalid
-        response.headers['X-PearTree-Result'] = 'error'
+        response.headers['X-Kumquat-Result'] = 'error'
         render partial: 'shared/validation_messages',
                locals: { entity: @vocabulary }
       rescue => e
@@ -19,7 +19,7 @@ module Admin
         keep_flash
         render 'create'
       else
-        response.headers['X-PearTree-Result'] = 'success'
+        response.headers['X-Kumquat-Result'] = 'success'
         flash['success'] = "Vocabulary \"#{@vocabulary.name}\" created."
         keep_flash
         render 'create' # create.js.erb will reload the page
@@ -126,7 +126,7 @@ module Admin
         begin
           @vocabulary.update!(sanitized_params)
         rescue ActiveRecord::RecordInvalid
-          response.headers['X-PearTree-Result'] = 'error'
+          response.headers['X-Kumquat-Result'] = 'error'
           render partial: 'shared/validation_messages',
                  locals: { entity: @vocabulary }
         rescue => e
@@ -134,7 +134,7 @@ module Admin
           keep_flash
           render 'update'
         else
-          response.headers['X-PearTree-Result'] = 'success'
+          response.headers['X-Kumquat-Result'] = 'success'
           flash['success'] = "Vocabulary \"#{@vocabulary.name}\" updated."
           keep_flash
           render 'update' # update.js.erb will reload the page
@@ -143,13 +143,13 @@ module Admin
         begin
           @vocabulary.update!(sanitized_params)
         rescue ActiveRecord::RecordInvalid
-          response.headers['X-PearTree-Result'] = 'error'
+          response.headers['X-Kumquat-Result'] = 'error'
           render 'show'
         rescue => e
           handle_error(e)
           render 'show'
         else
-          response.headers['X-PearTree-Result'] = 'success'
+          response.headers['X-Kumquat-Result'] = 'success'
           flash['success'] = "Vocabulary \"#{@vocabulary.name}\" updated."
           redirect_back fallback_location: admin_vocabulary_path(@vocabulary)
         end
