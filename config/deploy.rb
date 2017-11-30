@@ -1,19 +1,19 @@
 # config valid only for current version of Capistrano
 lock '3.9.0'
 
-set :application, 'peartree'
+set :application, 'kumquat'
 set :repo_url, 'https://github.com/medusa-project/PearTree.git'
 
 # Default branch is :master
 # ask :branch, `git rev-parse --abbrev-ref HEAD`.chomp
 
-set :home, '/home/lib-medusa-dls'
+set :home, '/home/centos'
 
 set :bin, "#{fetch(:home)}/bin"
 
 # Default deploy_to directory is /var/www/my_app_name
 # set :deploy_to, '/var/www/my_app_name'
-set :deploy_to, "#{fetch(:home)}/peartree-capistrano"
+set :deploy_to, "#{fetch(:home)}/kumquat-capistrano"
 
 set :rails_env, 'production'
 
