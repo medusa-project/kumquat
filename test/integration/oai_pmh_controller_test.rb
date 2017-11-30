@@ -14,7 +14,8 @@ class OaiPmhControllerTest < ActionDispatch::IntegrationTest
 
   # 2.5.1
   test 'repository should not support deleted records' do
-    # this is tested in the test of Identify (4.2)
+    get '/oai-pmh', params: { verb: 'Identify' }
+    assert_select 'Identify > deletedRecord', 'no'
   end
 
   # 3.1.1
@@ -47,6 +48,13 @@ class OaiPmhControllerTest < ActionDispatch::IntegrationTest
   test 'response content type must be text/xml' do
     get '/oai-pmh', params: { verb: 'Identify' }
     assert response.headers['Content-Type'].start_with?('text/xml')
+  end
+
+  # 3.1.2.2
+  test 'response status code is 503 when endpoint is disabled' do
+    Option::set(Option::Keys::OAI_PMH_ENABLED, false)
+    get '/oai-pmh', params: { verb: 'Identify' }
+    assert_response :service_unavailable
   end
 
   # 3.2
@@ -184,11 +192,11 @@ class OaiPmhControllerTest < ActionDispatch::IntegrationTest
     'metadataPrefix argument is not supported by this repository.'
   end
 
-  test 'ListIdentifiers does not require metadataPrefix when resumptionToken is
-  present' do
-    get '/oai-pmh', params: { verb: 'ListIdentifiers', resumptionToken: 'offset:1' }
-    assert_select 'ListIdentifiers > header > identifier',
-                  @valid_identifier
+  test 'ListIdentifiers disallows all other arguments when resumptionToken is present' do
+    get '/oai-pmh', params: { verb: 'ListIdentifiers',
+                              resumptionToken: 'offset:10',
+                              set: collections(:sanborn).repository_id }
+    assert_select 'error', 'resumptionToken is an exclusive argument.'
   end
 
   # 4.4 ListMetadataFormats
@@ -261,11 +269,11 @@ class OaiPmhControllerTest < ActionDispatch::IntegrationTest
     'metadataPrefix argument is not supported by this repository.'
   end
 
-  test 'ListRecords does not require metadataPrefix when resumptionToken is
-  present' do
-    get '/oai-pmh', params: { verb: 'ListRecords', resumptionToken: 'offset:1' }
-    assert_select 'ListRecords > record > header > identifier',
-                  @valid_identifier
+  test 'ListRecords disallows all other arguments when resumptionToken is present' do
+    get '/oai-pmh', params: { verb: 'ListRecords',
+                              resumptionToken: 'offset:10',
+                              set: collections(:sanborn).repository_id }
+    assert_select 'error', 'resumptionToken is an exclusive argument.'
   end
 
   # 4.6 ListSets
@@ -281,10 +289,11 @@ class OaiPmhControllerTest < ActionDispatch::IntegrationTest
     assert_select 'error', 'Illegal argument: dogs'
   end
 
-  test 'ListSets does not require metadataPrefix when resumptionToken is
-  present' do
-    get '/oai-pmh', params: { verb: 'ListSets', resumptionToken: 'offset:1' }
-    assert_select 'ListSets > set > setSpec', collections(:sanborn).repository_id
+  test 'ListSets disallows all other arguments when resumptionToken is present' do
+    get '/oai-pmh', params: { verb: 'ListSets',
+                              resumptionToken: 'offset:10',
+                              set: collections(:sanborn).repository_id }
+    assert_select 'error', 'resumptionToken is an exclusive argument.'
   end
 
   private

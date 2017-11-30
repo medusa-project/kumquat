@@ -1,7 +1,23 @@
 ##
 # Controller for the OAI-PMH endpoint.
 #
+# Identifier syntax:
+#
+# `oai:host:port:repository_id`
+#
+# Resumption token:
+#
+# The resumption token is ROT-18-encoded to make it appear opaque and
+# discourage clients from changing it, even though if they do, it's not a big
+# deal. The decoded format is:
+#
+# `set:n|from:n|until:n|start:n|metadataPrefix:n`
+#
+# Components can be in any order but the separators (colons and bars) are
+# important.
+#
 # @see http://www.openarchives.org/OAI/openarchivesprotocol.html
+# @see http://www.openarchives.org/OAI/2.0/guidelines-oai-identifier.htm
 #
 class OaiPmhController < ApplicationController
 
@@ -12,7 +28,9 @@ class OaiPmhController < ApplicationController
   before_action :check_pmh_enabled
   before_action :validate_request
 
-  MAX_LIST_RESULTS = 100
+  MAX_RESULT_WINDOW = 100
+  RESUMPTION_TOKEN_COMPONENT_SEPARATOR = '|'
+  RESUMPTION_TOKEN_KEY_VALUE_SEPARATOR = ':'
   SUPPORTED_METADATA_FORMATS = %w(oai_dc oai_qdc)
 
   def initialize
@@ -27,7 +45,7 @@ class OaiPmhController < ApplicationController
       return
     end
 
-    @metadata_format = params[:metadataPrefix]
+    @metadata_format = get_metadata_prefix
     @host = request.host_with_port
     response.content_type = 'text/xml'
 
@@ -73,8 +91,8 @@ class OaiPmhController < ApplicationController
   end
 
   def do_identify
-    items = Item.order(created_at: :asc).limit(1)
-    @earliest_datestamp = items.any? ? items.first.created_at.utc.iso8601 : nil
+    item = Item.order(created_at: :asc).limit(1).first
+    @earliest_datestamp = item ? item.created_at.utc.iso8601 : nil
     'identify.xml.builder'
   end
 
@@ -103,34 +121,74 @@ class OaiPmhController < ApplicationController
                                 published_in_dls: true,
                                 harvestable: true).order(:repository_id)
     @total_num_results = @results.count
-    @results_offset = offset
+    @results_offset = get_start
     @results = @results.offset(@results_offset)
     @next_page_available =
-        (@results_offset + MAX_LIST_RESULTS < @total_num_results)
+        (@results_offset + MAX_RESULT_WINDOW < @total_num_results)
     @expiration_date = resumption_token_expiration_date
-    @results.limit(MAX_LIST_RESULTS)
+    @results.limit(MAX_RESULT_WINDOW)
     'list_sets.xml.builder'
   end
 
   private
 
   def check_pmh_enabled
-    render plain: 'This server\'s OAI-PMH endpoint is disabled.',
-           status: :service_unavailable unless
-        Option::boolean(Option::Keys::OAI_PMH_ENABLED)
+    unless Option::boolean(Option::Keys::OAI_PMH_ENABLED)
+      render plain: 'This server\'s OAI-PMH endpoint is disabled.',
+             status: :service_unavailable
+    end
   end
 
   ##
-  # @return [Integer]
+  # @return [String, nil] "From" from the resumptionToken, if present, or else
+  #                       from the "from" argument.
   #
-  def offset
+  def get_from
+    parse_resumption_token('from') || params[:from]
+  end
+
+  ##
+  # @return [String, nil] metadataPrefix from the resumptionToken, if present,
+  #                       or else from the metadataPrefix argument.
+  #
+  def get_metadata_prefix
+    parse_resumption_token('metadataPrefix') || params[:metadataPrefix]
+  end
+
+  ##
+  # @return [String, nil] Set from the resumptionToken, if present, or else
+  #                       from the set argument.
+  #
+  def get_set
+    parse_resumption_token('set') || params[:set]
+  end
+
+  ##
+  # @return [Integer] Start (a.k.a. offset) from the resumptionToken, or 0 if
+  #                   the resumptionToken is not present.
+  #
+  def get_start
+    parse_resumption_token('start')&.to_i || 0
+  end
+
+  ##
+  # @return [String, nil] "Until" from the resumptionToken, if present, or else
+  #                       from the "until" argument.
+  #
+  def get_until
+    parse_resumption_token('until') || params[:until]
+  end
+
+
+  def parse_resumption_token(key)
     if params[:resumptionToken].present?
-      params[:resumptionToken].split(';').each do |pair|
-        kv = pair.split(':')
-        return kv[1].to_i if kv.length == 2 and kv[0] == 'offset'
+      decoded = StringUtils.rot18(params[:resumptionToken])
+      decoded.split(RESUMPTION_TOKEN_COMPONENT_SEPARATOR).each do |component|
+        kv = component.split(RESUMPTION_TOKEN_KEY_VALUE_SEPARATOR)
+        return kv[1] if kv.length == 2 and kv[0] == key
       end
     end
-    0
+    nil
   end
 
   def preprocessing_for_list_identifiers_or_records
@@ -144,36 +202,47 @@ class OaiPmhController < ApplicationController
               Item::Variants::FILE).
         order(created_at: :asc)
 
-    from = to = Time.now
-    from = Time.parse(params[:from]).utc.iso8601 if params[:from]
-    to = Time.parse(params[:until]).utc.iso8601 if params[:until]
-    if from != to
-      @results = @results.where('items.created_at > ?', from).
-          where('items.created_at < ?', to)
+    from = get_from
+    from_time = nil
+    from_time = Time.parse(from).utc.iso8601 if from
+    to = get_until
+    to_time = nil
+    to_time = Time.parse(to).utc.iso8601 if to
+
+    if from_time != to_time
+      @results = @results.where('items.created_at >= ?', from_time).
+          where('items.created_at <= ?', to_time)
     end
-    if params[:set]
-      @results = @results.where(collection_repository_id: params[:set])
-    end
+
+    set = get_set
+    @results = @results.where(collection_repository_id: set) if set
 
     @errors << { code: 'noRecordsMatch',
                  description: 'No matching records.' } unless @results.any?
 
     @total_num_results = @results.count
-    @results_offset = offset
+    @results_offset = get_start
     @results = @results.offset(@results_offset)
     @next_page_available =
-        (@results_offset + MAX_LIST_RESULTS < @total_num_results)
-    @resumption_token = resumption_token(@results_offset)
+        (@results_offset + MAX_RESULT_WINDOW < @total_num_results)
+    @resumption_token = resumption_token(set, from, to, @results_offset,
+                                         @metadata_format)
     @expiration_date = resumption_token_expiration_date
-    @results.limit(MAX_LIST_RESULTS)
+    @results.limit(MAX_RESULT_WINDOW)
   end
 
-  ##
-  # @param current_offset [Integer]
-  # @return [String]
-  #
-  def resumption_token(current_offset)
-    "offset:#{current_offset + MAX_LIST_RESULTS}"
+  def resumption_token(set, from, until_, current_start, metadata_prefix)
+    token = [
+        ['set', set],
+        ['from', from],
+        ['until', until_],
+        ['start', current_start + MAX_RESULT_WINDOW],
+        ['metadataPrefix', metadata_prefix]
+    ].
+        select{ |a| a[1].present? }.
+        map{ |a| a.join(RESUMPTION_TOKEN_KEY_VALUE_SEPARATOR) }.
+        join(RESUMPTION_TOKEN_COMPONENT_SEPARATOR)
+    StringUtils.rot18(token)
   end
 
   def resumption_token_expiration_date
@@ -191,6 +260,13 @@ class OaiPmhController < ApplicationController
     ignore = %w(action controller verb)
     allowed -= ignore
     required -= ignore
+
+    # Check that resumptionToken is an exclusive argument.
+    if params_hash.keys.include?('resumptionToken') and
+        (params_hash.keys - ignore).length > 1
+      @errors << { code: 'badArgument',
+                   description: 'resumptionToken is an exclusive argument.' }
+    end
 
     # Check that all required args are present in the params hash.
     required.each do |arg|
