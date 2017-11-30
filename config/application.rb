@@ -6,7 +6,7 @@ require 'rails/all'
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
 
-module PearTree
+module Kumquat
   class Application < Rails::Application
 
     attr_accessor :shibboleth_host

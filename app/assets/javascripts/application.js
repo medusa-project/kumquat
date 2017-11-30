@@ -20,7 +20,7 @@
 //= require clipboard.min
 //= require spin.min
 
-//= require peartree
+//= require kumquat
 //= require models/item
 //= require agents
 //= require collections

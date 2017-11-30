@@ -882,8 +882,8 @@ module ItemsHelper
         end
       elsif entity.kind_of?(Item) and entity.effective_image_binary&.iiif_safe?
         url = item_image_url(entity,
-                             region: options[:shape],
-                             size: options[:size])
+                             options[:shape],
+                             options[:size])
       end
     end
 
@@ -1370,7 +1370,7 @@ module ItemsHelper
 
   ##
   # Initializes a ThreeJSViewer. To display it, call
-  # PearTree.view.threeDViewer.start() via JavaScript.
+  # Application.view.threeDViewer.start() via JavaScript.
   #
   # ThreeJSViewer is not DLS-specific and is maintained in a separate project
   # in order to keep it decoupled and cleaner. The built minified script is
@@ -1401,7 +1401,7 @@ module ItemsHelper
         <script src=\"#{viewer_url}\"></script>
         <script>
             $(document).ready(function() {
-                PearTree.view.threeDViewer = new ThreeJSViewer({
+                Application.view.threeDViewer = new ThreeJSViewer({
                     'containerId': 'pt-3d-viewer',
                     'modelPath': '#{model_path}/',
                     'objFile': '#{obj_binary.filename}',

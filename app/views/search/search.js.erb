@@ -10,4 +10,4 @@ json_url = search_path(@permitted_params.merge(format: 'json'))
 $('#pt-view-as-atom').attr('href', '<%= atom_url %>');
 $('#pt-view-as-json').attr('href', '<%= json_url %>');
 
-PearTree.view.attachEventListeners();
+Application.view.attachEventListeners();

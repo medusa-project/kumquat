@@ -3,7 +3,7 @@ require 'test_helper'
 class ConfigurationTest < ActiveSupport::TestCase
 
   def setup
-    @config_struct = YAML.load_file(File.join(Rails.root, 'config', 'peartree.yml'))[Rails.env]
+    @config_struct = YAML.load_file(File.join(Rails.root, 'config', 'kumquat.yml'))[Rails.env]
     @config = Configuration.instance
   end
 

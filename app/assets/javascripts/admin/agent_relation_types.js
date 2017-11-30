@@ -19,8 +19,8 @@ var PTAdminAgentRelationTypesView = function() {
 
 var ready = function() {
     if ($('body#admin_agent_relation_types_index').length) {
-        PearTree.view = new PTAdminAgentRelationTypesView();
-        PearTree.view.init();
+        Application.view = new PTAdminAgentRelationTypesView();
+        Application.view.init();
     }
 };
 

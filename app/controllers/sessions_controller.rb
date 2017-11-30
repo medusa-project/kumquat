@@ -37,7 +37,7 @@ class SessionsController < WebsiteController
   def new
     session[:referer] = request.env['HTTP_REFERER']
     if Rails.env.production?
-      redirect_to(shibboleth_login_path(PearTree::Application.shibboleth_host))
+      redirect_to(shibboleth_login_path(Kumquat::Application.shibboleth_host))
     else
       redirect_to('/auth/developer')
     end

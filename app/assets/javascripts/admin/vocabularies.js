@@ -22,7 +22,7 @@ var PTAdminVocabularyView = function() {
 
 var ready = function() {
     if ($('body#vocabularies_show').length) {
-        PearTree.view = new PTAdminVocabularyView();
+        Application.view = new PTAdminVocabularyView();
     }
 };
 

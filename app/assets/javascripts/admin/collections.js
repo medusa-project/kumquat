@@ -8,7 +8,7 @@ var PTAdminCollectionsView = function() {
     var self = this;
 
     this.init = function() {
-        new PearTree.FilterField();
+        new Application.FilterField();
 
         $('input[type=checkbox]').on('change', function() {
             $('form.pt-filter').submit();
@@ -73,11 +73,11 @@ var PTAdminCollectionView = function() {
 
 var ready = function() {
     if ($('body#admin_collections_index').length) {
-        PearTree.view = new PTAdminCollectionsView();
-        PearTree.view.init();
+        Application.view = new PTAdminCollectionsView();
+        Application.view.init();
     } else if ($('body#admin_collections_show').length) {
-        PearTree.view = new PTAdminCollectionView();
-        PearTree.view.init();
+        Application.view = new PTAdminCollectionView();
+        Application.view.init();
     }
 };
 

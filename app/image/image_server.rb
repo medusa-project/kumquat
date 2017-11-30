@@ -17,6 +17,25 @@ class ImageServer
   end
 
   ##
+  # Purges all items from the image server cache using the Cantaloupe API.
+  #
+  # @return [void]
+  # @raises [IOError]
+  #
+  def purge_all_images_from_cache
+    uri = Configuration.instance.image_server_api_endpoint + '/tasks'
+    headers = {
+        'Content-Type': 'application/json'
+    }
+    body = JSON.generate({ verb: 'PurgeCache' })
+
+    response = client.post(uri, body, headers)
+    if response.status > 204
+      raise IOError, "Unexpected response from image server: #{response.status}"
+    end
+  end
+
+  ##
   # @param collection [Collection]
   # @param task [Task] Optional Task for monitoring progress.
   # @return [void]
@@ -57,7 +76,7 @@ class ImageServer
       })
 
       response = client.post(uri, body, headers)
-      if response.status != 200
+      if response.status > 204
         raise IOError, "Unexpected response from image server: #{response.status}"
       end
     end
