@@ -1,4 +1,4 @@
-class CreateAgentRelationTypes < ActiveRecord::Migration
+class CreateAgentRelationTypes < ActiveRecord::Migration[4.2]
   def change
     create_table :agent_relation_types do |t|
       t.string :name, null: false

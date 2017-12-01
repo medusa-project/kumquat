@@ -1,4 +1,4 @@
-class CreateAgentRules < ActiveRecord::Migration
+class CreateAgentRules < ActiveRecord::Migration[4.2]
   def change
     create_table :agent_rules do |t|
       t.string :name, null: false

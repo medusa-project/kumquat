@@ -1,4 +1,4 @@
-class RenameElementDefsToMetadataProfileElements < ActiveRecord::Migration
+class RenameElementDefsToMetadataProfileElements < ActiveRecord::Migration[4.2]
   def change
     rename_column :element_defs_vocabularies, :element_def_id,
                   :metadata_profile_element_id

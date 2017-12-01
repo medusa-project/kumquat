@@ -1,4 +1,4 @@
-class CreateMedusaFileGroups < ActiveRecord::Migration
+class CreateMedusaFileGroups < ActiveRecord::Migration[4.2]
   def change
     create_table :medusa_file_groups do |t|
       t.string :uuid

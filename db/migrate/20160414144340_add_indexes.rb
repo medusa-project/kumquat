@@ -1,4 +1,4 @@
-class AddIndexes < ActiveRecord::Migration
+class AddIndexes < ActiveRecord::Migration[4.2]
   def change
     add_index :bytestreams, :item_id
     add_index :collections, :repository_id, unique: true

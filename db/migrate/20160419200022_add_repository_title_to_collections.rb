@@ -1,4 +1,4 @@
-class AddRepositoryTitleToCollections < ActiveRecord::Migration
+class AddRepositoryTitleToCollections < ActiveRecord::Migration[4.2]
   def change
     add_column :collections, :repository_title, :string
   end

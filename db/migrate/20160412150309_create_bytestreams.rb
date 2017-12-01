@@ -1,4 +1,4 @@
-class CreateBytestreams < ActiveRecord::Migration
+class CreateBytestreams < ActiveRecord::Migration[4.2]
   def change
     create_table :bytestreams do |t|
       t.integer :type

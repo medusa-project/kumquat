@@ -1,4 +1,4 @@
-class AddEffectiveRolesToItems < ActiveRecord::Migration
+class AddEffectiveRolesToItems < ActiveRecord::Migration[4.2]
   def change
     add_column :items_roles, :effective_allowed_role_id, :integer
     add_column :items_roles, :effective_denied_role_id, :integer

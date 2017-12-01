@@ -1,4 +1,4 @@
-class AddRbacForeignKeys < ActiveRecord::Migration
+class AddRbacForeignKeys < ActiveRecord::Migration[4.2]
   def change
     remove_index :roles_users, :role_id
     remove_index :roles_users, :user_id

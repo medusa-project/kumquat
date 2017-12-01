@@ -1,4 +1,4 @@
-class CreateVocabularyTerms < ActiveRecord::Migration
+class CreateVocabularyTerms < ActiveRecord::Migration[4.2]
   def change
     create_table :vocabulary_terms do |t|
       t.string :string
