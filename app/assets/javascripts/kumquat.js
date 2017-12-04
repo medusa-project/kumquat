@@ -136,9 +136,10 @@ var Application = {
             input_timer = setTimeout(submitForm, INPUT_DELAY_MSEC);
             return false;
         });
-        // When a select menu accompanying the filter field is changed,
+        // When form controls accompanying the filter field are changed,
         // resubmit the form via AJAX.
-        $('form.pt-filter select').on('change', function() {
+        $('form.pt-filter select, form.pt-filter input[type=checkbox], ' +
+            'form.pt-filter input[type=radio]').on('change', function() {
             submitForm();
         });
     },
