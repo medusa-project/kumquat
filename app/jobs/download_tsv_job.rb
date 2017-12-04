@@ -1,6 +1,8 @@
 class DownloadTsvJob < Job
 
-  queue_as :download
+  QUEUE = :default
+
+  queue_as QUEUE
 
   ##
   # @param args [Array] Three-element array with Collection instance at

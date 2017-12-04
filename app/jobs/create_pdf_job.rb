@@ -1,6 +1,8 @@
 class CreatePdfJob < Job
 
-  queue_as :download
+  QUEUE = :download
+
+  queue_as QUEUE
 
   ##
   # @param args [Array] Two-element array with Item at position 0 and Download

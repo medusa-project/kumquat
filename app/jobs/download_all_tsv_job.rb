@@ -1,8 +1,9 @@
 class DownloadAllTsvJob < Job
 
   DESTINATION_DIR = Download::DOWNLOADS_DIRECTORY
+  QUEUE = :default
 
-  queue_as :download
+  queue_as QUEUE
 
   ##
   # @param args [Array] One-element array with Download instance at position 0.

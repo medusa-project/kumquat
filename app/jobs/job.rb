@@ -103,7 +103,8 @@ class Job < ApplicationJob
   private
 
   def create_task_for_job_id(job_id)
-    @task = Task.create!(name: self.class.name, job_id: job_id)
+    @task = Task.create!(name: self.class.name, job_id: job_id,
+                         queue: self.class::QUEUE)
   end
 
   ##
