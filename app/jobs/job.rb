@@ -4,6 +4,7 @@
 #
 class Job < ApplicationJob
 
+  ALL_QUEUES = [:default, :download]
   WORKER_PIDS_PATH = File.join(Rails.root, 'tmp', 'pids')
 
   before_enqueue :do_before_enqueue

@@ -31,6 +31,13 @@ class Task < ApplicationRecord
     FAILED = 4
 
     ##
+    # @return [Enumerable<Integer>]
+    #
+    def self.all
+      (0..4)
+    end
+
+    ##
     # @param status One of the Status constants
     # @return Human-readable status
     #
