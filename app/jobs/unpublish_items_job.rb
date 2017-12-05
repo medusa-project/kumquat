@@ -1,6 +1,8 @@
 class UnpublishItemsJob < Job
 
-  queue_as :default
+  QUEUE = :default
+
+  queue_as QUEUE
 
   ##
   # @param args [Array] One-element array with an Enumerable of Items at

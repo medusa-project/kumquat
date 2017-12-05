@@ -1,6 +1,8 @@
 class ReplaceItemMetadataJob < Job
 
-  queue_as :default
+  QUEUE = :default
+
+  queue_as QUEUE
 
   ##
   # @param args [Array] Six-element array. Position 0 contains either a

@@ -10,10 +10,6 @@ var PTAdminCollectionsView = function() {
     this.init = function() {
         new Application.FilterField();
 
-        $('input[type=checkbox]').on('change', function() {
-            $('form.pt-filter').submit();
-        });
-
         self.attachEventListeners();
     };
 

@@ -1,6 +1,8 @@
 class UpdateItemsFromTsvJob < Job
 
-  queue_as :default
+  QUEUE = :default
+
+  queue_as QUEUE
 
   ##
   # @param args [Array] Two-element array with the pathname of the TSV to

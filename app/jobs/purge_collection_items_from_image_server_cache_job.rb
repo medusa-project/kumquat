@@ -1,6 +1,8 @@
 class PurgeCollectionItemsFromImageServerCacheJob < Job
 
-  queue_as :default
+  QUEUE = :default
+
+  queue_as QUEUE
 
   ##
   # @param args [Array] One-element array with collection UUID at position 0.

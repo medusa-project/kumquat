@@ -4,6 +4,7 @@
 #
 class Job < ApplicationJob
 
+  ALL_QUEUES = [:default, :download]
   WORKER_PIDS_PATH = File.join(Rails.root, 'tmp', 'pids')
 
   before_enqueue :do_before_enqueue
@@ -103,7 +104,8 @@ class Job < ApplicationJob
   private
 
   def create_task_for_job_id(job_id)
-    @task = Task.create!(name: self.class.name, job_id: job_id)
+    @task = Task.create!(name: self.class.name, job_id: job_id,
+                         queue: self.class::QUEUE)
   end
 
   ##
