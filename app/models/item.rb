@@ -112,7 +112,9 @@ class Item < ApplicationRecord
     CREATED = 'date_created'
     DATE = 'date'
     DESCRIBED = 'described'
+    EFFECTIVE_ALLOWED_ROLE_COUNT = 'effective_allowed_role_count'
     EFFECTIVE_ALLOWED_ROLES = 'effective_allowed_roles'
+    EFFECTIVE_DENIED_ROLE_COUNT = 'effective_denied_role_count'
     EFFECTIVE_DENIED_ROLES = 'effective_denied_roles'
     # N.B.: An item might be published but it's collection might not be, making
     # it still effectively unpublished. This will take that into account.
@@ -396,10 +398,15 @@ class Item < ApplicationRecord
     doc[IndexFields::COLLECTION] = self.collection_repository_id
     doc[IndexFields::DATE] = self.date.utc.iso8601 if self.date
     doc[IndexFields::DESCRIBED] = self.described?
+
     doc[IndexFields::EFFECTIVE_ALLOWED_ROLES] =
         self.effective_allowed_roles.pluck(:key)
+    doc[IndexFields::EFFECTIVE_ALLOWED_ROLE_COUNT] =
+        doc[IndexFields::EFFECTIVE_ALLOWED_ROLES].length
     doc[IndexFields::EFFECTIVE_DENIED_ROLES] =
         self.effective_denied_roles.pluck(:key)
+    doc[IndexFields::EFFECTIVE_DENIED_ROLE_COUNT] =
+        doc[IndexFields::EFFECTIVE_DENIED_ROLES].length
     doc[IndexFields::EFFECTIVELY_PUBLISHED] = self.effectively_published
     doc[IndexFields::ITEM_SETS] = self.item_sets.pluck(:id)
     doc[IndexFields::LAST_INDEXED] = Time.now.utc.iso8601

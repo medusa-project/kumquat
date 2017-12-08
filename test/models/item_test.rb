@@ -79,8 +79,12 @@ class ItemTest < ActiveSupport::TestCase
                  doc[Item::IndexFields::DESCRIBED]
     assert_equal @item.effective_allowed_roles.pluck(:key),
                  doc[Item::IndexFields::EFFECTIVE_ALLOWED_ROLES]
+    assert_equal @item.effective_allowed_roles.pluck(:key).length,
+                 doc[Item::IndexFields::EFFECTIVE_ALLOWED_ROLE_COUNT]
     assert_equal @item.effective_denied_roles.pluck(:key),
                  doc[Item::IndexFields::EFFECTIVE_DENIED_ROLES]
+    assert_equal @item.effective_denied_roles.pluck(:key).length,
+                 doc[Item::IndexFields::EFFECTIVE_DENIED_ROLE_COUNT]
     assert doc[Item::IndexFields::EFFECTIVELY_PUBLISHED]
     assert_equal @item.item_sets.pluck(:id),
                  doc[Item::IndexFields::ITEM_SETS]
