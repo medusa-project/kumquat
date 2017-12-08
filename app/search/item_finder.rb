@@ -254,8 +254,10 @@ class ItemFinder < AbstractFinder
                   end
                 end
                 j.child! do
-                  j.terms do
-                    j.set! Item::IndexFields::EFFECTIVE_ALLOWED_ROLES, []
+                  j.range do
+                    j.set! Item::IndexFields::EFFECTIVE_ALLOWED_ROLE_COUNT do
+                      j.lte 0
+                    end
                   end
                 end
               end

@@ -112,8 +112,10 @@ class CollectionFinder < AbstractFinder
                 end
               end
               j.child! do
-                j.terms do
-                  j.set! Collection::IndexFields::ALLOWED_ROLES, []
+                j.range do
+                  j.set! Collection::IndexFields::ALLOWED_ROLE_COUNT do
+                    j.lte 0
+                  end
                 end
               end
             end
