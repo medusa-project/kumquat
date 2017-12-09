@@ -117,12 +117,14 @@ class AbstractFinder
   # @return [self]
   #
   def order(orders)
-    @orders = [] # reset them
-    if orders.respond_to?(:keys)
-      @orders << { field: orders.keys.first,
-                   direction: orders[orders.keys.first] }
-    else
-      @orders << { field: orders.to_s, direction: :asc }
+    if orders.present?
+      @orders = [] # reset them
+      if orders.respond_to?(:keys)
+        @orders << { field: orders.keys.first,
+                     direction: orders[orders.keys.first] }
+      else
+        @orders << { field: orders.to_s, direction: :asc }
+      end
     end
     self
   end
