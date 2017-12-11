@@ -2,7 +2,7 @@ module Admin
 
   class TasksController < ControlPanelController
 
-    WINDOW = 90 # days
+    WINDOW = 7 # days
 
     ##
     # Responds to GET /admin/tasks
