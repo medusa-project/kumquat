@@ -2,28 +2,38 @@ module Admin
 
   class TasksController < ControlPanelController
 
+    WINDOW = 7 # days
+
     ##
     # Responds to GET /admin/tasks
     #
     def index
-      set_tasks_ivar
-      @selected_id = params[:selected_id]&.to_i
-      render partial: 'tasks' if request.xhr?
+      @tasks = Task.order(created_at: :desc).
+          where('started_at >= ?', WINDOW.days.ago)
+
+      if params[:q].present?
+        @tasks = @tasks.where('LOWER(status_text) LIKE ?',
+                              "%#{params[:q].downcase}%")
+      end
+      if params[:queue].present?
+        @tasks = @tasks.where(queue: params[:queue])
+      end
+      if params[:status].present?
+        @tasks = @tasks.where(status: params[:status])
+      end
+
+      respond_to do |format|
+        format.js
+        format.html
+      end
     end
 
     ##
-    # Responds to GET /admin/tasks/:id
+    # Responds to GET /admin/tasks/:id (XHR only)
     #
     def show
-      set_tasks_ivar
       @task = Task.find(params[:id])
-      @selected_id = @task.id
-    end
-
-    private
-
-    def set_tasks_ivar
-      @tasks = Task.order(created_at: :desc).limit(100)
+      render partial: 'show'
     end
 
   end

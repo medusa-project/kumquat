@@ -19,10 +19,9 @@ var PTAdminAgentTypesView = function() {
 
 var ready = function() {
     if ($('body#admin_agent_types_index').length) {
-        PearTree.view = new PTAdminAgentTypesView();
-        PearTree.view.init();
+        Application.view = new PTAdminAgentTypesView();
+        Application.view.init();
     }
 };
 
 $(document).ready(ready);
-$(document).on('page:load', ready);

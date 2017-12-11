@@ -16,14 +16,10 @@ This is a basic getting-started guide for developers.
 * Elasticsearch 5.6
     * The [ICU Analysis Plugin](https://www.elastic.co/guide/en/elasticsearch/plugins/current/analysis-icu.html)
       is also required
-* [Cantaloupe](https://medusa-project.github.io/cantaloupe/) 3.3+
+* [Cantaloupe](https://medusa-project.github.io/cantaloupe/) 3.4+
     * [Kakadu](http://kakadusoftware.com/downloads/) or
       [OpenJPEG](http://www.openjpeg.org) (2.2.0 or later) will also be
       required.
-    * Other IIIF Image API 2.1 servers should generally work, but Cantaloupe
-      provides some bonus features like PDF & video thumbnails, remote
-      cache management, and compatibility with some less-common image formats
-      found in Medusa.
 * exiv2
 * ffmpeg
 
@@ -37,9 +33,9 @@ This is a basic getting-started guide for developers.
 
 ## 2) Clone the repository:
 
-`$ git clone https://github.com/medusa-project/PearTree.git`
+`$ git clone https://github.com/medusa-project/kumquat.git`
 
-`$ cd PearTree`
+`$ cd kumquat`
 
 ## 3) Install Ruby
 
@@ -57,7 +53,7 @@ This is a basic getting-started guide for developers.
 
 `$ cp config/database.template.yml config/database.yml` and edit as necessary
 
-`$ cp config/peartree.template.yml config/peartree.yml` and edit as necessary
+`$ cp config/kumquat.template.yml config/kumquat.yml` and edit as necessary
 
 `$ cp config/shibboleth.template.yml config/shibboleth.yml`
 
@@ -146,9 +142,9 @@ collection.)
 
 `endpoint.api.enabled = true`
 
-`endpoint.api.username = :image_server_api_user: from PearTree's config.yml`
+`endpoint.api.username = :image_server_api_user: from kumquat.yml`
 
-`endpoint.api.secret = :image_server_api_secret: from PearTree's config.yml`
+`endpoint.api.secret = :image_server_api_secret: from kumquat.yml`
 
 `FilesystemResolver.lookup_strategy = ScriptLookupStrategy`
 

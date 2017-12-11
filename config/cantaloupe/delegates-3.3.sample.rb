@@ -1,5 +1,5 @@
 ##
-# Cantaloupe delegate script for use with PearTree
+# Cantaloupe delegate script for use with Kumquat
 #
 # This script overrides Cantaloupe::FilesystemResolver::get_pathname() to
 # allow use of Medusa file UUIDs as IIIF Image API identifiers.
@@ -68,21 +68,6 @@ module Cantaloupe
   #                information responses. Return an empty hash to add nothing.
   #
   def self.extra_iiif2_information_response_keys(identifier)
-=begin
-    Example:
-    {
-        'attribution' =>  'Copyright My Great Organization. All rights '\
-                          'reserved.',
-        'license' =>  'http://example.org/license.html',
-        'logo' =>  'http://example.org/logo.png',
-        'service' => {
-            '@context' => 'http://iiif.io/api/annex/services/physdim/1/context.json',
-            'profile' => 'http://iiif.io/api/annex/services/physdim',
-            'physicalScale' => 0.0025,
-            'physicalUnits' => 'in'
-        }
-    }
-=end
     {}
   end
 

@@ -19,10 +19,9 @@ var PTAdminAgentRulesView = function() {
 
 var ready = function() {
     if ($('body#admin_agent_rules_index').length) {
-        PearTree.view = new PTAdminAgentRulesView();
-        PearTree.view.init();
+        Application.view = new PTAdminAgentRulesView();
+        Application.view.init();
     }
 };
 
 $(document).ready(ready);
-$(document).on('page:load', ready);

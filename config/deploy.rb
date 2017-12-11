@@ -2,7 +2,7 @@
 lock '3.9.0'
 
 set :application, 'kumquat'
-set :repo_url, 'https://github.com/medusa-project/PearTree.git'
+set :repo_url, 'https://github.com/medusa-project/kumquat.git'
 
 # Default branch is :master
 # ask :branch, `git rev-parse --abbrev-ref HEAD`.chomp
@@ -28,7 +28,7 @@ set :rails_env, 'production'
 
 # Default value for :linked_files is []
 set :linked_files, fetch(:linked_files, []).push(
-    'config/database.yml', 'config/peartree.yml', 'config/secrets.yml',
+    'config/database.yml', 'config/kumquat.yml', 'config/secrets.yml',
     'config/shibboleth.yml')
 
 # Default value for linked_dirs is []

@@ -19,10 +19,9 @@ var PTAdminElementsView = function() {
 
 var ready = function() {
     if ($('body#elements').length) {
-        PearTree.view = new PTAdminElementsView();
-        PearTree.view.init();
+        Application.view = new PTAdminElementsView();
+        Application.view.init();
     }
 };
 
 $(document).ready(ready);
-$(document).on('page:load', ready);

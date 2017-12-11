@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171114152247) do
+ActiveRecord::Schema.define(version: 20171204212737) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -378,6 +378,7 @@ ActiveRecord::Schema.define(version: 20171114152247) do
     t.text "detail"
     t.text "backtrace"
     t.datetime "started_at"
+    t.string "queue"
   end
 
   create_table "users", id: :serial, force: :cascade do |t|

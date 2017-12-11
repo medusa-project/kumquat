@@ -1,6 +1,8 @@
 class DownloadZipJob < Job
 
-  queue_as :download
+  QUEUE = :download
+
+  queue_as QUEUE
 
   ##
   # @param args [Array] Three-element array with array of Items at

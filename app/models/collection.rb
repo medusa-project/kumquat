@@ -88,7 +88,9 @@ class Collection < ApplicationRecord
   class IndexFields
     ACCESS_SYSTEMS = 'access_systems'
     ACCESS_URL = 'access_url'
+    ALLOWED_ROLE_COUNT = 'allowed_role_count'
     ALLOWED_ROLES = 'allowed_roles'
+    DENIED_ROLE_COUNT = 'denied_role_count'
     DENIED_ROLES = 'denied_roles'
     DESCRIPTION = CollectionElement.new(name: 'description').indexed_field
     # Contains the result of PUBLIC_IN_DLS && PUBLISHED_IN_MEDUSA.
@@ -210,7 +212,9 @@ class Collection < ApplicationRecord
     doc[IndexFields::ACCESS_SYSTEMS] = self.access_systems
     doc[IndexFields::ACCESS_URL] = self.access_url
     doc[IndexFields::ALLOWED_ROLES] = self.allowed_roles.pluck(:key)
+    doc[IndexFields::ALLOWED_ROLE_COUNT] = doc[IndexFields::ALLOWED_ROLES].length
     doc[IndexFields::DENIED_ROLES] = self.denied_roles.pluck(:key)
+    doc[IndexFields::DENIED_ROLE_COUNT] = doc[IndexFields::DENIED_ROLES].length
     doc[IndexFields::EFFECTIVELY_PUBLISHED] = self.published
     doc[IndexFields::EXTERNAL_ID] = self.external_id
     doc[IndexFields::HARVESTABLE] = self.harvestable
