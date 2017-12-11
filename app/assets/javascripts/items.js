@@ -156,15 +156,6 @@ var PTItemView = function() {
             var container = $('#iiif-download');
             container.empty();
             var full_width = iiif_info['width'];
-            var full_height = iiif_info['height'];
-
-            // The 'sizes' array includes sizes only up to 1/2 size. Add the
-            // full size to make it available as a download option.
-            iiif_info['sizes'].push({
-                'width': full_width,
-                'height': full_height
-            });
-
             var num_sizes = iiif_info['sizes'].length;
 
             // find the number of usable sizes (i.e. sizes above
