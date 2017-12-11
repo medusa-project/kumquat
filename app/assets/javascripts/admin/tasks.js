@@ -1,61 +1,70 @@
-var PTTaskRefresher = function() {
+/**
+ * @constructor
+ */
+var PTAdminTasksView = function() {
 
-    var FREQUENCY = 4000;
+    var TASKS_URL = $('input[name="pt-tasks-url"]').val();
 
-    var self = this;
+    this.init = function() {
+        new Application.FilterField();
 
-    var refresh = function() {
-        console.log('Refreshing task list...');
+        new TaskRefresher().start();
 
-        var tasks_url = $('input[name="pt-tasks-url"]').val();
-        $.get(tasks_url, function (data) {
-            var tasks_list = $('#pt-tasks-list');
-            tasks_list.html(data);
+        $('#pt-task-panel').on('show.bs.modal', function(event) {
+            var modal = $(this);
+            var button = $(event.relatedTarget);
+            var task_id = button.data('task-id');
 
-            // If we are in show-task view, get the ID of the task being viewed
-            // and update the info in the show pane from the tasks list.
-            var task_id = $('input[name=pt-task-id]').val();
-
-            var task_row = tasks_list.find('tr[data-id=' + task_id + ']');
-            var title = task_row.find('.pt-title').text();
-            var status = task_row.find('.pt-status').html();
-            var progress = task_row.find('.pt-progress').text();
-            var started = task_row.find('.pt-started').clone();
-
-            $('h1.pt-title').text(title);
-            $('dd.pt-status').html(status);
-            $('dd.pt-progress').text(progress);
-            $('dd.pt-started').empty().append(started);
-            LocalTime.run(); // from the local_time gem
+            $.ajax({
+                url: TASKS_URL + '/' + task_id,
+                success: function (data) {
+                    modal.find('.modal-body').html(data);
+                },
+                error: function(a, b, c) {
+                    console.error(a);
+                    console.error(b);
+                    console.error(c);
+                }
+            });
         });
     };
 
-    this.refreshTimer = null;
+    var TaskRefresher = function() {
 
-    this.start = function() {
-        self.refreshTimer = setInterval(refresh, FREQUENCY);
-        refresh();
+        var FREQUENCY = 5000;
+
+        var refreshTimer;
+
+        var refresh = function() {
+            console.debug('Refreshing task list...');
+
+            $.ajax({
+                url: TASKS_URL,
+                data: $('form.pt-filter').serialize(),
+                success: function (data) {
+                    // this will be handled by index.js.erb
+                }
+            });
+        };
+
+        this.start = function() {
+            refreshTimer = setInterval(refresh, FREQUENCY);
+            refresh();
+        };
+
+        this.stop = function() {
+            clearInterval(refreshTimer);
+        }
+
     };
 
-    this.stop = function() {
-        clearInterval(self.refreshTimer);
-    }
-
 };
-
-var task_refresher;
 
 var ready = function() {
-    if ($('body#admin_tasks, body#admin_task_show').length) {
-        task_refresher = new PTTaskRefresher();
-        task_refresher.start();
+    if ($('body#admin_tasks').length) {
+        Application.view = new PTAdminTasksView();
+        Application.view.init();
     }
-};
-
-var teardown = function() {
-    task_refresher.stop();
 };
 
 $(document).ready(ready);
-$(document).on('page:load', ready);
-$(document).on('page:before-change', teardown);

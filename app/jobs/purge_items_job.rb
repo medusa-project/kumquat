@@ -1,6 +1,8 @@
 class PurgeItemsJob < Job
 
-  queue_as :default
+  QUEUE = :default
+
+  queue_as QUEUE
 
   ##
   # @param args [Array] One-element array with the UUID of the collection to

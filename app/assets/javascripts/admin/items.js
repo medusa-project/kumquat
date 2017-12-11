@@ -107,6 +107,8 @@ var PTAdminItemEditView = function() {
     };
 
     this.init = function() {
+        new PearTree.DirtyFormListener('form').listen();
+
         $('button.pt-add-element').on('click', function() {
             var element = $(this).closest('.pt-element');
 
@@ -137,7 +139,7 @@ var PTAdminItemEditView = function() {
             $(this).height(height + 'px');
         });
         // ... and on change
-        textareas.on('input propertychange keyup change', function() {
+        textareas.on('propertychange keyup change', function() {
             $(this).height('20px');
             $(this).height((this.scrollHeight - MAGIC_FUDGE) + 'px');
         });
@@ -158,27 +160,18 @@ var PTAdminItemEditView = function() {
  */
 var PTAdminItemsEditView = function() {
 
-    var ELEMENT_LIMIT = 4;
-
-    var dirty = false;
     var self = this;
-    var shade = new PearTree.AJAXShade();
+    var shade = new Application.AJAXShade();
 
     this.init = function() {
         self.attachEventListeners();
     };
 
     this.attachEventListeners = function() {
-        dirty = false;
+        new PearTree.DirtyFormListener('form').listen();
 
         $('.pagination a').off().on('click', function() {
             $('#pt-items')[0].scrollIntoView({behavior: "smooth"});
-        });
-
-        // When a value is changed, mark the form as dirty.
-        $('input[type=number], textarea').off().on('propertychange keyup change', function() {
-            dirty = true;
-            $(this).addClass('pt-dirty');
         });
 
         // Make the table header stick to the top when scrolling. (DLD-124)
@@ -192,7 +185,7 @@ var PTAdminItemsEditView = function() {
         // When the form is dirty and a link is clicked, prompt to save changes
         // before proceeding.
         $('a').off().on('click', function() {
-            if (dirty) {
+            if ($('.pt-dirty').length) {
                 return window.confirm('Proceed without saving changes?');
             }
         });
@@ -210,7 +203,7 @@ var PTAdminItemsEditView = function() {
                 url: '/admin/collections/' + collection_id + '/items/update',
                 data: $("form").serialize(),
                 success: function(result) {
-                    resetDirty();
+                    $('input[type=number], textarea').removeClass('pt-dirty');
                 },
                 error: function(xhr, status, error) {
                     console.error(error);
@@ -225,11 +218,6 @@ var PTAdminItemsEditView = function() {
         });
     };
 
-    var resetDirty = function() {
-        dirty = false;
-        $('input[type=number], textarea').removeClass('pt-dirty');
-    };
-
 };
 
 /**
@@ -242,8 +230,8 @@ var PTAdminItemsView = function() {
     var self = this;
 
     this.init = function() {
-        new PearTree.FilterField();
-        PearTree.initFacets();
+        new Application.FilterField();
+        Application.initFacets();
 
         self.attachEventListeners();
     };
@@ -308,19 +296,18 @@ var PTAdminItemView = function() {
 
 var ready = function() {
     if ($('body#admin_items_edit').length) {
-        PearTree.view = new PTAdminItemEditView();
-        PearTree.view.init();
+        Application.view = new PTAdminItemEditView();
+        Application.view.init();
     } else if ($('body#admin_items_edit_all').length) {
-        PearTree.view = new PTAdminItemsEditView();
-        PearTree.view.init();
+        Application.view = new PTAdminItemsEditView();
+        Application.view.init();
     } else if ($('body#admin_items_index').length) {
-        PearTree.view = new PTAdminItemsView();
-        PearTree.view.init();
+        Application.view = new PTAdminItemsView();
+        Application.view.init();
     } else if ($('body#admin_items_show').length) {
-        PearTree.view = new PTAdminItemView();
-        PearTree.view.init();
+        Application.view = new PTAdminItemView();
+        Application.view.init();
     }
 };
 
 $(document).ready(ready);
-$(document).on('page:load', ready);

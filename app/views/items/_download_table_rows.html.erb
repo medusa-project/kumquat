@@ -15,7 +15,9 @@
   <td>
     <div class="btn-group">
       <% if item&.effective_image_binary&.iiif_image_identifier %>
-        <%= link_to download_image_url(item.effective_image_binary.iiif_image_identifier, 'full', 'full', 0, 'default', 'jpg'),
+        <%= link_to binary_image_url(item.effective_image_binary,
+                                     content_disposition: 'attachment',
+                                     cache: false),
                     class: 'btn btn-default btn-sm' do %>
           <i class="fa fa-image"></i> JPEG
         <% end %>

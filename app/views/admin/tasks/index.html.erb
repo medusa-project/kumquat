@@ -9,8 +9,39 @@
 
 <%= hidden_field_tag('pt-tasks-url', admin_tasks_url) %>
 
-<h1>Tasks</h1>
+<h1>Tasks <small>last <%= Admin::TasksController::WINDOW %> days</small></h1>
+
+<div class="well">
+  <%= form_tag admin_tasks_path, method: 'get', class: 'pt-filter' do %>
+    <div class="form-inline">
+      <%= search_field_tag :q, params[:q], placeholder: 'Filter',
+                           class: 'form-control' %>
+
+      <label for="queue">Queue</label>
+      <select name="queue" class="form-control">
+        <option></option>
+        <% Job::ALL_QUEUES.each do |q| %>
+          <option <%= q.to_s == params[:queue] ? 'selected' : '' %>>
+            <%= q %>
+          </option>
+        <% end %>
+      </select>
+
+      <label for="status">Status</label>
+      <select name="status" class="form-control">
+        <option></option>
+        <% Task::Status::all.each do |s| %>
+          <option value="<%= s %>" <%= s == params[:status] ? 'selected' : '' %>>
+            <%= Task::Status::to_s(s) %>
+          </option>
+        <% end %>
+      </select>
+    </div>
+  <% end %>
+</div>
 
 <div id="pt-tasks-list">
   <%= render partial: 'tasks' %>
 </div>
+
+<%= render partial: 'task_panel' %>

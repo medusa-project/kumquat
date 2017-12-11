@@ -20,5 +20,5 @@
 /tmp
 
 /config/database.yml
-/config/peartree.yml
+/config/kumquat.yml
 /config/shibboleth.yml

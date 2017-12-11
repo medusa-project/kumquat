@@ -5,8 +5,8 @@ module ApplicationHelper
 
   ##
   # Adds a full-window AJAX shade element to the DOM. This will be initially
-  # hidden via CSS, and can be toggled on and off by PearTree.AJAXShade.show()
-  # and hide().
+  # hidden via CSS, and can be toggled on and off by
+  # Application.AJAXShade.show() and hide().
   #
   # @return [String]
   #
@@ -94,7 +94,7 @@ module ApplicationHelper
         end
       end
       if bs
-        img_url = binary_image_url(bs, CARD_IMAGE_SIZE, :square)
+        img_url = binary_image_url(bs, region: 'square', size: CARD_IMAGE_SIZE)
       else
         case entity.class.to_s
           when 'Collection'

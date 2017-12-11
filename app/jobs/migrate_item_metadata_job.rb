@@ -1,6 +1,8 @@
 class MigrateItemMetadataJob < Job
 
-  queue_as :default
+  QUEUE = :default
+
+  queue_as QUEUE
 
   ##
   # @param args [Array] Three-element array. Position 0 contains either a

@@ -17,7 +17,7 @@ module Admin
       begin
         ActiveRecord::Base.transaction { @agent_relation.save! }
       rescue ActiveRecord::RecordInvalid
-        response.headers['X-PearTree-Result'] = 'error'
+        response.headers['X-Kumquat-Result'] = 'error'
         render partial: 'shared/validation_messages',
                locals: { entity: @agent_relation }
       rescue => e
@@ -25,7 +25,7 @@ module Admin
         keep_flash
         render 'create'
       else
-        response.headers['X-PearTree-Result'] = 'success'
+        response.headers['X-Kumquat-Result'] = 'success'
         flash['success'] = 'Agent relationship created.'
         keep_flash
         render 'create' # create.js.erb will reload the page
@@ -70,15 +70,15 @@ module Admin
         end
         ActiveRecord::Base.transaction { agent_relation.update!(p) }
       rescue ActiveRecord::RecordInvalid
-        response.headers['X-PearTree-Result'] = 'error'
+        response.headers['X-Kumquat-Result'] = 'error'
         render partial: 'shared/validation_messages',
                locals: { entity: agent_relation }
       rescue => e
-        response.headers['X-PearTree-Result'] = 'error'
+        response.headers['X-Kumquat-Result'] = 'error'
         render partial: 'shared/validation_messages',
                locals: { entity: e }
       else
-        response.headers['X-PearTree-Result'] = 'success'
+        response.headers['X-Kumquat-Result'] = 'success'
         flash['success'] = 'Agent relationship updated.'
         keep_flash
         render 'update' # update.js.erb will reload the page
