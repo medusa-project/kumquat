@@ -1282,14 +1282,24 @@ module ItemsHelper
     if binary
       # Configuration is in /public/uvconfig_single.json;
       # See http://universalviewer.io/examples/ for config structure.
-      # UV seems to want its height to be defined in a style attribute.
-      html += "<div id=\"pt-image-viewer\" class=\"uv\" "\
-      "data-locale=\"en-GB:English (GB)\" "\
-      "data-config=\"#{asset_path('uvconfig_single.json', skip_pipeline: true)}\" "\
-      "data-uri=\"#{item_iiif_manifest_url(item)}\" "\
-      "data-sequenceindex=\"0\" data-canvasindex=\"0\" "\
-      "data-rotation=\"0\" style=\"margin: 0 auto; width:#{VIEWER_WIDTH}; height:#{VIEWER_HEIGHT}; background-color:#000;\"></div>"
-      html += javascript_include_tag('/universalviewer/lib/embed.js', id: 'embedUV')
+      # N.B. 1: UV 2.x doesn't work in IE 9, so render an <img> instead.
+      # N.B. 2: UV wants its height to be defined in a style attribute.
+      html += sprintf('<!--[if (lte IE 9)]>%s<![endif]-->
+          <!--[if gt IE 9 | !IE ]><!-->
+          <div id="pt-image-viewer" class="uv"
+          data-locale="en-GB:English (GB)"
+          data-config="%s"
+          data-uri="%s"
+          data-sequenceindex="0" data-canvasindex="0"
+          data-rotation="0" style="margin: 0 auto; width:%s; height:%s; background-color:#000;"></div>
+          %s,
+          <![endif]-->',
+                      thumbnail_tag(binary, size: 800),
+                      asset_path('uvconfig_single.json', skip_pipeline: true),
+                      item_iiif_manifest_url(item),
+                      VIEWER_WIDTH,
+                      VIEWER_HEIGHT,
+                      javascript_include_tag('/universalviewer/lib/embed.js', id: 'embedUV'))
     else
       html += viewer_unavailable_message
     end
