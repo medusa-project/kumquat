@@ -22,7 +22,8 @@ class SearchController < WebsiteController
         exclude_item_variants(*Item::Variants::all.reject{ |v| v == Item::Variants::FILE }).
         query_all(params[:q]).
         facet_filters(params[:fq]).
-        order(params[:sort]).
+        # TODO: why does the underscore cause collections to sort first, which is exactly what we want?
+        order(params[:sort].present? ? params[:sort] : '_').
         start(@start).
         limit(@limit)
     @entities = finder.to_a
