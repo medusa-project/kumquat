@@ -96,7 +96,7 @@ module OaiPmhHelper
         end
       end
       # Add a dcterms:identifier element containing the item URI (IMET-391)
-      xml.tag!('dcterms:identifier', item_url(item))
+      xml.tag!('dc:identifier', item_url(item))
     end
   end
 
