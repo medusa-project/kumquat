@@ -31,7 +31,23 @@ class OaiPmhController < ApplicationController
   MAX_RESULT_WINDOW = 100
   RESUMPTION_TOKEN_COMPONENT_SEPARATOR = '|'
   RESUMPTION_TOKEN_KEY_VALUE_SEPARATOR = ':'
-  SUPPORTED_METADATA_FORMATS = %w(oai_dc oai_qdc)
+  SUPPORTED_METADATA_FORMATS = [
+      {
+          name: 'oai_dc',
+          schema: 'http://www.openarchives.org/OAI/2.0/oai_dc.xsd',
+          namespace: 'http://www.openarchives.org/OAI/2.0/oai_dc/'
+      },
+      {
+          name: 'oai_dcterms',
+          schema: 'http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd',
+          namespace: 'http://purl.org/dc/terms/'
+      },
+      {
+          name: 'oai_qdc', # mix of "dc:" and "dcterms:" a la CONTENTdm
+          schema: 'http://dublincore.org/schemas/xmls/qdc/2003/04/02/appqualifieddc.xsd',
+          namespace: 'http://oclc.org/appqualifieddc/'
+      }
+  ]
 
   def initialize
     super
@@ -331,7 +347,7 @@ class OaiPmhController < ApplicationController
 
     # metadataPrefix validation
     if params[:metadataPrefix].present? and
-        !SUPPORTED_METADATA_FORMATS.include?(params[:metadataPrefix])
+        !SUPPORTED_METADATA_FORMATS.map{ |f| f[:name] }.include?(params[:metadataPrefix])
       @errors << { code: 'cannotDisseminateFormat',
                    description: 'The metadata format identified by the '\
                      'metadataPrefix argument is not supported by this '\

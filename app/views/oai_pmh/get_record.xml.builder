@@ -32,6 +32,8 @@ xml.tag!('OAI-PMH',
           case @metadata_format
             when 'oai_qdc'
               oai_pmh_qdc_elements_for(@item, xml)
+            when 'oai_dcterms'
+              oai_pmh_dcterms_elements_for(@item, xml)
             else
               oai_pmh_dc_elements_for(@item, xml)
           end

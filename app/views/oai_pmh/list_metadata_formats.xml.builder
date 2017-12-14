@@ -23,17 +23,12 @@ xml.tag!('OAI-PMH',
   else
     # 4.4
     xml.tag!('ListMetadataFormats') do
-      xml.tag!('metadataFormat') do
-        xml.tag!('metadataPrefix', 'oai_dc')
-        xml.tag!('schema', 'http://www.openarchives.org/OAI/2.0/oai_dc.xsd')
-        xml.tag!('metadataNamespace',
-                 'http://www.openarchives.org/OAI/2.0/oai_dc/')
-      end
-      xml.tag!('metadataFormat') do
-        xml.tag!('metadataPrefix', 'oai_qdc')
-        xml.tag!('schema',
-                 'http://dublincore.org/schemas/xmls/qdc/2003/04/02/appqualifieddc.xsd')
-        xml.tag!('metadataNamespace', 'http://oclc.org/appqualifieddc/')
+      OaiPmhController::SUPPORTED_METADATA_FORMATS.each do |format|
+        xml.tag!('metadataFormat') do
+          xml.tag!('metadataPrefix', format[:name])
+          xml.tag!('schema', format[:schema])
+          xml.tag!('metadataNamespace', format[:namespace])
+        end
       end
     end
   end
