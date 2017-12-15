@@ -21,7 +21,7 @@ class ItemsController < WebsiteController
 
   before_action :load_item, except: [:index, :tree, :tree_data]
   before_action :authorize_item, except: [:index, :tree, :tree_data]
-  before_action :check_published, except: [:index, :tree, :tree_data]
+  before_action :check_publicly_accessible, except: [:index, :tree, :tree_data]
   before_action :set_browse_context, only: :index
   before_action :set_sanitized_params, only: [:index, :show, :tree]
 
@@ -563,8 +563,8 @@ class ItemsController < WebsiteController
     node_hash
   end
 
-  def check_published
-    raise UnpublishedError unless @item.published and @item.collection.published
+  def check_publicly_accessible
+    raise UnpublishedError unless @item.publicly_accessible?
   end
 
   ##

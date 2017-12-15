@@ -116,9 +116,6 @@ class Item < ApplicationRecord
     EFFECTIVE_ALLOWED_ROLES = 'effective_allowed_roles'
     EFFECTIVE_DENIED_ROLE_COUNT = 'effective_denied_role_count'
     EFFECTIVE_DENIED_ROLES = 'effective_denied_roles'
-    # N.B.: An item might be published but it's collection might not be, making
-    # it still effectively unpublished. This will take that into account.
-    EFFECTIVELY_PUBLISHED = 'effectively_published'
     ITEM_SETS = 'item_sets'
     LAST_MODIFIED = 'last_modified'
     LAT_LONG = 'lat_long'
@@ -126,6 +123,9 @@ class Item < ApplicationRecord
     PAGE_NUMBER = 'page_number'
     PARENT_ITEM = 'parent_item'
     PRIMARY_MEDIA_CATEGORY = 'primary_media_category'
+    # N.B.: An item might be published but it's collection might not be, making
+    # it still effectively unpublished. This will take that into account.
+    PUBLICLY_ACCESSIBLE = ElasticsearchIndex::PUBLICLY_ACCESSIBLE_FIELD
     PUBLISHED = 'published'
     REPOSITORY_ID = 'repository_id'
     REPRESENTATIVE_FILENAME = 'representative_filename'
@@ -407,7 +407,6 @@ class Item < ApplicationRecord
         self.effective_denied_roles.pluck(:key)
     doc[IndexFields::EFFECTIVE_DENIED_ROLE_COUNT] =
         doc[IndexFields::EFFECTIVE_DENIED_ROLES].length
-    doc[IndexFields::EFFECTIVELY_PUBLISHED] = self.effectively_published
     doc[IndexFields::ITEM_SETS] = self.item_sets.pluck(:id)
     doc[IndexFields::LAST_INDEXED] = Time.now.utc.iso8601
     if self.latitude and self.longitude
@@ -416,6 +415,7 @@ class Item < ApplicationRecord
     doc[IndexFields::PAGE_NUMBER] = self.page_number
     doc[IndexFields::PARENT_ITEM] = self.parent_repository_id
     doc[IndexFields::PRIMARY_MEDIA_CATEGORY] = self.primary_media_category
+    doc[IndexFields::PUBLICLY_ACCESSIBLE] = self.publicly_accessible?
     doc[IndexFields::PUBLISHED] = self.published
     doc[IndexFields::REPOSITORY_ID] = self.repository_id
     doc[IndexFields::REPRESENTATIVE_FILENAME] = self.representative_filename
@@ -751,14 +751,6 @@ class Item < ApplicationRecord
   end
 
   ##
-  # @return [Boolean] Whether the instance and its collection are both
-  #                   published.
-  #
-  def effectively_published
-    self.published and self.collection.published
-  end
-
-  ##
   # @param options [Hash]
   # @option options [Boolean] :only_visible
   # @return [Enumerable<ItemElement>] The instance's ItemElements in the order
@@ -932,6 +924,14 @@ class Item < ApplicationRecord
         end
       end
     end
+  end
+
+  ##
+  # @return [Boolean] Whether the instance and its collection are both
+  #                   publicly accessible.
+  #
+  def publicly_accessible?
+    self.published and self.collection.publicly_accessible?
   end
 
   ##

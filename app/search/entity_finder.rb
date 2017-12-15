@@ -71,7 +71,7 @@ class EntityFinder < AbstractFinder
             end
           end
 
-          if @filters.any? or @only_described or @include_unpublished
+          if @filters.any? or @only_described or !@include_unpublished
             j.filter do
               @filters.each do |field, value|
                 j.child! do
@@ -87,7 +87,7 @@ class EntityFinder < AbstractFinder
                 end
               end
 
-              unless @only_described
+              if @only_described
                 j.child! do
                   j.term do
                     j.set! Item::IndexFields::DESCRIBED, true
@@ -98,7 +98,7 @@ class EntityFinder < AbstractFinder
               unless @include_unpublished
                 j.child! do
                   j.term do
-                    j.set! Item::IndexFields::EFFECTIVELY_PUBLISHED, true
+                    j.set! ElasticsearchIndex::PUBLICLY_ACCESSIBLE_FIELD, true
                   end
                 end
               end

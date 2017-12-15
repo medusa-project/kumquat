@@ -11,8 +11,8 @@ class AgentTest < ActiveSupport::TestCase
   test 'as_indexed_json() returns the correct structure' do
     doc = @agent.as_indexed_json
     assert_equal @agent.description, doc[Agent::IndexFields::DESCRIPTION]
-    assert doc[Agent::IndexFields::EFFECTIVELY_PUBLISHED]
     assert_equal @agent.name, doc[Agent::IndexFields::NAME]
+    assert doc[Agent::IndexFields::PUBLICLY_ACCESSIBLE]
     assert_not_empty doc[Agent::IndexFields::SEARCH_ALL]
   end
 

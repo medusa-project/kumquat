@@ -97,7 +97,7 @@ class CollectionFinder < AbstractFinder
               unless @include_unpublished
                 j.child! do
                   j.term do
-                    j.set! Collection::IndexFields::EFFECTIVELY_PUBLISHED, true
+                    j.set! Collection::IndexFields::PUBLICLY_ACCESSIBLE, true
                   end
                 end
               end

@@ -8,9 +8,9 @@ class Agent < ApplicationRecord
 
   class IndexFields
     DESCRIPTION = 'description'
-    EFFECTIVELY_PUBLISHED = Item::IndexFields::EFFECTIVELY_PUBLISHED
     LAST_INDEXED = 'date_last_indexed'
     NAME = 'name'
+    PUBLICLY_ACCESSIBLE = ElasticsearchIndex::PUBLICLY_ACCESSIBLE_FIELD
     SEARCH_ALL = ElasticsearchIndex::SEARCH_ALL_FIELD
   end
 
@@ -72,9 +72,9 @@ class Agent < ApplicationRecord
   def as_indexed_json(options = {})
     doc = {}
     doc[IndexFields::DESCRIPTION] = self.description.to_s
-    doc[IndexFields::EFFECTIVELY_PUBLISHED] = true
     doc[IndexFields::LAST_INDEXED] = Time.now.utc.iso8601
     doc[IndexFields::NAME] = self.name.to_s
+    doc[IndexFields::PUBLICLY_ACCESSIBLE] = true
     doc[IndexFields::SEARCH_ALL] = [
         doc[IndexFields::NAME],
         doc[IndexFields::DESCRIPTION]
