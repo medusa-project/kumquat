@@ -4,7 +4,7 @@ class CollectionsController < WebsiteController
 
   before_action :load_collection, only: [:iiif_presentation, :show]
   before_action :authorize_collection, only: [:iiif_presentation, :show]
-  before_action :check_publicly_accessible, only: :iiif_presentation
+  before_action :check_publicly_accessible, only: [:iiif_presentation, :show]
   before_action :enable_cors, only: :iiif_presentation
   before_action :set_sanitized_params, only: [:index, :show]
 
@@ -108,7 +108,7 @@ class CollectionsController < WebsiteController
   end
 
   def check_publicly_accessible
-    raise UnpublishedError unless @ollection.publicly_accessible?
+    raise UnpublishedError unless @collection.publicly_accessible?
   end
 
   def load_collection
