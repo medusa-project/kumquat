@@ -27,6 +27,7 @@ module Admin
       finder = CollectionFinder.new.
           aggregations(false).
           query_all(params[:q]).
+          include_unpublished(true).
           order(Collection::IndexFields::TITLE).
           start(@start).
           limit(@limit)
