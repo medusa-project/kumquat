@@ -327,13 +327,16 @@ class Collection < ApplicationRecord
   #
   def elements_in_profile_order(options = {})
     elements = []
-    mp_elements = self.metadata_profile.elements
-    if options[:only_visible]
-      mp_elements = mp_elements.where(visible: true)
-    end
-    mp_elements.each do |mpe|
-      element = self.element(mpe.name)
-      elements << element if element
+    profile = self.metadata_profile
+    if profile
+      mp_elements = profile.elements
+      if options[:only_visible]
+        mp_elements = mp_elements.where(visible: true)
+      end
+      mp_elements.each do |mpe|
+        element = self.element(mpe.name)
+        elements << element if element
+      end
     end
     elements
   end
