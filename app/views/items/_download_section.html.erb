@@ -16,7 +16,7 @@
     <div id="pt-download" class="collapse <%= expanded ? 'in' : '' %>">
 
       <div class="btn-group" style="margin: 0.4em 0em 0.8em 0em">
-        <% if client_supports_zip_download? %>
+        <% if client_supports_file_downloads? %>
           <%= link_to('',
                       class: 'btn btn-default',
                       target: '_blank',

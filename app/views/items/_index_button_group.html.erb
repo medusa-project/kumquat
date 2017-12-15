@@ -30,7 +30,7 @@
   </div>
   <!-- Download menu, disabled in cross-collection contexts to limit the
       downloading of huge amounts of content. -->
-  <% if @collection and !@storage_offline and client_supports_zip_download? %>
+  <% if @collection and !@storage_offline and client_supports_file_downloads? %>
     <div class="btn-group">
       <button type="button" class="btn btn-default dropdown-toggle"
               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
