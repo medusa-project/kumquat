@@ -758,16 +758,15 @@ class Item < ApplicationRecord
   #                                   metadata profile.
   #
   def elements_in_profile_order(options = {})
-    elements = []
+    all_elements = []
     mp_elements = self.collection.metadata_profile.elements
     if options[:only_visible]
       mp_elements = mp_elements.where(visible: true)
     end
     mp_elements.each do |mpe|
-      element = self.element(mpe.name)
-      elements << element if element
+      all_elements += self.elements.select{ |e| e.name == mpe.name }
     end
-    elements
+    all_elements
   end
 
   ##
