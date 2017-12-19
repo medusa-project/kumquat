@@ -1,8 +1,9 @@
 require 'test_helper'
+require File.expand_path('../api_controller_test.rb', __FILE__)
 
 module Api
 
-  class CollectionsControllerTest < ActionDispatch::IntegrationTest
+  class CollectionsControllerTest < ApiControllerTest
 
     # index()
 
@@ -25,18 +26,6 @@ module Api
 
       get '/api/collections', headers: valid_headers
       assert_response :success
-    end
-
-    protected
-
-    def valid_headers
-      config = Configuration.instance
-      creds = ActionController::HttpAuthentication::Basic.encode_credentials(
-          config.api_user, config.api_secret)
-      {
-          'Authorization' => creds,
-          'Content-Type' => 'application/json'
-      }
     end
 
   end

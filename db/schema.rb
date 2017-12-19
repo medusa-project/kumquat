@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171204212737) do
+ActiveRecord::Schema.define(version: 20171219173142) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -283,7 +283,7 @@ ActiveRecord::Schema.define(version: 20171204212737) do
     t.index ["uuid"], name: "index_medusa_file_groups_on_uuid"
   end
 
-  create_table "medusa_repositories", id: :serial, force: :cascade do |t|
+  create_table "medusa_repositories", id: :integer, default: -> { "nextval('medusa_repository_names_id_seq'::regclass)" }, force: :cascade do |t|
     t.integer "medusa_database_id"
     t.string "contact_email"
     t.string "email"
@@ -386,6 +386,7 @@ ActiveRecord::Schema.define(version: 20171204212737) do
     t.boolean "enabled"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "api_key"
     t.index ["username"], name: "index_users_on_username", unique: true
   end
 

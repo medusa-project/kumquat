@@ -19,9 +19,9 @@ module Api
     #
     def authorize_user
       authenticate_or_request_with_http_basic do |username, secret|
-        config = ::Configuration.instance
-        if username == config.api_user and secret == config.api_secret
-          return config.api_ips.select{ |ip| request.remote_ip.start_with?(ip) }.any?
+        user = User.find_by_username(username)
+        if user
+          return user.api_key == secret
         end
       end
       false
