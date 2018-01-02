@@ -86,13 +86,14 @@ module OaiPmhHelper
           select{ |e| e.value.present? }.each do |ie|
         profile_element = profile.elements.select{ |pe| pe.name == ie.name }.first
         if profile_element
-          dc_element = profile_element.dc_map
           dcterms_element = profile_element.dcterms_map
-
-          if dc_element.present?
-            xml.tag!("dc:#{dc_element}", ie.value)
-          elsif dcterms_element.present?
-            xml.tag!("dcterms:#{dcterms_element}", ie.value)
+          if dcterms_element.present?
+            dc_element = DublinCoreElement.all.select{ |e| e.name == dcterms_element }.first
+            if dc_element
+              xml.tag!("dc:#{dc_element.name}", ie.value)
+            else
+              xml.tag!("dcterms:#{dcterms_element}", ie.value)
+            end
           end
         end
       end
