@@ -22,7 +22,7 @@ module Admin
     #
     def add_items_to_item_set
       item_ids = params[:items]
-      if item_ids.any?
+      if item_ids&.any?
         item_set = ItemSet.find(params[:item_set])
         ActiveRecord::Base.transaction do
           item_ids.each do |item_id|
