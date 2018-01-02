@@ -75,8 +75,9 @@ module OaiPmhHelper
     profile = item.collection.metadata_profile
     xml.tag!('oai_qdc:qdc', {
         'xmlns:oai_qdc' => 'http://oclc.org/appqualifieddc/',
-        'xmlns:dcterms' => 'http://purl.org/dc/terms/',
         'xmlns:dc' => 'http://purl.org/dc/elements/1.1/',
+        'xmlns:dcterms' => 'http://purl.org/dc/terms/',
+        'xmlns:edm' => 'http://www.europeana.eu/schemas/edm/',
         'xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance',
         'xsi:schemaLocation' => 'http://oclc.org/appqualifieddc/ '\
                       'http://dublincore.org/schemas/xmls/qdc/2003/04/02/appqualifieddc.xsd'
@@ -95,8 +96,14 @@ module OaiPmhHelper
           end
         end
       end
+
       # Add a dcterms:identifier element containing the item URI (IMET-391)
       xml.tag!('dc:identifier', item_url(item))
+
+      # Add a thumbnail URI, if the item has a representative image. This was
+      # requested by mhan3@illinois.edu.
+      image_url = item_image_url(item, :full, 150, :jpg)
+      xml.tag!('edm:preview', image_url) if image_url
     end
   end
 
