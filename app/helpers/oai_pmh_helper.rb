@@ -63,9 +63,10 @@ module OaiPmhHelper
   end
 
   ##
-  # Using a metadataPrefix of oai_qdc, the CONTENTdm OAI_PMH endpoint returns
-  # a mix of dc: and dcterms: elements, depending on whether an element is
-  # qualified or not. This method emulates that behavior.
+  # Emulates the behavior of CONTENTdm's `oai_qdc` metadata, returning a mix
+  # of dc: and dcterms: elements, depending on whether an element is
+  # qualified or not, and also adding a few more elements that harvesters find
+  # useful.
   #
   # @param item [Item]
   # @param xml [XML::Builder]
@@ -105,6 +106,9 @@ module OaiPmhHelper
       # requested by mhan3@illinois.edu.
       image_url = item_image_url(item, :full, 150, :jpg)
       xml.tag!('edm:preview', image_url) if image_url
+
+      # Add a link to the IIIF presentation manifest.
+      xml.tag!('dcterms:isReferencedBy', item_iiif_manifest_url(item))
     end
   end
 
