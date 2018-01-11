@@ -90,6 +90,8 @@ class ItemTest < ActiveSupport::TestCase
     assert_not_empty doc[Item::IndexFields::LAST_INDEXED]
     assert_equal({ lat: @item.latitude, lon: @item.longitude },
                  doc[Item::IndexFields::LAT_LONG])
+    assert_equal(@item.parent.repository_id,
+                 doc[Item::IndexFields::OBJECT_REPOSITORY_ID])
     assert_equal @item.page_number,
                  doc[Item::IndexFields::PAGE_NUMBER]
     assert_equal @item.parent_repository_id,

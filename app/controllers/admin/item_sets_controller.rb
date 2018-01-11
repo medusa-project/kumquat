@@ -101,14 +101,20 @@ module Admin
       if item_ids&.any?
         item_set = ItemSet.find(params[:item_set_id])
         items_to_delete = item_set.items.where('repository_id IN (?)', item_ids)
+
         ActiveRecord::Base.transaction do
-          item_set.items.delete(items_to_delete)
+          items_to_delete.each do |item|
+            item_set.items.delete(item.all_children)
+            item_set.items.delete(item)
+          end
         end
 
-        flash['success'] = "Removed #{item_ids.length} items from #{item_set}."
+        flash['success'] = "Removed #{item_ids.length} item(s) from #{item_set}."
       else
         flash['error'] = 'No items are checked.'
       end
+
+      sleep(2) # give ES some time to catch up
       redirect_back fallback_location: admin_collection_item_set_path(params[:collection_id],
                                                                       params[:item_set_id])
     end

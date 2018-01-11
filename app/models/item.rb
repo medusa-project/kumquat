@@ -120,10 +120,13 @@ class Item < ApplicationRecord
     LAST_MODIFIED = 'last_modified'
     LAT_LONG = 'lat_long'
     LAST_INDEXED = 'date_last_indexed'
+    # Repository ID of the item, or its parent item, if a child within a
+    # compound object.
+    OBJECT_REPOSITORY_ID = 'object_repository_id'
     PAGE_NUMBER = 'page_number'
     PARENT_ITEM = 'parent_item'
     PRIMARY_MEDIA_CATEGORY = 'primary_media_category'
-    # N.B.: An item might be published but it's collection might not be, making
+    # N.B.: An item might be published but its collection might not be, making
     # it still effectively unpublished. This will take that into account.
     PUBLICLY_ACCESSIBLE = ElasticsearchIndex::PUBLICLY_ACCESSIBLE_FIELD
     PUBLISHED = 'published'
@@ -412,6 +415,9 @@ class Item < ApplicationRecord
     if self.latitude and self.longitude
       doc[IndexFields::LAT_LONG] = { lon: self.longitude, lat: self.latitude }
     end
+    doc[IndexFields::OBJECT_REPOSITORY_ID] = self.collection.free_form? ?
+                                                 self.repository_id :
+                                                 (self.parent_repository_id || self.repository_id)
     doc[IndexFields::PAGE_NUMBER] = self.page_number
     doc[IndexFields::PARENT_ITEM] = self.parent_repository_id
     doc[IndexFields::PRIMARY_MEDIA_CATEGORY] = self.primary_media_category
