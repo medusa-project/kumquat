@@ -210,6 +210,14 @@ class ItemsController < WebsiteController
     if params[:collection_id]
       @collection = Collection.find_by_repository_id(params[:collection_id])
       raise ActiveRecord::RecordNotFound unless @collection
+
+      # If the collection is unauthorized, redirect to the show-collection
+      # page which will contain an explanation.
+      begin
+        authorize(@collection)
+      rescue AuthorizationError
+        redirect_to @collection
+      end
     end
 
     finder = item_finder_for(params)
