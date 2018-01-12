@@ -230,7 +230,7 @@ class Collection < ApplicationRecord
     self.elements.each do |element|
       # ES will automatically create one or more multi fields for this.
       # See: https://www.elastic.co/guide/en/elasticsearch/reference/0.90/mapping-multi-field-type.html
-      doc[element.indexed_field] = element.value
+      doc[element.indexed_field] = element.value[0..ElasticsearchClient::MAX_KEYWORD_FIELD_LENGTH]
 
       # If the element is searchable in the collection's metadata profile, or
       # if the collection doesn't have a metadata profile, add its value to the
