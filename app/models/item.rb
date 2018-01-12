@@ -435,7 +435,7 @@ class Item < ApplicationRecord
     self.elements.each do |element|
       # ES will automatically create a one or more multi fields for this.
       # See: https://www.elastic.co/guide/en/elasticsearch/reference/0.90/mapping-multi-field-type.html
-      doc[element.indexed_field] = element.value
+      doc[element.indexed_field] = element.value[0..ElasticsearchClient::MAX_KEYWORD_FIELD_LENGTH]
 
       # If the element is searchable in the collection's metadata profile, or
       # if the collection doesn't have a metadata profile, add its value to the
@@ -452,7 +452,7 @@ class Item < ApplicationRecord
     # children in results.
     if self.parent
       self.parent.elements.each do |element|
-        doc[element.parent_indexed_field] = element.value
+        doc[element.parent_indexed_field] = element.value[0..ElasticsearchClient::MAX_KEYWORD_FIELD_LENGTH]
       end
     end
 
@@ -1476,7 +1476,7 @@ class Item < ApplicationRecord
               self.subpage_number.present? ? zero_pad_numbers(self.subpage_number) : sort_last_token,
               self.title.present? ? zero_pad_numbers(self.title.downcase) : sort_last_token)
     end
-    key
+    key[0..ElasticsearchClient::MAX_KEYWORD_FIELD_LENGTH]
   end
 
   def walk(item, index, &block)
