@@ -3,8 +3,8 @@ class CollectionsController < WebsiteController
   PERMITTED_PARAMS = [:_, :fq, :id, :q, :utf8]
 
   before_action :load_collection, only: [:iiif_presentation, :show]
-  before_action :authorize_collection, only: [:iiif_presentation, :show]
   before_action :check_publicly_accessible, only: [:iiif_presentation, :show]
+  before_action :authorize_collection, only: :iiif_presentation
   before_action :enable_cors, only: :iiif_presentation
   before_action :set_sanitized_params, only: [:index, :show]
 
@@ -81,6 +81,13 @@ class CollectionsController < WebsiteController
           # free-form and has no child items.
           @show_browse_tree_button = @collection.free_form? ?
               (@collection.items.where('parent_repository_id IS NOT NULL').count > 0) : false
+
+          begin
+            @authorized = true
+            authorize(@collection)
+          rescue AuthorizationError
+            @authorized = false
+          end
         rescue => e
           CustomLogger.instance.info("#{e}")
         end
