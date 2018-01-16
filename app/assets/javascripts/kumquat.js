@@ -173,7 +173,7 @@ var Application = {
         });
         // When form controls accompanying the filter field are changed,
         // resubmit the form via AJAX.
-        $('form.pt-filter select, form.pt-filter input[type=checkbox], ' +
+        $('form.pt-filter select, ' +
             'form.pt-filter input[type=radio]').on('change', function() {
             submitForm();
         });

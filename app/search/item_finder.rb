@@ -184,7 +184,7 @@ class ItemFinder < AbstractFinder
           end
 
           if @filters.any? or @item_set or @parent_item or @collection or
-              @only_described or @include_unpublished
+              @only_described or !@include_unpublished
             j.filter do
               @filters.each do |field, value|
                 j.child! do
@@ -237,7 +237,7 @@ class ItemFinder < AbstractFinder
               unless @include_unpublished
                 j.child! do
                   j.term do
-                    j.set! Item::IndexFields::EFFECTIVELY_PUBLISHED, true
+                    j.set! Item::IndexFields::PUBLICLY_ACCESSIBLE, true
                   end
                 end
               end

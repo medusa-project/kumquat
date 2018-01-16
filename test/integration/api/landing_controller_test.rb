@@ -1,26 +1,15 @@
 require 'test_helper'
+require File.expand_path('../api_controller_test.rb', __FILE__)
 
 module Api
 
-  class LandingControllerTest < ActionDispatch::IntegrationTest
+  class LandingControllerTest < ApiControllerTest
 
     # index()
 
     test 'index() should display the landing page' do
       get '/api', headers: valid_headers
       assert_response :ok
-    end
-
-    protected
-
-    def valid_headers
-      config = Configuration.instance
-      creds = ActionController::HttpAuthentication::Basic.encode_credentials(
-          config.api_user, config.api_secret)
-      {
-          'Authorization' => creds,
-          'Content-Type' => 'text/html'
-      }
     end
 
   end

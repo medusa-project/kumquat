@@ -5,8 +5,8 @@
                context_url: session[:browse_context_url]) %>
 
 <div class="alert alert-info">
-  <% if !@item.collection.published %>
-    This item is in an unpublished collection.
+  <% if !@item.collection.publicly_accessible? %>
+    This item's collection is not publicly accessible.
   <% else %>
     This item is unpublished.
   <% end %>

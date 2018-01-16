@@ -57,8 +57,6 @@ class CollectionTest < ActiveSupport::TestCase
                  doc[Collection::IndexFields::DENIED_ROLES].sort
     assert_equal @collection.denied_roles.pluck(:key).length,
                  doc[Collection::IndexFields::DENIED_ROLE_COUNT]
-    assert_equal @collection.published,
-                 doc[Collection::IndexFields::EFFECTIVELY_PUBLISHED]
     assert_equal @collection.external_id,
                  doc[Collection::IndexFields::EXTERNAL_ID]
     assert_equal @collection.harvestable,
@@ -67,6 +65,8 @@ class CollectionTest < ActiveSupport::TestCase
     assert_empty doc[Collection::IndexFields::PARENT_COLLECTIONS]
     assert_equal @collection.public_in_medusa,
                  doc[Collection::IndexFields::PUBLIC_IN_MEDUSA]
+    assert_equal @collection.publicly_accessible?,
+                 doc[Collection::IndexFields::PUBLICLY_ACCESSIBLE]
     assert_equal @collection.published_in_dls,
                  doc[Collection::IndexFields::PUBLISHED_IN_DLS]
     assert_equal @collection.repository_id,

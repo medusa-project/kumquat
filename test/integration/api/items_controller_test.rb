@@ -1,8 +1,9 @@
 require 'test_helper'
+require File.expand_path('../api_controller_test.rb', __FILE__)
 
 module Api
 
-  class ItemsControllerTest < ActionDispatch::IntegrationTest
+  class ItemsControllerTest < ApiControllerTest
 
     setup do
       @item = items(:illini_union_dir1_dir1_file1)
@@ -133,18 +134,6 @@ module Api
                        current_struct['updated_at']
       assert_equal initial_struct['elements'].length,
                    current_struct['elements'].length
-    end
-
-    protected
-
-    def valid_headers
-      config = Configuration.instance
-      creds = ActionController::HttpAuthentication::Basic.encode_credentials(
-          config.api_user, config.api_secret)
-      {
-          'Authorization' => creds,
-          'Content-Type' => 'application/json'
-      }
     end
 
   end

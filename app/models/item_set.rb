@@ -1,4 +1,9 @@
 ##
+# Arbitrary grouping of items.
+#
+# N.B.: For implementation reasons, when adding a compound object to a set, all
+# of its child items must also be added to the set.
+#
 # # Attributes
 #
 # * collection_repository_id: Medusa UUID of the associated collection.

@@ -122,6 +122,25 @@ module Admin
       @roles = Role.all.order(:name)
     end
 
+    ##
+    # Responds to PATCH /users/:username/reset-api-key
+    #
+    def reset_api_key
+      user = User.find_by_username params[:user_username]
+      raise ActiveRecord::RecordNotFound unless user
+
+      user.reset_api_key
+      begin
+        user.save!
+      rescue => e
+        handle_error(e)
+      else
+        flash['success'] = "Reset API key of #{user.username}."
+      ensure
+        redirect_back fallback_location: admin_user_path(user)
+      end
+    end
+
     def show
       @user = User.find_by_username params[:username]
       raise ActiveRecord::RecordNotFound unless @user

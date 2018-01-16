@@ -172,6 +172,7 @@ Rails.application.routes.draw do
     resources :users, param: :username do
       match '/enable', to: 'users#enable', via: :patch, as: 'enable'
       match '/disable', to: 'users#disable', via: :patch, as: 'disable'
+      match '/reset-api-key', to: 'users#reset_api_key', via: :post, as: 'reset_api_key'
       match '/roles', to: 'users#change_roles', via: :patch, as: 'change_roles'
     end
     resources :vocabulary_terms, except: :index, path: 'vocabulary-terms'

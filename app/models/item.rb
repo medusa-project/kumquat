@@ -116,16 +116,19 @@ class Item < ApplicationRecord
     EFFECTIVE_ALLOWED_ROLES = 'effective_allowed_roles'
     EFFECTIVE_DENIED_ROLE_COUNT = 'effective_denied_role_count'
     EFFECTIVE_DENIED_ROLES = 'effective_denied_roles'
-    # N.B.: An item might be published but it's collection might not be, making
-    # it still effectively unpublished. This will take that into account.
-    EFFECTIVELY_PUBLISHED = 'effectively_published'
     ITEM_SETS = 'item_sets'
     LAST_MODIFIED = 'last_modified'
     LAT_LONG = 'lat_long'
     LAST_INDEXED = 'date_last_indexed'
+    # Repository ID of the item, or its parent item, if a child within a
+    # compound object.
+    OBJECT_REPOSITORY_ID = 'object_repository_id'
     PAGE_NUMBER = 'page_number'
     PARENT_ITEM = 'parent_item'
     PRIMARY_MEDIA_CATEGORY = 'primary_media_category'
+    # N.B.: An item might be published but its collection might not be, making
+    # it still effectively unpublished. This will take that into account.
+    PUBLICLY_ACCESSIBLE = ElasticsearchIndex::PUBLICLY_ACCESSIBLE_FIELD
     PUBLISHED = 'published'
     REPOSITORY_ID = 'repository_id'
     REPRESENTATIVE_FILENAME = 'representative_filename'
@@ -407,15 +410,18 @@ class Item < ApplicationRecord
         self.effective_denied_roles.pluck(:key)
     doc[IndexFields::EFFECTIVE_DENIED_ROLE_COUNT] =
         doc[IndexFields::EFFECTIVE_DENIED_ROLES].length
-    doc[IndexFields::EFFECTIVELY_PUBLISHED] = self.effectively_published
     doc[IndexFields::ITEM_SETS] = self.item_sets.pluck(:id)
     doc[IndexFields::LAST_INDEXED] = Time.now.utc.iso8601
     if self.latitude and self.longitude
       doc[IndexFields::LAT_LONG] = { lon: self.longitude, lat: self.latitude }
     end
+    doc[IndexFields::OBJECT_REPOSITORY_ID] = self.collection.free_form? ?
+                                                 self.repository_id :
+                                                 (self.parent_repository_id || self.repository_id)
     doc[IndexFields::PAGE_NUMBER] = self.page_number
     doc[IndexFields::PARENT_ITEM] = self.parent_repository_id
     doc[IndexFields::PRIMARY_MEDIA_CATEGORY] = self.primary_media_category
+    doc[IndexFields::PUBLICLY_ACCESSIBLE] = self.publicly_accessible?
     doc[IndexFields::PUBLISHED] = self.published
     doc[IndexFields::REPOSITORY_ID] = self.repository_id
     doc[IndexFields::REPRESENTATIVE_FILENAME] = self.representative_filename
@@ -429,7 +435,7 @@ class Item < ApplicationRecord
     self.elements.each do |element|
       # ES will automatically create a one or more multi fields for this.
       # See: https://www.elastic.co/guide/en/elasticsearch/reference/0.90/mapping-multi-field-type.html
-      doc[element.indexed_field] = element.value
+      doc[element.indexed_field] = element.value[0..ElasticsearchClient::MAX_KEYWORD_FIELD_LENGTH]
 
       # If the element is searchable in the collection's metadata profile, or
       # if the collection doesn't have a metadata profile, add its value to the
@@ -446,7 +452,7 @@ class Item < ApplicationRecord
     # children in results.
     if self.parent
       self.parent.elements.each do |element|
-        doc[element.parent_indexed_field] = element.value
+        doc[element.parent_indexed_field] = element.value[0..ElasticsearchClient::MAX_KEYWORD_FIELD_LENGTH]
       end
     end
 
@@ -751,14 +757,6 @@ class Item < ApplicationRecord
   end
 
   ##
-  # @return [Boolean] Whether the instance and its collection are both
-  #                   published.
-  #
-  def effectively_published
-    self.published and self.collection.published
-  end
-
-  ##
   # @param options [Hash]
   # @option options [Boolean] :only_visible
   # @return [Enumerable<ItemElement>] The instance's ItemElements in the order
@@ -766,16 +764,15 @@ class Item < ApplicationRecord
   #                                   metadata profile.
   #
   def elements_in_profile_order(options = {})
-    elements = []
+    all_elements = []
     mp_elements = self.collection.metadata_profile.elements
     if options[:only_visible]
       mp_elements = mp_elements.where(visible: true)
     end
     mp_elements.each do |mpe|
-      element = self.element(mpe.name)
-      elements << element if element
+      all_elements += self.elements.select{ |e| e.name == mpe.name }
     end
-    elements
+    all_elements
   end
 
   ##
@@ -932,6 +929,14 @@ class Item < ApplicationRecord
         end
       end
     end
+  end
+
+  ##
+  # @return [Boolean] Whether the instance and its collection are both
+  #                   publicly accessible.
+  #
+  def publicly_accessible?
+    self.published and self.collection.publicly_accessible?
   end
 
   ##
@@ -1471,7 +1476,7 @@ class Item < ApplicationRecord
               self.subpage_number.present? ? zero_pad_numbers(self.subpage_number) : sort_last_token,
               self.title.present? ? zero_pad_numbers(self.title.downcase) : sort_last_token)
     end
-    key
+    key[0..ElasticsearchClient::MAX_KEYWORD_FIELD_LENGTH]
   end
 
   def walk(item, index, &block)

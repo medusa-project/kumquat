@@ -6,6 +6,8 @@ class User < ApplicationRecord
   validates :username, presence: true, length: { maximum: 50 },
             uniqueness: { case_sensitive: false }
 
+  before_create :reset_api_key
+
   def has_permission?(key)
     return true if self.is_admin?
     self.roles_having_permission(key).any?
@@ -15,6 +17,10 @@ class User < ApplicationRecord
 
   def is_admin?
     self.roles.where(key: 'admin').limit(1).any?
+  end
+
+  def reset_api_key
+    self.api_key = SecureRandom.base64
   end
 
   def roles_having_permission(key)

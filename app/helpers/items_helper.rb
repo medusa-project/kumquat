@@ -127,7 +127,7 @@ module ItemsHelper
   ##
   # @return [Boolean]
   #
-  def client_supports_zip_download?
+  def client_supports_file_downloads?
     # Uses the `browser` gem.
     !browser.device.console? and !browser.device.mobile? and
         !browser.device.tablet? and !browser.device.tv?

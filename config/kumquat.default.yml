@@ -10,12 +10,6 @@ development: &development
   :medusa_url: https://medusa.library.illinois.edu/
   :medusa_user:
   :medusa_secret:
-  # User authorized to use the REST API, at /api.
-  :api_user: api_user
-  :api_secret: secret
-  # Client IP addresses allowed to access the REST API.
-  :api_ips:
-    - 127.0.
   :elasticsearch_endpoint: http://localhost:9200
   :downloader_url: http://download.library.illinois.edu:8080
   :downloader_user:
@@ -30,10 +24,6 @@ test:
   :medusa_url: https://medusa.library.illinois.edu/
   :medusa_user: machine_user
   :medusa_secret: FoifWowdeth3
-  :api_user: api_user
-  :api_secret: secret
-  :api_ips:
-    - 127.0.
   :elasticsearch_endpoint: http://localhost:9200
   :downloader_url: http://download.library.illinois.edu:8080
   :downloader_user:
@@ -48,17 +38,6 @@ production: &production
   :medusa_url: https://medusa.library.illinois.edu/
   :medusa_user: machine_user
   :medusa_secret: FoifWowdeth3
-  :api_user: api_user
-  :api_secret: secret
-  :api_ips: # https://answers.uillinois.edu/illinois/page.php?id=47572
-    - 127.0.
-    - 128.174.
-    - 130.126.
-    - 192.17.
-    - 72.36.64.
-    - 2620:0:e00:
-    - 172.16.
-    - 10.192.
   :elasticsearch_endpoint: http://localhost:9200
   :downloader_url: http://download.library.illinois.edu:8080
   :downloader_user:

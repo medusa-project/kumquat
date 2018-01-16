@@ -21,7 +21,7 @@ class ItemsController < WebsiteController
 
   before_action :load_item, except: [:index, :tree, :tree_data]
   before_action :authorize_item, except: [:index, :tree, :tree_data]
-  before_action :check_published, except: [:index, :tree, :tree_data]
+  before_action :check_publicly_accessible, except: [:index, :tree, :tree_data]
   before_action :set_browse_context, only: :index
   before_action :set_sanitized_params, only: [:index, :show, :tree]
 
@@ -210,6 +210,14 @@ class ItemsController < WebsiteController
     if params[:collection_id]
       @collection = Collection.find_by_repository_id(params[:collection_id])
       raise ActiveRecord::RecordNotFound unless @collection
+
+      # If the collection is unauthorized, redirect to the show-collection
+      # page which will contain an explanation.
+      begin
+        authorize(@collection)
+      rescue AuthorizationError
+        redirect_to @collection
+      end
     end
 
     finder = item_finder_for(params)
@@ -563,8 +571,8 @@ class ItemsController < WebsiteController
     node_hash
   end
 
-  def check_published
-    raise UnpublishedError unless @item.published and @item.collection.published
+  def check_publicly_accessible
+    raise UnpublishedError unless @item.publicly_accessible?
   end
 
   ##

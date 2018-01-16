@@ -85,18 +85,20 @@ class ItemTest < ActiveSupport::TestCase
                  doc[Item::IndexFields::EFFECTIVE_DENIED_ROLES]
     assert_equal @item.effective_denied_roles.pluck(:key).length,
                  doc[Item::IndexFields::EFFECTIVE_DENIED_ROLE_COUNT]
-    assert doc[Item::IndexFields::EFFECTIVELY_PUBLISHED]
     assert_equal @item.item_sets.pluck(:id),
                  doc[Item::IndexFields::ITEM_SETS]
     assert_not_empty doc[Item::IndexFields::LAST_INDEXED]
     assert_equal({ lat: @item.latitude, lon: @item.longitude },
                  doc[Item::IndexFields::LAT_LONG])
+    assert_equal(@item.parent.repository_id,
+                 doc[Item::IndexFields::OBJECT_REPOSITORY_ID])
     assert_equal @item.page_number,
                  doc[Item::IndexFields::PAGE_NUMBER]
     assert_equal @item.parent_repository_id,
                  doc[Item::IndexFields::PARENT_ITEM]
     assert_equal @item.primary_media_category,
                  doc[Item::IndexFields::PRIMARY_MEDIA_CATEGORY]
+    assert doc[Item::IndexFields::PUBLICLY_ACCESSIBLE]
     assert_equal @item.published,
                  doc[Item::IndexFields::PUBLISHED]
     assert_equal @item.repository_id,
@@ -304,36 +306,6 @@ class ItemTest < ActiveSupport::TestCase
                  @item.effective_rightsstatements_org_statement.uri
   end
 
-  # effectively_published()
-
-  test 'effectively_published() should return true when the instance and its
-  collection are both published' do
-    @item.published = true
-    @item.collection.published_in_dls = true
-    assert @item.effectively_published
-  end
-
-  test 'effectively_published() should return false when the instance is
-  published but its collection is not' do
-    @item.published = true
-    @item.collection.published_in_dls = false
-    assert !@item.effectively_published
-  end
-
-  test 'effectively_published() should return false when the instance is not
-  published but its collection is' do
-    @item.published = false
-    @item.collection.published_in_dls = true
-    assert !@item.effectively_published
-  end
-
-  test 'effectively_published() should return false when neither the instance
-  nor its collection are published' do
-    @item.published = false
-    @item.collection.published_in_dls = false
-    assert !@item.effectively_published
-  end
-
   # element()
 
   test 'element() should work' do
@@ -416,6 +388,36 @@ class ItemTest < ActiveSupport::TestCase
       assert_equal 1, it.effective_denied_roles.count
       assert it.effective_denied_roles.include?(roles(:catalogers))
     end
+  end
+
+  # publicly_accessible?()
+
+  test 'publicly_accessible?() should return true when the instance and its
+  collection are both published' do
+    @item.published = true
+    @item.collection.published_in_dls = true
+    assert @item.publicly_accessible?
+  end
+
+  test 'publicly_accessible?() should return false when the instance is
+  published but its collection is not' do
+    @item.published = true
+    @item.collection.published_in_dls = false
+    assert !@item.publicly_accessible?
+  end
+
+  test 'publicly_accessible?() should return false when the instance is not
+  published but its collection is' do
+    @item.published = false
+    @item.collection.published_in_dls = true
+    assert !@item.publicly_accessible?
+  end
+
+  test 'publicly_accessible?() should return false when neither the instance
+  nor its collection are published' do
+    @item.published = false
+    @item.collection.published_in_dls = false
+    assert !@item.publicly_accessible?
   end
 
   # repository_id

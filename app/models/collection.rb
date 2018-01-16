@@ -58,8 +58,8 @@
 #                             collection or any or any of its items to be
 #                             publicly accessible.
 # * published_in_dls:         "Published" status of the collection in the DLS.
-#                             N.B. use `published()` to test a collection's
-#                             effective "published" status.
+#                             N.B. use `publicly_accessible?()` to test a
+#                             collection's effective public accessibility.
 # * repository_id:            The collection's effective UUID, copied from
 #                             Medusa.
 # * representative_image:     UUID of a Medusa image file representing the
@@ -93,13 +93,12 @@ class Collection < ApplicationRecord
     DENIED_ROLE_COUNT = 'denied_role_count'
     DENIED_ROLES = 'denied_roles'
     DESCRIPTION = CollectionElement.new(name: 'description').indexed_field
-    # Contains the result of PUBLIC_IN_DLS && PUBLISHED_IN_MEDUSA.
-    EFFECTIVELY_PUBLISHED = 'effectively_published'
     EXTERNAL_ID = 'external_id'
     HARVESTABLE = 'harvestable'
     LAST_INDEXED = 'date_last_indexed'
     PARENT_COLLECTIONS = 'parent_collections'
     PUBLIC_IN_MEDUSA = 'public_in_medusa'
+    PUBLICLY_ACCESSIBLE = ElasticsearchIndex::PUBLICLY_ACCESSIBLE_FIELD
     PUBLISHED_IN_DLS = 'published_in_dls'
     REPOSITORY_ID = 'repository_id'
     REPOSITORY_TITLE = 'repository_title'
@@ -215,13 +214,13 @@ class Collection < ApplicationRecord
     doc[IndexFields::ALLOWED_ROLE_COUNT] = doc[IndexFields::ALLOWED_ROLES].length
     doc[IndexFields::DENIED_ROLES] = self.denied_roles.pluck(:key)
     doc[IndexFields::DENIED_ROLE_COUNT] = doc[IndexFields::DENIED_ROLES].length
-    doc[IndexFields::EFFECTIVELY_PUBLISHED] = self.published
     doc[IndexFields::EXTERNAL_ID] = self.external_id
     doc[IndexFields::HARVESTABLE] = self.harvestable
     doc[IndexFields::LAST_INDEXED] = Time.now.utc.iso8601
     doc[IndexFields::PARENT_COLLECTIONS] =
         self.parent_collection_joins.pluck(:parent_repository_id)
     doc[IndexFields::PUBLIC_IN_MEDUSA] = self.public_in_medusa
+    doc[IndexFields::PUBLICLY_ACCESSIBLE] = self.publicly_accessible?
     doc[IndexFields::PUBLISHED_IN_DLS] = self.published_in_dls
     doc[IndexFields::REPOSITORY_ID] = self.repository_id
     doc[IndexFields::REPOSITORY_TITLE] = self.medusa_repository&.title
@@ -231,7 +230,7 @@ class Collection < ApplicationRecord
     self.elements.each do |element|
       # ES will automatically create one or more multi fields for this.
       # See: https://www.elastic.co/guide/en/elasticsearch/reference/0.90/mapping-multi-field-type.html
-      doc[element.indexed_field] = element.value
+      doc[element.indexed_field] = element.value[0..ElasticsearchClient::MAX_KEYWORD_FIELD_LENGTH]
 
       # If the element is searchable in the collection's metadata profile, or
       # if the collection doesn't have a metadata profile, add its value to the
@@ -328,13 +327,16 @@ class Collection < ApplicationRecord
   #
   def elements_in_profile_order(options = {})
     elements = []
-    mp_elements = self.metadata_profile.elements
-    if options[:only_visible]
-      mp_elements = mp_elements.where(visible: true)
-    end
-    mp_elements.each do |mpe|
-      element = self.element(mpe.name)
-      elements << element if element
+    profile = self.metadata_profile
+    if profile
+      mp_elements = profile.elements
+      if options[:only_visible]
+        mp_elements = mp_elements.where(visible: true)
+      end
+      mp_elements.each do |mpe|
+        element = self.element(mpe.name)
+        elements << element if element
+      end
     end
     elements
   end
@@ -528,9 +530,9 @@ class Collection < ApplicationRecord
   end
 
   ##
-  # @return [Boolean] The instance's effective "published" status.
+  # @return [Boolean] The instance's effective public accessibility status.
   #
-  def published
+  def publicly_accessible?
     public_in_medusa and (published_in_dls or access_url.present?)
   end
 

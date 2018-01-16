@@ -14,30 +14,23 @@
   </td>
   <td>
     <div class="btn-group">
-      <% if item&.effective_image_binary&.iiif_image_identifier %>
-        <%= link_to binary_image_url(item.effective_image_binary,
-                                     content_disposition: 'attachment',
-                                     cache: false),
-                    class: 'btn btn-default btn-sm' do %>
-          <i class="fa fa-image"></i> JPEG
+      <% if client_supports_file_downloads? %>
+        <% access_master = item.binaries.select{ |b| b.master_type == Binary::MasterType::ACCESS }.first %>
+        <% if access_master %>
+          <%= link_to binary_path(access_master),
+                      class: 'btn btn-default btn-sm',
+                      target: '_blank' do %>
+            <%= icon_for(access_master) %> <%= access_master.human_readable_name %> Master
+          <% end %>
         <% end %>
-      <% end %>
 
-      <% access_master = item.binaries.select{ |b| b.master_type == Binary::MasterType::ACCESS }.first %>
-      <% if access_master %>
-        <%= link_to binary_path(access_master),
-                    class: 'btn btn-default btn-sm',
-                    target: '_blank' do %>
-          <%= icon_for(access_master) %> <%= access_master.human_readable_name %>
-        <% end %>
-      <% end %>
-
-      <% pres_master = item.binaries.select{ |b| b.master_type == Binary::MasterType::PRESERVATION }.first %>
-      <% if pres_master %>
-        <%= link_to binary_path(pres_master),
-                    class: 'btn btn-default btn-sm',
-                    target: '_blank' do %>
-          <%= icon_for(pres_master) %> <%= pres_master.human_readable_name %> Master
+        <% pres_master = item.binaries.select{ |b| b.master_type == Binary::MasterType::PRESERVATION }.first %>
+        <% if pres_master %>
+          <%= link_to binary_path(pres_master),
+                      class: 'btn btn-default btn-sm',
+                      target: '_blank' do %>
+            <%= icon_for(pres_master) %> <%= pres_master.human_readable_name %> Master
+          <% end %>
         <% end %>
       <% end %>
 

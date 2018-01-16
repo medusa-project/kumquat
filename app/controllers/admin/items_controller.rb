@@ -22,11 +22,13 @@ module Admin
     #
     def add_items_to_item_set
       item_ids = params[:items]
-      if item_ids.any?
+      if item_ids&.any?
         item_set = ItemSet.find(params[:item_set])
         ActiveRecord::Base.transaction do
           item_ids.each do |item_id|
-            item_set.items << Item.find_by_repository_id(item_id)
+            item = Item.find_by_repository_id(item_id)
+            item_set.items << item
+            item_set.items += item.all_children
           end
           item_set.save!
         end
@@ -140,31 +142,29 @@ module Admin
 
       # If there is an ItemSet ID in the URL, we want to edit all of its items.
       # Otherwise, we want to edit items from the collection item results.
+      # In both cases, results must include children.
       if params[:item_set]
         @item_set = ItemSet.find(params[:item_set])
         finder = ItemFinder.new.
             filter(Item::IndexFields::REPOSITORY_ID,
-                   @item_set.items.pluck(:repository_id)).
-            aggregations(false).
-            include_unpublished(true).
-            order(Item::IndexFields::STRUCTURAL_SORT).
-            start(@start).
-            limit(@limit)
+                   @item_set.items.pluck(:repository_id))
       else
         finder = ItemFinder.new.
             collection(@collection).
             query(params[:df], params[:q]).
-            facet_filters(params[:fq]).
-            aggregations(false).
-            include_children_in_results(true).
-            include_unpublished(true).
-            order(Item::IndexFields::STRUCTURAL_SORT).
-            start(@start).
-            limit(@limit)
+            facet_filters(params[:fq])
         if @collection.free_form?
           finder = finder.exclude_variants(*Item::Variants::DIRECTORY)
         end
       end
+
+      finder = finder.
+          aggregations(false).
+          include_unpublished(true).
+          include_children_in_results(true).
+          order(Item::IndexFields::STRUCTURAL_SORT).
+          start(@start).
+          limit(@limit)
 
       @items = finder.to_a
       @current_page = finder.page

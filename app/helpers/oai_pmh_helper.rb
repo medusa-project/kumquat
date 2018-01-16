@@ -42,9 +42,9 @@ module OaiPmhHelper
   # @param xml [XML::Builder]
   # @return [void]
   #
-  def oai_pmh_qdc_elements_for(item, xml)
-    xml.tag!('oai_qdc:qdc', {
-        'xmlns:oai_qdc' => 'http://oclc.org/appqualifieddc/',
+  def oai_pmh_dcterms_elements_for(item, xml)
+    xml.tag!('oai_dcterms:dcterms', {
+        'xmlns:oai_dcterms' => 'http://oclc.org/appqualifieddc/',
         'xmlns:dcterms' => 'http://purl.org/dc/terms/',
         'xmlns:dc' => 'http://purl.org/dc/elements/1.1/',
         'xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance',
@@ -59,6 +59,56 @@ module OaiPmhHelper
       end
       # Add a dcterms:identifier element containing the item URI (IMET-391)
       xml.tag!('dcterms:identifier', item_url(item))
+    end
+  end
+
+  ##
+  # Emulates the behavior of CONTENTdm's `oai_qdc` metadata, returning a mix
+  # of dc: and dcterms: elements, depending on whether an element is
+  # qualified or not, and also adding a few more elements that harvesters find
+  # useful.
+  #
+  # @param item [Item]
+  # @param xml [XML::Builder]
+  # @return [void]
+  #
+  def oai_pmh_qdc_elements_for(item, xml)
+    profile = item.collection.metadata_profile
+    xml.tag!('oai_qdc:qdc', {
+        'xmlns:oai_qdc' => 'http://oclc.org/appqualifieddc/',
+        'xmlns:dc' => 'http://purl.org/dc/elements/1.1/',
+        'xmlns:dcterms' => 'http://purl.org/dc/terms/',
+        'xmlns:edm' => 'http://www.europeana.eu/schemas/edm/',
+        'xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance',
+        'xsi:schemaLocation' => 'http://oclc.org/appqualifieddc/ '\
+                      'http://dublincore.org/schemas/xmls/qdc/2003/04/02/appqualifieddc.xsd'
+    }) do
+      item.elements_in_profile_order(only_visible: true).
+          select{ |e| e.value.present? }.each do |ie|
+        profile_element = profile.elements.select{ |pe| pe.name == ie.name }.first
+        if profile_element
+          dcterms_element = profile_element.dcterms_map
+          if dcterms_element.present?
+            dc_element = DublinCoreElement.all.select{ |e| e.name == dcterms_element }.first
+            if dc_element
+              xml.tag!("dc:#{dc_element.name}", ie.value)
+            else
+              xml.tag!("dcterms:#{dcterms_element}", ie.value)
+            end
+          end
+        end
+      end
+
+      # Add a dcterms:identifier element containing the item URI (IMET-391)
+      xml.tag!('dc:identifier', item_url(item))
+
+      # Add a thumbnail URI, if the item has a representative image. This was
+      # requested by mhan3@illinois.edu.
+      image_url = item_image_url(item, :full, 150, :jpg)
+      xml.tag!('edm:preview', image_url) if image_url
+
+      # Add a link to the IIIF presentation manifest.
+      xml.tag!('dcterms:isReferencedBy', item_iiif_manifest_url(item))
     end
   end
 
