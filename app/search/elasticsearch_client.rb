@@ -23,7 +23,9 @@ class ElasticsearchClient
   def create_index(name, schema)
     @@logger.info("ElasticsearchClient.create_index(): creating #{name}...")
     response = @@http_client.put(Configuration.instance.elasticsearch_endpoint +
-                                     '/' + name, JSON.generate(schema))
+                                     '/' + name,
+                                 JSON.generate(schema),
+                                 'Content-Type': 'application/json')
     if response.status == 200
       @@logger.info("ElasticsearchClient.create_index(): created #{name}")
     else
@@ -70,7 +72,9 @@ class ElasticsearchClient
                   id)
     CustomLogger.instance.debug("ElasticsearchClient.index_document(): "\
         "#{index_name}/#{id}")
-    response = @@http_client.put(url, JSON.generate(doc))
+    response = @@http_client.put(url,
+                                 JSON.generate(doc),
+                                 'Content-Type': 'application/json')
     if response.status >= 400
       raise IOError, response.body
     end
