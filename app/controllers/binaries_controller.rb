@@ -1,7 +1,5 @@
 class BinariesController < WebsiteController
 
-  include ActionController::Streaming
-
   before_action :check_storage, :load_binary, :authorize_item
 
   ##
@@ -13,7 +11,7 @@ class BinariesController < WebsiteController
     if request.format == 'json'
       render json: @binary.decorate
     else
-      send_file(@binary.absolute_local_pathname)
+      send_binary(@binary)
     end
   end
 

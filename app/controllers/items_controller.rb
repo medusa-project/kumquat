@@ -40,7 +40,7 @@ class ItemsController < WebsiteController
     binary = @item.binaries.where('repository_relative_pathname LIKE ?',
                                   "%/#{filename}").limit(1).first
     if binary
-      send_file(binary.absolute_local_pathname)
+      send_binary(binary)
     else
       render status: 404, text: 'Binary not found'
     end

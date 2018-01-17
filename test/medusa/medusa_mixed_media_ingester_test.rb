@@ -114,8 +114,8 @@ class MedusaMixedMediaIngesterTest < ActiveSupport::TestCase
     assert_equal 60623897, bin.byte_size
     assert_equal Binary::MediaCategory::IMAGE, bin.media_category
     assert_equal 'e717ad00-ea6a-0134-23c2-0050569601ca-f', bin.cfs_file_uuid
-    assert_equal '/1108/2833/1676/001/preservation/images/120993_008_001.tif',
-                 bin.repository_relative_pathname
+    assert_equal '1108/2833/1676/001/preservation/images/120993_008_001.tif',
+                 bin.object_key
 
     # Inspect the item's access master binary.
     bin = item.binaries.
@@ -124,8 +124,8 @@ class MedusaMixedMediaIngesterTest < ActiveSupport::TestCase
     assert_equal 3419163, bin.byte_size
     assert_equal Binary::MediaCategory::IMAGE, bin.media_category
     assert_equal 'e6c511a0-ea6a-0134-23c2-0050569601ca-2', bin.cfs_file_uuid
-    assert_equal '/1108/2833/1676/001/access/images/120993_008_001.jp2',
-                 bin.repository_relative_pathname
+    assert_equal '1108/2833/1676/001/access/images/120993_008_001.jp2',
+                 bin.object_key
   end
 
   test 'create_items() should work with compound items' do
@@ -157,23 +157,23 @@ class MedusaMixedMediaIngesterTest < ActiveSupport::TestCase
                  child.representative_binary.cfs_file_uuid
 
     # Inspect its first child item's binaries.
-    bs = child.binaries.
+    bin = child.binaries.
         select{ |b| b.master_type == Binary::MasterType::PRESERVATION }.first
-    assert_equal 'image/tiff', bs.media_type
-    assert_equal 60623897, bs.byte_size
-    assert_equal Binary::MediaCategory::IMAGE, bs.media_category
-    assert_equal 'e717ad00-ea6a-0134-23c2-0050569601ca-f', bs.cfs_file_uuid
-    assert_equal '/1108/2833/1676/001/preservation/images/120993_008_001.tif',
-                 bs.repository_relative_pathname
+    assert_equal 'image/tiff', bin.media_type
+    assert_equal 60623897, bin.byte_size
+    assert_equal Binary::MediaCategory::IMAGE, bin.media_category
+    assert_equal 'e717ad00-ea6a-0134-23c2-0050569601ca-f', bin.cfs_file_uuid
+    assert_equal '1108/2833/1676/001/preservation/images/120993_008_001.tif',
+                 bin.object_key
 
-    bs = child.binaries.
+    bin = child.binaries.
         select{ |b| b.master_type == Binary::MasterType::ACCESS }.first
-    assert_equal 'image/jp2', bs.media_type
-    assert_equal 3419163, bs.byte_size
-    assert_equal Binary::MediaCategory::IMAGE, bs.media_category
-    assert_equal 'e6c511a0-ea6a-0134-23c2-0050569601ca-2', bs.cfs_file_uuid
-    assert_equal '/1108/2833/1676/001/access/images/120993_008_001.jp2',
-                 bs.repository_relative_pathname
+    assert_equal 'image/jp2', bin.media_type
+    assert_equal 3419163, bin.byte_size
+    assert_equal Binary::MediaCategory::IMAGE, bin.media_category
+    assert_equal 'e6c511a0-ea6a-0134-23c2-0050569601ca-2', bin.cfs_file_uuid
+    assert_equal '1108/2833/1676/001/access/images/120993_008_001.jp2',
+                 bin.object_key
 
     # Inspect its 5th child item's binaries.
     child = item.items.
@@ -369,8 +369,8 @@ class MedusaMixedMediaIngesterTest < ActiveSupport::TestCase
     assert_equal 60623897, bs.byte_size
     assert_equal Binary::MediaCategory::IMAGE, bs.media_category
     assert_equal 'e717ad00-ea6a-0134-23c2-0050569601ca-f', bs.cfs_file_uuid
-    assert_equal '/1108/2833/1676/001/preservation/images/120993_008_001.tif',
-                 bs.repository_relative_pathname
+    assert_equal '1108/2833/1676/001/preservation/images/120993_008_001.tif',
+                 bs.object_key
 
     bs = child.binaries.
         select{ |b| b.master_type == Binary::MasterType::ACCESS }.first
@@ -378,8 +378,8 @@ class MedusaMixedMediaIngesterTest < ActiveSupport::TestCase
     assert_equal 3419163, bs.byte_size
     assert_equal Binary::MediaCategory::IMAGE, bs.media_category
     assert_equal 'e6c511a0-ea6a-0134-23c2-0050569601ca-2', bs.cfs_file_uuid
-    assert_equal '/1108/2833/1676/001/access/images/120993_008_001.jp2',
-                 bs.repository_relative_pathname
+    assert_equal '1108/2833/1676/001/access/images/120993_008_001.jp2',
+                 bs.object_key
 
     # Inspect its 5th child item's binaries.
     child = item.items.

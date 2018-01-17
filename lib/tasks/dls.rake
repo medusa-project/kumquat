@@ -39,8 +39,7 @@ namespace :dls do
         puts "#{count} binaries to update"
 
         binaries.find_each.with_index do |binary, index|
-          puts "(#{((index / count.to_f) * 100).round(2)}%) "\
-              "#{binary.repository_relative_pathname} "
+          puts "(#{((index / count.to_f) * 100).round(2)}%) #{binary.object_key}"
 
           begin
             binary.read_size
@@ -63,8 +62,7 @@ namespace :dls do
         puts "#{count} binaries to update"
 
         binaries.find_each.with_index do |binary, index|
-          puts "(#{((index / count.to_f) * 100).round(2)}%) "\
-              "#{binary.repository_relative_pathname} "
+          puts "(#{((index / count.to_f) * 100).round(2)}%) #{binary.object_key}"
 
           begin
             binary.read_dimensions
@@ -87,8 +85,7 @@ namespace :dls do
         puts "#{count} binaries to update"
 
         binaries.find_each.with_index do |binary, index|
-          puts "(#{((index / count.to_f) * 100).round(2)}%) "\
-              "#{binary.repository_relative_pathname} "
+          puts "(#{((index / count.to_f) * 100).round(2)}%) #{binary.object_key}"
 
           begin
             binary.read_duration
@@ -109,8 +106,7 @@ namespace :dls do
         puts "#{count} binaries to update"
 
         binaries.find_each.with_index do |binary, index|
-          puts "(#{((index / count.to_f) * 100).round(2)}%) "\
-              "#{binary.repository_relative_pathname} "
+          puts "(#{((index / count.to_f) * 100).round(2)}%) #{binary.object_key}"
 
           binary.media_category =
               Binary::MediaCategory::media_category_for_media_type(binary.media_type)

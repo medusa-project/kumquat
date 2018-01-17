@@ -3,6 +3,7 @@ class ApplicationController < ActionController::Base
   # For APIs, you may want to use :null_session instead.
   protect_from_forgery with: :exception
 
+  include ActionController::Live
   include SessionsHelper
 
   before_action :setup
@@ -58,6 +59,24 @@ class ApplicationController < ActionController::Base
     roles += current_user.roles if current_user
     roles += Role.all_matching_hostname_or_ip(request.host, request.remote_ip)
     roles
+  end
+
+  ##
+  # Streams a binary to the response body.
+  #
+  # @param binary [Binary]
+  #
+  def send_binary(binary)
+    response.headers['Content-Type'] = binary.media_type
+    response.headers['Content-Disposition'] = "attachment; filename=#{binary.filename}"
+
+    Aws::S3::Client.new.get_object(
+        bucket: ::Configuration.instance.repository_s3_bucket,
+        key: binary.object_key) do |chunk|
+      response.stream.write chunk
+    end
+  ensure
+    response.stream.close
   end
 
   ##

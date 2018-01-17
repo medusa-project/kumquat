@@ -1027,13 +1027,13 @@ module ItemsHelper
       data << {
           label: 'Filename',
           category: 'File',
-          value: File.basename(binary.absolute_local_pathname)
+          value: File.basename(binary.object_key)
       }
       if options[:admin]
         data << {
-            label: 'Pathname',
+            label: 'Object Key',
             category: 'File',
-            value: binary.absolute_local_pathname
+            value: binary.object_key
         }
       end
       data << {
@@ -1368,7 +1368,7 @@ module ItemsHelper
     html = ''
     if binary
       begin
-        str = File.read(binary.absolute_local_pathname).to_s
+        str = binary.data.string
         if str.valid_encoding?
           html += "<pre>#{str}</pre>"
         end

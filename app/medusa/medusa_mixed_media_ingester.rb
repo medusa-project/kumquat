@@ -133,7 +133,7 @@ class MedusaMixedMediaIngester < MedusaAbstractIngester
                     # not a top-level item referred by a variable named
                     # `child`).
                     if child.parent
-                      basename = File.basename(pres_file.repository_relative_pathname)
+                      basename = File.basename(pres_file.object_key)
                       if basename.include?('_frontmatter')
                         child.variant = Item::Variants::FRONT_MATTER
                       elsif basename.include?('_index')

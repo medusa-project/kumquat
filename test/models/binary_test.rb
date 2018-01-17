@@ -34,53 +34,29 @@ class BinaryTest < ActiveSupport::TestCase
     assert Binary.total_byte_size > 100000
   end
 
-  # absolute_local_pathname()
+  # data()
 
-  test 'absolute_local_pathname() should return the correct pathname' do
-    assert_equal Configuration.instance.repository_pathname +
-                     @binary.repository_relative_pathname,
-                 @binary.absolute_local_pathname
-  end
-
-  test 'absolute_local_pathname() should return nil when
-  repository_relative_pathname is nil' do
-    @binary.repository_relative_pathname = nil
-    assert_nil @binary.absolute_local_pathname
-  end
-
-  # byte_size()
-
-  test 'byte_size() should return the correct size' do
-    expected = File.size(@binary.absolute_local_pathname)
-    assert_equal(expected, @binary.byte_size)
+  test 'data() should return the data' do
+    data = @binary.data
+    #assert_kind_of IO, data # TODO: this is supposed to be an IO: https://docs.aws.amazon.com/sdk-for-ruby/v3/api/Aws/S3/Types/GetObjectOutput.html#body-instance_method
+    assert_equal 1629599, data.length
   end
 
   # exists?()
 
   test 'exists?() should return true with valid pathname set' do
-    assert(@binary.exists?)
+    assert @binary.exists?
   end
 
   test 'exists?() should return false with invalid pathname set' do
     @binary.repository_relative_pathname = '/bogus'
-    assert(!@binary.exists?)
-  end
-
-  test 'exists?() should return false with nil pathname set' do
-    @binary.repository_relative_pathname = nil
-    assert(!@binary.exists?)
+    assert !@binary.exists?
   end
 
   # filename()
 
-  test 'filename() should return the filename when repository_relative_pathname
-  is set' do
+  test 'filename() should return the filename' do
     assert_equal('banquets_002.jpg', @binary.filename)
-  end
-
-  test 'filename() should return nil when repository_relative_pathname is nil' do
-    @binary.repository_relative_pathname = nil
-    assert_nil(@binary.filename)
   end
 
   # human_readable_media_category()
@@ -145,11 +121,6 @@ class BinaryTest < ActiveSupport::TestCase
   end
 
   # iiif_safe?()
-
-  test 'iiif_safe?() should return false if the pathname is empty' do
-    @binary.repository_relative_pathname = nil
-    assert !@binary.iiif_safe?
-  end
 
   test 'iiif_safe?() should return false if the instance is not IIIF-compatible' do
     @binary.media_type = 'application/octet-stream'
@@ -228,7 +199,7 @@ class BinaryTest < ActiveSupport::TestCase
 
   test 'read_duration() should raise an error with missing files' do
     @binary.repository_relative_pathname = 'bogus'
-    assert_raises Errno::ENOENT do
+    assert_raises IOError do
       @binary.read_duration
     end
   end
@@ -238,12 +209,12 @@ class BinaryTest < ActiveSupport::TestCase
   test 'read_size() should work properly' do
     @binary.byte_size = nil
     @binary.read_size
-    assert_equal File.size(@binary.absolute_local_pathname), @binary.byte_size
+    assert_equal 1629599, @binary.byte_size
   end
 
   test 'read_size() should raise an error with missing files' do
     @binary.repository_relative_pathname = 'bogus'
-    assert_raises Errno::ENOENT do
+    assert_raises IOError do
       @binary.read_size
     end
   end

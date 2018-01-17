@@ -104,7 +104,7 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
                 child.elements.build(name: 'title', value: pres_file.name)
 
                 # Set the variant.
-                basename = File.basename(pres_file.repository_relative_pathname)
+                basename = File.basename(pres_file.object_key)
                 if basename.include?('_frontmatter')
                   child.variant = Item::Variants::FRONT_MATTER
                 elsif basename.include?('_index')
