@@ -1,0 +1,38 @@
+development: &development
+  adapter:      postgresql
+  database:     <%= ENV['KUMQUAT_DEV_DATABASE_NAME'] %>
+  host:         <%= ENV['KUMQUAT_DEV_DATABASE_HOST'] %>
+  port:         <%= ENV['KUMQUAT_DEV_DATABASE_PORT'] %>
+  min_messages: warning
+  encoding:     unicode
+  template:     template0
+
+development_2:
+  <<: *development
+
+# Warning: The database defined as "test" will be erased and
+# re-generated from your development database when you run "rake".
+# Do not set this db to the same as development or production.
+test: &test
+  adapter:      postgresql
+  database:     <%= ENV['KUMQUAT_TEST_DATABASE_NAME'] %>
+  host:         <%= ENV['KUMQUAT_TEST_DATABASE_HOST'] %>
+  port:         <%= ENV['KUMQUAT_TEST_DATABASE_PORT'] %>
+  min_messages: warning
+  encoding:     unicode
+  template:     template0
+
+test_2:
+  <<: *test
+
+production: &production
+  adapter:      postgresql
+  database:     <%= ENV['KUMQUAT_PRODUCTION_DATABASE_NAME'] %>
+  host:         <%= ENV['KUMQUAT_PRODUCTION_DATABASE_HOST'] %>
+  port:         <%= ENV['KUMQUAT_PRODUCTION_DATABASE_PORT'] %>
+  min_messages: warning
+  encoding:     unicode
+  template:     template0
+
+production_2:
+  <<: *production

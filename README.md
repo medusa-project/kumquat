@@ -51,11 +51,8 @@ This is a basic getting-started guide for developers.
 
 ## 6) Configure the application
 
-`$ cp config/database.template.yml config/database.yml` and edit as necessary
-
-`$ cp config/kumquat.template.yml config/kumquat.yml` and edit as necessary
-
-`$ cp config/shibboleth.template.yml config/shibboleth.yml`
+Define the environment variables contained in `config/kumquat.yml` and
+`config/database.yml` in your environment.
 
 ## 7) Create and seed the database
 

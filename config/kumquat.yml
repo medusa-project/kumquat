@@ -1,0 +1,50 @@
+development: &development
+  :aws_access_key_id:         <%= ENV['KUMQUAT_DEV_AWS_ACCESS_KEY_ID'] %>
+  :aws_secret_key:            <%= ENV['KUMQUAT_DEV_AWS_SECRET_KEY'] %>
+  :aws_region:                <%= ENV['KUMQUAT_DEV_AWS_REGION'] %>
+  :repository_s3_bucket:      <%= ENV['KUMQUAT_DEV_REPOSITORY_S3_BUCKET'] %>
+  :iiif_url:                  <%= ENV['KUMQUAT_DEV_IIIF_URL'] %>
+  :image_server_api_endpoint: <%= ENV['KUMQUAT_DEV_CANTALOUPE_API_ENDPOINT'] %>
+  :image_server_api_user:     <%= ENV['KUMQUAT_DEV_CANTALOUPE_API_USER'] %>
+  :image_server_api_secret:   <%= ENV['KUMQUAT_DEV_CANTALOUPE_API_SECRET'] %>
+  :medusa_url:                <%= ENV['KUMQUAT_DEV_MEDUSA_URL'] %>
+  :medusa_user:               <%= ENV['KUMQUAT_DEV_MEDUSA_USER'] %>
+  :medusa_secret:             <%= ENV['KUMQUAT_DEV_MEDUSA_SECRET'] %>
+  :elasticsearch_endpoint:    <%= ENV['KUMQUAT_DEV_ELASTICSEARCH_ENDPOINT'] %>
+  :downloader_url:            <%= ENV['KUMQUAT_DEV_DOWNLOADER_URL'] %>
+  :downloader_user:           <%= ENV['KUMQUAT_DEV_DOWNLOADER_USER'] %>
+  :downloader_password:       <%= ENV['KUMQUAT_DEV_DOWNLOADER_PASSWORD'] %>
+
+test:
+  :aws_access_key_id:         <%= ENV['KUMQUAT_TEST_AWS_ACCESS_KEY_ID'] %>
+  :aws_secret_key:            <%= ENV['KUMQUAT_TEST_AWS_SECRET_KEY'] %>
+  :aws_region:                <%= ENV['KUMQUAT_TEST_AWS_REGION'] %>
+  :repository_s3_bucket:      <%= ENV['KUMQUAT_TEST_REPOSITORY_S3_BUCKET'] %>
+  :iiif_url:                  <%= ENV['KUMQUAT_TEST_IIIF_URL'] %>
+  :image_server_api_endpoint: <%= ENV['KUMQUAT_TEST_CANTALOUPE_API_ENDPOINT'] %>
+  :image_server_api_user:     <%= ENV['KUMQUAT_TEST_CANTALOUPE_API_USER'] %>
+  :image_server_api_secret:   <%= ENV['KUMQUAT_TEST_CANTALOUPE_API_SECRET'] %>
+  :medusa_url:                <%= ENV['KUMQUAT_TEST_MEDUSA_URL'] %>
+  :medusa_user:               <%= ENV['KUMQUAT_TEST_MEDUSA_USER'] %>
+  :medusa_secret:             <%= ENV['KUMQUAT_TEST_MEDUSA_SECRET'] %>
+  :elasticsearch_endpoint:    <%= ENV['KUMQUAT_TEST_ELASTICSEARCH_ENDPOINT'] %>
+  :downloader_url:            <%= ENV['KUMQUAT_TEST_DOWNLOADER_URL'] %>
+  :downloader_user:           <%= ENV['KUMQUAT_TEST_DOWNLOADER_USER'] %>
+  :downloader_password:       <%= ENV['KUMQUAT_TEST_DOWNLOADER_PASSWORD'] %>
+
+production: &production
+  :aws_access_key_id:         <%= ENV['KUMQUAT_PRODUCTION_AWS_ACCESS_KEY_ID'] %>
+  :aws_secret_key:            <%= ENV['KUMQUAT_PRODUCTION_AWS_SECRET_KEY'] %>
+  :aws_region:                <%= ENV['KUMQUAT_PRODUCTION_AWS_REGION'] %>
+  :repository_s3_bucket:      <%= ENV['KUMQUAT_PRODUCTION_REPOSITORY_S3_BUCKET'] %>
+  :iiif_url:                  <%= ENV['KUMQUAT_PRODUCTION_IIIF_URL'] %>
+  :image_server_api_endpoint: <%= ENV['KUMQUAT_PRODUCTION_CANTALOUPE_API_ENDPOINT'] %>
+  :image_server_api_user:     <%= ENV['KUMQUAT_PRODUCTION_CANTALOUPE_API_USER'] %>
+  :image_server_api_secret:   <%= ENV['KUMQUAT_PRODUCTION_CANTALOUPE_API_SECRET'] %>
+  :medusa_url:                <%= ENV['KUMQUAT_PRODUCTION_MEDUSA_URL'] %>
+  :medusa_user:               <%= ENV['KUMQUAT_PRODUCTION_MEDUSA_USER'] %>
+  :medusa_secret:             <%= ENV['KUMQUAT_PRODUCTION_MEDUSA_SECRET'] %>
+  :elasticsearch_endpoint:    <%= ENV['KUMQUAT_PRODUCTION_ELASTICSEARCH_ENDPOINT'] %>
+  :downloader_url:            <%= ENV['KUMQUAT_PRODUCTION_DOWNLOADER_URL'] %>
+  :downloader_user:           <%= ENV['KUMQUAT_PRODUCTION_DOWNLOADER_USER'] %>
+  :downloader_password:       <%= ENV['KUMQUAT_PRODUCTION_DOWNLOADER_PASSWORD'] %>
