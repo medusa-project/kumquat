@@ -128,7 +128,11 @@ class ElasticsearchClient
   #
   def recreate_index(class_)
     index = ElasticsearchIndex.current_index(class_)
-    delete_index(index.name)
+    begin
+      delete_index(index.name)
+    rescue IOError => e
+      raise e unless e.message.include?('Got 404')
+    end
     create_index(index.name, index.schema)
   end
 
