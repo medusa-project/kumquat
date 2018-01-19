@@ -215,7 +215,28 @@ namespace :dls do
     # This was requested by lampron2@illinois.edu on 1/18/2018.
     #
     desc 'Generate a report for PL'
-    task :plampron2_2 => :environment do |task, args|
+    task :elements_in_profiles => :environment do |task, args|
+      lines = []
+      Element.all.order(:name).each do |el|
+        any = false
+        MetadataProfile.all.order(:name).each do |mp|
+          if mp.elements.where(name: el.name).count > 0
+            any = true
+            lines << "#{el.name}\t#{mp.name}"
+          end
+        end
+        unless any
+          lines << "#{el.name}\t"
+        end
+      end
+      puts lines.join(ItemTsvExporter::LINE_BREAK)
+    end
+
+    ##
+    # This was requested by lampron2@illinois.edu on 1/18/2018.
+    #
+    desc 'Generate a report for PL'
+    task :plampron2_3 => :environment do |task, args|
       sql = "SELECT collections.repository_id AS collection_id,
           items.repository_id AS item_id, entity_elements.name,
           entity_elements.value, entity_elements.uri
