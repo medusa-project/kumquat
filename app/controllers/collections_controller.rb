@@ -8,7 +8,6 @@ class CollectionsController < WebsiteController
   before_action :enable_cors, only: :iiif_presentation
   before_action :set_sanitized_params, only: [:index, :show]
 
-  rescue_from AuthorizationError, with: :rescue_unauthorized
   rescue_from UnpublishedError, with: :rescue_unpublished
 
   ##
@@ -122,10 +121,6 @@ class CollectionsController < WebsiteController
   def load_collection
     @collection = Collection.find_by_repository_id(params[:collection_id] || params[:id])
     raise ActiveRecord::RecordNotFound unless @collection
-  end
-
-  def rescue_unauthorized
-    render 'unauthorized', status: :forbidden
   end
 
   def rescue_unpublished
