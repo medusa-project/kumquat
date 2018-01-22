@@ -176,7 +176,11 @@ class Host < ApplicationRecord
   # @return [Boolean]
   #
   def within_cidr_range?(ip, cidr_pattern)
-    NetAddr::CIDR.create(cidr_pattern).contains?(ip)
+    begin
+      return NetAddr::CIDR.create(cidr_pattern).contains?(ip)
+    rescue ArgumentError
+      return false
+    end
   end
 
   ##
