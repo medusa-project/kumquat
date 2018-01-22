@@ -40,6 +40,16 @@
           <% end %>
         </li>
       <% end %>
+      <% unless item.is_compound? %>
+        <% bin = item.effective_viewer_binary %>
+        <% if bin %>
+          <li>
+            <%= link_to bin.iiif_image_url, target: '_blank' do %>
+              <i class="fa fa-code"></i>&nbsp;IIIF Image Information
+            <% end %>
+          </li>
+        <% end %>
+      <% end %>
       <% if item.bib_id.present? %>
         <li>
           <%= link_to item.catalog_record_url, target: '_blank' do %>
