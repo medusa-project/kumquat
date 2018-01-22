@@ -12,7 +12,7 @@ class Configuration
 
   def initialize
     raw_config = File.read(File.join(Rails.root, 'config', 'kumquat.yml'))
-    @config = YAML.load(ERB.new(raw_config).result)[Rails.env]
+    @config = YAML.load(raw_config)[Rails.env]
   end
 
   ##

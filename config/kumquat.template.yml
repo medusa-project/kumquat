@@ -1,0 +1,50 @@
+development: &development
+  :aws_access_key_id:
+  :aws_secret_key:
+  :aws_region:
+  :repository_s3_bucket:
+  :iiif_url:                  http://localhost:8182/iiif/2
+  :image_server_api_endpoint: http://localhost:8182
+  :image_server_api_user:
+  :image_server_api_secret:
+  :medusa_url:                https://medusa.library.illinois.edu/
+  :medusa_user:
+  :medusa_secret:
+  :elasticsearch_endpoint:    http://localhost:9200
+  :downloader_url:            http://download.library.illinois.edu:8080
+  :downloader_user:
+  :downloader_password:
+
+test:
+  :aws_access_key_id:
+  :aws_secret_key:
+  :aws_region:
+  :repository_s3_bucket:
+  :iiif_url:                  http://localhost:8182/iiif/2
+  :image_server_api_endpoint: http://localhost:8182
+  :image_server_api_user:
+  :image_server_api_secret:
+  :medusa_url:                https://medusa.library.illinois.edu/
+  :medusa_user:
+  :medusa_secret:
+  :elasticsearch_endpoint:    http://localhost:9200
+  :downloader_url:            http://download.library.illinois.edu:8080
+  :downloader_user:
+  :downloader_password:
+
+production: &production
+  :aws_access_key_id:
+  :aws_secret_key:
+  :aws_region:
+  :repository_s3_bucket:
+  :iiif_url:
+  :image_server_api_endpoint:
+  :image_server_api_user:
+  :image_server_api_secret:
+  :medusa_url:                https://medusa.library.illinois.edu/
+  :medusa_user:
+  :medusa_secret:
+  :elasticsearch_endpoint:
+  :downloader_url:            http://download.library.illinois.edu:8080
+  :downloader_user:
+  :downloader_password:

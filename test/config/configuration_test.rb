@@ -4,7 +4,7 @@ class ConfigurationTest < ActiveSupport::TestCase
 
   def setup
     raw_config_struct = File.read(File.join(Rails.root, 'config', 'kumquat.yml'))
-    @config_struct = YAML.load(ERB.new(raw_config_struct).result)[Rails.env]
+    @config_struct = YAML.load(raw_config_struct)[Rails.env]
     @config = Configuration.instance
   end
 

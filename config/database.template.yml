@@ -1,8 +1,8 @@
 development: &development
   adapter:      postgresql
-  database:     <%= ENV['KUMQUAT_DEV_DATABASE_NAME'] %>
-  host:         <%= ENV['KUMQUAT_DEV_DATABASE_HOST'] %>
-  port:         <%= ENV['KUMQUAT_DEV_DATABASE_PORT'] %>
+  database:     kumquat_development
+  host:         localhost
+  port:         5432
   min_messages: warning
   encoding:     unicode
   template:     template0
@@ -15,9 +15,9 @@ development_2:
 # Do not set this db to the same as development or production.
 test: &test
   adapter:      postgresql
-  database:     <%= ENV['KUMQUAT_TEST_DATABASE_NAME'] %>
-  host:         <%= ENV['KUMQUAT_TEST_DATABASE_HOST'] %>
-  port:         <%= ENV['KUMQUAT_TEST_DATABASE_PORT'] %>
+  database:     kumquat_test
+  host:         localhost
+  port:         5432
   min_messages: warning
   encoding:     unicode
   template:     template0
@@ -27,9 +27,9 @@ test_2:
 
 production: &production
   adapter:      postgresql
-  database:     <%= ENV['KUMQUAT_PRODUCTION_DATABASE_NAME'] %>
-  host:         <%= ENV['KUMQUAT_PRODUCTION_DATABASE_HOST'] %>
-  port:         <%= ENV['KUMQUAT_PRODUCTION_DATABASE_PORT'] %>
+  database:     kumquat_production
+  host:
+  port:         5432
   min_messages: warning
   encoding:     unicode
   template:     template0
