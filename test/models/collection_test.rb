@@ -6,6 +6,7 @@ class CollectionTest < ActiveSupport::TestCase
     @collection = collections(:sanborn)
     assert @collection.valid?
 
+    ElasticsearchIndex.migrate_to_latest
     ElasticsearchClient.instance.recreate_all_indexes
   end
 

@@ -6,6 +6,7 @@ class ItemTest < ActiveSupport::TestCase
     @item = items(:sanborn_obj1_page1)
     assert @item.valid?
 
+    ElasticsearchIndex.migrate_to_latest
     ElasticsearchClient.instance.recreate_all_indexes
   end
 
