@@ -70,7 +70,7 @@ var PTAdminCollectionView = function() {
 var PTAdminEditCollectionView = function() {
 
     this.init = function() {
-        new PearTree.DirtyFormListener('form').listen();
+        new Application.DirtyFormListener('form').listen();
     };
 
 };

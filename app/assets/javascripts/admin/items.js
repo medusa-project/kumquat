@@ -107,7 +107,7 @@ var PTAdminItemEditView = function() {
     };
 
     this.init = function() {
-        new PearTree.DirtyFormListener('form').listen();
+        new Application.DirtyFormListener('form').listen();
 
         $('button.pt-add-element').on('click', function() {
             var element = $(this).closest('.pt-element');
@@ -168,7 +168,7 @@ var PTAdminItemsEditView = function() {
     };
 
     this.attachEventListeners = function() {
-        new PearTree.DirtyFormListener('form').listen();
+        new Application.DirtyFormListener('form').listen();
 
         $('.pagination a').off().on('click', function() {
             $('#pt-items')[0].scrollIntoView({behavior: "smooth"});
