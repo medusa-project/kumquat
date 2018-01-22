@@ -25,6 +25,7 @@ class ItemsController < WebsiteController
   before_action :set_browse_context, only: :index
   before_action :set_sanitized_params, only: [:index, :show, :tree]
 
+  rescue_from AuthorizationError, with: :rescue_unauthorized
   rescue_from UnpublishedError, with: :rescue_unpublished
 
   ##
@@ -627,6 +628,10 @@ class ItemsController < WebsiteController
   def load_item
     @item = Item.find_by_repository_id(params[:item_id] || params[:id])
     raise ActiveRecord::RecordNotFound unless @item
+  end
+
+  def rescue_unauthorized
+    render 'unpublished', status: :forbidden
   end
 
   def rescue_unpublished
