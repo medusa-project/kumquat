@@ -1,6 +1,6 @@
 class PublishItemsJob < Job
 
-  QUEUE = :default
+  QUEUE = Job::Queue::ADMIN
 
   queue_as QUEUE
 

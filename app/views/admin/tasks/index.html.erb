@@ -20,7 +20,7 @@
       <label for="queue">Queue</label>
       <select name="queue" class="form-control">
         <option></option>
-        <% Job::ALL_QUEUES.each do |q| %>
+        <% Job::Queue::all.each do |q| %>
           <option <%= q.to_s == params[:queue] ? 'selected' : '' %>>
             <%= q %>
           </option>

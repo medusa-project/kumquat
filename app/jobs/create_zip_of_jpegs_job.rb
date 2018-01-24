@@ -1,6 +1,6 @@
 class CreateZipOfJpegsJob < Job
 
-  QUEUE = :download
+  QUEUE = Job::Queue::DOWNLOAD
 
   queue_as QUEUE
 
