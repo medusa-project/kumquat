@@ -9,7 +9,7 @@
 
 <%= hidden_field_tag('pt-tasks-url', admin_tasks_url) %>
 
-<h1>Tasks <small>last <%= Admin::TasksController::WINDOW %> days</small></h1>
+<h1>Tasks</h1>
 
 <div class="well">
   <%= form_tag admin_tasks_path, method: 'get', class: 'pt-filter' do %>

@@ -2,14 +2,16 @@ module Admin
 
   class TasksController < ControlPanelController
 
-    WINDOW = 7 # days
+    PERMITTED_PARAMS = []
 
     ##
     # Responds to GET /admin/tasks
     #
     def index
-      @tasks = Task.order(created_at: :desc).
-          where('started_at >= ?', WINDOW.days.ago)
+      @limit = Option::integer(Option::Keys::DEFAULT_RESULT_WINDOW)
+      @start = params[:start] ? params[:start].to_i : 0
+
+      @tasks = Task.order(created_at: :desc)
 
       if params[:q].present?
         @tasks = @tasks.where('LOWER(status_text) LIKE ?',
@@ -21,6 +23,10 @@ module Admin
       if params[:status].present?
         @tasks = @tasks.where(status: params[:status])
       end
+
+      @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
+      @count = @tasks.count
+      @tasks = @tasks.offset(@start).limit(@limit)
 
       respond_to do |format|
         format.js
