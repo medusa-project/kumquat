@@ -193,7 +193,7 @@ module AdminHelper
     # 1. Build the item structure excluding parents
     html = '<ul>'
     html += "  <li><strong>#{icon_for(item)} #{item.title}</strong>"
-    subitems = item.finder.to_a
+    subitems = item.finder.include_unpublished(true).to_a
     if subitems.any?
       html += '  <ul>'
       subitems.each do |child|

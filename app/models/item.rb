@@ -828,6 +828,7 @@ class Item < ApplicationRecord
     ItemFinder.new.
         parent_item(self).
         aggregations(false).
+        include_children_in_results(true).
         search_children(true).
         order(Item::IndexFields::STRUCTURAL_SORT)
   end
