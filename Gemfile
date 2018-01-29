@@ -38,5 +38,5 @@ group :development do
 end
 
 group :production do
-  gem 'puma'
+  gem 'passenger'
 end
