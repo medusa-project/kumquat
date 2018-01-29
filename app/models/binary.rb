@@ -259,7 +259,8 @@ class Binary < ApplicationRecord
         begin
           response = Aws::S3::Client.new.get_object(
               bucket: Configuration.instance.repository_s3_bucket,
-              key: self.object_key)
+              key: self.object_key,
+              range: 'bytes=0-20')
           self.media_type = MimeMagic.by_magic(response.body)
         rescue => e
           raise IOError, e
