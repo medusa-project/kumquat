@@ -70,9 +70,7 @@ class ApplicationController < ActionController::Base
     response.headers['Content-Type'] = binary.media_type
     response.headers['Content-Disposition'] = "attachment; filename=#{binary.filename}"
 
-    Aws::S3::Client.new.get_object(
-        bucket: ::Configuration.instance.repository_s3_bucket,
-        key: binary.object_key) do |chunk|
+    S3Client.new.get_object(key: binary.object_key) do |chunk|
       response.stream.write chunk
     end
   ensure

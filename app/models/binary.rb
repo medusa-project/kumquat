@@ -111,10 +111,8 @@ class Binary < ApplicationRecord
   # @return [IO]
   #
   def data
-    client = Aws::S3::Client.new
-    response = client.get_object(
-        bucket: Configuration.instance.repository_s3_bucket,
-        key: self.object_key)
+    client = S3Client.new
+    response = client.get_object(key: self.object_key)
     response.body
   end
 
@@ -139,12 +137,11 @@ class Binary < ApplicationRecord
   end
 
   ##
-  # @return [Boolean] True if the binary exists; false otherwise.
+  # @return [Boolean] True if the object to which `object_key` refers exists;
+  #                   false otherwise.
   #
   def exists?
-    bucket = Aws::S3::Bucket.new(Configuration.instance.repository_s3_bucket)
-    object = bucket.object(self.object_key)
-    object.exists?
+    S3Client.new.object_exists?(self.object_key)
   end
 
   ##
@@ -257,10 +254,8 @@ class Binary < ApplicationRecord
         self.media_type = 'text/plain'
       else
         begin
-          response = Aws::S3::Client.new.get_object(
-              bucket: Configuration.instance.repository_s3_bucket,
-              key: self.object_key,
-              range: 'bytes=0-20')
+          response = S3Client.new.get_object(key: self.object_key,
+                                             range: 'bytes=0-20')
           self.media_type = MimeMagic.by_magic(response.body)
         rescue => e
           raise IOError, e
@@ -454,9 +449,7 @@ class Binary < ApplicationRecord
   #
   def read_size
     begin
-      response = Aws::S3::Client.new.get_object(
-          bucket: Configuration.instance.repository_s3_bucket,
-          key: self.object_key)
+      response = S3Client.new.get_object(key: self.object_key)
       self.byte_size = response.content_length
     rescue => e
       raise IOError, e
@@ -481,11 +474,9 @@ class Binary < ApplicationRecord
   private
 
   def download_to(pathname, length = 0)
-    Aws::S3::Client.new.get_object(
-        bucket: Configuration.instance.repository_s3_bucket,
-        key: self.object_key,
-        response_target: pathname,
-        range: length > 0 ? "bytes=#{0}-#{length}" : nil)
+    S3Client.new.get_object(key: self.object_key,
+                            response_target: pathname,
+                            range: length > 0 ? "bytes=#{0}-#{length}" : nil)
   end
 
   ##
