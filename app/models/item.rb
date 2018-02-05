@@ -576,7 +576,7 @@ class Item < ApplicationRecord
         if self.variant == Variants::SUPPLEMENT
           bin = self.binaries.first
         elsif self.is_compound?
-          bin = self.finder.limit(1).to_a.first&.effective_image_binary
+          #bin = self.finder.limit(1).to_a.first&.effective_image_binary # TODO: prevent a circular reference
         end
         if !bin or !bin.iiif_safe?
           [
