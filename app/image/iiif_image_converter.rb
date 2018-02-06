@@ -26,8 +26,8 @@ class IiifImageConverter
 
       FileUtils.mkdir_p(File.dirname(new_pathname))
 
-      S3Client.new.get_object(key: binary.object_key,
-                              response_target: new_pathname)
+      S3Client.new.download_object(key: binary.object_key,
+                                   pathname: new_pathname)
       return new_pathname
     elsif binary.is_image?
       format.gsub!('.', '')

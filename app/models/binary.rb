@@ -254,9 +254,9 @@ class Binary < ApplicationRecord
         self.media_type = 'text/plain'
       else
         begin
-          response = S3Client.new.get_object(key: self.object_key,
-                                             range: 'bytes=0-20')
-          self.media_type = MimeMagic.by_magic(response.body)
+          object = S3Client.new.get_object(key: self.object_key,
+                                           range: 'bytes=0-20')
+          self.media_type = MimeMagic.by_magic(object.body)
         rescue => e
           raise IOError, e
         end
@@ -449,8 +449,8 @@ class Binary < ApplicationRecord
   #
   def read_size
     begin
-      response = S3Client.new.get_object(key: self.object_key)
-      self.byte_size = response.content_length
+      object = S3Client.new.get_object(key: self.object_key)
+      self.byte_size = object.content_length
     rescue => e
       raise IOError, e
     end
@@ -474,9 +474,9 @@ class Binary < ApplicationRecord
   private
 
   def download_to(pathname, length = 0)
-    S3Client.new.get_object(key: self.object_key,
-                            response_target: pathname,
-                            range: length > 0 ? "bytes=#{0}-#{length}" : nil)
+    S3Client.new.download_object(key: self.object_key,
+                                 pathname: pathname,
+                                 range: length > 0 ? "bytes=#{0}-#{length}" : nil)
   end
 
   ##
