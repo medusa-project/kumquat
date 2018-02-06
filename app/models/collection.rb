@@ -569,8 +569,10 @@ class Collection < ApplicationRecord
       # group, or doesn't comply with the package profile.
       binary = Binary.find_by_cfs_file_uuid(self.representative_image)
       unless binary
+        # This may be very expensive!
         cfs_file = MedusaCfsFile.with_uuid(self.representative_image)
         binary = cfs_file.to_binary(Binary::MasterType::ACCESS)
+        binary.save!
       end
     end
     binary
