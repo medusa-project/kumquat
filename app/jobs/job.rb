@@ -4,7 +4,15 @@
 #
 class Job < ApplicationJob
 
-  ALL_QUEUES = [:default, :download]
+  class Queue
+    ADMIN = :admin
+    DOWNLOAD = :download
+
+    def self.all
+      self.constants.map{ |c| self.const_get(c) }
+    end
+  end
+
   WORKER_PIDS_PATH = File.join(Rails.root, 'tmp', 'pids')
 
   before_enqueue :do_before_enqueue

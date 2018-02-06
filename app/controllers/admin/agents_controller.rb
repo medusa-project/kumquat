@@ -2,6 +2,9 @@ module Admin
 
   class AgentsController < ControlPanelController
 
+    PERMITTED_PARAMS = [:agent_rule_id, :agent_type_id, :description,
+                        :name, :uri]
+
     ##
     # XHR only
     #
@@ -140,8 +143,7 @@ module Admin
     private
 
     def sanitized_params
-      params.require(:agent).permit(:agent_rule_id, :agent_type_id,
-                                    :description, :name, :uri)
+      params.require(:agent).permit(PERMITTED_PARAMS)
     end
 
   end

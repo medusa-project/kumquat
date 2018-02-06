@@ -67,6 +67,11 @@ class HostTest < ActiveSupport::TestCase
     assert host.pattern_matches?('example.org')
     assert host.pattern_matches?('cats.example.org')
     assert !host.pattern_matches?('dogs.example.com')
+
+    host = Host.new(pattern: 'example.org')
+    assert host.pattern_matches?('example.org')
+    assert !host.pattern_matches?('cats.example.org')
+    assert !host.pattern_matches?('dogs.example.com')
   end
 
   # uncommented_pattern()

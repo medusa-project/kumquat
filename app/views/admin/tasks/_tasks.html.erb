@@ -1,4 +1,9 @@
 <% if @tasks.any? %>
+  <div class="text-center">
+    <%= paginate(@count, @limit, @current_page,
+                 Admin::TasksController::PERMITTED_PARAMS, true) %>
+  </div>
+
   <table class="table">
     <thead>
       <tr>
@@ -34,6 +39,11 @@
       <% end %>
     </tbody>
   </table>
+
+  <div class="text-center">
+    <%= paginate(@count, @limit, @current_page,
+                 Admin::TasksController::PERMITTED_PARAMS, true) %>
+  </div>
 <% else %>
   <p>No tasks to show.</p>
 <% end %>

@@ -1,7 +1,7 @@
 class DownloadAllTsvJob < Job
 
   DESTINATION_DIR = Download::DOWNLOADS_DIRECTORY
-  QUEUE = :default
+  QUEUE = Job::Queue::ADMIN
 
   queue_as QUEUE
 

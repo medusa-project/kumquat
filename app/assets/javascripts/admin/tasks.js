@@ -8,8 +8,6 @@ var PTAdminTasksView = function() {
     this.init = function() {
         new Application.FilterField();
 
-        new TaskRefresher().start();
-
         $('#pt-task-panel').on('show.bs.modal', function(event) {
             var modal = $(this);
             var button = $(event.relatedTarget);
@@ -27,35 +25,6 @@ var PTAdminTasksView = function() {
                 }
             });
         });
-    };
-
-    var TaskRefresher = function() {
-
-        var FREQUENCY = 5000;
-
-        var refreshTimer;
-
-        var refresh = function() {
-            console.debug('Refreshing task list...');
-
-            $.ajax({
-                url: TASKS_URL,
-                data: $('form.pt-filter').serialize(),
-                success: function (data) {
-                    // this will be handled by index.js.erb
-                }
-            });
-        };
-
-        this.start = function() {
-            refreshTimer = setInterval(refresh, FREQUENCY);
-            refresh();
-        };
-
-        this.stop = function() {
-            clearInterval(refreshTimer);
-        }
-
     };
 
 };

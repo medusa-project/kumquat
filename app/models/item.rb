@@ -576,7 +576,7 @@ class Item < ApplicationRecord
         if self.variant == Variants::SUPPLEMENT
           bin = self.binaries.first
         elsif self.is_compound?
-          bin = self.finder.limit(1).to_a.first&.effective_image_binary
+          #bin = self.finder.limit(1).to_a.first&.effective_image_binary
         end
         if !bin or !bin.iiif_safe?
           [
@@ -828,6 +828,7 @@ class Item < ApplicationRecord
     ItemFinder.new.
         parent_item(self).
         aggregations(false).
+        include_children_in_results(true).
         search_children(true).
         order(Item::IndexFields::STRUCTURAL_SORT)
   end

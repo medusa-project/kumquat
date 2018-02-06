@@ -406,12 +406,13 @@ module ApplicationHelper
   # @param entities [ActiveRecord::Relation]
   # @param total_entities [Integer]
   # @param per_page [Integer]
+  # @param permitted_params [ActionController::Parameters]
   # @param current_page [Integer]
   # @param remote [Boolean]
   # @param max_links [Integer] (ideally odd)
   #
-  def paginate(total_entities, per_page, current_page, remote = false,
-               max_links = MAX_PAGINATION_LINKS)
+  def paginate(total_entities, per_page, current_page, permitted_params,
+               remote = false, max_links = MAX_PAGINATION_LINKS)
     return '' if total_entities <= per_page
     num_pages = (total_entities / per_page.to_f).ceil
     first_page = [1, current_page - (max_links / 2.0).floor].max
@@ -423,20 +424,21 @@ module ApplicationHelper
     prev_start = (prev_page - 1) * per_page
     next_start = (next_page - 1) * per_page
     last_start = (num_pages - 1) * per_page
+    permitted_params = params.permit(params.permit(permitted_params))
 
-    first_link = link_to(params.except(:start),
+    first_link = link_to(permitted_params.except(:start),
                          remote: remote, 'aria-label': 'First') do
       raw('<span aria-hidden="true">First</span>')
     end
-    prev_link = link_to(params.merge(start: prev_start).symbolize_keys,
+    prev_link = link_to(permitted_params.merge(start: prev_start),
                         remote: remote, 'aria-label': 'Previous') do
       raw('<span aria-hidden="true">&laquo;</span>')
     end
-    next_link = link_to(params.merge(start: next_start).symbolize_keys,
+    next_link = link_to(permitted_params.merge(start: next_start),
                         remote: remote, 'aria-label': 'Next') do
       raw('<span aria-hidden="true">&raquo;</span>')
     end
-    last_link = link_to(params.merge(start: last_start).symbolize_keys,
+    last_link = link_to(permitted_params.merge(start: last_start),
                         remote: remote, 'aria-label': 'Last') do
       raw('<span aria-hidden="true">Last</span>')
     end
@@ -448,8 +450,8 @@ module ApplicationHelper
         "<li #{current_page == prev_page ? 'class="disabled"' : ''}>#{prev_link}</li>"
     (first_page..last_page).each do |page|
       start = (page - 1) * per_page
-      page_link = link_to((start == 0) ? params.except(:start) :
-                              params.merge(start: start).symbolize_keys, remote: remote) do
+      page_link = link_to((start == 0) ? permitted_params.except(:start) :
+                              permitted_params.merge(start: start), remote: remote) do
         raw("#{page} #{(page == current_page) ?
             '<span class="sr-only">(current)</span>' : ''}")
       end
