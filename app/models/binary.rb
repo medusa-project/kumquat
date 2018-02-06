@@ -111,8 +111,10 @@ class Binary < ApplicationRecord
   # @return [IO]
   #
   def data
-    client = S3Client.new
-    response = client.get_object(key: self.object_key)
+    client = Aws::S3::Client.new
+    response = client.get_object(
+        bucket: Configuration.instance.repository_s3_bucket,
+        key: self.object_key)
     response.body
   end
 
@@ -141,7 +143,9 @@ class Binary < ApplicationRecord
   #                   false otherwise.
   #
   def exists?
-    S3Client.new.object_exists?(self.object_key)
+    bucket = Aws::S3::Bucket.new(Configuration.instance.repository_s3_bucket)
+    object = bucket.object(self.object_key)
+    object.exists?
   end
 
   ##
@@ -254,9 +258,11 @@ class Binary < ApplicationRecord
         self.media_type = 'text/plain'
       else
         begin
-          object = S3Client.new.get_object(key: self.object_key,
-                                           range: 'bytes=0-20')
-          self.media_type = MimeMagic.by_magic(object.body)
+          response = Aws::S3::Client.new.get_object(
+              bucket: Configuration.instance.repository_s3_bucket,
+              key: self.object_key,
+              range: 'bytes=0-20')
+          self.media_type = MimeMagic.by_magic(response.body)
         rescue => e
           raise IOError, e
         end
@@ -449,8 +455,10 @@ class Binary < ApplicationRecord
   #
   def read_size
     begin
-      object = S3Client.new.get_object(key: self.object_key)
-      self.byte_size = object.content_length
+      response = Aws::S3::Client.new.head_object(
+          bucket: Configuration.instance.repository_s3_bucket,
+          key: self.object_key)
+      self.byte_size = response.content_length
     rescue => e
       raise IOError, e
     end
@@ -474,9 +482,11 @@ class Binary < ApplicationRecord
   private
 
   def download_to(pathname, length = 0)
-    S3Client.new.download_object(key: self.object_key,
-                                 pathname: pathname,
-                                 range: length > 0 ? "bytes=#{0}-#{length}" : nil)
+    Aws::S3::Client.new.get_object(
+        bucket: Configuration.instance.repository_s3_bucket,
+        key: self.object_key,
+        response_target: pathname,
+        range: length > 0 ? "bytes=#{0}-#{length}" : nil)
   end
 
   ##
