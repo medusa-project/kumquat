@@ -6,7 +6,7 @@ class S3Client
   @wrapped_client
 
   def initialize
-    @wrapped_client = AwsS3Client.new
+    @wrapped_client = CustomS3Client.new
   end
 
   ##
