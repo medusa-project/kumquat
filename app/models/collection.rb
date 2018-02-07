@@ -571,6 +571,7 @@ class Collection < ApplicationRecord
       unless binary
         cfs_file = MedusaCfsFile.with_uuid(self.representative_image)
         binary = cfs_file.to_binary(Binary::MasterType::ACCESS)
+        binary.save!
       end
     end
     binary
