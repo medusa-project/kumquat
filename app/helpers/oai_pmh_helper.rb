@@ -92,6 +92,13 @@ module OaiPmhHelper
             dc_element = DublinCoreElement.all.select{ |e| e.name == dcterms_element }.first
             if dc_element
               xml.tag!("dc:#{dc_element.name}", ie.value)
+
+              # If the element is `rights` and the ItemElement contains a URI,
+              # add another element for that. This was requested by
+              # lampron2@illinois.edu.
+              if dc_element.name == 'rights' and ie.uri.present?
+                xml.tag!("dc:#{dc_element.name}", ie.uri)
+              end
             else
               xml.tag!("dcterms:#{dcterms_element}", ie.value)
             end
