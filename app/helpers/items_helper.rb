@@ -1292,7 +1292,7 @@ module ItemsHelper
           data-uri="%s"
           data-sequenceindex="0" data-canvasindex="0"
           data-rotation="0" style="margin: 0 auto; width:%s; height:%s; background-color:#000;"></div>
-          %s,
+          %s
           <![endif]-->',
                       thumbnail_tag(binary, size: 800),
                       asset_path('uvconfig_single.json', skip_pipeline: true),
