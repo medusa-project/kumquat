@@ -537,8 +537,7 @@ class Item < ApplicationRecord
   #
   def described?
     if self.collection.free_form?
-      return ((self.variant == Variants::DIRECTORY) or
-          self.elements.select{ |e| e.name == 'title' }.any?)
+      return (self.directory? or self.elements.select{ |e| e.name == 'title' }.any?)
     else
       return self.elements.reject{ |e| e.name == 'title' }.any?
     end
@@ -1168,6 +1167,23 @@ class Item < ApplicationRecord
       end
       self.save!
     end
+  end
+
+  ##
+  # Items don't have filenames because they aren't files, but sometimes it's
+  # necessary to present them as if they were. This makes more sense for items
+  # that have only one attached binary, like free-form items.
+  #
+  # @return [String] Filename of a preservation master, if available; or an
+  #                  access master, if available; or nil.
+  #
+  def virtual_filename
+    bin = nil
+    if self.binaries.any?
+      bin = self.binaries.select{ |b| b.master_type == Binary::MasterType::PRESERVATION }.first ||
+          self.binaries.select{ |b| b.master_type == Binary::MasterType::ACCESS }.first
+    end
+    bin&.filename
   end
 
   ##
