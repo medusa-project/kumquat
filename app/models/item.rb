@@ -1489,7 +1489,7 @@ class Item < ApplicationRecord
   end
 
   def zero_pad_numbers(str, padding = 16)
-    str.to_s.gsub(/\d+/) { |match| match.rjust(padding, '0') }
+    StringUtils.pad_numbers(str, '0', padding)
   end
 
 end
