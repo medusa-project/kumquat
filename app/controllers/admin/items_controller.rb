@@ -153,9 +153,6 @@ module Admin
             collection(@collection).
             query(params[:df], params[:q]).
             facet_filters(params[:fq])
-        if @collection.free_form?
-          finder = finder.exclude_variants(*Item::Variants::DIRECTORY)
-        end
       end
 
       finder = finder.
