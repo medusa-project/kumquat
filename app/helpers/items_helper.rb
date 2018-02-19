@@ -398,8 +398,9 @@ module ItemsHelper
   # @param item [Item]
   # @param options [Hash]
   # @option options [Boolean] :admin
-  # @return [String]
+  # @return [String] HTML definition list containing item metadata.
   # @see `tech_metadata_as_list`
+  # @see `metadata_as_table`
   #
   def metadata_as_list(item, options = {})
     html = '<dl class="pt-metadata">'
@@ -414,11 +415,11 @@ module ItemsHelper
       html += "<dt>#{e_def.label}</dt>"
       html += '<dd>'
       if elements.length == 1
-        html += metadata_value_for_element(elements.first)
+        html += metadata_value_for_element(elements.first, e_def.searchable)
       else
         html += '<ul>'
         elements.each do |element|
-          html += "<li>#{metadata_value_for_element(element)}</li>"
+          html += "<li>#{metadata_value_for_element(element, e_def.searchable)}</li>"
         end
         html += '</ul>'
       end
@@ -432,28 +433,29 @@ module ItemsHelper
   # @param item [Item]
   # @param options [Hash]
   # @option options [Boolean] :admin
-  # @return [String]
+  # @return [String] HTML table containing item metadata.
+  # @see `metadata_as_list`
   # @see `tech_metadata_as_table`
   #
   def metadata_as_table(item, options = {})
     html = '<table class="table table-condensed pt-metadata">'
-    # iterate through the index-ordered elements in the collection's metadata
-    # profile in order to display the entity's elements in the correct order
-    defs = item.collection.effective_metadata_profile.elements
-    defs = defs.select(&:visible) unless options[:admin]
-    defs.each do |e_def|
+    # iterate through the index-ordered elements in the item's collection's
+    # metadata profile.
+    p_els = item.collection.effective_metadata_profile.elements
+    p_els = p_els.select(&:visible) unless options[:admin]
+    p_els.each do |pel|
       elements = item.elements.
-          select{ |e| e.name == e_def.name and (e.value.present? or e.uri.present?) }
+          select{ |e| e.name == pel.name and (e.value.present? or e.uri.present?) }
       next if elements.empty?
       html += '<tr>'
-      html += "<td>#{e_def.label}</td>"
+      html += "<td>#{pel.label}</td>"
       html += '<td>'
       if elements.length == 1
-        html += metadata_value_for_element(elements.first)
+        html += metadata_value_for_element(elements.first, pel.searchable)
       else
         html += '<ul>'
         elements.each do |element|
-          html += "<li>#{raw(metadata_value_for_element(element))}</li>"
+          html += "<li>#{raw(metadata_value_for_element(element, pel.searchable))}</li>"
         end
         html += '</ul>'
       end
@@ -1292,7 +1294,7 @@ module ItemsHelper
           data-uri="%s"
           data-sequenceindex="0" data-canvasindex="0"
           data-rotation="0" style="margin: 0 auto; width:%s; height:%s; background-color:#000;"></div>
-          %s,
+          %s
           <![endif]-->',
                       thumbnail_tag(binary, size: 800),
                       asset_path('uvconfig_single.json', skip_pipeline: true),
@@ -1307,19 +1309,25 @@ module ItemsHelper
   end
 
   ##
-  # If the element has a string value but no URI, or a URI not corresponding to
-  # an agent URI, returns the string value with URIs auto-linked.
-  #
-  # If the element has a string value and a URI corresponding to an agent URI,
-  # returns the string value linking to the corresponding show-agent page.
-  #
-  # If the element has a URI corresponding to an agent URI but no string value,
-  # returns the agent name linking to the corresponding show-agent page.
+  # * If the element has a string value but no URI, or a URI not corresponding
+  #   to an agent URI:
+  #     * If the string value contains a URI, the string value is returned with
+  #       URIs auto-linked.
+  #     * If the element is searchable, the string value is returned with a
+  #       link to a search for that value.
+  # * If the element has a string value and a URI corresponding to an agent
+  #   URI, the string value is returned linking to the corresponding show-agent
+  #   page.
+  # * If the element has a URI corresponding to an agent URI but no string
+  #   value, the agent name is returned linking to the corresponding show-agent
+  #   page.
   #
   # @param element [EntityElement]
-  # @return [String] HTML string
+  # @param searchable [Boolean] Whether the element is marked as searchable in
+  #                             a metadata profile.
+  # @return [String] HTML string.
   #
-  def metadata_value_for_element(element)
+  def metadata_value_for_element(element, searchable)
     label = element.value.present? ? element.value : ''
     if element.agent
       label = label.gsub('<', '&lt;').gsub('>', '&gt;')
@@ -1327,8 +1335,16 @@ module ItemsHelper
       value = link_to(label, element.agent)
     else
       label = label.gsub('<', '&lt; ').gsub('>', ' &gt;')
-      value = auto_link(label, html: { target: '_blank' }).
-          gsub('&lt; ', '&lt;').gsub(' &gt;', '&gt;')
+      value = auto_link(label, html: { target: '_blank' })
+                  .gsub('&lt; ', '&lt;').gsub(' &gt;', '&gt;')
+      if searchable
+        query = label.gsub(/[^\p{L}\p{N} ]/, ' ') # allow only unicode letters, unicode numbers, and spaces
+                    .gsub(/[ ]+/, ' ')            # replace repeating spaces with a single space
+        value = label + '&nbsp;&nbsp;' + link_to(search_url(q: query),
+                                                 class: 'btn btn-default btn-xs') do
+          raw('<i class="fa fa-search"></i>')
+        end
+      end
     end
     value
   end

@@ -74,8 +74,6 @@ class Permission < ApplicationRecord
     end
   end
 
-  Permission.sync_to_database
-
   ##
   # @return [String]
   #

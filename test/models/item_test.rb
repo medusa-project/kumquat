@@ -775,6 +775,16 @@ class ItemTest < ActiveSupport::TestCase
     end
   end
 
+  # virtual_filename()
+
+  test 'virtual_filename() works properly' do
+    assert_equal @item.binaries.select{ |b| b.master_type == Binary::MasterType::PRESERVATION }.first.filename,
+                 @item.virtual_filename
+
+    @item.binaries.destroy_all
+    assert_nil @item.virtual_filename
+  end
+
   # walk_tree()
 
   test 'walk_tree() should walk the tree' do
