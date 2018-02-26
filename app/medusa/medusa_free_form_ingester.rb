@@ -52,10 +52,12 @@ class MedusaFreeFormIngester < MedusaAbstractIngester
   def create_items(collection, options = {}, task = nil)
     check_collection(collection, PackageProfile::FREE_FORM_PROFILE)
     num_nodes = task ? count_tree_nodes(collection.effective_medusa_cfs_directory) : 0
-    status = { num_created: 0, num_skipped: 0, num_walked: 0 }
-    create_items_in_tree(collection, collection.effective_medusa_cfs_directory,
-                         collection.effective_medusa_cfs_directory,
-                         options.symbolize_keys, status, task, num_nodes)
+    stats = { num_created: 0, num_skipped: 0, num_walked: 0 }
+    ActiveRecord::Base.transaction do
+      create_items_in_tree(collection, collection.effective_medusa_cfs_directory,
+                           collection.effective_medusa_cfs_directory,
+                           options.symbolize_keys, stats, task, num_nodes)
+    end
   end
 
   ##
@@ -76,26 +78,27 @@ class MedusaFreeFormIngester < MedusaAbstractIngester
     @@logger.debug("MedusaFreeFormIngester.delete_missing_items(): "\
         "#{medusa_items.length} items in CFS directory")
 
-    medusa_items = items_in(collection.effective_medusa_cfs_directory)
-
     # For each DLS item in the collection, if it's no longer contained in the
     # file group, delete it.
-    status = { num_deleted: 0 }
+    stats = { num_deleted: 0 }
     items = Item.where(collection_repository_id: collection.repository_id)
     num_items = items.count
-    items.each_with_index do |item, index|
-      unless medusa_items.include?(item.repository_id)
-        @@logger.info("MedusaFreeFormIngester.delete_missing_items(): deleting "\
-          "#{item.repository_id}")
-        item.destroy!
-        status[:num_deleted] += 1
-      end
 
-      if task and index % 10 == 0
-        task.update(percent_complete: index / num_items.to_f)
+    ActiveRecord::Base.transaction do
+      items.each_with_index do |item, index|
+        unless medusa_items.include?(item.repository_id)
+          @@logger.info("MedusaFreeFormIngester.delete_missing_items(): deleting "\
+            "#{item.repository_id}")
+          item.destroy!
+          stats[:num_deleted] += 1
+        end
+
+        if task and index % 10 == 0
+          task.update(percent_complete: index / num_items.to_f)
+        end
       end
     end
-    status
+    stats
   end
 
   ##
@@ -115,18 +118,21 @@ class MedusaFreeFormIngester < MedusaAbstractIngester
 
     num_nodes = task ? count_tree_nodes(collection.effective_medusa_cfs_directory) : 0
     stats = { num_created: 0 }
-    recreate_binaries_in_tree(
-        collection.effective_medusa_cfs_directory,
-        collection.effective_medusa_cfs_directory, stats, task, num_nodes)
 
-    # The binaries have been updated, but the image server may still have
-    # cached versions of the old ones. Here, we will purge them.
-    collection.items.each do |item|
-      begin
-        ImageServer.instance.purge_item_images_from_cache(item)
-      rescue => e
-        @@logger.error("MedusaFreeFormIngester.recreate_binaries(): failed to "\
-            "purge item from image server cache: #{e}")
+    ActiveRecord::Base.transaction do
+      recreate_binaries_in_tree(
+          collection.effective_medusa_cfs_directory,
+          collection.effective_medusa_cfs_directory, stats, task, num_nodes)
+
+      # The binaries have been updated, but the image server may still have
+      # cached versions of the old ones. Here, we will purge them.
+      collection.items.each do |item|
+        begin
+          ImageServer.instance.purge_item_images_from_cache(item)
+        rescue => e
+          @@logger.error("MedusaFreeFormIngester.recreate_binaries(): failed to "\
+              "purge item from image server cache: #{e}")
+        end
       end
     end
     stats
