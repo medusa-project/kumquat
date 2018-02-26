@@ -22,7 +22,11 @@ name_options_for_select = ItemElement.all_available.
     map{ |t| [ t.name, t.name ] }
 
 position_options_for_select = [['Nothing (First)', 0]]
-metadata_profile.elements.where('id != ?', element.id).order(:index).each_with_index do |e, i|
+elements = metadata_profile.elements.order(:index)
+if element.id.present?
+  elements = elements.where('id != ?', element.id)
+end
+elements.each_with_index do |e, i|
   position_options_for_select << [e.label, i + 1]
 end
 
