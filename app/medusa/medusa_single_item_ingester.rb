@@ -4,6 +4,8 @@
 # Clients that don't want to concern themselves with package profiles can
 # use MedusaIngester instead.
 #
+# @see https://wiki.illinois.edu/wiki/display/LibraryDigitalPreservation/Single-item+Object+Package
+#
 class MedusaSingleItemIngester < MedusaAbstractIngester
 
   @@logger = CustomLogger.instance
@@ -41,6 +43,9 @@ class MedusaSingleItemIngester < MedusaAbstractIngester
             "item #{file.uuid}")
           item = Item.new(repository_id: file.uuid,
                           collection_repository_id: collection.repository_id)
+
+          # Assign a title of the preservation master name.
+          item.elements.build(name: 'title', value: file.name)
 
           # Create the preservation master binary.
           item.binaries << file.to_binary(Binary::MasterType::PRESERVATION)
