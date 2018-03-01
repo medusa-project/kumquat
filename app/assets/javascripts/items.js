@@ -112,7 +112,7 @@ var PTItemView = function() {
      * Encapsulates the embed-image panel.
      *
      * The panel is opened by an anchor with data-iiif-url, data-iiif-info-url,
-     * and data-title attributes. The size and qualitu options are presented
+     * and data-title attributes. The size and quality options are presented
      * dynamically based on the support declared by the image server in the
      * IIIF information response.
      *
@@ -157,14 +157,16 @@ var PTItemView = function() {
             container.empty();
             var full_width = iiif_info['width'];
             var num_sizes = iiif_info['sizes'].length;
+            var max_pixels = iiif_info['profile'][1]['maxArea'];
 
-            // find the number of usable sizes (i.e. sizes above
-            // MIN_IMAGE_SIZE) in order to calculate button size tiers.
+            // find the number of usable sizes (i.e. sizes above MIN_IMAGE_SIZE
+            // and below max_pixels) in order to calculate button size tiers.
             var num_usable_sizes = 0;
             for (var i = 0; i < num_sizes; i++) {
                 var width = iiif_info['sizes'][i]['width'];
                 var height = iiif_info['sizes'][i]['height'];
-                if (width >= MIN_IMAGE_SIZE && height >= MIN_IMAGE_SIZE) {
+                if (width >= MIN_IMAGE_SIZE && height >= MIN_IMAGE_SIZE
+                    && width * height <= max_pixels) {
                     num_usable_sizes++;
                 }
             }
@@ -175,7 +177,8 @@ var PTItemView = function() {
                 width = iiif_info['sizes'][i]['width'];
                 height = iiif_info['sizes'][i]['height'];
 
-                if (width >= MIN_IMAGE_SIZE && height >= MIN_IMAGE_SIZE) {
+                if (width >= MIN_IMAGE_SIZE && height >= MIN_IMAGE_SIZE
+                    && width * height <= max_pixels) {
                     var size_class = 'pt-size-' +
                         Math.floor(size_i / num_usable_sizes * NUM_BUTTON_SIZE_TIERS);
                     var percent = Math.round(width / full_width * 100);
