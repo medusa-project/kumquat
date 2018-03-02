@@ -71,9 +71,11 @@
       <h2>Elements <span class="badge"><%= @profile.elements.count %></span></h2>
 
       <% if @profile.elements.any? %>
-        <div class="alert alert-info">Note: after changing the "searchable" status
+        <div class="alert alert-warning">
+          <i class="fa fa-warning"></i> After changing the indexed status
           of an element, you must reindex all items in every collection associated
-          with this profile using the "Reindex Items" button above.</div>
+          with this profile using the "Reindex Items" button above.
+        </div>
 
         <table class="table table-striped">
           <thead>
@@ -85,6 +87,7 @@
               <th>Mappings</th>
               <th>Data Type</th>
               <th class="text-center">Visible</th>
+              <th class="text-center">Indexed</th>
               <th class="text-center">Searchable</th>
               <th class="text-center">Sortable</th>
               <th class="text-center">Facetable</th>
@@ -139,6 +142,9 @@
                 </td>
                 <td class="text-center <%= element.visible ? 'bg-success' : 'bg-danger' %>">
                   <%= boolean(element.visible) %>
+                </td>
+                <td class="text-center <%= element.indexed ? 'bg-success' : 'bg-danger' %>">
+                  <%= boolean(element.indexed) %>
                 </td>
                 <td class="text-center <%= element.searchable ? 'bg-success' : 'bg-danger' %>">
                   <%= boolean(element.searchable) %>
