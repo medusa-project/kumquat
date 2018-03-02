@@ -33,6 +33,7 @@ class MetadataProfileTest < ActiveSupport::TestCase
                 "created_at": "2016-06-28T17:46:31.206Z",
                 "updated_at": "2016-06-28T17:46:31.206Z",
                 "sortable": true,
+                "indexed": true,
                 "dc_map": null,
                 "dcterms_map": "accrualMethod",
                 "vocabularies": [
@@ -57,6 +58,7 @@ class MetadataProfileTest < ActiveSupport::TestCase
                 "created_at": "2016-06-28T17:46:31.188Z",
                 "updated_at": "2016-06-28T17:46:48.894Z",
                 "sortable": true,
+                "indexed": true,
                 "dc_map": "description",
                 "dcterms_map": "abstract",
                 "vocabularies": [
@@ -85,6 +87,7 @@ class MetadataProfileTest < ActiveSupport::TestCase
     assert subject.facetable
     assert subject.visible
     assert subject.sortable
+    assert subject.indexed
     assert_equal 'description', subject.dc_map
     assert_equal 'abstract', subject.dcterms_map
 
@@ -112,6 +115,7 @@ class MetadataProfileTest < ActiveSupport::TestCase
                 "searchable": true,
                 "facetable": true,
                 "visible": true,
+                "indexed": true,
                 "created_at": "2016-06-28T17:46:31.206Z",
                 "updated_at": "2016-06-28T17:46:31.206Z",
                 "sortable": true,
@@ -155,6 +159,7 @@ class MetadataProfileTest < ActiveSupport::TestCase
                 "searchable": true,
                 "facetable": true,
                 "visible": true,
+                "indexed": true,
                 "created_at": "2016-06-28T17:46:31.206Z",
                 "updated_at": "2016-06-28T17:46:31.206Z",
                 "sortable": true,

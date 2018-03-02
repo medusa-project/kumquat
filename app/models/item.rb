@@ -437,12 +437,12 @@ class Item < ApplicationRecord
       # See: https://www.elastic.co/guide/en/elasticsearch/reference/0.90/mapping-multi-field-type.html
       doc[element.indexed_field] = element.value[0..ElasticsearchClient::MAX_KEYWORD_FIELD_LENGTH]
 
-      # If the element is searchable in the collection's metadata profile, or
-      # if the collection doesn't have a metadata profile, add its value to the
-      # search-all field.
+      # If the element is set as indexed in the collection's metadata profile,
+      # or if the collection doesn't have a metadata profile, add its value to
+      # the search-all field.
       if !self.collection.metadata_profile or
           self.collection.metadata_profile.elements.
-              select{ |mpe| mpe.name == element.name }.first&.searchable
+              select{ |mpe| mpe.name == element.name }.first&.indexed
         search_all_values << doc[element.indexed_field]
       end
     end

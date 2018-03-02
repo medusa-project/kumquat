@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171219173142) do
+ActiveRecord::Schema.define(version: 20180302145007) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -283,7 +283,7 @@ ActiveRecord::Schema.define(version: 20171219173142) do
     t.index ["uuid"], name: "index_medusa_file_groups_on_uuid"
   end
 
-  create_table "medusa_repositories", id: :integer, default: -> { "nextval('medusa_repository_names_id_seq'::regclass)" }, force: :cascade do |t|
+  create_table "medusa_repositories", id: :serial, force: :cascade do |t|
     t.integer "medusa_database_id"
     t.string "contact_email"
     t.string "email"
@@ -298,17 +298,19 @@ ActiveRecord::Schema.define(version: 20171219173142) do
     t.string "name"
     t.string "label"
     t.integer "index"
-    t.boolean "searchable"
-    t.boolean "facetable"
-    t.boolean "visible"
+    t.boolean "searchable", default: true
+    t.boolean "facetable", default: true
+    t.boolean "visible", default: true
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.boolean "sortable", default: false
+    t.boolean "sortable", default: true
     t.string "dc_map"
     t.string "dcterms_map"
     t.integer "data_type", default: 0, null: false
+    t.boolean "indexed", default: true
     t.index ["facetable"], name: "index_metadata_profile_elements_on_facetable"
     t.index ["index"], name: "index_metadata_profile_elements_on_index"
+    t.index ["indexed"], name: "index_metadata_profile_elements_on_indexed"
     t.index ["metadata_profile_id"], name: "index_metadata_profile_elements_on_metadata_profile_id"
     t.index ["name"], name: "index_metadata_profile_elements_on_name"
     t.index ["searchable"], name: "index_metadata_profile_elements_on_searchable"
