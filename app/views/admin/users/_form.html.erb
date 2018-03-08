@@ -18,6 +18,7 @@
 
   <div class="form-group">
     <label>Roles</label>
+    <%= hidden_field_tag 'user[role_ids][]', nil %>
     <% @roles.each do |role| %>
       <div class="checkbox">
         <%= label_tag do %>
