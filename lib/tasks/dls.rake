@@ -293,7 +293,7 @@ namespace :dls do
     task :reindex, [:uuid] => :environment do |task, args|
       if args[:uuid].present?
         item = Item.find_by_repository_id(args[:uuid])
-        item.all_children.push(item).each do |it|
+        item.all_children.to_a.push(item).each do |it|
           it.reindex
         end
       else
