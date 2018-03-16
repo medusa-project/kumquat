@@ -38,6 +38,8 @@ class ItemDecorator < Draper::Decorator
         variant: object.variant,
         representative_item_uri: object.representative_item ?
             item_url(object.representative_item, format: :json) : nil,
+        effective_representative_image_uri: object.effective_image_binary ?
+            binary_url(object.effective_image_binary) : nil,
         elements: object.elements_in_profile_order(only_visible: true).map(&:decorate),
         binaries: object.binaries.map{ |b| binary_url(b, format: :json) },
         children: object.items.map{ |i| item_url(i, format: :json) },
