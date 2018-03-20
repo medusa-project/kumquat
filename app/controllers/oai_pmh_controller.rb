@@ -214,6 +214,8 @@ class OaiPmhController < ApplicationController
               'collections.public_in_medusa': true,
               'collections.published_in_dls': true,
               published: true).
+        where('collections.package_profile_id = ? OR items.parent_repository_id IS NULL',
+              PackageProfile::FREE_FORM_PROFILE.id).
         where('items.variant IS NULL OR items.variant = \'\' OR items.variant = ?',
               Item::Variants::FILE).
         order(created_at: :asc)
