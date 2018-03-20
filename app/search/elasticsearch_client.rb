@@ -22,14 +22,26 @@ class ElasticsearchClient
   #
   def create_index(name, schema)
     @@logger.info("ElasticsearchClient.create_index(): creating #{name}...")
-    response = @@http_client.put(Configuration.instance.elasticsearch_endpoint +
-                                     '/' + name,
+    index_url = Configuration.instance.elasticsearch_endpoint +'/' + name
+    response = @@http_client.put(index_url,
                                  JSON.generate(schema),
                                  'Content-Type': 'application/json')
     if response.status == 200
       @@logger.info("ElasticsearchClient.create_index(): created #{name}")
     else
       raise IOError, "Got #{response.status} for #{name}:\n"\
+          "#{JSON.pretty_generate(JSON.parse(response.body))}"
+    end
+
+    # Increase the max result window (default is 10,000).
+    response = @@http_client.put(index_url,
+                                 '{ "index" : { "max_result_window" : 1000000 } }',
+                                 'Content-Type': 'application/json')
+    if response.status == 200
+      @@logger.info("ElasticsearchClient.create_index(): "\
+          "updated max result window for #{name}")
+    else
+      raise IOError, "Got #{response.status}:\n"\
           "#{JSON.pretty_generate(JSON.parse(response.body))}"
     end
   end

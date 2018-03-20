@@ -631,11 +631,29 @@ class ItemsController < WebsiteController
   end
 
   def rescue_unauthorized
-    render 'unpublished', status: :forbidden
+    respond_to do |format|
+      format.html do
+        render 'unauthorized', status: :forbidden
+      end
+      format.json do
+        render 'errors/error', status: :forbidden, locals: {
+            message: 'You are not authorized to access this item.'
+        }
+      end
+    end
   end
 
   def rescue_unpublished
-    render 'unpublished', status: :forbidden
+    respond_to do |format|
+      format.html do
+        render 'unpublished', status: :forbidden
+      end
+      format.json do
+        render 'errors/error', status: :forbidden, locals: {
+            message: 'This item is unpublished.'
+        }
+      end
+    end
   end
 
   ##
