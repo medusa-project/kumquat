@@ -1345,6 +1345,7 @@ module ItemsHelper
         #                                 search_url(q: query, field: element.indexed_keyword_field))
         # exact match
         value = label + '&nbsp;&nbsp;' + link_to(search_url(q: label, field: element.indexed_field),
+                                                 title: 'Search for all items with this element value',
                                                  class: 'btn btn-default btn-xs') do
           raw('<i class="fa fa-search"></i>')
         end
