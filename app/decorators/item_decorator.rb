@@ -33,8 +33,8 @@ class ItemDecorator < Draper::Decorator
         page_number: object.page_number,
         subpage_number: object.subpage_number,
         normalized_date: object.date,
-        normalized_latitude: object.latitude,
-        normalized_longitude: object.longitude,
+        normalized_latitude: object.latitude&.to_f,
+        normalized_longitude: object.longitude&.to_f,
         variant: object.variant,
         representative_item_uri: object.representative_item ?
             item_url(object.representative_item, format: :json) : nil,
