@@ -323,7 +323,9 @@ class Collection < ApplicationRecord
   # @option options [Boolean] :only_visible
   # @return [Enumerable<ItemElement>] The instance's CollectionElements in the
   #                                   order of the elements in the instance's
-  #                                   metadata profile.
+  #                                   metadata profile. If there is no
+  #                                   associated metadata profile, all elements
+  #                                   are returned.
   #
   def elements_in_profile_order(options = {})
     elements = []
@@ -337,6 +339,8 @@ class Collection < ApplicationRecord
         element = self.element(mpe.name)
         elements << element if element
       end
+    else
+      elements = self.elements
     end
     elements
   end
