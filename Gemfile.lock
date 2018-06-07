@@ -142,7 +142,7 @@ GEM
     net-ssh (4.2.0)
     netaddr (1.5.1)
     nio4r (2.1.0)
-    nokogiri (1.8.1)
+    nokogiri (1.8.2)
       mini_portile2 (~> 2.3.0)
     omniauth (1.6.1)
       hashie (>= 3.4.6, < 3.6.0)
@@ -252,6 +252,7 @@ DEPENDENCIES
   local_time
   mime-types (~> 2.6)
   netaddr
+  nokogiri (~> 1.8.2)
   omniauth
   omniauth-shibboleth
   passenger
