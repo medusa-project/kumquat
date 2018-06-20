@@ -54,11 +54,12 @@ class SearchController < WebsiteController
       format.json do
         render json: {
             start: @start,
+            limit: @limit,
             numResults: @count,
             results: @entities.map { |entity|
               {
                   id: entity.repository_id,
-                  url: url_for(entity)
+                  uri: url_for(entity)
               }
             }
         }
