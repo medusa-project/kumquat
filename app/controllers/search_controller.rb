@@ -3,6 +3,8 @@
 #
 class SearchController < WebsiteController
 
+  MAX_RESULT_WINDOW = 100
+  MIN_RESULT_WINDOW = 10
   PERMITTED_PARAMS = [:_, :collection_id, { fq: [] }, :q, :sort, :start, :utf8]
 
   before_action :search, :set_sanitized_params
@@ -12,7 +14,10 @@ class SearchController < WebsiteController
   #
   def search
     @start = params[:start].to_i
-    @limit = Option::integer(Option::Keys::DEFAULT_RESULT_WINDOW)
+    @limit = params[:limit].to_i
+    if @limit < MIN_RESULT_WINDOW or @limit > MAX_RESULT_WINDOW
+      @limit = Option::integer(Option::Keys::DEFAULT_RESULT_WINDOW)
+    end
 
     # EntityFinder will search across entity classes and return both Items and
     # Collections.
