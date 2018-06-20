@@ -134,6 +134,13 @@ class Agent < ApplicationRecord
   end
 
   ##
+  # Alias of id.
+  #
+  def repository_id
+    id
+  end
+
+  ##
   # Alias of name().
   #
   # @return [String]
