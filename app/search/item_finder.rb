@@ -270,6 +270,7 @@ class ItemFinder < AbstractFinder
                 end
               end
             end
+            j.minimum_should_match 1
           end
 
           if @user_roles.any? or @exclude_variants.any? or !@search_children
