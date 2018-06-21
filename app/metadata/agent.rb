@@ -8,6 +8,10 @@ class Agent < ApplicationRecord
 
   class IndexFields
     DESCRIPTION = 'description'
+    EFFECTIVE_ALLOWED_ROLE_COUNT = 'effective_allowed_role_count'
+    EFFECTIVE_ALLOWED_ROLES = 'effective_allowed_roles'
+    EFFECTIVE_DENIED_ROLE_COUNT = 'effective_denied_role_count'
+    EFFECTIVE_DENIED_ROLES = 'effective_denied_roles'
     LAST_INDEXED = 'date_last_indexed'
     NAME = 'name'
     PUBLICLY_ACCESSIBLE = ElasticsearchIndex::PUBLICLY_ACCESSIBLE_FIELD
@@ -72,6 +76,10 @@ class Agent < ApplicationRecord
   def as_indexed_json(options = {})
     doc = {}
     doc[IndexFields::DESCRIPTION] = self.description.to_s
+    doc[IndexFields::EFFECTIVE_ALLOWED_ROLES] = []
+    doc[IndexFields::EFFECTIVE_ALLOWED_ROLE_COUNT] = 0
+    doc[IndexFields::EFFECTIVE_DENIED_ROLES] = []
+    doc[IndexFields::EFFECTIVE_DENIED_ROLE_COUNT] = 0
     doc[IndexFields::LAST_INDEXED] = Time.now.utc.iso8601
     doc[IndexFields::NAME] = self.name.to_s
     doc[IndexFields::PUBLICLY_ACCESSIBLE] = true

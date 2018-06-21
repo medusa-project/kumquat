@@ -93,6 +93,10 @@ class Collection < ApplicationRecord
     DENIED_ROLE_COUNT = 'denied_role_count'
     DENIED_ROLES = 'denied_roles'
     DESCRIPTION = CollectionElement.new(name: 'description').indexed_field
+    EFFECTIVE_ALLOWED_ROLE_COUNT = 'effective_allowed_role_count'
+    EFFECTIVE_ALLOWED_ROLES = 'effective_allowed_roles'
+    EFFECTIVE_DENIED_ROLE_COUNT = 'effective_denied_role_count'
+    EFFECTIVE_DENIED_ROLES = 'effective_denied_roles'
     EXTERNAL_ID = 'external_id'
     HARVESTABLE = 'harvestable'
     LAST_INDEXED = 'date_last_indexed'
@@ -214,6 +218,14 @@ class Collection < ApplicationRecord
     doc[IndexFields::ALLOWED_ROLE_COUNT] = doc[IndexFields::ALLOWED_ROLES].length
     doc[IndexFields::DENIED_ROLES] = self.denied_roles.pluck(:key)
     doc[IndexFields::DENIED_ROLE_COUNT] = doc[IndexFields::DENIED_ROLES].length
+    doc[IndexFields::EFFECTIVE_ALLOWED_ROLES] =
+        doc[IndexFields::ALLOWED_ROLES]
+    doc[IndexFields::EFFECTIVE_ALLOWED_ROLE_COUNT] =
+        doc[IndexFields::ALLOWED_ROLE_COUNT]
+    doc[IndexFields::EFFECTIVE_DENIED_ROLES] =
+        doc[IndexFields::DENIED_ROLES]
+    doc[IndexFields::EFFECTIVE_DENIED_ROLE_COUNT] =
+        doc[IndexFields::DENIED_ROLE_COUNT]
     doc[IndexFields::EXTERNAL_ID] = self.external_id
     doc[IndexFields::HARVESTABLE] = self.harvestable
     doc[IndexFields::LAST_INDEXED] = Time.now.utc.iso8601
