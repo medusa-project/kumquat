@@ -80,7 +80,7 @@ module IiifPresentationHelper
     if finder.count > 0
       canvases = finder.to_a.map { |child| iiif_canvas_for(child, true) }
     else
-      canvases = [ iiif_canvas_for(item, (item.file? or item.directory?)) ]
+      canvases = [ iiif_canvas_for(item, !(item.file? or item.directory?)) ]
     end
     canvases
   end
