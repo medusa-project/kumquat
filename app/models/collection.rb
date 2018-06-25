@@ -76,6 +76,12 @@
 #                             TODO: store this in an accessRights CollectionElement
 # * updated_at:               Managed by ActiveRecord.
 #
+# Attribute Propagation
+#
+# Changes to some of a collection's properties, such as `allowed_roles` and
+# `denied_roles`, must be propagated to all of its items. This can be done
+# using `propagate_heritable_properties()`.
+#
 # @see https://github.com/elastic/elasticsearch-rails/blob/master/elasticsearch-model/README.md
 #
 class Collection < ApplicationRecord
@@ -532,10 +538,8 @@ class Collection < ApplicationRecord
   #
   def propagate_heritable_properties(task = nil)
     ActiveRecord::Base.transaction do
-      # after_save callbacks will call this method on direct children, so there
-      # is no need to crawl deeper levels of the item tree.
       num_items = self.items.count
-      self.items.where(parent_repository_id: nil).each_with_index do |item, index|
+      self.items.each_with_index do |item, index|
         item.save!
 
         if task and index % 10 == 0

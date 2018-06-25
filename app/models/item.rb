@@ -98,6 +98,13 @@
 # * variant:              Like a subclass. Used to differentiate types of
 #                         items.
 #
+# Attribute Propagation
+#
+# Some item properties, such as `allowed_roles` and `denied_roles`, propagate
+# to child items in the item tree. The inherited counterparts of these
+# properties are `effective_allowed_roles` and `effective_denied_roles`. An
+# item's subtree can be updated using `propagate_heritable_properties()`.
+#
 # @see https://github.com/elastic/elasticsearch-rails/blob/master/elasticsearch-model/README.md
 #
 class Item < ApplicationRecord
@@ -243,10 +250,6 @@ class Item < ApplicationRecord
 
   before_save :prune_identical_elements, :set_effective_roles,
               :set_normalized_coords, :set_normalized_date
-  # This is commented out because, even though it has to happen, it is
-  # potentially very time-consuming. It will therefore need to be invoked in a
-  # background job whenever instances are updated.
-  #after_update :propagate_heritable_properties
   after_commit :index_in_elasticsearch, on: [:create, :update]
   after_commit :delete_from_elasticsearch, on: :destroy
 
@@ -924,9 +927,7 @@ class Item < ApplicationRecord
   def propagate_heritable_properties(task = nil)
     ActiveRecord::Base.transaction do
       num_items = self.items.count
-
       self.walk_tree do |item, index|
-        # Propagation will be carried out in before_save callbacks.
         item.save!
 
         if task and index % 10 == 0
