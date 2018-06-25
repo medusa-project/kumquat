@@ -123,6 +123,7 @@ class EntityFinder < AbstractFinder
                 end
               end
             end
+            j.minimum_should_match 1
           end
 
           if @user_roles.any? or @exclude_item_variants.any?

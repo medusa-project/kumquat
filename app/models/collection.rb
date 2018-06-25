@@ -76,6 +76,12 @@
 #                             TODO: store this in an accessRights CollectionElement
 # * updated_at:               Managed by ActiveRecord.
 #
+# Attribute Propagation
+#
+# Changes to some of a collection's properties, such as `allowed_roles` and
+# `denied_roles`, must be propagated to all of its items. This can be done
+# using `propagate_heritable_properties()`.
+#
 # @see https://github.com/elastic/elasticsearch-rails/blob/master/elasticsearch-model/README.md
 #
 class Collection < ApplicationRecord
@@ -93,6 +99,10 @@ class Collection < ApplicationRecord
     DENIED_ROLE_COUNT = 'denied_role_count'
     DENIED_ROLES = 'denied_roles'
     DESCRIPTION = CollectionElement.new(name: 'description').indexed_field
+    EFFECTIVE_ALLOWED_ROLE_COUNT = 'effective_allowed_role_count'
+    EFFECTIVE_ALLOWED_ROLES = 'effective_allowed_roles'
+    EFFECTIVE_DENIED_ROLE_COUNT = 'effective_denied_role_count'
+    EFFECTIVE_DENIED_ROLES = 'effective_denied_roles'
     EXTERNAL_ID = 'external_id'
     HARVESTABLE = 'harvestable'
     LAST_INDEXED = 'date_last_indexed'
@@ -214,6 +224,14 @@ class Collection < ApplicationRecord
     doc[IndexFields::ALLOWED_ROLE_COUNT] = doc[IndexFields::ALLOWED_ROLES].length
     doc[IndexFields::DENIED_ROLES] = self.denied_roles.pluck(:key)
     doc[IndexFields::DENIED_ROLE_COUNT] = doc[IndexFields::DENIED_ROLES].length
+    doc[IndexFields::EFFECTIVE_ALLOWED_ROLES] =
+        doc[IndexFields::ALLOWED_ROLES]
+    doc[IndexFields::EFFECTIVE_ALLOWED_ROLE_COUNT] =
+        doc[IndexFields::ALLOWED_ROLE_COUNT]
+    doc[IndexFields::EFFECTIVE_DENIED_ROLES] =
+        doc[IndexFields::DENIED_ROLES]
+    doc[IndexFields::EFFECTIVE_DENIED_ROLE_COUNT] =
+        doc[IndexFields::DENIED_ROLE_COUNT]
     doc[IndexFields::EXTERNAL_ID] = self.external_id
     doc[IndexFields::HARVESTABLE] = self.harvestable
     doc[IndexFields::LAST_INDEXED] = Time.now.utc.iso8601
@@ -520,10 +538,8 @@ class Collection < ApplicationRecord
   #
   def propagate_heritable_properties(task = nil)
     ActiveRecord::Base.transaction do
-      # after_save callbacks will call this method on direct children, so there
-      # is no need to crawl deeper levels of the item tree.
       num_items = self.items.count
-      self.items.where(parent_repository_id: nil).each_with_index do |item, index|
+      self.items.each_with_index do |item, index|
         item.save!
 
         if task and index % 10 == 0

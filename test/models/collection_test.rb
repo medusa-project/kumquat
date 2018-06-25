@@ -58,6 +58,14 @@ class CollectionTest < ActiveSupport::TestCase
                  doc[Collection::IndexFields::DENIED_ROLES].sort
     assert_equal @collection.denied_roles.pluck(:key).length,
                  doc[Collection::IndexFields::DENIED_ROLE_COUNT]
+    assert_equal @collection.allowed_roles.pluck(:key),
+                 doc[Item::IndexFields::EFFECTIVE_ALLOWED_ROLES]
+    assert_equal @collection.allowed_roles.pluck(:key).length,
+                 doc[Item::IndexFields::EFFECTIVE_ALLOWED_ROLE_COUNT]
+    assert_equal @collection.denied_roles.pluck(:key),
+                 doc[Item::IndexFields::EFFECTIVE_DENIED_ROLES]
+    assert_equal @collection.denied_roles.pluck(:key).length,
+                 doc[Item::IndexFields::EFFECTIVE_DENIED_ROLE_COUNT]
     assert_equal @collection.external_id,
                  doc[Collection::IndexFields::EXTERNAL_ID]
     assert_equal @collection.harvestable,
