@@ -63,13 +63,36 @@ class HostTest < ActiveSupport::TestCase
   end
 
   test 'pattern_matches?() should work with hostnames' do
-    host = Host.new(pattern: '*.example.org')
-    assert host.pattern_matches?('example.org')
-    assert host.pattern_matches?('cats.example.org')
-    assert !host.pattern_matches?('dogs.example.com')
-
     host = Host.new(pattern: 'example.org')
     assert host.pattern_matches?('example.org')
+    assert !host.pattern_matches?('cats.example.org')
+    assert !host.pattern_matches?('dogs.example.com')
+  end
+
+  test 'pattern_matches?() should work with wildcards at the beginning of hostnames' do
+    host = Host.new(pattern: '*.example.org')
+    assert host.pattern_matches?('cats.example.org')
+    assert !host.pattern_matches?('example.org')
+    assert !host.pattern_matches?('dogs.example.com')
+  end
+
+  test 'pattern_matches?() should work with wildcards at the end of hostnames' do
+    host = Host.new(pattern: 'example.*')
+    assert host.pattern_matches?('example.org')
+    assert !host.pattern_matches?('cats.example.org')
+    assert !host.pattern_matches?('dogs.example.com')
+  end
+
+  test 'pattern_matches?() should work with wildcards in the middle of hostnames' do
+    host = Host.new(pattern: 'test.*.org')
+    assert host.pattern_matches?('test.example.org')
+    assert !host.pattern_matches?('cats.example.org')
+    assert !host.pattern_matches?('dogs.example.com')
+  end
+
+  test 'pattern_matches?() should work with wildcards at the beginning, middle, and end of hostnames' do
+    host = Host.new(pattern: '*.*.example.*')
+    assert host.pattern_matches?('test.test.example.org')
     assert !host.pattern_matches?('cats.example.org')
     assert !host.pattern_matches?('dogs.example.com')
   end

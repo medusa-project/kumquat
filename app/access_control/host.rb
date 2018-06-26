@@ -3,19 +3,20 @@
 # a pattern, which may be either an exact hostname or IP address, or a
 # range of such.
 #
-# Hostnames may be exact or may start with wildcards:
+# Hostnames may be exact or may include wildcards:
 #
-# * host.example.org
-# * *.example.org
+# * `host.example.org`
+# * `*.example.org`
+# * `test.*.example.org`
 #
 # IPs may be exact or ranges, which can be in wildcard or CIDR format:
 #
-# * 10.3.5.2
-# * 10.0.*-10.53.*
-# * 10.6
-# * 10.6.0.0/16
+# * `10.3.5.2`
+# * `10.0.*-10.53.*`
+# * `10.6`
+# * `10.6.0.0/16`
 #
-# Comments starting with COMMENT_CHARACTER are allowed to trail the pattern.
+# Comments starting with `COMMENT_CHARACTER` are allowed to trail the pattern.
 #
 # This class depends on the netaddr gem.
 #
@@ -59,12 +60,8 @@ class Host < ApplicationRecord
       return within_wildcard_range?(string, parts[0], parts[1])
     elsif cidr_ip_range?(p)
       return within_cidr_range?(string, p)
-    elsif p.end_with?('*')
-      filtered_pattern = p.gsub('*', '')
-      return true if string.start_with?(filtered_pattern)
-    elsif p.start_with?('*')
-      filtered_pattern = p.gsub('*', '').reverse.chomp('.').reverse
-      return true if string.end_with?(filtered_pattern)
+    elsif p.include?('*')
+      return true if File.fnmatch(p, string)
     end
     false
   end

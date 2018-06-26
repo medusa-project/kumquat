@@ -43,8 +43,7 @@
                           f.object.hosts.pluck(:pattern).join("\n"),
                           rows: 8, class: 'form-control') %>
         <p class="help-block">Enter one hostname or IP address per line, with
-          no other separating characters. Wildcards (*) are allowed at the
-          beginning of a hostname and end of an IP address. Comments (#) are
+          no other separating characters. Wildcards (*) and comments (#) are
           allowed.</p>
       </div>
     </div>
@@ -69,6 +68,14 @@
           </label>
         </div>
       <% end %>
+    </div>
+  </section>
+
+  <section>
+    <h3>Note</h3>
+
+    <div class="form-group">
+      <%= f.text_area(:note, rows: 8, class: 'form-control') %>
     </div>
   </section>
 
