@@ -105,7 +105,18 @@ class EntityFinder < AbstractFinder
             end
           end
 
-          if @user_roles.any?
+          if @user_roles.include?('harvester')
+            j.should do
+              j.child! do
+                j.range do
+                  j.set! Item::IndexFields::EFFECTIVE_ALLOWED_ROLE_COUNT do
+                    j.lte 0
+                  end
+                end
+              end
+            end
+            j.minimum_should_match 1
+          elsif @user_roles.any?
             j.should do
               if @user_roles.any?
                 j.child! do
