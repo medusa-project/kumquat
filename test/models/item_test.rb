@@ -718,7 +718,7 @@ class ItemTest < ActiveSupport::TestCase
 
   # update_from_tsv
 
-  test 'update_from_tsv should work' do
+  test 'update_from_tsv() works' do
     row = {}
     # technical elements
     row['contentdmAlias'] = 'cats'
@@ -755,7 +755,7 @@ class ItemTest < ActiveSupport::TestCase
         e.value == 'Cats' and e.vocabulary == vocabularies(:lcsh) }.length
   end
 
-  test 'update_from_tsv should raise an error if given an invalid element name' do
+  test 'update_from_tsv() raises an error when given an invalid element name' do
     row = {}
     row['Title'] = 'Cats'
     row['TotallyBogus'] = 'Felines'
@@ -765,10 +765,19 @@ class ItemTest < ActiveSupport::TestCase
     end
   end
 
-  test 'update_from_tsv should raise an error if given an invalid vocabulary prefix' do
+  test 'update_from_tsv() raises an error when given an invalid vocabulary prefix' do
     row = {}
     row['Title'] = 'Cats'
     row['bogus:Subject'] = 'Felines'
+
+    assert_raises ArgumentError do
+      @item.update_from_tsv(row)
+    end
+  end
+
+  test 'update_from_tsv() raises an error when given a too-long value' do
+    row = {}
+    row['Title'] = 'A' * (ItemUpdater::MAX_TSV_VALUE_LENGTH + 1)
 
     assert_raises ArgumentError do
       @item.update_from_tsv(row)

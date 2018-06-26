@@ -5,6 +5,8 @@ require 'csv'
 #
 class ItemUpdater
 
+  MAX_TSV_VALUE_LENGTH = 10000
+
   @@logger = CustomLogger.instance
 
   ##

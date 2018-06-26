@@ -1101,11 +1101,20 @@ class Item < ApplicationRecord
   # @param row [Hash<String,String>] Item serialized as a TSV row
   # @return [Item]
   # @raises [ArgumentError] If a column heading contains an unrecognized
-  #                         element name
+  #                         element name.
   # @raises [ArgumentError] If a column heading contains an unrecognized
-  #                         vocabulary prefix
+  #                         vocabulary prefix.
+  # @raises [ArgumentError] If the row contains a value longer than the max
+  #                         allowed length.
   #
   def update_from_tsv(row)
+    if row.values.map(&:length).max > ItemUpdater::MAX_TSV_VALUE_LENGTH
+      raise ArgumentError, sprintf('TSV row for item %s contains '\
+          'a value longer than %d characters. (Is it malformed?)',
+                                   self.repository_id,
+                                   ItemUpdater::MAX_TSV_VALUE_LENGTH)
+    end
+
     ActiveRecord::Base.transaction do
       # Metadata elements need to be deleted first, otherwise an update
       # wouldn't be able to remove them.
