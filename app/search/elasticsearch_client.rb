@@ -22,7 +22,8 @@ class ElasticsearchClient
   #
   def create_index(name, schema)
     @@logger.info("ElasticsearchClient.create_index(): creating #{name}...")
-    index_url = Configuration.instance.elasticsearch_endpoint +'/' + name
+    index_url = sprintf('%s/%s',
+                        Configuration.instance.elasticsearch_endpoint, name)
     response = @@http_client.put(index_url,
                                  JSON.generate(schema),
                                  'Content-Type': 'application/json')
