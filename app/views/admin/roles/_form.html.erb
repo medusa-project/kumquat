@@ -71,6 +71,14 @@
     </div>
   </section>
 
+  <section>
+    <h3>Note</h3>
+
+    <div class="form-group">
+      <%= f.text_area(:note, rows: 8, class: 'form-control') %>
+    </div>
+  </section>
+
   <div class="pull-right">
     <%= f.submit(context == :new ? 'Create Role' : 'Save Changes',
                  class: 'btn btn-primary') %>
