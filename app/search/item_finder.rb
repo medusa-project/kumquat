@@ -129,25 +129,28 @@ class ItemFinder < AbstractFinder
 
     response = get_response
 
-    # Assemble the response aggregations into Facets.
-    response.response.aggregations&.each do |agg|
-      element = metadata_profile.facet_elements.
-          select{ |e| e.indexed_keyword_field == agg[0] }.first
-      if element
-        facet = Facet.new
-        facet.name = element.label
-        facet.field = element.indexed_keyword_field
-        agg[1]['buckets'].each do |bucket|
-          term = FacetTerm.new
-          term.name = bucket['key'].to_s
-          term.label = bucket['key'].to_s
-          term.count = bucket['doc_count']
-          term.facet = facet
-          facet.terms << term
+    # Assemble the response aggregations into Facets. The order of the facets
+    # should be the same as the order of elements in the metadata profile.
+    metadata_profile.facet_elements.each do |element|
+      agg = response.response.aggregations&.
+          find{ |a| a[0] == element.indexed_keyword_field }
+      if agg
+        if agg[0] == BYTE_SIZE_AGGREGATION
+          @result_byte_size = agg[1]['value'].to_i
+        else
+          facet = Facet.new
+          facet.name = element.label
+          facet.field = element.indexed_keyword_field
+          agg[1]['buckets'].each do |bucket|
+            term = FacetTerm.new
+            term.name = bucket['key'].to_s
+            term.label = bucket['key'].to_s
+            term.count = bucket['doc_count']
+            term.facet = facet
+            facet.terms << term
+          end
+          @result_facets << facet
         end
-        @result_facets << facet
-      elsif agg[0] == BYTE_SIZE_AGGREGATION
-        @result_byte_size = agg[1]['value'].to_i
       end
     end
 
@@ -155,6 +158,10 @@ class ItemFinder < AbstractFinder
     @result_count = response.results.total
 
     @loaded = true
+  end
+
+  def metadata_profile
+    @collection&.effective_metadata_profile || MetadataProfile.default
   end
 
   private
@@ -363,10 +370,6 @@ class ItemFinder < AbstractFinder
     # curl -XGET 'localhost:9200/items_development/_search?size=0&pretty' -H 'Content-Type: application/json' -d @query.json
 
     json
-  end
-
-  def metadata_profile
-    @collection&.effective_metadata_profile || MetadataProfile.default
   end
 
 end
