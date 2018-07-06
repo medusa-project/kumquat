@@ -49,6 +49,10 @@ class EntityFinder < AbstractFinder
     Elasticsearch::Model.search(build_query, ENTITIES)
   end
 
+  def metadata_profile
+    MetadataProfile.default
+  end
+
   private
 
   ##
@@ -201,10 +205,6 @@ class EntityFinder < AbstractFinder
     # curl -XGET 'localhost:9200/items_development/_search?size=0&pretty' -H 'Content-Type: application/json' -d @query.json
 
     json
-  end
-
-  def metadata_profile
-    MetadataProfile.default
   end
 
 end

@@ -28,6 +28,12 @@ class CollectionFinder < AbstractFinder
     self
   end
 
+  protected
+
+  def metadata_profile
+    MetadataProfile.default
+  end
+
   private
 
   def load

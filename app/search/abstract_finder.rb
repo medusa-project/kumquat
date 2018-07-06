@@ -214,11 +214,12 @@ class AbstractFinder
 
     response = get_response
 
-    # Assemble the response aggregations into Facets.
-    response.response.aggregations&.each do |agg|
-      element = metadata_profile.facet_elements.
-          select{ |e| e.indexed_keyword_field == agg[0] }.first
-      if element
+    # Assemble the response aggregations into Facets. The order of the facets
+    # should be the same as the order of elements in the metadata profile.
+    metadata_profile.facet_elements.each do |element|
+      agg = response.response.aggregations&.
+          find{ |a| a[0] == element.indexed_keyword_field }
+      if agg
         facet = Facet.new
         facet.name = element.label
         facet.field = element.indexed_keyword_field
@@ -238,6 +239,13 @@ class AbstractFinder
     @result_count = response.results.total
 
     @loaded = true
+  end
+
+  ##
+  # @return [MetadataProfile]
+  #
+  def metadata_profile
+    raise 'Must override metadata_profile()'
   end
 
 end
