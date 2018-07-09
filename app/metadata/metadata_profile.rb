@@ -176,7 +176,7 @@ class MetadataProfile < ApplicationRecord
   # @return [Enumerable<MetadataProfileElement>]
   #
   def facet_elements
-    self.elements.where(facetable: true)
+    self.elements.where(facetable: true).order(:index)
   end
 
   private

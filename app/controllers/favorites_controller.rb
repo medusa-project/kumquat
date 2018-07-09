@@ -58,9 +58,14 @@ class FavoritesController < WebsiteController
           item_ids = @items.map(&:repository_id)
         end
 
-        download = Download.create(ip_address: request.remote_ip)
-        DownloadZipJob.perform_later(item_ids, 'favorites', download)
-        redirect_to download_url(download)
+        if item_ids.any?
+          download = Download.create(ip_address: request.remote_ip)
+          DownloadZipJob.perform_later(item_ids, 'favorites', download)
+          redirect_to download_url(download)
+        else
+          flash['error'] = 'No items selected.'
+          redirect_back fallback_location: favorites_path
+        end
       end
     end
   end

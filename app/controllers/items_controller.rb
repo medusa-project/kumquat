@@ -279,17 +279,22 @@ class ItemsController < WebsiteController
         # download_finder. It takes the downloader time to generate the zip
         # file manifest, which would block the web server if we did it here,
         # so the strategy is to do it using the asynchronous download feature,
-        # and then stream the zip out to the user via the  download button when
+        # and then stream the zip out to the user via the download button when
         # it's ready to start streaming.
         item_ids = @download_finder.to_a.map(&:repository_id)
 
-        start = params[:download_start].to_i + 1
-        end_ = params[:download_start].to_i + item_ids.length
-        zip_name = "items-#{start}-#{end_}"
+        if item_ids.any?
+          start = params[:download_start].to_i + 1
+          end_ = params[:download_start].to_i + item_ids.length
+          zip_name = "items-#{start}-#{end_}"
 
-        download = Download.create(ip_address: request.remote_ip)
-        DownloadZipJob.perform_later(item_ids, zip_name, download)
-        redirect_to download_url(download)
+          download = Download.create(ip_address: request.remote_ip)
+          DownloadZipJob.perform_later(item_ids, zip_name, download)
+          redirect_to download_url(download)
+        else
+          flash['error'] = 'No items to download.'
+          redirect_back fallback_location: request.fullpath
+        end
       end
     end
   end
@@ -450,15 +455,19 @@ class ItemsController < WebsiteController
         end
 
         item_ids = items.map(&:repository_id)
-
-        download = Download.create(ip_address: request.remote_ip)
-        case params[:contents]
-          when 'jpegs'
-            CreateZipOfJpegsJob.perform_later(item_ids, zip_name, download)
-          else
-            DownloadZipJob.perform_later(item_ids, zip_name, download)
+        if item_ids.any?
+          download = Download.create(ip_address: request.remote_ip)
+          case params[:contents]
+            when 'jpegs'
+              CreateZipOfJpegsJob.perform_later(item_ids, zip_name, download)
+            else
+              DownloadZipJob.perform_later(item_ids, zip_name, download)
+          end
+          redirect_to download_url(download)
+        else
+          flash['error'] = 'No items to download.'
+          redirect_back fallback_location: request.fullpath
         end
-        redirect_to download_url(download)
       end
     end
   end
