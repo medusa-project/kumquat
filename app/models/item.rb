@@ -1108,7 +1108,7 @@ class Item < ApplicationRecord
   #                         allowed length.
   #
   def update_from_tsv(row)
-    if row.values.map(&:length).max > ItemUpdater::MAX_TSV_VALUE_LENGTH
+    if row.values.select(&:present?).map(&:length).max > ItemUpdater::MAX_TSV_VALUE_LENGTH
       raise ArgumentError, sprintf('TSV row for item %s contains '\
           'a value longer than %d characters. (Is it malformed?)',
                                    self.repository_id,
