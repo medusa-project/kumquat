@@ -545,7 +545,7 @@ class Item < ApplicationRecord
   # @return [Boolean]
   #
   def described?
-    if self.collection.free_form?
+    if self.collection&.free_form?
       return (self.directory? or self.elements.select{ |e| e.name == 'title' }.any?)
     else
       return self.elements.reject{ |e| e.name == 'title' }.any?
