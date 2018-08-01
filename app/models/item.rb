@@ -418,7 +418,7 @@ class Item < ApplicationRecord
     if self.latitude and self.longitude
       doc[IndexFields::LAT_LONG] = { lon: self.longitude, lat: self.latitude }
     end
-    doc[IndexFields::OBJECT_REPOSITORY_ID] = self.collection.free_form? ?
+    doc[IndexFields::OBJECT_REPOSITORY_ID] = self.collection&.free_form? ?
                                                  self.repository_id :
                                                  (self.parent_repository_id || self.repository_id)
     doc[IndexFields::PAGE_NUMBER] = self.page_number
@@ -446,8 +446,8 @@ class Item < ApplicationRecord
       # If the element is set as indexed in the collection's metadata profile,
       # or if the collection doesn't have a metadata profile, add its value to
       # the search-all field.
-      if !self.collection.metadata_profile or
-          self.collection.metadata_profile.elements.
+      if !self.collection&.metadata_profile or
+          self.collection&.metadata_profile.elements.
               select{ |mpe| mpe.name == element.name }.first&.indexed
         search_all_values << doc[element.indexed_field]
       end
@@ -948,7 +948,7 @@ class Item < ApplicationRecord
   #                   publicly accessible.
   #
   def publicly_accessible?
-    self.published and self.collection.publicly_accessible?
+    self.published and self.collection&.publicly_accessible?
   end
 
   ##
