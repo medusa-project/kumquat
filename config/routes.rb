@@ -69,12 +69,14 @@ Rails.application.routes.draw do
   match '/auth/:provider/callback', to: 'sessions#create', via: [:get, :post],
         as: 'auth' # used by omniauth
   resources :binaries, only: :show
+  match '/collections/iiif', to: 'collections#iiif_presentation_list',
+        via: :get, as: 'collections_iiif_presentation_list'
   resources :collections, only: [:index, :show] do
     match 'items/treedata', to: 'items#tree_data', via: [:get, :post]
     match 'tree', to: 'items#tree', via: :get
     resources :items, only: :index
     # IIIF Presentation API 2.1 routes
-    match '/presentation', to: 'collections#iiif_presentation', via: :get,
+    match '/iiif', to: 'collections#iiif_presentation', via: :get,
           as: 'iiif_presentation'
   end
   resources :downloads, only: :show, param: :key do
