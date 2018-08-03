@@ -13,12 +13,30 @@ class CollectionsController < WebsiteController
   ##
   # Serves IIIF Presentation API 2.1 collections.
   #
-  # Responds to GET /collection/:id
+  # Responds to GET /collections/:id
   #
   # @see http://iiif.io/api/presentation/2.1/#collection
   #
   def iiif_presentation
     render 'collections/iiif_presentation_api/collection',
+           formats: :json,
+           content_type: 'application/json'
+  end
+
+  ##
+  # Serves an index of IIIF Presentation API collection representations.
+  # N.B.: This endpoint is not an official part of the Presentation API.
+  #
+  # Responds to GET /collections/iiif
+  #
+  #
+  def iiif_presentation_list
+    finder = CollectionFinder.new.
+        user_roles(request_roles).
+        order(Collection::IndexFields::TITLE)
+    @collections = finder.to_a
+
+    render 'collections/iiif_presentation_api/index',
            formats: :json,
            content_type: 'application/json'
   end
