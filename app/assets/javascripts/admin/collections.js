@@ -15,7 +15,7 @@ var PTAdminCollectionsView = function() {
 
     this.attachEventListeners = function() {
         $('.pagination a').on('click', function() {
-            $('form.pt-filter')[0].scrollIntoView({behavior: "smooth"});
+            $('form.pt-filter')[0].scrollIntoView({behavior: "smooth", block: "start"});
         });
     };
 
