@@ -82,15 +82,15 @@
   <% end %>
 </table>
 
-<h2>Objects <span class="badge"><%= @item_set.items.count %></span>
-  <% if @item_set.items.count > 0 %>
+<h2>Objects <span class="badge"><%= @items.count %></span>
+  <% if @items.count > 0 %>
     <%= link_to '#', class: 'btn btn-default btn-xs pt-check-all' do %>
       <i class="fa fa-check-square-o"></i> Check All
     <% end %>
   <% end %>
 </h2>
 
-<% if @item_set.items.count > 0 %>
+<% if @items.count > 0 %>
   <div id="pt-items" class="pt-list-results">
     <%= render partial: 'admin/items/items' %>
   </div>
