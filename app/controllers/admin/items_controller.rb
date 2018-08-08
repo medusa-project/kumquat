@@ -27,8 +27,10 @@ module Admin
         ActiveRecord::Base.transaction do
           item_ids.each do |item_id|
             item = Item.find_by_repository_id(item_id)
-            item_set.items << item
-            item_set.items += item.all_children
+            unless item_set.items.pluck(:repository_id).include?(item_id)
+              item_set.items << item
+              item_set.items += item.all_children
+            end
           end
           item_set.save!
         end
