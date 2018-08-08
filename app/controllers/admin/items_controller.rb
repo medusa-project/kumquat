@@ -378,10 +378,10 @@ module Admin
     end
 
     def update
-      begin
-        item = Item.find_by_repository_id(params[:id])
-        raise ActiveRecord::RecordNotFound unless item
+      item = Item.find_by_repository_id(params[:id])
+      raise ActiveRecord::RecordNotFound unless item
 
+      begin
         # If we are updating metadata, we will need to process the elements
         # manually.
         if params[:elements].respond_to?(:each)
