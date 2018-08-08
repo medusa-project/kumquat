@@ -281,7 +281,7 @@ var PTAdminItemsView = function() {
 
             var href = $(this).attr('href');
             var pos = href.indexOf('?');
-            var url = (pos > 0) ? href.substring(0, pos - 1) : href;
+            var url = (pos > 0) ? href.substring(0, pos) : href;
             $(this).attr('href', url + '?id[]=' + checked_items.join('&id[]='));
         });
     };
