@@ -1,10 +1,4 @@
-$('#pt-items').html('<%= j(render partial: 'items', locals: {
-        items: @items,
-        count: @count,
-        start: @start,
-        limit: @limit,
-        current_page: @current_page
-}) %>');
+$('#pt-items').html('<%= j(render('items')) %>');
 $('.pt-facets').html('<%= j(render('facets')) %>');
 $('#pt-search-status').html('<%= j(search_status(@count, @start, @num_results_shown)) %>');
 

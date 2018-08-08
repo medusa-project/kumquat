@@ -1,17 +1,8 @@
-<%
-  # Requires the following locals:
-  # items [Enumerable<Item>]
-  # start [Integer]
-  # limit [Integer]
-  # count [Integer]
-  # current_page [Integer]
-%>
-
 <div class="text-center">
-  <%= paginate_items(count, limit, current_page) %>
+  <%= paginate_items(@count, @limit, @current_page) %>
 </div>
 
-<%= entities_as_list(items, start,
+<%= entities_as_list(@items, @start,
                      link_to_admin: true,
                      show_collections: false,
                      show_add_to_favorites_buttons: false,
@@ -20,5 +11,5 @@
                      show_published_status: true) %>
 
 <div class="text-center">
-  <%= paginate_items(count, limit, current_page) %>
+  <%= paginate_items(@count, @limit, @current_page) %>
 </div>
