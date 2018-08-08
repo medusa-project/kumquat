@@ -344,7 +344,7 @@ module AdminHelper
     html += "<li>#{link_to 'Home', admin_root_path}</li>"
     html += "<li>#{link_to 'Collections', admin_collections_path}</li>"
     html += "<li>#{link_to item_set.collection.title, admin_collection_path(item_set.collection)}</li>"
-    html += "<li>Sets</li>"
+    html += "<li>#{link_to 'Sets', admin_collection_path(item_set.collection)}</li>"
     html += "<li class=\"active\">#{item_set}</li>"
     html += "</ol>"
     raw(html)
