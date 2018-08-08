@@ -92,7 +92,13 @@
 
 <% if @item_set.items.count > 0 %>
   <div id="pt-items" class="pt-list-results">
-    <%= render partial: 'admin/items/items' %>
+    <%= render partial: 'admin/items/items', locals: {
+        items: @item_set.items,
+        count: @count,
+        start: @start,
+        limit: @limit,
+        current_page: @current_page
+    } %>
   </div>
 <% elsif @item_set.collection.items.count > 0 %>
   <p>This set is empty.</p>

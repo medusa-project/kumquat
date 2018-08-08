@@ -163,7 +163,13 @@
       <% end %>
 
       <div id="pt-items" class="pt-list-results">
-        <%= render partial: 'items' %>
+        <%= render partial: 'items', locals: {
+            items: @items,
+            count: @count,
+            start: @start,
+            limit: @limit,
+            current_page: @current_page
+        } %>
       </div>
     </div>
   </div>
