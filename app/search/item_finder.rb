@@ -135,23 +135,25 @@ class ItemFinder < AbstractFinder
       agg = response.response.aggregations&.
           find{ |a| a[0] == element.indexed_keyword_field }
       if agg
-        if agg[0] == BYTE_SIZE_AGGREGATION
-          @result_byte_size = agg[1]['value'].to_i
-        else
-          facet = Facet.new
-          facet.name = element.label
-          facet.field = element.indexed_keyword_field
-          agg[1]['buckets'].each do |bucket|
-            term = FacetTerm.new
-            term.name = bucket['key'].to_s
-            term.label = bucket['key'].to_s
-            term.count = bucket['doc_count']
-            term.facet = facet
-            facet.terms << term
-          end
-          @result_facets << facet
+        facet = Facet.new
+        facet.name = element.label
+        facet.field = element.indexed_keyword_field
+        agg[1]['buckets'].each do |bucket|
+          term = FacetTerm.new
+          term.name = bucket['key'].to_s
+          term.label = bucket['key'].to_s
+          term.count = bucket['doc_count']
+          term.facet = facet
+          facet.terms << term
         end
+        @result_facets << facet
       end
+    end
+
+    agg = response.response.aggregations&.
+        find{ |a| a[0] == BYTE_SIZE_AGGREGATION }
+    if agg
+      @result_byte_size = agg[1]['value'].to_i
     end
 
     @result_instances = response.records
