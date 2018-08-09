@@ -246,9 +246,10 @@ class Collection < ApplicationRecord
     doc[IndexFields::RESOURCE_TYPES] = self.resource_types
 
     self.elements.each do |element|
-      # ES will automatically create one or more multi fields for this.
-      # See: https://www.elastic.co/guide/en/elasticsearch/reference/0.90/mapping-multi-field-type.html
-      doc[element.indexed_field] = element.value[0..ElasticsearchClient::MAX_KEYWORD_FIELD_LENGTH]
+      unless doc[element.indexed_field]&.respond_to?(:each)
+        doc[element.indexed_field] = []
+      end
+      doc[element.indexed_field] << element.value[0..ElasticsearchClient::MAX_KEYWORD_FIELD_LENGTH]
 
       # If the element is set as indexed in the collection's metadata profile,
       # of if the collection doesn't have a metadata profile, add its value to

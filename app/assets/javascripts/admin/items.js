@@ -171,7 +171,7 @@ var PTAdminItemsEditView = function() {
         new Application.DirtyFormListener('form').listen();
 
         $('.pagination a').off().on('click', function() {
-            $('#pt-items')[0].scrollIntoView({behavior: "smooth"});
+            $('#pt-items')[0].scrollIntoView({behavior: "smooth", block: "start"});
         });
 
         // Make the table header stick to the top when scrolling. (DLD-124)
@@ -238,7 +238,7 @@ var PTAdminItemsView = function() {
 
     this.attachEventListeners = function() {
         $('.pagination a').on('click', function() {
-            $('form.pt-filter')[0].scrollIntoView({behavior: "smooth"});
+            $('form.pt-filter')[0].scrollIntoView({behavior: "smooth", block: "start"});
         });
 
         $('#pt-export-modal button[type=submit]').on('click', function() {
@@ -281,7 +281,7 @@ var PTAdminItemsView = function() {
 
             var href = $(this).attr('href');
             var pos = href.indexOf('?');
-            var url = (pos > 0) ? href.substring(0, pos - 1) : href;
+            var url = (pos > 0) ? href.substring(0, pos) : href;
             $(this).attr('href', url + '?id[]=' + checked_items.join('&id[]='));
         });
     };

@@ -27,8 +27,10 @@ module Admin
         ActiveRecord::Base.transaction do
           item_ids.each do |item_id|
             item = Item.find_by_repository_id(item_id)
-            item_set.items << item
-            item_set.items += item.all_children
+            unless item_set.items.pluck(:repository_id).include?(item_id)
+              item_set.items << item
+              item_set.items += item.all_children
+            end
           end
           item_set.save!
         end
@@ -376,10 +378,10 @@ module Admin
     end
 
     def update
-      begin
-        item = Item.find_by_repository_id(params[:id])
-        raise ActiveRecord::RecordNotFound unless item
+      item = Item.find_by_repository_id(params[:id])
+      raise ActiveRecord::RecordNotFound unless item
 
+      begin
         # If we are updating metadata, we will need to process the elements
         # manually.
         if params[:elements].respond_to?(:each)

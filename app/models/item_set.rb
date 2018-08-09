@@ -44,6 +44,7 @@ class ItemSet < ActiveRecord::Base
           @num_objects = ItemFinder.new.
               item_set(self).
               aggregations(false).
+              include_unpublished(true).
               search_children(false).
               include_variants(*Item::Variants::FILE).
               limit(0).
@@ -52,6 +53,7 @@ class ItemSet < ActiveRecord::Base
           @num_objects = ItemFinder.new.
               item_set(self).
               aggregations(false).
+              include_unpublished(true).
               search_children(false).
               limit(0).
               count

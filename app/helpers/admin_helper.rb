@@ -392,6 +392,9 @@ module AdminHelper
     # Repository ID
     data << { label: 'Repository ID', value: item.repository_id }
 
+    # Database ID
+    data << { label: 'Database ID', value: item.id }
+
     # Binary filenames
     item.binaries.each do |bs|
       data << { label: "#{bs.human_readable_master_type} Filename",

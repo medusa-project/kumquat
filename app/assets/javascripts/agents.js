@@ -53,7 +53,7 @@ var PTAgentView = function() {
         });
 
         $('.pagination a').on('click', function() {
-            $('#pt-agents')[0].scrollIntoView({behavior: "smooth"});
+            $('#pt-agents')[0].scrollIntoView({behavior: "smooth", block: "start"});
         });
     };
 

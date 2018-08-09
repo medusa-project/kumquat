@@ -86,6 +86,19 @@ module IiifPresentationHelper
   end
 
   ##
+  # @param collections [Enumerable<Collection>]
+  #
+  def iiif_collection_list_for(collections)
+    collections.map do |c|
+      {
+          '@id': collection_iiif_presentation_url(c),
+          '@type': 'sc:Collection',
+          label: c.title
+      }
+    end
+  end
+
+  ##
   # @param item [Item]
   # @param resource_name [String]
   # @return [Array]
