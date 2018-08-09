@@ -11,8 +11,8 @@ class ItemsController < WebsiteController
 
   MAX_RESULT_WINDOW = 100
   MIN_RESULT_WINDOW = 10
-  PERMITTED_PARAMS = [:_, :collection_id, :df, :display, { fq: [] }, :id, :q,
-                      :sort, :start, :utf8]
+  PERMITTED_PARAMS = [:_, :collection_id, :df, :display, :download_start,
+                      { fq: [] }, :id, :limit, :q, :sort, :start, :utf8]
 
   before_action :enable_cors, only: [:iiif_annotation_list, :iiif_canvas,
                                      :iiif_image_resource, :iiif_layer,
@@ -511,7 +511,7 @@ class ItemsController < WebsiteController
         redirect_to collection_items_path(format: :json)
       end
       format.zip do
-        redirect_to collection_items_path(format: :zip, params: params)
+        redirect_to collection_items_path(format: :zip, params: @sanitized_params)
       end
     end
   end
