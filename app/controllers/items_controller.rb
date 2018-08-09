@@ -12,7 +12,8 @@ class ItemsController < WebsiteController
   MAX_RESULT_WINDOW = 100
   MIN_RESULT_WINDOW = 10
   PERMITTED_PARAMS = [:_, :collection_id, :df, :display, :download_start,
-                      { fq: [] }, :id, :limit, :q, :sort, :start, :utf8]
+                      { fq: [] }, :format, :id, :limit, :q, :sort, :start,
+                      :utf8]
 
   before_action :enable_cors, only: [:iiif_annotation_list, :iiif_canvas,
                                      :iiif_image_resource, :iiif_layer,
@@ -245,9 +246,10 @@ class ItemsController < WebsiteController
         query_all(params[:q]).
         aggregations(false).
         search_children(true).
+        include_children_in_results(true).
         order(Item::IndexFields::STRUCTURAL_SORT).
         start(params[:download_start]).
-        limit(params[:limit] || MedusaDownloaderClient::BATCH_SIZE)
+        limit((params[:limit].to_i > 0) ? params[:limit].to_i : ElasticsearchClient::MAX_RESULT_WINDOW)
     @num_downloadable_items = @download_finder.count
     @total_byte_size = @download_finder.total_byte_size
 
