@@ -511,7 +511,7 @@ class ItemsController < WebsiteController
         redirect_to collection_items_path(format: :json)
       end
       format.zip do
-        redirect_to collection_items_path(format: :zip, params: @sanitized_params)
+        redirect_to collection_items_path(format: :zip, params: @permitted_params)
       end
     end
   end
