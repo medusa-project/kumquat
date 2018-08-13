@@ -500,13 +500,14 @@ class Item < ApplicationRecord
   end
 
   ##
-  # @return [String, nil] URL of the instance in the library OPAC. Will be
-  #                       non-nil only if the instance's bib ID is non-nil.
+  # @return [String, nil] URL of the instance in the library's VuFind OPAC.
+  #                       Will be non-nil only if the instance's bib ID is
+  #                       non-nil.
   #
   def catalog_record_url
     bibid = self.bib_id
     bibid.present? ?
-        "http://vufind.carli.illinois.edu/vf-uiu/Record/uiu_#{bibid}" : nil
+        "http://vufind.carli.illinois.edu/vf-uiu/Record/uiu_#{bibid}/Description" : nil
   end
 
   ##
