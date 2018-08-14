@@ -7,7 +7,7 @@ class ItemTest < ActiveSupport::TestCase
     assert @item.valid?
 
     ElasticsearchIndex.migrate_to_latest
-    ElasticsearchClient.instance.recreate_all_indexes
+    ElasticsearchClient.instance.recreate_all_indexes rescue nil
   end
 
   # Item.num_free_form_files()
@@ -48,6 +48,13 @@ class ItemTest < ActiveSupport::TestCase
     Creator Date\ Created Description lcsh:Subject tgm:Subject)
     actual = Item.tsv_columns(@item.collection.metadata_profile)
     assert_equal expected, actual
+  end
+
+  # all_children()
+
+  test 'all_children() should return the correct items' do
+    assert_equal items(:sanborn_obj1).items.count,
+                 items(:sanborn_obj1).all_children.count
   end
 
   # all_files()
