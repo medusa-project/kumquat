@@ -27,12 +27,8 @@ module Admin
         ActiveRecord::Base.transaction do
           item_ids.each do |item_id|
             item = Item.find_by_repository_id(item_id)
-            unless item_set.items.pluck(:repository_id).include?(item_id)
-              item_set.items << item
-              item_set.items += item.all_children
-            end
+            item_set.add_item_and_children(item) if item
           end
-          item_set.save!
         end
 
         flash['success'] = "Added #{item_ids.length} item(s) to #{item_set}."

@@ -351,7 +351,9 @@ class Item < ApplicationRecord
     values = [[ nil, self.repository_id ]]
 
     results = ActiveRecord::Base.connection.exec_query(sql, 'SQL', values)
-    Item.where('repository_id IN (?)', results.map{ |row| row['repository_id'] })
+    Item.where('repository_id IN (?)', results
+                                           .select{ |row| row['repository_id'] != self.repository_id }
+                                           .map{ |row| row['repository_id'] })
   end
 
   ##
