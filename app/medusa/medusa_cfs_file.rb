@@ -57,7 +57,11 @@ class MedusaCfsFile < ApplicationRecord
       struct = JSON.parse(response.body)
       self.media_type = struct['content_type']
       self.repository_relative_pathname = "/#{struct['relative_pathname']}"
-      self.directory_uuid = struct['directory']['uuid']
+      if struct['directory']
+        self.directory_uuid = struct['directory']['uuid']
+      else
+        raise ArgumentError, "Unexpected JSON structure. Is #{self.url} a file?"
+      end
     end
   end
 
