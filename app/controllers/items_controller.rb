@@ -442,7 +442,7 @@ class ItemsController < WebsiteController
                 include_children_in_results(true).to_a
           else
             items = ItemFinder.new
-                        .aggregations(false).
+                        .aggregations(false)
                         .user_roles(request_roles)
                         .collection(@item.collection)
                         .include_variants(*Item::Variants::FILE)
