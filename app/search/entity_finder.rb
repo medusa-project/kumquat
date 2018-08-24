@@ -13,6 +13,8 @@ class EntityFinder < AbstractFinder
     super
     @exclude_item_variants = []
     @include_unpublished = false
+    @last_modified_after = nil
+    @last_modified_before = nil
     @only_described = false
   end
 
@@ -35,6 +37,24 @@ class EntityFinder < AbstractFinder
   end
 
   ##
+  # @param time [Time]
+  # @return [self]
+  #
+  def last_modified_after(time)
+    @last_modified_after = time
+    self
+  end
+
+  ##
+  # @param time [Time]
+  # @return [self]
+  #
+  def last_modified_before(time)
+    @last_modified_before = time
+    self
+  end
+
+  ##
   # @param boolean [Boolean]
   # @return [ItemFinder] self
   #
@@ -46,7 +66,9 @@ class EntityFinder < AbstractFinder
   protected
 
   def get_response
-    Elasticsearch::Model.search(build_query, ENTITIES)
+    query = build_query
+    CustomLogger.instance.debug("EntityFinder.get_response(): #{query}")
+    Elasticsearch::Model.search(query, ENTITIES)
   end
 
   def metadata_profile
@@ -75,7 +97,8 @@ class EntityFinder < AbstractFinder
             end
           end
 
-          if @filters.any? or @only_described or !@include_unpublished
+          if @filters.any? or @only_described or !@include_unpublished or
+              @last_modified_before or @last_modified_after
             j.filter do
               @filters.each do |field, value|
                 j.child! do
@@ -103,6 +126,21 @@ class EntityFinder < AbstractFinder
                 j.child! do
                   j.term do
                     j.set! ElasticsearchIndex::PUBLICLY_ACCESSIBLE_FIELD, true
+                  end
+                end
+              end
+
+              if @last_modified_before or @last_modified_after
+                j.child! do
+                  j.range do
+                    j.set! Item::IndexFields::LAST_MODIFIED do
+                      if @last_modified_after
+                        j.gte @last_modified_after.iso8601
+                      end
+                      if @last_modified_before
+                        j.lte @last_modified_before.iso8601
+                      end
+                    end
                   end
                 end
               end

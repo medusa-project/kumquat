@@ -37,6 +37,14 @@ class SearchController < WebsiteController
       finder = finder.query_all(params[:q])
     end
 
+    # These support harvesting.
+    if params[:last_modified_before].present?
+      finder = finder.last_modified_before(Time.at(params[:last_modified_before].to_i))
+    end
+    if params[:last_modified_after].present?
+      finder = finder.last_modified_after(Time.at(params[:last_modified_after].to_i))
+    end
+
     @entities = finder.to_a
     @facets = finder.facets
     @current_page = finder.page
