@@ -71,6 +71,8 @@ class CollectionTest < ActiveSupport::TestCase
     assert_equal @collection.harvestable,
                  doc[Collection::IndexFields::HARVESTABLE]
     assert_not_empty doc[Collection::IndexFields::LAST_INDEXED]
+    assert_equal @collection.updated_at.utc.iso8601,
+                 doc[Collection::IndexFields::LAST_MODIFIED]
     assert_empty doc[Collection::IndexFields::PARENT_COLLECTIONS]
     assert_equal @collection.public_in_medusa,
                  doc[Collection::IndexFields::PUBLIC_IN_MEDUSA]

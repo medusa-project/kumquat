@@ -96,6 +96,8 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal @item.item_sets.pluck(:id),
                  doc[Item::IndexFields::ITEM_SETS]
     assert_not_empty doc[Item::IndexFields::LAST_INDEXED]
+    assert_equal @item.updated_at.utc.iso8601,
+                 doc[Item::IndexFields::LAST_MODIFIED]
     assert_equal({ lat: @item.latitude, lon: @item.longitude },
                  doc[Item::IndexFields::LAT_LONG])
     assert_equal(@item.parent.repository_id,

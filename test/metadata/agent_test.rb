@@ -15,6 +15,8 @@ class AgentTest < ActiveSupport::TestCase
     assert_equal 0, doc[Item::IndexFields::EFFECTIVE_ALLOWED_ROLE_COUNT]
     assert_equal [], doc[Item::IndexFields::EFFECTIVE_DENIED_ROLES]
     assert_equal 0, doc[Item::IndexFields::EFFECTIVE_DENIED_ROLE_COUNT]
+    assert_equal @agent.updated_at.utc.iso8601,
+                 doc[Agent::IndexFields::LAST_MODIFIED]
     assert_equal @agent.name, doc[Agent::IndexFields::NAME]
     assert doc[Agent::IndexFields::PUBLICLY_ACCESSIBLE]
     assert_not_empty doc[Agent::IndexFields::SEARCH_ALL]

@@ -417,6 +417,7 @@ class Item < ApplicationRecord
         doc[IndexFields::EFFECTIVE_DENIED_ROLES].length
     doc[IndexFields::ITEM_SETS] = self.item_sets.pluck(:id)
     doc[IndexFields::LAST_INDEXED] = Time.now.utc.iso8601
+    doc[IndexFields::LAST_MODIFIED] = self.updated_at.utc.iso8601
     if self.latitude and self.longitude
       doc[IndexFields::LAT_LONG] = { lon: self.longitude, lat: self.latitude }
     end

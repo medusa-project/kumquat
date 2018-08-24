@@ -106,6 +106,7 @@ class Collection < ApplicationRecord
     EXTERNAL_ID = 'external_id'
     HARVESTABLE = 'harvestable'
     LAST_INDEXED = 'date_last_indexed'
+    LAST_MODIFIED = 'last_modified'
     PARENT_COLLECTIONS = 'parent_collections'
     PUBLIC_IN_MEDUSA = 'public_in_medusa'
     PUBLICLY_ACCESSIBLE = ElasticsearchIndex::PUBLICLY_ACCESSIBLE_FIELD
@@ -235,6 +236,7 @@ class Collection < ApplicationRecord
     doc[IndexFields::EXTERNAL_ID] = self.external_id
     doc[IndexFields::HARVESTABLE] = self.harvestable
     doc[IndexFields::LAST_INDEXED] = Time.now.utc.iso8601
+    doc[IndexFields::LAST_MODIFIED] = self.updated_at.utc.iso8601
     doc[IndexFields::PARENT_COLLECTIONS] =
         self.parent_collection_joins.pluck(:parent_repository_id)
     doc[IndexFields::PUBLIC_IN_MEDUSA] = self.public_in_medusa

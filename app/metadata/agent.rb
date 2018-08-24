@@ -13,6 +13,7 @@ class Agent < ApplicationRecord
     EFFECTIVE_DENIED_ROLE_COUNT = 'effective_denied_role_count'
     EFFECTIVE_DENIED_ROLES = 'effective_denied_roles'
     LAST_INDEXED = 'date_last_indexed'
+    LAST_MODIFIED = 'last_modified'
     NAME = 'name'
     PUBLICLY_ACCESSIBLE = ElasticsearchIndex::PUBLICLY_ACCESSIBLE_FIELD
     SEARCH_ALL = ElasticsearchIndex::SEARCH_ALL_FIELD
@@ -81,6 +82,7 @@ class Agent < ApplicationRecord
     doc[IndexFields::EFFECTIVE_DENIED_ROLES] = []
     doc[IndexFields::EFFECTIVE_DENIED_ROLE_COUNT] = 0
     doc[IndexFields::LAST_INDEXED] = Time.now.utc.iso8601
+    doc[IndexFields::LAST_MODIFIED] = self.updated_at.utc.iso8601
     doc[IndexFields::NAME] = self.name.to_s
     doc[IndexFields::PUBLICLY_ACCESSIBLE] = true
     doc[IndexFields::SEARCH_ALL] = [
