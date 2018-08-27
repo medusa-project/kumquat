@@ -121,7 +121,9 @@ class ItemFinder < AbstractFinder
   protected
 
   def get_response
-    Item.search(build_query)
+    query = build_query
+    CustomLogger.instance.debug("ItemFinder.get_response(): #{query}")
+    Item.search(query)
   end
 
   def load
