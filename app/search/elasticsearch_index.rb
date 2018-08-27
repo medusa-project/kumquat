@@ -32,9 +32,9 @@
 class ElasticsearchIndex
 
   # Prefixed to all index names used by the application.
-  APPLICATION_INDEX_PREFIX = 'dls'
-  PUBLICLY_ACCESSIBLE_FIELD = 'effectively_published' # TODO: change this
-  SEARCH_ALL_FIELD = 'search_all'
+  APPLICATION_INDEX_PREFIX  = 'dls'
+  PUBLICLY_ACCESSIBLE_FIELD = 'b_publicly_accessible'
+  SEARCH_ALL_FIELD          = 'search_all'
 
   ##
   # Array of definitions for all index schema versions. The array index is the

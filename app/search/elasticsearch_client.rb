@@ -9,7 +9,7 @@ class ElasticsearchClient
   include Singleton
 
   MAX_KEYWORD_FIELD_LENGTH = 10922 # bytes: 32766/3 bytes per character
-  MAX_RESULT_WINDOW = 10000
+  MAX_RESULT_WINDOW = 1000000000
 
   @@http_client = HTTPClient.new
   @@logger = CustomLogger.instance

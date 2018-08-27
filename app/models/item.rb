@@ -115,61 +115,61 @@ class Item < ApplicationRecord
   include Representable
 
   class IndexFields
-    COLLECTION = 'collection'
-    CREATED = 'date_created'
-    DATE = 'date'
-    DESCRIBED = 'described'
-    EFFECTIVE_ALLOWED_ROLE_COUNT = 'effective_allowed_role_count'
-    EFFECTIVE_ALLOWED_ROLES = 'effective_allowed_roles'
-    EFFECTIVE_DENIED_ROLE_COUNT = 'effective_denied_role_count'
-    EFFECTIVE_DENIED_ROLES = 'effective_denied_roles'
-    ITEM_SETS = 'item_sets'
-    LAST_MODIFIED = 'last_modified'
-    LAT_LONG = 'lat_long'
-    LAST_INDEXED = 'date_last_indexed'
+    COLLECTION                   = 'k_collection'
+    CREATED                      = 'd_created'
+    DATE                         = 'd_date'
+    DESCRIBED                    = 'b_described'
+    EFFECTIVE_ALLOWED_ROLE_COUNT = 'i_effective_allowed_role_count'
+    EFFECTIVE_ALLOWED_ROLES      = 'k_effective_allowed_roles'
+    EFFECTIVE_DENIED_ROLE_COUNT  = 'i_effective_denied_role_count'
+    EFFECTIVE_DENIED_ROLES       = 'k_effective_denied_roles'
+    ITEM_SETS                    = 'i_item_sets'
+    LAST_INDEXED                 = 'd_last_indexed'
+    LAST_MODIFIED                = 'd_last_modified'
+    LAT_LONG                     = 'p_lat_long'
     # Repository ID of the item, or its parent item, if a child within a
     # compound object.
-    OBJECT_REPOSITORY_ID = 'object_repository_id'
-    PAGE_NUMBER = 'page_number'
-    PARENT_ITEM = 'parent_item'
-    PRIMARY_MEDIA_CATEGORY = 'primary_media_category'
+    OBJECT_REPOSITORY_ID         = 'k_object_repository_id'
+    PAGE_NUMBER                  = 'i_page_number'
+    PARENT_ITEM                  = 'k_parent_item'
+    PRIMARY_MEDIA_CATEGORY       = 'k_primary_media_category'
     # N.B.: An item might be published but its collection might not be, making
     # it still effectively unpublished. This will take that into account.
-    PUBLICLY_ACCESSIBLE = ElasticsearchIndex::PUBLICLY_ACCESSIBLE_FIELD
-    PUBLISHED = 'published'
-    REPOSITORY_ID = 'repository_id'
-    REPRESENTATIVE_FILENAME = 'representative_filename'
-    REPRESENTATIVE_ITEM = 'representative_item_id'
-    SEARCH_ALL = ElasticsearchIndex::SEARCH_ALL_FIELD
+    PUBLICLY_ACCESSIBLE          = ElasticsearchIndex::PUBLICLY_ACCESSIBLE_FIELD
+    PUBLISHED                    = 'b_published'
+    REPOSITORY_ID                = 'k_repository_id'
+    REPRESENTATIVE_FILENAME      = 'k_representative_filename'
+    REPRESENTATIVE_ITEM          = 'k_representative_item_id'
+    SEARCH_ALL                   = ElasticsearchIndex::SEARCH_ALL_FIELD
     # Concatenation of various compound object page components or path
     # components (see as_indexed_json()) used for sorting items grouped
     # structurally.
-    STRUCTURAL_SORT = 'structural_sort'
-    SUBPAGE_NUMBER = 'subpage_number'
-    TITLE = ItemElement.new(name: 'title').indexed_keyword_field
-    TOTAL_BYTE_SIZE = 'total_byte_size'
-    VARIANT = 'variant'
+    STRUCTURAL_SORT              = 'k_structural_sort'
+    SUBPAGE_NUMBER               = 'i_subpage_number'
+    TITLE                        = ItemElement.new(name: 'title').indexed_keyword_field
+    TOTAL_BYTE_SIZE              = 'l_total_byte_size'
+    VARIANT                      = 'k_variant'
   end
 
   ##
   # N.B. When modifying these, modify sort_key_for_variant() as well.
   #
   class Variants
-    BACK_COVER = 'BackCover'
-    COMPOSITE = 'Composite'
-    DIRECTORY = 'Directory'
-    FILE = 'File'
-    FRONT_COVER = 'FrontCover'
-    FRONT_MATTER = 'FrontMatter'
-    INDEX = 'Index'
-    INSIDE_BACK_COVER = 'InsideBackCover'
+    BACK_COVER         = 'BackCover'
+    COMPOSITE          = 'Composite'
+    DIRECTORY          = 'Directory'
+    FILE               = 'File'
+    FRONT_COVER        = 'FrontCover'
+    FRONT_MATTER       = 'FrontMatter'
+    INDEX              = 'Index'
+    INSIDE_BACK_COVER  = 'InsideBackCover'
     INSIDE_FRONT_COVER = 'InsideFrontCover'
-    KEY = 'Key'
-    PAGE = 'Page'
-    SUPPLEMENT = 'Supplement'
-    TABLE_OF_CONTENTS = 'TableOfContents'
-    THREE_D_MODEL = '3DModel'
-    TITLE = 'Title'
+    KEY                = 'Key'
+    PAGE               = 'Page'
+    SUPPLEMENT         = 'Supplement'
+    TABLE_OF_CONTENTS  = 'TableOfContents'
+    THREE_D_MODEL      = '3DModel'
+    TITLE              = 'Title'
 
     ##
     # @return [Enumerable<String>] String values of all variants.
@@ -892,9 +892,8 @@ class Item < ApplicationRecord
   #                                        Variants::PAGE.
   #
   def pages
-    self.items.where(variant: Variants::PAGE).
-        order(IndexFields::PAGE_NUMBER => :asc).
-        order(IndexFields::SUBPAGE_NUMBER => :asc)
+    self.items.where(variant: Variants::PAGE)
+        .order(:page_number, :subpage_number)
   end
 
   ##

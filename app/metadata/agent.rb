@@ -7,16 +7,16 @@ class Agent < ApplicationRecord
   include Representable
 
   class IndexFields
-    DESCRIPTION = 'description'
-    EFFECTIVE_ALLOWED_ROLE_COUNT = 'effective_allowed_role_count'
-    EFFECTIVE_ALLOWED_ROLES = 'effective_allowed_roles'
-    EFFECTIVE_DENIED_ROLE_COUNT = 'effective_denied_role_count'
-    EFFECTIVE_DENIED_ROLES = 'effective_denied_roles'
-    LAST_INDEXED = 'date_last_indexed'
-    LAST_MODIFIED = 'last_modified'
-    NAME = 'name'
-    PUBLICLY_ACCESSIBLE = ElasticsearchIndex::PUBLICLY_ACCESSIBLE_FIELD
-    SEARCH_ALL = ElasticsearchIndex::SEARCH_ALL_FIELD
+    DESCRIPTION                  = 't_description'
+    EFFECTIVE_ALLOWED_ROLE_COUNT = 'i_effective_allowed_role_count'
+    EFFECTIVE_ALLOWED_ROLES      = 'k_effective_allowed_roles'
+    EFFECTIVE_DENIED_ROLE_COUNT  = 'i_effective_denied_role_count'
+    EFFECTIVE_DENIED_ROLES       = 'k_effective_denied_roles'
+    LAST_INDEXED                 = 'd_last_indexed'
+    LAST_MODIFIED                = 'd_last_modified'
+    NAME                         = 't_name'
+    PUBLICLY_ACCESSIBLE          = ElasticsearchIndex::PUBLICLY_ACCESSIBLE_FIELD
+    SEARCH_ALL                   = ElasticsearchIndex::SEARCH_ALL_FIELD
   end
 
   belongs_to :agent_rule, inverse_of: :agents

@@ -92,32 +92,32 @@ class Collection < ApplicationRecord
   include Representable
 
   class IndexFields
-    ACCESS_SYSTEMS = 'access_systems'
-    ACCESS_URL = 'access_url'
-    ALLOWED_ROLE_COUNT = 'allowed_role_count'
-    ALLOWED_ROLES = 'allowed_roles'
-    DENIED_ROLE_COUNT = 'denied_role_count'
-    DENIED_ROLES = 'denied_roles'
-    DESCRIPTION = CollectionElement.new(name: 'description').indexed_field
-    EFFECTIVE_ALLOWED_ROLE_COUNT = 'effective_allowed_role_count'
-    EFFECTIVE_ALLOWED_ROLES = 'effective_allowed_roles'
-    EFFECTIVE_DENIED_ROLE_COUNT = 'effective_denied_role_count'
-    EFFECTIVE_DENIED_ROLES = 'effective_denied_roles'
-    EXTERNAL_ID = 'external_id'
-    HARVESTABLE = 'harvestable'
-    LAST_INDEXED = 'date_last_indexed'
-    LAST_MODIFIED = 'last_modified'
-    PARENT_COLLECTIONS = 'parent_collections'
-    PUBLIC_IN_MEDUSA = 'public_in_medusa'
-    PUBLICLY_ACCESSIBLE = ElasticsearchIndex::PUBLICLY_ACCESSIBLE_FIELD
-    PUBLISHED_IN_DLS = 'published_in_dls'
-    REPOSITORY_ID = 'repository_id'
-    REPOSITORY_TITLE = 'repository_title'
-    REPRESENTATIVE_IMAGE = 'representative_image'
-    REPRESENTATIVE_ITEM = 'representative_item'
-    RESOURCE_TYPES = 'resource_types'
-    SEARCH_ALL = ElasticsearchIndex::SEARCH_ALL_FIELD
-    TITLE = CollectionElement.new(name: 'title').indexed_keyword_field
+    ACCESS_SYSTEMS               = 'k_access_systems'
+    ACCESS_URL                   = 'k_access_url'
+    ALLOWED_ROLE_COUNT           = 'i_allowed_role_count'
+    ALLOWED_ROLES                = 'k_allowed_roles'
+    DENIED_ROLE_COUNT            = 'i_denied_role_count'
+    DENIED_ROLES                 = 'k_denied_roles'
+    DESCRIPTION                  = CollectionElement.new(name: 'description').indexed_field
+    EFFECTIVE_ALLOWED_ROLE_COUNT = 'i_effective_allowed_role_count'
+    EFFECTIVE_ALLOWED_ROLES      = 'k_effective_allowed_roles'
+    EFFECTIVE_DENIED_ROLE_COUNT  = 'i_effective_denied_role_count'
+    EFFECTIVE_DENIED_ROLES       = 'k_effective_denied_roles'
+    EXTERNAL_ID                  = 'k_external_id'
+    HARVESTABLE                  = 'b_harvestable'
+    LAST_INDEXED                 = 'd_last_indexed'
+    LAST_MODIFIED                = 'd_last_modified'
+    PARENT_COLLECTIONS           = 'k_parent_collections'
+    PUBLIC_IN_MEDUSA             = 'b_public_in_medusa'
+    PUBLICLY_ACCESSIBLE          = ElasticsearchIndex::PUBLICLY_ACCESSIBLE_FIELD
+    PUBLISHED_IN_DLS             = 'b_published_in_dls'
+    REPOSITORY_ID                = 'k_repository_id'
+    REPOSITORY_TITLE             = 'k_repository_title'
+    REPRESENTATIVE_IMAGE         = 'k_representative_image'
+    REPRESENTATIVE_ITEM          = 'k_representative_item'
+    RESOURCE_TYPES               = 'k_resource_types'
+    SEARCH_ALL                   = ElasticsearchIndex::SEARCH_ALL_FIELD
+    TITLE                        = CollectionElement.new(name: 'title').indexed_keyword_field
   end
 
   serialize :access_systems
