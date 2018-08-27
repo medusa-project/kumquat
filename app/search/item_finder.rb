@@ -183,12 +183,13 @@ class ItemFinder < AbstractFinder
               # https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html
               j.query_string do
                 j.query @query[:query]
-                j.default_field @query[:field]
                 j.default_operator 'AND'
                 j.lenient true
                 if @include_children_in_results
                   j.fields [@query[:field],
                             ItemElement.new(name: EntityElement.element_name_for_indexed_field(@query[:field])).parent_indexed_field]
+                else
+                  j.default_field @query[:field]
                 end
               end
             end
