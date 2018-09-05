@@ -251,7 +251,8 @@ class Collection < ApplicationRecord
       unless doc[element.indexed_field]&.respond_to?(:each)
         doc[element.indexed_field] = []
       end
-      doc[element.indexed_field] << element.value[0..ElasticsearchClient::MAX_KEYWORD_FIELD_LENGTH]
+      doc[element.indexed_field] <<
+          StringUtils.strip_leading_articles(element.value)[0..ElasticsearchClient::MAX_KEYWORD_FIELD_LENGTH]
 
       # If the element is set as indexed in the collection's metadata profile,
       # of if the collection doesn't have a metadata profile, add its value to

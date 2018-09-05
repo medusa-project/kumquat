@@ -439,12 +439,11 @@ class Item < ApplicationRecord
 
     # Index metadata elements into dynamic fields.
     self.elements.select{ |e| e.value.present? }.each do |element|
-      # ES will automatically create a one or more multi fields for this.
-      # See: https://www.elastic.co/guide/en/elasticsearch/reference/0.90/mapping-multi-field-type.html
       unless doc[element.indexed_field]&.respond_to?(:each)
         doc[element.indexed_field] = []
       end
-      doc[element.indexed_field] << element.value[0..ElasticsearchClient::MAX_KEYWORD_FIELD_LENGTH]
+      doc[element.indexed_field] <<
+          StringUtils.strip_leading_articles(element.value)[0..ElasticsearchClient::MAX_KEYWORD_FIELD_LENGTH]
 
       # If the element is set as indexed in the collection's metadata profile,
       # or if the collection doesn't have a metadata profile, add its value to
@@ -464,7 +463,8 @@ class Item < ApplicationRecord
         unless doc[element.parent_indexed_field]&.respond_to?(:each)
           doc[element.parent_indexed_field] = []
         end
-        doc[element.parent_indexed_field] << element.value[0..ElasticsearchClient::MAX_KEYWORD_FIELD_LENGTH]
+        doc[element.parent_indexed_field] <<
+            StringUtils.strip_leading_articles(element.value)[0..ElasticsearchClient::MAX_KEYWORD_FIELD_LENGTH]
       end
     end
 

@@ -7,7 +7,7 @@ class CollectionTest < ActiveSupport::TestCase
     assert @collection.valid?
 
     ElasticsearchIndex.migrate_to_latest
-    ElasticsearchClient.instance.recreate_all_indexes
+    ElasticsearchClient.instance.recreate_all_indexes rescue nil
   end
 
   # from_medusa()
@@ -43,7 +43,7 @@ class CollectionTest < ActiveSupport::TestCase
 
   # as_indexed_json()
 
-  test 'as_indexed_json() returns the correct structure' do
+  test 'as_indexed_json returns the correct structure' do
     doc = @collection.as_indexed_json
 
     assert_equal @collection.access_systems,
@@ -91,7 +91,7 @@ class CollectionTest < ActiveSupport::TestCase
     assert_not_empty doc[Collection::IndexFields::SEARCH_ALL]
 
     @collection.elements.each do |element|
-      assert_equal element.value, doc[element.indexed_field]
+      assert_equal [element.value], doc[element.indexed_field]
     end
   end
 
