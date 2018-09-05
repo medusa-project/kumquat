@@ -239,7 +239,7 @@ class ItemsController < WebsiteController
       @suggestions = finder.suggestions
     end
 
-    @download_finder = ItemFinder.new.
+    download_finder = ItemFinder.new.
         user_roles(request_roles).
         collection(@collection).
         facet_filters(params[:fq]).
@@ -249,9 +249,9 @@ class ItemsController < WebsiteController
         include_children_in_results(true).
         order(Item::IndexFields::STRUCTURAL_SORT).
         start(params[:download_start]).
-        limit((params[:limit].to_i > 0) ? params[:limit].to_i : ElasticsearchClient::MAX_RESULT_WINDOW)
-    @num_downloadable_items = @download_finder.count
-    @total_byte_size = @download_finder.total_byte_size
+        limit(0)
+    @num_downloadable_items = download_finder.count
+    @total_byte_size = download_finder.total_byte_size
 
     respond_to do |format|
       format.html do
@@ -277,13 +277,16 @@ class ItemsController < WebsiteController
           }
       end
       format.zip do
+        download_finder.limit((params[:limit].to_i > 0) ?
+                                  params[:limit].to_i : ElasticsearchClient::MAX_RESULT_WINDOW)
+
         # Use the Medusa Downloader to generate a zip of items from
         # download_finder. It takes the downloader time to generate the zip
         # file manifest, which would block the web server if we did it here,
         # so the strategy is to do it using the asynchronous download feature,
         # and then stream the zip out to the user via the download button when
         # it's ready to start streaming.
-        item_ids = @download_finder.to_a.map(&:repository_id)
+        item_ids = download_finder.to_a.map(&:repository_id)
 
         if item_ids.any?
           start = params[:download_start].to_i + 1
