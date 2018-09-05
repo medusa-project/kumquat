@@ -26,6 +26,7 @@ class AbstractFinder
   #
   def aggregations(boolean)
     @aggregations = boolean
+    @loaded = false
     self
   end
 
@@ -54,6 +55,7 @@ class AbstractFinder
       else
         add_facet_filter_string(filters)
       end
+      @loaded = false
     end
     self
   end
@@ -65,6 +67,8 @@ class AbstractFinder
   #
   def bucket_limit(limit)
     @bucket_limit = limit
+    @loaded = false
+    self
   end
 
   ##
@@ -84,6 +88,7 @@ class AbstractFinder
   #
   def filter(field, value)
     @filters.merge!({ field => value })
+    @loaded = false
     self
   end
 
@@ -107,6 +112,7 @@ class AbstractFinder
   #
   def limit(limit)
     @limit = limit.to_i
+    @loaded = false
     self
   end
 
@@ -125,6 +131,7 @@ class AbstractFinder
       else
         @orders << { field: orders.to_s, direction: :asc }
       end
+      @loaded = false
     end
     self
   end
@@ -145,6 +152,7 @@ class AbstractFinder
   #
   def query(field, query)
     @query = { field: field.to_s, query: query.to_s } if query.present?
+    @loaded = false
     self
   end
 
@@ -165,6 +173,7 @@ class AbstractFinder
   #
   def start(start)
     @start = start.to_i
+    @loaded = false
     self
   end
 
@@ -189,6 +198,7 @@ class AbstractFinder
   #
   def user_roles(roles)
     @user_roles = roles.map { |r| r.kind_of?(Role) ? r.key : r }
+    @loaded = false
     self
   end
 
