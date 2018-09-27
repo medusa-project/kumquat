@@ -88,7 +88,6 @@ class CollectionTest < ActiveSupport::TestCase
                  doc[Collection::IndexFields::REPRESENTATIVE_ITEM]
     assert_equal @collection.resource_types,
                  doc[Collection::IndexFields::RESOURCE_TYPES]
-    assert_not_empty doc[Collection::IndexFields::SEARCH_ALL]
 
     @collection.elements.each do |element|
       assert_equal element.value, doc[element.indexed_field]

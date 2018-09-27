@@ -218,7 +218,6 @@ class Collection < ApplicationRecord
   #
   def as_indexed_json(options = {})
     doc = {}
-    search_all_values = []
     doc[IndexFields::ACCESS_SYSTEMS] = self.access_systems
     doc[IndexFields::ACCESS_URL] = self.access_url
     doc[IndexFields::ALLOWED_ROLES] = self.allowed_roles.pluck(:key)
@@ -248,21 +247,17 @@ class Collection < ApplicationRecord
     doc[IndexFields::RESOURCE_TYPES] = self.resource_types
 
     self.elements.each do |element|
+      # Skip non-indexable elements. Elements are considered indexable if they
+      # are marked as indexed in the collection's metadata profile, or if the
+      # collection doesn't have a metadata profile.
+      next unless (!self.metadata_profile or self.metadata_profile.elements.
+          select{ |mpe| mpe.name == element.name }.first&.indexed)
+
       unless doc[element.indexed_field]&.respond_to?(:each)
         doc[element.indexed_field] = []
       end
       doc[element.indexed_field] << element.value[0..ElasticsearchClient::MAX_KEYWORD_FIELD_LENGTH]
-
-      # If the element is set as indexed in the collection's metadata profile,
-      # of if the collection doesn't have a metadata profile, add its value to
-      # the search-all field.
-      if !self.metadata_profile or self.metadata_profile.elements.
-          select{ |mpe| mpe.name == element.name }.first&.indexed
-        search_all_values << doc[element.indexed_field]
-      end
     end
-
-    doc[IndexFields::SEARCH_ALL] = search_all_values.join(' ')
 
     doc
   end

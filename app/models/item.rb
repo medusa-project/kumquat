@@ -402,7 +402,6 @@ class Item < ApplicationRecord
   #
   def as_indexed_json(options = {})
     doc = {}
-    search_all_values = []
     doc[IndexFields::COLLECTION] = self.collection_repository_id
     doc[IndexFields::DATE] = self.date.utc.iso8601 if self.date
     doc[IndexFields::DESCRIBED] = self.described?
@@ -439,21 +438,19 @@ class Item < ApplicationRecord
 
     # Index metadata elements into dynamic fields.
     self.elements.select{ |e| e.value.present? }.each do |element|
+      # Skip non-indexable elements. Elements are considered indexable if they
+      # are marked as indexed in the collection's metadata profile, or if the
+      # collection doesn't have a metadata profile.
+      next unless (!self.collection&.metadata_profile or
+          self.collection&.metadata_profile.elements.
+              select{ |mpe| mpe.name == element.name }.first&.indexed)
+
       # ES will automatically create a one or more multi fields for this.
       # See: https://www.elastic.co/guide/en/elasticsearch/reference/0.90/mapping-multi-field-type.html
       unless doc[element.indexed_field]&.respond_to?(:each)
         doc[element.indexed_field] = []
       end
       doc[element.indexed_field] << element.value[0..ElasticsearchClient::MAX_KEYWORD_FIELD_LENGTH]
-
-      # If the element is set as indexed in the collection's metadata profile,
-      # or if the collection doesn't have a metadata profile, add its value to
-      # the search-all field.
-      if !self.collection&.metadata_profile or
-          self.collection&.metadata_profile.elements.
-              select{ |mpe| mpe.name == element.name }.first&.indexed
-        search_all_values << doc[element.indexed_field]
-      end
     end
 
     # We also need to index parent metadata fields. These are needed when we
@@ -467,8 +464,6 @@ class Item < ApplicationRecord
         doc[element.parent_indexed_field] << element.value[0..ElasticsearchClient::MAX_KEYWORD_FIELD_LENGTH]
       end
     end
-
-    doc[IndexFields::SEARCH_ALL] = search_all_values.join(' ')
 
     doc
   end
