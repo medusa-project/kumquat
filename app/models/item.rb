@@ -297,13 +297,12 @@ class Item < ApplicationRecord
   # @return [void]
   #
   def self.reindex_all(index = :current)
-    num_items = Item.count
+    count = Item.count
+    start_time = Time.now
     Item.uncached do
       Item.all.find_each.with_index do |item, i|
         item.reindex(index)
-
-        pct_complete = (i / num_items.to_f) * 100
-        puts "Item.reindex_all(): #{pct_complete.round(2)}%"
+        StringUtils.print_progress(start_time, i, count, 'Indexing items')
       end
     end
   end
