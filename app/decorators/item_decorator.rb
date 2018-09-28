@@ -38,10 +38,24 @@ class ItemDecorator < Draper::Decorator
         variant: object.variant,
         representative_item_uri: object.representative_item ?
             item_url(object.representative_item, format: :json) : nil,
-        # Convenience key for Metaslurp
-        effective_representative_image_uri: object.effective_image_binary ?
-            binary_url(object.effective_image_binary) : nil,
-        # Convenience key for Metaslurp
+        # Convenience key for Metaslurper
+        representative_images: object.effective_image_binary ? {
+            full: {
+                '128': "#{object.effective_image_binary.iiif_image_url}/full/!128,128/0/default.jpg",
+                '256': "#{object.effective_image_binary.iiif_image_url}/full/!256,256/0/default.jpg",
+                '512': "#{object.effective_image_binary.iiif_image_url}/full/!512,512/0/default.jpg",
+                '1024': "#{object.effective_image_binary.iiif_image_url}/full/!1024,1024/0/default.jpg",
+                '2048': "#{object.effective_image_binary.iiif_image_url}/full/!2048,2048/0/default.jpg"
+            },
+            square: {
+                '128': "#{object.effective_image_binary.iiif_image_url}/square/!128,128/0/default.jpg",
+                '256': "#{object.effective_image_binary.iiif_image_url}/square/!256,256/0/default.jpg",
+                '512': "#{object.effective_image_binary.iiif_image_url}/square/!512,512/0/default.jpg",
+                '1024': "#{object.effective_image_binary.iiif_image_url}/square/!1024,1024/0/default.jpg",
+                '2048': "#{object.effective_image_binary.iiif_image_url}/square/!2048,2048/0/default.jpg"
+            }
+        } : {},
+        # Convenience key for Metaslurper
         preservation_media_type: object.binaries.
             where(master_type: Binary::MasterType::PRESERVATION).limit(1).first&.media_type,
         elements: object.elements_in_profile_order(only_visible: true).map(&:decorate),
