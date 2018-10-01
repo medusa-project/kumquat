@@ -23,7 +23,7 @@ class ItemDecorator < Draper::Decorator
   #   end
 
   def serializable_hash(opts)
-    {
+    struct = {
         class: Item.to_s,
         id: object.repository_id,
         public_uri: item_url(self),
@@ -39,22 +39,7 @@ class ItemDecorator < Draper::Decorator
         representative_item_uri: object.representative_item ?
             item_url(object.representative_item, format: :json) : nil,
         # Convenience key for Metaslurper
-        representative_images: object.effective_image_binary ? {
-            full: {
-                '128': "#{object.effective_image_binary.iiif_image_url}/full/!128,128/0/default.jpg",
-                '256': "#{object.effective_image_binary.iiif_image_url}/full/!256,256/0/default.jpg",
-                '512': "#{object.effective_image_binary.iiif_image_url}/full/!512,512/0/default.jpg",
-                '1024': "#{object.effective_image_binary.iiif_image_url}/full/!1024,1024/0/default.jpg",
-                '2048': "#{object.effective_image_binary.iiif_image_url}/full/!2048,2048/0/default.jpg"
-            },
-            square: {
-                '128': "#{object.effective_image_binary.iiif_image_url}/square/!128,128/0/default.jpg",
-                '256': "#{object.effective_image_binary.iiif_image_url}/square/!256,256/0/default.jpg",
-                '512': "#{object.effective_image_binary.iiif_image_url}/square/!512,512/0/default.jpg",
-                '1024': "#{object.effective_image_binary.iiif_image_url}/square/!1024,1024/0/default.jpg",
-                '2048': "#{object.effective_image_binary.iiif_image_url}/square/!2048,2048/0/default.jpg"
-            }
-        } : {},
+        representative_images: {},
         # Convenience key for Metaslurper
         preservation_media_type: object.binaries.
             where(master_type: Binary::MasterType::PRESERVATION).limit(1).first&.media_type,
@@ -64,6 +49,32 @@ class ItemDecorator < Draper::Decorator
         created_at: object.created_at,
         updated_at: object.updated_at,
     }
+
+    bin = object.effective_image_binary
+    if bin
+      struct[:representative_images][:full] = { full: binary_url(bin) }
+      if bin.iiif_safe?
+        min_exp = 8
+        max_exp = 12
+        (min_exp..max_exp).each do |exp|
+          size = 2 ** exp
+          if bin.width and bin.width >= size and bin.height and bin.height >= size
+            struct[:representative_images][:full][size.to_s] =
+                "#{bin.iiif_image_url}/full/!#{size},#{size}/0/default.jpg"
+          end
+        end
+
+        struct[:representative_images][:square] = {}
+        (min_exp..max_exp).each do |exp|
+          size = 2 ** exp
+          if bin.width and bin.width >= size and bin.height and bin.height >= size
+            struct[:representative_images][:square][size.to_s] =
+                "#{bin.iiif_image_url}/square/!#{size},#{size}/0/default.jpg"
+          end
+        end
+      end
+    end
+    struct
   end
 
 end
