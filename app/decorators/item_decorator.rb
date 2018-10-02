@@ -54,11 +54,11 @@ class ItemDecorator < Draper::Decorator
     if bin
       struct[:representative_images][:full] = { full: binary_url(bin) }
       if bin.iiif_safe?
-        min_exp = 8
+        min_exp = 6
         max_exp = 12
         (min_exp..max_exp).each do |exp|
           size = 2 ** exp
-          if bin.width and bin.width >= size and bin.height and bin.height >= size
+          if (bin.width and bin.width >= size) or (bin.height and bin.height >= size)
             struct[:representative_images][:full][size.to_s] =
                 "#{bin.iiif_image_url}/full/!#{size},#{size}/0/default.jpg"
           end
