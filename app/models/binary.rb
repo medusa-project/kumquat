@@ -237,14 +237,22 @@ class Binary < ApplicationRecord
   #                   image server (won't bog it down too much).
   #
   def iiif_safe?
-    max_tiff_size = 30000000 # arbitrary
-    return false if self.repository_relative_pathname.blank?
-    return false unless self.is_image? or self.is_pdf? or self.is_video?
-    # Large TIFF preservation masters are probably neither tiled nor
-    # multiresolution, so are going to be very inefficient to read.
-    return false if self.media_type == 'image/tiff' and
-        self.byte_size and self.byte_size > max_tiff_size
-    true
+    if self.repository_relative_pathname.present?
+      psd_types = %w(image/vnd.adobe.photoshop application/x-photoshop
+          application/photoshop application/psd image/psd)
+      if self.is_image? and !psd_types.include?(self.media_type)
+        # Large TIFF files are probably neither tiled nor multiresolution, so
+        # are going to bog down the image server in proportion to their size.
+        max_tiff_size = 25000000
+        if self.media_type == 'image/tiff' and
+            self.byte_size and self.byte_size <= max_tiff_size
+          true
+        end
+      elsif self.is_pdf? or self.is_video?
+        true
+      end
+    end
+    false
   end
 
   def infer_media_type
