@@ -83,8 +83,6 @@ class ElasticsearchClient
                   index_name,
                   class_.to_s.downcase,
                   id)
-    CustomLogger.instance.debug("ElasticsearchClient.index_document(): "\
-        "#{index_name}/#{id}")
     response = @@http_client.put(url,
                                  JSON.generate(doc),
                                  'Content-Type': 'application/json')

@@ -53,13 +53,12 @@ class Agent < ApplicationRecord
   # @return [void]
   #
   def self.reindex_all(index = :current)
+    count = Agent.count
+    start_time = Time.now
     Agent.uncached do
-      count = Agent.count
       Agent.all.find_each.with_index do |agent, i|
         agent.reindex(index)
-
-        pct_complete = (i / count.to_f) * 100
-        puts "Agent.reindex_all(): #{pct_complete.round(2)}%"
+        StringUtils.print_progress(start_time, i, count, 'Indexing agents')
       end
       # Remove indexed documents whose entities have disappeared.
       # TODO: fix this

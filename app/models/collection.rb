@@ -196,12 +196,11 @@ class Collection < ApplicationRecord
   #
   def self.reindex_all(index = :current)
     Collection.uncached do
+      start_time = Time.now
       count = Collection.count
       Collection.all.find_each.with_index do |col, i|
         col.reindex(index)
-
-        pct_complete = (i / count.to_f) * 100
-        puts "Collection.reindex_all(): #{pct_complete.round(2)}%"
+        StringUtils.print_progress(start_time, i, count, 'Indexing collections')
       end
       # Remove indexed documents whose entities have disappeared.
       # TODO: fix this
