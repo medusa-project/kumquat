@@ -7,7 +7,7 @@ class ItemTest < ActiveSupport::TestCase
     assert @item.valid?
 
     ElasticsearchIndex.migrate_to_latest
-    ElasticsearchClient.instance.recreate_all_indexes
+    ElasticsearchClient.instance.recreate_all_indexes rescue nil
   end
 
   # Item.num_free_form_files()
@@ -50,6 +50,13 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal expected, actual
   end
 
+  # all_children()
+
+  test 'all_children() should return the correct items' do
+    assert_equal items(:sanborn_obj1).items.count,
+                 items(:sanborn_obj1).all_children.count
+  end
+
   # all_files()
 
   test 'all_files() should return the correct items' do
@@ -69,7 +76,7 @@ class ItemTest < ActiveSupport::TestCase
 
   # as_indexed_json()
 
-  test 'as_indexed_json() returns the correct structure' do
+  test 'as_indexed_json returns the correct structure' do
     doc = @item.as_indexed_json
 
     assert_equal @item.collection_repository_id,
@@ -89,6 +96,8 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal @item.item_sets.pluck(:id),
                  doc[Item::IndexFields::ITEM_SETS]
     assert_not_empty doc[Item::IndexFields::LAST_INDEXED]
+    assert_equal @item.updated_at.utc.iso8601,
+                 doc[Item::IndexFields::LAST_MODIFIED]
     assert_equal({ lat: @item.latitude, lon: @item.longitude },
                  doc[Item::IndexFields::LAT_LONG])
     assert_equal(@item.parent.repository_id,
@@ -116,12 +125,11 @@ class ItemTest < ActiveSupport::TestCase
                  doc[Item::IndexFields::TOTAL_BYTE_SIZE]
     assert_equal @item.variant,
                  doc[Item::IndexFields::VARIANT]
-    assert_not_empty doc[Item::IndexFields::SEARCH_ALL]
 
     title = @item.element(:title)
-    assert_equal title.value, doc[title.indexed_field]
+    assert_equal [title.value], doc[title.indexed_field]
     description = @item.element(:description)
-    assert_equal description.value, doc[description.indexed_field]
+    assert_equal [description.value], doc[description.indexed_field]
   end
 
   # as_json()
@@ -718,7 +726,7 @@ class ItemTest < ActiveSupport::TestCase
 
   # update_from_tsv
 
-  test 'update_from_tsv should work' do
+  test 'update_from_tsv() works' do
     row = {}
     # technical elements
     row['contentdmAlias'] = 'cats'
@@ -755,7 +763,7 @@ class ItemTest < ActiveSupport::TestCase
         e.value == 'Cats' and e.vocabulary == vocabularies(:lcsh) }.length
   end
 
-  test 'update_from_tsv should raise an error if given an invalid element name' do
+  test 'update_from_tsv() raises an error when given an invalid element name' do
     row = {}
     row['Title'] = 'Cats'
     row['TotallyBogus'] = 'Felines'
@@ -765,7 +773,7 @@ class ItemTest < ActiveSupport::TestCase
     end
   end
 
-  test 'update_from_tsv should raise an error if given an invalid vocabulary prefix' do
+  test 'update_from_tsv() raises an error when given an invalid vocabulary prefix' do
     row = {}
     row['Title'] = 'Cats'
     row['bogus:Subject'] = 'Felines'
@@ -773,6 +781,25 @@ class ItemTest < ActiveSupport::TestCase
     assert_raises ArgumentError do
       @item.update_from_tsv(row)
     end
+  end
+
+  test 'update_from_tsv() raises an error when given a too-long value' do
+    row = {}
+    row['Title'] = 'A' * (ItemUpdater::MAX_TSV_VALUE_LENGTH + 1)
+
+    assert_raises ArgumentError do
+      @item.update_from_tsv(row)
+    end
+  end
+
+  # virtual_filename()
+
+  test 'virtual_filename() works properly' do
+    assert_equal @item.binaries.select{ |b| b.master_type == Binary::MasterType::PRESERVATION }.first.filename,
+                 @item.virtual_filename
+
+    @item.binaries.destroy_all
+    assert_nil @item.virtual_filename
   end
 
   # walk_tree()

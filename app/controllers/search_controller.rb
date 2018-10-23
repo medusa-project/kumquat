@@ -3,6 +3,8 @@
 #
 class SearchController < WebsiteController
 
+  MAX_RESULT_WINDOW = 100
+  MIN_RESULT_WINDOW = 10
   PERMITTED_PARAMS = [:_, :collection_id, { fq: [] }, :q, :sort, :start, :utf8]
 
   before_action :search, :set_sanitized_params
@@ -12,7 +14,10 @@ class SearchController < WebsiteController
   #
   def search
     @start = params[:start].to_i
-    @limit = Option::integer(Option::Keys::DEFAULT_RESULT_WINDOW)
+    @limit = params[:limit].to_i
+    if @limit < MIN_RESULT_WINDOW or @limit > MAX_RESULT_WINDOW
+      @limit = Option::integer(Option::Keys::DEFAULT_RESULT_WINDOW)
+    end
 
     # EntityFinder will search across entity classes and return both Items and
     # Collections.
@@ -20,12 +25,26 @@ class SearchController < WebsiteController
         user_roles(request_roles).
         # exclude all variants except File
         exclude_item_variants(*Item::Variants::all.reject{ |v| v == Item::Variants::FILE }).
-        query_all(params[:q]).
         facet_filters(params[:fq]).
         # TODO: why does the underscore cause collections to sort first, which is exactly what we want?
         order(params[:sort].present? ? params[:sort] : '_').
         start(@start).
         limit(@limit)
+
+    if params[:field].present?
+      finder = finder.query(params[:field], params[:q])
+    else
+      finder = finder.query_all(params[:q])
+    end
+
+    # These support harvesting.
+    if params[:last_modified_before].present?
+      finder = finder.last_modified_before(Time.at(params[:last_modified_before].to_i))
+    end
+    if params[:last_modified_after].present?
+      finder = finder.last_modified_after(Time.at(params[:last_modified_after].to_i))
+    end
+
     @entities = finder.to_a
     @facets = finder.facets
     @current_page = finder.page
@@ -48,11 +67,12 @@ class SearchController < WebsiteController
       format.json do
         render json: {
             start: @start,
+            limit: @limit,
             numResults: @count,
             results: @entities.map { |entity|
               {
                   id: entity.repository_id,
-                  url: url_for(entity)
+                  uri: url_for(entity)
               }
             }
         }

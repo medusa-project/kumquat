@@ -80,9 +80,22 @@ module IiifPresentationHelper
     if finder.count > 0
       canvases = finder.to_a.map { |child| iiif_canvas_for(child, true) }
     else
-      canvases = [ iiif_canvas_for(item, (item.file? or item.directory?)) ]
+      canvases = [ iiif_canvas_for(item, !(item.file? or item.directory?)) ]
     end
     canvases
+  end
+
+  ##
+  # @param collections [Enumerable<Collection>]
+  #
+  def iiif_collection_list_for(collections)
+    collections.map do |c|
+      {
+          '@id': collection_iiif_presentation_url(c),
+          '@type': 'sc:Collection',
+          label: c.title
+      }
+    end
   end
 
   ##

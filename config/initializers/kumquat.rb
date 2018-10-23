@@ -1,0 +1,1 @@
+Permission.sync_to_database

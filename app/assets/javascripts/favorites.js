@@ -52,7 +52,7 @@ var PTFavoritesView = function() {
         });
 
         $('.pagination a').on('click', function() {
-            $('.pt-results')[0].scrollIntoView({behavior: "smooth"});
+            $('.pt-results')[0].scrollIntoView({behavior: "smooth", block: "start"});
         });
     };
 

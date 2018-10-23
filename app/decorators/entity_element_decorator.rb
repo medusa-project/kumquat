@@ -20,17 +20,21 @@ class EntityElementDecorator < Draper::Decorator
     else
       profile = object.collection.metadata_profile
     end
-    profile_element = profile.elements.select{ |ed| ed.name == object.name }.first
-    {
+    struct = {
         name: object.name,
         value: object.value.present? ? object.value : nil,
         uri: object.uri.present? ? object.uri : nil,
         vocabulary: object.vocabulary&.name,
-        mappings: {
-            dc: profile_element&.dc_map.present? ? profile_element.dc_map : nil,
-            dcterms: profile_element&.dcterms_map.present? ? profile_element.dcterms_map : nil
-        }
+
     }
+    if profile
+      profile_element = profile.elements.select{ |ed| ed.name == object.name }.first
+      struct[:mappings] = {
+          dc: profile_element&.dc_map.present? ? profile_element.dc_map : nil,
+          dcterms: profile_element&.dcterms_map.present? ? profile_element.dcterms_map : nil
+      }
+    end
+    struct
   end
 
 end

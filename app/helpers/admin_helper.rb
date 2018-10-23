@@ -188,41 +188,55 @@ module AdminHelper
 
   ##
   # @param item [Item]
+  # @param options [Hash]
+  # @option options [Boolean] :include_subitems
+  # @option options [Boolean] :filenames_instead_of_titles
   #
-  def admin_structure_of_item(item)
+  def admin_structure_of_item(item, options = {})
+    include_subitems = options.keys.include?(:include_subitems) ?
+        options[:include_subitems] : true
+    filenames_instead_of_titles = options.keys.include?(:filenames_instead_of_titles) ?
+        options[:filenames_instead_of_titles] : false
+
     # 1. Build the item structure excluding parents
     html = '<ul>'
-    html += "  <li><strong>#{icon_for(item)} #{item.title}</strong>"
-    subitems = item.finder.include_unpublished(true).to_a
-    if subitems.any?
-      html += '  <ul>'
-      subitems.each do |child|
-        link = link_to(child.title,
-                       admin_collection_item_path(child.collection, child))
-        html += "  <li>#{icon_for(child)} #{link}</li>"
+    title = filenames_instead_of_titles ?
+        (item.virtual_filename || item.title) : item.title
+    html += "  <li><strong>#{icon_for(item)} #{title}</strong>"
+    if include_subitems
+      subitems = item.finder.include_unpublished(true).to_a
+      if subitems.any?
+        html += '  <ul>'
+        subitems.each do |child|
+          title = filenames_instead_of_titles ?
+              (child.virtual_filename || child.title) : child.title
+          link = link_to(title, admin_collection_item_path(child.collection, child))
+          html += "  <li>#{icon_for(child)} #{link}</li>"
+        end
+        html += '  </ul>'
       end
-      html += '  </ul>'
     end
     html += '  </li>'
     html += '</ul>'
 
     # 2. Add the item context around the item tree
-    def add_parents(item, html)
+    def add_parents(item, html, filenames_instead_of_titles)
       parent = item.parent
       phtml = html
       if parent
         phtml = '<ul>'
-        link = link_to(parent.title,
-                       admin_collection_item_path(parent.collection, parent))
+        title = filenames_instead_of_titles ?
+            (parent.virtual_filename || parent.title) : parent.title
+        link = link_to(title, admin_collection_item_path(parent.collection, parent))
         phtml += "  <li>#{icon_for(parent)} #{link}"
         phtml +=      html
         phtml += '  </li>'
         phtml += '</ul>'
-        phtml = add_parents(parent, phtml)
+        phtml = add_parents(parent, phtml, filenames_instead_of_titles)
       end
       phtml
     end
-    html = add_parents(item, html)
+    html = add_parents(item, html, filenames_instead_of_titles)
 
     raw(html)
   end
@@ -330,7 +344,7 @@ module AdminHelper
     html += "<li>#{link_to 'Home', admin_root_path}</li>"
     html += "<li>#{link_to 'Collections', admin_collections_path}</li>"
     html += "<li>#{link_to item_set.collection.title, admin_collection_path(item_set.collection)}</li>"
-    html += "<li>Sets</li>"
+    html += "<li>#{link_to 'Sets', admin_collection_path(item_set.collection)}</li>"
     html += "<li class=\"active\">#{item_set}</li>"
     html += "</ol>"
     raw(html)
@@ -377,6 +391,9 @@ module AdminHelper
 
     # Repository ID
     data << { label: 'Repository ID', value: item.repository_id }
+
+    # Database ID
+    data << { label: 'Database ID', value: item.id }
 
     # Binary filenames
     item.binaries.each do |bs|

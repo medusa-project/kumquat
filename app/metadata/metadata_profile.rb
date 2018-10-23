@@ -8,7 +8,7 @@
 # A metadata profile is like a template or view. Instead of enumerating an
 # Item's metadata elements for public display, we enumerate the elements in its
 # collection's metadata profile, and display each of its elements that match,
-# in the order defined by the profile.
+# in profile order.
 #
 class MetadataProfile < ApplicationRecord
 
@@ -49,6 +49,7 @@ class MetadataProfile < ApplicationRecord
           searchable: true,
           sortable: true,
           facetable: true,
+          indexed: true,
           dc_map: dc_map,
           dcterms_map: dcterms_map,
           vocabularies: [ Vocabulary.uncontrolled ],
@@ -101,6 +102,7 @@ class MetadataProfile < ApplicationRecord
         profile_elem.facetable = jd['facetable']
         profile_elem.visible = jd['visible']
         profile_elem.sortable = jd['sortable']
+        profile_elem.indexed = jd['indexed']
         profile_elem.dc_map = jd['dc_map']
         profile_elem.dcterms_map = jd['dcterms_map']
         jd['vocabularies'].each do |v|
@@ -174,7 +176,7 @@ class MetadataProfile < ApplicationRecord
   # @return [Enumerable<MetadataProfileElement>]
   #
   def facet_elements
-    self.elements.where(facetable: true)
+    self.elements.where(facetable: true).order(:index)
   end
 
   private

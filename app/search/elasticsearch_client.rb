@@ -8,8 +8,8 @@ class ElasticsearchClient
 
   include Singleton
 
-  MAX_KEYWORD_FIELD_LENGTH = 30000
-  MAX_RESULT_WINDOW = 10000
+  MAX_KEYWORD_FIELD_LENGTH = 10922 # bytes: 32766/3 bytes per character
+  MAX_RESULT_WINDOW = 1000000000
 
   @@http_client = HTTPClient.new
   @@logger = CustomLogger.instance
@@ -22,14 +22,27 @@ class ElasticsearchClient
   #
   def create_index(name, schema)
     @@logger.info("ElasticsearchClient.create_index(): creating #{name}...")
-    response = @@http_client.put(Configuration.instance.elasticsearch_endpoint +
-                                     '/' + name,
+    index_url = sprintf('%s/%s',
+                        Configuration.instance.elasticsearch_endpoint, name)
+    response = @@http_client.put(index_url,
                                  JSON.generate(schema),
                                  'Content-Type': 'application/json')
     if response.status == 200
       @@logger.info("ElasticsearchClient.create_index(): created #{name}")
     else
       raise IOError, "Got #{response.status} for #{name}:\n"\
+          "#{JSON.pretty_generate(JSON.parse(response.body))}"
+    end
+
+    # Increase the max result window (default is 10,000).
+    response = @@http_client.put(index_url,
+                                 '{ "index" : { "max_result_window" : 1000000 } }',
+                                 'Content-Type': 'application/json')
+    if response.status == 200
+      @@logger.info("ElasticsearchClient.create_index(): "\
+          "updated max result window for #{name}")
+    else
+      raise IOError, "Got #{response.status}:\n"\
           "#{JSON.pretty_generate(JSON.parse(response.body))}"
     end
   end
@@ -70,8 +83,6 @@ class ElasticsearchClient
                   index_name,
                   class_.to_s.downcase,
                   id)
-    CustomLogger.instance.debug("ElasticsearchClient.index_document(): "\
-        "#{index_name}/#{id}")
     response = @@http_client.put(url,
                                  JSON.generate(doc),
                                  'Content-Type': 'application/json')

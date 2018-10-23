@@ -19,10 +19,14 @@ gem 'js_cookie_rails'
 gem 'local_time'
 gem 'mimemagic'
 gem 'netaddr'
+gem 'nokogiri', '~> 1.8.2'
 gem 'omniauth'
 gem 'omniauth-shibboleth'
 gem 'pg'
-gem 'prawn' # used to generate PDFs of compound objects
+# Used to generate PDFs of compound objects. This commit fixes a frequent
+# warning about an already-initialized constant.
+# See: https://github.com/prawnpdf/prawn/issues/1024
+gem 'prawn', git: 'https://github.com/prawnpdf/prawn.git', ref: '9250c8675342872603332784f77263fcb1cf72a2'
 gem 'rails_autolink'
 gem 'sass-rails', '~> 5.0'
 gem 'therubyracer'

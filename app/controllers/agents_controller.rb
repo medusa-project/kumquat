@@ -1,8 +1,10 @@
 class AgentsController < WebsiteController
 
   ITEMS_LIMIT = 30
+  PERMITTED_PARAMS = []
 
   before_action :load_agent, only: [:items, :show]
+  before_action :set_sanitized_params
 
   ##
   # Responds to GET /agent/:id/items (XHR only)
@@ -52,6 +54,10 @@ class AgentsController < WebsiteController
     @related_objects = @related_objects.order(:repository_id).
         offset(@start).limit(@limit).to_a
 
+  end
+
+  def set_sanitized_params
+    @permitted_params = params.permit(PERMITTED_PARAMS)
   end
 
 end

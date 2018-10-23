@@ -27,10 +27,8 @@ module Admin
         ActiveRecord::Base.transaction do
           item_ids.each do |item_id|
             item = Item.find_by_repository_id(item_id)
-            item_set.items << item
-            item_set.items += item.all_children
+            item_set.add_item_and_children(item) if item
           end
-          item_set.save!
         end
 
         flash['success'] = "Added #{item_ids.length} item(s) to #{item_set}."
@@ -153,9 +151,6 @@ module Admin
             collection(@collection).
             query(params[:df], params[:q]).
             facet_filters(params[:fq])
-        if @collection.free_form?
-          finder = finder.exclude_variants(*Item::Variants::DIRECTORY)
-        end
       end
 
       finder = finder.
@@ -379,10 +374,10 @@ module Admin
     end
 
     def update
-      begin
-        item = Item.find_by_repository_id(params[:id])
-        raise ActiveRecord::RecordNotFound unless item
+      item = Item.find_by_repository_id(params[:id])
+      raise ActiveRecord::RecordNotFound unless item
 
+      begin
         # If we are updating metadata, we will need to process the elements
         # manually.
         if params[:elements].respond_to?(:each)

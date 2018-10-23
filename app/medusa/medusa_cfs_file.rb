@@ -57,7 +57,11 @@ class MedusaCfsFile < ApplicationRecord
       struct = JSON.parse(response.body)
       self.media_type = struct['content_type']
       self.repository_relative_pathname = "/#{struct['relative_pathname']}"
-      self.directory_uuid = struct['directory']['uuid']
+      if struct['directory']
+        self.directory_uuid = struct['directory']['uuid']
+      else
+        raise ArgumentError, "Unexpected JSON structure. Is #{self.url} a file?"
+      end
     end
   end
 
@@ -79,14 +83,16 @@ class MedusaCfsFile < ApplicationRecord
   # @param master_type [Binary::Type]
   # @param media_category [Binary::MediaCategory] If nil, will be inferred from
   #                                               the media type.
-  # @return [Binary] Fully initialized binary instance (not persisted).
+  # @return [Binary] Fully initialized binary instance. May be a new instance
+  #                  or an existing one, but in any case, it may contain
+  #                  changes that have not been persisted.
   #
   def to_binary(master_type, media_category = nil)
-    bin = Binary.new
+    p = '/' + self.repository_relative_pathname.reverse.chomp('/').reverse
+    bin = Binary.find_by_repository_relative_pathname(p) || Binary.new
     bin.master_type = master_type
     bin.cfs_file_uuid = self.uuid
-    bin.repository_relative_pathname =
-        '/' + self.repository_relative_pathname.reverse.chomp('/').reverse
+    bin.repository_relative_pathname = p
     # The type of the CFS file is likely to be vague, so let's see if we can do
     # better.
     bin.infer_media_type

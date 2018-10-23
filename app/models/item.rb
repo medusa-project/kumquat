@@ -98,6 +98,13 @@
 # * variant:              Like a subclass. Used to differentiate types of
 #                         items.
 #
+# Attribute Propagation
+#
+# Some item properties, such as `allowed_roles` and `denied_roles`, propagate
+# to child items in the item tree. The inherited counterparts of these
+# properties are `effective_allowed_roles` and `effective_denied_roles`. An
+# item's subtree can be updated using `propagate_heritable_properties()`.
+#
 # @see https://github.com/elastic/elasticsearch-rails/blob/master/elasticsearch-model/README.md
 #
 class Item < ApplicationRecord
@@ -108,61 +115,61 @@ class Item < ApplicationRecord
   include Representable
 
   class IndexFields
-    COLLECTION = 'collection'
-    CREATED = 'date_created'
-    DATE = 'date'
-    DESCRIBED = 'described'
-    EFFECTIVE_ALLOWED_ROLE_COUNT = 'effective_allowed_role_count'
-    EFFECTIVE_ALLOWED_ROLES = 'effective_allowed_roles'
-    EFFECTIVE_DENIED_ROLE_COUNT = 'effective_denied_role_count'
-    EFFECTIVE_DENIED_ROLES = 'effective_denied_roles'
-    ITEM_SETS = 'item_sets'
-    LAST_MODIFIED = 'last_modified'
-    LAT_LONG = 'lat_long'
-    LAST_INDEXED = 'date_last_indexed'
+    COLLECTION                   = 'k_collection'
+    CREATED                      = 'd_created'
+    DATE                         = 'd_date'
+    DESCRIBED                    = 'b_described'
+    EFFECTIVE_ALLOWED_ROLE_COUNT = 'i_effective_allowed_role_count'
+    EFFECTIVE_ALLOWED_ROLES      = 'k_effective_allowed_roles'
+    EFFECTIVE_DENIED_ROLE_COUNT  = 'i_effective_denied_role_count'
+    EFFECTIVE_DENIED_ROLES       = 'k_effective_denied_roles'
+    ITEM_SETS                    = 'i_item_sets'
+    LAST_INDEXED                 = 'd_last_indexed'
+    LAST_MODIFIED                = 'd_last_modified'
+    LAT_LONG                     = 'p_lat_long'
     # Repository ID of the item, or its parent item, if a child within a
     # compound object.
-    OBJECT_REPOSITORY_ID = 'object_repository_id'
-    PAGE_NUMBER = 'page_number'
-    PARENT_ITEM = 'parent_item'
-    PRIMARY_MEDIA_CATEGORY = 'primary_media_category'
+    OBJECT_REPOSITORY_ID         = 'k_object_repository_id'
+    PAGE_NUMBER                  = 'i_page_number'
+    PARENT_ITEM                  = 'k_parent_item'
+    PRIMARY_MEDIA_CATEGORY       = 'k_primary_media_category'
     # N.B.: An item might be published but its collection might not be, making
     # it still effectively unpublished. This will take that into account.
-    PUBLICLY_ACCESSIBLE = ElasticsearchIndex::PUBLICLY_ACCESSIBLE_FIELD
-    PUBLISHED = 'published'
-    REPOSITORY_ID = 'repository_id'
-    REPRESENTATIVE_FILENAME = 'representative_filename'
-    REPRESENTATIVE_ITEM = 'representative_item_id'
-    SEARCH_ALL = ElasticsearchIndex::SEARCH_ALL_FIELD
+    PUBLICLY_ACCESSIBLE          = ElasticsearchIndex::PUBLICLY_ACCESSIBLE_FIELD
+    PUBLISHED                    = 'b_published'
+    REPOSITORY_ID                = 'k_repository_id'
+    REPRESENTATIVE_FILENAME      = 'k_representative_filename'
+    REPRESENTATIVE_ITEM          = 'k_representative_item_id'
+    SEARCH_ALL                   = ElasticsearchIndex::SEARCH_ALL_FIELD
     # Concatenation of various compound object page components or path
     # components (see as_indexed_json()) used for sorting items grouped
     # structurally.
-    STRUCTURAL_SORT = 'structural_sort'
-    SUBPAGE_NUMBER = 'subpage_number'
-    TITLE = ItemElement.new(name: 'title').indexed_keyword_field
-    TOTAL_BYTE_SIZE = 'total_byte_size'
-    VARIANT = 'variant'
+    STRUCTURAL_SORT              = 'k_structural_sort'
+    SUBPAGE_NUMBER               = 'i_subpage_number'
+    TITLE                        = ItemElement.new(name: 'title').indexed_keyword_field
+    TOTAL_BYTE_SIZE              = 'l_total_byte_size'
+    VARIANT                      = 'k_variant'
   end
 
   ##
   # N.B. When modifying these, modify sort_key_for_variant() as well.
   #
   class Variants
-    BACK_COVER = 'BackCover'
-    COMPOSITE = 'Composite'
-    DIRECTORY = 'Directory'
-    FILE = 'File'
-    FRONT_COVER = 'FrontCover'
-    FRONT_MATTER = 'FrontMatter'
-    INDEX = 'Index'
-    INSIDE_BACK_COVER = 'InsideBackCover'
+    BACK_COVER         = 'BackCover'
+    COMPOSITE          = 'Composite'
+    DIRECTORY          = 'Directory'
+    FILE               = 'File'
+    FRONT_COVER        = 'FrontCover'
+    FRONT_MATTER       = 'FrontMatter'
+    INDEX              = 'Index'
+    INSIDE_BACK_COVER  = 'InsideBackCover'
     INSIDE_FRONT_COVER = 'InsideFrontCover'
-    KEY = 'Key'
-    PAGE = 'Page'
-    SUPPLEMENT = 'Supplement'
-    TABLE_OF_CONTENTS = 'TableOfContents'
-    THREE_D_MODEL = '3DModel'
-    TITLE = 'Title'
+    KEY                = 'Key'
+    PAGE               = 'Page'
+    SUPPLEMENT         = 'Supplement'
+    TABLE_OF_CONTENTS  = 'TableOfContents'
+    THREE_D_MODEL      = '3DModel'
+    TITLE              = 'Title'
 
     ##
     # @return [Enumerable<String>] String values of all variants.
@@ -243,10 +250,6 @@ class Item < ApplicationRecord
 
   before_save :prune_identical_elements, :set_effective_roles,
               :set_normalized_coords, :set_normalized_date
-  # This is commented out because, even though it has to happen, it is
-  # potentially very time-consuming. It will therefore need to be invoked in a
-  # background job whenever instances are updated.
-  #after_update :propagate_heritable_properties
   after_commit :index_in_elasticsearch, on: [:create, :update]
   after_commit :delete_from_elasticsearch, on: :destroy
 
@@ -294,13 +297,12 @@ class Item < ApplicationRecord
   # @return [void]
   #
   def self.reindex_all(index = :current)
-    num_items = Item.count
+    count = Item.count
+    start_time = Time.now
     Item.uncached do
       Item.all.find_each.with_index do |item, i|
         item.reindex(index)
-
-        pct_complete = (i / num_items.to_f) * 100
-        puts "Item.reindex_all(): #{pct_complete.round(2)}%"
+        StringUtils.print_progress(start_time, i, count, 'Indexing items')
       end
     end
   end
@@ -348,7 +350,9 @@ class Item < ApplicationRecord
     values = [[ nil, self.repository_id ]]
 
     results = ActiveRecord::Base.connection.exec_query(sql, 'SQL', values)
-    Item.where('repository_id IN (?)', results.map{ |row| row['repository_id'] })
+    Item.where('repository_id IN (?)', results
+                                           .select{ |row| row['repository_id'] != self.repository_id }
+                                           .map{ |row| row['repository_id'] })
   end
 
   ##
@@ -397,7 +401,6 @@ class Item < ApplicationRecord
   #
   def as_indexed_json(options = {})
     doc = {}
-    search_all_values = []
     doc[IndexFields::COLLECTION] = self.collection_repository_id
     doc[IndexFields::DATE] = self.date.utc.iso8601 if self.date
     doc[IndexFields::DESCRIBED] = self.described?
@@ -412,10 +415,11 @@ class Item < ApplicationRecord
         doc[IndexFields::EFFECTIVE_DENIED_ROLES].length
     doc[IndexFields::ITEM_SETS] = self.item_sets.pluck(:id)
     doc[IndexFields::LAST_INDEXED] = Time.now.utc.iso8601
+    doc[IndexFields::LAST_MODIFIED] = self.updated_at.utc.iso8601
     if self.latitude and self.longitude
       doc[IndexFields::LAT_LONG] = { lon: self.longitude, lat: self.latitude }
     end
-    doc[IndexFields::OBJECT_REPOSITORY_ID] = self.collection.free_form? ?
+    doc[IndexFields::OBJECT_REPOSITORY_ID] = self.collection&.free_form? ?
                                                  self.repository_id :
                                                  (self.parent_repository_id || self.repository_id)
     doc[IndexFields::PAGE_NUMBER] = self.page_number
@@ -432,19 +436,21 @@ class Item < ApplicationRecord
     doc[IndexFields::VARIANT] = self.variant
 
     # Index metadata elements into dynamic fields.
-    self.elements.each do |element|
+    self.elements.select{ |e| e.value.present? }.each do |element|
+      # Skip non-indexable elements. Elements are considered indexable if they
+      # are marked as indexed in the collection's metadata profile, or if the
+      # collection doesn't have a metadata profile.
+      next unless (!self.collection&.metadata_profile or
+          self.collection&.metadata_profile.elements.
+              select{ |mpe| mpe.name == element.name }.first&.indexed)
+
       # ES will automatically create a one or more multi fields for this.
       # See: https://www.elastic.co/guide/en/elasticsearch/reference/0.90/mapping-multi-field-type.html
-      doc[element.indexed_field] = element.value[0..ElasticsearchClient::MAX_KEYWORD_FIELD_LENGTH]
-
-      # If the element is searchable in the collection's metadata profile, or
-      # if the collection doesn't have a metadata profile, add its value to the
-      # search-all field.
-      if !self.collection.metadata_profile or
-          self.collection.metadata_profile.elements.
-              select{ |mpe| mpe.name == element.name }.first&.searchable
-        search_all_values << doc[element.indexed_field]
+      unless doc[element.indexed_field]&.respond_to?(:each)
+        doc[element.indexed_field] = []
       end
+      doc[element.indexed_field] <<
+          StringUtils.strip_leading_articles(element.value)[0..ElasticsearchClient::MAX_KEYWORD_FIELD_LENGTH]
     end
 
     # We also need to index parent metadata fields. These are needed when we
@@ -452,11 +458,13 @@ class Item < ApplicationRecord
     # children in results.
     if self.parent
       self.parent.elements.each do |element|
-        doc[element.parent_indexed_field] = element.value[0..ElasticsearchClient::MAX_KEYWORD_FIELD_LENGTH]
+        unless doc[element.parent_indexed_field]&.respond_to?(:each)
+          doc[element.parent_indexed_field] = []
+        end
+        doc[element.parent_indexed_field] <<
+            StringUtils.strip_leading_articles(element.value)[0..ElasticsearchClient::MAX_KEYWORD_FIELD_LENGTH]
       end
     end
-
-    doc[IndexFields::SEARCH_ALL] = search_all_values.join(' ')
 
     doc
   end
@@ -491,13 +499,14 @@ class Item < ApplicationRecord
   end
 
   ##
-  # @return [String, nil] URL of the instance in the library OPAC. Will be
-  #                       non-nil only if the instance's bib ID is non-nil.
+  # @return [String, nil] URL of the instance in the library's VuFind OPAC.
+  #                       Will be non-nil only if the instance's bib ID is
+  #                       non-nil.
   #
   def catalog_record_url
     bibid = self.bib_id
     bibid.present? ?
-        "http://vufind.carli.illinois.edu/vf-uiu/Record/uiu_#{bibid}" : nil
+        "http://vufind.carli.illinois.edu/vf-uiu/Record/uiu_#{bibid}/Description" : nil
   end
 
   ##
@@ -536,9 +545,8 @@ class Item < ApplicationRecord
   # @return [Boolean]
   #
   def described?
-    if self.collection.free_form?
-      return ((self.variant == Variants::DIRECTORY) or
-          self.elements.select{ |e| e.name == 'title' }.any?)
+    if self.collection&.free_form?
+      return (self.directory? or self.elements.select{ |e| e.name == 'title' }.any?)
     else
       return self.elements.reject{ |e| e.name == 'title' }.any?
     end
@@ -576,7 +584,12 @@ class Item < ApplicationRecord
         if self.variant == Variants::SUPPLEMENT
           bin = self.binaries.first
         elsif self.is_compound?
-          #bin = self.finder.limit(1).to_a.first&.effective_image_binary
+          first_child = self.finder.limit(1).to_a.first
+          # This should always be true, but just to make sure we prevent a
+          # circular reference...
+          if first_child and first_child.repository_id != self.repository_id
+            bin = first_child.effective_image_binary
+          end
         end
         if !bin or !bin.iiif_safe?
           [
@@ -875,9 +888,8 @@ class Item < ApplicationRecord
   #                                        Variants::PAGE.
   #
   def pages
-    self.items.where(variant: Variants::PAGE).
-        order(IndexFields::PAGE_NUMBER => :asc).
-        order(IndexFields::SUBPAGE_NUMBER => :asc)
+    self.items.where(variant: Variants::PAGE)
+        .order(:page_number, :subpage_number)
   end
 
   ##
@@ -920,9 +932,7 @@ class Item < ApplicationRecord
   def propagate_heritable_properties(task = nil)
     ActiveRecord::Base.transaction do
       num_items = self.items.count
-
       self.walk_tree do |item, index|
-        # Propagation will be carried out in before_save callbacks.
         item.save!
 
         if task and index % 10 == 0
@@ -937,7 +947,7 @@ class Item < ApplicationRecord
   #                   publicly accessible.
   #
   def publicly_accessible?
-    self.published and self.collection.publicly_accessible?
+    self.published and self.collection&.publicly_accessible?
   end
 
   ##
@@ -1096,11 +1106,20 @@ class Item < ApplicationRecord
   # @param row [Hash<String,String>] Item serialized as a TSV row
   # @return [Item]
   # @raises [ArgumentError] If a column heading contains an unrecognized
-  #                         element name
+  #                         element name.
   # @raises [ArgumentError] If a column heading contains an unrecognized
-  #                         vocabulary prefix
+  #                         vocabulary prefix.
+  # @raises [ArgumentError] If the row contains a value longer than the max
+  #                         allowed length.
   #
   def update_from_tsv(row)
+    if row.values.select(&:present?).map(&:length).max > ItemUpdater::MAX_TSV_VALUE_LENGTH
+      raise ArgumentError, sprintf('TSV row for item %s contains '\
+          'a value longer than %d characters. (Is it malformed?)',
+                                   self.repository_id,
+                                   ItemUpdater::MAX_TSV_VALUE_LENGTH)
+    end
+
     ActiveRecord::Base.transaction do
       # Metadata elements need to be deleted first, otherwise an update
       # wouldn't be able to remove them.
@@ -1168,6 +1187,23 @@ class Item < ApplicationRecord
       end
       self.save!
     end
+  end
+
+  ##
+  # Items don't have filenames because they aren't files, but sometimes it's
+  # necessary to present them as if they were. This makes more sense for items
+  # that have only one attached binary, like free-form items.
+  #
+  # @return [String] Filename of a preservation master, if available; or an
+  #                  access master, if available; or nil.
+  #
+  def virtual_filename
+    bin = nil
+    if self.binaries.any?
+      bin = self.binaries.select{ |b| b.master_type == Binary::MasterType::PRESERVATION }.first ||
+          self.binaries.select{ |b| b.master_type == Binary::MasterType::ACCESS }.first
+    end
+    bin&.filename
   end
 
   ##
@@ -1489,7 +1525,7 @@ class Item < ApplicationRecord
   end
 
   def zero_pad_numbers(str, padding = 16)
-    str.to_s.gsub(/\d+/) { |match| match.rjust(padding, '0') }
+    StringUtils.pad_numbers(str, '0', padding)
   end
 
 end

@@ -11,8 +11,9 @@ class ItemsController < WebsiteController
 
   MAX_RESULT_WINDOW = 100
   MIN_RESULT_WINDOW = 10
-  PERMITTED_PARAMS = [:_, :collection_id, :df, :display, { fq: [] }, :id, :q,
-                      :sort, :start, :utf8]
+  PERMITTED_PARAMS = [:_, :collection_id, :df, :display, :download_start,
+                      { fq: [] }, :format, :id, :limit, :q, :sort, :start,
+                      :utf8]
 
   before_action :enable_cors, only: [:iiif_annotation_list, :iiif_canvas,
                                      :iiif_image_resource, :iiif_layer,
@@ -238,18 +239,19 @@ class ItemsController < WebsiteController
       @suggestions = finder.suggestions
     end
 
-    @download_finder = ItemFinder.new.
+    download_finder = ItemFinder.new.
         user_roles(request_roles).
         collection(@collection).
         facet_filters(params[:fq]).
         query_all(params[:q]).
         aggregations(false).
         search_children(true).
+        include_children_in_results(true).
         order(Item::IndexFields::STRUCTURAL_SORT).
         start(params[:download_start]).
-        limit(params[:limit] || MedusaDownloaderClient::BATCH_SIZE)
-    @num_downloadable_items = @download_finder.count
-    @total_byte_size = @download_finder.total_byte_size
+        limit(0)
+    @num_downloadable_items = download_finder.count
+    @total_byte_size = download_finder.total_byte_size
 
     respond_to do |format|
       format.html do
@@ -275,21 +277,29 @@ class ItemsController < WebsiteController
           }
       end
       format.zip do
+        download_finder.limit((params[:limit].to_i > 0) ?
+                                  params[:limit].to_i : ElasticsearchClient::MAX_RESULT_WINDOW)
+
         # Use the Medusa Downloader to generate a zip of items from
         # download_finder. It takes the downloader time to generate the zip
         # file manifest, which would block the web server if we did it here,
         # so the strategy is to do it using the asynchronous download feature,
-        # and then stream the zip out to the user via the  download button when
+        # and then stream the zip out to the user via the download button when
         # it's ready to start streaming.
-        item_ids = @download_finder.to_a.map(&:repository_id)
+        item_ids = download_finder.to_a.map(&:repository_id)
 
-        start = params[:download_start].to_i + 1
-        end_ = params[:download_start].to_i + item_ids.length
-        zip_name = "items-#{start}-#{end_}"
+        if item_ids.any?
+          start = params[:download_start].to_i + 1
+          end_ = params[:download_start].to_i + item_ids.length
+          zip_name = "items-#{start}-#{end_}"
 
-        download = Download.create(ip_address: request.remote_ip)
-        DownloadZipJob.perform_later(item_ids, zip_name, download)
-        redirect_to download_url(download)
+          download = Download.create(ip_address: request.remote_ip)
+          DownloadZipJob.perform_later(item_ids, zip_name, download)
+          redirect_to download_url(download)
+        else
+          flash['error'] = 'No items to download.'
+          redirect_back fallback_location: request.fullpath
+        end
       end
     end
   end
@@ -434,12 +444,13 @@ class ItemsController < WebsiteController
                 include_variants(*Item::Variants::FILE).
                 include_children_in_results(true).to_a
           else
-            items = ItemFinder.new.
-                aggregations(false).
-                user_roles(request_roles).
-                collection(@item.collection).
-                include_variants(*Item::Variants::FILE)
-                include_children_in_results(true).to_a
+            items = ItemFinder.new
+                        .aggregations(false)
+                        .user_roles(request_roles)
+                        .collection(@item.collection)
+                        .include_variants(*Item::Variants::FILE)
+                        .include_children_in_results(true)
+                        .to_a
           end
           zip_name = 'files'
         else
@@ -450,15 +461,19 @@ class ItemsController < WebsiteController
         end
 
         item_ids = items.map(&:repository_id)
-
-        download = Download.create(ip_address: request.remote_ip)
-        case params[:contents]
-          when 'jpegs'
-            CreateZipOfJpegsJob.perform_later(item_ids, zip_name, download)
-          else
-            DownloadZipJob.perform_later(item_ids, zip_name, download)
+        if item_ids.any?
+          download = Download.create(ip_address: request.remote_ip)
+          case params[:contents]
+            when 'jpegs'
+              CreateZipOfJpegsJob.perform_later(item_ids, zip_name, download)
+            else
+              DownloadZipJob.perform_later(item_ids, zip_name, download)
+          end
+          redirect_to download_url(download)
+        else
+          flash['error'] = 'No items to download.'
+          redirect_back fallback_location: request.fullpath
         end
-        redirect_to download_url(download)
       end
     end
   end
@@ -502,7 +517,7 @@ class ItemsController < WebsiteController
         redirect_to collection_items_path(format: :json)
       end
       format.zip do
-        redirect_to collection_items_path(format: :zip, params: params)
+        redirect_to collection_items_path(format: :zip, params: @permitted_params)
       end
     end
   end
@@ -631,11 +646,29 @@ class ItemsController < WebsiteController
   end
 
   def rescue_unauthorized
-    render 'unpublished', status: :forbidden
+    respond_to do |format|
+      format.html do
+        render 'unauthorized', status: :forbidden
+      end
+      format.json do
+        render 'errors/error', status: :forbidden, locals: {
+            message: 'You are not authorized to access this item.'
+        }
+      end
+    end
   end
 
   def rescue_unpublished
-    render 'unpublished', status: :forbidden
+    respond_to do |format|
+      format.html do
+        render 'unpublished', status: :forbidden
+      end
+      format.json do
+        render 'errors/error', status: :forbidden, locals: {
+            message: 'This item is unpublished.'
+        }
+      end
+    end
   end
 
   ##

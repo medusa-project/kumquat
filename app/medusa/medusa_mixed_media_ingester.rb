@@ -68,53 +68,54 @@ class MedusaMixedMediaIngester < MedusaAbstractIngester
     check_collection(collection, PackageProfile::MIXED_MEDIA_PROFILE)
     options = options.symbolize_keys
 
-    status = { num_created: 0, num_updated: 0, num_skipped: 0 }
+    stats = { num_created: 0, num_updated: 0, num_skipped: 0 }
     directories = collection.effective_medusa_cfs_directory.directories
     num_directories = directories.length
 
-    directories.each_with_index do |top_item_dir, index|
-      # Find or create the top-level (compound object) item.
-      item = Item.find_by_repository_id(top_item_dir.uuid)
-      if item
-        @@logger.info("MedusaMixedMediaIngester.create_items(): "\
-            "skipping item #{top_item_dir.uuid}")
-        status[:num_skipped] += 1
-        next
-      else
-        @@logger.info("MedusaMixedMediaIngester.create_items(): "\
-            "creating item #{top_item_dir.uuid}")
-        item = Item.new(repository_id: top_item_dir.uuid,
-                        collection_repository_id: collection.repository_id)
-        # Assign a title of the directory name.
-        item.elements.build(name: 'title', value: top_item_dir.name)
-        status[:num_created] += 1
-      end
+    ActiveRecord::Base.transaction do
+      directories.each_with_index do |top_item_dir, index|
+        # Find or create the top-level (compound object) item.
+        item = Item.find_by_repository_id(top_item_dir.uuid)
+        if item
+          @@logger.info("MedusaMixedMediaIngester.create_items(): "\
+              "skipping item #{top_item_dir.uuid}")
+          stats[:num_skipped] += 1
+          next
+        else
+          @@logger.info("MedusaMixedMediaIngester.create_items(): "\
+              "creating item #{top_item_dir.uuid}")
+          item = Item.new(repository_id: top_item_dir.uuid,
+                          collection_repository_id: collection.repository_id)
+          # Assign a title of the directory name.
+          item.elements.build(name: 'title', value: top_item_dir.name)
+          stats[:num_created] += 1
+        end
 
-      if top_item_dir.directories.any?
-        top_item_dir.directories.each do |child_dir|
-          # If the item directory contains only one child directory, assemble
-          # the item as standalone with no children.
-          if top_item_dir.directories.length == 1
-            child = item
-          else
-            # Find or create the child item.
-            child = Item.find_by_repository_id(child_dir.uuid)
-            if child
-              @@logger.info("MedusaMixedMediaIngester.create_items(): "\
-                  "skipping child item #{child_dir.uuid}")
-              status[:num_skipped] += 1
-              next
+        if top_item_dir.directories.any?
+          top_item_dir.directories.each do |child_dir|
+            # If the item directory contains only one child directory, assemble
+            # the item as standalone with no children.
+            if top_item_dir.directories.length == 1
+              child = item
             else
-              @@logger.info("MedusaMixedMediaIngester.create_items(): "\
-                  "creating child item #{child_dir.uuid}")
-              child = Item.new(repository_id: child_dir.uuid,
-                               collection_repository_id: collection.repository_id,
-                               parent_repository_id: item.repository_id)
-              # Assign a title of the filename.
-              child.elements.build(name: 'title', value: child_dir.name)
-              status[:num_created] += 1
+              # Find or create the child item.
+              child = Item.find_by_repository_id(child_dir.uuid)
+              if child
+                @@logger.info("MedusaMixedMediaIngester.create_items(): "\
+                    "skipping child item #{child_dir.uuid}")
+                stats[:num_skipped] += 1
+                next
+              else
+                @@logger.info("MedusaMixedMediaIngester.create_items(): "\
+                    "creating child item #{child_dir.uuid}")
+                child = Item.new(repository_id: child_dir.uuid,
+                                 collection_repository_id: collection.repository_id,
+                                 parent_repository_id: item.repository_id)
+                # Assign a title of the filename.
+                child.elements.build(name: 'title', value: child_dir.name)
+                stats[:num_created] += 1
+              end
             end
-          end
 
           # Create the child item's preservation binaries.
           pres_dir = child_dir.directories.
@@ -145,10 +146,10 @@ class MedusaMixedMediaIngester < MedusaAbstractIngester
                       else
                         child.variant = Item::Variants::PAGE
                       end
-                    end
 
-                    child.update_from_embedded_metadata(options) if
-                        options[:extract_metadata]
+                      child.update_from_embedded_metadata(options) if
+                          options[:extract_metadata]
+                    end
                   end
                 else
                   msg = "Preservation directory #{pres_type_dir.uuid} has no files."
@@ -165,72 +166,73 @@ class MedusaMixedMediaIngester < MedusaAbstractIngester
             @@logger.warn("MedusaMixedMediaIngester.create_items(): #{msg}")
           end
 
-          # Create the child's access binaries.
-          access_dir = child_dir.directories.select{ |d| d.name == 'access' }.first
-          if access_dir
-            if access_dir.directories.any?
-              access_dir.directories.each do |access_type_dir|
-                if access_type_dir.files.any?
-                  access_type_dir.files.each_with_index do |access_file, afi|
-                    # Create the access master binary.
-                    binary = access_file.to_binary(Binary::MasterType::ACCESS,
-                                                   media_category_for_master_type(access_type_dir.name))
-                    child.binaries << binary
+            # Create the child's access binaries.
+            access_dir = child_dir.directories.select{ |d| d.name == 'access' }.first
+            if access_dir
+              if access_dir.directories.any?
+                access_dir.directories.each do |access_type_dir|
+                  if access_type_dir.files.any?
+                    access_type_dir.files.each_with_index do |access_file, afi|
+                      # Create the access master binary.
+                      binary = access_file.to_binary(Binary::MasterType::ACCESS,
+                                                     media_category_for_master_type(access_type_dir.name))
+                      child.binaries << binary
 
-                    if afi == 0 and access_type_dir.name == 'images'
-                      child.representative_binary = binary
+                      if afi == 0 and access_type_dir.name == 'images'
+                        child.representative_binary = binary
+                      end
                     end
+                  else
+                    msg = "Access directory #{access_type_dir.uuid} has no files."
+                    @@logger.warn("MedusaMixedMediaIngester.create_items(): #{msg}")
                   end
-                else
-                  msg = "Access directory #{access_type_dir.uuid} has no files."
-                  @@logger.warn("MedusaMixedMediaIngester.create_items(): #{msg}")
                 end
+              else
+                msg = "Access directory #{pres_dir.uuid} has no subdirectories."
+                @@logger.warn("MedusaMixedMediaIngester.create_items(): #{msg}")
               end
             else
-              msg = "Access directory #{pres_dir.uuid} has no subdirectories."
+              msg = "Directory #{child_dir.uuid} is missing an access "\
+                "directory."
               @@logger.warn("MedusaMixedMediaIngester.create_items(): #{msg}")
             end
-          else
-            msg = "Directory #{child_dir.uuid} is missing an access "\
-              "directory."
-            @@logger.warn("MedusaMixedMediaIngester.create_items(): #{msg}")
-          end
 
-          supp_dir = child_dir.directories.
-              select{ |d| d.name == 'supplementary' }.first
-          if supp_dir
-            supp_dir.files.each do |supp_file|
-              # Find or create the supplementary item.
-              child = Item.find_by_repository_id(supp_file.uuid)
-              if child
-                @@logger.info("MedusaMixedMediaIngester.create_items(): "\
-                    "skipping supplementary item #{supp_file.uuid}")
-                status[:num_skipped] += 1
-              else
-                @@logger.info("MedusaMixedMediaIngester.create_items(): "\
-                    "creating supplementary item #{supp_file.uuid}")
-                child = Item.new(repository_id: supp_file.uuid,
-                                 collection_repository_id: collection.repository_id,
-                                 parent_repository_id: item.repository_id,
-                                 variant: Item::Variants::SUPPLEMENT)
-                # Assign a title of the filename.
-                child.elements.build(name: 'title', value: supp_file.name)
-                child.binaries << supp_file.to_binary(Binary::MasterType::PRESERVATION)
-                child.save!
-                status[:num_created] += 1
+            supp_dir = child_dir.directories.
+                select{ |d| d.name == 'supplementary' }.first
+            if supp_dir
+              supp_dir.files.each do |supp_file|
+                # Find or create the supplementary item.
+                child = Item.find_by_repository_id(supp_file.uuid)
+                if child
+                  @@logger.info("MedusaMixedMediaIngester.create_items(): "\
+                      "skipping supplementary item #{supp_file.uuid}")
+                  stats[:num_skipped] += 1
+                else
+                  @@logger.info("MedusaMixedMediaIngester.create_items(): "\
+                      "creating supplementary item #{supp_file.uuid}")
+                  child = Item.new(repository_id: supp_file.uuid,
+                                   collection_repository_id: collection.repository_id,
+                                   parent_repository_id: item.repository_id,
+                                   variant: Item::Variants::SUPPLEMENT)
+                  # Assign a title of the filename.
+                  child.elements.build(name: 'title', value: supp_file.name)
+                  child.binaries << supp_file.to_binary(Binary::MasterType::PRESERVATION)
+                  child.save!
+                  stats[:num_created] += 1
+                end
               end
             end
+
+            child.save!
           end
-
-          child.save!
         end
+
+        item.save!
+
+        task.update(percent_complete: index / num_directories.to_f) if task
       end
-
-      item.save!
-
-      task.update(percent_complete: index / num_directories.to_f) if task
     end
-    status
+    stats
   end
 
   ##
@@ -249,26 +251,30 @@ class MedusaMixedMediaIngester < MedusaAbstractIngester
     # Compile a list of all item UUIDs currently in the Medusa file group.
     medusa_items = items_in(collection.effective_medusa_cfs_directory)
     @@logger.debug("MedusaMixedMediaIngester.delete_missing_items(): "\
-        "#{medusa_items.length} items in CFS directory")
+          "#{medusa_items.length} items in CFS directory")
+
+    stats = { num_deleted: 0 }
 
     # For each DLS item in the collection, if it's no longer contained in the
     # file group, delete it.
-    status = { num_deleted: 0 }
     items = Item.where(collection_repository_id: collection.repository_id)
     num_items = items.count
-    items.each_with_index do |item, index|
-      unless medusa_items.include?(item.repository_id)
-        @@logger.info("MedusaMixedMediaIngester.delete_missing_items(): "\
-          "deleting #{item.repository_id}")
-        item.destroy!
-        status[:num_deleted] += 1
-      end
 
-      if task and index % 10 == 0
-        task.update(percent_complete: index / num_items.to_f)
+    ActiveRecord::Base.transaction do
+      items.each_with_index do |item, index|
+        unless medusa_items.include?(item.repository_id)
+          @@logger.info("MedusaMixedMediaIngester.delete_missing_items(): "\
+            "deleting #{item.repository_id}")
+          item.destroy!
+          stats[:num_deleted] += 1
+        end
+
+        if task and index % 10 == 0
+          task.update(percent_complete: index / num_items.to_f)
+        end
       end
     end
-    status
+    stats
   end
 
   ##
@@ -285,138 +291,140 @@ class MedusaMixedMediaIngester < MedusaAbstractIngester
   def recreate_binaries(collection, task = nil)
     check_collection(collection, PackageProfile::MIXED_MEDIA_PROFILE)
 
-    stats = { num_created: 0 }
     directories = collection.effective_medusa_cfs_directory.directories
     num_directories = directories.length
 
-    directories.each_with_index do |top_item_dir, index|
-      # Find the top-level (compound object) item.
-      item = Item.find_by_repository_id(top_item_dir.uuid)
-      if item
-        item.binaries.destroy_all # it shouldn't have any anyway
-        item.save!
-      end
+    stats = { num_created: 0 }
 
-      if top_item_dir.directories.any?
-        top_item_dir.directories.each do |child_dir|
-          # If the item directory contains only one child directory, assemble
-          # the item as standalone with no children.
-          if top_item_dir.directories.length == 1
-            child = item
-          else
-            # Find the child item.
-            child = Item.find_by_repository_id(child_dir.uuid)
-          end
+    ActiveRecord::Base.transaction do
+      directories.each_with_index do |top_item_dir, index|
+        # Find the top-level (compound object) item.
+        item = Item.find_by_repository_id(top_item_dir.uuid)
+        if item
+          item.binaries.destroy_all # it shouldn't have any anyway
+          item.save!
+        end
 
-          if child
-            @@logger.info("MedusaCompoundObjectIngester.recreate_binaries(): "\
-                      "updating child item #{child.repository_id}")
-            child.binaries.destroy_all
-
-            # Create the child item's preservation binaries.
-            pres_dir = child_dir.directories.
-                select{ |d| d.name == 'preservation' }.first
-            if pres_dir
-              if pres_dir.directories.any?
-                pres_dir.directories.each do |pres_type_dir|
-                  if pres_type_dir.files.any?
-                    pres_type_dir.files.each do |pres_file|
-                      # Create the preservation master binary.
-                      child.binaries << pres_file.
-                          to_binary(Binary::MasterType::PRESERVATION,
-                                    media_category_for_master_type(pres_type_dir.name))
-                      stats[:num_created] += 1
-                    end
-                  else
-                    msg = "Preservation directory #{pres_type_dir.uuid} has no files."
-                    @@logger.warn("MedusaMixedMediaIngester.recreate_binaries(): #{msg}")
-                  end
-                end
-              else
-                msg = "Preservation directory #{pres_dir.uuid} has no subdirectories."
-                @@logger.warn("MedusaMixedMediaIngester.recreate_binaries(): #{msg}")
-              end
+        if top_item_dir.directories.any?
+          top_item_dir.directories.each do |child_dir|
+            # If the item directory contains only one child directory, assemble
+            # the item as standalone with no children.
+            if top_item_dir.directories.length == 1
+              child = item
             else
-              msg = "Directory #{child_dir.uuid} is missing a preservation "\
-              "directory."
-              @@logger.warn("MedusaMixedMediaIngester.recreate_binaries(): #{msg}")
+              # Find the child item.
+              child = Item.find_by_repository_id(child_dir.uuid)
             end
 
-            # Create the child's access binaries.
-            access_dir = child_dir.directories.
-                select{ |d| d.name == 'access' }.first
-            if access_dir
-              if access_dir.directories.any?
-                access_dir.directories.each do |access_type_dir|
-                  if access_type_dir.files.any?
-                    access_type_dir.files.each_with_index do |access_file, afi|
-                      # Create the access master binary.
-                      binary = access_file.to_binary(Binary::MasterType::ACCESS,
-                                                     media_category_for_master_type(access_type_dir.name))
-                      child.binaries << binary
+            if child
+              @@logger.info("MedusaCompoundObjectIngester.recreate_binaries(): "\
+                        "updating child item #{child.repository_id}")
+              child.binaries.destroy_all
 
-                      if afi == 0 and access_type_dir.name == 'images'
-                        child.representative_binary = binary
+              # Create the child item's preservation binaries.
+              pres_dir = child_dir.directories.
+                  select{ |d| d.name == 'preservation' }.first
+              if pres_dir
+                if pres_dir.directories.any?
+                  pres_dir.directories.each do |pres_type_dir|
+                    if pres_type_dir.files.any?
+                      pres_type_dir.files.each do |pres_file|
+                        # Create the preservation master binary.
+                        child.binaries << pres_file.
+                            to_binary(Binary::MasterType::PRESERVATION,
+                                      media_category_for_master_type(pres_type_dir.name))
+                        stats[:num_created] += 1
                       end
-                      stats[:num_created] += 1
+                    else
+                      msg = "Preservation directory #{pres_type_dir.uuid} has no files."
+                      @@logger.warn("MedusaMixedMediaIngester.recreate_binaries(): #{msg}")
                     end
-                  else
-                    msg = "Access directory #{access_type_dir.uuid} has no files."
-                    @@logger.warn("MedusaMixedMediaIngester.recreate_binaries(): #{msg}")
                   end
-                end
-              else
-                msg = "Access directory #{pres_dir.uuid} has no subdirectories."
-                @@logger.warn("MedusaMixedMediaIngester.recreate_binaries(): #{msg}")
-              end
-            else
-              msg = "Directory #{child_dir.uuid} is missing an access "\
-                "directory."
-              @@logger.warn("MedusaMixedMediaIngester.recreate_binaries(): #{msg}")
-            end
-
-            # Create the child's supplementary binaries.
-            supp_dir = child_dir.directories.
-                select{ |d| d.name == 'supplementary' }.first
-            if supp_dir
-              supp_dir.files.each do |supp_file|
-                item = Item.find_by_repository_id(supp_file.uuid)
-                if item
-                  item.binaries.destroy_all
-                  item.binaries << supp_file.to_binary(Binary::MasterType::PRESERVATION)
-                  item.save!
-                  stats[:num_created] += 1
                 else
-                  msg = "Supplementary file #{supp_file.uuid} is missing an "\
-                      "item counterpart."
+                  msg = "Preservation directory #{pres_dir.uuid} has no subdirectories."
                   @@logger.warn("MedusaMixedMediaIngester.recreate_binaries(): #{msg}")
                 end
+              else
+                msg = "Directory #{child_dir.uuid} is missing a preservation "\
+                "directory."
+                @@logger.warn("MedusaMixedMediaIngester.recreate_binaries(): #{msg}")
               end
-            end
 
-            child.save!
-          else
-            msg = "No item for directory: #{top_item_dir.uuid}"
-            @@logger.warn("MedusaMixedMediaIngester.recreate_binaries(): #{msg}")
+              # Create the child's access binaries.
+              access_dir = child_dir.directories.
+                  select{ |d| d.name == 'access' }.first
+              if access_dir
+                if access_dir.directories.any?
+                  access_dir.directories.each do |access_type_dir|
+                    if access_type_dir.files.any?
+                      access_type_dir.files.each_with_index do |access_file, afi|
+                        # Create the access master binary.
+                        binary = access_file.to_binary(Binary::MasterType::ACCESS,
+                                                       media_category_for_master_type(access_type_dir.name))
+                        child.binaries << binary
+
+                        if afi == 0 and access_type_dir.name == 'images'
+                          child.representative_binary = binary
+                        end
+                        stats[:num_created] += 1
+                      end
+                    else
+                      msg = "Access directory #{access_type_dir.uuid} has no files."
+                      @@logger.warn("MedusaMixedMediaIngester.recreate_binaries(): #{msg}")
+                    end
+                  end
+                else
+                  msg = "Access directory #{pres_dir.uuid} has no subdirectories."
+                  @@logger.warn("MedusaMixedMediaIngester.recreate_binaries(): #{msg}")
+                end
+              else
+                msg = "Directory #{child_dir.uuid} is missing an access "\
+                  "directory."
+                @@logger.warn("MedusaMixedMediaIngester.recreate_binaries(): #{msg}")
+              end
+
+              # Create the child's supplementary binaries.
+              supp_dir = child_dir.directories.
+                  select{ |d| d.name == 'supplementary' }.first
+              if supp_dir
+                supp_dir.files.each do |supp_file|
+                  item = Item.find_by_repository_id(supp_file.uuid)
+                  if item
+                    item.binaries.destroy_all
+                    item.binaries << supp_file.to_binary(Binary::MasterType::PRESERVATION)
+                    item.save!
+                    stats[:num_created] += 1
+                  else
+                    msg = "Supplementary file #{supp_file.uuid} is missing an "\
+                        "item counterpart."
+                    @@logger.warn("MedusaMixedMediaIngester.recreate_binaries(): #{msg}")
+                  end
+                end
+              end
+
+              child.save!
+            else
+              msg = "No item for directory: #{top_item_dir.uuid}"
+              @@logger.warn("MedusaMixedMediaIngester.recreate_binaries(): #{msg}")
+            end
           end
+        else
+          msg = "Directory #{top_item_dir.uuid} has no subdirectories."
+          @@logger.warn("MedusaMixedMediaIngester.recreate_binaries(): #{msg}")
         end
-      else
-        msg = "Directory #{top_item_dir.uuid} has no subdirectories."
-        @@logger.warn("MedusaMixedMediaIngester.recreate_binaries(): #{msg}")
+
+        task.update(percent_complete: index / num_directories.to_f) if task
       end
 
-      task.update(percent_complete: index / num_directories.to_f) if task
-    end
-    stats
-
-    # The binaries have been updated, but the image server may still have
-    # cached versions of the old ones. Here, we will purge them.
-    collection.items.each do |item|
-      begin
-        ImageServer.instance.purge_item_images_from_cache(item)
-      rescue => e
-        @@logger.error("MedusaMixedMediaIngester.recreate_binaries(): "\
+      # The binaries have been updated, but the image server may still have
+      # cached versions of the old ones. Here, we will purge them.
+      collection.items.each do |item|
+        begin
+          ImageServer.instance.purge_item_images_from_cache(item)
+        rescue => e
+          @@logger.error("MedusaMixedMediaIngester.recreate_binaries(): "\
             "failed to purge item from image server cache: #{e}")
+        end
       end
     end
     stats

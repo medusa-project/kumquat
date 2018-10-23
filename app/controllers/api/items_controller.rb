@@ -51,7 +51,7 @@ module Api
       render json: {
           start: @start,
           limit: @limit,
-          numResults: @items.count,
+          numResults: @count,
           results: @items.select(&:present?).map { |item|
             {
                 id: item.repository_id,

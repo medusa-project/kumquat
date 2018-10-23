@@ -25,6 +25,26 @@ class ItemSet < ActiveRecord::Base
   accepts_nested_attributes_for :users
 
   ##
+  # @param item [Item]
+  #
+  def add_item_and_children(item)
+    ActiveRecord::Base.transaction do
+      # Add the item.
+      if self.items.where(repository_id: item.repository_id).count < 1
+        self.items << item
+      end
+
+      # Add all of its children.
+      item.all_children.each do |child|
+        if self.items.where(repository_id: child.repository_id).count < 1
+          self.items << child
+        end
+      end
+      self.save!
+    end
+  end
+
+  ##
   # @return [Collection]
   #
   def collection
@@ -44,6 +64,7 @@ class ItemSet < ActiveRecord::Base
           @num_objects = ItemFinder.new.
               item_set(self).
               aggregations(false).
+              include_unpublished(true).
               search_children(false).
               include_variants(*Item::Variants::FILE).
               limit(0).
@@ -52,6 +73,7 @@ class ItemSet < ActiveRecord::Base
           @num_objects = ItemFinder.new.
               item_set(self).
               aggregations(false).
+              include_unpublished(true).
               search_children(false).
               limit(0).
               count

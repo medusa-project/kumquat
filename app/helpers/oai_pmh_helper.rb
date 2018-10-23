@@ -78,7 +78,6 @@ module OaiPmhHelper
         'xmlns:oai_qdc' => 'http://oclc.org/appqualifieddc/',
         'xmlns:dc' => 'http://purl.org/dc/elements/1.1/',
         'xmlns:dcterms' => 'http://purl.org/dc/terms/',
-        'xmlns:edm' => 'http://www.europeana.eu/schemas/edm/',
         'xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance',
         'xsi:schemaLocation' => 'http://oclc.org/appqualifieddc/ '\
                       'http://dublincore.org/schemas/xmls/qdc/2003/04/02/appqualifieddc.xsd'
@@ -92,6 +91,13 @@ module OaiPmhHelper
             dc_element = DublinCoreElement.all.select{ |e| e.name == dcterms_element }.first
             if dc_element
               xml.tag!("dc:#{dc_element.name}", ie.value)
+
+              # If the element is `rights` and the ItemElement contains a URI,
+              # add another element for that. This was requested by
+              # lampron2@illinois.edu.
+              if dc_element.name == 'rights' and ie.uri.present?
+                xml.tag!("dc:#{dc_element.name}", ie.uri)
+              end
             else
               xml.tag!("dcterms:#{dcterms_element}", ie.value)
             end
@@ -105,7 +111,7 @@ module OaiPmhHelper
       # Add a thumbnail URI, if the item has a representative image. This was
       # requested by mhan3@illinois.edu.
       image_url = item_image_url(item, :full, 150, :jpg)
-      xml.tag!('edm:preview', image_url) if image_url
+      xml.tag!('edm:preview', { 'xmlns:edm' => 'http://www.europeana.eu/schemas/edm/' }, image_url) if image_url
 
       # Add a link to the IIIF presentation manifest.
       xml.tag!('dcterms:isReferencedBy', item_iiif_manifest_url(item))

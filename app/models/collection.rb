@@ -76,6 +76,12 @@
 #                             TODO: store this in an accessRights CollectionElement
 # * updated_at:               Managed by ActiveRecord.
 #
+# Attribute Propagation
+#
+# Changes to some of a collection's properties, such as `allowed_roles` and
+# `denied_roles`, must be propagated to all of its items. This can be done
+# using `propagate_heritable_properties()`.
+#
 # @see https://github.com/elastic/elasticsearch-rails/blob/master/elasticsearch-model/README.md
 #
 class Collection < ApplicationRecord
@@ -86,27 +92,32 @@ class Collection < ApplicationRecord
   include Representable
 
   class IndexFields
-    ACCESS_SYSTEMS = 'access_systems'
-    ACCESS_URL = 'access_url'
-    ALLOWED_ROLE_COUNT = 'allowed_role_count'
-    ALLOWED_ROLES = 'allowed_roles'
-    DENIED_ROLE_COUNT = 'denied_role_count'
-    DENIED_ROLES = 'denied_roles'
-    DESCRIPTION = CollectionElement.new(name: 'description').indexed_field
-    EXTERNAL_ID = 'external_id'
-    HARVESTABLE = 'harvestable'
-    LAST_INDEXED = 'date_last_indexed'
-    PARENT_COLLECTIONS = 'parent_collections'
-    PUBLIC_IN_MEDUSA = 'public_in_medusa'
-    PUBLICLY_ACCESSIBLE = ElasticsearchIndex::PUBLICLY_ACCESSIBLE_FIELD
-    PUBLISHED_IN_DLS = 'published_in_dls'
-    REPOSITORY_ID = 'repository_id'
-    REPOSITORY_TITLE = 'repository_title'
-    REPRESENTATIVE_IMAGE = 'representative_image'
-    REPRESENTATIVE_ITEM = 'representative_item'
-    RESOURCE_TYPES = 'resource_types'
-    SEARCH_ALL = ElasticsearchIndex::SEARCH_ALL_FIELD
-    TITLE = CollectionElement.new(name: 'title').indexed_keyword_field
+    ACCESS_SYSTEMS               = 'k_access_systems'
+    ACCESS_URL                   = 'k_access_url'
+    ALLOWED_ROLE_COUNT           = 'i_allowed_role_count'
+    ALLOWED_ROLES                = 'k_allowed_roles'
+    DENIED_ROLE_COUNT            = 'i_denied_role_count'
+    DENIED_ROLES                 = 'k_denied_roles'
+    DESCRIPTION                  = CollectionElement.new(name: 'description').indexed_field
+    EFFECTIVE_ALLOWED_ROLE_COUNT = 'i_effective_allowed_role_count'
+    EFFECTIVE_ALLOWED_ROLES      = 'k_effective_allowed_roles'
+    EFFECTIVE_DENIED_ROLE_COUNT  = 'i_effective_denied_role_count'
+    EFFECTIVE_DENIED_ROLES       = 'k_effective_denied_roles'
+    EXTERNAL_ID                  = 'k_external_id'
+    HARVESTABLE                  = 'b_harvestable'
+    LAST_INDEXED                 = 'd_last_indexed'
+    LAST_MODIFIED                = 'd_last_modified'
+    PARENT_COLLECTIONS           = 'k_parent_collections'
+    PUBLIC_IN_MEDUSA             = 'b_public_in_medusa'
+    PUBLICLY_ACCESSIBLE          = ElasticsearchIndex::PUBLICLY_ACCESSIBLE_FIELD
+    PUBLISHED_IN_DLS             = 'b_published_in_dls'
+    REPOSITORY_ID                = 'k_repository_id'
+    REPOSITORY_TITLE             = 'k_repository_title'
+    REPRESENTATIVE_IMAGE         = 'k_representative_image'
+    REPRESENTATIVE_ITEM          = 'k_representative_item'
+    RESOURCE_TYPES               = 'k_resource_types'
+    SEARCH_ALL                   = ElasticsearchIndex::SEARCH_ALL_FIELD
+    TITLE                        = CollectionElement.new(name: 'title').indexed_keyword_field
   end
 
   serialize :access_systems
@@ -185,12 +196,11 @@ class Collection < ApplicationRecord
   #
   def self.reindex_all(index = :current)
     Collection.uncached do
+      start_time = Time.now
       count = Collection.count
       Collection.all.find_each.with_index do |col, i|
         col.reindex(index)
-
-        pct_complete = (i / count.to_f) * 100
-        puts "Collection.reindex_all(): #{pct_complete.round(2)}%"
+        StringUtils.print_progress(start_time, i, count, 'Indexing collections')
       end
       # Remove indexed documents whose entities have disappeared.
       # TODO: fix this
@@ -207,16 +217,24 @@ class Collection < ApplicationRecord
   #
   def as_indexed_json(options = {})
     doc = {}
-    search_all_values = []
     doc[IndexFields::ACCESS_SYSTEMS] = self.access_systems
     doc[IndexFields::ACCESS_URL] = self.access_url
     doc[IndexFields::ALLOWED_ROLES] = self.allowed_roles.pluck(:key)
     doc[IndexFields::ALLOWED_ROLE_COUNT] = doc[IndexFields::ALLOWED_ROLES].length
     doc[IndexFields::DENIED_ROLES] = self.denied_roles.pluck(:key)
     doc[IndexFields::DENIED_ROLE_COUNT] = doc[IndexFields::DENIED_ROLES].length
+    doc[IndexFields::EFFECTIVE_ALLOWED_ROLES] =
+        doc[IndexFields::ALLOWED_ROLES]
+    doc[IndexFields::EFFECTIVE_ALLOWED_ROLE_COUNT] =
+        doc[IndexFields::ALLOWED_ROLE_COUNT]
+    doc[IndexFields::EFFECTIVE_DENIED_ROLES] =
+        doc[IndexFields::DENIED_ROLES]
+    doc[IndexFields::EFFECTIVE_DENIED_ROLE_COUNT] =
+        doc[IndexFields::DENIED_ROLE_COUNT]
     doc[IndexFields::EXTERNAL_ID] = self.external_id
     doc[IndexFields::HARVESTABLE] = self.harvestable
     doc[IndexFields::LAST_INDEXED] = Time.now.utc.iso8601
+    doc[IndexFields::LAST_MODIFIED] = self.updated_at.utc.iso8601
     doc[IndexFields::PARENT_COLLECTIONS] =
         self.parent_collection_joins.pluck(:parent_repository_id)
     doc[IndexFields::PUBLIC_IN_MEDUSA] = self.public_in_medusa
@@ -228,20 +246,18 @@ class Collection < ApplicationRecord
     doc[IndexFields::RESOURCE_TYPES] = self.resource_types
 
     self.elements.each do |element|
-      # ES will automatically create one or more multi fields for this.
-      # See: https://www.elastic.co/guide/en/elasticsearch/reference/0.90/mapping-multi-field-type.html
-      doc[element.indexed_field] = element.value[0..ElasticsearchClient::MAX_KEYWORD_FIELD_LENGTH]
+      # Skip non-indexable elements. Elements are considered indexable if they
+      # are marked as indexed in the collection's metadata profile, or if the
+      # collection doesn't have a metadata profile.
+      next unless (!self.metadata_profile or self.metadata_profile.elements.
+          select{ |mpe| mpe.name == element.name }.first&.indexed)
 
-      # If the element is searchable in the collection's metadata profile, or
-      # if the collection doesn't have a metadata profile, add its value to the
-      # search-all field.
-      if !self.metadata_profile or self.metadata_profile.elements.
-          select{ |mpe| mpe.name == element.name }.first&.searchable
-        search_all_values << doc[element.indexed_field]
+      unless doc[element.indexed_field]&.respond_to?(:each)
+        doc[element.indexed_field] = []
       end
+      doc[element.indexed_field] <<
+          StringUtils.strip_leading_articles(element.value)[0..ElasticsearchClient::MAX_KEYWORD_FIELD_LENGTH]
     end
-
-    doc[IndexFields::SEARCH_ALL] = search_all_values.join(' ')
 
     doc
   end
@@ -323,7 +339,9 @@ class Collection < ApplicationRecord
   # @option options [Boolean] :only_visible
   # @return [Enumerable<ItemElement>] The instance's CollectionElements in the
   #                                   order of the elements in the instance's
-  #                                   metadata profile.
+  #                                   metadata profile. If there is no
+  #                                   associated metadata profile, all elements
+  #                                   are returned.
   #
   def elements_in_profile_order(options = {})
     elements = []
@@ -337,6 +355,8 @@ class Collection < ApplicationRecord
         element = self.element(mpe.name)
         elements << element if element
       end
+    else
+      elements = self.elements
     end
     elements
   end
@@ -516,10 +536,8 @@ class Collection < ApplicationRecord
   #
   def propagate_heritable_properties(task = nil)
     ActiveRecord::Base.transaction do
-      # after_save callbacks will call this method on direct children, so there
-      # is no need to crawl deeper levels of the item tree.
       num_items = self.items.count
-      self.items.where(parent_repository_id: nil).each_with_index do |item, index|
+      self.items.each_with_index do |item, index|
         item.save!
 
         if task and index % 10 == 0

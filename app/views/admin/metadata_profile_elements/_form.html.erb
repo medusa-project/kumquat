@@ -1,12 +1,10 @@
 <%
-  # Requires the following locals:
-  #
-  # element [MetadataProfileElement]
-  # metadata_profile [MetadataProfile]
-  # context [Symbol] :new or :edit
-%>
+# Requires the following locals:
+#
+# element [MetadataProfileElement]
+# metadata_profile [MetadataProfile]
+# context [Symbol] :new or :edit
 
-<%
 dublin_core_elements = DublinCoreElement.all.
     sort{ |e, f| e.label <=> f.label }.
     map { |p| [ p.label, p.name ] }
@@ -22,7 +20,11 @@ name_options_for_select = ItemElement.all_available.
     map{ |t| [ t.name, t.name ] }
 
 position_options_for_select = [['Nothing (First)', 0]]
-metadata_profile.elements.where('id != ?', element.id).order(:index).each_with_index do |e, i|
+elements = metadata_profile.elements.order(:index)
+if element.id.present?
+  elements = elements.where('id != ?', element.id)
+end
+elements.each_with_index do |e, i|
   position_options_for_select << [e.label, i + 1]
 end
 
@@ -98,6 +100,13 @@ vocabularies = Vocabulary.order(:name)
     <label>
       <%= f.check_box :visible %>
       Visible
+    </label>
+  </div>
+
+  <div class="checkbox">
+    <label>
+      <%= f.check_box :indexed %>
+      Indexed
     </label>
   </div>
 

@@ -92,7 +92,7 @@ module Admin
     end
 
     def sanitized_params
-      params.require(:role).permit(:key, :name, permission_ids: [],
+      params.require(:role).permit(:key, :name, :note, permission_ids: [],
                                    user_ids: [])
     end
 

@@ -7,11 +7,16 @@ class Agent < ApplicationRecord
   include Representable
 
   class IndexFields
-    DESCRIPTION = 'description'
-    LAST_INDEXED = 'date_last_indexed'
-    NAME = 'name'
-    PUBLICLY_ACCESSIBLE = ElasticsearchIndex::PUBLICLY_ACCESSIBLE_FIELD
-    SEARCH_ALL = ElasticsearchIndex::SEARCH_ALL_FIELD
+    DESCRIPTION                  = 't_description'
+    EFFECTIVE_ALLOWED_ROLE_COUNT = 'i_effective_allowed_role_count'
+    EFFECTIVE_ALLOWED_ROLES      = 'k_effective_allowed_roles'
+    EFFECTIVE_DENIED_ROLE_COUNT  = 'i_effective_denied_role_count'
+    EFFECTIVE_DENIED_ROLES       = 'k_effective_denied_roles'
+    LAST_INDEXED                 = 'd_last_indexed'
+    LAST_MODIFIED                = 'd_last_modified'
+    NAME                         = 't_name'
+    PUBLICLY_ACCESSIBLE          = ElasticsearchIndex::PUBLICLY_ACCESSIBLE_FIELD
+    SEARCH_ALL                   = ElasticsearchIndex::SEARCH_ALL_FIELD
   end
 
   belongs_to :agent_rule, inverse_of: :agents
@@ -48,13 +53,12 @@ class Agent < ApplicationRecord
   # @return [void]
   #
   def self.reindex_all(index = :current)
+    count = Agent.count
+    start_time = Time.now
     Agent.uncached do
-      count = Agent.count
       Agent.all.find_each.with_index do |agent, i|
         agent.reindex(index)
-
-        pct_complete = (i / count.to_f) * 100
-        puts "Agent.reindex_all(): #{pct_complete.round(2)}%"
+        StringUtils.print_progress(start_time, i, count, 'Indexing agents')
       end
       # Remove indexed documents whose entities have disappeared.
       # TODO: fix this
@@ -72,7 +76,12 @@ class Agent < ApplicationRecord
   def as_indexed_json(options = {})
     doc = {}
     doc[IndexFields::DESCRIPTION] = self.description.to_s
+    doc[IndexFields::EFFECTIVE_ALLOWED_ROLES] = []
+    doc[IndexFields::EFFECTIVE_ALLOWED_ROLE_COUNT] = 0
+    doc[IndexFields::EFFECTIVE_DENIED_ROLES] = []
+    doc[IndexFields::EFFECTIVE_DENIED_ROLE_COUNT] = 0
     doc[IndexFields::LAST_INDEXED] = Time.now.utc.iso8601
+    doc[IndexFields::LAST_MODIFIED] = self.updated_at.utc.iso8601
     doc[IndexFields::NAME] = self.name.to_s
     doc[IndexFields::PUBLICLY_ACCESSIBLE] = true
     doc[IndexFields::SEARCH_ALL] = [
@@ -131,6 +140,13 @@ class Agent < ApplicationRecord
         where('entity_elements.uri IN (?)', self.agent_uris.pluck(:uri)).
         where('variant IS NULL OR variant = ? OR variant IN (?)', '',
               [Item::Variants::DIRECTORY, Item::Variants::FILE])
+  end
+
+  ##
+  # Alias of id.
+  #
+  def repository_id
+    id
   end
 
   ##

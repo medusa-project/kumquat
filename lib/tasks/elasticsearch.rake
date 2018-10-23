@@ -15,14 +15,22 @@ namespace :elasticsearch do
     desc 'Create all current indexes'
     task :create_all_current => :environment do |task, args|
       EntityFinder::ENTITIES.each do |class_|
-        create_current_index(class_)
+        begin
+          create_current_index(class_)
+        rescue IOError => e
+          puts e
+        end
       end
     end
 
     desc 'Create all latest indexes'
     task :create_all_latest => :environment do |task, args|
       EntityFinder::ENTITIES.each do |class_|
-        create_latest_index(class_)
+        begin
+          create_latest_index(class_)
+        rescue IOError => e
+          puts e
+        end
       end
     end
 
@@ -45,7 +53,11 @@ namespace :elasticsearch do
     desc 'Delete all current indexes'
     task :delete_all_current => :environment do |task, args|
       EntityFinder::ENTITIES.each do |class_|
-        delete_current_index(class_)
+        begin
+          delete_current_index(class_)
+        rescue IOError => e
+          puts e
+        end
       end
     end
 
@@ -54,7 +66,11 @@ namespace :elasticsearch do
       if ElasticsearchIndex.current_index_version !=
           ElasticsearchIndex.latest_index_version
         EntityFinder::ENTITIES.each do |class_|
-          delete_latest_index(class_)
+          begin
+            delete_latest_index(class_)
+          rescue IOError => e
+            puts e
+          end
         end
       else
         STDERR.puts 'Latest index version is the same as the current version. '\

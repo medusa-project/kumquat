@@ -13,6 +13,8 @@ class EntityFinder < AbstractFinder
     super
     @exclude_item_variants = []
     @include_unpublished = false
+    @last_modified_after = nil
+    @last_modified_before = nil
     @only_described = false
   end
 
@@ -35,6 +37,24 @@ class EntityFinder < AbstractFinder
   end
 
   ##
+  # @param time [Time]
+  # @return [self]
+  #
+  def last_modified_after(time)
+    @last_modified_after = time
+    self
+  end
+
+  ##
+  # @param time [Time]
+  # @return [self]
+  #
+  def last_modified_before(time)
+    @last_modified_before = time
+    self
+  end
+
+  ##
   # @param boolean [Boolean]
   # @return [ItemFinder] self
   #
@@ -46,7 +66,13 @@ class EntityFinder < AbstractFinder
   protected
 
   def get_response
-    Elasticsearch::Model.search(build_query, ENTITIES)
+    query = build_query
+    CustomLogger.instance.debug("EntityFinder.get_response(): #{query}")
+    Elasticsearch::Model.search(query, ENTITIES)
+  end
+
+  def metadata_profile
+    MetadataProfile.default
   end
 
   private
@@ -71,7 +97,8 @@ class EntityFinder < AbstractFinder
             end
           end
 
-          if @filters.any? or @only_described or !@include_unpublished
+          if @filters.any? or @only_described or !@include_unpublished or
+              @last_modified_before or @last_modified_after
             j.filter do
               @filters.each do |field, value|
                 j.child! do
@@ -102,28 +129,45 @@ class EntityFinder < AbstractFinder
                   end
                 end
               end
-            end
-          end
 
-          if @user_roles.any?
-            j.should do
-              if @user_roles.any?
-                j.child! do
-                  j.terms do
-                    j.set! Item::IndexFields::EFFECTIVE_ALLOWED_ROLES,
-                           @user_roles
-                  end
-                end
+              if @last_modified_before or @last_modified_after
                 j.child! do
                   j.range do
-                    j.set! Item::IndexFields::EFFECTIVE_ALLOWED_ROLE_COUNT do
-                      j.lte 0
+                    j.set! Item::IndexFields::LAST_MODIFIED do
+                      if @last_modified_after
+                        j.gte @last_modified_after.iso8601
+                      end
+                      if @last_modified_before
+                        j.lte @last_modified_before.iso8601
+                      end
                     end
                   end
                 end
               end
             end
           end
+
+          # Results must either have an effective allowed role (EAR) matching
+          # one of the user's roles, or no EARs, indicating that they are
+          # public, effective denied roles notwithstanding.
+          j.should do
+            if @user_roles.any?
+              j.child! do
+                j.terms do
+                  j.set! Item::IndexFields::EFFECTIVE_ALLOWED_ROLES,
+                         @user_roles
+                end
+              end
+            end
+            j.child! do
+              j.range do
+                j.set! Item::IndexFields::EFFECTIVE_ALLOWED_ROLE_COUNT do
+                  j.lte 0
+                end
+              end
+            end
+          end
+          j.minimum_should_match 1
 
           if @user_roles.any? or @exclude_item_variants.any?
             j.must_not do
@@ -200,10 +244,6 @@ class EntityFinder < AbstractFinder
     # curl -XGET 'localhost:9200/items_development/_search?size=0&pretty' -H 'Content-Type: application/json' -d @query.json
 
     json
-  end
-
-  def metadata_profile
-    MetadataProfile.default
   end
 
 end

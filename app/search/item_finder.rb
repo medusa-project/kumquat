@@ -121,7 +121,9 @@ class ItemFinder < AbstractFinder
   protected
 
   def get_response
-    Item.search(build_query)
+    query = build_query
+    CustomLogger.instance.debug("ItemFinder.get_response(): #{query}")
+    Item.search(query)
   end
 
   def load
@@ -129,11 +131,12 @@ class ItemFinder < AbstractFinder
 
     response = get_response
 
-    # Assemble the response aggregations into Facets.
-    response.response.aggregations&.each do |agg|
-      element = metadata_profile.facet_elements.
-          select{ |e| e.indexed_keyword_field == agg[0] }.first
-      if element
+    # Assemble the response aggregations into Facets. The order of the facets
+    # should be the same as the order of elements in the metadata profile.
+    metadata_profile.facet_elements.each do |element|
+      agg = response.response.aggregations&.
+          find{ |a| a[0] == element.indexed_keyword_field }
+      if agg
         facet = Facet.new
         facet.name = element.label
         facet.field = element.indexed_keyword_field
@@ -146,15 +149,23 @@ class ItemFinder < AbstractFinder
           facet.terms << term
         end
         @result_facets << facet
-      elsif agg[0] == BYTE_SIZE_AGGREGATION
-        @result_byte_size = agg[1]['value'].to_i
       end
+    end
+
+    agg = response.response.aggregations&.
+        find{ |a| a[0] == BYTE_SIZE_AGGREGATION }
+    if agg
+      @result_byte_size = agg[1]['value'].to_i
     end
 
     @result_instances = response.records
     @result_count = response.results.total
 
     @loaded = true
+  end
+
+  def metadata_profile
+    @collection&.effective_metadata_profile || MetadataProfile.default
   end
 
   private
@@ -172,12 +183,13 @@ class ItemFinder < AbstractFinder
               # https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html
               j.query_string do
                 j.query @query[:query]
-                j.default_field @query[:field]
                 j.default_operator 'AND'
                 j.lenient true
                 if @include_children_in_results
                   j.fields [@query[:field],
                             ItemElement.new(name: EntityElement.element_name_for_indexed_field(@query[:field])).parent_indexed_field]
+                else
+                  j.default_field @query[:field]
                 end
               end
             end
@@ -270,6 +282,7 @@ class ItemFinder < AbstractFinder
                 end
               end
             end
+            j.minimum_should_match 1
           end
 
           if @user_roles.any? or @exclude_variants.any? or !@search_children
@@ -362,10 +375,6 @@ class ItemFinder < AbstractFinder
     # curl -XGET 'localhost:9200/items_development/_search?size=0&pretty' -H 'Content-Type: application/json' -d @query.json
 
     json
-  end
-
-  def metadata_profile
-    @collection&.effective_metadata_profile || MetadataProfile.default
   end
 
 end

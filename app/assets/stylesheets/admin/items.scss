@@ -37,17 +37,6 @@ body#admin_items_show {
     max-width: 200px;
   }
 
-  #pt-structure {
-    overflow-wrap: break-word;
-    ul {
-      list-style: none;
-      padding-left: 0em;
-      ul {
-        margin-left: 1.5em;
-      }
-    }
-  }
-
   #pt-viewer p {
     font-family: monospace;
   }
@@ -162,6 +151,9 @@ body#admin_items_edit_all {
     }
   }
   table.table {
+    .pt-item-structure {
+      padding: 0.5em;
+    }
     .pt-thumbnail {
       font-size: 70px;
       padding: 5px;
@@ -202,7 +194,6 @@ body#admin_items_edit_all {
         }
       }
       td:nth-child(2) {
-        min-width: 250px;
         padding: 0.5em;
         input, select {
           margin: 5px 0px;
@@ -221,6 +212,17 @@ body#admin_items_edit_all {
     .form-group td:last-child {
       text-align: center;
       vertical-align: middle;
+    }
+  }
+}
+
+.pt-item-structure {
+  overflow-wrap: break-word;
+  ul {
+    list-style: none;
+    padding-left: 0em;
+    ul {
+      margin-left: 1.5em;
     }
   }
 }

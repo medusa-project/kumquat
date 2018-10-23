@@ -4,6 +4,8 @@
 # Clients that don't want to concern themselves with package profiles can
 # use MedusaIngester instead.
 #
+# @see https://wiki.illinois.edu/wiki/display/LibraryDigitalPreservation/Single-item+Object+Package
+#
 class MedusaSingleItemIngester < MedusaAbstractIngester
 
   @@logger = CustomLogger.instance
@@ -23,45 +25,51 @@ class MedusaSingleItemIngester < MedusaAbstractIngester
     cfs_dir = collection.effective_medusa_cfs_directory
     pres_dir = cfs_dir.directories.select{ |d| d.name == 'preservation' }.first
 
-    status = { num_created: 0, num_skipped: 0 }
+    stats = { num_created: 0, num_skipped: 0 }
     files = pres_dir.files
     num_files = files.length
-    files.each_with_index do |file, index|
-      # Find or create the child item.
-      item = Item.find_by_repository_id(file.uuid)
-      if item
-        @@logger.info("MedusaSingleItemIngester.create_items(): skipping "\
-          "item #{file.uuid}")
-        status[:num_skipped] += 1
-        next
-      else
-        @@logger.info("MedusaSingleItemIngester.create_items(): creating "\
-          "item #{file.uuid}")
-        item = Item.new(repository_id: file.uuid,
-                        collection_repository_id: collection.repository_id)
 
-        # Create the preservation master binary.
-        item.binaries << file.to_binary(Binary::MasterType::PRESERVATION)
+    ActiveRecord::Base.transaction do
+      files.each_with_index do |file, index|
+        # Find or create the child item.
+        item = Item.find_by_repository_id(file.uuid)
+        if item
+          @@logger.info("MedusaSingleItemIngester.create_items(): skipping "\
+            "item #{file.uuid}")
+          stats[:num_skipped] += 1
+          next
+        else
+          @@logger.info("MedusaSingleItemIngester.create_items(): creating "\
+            "item #{file.uuid}")
+          item = Item.new(repository_id: file.uuid,
+                          collection_repository_id: collection.repository_id)
 
-        # Find and create the access master binary.
-        begin
-          item.binaries << access_master_binary(cfs_dir, file)
-        rescue IllegalContentError => e
-          @@logger.warn("MedusaSingleItemIngester.create_items(): #{e}")
+          # Assign a title of the preservation master name.
+          item.elements.build(name: 'title', value: file.name)
+
+          # Create the preservation master binary.
+          item.binaries << file.to_binary(Binary::MasterType::PRESERVATION)
+
+          # Find and create the access master binary.
+          begin
+            item.binaries << access_master_binary(cfs_dir, file)
+          rescue IllegalContentError => e
+            @@logger.warn("MedusaSingleItemIngester.create_items(): #{e}")
+          end
+
+          item.update_from_embedded_metadata(options) if options[:extract_metadata]
+
+          item.save!
+
+          stats[:num_created] += 1
         end
 
-        item.update_from_embedded_metadata(options) if options[:extract_metadata]
-
-        item.save!
-
-        status[:num_created] += 1
-      end
-
-      if task and index % 10 == 0
-        task.update(percent_complete: index / num_files.to_f)
+        if task and index % 10 == 0
+          task.update(percent_complete: index / num_files.to_f)
+        end
       end
     end
-    status
+    stats
   end
 
   ##
@@ -82,22 +90,25 @@ class MedusaSingleItemIngester < MedusaAbstractIngester
 
     # For each DLS item in the collection, if it's no longer contained in the
     # file group, delete it.
-    status = { num_deleted: 0 }
+    stats = { num_deleted: 0 }
     items = Item.where(collection_repository_id: collection.repository_id)
     num_items = items.count
-    items.each_with_index do |item, index|
-      unless medusa_items.include?(item.repository_id)
-        @@logger.info("MedusaSingleItemIngester.delete_missing_items(): "\
-          "deleting #{item.repository_id}")
-        item.destroy!
-        status[:num_deleted] += 1
-      end
 
-      if task and index % 10 == 0
-        task.update(percent_complete: index / num_items.to_f)
+    ActiveRecord::Base.transaction do
+      items.each_with_index do |item, index|
+        unless medusa_items.include?(item.repository_id)
+          @@logger.info("MedusaSingleItemIngester.delete_missing_items(): "\
+            "deleting #{item.repository_id}")
+          item.destroy!
+          stats[:num_deleted] += 1
+        end
+
+        if task and index % 10 == 0
+          task.update(percent_complete: index / num_items.to_f)
+        end
       end
     end
-    status
+    stats
   end
 
   ##
@@ -117,42 +128,44 @@ class MedusaSingleItemIngester < MedusaAbstractIngester
     stats = { num_created: 0 }
     files = pres_dir.files
     num_files = files.length
-    files.each_with_index do |file, index|
-      item = Item.find_by_repository_id(file.uuid)
-      if item
-        item.binaries.destroy_all
 
-        # Create the preservation master binary.
-        item.binaries << file.to_binary(Binary::MasterType::PRESERVATION)
-        stats[:num_created] += 1
+    ActiveRecord::Base.transaction do
+      files.each_with_index do |file, index|
+        item = Item.find_by_repository_id(file.uuid)
+        if item
+          item.binaries.destroy_all
 
-        # Find and create the access master binary.
-        begin
-          item.binaries << access_master_binary(cfs_dir, file)
+          # Create the preservation master binary.
+          item.binaries << file.to_binary(Binary::MasterType::PRESERVATION)
           stats[:num_created] += 1
-        rescue IllegalContentError => e
-          @@logger.warn("MedusaSingleItemIngester.recreate_binaries(): #{e}")
+
+          # Find and create the access master binary.
+          begin
+            item.binaries << access_master_binary(cfs_dir, file)
+            stats[:num_created] += 1
+          rescue IllegalContentError => e
+            @@logger.warn("MedusaSingleItemIngester.recreate_binaries(): #{e}")
+          end
+
+          item.save!
         end
 
-        item.save!
+        if task and index % 10 == 0
+          task.update(percent_complete: index / num_files.to_f)
+        end
       end
 
-      if task and index % 10 == 0
-        task.update(percent_complete: index / num_files.to_f)
-      end
-    end
-
-    # The binaries have been updated, but the image server may still have
-    # cached versions of the old ones. Here, we will purge them.
-    collection.items.each do |item|
-      begin
-        ImageServer.instance.purge_item_images_from_cache(item)
-      rescue => e
-        @@logger.error("MedusaSingleItemIngester.recreate_binaries(): failed to "\
-            "purge item from image server cache: #{e}")
+      # The binaries have been updated, but the image server may still have
+      # cached versions of the old ones. Here, we will purge them.
+      collection.items.each do |item|
+        begin
+          ImageServer.instance.purge_item_images_from_cache(item)
+        rescue => e
+          @@logger.error("MedusaSingleItemIngester.recreate_binaries(): failed to "\
+              "purge item from image server cache: #{e}")
+        end
       end
     end
-
     stats
   end
 

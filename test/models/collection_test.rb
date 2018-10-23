@@ -7,7 +7,7 @@ class CollectionTest < ActiveSupport::TestCase
     assert @collection.valid?
 
     ElasticsearchIndex.migrate_to_latest
-    ElasticsearchClient.instance.recreate_all_indexes
+    ElasticsearchClient.instance.recreate_all_indexes rescue nil
   end
 
   # from_medusa()
@@ -43,7 +43,7 @@ class CollectionTest < ActiveSupport::TestCase
 
   # as_indexed_json()
 
-  test 'as_indexed_json() returns the correct structure' do
+  test 'as_indexed_json returns the correct structure' do
     doc = @collection.as_indexed_json
 
     assert_equal @collection.access_systems,
@@ -58,11 +58,21 @@ class CollectionTest < ActiveSupport::TestCase
                  doc[Collection::IndexFields::DENIED_ROLES].sort
     assert_equal @collection.denied_roles.pluck(:key).length,
                  doc[Collection::IndexFields::DENIED_ROLE_COUNT]
+    assert_equal @collection.allowed_roles.pluck(:key),
+                 doc[Item::IndexFields::EFFECTIVE_ALLOWED_ROLES]
+    assert_equal @collection.allowed_roles.pluck(:key).length,
+                 doc[Item::IndexFields::EFFECTIVE_ALLOWED_ROLE_COUNT]
+    assert_equal @collection.denied_roles.pluck(:key),
+                 doc[Item::IndexFields::EFFECTIVE_DENIED_ROLES]
+    assert_equal @collection.denied_roles.pluck(:key).length,
+                 doc[Item::IndexFields::EFFECTIVE_DENIED_ROLE_COUNT]
     assert_equal @collection.external_id,
                  doc[Collection::IndexFields::EXTERNAL_ID]
     assert_equal @collection.harvestable,
                  doc[Collection::IndexFields::HARVESTABLE]
     assert_not_empty doc[Collection::IndexFields::LAST_INDEXED]
+    assert_equal @collection.updated_at.utc.iso8601,
+                 doc[Collection::IndexFields::LAST_MODIFIED]
     assert_empty doc[Collection::IndexFields::PARENT_COLLECTIONS]
     assert_equal @collection.public_in_medusa,
                  doc[Collection::IndexFields::PUBLIC_IN_MEDUSA]
@@ -78,10 +88,9 @@ class CollectionTest < ActiveSupport::TestCase
                  doc[Collection::IndexFields::REPRESENTATIVE_ITEM]
     assert_equal @collection.resource_types,
                  doc[Collection::IndexFields::RESOURCE_TYPES]
-    assert_not_empty doc[Collection::IndexFields::SEARCH_ALL]
 
     @collection.elements.each do |element|
-      assert_equal element.value, doc[element.indexed_field]
+      assert_equal [element.value], doc[element.indexed_field]
     end
   end
 

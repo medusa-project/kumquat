@@ -11,7 +11,7 @@
         <th>
           <%= pe.label %>
           <br>
-          (<%= pe.name %>)
+          <var><%= pe.name %></var>
         </th>
       <% end %>
     </tr>
@@ -20,37 +20,52 @@
     <% @items.each do |item| %>
       <tr>
         <td>
-          <div class="pt-thumbnail">
-            <% if item.parent_repository_id.present? and item.variant != Item::Variants::FILE %>
+          <% if item.file? or item.directory? %>
+            <div class="pt-item-structure">
+              <%= admin_structure_of_item(item,
+                                          include_subitems: false,
+                                          filenames_instead_of_titles: true) %>
+            </div>
+          <% else %>
+            <div class="pt-thumbnail">
+              <% if item.parent_repository_id.present? and !item.file? %>
                 <span class="pt-tree-connector">&#8627;</span>
-            <% end %>
-            <%= link_to admin_collection_item_path(item.collection, item), target: '_blank' do %>
+              <% end %>
+              <%= link_to admin_collection_item_path(item.collection, item), target: '_blank' do %>
                 <%= thumbnail_tag(item) %>
-            <% end %>
-          </div>
+              <% end %>
+            </div>
+          <% end %>
           <%= item.binaries.select{ |b| b.master_type == Binary::MasterType::PRESERVATION }.first&.filename %>
         </td>
+
         <td>
-          <%= select_tag("items[#{item.repository_id}][variant]",
-                         options_for_select(Item::Variants::all.map{ |v| [v.titleize, v] }, selected: item.variant),
-                         include_blank: true,
-                         class: 'form-control input-sm') %>
-          <table border="0">
-            <tr>
-              <td>Page:</td>
-              <td>
-                <%= number_field_tag("items[#{item.repository_id}][page]", item.page_number,
-                                     class: 'form-control input-sm') %>
-              </td>
-              <td>
-                Subpage:
-              </td>
-              <td>
-                <%= number_field_tag("items[#{item.repository_id}][subpage]", item.subpage_number,
-                                     class: 'form-control input-sm') %>
-              </td>
-            </tr>
-          </table>
+          <% if item.file? or item.directory? %>
+            <div class="pt-thumbnail">
+              <%= thumbnail_tag(item) %>
+            </div>
+          <% else %>
+            <%= select_tag("items[#{item.repository_id}][variant]",
+                           options_for_select(Item::Variants::all.map{ |v| [v.titleize, v] }, selected: item.variant),
+                           include_blank: true,
+                           class: 'form-control input-sm') %>
+            <table border="0">
+              <tr>
+                <td>Page:</td>
+                <td>
+                  <%= number_field_tag("items[#{item.repository_id}][page]", item.page_number,
+                                       class: 'form-control input-sm') %>
+                </td>
+                <td>
+                  Subpage:
+                </td>
+                <td>
+                  <%= number_field_tag("items[#{item.repository_id}][subpage]", item.subpage_number,
+                                       class: 'form-control input-sm') %>
+                </td>
+              </tr>
+            </table>
+          <% end %>
         </td>
         <% @metadata_profile.elements.each do |pe| %>
           <td>

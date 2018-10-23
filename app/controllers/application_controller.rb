@@ -13,14 +13,6 @@ class ApplicationController < ActionController::Base
     @start_time = Time.now
   end
 
-  def admin_user
-    unless current_user.is_admin?
-      flash['error'] = 'Access denied.'
-      store_location
-      redirect_to root_url
-    end
-  end
-
   def signed_in_user
     unless signed_in?
       store_location
