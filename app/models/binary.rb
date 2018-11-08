@@ -245,11 +245,12 @@ class Binary < ApplicationRecord
         # are going to bog down the image server in proportion to their size.
         max_tiff_size = 25000000
         if self.media_type == 'image/tiff' and
-            self.byte_size and self.byte_size <= max_tiff_size
-          true
+            self.byte_size and self.byte_size > max_tiff_size
+          return false
         end
+        return true
       elsif self.is_pdf? or self.is_video?
-        true
+        return true
       end
     end
     false
