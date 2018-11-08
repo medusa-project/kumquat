@@ -257,6 +257,8 @@ class Binary < ApplicationRecord
 
   def infer_media_type
     case File.extname(self.repository_relative_pathname).downcase
+      when '.mp4', '.m4v'
+        self.media_type = 'video/mp4'
       when '.mtl'
         self.media_type = 'text/plain'
       when '.obj'
