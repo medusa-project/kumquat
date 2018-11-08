@@ -7,7 +7,7 @@ set :repo_url, 'https://github.com/medusa-project/kumquat.git'
 # Default branch is :master
 # ask :branch, `git rev-parse --abbrev-ref HEAD`.chomp
 
-set :home, '/home/centos'
+set :home, '/home/dls'
 
 set :bin, "#{fetch(:home)}/bin"
 

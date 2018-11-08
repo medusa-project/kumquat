@@ -31,7 +31,7 @@ server 'aws-dls-prod.library.illinois.edu', user: 'dls',
 # For available Capistrano configuration variables see the documentation page.
 # http://capistranorb.com/documentation/getting-started/configuration/
 # Feel free to add new variables to customise your setup.
-set :branch, 'master-aws-pilot'
+set :branch, 'master-aws-prod'
 
 # Custom SSH Options
 # ==================
