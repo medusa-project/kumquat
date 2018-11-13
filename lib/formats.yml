@@ -80,6 +80,15 @@
     - mp1
     - mpv
 
+- name: MPEG-4 Video
+  label: MPEG-4 Video
+  media_category: 2
+  media_types:
+  - video/mp4
+  extensions:
+  - mp4
+  - m4v
+
 - name: MTL
   label: Material Library
   media_category: 4
