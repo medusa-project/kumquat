@@ -54,21 +54,48 @@ class ApplicationController < ActionController::Base
   end
 
   ##
-  # Streams a binary to the response body.
+  # Streams an S3 object, represented by a Binary, to the response entity.
+  # Ranged requests are supported.
   #
   # @param binary [Binary]
   #
   def send_binary(binary)
-    response.headers['Content-Type'] = binary.media_type
-    response.headers['Content-Disposition'] = "attachment; filename=#{binary.filename}"
-
-    Aws::S3::Client.new.get_object(
+    s3_request = {
         bucket: ::Configuration.instance.repository_s3_bucket,
-        key: binary.object_key) do |chunk|
+        key: binary.object_key
+    }
+
+    file_begin     = 0
+    file_size      = @binary.byte_size
+    file_end       = file_size - 1
+    content_length = file_end.to_i - file_begin.to_i + 1
+
+    if !request.headers['Range']
+      status_code = '200 OK'
+    else
+      status_code = '206 Partial Content'
+      match = request.headers['Range'].match(/bytes=(\d+)-(\d*)/)
+      if match
+        file_begin = match[1].to_i
+        file_end   = match[2].to_i if match[2]&.present?
+      end
+      range = sprintf('bytes %d-%d/%d', file_begin, file_end, file_size)
+      response.headers['Content-Range'] = s3_request[:range] = range
+    end
+
+    response.status                               = status_code
+    response.headers['Content-Type']              = binary.media_type
+    response.headers['Content-Disposition']       = "attachment; filename=#{binary.filename}"
+    response.headers['Content-Length']            = content_length.to_s
+    response.headers['Last-Modified']             = @binary.updated_at.to_s
+    response.headers['Cache-Control']             = 'public, must-revalidate, max-age=0'
+    response.headers['Pragma']                    = 'no-cache'
+    response.headers['Accept-Ranges']             = 'bytes'
+    response.headers['Content-Transfer-Encoding'] = 'binary'
+
+    Aws::S3::Client.new.get_object(s3_request) do |chunk|
       response.stream.write chunk
     end
-  ensure
-    response.stream.close
   end
 
   ##
