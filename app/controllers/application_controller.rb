@@ -89,13 +89,14 @@ class ApplicationController < ActionController::Base
     response.headers['Content-Length']            = content_length.to_s
     response.headers['Last-Modified']             = @binary.updated_at.to_s
     response.headers['Cache-Control']             = 'public, must-revalidate, max-age=0'
-    response.headers['Pragma']                    = 'no-cache'
     response.headers['Accept-Ranges']             = 'bytes'
     response.headers['Content-Transfer-Encoding'] = 'binary'
 
     Aws::S3::Client.new.get_object(s3_request) do |chunk|
       response.stream.write chunk
     end
+  ensure
+    response.stream.close
   end
 
   ##
