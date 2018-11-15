@@ -29,7 +29,7 @@ class MedusaDownloaderClient
         if zip_dirname
           targets.push({
                            'type': 'file',
-                           'path': '/' + binary.object_key,
+                           'path': binary.object_key,
                            'zip_path': zip_dirname
                        })
         end
@@ -42,7 +42,7 @@ class MedusaDownloaderClient
 
     config = ::Configuration.instance
 
-    url = "#{config.downloader_url}/downloads/create"
+    url = "#{config.downloader_url}/downloads/create_digest_auth"
     client = Curl::Easy.new(url)
     client.http_auth_types = :digest
     client.username = config.downloader_user
@@ -58,6 +58,7 @@ class MedusaDownloaderClient
     response_hash = JSON.parse(client.body_str)
     unless response_hash.has_key?('download_url')
       CustomLogger.instance.error("MedusaDownloaderClient.download_url(): "\
+          "received HTTP #{client.status}: "\
           "#{client.body_str}")
       raise IOError, response_hash['error']
     end
@@ -89,7 +90,7 @@ class MedusaDownloaderClient
   # @return [String] Path of the given binary within the zip file.
   #
   def zip_dirname(binary)
-    root = '/' + binary.item.collection.effective_medusa_cfs_directory&.object_key
+    root = '/' + binary.item.collection.effective_medusa_cfs_directory&.pathname
     root ? File.dirname('/' + binary.object_key.gsub(/^#{root}/, '')) : nil
   end
 
