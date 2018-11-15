@@ -42,7 +42,7 @@ class MedusaDownloaderClient
 
     config = ::Configuration.instance
 
-    url = "#{config.downloader_url}/downloads/create_digest_auth"
+    url = "#{config.downloader_url}/downloads/create"
     client = Curl::Easy.new(url)
     client.http_auth_types = :digest
     client.username = config.downloader_user
