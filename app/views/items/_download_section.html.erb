@@ -24,9 +24,11 @@
                       'data-target': '#pt-download-zip-modal') do %>
             <i class="fa fa-file-zip-o"></i>&nbsp;&nbsp;Zip of Masters&hellip;
           <% end %>
-          <%= link_to(item_url(item, format: :zip, contents: :jpegs),
-                      target: '_blank', class: 'btn btn-default') do %>
-            <i class="fa fa-file-zip-o"></i>&nbsp;&nbsp;Zip of JPEGs
+          <% if item.binaries.reject(&:is_image?).empty? and !item.directory? %>
+            <%= link_to(item_url(item, format: :zip, contents: :jpegs),
+                        target: '_blank', class: 'btn btn-default') do %>
+              <i class="fa fa-file-zip-o"></i>&nbsp;&nbsp;Zip of JPEGs
+            <% end %>
           <% end %>
         <% end %>
 
