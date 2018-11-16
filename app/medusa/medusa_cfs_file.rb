@@ -28,8 +28,12 @@ class MedusaCfsFile < ApplicationRecord
     unless file
       file = MedusaCfsFile.new
       file.uuid = uuid
-      file.load_from_medusa
-      file.save!
+      begin
+        file.load_from_medusa
+        file.save!
+      rescue IOError => e
+        CustomLogger.instance.warn("MedusaCfsFile.with_uuid(): #{e}", e)
+      end
     end
     file
   end
@@ -57,10 +61,10 @@ class MedusaCfsFile < ApplicationRecord
       struct = JSON.parse(response.body)
       self.media_type = struct['content_type']
       self.repository_relative_pathname = "/#{struct['relative_pathname']}"
-      if struct['directory']
+      if struct['directory'] and struct['directory']['uuid']
         self.directory_uuid = struct['directory']['uuid']
       else
-        raise ArgumentError, "Unexpected JSON structure. Is #{self.url} a file?"
+        raise IOError, "Unexpected JSON structure: #{self.url} (does it exist?)"
       end
     end
   end
