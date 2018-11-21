@@ -72,7 +72,6 @@ body#collections_index {
 
 body#collections_show {
   .pt-main-image {
-    text-align: center;
     img {
       display:block;
       margin: 0 auto;
@@ -82,10 +81,7 @@ body#collections_show {
     }
     .pt-title {
       color:black;
-      font-size: 1.2em;
-    }
-    .pt-collection-title {
-      color:#606060;
+      font-size: 1em;
     }
   }
 
