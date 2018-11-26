@@ -64,7 +64,7 @@
             <%= link_to @representative_item, class: 'pt-title' do %>
               <% if @representative_item.parent %>
                 <%= @representative_item.parent.title %>
-                <br>
+                &mdash;
               <% end %>
               <%= @representative_item.title %>
             <% end %>
