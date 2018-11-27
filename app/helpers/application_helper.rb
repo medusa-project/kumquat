@@ -74,12 +74,9 @@ module ApplicationHelper
 
   ##
   # @param entities [Enumerable<Collection>, Enumerable<Item>]
-  # @param options [Hash] Hash with optional keys.
-  # @option options [Boolean] :show_remove_from_favorites_buttons
-  # @option options [Boolean] :show_add_to_favorites_buttons
   # @return [String]
   #
-  def entities_as_cards(entities, options = {})
+  def entities_as_cards(entities)
     html = ''
     entities.each do |entity|
       bs = nil
@@ -110,18 +107,6 @@ module ApplicationHelper
       end
       html += '    <h4 class="pt-title">'
       html +=        link_to(entity.title, entity)
-
-      if entity.class.to_s == 'Item'
-        # remove-from-favorites button
-        if options[:show_remove_from_favorites_buttons]
-          html += remove_from_favorites_button(entity)
-        end
-        # add-to-favorites button
-        if options[:show_add_to_favorites_buttons]
-          html += add_to_favorites_button(entity)
-        end
-      end
-
       html += '</h4>
           </div>
       </div>'
@@ -136,8 +121,6 @@ module ApplicationHelper
   # @param start [integer] Offset.
   # @param options [Hash] Hash with optional keys.
   # @option options [Boolean] :link_to_admin
-  # @option options [Boolean] :show_remove_from_favorites_buttons
-  # @option options [Boolean] :show_add_to_favorites_buttons
   # @option options [Boolean] :show_collections
   # @option options [Boolean] :show_checkboxes
   # @option options [Boolean] :show_published_status
@@ -210,18 +193,6 @@ module ApplicationHelper
       end
 
       html += "<br><span class=\"pt-info-line\">#{info_parts.join(' | ')}</span>"
-
-      if entity.class.to_s == 'Item'
-        # remove-from-favorites button
-        if options[:show_remove_from_favorites_buttons]
-          html += remove_from_favorites_button(entity)
-        end
-        # add-to-favorites button
-        if options[:show_add_to_favorites_buttons]
-          html += add_to_favorites_button(entity)
-        end
-      end
-
       html += '</span>'
       html += '<br>'
       html += '<span class="pt-description">'
@@ -626,12 +597,6 @@ module ApplicationHelper
         html = "<ol class=\"breadcrumb\">"
         html += "<li>#{link_to 'Home', root_path}</li>"
         html += "<li>#{link_to 'All Items', items_path}</li>"
-        html += item_structure_breadcrumb(item)
-        html += "</ol>"
-      when ItemsController::BrowseContext::FAVORITES
-        html = "<ol class=\"breadcrumb\">"
-        html += "<li>#{link_to 'Home', root_path}</li>"
-        html += "<li>#{link_to 'Favorites', favorites_path}</li>"
         html += item_structure_breadcrumb(item)
         html += "</ol>"
       else

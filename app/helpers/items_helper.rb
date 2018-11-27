@@ -209,17 +209,6 @@ module ItemsHelper
     item.effective_viewer_binary ? true : false
   end
 
-
-  ##
-  # @param item [Item]
-  # @return [Boolean]
-  #
-  def is_favorite?(item)
-    cookies[:favorites] and cookies[:favorites].
-        split(FavoritesController::COOKIE_DELIMITER).
-        select{ |f| f == item.repository_id }.any?
-  end
-
   ##
   # @return [String]
   #
@@ -386,8 +375,6 @@ module ItemsHelper
       end
       html += '  <h4 class="pt-title">'
       html +=      link_to(item.title, item)
-      html +=      remove_from_favorites_button(item)
-      html +=      add_to_favorites_button(item)
       html += '  </h4>'
       html += '</div>'
     end
@@ -485,14 +472,6 @@ module ItemsHelper
         </div>
       </div>"
     raw(html)
-  end
-
-  ##
-  # @return [Integer]
-  #
-  def num_favorites
-    cookies[:favorites] ?
-        cookies[:favorites].split(FavoritesController::COOKIE_DELIMITER).length : 0
   end
 
   ##
@@ -992,18 +971,6 @@ module ItemsHelper
 
   private
 
-  ##
-  # @param item [Item]
-  # @return [String] HTML <button> element
-  #
-  def add_to_favorites_button(item)
-    html = '<button class="btn btn-default btn-xs ' +
-        'pt-add-to-favorites" data-item-id="' + item.repository_id + '">'
-    html += '  <i class="fa fa-heart-o"></i>'
-    html += '</button>'
-    raw(html)
-  end
-
   def audio_player_for(binary)
     html = ''
     if binary
@@ -1366,18 +1333,6 @@ module ItemsHelper
       end
       html += '</div>'
     end
-    raw(html)
-  end
-
-  ##
-  # @param item [Item]
-  # @return [String] HTML <button> element
-  #
-  def remove_from_favorites_button(item)
-    html = '<button class="btn btn-xs btn-danger ' +
-        'pt-remove-from-favorites" data-item-id="' + item.repository_id + '">'
-    html += '  <i class="fa fa-heart"></i> Remove'
-    html += '</button>'
     raw(html)
   end
 
