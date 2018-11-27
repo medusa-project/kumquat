@@ -243,6 +243,20 @@ body#tree_browser {
     border-top-style: solid;
     border-color: #dddddd;
   }
+  .pt-side-by-side {
+    display: none;
+  }
+  .pt-top-bottom {
+    display: block;
+  }
+}
+@media (min-width: 993px) {
+  .pt-side-by-side {
+    display: block;
+  }
+  .pt-top-bottom {
+    display: none;
+  }
 }
 .nav-pills {
   margin-bottom: 1em;
