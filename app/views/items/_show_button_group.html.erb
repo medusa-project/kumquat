@@ -4,16 +4,6 @@
 %>
 
 <div id="item-show-buttons" class="btn-group pull-right" role="group">
-  <button class="btn btn-danger pt-remove-from-favorites"
-          data-item-id="<%= item.repository_id %>">
-    <i class="fa fa-heart-o"></i> Remove From Favorites
-  </button>
-
-  <button class="btn btn-default pt-add-to-favorites"
-          data-item-id="<%= item.repository_id %>">
-    <i class="fa fa-heart"></i> Add To Favorites
-  </button>
-
   <%= share_button(item) %>
 
   <div class="btn-group">

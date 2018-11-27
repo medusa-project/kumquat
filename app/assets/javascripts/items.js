@@ -7,8 +7,6 @@ var PTItemView = function() {
 
     var three_d_viewer_loaded = false;
 
-    var self = this;
-
     /**
      * Encapsulates the citation panel.
      *
@@ -275,28 +273,6 @@ var PTItemView = function() {
     };
 
     this.init = function() {
-        $(document).on(Application.Events.ITEM_ADDED_TO_FAVORITES, function(event, item) {
-            $('.pt-add-to-favorites').hide();
-            $('.pt-remove-from-favorites').show();
-            updateFavoritesCount();
-        });
-        $(document).on(Application.Events.ITEM_REMOVED_FROM_FAVORITES, function(event, item) {
-            $('.pt-remove-from-favorites').hide();
-            $('.pt-add-to-favorites').show();
-            updateFavoritesCount();
-        });
-        $('button.pt-add-to-favorites').on('click',
-            self.item().addToFavorites);
-        $('button.pt-remove-from-favorites').on('click',
-            self.item().removeFromFavorites);
-        if (self.item().isFavorite()) {
-            $('.pt-add-to-favorites').hide();
-            $('.pt-remove-from-favorites').show();
-        } else {
-            $('.pt-remove-from-favorites').hide();
-            $('.pt-add-to-favorites').show();
-        }
-
         $('a[href="#pt-download-section"]').on('click', function() {
             $('#pt-download').collapse('show');
         });
@@ -383,20 +359,6 @@ var PTItemView = function() {
         new PTEmbedPanel();
     };
 
-    /**
-     * @return PTItem
-     */
-    this.item = function() {
-        var item = new PTItem();
-        item.id = $('.pt-add-to-favorites').data('item-id');
-        return item;
-    };
-
-    var updateFavoritesCount = function() {
-        var badge = $('.pt-favorites-count');
-        badge.text(PTItem.numFavorites());
-    };
-
 };
 
 /**
@@ -425,26 +387,6 @@ var PTItemsView = function() {
             });
         });
 
-        // Show the add-to- or remove-from-favorites button for each item
-        // depending on whether it's already a favorite.
-        $('button.pt-remove-from-favorites, button.pt-add-to-favorites').each(function() {
-            var item = new PTItem();
-            item.id = $(this).data('item-id');
-            if (item.isFavorite()) {
-                if ($(this).hasClass('pt-remove-from-favorites')) {
-                    $(this).show();
-                } else {
-                    $(this).hide();
-                }
-            } else {
-                if ($(this).hasClass('pt-add-to-favorites')) {
-                    $(this).show();
-                } else {
-                    $(this).hide();
-                }
-            }
-        });
-
         self.attachEventListeners();
     };
 
@@ -455,36 +397,6 @@ var PTItemsView = function() {
         $('.pagination a').on('click', function() {
             $('form.pt-filter')[0].scrollIntoView({behavior: "smooth", block: "start"});
         });
-        self.attachFavoritesListeners();
-    };
-
-    this.attachFavoritesListeners = function() {
-        $(document).on(Application.Events.ITEM_ADDED_TO_FAVORITES, function (event, item) {
-            $('.pt-results button.pt-remove-from-favorites[data-item-id="' + item.id + '"]').show();
-            $('.pt-results button.pt-add-to-favorites[data-item-id="' + item.id + '"]').hide();
-            updateFavoritesCount();
-        });
-        $(document).on(Application.Events.ITEM_REMOVED_FROM_FAVORITES, function (event, item) {
-            $('.pt-results button.pt-remove-from-favorites[data-item-id="' + item.id + '"]').hide();
-            $('.pt-results button.pt-add-to-favorites[data-item-id="' + item.id + '"]').show();
-            updateFavoritesCount();
-        });
-        $('button.pt-add-to-favorites').on('click', function(e) {
-            var item = new PTItem();
-            item.id = $(this).data('item-id');
-            item.addToFavorites();
-            e.preventDefault();
-        });
-        $('button.pt-remove-from-favorites').on('click', function(e) {
-            var item = new PTItem();
-            item.id = $(this).data('item-id');
-            item.removeFromFavorites();
-            e.preventDefault();
-        });
-    };
-
-    var updateFavoritesCount = function() {
-        $('.pt-favorites-count').text(PTItem.numFavorites());
     };
 
 };
@@ -500,7 +412,6 @@ var PTTreeBrowserView = function() {
 
     this.init = function() {
         initializeTree();
-        new PTItemsView().attachFavoritesListeners();
     };
 
     /**

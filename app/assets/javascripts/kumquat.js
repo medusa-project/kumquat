@@ -1,10 +1,5 @@
 var Application = {
 
-    Events: {
-        ITEM_ADDED_TO_FAVORITES: 'PTItemAddedToFavorites',
-        ITEM_REMOVED_FROM_FAVORITES: 'PTItemRemovedFromFavorites'
-    },
-
     /**
      * Enables the facets returned by one of the facets_as_x() helpers.
      *

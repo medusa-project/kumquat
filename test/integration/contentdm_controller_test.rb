@@ -202,7 +202,7 @@ class ContentdmControllerTest < ActionDispatch::IntegrationTest
   test 'v4 favorites page' do
     get('/cdm4/favorites.php')
     assert_response :moved_permanently
-    assert_redirected_to favorites_url
+    assert_redirected_to root_url
   end
 
   test 'v4 help page' do
@@ -226,7 +226,7 @@ class ContentdmControllerTest < ActionDispatch::IntegrationTest
   test 'v6 favorites page' do
     get('/cdm/favorites')
     assert_response :moved_permanently
-    assert_redirected_to favorites_url
+    assert_redirected_to root_url
   end
 
   test 'v6 OAI-PMH' do

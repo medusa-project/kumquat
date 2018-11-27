@@ -109,12 +109,6 @@
               </li>
             </ul>
           </li>
-          <li id="favorites-nav">
-            <%= link_to favorites_path do %>
-              <span class="fa fa-heart"></span> Favorites
-              <span class="badge pt-favorites-count"><%= num_favorites %></span>
-            <% end %>
-          </li>
         </ul>
 
         <%= form_tag(search_path, method: :get, class: 'navbar-form navbar-right') do %>
