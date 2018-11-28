@@ -755,13 +755,13 @@ module ItemsHelper
     html += '<li class="divider"></li>'
     # facebook
     html += '<li>'
-    html += link_to("https://www.facebook.com/sharer/sharer.php?u=#{url}") do
+    html += link_to("https://www.facebook.com/sharer/sharer.php?u=#{url}", target: '_blank') do
       raw('<i class="fa fa-facebook-square"></i> Facebook')
     end
     html += '</li>'
     # twitter: https://dev.twitter.com/web/tweet-button/web-intent
     html += '<li>'
-    html += link_to("https://twitter.com/intent/tweet?url=#{url}&text=#{truncate(title, length: 140)}") do
+    html += link_to("https://twitter.com/intent/tweet?url=#{url}&text=#{truncate(title, length: 140)}", target: '_blank') do
       raw('<i class="fa fa-twitter-square"></i> Twitter')
     end
     html += '</li>'
