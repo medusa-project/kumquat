@@ -91,6 +91,10 @@ class ApplicationController < ActionController::Base
     response.headers['Cache-Control']             = 'public, must-revalidate, max-age=0'
     response.headers['Accept-Ranges']             = 'bytes'
     response.headers['Content-Transfer-Encoding'] = 'binary'
+    if binary.duration.present?
+      response.headers['Content-Duration']        = binary.duration
+      response.headers['X-Content-Duration']      = binary.duration
+    end
 
     Aws::S3::Client.new.get_object(s3_request) do |chunk|
       response.stream.write chunk
