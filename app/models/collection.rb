@@ -456,6 +456,7 @@ class Collection < ApplicationRecord
           aggregations(false).
           search_children(true).
           include_unpublished(true).
+          order(false).
           limit(0).
           count
     end
@@ -474,6 +475,7 @@ class Collection < ApplicationRecord
               aggregations(false).
               include_unpublished(true).
               include_variants(*Item::Variants::FILE).
+              order(false).
               count
         else
           @num_objects = ItemFinder.new.
@@ -481,6 +483,7 @@ class Collection < ApplicationRecord
               aggregations(false).
               include_unpublished(true).
               search_children(false).
+              order(false).
               count
       end
     end

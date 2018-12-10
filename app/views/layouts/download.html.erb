@@ -22,7 +22,7 @@
 
 <%= hidden_field_tag('pt-root-path', root_path) %>
 <%= hidden_field_tag('pt-root-url', root_url) %>
-<%= hidden_field_tag('pt-current-path', request.fullpath) %>
+<%= hidden_field_tag('pt-current-path', request.path) %>
 
 <div class="container-fluid">
   <% flash.each do |type, message| %>

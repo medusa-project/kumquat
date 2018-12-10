@@ -163,7 +163,7 @@ class CollectionFinder < AbstractFinder
       end
 
       # Ordering
-      if @orders.any?
+      if @orders&.any?
         j.sort do
           @orders.each do |order|
             j.set! order[:field] do
