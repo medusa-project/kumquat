@@ -340,8 +340,9 @@ class ItemFinder < AbstractFinder
 
       # Ordering
       # Order by explicit orders, if provided; otherwise sort by the metadata
-      # profile's default order, if present.
-      if @orders.any?
+      # profile's default order, if @orders is set to true; otherwise don't
+      # sort.
+      if @orders.respond_to?(:any?) and @orders.any?
         j.sort do
           @orders.each do |order|
             j.set! order[:field] do
@@ -350,7 +351,7 @@ class ItemFinder < AbstractFinder
             end
           end
         end
-      else
+      elsif @orders
         el = metadata_profile.default_sortable_element
         if el
           j.sort do
