@@ -3,4 +3,3 @@
 User-agent: *
 Crawl-delay: 5
 Disallow: /downloads
-Disallow: /favorites

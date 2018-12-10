@@ -62,6 +62,10 @@
               <%= thumbnail_tag(@representative_image_binary, size: 512) %>
             <% end %>
             <%= link_to @representative_item, class: 'pt-title' do %>
+              <% if @representative_item.parent %>
+                <%= @representative_item.parent.title %>
+                &mdash;
+              <% end %>
               <%= @representative_item.title %>
             <% end %>
           <% else %>

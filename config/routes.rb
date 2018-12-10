@@ -82,7 +82,6 @@ Rails.application.routes.draw do
   resources :downloads, only: :show, param: :key do
     match '/file', to: 'downloads#file', via: :get, as: 'file'
   end
-  resources :favorites, only: :index
   resources :items, only: [:index, :show] do
     match '/treedata', to: 'items#item_tree_node', via: [:get, :post]
     match '/binaries/:filename', to: 'items#binary', via: :get, as: 'binary'
@@ -235,7 +234,7 @@ Rails.application.routes.draw do
   match '/cdm4/about.php',
         to: redirect('/collections', status: 301), via: :all
   match '/cdm4/favorites.php',
-        to: redirect('/favorites', status: 301), via: :all
+        to: redirect('/', status: 301), via: :all
   match '/cdm4/help.php',
         to: redirect('/', status: 301), via: :all
 
@@ -306,7 +305,7 @@ Rails.application.routes.draw do
   match '/cdm/about',
         to: redirect('/', status: 301), via: :all
   match '/cdm/favorites',
-        to: redirect('/favorites', status: 301), via: :all
+        to: redirect('/', status: 301), via: :all
   # I don't know what this is; maybe used by the Project Client?
   match '/ui/*glob',
         to: 'contentdm#gone', via: :all

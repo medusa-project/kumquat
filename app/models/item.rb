@@ -449,7 +449,8 @@ class Item < ApplicationRecord
       unless doc[element.indexed_field]&.respond_to?(:each)
         doc[element.indexed_field] = []
       end
-      doc[element.indexed_field] << element.value[0..ElasticsearchClient::MAX_KEYWORD_FIELD_LENGTH]
+      doc[element.indexed_field] <<
+          StringUtils.strip_leading_articles(element.value)[0..ElasticsearchClient::MAX_KEYWORD_FIELD_LENGTH]
     end
 
     # We also need to index parent metadata fields. These are needed when we
@@ -460,7 +461,8 @@ class Item < ApplicationRecord
         unless doc[element.parent_indexed_field]&.respond_to?(:each)
           doc[element.parent_indexed_field] = []
         end
-        doc[element.parent_indexed_field] << element.value[0..ElasticsearchClient::MAX_KEYWORD_FIELD_LENGTH]
+        doc[element.parent_indexed_field] <<
+            StringUtils.strip_leading_articles(element.value)[0..ElasticsearchClient::MAX_KEYWORD_FIELD_LENGTH]
       end
     end
 

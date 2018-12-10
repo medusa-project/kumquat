@@ -43,4 +43,16 @@ class StringUtils
     str.tr('A-Ma-m0-4N-Zn-z5-9', 'N-Zn-z5-9A-Ma-m0-4')
   end
 
+  ##
+  # @param str [String] String to strip leading articles from.
+  # @return [String] New string with leading articles stripped.
+  #
+  def self.strip_leading_articles(str)
+    # See: http://access.rdatoolkit.org/rdaappc_rdac-26.html
+
+    # English: a, an, d', de, the, ye
+    # French:  l', la, le, les, un* (skipped), une* (skipped)
+    str.gsub(/^(a |an |d'|d’|de |the |ye |l'|l’|la |le |les )/i, '')
+  end
+
 end

@@ -76,7 +76,7 @@ class ItemTest < ActiveSupport::TestCase
 
   # as_indexed_json()
 
-  test 'as_indexed_json() returns the correct structure' do
+  test 'as_indexed_json returns the correct structure' do
     doc = @item.as_indexed_json
 
     assert_equal @item.collection_repository_id,
@@ -127,9 +127,9 @@ class ItemTest < ActiveSupport::TestCase
                  doc[Item::IndexFields::VARIANT]
 
     title = @item.element(:title)
-    assert_equal title.value, doc[title.indexed_field]
+    assert_equal [title.value], doc[title.indexed_field]
     description = @item.element(:description)
-    assert_equal description.value, doc[description.indexed_field]
+    assert_equal [description.value], doc[description.indexed_field]
   end
 
   # as_json()

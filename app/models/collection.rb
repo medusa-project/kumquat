@@ -255,7 +255,8 @@ class Collection < ApplicationRecord
       unless doc[element.indexed_field]&.respond_to?(:each)
         doc[element.indexed_field] = []
       end
-      doc[element.indexed_field] << element.value[0..ElasticsearchClient::MAX_KEYWORD_FIELD_LENGTH]
+      doc[element.indexed_field] <<
+          StringUtils.strip_leading_articles(element.value)[0..ElasticsearchClient::MAX_KEYWORD_FIELD_LENGTH]
     end
 
     doc
