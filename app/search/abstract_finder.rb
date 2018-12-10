@@ -117,13 +117,14 @@ class AbstractFinder
   end
 
   ##
-  # @param orders [Enumerable<String>, Enumerable<Hash<String,Symbol>>]
+  # @param orders [Enumerable<String>, Enumerable<Hash<String,Symbol>>, Boolean]
   #               Enumerable of string field names and/or hashes with field
-  #               name => direction pairs (`:asc` or `:desc`).
+  #               name => direction pairs (`:asc` or `:desc`). Supply false to
+  #               disable ordering.
   # @return [self]
   #
   def order(orders)
-    if orders.present?
+    if orders
       @orders = [] # reset them
       if orders.respond_to?(:keys)
         @orders << { field: orders.keys.first,
@@ -132,6 +133,8 @@ class AbstractFinder
         @orders << { field: orders.to_s, direction: :asc }
       end
       @loaded = false
+    else
+      @orders = false
     end
     self
   end
