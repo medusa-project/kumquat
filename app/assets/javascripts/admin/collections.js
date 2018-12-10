@@ -14,6 +14,9 @@ var PTAdminCollectionsView = function() {
     };
 
     this.attachEventListeners = function() {
+        $('input[type=checkbox]').on('change', function() {
+            $('form.pt-filter').submit();
+        });
         $('.pagination a').on('click', function() {
             $('form.pt-filter')[0].scrollIntoView({behavior: "smooth", block: "start"});
         });
