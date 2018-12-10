@@ -6,7 +6,6 @@ class ItemsController < WebsiteController
     BROWSING_ALL_ITEMS = 0
     BROWSING_COLLECTION = 1
     SEARCHING = 2
-    FAVORITES = 3
   end
 
   MAX_RESULT_WINDOW = 100

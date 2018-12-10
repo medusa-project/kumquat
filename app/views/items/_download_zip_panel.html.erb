@@ -1,6 +1,6 @@
 <%
 # Requires the following locals:
-# context [Symbol] :directory, :item, :results, or :favorites
+# context [Symbol] :directory, :item, or :results
 # num_downloadable_items [Fixnum]
 # total_byte_size [Integer]
 
@@ -21,9 +21,6 @@ num_batches = (num_downloadable_items / MedusaDownloaderClient::BATCH_SIZE.to_f)
           <% when :results %>
             <p>Zip files include access and preservation master files for all
               of the items in the current result set.</p>
-          <% when :favorites %>
-            <p>Zip files include access and preservation masters for all checked
-              favorites, or all favorites, if none are checked.</p>
           <% when :item %>
             <p>Zip files include access and preservation master files for the
               current object.</p>

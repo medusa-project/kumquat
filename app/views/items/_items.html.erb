@@ -5,14 +5,10 @@
 
   <div class="hidden-xs visible-sm visible-md visible-lg">
     <%= entities_as_list(@items, @start,
-                         show_collections: !@collection,
-                         show_add_to_favorites_buttons: true,
-                         show_remove_from_favorites_buttons: true) %>
+                         show_collections: !@collection) %>
   </div>
   <div class="pt-cards visible-xs hidden-sm">
-    <%= entities_as_cards(@items,
-                          show_add_to_favorites_buttons: true,
-                          show_remove_from_favorites_buttons: true) %>
+    <%= entities_as_cards(@items) %>
   </div>
 
   <div class="text-center">

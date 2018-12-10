@@ -48,10 +48,6 @@ body#items_show, #pt-free-form-item-view {
     margin-bottom: 0.5em;
   }
 
-  .pt-remove-from-favorites {
-    display:none;
-  }
-
   .pt-viewer {
     margin-bottom: 2em;
   }
@@ -246,6 +242,20 @@ body#tree_browser {
   #pt-free-form-item-view {
     border-top-style: solid;
     border-color: #dddddd;
+  }
+  .pt-side-by-side {
+    display: none;
+  }
+  .pt-top-bottom {
+    display: block;
+  }
+}
+@media (min-width: 993px) {
+  .pt-side-by-side {
+    display: block;
+  }
+  .pt-top-bottom {
+    display: none;
   }
 }
 .nav-pills {
