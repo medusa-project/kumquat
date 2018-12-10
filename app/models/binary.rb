@@ -250,7 +250,7 @@ class Binary < ApplicationRecord
           return false
         end
         return true
-      elsif self.is_pdf? or self.is_video?
+      elsif self.is_pdf?
         return true
       end
     end
