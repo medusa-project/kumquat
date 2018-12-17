@@ -16,6 +16,7 @@ gem 'jbuilder', '~> 2.0' # JSON DSL: https://github.com/rails/jbuilder
 gem 'jquery-rails'
 gem 'js_cookie_rails'
 gem 'local_time'
+gem 'marc-dates', git: 'https://github.com/medusa-project/marc-dates.git'
 gem 'mime-types', '~> 2.6'
 gem 'netaddr'
 gem 'nokogiri', '~> 1.8.2'

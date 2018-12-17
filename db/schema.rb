@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180626142132) do
+ActiveRecord::Schema.define(version: 20181217172350) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -228,7 +228,7 @@ ActiveRecord::Schema.define(version: 20180626142132) do
     t.string "variant"
     t.integer "page_number"
     t.integer "subpage_number"
-    t.datetime "date"
+    t.datetime "start_date"
     t.boolean "published", default: true
     t.decimal "latitude", precision: 10, scale: 7
     t.decimal "longitude", precision: 10, scale: 7
@@ -238,6 +238,7 @@ ActiveRecord::Schema.define(version: 20180626142132) do
     t.string "contentdm_alias"
     t.string "embed_tag"
     t.integer "representative_binary_id"
+    t.datetime "end_date"
     t.index ["collection_repository_id"], name: "index_items_on_collection_identifier"
     t.index ["parent_repository_id"], name: "index_items_on_parent_identifier"
     t.index ["published"], name: "index_items_on_published"
