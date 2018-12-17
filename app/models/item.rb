@@ -1383,7 +1383,7 @@ class Item < ApplicationRecord
       p = p.parent
     end
     # If no ancestor has any roles, inherit from the collection.
-    if allowed_roles.empty? and denied_roles.empty?
+    if allowed_roles.empty? and denied_roles.empty? and self.collection
       allowed_roles = self.collection.allowed_roles
       denied_roles = self.collection.denied_roles
     end
