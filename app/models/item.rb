@@ -403,7 +403,8 @@ class Item < ApplicationRecord
   def as_indexed_json(options = {})
     doc = {}
     doc[IndexFields::COLLECTION] = self.collection_repository_id
-    doc[IndexFields::DATE] = self.date.utc.iso8601 if self.date
+    # Elasticsearch date fields don't support >4-digit years.
+    doc[IndexFields::DATE] = self.date.utc.iso8601 if self.date and self.date.year < 10000
     doc[IndexFields::DESCRIBED] = self.described?
 
     doc[IndexFields::EFFECTIVE_ALLOWED_ROLES] =
