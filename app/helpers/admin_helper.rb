@@ -428,8 +428,11 @@ module AdminHelper
     # Subpage Number
     data << { label: 'Subpage Number', value: item.subpage_number }
 
-    # Normalized Date
-    data << { label: 'Normalized Date', value: item.date }
+    # Normalized Start Date
+    data << { label: 'Normalized Start Date', value: item.start_date }
+
+    # Normalized End Date
+    data << { label: 'Normalized End Date', value: item.end_date }
 
     # Normalized Longitude
     data << { label: 'Normalized Longitude', value: item.longitude }

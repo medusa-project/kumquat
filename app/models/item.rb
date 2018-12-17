@@ -479,7 +479,8 @@ class Item < ApplicationRecord
   #
   def as_json(options = {})
     struct = super(options)
-    struct['date'] = self.date&.utc&.iso8601
+    struct['start_date'] = self.start_date&.utc&.iso8601
+    struct['end_date'] = self.end_date&.utc&.iso8601
     # Add children
     struct['children'] = []
     self.items.each { |it| struct['children'] << it.as_json.select{ |k, v| k == 'repository_id' } }
@@ -1458,7 +1459,11 @@ class Item < ApplicationRecord
   def set_normalized_date
     date_elem = self.element(:date) || self.element(:dateCreated)
     if date_elem
-      self.date = TimeUtil.string_date_to_time(date_elem.value)
+      range = TimeUtil.parse_date(date_elem.value)
+      if range
+        self.start_date = range[0]
+        self.end_date   = range[1]
+      end
     end
   end
 

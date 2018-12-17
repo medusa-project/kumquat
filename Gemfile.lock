@@ -1,4 +1,10 @@
 GIT
+  remote: https://github.com/medusa-project/marc-dates.git
+  revision: 57a3b857f92b538c47d2e4a52d35726032fdbad9
+  specs:
+    marc-dates (1.1)
+
+GIT
   remote: https://github.com/prawnpdf/prawn.git
   revision: 9250c8675342872603332784f77263fcb1cf72a2
   ref: 9250c8675342872603332784f77263fcb1cf72a2
@@ -251,6 +257,7 @@ DEPENDENCIES
   jquery-rails
   js_cookie_rails
   local_time
+  marc-dates!
   mime-types (~> 2.6)
   netaddr
   nokogiri (~> 1.8.2)
