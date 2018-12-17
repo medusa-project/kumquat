@@ -173,10 +173,11 @@ module ApplicationHelper
           end
         end
 
-        date = entity.date
-        if date
-          info_parts << date.year
-        end
+        range = [
+            entity.respond_to?(:date) ? entity.date : nil,
+            entity.respond_to?(:end_date) ? entity.end_date : nil
+        ]
+        info_parts << range.select(&:present?).map(&:year).join('-') if range.any?
 
         if options[:show_collections] and entity.collection
           info_parts << link_to(entity.collection.title,

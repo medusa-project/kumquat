@@ -9,14 +9,14 @@ folksong_obj1: # https://medusa.library.illinois.edu/cfs_directories/1286218.jso
 
 illini_union_dir1: # https://medusa.library.illinois.edu/cfs_directories/111145.json
   collection_repository_id: 34d204d0-05d1-0130-c5bb-0019b9e633c5-e
-  date: <%= Time.parse('2015-08-10') %>
+  start_date: <%= Time.parse('2015-08-10') %>
   published: true
   repository_id: a53264b0-5ca8-0132-3334-0050569601ca-8
   variant: Directory
 
 illini_union_dir1_dir1: # https://medusa.library.illinois.edu/cfs_directories/111155.json
   collection_repository_id: 34d204d0-05d1-0130-c5bb-0019b9e633c5-e
-  date: <%= Time.parse('2015-08-10') %>
+  start_date: <%= Time.parse('2015-08-10') %>
   published: true
   repository_id: a53add10-5ca8-0132-3334-0050569601ca-7
   parent_repository_id: a53264b0-5ca8-0132-3334-0050569601ca-8
@@ -24,7 +24,7 @@ illini_union_dir1_dir1: # https://medusa.library.illinois.edu/cfs_directories/11
 
 illini_union_dir1_dir1_file1: # https://medusa.library.illinois.edu/cfs_files/5061801.json
   collection_repository_id: 34d204d0-05d1-0130-c5bb-0019b9e633c5-e
-  date: <%= Time.parse('2015-08-10') %>
+  start_date: <%= Time.parse('2015-08-10') %>
   published: true
   repository_id: 6e406030-5ce3-0132-3334-0050569601ca-3
   parent_repository_id: a53add10-5ca8-0132-3334-0050569601ca-7
@@ -34,7 +34,7 @@ illini_union_dir1_dir1_file1: # https://medusa.library.illinois.edu/cfs_files/50
 
 olin_obj1:
   collection_repository_id: 81154880-e3fb-012f-c5b6-0019b9e633c5-9
-  date: <%= Time.parse('2015-08-10') %>
+  start_date: <%= Time.parse('2015-08-10') %>
   published: true
   repository_id: 1635fa90-5cc8-0132-3334-0050569601ca-3
 
@@ -42,7 +42,7 @@ olin_obj1:
 
 sanborn_obj1:
   collection_repository_id: 6ff64b00-072d-0130-c5bb-0019b9e633c5-2
-  date: <%= Time.parse('2015-08-10') %>
+  start_date: <%= Time.parse('2015-08-10') %>
   published: true
   repository_id: be8d3500-c451-0133-1d17-0050569601ca-9
   contentdm_alias: sanborn
@@ -50,7 +50,7 @@ sanborn_obj1:
 
 sanborn_obj1_page1:
   collection_repository_id: 6ff64b00-072d-0130-c5bb-0019b9e633c5-2
-  date: <%= Time.parse('2015-08-10') %>
+  start_date: <%= Time.parse('2015-08-10') %>
   latitude: 45
   longitude: -120
   page_number: 1
@@ -61,7 +61,7 @@ sanborn_obj1_page1:
 
 sanborn_obj1_page2:
   collection_repository_id: 6ff64b00-072d-0130-c5bb-0019b9e633c5-2
-  date: <%= Time.parse('2015-08-10') %>
+  start_date: <%= Time.parse('2015-08-10') %>
   page_number: 2
   published: true
   repository_id: d29edba0-c451-0133-1d17-0050569601ca-c
@@ -70,6 +70,6 @@ sanborn_obj1_page2:
 
 sanborn_obj2:
   collection_repository_id: 6ff64b00-072d-0130-c5bb-0019b9e633c5-2
-  date: <%= Time.parse('2015-08-10') %>
+  start_date: <%= Time.parse('2015-08-10') %>
   published: true
   repository_id: cd2d4601-c451-0133-1d17-0050569601ca-8

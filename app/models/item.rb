@@ -73,9 +73,10 @@
 # * contentdm_pointer:    Integer pointer of items that have been migrated out
 #                         of CONTENTdm, used for URL redirection.
 # * created_at:           Managed by ActiveRecord.
-# * date:                 Normalized date, for date-based queries.
+# * start_date:           Start date of a normalized date range.
 # * embed_tag:            HTML snippet that will be used to display an
 #                         alternative object viewer.
+# * end_date:             End date of a normalized date range.
 # * latitude:             Normalized latitude in decimal degrees.
 # * longitude:            Normalized longitude in decimal degrees.
 # * page_number:          Literal page number of a page-variant item.
@@ -528,6 +529,10 @@ class Item < ApplicationRecord
   def collection=(collection)
     self.collection_repository_id = collection.repository_id
     @collection = collection
+  end
+
+  def date
+    start_date
   end
 
   ##
