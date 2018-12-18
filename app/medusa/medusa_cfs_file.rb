@@ -49,6 +49,7 @@ class MedusaCfsFile < ApplicationRecord
   # Updates the instance with current properties from Medusa.
   #
   # @return [void]
+  # @raises [IOError]
   #
   def load_from_medusa
     raise 'load_from_medusa() called without UUID set' unless self.uuid.present?
@@ -64,8 +65,10 @@ class MedusaCfsFile < ApplicationRecord
       if struct['directory'] and struct['directory']['uuid']
         self.directory_uuid = struct['directory']['uuid']
       else
-        raise IOError, "Unexpected JSON structure: #{self.url} (does it exist?)"
+        raise IOError, "Unexpected JSON structure: #{self.url}"
       end
+    else
+      raise IOError, "Unexpected response status: #{response.status}"
     end
   end
 
