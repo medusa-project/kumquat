@@ -32,7 +32,7 @@ class MedusaCfsFile < ApplicationRecord
         file.load_from_medusa
         file.save!
       rescue IOError => e
-        CustomLogger.instance.warn("MedusaCfsFile.with_uuid(): #{e}", e)
+        CustomLogger.instance.warn("MedusaCfsFile.with_uuid(): #{e}")
       end
     end
     file
