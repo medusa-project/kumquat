@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/medusa-project/marc-dates.git
-  revision: 57a3b857f92b538c47d2e4a52d35726032fdbad9
+  revision: ad78a0888cc5c346d994e404a04258e7ffba8d32
   specs:
     marc-dates (1.1)
 
