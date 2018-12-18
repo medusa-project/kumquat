@@ -1366,19 +1366,18 @@ class Item < ApplicationRecord
   #
   def inherit_roles
     allowed_roles = []
-    denied_roles = []
+    denied_roles  = []
     # Try to inherit from an ancestor.
     p = self.parent
-    while p
+    while p and allowed_roles.empty? and denied_roles.empty?
       allowed_roles = p.allowed_roles
-      denied_roles = p.denied_roles
-      break if allowed_roles.any? or denied_roles.any?
+      denied_roles  = p.denied_roles
       p = p.parent
     end
     # If no ancestor has any roles, inherit from the collection.
-    if allowed_roles.empty? and denied_roles.empty?
+    if allowed_roles.empty? and denied_roles.empty? and self.collection
       allowed_roles = self.collection.allowed_roles
-      denied_roles = self.collection.denied_roles
+      denied_roles  = self.collection.denied_roles
     end
 
     ActiveRecord::Base.transaction do
