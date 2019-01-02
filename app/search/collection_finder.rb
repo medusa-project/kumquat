@@ -76,7 +76,7 @@ class CollectionFinder < AbstractFinder
             j.must do
               # https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html
               j.query_string do
-                j.query @query[:query]
+                j.query sanitized_query
                 j.default_field @query[:field]
                 j.default_operator 'AND'
                 j.lenient true
