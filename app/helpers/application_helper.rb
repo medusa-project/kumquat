@@ -197,7 +197,19 @@ module ApplicationHelper
       html += '</span>'
       html += '<br>'
       html += '<span class="pt-description">'
-      html += truncate(entity.description.to_s, length: 380)
+
+      description = entity.description.to_s
+      if entity.kind_of?(Item)
+        desc_e = entity.collection.descriptive_element
+        if desc_e
+          value = entity.element(desc_e.name)&.value
+          if value.present?
+            description = value
+          end
+        end
+      end
+
+      html += truncate(description, length: 380)
       html += '</span>'
       html += '</div>'
       html += '</li>'

@@ -67,6 +67,16 @@
     </td>
   </tr>
   <tr>
+    <td>Descriptive Element</td>
+    <td>
+      <% if @collection.descriptive_element %>
+        <%= @collection.descriptive_element.label %>
+      <% else %>
+        <%= @collection.effective_metadata_profile.elements.find_by_name('description').label %>
+      <% end %>
+    </td>
+  </tr>
+  <tr>
     <td>Package Profile</td>
     <td>
       <%= @collection.package_profile ?
