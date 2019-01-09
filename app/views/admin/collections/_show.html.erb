@@ -69,11 +69,8 @@
   <tr>
     <td>Descriptive Element</td>
     <td>
-      <% if @collection.descriptive_element %>
-        <%= @collection.descriptive_element.label %>
-      <% else %>
-        <%= @collection.effective_metadata_profile.elements.find_by_name('description').label %>
-      <% end %>
+      <%= @collection.descriptive_element ?
+              @collection.descriptive_element.label : 'None' %>
     </td>
   </tr>
   <tr>
