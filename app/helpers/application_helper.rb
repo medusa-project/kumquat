@@ -202,10 +202,7 @@ module ApplicationHelper
       if entity.kind_of?(Item)
         desc_e = entity.collection.descriptive_element
         if desc_e
-          value = entity.element(desc_e.name)&.value
-          if value.present?
-            description = value
-          end
+          description = entity.element(desc_e.name)&.value
         end
       end
 
