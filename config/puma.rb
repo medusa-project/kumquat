@@ -52,3 +52,8 @@ end
 
 # Allow puma to be restarted by `rails restart` command.
 plugin :tmp_restart
+
+if ENV['RAILS_ENV'] == 'production'
+  daemonize
+  pidfile File.join(__dir__, '..', 'tmp', 'pids', 'puma.pid')
+end
