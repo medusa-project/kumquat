@@ -27,6 +27,7 @@ gem 'pg'
 # warning about an already-initialized constant.
 # See: https://github.com/prawnpdf/prawn/issues/1024
 gem 'prawn', git: 'https://github.com/prawnpdf/prawn.git', ref: '9250c8675342872603332784f77263fcb1cf72a2'
+gem 'puma'
 gem 'rails_autolink'
 gem 'sass-rails', '~> 5.0'
 gem 'tzinfo-data'
@@ -36,10 +37,6 @@ group :development do
   gem 'capistrano-bundler'
   gem 'capistrano-rails'
   gem 'capistrano-rvm'
-  gem 'puma' # supports chunked/streaming responses
-  gem 'rails-erd', require: false # generate a model diagram with `bundle exec erd`
-end
 
-group :production do
-  gem 'passenger'
+  gem 'rails-erd', require: false # generate a model diagram with `bundle exec erd`
 end
