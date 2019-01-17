@@ -38,10 +38,39 @@ class Element < ApplicationRecord
     MetadataProfileElement.where(name: self.name).count
   end
 
+  def to_param
+    self.name
+  end
+
   def update_from_json_struct(struct)
     self.name = struct['name']
     self.description = struct['description']
     self.save!
+  end
+
+  ##
+  # Returns an Enumerable of all usages of a given element by all items.
+  #
+  # @return [Enumerable<String>] of hashes with `collection_id`, `item_id`,
+  #                              `element_name, `element_value`, and
+  #                              `element_uri` keys.
+  #
+  def usages
+    sql = "SELECT collections.repository_id AS collection_id,
+          items.repository_id AS item_id, entity_elements.name,
+          entity_elements.value, entity_elements.uri
+        FROM entity_elements
+        LEFT JOIN items ON entity_elements.item_id = items.id
+        LEFT JOIN collections ON collections.repository_id = items.collection_repository_id
+        WHERE entity_elements.item_id IS NOT NULL
+          AND entity_elements.name IN ($1)
+          AND collections.public_in_medusa = true
+        ORDER BY collection_id, item_id, entity_elements.name,
+          entity_elements.value ASC"
+
+    values = [[nil, self.name]]
+
+    ActiveRecord::Base.connection.exec_query(sql, 'SQL', values)
   end
 
   private

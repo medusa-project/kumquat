@@ -16,6 +16,11 @@ module AdminHelper
           when 'show'
             return admin_collection_view_breadcrumb(options[:collection])
         end
+      when 'elements'
+        case action_name
+          when 'show'
+            return admin_element_view_breadcrumb(options[:element])
+        end
       when 'items'
         case action_name
           when 'edit'
@@ -306,6 +311,15 @@ module AdminHelper
     html = "<ol class=\"breadcrumb\">"\
       "<li>#{link_to 'Home', admin_root_path}</li>"\
       "<li class=\"active\">#{link_to 'Collections', admin_collections_path}</li>"\
+    "</ol>"
+    raw(html)
+  end
+
+  def admin_element_view_breadcrumb(element)
+    html = "<ol class=\"breadcrumb\">"\
+      "<li>#{link_to 'Home', admin_root_path}</li>"\
+      "<li>#{link_to 'Elements', admin_elements_path}</li>"\
+      "<li class=\"active\">#{element.name}</li>"\
     "</ol>"
     raw(html)
   end
