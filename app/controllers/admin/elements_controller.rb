@@ -2,6 +2,8 @@ module Admin
 
   class ElementsController < ControlPanelController
 
+    include ActionController::Live
+
     class ImportMode
       MERGE = 'merge'
       REPLACE = 'replace'
@@ -115,6 +117,14 @@ module Admin
     end
 
     ##
+    # Responds to GET /admin/elements/:name
+    #
+    def show
+      @element = Element.find_by_name(params[:name])
+      raise ActiveRecord::RecordNotFound unless @element
+    end
+
+    ##
     # XHR only
     #
     def update
@@ -135,6 +145,27 @@ module Admin
         keep_flash
         render 'update' # update.js.erb will reload the page
       end
+    end
+
+    ##
+    # Responds to GET /admin/elements/:name/usages with a TSV-format list of
+    # all usages of a given element by all items.
+    #
+    def usages
+      element = Element.find_by_name(params[:element_name])
+      raise ActiveRecord::RecordNotFound unless element
+
+      response.headers['Content-Type'] = 'text/plain'
+      response.headers['Content-Disposition'] = "attachment;filename=#{element.name}.tsv"
+
+      response.stream.write "collection_id\titem_id\telement_name\telement_value\telement_uri" +
+                ItemTsvExporter::LINE_BREAK
+      element.usages.each do |row|
+        response.stream.write row.values.join("\t")
+        response.stream.write ItemTsvExporter::LINE_BREAK
+      end
+    ensure
+      response.stream.close
     end
 
     private

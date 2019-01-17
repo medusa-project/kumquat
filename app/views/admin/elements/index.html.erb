@@ -61,7 +61,7 @@
             <% end %>
           <% end %>
         </td>
-        <td><%= row['name'] %></td>
+        <td><%= link_to row['name'], admin_element_path(row['name']) %></td>
         <td><%= row['description'] %></td>
         <td><%= number_with_delimiter(row['metadata_profile_count']) %></td>
         <td><%= number_with_delimiter(row['entity_count']) %></td>
