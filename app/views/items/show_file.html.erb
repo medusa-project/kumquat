@@ -13,7 +13,8 @@
         <a role="button" class="btn btn-default btn-sm" data-toggle="collapse"
            href="#pt-binary-<%= supp_bin.id %>"
            aria-expanded="false" aria-controls="pt-binary-<%= supp_bin.id %>">
-          <i class="fa fa-plus-square-o"></i> Supplementary File</a>
+          <i class="fa fa-plus-square-o"></i>
+          Supplementary <%= supp_bin.human_readable_media_category %></a>
       <% end %>
       <% if @item.three_d_item %>
         <a role="button" class="btn btn-default btn-sm" data-toggle="collapse"

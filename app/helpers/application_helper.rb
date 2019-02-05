@@ -173,10 +173,11 @@ module ApplicationHelper
           end
         end
 
-        date = entity.date
-        if date
-          info_parts << date.year
-        end
+        range = [
+            entity.respond_to?(:date) ? entity.date : nil,
+            entity.respond_to?(:end_date) ? entity.end_date : nil
+        ]
+        info_parts << range.select(&:present?).map(&:year).join('-') if range.any?
 
         if options[:show_collections] and entity.collection
           info_parts << link_to(entity.collection.title,
@@ -196,7 +197,20 @@ module ApplicationHelper
       html += '</span>'
       html += '<br>'
       html += '<span class="pt-description">'
-      html += truncate(entity.description.to_s, length: 380)
+
+      description = nil
+      if entity.kind_of?(Item)
+        desc_e = entity.collection.descriptive_element
+        if desc_e
+          description = entity.element(desc_e.name)&.value
+        end
+      else
+        description = entity.description.to_s
+      end
+      if description
+        html += truncate(description, length: 380)
+      end
+
       html += '</span>'
       html += '</div>'
       html += '</li>'

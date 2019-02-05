@@ -31,8 +31,9 @@ var PTAdminCollectionsView = function() {
  */
 var PTAdminCollectionView = function() {
 
+    var ROOT_URL = $('input[name="root_url"]').val();
+
     this.init = function() {
-        var ROOT_URL = $('input[name="root_url"]').val();
         var collection_id = $('input[name="pt-collection-id"]').val();
 
         $('button.pt-add-item-set').on('click', function() {
@@ -72,8 +73,33 @@ var PTAdminCollectionView = function() {
 
 var PTAdminEditCollectionView = function() {
 
+    var ROOT_URL = $('input[name="root_url"]').val();
+
     this.init = function() {
         new Application.DirtyFormListener('form').listen();
+
+        // When the metadata profile is changed, reload the descriptive
+        // elements menu.
+        $('#collection_metadata_profile_id').on('change', function() {
+            var menu = $('#collection_descriptive_element_id');
+            menu.empty();
+
+            $.ajax({
+                url: ROOT_URL + '/admin/metadata-profiles/' + $(this).val() + '.json',
+                success: function (data) {
+                    data.elements.forEach(function(e) {
+                        var selected = (e.id === parseInt($('[name=current_descriptive_element_id]').val()));
+                        menu.append('<option value="' + e.id + '" ' +
+                            (selected ? 'selected' : '') + '>' + e.label + '</option>');
+                    });
+                },
+                error: function(a, b, c) {
+                    console.error(a);
+                    console.error(b);
+                    console.error(c);
+                }
+            });
+        });
     };
 
 };

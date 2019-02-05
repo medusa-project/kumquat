@@ -1,0 +1,14 @@
+<% provide :title, @element.name %>
+<% provide :body_id, 'admin_element_show' %>
+<% provide :active_nav, 'metadata' %>
+
+<%= admin_breadcrumb(element: @element) %>
+
+<div class="btn-group pull-right">
+  <!-- Export button -->
+  <%= link_to admin_element_usages_path(@element), type: 'button', class: 'btn btn-default' do %>
+    <i class="fa fa-download"></i> Export Usages as TSV
+  <% end %>
+</div>
+
+<h1><%= @element.name %></h1>

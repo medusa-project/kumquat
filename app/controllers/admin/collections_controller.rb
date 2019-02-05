@@ -15,6 +15,10 @@ module Admin
           map{ |t| [ t.name, t.id ] }
       @package_profile_options_for_select = PackageProfile.all.
           map{ |t| [ t.name, t.id ] }
+
+      profile = @collection.metadata_profile || MetadataProfile.default
+      @descriptive_element_options_for_select =
+          profile.elements.map{ |e| [e.label, e.id] }
     end
 
     ##
@@ -179,6 +183,7 @@ module Admin
 
     def sanitized_params
       params.require(:collection).permit(:id, :contentdm_alias,
+                                         :descriptive_element_id,
                                          :harvestable,
                                          :medusa_cfs_directory_id,
                                          :medusa_file_group_id,

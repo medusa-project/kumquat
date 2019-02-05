@@ -118,7 +118,9 @@ Rails.application.routes.draw do
     resources :agent_relations, except: [:index, :show], path: 'agent-relations'
     resources :agent_rules, except: :show, path: 'agent-rules'
     resources :agent_types, except: :show, path: 'agent-types'
-    resources :elements, except: :show, path: 'elements'
+    resources :elements, param: :name do
+      match '/usages', to: 'elements#usages', via: :get
+    end
     match '/elements/import', to: 'elements#import', via: :post,
           as: 'elements_import'
     match '/collections/sync', to: 'collections#sync', via: :patch,

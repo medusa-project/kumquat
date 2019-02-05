@@ -67,6 +67,13 @@
     </td>
   </tr>
   <tr>
+    <td>Descriptive Element</td>
+    <td>
+      <%= @collection.descriptive_element ?
+              @collection.descriptive_element.label : 'None' %>
+    </td>
+  </tr>
+  <tr>
     <td>Package Profile</td>
     <td>
       <%= @collection.package_profile ?

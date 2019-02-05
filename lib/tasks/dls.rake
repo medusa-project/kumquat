@@ -154,60 +154,6 @@ namespace :dls do
   namespace :elements do
 
     ##
-    # This was requested by mhan3@illinois.edu in June 2017.
-    #
-    desc 'Generate a report of all names'
-    task :mhan3 => :environment do |task, args|
-      sql = "SELECT collections.repository_id AS collection_id,
-          items.repository_id AS item_id, entity_elements.name,
-          entity_elements.value, entity_elements.uri
-        FROM entity_elements
-        LEFT JOIN items ON entity_elements.item_id = items.id
-        LEFT JOIN collections ON collections.repository_id = items.collection_repository_id
-        WHERE entity_elements.type = $1
-          AND entity_elements.name IN ($2, $3)
-          AND collections.public_in_medusa = true
-        ORDER BY collection_id, item_id, entity_elements.name,
-          entity_elements.value ASC"
-
-      values = [[ nil, 'ItemElement' ], [ nil, 'creator' ], [nil, 'contributor']]
-
-      tsv = "collection_id\titem_id\telement_name\telement_value\telement_uri" +
-          ItemTsvExporter::LINE_BREAK
-      ActiveRecord::Base.connection.exec_query(sql, 'SQL', values).each do |row|
-        tsv += row.values.join("\t") + ItemTsvExporter::LINE_BREAK
-      end
-      puts tsv
-    end
-
-    ##
-    # This was requested by lampron2@illinois.edu on 11/2/2017.
-    #
-    desc 'Generate a report for PL'
-    task :plampron2_1 => :environment do |task, args|
-      sql = "SELECT collections.repository_id AS collection_id,
-          items.repository_id AS item_id, entity_elements.name,
-          entity_elements.value, entity_elements.uri
-        FROM entity_elements
-        LEFT JOIN items ON entity_elements.item_id = items.id
-        LEFT JOIN collections ON collections.repository_id = items.collection_repository_id
-        WHERE entity_elements.type = $1
-          AND entity_elements.name IN ($2, $3)
-          AND collections.public_in_medusa = true
-        ORDER BY collection_id, item_id, entity_elements.name,
-          entity_elements.value ASC"
-
-      values = [[ nil, 'ItemElement' ], [ nil, 'type' ], [nil, 'genre']]
-
-      tsv = "collection_id\titem_id\telement_name\telement_value\telement_uri" +
-          ItemTsvExporter::LINE_BREAK
-      ActiveRecord::Base.connection.exec_query(sql, 'SQL', values).each do |row|
-        tsv += row.values.join("\t") + ItemTsvExporter::LINE_BREAK
-      end
-      puts tsv
-    end
-
-    ##
     # This was requested by lampron2@illinois.edu on 1/18/2018.
     #
     desc 'Generate a report for PL'
@@ -226,33 +172,6 @@ namespace :dls do
         end
       end
       puts lines.join(ItemTsvExporter::LINE_BREAK)
-    end
-
-    ##
-    # This was requested by lampron2@illinois.edu on 1/18/2018.
-    #
-    desc 'Generate a report for PL'
-    task :plampron2_3 => :environment do |task, args|
-      sql = "SELECT collections.repository_id AS collection_id,
-          items.repository_id AS item_id, entity_elements.name,
-          entity_elements.value, entity_elements.uri
-        FROM entity_elements
-        LEFT JOIN items ON entity_elements.item_id = items.id
-        LEFT JOIN collections ON collections.repository_id = items.collection_repository_id
-        WHERE entity_elements.type = $1
-          AND entity_elements.name IN ($2, $3, $4)
-          AND collections.public_in_medusa = true
-        ORDER BY collection_id, item_id, entity_elements.name,
-          entity_elements.value ASC"
-
-      values = [[ nil, 'ItemElement' ], [ nil, 'provider' ], [nil, 'owner'], [nil, 'source']]
-
-      tsv = "collection_id\titem_id\telement_name\telement_value\telement_uri" +
-          ItemTsvExporter::LINE_BREAK
-      ActiveRecord::Base.connection.exec_query(sql, 'SQL', values).each do |row|
-        tsv += row.values.join("\t") + ItemTsvExporter::LINE_BREAK
-      end
-      puts tsv
     end
 
   end

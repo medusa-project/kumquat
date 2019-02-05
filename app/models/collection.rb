@@ -34,6 +34,8 @@
 #                             N.B. There may also be a description element in
 #                             the `elements` relationship containing a plain
 #                             text description, also copied from Medusa.
+# * descriptive_element_id:   ID of a MetadataProfileElement whose values are
+#                             used in the description boxes in results view.
 # * external_id:              Value of the Medusa "external ID" field.
 # * harvestable:              Controls visiblity of the collection's contents
 #                             in the OAI-PMH (or whatever) harvesting
@@ -123,6 +125,7 @@ class Collection < ApplicationRecord
   serialize :access_systems
   serialize :resource_types
 
+  belongs_to :descriptive_element, class_name: 'MetadataProfileElement'
   belongs_to :metadata_profile, inverse_of: :collections
 
   # See CollectionJoin for an explanation of why we don't join on database IDs.
