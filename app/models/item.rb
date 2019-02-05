@@ -73,9 +73,10 @@
 # * contentdm_pointer:    Integer pointer of items that have been migrated out
 #                         of CONTENTdm, used for URL redirection.
 # * created_at:           Managed by ActiveRecord.
-# * date:                 Normalized date, for date-based queries.
+# * start_date:           Start date of a normalized date range.
 # * embed_tag:            HTML snippet that will be used to display an
 #                         alternative object viewer.
+# * end_date:             End date of a normalized date range.
 # * latitude:             Normalized latitude in decimal degrees.
 # * longitude:            Normalized longitude in decimal degrees.
 # * page_number:          Literal page number of a page-variant item.
@@ -402,7 +403,8 @@ class Item < ApplicationRecord
   def as_indexed_json(options = {})
     doc = {}
     doc[IndexFields::COLLECTION] = self.collection_repository_id
-    doc[IndexFields::DATE] = self.date.utc.iso8601 if self.date
+    # Elasticsearch date fields don't support >4-digit years.
+    doc[IndexFields::DATE] = self.date.utc.iso8601 if self.date and self.date.year < 10000
     doc[IndexFields::DESCRIBED] = self.described?
 
     doc[IndexFields::EFFECTIVE_ALLOWED_ROLES] =
@@ -478,7 +480,8 @@ class Item < ApplicationRecord
   #
   def as_json(options = {})
     struct = super(options)
-    struct['date'] = self.date&.utc&.iso8601
+    struct['start_date'] = self.start_date&.utc&.iso8601
+    struct['end_date'] = self.end_date&.utc&.iso8601
     # Add children
     struct['children'] = []
     self.items.each { |it| struct['children'] << it.as_json.select{ |k, v| k == 'repository_id' } }
@@ -528,6 +531,10 @@ class Item < ApplicationRecord
   def collection=(collection)
     self.collection_repository_id = collection.repository_id
     @collection = collection
+  end
+
+  def date
+    start_date
   end
 
   ##
@@ -1452,7 +1459,11 @@ class Item < ApplicationRecord
   def set_normalized_date
     date_elem = self.element(:date) || self.element(:dateCreated)
     if date_elem
-      self.date = TimeUtil.string_date_to_time(date_elem.value)
+      range = TimeUtil.parse_date(date_elem.value)
+      if range
+        self.start_date = range[0]
+        self.end_date   = range[1]
+      end
     end
   end
 

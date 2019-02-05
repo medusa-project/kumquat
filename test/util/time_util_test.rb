@@ -69,49 +69,49 @@ class TimeUtilTest < ActiveSupport::TestCase
     assert_equal '01:15:02', TimeUtil.seconds_to_hms(4502)
   end
 
-  # string_date_to_time()
+  # parse_date()
 
-  test 'string_date_to_time with a nil argument returns nil' do
-    assert_nil TimeUtil.string_date_to_time(nil)
+  test 'parse_date with a nil argument returns nil' do
+    assert_nil TimeUtil.parse_date(nil)
   end
 
-  test 'string_date_to_time with an unrecognizable argument returns nil' do
-    assert_nil TimeUtil.string_date_to_time('cats')
+  test 'parse_date with an unrecognizable argument returns nil' do
+    assert_nil TimeUtil.parse_date('cats')
   end
 
-  test 'string_date_to_time works with YYYY:MM:DD HH:MM:SS' do
-    assert_equal Time.parse('1923-02-12 12:10:50Z'),
-                 TimeUtil.string_date_to_time('1923:02:12 12:10:50')
+  test 'parse_date works with YYYY:MM:DD HH:MM:SS' do
+    assert_equal [Time.parse('1923-02-12 12:10:50')],
+                 TimeUtil.parse_date('1923:02:12 12:10:50')
   end
 
-  test 'string_date_to_time works with YYYY-MM-DD' do
-    assert_equal Time.parse('1923-02-12 00:00:00Z'),
-                 TimeUtil.string_date_to_time('1923-02-12')
+  test 'parse_date works with YYYY-MM-DD' do
+    assert_equal [Time.parse('1923-02-12 00:00:00')],
+                 TimeUtil.parse_date('1923-02-12')
   end
 
-  test 'string_date_to_time works with YYYY:MM:DD' do
-    assert_equal Time.parse('1923-02-12 00:00:00Z'),
-                 TimeUtil.string_date_to_time('1923:02:12')
+  test 'parse_date works with YYYY:MM:DD' do
+    assert_equal [Time.parse('1923-02-12 00:00:00')],
+                 TimeUtil.parse_date('1923:02:12')
   end
 
-  test 'string_date_to_time works with YYYY' do
-    assert_equal Time.parse('1923-01-01 00:00:00Z'),
-                 TimeUtil.string_date_to_time('1923')
+  test 'parse_date works with YYYY' do
+    assert_equal [Time.parse('1923-01-01 00:00:00')],
+                 TimeUtil.parse_date('1923')
   end
 
-  test 'string_date_to_time works with [YYYY]' do
-    assert_equal Time.parse('1923-01-01 00:00:00Z'),
-                 TimeUtil.string_date_to_time('[1923]')
+  test 'parse_date works with [YYYY]' do
+    assert_equal [Time.parse('1923-01-01 00:00:00')],
+                 TimeUtil.parse_date('[1923]')
   end
 
-  test 'string_date_to_time works with [YYYY?]' do
-    assert_equal Time.parse('1923-01-01 00:00:00Z'),
-                 TimeUtil.string_date_to_time('[1923?]')
+  test 'parse_date works with [YYYY?]' do
+    assert_equal [Time.parse('1923-01-01 00:00:00')],
+                 TimeUtil.parse_date('[1923?]')
   end
 
-  test 'string_date_to_time works with ISO 8601' do
-    assert_equal Time.parse('1923-02-12 06:00:00Z'),
-                 TimeUtil.string_date_to_time('1923-02-12 00:00:00Z')
+  test 'parse_date works with ISO 8601' do
+    assert_equal [Time.parse('1923-02-12 00:00:00')],
+                 TimeUtil.parse_date('1923-02-12 00:00:00')
   end
 
 end
