@@ -60,6 +60,9 @@ class MedusaDownloaderClient
         'zip_name': "#{zip_name.chomp('.zip')}",
         'targets': targets
     }.to_json
+    CustomLogger.instance.debug("MedusaDownloaderClient.download_url(): sending "\
+          "#{client.post_body}")
+
     client.post
     client.headers = { 'Content-Type': 'application/json' }
     client.perform
