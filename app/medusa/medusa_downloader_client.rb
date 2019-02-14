@@ -28,7 +28,8 @@ class MedusaDownloaderClient
         targets.push({
                          'type': 'directory',
                          'path': dir.repository_relative_pathname,
-                         'zip_path': dir.name
+                         'zip_path': dir.name,
+                         'recursive': true
                      })
       else
         item.binaries.each do |binary|
