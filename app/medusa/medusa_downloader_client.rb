@@ -20,18 +20,26 @@ class MedusaDownloaderClient
       raise ArgumentError, 'No items provided.'
     end
 
-    # Compile this list of items to include in the file. The directory layout
-    # within the file will differ depending on the given package profile.
+    # Compile this list of items to include in the file.
     targets = []
     items.each do |item|
-      item.binaries.each do |binary|
-        zip_dirname = zip_dirname(binary)
-        if zip_dirname
-          targets.push({
-                           'type': 'file',
-                           'path': binary.repository_relative_pathname,
-                           'zip_path': zip_dirname
-                       })
+      if item.directory?
+        dir = MedusaCfsDirectory.with_uuid(item.repository_id)
+        targets.push({
+                         'type': 'directory',
+                         'path': dir.repository_relative_pathname,
+                         'zip_path': dir.name
+                     })
+      else
+        item.binaries.each do |binary|
+          zip_dirname = zip_dirname(binary)
+          if zip_dirname
+            targets.push({
+                             'type': 'file',
+                             'path': binary.repository_relative_pathname,
+                             'zip_path': zip_dirname
+                         })
+          end
         end
       end
     end
