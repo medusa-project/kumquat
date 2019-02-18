@@ -426,10 +426,7 @@ class ItemsController < WebsiteController
         #
         if @item.directory?
           if @item.items.any?
-            items = @item.finder.
-                user_roles(request_roles).
-                include_variants(*Item::Variants::FILE).
-                include_children_in_results(true).to_a
+            items = [@item]
             zip_name = 'files'
           else
             flash['error'] = 'This directory is empty.'
