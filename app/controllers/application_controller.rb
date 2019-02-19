@@ -3,7 +3,6 @@ class ApplicationController < ActionController::Base
   # For APIs, you may want to use :null_session instead.
   protect_from_forgery with: :exception
 
-  include ActionController::Live
   include SessionsHelper
 
   before_action :setup
@@ -65,42 +64,41 @@ class ApplicationController < ActionController::Base
         key: binary.object_key
     }
 
-    file_begin     = 0
-    file_size      = @binary.byte_size
-    file_end       = file_size - 1
-    content_length = file_end.to_i - file_begin.to_i + 1
-
     if !request.headers['Range']
       status_code = '200 OK'
     else
       status_code = '206 Partial Content'
+      start_offset = 0
+      length       = @binary.byte_size
+      end_offset   = length - 1
       match = request.headers['Range'].match(/bytes=(\d+)-(\d*)/)
       if match
-        file_begin = match[1].to_i
-        file_end   = match[2].to_i if match[2]&.present?
+        start_offset = match[1].to_i
+        end_offset   = match[2].to_i if match[2]&.present?
       end
-      range = sprintf('bytes %d-%d/%d', file_begin, file_end, file_size)
-      response.headers['Content-Range'] = s3_request[:range] = range
+      response.headers['Content-Range'] = sprintf('bytes %d-%d/%d',
+                                                  start_offset, end_offset, length)
+      s3_request[:range]                = sprintf('bytes=%d-%d',
+                                                  start_offset, end_offset)
     end
 
-    response.status                               = status_code
-    response.headers['Content-Type']              = binary.media_type
-    response.headers['Content-Disposition']       = "attachment; filename=#{binary.filename}"
-    response.headers['Content-Length']            = content_length.to_s
-    response.headers['Last-Modified']             = @binary.updated_at.to_s
-    response.headers['Cache-Control']             = 'public, must-revalidate, max-age=0'
-    response.headers['Accept-Ranges']             = 'bytes'
-    response.headers['Content-Transfer-Encoding'] = 'binary'
+    CustomLogger.instance.debug(
+        "ApplicationController.send_binary(): requesting #{s3_request}")
+
+    aws_response = Aws::S3::Client.new.get_object(s3_request)
+
+    response.status                          = status_code
+    response.headers['Content-Type']         = binary.media_type
+    response.headers['Content-Disposition']  = "attachment; filename=#{binary.filename}"
+    response.headers['Content-Length']       = aws_response.content_length.to_s
+    response.headers['Last-Modified']        = aws_response.last_modified.utc.strftime('%a, %d %b %Y %T GMT')
+    response.headers['Cache-Control']        = 'public, must-revalidate, max-age=0'
+    response.headers['Accept-Ranges']        = 'bytes'
     if binary.duration.present?
-      response.headers['Content-Duration']        = binary.duration
-      response.headers['X-Content-Duration']      = binary.duration
+      response.headers['Content-Duration']   = binary.duration
+      response.headers['X-Content-Duration'] = binary.duration
     end
-
-    Aws::S3::Client.new.get_object(s3_request) do |chunk|
-      response.stream.write chunk
-    end
-  ensure
-    response.stream.close
+    response.body = aws_response.body
   end
 
   ##
