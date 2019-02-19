@@ -103,7 +103,8 @@ class CollectionsController < WebsiteController
           begin
             @authorized = true
             authorize(@collection)
-          rescue AuthorizationError
+          rescue AuthorizationError => e
+            CustomLogger.instance.debug("CollectionsController.show(): #{e}");
             @authorized = false
           end
         rescue => e
