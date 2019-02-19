@@ -3,12 +3,6 @@
 #
 class WebsiteController < ApplicationController
 
-  def setup
-    super
-    @storage_offline =
-        (Option::string(Option::Keys::SERVER_STATUS) == 'storage_offline')
-  end
-
   protected
 
   ##

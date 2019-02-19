@@ -11,11 +11,6 @@ module Admin
 
     before_action :modify_settings_rbac, only: [:index, :update]
 
-    def index
-      @status_options = [[ 'Online', 'online' ],
-                         [ 'Storage Offline', 'storage_offline']]
-    end
-
     ##
     # Responds to PATCH /admin/settings/update
     #

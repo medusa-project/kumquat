@@ -80,16 +80,15 @@ module ApplicationHelper
     html = ''
     entities.each do |entity|
       bs = nil
-      if Option::string(Option::Keys::SERVER_STATUS) != 'storage_offline'
-        begin
-          # If the entity is a Collection and the reference to the binary is
-          # invalid (for example, an invalid UUID has been entered), this will
-          # raise an error.
-          bs = entity.effective_representative_image_binary
-        rescue => e
-          CustomLogger.instance.warn("entities_as_cards(): #{e} (#{entity})")
-        end
+      begin
+        # If the entity is a Collection and the reference to the binary is
+        # invalid (for example, an invalid UUID has been entered), this will
+        # raise an error.
+        bs = entity.effective_representative_image_binary
+      rescue => e
+        CustomLogger.instance.warn("entities_as_cards(): #{e} (#{entity})")
       end
+
       if bs
         img_url = binary_image_url(bs, region: 'square', size: CARD_IMAGE_SIZE)
       else
@@ -477,22 +476,6 @@ module ApplicationHelper
           <div class=\"media-body\">
             #{title}#{text}
           </div>
-        </div>"
-    end
-    raw(html)
-  end
-
-  ##
-  # @return [String] Bootstrap alert div, or an empty string if there is no
-  #                  server status message.
-  #
-  def server_status_message
-    status = Option::string(Option::Keys::SERVER_STATUS)
-    message = Option::string(Option::Keys::SERVER_STATUS_MESSAGE)
-    html = ''
-    if status != 'online' and message.present?
-      html += "<div class=\"pt-flash alert alert-warning\">
-          <i class=\"fa fa-warning\"></i> #{message}
         </div>"
     end
     raw(html)

@@ -2,7 +2,7 @@ class BinariesController < WebsiteController
 
   include ActionController::Streaming
 
-  before_action :check_storage, :load_binary, :authorize_item
+  before_action :load_binary, :authorize_item
 
   ##
   # Retrieves a binary.
@@ -23,13 +23,6 @@ class BinariesController < WebsiteController
     item = @binary.item
     return unless authorize(item.collection)
     return unless authorize(item)
-  end
-
-  def check_storage
-    if Option::string(Option::Keys::SERVER_STATUS) == 'storage_offline'
-      render plain: Option::string(Option::Keys::SERVER_STATUS_MESSAGE),
-             status: :service_unavailable
-    end
   end
 
   def load_binary

@@ -849,23 +849,21 @@ module ItemsHelper
 
     html = ''
     url = nil
-    if Option::string(Option::Keys::SERVER_STATUS) != 'storage_offline'
-      if entity.kind_of?(Binary) and entity.iiif_safe?
-        url = binary_image_url(entity,
+    if entity.kind_of?(Binary) and entity.iiif_safe?
+      url = binary_image_url(entity,
+                             region: options[:shape],
+                             size: options[:size])
+    elsif entity.kind_of?(Collection)
+      bin = entity.effective_representative_image_binary
+      if bin&.iiif_safe?
+        url = binary_image_url(bin,
                                region: options[:shape],
                                size: options[:size])
-      elsif entity.kind_of?(Collection)
-        bin = entity.effective_representative_image_binary
-        if bin&.iiif_safe?
-          url = binary_image_url(bin,
-                                 region: options[:shape],
-                                 size: options[:size])
-        end
-      elsif entity.kind_of?(Item) and entity.effective_image_binary&.iiif_safe?
-        url = item_image_url(entity,
-                             options[:shape],
-                             options[:size])
       end
+    elsif entity.kind_of?(Item) and entity.effective_image_binary&.iiif_safe?
+      url = item_image_url(entity,
+                           options[:shape],
+                           options[:size])
     end
 
     if url
