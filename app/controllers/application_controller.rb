@@ -3,6 +3,7 @@ class ApplicationController < ActionController::Base
   # For APIs, you may want to use :null_session instead.
   protect_from_forgery with: :exception
 
+  include ActionController::Live
   include SessionsHelper
 
   before_action :setup
@@ -65,13 +66,13 @@ class ApplicationController < ActionController::Base
     }
 
     if !request.headers['Range']
-      status_code = '200 OK'
+      status = '200 OK'
     else
-      status_code = '206 Partial Content'
+      status  = '206 Partial Content'
       start_offset = 0
       length       = @binary.byte_size
       end_offset   = length - 1
-      match = request.headers['Range'].match(/bytes=(\d+)-(\d*)/)
+      match        = request.headers['Range'].match(/bytes=(\d+)-(\d*)/)
       if match
         start_offset = match[1].to_i
         end_offset   = match[2].to_i if match[2]&.present?
@@ -87,7 +88,7 @@ class ApplicationController < ActionController::Base
 
     aws_response = Aws::S3::Client.new.get_object(s3_request)
 
-    response.status                          = status_code
+    response.status                          = status
     response.headers['Content-Type']         = binary.media_type
     response.headers['Content-Disposition']  = "attachment; filename=#{binary.filename}"
     response.headers['Content-Length']       = aws_response.content_length.to_s
@@ -98,7 +99,11 @@ class ApplicationController < ActionController::Base
       response.headers['Content-Duration']   = binary.duration
       response.headers['X-Content-Duration'] = binary.duration
     end
-    response.body = aws_response.body
+    Aws::S3::Client.new.get_object(s3_request) do |chunk|
+      response.stream.write chunk
+    end
+  ensure
+    response.stream.close
   end
 
   ##
