@@ -3,7 +3,7 @@
 <% provide :active_nav, 'collections' %>
 
 <h1 id="pt-page-title">Collections
-  <span id="pt-count" class="badge"><%= @collections.length %></span></h1>
+  <span id="pt-count" class="badge"><%= @count %></span></h1>
 
 <%= form_tag(@permitted_params.reject{ |k, v| k == 'start' }, method: :get, class: 'pt-filter') do %>
   <div class="row">

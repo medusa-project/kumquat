@@ -8,8 +8,6 @@ class ItemsController < WebsiteController
     SEARCHING = 2
   end
 
-  MAX_RESULT_WINDOW = 100
-  MIN_RESULT_WINDOW = 10
   PERMITTED_PARAMS = [:_, :collection_id, :df, :display, :download_start,
                       { fq: [] }, :format, :id, :limit, :q, :sort, :start,
                       :utf8]
