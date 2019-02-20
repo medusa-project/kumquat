@@ -56,7 +56,8 @@ class Binary < ApplicationRecord
   # Broad category in which a binary can be considered to reside. This may be
   # different from the one in `media_type`; for example, the main image and a
   # 3D model texture may both be JPEGs, but be in different categories, and
-  # when displaying an image viewer, we want to select the main image.
+  # when displaying an image viewer, we want to select the main image, and not
+  # a texture.
   #
   class MediaCategory
     AUDIO = 3
@@ -70,7 +71,7 @@ class Binary < ApplicationRecord
     ##
     # @param media_type [String]
     # @return [Integer, nil] MediaCategory constant value best fitting the
-    #                   given media type; or nil.
+    #                        given media type; or nil.
     #
     def self.media_category_for_media_type(media_type)
       case media_type
@@ -79,8 +80,7 @@ class Binary < ApplicationRecord
         when 'text/plain'
           return TEXT
       end
-      # TODO: this code finds the first but not necessarily best match, which
-      # is the reason for the override above. Pretty sloppy
+      # TODO: this code finds the first but not necessarily best match, which is the reason for the override above. Pretty sloppy
       formats = Binary.class_variable_get(:'@@formats')
       formats = formats.select{ |f| f['media_types'].include?(media_type) }
       formats.any? ? formats.first['media_category'] : nil
@@ -94,6 +94,7 @@ class Binary < ApplicationRecord
   validates :byte_size, numericality: { only_integer: true,
                                         greater_than_or_equal_to: 0 },
             allow_blank: false
+  validates :repository_relative_pathname, length: { allow_blank: false }
 
   @@formats = YAML::load(File.read("#{Rails.root}/lib/formats.yml"))
 
@@ -107,14 +108,14 @@ class Binary < ApplicationRecord
   end
 
   ##
-  # @return [String, nil]
+  # @return [IO]
   #
-  def absolute_local_pathname
-    if self.repository_relative_pathname.present?
-      return Configuration.instance.repository_pathname +
-          self.repository_relative_pathname
-    end
-    nil
+  def data
+    client = Aws::S3::Client.new
+    response = client.get_object(
+        bucket: Configuration.instance.repository_s3_bucket,
+        key: self.object_key)
+    response.body
   end
 
   ##
@@ -138,20 +139,20 @@ class Binary < ApplicationRecord
   end
 
   ##
-  # @return [Boolean] If the binary is a file and the file exists, returns
-  #                   true.
+  # @return [Boolean] True if the object to which `object_key` refers exists;
+  #                   false otherwise.
   #
   def exists?
-    p = absolute_local_pathname
-    p and File.exist?(p) and File.file?(p)
+    bucket = Aws::S3::Bucket.new(Configuration.instance.repository_s3_bucket)
+    object = bucket.object(self.object_key)
+    object.exists?
   end
 
   ##
   # @return [String, nil]
   #
   def filename
-    self.repository_relative_pathname.present? ?
-        File.basename(self.repository_relative_pathname) : nil
+    File.basename(self.object_key)
   end
 
   ##
@@ -249,15 +250,18 @@ class Binary < ApplicationRecord
           return false
         end
         return true
-      elsif self.is_pdf? or self.is_video?
+      elsif self.is_pdf?
         return true
       end
     end
     false
   end
 
+  ##
+  # @raises [IOError] If the file does not exist.
+  #
   def infer_media_type
-    case File.extname(self.repository_relative_pathname).downcase
+    case File.extname(self.object_key).downcase
       when '.mp4', '.m4v'
         self.media_type = 'video/mp4'
       when '.mtl'
@@ -265,9 +269,15 @@ class Binary < ApplicationRecord
       when '.obj'
         self.media_type = 'text/plain'
       else
-        # TODO: the mime-types gem only reads the extension, not the header,
-        # and only recognizes a limited number of extensions.
-        self.media_type = MIME::Types.of(self.absolute_local_pathname).first.to_s
+        begin
+          response = Aws::S3::Client.new.get_object(
+              bucket: Configuration.instance.repository_s3_bucket,
+              key: self.object_key,
+              range: 'bytes=0-20')
+          self.media_type = MimeMagic.by_magic(response.body)
+        rescue => e
+          raise IOError, e
+        end
     end
   end
 
@@ -308,7 +318,7 @@ class Binary < ApplicationRecord
   end
 
   ##
-  # @return [String, nil] URL of the binary's equivalent Medusa CFS file.
+  # @return [String, nil] URL of the binary's equivalent Medusa file.
   #
   def medusa_url
     url = nil
@@ -325,14 +335,20 @@ class Binary < ApplicationRecord
   #
   # @return [Enumerable<Hash<Symbol,String>>] Array of hashes with :label,
   #                                          :category, and :value keys.
+  # @raises [IOError] If the file is not found or can't be read.
   #
   def metadata
     read_metadata unless @metadata_read
     @metadata
   end
 
+  def object_key # TODO: replace repository_relative_pathname with this
+    self.repository_relative_pathname.reverse.chomp('/').reverse
+  end
+
   ##
   # @return [void]
+  # @raises [IOError] If the file does not exist.
   #
   def read_characteristics
     read_size
@@ -345,23 +361,34 @@ class Binary < ApplicationRecord
   # the source image or video.
   #
   # @return [void]
+  # @raises [IOError] If the file does not exist.
   #
   def read_dimensions
     if is_image?
-      # Redirect stderr to /dev/null as there is apparently no other way to
-      # suppress "no exif data found in the file" messages.
-      output = `exiv2 "#{self.absolute_local_pathname.gsub('"', '\\"')}" 2> /dev/null`
-      output.encode('UTF-8', invalid: :replace).split("\n").each do |row|
-        if row.downcase.start_with?('image size')
-          columns = row.split(':')
-          if columns.length > 1
-            dimensions = columns[1].split('x')
-            if dimensions.length == 2
-              self.width = dimensions[0].strip.to_i
-              self.height = dimensions[1].strip.to_i
+      begin
+        # Download the image to a temp file.
+        tempfile = Tempfile.new('image')
+        download_to(tempfile.path, 1024 ** 2)
+
+        # Redirect stderr to /dev/null as there is apparently no other way to
+        # suppress "no exif data found in the file" messages.
+        output = `exiv2 "#{tempfile.path.gsub('"', '\\"')}" 2> /dev/null`
+        output.encode('UTF-8', invalid: :replace).split("\n").each do |row|
+          if row.downcase.start_with?('image size')
+            columns = row.split(':')
+            if columns.length > 1
+              dimensions = columns[1].split('x')
+              if dimensions.length == 2
+                self.width = dimensions[0].strip.to_i
+                self.height = dimensions[1].strip.to_i
+              end
             end
           end
         end
+      rescue => e
+        raise IOError, e
+      ensure
+        tempfile.unlink
       end
     elsif is_video?
       # TODO: write this
@@ -369,33 +396,84 @@ class Binary < ApplicationRecord
   end
 
   ##
-  # Populates the width and height properties by reading the dimensions from
-  # the source image or video.
+  # Populates the duration property by reading it from the source audio or
+  # video.
+  #
+  # This is very, very, VERY expensive as the entire source file has to be
+  # downloaded from S3.
   #
   # @return [void]
-  # @raises [Errno::ENOENT] If the file does not exist.
+  # @raises [IOError] If the file does not exist.
   #
   def read_duration
-    raise Errno::ENOENT unless self.exists?
     if is_audio? or is_video?
-      # Redirect ffprobe stderr output to stdout.
-      output = `ffprobe "#{self.absolute_local_pathname.gsub('"', '\\"')}" 2>&1`
-      result = output.match(/Duration: [0-9][0-9]:[0-5][0-9]:[0-5][0-9]/)
-      if result and result.length > 0
-        begin
-          self.duration = TimeUtil.hms_to_seconds(result[0].gsub('Duration: ', ''))
-        rescue ArgumentError => e
-          CustomLogger.instance.warn("Binary.read_duration(): #{e}")
+      begin
+        # Download the image to a temp file.
+        tempfile = Tempfile.new('image')
+        download_to(tempfile.path)
+
+        # Redirect ffprobe stderr output to stdout.
+        output = `ffprobe "#{tempfile.path.gsub('"', '\\"')}" 2>&1`
+        result = output.match(/Duration: [0-9][0-9]:[0-5][0-9]:[0-5][0-9]/)
+        if result and result.length > 0
+          begin
+            self.duration = TimeUtil.hms_to_seconds(result[0].gsub('Duration: ', ''))
+          rescue ArgumentError => e
+            CustomLogger.instance.warn("Binary.read_duration(): #{e}")
+          end
         end
+      rescue => e
+        raise IOError, e
+      ensure
+        tempfile.unlink
       end
     end
   end
 
   ##
-  # @return [Integer]
+  # Reads the binary's embedded metadata.
+  #
+  # @raises [IOError] If the file does not exist.
+  #
+  def read_metadata
+    @metadata = []
+
+    return unless self.is_image?
+
+    begin
+      tempfile = Tempfile.new('image')
+      download_to(tempfile.path, 1024 ** 2) # read the first 1 MB
+
+      # exiftool's output is more comprehensive, but as of 2016-09-01, it
+      # appears to cause my local machine's condo NFS mount to unmount itself.
+      # OTRS ticket filed, but don't want to wait on it. OTOH, exiv2 is faster.
+      # --@adolski
+      #read_metadata_using_exiftool(pathname)
+      read_metadata_using_exiv2(tempfile.path)
+
+      @metadata_read = true
+    rescue => e
+      raise IOError, e
+    ensure
+      tempfile.unlink
+    end
+  end
+
+  ##
+  # Populates the byte_size property.
+  #
+  # @return [void]
+  # @raises [IOError] If the file does not exist.
   #
   def read_size
-    self.byte_size = File.size(self.absolute_local_pathname)
+    begin
+      response = Aws::S3::Client.new.head_object(
+          bucket: Configuration.instance.repository_s3_bucket,
+          key: self.object_key)
+      self.byte_size = response.content_length
+    rescue => e
+      raise IOError, e
+    end
   end
 
   def to_param
@@ -403,12 +481,11 @@ class Binary < ApplicationRecord
   end
 
   ##
-  # @return [String] The instance's repository-relative pathname, or its CFS
-  #                  file UUID, or the return value of super -- whichever is
-  #                  present first.
+  # @return [String] The instance's object key, or its Medusa file UUID, or the
+  #                  return value of super -- whichever is present first.
   #
   def to_s
-    str = self.repository_relative_pathname
+    str = self.object_key
     str = self.cfs_file_uuid if str.blank?
     str = super if str.blank?
     str
@@ -416,28 +493,12 @@ class Binary < ApplicationRecord
 
   private
 
-  ##
-  # Reads metadata from the file using exiftool.
-  #
-  # @raises [IOError] If the file does not exist or is not readable.
-  #
-  def read_metadata
-    @metadata = []
-
-    return unless self.is_image?
-
-    pathname = self.absolute_local_pathname
-
-    raise IOError, "Does not exist: #{pathname}" unless File.exist?(pathname)
-    raise IOError, "Not readable: #{pathname}" unless File.readable?(pathname)
-
-    # exiftool's output is more comprehensive, but as of 2016-09-01, it appears
-    # to cause my local machine's condo NFS mount to unmount itself. OTRS ticket
-    # filed, but don't want to wait on it. OTOH, exiv2 is faster. --AAD
-    #read_metadata_using_exiftool(pathname)
-    read_metadata_using_exiv2(pathname)
-
-    @metadata_read = true
+  def download_to(pathname, length = 0)
+    Aws::S3::Client.new.get_object(
+        bucket: Configuration.instance.repository_s3_bucket,
+        key: self.object_key,
+        response_target: pathname,
+        range: length > 0 ? "bytes=#{0}-#{length}" : nil)
   end
 
   ##

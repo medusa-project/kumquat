@@ -7,7 +7,7 @@
 # server 'example.com', user: 'deploy', roles: %w{app web}, other_property: :other_value
 # server 'db.example.com', user: 'deploy', roles: %w{db}
 
-server 'kumquat-prod.library.illinois.edu', user: 'lib-medusa-dls',
+server 'aws-dls-prod.library.illinois.edu', user: 'dls',
        roles: %w{web app db}, primary: true
 
 # role-based syntax
@@ -31,8 +31,7 @@ server 'kumquat-prod.library.illinois.edu', user: 'lib-medusa-dls',
 # For available Capistrano configuration variables see the documentation page.
 # http://capistranorb.com/documentation/getting-started/configuration/
 # Feel free to add new variables to customise your setup.
-
-
+set :branch, 'master-aws-prod'
 
 # Custom SSH Options
 # ==================
@@ -47,7 +46,12 @@ server 'kumquat-prod.library.illinois.edu', user: 'lib-medusa-dls',
 #    forward_agent: false,
 #    auth_methods: %w(password)
 #  }
-#
+
+set :ssh_options, {
+    keys: %w(~/.ssh/MedusaPilot.pem),
+    forward_agent: false
+}
+
 # The server-based syntax can be used to override options:
 # ------------------------------------
 # server 'example.com',

@@ -36,9 +36,7 @@ class MedusaCfsFileTest < ActiveSupport::TestCase
   # pathname()
 
   test 'pathname() should return the correct pathname' do
-    assert_equal(Configuration.instance.repository_pathname.chomp('/') +
-                     '/162/2204/1601831/access/1601831_001.jp2',
-                 @file.pathname)
+    assert_equal('/162/2204/1601831/access/1601831_001.jp2', @file.pathname)
   end
 
   # repository_relative_pathname()

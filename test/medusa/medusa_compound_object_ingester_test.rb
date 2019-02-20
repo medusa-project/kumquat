@@ -102,15 +102,14 @@ class MedusaCompoundObjectIngesterTest < ActiveSupport::TestCase
     assert_equal 'image/tiff', bin.media_type
     assert_equal 28184152, bin.byte_size
     assert_equal Binary::MediaCategory::IMAGE, bin.media_category
-    assert_equal '/59/2257/afm0002389/preservation/afm0002389.tif',
-                 bin.repository_relative_pathname
+    assert_equal '59/2257/afm0002389/preservation/afm0002389.tif',
+                 bin.object_key
 
     bin = item.binaries.select{ |b| b.master_type == Binary::MasterType::ACCESS }.first
     assert_equal 'image/jp2', bin.media_type
     assert_equal 9665238, bin.byte_size
     assert_equal Binary::MediaCategory::IMAGE, bin.media_category
-    assert_equal '/59/2257/afm0002389/access/afm0002389.jp2',
-                 bin.repository_relative_pathname
+    assert_equal '59/2257/afm0002389/access/afm0002389.jp2', bin.object_key
   end
 
   test 'create_items() should work with compound items' do
@@ -149,16 +148,15 @@ class MedusaCompoundObjectIngesterTest < ActiveSupport::TestCase
     assert_equal 'image/tiff', bin.media_type
     assert_equal 305057420, bin.byte_size
     assert_equal Binary::MediaCategory::IMAGE, bin.media_category
-    assert_equal '/1164/2754/1477/preservation/2014_12996_227_001.tif',
-                 bin.repository_relative_pathname
+    assert_equal '1164/2754/1477/preservation/2014_12996_227_001.tif',
+                 bin.object_key
 
     # Inspect the first child's access master.
     bin = child.binaries.select{ |b| b.master_type == Binary::MasterType::ACCESS }.first
     assert_equal 'image/jp2', bin.media_type
     assert_equal 215051029, bin.byte_size
     assert_equal Binary::MediaCategory::IMAGE, bin.media_category
-    assert_equal '/1164/2754/1477/access/2014_12996_227_001.jp2',
-                 bin.repository_relative_pathname
+    assert_equal '1164/2754/1477/access/2014_12996_227_001.jp2', bin.object_key
 
     # Inspect the supplementary child item.
     child = item.items.select{ |it| it.variant == Item::Variants::SUPPLEMENT }.first
@@ -167,8 +165,7 @@ class MedusaCompoundObjectIngesterTest < ActiveSupport::TestCase
     assert_equal 'application/pdf', bin.media_type
     assert_equal 95195, bin.byte_size
     assert_equal Binary::MediaCategory::DOCUMENT, bin.media_category
-    assert_equal '/1164/2754/1477/supplementary/1531.pdf',
-                 bin.repository_relative_pathname
+    assert_equal '1164/2754/1477/supplementary/1531.pdf', bin.object_key
 
     # TODO: inspect composite child item (not available in this collection)
   end
@@ -410,16 +407,15 @@ class MedusaCompoundObjectIngesterTest < ActiveSupport::TestCase
     assert_equal 'image/tiff', bin.media_type
     assert_equal 305057420, bin.byte_size
     assert_equal Binary::MediaCategory::IMAGE, bin.media_category
-    assert_equal '/1164/2754/1477/preservation/2014_12996_227_001.tif',
-                 bin.repository_relative_pathname
+    assert_equal '1164/2754/1477/preservation/2014_12996_227_001.tif',
+                 bin.object_key
 
     # Inspect the first child's access master.
     bin = child.binaries.select{ |b| b.master_type == Binary::MasterType::ACCESS }.first
     assert_equal 'image/jp2', bin.media_type
     assert_equal 215051029, bin.byte_size
     assert_equal Binary::MediaCategory::IMAGE, bin.media_category
-    assert_equal '/1164/2754/1477/access/2014_12996_227_001.jp2',
-                 bin.repository_relative_pathname
+    assert_equal '1164/2754/1477/access/2014_12996_227_001.jp2', bin.object_key
 
     # Inspect the supplementary item.
     child = item.items.select{ |it| it.variant == Item::Variants::SUPPLEMENT }.first
@@ -428,8 +424,7 @@ class MedusaCompoundObjectIngesterTest < ActiveSupport::TestCase
     assert_equal 'application/pdf', bin.media_type
     assert_equal 95195, bin.byte_size
     assert_equal Binary::MediaCategory::DOCUMENT, bin.media_category
-    assert_equal '/1164/2754/1477/supplementary/1531.pdf',
-                 bin.repository_relative_pathname
+    assert_equal '1164/2754/1477/supplementary/1531.pdf', bin.object_key
 
     # TODO: test composite content (not available in this collection)
   end

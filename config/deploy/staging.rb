@@ -7,7 +7,7 @@
 # server 'example.com', user: 'deploy', roles: %w{app web}, other_property: :other_value
 # server 'db.example.com', user: 'deploy', roles: %w{db}
 
-server 'kumquat-dev.library.illinois.edu', user: 'lib-medusa-dls',
+server 'dls-pilot.library.illinois.edu', user: 'centos',
        roles: %w{web app db}, primary: true
 
 # role-based syntax
@@ -34,7 +34,7 @@ server 'kumquat-dev.library.illinois.edu', user: 'lib-medusa-dls',
 
 # Default branch is :master
 #ask :branch, 'staging'
-set :branch, 'staging'
+set :branch, 'staging-aws-pilot'
 
 # Custom SSH Options
 # ==================
@@ -49,7 +49,12 @@ set :branch, 'staging'
 #    forward_agent: false,
 #    auth_methods: %w(password)
 #  }
-#
+
+set :ssh_options, {
+    keys: %w(~/.ssh/MedusaPilot.pem),
+    forward_agent: false
+}
+
 # The server-based syntax can be used to override options:
 # ------------------------------------
 # server 'example.com',

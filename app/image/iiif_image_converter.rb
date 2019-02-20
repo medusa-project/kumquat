@@ -18,19 +18,23 @@ class IiifImageConverter
   def convert_binary(binary, directory, format)
     format = format.to_s
     if binary.media_type == 'image/jpeg'
-      # The binary is already a JPEG, so just copy it over.
-      new_pathname = directory + binary.repository_relative_pathname
+      # The binary is already a JPEG, so just download it.
+      new_pathname = directory + '/' + binary.object_key
 
-      @@logger.debug("ImageConverter.convert_binary(): copying "\
-          "#{binary.absolute_local_pathname} to #{new_pathname}")
+      @@logger.debug("ImageConverter.convert_binary(): downloading "\
+          "#{binary.object_key} to #{new_pathname}")
 
       FileUtils.mkdir_p(File.dirname(new_pathname))
-      FileUtils.cp(binary.absolute_local_pathname, new_pathname)
+
+      Aws::S3::Client.new.get_object(
+          bucket: Configuration.instance.repository_s3_bucket,
+          key: binary.object_key,
+          response_target: new_pathname)
       return new_pathname
     elsif binary.is_image?
       format.gsub!('.', '')
-      new_pathname = directory +
-          binary.repository_relative_pathname.split('.')[0...-1].join('.') +
+      new_pathname = directory + '/' +
+          binary.object_key.split('.')[0...-1].join('.') +
           '.' + format
 
       if binary.iiif_safe?

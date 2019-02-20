@@ -87,10 +87,18 @@ class CollectionsController < WebsiteController
   # residing in them are NOT.
   #
   def show
+    begin
+      @authorized = true
+      authorize(@collection)
+    rescue AuthorizationError => e
+      CustomLogger.instance.debug("CollectionsController.show(): #{e}")
+      @authorized = false
+    end
+
     respond_to do |format|
       format.html do
-        begin
-          @num_public_objects = @collection.num_public_objects
+        if @authorized
+          @num_public_objects = @collection.num_public_objects rescue nil
           # One or both of these may be nil.
           @representative_image_binary =
               @collection.effective_representative_image_binary
@@ -98,19 +106,16 @@ class CollectionsController < WebsiteController
           # Show the "Browse Folder Tree" button only if the collection is
           # free-form and has no child items.
           @show_browse_tree_button = @collection.free_form? ?
-              (@collection.items.where('parent_repository_id IS NOT NULL').count > 0) : false
-
-          begin
-            @authorized = true
-            authorize(@collection)
-          rescue AuthorizationError
-            @authorized = false
-          end
-        rescue => e
-          CustomLogger.instance.info("#{e}")
+                                         (@collection.items.where('parent_repository_id IS NOT NULL').count > 0) : false
         end
       end
-      format.json { render json: @collection.decorate }
+      format.json do
+        if @authorized
+          render json: @collection.decorate
+        else
+          render plain: '403 Forbidden', status: :forbidden
+        end
+      end
     end
   end
 

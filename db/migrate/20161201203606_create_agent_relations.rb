@@ -1,4 +1,4 @@
-class CreateAgentRelations < ActiveRecord::Migration
+class CreateAgentRelations < ActiveRecord::Migration[4.2]
   def change
     create_table :agent_relations do |t|
       t.integer :agent_id, null: false

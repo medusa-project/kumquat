@@ -1,4 +1,4 @@
-class CreateFacetDefs < ActiveRecord::Migration
+class CreateFacetDefs < ActiveRecord::Migration[4.2]
   def change
     create_table :facet_defs do |t|
       t.integer :index

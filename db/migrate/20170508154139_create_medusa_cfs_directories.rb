@@ -1,4 +1,4 @@
-class CreateMedusaCfsDirectories < ActiveRecord::Migration
+class CreateMedusaCfsDirectories < ActiveRecord::Migration[4.2]
   def change
     create_table :medusa_cfs_directories do |t|
       t.string :uuid, null: false

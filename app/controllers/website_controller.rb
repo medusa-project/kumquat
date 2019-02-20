@@ -20,8 +20,11 @@ class WebsiteController < ApplicationController
   def authorize(model)
     if model&.respond_to?(:authorized_by_any_roles?) # AuthorizableByRole method
       unless model.authorized_by_any_roles?(request_roles)
-        raise AuthorizationError, "You are not authorized to access this "\
-              "#{model.class.to_s.downcase}."
+        msg = sprintf('Authorization for %s %s denied for roles: %s',
+                      model.class.to_s,
+                      model.respond_to?(:repository_id) ? model.repository_id : model.id,
+                      request_roles.to_a.join(', '))
+        raise AuthorizationError, msg
       end
     end
   end

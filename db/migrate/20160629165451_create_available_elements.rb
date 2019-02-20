@@ -1,4 +1,4 @@
-class CreateAvailableElements < ActiveRecord::Migration
+class CreateAvailableElements < ActiveRecord::Migration[4.2]
   def change
     create_table :available_elements do |t|
       t.string :name

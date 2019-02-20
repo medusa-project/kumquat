@@ -1,4 +1,4 @@
-class CreateAgentUris < ActiveRecord::Migration
+class CreateAgentUris < ActiveRecord::Migration[4.2]
   def change
     create_table :agent_uris do |t|
       t.string :uri, null: false

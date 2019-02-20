@@ -80,8 +80,7 @@ class MedusaCfsDirectory < ApplicationRecord
   # @return [String]
   #
   def pathname
-    Configuration.instance.repository_pathname.chomp('/') +
-        self.repository_relative_pathname
+    self.repository_relative_pathname
   end
 
   def to_s

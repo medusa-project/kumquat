@@ -1,4 +1,4 @@
-class CreateElementDefs < ActiveRecord::Migration
+class CreateElementDefs < ActiveRecord::Migration[4.2]
   def change
     create_table :element_defs do |t|
       t.integer :collection_id

@@ -3,6 +3,7 @@ source 'https://rubygems.org'
 gem 'rails', '5.1.6'
 
 gem 'activemodel-serializers-xml'
+gem 'aws-sdk-s3', '~> 1.8'
 gem 'bootstrap-sass', '~> 3.3.6'
 gem 'browser'
 gem 'curb'
@@ -16,6 +17,7 @@ gem 'jbuilder', '~> 2.0' # JSON DSL: https://github.com/rails/jbuilder
 gem 'jquery-rails'
 gem 'js_cookie_rails'
 gem 'local_time'
+gem 'mimemagic'
 gem 'marc-dates', git: 'https://github.com/medusa-project/marc-dates.git'
 gem 'mime-types', '~> 2.6'
 gem 'netaddr'
@@ -30,6 +32,7 @@ gem 'prawn', git: 'https://github.com/prawnpdf/prawn.git', ref: '9250c8675342872
 gem 'puma'
 gem 'rails_autolink'
 gem 'sass-rails', '~> 5.0'
+gem 'therubyracer'
 gem 'tzinfo-data'
 gem 'uglifier', '>= 1.3.0' # JavaScript asset compressor
 
@@ -37,6 +40,5 @@ group :development do
   gem 'capistrano-bundler'
   gem 'capistrano-rails'
   gem 'capistrano-rvm'
-
   gem 'rails-erd', require: false # generate a model diagram with `bundle exec erd`
 end

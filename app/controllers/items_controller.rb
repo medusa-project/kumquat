@@ -41,7 +41,7 @@ class ItemsController < WebsiteController
     binary = @item.binaries.where('repository_relative_pathname LIKE ?',
                                   "%/#{filename}").limit(1).first
     if binary
-      send_file(binary.absolute_local_pathname)
+      send_binary(binary)
     else
       render status: 404, text: 'Binary not found'
     end
@@ -426,10 +426,7 @@ class ItemsController < WebsiteController
         #
         if @item.directory?
           if @item.items.any?
-            items = @item.finder.
-                user_roles(request_roles).
-                include_variants(*Item::Variants::FILE).
-                include_children_in_results(true).to_a
+            items = [@item]
             zip_name = 'files'
           else
             flash['error'] = 'This directory is empty.'

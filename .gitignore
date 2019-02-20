@@ -14,11 +14,11 @@
 /db/*.sqlite3
 /db/*.sqlite3-journal
 
+# Ignore config files.
+/config/database.yml
+/config/kumquat.yml
+
 # Ignore all logfiles and tempfiles.
 /log/*
 !/log/.keep
 /tmp
-
-/config/database.yml
-/config/kumquat.yml
-/config/shibboleth.yml
