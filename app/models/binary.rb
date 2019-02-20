@@ -2,27 +2,26 @@
 # Represents a file.
 #
 # Binaries are attached to Items. An Item may have zero or more Binaries. A
-# binary can only belong to one item. When an item is deleted, all of its
-# binaries are deleted along with it.
+# binary can only belong to one item. When an item is deleted, so are all of
+# its binaries.
 #
 # Binaries are analogous to "CFS files" in Medusa, and can be constructed by
 # MedusaCfsFile.to_binary().
 #
 # A binary may have a master type of access or preservation. Preservation
 # masters are typically in a preservation-optimized format/encoding, and access
-# masters are typically a derivation of the preservation master that may be
-# smaller or more compatible with viewer software etc.
+# masters are typically a variant of the preservation master that may be
+# smaller, more compatible with client viewer software, etc.
 #
 # A binary has a media (MIME) type, which may be different from the Medusa
-# CFS file's media type (which is often vague). When they differ, the Binary's
-# media type is usually more specific.
+# CFS file's media type (which tends to be vague). When they differ, the
+# Binary's media type is usually more specific.
 #
 # A binary may also reside in a media category (see the inner enum-like
 # MediaCategory class), which helps to differentiate binaries that have the
 # same media type but different uses. This especially comes into play in
-# collections that use the Mixed Media package profile. Selecting the right
-# binary to use in a given context generally means querying the item's
-# binaries.
+# collections that use the Mixed Media package profile, whose items may have
+# a representative image/jpeg binary as well as an image/jpeg 3D model texture.
 #
 # # Attributes
 #
@@ -48,7 +47,7 @@ class Binary < ApplicationRecord
   # Must be kept in sync with the return value of human_readable_master_type().
   #
   class MasterType
-    ACCESS = 1
+    ACCESS       = 1
     PRESERVATION = 0
   end
 
@@ -60,13 +59,13 @@ class Binary < ApplicationRecord
   # a texture.
   #
   class MediaCategory
-    AUDIO = 3
-    BINARY = 5
-    IMAGE = 0
+    AUDIO    = 3
+    BINARY   = 5
+    IMAGE    = 0
     DOCUMENT = 1
-    TEXT = 6
-    THREE_D = 4
-    VIDEO = 2
+    TEXT     = 6
+    THREE_D  = 4
+    VIDEO    = 2
 
     ##
     # @param media_type [String]
@@ -111,9 +110,9 @@ class Binary < ApplicationRecord
   # @return [IO]
   #
   def data
-    client = Aws::S3::Client.new
+    client = MedusaS3Client.instance
     response = client.get_object(
-        bucket: Configuration.instance.medusa_s3_bucket,
+        bucket: MedusaS3Client::BUCKET,
         key: self.object_key)
     response.body
   end
@@ -143,9 +142,11 @@ class Binary < ApplicationRecord
   #                   false otherwise.
   #
   def exists?
-    bucket = Aws::S3::Bucket.new(Configuration.instance.medusa_s3_bucket)
-    object = bucket.object(self.object_key)
-    object.exists?
+    MedusaS3Client.instance.head_object(bucket: MedusaS3Client::BUCKET,
+                                        key: self.object_key)
+    true
+  rescue Aws::S3::Errors::NotFound
+    false
   end
 
   ##
@@ -270,8 +271,8 @@ class Binary < ApplicationRecord
         self.media_type = 'text/plain'
       else
         begin
-          response = Aws::S3::Client.new.get_object(
-              bucket: Configuration.instance.medusa_s3_bucket,
+          response = MedusaS3Client.instance.get_object(
+              bucket: MedusaS3Client::BUCKET,
               key: self.object_key,
               range: 'bytes=0-20')
           self.media_type = MimeMagic.by_magic(response.body)
@@ -467,8 +468,8 @@ class Binary < ApplicationRecord
   #
   def read_size
     begin
-      response = Aws::S3::Client.new.head_object(
-          bucket: Configuration.instance.medusa_s3_bucket,
+      response = MedusaS3Client.instance.head_object(
+          bucket: MedusaS3Client::BUCKET,
           key: self.object_key)
       self.byte_size = response.content_length
     rescue => e
@@ -494,11 +495,11 @@ class Binary < ApplicationRecord
   private
 
   def download_to(pathname, length = 0)
-    Aws::S3::Client.new.get_object(
-        bucket: Configuration.instance.medusa_s3_bucket,
-        key: self.object_key,
+    MedusaS3Client.instance.get_object(
+        bucket:          MedusaS3Client::BUCKET,
+        key:             self.object_key,
         response_target: pathname,
-        range: length > 0 ? "bytes=#{0}-#{length}" : nil)
+        range:           (length > 0) ? "bytes=#{0}-#{length}" : nil)
   end
 
   ##

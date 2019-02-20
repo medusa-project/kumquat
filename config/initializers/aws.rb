@@ -3,6 +3,6 @@
 config = ::Configuration.instance
 
 Aws.config.update(
-    credentials: Aws::Credentials.new(config.aws_access_key_id,
-                                      config.aws_secret_key),
+    credentials: Aws::Credentials.new(config.dls_aws_access_key_id,
+                                      config.dls_aws_secret_key),
     region: config.aws_region)

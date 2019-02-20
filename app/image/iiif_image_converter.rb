@@ -26,8 +26,8 @@ class IiifImageConverter
 
       FileUtils.mkdir_p(File.dirname(new_pathname))
 
-      Aws::S3::Client.new.get_object(
-          bucket: Configuration.instance.medusa_s3_bucket,
+      MedusaS3Client.instance.get_object(
+          bucket: MedusaS3Client::BUCKET,
           key: binary.object_key,
           response_target: new_pathname)
       return new_pathname

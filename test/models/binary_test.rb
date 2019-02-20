@@ -36,7 +36,7 @@ class BinaryTest < ActiveSupport::TestCase
 
   # data()
 
-  test 'data() should return the data' do
+  test 'data should return the data' do
     data = @binary.data
     #assert_kind_of IO, data # TODO: this is supposed to be an IO: https://docs.aws.amazon.com/sdk-for-ruby/v3/api/Aws/S3/Types/GetObjectOutput.html#body-instance_method
     assert_equal 1629599, data.length
@@ -44,11 +44,11 @@ class BinaryTest < ActiveSupport::TestCase
 
   # exists?()
 
-  test 'exists?() should return true with valid pathname set' do
+  test 'exists? should return true with valid pathname set' do
     assert @binary.exists?
   end
 
-  test 'exists?() should return false with invalid pathname set' do
+  test 'exists? should return false with invalid pathname set' do
     @binary.repository_relative_pathname = '/bogus'
     assert !@binary.exists?
   end
@@ -191,13 +191,14 @@ class BinaryTest < ActiveSupport::TestCase
   end
 
   test 'read_duration() should work on video' do
-    @binary = binaries(:olin_obj1_preservation)
+    @binary          = binaries(:olin_obj1_preservation) # TODO: find a smaller video
     @binary.duration = nil
     @binary.read_duration
     assert_equal 1846, @binary.duration
   end
 
-  test 'read_duration() should raise an error with missing files' do
+  test 'read_duration should raise an error with missing files' do
+    @binary.media_type                   = 'audio/wav'
     @binary.repository_relative_pathname = 'bogus'
     assert_raises IOError do
       @binary.read_duration

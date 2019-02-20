@@ -61,7 +61,7 @@ class ApplicationController < ActionController::Base
   #
   def send_binary(binary)
     s3_request = {
-        bucket: ::Configuration.instance.medusa_s3_bucket,
+        bucket: MedusaS3Client::BUCKET,
         key: binary.object_key
     }
 
@@ -86,7 +86,7 @@ class ApplicationController < ActionController::Base
     CustomLogger.instance.debug(
         "ApplicationController.send_binary(): requesting #{s3_request}")
 
-    aws_response = Aws::S3::Client.new.get_object(s3_request)
+    aws_response = MedusaS3Client.instance.get_object(s3_request)
 
     response.status                          = status
     response.headers['Content-Type']         = binary.media_type
@@ -99,7 +99,7 @@ class ApplicationController < ActionController::Base
       response.headers['Content-Duration']   = binary.duration
       response.headers['X-Content-Duration'] = binary.duration
     end
-    Aws::S3::Client.new.get_object(s3_request) do |chunk|
+    MedusaS3Client.instance.get_object(s3_request) do |chunk|
       response.stream.write chunk
     end
   ensure
