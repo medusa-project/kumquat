@@ -61,7 +61,7 @@ class ApplicationController < ActionController::Base
   #
   def send_binary(binary)
     s3_request = {
-        bucket: ::Configuration.instance.repository_s3_bucket,
+        bucket: ::Configuration.instance.medusa_s3_bucket,
         key: binary.object_key
     }
 

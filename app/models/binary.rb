@@ -113,7 +113,7 @@ class Binary < ApplicationRecord
   def data
     client = Aws::S3::Client.new
     response = client.get_object(
-        bucket: Configuration.instance.repository_s3_bucket,
+        bucket: Configuration.instance.medusa_s3_bucket,
         key: self.object_key)
     response.body
   end
@@ -143,7 +143,7 @@ class Binary < ApplicationRecord
   #                   false otherwise.
   #
   def exists?
-    bucket = Aws::S3::Bucket.new(Configuration.instance.repository_s3_bucket)
+    bucket = Aws::S3::Bucket.new(Configuration.instance.medusa_s3_bucket)
     object = bucket.object(self.object_key)
     object.exists?
   end
@@ -271,7 +271,7 @@ class Binary < ApplicationRecord
       else
         begin
           response = Aws::S3::Client.new.get_object(
-              bucket: Configuration.instance.repository_s3_bucket,
+              bucket: Configuration.instance.medusa_s3_bucket,
               key: self.object_key,
               range: 'bytes=0-20')
           self.media_type = MimeMagic.by_magic(response.body)
@@ -468,7 +468,7 @@ class Binary < ApplicationRecord
   def read_size
     begin
       response = Aws::S3::Client.new.head_object(
-          bucket: Configuration.instance.repository_s3_bucket,
+          bucket: Configuration.instance.medusa_s3_bucket,
           key: self.object_key)
       self.byte_size = response.content_length
     rescue => e
@@ -495,7 +495,7 @@ class Binary < ApplicationRecord
 
   def download_to(pathname, length = 0)
     Aws::S3::Client.new.get_object(
-        bucket: Configuration.instance.repository_s3_bucket,
+        bucket: Configuration.instance.medusa_s3_bucket,
         key: self.object_key,
         response_target: pathname,
         range: length > 0 ? "bytes=#{0}-#{length}" : nil)
