@@ -266,6 +266,7 @@ class Item < ApplicationRecord
         aggregations(false).
         include_unpublished(true).
         search_children(true).
+        limit(0).
         count
   end
 
@@ -278,6 +279,7 @@ class Item < ApplicationRecord
         aggregations(false).
         search_children(true).
         include_unpublished(true).
+        limit(0).
         count
   end
 
@@ -290,6 +292,7 @@ class Item < ApplicationRecord
         include_unpublished(true).
         search_children(false).
         exclude_variants(Variants::FILE, Variants::DIRECTORY).
+        limit(0).
         count
   end
 
