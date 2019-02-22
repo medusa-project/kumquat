@@ -7,7 +7,7 @@
 # server 'example.com', user: 'deploy', roles: %w{app web}, other_property: :other_value
 # server 'db.example.com', user: 'deploy', roles: %w{db}
 
-server 'dls-pilot.library.illinois.edu', user: 'centos',
+server 'aws-dls-demo.library.illinois.edu', user: 'dls',
        roles: %w{web app db}, primary: true
 
 # role-based syntax
@@ -34,7 +34,7 @@ server 'dls-pilot.library.illinois.edu', user: 'centos',
 
 # Default branch is :master
 #ask :branch, 'staging'
-set :branch, 'staging-aws-pilot'
+set :branch, 'staging'
 
 # Custom SSH Options
 # ==================
