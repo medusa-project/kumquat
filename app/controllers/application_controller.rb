@@ -102,6 +102,9 @@ class ApplicationController < ActionController::Base
     Aws::S3::Client.new.get_object(s3_request) do |chunk|
       response.stream.write chunk
     end
+  rescue ActionController::Live::ClientDisconnected => e
+    # Rescue this or else Rails will log it at error level.
+    CustomLogger.instance.debug("ApplicationController.send_binary(): #{e}")
   ensure
     response.stream.close
   end
