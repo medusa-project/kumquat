@@ -4,7 +4,7 @@ gem 'rails', '5.1.6'
 
 gem 'activemodel-serializers-xml'
 gem 'aws-sdk-s3', '~> 1.8'
-gem 'bootstrap-sass', '~> 3.3.6'
+gem 'bootstrap-sass', '~> 3.4.1'
 gem 'browser'
 gem 'curb'
 gem 'daemons' # enables bin/delayed_job start/stop
