@@ -22,10 +22,10 @@ module Admin
         @num_binaries = Binary.count
         @total_binary_size = Binary.total_byte_size
 
-        sql = "SELECT regexp_matches(lower(repository_relative_pathname),'\\.(\\w+)$') AS extension,
+        sql = "SELECT regexp_matches(lower(object_key),'\\.(\\w+)$') AS extension,
           COUNT(id) AS count
         FROM binaries
-        WHERE repository_relative_pathname ~ '\\.'
+        WHERE object_key ~ '\\.'
         GROUP BY extension
         ORDER BY extension ASC"
         @extension_counts = ActiveRecord::Base.connection.execute(sql)

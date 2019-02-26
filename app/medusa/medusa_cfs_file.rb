@@ -95,11 +95,11 @@ class MedusaCfsFile < ApplicationRecord
   #                  changes that have not been persisted.
   #
   def to_binary(master_type, media_category = nil)
-    p = '/' + self.repository_relative_pathname.reverse.chomp('/').reverse
-    bin = Binary.find_by_repository_relative_pathname(p) || Binary.new
+    p = self.repository_relative_pathname.reverse.chomp('/').reverse
+    bin = Binary.find_by_object_key(p) || Binary.new
     bin.master_type = master_type
     bin.cfs_file_uuid = self.uuid
-    bin.repository_relative_pathname = p
+    bin.object_key = p
     # The type of the CFS file is likely to be vague, so let's see if we can do
     # better.
     bin.infer_media_type

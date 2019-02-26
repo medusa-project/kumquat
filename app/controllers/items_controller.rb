@@ -39,7 +39,7 @@ class ItemsController < WebsiteController
   #
   def binary
     filename = [params[:filename], params[:format]].join('.')
-    binary = @item.binaries.where('repository_relative_pathname LIKE ?',
+    binary = @item.binaries.where('object_key LIKE ?',
                                   "%/#{filename}").limit(1).first
     if binary
       send_binary(binary)

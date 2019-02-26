@@ -44,12 +44,12 @@ class BinaryTest < ActiveSupport::TestCase
 
   # exists?()
 
-  test 'exists? should return true with valid pathname set' do
+  test 'exists? returns true with valid object key set' do
     assert @binary.exists?
   end
 
-  test 'exists? should return false with invalid pathname set' do
-    @binary.repository_relative_pathname = '/bogus'
+  test 'exists? returns false with invalid object key set' do
+    @binary.object_key = 'bogus'
     assert !@binary.exists?
   end
 
@@ -183,23 +183,23 @@ class BinaryTest < ActiveSupport::TestCase
 
   # read_duration()
 
-  test 'read_duration() should work on audio' do
+  test 'read_duration works with audio' do
     @binary = binaries(:folksong_obj1_preservation)
     @binary.duration = nil
     @binary.read_duration
     assert_equal 1993, @binary.duration
   end
 
-  test 'read_duration() should work on video' do
-    @binary          = binaries(:olin_obj1_preservation) # TODO: find a smaller video
+  test 'read_duration works with video' do
+    @binary          = binaries(:short_video)
     @binary.duration = nil
     @binary.read_duration
-    assert_equal 1846, @binary.duration
+    assert_equal 9, @binary.duration
   end
 
-  test 'read_duration should raise an error with missing files' do
-    @binary.media_type                   = 'audio/wav'
-    @binary.repository_relative_pathname = 'bogus'
+  test 'read_duration raises an error with missing files' do
+    @binary.media_type = 'audio/wav'
+    @binary.object_key = 'bogus'
     assert_raises IOError do
       @binary.read_duration
     end
@@ -214,7 +214,7 @@ class BinaryTest < ActiveSupport::TestCase
   end
 
   test 'read_size() should raise an error with missing files' do
-    @binary.repository_relative_pathname = 'bogus'
+    @binary.object_key = 'bogus'
     assert_raises IOError do
       @binary.read_size
     end

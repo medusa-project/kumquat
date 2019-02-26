@@ -1029,7 +1029,8 @@ class Item < ApplicationRecord
   # @return [String]
   #
   def representative_filename
-    bin = self.binaries.where('repository_relative_pathname IS NOT NULL').
+    bin = self.binaries.
+        where('object_key IS NOT NULL').
         where('media_category != ?', Binary::MediaCategory::THREE_D).
         order(:master_type).limit(1).first
     bin&.filename&.split('.')&.first
