@@ -59,8 +59,9 @@
 #                             `published_in_dls` must be true in order for the
 #                             collection or any or any of its items to be
 #                             publicly accessible.
-# * published_in_dls:         "Published" status of the collection in the DLS.
-#                             N.B. use `publicly_accessible?()` to test a
+# * published_in_dls:         Whether the collection's content resides in the
+#                             DLS, or somewhere else.
+#                             N.B.: use `publicly_accessible?()` to test a
 #                             collection's effective public accessibility.
 # * repository_id:            The collection's effective UUID, copied from
 #                             Medusa.
@@ -90,7 +91,6 @@ class Collection < ApplicationRecord
 
   include AuthorizableByRole
   include Describable
-  include Elasticsearch::Model
   include Representable
 
   class IndexFields
@@ -164,8 +164,8 @@ class Collection < ApplicationRecord
   after_commit :index_in_elasticsearch, on: [:create, :update]
   after_commit :delete_from_elasticsearch, on: :destroy
 
-  # Used by the Elasticsearch client for CRUD actions only (not index changes).
-  index_name ElasticsearchIndex.current_index(self).name
+  ELASTICSEARCH_INDEX = 'collections'
+  ELASTICSEARCH_TYPE  = 'collection'
 
   ##
   # @return [Enumerable<Hash>] Array of hashes with `:name`, `:label`, and `id`
@@ -711,10 +711,12 @@ class Collection < ApplicationRecord
   # @return [void]
   #
   def index_in_elasticsearch(index = :current)
-    ElasticsearchClient.instance.index_document(index,
-                                                self.class,
-                                                self.id,
-                                                as_indexed_json)
+    index = ElasticsearchIndex.latest_index(ELASTICSEARCH_INDEX)
+    ElasticsearchClient.instance.index_document(index.name,
+                                                ELASTICSEARCH_TYPE,
+                                                self.repository_id,
+                                                self.as_indexed_json)
+
   end
 
   def validate_medusa_uuids

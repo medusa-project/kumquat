@@ -50,11 +50,11 @@ class ElasticsearchIndex
   attr_accessor :version
 
   ##
-  # @param class_ [Elasticsearch::Model] Model class.
+  # @param type [String] Type name.
   # @return [ElasticsearchIndex]
   #
-  def self.current_index(class_)
-    build_index(class_, current_index_version)
+  def self.current_index(type)
+    build_index(type, current_index_version)
   end
 
   ##
@@ -65,11 +65,11 @@ class ElasticsearchIndex
   end
 
   ##
-  # @param class_ [Elasticsearch::Model] Model class.
+  # @param type [String] Type name.
   # @return [ElasticsearchIndex]
   #
-  def self.latest_index(class_)
-    build_index(class_, latest_index_version)
+  def self.latest_index(type)
+    build_index(type, latest_index_version)
   end
 
   ##
@@ -135,19 +135,19 @@ class ElasticsearchIndex
   private
 
   ##
-  # @param class [Elasticsearch::Model] Model class.
-  # @param version [Integer]
+  # @param type [String] Type name.
+  # @param version [Integer] Schema version.
   # @return [ElasticsearchIndex]
   #
-  def self.build_index(class_, version)
+  def self.build_index(type, version)
     index = ElasticsearchIndex.new
     index.name = sprintf('%s_%d_%s_%s',
                          APPLICATION_INDEX_PREFIX,
                          version,
-                         class_.to_s.downcase.pluralize,
+                         type.to_s.downcase.pluralize,
                          Rails.env)
     index.version = version
-    index.schema = SCHEMAS[version][class_.to_s.downcase]
+    index.schema = SCHEMAS[version][type.to_s.downcase]
     index
   end
 

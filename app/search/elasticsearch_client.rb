@@ -8,7 +8,12 @@ class ElasticsearchClient
 
   include Singleton
 
-  MAX_KEYWORD_FIELD_LENGTH = 10922 # bytes: 32766/3 bytes per character
+  # Field values should be truncated to this length.
+  # (32766 total / 3 bytes per character)
+  MAX_KEYWORD_FIELD_LENGTH = 10922
+
+  # Default is 10,000. This should remain in sync with the same value in the
+  # schema YAML.
   MAX_RESULT_WINDOW = 1000000000
 
   @@http_client = HTTPClient.new
@@ -116,10 +121,18 @@ class ElasticsearchClient
   # @return [String] Response body.
   #
   def query(index, query)
-    url = sprintf('%s/%s/_search?size=0&pretty=true',
+    url = sprintf('%s/%s/_search',
                   Configuration.instance.elasticsearch_endpoint,
                   index)
-    @@http_client.post(url, query).body
+    headers = { 'Content-Type': 'application/json' }
+
+    response = @@http_client.post(url, query, headers)
+
+    CustomLogger.instance.debug(
+        "ElasticsearchClient.query(): URL: #{url}\n"\
+        "  Request: #{query}\n"\
+        "  Response: #{response.body}")
+    response.body
   end
 
   ##

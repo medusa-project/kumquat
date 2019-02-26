@@ -10,7 +10,6 @@ gem 'curb'
 gem 'daemons' # enables bin/delayed_job start/stop
 gem 'delayed_job_active_record'
 gem 'draper' # Provides decorators
-gem 'elasticsearch-model', '~> 5.0'
 gem 'font-awesome-sass', '~> 4.7.0'
 gem 'httpclient'
 gem 'jbuilder', '~> 2.0' # JSON DSL: https://github.com/rails/jbuilder

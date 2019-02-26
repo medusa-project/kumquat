@@ -110,22 +110,8 @@ GEM
       activemodel-serializers-xml (~> 1.0)
       activesupport (~> 5.0)
       request_store (~> 1.0)
-    elasticsearch (5.0.4)
-      elasticsearch-api (= 5.0.4)
-      elasticsearch-transport (= 5.0.4)
-    elasticsearch-api (5.0.4)
-      multi_json
-    elasticsearch-model (5.0.1)
-      activesupport (> 3)
-      elasticsearch (~> 5)
-      hashie
-    elasticsearch-transport (5.0.4)
-      faraday
-      multi_json
     erubi (1.8.0)
     execjs (2.7.0)
-    faraday (0.13.1)
-      multipart-post (>= 1.2, < 3)
     ffi (1.9.25)
     font-awesome-sass (4.7.0)
       sass (>= 3.2)
@@ -159,7 +145,6 @@ GEM
     mini_portile2 (2.3.0)
     minitest (5.11.3)
     multi_json (1.12.2)
-    multipart-post (2.0.0)
     net-scp (1.2.1)
       net-ssh (>= 2.6.5)
     net-ssh (4.2.0)
@@ -271,7 +256,6 @@ DEPENDENCIES
   daemons
   delayed_job_active_record
   draper
-  elasticsearch-model (~> 5.0)
   font-awesome-sass (~> 4.7.0)
   httpclient
   jbuilder (~> 2.0)

@@ -108,6 +108,16 @@ class ItemFinder < AbstractFinder
   end
 
   ##
+  # @return [Enumerable<Item>]
+  #
+  def to_a
+    load
+    @response['hits']['hits'].map do |r|
+      Item.find_by_repository_id(r['_source'][Item::IndexFields::REPOSITORY_ID])
+    end
+  end
+
+  ##
   # For this to work, `stats()` must have been called with an argument of
   # `true`.
   #
@@ -121,20 +131,20 @@ class ItemFinder < AbstractFinder
   protected
 
   def get_response
-    query = build_query
-    CustomLogger.instance.debug("ItemFinder.get_response(): #{query}")
-    Item.search(query)
+    index = ElasticsearchIndex.current_index(Item::ELASTICSEARCH_INDEX)
+    result = @client.query(index.name, build_query)
+    JSON.parse(result)
   end
 
   def load
     return if @loaded
 
-    response = get_response
+    @response = get_response
 
     # Assemble the response aggregations into Facets. The order of the facets
     # should be the same as the order of elements in the metadata profile.
     metadata_profile.facet_elements.each do |element|
-      agg = response.response.aggregations&.
+      agg = @response['aggregations']&.
           find{ |a| a[0] == element.indexed_keyword_field }
       if agg
         facet = Facet.new
@@ -152,14 +162,12 @@ class ItemFinder < AbstractFinder
       end
     end
 
-    agg = response.response.aggregations&.
-        find{ |a| a[0] == BYTE_SIZE_AGGREGATION }
+    agg = @response['aggregations']&.find{ |a| a[0] == BYTE_SIZE_AGGREGATION }
     if agg
       @result_byte_size = agg[1]['value'].to_i
     end
 
-    @result_instances = response.records
-    @result_count = response.results.total
+    @result_count = @response['hits']['total']
 
     @loaded = true
   end
