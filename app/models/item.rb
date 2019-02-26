@@ -257,6 +257,15 @@ class Item < ApplicationRecord
   after_commit :delete_from_elasticsearch, on: :destroy
 
   ##
+  # Deletes all item-related documents. This is obviously dangerous and should
+  # never be done in production.
+  #
+  def self.delete_all_documents
+    index_name = ElasticsearchIndex.current_index(ELASTICSEARCH_INDEX).name
+    ElasticsearchClient.instance.delete_all_documents(index_name, ELASTICSEARCH_TYPE)
+  end
+
+  ##
   # N.B.: Normally this method should not be used except to delete orphaned
   # documents with no database counterpart. See the class documentation for
   # info about how documents are normally deleted.
