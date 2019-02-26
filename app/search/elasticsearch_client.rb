@@ -32,8 +32,10 @@ class ElasticsearchClient
     if response.status == 200
       @@logger.info("ElasticsearchClient.create_index(): created #{name}")
     else
-      raise IOError, "Got #{response.status} for #{name}:\n"\
-          "#{JSON.pretty_generate(JSON.parse(response.body))}"
+      unless response.body.include?('already_exists')
+        raise IOError, "Got #{response.status} for #{name}:\n"\
+            "#{JSON.pretty_generate(JSON.parse(response.body))}"
+      end
     end
 
     # Increase the max result window (default is 10,000).
@@ -44,8 +46,10 @@ class ElasticsearchClient
       @@logger.info("ElasticsearchClient.create_index(): "\
           "updated max result window for #{name}")
     else
-      raise IOError, "Got #{response.status}:\n"\
-          "#{JSON.pretty_generate(JSON.parse(response.body))}"
+      unless response.body.include?('already_exists')
+        raise IOError, "Got #{response.status}:\n"\
+            "#{JSON.pretty_generate(JSON.parse(response.body))}"
+      end
     end
   end
 
