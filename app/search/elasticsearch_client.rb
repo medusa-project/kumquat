@@ -50,6 +50,37 @@ class ElasticsearchClient
   end
 
   ##
+  # @param index_name [String]
+  # @param type [String]
+  # @return [void]
+  # @raises [IOError]
+  #
+  def delete_all_documents(index_name, type)
+    @@logger.info("ElasticsearchClient.delete_all_documents(): deleting all "\
+        "documents in index #{index_name}/#{type}...")
+
+    body = {
+        query: {
+            match_all: {}
+        }
+    }
+
+    url = sprintf('%s/%s/%s/_delete_by_query?conflicts=proceed',
+                  Configuration.instance.elasticsearch_endpoint,
+                  index_name, type)
+    response = @@http_client.post(url,
+                                  JSON.generate(body),
+                                  'Content-Type': 'application/json')
+
+    if response.status == 200
+      @@logger.info("ElasticsearchClient.delete_all_documents(): all "\
+          "documents deleted from #{index_name}")
+    else
+      raise IOError, "Got #{response.status} for POST #{url}\n#{response.body}"
+    end
+  end
+
+  ##
   # @param index [String]
   # @param query [String] JSON query string.
   # @return [String] Response body.
