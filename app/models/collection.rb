@@ -168,6 +168,64 @@ class Collection < ApplicationRecord
   ELASTICSEARCH_TYPE  = 'collection'
 
   ##
+  # N.B.: Normally this method should not be used except to delete orphaned
+  # documents with no database counterpart. Documents are automatically deleted
+  # in an ActiveRecord callback.
+  #
+  def self.delete_document(repository_id)
+    query = {
+        query: {
+            bool: {
+                filter: [
+                    {
+                        term: {
+                            Collection::IndexFields::REPOSITORY_ID => repository_id
+                        }
+                    }
+                ]
+            }
+        }
+    }
+    ElasticsearchClient.instance.delete_by_query(
+        ElasticsearchIndex.current_index(Collection::ELASTICSEARCH_INDEX),
+        JSON.generate(query))
+  end
+
+  ##
+  # N.B.: Normally this method should not be used except to delete orphaned
+  # documents with no database counterpart. See the class documentation for
+  # info about how documents are normally deleted.
+  #
+  def self.delete_stale_documents
+    start_time = Time.now
+
+    # Get the document count.
+    finder = CollectionFinder.new.
+        aggregations(false).
+        include_unpublished(true).
+        limit(0)
+    count = finder.count
+
+    # Retrieve document IDs in batches.
+    index = start = num_deleted = 0
+    limit = 1000
+    while start < count do
+      ids = finder.start(start).limit(limit).to_id_a
+      ids.each do |id|
+        unless Collection.exists?(repository_id: id)
+          Collection.delete_document(id)
+          num_deleted += 1
+        end
+        index += 1
+        StringUtils.print_progress(start_time, index, count,
+                                   'Deleting stale documents')
+      end
+      start += limit
+    end
+    puts "\nDeleted #{num_deleted} documents"
+  end
+
+  ##
   # @return [Enumerable<Hash>] Array of hashes with `:name`, `:label`, and `id`
   #                            keys in the order they should appear.
   #
@@ -690,13 +748,22 @@ class Collection < ApplicationRecord
   private
 
   def delete_from_elasticsearch
-    logger = CustomLogger.instance
-    begin
-      logger.debug(['Deleting document... ',
-                    __elasticsearch__.delete_document].join)
-    rescue Elasticsearch::Transport::Transport::Errors::NotFound => e
-      logger.warn("Collection.delete_from_elasticsearch(): #{e}")
-    end
+    query = {
+        query: {
+            bool: {
+                filter: [
+                    {
+                        term: {
+                            Collection::IndexFields::REPOSITORY_ID => self.repository_id
+                        }
+                    }
+                ]
+            }
+        }
+    }
+    ElasticsearchClient.instance.delete_by_query(
+        ElasticsearchIndex.current_index(Collection::ELASTICSEARCH_INDEX),
+        JSON.generate(query))
   end
 
   def do_before_validation

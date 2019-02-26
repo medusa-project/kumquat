@@ -111,10 +111,16 @@ class ItemFinder < AbstractFinder
   # @return [Enumerable<Item>]
   #
   def to_a
+    to_id_a.map{ |r| Item.find_by_repository_id(r) }.select(&:present?)
+  end
+
+  ##
+  # @return [Enumerable<String>] Enumerable of Item repository IDs.
+  #
+  def to_id_a
     load
-    @response['hits']['hits'].map do |r|
-      Item.find_by_repository_id(r['_source'][Item::IndexFields::REPOSITORY_ID])
-    end
+    @response['hits']['hits']
+        .map{ |r| r['_source'][Item::IndexFields::REPOSITORY_ID] }
   end
 
   ##

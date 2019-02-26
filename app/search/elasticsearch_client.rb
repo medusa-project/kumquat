@@ -1,9 +1,6 @@
 ##
 # Custom Elasticsearch client.
 #
-# N.B.: This client is completely different from `Elasticsearch::Client`
-# provided by the `elasticsearch-model` gem.
-#
 class ElasticsearchClient
 
   include Singleton
@@ -47,6 +44,23 @@ class ElasticsearchClient
       @@logger.info("ElasticsearchClient.create_index(): "\
           "updated max result window for #{name}")
     else
+      raise IOError, "Got #{response.status}:\n"\
+          "#{JSON.pretty_generate(JSON.parse(response.body))}"
+    end
+  end
+
+  ##
+  # @param index [String]
+  # @param query [String] JSON query string.
+  # @return [String] Response body.
+  #
+  def delete_by_query(index, query)
+    url = sprintf('%s/%s/_delete_by_query?pretty',
+                  Configuration.instance.elasticsearch_endpoint, index)
+    @@logger.debug("ElasticsearchClient.delete_by_query(): #{url}\n    #{query}")
+    response = @@http_client.post(url, query,
+                                  'Content-Type': 'application/json')
+    if response.status != 200
       raise IOError, "Got #{response.status}:\n"\
           "#{JSON.pretty_generate(JSON.parse(response.body))}"
     end
@@ -146,7 +160,7 @@ class ElasticsearchClient
   end
 
   ##
-  # @param class_ [Elasticsearch::Model] Elasticsearch model class.
+  # @param class_ [Class] Model class.
   # @return [void]
   # @raises [IOError]
   #

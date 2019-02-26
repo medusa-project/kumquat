@@ -257,6 +257,64 @@ class Item < ApplicationRecord
   after_commit :delete_from_elasticsearch, on: :destroy
 
   ##
+  # N.B.: Normally this method should not be used except to delete orphaned
+  # documents with no database counterpart. See the class documentation for
+  # info about how documents are normally deleted.
+  #
+  def self.delete_document(repository_id)
+    query = {
+        query: {
+            bool: {
+                filter: [
+                    {
+                        term: {
+                            Item::IndexFields::REPOSITORY_ID => repository_id
+                        }
+                    }
+                ]
+            }
+        }
+    }
+    ElasticsearchClient.instance.delete_by_query(
+        ElasticsearchIndex.current_index(Item::ELASTICSEARCH_INDEX),
+        JSON.generate(query))
+  end
+
+  ##
+  # Iterates through all indexed Item documents and deletes any for which no
+  # counterpart exists in the database.
+  #
+  def self.delete_stale_documents
+    start_time = Time.now
+
+    # Get the document count.
+    finder = ItemFinder.new.
+        aggregations(false).
+        include_unpublished(true).
+        search_children(true).
+        limit(0)
+    count = finder.count
+
+    # Retrieve document IDs in batches.
+    index = start = num_deleted = 0
+    limit = 1000
+    while start < count do
+      ids = finder.start(start).limit(limit).to_id_a
+      ids.each do |id|
+        unless Item.exists?(repository_id: id)
+          Item.delete_document(id)
+          num_deleted += 1
+        end
+        index += 1
+        StringUtils.print_progress(start_time, index, count,
+                                   'Deleting stale documents')
+      end
+      start += limit
+    end
+    puts "\nDeleted #{num_deleted} documents"
+  end
+
+  ##
   # @return [Integer]
   #
   def self.num_free_form_files
@@ -1227,13 +1285,22 @@ class Item < ApplicationRecord
   private
 
   def delete_from_elasticsearch
-    logger = CustomLogger.instance
-    begin
-      logger.debug(['Deleting document... ',
-                    __elasticsearch__.delete_document].join)
-    rescue Elasticsearch::Transport::Transport::Errors::NotFound => e
-      logger.warn("Item.delete_from_elasticsearch(): #{e}")
-    end
+    query = {
+        query: {
+            bool: {
+                filter: [
+                    {
+                        term: {
+                            Item::IndexFields::REPOSITORY_ID => self.repository_id
+                        }
+                    }
+                ]
+            }
+        }
+    }
+    ElasticsearchClient.instance.delete_by_query(
+        ElasticsearchIndex.current_index(Item::ELASTICSEARCH_INDEX),
+        JSON.generate(query))
   end
 
   def elements_for_iim_value(iim_elem_label, dest_elem, iim_metadata)

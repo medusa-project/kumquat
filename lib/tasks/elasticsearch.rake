@@ -94,6 +94,7 @@ namespace :elasticsearch do
     task :populate_current => :environment do |task, args|
       EntityFinder::ENTITIES.each do |class_|
         class_.reindex_all(:current)
+        class_.delete_stale_documents
       end
     end
 
@@ -101,6 +102,7 @@ namespace :elasticsearch do
     task :populate_latest => :environment do |task, args|
       EntityFinder::ENTITIES.each do |class_|
         class_.reindex_all(:latest)
+        class_.delete_stale_documents
       end
       puts 'Done populating latest indexes. Don\'t forget to migrate to them!'
     end
