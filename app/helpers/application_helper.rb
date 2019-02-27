@@ -79,19 +79,19 @@ module ApplicationHelper
   def entities_as_cards(entities)
     html = ''
     entities.each do |entity|
-      bs = nil
+      bin = nil
       if Option::string(Option::Keys::SERVER_STATUS) != 'storage_offline'
         begin
           # If the entity is a Collection and the reference to the binary is
           # invalid (for example, an invalid UUID has been entered), this will
           # raise an error.
-          bs = entity.effective_representative_image_binary
+          bin = entity.effective_representative_image_binary
         rescue => e
           CustomLogger.instance.warn("entities_as_cards(): #{e} (#{entity})")
         end
       end
-      if bs
-        img_url = binary_image_url(bs, region: 'square', size: CARD_IMAGE_SIZE)
+      if bin&.iiif_safe?
+        img_url = binary_image_url(bin, region: 'square', size: CARD_IMAGE_SIZE)
       else
         case entity.class.to_s
           when 'Collection'
