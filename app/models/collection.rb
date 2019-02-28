@@ -168,6 +168,15 @@ class Collection < ApplicationRecord
   ELASTICSEARCH_TYPE  = 'collection'
 
   ##
+  # Deletes all collection-related documents. This is obviously dangerous and
+  # should never be done in production.
+  #
+  def self.delete_all_documents
+    index_name = ElasticsearchIndex.current_index(ELASTICSEARCH_INDEX).name
+    ElasticsearchClient.instance.delete_all_documents(index_name, ELASTICSEARCH_TYPE)
+  end
+
+  ##
   # N.B.: Normally this method should not be used except to delete orphaned
   # documents with no database counterpart. Documents are automatically deleted
   # in an ActiveRecord callback.
