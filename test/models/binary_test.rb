@@ -102,8 +102,15 @@ class BinaryTest < ActiveSupport::TestCase
 
   # iiif_image_identifier()
 
-  test 'iiif_image_identifier() should return the correct identifier' do
+  test 'iiif_image_identifier returns the correct identifier for images in Medusa' do
     assert_equal @binary.cfs_file_uuid, @binary.iiif_image_identifier
+  end
+
+  test 'iiif_image_identifier returns the correct identifier for images in MediaSpace' do
+    @binary.media_type = 'video/cats'
+    @binary.item.embed_tag = '<iframe id="kaltura_player" src="https://cdnapisec.kaltura.com/p/1329972/sp/132997200/embedIframeJs/uiconf_id/26883701/partner_id/1329972?iframeembed=true&playerId=kaltura_player&entry_id=1_l9epfpx1&flashvars[streamerType]=auto&flashvars[localizationCode]=en&flashvars[leadWithHTML5]=true&flashvars[sideBarContainer.plugin]=true&flashvars[sideBarContainer.position]=left&flashvars[sideBarContainer.clickToClose]=true&flashvars[chapters.plugin]=true&flashvars[chapters.layout]=vertical&flashvars[chapters.thumbnailRotator]=false&flashvars[streamSelector.plugin]=true&flashvars[EmbedPlayer.SpinnerTarget]=videoHolder&flashvars[dualScreen.plugin]=true&&wid=1_27eavjaq" width="640" height="480" allowfullscreen webkitallowfullscreen mozAllowFullScreen frameborder="0"></iframe>'
+    assert_equal 'v/1329972/132997200/1_l9epfpx1',
+                 @binary.iiif_image_identifier
   end
 
   # iiif_image_url()
