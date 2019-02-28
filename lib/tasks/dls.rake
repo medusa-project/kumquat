@@ -199,6 +199,13 @@ namespace :dls do
 
   namespace :items do
 
+    desc 'Export all items in a collection as TSV'
+    task :export_as_tsv, [:collection_uuid] => :environment do |task, args|
+      col = Collection.find_by_repository_id(args[:collection_uuid])
+      raise ArgumentError, 'Collection does not exist' unless col
+      puts ItemTsvExporter.new.items_in_collection(col)
+    end
+
     desc 'Delete all items from a collection'
     task :purge_collection, [:uuid] => :environment do |task, args|
       Collection.find_by_repository_id(args[:uuid]).purge
