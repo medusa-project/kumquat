@@ -35,11 +35,14 @@ class ItemTsvExporter
 
     values = [[ nil, collection.repository_id ]]
 
-    tsv = Item.tsv_columns(metadata_profile).join("\t") + LINE_BREAK
+    io = StringIO.new
+    io << Item.tsv_columns(metadata_profile).join("\t")
+    io << LINE_BREAK
     ActiveRecord::Base.connection.exec_query(sql, 'SQL', values).each do |row|
-      tsv += row.values.join("\t") + LINE_BREAK
+      io << row.values.join("\t")
+      io << LINE_BREAK
     end
-    tsv
+    io.string
   end
 
   ##
