@@ -210,10 +210,27 @@ class Binary < ApplicationRecord
   end
 
   ##
+  # If the instance is attached to an Item that has an embed tag that refers
+  # to a video in UI MediaSpace (https://mediaspace.illinois.edu), parts of the
+  # URL in its "src" attribute are extracted in order to construct an
+  # identifier that the image server will recognize as an image it should serve
+  # from there.
+  #
+  # Otherwise, the Medusa file UUID is returned.
+  #
   # @return [String] IIIF Image API identifier of the instance.
   #
   def iiif_image_identifier
-    self.cfs_file_uuid
+    if is_media_space_video?
+      matches = self.item.embed_tag.match(/src="(.*?)"/)
+      if matches
+        video_url = matches[0][5..matches[0].length - 2]
+        bits = video_url.match(/\/p\/(\d+)\/sp\/(\d+)\/.*&entry_id=([A-Za-z0-9_]+)/).captures
+        return (['v'] + bits[0..2]).join('/')
+      end
+    else
+      self.cfs_file_uuid
+    end
   end
 
   ##
@@ -250,7 +267,7 @@ class Binary < ApplicationRecord
           return false
         end
         return true
-      elsif self.is_pdf?
+      elsif self.is_pdf? or self.is_media_space_video?
         return true
       end
     end
@@ -295,6 +312,13 @@ class Binary < ApplicationRecord
 
   def is_image?
     self.media_type and self.media_type.start_with?('image/')
+  end
+
+  ##
+  # @return [Boolean] Whether the binary is a video and a version of it resides
+  #                   in UI MediaSpace (https://mediaspace.illinois.edu).
+  def is_media_space_video?
+    is_video? and self.item&.embed_tag&.include?('kaltura')
   end
 
   def is_pdf? # TODO: replace with is_document?()
