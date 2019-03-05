@@ -37,7 +37,8 @@ module Admin
     end
 
     def destroy
-      element = Element.find(params[:id])
+      element = Element.find_by_name(params[:name])
+      raise ActiveRecord::RecordNotFound unless element
       begin
         element.destroy!
       rescue => e
@@ -53,7 +54,9 @@ module Admin
     # XHR only
     #
     def edit
-      element = Element.find(params[:id])
+      element = Element.find_by_name(params[:name])
+      raise ActiveRecord::RecordNotFound unless element
+
       render partial: 'admin/elements/form',
              locals: { element: element, context: :edit }
     end
@@ -128,7 +131,8 @@ module Admin
     # XHR only
     #
     def update
-      element = Element.find(params[:id])
+      element = Element.find_by_name(params[:name])
+      raise ActiveRecord::RecordNotFound unless element
       begin
         element.update!(sanitized_params)
       rescue ActiveRecord::RecordInvalid

@@ -43,7 +43,7 @@
         <td>
           <button type="button" class="btn btn-default btn-xs pt-edit-element"
                   data-toggle="modal" data-target="#pt-edit-element-modal"
-                  data-element-id="<%= row['id'] %>">
+                  data-element-id="<%= row['name'] %>">
             <i class="fa fa-pencil"></i> Edit
           </button>
         </td>
@@ -53,7 +53,7 @@
               <i class="fa fa-trash"></i> Delete
             <% end %>
           <% else %>
-            <%= link_to admin_element_path(row['id']),
+            <%= link_to admin_element_path(row['name']),
                         class: 'btn btn-danger btn-xs', method: :delete,
                         data: { confirm: 'Are you sure you want to delete '\
                         'this element?' } do %>
