@@ -27,7 +27,7 @@ class MedusaDownloaderClient
         dir = MedusaCfsDirectory.with_uuid(item.repository_id)
         targets.push({
                          'type': 'directory',
-                         'path': dir.pathname,
+                         'path': dir.pathname.delete_prefix('/'),
                          'zip_path': dir.name,
                          'recursive': true
                      })
