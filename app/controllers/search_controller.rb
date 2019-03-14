@@ -7,7 +7,7 @@ class SearchController < WebsiteController
   MIN_RESULT_WINDOW = 10
   PERMITTED_PARAMS = [:_, :collection_id, { fq: [] }, :q, :sort, :start, :utf8]
 
-  before_action :search, :set_sanitized_params
+  before_action :set_sanitized_params, only: :search
 
   ##
   # Used for harvesting. Returns only JSON.
