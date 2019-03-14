@@ -22,6 +22,7 @@ class SearchController < WebsiteController
     # Collections.
     finder = EntityFinder.new.
         user_roles(request_roles).
+        include_classes(Agent, Item).
         # exclude all variants except File
         exclude_item_variants(*Item::Variants::all.reject{ |v| v == Item::Variants::FILE }).
         start(@start).

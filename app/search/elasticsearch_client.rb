@@ -185,7 +185,7 @@ class ElasticsearchClient
   # @raises [IOError]
   #
   def recreate_all_indexes
-    EntityFinder::ENTITIES.each do |class_|
+    EntityFinder::ALL_ENTITIES.each do |class_|
       recreate_index(class_)
     end
   end

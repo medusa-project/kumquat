@@ -7,15 +7,26 @@
 #
 class EntityFinder < AbstractFinder
 
-  ENTITIES = [Agent, Collection, Item]
+  ALL_ENTITIES = [Agent, Collection, Item]
 
   def initialize
     super
+    @include_classes = ALL_ENTITIES
     @exclude_item_variants = []
     @include_unpublished = false
     @last_modified_after = nil
     @last_modified_before = nil
     @only_described = false
+  end
+
+  ##
+  # @param classes [Class] One or more model classes to search. All are
+  #                        searched by default.
+  # @return [self]
+  #
+  def include_classes(*classes)
+    @include_classes = classes
+    self
   end
 
   ##
@@ -83,9 +94,8 @@ class EntityFinder < AbstractFinder
   protected
 
   def get_response
-    index_names = [ElasticsearchIndex.current_index(Agent::ELASTICSEARCH_INDEX),
-                   ElasticsearchIndex.current_index(Collection::ELASTICSEARCH_INDEX),
-                   ElasticsearchIndex.current_index(Item::ELASTICSEARCH_INDEX)].join(',')
+    index_names = @include_classes.map { |c|
+      ElasticsearchIndex.current_index(c.const_get(:ELASTICSEARCH_INDEX)) }.join(',')
     result = @client.query(index_names, build_query)
     JSON.parse(result)
   end

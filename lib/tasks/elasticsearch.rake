@@ -14,7 +14,7 @@ namespace :elasticsearch do
 
     desc 'Create all current indexes'
     task :create_all_current => :environment do |task, args|
-      EntityFinder::ENTITIES.each do |class_|
+      EntityFinder::ALL_ENTITIES.each do |class_|
         begin
           create_current_index(class_)
         rescue IOError => e
@@ -25,7 +25,7 @@ namespace :elasticsearch do
 
     desc 'Create all latest indexes'
     task :create_all_latest => :environment do |task, args|
-      EntityFinder::ENTITIES.each do |class_|
+      EntityFinder::ALL_ENTITIES.each do |class_|
         begin
           create_latest_index(class_)
         rescue IOError => e
@@ -52,7 +52,7 @@ namespace :elasticsearch do
 
     desc 'Delete all current indexes'
     task :delete_all_current => :environment do |task, args|
-      EntityFinder::ENTITIES.each do |class_|
+      EntityFinder::ALL_ENTITIES.each do |class_|
         begin
           delete_current_index(class_)
         rescue IOError => e
@@ -65,7 +65,7 @@ namespace :elasticsearch do
     task :delete_all_latest => :environment do |task, args|
       if ElasticsearchIndex.current_index_version !=
           ElasticsearchIndex.latest_index_version
-        EntityFinder::ENTITIES.each do |class_|
+        EntityFinder::ALL_ENTITIES.each do |class_|
           begin
             delete_latest_index(class_)
           rescue IOError => e
@@ -92,7 +92,7 @@ namespace :elasticsearch do
 
     desc 'Populate/reindex the current indexes with documents'
     task :populate_current => :environment do |task, args|
-      EntityFinder::ENTITIES.each do |class_|
+      EntityFinder::ALL_ENTITIES.each do |class_|
         class_.reindex_all(:current)
         class_.delete_stale_documents
       end
@@ -100,7 +100,7 @@ namespace :elasticsearch do
 
     desc 'Populate/reindex the latest indexes with documents'
     task :populate_latest => :environment do |task, args|
-      EntityFinder::ENTITIES.each do |class_|
+      EntityFinder::ALL_ENTITIES.each do |class_|
         class_.reindex_all(:latest)
         class_.delete_stale_documents
       end
