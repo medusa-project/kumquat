@@ -511,6 +511,13 @@ class Binary < ApplicationRecord
     str
   end
 
+  ##
+  # @return [String]
+  #
+  def uri
+    "s3://#{Configuration.instance.medusa_s3_bucket}/#{self.object_key}"
+  end
+
   private
 
   def download_to(pathname, length = 0)
