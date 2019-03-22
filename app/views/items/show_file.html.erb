@@ -82,4 +82,11 @@
 <%= render partial: 'download_section', locals: { item: @item,
                                                   expanded: false } %>
 <%= render partial: 'staff_info', locals: { item: @item } %>
+
+<div class="text-center" style="margin-bottom: 1em">
+  <%= render partial: 'email_curator_button', locals: { item: @item,
+                                                        align: :left,
+                                                        dropup: true } %>
+</div>
+
 <%= render partial: 'cite_panel', locals: { item: @item } %>
