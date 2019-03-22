@@ -1,4 +1,4 @@
-class CreateMedusaRepositories < ActiveRecord::Migration
+class CreateMedusaRepositories < ActiveRecord::Migration[4.2]
   def change
     create_table :medusa_repositories do |t|
       t.integer :medusa_database_id

@@ -1,4 +1,4 @@
-class AddMetadataProfileForeignKeys < ActiveRecord::Migration
+class AddMetadataProfileForeignKeys < ActiveRecord::Migration[4.2]
   def change
     #add_foreign_key :metadata_profile_elements, :metadata_profiles,
     #                on_delete: :cascade, on_update: :cascade

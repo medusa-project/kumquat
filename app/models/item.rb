@@ -112,7 +112,6 @@ class Item < ApplicationRecord
 
   include AuthorizableByRole
   include Describable
-  include Elasticsearch::Model
   include Representable
 
   class IndexFields
@@ -188,6 +187,9 @@ class Item < ApplicationRecord
     end
   end
 
+  ELASTICSEARCH_INDEX = 'items'
+  ELASTICSEARCH_TYPE  = 'item'
+
   # In the order they should appear in the TSV, left-to-right.
   NON_DESCRIPTIVE_TSV_COLUMNS = %w(uuid parentId preservationMasterPathname
     preservationMasterFilename preservationMasterUUID accessMasterPathname
@@ -254,8 +256,72 @@ class Item < ApplicationRecord
   after_commit :index_in_elasticsearch, on: [:create, :update]
   after_commit :delete_from_elasticsearch, on: :destroy
 
-  # Used by the Elasticsearch client for CRUD actions only (not index changes).
-  index_name ElasticsearchIndex.current_index(self).name
+  ##
+  # Deletes all item-related documents. This is obviously dangerous and should
+  # never be done in production.
+  #
+  def self.delete_all_documents
+    index_name = ElasticsearchIndex.current_index(ELASTICSEARCH_INDEX).name
+    ElasticsearchClient.instance.delete_all_documents(index_name, ELASTICSEARCH_TYPE)
+  end
+
+  ##
+  # N.B.: Normally this method should not be used except to delete orphaned
+  # documents with no database counterpart. See the class documentation for
+  # info about how documents are normally deleted.
+  #
+  def self.delete_document(repository_id)
+    query = {
+        query: {
+            bool: {
+                filter: [
+                    {
+                        term: {
+                            Item::IndexFields::REPOSITORY_ID => repository_id
+                        }
+                    }
+                ]
+            }
+        }
+    }
+    ElasticsearchClient.instance.delete_by_query(
+        ElasticsearchIndex.current_index(Item::ELASTICSEARCH_INDEX),
+        JSON.generate(query))
+  end
+
+  ##
+  # Iterates through all indexed Item documents and deletes any for which no
+  # counterpart exists in the database.
+  #
+  def self.delete_stale_documents
+    start_time = Time.now
+
+    # Get the document count.
+    finder = ItemFinder.new.
+        aggregations(false).
+        include_unpublished(true).
+        search_children(true).
+        limit(0)
+    count = finder.count
+
+    # Retrieve document IDs in batches.
+    index = start = num_deleted = 0
+    limit = 1000
+    while start < count do
+      ids = finder.start(start).limit(limit).to_id_a
+      ids.each do |id|
+        unless Item.exists?(repository_id: id)
+          Item.delete_document(id)
+          num_deleted += 1
+        end
+        index += 1
+        StringUtils.print_progress(start_time, index, count,
+                                   'Deleting stale documents')
+      end
+      start += limit
+    end
+    puts "\nDeleted #{num_deleted} documents"
+  end
 
   ##
   # @return [Integer]
@@ -266,6 +332,7 @@ class Item < ApplicationRecord
         aggregations(false).
         include_unpublished(true).
         search_children(true).
+        limit(0).
         count
   end
 
@@ -278,6 +345,7 @@ class Item < ApplicationRecord
         aggregations(false).
         search_children(true).
         include_unpublished(true).
+        limit(0).
         count
   end
 
@@ -290,6 +358,7 @@ class Item < ApplicationRecord
         include_unpublished(true).
         search_children(false).
         exclude_variants(Variants::FILE, Variants::DIRECTORY).
+        limit(0).
         count
   end
 
@@ -969,7 +1038,8 @@ class Item < ApplicationRecord
   # @return [String]
   #
   def representative_filename
-    bin = self.binaries.where('repository_relative_pathname IS NOT NULL').
+    bin = self.binaries.
+        where('object_key IS NOT NULL').
         where('media_category != ?', Binary::MediaCategory::THREE_D).
         order(:master_type).limit(1).first
     bin&.filename&.split('.')&.first
@@ -1225,13 +1295,22 @@ class Item < ApplicationRecord
   private
 
   def delete_from_elasticsearch
-    logger = CustomLogger.instance
-    begin
-      logger.debug(['Deleting document... ',
-                    __elasticsearch__.delete_document].join)
-    rescue Elasticsearch::Transport::Transport::Errors::NotFound => e
-      logger.warn("Item.delete_from_elasticsearch(): #{e}")
-    end
+    query = {
+        query: {
+            bool: {
+                filter: [
+                    {
+                        term: {
+                            Item::IndexFields::REPOSITORY_ID => self.repository_id
+                        }
+                    }
+                ]
+            }
+        }
+    }
+    ElasticsearchClient.instance.delete_by_query(
+        ElasticsearchIndex.current_index(Item::ELASTICSEARCH_INDEX),
+        JSON.generate(query))
   end
 
   def elements_for_iim_value(iim_elem_label, dest_elem, iim_metadata)
@@ -1276,7 +1355,7 @@ class Item < ApplicationRecord
     end
 
     CustomLogger.instance.debug("Item.elements_from_embedded_metadata: using "\
-        "#{bs.human_readable_master_type} (#{bs.absolute_local_pathname})")
+        "#{bs.human_readable_master_type} (#{bs.object_key})")
 
     # Get its embedded IIM metadata
     iim_metadata = bs.metadata.select{ |m| m[:category] == 'IPTC' }
@@ -1288,7 +1367,7 @@ class Item < ApplicationRecord
     # Title
     # Hack to treat items in a particular collection differently (IMET-397)
     if self.collection_repository_id == '8838a520-2b19-0132-3314-0050569601ca-7'
-      title = { value: File.basename(bs.repository_relative_pathname) }
+      title = { value: File.basename(bs.object_key) }
     else
       title = iim_metadata.select{ |e| e[:label] == 'Headline' }.first
       unless title
@@ -1362,10 +1441,11 @@ class Item < ApplicationRecord
   # @return [void]
   #
   def index_in_elasticsearch(index = :current)
-    ElasticsearchClient.instance.index_document(index,
-                                                self.class,
-                                                self.id,
-                                                as_indexed_json)
+    index = ElasticsearchIndex.latest_index(ELASTICSEARCH_INDEX)
+    ElasticsearchClient.instance.index_document(index.name,
+                                                ELASTICSEARCH_TYPE,
+                                                self.repository_id,
+                                                self.as_indexed_json)
   end
 
   ##

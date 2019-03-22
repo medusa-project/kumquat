@@ -28,10 +28,32 @@ class CollectionFinder < AbstractFinder
     self
   end
 
+  ##
+  # @return [Enumerable<Item>]
+  #
+  def to_a
+    to_id_a.map{ |r| Collection.find_by_repository_id(r) }.select(&:present?)
+  end
+
+  ##
+  # @return [Enumerable<String>] Enumerable of repository IDs.
+  #
+  def to_id_a
+    load
+    @response['hits']['hits']
+        .map { |r| r['_source'][Collection::IndexFields::REPOSITORY_ID] }
+  end
+
   protected
 
   def metadata_profile
     MetadataProfile.default
+  end
+
+  def get_response
+    index = ElasticsearchIndex.current_index(Collection::ELASTICSEARCH_INDEX)
+    result = @client.query(index.name, build_query)
+    JSON.parse(result)
   end
 
   private
@@ -39,10 +61,10 @@ class CollectionFinder < AbstractFinder
   def load
     return if @loaded
 
-    result = Collection.search(build_query)
+    @response = get_response
 
     # Assemble the response aggregations into Facets.
-    result.response.aggregations&.each do |agg|
+    @response['aggregations']&.each do |agg|
       facet = Facet.new
       facet.name = Collection.facet_fields.select{ |f| f[:name] == agg[0] }.
           first[:label]
@@ -58,8 +80,7 @@ class CollectionFinder < AbstractFinder
       @result_facets << facet
     end
 
-    @result_instances = result.records
-    @result_count = result.results.total
+    @result_count = @response['hits']['total']
 
     @loaded = true
   end

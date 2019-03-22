@@ -11,7 +11,8 @@ class Configuration
   include Singleton
 
   def initialize
-    @config = YAML.load_file(File.join(Rails.root, 'config', 'kumquat.yml'))[Rails.env]
+    raw_config = File.read(File.join(Rails.root, 'config', 'kumquat.yml'))
+    @config = YAML.load(raw_config)[Rails.env]
   end
 
   ##

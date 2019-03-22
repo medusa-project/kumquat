@@ -290,7 +290,7 @@ class CollectionTest < ActiveSupport::TestCase
 
   # num_public_objects()
 
-  test 'num_public_objects() works with free-form collections' do
+  test 'num_public_objects works with free-form collections' do
     @collection = collections(:illini_union)
     @collection.items.each do |item|
       # Need to add a title element in order to consider it "described".
@@ -301,7 +301,7 @@ class CollectionTest < ActiveSupport::TestCase
     assert_equal 1, @collection.num_public_objects
   end
 
-  test 'num_public_objects() works with non-free-form collections' do
+  test 'num_public_objects works with non-free-form collections' do
     @collection.items.each do |item|
       # Need to add a non-title element in order to consider it "described".
       item.elements.build(name: 'subject', value: 'Cats')
@@ -361,39 +361,39 @@ class CollectionTest < ActiveSupport::TestCase
     end
   end
 
-  # published()
+  # publicly_accessible?()
 
-  test 'published() returns true if the collection is public in Medusa and
-  published in DLS' do
+  test 'publicly_accessible? returns true if the collection is public in
+  Medusa and published in DLS' do
     @collection.public_in_medusa = true
     @collection.published_in_dls = true
-    assert @collection.published
+    assert @collection.publicly_accessible?
   end
 
-  test 'published() returns true if the collection is public in Medusa and has
-  an access URL' do
+  test 'publicly_accessible? returns true if the collection is public in
+  Medusa and has an access URL' do
     @collection.public_in_medusa = true
     @collection.access_url = 'http://example.org/'
-    assert @collection.published
+    assert @collection.publicly_accessible?
   end
 
-  test 'published() returns false if the collection is not public in Medusa and
-  published in DLS' do
+  test 'publicly_accessible? returns false if the collection is not public in
+  Medusa but is published in DLS' do
     @collection.public_in_medusa = false
     @collection.published_in_dls = true
-    assert !@collection.published
+    assert !@collection.publicly_accessible?
   end
 
-  test 'published() returns false if the collection is not public in Medusa and
-  has an access URL' do
+  test 'publicly_accessible? returns false if the collection is not public in
+  Medusa but has an access URL' do
     @collection.public_in_medusa = false
     @collection.access_url = 'http://example.org/'
-    assert !@collection.published
+    assert !@collection.publicly_accessible?
   end
 
   # purge()
 
-  test 'purge() should purge all items' do
+  test 'purge purges all items' do
     assert @collection.items.count > 0
     @collection.purge
     assert @collection.items.count == 0
@@ -401,7 +401,7 @@ class CollectionTest < ActiveSupport::TestCase
 
   # reindex()
 
-  test 'reindex() reindexes the instance' do
+  test 'reindex reindexes the instance' do
     assert_equal 0, CollectionFinder.new.
         filter(Collection::IndexFields::REPOSITORY_ID, @collection.repository_id).count
 

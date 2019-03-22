@@ -63,12 +63,31 @@ class EntityFinder < AbstractFinder
     self
   end
 
+  ##
+  # @return [Enumerable<Item>]
+  #
+  def to_a
+    load
+    @response['hits']['hits'].map { |r|
+      case r['_type']
+      when 'agent'
+        Agent.find(r['_id'])
+      when 'item'
+        Item.find_by_repository_id(r['_source']['k_repository_id'])
+      when 'collection'
+        Collection.find_by_repository_id(r['_source']['k_repository_id'])
+      end
+    }.select(&:present?)
+  end
+
   protected
 
   def get_response
-    query = build_query
-    CustomLogger.instance.debug("EntityFinder.get_response(): #{query}")
-    Elasticsearch::Model.search(query, ENTITIES)
+    index_names = [ElasticsearchIndex.current_index(Agent::ELASTICSEARCH_INDEX),
+                   ElasticsearchIndex.current_index(Collection::ELASTICSEARCH_INDEX),
+                   ElasticsearchIndex.current_index(Item::ELASTICSEARCH_INDEX)].join(',')
+    result = @client.query(index_names, build_query)
+    JSON.parse(result)
   end
 
   def metadata_profile

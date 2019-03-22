@@ -15,7 +15,8 @@ class IiifImageConverterTest < ActiveSupport::TestCase
 
       pathname = @instance.convert_binary(binary, tmpdir, format)
 
-      assert_equal tmpdir + binary.repository_relative_pathname.split('.')[0...-1].join('.') +
+      assert_equal tmpdir + '/' +
+                       binary.object_key.split('.')[0...-1].join('.') +
                        '.' + format,
                    pathname
       assert File.size(pathname) > 100000

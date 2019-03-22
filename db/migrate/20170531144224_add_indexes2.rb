@@ -1,4 +1,4 @@
-class AddIndexes2 < ActiveRecord::Migration
+class AddIndexes2 < ActiveRecord::Migration[4.2]
   def change
     add_index :binaries, :master_type
     add_index :binaries, :media_category

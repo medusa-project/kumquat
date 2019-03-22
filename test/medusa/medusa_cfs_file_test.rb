@@ -36,9 +36,7 @@ class MedusaCfsFileTest < ActiveSupport::TestCase
   # pathname()
 
   test 'pathname() should return the correct pathname' do
-    assert_equal(Configuration.instance.repository_pathname.chomp('/') +
-                     '/162/2204/1601831/access/1601831_001.jp2',
-                 @file.pathname)
+    assert_equal('/162/2204/1601831/access/1601831_001.jp2', @file.pathname)
   end
 
   # repository_relative_pathname()
@@ -54,8 +52,7 @@ class MedusaCfsFileTest < ActiveSupport::TestCase
   test 'to_binary() should return a correct binary' do
     binary = @file.to_binary(Binary::MasterType::PRESERVATION)
     assert_equal Binary::MasterType::PRESERVATION, binary.master_type
-    assert_equal @file.repository_relative_pathname,
-                 binary.repository_relative_pathname
+    assert_equal @file.repository_relative_pathname, binary.object_key
     assert_equal 13173904, binary.byte_size
     assert_equal 'image/jp2', binary.media_type
     assert_equal Binary::MediaCategory::IMAGE, binary.media_category

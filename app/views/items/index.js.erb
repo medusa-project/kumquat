@@ -5,11 +5,11 @@ $('#pt-download-zip-modal-container').html('<%=j render(partial: 'download_zip_p
                                                                                                  num_downloadable_items: @num_downloadable_items,
                                                                                                  total_byte_size: @total_byte_size }) %>');
 <% if @collection
-  atom_url = collection_items_path(@permitted_params.merge(format: 'atom'))
-  json_url = collection_items_path(@permitted_params.merge(format: 'json'))
+  atom_url = collection_items_path(@permitted_params.except(:start)) + '.atom'
+  json_url = collection_items_path(@permitted_params) + '.json'
 else
-  atom_url = items_path(@permitted_params.merge(format: 'atom'))
-  json_url = items_path(@permitted_params.merge(format: 'json'))
+  atom_url = items_path(@permitted_params.except(:start)) + '.atom'
+  json_url = items_path(@permitted_params) + '.json'
 end %>
 
 $('#pt-view-as-atom').attr('href', '<%= atom_url %>');

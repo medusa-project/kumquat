@@ -59,8 +59,9 @@
 #                             `published_in_dls` must be true in order for the
 #                             collection or any or any of its items to be
 #                             publicly accessible.
-# * published_in_dls:         "Published" status of the collection in the DLS.
-#                             N.B. use `publicly_accessible?()` to test a
+# * published_in_dls:         Whether the collection's content resides in the
+#                             DLS, or somewhere else.
+#                             N.B.: use `publicly_accessible?()` to test a
 #                             collection's effective public accessibility.
 # * repository_id:            The collection's effective UUID, copied from
 #                             Medusa.
@@ -90,7 +91,6 @@ class Collection < ApplicationRecord
 
   include AuthorizableByRole
   include Describable
-  include Elasticsearch::Model
   include Representable
 
   class IndexFields
@@ -164,8 +164,75 @@ class Collection < ApplicationRecord
   after_commit :index_in_elasticsearch, on: [:create, :update]
   after_commit :delete_from_elasticsearch, on: :destroy
 
-  # Used by the Elasticsearch client for CRUD actions only (not index changes).
-  index_name ElasticsearchIndex.current_index(self).name
+  ELASTICSEARCH_INDEX = 'collections'
+  ELASTICSEARCH_TYPE  = 'collection'
+
+  ##
+  # Deletes all collection-related documents. This is obviously dangerous and
+  # should never be done in production.
+  #
+  def self.delete_all_documents
+    index_name = ElasticsearchIndex.current_index(ELASTICSEARCH_INDEX).name
+    ElasticsearchClient.instance.delete_all_documents(index_name, ELASTICSEARCH_TYPE)
+  end
+
+  ##
+  # N.B.: Normally this method should not be used except to delete orphaned
+  # documents with no database counterpart. Documents are automatically deleted
+  # in an ActiveRecord callback.
+  #
+  def self.delete_document(repository_id)
+    query = {
+        query: {
+            bool: {
+                filter: [
+                    {
+                        term: {
+                            Collection::IndexFields::REPOSITORY_ID => repository_id
+                        }
+                    }
+                ]
+            }
+        }
+    }
+    ElasticsearchClient.instance.delete_by_query(
+        ElasticsearchIndex.current_index(Collection::ELASTICSEARCH_INDEX),
+        JSON.generate(query))
+  end
+
+  ##
+  # N.B.: Normally this method should not be used except to delete orphaned
+  # documents with no database counterpart. See the class documentation for
+  # info about how documents are normally deleted.
+  #
+  def self.delete_stale_documents
+    start_time = Time.now
+
+    # Get the document count.
+    finder = CollectionFinder.new.
+        aggregations(false).
+        include_unpublished(true).
+        limit(0)
+    count = finder.count
+
+    # Retrieve document IDs in batches.
+    index = start = num_deleted = 0
+    limit = 1000
+    while start < count do
+      ids = finder.start(start).limit(limit).to_id_a
+      ids.each do |id|
+        unless Collection.exists?(repository_id: id)
+          Collection.delete_document(id)
+          num_deleted += 1
+        end
+        index += 1
+        StringUtils.print_progress(start_time, index, count,
+                                   'Deleting stale documents')
+      end
+      start += limit
+    end
+    puts "\nDeleted #{num_deleted} documents"
+  end
 
   ##
   # @return [Enumerable<Hash>] Array of hashes with `:name`, `:label`, and `id`
@@ -593,6 +660,7 @@ class Collection < ApplicationRecord
       # group, or doesn't comply with the package profile.
       binary = Binary.find_by_cfs_file_uuid(self.representative_image)
       unless binary
+        # This may be very expensive!
         cfs_file = MedusaCfsFile.with_uuid(self.representative_image)
         binary = cfs_file.to_binary(Binary::MasterType::ACCESS)
         binary.save!
@@ -689,13 +757,22 @@ class Collection < ApplicationRecord
   private
 
   def delete_from_elasticsearch
-    logger = CustomLogger.instance
-    begin
-      logger.debug(['Deleting document... ',
-                    __elasticsearch__.delete_document].join)
-    rescue Elasticsearch::Transport::Transport::Errors::NotFound => e
-      logger.warn("Collection.delete_from_elasticsearch(): #{e}")
-    end
+    query = {
+        query: {
+            bool: {
+                filter: [
+                    {
+                        term: {
+                            Collection::IndexFields::REPOSITORY_ID => self.repository_id
+                        }
+                    }
+                ]
+            }
+        }
+    }
+    ElasticsearchClient.instance.delete_by_query(
+        ElasticsearchIndex.current_index(Collection::ELASTICSEARCH_INDEX),
+        JSON.generate(query))
   end
 
   def do_before_validation
@@ -710,10 +787,12 @@ class Collection < ApplicationRecord
   # @return [void]
   #
   def index_in_elasticsearch(index = :current)
-    ElasticsearchClient.instance.index_document(index,
-                                                self.class,
-                                                self.id,
-                                                as_indexed_json)
+    index = ElasticsearchIndex.latest_index(ELASTICSEARCH_INDEX)
+    ElasticsearchClient.instance.index_document(index.name,
+                                                ELASTICSEARCH_TYPE,
+                                                self.repository_id,
+                                                self.as_indexed_json)
+
   end
 
   def validate_medusa_uuids

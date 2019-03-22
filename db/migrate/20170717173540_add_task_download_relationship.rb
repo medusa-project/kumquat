@@ -1,4 +1,4 @@
-class AddTaskDownloadRelationship < ActiveRecord::Migration
+class AddTaskDownloadRelationship < ActiveRecord::Migration[4.2]
   def up
     add_column :downloads, :task_id, :integer
     #add_foreign_key :downloads, :tasks, on_update: :cascade, on_delete: :restrict

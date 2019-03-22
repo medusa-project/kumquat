@@ -3,7 +3,6 @@
 #
 class Agent < ApplicationRecord
 
-  include Elasticsearch::Model
   include Representable
 
   class IndexFields
@@ -36,8 +35,12 @@ class Agent < ApplicationRecord
   after_commit :index_in_elasticsearch, on: [:create, :update]
   after_commit :delete_from_elasticsearch, on: :destroy
 
-  # Used by the Elasticsearch client for CRUD actions only (not index changes).
-  index_name ElasticsearchIndex.current_index(self).name
+  ELASTICSEARCH_INDEX = 'agents'
+  ELASTICSEARCH_TYPE  = 'agent'
+
+  def self.delete_stale_documents
+    # TODO: write this
+  end
 
   ##
   # @param id [String]
@@ -167,13 +170,22 @@ class Agent < ApplicationRecord
   end
 
   def delete_from_elasticsearch
-    logger = CustomLogger.instance
-    begin
-      logger.debug(['Deleting document... ',
-                    __elasticsearch__.delete_document].join)
-    rescue Elasticsearch::Transport::Transport::Errors::NotFound => e
-      logger.warn("Agent.delete_from_elasticsearch(): #{e}")
-    end
+    query = {
+        query: {
+            bool: {
+                filter: [
+                    {
+                        term: {
+                            '_id': self.id
+                        }
+                    }
+                ]
+            }
+        }
+    }
+    ElasticsearchClient.instance.delete_by_query(
+        ElasticsearchIndex.current_index(Agent::ELASTICSEARCH_INDEX),
+        JSON.generate(query))
   end
 
   ##
@@ -181,13 +193,11 @@ class Agent < ApplicationRecord
   # @return [void]
   #
   def index_in_elasticsearch(index = :current)
-    ElasticsearchClient.instance.index_document(index, self.class, self.id,
-                                                as_indexed_json)
-  end
-
-  def update_in_elasticsearch
-    CustomLogger.instance.debug(['Updating document... ',
-                                 __elasticsearch__.update_document ].join)
+    index = ElasticsearchIndex.latest_index(ELASTICSEARCH_INDEX)
+    ElasticsearchClient.instance.index_document(index.name,
+                                                ELASTICSEARCH_TYPE,
+                                                self.repository_id,
+                                                self.as_indexed_json)
   end
 
 end

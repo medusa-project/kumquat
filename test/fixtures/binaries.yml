@@ -7,7 +7,7 @@ folksong_obj1_preservation:
   master_type: <%= Binary::MasterType::PRESERVATION %>
   media_category: <%= Binary::MediaCategory::AUDIO %>
   media_type: audio/wav
-  repository_relative_pathname: /1206/2888/14/001/preservation/audio/NeilRosenbergJuly2007.wav
+  object_key: 1206/2888/14/001/preservation/audio/NeilRosenbergJuly2007.wav
 
 # item: illini_union_dir1_dir1_file1
 
@@ -18,7 +18,7 @@ illini_union_dir1_dir1_file1:
   master_type: <%= Binary::MasterType::ACCESS %>
   media_type: image/jpeg
   media_category: <%= Binary::MediaCategory::IMAGE %>
-  repository_relative_pathname: /136/310/3707005/access/online/Illini_Union_Photographs/binder_5/banquets/banquets_002.jpg
+  object_key: 136/310/3707005/access/online/Illini_Union_Photographs/binder_5/banquets/banquets_002.jpg
 
 # item: olin_obj1
 
@@ -29,7 +29,7 @@ olin_obj1_preservation:
   master_type: <%= Binary::MasterType::PRESERVATION %>
   media_category: <%= Binary::MediaCategory::VIDEO %>
   media_type: video/mpeg
-  repository_relative_pathname: /52/612/001.mpg
+  object_key: 52/612/001.mpg
 
 # item: sanborn_obj1_page1
 
@@ -40,7 +40,7 @@ sanborn_obj1_page1_preservation:
   master_type: <%= Binary::MasterType::PRESERVATION %>
   media_category: <%= Binary::MediaCategory::IMAGE %>
   media_type: image/tiff
-  repository_relative_pathname: /162/2204/1601831/preservation/1601831_001.tif
+  object_key: 162/2204/1601831/preservation/1601831_001.tif
 
 sanborn_obj1_page1_access:
   item: sanborn_obj1_page1
@@ -49,7 +49,7 @@ sanborn_obj1_page1_access:
   master_type: <%= Binary::MasterType::ACCESS %>
   media_category: <%= Binary::MediaCategory::IMAGE %>
   media_type: image/jp2
-  repository_relative_pathname: /162/2204/1601831/access/1601831_001.jp2
+  object_key: 162/2204/1601831/access/1601831_001.jp2
 
 # item: sanborn_obj1_page2
 
@@ -60,7 +60,7 @@ sanborn_obj1_page2_preservation:
   master_type: <%= Binary::MasterType::PRESERVATION %>
   media_category: <%= Binary::MediaCategory::IMAGE %>
   media_type: image/tiff
-  repository_relative_pathname: /162/2204/1601831/preservation/1601831_002.tif
+  object_key: 162/2204/1601831/preservation/1601831_002.tif
 
 sanborn_obj1_page2_access:
   item: sanborn_obj1_page2
@@ -69,4 +69,15 @@ sanborn_obj1_page2_access:
   master_type: <%= Binary::MasterType::ACCESS %>
   media_category: <%= Binary::MediaCategory::IMAGE %>
   media_type: image/jp2
-  repository_relative_pathname: /162/2204/1601831/access/1601831_002.jp2
+  object_key: 162/2204/1601831/access/1601831_002.jp2
+
+# this is a short video, not linked to an item in fixtures yet
+
+short_video:
+  byte_size: 66048
+  cfs_file_uuid: b40251f0-33e0-0133-a7eb-0050569601ca-6
+  master_type: <%= Binary::MasterType::ACCESS %>
+  media_category: <%= Binary::MediaCategory::VIDEO %>
+  media_type: video/x-msvideo
+  object_key: 346/720/1505050/access/online/Chem 234 PP F02/Lectures pp/dehydrate.avi
+  duration: 9

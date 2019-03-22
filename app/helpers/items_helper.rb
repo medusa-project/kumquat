@@ -73,32 +73,32 @@ module ItemsHelper
   #
   def binary_metadata_as_table(binary, options = {})
     data = binary_metadata_for(binary, options)
-    html = ''
+    html = StringIO.new
     if data.any?
       categories = data.map{ |f| f[:category] }.uniq.
           reject{ |cat| cat == 'ExifTool' }
 
       # create the category tabs
-      html += '<ul class="nav nav-tabs" role="tablist">'
+      html << '<ul class="nav nav-tabs" role="tablist">'
       categories.each_with_index do |category, index|
         tab_id = "pt-metadata-tab-#{binary.master_type}-#{category.gsub(' ', '')}"
         class_ = (index == 0) ? 'active' : ''
-        html += "<li role=\"presentation\" class=\"#{class_}\">
+        html << "<li role=\"presentation\" class=\"#{class_}\">
           <a href=\"##{tab_id}\" aria-controls=\"#{tab_id}\"
               role=\"tab\" data-toggle=\"tab\">#{category}</a>
         </li>"
       end
-      html += '</ul>'
+      html << '</ul>'
 
       # create the category tab panes
-      html += '<div class="tab-content">'
+      html << '<div class="tab-content">'
       categories.each_with_index do |category, index|
         tab_id = "pt-metadata-tab-#{binary.master_type}-#{category.gsub(' ', '')}"
         class_ = (index == 0) ? 'active' : ''
-        html += "<div role=\"tabpanel\" class=\"tab-pane #{class_}\"
+        html << "<div role=\"tabpanel\" class=\"tab-pane #{class_}\"
             id=\"#{tab_id}\">"
 
-        html += '<table class="table table-condensed pt-metadata">'
+        html << '<table class="table table-condensed pt-metadata">'
         data.select{ |row| row[:category] == category }.each do |row|
           if row[:value].respond_to?(:each)
             value = '<ul>'
@@ -110,18 +110,18 @@ module ItemsHelper
             value = row[:value]
           end
 
-          html += "<tr>
+          html << "<tr>
             <td>#{row[:label]}</td>
             <td>#{raw(value)}</td>
           </tr>"
         end
-        html += '</table>'
+        html << '</table>'
 
-        html += '</div>' # .tab-pane
+        html << '</div>' # .tab-pane
       end
-      html += '</div>' # .tab-content
+      html << '</div>' # .tab-content
     end
-    raw(html)
+    raw(html.string)
   end
 
   ##
@@ -139,38 +139,38 @@ module ItemsHelper
   def compound_object_binary_info_table(item)
     binaries = item.binaries
     subitems = item.finder.to_a
-    html = ''
+    html = StringIO.new
     if subitems.any? or binaries.any?
-      html += '<table class="table">'
-      html += '  <tr>'
-      html += '    <th>Item</th>'
-      html += '    <th>Master Type</th>'
-      html += '    <th>Category</th>'
-      html += '    <th>Filename</th>'
-      html += '  </tr>'
+      html << '<table class="table">'
+      html <<   '<tr>'
+      html <<     '<th>Item</th>'
+      html <<     '<th>Master Type</th>'
+      html <<     '<th>Category</th>'
+      html <<     '<th>Filename</th>'
+      html <<   '</tr>'
       binaries.each do |binary|
-        html += '<tr>'
-        html += "  <td>#{item.title}</td>"
-        html += "  <td>#{binary.human_readable_master_type}</td>"
-        html += "  <td>#{binary.human_readable_media_category}</td>"
-        html += "  <td>#{link_to(binary.filename, binary.medusa_url, target: '_blank')}</td>"
-        html += '</tr>'
+        html << '<tr>'
+        html <<   "<td>#{item.title}</td>"
+        html <<   "<td>#{binary.human_readable_master_type}</td>"
+        html <<   "<td>#{binary.human_readable_media_category}</td>"
+        html <<   "<td>#{link_to(binary.filename, binary.medusa_url, target: '_blank')}</td>"
+        html << '</tr>'
       end
       subitems.each do |subitem|
         subitem.binaries.each_with_index do |bs, index|
-          html += '<tr>'
+          html << '<tr>'
           if index == 0
-            html += "  <td rowspan=\"#{subitem.binaries.length}\">#{subitem.title}</td>"
+            html <<   "<td rowspan=\"#{subitem.binaries.length}\">#{subitem.title}</td>"
           end
-          html += "  <td>#{bs.human_readable_master_type}</td>"
-          html += "  <td>#{bs.human_readable_media_category}</td>"
-          html += "  <td>#{link_to(bs.filename, bs.medusa_url, target: '_blank')}</td>"
-          html += '</tr>'
+          html <<   "<td>#{bs.human_readable_master_type}</td>"
+          html <<   "<td>#{bs.human_readable_media_category}</td>"
+          html <<   "<td>#{link_to(bs.filename, bs.medusa_url, target: '_blank')}</td>"
+          html << '</tr>'
         end
       end
-      html += '</table>'
+      html << '</table>'
     end
-    raw(html)
+    raw(html.string)
   end
 
   ##
@@ -178,22 +178,24 @@ module ItemsHelper
   #
   def files_as_list(files)
     return nil unless files.any?
-    html = '<ol>'
+    html = StringIO.new
+    html << '<ol>'
     files.each do |child|
-      link_target = item_path(child)
-      html += '<li>'
-      html += link_to(link_target, class: 'pt-title') do
-        raw('<div class="pt-thumbnail">' +
-                thumbnail_tag(child, shape: :square) +
-                '</div>' +
-                '<div class="pt-label" title="' + child.title + '">' +
-                truncate(child.title, length: PAGE_TITLE_LENGTH) +
-                '</div>')
+      html << '<li>'
+      html << link_to(item_path(child), class: 'pt-title') do
+        thumb = StringIO.new
+        thumb << '<div class="pt-thumbnail">'
+        thumb <<   thumbnail_tag(child, shape: :square)
+        thumb << '</div>'
+        thumb << "<div class=\"pt-label\" title=\"#{child.title}\">"
+        thumb <<   truncate(child.title, length: PAGE_TITLE_LENGTH)
+        thumb << '</div>'
+        raw(thumb.string)
       end
-      html += '</li>'
+      html << '</li>'
     end
-    html += '</ol>'
-    raw(html)
+    html << '</ol>'
+    raw(html.string)
   end
 
   ##
@@ -213,12 +215,15 @@ module ItemsHelper
   # @return [String]
   #
   def item_filter_field
-    html = "<div class=\"input-group\">
-        <span class=\"input-group-addon\"><i class=\"fa fa-search\"></i></span>
-        #{search_field_tag(:q, params[:q], class: 'form-control',
-                           placeholder: 'Filter')}
-      </div>"
-    raw(html)
+    html = StringIO.new
+    html << '<div class="input-group">'
+    html <<   '<span class="input-group-addon">'
+    html <<     '<i class="fa fa-search"></i>'
+    html <<   '</span>'
+    html <<   search_field_tag(:q, params[:q], class: 'form-control',
+                               placeholder: 'Filter')
+    html << '</div>'
+    raw(html.string)
   end
 
   ##
@@ -226,17 +231,19 @@ module ItemsHelper
   # @return [String] HTML select menu.
   #
   def item_filter_field_element_menu(metadata_profile)
-    html = "<select class=\"form-control\" name=\"df\">
+    html = StringIO.new
+    html << "<select class=\"form-control\" name=\"df\">
         <optgroup label=\"System Fields\">
           <option value=\"#{Item::IndexFields::REPOSITORY_ID}\">ID</option>
         </optgroup>
         <optgroup label=\"Metadata Profile Elements\">
           <option value=\"#{Item::IndexFields::SEARCH_ALL}\" selected>Any Element</option>"
     metadata_profile.elements.select(&:searchable).each do |e|
-      html += "<option value=\"#{e.indexed_field}\">#{e.label}</option>"
+      html << "<option value=\"#{e.indexed_field}\">#{e.label}</option>"
     end
-    html += '</optgroup></select>'
-    raw(html)
+    html <<   '</optgroup>'
+    html << '</select>'
+    raw(html.string)
   end
 
   ##
@@ -290,10 +297,10 @@ module ItemsHelper
     # 4096x4096 / 5MB.
     image_url = item_image_url(item, :full, 1600)
 
-    html = ''
+    html = StringIO.new
 
     # Twitter tags
-    html += sprintf(
+    html << sprintf(
         '<meta name="twitter:card" content="%s"/>
         <meta name="twitter:title" content="%s" />
         <meta name="twitter:description" content="%s" />',
@@ -301,34 +308,35 @@ module ItemsHelper
         truncate(item.title, length: 70),
         truncate(item.description, length: 200))
     if image_url
-      html += "\n" + sprintf('<meta name="twitter:image" content="%s" />',
+      html << "\n"
+      html << sprintf('<meta name="twitter:image" content="%s" />',
                       image_url)
     end
 
-    # OpenGraph tags, used notably by Facebook, but Twitter also falls back to
-    # them
-    html += "\n" + sprintf(
+    # OpenGraph tags, used by Facebook, but Twitter also falls back to them
+    html << "\n"
+    html << sprintf(
         '<meta property="og:title" content="%s" />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="%s" />
         <meta property="og:description" content="%s" />
         <meta property="og:site_name" content="%s" />',
-                   item.title,
-                   item_url(item),
-                   item.description,
-                   Option::string(Option::Keys::WEBSITE_NAME))
+        item.title,
+        item_url(item),
+        item.description,
+        Option::string(Option::Keys::WEBSITE_NAME))
 
     # N.B.: Minimum Facebook image size is 200x200, but they recommend at
-    # least 1200x630. Images may be up to "8Mb" (is that megabytes or
-    # megabits?).
+    # least 1200x630. Images may be up to "8Mb".
     if image_url
-      html += "\n" + sprintf('<meta property="og:image" content="%s" />
-        <meta property="og:image:type" content="image/jpeg" />
-        <meta property="og:image:alt" content="%s" />',
-                      image_url, item.title)
+      html << "\n"
+      html << sprintf(
+          '<meta property="og:image" content="%s" />
+          <meta property="og:image:type" content="image/jpeg" />
+          <meta property="og:image:alt" content="%s" />',
+          image_url, item.title)
     end
-
-    raw(html)
+    raw(html.string)
   end
 
   ##
@@ -336,26 +344,42 @@ module ItemsHelper
   # @return [String] HTML string
   #
   def item_page_title(item)
-    html = ''
+    html = StringIO.new
     if item.collection.free_form?
-      html += "<h1 class=\"pt-title\">#{icon_for(item)} #{item.title}</h1>"
+      html << '<h1 class="pt-title">'
+      html <<   icon_for(item)
+      html <<   ' '
+      html <<   item.title
+      html << '</h1>'
     elsif item.parent or item.items.any?
       relative_parent = item.parent ? item.parent : item
-      relative_child = item.parent ? item : relative_parent
-      html += '<h1 class="pt-title pt-compound-title">'
+      relative_child  = item.parent ? item : relative_parent
+      html << '<h1 class="pt-title pt-compound-title">'
       if item.parent
-        html += "<small>#{link_to relative_parent.title, relative_parent}</small>"
-        html += "<br>&nbsp;&nbsp;&#8627; "
+        html << '<small>'
+        html <<   link_to(relative_parent.title, relative_parent)
+        html << '</small>'
+        html << '<br>'
+        html << '&nbsp;&nbsp;&#8627; '
       end
-      html += "#{icon_for(relative_child)} #{relative_child.title}</h1>"
+      html <<   icon_for(relative_child)
+      html <<   ' '
+      html <<   relative_child.title
+      html << '</h1>'
     else
-      html += "<h1 class=\"pt-title\">#{icon_for(item)} #{item.title}"
+      html << '<h1 class="pt-title">'
+      html <<   icon_for(item)
+      html <<   ' '
+      html <<   item.title
       if item.subtitle
-        html += "<br><small>#{item.subtitle}</small>"
+        html <<   '<br>'
+        html <<   '<small>'
+        html <<     item.subtitle
+        html <<   '</small>'
       end
-      html += '</h1>'
+      html << '</h1>'
     end
-    raw(html)
+    raw(html.string)
   end
 
   ##
@@ -365,20 +389,22 @@ module ItemsHelper
   def items_as_flex(items)
     # needs to be kept in sync with the width defined in agents.js
     thumb_width = 300
-    html = ''
+    html = StringIO.new
     items.each do |item|
-      html += '<div class="pt-object">'
-      html +=    link_to(item) do
-        raw('<div class="pt-thumbnail">' +
-                thumbnail_tag(item.effective_representative_entity, size: thumb_width) +
-            '</div>')
+      html << '<div class="pt-object">'
+      html <<   link_to(item) do
+        thumb = StringIO.new
+        thumb << '<div class="pt-thumbnail">'
+        thumb <<   thumbnail_tag(item.effective_representative_entity, size: thumb_width)
+        thumb << '</div>'
+        raw(thumb.string)
       end
-      html += '  <h4 class="pt-title">'
-      html +=      link_to(item.title, item)
-      html += '  </h4>'
-      html += '</div>'
+      html <<   '<h4 class="pt-title">'
+      html <<      link_to(item.title, item)
+      html <<   '</h4>'
+      html << '</div>'
     end
-    raw(html)
+    raw(html.string)
   end
 
   ##
@@ -390,7 +416,8 @@ module ItemsHelper
   # @see `metadata_as_table`
   #
   def metadata_as_list(item, options = {})
-    html = '<dl class="pt-metadata">'
+    html = StringIO.new
+    html << '<dl class="pt-metadata">'
     # iterate through the index-ordered elements in the collection's metadata
     # profile in order to display the entity's elements in the correct order
     defs = item.collection.effective_metadata_profile.elements
@@ -399,21 +426,25 @@ module ItemsHelper
       elements = item.elements.
           select{ |e| e.name == e_def.name and (e.value.present? or e.uri.present?) }
       next if elements.empty?
-      html += "<dt>#{e_def.label}</dt>"
-      html += '<dd>'
+      html << '<dt>'
+      html <<   e_def.label
+      html << '</dt>'
+      html << '<dd>'
       if elements.length == 1
-        html += metadata_value_for_element(elements.first, e_def.searchable)
+        html << metadata_value_for_element(elements.first, e_def.searchable)
       else
-        html += '<ul>'
+        html << '<ul>'
         elements.each do |element|
-          html += "<li>#{metadata_value_for_element(element, e_def.searchable)}</li>"
+          html << '<li>'
+          html <<   metadata_value_for_element(element, e_def.searchable)
+          html << '</li>'
         end
-        html += '</ul>'
+        html << '</ul>'
       end
-      html += '</dd>'
+      html << '</dd>'
     end
-    html += '</dl>'
-    raw(html)
+    html << '</dl>'
+    raw(html.string)
   end
 
   ##
@@ -425,7 +456,8 @@ module ItemsHelper
   # @see `tech_metadata_as_table`
   #
   def metadata_as_table(item, options = {})
-    html = '<table class="table table-condensed pt-metadata">'
+    html = StringIO.new
+    html << '<table class="table table-condensed pt-metadata">'
     # iterate through the index-ordered elements in the item's collection's
     # metadata profile.
     p_els = item.collection.effective_metadata_profile.elements
@@ -434,23 +466,27 @@ module ItemsHelper
       elements = item.elements.
           select{ |e| e.name == pel.name and (e.value.present? or e.uri.present?) }
       next if elements.empty?
-      html += '<tr>'
-      html += "<td>#{pel.label}</td>"
-      html += '<td>'
+      html << '<tr>'
+      html <<   '<td>'
+      html <<     pel.label
+      html <<   '</td>'
+      html << '<td>'
       if elements.length == 1
-        html += metadata_value_for_element(elements.first, pel.searchable)
+        html << metadata_value_for_element(elements.first, pel.searchable)
       else
-        html += '<ul>'
+        html << '<ul>'
         elements.each do |element|
-          html += "<li>#{raw(metadata_value_for_element(element, pel.searchable))}</li>"
+          html << '<li>'
+          html << raw(metadata_value_for_element(element, pel.searchable))
+          html << '</li>'
         end
-        html += '</ul>'
+        html << '</ul>'
       end
-      html += '</td>'
-      html += '</tr>'
+      html <<   '</td>'
+      html << '</tr>'
     end
-    html += '</table>'
-    raw(html)
+    html << '</table>'
+    raw(html.string)
   end
 
   ##
@@ -509,11 +545,11 @@ module ItemsHelper
   # @return [String]
   #
   def query_summary(q, fq, profile)
-    query = ''
+    query = StringIO.new
     if fq&.any? or q.present?
-      query = '<ul class="pt-query-summary">'
+      query << '<ul class="pt-query-summary">'
       if q.present?
-        query += "<li>Filter: <span class=\"pt-query-summary-value\">\"#{h(q)}\"</span></li>"
+        query << "<li>Filter: <span class=\"pt-query-summary-value\">\"#{h(q)}\"</span></li>"
       end
       fq&.each do |fq_|
         parts = fq_.split(':')
@@ -522,12 +558,12 @@ module ItemsHelper
           label = profile.elements.select{ |e| e.name == name }.first.label
           value = parts[1].chomp('"').reverse.chomp('"').reverse
 
-          query += "<li>#{label}: <span class=\"pt-query-summary-value\">#{value}</span></li>"
+          query << "<li>#{label}: <span class=\"pt-query-summary-value\">#{value}</span></li>"
         end
       end
-      query += '</ul>'
+      query << '</ul>'
     end
-    raw(query)
+    raw(query.string)
   end
 
   ##
@@ -709,7 +745,8 @@ module ItemsHelper
     title = CGI::escape(entity.respond_to?(:title) ? entity.title : entity.name)
     url = CGI::escape(polymorphic_url(entity))
 
-    html = '<div class="btn-group">
+    html = StringIO.new
+    html << '<div class="btn-group">
       <button type="button" class="btn btn-default dropdown-toggle"
             data-toggle="dropdown" aria-expanded="false">
         <i class="fa fa-share-alt"></i> Share <span class="caret"></span>
@@ -717,49 +754,49 @@ module ItemsHelper
       <ul class="dropdown-menu" role="menu">'
     # cite
     if entity.kind_of?(Item)
-      html += '<li>'
-      html += link_to('#', onclick: 'return false;', data: { toggle: 'modal',
+      html << '<li>'
+      html << link_to('#', onclick: 'return false;', data: { toggle: 'modal',
                                                              target: '#pt-cite-modal' }) do
         raw('<i class="fa fa-pencil"></i> Cite')
       end
-      html += '</li>'
-      html += '<li class="divider"></li>'
+      html << '</li>'
+      html << '<li class="divider"></li>'
     end
     # email
-    html += '<li>'
-    html += link_to("mailto:?subject=#{title}&body=#{url}") do
+    html << '<li>'
+    html << link_to("mailto:?subject=#{title}&body=#{url}") do
       raw('<i class="fa fa-envelope"></i> Email')
     end
-    html += '</li>'
-    html += '<li class="divider"></li>'
+    html << '</li>'
+    html << '<li class="divider"></li>'
     # facebook
-    html += '<li>'
-    html += link_to("https://www.facebook.com/sharer/sharer.php?u=#{url}", target: '_blank') do
+    html << '<li>'
+    html << link_to("https://www.facebook.com/sharer/sharer.php?u=#{url}", target: '_blank') do
       raw('<i class="fa fa-facebook-square"></i> Facebook')
     end
-    html += '</li>'
+    html << '</li>'
     # twitter: https://dev.twitter.com/web/tweet-button/web-intent
-    html += '<li>'
-    html += link_to("https://twitter.com/intent/tweet?url=#{url}&text=#{truncate(title, length: 140)}", target: '_blank') do
+    html << '<li>'
+    html << link_to("https://twitter.com/intent/tweet?url=#{url}&text=#{truncate(title, length: 140)}", target: '_blank') do
       raw('<i class="fa fa-twitter-square"></i> Twitter')
     end
-    html += '</li>'
+    html << '</li>'
     # pinterest
     url = "http://pinterest.com/pin/create/button/?url=#{url}&description=#{title}"
     if entity.kind_of?(Item)
       iiif_url = item_image_url(entity, :default, 512)
       if iiif_url
-        url += "&media=#{CGI::escape(iiif_url)}"
+        url << "&media=#{CGI::escape(iiif_url)}"
       end
     end
-    html += '<li>'
-    html += link_to(url, target: '_blank') do
+    html << '<li>'
+    html << link_to(url, target: '_blank') do
       raw('<i class="fa fa-pinterest-square"></i> Pinterest')
     end
-    html += '</li>
+    html << '</li>
         </ul>
       </div>'
-    raw(html)
+    raw(html.string)
   end
 
   ##
@@ -772,14 +809,15 @@ module ItemsHelper
   def sort_menu(metadata_profile)
     sortable_elements = metadata_profile.elements.where(sortable: true)
     default_sortable_element = metadata_profile.default_sortable_element
-    html = ''
+
+    html = StringIO.new
     if sortable_elements.any?
-      html += '<form class="form-inline" method="GET">
+      html << '<form class="form-inline" method="get">
         <div class="form-group">
           <select name="sort" class="form-control input-sm">'
 
       unless default_sortable_element
-        html += '<option value="">Sort by Relevance</option>'
+        html << '<option value="">Sort by Relevance</option>'
       end
 
       # If there is an element in the ?sort= query, select that. Otherwise,
@@ -792,14 +830,15 @@ module ItemsHelper
       end
       sortable_elements.each do |e|
         selected = (e == selected_element) ? 'selected' : ''
-        html += "<option value=\"#{e.indexed_sort_field}\" #{selected}>"\
-          "Sort by #{e.label}</option>"
+        html << "<option value=\"#{e.indexed_sort_field}\" #{selected}>"
+        html <<   "Sort by #{e.label}"
+        html << '</option>'
       end
-      html += '</select>
+      html << '</select>
         </div>
       </form>'
     end
-    raw(html)
+    raw(html.string)
   end
 
   ##
@@ -809,12 +848,14 @@ module ItemsHelper
   #
   def tech_metadata_as_list(item)
     data = tech_metadata_for(item)
-    html = '<dl class="pt-metadata">'
+    html = StringIO.new
+    html << '<dl class="pt-metadata">'
     data.each do |key, value|
-      html += "<dt>#{raw(key)}</dt><dd>#{raw(value)}</dd>"
+      html << "<dt>#{raw(key)}</dt>"
+      html << "<dd>#{raw(value)}</dd>"
     end
-    html += '</dl>'
-    raw(html)
+    html << '</dl>'
+    raw(html.string)
   end
 
   ##
@@ -824,12 +865,16 @@ module ItemsHelper
   #
   def tech_metadata_as_table(item)
     data = tech_metadata_for(item)
-    html = '<table class="table table-condensed pt-metadata">'
+    html = StringIO.new
+    html << '<table class="table table-condensed pt-metadata">'
     data.each do |key, value|
-      html += "<tr><td>#{raw(key)}</td><td>#{raw(value)}</td></tr>"
+      html << '<tr>'
+      html <<   "<td>#{raw(key)}</td>"
+      html <<   "<td>#{raw(value)}</td>"
+      html << '</tr>'
     end
-    html += '</table>'
-    raw(html)
+    html << '</table>'
+    raw(html.string)
   end
 
   ##
@@ -847,7 +892,6 @@ module ItemsHelper
     options[:shape] = 'full' unless options.keys.include?(:shape)
     options[:lazy] = false unless options.keys.include?(:lazy)
 
-    html = ''
     url = nil
     if Option::string(Option::Keys::SERVER_STATUS) != 'storage_offline'
       if entity.kind_of?(Binary) and entity.iiif_safe?
@@ -868,18 +912,18 @@ module ItemsHelper
       end
     end
 
+    html = StringIO.new
     if url
       # No alt because it may appear in a huge font size if the image is 404.
       if options[:lazy]
-        html += lazy_image_tag(url, class: 'pt-thumbnail', alt: '')
+        html << lazy_image_tag(url, class: 'pt-thumbnail', alt: '')
       else
-        html += image_tag(url, class: 'pt-thumbnail', alt: '')
+        html << image_tag(url, class: 'pt-thumbnail', alt: '')
       end
     else
-      html += icon_for(entity) # ApplicationHelper
+      html << icon_for(entity) # ApplicationHelper
     end
-
-    raw(html)
+    raw(html.string)
   end
 
   ##
@@ -972,15 +1016,15 @@ module ItemsHelper
   private
 
   def audio_player_for(binary)
-    html = ''
+    html = StringIO.new
     if binary
       url = binary_url(binary, disposition: 'inline')
-      html += "<audio id=\"pt-audio-player\" src=\"#{url}\" "\
+      html << "<audio id=\"pt-audio-player\" src=\"#{url}\" "\
           "type=\"#{binary.media_type}\" controls>
           <a href=\"#{url}\">Download audio</a>
       </audio>"
     end
-    raw(html)
+    raw(html.string)
   end
 
   ##
@@ -996,13 +1040,13 @@ module ItemsHelper
       data << {
           label: 'Filename',
           category: 'File',
-          value: File.basename(binary.absolute_local_pathname)
+          value: File.basename(binary.object_key)
       }
       if options[:admin]
         data << {
-            label: 'Pathname',
+            label: 'Object Key',
             category: 'File',
-            value: binary.absolute_local_pathname
+            value: binary.object_key
         }
       end
       data << {
@@ -1095,14 +1139,15 @@ module ItemsHelper
     # Configuration is in /public/uvconfig_compound.json;
     # See http://universalviewer.io/examples/ for config structure.
     # UV seems to want its height to be defined in a style attribute.
-    html = "<div id=\"pt-compound-viewer\" class=\"uv\" "\
+    html = StringIO.new
+    html << "<div id=\"pt-compound-viewer\" class=\"uv\" "\
       "data-locale=\"en-GB:English (GB)\" "\
       "data-config=\"#{asset_path('uvconfig_compound.json', skip_pipeline: true)}\" "\
       "data-uri=\"#{item_iiif_manifest_url(object)}\" "\
       "data-sequenceindex=\"0\" data-canvasindex=\"#{canvas_index}\" "\
       "data-rotation=\"0\" style=\"margin: 0 auto; width:#{VIEWER_WIDTH}; height:#{VIEWER_HEIGHT}; background-color:#000;\"></div>"
-    html += javascript_include_tag('/universalviewer/lib/embed.js', id: 'embedUV')
-    raw(html)
+    html << javascript_include_tag('/universalviewer/lib/embed.js', id: 'embedUV')
+    raw(html.string)
   end
 
   ##
@@ -1194,10 +1239,11 @@ module ItemsHelper
     end
 
     # http://getbootstrap.com/components/#pagination
-    html = '<nav>' +
-        '<ul class="pagination">' +
-        "<li #{current_page == first_page ? 'class="disabled"' : ''}>#{first_link}</li>" +
-        "<li #{current_page == prev_page ? 'class="disabled"' : ''}>#{prev_link}</li>"
+    html = StringIO.new
+    html << '<nav>'
+    html <<   '<ul class="pagination">'
+    html <<      "<li #{current_page == first_page ? 'class="disabled"' : ''}>#{first_link}</li>"
+    html <<      "<li #{current_page == prev_page ? 'class="disabled"' : ''}>#{prev_link}</li>"
     (first_page..last_page).each do |page|
       start = (page - 1) * per_page
       case item_variant
@@ -1215,14 +1261,15 @@ module ItemsHelper
                 '<span class="sr-only">(current)</span>' : ''}")
           end
       end
-      html += "<li class=\"#{page == current_page ? 'active' : ''}\">" +
-          page_link + '</li>'
+      html <<     "<li class=\"#{page == current_page ? 'active' : ''}\">"
+      html <<       page_link
+      html <<     '</li>'
     end
-    html += "<li #{current_page == next_page ? 'class="disabled"' : ''}>#{next_link}</li>" +
-        "<li #{current_page == last_page ? 'class="disabled"' : ''}>#{last_link}</li>"
-    html += '</ul>' +
-        '</nav>'
-    raw(html)
+    html <<     "<li #{current_page == next_page ? 'class="disabled"' : ''}>#{next_link}</li>"
+    html <<     "<li #{current_page == last_page ? 'class="disabled"' : ''}>#{last_link}</li>"
+    html <<   '</ul>'
+    html << '</nav>'
+    raw(html.string)
   end
 
   def free_form_viewer_for(item)
@@ -1246,14 +1293,14 @@ module ItemsHelper
   end
 
   def image_viewer_for(item)
-    html = ''
+    html = StringIO.new
     binary = item.effective_image_binary
     if binary
       # Configuration is in /public/uvconfig_single.json;
       # See http://universalviewer.io/examples/ for config structure.
       # N.B. 1: UV 2.x doesn't work in IE 9, so render an <img> instead.
       # N.B. 2: UV wants its height to be defined in a style attribute.
-      html += sprintf('<!--[if (lte IE 9)]>%s<![endif]-->
+      html << sprintf('<!--[if (lte IE 9)]>%s<![endif]-->
           <!--[if gt IE 9 | !IE ]><!-->
           <div id="pt-image-viewer" class="uv"
           data-locale="en-GB:English (GB)"
@@ -1270,9 +1317,9 @@ module ItemsHelper
                       VIEWER_HEIGHT,
                       javascript_include_tag('/universalviewer/lib/embed.js', id: 'embedUV'))
     else
-      html += viewer_unavailable_message
+      html << viewer_unavailable_message
     end
-    raw(html)
+    raw(html.string)
   end
 
   ##
@@ -1322,18 +1369,18 @@ module ItemsHelper
   end
 
   def pdf_viewer_for(binary)
-    html = ''
+    html = StringIO.new
     if binary
       binary_url = binary_url(binary)
       viewer_url = asset_path('/pdfjs/web/viewer.html?file=' + binary_url)
-      html += '<div id="pt-pdf-viewer">'
-      html += "<iframe src=\"#{viewer_url}\" height=\"100%\" width=\"100%\"></iframe>"
-      html += link_to(viewer_url, target: '_blank', class: 'btn btn-default') do
+      html << '<div id="pt-pdf-viewer">'
+      html <<   "<iframe src=\"#{viewer_url}\" height=\"100%\" width=\"100%\"></iframe>"
+      html <<   link_to(viewer_url, target: '_blank', class: 'btn btn-default') do
         content_tag(:span, '', class: 'fa fa-file-pdf-o') + ' Open in New Window'
       end
-      html += '</div>'
+      html << '</div>'
     end
-    raw(html)
+    raw(html.string)
   end
 
   ##
@@ -1341,17 +1388,19 @@ module ItemsHelper
   # @return [String] HTML <pre> element
   #
   def text_viewer_for(binary)
-    html = ''
+    html = StringIO.new
     if binary
       begin
-        str = File.read(binary.absolute_local_pathname).to_s
+        str = binary.data.string
         if str.valid_encoding?
-          html += "<pre>#{str}</pre>"
+          html << '<pre>'
+          html <<   str
+          html << '</pre>'
         end
       rescue Errno::ENOENT # File not found
       end
     end
-    raw(html)
+    raw(html.string)
   end
 
   ##
@@ -1368,7 +1417,7 @@ module ItemsHelper
   # @return [String] HTML string
   #
   def three_d_viewer_for(item)
-    html = ''
+    html = StringIO.new
     three_d_binaries = item.binaries.
         select{ |b| b.media_category == Binary::MediaCategory::THREE_D }
     obj_binary = three_d_binaries.
@@ -1383,7 +1432,7 @@ module ItemsHelper
 
         # Initialize the viewer but don't display it yet. It will be displayed
         # via JS the first time its container div is shown.
-        html += "<div id=\"pt-3d-viewer\" class=\"pt-viewer\"></div>
+        html << "<div id=\"pt-3d-viewer\" class=\"pt-viewer\"></div>
         <script src=\"#{viewer_url}\"></script>
         <script>
             $(document).ready(function() {
@@ -1398,7 +1447,7 @@ module ItemsHelper
         </script>"
       end
     end
-    raw(html)
+    raw(html.string)
   end
 
   ##

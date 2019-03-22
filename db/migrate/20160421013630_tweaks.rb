@@ -1,4 +1,4 @@
-class Tweaks < ActiveRecord::Migration
+class Tweaks < ActiveRecord::Migration[4.2]
   def change
     add_index :items, :published
     change_column_null :users, :username, false

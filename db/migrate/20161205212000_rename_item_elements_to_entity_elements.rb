@@ -1,4 +1,4 @@
-class RenameItemElementsToEntityElements < ActiveRecord::Migration
+class RenameItemElementsToEntityElements < ActiveRecord::Migration[4.2]
 
   def up
     rename_table :item_elements, :entity_elements

@@ -163,7 +163,7 @@ class ItemTest < ActiveSupport::TestCase
   returns a string' do
     @item.elements.build(name: 'bibId', value: '12345')
     @item.save!
-    assert_equal 'http://vufind.carli.illinois.edu/vf-uiu/Record/uiu_12345',
+    assert_equal 'http://vufind.carli.illinois.edu/vf-uiu/Record/uiu_12345/Description',
                  @item.catalog_record_url
   end
 
@@ -633,7 +633,7 @@ class ItemTest < ActiveSupport::TestCase
 
   # three_d_item()
 
-  test 'three_d_item() should return the 3D model item, or nil if none exists' do
+  test 'three_d_item returns the 3D model item, or nil if none exists' do
     assert_nil @item.three_d_item
 
     subitem = Item.new(repository_id: SecureRandom.uuid,
@@ -641,6 +641,7 @@ class ItemTest < ActiveSupport::TestCase
                        parent_repository_id: @item.repository_id,
                        variant: Item::Variants::THREE_D_MODEL)
     subitem.binaries.build(media_category: Binary::MediaCategory::THREE_D,
+                           object_key: 'bogus',
                            byte_size: 0)
     subitem.save!
 
@@ -662,7 +663,7 @@ class ItemTest < ActiveSupport::TestCase
 
   # update_from_embedded_metadata
 
-  test 'update_from_embedded_metadata() should work' do
+  test 'update_from_embedded_metadata works' do
     @item = items(:illini_union_dir1_dir1_file1)
     @item.elements.destroy_all
     @item.update_from_embedded_metadata(include_date_created: true)
@@ -673,7 +674,7 @@ class ItemTest < ActiveSupport::TestCase
         select{ |e| e.name == 'creator' and e.value == 'University of Illinois Library' }.length
     assert_equal 1, @item.elements.
         select{ |e| e.name == 'dateCreated' and e.value == '2012-10-10' }.length
-    assert_equal '2012-10-10T00:00:00Z', @item.date.iso8601
+    assert_equal '2012-10-10T05:00:00Z', @item.date.iso8601
   end
 
   # update_from_json

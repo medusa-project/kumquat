@@ -12,8 +12,7 @@ module Api
       begin
         raise ActiveRecord::RecordNotFound unless item
         item.destroy!
-      rescue ActiveRecord::RecordNotFound,
-          Elasticsearch::Transport::Transport::Errors::NotFound => e
+      rescue ActiveRecord::RecordNotFound => e
         render plain: "#{e}", status: :not_found
       rescue => e
         render plain: "#{e}", status: :internal_server_error

@@ -33,14 +33,12 @@ namespace :dls do
     desc 'Populate the byte sizes of all binaries'
     task :populate_byte_sizes => :environment do |task|
       Binary.uncached do
-        binaries = Binary.where(byte_size: nil).
-            where('repository_relative_pathname IS NOT NULL')
+        binaries = Binary.where(byte_size: nil).where('object_key IS NOT NULL')
         count = binaries.count
         puts "#{count} binaries to update"
 
         binaries.find_each.with_index do |binary, index|
-          puts "(#{((index / count.to_f) * 100).round(2)}%) "\
-              "#{binary.repository_relative_pathname} "
+          puts "(#{((index / count.to_f) * 100).round(2)}%) #{binary.object_key}"
 
           begin
             binary.read_size
@@ -58,13 +56,12 @@ namespace :dls do
       Binary.uncached do
         binaries = Binary.where('(width IS NULL OR height IS NULL)').
             where('media_type LIKE \'image/%\' OR media_type LIKE \'video/%\'').
-            where('repository_relative_pathname IS NOT NULL')
+            where('object_key IS NOT NULL')
         count = binaries.count
         puts "#{count} binaries to update"
 
         binaries.find_each.with_index do |binary, index|
-          puts "(#{((index / count.to_f) * 100).round(2)}%) "\
-              "#{binary.repository_relative_pathname} "
+          puts "(#{((index / count.to_f) * 100).round(2)}%) #{binary.object_key}"
 
           begin
             binary.read_dimensions
@@ -82,13 +79,12 @@ namespace :dls do
       Binary.uncached do
         binaries = Binary.where(duration: nil).
             where('media_type LIKE \'audio/%\' OR media_type LIKE \'video/%\'').
-            where('repository_relative_pathname IS NOT NULL')
+            where('object_key IS NOT NULL')
         count = binaries.count
         puts "#{count} binaries to update"
 
         binaries.find_each.with_index do |binary, index|
-          puts "(#{((index / count.to_f) * 100).round(2)}%) "\
-              "#{binary.repository_relative_pathname} "
+          puts "(#{((index / count.to_f) * 100).round(2)}%) #{binary.object_key}"
 
           begin
             binary.read_duration
@@ -109,8 +105,7 @@ namespace :dls do
         puts "#{count} binaries to update"
 
         binaries.find_each.with_index do |binary, index|
-          puts "(#{((index / count.to_f) * 100).round(2)}%) "\
-              "#{binary.repository_relative_pathname} "
+          puts "(#{((index / count.to_f) * 100).round(2)}%) #{binary.object_key}"
 
           binary.media_category =
               Binary::MediaCategory::media_category_for_media_type(binary.media_type)
@@ -202,6 +197,13 @@ namespace :dls do
   end
 
   namespace :items do
+
+    desc 'Export all items in a collection as TSV'
+    task :export_as_tsv, [:collection_uuid] => :environment do |task, args|
+      col = Collection.find_by_repository_id(args[:collection_uuid])
+      raise ArgumentError, 'Collection does not exist' unless col
+      puts ItemTsvExporter.new.items_in_collection(col)
+    end
 
     desc 'Delete all items from a collection'
     task :purge_collection, [:uuid] => :environment do |task, args|

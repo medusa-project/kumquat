@@ -25,6 +25,7 @@ class ItemsController < WebsiteController
 
   rescue_from AuthorizationError, with: :rescue_unauthorized
   rescue_from UnpublishedError, with: :rescue_unpublished
+  rescue_from ActiveRecord::RecordNotFound, with: :rescue_not_found
 
   ##
   # Retrieves a binary by its filename.
@@ -36,10 +37,10 @@ class ItemsController < WebsiteController
   #
   def binary
     filename = [params[:filename], params[:format]].join('.')
-    binary = @item.binaries.where('repository_relative_pathname LIKE ?',
+    binary = @item.binaries.where('object_key LIKE ?',
                                   "%/#{filename}").limit(1).first
     if binary
-      send_file(binary.absolute_local_pathname)
+      send_binary(binary)
     else
       render status: 404, text: 'Binary not found'
     end
@@ -424,10 +425,7 @@ class ItemsController < WebsiteController
         #
         if @item.directory?
           if @item.items.any?
-            items = @item.finder.
-                user_roles(request_roles).
-                include_variants(*Item::Variants::FILE).
-                include_children_in_results(true).to_a
+            items = [@item]
             zip_name = 'files'
           else
             flash['error'] = 'This directory is empty.'
@@ -640,6 +638,23 @@ class ItemsController < WebsiteController
   def load_item
     @item = Item.find_by_repository_id(params[:item_id] || params[:id])
     raise ActiveRecord::RecordNotFound unless @item
+  end
+
+  def rescue_not_found
+    respond_to do |format|
+      format.html do
+        render 'errors/error', status: :not_found, locals: {
+            status_code: 404,
+            status_message: 'Not Found',
+            message: 'This item does not exist.'
+        }
+      end
+      format.json do
+        render 'errors/error', status: :not_found, locals: {
+            message: 'This item does not exist.'
+        }
+      end
+    end
   end
 
   def rescue_unauthorized

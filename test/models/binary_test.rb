@@ -34,53 +34,29 @@ class BinaryTest < ActiveSupport::TestCase
     assert Binary.total_byte_size > 100000
   end
 
-  # absolute_local_pathname()
+  # data()
 
-  test 'absolute_local_pathname() should return the correct pathname' do
-    assert_equal Configuration.instance.repository_pathname +
-                     @binary.repository_relative_pathname,
-                 @binary.absolute_local_pathname
-  end
-
-  test 'absolute_local_pathname() should return nil when
-  repository_relative_pathname is nil' do
-    @binary.repository_relative_pathname = nil
-    assert_nil @binary.absolute_local_pathname
-  end
-
-  # byte_size()
-
-  test 'byte_size() should return the correct size' do
-    expected = File.size(@binary.absolute_local_pathname)
-    assert_equal(expected, @binary.byte_size)
+  test 'data should return the data' do
+    data = @binary.data
+    #assert_kind_of IO, data # TODO: this is supposed to be an IO: https://docs.aws.amazon.com/sdk-for-ruby/v3/api/Aws/S3/Types/GetObjectOutput.html#body-instance_method
+    assert_equal 1629599, data.length
   end
 
   # exists?()
 
-  test 'exists?() should return true with valid pathname set' do
-    assert(@binary.exists?)
+  test 'exists? returns true with valid object key set' do
+    assert @binary.exists?
   end
 
-  test 'exists?() should return false with invalid pathname set' do
-    @binary.repository_relative_pathname = '/bogus'
-    assert(!@binary.exists?)
-  end
-
-  test 'exists?() should return false with nil pathname set' do
-    @binary.repository_relative_pathname = nil
-    assert(!@binary.exists?)
+  test 'exists? returns false with invalid object key set' do
+    @binary.object_key = 'bogus'
+    assert !@binary.exists?
   end
 
   # filename()
 
-  test 'filename() should return the filename when repository_relative_pathname
-  is set' do
+  test 'filename() should return the filename' do
     assert_equal('banquets_002.jpg', @binary.filename)
-  end
-
-  test 'filename() should return nil when repository_relative_pathname is nil' do
-    @binary.repository_relative_pathname = nil
-    assert_nil(@binary.filename)
   end
 
   # human_readable_media_category()
@@ -126,8 +102,15 @@ class BinaryTest < ActiveSupport::TestCase
 
   # iiif_image_identifier()
 
-  test 'iiif_image_identifier() should return the correct identifier' do
+  test 'iiif_image_identifier returns the correct identifier for images in Medusa' do
     assert_equal @binary.cfs_file_uuid, @binary.iiif_image_identifier
+  end
+
+  test 'iiif_image_identifier returns the correct identifier for images in MediaSpace' do
+    @binary.media_type = 'video/cats'
+    @binary.item.embed_tag = '<iframe id="kaltura_player" src="https://cdnapisec.kaltura.com/p/1329972/sp/132997200/embedIframeJs/uiconf_id/26883701/partner_id/1329972?iframeembed=true&playerId=kaltura_player&entry_id=1_l9epfpx1&flashvars[streamerType]=auto&flashvars[localizationCode]=en&flashvars[leadWithHTML5]=true&flashvars[sideBarContainer.plugin]=true&flashvars[sideBarContainer.position]=left&flashvars[sideBarContainer.clickToClose]=true&flashvars[chapters.plugin]=true&flashvars[chapters.layout]=vertical&flashvars[chapters.thumbnailRotator]=false&flashvars[streamSelector.plugin]=true&flashvars[EmbedPlayer.SpinnerTarget]=videoHolder&flashvars[dualScreen.plugin]=true&&wid=1_27eavjaq" width="640" height="480" allowfullscreen webkitallowfullscreen mozAllowFullScreen frameborder="0"></iframe>'
+    assert_equal 'v/1329972/132997200/1_l9epfpx1',
+                 @binary.iiif_image_identifier
   end
 
   # iiif_image_url()
@@ -145,11 +128,6 @@ class BinaryTest < ActiveSupport::TestCase
   end
 
   # iiif_safe?()
-
-  test 'iiif_safe?() should return false if the pathname is empty' do
-    @binary.repository_relative_pathname = nil
-    assert !@binary.iiif_safe?
-  end
 
   test 'iiif_safe?() should return false if the instance is not IIIF-compatible' do
     @binary.media_type = 'application/octet-stream'
@@ -212,23 +190,24 @@ class BinaryTest < ActiveSupport::TestCase
 
   # read_duration()
 
-  test 'read_duration() should work on audio' do
+  test 'read_duration works with audio' do
     @binary = binaries(:folksong_obj1_preservation)
     @binary.duration = nil
     @binary.read_duration
     assert_equal 1993, @binary.duration
   end
 
-  test 'read_duration() should work on video' do
-    @binary = binaries(:olin_obj1_preservation)
+  test 'read_duration works with video' do
+    @binary          = binaries(:short_video)
     @binary.duration = nil
     @binary.read_duration
-    assert_equal 1846, @binary.duration
+    assert_equal 9, @binary.duration
   end
 
-  test 'read_duration() should raise an error with missing files' do
-    @binary.repository_relative_pathname = 'bogus'
-    assert_raises Errno::ENOENT do
+  test 'read_duration raises an error with missing files' do
+    @binary.media_type = 'audio/wav'
+    @binary.object_key = 'bogus'
+    assert_raises IOError do
       @binary.read_duration
     end
   end
@@ -238,14 +217,21 @@ class BinaryTest < ActiveSupport::TestCase
   test 'read_size() should work properly' do
     @binary.byte_size = nil
     @binary.read_size
-    assert_equal File.size(@binary.absolute_local_pathname), @binary.byte_size
+    assert_equal 1629599, @binary.byte_size
   end
 
   test 'read_size() should raise an error with missing files' do
-    @binary.repository_relative_pathname = 'bogus'
-    assert_raises Errno::ENOENT do
+    @binary.object_key = 'bogus'
+    assert_raises IOError do
       @binary.read_size
     end
+  end
+
+  # uri()
+
+  test 'uri returns the correct URI' do
+    assert_equal "s3://#{Configuration.instance.medusa_s3_bucket}/#{@binary.object_key}",
+                 @binary.uri
   end
 
 end

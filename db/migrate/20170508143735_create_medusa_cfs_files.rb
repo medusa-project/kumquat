@@ -1,4 +1,4 @@
-class CreateMedusaCfsFiles < ActiveRecord::Migration
+class CreateMedusaCfsFiles < ActiveRecord::Migration[4.2]
   def change
     create_table :medusa_cfs_files do |t|
       t.string :uuid, null: false

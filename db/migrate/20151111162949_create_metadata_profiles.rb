@@ -1,4 +1,4 @@
-class CreateMetadataProfiles < ActiveRecord::Migration
+class CreateMetadataProfiles < ActiveRecord::Migration[4.2]
   def change
     create_table :metadata_profiles do |t|
       t.string :name

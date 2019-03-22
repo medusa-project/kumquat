@@ -70,15 +70,15 @@ class MedusaSingleItemIngesterTest < ActiveSupport::TestCase
     assert_equal 'image/tiff', binary.media_type
     assert_equal Binary::MediaCategory::IMAGE, binary.media_category
     assert_equal 575834922, binary.byte_size
-    assert_equal '/55/2358/preservation/03501042_001_souscrivez.TIF',
-                 binary.repository_relative_pathname
+    assert_equal '55/2358/preservation/03501042_001_souscrivez.TIF',
+                 binary.object_key
 
     binary = item.binaries.
         select{ |b| b.master_type == Binary::MasterType::ACCESS }.first
     assert_equal 'image/jp2', binary.media_type
     assert_equal 128493361, binary.byte_size
-    assert_equal '/55/2358/access/03501042_001_souscrivez.jp2',
-                 binary.repository_relative_pathname
+    assert_equal '55/2358/access/03501042_001_souscrivez.jp2',
+                 binary.object_key
   end
 
 =begin TODO: find a single-item collection that contains embedded metadata (currently none do) and write these

@@ -117,54 +117,54 @@ class MedusaMixedMediaIngester < MedusaAbstractIngester
               end
             end
 
-            # Create the child item's preservation binaries.
-            pres_dir = child_dir.directories.
-                select{ |d| d.name == 'preservation' }.first
-            if pres_dir
-              if pres_dir.directories.any?
-                pres_dir.directories.each do |pres_type_dir|
-                  if pres_type_dir.files.any?
-                    pres_type_dir.files.each do |pres_file|
-                      # Create the preservation master binary.
-                      child.binaries << pres_file.
-                          to_binary(Binary::MasterType::PRESERVATION,
-                                    media_category_for_master_type(pres_type_dir.name))
+          # Create the child item's preservation binaries.
+          pres_dir = child_dir.directories.
+              select{ |d| d.name == 'preservation' }.first
+          if pres_dir
+            if pres_dir.directories.any?
+              pres_dir.directories.each do |pres_type_dir|
+                if pres_type_dir.files.any?
+                  pres_type_dir.files.each do |pres_file|
+                    # Create the preservation master binary.
+                    child.binaries << pres_file.
+                        to_binary(Binary::MasterType::PRESERVATION,
+                                  media_category_for_master_type(pres_type_dir.name))
 
-                      # Set the child's variant (if it indeed is a child and
-                      # not a top-level item referred by a variable named
-                      # `child`).
-                      if child.parent
-                        basename = File.basename(pres_file.repository_relative_pathname)
-                        if basename.include?('_frontmatter')
-                          child.variant = Item::Variants::FRONT_MATTER
-                        elsif basename.include?('_index')
-                          child.variant = Item::Variants::INDEX
-                        elsif basename.include?('_key')
-                          child.variant = Item::Variants::KEY
-                        elsif basename.include?('_title')
-                          child.variant = Item::Variants::TITLE
-                        else
-                          child.variant = Item::Variants::PAGE
-                        end
+                    # Set the child's variant (if it indeed is a child and
+                    # not a top-level item referred by a variable named
+                    # `child`).
+                    if child.parent
+                      basename = File.basename(pres_file.object_key)
+                      if basename.include?('_frontmatter')
+                        child.variant = Item::Variants::FRONT_MATTER
+                      elsif basename.include?('_index')
+                        child.variant = Item::Variants::INDEX
+                      elsif basename.include?('_key')
+                        child.variant = Item::Variants::KEY
+                      elsif basename.include?('_title')
+                        child.variant = Item::Variants::TITLE
+                      else
+                        child.variant = Item::Variants::PAGE
                       end
 
                       child.update_from_embedded_metadata(options) if
                           options[:extract_metadata]
                     end
-                  else
-                    msg = "Preservation directory #{pres_type_dir.uuid} has no files."
-                    @@logger.warn("MedusaMixedMediaIngester.create_items(): #{msg}")
                   end
+                else
+                  msg = "Preservation directory #{pres_type_dir.uuid} has no files."
+                  @@logger.warn("MedusaMixedMediaIngester.create_items(): #{msg}")
                 end
-              else
-                msg = "Preservation directory #{pres_dir.uuid} has no subdirectories."
-                @@logger.warn("MedusaMixedMediaIngester.create_items(): #{msg}")
               end
             else
-              msg = "Directory #{child_dir.uuid} is missing a preservation "\
-                "directory."
+              msg = "Preservation directory #{pres_dir.uuid} has no subdirectories."
               @@logger.warn("MedusaMixedMediaIngester.create_items(): #{msg}")
             end
+          else
+            msg = "Directory #{child_dir.uuid} is missing a preservation "\
+              "directory."
+            @@logger.warn("MedusaMixedMediaIngester.create_items(): #{msg}")
+          end
 
             # Create the child's access binaries.
             access_dir = child_dir.directories.select{ |d| d.name == 'access' }.first

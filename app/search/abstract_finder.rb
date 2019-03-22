@@ -1,8 +1,10 @@
 class AbstractFinder
 
   def initialize
+    @client = ElasticsearchClient.instance
+
     @aggregations = true
-    @bucket_limit = Option::integer(Option::Keys::FACET_TERM_LIMIT)
+    @bucket_limit = Option::integer(Option::Keys::FACET_TERM_LIMIT) || 10
     @filters = {} # Hash<String,Object>
     @limit = ElasticsearchClient::MAX_RESULT_WINDOW
     @orders = [] # Array<Hash<Symbol,String>> with :field and :direction keys
@@ -191,8 +193,8 @@ class AbstractFinder
   # @return [Enumerable<Item>]
   #
   def to_a
-    load
-    @result_instances
+    raise 'Subclasses must override to_a() and map @response to an '\
+        'Enumerable of model objects'
   end
 
   ##
@@ -221,24 +223,19 @@ class AbstractFinder
     @query[:query].gsub(/[\[\]\(\)]/, '').gsub('/', ' ')
   end
 
-  ##
-  # @return [Elasticsearch::Model::Response::Response] Return value of
-  #                                                    ?.__elasticsearch__.search
-  #
   def get_response
-    raise 'Must override get_response()'
+    raise 'Subclasses must override get_response()'
   end
 
   def load
     return if @loaded
 
-    response = get_response
+    @response = get_response
 
     # Assemble the response aggregations into Facets. The order of the facets
     # should be the same as the order of elements in the metadata profile.
     metadata_profile.facet_elements.each do |element|
-      agg = response.response.aggregations&.
-          find{ |a| a[0] == element.indexed_keyword_field }
+      agg = @response['aggregations']&.find{ |a| a[0] == element.indexed_keyword_field }
       if agg
         facet = Facet.new
         facet.name = element.label
@@ -255,8 +252,7 @@ class AbstractFinder
       end
     end
 
-    @result_instances = response.records
-    @result_count = response.results.total
+    @result_count = @response['hits']['total']
 
     @loaded = true
   end
