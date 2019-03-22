@@ -1,12 +1,16 @@
 <%
-  # requires the following locals:
-  # item [Item]
-  # align [Symbol] :left or :right
+  # Uses the following locals:
+  # item [Item]      Required.
+  # align [Symbol]   :left or :right
+  # dropup [Boolean]
+
+  align = defined?(align) ? align : 'left'
+  dropup = defined?(dropup) ? dropup : false
 %>
 
 <% mailto = curator_mailto(item) %>
 <% if mailto %>
-  <div class="btn-group">
+  <div class="btn-group  <%= dropup ? 'dropup' : '' %>">
     <button type="button" class="btn btn-default dropdown-toggle"
             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
       <i class="fa fa-phone"></i>
