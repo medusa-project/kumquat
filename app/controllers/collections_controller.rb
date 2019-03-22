@@ -45,17 +45,25 @@ class CollectionsController < WebsiteController
   # Responds to GET /collections
   #
   def index
+    @start = params[:start].to_i
+    @limit = params[:limit].to_i
+    if @limit < MIN_RESULT_WINDOW or @limit > MAX_RESULT_WINDOW
+      @limit = Option::integer(Option::Keys::DEFAULT_RESULT_WINDOW)
+    end
+
     finder = CollectionFinder.new.
         user_roles(request_roles).
         facet_filters(params[:fq]).
         query_all(params[:q]).
-        order(Collection::IndexFields::TITLE)
-    @start = finder.get_start
-    @limit = finder.get_limit
-    @count = finder.count
-    @collections = finder.to_a
-    @facets = finder.facets
-    @suggestions = finder.suggestions
+        order(Collection::IndexFields::TITLE).
+        start(@start).
+        limit(@limit)
+
+    @current_page = finder.page
+    @count        = finder.count
+    @collections  = finder.to_a
+    @facets       = finder.facets
+    @suggestions  = finder.suggestions
 
     respond_to do |format|
       format.html

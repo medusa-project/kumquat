@@ -396,11 +396,10 @@ module ApplicationHelper
   end
 
   ##
-  # @param entities [ActiveRecord::Relation]
   # @param total_entities [Integer]
   # @param per_page [Integer]
-  # @param permitted_params [ActionController::Parameters]
   # @param current_page [Integer]
+  # @param permitted_params [ActionController::Parameters]
   # @param remote [Boolean]
   # @param max_links [Integer] (ideally odd)
   #
