@@ -191,19 +191,6 @@ module AdminHelper
   end
 
   ##
-  # @return [String] HTML <span> tag
-  #
-  def admin_label_for_server_status
-    case Option::string(Option::Keys::SERVER_STATUS)
-      when 'storage_offline'
-        html = '<span class="label label-warning label-sm pt-service-status">Storage Offline</span>'
-      else
-        html = '<span class="label label-success label-sm pt-service-status">Online</span>'
-    end
-    raw(html)
-  end
-
-  ##
   # @param item [Item]
   # @param options [Hash]
   # @option options [Boolean] :include_subitems
