@@ -43,39 +43,45 @@ module AdminHelper
   # @return [String]
   #
   def admin_collection_hierarchy(collection)
-    child_html = ''
+    child_html = StringIO.new
     if collection.children.count > 0
-      child_html += '<ul>'
+      child_html << '<ul>'
       collection.children.each do |child|
-        child_html += "  <li>#{link_to(child.title, admin_collection_path(child))}</li>"
+        child_html << '<li>'
+        child_html <<   link_to(child.title, admin_collection_path(child))
+        child_html << '</li>'
       end
-      child_html += '</ul>'
+      child_html << '</ul>'
     end
 
-    parent_html = ''
+    parent_html = StringIO.new
     if collection.parents.count > 0
       collection.parents.each do |parent|
-        parent_html += "  <li>#{link_to(parent.title, admin_collection_path(parent))}</li>"
+        parent_html << '<li>'
+        parent_html <<   link_to(parent.title, admin_collection_path(parent))
+        parent_html << '</li>'
       end
     end
 
-    html = ''
+    html = StringIO.new
     if parent_html.present?
-      html += '<ul>'
-      html += parent_html
-      html += '<ul>'
-      html += "  <li>#{collection.title}"
-      html += child_html
-      html += '  </li>'
-      html += '</ul>'
+      html << '<ul>'
+      html <<   parent_html.string
+      html <<   '<ul>'
+      html <<     '<li>'
+      html <<       collection.title
+      html <<       child_html.string
+      html <<     '</li>'
+      html <<   '</ul>'
     elsif child_html.present?
-      html += '<ul>'
-      html += "  <li>#{collection.title}"
-      html += child_html
-      html += '  </li>'
-      html += '</ul>'
+      html << '<ul>'
+      html <<   '<li>'
+      html <<     collection.title
+      html <<     child_html.string
+      html <<   '</li>'
+      html << '</ul>'
     end
-    raw(html)
+    raw(html.string)
   end
 
   ##
@@ -85,19 +91,22 @@ module AdminHelper
   # @return [String]
   #
   def admin_item_element_edit_tag(profile_element, element, vocabulary)
-    html = '<table class="table-condensed pt-element" style="width:100%">
-      <tr>
-        <th style="text-align: right; width: 1px"><span class="label label-default">String</span></th>
-        <td>'
+    html = StringIO.new
+    html << '<table class="table-condensed pt-element" style="width:100%">'
+    html <<   '<tr>'
+    html <<     '<th style="text-align: right; width: 1px">'
+    html <<       '<span class="label label-default">String</span>'
+    html <<     '</th>'
+    html <<     '<td>'
     if profile_element.data_type == MetadataProfileElement::DataType::MULTI_LINE_STRING
-      html += text_area_tag("elements[#{profile_element.name}][#{vocabulary.id}][][string]",
+      html << text_area_tag("elements[#{profile_element.name}][#{vocabulary.id}][][string]",
                             element&.value,
                             id: "elements[#{profile_element.name}][#{vocabulary.id}][string]",
                             class: 'form-control',
                             autocomplete: 'off',
                             data: { controlled: 'false' })
     else
-      html += text_field_tag("elements[#{profile_element.name}][#{vocabulary.id}][][string]",
+      html << text_field_tag("elements[#{profile_element.name}][#{vocabulary.id}][][string]",
                              element&.value,
                              id: "elements[#{profile_element.name}][#{vocabulary.id}][string]",
                              class: 'form-control',
@@ -105,32 +114,34 @@ module AdminHelper
                              data: { controlled: 'true',
                                      'vocabulary-id': vocabulary.id })
     end
-    html += '</td>
-          <td style="width: 90px" rowspan="2">
-            <div class="btn-group">
-              <button class="btn btn-sm btn-default pt-add-element">
-                <i class="fa fa-plus"></i>
-              </button>
-              <button class="btn btn-sm btn-danger pt-remove-element">
-                <i class="fa fa-minus"></i>
-              </button>
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <th style="text-align: right; width: 1px"><span class="label label-primary">URI</span></th>
-          <td>'
-    html += text_field_tag("elements[#{profile_element.name}][#{vocabulary.id}][][uri]",
+    html <<     '</td>'
+    html <<     '<td style="width: 90px" rowspan="2">'
+    html <<       '<div class="btn-group">'
+    html <<         '<button class="btn btn-sm btn-default pt-add-element">'
+    html <<           '<i class="fa fa-plus"></i>'
+    html <<         '</button>'
+    html <<         '<button class="btn btn-sm btn-danger pt-remove-element">'
+    html <<           '<i class="fa fa-minus"></i>'
+    html <<         '</button>'
+    html <<       '</div>'
+    html <<     '</td>'
+    html <<   '</tr>'
+    html <<   '<tr>'
+    html <<     '<th style="text-align: right; width: 1px">'
+    html <<       '<span class="label label-primary">URI</span>'
+    html <<     '</th>'
+    html <<     '<td>'
+    html << text_field_tag("elements[#{profile_element.name}][#{vocabulary.id}][][uri]",
                            element&.uri,
                            id: "elements[#{profile_element.name}][#{vocabulary.id}][uri]",
                            class: 'form-control',
                            autocomplete: 'off',
                            data: { controlled: (vocabulary == Vocabulary.uncontrolled) ? 'false' : 'true',
                                    'vocabulary-id': vocabulary.id})
-    html += '</td>
-        </tr>
-      </table>'
-    raw(html)
+    html <<     '</td>'
+    html <<   '</tr>'
+    html << '</table>'
+    raw(html.string)
   end
 
   ##
@@ -138,7 +149,8 @@ module AdminHelper
   # @return [String]
   #
   def admin_item_metadata_as_table(item)
-    html = '<table class="table table-condensed pt-metadata">'
+    html = StringIO.new
+    html << '<table class="table table-condensed pt-metadata">'
 
     # Iterate through the index-ordered elements in the collection's metadata
     # profile in order to display the entity's elements in the correct order.
@@ -147,10 +159,10 @@ module AdminHelper
       elements = item.elements.
           select{ |e| e.name == e_def.name and (e.value.present? or e.uri.present?) }
       next if elements.empty?
-      html += '<tr>'
-      html += "<td>#{e_def.label}</td>"
-      html += '<td>'
-      html += '<table class="table table-condensed">'
+      html << '<tr>'
+      html <<   "<td>#{e_def.label}</td>"
+      html <<   '<td>'
+      html <<     '<table class="table table-condensed">'
       elements.each do |element|
         if element.value.present?
           # Some URLs will be enclosed in angle brackets, which will foil
@@ -158,37 +170,24 @@ module AdminHelper
           haystack = element.value.gsub('<', '&lt; ').gsub('>', ' &gt;')
           value = auto_link(haystack, html: { target: '_blank' }).
               gsub('&lt; ', '&lt;').gsub(' &gt;', '&gt;')
-          html += "<tr>"
-          html += "<td style=\"width:1px\"><span class=\"label label-default\">String</span></td>"
-          html += "<td>#{value}</td>"
-          html += "</tr>"
+          html << '<tr>'
+          html <<   '<td style="width:1px"><span class="label label-default">String</span></td>'
+          html <<   "<td>#{value}</td>"
+          html << '</tr>'
         end
         if element.uri.present?
-          html += "<tr>"
-          html += "<td style=\"width:1px\"><span class=\"label label-primary\">URI</span></td>"
-          html += "<td>#{element.uri}</td>"
-          html += "</tr>"
+          html << '<tr>'
+          html <<   '<td style="width:1px"><span class="label label-primary">URI</span></td>'
+          html <<   "<td>#{element.uri}</td>"
+          html << '</tr>'
         end
       end
-      html += '</table>'
-      html += '</td>'
-      html += '</tr>'
+      html <<     '</table>'
+      html <<   '</td>'
+      html << '</tr>'
     end
-    html += '</table>'
-    raw(html)
-  end
-
-  ##
-  # @return [String] HTML <span> tag
-  #
-  def admin_label_for_server_status
-    case Option::string(Option::Keys::SERVER_STATUS)
-      when 'storage_offline'
-        html = '<span class="label label-warning label-sm pt-service-status">Storage Offline</span>'
-      else
-        html = '<span class="label label-success label-sm pt-service-status">Online</span>'
-    end
-    raw(html)
+    html << '</table>'
+    raw(html.string)
   end
 
   ##
@@ -204,46 +203,54 @@ module AdminHelper
         options[:filenames_instead_of_titles] : false
 
     # 1. Build the item structure excluding parents
-    html = '<ul>'
+    html = StringIO.new
+    html << '<ul>'
     title = filenames_instead_of_titles ?
         (item.virtual_filename || item.title) : item.title
-    html += "  <li><strong>#{icon_for(item)} #{title}</strong>"
+    html << "<li><strong>#{icon_for(item)} #{title}</strong>"
     if include_subitems
       subitems = item.finder.include_unpublished(true).to_a
       if subitems.any?
-        html += '  <ul>'
+        html << '<ul>'
         subitems.each do |child|
           title = filenames_instead_of_titles ?
               (child.virtual_filename || child.title) : child.title
-          link = link_to(title, admin_collection_item_path(child.collection, child))
-          html += "  <li>#{icon_for(child)} #{link}</li>"
+          html << '<li>'
+          html << icon_for(child)
+          html << ' '
+          html << link_to(title,
+                          admin_collection_item_path(child.collection, child))
+          html << '</li>'
         end
-        html += '  </ul>'
+        html << '</ul>'
       end
     end
-    html += '  </li>'
-    html += '</ul>'
+    html <<   '</li>'
+    html << '</ul>'
 
     # 2. Add the item context around the item tree
     def add_parents(item, html, filenames_instead_of_titles)
       parent = item.parent
       phtml = html
       if parent
-        phtml = '<ul>'
+        phtml = StringIO.new
+        phtml << '<ul>'
         title = filenames_instead_of_titles ?
             (parent.virtual_filename || parent.title) : parent.title
-        link = link_to(title, admin_collection_item_path(parent.collection, parent))
-        phtml += "  <li>#{icon_for(parent)} #{link}"
-        phtml +=      html
-        phtml += '  </li>'
-        phtml += '</ul>'
+        phtml <<   '<li>'
+        phtml <<     icon_for(parent)
+        phtml <<     ' '
+        phtml <<     link_to(title, admin_collection_item_path(parent.collection, parent))
+        phtml <<     html
+        phtml <<   '</li>'
+        phtml << '</ul>'
         phtml = add_parents(parent, phtml, filenames_instead_of_titles)
       end
       phtml
     end
     html = add_parents(item, html, filenames_instead_of_titles)
 
-    raw(html)
+    raw(html.string)
   end
 
   def bootstrap_class_for_task_status(status)
@@ -262,138 +269,169 @@ module AdminHelper
   end
 
   def admin_system_info_as_list(item)
-    html = '<dl class="visible-xs hidden-sm">'
+    html = StringIO.new
+    html << '<dl class="visible-xs hidden-sm">'
     admin_system_info_data(item).each do |info|
       if info[:value].respond_to?(:each)
         info[:value] = "<ul>#{info[:value].map{ |v| "<li>#{v}</li>" }.join}</ul>"
       end
-      html += "<dt>#{info[:label]}"
+      html << "<dt>#{info[:label]}"
       if info[:help]
-        html += " <a data-toggle=\"popover\" data-content=\"#{info[:help]}\">"\
+        html << " <a data-toggle=\"popover\" data-content=\"#{info[:help]}\">"\
             "<i class=\"fa fa-question-circle\"></i></a>"
       end
-      html += "</dt>"
-      html += "<dd>#{info[:value]}</dd>"
+      html << "</dt>"
+      html << "<dd>#{info[:value]}</dd>"
     end
-    html += '</dl>'
-    raw(html)
+    html << '</dl>'
+    raw(html.string)
   end
 
   def admin_system_info_as_table(item)
-    html = '<table class="table hidden-xs">'
+    html = StringIO.new
+    html << '<table class="table hidden-xs">'
     admin_system_info_data(item).each do |info|
       if info[:value].respond_to?(:each)
         info[:value] = "<ul>#{info[:value].map{ |v| "<li>#{v}</li>" }.join}</ul>"
       end
-      html += "<tr><td>#{info[:label]}"
+      html << "<tr><td>#{info[:label]}"
       if info[:help]
-        html += " <a data-toggle=\"popover\" data-content=\"#{info[:help]}\">"\
+        html << " <a data-toggle=\"popover\" data-content=\"#{info[:help]}\">"\
             "<i class=\"fa fa-question-circle\"></i></a>"
       end
-      html += "</td><td>#{info[:value]}</td></tr>"
+      html << "</td><td>#{info[:value]}</td></tr>"
     end
-    html += '</table>'
-    raw(html)
+    html << '</table>'
+    raw(html.string)
   end
 
   private
 
   def admin_collection_view_breadcrumb(collection)
-    html = "<ol class=\"breadcrumb\">"\
-      "<li>#{link_to 'Home', admin_root_path}</li>"\
-      "<li>#{link_to 'Collections', admin_collections_path}</li>"\
-      "<li class=\"active\">#{truncate(collection.title, length: 50)}</li>"\
-    "</ol>"
-    raw(html)
+    html = StringIO.new
+    html << '<ol class="breadcrumb">'
+    html <<   '<li>'
+    html <<     link_to('Home', admin_root_path)
+    html <<   '</li>'
+    html <<   '<li>'
+    html <<     link_to('Collections', admin_collections_path)
+    html <<   '</li>'
+    html <<   '<li class="active">'
+    html <<     truncate(collection.title, length: 50)
+    html <<   '</li>'
+    html << '</ol>'
+    raw(html.string)
   end
 
   def admin_collections_view_breadcrumb
-    html = "<ol class=\"breadcrumb\">"\
-      "<li>#{link_to 'Home', admin_root_path}</li>"\
-      "<li class=\"active\">#{link_to 'Collections', admin_collections_path}</li>"\
-    "</ol>"
-    raw(html)
+    html = StringIO.new
+    html << '<ol class="breadcrumb">'
+    html <<   '<li>'
+    html <<     link_to('Home', admin_root_path)
+    html <<   '</li>'
+    html <<   '<li class="active">'
+    html <<     link_to('Collections', admin_collections_path)
+    html <<   '</li>'
+    html << '</ol>'
+    raw(html.string)
   end
 
   def admin_element_view_breadcrumb(element)
-    html = "<ol class=\"breadcrumb\">"\
-      "<li>#{link_to 'Home', admin_root_path}</li>"\
-      "<li>#{link_to 'Elements', admin_elements_path}</li>"\
-      "<li class=\"active\">#{element.name}</li>"\
-    "</ol>"
-    raw(html)
+    html = StringIO.new
+    html << '<ol class="breadcrumb">'
+    html <<   '<li>'
+    html <<     link_to('Home', admin_root_path)
+    html <<   '</li>'
+    html <<   '<li>'
+    html <<     link_to('Elements', admin_elements_path)
+    html <<   '</li>'
+    html <<   '<li class="active">'
+    html <<     element.name
+    html <<   '</li>'
+    html << '</ol>'
+    raw(html.string)
   end
 
   def admin_item_structure_breadcrumb(item)
-    html = ''
+    html = StringIO.new
     parent = item.parent
     while parent
-      html = "<li>#{link_to truncate(parent.title, length: 50),
-                            admin_collection_item_path(parent.collection, parent)}</li>#{html}"
+      html << '<li>'
+      html <<   link_to(truncate(parent.title, length: 50),
+                        admin_collection_item_path(parent.collection, parent))
+      html << '</li>'
+      html << html.string
       parent = parent.parent
     end
     if action_name == 'edit'
       value = link_to(truncate(item.title, length: 50),
-                      admin_collection_item_path(item.collection, item));
+                      admin_collection_item_path(item.collection, item))
     else
       value = truncate(item.title, length: 50)
     end
-    html += "<li class=\"active\">#{value}</li>"
-    html
+    html << '<li class="active">'
+    html <<   value
+    html << '</li>'
+    html.string
   end
 
   def admin_item_edit_view_breadcrumb(item)
-    html = "<ol class=\"breadcrumb\">"
-    html += "<li>#{link_to 'Home', admin_root_path}</li>"
-    html += "<li>#{link_to 'Collections', admin_collections_path}</li>"
-    html += "<li>#{link_to item.collection.title, admin_collection_path(item.collection)}</li>"
-    html += admin_item_structure_breadcrumb(item)
-    html += "<li>Edit</li>"
-    html += "</ol>"
-    raw(html)
+    html = StringIO.new
+    html << '<ol class="breadcrumb">'
+    html <<   "<li>#{link_to 'Home', admin_root_path}</li>"
+    html <<   "<li>#{link_to 'Collections', admin_collections_path}</li>"
+    html <<   "<li>#{link_to item.collection.title, admin_collection_path(item.collection)}</li>"
+    html <<   admin_item_structure_breadcrumb(item)
+    html <<   '<li>Edit</li>'
+    html << '</ol>'
+    raw(html.string)
   end
 
   def admin_item_set_view_breadcrumb(item_set)
-    html = "<ol class=\"breadcrumb\">"
-    html += "<li>#{link_to 'Home', admin_root_path}</li>"
-    html += "<li>#{link_to 'Collections', admin_collections_path}</li>"
-    html += "<li>#{link_to item_set.collection.title, admin_collection_path(item_set.collection)}</li>"
-    html += "<li>#{link_to 'Sets', admin_collection_path(item_set.collection)}</li>"
-    html += "<li class=\"active\">#{item_set}</li>"
-    html += "</ol>"
-    raw(html)
+    html = StringIO.new
+    html = '<ol class="breadcrumb">'
+    html <<   "<li>#{link_to 'Home', admin_root_path}</li>"
+    html <<   "<li>#{link_to 'Collections', admin_collections_path}</li>"
+    html <<   "<li>#{link_to item_set.collection.title, admin_collection_path(item_set.collection)}</li>"
+    html <<   "<li>#{link_to 'Sets', admin_collection_path(item_set.collection)}</li>"
+    html <<   "<li class=\"active\">#{item_set}</li>"
+    html << '</ol>'
+    raw(html.string)
   end
 
   def admin_item_view_breadcrumb(item)
-    html = "<ol class=\"breadcrumb\">"
-    html += "<li>#{link_to 'Home', admin_root_path}</li>"
-    html += "<li>#{link_to 'Collections', admin_collections_path}</li>"
-    html += "<li>#{link_to item.collection.title, admin_collection_path(item.collection)}</li>"
-    html += "<li>#{link_to 'Items', admin_collection_items_path(item.collection)}</li>"
-    html += admin_item_structure_breadcrumb(item)
-    html += "</ol>"
-    raw(html)
+    html = StringIO.new
+    html << '<ol class="breadcrumb">'
+    html <<   "<li>#{link_to 'Home', admin_root_path}</li>"
+    html <<   "<li>#{link_to 'Collections', admin_collections_path}</li>"
+    html <<   "<li>#{link_to item.collection.title, admin_collection_path(item.collection)}</li>"
+    html <<   "<li>#{link_to 'Items', admin_collection_items_path(item.collection)}</li>"
+    html <<   admin_item_structure_breadcrumb(item)
+    html << '</ol>'
+    raw(html.string)
   end
 
   def admin_items_edit_view_breadcrumb(collection)
-    html = "<ol class=\"breadcrumb\">"
-    html += "<li>#{link_to 'Home', admin_root_path}</li>"
-    html += "<li>#{link_to 'Collections', admin_collections_path}</li>"
-    html += "<li>#{link_to collection.title, admin_collection_path(collection)}</li>"
-    html += "<li>#{link_to 'Items', admin_collection_items_path(collection)}</li>"
-    html += "<li class=\"active\">Edit</li>"
-    html += "</ol>"
-    raw(html)
+    html = StringIO.new
+    html = '<ol class="breadcrumb">'
+    html <<   "<li>#{link_to 'Home', admin_root_path}</li>"
+    html <<   "<li>#{link_to 'Collections', admin_collections_path}</li>"
+    html <<   "<li>#{link_to collection.title, admin_collection_path(collection)}</li>"
+    html <<   "<li>#{link_to 'Items', admin_collection_items_path(collection)}</li>"
+    html <<   '<li class="active">Edit</li>'
+    html << '</ol>'
+    raw(html.string)
   end
 
   def admin_results_breadcrumb(collection)
-    html = "<ol class=\"breadcrumb\">"\
-      "<li>#{link_to('Home', admin_root_path)}</li>"\
-      "<li>#{link_to('Collections', admin_collections_path)}</li>"\
-      "<li>#{link_to(truncate(collection.title, length: 50), admin_collection_path(collection))}</li>"\
-      "<li class=\"active\">Items</li>"\
-    "</ol>"
-    raw(html)
+    html = StringIO.new
+    html << '<ol class="breadcrumb">'
+    html <<   "<li>#{link_to('Home', admin_root_path)}</li>"
+    html <<   "<li>#{link_to('Collections', admin_collections_path)}</li>"
+    html <<   "<li>#{link_to(truncate(collection.title, length: 50), admin_collection_path(collection))}</li>"
+    html <<   '<li class="active">Items</li>'
+    html << '</ol>'
+    raw(html.string)
   end
 
   ##

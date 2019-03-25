@@ -11,30 +11,6 @@
 
 <%= form_tag(admin_settings_path, method: :patch) do %>
 
-  <h2>Status</h2>
-
-  <table class="table">
-    <tr>
-      <td><%= label_tag("options[#{Option::Keys::SERVER_STATUS}]",
-                        'Status') %></td>
-      <td>
-        <%= select_tag("options[#{Option::Keys::SERVER_STATUS}]",
-                       options_for_select(@status_options,
-                                          Option::string(Option::Keys::SERVER_STATUS))) %>
-      </td>
-    </tr>
-
-    <tr>
-      <td><%= label_tag("options[#{Option::Keys::SERVER_STATUS_MESSAGE}]",
-                        'Status Message') %></td>
-      <td>
-        <%= text_area_tag("options[#{Option::Keys::SERVER_STATUS_MESSAGE}]",
-                          Option::string(Option::Keys::SERVER_STATUS_MESSAGE),
-                          class: 'form-control') %>
-      </td>
-    </tr>
-  </table>
-
   <h2>General</h2>
 
   <table class="table">

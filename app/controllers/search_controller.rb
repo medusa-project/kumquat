@@ -3,8 +3,6 @@
 #
 class SearchController < WebsiteController
 
-  MAX_RESULT_WINDOW = 100
-  MIN_RESULT_WINDOW = 10
   PERMITTED_PARAMS = [:_, :collection_id, { fq: [] }, :q, :sort, :start, :utf8]
 
   before_action :set_sanitized_params, only: :search

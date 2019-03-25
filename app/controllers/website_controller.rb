@@ -3,11 +3,8 @@
 #
 class WebsiteController < ApplicationController
 
-  def setup
-    super
-    @storage_offline =
-        (Option::string(Option::Keys::SERVER_STATUS) == 'storage_offline')
-  end
+  MAX_RESULT_WINDOW = 100
+  MIN_RESULT_WINDOW = 10
 
   protected
 

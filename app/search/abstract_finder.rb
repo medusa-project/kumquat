@@ -4,7 +4,7 @@ class AbstractFinder
     @client = ElasticsearchClient.instance
 
     @aggregations = true
-    @bucket_limit = Option::integer(Option::Keys::FACET_TERM_LIMIT)
+    @bucket_limit = Option::integer(Option::Keys::FACET_TERM_LIMIT) || 10
     @filters = {} # Hash<String,Object>
     @limit = ElasticsearchClient::MAX_RESULT_WINDOW
     @orders = [] # Array<Hash<Symbol,String>> with :field and :direction keys

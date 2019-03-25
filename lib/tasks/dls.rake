@@ -33,8 +33,7 @@ namespace :dls do
     desc 'Populate the byte sizes of all binaries'
     task :populate_byte_sizes => :environment do |task|
       Binary.uncached do
-        binaries = Binary.where(byte_size: nil).
-            where('repository_relative_pathname IS NOT NULL')
+        binaries = Binary.where(byte_size: nil).where('object_key IS NOT NULL')
         count = binaries.count
         puts "#{count} binaries to update"
 
@@ -57,7 +56,7 @@ namespace :dls do
       Binary.uncached do
         binaries = Binary.where('(width IS NULL OR height IS NULL)').
             where('media_type LIKE \'image/%\' OR media_type LIKE \'video/%\'').
-            where('repository_relative_pathname IS NOT NULL')
+            where('object_key IS NOT NULL')
         count = binaries.count
         puts "#{count} binaries to update"
 
@@ -80,7 +79,7 @@ namespace :dls do
       Binary.uncached do
         binaries = Binary.where(duration: nil).
             where('media_type LIKE \'audio/%\' OR media_type LIKE \'video/%\'').
-            where('repository_relative_pathname IS NOT NULL')
+            where('object_key IS NOT NULL')
         count = binaries.count
         puts "#{count} binaries to update"
 

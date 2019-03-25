@@ -3,7 +3,7 @@ require 'test_helper'
 class UserTest < ActiveSupport::TestCase
 
   setup do
-    @user = User.new
+    @user = User.create!(username: 'bogus')
     assert_not_empty @user.api_key
   end
 

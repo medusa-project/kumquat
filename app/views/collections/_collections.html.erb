@@ -1,5 +1,11 @@
 <% if @collections.length > 0 %>
+  <div class="text-center">
+    <%= paginate(@count, @limit, @current_page, @permitted_params, true) %>
+  </div>
   <%= entities_as_cards(@collections) %>
+  <div class="text-center">
+    <%= paginate(@count, @limit, @current_page, @permitted_params, true) %>
+  </div>
 <% else %>
   <div class="pt-no-results">
     <%= no_results_help(params[:q], @suggestions) %>

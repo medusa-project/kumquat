@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'rails', '5.1.6'
+gem 'rails', '5.2.2'
 
 gem 'activemodel-serializers-xml'
 gem 'aws-sdk-s3', '~> 1.8'

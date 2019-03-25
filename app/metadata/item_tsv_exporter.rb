@@ -107,19 +107,19 @@ class ItemTsvExporter
         items.parent_repository_id,
         (SELECT array_to_string(
           array(
-            SELECT DISTINCT repository_relative_pathname
+            SELECT DISTINCT object_key
             FROM binaries
             WHERE binaries.item_id = items.id
               AND binaries.master_type = #{Binary::MasterType::PRESERVATION}
-            ORDER BY repository_relative_pathname
+            ORDER BY object_key
           ), '#{MULTI_VALUE_SEPARATOR}')) AS pres_pathname,
         (SELECT array_to_string(
           array(
-            SELECT substring(repository_relative_pathname from '[^/]+$')
+            SELECT substring(object_key from '[^/]+$')
             FROM binaries
             WHERE binaries.item_id = items.id
               AND binaries.master_type = #{Binary::MasterType::PRESERVATION}
-            ORDER BY repository_relative_pathname
+            ORDER BY object_key
           ), '#{MULTI_VALUE_SEPARATOR}')) AS pres_filename,
         (SELECT array_to_string(
           array(
@@ -127,23 +127,23 @@ class ItemTsvExporter
             FROM binaries
             WHERE binaries.item_id = items.id
               AND binaries.master_type = #{Binary::MasterType::PRESERVATION}
-            ORDER BY repository_relative_pathname
+            ORDER BY object_key
           ), '#{MULTI_VALUE_SEPARATOR}')) AS pres_uuid,
         (SELECT array_to_string(
           array(
-            SELECT DISTINCT repository_relative_pathname
+            SELECT DISTINCT object_key
             FROM binaries
             WHERE binaries.item_id = items.id
               AND binaries.master_type = #{Binary::MasterType::ACCESS}
-            ORDER BY repository_relative_pathname
+            ORDER BY object_key
           ), '#{MULTI_VALUE_SEPARATOR}')) AS access_pathname,
         (SELECT array_to_string(
           array(
-            SELECT substring(repository_relative_pathname from '[^/]+$')
+            SELECT substring(object_key from '[^/]+$')
             FROM binaries
             WHERE binaries.item_id = items.id
               AND binaries.master_type = #{Binary::MasterType::ACCESS}
-            ORDER BY repository_relative_pathname
+            ORDER BY object_key
           ), '#{MULTI_VALUE_SEPARATOR}')) AS access_filename,
         (SELECT array_to_string(
           array(
@@ -151,7 +151,7 @@ class ItemTsvExporter
             FROM binaries
             WHERE binaries.item_id = items.id
               AND binaries.master_type = #{Binary::MasterType::ACCESS}
-            ORDER BY repository_relative_pathname
+            ORDER BY object_key
           ), '#{MULTI_VALUE_SEPARATOR}')) AS access_uuid,
         items.variant,
         items.page_number,

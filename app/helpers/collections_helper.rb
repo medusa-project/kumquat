@@ -5,18 +5,24 @@ module CollectionsHelper
   # @return [String] HTML string
   #
   def collection_page_title(collection)
-    html = ''
+    html = StringIO.new
     num_parents = collection.parents.count
     if num_parents > 0
       relative_parent = collection.parents.first
-      html += '<h1 class="pt-title pt-compound-title">'
-      html += "<small>#{link_to relative_parent.title, relative_parent}</small>"
-      html += "<br>&nbsp;&nbsp;&#8627; "
-      html += "#{collection.title}</h1>"
+      html << '<h1 class="pt-title pt-compound-title">'
+      html <<   '<small>'
+      html <<     link_to(relative_parent.title, relative_parent)
+      html <<   '</small>'
+      html <<   '<br>'
+      html <<   '&nbsp;&nbsp;&#8627; '
+      html <<   collection.title
+      html << '</h1>'
     else
-      html += "<h1 class=\"pt-title\">#{collection.title}</h1>"
+      html << '<h1 class="pt-title">'
+      html <<   collection.title
+      html << '</h1>'
     end
-    raw(html)
+    raw(html.string)
   end
 
   def effective_collection_access_url(collection)

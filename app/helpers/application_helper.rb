@@ -1,6 +1,6 @@
 module ApplicationHelper
 
-  CARD_IMAGE_SIZE = 500
+  CARD_IMAGE_SIZE = 512
   MAX_PAGINATION_LINKS = 9
 
   ##
@@ -77,21 +77,20 @@ module ApplicationHelper
   # @return [String]
   #
   def entities_as_cards(entities)
-    html = ''
+    html = StringIO.new
     entities.each do |entity|
       bin = nil
-      if Option::string(Option::Keys::SERVER_STATUS) != 'storage_offline'
-        begin
-          # If the entity is a Collection and the reference to the binary is
-          # invalid (for example, an invalid UUID has been entered), this will
-          # raise an error.
-          bin = entity.effective_representative_image_binary
-        rescue => e
-          CustomLogger.instance.warn("entities_as_cards(): #{e} (#{entity})")
-        end
+      begin
+        # If the entity is a Collection and the reference to the binary is
+        # invalid (for example, an invalid UUID has been entered), this will
+        # raise an error.
+        bin = entity.effective_representative_image_binary
+      rescue => e
+        CustomLogger.instance.warn("entities_as_cards(): #{e} (#{entity})")
       end
+
       if bin&.iiif_safe?
-        img_url = binary_image_url(bin, region: 'square', size: CARD_IMAGE_SIZE)
+        img_url = binary_image_url(bs, region: 'square', size: CARD_IMAGE_SIZE)
       else
         case entity.class.to_s
           when 'Collection'
@@ -100,18 +99,18 @@ module ApplicationHelper
             img_url = image_url('fa-cube-600.png')
         end
       end
-      html += '<div class="pt-card">'
-      html += '  <div class="pt-card-content">'
-      html +=      link_to(entity) do
+      html << '<div class="pt-card">'
+      html <<   '<div class="pt-card-content">'
+      html <<     link_to(entity) do
         raw("<img src=\"#{img_url}\">")
       end
-      html += '    <h4 class="pt-title">'
-      html +=        link_to(entity.title, entity)
-      html += '</h4>
-          </div>
-      </div>'
+      html <<     '<h4 class="pt-title">'
+      html <<       link_to(entity.title, entity)
+      html <<     '</h4>'
+      html <<   '</div>'
+      html << '</div>'
     end
-    raw(html)
+    raw(html.string)
   end
 
   ##
@@ -127,28 +126,31 @@ module ApplicationHelper
   # @return [String] HTML string.
   #
   def entities_as_list(entities, start, options = {})
-    html = "<ol start=\"#{start + 1}\">"
+    html = StringIO.new
+    html << "<ol start=\"#{start + 1}\">"
     entities.each do |entity|
       if options[:link_to_admin] and entity.kind_of?(Item)
         link_target = admin_collection_item_path(entity.collection, entity)
       else
         link_target = polymorphic_path(entity)
       end
-      html += '<li>'
+      html << '<li>'
       if options[:show_checkboxes]
-        html += check_box_tag('pt-selected-items[]', entity.repository_id)
-        html += '<div class="pt-checkbox-result-container">'
+        html << check_box_tag('pt-selected-items[]', entity.repository_id)
+        html << '<div class="pt-checkbox-result-container">'
       else
-        html += '<div class="pt-non-checkbox-result-container">'
+        html << '<div class="pt-non-checkbox-result-container">'
       end
-      html += link_to(link_target, class: 'pt-thumbnail-link') do
-        raw('<div class="pt-thumbnail">' +
-                thumbnail_tag(entity.effective_representative_entity,
-                              shape: :square) +
-                '</div>')
+      html << link_to(link_target, class: 'pt-thumbnail-link') do
+        thumb = StringIO.new
+        thumb << '<div class="pt-thumbnail">'
+        thumb << thumbnail_tag(entity.effective_representative_entity,
+                               shape: :square)
+        thumb << '</div>'
+        raw(thumb.string)
       end
-      html += '<span class="pt-label">'
-      html += link_to(entity.title, link_target)
+      html << '<span class="pt-label">'
+      html << link_to(entity.title, link_target)
 
       # info line
       info_parts = []
@@ -193,10 +195,13 @@ module ApplicationHelper
         end
       end
 
-      html += "<br><span class=\"pt-info-line\">#{info_parts.join(' | ')}</span>"
-      html += '</span>'
-      html += '<br>'
-      html += '<span class="pt-description">'
+      html <<   '<br>'
+      html <<   '<span class="pt-info-line">'
+      html <<     info_parts.join(' | ')
+      html <<   '</span>'
+      html << '</span>'
+      html << '<br>'
+      html << '<span class="pt-description">'
 
       description = nil
       if entity.kind_of?(Item)
@@ -208,15 +213,15 @@ module ApplicationHelper
         description = entity.description.to_s
       end
       if description
-        html += truncate(description, length: 380)
+        html << truncate(description, length: 380)
       end
 
-      html += '</span>'
-      html += '</div>'
-      html += '</li>'
+      html <<       '</span>'
+      html <<     '</div>'
+      html <<   '</li>'
     end
-    html += '</ol>'
-    raw(html)
+    html << '</ol>'
+    raw(html.string)
   end
 
   ##
@@ -226,11 +231,11 @@ module ApplicationHelper
   #
   def facets_as_panels(facets, permitted_params)
     return nil unless facets
-    html = ''
+    html = StringIO.new
     facets.select{ |f| f.terms.any? }.each do |facet|
-      html += facet_panel(facet, params.permit(permitted_params))
+      html << facet_panel(facet, params.permit(permitted_params))
     end
-    raw(html)
+    raw(html.string)
   end
 
   ##
@@ -274,15 +279,14 @@ module ApplicationHelper
   # @return [String] Bootstrap alerts for each flash message.
   #
   def flashes
-    html = ''
+    html = StringIO.new
     flash.each do |type, message|
-      html += "<div class=\"pt-flash alert alert-dismissable #{bootstrap_class_for(type)}\">
-          <button type=\"button\" class=\"close\" data-dismiss=\"alert\"
-                  aria-hidden=\"true\">&times;</button>
-          #{message}
-        </div>"
+      html << "<div class=\"pt-flash alert alert-dismissable #{bootstrap_class_for(type)}\">"
+      html <<   '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>'
+      html <<   message
+      html << '</div>'
     end
-    raw(html)
+    raw(html.string)
   end
 
   ##
@@ -370,42 +374,44 @@ module ApplicationHelper
   # @return [String] HTML string
   #
   def no_results_help(search_term, suggestions)
-    html = ''
+    html = StringIO.new
     if search_term.present?
-      html += "<p class=\"alert alert-warning\">Sorry, we couldn't find "\
+      html << "<p class=\"alert alert-warning\">Sorry, we couldn't find "\
       "anything matching &quot;#{h(search_term)}&quot;.</p>"
       if suggestions.any?
-        html += "<p>Did you mean:</p><ul>"
+        html << '<p>Did you mean:</p>'
+        html << '<ul>'
         suggestions.each do |suggestion|
-          html += "<li>#{link_to(suggestion, { q: suggestion })}?</li>"
+          html <<   '<li>'
+          html <<     link_to(suggestion, { q: suggestion })
+          html <<   '</li>'
         end
-        html += '</ul>'
+        html << '</ul>'
       end
     else
-      html += '<p>No results.</p>'
+      html << '<p>No results.</p>'
     end
-    raw(html)
+    raw(html.string)
   end
 
   ##
-  # @param entities [ActiveRecord::Relation]
   # @param total_entities [Integer]
   # @param per_page [Integer]
-  # @param permitted_params [ActionController::Parameters]
   # @param current_page [Integer]
+  # @param permitted_params [ActionController::Parameters]
   # @param remote [Boolean]
   # @param max_links [Integer] (ideally odd)
   #
   def paginate(total_entities, per_page, current_page, permitted_params,
                remote = false, max_links = MAX_PAGINATION_LINKS)
     return '' if total_entities <= per_page
-    num_pages = (total_entities / per_page.to_f).ceil
+    num_pages  = (total_entities / per_page.to_f).ceil
     first_page = [1, current_page - (max_links / 2.0).floor].max
-    last_page = [first_page + max_links - 1, num_pages].min
+    last_page  = [first_page + max_links - 1, num_pages].min
     first_page = last_page - max_links + 1 if
         last_page - first_page < max_links and num_pages > max_links
-    prev_page = [1, current_page - 1].max
-    next_page = [last_page, current_page + 1].min
+    prev_page  = [1, current_page - 1].max
+    next_page  = [last_page, current_page + 1].min
     prev_start = (prev_page - 1) * per_page
     next_start = (next_page - 1) * per_page
     last_start = (num_pages - 1) * per_page
@@ -429,10 +435,11 @@ module ApplicationHelper
     end
 
     # http://getbootstrap.com/components/#pagination
-    html = '<nav>' +
-        '<ul class="pagination">' +
-        "<li #{current_page == first_page ? 'class="disabled"' : ''}>#{first_link}</li>" +
-        "<li #{current_page == prev_page ? 'class="disabled"' : ''}>#{prev_link}</li>"
+    html = StringIO.new
+    html << '<nav>'
+    html <<   '<ul class="pagination">'
+    html <<     "<li #{current_page == first_page ? 'class="disabled"' : ''}>#{first_link}</li>"
+    html <<     "<li #{current_page == prev_page ? 'class="disabled"' : ''}>#{prev_link}</li>"
     (first_page..last_page).each do |page|
       start = (page - 1) * per_page
       page_link = link_to((start == 0) ? permitted_params.except(:start) :
@@ -440,14 +447,15 @@ module ApplicationHelper
         raw("#{page} #{(page == current_page) ?
             '<span class="sr-only">(current)</span>' : ''}")
       end
-      html += "<li class=\"#{page == current_page ? 'active' : ''}\">" +
-          page_link + '</li>'
+      html << "<li class=\"#{page == current_page ? 'active' : ''}\">"
+      html <<   page_link
+      html << '</li>'
     end
-    html += "<li #{current_page == next_page ? 'class="disabled"' : ''}>#{next_link}</li>" +
-        "<li #{current_page == last_page ? 'class="disabled"' : ''}>#{last_link}</li>"
-    html += '</ul>' +
-        '</nav>'
-    raw(html)
+    html <<     "<li #{current_page == next_page ? 'class="disabled"' : ''}>#{next_link}</li>"
+    html <<     "<li #{current_page == last_page ? 'class="disabled"' : ''}>#{last_link}</li>"
+    html <<   '</ul>'
+    html << '</nav>'
+    raw(html.string)
   end
 
   ##
@@ -456,7 +464,7 @@ module ApplicationHelper
   # @return [String]
   #
   def rights_statement(statement, text)
-    html = ''
+    html = StringIO.new
     if statement or text.present?
       if statement
         image = link_to(statement.info_uri, target: '_blank') do
@@ -470,32 +478,17 @@ module ApplicationHelper
       title = statement ? '' : '<h4 class="media-heading">Rights Information</h4>'
       text = text.present? ? "<p>#{auto_link(text)}</p>" : ''
 
-      html += "<div class=\"media pt-rights\">
-          <div class=\"media-left\">
-            #{image}
-          </div>
-          <div class=\"media-body\">
-            #{title}#{text}
-          </div>
-        </div>"
+      html << '<div class="media pt-rights">'
+      html <<   '<div class="media-left">'
+      html <<     image
+      html <<   '</div>'
+      html <<   '<div class="media-body">'
+      html <<     title
+      html <<     text
+      html <<   '</div>'
+      html << '</div>'
     end
-    raw(html)
-  end
-
-  ##
-  # @return [String] Bootstrap alert div, or an empty string if there is no
-  #                  server status message.
-  #
-  def server_status_message
-    status = Option::string(Option::Keys::SERVER_STATUS)
-    message = Option::string(Option::Keys::SERVER_STATUS_MESSAGE)
-    html = ''
-    if status != 'online' and message.present?
-      html += "<div class=\"pt-flash alert alert-warning\">
-          <i class=\"fa fa-warning\"></i> #{message}
-        </div>"
-    end
-    raw(html)
+    raw(html.string)
   end
 
   ##
@@ -536,30 +529,39 @@ module ApplicationHelper
   private
 
   def collection_structure_breadcrumb(collection)
-    html = ''
+    html = StringIO.new
     parent = collection.parents.first
     while parent
-      html = "<li>#{link_to parent.title, parent}</li>#{html}"
+      html << '<li>'
+      html << link_to(parent.title, parent)
+      html << '</li>'
+      html << html.string
       parent = parent.parents.first
     end
-    html += "<li class=\"active\">#{truncate(collection.title, length: 50)}</li>"
-    html
+    html << "<li class=\"active\">#{truncate(collection.title, length: 50)}</li>"
+    html.string
   end
 
   def collection_view_breadcrumb(collection)
-    html = "<ol class=\"breadcrumb\">"\
-      "<li>#{link_to 'Home', root_path}</li>"\
-      "<li>#{repository_link(collection)}</li>"
-    html += collection_structure_breadcrumb(collection)
-    html += '</ol>'
-    raw(html)
+    html = StringIO.new
+    html << '<ol class="breadcrumb">'
+    html <<   '<li>'
+    html <<     link_to('Home', root_path)
+    html <<   '</li>'
+    html <<   '<li>'
+    html <<     repository_link(collection)
+    html <<   '</li>'
+    html <<   collection_structure_breadcrumb(collection)
+    html << '</ol>'
+    raw(html.string)
   end
 
   ##
   # @param facet [Facet]
   #
   def facet_panel(facet, permitted_params)
-    panel = "<div class=\"panel panel-default\" id=\"#{facet.field}\">
+    panel = StringIO.new
+    panel << "<div class=\"panel panel-default\" id=\"#{facet.field}\">
       <div class=\"panel-heading\">
         <h3 class=\"panel-title\">#{facet.name}</h3>
       </div>
@@ -572,57 +574,66 @@ module ApplicationHelper
       unchecked_params = term.added_to_params(permitted_params.deep_dup).except(:start)
       term_label = truncate(term.label, length: 80)
 
-      panel += "<li class=\"pt-term\">"\
-               "  <div class=\"checkbox\">"\
-               "    <label>"\
-               "      <input type=\"checkbox\" name=\"pt-facet-term\" #{checked} "\
-               "          data-query=\"#{term.query.gsub('"', '&quot;')}\" "\
-               "          data-checked-href=\"#{url_for(unchecked_params)}\" "\
-               "          data-unchecked-href=\"#{url_for(checked_params)}\">"\
-               "      <span class=\"pt-term-name\">#{term_label}</span> "\
-               "      <span class=\"pt-count badge\">#{term.count}</span>"\
-               "    </label>"\
-               "  </div>"\
-               "</li>"
+      panel << '<li class="pt-term">'
+      panel <<   '<div class="checkbox">'
+      panel <<     '<label>'
+      panel <<       "<input type=\"checkbox\" name=\"pt-facet-term\" #{checked} "\
+                         "data-query=\"#{term.query.gsub('"', '&quot;')}\" "\
+                         "data-checked-href=\"#{url_for(unchecked_params)}\" "\
+                         "data-unchecked-href=\"#{url_for(checked_params)}\">"
+      panel <<         "<span class=\"pt-term-name\">#{term_label}</span> "
+      panel <<         "<span class=\"pt-count badge\">#{term.count}</span>"
+      panel <<     '</label>'
+      panel <<   '</div>'
+      panel << '</li>'
     end
-    raw(panel + '</ul></div></div>')
+    panel <<     '</ul>'
+    panel <<   '</div>'
+    panel << '</div>'
+    raw(panel.string)
   end
 
   def item_structure_breadcrumb(item)
-    html = ''
+    html = StringIO.new
     parent = item.parent
     while parent
-      html = "<li>#{link_to parent.title, parent}</li>#{html}"
+      html << '<li>'
+      html <<   link_to(parent.title, parent)
+      html << '</li>'
+      html << html.string
       parent = parent.parent
     end
-    html += "<li class=\"active\">#{truncate(item.title, length: 50)}</li>"
-    html
+    html << '<li class="active">'
+    html <<   truncate(item.title, length: 50)
+    html << '</li>'
+    html.string
   end
 
   def item_view_breadcrumb(item, context, context_url)
+    html = StringIO.new
     case context
       when ItemsController::BrowseContext::SEARCHING
-        html = "<ol class=\"breadcrumb\">"
-        html += "<li>#{link_to 'Home', root_path}</li>"
-        html += "<li>#{link_to 'Search', context_url}</li>"
-        html += item_structure_breadcrumb(item)
-        html += "</ol>"
+        html << '<ol class="breadcrumb">'
+        html <<   "<li>#{link_to 'Home', root_path}</li>"
+        html <<   "<li>#{link_to 'Search', context_url}</li>"
+        html <<   item_structure_breadcrumb(item)
+        html << "</ol>"
       when ItemsController::BrowseContext::BROWSING_ALL_ITEMS
-        html = "<ol class=\"breadcrumb\">"
-        html += "<li>#{link_to 'Home', root_path}</li>"
-        html += "<li>#{link_to 'All Items', items_path}</li>"
-        html += item_structure_breadcrumb(item)
-        html += "</ol>"
+        html << '<ol class="breadcrumb">'
+        html <<   "<li>#{link_to 'Home', root_path}</li>"
+        html <<   "<li>#{link_to 'All Items', items_path}</li>"
+        html <<   item_structure_breadcrumb(item)
+        html << "</ol>"
       else
-        html = "<ol class=\"breadcrumb\">"
-        html += "<li>#{link_to 'Home', root_path}</li>"
-        html += "<li>#{repository_link(item.collection)}</li>"
-        html += "<li>#{link_to item.collection.title, collection_path(item.collection)}</li>"
-        html += "<li>#{link_to 'Items', collection_items_path(item.collection)}</li>"
-        html += item_structure_breadcrumb(item)
-        html += "</ol>"
+        html << '<ol class="breadcrumb">'
+        html <<   "<li>#{link_to 'Home', root_path}</li>"
+        html <<   "<li>#{repository_link(item.collection)}</li>"
+        html <<   "<li>#{link_to item.collection.title, collection_path(item.collection)}</li>"
+        html <<   "<li>#{link_to 'Items', collection_items_path(item.collection)}</li>"
+        html <<   item_structure_breadcrumb(item)
+        html << '</ol>'
     end
-    raw(html)
+    raw(html.string)
   end
 
   def repository_link(collection)
@@ -632,13 +643,14 @@ module ApplicationHelper
 
   def results_breadcrumb(collection, context)
     if context == ItemsController::BrowseContext::BROWSING_COLLECTION
-      html = "<ol class=\"breadcrumb\">"\
-                "<li>#{link_to('Home', root_path)}</li>"\
-                "<li>#{repository_link(collection)}</li>"\
-                "<li>#{link_to(truncate(collection.title, length: 50), collection_path(collection))}</li>"\
-                "<li class=\"active\">Items</li>"\
-              "</ol>"
-      return raw(html)
+      html = StringIO.new
+      html << '<ol class="breadcrumb">'
+      html <<   "<li>#{link_to('Home', root_path)}</li>"
+      html <<   "<li>#{repository_link(collection)}</li>"
+      html <<   "<li>#{link_to(truncate(collection.title, length: 50), collection_path(collection))}</li>"
+      html <<   '<li class="active">Items</li>'
+      html << '</ol>'
+      raw(html.string)
     end
   end
 

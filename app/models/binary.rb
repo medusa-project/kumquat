@@ -36,8 +36,7 @@
 # * media_category: One of the Binary::MediaCategory constant values; see its
 #                   class documentation.
 # * media_type:     Best-fit IANA media (MIME) type.
-# * repository_relative_pathname: Pathname of the binary relative to the
-#                                 repository root directory.
+# * object_key:     S3 object key.
 # * updated_at:     Managed by ActiveRecord.
 # * width:          Native pixel width of a raster binary (image or video).
 #
@@ -93,7 +92,7 @@ class Binary < ApplicationRecord
   validates :byte_size, numericality: { only_integer: true,
                                         greater_than_or_equal_to: 0 },
             allow_blank: false
-  validates :repository_relative_pathname, length: { allow_blank: false }
+  validates :object_key, length: { allow_blank: false }
 
   @@formats = YAML::load(File.read("#{Rails.root}/lib/formats.yml"))
 
@@ -256,7 +255,7 @@ class Binary < ApplicationRecord
   #                   image server (won't bog it down too much).
   #
   def iiif_safe?
-    if self.repository_relative_pathname.present?
+    if self.object_key.present?
       psd_types = %w(image/vnd.adobe.photoshop application/x-photoshop
           application/photoshop application/psd image/psd)
       if self.is_image? and !psd_types.include?(self.media_type)
@@ -365,10 +364,6 @@ class Binary < ApplicationRecord
   def metadata
     read_metadata unless @metadata_read
     @metadata
-  end
-
-  def object_key # TODO: replace repository_relative_pathname with this
-    self.repository_relative_pathname.reverse.chomp('/').reverse
   end
 
   ##
@@ -514,6 +509,13 @@ class Binary < ApplicationRecord
     str = self.cfs_file_uuid if str.blank?
     str = super if str.blank?
     str
+  end
+
+  ##
+  # @return [String]
+  #
+  def uri
+    "s3://#{Configuration.instance.medusa_s3_bucket}/#{self.object_key}"
   end
 
   private

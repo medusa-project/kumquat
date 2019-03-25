@@ -8,8 +8,6 @@ class ItemsController < WebsiteController
     SEARCHING = 2
   end
 
-  MAX_RESULT_WINDOW = 100
-  MIN_RESULT_WINDOW = 10
   PERMITTED_PARAMS = [:_, :collection_id, :df, :display, :download_start,
                       { fq: [] }, :format, :id, :limit, :q, :sort, :start,
                       :utf8]
@@ -39,7 +37,7 @@ class ItemsController < WebsiteController
   #
   def binary
     filename = [params[:filename], params[:format]].join('.')
-    binary = @item.binaries.where('repository_relative_pathname LIKE ?',
+    binary = @item.binaries.where('object_key LIKE ?',
                                   "%/#{filename}").limit(1).first
     if binary
       send_binary(binary)

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190109150445) do
+ActiveRecord::Schema.define(version: 20190226143441) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -81,7 +81,7 @@ ActiveRecord::Schema.define(version: 20190109150445) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "item_id"
-    t.string "repository_relative_pathname"
+    t.string "object_key"
     t.string "cfs_file_uuid"
     t.decimal "byte_size", precision: 15, null: false
     t.decimal "width", precision: 6
@@ -92,7 +92,7 @@ ActiveRecord::Schema.define(version: 20190109150445) do
     t.index ["master_type"], name: "index_binaries_on_master_type"
     t.index ["media_category"], name: "index_binaries_on_media_category"
     t.index ["media_type"], name: "index_binaries_on_media_type"
-    t.index ["repository_relative_pathname"], name: "index_binaries_on_repository_relative_pathname", unique: true
+    t.index ["object_key"], name: "index_binaries_on_object_key", unique: true
   end
 
   create_table "collection_joins", id: :serial, force: :cascade do |t|

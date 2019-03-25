@@ -40,7 +40,8 @@ class ItemDecorator < Draper::Decorator
         variant:                 object.variant,
         representative_item_uri: object.representative_item ?
                                      item_url(object.representative_item, format: :json) : nil,
-        # Convenience key for Metaslurper
+        # Convenience keys for Metaslurper
+        representative_master_image_uri:    nil,
         representative_images:   {},
         # Convenience key for Metaslurper
         preservation_media_type: object.binaries
@@ -54,6 +55,7 @@ class ItemDecorator < Draper::Decorator
 
     bin = object.effective_image_binary
     if bin
+      struct[:representative_master_image_uri] = bin.uri
       struct[:representative_images][:full] = { full: binary_url(bin) }
       if bin.iiif_safe?
         min_exp = 6
