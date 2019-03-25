@@ -90,7 +90,7 @@ module ApplicationHelper
       end
 
       if bin&.iiif_safe?
-        img_url = binary_image_url(bs, region: 'square', size: CARD_IMAGE_SIZE)
+        img_url = binary_image_url(bin, region: 'square', size: CARD_IMAGE_SIZE)
       else
         case entity.class.to_s
           when 'Collection'
