@@ -1,6 +1,6 @@
 module ApplicationHelper
 
-  CARD_IMAGE_SIZE = 500
+  CARD_IMAGE_SIZE = 512
   MAX_PAGINATION_LINKS = 9
 
   ##

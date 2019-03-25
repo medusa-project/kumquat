@@ -118,7 +118,7 @@ var PTItemView = function() {
      */
     var PTEmbedPanel = function() {
 
-        var MIN_IMAGE_SIZE = 200;
+        var MIN_IMAGE_SIZE = 256;
         var NUM_BUTTON_SIZE_TIERS = 5;
 
         var image_url;
