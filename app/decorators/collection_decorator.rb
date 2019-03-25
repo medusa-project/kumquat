@@ -28,6 +28,7 @@ class CollectionDecorator < Draper::Decorator
         resource_types: object.resource_types,
         access_systems: object.access_systems,
         rights_statement: object.rightsstatements_org_uri,
+        package_profile: object.package_profile&.name,
         elements: object.elements_in_profile_order(only_visible: true).map(&:decorate),
         created_at: object.created_at,
         updated_at: object.updated_at
