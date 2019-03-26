@@ -15,9 +15,11 @@ class CollectionDecorator < Draper::Decorator
   #   end
 
   def serializable_hash(opts)
+    parent = object.parents.first
     {
         class: Collection.to_s,
         id: object.repository_id,
+        external_id: object.external_id,
         public_uri: collection_url(object),
         access_uri: object.access_url,
         physical_collection_uri: object.physical_collection_url,
@@ -30,6 +32,10 @@ class CollectionDecorator < Draper::Decorator
         rights_statement: object.rightsstatements_org_uri,
         package_profile: object.package_profile&.name,
         elements: object.elements_in_profile_order(only_visible: true).map(&:decorate),
+        parent: parent ? { id: parent.repository_id,
+                           uri: collection_url(parent) } : nil,
+        children: object.children.map{ |c| { id: c.repository_id,
+                                             uri: collection_url(c) } },
         created_at: object.created_at,
         updated_at: object.updated_at
     }
