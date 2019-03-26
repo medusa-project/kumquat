@@ -16,11 +16,10 @@ class SearchController < WebsiteController
     @start = params[:start].to_i
     @limit = limit
 
-    # EntityFinder will search across entity classes and return both Items and
-    # Collections.
+    # EntityFinder will search across entity classes and return Items, Agents,
+    # and Collections.
     finder = EntityFinder.new.
         user_roles(request_roles).
-        include_classes(Agent, Item).
         # exclude all variants except File
         exclude_item_variants(*Item::Variants::all.reject{ |v| v == Item::Variants::FILE }).
         start(@start).
