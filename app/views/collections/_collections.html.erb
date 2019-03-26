@@ -2,7 +2,11 @@
   <div class="text-center">
     <%= paginate(@count, @limit, @current_page, @permitted_params, true) %>
   </div>
+
   <%= entities_as_cards(@collections) %>
+
+  <div class="clearfix"></div>
+
   <div class="text-center">
     <%= paginate(@count, @limit, @current_page, @permitted_params, true) %>
   </div>
