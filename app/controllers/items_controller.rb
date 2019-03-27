@@ -248,6 +248,9 @@ class ItemsController < WebsiteController
         order(Item::IndexFields::STRUCTURAL_SORT).
         start(params[:download_start]).
         limit(0)
+    if @collection.medusa_cfs_directory
+      download_finder = download_finder.parent_item(@collection.root_item)
+    end
     @num_downloadable_items = download_finder.count
     @total_byte_size = download_finder.total_byte_size
 
