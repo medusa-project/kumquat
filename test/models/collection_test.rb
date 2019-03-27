@@ -434,6 +434,22 @@ class CollectionTest < ActiveSupport::TestCase
     # TODO: write this
   end
 
+  test 'root_item returns nil for non-free-form collections' do
+    assert_nil collections(:sanborn).root_item  # compound object
+    assert_nil collections(:folksong).root_item # mixed media
+    assert_nil collections(:lincoln).root_item  # single-item object
+  end
+
+  test 'root_item returns nil for free-form collections whose directory is the
+  same as the file group directory' do
+    assert_nil collections(:illini_union).root_item
+  end
+
+  test 'root_item returns an item for free-form collections whose directory is
+  different from the same as the file group directory' do
+    # TODO: write this
+  end
+
   # to_param()
 
   test 'to_param should return the repository ID' do

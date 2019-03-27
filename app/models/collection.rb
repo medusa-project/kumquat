@@ -688,6 +688,21 @@ class Collection < ApplicationRecord
     RightsStatement.for_uri(self.rightsstatements_org_uri)
   end
 
+  ##
+  # @return [Item, nil] If the instance is free-form and uses a subdirectory
+  #                     within a file group, that corresponding Item. Otherwise,
+  #                     nil.
+  #
+  def root_item
+    if free_form? and medusa_cfs_directory_id.present?
+      return Item.where(collection_repository_id: self.repository_id)
+                 .where(parent_repository_id: nil)
+                 .limit(1)
+                 .first
+    end
+    nil
+  end
+
   def to_param
     self.repository_id
   end
