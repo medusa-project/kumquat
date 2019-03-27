@@ -19,7 +19,7 @@ class BinaryDecorator < Draper::Decorator
         class: Binary.to_s,
         id: binary.cfs_file_uuid,
         content_uri: binary_url(object),
-        item_uri: item_url(object.item, format: :json),
+        item_uri: object.item ? item_url(object.item, format: :json) : nil,
         object_key: object.object_key,
         media_type: object.media_type,
         master_type: object.human_readable_master_type,

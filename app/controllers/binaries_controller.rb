@@ -21,8 +21,10 @@ class BinariesController < WebsiteController
 
   def authorize_item
     item = @binary.item
-    return unless authorize(item.collection)
-    return unless authorize(item)
+    if item
+      return unless authorize(item.collection)
+      return unless authorize(item)
+    end
   end
 
   def load_binary
