@@ -33,7 +33,7 @@ class CollectionsController < WebsiteController
   def iiif_presentation_list
     finder = CollectionFinder.new.
         user_roles(request_roles).
-        order(Collection::IndexFields::TITLE)
+        order(CollectionElement.new(name: 'title').indexed_sort_field)
     @collections = finder.to_a
 
     render 'collections/iiif_presentation_api/index',
@@ -55,7 +55,7 @@ class CollectionsController < WebsiteController
         user_roles(request_roles).
         facet_filters(params[:fq]).
         query_all(params[:q]).
-        order(Collection::IndexFields::TITLE).
+        order(CollectionElement.new(name: 'title').indexed_sort_field).
         start(@start).
         limit(@limit)
 
@@ -106,7 +106,11 @@ class CollectionsController < WebsiteController
     respond_to do |format|
       format.html do
         if @authorized
-          @children = @collection.children.where(public_in_medusa: true)
+          @children = CollectionFinder.new.
+              search_children(true).
+              parent_collection(@collection).
+              order(CollectionElement.new(name: 'title').indexed_sort_field).
+              to_a
           @num_public_objects = @collection.num_public_objects rescue nil
           # One or both of these may be nil.
           @representative_image_binary =
