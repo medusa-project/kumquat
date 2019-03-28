@@ -8,7 +8,9 @@ class SearchController < WebsiteController
   before_action :set_sanitized_params, only: :search
 
   ##
-  # Used for harvesting. Returns only JSON.
+  # Used exclusively for harvesting by
+  # [metaslurper](https://github.com/medusa-project/metaslurper). Returns only
+  # JSON.
   #
   # Responds to GET /harvest
   #
@@ -20,8 +22,9 @@ class SearchController < WebsiteController
     # and Collections.
     finder = EntityFinder.new.
         user_roles(request_roles).
-        # exclude all variants except File
+        # exclude all variants except File. (Only child items have these variants.)
         exclude_item_variants(*Item::Variants::all.reject{ |v| v == Item::Variants::FILE }).
+        include_only_native_collections(true).
         start(@start).
         limit(@limit)
 

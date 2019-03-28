@@ -82,10 +82,10 @@
   <%= render partial: 'description' %>
 <% end %>
 
-<% if @collection.children.count > 0 %>
+<% if @children.count > 0 %>
   <hr>
-  <h2>Subcollections</h2>
+  <h2>Subcollections <span class="badge"><%= @children.count %></span></h2>
   <div class="pt-cards">
-    <%= entities_as_cards(@collection.children.where(public_in_medusa: true)) %>
+    <%= entities_as_cards(@children) %>
   </div>
 <% end %>

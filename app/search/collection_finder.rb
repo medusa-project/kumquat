@@ -7,7 +7,8 @@ class CollectionFinder < AbstractFinder
   def initialize
     super
     @include_unpublished = false
-    @search_children = false
+    @parent_collection   = nil
+    @search_children     = false
   end
 
   ##
@@ -25,6 +26,15 @@ class CollectionFinder < AbstractFinder
   #
   def include_unpublished(bool)
     @include_unpublished = bool
+    self
+  end
+
+  ##
+  # @param parent_collection [Collection]
+  # @return [CollectionFinder] self
+  #
+  def parent_collection(collection)
+    @parent_collection = collection
     self
   end
 
@@ -105,7 +115,7 @@ class CollectionFinder < AbstractFinder
             end
           end
 
-          if @filters.any? or !@include_unpublished
+          if @filters.any? or !@include_unpublished or @parent_collection
             j.filter do
               @filters.each do |field, value|
                 j.child! do
@@ -117,6 +127,15 @@ class CollectionFinder < AbstractFinder
                     j.term do
                       j.set! field, value
                     end
+                  end
+                end
+              end
+
+              if @parent_collection
+                j.child! do
+                  j.term do
+                    j.set! Collection::IndexFields::PARENT_COLLECTIONS,
+                           @parent_collection.repository_id
                   end
                 end
               end

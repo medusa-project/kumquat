@@ -109,6 +109,7 @@ class Collection < ApplicationRecord
     HARVESTABLE                  = 'b_harvestable'
     LAST_INDEXED                 = 'd_last_indexed'
     LAST_MODIFIED                = 'd_last_modified'
+    NATIVE                       = 'b_native'
     PARENT_COLLECTIONS           = 'k_parent_collections'
     PUBLIC_IN_MEDUSA             = 'b_public_in_medusa'
     PUBLICLY_ACCESSIBLE          = ElasticsearchIndex::PUBLICLY_ACCESSIBLE_FIELD
@@ -305,6 +306,7 @@ class Collection < ApplicationRecord
     doc[IndexFields::HARVESTABLE] = self.harvestable
     doc[IndexFields::LAST_INDEXED] = Time.now.utc.iso8601
     doc[IndexFields::LAST_MODIFIED] = self.updated_at.utc.iso8601
+    doc[IndexFields::NATIVE] = self.package_profile_id.present?
     doc[IndexFields::PARENT_COLLECTIONS] =
         self.parent_collection_joins.pluck(:parent_repository_id)
     doc[IndexFields::PUBLIC_IN_MEDUSA] = self.public_in_medusa
@@ -686,6 +688,21 @@ class Collection < ApplicationRecord
   #
   def rightsstatements_org_statement
     RightsStatement.for_uri(self.rightsstatements_org_uri)
+  end
+
+  ##
+  # @return [Item, nil] If the instance is free-form and uses a subdirectory
+  #                     within a file group, that corresponding Item. Otherwise,
+  #                     nil.
+  #
+  def root_item
+    if free_form? and medusa_cfs_directory_id.present?
+      return Item.where(collection_repository_id: self.repository_id)
+                 .where(parent_repository_id: nil)
+                 .limit(1)
+                 .first
+    end
+    nil
   end
 
   def to_param
