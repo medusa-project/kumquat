@@ -109,6 +109,7 @@ class Collection < ApplicationRecord
     HARVESTABLE                  = 'b_harvestable'
     LAST_INDEXED                 = 'd_last_indexed'
     LAST_MODIFIED                = 'd_last_modified'
+    NATIVE                       = 'b_native'
     PARENT_COLLECTIONS           = 'k_parent_collections'
     PUBLIC_IN_MEDUSA             = 'b_public_in_medusa'
     PUBLICLY_ACCESSIBLE          = ElasticsearchIndex::PUBLICLY_ACCESSIBLE_FIELD
@@ -305,6 +306,7 @@ class Collection < ApplicationRecord
     doc[IndexFields::HARVESTABLE] = self.harvestable
     doc[IndexFields::LAST_INDEXED] = Time.now.utc.iso8601
     doc[IndexFields::LAST_MODIFIED] = self.updated_at.utc.iso8601
+    doc[IndexFields::NATIVE] = self.package_profile_id.present?
     doc[IndexFields::PARENT_COLLECTIONS] =
         self.parent_collection_joins.pluck(:parent_repository_id)
     doc[IndexFields::PUBLIC_IN_MEDUSA] = self.public_in_medusa

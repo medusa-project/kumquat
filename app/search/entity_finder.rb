@@ -11,12 +11,22 @@ class EntityFinder < AbstractFinder
 
   def initialize
     super
-    @include_classes = ALL_ENTITIES
-    @exclude_item_variants = []
-    @include_unpublished = false
-    @last_modified_after = nil
-    @last_modified_before = nil
-    @only_described = false
+    @include_classes                = ALL_ENTITIES
+    @exclude_item_variants          = []
+    @include_only_native_collections = false
+    @include_unpublished            = false
+    @last_modified_after            = nil
+    @last_modified_before           = nil
+    @only_described                 = false
+  end
+
+  ##
+  # @param variants [String] One or more Item::Variants constant values.
+  # @return [self]
+  #
+  def exclude_item_variants(*variants)
+    @exclude_item_variants = variants
+    self
   end
 
   ##
@@ -30,11 +40,12 @@ class EntityFinder < AbstractFinder
   end
 
   ##
-  # @param variants [String] One or more Item::Variants constant values.
+  # @param boolean [Boolean] If true, only collections whose content resides in
+  #                          the application will be included.
   # @return [self]
   #
-  def exclude_item_variants(*variants)
-    @exclude_item_variants = variants
+  def include_only_native_collections(boolean)
+    @include_only_native_collections = boolean
     self
   end
 
@@ -201,7 +212,8 @@ class EntityFinder < AbstractFinder
           end
           j.minimum_should_match 1
 
-          if @user_roles.any? or @exclude_item_variants.any?
+          if @user_roles.any? or @exclude_item_variants.any? or
+              @include_only_native_collections
             j.must_not do
               if @user_roles.any?
                 j.child! do
@@ -216,6 +228,14 @@ class EntityFinder < AbstractFinder
                 j.child! do
                   j.terms do
                     j.set! Item::IndexFields::VARIANT, @exclude_item_variants
+                  end
+                end
+              end
+
+              if @include_only_native_collections
+                j.child! do
+                  j.term do
+                    j.set! Collection::IndexFields::NATIVE, false
                   end
                 end
               end
