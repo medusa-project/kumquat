@@ -24,7 +24,7 @@ class SearchController < WebsiteController
         user_roles(request_roles).
         # exclude all variants except File. (Only child items have these variants.)
         exclude_item_variants(*Item::Variants::all.reject{ |v| v == Item::Variants::FILE }).
-        include_only_native_collections(false).
+        include_only_native_collections(true).
         start(@start).
         limit(@limit)
 
