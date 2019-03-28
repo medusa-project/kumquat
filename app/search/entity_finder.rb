@@ -79,16 +79,19 @@ class EntityFinder < AbstractFinder
   #
   def to_a
     load
-    @response['hits']['hits'].map { |r|
-      case r['_type']
-      when 'agent'
-        Agent.find(r['_id'])
-      when 'item'
-        Item.find_by_repository_id(r['_source']['k_repository_id'])
-      when 'collection'
-        Collection.find_by_repository_id(r['_source']['k_repository_id'])
-      end
-    }.select(&:present?)
+    if @response['hits']
+      return @response['hits']['hits'].map { |r|
+        case r['_type'].downcase
+        when 'agent'
+          Agent.find(r['_id'])
+        when 'item'
+          Item.find_by_repository_id(r['_source']['k_repository_id'])
+        when 'collection'
+          Collection.find_by_repository_id(r['_source']['k_repository_id'])
+        end
+      }.select(&:present?)
+    end
+    []
   end
 
   protected
