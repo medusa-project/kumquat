@@ -106,6 +106,7 @@ class CollectionsController < WebsiteController
     respond_to do |format|
       format.html do
         if @authorized
+          @children = @collection.children.where(public_in_medusa: true)
           @num_public_objects = @collection.num_public_objects rescue nil
           # One or both of these may be nil.
           @representative_image_binary =
