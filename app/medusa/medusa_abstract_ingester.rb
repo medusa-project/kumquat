@@ -1,6 +1,6 @@
 class MedusaAbstractIngester
 
-  @@logger = CustomLogger.instance
+  LOGGER = CustomLogger.new(MedusaAbstractIngester)
 
   ##
   # Replaces existing DLS metadata for all items in the given collection with
@@ -19,7 +19,7 @@ class MedusaAbstractIngester
     items = collection.items
     num_items = items.count
     items.each_with_index do |item, index|
-      @@logger.info("MedusaAbstractIngester.replace_metadata(): #{item.repository_id}")
+      LOGGER.info('replace_metadata(): %s', item.repository_id)
       update_item_from_embedded_metadata(item)
       item.save!
       stats[:num_updated] += 1

@@ -6,6 +6,8 @@
 #
 class MedusaFileGroup < ApplicationRecord
 
+  LOGGER = CustomLogger.new(MedusaFileGroup)
+
   ##
   # @param uuid [String]
   # @return [MedusaCfsDirectory]
@@ -44,7 +46,7 @@ class MedusaFileGroup < ApplicationRecord
     response = client.get(self.url + '.json')
 
     if response.status < 300
-      CustomLogger.instance.debug('MedusaFileGroup.load_from_medusa(): loading ' + self.url)
+      LOGGER.debug('load_from_medusa(): loading %s', self.url)
       struct = JSON.parse(response.body)
       if struct['cfs_directory']
         self.cfs_directory_uuid = struct['cfs_directory']['uuid']

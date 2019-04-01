@@ -6,6 +6,8 @@
 #
 class MedusaCfsDirectory < ApplicationRecord
 
+  LOGGER = CustomLogger.new(MedusaCfsDirectory)
+
   after_initialize :reset
 
   ##
@@ -62,7 +64,7 @@ class MedusaCfsDirectory < ApplicationRecord
     response = client.get(self.url + '.json')
 
     if response.status < 300
-      CustomLogger.instance.debug('MedusaCfsDirectory.load_from_medusa(): loading ' + self.url)
+      LOGGER.debug('load_from_medusa(): %s', self.url)
       struct = JSON.parse(response.body)
       self.repository_relative_pathname = "/#{struct['relative_pathname']}"
       self.medusa_database_id = struct['id']
@@ -113,7 +115,7 @@ class MedusaCfsDirectory < ApplicationRecord
     else
       url = Configuration.instance.medusa_url.chomp('/') +
           '/cfs_directories/' + self.medusa_database_id.to_s + '/show_tree.json'
-      CustomLogger.instance.debug('MedusaCfsDirectory.load_contents(): loading ' + url)
+      LOGGER.debug('load_contents(): %s', url)
       client = MedusaClient.new
       json_str = client.get(url, follow_redirect: true).body
       tree = JSON.parse(json_str)

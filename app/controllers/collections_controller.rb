@@ -1,5 +1,6 @@
 class CollectionsController < WebsiteController
 
+  LOGGER = CustomLogger.new(CollectionsController)
   PERMITTED_PARAMS = [:_, :fq, :id, :q, :utf8]
 
   before_action :load_collection, only: [:iiif_presentation, :show]
@@ -99,7 +100,7 @@ class CollectionsController < WebsiteController
       @authorized = true
       authorize(@collection)
     rescue AuthorizationError => e
-      CustomLogger.instance.debug("CollectionsController.show(): #{e}")
+      LOGGER.debug('show(): %s', e)
       @authorized = false
     end
 

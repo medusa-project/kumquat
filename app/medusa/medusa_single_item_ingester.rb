@@ -8,7 +8,7 @@
 #
 class MedusaSingleItemIngester < MedusaAbstractIngester
 
-  @@logger = CustomLogger.instance
+  LOGGER = CustomLogger.new(MedusaSingleItemIngester)
 
   ##
   # @param collection [Collection]
@@ -34,13 +34,11 @@ class MedusaSingleItemIngester < MedusaAbstractIngester
         # Find or create the child item.
         item = Item.find_by_repository_id(file.uuid)
         if item
-          @@logger.info("MedusaSingleItemIngester.create_items(): skipping "\
-            "item #{file.uuid}")
+          LOGGER.info('create_items(): skipping item %s', file.uuid)
           stats[:num_skipped] += 1
           next
         else
-          @@logger.info("MedusaSingleItemIngester.create_items(): creating "\
-            "item #{file.uuid}")
+          LOGGER.info('create_items(): creating item %s', file.uuid)
           item = Item.new(repository_id: file.uuid,
                           collection_repository_id: collection.repository_id)
 
@@ -54,7 +52,7 @@ class MedusaSingleItemIngester < MedusaAbstractIngester
           begin
             item.binaries << access_master_binary(cfs_dir, file)
           rescue IllegalContentError => e
-            @@logger.warn("MedusaSingleItemIngester.create_items(): #{e}")
+            LOGGER.warn('create_items(): %s', e)
           end
 
           item.update_from_embedded_metadata(options) if options[:extract_metadata]
@@ -85,8 +83,8 @@ class MedusaSingleItemIngester < MedusaAbstractIngester
 
     # Compile a list of all item UUIDs currently in the Medusa file group.
     medusa_items = items_in(collection.effective_medusa_cfs_directory)
-    @@logger.debug("MedusaSingleItemIngester.delete_missing_items(): "\
-        "#{medusa_items.length} items in CFS directory")
+    LOGGER.debug('delete_missing_items(): %d items in CFS directory',
+                 medusa_items.length)
 
     # For each DLS item in the collection, if it's no longer contained in the
     # file group, delete it.
@@ -97,8 +95,7 @@ class MedusaSingleItemIngester < MedusaAbstractIngester
     ActiveRecord::Base.transaction do
       items.each_with_index do |item, index|
         unless medusa_items.include?(item.repository_id)
-          @@logger.info("MedusaSingleItemIngester.delete_missing_items(): "\
-            "deleting #{item.repository_id}")
+          LOGGER.info('delete_missing_items(): deleting %s', item.repository_id)
           item.destroy!
           stats[:num_deleted] += 1
         end
@@ -144,7 +141,7 @@ class MedusaSingleItemIngester < MedusaAbstractIngester
             item.binaries << access_master_binary(cfs_dir, file)
             stats[:num_created] += 1
           rescue IllegalContentError => e
-            @@logger.warn("MedusaSingleItemIngester.recreate_binaries(): #{e}")
+            LOGGER.warn('recreate_binaries(): %s', e)
           end
 
           item.save!
@@ -161,8 +158,8 @@ class MedusaSingleItemIngester < MedusaAbstractIngester
         begin
           ImageServer.instance.purge_item_images_from_cache(item)
         rescue => e
-          @@logger.error("MedusaSingleItemIngester.recreate_binaries(): failed to "\
-              "purge item from image server cache: #{e}")
+          LOGGER.error('recreate_binaries(): failed to purge item from '\
+                       'image server cache: %s', e)
         end
       end
     end
@@ -189,19 +186,18 @@ class MedusaSingleItemIngester < MedusaAbstractIngester
           return access_file.to_binary(Binary::MasterType::ACCESS)
         else
           msg = "Preservation master file #{pres_master_file.uuid} has no "\
-              "access master counterpart."
-          @@logger.warn("MedusaSingleItemIngester.access_master_binary(): #{msg}")
+                "access master counterpart."
+          LOGGER.warn('access_master_binary(): %s', msg)
           raise IllegalContentError, msg
         end
       else
         msg = "Access master directory #{access_dir.uuid} has no files."
-        @@logger.warn("MedusaSingleItemIngester.access_master_binary(): #{msg}")
+        LOGGER.warn('access_master_binary(): %s', msg)
         raise IllegalContentError, msg
       end
     else
-      msg = "Item directory #{cfs_dir.uuid} is missing an access master "\
-          "subdirectory."
-      @@logger.warn("MedusaSingleItemIngester.access_master_binary(): #{msg}")
+      msg = "Item directory #{cfs_dir.uuid} is missing an access master subdirectory."
+      LOGGER.warn('access_master_binary(): %s', msg)
       raise IllegalContentError, msg
     end
   end

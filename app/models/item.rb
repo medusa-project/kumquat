@@ -187,6 +187,7 @@ class Item < ApplicationRecord
     end
   end
 
+  LOGGER = CustomLogger.new(Item)
   ELASTICSEARCH_INDEX = 'items'
   ELASTICSEARCH_TYPE  = 'item'
 
@@ -1342,23 +1343,22 @@ class Item < ApplicationRecord
 
     # Get the binary from which the metadata will be extracted.
     # First, try to get the preservation master image.
-    bs = self.binaries.select{ |b| b.master_type == Binary::MasterType::PRESERVATION and
+    bin = self.binaries.select{ |b| b.master_type == Binary::MasterType::PRESERVATION and
         b.media_category == Binary::MediaCategory::IMAGE }.first
     # If that wasn't available, try to get any image.
-    unless bs
-      bs = self.binaries.select{ |b| b.media_category == Binary::MediaCategory::IMAGE }.first
-      unless bs
-        CustomLogger.instance.
-            info('Item.elements_from_embedded_metadata(): no binaries')
+    unless bin
+      bin = self.binaries.select{ |b| b.media_category == Binary::MediaCategory::IMAGE }.first
+      unless bin
+        LOGGER.info('elements_from_embedded_metadata(): no binaries')
         return elements
       end
     end
 
-    CustomLogger.instance.debug("Item.elements_from_embedded_metadata: using "\
-        "#{bs.human_readable_master_type} (#{bs.object_key})")
+    LOGGER.debug('elements_from_embedded_metadata(): using %s (%s)',
+                 bin.human_readable_master_type, bin.object_key)
 
     # Get its embedded IIM metadata
-    iim_metadata = bs.metadata.select{ |m| m[:category] == 'IPTC' }
+    iim_metadata = bin.metadata.select{ |m| m[:category] == 'IPTC' }
 
     # See discussion in IMET-246
     # See: https://docs.google.com/spreadsheets/d/15Wf75vzP-rW-lrYzLHATjv1bI3xcMMSVbdBShy4t55A/edit
@@ -1367,7 +1367,7 @@ class Item < ApplicationRecord
     # Title
     # Hack to treat items in a particular collection differently (IMET-397)
     if self.collection_repository_id == '8838a520-2b19-0132-3314-0050569601ca-7'
-      title = { value: File.basename(bs.object_key) }
+      title = { value: File.basename(bin.object_key) }
     else
       title = iim_metadata.select{ |e| e[:label] == 'Headline' }.first
       unless title

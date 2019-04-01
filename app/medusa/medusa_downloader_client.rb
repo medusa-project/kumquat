@@ -4,6 +4,7 @@
 #
 class MedusaDownloaderClient
 
+  LOGGER = CustomLogger.new(MedusaDownloaderClient)
   BATCH_SIZE = 200
 
   ##
@@ -61,17 +62,15 @@ class MedusaDownloaderClient
         'zip_name': "#{zip_name.chomp('.zip')}",
         'targets': targets
     }.to_json
-    CustomLogger.instance.debug("MedusaDownloaderClient.download_url(): sending "\
-          "#{client.post_body}")
+    LOGGER.debug('download_url(): sending %s', client.post_body)
 
     client.post
     client.headers = { 'Content-Type': 'application/json' }
     client.perform
     response_hash = JSON.parse(client.body_str)
     unless response_hash.has_key?('download_url')
-      CustomLogger.instance.error("MedusaDownloaderClient.download_url(): "\
-          "received HTTP #{client.status}: "\
-          "#{client.body_str}")
+      LOGGER.error('download_url(): received HTTP %d: %s',
+                   client.status, client.body_str)
       raise IOError, response_hash['error']
     end
     response_hash['download_url']

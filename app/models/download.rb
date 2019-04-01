@@ -38,13 +38,14 @@
 #
 class Download < ApplicationRecord
 
+  LOGGER = CustomLogger.new(Download)
+  DOWNLOADS_DIRECTORY = File.join(Rails.root, 'tmp', 'downloads')
+
   belongs_to :task, inverse_of: :download
 
   before_create :assign_key
   # Downloads shouldn't be destroyed, but just in case.
   after_destroy :delete_file
-
-  DOWNLOADS_DIRECTORY = File.join(Rails.root, 'tmp', 'downloads')
 
   # Instances will often be updated from inside transactions, outside of which
   # any updates would not be visible. So, we use a different database
@@ -65,8 +66,8 @@ class Download < ApplicationRecord
         num_expired += 1
       end
     end
-    CustomLogger.instance.info("Download.cleanup(): expired #{num_expired} "\
-          "instances > #{max_age_seconds} seconds old.")
+    LOGGER.info('cleanup(): expired %d instances > %d seconds old.',
+                num_expired, max_age_seconds)
   end
 
   ##
@@ -109,7 +110,7 @@ class Download < ApplicationRecord
 
   def delete_file
     if self.filename.present? and File.exists?(self.pathname)
-      CustomLogger.instance.debug("Download.delete_file(): deleting #{self.pathname}")
+      LOGGER.debug('delete_file(): deleting %s', self.pathname)
       File.delete(self.pathname)
     end
   end

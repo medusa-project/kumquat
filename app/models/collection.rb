@@ -123,6 +123,10 @@ class Collection < ApplicationRecord
     TITLE                        = CollectionElement.new(name: 'title').indexed_keyword_field
   end
 
+  LOGGER              = CustomLogger.new(Collection)
+  ELASTICSEARCH_INDEX = 'collections'
+  ELASTICSEARCH_TYPE  = 'collection'
+
   serialize :access_systems
   serialize :resource_types
 
@@ -164,9 +168,6 @@ class Collection < ApplicationRecord
 
   after_commit :index_in_elasticsearch, on: [:create, :update]
   after_commit :delete_from_elasticsearch, on: :destroy
-
-  ELASTICSEARCH_INDEX = 'collections'
-  ELASTICSEARCH_TYPE  = 'collection'
 
   ##
   # Deletes all collection-related documents. This is obviously dangerous and
@@ -382,8 +383,7 @@ class Collection < ApplicationRecord
       begin
         bin = self.representative_image_binary
       rescue => e
-        CustomLogger.instance.warn(
-            "Collection.effective_representative_image_binary(): #{e}")
+        LOGGER.warn('effective_representative_image_binary(): %s', e)
       end
     end
     bin
@@ -399,8 +399,7 @@ class Collection < ApplicationRecord
       begin
         item = self.representative_image_binary&.item
       rescue => e
-        CustomLogger.instance.warn(
-            "Collection.effective_representative_item(): #{e}")
+        LOGGER.warn('effective_representative_item(): %s', e)
       end
     end
     item

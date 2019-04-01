@@ -6,6 +6,8 @@
 #
 class MedusaRepository < ApplicationRecord
 
+  LOGGER = CustomLogger.new(MedusaRepository)
+
   ##
   # @param id [Integer]
   # @return [MedusaRepository]
@@ -35,7 +37,7 @@ class MedusaRepository < ApplicationRecord
     response = client.get(self.url + '.json')
 
     if response.status < 300
-      CustomLogger.instance.debug('MedusaRepository.load_from_medusa(): loading ' + self.url)
+      LOGGER.debug('load_from_medusa(): loading %s', self.url)
       struct = JSON.parse(response.body)
       self.contact_email = struct['contact_email']
       self.email = struct['email']

@@ -12,7 +12,7 @@ class MedusaIngester
     RECREATE_BINARIES = :recreate_binaries
   end
 
-  @@logger = CustomLogger.instance
+  LOGGER = CustomLogger.new(MedusaIngester)
 
   ##
   # Creates new DLS items for any Medusa items that do not already exist in
@@ -73,15 +73,13 @@ class MedusaIngester
     url = sprintf('%s/collections.json', config.medusa_url.chomp('/'))
 
     # Download the list of collections from Medusa.
-    @@logger.info('MedusaIngester.sync_collections(): '\
-        'downloading collection list')
+    LOGGER.info('sync_collections(): downloading collection list')
     client = MedusaClient.new
     response = client.get(url)
 
     if response.status == 200
       struct = JSON.parse(response.body)
-      @@logger.debug("MedusaIngester.sync_collections(): "\
-      "found #{struct.length} collections")
+      LOGGER.debug('sync_collections(): found %d collections', struct.length)
 
       ActiveRecord::Base.transaction do
         # Create or update a DLS counterpart of each collection.
@@ -99,8 +97,8 @@ class MedusaIngester
         # not any items within them, to be safe).
         Collection.all.each do |col|
           if struct.select { |st| st['uuid'] == col.repository_id }.empty?
-            @@logger.info('MedusaIngester.sync_collections(): '\
-                "deleting #{col.title} (#{col.repository_id})")
+            LOGGER.info('sync_collections(): deleting %s (%s)',
+                        col.title, col.repository_id)
             col.destroy!
           end
         end

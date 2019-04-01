@@ -5,13 +5,13 @@
 #
 class IiifPdfGenerator
 
-  DOCUMENT_DPI = 72 # This is maintained by Prawn and should not be changed here.
-  IMAGE_DPI = 150
-  MARGIN_INCHES = 0.5
-  PAGE_WIDTH_INCHES = 8.5
-  PAGE_HEIGHT_INCHES = 11
+  LOGGER = CustomLogger.new(IiifPdfGenerator)
 
-  @@logger = CustomLogger.instance
+  DOCUMENT_DPI       = 72 # This is maintained by Prawn and should not be changed here.
+  IMAGE_DPI          = 150
+  MARGIN_INCHES      = 0.5
+  PAGE_WIDTH_INCHES  = 8.5
+  PAGE_HEIGHT_INCHES = 11
 
   ##
   # Assembles the access master image binaries of all of a compound object's
@@ -47,8 +47,7 @@ class IiifPdfGenerator
 
       return pathname
     else
-      @@logger.warn("IiifPdfGenerator.assemble_pdf(): "\
-          "#{item} has no child items.")
+      LOGGER.warn('assemble_pdf(): %s has no child items.', item)
     end
     task&.succeeded
     nil
@@ -70,9 +69,8 @@ class IiifPdfGenerator
         # Download an optimally-sized JPEG derivative of image to a temp file.
         hres = IMAGE_DPI / DOCUMENT_DPI.to_f * doc.bounds.width
         vres = IMAGE_DPI / DOCUMENT_DPI.to_f * doc.bounds.height
-        @@logger.debug("IiifPdfGenerator.add_image(): "\
-              "document: #{doc.bounds.width}x#{doc.bounds.height}; "\
-              "image box: #{hres}x#{vres}")
+        LOGGER.debug('add_image(): [document: %dx%d] [image box: %dx%d]',
+            doc.bounds.width, doc.bounds.height, hres, vres)
 
         url = "#{binary.iiif_image_url}/full/!#{hres.to_i},#{vres.to_i}/0/default.jpg"
 
@@ -81,8 +79,8 @@ class IiifPdfGenerator
             binary.filename.split('.')[0...-1].join('.') + '.jpg')
 
         File.open(image_pathname, 'wb') do |file|
-          @@logger.info("IiifPdfGenerator.add_image(): "\
-              "downloading #{url} to #{image_pathname}")
+          LOGGER.info('add_image(): downloading %s to %s',
+                      url, image_pathname)
           ImageServer.instance.client.get_content(url) do |chunk|
             file.write(chunk)
           end
@@ -93,12 +91,11 @@ class IiifPdfGenerator
 
         return image_pathname
       else
-        @@logger.info("IiifPdfGenerator.add_image(): #{binary} will bog "\
-            "down the image server; skipping.")
+        LOGGER.info('add_image(): %s will bog down the image server; skipping.',
+                    binary)
       end
     else
-      @@logger.debug("IiifPdfGenerator.add_image(): #{binary} is not an "\
-          "image; skipping.")
+      LOGGER.debug('add_image(): %s is not an image; skipping.', binary)
     end
   end
 

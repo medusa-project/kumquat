@@ -5,9 +5,8 @@ require 'csv'
 #
 class ItemUpdater
 
+  LOGGER = CustomLogger.new(ItemUpdater)
   MAX_TSV_VALUE_LENGTH = 10000
-
-  @@logger = CustomLogger.instance
 
   ##
   # @param items [Enumerable<Item>]
@@ -50,8 +49,8 @@ class ItemUpdater
   def migrate_elements(items, source_element, dest_element, task = nil)
     ActiveRecord::Base.transaction do
       items.each_with_index do |item, index|
-        @@logger.info("ItemUpdater.migrate_mlements(): migrating "\
-            "#{source_element} to #{dest_element} in #{item}")
+        LOGGER.info('migrate_mlements(): migrating %s to %s in %s',
+                    source_element, dest_element, item)
         item.migrate_elements(source_element, dest_element)
 
         if task and index % 10 == 0
@@ -151,8 +150,8 @@ class ItemUpdater
       task.update(status_text: "Importing metadata for #{num_rows} items "\
       "from TSV (#{filename})")
     end
-    @@logger.info("ItemUpdater.update_from_tsv(): ingesting metadata for "\
-        "#{num_rows} items from #{pathname}...")
+    LOGGER.info('update_from_tsv(): ingesting metadata for %d items from %s...',
+                num_rows, pathname)
 
     num_ingested = 0
     ActiveRecord::Base.transaction do
@@ -165,13 +164,13 @@ class ItemUpdater
         struct = tsv_row.to_hash
         item = Item.find_by_repository_id(struct['uuid'])
         if item
-          @@logger.info("ItemUpdater.update_from_tsv(): "\
-              "#{struct['uuid']} #{progress}")
+          LOGGER.info('update_from_tsv(): %s %s',
+                      struct['uuid'], progress)
           item.update_from_tsv(struct)
           num_ingested += 1
         else
-          @@logger.warn("ItemUpdater.update_from_tsv(): "\
-              "does not exist: #{struct['uuid']} #{progress}")
+          LOGGER.warn('update_from_tsv(): does not exist: %s %s',
+                      struct['uuid'], progress)
         end
 
         if task and row_num % 10 == 0

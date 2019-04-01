@@ -3,7 +3,7 @@
 #
 class IiifImageConverter
 
-  @@logger = CustomLogger.instance
+  LOGGER = CustomLogger.new(IiifImageConverter)
 
   ##
   # Converts a single image binary to the given format and writes it as a file
@@ -21,8 +21,8 @@ class IiifImageConverter
       # The binary is already a JPEG, so just download it.
       new_pathname = directory + '/' + binary.object_key
 
-      @@logger.debug("ImageConverter.convert_binary(): downloading "\
-          "#{binary.object_key} to #{new_pathname}")
+      LOGGER.debug('convert_binary(): downloading %s to %s',
+                     binary.object_key, new_pathname)
 
       FileUtils.mkdir_p(File.dirname(new_pathname))
 
@@ -42,23 +42,22 @@ class IiifImageConverter
         url = binary.iiif_image_url + '/full/full/0/default.' + format +
             '?cache=false'
 
-        @@logger.debug("Creating #{new_pathname}")
+        LOGGER.debug('Creating %s', new_pathname)
         FileUtils.mkdir_p(File.dirname(new_pathname))
 
         File.open(new_pathname, 'wb') do |file|
-          @@logger.info("Downloading #{url} to #{new_pathname}")
+          LOGGER.info('Downloading %s to %s', url, new_pathname)
           ImageServer.instance.client.get_content(url) do |chunk|
             file.write(chunk)
           end
         end
         return new_pathname
       else
-        @@logger.info("ImageConverter.convert_binary(): #{binary} will bog "\
-            "down the image server; skipping.")
+        LOGGER.info('convert_binary(): %s will bog down the image server; skipping.',
+                    binary)
       end
     else
-      @@logger.debug("ImageConverter.convert_binary(): #{binary} is not an "\
-          "image; skipping.")
+      LOGGER.debug('convert_binary(): %s is not an image; skipping.', binary)
     end
   end
 

@@ -6,7 +6,7 @@
 #
 class MedusaFreeFormIngester < MedusaAbstractIngester
 
-  @@logger = CustomLogger.instance
+  LOGGER = CustomLogger.new(MedusaFreeFormIngester)
 
   ##
   # @param item_id [String]
@@ -75,8 +75,8 @@ class MedusaFreeFormIngester < MedusaAbstractIngester
 
     # Compile a list of all item UUIDs currently in the Medusa file group.
     medusa_items = items_in(collection.effective_medusa_cfs_directory)
-    @@logger.debug("MedusaFreeFormIngester.delete_missing_items(): "\
-        "#{medusa_items.length} items in CFS directory")
+    LOGGER.debug('delete_missing_items(): %d items in CFS directory',
+                 medusa_items.length)
 
     # For each DLS item in the collection, if it's no longer contained in the
     # file group, delete it.
@@ -87,8 +87,7 @@ class MedusaFreeFormIngester < MedusaAbstractIngester
     ActiveRecord::Base.transaction do
       items.each_with_index do |item, index|
         unless medusa_items.include?(item.repository_id)
-          @@logger.info("MedusaFreeFormIngester.delete_missing_items(): deleting "\
-            "#{item.repository_id}")
+          LOGGER.info('delete_missing_items(): deleting %s', item.repository_id)
           item.destroy!
           stats[:num_deleted] += 1
         end
@@ -130,8 +129,8 @@ class MedusaFreeFormIngester < MedusaAbstractIngester
         begin
           ImageServer.instance.purge_item_images_from_cache(item)
         rescue => e
-          @@logger.error("MedusaFreeFormIngester.recreate_binaries(): failed to "\
-              "purge item from image server cache: #{e}")
+          LOGGER.error('recreate_binaries(): failed to purge item from '\
+                       'image server cache: %s', e)
         end
       end
     end
@@ -172,12 +171,10 @@ class MedusaFreeFormIngester < MedusaAbstractIngester
     cfs_dir.directories.each do |dir|
       item = Item.find_by_repository_id(dir.uuid)
       if item
-        @@logger.info("MedusaFreeFormIngester.create_items_in_tree(): "\
-              "skipping item #{dir.uuid}")
+        LOGGER.info('create_items_in_tree(): skipping item %s', dir.uuid)
         status[:num_skipped] += 1
       else
-        @@logger.info("MedusaFreeFormIngester.create_items_in_tree(): "\
-              "creating item #{dir.uuid}")
+        LOGGER.info('create_items_in_tree(): creating item %s', dir.uuid)
         item = Item.new(repository_id: dir.uuid,
                         parent_repository_id: (cfs_dir.uuid != top_cfs_dir.uuid) ? cfs_dir.uuid : nil,
                         collection_repository_id: collection.repository_id,
@@ -199,13 +196,11 @@ class MedusaFreeFormIngester < MedusaAbstractIngester
     cfs_dir.files.each do |file|
       item = Item.find_by_repository_id(file.uuid)
       if item
-        @@logger.info("MedusaFreeFormIngester.create_items_in_tree(): "\
-                "skipping item #{file.uuid}")
+        LOGGER.info('create_items_in_tree(): skipping item %s', file.uuid)
         status[:num_skipped] += 1
         next
       else
-        @@logger.info("MedusaFreeFormIngester.create_items_in_tree(): "\
-                "creating item #{file.uuid}")
+        LOGGER.info('create_items_in_tree(): creating item %s', file.uuid)
         item = Item.new(repository_id: file.uuid,
                         parent_repository_id: (cfs_dir.uuid != top_cfs_dir.uuid) ? cfs_dir.uuid : nil,
                         collection_repository_id: collection.repository_id,
@@ -286,8 +281,8 @@ class MedusaFreeFormIngester < MedusaAbstractIngester
       num_walked += 1
       item = Item.find_by_repository_id(file.uuid)
       if item
-        @@logger.info("MedusaFreeFormIngester.recreate_binaries_in_tree(): "\
-                            "updating binaries for item: #{file.uuid}")
+        LOGGER.info('recreate_binaries_in_tree(): updating binaries for item: %s',
+                    file.uuid)
         item.binaries.destroy_all
         bs = file.to_binary(Binary::MasterType::ACCESS)
         bs.item = item

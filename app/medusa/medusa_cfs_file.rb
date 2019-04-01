@@ -6,6 +6,8 @@
 #
 class MedusaCfsFile < ApplicationRecord
 
+  LOGGER = CustomLogger.new(MedusaCfsFile)
+
   ##
   # @param uuid [String] Medusa UUID
   # @return [Boolean]
@@ -32,7 +34,7 @@ class MedusaCfsFile < ApplicationRecord
         file.load_from_medusa
         file.save!
       rescue IOError => e
-        CustomLogger.instance.warn("MedusaCfsFile.with_uuid(): #{e}")
+        LOGGER.warn('with_uuid(): %s', e)
       end
     end
     file
@@ -58,7 +60,7 @@ class MedusaCfsFile < ApplicationRecord
     response = client.get(self.url + '.json')
 
     if response.status < 300
-      CustomLogger.instance.debug('MedusaCfsFile.load_from_medusa(): loading ' + self.url)
+      LOGGER.debug('load_from_medusa(): %s', self.url)
       struct = JSON.parse(response.body)
       self.media_type = struct['content_type']
       self.repository_relative_pathname = "/#{struct['relative_pathname']}"

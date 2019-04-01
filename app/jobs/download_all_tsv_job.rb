@@ -1,7 +1,8 @@
 class DownloadAllTsvJob < Job
 
+  LOGGER          = CustomLogger.new(DownloadAllTsvJob)
   DESTINATION_DIR = Download::DOWNLOADS_DIRECTORY
-  QUEUE = Job::Queue::ADMIN
+  QUEUE           = Job::Queue::ADMIN
 
   queue_as QUEUE
 
@@ -21,9 +22,9 @@ class DownloadAllTsvJob < Job
         tsv_filename = "#{CGI::escape(col.title)}.tsv"
         tsv_file = File.join(tmpdir, tsv_filename)
 
-        CustomLogger.instance.info(
-            "DownloadAllTsvJob.perform(): generating #{tsv_file} "\
-            "(#{(self.task.percent_complete * 100).round(2)}%)")
+        LOGGER.info("perform(): generating %s (%.2f%%)",
+                      tsv_file,
+                      self.task.percent_complete * 100)
         File.open(tsv_file, 'w') do |file|
           file.write(ItemTsvExporter.new.items_in_collection(col))
         end
@@ -39,8 +40,7 @@ class DownloadAllTsvJob < Job
         zip_filename = "tsv-#{Time.now.to_formatted_s(:number)}.zip"
         zip_pathname = File.join(DESTINATION_DIR, zip_filename)
 
-        CustomLogger.instance.info("DownloadAllTsvJob.perform(): "\
-          "creating zip: #{zip_pathname}")
+        LOGGER.info('perform(): creating zip: %s', zip_pathname)
 
         # -j: don't record directory names
         # -r: recurse into directories

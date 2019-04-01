@@ -1,5 +1,6 @@
 class DownloadTsvJob < Job
 
+  LOGGER = CustomLogger.new(DownloadTsvJob)
   QUEUE = Job::Queue::ADMIN
 
   queue_as QUEUE
@@ -23,8 +24,7 @@ class DownloadTsvJob < Job
       tsv_filename = "#{CGI::escape(collection.title)}-#{Time.now.to_formatted_s(:number)}.tsv"
       tsv_pathname = File.join(tmpdir, tsv_filename)
 
-      CustomLogger.instance.info(
-          "DownloadTsvJob.perform(): generating #{tsv_pathname}")
+      LOGGER.info('perform(): generating %s', tsv_pathname)
 
       exporter = ItemTsvExporter.new
       File.open(tsv_pathname, 'w') do |file|

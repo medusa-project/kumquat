@@ -1,5 +1,7 @@
 class DownloadsController < ApplicationController
 
+  LOGGER = CustomLogger.new(DownloadsController)
+
   layout 'download'
 
   ##
@@ -14,9 +16,8 @@ class DownloadsController < ApplicationController
     elsif File.exists?(download.pathname)
       send_file(download.pathname)
     else
-      CustomLogger.instance.error("DownloadsController.file(): "\
-          "Download #{download.id}: "\
-          "file does not exist: #{download.pathname}")
+      LOGGER.error('file(): download %s: file does not exist: %s',
+                     download.id, download.pathname)
       render plain: "File does not exist for download #{download.key}.",
              status: :not_found
     end

@@ -85,6 +85,8 @@ class Binary < ApplicationRecord
     end
   end
 
+  LOGGER = CustomLogger.new(Binary)
+
   # touch: true means when the instance is saved, the owning item's updated_at
   # property will be updated.
   belongs_to :item, inverse_of: :binaries, touch: true
@@ -427,6 +429,7 @@ class Binary < ApplicationRecord
   #
   def read_duration
     if is_audio? or is_video?
+      tempfile = nil
       begin
         # Download the image to a temp file.
         tempfile = Tempfile.new('image')
@@ -439,13 +442,13 @@ class Binary < ApplicationRecord
           begin
             self.duration = TimeUtil.hms_to_seconds(result[0].gsub('Duration: ', ''))
           rescue ArgumentError => e
-            CustomLogger.instance.warn("Binary.read_duration(): #{e}")
+            LOGGER.warn('read_duration(): %s', e)
           end
         end
       rescue => e
         raise IOError, e
       ensure
-        tempfile.unlink
+        tempfile&.unlink
       end
     end
   end
@@ -558,7 +561,7 @@ class Binary < ApplicationRecord
         end
       end
     rescue JSON::ParserError => e
-      CustomLogger.instance.warn("Binary.read_metadata(): #{e}")
+      LOGGER.warn('read_metadata(): %s', e)
     end
   end
 

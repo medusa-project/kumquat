@@ -3,6 +3,8 @@ module ApplicationHelper
   CARD_IMAGE_SIZE = 512
   MAX_PAGINATION_LINKS = 9
 
+  LOGGER = CustomLogger.new(ApplicationHelper)
+
   ##
   # Adds a full-window AJAX shade element to the DOM. This will be initially
   # hidden via CSS, and can be toggled on and off by
@@ -86,7 +88,7 @@ module ApplicationHelper
         # raise an error.
         bin = entity.effective_representative_image_binary
       rescue => e
-        CustomLogger.instance.warn("entities_as_cards(): #{e} (#{entity})")
+        LOGGER.warn('entities_as_cards(): %s (%s)', e, entity)
       end
 
       if bin&.iiif_safe?

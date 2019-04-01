@@ -9,6 +9,8 @@ class ApplicationController < ActionController::Base
   before_action :setup
   after_action :flash_in_response_headers, :log_execution_time
 
+  LOGGER = CustomLogger.new(ApplicationController)
+
   def setup
     @start_time = Time.now
   end
@@ -28,7 +30,7 @@ class ApplicationController < ActionController::Base
   # @param e [Exception, String]
   #
   def handle_error(e)
-    CustomLogger.instance.warn(e)
+    LOGGER.warn(e)
     response.headers['X-Kumquat-Result'] = 'error'
     flash['error'] = "#{e}"
   end
@@ -83,8 +85,7 @@ class ApplicationController < ActionController::Base
                                                   start_offset, end_offset)
     end
 
-    CustomLogger.instance.debug(
-        "ApplicationController.send_binary(): requesting #{s3_request}")
+    LOGGER.debug('send_binary(): requesting %s', s3_request)
 
     aws_response = MedusaS3Client.instance.get_object(s3_request)
 
@@ -104,7 +105,7 @@ class ApplicationController < ActionController::Base
     end
   rescue ActionController::Live::ClientDisconnected => e
     # Rescue this or else Rails will log it at error level.
-    CustomLogger.instance.debug("ApplicationController.send_binary(): #{e}")
+    LOGGER.debug('send_binary(): %s', e)
   ensure
     response.stream.close
   end
@@ -146,8 +147,10 @@ class ApplicationController < ActionController::Base
   end
 
   def log_execution_time
-    CustomLogger.instance.info("#{controller_name.capitalize}Controller.#{action_name}(): "\
-        "executed in #{(Time.now - @start_time) * 1000}ms")
+    LOGGER.info('%sController.%s(): executed in %d ms',
+                controller_name.capitalize,
+                action_name,
+                (Time.now - @start_time) * 1000)
   end
 
 end

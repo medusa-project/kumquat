@@ -5,6 +5,8 @@ class ElasticsearchClient
 
   include Singleton
 
+  LOGGER = CustomLogger.new(ElasticsearchClient)
+
   # Field values should be truncated to this length.
   # (32766 total / 3 bytes per character)
   MAX_KEYWORD_FIELD_LENGTH = 10922
@@ -14,7 +16,6 @@ class ElasticsearchClient
   MAX_RESULT_WINDOW = 1000000000
 
   @@http_client = HTTPClient.new
-  @@logger = CustomLogger.instance
 
   ##
   # @param name [String] Index name.
@@ -23,14 +24,14 @@ class ElasticsearchClient
   # @raises [IOError]
   #
   def create_index(name, schema)
-    @@logger.info("ElasticsearchClient.create_index(): creating #{name}...")
+    LOGGER.info('create_index(): creating %s...', name)
     index_url = sprintf('%s/%s',
                         Configuration.instance.elasticsearch_endpoint, name)
     response = @@http_client.put(index_url,
                                  JSON.generate(schema),
                                  'Content-Type': 'application/json')
     if response.status == 200
-      @@logger.info("ElasticsearchClient.create_index(): created #{name}")
+      LOGGER.info('create_index(): created %s', name)
     else
       unless response.body.include?('already_exists')
         raise IOError, "Got #{response.status} for #{name}:\n"\
@@ -43,8 +44,7 @@ class ElasticsearchClient
                                  '{ "index" : { "max_result_window" : 1000000 } }',
                                  'Content-Type': 'application/json')
     if response.status == 200
-      @@logger.info("ElasticsearchClient.create_index(): "\
-          "updated max result window for #{name}")
+      LOGGER.info('create_index(): updated max result window for %s', name)
     else
       unless response.body.include?('already_exists')
         raise IOError, "Got #{response.status}:\n"\
@@ -60,8 +60,8 @@ class ElasticsearchClient
   # @raises [IOError]
   #
   def delete_all_documents(index_name, type)
-    @@logger.info("ElasticsearchClient.delete_all_documents(): deleting all "\
-        "documents in index #{index_name}/#{type}...")
+    LOGGER.info('delete_all_documents(): deleting all documents in index %s/%s...',
+                index_name, type)
 
     body = {
         query: {
@@ -77,8 +77,8 @@ class ElasticsearchClient
                                   'Content-Type': 'application/json')
 
     if response.status == 200
-      @@logger.info("ElasticsearchClient.delete_all_documents(): all "\
-          "documents deleted from #{index_name}")
+      LOGGER.info('delete_all_documents(): all documents deleted from %s',
+                  index_name)
     else
       raise IOError, "Got #{response.status} for POST #{url}\n#{response.body}"
     end
@@ -92,7 +92,7 @@ class ElasticsearchClient
   def delete_by_query(index, query)
     url = sprintf('%s/%s/_delete_by_query?pretty',
                   Configuration.instance.elasticsearch_endpoint, index)
-    @@logger.debug("ElasticsearchClient.delete_by_query(): #{url}\n    #{query}")
+    LOGGER.debug("delete_by_query(): %s\n    %s", url, query)
     response = @@http_client.post(url, query,
                                   'Content-Type': 'application/json')
     if response.status != 200
@@ -107,11 +107,11 @@ class ElasticsearchClient
   # @raises [IOError]
   #
   def delete_index(name)
-    @@logger.info("ElasticsearchClient.delete_index(): deleting #{name}...")
+    LOGGER.info('delete_index(): deleting %s...', name)
     response = @@http_client.delete(Configuration.instance.elasticsearch_endpoint +
                                         '/' + name)
     if response.status == 200
-      @@logger.info("ElasticsearchClient.delete_index(): #{name} deleted")
+      LOGGER.info('delete_index(): %s deleted', name)
     else
       raise IOError, "Got #{response.status} for #{name}"
     end
@@ -177,10 +177,10 @@ class ElasticsearchClient
 
     response = @@http_client.post(url, query, headers)
 
-    CustomLogger.instance.debug(
-        "ElasticsearchClient.query(): URL: #{url}\n"\
-        "  Request: #{query}\n"\
-        "  Response: #{response.body}")
+    LOGGER.debug("query(): URL: %s\n"\
+                 "  Request: %s\n"\
+                 "  Response: %s",
+                 url, query, response.body)
     response.body
   end
 

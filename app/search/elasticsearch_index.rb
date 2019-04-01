@@ -31,6 +31,8 @@
 #
 class ElasticsearchIndex
 
+  LOGGER = CustomLogger.new(ElasticsearchIndex)
+
   # Prefixed to all index names used by the application.
   APPLICATION_INDEX_PREFIX  = 'dls'
   PUBLICLY_ACCESSIBLE_FIELD = 'b_publicly_accessible'
@@ -42,8 +44,6 @@ class ElasticsearchIndex
   #
   SCHEMAS = YAML.load_file(File.join(Rails.root, 'app', 'search',
                                      'index_schemas.yml'))
-
-  @@logger = CustomLogger.instance
 
   attr_accessor :name
   attr_accessor :schema
@@ -87,17 +87,14 @@ class ElasticsearchIndex
     latest_version = latest_index_version
 
     if current_version < latest_version
-      @@logger.debug("ElasticsearchIndex.migrate_to_latest(): "\
-        "current version: #{current_version}; "\
-        "latest version: #{latest_version}")
+      LOGGER.debug('migrate_to_latest(): [current version: %d] [latest version: %d]',
+                   current_version, latest_version)
 
       Option.set(Option::Keys::CURRENT_INDEX_VERSION, latest_version)
 
-      @@logger.info("ElasticsearchIndex.migrate_to_latest(): "\
-        "now using version #{latest_version}")
+      LOGGER.info('migrate_to_latest(): now using version %d', latest_version)
     else
-      @@logger.info("ElasticsearchIndex.migrate_to_latest(): "\
-        "already on the latest version. Nothing to do.")
+      LOGGER.info('migrate_to_latest(): already on the latest version. Nothing to do.')
     end
   end
 
@@ -111,14 +108,12 @@ class ElasticsearchIndex
       raise 'Can\'t rollback past version 0'
     end
 
-    @@logger.info("ElasticsearchIndex.rollback_to_previous(): "\
-        "current version: #{current_version}; "\
-        "next version: #{next_version}")
+    LOGGER.info('rollback_to_previous(): [current version: %d] [next version: %d]',
+                current_version, next_version)
 
     Option.set(Option::Keys::CURRENT_INDEX_VERSION, next_version)
 
-    @@logger.info("ElasticsearchIndex.rollback_to_previous(): "\
-        "new version: #{next_version}")
+    LOGGER.info('rollback_to_previous(): new version: %d', next_version)
   end
 
   ##

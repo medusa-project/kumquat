@@ -16,7 +16,7 @@
 #
 class MedusaCompoundObjectIngester < MedusaAbstractIngester
 
-  @@logger = CustomLogger.instance
+  LOGGER = CustomLogger.new(MedusaCompoundObjectIngester)
 
   ##
   # @param item_id [String]
@@ -67,12 +67,10 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
         item = Item.find_by_repository_id(top_item_dir.uuid)
         if item
           object_exists = true
-          @@logger.info("MedusaCompoundObjectIngester.create_items(): "\
-              "skipping item #{top_item_dir.uuid}")
+          LOGGER.info('create_items(): skipping item %s', top_item_dir.uuid)
           stats[:num_skipped] += 1
         else
-          @@logger.info("MedusaCompoundObjectIngester.create_items(): "\
-              "creating item #{top_item_dir.uuid}")
+          LOGGER.info('create_items(): creating item %s', top_item_dir.uuid)
           item = Item.new(repository_id: top_item_dir.uuid,
                           collection_repository_id: collection.repository_id)
           # Assign a title of the directory name.
@@ -92,12 +90,12 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
                 # Find or create the child item.
                 child = Item.find_by_repository_id(pres_file.uuid)
                 if child
-                  @@logger.info("MedusaCompoundObjectIngester.create_items(): "\
-                      "skipping child item #{pres_file.uuid}")
+                  LOGGER.info('create_items(): skipping child item %s',
+                              pres_file.uuid)
                   stats[:num_skipped] += 1
                 else
-                  @@logger.info("MedusaCompoundObjectIngester.create_items(): "\
-                      "creating child item #{pres_file.uuid}")
+                  LOGGER.info('create_items(): creating child item %s',
+                              pres_file.uuid)
                   child = Item.new(repository_id: pres_file.uuid,
                                    collection_repository_id: collection.repository_id,
                                    parent_repository_id: item.repository_id)
@@ -126,7 +124,7 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
                   begin
                     child.binaries << access_master_binary(top_item_dir, pres_file)
                   rescue IllegalContentError => e
-                    @@logger.warn("MedusaCompoundObjectIngester.create_items(): #{e}")
+                    LOGGER.warn('create_items(): %s', e)
                   end
 
                   child.update_from_embedded_metadata(options) if
@@ -147,19 +145,18 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
               begin
                 item.binaries << access_master_binary(top_item_dir, pres_file)
               rescue IllegalContentError => e
-                @@logger.warn("MedusaCompoundObjectIngester.create_items(): #{e}")
+                LOGGER.warn('create_items(): %s', e)
               end
 
               item.update_from_embedded_metadata(options) if
                   options[:extract_metadata]
             else
-              msg = "Preservation directory #{pres_dir.uuid} is empty."
-              @@logger.warn("MedusaCompoundObjectIngester.create_items(): #{msg}")
+              LOGGER.warn('create_items(): preservation directory %s is empty.',
+                          pres_dir.uuid)
             end
           else
-            msg = "Directory #{top_item_dir.uuid} is missing a preservation "\
-                "directory."
-            @@logger.warn("MedusaCompoundObjectIngester.create_items(): #{msg}")
+            LOGGER.warn('create_items(): directory %s is missing a preservation directory.',
+                        top_item_dir.uuid)
           end
 
           supplementary_dir = top_item_dir.directories.
@@ -169,12 +166,12 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
               # Find or create the supplementary item.
               child = Item.find_by_repository_id(supp_file.uuid)
               if child
-                @@logger.info("MedusaCompoundObjectIngester.create_items(): "\
-                      "skipping supplementary item #{supp_file.uuid}")
+                LOGGER.info('create_items(): skipping supplementary item %s',
+                            supp_file.uuid)
                 stats[:num_skipped] += 1
               else
-                @@logger.info("MedusaCompoundObjectIngester.create_items(): "\
-                      "creating supplementary item #{supp_file.uuid}")
+                LOGGER.info('create_items(): creating supplementary item %s',
+                            supp_file.uuid)
                 child = Item.new(repository_id: supp_file.uuid,
                                  collection_repository_id: collection.repository_id,
                                  parent_repository_id: item.repository_id,
@@ -195,12 +192,12 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
               # Find or create the composite item.
               child = Item.find_by_repository_id(comp_file.uuid)
               if child
-                @@logger.info("MedusaCompoundObjectIngester.create_items(): "\
-                      "skipping composite item #{comp_file.uuid}")
+                LOGGER.info('create_items(): skipping composite item %s',
+                            comp_file.uuid)
                 stats[:num_skipped] += 1
               else
-                @@logger.info("MedusaCompoundObjectIngester.create_items(): "\
-                      "creating composite item #{comp_file.uuid}")
+                LOGGER.info('create_items(): creating composite item %s',
+                            comp_file.uuid)
                 child = Item.new(repository_id: comp_file.uuid,
                                  collection_repository_id: collection.repository_id,
                                  parent_repository_id: item.repository_id,
@@ -214,8 +211,8 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
             end
           end
         else
-          msg = "Directory #{top_item_dir.uuid} does not have any subdirectories."
-          @@logger.warn("MedusaCompoundObjectIngester.create_items(): #{msg}")
+          LOGGER.warn('create_items(): directory %s does not have any subdirectories.',
+                      top_item_dir.uuid)
         end
 
         item.save!
@@ -241,8 +238,8 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
 
     # Compile a list of all item UUIDs currently in the Medusa file group.
     medusa_items = items_in(collection.effective_medusa_cfs_directory)
-    @@logger.debug("MedusaCompoundObjectIngester.delete_missing_items(): "\
-        "#{medusa_items.length} items in CFS directory")
+    LOGGER.debug('delete_missing_items(): %d items in CFS directory',
+                 medusa_items.length)
 
     # For each DLS item in the collection, if it's no longer contained in the
     # file group, delete it.
@@ -253,8 +250,7 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
     ActiveRecord::Base.transaction do
       items.each_with_index do |item, index|
         unless medusa_items.include?(item.repository_id)
-          @@logger.info("MedusaCompoundObjectIngester.delete_missing_items(): "\
-            "deleting #{item.repository_id}")
+          LOGGER.info('delete_missing_items(): deleting %s', item.repository_id)
           item.destroy!
           stats[:num_deleted] += 1
         end
@@ -304,8 +300,8 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
                   # Find the child item.
                   child = Item.find_by_repository_id(pres_file.uuid)
                   if child
-                    @@logger.info("MedusaCompoundObjectIngester.recreate_binaries(): "\
-                        "updating child item #{pres_file.uuid}")
+                    LOGGER.info('recreate_binaries(): updating child item %s',
+                                pres_file.uuid)
 
                     child.binaries.destroy_all
 
@@ -322,16 +318,16 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
                       bs.save!
                       stats[:num_created] += 1
                     rescue IllegalContentError => e
-                      @@logger.warn("MedusaCompoundObjectIngester.recreate_binaries(): #{e}")
+                      LOGGER.warn('recreate_binaries(): %s', e)
                     end
                   else
-                    @@logger.warn("MedusaCompoundObjectIngester.recreate_binaries(): "\
-                        "skipping child item #{pres_file.uuid} (no item)")
+                    LOGGER.warn('recreate_binaries(): skipping child item %s (no item)',
+                                pres_file.uuid)
                   end
                 end
               elsif pres_dir.files.length == 1
-                @@logger.info("MedusaCompoundObjectIngester.recreate_binaries(): "\
-                      "updating item #{item.repository_id}")
+                LOGGER.info('recreate_binaries(): updating item %s',
+                            item.repository_id)
 
                 item.binaries.destroy_all
 
@@ -346,18 +342,17 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
                   item.binaries << access_master_binary(top_item_dir, pres_file)
                   stats[:num_created] += 1
                 rescue IllegalContentError => e
-                  @@logger.warn("MedusaCompoundObjectIngester.recreate_binaries(): #{e}")
+                  LOGGER.warn('recreate_binaries(): %s', e)
                 end
 
                 item.save!
               else
-                msg = "Preservation directory #{pres_dir.uuid} is empty."
-                @@logger.warn("MedusaCompoundObjectIngester.recreate_binaries(): #{msg}")
+                LOGGER.warn('recreate_binaries(): preservation directory %s is empty.',
+                            pres_dir.uuid)
               end
             else
-              msg = "Directory #{top_item_dir.uuid} is missing a preservation "\
-                  "directory."
-              @@logger.warn("MedusaCompoundObjectIngester.recreate_binaries(): #{msg}")
+              LOGGER.warn('recreate_binaries(): directory %s is missing a preservation directory.',
+                          top_item_dir.uuid)
             end
 
             # Update supplementary item binaries.
@@ -374,7 +369,7 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
                 else
                   msg = "Supplementary file #{supp_file.uuid} is missing an "\
                       "item counterpart."
-                  @@logger.warn("MedusaCompoundObjectIngester.recreate_binaries(): #{msg}")
+                  LOGGER.warn('recreate_binaries(): %s', msg)
                 end
               end
             end
@@ -391,19 +386,18 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
                   item.save!
                   stats[:num_created] += 1
                 else
-                  msg = "Composite file #{comp_file.uuid} is missing an "\
-                      "item counterpart."
-                  @@logger.warn("MedusaCompoundObjectIngester.recreate_binaries(): #{msg}")
+                  LOGGER.warn('recreate_binaries(): composite file %s is missing an item counterpart.',
+                              comp_file.uuid)
                 end
               end
             end
           else
-            msg = "Directory #{top_item_dir.uuid} does not have any subdirectories."
-            @@logger.warn("MedusaCompoundObjectIngester.recreate_binaries(): #{msg}")
+            LOGGER.warn('recreate_binaries(): directory %s does not have any subdirectories.',
+                        top_item_dir.uuid)
           end
         else
-          msg = "No item for directory: #{top_item_dir.uuid}"
-          @@logger.warn("MedusaCompoundObjectIngester.recreate_binaries(): #{msg}")
+          LOGGER.warn('recreate_binaries(): no item for directory: %s',
+                      top_item_dir.uuid)
         end
         task.update(percent_complete: index / num_directories.to_f) if task
       end
@@ -414,8 +408,8 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
         begin
           ImageServer.instance.purge_item_images_from_cache(item)
         rescue => e
-          @@logger.error("MedusaCompoundObjectIngester.recreate_binaries(): "\
-              "failed to purge item from image server cache: #{e}")
+          LOGGER.error('recreate_binaries(): failed to purge item from '\
+                       'image server cache: %s', e)
         end
       end
     end
@@ -444,18 +438,18 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
         else
           msg = "Preservation master file #{pres_master_file.uuid} has no "\
               "access master counterpart."
-          @@logger.warn("MedusaCompoundObjectIngester.access_master_binary(): #{msg}")
+          LOGGER.warn('access_master_binary(): %s', msg)
           raise IllegalContentError, msg
         end
       else
         msg = "Access master directory #{access_dir.uuid} has no files."
-        @@logger.warn("MedusaCompoundObjectIngester.access_master_binary(): #{msg}")
+        LOGGER.warn('access_master_binary(): %s', msg)
         raise IllegalContentError, msg
       end
     else
       msg = "Item directory #{item_cfs_dir.uuid} is missing an access "\
           "master subdirectory."
-      @@logger.warn("MedusaCompoundObjectIngester.access_master_binary(): #{msg}")
+      LOGGER.warn('access_master_binary(): %s', msg)
       raise IllegalContentError, msg
     end
   end
