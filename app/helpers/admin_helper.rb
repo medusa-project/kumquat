@@ -389,7 +389,7 @@ module AdminHelper
 
   def admin_item_set_view_breadcrumb(item_set)
     html = StringIO.new
-    html = '<ol class="breadcrumb">'
+    html << '<ol class="breadcrumb">'
     html <<   "<li>#{link_to 'Home', admin_root_path}</li>"
     html <<   "<li>#{link_to 'Collections', admin_collections_path}</li>"
     html <<   "<li>#{link_to item_set.collection.title, admin_collection_path(item_set.collection)}</li>"
@@ -413,7 +413,7 @@ module AdminHelper
 
   def admin_items_edit_view_breadcrumb(collection)
     html = StringIO.new
-    html = '<ol class="breadcrumb">'
+    html << '<ol class="breadcrumb">'
     html <<   "<li>#{link_to 'Home', admin_root_path}</li>"
     html <<   "<li>#{link_to 'Collections', admin_collections_path}</li>"
     html <<   "<li>#{link_to collection.title, admin_collection_path(collection)}</li>"
