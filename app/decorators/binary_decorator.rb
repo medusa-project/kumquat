@@ -21,6 +21,7 @@ class BinaryDecorator < Draper::Decorator
         content_uri: binary_url(object),
         item_uri: object.item ? item_url(object.item, format: :json) : nil,
         object_key: object.object_key,
+        object_uri: object.uri,
         media_type: object.media_type,
         master_type: object.human_readable_master_type,
         media_category: object.human_readable_media_category,
