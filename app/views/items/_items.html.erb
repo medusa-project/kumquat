@@ -7,7 +7,7 @@
     <%= entities_as_list(@items, @start,
                          show_collections: !@collection) %>
   </div>
-  <div class="pt-cards visible-xs hidden-sm">
+  <div class="dl-cards visible-xs hidden-sm">
     <%= entities_as_cards(@items) %>
   </div>
 
@@ -15,7 +15,7 @@
     <%= paginate_items(@count, @limit, @current_page) %>
   </div>
 <% else %>
-  <div class="pt-no-results">
+  <div class="dl-no-results">
     <%= no_results_help(params[:q], @suggestions) %>
   </div>
 <% end %>

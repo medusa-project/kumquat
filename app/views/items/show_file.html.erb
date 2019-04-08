@@ -11,22 +11,22 @@
     <div style="float:right">
       <% if supp_bin %>
         <a role="button" class="btn btn-default btn-sm" data-toggle="collapse"
-           href="#pt-binary-<%= supp_bin.id %>"
-           aria-expanded="false" aria-controls="pt-binary-<%= supp_bin.id %>">
+           href="#dl-binary-<%= supp_bin.id %>"
+           aria-expanded="false" aria-controls="dl-binary-<%= supp_bin.id %>">
           <i class="fa fa-plus-square-o"></i>
           Supplementary <%= supp_bin.human_readable_media_category %></a>
       <% end %>
       <% if @item.three_d_item %>
         <a role="button" class="btn btn-default btn-sm" data-toggle="collapse"
-           href="#pt-3d-viewer-container"
-           aria-expanded="false" aria-controls="pt-3d-viewer-container">
+           href="#dl-3d-viewer-container"
+           aria-expanded="false" aria-controls="dl-3d-viewer-container">
           <i class="fa fa-plus-square-o"></i> 3D Model</a>
       <% end %>
     </div>
   </div>
 
   <% if supp_bin %>
-    <div id="pt-binary-<%= supp_bin.id %>" class="collapse">
+    <div id="dl-binary-<%= supp_bin.id %>" class="collapse">
       <div class="row">
         <div class="col-sm-9">
           <%= viewer_for_binary(supp_bin) %>
@@ -38,14 +38,14 @@
     </div>
   <% end %>
   <% if @item.three_d_item %>
-    <div id="pt-3d-viewer-container" class="collapse">
+    <div id="dl-3d-viewer-container" class="collapse">
       <%= viewer_for_item(@item.three_d_item) %>
     </div>
   <% end %>
 <% end %>
 
 <section>
-  <div class="pt-viewer">
+  <div class="dl-viewer">
     <%= viewer_for_item(@item) %>
   </div>
 
@@ -55,7 +55,7 @@
         <%= render partial: 'permalink_section', locals: { item: @item } %>
       </div>
       <div class="col-sm-2">
-        <a href="#pt-download-section" class="btn btn-lg btn-success">
+        <a href="#dl-download-section" class="btn btn-lg btn-success">
           <i class="fa fa-download"></i> Download</a>
       </div>
     </div>

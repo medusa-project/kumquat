@@ -1,4 +1,4 @@
-<h1 class="pt-title"><%= @task.status_text %></h1>
+<h1 class="dl-title"><%= @task.status_text %></h1>
 
 <dl>
   <dt>Task ID</dt>
@@ -8,7 +8,7 @@
   <dt>Job Queue</dt>
   <dd><var><%= @task.queue %></var></dd>
   <dt>Status</dt>
-  <dd class="pt-status">
+  <dd class="dl-status">
     <p>
       <span class="label <%= bootstrap_class_for_task_status(@task.status) %>">
         <%= Task::Status::to_s(@task.status) %>
@@ -16,13 +16,13 @@
     </p>
   </dd>
   <dt>Progress</dt>
-  <dd class="pt-progress">
+  <dd class="dl-progress">
     <%= (@task.indeterminate and @task.percent_complete < 1) ?
             'Indeterminate' :
             (@task.percent_complete * 100).round(1).to_s + '%' %>
   </dd>
   <dt>Started</dt>
-  <dd class="pt-started">
+  <dd class="dl-started">
     <%= @task.started_at ? local_time_ago(@task.started_at) : '' %>
   </dd>
   <% if @task.completed_at %>

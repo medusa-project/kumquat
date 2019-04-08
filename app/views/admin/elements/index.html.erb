@@ -10,12 +10,12 @@
 <div class="btn-group pull-right">
   <!-- Add Element button -->
   <button type="button" class="btn btn-default" data-toggle="modal"
-          data-target="#pt-add-element-modal">
+          data-target="#dl-add-element-modal">
     <span class="fa fa-plus"></span> Add Element
   </button>
   <!-- Import button -->
   <button type="button" class="btn btn-default" data-toggle="modal"
-          data-target="#pt-import-modal">
+          data-target="#dl-import-modal">
     <i class="fa fa-upload"></i> Import&hellip;
   </button>
   <!-- Export button -->
@@ -41,8 +41,8 @@
     <% @elements.each do |row| %>
       <tr>
         <td>
-          <button type="button" class="btn btn-default btn-xs pt-edit-element"
-                  data-toggle="modal" data-target="#pt-edit-element-modal"
+          <button type="button" class="btn btn-default btn-xs dl-edit-element"
+                  data-toggle="modal" data-target="#dl-edit-element-modal"
                   data-element-id="<%= row['name'] %>">
             <i class="fa fa-pencil"></i> Edit
           </button>
@@ -71,15 +71,15 @@
 </table>
 
 <!-- Add-element modal -->
-<div class="modal fade" id="pt-add-element-modal" tabindex="-1" role="dialog"
-     aria-labelledby="pt-add-element-modal-label">
+<div class="modal fade" id="dl-add-element-modal" tabindex="-1" role="dialog"
+     aria-labelledby="dl-add-element-modal-label">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
-        <h4 class="modal-title" id="pt-add-element-modal-label">Add Element</h4>
+        <h4 class="modal-title" id="dl-add-element-modal-label">Add Element</h4>
       </div>
       <div class="modal-body">
         <%= render partial: 'form', locals: { element: @new_element,
@@ -90,15 +90,15 @@
 </div>
 
 <!-- Edit-element modal -->
-<div class="modal fade" id="pt-edit-element-modal" tabindex="-1" role="dialog"
-     aria-labelledby="pt-edit-element-modal-label">
+<div class="modal fade" id="dl-edit-element-modal" tabindex="-1" role="dialog"
+     aria-labelledby="dl-edit-element-modal-label">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
-        <h4 class="modal-title" id="pt-edit-element-modal-label">Edit Element</h4>
+        <h4 class="modal-title" id="dl-edit-element-modal-label">Edit Element</h4>
       </div>
       <div class="modal-body">
         <% # will be populated via XHR %>
@@ -108,8 +108,8 @@
 </div>
 
 <!-- Import-elements modal -->
-<div class="modal fade" id="pt-import-modal" tabindex="-1" role="dialog"
-     aria-labelledby="pt-import-modal-label">
+<div class="modal fade" id="dl-import-modal" tabindex="-1" role="dialog"
+     aria-labelledby="dl-import-modal-label">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <%= form_tag(admin_elements_import_path(format: :json),
@@ -117,7 +117,7 @@
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title" id="pt-import-modal-label">Import Elements</h4>
+          <h4 class="modal-title" id="dl-import-modal-label">Import Elements</h4>
         </div>
         <div class="modal-body">
           <%= file_field_tag('elements') %>
@@ -128,10 +128,10 @@
             <label>
               <%= radio_button_tag('import_mode',
                                    Admin::ElementsController::ImportMode::MERGE, true,
-                                   'aria-described-by' => 'pt-merge-help') %>
+                                   'aria-described-by' => 'dl-merge-help') %>
               Merge
             </label>
-            <span id="pt-merge-help" class="help-block">
+            <span id="dl-merge-help" class="help-block">
               Create any new elements, and update existing elements, but don't
               delete anything.
             </span>
@@ -141,10 +141,10 @@
             <label>
               <%= radio_button_tag('import_mode',
                                    Admin::ElementsController::ImportMode::REPLACE, false,
-                                   'aria-described-by' => 'pt-only-create-help') %>
+                                   'aria-described-by' => 'dl-only-create-help') %>
               Replace
             </label>
-            <span id="pt-only-create-help" class="help-block">
+            <span id="dl-only-create-help" class="help-block">
               Replace the current set of elements with the ones being imported.
             </span>
           </div>

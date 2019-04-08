@@ -1,14 +1,14 @@
 <% # requires the following locals: item %>
 
-<div class="modal fade" id="pt-cite-modal" tabindex="-1" role="dialog"
-     aria-labelledby="pt-cite-modal-label" data-backdrop="false">
+<div class="modal fade" id="dl-cite-modal" tabindex="-1" role="dialog"
+     aria-labelledby="dl-cite-modal-label" data-backdrop="false">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
-        <h3 class="modal-title" id="pt-cite-modal-label">Cite This Item</h3>
+        <h3 class="modal-title" id="dl-cite-modal-label">Cite This Item</h3>
       </div>
       <div class="modal-body">
         <%= render partial: 'permalink_section', locals: { item: item } %>
@@ -16,14 +16,14 @@
         <hr>
 
         <div data-item-id="<%= item.repository_id %>">
-          <%= hidden_field_tag('pt-citation-author', item.element(:creator)&.value) %>
-          <%= hidden_field_tag('pt-citation-date-created', item.created_at.iso8601) %>
-          <%= hidden_field_tag('pt-citation-source',
+          <%= hidden_field_tag('dl-citation-author', item.element(:creator)&.value) %>
+          <%= hidden_field_tag('dl-citation-date-created', item.created_at.iso8601) %>
+          <%= hidden_field_tag('dl-citation-source',
                                Option::string(Option::Keys::ORGANIZATION_NAME)) %>
-          <%= hidden_field_tag('pt-citation-title', item.title) %>
-          <%= hidden_field_tag('pt-citation-url', item_url(item)) %>
+          <%= hidden_field_tag('dl-citation-title', item.title) %>
+          <%= hidden_field_tag('dl-citation-url', item_url(item)) %>
 
-          <select name="pt-citation-format" class="form-control">
+          <select name="dl-citation-format" class="form-control">
             <option>APA</option>
             <option>Chicago</option>
             <option>MLA</option>
@@ -31,7 +31,7 @@
 
           <div class="panel panel-default">
             <div class="panel-body">
-              <p class="pt-citation"></p>
+              <p class="dl-citation"></p>
             </div>
           </div>
         </div>

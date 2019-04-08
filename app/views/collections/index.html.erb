@@ -2,12 +2,12 @@
 <% provide :body_id, 'collections_index' %>
 <% provide :active_nav, 'collections' %>
 
-<h1 id="pt-page-title">Collections
-  <span id="pt-count" class="badge"><%= @count %></span></h1>
+<h1 id="dl-page-title">Collections
+  <span id="dl-count" class="badge"><%= @count %></span></h1>
 
-<%= form_tag(@permitted_params.reject{ |k, v| k == 'start' }, method: :get, class: 'pt-filter') do %>
+<%= form_tag(@permitted_params.reject{ |k, v| k == 'start' }, method: :get, class: 'dl-filter') do %>
   <div class="row">
-    <div class="hidden-xs col-sm-3 col-lg-2 pt-facets pt-panel-facets">
+    <div class="hidden-xs col-sm-3 col-lg-2 dl-facets dl-panel-facets">
       <%= render partial: 'facets' %>
     </div>
     <div class="col-xs-12 col-sm-9 col-lg-10">
@@ -26,12 +26,12 @@
             </button>
             <ul class="dropdown-menu dropdown-menu-right view-dropdown">
               <li>
-                <%= link_to @permitted_params.merge(format: :atom), id: 'pt-view-as-atom' do %>
+                <%= link_to @permitted_params.merge(format: :atom), id: 'dl-view-as-atom' do %>
                   <i class="fa fa-rss"></i>&nbsp;&nbsp;Atom
                 <% end %>
               </li>
               <li>
-                <%= link_to @permitted_params.merge(format: :json), id: 'pt-view-as-json' do %>
+                <%= link_to @permitted_params.merge(format: :json), id: 'dl-view-as-json' do %>
                   <i class="fa fa-code"></i>&nbsp;JSON
                 <% end %>
               </li>
@@ -51,7 +51,7 @@
         </div>
       </div>
 
-      <div id="pt-collections" class="pt-cards">
+      <div id="dl-collections" class="dl-cards">
         <%= render partial: 'collections' %>
       </div>
     </div>

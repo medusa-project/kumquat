@@ -4,15 +4,15 @@
    # context [Symbol] :new or :edit
 %>
 
-<div class="modal fade" id="pt-related-agent-modal" tabindex="-1" role="dialog"
-     aria-labelledby="pt-related-agent-modal-label">
+<div class="modal fade" id="dl-related-agent-modal" tabindex="-1" role="dialog"
+     aria-labelledby="dl-related-agent-modal-label">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
-        <h4 class="modal-title" id="pt-related-agent-modal-label">Add Referring Relationship</h4>
+        <h4 class="modal-title" id="dl-related-agent-modal-label">Add Referring Relationship</h4>
       </div>
       <div class="modal-body">
         <%= render partial: 'admin/agent_relations/related_agent_form', locals: {

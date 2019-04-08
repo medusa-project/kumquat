@@ -11,7 +11,7 @@
     <%= paginate(@count, @limit, @current_page, @permitted_params, true) %>
   </div>
 <% else %>
-  <div class="pt-no-results">
+  <div class="dl-no-results">
     <%= no_results_help(params[:q], @suggestions) %>
   </div>
 <% end %>

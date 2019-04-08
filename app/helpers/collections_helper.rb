@@ -9,7 +9,7 @@ module CollectionsHelper
     num_parents = collection.parents.count
     if num_parents > 0
       relative_parent = collection.parents.first
-      html << '<h1 class="pt-title pt-compound-title">'
+      html << '<h1 class="dl-title dl-compound-title">'
       html <<   '<small>'
       html <<     link_to(relative_parent.title, relative_parent)
       html <<   '</small>'
@@ -18,7 +18,7 @@ module CollectionsHelper
       html <<   collection.title
       html << '</h1>'
     else
-      html << '<h1 class="pt-title">'
+      html << '<h1 class="dl-title">'
       html <<   collection.title
       html << '</h1>'
     end

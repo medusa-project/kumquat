@@ -1,7 +1,7 @@
-$('#pt-items').html('<%=j render('items') %>');
-$('.pt-facets').html('<%=j render('facets') %>');
-$('#pt-search-status').html('<%=j search_status(@count, @start, @num_results_shown) %>');
-$('#pt-download-zip-modal-container').html('<%=j render(partial: 'download_zip_panel', locals: { context: :results,
+$('#dl-items').html('<%=j render('items') %>');
+$('.dl-facets').html('<%=j render('facets') %>');
+$('#dl-search-status').html('<%=j search_status(@count, @start, @num_results_shown) %>');
+$('#dl-download-zip-modal-container').html('<%=j render(partial: 'download_zip_panel', locals: { context: :results,
                                                                                                  num_downloadable_items: @num_downloadable_items,
                                                                                                  total_byte_size: @total_byte_size }) %>');
 <% if @collection
@@ -12,7 +12,7 @@ else
   json_url = items_path(@permitted_params) + '.json'
 end %>
 
-$('#pt-view-as-atom').attr('href', '<%= atom_url %>');
-$('#pt-view-as-json').attr('href', '<%= json_url %>');
+$('#dl-view-as-atom').attr('href', '<%= atom_url %>');
+$('#dl-view-as-json').attr('href', '<%= json_url %>');
 
 Application.view.attachEventListeners();

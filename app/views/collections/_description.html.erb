@@ -1,4 +1,4 @@
-<div class="text-center pt-browse-buttons">
+<div class="text-center dl-browse-buttons">
   <% if @authorized %>
     <% if @show_browse_tree_button %>
       <%= link_to(collection_tree_path(@collection),
@@ -41,7 +41,7 @@
   </div>
 <% end %>
 
-<div id="pt-description">
+<div id="dl-description">
   <%= raw(@collection.description_html) ||
           simple_format(auto_link(@collection.description)) %>
 </div>

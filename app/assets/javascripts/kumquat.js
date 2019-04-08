@@ -127,7 +127,7 @@ var Application = {
     /**
      * Provides an ajax filter field. This will contain HTML like:
      *
-     * <form class="pt-filter">
+     * <form class="dl-filter">
      *     <input type="text">
      *     <select> <!-- optional -->
      * </form>

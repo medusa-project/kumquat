@@ -8,7 +8,7 @@
   <div class="btn-group pull-right" role="group">
     <!-- Import button -->
     <button type="button" class="btn btn-default" data-toggle="modal"
-            data-target="#pt-import-modal"
+            data-target="#dl-import-modal"
             <%= (@collection.package_profile and @collection.medusa_file_group) ? '' : 'disabled="disabled"' %>>
       <i class="fa fa-refresh"></i> Import&hellip;
     </button>
@@ -23,29 +23,29 @@
         <li <%= @collection.metadata_profile ? '' : 'disabled="disabled"' %>>
           <%= link_to 'Edit Result Set',
                       admin_collection_edit_all_items_path(@collection),
-                      id: 'pt-edit-result-set-metadata-link' %>
+                      id: 'dl-edit-result-set-metadata-link' %>
         </li>
         <li class="divider"></li>
         <li <%= @collection.metadata_profile ? '' : 'disabled="disabled"' %>>
           <%= link_to raw('Batch Change&hellip;'), '',
-                      'data-toggle': 'modal', 'data-target': '#pt-batch-change-modal' %>
+                      'data-toggle': 'modal', 'data-target': '#dl-batch-change-modal' %>
         </li>
         <li <%= @collection.metadata_profile ? '' : 'disabled="disabled"' %>>
           <%= link_to raw('Find and Replace&hellip;'), '',
-                      'data-toggle': 'modal', 'data-target': '#pt-find-replace-modal' %>
+                      'data-toggle': 'modal', 'data-target': '#dl-find-replace-modal' %>
         </li>
         <li <%= @collection.metadata_profile ? '' : 'disabled="disabled"' %>>
           <%= link_to raw('Migrate Element Values&hellip;'), '',
-                      'data-toggle': 'modal', 'data-target': '#pt-migrate-modal' %>
+                      'data-toggle': 'modal', 'data-target': '#dl-migrate-modal' %>
         </li>
         <li class="divider"></li>
         <li <%= (@collection.package_profile and @collection.medusa_file_group) ? '' : 'disabled="disabled"' %>>
           <%= link_to raw('Import From TSV&hellip;'), '',
-                      'data-toggle': 'modal', 'data-target': '#pt-import-tsv-modal' %>
+                      'data-toggle': 'modal', 'data-target': '#dl-import-tsv-modal' %>
         </li>
         <li>
           <%= link_to raw('Export As TSV&hellip;'), '',
-                      'data-toggle': 'modal', 'data-target': '#pt-export-modal' %>
+                      'data-toggle': 'modal', 'data-target': '#dl-export-modal' %>
         </li>
       </ul>
     </div>
@@ -59,11 +59,11 @@
       <ul class="dropdown-menu" role="menu">
         <li>
           <%= link_to raw('Add All Results&hellip;'), '',
-                      'data-toggle': 'modal', 'data-target': '#pt-add-all-results-to-set-modal' %>
+                      'data-toggle': 'modal', 'data-target': '#dl-add-all-results-to-set-modal' %>
         </li>
         <li>
           <%= link_to raw('Add Checked Results&hellip;'), '',
-                      'data-toggle': 'modal', 'data-target': '#pt-add-checked-items-to-set-modal' %>
+                      'data-toggle': 'modal', 'data-target': '#dl-add-checked-items-to-set-modal' %>
         </li>
         <% if @collection.item_sets.count > 0 %>
           <li class="divider"></li>
@@ -85,26 +85,26 @@
           <%= link_to 'Publish All Results',
                       admin_collection_items_publish_path(@collection),
                       method: :patch,
-                      id: 'pt-publish-results-link' %>
+                      id: 'dl-publish-results-link' %>
         </li>
         <li>
           <%= link_to 'Publish Checked Results',
                       admin_collection_items_publish_path(@collection),
                       method: :patch,
-                      id: 'pt-publish-checked-results-link' %>
+                      id: 'dl-publish-checked-results-link' %>
         </li>
         <li class="divider"></li>
         <li>
           <%= link_to 'Unpublish All Results',
                       admin_collection_items_unpublish_path(@collection),
                       method: :patch,
-                      id: 'pt-unpublish-results-link' %>
+                      id: 'dl-unpublish-results-link' %>
         </li>
         <li>
           <%= link_to 'Unpublish Checked Results',
                       admin_collection_items_unpublish_path(@collection),
                       method: :patch,
-                      id: 'pt-unpublish-checked-results-link'%>
+                      id: 'dl-unpublish-checked-results-link'%>
         </li>
         <li class="divider"></li>
         <li>
@@ -123,7 +123,7 @@
         <% if current_user.can?(Permission::Permissions::PURGE_ITEMS_FROM_COLLECTION) %>
           <li>
             <%= link_to raw('Items From Collection'), '',
-                        'data-toggle': 'modal', 'data-target': '#pt-purge-items-modal' %>
+                        'data-toggle': 'modal', 'data-target': '#dl-purge-items-modal' %>
           </li>
         <% end %>
           <li>
@@ -138,9 +138,9 @@
   <h1>Items <small><%= @collection.title %></small></h1>
 </div>
 
-<%= form_tag(@permitted_params.reject{ |k, v| k == 'start' }, method: :get, class: 'pt-filter') do %>
+<%= form_tag(@permitted_params.reject{ |k, v| k == 'start' }, method: :get, class: 'dl-filter') do %>
   <div class="row">
-    <div class="col-sm-3 col-lg-2 pt-facets pt-panel-facets">
+    <div class="col-sm-3 col-lg-2 dl-facets dl-panel-facets">
       <%= render partial: 'facets' %>
     </div>
 
@@ -149,20 +149,20 @@
         <%= hidden_field_tag(k, v) %>
       <% end %>
 
-      <div class="form-inline pt-filter">
+      <div class="form-inline dl-filter">
         <%= item_filter_field %>
         <%= item_filter_field_element_menu(@metadata_profile) %>
       </div>
 
       <% if @num_results_shown > 0 %>
         <div class="panel panel-default">
-          <div id="pt-search-status" class="panel-body">
+          <div id="dl-search-status" class="panel-body">
             <%= search_status(@count, @start, @num_results_shown) %>
           </div>
         </div>
       <% end %>
 
-      <div id="pt-items" class="pt-list-results">
+      <div id="dl-items" class="dl-list-results">
         <%= render partial: 'items' %>
       </div>
     </div>

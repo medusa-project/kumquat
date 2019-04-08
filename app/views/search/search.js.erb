@@ -1,13 +1,13 @@
-$('#pt-items').html('<%= escape_javascript(render('entities')) %>');
-$('.pt-facets').html('<%= escape_javascript(render('facets')) %>');
-$('#pt-search-status').html('<%= search_status(@count, @start, @num_results_shown) %>');
+$('#dl-items').html('<%= escape_javascript(render('entities')) %>');
+$('.dl-facets').html('<%= escape_javascript(render('facets')) %>');
+$('#dl-search-status').html('<%= search_status(@count, @start, @num_results_shown) %>');
 
 <%
 atom_url = search_path(@permitted_params.merge(format: 'atom'))
 json_url = search_path(@permitted_params.merge(format: 'json'))
 %>
 
-$('#pt-view-as-atom').attr('href', '<%= atom_url %>');
-$('#pt-view-as-json').attr('href', '<%= json_url %>');
+$('#dl-view-as-atom').attr('href', '<%= atom_url %>');
+$('#dl-view-as-json').attr('href', '<%= json_url %>');
 
 Application.view.attachEventListeners();

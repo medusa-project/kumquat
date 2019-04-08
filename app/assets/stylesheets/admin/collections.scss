@@ -2,36 +2,36 @@
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
-body#admin_collections_index div#pt-page-content {
+body#admin_collections_index div#dl-page-content {
   .pagination {
     margin: 0px;
   }
 }
 
 body#admin_collections_show {
-  table.pt-metadata tr:first-child > td {
+  table.dl-metadata tr:first-child > td {
     border-top: 0px;
   }
 
-  .pt-rights img {
+  .dl-rights img {
     width: 200px;
   }
 
   /* display metadata in a 2-column table if the screen is wide enough
   (IMET-83) */
   @media screen and (max-width: 800px) {
-    table.pt-metadata {
+    table.dl-metadata {
       display: none;
     }
-    dl.pt-metadata {
+    dl.dl-metadata {
       display: block;
     }
   }
   @media screen and (min-width: 801px) {
-    table.pt-metadata {
+    table.dl-metadata {
       display: block;
     }
-    dl.pt-metadata {
+    dl.dl-metadata {
       display: none;
     }
   }

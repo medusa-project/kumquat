@@ -13,7 +13,7 @@ module ApplicationHelper
   # @return [String]
   #
   def ajax_shade
-    html = '<div id="pt-ajax-shade"></div>'
+    html = '<div id="dl-ajax-shade"></div>'
     raw(html)
   end
 
@@ -101,12 +101,12 @@ module ApplicationHelper
             img_url = image_url('fa-cube-600.png')
         end
       end
-      html << '<div class="pt-card">'
-      html <<   '<div class="pt-card-content">'
+      html << '<div class="dl-card">'
+      html <<   '<div class="dl-card-content">'
       html <<     link_to(entity) do
         raw("<img src=\"#{img_url}\">")
       end
-      html <<     '<h4 class="pt-title">'
+      html <<     '<h4 class="dl-title">'
       html <<       link_to(entity.title, entity)
       html <<     '</h4>'
       html <<   '</div>'
@@ -138,20 +138,20 @@ module ApplicationHelper
       end
       html << '<li>'
       if options[:show_checkboxes]
-        html << check_box_tag('pt-selected-items[]', entity.repository_id)
-        html << '<div class="pt-checkbox-result-container">'
+        html << check_box_tag('dl-selected-items[]', entity.repository_id)
+        html << '<div class="dl-checkbox-result-container">'
       else
-        html << '<div class="pt-non-checkbox-result-container">'
+        html << '<div class="dl-non-checkbox-result-container">'
       end
-      html << link_to(link_target, class: 'pt-thumbnail-link') do
+      html << link_to(link_target, class: 'dl-thumbnail-link') do
         thumb = StringIO.new
-        thumb << '<div class="pt-thumbnail">'
-        thumb << thumbnail_tag(entity.effective_representative_entity,
-                               shape: :square)
+        thumb << '<div class="dl-thumbnail">'
+        thumb <<   thumbnail_tag(entity.effective_representative_entity,
+                                 shape: :square)
         thumb << '</div>'
         raw(thumb.string)
       end
-      html << '<span class="pt-label">'
+      html << '<span class="dl-label">'
       html << link_to(entity.title, link_target)
 
       # info line
@@ -198,12 +198,12 @@ module ApplicationHelper
       end
 
       html <<   '<br>'
-      html <<   '<span class="pt-info-line">'
+      html <<   '<span class="dl-info-line">'
       html <<     info_parts.join(' | ')
       html <<   '</span>'
       html << '</span>'
       html << '<br>'
-      html << '<span class="pt-description">'
+      html << '<span class="dl-description">'
 
       description = nil
       if entity.kind_of?(Item)
@@ -283,7 +283,7 @@ module ApplicationHelper
   def flashes
     html = StringIO.new
     flash.each do |type, message|
-      html << "<div class=\"pt-flash alert alert-dismissable #{bootstrap_class_for(type)}\">"
+      html << "<div class=\"dl-flash alert alert-dismissable #{bootstrap_class_for(type)}\">"
       html <<   '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>'
       html <<   message
       html << '</div>'
@@ -343,7 +343,7 @@ module ApplicationHelper
     elsif entity == User or entity.kind_of?(User)
       icon = 'fa-user'
     end
-    raw("<i title=\"#{type_of(entity)}\" class=\"fa #{icon} pt-icon\"></i>")
+    raw("<i title=\"#{type_of(entity)}\" class=\"fa #{icon} dl-icon\"></i>")
   end
 
   ##
@@ -480,7 +480,7 @@ module ApplicationHelper
       title = statement ? '' : '<h4 class="media-heading">Rights Information</h4>'
       text = text.present? ? "<p>#{auto_link(text)}</p>" : ''
 
-      html << '<div class="media pt-rights">'
+      html << '<div class="media dl-rights">'
       html <<   '<div class="media-left">'
       html <<     image
       html <<   '</div>'
@@ -576,15 +576,15 @@ module ApplicationHelper
       unchecked_params = term.added_to_params(permitted_params.deep_dup).except(:start)
       term_label = truncate(term.label, length: 80)
 
-      panel << '<li class="pt-term">'
+      panel << '<li class="dl-term">'
       panel <<   '<div class="checkbox">'
       panel <<     '<label>'
-      panel <<       "<input type=\"checkbox\" name=\"pt-facet-term\" #{checked} "\
+      panel <<       "<input type=\"checkbox\" name=\"dl-facet-term\" #{checked} "\
                          "data-query=\"#{term.query.gsub('"', '&quot;')}\" "\
                          "data-checked-href=\"#{url_for(unchecked_params)}\" "\
                          "data-unchecked-href=\"#{url_for(checked_params)}\">"
-      panel <<         "<span class=\"pt-term-name\">#{term_label}</span> "
-      panel <<         "<span class=\"pt-count badge\">#{term.count}</span>"
+      panel <<         "<span class=\"dl-term-name\">#{term_label}</span> "
+      panel <<         "<span class=\"dl-count badge\">#{term.count}</span>"
       panel <<     '</label>'
       panel <<   '</div>'
       panel << '</li>'

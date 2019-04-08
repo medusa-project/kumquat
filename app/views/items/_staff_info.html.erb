@@ -6,11 +6,11 @@
 <% if signed_in? %>
   <section>
     <h2>
-      <a role="button" data-toggle="collapse" href="#pt-staff-info"
-         aria-expanded="false" aria-controls="pt-staff-info">
+      <a role="button" data-toggle="collapse" href="#dl-staff-info"
+         aria-expanded="false" aria-controls="dl-staff-info">
         Staff Information</a>
     </h2>
-    <div id="pt-staff-info" class="collapse">
+    <div id="dl-staff-info" class="collapse">
       <% if item.is_compound? %>
         <% # For compound objects, display a table of all page binaries. (IMET-469) %>
         <h3>Files</h3>

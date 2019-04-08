@@ -1,5 +1,5 @@
-<div class="modal fade" id="pt-add-all-results-to-set-modal" tabindex="-1" role="dialog"
-     aria-labelledby="pt-add-all-results-to-set-modal-label">
+<div class="modal fade" id="dl-add-all-results-to-set-modal" tabindex="-1" role="dialog"
+     aria-labelledby="dl-add-all-results-to-set-modal-label">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <%= form_tag(admin_collection_items_add_query_to_item_set_path(@collection)) do %>
@@ -16,7 +16,7 @@
           <%= select_tag(:item_set, options_for_select(current_user.item_sets.where(collection_repository_id: @collection.repository_id).map { |s| [s.name, s.id] }),
                          class: 'form-control') %>
 
-          <div class="pt-query">
+          <div class="dl-query">
             <% # will be populated by index.js.erb %>
           </div>
         </div>

@@ -1,12 +1,12 @@
-<div class="modal fade" id="pt-batch-change-modal" tabindex="-1" role="dialog"
-     aria-labelledby="pt-batch-change-modal-label">
+<div class="modal fade" id="dl-batch-change-modal" tabindex="-1" role="dialog"
+     aria-labelledby="dl-batch-change-modal-label">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <%= form_tag(admin_collection_items_batch_change_metadata_path(@collection)) do %>
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title" id="pt-batch-change-modal-label">Batch Change</h4>
+          <h4 class="modal-title" id="dl-batch-change-modal-label">Batch Change</h4>
         </div>
         <div class="modal-body">
           <div class="alert alert-warning">
@@ -25,7 +25,7 @@
                              class: 'form-control') %>
             </div>
 
-            <div class="pt-elements">
+            <div class="dl-elements">
               <label>To:</label>
               <div class="form-group">
                 <table class="table table-condensed">
@@ -37,18 +37,18 @@
                       <%= text_field_tag('replace_values[][uri]', '', class: 'form-control') %>
                     </td>
                     <td>
-                      <button type="button" class="btn btn-sm btn-danger pt-remove-element">&minus;</button>
+                      <button type="button" class="btn btn-sm btn-danger dl-remove-element">&minus;</button>
                     </td>
                   </tr>
                 </table>
               </div>
-              <button class="btn btn-sm btn-success pt-add-element">&plus;</button>
+              <button class="btn btn-sm btn-success dl-add-element">&plus;</button>
             </div>
           <% else %>
             <p>Metadata profile is not set.</p>
           <% end %>
 
-          <div class="pt-query">
+          <div class="dl-query">
             <% # will be populated by index.js.erb %>
           </div>
         </div>

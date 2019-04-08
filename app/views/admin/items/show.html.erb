@@ -68,7 +68,7 @@
 </div>
 
 <% if @item.parent %>
-  <h1 class="pt-compound-title">
+  <h1 class="dl-compound-title">
     <small><%= link_to @item.parent.title,
                        admin_collection_item_path(@item.parent.collection, @item.parent) %></small>
     <br>&nbsp;&nbsp;&#8627; <%= @item.title %>
@@ -83,30 +83,30 @@
 
 <div class="row">
 
-  <div class="col-sm-2 pt-item-structure">
+  <div class="col-sm-2 dl-item-structure">
     <%= admin_structure_of_item(@item) %>
   </div>
 
   <div class="col-sm-2">
-    <div class="pt-thumbnail">
+    <div class="dl-thumbnail">
       <%= thumbnail_tag(@item) %>
     </div>
     <ul class="nav nav-pills nav-stacked" role="tablist">
       <li role="presentation" class="active">
-        <a href="#pt-system-info" aria-controls="pt-system-info" role="tab" data-toggle="tab">System Info</a>
+        <a href="#dl-system-info" aria-controls="dl-system-info" role="tab" data-toggle="tab">System Info</a>
       </li>
 
       <li role="presentation">
-        <a href="#pt-descriptive-metadata" aria-controls="pt-descriptive-metadata" role="tab" data-toggle="tab">Descriptive Metadata</a>
+        <a href="#dl-descriptive-metadata" aria-controls="dl-descriptive-metadata" role="tab" data-toggle="tab">Descriptive Metadata</a>
       </li>
 
       <li role="presentation">
-        <a href="#pt-binaries" aria-controls="pt-binaries" role="tab" data-toggle="tab">
+        <a href="#dl-binaries" aria-controls="dl-binaries" role="tab" data-toggle="tab">
           Binaries <span class="badge"><%= @item.binaries.length %></span></a>
       </li>
 
       <li role="presentation">
-        <a href="#pt-schema-org" aria-controls="pt-schema-org" role="tab" data-toggle="tab">schema.org</a>
+        <a href="#dl-schema-org" aria-controls="dl-schema-org" role="tab" data-toggle="tab">schema.org</a>
       </li>
     </ul>
   </div>
@@ -125,12 +125,12 @@
 
     <div class="tab-content">
 
-      <div role="tabpanel" class="tab-pane active" id="pt-system-info">
+      <div role="tabpanel" class="tab-pane active" id="dl-system-info">
         <%= admin_system_info_as_list(@item) %>
         <%= admin_system_info_as_table(@item) %>
       </div>
 
-      <div role="tabpanel" class="tab-pane" id="pt-descriptive-metadata">
+      <div role="tabpanel" class="tab-pane" id="dl-descriptive-metadata">
         <div class="alert alert-info">
           Collection metadata profile:
           <%= @item.collection.metadata_profile ?
@@ -141,7 +141,7 @@
         <%= admin_item_metadata_as_table(@item) %>
       </div>
 
-      <div role="tabpanel" class="tab-pane" id="pt-binaries">
+      <div role="tabpanel" class="tab-pane" id="dl-binaries">
         <% @item.binaries.each do |bin| %>
           <h2><%= bin.human_readable_master_type %></h2>
           <%= binary_metadata_as_table(bin, admin: true) %>
@@ -149,7 +149,7 @@
         <% end %>
       </div>
 
-      <div role="tabpanel" class="tab-pane" id="pt-schema-org">
+      <div role="tabpanel" class="tab-pane" id="dl-schema-org">
         <div class="clearfix">
           <div class="pull-right">
             <a href="https://search.google.com/structured-data/testing-tool"

@@ -11,27 +11,27 @@
 <div class="btn-group pull-right">
   <!-- Add Agent Rule button -->
   <button type="button" class="btn btn-default" data-toggle="modal"
-          data-target="#pt-add-agent-rule-modal">
+          data-target="#dl-add-agent-rule-modal">
     <span class="fa fa-plus"></span> Add Rule
   </button>
 </div>
 
 <h1>Agent Rules</h1>
 
-<div id="pt-agent-rules">
+<div id="dl-agent-rules">
   <%= render 'agent_rules' %>
 </div>
 
 <!-- Add-agent-rule modal -->
-<div class="modal fade" id="pt-add-agent-rule-modal" tabindex="-1" role="dialog"
-     aria-labelledby="pt-add-agent-rule-modal-label">
+<div class="modal fade" id="dl-add-agent-rule-modal" tabindex="-1" role="dialog"
+     aria-labelledby="dl-add-agent-rule-modal-label">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
-        <h4 class="modal-title" id="pt-add-agent-rule-modal-label">Add Agent Rule</h4>
+        <h4 class="modal-title" id="dl-add-agent-rule-modal-label">Add Agent Rule</h4>
       </div>
       <div class="modal-body">
         <%= render partial: 'form', locals: { agent_rule: @new_agent_rule,
@@ -42,15 +42,15 @@
 </div>
 
 <!-- Edit-agent-rule modal -->
-<div class="modal fade" id="pt-edit-agent-rule-modal" tabindex="-1" role="dialog"
-     aria-labelledby="pt-edit-agent-rule-modal-label">
+<div class="modal fade" id="dl-edit-agent-rule-modal" tabindex="-1" role="dialog"
+     aria-labelledby="dl-edit-agent-rule-modal-label">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
-        <h4 class="modal-title" id="pt-edit-agent-rule-modal-label">Edit Agent Rule</h4>
+        <h4 class="modal-title" id="dl-edit-agent-rule-modal-label">Edit Agent Rule</h4>
       </div>
       <div class="modal-body">
         <% # will be populated via XHR %>

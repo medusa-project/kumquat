@@ -20,20 +20,20 @@
 <body <%= !yield(:body_id).empty? ? raw("id=\"#{yield(:body_id)}\"") : nil %>
       <%= raw("data-nav=\"#{yield(:active_nav)}\"") %>>
 
-<%= hidden_field_tag('pt-root-path', root_path) %>
-<%= hidden_field_tag('pt-root-url', root_url) %>
-<%= hidden_field_tag('pt-current-path', request.path) %>
+<%= hidden_field_tag('dl-root-path', root_path) %>
+<%= hidden_field_tag('dl-root-url', root_url) %>
+<%= hidden_field_tag('dl-current-path', request.path) %>
 
 <div class="container-fluid">
   <% flash.each do |type, message| %>
-      <div class="pt-flash alert alert-dismissable <%= bootstrap_class_for(type) %>">
+      <div class="dl-flash alert alert-dismissable <%= bootstrap_class_for(type) %>">
         <button type="button" class="close" data-dismiss="alert"
                 aria-hidden="true">&times;</button>
         <%= message %>
       </div>
   <% end %>
 
-  <div id="pt-page-content">
+  <div id="dl-page-content">
     <%= yield.force_encoding(Encoding::UTF_8) %>
   </div>
 </div>

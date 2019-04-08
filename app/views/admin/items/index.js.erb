@@ -1,13 +1,13 @@
-$('#pt-items').html('<%= j(render('items')) %>');
-$('.pt-facets').html('<%= j(render('facets')) %>');
-$('#pt-search-status').html('<%= j(search_status(@count, @start, @num_results_shown)) %>');
+$('#dl-items').html('<%= j(render('items')) %>');
+$('.dl-facets').html('<%= j(render('facets')) %>');
+$('#dl-search-status').html('<%= j(search_status(@count, @start, @num_results_shown)) %>');
 
 <% query = { q: params[:q], fq: params[:fq], df: params[:df] } %>
-$('#pt-edit-metadata-link').attr('href',
+$('#dl-edit-metadata-link').attr('href',
     '<%= j(raw(admin_collection_edit_all_items_path(@collection, query))) %>');
-$('#pt-publish-results-link').attr('href',
+$('#dl-publish-results-link').attr('href',
     '<%= j(raw(admin_collection_items_publish_path(@collection, query))) %>');
-$('#pt-unpublish-results-link').attr('href',
+$('#dl-unpublish-results-link').attr('href',
     '<%= j(raw(admin_collection_items_unpublish_path(@collection, query))) %>');
 
 var inputs = '<input type="hidden" name="q" value="<%= j(params[:q]) %>">' +
@@ -15,6 +15,6 @@ var inputs = '<input type="hidden" name="q" value="<%= j(params[:q]) %>">' +
 <% params[:fq]&.each do |fq| %>
   inputs += '<input type="hidden" name="fq[]" value="<%= j(fq) %>">';
 <% end %>
-$('.pt-query').html(inputs);
+$('.dl-query').html(inputs);
 
 Application.view.attachEventListeners();

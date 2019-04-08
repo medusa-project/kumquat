@@ -81,7 +81,7 @@ module ItemsHelper
       # create the category tabs
       html << '<ul class="nav nav-tabs" role="tablist">'
       categories.each_with_index do |category, index|
-        tab_id = "pt-metadata-tab-#{binary.master_type}-#{category.gsub(' ', '')}"
+        tab_id = "dl-metadata-tab-#{binary.master_type}-#{category.gsub(' ', '')}"
         class_ = (index == 0) ? 'active' : ''
         html << "<li role=\"presentation\" class=\"#{class_}\">
           <a href=\"##{tab_id}\" aria-controls=\"#{tab_id}\"
@@ -93,12 +93,12 @@ module ItemsHelper
       # create the category tab panes
       html << '<div class="tab-content">'
       categories.each_with_index do |category, index|
-        tab_id = "pt-metadata-tab-#{binary.master_type}-#{category.gsub(' ', '')}"
+        tab_id = "dl-metadata-tab-#{binary.master_type}-#{category.gsub(' ', '')}"
         class_ = (index == 0) ? 'active' : ''
         html << "<div role=\"tabpanel\" class=\"tab-pane #{class_}\"
             id=\"#{tab_id}\">"
 
-        html << '<table class="table table-condensed pt-metadata">'
+        html << '<table class="table table-condensed dl-metadata">'
         data.select{ |row| row[:category] == category }.each do |row|
           if row[:value].respond_to?(:each)
             value = '<ul>'
@@ -182,12 +182,12 @@ module ItemsHelper
     html << '<ol>'
     files.each do |child|
       html << '<li>'
-      html << link_to(item_path(child), class: 'pt-title') do
+      html << link_to(item_path(child), class: 'dl-title') do
         thumb = StringIO.new
-        thumb << '<div class="pt-thumbnail">'
+        thumb << '<div class="dl-thumbnail">'
         thumb <<   thumbnail_tag(child, shape: :square)
         thumb << '</div>'
-        thumb << "<div class=\"pt-label\" title=\"#{child.title}\">"
+        thumb << "<div class=\"dl-label\" title=\"#{child.title}\">"
         thumb <<   truncate(child.title, length: PAGE_TITLE_LENGTH)
         thumb << '</div>'
         raw(thumb.string)
@@ -346,7 +346,7 @@ module ItemsHelper
   def item_page_title(item)
     html = StringIO.new
     if item.collection.free_form?
-      html << '<h1 class="pt-title">'
+      html << '<h1 class="dl-title">'
       html <<   icon_for(item)
       html <<   ' '
       html <<   item.title
@@ -354,7 +354,7 @@ module ItemsHelper
     elsif item.parent or item.items.any?
       relative_parent = item.parent ? item.parent : item
       relative_child  = item.parent ? item : relative_parent
-      html << '<h1 class="pt-title pt-compound-title">'
+      html << '<h1 class="dl-title dl-compound-title">'
       if item.parent
         html << '<small>'
         html <<   link_to(relative_parent.title, relative_parent)
@@ -367,7 +367,7 @@ module ItemsHelper
       html <<   relative_child.title
       html << '</h1>'
     else
-      html << '<h1 class="pt-title">'
+      html << '<h1 class="dl-title">'
       html <<   icon_for(item)
       html <<   ' '
       html <<   item.title
@@ -391,15 +391,15 @@ module ItemsHelper
     thumb_width = 300
     html = StringIO.new
     items.each do |item|
-      html << '<div class="pt-object">'
+      html << '<div class="dl-object">'
       html <<   link_to(item) do
         thumb = StringIO.new
-        thumb << '<div class="pt-thumbnail">'
+        thumb << '<div class="dl-thumbnail">'
         thumb <<   thumbnail_tag(item.effective_representative_entity, size: thumb_width)
         thumb << '</div>'
         raw(thumb.string)
       end
-      html <<   '<h4 class="pt-title">'
+      html <<   '<h4 class="dl-title">'
       html <<      link_to(item.title, item)
       html <<   '</h4>'
       html << '</div>'
@@ -417,7 +417,7 @@ module ItemsHelper
   #
   def metadata_as_list(item, options = {})
     html = StringIO.new
-    html << '<dl class="pt-metadata">'
+    html << '<dl class="dl-metadata">'
     # iterate through the index-ordered elements in the collection's metadata
     # profile in order to display the entity's elements in the correct order
     defs = item.collection.effective_metadata_profile.elements
@@ -457,7 +457,7 @@ module ItemsHelper
   #
   def metadata_as_table(item, options = {})
     html = StringIO.new
-    html << '<table class="table table-condensed pt-metadata">'
+    html << '<table class="table table-condensed dl-metadata">'
     # iterate through the index-ordered elements in the item's collection's
     # metadata profile.
     p_els = item.collection.effective_metadata_profile.elements
@@ -494,20 +494,21 @@ module ItemsHelper
   # @return [String]
   #
   def metadata_section(item)
-    html = "<h2>
-        <a role=\"button\" data-toggle=\"collapse\"
-        href=\"#pt-metadata\" aria-expanded=\"true\" aria-controls=\"pt-metadata\">
-        Descriptive Information</a>
-      </h2>
-      <div id=\"pt-metadata\" class=\"collapse in\">
-        <div class=\"visible-xs\">
-          #{metadata_as_list(item)}
-        </div>
-        <div class=\"hidden-xs\">
-          #{metadata_as_table(item)}
-        </div>
-      </div>"
-    raw(html)
+    html = StringIO.new
+    html << '<h2>'
+    html <<   '<a role="button" data-toggle="collapse" href="#dl-metadata" aria-expanded="true" aria-controls="dl-metadata">'
+    html <<     'Descriptive Information'
+    html <<   '</a>'
+    html << '</h2>'
+    html << '<div id="pt-metadata" class="collapse in">'
+    html <<   '<div class="visible-xs">'
+    html <<     metadata_as_list(item)
+    html <<   '</div>'
+    html <<   '<div class="hidden-xs">'
+    html <<     metadata_as_table(item)
+    html <<   '</div>'
+    html << '</div>'
+    raw(html.string)
   end
 
   ##
@@ -547,9 +548,9 @@ module ItemsHelper
   def query_summary(q, fq, profile)
     query = StringIO.new
     if fq&.any? or q.present?
-      query << '<ul class="pt-query-summary">'
+      query << '<ul class="dl-query-summary">'
       if q.present?
-        query << "<li>Filter: <span class=\"pt-query-summary-value\">\"#{h(q)}\"</span></li>"
+        query << "<li>Filter: <span class=\"dl-query-summary-value\">\"#{h(q)}\"</span></li>"
       end
       fq&.each do |fq_|
         parts = fq_.split(':')
@@ -558,7 +559,7 @@ module ItemsHelper
           label = profile.elements.select{ |e| e.name == name }.first.label
           value = parts[1].chomp('"').reverse.chomp('"').reverse
 
-          query << "<li>#{label}: <span class=\"pt-query-summary-value\">#{value}</span></li>"
+          query << "<li>#{label}: <span class=\"dl-query-summary-value\">#{value}</span></li>"
         end
       end
       query << '</ul>'
@@ -756,7 +757,7 @@ module ItemsHelper
     if entity.kind_of?(Item)
       html << '<li>'
       html << link_to('#', onclick: 'return false;', data: { toggle: 'modal',
-                                                             target: '#pt-cite-modal' }) do
+                                                             target: '#dl-cite-modal' }) do
         raw('<i class="fa fa-pencil"></i> Cite')
       end
       html << '</li>'
@@ -849,7 +850,7 @@ module ItemsHelper
   def tech_metadata_as_list(item)
     data = tech_metadata_for(item)
     html = StringIO.new
-    html << '<dl class="pt-metadata">'
+    html << '<dl class="dl-metadata">'
     data.each do |key, value|
       html << "<dt>#{raw(key)}</dt>"
       html << "<dd>#{raw(value)}</dd>"
@@ -866,7 +867,7 @@ module ItemsHelper
   def tech_metadata_as_table(item)
     data = tech_metadata_for(item)
     html = StringIO.new
-    html << '<table class="table table-condensed pt-metadata">'
+    html << '<table class="table table-condensed dl-metadata">'
     data.each do |key, value|
       html << '<tr>'
       html <<   "<td>#{raw(key)}</td>"
@@ -914,9 +915,9 @@ module ItemsHelper
     if url
       # No alt because it may appear in a huge font size if the image is 404.
       if options[:lazy]
-        html << lazy_image_tag(url, class: 'pt-thumbnail', alt: '')
+        html << lazy_image_tag(url, class: 'dl-thumbnail', alt: '')
       else
-        html << image_tag(url, class: 'pt-thumbnail', alt: '')
+        html << image_tag(url, class: 'dl-thumbnail', alt: '')
       end
     else
       html << icon_for(entity) # ApplicationHelper
@@ -1017,7 +1018,7 @@ module ItemsHelper
     html = StringIO.new
     if binary
       url = binary_url(binary, disposition: 'inline')
-      html << "<audio id=\"pt-audio-player\" src=\"#{url}\" "\
+      html << "<audio id=\"dl-audio-player\" src=\"#{url}\" "\
           "type=\"#{binary.media_type}\" controls>
           <a href=\"#{url}\">Download audio</a>
       </audio>"
@@ -1138,7 +1139,7 @@ module ItemsHelper
     # See http://universalviewer.io/examples/ for config structure.
     # UV seems to want its height to be defined in a style attribute.
     html = StringIO.new
-    html << "<div id=\"pt-compound-viewer\" class=\"uv\" "\
+    html << "<div id=\"dl-compound-viewer\" class=\"uv\" "\
       "data-locale=\"en-GB:English (GB)\" "\
       "data-config=\"#{asset_path('uvconfig_compound.json', skip_pipeline: true)}\" "\
       "data-uri=\"#{item_iiif_manifest_url(object)}\" "\
@@ -1300,7 +1301,7 @@ module ItemsHelper
       # N.B. 2: UV wants its height to be defined in a style attribute.
       html << sprintf('<!--[if (lte IE 9)]>%s<![endif]-->
           <!--[if gt IE 9 | !IE ]><!-->
-          <div id="pt-image-viewer" class="uv"
+          <div id="dl-image-viewer" class="uv"
           data-locale="en-GB:English (GB)"
           data-config="%s"
           data-uri="%s"
@@ -1371,7 +1372,7 @@ module ItemsHelper
     if binary
       binary_url = binary_url(binary)
       viewer_url = asset_path('/pdfjs/web/viewer.html?file=' + binary_url)
-      html << '<div id="pt-pdf-viewer">'
+      html << '<div id="dl-pdf-viewer">'
       html <<   "<iframe src=\"#{viewer_url}\" height=\"100%\" width=\"100%\"></iframe>"
       html <<   link_to(viewer_url, target: '_blank', class: 'btn btn-default') do
         content_tag(:span, '', class: 'fa fa-file-pdf-o') + ' Open in New Window'
@@ -1430,12 +1431,12 @@ module ItemsHelper
 
         # Initialize the viewer but don't display it yet. It will be displayed
         # via JS the first time its container div is shown.
-        html << "<div id=\"pt-3d-viewer\" class=\"pt-viewer\"></div>
+        html << "<div id=\"dl-3d-viewer\" class=\"dl-viewer\"></div>
         <script src=\"#{viewer_url}\"></script>
         <script>
             $(document).ready(function() {
                 Application.view.threeDViewer = new ThreeJSViewer({
-                    'containerId': 'pt-3d-viewer',
+                    'containerId': 'dl-3d-viewer',
                     'modelPath': '#{model_path}/',
                     'objFile': '#{obj_binary.filename}',
                     'mtlFile': '#{mtl_binary.filename}',
@@ -1453,7 +1454,7 @@ module ItemsHelper
   # @return [String] HTML <video> element
   #
   def video_player_for(binary)
-    tag = "<video controls id=\"pt-video-player\">
+    tag = "<video controls id=\"dl-video-player\">
       <source src=\"#{binary_url(binary)}\"
               type=\"#{binary.media_type}\">
         Your browser does not support the video tag.

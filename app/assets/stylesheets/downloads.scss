@@ -1,5 +1,5 @@
 body#download_status {
-  #pt-download-status {
+  #dl-download-status {
     display: flex;
     flex-direction: column;
     font-size: 1.5em;
@@ -11,7 +11,7 @@ body#download_status {
       width: 50%;
     }
 
-    #pt-progress-percent {
+    #dl-progress-percent {
       font-size: 2.5em;
     }
   }

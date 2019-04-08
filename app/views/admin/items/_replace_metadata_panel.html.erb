@@ -1,12 +1,12 @@
-<div class="modal fade" id="pt-find-replace-modal" tabindex="-1" role="dialog"
-     aria-labelledby="pt-find-replace-modal-label">
+<div class="modal fade" id="dl-find-replace-modal" tabindex="-1" role="dialog"
+     aria-labelledby="dl-find-replace-modal-label">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <%= form_tag(admin_collection_items_replace_metadata_path(@collection)) do %>
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title" id="pt-find-replace-modal-label">Find and Replace</h4>
+          <h4 class="modal-title" id="dl-find-replace-modal-label">Find and Replace</h4>
         </div>
         <div class="modal-body">
           <div class="alert alert-warning">
@@ -55,7 +55,7 @@
             <p>Metadata profile is not set.</p>
           <% end %>
 
-          <div class="pt-query">
+          <div class="dl-query">
             <% # will be populated by index.js.erb %>
           </div>
         </div>

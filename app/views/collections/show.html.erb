@@ -55,13 +55,13 @@
       <%= render partial: 'description' %>
     </div>
     <div class="col-sm-6 col-md-5 col-lg-4">
-      <div class="pt-main-image">
+      <div class="dl-main-image">
         <% if @representative_item %>
           <% if @authorized %>
             <%= link_to @representative_item do %>
               <%= thumbnail_tag(@representative_image_binary, size: 512) %>
             <% end %>
-            <%= link_to @representative_item, class: 'pt-title' do %>
+            <%= link_to @representative_item, class: 'dl-title' do %>
               <% if @representative_item.parent %>
                 <%= @representative_item.parent.title %>
                 &mdash;
@@ -85,7 +85,7 @@
 <% if @children.count > 0 %>
   <hr>
   <h2>Subcollections <span class="badge"><%= @children.count %></span></h2>
-  <div class="pt-cards">
+  <div class="dl-cards">
     <%= entities_as_cards(@children) %>
   </div>
 <% end %>

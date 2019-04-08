@@ -11,7 +11,7 @@
 <div class="btn-group pull-right" role="group">
   <!-- Edit button -->
   <button type="button" class="btn btn-default" data-toggle="modal"
-          data-target="#pt-edit-agent-modal">
+          data-target="#dl-edit-agent-modal">
     <i class="fa fa-pencil"></i> Edit
   </button>
   <!-- View button -->
@@ -74,7 +74,7 @@
 <div class="btn-group pull-right">
   <!-- Add Referred Agent button -->
   <button type="button" class="btn btn-default" data-toggle="modal"
-          data-target="#pt-relating-agent-modal">
+          data-target="#dl-relating-agent-modal">
     Add Referred Relationship <span class="fa fa-arrow-right"></span>
   </button>
 </div>
@@ -96,8 +96,8 @@
       <% @related_agents.each do |relation| %>
         <tr>
           <td style="width: 1px">
-            <button type="button" class="btn btn-default btn-xs pt-edit-agent-relation"
-                    data-toggle="modal" data-target="#pt-agent-relation-modal"
+            <button type="button" class="btn btn-default btn-xs dl-edit-agent-relation"
+                    data-toggle="modal" data-target="#dl-agent-relation-modal"
                     data-agent-relation-id="<%= relation.id %>">
               <i class="fa fa-pencil"></i> Edit
             </button>
@@ -128,7 +128,7 @@
 <div class="btn-group pull-right">
   <!-- Add Referred Agent button -->
   <button type="button" class="btn btn-default" data-toggle="modal"
-          data-target="#pt-related-agent-modal">
+          data-target="#dl-related-agent-modal">
     <span class="fa fa-arrow-left"></span> Add Referring Relationship
   </button>
 </div>
@@ -150,8 +150,8 @@
       <% @relating_agents.each do |relation| %>
         <tr>
           <td style="width: 1px">
-            <button type="button" class="btn btn-default btn-xs pt-edit-agent-relation"
-                    data-toggle="modal" data-target="#pt-agent-relation-modal"
+            <button type="button" class="btn btn-default btn-xs dl-edit-agent-relation"
+                    data-toggle="modal" data-target="#dl-agent-relation-modal"
                     data-agent-relation-id="<%= relation.id %>">
               <i class="fa fa-pencil"></i> Edit
             </button>
@@ -211,15 +211,15 @@
     agent_relation: @new_agent_relation,
     context: :new } %>
 
-<div class="modal fade" id="pt-edit-agent-modal" tabindex="-1" role="dialog"
-     aria-labelledby="pt-edit-agent-modal-label">
+<div class="modal fade" id="dl-edit-agent-modal" tabindex="-1" role="dialog"
+     aria-labelledby="dl-edit-agent-modal-label">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
-        <h4 class="modal-title" id="pt-edit-agent-modal-label">Edit Agent</h4>
+        <h4 class="modal-title" id="dl-edit-agent-modal-label">Edit Agent</h4>
       </div>
       <div class="modal-body">
         <%= render partial: 'form', locals: { agent: @agent,

@@ -7,13 +7,13 @@
 <% if item.directory? or item.is_compound? or item.binaries.any? or
     item.effective_image_binary&.media_category == Binary::MediaCategory::IMAGE %>
 
-  <section id="pt-download-section">
+  <section id="dl-download-section">
     <h2>
-      <a role="button" data-toggle="collapse" href="#pt-download"
-         aria-expanded="true" aria-controls="pt-download">Download</a>
+      <a role="button" data-toggle="collapse" href="#dl-download"
+         aria-expanded="true" aria-controls="dl-download">Download</a>
     </h2>
 
-    <div id="pt-download" class="collapse <%= expanded ? 'in' : '' %>">
+    <div id="dl-download" class="collapse <%= expanded ? 'in' : '' %>">
 
       <div class="btn-group" style="margin: 0.4em 0em 0.8em 0em">
         <% if client_supports_file_downloads? %>
@@ -21,7 +21,7 @@
                       class: 'btn btn-default',
                       target: '_blank',
                       'data-toggle': 'modal',
-                      'data-target': '#pt-download-zip-modal') do %>
+                      'data-target': '#dl-download-zip-modal') do %>
             <i class="fa fa-file-zip-o"></i>&nbsp;&nbsp;Zip of Masters&hellip;
           <% end %>
           <% if item.binaries.reject(&:is_image?).empty? and !item.directory? %>

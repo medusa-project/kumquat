@@ -1,12 +1,12 @@
-<div class="modal fade" id="pt-export-modal" tabindex="-1" role="dialog"
-     aria-labelledby="pt-export-modal-label">
+<div class="modal fade" id="dl-export-modal" tabindex="-1" role="dialog"
+     aria-labelledby="dl-export-modal-label">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <%= form_tag(@permitted_params.merge(format: 'tsv'), method: :get) do %>
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title" id="pt-export-modal-label">Export TSV</h4>
+          <h4 class="modal-title" id="dl-export-modal-label">Export TSV</h4>
         </div>
         <div class="modal-body">
           <div class="radio">

@@ -5,19 +5,19 @@
 
   <ul class="nav nav-tabs" role="tablist">
     <li role="presentation" class="active">
-      <a href="#pt-system-info" aria-controls="pt-system-info" role="tab" data-toggle="tab">System Info</a>
+      <a href="#dl-system-info" aria-controls="dl-system-info" role="tab" data-toggle="tab">System Info</a>
     </li>
     <li role="presentation">
-      <a href="#pt-access" aria-controls="pt-access" role="tab" data-toggle="tab">Access</a>
+      <a href="#dl-access" aria-controls="dl-access" role="tab" data-toggle="tab">Access</a>
     </li>
     <li role="presentation">
-      <a href="#pt-metadata" aria-controls="pt-metadata" role="tab" data-toggle="tab">Metadata</a>
+      <a href="#dl-metadata" aria-controls="dl-metadata" role="tab" data-toggle="tab">Metadata</a>
     </li>
   </ul>
 
   <div class="tab-content">
-    <div role="tabpanel" class="tab-pane active" id="pt-system-info">
-      <table class="table pt-elements">
+    <div role="tabpanel" class="tab-pane active" id="dl-system-info">
+      <table class="table dl-elements">
         <tbody>
           <tr>
             <td>Published</td>
@@ -73,7 +73,7 @@
       </table>
     </div>
 
-    <div role="tabpanel" class="tab-pane" id="pt-access">
+    <div role="tabpanel" class="tab-pane" id="dl-access">
       <div class="row">
         <div class="col-sm-6">
           <div class="form-group">
@@ -112,13 +112,13 @@
       </div>
     </div>
 
-    <div role="tabpanel" class="tab-pane" id="pt-metadata">
+    <div role="tabpanel" class="tab-pane" id="dl-metadata">
       <div class="alert alert-info">Collection metadata profile:
         <%= link_to(@item.collection.metadata_profile.name,
                     admin_metadata_profile_path(@item.collection.metadata_profile)) %>
       </div>
 
-      <table class="table table-striped pt-elements">
+      <table class="table table-striped dl-elements">
         <tbody>
           <% @item.collection.metadata_profile.elements.each do |profile_elem| %>
             <% profile_elem.vocabularies.each do |voc| %>

@@ -1,13 +1,13 @@
 <!-- Import modal panel -->
-<div class="modal fade" id="pt-import-modal" tabindex="-1" role="dialog"
-     aria-labelledby="pt-import-modal-label">
+<div class="modal fade" id="dl-import-modal" tabindex="-1" role="dialog"
+     aria-labelledby="dl-import-modal-label">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <%= form_tag(admin_collection_items_sync_path(@collection)) do %>
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title" id="pt-import-modal-label">Import Items</h4>
+          <h4 class="modal-title" id="dl-import-modal-label">Import Items</h4>
         </div>
         <div class="modal-body">
           <div class="alert alert-info">Before importing, please verify that
@@ -17,10 +17,10 @@
             <label>
               <%= radio_button_tag('ingest_mode',
                                    MedusaIngester::IngestMode::CREATE_ONLY, true,
-                                   'aria-described-by' => 'pt-create-only-help') %>
+                                   'aria-described-by' => 'dl-create-only-help') %>
               Create
             </label>
-            <span id="pt-create-only-help" class="help-block">
+            <span id="dl-create-only-help" class="help-block">
             Create any items present in Medusa but not the DLS. Don't touch
             existing DLS items.</span>
           </div>
@@ -40,10 +40,10 @@
             <label>
               <%= radio_button_tag('ingest_mode',
                                    MedusaIngester::IngestMode::RECREATE_BINARIES, false,
-                                   'aria-described-by' => 'pt-update-binaries-help') %>
+                                   'aria-described-by' => 'dl-update-binaries-help') %>
               Recreate Binaries
             </label>
-            <span id="pt-update-binaries-help" class="help-block">
+            <span id="dl-update-binaries-help" class="help-block">
             Update existing DLS items' binaries based on their corresponding
             files in Medusa.</span>
           </div>
@@ -52,10 +52,10 @@
               <label>
                 <%= radio_button_tag('ingest_mode',
                                      MedusaIngester::IngestMode::REPLACE_METADATA, false,
-                                     'aria-described-by' => 'pt-replace-metadata-help') %>
+                                     'aria-described-by' => 'dl-replace-metadata-help') %>
                 Replace Metadata <span class="label label-danger">dangerous!</span>
               </label>
-              <span id="pt-replace-metadata-help" class="help-block">
+              <span id="dl-replace-metadata-help" class="help-block">
               Replaces DLS items' metadata with embedded metadata extracted
               from their binaries.</span>
             </div>
@@ -64,10 +64,10 @@
             <label>
               <%= radio_button_tag('ingest_mode',
                                    MedusaIngester::IngestMode::DELETE_MISSING, false,
-                                   'aria-described-by' => 'pt-delete-missing-help') %>
+                                   'aria-described-by' => 'dl-delete-missing-help') %>
               Delete Missing
             </label>
-            <span id="pt-delete-missing-help" class="help-block">
+            <span id="dl-delete-missing-help" class="help-block">
             Delete any items present in the DLS but not Medusa.</span>
           </div>
         </div>

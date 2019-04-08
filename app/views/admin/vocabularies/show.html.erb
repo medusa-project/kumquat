@@ -12,7 +12,7 @@
   <div class="btn-group pull-right">
     <!-- Edit button -->
     <button type="button" class="btn btn-default" data-toggle="modal"
-            data-target="#pt-edit-vocabulary-modal">
+            data-target="#dl-edit-vocabulary-modal">
       <i class="fa fa-pencil"></i> Edit
     </button>
     <!-- Export button -->
@@ -36,10 +36,10 @@
   <% unless @vocabulary.readonly? %>
     <div class="btn-group pull-right">
       <button type="button" class="btn btn-default" data-toggle="modal"
-              data-target="#pt-add-term-modal">
+              data-target="#dl-add-term-modal">
         <i class="fa fa-plus"></i> Add Term
       </button>
-      <button type="button" id="pt-delete-checked" class="btn btn-danger">
+      <button type="button" id="dl-delete-checked" class="btn btn-danger">
         <i class="fa fa-trash"></i> Delete Checked
       </button>
     </div>
@@ -68,8 +68,8 @@
               </td>
               <td style="width:1px">
                 <% unless @vocabulary.readonly? %>
-                  <button type="button" class="btn btn-default btn-xs pt-edit-term"
-                          data-toggle="modal" data-target="#pt-edit-term-modal"
+                  <button type="button" class="btn btn-default btn-xs dl-edit-term"
+                          data-toggle="modal" data-target="#dl-edit-term-modal"
                           data-term-id="<%= term.id %>">Edit</button>
                 <% end %>
               </td>
@@ -83,15 +83,15 @@
   <% end %>
 <% end %>
 
-<div class="modal fade" id="pt-edit-vocabulary-modal" tabindex="-1" role="dialog"
-     aria-labelledby="pt-edit-vocabulary-modal-label">
+<div class="modal fade" id="dl-edit-vocabulary-modal" tabindex="-1" role="dialog"
+     aria-labelledby="dl-edit-vocabulary-modal-label">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
-        <h4 class="modal-title" id="pt-edit-vocabulary-modal-label">Edit Vocabulary</h4>
+        <h4 class="modal-title" id="dl-edit-vocabulary-modal-label">Edit Vocabulary</h4>
       </div>
       <div class="modal-body">
         <%= render partial: 'form', locals: { vocabulary: @vocabulary,
@@ -101,15 +101,15 @@
   </div>
 </div>
 
-<div class="modal fade" id="pt-add-term-modal" tabindex="-1" role="dialog"
-     aria-labelledby="pt-add-term-modal-label">
+<div class="modal fade" id="dl-add-term-modal" tabindex="-1" role="dialog"
+     aria-labelledby="dl-add-term-modal-label">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
-        <h4 class="modal-title" id="pt-add-term-modal-label">Add Term</h4>
+        <h4 class="modal-title" id="dl-add-term-modal-label">Add Term</h4>
       </div>
       <div class="modal-body">
         <%= render partial: 'admin/vocabulary_terms/form',
@@ -120,15 +120,15 @@
   </div>
 </div>
 
-<div class="modal fade" id="pt-edit-term-modal" tabindex="-1" role="dialog"
-     aria-labelledby="pt-edit-term-modal-label">
+<div class="modal fade" id="dl-edit-term-modal" tabindex="-1" role="dialog"
+     aria-labelledby="dl-edit-term-modal-label">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
-        <h4 class="modal-title" id="pt-edit-term-modal-label">Edit Term</h4>
+        <h4 class="modal-title" id="dl-edit-term-modal-label">Edit Term</h4>
       </div>
       <div class="modal-body">
         <% # will be populated via XHR %>

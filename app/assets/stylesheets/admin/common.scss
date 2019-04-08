@@ -4,7 +4,7 @@ body {
 
 nav.navbar {
   background-color:rgba(0, 0, 0, 0.75);
-  li.pt-icon-only {
+  li.dl-icon-only {
     font-size: 20px;
     margin: 0px;
     padding: 0px;
@@ -17,7 +17,7 @@ nav.navbar {
   }
 }
 
-.pt-code-panel {
+.dl-code-panel {
   .panel-body {
     pre {
       overflow: auto;
@@ -28,7 +28,7 @@ nav.navbar {
   }
 }
 
-.pt-dirty {
+.dl-dirty {
   background-color: #ffeaea;
 }
 

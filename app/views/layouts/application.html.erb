@@ -21,16 +21,16 @@
   <body <%= !yield(:body_id).empty? ? raw("id=\"#{yield(:body_id)}\"") : nil %>
         <%= raw("data-nav=\"#{yield(:active_nav)}\"") %>>
 
-    <%= hidden_field_tag('pt-root-path', root_path) %>
-    <%= hidden_field_tag('pt-root-url', root_url) %>
-    <%= hidden_field_tag('pt-current-path', request.path) %>
+    <%= hidden_field_tag('dl-root-path', root_path) %>
+    <%= hidden_field_tag('dl-root-url', root_url) %>
+    <%= hidden_field_tag('dl-current-path', request.path) %>
 
     <%= render 'layouts/header' %>
 
     <div class="container-fluid">
       <%= flashes %>
 
-      <div id="pt-page-content">
+      <div id="dl-page-content">
         <%= yield.force_encoding(Encoding::UTF_8) %>
       </div>
     </div>

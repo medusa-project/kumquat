@@ -6,7 +6,7 @@
 %>
 
 <%= form_for([:admin, agent], remote: true) do |f| %>
-  <div class="pt-error-messages">
+  <div class="dl-error-messages">
     <% # populated via ajax by shared/_validation_messages.js.erb
     %>
   </div>
@@ -23,7 +23,7 @@
         <i class="fa fa-warning"></i> Changing URIs may break entity relationships.
       </span>
     <% end %>
-    <table id="pt-agent-uris" border="0">
+    <table id="dl-agent-uris" border="0">
       <% num_fields = f.object.agent_uris.length == 0 ?
           0 : f.object.agent_uris.length - 1 %>
       <% for index in 0..num_fields %>
@@ -40,14 +40,14 @@
             <% end %>
           </td>
           <td style="width:1px">
-            <button class="btn btn-sm btn-danger pt-remove">
+            <button class="btn btn-sm btn-danger dl-remove">
               <i class="fa fa-minus"></i>
             </button>
           </td>
         </tr>
       <% end %>
     </table>
-    <button class="btn btn-sm btn-success pt-add">
+    <button class="btn btn-sm btn-success dl-add">
       <i class="fa fa-plus"></i>
     </button>
   </div>

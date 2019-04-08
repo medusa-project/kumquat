@@ -11,7 +11,7 @@
 <div class="btn-group pull-right" role="group">
   <!-- Edit button -->
   <button type="button" class="btn btn-default" data-toggle="modal"
-          data-target="#pt-edit-profile-modal">
+          data-target="#dl-edit-profile-modal">
     <i class="fa fa-pencil"></i> Edit
   </button>
   <!-- Clone button -->
@@ -60,10 +60,10 @@
     <%= form_tag(admin_metadata_profile_delete_elements_path(@profile), method: :post) do %>
       <div class="btn-group pull-right" role="group">
         <button type="button" class="btn btn-default" data-toggle="modal"
-                data-target="#pt-add-element-modal">
+                data-target="#dl-add-element-modal">
           <i class="fa fa-plus"></i> Add Element
         </button>
-        <button type="button" id="pt-delete-checked" class="btn btn-danger">
+        <button type="button" id="dl-delete-checked" class="btn btn-danger">
           <i class="fa fa-trash"></i> Delete Checked
         </button>
       </div>
@@ -105,8 +105,8 @@
                   </div>
                 </td>
                 <td>
-                  <button type="button" class="btn btn-default btn-xs pt-edit-element"
-                          data-toggle="modal" data-target="#pt-edit-element-modal"
+                  <button type="button" class="btn btn-default btn-xs dl-edit-element"
+                          data-toggle="modal" data-target="#dl-edit-element-modal"
                           data-element-id="<%= element.id %>">Edit</button>
                 </td>
                 <td>

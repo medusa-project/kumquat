@@ -27,43 +27,43 @@ body#collections_index {
   }
 
   @media only screen and (max-width : 480px) {
-    div.pt-card {
+    div.dl-card {
       width: 50%;
       padding-bottom: 65.8%;
-      .pt-title {
+      .dl-title {
         font-size: 0.8em;
       }
     }
   }
   @media only screen and (min-width : 481px) and (max-width : 650px) {
-    div.pt-card {
+    div.dl-card {
       width: 50%;
       padding-bottom: 60%;
     }
   }
   @media only screen and (min-width : 651px) and (max-width : 1050px) {
-    div.pt-card {
+    div.dl-card {
       width: 33.3%;
       padding-bottom: 45%;
-      .pt-title {
+      .dl-title {
         font-size: 1.2em;
       }
     }
   }
   @media only screen and (min-width : 1051px) and (max-width : 1290px) {
-    div.pt-card {
+    div.dl-card {
       width: 25%;
       padding-bottom: 32%;
-      .pt-title {
+      .dl-title {
         font-size: 1.2em;
       }
     }
   }
   @media only screen and (min-width : 1291px) {
-    div.pt-card {
+    div.dl-card {
       width: 20%;
       padding-bottom: 27%;
-      .pt-title {
+      .dl-title {
         font-size: 1.2em;
       }
     }
@@ -71,7 +71,7 @@ body#collections_index {
 }
 
 body#collections_show {
-  .pt-main-image {
+  .dl-main-image {
     text-align: center;
     img {
       display:block;
@@ -80,20 +80,20 @@ body#collections_show {
       max-width: 90%;
       padding-bottom: 0.4em;
     }
-    .pt-title {
+    .dl-title {
       color:black;
       font-size: 1em;
     }
   }
 
-  .pt-browse-buttons {
+  .dl-browse-buttons {
     margin:1em 0em;
     .btn {
       margin: 0.3em;
     }
   }
 
-  #pt-description {
+  #dl-description {
     text-align: justify;
   }
 }

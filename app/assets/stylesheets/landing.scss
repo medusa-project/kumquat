@@ -1,12 +1,12 @@
 body#landing {
-  .pt-spacer {
+  .dl-spacer {
     clear: both;
     font-size: 0.1px;
     margin: 0px;
     padding: 0px;
     visibility: hidden;
   }
-  #pt-see-more {
+  #dl-see-more {
     margin-top: 1em;
     font-size: 1.4em;
     a {
@@ -18,7 +18,7 @@ body#landing {
   }
 
   @media screen and (max-width: 320px) {
-    .pt-main-image {
+    .dl-main-image {
       margin-top:1em;
     }
   }

@@ -1,9 +1,9 @@
 <% provide(:body_id, 'search_index') %>
 <% provide(:title, 'Search') %>
 
-<%= form_tag(@permitted_params.reject{ |k, v| k == 'start' }, method: :get, class: 'pt-filter') do %>
+<%= form_tag(@permitted_params.reject{ |k, v| k == 'start' }, method: :get, class: 'dl-filter') do %>
   <div class="row">
-    <div class="hidden-xs col-sm-3 col-lg-2 pt-facets pt-panel-facets">
+    <div class="hidden-xs col-sm-3 col-lg-2 dl-facets dl-panel-facets">
       <%= render partial: 'facets' %>
     </div>
 
@@ -29,12 +29,12 @@
               </button>
               <ul class="dropdown-menu dropdown-menu-right">
                 <li>
-                  <%= link_to @permitted_params.merge(format: :atom), id: 'pt-view-as-atom' do %>
+                  <%= link_to @permitted_params.merge(format: :atom), id: 'dl-view-as-atom' do %>
                     <i class="fa fa-rss"></i>&nbsp;&nbsp;Atom
                   <% end %>
                 </li>
                 <li>
-                  <%= link_to @permitted_params.merge(format: :json), id: 'pt-view-as-json' do %>
+                  <%= link_to @permitted_params.merge(format: :json), id: 'dl-view-as-json' do %>
                     <i class="fa fa-rss"></i>&nbsp;&nbsp;JSON
                   <% end %>
                 </li>
@@ -44,10 +44,10 @@
         </div>
       </div>
 
-      <div class="panel panel-default pt-results-summary">
+      <div class="panel panel-default dl-results-summary">
         <div class="panel-body">
           <div class="row">
-            <div class="col-sm-8" id="pt-search-status">
+            <div class="col-sm-8" id="dl-search-status">
               <%= search_status(@count, @start, @num_results_shown) %>
             </div>
             <div class="col-sm-4 pull-right">
@@ -57,7 +57,7 @@
         </div>
       </div>
 
-      <div id="pt-items" class="pt-results pt-list-results">
+      <div id="dl-items" class="dl-results dl-list-results">
         <%= render partial: 'entities' %>
       </div>
 

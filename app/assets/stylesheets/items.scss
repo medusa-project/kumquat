@@ -2,8 +2,8 @@
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
-body#items_index #pt-page-content, body#search_index #pt-page-content {
-  .pt-results-summary {
+body#items_index #dl-page-content, body#search_index #dl-page-content {
+  .dl-results-summary {
     margin-top: 1em;
     .panel-body {
       padding-top: 0.5em;
@@ -13,14 +13,14 @@ body#items_index #pt-page-content, body#search_index #pt-page-content {
       }
     }
 
-    #pt-search-status {
+    #dl-search-status {
       padding-top: 0.35em;
       padding-bottom: 0.35em;
     }
   }
 
-  #pt-download-zip-modal {
-    #pt-batch-buttons {
+  #dl-download-zip-modal {
+    #dl-batch-buttons {
       line-height: 3em;
       text-align: center;
     }
@@ -35,8 +35,8 @@ body#items_index #pt-page-content, body#search_index #pt-page-content {
   }
 }
 
-body#items_show, #pt-free-form-item-view {
-  .pt-compound-title {
+body#items_show, #dl-free-form-item-view {
+  .dl-compound-title {
     small {
       vertical-align:middle;
       a {
@@ -44,23 +44,23 @@ body#items_show, #pt-free-form-item-view {
       }
     }
   }
-  .pt-result-navigation {
+  .dl-result-navigation {
     margin-bottom: 0.5em;
   }
 
-  .pt-viewer {
+  .dl-viewer {
     margin-bottom: 2em;
   }
-  #pt-image-viewer, #pt-compound-viewer {
+  #dl-image-viewer, #dl-compound-viewer {
     /* Styles are defined inline. */
   }
 
-  #pt-3d-viewer {
+  #dl-3d-viewer {
     height: 600px;
     width: 100%;
   }
 
-  #pt-pdf-viewer {
+  #dl-pdf-viewer {
     height: 600px;
     margin: 0 auto;
     max-width: 1200px;
@@ -69,7 +69,7 @@ body#items_show, #pt-free-form-item-view {
     }
   }
 
-  #pt-video-player {
+  #dl-video-player {
     margin: 0 auto;
     width: 95%;
   }
@@ -86,17 +86,17 @@ body#items_show, #pt-free-form-item-view {
     }
   }
 
-  .pt-rights {
+  .dl-rights {
     margin-bottom: 2em;
   }
 
-  table.pt-metadata {
+  table.dl-metadata {
     tr:first-child > td {
       border-top: 0px;
     }
   }
 
-  #pt-download {
+  #dl-download {
     td {
       height: 120px;
       vertical-align: middle;
@@ -106,7 +106,7 @@ body#items_show, #pt-free-form-item-view {
     }
     $font_thumb_size: 90px;
     $image_thumb_size: 100px;
-    div.pt-thumbnail {
+    div.dl-thumbnail {
       font-size: $font_thumb_size;
       height: $image_thumb_size;
       max-width: $image_thumb_size;
@@ -128,14 +128,14 @@ body#items_show, #pt-free-form-item-view {
     }
   }
 
-  #pt-cite-modal {
+  #dl-cite-modal {
     select {
       margin-bottom: 1em;
     }
   }
 
-  #pt-custom-image-modal {
-    #pt-image-select {
+  #dl-custom-image-modal {
+    #dl-image-select {
       max-height: 500px;
       overflow-y: scroll;
       input[type=radio] {
@@ -165,29 +165,29 @@ body#items_show, #pt-free-form-item-view {
         background-color:#337ab7;
         color:white;
       }
-      .pt-size-1 {
+      .dl-size-1 {
         font-size: 1.1em;
       }
-      .pt-size-2 {
+      .dl-size-2 {
         font-size: 1.2em;
       }
-      .pt-size-3 {
+      .dl-size-3 {
         font-size: 1.3em;
       }
-      .pt-size-4 {
+      .dl-size-4 {
         font-size: 1.4em;
       }
-      .pt-size-5 {
+      .dl-size-5 {
         font-size: 1.5em;
       }
-      .pt-size-6 {
+      .dl-size-6 {
         font-size: 1.6em;
       }
     }
     textarea {
       font-family: monospace;
     }
-    textarea#pt-embed-link {
+    textarea#dl-embed-link {
       height: 18em;
     }
   }
@@ -195,8 +195,8 @@ body#items_show, #pt-free-form-item-view {
 }
 
 body#items_index, body#items_show {
-  #pt-download-zip-modal {
-    #pt-batch-buttons {
+  #dl-download-zip-modal {
+    #dl-batch-buttons {
       line-height: 3em;
       text-align: center;
     }
@@ -216,7 +216,7 @@ body#tree_browser {
     border-right-style: solid;
     border-right-color: #dddddd;
   }
-  #pt-free-form-item-view {
+  #dl-free-form-item-view {
     max-height: 545px;
     height: 545px;
     padding-top: 7px;
@@ -225,7 +225,7 @@ body#tree_browser {
       margin-bottom: 7px;
     }
   }
-  #pt-pdf-viewer {
+  #dl-pdf-viewer {
     height: 600px;
     margin: 0 auto;
     max-width: 1200px;
@@ -233,28 +233,28 @@ body#tree_browser {
       height: 93%;
     }
   }
-  #pt-video-player {
+  #dl-video-player {
     margin: 0 auto;
     width: 95%;
   }
 }
 @media (max-width: 992px) {
-  #pt-free-form-item-view {
+  #dl-free-form-item-view {
     border-top-style: solid;
     border-color: #dddddd;
   }
-  .pt-side-by-side {
+  .dl-side-by-side {
     display: none;
   }
-  .pt-top-bottom {
+  .dl-top-bottom {
     display: block;
   }
 }
 @media (min-width: 993px) {
-  .pt-side-by-side {
+  .dl-side-by-side {
     display: block;
   }
-  .pt-top-bottom {
+  .dl-top-bottom {
     display: none;
   }
 }

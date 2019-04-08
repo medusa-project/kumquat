@@ -1,12 +1,12 @@
-<div class="modal fade" id="pt-migrate-modal" tabindex="-1" role="dialog"
-     aria-labelledby="pt-migrate-modal-label">
+<div class="modal fade" id="dl-migrate-modal" tabindex="-1" role="dialog"
+     aria-labelledby="dl-migrate-modal-label">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <%= form_tag(admin_collection_items_migrate_metadata_path(@collection)) do %>
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title" id="pt-migrate-modal-label">Migrate Element Values</h4>
+          <h4 class="modal-title" id="dl-migrate-modal-label">Migrate Element Values</h4>
         </div>
         <div class="modal-body">
           <div class="alert alert-warning">
@@ -31,7 +31,7 @@
             <p>Metadata profile is not set.</p>
           <% end %>
 
-          <div class="pt-query">
+          <div class="dl-query">
             <% # will be populated by index.js.erb %>
           </div>
         </div>

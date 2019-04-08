@@ -6,8 +6,8 @@
 
 <div class="btn btn-group pull-right" role="group">
   <!-- Edit button -->
-  <button type="button" class="btn btn-default pt-edit-item-set"
-          data-toggle="modal" data-target="#pt-edit-item-set-modal"
+  <button type="button" class="btn btn-default dl-edit-item-set"
+          data-toggle="modal" data-target="#dl-edit-item-set-modal"
           data-item-set-id="<%= @item_set.id %>">
     <span class="fa fa-pencil"></span> Edit
   </button>
@@ -23,12 +23,12 @@
         <%= link_to 'Edit Items',
                     admin_collection_edit_all_items_path(@item_set.collection,
                                                          item_set: @item_set.id),
-                    id: 'pt-edit-result-set-metadata-link' %>
+                    id: 'dl-edit-result-set-metadata-link' %>
       </li>
       <li class="divider"></li>
       <li <%= (@item_set.collection.package_profile and @item_set.collection.medusa_file_group) ? '' : 'disabled="disabled"' %>>
         <%= link_to raw('Import From TSV&hellip;'), '',
-                    'data-toggle': 'modal', 'data-target': '#pt-import-tsv-modal' %>
+                    'data-toggle': 'modal', 'data-target': '#dl-import-tsv-modal' %>
       </li>
       <li>
         <%= link_to raw('Export As TSV&hellip;'),
@@ -51,7 +51,7 @@
       <li>
         <%= link_to 'Remove Checked',
                     admin_collection_item_set_items_path(@item_set.collection, @item_set),
-                    class: 'pt-remove-checked',
+                    class: 'dl-remove-checked',
                     method: :delete %>
       </li>
       <li>
@@ -84,14 +84,14 @@
 
 <h2>Objects <span class="badge"><%= @items.count %></span>
   <% if @items.count > 0 %>
-    <%= link_to '#', class: 'btn btn-default btn-xs pt-check-all' do %>
+    <%= link_to '#', class: 'btn btn-default btn-xs dl-check-all' do %>
       <i class="fa fa-check-square-o"></i> Check All
     <% end %>
   <% end %>
 </h2>
 
 <% if @items.count > 0 %>
-  <div id="pt-items" class="pt-list-results">
+  <div id="dl-items" class="dl-list-results">
     <%= render partial: 'admin/items/items' %>
   </div>
 <% elsif @item_set.collection.items.count > 0 %>

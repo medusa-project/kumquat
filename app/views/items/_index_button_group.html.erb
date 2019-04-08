@@ -7,12 +7,12 @@
     </button>
     <ul class="dropdown-menu dropdown-menu-right view-dropdown">
       <li>
-        <%= link_to @permitted_params.merge(format: :atom), id: 'pt-view-as-atom' do %>
+        <%= link_to @permitted_params.merge(format: :atom), id: 'dl-view-as-atom' do %>
           <i class="fa fa-rss"></i>&nbsp;&nbsp;Atom
         <% end %>
       </li>
       <li>
-        <%= link_to @permitted_params.merge(format: :json), id: 'pt-view-as-json' do %>
+        <%= link_to @permitted_params.merge(format: :json), id: 'dl-view-as-json' do %>
           <i class="fa fa-code"></i>&nbsp;JSON
         <% end %>
       </li>
@@ -38,7 +38,7 @@
       </button>
       <ul class="dropdown-menu dropdown-menu-right">
         <li>
-          <%= link_to('', 'data-toggle': 'modal', 'data-target': '#pt-download-zip-modal') do %>
+          <%= link_to('', 'data-toggle': 'modal', 'data-target': '#dl-download-zip-modal') do %>
             <i class="fa fa-file-zip-o"></i>&nbsp;&nbsp;Zip File&hellip;
           <% end %>
         </li>

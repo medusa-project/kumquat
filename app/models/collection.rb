@@ -243,11 +243,11 @@ class Collection < ApplicationRecord
   def self.facet_fields
     [
         { name: IndexFields::REPOSITORY_TITLE, label: 'Repository',
-          id: 'pt-repository-facet' },
+          id: 'dl-repository-facet' },
         { name: IndexFields::RESOURCE_TYPES, label: 'Resource Type',
-          id: 'pt-resource-type-facet' },
+          id: 'dl-resource-type-facet' },
         { name: IndexFields::ACCESS_SYSTEMS, label: 'Access Systems',
-          id: 'pt-access-systems-facet' }
+          id: 'dl-access-systems-facet' }
     ]
   end
 

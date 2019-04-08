@@ -5,7 +5,7 @@
 
 <tr>
   <td>
-    <div class="pt-thumbnail">
+    <div class="dl-thumbnail">
       <%= thumbnail_tag(item, shape: :square, lazy: true) %>
     </div>
   </td>
@@ -38,7 +38,7 @@
         <a href="#" class="btn btn-default btn-sm"
            onclick="return false;"
            data-toggle="modal"
-           data-target="#pt-custom-image-modal"
+           data-target="#dl-custom-image-modal"
            data-iiif-url="<%= item.effective_image_binary.iiif_image_url %>"
            data-iiif-info-url="<%= item.effective_image_binary.iiif_info_url %>"
            data-title="<%= item.title %>">

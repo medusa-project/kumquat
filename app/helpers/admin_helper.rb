@@ -92,7 +92,7 @@ module AdminHelper
   #
   def admin_item_element_edit_tag(profile_element, element, vocabulary)
     html = StringIO.new
-    html << '<table class="table-condensed pt-element" style="width:100%">'
+    html << '<table class="table-condensed dl-element" style="width:100%">'
     html <<   '<tr>'
     html <<     '<th style="text-align: right; width: 1px">'
     html <<       '<span class="label label-default">String</span>'
@@ -117,10 +117,10 @@ module AdminHelper
     html <<     '</td>'
     html <<     '<td style="width: 90px" rowspan="2">'
     html <<       '<div class="btn-group">'
-    html <<         '<button class="btn btn-sm btn-default pt-add-element">'
+    html <<         '<button class="btn btn-sm btn-default dl-add-element">'
     html <<           '<i class="fa fa-plus"></i>'
     html <<         '</button>'
-    html <<         '<button class="btn btn-sm btn-danger pt-remove-element">'
+    html <<         '<button class="btn btn-sm btn-danger dl-remove-element">'
     html <<           '<i class="fa fa-minus"></i>'
     html <<         '</button>'
     html <<       '</div>'
@@ -150,7 +150,7 @@ module AdminHelper
   #
   def admin_item_metadata_as_table(item)
     html = StringIO.new
-    html << '<table class="table table-condensed pt-metadata">'
+    html << '<table class="table table-condensed dl-metadata">'
 
     # Iterate through the index-ordered elements in the collection's metadata
     # profile in order to display the entity's elements in the correct order.

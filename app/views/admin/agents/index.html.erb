@@ -10,7 +10,7 @@
 <div class="btn-group pull-right">
   <!-- Add Agent button -->
   <button type="button" class="btn btn-default" data-toggle="modal"
-          data-target="#pt-add-agent-modal">
+          data-target="#dl-add-agent-modal">
     <span class="fa fa-plus"></span> Add Agent
   </button>
 </div>
@@ -18,7 +18,7 @@
 <h1>Agents</h1>
 
 <div class="well">
-  <%= form_tag admin_agents_path, method: 'get', class: 'pt-filter' do %>
+  <%= form_tag admin_agents_path, method: 'get', class: 'dl-filter' do %>
     <div class="form-inline">
       <%= search_field_tag :q, params[:q], placeholder: 'Filter',
                            class: 'form-control' %>
@@ -26,7 +26,7 @@
   <% end %>
 </div>
 
-<div id="pt-agents">
+<div id="dl-agents">
   <%= render 'agents' %>
 </div>
 
@@ -34,15 +34,15 @@
                                              context: :new } %>
 
 <!-- Edit-agent modal -->
-<div class="modal fade" id="pt-edit-agent-modal" tabindex="-1" role="dialog"
-     aria-labelledby="pt-edit-agent-modal-label">
+<div class="modal fade" id="dl-edit-agent-modal" tabindex="-1" role="dialog"
+     aria-labelledby="dl-edit-agent-modal-label">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
-        <h4 class="modal-title" id="pt-edit-agent-modal-label">Edit Agent</h4>
+        <h4 class="modal-title" id="dl-edit-agent-modal-label">Edit Agent</h4>
       </div>
       <div class="modal-body">
         <% # will be populated via XHR %>

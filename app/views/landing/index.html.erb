@@ -1,19 +1,19 @@
 <% provide :body_id, 'landing' %>
 <% provide :title, 'Home' %>
 
-<div id="pt-description">
+<div id="dl-description">
   <%= sanitize(Option::string(Option::Keys::WEBSITE_INTRO_TEXT).gsub("\n", '<br>'),
                tags: %w(p br), attributes: %w()) %>
 </div>
 
 <hr>
 
-<div class="pt-cards">
+<div class="dl-cards">
   <%= entities_as_cards(@dls_collections) %>
 </div>
 
-<div class="pt-spacer">&nbsp;</div>
+<div class="dl-spacer">&nbsp;</div>
 
-<div id="pt-see-more" class="text-center">
+<div id="dl-see-more" class="text-center">
   <%= link_to(raw("#{@num_all_collections - @dls_collections.length} more collections&hellip;"), collections_path) %>
 </div>

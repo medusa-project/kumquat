@@ -7,13 +7,13 @@
   <li class="active">Tasks</li>
 </ol>
 
-<%= hidden_field_tag('pt-tasks-url', admin_tasks_url) %>
-<%= hidden_field_tag('pt-limit', @limit) %>
+<%= hidden_field_tag('dl-tasks-url', admin_tasks_url) %>
+<%= hidden_field_tag('dl-limit', @limit) %>
 
 <h1>Tasks</h1>
 
 <div class="well">
-  <%= form_tag admin_tasks_path, method: 'get', class: 'pt-filter' do %>
+  <%= form_tag admin_tasks_path, method: 'get', class: 'dl-filter' do %>
     <div class="form-inline">
       <%= search_field_tag :q, params[:q], placeholder: 'Filter',
                            class: 'form-control' %>
@@ -41,7 +41,7 @@
   <% end %>
 </div>
 
-<div id="pt-tasks-list">
+<div id="dl-tasks-list">
   <%= render partial: 'tasks' %>
 </div>
 
