@@ -105,6 +105,7 @@ class CollectionsController < WebsiteController
 
     respond_to do |format|
       format.html do
+        @children = []
         if @authorized
           @children = CollectionFinder.new.
               search_children(true).
