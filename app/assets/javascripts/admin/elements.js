@@ -4,12 +4,12 @@
 var PTAdminElementsView = function() {
 
     this.init = function() {
-        $('button.pt-edit-element').on('click', function() {
+        $('button.dl-edit-element').on('click', function() {
             var element_id = $(this).data('element-id');
             var ROOT_URL = $('input[name="root_url"]').val();
             var url = ROOT_URL + '/admin/elements/' + element_id + '/edit';
             $.get(url, function(data) {
-                $('#pt-edit-element-modal .modal-body').html(data);
+                $('#dl-edit-element-modal .modal-body').html(data);
             });
         });
         $('a[disabled="disabled"]').on('click', function() { return false; });

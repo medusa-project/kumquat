@@ -4,12 +4,12 @@
 var PTAdminAgentRelationTypesView = function() {
 
     this.init = function() {
-        $('button.pt-edit-agent-relation-type').on('click', function() {
+        $('button.dl-edit-agent-relation-type').on('click', function() {
             var type_id = $(this).data('agent-relation-type-id');
             var ROOT_URL = $('input[name="root_url"]').val();
             var url = ROOT_URL + '/admin/agent-relation-types/' + type_id + '/edit';
             $.get(url, function(data) {
-                $('#pt-edit-agent-relation-type-modal .modal-body').html(data);
+                $('#dl-edit-agent-relation-type-modal .modal-body').html(data);
             });
         });
         $('a[disabled="disabled"]').on('click', function() { return false; });

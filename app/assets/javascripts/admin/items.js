@@ -14,7 +14,7 @@ var PTAdminItemEditView = function() {
         var self = this;
 
         this.clearResults = function() {
-            $('.pt-autocomplete-results').remove();
+            $('.dl-autocomplete-results').remove();
         };
 
         this.fetchResults = function(onSuccess) {
@@ -63,7 +63,7 @@ var PTAdminItemEditView = function() {
         };
 
         this.renderResults = function(results) {
-            var div = '<div class="pt-autocomplete-results">' +
+            var div = '<div class="dl-autocomplete-results">' +
                 '<ul>';
             results.forEach(function (obj, index) {
                 if (index < RESULTS_LIMIT) {
@@ -109,8 +109,8 @@ var PTAdminItemEditView = function() {
     this.init = function() {
         new Application.DirtyFormListener('form').listen();
 
-        $('button.pt-add-element').on('click', function() {
-            var element = $(this).closest('.pt-element');
+        $('button.dl-add-element').on('click', function() {
+            var element = $(this).closest('.dl-element');
 
             var clone = element.clone(true);
             clone.find('input').val('');
@@ -119,8 +119,8 @@ var PTAdminItemEditView = function() {
 
             return false;
         });
-        $('button.pt-remove-element').on('click', function() {
-            var element = $(this).closest('.pt-element');
+        $('button.dl-remove-element').on('click', function() {
+            var element = $(this).closest('.dl-element');
             if (element.siblings().length > 0) {
                 element.remove();
             }
@@ -128,7 +128,7 @@ var PTAdminItemEditView = function() {
         });
 
         // Auto-vertical-resize the textareas...
-        var textareas = $('#pt-metadata textarea');
+        var textareas = $('#dl-metadata textarea');
         var MAGIC_FUDGE = 12;
         var MIN_HEIGHT = 20;
         // ... initially
@@ -171,21 +171,21 @@ var PTAdminItemsEditView = function() {
         new Application.DirtyFormListener('form').listen();
 
         $('.pagination a').off().on('click', function() {
-            $('#pt-items')[0].scrollIntoView({behavior: "smooth", block: "start"});
+            $('#dl-items')[0].scrollIntoView({behavior: "smooth", block: "start"});
         });
 
         // Make the table header stick to the top when scrolling. (DLD-124)
         // Uses jquery.stickytableheaders.min.js
         // https://github.com/jmosbech/StickyTableHeaders
         $('table').stickyTableHeaders({
-            fixedOffset: $('#pt-navbar-collapse'),
+            fixedOffset: $('#dl-navbar-collapse'),
             cacheHeaderHeight: true
         });
 
         // When the form is dirty and a link is clicked, prompt to save changes
         // before proceeding.
         $('a').off().on('click', function() {
-            if ($('.pt-dirty').length) {
+            if ($('.dl-dirty').length) {
                 return window.confirm('Proceed without saving changes?');
             }
         });
@@ -197,13 +197,13 @@ var PTAdminItemsEditView = function() {
 
             shade.show();
 
-            var collection_id = $('input[name=pt-collection-id]').val();
+            var collection_id = $('input[name=dl-collection-id]').val();
             $.ajax({
                 type: 'POST',
                 url: '/admin/collections/' + collection_id + '/items/update',
                 data: $("form").serialize(),
                 success: function(result) {
-                    $('input[type=number], textarea').removeClass('pt-dirty');
+                    $('input[type=number], textarea').removeClass('dl-dirty');
                 },
                 error: function(xhr, status, error) {
                     console.error(error);
@@ -238,11 +238,11 @@ var PTAdminItemsView = function() {
 
     this.attachEventListeners = function() {
         $('.pagination a').on('click', function() {
-            $('form.pt-filter')[0].scrollIntoView({behavior: "smooth", block: "start"});
+            $('form.dl-filter')[0].scrollIntoView({behavior: "smooth", block: "start"});
         });
 
-        $('#pt-export-modal button[type=submit]').on('click', function() {
-            $('#pt-export-modal').modal('hide');
+        $('#dl-export-modal button[type=submit]').on('click', function() {
+            $('#dl-export-modal').modal('hide');
         });
 
         // Enable certain checkboxes in the import panel only when the "create"
@@ -258,12 +258,12 @@ var PTAdminItemsView = function() {
 
         // When the add-checked-items-to-set modal is shown, copy the selected
         // item IDs in the results into hidden inputs in the modal form.
-        $('#pt-add-checked-items-to-set-modal').on('shown.bs.modal', function() {
+        $('#dl-add-checked-items-to-set-modal').on('shown.bs.modal', function() {
             var modal_body = $(this).find('.modal-body');
             modal_body.find('[name="items[]"]').remove();
 
             var checked_items = [];
-            $('[name="pt-selected-items[]"]:checked').each(function() {
+            $('[name="dl-selected-items[]"]:checked').each(function() {
                 checked_items.push($(this).val());
             });
             for (var i = 0; i < checked_items.length; i++) {
@@ -273,9 +273,9 @@ var PTAdminItemsView = function() {
 
         // When the "Publish Checked Results" or "Unpublish Checked Results"
         // menu items are clicked, copy the selected item IDs into their hrefs.
-        $('#pt-publish-checked-results-link, #pt-unpublish-checked-results-link').on('click', function() {
+        $('#dl-publish-checked-results-link, #dl-unpublish-checked-results-link').on('click', function() {
             var checked_items = [];
-            $('[name="pt-selected-items[]"]:checked').each(function() {
+            $('[name="dl-selected-items[]"]:checked').each(function() {
                 checked_items.push($(this).val());
             });
 

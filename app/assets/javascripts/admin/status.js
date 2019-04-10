@@ -6,8 +6,8 @@ var PTServerStatusMonitor = function() {
     var refresh = function() {
         console.log('Refreshing server status...');
 
-        var service_table = $('table#pt-status');
-        var check_url = $('input[name=pt-status-url]').val();
+        var service_table = $('table#dl-status');
+        var check_url = $('input[name=dl-status-url]').val();
 
         $.ajax({
             url: check_url,

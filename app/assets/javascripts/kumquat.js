@@ -7,20 +7,20 @@ var Application = {
      */
     initFacets: function() {
         var addFacetEventListeners = function() {
-            $('[name="pt-facet-term"]').on('change', function() {
+            $('[name="dl-facet-term"]').on('change', function() {
                 // Create hidden input counterparts of each checked checkbox, as
                 // checkboxes' values can't change.
                 var form = $(this).parents('form:first');
                 form.find('[name="fq"]').remove();
                 form.find('[name="fq[]"]').remove();
-                form.find('[name=pt-facet-term]:checked').each(function() {
+                form.find('[name=dl-facet-term]:checked').each(function() {
                     var input = $('<input type="hidden" name="fq[]">');
                     input.val($(this).data('query'));
                     form.append(input);
                 });
 
                 $.ajax({
-                    url: $('[name=pt-current-path]').val(),
+                    url: $('[name=dl-current-path]').val(),
                     method: 'GET',
                     data: form.serialize(),
                     dataType: 'script',
@@ -52,7 +52,7 @@ var Application = {
      */
     AJAXShade: function() {
 
-        var shade = $('#pt-ajax-shade');
+        var shade = $('#dl-ajax-shade');
         // http://spin.js.org
         var spinner = new Spinner({
             lines: 13 // The number of lines to draw
@@ -97,7 +97,7 @@ var Application = {
      */
     DirtyFormListener: function(form_selector) {
 
-        var DIRTY_CLASS = 'pt-dirty';
+        var DIRTY_CLASS = 'dl-dirty';
 
         this.listen = function() {
             // When the value of a text input changes, mark it as dirty.
@@ -137,14 +137,14 @@ var Application = {
     FilterField: function() {
         var INPUT_DELAY_MSEC = 500;
 
-        $('form.pt-filter').submit(function () {
+        $('form.dl-filter').submit(function () {
             $.get(this.action, $(this).serialize(), null, 'script');
             $(this).nextAll('input').addClass('active');
             return false;
         });
 
         var submitForm = function () {
-            var forms = $('form.pt-filter');
+            var forms = $('form.p-filter');
             $.ajax({
                 url: forms.attr('action'),
                 method: 'GET',
@@ -157,7 +157,7 @@ var Application = {
 
         var input_timer;
         // When text is typed in the filter field...
-        $('form.pt-filter input').on('keyup', function () {
+        $('form.dl-filter input').on('keyup', function () {
             // Reset the typing-delay counter.
             clearTimeout(input_timer);
 
@@ -168,8 +168,7 @@ var Application = {
         });
         // When form controls accompanying the filter field are changed,
         // resubmit the form via AJAX.
-        $('form.pt-filter select, ' +
-            'form.pt-filter input[type=radio]').on('change', function() {
+        $('form.dl-filter select, form.dl-filter input[type=radio]').on('change', function() {
             submitForm();
         });
     },
@@ -201,17 +200,17 @@ var Application = {
             }
 
             // remove any existing messages
-            $('div.pt-flash').remove();
+            $('div.dl-flash').remove();
 
             // construct the message
-            var flash = $('<div class="pt-flash alert ' + bootstrap_class + '"></div>');
+            var flash = $('<div class="dl-flash alert ' + bootstrap_class + '"></div>');
             var button = $('<button type="button" class="close"' +
             ' data-dismiss="alert" aria-hidden="true">&times;</button>');
             flash.append(button);
             button.after(text);
 
             // append the flash to the DOM
-            $('#pt-page-content').before(flash);
+            $('#dl-page-content').before(flash);
         }
 
     },
@@ -303,7 +302,7 @@ var Application = {
         // indicating the result of a form submission.
         $(document).ajaxSuccess(function(event, request) {
             var result_type = request.getResponseHeader('X-Kumquat-Message-Type');
-            var edit_panel = $('.pt-edit-panel.in');
+            var edit_panel = $('.dl-edit-panel.in');
 
             if (result_type && edit_panel.length) {
                 if (result_type === 'success') {

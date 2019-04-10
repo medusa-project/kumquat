@@ -14,13 +14,13 @@ var PTAgentView = function() {
 
     this.attachEventListeners = function() {
         $('.pagination a').on('click', function() {
-            $('#pt-agents')[0].scrollIntoView({behavior: "smooth", block: "start"});
+            $('#dl-agents')[0].scrollIntoView({behavior: "smooth", block: "start"});
         });
     };
 
     this.layout = function() {
         // http://suprb.com/apps/gridalicious/
-        $('.pt-flex-results').gridalicious({ width: 260, selector: '.pt-object' });
+        $('.dl-flex-results').gridalicious({ width: 260, selector: '.dl-object' });
     };
 
 };

@@ -4,12 +4,12 @@
 var PTAdminAgentRulesView = function() {
 
     this.init = function() {
-        $('button.pt-edit-agent-rule').on('click', function() {
+        $('button.dl-edit-agent-rule').on('click', function() {
             var type_id = $(this).data('agent-rule-id');
             var ROOT_URL = $('input[name="root_url"]').val();
             var url = ROOT_URL + '/admin/agent-rules/' + type_id + '/edit';
             $.get(url, function(data) {
-                $('#pt-edit-agent-rule-modal .modal-body').html(data);
+                $('#dl-edit-agent-rule-modal .modal-body').html(data);
             });
         });
         $('a[disabled="disabled"]').on('click', function() { return false; });

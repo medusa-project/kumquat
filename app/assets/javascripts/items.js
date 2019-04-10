@@ -47,16 +47,16 @@ var PTItemView = function() {
                     case 12: return 'December';
                 }
             };
-            $('[name=pt-citation-format]').on('change', function() {
+            $('[name=dl-citation-format]').on('change', function() {
                 var container = $(this).parent();
                 var item_id = container.data('item-id');
 
-                var author = container.find('[name=pt-citation-author]').val();
-                var date = container.find('[name=pt-citation-date-created]').val();
+                var author = container.find('[name=dl-citation-author]').val();
+                var date = container.find('[name=dl-citation-date-created]').val();
                 var dateObj = new Date(date);
-                var source = container.find('[name=pt-citation-source]').val();
-                var title = container.find('[name=pt-citation-title]').val();
-                var url = container.find('[name=pt-citation-url]').val();
+                var source = container.find('[name=dl-citation-source]').val();
+                var title = container.find('[name=dl-citation-title]').val();
+                var url = container.find('[name=dl-citation-url]').val();
                 var citation = '';
 
                 switch ($(this).val()) {
@@ -101,7 +101,7 @@ var PTItemView = function() {
                         citation = title + source + date + url;
                         break;
                 }
-                container.find('.pt-citation').html(citation);
+                container.find('.dl-citation').html(citation);
             }).trigger('change');
         }; init();
     };
@@ -127,7 +127,7 @@ var PTItemView = function() {
         var title;
 
         var init = function() {
-            var embed_modal = $('#pt-custom-image-modal');
+            var embed_modal = $('#dl-custom-image-modal');
             embed_modal.on('show.bs.modal', function(e) {
                 // Get the element that was clicked to open the panel.
                 var clicked_button = $(e.relatedTarget);
@@ -177,7 +177,7 @@ var PTItemView = function() {
 
                 if (width >= MIN_IMAGE_SIZE && height >= MIN_IMAGE_SIZE
                     && width * height <= max_pixels) {
-                    var size_class = 'pt-size-' +
+                    var size_class = 'dl-size-' +
                         Math.floor(size_i / num_usable_sizes * NUM_BUTTON_SIZE_TIERS);
                     var percent = Math.round(width / full_width * 100);
                     var checked = (size_i === num_sizes - 1) ? 'checked' : '';
@@ -241,7 +241,7 @@ var PTItemView = function() {
             });
             container.append(formats_div);
 
-            var embed_modal = $('#pt-custom-image-modal');
+            var embed_modal = $('#dl-custom-image-modal');
 
             var displayUrl = function() {
                 var size = embed_modal.find('input[name="size"]:checked').val();
@@ -249,8 +249,8 @@ var PTItemView = function() {
                 var format = embed_modal.find('input[name="format"]:checked').val();
                 var url = image_url + '/full/' + size + '/0/' + quality + '.' + format;
 
-                $('#pt-preview-link').attr('href', url).show();
-                $('#pt-embed-link').val('<img src="' + url + '" alt="' + title + '">');
+                $('#dl-preview-link').attr('href', url).show();
+                $('#dl-embed-link').val('<img src="' + url + '" alt="' + title + '">');
             };
 
             $('input[name="size"], input[name="quality"], input[name="format"]').on('click', function () {
@@ -273,30 +273,30 @@ var PTItemView = function() {
     };
 
     this.init = function() {
-        $('a[href="#pt-download-section"]').on('click', function() {
-            $('#pt-download').collapse('show');
+        $('a[href="#dl-download-section"]').on('click', function() {
+            $('#dl-download').collapse('show');
         });
 
         // Lazy-load thumbnail images in the download section when it gets
         // expanded.
-        $('#pt-download-section').on('shown.bs.collapse', function() {
+        $('#dl-download-section').on('shown.bs.collapse', function() {
             Application.loadLazyImages();
         });
         // Or, when it's being rendered in its expanded state.
-        if ($('#pt-download').hasClass('in')) {
-            $('#pt-download-section').trigger('shown.bs.collapse');
+        if ($('#dl-download').hasClass('in')) {
+            $('#dl-download-section').trigger('shown.bs.collapse');
         }
 
         // The 3D viewer is initially not loaded. Load it the first time its
         // container div appears.
-        $('#pt-3d-viewer-container').on('shown.bs.collapse', function() {
+        $('#dl-3d-viewer-container').on('shown.bs.collapse', function() {
             if (!three_d_viewer_loaded) {
                 Application.view.threeDViewer.start();
                 three_d_viewer_loaded = true;
             }
         });
 
-        var initial_index = $('[name=pt-download-item-index]').val();
+        var initial_index = $('[name=dl-download-item-index]').val();
 
         // This acts as both a canvas-index-changed and on-load-complete
         // listener, because UV doesn't have the latter, unless I'm missing
@@ -311,7 +311,7 @@ var PTItemView = function() {
                 // version 2.0. We can't do this quite yet but there is no
                 // event to let us know when it's safe, hence the delay.
                 setTimeout(function() {
-                    $('#pt-compound-viewer iframe').contents()
+                    $('#dl-compound-viewer iframe').contents()
                         .find('div#thumb' + index + ' img').trigger('click');
                     initial_index = null;
                 }, 500);
@@ -322,7 +322,7 @@ var PTItemView = function() {
             // When there are >1 items in the viewer:
             // (N.B. The viewer and the download table will always contain the
             // same items in the same order.)
-            var rows = $('#pt-download table tr');
+            var rows = $('#dl-download table tr');
             if (rows.length > 1) {
                 // Highlight the corresponding item in the download table.
                 // (UV will also fire this on load.)
@@ -331,7 +331,7 @@ var PTItemView = function() {
                     .addClass('selected');
 
                 // Update the URL in the location bar.
-                var item_id = $('[name=pt-download-item-id]').eq(index).val();
+                var item_id = $('[name=dl-download-item-id]').eq(index).val();
                 window.history.replaceState({ id: item_id, index: index }, '',
                     '/items/' + item_id);
             }
@@ -339,7 +339,7 @@ var PTItemView = function() {
 
         // Copy the permalink to the clipboard when a copy-permalink button is
         // clicked. This uses clipboard.js: https://clipboardjs.com
-        var clipboard = new Clipboard('.pt-copy-permalink');
+        var clipboard = new Clipboard('.dl-copy-permalink');
         clipboard.on('success', function(e) {
             // Remove the button and add a "copied" message in its place.
             var button = $(e.trigger);
@@ -377,7 +377,7 @@ var PTItemsView = function() {
         // Submit the sort form on change.
         $('select[name="sort"]').on('change', function () {
             $.ajax({
-                url: $('[name=pt-current-path]').val(),
+                url: $('[name=dl-current-path]').val(),
                 method: 'GET',
                 data: $(this).parents('form:first').serialize(),
                 dataType: 'script',
@@ -395,7 +395,7 @@ var PTItemsView = function() {
      */
     this.attachEventListeners = function() {
         $('.pagination a').on('click', function() {
-            $('form.pt-filter')[0].scrollIntoView({behavior: "smooth", block: "start"});
+            $('form.dl-filter')[0].scrollIntoView({behavior: "smooth", block: "start"});
         });
     };
 
@@ -570,7 +570,7 @@ var PTTreeBrowserView = function() {
     var setItemViewHTML = function(result) {
         //reset flag used by embed.js
         window.embedScriptIncluded = false;
-        $('#pt-free-form-item-view').html(result);
+        $('#dl-free-form-item-view').html(result);
         Application.init();
         Application.view = new PTItemView();
         Application.view.init();

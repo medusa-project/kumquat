@@ -11,16 +11,16 @@ var PTAdminItemSetView = function() {
 
     var attachEventListeners = function() {
         var ROOT_URL = $('input[name="root_url"]').val();
-        var collection_id = $('input[name="pt-collection-id"]').val();
+        var collection_id = $('input[name="dl-collection-id"]').val();
 
-        $('button.pt-edit-item-set').on('click', function() {
+        $('button.dl-edit-item-set').on('click', function() {
             var set_id = $(this).data('item-set-id');
             var url = ROOT_URL + '/admin/collections/' + collection_id +
                 '/item_sets/' + set_id + '/edit';
             $.ajax({
                 url: url,
                 success: function (data) {
-                    $('#pt-edit-item-set-modal .modal-body').html(data);
+                    $('#dl-edit-item-set-modal .modal-body').html(data);
                 },
                 error: function(a, b, c) {
                     console.error(a);
@@ -30,16 +30,16 @@ var PTAdminItemSetView = function() {
             });
         });
 
-        $('.pt-remove-checked').on('click', function() {
+        $('.dl-remove-checked').on('click', function() {
             var href = $(this).attr('href') + '?';
-            $('[name="pt-selected-items[]"]:checked').each(function() {
+            $('[name="dl-selected-items[]"]:checked').each(function() {
                 href += 'items[]=' + $(this).val() + '&';
             });
             $(this).attr('href', href);
         });
 
-        $('a.pt-check-all').on('click', function() {
-            var checkboxes = $('#pt-items input[type=checkbox]');
+        $('a.dl-check-all').on('click', function() {
+            var checkboxes = $('#dl-items input[type=checkbox]');
             var checked = ($(this).data('checked') === 'true');
 
             if (checked) {

@@ -500,7 +500,7 @@ module ItemsHelper
     html <<     'Descriptive Information'
     html <<   '</a>'
     html << '</h2>'
-    html << '<div id="pt-metadata" class="collapse in">'
+    html << '<div id="dl-metadata" class="collapse in">'
     html <<   '<div class="visible-xs">'
     html <<     metadata_as_list(item)
     html <<   '</div>'

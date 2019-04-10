@@ -20,12 +20,12 @@ var PTCollectionsView = function() {
     function updateTitle() {
         // IMET-404: Get a list of checked repositories...
         var repositories = [];
-        $('#pt-repository-facet input:checked').each(function() {
+        $('#dl-repository-facet input:checked').each(function() {
             repositories.push($(this).next().text().trim());
         });
         // ... and then set the page title to the English-ized list.
         var text = '';
-        var count = $('#pt-count');
+        var count = $('#dl-count');
         if (repositories.length === 1) {
             text += repositories[0];
         } else if (repositories.length > 1) {
@@ -35,22 +35,22 @@ var PTCollectionsView = function() {
         } else {
             text = 'Collections';
         }
-        var title = $('#pt-page-title');
+        var title = $('#dl-page-title');
         title.text(text + ' ');
         title.append(count);
     }
 
     function attachEventListeners() {
         $('.pagination a').off().on('click', function() {
-            $('form.pt-filter')[0].scrollIntoView({behavior: "smooth", block: "start"});
+            $('form.dl-filter')[0].scrollIntoView({behavior: "smooth", block: "start"});
         });
 
-        $('[name="pt-facet-term"]').off().on('change', function() {
+        $('[name="dl-facet-term"]').off().on('change', function() {
             // Create hidden element counterparts of each checked checkbox,
             // as checkboxes can't have values.
             var form = $(this).parents('form:first');
             form.find('[name="fq[]"]').remove();
-            form.find('[name=pt-facet-term]:checked').each(function() {
+            form.find('[name=dl-facet-term]:checked').each(function() {
                 var input = $('<input type="hidden" name="fq[]">');
                 input.val($(this).data('query'));
                 form.append(input);

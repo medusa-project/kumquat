@@ -14,7 +14,7 @@ var PTDownloadView = function() {
                 data: null,
                 dataType: 'script',
                 success: function(result) {
-                    $('pt-download-status').html(result);
+                    $('dl-download-status').html(result);
                 }
             });
         }, REFRESH_INTERVAL);

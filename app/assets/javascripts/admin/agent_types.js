@@ -4,12 +4,12 @@
 var PTAdminAgentTypesView = function() {
 
     this.init = function() {
-        $('button.pt-edit-agent-type').on('click', function() {
+        $('button.dl-edit-agent-type').on('click', function() {
             var type_id = $(this).data('agent-type-id');
             var ROOT_URL = $('input[name="root_url"]').val();
             var url = ROOT_URL + '/admin/agent-types/' + type_id + '/edit';
             $.get(url, function(data) {
-                $('#pt-edit-agent-type-modal .modal-body').html(data);
+                $('#dl-edit-agent-type-modal .modal-body').html(data);
             });
         });
         $('a[disabled="disabled"]').on('click', function() { return false; });

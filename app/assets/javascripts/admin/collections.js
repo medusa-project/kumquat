@@ -15,10 +15,10 @@ var PTAdminCollectionsView = function() {
 
     this.attachEventListeners = function() {
         $('input[type=checkbox]').on('change', function() {
-            $('form.pt-filter').submit();
+            $('form.dl-filter').submit();
         });
         $('.pagination a').on('click', function() {
-            $('form.pt-filter')[0].scrollIntoView({behavior: "smooth", block: "start"});
+            $('form.dl-filter')[0].scrollIntoView({behavior: "smooth", block: "start"});
         });
     };
 
@@ -34,14 +34,14 @@ var PTAdminCollectionView = function() {
     var ROOT_URL = $('input[name="root_url"]').val();
 
     this.init = function() {
-        var collection_id = $('input[name="pt-collection-id"]').val();
+        var collection_id = $('input[name="dl-collection-id"]').val();
 
-        $('button.pt-add-item-set').on('click', function() {
+        $('button.dl-add-item-set').on('click', function() {
             var url = ROOT_URL + '/admin/collections/' + collection_id + '/item_sets/new';
             $.ajax({
                 url: url,
                 success: function (data) {
-                    $('#pt-add-item-set-modal .modal-body').html(data);
+                    $('#dl-add-item-set-modal .modal-body').html(data);
                 },
                 error: function(a, b, c) {
                     console.error(a);
@@ -51,14 +51,14 @@ var PTAdminCollectionView = function() {
             });
         });
 
-        $('button.pt-edit-item-set').on('click', function() {
+        $('button.dl-edit-item-set').on('click', function() {
             var set_id = $(this).data('item-set-id');
             var url = ROOT_URL + '/admin/collections/' + collection_id +
                 '/item_sets/' + set_id + '/edit';
             $.ajax({
                 url: url,
                 success: function (data) {
-                    $('#pt-edit-item-set-modal .modal-body').html(data);
+                    $('#dl-edit-item-set-modal .modal-body').html(data);
                 },
                 error: function(a, b, c) {
                     console.error(a);

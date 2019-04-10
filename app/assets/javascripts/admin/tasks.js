@@ -3,14 +3,14 @@
  */
 var PTAdminTasksView = function() {
 
-    var TASKS_URL = $('input[name="pt-tasks-url"]').val();
+    var TASKS_URL = $('input[name="dl-tasks-url"]').val();
 
     this.init = function() {
         new Application.FilterField();
 
         new TaskRefresher().start();
 
-        $('#pt-task-panel').on('show.bs.modal', function(event) {
+        $('#dl-task-panel').on('show.bs.modal', function(event) {
             var modal = $(this);
             var button = $(event.relatedTarget);
             var task_id = button.data('task-id');
@@ -40,12 +40,12 @@ var PTAdminTasksView = function() {
 
             var current_page = $('.pagination li.active > a:first')
                 .text().replace(/[/\D]/g, '');
-            var start = (current_page - 1) * $('[name=pt-limit]').val();
+            var start = (current_page - 1) * $('[name=dl-limit]').val();
             var url = TASKS_URL + '?start=' + start;
 
             $.ajax({
                 url: url,
-                data: $('form.pt-filter').serialize(),
+                data: $('form.dl-filter').serialize(),
                 success: function (data) {
                     // this will be handled by index.js.erb
                 }

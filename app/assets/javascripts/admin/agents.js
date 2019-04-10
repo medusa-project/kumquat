@@ -14,7 +14,7 @@ var PTAdminAgentEditForm = function() {
                 });
             });
         };
-        $('button.pt-add').on('click', function() {
+        $('button.dl-add').on('click', function() {
             var lastRow = $(this).prev('table').find('tr:last');
             var clone = lastRow.clone(true);
             clone.find('input[type=text]').val('');
@@ -23,7 +23,7 @@ var PTAdminAgentEditForm = function() {
             updateRowIndices($(this).prev('table'));
             return false;
         });
-        $('button.pt-remove').on('click', function() {
+        $('button.dl-remove').on('click', function() {
             var form = $(this).closest('form');
             var row = $(this).closest('tr');
             var siblings = row.siblings();
@@ -41,7 +41,7 @@ var PTAdminAgentEditForm = function() {
         // different names, so this won't happen automatically.
         $('input[type=radio]').on('click', function() {
             var clickedRadio = $(this);
-            $('table#pt-agent-uris').find('input[type=radio]').each(function() {
+            $('table#dl-agent-uris').find('input[type=radio]').each(function() {
                 if ($(this).attr('name') != clickedRadio.attr('name')) {
                     $(this).prop('checked', false);
                 }
@@ -54,22 +54,22 @@ var PTAdminAgentEditForm = function() {
 var PTAdminAgentRelationForm = function() {
 
     this.init = function() {
-        $('input.pt-autocomplete').on('keyup', function() {
-            $(this).parents('.form-group').find('.pt-suggestions').remove();
+        $('input.dl-autocomplete').on('keyup', function() {
+            $(this).parents('.form-group').find('.dl-suggestions').remove();
 
             var input = $(this);
             var agents_url = $('[name=root_url]').val() +
                 '/admin/agents.json?q=' + input.val();
 
             $.getJSON(agents_url, function(data) {
-                var suggestionsDiv = '<div class="pt-suggestions"><ul>';
+                var suggestionsDiv = '<div class="dl-suggestions"><ul>';
                 data.forEach(function(agent) {
                     suggestionsDiv += '<li>' + agent['name'] + '</li>'
                 });
                 suggestionsDiv += '</ul></div>';
                 input.parent().append(suggestionsDiv);
 
-                $('.pt-suggestions li').on('click', function() {
+                $('.dl-suggestions li').on('click', function() {
                     input.val($(this).text());
                     $(this).parent().remove();
                     return false;
@@ -89,16 +89,16 @@ var PTAdminAgentsView = function() {
 
     this.init = function() {
         new Application.FilterField();
-        $('form.pt-filter input').on('change', function() {
-            $('form.pt-filter').submit();
+        $('form.dl-filter input').on('change', function() {
+            $('form.dl-filter').submit();
         });
 
-        $('button.pt-edit-agent').on('click', function() {
+        $('button.dl-edit-agent').on('click', function() {
             var agent_id = $(this).data('agent-id');
             var ROOT_URL = $('input[name="root_url"]').val();
             var url = ROOT_URL + '/admin/agents/' + agent_id + '/edit';
             $.get(url, function(data) {
-                $('#pt-edit-agent-modal .modal-body').html(data);
+                $('#dl-edit-agent-modal .modal-body').html(data);
             });
         });
         $('a[disabled="disabled"]').on('click', function() { return false; });
@@ -116,12 +116,12 @@ var PTAdminAgentsView = function() {
 var PTAdminAgentView = function() {
 
     this.init = function() {
-        $('button.pt-edit-agent-relation').on('click', function() {
+        $('button.dl-edit-agent-relation').on('click', function() {
             var agent_relation_id = $(this).data('agent-relation-id');
             var ROOT_URL = $('input[name="root_url"]').val();
             var url = ROOT_URL + '/admin/agent-relations/' + agent_relation_id + '/edit';
             $.get(url, function(data) {
-                $('#pt-agent-relation-modal .modal-body').html(data);
+                $('#dl-agent-relation-modal .modal-body').html(data);
                 new PTAdminAgentRelationForm().init();
             });
         });
