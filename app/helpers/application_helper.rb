@@ -626,10 +626,23 @@ module ApplicationHelper
         html << "</ol>"
       else
         html << '<ol class="breadcrumb">'
-        html <<   "<li>#{link_to 'Home', root_path}</li>"
-        html <<   "<li>#{repository_link(item.collection)}</li>"
-        html <<   "<li>#{link_to item.collection.title, collection_path(item.collection)}</li>"
-        html <<   "<li>#{link_to 'Items', collection_items_path(item.collection)}</li>"
+        html <<   '<li>'
+        html <<     link_to('Home', root_path)
+        html <<   '</li>'
+        if item.collection
+          html << '<li>'
+          html <<   repository_link(item.collection)
+          html << '</li>'
+          html << '<li>'
+          html <<   link_to(item.collection.title, collection_path(item.collection))
+          html << '</li>'
+          html << '<li>'
+          html <<   link_to('Items', collection_items_path(item.collection))
+          html << '</li>'
+        else
+          html << '<li>Unknown Repository</li>'
+          html << '<li>Unknown Collection</li>'
+        end
         html <<   item_structure_breadcrumb(item)
         html << '</ol>'
     end
