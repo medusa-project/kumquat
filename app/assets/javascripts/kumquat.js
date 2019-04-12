@@ -144,7 +144,7 @@ var Application = {
         });
 
         var submitForm = function () {
-            var forms = $('form.p-filter');
+            var forms = $('form.dl-filter');
             $.ajax({
                 url: forms.attr('action'),
                 method: 'GET',
