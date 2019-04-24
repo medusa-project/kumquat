@@ -16,6 +16,10 @@ module Admin
           where(media_category: Binary::MediaCategory::IMAGE).
           order('RANDOM()').
           limit(20)
+
+      if params[:media_type].present?
+        @images = @images.where(media_type: params[:media_type])
+      end
     end
 
   end
