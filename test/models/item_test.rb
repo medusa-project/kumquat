@@ -784,15 +784,6 @@ class ItemTest < ActiveSupport::TestCase
     end
   end
 
-  test 'update_from_tsv() raises an error when given a too-long value' do
-    row = {}
-    row['Title'] = 'A' * (ItemUpdater::MAX_TSV_VALUE_LENGTH + 1)
-
-    assert_raises ArgumentError do
-      @item.update_from_tsv(row)
-    end
-  end
-
   # virtual_filename()
 
   test 'virtual_filename() works properly' do
