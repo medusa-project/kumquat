@@ -14,7 +14,7 @@ module Admin
       @images = Binary.
           where('byte_size < ?', size_limit).
           where(media_category: Binary::MediaCategory::IMAGE).
-          order('RANDOM()').
+          order(Arel.sql('RANDOM()')).
           limit(20)
 
       if params[:media_type].present?
