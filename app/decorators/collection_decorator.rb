@@ -39,7 +39,13 @@ class CollectionDecorator < Draper::Decorator
         children:                object.children.map{ |c| { id: c.repository_id,
                                                             uri: collection_url(c) } },
         created_at:              object.created_at,
-        updated_at:              object.updated_at
+        updated_at:              object.updated_at,
+
+        # These serve no other purpose than for harvesting by MedusaHQ.
+        medusa_file_group_id:     object.medusa_file_group_id,
+        medusa_cfs_directory_id:  object.medusa_cfs_directory_id,
+        published:                object.published_in_dls,
+        rightsstatements_org_uri: object.rightsstatements_org_uri
     }
 
     bin = object.effective_representative_image_binary
