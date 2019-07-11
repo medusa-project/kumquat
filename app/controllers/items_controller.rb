@@ -212,7 +212,7 @@ class ItemsController < WebsiteController
       raise ActiveRecord::RecordNotFound unless @collection
 
       # If the collection is unauthorized, redirect to the show-collection
-      # page which will contain an explanation.
+      # page, which will contain an explanation.
       begin
         authorize(@collection)
       rescue AuthorizationError
@@ -220,16 +220,15 @@ class ItemsController < WebsiteController
       end
     end
 
-    finder = item_finder_for(params)
-    @items = finder.to_a
-    @facets = finder.facets
-
-    @current_page = finder.page
-    @count = finder.count
-    @start = finder.get_start
-    @limit = finder.get_limit
+    finder             = item_finder_for(params)
+    @items             = finder.to_a
+    @facets            = finder.facets
+    @current_page      = finder.page
+    @count             = finder.count
+    @start             = finder.get_start
+    @limit             = finder.get_limit
     @num_results_shown = [@limit, @count].min
-    @metadata_profile = @collection&.effective_metadata_profile ||
+    @metadata_profile  = @collection&.effective_metadata_profile ||
         MetadataProfile.default
 
     # If there are no results, get some search suggestions.
@@ -600,38 +599,44 @@ class ItemsController < WebsiteController
   #
   def item_finder_for(query)
     session[:collection_id] = query[:collection_id]
-    session[:q] = query[:q]
-    session[:fq] = query[:fq]
-    session[:sort] = query[:sort] if query[:sort].present?
-    session[:start] = query[:start].to_i
-    session[:start] = 0 if session[:start].to_i < 0
-    session[:limit] = query[:limit].to_i
+    session[:q]             = query[:q]
+    session[:fq]            = query[:fq]
+    session[:sort]          = query[:sort]
+    session[:start]         = query[:start].to_i
+    session[:start]         = 0 if session[:start].to_i < 0
+    session[:limit]         = query[:limit].to_i
     if session[:limit].to_i < MIN_RESULT_WINDOW or
         session[:limit].to_i > MAX_RESULT_WINDOW
       session[:limit] = Option::integer(Option::Keys::DEFAULT_RESULT_WINDOW)
+    end
+
+    sort = session[:sort]
+    if sort.blank? and @collection
+      el = @collection.metadata_profile.default_sortable_element
+      sort = el.indexed_sort_field if el
     end
 
     # display=leaves is used in free-form collections to show files flattened.
     if params[:display] == 'leaves'
       ItemFinder.new.
           user_roles(request_roles).
-          collection(Collection.find_by_repository_id(session[:collection_id])).
+          collection(@collection).
           facet_filters(session[:fq]).
           query_all(session[:q]).
           search_children(true).
           include_variants(Item::Variants::FILE).
-          order(session[:sort]).
+          order(sort).
           start(session[:start]).
           limit(session[:limit])
     else
       ItemFinder.new.
           user_roles(request_roles).
-          collection(Collection.find_by_repository_id(session[:collection_id])).
+          collection(@collection).
           facet_filters(session[:fq]).
           query_all(session[:q]).
           search_children(@collection&.package_profile != PackageProfile::FREE_FORM_PROFILE).
           exclude_variants(*Item::Variants::non_filesystem_variants).
-          order(session[:sort]).
+          order(sort).
           start(session[:start]).
           limit(@collection&.free_form? ?
                     ElasticsearchClient::MAX_RESULT_WINDOW : session[:limit])
