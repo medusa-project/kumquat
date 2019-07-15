@@ -53,4 +53,21 @@ class StringUtilsTest < ActiveSupport::TestCase
     assert_equal expected, StringUtils.strip_leading_articles('Les cat')
   end
 
+  test 'to_b works with true strings' do
+    assert StringUtils.to_b('true')
+    assert StringUtils.to_b('True')
+    assert StringUtils.to_b('TRUE')
+    assert StringUtils.to_b('Yes')
+    assert StringUtils.to_b('1')
+  end
+
+  test 'to_b works with false strings' do
+    assert !StringUtils.to_b('false')
+    assert !StringUtils.to_b('False')
+    assert !StringUtils.to_b('FALSE')
+    assert !StringUtils.to_b('No')
+    assert !StringUtils.to_b('0')
+    assert !StringUtils.to_b('the quick brown fox')
+  end
+
 end

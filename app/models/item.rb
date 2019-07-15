@@ -195,7 +195,7 @@ class Item < ApplicationRecord
   NON_DESCRIPTIVE_TSV_COLUMNS = %w(uuid parentId preservationMasterPathname
     preservationMasterFilename preservationMasterUUID accessMasterPathname
     accessMasterFilename accessMasterUUID variant pageNumber subpageNumber
-    contentdmAlias contentdmPointer IGNORE)
+    published contentdmAlias contentdmPointer IGNORE)
 
   has_and_belongs_to_many :allowed_roles, class_name: 'Role',
                           association_foreign_key: :allowed_role_id
@@ -1218,6 +1218,9 @@ class Item < ApplicationRecord
       self.subpage_number = row['subpageNumber'].strip.to_i if
           row['subpageNumber']
 
+      # published
+      self.published = StringUtils.to_b(row['published']) if row['published']
+
       # variant
       self.variant = row['variant'].strip if row['variant']
 
@@ -1228,7 +1231,7 @@ class Item < ApplicationRecord
         # "elementLabel".
         heading_parts = heading.to_s.split(':')
         element_label = heading_parts.last
-        element_name = self.collection.metadata_profile.elements.
+        element_name  = self.collection.metadata_profile.elements.
             select{ |e| e.label == element_label }.first&.name
 
         # Skip non-descriptive columns.
@@ -1244,7 +1247,6 @@ class Item < ApplicationRecord
                   "key: #{heading_parts.first}"
             end
           end
-
           self.elements += ItemElement::elements_from_tsv_string(
               element_name, raw_value, vocabulary)
         else

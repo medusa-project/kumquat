@@ -1,6 +1,7 @@
 class StringUtils
 
-  UUID_REGEX = /\A[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/
+  TRUE_STRINGS  = %w(true True TRUE Yes 1)
+  UUID_REGEX    = /\A[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/
 
   def self.base16(str)
     ret = ''
@@ -65,6 +66,16 @@ class StringUtils
     # English: a, an, d', de, the, ye
     # French:  l', la, le, les, un* (skipped), une* (skipped)
     str.gsub(/^(a |an |d'|d’|de |the |ye |l'|l’|la |le |les )/i, '')
+  end
+
+  ##
+  # Converts a string to a boolean based on its text.
+  #
+  # @param str [String]
+  # @return [Boolean]
+  #
+  def self.to_b(str)
+    TRUE_STRINGS.include?(str)
   end
 
 end

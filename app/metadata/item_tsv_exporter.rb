@@ -2,9 +2,9 @@ require 'csv'
 
 class ItemTsvExporter
 
-  LINE_BREAK = "\n"
+  LINE_BREAK            = "\n"
   MULTI_VALUE_SEPARATOR = '||'
-  URI_VALUE_SEPARATOR = '&&'
+  URI_VALUE_SEPARATOR   = '&&'
 
   ##
   # Requires PostgreSQL.
@@ -49,7 +49,6 @@ class ItemTsvExporter
   # Requires PostgreSQL.
   #
   # @param item_set [ItemSet]
-  # @param options [Hash]
   # @return [String] Full contents of the collection as a TSV string. Item
   #                  children are included. Ordering, limit, offset, etc. is
   #                  not customizable.
@@ -156,6 +155,7 @@ class ItemTsvExporter
         items.variant,
         items.page_number,
         items.subpage_number,
+        items.published,
         items.contentdm_alias,
         items.contentdm_pointer,
         (SELECT COUNT(id)

@@ -727,22 +727,23 @@ class ItemTest < ActiveSupport::TestCase
 
   # update_from_tsv
 
-  test 'update_from_tsv() works' do
+  test 'update_from_tsv works' do
     row = {}
     # technical elements
-    row['contentdmAlias'] = 'cats'
+    row['contentdmAlias']   = 'cats'
     row['contentdmPointer'] = '123'
-    row['pageNumber'] = '3'
-    row['subpageNumber'] = '1'
-    row['variant'] = Item::Variants::PAGE
+    row['pageNumber']       = '3'
+    row['subpageNumber']    = '1'
+    row['published']        = 'true'
+    row['variant']          = Item::Variants::PAGE
 
     # descriptive elements
-    row['Description'] = 'Cats' +
+    row['Description']  = 'Cats' +
         ItemTsvExporter::MULTI_VALUE_SEPARATOR +
         'cats' + ItemTsvExporter::URI_VALUE_SEPARATOR + '<http://example.org/cats1>' +
         ItemTsvExporter::MULTI_VALUE_SEPARATOR +
         'and more cats' + ItemTsvExporter::URI_VALUE_SEPARATOR + '<http://example.org/cats2>'
-    row['Title'] = 'Cats & Stuff'
+    row['Title']        = 'Cats & Stuff'
     row['lcsh:Subject'] = 'Cats'
 
     @item.update_from_tsv(row)
@@ -751,6 +752,7 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal 123, @item.contentdm_pointer
     assert_equal 3, @item.page_number
     assert_equal 1, @item.subpage_number
+    assert @item.published
     assert_equal Item::Variants::PAGE, @item.variant
 
     assert_equal 5, @item.elements.length
