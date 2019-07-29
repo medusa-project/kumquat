@@ -1,7 +1,5 @@
 namespace :dls do
 
-  LOGGER = CustomLogger.new(Rake)
-
   namespace :agents do
 
     desc 'Reindex all agents'
@@ -47,7 +45,6 @@ namespace :dls do
             binary.save!
           rescue => e
             puts e
-            LOGGER.error("#{e}")
           end
         end
       end
@@ -70,7 +67,6 @@ namespace :dls do
             binary.save!
           rescue => e
             puts e
-            LOGGER.error("#{e}")
           end
         end
       end
@@ -92,7 +88,7 @@ namespace :dls do
             binary.read_duration
             binary.save!
           rescue => e
-            LOGGER.error("#{e}")
+            puts e
           end
         end
       end
