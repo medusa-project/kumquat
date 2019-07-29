@@ -3,6 +3,8 @@
 #
 class TimeUtil
 
+  LOGGER = CustomLogger.new(TimeUtil)
+
   ##
   # Estimates completion time based on a progress percentage.
   #
@@ -94,7 +96,7 @@ class TimeUtil
         end
         return Marc::Dates::parse(date)
       rescue ArgumentError
-        CustomLogger.instance.warn("TimeUtil.parse_date(): unable to parse \"#{date}\"")
+        LOGGER.warn("TimeUtil.parse_date(): unable to parse \"#{date}\"")
       end
     end
     nil
