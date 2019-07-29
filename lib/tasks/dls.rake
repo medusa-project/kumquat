@@ -45,7 +45,6 @@ namespace :dls do
             binary.save!
           rescue => e
             puts e
-            CustomLogger.instance.error("#{e}")
           end
         end
       end
@@ -68,7 +67,6 @@ namespace :dls do
             binary.save!
           rescue => e
             puts e
-            CustomLogger.instance.error("#{e}")
           end
         end
       end
@@ -90,7 +88,7 @@ namespace :dls do
             binary.read_duration
             binary.save!
           rescue => e
-            CustomLogger.instance.error("#{e}")
+            puts e
           end
         end
       end
