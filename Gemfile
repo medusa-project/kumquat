@@ -37,7 +37,7 @@ gem 'uglifier', '>= 1.3.0' # JavaScript asset compressor
 group :development do
   gem 'capistrano-bundler'
   gem 'capistrano-rails'
-  gem 'capistrano-rvm'
+  gem 'capistrano-rbenv'
   gem 'puma'
   gem 'rails-erd', require: false # generate a model diagram with `bundle exec erd`
 end
