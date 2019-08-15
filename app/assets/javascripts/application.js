@@ -25,4 +25,3 @@
 //= require collections
 //= require downloads
 //= require items
-//= require search

@@ -104,7 +104,7 @@ Rails.application.routes.draw do
           as: 'iiif_media_sequence'
   end
   match '/oai-pmh', to: 'oai_pmh#index', via: %w(get post), as: 'oai_pmh'
-  match '/search', to: 'search#search', via: :get
+  match '/search', to: redirect('/', status: 301), via: :all
   match '/signin', to: 'sessions#new', via: :get
   match '/signout', to: 'sessions#destroy', via: :delete
 

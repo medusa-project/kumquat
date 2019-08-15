@@ -37,6 +37,9 @@ development: &development
   :medusa_s3_bucket_access_key_id:
   :medusa_s3_bucket_secret_key:
 
+  # Base URI of the metadata gateway.
+  :metadata_gateway_url:           https://metadata.library.illinois.edu
+
   # Base URI of the Medusa Downloader.
   :downloader_url:                 http://download.library.illinois.edu:8080
 
