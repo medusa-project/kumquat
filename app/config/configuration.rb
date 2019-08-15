@@ -1,5 +1,5 @@
 ##
-# Singleton interface to the application configuration (/config/kumquat.yml).
+# Singleton interface to the application configuration.
 #
 # Usage:
 #
@@ -10,16 +10,12 @@ class Configuration
 
   include Singleton
 
-  def initialize
-    raw_config = File.read(File.join(Rails.root, 'config', 'kumquat.yml'))
-    @config = YAML.load(raw_config)[Rails.env]
-  end
-
   ##
   # @return [Object]
   #
   def get(key)
-    @config[key.to_sym]
+    cfset = ENV.fetch("RAILS_CONFIGSET") { Rails.env }
+    Rails.application.credentials.dig(cfset.to_sym, key.to_sym)
   end
 
   def method_missing(m, *args, &block)
