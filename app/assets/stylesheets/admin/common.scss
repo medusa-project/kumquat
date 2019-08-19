@@ -1,9 +1,11 @@
-body {
-  padding-top:70px;
-}
-
 nav.navbar {
-  background-color:rgba(0, 0, 0, 0.75);
+  border-radius: 0px;
+  .container-fluid:nth-child(1) {
+    background-color: #282828;
+  }
+  .container-fluid:nth-child(2) {
+    background-color: #343a40 !important;
+  }
   li.dl-icon-only {
     font-size: 20px;
     margin: 0px;

@@ -9,9 +9,6 @@
 
     <%= stylesheet_link_tag 'admin', media: 'all' %>
     <%= javascript_include_tag 'admin/application' %>
-    <!--[if lt IE 9]>
-    <script src="https://raw.githubusercontent.com/aFarkas/html5shiv/master/src/html5shiv.js"></script>
-    <![endif]-->
 
     <%= content_for :head %>
   </head>
@@ -21,85 +18,7 @@
 
     <%= hidden_field_tag :root_url, root_url %>
 
-    <nav class="navbar navbar-default navbar-fixed-top navbar-inverse" role="navigation">
-
-      <div class="container-fluid">
-
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#dl-navbar-collapse">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <%= link_to admin_root_path, class: 'navbar-brand' do %>
-            <i class="fa fa-dashboard"></i>
-          <% end %>
-        </div>
-
-        <div class="collapse navbar-collapse" id="dl-navbar-collapse">
-
-          <ul class="nav navbar-nav">
-            <li><%= link_to 'Collections', admin_collections_path %></li>
-
-            <li class="dropdown" id="metadata-nav">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                Metadata <b class="caret"></b>
-              </a>
-              <ul class="dropdown-menu">
-                <li><%= link_to 'Elements', admin_elements_path %></li>
-                <li><%= link_to 'Vocabularies', admin_vocabularies_path %></li>
-                <li><%= link_to 'Profiles', admin_metadata_profiles_path %></li>
-                <li class="divider"></li>
-                <li><%= link_to 'Agents', admin_agents_path %></li>
-                <li><%= link_to 'Agent Relation Types', admin_agent_relation_types_path %></li>
-                <li><%= link_to 'Agent Rules', admin_agent_rules_path %></li>
-                <li><%= link_to 'Agent Types', admin_agent_types_path %></li>
-              </ul>
-            </li>
-            <li class="dropdown" id="access-nav">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                Access <b class="caret"></b>
-              </a>
-              <ul class="dropdown-menu">
-                <li><%= link_to 'Users', admin_users_path %></li>
-                <li><%= link_to 'Roles', admin_roles_path %></li>
-              </ul>
-            </li>
-            <li class="dropdown" id="server-nav">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                  Server <b class="caret"></b>
-              </a>
-              <ul class="dropdown-menu">
-                <li><%= link_to 'Status', admin_status_path %></li>
-                <li><%= link_to 'Statistics', admin_statistics_path %></li>
-                <li><%= link_to 'Tasks', admin_tasks_path %></li>
-                <li class="divider"></li>
-                <li><%= link_to 'Settings', admin_settings_path %></li>
-              </ul>
-            </li>
-          </ul>
-
-          <ul class="nav navbar-nav navbar-right">
-            <li><a href="https://wiki.cites.illinois.edu/wiki/display/scrs/Medusa+DLS" target="_blank">
-              <i class="fa fa-question-circle"></i></a>
-            </li>
-
-            <li class="dropdown">
-              <a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
-                <i class="fa fa-user" aria-hidden="true"></i>
-                <%= current_user.username %> <b class="caret"></b>
-              </a>
-              <ul class="dropdown-menu">
-                <li><%= link_to 'Public Website', root_url %></li>
-                <li class="divider"></li>
-                <li><%= link_to 'Log Out', signout_path, method: 'delete' %></li>
-              </ul>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </nav>
+    <%= render partial: 'layouts/admin/header' %>
 
     <div class="container-fluid">
       <%= flashes %>
