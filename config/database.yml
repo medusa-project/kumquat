@@ -1,0 +1,53 @@
+##
+# N.B. 1: Connection settings should not be edited in this file; use
+# `bin/rails credentials:edit` instead.
+#
+# N.B. 2: The "*_2" databases enable the use of separate connection pools.
+# The use case for this is to be able to update certain ActiveRecord instances
+# from inside `ActiveRecord::Base.transaction` blocks and for those updates to
+# be visible outside of the transaction. (See the Task model, for example.)
+#
+
+default: &default
+  adapter:  postgresql
+  encoding: unicode
+  pool:     <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  timeout:  5000
+  min_messages: warning
+  template: template0
+
+development: &development
+  <<: *default
+  host:     <%= Rails.application.credentials.dig(:development, :db_host) %>
+  port:     <%= Rails.application.credentials.dig(:development, :db_port) %>
+  database: <%= Rails.application.credentials.dig(:development, :db_database) %>
+  username: <%= Rails.application.credentials.dig(:development, :db_username) %>
+  password: <%= Rails.application.credentials.dig(:development, :db_password) %>
+
+development_2:
+  <<: *development
+
+# Warning: The database defined as "test" will be erased and
+# re-generated from your development database when you run "rake".
+# Do not set this db to the same as development or production.
+test: &test
+  <<: *default
+  host:     <%= Rails.application.credentials.dig(:test, :db_host) %>
+  port:     <%= Rails.application.credentials.dig(:test, :db_port) %>
+  database: <%= Rails.application.credentials.dig(:test, :db_database) %>
+  username: <%= Rails.application.credentials.dig(:test, :db_username) %>
+  password: <%= Rails.application.credentials.dig(:test, :db_password) %>
+
+test_2:
+  <<: *test
+
+production: &production
+  <<: *default
+  host:     <%= Rails.application.credentials.dig(ENV.fetch("RAILS_CONFIGSET") { :production }.to_sym, :db_host) %>
+  port:     <%= Rails.application.credentials.dig(ENV.fetch("RAILS_CONFIGSET") { :production }.to_sym, :db_port) %>
+  database: <%= Rails.application.credentials.dig(ENV.fetch("RAILS_CONFIGSET") { :production }.to_sym, :db_database) %>
+  username: <%= Rails.application.credentials.dig(ENV.fetch("RAILS_CONFIGSET") { :production }.to_sym, :db_username) %>
+  password: <%= Rails.application.credentials.dig(ENV.fetch("RAILS_CONFIGSET") { :production }.to_sym, :db_password) %>
+
+production_2:
+  <<: *production

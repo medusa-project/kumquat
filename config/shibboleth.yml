@@ -1,5 +1,5 @@
 production:
-  host: kumquat-dev.library.illinois.edu
+  host: <%= ENV['SHIBBOLETH_HOST'] %>
   uid_field: eppn
   extra_fields:
     - eppn
