@@ -7,7 +7,7 @@ class CollectionsController < WebsiteController
   before_action :check_publicly_accessible, only: [:iiif_presentation, :show]
   before_action :authorize_collection, only: :iiif_presentation
   before_action :enable_cors, only: :iiif_presentation
-  before_action :set_sanitized_params, only: [:index, :show]
+  before_action :set_sanitized_params, only: :show
 
   rescue_from UnpublishedError, with: :rescue_unpublished
 
@@ -43,50 +43,14 @@ class CollectionsController < WebsiteController
   end
 
   ##
+  # This is a legacy route that used to be served by this application, but now
+  # the Metadata Gateway serves it instead.
+  #
   # Responds to GET /collections
   #
   def index
-    @start = params[:start].to_i
-    @limit = params[:limit].to_i
-    if @limit < MIN_RESULT_WINDOW or @limit > MAX_RESULT_WINDOW
-      @limit = Option::integer(Option::Keys::DEFAULT_RESULT_WINDOW)
-    end
-
-    finder = CollectionFinder.new.
-        user_roles(request_roles).
-        facet_filters(params[:fq]).
-        query_all(params[:q]).
-        order(CollectionElement.new(name: 'title').indexed_sort_field).
-        start(@start).
-        limit(@limit)
-
-    @current_page = finder.page
-    @count        = finder.count
-    @collections  = finder.to_a
-    @facets       = finder.facets
-    @suggestions  = finder.suggestions
-
-    respond_to do |format|
-      format.html
-      format.atom do
-        @updated = @collections.any? ?
-                       @collections.map(&:updated_at).sort{ |d| d <=> d }.last : Time.now
-      end
-      format.js
-      format.json do
-        render json: {
-            start: @start,
-            limit: @limit,
-            numResults: @count,
-            results: @collections.map { |col|
-              {
-                  id: col.repository_id,
-                  uri: collection_url(col, format: :json)
-              }
-            }
-        }
-      end
-    end
+    redirect_to ::Configuration.instance.metadata_gateway_url + '/collections',
+                status: 301
   end
 
   ##
