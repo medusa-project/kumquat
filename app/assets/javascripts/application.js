@@ -22,6 +22,5 @@
 
 //= require kumquat
 //= require agents
-//= require collections
 //= require downloads
 //= require items
