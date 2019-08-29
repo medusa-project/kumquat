@@ -2,68 +2,66 @@
 <% provide :body_id, 'admin_items_show' %>
 <% provide :active_nav, 'entities' %>
 
-<%= admin_breadcrumb(item: @item) %>
+<%= admin_breadcrumb({ label: 'Home', url: admin_root_path },
+                     { label: 'Collections', url: admin_collections_path },
+                     { label: @item.collection.title, url: admin_collection_path(@item.collection) },
+                     *admin_item_structure_breadcrumb(@item)) %>
 
-<div class="btn-group pull-right">
+<div class="btn-group float-right">
   <!-- Edit button -->
   <%= link_to edit_admin_collection_item_path(@item.collection, @item),
-              class: 'btn btn-default' do %>
-    <i class="fa fa-pencil"></i> Edit
+              class: 'btn btn-light' do %>
+    <i class="fas fa-pencil-alt"></i> Edit
   <% end %>
   <!-- Purge Cached Images button -->
   <%= link_to admin_collection_item_purge_cached_images_path(@item.collection, @item),
-              class: 'btn btn-default', method: 'post' do %>
+              class: 'btn btn-light', method: 'post' do %>
     <i class="fa fa-trash"></i> Purge Cached Images
   <% end %>
   <!-- Sets button -->
   <% if @item.collection.item_sets.count > 0 %>
     <div class="btn-group">
-      <button type="button" class="btn btn-default dropdown-toggle"
+      <button type="button" class="btn btn-light dropdown-toggle"
               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
         <i class="fa fa-plus"></i>
         Add To Set <span class="caret"></span>
       </button>
-      <ul class="dropdown-menu" role="menu">
+      <div class="dropdown-menu">
         <% @item.collection.item_sets.joins(:users).
             where(users: { id: current_user.id }).each do |set| %>
-          <li>
-            <%= link_to set.name,
-                        admin_collection_items_add_items_to_item_set_path(@item.collection,
-                                                                          'items[]': @item.repository_id,
-                                                                          item_set: set.id),
-                        method: :post %>
-          </li>
+          <%= link_to set.name,
+                      admin_collection_items_add_items_to_item_set_path(@item.collection,
+                                                                        'items[]': @item.repository_id,
+                                                                        item_set: set.id),
+                      method: :post,
+                      class: 'dropdown-item' %>
         <% end %>
-      </ul>
+      </div>
     </div>
   <% end %>
   <!-- View button -->
   <div class="btn-group">
-    <button type="button" class="btn btn-default dropdown-toggle"
+    <button type="button" class="btn btn-light dropdown-toggle"
             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
       <i class="fa fa-eye"></i>
       View <span class="caret"></span>
     </button>
-    <ul class="dropdown-menu dropdown-menu-right" role="menu">
-      <li>
-        <%= link_to item_url(@item, format: :json), target: '_blank' do %>
-          <i class="fa fa-code"></i>&nbsp;JSON
-        <% end %>
-      </li>
-      <% if @item.bib_id %>
-        <li>
-          <%= link_to @item.catalog_record_url, target: '_blank' do %>
-            <i class="fa fa-book"></i>&nbsp;&nbsp;Library Catalog Record
-          <% end %>
-        </li>
+    <div class="dropdown-menu dropdown-menu-right">
+      <%= link_to item_url(@item, format: :json),
+                  target: '_blank', class: 'dropdown-item' do %>
+        <i class="fa fa-code"></i> JSON
       <% end %>
-      <li class="divider"></li>
-      <li>
-        <%= link_to @item, target: '_blank' do %>
-          <i class="fa fa-globe"></i>&nbsp;&nbsp;Public View
+      <% if @item.bib_id %>
+        <%= link_to @item.catalog_record_url,
+                    target: '_blank', class: 'dropdown-item' do %>
+          <i class="fa fa-book"></i> Library Catalog Record
         <% end %>
-      </li>
-    </ul>
+      <% end %>
+      <div class="dropdown-divider"></div>
+      <%= link_to @item, target: '_blank', class: 'dropdown-item' do %>
+        <i class="fa fa-globe"></i> Public View
+      <% end %>
+    </div>
   </div>
 </div>
 
@@ -91,22 +89,24 @@
     <div class="dl-thumbnail">
       <%= thumbnail_tag(@item) %>
     </div>
-    <ul class="nav nav-pills nav-stacked" role="tablist">
-      <li role="presentation" class="active">
-        <a href="#dl-system-info" aria-controls="dl-system-info" role="tab" data-toggle="tab">System Info</a>
+    <ul class="nav nav-pills nav-stacked">
+      <li class="nav-item">
+        <a href="#dl-system-info" class="nav-link active"
+           aria-controls="dl-system-info" role="tab" data-toggle="tab">System Info</a>
       </li>
-
-      <li role="presentation">
-        <a href="#dl-descriptive-metadata" aria-controls="dl-descriptive-metadata" role="tab" data-toggle="tab">Descriptive Metadata</a>
+      <li class="nav-item">
+        <a href="#dl-descriptive-metadata" class="nav-link"
+           aria-controls="dl-descriptive-metadata" role="tab" data-toggle="tab">Descriptive Metadata</a>
       </li>
-
-      <li role="presentation">
-        <a href="#dl-binaries" aria-controls="dl-binaries" role="tab" data-toggle="tab">
-          Binaries <span class="badge"><%= @item.binaries.length %></span></a>
+      <li class="nav-item">
+        <a href="#dl-binaries" class="nav-link"
+           aria-controls="dl-binaries" role="tab" data-toggle="tab">
+          Binaries <span class="badge badge-pill badge-secondary">
+          <%= @item.binaries.length %></span></a>
       </li>
-
-      <li role="presentation">
-        <a href="#dl-schema-org" aria-controls="dl-schema-org" role="tab" data-toggle="tab">schema.org</a>
+      <li class="nav-item">
+        <a href="#dl-schema-org" class="nav-link"
+           aria-controls="dl-schema-org" role="tab" data-toggle="tab">schema.org</a>
       </li>
     </ul>
   </div>
@@ -118,7 +118,7 @@
         @item.binaries.select{ |b| b.master_type == Binary::MasterType::PRESERVATION }.first and
         !@item.binaries.select{ |b| b.master_type == Binary::MasterType::ACCESS }.first %>
       <div class="alert alert-danger">
-        <i class="fa fa-warning"></i> This item has no access master binary.
+        <i class="fas fa-exclamation-triangle"></i> This item has no access master binary.
         Its Medusa package may be malformed.
       </div>
     <% end %>
@@ -151,10 +151,10 @@
 
       <div role="tabpanel" class="tab-pane" id="dl-schema-org">
         <div class="clearfix">
-          <div class="pull-right">
+          <div class="float-right">
             <a href="https://search.google.com/structured-data/testing-tool"
-               class="btn btn-default" target="_blank">
-              <i class="fa fa-google"></i> Test</a>
+               class="btn btn-light" target="_blank">
+              <i class="fab fa-google"></i> Test</a>
           </div>
         </div>
         <pre><%= schema_org_json_ld(@item, pretty_print: true) %></pre>

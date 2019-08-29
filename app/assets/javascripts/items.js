@@ -183,7 +183,7 @@ var PTItemView = function() {
                     var checked = (size_i === num_sizes - 1) ? 'checked' : '';
                     var active = (size_i === num_sizes - 1) ? 'active' : '';
                     container.append(
-                        '<div class="radio btn btn-default ' + size_class + ' ' + active + '">' +
+                        '<div class="radio btn btn-outline-primary ' + size_class + ' ' + active + '">' +
                             '<label>' +
                                 '<input type="radio" name="size" value="' + width + ',' + '" ' + checked + '>' +
                                 width + '&times;' + height + ' pixels (' + percent + '%)' +
@@ -206,7 +206,7 @@ var PTItemView = function() {
                         container_class = 'active';
                     }
                     qualities_div.append(
-                        '<div class="radio btn btn-default ' + container_class + '">' +
+                        '<div class="radio btn btn-outline-primary ' + container_class + '">' +
                             '<label>' +
                                 '<input type="radio" name="quality" value="' + item + '" ' + checked + '>' +
                                 item.charAt(0).toUpperCase() + item.slice(1) +
@@ -232,7 +232,7 @@ var PTItemView = function() {
                     label = 'TIFF';
                 }
                 formats_div.append(
-                    '<div class="radio btn btn-default ' + container_class + '">' +
+                    '<div class="radio btn btn-outline-primary ' + container_class + '">' +
                         '<label>' +
                             '<input type="radio" name="format" value="' + item + '" ' + checked + '>' +
                             label +
@@ -273,8 +273,13 @@ var PTItemView = function() {
     };
 
     this.init = function() {
-        $('a[href="#dl-download-section"]').on('click', function() {
+        $('#dl-download-button').on('click', function() {
             $('#dl-download').collapse('show');
+            var offset = $('#dl-download-section').offset();
+            $('html, body').animate({
+                scrollTop: offset.top,
+            }, 500);
+            return false;
         });
 
         // Lazy-load thumbnail images in the download section when it gets
@@ -283,7 +288,7 @@ var PTItemView = function() {
             Application.loadLazyImages();
         });
         // Or, when it's being rendered in its expanded state.
-        if ($('#dl-download').hasClass('in')) {
+        if ($('#dl-download').hasClass('show')) {
             $('#dl-download-section').trigger('shown.bs.collapse');
         }
 

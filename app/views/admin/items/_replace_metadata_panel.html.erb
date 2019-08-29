@@ -4,9 +4,9 @@
     <div class="modal-content">
       <%= form_tag(admin_collection_items_replace_metadata_path(@collection)) do %>
         <div class="modal-header">
+          <h4 class="modal-title" id="dl-find-replace-modal-label">Find and Replace</h4>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title" id="dl-find-replace-modal-label">Find and Replace</h4>
         </div>
         <div class="modal-body">
           <div class="alert alert-warning">
@@ -26,7 +26,7 @@
                     [ 'Containing', 'contain' ],
                     [ 'Starting With', 'start' ],
                     [ 'Ending With', 'end' ], ]),
-                             class: 'form-control') %>
+                             class: 'custom-select') %>
             </div>
 
             <div class="form-group">
@@ -36,7 +36,7 @@
             <div class="form-group">
               <label for="element">In Element:</label>
               <%= select_tag(:element, options_for_select(defs),
-                             class: 'form-control') %>
+                             class: 'custom-select') %>
             </div>
 
             <div class="form-group">
@@ -44,7 +44,7 @@
               <%= select_tag(:replace_mode, options_for_select(
                   [ [ 'Whole Value', 'whole_value' ],
                     [ 'Matched Part', 'matched_part' ] ], 'matched_part'),
-                             class: 'form-control') %>
+                             class: 'custom-select') %>
             </div>
 
             <div class="form-group">
@@ -60,7 +60,7 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
           <button type="submit" class="btn btn-primary">Replace</button>
         </div>
       <% end %>

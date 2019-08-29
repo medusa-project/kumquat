@@ -210,7 +210,7 @@ var Application = {
             button.after(text);
 
             // append the flash to the DOM
-            $('#dl-page-content').before(flash);
+            $('.page-content').before(flash);
         }
 
     },
@@ -275,13 +275,13 @@ var Application = {
             return collapse.prev().find('a[data-toggle="collapse"]:first');
         };
         var setToggleState = function(elem, expanded) {
-            var class_ = expanded ? 'fa-minus-square-o' : 'fa-plus-square-o';
-            elem.html('<i class="fa ' + class_ + '"></i> ' + elem.text());
+            var class_ = expanded ? 'fa-minus-square' : 'fa-plus-square';
+            elem.html('<i class="far ' + class_ + '"></i> ' + elem.text());
         };
 
         var collapses = $('.collapse');
         collapses.each(function() {
-            setToggleState(toggleForCollapse($(this)), $(this).hasClass('in'));
+            setToggleState(toggleForCollapse($(this)), $(this).hasClass('show'));
         });
         collapses.on('show.bs.collapse', function () {
             setToggleState(toggleForCollapse($(this)), true);

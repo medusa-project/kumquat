@@ -1,48 +1,35 @@
 module AdminHelper
 
   ##
-  # @param options [Hash]
-  # @option options [Collection] :collection
-  # @option options [Item] :item
-  # @option options [ItemSet] :item_set
-  # @return [String]
+  # @param items [Enumerable<Hash>] Enumerable of hashes with :label and
+  #                                 :url keys.
+  # @return [String] HTML string
   #
-  def admin_breadcrumb(options = {})
-    case controller_name
-      when 'collections'
-        case action_name
-          when 'index'
-            return admin_collections_view_breadcrumb
-          when 'show'
-            return admin_collection_view_breadcrumb(options[:collection])
-        end
-      when 'elements'
-        case action_name
-          when 'show'
-            return admin_element_view_breadcrumb(options[:element])
-        end
-      when 'items'
-        case action_name
-          when 'edit'
-            return admin_item_edit_view_breadcrumb(options[:item])
-          when 'edit_all'
-            return admin_items_edit_view_breadcrumb(options[:collection])
-          when 'index'
-            return admin_results_breadcrumb(options[:collection])
-          when 'show'
-            return admin_item_view_breadcrumb(options[:item])
-        end
-      when 'item_sets'
-        return admin_item_set_view_breadcrumb(options[:item_set])
+  def admin_breadcrumb(*items)
+    html = StringIO.new
+    html << '<nav aria-label="breadcrumb">'
+    html <<   '<ol class="breadcrumb">'
+    items.each_with_index do |item, index|
+      if item.kind_of?(String)
+        html << item
+      elsif index < items.length - 1
+        html << sprintf('<li class="breadcrumb-item"><a href="%s">%s</a></li>',
+                        item[:url], item[:label])
+      else
+        html << sprintf('<li class="breadcrumb-item active" aria-current="page">%s</li>',
+                        item[:label])
+      end
     end
-    nil
+    html <<   '</ol>'
+    html << '</nav>'
+    raw(html.string)
   end
 
   ##
   # @param collection [Collection]
   # @return [String]
   #
-  def admin_collection_hierarchy(collection)
+  def admin_collection_tree(collection)
     child_html = StringIO.new
     if collection.children.count > 0
       child_html << '<ul>'
@@ -92,10 +79,10 @@ module AdminHelper
   #
   def admin_item_element_edit_tag(profile_element, element, vocabulary)
     html = StringIO.new
-    html << '<table class="table-condensed dl-element" style="width:100%">'
+    html << '<table class="table-sm dl-element" style="width:100%">'
     html <<   '<tr>'
     html <<     '<th style="text-align: right; width: 1px">'
-    html <<       '<span class="label label-default">String</span>'
+    html <<       '<span class="badge badge-secondary">String</span>'
     html <<     '</th>'
     html <<     '<td>'
     if profile_element.data_type == MetadataProfileElement::DataType::MULTI_LINE_STRING
@@ -117,7 +104,7 @@ module AdminHelper
     html <<     '</td>'
     html <<     '<td style="width: 90px" rowspan="2">'
     html <<       '<div class="btn-group">'
-    html <<         '<button class="btn btn-sm btn-default dl-add-element">'
+    html <<         '<button class="btn btn-sm btn-light dl-add-element">'
     html <<           '<i class="fa fa-plus"></i>'
     html <<         '</button>'
     html <<         '<button class="btn btn-sm btn-danger dl-remove-element">'
@@ -128,7 +115,7 @@ module AdminHelper
     html <<   '</tr>'
     html <<   '<tr>'
     html <<     '<th style="text-align: right; width: 1px">'
-    html <<       '<span class="label label-primary">URI</span>'
+    html <<       '<span class="badge badge-primary">URI</span>'
     html <<     '</th>'
     html <<     '<td>'
     html << text_field_tag("elements[#{profile_element.name}][#{vocabulary.id}][][uri]",
@@ -150,7 +137,7 @@ module AdminHelper
   #
   def admin_item_metadata_as_table(item)
     html = StringIO.new
-    html << '<table class="table table-condensed dl-metadata">'
+    html << '<table class="table table-sm dl-metadata">'
 
     # Iterate through the index-ordered elements in the collection's metadata
     # profile in order to display the entity's elements in the correct order.
@@ -162,7 +149,7 @@ module AdminHelper
       html << '<tr>'
       html <<   "<td>#{e_def.label}</td>"
       html <<   '<td>'
-      html <<     '<table class="table table-condensed">'
+      html <<     '<table class="table table-sm">'
       elements.each do |element|
         if element.value.present?
           # Some URLs will be enclosed in angle brackets, which will foil
@@ -171,13 +158,13 @@ module AdminHelper
           value = auto_link(haystack, html: { target: '_blank' }).
               gsub('&lt; ', '&lt;').gsub(' &gt;', '&gt;')
           html << '<tr>'
-          html <<   '<td style="width:1px"><span class="label label-default">String</span></td>'
+          html <<   '<td style="width:1px"><span class="badge badge-secondary">String</span></td>'
           html <<   "<td>#{value}</td>"
           html << '</tr>'
         end
         if element.uri.present?
           html << '<tr>'
-          html <<   '<td style="width:1px"><span class="label label-primary">URI</span></td>'
+          html <<   '<td style="width:1px"><span class="badge badge-primary">URI</span></td>'
           html <<   "<td>#{element.uri}</td>"
           html << '</tr>'
         end
@@ -241,7 +228,7 @@ module AdminHelper
         phtml <<     icon_for(parent)
         phtml <<     ' '
         phtml <<     link_to(title, admin_collection_item_path(parent.collection, parent))
-        phtml <<     html
+        phtml <<     html.string
         phtml <<   '</li>'
         phtml << '</ul>'
         phtml = add_parents(parent, phtml, filenames_instead_of_titles)
@@ -256,21 +243,21 @@ module AdminHelper
   def bootstrap_class_for_task_status(status)
     case status
       when ::Task::Status::SUCCEEDED
-        'label-success'
+        'badge-success'
       when ::Task::Status::FAILED
-        'label-danger'
+        'badge-danger'
       when ::Task::Status::RUNNING
-        'label-primary'
+        'badge-primary'
       when ::Task::Status::PAUSED
-        'label-info'
+        'badge-info'
       when ::Task::Status::WAITING
-        'label-default'
+        'badge-default'
     end
   end
 
   def admin_system_info_as_list(item)
     html = StringIO.new
-    html << '<dl class="visible-xs hidden-sm">'
+    html << '<dl class="d-block d-sm-none">'
     admin_system_info_data(item).each do |info|
       if info[:value].respond_to?(:each)
         info[:value] = "<ul>#{info[:value].map{ |v| "<li>#{v}</li>" }.join}</ul>"
@@ -289,7 +276,7 @@ module AdminHelper
 
   def admin_system_info_as_table(item)
     html = StringIO.new
-    html << '<table class="table hidden-xs">'
+    html << '<table class="table d-none d-sm-block">'
     admin_system_info_data(item).each do |info|
       if info[:value].respond_to?(:each)
         info[:value] = "<ul>#{info[:value].map{ |v| "<li>#{v}</li>" }.join}</ul>"
@@ -305,58 +292,11 @@ module AdminHelper
     raw(html.string)
   end
 
-  private
-
-  def admin_collection_view_breadcrumb(collection)
-    html = StringIO.new
-    html << '<ol class="breadcrumb">'
-    html <<   '<li>'
-    html <<     link_to('Home', admin_root_path)
-    html <<   '</li>'
-    html <<   '<li>'
-    html <<     link_to('Collections', admin_collections_path)
-    html <<   '</li>'
-    html <<   '<li class="active">'
-    html <<     truncate(collection.title, length: 50)
-    html <<   '</li>'
-    html << '</ol>'
-    raw(html.string)
-  end
-
-  def admin_collections_view_breadcrumb
-    html = StringIO.new
-    html << '<ol class="breadcrumb">'
-    html <<   '<li>'
-    html <<     link_to('Home', admin_root_path)
-    html <<   '</li>'
-    html <<   '<li class="active">'
-    html <<     link_to('Collections', admin_collections_path)
-    html <<   '</li>'
-    html << '</ol>'
-    raw(html.string)
-  end
-
-  def admin_element_view_breadcrumb(element)
-    html = StringIO.new
-    html << '<ol class="breadcrumb">'
-    html <<   '<li>'
-    html <<     link_to('Home', admin_root_path)
-    html <<   '</li>'
-    html <<   '<li>'
-    html <<     link_to('Elements', admin_elements_path)
-    html <<   '</li>'
-    html <<   '<li class="active">'
-    html <<     element.name
-    html <<   '</li>'
-    html << '</ol>'
-    raw(html.string)
-  end
-
   def admin_item_structure_breadcrumb(item)
     html = StringIO.new
     parent = item.parent
     while parent
-      html << '<li>'
+      html << '<li class="breadcrumb-item">'
       html <<   link_to(truncate(parent.title, length: 50),
                         admin_collection_item_path(parent.collection, parent))
       html << '</li>'
@@ -369,70 +309,13 @@ module AdminHelper
     else
       value = truncate(item.title, length: 50)
     end
-    html << '<li class="active">'
+    html << '<li class="breadcrumb-item active">'
     html <<   value
     html << '</li>'
     html.string
   end
 
-  def admin_item_edit_view_breadcrumb(item)
-    html = StringIO.new
-    html << '<ol class="breadcrumb">'
-    html <<   "<li>#{link_to 'Home', admin_root_path}</li>"
-    html <<   "<li>#{link_to 'Collections', admin_collections_path}</li>"
-    html <<   "<li>#{link_to item.collection.title, admin_collection_path(item.collection)}</li>"
-    html <<   admin_item_structure_breadcrumb(item)
-    html <<   '<li>Edit</li>'
-    html << '</ol>'
-    raw(html.string)
-  end
-
-  def admin_item_set_view_breadcrumb(item_set)
-    html = StringIO.new
-    html << '<ol class="breadcrumb">'
-    html <<   "<li>#{link_to 'Home', admin_root_path}</li>"
-    html <<   "<li>#{link_to 'Collections', admin_collections_path}</li>"
-    html <<   "<li>#{link_to item_set.collection.title, admin_collection_path(item_set.collection)}</li>"
-    html <<   "<li>#{link_to 'Sets', admin_collection_path(item_set.collection)}</li>"
-    html <<   "<li class=\"active\">#{item_set}</li>"
-    html << '</ol>'
-    raw(html.string)
-  end
-
-  def admin_item_view_breadcrumb(item)
-    html = StringIO.new
-    html << '<ol class="breadcrumb">'
-    html <<   "<li>#{link_to 'Home', admin_root_path}</li>"
-    html <<   "<li>#{link_to 'Collections', admin_collections_path}</li>"
-    html <<   "<li>#{link_to item.collection.title, admin_collection_path(item.collection)}</li>"
-    html <<   "<li>#{link_to 'Items', admin_collection_items_path(item.collection)}</li>"
-    html <<   admin_item_structure_breadcrumb(item)
-    html << '</ol>'
-    raw(html.string)
-  end
-
-  def admin_items_edit_view_breadcrumb(collection)
-    html = StringIO.new
-    html << '<ol class="breadcrumb">'
-    html <<   "<li>#{link_to 'Home', admin_root_path}</li>"
-    html <<   "<li>#{link_to 'Collections', admin_collections_path}</li>"
-    html <<   "<li>#{link_to collection.title, admin_collection_path(collection)}</li>"
-    html <<   "<li>#{link_to 'Items', admin_collection_items_path(collection)}</li>"
-    html <<   '<li class="active">Edit</li>'
-    html << '</ol>'
-    raw(html.string)
-  end
-
-  def admin_results_breadcrumb(collection)
-    html = StringIO.new
-    html << '<ol class="breadcrumb">'
-    html <<   "<li>#{link_to('Home', admin_root_path)}</li>"
-    html <<   "<li>#{link_to('Collections', admin_collections_path)}</li>"
-    html <<   "<li>#{link_to(truncate(collection.title, length: 50), admin_collection_path(collection))}</li>"
-    html <<   '<li class="active">Items</li>'
-    html << '</ol>'
-    raw(html.string)
-  end
+  private
 
   ##
   # @return [Array<Hash<Symbol,String>] Array of hashes with :label, :value,
@@ -442,10 +325,10 @@ module AdminHelper
     data = []
 
     # Repository ID
-    data << { label: 'Repository ID', value: item.repository_id }
+    data << { label: 'Repository ID', value: "<code>#{item.repository_id}</code>" }
 
     # Database ID
-    data << { label: 'Database ID', value: item.id }
+    data << { label: 'Database ID', value: "<code>#{item.id}</code>" }
 
     # Binary filenames
     item.binaries.each do |bs|
@@ -455,7 +338,7 @@ module AdminHelper
 
     # Published
     data << { label: 'Published',
-              value: "<span class=\"label #{item.published ? 'label-success' : 'label-danger'}\">"\
+              value: "<span class=\"badge #{item.published ? 'badge-success' : 'badge-danger'}\">"\
                   "#{item.published ? 'Published' : 'Unpublished' }</span>"}
 
     # Primary IIIF Image URL
@@ -493,7 +376,7 @@ module AdminHelper
     data << { label: 'Normalized Latitude', value: item.latitude }
 
     # CONTENTdm Alias
-    data << { label: 'CONTENTdm Alias', value: item.contentdm_alias }
+    data << { label: 'CONTENTdm Alias', value: "<code>#{item.contentdm_alias}</code>" }
 
     # CONTENTdm Pointer
     data << { label: 'CONTENTdm Pointer', value: item.contentdm_pointer }

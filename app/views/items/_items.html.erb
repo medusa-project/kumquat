@@ -1,18 +1,21 @@
 <% if @count > 0 %>
-  <div class="text-center">
-    <%= paginate_items(@count, @limit, @current_page) %>
+  <div class="row justify-content-md-center">
+    <div class="col-md-auto">
+      <%= paginate_items(@count, @limit, @current_page) %>
+    </div>
   </div>
 
-  <div class="hidden-xs visible-sm visible-md visible-lg">
-    <%= entities_as_list(@items, @start,
-                         show_collections: !@collection) %>
-  </div>
-  <div class="dl-cards visible-xs hidden-sm">
+  <div class="dl-cards d-none d-sm-block d-md-none">
     <%= entities_as_cards(@items) %>
   </div>
+  <div class="d-sm-none d-md-block">
+    <%= entities_as_media(@items, show_collections: !@collection) %>
+  </div>
 
-  <div class="text-center">
-    <%= paginate_items(@count, @limit, @current_page) %>
+  <div class="row justify-content-md-center">
+    <div class="col-md-auto">
+      <%= paginate_items(@count, @limit, @current_page) %>
+    </div>
   </div>
 <% else %>
   <div class="dl-no-results">

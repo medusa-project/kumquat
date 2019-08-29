@@ -2,15 +2,13 @@
 <% provide :body_id, 'roles' %>
 <% provide :active_nav, 'access' %>
 
-<ol class="breadcrumb">
-  <li><%= link_to 'Home', admin_root_path %></li>
-  <li class="active">Roles</li>
-</ol>
+<%= admin_breadcrumb({ label: 'Home', url: admin_root_path },
+                     { label: 'Roles' }) %>
 
-<div class="btn-group pull-right">
+<div class="btn-group float-right">
   <% if current_user.can?(Permission::Permissions::MODIFY_ROLES) %>
     <!-- New Role -->
-    <%= link_to new_admin_role_path, class: 'btn btn-default' do %>
+    <%= link_to new_admin_role_path, class: 'btn btn-light' do %>
       <span class="fa fa-plus"></span> New Role
     <% end %>
   <% end %>

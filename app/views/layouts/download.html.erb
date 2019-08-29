@@ -13,9 +13,7 @@
   <%= stylesheet_link_tag    'application', media: 'all' %>
   <%= javascript_include_tag 'application' %>
 
-  <!--[if lt IE 9]>
-  <script src="https://raw.githubusercontent.com/aFarkas/html5shiv/master/src/html5shiv.js"></script>
-  <![endif]-->
+  <%= render partial: 'layouts/font_awesome' %>
 </head>
 <body <%= !yield(:body_id).empty? ? raw("id=\"#{yield(:body_id)}\"") : nil %>
       <%= raw("data-nav=\"#{yield(:active_nav)}\"") %>>
@@ -25,15 +23,15 @@
 <%= hidden_field_tag('dl-current-path', request.path) %>
 
 <div class="container-fluid">
-  <% flash.each do |type, message| %>
+  <div class="page-content">
+    <% flash.each do |type, message| %>
       <div class="dl-flash alert alert-dismissable <%= bootstrap_class_for(type) %>">
         <button type="button" class="close" data-dismiss="alert"
                 aria-hidden="true">&times;</button>
         <%= message %>
       </div>
-  <% end %>
+    <% end %>
 
-  <div id="dl-page-content">
     <%= yield.force_encoding(Encoding::UTF_8) %>
   </div>
 </div>

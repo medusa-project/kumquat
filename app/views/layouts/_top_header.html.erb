@@ -1,0 +1,49 @@
+<div>
+  <h1 class="sr-only">University Library, University of Illinois at Urbana-Champaign</h1>
+  <div class="d-flex justify-content-between">
+    <div class="table-row">
+      <div class="table-cell">
+        <a class="navbar-brand" href="https://illinois.edu/">
+          <%= image_tag 'imark.svg', class: 'imark', alt: 'University of Illinois I-Mark' %>
+        </a>
+      </div>
+      <div class="table-cell">
+        <a href="https://www.library.illinois.edu">
+          <%= image_tag 'library_wordmark_horizontal_2.png',
+                        class: 'col-sm-12 banner-image-university',
+                        alt: 'University' %>
+        </a>
+      </div>
+      <div class="table-cell">
+        <a href="https://www.library.illinois.edu">
+          <%= image_tag 'library_wordmark_horizontal_3.png',
+                        class: 'col-sm-12 banner-image-library',
+                        alt: 'Library' %>
+        </a>
+      </div>
+      <div class="table-cell">
+        <a href="https://www.library.illinois.edu">
+          <%= image_tag 'library_wordmark_horizontal_4.png',
+                        class: 'col-sm-12 banner-image-uiuc banner-mobile-img',
+                        alt: 'University of Illinois at Urbana-Champaign' %>
+        </a>
+      </div>
+    </div>
+    <div class="user-actions">
+      <% if current_user %>
+        <div class="btn-group" role="group">
+          <button id="user-dropdown" type="button" class="btn btn-sm dropdown-toggle"
+                  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <%= icon_for(current_user) %> <%= current_user.username %>
+          </button>
+          <div class="dropdown-menu dropdown-menu-right" aria-labelledby="user-dropdown">
+            <%= link_to 'Administration', admin_root_path, class: 'dropdown-item' %>
+            <%= link_to 'Log Out', signout_path, method: :delete, class: 'dropdown-item' %>
+          </div>
+        </div>
+      <% else %>
+        <%= link_to 'Staff Login', signin_path, class: 'stripe-link' %>
+      <% end %>
+    </div>
+  </div>
+</div>

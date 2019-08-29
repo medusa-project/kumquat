@@ -3,7 +3,7 @@
     <div class="panel-heading">
       <h3 class="panel-title">Error</h3>
     </div>
-    <div class="panel-body">
+    <div class="card-body">
       <%= object.message %>
     </div>
   </div>
@@ -14,7 +14,7 @@
         prevented this <%= object.class.to_s.underscore.humanize.downcase %>
         from being saved:</h3>
     </div>
-    <div class="panel-body">
+    <div class="card-body">
       <ul>
         <% object.errors.full_messages.each do |msg| %>
           <li><%= msg %></li>

@@ -4,31 +4,37 @@
 <%= breadcrumb(item: @item, context: session[:browse_context],
                context_url: session[:browse_context_url]) %>
 
-<div class="alert alert-info">
+<div class="alert alert-primary">
+  <i class="fas fa-info-circle"></i>
   <% if @item.collection&.publicly_accessible? %>
     This item is unpublished.
   <% else %>
-    This item's collection is not publicly accessible.
+    This item is not publicly accessible.
   <% end %>
 </div>
 
-<div class="btn-group pull-right" role="group">
+<div class="btn-group float-right" role="group">
   <div class="btn-group">
-    <button type="button" class="btn btn-default dropdown-toggle"
+    <button type="button" class="btn btn-light dropdown-toggle"
             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
       <i class="fa fa-eye"></i>
       View <span class="caret"></span>
     </button>
-    <ul class="dropdown-menu dropdown-menu-right" role="menu">
-      <li>
-        <%= link_to admin_collection_item_path(@item.collection, @item),
-                    target: '_blank' do %>
-            <i class="fa fa-lock"></i>&nbsp;&nbsp;Admin View
-        <% end %>
-      </li>
-    </ul>
+    <div class="dropdown-menu dropdown-menu-right">
+      <%= link_to admin_collection_item_path(@item.collection, @item),
+                  target: '_blank', class: 'dropdown-item' do %>
+        <i class="fa fa-lock"></i> Admin View
+      <% end %>
+    </div>
   </div>
-  <%= render partial: 'email_curator_button', locals: { item: @item } %>
+  <div class="text-center">
+    <% mailto = curator_mailto(@item) %>
+    <% if mailto %>
+      <%= link_to mailto, class: 'btn btn-light' do %>
+        <i class="fa fa-envelope"></i> Email Curator About This Item
+      <% end %>
+    <% end %>
+  </div>
 </div>
 
 <%= item_page_title(@item) %>

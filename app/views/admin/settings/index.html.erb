@@ -2,10 +2,8 @@
 <% provide :body_id, 'settings' %>
 <% provide :active_nav, 'website' %>
 
-<ol class="breadcrumb">
-  <li><%= link_to 'Home', admin_root_path %></li>
-  <li class="active">Settings</li>
-</ol>
+<%= admin_breadcrumb({ label: 'Home', url: admin_root_path },
+                     { label: 'Settings' }) %>
 
 <h1>Settings</h1>
 
@@ -62,20 +60,6 @@
         <%= text_field_tag("options[#{Option::Keys::WEBSITE_NAME}]",
                            Option::string(Option::Keys::WEBSITE_NAME),
                            class: 'form-control') %>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <%= label_tag("options[#{Option::Keys::WEBSITE_INTRO_TEXT}]",
-                      'Introductory Text') %>
-        <p class="info">Appears on the <%= link_to 'landing page', root_url %>.
-          The following HTML tags are allowed: <code>&lt;br&gt;</code>
-          <code>&lt;p&gt;</code></p>
-      </td>
-      <td>
-        <%= text_area_tag("options[#{Option::Keys::WEBSITE_INTRO_TEXT}]",
-                          Option::string(Option::Keys::WEBSITE_INTRO_TEXT),
-                          class: 'form-control', rows: 12) %>
       </td>
     </tr>
     <tr>

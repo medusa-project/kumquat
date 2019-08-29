@@ -45,11 +45,11 @@ var PTAdminItemSetView = function() {
             if (checked) {
                 checkboxes.prop('checked', false);
                 $(this).data('checked', 'false');
-                $(this).html('<i class="fa fa-check-square-o"></i> Check All');
+                $(this).html('<i class="far fa-check-square"></i> Check All');
             } else {
                 checkboxes.prop('checked', true);
                 $(this).data('checked', 'true');
-                $(this).html('<i class="fa fa-minus-square-o"></i> Uncheck All');
+                $(this).html('<i class="far fa-minus-square"></i> Uncheck All');
             }
         });
     };

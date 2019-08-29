@@ -6,13 +6,13 @@
 <h1><%= @collection.title %></h1>
 
 <ul class="nav nav-pills">
-  <li role="presentation" class="active">
-    <%= link_to '#', role: 'button' do %>
-      <i class="fa fa-level-down"></i> Tree
+  <li class="nav-item">
+    <%= link_to '#', class: 'nav-link active' do %>
+      <i class="fa fa-level-down-alt"></i> Tree
     <% end %>
   </li>
-  <li role="presentation">
-    <%= link_to collection_items_path(display: 'leaves'), role: 'button' do %>
+  <li class="nav-item">
+    <%= link_to collection_items_path(display: 'leaves'), class: 'nav-link' do %>
       <i class="fa fa-bars"></i> List
     <% end %>
   </li>

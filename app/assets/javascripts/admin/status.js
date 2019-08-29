@@ -12,7 +12,7 @@ var PTServerStatusMonitor = function() {
         $.ajax({
             url: check_url,
             dataType: 'json',
-            success: function(xhr, statusText) {
+            success: function(xhr) {
                 service_table.empty();
 
                 $.each(xhr, function(index, service) {
@@ -20,10 +20,10 @@ var PTServerStatusMonitor = function() {
                     row += '<td>' + service.service + '</td>';
                     switch (service.status) {
                         case 'online':
-                            row += '<td><span class="label label-success">Online</span></td>';
+                            row += '<td><span class="badge badge-success">Online</span></td>';
                             break;
                         default:
-                            row += '<td><span class="label label-danger">Offline</span></td>';
+                            row += '<td><span class="badge badge-danger">Offline</span></td>';
                             break;
                     }
                     row += '</tr>';

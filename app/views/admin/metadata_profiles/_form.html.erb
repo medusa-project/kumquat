@@ -21,13 +21,13 @@
                  @element_options_for_select,
                  { selected: metadata_profile.default_sortable_element ?
                      metadata_profile.default_sortable_element.id : nil },
-                 class: 'form-control') %>
+                 class: 'custom-select') %>
     </div>
   <% end %>
 
   <div class="clearfix">
-    <div class="pull-right">
-      <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+    <div class="float-right">
+      <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
       <%= f.submit(context == :new ? 'Create Profile' : 'Edit Profile',
                    class: 'btn btn-primary') %>
     </div>

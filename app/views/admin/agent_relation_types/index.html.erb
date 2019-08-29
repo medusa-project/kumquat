@@ -2,15 +2,13 @@
 <% provide :body_id, 'admin_agent_relation_types_index' %>
 <% provide :active_nav, 'metadata' %>
 
-<ol class="breadcrumb">
-  <li><%= link_to 'Home', admin_root_path %></li>
-  <li><%= link_to 'Agents', admin_agents_path %></li>
-  <li class="active">Relation Types</li>
-</ol>
+<%= admin_breadcrumb({ label: 'Home', url: admin_root_path },
+                     { label: 'Agents', url: admin_agents_path },
+                     { label: 'Relation Types' }) %>
 
-<div class="btn-group pull-right">
+<div class="btn-group float-right">
   <!-- Add button -->
-  <button type="button" class="btn btn-default" data-toggle="modal"
+  <button type="button" class="btn btn-light" data-toggle="modal"
           data-target="#dl-add-agent-relation-type-modal">
     <span class="fa fa-plus"></span> Add Relation Type
   </button>
@@ -22,39 +20,5 @@
   <%= render 'agent_relation_types' %>
 </div>
 
-<!-- Add modal -->
-<div class="modal fade" id="dl-add-agent-relation-type-modal" tabindex="-1" role="dialog"
-     aria-labelledby="dl-add-agent-relation-type-modal-label">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-        <h4 class="modal-title" id="dl-add-agent-relation-type-modal-label">Add Relation Type</h4>
-      </div>
-      <div class="modal-body">
-        <%= render partial: 'form', locals: { type: @new_type,
-                                              context: :new } %>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Edit modal -->
-<div class="modal fade" id="dl-edit-agent-relation-type-modal" tabindex="-1" role="dialog"
-     aria-labelledby="dl-edit-agent-relation-type-modal-label">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-        <h4 class="modal-title" id="dl-edit-agent-relation-type-modal-label">Edit Relation Type</h4>
-      </div>
-      <div class="modal-body">
-        <% # will be populated via XHR %>
-      </div>
-    </div>
-  </div>
-</div>
+<%= render partial: 'admin/agent_relation_types/add_modal' %>
+<%= render partial: 'admin/agent_relation_types/edit_modal' %>

@@ -18,7 +18,7 @@
         <% access_master = item.binaries.select{ |b| b.master_type == Binary::MasterType::ACCESS }.first %>
         <% if access_master %>
           <%= link_to binary_path(access_master),
-                      class: 'btn btn-default btn-sm',
+                      class: 'btn btn-outline-primary btn-sm',
                       target: '_blank' do %>
             <%= icon_for(access_master) %> <%= access_master.human_readable_name %> Master
           <% end %>
@@ -27,7 +27,7 @@
         <% pres_master = item.binaries.select{ |b| b.master_type == Binary::MasterType::PRESERVATION }.first %>
         <% if pres_master %>
           <%= link_to binary_path(pres_master),
-                      class: 'btn btn-default btn-sm',
+                      class: 'btn btn-outline-primary btn-sm',
                       target: '_blank' do %>
             <%= icon_for(pres_master) %> <%= pres_master.human_readable_name %> Master
           <% end %>
@@ -35,7 +35,7 @@
       <% end %>
 
       <% if item.effective_image_binary&.iiif_safe? %>
-        <a href="#" class="btn btn-default btn-sm"
+        <a href="#" class="btn btn-outline-primary btn-sm"
            onclick="return false;"
            data-toggle="modal"
            data-target="#dl-custom-image-modal"

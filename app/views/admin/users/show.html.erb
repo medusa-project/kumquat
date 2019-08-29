@@ -1,43 +1,40 @@
 <% provide :title, @user.username %>
 <% provide :active_nav, 'access' %>
 
-<ol class="breadcrumb">
-  <li><%= link_to 'Home', admin_root_path %></li>
-  <li><%= link_to 'Users', admin_users_path %></li>
-  <li class="active"><%= @user.username %></li>
-</ol>
+<%= admin_breadcrumb({ label: 'Home', url: admin_root_path },
+                     { label: 'Users', url: admin_users_path },
+                     { label: @user.username }) %>
 
-<div class="btn-group pull-right" role="group">
+<div class="btn-group float-right" role="group">
   <div class="btn-group">
     <!-- Actions menu -->
-    <button type="button" class="btn btn-default dropdown-toggle"
+    <button type="button" class="btn btn-light dropdown-toggle"
             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
       Actions <span class="caret"></span>
     </button>
-    <ul class="dropdown-menu" role="menu">
-      <li>
-        <% if @user.enabled %>
-          <%= link_to admin_user_disable_path(@user), method: :patch do %>
-            <i class="fa fa-times"></i> Disable
-          <% end %>
-        <% else %>
-          <%= link_to admin_user_enable_path(@user), method: :patch do %>
-            <i class="fa fa-check"></i> Enable
-          <% end %>
+    <div class="dropdown-menu" role="menu">
+      <% if @user.enabled %>
+        <%= link_to admin_user_disable_path(@user),
+                    method: :patch, class: 'dropdown-item' do %>
+          <i class="fa fa-times"></i> Disable
         <% end %>
-      </li>
-      <% if @user == current_user %>
-        <li>
-          <%= link_to admin_user_reset_api_key_path(@user), method: :post do %>
-            <i class="fa fa-key"></i> Reset API Key
-          <% end %>
-        </li>
+      <% else %>
+        <%= link_to admin_user_enable_path(@user),
+                    method: :patch, class: 'dropdown-item' do %>
+          <i class="fa fa-check"></i> Enable
+        <% end %>
       <% end %>
-    </ul>
+      <% if @user == current_user %>
+        <%= link_to admin_user_reset_api_key_path(@user),
+                    method: :post, class: 'dropdown-item' do %>
+          <i class="fa fa-key"></i> Reset API Key
+        <% end %>
+      <% end %>
+    </div>
   </div>
   <!-- Edit button -->
-  <%= link_to edit_admin_user_path(@user), class: 'btn btn-default' do %>
-    <i class="fa fa-pencil"></i> Edit
+  <%= link_to edit_admin_user_path(@user), class: 'btn btn-light' do %>
+    <i class="fas fa-pencil-alt"></i> Edit
   <% end %>
   <!-- Delete button -->
   <%= link_to admin_user_path(@user), method: :delete,
@@ -73,7 +70,7 @@
       <% end %>
       <dt>Account Status</dt>
       <dd>
-        <span class="label <%= @user.enabled ? 'label-success' : 'label-danger' %>">
+        <span class="badge <%= @user.enabled ? 'badge-success' : 'badge-danger' %>">
             <%= @user.enabled ? 'Enabled' : 'Disabled' %></span>
       </dd>
       <dt>Account Created</dt>
@@ -84,11 +81,11 @@
   <div class="col-sm-9">
 
     <ul class="nav nav-tabs">
-      <li class="active">
-        <a href="#permissions" data-toggle="tab">Permissions</a>
+      <li class="nav-item">
+        <a href="#permissions" class="nav-link active" data-toggle="tab">Permissions</a>
       </li>
-      <li>
-        <a href="#roles" data-toggle="tab">Roles</a>
+      <li class="nav-item">
+        <a href="#roles" class="nav-link" data-toggle="tab">Roles</a>
       </li>
     </ul>
 
@@ -122,24 +119,24 @@
         <table class="table table-striped">
           <thead>
             <tr>
-              <th style="width: 1%"></th>
+              <th style="width: 1px"></th>
               <th></th>
             </tr>
           </thead>
           <tbody>
             <% Role.order(:name).each do |role| %>
               <tr>
-                <td>
+                <td style="white-space: nowrap">
                   <% if @user.roles.include?(role) %>
                     <%= link_to admin_user_change_roles_path(@user, user: { id: @user.id }, do: :leave, role_id: role.id),
                                 method: :patch,
-                                class: 'btn btn-xs btn-danger' do %>
+                                class: 'btn btn-sm btn-danger' do %>
                       <i class="fa fa-minus"></i> Leave
                     <% end %>
                   <% else %>
                     <%= link_to admin_user_change_roles_path(@user, user: { id: @user.id }, do: :join, role_id: role.id),
                                 method: :patch,
-                                class: 'btn btn-xs btn-success' do %>
+                                class: 'btn btn-sm btn-success' do %>
                       <i class="fa fa-plus"></i> Join
                     <% end %>
                   <% end %>

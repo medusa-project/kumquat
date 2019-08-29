@@ -17,8 +17,8 @@
   <%= f.hidden_field :vocabulary_id, value: vocabulary_term.vocabulary.id %>
 
   <div class="clearfix">
-    <div class="pull-right">
-      <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+    <div class="float-right">
+      <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
       <%= f.submit(context == :new ? 'Create Term' : 'Edit Term',
                    class: 'btn btn-primary') %>
     </div>

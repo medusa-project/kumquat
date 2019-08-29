@@ -2,21 +2,19 @@
 <% provide :body_id, 'vocabularies_show' %>
 <% provide :active_nav, 'metadata' %>
 
-<ol class="breadcrumb">
-  <li><%= link_to 'Home', admin_root_path %></li>
-  <li><%= link_to 'Vocabularies', admin_vocabularies_path %></li>
-  <li class="active"><%= @vocabulary.name %></li>
-</ol>
+<%= admin_breadcrumb({ label: 'Home', url: admin_root_path },
+                     { label: 'Vocabularies', url: admin_vocabularies_path },
+                     { label: @vocabulary.name }) %>
 
 <% unless @vocabulary.readonly? %>
-  <div class="btn-group pull-right">
+  <div class="btn-group float-right">
     <!-- Edit button -->
-    <button type="button" class="btn btn-default" data-toggle="modal"
+    <button type="button" class="btn btn-light" data-toggle="modal"
             data-target="#dl-edit-vocabulary-modal">
-      <i class="fa fa-pencil"></i> Edit
+      <i class="fas fa-pencil-alt"></i> Edit
     </button>
     <!-- Export button -->
-    <%= link_to @permitted_params.merge(format: 'json'), class: 'btn btn-default' do %>
+    <%= link_to @permitted_params.merge(format: 'json'), class: 'btn btn-light' do %>
       <i class="fa fa-download"></i> Export
     <% end %>
     <!-- Delete button -->
@@ -29,13 +27,13 @@
   </div>
 <% end %>
 
-<h1><%= @vocabulary.name %> <small><%= @vocabulary.key %></small></h1>
+<h1><%= @vocabulary.name %> <small><code><%= @vocabulary.key %></code></small></h1>
 
 <%= form_tag(admin_vocabulary_delete_vocabulary_terms_path(@vocabulary), method: :post) do %>
 
   <% unless @vocabulary.readonly? %>
-    <div class="btn-group pull-right">
-      <button type="button" class="btn btn-default" data-toggle="modal"
+    <div class="btn-group float-right">
+      <button type="button" class="btn btn-light" data-toggle="modal"
               data-target="#dl-add-term-modal">
         <i class="fa fa-plus"></i> Add Term
       </button>
@@ -46,7 +44,9 @@
   <% end %>
 
   <% if @vocabulary.key != Vocabulary::UNCONTROLLED_KEY %>
-    <h2>Terms <span class="badge"><%= @vocabulary.vocabulary_terms.count %></span></h2>
+    <h2>Terms <small><span class="badge badge-pill badge-secondary">
+      <%= @vocabulary.vocabulary_terms.count %></span></small>
+    </h2>
 
     <% if @vocabulary.vocabulary_terms.any? %>
       <table class="table table-striped">
@@ -68,7 +68,7 @@
               </td>
               <td style="width:1px">
                 <% unless @vocabulary.readonly? %>
-                  <button type="button" class="btn btn-default btn-xs dl-edit-term"
+                  <button type="button" class="btn btn-light btn-sm dl-edit-term"
                           data-toggle="modal" data-target="#dl-edit-term-modal"
                           data-term-id="<%= term.id %>">Edit</button>
                 <% end %>

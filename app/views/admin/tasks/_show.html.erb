@@ -10,7 +10,7 @@
   <dt>Status</dt>
   <dd class="dl-status">
     <p>
-      <span class="label <%= bootstrap_class_for_task_status(@task.status) %>">
+      <span class="badge <%= bootstrap_class_for_task_status(@task.status) %>">
         <%= Task::Status::to_s(@task.status) %>
       </span>
     </p>

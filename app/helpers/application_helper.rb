@@ -44,6 +44,9 @@ module ApplicationHelper
   end
 
   ##
+  # Renders the breadcrumb in public views. For admin views, see
+  # `AdminHelper.admin_breadcrumb()`.
+  #
   # @param options [Hash]
   # @option options [Collection] :collection
   # @option options [ItemsController::BrowseContext] :context
@@ -54,21 +57,14 @@ module ApplicationHelper
   def breadcrumb(options = {})
     case controller_name
       when 'collections'
-        case action_name
-          when 'index'
-            return nil # no breadcrumb in this view
-          when 'show'
-            return collection_view_breadcrumb(options[:collection])
-        end
+        return collection_view_breadcrumb(options[:collection])
       when 'items'
         case action_name
-          when 'tree'
-            return results_breadcrumb(options[:collection], options[:context])
-          when 'index'
-            return results_breadcrumb(options[:collection], options[:context])
           when 'show'
             return item_view_breadcrumb(options[:item], options[:context],
                                         options[:context_url])
+          else
+            return results_breadcrumb(options[:collection], options[:context])
         end
     end
     nil
@@ -116,10 +112,10 @@ module ApplicationHelper
   end
 
   ##
-  # Returns an ordered list of the given entities (Items, Collections, Agents).
+  # Returns a series of Bootstrap media elements for the given entities (Items,
+  # Collections, Agents).
   #
   # @param entities [Enumerable<Representable>]
-  # @param start [integer] Offset.
   # @param options [Hash] Hash with optional keys.
   # @option options [Boolean] :link_to_admin
   # @option options [Boolean] :show_collections
@@ -127,36 +123,37 @@ module ApplicationHelper
   # @option options [Boolean] :show_published_status
   # @return [String] HTML string.
   #
-  def entities_as_list(entities, start, options = {})
+  def entities_as_media(entities, options = {})
     html = StringIO.new
-    html << "<ol start=\"#{start + 1}\">"
+    html << '<ul class="list-unstyled">'
     entities.each do |entity|
+      html << '<li class="media my-4">'
+
+      # Thumbnail area
+      if options[:show_checkboxes]
+        html << check_box_tag('dl-selected-items[]', entity.repository_id)
+      end
+
       if options[:link_to_admin] and entity.kind_of?(Item)
         link_target = admin_collection_item_path(entity.collection, entity)
       else
         link_target = polymorphic_path(entity)
       end
-      html << '<li>'
-      if options[:show_checkboxes]
-        html << check_box_tag('dl-selected-items[]', entity.repository_id)
-        html << '<div class="dl-checkbox-result-container">'
-      else
-        html << '<div class="dl-non-checkbox-result-container">'
-      end
       html << link_to(link_target, class: 'dl-thumbnail-link') do
-        thumb = StringIO.new
-        thumb << '<div class="dl-thumbnail">'
-        thumb <<   thumbnail_tag(entity.effective_representative_entity,
-                                 shape: :square)
-        thumb << '</div>'
-        raw(thumb.string)
+        thumbnail_tag(entity.effective_representative_entity,
+                      shape: :square)
       end
-      html << '<span class="dl-label">'
-      html << link_to(entity.title, link_target)
 
-      # info line
-      info_parts = []
-      info_parts << "#{icon_for(entity)}#{type_of(entity)}"
+      html << '<div class="media-body">'
+
+      # Title line
+      html <<   '<h5 class="mt-0">'
+      html <<     link_to(entity.title, link_target)
+      html <<   '</h5>'
+
+      # Info line
+      info_sections = []
+      info_sections << "#{icon_for(entity)} #{type_of(entity)}"
 
       if entity.class.to_s == 'Item'
         num_pages = entity.pages.count
@@ -164,15 +161,15 @@ module ApplicationHelper
           page_count = "#{num_pages} pages"
           three_d_item = entity.three_d_item
           page_count += ' + 3D model' if three_d_item
-          info_parts << page_count
+          info_sections << page_count
         else
           num_files = entity.items.where(variant: Item::Variants::FILE).count
           if num_files > 0
-            info_parts << "#{num_files} files"
+            info_sections << "#{num_files} files"
           else
             num_children = entity.items.count
             if num_children > 0
-              info_parts << "#{num_children} sub-items"
+              info_sections << "#{num_children} sub-items"
             end
           end
         end
@@ -181,28 +178,26 @@ module ApplicationHelper
             entity.respond_to?(:date) ? entity.date : nil,
             entity.respond_to?(:end_date) ? entity.end_date : nil
         ]
-        info_parts << range.select(&:present?).map(&:year).join('-') if range.any?
+        info_sections << range.select(&:present?).map(&:year).join('-') if range.any?
 
         if options[:show_collections] and entity.collection
-          info_parts << link_to(entity.collection.title,
+          link_target = link_to(entity.collection.title,
                                 collection_path(entity.collection))
+          info_sections << "#{icon_for(entity.collection)} #{link_target}"
         end
       end
 
       if options[:show_published_status] and entity.respond_to?(:published)
         if entity.published
-          info_parts << '<span class="label label-success"><i class="fa fa-check"></i> Published</label>'
+          info_sections << '<span class="badge badge-success"><i class="fa fa-check"></i> Published</span>'
         else
-          info_parts << '<span class="label label-danger"><i class="fa fa-lock"></i> Unpublished</label>'
+          info_sections << '<span class="badge badge-danger"><i class="fa fa-lock"></i> Unpublished</span>'
         end
       end
 
-      html <<   '<br>'
-      html <<   '<span class="dl-info-line">'
-      html <<     info_parts.join(' | ')
-      html <<   '</span>'
+      html << '<span class="dl-info-line">'
+      html <<   info_sections.join(' | ')
       html << '</span>'
-      html << '<br>'
       html << '<span class="dl-description">'
 
       description = nil
@@ -222,7 +217,7 @@ module ApplicationHelper
       html <<     '</div>'
       html <<   '</li>'
     end
-    html << '</ol>'
+    html << '</ul>'
     raw(html.string)
   end
 
@@ -235,7 +230,7 @@ module ApplicationHelper
     return nil unless facets
     html = StringIO.new
     facets.select{ |f| f.terms.any? }.each do |facet|
-      html << facet_panel(facet, params.permit(permitted_params))
+      html << facet_card(facet, params.permit(permitted_params))
     end
     raw(html.string)
   end
@@ -300,50 +295,50 @@ module ApplicationHelper
   # @return [String] HTML <i> tag
   #
   def icon_for(entity)
-    icon = 'fa-cube'
+    icon = 'fas fa-cube'
     if entity == Item
-      icon = 'fa-cube'
+      icon = 'fas fa-cube'
     elsif entity.kind_of?(Item)
       viewer_binary = entity.effective_viewer_binary
       if viewer_binary&.is_audio?
-        icon = 'fa-volume-up'
+        icon = 'fas fa-volume-up'
       elsif viewer_binary&.is_image?
-        icon = 'fa-picture-o'
-      elsif viewer_binary&.is_document?
-        icon = 'fa-file-pdf-o'
-      elsif viewer_binary&.is_text?
-        icon = 'fa-file-text-o'
+        icon = 'fas fa-image'
+      elsif viewer_binary&.is_pdf?
+        icon = 'fas fa-file-pdf'
+      elsif viewer_binary&.is_text? or viewer_binary&.is_document?
+        icon = 'fas fa-file-alt'
       elsif viewer_binary&.is_video?
-        icon = 'fa-film'
+        icon = 'fas fa-film'
       elsif entity.variant == Item::Variants::DIRECTORY
-        icon = 'fa-folder-open-o'
+        icon = 'fas fa-folder-open'
       elsif entity.variant == Item::Variants::FILE
-        icon = 'fa-file-o'
+        icon = 'fas fa-file'
       elsif entity.items.any?
-        icon = 'fa-cubes'
+        icon = 'fas fa-cubes'
       end
     elsif entity.kind_of?(Binary)
       if entity.is_audio?
-        icon = 'fa-volume-up'
+        icon = 'fas fa-volume-up'
       elsif entity.is_image?
-        icon = 'fa-picture-o'
+        icon = 'fas fa-image'
       elsif entity.is_pdf?
-        icon = 'fa-file-pdf-o'
-      elsif entity.is_text?
-        icon = 'fa-file-text-o'
+        icon = 'fas fa-file-pdf'
+      elsif entity.is_text? or entity&.is_document?
+        icon = 'fas fa-file-alt'
       elsif entity.is_video?
-        icon = 'fa-film'
+        icon = 'fas fa-film'
       end
     elsif entity == Collection or entity.kind_of?(Collection)
-      icon = 'fa-folder-open-o'
+      icon = 'fas fa-folder-open'
     elsif entity == Agent or entity.kind_of?(Agent)
-      icon = 'fa-user-circle'
+      icon = 'fas fa-user-circle'
     elsif entity == ItemSet or entity.kind_of?(ItemSet)
-      icon = 'fa-circle-o'
+      icon = 'far fa-circle'
     elsif entity == User or entity.kind_of?(User)
-      icon = 'fa-user'
+      icon = 'fas fa-user'
     end
-    raw("<i title=\"#{type_of(entity)}\" class=\"fa #{icon} dl-icon\"></i>")
+    raw("<i class=\"#{icon}\" aria-hidden=\"true\"></i>")
   end
 
   ##
@@ -420,19 +415,19 @@ module ApplicationHelper
     permitted_params = params.permit(params.permit(permitted_params))
 
     first_link = link_to(permitted_params.except(:start),
-                         remote: remote, 'aria-label': 'First') do
+                         remote: remote, class: 'page-link', 'aria-label': 'First') do
       raw('<span aria-hidden="true">First</span>')
     end
     prev_link = link_to(permitted_params.merge(start: prev_start),
-                        remote: remote, 'aria-label': 'Previous') do
+                        remote: remote, class: 'page-link', 'aria-label': 'Previous') do
       raw('<span aria-hidden="true">&laquo;</span>')
     end
     next_link = link_to(permitted_params.merge(start: next_start),
-                        remote: remote, 'aria-label': 'Next') do
+                        remote: remote, class: 'page-link', 'aria-label': 'Next') do
       raw('<span aria-hidden="true">&raquo;</span>')
     end
     last_link = link_to(permitted_params.merge(start: last_start),
-                        remote: remote, 'aria-label': 'Last') do
+                        remote: remote, class: 'page-link', 'aria-label': 'Last') do
       raw('<span aria-hidden="true">Last</span>')
     end
 
@@ -440,21 +435,21 @@ module ApplicationHelper
     html = StringIO.new
     html << '<nav>'
     html <<   '<ul class="pagination">'
-    html <<     "<li #{current_page == first_page ? 'class="disabled"' : ''}>#{first_link}</li>"
-    html <<     "<li #{current_page == prev_page ? 'class="disabled"' : ''}>#{prev_link}</li>"
+    html <<     "<li class=\"page-item #{current_page == first_page ? 'disabled' : ''}\">#{first_link}</li>"
+    html <<     "<li class=\"page-item #{current_page == prev_page ? 'disabled' : ''}\">#{prev_link}</li>"
     (first_page..last_page).each do |page|
       start = (page - 1) * per_page
-      page_link = link_to((start == 0) ? permitted_params.except(:start) :
-                              permitted_params.merge(start: start), remote: remote) do
+      page_link = link_to((start == 0) ? permitted_params.except(:start) : permitted_params.merge(start: start),
+                          remote: remote, class: 'page-link') do
         raw("#{page} #{(page == current_page) ?
             '<span class="sr-only">(current)</span>' : ''}")
       end
-      html << "<li class=\"#{page == current_page ? 'active' : ''}\">"
+      html << "<li class=\"page-item #{page == current_page ? 'active' : ''}\">"
       html <<   page_link
       html << '</li>'
     end
-    html <<     "<li #{current_page == next_page ? 'class="disabled"' : ''}>#{next_link}</li>"
-    html <<     "<li #{current_page == last_page ? 'class="disabled"' : ''}>#{last_link}</li>"
+    html <<     "<li class=\"page-item #{current_page == next_page ? 'disabled' : ''}\">#{next_link}</li>"
+    html <<     "<li class=\"page-item #{current_page == last_page ? 'disabled' : ''}\">#{last_link}</li>"
     html <<   '</ul>'
     html << '</nav>'
     raw(html.string)
@@ -474,7 +469,7 @@ module ApplicationHelper
                     alt: "#{statement.name} (RightsStatement.org)")
         end
       else
-        image = '<i class="fa fa-copyright"></i>'
+        image = '<i class="far fa-copyright fa-fw fa-3x"></i>'
       end
 
       title = statement ? '' : '<h4 class="media-heading">Rights Information</h4>'
@@ -534,41 +529,43 @@ module ApplicationHelper
     html = StringIO.new
     parent = collection.parents.first
     while parent
-      html << '<li>'
-      html << link_to(parent.title, parent)
+      html << '<li class="breadcrumb-item">'
+      html <<   link_to(parent.title, parent)
       html << '</li>'
       html << html.string
       parent = parent.parents.first
     end
-    html << "<li class=\"active\">#{truncate(collection.title, length: 50)}</li>"
+    html << '<li class="breadcrumb-item active" aria-current="page">'
+    html <<   truncate(collection.title, length: 50)
+    html << '</li>'
     html.string
   end
 
   def collection_view_breadcrumb(collection)
     html = StringIO.new
-    html << '<ol class="breadcrumb">'
-    html <<   '<li>'
-    html <<     link_to('Home', root_path)
-    html <<   '</li>'
-    html <<   '<li>'
-    html <<     repository_link(collection)
-    html <<   '</li>'
-    html <<   collection_structure_breadcrumb(collection)
-    html << '</ol>'
+    html << '<nav aria-label="breadcrumb">'
+    html <<   '<ol class="breadcrumb">'
+    html <<     '<li class="breadcrumb-item">'
+    html <<       link_to('Home', root_path)
+    html <<     '</li>'
+    html <<     '<li class="breadcrumb-item">'
+    html <<       repository_link(collection)
+    html <<     '</li>'
+    html <<     collection_structure_breadcrumb(collection)
+    html <<   '</ol>'
+    html << '</nav>'
     raw(html.string)
   end
 
   ##
   # @param facet [Facet]
   #
-  def facet_panel(facet, permitted_params)
+  def facet_card(facet, permitted_params)
     panel = StringIO.new
-    panel << "<div class=\"panel panel-default\" id=\"#{facet.field}\">
-      <div class=\"panel-heading\">
-        <h3 class=\"panel-title\">#{facet.name}</h3>
-      </div>
-      <div class=\"panel-body\">
-        <ul>"
+    panel << "<div class=\"card\" id=\"#{facet.field}\">"
+    panel <<   "<h5 class=\"card-header\">#{facet.name}</h5>"
+    panel <<     '<div class="card-body">'
+    panel <<       '<ul>'
     facet.terms.each do |term|
       checked = (params[:fq] and params[:fq].include?(term.query)) ?
                     'checked' : nil
@@ -582,9 +579,9 @@ module ApplicationHelper
       panel <<       "<input type=\"checkbox\" name=\"dl-facet-term\" #{checked} "\
                          "data-query=\"#{term.query.gsub('"', '&quot;')}\" "\
                          "data-checked-href=\"#{url_for(unchecked_params)}\" "\
-                         "data-unchecked-href=\"#{url_for(checked_params)}\">"
+                         "data-unchecked-href=\"#{url_for(checked_params)}\"> "
       panel <<         "<span class=\"dl-term-name\">#{term_label}</span> "
-      panel <<         "<span class=\"dl-count badge\">#{term.count}</span>"
+      panel <<         "<span class=\"dl-count badge badge-pill badge-secondary\">#{term.count}</span>"
       panel <<     '</label>'
       panel <<   '</div>'
       panel << '</li>'
@@ -599,13 +596,13 @@ module ApplicationHelper
     html = StringIO.new
     parent = item.parent
     while parent
-      html << '<li>'
+      html << '<li class="breadcrumb-item">'
       html <<   link_to(parent.title, parent)
       html << '</li>'
       html << html.string
       parent = parent.parent
     end
-    html << '<li class="active">'
+    html << '<li class="breadcrumb-item active">'
     html <<   truncate(item.title, length: 50)
     html << '</li>'
     html.string
@@ -613,58 +610,66 @@ module ApplicationHelper
 
   def item_view_breadcrumb(item, context, context_url)
     html = StringIO.new
+    html << '<nav aria-label="breadcrumb">'
+    html <<   '<ol class="breadcrumb">'
     case context
       when ItemsController::BrowseContext::SEARCHING
-        html << '<ol class="breadcrumb">'
-        html <<   "<li>#{link_to 'Home', root_path}</li>"
-        html <<   "<li>#{link_to 'Search', context_url}</li>"
-        html <<   item_structure_breadcrumb(item)
-        html << "</ol>"
+        html << '<li class="breadcrumb-item">'
+        html <<   link_to('Home', root_path)
+        html << '</li>'
+        html << '<li class="breadcrumb-item">'
+        html <<   link_to('Search', context_url)
+        html << '</li>'
+        html << item_structure_breadcrumb(item)
       when ItemsController::BrowseContext::BROWSING_ALL_ITEMS
-        html << '<ol class="breadcrumb">'
-        html <<   "<li>#{link_to 'Home', root_path}</li>"
-        html <<   "<li>#{link_to 'All Items', items_path}</li>"
-        html <<   item_structure_breadcrumb(item)
-        html << "</ol>"
+        html << '<li class="breadcrumb-item">'
+        html <<   link_to('Home', root_path)
+        html << '</li>'
+        html << '<li class="breadcrumb-item">'
+        html <<   link_to('All Items', items_path)
+        html << '</li>'
+        html << item_structure_breadcrumb(item)
       else
-        html << '<ol class="breadcrumb">'
-        html <<   '<li>'
-        html <<     link_to('Home', root_path)
-        html <<   '</li>'
+        html << '<li class="breadcrumb-item">'
+        html <<   link_to('Home', root_path)
+        html << '</li>'
         if item.collection
-          html << '<li>'
+          html << '<li class="breadcrumb-item">'
           html <<   repository_link(item.collection)
           html << '</li>'
-          html << '<li>'
+          html << '<li class="breadcrumb-item">'
           html <<   link_to(item.collection.title, collection_path(item.collection))
           html << '</li>'
-          html << '<li>'
+          html << '<li class="breadcrumb-item">'
           html <<   link_to('Items', collection_items_path(item.collection))
           html << '</li>'
         else
-          html << '<li>Unknown Repository</li>'
-          html << '<li>Unknown Collection</li>'
+          html << '<li class="breadcrumb-item">Unknown Repository</li>'
+          html << '<li class="breadcrumb-item">Unknown Collection</li>'
         end
-        html <<   item_structure_breadcrumb(item)
-        html << '</ol>'
+        html << item_structure_breadcrumb(item)
     end
+    html <<   '</ol>'
+    html << '</nav>'
     raw(html.string)
-  end
-
-  def repository_link(collection)
-    fq = "#{Collection::IndexFields::REPOSITORY_TITLE}:#{collection.medusa_repository.title}"
-    link_to collection.medusa_repository.title, collections_path('fq[]': fq)
   end
 
   def results_breadcrumb(collection, context)
     if context == ItemsController::BrowseContext::BROWSING_COLLECTION
       html = StringIO.new
-      html << '<ol class="breadcrumb">'
-      html <<   "<li>#{link_to('Home', root_path)}</li>"
-      html <<   "<li>#{repository_link(collection)}</li>"
-      html <<   "<li>#{link_to(truncate(collection.title, length: 50), collection_path(collection))}</li>"
-      html <<   '<li class="active">Items</li>'
-      html << '</ol>'
+      html << '<nav aria-label="breadcrumb">'
+      html <<   '<ol class="breadcrumb">'
+      html <<     '<li class="breadcrumb-item">'
+      html <<       link_to('Home', root_path)
+      html <<     '<li class="breadcrumb-item">'
+      html <<       repository_link(collection)
+      html <<     '</li>'
+      html <<     '<li class="breadcrumb-item">'
+      html <<       link_to(truncate(collection.title, length: 50), collection_path(collection))
+      html <<     '</li>'
+      html <<     '<li class="breadcrumb-item active" aria-current="page">Items</li>'
+      html <<   '</ol>'
+      html << '</nav>'
       raw(html.string)
     end
   end

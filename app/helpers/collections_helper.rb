@@ -35,4 +35,9 @@ module CollectionsHelper
     nil
   end
 
+  def repository_link(collection)
+    fq = "#{Collection::IndexFields::REPOSITORY_TITLE}:#{collection.medusa_repository.title}"
+    link_to collection.medusa_repository.title, collections_path('fq[]': fq)
+  end
+
 end

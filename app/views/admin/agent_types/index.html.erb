@@ -2,15 +2,13 @@
 <% provide :body_id, 'admin_agent_types_index' %>
 <% provide :active_nav, 'metadata' %>
 
-<ol class="breadcrumb">
-  <li><%= link_to 'Home', admin_root_path %></li>
-  <li><%= link_to 'Agents', admin_agents_path %></li>
-  <li class="active">Agent Types</li>
-</ol>
+<%= admin_breadcrumb({ label: 'Home', url: admin_root_path },
+                     { label: 'Agents', url: admin_agents_path },
+                     { label: 'Agent Types' }) %>
 
-<div class="btn-group pull-right">
+<div class="btn-group float-right">
   <!-- Add Agent Type button -->
-  <button type="button" class="btn btn-default" data-toggle="modal"
+  <button type="button" class="btn btn-light" data-toggle="modal"
           data-target="#dl-add-agent-type-modal">
     <span class="fa fa-plus"></span> Add Type
   </button>

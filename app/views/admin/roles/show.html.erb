@@ -1,16 +1,14 @@
 <% provide :title, @role.name %>
 <% provide :active_nav, 'access' %>
 
-<ol class="breadcrumb">
-  <li><%= link_to 'Home', admin_root_path %></li>
-  <li><%= link_to 'Roles', admin_roles_path %></li>
-  <li class="active"><%= @role.name %></li>
-</ol>
+<%= admin_breadcrumb({ label: 'Home', url: admin_root_path },
+                     { label: 'Roles', url: admin_roles_path },
+                     { label: @role.name }) %>
 
-<div class="btn-group pull-right">
+<div class="btn-group float-right">
   <% if current_user.can?(Permission::Permissions::MODIFY_ROLES) %>
-    <%= link_to edit_admin_role_path(@role), class: 'btn btn-default' do %>
-      <%= content_tag(:span, '', class: 'fa fa-pencil') %>
+    <%= link_to edit_admin_role_path(@role), class: 'btn btn-light' do %>
+      <%= content_tag(:span, '', class: 'fas fa-pencil-alt') %>
       Edit
     <% end %>
   <% end %>
@@ -31,10 +29,12 @@
 <div class="row">
   <div class="col-sm-4">
     <h2>Permissions</h2>
-    <% @permissions.each do |p| %>
-      <%= @role.has_permission?(p.key) ?
-              raw("<span class=\"label label-success\">&check; #{p.name}</span>") :
-              raw("<span class=\"label label-default\">&times; #{p.name}</span>") %>
+    <% if @permissions.any? %>
+      <% @permissions.each do |p| %>
+        <%= raw("<span class=\"badge badge-success\">&check; #{p.name}</span>") %>
+      <% end %>
+    <% else %>
+      None
     <% end %>
   </div>
 

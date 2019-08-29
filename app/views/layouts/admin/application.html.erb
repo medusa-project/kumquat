@@ -10,10 +10,13 @@
     <%= stylesheet_link_tag 'admin', media: 'all' %>
     <%= javascript_include_tag 'admin/application' %>
 
+    <%= render partial: 'layouts/font_awesome' %>
+
     <%= content_for :head %>
   </head>
 
-  <body <%= !yield(:body_id).empty? ? raw("id=\"#{yield(:body_id)}\"") : nil %>
+  <body class="dl-admin"
+        <%= !yield(:body_id).empty? ? raw("id=\"#{yield(:body_id)}\"") : nil %>
         <%= raw("data-nav=\"#{yield(:active_nav)}\"") %>>
 
     <%= hidden_field_tag :root_url, root_url %>
@@ -21,14 +24,13 @@
     <%= render partial: 'layouts/admin/header' %>
 
     <div class="container-fluid">
-      <%= flashes %>
-
-      <div id="dl-page-content">
+      <div class="page-content">
+        <%= flashes %>
         <%= yield %>
       </div>
     </div>
 
-    <footer></footer>
+    <footer>&nbsp;</footer>
     <%= ajax_shade %>
 
   </body>

@@ -9,16 +9,16 @@
   <tbody>
     <% @types.each do |type| %>
       <tr>
-        <td>
-          <button type="button" class="btn btn-default btn-xs dl-edit-agent-relation-type"
+        <td style="white-space: nowrap">
+          <button type="button" class="btn btn-light btn-sm dl-edit-agent-relation-type"
                   data-toggle="modal" data-target="#dl-edit-agent-relation-type-modal"
                   data-agent-relation-type-id="<%= type.id %>">
-            <i class="fa fa-pencil"></i> Edit
+            <i class="fas fa-pencil-alt"></i> Edit
           </button>
         </td>
-        <td>
+        <td style="white-space: nowrap">
           <%= link_to admin_agent_relation_type_path(type),
-                      class: 'btn btn-danger btn-xs', method: :delete,
+                      class: 'btn btn-danger btn-sm', method: :delete,
                       data: { confirm: 'Are you sure you want to delete '\
                               'this relation type?' } do %>
             <i class="fa fa-trash"></i> Delete

@@ -1,17 +1,17 @@
 <div class="dl-result-navigation">
   <div class="btn-group">
     <% if @previous_result %>
-      <%= link_to @previous_result, class: 'btn btn-default btn-sm' do %>
+      <%= link_to @previous_result, class: 'btn btn-light btn-sm' do %>
         <i class="fa fa-arrow-left"></i> Previous
       <% end %>
     <% end %>
     <% if session[:browse_context_url] %>
-      <%= link_to session[:browse_context_url], class: 'btn btn-default btn-sm' do %>
-        <i class="fa fa-mail-reply"></i> Back To Results
+      <%= link_to session[:browse_context_url], class: 'btn btn-light btn-sm' do %>
+        <i class="fa fa-reply"></i> Back To Results
       <% end %>
     <% end %>
     <% if @next_result %>
-      <%= link_to @next_result, class: 'btn btn-default btn-sm' do %>
+      <%= link_to @next_result, class: 'btn btn-light btn-sm' do %>
         Next <i class="fa fa-arrow-right"></i>
       <% end %>
     <% end %>

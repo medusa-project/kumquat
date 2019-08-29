@@ -23,33 +23,8 @@
   }
 }
 
-h2, h3, h4, h5, h6 {
-  font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
-  font-weight: 300;
-}
-
 h1 {
   font-family: 'Oswald', sans-serif;
-  font-size: 2.5em;
-  margin-bottom: 0.5em;
-}
-h1:first-child {
-  margin-top: 0px;
-}
-h2 {
-  font-size: 2em;
-}
-h3 {
-  font-size: 1.6em;
-}
-h4 {
-  font-size: 1.3em;
-}
-h5 {
-  font-size: 1.1em;
-}
-h6 {
-  font-size: 0.9em;
 }
 
 h1 a, h1 a:hover, h2 a, h2 a:hover, h3 a, h3 a:hover, h4 a, h4 a:hover, h5 a,
@@ -63,19 +38,8 @@ h5 a:hover, h6 a, h6 a:hover {
   margin-bottom: 0px;
 }
 
-.panel-title, .dl-title, .dl-title a {
-  color: black;
-  font-weight: 400;
-}
-
 .dl-title a:hover {
   text-decoration: none;
-}
-
-p {
-  line-height: 1.45em;
-  font-size: 1.15em;
-  font-weight: 300;
 }
 
 td, dd {
@@ -86,26 +50,6 @@ td, dd {
 
 section {
   margin-bottom: 2.2em;
-}
-
-#dl-page-content {
-  padding-top: 15px;
-}
-
-.pagination, .nav-pills {
-  > li > a {
-    color: rgb(4, 74, 136);
-  }
-  > li.active > a {
-    background-color: rgb(4, 74, 136);
-  }
-}
-
-.dl-count.badge {
-  background-color: #b3b3b3;
-  font-size: 0.7em;
-  font-weight: normal;
-  vertical-align: 25%;
 }
 
 div.dl-cards {

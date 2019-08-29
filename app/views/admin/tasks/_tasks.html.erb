@@ -1,7 +1,9 @@
 <% if @tasks.any? %>
-  <div class="text-center">
-    <%= paginate(@count, @limit, @current_page,
-                 Admin::TasksController::PERMITTED_PARAMS, true) %>
+  <div class="row justify-content-md-center">
+    <div class="col-md-auto">
+      <%= paginate(@count, @limit, @current_page,
+                   Admin::TasksController::PERMITTED_PARAMS, true) %>
+    </div>
   </div>
 
   <table class="table">
@@ -23,7 +25,7 @@
                                 'task-id': task.id }) %>
           </td>
           <td class="dl-status">
-            <span class="label <%= bootstrap_class_for_task_status(task.status) %>">
+            <span class="badge <%= bootstrap_class_for_task_status(task.status) %>">
               <%= Task::Status::to_s(task.status) %>
             </span>
           </td>
@@ -40,9 +42,11 @@
     </tbody>
   </table>
 
-  <div class="text-center">
-    <%= paginate(@count, @limit, @current_page,
-                 Admin::TasksController::PERMITTED_PARAMS, true) %>
+  <div class="row justify-content-md-center">
+    <div class="col-md-auto">
+      <%= paginate(@count, @limit, @current_page,
+                   Admin::TasksController::PERMITTED_PARAMS, true) %>
+    </div>
   </div>
 <% else %>
   <p>No tasks to show.</p>

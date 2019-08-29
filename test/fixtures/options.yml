@@ -16,10 +16,6 @@ oai_pmh_enabled:
   key: <%= Option::Keys::OAI_PMH_ENABLED %>
   value: '{"value" : 1}'
 
-website_intro_text:
-  key: <%= Option::Keys::WEBSITE_INTRO_TEXT %>
-  value: '{"value" : "bah humbug"}'
-
 website_name:
   key: <%= Option::Keys::WEBSITE_NAME %>
   value: '{"value" : "My Great Website"}'

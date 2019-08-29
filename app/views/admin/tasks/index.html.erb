@@ -2,43 +2,47 @@
 <% provide :body_id, 'admin_tasks' %>
 <% provide :active_nav, 'server' %>
 
-<ol class="breadcrumb">
-  <li><%= link_to 'Home', admin_root_path %></li>
-  <li class="active">Tasks</li>
-</ol>
+<%= admin_breadcrumb({ label: 'Home', url: admin_root_path },
+                     { label: 'Tasks' }) %>
 
 <%= hidden_field_tag('dl-tasks-url', admin_tasks_url) %>
 <%= hidden_field_tag('dl-limit', @limit) %>
 
 <h1>Tasks</h1>
 
-<div class="well">
-  <%= form_tag admin_tasks_path, method: 'get', class: 'dl-filter' do %>
-    <div class="form-inline">
-      <%= search_field_tag :q, params[:q], placeholder: 'Filter',
-                           class: 'form-control' %>
+<div class="card">
+  <div class="card-body">
+    <%= form_tag admin_tasks_path, method: 'get', class: 'dl-filter' do %>
+      <div class="form-inline">
+        <%= search_field_tag :q, params[:q], placeholder: 'Filter',
+                             class: 'form-control' %>
 
-      <label for="queue">Queue</label>
-      <select name="queue" class="form-control">
-        <option></option>
-        <% Job::Queue::all.each do |q| %>
-          <option <%= q.to_s == params[:queue] ? 'selected' : '' %>>
-            <%= q %>
-          </option>
-        <% end %>
-      </select>
+        &nbsp;
 
-      <label for="status">Status</label>
-      <select name="status" class="form-control">
-        <option></option>
-        <% Task::Status::all.each do |s| %>
-          <option value="<%= s %>" <%= s == params[:status] ? 'selected' : '' %>>
-            <%= Task::Status::to_s(s) %>
-          </option>
-        <% end %>
-      </select>
-    </div>
-  <% end %>
+        <label for="dl-task-queue">Queue</label>
+        <select id="dl-task-queue" name="queue" class="custom-select">
+          <option></option>
+          <% Job::Queue::all.each do |q| %>
+            <option <%= q.to_s == params[:queue] ? 'selected' : '' %>>
+              <%= q %>
+            </option>
+          <% end %>
+        </select>
+
+        &nbsp;
+
+        <label for="dl-task-status">Status</label>
+        <select id="dl-task-status" name="status" class="custom-select">
+          <option></option>
+          <% Task::Status::all.each do |s| %>
+            <option value="<%= s %>" <%= s == params[:status] ? 'selected' : '' %>>
+              <%= Task::Status::to_s(s) %>
+            </option>
+          <% end %>
+        </select>
+      </div>
+    <% end %>
+  </div>
 </div>
 
 <div id="dl-tasks-list">

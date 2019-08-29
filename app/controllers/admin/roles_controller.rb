@@ -58,7 +58,7 @@ module Admin
       @role = Role.find_by_key(params[:key])
       raise ActiveRecord::RecordNotFound unless @role
 
-      @permissions = Permission.order(:key)
+      @permissions = @role.permissions.order(:key)
     end
 
     def update
