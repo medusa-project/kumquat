@@ -3,7 +3,7 @@
   <%= hidden_field_tag :current_descriptive_element_id, @collection.descriptive_element_id %>
 
   <div class="clearfix">
-    <div class="pull-right">
+    <div class="float-right">
       <%= f.submit 'Save Changes', class: 'btn btn-primary' %>
     </div>
   </div>
@@ -23,6 +23,12 @@
 
   <hr>
 
+  <% if @collection.items.any? %>
+    <div class="alert alert-primary">
+      <i class="fas fa-info-circle"></i> The information in this section can only be
+      changed when the collection is empty.</div>
+  <% end %>
+
   <div class="form-group">
     <%= f.label :medusa_file_group_id, 'Medusa File Group UUID' %>
     <%= f.text_field(:medusa_file_group_id, class: 'form-control',
@@ -33,7 +39,7 @@
     <%= f.label :medusa_cfs_directory_id, 'Medusa CFS Directory UUID' %>
     <%= f.text_field(:medusa_cfs_directory_id, class: 'form-control',
                      disabled: @collection.items.any?) %>
-    <span class="help-block">If omitted, the root CFS directory of the
+    <span class="form-text text-muted">If omitted, the root CFS directory of the
     file group will be used.</span>
   </div>
 
@@ -42,7 +48,7 @@
     <%= select(:collection, :package_profile_id,
                @package_profile_options_for_select,
                { include_blank: 'None (External Content)' },
-               class: 'form-control',
+               class: 'custom-select',
                disabled: @collection.items.any?) %>
   </div>
 
@@ -52,18 +58,18 @@
     <%= f.label :metadata_profile_id, 'Metadata Profile' %>
     <%= select(:collection, :metadata_profile_id,
                @metadata_profile_options_for_select, {},
-               class: 'form-control') %>
+               class: 'custom-select') %>
   </div>
 
   <div class="form-group">
     <%= f.label :descriptive_element_id, 'Descriptive Element' %>
     <%= select(:collection, :descriptive_element_id,
                @descriptive_element_options_for_select, { include_blank: true },
-               class: 'form-control') %>
+               class: 'custom-select') %>
   </div>
 
   <div class="form-group">
-    <%= f.label :contentdm_alias, 'CONTENTdm Alias ("CISOROOT")' %>
+    <%= f.label :contentdm_alias, 'CONTENTdm Alias' %>
     <%= f.text_field(:contentdm_alias, class: 'form-control') %>
   </div>
 
@@ -73,14 +79,14 @@
         selected: f.object.rightsstatements_org_uri) %>
     <%= f.label :rightsstatements_org_uri, 'RightsStatements.org Statement' %>
     <%= f.select :rightsstatements_org_uri, options, { include_blank: true },
-                 { class: 'form-control' } %>
-    <p class="help-block">The free-form rights statement can be edited in Medusa.</p>
+                 { class: 'custom-select' } %>
+    <p class="form-text text-muted">The free-form rights statement can be edited in Medusa.</p>
   </div>
 
   <div class="row">
     <div class="col-sm-6">
       <div class="form-group">
-        <%= f.label :allowed_roles, 'Allowed Roles' %>
+        <h4>Allowed Roles</h4>
         <%= hidden_field_tag :role_ids, nil,
                              name: 'collection[allowed_role_ids][]' %>
         <% Role.order(:name).each do |role| %>
@@ -97,7 +103,7 @@
     </div>
     <div class="col-sm-6">
       <div class="form-group">
-        <%= f.label :denied_roles, 'Denied Roles' %>
+        <h4>Denied Roles</h4>
         <%= hidden_field_tag :role_ids, nil,
                              name: 'collection[denied_role_ids][]' %>
         <% Role.order(:name).each do |role| %>
@@ -114,7 +120,7 @@
     </div>
   </div>
 
-  <div class="pull-right">
+  <div class="float-right">
     <%= f.submit 'Save Changes', class: 'btn btn-primary' %>
   </div>
 

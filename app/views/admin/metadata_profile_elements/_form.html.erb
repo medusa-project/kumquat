@@ -41,7 +41,7 @@ vocabularies = Vocabulary.order(:name)
     <%= f.label :name %>
     <%= f.select(:name, name_options_for_select,
                  { selected: element.name },
-                 class: 'form-control') %>
+                 class: 'custom-select') %>
   </div>
 
   <div class="form-group">
@@ -53,7 +53,7 @@ vocabularies = Vocabulary.order(:name)
     <%= f.label :index, 'Position After' %>
     <%= f.select :index, position_options_for_select,
                  { selected: element.index },
-                 class: 'form-control' %>
+                 class: 'custom-select' %>
   </div>
 
   <div class="form-group">
@@ -78,7 +78,7 @@ vocabularies = Vocabulary.order(:name)
     <%= select('metadata_profile_element', 'dc_map',
                dublin_core_elements,
                { include_blank: true, selected: f.object.dc_map },
-               { class: 'form-control' }) %>
+               { class: 'custom-select' }) %>
   </div>
 
   <div class="form-group">
@@ -86,14 +86,14 @@ vocabularies = Vocabulary.order(:name)
     <%= select('metadata_profile_element', 'dcterms_map',
                dublin_core_terms,
                { include_blank: true, selected: f.object.dcterms_map },
-               { class: 'form-control' }) %>
+               { class: 'custom-select' }) %>
   </div>
 
   <div class="form-group">
     <%= f.label :data_type %>
     <%= f.select(:data_type, data_type_options_for_select,
                  { selected: element.data_type },
-                 class: 'form-control') %>
+                 class: 'custom-select') %>
   </div>
 
   <div class="checkbox">
@@ -109,6 +109,14 @@ vocabularies = Vocabulary.order(:name)
       Indexed
     </label>
   </div>
+
+  <% if context == :edit %>
+    <div class="alert alert-warning">
+      <i class="fas fa-exclamation-triangle"></i> After changing the indexed status
+      of an element, you must reindex all items in every collection associated
+      with this profile using the "Reindex Items" button on the previous page.
+    </div>
+  <% end %>
 
   <div class="checkbox">
     <label>
@@ -134,8 +142,8 @@ vocabularies = Vocabulary.order(:name)
   <%= f.hidden_field :metadata_profile_id, value: metadata_profile.id %>
 
   <div class="clearfix">
-    <div class="pull-right">
-      <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+    <div class="float-right">
+      <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
       <%= f.submit(context == :new ? 'Create Element' : 'Edit Element',
                    class: 'btn btn-primary') %>
     </div>

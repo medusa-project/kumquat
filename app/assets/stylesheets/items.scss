@@ -2,21 +2,23 @@
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
-body#items_index #dl-page-content, body#search_index #dl-page-content {
+body#items_index .page-content, body#search_index .page-content {
   .dl-results-summary {
     margin-top: 1em;
-    .panel-body {
+    .card-body {
       padding-top: 0.5em;
       padding-bottom: 0.5em;
       .form-group {
-        margin-bottom: 0px;
+        margin-bottom: 0;
       }
     }
-
     #dl-search-status {
       padding-top: 0.35em;
       padding-bottom: 0.35em;
     }
+  }
+  .dl-facets {
+    padding-right: 0;
   }
 
   #dl-download-zip-modal {
@@ -25,13 +27,8 @@ body#items_index #dl-page-content, body#search_index #dl-page-content {
       text-align: center;
     }
   }
-
-  input[type=search] {
-    width: 15em;
-  }
-
   .pagination {
-    margin: 0em 0em 1em 0em;
+    margin: 0 0 1em 0;
   }
 }
 
@@ -74,28 +71,17 @@ body#items_show, #dl-free-form-item-view {
     width: 95%;
   }
 
-  .media {
-    .media-left {
-      img {
-        width: 150px;
-      }
-      i {
-        font-size: 4em;
-        margin-right: 6px;
-      }
-    }
-  }
-
-  .dl-rights {
-    margin-bottom: 2em;
-  }
-
   table.dl-metadata {
     tr:first-child > td {
-      border-top: 0px;
+      border-top: 0;
     }
   }
 
+  @media only print {
+    #dl-download-section {
+      display: none;
+    }
+  }
   #dl-download {
     td {
       height: 120px;
@@ -118,10 +104,9 @@ body#items_show, #dl-free-form-item-view {
       }
     }
     tr.selected {
-      background-color: $color_uiuc-blue;
+      background-color: $uiuc-blue-lighter-2;
       color: white;
-      .btn-default {
-        background-color: $color_uiuc-blue;
+      .btn-outline-primary {
         border: 1px solid white;
         color: white;
       }
@@ -147,38 +132,39 @@ body#items_show, #dl-free-form-item-view {
     }
     #iiif-download {
       div.radio {
-        margin-right: 0.4em;
-        padding: 0px;
+        margin: 0.2em;
+        padding: 0;
         label {
+          margin: 0;
           padding: 6px 12px;
         }
       }
       .form-inline {
-        margin: 10px 0em;
+        margin: 10px 0;
       }
       input[type=radio] {
         padding-left: -28px;
         opacity: 0;
-        width: 0px;
+        width: 0;
       }
       div.radio.active {
-        background-color:#337ab7;
+        background-color:$uiuc-blue-lighter-2;
         color:white;
       }
       .dl-size-1 {
-        font-size: 1.1em;
+        font-size: 0.9em;
       }
       .dl-size-2 {
-        font-size: 1.2em;
+        font-size: 1em;
       }
       .dl-size-3 {
-        font-size: 1.3em;
+        font-size: 1.15em;
       }
       .dl-size-4 {
-        font-size: 1.4em;
+        font-size: 1.3em;
       }
       .dl-size-5 {
-        font-size: 1.5em;
+        font-size: 1.45em;
       }
       .dl-size-6, .dl-size-7, .dl-size-8, .dl-size-9 {
         font-size: 1.6em;
@@ -263,10 +249,10 @@ body#tree_browser {
 }
 .pagination {
   > li > a {
-    color: $color_uiuc-blue;
+    color: $uiuc-blue-lighter-2;
   }
   > li.active > a {
-    background-color: $color_uiuc-blue;
+    background-color: $uiuc-blue-lighter-2;
   }
 }
 

@@ -1,4 +1,30 @@
 /**
+ * The Batch Change modal is used in a couple of different views.
+ *
+ * @constructor
+ */
+var BatchChangeModal = function() {
+
+    this.init = function() {
+        $('button.dl-add-element').on('click', function() {
+            var element = $(this).closest('.dl-elements').find('.dl-element:last-child');
+            var clone = element.clone(true);
+            clone.find('input').val('');
+            element.after(clone);
+            return false;
+        });
+        $('button.dl-remove-element').on('click', function() {
+            var element = $(this).closest('.dl-element');
+            if (element.siblings().length > 0) {
+                element.remove();
+            }
+            return false;
+        });
+    };
+
+};
+
+/**
  * Manages single-item edit view.
  *
  * @constructor
@@ -109,23 +135,7 @@ var PTAdminItemEditView = function() {
     this.init = function() {
         new Application.DirtyFormListener('form').listen();
 
-        $('button.dl-add-element').on('click', function() {
-            var element = $(this).closest('.dl-element');
-
-            var clone = element.clone(true);
-            clone.find('input').val('');
-
-            element.after(clone);
-
-            return false;
-        });
-        $('button.dl-remove-element').on('click', function() {
-            var element = $(this).closest('.dl-element');
-            if (element.siblings().length > 0) {
-                element.remove();
-            }
-            return false;
-        });
+        new BatchChangeModal().init();
 
         // Auto-vertical-resize the textareas...
         var textareas = $('#dl-metadata textarea');
@@ -178,7 +188,6 @@ var PTAdminItemsEditView = function() {
         // Uses jquery.stickytableheaders.min.js
         // https://github.com/jmosbech/StickyTableHeaders
         $('table').stickyTableHeaders({
-            fixedOffset: $('#dl-navbar-collapse'),
             cacheHeaderHeight: true
         });
 
@@ -232,6 +241,8 @@ var PTAdminItemsView = function() {
     this.init = function() {
         new Application.FilterField();
         Application.initFacets();
+
+        new BatchChangeModal().init();
 
         self.attachEventListeners();
     };

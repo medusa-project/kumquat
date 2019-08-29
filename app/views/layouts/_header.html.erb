@@ -1,111 +1,43 @@
-<div class="container-fluid">
-  <header>
-    <div class="row lib-shared-header">
-      <div class="col-sm-10 col-xs-8">
-        <h1 class="sr-only">University Library, University of Illinois at Urbana-Champaign</h1>
-        <div class="table-row">
-          <div class="table-cell">
-            <a href="https://illinois.edu">
-              <%= image_tag('imark.svg',
-                            class: 'col-xs-12 banner-image-imark',
-                            alt: 'University of Illinois I-Mark') %>
-            </a>
-          </div>
-          <div class="table-cell">
-            <a href="https://www.library.illinois.edu">
-              <%= image_tag('library_wordmark_horizontal_2.png',
-                            class: 'col-xs-12 banner-image-university',
-                            alt: 'University') %>
-            </a>
-          </div>
-          <div class="table-cell">
-            <a href="https://www.library.illinois.edu">
-              <%= image_tag('library_wordmark_horizontal_3.png',
-                            class: 'col-xs-12 banner-image-library',
-                            alt: 'Library') %>
-            </a>
-          </div>
-          <div class="table-cell">
-            <a href="https://www.library.illinois.edu">
-              <%= image_tag('library_wordmark_horizontal_4.png',
-                            class: 'col-xs-12 banner-image-uiuc banner-mobile-img',
-                            alt: 'University of Illinois at Urbana-Champaign') %>
-            </a>
+<header>
+  <%= render partial: 'layouts/top_header' %>
+
+  <nav class="navbar navbar-expand-md" role="navigation">
+    <%= link_to 'Digital Collections', root_path, class: 'navbar-brand' %>
+    <button class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarColor01" aria-controls="navbarColor01"
+            aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarColor01">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item" id="collections-nav">
+          <%= link_to Configuration.instance.metadata_gateway_url + '/collections', class: 'nav-link' do %>
+            <%= icon_for(Collection) %> Collections
+          <% end %>
+        </li>
+        <li class="nav-item" id="items-nav">
+          <%= link_to Configuration.instance.metadata_gateway_url + '/items', class: 'nav-link' do %>
+            <%= icon_for(Item) %> Items
+          <% end %>
+        </li>
+      </ul>
+
+      <%= form_tag(Configuration.instance.metadata_gateway_url + '/search',
+                   method: :get,
+                   class: 'form-inline my-2 my-lg-0') do %>
+        <div class="input-group">
+          <%= search_field_tag(:q, '',
+                               placeholder: raw('Search'),
+                               'aria-label': 'Search',
+                               class: 'form-control') %>
+          <div class="input-group-append">
+            <button type="submit" class="btn btn-outline-secondary">
+              <i class="fa fa-search"></i> <span class="sr-only">Search</span>
+            </button>
           </div>
         </div>
-      </div>
-      <div class="col-sm-2 col-xs-4 dl-user">
-        <% if signed_in? %>
-          <div class="dropdown">
-            <button class="btn btn-default btn-xs dropdown-toggle" type="button"
-                    id="dl-user-menu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-              <i class="fa fa-user"></i> <%= current_user %>
-              <span class="caret"></span>
-            </button>
-
-            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dl-user-menu">
-              <li><%= link_to 'Administration', admin_root_path %></li>
-              <li class="divider"></li>
-              <li><%= link_to 'Log Out', signout_path(referer: request.url),
-                              method: :delete %></li>
-            </ul>
-          </div>
-        <% else %>
-          <%= link_to 'Staff Login', signin_path, class: 'btn btn-xs btn-default' %>
-        <% end %>
-      </div>
+      <% end %>
     </div>
-  </header>
-</div>
-
-<div class="uiuc-plain-banner">
-  <nav class="navbar navbar-default" role="navigation">
-    <div class="container-fluid">
-      <!-- Brand and toggle get grouped for better mobile display -->
-      <div class="navbar-header">
-        <button type="button" class="navbar-toggle" data-toggle="collapse"
-                data-target="#dl-navbar-collapse">
-          <span class="sr-only">Toggle navigation</span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-        </button>
-        <%= link_to 'Digital Collections', root_path, class: 'navbar-brand' %>
-      </div>
-
-      <!-- Collect the nav links, forms, and other content for toggling -->
-      <div class="collapse navbar-collapse" id="dl-navbar-collapse">
-        <ul class="nav navbar-nav">
-          <li id="collections-nav">
-            <%= link_to Configuration.instance.metadata_gateway_url + '/collections' do %>
-              <span class="fa fa-folder-open"></span> Collections
-            <% end %>
-          </li>
-          <li id="collections-nav">
-            <%= link_to Configuration.instance.metadata_gateway_url + '/items' do %>
-              <span class="fa fa-cube"></span> Items
-            <% end %>
-          </li>
-        </ul>
-
-        <%= form_tag(Configuration.instance.metadata_gateway_url + '/search',
-                     method: :get,
-                     class: 'navbar-form navbar-right') do %>
-          <div class="input-group">
-            <%= search_field_tag(:q, '', class: 'form-control', placeholder: 'Search') %>
-            <span class="input-group-btn">
-              <button type="submit" class="btn btn-default">
-                <i class="fa fa-search"></i> <span class="sr-only">Search</span>
-              </button>
-            </span>
-          </div>
-        <% end %>
-      </div> <!-- /.navbar-collapse -->
-    </div> <!-- /.container-fluid -->
   </nav>
-</div>
-
-<% if controller_name == 'landing' %>
-  <div id="uiuc-landing-banner" class="uiuc-image-banner hidden-xs">
-  </div>
-<% end %>
+</header>

@@ -11,21 +11,20 @@
  * file per style scope.
  */
 
-@import "bootstrap-sprockets";
+@import "scars-bootstrap-theme/variables";
 @import "bootstrap";
+@import "scars-bootstrap-theme/theme";
 
-@import "font-awesome-sprockets";
-@import "font-awesome";
 //stylesheet for jstree
 @import "style";
 
-@import "_variables.scss";
-@import "sitewide.scss";
-@import "website.scss";
-@import "collections.scss";
-@import "downloads.scss";
-@import "footer.scss";
-@import "header.scss";
-@import "items.scss";
-@import "landing.scss";
-@import "print.scss";
+@import "_variables";
+@import "sitewide";
+@import "website";
+@import "collections";
+@import "downloads";
+@import "footer";
+@import "header";
+@import "items";
+@import "landing";
+@import "print";

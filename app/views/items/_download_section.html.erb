@@ -13,29 +13,28 @@
          aria-expanded="true" aria-controls="dl-download">Download</a>
     </h2>
 
-    <div id="dl-download" class="collapse <%= expanded ? 'in' : '' %>">
-
+    <div id="dl-download" class="collapse <%= expanded ? 'show' : '' %>">
       <div class="btn-group" style="margin: 0.4em 0em 0.8em 0em">
         <% if client_supports_file_downloads? %>
           <%= link_to('',
-                      class: 'btn btn-default',
+                      class: 'btn btn-light',
                       target: '_blank',
                       'data-toggle': 'modal',
                       'data-target': '#dl-download-zip-modal') do %>
-            <i class="fa fa-file-zip-o"></i>&nbsp;&nbsp;Zip of Masters&hellip;
+            <i class="far fa-file-archive"></i>&nbsp;&nbsp;Zip of Masters&hellip;
           <% end %>
           <% if item.binaries.reject(&:is_image?).empty? and !item.directory? %>
             <%= link_to(item_url(item, format: :zip, contents: :jpegs),
-                        target: '_blank', class: 'btn btn-default') do %>
-              <i class="fa fa-file-zip-o"></i>&nbsp;&nbsp;Zip of JPEGs
+                        target: '_blank', class: 'btn btn-light') do %>
+              <i class="far fa-file-archive"></i>&nbsp;&nbsp;Zip of JPEGs
             <% end %>
           <% end %>
         <% end %>
 
         <% if item.is_compound? %>
           <%= link_to(item_url(item, format: :pdf),
-                      class: 'btn btn-default', target: '_blank') do %>
-            <i class="fa fa-file-pdf-o"></i> PDF
+                      class: 'btn btn-light', target: '_blank') do %>
+            <i class="far fa-file-pdf"></i> PDF
           <% end %>
         <% end %>
       </div>
@@ -51,7 +50,6 @@
           <% end %>
         </tbody>
       </table>
-
     </div>
   </section>
 

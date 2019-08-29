@@ -4,9 +4,9 @@
     <div class="modal-content">
       <%= form_tag(@permitted_params.merge(format: 'tsv'), method: :get) do %>
         <div class="modal-header">
+          <h4 class="modal-title" id="dl-export-modal-label">Export TSV</h4>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title" id="dl-export-modal-label">Export TSV</h4>
         </div>
         <div class="modal-body">
           <div class="radio">
@@ -23,7 +23,7 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
           <button type="submit" class="btn btn-primary">Export</button>
         </div>
       <% end %>

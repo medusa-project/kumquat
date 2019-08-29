@@ -10,7 +10,7 @@
     <% @users.each do |user| %>
       <tr>
         <td>
-          <span class="label <%= user.enabled ? 'label-success' : 'label-danger' %>">
+          <span class="badge <%= user.enabled ? 'badge-success' : 'badge-danger' %>">
             <%= user.enabled ? 'Enabled' : 'Disabled' %></span>
         </td>
         <td><%= link_to user.username, admin_user_path(user) %></td>

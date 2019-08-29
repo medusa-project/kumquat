@@ -8,13 +8,14 @@ num_batches = (num_downloadable_items / MedusaDownloaderClient::BATCH_SIZE.to_f)
 %>
 
 <div class="modal fade" id="dl-download-zip-modal" tabindex="-1" role="dialog"
-     aria-labelledby="dl-download-zip-modal-label">
+     aria-labelledby="dl-download-zip-modal-label" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span></button>
         <h4 class="modal-title" id="dl-download-zip-modal-label">Download Zip File</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
       </div>
       <div class="modal-body">
         <% case context %>
@@ -31,7 +32,7 @@ num_batches = (num_downloadable_items / MedusaDownloaderClient::BATCH_SIZE.to_f)
         <hr>
 
         <% if num_batches > 1 %>
-          <h3>All items in one zip file</h3>
+          <h4>All items in one zip file</h4>
         <% end %>
 
         <div class="text-center">
@@ -41,15 +42,16 @@ num_batches = (num_downloadable_items / MedusaDownloaderClient::BATCH_SIZE.to_f)
                       target: '_blank',
                       class: 'btn btn-primary') %>
           <% if total_byte_size > 0 %>
-            <p class="help-block">Estimated size: less than
-              <%= number_to_human_size(total_byte_size) %></p>
+            <p class="form-text text-muted">
+              Estimated size: <%= number_to_human_size(total_byte_size) %>
+            </p>
           <% end %>
         </div>
 
         <% if num_batches > 1 %>
           <hr>
 
-          <h3>Items in batches</h3>
+          <h4>Items in batches</h4>
 
           <p>Batches can make large downloads more manageable. Batched zip files
             are limited to <%= MedusaDownloaderClient::BATCH_SIZE %> items per batch.</p>

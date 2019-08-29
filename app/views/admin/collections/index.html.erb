@@ -2,72 +2,67 @@
 <% provide :body_id, 'admin_collections_index' %>
 <% provide :active_nav, 'entities' %>
 
-<%= admin_breadcrumb %>
+<%= admin_breadcrumb({ label: 'Home', url: admin_root_path },
+                     { label: 'Collections' }) %>
 
-<div class="btn-group pull-right" role="group">
+<div class="btn-group float-right" role="group">
   <!-- Index button -->
-  <%= link_to admin_collections_sync_path, method: 'patch', class: 'btn btn-default' do %>
-    <i class="fa fa-refresh"></i> Index Collections Metadata From Medusa
+  <%= link_to admin_collections_sync_path, method: 'patch', class: 'btn btn-light' do %>
+    <i class="fas fa-sync-alt"></i> Index Collections Metadata From Medusa
   <% end %>
 
   <!-- Metadata menu -->
-  <div class="btn-group">
-    <button type="button" class="btn btn-default dropdown-toggle"
-            data-toggle="dropdown" aria-expanded="false">
+  <div class="btn-group" role="group">
+    <button type="button" class="btn btn-light dropdown-toggle"
+            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
       <i class="fa fa-list"></i> Metadata <span class="caret"></span>
     </button>
-    <ul class="dropdown-menu" role="menu">
-      <li>
-        <%= link_to 'Export As TSV', admin_collections_path(format: 'tsv'),
-                    target: '_blank' %>
-      </li>
-    </ul>
+    <div class="dropdown-menu">
+      <%= link_to 'Export As TSV', admin_collections_path(format: 'tsv'),
+                  target: '_blank', class: 'dropdown-item' %>
+    </div>
   </div>
 
   <!-- View menu -->
-  <button type="button" class="btn btn-default dropdown-toggle"
-          data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-    <i class="fa fa-eye"></i>
-    View <span class="caret"></span>
-  </button>
-  <ul class="dropdown-menu dropdown-menu-right" role="menu">
-    <li>
-      <%= link_to collections_path, target: '_blank' do %>
-        <i class="fa fa-globe"></i>&nbsp;&nbsp;Public Website
-      <% end %>
-    </li>
-    <li>
+  <div class="btn-group">
+    <button type="button" class="btn btn-light dropdown-toggle"
+            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      <i class="fa fa-eye"></i> View <span class="caret"></span>
+    </button>
+    <div class="dropdown-menu dropdown-menu-right">
       <%= link_to Configuration.instance.medusa_url + '/collections',
-                  target: '_blank' do %>
-        <i class="fa fa-database"></i>&nbsp;&nbsp;Medusa
+                  target: '_blank', class: 'dropdown-item' do %>
+        <i class="fa fa-database"></i> Medusa
       <% end %>
-    </li>
-  </ul>
+    </div>
+  </div>
 </div>
 
 <h1>Collections</h1>
 
-<div class="well">
-  <%= form_tag admin_collections_path, method: 'get', class: 'dl-filter' do %>
-    <div class="form-inline">
-      <%= search_field_tag :q, params[:q], placeholder: 'Filter',
-                           class: 'form-control' %>
-      <div class="checkbox">
-        <label>
-          <%= hidden_field_tag(:public_in_medusa, '0') %>
-          <%= check_box_tag(:public_in_medusa, '1') %>
-          Public in Medusa
-        </label>
+<div class="card">
+  <div class="card-body">
+    <%= form_tag admin_collections_path, method: 'get', class: 'dl-filter' do %>
+      <div class="form-inline">
+        <%= search_field_tag :q, params[:q], placeholder: 'Filter',
+                             class: 'form-control' %>
+        <div class="form-check form-check-inline">
+          <label>
+            <%= hidden_field_tag(:public_in_medusa, '0') %>
+            <%= check_box_tag(:public_in_medusa, '1') %>
+            &nbsp;Public in Medusa
+          </label>
+        </div>
+        <div class="form-check form-check-inline">
+          <label>
+            <%= hidden_field_tag(:published_in_dls, '0') %>
+            <%= check_box_tag(:published_in_dls, '1') %>
+            &nbsp;Published in DLS
+          </label>
+        </div>
       </div>
-      <div class="checkbox">
-        <label>
-          <%= hidden_field_tag(:published_in_dls, '0') %>
-          <%= check_box_tag(:published_in_dls, '1') %>
-          Published in DLS
-        </label>
-      </div>
-    </div>
-  <% end %>
+    <% end %>
+  </div>
 </div>
 
 <div id="collections">

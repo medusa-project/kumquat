@@ -1,9 +1,9 @@
 module ItemsHelper
 
   DEFAULT_THUMBNAIL_SIZE = 256
-  PAGE_TITLE_LENGTH = 35
-  VIEWER_HEIGHT = '600px'
-  VIEWER_WIDTH = '95%'
+  PAGE_TITLE_LENGTH      = 35
+  VIEWER_HEIGHT          = '600px'
+  VIEWER_WIDTH           = '95%'
 
   ##
   # @param binary [Binary]
@@ -83,10 +83,9 @@ module ItemsHelper
       categories.each_with_index do |category, index|
         tab_id = "dl-metadata-tab-#{binary.master_type}-#{category.gsub(' ', '')}"
         class_ = (index == 0) ? 'active' : ''
-        html << "<li role=\"presentation\" class=\"#{class_}\">
-          <a href=\"##{tab_id}\" aria-controls=\"#{tab_id}\"
-              role=\"tab\" data-toggle=\"tab\">#{category}</a>
-        </li>"
+        html << "<li role=\"presentation\" class=\"nav-item\">"
+        html <<   "<a href=\"##{tab_id}\" class=\"nav-link #{class_}\" aria-controls=\"#{tab_id}\" role=\"tab\" data-toggle=\"tab\">#{category}</a>"
+        html << '</li>'
       end
       html << '</ul>'
 
@@ -98,7 +97,7 @@ module ItemsHelper
         html << "<div role=\"tabpanel\" class=\"tab-pane #{class_}\"
             id=\"#{tab_id}\">"
 
-        html << '<table class="table table-condensed dl-metadata">'
+        html << '<table class="table table-sm dl-metadata">'
         data.select{ |row| row[:category] == category }.each do |row|
           if row[:value].respond_to?(:each)
             value = '<ul>'
@@ -110,10 +109,14 @@ module ItemsHelper
             value = row[:value]
           end
 
-          html << "<tr>
-            <td>#{row[:label]}</td>
-            <td>#{raw(value)}</td>
-          </tr>"
+          html << '<tr>'
+          html <<   '<td>'
+          html <<     row[:label]
+          html <<   '</td>'
+          html <<   '<td>'
+          html <<     raw(value)
+          html <<   '</td>'
+          html << '</tr>'
         end
         html << '</table>'
 
@@ -217,9 +220,11 @@ module ItemsHelper
   def item_filter_field
     html = StringIO.new
     html << '<div class="input-group">'
-    html <<   '<span class="input-group-addon">'
-    html <<     '<i class="fa fa-search"></i>'
-    html <<   '</span>'
+    html <<   '<div class="input-group-prepend">'
+    html <<     '<span class="input-group-text">'
+    html <<       '<i class="fa fa-filter"></i>'
+    html <<     '</span>'
+    html <<   '</div>'
     html <<   search_field_tag(:q, params[:q], class: 'form-control',
                                placeholder: 'Filter')
     html << '</div>'
@@ -232,14 +237,14 @@ module ItemsHelper
   #
   def item_filter_field_element_menu(metadata_profile)
     html = StringIO.new
-    html << "<select class=\"form-control\" name=\"df\">
-        <optgroup label=\"System Fields\">
-          <option value=\"#{Item::IndexFields::REPOSITORY_ID}\">ID</option>
-        </optgroup>
-        <optgroup label=\"Metadata Profile Elements\">
-          <option value=\"#{Item::IndexFields::SEARCH_ALL}\" selected>Any Element</option>"
+    html << '<select class="custom-select" name="df">'
+    html <<   '<optgroup label="System Fields">'
+    html <<     "<option value=\"#{Item::IndexFields::REPOSITORY_ID}\">ID</option>"
+    html <<   '</optgroup>'
+    html <<   '<optgroup label="Metadata Profile Elements">'
+    html <<     "<option value=\"#{Item::IndexFields::SEARCH_ALL}\" selected>Any Element</option>"
     metadata_profile.elements.select(&:searchable).each do |e|
-      html << "<option value=\"#{e.indexed_field}\">#{e.label}</option>"
+      html <<   "<option value=\"#{e.indexed_field}\">#{e.label}</option>"
     end
     html <<   '</optgroup>'
     html << '</select>'
@@ -412,7 +417,6 @@ module ItemsHelper
   # @param options [Hash]
   # @option options [Boolean] :admin
   # @return [String] HTML definition list containing item metadata.
-  # @see `tech_metadata_as_list`
   # @see `metadata_as_table`
   #
   def metadata_as_list(item, options = {})
@@ -467,7 +471,7 @@ module ItemsHelper
   #
   def metadata_as_table(item, options = {})
     html = StringIO.new
-    html << '<table class="table table-condensed dl-metadata">'
+    html << '<table class="table table-sm dl-metadata">'
     # iterate through the index-ordered elements in the item's collection's
     # metadata profile.
     p_els = item.collection.effective_metadata_profile.elements
@@ -516,17 +520,27 @@ module ItemsHelper
   # @return [String]
   #
   def metadata_section(item)
+    # Bootstrap display utilities don't work very well within collapses, so we
+    # need two separate collapses here.
     html = StringIO.new
-    html << '<h2>'
-    html <<   '<a role="button" data-toggle="collapse" href="#dl-metadata" aria-expanded="true" aria-controls="dl-metadata">'
-    html <<     'Descriptive Information'
-    html <<   '</a>'
-    html << '</h2>'
-    html << '<div id="dl-metadata" class="collapse in">'
-    html <<   '<div class="visible-xs">'
+    html << '<div class="d-sm-none">'
+    html <<   '<h2>'
+    html <<     '<a role="button" data-toggle="collapse" href="#dl-metadata-list" aria-expanded="true" aria-controls="dl-metadata-list">'
+    html <<       'Descriptive Information'
+    html <<     '</a>'
+    html <<   '</h2>'
+    html <<   '<div id="dl-metadata-list" class="collapse show">'
     html <<     metadata_as_list(item)
     html <<   '</div>'
-    html <<   '<div class="hidden-xs">'
+    html << '</div>'
+
+    html << '<div class="d-none d-sm-block">'
+    html <<   '<h2>'
+    html <<     '<a role="button" data-toggle="collapse" href="#dl-metadata-table" aria-expanded="true" aria-controls="dl-metadata-table">'
+    html <<       'Descriptive Information'
+    html <<     '</a>'
+    html <<   '</h2>'
+    html <<   '<div id="dl-metadata-table" class="collapse show">'
     html <<     metadata_as_table(item)
     html <<   '</div>'
     html << '</div>'
@@ -769,41 +783,35 @@ module ItemsHelper
     url = CGI::escape(polymorphic_url(entity))
 
     html = StringIO.new
-    html << '<div class="btn-group">
-      <button type="button" class="btn btn-default dropdown-toggle"
-            data-toggle="dropdown" aria-expanded="false">
+    html << '<div class="btn-group" role="group">
+      <button type="button" class="btn btn-light dropdown-toggle"
+            data-toggle="dropdown" aria-haspopup="false" aria-expanded="false">
         <i class="fa fa-share-alt"></i> Share <span class="caret"></span>
       </button>
-      <ul class="dropdown-menu" role="menu">'
+      <div class="dropdown-menu">'
     # cite
     if entity.kind_of?(Item)
-      html << '<li>'
-      html << link_to('#', onclick: 'return false;', data: { toggle: 'modal',
-                                                             target: '#dl-cite-modal' }) do
-        raw('<i class="fa fa-pencil"></i> Cite')
+      html << link_to('#', onclick: 'return false;', class: 'dropdown-item',
+                      data: { toggle: 'modal', target: '#dl-cite-modal' }) do
+        raw('<i class="fas fa-pen-square"></i> Cite')
       end
-      html << '</li>'
-      html << '<li class="divider"></li>'
+      html << '<div class="dropdown-divider"></div>'
     end
     # email
-    html << '<li>'
-    html << link_to("mailto:?subject=#{title}&body=#{url}") do
+    html << link_to("mailto:?subject=#{title}&body=#{url}", class: 'dropdown-item') do
       raw('<i class="fa fa-envelope"></i> Email')
     end
-    html << '</li>'
-    html << '<li class="divider"></li>'
+    html << '<div class="dropdown-divider"></div>'
     # facebook
-    html << '<li>'
-    html << link_to("https://www.facebook.com/sharer/sharer.php?u=#{url}", target: '_blank') do
-      raw('<i class="fa fa-facebook-square"></i> Facebook')
+    html << link_to("https://www.facebook.com/sharer/sharer.php?u=#{url}",
+                    class: 'dropdown-item', target: '_blank') do
+      raw('<i class="fab fa-facebook-square"></i> Facebook')
     end
-    html << '</li>'
     # twitter: https://dev.twitter.com/web/tweet-button/web-intent
-    html << '<li>'
-    html << link_to("https://twitter.com/intent/tweet?url=#{url}&text=#{truncate(title, length: 140)}", target: '_blank') do
-      raw('<i class="fa fa-twitter-square"></i> Twitter')
+    html << link_to("https://twitter.com/intent/tweet?url=#{url}&text=#{truncate(title, length: 140)}",
+                    class: 'dropdown-item', target: '_blank') do
+      raw('<i class="fab fa-twitter-square"></i> Twitter')
     end
-    html << '</li>'
     # pinterest
     url = "http://pinterest.com/pin/create/button/?url=#{url}&description=#{title}"
     if entity.kind_of?(Item)
@@ -812,13 +820,12 @@ module ItemsHelper
         url << "&media=#{CGI::escape(iiif_url)}"
       end
     end
-    html << '<li>'
-    html << link_to(url, target: '_blank') do
-      raw('<i class="fa fa-pinterest-square"></i> Pinterest')
+
+    html << link_to(url, target: '_blank', class: 'dropdown-item') do
+      raw('<i class="fab fa-pinterest-square"></i> Pinterest')
     end
-    html << '</li>
-        </ul>
-      </div>'
+    html <<   '</div>'
+    html << '</div>'
     raw(html.string)
   end
 
@@ -835,12 +842,11 @@ module ItemsHelper
 
     html = StringIO.new
     if sortable_elements.any?
-      html << '<form class="form-inline" method="get">
-        <div class="form-group">
-          <select name="sort" class="form-control input-sm">'
-
+      html << '<form class="form-inline" method="get">'
+      html <<   '<div class="form-group">'
+      html <<     '<select name="sort" class="custom-select">'
       unless default_sortable_element
-        html << '<option value="">Sort by Relevance</option>'
+        html <<     '<option value="">Sort by Relevance</option>'
       end
 
       # If there is an element in the ?sort= query, select that. Otherwise,
@@ -857,27 +863,10 @@ module ItemsHelper
         html <<   "Sort by #{e.label}"
         html << '</option>'
       end
-      html << '</select>
-        </div>
-      </form>'
+      html <<     '</select>'
+      html <<   '</div>'
+      html << '</form>'
     end
-    raw(html.string)
-  end
-
-  ##
-  # @param item [Item]
-  # @return [String]
-  # @see `metadata_as_list`
-  #
-  def tech_metadata_as_list(item)
-    data = tech_metadata_for(item)
-    html = StringIO.new
-    html << '<dl class="dl-metadata">'
-    data.each do |key, value|
-      html << "<dt>#{raw(key)}</dt>"
-      html << "<dd>#{raw(value)}</dd>"
-    end
-    html << '</dl>'
     raw(html.string)
   end
 
@@ -889,7 +878,7 @@ module ItemsHelper
   def tech_metadata_as_table(item)
     data = tech_metadata_for(item)
     html = StringIO.new
-    html << '<table class="table table-condensed dl-metadata">'
+    html << '<table class="table table-sm dl-metadata">'
     data.each do |key, value|
       html << '<tr>'
       html <<   "<td>#{raw(key)}</td>"
@@ -1179,7 +1168,7 @@ module ItemsHelper
   #
   def curator_mailto(item)
     mailto = nil
-    email = item.collection.medusa_repository&.email
+    email = item.collection&.medusa_repository&.email
     if email.present?
       # https://bugs.library.illinois.edu/browse/DLD-89
       website_name = Option::string(Option::Keys::WEBSITE_NAME)
@@ -1222,39 +1211,39 @@ module ItemsHelper
     case item_variant
       when :agent_item
         first_link = link_to(agent_items_path(owning_entity, allowed_params),
-                             remote: true, 'aria-label': 'First') do
+                             remote: true, class: 'page-link', 'aria-label': 'First') do
           raw('<span aria-hidden="true">First</span>')
         end
         prev_link = link_to(agent_items_path(owning_entity,
                                              allowed_params.merge(start: prev_start)),
-                            remote: true, 'aria-label': 'Previous') do
+                            remote: true, class: 'page-link','aria-label': 'Previous') do
           raw('<span aria-hidden="true">&laquo;</span>')
         end
         next_link = link_to(agent_items_path(owning_entity,
                                              allowed_params.merge(start: next_start)),
-                            remote: true, 'aria-label': 'Next') do
+                            remote: true, class: 'page-link', 'aria-label': 'Next') do
           raw('<span aria-hidden="true">&raquo;</span>')
         end
         last_link = link_to(agent_items_path(owning_entity,
                                              allowed_params.merge(start: last_start)),
-                            remote: true, 'aria-label': 'Last') do
+                            remote: true, class: 'page-link', 'aria-label': 'Last') do
           raw('<span aria-hidden="true">Last</span>')
         end
       else
         first_link = link_to(allowed_params.except(:start),
-                             remote: true, 'aria-label': 'First') do
+                             remote: true, class: 'page-link', 'aria-label': 'First') do
           raw('<span aria-hidden="true">First</span>')
         end
         prev_link = link_to(allowed_params.merge(start: prev_start),
-                            remote: true, 'aria-label': 'Previous') do
+                            remote: true, class: 'page-link', 'aria-label': 'Previous') do
           raw('<span aria-hidden="true">&laquo;</span>')
         end
         next_link = link_to(allowed_params.merge(start: next_start),
-                            remote: true, 'aria-label': 'Next') do
+                            remote: true, class: 'page-link', 'aria-label': 'Next') do
           raw('<span aria-hidden="true">&raquo;</span>')
         end
         last_link = link_to(allowed_params.merge(start: last_start),
-                            remote: true, 'aria-label': 'Last') do
+                            remote: true, class: 'page-link', 'aria-label': 'Last') do
           raw('<span aria-hidden="true">Last</span>')
         end
     end
@@ -1263,31 +1252,31 @@ module ItemsHelper
     html = StringIO.new
     html << '<nav>'
     html <<   '<ul class="pagination">'
-    html <<      "<li #{current_page == first_page ? 'class="disabled"' : ''}>#{first_link}</li>"
-    html <<      "<li #{current_page == prev_page ? 'class="disabled"' : ''}>#{prev_link}</li>"
+    html <<     "<li class=\"page-item #{current_page == first_page ? 'disabled' : ''}\">#{first_link}</li>"
+    html <<     "<li class=\"page-item #{current_page == prev_page ? 'disabled' : ''}\">#{prev_link}</li>"
     (first_page..last_page).each do |page|
       start = (page - 1) * per_page
       case item_variant
         when :agent_item
           path = (start == 0) ? agent_items_path(owning_entity, allowed_params) :
               agent_items_path(owning_entity, allowed_params.merge(start: start))
-          page_link = link_to(path, remote: true) do
+          page_link = link_to(path, class: 'page-link', remote: true) do
             raw("#{page} #{(page == current_page) ?
                 '<span class="sr-only">(current)</span>' : ''}")
           end
         else
           page_link = link_to((start == 0) ? allowed_params :
-                                  allowed_params.merge(start: start), remote: true) do
+                                  allowed_params.merge(start: start), class: 'page-link', remote: true) do
             raw("#{page} #{(page == current_page) ?
                 '<span class="sr-only">(current)</span>' : ''}")
           end
       end
-      html <<     "<li class=\"#{page == current_page ? 'active' : ''}\">"
+      html <<     "<li class=\"page-item #{page == current_page ? 'active' : ''}\">"
       html <<       page_link
       html <<     '</li>'
     end
-    html <<     "<li #{current_page == next_page ? 'class="disabled"' : ''}>#{next_link}</li>"
-    html <<     "<li #{current_page == last_page ? 'class="disabled"' : ''}>#{last_link}</li>"
+    html <<     "<li class=\"page-item #{current_page == next_page ? 'disabled' : ''}\">#{next_link}</li>"
+    html <<     "<li class=\"page-item #{current_page == last_page ? 'disabled' : ''}\">#{last_link}</li>"
     html <<   '</ul>'
     html << '</nav>'
     raw(html.string)
@@ -1379,9 +1368,9 @@ module ItemsHelper
         #value = label + '<br>' + link_to('See all items with this value',
         #                                 search_url(q: query, field: element.indexed_keyword_field))
         # exact match
-        value = label + '&nbsp;&nbsp;' + link_to(search_url(q: label, field: element.indexed_field),
+        value = label + '&nbsp;&nbsp;' + link_to(items_path(q: label, field: element.indexed_field),
                                                  title: 'Search for all items with this element value',
-                                                 class: 'btn btn-default btn-xs') do
+                                                 class: 'btn btn-outline-secondary btn-sm') do
           raw('<i class="fa fa-search"></i>')
         end
       end
@@ -1396,8 +1385,8 @@ module ItemsHelper
       viewer_url = asset_path('/pdfjs/web/viewer.html?file=' + binary_url)
       html << '<div id="dl-pdf-viewer">'
       html <<   "<iframe src=\"#{viewer_url}\" height=\"100%\" width=\"100%\"></iframe>"
-      html <<   link_to(viewer_url, target: '_blank', class: 'btn btn-default') do
-        content_tag(:span, '', class: 'fa fa-file-pdf-o') + ' Open in New Window'
+      html <<   link_to(viewer_url, target: '_blank', class: 'btn btn-light') do
+        content_tag(:span, '', class: 'fa fa-file-pdf') + ' Open in New Window'
       end
       html << '</div>'
     end
@@ -1488,7 +1477,7 @@ module ItemsHelper
   # @return [String] Bootstrap alert div.
   #
   def viewer_unavailable_message
-    raw('<div class="alert alert-info">No previewer is available for this file type. To view it, use the Download button.</div>')
+    raw('<div class="alert alert-info">No previewer is available for this file type.</div>')
   end
 
   ##

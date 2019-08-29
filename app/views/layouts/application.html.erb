@@ -6,7 +6,7 @@
 
     <meta charset="utf-8"/>
     <meta name="copyright" content="<%= Option.string(Option::Keys::COPYRIGHT_STATEMENT) %>"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
     <%= csrf_meta_tags %>
     <%= favicon_link_tags %>
     <%= yield(:meta_tags) %>
@@ -14,10 +14,9 @@
     <%= stylesheet_link_tag    'application', media: 'all' %>
     <%= javascript_include_tag 'application' %>
 
-    <!--[if lt IE 9]>
-    <script src="https://raw.githubusercontent.com/aFarkas/html5shiv/master/src/html5shiv.js"></script>
-    <![endif]-->
+    <%= render partial: 'layouts/font_awesome' %>
   </head>
+
   <body <%= !yield(:body_id).empty? ? raw("id=\"#{yield(:body_id)}\"") : nil %>
         <%= raw("data-nav=\"#{yield(:active_nav)}\"") %>>
 
@@ -25,18 +24,17 @@
     <%= hidden_field_tag('dl-root-url', root_url) %>
     <%= hidden_field_tag('dl-current-path', request.path) %>
 
-    <%= render 'layouts/header' %>
-
     <div class="container-fluid">
-      <%= flashes %>
+      <%= render 'layouts/header' %>
 
-      <div id="dl-page-content">
+      <div class="page-content">
+        <%= flashes %>
         <%= yield.force_encoding(Encoding::UTF_8) %>
       </div>
+
+      <%= render 'layouts/footer' %>
     </div>
 
-    <%= render 'layouts/footer' %>
     <%= render partial: 'shared/google_analytics' %>
-
   </body>
 </html>

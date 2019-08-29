@@ -4,9 +4,9 @@
     <div class="modal-content">
       <%= form_tag(admin_collection_items_batch_change_metadata_path(@collection)) do %>
         <div class="modal-header">
+          <h4 class="modal-title" id="dl-batch-change-modal-label">Batch Change</h4>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title" id="dl-batch-change-modal-label">Batch Change</h4>
         </div>
         <div class="modal-body">
           <div class="alert alert-warning">
@@ -22,21 +22,21 @@
             <div class="form-group">
               <label for="element">Set Element:</label>
               <%= select_tag(:element, options_for_select(defs),
-                             class: 'form-control') %>
+                             class: 'custom-select') %>
             </div>
 
             <div class="dl-elements">
               <label>To:</label>
               <div class="form-group">
-                <table class="table table-condensed">
-                  <tr>
+                <table class="table table-sm">
+                  <tr class="dl-element">
                     <td>
                       <label>String:</label>
                       <%= text_field_tag('replace_values[][string]', '', class: 'form-control') %>
                       <label>URI:</label>
                       <%= text_field_tag('replace_values[][uri]', '', class: 'form-control') %>
                     </td>
-                    <td>
+                    <td style="text-align: center; vertical-align: middle;">
                       <button type="button" class="btn btn-sm btn-danger dl-remove-element">&minus;</button>
                     </td>
                   </tr>
@@ -53,7 +53,7 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
           <button type="submit" class="btn btn-primary">Change</button>
         </div>
       <% end %>

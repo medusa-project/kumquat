@@ -1,5 +1,7 @@
-<div class="text-center">
-  <%= paginate_items(@count, @limit, @current_page) %>
+<div class="row justify-content-md-center">
+  <div class="col-md-auto">
+    <%= paginate_items(@count, @limit, @current_page) %>
+  </div>
 </div>
 
 <table class="table table-bordered">
@@ -48,20 +50,20 @@
             <%= select_tag("items[#{item.repository_id}][variant]",
                            options_for_select(Item::Variants::all.map{ |v| [v.titleize, v] }, selected: item.variant),
                            include_blank: true,
-                           class: 'form-control input-sm') %>
+                           class: 'custom-select custom-select-sm') %>
             <table border="0">
               <tr>
                 <td>Page:</td>
                 <td>
                   <%= number_field_tag("items[#{item.repository_id}][page]", item.page_number,
-                                       class: 'form-control input-sm') %>
+                                       class: 'form-control form-control-sm') %>
                 </td>
                 <td>
                   Subpage:
                 </td>
                 <td>
                   <%= number_field_tag("items[#{item.repository_id}][subpage]", item.subpage_number,
-                                       class: 'form-control input-sm') %>
+                                       class: 'form-control form-control-sm') %>
                 </td>
               </tr>
             </table>
@@ -83,6 +85,8 @@
   </tbody>
 </table>
 
-<div class="text-center">
-  <%= paginate_items(@count, @limit, @current_page) %>
+<div class="row justify-content-md-center">
+  <div class="col-md-auto">
+    <%= paginate_items(@count, @limit, @current_page) %>
+  </div>
 </div>

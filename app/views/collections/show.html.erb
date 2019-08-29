@@ -5,43 +5,39 @@
 <%= breadcrumb(collection: @collection) %>
 
 <form method="get" action="<%= collection_items_path(@collection) %>"
-      class="form-inline pull-right">
+      class="form-inline float-right">
   <div class="input-group">
     <% if @collection.published_in_dls and @authorized %>
-      <span class="input-group-addon"><i class="fa fa-search"></i></span>
+      <div class="input-group-prepend">
+        <span class="input-group-text"><i class="fa fa-search"></i></span>
+      </div>
       <%= search_field_tag :q, params[:q], class: 'form-control', placeholder: 'Search This Collection' %>
       <% if @collection.free_form? %>
         <%= hidden_field_tag(:display, 'leaves') %>
       <% end %>
     <% end %>
 
-    <div class="input-group-btn">
-      <div class="btn-group">
-        <button type="button" class="btn btn-default dropdown-toggle"
-                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          <i class="fa fa-eye"></i>
-          View <span class="caret"></span>
-        </button>
-        <ul class="dropdown-menu dropdown-menu-right" role="menu">
-          <% if @authorized %>
-            <li>
-              <%= link_to @permitted_params.merge(format: :json), target: '_blank' do %>
-                <i class="fa fa-code"></i>&nbsp;JSON
-              <% end %>
-            </li>
-            <li>
-              <%= link_to collection_iiif_presentation_path(@collection), target: '_blank' do %>
-                <i class="fa fa-code"></i>&nbsp;IIIF Representation
-              <% end %>
-            </li>
-            <li class="divider"></li>
+    <div class="input-group-append">
+      <button type="button" class="btn btn-light dropdown-toggle"
+              data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <i class="fa fa-eye"></i> View <span class="caret"></span>
+      </button>
+      <div class="dropdown-menu dropdown-menu-right">
+        <% if @authorized %>
+          <%= link_to @permitted_params.merge(format: :json),
+                      target: '_blank', class: 'dropdown-item' do %>
+            <i class="fa fa-code"></i>&nbsp;JSON
           <% end %>
-          <li>
-            <%= link_to admin_collection_path(@collection), target: '_blank' do %>
-              <i class="fa fa-lock"></i>&nbsp;&nbsp;Admin View
-            <% end %>
-          </li>
-        </ul>
+          <%= link_to collection_iiif_presentation_path(@collection),
+                      target: '_blank', class: 'dropdown-item' do %>
+            <i class="fa fa-code"></i>&nbsp;IIIF Representation
+          <% end %>
+          <div role="separator" class="dropdown-divider"></div>
+        <% end %>
+        <%= link_to admin_collection_path(@collection),
+                    target: '_blank', class: 'dropdown-item' do %>
+          <i class="fa fa-lock"></i>&nbsp;&nbsp;Admin View
+        <% end %>
       </div>
     </div>
   </div>

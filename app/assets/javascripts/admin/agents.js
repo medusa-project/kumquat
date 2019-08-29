@@ -24,7 +24,6 @@ var PTAdminAgentEditForm = function() {
             return false;
         });
         $('button.dl-remove').on('click', function() {
-            var form = $(this).closest('form');
             var row = $(this).closest('tr');
             var siblings = row.siblings();
             if (siblings.length > 0) {
@@ -99,11 +98,10 @@ var PTAdminAgentsView = function() {
             var url = ROOT_URL + '/admin/agents/' + agent_id + '/edit';
             $.get(url, function(data) {
                 $('#dl-edit-agent-modal .modal-body').html(data);
+                new PTAdminAgentEditForm().init();
             });
         });
         $('a[disabled="disabled"]').on('click', function() { return false; });
-
-        new PTAdminAgentEditForm().init();
     };
 
 };

@@ -11,27 +11,31 @@
       <%= form_tag(admin_collection_items_import_path(collection, format: :tsv),
                    { multipart: true }) do %>
         <div class="modal-header">
+          <h4 class="modal-title" id="dl-import-tsv-modal-label">Import TSV</h4>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title" id="dl-import-tsv-modal-label">Import TSV</h4>
         </div>
         <div class="modal-body">
-          <div class="alert alert-warning">To avoid out-of-memory errors, please
-            divide uploaded files into segments of no more than 4,000 rows
-            each, and import each one individually.</div>
-
           <% if controller_name == 'item_sets' %>
-            <div class="alert alert-info">All items in the TSV will be updated,
-              whether or not they are present in this set. Any items not present
-              in this set will not be added to it..</div>
+            <div class="alert alert-info">
+              <i class="fas fa-info-circle"></i> All items in the TSV will be
+              updated, whether or not they are present in this set. Any items not
+              present in this set will not be added to it.
+            </div>
           <% end %>
+
+          <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle"></i> To avoid out-of-memory
+            errors, divide uploaded files into segments of no more than 4,000
+            rows each, and import each one individually.
+          </div>
 
           <div class="form-group">
             <%= file_field_tag('tsv') %>
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
           <button type="submit" class="btn btn-primary">Import</button>
         </div>
       <% end %>

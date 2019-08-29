@@ -1,43 +1,50 @@
-nav.navbar {
-  border-radius: 0px;
-  .container-fluid:nth-child(1) {
+body.dl-admin {
+  nav.navbar {
+    .label {
+      text-transform: uppercase;
+    }
+
+    .navbar-nav > li > a {
+      font-size: 0.9em;
+      letter-spacing: 1.1px;
+      text-transform: uppercase;
+    }
+  }
+
+  .page-content {
+    padding-top: 1em;
+  }
+
+  nav.navbar:nth-child(2) {
     background-color: #282828;
   }
-  .container-fluid:nth-child(2) {
-    background-color: #343a40 !important;
+
+  code {
+    color: black;
   }
-  li.dl-icon-only {
-    font-size: 20px;
-    margin: 0px;
-    padding: 0px;
+
+  .dl-code-panel {
+    .card-body {
+      pre {
+        overflow: auto;
+        word-wrap: normal;
+        white-space: pre;
+      }
+
+      overflow-x: scroll;
+    }
   }
-  .navbar-nav > li > a {
-    color: #c0c0c0;
-    font-size:0.9em;
-    letter-spacing:1.1px;
+
+  .dl-dirty {
+    background-color: #ffeaea;
+  }
+
+  .badge {
     text-transform: uppercase;
   }
-}
 
-.dl-code-panel {
-  .panel-body {
-    pre {
-      overflow: auto;
-      word-wrap: normal;
-      white-space: pre;
-    }
-    overflow-x: scroll;
+  footer {
+    margin-top: 1em;
+    padding-top: 2em;
   }
-}
-
-.dl-dirty {
-  background-color: #ffeaea;
-}
-
-.label {
-  text-transform: uppercase;
-}
-
-footer {
-  margin-top: 2em;
 }

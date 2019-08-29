@@ -8,9 +8,9 @@
   You are not authorized to access this item.
 </div>
 
-<div class="btn-group pull-right" role="group">
+<div class="btn-group float-right" role="group">
   <div class="btn-group">
-    <button type="button" class="btn btn-default dropdown-toggle"
+    <button type="button" class="btn btn-light dropdown-toggle"
             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
       <i class="fa fa-eye"></i>
       View <span class="caret"></span>
@@ -24,7 +24,14 @@
       </li>
     </ul>
   </div>
-  <%= render partial: 'email_curator_button', locals: { item: @item } %>
+  <div class="text-center">
+    <% mailto = curator_mailto(@item) %>
+    <% if mailto %>
+      <%= link_to mailto, class: 'btn btn-light' do %>
+        <i class="fa fa-envelope"></i> Email Curator About This Item
+      <% end %>
+    <% end %>
+  </div>
 </div>
 
 <%= item_page_title(@item) %>

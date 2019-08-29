@@ -1,5 +1,5 @@
-<div class="btn btn-group pull-right">
-  <button type="button" class="btn btn-default dl-add-item-set"
+<div class="btn btn-group float-right">
+  <button type="button" class="btn btn-light dl-add-item-set"
           data-toggle="modal" data-target="#dl-add-item-set-modal">
     <span class="fa fa-plus"></span> Add Set
   </button>
@@ -32,25 +32,25 @@
 <table class="table">
   <tr>
     <td>ID</td>
-    <td><%= @collection.repository_id %></td>
+    <td><code><%= @collection.repository_id %></code></td>
   </tr>
   <tr>
     <td>External ID</td>
-    <td><%= @collection.external_id %></td>
+    <td><code><%= @collection.external_id %></code></td>
   </tr>
   <tr>
     <td>Medusa Collection Metadata</td>
     <td>
-      <span class="label <%= @collection.public_in_medusa ? 'label-success' : 'label-danger' %>">
+      <span class="badge <%= @collection.public_in_medusa ? 'badge-success' : 'badge-danger' %>">
       <%= @collection.public_in_medusa ? 'Public' : 'Private' %></span>
     </td>
   </tr>
   <tr>
     <td>DLS</td>
     <td>
-      <span class="label <%= @collection.published_in_dls ? 'label-success' : 'label-danger' %>">
+      <span class="badge <%= @collection.published_in_dls ? 'badge-success' : 'badge-danger' %>">
         <%= @collection.published_in_dls ? 'Published' : 'Unpublished' %></span>
-      <span class="label <%= @collection.harvestable ? 'label-success' : 'label-danger' %>">
+      <span class="badge <%= @collection.harvestable ? 'badge-success' : 'badge-danger' %>">
         <%= @collection.harvestable ? 'Harvestable' : 'Unharvestable' %></span>
     </td>
   </tr>
@@ -84,8 +84,9 @@
     <td>Medusa File Group</td>
     <td>
       <% if @file_group %>
-        <%= link_to("#{@file_group.title} (#{@file_group.uuid})",
-                    @file_group.url, target: '_blank') %>
+        <code><%= @file_group.uuid %></code>
+        (<%= link_to(@file_group.title,
+                    @file_group.url, target: '_blank') %>)
       <% else %>
         None
       <% end %>
@@ -120,8 +121,10 @@
     <td>
       <% @representative_image = @collection.representative_image %>
       <% if @representative_image.present? %>
-        <%= link_to(@representative_image,
-                    MedusaCfsFile.with_uuid(@representative_image).url, target: '_blank') %>
+        <% file = MedusaCfsFile.with_uuid(@representative_image) %>
+        <code><%= file.uuid %></code>
+        (<%= link_to(File.basename(file.repository_relative_pathname),
+                     file.url, target: '_blank') %>)
       <% else %>
         None
       <% end %>
@@ -131,7 +134,7 @@
     <td>CONTENTdm Alias</td>
     <td>
       <% if @collection.contentdm_alias.present? %>
-        <%= @collection.contentdm_alias %>
+        <code><%= @collection.contentdm_alias %></code>
       <% else %>
         None
       <% end %>

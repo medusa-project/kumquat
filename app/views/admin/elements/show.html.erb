@@ -2,13 +2,18 @@
 <% provide :body_id, 'admin_element_show' %>
 <% provide :active_nav, 'metadata' %>
 
-<%= admin_breadcrumb(element: @element) %>
+<%= admin_breadcrumb({ label: 'Home', url: admin_root_path },
+                     { label: 'Elements', url: admin_elements_path }) %>
 
-<div class="btn-group pull-right">
+<div class="btn-group float-right">
   <!-- Export button -->
-  <%= link_to admin_element_usages_path(@element), type: 'button', class: 'btn btn-default' do %>
+  <%= link_to admin_element_usages_path(@element), type: 'button', class: 'btn btn-light' do %>
     <i class="fa fa-download"></i> Export Usages as TSV
   <% end %>
 </div>
 
 <h1><%= @element.name %></h1>
+
+<% if @element.description.present? %>
+  <p><%= @element.description %></p>
+<% end %>

@@ -2,12 +2,10 @@
 <% provide :body_id, 'collection_statistics' %>
 <% provide :active_nav, 'collections' %>
 
-<ol class="breadcrumb">
-  <li><%= link_to 'Home', admin_root_path %></li>
-  <li><%= link_to 'Collections', admin_collections_path %></li>
-  <li><%= link_to @collection.title, admin_collection_path(@collection) %></li>
-  <li class="active">Statistics</li>
-</ol>
+<%= admin_breadcrumb({ label: 'Home', url: admin_root_path },
+                     { label: 'Collections', url: admin_collections_path },
+                     { label: @collection.title, url: admin_collection_path(@collection) },
+                     { label: 'Statistics' }) %>
 
 <h1><%= @collection.title %></h1>
 

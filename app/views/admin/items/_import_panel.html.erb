@@ -5,14 +5,17 @@
     <div class="modal-content">
       <%= form_tag(admin_collection_items_sync_path(@collection)) do %>
         <div class="modal-header">
+          <h4 class="modal-title" id="dl-import-modal-label">Import Items</h4>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title" id="dl-import-modal-label">Import Items</h4>
         </div>
         <div class="modal-body">
-          <div class="alert alert-info">Before importing, please verify that
+          <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i> Before importing, verify that
             the collection's file group and package profile are set
-            correctly, and that its content conforms to the package profile.</div>
+            correctly, and that its content in Medusa conforms to the package
+            profile.
+          </div>
           <div class="radio">
             <label>
               <%= radio_button_tag('ingest_mode',
@@ -20,17 +23,17 @@
                                    'aria-described-by' => 'dl-create-only-help') %>
               Create
             </label>
-            <span id="dl-create-only-help" class="help-block">
+            <span id="dl-create-only-help" class="form-text text-muted">
             Create any items present in Medusa but not the DLS. Don't touch
             existing DLS items.</span>
           </div>
-          <div class="checkbox" style="padding-left: 1em">
+          <div class="checkbox" style="padding-left: 1.5em">
             <label>
               <%= check_box_tag('options[extract_metadata]', 'true', false) %>
               Extract embedded file metadata
             </label>
           </div>
-          <div class="checkbox" style="padding-left: 1em">
+          <div class="checkbox" style="padding-left: 1.5em">
             <label>
               <%= check_box_tag('options[include_date_created]', 'true', false) %>
               Extract creation date from embedded file metadata
@@ -43,7 +46,7 @@
                                    'aria-described-by' => 'dl-update-binaries-help') %>
               Recreate Binaries
             </label>
-            <span id="dl-update-binaries-help" class="help-block">
+            <span id="dl-update-binaries-help" class="form-text text-muted">
             Update existing DLS items' binaries based on their corresponding
             files in Medusa.</span>
           </div>
@@ -53,9 +56,9 @@
                 <%= radio_button_tag('ingest_mode',
                                      MedusaIngester::IngestMode::REPLACE_METADATA, false,
                                      'aria-described-by' => 'dl-replace-metadata-help') %>
-                Replace Metadata <span class="label label-danger">dangerous!</span>
+                Replace Metadata <span class="badge badge-danger">dangerous!</span>
               </label>
-              <span id="dl-replace-metadata-help" class="help-block">
+              <span id="dl-replace-metadata-help" class="form-text text-muted">
               Replaces DLS items' metadata with embedded metadata extracted
               from their binaries.</span>
             </div>
@@ -67,12 +70,12 @@
                                    'aria-described-by' => 'dl-delete-missing-help') %>
               Delete Missing
             </label>
-            <span id="dl-delete-missing-help" class="help-block">
+            <span id="dl-delete-missing-help" class="form-text text-muted">
             Delete any items present in the DLS but not Medusa.</span>
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
           <button type="submit" class="btn btn-primary">Import</button>
         </div>
       <% end %>

@@ -13,7 +13,6 @@ class Option < ApplicationRecord
     FACET_TERM_LIMIT = 'website.facet_term_limit'
     OAI_PMH_ENABLED = 'oai_pmh.enabled'
     ORGANIZATION_NAME = 'organization.name'
-    WEBSITE_INTRO_TEXT = 'website.intro_text'
     WEBSITE_NAME = 'website.name'
   end
 

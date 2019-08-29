@@ -1,13 +1,17 @@
-<div class="text-center">
-  <%= paginate_items(@count, @limit, @current_page) %>
+<div class="row justify-content-md-center">
+  <div class="col-md-auto">
+    <%= paginate_items(@count, @limit, @current_page) %>
+  </div>
 </div>
 
-<%= entities_as_list(@items, @start,
-                     link_to_admin: true,
-                     show_collections: false,
-                     show_checkboxes: true,
-                     show_published_status: true) %>
+<%= entities_as_media(@items,
+                      link_to_admin: true,
+                      show_collections: false,
+                      show_checkboxes: true,
+                      show_published_status: true) %>
 
-<div class="text-center">
-  <%= paginate_items(@count, @limit, @current_page) %>
+<div class="row justify-content-md-center">
+  <div class="col-md-auto">
+    <%= paginate_items(@count, @limit, @current_page) %>
+  </div>
 </div>

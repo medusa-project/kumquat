@@ -10,14 +10,14 @@
 
   <% if @collection.free_form? %>
     <ul class="nav nav-pills">
-      <li role="presentation">
-        <%= link_to collection_tree_path(@collection), role: 'button' do %>
-            <i class="fa fa-level-down"></i> Tree
+      <li class="nav-item">
+        <%= link_to collection_tree_path(@collection), class: 'nav-link' do %>
+          <i class="fa fa-level-down-alt"></i> Tree
         <% end %>
       </li>
-      <li role="presentation" class="active">
-        <%= link_to '#', role: 'button' do %>
-            <i class="fa fa-bars"></i> List
+      <li class="nav-item">
+        <%= link_to '#', class: 'nav-link active' do %>
+          <i class="fa fa-bars"></i> List
         <% end %>
       </li>
     </ul>
@@ -29,30 +29,30 @@
 
 <%= form_tag(@permitted_params.reject{ |k, v| k == 'start' }, method: :get, class: 'dl-filter') do %>
   <div class="row">
-    <div class="hidden-xs col-sm-3 col-lg-2 dl-facets dl-panel-facets">
+    <div class="col-sm-5 col-md-4 col-lg-4 col-xl-3 dl-facets dl-card-facets">
       <%= facets_as_panels(@facets, ItemsController::PERMITTED_PARAMS) %>
     </div>
 
-    <div class="col-xs-12 col-sm-9 col-lg-10">
+    <div class="col-sm-7 col-md-8 col-lg-8 col-xl-9">
       <div class="row">
-        <div class="col-xs-6">
+        <div class="col-sm-5">
           <% @permitted_params.reject{ |k, v| k == 'start' }.each do |k, v| %>
             <%= hidden_field_tag(k, v) %>
           <% end %>
           <%= item_filter_field %>
         </div>
-        <div class="col-xs-6">
+        <div class="col-sm-7">
           <%= render partial: 'index_button_group' %>
         </div>
       </div>
 
-      <div class="panel panel-default dl-results-summary">
-        <div class="panel-body">
+      <div class="card dl-results-summary">
+        <div class="card-body">
           <div class="row">
             <div class="col-sm-8" id="dl-search-status">
               <%= search_status(@count, @start, @num_results_shown) %>
             </div>
-            <div class="col-sm-4 pull-right">
+            <div class="col-sm-4 float-right">
               <%= sort_menu(@metadata_profile) %>
             </div>
           </div>

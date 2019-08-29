@@ -4,10 +4,17 @@ body#download_status {
     flex-direction: column;
     font-size: 1.5em;
     align-items: center;
+    margin: 0 auto;
+    margin-top: 2em;
     text-align: center;
+    width: 80%;
 
+    p {
+      margin-bottom: 2em;
+    }
     div.progress {
-      margin-top: 3em;
+      margin: 0 auto;
+      height: 30px;
       width: 50%;
     }
 

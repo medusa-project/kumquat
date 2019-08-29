@@ -18,17 +18,17 @@
        # the right of the nav buttons %>
     <div style="float:right">
       <% if supp_bin %>
-        <a role="button" class="btn btn-default btn-sm" data-toggle="collapse"
+        <a role="button" class="btn btn-light btn-sm" data-toggle="collapse"
            href="#dl-binary-<%= supp_bin.id %>"
            aria-expanded="false" aria-controls="dl-binary-<%= supp_bin.id %>">
-          <i class="fa fa-plus-square-o"></i>
+          <i class="far fa-plus-square"></i>
           Supplementary <%= supp_bin.human_readable_media_category %></a>
       <% end %>
       <% if @root_item.three_d_item %>
-        <a role="button" class="btn btn-default btn-sm" data-toggle="collapse"
+        <a role="button" class="btn btn-light btn-sm" data-toggle="collapse"
            href="#dl-3d-viewer-container"
            aria-expanded="false" aria-controls="dl-3d-viewer-container">
-          <i class="fa fa-plus-square-o"></i> 3D Model</a>
+          <i class="far fa-plus-square"></i> 3D Model</a>
       <% end %>
     </div>
 
@@ -68,8 +68,9 @@
         <%= render partial: 'permalink_section', locals: { item: @root_item } %>
       </div>
       <div class="col-sm-2">
-        <a href="#dl-download-section" class="btn btn-lg btn-success">
-          <i class="fa fa-download"></i> Download</a>
+        <button id="dl-download-button" class="btn btn-lg btn-success" style="white-space: nowrap">
+          <i class="fa fa-download"></i> Download
+        </button>
       </div>
     </div>
   <% else %>
@@ -93,7 +94,12 @@
 <%= render partial: 'staff_info', locals: { item: @root_item } %>
 
 <div class="text-center">
-  <%= render partial: 'email_curator_button', locals: { item: @root_item } %>
+  <% mailto = curator_mailto(@root_item) %>
+  <% if mailto %>
+    <%= link_to mailto, class: 'btn btn-light' do %>
+      <i class="fa fa-envelope"></i> Email Curator About This Item
+    <% end %>
+  <% end %>
 </div>
 
 <%= render partial: 'cite_panel', locals: { item: @root_item } %>

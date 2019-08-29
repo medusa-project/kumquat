@@ -20,10 +20,10 @@
     <%= f.label 'uris', 'URIs' %>
     <% if context == :edit %>
       <span class="help text-danger">
-        <i class="fa fa-warning"></i> Changing URIs may break entity relationships.
+        <i class="fas fa-exclamation-triangle"></i> Changing URIs may break entity relationships.
       </span>
     <% end %>
-    <table id="dl-agent-uris" border="0">
+    <table class="table" id="dl-agent-uris">
       <% num_fields = f.object.agent_uris.length == 0 ?
           0 : f.object.agent_uris.length - 1 %>
       <% for index in 0..num_fields %>
@@ -58,7 +58,7 @@
                    options_from_collection_for_select(AgentRule.all.order(:name),
                                                       'id', 'name', f.object.agent_rule_id),
                    include_blank: true,
-                   class: 'form-control' %>
+                   class: 'custom-select' %>
   </div>
 
   <div class="form-group">
@@ -67,7 +67,7 @@
                    options_from_collection_for_select(AgentType.all.order(:name),
                                                       'id', 'name', f.object.agent_type_id),
                    include_blank: true,
-                   class: 'form-control' %>
+                   class: 'custom-select' %>
   </div>
 
   <div class="form-group">
@@ -76,8 +76,8 @@
   </div>
 
   <div class="clearfix">
-    <div class="pull-right">
-      <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+    <div class="float-right">
+      <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
       <%= f.submit(context == :new ? 'Create Agent' : 'Edit Agent',
                    class: 'btn btn-primary') %>
     </div>
