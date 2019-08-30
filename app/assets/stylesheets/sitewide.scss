@@ -67,7 +67,8 @@ div.alert-info {
   }
 }
 
-.dl-card-facets {
+.dl-facet {
+  margin-bottom: 1em;
   .card-body {
     padding: 0.75em;
     ul {
@@ -75,6 +76,19 @@ div.alert-info {
       margin-bottom: 0;
       margin-left: 0;
       padding-left: 0;
+    }
+    .dl-term {
+      font-size: 0.9em;
+      text-indent: -1.2em;
+      margin-left: 2.4em;
+    }
+    .dl-count {
+      background-color: #a0a0a0;
+      color: white;
+      font-weight: bold;
+      font-size: 0.8em;
+      border-radius: 0.8em;
+      padding: 0.1em 0.3em;
     }
   }
 }

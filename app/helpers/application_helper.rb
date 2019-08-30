@@ -562,7 +562,7 @@ module ApplicationHelper
   #
   def facet_card(facet, permitted_params)
     panel = StringIO.new
-    panel << "<div class=\"card\" id=\"#{facet.field}\">"
+    panel << "<div class=\"card dl-facet\" id=\"#{facet.field}\">"
     panel <<   "<h5 class=\"card-header\">#{facet.name}</h5>"
     panel <<     '<div class="card-body">'
     panel <<       '<ul>'
@@ -581,7 +581,7 @@ module ApplicationHelper
                          "data-checked-href=\"#{url_for(unchecked_params)}\" "\
                          "data-unchecked-href=\"#{url_for(checked_params)}\"> "
       panel <<         "<span class=\"dl-term-name\">#{term_label}</span> "
-      panel <<         "<span class=\"dl-count badge badge-pill badge-secondary\">#{term.count}</span>"
+      panel <<         "<span class=\"dl-count\">#{term.count}</span>"
       panel <<     '</label>'
       panel <<   '</div>'
       panel << '</li>'
