@@ -1,32 +1,71 @@
 body#landing {
-  .dl-spacer {
-    clear: both;
-    font-size: 0.1px;
-    margin: 0px;
-    padding: 0px;
-    visibility: hidden;
+  nav.navbar {
+    margin-bottom: 0px;
   }
-  #dl-see-more {
-    margin-top: 1em;
-    font-size: 1.4em;
-    a {
+
+  #dl-banner {
+    /* https://digital.library.illinois.edu/items/f07734a0-4b72-0134-1da8-0050569601ca-f */
+    background-image:image-url("almamater.jpg");
+    background-position: center 14%;
+    height: 300px;
+    margin: 0 -15px 1em -15px;
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: space-between;
+
+    h1 {
+      span {
+        background: rgba(0, 0, 0, 0.4);
+        background-clip: padding-box;
+        padding: 6px;
+      }
+      color: white;
+      font-family: 'Garamond', 'Palatino', 'Book Antiqua', serif;
+      font-size: 3em;
+      font-weight: 200;
+      margin: 15px 0 0 9px;
+      text-shadow: 1px 1px 4px black;
+    }
+
+    @media (max-width: 500px) {
+      background-size: 250%;
+      height: 210px;
+    }
+
+    @media (min-width : 501px) and (max-width: 900px) {
+      background-size: 200%;
+      height: 260px;
+    }
+
+    > div {
+      margin: 0 15px 0 15px;
+    }
+  }
+
+  #dl-description {
+    padding: 1em 0em 1em 0em;
+  }
+
+  .card {
+    margin-bottom: 20px;
+    .card-title a, .card-text a {
       color: black;
     }
-    a:hover {
-      text-decoration: none;
+  }
+  .card-img-overlay {
+    padding: 0;
+    .dl-card-text-backdrop {
+      background-color: rgba(0, 0, 0, 0.4);
+      padding: 20px;
+      .card-title a, .card-text a {
+        color: white;
+      }
     }
   }
 
-  @media screen and (max-width: 320px) {
-    .dl-main-image {
-      margin-top:1em;
-    }
+  img[data-type="svg"] {
+    opacity: 0.4;
+    padding: 1em;
   }
-}
 
-#uiuc-landing-banner {
-  background-image: image_url('banner_1.jpg');
-  background-position: center 0%;
-  height: 320px;
 }
-

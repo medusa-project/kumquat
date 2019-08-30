@@ -133,11 +133,11 @@
 
 <%= form_tag(@permitted_params.reject{ |k, v| k == 'start' }, method: :get, class: 'dl-filter') do %>
   <div class="row">
-    <div class="col-sm-5 col-md-4 col-lg-4 col-xl-3 dl-facets dl-card-facets">
+    <div class="col-sm-4 col-lg-3 col-xl-2 dl-facets dl-card-facets">
       <%= render partial: 'facets' %>
     </div>
 
-    <div class="col-sm-7 col-md-8 col-lg-8 col-xl-9">
+    <div class="col-sm-8 col-lg-9 col-xl-10">
       <% @permitted_params.reject{ |k, v| k == 'start' }.each do |k, v| %>
         <%= hidden_field_tag(k, v) %>
       <% end %>
