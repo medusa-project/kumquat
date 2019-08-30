@@ -59,7 +59,9 @@
             <% end %>
           <% end %>
         </td>
-        <td><code><%= link_to row['name'], admin_element_path(row['name']) %></code></td>
+        <td style="white-space: nowrap">
+          <code><%= link_to row['name'], admin_element_path(row['name']) %></code>
+        </td>
         <td><%= row['description'] %></td>
         <td><%= number_with_delimiter(row['metadata_profile_count']) %></td>
         <td><%= number_with_delimiter(row['entity_count']) %></td>
