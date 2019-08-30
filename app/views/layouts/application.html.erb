@@ -25,7 +25,13 @@
     <%= hidden_field_tag('dl-current-path', request.path) %>
 
     <div class="container-fluid">
-      <%= render 'layouts/header' %>
+      <% if request.path == '/' %>
+        <header>
+          <%= render partial: 'layouts/top_header' %>
+        </header>
+      <% else %>
+        <%= render partial: 'layouts/header' %>
+      <% end %>
 
       <div class="page-content">
         <%= flashes %>
