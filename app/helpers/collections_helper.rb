@@ -36,8 +36,10 @@ module CollectionsHelper
   end
 
   def repository_link(collection)
-    fq = "#{Collection::IndexFields::REPOSITORY_TITLE}:#{collection.medusa_repository.title}"
-    link_to collection.medusa_repository.title, collections_path('fq[]': fq)
+    url = Configuration.instance.metadata_gateway_url +
+        "/collections?fq%5B%5D=local_facet_repository%3A" +
+        collection.medusa_repository.title
+    link_to collection.medusa_repository.title, url
   end
 
 end
