@@ -6,7 +6,8 @@
 
   <div class="row justify-content-sm-center">
     <div class="col-sm-8 col-md-7 col-lg-6">
-      <%= form_tag(search_path, method: :get, enforce_utf8: false, id: 'dl-search') do %>
+      <%= form_tag(Configuration.instance.metadata_gateway_url + '/search',
+                   method: :get, enforce_utf8: false, id: 'dl-search') do %>
         <div class="input-group mb-4">
           <%= search_field_tag(:q, '',
                                placeholder: raw('Search&hellip;'),
