@@ -49,11 +49,11 @@
 
 <% if @collection.free_form? and @authorized %>
   <div class="alert alert-info">
-    <p>The <%= @collection.title %> are managed by the <%= @collection.medusa_repository.title %>
-      and do not feature precise descriptive information for each item. Discover
-      their contents by <%= link_to 'browsing', collection_tree_path(@collection) %>
+    This collection is managed by the <%= @collection.medusa_repository.title %>
+      and does not feature precise descriptive information for each item. Discover
+      its contents by <%= link_to 'browsing', collection_tree_path(@collection) %>
       the folders and files. For more information, contact an archivist at
-      <a href="mailto:<%= @collection.medusa_repository.email %>"><%= @collection.medusa_repository.email %></a>.</p>
+      <a href="mailto:<%= @collection.medusa_repository.email %>"><%= @collection.medusa_repository.email %></a>.
   </div>
 <% end %>
 
