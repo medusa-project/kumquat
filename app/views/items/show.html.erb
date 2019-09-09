@@ -10,20 +10,9 @@
 <%= item_page_title(@root_item) %>
 
 <% if @previous_result or @next_result or session[:browse_context_url] or
-  @root_item.supplementary_item or @root_item.three_d_item %>
-  <% supp_item = @root_item.supplementary_item %>
-  <% supp_bin = supp_item&.effective_image_binary %>
+  @root_item.three_d_item %>
   <div style="margin-bottom:16px">
-    <% # DLD-6: button that pops open the supplementary section is aligned to
-       # the right of the nav buttons %>
     <div style="float:right">
-      <% if supp_bin %>
-        <a role="button" class="btn btn-light btn-sm" data-toggle="collapse"
-           href="#dl-binary-<%= supp_bin.id %>"
-           aria-expanded="false" aria-controls="dl-binary-<%= supp_bin.id %>">
-          <i class="far fa-plus-square"></i>
-          Supplementary <%= supp_bin.human_readable_media_category %></a>
-      <% end %>
       <% if @root_item.three_d_item %>
         <a role="button" class="btn btn-light btn-sm" data-toggle="collapse"
            href="#dl-3d-viewer-container"
@@ -37,19 +26,6 @@
       <%= render partial: 'navigation_buttons' %>
     </div>
   </div>
-
-  <% if supp_bin %>
-    <div id="dl-binary-<%= supp_bin.id %>" class="collapse">
-      <div class="row">
-        <div class="col-sm-9">
-          <%= viewer_for_binary(supp_bin) %>
-        </div>
-        <div class="col-sm-3">
-          <%= metadata_as_list(supp_item) %>
-        </div>
-      </div>
-    </div>
-  <% end %>
   <% if @root_item.three_d_item %>
     <div id="dl-3d-viewer-container" class="collapse">
       <%= viewer_for_item(@root_item.three_d_item) %>
@@ -60,6 +36,32 @@
 <section>
   <div class="dl-viewer">
     <%= viewer_for_item(@root_item) %>
+    <% if @root_item.supplementary_item %>
+      <% supp_item = @root_item.supplementary_item %>
+      <% supp_bin = supp_item&.effective_image_binary %>
+      <% if supp_bin %>
+        <div id="dl-supplementary-viewer">
+          <div class="dl-bottom-panel">
+            <a role="button" data-toggle="collapse"
+               href="#dl-binary-<%= supp_bin.id %>"
+               aria-expanded="false" aria-controls="dl-binary-<%= supp_bin.id %>">
+              <img src="/universalviewer/themes/uv-en-GB-theme/img/uv-shared-module/arrows_left.png"/>
+              Supplementary <%= supp_bin.human_readable_media_category %></a>
+          </div>
+          <div id="dl-binary-<%= supp_bin.id %>"
+               class="dl-supplmentary-viewer-content collapse">
+            <div class="row">
+              <div class="col-sm-9">
+                <%= viewer_for_binary(supp_bin) %>
+              </div>
+              <div class="col-sm-3 dl-metadata">
+                <%= metadata_as_list(supp_item) %>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    <% end %>
   </div>
 
   <% if has_viewer?(@root_item) %>
