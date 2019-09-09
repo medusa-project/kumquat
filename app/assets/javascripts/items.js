@@ -282,6 +282,25 @@ var PTItemView = function() {
             return false;
         });
 
+        // Add an expander icon in front of every collapse toggle.
+        var toggleForCollapse = function(collapse) {
+            return collapse.prev().find('a[data-toggle="collapse"]:first');
+        };
+        var setToggleState = function(elem, expanded) {
+            elem.find('img').css('transform', expanded ? 'rotate(90deg)' : 'rotate(270deg)');
+        };
+
+        var collapses = $('.collapse');
+        collapses.each(function() {
+            setToggleState(toggleForCollapse($(this)), $(this).hasClass('show'));
+        });
+        collapses.on('show.bs.collapse', function () {
+            setToggleState(toggleForCollapse($(this)), true);
+        });
+        collapses.on('hide.bs.collapse', function () {
+            setToggleState(toggleForCollapse($(this)), false);
+        });
+
         // Lazy-load thumbnail images in the download section when it gets
         // expanded.
         $('#dl-download-section').on('shown.bs.collapse', function() {

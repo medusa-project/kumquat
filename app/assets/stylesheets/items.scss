@@ -46,10 +46,60 @@ body#items_show, #dl-free-form-item-view {
   }
 
   .dl-viewer {
+    margin: 0 auto;
     margin-bottom: 2em;
+    width: 95%;
   }
   #dl-image-viewer, #dl-compound-viewer {
     /* Styles are defined inline. */
+  }
+
+  #dl-supplementary-viewer {
+    background-color: #211f1f;
+    color: white;
+    font-family: sans-serif;
+    font-size: 12px;
+    padding: 0.5em;
+    .dl-bottom-panel {
+      padding: 0.5em;
+      > a {
+        color: white;
+        text-transform: uppercase;
+        > img {
+          width: 20px;
+          height: 20px;
+          cursor: pointer;
+          margin: 7px 5px 0 0;
+        }
+      }
+      > a:hover {
+        text-decoration: none;
+      }
+    }
+    .dl-supplmentary-viewer-content {
+      height: 600px;
+      #dl-pdf-viewer {
+        height: 560px;
+        margin: 0 auto;
+      }
+      .dl-metadata {
+        height: 600px;
+        overflow-y: scroll;
+        dt {
+          border-bottom: 1px solid #343434;
+          color: #9a9a9a;
+          font-weight: normal;
+          margin-bottom: 6px;
+        }
+        dd {
+          margin-left: 0;
+          margin-bottom: 1.2em;
+          ul {
+            padding-left: 1em;
+          }
+        }
+      }
+    }
   }
 
   #dl-3d-viewer {
@@ -62,7 +112,7 @@ body#items_show, #dl-free-form-item-view {
     margin: 0 auto;
     max-width: 1200px;
     iframe {
-      height: 93%;
+      border: 0;
     }
   }
 

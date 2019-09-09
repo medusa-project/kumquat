@@ -1155,7 +1155,7 @@ module ItemsHelper
       "data-config=\"#{asset_path('uvconfig_compound.json', skip_pipeline: true)}\" "\
       "data-uri=\"#{item_iiif_manifest_url(object)}\" "\
       "data-sequenceindex=\"0\" data-canvasindex=\"#{canvas_index}\" "\
-      "data-rotation=\"0\" style=\"margin: 0 auto; width:#{VIEWER_WIDTH}; height:#{VIEWER_HEIGHT}; background-color:#000;\"></div>"
+      "data-rotation=\"0\" style=\"height:#{VIEWER_HEIGHT}; background-color:#000;\"></div>"
     html << javascript_include_tag('/universalviewer/lib/embed.js', id: 'embedUV')
     raw(html.string)
   end
@@ -1385,9 +1385,11 @@ module ItemsHelper
       viewer_url = asset_path('/pdfjs/web/viewer.html?file=' + binary_url)
       html << '<div id="dl-pdf-viewer">'
       html <<   "<iframe src=\"#{viewer_url}\" height=\"100%\" width=\"100%\"></iframe>"
-      html <<   link_to(viewer_url, target: '_blank', class: 'btn btn-light') do
-        content_tag(:span, '', class: 'fa fa-file-pdf') + ' Open in New Window'
+      html <<   '<div style="text-align: center">'
+      html <<     link_to(viewer_url, target: '_blank', class: 'btn btn-outline-light btn-sm') do
+        content_tag(:span, '', class: 'fa fa-file-pdf') + ' Open PDF in New Window'
       end
+      html <<   '</div>'
       html << '</div>'
     end
     raw(html.string)

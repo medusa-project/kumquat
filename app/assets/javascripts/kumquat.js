@@ -281,13 +281,19 @@ var Application = {
 
         var collapses = $('.collapse');
         collapses.each(function() {
-            setToggleState(toggleForCollapse($(this)), $(this).hasClass('show'));
+            if (!$(this).hasClass('dl-supplmentary-viewer-content')) {
+                setToggleState(toggleForCollapse($(this)), $(this).hasClass('show'));
+            }
         });
         collapses.on('show.bs.collapse', function () {
-            setToggleState(toggleForCollapse($(this)), true);
+            if (!$(this).hasClass('dl-supplmentary-viewer-content')) {
+                setToggleState(toggleForCollapse($(this)), true);
+            }
         });
         collapses.on('hide.bs.collapse', function () {
-            setToggleState(toggleForCollapse($(this)), false);
+            if (!$(this).hasClass('dl-supplmentary-viewer-content')) {
+                setToggleState(toggleForCollapse($(this)), false);
+            }
         });
 
         Application.smoothAnchorScroll(0);
