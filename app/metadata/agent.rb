@@ -103,6 +103,10 @@ class Agent < ApplicationRecord
     self
   end
 
+  def effective_representative_image_binary
+    nil
+  end
+
   ##
   # @return [String]
   #
