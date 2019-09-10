@@ -17,7 +17,7 @@
     <i class="fa fa-upload"></i> Import&hellip;
   </button>
   <!-- Export button -->
-  <%= link_to @permitted_params.merge(format: 'json'), type: 'button', class: 'btn btn-light' do %>
+  <%= link_to @permitted_params.merge(format: 'json'), role: 'button', class: 'btn btn-light' do %>
     <i class="fa fa-download"></i> Export
   <% end %>
 </div>
