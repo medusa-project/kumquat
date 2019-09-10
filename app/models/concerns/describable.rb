@@ -5,7 +5,7 @@
 module Describable
 
   ##
-  # @return [Element]
+  # @return [String]
   #
   def description
     self.element(:description)&.value
@@ -19,18 +19,18 @@ module Describable
   # @return [EntityElement]
   #
   def element(name)
-    self.elements.select{ |e| e.name == "#{name}" }.first
+    self.elements.find{ |e| e.name == "#{name}" }
   end
 
   ##
-  # @return [Element]
+  # @return [String]
   #
   def subtitle
     self.element(:alternativeTitle)&.value
   end
 
   ##
-  # @return [EntityElement]
+  # @return [String]
   #
   def title
     t = self.element(:title)&.value
