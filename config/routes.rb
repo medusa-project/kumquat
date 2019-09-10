@@ -314,4 +314,6 @@ Rails.application.routes.draw do
   match '/ui/*glob',
         to: 'contentdm#gone', via: :all
 
+  match '*path', to: 'errors#not_found', via: :all
+
 end
