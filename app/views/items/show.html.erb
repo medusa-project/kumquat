@@ -46,7 +46,8 @@
                href="#dl-binary-<%= supp_bin.id %>"
                aria-expanded="false" aria-controls="dl-binary-<%= supp_bin.id %>">
               <img src="/universalviewer/themes/uv-en-GB-theme/img/uv-shared-module/arrows_left.png"/>
-              Supplementary <%= supp_bin.human_readable_media_category %></a>
+              <%= supp_item.element(:supplementType)&.value ||
+                      "Supplementary #{supp_bin.human_readable_media_category}" %></a>
           </div>
           <div id="dl-binary-<%= supp_bin.id %>"
                class="dl-supplmentary-viewer-content collapse">
