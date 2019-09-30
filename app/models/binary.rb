@@ -277,26 +277,36 @@ class Binary < ApplicationRecord
   end
 
   ##
-  # @raises [IOError] If the file does not exist.
+  # @raises [IOError] If the file doesn't exist or can't be read.
   #
   def infer_media_type
     case File.extname(self.object_key).downcase
-      when '.mp4', '.m4v'
-        self.media_type = 'video/mp4'
-      when '.mtl'
-        self.media_type = 'text/plain'
-      when '.obj'
-        self.media_type = 'text/plain'
-      else
-        begin
-          response = MedusaS3Client.instance.get_object(
+    when '.mp4', '.m4v'
+      self.media_type = 'video/mp4'
+    when '.mtl'
+      self.media_type = 'text/plain'
+    when '.obj'
+      self.media_type = 'text/plain'
+    else
+      # Try to infer the media type using the binary's magic bytes.
+      begin
+        # First, check the Content-Length response header in order to find the
+        # end of the requestable range.
+        client = MedusaS3Client.instance
+        response = client.head_object(
+            bucket: MedusaS3Client::BUCKET,
+            key: self.object_key)
+        end_pos = [20, response.content_length].min
+        if end_pos > 2
+          response = client.get_object(
               bucket: MedusaS3Client::BUCKET,
               key: self.object_key,
-              range: 'bytes=0-20')
+              range: "bytes=0-#{end_pos}")
           self.media_type = MimeMagic.by_magic(response.body)
-        rescue => e
-          raise IOError, e
         end
+      rescue => e
+        raise IOError, e
+      end
     end
   end
 
