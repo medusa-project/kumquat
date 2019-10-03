@@ -518,11 +518,13 @@ class Item < ApplicationRecord
 
       # ES will automatically create a one or more multi fields for this.
       # See: https://www.elastic.co/guide/en/elasticsearch/reference/0.90/mapping-multi-field-type.html
-      unless doc[element.indexed_field]&.respond_to?(:each)
-        doc[element.indexed_field] = []
+      if element.value.present?
+        unless doc[element.indexed_field]&.respond_to?(:each)
+          doc[element.indexed_field] = []
+        end
+        doc[element.indexed_field] <<
+            StringUtils.strip_leading_articles(element.value)[0..ElasticsearchClient::MAX_KEYWORD_FIELD_LENGTH]
       end
-      doc[element.indexed_field] <<
-          StringUtils.strip_leading_articles(element.value)[0..ElasticsearchClient::MAX_KEYWORD_FIELD_LENGTH]
     end
 
     # We also need to index parent metadata fields. These are needed when we
@@ -530,11 +532,13 @@ class Item < ApplicationRecord
     # children in results.
     if self.parent
       self.parent.elements.each do |element|
-        unless doc[element.parent_indexed_field]&.respond_to?(:each)
-          doc[element.parent_indexed_field] = []
+        if element.value.present?
+          unless doc[element.parent_indexed_field]&.respond_to?(:each)
+            doc[element.parent_indexed_field] = []
+          end
+          doc[element.parent_indexed_field] <<
+              StringUtils.strip_leading_articles(element.value)[0..ElasticsearchClient::MAX_KEYWORD_FIELD_LENGTH]
         end
-        doc[element.parent_indexed_field] <<
-            StringUtils.strip_leading_articles(element.value)[0..ElasticsearchClient::MAX_KEYWORD_FIELD_LENGTH]
       end
     end
 
