@@ -10,7 +10,7 @@
                    method: :get, enforce_utf8: false, id: 'dl-search') do %>
         <div class="input-group mb-4">
           <%= search_field_tag(:q, '',
-                               placeholder: raw('Search&hellip;'),
+                               placeholder: raw("Search across #{number_with_delimiter(@gateway_item_count)} items&hellip;"),
                                'aria-label': 'Search',
                                class: 'form-control form-control-lg') %>
           <div class="input-group-append">

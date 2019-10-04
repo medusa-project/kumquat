@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190226143441) do
+ActiveRecord::Schema.define(version: 2019_10_04_143449) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -93,6 +93,14 @@ ActiveRecord::Schema.define(version: 20190226143441) do
     t.index ["media_category"], name: "index_binaries_on_media_category"
     t.index ["media_type"], name: "index_binaries_on_media_type"
     t.index ["object_key"], name: "index_binaries_on_object_key", unique: true
+  end
+
+  create_table "cache_items", force: :cascade do |t|
+    t.string "key"
+    t.string "value"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["key"], name: "index_cache_items_on_key", unique: true
   end
 
   create_table "collection_joins", id: :serial, force: :cascade do |t|
