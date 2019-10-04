@@ -487,43 +487,29 @@ module Admin
           current_user.can?(Permission::Permissions::MODIFY_ITEMS)
     end
 
+    ##
+    # @param publish [Boolean]
+    #
     def publish_or_unpublish(publish)
       col = Collection.find_by_repository_id(params[:collection_id])
       raise ActiveRecord::RecordNotFound unless col
-
-      # If we are (un)publishing only checked items, params[:id] will not
-      # be empty.
-      if params[:id].respond_to?(:each) and params[:id].any?
-        begin
-          items = params[:id].map{ |id| Item.find_by_repository_id(id) }
-          items.each do |item|
-            item.update!(published: publish)
-          end
-        rescue => e
-          handle_error(e)
+      begin
+        # If we are (un)publishing only checked items, params[:id] will be set.
+        if params[:id].respond_to?(:any?) and params[:id].any?
+          ids = params[:id]
         else
-          flash['success'] = "#{publish ? 'P' : 'Unp'}ublished #{items.length} "\
-            "items."
-        ensure
-          redirect_back fallback_location: admin_collection_items_path(col)
-        end
-      else
-        begin
           finder = editing_item_finder_for(col)
-          items = finder.to_a.select{ |i| i }
-          if publish
-            PublishItemsJob.perform_later(items)
-          else
-            UnpublishItemsJob.perform_later(items)
-          end
-        rescue => e
-          handle_error(e)
-        else
-          flash['success'] = "#{publish ? 'P' : 'Unp'}ublishing #{items.length} "\
-            "items in the background."
-        ensure
-          redirect_back fallback_location: admin_collection_items_path(col)
+          items  = finder.to_a.select{ |i| i }
+          ids    = items.map(&:repository_id)
         end
+        Item.where('repository_id IN (?)', ids)
+            .update_all(published: publish)
+      rescue => e
+        handle_error(e)
+      else
+        flash['success'] = "#{publish ? 'P' : 'Unp'}ublished #{ids.length} items."
+      ensure
+        redirect_back fallback_location: admin_collection_items_path(col)
       end
     end
 
