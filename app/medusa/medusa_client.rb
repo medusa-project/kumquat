@@ -9,6 +9,8 @@ class MedusaClient
     unless @@client
       @@client = HTTPClient.new do
         config = Configuration.instance
+        # use the OS cert store
+        self.ssl_config.cert_store.set_default_paths
         self.ssl_config.verify_mode = OpenSSL::SSL::VERIFY_NONE
         self.force_basic_auth = true
         self.receive_timeout = 10000

@@ -45,12 +45,14 @@ class ItemElement < EntityElement
     elements = []
     if string.present?
       # Strip out newlines and tabs.
-      string = string.gsub("\r", '').gsub("\n", '').gsub("\t", '')
+      string = string.gsub(/[\r\n\t]/, '')
+
+      uncontrolled_vocab = Vocabulary::uncontrolled
 
       string.split(ItemTsvExporter::MULTI_VALUE_SEPARATOR).select(&:present?).each do |raw_value|
-        e = ItemElement.named(element_name)
-        # raw_value may be an arbitrary string; it may be a URI (enclosed
-        # in angle brackets); or it may be both, joined with
+        e = ItemElement.new(name: element_name)
+        # raw_value may be an arbitrary string; it may be a URI (enclosed in
+        # angle brackets); or it may be both, joined with
         # ItemTsvExporter::URI_VALUE_SEPARATOR.
         value_parts = raw_value.split(ItemTsvExporter::URI_VALUE_SEPARATOR)
         value_parts.each do |part|
@@ -63,7 +65,7 @@ class ItemElement < EntityElement
               e.vocabulary = vocabulary_override || Vocabulary.find_by_key(subparts[0])
               e.value = subparts[1..subparts.length].join(':')
             else
-              e.vocabulary = vocabulary_override || Vocabulary::uncontrolled
+              e.vocabulary = vocabulary_override || uncontrolled_vocab
               e.value = part
             end
           end
@@ -79,7 +81,7 @@ class ItemElement < EntityElement
   #                            given name is not an available element name.
   #
   def self.named(name)
-    all_available.select{ |e| e.name == name }.first
+    all_available.find{ |e| e.name == name }
   end
 
   def ==(obj)
