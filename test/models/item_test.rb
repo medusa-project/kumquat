@@ -596,15 +596,6 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal Time.parse('2010-01-02').year, @item.date.year
   end
 
-  test 'save() should set a normalized date from a dateCreated element if there
-  is no date element' do
-    @item.element(:date)&.destroy!
-    @item.element(:dateCreated)&.destroy!
-    @item.elements.build(name: 'dateCreated', value: '2010-01-02')
-    @item.save!
-    assert_equal Time.parse('2010-01-02').year, @item.date.year
-  end
-
   # subtitle()
 
   test 'subtitle() should return the title element value, or nil if none

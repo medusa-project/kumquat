@@ -1529,10 +1529,10 @@ class Item < ApplicationRecord
   end
 
   ##
-  # Tries to set the normalized date from a `date` or `dateCreated` element.
+  # Tries to set the normalized date from a `date` element.
   #
   def set_normalized_date
-    date_elem = self.element(:date) || self.element(:dateCreated)
+    date_elem = self.element(:date)
     if date_elem
       range = TimeUtil.parse_date(date_elem.value)
       if range
