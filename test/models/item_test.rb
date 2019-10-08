@@ -578,7 +578,7 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal 'users', item.effective_denied_roles.first.key
   end
 
-  test 'save() should set normalized coordinates' do
+  test 'save() sets normalized coordinates' do
     @item.element(:coordinates)&.destroy!
     @item.elements.build(name: 'coordinates',
                          value: 'W 90⁰26\'05"/ N 40⁰39\'51"')
@@ -587,22 +587,22 @@ class ItemTest < ActiveSupport::TestCase
     assert_in_delta -90.434, @item.longitude.to_f, 0.001
   end
 
-  test 'save() should set a normalized date from a date element' do
+  test 'save() sets a normalized date from a date element' do
     @item.element(:date)&.destroy!
-    @item.element(:dateCreated)&.destroy!
     @item.elements.build(name: 'date', value: '2010-01-02')
-    @item.elements.build(name: 'dateCreated', value: '1995-01-02')
     @item.save!
-    assert_equal Time.parse('2010-01-02').year, @item.date.year
+    assert_equal Time.parse('2010-01-02').year, @item.start_date.year
   end
 
-  test 'save() should set a normalized date from a dateCreated element if there
-  is no date element' do
+  test 'save() clears the normalized date when a date element is removed' do
     @item.element(:date)&.destroy!
-    @item.element(:dateCreated)&.destroy!
-    @item.elements.build(name: 'dateCreated', value: '2010-01-02')
+    @item.elements.build(name: 'date', value: '2010-01-02')
     @item.save!
     assert_equal Time.parse('2010-01-02').year, @item.date.year
+
+    @item.element(:date)&.destroy!
+    @item.save!
+    assert_nil @item.start_date
   end
 
   # subtitle()
