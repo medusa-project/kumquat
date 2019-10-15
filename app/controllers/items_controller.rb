@@ -670,11 +670,7 @@ class ItemsController < WebsiteController
       format.html do
         render 'unauthorized', status: :forbidden
       end
-      format.json do
-        render 'errors/error', status: :forbidden, locals: {
-            message: 'You are not authorized to access this item.'
-        }
-      end
+      format.json # JSON is allowed for harvesting
     end
   end
 

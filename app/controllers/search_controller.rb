@@ -21,11 +21,9 @@ class SearchController < WebsiteController
     # EntityFinder will search across entity classes and return Items, Agents,
     # and Collections.
     finder = EntityFinder.new.
-        user_roles(request_roles).
         # exclude all variants except File. (Only child items have these variants.)
         exclude_item_variants(*Item::Variants::all.reject{ |v| v == Item::Variants::FILE }).
         include_only_native_collections(true).
-        include_unpublished(true).
         start(@start).
         limit(@limit)
 
