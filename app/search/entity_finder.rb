@@ -190,28 +190,6 @@ class EntityFinder < AbstractFinder
             end
           end
 
-          # Results must either have an effective allowed role (EAR) matching
-          # one of the user's roles, or no EARs, indicating that they are
-          # public, effective denied roles notwithstanding.
-          j.should do
-            if @user_roles.any?
-              j.child! do
-                j.terms do
-                  j.set! Item::IndexFields::EFFECTIVE_ALLOWED_ROLES,
-                         @user_roles
-                end
-              end
-            end
-            j.child! do
-              j.range do
-                j.set! Item::IndexFields::EFFECTIVE_ALLOWED_ROLE_COUNT do
-                  j.lte 0
-                end
-              end
-            end
-          end
-          j.minimum_should_match 1
-
           if @user_roles.any? or @exclude_item_variants.any? or
               @include_only_native_collections
             j.must_not do
