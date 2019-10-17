@@ -612,7 +612,7 @@ class ItemsController < WebsiteController
 
     sort = session[:sort]
     if sort.blank? and @collection
-      el = @collection.metadata_profile.default_sortable_element
+      el = @collection.metadata_profile&.default_sortable_element
       sort = el.indexed_sort_field if el
     end
 
