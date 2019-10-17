@@ -82,7 +82,6 @@ Rails.application.routes.draw do
   resources :downloads, only: :show, param: :key do
     match '/file', to: 'downloads#file', via: :get, as: 'file'
   end
-  match '/harvest', to: 'harvest#index', via: :get
   resources :items, only: [:index, :show] do
     match '/treedata', to: 'items#item_tree_node', via: [:get, :post]
     match '/binaries/:filename', to: 'items#binary', via: :get, as: 'binary'
@@ -200,6 +199,13 @@ Rails.application.routes.draw do
     end
     resources :items, only: [:index, :show, :destroy]
     match '/items/:id', to: 'items#update', via: :put
+  end
+
+  namespace :harvest do
+    root 'harvest#index'
+    resources :agents, only: :show
+    resources :collections, only: :show
+    resources :items, only: :show
   end
 
   ############# Redirects from images.library.uiuc/illinois.edu #############
