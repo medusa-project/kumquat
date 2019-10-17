@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_10_04_143449) do
+ActiveRecord::Schema.define(version: 2019_10_17_212722) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -174,6 +174,7 @@ ActiveRecord::Schema.define(version: 2019_10_04_143449) do
     t.integer "task_id"
     t.boolean "expired", default: false
     t.string "ip_address"
+    t.string "object_key"
     t.index ["expired"], name: "index_downloads_on_expired"
     t.index ["ip_address"], name: "index_downloads_on_ip_address"
   end
@@ -318,6 +319,7 @@ ActiveRecord::Schema.define(version: 2019_10_04_143449) do
     t.string "dcterms_map"
     t.integer "data_type", default: 0, null: false
     t.boolean "indexed", default: true
+    t.string "indexed_sort_field"
     t.index ["facetable"], name: "index_metadata_profile_elements_on_facetable"
     t.index ["index"], name: "index_metadata_profile_elements_on_index"
     t.index ["indexed"], name: "index_metadata_profile_elements_on_indexed"
@@ -339,9 +341,11 @@ ActiveRecord::Schema.define(version: 2019_10_04_143449) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "default_sortable_element_id"
+    t.boolean "search", default: false
     t.index ["default"], name: "index_metadata_profiles_on_default"
     t.index ["default_sortable_element_id"], name: "index_metadata_profiles_on_default_sortable_element_id"
     t.index ["name"], name: "index_metadata_profiles_on_name"
+    t.index ["search"], name: "index_metadata_profiles_on_search"
   end
 
   create_table "options", id: :serial, force: :cascade do |t|
@@ -400,6 +404,7 @@ ActiveRecord::Schema.define(version: 2019_10_04_143449) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "api_key"
+    t.boolean "human", default: true, null: false
     t.index ["username"], name: "index_users_on_username", unique: true
   end
 

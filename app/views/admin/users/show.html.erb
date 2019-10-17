@@ -50,6 +50,8 @@
 
   <div class="col-sm-3">
     <dl>
+      <dt>Type</dt>
+      <dd><%= @user.human ? 'Human' : 'Non-Human' %></dd>
       <dt>Roles</dt>
       <dd>
         <ul>
@@ -58,7 +60,7 @@
           <% end %>
         </ul>
       </dd>
-      <% if @user == current_user %>
+      <% if @user == current_user or !@user.human %>
         <dt>API Key</dt>
         <dd>
           <% if @user.api_key.present? %>

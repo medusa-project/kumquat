@@ -171,7 +171,7 @@ module Admin
     end
 
     def sanitized_params
-      params.require(:user).permit(:enabled, :username, role_ids: [])
+      params.require(:user).permit(:enabled, :human, :username, role_ids: [])
     end
 
   end

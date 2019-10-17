@@ -3,6 +3,7 @@
     <tr>
       <th style="width:1%"></th>
       <th>NetID</th>
+      <th>Type</th>
       <th>Role(s)</th>
     </tr>
   </thead>
@@ -14,6 +15,7 @@
             <%= user.enabled ? 'Enabled' : 'Disabled' %></span>
         </td>
         <td><%= link_to user.username, admin_user_path(user) %></td>
+        <td><%= user.human ? 'Human' : 'Non-Human' %></td>
         <td>
           <ul>
             <% user.roles.each do |role| %>
