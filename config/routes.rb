@@ -82,7 +82,7 @@ Rails.application.routes.draw do
   resources :downloads, only: :show, param: :key do
     match '/file', to: 'downloads#file', via: :get, as: 'file'
   end
-  match '/harvest', to: 'search#harvest', via: :get
+  match '/harvest', to: 'harvest#index', via: :get
   resources :items, only: [:index, :show] do
     match '/treedata', to: 'items#item_tree_node', via: [:get, :post]
     match '/binaries/:filename', to: 'items#binary', via: :get, as: 'binary'
