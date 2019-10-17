@@ -89,8 +89,11 @@ class CollectionsController < WebsiteController
         end
       end
       format.json do
-        # authorization is bypassed for harvesting
-        render json: @collection.decorate
+        if @authorized
+          render json: @collection.decorate
+        else
+          render plain: '403 Forbidden', status: :forbidden
+        end
       end
     end
   end
