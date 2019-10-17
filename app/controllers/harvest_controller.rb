@@ -16,6 +16,7 @@ class HarvestController < WebsiteController
     # EntityFinder will search across entity classes and return Items, Agents,
     # and Collections.
     finder = EntityFinder.new.
+        bypass_authorization(true).
         # exclude all variants except File. (Only compound object items have
         # these variants.)
         exclude_item_variants(*Item::Variants::all.reject{ |v| v == Item::Variants::FILE }).

@@ -11,6 +11,7 @@ class EntityFinder < AbstractFinder
 
   def initialize
     super
+    @bypass_authorization           = false
     @include_classes                = ALL_ENTITIES
     @exclude_item_variants          = []
     @include_only_native_collections = false
@@ -18,6 +19,16 @@ class EntityFinder < AbstractFinder
     @last_modified_after            = nil
     @last_modified_before           = nil
     @only_described                 = false
+  end
+
+  ##
+  # @param boolean [Boolean] Whether to return all results. If true, calls to
+  #                          `user_roles()` are ignored.
+  # @return [self]
+  #
+  def bypass_authorization(boolean)
+    @bypass_authorization = boolean
+    self
   end
 
   ##
@@ -188,6 +199,30 @@ class EntityFinder < AbstractFinder
                 end
               end
             end
+          end
+
+          unless @bypass_authorization
+            # Results must either have an effective allowed role (EAR) matching
+            # one of the user's roles, or no EARs, indicating that they are
+            # public, effective denied roles notwithstanding.
+            j.should do
+              if @user_roles.any?
+                j.child! do
+                  j.terms do
+                    j.set! Item::IndexFields::EFFECTIVE_ALLOWED_ROLES,
+                           @user_roles
+                  end
+                end
+              end
+              j.child! do
+                j.range do
+                  j.set! Item::IndexFields::EFFECTIVE_ALLOWED_ROLE_COUNT do
+                    j.lte 0
+                  end
+                end
+              end
+            end
+            j.minimum_should_match 1
           end
 
           if @user_roles.any? or @exclude_item_variants.any? or
