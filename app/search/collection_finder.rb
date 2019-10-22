@@ -90,7 +90,11 @@ class CollectionFinder < AbstractFinder
       @result_facets << facet
     end
 
-    @result_count = @response['hits']['total']
+    if @response['hits']
+      @result_count = @response['hits']['total']
+    else
+      @result_count = 0
+    end
 
     @loaded = true
   end

@@ -252,7 +252,11 @@ class AbstractFinder
       end
     end
 
-    @result_count = @response['hits']['total']
+    if @response['hits']
+      @result_count = @response['hits']['total']
+    else
+      @result_count = 0
+    end
 
     @loaded = true
   end
