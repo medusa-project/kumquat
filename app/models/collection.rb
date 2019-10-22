@@ -377,7 +377,7 @@ class Collection < ApplicationRecord
   #
   def delete_orphaned_item_documents
     start_time  = Time.now
-    index       = ElasticsearchIndex.latest_index(ELASTICSEARCH_INDEX)
+    es_index    = ElasticsearchIndex.latest_index(ELASTICSEARCH_INDEX)
     item_ids    = all_indexed_item_ids
     count       = item_ids.length
     num_deleted = 0
@@ -390,7 +390,7 @@ class Collection < ApplicationRecord
             end
           end
         end
-        ElasticsearchClient.instance.delete_by_query(index.name, query)
+        ElasticsearchClient.instance.delete_by_query(es_index.name, query)
         num_deleted += 1
         StringUtils.print_progress(start_time, index, count,
                                    'Deleting orphaned documents')
