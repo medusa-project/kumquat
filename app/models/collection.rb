@@ -374,7 +374,7 @@ class Collection < ApplicationRecord
   # database.
   #
   def delete_orphaned_item_documents
-    es_index     = ElasticsearchIndex.latest_index(ELASTICSEARCH_INDEX)
+    es_index     = ElasticsearchIndex.latest_index(Item::ELASTICSEARCH_INDEX)
     item_ids     = all_indexed_item_ids
     count        = item_ids.length
     orphaned_ids = []
