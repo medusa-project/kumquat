@@ -173,7 +173,11 @@ class ItemFinder < AbstractFinder
       @result_byte_size = agg[1]['value'].to_i
     end
 
-    @result_count = @response['hits']['total']
+    if @response['hits']
+      @result_count = @response['hits']['total']
+    else
+      @result_count = 0
+    end
 
     @loaded = true
   end

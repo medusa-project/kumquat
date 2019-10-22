@@ -283,6 +283,30 @@ class Collection < ApplicationRecord
   end
 
   ##
+  # @return [Enumerable<String>] Enumerable of all Item repository IDs
+  #                              corresponding to items contained in this
+  #                              collection. Item instances may or may not
+  #                              exist in the database for each one.
+  #
+  def all_indexed_item_ids
+    json = Jbuilder.encode do |j|
+      j._source [ Item::IndexFields::REPOSITORY_ID ]
+      j.query do
+        j.term do
+          j.set! Item::IndexFields::COLLECTION, self.repository_id
+        end
+      end
+      j.from 0
+      j.size 999999
+    end
+    index = ElasticsearchIndex.current_index(Item::ELASTICSEARCH_INDEX)
+    result = ElasticsearchClient.instance.query(index.name, json)
+    struct = JSON.parse(result)
+    puts struct
+    struct['hits']['hits'].map{ |r| r['_source'][Item::IndexFields::REPOSITORY_ID] }
+  end
+
+  ##
   # N.B.: Changing this normally requires adding a new index schema version.
   #
   # @return [Hash] Indexable JSON representation of the instance.
@@ -344,6 +368,37 @@ class Collection < ApplicationRecord
   # Satisfies the AuthorizableByRole module contract.
   #
   alias_method :effective_denied_roles, :denied_roles
+
+  ##
+  # Deletes indexed documents whose corresponding Items no longer exist in the
+  # database.
+  #
+  def delete_orphaned_item_documents
+    es_index     = ElasticsearchIndex.latest_index(Item::ELASTICSEARCH_INDEX)
+    item_ids     = all_indexed_item_ids
+    count        = item_ids.length
+    orphaned_ids = []
+    start_time   = Time.now
+
+    item_ids.each_with_index do |id, index|
+      unless Item.find_by_repository_id(id)
+        orphaned_ids << id
+      end
+      StringUtils.print_progress(start_time, index, count,
+                                 'Finding orphaned documents')
+    end
+
+    if orphaned_ids.any?
+      query = Jbuilder.encode do |j|
+        j.query do
+          j.terms do
+            j.set! Item::IndexFields::REPOSITORY_ID, orphaned_ids
+          end
+        end
+      end
+      ElasticsearchClient.instance.delete_by_query(es_index.name, query)
+    end
+  end
 
   ##
   # The effective CFS directory of the instance -- either one that is directly
@@ -648,6 +703,23 @@ class Collection < ApplicationRecord
   #
   def reindex(index = :current)
     index_in_elasticsearch(index)
+  end
+
+  def reindex_items
+    # Reindex all database items.
+    puts "Step 1/2"
+    start_time          = Time.now
+    items               = Item.where(collection_repository_id: self.repository_id)
+    count               = items.count
+    items.each_with_index do |item, index|
+      item.reindex
+      StringUtils.print_progress(start_time, index, count,
+                                 'Reindexing collection items')
+    end
+
+    # Delete indexed documents of items no longer present in the database.
+    puts "Step 2/2"
+    delete_orphaned_item_documents
   end
 
   ##
