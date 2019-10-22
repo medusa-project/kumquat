@@ -222,9 +222,8 @@ namespace :dls do
 
     desc 'Reindex items in a collection'
     task :reindex_collection, [:uuid] => :environment do |task, args|
-      Item.where(collection_repository_id: args[:uuid]).each do |item|
-        item.reindex
-      end
+      col = Collection.find_by_repository_id(args[:uuid])
+      col.reindex_items
     end
 
     desc 'Sync items from Medusa (modes: create_only, recreate_binaries, delete_missing)'

@@ -41,6 +41,18 @@ class CollectionTest < ActiveSupport::TestCase
     assert_equal Collection.count, actual
   end
 
+  # all_indexed_item_ids()
+
+  test 'all_indexed_item_ids returns all indexed item IDs' do
+    @collection.items.each(&:reindex)
+    sleep 2 # wait for them to become searchable
+    assert_equal ['be8d3500-c451-0133-1d17-0050569601ca-9',
+                  'd29950d0-c451-0133-1d17-0050569601ca-2',
+                  'd29edba0-c451-0133-1d17-0050569601ca-c',
+                  'cd2d4601-c451-0133-1d17-0050569601ca-8'],
+                 @collection.all_indexed_item_ids
+  end
+
   # as_indexed_json()
 
   test 'as_indexed_json returns the correct structure' do
@@ -92,6 +104,26 @@ class CollectionTest < ActiveSupport::TestCase
     @collection.elements.each do |element|
       assert_equal [element.value], doc[element.indexed_field]
     end
+  end
+
+  # delete_orphaned_item_documents
+
+  test 'delete_orphaned_item_documents works' do
+    @collection.items.each(&:reindex)
+    sleep 2 # wait for them to become searchable
+    assert_equal 4, ItemFinder.new.
+        include_unpublished(true).
+        include_children_in_results(true).
+        collection(@collection).
+        count
+
+    @collection.items.first.destroy! # delete outside of a transaction
+    @collection.delete_orphaned_item_documents
+    sleep 2
+    assert_equal 3, ItemFinder.new.
+        include_unpublished(true).
+        include_children_in_results(true).
+        collection(@collection).count
   end
 
   # effective_medusa_cfs_directory
@@ -410,6 +442,25 @@ class CollectionTest < ActiveSupport::TestCase
 
     assert_equal 1, CollectionFinder.new.
         filter(Collection::IndexFields::REPOSITORY_ID, @collection.repository_id).count
+  end
+
+  # reindex_items
+
+  test 'reindex_items works' do
+    assert_equal 0, ItemFinder.new.
+        collection(@collection).
+        include_unpublished(true).
+        include_children_in_results(true).
+        count
+
+    @collection.reindex_items
+    sleep 2 # wait for them to become searchable
+
+    assert_equal 4, ItemFinder.new.
+        collection(@collection).
+        include_unpublished(true).
+        include_children_in_results(true).
+        count
   end
 
   # repository_id
