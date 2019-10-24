@@ -4,6 +4,17 @@ module Harvest
   # Supports harvesting into the Metadata Gateway using
   # [metaslurper](https://github.com/medusa-project/metaslurper).
   #
+  # Provides RESTful endpoints similar to the public JSON endpoints, but
+  # optimized for harvesting. This means that:
+  #
+  # 1. Authorization is bypassed (once authenticated using HTTP Basic), so
+  #    unpublished Items are omitted, but IP-restricted ones are not;
+  # 2. Certain entity attributes that are irrelevant to the harvester are
+  #    excluded;
+  # 3. The JSON representations are constructed to reduce the number of HTTP
+  #    requests needed; for example, Binary info is embedded in Item
+  #    representations.
+  #
   class AbstractHarvestController < ActionController::Base
 
     protect_from_forgery with: :null_session

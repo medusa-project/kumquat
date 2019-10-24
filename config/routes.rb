@@ -203,9 +203,9 @@ Rails.application.routes.draw do
 
   namespace :harvest do
     root 'harvest#index'
-    resources :agents, only: :show
-    resources :collections, only: :show
-    resources :items, only: :show
+    resources :agents, only: :show, defaults: { format: :json }
+    resources :collections, only: :show, defaults: { format: :json }
+    resources :items, only: :show, defaults: { format: :json }
   end
 
   ############# Redirects from images.library.uiuc/illinois.edu #############
