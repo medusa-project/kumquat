@@ -70,14 +70,15 @@ Rails.application.routes.draw do
         as: 'auth' # used by omniauth
   resources :binaries, only: :show
   match '/collections/iiif', to: 'collections#iiif_presentation_list',
-        via: :get, as: 'collections_iiif_presentation_list'
+        via: :get, as: 'collections_iiif_presentation_list',
+        defaults: { format: :json }
   resources :collections, only: [:index, :show] do
     match 'items/treedata', to: 'items#tree_data', via: [:get, :post]
     match 'tree', to: 'items#tree', via: :get
     resources :items, only: :index
     # IIIF Presentation API 2.1 routes
     match '/iiif', to: 'collections#iiif_presentation', via: :get,
-          as: 'iiif_presentation'
+          as: 'iiif_presentation', defaults: { format: :json }
   end
   resources :downloads, only: :show, param: :key do
     match '/file', to: 'downloads#file', via: :get, as: 'file'
@@ -88,19 +89,23 @@ Rails.application.routes.draw do
     match '/files', to: 'items#files', via: :get, as: 'files'
     # IIIF Presentation API 2.1 routes
     match '/annotation/:name', to: 'items#iiif_image_resource', via: :get,
-          as: 'iiif_image_resource'
-    match '/canvas/:id', to: 'items#iiif_canvas', via: :get, as: 'iiif_canvas'
-    match '/layer/:name', to: 'items#iiif_layer', via: :get, as: 'iiif_layer'
+          as: 'iiif_image_resource', defaults: { format: :json }
+    match '/canvas/:id', to: 'items#iiif_canvas', via: :get, as: 'iiif_canvas',
+          defaults: { format: :json }
+    match '/layer/:name', to: 'items#iiif_layer', via: :get, as: 'iiif_layer',
+          defaults: { format: :json }
     match '/list/:name', to: 'items#iiif_annotation_list', via: :get,
-          as: 'iiif_annotation_list'
+          as: 'iiif_annotation_list',
+          defaults: { format: :json }
     match '/manifest', to: 'items#iiif_manifest', via: :get,
-          as: 'iiif_manifest'
-    match '/range/:name', to: 'items#iiif_range', via: :get, as: 'iiif_range'
+          as: 'iiif_manifest', defaults: { format: :json }
+    match '/range/:name', to: 'items#iiif_range', via: :get, as: 'iiif_range',
+          defaults: { format: :json }
     match '/sequence/:name', to: 'items#iiif_sequence', via: :get,
-          as: 'iiif_sequence'
+          as: 'iiif_sequence', defaults: { format: :json }
     # Wellcome Library API extension
     match '/xsequence/:name', to: 'items#iiif_media_sequence', via: :get,
-          as: 'iiif_media_sequence'
+          as: 'iiif_media_sequence', defaults: { format: :json }
   end
   match '/oai-pmh', to: 'oai_pmh#index', via: %w(get post), as: 'oai_pmh'
   match '/search', to: redirect('/', status: 301), via: :all
