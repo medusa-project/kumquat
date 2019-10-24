@@ -40,11 +40,7 @@ class ItemDecorator < Draper::Decorator
         variant:                 object.variant,
         representative_item_uri: object.representative_item ?
                                      item_url(object.representative_item, format: :json) : nil,
-        # Convenience key for Metaslurper
         representative_images:   {},
-        # Convenience key for Metaslurper
-        preservation_media_type: object.binaries
-                                     .where(master_type: Binary::MasterType::PRESERVATION).limit(1).first&.media_type,
         elements:                object.elements_in_profile_order(only_visible: true).map(&:decorate),
         binaries:                object.binaries.map{ |b| binary_url(b, format: :json) },
         children:                object.items.map{ |i| item_url(i, format: :json) },

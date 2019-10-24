@@ -30,7 +30,7 @@ class BinaryDecorator < Draper::Decorator
         height: object.height,
         duration: object.duration,
         created_at: binary.created_at,
-        updated_at: binary.updated_at,
+        updated_at: binary.updated_at
     }
   end
 
