@@ -11,7 +11,7 @@ module Harvest
       struct = {
           class:                   @item.class.to_s,
           id:                      @item.repository_id,
-          public_uri:              item_url(self),
+          public_uri:              item_url(@item),
           collection_uri:          @item.collection ?
                                        collection_url(@item.collection, format: :json) : nil,
           normalized_start_date:   @item.start_date,
