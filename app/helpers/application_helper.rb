@@ -60,11 +60,11 @@ module ApplicationHelper
         return collection_view_breadcrumb(options[:collection])
       when 'items'
         case action_name
+          when 'index'
+            return results_breadcrumb(options[:collection], options[:context])
           when 'show'
             return item_view_breadcrumb(options[:item], options[:context],
                                         options[:context_url])
-          else
-            return results_breadcrumb(options[:collection], options[:context])
         end
     end
     nil
