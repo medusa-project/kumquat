@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_10_28_202451) do
+ActiveRecord::Schema.define(version: 2019_10_28_204156) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -319,7 +319,6 @@ ActiveRecord::Schema.define(version: 2019_10_28_202451) do
     t.string "dcterms_map"
     t.integer "data_type", default: 0, null: false
     t.boolean "indexed", default: true
-    t.string "indexed_sort_field"
     t.index ["facetable"], name: "index_metadata_profile_elements_on_facetable"
     t.index ["index"], name: "index_metadata_profile_elements_on_index"
     t.index ["indexed"], name: "index_metadata_profile_elements_on_indexed"
