@@ -1,5 +1,8 @@
 require 'csv'
 
+##
+# Exports various sets of items to TSV format.
+#
 class ItemTsvExporter
 
   LINE_BREAK            = "\n"

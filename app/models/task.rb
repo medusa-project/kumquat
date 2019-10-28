@@ -1,21 +1,22 @@
 ##
-# A representation of a task (typically but not necessarily a Job) for
-# displaying  to an end user.
+# Representation of an asynchronous task for providing user status updates.
 #
 # To use:
-#     task = Task.create!(name: 'Do Something',
-#                         status_text: 'Doing something')
-#     # do stuff...
 #
-#     task.progress = 0.3
+# ```
+# task = Task.create!(name: 'Do Something',
+#                     status_text: 'Doing something')
+# # do stuff...
 #
-#     # do some more stuff...
+# task.update(progress: 0.3)
 #
-#     task.status_text = 'Wrapping up'
-#     task.progress = 0.9
+# # do some more stuff...
 #
-#     # done
-#     task.done
+# task.update(status_text: 'Wrapping up', progress: 0.9)
+#
+# # done
+# task.done
+# ```
 #
 class Task < ApplicationRecord
 
@@ -24,22 +25,22 @@ class Task < ApplicationRecord
   #
   class Status
 
-    WAITING = 0
-    RUNNING = 1
-    PAUSED = 2
+    WAITING   = 0
+    RUNNING   = 1
+    PAUSED    = 2
     SUCCEEDED = 3
-    FAILED = 4
+    FAILED    = 4
 
     ##
-    # @return [Enumerable<Integer>]
+    # @return [Enumerable<Integer>] All constant values.
     #
     def self.all
       (0..4)
     end
 
     ##
-    # @param status One of the Status constants
-    # @return Human-readable status
+    # @param status [Integer] One of the Status constant values.
+    # @return [String] Human-readable status.
     #
     def self.to_s(status)
       case status
@@ -64,7 +65,7 @@ class Task < ApplicationRecord
 
   # Instances will often be updated from inside transactions, outside of which
   # any updates would not be visible. So, we use a different database
-  # connection, to which they won't propagate.
+  # connection.
   establish_connection "#{Rails.env}_2".to_sym
 
   after_initialize :init
@@ -75,15 +76,13 @@ class Task < ApplicationRecord
   end
 
   def done
-    self.status = Status::SUCCEEDED
-    self.save!
+    self.update!(status: Status::SUCCEEDED)
   end
 
   alias_method :succeeded, :done
 
   def fail
-    self.status = Status::FAILED
-    self.save!
+    self.update!(status: Status::FAILED)
   end
 
   def failed?
@@ -91,8 +90,7 @@ class Task < ApplicationRecord
   end
 
   def progress=(float)
-    self.percent_complete = float.to_f
-    self.save!
+    self.update!(percent_complete: float.to_f)
   end
 
   def status=(status)
@@ -126,9 +124,9 @@ class Task < ApplicationRecord
   def succeed
     write_attribute(:status, Status::SUCCEEDED)
     self.percent_complete = 1
-    self.completed_at = Time.now
-    self.backtrace = nil
-    self.detail = nil
+    self.completed_at     = Time.now
+    self.backtrace        = nil
+    self.detail           = nil
   end
 
 end

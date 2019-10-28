@@ -6,8 +6,10 @@
 #
 # # Attributes
 #
-# * collection_repository_id: Medusa UUID of the associated collection.
+# * collection_repository_id: UUID of the associated collection.
+# * created_at:               Managed by ActiveRecord.
 # * name:                     Name of the set.
+# * updated_at:               Managed by ActiveRecord.
 #
 class ItemSet < ActiveRecord::Base
 

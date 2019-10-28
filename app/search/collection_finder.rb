@@ -33,7 +33,7 @@ class CollectionFinder < AbstractFinder
 
   ##
   # @param collection [Collection]
-  # @return [CollectionFinder] self
+  # @return [self]
   #
   def parent_collection(collection)
     @parent_collection = collection

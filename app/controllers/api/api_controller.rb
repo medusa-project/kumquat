@@ -1,5 +1,10 @@
 module Api
 
+  ##
+  # Abstract base class for HTTP API controllers.
+  #
+  # The HTTP API is a little-used feature that might not even need to exist.
+  #
   class ApiController < ActionController::Base
 
     protect_from_forgery with: :null_session

@@ -1,5 +1,27 @@
 ##
-# Encapsulates an element in a metadata profile.
+# Encapsulates an element in a MetadataProfile.
+#
+# # Attributes
+#
+# * created_at:          Managed by ActiveRecord.
+# * data_type:           One of the DataType constant values.
+# * dc_map:              Name of a Dublin Core element (unqualified) to which
+#                        the element can be mapped.
+# * dcterms_map:         Name of a Dublin Core term to which the element can be
+#                        mapped.
+# * facetable:           Whether the element is used to provide facets in
+#                        results views.
+# * index:               Zero-based position within the metadata profile.
+# * indexed:             Whether the element is added to Item/Collection/etc.
+#                        indexed documents.
+# * label:               Element label. Often overrides `name` for end-user
+#                        display.
+# * metadata_profile_id: Metadata profile ID. Foreign key.
+# * name:                Element name.
+# * searchable:          Whether users can search on the element.
+# * sortable:            Whether results can be sorted on the element.
+# * updated_at:          Managed by ActiveRecord.
+# * visible:             Whether the element is visible to users.
 #
 class MetadataProfileElement < ApplicationRecord
 
@@ -8,7 +30,7 @@ class MetadataProfileElement < ApplicationRecord
   #
   class DataType
     SINGLE_LINE_STRING = 0
-    MULTI_LINE_STRING = 1
+    MULTI_LINE_STRING  = 1
   end
 
   belongs_to :metadata_profile, inverse_of: :elements
@@ -42,6 +64,9 @@ class MetadataProfileElement < ApplicationRecord
     clone
   end
 
+  ##
+  # @return [String]
+  #
   def human_readable_data_type
     case self.data_type
       when DataType::MULTI_LINE_STRING

@@ -1,3 +1,8 @@
+##
+# Abstract base class for type-specific "finders," which are objects that
+# simplify Elasticsearch queries (which can be pretty complex & awkward) using
+# the Builder pattern.
+#
 class AbstractFinder
 
   def initialize
@@ -198,6 +203,8 @@ class AbstractFinder
   end
 
   ##
+  # Limits results to those accessible by any of the given roles.
+  #
   # @param roles [Enumerable<Role>, Enumerable<String>]
   # @return [self]
   #

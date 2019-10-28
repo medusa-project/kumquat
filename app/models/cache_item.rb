@@ -4,7 +4,7 @@
 class CacheItem < ApplicationRecord
 
   ##
-  # Standardized cache key.
+  # Enum-like class of standardized cache keys.
   #
   class Key
     GATEWAY_ITEM_COUNT = 'gateway.item_count'

@@ -1,5 +1,5 @@
 ##
-# Custom Elasticsearch client.
+# High-level Elasticsearch client.
 #
 class ElasticsearchClient
 
