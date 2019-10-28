@@ -4,6 +4,8 @@
 #
 class CollectionFinder < AbstractFinder
 
+  LOGGER = CustomLogger.new(CollectionFinder)
+
   def initialize
     super
     @include_unpublished = false
@@ -30,7 +32,7 @@ class CollectionFinder < AbstractFinder
   end
 
   ##
-  # @param parent_collection [Collection]
+  # @param collection [Collection]
   # @return [CollectionFinder] self
   #
   def parent_collection(collection)
@@ -39,10 +41,15 @@ class CollectionFinder < AbstractFinder
   end
 
   ##
-  # @return [Enumerable<Item>]
+  # @return [Enumerable<Collection>]
   #
   def to_a
-    to_id_a.map{ |r| Collection.find_by_repository_id(r) }.select(&:present?)
+    cols = to_id_a.map do |id|
+      col = Collection.find_by_repository_id(id)
+      LOGGER.debug("to_a(): #{id} is missing from the database") unless col
+      col
+    end
+    cols.select(&:present?)
   end
 
   ##

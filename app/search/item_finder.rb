@@ -3,6 +3,7 @@
 #
 class ItemFinder < AbstractFinder
 
+  LOGGER = CustomLogger.new(ItemFinder)
   BYTE_SIZE_AGGREGATION = 'byte_size'
 
   def initialize
@@ -111,7 +112,12 @@ class ItemFinder < AbstractFinder
   # @return [Enumerable<Item>]
   #
   def to_a
-    to_id_a.map{ |r| Item.find_by_repository_id(r) }.select(&:present?)
+    items = to_id_a.map do |id|
+      it = Item.find_by_repository_id(id)
+      LOGGER.debug("to_a(): #{id} is missing from the database") unless it
+      it
+    end
+    items.select(&:present?)
   end
 
   ##
