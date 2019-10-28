@@ -256,6 +256,7 @@ class AbstractFinder
       @result_count = @response['hits']['total']
     else
       @result_count = 0
+      raise IOError, "#{@response['error']['type']}: #{@response['error']['root_cause'][0]['reason']}"
     end
 
     @loaded = true
