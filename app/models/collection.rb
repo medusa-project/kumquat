@@ -207,7 +207,7 @@ class Collection < ApplicationRecord
   # documents with no database counterpart. See the class documentation for
   # info about how documents are normally deleted.
   #
-  def self.delete_stale_documents
+  def self.delete_orphaned_documents
     start_time = Time.now
 
     # Get the document count.
@@ -263,6 +263,9 @@ class Collection < ApplicationRecord
   end
 
   ##
+  # N.B.: Orphaned documents are not deleted; for that, use
+  # `delete_orphaned_documents()`.
+  #
   # @param index [Symbol] :current or :latest
   # @return [void]
   #

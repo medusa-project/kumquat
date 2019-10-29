@@ -38,7 +38,7 @@ class Agent < ApplicationRecord
   ELASTICSEARCH_INDEX = 'agents'
   ELASTICSEARCH_TYPE  = 'agent'
 
-  def self.delete_stale_documents
+  def self.delete_orphaned_documents
     # TODO: write this
   end
 

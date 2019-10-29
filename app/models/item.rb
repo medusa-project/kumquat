@@ -294,7 +294,7 @@ class Item < ApplicationRecord
   # Iterates through all indexed Item documents and deletes any for which no
   # counterpart exists in the database.
   #
-  def self.delete_stale_documents
+  def self.delete_orphaned_documents
     start_time = Time.now
 
     # Get the document count.
