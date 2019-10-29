@@ -1,5 +1,3 @@
-require 'csv'
-
 ##
 # Content in a Medusa file group is organized (in terms of its folder
 # structure, naming scheme, etc.) according to a package profile. An instance
@@ -59,16 +57,16 @@ class PackageProfile
   # [Documentation](https://wiki.illinois.edu/wiki/display/LibraryDigitalPreservation/Compound-item+Object+Package)
   # [Documentation of Sheet Music Compound Object (a compatible
   # superset)](https://wiki.illinois.edu/wiki/display/LibraryDigitalPreservation/Sheet+Music+Compound+Object)
-  COMPOUND_OBJECT_PROFILE = PackageProfile.find(1)
+  COMPOUND_OBJECT_PROFILE    = PackageProfile.find(1)
 
   # [Documentation](https://wiki.illinois.edu/wiki/display/LibraryDigitalPreservation/Free-Form+Package)
-  FREE_FORM_PROFILE = PackageProfile.find(0)
+  FREE_FORM_PROFILE          = PackageProfile.find(0)
 
   # [Documentation](https://wiki.illinois.edu/wiki/display/LibraryDigitalPreservation/Single-item+Object+Package)
   SINGLE_ITEM_OBJECT_PROFILE = PackageProfile.find(2)
 
   # [Documentation](https://wiki.illinois.edu/wiki/display/LibraryDigitalPreservation/Mixed-Media+Object+package)
-  MIXED_MEDIA_PROFILE = PackageProfile.find(3)
+  MIXED_MEDIA_PROFILE        = PackageProfile.find(3)
 
   def ==(obj)
     obj.kind_of?(self.class) and obj.id == self.id
