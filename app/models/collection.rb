@@ -2,90 +2,98 @@
 # Encapsulates a Medusa collection.
 #
 # Collections are identified by their repository ID (`repository_id`), which
-# is a UUID matching a collection's Medusa UUID.
+# is a UUID matching their Medusa UUID.
 #
-# Collections can "contain" zero or more items. (This is a weak relationship;
+# Collections can contain zero or more items. (This is a weak relationship;
 # the collections don't literally contain them, but items maintain a reference
 # to their owning collection's repository ID.)
 #
-# Collections are associated with a metadata profile, which defines the list
-# of elements that contained items are supposed to have, as well as a package
-# profile, which defines how collection content is structured in Medusa in
-# terms of its file/directory layout.
+# Collections are associated with a {MetadataProfile}, which defines the list
+# of elements that contained items are supposed to have, as well as a
+# {PackageProfile} , which defines how collection content is structured in
+# Medusa in terms of its file/directory layout.
 #
-# Collections are searchable via ActiveRecord as well as via Elasticsearch.
-# Instances are automatically indexed in ES (see `as_indexed_json()`) in an
-# after_commit callback, and the ES search functionality is available
-# via the `search` class method. A higher-level CollectionFinder is also
-# available.
+# Collections are searchable via ActiveRecord as well as via Elasticsearch (see
+# below).
+#
+# # Indexing
+#
+# Instances are automatically indexed in ES (see {as_indexed_json}) in an
+# `after_commit` callback. A low-level interface to Elasticsearch is provided
+# by ElasticsearchClient, but in most cases, it's better to use the
+# higher-level query interface provided by CollectionFinder, which is easier
+# to use, and takes authorization, public visiblity, etc. into account.
+#
+# **IMPORTANT**: Instances are automatically indexed in Elasticsearch (see
+# `as_indexed_json()`) upon transaction commit. They are **not** indexed on
+# save. For this reason, **instances should always be created, updated, and
+# deleted within transactions.**
 #
 # # Attributes
 #
-# * access_systems:           Access systems through which the collection is
-#                             accessible. Copied from Medusa.
-# * access_url:               URL at which the collection's contents are
-#                             available, for collections whose content resides
-#                             outside the DLS.
-# * contentdm_alias:          String alias of collections that have been
-#                             migrated out of CONTENTdm, used for URL
-#                             redirection.
-# * created_at:               Managed by ActiveRecord.
-# * description_html:         HTML-formatted description, copied from Medusa.
-#                             N.B. There may also be a description element in
-#                             the `elements` relationship containing a plain
-#                             text description, also copied from Medusa.
-# * descriptive_element_id:   ID of a MetadataProfileElement whose values are
-#                             used in the description boxes in results view.
-# * external_id:              Value of the Medusa "external ID" field.
-# * harvestable:              Controls visiblity of the collection's contents
-#                             in the OAI-PMH (or whatever) harvesting
-#                             endpoints.
-# * medusa_cfs_directory_id:  Medusa UUID of the root directory in which the
-#                             collection's contents reside. If nil, the root
-#                             directory of the file group will be used.
-# * medusa_file_group_id:     Medusa UUID of the file group in which the
-#                             collection's contents reside.
-# * medusa_repository_id:
-# * metadata_profile_id:      Database ID of the MetadataProfile assigned to
-#                             the collection.
-# * package_profile_id:       ID of the PackageProfile assigned to the
-#                             collection. The content in the effective root
-#                             directory of the collection must conform to this
-#                             profile.
-# * physical_collection_url:  URL of the collection's archival collection
-#                             counterpart.
-# * public_in_medusa:         Whether the access level of the collection's
-#                             metadata is set to "public." This and
-#                             `published_in_dls` must be true in order for the
-#                             collection or any or any of its items to be
-#                             publicly accessible.
-# * published_in_dls:         Whether the collection's content resides in the
-#                             DLS, or somewhere else.
-#                             N.B.: use `publicly_accessible?()` to test a
-#                             collection's effective public accessibility.
-# * repository_id:            The collection's effective UUID, copied from
-#                             Medusa.
-# * representative_image:     UUID of a Medusa image file representing the
-#                             collection for use in e.g. thumbnails.
-#                             `representative_item_id` should be used instead,
-#                             if possible.
-# * representative_item_id:   Repository ID of an Item representating the
-#                             collection for use in e.g. thumbnails.
-# * resource_types:           Serialized array of resource types contained
-#                             within the collection, copied from Medusa.
-# * rights_statement:         Rights statement text.
-#                             TODO: store this in an accessRights CollectionElement
-# * rightsstatements_org_uri: URI of a RightsStatements.org statement.
-#                             TODO: store this in an accessRights CollectionElement
-# * updated_at:               Managed by ActiveRecord.
+# * `access_systems`           Access systems through which the collection is
+#                              accessible. Copied from Medusa.
+# * `access_url`               URL at which the collection's contents are
+#                              available, for collections whose content resides
+#                              outside the DLS.
+# * `contentdm_alias`          String alias of collections that have been
+#                              migrated out of CONTENTdm, used for URL
+#                              redirection.
+# * `created_at`               Managed by ActiveRecord.
+# * `description_html`         HTML-formatted description, copied from Medusa.
+#                              N.B. There may also be a description element in
+#                              the `elements` relationship containing a plain
+#                              text description, also copied from Medusa.
+# * `descriptive_element_id`   ID of a MetadataProfileElement whose values are
+#                              used in the description boxes in results view.
+# * `external_id               Value of the Medusa "external ID" field.
+# * `harvestable               Controls visiblity of the collection's contents
+#                              in the OAI-PMH (or whatever) harvesting
+#                              endpoints.
+# * `medusa_cfs_directory_id`  Medusa UUID of the root directory in which the
+#                              collection's contents reside. If nil, the root
+#                              directory of the file group will be used.
+# * `medusa_file_group_id`     Medusa UUID of the file group in which the
+#                              collection's contents reside.
+# * `medusa_repository_id`
+# * `metadata_profile_id`      Database ID of the MetadataProfile assigned to
+#                              the collection.
+# * `package_profile_id`       ID of the PackageProfile assigned to the
+#                              collection. The content in the effective root
+#                              directory of the collection must conform to this
+#                              profile.
+# * `physical_collection_url`  URL of the collection's archival collection
+#                              counterpart.
+# * `public_in_medusa`         Whether the access level of the collection's
+#                              metadata is set to "public." This and
+#                              `published_in_dls` must be true in order for the
+#                              collection or any or any of its items to be
+#                              publicly accessible.
+# * `published_in_dls`         Whether the collection's content resides in the
+#                              DLS, or somewhere else.
+#                              N.B.: use `publicly_accessible?()` to test a
+#                              collection's effective public accessibility.
+# * `repository_id`            The collection's effective UUID, copied from
+#                              Medusa.
+# * `representative_image`     UUID of a Medusa image file representing the
+#                              collection for use in e.g. thumbnails.
+#                              `representative_item_id` should be used instead,
+#                              if possible.
+# * `representative_item_id`   Repository ID of an Item representating the
+#                              collection for use in e.g. thumbnails.
+# * `resource_types`           Serialized array of resource types contained
+#                              within the collection, copied from Medusa.
+# * `rights_statement`         Rights statement text.
+#                              TODO: store this in an accessRights CollectionElement
+# * `rightsstatements_org_uri` URI of a RightsStatements.org statement.
+#                              TODO: store this in an accessRights CollectionElement
+# * `updated_at`               Managed by ActiveRecord.
 #
 # Attribute Propagation
 #
 # Changes to some of a collection's properties, such as `allowed_roles` and
 # `denied_roles`, must be propagated to all of its items. This can be done
-# using `propagate_heritable_properties()`.
-#
-# @see https://github.com/elastic/elasticsearch-rails/blob/master/elasticsearch-model/README.md
+# using {propagate_heritable_properties}.
 #
 class Collection < ApplicationRecord
 
@@ -93,6 +101,10 @@ class Collection < ApplicationRecord
   include Describable
   include Representable
 
+  ##
+  # Contains constants for all "technical" indexed fields. Additional dynamic
+  # fields may be present.
+  #
   class IndexFields
     ACCESS_SYSTEMS               = 'k_access_systems'
     ACCESS_URL                   = 'k_access_url'
@@ -162,7 +174,7 @@ class Collection < ApplicationRecord
   # This is commented out because, even though it has to happen, it is
   # potentially very time-consuming. CollectionsController.update() is
   # currently the only means by which collections are updated, so it will
-  # invoke this method in a background job.
+  # invoke this method in a background task.
   #
   #after_update :propagate_host_authorization
 
@@ -170,8 +182,7 @@ class Collection < ApplicationRecord
   after_commit :delete_from_elasticsearch, on: :destroy
 
   ##
-  # Deletes all collection-related documents. This is obviously dangerous and
-  # should never be done in production.
+  # Deletes all collection-related documents. This is obviously dangerous.
   #
   def self.delete_all_documents
     index_name = ElasticsearchIndex.current_index(ELASTICSEARCH_INDEX).name
@@ -179,9 +190,9 @@ class Collection < ApplicationRecord
   end
 
   ##
-  # N.B.: Normally this method should not be used except to delete orphaned
-  # documents with no database counterpart. Documents are automatically deleted
-  # in an ActiveRecord callback.
+  # Normally this method should not be used except to delete orphaned documents
+  # with no database counterpart. Documents are automatically deleted in an
+  # ActiveRecord callback.
   #
   def self.delete_document(repository_id)
     query = {
@@ -203,9 +214,9 @@ class Collection < ApplicationRecord
   end
 
   ##
-  # N.B.: Normally this method should not be used except to delete orphaned
-  # documents with no database counterpart. See the class documentation for
-  # info about how documents are normally deleted.
+  # Normally this method should not be used except to delete orphaned documents
+  # with no database counterpart. See the class documentation for info about
+  # how documents are normally deleted.
   #
   def self.delete_orphaned_documents
     start_time = Time.now
@@ -277,16 +288,11 @@ class Collection < ApplicationRecord
         col.reindex(index)
         StringUtils.print_progress(start_time, i, count, 'Indexing collections')
       end
-      # Remove indexed documents whose entities have disappeared.
-      # TODO: fix this
-      #Collection.solr.all.limit(99999).select{ |c| c.to_s == c }.each do |col_id|
-      #  Solr.delete_by_id(col_id)
-      #end
     end
   end
 
   ##
-  # @return [Enumerable<String>] Enumerable of all Item repository IDs
+  # @return [Enumerable<String>] Enumerable of all {Item} repository IDs
   #                              corresponding to items contained in this
   #                              collection. Item instances may or may not
   #                              exist in the database for each one.
@@ -310,7 +316,8 @@ class Collection < ApplicationRecord
   end
 
   ##
-  # N.B.: Changing this normally requires adding a new index schema version.
+  # N.B.: Changing the implementation normally requires adding a new index
+  # schema version.
   #
   # @return [Hash] Indexable JSON representation of the instance.
   #
@@ -433,7 +440,7 @@ class Collection < ApplicationRecord
   # @return [Binary,nil] Best representative image binary based on the
   #                      representative item set in Medusa, if available, or
   #                      the representative image, if not.
-  # @see representative_image_binary()
+  # @see representative_image_binary
   #
   def effective_representative_image_binary
     bin = self.representative_item&.effective_image_binary
@@ -449,7 +456,7 @@ class Collection < ApplicationRecord
 
   ##
   # @return [Item, nil] Item that effectively represents the instance.
-  # @see representative_item()
+  # @see representative_item
   #
   def effective_representative_item
     item = self.representative_item
@@ -466,11 +473,9 @@ class Collection < ApplicationRecord
   ##
   # @param options [Hash]
   # @option options [Boolean] :only_visible
-  # @return [Enumerable<ItemElement>] The instance's CollectionElements in the
-  #                                   order of the elements in the instance's
-  #                                   metadata profile. If there is no
-  #                                   associated metadata profile, all elements
-  #                                   are returned.
+  # @return [Enumerable<CollectionElement>] The instance's metadata elements in
+  #         the order of the elements in the instance's metadata profile. If
+  #         there is no associated metadata profile, all elements are returned.
   #
   def elements_in_profile_order(options = {})
     elements = []
@@ -498,8 +503,7 @@ class Collection < ApplicationRecord
   end
 
   ##
-  # @return [Enumerable<Set>]
-  # @return [ActiveRecord::Relation<Item>] All items in the collection.
+  # @return [Enumerable<ItemSet>]
   #
   def item_sets
     ItemSet.where(collection_repository_id: self.repository_id)
@@ -575,8 +579,10 @@ class Collection < ApplicationRecord
   end
 
   ##
-  # @return [Integer] Number of items in the collection regardless of hierarchy
-  #                   level or public accessibility. The result is cached.
+  # Returns the number of items in the collection regardless of hierarchy
+  # level or public accessibility. The result is cached.
+  #
+  # @return [Integer]
   #
   def num_items
     unless @num_items
@@ -753,7 +759,7 @@ class Collection < ApplicationRecord
 
   ##
   # @return [Item, nil] Item assigned to represent the instance. May be nil.
-  # @see effective_representative_item()
+  # @see effective_representative_item
   #
   def representative_item
     item = nil

@@ -150,10 +150,96 @@ class BinaryTest < ActiveSupport::TestCase
 
   # infer_media_type()
 
-  test 'infer_media_type() should work properly' do
+  test 'infer_media_type() works' do
     @binary.media_type = nil
     @binary.infer_media_type
     assert_equal 'image/jpeg', @binary.media_type
+  end
+
+  # is_3d?()
+
+  test 'is_3d?() works' do
+    assert !@binary.is_3d?
+
+    @binary.media_category = Binary::MediaCategory::THREE_D
+    assert @binary.is_3d?
+  end
+
+  # is_audio?()
+
+  test 'is_audio?() works' do
+    assert !@binary.is_audio?
+
+    @binary.media_type = 'audio/aiff'
+    assert @binary.is_audio?
+  end
+
+  # is_document?()
+
+  test 'is_document?() works' do
+    assert !@binary.is_document?
+
+    @binary.media_category = Binary::MediaCategory::DOCUMENT
+    assert @binary.is_document?
+  end
+
+  # is_image?()
+
+  test 'is_image?() works' do
+    @binary.media_type = 'unknown/unknown'
+    assert !@binary.is_image?
+
+    @binary.media_type = 'image/jpeg'
+    assert @binary.is_image?
+  end
+
+  # is_media_space_video?()
+
+  test 'is_media_space_video?() works' do
+    assert !@binary.is_media_space_video?
+
+    @binary.media_type = 'video/mpeg'
+    @binary.item.embed_tag = '<embed>kaltura</embed>'
+    assert @binary.is_video?
+  end
+
+  # is_pdf?()
+
+  test 'is_pdf?() works' do
+    assert !@binary.is_pdf?
+
+    @binary.media_type = 'application/pdf'
+    assert @binary.is_pdf?
+  end
+
+  # is_pdf?()
+
+  test 'is_raster?() works' do
+    @binary.media_type = 'unknown/unknown'
+    assert !@binary.is_raster?
+
+    @binary.media_type = 'video/mpeg'
+    assert @binary.is_raster?
+    @binary.media_type = 'image/jpeg'
+    assert @binary.is_raster?
+  end
+
+  # is_text?()
+
+  test 'is_text?() works' do
+    assert !@binary.is_text?
+
+    @binary.media_type = 'text/plain'
+    assert @binary.is_text?
+  end
+
+  # is_video?()
+
+  test 'is_video?() works' do
+    assert !@binary.is_video?
+
+    @binary.media_type = 'video/mpeg'
+    assert @binary.is_video?
   end
 
   # medusa_url()
@@ -185,7 +271,7 @@ class BinaryTest < ActiveSupport::TestCase
   end
 
   test 'read_dimensions() should work on videos' do
-    # TODO: write this
+    skip # TODO: write this
   end
 
   # read_duration()

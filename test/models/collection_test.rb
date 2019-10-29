@@ -3,18 +3,57 @@ require 'test_helper'
 class CollectionTest < ActiveSupport::TestCase
 
   setup do
+    setup_elasticsearch
     @collection = collections(:sanborn)
-    assert @collection.valid?
+  end
 
-    ElasticsearchIndex.migrate_to_latest
-    ElasticsearchClient.instance.recreate_all_indexes rescue nil
+  # Collection.delete_all_documents()
+
+  test 'delete_all_documents() deletes all documents' do
+    Collection.all.each(&:reindex)
+    refresh_elasticsearch
+    assert CollectionFinder.new.count > 0
+
+    Collection.delete_all_documents
+    refresh_elasticsearch
+    assert_equal 0, CollectionFinder.new.count
+  end
+
+  # Collection.delete_document()
+
+  test 'delete_document() deletes a document' do
+    collections = Collection.all.limit(5)
+    collections.each(&:reindex)
+    refresh_elasticsearch
+    count = CollectionFinder.new.count
+    assert count > 0
+
+    Collection.delete_document(collections.first.repository_id)
+    refresh_elasticsearch
+    assert_equal count - 1, CollectionFinder.new.count
+  end
+
+  # Collection.delete_orphaned_documents()
+
+  test 'delete_orphaned_documents() works' do
+    collections = Collection.all
+    collections.each(&:reindex)
+    count = collections.count
+    refresh_elasticsearch
+
+    collections.first.destroy! # outside of a transaction!
+
+    Collection.delete_orphaned_documents
+    refresh_elasticsearch
+
+    assert_equal count - 1, CollectionFinder.new.count
   end
 
   # from_medusa()
 
   test 'from_medusa() with an invalid ID should raise an error' do
     assert_raises ActiveRecord::RecordNotFound do
-      Collection.from_medusa('cats')
+      Collection.from_medusa('bogus')
     end
   end
 
@@ -128,7 +167,7 @@ class CollectionTest < ActiveSupport::TestCase
 
   # effective_medusa_cfs_directory
 
-  test 'effective_medusa_cfs_directory() should return the instance CFS
+  test 'effective_medusa_cfs_directory() returns the instance CFS
   directory when set' do
     dir = medusa_cfs_directories(:one)
     @collection.medusa_cfs_directory_id = dir.uuid
@@ -147,13 +186,13 @@ class CollectionTest < ActiveSupport::TestCase
 
   # effective_metadata_profile()
 
-  test 'effective_metadata_profile() should return the assigned metadata
+  test 'effective_metadata_profile() returns the assigned metadata
   profile' do
     assert_equal @collection.metadata_profile,
                  @collection.effective_metadata_profile
   end
 
-  test 'effective_metadata_profile() should return the default metadata
+  test 'effective_metadata_profile() returns the default metadata
   profile if not assigned' do
     @collection.metadata_profile = nil
     assert_equal MetadataProfile.default, @collection.effective_metadata_profile
@@ -161,7 +200,7 @@ class CollectionTest < ActiveSupport::TestCase
 
   # effective_representative_entity()
 
-  test 'effective_representative_entity() should return the effective
+  test 'effective_representative_entity() returns the effective
   representative item when set' do
     item = items(:sanborn_obj1_page1)
     @collection.representative_item_id = item.repository_id
@@ -200,25 +239,25 @@ class CollectionTest < ActiveSupport::TestCase
 
   # item_sets()
 
-  test 'item_sets should return all item sets' do
+  test 'item_sets returns all item sets' do
     assert_equal 1, @collection.item_sets.length
   end
 
   # items()
 
-  test 'items should return all items' do
+  test 'items returns all items' do
     assert_equal 4, @collection.items.length
   end
 
   # medusa_cfs_directory()
 
-  test 'medusa_cfs_directory() should return nil if medusa_cfs_directory_id is
+  test 'medusa_cfs_directory() returns nil if medusa_cfs_directory_id is
   nil' do
     @collection.medusa_cfs_directory_id = nil
     assert_nil @collection.medusa_cfs_directory
   end
 
-  test 'medusa_cfs_directory() should return a MedusaCfsDirectory when
+  test 'medusa_cfs_directory() returns a MedusaCfsDirectory when
   medusa_cfs_directory_id is set' do
     @collection.medusa_cfs_directory_id = 'be8d3500-c451-0133-1d17-0050569601ca-9'
     assert_equal @collection.medusa_cfs_directory.uuid,
@@ -238,12 +277,12 @@ class CollectionTest < ActiveSupport::TestCase
 
   # medusa_file_group()
 
-  test 'medusa_file_group() should return nil if medusa_file_group_id is nil' do
+  test 'medusa_file_group() returns nil if medusa_file_group_id is nil' do
     @collection.medusa_file_group_id = nil
     assert_nil @collection.medusa_file_group
   end
 
-  test 'medusa_file_group() should return a MedusaFileGroup' do
+  test 'medusa_file_group() returns a MedusaFileGroup' do
     assert_equal @collection.medusa_file_group.uuid, @collection.medusa_file_group_id
   end
 
@@ -260,26 +299,26 @@ class CollectionTest < ActiveSupport::TestCase
 
   # medusa_repository()
 
-  test 'medusa_repository() should return nil if medusa_repository_id is nil' do
+  test 'medusa_repository() returns nil if medusa_repository_id is nil' do
     @collection.medusa_repository_id = nil
     assert_nil @collection.medusa_repository
   end
 
-  test 'medusa_repository() should return a MedusaRepository' do
+  test 'medusa_repository() returns a MedusaRepository' do
     assert_equal @collection.medusa_repository.medusa_database_id,
                  @collection.medusa_repository_id
   end
 
   # medusa_url()
 
-  test 'medusa_url() should return nil when the repository ID is nil' do
+  test 'medusa_url() returns nil when the repository ID is nil' do
     @collection.repository_id = nil
     assert_nil @collection.medusa_url
   end
 
   # medusa_url()
 
-  test 'medusa_url() should return the correct URL' do
+  test 'medusa_url() returns the correct URL' do
     # without format
     expected = sprintf('%s/uuids/%s',
                        Configuration.instance.medusa_url.chomp('/'),
@@ -345,7 +384,7 @@ class CollectionTest < ActiveSupport::TestCase
 
   # package_profile()
 
-  test 'package_profile() should return a PackageProfile' do
+  test 'package_profile() returns a PackageProfile' do
     assert @collection.package_profile.kind_of?(PackageProfile)
     @collection.package_profile_id = 37
     assert_nil @collection.package_profile
@@ -353,7 +392,7 @@ class CollectionTest < ActiveSupport::TestCase
 
   # package_profile=()
 
-  test 'package_profile=() should set a PackageProfile' do
+  test 'package_profile=() sets a PackageProfile' do
     @collection.package_profile = PackageProfile::COMPOUND_OBJECT_PROFILE
     assert_equal @collection.package_profile_id,
                  PackageProfile::COMPOUND_OBJECT_PROFILE.id
@@ -361,7 +400,7 @@ class CollectionTest < ActiveSupport::TestCase
 
   # propagate_heritable_properties()
 
-  test 'propagate_heritable_properties() should propagate roles to items' do
+  test 'propagate_heritable_properties() propagates roles to items' do
     # Clear all roles on the collection and its items.
     @collection.allowed_roles.destroy_all
     @collection.denied_roles.destroy_all
@@ -475,41 +514,43 @@ class CollectionTest < ActiveSupport::TestCase
 
   # representative_image_binary()
 
-  test 'representative_image_binary() should work' do
+  test 'representative_image_binary() works' do
     # TODO: write this
   end
 
   # representative_item()
 
-  test 'representative_item() should work' do
+  test 'representative_item() works' do
     # TODO: write this
   end
 
-  test 'root_item returns nil for non-free-form collections' do
+  # root_item()
+
+  test 'root_item() returns nil for non-free-form collections' do
     assert_nil collections(:sanborn).root_item  # compound object
     assert_nil collections(:folksong).root_item # mixed media
     assert_nil collections(:lincoln).root_item  # single-item object
   end
 
-  test 'root_item returns nil for free-form collections whose directory is the
+  test 'root_item() returns nil for free-form collections whose directory is the
   same as the file group directory' do
     assert_nil collections(:illini_union).root_item
   end
 
-  test 'root_item returns an item for free-form collections whose directory is
+  test 'root_item() returns an item for free-form collections whose directory is
   different from the same as the file group directory' do
     # TODO: write this
   end
 
   # to_param()
 
-  test 'to_param should return the repository ID' do
+  test 'to_param returns the repository ID' do
     assert_equal @collection.repository_id, @collection.to_param
   end
 
   # to_s()
 
-  test 'to_s should return the title element value if available' do
+  test 'to_s returns the title element value if available' do
     title = 'My Great Title'
     @collection.elements.destroy_all
     @collection.elements.build(name: 'title', value: title)
@@ -517,7 +558,7 @@ class CollectionTest < ActiveSupport::TestCase
     assert_equal title, @collection.title
   end
 
-  test 'to_s should return the repository ID if there is no title element' do
+  test 'to_s returns the repository ID if there is no title element' do
     @collection.elements.destroy_all
     assert_equal '6ff64b00-072d-0130-c5bb-0019b9e633c5-2', @collection.title
   end

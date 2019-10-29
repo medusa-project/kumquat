@@ -90,7 +90,7 @@ class ElasticsearchClient
   # @return [String] Response body.
   #
   def delete_by_query(index, query)
-    url = sprintf('%s/%s/_delete_by_query?pretty&conflicts=proceed&refresh=wait_for',
+    url = sprintf('%s/%s/_delete_by_query?pretty&conflicts=proceed&refresh',
                   Configuration.instance.elasticsearch_endpoint, index)
     LOGGER.debug("delete_by_query(): %s\n    %s", url, query)
     response = @@http_client.post(url, query,

@@ -3,11 +3,50 @@ require 'test_helper'
 class ItemTest < ActiveSupport::TestCase
 
   setup do
+    setup_elasticsearch
     @item = items(:sanborn_obj1_page1)
-    assert @item.valid?
+  end
 
-    ElasticsearchIndex.migrate_to_latest
-    ElasticsearchClient.instance.recreate_all_indexes rescue nil
+  # Item.delete_all_documents()
+
+  test 'delete_all_documents() deletes all documents' do
+    Item.all.each(&:reindex)
+    refresh_elasticsearch
+    assert ItemFinder.new.count > 0
+
+    Item.delete_all_documents
+    refresh_elasticsearch
+    assert_equal 0, ItemFinder.new.count
+  end
+
+  # Item.delete_document()
+
+  test 'delete_document() deletes a document' do
+    items = Item.all.limit(5)
+    items.each(&:reindex)
+    refresh_elasticsearch
+    count = ItemFinder.new.count
+    assert count > 0
+
+    Item.delete_document(items.first.repository_id)
+    refresh_elasticsearch
+    assert_equal count - 1, ItemFinder.new.count
+  end
+
+  # Item.delete_orphaned_documents()
+
+  test 'delete_orphaned_documents() works' do
+    items = Item.all
+    items.each(&:reindex)
+    count = items.count
+    refresh_elasticsearch
+
+    items.first.destroy! # outside of a transaction!
+
+    Item.delete_orphaned_documents
+    refresh_elasticsearch
+
+    assert_equal count - 1, ItemFinder.new.include_children_in_results(true).count
   end
 
   # Item.num_free_form_files()
@@ -38,13 +77,22 @@ class ItemTest < ActiveSupport::TestCase
                  Item.num_objects
   end
 
+  # Item.reindex_all()
+
+  test 'reindex_all() reindexes all items' do
+    assert_equal 0, ItemFinder.new.count
+    Item.reindex_all
+    refresh_elasticsearch
+    assert ItemFinder.new.count > 0
+  end
+
   # Item.tsv_columns()
 
-  test 'tsv_columns() should return the correct columns' do
+  test 'tsv_columns() returns the correct columns' do
     expected = %w(uuid parentId preservationMasterPathname
     preservationMasterFilename preservationMasterUUID accessMasterPathname
     accessMasterFilename accessMasterUUID variant pageNumber subpageNumber
-    contentdmAlias contentdmPointer IGNORE Title Coordinates
+    published contentdmAlias contentdmPointer IGNORE Title Coordinates
     Creator Date\ Created Description lcsh:Subject tgm:Subject)
     actual = Item.tsv_columns(@item.collection.metadata_profile)
     assert_equal expected, actual
@@ -52,20 +100,20 @@ class ItemTest < ActiveSupport::TestCase
 
   # all_children()
 
-  test 'all_children() should return the correct items' do
+  test 'all_children() returns the correct items' do
     assert_equal items(:sanborn_obj1).items.count,
                  items(:sanborn_obj1).all_children.count
   end
 
   # all_files()
 
-  test 'all_files() should return the correct items' do
+  test 'all_files() returns the correct items' do
     assert_equal 1, items(:illini_union_dir1_dir1).all_files.count
   end
 
   # all_parents()
 
-  test 'all_parents() should return the parents' do
+  test 'all_parents() returns the parents' do
     result = items(:illini_union_dir1_dir1_file1).all_parents
     assert_equal 2, result.count
     assert_equal items(:illini_union_dir1_dir1).repository_id,
@@ -76,7 +124,7 @@ class ItemTest < ActiveSupport::TestCase
 
   # as_indexed_json()
 
-  test 'as_indexed_json returns the correct structure' do
+  test 'as_indexed_json() returns the correct structure' do
     doc = @item.as_indexed_json
 
     assert_equal @item.collection_repository_id,
@@ -134,7 +182,7 @@ class ItemTest < ActiveSupport::TestCase
 
   # as_json()
 
-  test 'as_json() should return the correct structure' do
+  test 'as_json() returns the correct structure' do
     struct = @item.as_json
     assert_equal @item.repository_id, struct['repository_id']
     # We'll trust that all the other properties are present.
@@ -144,7 +192,7 @@ class ItemTest < ActiveSupport::TestCase
 
   # bib_id()
 
-  test 'bib_id() should return the bibId element value, or nil if none exists' do
+  test 'bib_id() returns the bibId element value, or nil if none exists' do
     assert_nil @item.bib_id
 
     @item.elements.build(name: 'bibId', value: 'cats')
@@ -154,17 +202,24 @@ class ItemTest < ActiveSupport::TestCase
 
   # catalog_record_url()
 
-  test 'catalog_record_url() should return nil when bib_id() returns nil' do
+  test 'catalog_record_url() returns nil when bib_id() returns nil' do
     @item.elements.where(name: 'bibId').destroy_all
     assert_nil @item.catalog_record_url
   end
 
-  test 'catalog_record_url() should return the catalog record URL when bib_id()
+  test 'catalog_record_url() returns the catalog record URL when bib_id()
   returns a string' do
     @item.elements.build(name: 'bibId', value: '12345')
     @item.save!
     assert_equal 'http://vufind.carli.illinois.edu/vf-uiu/Record/uiu_12345/Description',
                  @item.catalog_record_url
+  end
+
+  # collection()
+
+  test 'collection() returns the collection' do
+    item = items(:sanborn_obj1)
+    assert_equal collections(:sanborn), item.collection
   end
 
   # collection_repository_id
@@ -210,15 +265,15 @@ class ItemTest < ActiveSupport::TestCase
     assert @item.described?
   end
 
-  test 'described?() returns false when the item is in a non-free-form collection
-  and does not have a title element' do
+  test 'described?() returns false when the item is in a non-free-form
+  collection and does not have a title element' do
     @item.elements.destroy_all
     assert !@item.described?
   end
 
   # description()
 
-  test 'description() should return the description element value, or nil if
+  test 'description() returns the description element value, or nil if
   none exists' do
     @item.elements.destroy_all
     assert_nil @item.description
@@ -243,14 +298,14 @@ class ItemTest < ActiveSupport::TestCase
 
   # effective_representative_entity()
 
-  test 'effective_representative_entity should return the representative item
+  test 'effective_representative_entity returns the representative item
         when it is assigned' do
     id = 'a53add10-5ca8-0132-3334-0050569601ca-7'
     @item.representative_item_repository_id = id
     assert_equal id, @item.effective_representative_entity.repository_id
   end
 
-  test 'effective_representative_entity should return the first page when
+  test 'effective_representative_entity returns the first page when
         representative_item_repository_id is not set' do
     @item = items(:sanborn_obj1)
     @item.representative_item_repository_id = nil
@@ -258,7 +313,7 @@ class ItemTest < ActiveSupport::TestCase
                  @item.effective_representative_entity.repository_id
   end
 
-  test 'effective_representative_entity should return the instance when
+  test 'effective_representative_entity returns the instance when
         representative_item_repository_id is not set and it has no pages' do
     @item = items(:sanborn_obj1)
     @item.representative_item_repository_id = nil
@@ -269,7 +324,7 @@ class ItemTest < ActiveSupport::TestCase
 
   # effective_rights_statement()
 
-  test 'effective_rights_statement() should return the statement of the instance' do
+  test 'effective_rights_statement() returns the statement of the instance' do
     assert_equal 'Sample Rights', @item.effective_rights_statement
   end
 
@@ -289,7 +344,7 @@ class ItemTest < ActiveSupport::TestCase
 
   # effective_rightsstatement_org_statement()
 
-  test 'effective_rightsstatements_org_statement() should return the statement
+  test 'effective_rightsstatements_org_statement() returns the statement
   of the instance' do
     @item.elements.build(name: 'accessRights',
                          uri: 'http://rightsstatements.org/vocab/NoC-OKLR/1.0/')
@@ -401,28 +456,28 @@ class ItemTest < ActiveSupport::TestCase
 
   # publicly_accessible?()
 
-  test 'publicly_accessible?() should return true when the instance and its
+  test 'publicly_accessible?() returns true when the instance and its
   collection are both published' do
     @item.published = true
     @item.collection.published_in_dls = true
     assert @item.publicly_accessible?
   end
 
-  test 'publicly_accessible?() should return false when the instance is
+  test 'publicly_accessible?() returns false when the instance is
   published but its collection is not' do
     @item.published = true
     @item.collection.published_in_dls = false
     assert !@item.publicly_accessible?
   end
 
-  test 'publicly_accessible?() should return false when the instance is not
+  test 'publicly_accessible?() returns false when the instance is not
   published but its collection is' do
     @item.published = false
     @item.collection.published_in_dls = true
     assert !@item.publicly_accessible?
   end
 
-  test 'publicly_accessible?() should return false when neither the instance
+  test 'publicly_accessible?() returns false when neither the instance
   nor its collection are published' do
     @item.published = false
     @item.collection.published_in_dls = false
@@ -441,24 +496,24 @@ class ItemTest < ActiveSupport::TestCase
 
   # representative_filename()
 
-  test 'representative_filename() should return the representative filename' do
+  test 'representative_filename() returns the representative filename' do
     assert_equal '1601831_001', @item.representative_filename
   end
 
   # representative_item()
 
-  test 'representative_item() should return nil when
+  test 'representative_item() returns nil when
   representative_item_repository_id is nil' do
     assert_nil(@item.representative_item)
   end
 
-  test 'representative_item() should return nil when
+  test 'representative_item() returns nil when
   representative_item_repository_id is invalid' do
     @item.representative_item_repository_id = 'bogus'
     assert_nil(@item.representative_item)
   end
 
-  test 'representative_item() should return an item when
+  test 'representative_item() returns an item when
   representative_item_repository_id is valid' do
     @item.representative_item_repository_id =
         items(:illini_union_dir1_dir1_file1).repository_id
@@ -601,13 +656,14 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal Time.parse('2010-01-02').year, @item.date.year
 
     @item.element(:date)&.destroy!
+    @item.reload
     @item.save!
     assert_nil @item.start_date
   end
 
   # subtitle()
 
-  test 'subtitle() should return the title element value, or nil if none
+  test 'subtitle() returns the title element value, or nil if none
   exists' do
     @item.elements.destroy_all
     @item.save
@@ -620,7 +676,7 @@ class ItemTest < ActiveSupport::TestCase
 
   # supplementary_item()
 
-  test 'supplementary_item() should return the supplementary item, or nil if
+  test 'supplementary_item() returns the supplementary item, or nil if
   none exists' do
     assert_nil @item.supplementary_item
 
@@ -650,14 +706,14 @@ class ItemTest < ActiveSupport::TestCase
 
   # title()
 
-  test 'title() should return the repository ID if no title element value
+  test 'title() returns the repository ID if no title element value
   exists' do
     @item.elements.destroy_all
     @item.save
     assert_equal @item.repository_id, @item.title
   end
 
-  test 'title() should return the title element value if it exists' do
+  test 'title() returns the title element value if it exists' do
     assert_equal 'My Great Title', @item.title
   end
 
@@ -674,7 +730,6 @@ class ItemTest < ActiveSupport::TestCase
         select{ |e| e.name == 'creator' and e.value == 'University of Illinois Library' }.length
     assert_equal 1, @item.elements.
         select{ |e| e.name == 'dateCreated' and e.value == '2012-10-10' }.length
-    assert_equal '2012-10-10T05:00:00Z', @item.date.iso8601
   end
 
   # update_from_json
@@ -798,14 +853,14 @@ class ItemTest < ActiveSupport::TestCase
 
   # walk_tree()
 
-  test 'walk_tree() should walk the tree' do
+  test 'walk_tree() walks the tree' do
     count = 0
     @item = items(:sanborn_obj1)
     @item.walk_tree do |item|
       assert_kind_of(Item, item)
       count += 1
     end
-    assert_equal count, @item.all_children.length
+    assert_equal count, @item.all_children.length + 1
   end
 
 end

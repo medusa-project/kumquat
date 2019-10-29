@@ -1,7 +1,14 @@
+##
+# Parent-child relationship between two collections.
+#
+# AFAIK we need only a tree structure and not multiple inheritance, but this
+# is how the relationships are defined in the Collection Registry, so we carry
+# it over.
+#
 class CollectionJoin < ApplicationRecord
 
   # We use repository IDs for joins because the collection hierarchy is defined
-  # externally to the DLS. This makes it easier to carry over to the DLS.
+  # externally to the application.
   belongs_to :parent_collection, class_name: 'Collection',
              primary_key: :repository_id, foreign_key: :parent_repository_id
   belongs_to :child_collection, class_name: 'Collection',

@@ -16,4 +16,9 @@ class UrlUtilTest < ActiveSupport::TestCase
     assert_nil result['key']
   end
 
+  test 'parse_query decodes the query' do
+    result = UrlUtil.parse_query('http://example.org?key=%2Fvalue')
+    assert_equal '/value', result['key']
+  end
+
 end

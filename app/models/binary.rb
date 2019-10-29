@@ -1,49 +1,51 @@
 ##
 # Represents a file.
 #
-# Binaries are attached to Items. An Item may have zero or more Binaries. A
-# binary can only belong to one item. When an item is deleted, so are all of
-# its binaries.
+# Binaries have a many-to-one relationship with {Item}s. When an item is
+# deleted, so are all of its binaries.
 #
-# Binaries are analogous to "CFS files" in Medusa, and can be constructed by
-# MedusaCfsFile.to_binary().
+# Binaries are analogous to "CFS files" in Medusa, and are commonly obtained
+# via {MedusaCfsFile#to_binary}.
 #
-# A binary may have a master type of access or preservation. Preservation
-# masters are typically in a preservation-optimized format/encoding, and access
-# masters are typically a variant of the preservation master that may be
-# smaller, more compatible with client viewer software, etc.
+# Binary data is accessible via {data}, which returns a stream of data from the
+# repository S3 bucket.
+#
+# A binary may have a {MasterType master type}. {MasterType::PRESERVATION
+# Preservation masters} are typically in a preservation-optimized format/
+# encoding, and {MasterType::ACCESS access masters} are typically a variant of
+# the preservation master that may be smaller, more compatible with an image
+# server or client viewer software, etc.
 #
 # A binary has a media (MIME) type, which may be different from the Medusa
-# CFS file's media type (which tends to be vague). When they differ, the
+# CFS file's media type (which tends to be vague). When the two differ, the
 # Binary's media type is usually more specific.
 #
-# A binary may also reside in a media category (see the inner enum-like
-# MediaCategory class), which helps to differentiate binaries that have the
-# same media type but different uses. This especially comes into play in
-# collections that use the Mixed Media package profile, whose items may have
-# a representative image/jpeg binary as well as an image/jpeg 3D model texture.
+# A binary may also reside in a {MediaCategory media category}, which helps to
+# differentiate binaries that have the same media type but different uses.
+# This is relevant in collections that use the
+# {PackageProfile::MIXED_MEDIA_PROFILE Mixed Media package profile}, whose
+# items may have a representative `image/jpeg` binary as well as an
+# `image/jpeg` 3D model texture.
 #
 # # Attributes
 #
-# * byte_size:      Size of the binary's contents in bytes.
-# * cfs_file_uuid:  UUID of the binary's corresponding file in Medusa.
-# * created_at:     Managed by ActiveRecord.
-# * duration:       Duration of audio/video, in seconds.
-# * height:         Native pixel height of a raster binary (image or video).
-# * item_id:        Database ID of the binary's owning item.
-# * master_type:    One of the Binary::MasterType constant values; see its
-#                   class documentation.
-# * media_category: One of the Binary::MediaCategory constant values; see its
-#                   class documentation.
-# * media_type:     Best-fit IANA media (MIME) type.
-# * object_key:     S3 object key.
-# * updated_at:     Managed by ActiveRecord.
-# * width:          Native pixel width of a raster binary (image or video).
+# * `byte_size`      Size of the binary's contents in bytes.
+# * `cfs_file_uuid`  UUID of the binary's corresponding file in Medusa.
+# * `created_at`     Managed by ActiveRecord.
+# * `duration`       Duration of audio/video, in seconds.
+# * `height`         Native pixel height of a raster binary (image or video).
+# * `item_id`        Database ID of the binary's owning item.
+# * `master_type`    One of the {MasterType} constant values.
+# * `media_category` One of the {MediaCategory} constant values.
+# * `media_type`     Best-fit IANA media (MIME) type.
+# * `object_key`     S3 object key.
+# * `updated_at`     Managed by ActiveRecord.
+# * `width`          Native pixel width of a raster binary (image or video).
 #
 class Binary < ApplicationRecord
 
   ##
-  # Must be kept in sync with the return value of human_readable_master_type().
+  # Must be kept in sync with the return value of {Binary#human_readable_master_type()}.
   #
   class MasterType
     ACCESS       = 1
@@ -108,7 +110,7 @@ class Binary < ApplicationRecord
   end
 
   ##
-  # @return [IO]
+  # @return [IO] Read-only stream of the instance's data.
   #
   def data
     client = MedusaS3Client.instance
@@ -120,7 +122,7 @@ class Binary < ApplicationRecord
 
   ##
   # @return [String]
-  # @see http://dublincore.org/documents/dcmi-type-vocabulary/#H7
+  # @see https://www.dublincore.org/specifications/dublin-core/dcmi-type-vocabulary/
   #
   def dc_type
     type = nil
@@ -151,10 +153,23 @@ class Binary < ApplicationRecord
   end
 
   ##
-  # @return [String, nil]
+  # @return [String, nil] The filename portion of `object_key`.
   #
   def filename
     File.basename(self.object_key)
+  end
+
+  ##
+  # @return [String]
+  #
+  def human_readable_master_type
+    case self.master_type
+    when MasterType::ACCESS
+      return 'Access Master'
+    when MasterType::PRESERVATION
+      return 'Preservation Master'
+    end
+    nil
   end
 
   ##
@@ -183,19 +198,6 @@ class Binary < ApplicationRecord
   ##
   # @return [String]
   #
-  def human_readable_master_type
-    case self.master_type
-      when MasterType::ACCESS
-        return 'Access Master'
-      when MasterType::PRESERVATION
-        return 'Preservation Master'
-    end
-    nil
-  end
-
-  ##
-  # @return [String]
-  #
   def human_readable_name
     name = nil
     formats = @@formats.select{ |f| f['media_types'].include?(self.media_type) }
@@ -213,14 +215,17 @@ class Binary < ApplicationRecord
 
   ##
   # If the instance is attached to an Item that has an embed tag that refers
-  # to a video in UI MediaSpace (https://mediaspace.illinois.edu), parts of the
-  # URL in its "src" attribute are extracted in order to construct an
+  # to a video in [UI MediaSpace](https://mediaspace.illinois.edu), parts of the
+  # URL in its `src` attribute are extracted in order to construct an
   # identifier that the image server will recognize as an image it should serve
   # from there.
   #
   # Otherwise, the Medusa file UUID is returned.
   #
-  # @return [String] IIIF Image API identifier of the instance.
+  # This is, of course, an ugly hack and we would be better off getting video
+  # stills quickly out of an S3 bucket, if we could.
+  #
+  # @return [String] Image server identifier of the instance.
   #
   def iiif_image_identifier
     if is_media_space_video?
@@ -236,9 +241,9 @@ class Binary < ApplicationRecord
   end
 
   ##
-  # @return [String] IIIF Image API URL of the instance, regardless of whether
+  # @return [String] IIIF Image API URI of the instance, regardless of whether
   #                  it is compatible with an image server.
-  # @see iiif_safe?()
+  # @see {iiif_safe?}
   #
   def iiif_image_url
     Configuration.instance.iiif_url + '/' +
@@ -253,7 +258,7 @@ class Binary < ApplicationRecord
   end
 
   ##
-  # @return [Boolean] Whether the instance is presumed safe to feed to an
+  # @return [Boolean] Whether the instance is presumed safe to feed through an
   #                   image server (won't bog it down too much).
   #
   def iiif_safe?
@@ -277,6 +282,11 @@ class Binary < ApplicationRecord
   end
 
   ##
+  # Tries to infer the media type of the instance. The first resort is to check
+  # for a recognized extension in the object key, and the last resort (because
+  # it is more expensive) is to read the first few bytes of the file and
+  # attempt infer a media type from that.
+  #
   # @raises [IOError] If the file doesn't exist or can't be read.
   #
   def infer_media_type
@@ -328,7 +338,7 @@ class Binary < ApplicationRecord
 
   ##
   # @return [Boolean] Whether the binary is a video and a version of it resides
-  #                   in UI MediaSpace (https://mediaspace.illinois.edu).
+  #                   in [UI MediaSpace](https://mediaspace.illinois.edu).
   def is_media_space_video?
     is_video? and self.item&.embed_tag&.include?('kaltura')
   end
@@ -345,6 +355,9 @@ class Binary < ApplicationRecord
     is_image? or is_video?
   end
 
+  ##
+  # @return [Boolean] Whether the binary is plain text.
+  #
   def is_text?
     self.media_type and self.media_type.start_with?('text/plain')
   end
@@ -354,7 +367,7 @@ class Binary < ApplicationRecord
   end
 
   ##
-  # @return [String, nil] URL of the binary's equivalent Medusa file.
+  # @return [String, nil] URI of the binary's equivalent Medusa file.
   #
   def medusa_url
     url = nil
@@ -369,8 +382,8 @@ class Binary < ApplicationRecord
   # Returns metadata for human consumption that is not guaranteed to be in any
   # particular format.
   #
-  # @return [Enumerable<Hash<Symbol,String>>] Array of hashes with :label,
-  #                                          :category, and :value keys.
+  # @return [Enumerable<Hash<Symbol,String>>] Array of hashes with `:label`,
+  #                                           `:category`, and `:value` keys.
   # @raises [IOError] If the file is not found or can't be read.
   #
   def metadata
@@ -389,8 +402,8 @@ class Binary < ApplicationRecord
   end
 
   ##
-  # Populates the width and height properties by reading the dimensions from
-  # the source image or video.
+  # Populates the `width` and `height` properties by reading the dimensions
+  # from the source image or video.
   #
   # @return [void]
   # @raises [IOError] If the file does not exist.
@@ -473,14 +486,17 @@ class Binary < ApplicationRecord
 
     return unless self.is_image?
 
+    tempfile = nil
     begin
       tempfile = Tempfile.new('image')
-      download_to(tempfile.path, 1024 ** 2) # read the first 1 MB
+      download_to(tempfile.path, 1024 ** 2) # download the first 1 MB
 
       # exiftool's output is more comprehensive, but as of 2016-09-01, it
       # appears to cause my local machine's condo NFS mount to unmount itself.
       # OTRS ticket filed, but don't want to wait on it. OTOH, exiv2 is faster.
-      # --@adolski
+      #
+      # 2019 update: since we are no longer using NFS, we could switch back to
+      # exiftool if desired. --alexd
       #read_metadata_using_exiftool(pathname)
       read_metadata_using_exiv2(tempfile.path)
 
@@ -488,7 +504,7 @@ class Binary < ApplicationRecord
     rescue => e
       raise IOError, e
     ensure
-      tempfile.unlink
+      tempfile&.unlink
     end
   end
 
@@ -525,7 +541,7 @@ class Binary < ApplicationRecord
   end
 
   ##
-  # @return [String]
+  # @return [String] The URI of the corresponding S3 object.
   #
   def uri
     "s3://#{Configuration.instance.medusa_s3_bucket}/#{self.object_key}"

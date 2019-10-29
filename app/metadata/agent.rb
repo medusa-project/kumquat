@@ -1,5 +1,6 @@
 ##
-# @see https://github.com/elastic/elasticsearch-rails/blob/master/elasticsearch-model/README.md
+# Some kind of noun supporting many-to-many relationships to other agents/
+# nouns.
 #
 class Agent < ApplicationRecord
 

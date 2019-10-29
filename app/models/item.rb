@@ -3,23 +3,24 @@
 #
 # # Structure
 #
-# All items reside in a collection. An item may have one or more child items,
+# All items reside in a {Collection}. An item may have one or more child items,
 # as may any of those, forming a tree. The tree structure depends on the
-# collection's package profile. The "free-form" profile allows an arbitrary
-# structure; other profiles are more rigid.
+# collection's {PackageProfile}. The {PackageProfile::FREE_FORM_PROFILE
+# free-form profile} allows an arbitrary structure; other profiles are more
+# rigid.
 #
-# An item may also have one or more Binaries, each corresponding to a file in
-# Medusa.
+# An item may also have one or more {Binary binaries}, each corresponding to a
+# file in Medusa.
 #
 # # Identifiers
 #
 # Medusa is not item-aware; items are a DLS entity. Item IDs correspond to
 # Medusa file/directory IDs depending on a collection's package profile. These
-# IDs are stored in `repository_id`, NOT `id`, which is only used by
+# IDs are stored in `repository_id`, **not** `id`, which is only used by
 # ActiveRecord.
 #
 # Items have a soft pointer to their collection and parent item based on
-# repository ID, rather than a belongs_to/has_many on their database ID.
+# repository ID, rather than a `belongs_to`/`has_many` on their database ID.
 # This is in order to establish structure outside of the application.
 # Repository IDs are the same in all instances of the application that use the
 # same Medusa content.
@@ -27,22 +28,22 @@
 # # Description
 #
 # Items have a number of properties of their own as well as a one-to-many
-# relationship with ItemElement, which encapsulates a metadata element.
-# Properties are used by the system, and ItemElements contain free-form strings
-# and/or URIs.
+# relationship with {ItemElement}, which encapsulates a metadata element.
+# Properties are used by the system, and {ItemElement}s contain free-form
+# strings and/or URIs.
 #
 # ## Properties
 #
 # ### Adding a property:
 #
-# 1) Add a column for it on Item
-# 2) Add it to Item::IndexFields (if it needs to be indexed)
-# 3) Add serialization code to as_json() and as_indexed_json()
-# 4) Add deserialization code to update_from_json()
-# 5) If it needs to appear in TSV, add it to `tsv_columns()`,
-#    `ItemTsvExporter`, and/or `update_from_tsv()`
-# 6) Update fixtures and tests
-# 7) Reindex (if necessary)
+# 1. Add a column for it on Item
+# 2. Add it to {IndexFields} (if it needs to be indexed)
+# 3. Add serialization code to {as_json} and {as_indexed_json}
+# 4. Add deserialization code to {update_from_json}
+# 5. If it needs to appear in TSV, add it to {tsv_columns}, {ItemTsvExporter},
+#    and/or {update_from_tsv}
+# 6. Update fixtures and tests
+# 7. Reindex (if necessary)
 #
 # ## Descriptive Metadata
 #
@@ -54,59 +55,58 @@
 #
 # # Indexing
 #
-# Items are searchable via ActiveRecord as well as via Elasticsearch. ES search
-# functionality is provided by the elasticsearch-model gem which provides a
-# `search` class method. But, in many cases, it's better to use the higher-
-# level query interface provided by ItemFinder, which is easier to use, and
-# takes authorization, public visiblity, etc. into account.
+# Items are searchable via ActiveRecord as well as via Elasticsearch. A low-
+# level interface to Elasticsearch is provided by ElasticsearchClient, but
+# in most cases, it's better to use the higher-level query interface provided
+# by {ItemFinder}, which is easier to use, and takes authorization, public
+# visiblity, etc. into account.
 #
-# Instances are automatically indexed in Elasticsearch (see
+# **IMPORTANT**: Instances are automatically indexed in Elasticsearch (see
 # `as_indexed_json()`) upon transaction commit. They are **not** indexed on
 # save. For this reason, **instances should always be created, updated, and
 # deleted within transactions.**
 #
 # # Attributes
 #
-# * collection_repository_id: See "Identifiers" above.
-# * contentdm_alias:      String collection alias of items that have been
-#                         migrated out of CONTENTdm, used for URL redirection.
-# * contentdm_pointer:    Integer pointer of items that have been migrated out
-#                         of CONTENTdm, used for URL redirection.
-# * created_at:           Managed by ActiveRecord.
-# * start_date:           Start date of a normalized date range.
-# * embed_tag:            HTML snippet that will be used to display an
-#                         alternative object viewer.
-# * end_date:             End date of a normalized date range.
-# * latitude:             Normalized latitude in decimal degrees.
-# * longitude:            Normalized longitude in decimal degrees.
-# * page_number:          Literal page number of a page-variant item.
-# * parent_repository_id: See "Identifiers" above.
-# * published:            Controls public availability. Unpublished items
-#                         shouldn't appear in public search results or be
-#                         accessible in any other way publicly.
-# * repository_id:        See "Identifiers" above.
-# * representative_binary_id: Medusa UUID of an alternative binary designated
-#                             to stand in as a representation of the item.
-# * representative_item_repository_id: Repository ID of another item designated
-#                                      to stand in as a representation of the
-#                                      item. For example, using a different
-#                                      item to provide a thumbnail image for an
-#                                      item that is not very photogenic.
-# * subpage_number:       Subpage number of a page-variant item. Only used when
-#                         there are multiple items corresponding to a single
-#                         page of a physical object.
-# * updated_at:           Managed by ActiveRecord.
-# * variant:              Like a subclass. Used to differentiate types of
-#                         items.
+# * `collection_repository_id` See "Identifiers" above.
+# * `contentdm_alias`          String collection alias of items that have been
+#                              migrated out of CONTENTdm, used for URL
+#                              redirection.
+# * `contentdm_pointer`        Integer pointer of items that have been migrated
+#                              out of CONTENTdm, used for URL redirection.
+# * `created_at`               Managed by ActiveRecord.
+# * `start_date`               Start date of a normalized date range.
+# * `embed_tag`                HTML snippet that will be used to display an
+#                              alternative object viewer.
+# * `end_date`                 End date of a normalized date range.
+# * `latitude`                 Normalized latitude in decimal degrees.
+# * `longitude`                Normalized longitude in decimal degrees.
+# * `page_number`              Literal page number of a page-variant item.
+# * `parent_repository_id`     See "Identifiers" above.
+# * `published`                Controls public availability. Unpublished items
+#                              shouldn't appear in public search results or be
+#                              accessible in any other way publicly.
+# * `repository_id`            See "Identifiers" above.
+# * `representative_binary_id` Medusa UUID of an alternative binary designated
+#                              to stand in as a representation of the item.
+# * `representative_item_repository_id` Repository ID of another item
+#                                       designated to representat the item. For
+#                                       example, using a different item to
+#                                       provide a thumbnail image for an item
+#                                       that is not very "photogenic."
+# * `subpage_number`           Subpage number of a page-variant item. Only used
+#                              when there are multiple items corresponding to a
+#                              single page of a physical object.
+# * `updated_at`               Managed by ActiveRecord.
+# * `variant`                  Like a subclass. Used to differentiate types of
+#                              items.
 #
-# Attribute Propagation
+# ## Attribute Propagation
 #
 # Some item properties, such as `allowed_roles` and `denied_roles`, propagate
 # to child items in the item tree. The inherited counterparts of these
 # properties are `effective_allowed_roles` and `effective_denied_roles`. An
-# item's subtree can be updated using `propagate_heritable_properties()`.
-#
-# @see https://github.com/elastic/elasticsearch-rails/blob/master/elasticsearch-model/README.md
+# item's subtree can be updated using {propagate_heritable_properties}.
 #
 class Item < ApplicationRecord
 
@@ -258,8 +258,7 @@ class Item < ApplicationRecord
   after_commit :delete_from_elasticsearch, on: :destroy
 
   ##
-  # Deletes all item-related documents. This is obviously dangerous and should
-  # never be done in production.
+  # Deletes all item-related documents. This is obviously dangerous.
   #
   def self.delete_all_documents
     index_name = ElasticsearchIndex.current_index(ELASTICSEARCH_INDEX).name
@@ -267,9 +266,9 @@ class Item < ApplicationRecord
   end
 
   ##
-  # N.B.: Normally this method should not be used except to delete orphaned
+  # Normally this method should not be used except to delete "orphaned"
   # documents with no database counterpart. See the class documentation for
-  # info about how documents are normally deleted.
+  # information about correct document deletion.
   #
   def self.delete_document(repository_id)
     query = {
@@ -351,7 +350,8 @@ class Item < ApplicationRecord
   end
 
   ##
-  # @return [Integer] Number of objects in the database.
+  # @return [Integer] Number of objects in the application. This includes
+  #                   {Variants::FILE files} and items with no parent.
   #
   def self.num_objects
     num_free_form_files + ItemFinder.new.
@@ -364,7 +364,7 @@ class Item < ApplicationRecord
   end
 
   ##
-  # @param index [Symbol] :current or :latest
+  # @param index [Symbol] `:current` or `:latest`
   # @return [void]
   #
   def self.reindex_all(index = :current)
@@ -402,7 +402,7 @@ class Item < ApplicationRecord
   ##
   # @return [Enumerable<Item>] All items that are children of the instance, at
   #                            any level in the tree.
-  # @see walk_tree()
+  # @see walk_tree
   #
   def all_children
     sql = 'WITH RECURSIVE q AS (
@@ -427,7 +427,7 @@ class Item < ApplicationRecord
   end
 
   ##
-  # @return [Enumerable<Item>] All items with a variant of Variants::FILE
+  # @return [Enumerable<Item>] All items with a variant of {Variants::FILE}
   #                            that are children of the instance, at any level
   #                            in the tree.
   #
@@ -546,7 +546,7 @@ class Item < ApplicationRecord
   end
 
   ##
-  # N.B.: This method must be kept in sync with update_from_json().
+  # N.B.: This method must be kept in sync with {update_from_json}.
   #
   # @return [Hash] Complete JSON representation of the instance. This may
   #                include private information that is not appropriate for
@@ -621,7 +621,8 @@ class Item < ApplicationRecord
 
   ##
   # An item is considered described if it has any elements other than `title`,
-  # or is in a collection using the free-form package profile.
+  # or is in a collection using the {PackageProfile::FREE_FORM_PROFILE
+  # free-form package profile}.
   #
   # @return [Boolean]
   #
@@ -634,29 +635,29 @@ class Item < ApplicationRecord
   end
 
   ##
-  # @return [Boolean] Whether the variant is Variants::DIRECTORY.
+  # @return [Boolean] Whether the variant is {Variants::DIRECTORY}.
   #
   def directory?
     self.variant == Variants::DIRECTORY
   end
 
   ##
-  # Returns the best binary to use with an IIIF image server, guaranteed to be
+  # Returns the best binary to use with an image server, guaranteed to be
   # compatible with it, in the following order of preference:
   #
   # 1. The representative binary
-  # 2. If the instance's variant is `SUPPLEMENT`, any binary
-  # 3. If the instance is compound, the `effective_image_binary()` of the
-  #    first child, sorted structurally
-  # 4. Any access master of `Binary::MediaCategory::IMAGE`
-  # 5. Any access master of `Binary::MediaCategory::VIDEO`
+  # 2. If the instance's variant is {Variants::SUPPLEMENT}, any binary
+  # 3. If the instance is compound, the {effective_image_binary} of the first
+  #    child, sorted structurally
+  # 4. Any access master of {Binary::MediaCategory::IMAGE}
+  # 5. Any access master of {Binary::MediaCategory::VIDEO}
   # 6. Any access master with media type `application/pdf`
-  # 7. Any preservation master of `Binary::MediaCategory::IMAGE`
-  # 8. Any preservation master of `Binary::MediaCategory::VIDEO`
+  # 7. Any preservation master of {Binary::MediaCategory::IMAGE}
+  # 8. Any preservation master of {Binary::MediaCategory::VIDEO}
   # 9. Any preservation master with media type `application/pdf`
   #
   # @return [Binary, nil]
-  # @see effective_viewer_binary()
+  # @see effective_viewer_binary
   #
   def effective_image_binary
     unless @effective_image_binary
@@ -719,7 +720,7 @@ class Item < ApplicationRecord
   # Returns the instance's effective representative item based on the following
   # order of preference:
   #
-  # 1. The instance's assigned representative item (if it has one)
+  # 1. The instance's {representative item} (if it has one)
   # 2. The instance's first page (if it has any)
   # 3. The instance's first child item (if it has any)
   # 4. The instance itself
@@ -768,7 +769,7 @@ class Item < ApplicationRecord
   #                                closest ancestor statement, if present;
   #                                otherwise, the statement assigned to its
   #                                collection, if present; otherwise nil.
-  # @see rightsstatements_org_statement()
+  # @see rightsstatements_org_statement
   #
   def effective_rightsstatements_org_statement
     # Use the statement assigned to the instance.
@@ -805,7 +806,7 @@ class Item < ApplicationRecord
   # 7. Any other preservation master
   #
   # @return [Binary, nil]
-  # @see effective_image_binary()
+  # @see effective_image_binary
   #
   def effective_viewer_binary
     unless @effective_viewer_binary
@@ -975,7 +976,7 @@ class Item < ApplicationRecord
 
   ##
   # @return [Item, nil]
-  # @see all_parents()
+  # @see all_parents
   #
   def parent
     @parent = Item.find_by_repository_id(self.parent_repository_id) unless @parent
@@ -1051,10 +1052,10 @@ class Item < ApplicationRecord
   end
 
   ##
-  # @return [Item, nil] The instance's assigned representative item, which may
-  #                     be nil. For the purposes of getting "the"
-  #                     representative item, `effective_representative_entity`
-  #                     should be used instead.
+  # @return [Item, nil] The instance's assigned representative item. For the
+  #                     purposes of getting "the" representative item,
+  #                     {effective_representative_entity} should be used
+  #                     instead.
   # @see effective_representative_entity
   #
   def representative_item
@@ -1063,7 +1064,7 @@ class Item < ApplicationRecord
 
   ##
   # @return [RightsStatement, nil]
-  # @see effective_rightsstatements_org_statement()
+  # @see effective_rightsstatements_org_statement
   #
   def rightsstatements_org_statement
     RightsStatement.for_uri(self.element(:accessRights)&.uri)
@@ -1094,7 +1095,7 @@ class Item < ApplicationRecord
   end
 
   ##
-  # @return [Element]
+  # @return [String]
   #
   def title
     t = self.element(:title)&.value
@@ -1114,7 +1115,7 @@ class Item < ApplicationRecord
   # embedded within its preservation or access master binary.
   #
   # @param options [Hash<Symbol,Object>]
-  # @option options [Boolean] :include_date_created
+  # @option options [Boolean] `:include_date_created`
   # @raises [IOError]
   #
   def update_from_embedded_metadata(options = {})
@@ -1131,7 +1132,7 @@ class Item < ApplicationRecord
   # Updates an instance from a JSON representation compatible with the structure
   # returned by as_json().
   #
-  # N.B.: This method must be kept in sync with as_json().
+  # N.B.: This method must be kept in sync with {as_json}.
   #
   # @param json [String]
   # @return [void]
