@@ -209,4 +209,22 @@ class ElasticsearchClient
     create_index(index.name, index.schema)
   end
 
+  ##
+  # Refreshes an index.
+  #
+  # @param index [String]
+  # @return [void]
+  #
+  def refresh(index)
+    url = sprintf('%s/%s/_refresh',
+                  Configuration.instance.elasticsearch_endpoint,
+                  index)
+    headers = { 'Content-Type': 'application/json' }
+    response = @@http_client.post(url, nil, headers)
+
+    LOGGER.debug("refresh(): URL: %s\n"\
+                 "  Response: %s",
+                 url, response.body)
+  end
+
 end
