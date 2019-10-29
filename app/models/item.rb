@@ -662,7 +662,7 @@ class Item < ApplicationRecord
   def effective_image_binary
     unless @effective_image_binary
       bin = self.representative_binary
-      if !bin or !bin.iiif_safe?
+      if !bin or !bin.image_server_safe?
         if self.variant == Variants::SUPPLEMENT
           bin = self.binaries.first
         elsif self.is_compound?
@@ -673,7 +673,7 @@ class Item < ApplicationRecord
             bin = first_child.effective_image_binary
           end
         end
-        if !bin or !bin.iiif_safe?
+        if !bin or !bin.image_server_safe?
           [
               {
                   master_type: Binary::MasterType::ACCESS,
@@ -811,13 +811,13 @@ class Item < ApplicationRecord
   def effective_viewer_binary
     unless @effective_viewer_binary
       bin = self.representative_binary
-      if !bin or !bin.iiif_safe?
+      if !bin or !bin.image_server_safe?
         if self.variant == Variants::SUPPLEMENT
           bin = self.binaries.first
         elsif self.is_compound?
           bin = self.finder.limit(1).to_a.first&.effective_image_binary
         end
-        if !bin or !bin.iiif_safe?
+        if !bin or !bin.image_server_safe?
           [
               {
                   master_type: Binary::MasterType::ACCESS,

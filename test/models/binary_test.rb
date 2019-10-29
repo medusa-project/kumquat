@@ -127,25 +127,26 @@ class BinaryTest < ActiveSupport::TestCase
                  @binary.iiif_info_url
   end
 
-  # iiif_safe?()
+  # image_server_safe?()
 
-  test 'iiif_safe?() should return false if the instance is not IIIF-compatible' do
+  test 'image_server_safe?() returns false if the instance is not image
+  server-compatible' do
     @binary.media_type = 'application/octet-stream'
-    assert !@binary.iiif_safe?
+    assert !@binary.image_server_safe?
 
     @binary.media_type = 'text/plain'
-    assert !@binary.iiif_safe?
+    assert !@binary.image_server_safe?
   end
 
-  test 'iiif_safe?() should return false if a TIFF image is too big' do
+  test 'image_server_safe?() returns false if a TIFF image is too big' do
     @binary.media_type = 'image/tiff'
-    assert @binary.iiif_safe?
+    assert @binary.image_server_safe?
     @binary.byte_size = 30000001
-    assert !@binary.iiif_safe?
+    assert !@binary.image_server_safe?
   end
 
-  test 'iiif_safe?() should return true in all other cases' do
-    assert @binary.iiif_safe?
+  test 'image_server_safe?() returns true in all other cases' do
+    assert @binary.image_server_safe?
   end
 
   # infer_media_type()

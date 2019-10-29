@@ -34,7 +34,7 @@
         <% end %>
       <% end %>
 
-      <% if item.effective_image_binary&.iiif_safe? %>
+      <% if item.effective_image_binary&.image_server_safe? %>
         <a href="#" class="btn btn-outline-primary btn-sm"
            onclick="return false;"
            data-toggle="modal"

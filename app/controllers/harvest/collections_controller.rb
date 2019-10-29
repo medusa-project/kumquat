@@ -37,7 +37,7 @@ module Harvest
     def access_master_image_block
       struct = nil
       bin = @collection.effective_representative_image_binary
-      if bin&.iiif_safe?
+      if bin&.image_server_safe?
         struct = {
             id:         bin.cfs_file_uuid,
             object_uri: bin.uri,

@@ -243,7 +243,7 @@ class Binary < ApplicationRecord
   ##
   # @return [String] IIIF Image API URI of the instance, regardless of whether
   #                  it is compatible with an image server.
-  # @see {iiif_safe?}
+  # @see image_server_safe?
   #
   def iiif_image_url
     Configuration.instance.iiif_url + '/' +
@@ -261,7 +261,7 @@ class Binary < ApplicationRecord
   # @return [Boolean] Whether the instance is presumed safe to feed through an
   #                   image server (won't bog it down too much).
   #
-  def iiif_safe?
+  def image_server_safe?
     if self.object_key.present?
       psd_types = %w(image/vnd.adobe.photoshop application/x-photoshop
           application/photoshop application/psd image/psd)
