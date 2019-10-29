@@ -590,10 +590,14 @@ class Collection < ApplicationRecord
   end
 
   ##
-  # @return [Integer] Number of objects in the collection. The result is cached.
+  # Returns the number of objects in the collection. (For free-form
+  # collections, an "object" is any file-variant Item; for other collections,
+  # it is any top-level Item.) The result is cached.
+  #
+  # @return [Integer]
   #
   def num_objects
-    unless @num__objects
+    unless @num_objects
       case self.package_profile
         when PackageProfile::FREE_FORM_PROFILE
           @num_objects = ItemFinder.new.
@@ -601,6 +605,7 @@ class Collection < ApplicationRecord
               aggregations(false).
               include_unpublished(true).
               include_variants(*Item::Variants::FILE).
+              include_children_in_results(true).
               order(false).
               count
         else
@@ -628,6 +633,7 @@ class Collection < ApplicationRecord
               collection(self).
               aggregations(false).
               include_variants(*Item::Variants::FILE).
+              include_children_in_results(true).
               count
         else
           @num_public_objects = ItemFinder.new.
