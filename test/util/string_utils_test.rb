@@ -51,7 +51,9 @@ class StringUtilsTest < ActiveSupport::TestCase
     assert StringUtils.to_b('true')
     assert StringUtils.to_b('True')
     assert StringUtils.to_b('TRUE')
+    assert StringUtils.to_b('yes')
     assert StringUtils.to_b('Yes')
+    assert StringUtils.to_b('YES')
     assert StringUtils.to_b('1')
   end
 
@@ -59,7 +61,9 @@ class StringUtilsTest < ActiveSupport::TestCase
     assert !StringUtils.to_b('false')
     assert !StringUtils.to_b('False')
     assert !StringUtils.to_b('FALSE')
+    assert !StringUtils.to_b('no')
     assert !StringUtils.to_b('No')
+    assert !StringUtils.to_b('NO')
     assert !StringUtils.to_b('0')
     assert !StringUtils.to_b('the quick brown fox')
   end

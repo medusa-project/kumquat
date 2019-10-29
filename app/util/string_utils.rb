@@ -1,6 +1,6 @@
 class StringUtils
 
-  TRUE_STRINGS  = %w(true True TRUE Yes 1)
+  TRUE_STRINGS  = %w(true True TRUE yes Yes YES 1)
   UUID_REGEX    = /\A[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/
 
   ##
