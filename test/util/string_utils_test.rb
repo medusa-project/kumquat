@@ -2,12 +2,6 @@ require 'test_helper'
 
 class StringUtilsTest < ActiveSupport::TestCase
 
-  test 'base16() works' do
-    str = 'some string 123!'
-    expected = '736f6d6520737472696e672031323321'
-    assert_equal(expected, StringUtils.base16(str))
-  end
-
   test 'pad_numbers works' do
     str = 'cats'
     assert_equal str, StringUtils.pad_numbers(str, '0', 5)
