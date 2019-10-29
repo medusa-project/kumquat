@@ -38,6 +38,7 @@ group :development do
   gem 'capistrano-rbenv'
   gem 'puma'
   gem 'rails-erd', require: false # generate a model diagram with `bundle exec erd`
+  gem 'yard'
 end
 
 group :production do
