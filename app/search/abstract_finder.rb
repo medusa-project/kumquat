@@ -260,7 +260,10 @@ class AbstractFinder
     end
 
     if @response['hits']
-      @result_count = @response['hits']['total']
+      @result_count = @response['hits']['total'] # ES 6.x
+      if @result_count.respond_to?(:keys)
+        @result_count = @result_count['value'] # ES 7.x
+      end
     else
       @result_count = 0
       raise IOError, "#{@response['error']['type']}: #{@response['error']['root_cause'][0]['reason']}"
