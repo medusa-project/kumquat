@@ -34,7 +34,7 @@ class CollectionTest < ActiveSupport::TestCase
     assert_equal 0, CollectionFinder.new.include_unpublished(true).count
 
     Collection.reindex_all
-    sleep 2 # wait for them to become searchable
+    refresh_elasticsearch
 
     actual = CollectionFinder.new.include_unpublished(true).count
     assert actual > 0
@@ -45,7 +45,7 @@ class CollectionTest < ActiveSupport::TestCase
 
   test 'all_indexed_item_ids returns all indexed item IDs' do
     @collection.items.each(&:reindex)
-    sleep 2 # wait for them to become searchable
+    refresh_elasticsearch
     assert_equal ['be8d3500-c451-0133-1d17-0050569601ca-9',
                   'd29950d0-c451-0133-1d17-0050569601ca-2',
                   'd29edba0-c451-0133-1d17-0050569601ca-c',
@@ -110,7 +110,7 @@ class CollectionTest < ActiveSupport::TestCase
 
   test 'delete_orphaned_item_documents works' do
     @collection.items.each(&:reindex)
-    sleep 2 # wait for them to become searchable
+    refresh_elasticsearch
     assert_equal 4, ItemFinder.new.
         include_unpublished(true).
         include_children_in_results(true).
@@ -119,7 +119,7 @@ class CollectionTest < ActiveSupport::TestCase
 
     @collection.items.first.destroy! # delete outside of a transaction
     @collection.delete_orphaned_item_documents
-    sleep 2
+    refresh_elasticsearch
     assert_equal 3, ItemFinder.new.
         include_unpublished(true).
         include_children_in_results(true).
@@ -301,7 +301,7 @@ class CollectionTest < ActiveSupport::TestCase
 
     items.each(&:reindex)
 
-    sleep 2 # wait for them to become searchable
+    refresh_elasticsearch
     assert_equal 4, @collection.num_items
   end
 
@@ -310,13 +310,13 @@ class CollectionTest < ActiveSupport::TestCase
   test 'num_objects() works with free-form collections' do
     @collection = collections(:illini_union)
     @collection.items.each(&:reindex)
-    sleep 2 # wait for them to become searchable
+    refresh_elasticsearch
     assert_equal 1, @collection.num_objects
   end
 
   test 'num_objects() works with non-free-form collections' do
     @collection.items.each(&:reindex)
-    sleep 2 # wait for them to become searchable
+    refresh_elasticsearch
     assert_equal 2, @collection.num_objects
   end
 
@@ -329,7 +329,7 @@ class CollectionTest < ActiveSupport::TestCase
       item.elements.build(name: 'title', value: 'Cats')
       item.reindex
     end
-    sleep 2 # wait for them to become searchable
+    refresh_elasticsearch
     assert_equal 1, @collection.num_public_objects
   end
 
@@ -339,7 +339,7 @@ class CollectionTest < ActiveSupport::TestCase
       item.elements.build(name: 'subject', value: 'Cats')
       item.reindex
     end
-    sleep 2 # wait for them to become searchable
+    refresh_elasticsearch
     assert_equal 2, @collection.num_public_objects
   end
 
@@ -438,7 +438,7 @@ class CollectionTest < ActiveSupport::TestCase
         filter(Collection::IndexFields::REPOSITORY_ID, @collection.repository_id).count
 
     @collection.reindex
-    sleep 2 # wait for it to become searchable
+    refresh_elasticsearch
 
     assert_equal 1, CollectionFinder.new.
         filter(Collection::IndexFields::REPOSITORY_ID, @collection.repository_id).count
@@ -454,7 +454,7 @@ class CollectionTest < ActiveSupport::TestCase
         count
 
     @collection.reindex_items
-    sleep 2 # wait for them to become searchable
+    refresh_elasticsearch
 
     assert_equal 4, ItemFinder.new.
         collection(@collection).

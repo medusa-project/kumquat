@@ -12,27 +12,27 @@ class ItemTest < ActiveSupport::TestCase
 
   # Item.num_free_form_files()
 
-  test 'num_free_form_files() should return a correct count' do
+  test 'num_free_form_files() returns a correct count' do
     Item.all.each(&:reindex)
-    sleep 2
+    refresh_elasticsearch
     assert_equal Item.where(variant: Item::Variants::FILE).count,
                  Item.num_free_form_files
   end
 
   # Item.num_free_form_items()
 
-  test 'num_free_form_items() should return a correct count' do
+  test 'num_free_form_items() returns a correct count' do
     Item.all.each(&:reindex)
-    sleep 2
+    refresh_elasticsearch
     assert_equal Item.where(variant: [Item::Variants::FILE, Item::Variants::DIRECTORY]).count,
                  Item.num_free_form_items
   end
 
   # Item.num_objects()
 
-  test 'num_objects() should return a correct count' do
+  test 'num_objects() returns a correct count' do
     Item.all.each(&:reindex)
-    sleep 2
+    refresh_elasticsearch
     assert_equal Item.where('variant = ? OR variant IS NULL',
                             Item::Variants::FILE).count,
                  Item.num_objects
