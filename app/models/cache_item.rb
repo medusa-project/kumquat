@@ -16,7 +16,7 @@ class CacheItem < ApplicationRecord
   # @param key [String] Cache key.
   # @param max_age [Integer] Max age in seconds.
   # @param block [Block] Block to invoke if no value is found for the given
-  #                      key, or if the value is older than max_age. The
+  #                      key, or if the value is older than `max_age`. The
   #                      return value is cached.
   # @return [String] Cache item value.
   #

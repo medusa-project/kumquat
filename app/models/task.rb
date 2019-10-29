@@ -2,7 +2,6 @@
 # Representation of an asynchronous task for providing user status updates.
 #
 # To use:
-#
 # ```
 # task = Task.create!(name: 'Do Something',
 #                     status_text: 'Doing something')
@@ -17,6 +16,24 @@
 # # done
 # task.done
 # ```
+#
+# # Attributes
+#
+# * `backtrace`        Error backtrace.
+# * `completed_at`     Completion timestamp.
+# * `created_at`       Managed by ActiveRecord.
+# * `detail`           Detailed information about the task.
+# * `indeterminate`    When set to `true`, indicates that it is not possible to
+#                      predict the completion time.
+# * `job_id`           Deprecated. TODO: remove this
+# * `name`             Name of the task, which does not change over the task's
+#                      lifecycle.
+# * `percent_complete` Float from 0 to 1.
+# * `queue`            ActiveJob queue. Deprecated. TODO: remove this
+# * `started_at`       Start timestamp.
+# * `status`           One of the {Status} constant values.
+# * `status_text`      String describing the current status of the task.
+# * `updated_at`       Managed by ActiveRecord.
 #
 class Task < ApplicationRecord
 
@@ -39,7 +56,7 @@ class Task < ApplicationRecord
     end
 
     ##
-    # @param status [Integer] One of the Status constant values.
+    # @param status [Integer] One of the {Status} constant values.
     # @return [String] Human-readable status.
     #
     def self.to_s(status)
@@ -75,12 +92,18 @@ class Task < ApplicationRecord
     self.status ||= Status::WAITING
   end
 
+  ##
+  # Completes the instance by setting its status to {Status::SUCCEEDED}.
+  #
   def done
     self.update!(status: Status::SUCCEEDED)
   end
 
   alias_method :succeeded, :done
 
+  ##
+  # Fails the instance by setting its status to {Status::FAILED}.
+  #
   def fail
     self.update!(status: Status::FAILED)
   end

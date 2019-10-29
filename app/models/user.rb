@@ -1,3 +1,17 @@
+##
+# Application user. 
+#
+# # Attributes
+#
+# * `api_key`    Used as a secret/password for accessing the HTTP API.
+# * `created_at` Managed by ActiveRecord.
+# * `enabled`    Whether the user is authorized to sign in (or to do anything
+#                at all).
+# * `human`      Whether the user is associated with a human. Non-human users
+#                may be used by scripts etc.
+# * `updated_at` Managed by ActiveRecord.
+# * `username`   Username. For UIUC users, this is the NetID.
+#
 class User < ApplicationRecord
 
   has_and_belongs_to_many :item_sets

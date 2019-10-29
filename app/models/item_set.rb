@@ -1,15 +1,16 @@
 ##
-# Arbitrary grouping of items.
+# Arbitrary container of items.
 #
-# N.B.: For implementation reasons, when adding a compound object to a set, all
-# of its child items must also be added to the set.
+# N.B.: For implementation reasons, when adding a compound object
+# (non-free-form {Item} with children) to an instance, all of its child items
+# must also be added as well.
 #
 # # Attributes
 #
-# * collection_repository_id: UUID of the associated collection.
-# * created_at:               Managed by ActiveRecord.
-# * name:                     Name of the set.
-# * updated_at:               Managed by ActiveRecord.
+# * `collection_repository_id` UUID of the associated collection.
+# * `created_at`               Managed by ActiveRecord.
+# * `name`                     Name of the set.
+# * `updated_at`               Managed by ActiveRecord.
 #
 class ItemSet < ActiveRecord::Base
 
@@ -57,7 +58,8 @@ class ItemSet < ActiveRecord::Base
   end
 
   ##
-  # @return [Integer] Number of objects in the instance. The result is cached.
+  # @return [Integer] Number of objects contained in the instance. The result
+  #                   is cached.
   #
   def num_objects
     unless @num_objects
@@ -84,6 +86,9 @@ class ItemSet < ActiveRecord::Base
     @num_objects
   end
 
+  ##
+  # @return [String] The name.
+  #
   def to_s
     "#{name}"
   end

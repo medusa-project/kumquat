@@ -5,15 +5,15 @@
 # a long time to prepare. A typical workflow is:
 #
 # 1. The user clicks a download button.
-# 2. The responding controller creates a Download instance, invokes an
+# 2. The responding controller creates a {Download} instance, invokes an
 #    asynchronous task to prepare the file for download, and redirects to the
-#    Download instance's URL.
-# 3. The task associates the Download with a Task. (This enables progress
+#    instance's URL.
+# 3. The task associates the Download with a {Task}. (This enables progress
 #    reporting.)
 # 4. The task does its work, periodically updating the associated Task's
 #    `percent_complete` attribute to keep the user informed. When done, it
 #    sets `filename` to the file's filename, and sets the Task's status to
-#    `Task::Status::SUCCEEDED`.
+#    {Task::Status::SUCCEEDED}.
 # 5. The user reloads the page (or it reloads automatically via XHR), sees a
 #    download link, and follows it to download the file.
 #
@@ -24,17 +24,17 @@
 #
 # # Attributes
 #
-# * created_at: Managed by ActiveRecord.
-# * expired:    When a download is expired, it is no longer usable and its
-#               associated file is no longer available. Client code should call
-#               expire() rather than setting this directly.
-# * filename:   Filename of the file to be downloaded. (`url` can be used
-#               instead.
-# * key:        Random alphanumeric "public ID." Should be hard to guess so
-#               that someone can't retrieve someone else's download.
-# * updated_at: Managed by ActiveRecord.
-# * url:        URL to redirect to rather than downloading a local file. Must
-#               be publicly accessible.
+# * `created_at` Managed by ActiveRecord.
+# * `expired`    When a download is expired, it is no longer usable and its
+#                associated file is no longer available. Client code should
+#                call {expire} rather than setting this directly.
+# * `filename`   Filename of the file to be downloaded. (`url` can be used
+#                instead.
+# * `key`        Random alphanumeric "public ID." Should be hard to guess so
+#                that someone can't retrieve someone else's download.
+# * `updated_at` Managed by ActiveRecord.
+# * `url`        URL to redirect to rather than downloading a local file. Must
+#                be publicly accessible.
 #
 class Download < ApplicationRecord
 
