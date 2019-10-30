@@ -4,6 +4,8 @@
 #
 class CollectionFinder < AbstractFinder
 
+  LOGGER = CustomLogger.new(CollectionFinder)
+
   def initialize
     super
     @include_unpublished = false
@@ -30,8 +32,8 @@ class CollectionFinder < AbstractFinder
   end
 
   ##
-  # @param parent_collection [Collection]
-  # @return [CollectionFinder] self
+  # @param collection [Collection]
+  # @return [self]
   #
   def parent_collection(collection)
     @parent_collection = collection
@@ -39,10 +41,15 @@ class CollectionFinder < AbstractFinder
   end
 
   ##
-  # @return [Enumerable<Item>]
+  # @return [Enumerable<Collection>]
   #
   def to_a
-    to_id_a.map{ |r| Collection.find_by_repository_id(r) }.select(&:present?)
+    cols = to_id_a.map do |id|
+      col = Collection.find_by_repository_id(id)
+      LOGGER.debug("to_a(): #{id} is missing from the database") unless col
+      col
+    end
+    cols.select(&:present?)
   end
 
   ##
@@ -91,9 +98,13 @@ class CollectionFinder < AbstractFinder
     end
 
     if @response['hits']
-      @result_count = @response['hits']['total']
+      @result_count = @response['hits']['total'] # ES 6.x
+      if @result_count.respond_to?(:keys)
+        @result_count = @result_count['value'] # ES 7.x
+      end
     else
       @result_count = 0
+      raise IOError, "#{@response['error']['type']}: #{@response['error']['root_cause'][0]['reason']}"
     end
 
     @loaded = true

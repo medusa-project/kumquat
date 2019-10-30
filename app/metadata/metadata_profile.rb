@@ -10,6 +10,19 @@
 # collection's metadata profile, and display each of its elements that match,
 # in profile order.
 #
+# # Attributes
+#
+# * name:                        The name of the metadata profile.
+# * created_at:                  Managed by ActiveRecord.
+# * default:                     Whether the metadata profile is used in cross-
+#                                collection contexts. (Only one metadata
+#                                profile can be marked default--this is
+#                                enforced by an after_save callback.)
+# * default_sortable_element_id: ID of the MetadataProfileElement that is
+#                                sorted on by default (in the absence of a
+#                                different user choice).
+# * updated_at:                  Managed by ActiveRecord.
+#
 class MetadataProfile < ApplicationRecord
 
   belongs_to :default_sortable_element, class_name: 'MetadataProfileElement'

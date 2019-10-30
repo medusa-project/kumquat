@@ -2,15 +2,19 @@
 # Encapsulates an Elasticsearch index, which corresponds one-to-one with an
 # Elasticsearch model, and has a particular schema.
 #
+# Note: the index-per-model approach is a legacy of the
+# [elasticsearch-model gem](https://github.com/elastic/elasticsearch-rails/tree/master/elasticsearch-model)
+# which is no longer being used. It would be better to have only one index.
+#
 # # Schemas
 #
-# Elasticsearch indexes can't be changed in place (and that's probably bad
-# practice anyway), so new ones have to be created with the desired changes.
-# Versioned index schemas are defined in `index_schemas.yml`. The version the
-# application uses is set in `Option::Keys::CURRENT_INDEX_VERSION`. When the
-# schema changes, the new indexes must be created and populated with documents,
-# and then the application switched over to them. (Typically this is all done
-# with rake tasks; see below.)
+# Elasticsearch indexes can't be changed in place, so new ones have to be
+# created with the desired changes.  Versioned index schemas are defined in
+# `index_schemas.yml`. The version the application uses is set in
+# `Option::Keys::CURRENT_INDEX_VERSION`. When the schema changes, the new
+# indexes must be created and populated with documents, and then the
+# application switched over to them. (Typically this is all done with rake
+# tasks; see below.)
 #
 # ## Index migration
 #
@@ -45,9 +49,7 @@ class ElasticsearchIndex
   SCHEMAS = YAML.load_file(File.join(Rails.root, 'app', 'search',
                                      'index_schemas.yml'))
 
-  attr_accessor :name
-  attr_accessor :schema
-  attr_accessor :version
+  attr_accessor :name, :schema, :version
 
   ##
   # @param type [String] Type name.
@@ -84,14 +86,12 @@ class ElasticsearchIndex
   #
   def self.migrate_to_latest
     current_version = current_index_version
-    latest_version = latest_index_version
+    latest_version  = latest_index_version
 
     if current_version < latest_version
       LOGGER.debug('migrate_to_latest(): [current version: %d] [latest version: %d]',
                    current_version, latest_version)
-
       Option.set(Option::Keys::CURRENT_INDEX_VERSION, latest_version)
-
       LOGGER.info('migrate_to_latest(): now using version %d', latest_version)
     else
       LOGGER.info('migrate_to_latest(): already on the latest version. Nothing to do.')
@@ -107,12 +107,9 @@ class ElasticsearchIndex
     if next_version < 0
       raise 'Can\'t rollback past version 0'
     end
-
     LOGGER.info('rollback_to_previous(): [current version: %d] [next version: %d]',
                 current_version, next_version)
-
     Option.set(Option::Keys::CURRENT_INDEX_VERSION, next_version)
-
     LOGGER.info('rollback_to_previous(): new version: %d', next_version)
   end
 

@@ -7,6 +7,7 @@
 #
 class EntityFinder < AbstractFinder
 
+  LOGGER = CustomLogger.new(EntityFinder)
   ALL_ENTITIES = [Agent, Collection, Item]
 
   def initialize
@@ -105,11 +106,20 @@ class EntityFinder < AbstractFinder
       return @response['hits']['hits'].map { |r|
         case r['_type'].downcase
         when 'agent'
-          Agent.find(r['_id'])
+          id = r['_id']
+          agent = Agent.find(id)
+          LOGGER.debug("to_a(): #{id} is missing from the database") unless agent
+          agent
         when 'item'
-          Item.find_by_repository_id(r['_source']['k_repository_id'])
+          id = r['_source'][Item::IndexFields::REPOSITORY_ID]
+          item = Item.find_by_repository_id(id)
+          LOGGER.debug("to_a(): #{id} is missing from the database") unless item
+          item
         when 'collection'
-          Collection.find_by_repository_id(r['_source']['k_repository_id'])
+          id = r['_source'][Collection::IndexFields::REPOSITORY_ID]
+          col = Collection.find_by_repository_id(id)
+          LOGGER.debug("to_a(): #{id} is missing from the database") unless col
+          col
         end
       }.select(&:present?)
     end

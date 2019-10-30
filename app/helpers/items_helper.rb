@@ -22,7 +22,7 @@ module ItemsHelper
     url = nil
     query = {}
 
-    if binary.iiif_safe?
+    if binary.image_server_safe?
       options[:region] = 'full' if options[:region].blank?
       if options[:size].blank?
         options[:size] = 'full'
@@ -905,18 +905,18 @@ module ItemsHelper
     options[:lazy] = false unless options.keys.include?(:lazy)
 
     url = nil
-    if entity.kind_of?(Binary) and entity.iiif_safe?
+    if entity.kind_of?(Binary) and entity.image_server_safe?
       url = binary_image_url(entity,
                              region: options[:shape],
                              size: options[:size])
     elsif entity.kind_of?(Collection)
       bin = entity.effective_representative_image_binary
-      if bin&.iiif_safe?
+      if bin&.image_server_safe?
         url = binary_image_url(bin,
                                region: options[:shape],
                                size: options[:size])
       end
-    elsif entity.kind_of?(Item) and entity.effective_image_binary&.iiif_safe?
+    elsif entity.kind_of?(Item) and entity.effective_image_binary&.image_server_safe?
       url = item_image_url(entity,
                            options[:shape],
                            options[:size])

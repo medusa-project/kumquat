@@ -1,3 +1,8 @@
+##
+# Abstract base class for type-specific "finders," which are objects that
+# simplify Elasticsearch queries (which can be pretty complex & awkward) using
+# the Builder pattern.
+#
 class AbstractFinder
 
   def initialize
@@ -198,6 +203,8 @@ class AbstractFinder
   end
 
   ##
+  # Limits results to those accessible by any of the given roles.
+  #
   # @param roles [Enumerable<Role>, Enumerable<String>]
   # @return [self]
   #
@@ -253,9 +260,13 @@ class AbstractFinder
     end
 
     if @response['hits']
-      @result_count = @response['hits']['total']
+      @result_count = @response['hits']['total'] # ES 6.x
+      if @result_count.respond_to?(:keys)
+        @result_count = @result_count['value'] # ES 7.x
+      end
     else
       @result_count = 0
+      raise IOError, "#{@response['error']['type']}: #{@response['error']['root_cause'][0]['reason']}"
     end
 
     @loaded = true

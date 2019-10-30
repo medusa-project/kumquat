@@ -127,33 +127,120 @@ class BinaryTest < ActiveSupport::TestCase
                  @binary.iiif_info_url
   end
 
-  # iiif_safe?()
+  # image_server_safe?()
 
-  test 'iiif_safe?() should return false if the instance is not IIIF-compatible' do
+  test 'image_server_safe?() returns false if the instance is not image
+  server-compatible' do
     @binary.media_type = 'application/octet-stream'
-    assert !@binary.iiif_safe?
+    assert !@binary.image_server_safe?
 
     @binary.media_type = 'text/plain'
-    assert !@binary.iiif_safe?
+    assert !@binary.image_server_safe?
   end
 
-  test 'iiif_safe?() should return false if a TIFF image is too big' do
+  test 'image_server_safe?() returns false if a TIFF image is too big' do
     @binary.media_type = 'image/tiff'
-    assert @binary.iiif_safe?
+    assert @binary.image_server_safe?
     @binary.byte_size = 30000001
-    assert !@binary.iiif_safe?
+    assert !@binary.image_server_safe?
   end
 
-  test 'iiif_safe?() should return true in all other cases' do
-    assert @binary.iiif_safe?
+  test 'image_server_safe?() returns true in all other cases' do
+    assert @binary.image_server_safe?
   end
 
   # infer_media_type()
 
-  test 'infer_media_type() should work properly' do
+  test 'infer_media_type() works' do
     @binary.media_type = nil
     @binary.infer_media_type
     assert_equal 'image/jpeg', @binary.media_type
+  end
+
+  # is_3d?()
+
+  test 'is_3d?() works' do
+    assert !@binary.is_3d?
+
+    @binary.media_category = Binary::MediaCategory::THREE_D
+    assert @binary.is_3d?
+  end
+
+  # is_audio?()
+
+  test 'is_audio?() works' do
+    assert !@binary.is_audio?
+
+    @binary.media_type = 'audio/aiff'
+    assert @binary.is_audio?
+  end
+
+  # is_document?()
+
+  test 'is_document?() works' do
+    assert !@binary.is_document?
+
+    @binary.media_category = Binary::MediaCategory::DOCUMENT
+    assert @binary.is_document?
+  end
+
+  # is_image?()
+
+  test 'is_image?() works' do
+    @binary.media_type = 'unknown/unknown'
+    assert !@binary.is_image?
+
+    @binary.media_type = 'image/jpeg'
+    assert @binary.is_image?
+  end
+
+  # is_media_space_video?()
+
+  test 'is_media_space_video?() works' do
+    assert !@binary.is_media_space_video?
+
+    @binary.media_type = 'video/mpeg'
+    @binary.item.embed_tag = '<embed>kaltura</embed>'
+    assert @binary.is_video?
+  end
+
+  # is_pdf?()
+
+  test 'is_pdf?() works' do
+    assert !@binary.is_pdf?
+
+    @binary.media_type = 'application/pdf'
+    assert @binary.is_pdf?
+  end
+
+  # is_pdf?()
+
+  test 'is_raster?() works' do
+    @binary.media_type = 'unknown/unknown'
+    assert !@binary.is_raster?
+
+    @binary.media_type = 'video/mpeg'
+    assert @binary.is_raster?
+    @binary.media_type = 'image/jpeg'
+    assert @binary.is_raster?
+  end
+
+  # is_text?()
+
+  test 'is_text?() works' do
+    assert !@binary.is_text?
+
+    @binary.media_type = 'text/plain'
+    assert @binary.is_text?
+  end
+
+  # is_video?()
+
+  test 'is_video?() works' do
+    assert !@binary.is_video?
+
+    @binary.media_type = 'video/mpeg'
+    assert @binary.is_video?
   end
 
   # medusa_url()
@@ -185,7 +272,7 @@ class BinaryTest < ActiveSupport::TestCase
   end
 
   test 'read_dimensions() should work on videos' do
-    # TODO: write this
+    skip # TODO: write this
   end
 
   # read_duration()

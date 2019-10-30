@@ -65,7 +65,7 @@ class IiifPdfGenerator
   #
   def add_image(binary, doc)
     if binary.is_image?
-      if binary.iiif_safe?
+      if binary.image_server_safe?
         # Download an optimally-sized JPEG derivative of image to a temp file.
         hres = IMAGE_DPI / DOCUMENT_DPI.to_f * doc.bounds.width
         vres = IMAGE_DPI / DOCUMENT_DPI.to_f * doc.bounds.height

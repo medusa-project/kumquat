@@ -45,7 +45,7 @@
 
 <h1><%= collection_page_title(@collection) %></h1>
 
-<% if @representative_image_binary&.iiif_safe? %>
+<% if @representative_image_binary&.image_server_safe? %>
   <div class="row">
     <div class="col-sm-6 col-md-7 col-lg-8">
       <%= render partial: 'description' %>

@@ -1,21 +1,39 @@
 ##
-# A representation of a task (typically but not necessarily a Job) for
-# displaying  to an end user.
+# Representation of an asynchronous task for providing user status updates.
 #
 # To use:
-#     task = Task.create!(name: 'Do Something',
-#                         status_text: 'Doing something')
-#     # do stuff...
+# ```
+# task = Task.create!(name: 'Do Something',
+#                     status_text: 'Doing something')
+# # do stuff...
 #
-#     task.progress = 0.3
+# task.update(progress: 0.3)
 #
-#     # do some more stuff...
+# # do some more stuff...
 #
-#     task.status_text = 'Wrapping up'
-#     task.progress = 0.9
+# task.update(status_text: 'Wrapping up', progress: 0.9)
 #
-#     # done
-#     task.done
+# # done
+# task.done
+# ```
+#
+# # Attributes
+#
+# * `backtrace`        Error backtrace.
+# * `completed_at`     Completion timestamp.
+# * `created_at`       Managed by ActiveRecord.
+# * `detail`           Detailed information about the task.
+# * `indeterminate`    When set to `true`, indicates that it is not possible to
+#                      predict the completion time.
+# * `job_id`           Deprecated. TODO: remove this
+# * `name`             Name of the task, which does not change over the task's
+#                      lifecycle.
+# * `percent_complete` Float from 0 to 1.
+# * `queue`            ActiveJob queue. Deprecated. TODO: remove this
+# * `started_at`       Start timestamp.
+# * `status`           One of the {Status} constant values.
+# * `status_text`      String describing the current status of the task.
+# * `updated_at`       Managed by ActiveRecord.
 #
 class Task < ApplicationRecord
 
@@ -24,22 +42,22 @@ class Task < ApplicationRecord
   #
   class Status
 
-    WAITING = 0
-    RUNNING = 1
-    PAUSED = 2
+    WAITING   = 0
+    RUNNING   = 1
+    PAUSED    = 2
     SUCCEEDED = 3
-    FAILED = 4
+    FAILED    = 4
 
     ##
-    # @return [Enumerable<Integer>]
+    # @return [Enumerable<Integer>] All constant values.
     #
     def self.all
       (0..4)
     end
 
     ##
-    # @param status One of the Status constants
-    # @return Human-readable status
+    # @param status [Integer] One of the {Status} constant values.
+    # @return [String] Human-readable status.
     #
     def self.to_s(status)
       case status
@@ -64,7 +82,7 @@ class Task < ApplicationRecord
 
   # Instances will often be updated from inside transactions, outside of which
   # any updates would not be visible. So, we use a different database
-  # connection, to which they won't propagate.
+  # connection.
   establish_connection "#{Rails.env}_2".to_sym
 
   after_initialize :init
@@ -74,16 +92,20 @@ class Task < ApplicationRecord
     self.status ||= Status::WAITING
   end
 
+  ##
+  # Completes the instance by setting its status to {Status::SUCCEEDED}.
+  #
   def done
-    self.status = Status::SUCCEEDED
-    self.save!
+    self.update!(status: Status::SUCCEEDED)
   end
 
   alias_method :succeeded, :done
 
+  ##
+  # Fails the instance by setting its status to {Status::FAILED}.
+  #
   def fail
-    self.status = Status::FAILED
-    self.save!
+    self.update!(status: Status::FAILED)
   end
 
   def failed?
@@ -91,8 +113,7 @@ class Task < ApplicationRecord
   end
 
   def progress=(float)
-    self.percent_complete = float.to_f
-    self.save!
+    self.update!(percent_complete: float.to_f)
   end
 
   def status=(status)
@@ -126,9 +147,9 @@ class Task < ApplicationRecord
   def succeed
     write_attribute(:status, Status::SUCCEEDED)
     self.percent_complete = 1
-    self.completed_at = Time.now
-    self.backtrace = nil
-    self.detail = nil
+    self.completed_at     = Time.now
+    self.backtrace        = nil
+    self.detail           = nil
   end
 
 end

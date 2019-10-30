@@ -1,40 +1,40 @@
 ##
 # Represents a file download.
 #
-# This model is part of a system that can be used for downloads that will take
+# This model is part of a system that can be used for downloads that may take
 # a long time to prepare. A typical workflow is:
 #
 # 1. The user clicks a download button.
-# 2. The responding controller creates a Download instance, invokes an
-#    asynchronous ActiveJob to prepare the file for download, and redirects to
-#    the download instance's URL.
-# 3. The job associates the Download with a Task. (This enables progress
-#    tracking.)
-# 4. The job does its work, periodically updating the associated Task's
+# 2. The responding controller creates a {Download} instance, invokes an
+#    asynchronous task to prepare the file for download, and redirects to the
+#    instance's URL.
+# 3. The task associates the Download with a {Task}. (This enables progress
+#    reporting.)
+# 4. The task does its work, periodically updating the associated Task's
 #    `percent_complete` attribute to keep the user informed. When done, it
 #    sets `filename` to the file's filename, and sets the Task's status to
-#    `Task::Status::SUCCEEDED`.
-# 5. The user reloads the page (or it reloads automatically via AJAX), sees a
+#    {Task::Status::SUCCEEDED}.
+# 5. The user reloads the page (or it reloads automatically via XHR), sees a
 #    download link, and follows it to download the file.
 #
 # Periodically, old Download records and their corresponding files should be
 # cleaned up using the `dls:downloads:cleanup` rake task. This will mark them
 # as expired and delete their corresponding files. Expired instances are kept
-# around for record-keeping.
+# around for record keeping.
 #
 # # Attributes
 #
-# * created_at:       Managed by ActiveRecord.
-# * expired:          When a download is expired, it is no longer usable and
-#                     its associated file is no longer available. Client code
-#                     should call expire() rather than setting this directly.
-# * filename:         Filename of the file to be downloaded. (`url` can be
-#                     used instead.
-# * key:              Random alphanumeric "public ID." Should be hard to guess
-#                     so that someone can't retrieve someone else's download.
-# * updated_at:       Managed by ActiveRecord.
-# * url:              URL to redirect to rather than downloading a local file.
-#                     Must be publicly accessible.
+# * `created_at` Managed by ActiveRecord.
+# * `expired`    When a download is expired, it is no longer usable and its
+#                associated file is no longer available. Client code should
+#                call {expire} rather than setting this directly.
+# * `filename`   Filename of the file to be downloaded. (`url` can be used
+#                instead.
+# * `key`        Random alphanumeric "public ID." Should be hard to guess so
+#                that someone can't retrieve someone else's download.
+# * `updated_at` Managed by ActiveRecord.
+# * `url`        URL to redirect to rather than downloading a local file. Must
+#                be publicly accessible.
 #
 class Download < ApplicationRecord
 

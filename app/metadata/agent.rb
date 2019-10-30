@@ -1,5 +1,6 @@
 ##
-# @see https://github.com/elastic/elasticsearch-rails/blob/master/elasticsearch-model/README.md
+# Some kind of noun supporting many-to-many relationships to other agents/
+# nouns.
 #
 class Agent < ApplicationRecord
 
@@ -38,7 +39,7 @@ class Agent < ApplicationRecord
   ELASTICSEARCH_INDEX = 'agents'
   ELASTICSEARCH_TYPE  = 'agent'
 
-  def self.delete_stale_documents
+  def self.delete_orphaned_documents
     # TODO: write this
   end
 

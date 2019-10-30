@@ -84,6 +84,11 @@ class TimeUtilTest < ActiveSupport::TestCase
                  TimeUtil.parse_date('1923:02:12 12:10:50')
   end
 
+  test 'parse_date works with YYYY-MM' do
+    assert_equal [Time.parse('1923-02-01 00:00:00')],
+                 TimeUtil.parse_date('1923-02')
+  end
+
   test 'parse_date works with YYYY-MM-DD' do
     assert_equal [Time.parse('1923-02-12 00:00:00')],
                  TimeUtil.parse_date('1923-02-12')

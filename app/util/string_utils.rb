@@ -1,19 +1,10 @@
+##
+# Assortment of string-related utility methods.
+#
 class StringUtils
 
-  TRUE_STRINGS  = %w(true True TRUE Yes 1)
+  TRUE_STRINGS  = %w(true True TRUE yes Yes YES 1)
   UUID_REGEX    = /\A[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/
-
-  def self.base16(str)
-    ret = ''
-    str.each_char do |c|
-      ch = c.ord.to_s(16)
-      if ch.size == 1
-        ch = '0' + ch
-      end
-      ret += ch
-    end
-    ret.downcase
-  end
 
   ##
   # Left-pads all numbers in the given string with the given character to the
@@ -52,17 +43,25 @@ class StringUtils
     "#{(pct * 100).round(2)}% [ETA: #{eta}]"
   end
 
+  ##
+  # Performs ROT-18 on a string. This is used to apparently "scramble" them in
+  # an easily reversible way.
+  #
+  # @param str [String] String to encode.
+  # @return [String]    Encoded string.
+  #
   def self.rot18(str)
     str.tr('A-Ma-m0-4N-Zn-z5-9', 'N-Zn-z5-9A-Ma-m0-4')
   end
 
   ##
+  # Strips leading articles from an English or French string.
+  #
   # @param str [String] String to strip leading articles from.
-  # @return [String] New string with leading articles stripped.
+  # @return [String]    New string with leading articles stripped.
   #
   def self.strip_leading_articles(str)
     # See: http://access.rdatoolkit.org/rdaappc_rdac-26.html
-
     # English: a, an, d', de, the, ye
     # French:  l', la, le, les, un* (skipped), une* (skipped)
     str.gsub(/^(a |an |d'|d’|de |the |ye |l'|l’|la |le |les )/i, '')

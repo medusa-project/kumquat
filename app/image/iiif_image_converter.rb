@@ -37,7 +37,7 @@ class IiifImageConverter
           binary.object_key.split('.')[0...-1].join('.') +
           '.' + format
 
-      if binary.iiif_safe?
+      if binary.image_server_safe?
         # ?cache=false is supported by Cantaloupe to help reduce the cache size.
         url = binary.iiif_image_url + '/full/full/0/default.' + format +
             '?cache=false'

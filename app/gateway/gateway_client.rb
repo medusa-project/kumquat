@@ -24,10 +24,6 @@ class GatewayClient
     self.class.http_client.get(url, args)
   end
 
-  def get_uuid(url, *args)
-    get(url_for_uuid(url), args)
-  end
-
   def head(url, *args)
     args = merge_args(args)
     self.class.http_client.head(url, args)

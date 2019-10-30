@@ -1,10 +1,17 @@
 ##
-# A DLS element archetype.
+# Application element archetype. This is a way of expressing a certain set of
+# elements that are available for use in the application. This class in
+# particular has no relationships, but MetadataProfileElements and ItemElements
+# (for example) can only be created if there is a matching Element present. If
+# that Element is later renamed or deleted, the corresponding
+# MetadataProfileElements and ItemElements are not affected.
 #
-# Elements can be added to a metadata profile, and are ascribable to an item,
-# but note that this class itself has no relationships; metadata profile
-# elements are instead MetadataProfileElements and item elements are
-# ItemElements.
+# # Attributes
+#
+# * created_at:  Managed by ActiveRecord.
+# * description: Optional information about the element.
+# * name:        Element name.
+# * updated_at:  Managed by ActiveRecord.
 #
 class Element < ApplicationRecord
 

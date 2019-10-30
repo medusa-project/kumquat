@@ -101,8 +101,12 @@ class MedusaDownloaderClient
   # @return [String] Path of the given binary within the zip file.
   #
   def zip_dirname(binary)
-    root = '/' + binary.item.collection.effective_medusa_cfs_directory&.pathname
-    root ? File.dirname('/' + binary.object_key.gsub(/^#{root}/, '')) : nil
+    cfs_dir_path = binary.item.collection.effective_medusa_cfs_directory&.pathname
+    if cfs_dir_path
+      root = '/' + cfs_dir_path
+      return File.dirname('/' + binary.object_key.gsub(/^#{root}/, ''))
+    end
+    nil
   end
 
 end

@@ -1,5 +1,5 @@
 ##
-# Custom Elasticsearch client.
+# High-level Elasticsearch client.
 #
 class ElasticsearchClient
 
@@ -34,7 +34,7 @@ class ElasticsearchClient
       LOGGER.info('create_index(): created %s', name)
     else
       unless response.body.include?('already_exists')
-        raise IOError, "Got #{response.status} for #{name}:\n"\
+        raise IOError, "Got HTTP #{response.status} for #{name}:\n"\
             "#{JSON.pretty_generate(JSON.parse(response.body))}"
       end
     end
@@ -47,7 +47,7 @@ class ElasticsearchClient
       LOGGER.info('create_index(): updated max result window for %s', name)
     else
       unless response.body.include?('already_exists')
-        raise IOError, "Got #{response.status}:\n"\
+        raise IOError, "Got HTTP #{response.status}:\n"\
             "#{JSON.pretty_generate(JSON.parse(response.body))}"
       end
     end
@@ -80,7 +80,7 @@ class ElasticsearchClient
       LOGGER.info('delete_all_documents(): all documents deleted from %s',
                   index_name)
     else
-      raise IOError, "Got #{response.status} for POST #{url}\n#{response.body}"
+      raise IOError, "Got HTTP #{response.status} for POST #{url}\n#{response.body}"
     end
   end
 
@@ -90,13 +90,13 @@ class ElasticsearchClient
   # @return [String] Response body.
   #
   def delete_by_query(index, query)
-    url = sprintf('%s/%s/_delete_by_query?pretty',
+    url = sprintf('%s/%s/_delete_by_query?pretty&conflicts=proceed&refresh',
                   Configuration.instance.elasticsearch_endpoint, index)
     LOGGER.debug("delete_by_query(): %s\n    %s", url, query)
     response = @@http_client.post(url, query,
                                   'Content-Type': 'application/json')
     if response.status != 200
-      raise IOError, "Got #{response.status}:\n"\
+      raise IOError, "Got HTTP #{response.status}:\n"\
           "#{JSON.pretty_generate(JSON.parse(response.body))}"
     end
   end
@@ -113,7 +113,7 @@ class ElasticsearchClient
     if response.status == 200
       LOGGER.info('delete_index(): %s deleted', name)
     else
-      raise IOError, "Got #{response.status} for #{name}"
+      raise IOError, "Got HTTP #{response.status} for #{name}"
     end
   end
 
@@ -204,9 +204,27 @@ class ElasticsearchClient
     begin
       delete_index(index.name)
     rescue IOError => e
-      raise e unless e.message.include?('Got 404')
+      raise e unless e.message.include?('Got HTTP 404')
     end
     create_index(index.name, index.schema)
+  end
+
+  ##
+  # Refreshes an index.
+  #
+  # @param index [String]
+  # @return [void]
+  #
+  def refresh(index)
+    url = sprintf('%s/%s/_refresh',
+                  Configuration.instance.elasticsearch_endpoint,
+                  index)
+    headers = { 'Content-Type': 'application/json' }
+    response = @@http_client.post(url, nil, headers)
+
+    LOGGER.debug("refresh(): URL: %s\n"\
+                 "  Response: %s",
+                 url, response.body)
   end
 
 end
