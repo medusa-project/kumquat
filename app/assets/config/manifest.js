@@ -1,4 +1,8 @@
 //= link_tree ../fonts
 //= link_tree ../images
-//= link_directory ../javascripts .js
-//= link_directory ../stylesheets .scss
+
+//= link application.css
+//= link application.js
+
+//= link admin/application.css
+//= link admin/application.js
