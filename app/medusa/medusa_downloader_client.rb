@@ -5,14 +5,20 @@
 class MedusaDownloaderClient
 
   LOGGER = CustomLogger.new(MedusaDownloaderClient)
-  BATCH_SIZE = 200
+
+  BATCH_SIZE           = 200
+  CREATE_DOWNLOAD_PATH = '/downloads/create'
 
   ##
+  # Sends a request to the Downloader to generate a zip file for the given
+  # arguments, and returns its URL.
+  #
   # @param items [Enumerable<Item>]
-  # @param zip_name [String]
-  # @return [String] Download URL to redirect to.
+  # @param zip_name [String] Desired name of the zip file, with or without
+  #                          `.zip` suffix.
+  # @return [String] Download URL to which clients can be redirected.
   # @raises [ArgumentError] If illegal arguments have been supplied.
-  # @raises [IOError] If there is an error communicating with the downloader.
+  # @raises [IOError] If there is an error communicating with the Downloader.
   #
   def download_url(items, zip_name)
     if !items.respond_to?(:each)
@@ -21,56 +27,39 @@ class MedusaDownloaderClient
       raise ArgumentError, 'No items provided.'
     end
 
-    # Compile this list of items to include in the file.
-    targets = []
-    items.each do |item|
-      if item.directory?
-        dir = MedusaCfsDirectory.with_uuid(item.repository_id)
-        targets.push({
-                         'type': 'directory',
-                         'path': dir.pathname.delete_prefix('/'),
-                         'zip_path': dir.name,
-                         'recursive': true
-                     })
-      else
-        item.binaries.each do |binary|
-          zip_dirname = zip_dirname(binary)
-          if zip_dirname
-            targets.push({
-                             'type': 'file',
-                             'path': binary.object_key,
-                             'zip_path': zip_dirname
-                         })
-          end
-        end
-      end
-    end
-
+    # Compile the list of items to include in the file.
+    targets = targets_for(items)
     if targets.count < 1
       raise ArgumentError, 'No files to download.'
     end
 
-    config = ::Configuration.instance
+    # Prepare the initial request.
+    config  = ::Configuration.instance
+    url     = "#{config.downloader_url}/#{CREATE_DOWNLOAD_PATH}"
+    headers = { 'Content-Type': 'application/json' }
+    body    = JSON.generate(
+        root: 'medusa',
+        zip_name: "#{zip_name.chomp('.zip')}",
+        targets: targets)
 
-    url = "#{config.downloader_url}/downloads/create"
-    client = Curl::Easy.new(url)
-    client.http_auth_types = :digest
-    client.username = config.downloader_user
-    client.password = config.downloader_password
-    client.post_body = {
-        'root': 'medusa',
-        'zip_name': "#{zip_name.chomp('.zip')}",
-        'targets': targets
-    }.to_json
-    LOGGER.debug('download_url(): sending %s', client.post_body)
+    LOGGER.debug('download_url(): requesting %s', body)
+    response = client.post(url, body, headers)
 
-    client.post
-    client.headers = { 'Content-Type': 'application/json' }
-    client.perform
-    response_hash = JSON.parse(client.body_str)
-    unless response_hash.has_key?('download_url')
+    # Ideally this would be 200, but HTTPClient's digest auth doesn't seem to
+    # work as of 2.8.3, so it's more likely 401 so we'll have to do the digest
+    # auth flow manually.
+    if response.status == 401
+      headers['Authorization'] =
+          digest_auth_header(response.headers['WWW-Authenticate'])
+
+      LOGGER.debug('download_url(): retrying %s', body)
+      response = client.post(url, body, headers)
+    end
+
+    response_hash = JSON.parse(response.body)
+    if response.status > 299
       LOGGER.error('download_url(): received HTTP %d: %s',
-                   client.status, client.body_str)
+                   response.status, response.body)
       raise IOError, response_hash['error']
     end
     response_hash['download_url']
@@ -82,19 +71,97 @@ class MedusaDownloaderClient
   # @raises [IOError] If the server does not respond as expected.
   #
   def head
-    config = ::Configuration.instance
-
-    url = config.downloader_url
-    client = Curl::Easy.new(url)
-    client.http_auth_types = :digest
-    client.username = config.downloader_user
-    client.password = config.downloader_password
-    client.head
-    client.perform
-    raise IOError, client.status if client.response_code != 200
+    config   = ::Configuration.instance
+    response = client.head(config.downloader_url)
+    raise IOError, response.status if response.status != 200
   end
 
   private
+
+  def client
+    unless @client
+      config = ::Configuration.instance
+      url    = config.downloader_url
+      @client = HTTPClient.new do
+        self.ssl_config.cert_store.set_default_paths
+        self.receive_timeout = 10000
+        uri    = URI.parse(url)
+        domain = uri.scheme + '://' + uri.host
+        user   = config.downloader_user
+        secret = config.downloader_password
+        self.set_auth(domain, user, secret)
+      end
+    end
+    @client
+  end
+
+  ##
+  # @param www_authenticate_header [String] `WWW-Authenticate` response header
+  #                                         value.
+  # @return [String] Value to use in an `Authorization` header.
+  #
+  def digest_auth_header(www_authenticate_header)
+    config                = ::Configuration.instance
+    auth_info             = parse_auth_header(www_authenticate_header)
+    auth_info['username'] = config.downloader_user
+    auth_info['uri']      = CREATE_DOWNLOAD_PATH
+    auth_info['nc']       = '00000001'
+    auth_info['cnonce']   = SecureRandom.hex
+
+    ha1 = Digest('MD5').hexdigest(sprintf('%s:%s:%s',
+                                          config.downloader_user,
+                                          auth_info['realm'],
+                                          config.downloader_password))
+    ha2 = Digest('MD5').hexdigest("POST:#{CREATE_DOWNLOAD_PATH}")
+    auth_info['response'] = Digest('MD5').hexdigest(sprintf('%s:%s:%s:%s:%s:%s',
+                                                            ha1,
+                                                            auth_info['nonce'],
+                                                            auth_info['nc'],
+                                                            auth_info['cnonce'],
+                                                            auth_info['qop'],
+                                                            ha2))
+    "Digest #{auth_info.map{ |k,v| "#{k}=\"#{v}\"" }.join(', ')}"
+  end
+
+  ##
+  # @param header [String]
+  # @return [Hash]
+  #
+  def parse_auth_header(header)
+    auth_info = {}
+    matches = header.scan(/([a-zA-Z]+)="([^"]+)",?/)
+    matches.each do |match|
+      auth_info[match[0]] = match[1]
+    end
+    auth_info
+  end
+
+  ##
+  # @param items [Enumerable<Item>]
+  # @return [Array<Hash>]
+  #
+  def targets_for(items)
+    targets = []
+    items.each do |item|
+      if item.directory?
+        dir = MedusaCfsDirectory.with_uuid(item.repository_id)
+        targets.push(type: 'directory',
+                     path: dir.pathname.delete_prefix('/'),
+                     zip_path: dir.name,
+                     recursive: true)
+      else
+        item.binaries.each do |binary|
+          zip_dirname = zip_dirname(binary)
+          if zip_dirname
+            targets.push(type: 'file',
+                         path: binary.object_key,
+                         zip_path: zip_dirname)
+          end
+        end
+      end
+    end
+    targets
+  end
 
   ##
   # @param binary [Binary]

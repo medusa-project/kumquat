@@ -4,7 +4,6 @@ gem 'activemodel-serializers-xml'
 gem 'aws-sdk-s3', '~> 1.8'
 gem 'bootstrap', '~> 4.3.1'
 gem 'browser'
-gem 'curb'
 gem 'daemons' # enables bin/delayed_job start/stop
 gem 'delayed_job_active_record'
 gem 'draper' # Provides decorators

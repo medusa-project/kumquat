@@ -108,7 +108,6 @@ GEM
     choice (0.2.0)
     concurrent-ruby (1.1.5)
     crass (1.0.5)
-    curb (0.9.4)
     daemons (1.2.4)
     delayed_job (4.1.5)
       activesupport (>= 3.0, < 5.3)
@@ -258,7 +257,6 @@ DEPENDENCIES
   capistrano-bundler
   capistrano-rails
   capistrano-rbenv
-  curb
   daemons
   delayed_job_active_record
   draper
