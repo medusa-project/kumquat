@@ -135,7 +135,20 @@ var PTAdminItemEditView = function() {
     this.init = function() {
         new Application.DirtyFormListener('form').listen();
 
-        new BatchChangeModal().init();
+        $('button.dl-add-element').on('click', function() {
+            var element = $(this).closest('.dl-element');
+            var clone = element.clone(true);
+            clone.find('input').val('');
+            element.after(clone);
+            return false;
+        });
+        $('button.dl-remove-element').on('click', function() {
+            var element = $(this).closest('.dl-element');
+            if (element.siblings().length > 0) {
+                element.remove();
+            }
+            return false;
+        });
 
         // Auto-vertical-resize the textareas...
         var textareas = $('#dl-metadata textarea');
