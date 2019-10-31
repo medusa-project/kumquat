@@ -64,9 +64,9 @@ module OaiPmhHelper
 
   ##
   # Emulates the behavior of CONTENTdm's `oai_qdc` metadata, returning a mix
-  # of dc: and dcterms: elements, depending on whether an element is
-  # qualified or not, and also adding a few more elements that harvesters find
-  # useful.
+  # of `dc` and `dcterms` elements, depending on whether an element is
+  # qualified or not, and also adding a few more elements by request of staff
+  # involved with harvesting at UIUC Library.
   #
   # @param item [Item]
   # @param xml [XML::Builder]
@@ -93,8 +93,8 @@ module OaiPmhHelper
               xml.tag!("dc:#{dc_element.name}", ie.value)
 
               # If the element is `rights` and the ItemElement contains a URI,
-              # add another element for that. This was requested by
-              # lampron2@illinois.edu.
+              # add another element for that. (Requested by
+              # lampron2@illinois.edu)
               if dc_element.name == 'rights' and ie.uri.present?
                 xml.tag!("dc:#{dc_element.name}", ie.uri)
               end

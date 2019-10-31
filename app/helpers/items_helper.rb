@@ -84,7 +84,9 @@ module ItemsHelper
         tab_id = "dl-metadata-tab-#{binary.master_type}-#{category.gsub(' ', '')}"
         class_ = (index == 0) ? 'active' : ''
         html << "<li role=\"presentation\" class=\"nav-item\">"
-        html <<   "<a href=\"##{tab_id}\" class=\"nav-link #{class_}\" aria-controls=\"#{tab_id}\" role=\"tab\" data-toggle=\"tab\">#{category}</a>"
+        html <<   "<a href=\"##{tab_id}\" class=\"nav-link #{class_}\" "\
+            "aria-controls=\"#{tab_id}\" role=\"tab\" "\
+            "data-toggle=\"tab\">#{category}</a>"
         html << '</li>'
       end
       html << '</ul>'
@@ -177,7 +179,7 @@ module ItemsHelper
   end
 
   ##
-  # @param files [Relation<Item>]
+  # @param files [Enumerable<Item>]
   #
   def files_as_list(files)
     return nil unless files.any?
@@ -255,11 +257,11 @@ module ItemsHelper
   # Returns an IIIF Image API 2.1 URL for an item.
   #
   # @param item [Item]
-  # @param region [Symbol] :full or :square
-  # @param size [Symbol,Integer] Bounding box size or :full
+  # @param region [Symbol] `:full` or `:square`
+  # @param size [Symbol,Integer] Bounding box size or `:full`
   # @param format [Symbol] One of the formats allowed by the Image API.
-  # @return [String, nil] Image URL, or nil if the item has no IIIF image
-  #                       binary.
+  # @return [String, nil] Image URL, or nil if the item has no image server-
+  #                       compatible image binary.
   #
   def item_image_url(item, region = :full, size = :full, format = :jpg)
     url = nil
@@ -417,7 +419,7 @@ module ItemsHelper
   # @param options [Hash]
   # @option options [Boolean] :admin
   # @return [String] HTML definition list containing item metadata.
-  # @see `metadata_as_table`
+  # @see metadata_as_table
   #
   def metadata_as_list(item, options = {})
     html = StringIO.new
@@ -466,8 +468,8 @@ module ItemsHelper
   # @param options [Hash]
   # @option options [Boolean] :admin
   # @return [String] HTML table containing item metadata.
-  # @see `metadata_as_list`
-  # @see `tech_metadata_as_table`
+  # @see metadata_as_list
+  # @see tech_metadata_as_table
   #
   def metadata_as_table(item, options = {})
     html = StringIO.new
@@ -873,7 +875,7 @@ module ItemsHelper
   ##
   # @param item [Item]
   # @return [String]
-  # @see `metadata_as_table`
+  # @see metadata_as_table
   #
   def tech_metadata_as_table(item)
     data = tech_metadata_for(item)
@@ -892,17 +894,18 @@ module ItemsHelper
   ##
   # @param entity [Object]
   # @param options [Hash]
-  # @option options [Integer] :size Defaults to DEFAULT_THUMBNAIL_SIZE
-  # @option options [Symbol] :shape :default or :square, defaults to :default
-  # @option options [Boolean] :lazy If true, the data-src attribute will be
-  #                                 set instead of src; defaults to false.
+  # @option options [Integer] :size Defaults to {DEFAULT_THUMBNAIL_SIZE}.
+  # @option options [Symbol] :shape `:default` or `:square`; defaults to
+  #                                 `:default`.
+  # @option options [Boolean] :lazy If true, the `data-src` attribute will be
+  #                                 set instead of `src`; defaults to false.
   # @return [String]
   #
   def thumbnail_tag(entity, options = {})
-    options = {} unless options.kind_of?(Hash)
-    options[:size] = DEFAULT_THUMBNAIL_SIZE unless options.keys.include?(:size)
+    options         = {} unless options.kind_of?(Hash)
+    options[:size]  = DEFAULT_THUMBNAIL_SIZE unless options.keys.include?(:size)
     options[:shape] = 'full' unless options.keys.include?(:shape)
-    options[:lazy] = false unless options.keys.include?(:lazy)
+    options[:lazy]  = false unless options.keys.include?(:lazy)
 
     url = nil
     if entity.kind_of?(Binary) and entity.image_server_safe?
@@ -938,9 +941,9 @@ module ItemsHelper
 
   ##
   # @param entity [Item, Binary] or some other object suitable for passing to
-  #                              `icon_for`
+  #                              {ApplicationHelper#icon_for}
   # @param size [Integer]
-  # @param shape [Symbol] :default or :square
+  # @param shape [Symbol] `:default` or `:square`
   # @return [String]
   #
   def thumbnail_url(entity, size = DEFAULT_THUMBNAIL_SIZE, shape = :default)
@@ -1041,8 +1044,8 @@ module ItemsHelper
   # @param binary [Binary]
   # @param options [Hash<Symbol,Object>]
   # @option options [Boolean] :admin
-  # @return [Enumerable<Hash<Symbol,Object>>] Array of hashes with :label,
-  #                                          :category, and :value keys.
+  # @return [Enumerable<Hash<Symbol,Object>>] Array of hashes with `:label`,
+  #                                           `:category`, and `:value` keys.
   #
   def binary_metadata_for(binary, options = {})
     data = []
@@ -1120,8 +1123,7 @@ module ItemsHelper
   end
 
   ##
-  # @param object [Item] Compound object (needs to have a corresponding IIIF
-  #                      presentation manifest).
+  # @param object [Item] Compound object.
   # @param selected_item [Item]
   # @return [String]
   #
@@ -1464,7 +1466,7 @@ module ItemsHelper
 
   ##
   # @param binary [Binary]
-  # @return [String] HTML <video> element
+  # @return [String] HTML video element.
   #
   def video_player_for(binary)
     tag = "<video controls id=\"dl-video-player\">

@@ -1,8 +1,8 @@
 module AdminHelper
 
   ##
-  # @param items [Enumerable<Hash>] Enumerable of hashes with :label and
-  #                                 :url keys.
+  # @param items [Enumerable<Hash>] Enumerable of hashes with `:label` and
+  #                                 `:url` keys.
   # @return [String] HTML string
   #
   def admin_breadcrumb(*items)

@@ -8,7 +8,7 @@ module ApplicationHelper
   ##
   # Adds a full-window AJAX shade element to the DOM. This will be initially
   # hidden via CSS, and can be toggled on and off by
-  # Application.AJAXShade.show() and hide().
+  # Application.AJAXShade.show() and hide() (JavaScript).
   #
   # @return [String]
   #
@@ -45,7 +45,7 @@ module ApplicationHelper
 
   ##
   # Renders the breadcrumb in public views. For admin views, see
-  # `AdminHelper.admin_breadcrumb()`.
+  # {AdminHelper#admin_breadcrumb}.
   #
   # @param options [Hash]
   # @option options [Collection] :collection
@@ -71,7 +71,7 @@ module ApplicationHelper
   end
 
   ##
-  # @param entities [Enumerable<Collection>, Enumerable<Item>]
+  # @param entities [Enumerable<Collection, Item>]
   # @return [String]
   #
   def entities_as_cards(entities)
@@ -289,10 +289,10 @@ module ApplicationHelper
   ##
   # Returns the most appropriate icon for the given object, which may be an
   # Item, Binary, Collection, etc. If the object is unrecognized, a generic
-  # icon will be returned.
+  # icon is returned.
   #
   # @param entity [Object]
-  # @return [String] HTML <i> tag
+  # @return [String] HTML `i` tag.
   #
   def icon_for(entity)
     icon = 'fas fa-cube'
@@ -353,7 +353,7 @@ module ApplicationHelper
   end
 
   ##
-  # Returns a deferred img tag (with data-src set instead of src) for
+  # Returns a deferred img tag (with `data-src` set instead of `src`) for
   # lazy-loading using JavaScript.
   #
   # @param source [String]
@@ -431,7 +431,6 @@ module ApplicationHelper
       raw('<span aria-hidden="true">Last</span>')
     end
 
-    # http://getbootstrap.com/components/#pagination
     html = StringIO.new
     html << '<nav>'
     html <<   '<ul class="pagination">'
