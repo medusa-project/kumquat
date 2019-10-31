@@ -797,12 +797,12 @@ class Item < ApplicationRecord
   # image.
   #
   # 1. The representative binary
-  # 2. If the instance's variant is `SUPPLEMENT`, any binary
-  # 3. If the instance is compound, the `effective_image_binary()` of the
-  #    first child, sorted structurally
-  # 4. Any access master of `Binary::MediaCategory::IMAGE`
+  # 2. If the instance's variant is {Variants::SUPPLEMENT}, any binary
+  # 3. If the instance is compound, the {effective_image_binary} of the first
+  #    child, sorted structurally
+  # 4. Any access master of {Binary::MediaCategory::IMAGE}
   # 5. Any other access master
-  # 6. Any preservation master of `Binary::MediaCategory::IMAGE`
+  # 6. Any preservation master of {Binary::MediaCategory::IMAGE}
   # 7. Any other preservation master
   #
   # @return [Binary, nil]
@@ -871,7 +871,7 @@ class Item < ApplicationRecord
   end
 
   ##
-  # @return [Boolean] Whether the variant is Variants::FILE.
+  # @return [Boolean] Whether the variant is {Variants::FILE}.
   #
   def file?
     self.variant == Variants::FILE
@@ -887,8 +887,8 @@ class Item < ApplicationRecord
   end
 
   ##
-  # @return [Boolean] Whether the instance has any children with a "page"
-  #                   variant.
+  # @return [Boolean] Whether the instance has any children with a
+  #                   {Variants::PAGE page variant}.
   #
   def is_compound?
     self.variant.blank? and self.pages.count > 0
@@ -933,7 +933,7 @@ class Item < ApplicationRecord
   # elements with the given destination name, and then deletes the source
   # elements.
   #
-  # Call reload() afterwards to refresh the `elements` relationship.
+  # Call {reload} afterwards to refresh the `elements` relationship.
   #
   # @param source_name [String] Source element name
   # @param dest_name [String] Destination element name
@@ -953,11 +953,11 @@ class Item < ApplicationRecord
     end
   end
 
+=begin
   ##
   # @return [ItemFinder] ItemFinder initialized to return all children with a
-  #                      variant of Variants::PAGE.
+  #                      {Variants::PAGE page variant}.
   #
-=begin
   def pages TODO: why is this so slow?
     self.finder.include_variants(Variants::PAGE).
         order(IndexFields::PAGE_NUMBER).
@@ -966,8 +966,8 @@ class Item < ApplicationRecord
 =end
 
   ##
-  # @return [ActiveRecord::Relation<Item>] All children with a variant of
-  #                                        Variants::PAGE.
+  # @return [ActiveRecord::Relation<Item>] All children with a
+  #                                        {Variants::PAGE page variant}.
   #
   def pages
     self.items.where(variant: Variants::PAGE)
@@ -987,7 +987,7 @@ class Item < ApplicationRecord
   # Infers the primary media category of the instance by analyzing its
   # binaries' media categories.
   #
-  # @return [Integer, nil] One of the `Binary::MediaCategory` constant values.
+  # @return [Integer, nil] One of the {Binary::MediaCategory} constant values.
   #
   def primary_media_category
     counts = {}
@@ -1033,7 +1033,7 @@ class Item < ApplicationRecord
   end
 
   ##
-  # @param index [Symbol] :current or :latest
+  # @param index [Symbol] `:current` or `:latest`
   # @return [void]
   #
   def reindex(index = :current)
@@ -1130,7 +1130,7 @@ class Item < ApplicationRecord
 
   ##
   # Updates an instance from a JSON representation compatible with the structure
-  # returned by as_json().
+  # returned by `as_json`.
   #
   # N.B.: This method must be kept in sync with {as_json}.
   #
@@ -1292,22 +1292,7 @@ class Item < ApplicationRecord
   private
 
   def delete_from_elasticsearch
-    query = {
-        query: {
-            bool: {
-                filter: [
-                    {
-                        term: {
-                            Item::IndexFields::REPOSITORY_ID => self.repository_id
-                        }
-                    }
-                ]
-            }
-        }
-    }
-    ElasticsearchClient.instance.delete_by_query(
-        ElasticsearchIndex.current_index(Item::ELASTICSEARCH_INDEX),
-        JSON.generate(query))
+    self.class.delete_document(self.repository_id)
   end
 
   def elements_for_iim_value(iim_elem_label, dest_elem, iim_metadata)
@@ -1318,7 +1303,7 @@ class Item < ApplicationRecord
   ##
   # @param value [String,Enumerable]
   # @param dest_elem [String]
-  # @return [ItemElement]
+  # @return [Enumerable<ItemElement>]
   #
   def elements_for_value(value, dest_elem)
     value = [value] unless value.respond_to?(:each)
@@ -1433,7 +1418,7 @@ class Item < ApplicationRecord
   end
 
   ##
-  # @param index [Symbol] :current or :latest
+  # @param index [Symbol] `:current` or `:latest`
   # @return [void]
   #
   def index_in_elasticsearch(index = :current)
@@ -1492,7 +1477,7 @@ class Item < ApplicationRecord
   end
 
   ##
-  # Populates effective_allowed_roles and effective_denied_roles.
+  # Populates {effective_allowed_roles} and {effective_denied_roles}.
   #
   # @return [void]
   #
@@ -1516,7 +1501,8 @@ class Item < ApplicationRecord
   end
 
   ##
-  # Tries to set the normalized latitude/longitude from a `coordinates` element.
+  # Tries to set the normalized latitude & longitude from a `coordinates`
+  # element.
   #
   def set_normalized_coords
     coords_elem = self.element(:coordinates)

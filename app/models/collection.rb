@@ -860,22 +860,7 @@ class Collection < ApplicationRecord
   private
 
   def delete_from_elasticsearch
-    query = {
-        query: {
-            bool: {
-                filter: [
-                    {
-                        term: {
-                            Collection::IndexFields::REPOSITORY_ID => self.repository_id
-                        }
-                    }
-                ]
-            }
-        }
-    }
-    ElasticsearchClient.instance.delete_by_query(
-        ElasticsearchIndex.current_index(Collection::ELASTICSEARCH_INDEX),
-        JSON.generate(query))
+    self.class.delete_document(self.repository_id)
   end
 
   def do_before_validation
