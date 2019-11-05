@@ -261,6 +261,8 @@ var PTAdminItemsView = function() {
     };
 
     this.attachEventListeners = function() {
+        Application.initThumbnails();
+
         $('.pagination a').on('click', function() {
             $('form.dl-filter')[0].scrollIntoView({behavior: "smooth", block: "start"});
         });

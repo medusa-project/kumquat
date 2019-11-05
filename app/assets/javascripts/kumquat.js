@@ -2,8 +2,6 @@ var Application = {
 
     /**
      * Enables the facets returned by one of the facets_as_x() helpers.
-     *
-     * @constructor
      */
     initFacets: function() {
         var addFacetEventListeners = function() {
@@ -41,6 +39,19 @@ var Application = {
             addFacetEventListeners();
         });
         addFacetEventListeners();
+    },
+
+    initThumbnails: function() {
+        $('.dl-thumbnail-container img[data-location="remote"]').one('load', function() {
+            $(this).parent().next('.dl-load-indicator').hide();
+            $(this).animate({'opacity': 1}, 300);
+        }).on('error', function() {
+            $(this).parent().next('.dl-load-indicator').hide();
+        }).each(function() {
+            if (this.complete) {
+                $(this).trigger('load');
+            }
+        });
     },
 
     /**

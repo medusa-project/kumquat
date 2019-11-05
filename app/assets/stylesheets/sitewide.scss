@@ -101,30 +101,52 @@ div.alert ul {
 .dl-results {
   input[type=checkbox] {
     margin-right: 1em;
-    margin-top: 70px;
   }
-  .dl-thumbnail-link {
-    color: #808080;
-    margin: 0 1em 0 0;
+  .dl-thumbnail-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 190px;
+    height: 180px;
     img {
-      max-width: 160px;
+      max-height: 180px;
+      max-width: 180px;
     }
-    svg {
-      width: 160px;
-      height: 160px;
+    img[data-location="remote"] {
+      opacity: 0; // will be displayed onload via JS
+    }
+    img[data-type="svg"] {
+      opacity: 0.4;
+      padding: 0.8em;
     }
   }
-  h5 {
-    font-size: 1.2em;
-    font-weight: 500;
-  }
-  .dl-info-line {
-    color: #808080;
-    display: block;
-    font-size: 0.9em;
-    margin-bottom: 0.2em;
-    a {
-      color: #808080;
+  .media-body {
+    .mt-0 {
+      margin-bottom: 0.25em;
+    }
+    .dl-info-line {
+      color: gray;
+      display: block;
+      font-size: 0.9em;
+      padding: 0.2em 0.2em 0.8em 0;
+      a {
+        color: gray;
+        text-decoration: none;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+    }
+    .collapse, .collapsing {
+      font-size: 0.9em;
+      padding-top: 0.4em;
+      dd {
+        ul {
+          margin-left: 0.5em;
+          padding-left: 0.5em;
+          list-style-type: disc;
+        }
+      }
     }
   }
 }

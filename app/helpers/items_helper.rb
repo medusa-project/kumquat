@@ -920,9 +920,10 @@ module ItemsHelper
     if url
       # No alt because it may appear in a huge font size if the image is 404.
       if options[:lazy]
-        html << lazy_image_tag(url, class: 'dl-thumbnail', alt: '')
+        html << lazy_image_tag(url, class: 'dl-thumbnail mr-3', alt: '')
       else
-        html << image_tag(url, class: 'dl-thumbnail', alt: '')
+        html << image_tag(url, class: 'dl-thumbnail mr-3', alt: '',
+                          data: { location: 'remote' })
       end
     else
       html << icon_for(entity) # ApplicationHelper

@@ -130,8 +130,9 @@ module ApplicationHelper
       html << '<li class="media my-4">'
 
       # Thumbnail area
+      html <<   '<div class="dl-thumbnail-container">'
       if options[:show_checkboxes]
-        html << check_box_tag('dl-selected-items[]', entity.repository_id)
+        html <<   check_box_tag('dl-selected-items[]', entity.repository_id)
       end
 
       if options[:link_to_admin] and entity.kind_of?(Item)
@@ -139,10 +140,14 @@ module ApplicationHelper
       else
         link_target = polymorphic_path(entity)
       end
-      html << link_to(link_target, class: 'dl-thumbnail-link') do
+      html << link_to(link_target) do
         thumbnail_tag(entity.effective_representative_entity,
                       shape: :square)
       end
+      # N.B.: this was made by https://loading.io with the following settings:
+      # rolling, color: #cacaca, radius: 25, stroke width: 10, speed: 5, size: 150
+      html <<   image_tag('thumbnail-spinner.svg', class: 'dl-load-indicator')
+      html << '</div>'
 
       html << '<div class="media-body">'
 
