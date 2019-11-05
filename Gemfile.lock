@@ -89,7 +89,6 @@ GEM
       autoprefixer-rails (>= 9.1.0)
       popper_js (>= 1.14.3, < 2)
       sassc-rails (>= 2.0.0)
-    browser (2.5.1)
     builder (3.2.3)
     capistrano (3.9.0)
       airbrussh (>= 1.0.0)
@@ -253,7 +252,6 @@ DEPENDENCIES
   activemodel-serializers-xml
   aws-sdk-s3 (~> 1.8)
   bootstrap (~> 4.3.1)
-  browser
   capistrano-bundler
   capistrano-rails
   capistrano-rbenv

@@ -14,23 +14,21 @@
   </td>
   <td>
     <div class="btn-group">
-      <% if client_supports_file_downloads? %>
-        <% access_master = item.binaries.select{ |b| b.master_type == Binary::MasterType::ACCESS }.first %>
-        <% if access_master %>
-          <%= link_to binary_path(access_master),
-                      class: 'btn btn-outline-primary btn-sm',
-                      target: '_blank' do %>
-            <%= icon_for(access_master) %> Master File (<%= access_master.human_readable_name %>)
-          <% end %>
+      <% access_master = item.binaries.select{ |b| b.master_type == Binary::MasterType::ACCESS }.first %>
+      <% if access_master %>
+        <%= link_to binary_path(access_master),
+                    class: 'btn btn-outline-primary btn-sm',
+                    target: '_blank' do %>
+          <%= icon_for(access_master) %> Master File (<%= access_master.human_readable_name %>)
         <% end %>
+      <% end %>
 
-        <% pres_master = item.binaries.select{ |b| b.master_type == Binary::MasterType::PRESERVATION }.first %>
-        <% if pres_master %>
-          <%= link_to binary_path(pres_master),
-                      class: 'btn btn-outline-primary btn-sm',
-                      target: '_blank' do %>
-            <%= icon_for(pres_master) %> Master File (<%= pres_master.human_readable_name %>)
-          <% end %>
+      <% pres_master = item.binaries.select{ |b| b.master_type == Binary::MasterType::PRESERVATION }.first %>
+      <% if pres_master %>
+        <%= link_to binary_path(pres_master),
+                    class: 'btn btn-outline-primary btn-sm',
+                    target: '_blank' do %>
+          <%= icon_for(pres_master) %> Master File (<%= pres_master.human_readable_name %>)
         <% end %>
       <% end %>
 

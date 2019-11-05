@@ -3,7 +3,6 @@ source 'https://rubygems.org'
 gem 'activemodel-serializers-xml'
 gem 'aws-sdk-s3', '~> 1.8'
 gem 'bootstrap', '~> 4.3.1'
-gem 'browser'
 gem 'daemons' # enables bin/delayed_job start/stop
 gem 'delayed_job_active_record'
 gem 'draper' # Provides decorators
