@@ -8,3 +8,4 @@ Disallow: /binaries
 Disallow: /downloads
 Disallow: /harvest
 Disallow: /oai-pmh
+Disallow: /*.zip
