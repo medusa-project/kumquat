@@ -204,7 +204,8 @@ class ItemsController < WebsiteController
   end
 
   ##
-  # Responds to GET /items
+  # Responds to `GET /items` with HTTP 303, and
+  # `GET /collections/:collection_id/items` with HTTP 200.
   #
   def index
     if params[:collection_id]
@@ -218,6 +219,9 @@ class ItemsController < WebsiteController
       rescue AuthorizationError
         redirect_to @collection
       end
+    else
+      redirect_to ::Configuration.instance.metadata_gateway_url + '/items',
+                  status: 303
     end
 
     finder             = item_finder_for(params)
