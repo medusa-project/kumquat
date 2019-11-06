@@ -2,6 +2,8 @@ module Admin
 
   class CollectionsController < ControlPanelController
 
+    PERMITTED_PARAMS = [:q, :public_in_medusa, :published_in_dls, :start]
+
     before_action :modify_collections_rbac, only: [:edit, :update, :sync]
 
     ##
