@@ -17,7 +17,6 @@ module Harvest
           # exclude all variants except File. (Only compound object items have
           # these variants.)
           exclude_item_variants(*Item::Variants::all.reject{ |v| v == Item::Variants::FILE }).
-          include_only_native_collections(true).
           order(Item::IndexFields::REPOSITORY_ID).
           start(@start).
           limit(WINDOW_SIZE)

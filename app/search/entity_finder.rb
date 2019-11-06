@@ -12,14 +12,13 @@ class EntityFinder < AbstractFinder
 
   def initialize
     super
-    @bypass_authorization           = false
-    @include_classes                = ALL_ENTITIES
-    @exclude_item_variants          = []
-    @include_only_native_collections = false
-    @include_unpublished            = false
-    @last_modified_after            = nil
-    @last_modified_before           = nil
-    @only_described                 = false
+    @bypass_authorization  = false
+    @include_classes       = ALL_ENTITIES
+    @exclude_item_variants = []
+    @include_unpublished   = false
+    @last_modified_after   = nil
+    @last_modified_before  = nil
+    @only_described        = false
   end
 
   ##
@@ -48,16 +47,6 @@ class EntityFinder < AbstractFinder
   #
   def include_classes(*classes)
     @include_classes = classes
-    self
-  end
-
-  ##
-  # @param boolean [Boolean] If true, only collections whose content resides in
-  #                          the application will be included.
-  # @return [self]
-  #
-  def include_only_native_collections(boolean)
-    @include_only_native_collections = boolean
     self
   end
 
@@ -235,8 +224,7 @@ class EntityFinder < AbstractFinder
             j.minimum_should_match 1
           end
 
-          if @user_roles.any? or @exclude_item_variants.any? or
-              @include_only_native_collections
+          if @user_roles.any? or @exclude_item_variants.any?
             j.must_not do
               if @user_roles.any?
                 j.child! do
@@ -251,14 +239,6 @@ class EntityFinder < AbstractFinder
                 j.child! do
                   j.terms do
                     j.set! Item::IndexFields::VARIANT, @exclude_item_variants
-                  end
-                end
-              end
-
-              if @include_only_native_collections
-                j.child! do
-                  j.term do
-                    j.set! Collection::IndexFields::NATIVE, false
                   end
                 end
               end
