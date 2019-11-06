@@ -204,8 +204,10 @@ class ItemsController < WebsiteController
   end
 
   ##
-  # Responds to `GET /items` with HTTP 303, and
-  # `GET /collections/:collection_id/items` with HTTP 200.
+  # Responds to `GET /items` and `GET /collections/:collection_id/items`.
+  # The former is only allowed for searches (namely of metadata values) and
+  # will redirect to the Gateway items path via HTTP 303 unless a `q` query
+  # argument is present.
   #
   def index
     if params[:collection_id]
@@ -219,7 +221,7 @@ class ItemsController < WebsiteController
       rescue AuthorizationError
         redirect_to @collection
       end
-    else
+    elsif params[:q].blank?
       redirect_to ::Configuration.instance.metadata_gateway_url + '/items',
                   status: 303
     end
