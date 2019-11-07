@@ -383,7 +383,10 @@ class ItemFinder < AbstractFinder
         el = metadata_profile.default_sortable_element
         if el
           j.sort do
-            j.set! el.indexed_sort_field, 'asc'
+            j.set! el.indexed_sort_field do
+              j.order 'asc'
+              j.unmapped_type 'keyword'
+            end
           end
         end
       end
