@@ -292,6 +292,56 @@ module ApplicationHelper
   end
 
   ##
+  # N.B.: {icon_for} should generally be used instead.
+  #
+  def fontawesome_icon_for(entity)
+    icon = %w(fas cube)
+    if entity == Item
+      icon = %w(fas cube)
+    elsif entity.kind_of?(Item)
+      viewer_binary = entity.effective_viewer_binary
+      if viewer_binary&.is_audio?
+        icon = %w(fas volume-up)
+      elsif viewer_binary&.is_image?
+        icon = %w(far image)
+      elsif viewer_binary&.is_pdf?
+        icon = %w(far file-pdf)
+      elsif viewer_binary&.is_text? or viewer_binary&.is_document?
+        icon = %w(far file-alt)
+      elsif viewer_binary&.is_video?
+        icon = %w(fas film)
+      elsif entity.variant == Item::Variants::DIRECTORY
+        icon = %w(far folder-open)
+      elsif entity.variant == Item::Variants::FILE
+        icon = %w(far file)
+      elsif entity.items.any?
+        icon = %w(fas cubes)
+      end
+    elsif entity.kind_of?(Binary)
+      if entity.is_audio?
+        icon = %w(fas volume-up)
+      elsif entity.is_image?
+        icon = %w(fas image)
+      elsif entity.is_pdf?
+        icon = %w(far file-pdf)
+      elsif entity.is_text? or entity.is_document?
+        icon = %w(far file-alt)
+      elsif entity.is_video?
+        icon = %w(fas film)
+      end
+    elsif entity == Collection or entity.kind_of?(Collection)
+      icon = %w(far folder-open)
+    elsif entity == Agent or entity.kind_of?(Agent)
+      icon = %w(fas user-circle)
+    elsif entity == ItemSet or entity.kind_of?(ItemSet)
+      icon = %w(far circle)
+    elsif entity == User or entity.kind_of?(User)
+      icon = %w(fas user)
+    end
+    icon
+  end
+
+  ##
   # Returns the most appropriate icon for the given object, which may be an
   # Item, Binary, Collection, etc. If the object is unrecognized, a generic
   # icon is returned.
@@ -300,50 +350,8 @@ module ApplicationHelper
   # @return [String] HTML `i` tag.
   #
   def icon_for(entity)
-    icon = 'fas fa-cube'
-    if entity == Item
-      icon = 'fas fa-cube'
-    elsif entity.kind_of?(Item)
-      viewer_binary = entity.effective_viewer_binary
-      if viewer_binary&.is_audio?
-        icon = 'fas fa-volume-up'
-      elsif viewer_binary&.is_image?
-        icon = 'fas fa-image'
-      elsif viewer_binary&.is_pdf?
-        icon = 'fas fa-file-pdf'
-      elsif viewer_binary&.is_text? or viewer_binary&.is_document?
-        icon = 'fas fa-file-alt'
-      elsif viewer_binary&.is_video?
-        icon = 'fas fa-film'
-      elsif entity.variant == Item::Variants::DIRECTORY
-        icon = 'fas fa-folder-open'
-      elsif entity.variant == Item::Variants::FILE
-        icon = 'fas fa-file'
-      elsif entity.items.any?
-        icon = 'fas fa-cubes'
-      end
-    elsif entity.kind_of?(Binary)
-      if entity.is_audio?
-        icon = 'fas fa-volume-up'
-      elsif entity.is_image?
-        icon = 'fas fa-image'
-      elsif entity.is_pdf?
-        icon = 'fas fa-file-pdf'
-      elsif entity.is_text? or entity&.is_document?
-        icon = 'fas fa-file-alt'
-      elsif entity.is_video?
-        icon = 'fas fa-film'
-      end
-    elsif entity == Collection or entity.kind_of?(Collection)
-      icon = 'fas fa-folder-open'
-    elsif entity == Agent or entity.kind_of?(Agent)
-      icon = 'fas fa-user-circle'
-    elsif entity == ItemSet or entity.kind_of?(ItemSet)
-      icon = 'far fa-circle'
-    elsif entity == User or entity.kind_of?(User)
-      icon = 'fas fa-user'
-    end
-    raw("<i class=\"#{icon}\" aria-hidden=\"true\"></i>")
+    icon = fontawesome_icon_for(entity)
+    raw("<i class=\"#{icon[0]} fa-#{icon[1]}\" aria-hidden=\"true\"></i>")
   end
 
   ##

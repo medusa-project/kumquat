@@ -929,7 +929,14 @@ module ItemsHelper
                           data: { location: 'remote' })
       end
     else
-      html << icon_for(entity) # ApplicationHelper
+      # N.B.: instead of using ApplicationHelper.icon_for(), we have
+      # pre-downloaded some Font Awesome icons as SVGs and saved in them in the
+      # assets directory. This results in them appearing in <img> tags which
+      # helps make our CSS more concise. The files are available at:
+      # https://github.com/encharm/Font-Awesome-SVG-PNG/tree/master/black/svg
+      html << image_tag('fontawesome-' + fontawesome_icon_for(entity)[1] + '.svg',
+                        options.merge('data-type': 'svg',
+                                      'data-location': 'local'))
     end
     raw(html.string)
   end
