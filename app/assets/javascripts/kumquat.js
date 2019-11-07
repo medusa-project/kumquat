@@ -42,7 +42,10 @@ var Application = {
     },
 
     initThumbnails: function() {
-        $('.dl-thumbnail-container img[data-location="remote"]').one('load', function() {
+        var containers = $('.dl-thumbnail-container');
+        containers.find('img[data-location="local"]').parent()
+            .next('.dl-load-indicator').hide();
+        containers.find('img[data-location="remote"]').one('load', function() {
             $(this).parent().next('.dl-load-indicator').hide();
             $(this).animate({'opacity': 1}, 300);
         }).on('error', function() {

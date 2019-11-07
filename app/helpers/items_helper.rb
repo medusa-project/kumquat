@@ -550,7 +550,7 @@ module ItemsHelper
   # @param max_links [Integer] (ideally odd)
   #
   def paginate_agent_items(agent, count, per_page, current_page, max_links = 9)
-    do_paginate(count, per_page, current_page, max_links, agent,
+    do_paginate(count, per_page, current_page, [], max_links, agent,
                 :agent_item)
   end
 
@@ -563,7 +563,10 @@ module ItemsHelper
   # @param max_links [Integer] (ideally odd)
   #
   def paginate_items(count, per_page, current_page, max_links = 9)
-    do_paginate(count, per_page, current_page, max_links)
+    do_paginate(count, per_page, current_page,
+                params.permit(ItemsController::PERMITTED_PARAMS +
+                    Admin::ItemsController::PERMITTED_PARAMS),
+                max_links)
   end
 
   ##
@@ -1187,27 +1190,28 @@ module ItemsHelper
   # @param count [Integer] Total number of items in the result set
   # @param per_page [Integer]
   # @param current_page [Integer]
+  # @param permitted_params [ActionController::Parameters]
   # @param max_links [Integer] (ideally odd)
   # @param owning_entity [Item]
   # @param item_variant [Item::Variants, Symbol, nil] One of the Item::Variants
   #                     constants, or :agent_item, or nil.
   #
-  def do_paginate(count, per_page, current_page,
+  def do_paginate(count, per_page, current_page, permitted_params,
                   max_links = ApplicationHelper::MAX_PAGINATION_LINKS,
                   owning_entity = nil, item_variant = nil)
     return '' if count <= per_page
-    num_pages = (count / per_page.to_f).ceil
-    first_page = [1, current_page - (max_links / 2.0).floor].max
-    last_page = [first_page + max_links - 1, num_pages].min
-    first_page = last_page - max_links + 1 if
-        last_page - first_page < max_links and num_pages > max_links
-    prev_page = [1, current_page - 1].max
-    next_page = [last_page, current_page + 1].min
-    prev_start = (prev_page - 1) * per_page
-    next_start = (next_page - 1) * per_page
-    last_start = (num_pages - 1) * per_page
-    allowed_params = params.permit(ItemsController::PERMITTED_PARAMS +
-                                       Admin::ItemsController::PERMITTED_PARAMS).except(:start)
+    num_pages      = (count / per_page.to_f).ceil
+    first_page     = [1, current_page - (max_links / 2.0).floor].max
+    last_page      = [first_page + max_links - 1, num_pages].min
+    if last_page - first_page < max_links and num_pages > max_links
+      first_page     = last_page - max_links + 1
+    end
+    prev_page      = [1, current_page - 1].max
+    next_page      = [last_page, current_page + 1].min
+    prev_start     = (prev_page - 1) * per_page
+    next_start     = (next_page - 1) * per_page
+    last_start     = (num_pages - 1) * per_page
+    allowed_params = permitted_params.except(:start)
 
     case item_variant
       when :agent_item

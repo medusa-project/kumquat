@@ -25,9 +25,9 @@
 # to use, and takes authorization, public visiblity, etc. into account.
 #
 # **IMPORTANT**: Instances are automatically indexed in Elasticsearch (see
-# `as_indexed_json()`) upon transaction commit. They are **not** indexed on
-# save. For this reason, **instances should always be created, updated, and
-# deleted within transactions.**
+# {as_indexed_json}) upon transaction commit. They are **not** indexed on save.
+# For this reason, **instances should always be created, updated, and deleted
+# within transactions.**
 #
 # # Attributes
 #
@@ -473,9 +473,10 @@ class Collection < ApplicationRecord
   ##
   # @param options [Hash]
   # @option options [Boolean] :only_visible
-  # @return [Enumerable<CollectionElement>] The instance's metadata elements in
-  #         the order of the elements in the instance's metadata profile. If
-  #         there is no associated metadata profile, all elements are returned.
+  # @return [Enumerable<CollectionElement>] The instance's {CollectionElement
+  #         metadata elements} in the order of the elements in the instance's
+  #         metadata profile. If there is no associated metadata profile, all
+  #         elements are returned.
   #
   def elements_in_profile_order(options = {})
     elements = []
@@ -519,7 +520,7 @@ class Collection < ApplicationRecord
   ##
   # The CFS directory in which content resides. This may be the same as the
   # root CFS directory of the file group, or deeper within it. This is used
-  # as a refinement of medusa_file_group.
+  # as a refinement of {medusa_file_group}.
   #
   # @return [MedusaCfsDirectory, nil]
   # @see effective_medusa_cfs_directory
@@ -600,31 +601,27 @@ class Collection < ApplicationRecord
 
   ##
   # Returns the number of objects in the collection. (For free-form
-  # collections, an "object" is any file-variant Item; for other collections,
-  # it is any top-level Item.) The result is cached.
+  # collections, an "object" is any file-variant {Item}; for other collections,
+  # it is any top-level {Item}.) The result is cached.
   #
   # @return [Integer]
   #
   def num_objects
     unless @num_objects
+      finder = ItemFinder.new.
+          collection(self).
+          aggregations(false).
+          include_unpublished(true).
+          order(false).
+          limit(0)
       case self.package_profile
         when PackageProfile::FREE_FORM_PROFILE
-          @num_objects = ItemFinder.new.
-              collection(self).
-              aggregations(false).
-              include_unpublished(true).
+          @num_objects = finder.
               include_variants(*Item::Variants::FILE).
               include_children_in_results(true).
-              order(false).
               count
         else
-          @num_objects = ItemFinder.new.
-              collection(self).
-              aggregations(false).
-              include_unpublished(true).
-              search_children(false).
-              order(false).
-              count
+          @num_objects = finder.search_children(false).count
       end
     end
     @num_objects
@@ -656,7 +653,7 @@ class Collection < ApplicationRecord
   end
 
   ##
-  # @return [PackageProfile,nil]
+  # @return [PackageProfile, nil]
   #
   def package_profile
     self.package_profile_id.present? ?
@@ -713,7 +710,7 @@ class Collection < ApplicationRecord
   end
 
   ##
-  # @param index [Symbol] :current or :latest
+  # @param index [Symbol] `:current` or `:latest`
   # @return [void]
   #
   def reindex(index = :current)
@@ -723,9 +720,9 @@ class Collection < ApplicationRecord
   def reindex_items
     # Reindex all database items.
     puts "Step 1/2"
-    start_time          = Time.now
-    items               = Item.where(collection_repository_id: self.repository_id)
-    count               = items.count
+    start_time = Time.now
+    items      = Item.where(collection_repository_id: self.repository_id)
+    count      = items.count
     items.each_with_index do |item, index|
       item.reindex
       StringUtils.print_progress(start_time, index, count,
@@ -778,8 +775,8 @@ class Collection < ApplicationRecord
 
   ##
   # @return [Item, nil] If the instance is free-form and uses a subdirectory
-  #                     within a file group, that corresponding Item. Otherwise,
-  #                     nil.
+  #                     within a file group, that corresponding {Item}.
+  #                     Otherwise, nil.
   #
   def root_item
     if free_form? and medusa_cfs_directory_id.present?
@@ -871,7 +868,7 @@ class Collection < ApplicationRecord
   end
 
   ##
-  # @param index [Symbol] :current or :latest
+  # @param index [Symbol] `:current` or `:latest`
   # @return [void]
   #
   def index_in_elasticsearch(index = :current)

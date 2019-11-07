@@ -315,6 +315,20 @@ module AdminHelper
     html.string
   end
 
+  ##
+  # Returns pagination for collection results view.
+  #
+  # @param count [Integer]
+  # @param per_page [Integer]
+  # @param current_page [Integer]
+  # @param max_links [Integer] (ideally odd)
+  #
+  def admin_paginate_collections(count, per_page, current_page, max_links = 9)
+    do_paginate(count, per_page, current_page,
+                params.permit(Admin::CollectionsController::PERMITTED_PARAMS),
+                max_links)
+  end
+
   private
 
   ##
