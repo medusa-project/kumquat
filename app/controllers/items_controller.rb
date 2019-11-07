@@ -605,11 +605,11 @@ class ItemsController < WebsiteController
   #
   def item_finder_for(query)
     session[:collection_id] = query[:collection_id]
+    session[:field]         = query[:field]
     session[:q]             = query[:q]
     session[:fq]            = query[:fq]
     session[:sort]          = query[:sort]
-    session[:start]         = query[:start].to_i
-    session[:start]         = 0 if session[:start].to_i < 0
+    session[:start]         = [0, query[:start].to_i].max
     session[:limit]         = query[:limit].to_i
     if session[:limit].to_i < MIN_RESULT_WINDOW or
         session[:limit].to_i > MAX_RESULT_WINDOW
@@ -622,31 +622,30 @@ class ItemsController < WebsiteController
       sort = el.indexed_sort_field if el
     end
 
+    finder = ItemFinder.new.
+        user_roles(request_roles).
+        collection(@collection).
+        facet_filters(session[:fq]).
+        order(sort).
+        start(session[:start])
+
     # display=leaves is used in free-form collections to show files flattened.
     if params[:display] == 'leaves'
-      ItemFinder.new.
-          user_roles(request_roles).
-          collection(@collection).
-          facet_filters(session[:fq]).
-          query_all(session[:q]).
-          search_children(true).
+      finder.search_children(true).
           include_variants(Item::Variants::FILE).
-          order(sort).
-          start(session[:start]).
           limit(session[:limit])
     else
-      ItemFinder.new.
-          user_roles(request_roles).
-          collection(@collection).
-          facet_filters(session[:fq]).
-          query_all(session[:q]).
-          search_children(@collection&.package_profile != PackageProfile::FREE_FORM_PROFILE).
+      finder.search_children(@collection&.package_profile != PackageProfile::FREE_FORM_PROFILE).
           exclude_variants(*Item::Variants::non_filesystem_variants).
-          order(sort).
-          start(session[:start]).
           limit(@collection&.free_form? ?
                     ElasticsearchClient::MAX_RESULT_WINDOW : session[:limit])
     end
+    if session[:field]
+      finder.query(session[:field], session[:q])
+    else
+      finder.query_all(session[:q])
+    end
+    finder
   end
 
   def load_item
