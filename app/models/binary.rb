@@ -290,15 +290,20 @@ class Binary < ApplicationRecord
   # @raises [IOError] If the file doesn't exist or can't be read.
   #
   def infer_media_type
-    case File.extname(self.object_key).downcase
-    when '.mp4', '.m4v'
-      self.media_type = 'video/mp4'
-    when '.mtl'
-      self.media_type = 'text/plain'
-    when '.obj'
-      self.media_type = 'text/plain'
-    else
-      # Try to infer the media type using the binary's magic bytes.
+    ext = File.extname(self.object_key)
+    if ext.present?
+      # Add some workarounds for formats that require special handling.
+      case ext.downcase
+      when '.mp4', '.m4v'
+        self.media_type = 'video/mp4'
+      when '.mtl'
+        self.media_type = 'text/plain'
+      when '.obj'
+        self.media_type = 'text/plain'
+      end
+    end
+    if self.media_type.blank?
+      # Try to infer the media type from the file header.
       begin
         # First, check the Content-Length response header in order to find the
         # end of the requestable range.
@@ -316,6 +321,10 @@ class Binary < ApplicationRecord
         end
       rescue => e
         raise IOError, e
+      end
+      # If that failed, fall back to inferring it from the filename extension.
+      if self.media_type.blank?
+        self.media_type = MimeMagic.by_extension(ext)
       end
     end
   end
