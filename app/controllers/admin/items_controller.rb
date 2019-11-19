@@ -24,16 +24,12 @@ module Admin
       item_ids = params[:items]
       if item_ids&.any?
         item_set = ItemSet.find(params[:item_set])
-        ActiveRecord::Base.transaction do
-          item_ids.each do |item_id|
-            item = Item.find_by_repository_id(item_id)
-            item_set.add_item_and_children(item) if item
-          end
+        item_ids.each do |item_id|
+          item = Item.find_by_repository_id(item_id)
+          item_set.add_item_and_children(item) if item
         end
-
         flash['success'] = "Added #{item_ids.length} item(s) to #{item_set}."
       end
-
       redirect_back fallback_location: admin_collection_items_path(params[:collection_id])
     end
 
@@ -49,18 +45,12 @@ module Admin
       raise ActiveRecord::RecordNotFound unless collection
 
       item_set = ItemSet.find(params[:item_set])
-      raise ActiveRecord::RecordNotFound unless item_set
-
-      finder = querying_item_finder_for(collection)
-      results = finder.to_a
-      count = finder.count
-
+      finder   = querying_item_finder_for(collection)
+      results  = finder.to_a
+      count    = finder.count
       begin
-        ActiveRecord::Base.transaction do
-          results.each do |item|
-            item_set.items << item
-          end
-          item_set.save!
+        results.each do |item|
+          item_set.add_item(item)
         end
       rescue => e
         handle_error(e)

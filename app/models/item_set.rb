@@ -30,12 +30,22 @@ class ItemSet < ActiveRecord::Base
   ##
   # @param item [Item]
   #
+  def add_item(item)
+    ActiveRecord::Base.transaction do
+      if self.items.where(repository_id: item.repository_id).count < 1
+        self.items << item
+        self.save!
+      end
+    end
+  end
+
+  ##
+  # @param item [Item]
+  #
   def add_item_and_children(item)
     ActiveRecord::Base.transaction do
       # Add the item.
-      if self.items.where(repository_id: item.repository_id).count < 1
-        self.items << item
-      end
+      add_item(item)
 
       # Add all of its children.
       item.all_children.each do |child|
