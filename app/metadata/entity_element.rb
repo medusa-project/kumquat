@@ -7,7 +7,7 @@
 #
 class EntityElement < ApplicationRecord
 
-  belongs_to :vocabulary
+  belongs_to :vocabulary, optional: true
 
   INDEX_FIELD_PREFIX = 'dls_'
   KEYWORD_FIELD_SUFFIX = '.keyword'

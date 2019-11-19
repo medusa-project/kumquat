@@ -211,7 +211,7 @@ class Item < ApplicationRecord
   has_many :elements, class_name: 'ItemElement', inverse_of: :item,
            dependent: :destroy
 
-  belongs_to :representative_binary, class_name: 'Binary'
+  belongs_to :representative_binary, class_name: 'Binary', optional: true
 
   # VALIDATIONS
 
