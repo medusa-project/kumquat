@@ -41,7 +41,7 @@ class Download < ApplicationRecord
   LOGGER = CustomLogger.new(Download)
   DOWNLOADS_DIRECTORY = File.join(Rails.root, 'tmp', 'downloads')
 
-  belongs_to :task, inverse_of: :download
+  belongs_to :task, inverse_of: :download, optional: true
 
   before_create :assign_key
   # Downloads shouldn't be destroyed, but just in case.
