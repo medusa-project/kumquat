@@ -88,7 +88,7 @@ class Host < ApplicationRecord
   def cidr_ip_range?(string)
     begin
       # Check for CIDR range.
-      NetAddr::CIDR.create(string)
+      NetAddr::IPv4Net.parse(string)
       true
     rescue
       false
@@ -134,7 +134,7 @@ class Host < ApplicationRecord
       # it.
       if up.include?('/')
         begin
-          NetAddr::CIDR.create(up)
+          NetAddr::IPv4Net.parse(up)
         rescue
           errors.add(:pattern, 'is an invalid CIDR range')
         end
@@ -174,7 +174,8 @@ class Host < ApplicationRecord
   #
   def within_cidr_range?(ip, cidr_pattern)
     begin
-      return NetAddr::CIDR.create(cidr_pattern).contains?(ip)
+      subnet = NetAddr::IPv4Net.parse(cidr_pattern)
+      return subnet.contains(NetAddr::IPv4.parse(ip))
     rescue ArgumentError
       return false
     end
@@ -189,14 +190,14 @@ class Host < ApplicationRecord
   def within_wildcard_range?(ip, start, end_)
     return false if self.commented_out?
 
-    ip_groups = ip.gsub('*', '').split('.')
+    ip_groups    = ip.gsub('*', '').split('.')
     start_groups = start.gsub('*', '').split('.')
-    end_groups = end_.gsub('*', '').split('.')
+    end_groups   = end_.gsub('*', '').split('.')
 
     4.times do |level|
-      ip_group = ip_groups[level].to_i
+      ip_group    = ip_groups[level].to_i
       start_group = start_groups[level].to_i
-      end_group = end_groups[level].to_i
+      end_group   = end_groups[level].to_i
       return false if (start_group > 0 and ip_group < start_group) or
           (end_group > 0 and ip_group > end_group)
     end
