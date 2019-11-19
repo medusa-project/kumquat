@@ -3,14 +3,13 @@ source 'https://rubygems.org'
 # Needs to match the version in .ruby-version and Dockerfile
 ruby '2.6.1'
 
-gem 'activemodel-serializers-xml'
 gem 'aws-sdk-s3', '~> 1.8'
 gem 'bootstrap', '~> 4.3.1'
 gem 'daemons' # enables bin/delayed_job start/stop
 gem 'delayed_job_active_record'
 gem 'draper' # Provides decorators
 gem 'httpclient'
-gem 'jbuilder', '~> 2.0' # JSON DSL: https://github.com/rails/jbuilder
+gem 'jbuilder' # JSON DSL: https://github.com/rails/jbuilder
 gem 'jquery-rails'
 gem 'js_cookie_rails'
 gem 'local_time'
@@ -26,7 +25,7 @@ gem 'pg'
 # warning about an already-initialized constant.
 # See: https://github.com/prawnpdf/prawn/issues/1024
 gem 'prawn', git: 'https://github.com/prawnpdf/prawn.git', ref: '9250c8675342872603332784f77263fcb1cf72a2'
-gem 'rails', '5.2.3'
+gem 'rails', '6.0.1'
 gem 'rails_autolink'
 gem 'sassc'
 gem 'scars-bootstrap-theme', git: 'https://github.com/medusa-project/scars-bootstrap-theme.git'
