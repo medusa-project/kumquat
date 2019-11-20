@@ -176,7 +176,7 @@ class Host < ApplicationRecord
     begin
       subnet = NetAddr::IPv4Net.parse(cidr_pattern)
       return subnet.contains(NetAddr::IPv4.parse(ip))
-    rescue ArgumentError
+    rescue
       return false
     end
   end
