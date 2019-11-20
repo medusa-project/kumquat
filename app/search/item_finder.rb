@@ -143,8 +143,7 @@ class ItemFinder < AbstractFinder
   protected
 
   def get_response
-    index = ElasticsearchIndex.current_index(Item::ELASTICSEARCH_INDEX)
-    result = @client.query(index.name, build_query)
+    result = @client.query(build_query)
     JSON.parse(result)
   end
 
@@ -203,6 +202,7 @@ class ItemFinder < AbstractFinder
   #
   def build_query
     json = Jbuilder.encode do |j|
+      j.track_total_hits true
       j.query do
         j.bool do
           # Query
@@ -223,62 +223,66 @@ class ItemFinder < AbstractFinder
             end
           end
 
-          if @filters.any? or @item_set or @parent_item or @collection or
-              @only_described or !@include_unpublished
-            j.filter do
-              @filters.each do |field, value|
-                j.child! do
-                  if value.respond_to?(:each)
-                    j.terms do
-                      j.set! field, value
-                    end
-                  else
-                    j.term do
-                      j.set! field, value
-                    end
+
+          j.filter do
+            j.child! do
+              j.term do
+                j.set! Item::IndexFields::CLASS, 'Item'
+              end
+            end
+
+            @filters.each do |field, value|
+              j.child! do
+                if value.respond_to?(:each)
+                  j.terms do
+                    j.set! field, value
+                  end
+                else
+                  j.term do
+                    j.set! field, value
                   end
                 end
               end
+            end
 
-              if @item_set
-                j.child! do
-                  j.term do
-                    j.set! Item::IndexFields::ITEM_SETS, @item_set.id
-                  end
+            if @item_set
+              j.child! do
+                j.term do
+                  j.set! Item::IndexFields::ITEM_SETS, @item_set.id
                 end
               end
+            end
 
-              if @parent_item
-                j.child! do
-                  j.term do
-                    j.set! Item::IndexFields::PARENT_ITEM,
-                           @parent_item.repository_id
-                  end
+            if @parent_item
+              j.child! do
+                j.term do
+                  j.set! Item::IndexFields::PARENT_ITEM,
+                         @parent_item.repository_id
                 end
               end
+            end
 
-              if @collection
-                j.child! do
-                  j.term do
-                    j.set! Item::IndexFields::COLLECTION,
-                           @collection.repository_id
-                  end
+            if @collection
+              j.child! do
+                j.term do
+                  j.set! Item::IndexFields::COLLECTION,
+                         @collection.repository_id
                 end
               end
+            end
 
-              if @only_described
-                j.child! do
-                  j.term do
-                    j.set! Item::IndexFields::DESCRIBED, true
-                  end
+            if @only_described
+              j.child! do
+                j.term do
+                  j.set! Item::IndexFields::DESCRIBED, true
                 end
               end
+            end
 
-              unless @include_unpublished
-                j.child! do
-                  j.term do
-                    j.set! Item::IndexFields::PUBLICLY_ACCESSIBLE, true
-                  end
+            unless @include_unpublished
+              j.child! do
+                j.term do
+                  j.set! Item::IndexFields::PUBLICLY_ACCESSIBLE, true
                 end
               end
             end

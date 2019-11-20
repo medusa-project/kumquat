@@ -9,9 +9,9 @@ class EntityElement < ApplicationRecord
 
   belongs_to :vocabulary, optional: true
 
-  INDEX_FIELD_PREFIX = 'dls_'
+  INDEX_FIELD_PREFIX   = 'metadata_'
   KEYWORD_FIELD_SUFFIX = '.keyword'
-  SORT_FIELD_SUFFIX = '.sort'
+  SORT_FIELD_SUFFIX    = '.sort'
 
   validates_presence_of :name
 

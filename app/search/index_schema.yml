@@ -1,0 +1,112 @@
+--- !map:HashWithIndifferentAccess
+#
+# 1,000 words picture:
+#
+# * Metadata element ---> (transformation) --------------------> text_elements (text)
+#                            \                                             |
+#                             \                                            v
+#                              \                                  copy_to search_all
+#                               \
+#                                \------------------------------> keyword_elements (keyword; mainly for faceting)
+#                                 \
+#                                  \---> (remove stop words) ---> sort_elements (icu_collation_keyword [supports natural sort])
+#                                   \
+#                                    \------> (normalize) ------> date_elements (date)
+#
+# * Non-metadata system fields ---> sys_* according to data type
+#
+# All operations in parentheses are carried out in Item.as_indexed_json().
+#
+# Requires Elasticsearch >= 5.6
+#
+settings:
+  index.query.default_field: search_all
+  index.max_result_window: 1000000000 # must match ElasticsearchClient::MAX_RESULT_WINDOW
+  analysis:
+    filter:
+      custom_stopper:
+        type: stop
+        stopwords:
+        - _english_
+        - _french_
+      custom_stemmer:
+        type: stemmer
+        name: english
+    analyzer:
+      search:
+        tokenizer: standard
+        filter:
+        - standard
+        - lowercase
+        - custom_stopper
+        - custom_stemmer
+        - apostrophe
+        - decimal_digit
+mappings:
+  entity:
+    date_detection: false
+    dynamic_templates:
+    - metadata_elements:
+        match: metadata*
+        mapping:
+          type: text
+          copy_to: search_all
+          fields:
+            keyword:
+              type: keyword
+            sort:
+              type: icu_collation_keyword
+              index: false
+              numeric: true
+              language: en
+              strength: quaternary
+              alternate: shifted
+    - booleans:
+        match: sys_b_*
+        mapping:
+          type: boolean
+          store: false
+    - dates:
+        match: sys_d_*
+        mapping:
+          type: date
+          store: false
+    - geo_points:
+        match: sys_p_*
+        mapping:
+          type: geo_point
+          store: false
+    - integers:
+        match: sys_i_*
+        mapping:
+          type: integer
+          store: false
+    - keywords:
+        match: sys_k_*
+        mapping:
+          type: keyword
+          fields:
+            keyword:
+              type: keyword
+            sort:
+              type: icu_collation_keyword
+              index: false
+              numeric: true
+              language: en
+              strength: quaternary
+              alternate: shifted
+    - longs:
+        match: sys_l_*
+        mapping:
+          type: long
+          store: false
+    - text:
+        match: sys_t_*
+        mapping:
+          type: text
+          copy_to: search_all
+          store: false
+    properties:
+      search_all:
+        type: text
+        store: false

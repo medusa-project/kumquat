@@ -103,41 +103,40 @@ class Collection < ApplicationRecord
 
   ##
   # Contains constants for all "technical" indexed fields. Additional dynamic
-  # fields may be present.
+  # metadata fields may also be present.
   #
   class IndexFields
-    ACCESS_SYSTEMS               = 'k_access_systems'
-    ACCESS_URL                   = 'k_access_url'
-    ALLOWED_ROLE_COUNT           = 'i_allowed_role_count'
-    ALLOWED_ROLES                = 'k_allowed_roles'
-    DENIED_ROLE_COUNT            = 'i_denied_role_count'
-    DENIED_ROLES                 = 'k_denied_roles'
+    ACCESS_SYSTEMS               = 'sys_k_access_systems'
+    ACCESS_URL                   = 'sys_k_access_url'
+    ALLOWED_ROLE_COUNT           = 'sys_i_allowed_role_count'
+    ALLOWED_ROLES                = 'sys_k_allowed_roles'
+    CLASS                        = ElasticsearchIndex::StandardFields::CLASS
+    DENIED_ROLE_COUNT            = 'sys_i_denied_role_count'
+    DENIED_ROLES                 = 'sys_k_denied_roles'
     DESCRIPTION                  = CollectionElement.new(name: 'description').indexed_field
-    EFFECTIVE_ALLOWED_ROLE_COUNT = 'i_effective_allowed_role_count'
-    EFFECTIVE_ALLOWED_ROLES      = 'k_effective_allowed_roles'
-    EFFECTIVE_DENIED_ROLE_COUNT  = 'i_effective_denied_role_count'
-    EFFECTIVE_DENIED_ROLES       = 'k_effective_denied_roles'
-    EXTERNAL_ID                  = 'k_external_id'
-    HARVESTABLE                  = 'b_harvestable'
-    LAST_INDEXED                 = 'd_last_indexed'
-    LAST_MODIFIED                = 'd_last_modified'
-    NATIVE                       = 'b_native'
-    PARENT_COLLECTIONS           = 'k_parent_collections'
-    PUBLIC_IN_MEDUSA             = 'b_public_in_medusa'
-    PUBLICLY_ACCESSIBLE          = ElasticsearchIndex::PUBLICLY_ACCESSIBLE_FIELD
-    PUBLISHED_IN_DLS             = 'b_published_in_dls'
-    REPOSITORY_ID                = 'k_repository_id'
-    REPOSITORY_TITLE             = 'k_repository_title'
-    REPRESENTATIVE_IMAGE         = 'k_representative_image'
-    REPRESENTATIVE_ITEM          = 'k_representative_item'
-    RESOURCE_TYPES               = 'k_resource_types'
-    SEARCH_ALL                   = ElasticsearchIndex::SEARCH_ALL_FIELD
+    EFFECTIVE_ALLOWED_ROLE_COUNT = 'sys_i_effective_allowed_role_count'
+    EFFECTIVE_ALLOWED_ROLES      = 'sys_k_effective_allowed_roles'
+    EFFECTIVE_DENIED_ROLE_COUNT  = 'sys_i_effective_denied_role_count'
+    EFFECTIVE_DENIED_ROLES       = 'sys_k_effective_denied_roles'
+    EXTERNAL_ID                  = 'sys_k_external_id'
+    HARVESTABLE                  = 'sys_b_harvestable'
+    LAST_INDEXED                 = ElasticsearchIndex::StandardFields::LAST_INDEXED
+    LAST_MODIFIED                = ElasticsearchIndex::StandardFields::LAST_MODIFIED
+    NATIVE                       = 'sys_b_native'
+    PARENT_COLLECTIONS           = 'sys_k_parent_collections'
+    PUBLIC_IN_MEDUSA             = 'sys_b_public_in_medusa'
+    PUBLICLY_ACCESSIBLE          = ElasticsearchIndex::StandardFields::PUBLICLY_ACCESSIBLE
+    PUBLISHED_IN_DLS             = 'sys_b_published_in_dls'
+    REPOSITORY_ID                = 'sys_k_repository_id'
+    REPOSITORY_TITLE             = 'sys_k_repository_title'
+    REPRESENTATIVE_IMAGE         = 'sys_k_representative_image'
+    REPRESENTATIVE_ITEM          = 'sys_k_representative_item'
+    RESOURCE_TYPES               = 'sys_k_resource_types'
+    SEARCH_ALL                   = ElasticsearchIndex::StandardFields::SEARCH_ALL
     TITLE                        = CollectionElement.new(name: 'title').indexed_keyword_field
   end
 
-  LOGGER              = CustomLogger.new(Collection)
-  ELASTICSEARCH_INDEX = 'collections'
-  ELASTICSEARCH_TYPE  = 'collection'
+  LOGGER = CustomLogger.new(Collection)
 
   serialize :access_systems
   serialize :resource_types
@@ -182,14 +181,6 @@ class Collection < ApplicationRecord
   after_commit :delete_from_elasticsearch, on: :destroy
 
   ##
-  # Deletes all collection-related documents. This is obviously dangerous.
-  #
-  def self.delete_all_documents
-    index_name = ElasticsearchIndex.current_index(ELASTICSEARCH_INDEX).name
-    ElasticsearchClient.instance.delete_all_documents(index_name, ELASTICSEARCH_TYPE)
-  end
-
-  ##
   # Normally this method should not be used except to delete orphaned documents
   # with no database counterpart. Documents are automatically deleted in an
   # ActiveRecord callback.
@@ -208,12 +199,13 @@ class Collection < ApplicationRecord
             }
         }
     }
-    ElasticsearchClient.instance.delete_by_query(
-        ElasticsearchIndex.current_index(Collection::ELASTICSEARCH_INDEX),
-        JSON.generate(query))
+    ElasticsearchClient.instance.delete_by_query(JSON.generate(query))
   end
 
   ##
+  # Iterates through all indexed Collection documents and deletes any for which
+  # no counterpart exists in the database.
+  #
   # Normally this method should not be used except to delete orphaned documents
   # with no database counterpart. See the class documentation for info about
   # how documents are normally deleted.
@@ -275,12 +267,12 @@ class Collection < ApplicationRecord
 
   ##
   # N.B.: Orphaned documents are not deleted; for that, use
-  # `delete_orphaned_documents()`.
+  # {delete_orphaned_documents}.
   #
-  # @param index [Symbol] :current or :latest
+  # @param index [String] Index name. If omitted, the default index is used.
   # @return [void]
   #
-  def self.reindex_all(index = :current)
+  def self.reindex_all(index = nil)
     Collection.uncached do
       start_time = Time.now
       count = Collection.count
@@ -308,8 +300,7 @@ class Collection < ApplicationRecord
       j.from 0
       j.size 999999
     end
-    index = ElasticsearchIndex.current_index(Item::ELASTICSEARCH_INDEX)
-    result = ElasticsearchClient.instance.query(index.name, json)
+    result = ElasticsearchClient.instance.query(json)
     struct = JSON.parse(result)
     puts struct
     struct['hits']['hits'].map{ |r| r['_source'][Item::IndexFields::REPOSITORY_ID] }
@@ -327,6 +318,7 @@ class Collection < ApplicationRecord
     doc[IndexFields::ACCESS_URL] = self.access_url
     doc[IndexFields::ALLOWED_ROLES] = self.allowed_roles.pluck(:key)
     doc[IndexFields::ALLOWED_ROLE_COUNT] = doc[IndexFields::ALLOWED_ROLES].length
+    doc[IndexFields::CLASS] = self.class.to_s
     doc[IndexFields::DENIED_ROLES] = self.denied_roles.pluck(:key)
     doc[IndexFields::DENIED_ROLE_COUNT] = doc[IndexFields::DENIED_ROLES].length
     doc[IndexFields::EFFECTIVE_ALLOWED_ROLES] =
@@ -384,7 +376,6 @@ class Collection < ApplicationRecord
   # database.
   #
   def delete_orphaned_item_documents
-    es_index     = ElasticsearchIndex.latest_index(Item::ELASTICSEARCH_INDEX)
     item_ids     = all_indexed_item_ids
     count        = item_ids.length
     orphaned_ids = []
@@ -406,7 +397,7 @@ class Collection < ApplicationRecord
           end
         end
       end
-      ElasticsearchClient.instance.delete_by_query(es_index.name, query)
+      ElasticsearchClient.instance.delete_by_query(query)
     end
   end
 
@@ -710,10 +701,10 @@ class Collection < ApplicationRecord
   end
 
   ##
-  # @param index [Symbol] `:current` or `:latest`
+  # @param index [String] Index name. If omitted, the default index is used.
   # @return [void]
   #
-  def reindex(index = :current)
+  def reindex(index = nil)
     index_in_elasticsearch(index)
   end
 
@@ -868,16 +859,14 @@ class Collection < ApplicationRecord
   end
 
   ##
-  # @param index [Symbol] `:current` or `:latest`
+  # @param index [String] Index name. If omitted, the default index is used.
   # @return [void]
   #
-  def index_in_elasticsearch(index = :current)
-    index = ElasticsearchIndex.latest_index(ELASTICSEARCH_INDEX)
-    ElasticsearchClient.instance.index_document(index.name,
-                                                ELASTICSEARCH_TYPE,
+  def index_in_elasticsearch(index)
+    index ||= Configuration.instance.elasticsearch_index
+    ElasticsearchClient.instance.index_document(index,
                                                 self.repository_id,
                                                 self.as_indexed_json)
-
   end
 
   def validate_medusa_uuids

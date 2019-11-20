@@ -3,8 +3,8 @@ namespace :dls do
   namespace :agents do
 
     desc 'Reindex all agents'
-    task :reindex => :environment do |task, args|
-      reindex_agents
+    task :reindex, [:index_name] => :environment do |task, args|
+      Agent.reindex_all(args[:index_name])
     end
 
   end
@@ -12,7 +12,7 @@ namespace :dls do
   namespace :binaries do
 
     desc 'Recreate binaries in all collections'
-    task :recreate => :environment do |task|
+    task :recreate => :environment do
       ActiveRecord::Base.transaction do
         Collection.all.each do |collection|
           next if collection.items.count == 0
@@ -31,7 +31,7 @@ namespace :dls do
     end
 
     desc 'Populate the byte sizes of all binaries'
-    task :populate_byte_sizes => :environment do |task|
+    task :populate_byte_sizes => :environment do
       Binary.uncached do
         binaries = Binary.where(byte_size: nil).where('object_key IS NOT NULL')
         count = binaries.count
@@ -51,7 +51,7 @@ namespace :dls do
     end
 
     desc 'Populate the dimensions of all binaries'
-    task :populate_dimensions => :environment do |task|
+    task :populate_dimensions => :environment do
       Binary.uncached do
         binaries = Binary.where('(width IS NULL OR height IS NULL)').
             where('media_type LIKE \'image/%\' OR media_type LIKE \'video/%\'').
@@ -73,7 +73,7 @@ namespace :dls do
     end
 
     desc 'Populate the durations of all binaries'
-    task :populate_durations => :environment do |task|
+    task :populate_durations => :environment do
       Binary.uncached do
         binaries = Binary.where(duration: nil).
             where('media_type LIKE \'audio/%\' OR media_type LIKE \'video/%\'').
@@ -95,7 +95,7 @@ namespace :dls do
     end
 
     desc 'Populate the media category of all binaries'
-    task :populate_media_categories => :environment do |task|
+    task :populate_media_categories => :environment do
       Binary.uncached do
         binaries = Binary.where(media_category: nil).
             where('media_type IS NOT NULL')
@@ -123,12 +123,12 @@ namespace :dls do
     end
 
     desc 'Reindex all collections'
-    task :reindex => :environment do |task, args|
-      reindex_collections
+    task :reindex, [:index_name] => :environment do |task, args|
+      Collection.reindex_all(args[:index_name])
     end
 
     desc 'Sync collections from Medusa'
-    task :sync => :environment do |task|
+    task :sync => :environment do
       SyncCollectionsJob.new.perform_in_foreground
     end
 
@@ -137,13 +137,13 @@ namespace :dls do
   namespace :downloads do
 
     desc 'Clean up old downloads'
-    task :cleanup => :environment do |task, args|
+    task :cleanup => :environment do
       Download.cleanup(60 * 60 * 24) # max 1 day old
     end
 
     desc 'Expire all downloads'
-    task :expire => :environment do |task, args|
-      Download.all.each { |dl| dl.expire }
+    task :expire => :environment do
+      Download.all.each(&:expire)
     end
 
   end
@@ -154,7 +154,7 @@ namespace :dls do
     # This was requested by lampron2@illinois.edu on 1/18/2018.
     #
     desc 'Generate a report for PL'
-    task :elements_in_profiles => :environment do |task, args|
+    task :elements_in_profiles => :environment do
       lines = []
       Element.all.order(:name).each do |el|
         any = false
@@ -176,7 +176,7 @@ namespace :dls do
   namespace :images do
 
     desc 'Purge all images from the image server cache'
-    task :purge_all => :environment do |task, args|
+    task :purge_all => :environment do
       ImageServer.instance.purge_all_images_from_cache
     end
 
@@ -209,14 +209,14 @@ namespace :dls do
     end
 
     desc 'Reindex an item and all of its children. Omit uuid to index all items'
-    task :reindex, [:uuid] => :environment do |task, args|
+    task :reindex, [:index_name, :uuid] => :environment do |task, args|
       if args[:uuid].present?
         item = Item.find_by_repository_id(args[:uuid])
         item.all_children.to_a.push(item).each do |it|
-          it.reindex
+          it.reindex(args[:index_name])
         end
       else
-        reindex_items
+        reindex_items(args[:index_name])
       end
     end
 
@@ -242,32 +242,24 @@ namespace :dls do
   namespace :tasks do
 
     desc 'Clear all tasks'
-    task :clear => :environment do |task, args|
+    task :clear => :environment do
       Task.destroy_all
     end
 
     desc 'Clear running tasks'
-    task :clear_running => :environment do |task, args|
+    task :clear_running => :environment do
       Task.where(status: Task::Status::RUNNING).destroy_all
     end
 
     desc 'Clear waiting tasks'
-    task :clear_waiting => :environment do |task, args|
+    task :clear_waiting => :environment do
       Task.where(status: Task::Status::WAITING).destroy_all
     end
 
   end
 
-  def reindex_agents
-    Agent.reindex_all
-  end
-
-  def reindex_collections
-    Collection.reindex_all
-  end
-
-  def reindex_items
-    Item.reindex_all
+  def reindex_items(index = nil)
+    Item.reindex_all(index)
   end
 
 end

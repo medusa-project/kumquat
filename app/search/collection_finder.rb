@@ -68,8 +68,7 @@ class CollectionFinder < AbstractFinder
   end
 
   def get_response
-    index = ElasticsearchIndex.current_index(Collection::ELASTICSEARCH_INDEX)
-    result = @client.query(index.name, build_query)
+    result = @client.query(build_query)
     JSON.parse(result)
   end
 
@@ -114,7 +113,8 @@ class CollectionFinder < AbstractFinder
   # @return [String] JSON string.
   #
   def build_query
-    json = Jbuilder.encode do |j|
+    Jbuilder.encode do |j|
+      j.track_total_hits true
       j.query do
         j.bool do
           # Query
@@ -130,36 +130,38 @@ class CollectionFinder < AbstractFinder
             end
           end
 
-          if @filters.any? or !@include_unpublished or @parent_collection
-            j.filter do
-              @filters.each do |field, value|
-                j.child! do
-                  if value.respond_to?(:each)
-                    j.terms do
-                      j.set! field, value
-                    end
-                  else
-                    j.term do
-                      j.set! field, value
-                    end
+          j.filter do
+            j.term do
+              j.set! Collection::IndexFields::CLASS, 'Collection'
+            end
+
+            @filters.each do |field, value|
+              j.child! do
+                if value.respond_to?(:each)
+                  j.terms do
+                    j.set! field, value
+                  end
+                else
+                  j.term do
+                    j.set! field, value
                   end
                 end
               end
+            end
 
-              if @parent_collection
-                j.child! do
-                  j.term do
-                    j.set! Collection::IndexFields::PARENT_COLLECTIONS,
-                           @parent_collection.repository_id
-                  end
+            if @parent_collection
+              j.child! do
+                j.term do
+                  j.set! Collection::IndexFields::PARENT_COLLECTIONS,
+                         @parent_collection.repository_id
                 end
               end
+            end
 
-              unless @include_unpublished
-                j.child! do
-                  j.term do
-                    j.set! Collection::IndexFields::PUBLICLY_ACCESSIBLE, true
-                  end
+            unless @include_unpublished
+              j.child! do
+                j.term do
+                  j.set! Collection::IndexFields::PUBLICLY_ACCESSIBLE, true
                 end
               end
             end
@@ -238,12 +240,6 @@ class CollectionFinder < AbstractFinder
         j.size @limit
       end
     end
-
-    # For debugging
-    #File.write('query.json', JSON.pretty_generate(JSON.parse(json)))
-    # curl -XGET 'localhost:9200/collections_development/_search?size=0&pretty' -H 'Content-Type: application/json' -d @query.json
-
-    json
   end
 
 end

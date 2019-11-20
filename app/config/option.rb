@@ -6,14 +6,13 @@
 class Option < ApplicationRecord
 
   class Keys
-    ADMINISTRATOR_EMAIL = 'website.administrator.email'
-    COPYRIGHT_STATEMENT = 'website.copyright_statement'
-    CURRENT_INDEX_VERSION = 'elasticsearch.current_index_version'
+    ADMINISTRATOR_EMAIL   = 'website.administrator.email'
+    COPYRIGHT_STATEMENT   = 'website.copyright_statement'
     DEFAULT_RESULT_WINDOW = 'website.results_per_page'
-    FACET_TERM_LIMIT = 'website.facet_term_limit'
-    OAI_PMH_ENABLED = 'oai_pmh.enabled'
-    ORGANIZATION_NAME = 'organization.name'
-    WEBSITE_NAME = 'website.name'
+    FACET_TERM_LIMIT      = 'website.facet_term_limit'
+    OAI_PMH_ENABLED       = 'oai_pmh.enabled'
+    ORGANIZATION_NAME     = 'organization.name'
+    WEBSITE_NAME          = 'website.name'
   end
 
   # Values are stored in hashes keyed by this key.

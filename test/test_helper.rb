@@ -8,18 +8,14 @@ class ActiveSupport::TestCase
 
   def refresh_elasticsearch
     client = ElasticsearchClient.instance
-
-    index = ElasticsearchIndex.current_index(Agent::ELASTICSEARCH_TYPE)
-    client.refresh(index.name)
-    index = ElasticsearchIndex.current_index(Collection::ELASTICSEARCH_TYPE)
-    client.refresh(index.name)
-    index = ElasticsearchIndex.current_index(Item::ELASTICSEARCH_TYPE)
-    client.refresh(index.name)
+    client.refresh(Configuration.instance.elasticsearch_index)
   end
 
   def setup_elasticsearch
-    ElasticsearchIndex.migrate_to_latest
-    ElasticsearchClient.instance.recreate_all_indexes
+    index = Configuration.instance.elasticsearch_index
+    client = ElasticsearchClient.instance
+    client.delete_index(index, false)
+    client.create_index(index)
   end
 
   def sign_in_as(user)

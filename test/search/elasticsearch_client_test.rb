@@ -6,7 +6,7 @@ class ElasticsearchClientTest < ActiveSupport::TestCase
 
   setup do
     @instance = ElasticsearchClient.instance
-    @test_schema = ElasticsearchIndex.latest_index(Item).schema
+    @test_schema = ElasticsearchIndex::SCHEMA
   end
 
   test 'create_index() works' do

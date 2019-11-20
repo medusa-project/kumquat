@@ -10,6 +10,7 @@ class AgentTest < ActiveSupport::TestCase
 
   test 'as_indexed_json() returns the correct structure' do
     doc = @agent.as_indexed_json
+    assert_equal 'Agent', doc[Agent::IndexFields::CLASS]
     assert_equal @agent.description, doc[Agent::IndexFields::DESCRIPTION]
     assert_equal [], doc[Item::IndexFields::EFFECTIVE_ALLOWED_ROLES]
     assert_equal 0, doc[Item::IndexFields::EFFECTIVE_ALLOWED_ROLE_COUNT]

@@ -8,7 +8,6 @@
 class EntityFinder < AbstractFinder
 
   LOGGER = CustomLogger.new(EntityFinder)
-  ALL_ENTITIES = [Agent, Collection, Item]
 
   def initialize
     super
@@ -118,9 +117,7 @@ class EntityFinder < AbstractFinder
   protected
 
   def get_response
-    index_names = @include_classes.map { |c|
-      ElasticsearchIndex.current_index(c.const_get(:ELASTICSEARCH_INDEX)) }.join(',')
-    result = @client.query(index_names, build_query)
+    result = @client.query(build_query)
     JSON.parse(result)
   end
 
@@ -134,7 +131,8 @@ class EntityFinder < AbstractFinder
   # @return [String] JSON string.
   #
   def build_query
-    json = Jbuilder.encode do |j|
+    Jbuilder.encode do |j|
+      j.track_total_hits true
       j.query do
         j.bool do
           # Query
@@ -178,7 +176,7 @@ class EntityFinder < AbstractFinder
               unless @include_unpublished
                 j.child! do
                   j.term do
-                    j.set! ElasticsearchIndex::PUBLICLY_ACCESSIBLE_FIELD, true
+                    j.set! ElasticsearchIndex::StandardFields::PUBLICLY_ACCESSIBLE, true
                   end
                 end
               end
@@ -293,12 +291,6 @@ class EntityFinder < AbstractFinder
         j.size @limit
       end
     end
-
-    # For debugging
-    #File.write('query.json', JSON.pretty_generate(JSON.parse(json)))
-    # curl -XGET 'localhost:9200/items_development/_search?size=0&pretty' -H 'Content-Type: application/json' -d @query.json
-
-    json
   end
 
 end

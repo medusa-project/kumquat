@@ -4,10 +4,6 @@ administrator_email:
   key: <%= Option::Keys::ADMINISTRATOR_EMAIL %>
   value: '{"value" : "admin@example.org"}'
 
-current_index_version:
-  key: <%= Option::Keys::CURRENT_INDEX_VERSION %>
-  value: '{"value" : 0}'
-
 default_result_window:
   key: <%= Option::Keys::DEFAULT_RESULT_WINDOW %>
   value: '{"value" : 20}'

@@ -7,18 +7,6 @@ class CollectionTest < ActiveSupport::TestCase
     @collection = collections(:sanborn)
   end
 
-  # Collection.delete_all_documents()
-
-  test 'delete_all_documents() deletes all documents' do
-    Collection.all.each(&:reindex)
-    refresh_elasticsearch
-    assert CollectionFinder.new.count > 0
-
-    Collection.delete_all_documents
-    refresh_elasticsearch
-    assert_equal 0, CollectionFinder.new.count
-  end
-
   # Collection.delete_document()
 
   test 'delete_document() deletes a document' do
@@ -105,6 +93,8 @@ class CollectionTest < ActiveSupport::TestCase
                  doc[Collection::IndexFields::ALLOWED_ROLES].sort
     assert_equal @collection.allowed_roles.pluck(:key).length,
                  doc[Collection::IndexFields::ALLOWED_ROLE_COUNT]
+    assert_equal 'Collection',
+                 doc[Collection::IndexFields::CLASS]
     assert_equal @collection.denied_roles.pluck(:key).sort,
                  doc[Collection::IndexFields::DENIED_ROLES].sort
     assert_equal @collection.denied_roles.pluck(:key).length,

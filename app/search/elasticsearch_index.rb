@@ -1,146 +1,43 @@
 ##
-# Encapsulates an Elasticsearch index, which corresponds one-to-one with an
-# Elasticsearch model, and has a particular schema.
+# Encapsulates an Elasticsearch index.
 #
-# Note: the index-per-model approach is a legacy of the
-# [elasticsearch-model gem](https://github.com/elastic/elasticsearch-rails/tree/master/elasticsearch-model)
-# which is no longer being used. It would be better to have only one index.
+# The application uses only one index. Its name is arbitrary. The application
+# can be pointed directly at the index, or to an alias of the index, using the
+# `elasticsearch_index` configuration key.
 #
-# # Schemas
+# # Index migration
 #
-# Elasticsearch indexes can't be changed in place, so new ones have to be
-# created with the desired changes.  Versioned index schemas are defined in
-# `index_schemas.yml`. The version the application uses is set in
-# `Option::Keys::CURRENT_INDEX_VERSION`. When the schema changes, the new
-# indexes must be created and populated with documents, and then the
-# application switched over to them. (Typically this is all done with rake
-# tasks; see below.)
+# Elasticsearch index schemas can't (for the most part) be changed in place,
+# so when a change is needed, a new index must be created. This involves
+# modifying `app/search/index_schema.yml` and running the
+# `elasticsearch:indexes:create` rake task.
 #
-# ## Index migration
+# Once created, it must be populated with documents. If the documents in the
+# old index are compatible with the new index, then this is a simple matter of
+# running the `elasticsearch:indexes:reindex` rake task. Otherwise, all
+# database entities need to be reindexed into the new index. This is more time-
+# consuming and involves the `elasticsearch:items:reindex`,
+# `elasticsearch:collections:reindex`, and `elasticsearch:agents:reindex` rake
+# tasks.
 #
-# 1. Define the new schemas in `index_schemas.yml`
-# 2. `bin/rails elasticsearch:indexes:create_all_latest`
-# 3. `bin/rails elasticsearch:indexes:populate_latest`
-# 4. `bin/rails elasticsearch:indexes:migrate_to_latest`
-# 5. Restart
-#
-# N.B.: The
-# [elasticsearch-model gem](https://github.com/elastic/elasticsearch-rails/tree/master/elasticsearch-model)
-# provides a DSL for defining a model's schema, but it works with constant
-# index names, which is incompatible with the way the application migrates to
-# new index versions. This class keeps all versions of all schema indexes for
-# all models together in one place.
-#
-# @see: https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-create-index.html
+# Once the new index has been populated, either the application's
+# `elasticsearch_index` configuration key must be updated to point to it, or
+# else the index alias that that key is pointing to must be changed to point to
+# the new index.
 #
 class ElasticsearchIndex
 
-  LOGGER = CustomLogger.new(ElasticsearchIndex)
-
-  # Prefixed to all index names used by the application.
-  APPLICATION_INDEX_PREFIX  = 'dls'
-  PUBLICLY_ACCESSIBLE_FIELD = 'b_publicly_accessible'
-  SEARCH_ALL_FIELD          = 'search_all'
-
   ##
-  # Array of definitions for all index schema versions. The array index is the
-  # version.
+  # Standard fields present in all documents.
   #
-  SCHEMAS = YAML.load_file(File.join(Rails.root, 'app', 'search',
-                                     'index_schemas.yml'))
-
-  attr_accessor :name, :schema, :version
-
-  ##
-  # @param type [String] Type name.
-  # @return [ElasticsearchIndex]
-  #
-  def self.current_index(type)
-    build_index(type, current_index_version)
+  class StandardFields
+    CLASS               = 'sys_k_class'
+    LAST_INDEXED        = 'sys_d_last_indexed'
+    LAST_MODIFIED       = 'sys_d_last_modified'
+    PUBLICLY_ACCESSIBLE = 'sys_b_publicly_accessible'
+    SEARCH_ALL          = 'search_all'
   end
 
-  ##
-  # @return [Integer]
-  #
-  def self.current_index_version
-    Option::integer(Option::Keys::CURRENT_INDEX_VERSION) || 0
-  end
-
-  ##
-  # @param type [String] Type name.
-  # @return [ElasticsearchIndex]
-  #
-  def self.latest_index(type)
-    build_index(type, latest_index_version)
-  end
-
-  ##
-  # @return [Integer]
-  #
-  def self.latest_index_version
-    SCHEMAS.length - 1
-  end
-
-  ##
-  # @return [void]
-  #
-  def self.migrate_to_latest
-    current_version = current_index_version
-    latest_version  = latest_index_version
-
-    if current_version < latest_version
-      LOGGER.debug('migrate_to_latest(): [current version: %d] [latest version: %d]',
-                   current_version, latest_version)
-      Option.set(Option::Keys::CURRENT_INDEX_VERSION, latest_version)
-      LOGGER.info('migrate_to_latest(): now using version %d', latest_version)
-    else
-      LOGGER.info('migrate_to_latest(): already on the latest version. Nothing to do.')
-    end
-  end
-
-  ##
-  # @return [void]
-  #
-  def self.rollback_to_previous
-    current_version = current_index_version
-    next_version = current_version - 1
-    if next_version < 0
-      raise 'Can\'t rollback past version 0'
-    end
-    LOGGER.info('rollback_to_previous(): [current version: %d] [next version: %d]',
-                current_version, next_version)
-    Option.set(Option::Keys::CURRENT_INDEX_VERSION, next_version)
-    LOGGER.info('rollback_to_previous(): new version: %d', next_version)
-  end
-
-  ##
-  # @return [Boolean]
-  #
-  def exists?
-    ElasticsearchClient.instance.index_exists?(self.name)
-  end
-
-  def to_s
-    self.name
-  end
-
-  private
-
-  ##
-  # @param type [String] Type name.
-  # @param version [Integer] Schema version.
-  # @return [ElasticsearchIndex]
-  #
-  def self.build_index(type, version)
-    index = ElasticsearchIndex.new
-    index.name = sprintf('%s_%d_%s_%s',
-                         APPLICATION_INDEX_PREFIX,
-                         version,
-                         type.to_s.downcase.pluralize,
-                         Rails.env)
-    index.version = version
-    index.schema = SCHEMAS[version][type.to_s.downcase]
-    index
-  end
+  SCHEMA = YAML.load_file(File.join(Rails.root, 'app', 'search', 'index_schema.yml'))
 
 end

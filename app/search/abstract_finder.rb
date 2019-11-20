@@ -173,7 +173,7 @@ class AbstractFinder
   # @return [self]
   #
   def query_all(query)
-    query(ElasticsearchIndex::SEARCH_ALL_FIELD, query)
+    query(ElasticsearchIndex::StandardFields::SEARCH_ALL, query)
     self
   end
 

@@ -90,7 +90,7 @@
 # * `representative_binary_id` Medusa UUID of an alternative binary designated
 #                              to stand in as a representation of the item.
 # * `representative_item_repository_id` Repository ID of another item
-#                                       designated to representat the item. For
+#                                       designated to represent the item. For
 #                                       example, using a different item to
 #                                       provide a thumbnail image for an item
 #                                       that is not very "photogenic."
@@ -114,45 +114,50 @@ class Item < ApplicationRecord
   include Describable
   include Representable
 
+  ##
+  # Contains constants for all "technical" indexed fields. Additional dynamic
+  # metadata fields may also be present.
+  #
   class IndexFields
-    COLLECTION                   = 'k_collection'
-    CREATED                      = 'd_created'
-    DATE                         = 'd_date'
-    DESCRIBED                    = 'b_described'
-    EFFECTIVE_ALLOWED_ROLE_COUNT = 'i_effective_allowed_role_count'
-    EFFECTIVE_ALLOWED_ROLES      = 'k_effective_allowed_roles'
-    EFFECTIVE_DENIED_ROLE_COUNT  = 'i_effective_denied_role_count'
-    EFFECTIVE_DENIED_ROLES       = 'k_effective_denied_roles'
-    ITEM_SETS                    = 'i_item_sets'
-    LAST_INDEXED                 = 'd_last_indexed'
-    LAST_MODIFIED                = 'd_last_modified'
-    LAT_LONG                     = 'p_lat_long'
+    CLASS                        = ElasticsearchIndex::StandardFields::CLASS
+    COLLECTION                   = 'sys_k_collection'
+    CREATED                      = 'sys_d_created'
+    DATE                         = 'sys_d_date'
+    DESCRIBED                    = 'sys_b_described'
+    EFFECTIVE_ALLOWED_ROLE_COUNT = 'sys_i_effective_allowed_role_count'
+    EFFECTIVE_ALLOWED_ROLES      = 'sys_k_effective_allowed_roles'
+    EFFECTIVE_DENIED_ROLE_COUNT  = 'sys_i_effective_denied_role_count'
+    EFFECTIVE_DENIED_ROLES       = 'sys_k_effective_denied_roles'
+    ITEM_SETS                    = 'sys_i_item_sets'
+    LAST_INDEXED                 = ElasticsearchIndex::StandardFields::LAST_INDEXED
+    LAST_MODIFIED                = ElasticsearchIndex::StandardFields::LAST_MODIFIED
+    LAT_LONG                     = 'sys_p_lat_long'
     # Repository ID of the item, or its parent item, if a child within a
     # compound object.
-    OBJECT_REPOSITORY_ID         = 'k_object_repository_id'
-    PAGE_NUMBER                  = 'i_page_number'
-    PARENT_ITEM                  = 'k_parent_item'
-    PRIMARY_MEDIA_CATEGORY       = 'k_primary_media_category'
+    OBJECT_REPOSITORY_ID         = 'sys_k_object_repository_id'
+    PAGE_NUMBER                  = 'sys_i_page_number'
+    PARENT_ITEM                  = 'sys_k_parent_item'
+    PRIMARY_MEDIA_CATEGORY       = 'sys_k_primary_media_category'
     # N.B.: An item might be published but its collection might not be, making
     # it still effectively unpublished. This will take that into account.
-    PUBLICLY_ACCESSIBLE          = ElasticsearchIndex::PUBLICLY_ACCESSIBLE_FIELD
-    PUBLISHED                    = 'b_published'
-    REPOSITORY_ID                = 'k_repository_id'
-    REPRESENTATIVE_FILENAME      = 'k_representative_filename'
-    REPRESENTATIVE_ITEM          = 'k_representative_item_id'
-    SEARCH_ALL                   = ElasticsearchIndex::SEARCH_ALL_FIELD
+    PUBLICLY_ACCESSIBLE          = ElasticsearchIndex::StandardFields::PUBLICLY_ACCESSIBLE
+    PUBLISHED                    = 'sys_b_published'
+    REPOSITORY_ID                = 'sys_k_repository_id'
+    REPRESENTATIVE_FILENAME      = 'sys_k_representative_filename'
+    REPRESENTATIVE_ITEM          = 'sys_k_representative_item_id'
+    SEARCH_ALL                   = ElasticsearchIndex::StandardFields::SEARCH_ALL
     # Concatenation of various compound object page components or path
     # components (see as_indexed_json()) used for sorting items grouped
     # structurally.
-    STRUCTURAL_SORT              = 'k_structural_sort'
-    SUBPAGE_NUMBER               = 'i_subpage_number'
+    STRUCTURAL_SORT              = 'sys_k_structural_sort'
+    SUBPAGE_NUMBER               = 'sys_i_subpage_number'
     TITLE                        = ItemElement.new(name: 'title').indexed_keyword_field
-    TOTAL_BYTE_SIZE              = 'l_total_byte_size'
-    VARIANT                      = 'k_variant'
+    TOTAL_BYTE_SIZE              = 'sys_l_total_byte_size'
+    VARIANT                      = 'sys_k_variant'
   end
 
   ##
-  # N.B. When modifying these, modify sort_key_for_variant() as well.
+  # N.B. When modifying these, modify {sort_key_for_variant} as well.
   #
   class Variants
     BACK_COVER         = 'BackCover'
@@ -188,8 +193,6 @@ class Item < ApplicationRecord
   end
 
   LOGGER = CustomLogger.new(Item)
-  ELASTICSEARCH_INDEX = 'items'
-  ELASTICSEARCH_TYPE  = 'item'
 
   # In the order they should appear in the TSV, left-to-right.
   NON_DESCRIPTIVE_TSV_COLUMNS = %w(uuid parentId preservationMasterPathname
@@ -258,14 +261,6 @@ class Item < ApplicationRecord
   after_commit :delete_from_elasticsearch, on: :destroy
 
   ##
-  # Deletes all item-related documents. This is obviously dangerous.
-  #
-  def self.delete_all_documents
-    index_name = ElasticsearchIndex.current_index(ELASTICSEARCH_INDEX).name
-    ElasticsearchClient.instance.delete_all_documents(index_name, ELASTICSEARCH_TYPE)
-  end
-
-  ##
   # Normally this method should not be used except to delete "orphaned"
   # documents with no database counterpart. See the class documentation for
   # information about correct document deletion.
@@ -284,14 +279,16 @@ class Item < ApplicationRecord
             }
         }
     }
-    ElasticsearchClient.instance.delete_by_query(
-        ElasticsearchIndex.current_index(Item::ELASTICSEARCH_INDEX),
-        JSON.generate(query))
+    ElasticsearchClient.instance.delete_by_query(JSON.generate(query))
   end
 
   ##
   # Iterates through all indexed Item documents and deletes any for which no
   # counterpart exists in the database.
+  #
+  # Normally this method should not be used except to delete orphaned documents
+  # with no database counterpart. See the class documentation for info about
+  # how documents are normally deleted.
   #
   def self.delete_orphaned_documents
     start_time = Time.now
@@ -364,10 +361,13 @@ class Item < ApplicationRecord
   end
 
   ##
-  # @param index [Symbol] `:current` or `:latest`
+  # N.B.: Orphaned documents are not deleted; for that, use
+  # {delete_orphaned_documents}.
+  #
+  # @param index [String] Index name. If omitted, the default index is used.
   # @return [void]
   #
-  def self.reindex_all(index = :current)
+  def self.reindex_all(index = nil)
     count = Item.count
     start_time = Time.now
     Item.uncached do
@@ -472,6 +472,7 @@ class Item < ApplicationRecord
   #
   def as_indexed_json(options = {})
     doc = {}
+    doc[IndexFields::CLASS] = self.class.to_s
     doc[IndexFields::COLLECTION] = self.collection_repository_id
     # Elasticsearch date fields don't support >4-digit years.
     doc[IndexFields::DATE] = self.date.utc.iso8601 if self.date and self.date.year < 10000
@@ -1033,10 +1034,10 @@ class Item < ApplicationRecord
   end
 
   ##
-  # @param index [Symbol] `:current` or `:latest`
+  # @param index [String] Index name. If omitted, the default index is used.
   # @return [void]
   #
-  def reindex(index = :current)
+  def reindex(index = nil)
     index_in_elasticsearch(index)
   end
 
@@ -1418,13 +1419,12 @@ class Item < ApplicationRecord
   end
 
   ##
-  # @param index [Symbol] `:current` or `:latest`
+  # @param index [String] Index name. If omitted, the default index is used.
   # @return [void]
   #
-  def index_in_elasticsearch(index = :current)
-    index = ElasticsearchIndex.latest_index(ELASTICSEARCH_INDEX)
-    ElasticsearchClient.instance.index_document(index.name,
-                                                ELASTICSEARCH_TYPE,
+  def index_in_elasticsearch(index)
+    index ||= Configuration.instance.elasticsearch_index
+    ElasticsearchClient.instance.index_document(index,
                                                 self.repository_id,
                                                 self.as_indexed_json)
   end

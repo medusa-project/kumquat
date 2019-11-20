@@ -7,16 +7,17 @@ class Agent < ApplicationRecord
   include Representable
 
   class IndexFields
-    DESCRIPTION                  = 't_description'
-    EFFECTIVE_ALLOWED_ROLE_COUNT = 'i_effective_allowed_role_count'
-    EFFECTIVE_ALLOWED_ROLES      = 'k_effective_allowed_roles'
-    EFFECTIVE_DENIED_ROLE_COUNT  = 'i_effective_denied_role_count'
-    EFFECTIVE_DENIED_ROLES       = 'k_effective_denied_roles'
-    LAST_INDEXED                 = 'd_last_indexed'
-    LAST_MODIFIED                = 'd_last_modified'
-    NAME                         = 't_name'
-    PUBLICLY_ACCESSIBLE          = ElasticsearchIndex::PUBLICLY_ACCESSIBLE_FIELD
-    SEARCH_ALL                   = ElasticsearchIndex::SEARCH_ALL_FIELD
+    CLASS                        = ElasticsearchIndex::StandardFields::CLASS
+    DESCRIPTION                  = 'sys_t_description'
+    EFFECTIVE_ALLOWED_ROLE_COUNT = 'sys_i_effective_allowed_role_count'
+    EFFECTIVE_ALLOWED_ROLES      = 'sys_k_effective_allowed_roles'
+    EFFECTIVE_DENIED_ROLE_COUNT  = 'sys_i_effective_denied_role_count'
+    EFFECTIVE_DENIED_ROLES       = 'sys_k_effective_denied_roles'
+    LAST_INDEXED                 = ElasticsearchIndex::StandardFields::LAST_INDEXED
+    LAST_MODIFIED                = ElasticsearchIndex::StandardFields::LAST_MODIFIED
+    NAME                         = 'sys_t_name'
+    PUBLICLY_ACCESSIBLE          = ElasticsearchIndex::StandardFields::PUBLICLY_ACCESSIBLE
+    SEARCH_ALL                   = ElasticsearchIndex::StandardFields::SEARCH_ALL
   end
 
   belongs_to :agent_rule, inverse_of: :agents
@@ -36,9 +37,6 @@ class Agent < ApplicationRecord
   after_commit :index_in_elasticsearch, on: [:create, :update]
   after_commit :delete_from_elasticsearch, on: :destroy
 
-  ELASTICSEARCH_INDEX = 'agents'
-  ELASTICSEARCH_TYPE  = 'agent'
-
   def self.delete_orphaned_documents
     # TODO: write this
   end
@@ -53,10 +51,13 @@ class Agent < ApplicationRecord
   end
 
   ##
-  # @param index [Symbol] :current or :latest
+  # N.B.: Orphaned documents are not deleted; for that, use
+  # {delete_orphaned_documents}.
+  #
+  # @param index [String] Index name. If omitted, the default index is used.
   # @return [void]
   #
-  def self.reindex_all(index = :current)
+  def self.reindex_all(index = nil)
     count = Agent.count
     start_time = Time.now
     Agent.uncached do
@@ -64,11 +65,6 @@ class Agent < ApplicationRecord
         agent.reindex(index)
         StringUtils.print_progress(start_time, i, count, 'Indexing agents')
       end
-      # Remove indexed documents whose entities have disappeared.
-      # TODO: fix this
-      #Agent.solr.all.limit(99999).select{ |a| a.to_s == a }.each do |agent_id|
-      #  Solr.delete_by_id(agent_id)
-      #end
     end
   end
 
@@ -79,6 +75,7 @@ class Agent < ApplicationRecord
   #
   def as_indexed_json(options = {})
     doc = {}
+    doc[IndexFields::CLASS] = self.class.to_s
     doc[IndexFields::DESCRIPTION] = self.description.to_s
     doc[IndexFields::EFFECTIVE_ALLOWED_ROLES] = []
     doc[IndexFields::EFFECTIVE_ALLOWED_ROLE_COUNT] = 0
@@ -125,10 +122,10 @@ class Agent < ApplicationRecord
   end
 
   ##
-  # @param index [Symbol] :current or :latest
+  # @param index [String] Index name. If omitted, the default index is used.
   # @return [void]
   #
-  def reindex(index = :current)
+  def reindex(index = nil)
     index_in_elasticsearch(index)
   end
 
@@ -188,19 +185,16 @@ class Agent < ApplicationRecord
             }
         }
     }
-    ElasticsearchClient.instance.delete_by_query(
-        ElasticsearchIndex.current_index(Agent::ELASTICSEARCH_INDEX),
-        JSON.generate(query))
+    ElasticsearchClient.instance.delete_by_query(JSON.generate(query))
   end
 
   ##
-  # @param index [Symbol] :current or :latest
+  # @param index [String] Index name. If omitted, the default index is used.
   # @return [void]
   #
-  def index_in_elasticsearch(index = :current)
-    index = ElasticsearchIndex.latest_index(ELASTICSEARCH_INDEX)
-    ElasticsearchClient.instance.index_document(index.name,
-                                                ELASTICSEARCH_TYPE,
+  def index_in_elasticsearch(index)
+    index ||= Configuration.instance.elasticsearch_index
+    ElasticsearchClient.instance.index_document(index,
                                                 self.repository_id,
                                                 self.as_indexed_json)
   end

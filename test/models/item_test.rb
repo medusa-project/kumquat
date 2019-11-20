@@ -7,18 +7,6 @@ class ItemTest < ActiveSupport::TestCase
     @item = items(:sanborn_obj1_page1)
   end
 
-  # Item.delete_all_documents()
-
-  test 'delete_all_documents() deletes all documents' do
-    Item.all.each(&:reindex)
-    refresh_elasticsearch
-    assert ItemFinder.new.count > 0
-
-    Item.delete_all_documents
-    refresh_elasticsearch
-    assert_equal 0, ItemFinder.new.count
-  end
-
   # Item.delete_document()
 
   test 'delete_document() deletes a document' do
@@ -127,6 +115,8 @@ class ItemTest < ActiveSupport::TestCase
   test 'as_indexed_json() returns the correct structure' do
     doc = @item.as_indexed_json
 
+    assert_equal 'Item',
+                 doc[Item::IndexFields::CLASS]
     assert_equal @item.collection_repository_id,
                  doc[Item::IndexFields::COLLECTION]
     assert_equal @item.date.utc.iso8601,
