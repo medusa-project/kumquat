@@ -1422,7 +1422,7 @@ class Item < ApplicationRecord
   # @param index [String] Index name. If omitted, the default index is used.
   # @return [void]
   #
-  def index_in_elasticsearch(index)
+  def index_in_elasticsearch(index = nil)
     index ||= Configuration.instance.elasticsearch_index
     ElasticsearchClient.instance.index_document(index,
                                                 self.repository_id,
