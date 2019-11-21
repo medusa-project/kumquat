@@ -12,7 +12,6 @@ class EntityFinder < AbstractFinder
   def initialize
     super
     @bypass_authorization  = false
-    @include_classes       = ALL_ENTITIES
     @exclude_item_variants = []
     @include_unpublished   = false
     @last_modified_after   = nil
@@ -36,16 +35,6 @@ class EntityFinder < AbstractFinder
   #
   def exclude_item_variants(*variants)
     @exclude_item_variants = variants
-    self
-  end
-
-  ##
-  # @param classes [Class] One or more model classes to search. All are
-  #                        searched by default.
-  # @return [self]
-  #
-  def include_classes(*classes)
-    @include_classes = classes
     self
   end
 
