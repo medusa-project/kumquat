@@ -201,28 +201,35 @@ class ItemFinder < AbstractFinder
   # @return [String] JSON string.
   #
   def build_query
-    json = Jbuilder.encode do |j|
+    Jbuilder.encode do |j|
       j.track_total_hits true
       j.query do
         j.bool do
           # Query
           if @query.present?
             j.must do
-              # https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html
-              j.query_string do
-                j.query sanitized_query
-                j.default_operator 'AND'
-                j.lenient true
-                if @include_children_in_results
-                  j.fields [@query[:field],
-                            ItemElement.new(name: EntityElement.element_name_for_indexed_field(@query[:field])).parent_indexed_field]
-                else
-                  j.default_field @query[:field]
+              if !@exact_match
+                # https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html
+                j.query_string do
+                  j.query sanitized_query
+                  j.default_operator 'AND'
+                  j.lenient true
+                  if @include_children_in_results
+                    j.fields [@query[:field],
+                              ItemElement.new(name: EntityElement.element_name_for_indexed_field(@query[:field])).parent_indexed_field]
+                  else
+                    j.default_field @query[:field]
+                  end
+                end
+              else
+                j.term do
+                  # Use the keyword field to get an exact match.
+                  j.set! @query[:field] + EntityElement::KEYWORD_FIELD_SUFFIX,
+                         sanitized_query
                 end
               end
             end
           end
-
 
           j.filter do
             j.child! do
@@ -405,12 +412,6 @@ class ItemFinder < AbstractFinder
         j.size @limit
       end
     end
-
-    # For debugging
-    #File.write('query.json', JSON.pretty_generate(JSON.parse(json)))
-    # curl -XGET 'localhost:9200/items_development/_search?size=0&pretty' -H 'Content-Type: application/json' -d @query.json
-
-    json
   end
 
 end

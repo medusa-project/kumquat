@@ -10,6 +10,7 @@ class AbstractFinder
 
     @aggregations = true
     @bucket_limit = Option::integer(Option::Keys::FACET_TERM_LIMIT) || 10
+    @exact_match  = false
     @filters = {} # Hash<String,Object>
     @limit = ElasticsearchClient::MAX_RESULT_WINDOW
     @orders = [] # Array<Hash<Symbol,String>> with :field and :direction keys
@@ -158,11 +159,13 @@ class AbstractFinder
   #
   # @param field [String, Symbol] Field name
   # @param query [String]
+  # @param exact_match [Boolean]
   # @return [self]
   #
-  def query(field, query)
-    @query = { field: field.to_s, query: query.to_s } if query.present?
-    @loaded = false
+  def query(field, query, exact_match = false)
+    @query       = { field: field.to_s, query: query.to_s } if query.present?
+    @exact_match = exact_match
+    @loaded      = false
     self
   end
 

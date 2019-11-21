@@ -9,8 +9,8 @@ class ItemsController < WebsiteController
   end
 
   PERMITTED_PARAMS = [:_, :collection_id, :df, :display, :download_start,
-                      { fq: [] }, :format, :id, :limit, :q, :sort, :start,
-                      :utf8]
+                      { fq: [] }, :field, :format, :id, :limit, :q, :sort,
+                      :start, :utf8]
 
   before_action :enable_cors, only: [:iiif_annotation_list, :iiif_canvas,
                                      :iiif_image_resource, :iiif_layer,
@@ -246,13 +246,17 @@ class ItemsController < WebsiteController
         user_roles(request_roles).
         collection(@collection).
         facet_filters(params[:fq]).
-        query_all(params[:q]).
         aggregations(false).
         search_children(true).
         include_children_in_results(true).
         order(Item::IndexFields::STRUCTURAL_SORT).
         start(params[:download_start]).
         limit(0)
+    if params[:field]
+      download_finder.query(params[:field], params[:q], true)
+    else
+      download_finder.query_all(params[:q])
+    end
     if @collection&.medusa_cfs_directory
       download_finder = download_finder.parent_item(@collection.root_item)
     end
@@ -640,8 +644,12 @@ class ItemsController < WebsiteController
           limit(@collection&.free_form? ?
                     ElasticsearchClient::MAX_RESULT_WINDOW : session[:limit])
     end
+
+    # `field` is present when searching for identical values in the same
+    # metadata element (i.e. when the search button next to a metadata value
+    # in show-item view is clicked).
     if session[:field]
-      finder.query(session[:field], session[:q])
+      finder.query(session[:field], session[:q], true)
     else
       finder.query_all(session[:q])
     end
