@@ -81,7 +81,7 @@ class EntityFinder < AbstractFinder
     load
     if @response['hits']
       return @response['hits']['hits'].map { |r|
-        case r['_type'].downcase
+        case r['_source']['sys_k_class'].downcase
         when 'agent'
           id = r['_id']
           agent = Agent.find(id)
