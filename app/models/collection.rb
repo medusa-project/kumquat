@@ -141,8 +141,10 @@ class Collection < ApplicationRecord
   serialize :access_systems
   serialize :resource_types
 
-  belongs_to :descriptive_element, class_name: 'MetadataProfileElement'
-  belongs_to :metadata_profile, inverse_of: :collections
+  belongs_to :descriptive_element, class_name: 'MetadataProfileElement',
+             optional: true
+  belongs_to :metadata_profile, inverse_of: :collections,
+             optional: true
 
   # See CollectionJoin for an explanation of why we don't join on database IDs.
   has_many :child_collection_joins, class_name: 'CollectionJoin',
