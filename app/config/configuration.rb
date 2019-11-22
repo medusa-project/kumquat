@@ -35,7 +35,7 @@ class Configuration
       read_unencrypted_config
       return @config[key.to_sym]
     end
-    Rails.application.credentials.dig(Rails.env.to_sym, key.to_sym)
+    Rails.application.credentials.dig(key.to_sym)
   end
 
   def method_missing(m, *args, &block)
