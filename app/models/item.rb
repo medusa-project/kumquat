@@ -839,13 +839,15 @@ class Item < ApplicationRecord
                   media_category: nil
               }
           ].each do |pref|
-            bin = self.binaries.select do |b|
+            result = self.binaries.find do |b|
               b.master_type == pref[:master_type] and
                   (pref[:media_category] ?
                        (b.media_category == pref[:media_category]) : true)
             end
-            bin = bin.first
-            break if bin
+            if result
+              bin = result
+              break
+            end
           end
         end
       end

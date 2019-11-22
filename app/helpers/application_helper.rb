@@ -510,7 +510,9 @@ module ApplicationHelper
       type = 'Item'
     elsif entity.kind_of?(Item)
       viewer_binary = entity.effective_viewer_binary
-      if viewer_binary&.is_3d?
+      if entity.pages.count > 1
+        type = 'Multi-Page Item'
+      elsif viewer_binary&.is_3d?
         type = '3D'
       elsif viewer_binary&.is_audio?
         type = 'Audio'
@@ -526,8 +528,6 @@ module ApplicationHelper
         type = 'File'
       elsif entity.variant == Item::Variants::DIRECTORY
         type = 'File Folder'
-      elsif entity.pages.count > 1
-        type = 'Multi-Page Item'
       end
     else
       type = entity.kind_of?(Class) ? entity.name : entity.class.name

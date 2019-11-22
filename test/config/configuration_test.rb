@@ -3,8 +3,6 @@ require 'test_helper'
 class ConfigurationTest < ActiveSupport::TestCase
 
   def setup
-    raw_config_struct = File.read(File.join(Rails.root, 'config', 'kumquat.yml'))
-    @config_struct = YAML.load(raw_config_struct)[Rails.env]
     @config = Configuration.instance
   end
 
@@ -15,7 +13,7 @@ class ConfigurationTest < ActiveSupport::TestCase
   end
 
   test 'get() with a valid config key should return the value' do
-    assert_equal @config_struct[:iiif_url], @config.get(:iiif_url)
+    assert_not_nil @config.get(:iiif_url)
   end
 
   # method_missing()
@@ -25,7 +23,7 @@ class ConfigurationTest < ActiveSupport::TestCase
   end
 
   test 'method_missing() with a valid config key should return the value' do
-    assert_equal @config_struct[:iiif_url], @config.iiif_url
+    assert_not_nil @config.iiif_url
   end
 
 end
