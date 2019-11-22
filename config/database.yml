@@ -44,6 +44,17 @@ test: &test
 test_2:
   <<: *test
 
+demo: &demo
+  <<: *default
+  host:     <%= Rails.application.credentials.dig(:demo, :db_host) %>
+  port:     <%= Rails.application.credentials.dig(:demo, :db_port) %>
+  database: <%= Rails.application.credentials.dig(:demo, :db_database) %>
+  username: <%= Rails.application.credentials.dig(:demo, :db_username) %>
+  password: <%= Rails.application.credentials.dig(:demo, :db_password) %>
+
+demo_2:
+  <<: *demo
+
 production: &production
   <<: *default
   host:     <%= Rails.application.credentials.dig(:production, :db_host) %>
