@@ -28,8 +28,7 @@ set :rails_env, 'production'
 
 # Default value for :linked_files is []
 set :linked_files, fetch(:linked_files, []).push(
-    'config/database.yml', 'config/master.key', 'config/secrets.yml',
-    'config/shibboleth.yml')
+    'config/database.yml', 'config/master.key', 'config/shibboleth.yml')
 
 # Default value for linked_dirs is []
 set :linked_dirs, fetch(:linked_dirs, []).push(

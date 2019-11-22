@@ -32,6 +32,8 @@ server 'aws-dls-demo.library.illinois.edu', user: 'dls',
 # http://capistranorb.com/documentation/getting-started/configuration/
 # Feel free to add new variables to customise your setup.
 
+set :rails_env, 'demo'
+
 # Default branch is :master
 #ask :branch, 'staging'
 set :branch, 'staging'

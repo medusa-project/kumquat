@@ -8,6 +8,9 @@
 # be visible outside of the transaction. (See the Task model, for example.)
 #
 
+<% development_config = YAML.load(File.read(File.join(Rails.root, 'config', 'credentials', 'development.yml'))) %>
+<% test_config        = YAML.load(File.read(File.join(Rails.root, 'config', 'credentials', 'test.yml'))) %>
+
 default: &default
   adapter:  postgresql
   encoding: unicode
@@ -18,11 +21,11 @@ default: &default
 
 development: &development
   <<: *default
-  host:     <%= Rails.application.credentials.dig(:development, :db_host) %>
-  port:     <%= Rails.application.credentials.dig(:development, :db_port) %>
-  database: <%= Rails.application.credentials.dig(:development, :db_database) %>
-  username: <%= Rails.application.credentials.dig(:development, :db_username) %>
-  password: <%= Rails.application.credentials.dig(:development, :db_password) %>
+  host:     <%= development_config[:db_host] %>
+  port:     <%= development_config[:db_port] %>
+  database: <%= development_config[:db_database] %>
+  username: <%= development_config[:db_username] %>
+  password: <%= development_config[:db_password] %>
 
 development_2:
   <<: *development
@@ -32,22 +35,22 @@ development_2:
 # Do not set this db to the same as development or production.
 test: &test
   <<: *default
-  host:     <%= Rails.application.credentials.dig(:test, :db_host) %>
-  port:     <%= Rails.application.credentials.dig(:test, :db_port) %>
-  database: <%= Rails.application.credentials.dig(:test, :db_database) %>
-  username: <%= Rails.application.credentials.dig(:test, :db_username) %>
-  password: <%= Rails.application.credentials.dig(:test, :db_password) %>
+  host:     <%= test_config[:db_host] %>
+  port:     <%= test_config[:db_port] %>
+  database: <%= test_config[:db_database] %>
+  username: <%= test_config[:db_username] %>
+  password: <%= test_config[:db_password] %>
 
 test_2:
   <<: *test
 
 production: &production
   <<: *default
-  host:     <%= Rails.application.credentials.dig(ENV.fetch("RAILS_CONFIGSET") { :production }.to_sym, :db_host) %>
-  port:     <%= Rails.application.credentials.dig(ENV.fetch("RAILS_CONFIGSET") { :production }.to_sym, :db_port) %>
-  database: <%= Rails.application.credentials.dig(ENV.fetch("RAILS_CONFIGSET") { :production }.to_sym, :db_database) %>
-  username: <%= Rails.application.credentials.dig(ENV.fetch("RAILS_CONFIGSET") { :production }.to_sym, :db_username) %>
-  password: <%= Rails.application.credentials.dig(ENV.fetch("RAILS_CONFIGSET") { :production }.to_sym, :db_password) %>
+  host:     <%= Rails.application.credentials.dig(:production, :db_host) %>
+  port:     <%= Rails.application.credentials.dig(:production, :db_port) %>
+  database: <%= Rails.application.credentials.dig(:production, :db_database) %>
+  username: <%= Rails.application.credentials.dig(:production, :db_username) %>
+  password: <%= Rails.application.credentials.dig(:production, :db_password) %>
 
 production_2:
   <<: *production
