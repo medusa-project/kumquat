@@ -33,6 +33,8 @@ server 'aws-dls-prod.library.illinois.edu', user: 'dls',
 # Feel free to add new variables to customise your setup.
 set :branch, 'master'
 
+set :linked_files, fetch(:linked_files, []).push('config/credentials/production.key')
+
 # Custom SSH Options
 # ==================
 # You may pass any option but keep in mind that net/ssh understands a

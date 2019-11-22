@@ -37,6 +37,8 @@ set :rails_env, 'demo'
 # Default branch is :master
 set :branch, 'demo'
 
+set :linked_files, fetch(:linked_files, []).push('config/credentials/demo.key')
+
 # Custom SSH Options
 # ==================
 # You may pass any option but keep in mind that net/ssh understands a
