@@ -50,22 +50,22 @@ test_2:
 
 demo: &demo
   <<: *default
-  host:     <%= Rails.application.credentials.dig(:demo, :db_host) %>
-  port:     <%= Rails.application.credentials.dig(:demo, :db_port) %>
-  database: <%= Rails.application.credentials.dig(:demo, :db_database) %>
-  username: <%= Rails.application.credentials.dig(:demo, :db_username) %>
-  password: <%= Rails.application.credentials.dig(:demo, :db_password) %>
+  host:     <%= Rails.application.credentials.dig(:db_host) %>
+  port:     <%= Rails.application.credentials.dig(:db_port) %>
+  database: <%= Rails.application.credentials.dig(:db_database) %>
+  username: <%= Rails.application.credentials.dig(:db_username) %>
+  password: <%= Rails.application.credentials.dig(:db_password) %>
 
 demo_2:
   <<: *demo
 
 production: &production
   <<: *default
-  host:     <%= Rails.application.credentials.dig(:production, :db_host) %>
-  port:     <%= Rails.application.credentials.dig(:production, :db_port) %>
-  database: <%= Rails.application.credentials.dig(:production, :db_database) %>
-  username: <%= Rails.application.credentials.dig(:production, :db_username) %>
-  password: <%= Rails.application.credentials.dig(:production, :db_password) %>
+  host:     <%= Rails.application.credentials.dig(:db_host) %>
+  port:     <%= Rails.application.credentials.dig(:db_port) %>
+  database: <%= Rails.application.credentials.dig(:db_database) %>
+  username: <%= Rails.application.credentials.dig(:db_username) %>
+  password: <%= Rails.application.credentials.dig(:db_password) %>
 
 production_2:
   <<: *production
