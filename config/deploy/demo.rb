@@ -35,8 +35,7 @@ server 'aws-dls-demo.library.illinois.edu', user: 'dls',
 set :rails_env, 'demo'
 
 # Default branch is :master
-#ask :branch, 'staging'
-set :branch, 'staging'
+set :branch, 'demo'
 
 # Custom SSH Options
 # ==================
