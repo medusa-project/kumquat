@@ -9,7 +9,7 @@ environment:
 * Production: `production.yml.enc`
 
 To edit the demo and production files, use
-`bin/rails credentials:edit --environment <demo or production>`.
+`bin/rails credentials:edit -e <demo or production>`.
 
 # Configuration Keys
 
@@ -38,3 +38,5 @@ To edit the demo and production files, use
 * `medusa_s3_bucket_secret_key`    AWS secret access key with read-only access
                                    to medusa_s3_bucket.
 * `metadata_gateway_url`           Base URI of the Metadata Gateway.
+* `secret_key_base`                Required by Rails. Generate using
+                                   `rails secret`.
