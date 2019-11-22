@@ -1,19 +1,10 @@
 ##
 # Encapsulates a metadata element attached to an item. An element has a name
-# matching any of the Element names.
+# matching any of the {Element} names.
 #
 class ItemElement < EntityElement
 
   belongs_to :item, inverse_of: :elements, touch: true
-
-  # N.B.: This is needed to ward off the following
-  # ActiveRecord::SubclassNotFound error: "Invalid single-table inheritance
-  # type: ItemElement is not a subclass of ItemElement"
-  # which cropped up in the development environment after including the
-  # elasticsearch-model gem 5.0.1.
-  # See: https://github.com/galetahub/ckeditor/issues/739#issuecomment-303773864
-  # TODO: see if it's safe to get rid of this now that we are no longer using elasticsearch-model
-  self.inheritance_column = nil
 
   ##
   # @return [Enumerable<ItemElement>]
@@ -26,7 +17,8 @@ class ItemElement < EntityElement
   # Parses a TSV value into a collection of elements.
   #
   # Example value:
-  # string1&&<http://example.org/string1>||string2&&<http://example.org/string2>||lcsh:string3
+  #
+  # `string1&&<http://example.org/string1>||string2&&<http://example.org/string2>||lcsh:string3`
   #
   # @param element_name [String] Element name
   # @param string [String] TSV string
@@ -37,8 +29,9 @@ class ItemElement < EntityElement
   # @raises [ArgumentError] If an element with the given name does not exist,
   #                         or an invalid vocabulary key is provided.
   #
-  def self.elements_from_tsv_string(element_name, string,
-      vocabulary_override = nil)
+  def self.elements_from_tsv_string(element_name,
+                                    string,
+                                    vocabulary_override = nil)
     unless Element.all.pluck(:name).include?(element_name)
       raise ArgumentError, "Element does not exist: #{element_name}"
     end
