@@ -243,7 +243,7 @@ class ItemsController < WebsiteController
     end
 
     download_finder = ItemFinder.new.
-        user_roles(request_roles).
+        host_groups(client_host_groups).
         collection(@collection).
         facet_filters(params[:fq]).
         aggregations(false).
@@ -447,13 +447,13 @@ class ItemsController < WebsiteController
         elsif @item.file?
           if @item.parent
             items = @item.parent.finder.
-                user_roles(request_roles).
+                host_groups(client_host_groups).
                 include_variants(*Item::Variants::FILE).
                 include_children_in_results(true).to_a
           else
             items = ItemFinder.new
                         .aggregations(false)
-                        .user_roles(request_roles)
+                        .host_groups(client_host_groups)
                         .collection(@item.collection)
                         .include_variants(*Item::Variants::FILE)
                         .include_children_in_results(true)
@@ -462,7 +462,7 @@ class ItemsController < WebsiteController
           zip_name = 'files'
         else
           items = @item.finder.
-              user_roles(request_roles).
+              host_groups(client_host_groups).
               include_children_in_results(true).to_a + [@item]
           zip_name = 'item'
         end
@@ -501,7 +501,7 @@ class ItemsController < WebsiteController
         if @collection.free_form?
           if request.xhr?
             download_finder = ItemFinder.new.
-                user_roles(request_roles).
+                host_groups(client_host_groups).
                 collection(@collection).
                 include_children_in_results(true).
                 aggregations(false)
@@ -627,7 +627,7 @@ class ItemsController < WebsiteController
     end
 
     finder = ItemFinder.new.
-        user_roles(request_roles).
+        host_groups(client_host_groups).
         collection(@collection).
         facet_filters(session[:fq]).
         order(sort).

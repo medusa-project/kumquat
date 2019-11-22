@@ -123,14 +123,14 @@ class ItemTest < ActiveSupport::TestCase
                  doc[Item::IndexFields::DATE]
     assert_equal @item.described?,
                  doc[Item::IndexFields::DESCRIBED]
-    assert_equal @item.effective_allowed_roles.pluck(:key),
-                 doc[Item::IndexFields::EFFECTIVE_ALLOWED_ROLES]
-    assert_equal @item.effective_allowed_roles.pluck(:key).length,
-                 doc[Item::IndexFields::EFFECTIVE_ALLOWED_ROLE_COUNT]
-    assert_equal @item.effective_denied_roles.pluck(:key),
-                 doc[Item::IndexFields::EFFECTIVE_DENIED_ROLES]
-    assert_equal @item.effective_denied_roles.pluck(:key).length,
-                 doc[Item::IndexFields::EFFECTIVE_DENIED_ROLE_COUNT]
+    assert_equal @item.effective_allowed_host_groups.pluck(:key),
+                 doc[Item::IndexFields::EFFECTIVE_ALLOWED_HOST_GROUPS]
+    assert_equal @item.effective_allowed_host_groups.pluck(:key).length,
+                 doc[Item::IndexFields::EFFECTIVE_ALLOWED_HOST_GROUP_COUNT]
+    assert_equal @item.effective_denied_host_groups.pluck(:key),
+                 doc[Item::IndexFields::EFFECTIVE_DENIED_HOST_GROUPS]
+    assert_equal @item.effective_denied_host_groups.pluck(:key).length,
+                 doc[Item::IndexFields::EFFECTIVE_DENIED_HOST_GROUP_COUNT]
     assert_equal @item.item_sets.pluck(:id),
                  doc[Item::IndexFields::ITEM_SETS]
     assert_not_empty doc[Item::IndexFields::LAST_INDEXED]
@@ -412,35 +412,35 @@ class ItemTest < ActiveSupport::TestCase
 
   # propagate_heritable_properties()
 
-  test 'propagate_heritable_properties() should propagate roles to children' do
-    # Clear all roles on the item and its children.
-    @item.allowed_roles.destroy_all
-    @item.denied_roles.destroy_all
+  test 'propagate_heritable_properties() propagates host groups to children' do
+    # Clear all host groups on the item and its children.
+    @item.allowed_host_groups.destroy_all
+    @item.denied_host_groups.destroy_all
     @item.save!
 
     @item.items.each do |it|
-      it.allowed_roles.destroy_all
-      it.denied_roles.destroy_all
+      it.allowed_host_groups.destroy_all
+      it.denied_host_groups.destroy_all
       it.save!
 
-      assert_equal 0, it.effective_allowed_roles.count
-      assert_equal 0, it.effective_denied_roles.count
+      assert_equal 0, it.effective_allowed_host_groups.count
+      assert_equal 0, it.effective_denied_host_groups.count
     end
 
-    # Add roles to the item.
-    @item.allowed_roles << roles(:admins)
-    @item.denied_roles << roles(:catalogers)
+    # Add host groups to the item.
+    @item.allowed_host_groups << host_groups(:blue)
+    @item.denied_host_groups << host_groups(:red)
 
     # Propagate heritable properties.
     @item.propagate_heritable_properties
 
-    # Assert that the item's children have inherited the roles.
+    # Assert that the item's children have inherited the host groups.
     @item.items.each do |it|
-      assert_equal 1, it.effective_allowed_roles.count
-      assert it.effective_allowed_roles.include?(roles(:admins))
+      assert_equal 1, it.effective_allowed_host_groups.count
+      assert it.effective_allowed_host_groups.include?(host_groups(:blue))
 
-      assert_equal 1, it.effective_denied_roles.count
-      assert it.effective_denied_roles.include?(roles(:catalogers))
+      assert_equal 1, it.effective_denied_host_groups.count
+      assert it.effective_denied_host_groups.include?(host_groups(:red))
     end
   end
 
@@ -535,7 +535,7 @@ class ItemTest < ActiveSupport::TestCase
 
   # save
 
-  test 'save() should prune identical elements' do
+  test 'save() prunes identical elements' do
     @item.elements.destroy_all
     # These are all unique and should survive.
     @item.elements.build(name: 'name1', value: 'value1',
@@ -562,65 +562,66 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal 7, @item.elements.count
   end
 
-  test 'save() should copy allowed_roles and denied_roles into
-  effective_allowed_roles and effective_denied_roles when they exist' do
+  test 'save() copies allowed_host_groups and denied_host_groups into
+  effective_allowed_host_groups and effective_denied_host_groups when they
+  exist' do
     item = items(:sanborn_obj1_page1)
 
-    # Create initial allowed and denied roles.
-    item.allowed_roles << roles(:admins)
-    item.denied_roles << roles(:users)
-    # Assert that they get propagated to effective roles.
+    # Create initial allowed and denied host groups.
+    item.allowed_host_groups << host_groups(:blue)
+    item.denied_host_groups << host_groups(:yellow)
+    # Assert that they get propagated to effective host groups.
     item.save!
-    assert_equal 1, item.effective_allowed_roles.length
-    assert_equal 'admins', item.effective_allowed_roles.first.key
-    assert_equal 1, item.effective_denied_roles.length
-    assert_equal 'users', item.effective_denied_roles.first.key
+    assert_equal 1, item.effective_allowed_host_groups.length
+    assert_equal 'blue', item.effective_allowed_host_groups.first.key
+    assert_equal 1, item.effective_denied_host_groups.length
+    assert_equal 'yellow', item.effective_denied_host_groups.first.key
 
     # Clear them out and change them.
-    item.allowed_roles.destroy_all
-    item.allowed_roles << roles(:students)
-    item.denied_roles.destroy_all
-    item.denied_roles << roles(:catalogers)
-    # Assert that they get propagated to effective roles.
+    item.allowed_host_groups.destroy_all
+    item.allowed_host_groups << host_groups(:green)
+    item.denied_host_groups.destroy_all
+    item.denied_host_groups << host_groups(:red)
+    # Assert that they get propagated to effective host groups.
     item.save!
-    assert_equal 1, item.effective_allowed_roles.length
-    assert_equal 'students', item.effective_allowed_roles.first.key
-    assert_equal 1, item.effective_denied_roles.length
-    assert_equal 'catalogers', item.effective_denied_roles.first.key
+    assert_equal 1, item.effective_allowed_host_groups.length
+    assert_equal 'green', item.effective_allowed_host_groups.first.key
+    assert_equal 1, item.effective_denied_host_groups.length
+    assert_equal 'red', item.effective_denied_host_groups.first.key
   end
 
-  test 'save() should copy parent allowed_roles and denied_roles into
-  effective_allowed_roles and effective_denied_roles when they are not set on
-  the instance' do
+  test 'save() copies parent allowed_host_groups and denied_host_groups into
+  effective_allowed_host_groups and effective_denied_host_groups when they are
+  not set on the instance' do
     item = items(:sanborn_obj1_page1)
 
-    # Create initial allowed and denied roles.
-    item.parent.allowed_roles << roles(:admins)
-    item.parent.denied_roles << roles(:users)
+    # Create initial allowed and denied host groups.
+    item.parent.allowed_host_groups << host_groups(:blue)
+    item.parent.denied_host_groups << host_groups(:yellow)
 
-    # Assert that they get propagated to effective roles.
+    # Assert that they get propagated to effective host groups.
     item.save!
-    assert_equal 1, item.effective_allowed_roles.length
-    assert_equal 'admins', item.effective_allowed_roles.first.key
-    assert_equal 1, item.effective_denied_roles.length
-    assert_equal 'users', item.effective_denied_roles.first.key
+    assert_equal 1, item.effective_allowed_host_groups.length
+    assert_equal 'blue', item.effective_allowed_host_groups.first.key
+    assert_equal 1, item.effective_denied_host_groups.length
+    assert_equal 'yellow', item.effective_denied_host_groups.first.key
   end
 
-  test 'save() should copy collection allowed_roles and denied_roles into
-  effective_allowed_roles and effective_denied_roles when they are not set on
-  the instance nor a parent' do
+  test 'save() copies collection allowed_host_groups and denied_host_groups
+  into effective_allowed_host_groups and effective_denied_host_groups when they
+  are not set on the instance nor a parent' do
     item = items(:sanborn_obj1_page1)
 
-    # Create initial allowed and denied roles.
-    item.collection.allowed_roles << roles(:admins)
-    item.collection.denied_roles << roles(:users)
+    # Create initial allowed and denied host groups.
+    item.collection.allowed_host_groups << host_groups(:blue)
+    item.collection.denied_host_groups << host_groups(:yellow)
 
-    # Assert that they get propagated to effective roles.
+    # Assert that they get propagated to effective host groups.
     item.save!
-    assert_equal 1, item.effective_allowed_roles.length
-    assert_equal 'admins', item.effective_allowed_roles.first.key
-    assert_equal 1, item.effective_denied_roles.length
-    assert_equal 'users', item.effective_denied_roles.first.key
+    assert_equal 1, item.effective_allowed_host_groups.length
+    assert_equal 'blue', item.effective_allowed_host_groups.first.key
+    assert_equal 1, item.effective_denied_host_groups.length
+    assert_equal 'yellow', item.effective_denied_host_groups.first.key
   end
 
   test 'save() sets normalized coordinates' do

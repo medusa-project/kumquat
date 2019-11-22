@@ -160,6 +160,7 @@ Rails.application.routes.draw do
             via: :post
       match '/statistics', to: 'collections#statistics', via: :get
     end
+    resources :host_groups
     match '/test-images', to: 'test#index', via: :get
     resources :metadata_profile_elements,
               only: [:create, :update, :destroy, :edit]

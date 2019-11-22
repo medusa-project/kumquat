@@ -39,13 +39,13 @@ class CollectionTest < ActiveSupport::TestCase
 
   # from_medusa()
 
-  test 'from_medusa() with an invalid ID should raise an error' do
+  test 'from_medusa() with an invalid ID raises an error' do
     assert_raises ActiveRecord::RecordNotFound do
       Collection.from_medusa('bogus')
     end
   end
 
-  test 'from_medusa() should work' do
+  test 'from_medusa() works' do
     uuid = @collection.repository_id
     @collection.destroy!
 
@@ -55,8 +55,8 @@ class CollectionTest < ActiveSupport::TestCase
 
   # reindex_all()
 
-  test 'reindex_all() should reindex all collections' do
-    ElasticsearchClient.instance.recreate_index(Collection)
+  test 'reindex_all() reindexes all collections' do
+    setup_elasticsearch
 
     assert_equal 0, CollectionFinder.new.include_unpublished(true).count
 
@@ -89,24 +89,24 @@ class CollectionTest < ActiveSupport::TestCase
                  doc[Collection::IndexFields::ACCESS_SYSTEMS]
     assert_equal @collection.access_url,
                  doc[Collection::IndexFields::ACCESS_URL]
-    assert_equal @collection.allowed_roles.pluck(:key).sort,
-                 doc[Collection::IndexFields::ALLOWED_ROLES].sort
-    assert_equal @collection.allowed_roles.pluck(:key).length,
-                 doc[Collection::IndexFields::ALLOWED_ROLE_COUNT]
+    assert_equal @collection.allowed_host_groups.pluck(:key).sort,
+                 doc[Collection::IndexFields::ALLOWED_HOST_GROUPS].sort
+    assert_equal @collection.allowed_host_groups.pluck(:key).length,
+                 doc[Collection::IndexFields::ALLOWED_HOST_GROUP_COUNT]
     assert_equal 'Collection',
                  doc[Collection::IndexFields::CLASS]
-    assert_equal @collection.denied_roles.pluck(:key).sort,
-                 doc[Collection::IndexFields::DENIED_ROLES].sort
-    assert_equal @collection.denied_roles.pluck(:key).length,
-                 doc[Collection::IndexFields::DENIED_ROLE_COUNT]
-    assert_equal @collection.allowed_roles.pluck(:key),
-                 doc[Item::IndexFields::EFFECTIVE_ALLOWED_ROLES]
-    assert_equal @collection.allowed_roles.pluck(:key).length,
-                 doc[Item::IndexFields::EFFECTIVE_ALLOWED_ROLE_COUNT]
-    assert_equal @collection.denied_roles.pluck(:key),
-                 doc[Item::IndexFields::EFFECTIVE_DENIED_ROLES]
-    assert_equal @collection.denied_roles.pluck(:key).length,
-                 doc[Item::IndexFields::EFFECTIVE_DENIED_ROLE_COUNT]
+    assert_equal @collection.denied_host_groups.pluck(:key).sort,
+                 doc[Collection::IndexFields::DENIED_HOST_GROUPS].sort
+    assert_equal @collection.denied_host_groups.pluck(:key).length,
+                 doc[Collection::IndexFields::DENIED_HOST_GROUP_COUNT]
+    assert_equal @collection.allowed_host_groups.pluck(:key),
+                 doc[Item::IndexFields::EFFECTIVE_ALLOWED_HOST_GROUPS]
+    assert_equal @collection.allowed_host_groups.pluck(:key).length,
+                 doc[Item::IndexFields::EFFECTIVE_ALLOWED_HOST_GROUP_COUNT]
+    assert_equal @collection.denied_host_groups.pluck(:key),
+                 doc[Item::IndexFields::EFFECTIVE_DENIED_HOST_GROUPS]
+    assert_equal @collection.denied_host_groups.pluck(:key).length,
+                 doc[Item::IndexFields::EFFECTIVE_DENIED_HOST_GROUP_COUNT]
     assert_equal @collection.external_id,
                  doc[Collection::IndexFields::EXTERNAL_ID]
     assert_equal @collection.harvestable,
@@ -390,35 +390,35 @@ class CollectionTest < ActiveSupport::TestCase
 
   # propagate_heritable_properties()
 
-  test 'propagate_heritable_properties() propagates roles to items' do
-    # Clear all roles on the collection and its items.
-    @collection.allowed_roles.destroy_all
-    @collection.denied_roles.destroy_all
+  test 'propagate_heritable_properties() propagates host groups to items' do
+    # Clear all host groups on the collection and its items.
+    @collection.allowed_host_groups.destroy_all
+    @collection.denied_host_groups.destroy_all
     @collection.save!
 
     @collection.items.each do |it|
-      it.allowed_roles.destroy_all
-      it.denied_roles.destroy_all
+      it.allowed_host_groups.destroy_all
+      it.denied_host_groups.destroy_all
       it.save!
 
-      assert_equal 0, it.effective_allowed_roles.count
-      assert_equal 0, it.effective_denied_roles.count
+      assert_equal 0, it.effective_allowed_host_groups.count
+      assert_equal 0, it.effective_denied_host_groups.count
     end
 
-    # Add roles to the collection.
-    @collection.allowed_roles << roles(:admins)
-    @collection.denied_roles << roles(:catalogers)
+    # Add host groups to the collection.
+    @collection.allowed_host_groups << host_groups(:red)
+    @collection.denied_host_groups << host_groups(:blue)
 
     # Propagate heritable properties.
     @collection.propagate_heritable_properties
 
-    # Assert that the collection's items have inherited the roles.
+    # Assert that the collection's items have inherited the host groups.
     @collection.items.each do |it|
-      assert_equal 1, it.effective_allowed_roles.count
-      assert it.effective_allowed_roles.include?(roles(:admins))
+      assert_equal 1, it.effective_allowed_host_groups.count
+      assert it.effective_allowed_host_groups.include?(host_groups(:red))
 
-      assert_equal 1, it.effective_denied_roles.count
-      assert it.effective_denied_roles.include?(roles(:catalogers))
+      assert_equal 1, it.effective_denied_host_groups.count
+      assert it.effective_denied_host_groups.include?(host_groups(:blue))
     end
   end
 

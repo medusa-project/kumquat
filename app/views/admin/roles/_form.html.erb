@@ -19,35 +19,20 @@
 
   <hr>
 
-  <div class="row">
-    <div class="col-sm-6">
-      <h3>Users</h3>
+  <section>
+    <h3>Users</h3>
 
-      <% @users.each do |user| %>
-        <div class="checkbox">
-          <%= label_tag do %>
-            <%= check_box_tag :user_ids, user.id,
-                              @role.user_ids.include?(user.id),
-                              name: 'role[user_ids][]' %>
-            <%= user.username %>
-          <% end %>
-        </div>
-      <% end %>
-    </div>
-
-    <div class="col-sm-6">
-      <h3>Hosts</h3>
-
-      <div class="form-group">
-        <%= text_area_tag('role[hosts]',
-                          f.object.hosts.pluck(:pattern).join("\n"),
-                          rows: 8, class: 'form-control') %>
-        <p class="form-text text-muted">Enter one hostname or IP address per line, with
-          no other separating characters. Wildcards (*) and comments (#) are
-          allowed.</p>
+    <% @users.each do |user| %>
+      <div class="checkbox">
+        <%= label_tag do %>
+          <%= check_box_tag :user_ids, user.id,
+                            @role.user_ids.include?(user.id),
+                            name: 'role[user_ids][]' %>
+          <%= user.username %>
+        <% end %>
       </div>
-    </div>
-  </div>
+    <% end %>
+  </section>
 
   <hr>
 

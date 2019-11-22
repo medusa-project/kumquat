@@ -27,7 +27,7 @@
 <p><%= @role.note %></p>
 
 <div class="row">
-  <div class="col-sm-4">
+  <div class="col-sm-6">
     <h2>Permissions</h2>
     <% if @permissions.any? %>
       <% @permissions.each do |p| %>
@@ -38,25 +38,12 @@
     <% end %>
   </div>
 
-  <div class="col-sm-4">
+  <div class="col-sm-6">
     <h2>Users</h2>
     <% if @role.users.any? %>
       <ul>
         <% @role.users.each do |user| %>
           <li><%= link_to user.username, admin_user_path(user) %></li>
-        <% end %>
-      </ul>
-    <% else %>
-      None
-    <% end %>
-  </div>
-
-  <div class="col-sm-4">
-    <h2>Hosts</h2>
-    <% if @role.hosts.any? %>
-      <ul>
-        <% @role.hosts.each do |host| %>
-          <li><%= host.pattern %></li>
         <% end %>
       </ul>
     <% else %>

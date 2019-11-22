@@ -5,8 +5,8 @@ module Admin
     PERMITTED_PARAMS = [:id, :contentdm_alias, :contentdm_pointer, :df,
                         :embed_tag, :'fq[]', :item_set, :page_number,
                         :published, :q, :representative_item_id,
-                        :subpage_number, :variant, allowed_role_ids: [],
-                        denied_role_ids: []]
+                        :subpage_number, :variant, allowed_host_group_ids: [],
+                        denied_host_group_ids: []]
 
     before_action :purge_items_rbac, only: :destroy_all
     before_action :modify_items_rbac, only: [:batch_change_metadata,
@@ -395,8 +395,8 @@ module Admin
           end
 
           # We will also need to propagate various item properties (published
-          # status, allowed/denied roles, etc.) to its child items. This will
-          # take some time, so we'll do it in the background.
+          # status, allowed/denied host groups, etc.) to its child items. This
+          # will take some time, so we'll do it in the background.
           PropagatePropertiesToChildrenJob.perform_later(item.repository_id)
         end
       rescue => e

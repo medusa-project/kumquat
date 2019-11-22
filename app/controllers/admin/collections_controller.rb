@@ -163,9 +163,9 @@ module Admin
         end
 
         # We will also need to propagate various collection properties
-        # (published status, allowed/denied roles, etc.) to the items contained
-        # within the collection. This will take some time, so we'll do it in
-        # the background.
+        # (published status, allowed/denied host groups, etc.) to the items
+        # contained within the collection. This will take some time, so we'll
+        # do it in the background.
         PropagatePropertiesToItemsJob.perform_later(collection.repository_id)
       rescue => e
         handle_error(e)
@@ -193,8 +193,8 @@ module Admin
                                          :package_profile_id,
                                          :published_in_dls,
                                          :rightsstatements_org_uri,
-                                         allowed_role_ids: [],
-                                         denied_role_ids: [])
+                                         allowed_host_group_ids: [],
+                                         denied_host_group_ids: [])
     end
 
   end

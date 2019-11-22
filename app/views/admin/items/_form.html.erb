@@ -80,16 +80,16 @@
       <div class="row">
         <div class="col-sm-6">
           <div class="form-group">
-            <h4>Allowed Roles</h4>
-            <%= hidden_field_tag :role_ids, nil,
-                                 name: 'item[allowed_role_ids][]' %>
-            <% Role.order(:name).each do |role| %>
+            <h4>Allowed Host Groups</h4>
+            <%= hidden_field_tag :host_group_ids, nil,
+                                 name: 'item[allowed_host_group_ids][]' %>
+            <% HostGroup.order(:name).each do |group| %>
               <div class="checkbox">
                 <label>
-                  <%= check_box_tag :role_ids, role.id,
-                                    f.object.allowed_roles.pluck(:id).include?(role.id),
-                                    name: 'item[allowed_role_ids][]' %>
-                  <%= role.name %>
+                  <%= check_box_tag :host_group_ids, group.id,
+                                    f.object.allowed_host_groups.pluck(:id).include?(group.id),
+                                    name: 'item[allowed_host_group_ids][]' %>
+                  <%= group.name %>
                 </label>
               </div>
             <% end %>
@@ -97,16 +97,16 @@
         </div>
         <div class="col-sm-6">
           <div class="form-group">
-            <h4>Denied Roles</h4>
-            <%= hidden_field_tag :role_ids, nil,
-                                 name: 'item[denied_role_ids][]' %>
-            <% Role.order(:name).each do |role| %>
+            <h4>Denied Host Groups</h4>
+            <%= hidden_field_tag :host_group_ids, nil,
+                                 name: 'item[denied_host_group_ids][]' %>
+            <% HostGroup.order(:name).each do |group| %>
               <div class="checkbox">
                 <label>
-                  <%= check_box_tag :role_ids, role.id,
-                                    f.object.denied_roles.pluck(:id).include?(role.id),
-                                    name: 'item[denied_role_ids][]' %>
-                  <%= role.name %>
+                  <%= check_box_tag :host_group_ids, group.id,
+                                    f.object.denied_host_groups.pluck(:id).include?(group.id),
+                                    name: 'item[denied_host_group_ids][]' %>
+                  <%= group.name %>
                 </label>
               </div>
             <% end %>

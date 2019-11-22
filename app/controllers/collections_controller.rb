@@ -34,7 +34,7 @@ class CollectionsController < WebsiteController
   #
   def iiif_presentation_list
     finder = CollectionFinder.new.
-        user_roles(request_roles).
+        host_groups(client_host_groups).
         order(CollectionElement.new(name: 'title').indexed_sort_field)
     @collections = finder.to_a
 

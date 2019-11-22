@@ -15,12 +15,12 @@ class WebsiteController < ApplicationController
   # @return [Boolean]
   #
   def authorize(model)
-    if model&.respond_to?(:authorized_by_any_roles?) # AuthorizableByRole method
-      unless model.authorized_by_any_roles?(request_roles)
-        msg = sprintf('Authorization for %s %s denied for roles: %s',
+    if model&.respond_to?(:authorized_by_any_host_groups?) # AuthorizableByHost method
+      unless model.authorized_by_any_host_groups?(client_host_groups)
+        msg = sprintf('Authorization for %s %s denied for host groups: %s',
                       model.class.to_s,
                       model.respond_to?(:repository_id) ? model.repository_id : model.id,
-                      request_roles.to_a.join(', '))
+                      client_host_groups.to_a.join(', '))
         raise AuthorizationError, msg
       end
     end
@@ -32,8 +32,8 @@ class WebsiteController < ApplicationController
   #
   def authorized?(model)
     authorized = true
-    if model&.respond_to?(:authorized_by_any_roles?) # AuthorizableByRole method
-      authorized = model.authorized_by_any_roles?(request_roles)
+    if model&.respond_to?(:authorized_by_any_host_groups?) # AuthorizableByHost method
+      authorized = model.authorized_by_any_host_groups?(client_hosts)
     end
     authorized
   end

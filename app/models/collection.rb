@@ -91,13 +91,13 @@
 #
 # Attribute Propagation
 #
-# Changes to some of a collection's properties, such as `allowed_roles` and
-# `denied_roles`, must be propagated to all of its items. This can be done
-# using {propagate_heritable_properties}.
+# Changes to some of a collection's properties, such as `allowed_host_groups`
+# and `denied_host_groups`, must be propagated to all of its {Item}s. This can
+# be done using {propagate_heritable_properties}.
 #
 class Collection < ApplicationRecord
 
-  include AuthorizableByRole
+  include AuthorizableByHost
   include Describable
   include Representable
 
@@ -106,34 +106,34 @@ class Collection < ApplicationRecord
   # metadata fields may also be present.
   #
   class IndexFields
-    ACCESS_SYSTEMS               = 'sys_k_access_systems'
-    ACCESS_URL                   = 'sys_k_access_url'
-    ALLOWED_ROLE_COUNT           = 'sys_i_allowed_role_count'
-    ALLOWED_ROLES                = 'sys_k_allowed_roles'
-    CLASS                        = ElasticsearchIndex::StandardFields::CLASS
-    DENIED_ROLE_COUNT            = 'sys_i_denied_role_count'
-    DENIED_ROLES                 = 'sys_k_denied_roles'
-    DESCRIPTION                  = CollectionElement.new(name: 'description').indexed_field
-    EFFECTIVE_ALLOWED_ROLE_COUNT = 'sys_i_effective_allowed_role_count'
-    EFFECTIVE_ALLOWED_ROLES      = 'sys_k_effective_allowed_roles'
-    EFFECTIVE_DENIED_ROLE_COUNT  = 'sys_i_effective_denied_role_count'
-    EFFECTIVE_DENIED_ROLES       = 'sys_k_effective_denied_roles'
-    EXTERNAL_ID                  = 'sys_k_external_id'
-    HARVESTABLE                  = 'sys_b_harvestable'
-    LAST_INDEXED                 = ElasticsearchIndex::StandardFields::LAST_INDEXED
-    LAST_MODIFIED                = ElasticsearchIndex::StandardFields::LAST_MODIFIED
-    NATIVE                       = 'sys_b_native'
-    PARENT_COLLECTIONS           = 'sys_k_parent_collections'
-    PUBLIC_IN_MEDUSA             = 'sys_b_public_in_medusa'
-    PUBLICLY_ACCESSIBLE          = ElasticsearchIndex::StandardFields::PUBLICLY_ACCESSIBLE
-    PUBLISHED_IN_DLS             = 'sys_b_published_in_dls'
-    REPOSITORY_ID                = 'sys_k_repository_id'
-    REPOSITORY_TITLE             = 'sys_k_repository_title'
-    REPRESENTATIVE_IMAGE         = 'sys_k_representative_image'
-    REPRESENTATIVE_ITEM          = 'sys_k_representative_item'
-    RESOURCE_TYPES               = 'sys_k_resource_types'
-    SEARCH_ALL                   = ElasticsearchIndex::StandardFields::SEARCH_ALL
-    TITLE                        = CollectionElement.new(name: 'title').indexed_keyword_field
+    ACCESS_SYSTEMS                     = 'sys_k_access_systems'
+    ACCESS_URL                         = 'sys_k_access_url'
+    ALLOWED_HOST_GROUP_COUNT           = 'sys_i_allowed_host_group_count'
+    ALLOWED_HOST_GROUPS                = 'sys_k_allowed_host_groups'
+    CLASS                              = ElasticsearchIndex::StandardFields::CLASS
+    DENIED_HOST_GROUP_COUNT            = 'sys_i_denied_host_group_count'
+    DENIED_HOST_GROUPS                 = 'sys_k_denied_host_groups'
+    DESCRIPTION                        = CollectionElement.new(name: 'description').indexed_field
+    EFFECTIVE_ALLOWED_HOST_GROUP_COUNT = 'sys_i_effective_allowed_host_group_count'
+    EFFECTIVE_ALLOWED_HOST_GROUPS      = 'sys_k_effective_allowed_host_groups'
+    EFFECTIVE_DENIED_HOST_GROUP_COUNT  = 'sys_i_effective_denied_host_group_count'
+    EFFECTIVE_DENIED_HOST_GROUPS       = 'sys_k_effective_denied_host_groups'
+    EXTERNAL_ID                        = 'sys_k_external_id'
+    HARVESTABLE                        = 'sys_b_harvestable'
+    LAST_INDEXED                       = ElasticsearchIndex::StandardFields::LAST_INDEXED
+    LAST_MODIFIED                      = ElasticsearchIndex::StandardFields::LAST_MODIFIED
+    NATIVE                             = 'sys_b_native'
+    PARENT_COLLECTIONS                 = 'sys_k_parent_collections'
+    PUBLIC_IN_MEDUSA                   = 'sys_b_public_in_medusa'
+    PUBLICLY_ACCESSIBLE                = ElasticsearchIndex::StandardFields::PUBLICLY_ACCESSIBLE
+    PUBLISHED_IN_DLS                   = 'sys_b_published_in_dls'
+    REPOSITORY_ID                      = 'sys_k_repository_id'
+    REPOSITORY_TITLE                   = 'sys_k_repository_title'
+    REPRESENTATIVE_IMAGE               = 'sys_k_representative_image'
+    REPRESENTATIVE_ITEM                = 'sys_k_representative_item'
+    RESOURCE_TYPES                     = 'sys_k_resource_types'
+    SEARCH_ALL                         = ElasticsearchIndex::StandardFields::SEARCH_ALL
+    TITLE                              = CollectionElement.new(name: 'title').indexed_keyword_field
   end
 
   LOGGER = CustomLogger.new(Collection)
@@ -160,10 +160,10 @@ class Collection < ApplicationRecord
   has_many :parents, through: :parent_collection_joins,
            source: :parent_collection
 
-  has_and_belongs_to_many :allowed_roles, class_name: 'Role',
-                          association_foreign_key: :allowed_role_id
-  has_and_belongs_to_many :denied_roles, class_name: 'Role',
-                          association_foreign_key: :denied_role_id
+  has_and_belongs_to_many :allowed_host_groups, class_name: 'HostGroup',
+                          association_foreign_key: :allowed_host_group_id
+  has_and_belongs_to_many :denied_host_groups, class_name: 'HostGroup',
+                          association_foreign_key: :denied_host_group_id
 
   validates_format_of :repository_id,
                       with: StringUtils::UUID_REGEX,
@@ -257,7 +257,7 @@ class Collection < ApplicationRecord
   end
 
   ##
-  # @param id [Integer] Medusa collection ID
+  # @param id [String] Medusa collection ID.
   # @return [Collection]
   #
   def self.from_medusa(id)
@@ -309,28 +309,27 @@ class Collection < ApplicationRecord
   end
 
   ##
-  # N.B.: Changing the implementation normally requires adding a new index
-  # schema version.
-  #
   # @return [Hash] Indexable JSON representation of the instance.
   #
   def as_indexed_json(options = {})
     doc = {}
     doc[IndexFields::ACCESS_SYSTEMS] = self.access_systems
     doc[IndexFields::ACCESS_URL] = self.access_url
-    doc[IndexFields::ALLOWED_ROLES] = self.allowed_roles.pluck(:key)
-    doc[IndexFields::ALLOWED_ROLE_COUNT] = doc[IndexFields::ALLOWED_ROLES].length
+    doc[IndexFields::ALLOWED_HOST_GROUPS] = self.allowed_host_groups.pluck(:key)
+    doc[IndexFields::ALLOWED_HOST_GROUP_COUNT] =
+        doc[IndexFields::ALLOWED_HOST_GROUPS].length
     doc[IndexFields::CLASS] = self.class.to_s
-    doc[IndexFields::DENIED_ROLES] = self.denied_roles.pluck(:key)
-    doc[IndexFields::DENIED_ROLE_COUNT] = doc[IndexFields::DENIED_ROLES].length
-    doc[IndexFields::EFFECTIVE_ALLOWED_ROLES] =
-        doc[IndexFields::ALLOWED_ROLES]
-    doc[IndexFields::EFFECTIVE_ALLOWED_ROLE_COUNT] =
-        doc[IndexFields::ALLOWED_ROLE_COUNT]
-    doc[IndexFields::EFFECTIVE_DENIED_ROLES] =
-        doc[IndexFields::DENIED_ROLES]
-    doc[IndexFields::EFFECTIVE_DENIED_ROLE_COUNT] =
-        doc[IndexFields::DENIED_ROLE_COUNT]
+    doc[IndexFields::DENIED_HOST_GROUPS] = self.denied_host_groups.pluck(:key)
+    doc[IndexFields::DENIED_HOST_GROUP_COUNT] =
+        doc[IndexFields::DENIED_HOST_GROUPS].length
+    doc[IndexFields::EFFECTIVE_ALLOWED_HOST_GROUPS] =
+        doc[IndexFields::ALLOWED_HOST_GROUPS]
+    doc[IndexFields::EFFECTIVE_ALLOWED_HOST_GROUP_COUNT] =
+        doc[IndexFields::ALLOWED_HOST_GROUP_COUNT]
+    doc[IndexFields::EFFECTIVE_DENIED_HOST_GROUPS] =
+        doc[IndexFields::DENIED_HOST_GROUPS]
+    doc[IndexFields::EFFECTIVE_DENIED_HOST_GROUP_COUNT] =
+        doc[IndexFields::DENIED_HOST_GROUP_COUNT]
     doc[IndexFields::EXTERNAL_ID] = self.external_id
     doc[IndexFields::HARVESTABLE] = self.harvestable
     doc[IndexFields::LAST_INDEXED] = Time.now.utc.iso8601
@@ -364,14 +363,14 @@ class Collection < ApplicationRecord
   end
 
   ##
-  # Satisfies the AuthorizableByRole module contract.
+  # Satisfies the AuthorizableByHost module contract.
   #
-  alias_method :effective_allowed_roles, :allowed_roles
+  alias_method :effective_allowed_host_groups, :allowed_host_groups
 
   ##
-  # Satisfies the AuthorizableByRole module contract.
+  # Satisfies the AuthorizableByHost module contract.
   #
-  alias_method :effective_denied_roles, :denied_roles
+  alias_method :effective_denied_host_groups, :denied_host_groups
 
   ##
   # Deletes indexed documents whose corresponding Items no longer exist in the
@@ -662,8 +661,8 @@ class Collection < ApplicationRecord
   end
 
   ##
-  # Propagates allowed and denied roles from the instance to all of its items.
-  # This is an O(n) operation.
+  # Propagates allowed and denied {HostGroup}s from the instance to all of its
+  # items. This is an O(n) operation.
   #
   # @param task [Task] Supply to receive progress updates.
   # @return [void]

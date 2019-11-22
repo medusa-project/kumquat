@@ -167,16 +167,16 @@ class CollectionFinder < AbstractFinder
             end
           end
 
-          if @user_roles.any?
+          if @host_groups.any?
             j.should do
               j.child! do
                 j.terms do
-                  j.set! Collection::IndexFields::ALLOWED_ROLES, @user_roles
+                  j.set! Collection::IndexFields::ALLOWED_HOST_GROUPS, @host_groups
                 end
               end
               j.child! do
                 j.range do
-                  j.set! Collection::IndexFields::ALLOWED_ROLE_COUNT do
+                  j.set! Collection::IndexFields::ALLOWED_HOST_GROUP_COUNT do
                     j.lte 0
                   end
                 end
@@ -184,12 +184,12 @@ class CollectionFinder < AbstractFinder
             end
           end
 
-          if @user_roles.any? or !@search_children
+          if @host_groups.any? or !@search_children
             j.must_not do
-              if @user_roles.any?
+              if @host_groups.any?
                 j.child! do
                   j.terms do
-                    j.set! Collection::IndexFields::DENIED_ROLES, @user_roles
+                    j.set! Collection::IndexFields::DENIED_HOST_GROUPS, @host_groups
                   end
                 end
               end

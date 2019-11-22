@@ -8,13 +8,7 @@ module Admin
     def create
       @role = Role.new(sanitized_params)
       begin
-        ActiveRecord::Base.transaction do
-          # Hosts from the form textarea need to be processed manually.
-          params[:role][:hosts].split("\n").each do |pattern|
-            @role.hosts.build(pattern: pattern.strip)
-          end
-          @role.save!
-        end
+        @role.save!
       rescue => e
         @users = User.order(:username)
         flash['error'] = "#{e}"
@@ -64,16 +58,8 @@ module Admin
     def update
       @role = Role.find_by_key(params[:key])
       raise ActiveRecord::RecordNotFound unless @role
-
       begin
-        ActiveRecord::Base.transaction do
-          # Hosts from the form textarea need to be processed manually.
-          @role.hosts.destroy_all
-          params[:role][:hosts].split("\n").each do |pattern|
-            @role.hosts.build(pattern: pattern.strip)
-          end
-          @role.update_attributes!(sanitized_params)
-        end
+        @role.update_attributes!(sanitized_params)
       rescue => e
         @users = User.order(:username)
         flash['error'] = "#{e}"

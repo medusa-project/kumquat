@@ -37,26 +37,24 @@ class ApplicationController < ActionController::Base
 
   ##
   # Normally the flash is discarded after being added to the response headers
-  # (see flash_in_response_headers). Calling this method will save it, enabling
-  # it to work with redirects. (Notably, it works different than flash.keep.)
+  # (see {flash_in_response_headers}). Calling this method will save it,
+  # enabling it to work with redirects. (Notably, it works different than
+  # {flash#keep}.)
   #
   def keep_flash
     @keep_flash = true
   end
 
   ##
-  # @return [Set<Role>] Set of Roles associated with the current user, if
-  #                     available, or the request hostname/IP address otherwise.
+  # @return [Set<HostGroup>] Set of {HostGroup}s associated with the request
+  #         hostname/IP address.
   #
-  def request_roles
-    roles = Set.new
-    roles += current_user.roles if current_user
-    roles += Role.all_matching_hostname_or_ip(request.host, request.remote_ip)
-    roles
+  def client_host_groups
+    HostGroup.all_matching_hostname_or_ip(request.host, request.remote_ip)
   end
 
   ##
-  # Streams an S3 object, represented by a Binary, to the response entity.
+  # Streams a {Binary}'s associated S3 object to the response entity.
   # Ranged requests are supported.
   #
   # @param binary [Binary]
@@ -127,10 +125,10 @@ class ApplicationController < ActionController::Base
   @keep_flash = false
 
   ##
-  # Stores the flash message and type ('error' or 'success') in the response
-  # headers, where they can be accessed by an ajax callback. Afterwards, the
+  # Stores the flash message and type (`error` or `success`) in the response
+  # headers, where they can be accessed by an XHR callback. Afterwards, the
   # "normal" flash is cleared, which prevents it from working with redirects.
-  # To prevent this, a controller should call keep_flash before redirecting.
+  # To prevent this, a controller should call {keep_flash} before redirecting.
   #
   def flash_in_response_headers
     if request.xhr?

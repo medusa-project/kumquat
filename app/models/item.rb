@@ -103,14 +103,14 @@
 #
 # ## Attribute Propagation
 #
-# Some item properties, such as `allowed_roles` and `denied_roles`, propagate
+# Some item properties, such as `allowed_hosts` and `denied_hosts`, propagate
 # to child items in the item tree. The inherited counterparts of these
-# properties are `effective_allowed_roles` and `effective_denied_roles`. An
+# properties are `effective_allowed_hosts` and `effective_denied_hosts`. An
 # item's subtree can be updated using {propagate_heritable_properties}.
 #
 class Item < ApplicationRecord
 
-  include AuthorizableByRole
+  include AuthorizableByHost
   include Describable
   include Representable
 
@@ -119,41 +119,41 @@ class Item < ApplicationRecord
   # metadata fields may also be present.
   #
   class IndexFields
-    CLASS                        = ElasticsearchIndex::StandardFields::CLASS
-    COLLECTION                   = 'sys_k_collection'
-    CREATED                      = 'sys_d_created'
-    DATE                         = 'sys_d_date'
-    DESCRIBED                    = 'sys_b_described'
-    EFFECTIVE_ALLOWED_ROLE_COUNT = 'sys_i_effective_allowed_role_count'
-    EFFECTIVE_ALLOWED_ROLES      = 'sys_k_effective_allowed_roles'
-    EFFECTIVE_DENIED_ROLE_COUNT  = 'sys_i_effective_denied_role_count'
-    EFFECTIVE_DENIED_ROLES       = 'sys_k_effective_denied_roles'
-    ITEM_SETS                    = 'sys_i_item_sets'
-    LAST_INDEXED                 = ElasticsearchIndex::StandardFields::LAST_INDEXED
-    LAST_MODIFIED                = ElasticsearchIndex::StandardFields::LAST_MODIFIED
-    LAT_LONG                     = 'sys_p_lat_long'
+    CLASS                              = ElasticsearchIndex::StandardFields::CLASS
+    COLLECTION                         = 'sys_k_collection'
+    CREATED                            = 'sys_d_created'
+    DATE                               = 'sys_d_date'
+    DESCRIBED                          = 'sys_b_described'
+    EFFECTIVE_ALLOWED_HOST_GROUP_COUNT = 'sys_i_effective_allowed_host_group_count'
+    EFFECTIVE_ALLOWED_HOST_GROUPS      = 'sys_k_effective_allowed_host_groups'
+    EFFECTIVE_DENIED_HOST_GROUP_COUNT  = 'sys_i_effective_denied_host_group_count'
+    EFFECTIVE_DENIED_HOST_GROUPS       = 'sys_k_effective_denied_host_groups'
+    ITEM_SETS                          = 'sys_i_item_sets'
+    LAST_INDEXED                       = ElasticsearchIndex::StandardFields::LAST_INDEXED
+    LAST_MODIFIED                      = ElasticsearchIndex::StandardFields::LAST_MODIFIED
+    LAT_LONG                           = 'sys_p_lat_long'
     # Repository ID of the item, or its parent item, if a child within a
     # compound object.
-    OBJECT_REPOSITORY_ID         = 'sys_k_object_repository_id'
-    PAGE_NUMBER                  = 'sys_i_page_number'
-    PARENT_ITEM                  = 'sys_k_parent_item'
-    PRIMARY_MEDIA_CATEGORY       = 'sys_k_primary_media_category'
+    OBJECT_REPOSITORY_ID               = 'sys_k_object_repository_id'
+    PAGE_NUMBER                        = 'sys_i_page_number'
+    PARENT_ITEM                        = 'sys_k_parent_item'
+    PRIMARY_MEDIA_CATEGORY             = 'sys_k_primary_media_category'
     # N.B.: An item might be published but its collection might not be, making
     # it still effectively unpublished. This will take that into account.
-    PUBLICLY_ACCESSIBLE          = ElasticsearchIndex::StandardFields::PUBLICLY_ACCESSIBLE
-    PUBLISHED                    = 'sys_b_published'
-    REPOSITORY_ID                = 'sys_k_repository_id'
-    REPRESENTATIVE_FILENAME      = 'sys_k_representative_filename'
-    REPRESENTATIVE_ITEM          = 'sys_k_representative_item_id'
-    SEARCH_ALL                   = ElasticsearchIndex::StandardFields::SEARCH_ALL
+    PUBLICLY_ACCESSIBLE                = ElasticsearchIndex::StandardFields::PUBLICLY_ACCESSIBLE
+    PUBLISHED                          = 'sys_b_published'
+    REPOSITORY_ID                      = 'sys_k_repository_id'
+    REPRESENTATIVE_FILENAME            = 'sys_k_representative_filename'
+    REPRESENTATIVE_ITEM                = 'sys_k_representative_item_id'
+    SEARCH_ALL                         = ElasticsearchIndex::StandardFields::SEARCH_ALL
     # Concatenation of various compound object page components or path
     # components (see as_indexed_json()) used for sorting items grouped
     # structurally.
-    STRUCTURAL_SORT              = 'sys_k_structural_sort'
-    SUBPAGE_NUMBER               = 'sys_i_subpage_number'
-    TITLE                        = ItemElement.new(name: 'title').indexed_keyword_field
-    TOTAL_BYTE_SIZE              = 'sys_l_total_byte_size'
-    VARIANT                      = 'sys_k_variant'
+    STRUCTURAL_SORT                    = 'sys_k_structural_sort'
+    SUBPAGE_NUMBER                     = 'sys_i_subpage_number'
+    TITLE                              = ItemElement.new(name: 'title').indexed_keyword_field
+    TOTAL_BYTE_SIZE                    = 'sys_l_total_byte_size'
+    VARIANT                            = 'sys_k_variant'
   end
 
   ##
@@ -200,14 +200,18 @@ class Item < ApplicationRecord
     accessMasterFilename accessMasterUUID variant pageNumber subpageNumber
     published contentdmAlias contentdmPointer IGNORE)
 
-  has_and_belongs_to_many :allowed_roles, class_name: 'Role',
-                          association_foreign_key: :allowed_role_id
-  has_and_belongs_to_many :denied_roles, class_name: 'Role',
-                          association_foreign_key: :denied_role_id
-  has_and_belongs_to_many :effective_allowed_roles, class_name: 'Role',
-                          association_foreign_key: :effective_allowed_role_id
-  has_and_belongs_to_many :effective_denied_roles, class_name: 'Role',
-                          association_foreign_key: :effective_denied_role_id
+  has_and_belongs_to_many :allowed_host_groups,
+                          class_name: 'HostGroup',
+                          association_foreign_key: :allowed_host_group_id
+  has_and_belongs_to_many :denied_host_groups,
+                          class_name: 'HostGroup',
+                          association_foreign_key: :denied_host_group_id
+  has_and_belongs_to_many :effective_allowed_host_groups,
+                          class_name: 'HostGroup',
+                          association_foreign_key: :effective_allowed_host_group_id
+  has_and_belongs_to_many :effective_denied_host_groups,
+                          class_name: 'HostGroup',
+                          association_foreign_key: :effective_denied_host_group_id
   has_and_belongs_to_many :item_sets
 
   has_many :binaries, inverse_of: :item, dependent: :destroy
@@ -255,7 +259,7 @@ class Item < ApplicationRecord
 
   # ACTIVERECORD CALLBACKS
 
-  before_save :prune_identical_elements, :set_effective_roles,
+  before_save :prune_identical_elements, :set_effective_host_groups,
               :set_normalized_coords, :set_normalized_date
   after_commit :index_in_elasticsearch, on: [:create, :update]
   after_commit :delete_from_elasticsearch, on: :destroy
@@ -466,8 +470,6 @@ class Item < ApplicationRecord
   end
 
   ##
-  # N.B.: Changing this normally requires adding a new index schema version.
-  #
   # @return [Hash] Indexable JSON representation of the instance.
   #
   def as_indexed_json(options = {})
@@ -478,14 +480,14 @@ class Item < ApplicationRecord
     doc[IndexFields::DATE] = self.date.utc.iso8601 if self.date and self.date.year < 10000
     doc[IndexFields::DESCRIBED] = self.described?
 
-    doc[IndexFields::EFFECTIVE_ALLOWED_ROLES] =
-        self.effective_allowed_roles.pluck(:key)
-    doc[IndexFields::EFFECTIVE_ALLOWED_ROLE_COUNT] =
-        doc[IndexFields::EFFECTIVE_ALLOWED_ROLES].length
-    doc[IndexFields::EFFECTIVE_DENIED_ROLES] =
-        self.effective_denied_roles.pluck(:key)
-    doc[IndexFields::EFFECTIVE_DENIED_ROLE_COUNT] =
-        doc[IndexFields::EFFECTIVE_DENIED_ROLES].length
+    doc[IndexFields::EFFECTIVE_ALLOWED_HOST_GROUPS] =
+        self.effective_allowed_host_groups.pluck(:key)
+    doc[IndexFields::EFFECTIVE_ALLOWED_HOST_GROUP_COUNT] =
+        doc[IndexFields::EFFECTIVE_ALLOWED_HOST_GROUPS].length
+    doc[IndexFields::EFFECTIVE_DENIED_HOST_GROUPS] =
+        self.effective_denied_host_groups.pluck(:key)
+    doc[IndexFields::EFFECTIVE_DENIED_HOST_GROUP_COUNT] =
+        doc[IndexFields::EFFECTIVE_DENIED_HOST_GROUPS].length
     doc[IndexFields::ITEM_SETS] = self.item_sets.pluck(:id)
     doc[IndexFields::LAST_INDEXED] = Time.now.utc.iso8601
     doc[IndexFields::LAST_MODIFIED] = self.updated_at.utc.iso8601
@@ -1006,8 +1008,8 @@ class Item < ApplicationRecord
   end
 
   ##
-  # Propagates roles from the instance to all of its children. This is an O(n)
-  # operation.
+  # Propagates {HostGroup}s from the instance to all of its children. This is
+  # an O(n) operation.
   #
   # @param task [Task] Supply to receive progress updates.
   # @return [void]
@@ -1432,30 +1434,30 @@ class Item < ApplicationRecord
   ##
   # @return [void]
   #
-  def inherit_roles
-    allowed_roles = []
-    denied_roles  = []
+  def inherit_host_groups
+    allowed_hgs = []
+    denied_hgs  = []
     # Try to inherit from an ancestor.
     p = self.parent
-    while p and allowed_roles.empty? and denied_roles.empty?
-      allowed_roles = p.allowed_roles
-      denied_roles  = p.denied_roles
+    while p and allowed_hgs.empty? and denied_hgs.empty?
+      allowed_hgs = p.allowed_host_groups
+      denied_hgs  = p.denied_host_groups
       p = p.parent
     end
-    # If no ancestor has any roles, inherit from the collection.
-    if allowed_roles.empty? and denied_roles.empty? and self.collection
-      allowed_roles = self.collection.allowed_roles
-      denied_roles  = self.collection.denied_roles
+    # If no ancestor has any host groups, inherit from the collection.
+    if allowed_hgs.empty? and denied_hgs.empty? and self.collection
+      allowed_hgs = self.collection.allowed_host_groups
+      denied_hgs  = self.collection.denied_host_groups
     end
 
     ActiveRecord::Base.transaction do
-      self.effective_allowed_roles.destroy_all
-      self.effective_denied_roles.destroy_all
-      allowed_roles.each do |role|
-        self.effective_allowed_roles << role
+      self.effective_allowed_host_groups.destroy_all
+      self.effective_denied_host_groups.destroy_all
+      allowed_hgs.each do |group|
+        self.effective_allowed_host_groups << group
       end
-      denied_roles.each do |role|
-        self.effective_denied_roles << role
+      denied_hgs.each do |group|
+        self.effective_denied_host_groups << group
       end
     end
   end
@@ -1477,26 +1479,27 @@ class Item < ApplicationRecord
   end
 
   ##
-  # Populates {effective_allowed_roles} and {effective_denied_roles}.
+  # Populates {effective_allowed_host_groups} and
+  # {effective_denied_host_groups}.
   #
   # @return [void]
   #
-  def set_effective_roles
-    allowed_roles = self.allowed_roles
-    denied_roles = self.denied_roles
-    if allowed_roles.any? or denied_roles.any?
+  def set_effective_host_groups
+    allowed_hgs = self.allowed_host_groups
+    denied_hgs  = self.denied_host_groups
+    if allowed_hgs.any? or denied_hgs.any?
       ActiveRecord::Base.transaction do
-        self.effective_allowed_roles.destroy_all
-        self.effective_denied_roles.destroy_all
-        allowed_roles.each do |role|
-          self.effective_allowed_roles << role
+        self.effective_allowed_host_groups.destroy_all
+        self.effective_denied_host_groups.destroy_all
+        allowed_hgs.each do |group|
+          self.effective_allowed_host_groups << group
         end
-        denied_roles.each do |role|
-          self.effective_denied_roles << role
+        denied_hgs.each do |group|
+          self.effective_denied_host_groups << group
         end
       end
     else
-      inherit_roles
+      inherit_host_groups
     end
   end
 

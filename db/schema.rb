@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_11_14_021116) do
+ActiveRecord::Schema.define(version: 2019_11_21_164204) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -136,10 +136,12 @@ ActiveRecord::Schema.define(version: 2019_11_14_021116) do
     t.index ["representative_item_id"], name: "index_collections_on_representative_item_id"
   end
 
-  create_table "collections_roles", id: :serial, force: :cascade do |t|
+  create_table "collections_host_groups", force: :cascade do |t|
     t.integer "collection_id"
-    t.integer "allowed_role_id"
-    t.integer "denied_role_id"
+    t.integer "allowed_host_group_id"
+    t.integer "denied_host_group_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
   end
 
   create_table "delayed_jobs", id: :serial, force: :cascade do |t|
@@ -196,11 +198,23 @@ ActiveRecord::Schema.define(version: 2019_11_14_021116) do
     t.index ["vocabulary_id"], name: "index_entity_elements_on_vocabulary_id"
   end
 
-  create_table "hosts", id: :serial, force: :cascade do |t|
-    t.string "pattern"
-    t.integer "role_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+  create_table "host_groups", force: :cascade do |t|
+    t.string "key", null: false
+    t.string "name", null: false
+    t.text "pattern", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["key"], name: "index_host_groups_on_key", unique: true
+  end
+
+  create_table "host_groups_items", force: :cascade do |t|
+    t.integer "item_id"
+    t.integer "allowed_host_group_id"
+    t.integer "denied_host_group_id"
+    t.integer "effective_allowed_host_group_id"
+    t.integer "effective_denied_host_group_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
   end
 
   create_table "item_sets", id: :serial, force: :cascade do |t|
@@ -247,14 +261,6 @@ ActiveRecord::Schema.define(version: 2019_11_14_021116) do
     t.index ["repository_id"], name: "index_items_on_identifier", unique: true
     t.index ["representative_item_repository_id"], name: "index_items_on_representative_item_identifier"
     t.index ["variant"], name: "index_items_on_variant"
-  end
-
-  create_table "items_roles", id: :serial, force: :cascade do |t|
-    t.integer "item_id"
-    t.integer "allowed_role_id"
-    t.integer "denied_role_id"
-    t.integer "effective_allowed_role_id"
-    t.integer "effective_denied_role_id"
   end
 
   create_table "medusa_cfs_directories", id: :serial, force: :cascade do |t|
@@ -424,22 +430,21 @@ ActiveRecord::Schema.define(version: 2019_11_14_021116) do
   add_foreign_key "agents", "agent_types", on_update: :cascade, on_delete: :restrict
   add_foreign_key "binaries", "items", on_delete: :cascade
   add_foreign_key "collections", "metadata_profile_elements", column: "descriptive_element_id", on_update: :cascade, on_delete: :nullify
-  add_foreign_key "collections_roles", "collections", on_update: :cascade, on_delete: :cascade
-  add_foreign_key "collections_roles", "roles", column: "allowed_role_id", on_update: :cascade, on_delete: :cascade
-  add_foreign_key "collections_roles", "roles", column: "denied_role_id", on_update: :cascade, on_delete: :cascade
+  add_foreign_key "collections_host_groups", "collections", on_update: :cascade, on_delete: :cascade
+  add_foreign_key "collections_host_groups", "host_groups", column: "allowed_host_group_id", on_update: :cascade, on_delete: :restrict
+  add_foreign_key "collections_host_groups", "host_groups", column: "denied_host_group_id", on_update: :cascade, on_delete: :restrict
   add_foreign_key "entity_elements", "collections", on_update: :cascade, on_delete: :cascade
   add_foreign_key "entity_elements", "items", on_delete: :cascade
   add_foreign_key "entity_elements", "vocabularies", on_delete: :restrict
-  add_foreign_key "hosts", "roles", on_update: :cascade, on_delete: :cascade
+  add_foreign_key "host_groups_items", "host_groups", column: "allowed_host_group_id", on_update: :cascade, on_delete: :restrict
+  add_foreign_key "host_groups_items", "host_groups", column: "denied_host_group_id", on_update: :cascade, on_delete: :restrict
+  add_foreign_key "host_groups_items", "host_groups", column: "effective_allowed_host_group_id", on_update: :cascade, on_delete: :restrict
+  add_foreign_key "host_groups_items", "host_groups", column: "effective_denied_host_group_id", on_update: :cascade, on_delete: :restrict
+  add_foreign_key "host_groups_items", "items", on_update: :cascade, on_delete: :cascade
   add_foreign_key "item_sets_items", "item_sets", on_update: :cascade, on_delete: :cascade
   add_foreign_key "item_sets_items", "items", on_update: :cascade, on_delete: :cascade
   add_foreign_key "item_sets_users", "item_sets", on_update: :cascade, on_delete: :cascade
   add_foreign_key "item_sets_users", "users", on_update: :cascade, on_delete: :cascade
-  add_foreign_key "items_roles", "items", on_update: :cascade, on_delete: :cascade
-  add_foreign_key "items_roles", "roles", column: "allowed_role_id", on_update: :cascade, on_delete: :cascade
-  add_foreign_key "items_roles", "roles", column: "denied_role_id", on_update: :cascade, on_delete: :cascade
-  add_foreign_key "items_roles", "roles", column: "effective_allowed_role_id", on_update: :cascade, on_delete: :cascade
-  add_foreign_key "items_roles", "roles", column: "effective_denied_role_id", on_update: :cascade, on_delete: :cascade
   add_foreign_key "metadata_profile_elements", "metadata_profiles", on_update: :cascade, on_delete: :cascade
   add_foreign_key "metadata_profile_elements_vocabularies", "metadata_profile_elements", on_update: :cascade, on_delete: :cascade
   add_foreign_key "metadata_profile_elements_vocabularies", "vocabularies", on_update: :cascade, on_delete: :cascade

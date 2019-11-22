@@ -21,7 +21,7 @@ class EntityFinder < AbstractFinder
 
   ##
   # @param boolean [Boolean] Whether to return all results. If true, calls to
-  #                          `user_roles()` are ignored.
+  #                          {host_groups} are ignored.
   # @return [self]
   #
   def bypass_authorization(boolean)
@@ -188,21 +188,22 @@ class EntityFinder < AbstractFinder
           end
 
           unless @bypass_authorization
-            # Results must either have an effective allowed role (EAR) matching
-            # one of the user's roles, or no EARs, indicating that they are
-            # public, effective denied roles notwithstanding.
+            # Results must either have an effective allowed host group (EAHG)
+            # matching one of the client's host groups, or no EAHGs, indicating
+            # that they are public, effective denied host groups
+            # notwithstanding.
             j.should do
-              if @user_roles.any?
+              if @host_groups.any?
                 j.child! do
                   j.terms do
-                    j.set! Item::IndexFields::EFFECTIVE_ALLOWED_ROLES,
-                           @user_roles
+                    j.set! Item::IndexFields::EFFECTIVE_ALLOWED_HOST_GROUPS,
+                           @host_groups
                   end
                 end
               end
               j.child! do
                 j.range do
-                  j.set! Item::IndexFields::EFFECTIVE_ALLOWED_ROLE_COUNT do
+                  j.set! Item::IndexFields::EFFECTIVE_ALLOWED_HOST_GROUP_COUNT do
                     j.lte 0
                   end
                 end
@@ -211,13 +212,13 @@ class EntityFinder < AbstractFinder
             j.minimum_should_match 1
           end
 
-          if @user_roles.any? or @exclude_item_variants.any?
+          if @host_groups.any? or @exclude_item_variants.any?
             j.must_not do
-              if @user_roles.any?
+              if @host_groups.any?
                 j.child! do
                   j.terms do
-                    j.set! Item::IndexFields::EFFECTIVE_DENIED_ROLES,
-                           @user_roles
+                    j.set! Item::IndexFields::EFFECTIVE_DENIED_HOST_GROUPS,
+                           @host_groups
                   end
                 end
               end

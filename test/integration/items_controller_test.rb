@@ -8,11 +8,11 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
 
   # show() access control
 
-  test 'show() should restrict access to role-restricted items' do
-    role = Role.new(key: 'test', name: 'Test')
-    role.hosts.build(pattern: 'www.example.com')
-    role.save!
-    @item.denied_roles << role
+  test 'show() restricts access to host group-restricted items' do
+    # N.B.: Rails sets request.host to this pattern
+    group = HostGroup.create!(key: 'test', name: 'Test',
+                              pattern: 'www.example.com')
+    @item.denied_host_groups << group
     @item.save!
 
     get('/items/' + @item.repository_id)
@@ -21,7 +21,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
 
   # show() with JSON
 
-  test 'show() JSON should return 200' do
+  test 'show() JSON returns HTTP 200' do
     get('/items/' + @item.repository_id + '.json')
     assert_response :success
   end

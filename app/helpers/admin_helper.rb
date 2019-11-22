@@ -396,35 +396,37 @@ module AdminHelper
     data << { label: 'CONTENTdm Pointer', value: item.contentdm_pointer }
 
     # RightsStatements.org (assigned)
-    data << { label: 'RightsStatements.org (assigned)',
+    data << { label: 'RightsStatements.org (directly assigned)',
               value: item.rightsstatements_org_statement ?
                   link_to(item.rightsstatements_org_statement.name,
-                          item.rightsstatements_org_statement.info_uri,
-                          target: '_blank') : '' }
+                          item.rightsstatements_org_statement.info_uri) : '' }
     # RightsStatements.org (effective)
     data << { label: 'RightsStatements.org (effective)',
               value: item.effective_rightsstatements_org_statement ?
                   link_to(item.effective_rightsstatements_org_statement.name,
-                          item.effective_rightsstatements_org_statement.info_uri,
-                          target: '_blank') : '' }
-    # Allowed Roles (assigned)
-    data << { label: 'Allowed Roles (assigned)',
-              value: item.allowed_roles.any? ?
-                  item.allowed_roles.pluck(:name) : 'Any' }
-    # Allowed Roles (effective)
-    effective_allowed_roles = item.effective_allowed_roles
-    data << { label: 'Allowed Roles (effective)',
-              value: effective_allowed_roles.any? ?
-                  effective_allowed_roles.pluck(:name) : 'Any' }
-    # Denied Roles (assigned)
-    data << { label: 'Denied Roles (assigned)',
-              value: item.denied_roles.any? ?
-                  item.denied_roles.pluck(:name) : 'None' }
-    # Denied Roles (effective)
-    effective_denied_roles = item.effective_denied_roles
-    data << { label: 'Denied Roles (effective)',
-              value: effective_denied_roles.any? ?
-                  effective_denied_roles.pluck(:name) : 'None' }
+                          item.effective_rightsstatements_org_statement.info_uri) : '' }
+    # Allowed Host Groups (assigned)
+    data << { label: 'Allowed Host Groups (directly assigned)',
+              value: item.allowed_host_groups.any? ?
+                  item.allowed_host_groups.map{ |g| link_to(g.name, admin_host_group_path(g)) } :
+                         'Any' }
+    # Allowed Host Groups (effective)
+    effective_allowed_host_groups = item.effective_allowed_host_groups
+    data << { label: 'Allowed Host Groups (effective)',
+              value: effective_allowed_host_groups.any? ?
+                  effective_allowed_host_groups.map{ |g| link_to(g.name, admin_host_group_path(g)) } :
+                         'Any' }
+    # Denied Host Groups (assigned)
+    data << { label: 'Denied Host Groups (directly assigned)',
+              value: item.denied_host_groups.any? ?
+                  item.denied_host_groups.map{ |g| link_to(g.name, admin_host_group_path(g)) } :
+                         'None' }
+    # Denied Host Groups (effective)
+    effective_denied_host_groups = item.effective_denied_host_groups
+    data << { label: 'Denied Host Groups (effective)',
+              value: effective_denied_host_groups.any? ?
+                  effective_denied_host_groups.map{ |g| link_to(g.name, admin_host_group_path(g)) } :
+                         'None' }
     # Created
     data << { label: 'Created', value: local_time(item.created_at) }
 

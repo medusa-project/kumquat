@@ -11,18 +11,19 @@ class AbstractFinder
     @aggregations = true
     @bucket_limit = Option::integer(Option::Keys::FACET_TERM_LIMIT) || 10
     @exact_match  = false
-    @filters = {} # Hash<String,Object>
-    @limit = ElasticsearchClient::MAX_RESULT_WINDOW
-    @orders = [] # Array<Hash<Symbol,String>> with :field and :direction keys
-    @query = nil # Hash<Symbol,String> Hash with :field and :query keys
-    @start = 0
-    @user_roles = []
+    @filters      = {} # Hash<String,Object>
+    @host_groups  = []
+    @limit        = ElasticsearchClient::MAX_RESULT_WINDOW
+    @orders       = [] # Array<Hash<Symbol,String>> with :field and :direction keys
+    @query        = nil # Hash<Symbol,String> Hash with :field and :query keys
+    @start        = 0
+
 
     @loaded = false
 
-    @result_count = 0
-    @result_facets = []
-    @result_instances = []
+    @result_count       = 0
+    @result_facets      = []
+    @result_instances   = []
     @result_suggestions = []
   end
 
@@ -115,6 +116,19 @@ class AbstractFinder
   end
 
   ##
+  # Limits results to those accessible by any of the given {HostGroup}s or
+  # {HostGroup#key host group keys}.
+  #
+  # @param host_groups [Enumerable<HostGroup>, Enumerable<String>]
+  # @return [self]
+  #
+  def host_groups(host_groups)
+    @host_groups = host_groups.map { |r| r.kind_of?(HostGroup) ? r.key : r }
+    @loaded = false
+    self
+  end
+
+  ##
   # @param limit [Integer]
   # @return [self]
   #
@@ -203,18 +217,6 @@ class AbstractFinder
   def to_a
     raise 'Subclasses must override to_a() and map @response to an '\
         'Enumerable of model objects'
-  end
-
-  ##
-  # Limits results to those accessible by any of the given roles.
-  #
-  # @param roles [Enumerable<Role>, Enumerable<String>]
-  # @return [self]
-  #
-  def user_roles(roles)
-    @user_roles = roles.map { |r| r.kind_of?(Role) ? r.key : r }
-    @loaded = false
-    self
   end
 
   protected

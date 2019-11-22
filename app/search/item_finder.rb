@@ -295,18 +295,18 @@ class ItemFinder < AbstractFinder
             end
           end
 
-          if @user_roles.any? or @include_variants.any?
+          if @host_groups.any? or @include_variants.any?
             j.should do
-              if @user_roles.any?
+              if @host_groups.any?
                 j.child! do
                   j.terms do
-                    j.set! Item::IndexFields::EFFECTIVE_ALLOWED_ROLES,
-                           @user_roles
+                    j.set! Item::IndexFields::EFFECTIVE_ALLOWED_HOST_GROUPS,
+                           @host_groups
                   end
                 end
                 j.child! do
                   j.range do
-                    j.set! Item::IndexFields::EFFECTIVE_ALLOWED_ROLE_COUNT do
+                    j.set! Item::IndexFields::EFFECTIVE_ALLOWED_HOST_GROUP_COUNT do
                       j.lte 0
                     end
                   end
@@ -324,13 +324,13 @@ class ItemFinder < AbstractFinder
             j.minimum_should_match 1
           end
 
-          if @user_roles.any? or @exclude_variants.any? or !@search_children
+          if @host_groups.any? or @exclude_variants.any? or !@search_children
             j.must_not do
-              if @user_roles.any?
+              if @host_groups.any?
                 j.child! do
                   j.terms do
-                    j.set! Item::IndexFields::EFFECTIVE_DENIED_ROLES,
-                           @user_roles
+                    j.set! Item::IndexFields::EFFECTIVE_DENIED_HOST_GROUPS,
+                           @host_groups
                   end
                 end
               end

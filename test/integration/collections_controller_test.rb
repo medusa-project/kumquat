@@ -8,11 +8,11 @@ class CollectionsControllerTest < ActionDispatch::IntegrationTest
 
   # show() access control
 
-  test 'show() should restrict access to role-restricted collections' do
-    role = Role.new(key: 'test', name: 'Test')
-    role.hosts.build(pattern: 'www.example.com') # Rails sets request.host to this
-    role.save!
-    @collection.denied_roles << role
+  test 'show() restricts access to host group-restricted collections' do
+    # N.B.: Rails sets request.host to this pattern
+    group = HostGroup.create!(key: 'test', name: 'Test',
+                              pattern: 'www.example.com')
+    @collection.denied_host_groups << group
     @collection.save!
 
     get('/collections/' + @collection.repository_id)
