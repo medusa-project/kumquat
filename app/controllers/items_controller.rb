@@ -233,6 +233,8 @@ class ItemsController < WebsiteController
     @count             = finder.count
     @start             = finder.get_start
     @limit             = finder.get_limit
+    @es_request_json   = finder.request_json
+    @es_response_json  = finder.response_json
     @num_results_shown = [@limit, @count].min
     @metadata_profile  = @collection&.effective_metadata_profile ||
         MetadataProfile.default

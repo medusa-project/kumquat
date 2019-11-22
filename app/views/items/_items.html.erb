@@ -22,3 +22,9 @@
     <%= no_results_help(params[:q], @suggestions) %>
   </div>
 <% end %>
+
+<% if Rails.env.development? %>
+  <%= render partial: 'shared/results_debug', locals: {
+      es_request: @es_request_json,
+      es_response: @es_response_json } %>
+<% end %>

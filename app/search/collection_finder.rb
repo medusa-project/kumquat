@@ -57,7 +57,7 @@ class CollectionFinder < AbstractFinder
   #
   def to_id_a
     load
-    @response['hits']['hits']
+    @response_json['hits']['hits']
         .map { |r| r['_source'][Collection::IndexFields::REPOSITORY_ID] }
   end
 
@@ -77,10 +77,10 @@ class CollectionFinder < AbstractFinder
   def load
     return if @loaded
 
-    @response = get_response
+    @response_json = get_response
 
     # Assemble the response aggregations into Facets.
-    @response['aggregations']&.each do |agg|
+    @response_json['aggregations']&.each do |agg|
       facet = Facet.new
       facet.name = Collection.facet_fields.select{ |f| f[:name] == agg[0] }.
           first[:label]
@@ -96,14 +96,14 @@ class CollectionFinder < AbstractFinder
       @result_facets << facet
     end
 
-    if @response['hits']
-      @result_count = @response['hits']['total'] # ES 6.x
+    if @response_json['hits']
+      @result_count = @response_json['hits']['total'] # ES 6.x
       if @result_count.respond_to?(:keys)
         @result_count = @result_count['value'] # ES 7.x
       end
     else
       @result_count = 0
-      raise IOError, "#{@response['error']['type']}: #{@response['error']['root_cause'][0]['reason']}"
+      raise IOError, "#{@response_json['error']['type']}: #{@response_json['error']['root_cause'][0]['reason']}"
     end
 
     @loaded = true

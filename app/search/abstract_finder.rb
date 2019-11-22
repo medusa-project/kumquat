@@ -5,6 +5,8 @@
 #
 class AbstractFinder
 
+  attr_reader :request_json, :response_json
+
   def initialize
     @client = ElasticsearchClient.instance
 
@@ -18,9 +20,10 @@ class AbstractFinder
     @query        = nil # Hash<Symbol,String> Hash with :field and :query keys
     @start        = 0
 
-
     @loaded = false
 
+    @request_json       = {}
+    @response_json      = {}
     @result_count       = 0
     @result_facets      = []
     @result_instances   = []
@@ -215,7 +218,7 @@ class AbstractFinder
   # @return [Enumerable<Item>]
   #
   def to_a
-    raise 'Subclasses must override to_a() and map @response to an '\
+    raise 'Subclasses must override to_a() and map @response_json to an '\
         'Enumerable of model objects'
   end
 
@@ -242,12 +245,13 @@ class AbstractFinder
   def load
     return if @loaded
 
-    @response = get_response
+    @response_json = get_response
 
     # Assemble the response aggregations into Facets. The order of the facets
     # should be the same as the order of elements in the metadata profile.
     metadata_profile.facet_elements.each do |element|
-      agg = @response['aggregations']&.find{ |a| a[0] == element.indexed_keyword_field }
+      agg = @response_json['aggregations']&.
+          find{ |a| a[0] == element.indexed_keyword_field }
       if agg
         facet = Facet.new
         facet.name = element.label
@@ -264,14 +268,14 @@ class AbstractFinder
       end
     end
 
-    if @response['hits']
-      @result_count = @response['hits']['total'] # ES 6.x
+    if @response_json['hits']
+      @result_count = @response_json['hits']['total'] # ES 6.x
       if @result_count.respond_to?(:keys)
         @result_count = @result_count['value'] # ES 7.x
       end
     else
       @result_count = 0
-      raise IOError, "#{@response['error']['type']}: #{@response['error']['root_cause'][0]['reason']}"
+      raise IOError, "#{@response_json['error']['type']}: #{@response_json['error']['root_cause'][0]['reason']}"
     end
 
     @loaded = true

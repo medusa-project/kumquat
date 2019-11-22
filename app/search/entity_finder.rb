@@ -79,8 +79,8 @@ class EntityFinder < AbstractFinder
   #
   def to_a
     load
-    if @response['hits']
-      return @response['hits']['hits'].map { |r|
+    if @response_json['hits']
+      return @response_json['hits']['hits'].map { |r|
         case r['_source']['sys_k_class'].downcase
         when 'agent'
           id = r['_id']

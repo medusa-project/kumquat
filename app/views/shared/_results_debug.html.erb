@@ -1,0 +1,40 @@
+<%
+  # Used for debugging Elasticsearch request-response exchanges.
+  #
+  # Requires the following locals:
+  #
+  # es_request [Hash]
+  # es_response [Hash]
+%>
+
+<div class="text-center">
+<button class="btn btn-light" type="button" data-toggle="collapse"
+        data-target="#dl-debug" aria-expanded="false" aria-controls="dl-debug">
+  <i class="fa fa-plus"></i> Developer Mode Debug
+</button>
+</div>
+
+<div class="collapse" id="dl-debug">
+  <nav>
+    <div class="nav nav-tabs" id="dl-debug-nav-tab" role="tablist">
+      <a class="nav-item nav-link active" id="dl-debug-es-request-tab"
+         data-toggle="tab" href="#dl-debug-es-request" role="tab"
+         aria-controls="dl-debug-es-request" aria-selected="true">Elasticsearch Request</a>
+      <a class="nav-item nav-link" id="dl-debug-es-response-tab"
+         data-toggle="tab" href="#dl-debug-es-response" role="tab"
+         aria-controls="dl-debug-es-response" aria-selected="false">Elasticsearch Response</a>
+    </div>
+  </nav>
+  <div class="tab-content" id="dl-tab-content">
+    <div class="tab-pane fade show active" id="dl-debug-es-request" role="tabpanel">
+      <div style="height: 500px; overflow-y: scroll">
+        <pre><%= JSON.pretty_generate(JSON.parse(es_request)) %></pre>
+      </div>
+    </div>
+    <div class="tab-pane fade" id="dl-debug-es-response" role="tabpanel">
+      <div style="height: 500px; overflow-y: scroll">
+        <pre><%= JSON.pretty_generate(es_response) %></pre>
+      </div>
+    </div>
+  </div>
+</div>

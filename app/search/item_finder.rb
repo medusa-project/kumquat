@@ -125,7 +125,7 @@ class ItemFinder < AbstractFinder
   #
   def to_id_a
     load
-    @response['hits']['hits']
+    @response_json['hits']['hits']
         .map{ |r| r['_source'][Item::IndexFields::REPOSITORY_ID] }
   end
 
@@ -143,19 +143,20 @@ class ItemFinder < AbstractFinder
   protected
 
   def get_response
-    result = @client.query(build_query)
+    @request_json = build_query
+    result = @client.query(@request_json)
     JSON.parse(result)
   end
 
   def load
     return if @loaded
 
-    @response = get_response
+    @response_json = get_response
 
     # Assemble the response aggregations into Facets. The order of the facets
     # should be the same as the order of elements in the metadata profile.
     metadata_profile.facet_elements.each do |element|
-      agg = @response['aggregations']&.
+      agg = @response_json['aggregations']&.
           find{ |a| a[0] == element.indexed_keyword_field }
       if agg
         facet = Facet.new
@@ -173,19 +174,19 @@ class ItemFinder < AbstractFinder
       end
     end
 
-    agg = @response['aggregations']&.find{ |a| a[0] == BYTE_SIZE_AGGREGATION }
+    agg = @response_json['aggregations']&.find{ |a| a[0] == BYTE_SIZE_AGGREGATION }
     if agg
       @result_byte_size = agg[1]['value'].to_i
     end
 
-    if @response['hits']
-      @result_count = @response['hits']['total'] # ES 6.x
+    if @response_json['hits']
+      @result_count = @response_json['hits']['total'] # ES 6.x
       if @result_count.respond_to?(:keys)
         @result_count = @result_count['value'] # ES 7.x
       end
     else
       @result_count = 0
-      raise IOError, "#{@response['error']['type']}: #{@response['error']['root_cause'][0]['reason']}"
+      raise IOError, "#{@response_json['error']['type']}: #{@response_json['error']['root_cause'][0]['reason']}"
     end
 
     @loaded = true
