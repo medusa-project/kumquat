@@ -91,7 +91,7 @@ class Binary < ApplicationRecord
 
   # touch: true means when the instance is saved, the owning item's updated_at
   # property will be updated.
-  belongs_to :item, inverse_of: :binaries, touch: true
+  belongs_to :item, inverse_of: :binaries, touch: true, optional: true
 
   validates :byte_size, numericality: { only_integer: true,
                                         greater_than_or_equal_to: 0 },
