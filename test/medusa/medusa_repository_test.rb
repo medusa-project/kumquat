@@ -23,7 +23,7 @@ class MedusaRepositoryTest < ActiveSupport::TestCase
   # url()
 
   test 'url() should return the URL' do
-    assert_equal Configuration.instance.medusa_url + 'repositories/' + @repo.medusa_database_id.to_s,
+    assert_equal Configuration.instance.medusa_url + '/repositories/' + @repo.medusa_database_id.to_s,
                  @repo.url
   end
 
