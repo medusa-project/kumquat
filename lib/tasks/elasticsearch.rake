@@ -35,7 +35,7 @@ namespace :elasticsearch do
     end
 
     desc 'Copy the current index into the latest index'
-    task :reindex, [:from_index, :to_index] => :environment do
+    task :reindex, [:from_index, :to_index] => :environment do |task, args|
       ElasticsearchClient.instance.reindex(args[:from_index], args[:to_index])
     end
 
