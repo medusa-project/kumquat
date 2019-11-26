@@ -25,11 +25,11 @@ default: &default
 
 development: &development
   <<: *default
-  host:     <%= development_config[:db_host] %>
-  port:     <%= development_config[:db_port] %>
-  database: <%= development_config[:db_database] %>
-  username: <%= development_config[:db_username] %>
-  password: <%= development_config[:db_password] %>
+  host:     <%= development_config['db_host'] %>
+  port:     <%= development_config['db_port'] %>
+  database: <%= development_config['db_database'] %>
+  username: <%= development_config['db_username'] %>
+  password: <%= development_config['db_password'] %>
 
 development_2:
   <<: *development
@@ -39,11 +39,11 @@ development_2:
 # Do not set this db to the same as development or production.
 test: &test
   <<: *default
-  host:     <%= test_config[:db_host] %>
-  port:     <%= test_config[:db_port] %>
-  database: <%= test_config[:db_database] %>
-  username: <%= test_config[:db_username] %>
-  password: <%= test_config[:db_password] %>
+  host:     <%= test_config['db_host'] %>
+  port:     <%= test_config['db_port'] %>
+  database: <%= test_config['db_database'] %>
+  username: <%= test_config['db_username'] %>
+  password: <%= test_config['db_password'] %>
 
 test_2:
   <<: *test

@@ -28,14 +28,15 @@ class Configuration
   include Singleton
 
   ##
+  # @param key [String]
   # @return [Object]
   #
   def get(key)
     if Rails.env.development? or Rails.env.test?
       read_unencrypted_config
-      return @config[key.to_sym]
+      return @config[key.to_s]
     end
-    Rails.application.credentials.dig(key.to_sym)
+    Rails.application.credentials.dig(key)
   end
 
   def method_missing(m, *args, &block)
