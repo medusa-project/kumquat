@@ -2,7 +2,7 @@
 # Represents a Medusa repository node.
 #
 # Instances' properties are loaded from Medusa automatically and cached.
-# Acquire instances with `with_medusa_database_id()`.
+# Acquire instances with {with_medusa_database_id}.
 #
 class MedusaRepository < ApplicationRecord
 

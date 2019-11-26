@@ -1,6 +1,6 @@
 ##
 # Encapsulates a metadata element attached to a collection, with a name
-# matching one of the Element names.
+# matching one of the persisted {Element} names.
 #
 class CollectionElement < EntityElement
 
@@ -14,9 +14,8 @@ class CollectionElement < EntityElement
   end
 
   ##
-  # @return [CollectionElement] CollectionElement with the given name, or nil
-  #                             if the given name is not an available element
-  #                             name.
+  # @return [CollectionElement] Instance with the given name, or nil if the
+  #                             given name is not an available element name.
   #
   def self.named(name)
     all_available.select{ |e| e.name == name }.first

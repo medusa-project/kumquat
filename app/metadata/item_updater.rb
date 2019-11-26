@@ -62,11 +62,12 @@ class ItemUpdater
 
   ##
   # @param items [Enumerable<Item>]
-  # @param matching_mode [Symbol] :exact_match, :contain, :start, or :end
+  # @param matching_mode [Symbol] `:exact_match`, `:contain`, `:start`, or
+  #                               `:end`
   # @param find_value [String] Value to search for.
   # @param element_name [String] Element in which to search.
   # @param replace_mode [Symbol] What part of the matches to replace:
-  #                              :whole_value or :matched_part
+  #                              `:whole_value` or `:matched_part`
   # @param replace_value [String] Value to replace the matches with.
   # @param task [Task] Supply to receive progress updates.
   # @return [void]
@@ -133,7 +134,7 @@ class ItemUpdater
   ##
   # Updates items from the given TSV file.
   #
-  # Items will not be created or deleted. (For that, use MedusaIngester.)
+  # Items will not be created or deleted. (For that, use {MedusaIngester}.)
   #
   # @param pathname [String] Absolute pathname of a TSV file.
   # @param original_filename [String] Filename of the TSV file as it was

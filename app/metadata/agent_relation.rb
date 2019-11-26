@@ -11,7 +11,8 @@ class AgentRelation < ApplicationRecord
 
   ##
   # @param agent [Agent]
-  # @return [Enumerable<Agent>] All AgentRelations related to the given agent.
+  # @return [Enumerable<AgentRelation>] All {AgentRelation}s related to the
+  #                                     given agent.
   #
   def self.related_to_agent(agent)
     AgentRelation.where('agent_id = ? OR related_agent_id = ?',

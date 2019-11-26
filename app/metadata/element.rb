@@ -1,17 +1,18 @@
 ##
 # Application element archetype. This is a way of expressing a certain set of
 # elements that are available for use in the application. This class in
-# particular has no relationships, but MetadataProfileElements and ItemElements
-# (for example) can only be created if there is a matching Element present. If
-# that Element is later renamed or deleted, the corresponding
-# MetadataProfileElements and ItemElements are not affected.
+# particular has no relationships, but {MetadataProfileElement}s and
+# {ItemElement}s (for example) can only be created if there is an {Element}
+# with a matching name present. If that {Element} is later renamed or deleted,
+# the corresponding {MetadataProfileElement}s and {ItemElement}s are not
+# affected, which is a safety feature.
 #
 # # Attributes
 #
-# * created_at:  Managed by ActiveRecord.
-# * description: Optional information about the element.
-# * name:        Element name.
-# * updated_at:  Managed by ActiveRecord.
+# * `created_at`  Managed by ActiveRecord.
+# * `description` Optional information about the element.
+# * `name`        Element name.
+# * `updated_at`  Managed by ActiveRecord.
 #
 class Element < ApplicationRecord
 
@@ -22,8 +23,8 @@ class Element < ApplicationRecord
   before_destroy :restrict_delete_of_used_elements
 
   ##
-  # @param struct [Hash] Deserialized hash from JSON.parse()
-  # @return [Element] New non-persisted AvailableElement
+  # @param struct [Hash] Deserialized JSON structure.
+  # @return [Element] New non-persisted instance.
   #
   def self.from_json_struct(struct)
     e = Element.new
@@ -74,9 +75,7 @@ class Element < ApplicationRecord
           AND collections.public_in_medusa = true
         ORDER BY collection_id, item_id, entity_elements.name,
           entity_elements.value ASC"
-
     values = [[nil, self.name]]
-
     ActiveRecord::Base.connection.exec_query(sql, 'SQL', values)
   end
 

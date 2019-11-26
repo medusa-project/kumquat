@@ -1,13 +1,12 @@
 ##
-# A vocabulary is a list of terms (values) that can be set as values of an
-# ItemElement. This list may be controlled (curated/restricted) or uncontrolled
-# (anything goes).
+# List of terms (values) that can be set as values of an {ItemElement}. This
+# list may be controlled (curated/restricted) or uncontrolled (anything goes).
 #
-# MetadataProfileElements should be associated with one or more vocabularies.
-# By default, new MetadataProfileElement instances are associated with the
+# {MetadataProfileElement}s should be associated with one or more vocabularies.
+# By default, new {MetadataProfileElement} instances are associated with the
 # uncontrolled vocabulary instance, which signifies that they may contain any
 # value. The application depends on this instance (with a key of
-# "uncontrolled") always existing.
+# `uncontrolled`) always existing.
 #
 class Vocabulary < ApplicationRecord
 
@@ -26,8 +25,8 @@ class Vocabulary < ApplicationRecord
   UNCONTROLLED_KEY = 'uncontrolled'
 
   ##
-  # @param json [String] JSON string from as_json()
-  # @return [Vocabulary] Persisted Vocabulary
+  # @param json [String] JSON string from {as_json}.
+  # @return [Vocabulary] Persisted instance.
   # @raises [ArgumentError] If a vocabulary with the same key or name already
   #                         exists.
   #

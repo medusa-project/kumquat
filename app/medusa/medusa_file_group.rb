@@ -2,7 +2,7 @@
 # Represents a Medusa file group.
 #
 # Instances' properties are loaded from Medusa automatically and cached.
-# Acquire instances with `with_uuid()`.
+# Acquire instances with {with_uuid}.
 #
 class MedusaFileGroup < ApplicationRecord
 

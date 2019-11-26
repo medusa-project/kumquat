@@ -2,7 +2,7 @@
 # Represents a Medusa CFS directory node.
 #
 # Instances' properties are loaded from Medusa automatically and cached.
-# Acquire instances with `with_uuid()`.
+# Acquire instances with {with_uuid}.
 #
 class MedusaCfsDirectory < ApplicationRecord
 
@@ -42,7 +42,7 @@ class MedusaCfsDirectory < ApplicationRecord
   end
 
   ##
-  # If set to a JSON tree from a Medusa show_tree.json endpoint, that will
+  # If set to a JSON tree from a Medusa `show_tree.json` endpoint, that will
   # be used instead of making live requests.
   #
   # @param tree [Hash]
@@ -105,7 +105,7 @@ class MedusaCfsDirectory < ApplicationRecord
 
   ##
   # @return [void]
-  # @raises [RuntimeError] If the instance's ID is not set
+  # @raises [RuntimeError] If the instance's ID is not set.
   # @raises [HTTPClient::BadResponseError]
   #
   def load_contents
@@ -122,7 +122,7 @@ class MedusaCfsDirectory < ApplicationRecord
     end
 
     ##
-    # Creates a MedusaCfsDirectory/MedusaCfsFile structure analogous to the
+    # Creates a {MedusaCfsDirectory}/{MedusaCfsFile} structure analogous to the
     # given JSON argument.
     #
     # @return [void]

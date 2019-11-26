@@ -6,22 +6,22 @@
 # in the OAI-PMH endpoint; etc.
 #
 # A metadata profile is like a template or view. Instead of enumerating an
-# Item's metadata elements for public display, we enumerate the elements in its
-# collection's metadata profile, and display each of its elements that match,
-# in profile order.
+# {Item}'s metadata elements for public display, we enumerate the elements in
+# its {Collection}'s metadata profile, and display each of its elements that
+# match in profile order.
 #
 # # Attributes
 #
-# * name:                        The name of the metadata profile.
-# * created_at:                  Managed by ActiveRecord.
-# * default:                     Whether the metadata profile is used in cross-
-#                                collection contexts. (Only one metadata
-#                                profile can be marked default--this is
-#                                enforced by an after_save callback.)
-# * default_sortable_element_id: ID of the MetadataProfileElement that is
-#                                sorted on by default (in the absence of a
-#                                different user choice).
-# * updated_at:                  Managed by ActiveRecord.
+# * `name`                        The name of the metadata profile.
+# * `created_at`                  Managed by ActiveRecord.
+# * `default`                     Whether the metadata profile is used in cross-
+#                                 collection contexts. (Only one metadata
+#                                 profile can be marked default--this is
+#                                 enforced by an `after_save` callback.)
+# * `default_sortable_element_id` ID of the {MetadataProfileElement} that is
+#                                 sorted on by default (in the absence of a
+#                                 different user choice).
+# * `updated_at`                  Managed by ActiveRecord.
 #
 class MetadataProfile < ApplicationRecord
 
@@ -78,7 +78,7 @@ class MetadataProfile < ApplicationRecord
   end
 
   ##
-  # @param json [String] JSON string from as_json()
+  # @param json [String] JSON string from {as_json}.
   # @return [MetadataProfile] Persisted MetadataProfile
   # @raises [RuntimeError] If a vocabulary associated with an element does not
   #                        exist
@@ -137,7 +137,7 @@ class MetadataProfile < ApplicationRecord
   end
 
   ##
-  # Will save the instance of its ID is nil.
+  # Will save the instance if its ID is nil.
   #
   # @return [void]
   #
@@ -156,7 +156,7 @@ class MetadataProfile < ApplicationRecord
 
   ##
   # Overrides parent to serialize an instance to JSON with its child
-  # MetadataProfileElements included.
+  # {MetadataProfileElement}s included.
   #
   # @param options [Hash]
   # @return [String]

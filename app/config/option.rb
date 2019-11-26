@@ -1,5 +1,5 @@
 ##
-# Encapsulates a key-value option. Keys should be one of the Option::Keys
+# Encapsulates a key-value option. Keys should be one of the {Option::Keys}
 # constants. Values are stored as JSON internally. Simple values can be
 # accessed using the boolean, integer, or string class methods.
 #

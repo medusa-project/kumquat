@@ -1,10 +1,10 @@
 ##
 # Content in a Medusa file group is organized (in terms of its folder
 # structure, naming scheme, etc.) according to a package profile. An instance
-# of this class representing a given profile is associated with a [Collection]
+# of this class representing a given profile is associated with a {Collection}
 # representing a Medusa collection.
 #
-# [Documentation of profiles](https://wiki.illinois.edu/wiki/display/LibraryDigitalPreservation/Digital+Library+Package+Profiles)
+# @see [Documentation of profiles](https://wiki.illinois.edu/wiki/display/LibraryDigitalPreservation/Digital+Library+Package+Profiles)
 #
 class PackageProfile
 

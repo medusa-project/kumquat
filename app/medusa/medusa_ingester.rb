@@ -3,11 +3,14 @@ class MedusaIngester
   class IngestMode
     # Creates new DLS entities but does not touch existing DLS entities.
     CREATE_ONLY = :create_only
+
     # Deletes DLS entities that have gone missing in Medusa, but does not
     # create or update anything.
     DELETE_MISSING = :delete_missing
+
     # Replaces items' metadata with that found in embedded metadata.
     REPLACE_METADATA = :replace_metadata
+
     # Recreates existing items' binaries.
     RECREATE_BINARIES = :recreate_binaries
   end
@@ -23,8 +26,8 @@ class MedusaIngester
   # @option options [Boolean] :extract_metadata
   # @option options [Boolean] :include_date_created
   # @param task [Task] Supply to receive progress updates.
-  # @return [Hash<Symbol,Integer>] Hash with :num_created, :num_skipped,
-  #                                and :num_walked keys.
+  # @return [Hash<Symbol,Integer>] Hash with `:num_created`, `:num_skipped`,
+  #                                and `:num_walked` keys.
   # @raises [ArgumentError] If the collection's file group or package profile
   #                         are not set or invalid.
   # @raises [IllegalContentError]
@@ -38,7 +41,7 @@ class MedusaIngester
   #
   # @param collection [Collection]
   # @param task [Task] Supply to receive status updates.
-  # @return [Hash<Symbol,Integer>] Hash with :num_deleted key.
+  # @return [Hash<Symbol,Integer>] Hash with `:num_deleted` key.
   # @raises [IllegalContentError]
   # @raises [ArgumentError] If the collection's file group or package profile
   #                         are not set or invalid.
@@ -53,7 +56,7 @@ class MedusaIngester
   #
   # @param collection [Collection]
   # @param task [Task] Supply to receive progress updates.
-  # @return [Hash<Symbol,Integer>] Hash with a :num_updated key.
+  # @return [Hash<Symbol,Integer>] Hash with a `:num_updated` key.
   # @raises [ArgumentError] If the collection's file group or package profile
   #                         are not set or invalid.
   #
@@ -113,13 +116,13 @@ class MedusaIngester
   # the DLS.
   #
   # @param collection [Collection]
-  # @param sync_mode [Symbol] Value of one of the IngestMode constants.
+  # @param sync_mode [Symbol] Value of one of the {IngestMode} constants.
   # @param options [Hash] Options hash.
   # @option options [Boolean] :extract_metadata
   # @option options [Boolean] :include_date_created
   # @param task [Task] Supply to receive progress updates.
-  # @return [Hash<Symbol,Integer>] Hash with :num_created, :num_skipped,
-  #                                and :num_walked keys.
+  # @return [Hash<Symbol,Integer>] Hash with `:num_created`, `:num_skipped`,
+  #                                and `:num_walked` keys.
   # @raises [ArgumentError] If the collection's file group or package profile
   #                         are not set or invalid.
   # @raises [IllegalContentError]
@@ -145,7 +148,7 @@ class MedusaIngester
   #
   # @param collection [Collection]
   # @param task [Task] Supply to receive progress updates.
-  # @return [Hash<Symbol,Integer>] Hash with a :num_updated key.
+  # @return [Hash<Symbol,Integer>] Hash with a `:num_updated` key.
   # @raises [ArgumentError] If the collection's file group or package profile
   #                         are not set or invalid.
   # @raises [IllegalContentError]

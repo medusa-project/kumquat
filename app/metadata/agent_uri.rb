@@ -1,5 +1,5 @@
 ##
-# N.B. Every instance must have a corresponding VocabularyTerm instance.
+# N.B. Every instance must have a corresponding {VocabularyTerm} instance.
 # These are auto-managed by ActiveRecord callbacks.
 #
 class AgentUri < ApplicationRecord

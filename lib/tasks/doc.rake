@@ -1,4 +1,4 @@
-namespace :docs do
+namespace :doc do
 
   desc 'Generate documentation'
   task :generate => :environment do |task, args|

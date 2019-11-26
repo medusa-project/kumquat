@@ -3,30 +3,32 @@
 #
 # # Attributes
 #
-# * created_at:          Managed by ActiveRecord.
-# * data_type:           One of the DataType constant values.
-# * dc_map:              Name of a Dublin Core element (unqualified) to which
-#                        the element can be mapped.
-# * dcterms_map:         Name of a Dublin Core term to which the element can be
-#                        mapped.
-# * facetable:           Whether the element is used to provide facets in
-#                        results views.
-# * index:               Zero-based position within the metadata profile.
-# * indexed:             Whether the element is added to Item/Collection/etc.
-#                        indexed documents.
-# * label:               Element label. Often overrides `name` for end-user
-#                        display.
-# * metadata_profile_id: Metadata profile ID. Foreign key.
-# * name:                Element name.
-# * searchable:          Whether users can search on the element.
-# * sortable:            Whether results can be sorted on the element.
-# * updated_at:          Managed by ActiveRecord.
-# * visible:             Whether the element is visible to users.
+# * `created_at`          Managed by ActiveRecord.
+# * `data_type`           One of the {MetadataProfileElement::DataType}
+#                         constant values.
+# * `dc_map`              Name of a Dublin Core element (unqualified) to which
+#                         the element can be mapped.
+# * `dcterms_map`         Name of a Dublin Core term to which the element can
+#                         be mapped.
+# * `facetable`           Whether the element is used to provide facets in
+#                         results views.
+# * `index`               Zero-based position within the owning
+#                         {MetadataProfile}.
+# * `indexed`             Whether the element is added to
+#                         {Item}/{Collection}/etc. indexed documents.
+# * `label`               Element label. Often overrides `name` for end-user
+#                         display.
+# * `metadata_profile_id` Metadata profile ID. Foreign key.
+# * `name`                Element name.
+# * `searchable`          Whether users can search on the element.
+# * `sortable`            Whether results can be sorted on the element.
+# * `updated_at`          Managed by ActiveRecord.
+# * `visible`             Whether the element is visible to users.
 #
 class MetadataProfileElement < ApplicationRecord
 
   ##
-  # Allowed data types for the `MetadataProfileElement.data_type` attribute.
+  # Allowed data types for the {data_type} attribute.
   #
   class DataType
     SINGLE_LINE_STRING = 0
@@ -104,7 +106,7 @@ class MetadataProfileElement < ApplicationRecord
   private
 
   ##
-  # Updates the indexes of all elements in the owning metadata profile to
+  # Updates the indexes of all elements in the owning {MetadataProfile} to
   # ensure that they are sequential.
   #
   def adjust_profile_element_indexes_after_create
@@ -121,7 +123,7 @@ class MetadataProfileElement < ApplicationRecord
   end
 
   ##
-  # Updates the indexes of all elements in the owning metadata profile to
+  # Updates the indexes of all elements in the owning {MetadataProfile} to
   # ensure that they are sequential and zero-based.
   #
   def adjust_profile_element_indexes_after_destroy
@@ -137,7 +139,7 @@ class MetadataProfileElement < ApplicationRecord
   end
 
   ##
-  # Updates the indexes of all elements in the owning metadata profile to
+  # Updates the indexes of all elements in the owning {MetadataProfile} to
   # ensure that they are sequential.
   #
   def adjust_profile_element_indexes_after_update

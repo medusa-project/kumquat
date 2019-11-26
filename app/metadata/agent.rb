@@ -148,14 +148,14 @@ class Agent < ApplicationRecord
   end
 
   ##
-  # Alias of id.
+  # Alias of {id}.
   #
   def repository_id
     id
   end
 
   ##
-  # Alias of name().
+  # Alias of {name}.
   #
   # @return [String]
   #

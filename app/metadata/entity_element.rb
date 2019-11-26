@@ -1,6 +1,6 @@
 ##
-# Encapsulates a metadata element attached to an entity such as an Item or
-# Collection. An element has a name matching any of the Element names.
+# Encapsulates a metadata element attached to an entity such as an {Item} or
+# {Collection}. Has a name matching any of the {Element} names.
 #
 # This class is "abstract" and intended to be used as a base class with
 # single-table inheritance.
@@ -58,6 +58,9 @@ class EntityElement < ApplicationRecord
     values.join(ItemTsvExporter::MULTI_VALUE_SEPARATOR)
   end
 
+  ##
+  # @return [Agent]
+  #
   def agent
     agent = nil
     if self.uri.present?
@@ -76,7 +79,7 @@ class EntityElement < ApplicationRecord
 
   ##
   # @return [String] Name of the indexed field for the instance.
-  # @see indexed_keyword_field()
+  # @see indexed_keyword_field
   #
   def indexed_field
     [INDEX_FIELD_PREFIX, self.name].join
@@ -84,7 +87,7 @@ class EntityElement < ApplicationRecord
 
   ##
   # @return [String] Name of the indexed keyword field for the instance.
-  # @see indexed_field()
+  # @see indexed_field
   #
   def indexed_keyword_field
     [INDEX_FIELD_PREFIX, self.name, KEYWORD_FIELD_SUFFIX].join
@@ -92,7 +95,7 @@ class EntityElement < ApplicationRecord
 
   ##
   # @return [String] Name of the indexed sort field for the instance.
-  # @see indexed_field()
+  # @see indexed_field
   #
   def indexed_sort_field
     [INDEX_FIELD_PREFIX, self.name, SORT_FIELD_SUFFIX].join

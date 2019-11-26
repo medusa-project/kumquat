@@ -191,3 +191,8 @@ ActiveJob API backed by Delayed::Job. After firing one of these off, use
 
 Delayed::Job can also run continually, using `bin/rails jobs:work`. This is
 how it runs in production, but it won't pick up code changes while running.
+
+# Documentation
+
+The `rake doc:generate` command invokes YARD to generate HTML documentation
+for the code base.

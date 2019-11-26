@@ -1,5 +1,5 @@
 ##
-# Logging class that enhances Rails.logger with string formatting.
+# Logging class that enhances {Rails#logger} with string formatting.
 #
 class CustomLogger
 

@@ -1,5 +1,5 @@
 ##
-# Converts images using the IIIF image server.
+# Converts images using the image server.
 #
 class IiifImageConverter
 

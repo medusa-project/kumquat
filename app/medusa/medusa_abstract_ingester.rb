@@ -1,3 +1,6 @@
+##
+# Abstract base class for Medusa content ingesters.
+#
 class MedusaAbstractIngester
 
   LOGGER = CustomLogger.new(MedusaAbstractIngester)
@@ -8,7 +11,7 @@ class MedusaAbstractIngester
   #
   # @param collection [Collection]
   # @param task [Task] Supply to receive progress updates.
-  # @return [Hash<Symbol,Integer>] Hash with a :num_updated key.
+  # @return [Hash<Symbol,Integer>] Hash with a `:num_updated` key.
   # @raises [ArgumentError] If the collection's file group or package profile
   #                         are not set, or if the file group is invalid.
   #

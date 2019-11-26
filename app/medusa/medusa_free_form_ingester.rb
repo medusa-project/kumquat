@@ -1,8 +1,9 @@
 ##
-# Syncs items in collections that use the Free-Form package profile.
+# Syncs items in collections that use the {PackageProfile::FREE_FORM_PROFILE
+# Free-Form package profile}.
 #
 # Clients that don't want to concern themselves with package profiles can
-# use MedusaIngester instead.
+# use {MedusaIngester} instead.
 #
 class MedusaFreeFormIngester < MedusaAbstractIngester
 
@@ -43,8 +44,8 @@ class MedusaFreeFormIngester < MedusaAbstractIngester
   # @option options [Boolean] :extract_metadata
   # @option options [Boolean] :include_date_created
   # @param task [Task] Supply to receive progress updates.
-  # @return [Hash<Symbol,Integer>] Hash with :num_created, :num_skipped,
-  #                                and :num_walked keys.
+  # @return [Hash<Symbol,Integer>] Hash with `:num_created`, `:num_skipped`,
+  #                                and `:num_walked` keys.
   # @raises [ArgumentError] If the collection's file group or package profile
   #                         are not set or invalid.
   # @raises [IllegalContentError]
@@ -106,8 +107,9 @@ class MedusaFreeFormIngester < MedusaAbstractIngester
   #
   # @param collection [Collection]
   # @param task [Task] Supply to receive progress updates.
-  # @return [Hash<Symbol, Integer>] Hash with :num_created key referring to the
-  #                                 total number of binaries in the collection.
+  # @return [Hash<Symbol, Integer>] Hash with `:num_created` key referring to
+  #                                 the total number of binaries in the
+  #                                 collection.
   # @raises [ArgumentError] If the collection's file group or package profile
   #                         are not set or invalid.
   # @raises [IllegalContentError]
@@ -163,8 +165,8 @@ class MedusaFreeFormIngester < MedusaAbstractIngester
   # @param status [Hash]
   # @param task [Task] Supply to receive status updates.
   # @param num_nodes [Integer]
-  # @return [Hash<Symbol,Integer>] Hash with :num_created, :num_skipped, and
-  #                                :num_walked keys.
+  # @return [Hash<Symbol,Integer>] Hash with `:num_created`, `:num_skipped`,
+  #                                and `:num_walked` keys.
   #
   def create_items_in_tree(collection, cfs_dir, top_cfs_dir, options, status,
                            task = nil, num_nodes = 0)
@@ -262,8 +264,9 @@ class MedusaFreeFormIngester < MedusaAbstractIngester
   # @param task [Task] Supply to receive progress updates.
   # @param num_nodes [Integer]
   # @param num_walked [Integer] For internal use.
-  # @return [Hash<Symbol, Integer>] Hash with :num_created key referring to the
-  #                                 total number of binaries in the collection.
+  # @return [Hash<Symbol, Integer>] Hash with `:num_created` key referring to
+  #                                 the total number of binaries in the
+  #                                 collection.
   #
   def recreate_binaries_in_tree(cfs_dir, top_cfs_dir, stats, task = nil,
                               num_nodes = 0, num_walked = 0)

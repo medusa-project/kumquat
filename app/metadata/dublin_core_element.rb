@@ -2,7 +2,12 @@ class DublinCoreElement
 
   @@elements = YAML::load_file(File.join(__dir__, 'dublin_core_elements.yml'))
 
+  # @!attribute label
+  #   @return [String] Human-readable label.
   attr_accessor :label
+
+  # @!attribute name
+  #   @return [String] Element name.
   attr_accessor :name
 
   def self.all
@@ -16,8 +21,11 @@ class DublinCoreElement
     elements
   end
 
+  ##
+  # @return [DublinCoreElement]
+  #
   def self.label_for(element_name)
-    self.all.select{ |e| e.name == element_name }.first&.label
+    self.all.find{ |e| e.name == element_name }&.label
   end
 
 end

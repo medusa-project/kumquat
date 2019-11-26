@@ -1,18 +1,20 @@
 ##
-# Syncs items in collections that use the Compound Object package profile.
+# Syncs items in collections that use the
+# {PackageProfile::COMPOUND_OBJECT_PROFILE Compound Object package profile}.
 #
 # The compound object profile looks like:
-# * item_dir
-#     * access
-#         * page1.jp2
-#         * page2.jp2
-#     * preservation
-#         * page1.tif
-#         * page2.tif
-#     * supplementary (optional)
-#         * file (0-*)
-#     * composite
-#         * file (0-*)
+#
+# * `item_dir`
+#     * `access`
+#         * `page_001.jp2`
+#         * `page_002.jp2`
+#     * `preservation`
+#         * `page_001.tif`
+#         * `page_002.tif`
+#     * `supplementary` (optional)
+#         * `file` (0-*)
+#     * `composite`
+#         * `file` (0-*)
 #
 class MedusaCompoundObjectIngester < MedusaAbstractIngester
 
@@ -47,8 +49,8 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
   # @option options [Boolean] :extract_metadata
   # @option options [Boolean] :include_date_created
   # @param task [Task] Supply to receive progress updates.
-  # @return [Hash<Symbol,Integer>] Hash with :num_created, :num_updated,
-  #                                and :num_skipped keys.
+  # @return [Hash<Symbol,Integer>] Hash with `:num_created`, `:num_updated`,
+  #                                and `:num_skipped` keys.
   # @raises [ArgumentError] If the collection's file group or package profile
   #                         are not set, or if the file group is invalid.
   # @raises [IllegalContentError]
@@ -228,7 +230,7 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
   #
   # @param collection [Collection]
   # @param task [Task] Supply to receive status updates.
-  # @return [Hash<Symbol,Integer>] Hash with :num_deleted key.
+  # @return [Hash<Symbol,Integer>] Hash with `:num_deleted` key.
   # @raises [ArgumentError] If the collection's file group or package profile
   #                         are not set, or if the file group is invalid.
   # @raises [IllegalContentError]
@@ -269,8 +271,9 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
   #
   # @param collection [Collection]
   # @param task [Task] Supply to receive status updates.
-  # @return [Hash<Symbol, Integer>] Hash with :num_created key referring to the
-  #                                 total number of binaries in the collection.
+  # @return [Hash<Symbol, Integer>] Hash with `:num_created` key referring to
+  #                                 the total number of binaries in the
+  #                                 collection.
   # @raises [ArgumentError] If the collection's file group or package profile
   #                         are not set, or if the file group is invalid.
   #

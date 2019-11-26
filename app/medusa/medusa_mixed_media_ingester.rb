@@ -1,29 +1,30 @@
 ##
-# Syncs items in collections that use the Mixed Media package profile.
+# Syncs items in collections that use the {PackageProfile::MIXED_MEDIA_PROFILE
+# Mixed Media package profile}.
 #
 # The mixed media profile looks like:
-# * item_dir
-#     * child_dir
-#         * access
-#             * 3d (optional)
-#                 * file
-#             * audio (optional)
-#                 * file
-#             * images (optional)
-#                 * file
-#             * video (optional)
-#                 * file
-#         * preservation
-#             * 3d (optional)
-#                 * file
-#             * audio (optional)
-#                 * file
-#             * images (optional)
-#                 * file
-#             * video (optional)
-#                 * file
-#         * supplementary (optional)
-#             * file (0-*)
+# * `item_dir`
+#     * `child_dir`
+#         * `access`
+#             * `3d` (optional)
+#                 * `file`
+#             * `audio` (optional)
+#                 * `file`
+#             * `images` (optional)
+#                 * `file`
+#             * `video` (optional)
+#                 * `file`
+#         * `preservation`
+#             * `3d` (optional)
+#                 * `file`
+#             * `audio` (optional)
+#                 * `file`
+#             * `images` (optional)
+#                 * `file`
+#             * `video` (optional)
+#                 * `file`
+#         * `supplementary` (optional)
+#             * `file` (0-*)
 #
 # @see https://wiki.illinois.edu/wiki/display/LibraryDigitalPreservation/Mixed-Media+Object+package
 #
@@ -58,8 +59,8 @@ class MedusaMixedMediaIngester < MedusaAbstractIngester
   # @option options [Boolean] :extract_metadata
   # @option options [Boolean] :include_date_created
   # @param task [Task] Supply to receive progress updates.
-  # @return [Hash<Symbol,Integer>] Hash with :num_created, :num_updated,
-  #                                and :num_skipped keys.
+  # @return [Hash<Symbol,Integer>] Hash with `:num_created`, `:num_updated`,
+  #                                and `:num_skipped` keys.
   # @raises [ArgumentError] If the collection's file group or package profile
   #                         are not set, or if the file group is invalid.
   # @raises [IllegalContentError]
@@ -237,7 +238,7 @@ class MedusaMixedMediaIngester < MedusaAbstractIngester
   #
   # @param collection [Collection]
   # @param task [Task] Supply to receive status updates.
-  # @return [Hash<Symbol,Integer>] Hash with :num_deleted key.
+  # @return [Hash<Symbol,Integer>] Hash with `:num_deleted` key.
   # @raises [ArgumentError] If the collection's file group or package profile
   #                         are not set, or if the file group is invalid.
   # @raises [IllegalContentError]
@@ -279,8 +280,8 @@ class MedusaMixedMediaIngester < MedusaAbstractIngester
   #
   # @param collection [Collection]
   # @param task [Task] Supply to receive status updates.
-  # @return [Hash<Symbol, Integer>] Hash with :num_created key referring to the
-  #                                 number of created binaries.
+  # @return [Hash<Symbol, Integer>] Hash with `:num_created` key referring to
+  #                                 the number of created binaries.
   # @raises [ArgumentError] If the collection's file group or package profile
   #                         are not set, or if the file group is invalid.
   #
@@ -442,9 +443,9 @@ class MedusaMixedMediaIngester < MedusaAbstractIngester
   end
 
   ##
-  # @param type [String] Name of a directory within a "preservation" or
-  #                      "access" directory.
-  # @return [Integer] One of the Binary::MediaCategory constant values.
+  # @param type [String] Name of a directory within a `preservation` or
+  #                      `access` directory.
+  # @return [Integer] One of the {Binary::MediaCategory} constant values.
   #
   def media_category_for_master_type(type)
     case type

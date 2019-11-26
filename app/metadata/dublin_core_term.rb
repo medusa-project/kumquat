@@ -16,8 +16,11 @@ class DublinCoreTerm
     elements
   end
 
+  ##
+  # @return [DublinCoreTerm]
+  #
   def self.label_for(element_name)
-    self.all.select{ |e| e.name == element_name }.first&.label
+    self.all.find{ |e| e.name == element_name }&.label
   end
 
 end

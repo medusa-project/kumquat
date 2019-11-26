@@ -1,8 +1,9 @@
 ##
-# Syncs items in collections that use the Single-Item Object package profile.
+# Syncs items in collections that use the
+# {PackageProfile::SINGLE_ITEM_OBJECT_PROFILE Single-Item Object package profile}.
 #
 # Clients that don't want to concern themselves with package profiles can
-# use MedusaIngester instead.
+# use {MedusaIngester} instead.
 #
 # @see https://wiki.illinois.edu/wiki/display/LibraryDigitalPreservation/Single-item+Object+Package
 #
@@ -15,7 +16,8 @@ class MedusaSingleItemIngester < MedusaAbstractIngester
   # @param options [Hash]
   # @option options [Boolean] :extract_metadata
   # @param task [Task] Supply to receive progress updates.
-  # @return [Hash<Symbol,Integer>] Hash with :num_created and :num_skipped keys.
+  # @return [Hash<Symbol,Integer>] Hash with `:num_created` and `:num_skipped`
+  #                                keys.
   # @raises [ArgumentError] If the collection's file group or package profile
   #                         are not set or invalid.
   #
@@ -73,7 +75,7 @@ class MedusaSingleItemIngester < MedusaAbstractIngester
   ##
   # @param collection [Collection]
   # @param task [Task] Supply to receive status updates.
-  # @return [Hash<Symbol,Integer>] Hash with :num_deleted key.
+  # @return [Hash<Symbol,Integer>] Hash with `:num_deleted` key.
   # @raises [IllegalContentError]
   # @raises [ArgumentError] If the collection's file group or package profile
   #                         are not set or invalid.
@@ -111,8 +113,9 @@ class MedusaSingleItemIngester < MedusaAbstractIngester
   ##
   # @param collection [Collection]
   # @param task [Task] Supply to receive status updates.
-  # @return [Hash<Symbol, Integer>] Hash with :num_created key referring to the
-  #                                 total number of binaries in the collection.
+  # @return [Hash<Symbol, Integer>] Hash with `:num_created` key referring to
+  #                                 the total number of binaries in the
+  #                                 collection.
   # @raises [ArgumentError] If the collection's file group or package profile
   #                         are not set or invalid.
   #
