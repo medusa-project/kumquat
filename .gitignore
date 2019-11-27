@@ -21,5 +21,3 @@
 /config/credentials/development.yml
 /config/credentials/test.yml
 
-# Ignore this submodule.
-/rails-container-scripts
