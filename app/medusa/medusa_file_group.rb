@@ -42,7 +42,7 @@ class MedusaFileGroup < ApplicationRecord
   def load_from_medusa
     raise 'load_from_medusa() called without UUID set' unless self.uuid.present?
 
-    client = MedusaClient.new
+    client = MedusaClient.instance
     response = client.get(self.url + '.json')
 
     if response.status < 300

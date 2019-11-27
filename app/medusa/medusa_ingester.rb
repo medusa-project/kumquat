@@ -77,7 +77,7 @@ class MedusaIngester
 
     # Download the list of collections from Medusa.
     LOGGER.info('sync_collections(): downloading collection list')
-    client = MedusaClient.new
+    client = MedusaClient.instance
     response = client.get(url)
 
     if response.status == 200

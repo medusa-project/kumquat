@@ -1,28 +1,9 @@
+##
+# High-level client for the Medusa Collection Registry.
+#
 class MedusaClient
 
-  @@client = nil
-
-  ##
-  # @return [HTTPClient] With auth credentials already set.
-  #
-  def self.http_client
-    unless @@client
-      @@client = HTTPClient.new do
-        config = Configuration.instance
-        # use the OS cert store
-        self.ssl_config.cert_store.set_default_paths
-        self.ssl_config.verify_mode = OpenSSL::SSL::VERIFY_NONE
-        self.force_basic_auth = true
-        self.receive_timeout = 10000
-        uri = URI.parse(config.medusa_url)
-        domain = uri.scheme + '://' + uri.host
-        user = config.medusa_user
-        secret = config.medusa_secret
-        self.set_auth(domain, user, secret)
-      end
-    end
-    @@client
-  end
+  include Singleton
 
   ##
   # @param uuid [String]
@@ -51,7 +32,7 @@ class MedusaClient
 
   def get(url, *args)
     args = merge_args(args)
-    self.class.http_client.get(url, args)
+    http_client.get(url, args)
   end
 
   def get_uuid(url, *args)
@@ -60,10 +41,32 @@ class MedusaClient
 
   def head(url, *args)
     args = merge_args(args)
-    self.class.http_client.head(url, args)
+    http_client.head(url, args)
   end
 
   private
+
+  ##
+  # @return [HTTPClient] With auth credentials already set.
+  #
+  def http_client
+    unless @client
+      @client = HTTPClient.new do
+        config = Configuration.instance
+        # use the OS cert store
+        self.ssl_config.cert_store.set_default_paths
+        #self.ssl_config.verify_mode = OpenSSL::SSL::VERIFY_NONE
+        self.force_basic_auth = true
+        self.receive_timeout = 10000
+        uri = URI.parse(config.medusa_url)
+        domain = uri.scheme + '://' + uri.host
+        user = config.medusa_user
+        secret = config.medusa_secret
+        self.set_auth(domain, user, secret)
+      end
+    end
+    @client
+  end
 
   def merge_args(args)
     extra_args = { follow_redirect: true }

@@ -33,7 +33,7 @@ class MedusaRepository < ApplicationRecord
     raise 'load_from_medusa() called without ID set' unless
         self.medusa_database_id.present?
 
-    client = MedusaClient.new
+    client = MedusaClient.instance
     response = client.get(self.url + '.json')
 
     if response.status < 300

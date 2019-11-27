@@ -15,7 +15,7 @@ class MedusaFreeFormIngester < MedusaAbstractIngester
   #
   def self.parent_id_from_medusa(item_id)
     parent_id = nil
-    client = MedusaClient.new
+    client = MedusaClient.instance
     response = client.get_uuid(item_id)
     if response.status < 300
       json = response.body

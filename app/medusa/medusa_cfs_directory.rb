@@ -60,7 +60,7 @@ class MedusaCfsDirectory < ApplicationRecord
   def load_from_medusa
     raise 'load_from_medusa() called without UUID set' unless self.uuid.present?
 
-    client = MedusaClient.new
+    client = MedusaClient.instance
     response = client.get(self.url + '.json')
 
     if response.status < 300
@@ -116,7 +116,7 @@ class MedusaCfsDirectory < ApplicationRecord
       url = Configuration.instance.medusa_url.chomp('/') +
           '/cfs_directories/' + self.medusa_database_id.to_s + '/show_tree.json'
       LOGGER.debug('load_contents(): %s', url)
-      client = MedusaClient.new
+      client = MedusaClient.instance
       json_str = client.get(url, follow_redirect: true).body
       tree = JSON.parse(json_str)
     end

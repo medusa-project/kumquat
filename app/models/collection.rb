@@ -797,7 +797,7 @@ class Collection < ApplicationRecord
       raise ActiveRecord::RecordNotFound,
             'update_from_medusa() called without repository_id set'
     end
-    client = MedusaClient.new
+    client = MedusaClient.instance
     response = client.get(self.medusa_url('json'))
     json_str = response.body
     begin
@@ -871,7 +871,7 @@ class Collection < ApplicationRecord
   end
 
   def validate_medusa_uuids
-    client = MedusaClient.new
+    client = MedusaClient.instance
     if self.medusa_file_group_id.present? and
         self.medusa_file_group_id_changed? and
         client.class_of_uuid(self.medusa_file_group_id) != MedusaFileGroup
