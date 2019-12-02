@@ -1,3 +1,20 @@
+demo:
+  host: <%= ENV['SHIBBOLETH_HOST'] %>
+  uid_field: eppn
+  extra_fields:
+    - eppn
+    - givenName
+    - mail
+    - org_dn
+    - sn
+    - telephoneNumber
+    - uid
+    - entitlement
+    - unscoped_affiliation
+  request_type: header
+  info_fields:
+    email: mail
+
 production:
   host: <%= ENV['SHIBBOLETH_HOST'] %>
   uid_field: eppn
