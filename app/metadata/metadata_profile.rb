@@ -25,7 +25,8 @@
 #
 class MetadataProfile < ApplicationRecord
 
-  belongs_to :default_sortable_element, class_name: 'MetadataProfileElement'
+  belongs_to :default_sortable_element, class_name: 'MetadataProfileElement',
+             optional: true
   has_many :collections, inverse_of: :metadata_profile,
            dependent: :restrict_with_exception
   has_many :elements, -> { order(:index) },
