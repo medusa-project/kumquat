@@ -88,6 +88,7 @@ class Binary < ApplicationRecord
   end
 
   LOGGER = CustomLogger.new(Binary)
+  DEFAULT_MEDIA_TYPE = 'unknown/unknown'
 
   # touch: true means when the instance is saved, the owning item's updated_at
   # property will be updated.
@@ -302,7 +303,7 @@ class Binary < ApplicationRecord
         self.media_type = 'text/plain'
       end
     end
-    if self.media_type.blank?
+    if self.media_type.blank? or self.media_type == DEFAULT_MEDIA_TYPE
       # Try to infer the media type from the file header.
       begin
         # First, check the Content-Length response header in order to find the
@@ -323,8 +324,8 @@ class Binary < ApplicationRecord
         raise IOError, e
       end
       # If that failed, fall back to inferring it from the filename extension.
-      if self.media_type.blank?
-        self.media_type = MimeMagic.by_extension(ext)
+      if self.media_type.blank? or self.media_type == DEFAULT_MEDIA_TYPE
+        self.media_type = MimeMagic.by_extension(ext)&.type
       end
     end
   end
