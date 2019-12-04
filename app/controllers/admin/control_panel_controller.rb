@@ -4,7 +4,6 @@ module Admin
 
     layout 'admin/application'
 
-    before_action :signed_in_user, :can_access_control_panel
     after_action :flash_in_response_headers
 
     protected
@@ -22,16 +21,6 @@ module Admin
     private
 
     @keep_flash = false
-
-    ##
-    # @return [Boolean]
-    #
-    def can_access_control_panel
-      unless current_user.has_permission?(Permissions::ACCESS_CONTROL_PANEL)
-        flash['error'] = 'Access denied.'
-        redirect_to root_url
-      end
-    end
 
     ##
     # Stores the flash message and type ('error' or 'success') in the response

@@ -5,7 +5,6 @@
 #
 class Permissions
 
-  ACCESS_CONTROL_PANEL        = 'control_panel.access'
   MODIFY_COLLECTIONS          = 'collections.modify'
   MODIFY_ITEMS                = 'items.modify'
   MODIFY_ROLES                = 'roles.modify'

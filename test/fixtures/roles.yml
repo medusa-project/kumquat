@@ -5,7 +5,7 @@ admins:
   name: Administrators
   required: true
   permissions:
-    - can_access_control_panel
+    - modify_collections
 
 catalogers:
   key: catalogers
