@@ -5,13 +5,7 @@
 <%= admin_breadcrumb({ label: 'Home', url: admin_root_path },
                      { label: 'Users' }) %>
 
-<div class="btn-group float-right">
-  <%= link_to new_admin_user_path, class: 'btn btn-light' do %>
-    <i class="fa fa-plus"></i> New User
-  <% end %>
-</div>
-
-<h1>Users <small class="entity_count"></small></h1>
+<h1>Users</h1>
 
 <div id="users_table">
   <%= render 'users' %>

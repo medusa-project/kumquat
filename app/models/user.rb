@@ -5,14 +5,15 @@
 #
 # * `api_key`    Used as a secret/password for accessing the HTTP API.
 # * `created_at` Managed by ActiveRecord.
-# * `enabled`    Whether the user is authorized to sign in (or to do anything
-#                at all).
 # * `human`      Whether the user is associated with a human. Non-human users
 #                may be used by scripts etc.
 # * `updated_at` Managed by ActiveRecord.
 # * `username`   Username. For UIUC users, this is the NetID.
 #
 class User < ApplicationRecord
+
+  DEVELOPMENT_ADMIN_USERNAME = 'admin'
+  DEVELOPMENT_USER_USERNAME  = 'user'
 
   has_and_belongs_to_many :item_sets
   has_and_belongs_to_many :roles
@@ -23,14 +24,26 @@ class User < ApplicationRecord
   before_create :reset_api_key
 
   def has_permission?(key)
-    return true if self.is_admin?
+    return true if self.medusa_admin?
     self.roles_having_permission(key).any?
   end
 
   alias_method :can?, :has_permission?
 
-  def is_admin?
-    self.roles.where(key: 'admin').limit(1).any?
+  def medusa_admin?
+    if Rails.env.development? or Rails.env.test?
+      return self.username == DEVELOPMENT_ADMIN_USERNAME
+    end
+    group = Configuration.instance.medusa_admins_group
+    LdapQuery.new.is_member_of?(group, self.username)
+  end
+
+  def medusa_user?
+    if Rails.env.development? or Rails.env.test?
+      return self.username == DEVELOPMENT_USER_USERNAME
+    end
+    group = Configuration.instance.medusa_users_group
+    LdapQuery.new.is_member_of?(group, self.username)
   end
 
   def reset_api_key

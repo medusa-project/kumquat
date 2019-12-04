@@ -1,29 +1,18 @@
-<table class="table table-striped">
-  <thead>
-    <tr>
-      <th style="width:1%"></th>
-      <th>NetID</th>
-      <th>Type</th>
-      <th>Role(s)</th>
-    </tr>
-  </thead>
-  <tbody>
-    <% @users.each do |user| %>
-      <tr>
-        <td>
-          <span class="badge <%= user.enabled ? 'badge-success' : 'badge-danger' %>">
-            <%= user.enabled ? 'Enabled' : 'Disabled' %></span>
-        </td>
-        <td><%= link_to user.username, admin_user_path(user) %></td>
-        <td><%= user.human ? 'Human' : 'Non-Human' %></td>
-        <td>
-          <ul>
-            <% user.roles.each do |role| %>
-              <li><%= link_to role.name, admin_role_path(role) %></li>
-            <% end %>
-          </ul>
-        </td>
-      </tr>
-    <% end %>
-  </tbody>
-</table>
+<div class="btn-group float-right">
+  <%= link_to new_admin_user_path, class: 'btn btn-light' do %>
+    <i class="fa fa-plus"></i> New Non-Human User
+  <% end %>
+</div>
+
+<h2>Non-Human Users
+  <a tabindex="0" class="btn btn-sm btn-light popover-dismiss" role="button" data-toggle="popover"
+     data-trigger="focus"
+     data-content="These users are used for automated access by other
+     applications and scripts."><i class="fa fa-question-circle"></i></a>
+</h2>
+
+<ul>
+  <% @non_human_users.each do |user| %>
+    <li><%= link_to user.username, admin_user_path(user) %></li>
+  <% end %>
+</ul>

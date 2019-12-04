@@ -10,8 +10,8 @@ class SessionsController < WebsiteController
     auth_hash = request.env['omniauth.auth']
     if auth_hash and auth_hash[:uid]
       username = auth_hash[:uid].split('@').first
-      user = User.find_by_username(username)
-      if user and user.enabled
+      user = User.find_or_create_by!(username: username)
+      if user.medusa_admin? or user.medusa_user?
         return_url = clear_and_return_return_path
         sign_in user
         # We can access other information via auth_hash[:extra][:raw_info][key]
@@ -21,7 +21,8 @@ class SessionsController < WebsiteController
         return
       end
     end
-    flash['error'] = 'Sign-in failed.'
+    flash['error'] = sprintf('Sign-in failed. Ensure that you are a member '\
+                             'of the relevant AD group.')
     redirect_to root_url
   end
 

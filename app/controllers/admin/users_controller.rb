@@ -43,7 +43,7 @@ module Admin
         render 'new'
       else
         flash['success'] = "User #{user.username} created."
-        redirect_to admin_user_path(user)
+        redirect_to admin_users_path
       end
     end
 
@@ -68,53 +68,14 @@ module Admin
       end
     end
 
-    ##
-    # Responds to PATCH /users/:username/disable
-    #
-    def disable
-      user = User.find_by_username params[:user_username]
-      raise ActiveRecord::RecordNotFound unless user
-
-      user.enabled = false
-      begin
-        user.save!
-      rescue => e
-        handle_error(e)
-      else
-        flash['success'] = "User #{user.username} disabled."
-      ensure
-        redirect_back fallback_location: admin_user_path(user)
-      end
-    end
-
     def edit
       @user = User.find_by_username params[:username]
       raise ActiveRecord::RecordNotFound unless @user
       @roles = Role.all.order(:name)
     end
 
-    ##
-    # Responds to PATCH /users/:username/enable
-    #
-    def enable
-      user = User.find_by_username params[:user_username]
-      raise ActiveRecord::RecordNotFound unless user
-
-      user.enabled = true
-      begin
-        user.save!
-      rescue => e
-        handle_error(e)
-      else
-        flash['success'] = "User #{user.username} enabled."
-      ensure
-        redirect_back fallback_location: admin_user_path(user)
-      end
-    end
-
     def index
-      q = "%#{params[:q]}%"
-      @users = User.where('users.username LIKE ?', q).order('username')
+      @non_human_users = User.where(human: false).order(:username)
     end
 
     def new
@@ -159,7 +120,7 @@ module Admin
         render 'edit'
       else
         flash['success'] = "User #{@user.username} updated."
-        redirect_to admin_user_path(@user)
+        redirect_to admin_users_path
       end
     end
 
@@ -171,7 +132,7 @@ module Admin
     end
 
     def sanitized_params
-      params.require(:user).permit(:enabled, :human, :username, role_ids: [])
+      params.require(:user).permit(:human, :username, role_ids: [])
     end
 
   end

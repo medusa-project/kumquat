@@ -2,7 +2,6 @@
 
 admin:
   username: admin
-  enabled: true
   api_key: h6jkpC6YRRPVYPXhmfjQ1Q==
   human: true
   roles:

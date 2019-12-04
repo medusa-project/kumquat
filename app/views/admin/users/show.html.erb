@@ -6,32 +6,21 @@
                      { label: @user.username }) %>
 
 <div class="btn-group float-right" role="group">
-  <div class="btn-group">
-    <!-- Actions menu -->
-    <button type="button" class="btn btn-light dropdown-toggle"
-            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-      Actions <span class="caret"></span>
-    </button>
-    <div class="dropdown-menu" role="menu">
-      <% if @user.enabled %>
-        <%= link_to admin_user_disable_path(@user),
-                    method: :patch, class: 'dropdown-item' do %>
-          <i class="fa fa-times"></i> Disable
-        <% end %>
-      <% else %>
-        <%= link_to admin_user_enable_path(@user),
-                    method: :patch, class: 'dropdown-item' do %>
-          <i class="fa fa-check"></i> Enable
-        <% end %>
-      <% end %>
-      <% if @user == current_user %>
+  <% if @user == current_user %>
+    <div class="btn-group">
+      <!-- Actions menu -->
+      <button type="button" class="btn btn-light dropdown-toggle"
+              data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        Actions <span class="caret"></span>
+      </button>
+      <div class="dropdown-menu" role="menu">
         <%= link_to admin_user_reset_api_key_path(@user),
                     method: :post, class: 'dropdown-item' do %>
           <i class="fa fa-key"></i> Reset API Key
         <% end %>
-      <% end %>
+      </div>
     </div>
-  </div>
+  <% end %>
   <!-- Edit button -->
   <%= link_to edit_admin_user_path(@user), class: 'btn btn-light' do %>
     <i class="fas fa-pencil-alt"></i> Edit
@@ -70,11 +59,6 @@
           <% end %>
         </dd>
       <% end %>
-      <dt>Account Status</dt>
-      <dd>
-        <span class="badge <%= @user.enabled ? 'badge-success' : 'badge-danger' %>">
-            <%= @user.enabled ? 'Enabled' : 'Disabled' %></span>
-      </dd>
       <dt>Account Created</dt>
       <dd><%= local_time_ago(@user.created_at) %></dd>
     </dl>

@@ -50,19 +50,13 @@ Vocabulary.create!(name: 'Uncontrolled Vocabulary', key: 'uncontrolled')
 users = {}
 users[:admin] = User.create!(
     username: 'admin',
-    roles: [roles[:admin]],
-    enabled: true)
+    roles: [roles[:admin]])
 
 if Rails.env.development?
   # Non-admin users
   users[:cataloger] = User.create!(
       username: 'cataloger',
-      roles: [roles[:cataloger]],
-      enabled: true)
-  users[:disabled] = User.create!(
-      username: 'disabled',
-      roles: [roles[:cataloger]],
-      enabled: false)
+      roles: [roles[:cataloger]])
 end
 
 # Overwrite some default options for internal demo purposes
