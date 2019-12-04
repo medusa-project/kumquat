@@ -1,7 +1,7 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 can_access_control_panel:
-  key: <%= Permission::Permissions::ACCESS_CONTROL_PANEL %>
+  key: <%= Permissions::ACCESS_CONTROL_PANEL %>
 
 two:
   key: MyString

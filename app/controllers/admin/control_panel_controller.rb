@@ -27,7 +27,7 @@ module Admin
     # @return [Boolean]
     #
     def can_access_control_panel
-      unless current_user.has_permission?(Permission::Permissions::ACCESS_CONTROL_PANEL)
+      unless current_user.has_permission?(Permissions::ACCESS_CONTROL_PANEL)
         flash['error'] = 'Access denied.'
         redirect_to root_url
       end

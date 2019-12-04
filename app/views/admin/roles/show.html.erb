@@ -6,13 +6,13 @@
                      { label: @role.name }) %>
 
 <div class="btn-group float-right">
-  <% if current_user.can?(Permission::Permissions::MODIFY_ROLES) %>
+  <% if current_user.can?(Permissions::MODIFY_ROLES) %>
     <%= link_to edit_admin_role_path(@role), class: 'btn btn-light' do %>
       <%= content_tag(:span, '', class: 'fas fa-pencil-alt') %>
       Edit
     <% end %>
   <% end %>
-  <% if current_user.can?(Permission::Permissions::MODIFY_ROLES) and !@role.required %>
+  <% if current_user.can?(Permissions::MODIFY_ROLES) and !@role.required %>
     <%= link_to admin_role_path(@role), method: 'delete',
                 class: 'btn btn-danger',
                 data: { confirm: 'Are you sure you want to delete this role?' } do %>

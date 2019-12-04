@@ -6,7 +6,7 @@
                      { label: 'Roles' }) %>
 
 <div class="btn-group float-right">
-  <% if current_user.can?(Permission::Permissions::MODIFY_ROLES) %>
+  <% if current_user.can?(Permissions::MODIFY_ROLES) %>
     <!-- New Role -->
     <%= link_to new_admin_role_path, class: 'btn btn-light' do %>
       <span class="fa fa-plus"></span> New Role

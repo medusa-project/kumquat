@@ -474,7 +474,7 @@ module Admin
 
     def modify_items_rbac
       redirect_to(admin_root_url) unless
-          current_user.can?(Permission::Permissions::MODIFY_ITEMS)
+          current_user.can?(Permissions::MODIFY_ITEMS)
     end
 
     ##
@@ -505,7 +505,7 @@ module Admin
 
     def purge_items_rbac
       redirect_to(admin_collection_url(params[:collection_id])) unless
-          current_user.can?(Permission::Permissions::PURGE_ITEMS_FROM_COLLECTION)
+          current_user.can?(Permissions::PURGE_ITEMS_FROM_COLLECTION)
     end
 
     def sanitized_params

@@ -180,7 +180,7 @@ module Admin
 
     def modify_collections_rbac
       redirect_to(admin_root_url) unless
-          current_user.can?(Permission::Permissions::MODIFY_COLLECTIONS)
+          current_user.can?(Permissions::MODIFY_COLLECTIONS)
     end
 
     def sanitized_params

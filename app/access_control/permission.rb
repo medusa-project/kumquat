@@ -24,16 +24,6 @@
 #
 class Permission < ApplicationRecord
 
-  class Permissions
-    ACCESS_CONTROL_PANEL = 'control_panel.access'
-    MODIFY_COLLECTIONS = 'collections.modify'
-    MODIFY_ITEMS = 'items.modify'
-    MODIFY_ROLES = 'roles.modify'
-    MODIFY_SETTINGS = 'settings.modify'
-    MODIFY_USERS = 'users.modify'
-    PURGE_ITEMS_FROM_COLLECTION = 'collections.purge_items'
-  end
-
   has_and_belongs_to_many :roles
 
   validates :key, presence: true, length: { maximum: 255 },
@@ -46,8 +36,8 @@ class Permission < ApplicationRecord
   # database.
   #
   def self.sync_to_database
-    const_keys = Permission::Permissions.constants(false).map do |const|
-      Permission::Permissions.const_get(const)
+    const_keys = Permissions.constants(false).map do |const|
+      Permissions.const_get(const)
     end
 
     ActiveRecord::Base.transaction do
@@ -76,8 +66,8 @@ class Permission < ApplicationRecord
   # @return [String]
   #
   def name
-    Permission::Permissions.constants(false).each do |const|
-      if Permission::Permissions.const_get(const) == self.key
+    Permissions.constants(false).each do |const|
+      if Permissions.const_get(const) == self.key
         return const.to_s.titleize
       end
     end

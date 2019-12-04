@@ -115,7 +115,7 @@
         <i class="fa fa-trash"></i> Purge <span class="caret"></span>
       </button>
       <div class="dropdown-menu dropdown-menu-right">
-        <% if current_user.can?(Permission::Permissions::PURGE_ITEMS_FROM_COLLECTION) %>
+        <% if current_user.can?(Permissions::PURGE_ITEMS_FROM_COLLECTION) %>
           <%= link_to raw('Items From Collection'), '',
                       'data-toggle': 'modal',
                       'data-target': '#dl-purge-items-modal',

@@ -33,7 +33,7 @@ module Admin
     private
 
     def modify_settings_rbac
-      unless current_user.can?(Permission::Permissions::MODIFY_SETTINGS)
+      unless current_user.can?(Permissions::MODIFY_SETTINGS)
         flash['error'] = 'You do not have permission to perform this action.'
         redirect_to(admin_root_url)
       end

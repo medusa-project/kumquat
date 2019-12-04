@@ -128,7 +128,7 @@ module Admin
 
     def modify_users_rbac
       redirect_to(admin_root_url) unless
-          current_user.can?(Permission::Permissions::MODIFY_USERS)
+          current_user.can?(Permissions::MODIFY_USERS)
     end
 
     def sanitized_params
