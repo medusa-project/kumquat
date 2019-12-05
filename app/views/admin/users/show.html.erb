@@ -41,14 +41,6 @@
     <dl>
       <dt>Type</dt>
       <dd><%= @user.human ? 'Human' : 'Non-Human' %></dd>
-      <dt>Roles</dt>
-      <dd>
-        <ul>
-          <% @user.roles.each do |role| %>
-            <li><%= link_to role.name, admin_role_path(role) %></li>
-          <% end %>
-        </ul>
-      </dd>
       <% if @user == current_user or !@user.human %>
         <dt>API Key</dt>
         <dd>
@@ -65,77 +57,27 @@
   </div>
 
   <div class="col-sm-9">
-
-    <ul class="nav nav-tabs">
-      <li class="nav-item">
-        <a href="#permissions" class="nav-link active" data-toggle="tab">Permissions</a>
-      </li>
-      <li class="nav-item">
-        <a href="#roles" class="nav-link" data-toggle="tab">Roles</a>
-      </li>
-    </ul>
-
-    <div class="tab-content">
-
-      <div id="permissions" class="tab-pane active">
-        <table class="table table-striped">
-          <thead>
+    <div id="permissions" class="tab-pane active">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th></th>
+            <th>Permission</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% Permissions.all.each do |p| %>
             <tr>
-              <th></th>
-              <th>Permission</th>
-              <th>From Role(s)</th>
+              <td style="width:1px">
+                <%= @user.has_permission?(p) ?
+                        raw('<span class="text-success">&#x2713;</span>') :
+                        raw('<span class="text-danger">&times;</span>') %></td>
+              <td><%= Permissions.constants.find{ |c| p == Permissions.const_get(c) }&.to_s&.humanize %></td>
             </tr>
-          </thead>
-          <tbody>
-            <% @permissions.each do |p| %>
-              <tr>
-                <td><%= @user.has_permission?(p.key) ?
-                                raw('<span class="text-success">&#x2713;</span>') :
-                                '' %></td>
-                <td><%= p.name %></td>
-                <td><%=raw @user.roles_having_permission(p.key).map {|r|
-                  link_to(r.name, admin_role_path(r)) }.join(', ') %></td>
-              </tr>
-            <% end %>
-          </tbody>
-        </table>
-      </div>
-
-      <div id="roles" class="tab-pane">
-        <table class="table table-striped">
-          <thead>
-            <tr>
-              <th style="width: 1px"></th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            <% Role.order(:name).each do |role| %>
-              <tr>
-                <td style="white-space: nowrap">
-                  <% if @user.roles.include?(role) %>
-                    <%= link_to admin_user_change_roles_path(@user, user: { id: @user.id }, do: :leave, role_id: role.id),
-                                method: :patch,
-                                class: 'btn btn-sm btn-danger' do %>
-                      <i class="fa fa-minus"></i> Leave
-                    <% end %>
-                  <% else %>
-                    <%= link_to admin_user_change_roles_path(@user, user: { id: @user.id }, do: :join, role_id: role.id),
-                                method: :patch,
-                                class: 'btn btn-sm btn-success' do %>
-                      <i class="fa fa-plus"></i> Join
-                    <% end %>
-                  <% end %>
-                </td>
-                <td><%= role.name %></td>
-              </tr>
-            <% end %>
-          </tbody>
-        </table>
-      </div>
-
+          <% end %>
+        </tbody>
+      </table>
     </div>
-
   </div>
 
 </div>

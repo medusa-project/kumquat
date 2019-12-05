@@ -173,14 +173,12 @@ Rails.application.routes.draw do
     end
     match '/metadata-profiles/import', to: 'metadata_profiles#import',
           via: :post, as: 'metadata_profile_import'
-    resources :roles, param: :key
     match '/settings', to: 'settings#index', via: :get
     match '/settings', to: 'settings#update', via: :patch
     match '/statistics', to: 'statistics#index', via: :get
     resources :tasks
     resources :users, param: :username do
       match '/reset-api-key', to: 'users#reset_api_key', via: :post, as: 'reset_api_key'
-      match '/roles', to: 'users#change_roles', via: :patch, as: 'change_roles'
     end
     resources :vocabulary_terms, except: :index, path: 'vocabulary-terms'
     resources :vocabularies do

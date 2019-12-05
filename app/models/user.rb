@@ -16,7 +16,6 @@ class User < ApplicationRecord
   DEVELOPMENT_USER_USERNAME  = 'user'
 
   has_and_belongs_to_many :item_sets
-  has_and_belongs_to_many :roles
 
   validates :username, presence: true, length: { maximum: 50 },
             uniqueness: { case_sensitive: false }
@@ -24,8 +23,13 @@ class User < ApplicationRecord
   before_create :reset_api_key
 
   def has_permission?(key)
-    return true if self.medusa_admin?
-    self.roles_having_permission(key).any?
+    config = Configuration.instance
+    if medusa_admin?
+      return config.medusa_admins_group['permissions'].include?(key)
+    elsif medusa_user?
+      return config.medusa_users_group['permissions'].include?(key)
+    end
+    false
   end
 
   alias_method :can?, :has_permission?
@@ -34,7 +38,7 @@ class User < ApplicationRecord
     if Rails.env.development? or Rails.env.test?
       return self.username == DEVELOPMENT_ADMIN_USERNAME
     end
-    group = Configuration.instance.medusa_admins_group
+    group = Configuration.instance.medusa_admins_group['name']
     LdapQuery.new.is_member_of?(group, self.username)
   end
 
@@ -42,16 +46,12 @@ class User < ApplicationRecord
     if Rails.env.development? or Rails.env.test?
       return self.username == DEVELOPMENT_USER_USERNAME
     end
-    group = Configuration.instance.medusa_users_group
+    group = Configuration.instance.medusa_users_group['name']
     LdapQuery.new.is_member_of?(group, self.username)
   end
 
   def reset_api_key
     self.api_key = SecureRandom.base64
-  end
-
-  def roles_having_permission(key)
-    self.roles.select{ |r| r.has_permission?(key) }
   end
 
   def to_param

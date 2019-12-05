@@ -51,21 +51,14 @@
           <%= link_to 'Agent Types', admin_agent_types_path, class: 'dropdown-item' %>
         </div>
       </li>
-      <li class="nav-item dropdown" id="access-nav">
-        <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
-          Access <b class="caret"></b>
-        </a>
-        <div class="dropdown-menu">
-          <%= link_to 'Users', admin_users_path, class: 'dropdown-item' %>
-          <%= link_to 'Roles', admin_roles_path, class: 'dropdown-item' %>
-          <%= link_to 'Host Groups', admin_host_groups_path, class: 'dropdown-item' %>
-        </div>
-      </li>
       <li class="nav-item dropdown" id="server-nav">
         <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
           Server <b class="caret"></b>
         </a>
         <div class="dropdown-menu">
+          <%= link_to 'Users', admin_users_path, class: 'dropdown-item' %>
+          <%= link_to 'Host Groups', admin_host_groups_path, class: 'dropdown-item' %>
+          <div class="dropdown-divider"></div>
           <%= link_to 'Statistics', admin_statistics_path, class: 'dropdown-item' %>
           <%= link_to 'Tasks', admin_tasks_path, class: 'dropdown-item' %>
           <div class="dropdown-divider"></div>

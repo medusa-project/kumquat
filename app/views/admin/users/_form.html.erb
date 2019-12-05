@@ -10,19 +10,6 @@
                      disabled: (context == :edit) %>
   </div>
 
-  <div class="form-group">
-    <label>Roles</label>
-    <%= hidden_field_tag 'user[role_ids][]', nil %>
-    <% @roles.each do |role| %>
-      <div class="checkbox">
-        <%= label_tag do %>
-          <%= check_box_tag :role_ids, role.id, @user.roles.include?(role),
-                            name: 'user[role_ids][]' %> <%= role.name %>
-        <% end %>
-      </div>
-    <% end %>
-  </div>
-
   <div class="float-right">
     <%= f.submit(context == :new ? 'Create User' : 'Save Changes',
                  class: 'btn btn-primary') %>

@@ -2,36 +2,8 @@ module Admin
 
   class UsersController < ControlPanelController
 
-    before_action :modify_users_rbac, only: [:change_roles, :create, :destroy,
-                                             :disable, :enable, :edit, :update]
-
-    ##
-    # Responds to PATCH /users/:username/roles. Supply :do => :join/:leave
-    # and :role_id params.
-    #
-    def change_roles
-      user = User.find_by_username params[:user_username]
-      raise ActiveRecord::RecordNotFound unless user
-
-      role_ids = user.roles.pluck(:id)
-      if params[:do].to_s == 'join'
-        role_ids << params[:role_id].to_i
-      else
-        role_ids.delete(params[:role_id].to_i)
-      end
-
-      tmp_params = sanitized_params
-      tmp_params[:role_ids] = role_ids
-      begin
-        user.update_attributes!(tmp_params)
-      rescue => e
-        handle_error(e)
-        render 'new'
-      else
-        flash['success'] = "User #{user.username} updated."
-        redirect_back fallback_location: admin_user_path(user)
-      end
-    end
+    before_action :modify_users_rbac, only: [:create, :destroy, :edit, :new,
+                                             :update]
 
     def create
       begin
@@ -39,7 +11,6 @@ module Admin
       rescue => e
         handle_error(e)
         @user = User.new
-        @roles = Role.all.order(:name)
         render 'new'
       else
         flash['success'] = "User #{user.username} created."
@@ -71,7 +42,6 @@ module Admin
     def edit
       @user = User.find_by_username params[:username]
       raise ActiveRecord::RecordNotFound unless @user
-      @roles = Role.all.order(:name)
     end
 
     def index
@@ -80,7 +50,6 @@ module Admin
 
     def new
       @user = User.new
-      @roles = Role.all.order(:name)
     end
 
     ##
@@ -105,7 +74,6 @@ module Admin
     def show
       @user = User.find_by_username params[:username]
       raise ActiveRecord::RecordNotFound unless @user
-      @permissions = Permission.order(:key)
     end
 
     def update
@@ -115,7 +83,6 @@ module Admin
       begin
         @user.update_attributes!(sanitized_params)
       rescue => e
-        @roles = Role.all.order(:name)
         handle_error(e)
         render 'edit'
       else

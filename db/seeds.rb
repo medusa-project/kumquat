@@ -17,11 +17,6 @@ Option.set(Option::Keys::WEBSITE_NAME,
                'My Great Organization Digital Collections')
 Option.set(Option::Keys::DEFAULT_RESULT_WINDOW, 30)
 
-# Roles
-roles = {}
-roles[:admin] = Role.create!(key: 'admin', name: 'Administrators', required: true)
-roles[:cataloger] = Role.create!(key: 'cataloger', name: 'Catalogers')
-
 # Metadata profiles
 profiles = {}
 profiles[:default] = MetadataProfile.create!(name: 'Default Profile',
@@ -46,17 +41,10 @@ end
 # Vocabularies
 Vocabulary.create!(name: 'Uncontrolled Vocabulary', key: 'uncontrolled')
 
-# Admin user
-users = {}
-users[:admin] = User.create!(
-    username: 'admin',
-    roles: [roles[:admin]])
-
+# Users
 if Rails.env.development?
-  # Non-admin users
-  users[:cataloger] = User.create!(
-      username: 'cataloger',
-      roles: [roles[:cataloger]])
+  User.create!(username: 'admin')
+  User.create!(username: 'cataloger')
 end
 
 # Overwrite some default options for internal demo purposes
