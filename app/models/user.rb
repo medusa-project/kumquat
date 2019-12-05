@@ -12,8 +12,9 @@
 #
 class User < ApplicationRecord
 
-  DEVELOPMENT_ADMIN_USERNAME = 'admin'
-  DEVELOPMENT_USER_USERNAME  = 'user'
+  DEVELOPMENT_ADMIN_USERNAME     = 'admin'
+  DEVELOPMENT_SUPERUSER_USERNAME = 'super'
+  DEVELOPMENT_USER_USERNAME      = 'user'
 
   has_and_belongs_to_many :item_sets
 
@@ -24,7 +25,9 @@ class User < ApplicationRecord
 
   def has_permission?(key)
     config = Configuration.instance
-    if medusa_admin?
+    if medusa_superuser?
+      return true
+    elsif medusa_admin?
       return config.medusa_admins_group[:permissions].include?(key)
     elsif medusa_user?
       return config.medusa_users_group[:permissions].include?(key)
@@ -39,6 +42,14 @@ class User < ApplicationRecord
       return self.username == DEVELOPMENT_ADMIN_USERNAME
     end
     group = Configuration.instance.medusa_admins_group[:name]
+    LdapQuery.new.is_member_of?(group, self.username)
+  end
+
+  def medusa_superuser?
+    if Rails.env.development? or Rails.env.test?
+      return self.username == SUPERUSER_ADMIN_USERNAME
+    end
+    group = Configuration.instance.medusa_superusers_group[:name]
     LdapQuery.new.is_member_of?(group, self.username)
   end
 
