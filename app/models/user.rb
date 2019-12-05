@@ -25,9 +25,9 @@ class User < ApplicationRecord
   def has_permission?(key)
     config = Configuration.instance
     if medusa_admin?
-      return config.medusa_admins_group['permissions'].include?(key)
+      return config.medusa_admins_group[:permissions].include?(key)
     elsif medusa_user?
-      return config.medusa_users_group['permissions'].include?(key)
+      return config.medusa_users_group[:permissions].include?(key)
     end
     false
   end
@@ -38,7 +38,7 @@ class User < ApplicationRecord
     if Rails.env.development? or Rails.env.test?
       return self.username == DEVELOPMENT_ADMIN_USERNAME
     end
-    group = Configuration.instance.medusa_admins_group['name']
+    group = Configuration.instance.medusa_admins_group[:name]
     LdapQuery.new.is_member_of?(group, self.username)
   end
 
@@ -46,7 +46,7 @@ class User < ApplicationRecord
     if Rails.env.development? or Rails.env.test?
       return self.username == DEVELOPMENT_USER_USERNAME
     end
-    group = Configuration.instance.medusa_users_group['name']
+    group = Configuration.instance.medusa_users_group[:name]
     LdapQuery.new.is_member_of?(group, self.username)
   end
 
