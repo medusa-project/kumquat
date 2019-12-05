@@ -40,7 +40,7 @@ class Configuration
   def get(key)
     if Rails.env.development? or Rails.env.test?
       read_unencrypted_config
-      return @config[key.to_s]
+      return @config[key.to_sym]
     end
     Rails.application.credentials.dig(key)
   end
@@ -55,7 +55,7 @@ class Configuration
     unless @config
       raw_config = File.read(File.join(
           Rails.root, 'config', 'credentials', "#{Rails.env}.yml"))
-      @config = YAML.load(raw_config)
+      @config = YAML.load(raw_config).with_indifferent_access
     end
   end
 

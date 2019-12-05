@@ -8,21 +8,25 @@ class ConfigurationTest < ActiveSupport::TestCase
 
   # get()
 
-  test 'get() with a bogus config key should return nil' do
+  test 'get() with a bogus key returns nil' do
     assert_nil @config.get(:bogus)
   end
 
-  test 'get() with a valid config key should return the value' do
+  test 'get() with a string key returns the value' do
+    assert_not_nil @config.get('iiif_url')
+  end
+
+  test 'get() with a symbol key returns the value' do
     assert_not_nil @config.get(:iiif_url)
   end
 
   # method_missing()
 
-  test 'method_missing() with a bogus config key should return nil' do
+  test 'method_missing() with a bogus key returns nil' do
     assert_nil @config.bogus
   end
 
-  test 'method_missing() with a valid config key should return the value' do
+  test 'method_missing() with a valid key returns the value' do
     assert_not_nil @config.iiif_url
   end
 
