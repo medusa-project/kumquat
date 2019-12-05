@@ -81,6 +81,7 @@
         </a>
         <div class="dropdown-menu dropdown-menu-right"
              aria-labelledby="dl-user-menu-toggle">
+          <%= link_to 'My Account', admin_user_path(current_user), class: 'dropdown-item' %>
           <%= link_to 'Public Website', root_url, class: 'dropdown-item' %>
           <div class="dropdown-divider"></div>
           <%= link_to 'Log Out', signout_path, method: 'delete', class: 'dropdown-item' %>
