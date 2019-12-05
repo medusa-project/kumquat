@@ -2,8 +2,7 @@ module Admin
 
   class UsersController < ControlPanelController
 
-    before_action :modify_users_rbac, only: [:create, :destroy, :edit, :new,
-                                             :update]
+    before_action :modify_users_rbac, only: [:create, :destroy, :edit, :new]
 
     def create
       begin
@@ -39,11 +38,6 @@ module Admin
       end
     end
 
-    def edit
-      @user = User.find_by_username params[:username]
-      raise ActiveRecord::RecordNotFound unless @user
-    end
-
     def index
       @non_human_users = User.where(human: false).order(:username)
     end
@@ -74,21 +68,6 @@ module Admin
     def show
       @user = User.find_by_username params[:username]
       raise ActiveRecord::RecordNotFound unless @user
-    end
-
-    def update
-      @user = User.find_by_username params[:username]
-      raise ActiveRecord::RecordNotFound unless @user
-
-      begin
-        @user.update_attributes!(sanitized_params)
-      rescue => e
-        handle_error(e)
-        render 'edit'
-      else
-        flash['success'] = "User #{@user.username} updated."
-        redirect_to admin_users_path
-      end
     end
 
     private

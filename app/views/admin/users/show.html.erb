@@ -21,10 +21,6 @@
       </div>
     </div>
   <% end %>
-  <!-- Edit button -->
-  <%= link_to edit_admin_user_path(@user), class: 'btn btn-light' do %>
-    <i class="fas fa-pencil-alt"></i> Edit
-  <% end %>
   <!-- Delete button -->
   <%= link_to admin_user_path(@user), method: :delete,
               class: 'btn btn-danger',

@@ -177,7 +177,7 @@ Rails.application.routes.draw do
     match '/settings', to: 'settings#update', via: :patch
     match '/statistics', to: 'statistics#index', via: :get
     resources :tasks
-    resources :users, param: :username do
+    resources :users, param: :username, except: [:edit, :update] do
       match '/reset-api-key', to: 'users#reset_api_key', via: :post, as: 'reset_api_key'
     end
     resources :vocabulary_terms, except: :index, path: 'vocabulary-terms'
