@@ -39,7 +39,8 @@ class User < ApplicationRecord
 
   def medusa_admin?
     if Rails.env.development? or Rails.env.test?
-      return self.username == DEVELOPMENT_ADMIN_USERNAME
+      return [DEVELOPMENT_ADMIN_USERNAME,
+              DEVELOPMENT_SUPERUSER_USERNAME].include?(self.username)
     end
     group = Configuration.instance.medusa_admins_group[:name]
     LdapQuery.new.is_member_of?(group, self.username)
@@ -47,7 +48,7 @@ class User < ApplicationRecord
 
   def medusa_superuser?
     if Rails.env.development? or Rails.env.test?
-      return self.username == SUPERUSER_ADMIN_USERNAME
+      return self.username == DEVELOPMENT_SUPERUSER_USERNAME
     end
     group = Configuration.instance.medusa_superusers_group[:name]
     LdapQuery.new.is_member_of?(group, self.username)
@@ -55,7 +56,8 @@ class User < ApplicationRecord
 
   def medusa_user?
     if Rails.env.development? or Rails.env.test?
-      return self.username == DEVELOPMENT_USER_USERNAME
+      return [DEVELOPMENT_USER_USERNAME, DEVELOPMENT_ADMIN_USERNAME,
+              DEVELOPMENT_SUPERUSER_USERNAME].include?(self.username)
     end
     group = Configuration.instance.medusa_users_group[:name]
     LdapQuery.new.is_member_of?(group, self.username)
