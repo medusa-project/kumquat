@@ -56,13 +56,17 @@
           Server <b class="caret"></b>
         </a>
         <div class="dropdown-menu">
-          <%= link_to 'Users', admin_users_path, class: 'dropdown-item' %>
+          <% if current_user.can?(Permissions::VIEW_USERS) %>
+            <%= link_to 'Users', admin_users_path, class: 'dropdown-item' %>
+          <% end %>
           <%= link_to 'Host Groups', admin_host_groups_path, class: 'dropdown-item' %>
           <div class="dropdown-divider"></div>
           <%= link_to 'Statistics', admin_statistics_path, class: 'dropdown-item' %>
           <%= link_to 'Tasks', admin_tasks_path, class: 'dropdown-item' %>
-          <div class="dropdown-divider"></div>
-          <%= link_to 'Settings', admin_settings_path, class: 'dropdown-item' %>
+          <% if current_user.can?(Permissions::MODIFY_SETTINGS) %>
+            <div class="dropdown-divider"></div>
+            <%= link_to 'Settings', admin_settings_path, class: 'dropdown-item' %>
+          <% end %>
         </div>
       </li>
     </ul>

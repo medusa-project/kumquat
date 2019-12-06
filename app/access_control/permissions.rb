@@ -15,6 +15,7 @@ class Permissions
   MODIFY_SETTINGS             = 'settings.modify'
   MODIFY_USERS                = 'users.modify'
   PURGE_ITEMS_FROM_COLLECTION = 'collections.purge_items'
+  VIEW_USERS                  = 'users.view'
 
   ##
   # @return [Enumerable<String>] All class constant values.

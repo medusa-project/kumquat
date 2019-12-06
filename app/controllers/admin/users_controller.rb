@@ -2,7 +2,8 @@ module Admin
 
   class UsersController < ControlPanelController
 
-    before_action :authorize_modify_users, only: [:create, :destroy, :edit, :new]
+    before_action :authorize_view_users, only: [:index, :show]
+    before_action :authorize_modify_users, only: [:create, :destroy, :new]
 
     def create
       begin
@@ -76,6 +77,14 @@ module Admin
       unless current_user.can?(Permissions::MODIFY_USERS)
         flash['error'] = 'You do not have permission to perform this action.'
         redirect_to admin_users_url
+      end
+    end
+
+    def authorize_view_users
+      if !current_user.can?(Permissions::VIEW_USERS) and
+          current_user != User.find_by_username(params[:username])
+        flash['error'] = 'You do not have permission to perform this action.'
+        redirect_to admin_root_url
       end
     end
 
