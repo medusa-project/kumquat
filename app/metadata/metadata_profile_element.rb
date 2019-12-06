@@ -111,7 +111,7 @@ class MetadataProfileElement < ApplicationRecord
   #
   def adjust_profile_element_indexes_after_create
     if self.metadata_profile
-      ActiveRecord::Base.transaction do
+      transaction do
         self.metadata_profile.elements.
             where('id != ? AND index >= ?', self.id, self.index).each do |e|
           # update_column skips callbacks, which would cause this method to
@@ -128,7 +128,7 @@ class MetadataProfileElement < ApplicationRecord
   #
   def adjust_profile_element_indexes_after_destroy
     if self.metadata_profile and self.destroyed?
-      ActiveRecord::Base.transaction do
+      transaction do
         self.metadata_profile.elements.order(:index).each_with_index do |element, index|
           # update_column skips callbacks, which would cause this method to be
           # called recursively.
@@ -148,7 +148,7 @@ class MetadataProfileElement < ApplicationRecord
       max = [self.index_was, self.index].max
       increased = (self.index_was < self.index)
 
-      ActiveRecord::Base.transaction do
+      transaction do
         self.metadata_profile.elements.
             where('id != ? AND index >= ? AND index <= ?', self.id, min, max).each do |e|
           if increased # shift the range down

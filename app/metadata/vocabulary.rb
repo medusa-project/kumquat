@@ -41,8 +41,8 @@ class Vocabulary < ApplicationRecord
       raise ArgumentError, 'A vocabulary with the same name already exists.'
     end
 
-    ActiveRecord::Base.transaction do
-      vocab.key = struct['key']
+    transaction do
+      vocab.key  = struct['key']
       vocab.name = struct['name']
 
       # Add its terms.

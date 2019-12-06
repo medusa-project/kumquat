@@ -668,7 +668,7 @@ class Collection < ApplicationRecord
   # @return [void]
   #
   def propagate_heritable_properties(task = nil)
-    ActiveRecord::Base.transaction do
+    transaction do
       num_items = self.items.count
       self.items.each_with_index do |item, index|
         item.save!
@@ -695,7 +695,7 @@ class Collection < ApplicationRecord
   def purge
     items = self.items
     count = items.count
-    ActiveRecord::Base.transaction do
+    transaction do
       items.destroy_all
     end
     count
@@ -809,7 +809,7 @@ class Collection < ApplicationRecord
       raise e
     end
 
-    ActiveRecord::Base.transaction do
+    transaction do
       self.elements.destroy_all
 
       self.access_systems = struct['access_systems'].map{ |t| t['name'] }

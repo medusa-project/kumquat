@@ -88,7 +88,7 @@ class MetadataProfile < ApplicationRecord
     struct = JSON.parse(json)
     profile = MetadataProfile.new
 
-    ActiveRecord::Base.transaction do
+    transaction do
       # Ensure that its name is unique.
       tentative_name = "#{struct['name']} (imported)"
       index = 1
@@ -143,7 +143,7 @@ class MetadataProfile < ApplicationRecord
   # @return [void]
   #
   def add_default_elements
-    ActiveRecord::Base.transaction do
+    transaction do
       # The instance requires an ID for MetadataProfileElement validations.
       self.save! if self.id.nil?
       MetadataProfile.default_elements.each do |ed|

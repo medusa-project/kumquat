@@ -945,7 +945,7 @@ class Item < ApplicationRecord
   # @return [void]
   #
   def migrate_elements(source_name, dest_name)
-    ActiveRecord::Base.transaction do
+    transaction do
       # Get all of the elements with the same name as the source element
       self.elements.select{ |e| e.name == source_name }.each do |src_e|
         # Clone them into elements with the destination name.
@@ -1017,7 +1017,7 @@ class Item < ApplicationRecord
   # @return [void]
   #
   def propagate_heritable_properties(task = nil)
-    ActiveRecord::Base.transaction do
+    transaction do
       num_items = self.items.count
       self.walk_tree do |item, index|
         item.save!
@@ -1126,7 +1126,7 @@ class Item < ApplicationRecord
   def update_from_embedded_metadata(options = {})
     return unless self.binaries.any?
 
-    ActiveRecord::Base.transaction do
+    transaction do
       self.elements.destroy_all
       self.elements += elements_from_embedded_metadata(options)
       self.save!
@@ -1145,7 +1145,7 @@ class Item < ApplicationRecord
   #
   def update_from_json(json)
     struct = JSON.parse(json)
-    ActiveRecord::Base.transaction do
+    transaction do
       # INSTANCE PROPERTIES
       # collection_repository_id is not modifiable
       self.contentdm_alias = struct['contentdm_alias']
@@ -1197,7 +1197,7 @@ class Item < ApplicationRecord
   #                         element name or vocabulary prefix
   #
   def update_from_tsv(row)
-    ActiveRecord::Base.transaction do
+    transaction do
       # Metadata elements need to be deleted first, otherwise an update
       # wouldn't be able to remove them.
       self.elements.destroy_all
@@ -1452,7 +1452,7 @@ class Item < ApplicationRecord
       denied_hgs  = self.collection.denied_host_groups
     end
 
-    ActiveRecord::Base.transaction do
+    transaction do
       self.effective_allowed_host_groups.destroy_all
       self.effective_denied_host_groups.destroy_all
       allowed_hgs.each do |group|
@@ -1468,7 +1468,7 @@ class Item < ApplicationRecord
   # Removes duplicate elements, ensuring that all are unique.
   #
   def prune_identical_elements
-    ActiveRecord::Base.transaction do
+    transaction do
       all_elements = self.elements.to_a
       unique_elements = []
       all_elements.each do |e|
@@ -1490,7 +1490,7 @@ class Item < ApplicationRecord
     allowed_hgs = self.allowed_host_groups
     denied_hgs  = self.denied_host_groups
     if allowed_hgs.any? or denied_hgs.any?
-      ActiveRecord::Base.transaction do
+      transaction do
         self.effective_allowed_host_groups.destroy_all
         self.effective_denied_host_groups.destroy_all
         allowed_hgs.each do |group|

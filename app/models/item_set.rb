@@ -31,7 +31,7 @@ class ItemSet < ActiveRecord::Base
   # @param item [Item]
   #
   def add_item(item)
-    ActiveRecord::Base.transaction do
+    transaction do
       if self.items.where(repository_id: item.repository_id).count < 1
         self.items << item
         self.save!
@@ -43,7 +43,7 @@ class ItemSet < ActiveRecord::Base
   # @param item [Item]
   #
   def add_item_and_children(item)
-    ActiveRecord::Base.transaction do
+    transaction do
       # Add the item.
       add_item(item)
 
