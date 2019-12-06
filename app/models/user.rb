@@ -12,9 +12,14 @@
 #
 class User < ApplicationRecord
 
-  DEVELOPMENT_ADMIN_USERNAME     = 'admin'
-  DEVELOPMENT_SUPERUSER_USERNAME = 'super'
+  # Username of a Medusa "user" in development & test environments.
   DEVELOPMENT_USER_USERNAME      = 'user'
+
+  # Username of a Medusa "admin" in development & test environments.
+  DEVELOPMENT_ADMIN_USERNAME     = 'admin'
+
+  # Username of a Medusa "super admin" in development & test environments.
+  DEVELOPMENT_SUPERUSER_USERNAME = 'super'
 
   has_and_belongs_to_many :item_sets
 
@@ -23,6 +28,10 @@ class User < ApplicationRecord
 
   before_create :reset_api_key
 
+  ##
+  # @param key [String] One of the {Permissions} constant values.
+  # @return [Boolean]
+  #
   def has_permission?(key)
     config = Configuration.instance
     if medusa_superuser?
@@ -37,6 +46,9 @@ class User < ApplicationRecord
 
   alias_method :can?, :has_permission?
 
+  ##
+  # @return [Boolean]
+  #
   def medusa_admin?
     if Rails.env.development? or Rails.env.test?
       return [DEVELOPMENT_ADMIN_USERNAME,
@@ -46,6 +58,9 @@ class User < ApplicationRecord
     LdapQuery.new.is_member_of?(group, self.username)
   end
 
+  ##
+  # @return [Boolean]
+  #
   def medusa_superuser?
     if Rails.env.development? or Rails.env.test?
       return self.username == DEVELOPMENT_SUPERUSER_USERNAME
@@ -54,12 +69,26 @@ class User < ApplicationRecord
     LdapQuery.new.is_member_of?(group, self.username)
   end
 
+  ##
+  # @return [Boolean]
+  #
   def medusa_user?
     if Rails.env.development? or Rails.env.test?
       return [DEVELOPMENT_USER_USERNAME, DEVELOPMENT_ADMIN_USERNAME,
               DEVELOPMENT_SUPERUSER_USERNAME].include?(self.username)
     end
     group = Configuration.instance.medusa_users_group[:name]
+    LdapQuery.new.is_member_of?(group, self.username)
+  end
+
+  ##
+  # @param group [String] LDAP group.
+  # @return [Boolean]
+  #
+  def member_of?(group)
+    if Rails.env.development? or Rails.env.test?
+      return true
+    end
     LdapQuery.new.is_member_of?(group, self.username)
   end
 
