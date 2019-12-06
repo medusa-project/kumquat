@@ -6,6 +6,21 @@ class MedusaRepositoryTest < ActiveSupport::TestCase
     @repo = medusa_repositories(:one)
   end
 
+  # sync_all()
+
+  test 'sync_all() updates repositories that exist in Medusa' do
+    @repo.update!(title: 'Cats')
+    MedusaRepository.sync_all
+    @repo.reload
+    assert_equal 'Map and Geography Library', @repo.title
+  end
+
+  test 'sync_all() deletes repositories that do not exist in Medusa' do
+    MedusaRepository.create!(medusa_database_id: 9999999)
+    MedusaRepository.sync_all
+    assert_equal 1, MedusaRepository.count
+  end
+
   # with_medusa_database_id()
 
   test 'with_medusa_database_id() returns an instance when given a UUID' do
@@ -23,6 +38,19 @@ class MedusaRepositoryTest < ActiveSupport::TestCase
     assert_nil MedusaRepository.find_by_medusa_database_id(@repo.medusa_database_id)
     MedusaRepository.with_medusa_database_id(@repo.medusa_database_id)
     assert_not_nil MedusaRepository.find_by_medusa_database_id(@repo.medusa_database_id)
+  end
+
+  # load_from_medusa()
+
+  test 'load_from_medusa() loads existing repositories from Medusa' do
+    @repo.load_from_medusa
+  end
+
+  test 'load_from_medusa() raises an error for repositories that do not exist in Medusa' do
+    repo = MedusaRepository.new(medusa_database_id: 999999999)
+    assert_raises MissingError do
+      repo.load_from_medusa
+    end
   end
 
   # url()

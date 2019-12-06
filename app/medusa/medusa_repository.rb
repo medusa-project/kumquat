@@ -10,6 +10,35 @@ class MedusaRepository < ApplicationRecord
   LOGGER = CustomLogger.new(MedusaRepository)
 
   ##
+  # Syncs the repositories in the database with the ones available in Medusa:
+  #
+  # * Repositories present in the database but not in Medusa are deleted.
+  # * Repositories present in Medusa but not the database are ignored.
+  # * Repositories present in both the database and Medusa have their
+  #   properties updated from Medusa.
+  #
+  # @return [void]
+  #
+  def self.sync_all
+    start = Time.now
+    transaction do
+      repos = all
+      count = repos.count
+      repos.each_with_index do |repo, index|
+        begin
+          repo.load_from_medusa
+        rescue MissingError
+          repo.destroy!
+        else
+          repo.save!
+        ensure
+          StringUtils.print_progress(start, index, count, 'Syncing repositories')
+        end
+      end
+    end
+  end
+
+  ##
   # @param id [Integer]
   # @return [MedusaRepository]
   #
@@ -28,6 +57,7 @@ class MedusaRepository < ApplicationRecord
   # the instance with it.
   #
   # @return [void]
+  # @raises [MissingError] if the instance has no counterpart in Medusa.
   #
   def load_from_medusa
     raise 'load_from_medusa() called without ID set' unless
@@ -44,6 +74,9 @@ class MedusaRepository < ApplicationRecord
       self.title             = struct['title']
       self.ldap_admin_domain = struct['ldap_admin_domain']
       self.ldap_admin_group  = struct['ldap_admin_group']
+    else
+      raise MissingError, "Repository with not found in Medusa: local ID "\
+          "#{self.id} / Medusa ID #{self.medusa_database_id}"
     end
   end
 
