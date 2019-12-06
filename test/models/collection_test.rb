@@ -492,6 +492,17 @@ class CollectionTest < ActiveSupport::TestCase
         count
   end
 
+  # repository()
+
+  test 'repository() returns the repository when medusa_repository_id is set' do
+    assert_not_nil @collection.repository
+  end
+
+  test 'repository() returns nil when medusa_repository_id is nil' do
+    @collection.medusa_repository_id = nil
+    assert_nil @collection.repository
+  end
+
   # repository_id
 
   test 'repository_id must be a UUID' do

@@ -727,6 +727,16 @@ class Collection < ApplicationRecord
   end
 
   ##
+  # @return [MedusaRepository]
+  #
+  def repository
+    if medusa_repository_id.present?
+      return MedusaRepository.with_medusa_database_id(medusa_repository_id)
+    end
+    nil
+  end
+
+  ##
   # @return [Binary, nil] Binary corresponding to the `representative_image`
   #                       attribute.
   #
