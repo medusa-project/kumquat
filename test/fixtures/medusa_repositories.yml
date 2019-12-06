@@ -5,3 +5,5 @@ one:
   contact_email: jmj@illinois.edu
   email: jmj@uiuc.edu
   title: Map and Geography Library
+  ldap_admin_domain: uofi
+  ldap_admin_group: Library Medusa Maps
