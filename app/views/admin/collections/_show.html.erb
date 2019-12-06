@@ -1,32 +1,3 @@
-<div class="btn btn-group float-right">
-  <button type="button" class="btn btn-light dl-add-item-set"
-          data-toggle="modal" data-target="#dl-add-item-set-modal">
-    <span class="fa fa-plus"></span> Add Set
-  </button>
-</div>
-
-<div class="clearfix">
-  <% if @collection.item_sets.count > 0 %>
-    <h2>Sets</h2>
-
-    <table class="table">
-      <% @collection.item_sets.order(:name).each do |set| %>
-        <tr>
-          <td>
-            <%= link_to set, admin_collection_item_set_path(@collection, set) %>
-          </td>
-          <td>
-            <%= icon_for(User) %> <%= set.users.count %>
-          </td>
-          <td>
-            <%= icon_for(Item) %> <%= number_with_delimiter(set.num_objects) %>
-          </td>
-        </tr>
-      <% end %>
-    </table>
-  <% end %>
-</div>
-
 <nav>
   <div class="nav nav-tabs" id="nav-tab" role="tablist">
     <a class="nav-item nav-link active" id="nav-technical-info-tab" data-toggle="tab"
@@ -38,6 +9,11 @@
     <a class="nav-item nav-link" id="nav-repository-tab" data-toggle="tab"
        href="#nav-repository" role="tab" aria-controls="nav-repository"
        aria-selected="false">Repository</a>
+    <a class="nav-item nav-link" id="nav-sets-tab" data-toggle="tab"
+       href="#nav-sets" role="tab" aria-controls="nav-sets"
+       aria-selected="false">Sets
+      <span class="badge badge-pill badge-secondary">
+        <%= @collection.item_sets.count %></span></a>
   </div>
 </nav>
 <div class="tab-content" id="nav-tabContent">
@@ -211,6 +187,7 @@
       </tr>
     </table>
   </div>
+
   <div class="tab-pane fade" id="nav-repository" role="tabpanel"
        aria-labelledby="nav-repository-tab">
     <table class="table">
@@ -228,6 +205,31 @@
           <% end %>
         </td>
       </tr>
+    </table>
+  </div>
+
+  <div class="tab-pane fade" id="nav-sets" role="tabpanel"
+       aria-labelledby="nav-sets-tab">
+    <div class="btn btn-group float-right">
+      <button type="button" class="btn btn-light dl-add-item-set"
+              data-toggle="modal" data-target="#dl-add-item-set-modal">
+        <span class="fa fa-plus"></span> Add Set
+      </button>
+    </div>
+    <table class="table">
+      <% @collection.item_sets.order(:name).each do |set| %>
+        <tr>
+          <td>
+            <%= link_to set, admin_collection_item_set_path(@collection, set) %>
+          </td>
+          <td>
+            <%= icon_for(User) %> <%= set.users.count %>
+          </td>
+          <td>
+            <%= icon_for(Item) %> <%= number_with_delimiter(set.num_objects) %>
+          </td>
+        </tr>
+      <% end %>
     </table>
   </div>
 </div>
