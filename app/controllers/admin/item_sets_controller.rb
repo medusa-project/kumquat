@@ -172,9 +172,9 @@ module Admin
     #
     def check_authorization
       item_set = ItemSet.find(params[:id] || params[:item_set_id])
-      unless item_set.users.include?(current_user)
+      unless item_set.users.include?(current_user) or current_user.medusa_superuser?
         flash['error'] = "You are not authorized to access #{item_set}."
-        redirect_to(admin_collection_path(item_set.collection))
+        redirect_to admin_collection_path(item_set.collection)
       end
     end
 
