@@ -4,6 +4,10 @@ module Admin
 
     PERMITTED_PARAMS = [:default, :default_sortable_element_id, :name]
 
+    before_action :authorize_modify_metadata_profiles, only: [:clone, :create,
+                                                              :delete_elements,
+                                                              :destroy, :import,
+                                                              :update]
     before_action :set_permitted_params
 
     ##
@@ -181,6 +185,13 @@ module Admin
     end
 
     private
+
+    def authorize_modify_metadata_profiles
+      unless current_user.can?(Permissions::MODIFY_METADATA_PROFILES)
+        flash['error'] = 'You do not have permission to perform this action.'
+        redirect_to admin_metadata_profiles_url
+      end
+    end
 
     def set_permitted_params
       @permitted_params = params.permit(PERMITTED_PARAMS)

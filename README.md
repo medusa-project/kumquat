@@ -183,6 +183,17 @@ that the `develop` and `test` environments rely on the unencrypted
 `demo` and `production` environments rely on the `demo.yml.enc` and
 `production.yml.enc` files, which are Rails 6 encrypted credentials files.
 
+# Authorization
+
+In the production and demo environments, authorization uses LDAP. In
+development and test, there is one "canned user" for each Medusa LDAP group:
+
+* `user`: Library Medusa Users
+* `admin`: Library Medusa Admins
+* `super`: Library Medusa Super Admins
+
+Sign in with any of these using `[username]@example.org` as the password.
+
 # Jobs
 
 Most long-running operations are invoked in background jobs, which use Rails'

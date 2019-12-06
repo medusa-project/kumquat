@@ -8,11 +8,12 @@ module Admin
                         :subpage_number, :variant, allowed_host_group_ids: [],
                         denied_host_group_ids: []]
 
-    before_action :purge_items_rbac, only: :destroy_all
-    before_action :modify_items_rbac, only: [:batch_change_metadata,
-                                             :destroy_all, :edit, :import,
-                                             :migrate_metadata,
-                                             :replace_metadata, :sync, :update]
+    before_action :authorize_purge_items, only: :destroy_all
+    before_action :authorize_modify_items, only: [:batch_change_metadata,
+                                                  :destroy_all, :edit, :import,
+                                                  :migrate_metadata,
+                                                  :replace_metadata, :sync,
+                                                  :update]
     before_action :set_permitted_params, only: [:index, :show]
 
     ##
@@ -472,7 +473,7 @@ module Admin
           limit(limit)
     end
 
-    def modify_items_rbac
+    def authorize_modify_items
       redirect_to(admin_root_url) unless
           current_user.can?(Permissions::MODIFY_ITEMS)
     end
@@ -503,9 +504,11 @@ module Admin
       end
     end
 
-    def purge_items_rbac
-      redirect_to(admin_collection_url(params[:collection_id])) unless
-          current_user.can?(Permissions::PURGE_ITEMS_FROM_COLLECTION)
+    def authorize_purge_items
+      unless current_user.can?(Permissions::PURGE_ITEMS_FROM_COLLECTION)
+        flash['error'] = 'You do not have permission to perform this action.'
+        redirect_to admin_collection_url(params[:collection_id])
+      end
     end
 
     def sanitized_params

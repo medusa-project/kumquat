@@ -24,7 +24,7 @@
       </div>
     </div>
   <% end %>
-  <% unless @user.human %>
+  <% if !@user.human and current_user.can?(Permissions::MODIFY_USERS) %>
     <!-- Delete button -->
     <%= link_to admin_user_path(@user), method: :delete,
                 class: 'btn btn-danger',

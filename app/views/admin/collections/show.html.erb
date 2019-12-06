@@ -14,10 +14,12 @@
               class: 'btn btn-light' do %>
     <%= icon_for(Item) %> Objects
   <% end %>
-  <!-- Edit button -->
-  <%= link_to edit_admin_collection_path(@collection),
-              class: 'btn btn-light' do %>
-    <i class="fas fa-pencil-alt"></i> Edit
+  <% if current_user.can?(Permissions::MODIFY_COLLECTIONS) %>
+    <!-- Edit button -->
+    <%= link_to edit_admin_collection_path(@collection),
+                class: 'btn btn-light' do %>
+      <i class="fas fa-pencil-alt"></i> Edit
+    <% end %>
   <% end %>
   <!-- Statistics button -->
   <%= link_to admin_collection_statistics_path(@collection),

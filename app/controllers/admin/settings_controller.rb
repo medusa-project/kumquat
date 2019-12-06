@@ -9,7 +9,7 @@ module Admin
   #
   class SettingsController < ControlPanelController
 
-    before_action :modify_settings_rbac, only: [:index, :update]
+    before_action :authorize_modify_settings, only: [:index, :update]
 
     ##
     # Responds to PATCH /admin/settings/update
@@ -32,10 +32,10 @@ module Admin
 
     private
 
-    def modify_settings_rbac
+    def authorize_modify_settings
       unless current_user.can?(Permissions::MODIFY_SETTINGS)
         flash['error'] = 'You do not have permission to perform this action.'
-        redirect_to(admin_root_url)
+        redirect_to admin_settings_path
       end
     end
 

@@ -4,7 +4,7 @@ module Admin
 
     PERMITTED_PARAMS = [:q, :public_in_medusa, :published_in_dls, :start]
 
-    before_action :modify_collections_rbac, only: [:edit, :update, :sync]
+    before_action :authorize_modify_collections, only: [:edit, :update, :sync]
 
     ##
     # Responds to GET /admin/collections/:id/edit
@@ -178,9 +178,11 @@ module Admin
 
     private
 
-    def modify_collections_rbac
-      redirect_to(admin_root_url) unless
-          current_user.can?(Permissions::MODIFY_COLLECTIONS)
+    def authorize_modify_collections
+      unless current_user.can?(Permissions::MODIFY_COLLECTIONS)
+        flash['error'] = 'You do not have permission to perform this action.'
+        redirect_to admin_collections_url
+      end
     end
 
     def sanitized_params

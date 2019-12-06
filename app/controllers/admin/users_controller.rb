@@ -2,7 +2,7 @@ module Admin
 
   class UsersController < ControlPanelController
 
-    before_action :modify_users_rbac, only: [:create, :destroy, :edit, :new]
+    before_action :authorize_modify_users, only: [:create, :destroy, :edit, :new]
 
     def create
       begin
@@ -72,9 +72,11 @@ module Admin
 
     private
 
-    def modify_users_rbac
-      redirect_to(admin_root_url) unless
-          current_user.can?(Permissions::MODIFY_USERS)
+    def authorize_modify_users
+      unless current_user.can?(Permissions::MODIFY_USERS)
+        flash['error'] = 'You do not have permission to perform this action.'
+        redirect_to admin_users_url
+      end
     end
 
     def sanitized_params

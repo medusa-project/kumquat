@@ -6,16 +6,18 @@
                      { label: 'Elements' }) %>
 
 <div class="btn-group float-right" role="group">
-  <!-- Add Element button -->
-  <button type="button" class="btn btn-light" data-toggle="modal"
-          data-target="#dl-add-element-modal">
-    <span class="fa fa-plus"></span> Add Element
-  </button>
-  <!-- Import button -->
-  <button type="button" class="btn btn-light" data-toggle="modal"
-          data-target="#dl-import-modal">
-    <i class="fa fa-upload"></i> Import&hellip;
-  </button>
+  <% if current_user.can?(Permissions::MODIFY_ELEMENTS) %>
+    <!-- Add Element button -->
+    <button type="button" class="btn btn-light" data-toggle="modal"
+            data-target="#dl-add-element-modal">
+      <span class="fa fa-plus"></span> Add Element
+    </button>
+    <!-- Import button -->
+    <button type="button" class="btn btn-light" data-toggle="modal"
+            data-target="#dl-import-modal">
+      <i class="fa fa-upload"></i> Import&hellip;
+    </button>
+  <% end %>
   <!-- Export button -->
   <%= link_to @permitted_params.merge(format: 'json'), role: 'button', class: 'btn btn-light' do %>
     <i class="fa fa-download"></i> Export
@@ -39,23 +41,27 @@
     <% @elements.each do |row| %>
       <tr>
         <td style="white-space: nowrap">
-          <button type="button" class="btn btn-light btn-sm dl-edit-element"
-                  data-toggle="modal" data-target="#dl-edit-element-modal"
-                  data-element-id="<%= row['name'] %>">
-            <i class="fas fa-pencil-alt"></i> Edit
-          </button>
+          <% if current_user.can?(Permissions::MODIFY_ELEMENTS) %>
+            <button type="button" class="btn btn-light btn-sm dl-edit-element"
+                    data-toggle="modal" data-target="#dl-edit-element-modal"
+                    data-element-id="<%= row['name'] %>">
+              <i class="fas fa-pencil-alt"></i> Edit
+            </button>
+          <% end %>
         </td>
         <td style="white-space: nowrap">
-          <% if row['count'].to_i > 0 %>
-            <%= link_to '#', class: 'btn btn-danger btn-sm', disabled: true do %>
-              <i class="fa fa-trash"></i> Delete
-            <% end %>
-          <% else %>
-            <%= link_to admin_element_path(row['name']),
-                        class: 'btn btn-danger btn-sm', method: :delete,
-                        data: { confirm: 'Are you sure you want to delete '\
-                        'this element?' } do %>
-               <i class="fa fa-trash"></i> Delete
+          <% if current_user.can?(Permissions::MODIFY_ELEMENTS) %>
+            <% if row['count'].to_i > 0 %>
+              <%= link_to '#', class: 'btn btn-danger btn-sm', disabled: true do %>
+                <i class="fa fa-trash"></i> Delete
+              <% end %>
+            <% else %>
+              <%= link_to admin_element_path(row['name']),
+                          class: 'btn btn-danger btn-sm', method: :delete,
+                          data: { confirm: 'Are you sure you want to delete '\
+                          'this element?' } do %>
+                 <i class="fa fa-trash"></i> Delete
+              <% end %>
             <% end %>
           <% end %>
         </td>

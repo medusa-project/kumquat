@@ -9,7 +9,9 @@
 class Permissions
 
   MODIFY_COLLECTIONS          = 'collections.modify'
+  MODIFY_ELEMENTS             = 'elements.modify'
   MODIFY_ITEMS                = 'items.modify'
+  MODIFY_METADATA_PROFILES    = 'metadata_profiles.modify'
   MODIFY_SETTINGS             = 'settings.modify'
   MODIFY_USERS                = 'users.modify'
   PURGE_ITEMS_FROM_COLLECTION = 'collections.purge_items'

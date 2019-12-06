@@ -11,6 +11,8 @@ module Admin
 
     PERMITTED_PARAMS = [:description, :name]
 
+    before_action :authorize_modify_elements, only: [:create, :destroy, :edit,
+                                                     :import, :update]
     before_action :set_permitted_params
 
     ##
@@ -173,6 +175,13 @@ module Admin
     end
 
     private
+
+    def authorize_modify_elements
+      unless current_user.can?(Permissions::MODIFY_ELEMENTS)
+        flash['error'] = 'You do not have permission to perform this action.'
+        redirect_to admin_elements_url
+      end
+    end
 
     def sanitized_params
       params.require(:element).permit(PERMITTED_PARAMS)
