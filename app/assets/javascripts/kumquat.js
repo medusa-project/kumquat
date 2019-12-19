@@ -5,24 +5,31 @@ var Application = {
      */
     initFacets: function() {
         var addFacetEventListeners = function() {
-            $('[name="dl-facet-term"]').on('change', function() {
-                // Create hidden input counterparts of each checked checkbox, as
-                // checkboxes' values can't change.
-                var form = $(this).parents('form:first');
+            $('[name="dl-facet-term"]').off().on('change', function() {
+                var form  = $(this).parents('form:first');
+                var path  = $('[name=dl-current-path]').val();
+
                 form.find('[name="fq"]').remove();
                 form.find('[name="fq[]"]').remove();
+                // Create hidden input counterparts of each checked checkbox, as
+                // checkboxes' values can't change.
                 form.find('[name=dl-facet-term]:checked').each(function() {
                     var input = $('<input type="hidden" name="fq[]">');
                     input.val($(this).data('query'));
                     form.append(input);
                 });
 
+                var query = form.serialize();
+
                 $.ajax({
-                    url: $('[name=dl-current-path]').val(),
+                    url: path,
                     method: 'GET',
-                    data: form.serialize(),
+                    data: query,
                     dataType: 'script',
                     success: function(result) {
+                        // Enables results page persistence after back/forward
+                        // navigation.
+                        window.location.hash = query;
                         eval(result);
                     },
                     error: function(xhr, status, error) {
@@ -159,12 +166,17 @@ var Application = {
 
         var submitForm = function () {
             var forms = $('form.dl-filter');
+            var query = forms.serialize();
             $.ajax({
                 url: forms.attr('action'),
                 method: 'GET',
-                data: forms.serialize(),
+                data: query,
                 dataType: 'script',
-                success: function(result) {}
+                success: function(result) {
+                    // Enables results page persistence after back/forward
+                    // navigation.
+                    window.location.hash = query;
+                }
             });
             return false;
         };

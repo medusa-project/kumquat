@@ -399,16 +399,38 @@ var PTItemsView = function() {
         Application.initFacets();
 
         // Submit the sort form on change.
-        $('select[name="sort"]').on('change', function () {
+        $('select[name="sort"]').off().on('change', function () {
+            var query = $(this).parents('form:first')
+                .find(':not(input[name=collection_id])').serialize();
             $.ajax({
                 url: $('[name=dl-current-path]').val(),
                 method: 'GET',
-                data: $(this).parents('form:first').serialize(),
+                data: query,
                 dataType: 'script',
                 success: function (result) {
+                    // Enables results page persistence after back/forward
+                    // navigation.
+                    window.location.hash = query;
                     eval(result);
                 }
             });
+        });
+
+        // Override Rails' handling of link_to() with `remote: true` option.
+        // We are doing the same thing but also updating the hash.
+        $('.page-link').on('click', function() {
+            var url   = $(this).attr('href');
+            var query = url.substring(url.indexOf("?") + 1);
+            $.ajax({
+                url: url,
+                method: 'GET',
+                dataType: 'script',
+                success: function(result) {
+                    window.location.hash = query;
+                    eval(result);
+                }
+            });
+            return false;
         });
 
         self.attachEventListeners();
@@ -604,7 +626,7 @@ var PTTreeBrowserView = function() {
 
     var getRootTreeDataURL = function() {
         var ID = window.location.pathname.split("/")[2];
-        return '/collections/'+ID+'/items/treedata.json';
+        return '/collections/' + ID + '/items/treedata.json';
     };
 
     var retrieveItemView = function(ajax_url) {
@@ -619,7 +641,7 @@ var PTTreeBrowserView = function() {
 
 };
 
-var ready = function() {
+$(document).ready(function() {
     if ($('body#tree_browser').length) {
         Application.view = new PTTreeBrowserView();
         Application.view.init();
@@ -630,6 +652,28 @@ var ready = function() {
         Application.view = new PTItemView();
         Application.view.init();
     }
-};
+});
 
-$(document).ready(ready);
+/**
+ * When the page is shown, restore page state based on the query embedded in
+ * the hash. This has to be done on pageshow because document.ready doesn't
+ * fire on back/forward.
+ */
+$(window).on("pageshow", function(event) {
+    if ($('body#items_index').length && !event.originalEvent.persisted) {
+        var query = window.location.hash;
+        if (query.length) {
+            query = query.substring(1); // trim off the `#`
+            console.debug('Restoring ' + query);
+            $.ajax({
+                url: $('[name=dl-current-path]').val(),
+                method: 'GET',
+                data: query,
+                dataType: 'script',
+                success: function (result) {
+                    eval(result);
+                }
+            });
+        }
+    }
+});
