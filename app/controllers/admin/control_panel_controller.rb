@@ -4,6 +4,7 @@ module Admin
 
     layout 'admin/application'
 
+    before_action :authorize_user
     after_action :flash_in_response_headers
 
     protected
@@ -21,6 +22,10 @@ module Admin
     private
 
     @keep_flash = false
+
+    def authorize_user
+      redirect_to signin_path unless signed_in?
+    end
 
     ##
     # Stores the flash message and type ('error' or 'success') in the response
