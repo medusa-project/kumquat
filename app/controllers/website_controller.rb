@@ -17,7 +17,7 @@ class WebsiteController < ApplicationController
   def authorize(model)
     if model&.respond_to?(:authorized_by_any_host_groups?) # AuthorizableByHost method
       unless model.authorized_by_any_host_groups?(client_host_groups)
-        msg = sprintf('Authorization for %s %s denied for host groups: %s',
+        msg = sprintf('Authorization for %s %s denied for host groups: [%s]',
                       model.class.to_s,
                       model.respond_to?(:repository_id) ? model.repository_id : model.id,
                       client_host_groups.to_a.join(', '))

@@ -32,13 +32,13 @@ class AuthorizableByHostTest < ActiveSupport::TestCase
     assert !@collection.authorized_by_any_host_groups?([host_groups(:yellow)])
   end
 
-  test 'authorized_by_any_host_groups?() returns false if given an allowed host
+  test 'authorized_by_any_host_groups?() returns true if given an allowed host
   group and a denied host group' do
     g1 = host_groups(:blue)
     g2 = host_groups(:yellow)
     @collection.allowed_host_groups << g1
     @collection.denied_host_groups << g2
-    assert !@collection.authorized_by_any_host_groups?([g1, g2])
+    assert @collection.authorized_by_any_host_groups?([g1, g2])
   end
 
   # authorized_by_host_group?()
