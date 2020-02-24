@@ -14,7 +14,7 @@ xml.tag!('OAI-PMH',
 
   # 3.2 #3
   query = @errors.select{ |e| %w(badVerb badArgument).include?(e[:code]) }.any? ?
-      {} : params.except('controller', 'action')
+      {} : params.except('controller', 'action').to_unsafe_hash
   xml.tag!('request', query, oai_pmh_url)
 
   # 3.2 #4, 3.6
