@@ -120,15 +120,71 @@ class OaiPmhControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'GetRecord returns errors when arguments are invalid' do
-    get '/oai-pmh', params: { verb: 'GetRecord', identifier: @valid_identifier,
-        metadataPrefix: 'cats' }
+    get '/oai-pmh', params: { verb: 'GetRecord',
+                              identifier: @valid_identifier,
+                              metadataPrefix: 'cats' }
     assert_select 'error', 'The metadata format identified by the '\
     'metadataPrefix argument is not supported by this repository.'
 
-    get '/oai-pmh', params: { verb: 'GetRecord', metadataPrefix: 'oai_dc',
-        identifier: 'cats' }
+    get '/oai-pmh', params: { verb: 'GetRecord',
+                              metadataPrefix: 'oai_dc',
+                              identifier: 'cats' }
     assert_select 'error', 'The value of the identifier argument is unknown '\
     'or illegal in this repository.'
+  end
+
+  test 'GetRecord supports only oai_dc and oai_dcterms for the generic endpoint' do
+    get '/oai-pmh', params: { verb: 'GetRecord',
+                              identifier: @valid_identifier,
+                              metadataPrefix: 'oai_dc' }
+    assert_select 'GetRecord > record > header > identifier', @valid_identifier
+
+    get '/oai-pmh', params: { verb: 'GetRecord',
+                              identifier: @valid_identifier,
+                              metadataPrefix: 'oai_dcterms' }
+    assert_select 'GetRecord > record > header > identifier', @valid_identifier
+
+    get '/oai-pmh', params: { verb: 'GetRecord',
+                              identifier: @valid_identifier,
+                              metadataPrefix: 'oai_primo' }
+    assert_select 'error', 'The metadata format identified by the '\
+    'metadataPrefix argument is not supported by this repository.'
+  end
+
+  test 'GetRecord supports only oai_dc and oai_idhh for the IDHH endpoint' do
+    get '/oai-pmh/idhh', params: { verb: 'GetRecord',
+                                   identifier: @valid_identifier,
+                                   metadataPrefix: 'oai_dc' }
+    assert_select 'GetRecord > record > header > identifier', @valid_identifier
+
+    get '/oai-pmh/idhh', params: { verb: 'GetRecord',
+                                   identifier: @valid_identifier,
+                                   metadataPrefix: 'oai_idhh' }
+    assert_select 'GetRecord > record > header > identifier', @valid_identifier
+
+    get '/oai-pmh/idhh', params: { verb: 'GetRecord',
+                                   identifier: @valid_identifier,
+                                   metadataPrefix: 'oai_dcterms' }
+    assert_select 'error', 'The metadata format identified by the '\
+    'metadataPrefix argument is not supported by this repository.'
+  end
+
+  test 'GetRecord supports only oai_dc and oai_primo for the Primo endpoint' do
+    get '/oai-pmh/primo', params: { verb: 'GetRecord',
+                                    identifier: @valid_identifier,
+                                    metadataPrefix: 'oai_dc' }
+    assert_select 'GetRecord > record > header > identifier', @valid_identifier
+
+    get '/oai-pmh/primo', params: { verb: 'GetRecord',
+                                    identifier: @valid_identifier,
+                                    metadataPrefix: 'oai_primo' }
+    assert_select 'GetRecord > record > header > identifier', @valid_identifier
+
+    get '/oai-pmh/primo', params: { verb: 'GetRecord',
+                                    identifier: @valid_identifier,
+                                    metadataPrefix: 'oai_idhh' }
+    assert_select 'error', 'The metadata format identified by the '\
+        'metadataPrefix argument is not supported by this repository.'
   end
 
   # 4.2 Identify
@@ -170,8 +226,10 @@ class OaiPmhControllerTest < ActionDispatch::IntegrationTest
 
   test 'ListIdentifiers returns an error when correct arguments are passed and
   no results are available' do
-    get '/oai-pmh', params: { verb: 'ListIdentifiers', metadataPrefix: 'oai_dc',
-        from: '1985-01-01', until: '1985-01-02' }
+    get '/oai-pmh', params: { verb: 'ListIdentifiers',
+                              metadataPrefix: 'oai_dc',
+                              from: '1985-01-01',
+                              until: '1985-01-02' }
     assert_select 'error', 'No matching records.'
   end
 
@@ -200,10 +258,31 @@ class OaiPmhControllerTest < ActionDispatch::IntegrationTest
   end
 
   # 4.4 ListMetadataFormats
-  test 'ListMetadataFormats returns a list when no arguments are provided' do
+  test 'ListMetadataFormats returns a list when no arguments are provided to
+  the generic endpoint' do
     get '/oai-pmh', params: { verb: 'ListMetadataFormats' }
     assert_select 'ListMetadataFormats > metadataFormat > metadataPrefix',
                   'oai_dc'
+    assert_select 'ListMetadataFormats > metadataFormat > metadataPrefix',
+                  'oai_dcterms'
+  end
+
+  test 'ListMetadataFormats returns a list when no arguments are provided to
+  the IDHH endpoint' do
+    get '/oai-pmh/idhh', params: { verb: 'ListMetadataFormats' }
+    assert_select 'ListMetadataFormats > metadataFormat > metadataPrefix',
+                  'oai_dc'
+    assert_select 'ListMetadataFormats > metadataFormat > metadataPrefix',
+                  'oai_idhh'
+  end
+
+  test 'ListMetadataFormats returns a list when no arguments are provided to
+  the Primo endpoint' do
+    get '/oai-pmh/primo', params: { verb: 'ListMetadataFormats' }
+    assert_select 'ListMetadataFormats > metadataFormat > metadataPrefix',
+                  'oai_dc'
+    assert_select 'ListMetadataFormats > metadataFormat > metadataPrefix',
+                  'oai_primo'
   end
 
   test 'ListMetadataFormats accepts an optional identifier argument' do
@@ -239,8 +318,10 @@ class OaiPmhControllerTest < ActionDispatch::IntegrationTest
     assert_select 'ListRecords > record > header > identifier',
                   @valid_identifier
 
-    get '/oai-pmh', params: { verb: 'ListRecords', metadataPrefix: 'oai_dc',
-        from: '2012-01-01', until: '2030-01-01' }
+    get '/oai-pmh', params: { verb: 'ListRecords',
+                              metadataPrefix: 'oai_dc',
+                              from: '2012-01-01',
+                              until: '2030-01-01' }
     assert_select 'ListRecords > record > header > identifier',
                   @valid_identifier
   end
@@ -274,6 +355,48 @@ class OaiPmhControllerTest < ActionDispatch::IntegrationTest
                               resumptionToken: 'offset:10',
                               set: collections(:sanborn).repository_id }
     assert_select 'error', 'resumptionToken is an exclusive argument.'
+  end
+
+  test 'ListRecords supports only oai_dc and oai_dcterms for the generic endpoint' do
+    get '/oai-pmh', params: { verb: 'ListRecords', metadataPrefix: 'oai_dc' }
+    assert_select 'ListRecords > record > header > identifier',
+                  @valid_identifier
+
+    get '/oai-pmh', params: { verb: 'ListRecords', metadataPrefix: 'oai_dcterms' }
+    assert_select 'ListRecords > record > header > identifier',
+                  @valid_identifier
+
+    get '/oai-pmh', params: { verb: 'ListRecords', metadataPrefix: 'oai_idhh' }
+    assert_select 'error', 'The metadata format identified by the '\
+    'metadataPrefix argument is not supported by this repository.'
+  end
+
+  test 'ListRecords supports only oai_dc and oai_idhh for the IDHH endpoint' do
+    get '/oai-pmh/idhh', params: { verb: 'ListRecords', metadataPrefix: 'oai_dc' }
+    assert_select 'ListRecords > record > header > identifier',
+                  @valid_identifier
+
+    get '/oai-pmh/idhh', params: { verb: 'ListRecords', metadataPrefix: 'oai_idhh' }
+    assert_select 'ListRecords > record > header > identifier',
+                  @valid_identifier
+
+    get '/oai-pmh/idhh', params: { verb: 'ListRecords', metadataPrefix: 'oai_dcterms' }
+    assert_select 'error', 'The metadata format identified by the '\
+    'metadataPrefix argument is not supported by this repository.'
+  end
+
+  test 'ListRecords supports only oai_dc and oai_primo for the Primo endpoint' do
+    get '/oai-pmh/primo', params: { verb: 'ListRecords', metadataPrefix: 'oai_dc' }
+    assert_select 'ListRecords > record > header > identifier',
+                  @valid_identifier
+
+    get '/oai-pmh/primo', params: { verb: 'ListRecords', metadataPrefix: 'oai_primo' }
+    assert_select 'ListRecords > record > header > identifier',
+                  @valid_identifier
+
+    get '/oai-pmh/primo', params: { verb: 'ListRecords', metadataPrefix: 'oai_dcterms' }
+    assert_select 'error', 'The metadata format identified by the '\
+    'metadataPrefix argument is not supported by this repository.'
   end
 
   # 4.6 ListSets

@@ -1,19 +1,31 @@
 ##
-# Controller for the OAI-PMH endpoint.
+# Controller for the OAI-PMH endpoints.
 #
-# Identifier syntax:
+# # Routes
+#
+# This controller serves three separate OAI-PMH endpoints:
+#
+# 1. The generic endpoint, at `/oai-pmh`, serves `oai_dc` and `oai_dcterms`
+#    metadata to general harvesters.
+# 2. The `/oai-pmh/idhh` serves `oai_idhh` metadata tailored for the [Illinois
+#    Digital Heritage Hub (IDHH)](http://idhh.dp.la).
+# 3. The `/oai-pmh/primo` serves `oai_primo` metadata tailored for the
+#    Library's Primo catalog. It also serves different result sets than the
+#    other endpoints.
+#
+# # Identifier syntax
 #
 # `oai:host:port:repository_id`
 #
-# Resumption token:
+# # Resumption tokens
 #
-# The resumption token is ROT-18-encoded to make it appear opaque and
-# discourage clients from changing it, even though if they do, it's not a big
+# Resumption tokens are ROT-18-encoded in order to make them appear opaque and
+# discourage clients from changing them, even though if they do, it's not a big
 # deal. The decoded format is:
 #
 # `set:n|from:n|until:n|start:n|metadataPrefix:n`
 #
-# Components can be in any order but the separators (colons and bars) are
+# Components can be in any order, but the separators (colons and bars) are
 # important.
 #
 # @see http://www.openarchives.org/OAI/openarchivesprotocol.html
@@ -21,48 +33,60 @@
 #
 class OaiPmhController < ApplicationController
 
+  class Endpoint
+    GENERIC = 'generic'
+    IDHH    = 'idhh'
+    PRIMO   = 'primo'
+  end
+
   include OaiPmhHelper
 
   protect_from_forgery with: :null_session
 
-  before_action :check_pmh_enabled
-  before_action :validate_request
+  before_action :check_pmh_enabled, :set_endpoint, :validate_request
 
+  DC_METADATA_FORMAT = {
+      prefix: 'oai_dc',
+      uri:    'http://www.openarchives.org/OAI/2.0/oai_dc/',
+      schema: 'http://www.openarchives.org/OAI/2.0/oai_dc.xsd'
+  }
+  DCTERMS_METADATA_FORMAT = {
+      prefix: 'oai_dcterms',
+      uri:    'http://purl.org/dc/terms/',
+      schema: 'http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd'
+  }
+  IDHH_METADATA_FORMAT = {
+      prefix: 'oai_idhh',
+      uri:    'https://digital.library.illinois.edu/oai-pmh/idhh/',
+      schema: 'https://digital.library.illinois.edu/oai-pmh/idhh.xsd' # TODO: this XSD is incorrect
+  }
+  PRIMO_METADATA_FORMAT = {
+      prefix: 'oai_primo',
+      uri:    'https://digital.library.illinois.edu/oai-pmh/primo/',
+      schema: 'https://digital.library.illinois.edu/oai-pmh/primo.xsd' # TODO: this XSD is incorrect
+  }
   MAX_RESULT_WINDOW = 100
   RESUMPTION_TOKEN_COMPONENT_SEPARATOR = '|'
   RESUMPTION_TOKEN_KEY_VALUE_SEPARATOR = ':'
-  SUPPORTED_METADATA_FORMATS = [
-      {
-          name: 'oai_dc',
-          schema: 'http://www.openarchives.org/OAI/2.0/oai_dc.xsd',
-          namespace: 'http://www.openarchives.org/OAI/2.0/oai_dc/'
-      },
-      {
-          name: 'oai_dcterms',
-          schema: 'http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd',
-          namespace: 'http://purl.org/dc/terms/'
-      },
-      {
-          name: 'oai_qdc', # mix of "dc:" and "dcterms:" a la CONTENTdm
-          schema: 'http://dublincore.org/schemas/xmls/qdc/2003/04/02/appqualifieddc.xsd',
-          namespace: 'http://oclc.org/appqualifieddc/'
-      }
-  ]
 
   def initialize
     super
-    @errors = [] # list of hashes with 'code' and 'description' keys
+    @errors = [] # array of hashes with `:code` and `:description` keys
   end
 
-  def index
+  ##
+  # Responds to `GET/POST /oai-pmh`, `GET/POST /oai-pmh/idhh`, and
+  # `GET/POST /oai-pmh/primo`
+  #
+  def handle
     if @errors.any? # validate_request() may have added some
       template = 'error.xml.builder'
       render template
       return
     end
 
-    @metadata_format = get_metadata_prefix
-    @host = request.host_with_port
+    @metadata_format      = get_metadata_prefix
+    @host                 = request.host_with_port
     response.content_type = 'text/xml'
 
     template = nil
@@ -85,14 +109,9 @@ class OaiPmhController < ApplicationController
         @errors << { code: 'badVerb', description: 'Illegal verb argument.' }
     end
 
-    @query = @errors.select{ |e| %w(badVerb badArgument).include?(e[:code]) }.any? ?
-                 {} : params.except('controller', 'action').to_unsafe_hash
-
     template = 'error.xml.builder' if @errors.any?
     render template
   end
-
-  protected
 
   def do_get_record
     @item = item_for_oai_pmh_identifier(params[:identifier], @host)
@@ -124,6 +143,15 @@ class OaiPmhController < ApplicationController
                    description: 'The value of the identifier argument is '\
                        'unknown or illegal in this repository.' } unless @item
     end
+
+    case @endpoint
+    when Endpoint::IDHH
+      @metadata_formats = [DC_METADATA_FORMAT, IDHH_METADATA_FORMAT]
+    when Endpoint::PRIMO
+      @metadata_formats = [DC_METADATA_FORMAT, PRIMO_METADATA_FORMAT]
+    else
+      @metadata_formats = [DC_METADATA_FORMAT, DCTERMS_METADATA_FORMAT]
+    end
     'list_metadata_formats.xml.builder'
   end
 
@@ -136,12 +164,11 @@ class OaiPmhController < ApplicationController
     @results = Collection.where(public_in_medusa: true,
                                 published_in_dls: true,
                                 harvestable: true).order(:repository_id)
-    @total_num_results = @results.count
-    @results_offset = get_start
-    @results = @results.offset(@results_offset)
-    @next_page_available =
-        (@results_offset + MAX_RESULT_WINDOW < @total_num_results)
-    @expiration_date = resumption_token_expiration_date
+    @total_num_results   = @results.count
+    @results_offset      = get_start
+    @results             = @results.offset(@results_offset)
+    @next_page_available = (@results_offset + MAX_RESULT_WINDOW < @total_num_results)
+    @expiration_date     = resumption_token_expiration_date
     @results.limit(MAX_RESULT_WINDOW)
     'list_sets.xml.builder'
   end
@@ -195,7 +222,6 @@ class OaiPmhController < ApplicationController
     parse_resumption_token('until') || params[:until]
   end
 
-
   def parse_resumption_token(key)
     if params[:resumptionToken].present?
       decoded = StringUtils.rot18(params[:resumptionToken])
@@ -220,12 +246,12 @@ class OaiPmhController < ApplicationController
               Item::Variants::FILE).
         order(created_at: :asc)
 
-    from = get_from
+    from      = get_from
     from_time = nil
     from_time = Time.parse(from).utc.iso8601 if from
-    to = get_until
-    to_time = nil
-    to_time = Time.parse(to).utc.iso8601 if to
+    to        = get_until
+    to_time   = nil
+    to_time   = Time.parse(to).utc.iso8601 if to
 
     if from_time != to_time
       @results = @results.where('items.created_at >= ?', from_time).
@@ -238,14 +264,13 @@ class OaiPmhController < ApplicationController
     @errors << { code: 'noRecordsMatch',
                  description: 'No matching records.' } unless @results.any?
 
-    @total_num_results = @results.count
-    @results_offset = get_start
-    @results = @results.offset(@results_offset)
-    @next_page_available =
-        (@results_offset + MAX_RESULT_WINDOW < @total_num_results)
-    @resumption_token = resumption_token(set, from, to, @results_offset,
-                                         @metadata_format)
-    @expiration_date = resumption_token_expiration_date
+    @total_num_results   = @results.count
+    @results_offset      = get_start
+    @results             = @results.offset(@results_offset)
+    @next_page_available = (@results_offset + MAX_RESULT_WINDOW < @total_num_results)
+    @resumption_token    = resumption_token(set, from, to, @results_offset,
+                                            @metadata_format)
+    @expiration_date     = resumption_token_expiration_date
     @results.limit(MAX_RESULT_WINDOW)
   end
 
@@ -265,6 +290,16 @@ class OaiPmhController < ApplicationController
 
   def resumption_token_expiration_date
     (Time.now + 1.hour).utc.iso8601
+  end
+
+  def set_endpoint
+    if request.path.end_with?('idhh')
+      @endpoint = Endpoint::IDHH
+    elsif request.path.end_with?('primo')
+      @endpoint = Endpoint::PRIMO
+    else
+      @endpoint = Endpoint::GENERIC
+    end
   end
 
   ##
@@ -348,12 +383,24 @@ class OaiPmhController < ApplicationController
     end
 
     # metadataPrefix validation
-    if params[:metadataPrefix].present? and
-        !SUPPORTED_METADATA_FORMATS.map{ |f| f[:name] }.include?(params[:metadataPrefix])
-      @errors << { code: 'cannotDisseminateFormat',
-                   description: 'The metadata format identified by the '\
+    if params[:metadataPrefix].present?
+      case @endpoint
+      when Endpoint::IDHH
+        valid = [DC_METADATA_FORMAT, IDHH_METADATA_FORMAT].
+            map{ |f| f[:prefix] }.include?(params[:metadataPrefix])
+      when Endpoint::PRIMO
+        valid = [DC_METADATA_FORMAT, PRIMO_METADATA_FORMAT].
+            map{ |f| f[:prefix] }.include?(params[:metadataPrefix])
+      else
+        valid = [DC_METADATA_FORMAT, DCTERMS_METADATA_FORMAT].
+            map{ |f| f[:prefix] }.include?(params[:metadataPrefix])
+      end
+      unless valid
+        @errors << { code: 'cannotDisseminateFormat',
+                     description: 'The metadata format identified by the '\
                      'metadataPrefix argument is not supported by this '\
                      'repository.' }
+      end
     end
   end
 

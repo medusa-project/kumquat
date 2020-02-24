@@ -23,11 +23,11 @@ xml.tag!('OAI-PMH',
   else
     # 4.4
     xml.tag!('ListMetadataFormats') do
-      OaiPmhController::SUPPORTED_METADATA_FORMATS.each do |format|
+      @metadata_formats.each do |format|
         xml.tag!('metadataFormat') do
-          xml.tag!('metadataPrefix', format[:name])
+          xml.tag!('metadataPrefix', format[:prefix])
           xml.tag!('schema', format[:schema])
-          xml.tag!('metadataNamespace', format[:namespace])
+          xml.tag!('metadataNamespace', format[:uri])
         end
       end
     end

@@ -4,9 +4,9 @@ xml = Builder::XmlMarkup.new
 xml.instruct!
 
 xml.tag!('OAI-PMH',
-         { 'xmlns' => 'http://www.openarchives.org/OAI/2.0/',
-           'xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance',
-           'xsi:schemaLocation' => 'http://www.openarchives.org/OAI/2.0/ '\
+         { 'xmlns': 'http://www.openarchives.org/OAI/2.0/',
+           'xmlns:xsi': 'http://www.w3.org/2001/XMLSchema-instance',
+           'xsi:schemaLocation': 'http://www.openarchives.org/OAI/2.0/ '\
            'http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd'
          }) do
   # 3.2 #3
@@ -18,7 +18,7 @@ xml.tag!('OAI-PMH',
   # 3.2 #4, 3.6
   if @errors.any?
     @errors.each do |error|
-      xml.tag!('error', { 'code' => error[:code] }, error[:description])
+      xml.tag!('error', { code: error[:code] }, error[:description])
     end
   else
     # 4.5
@@ -34,20 +34,22 @@ xml.tag!('OAI-PMH',
           end
           xml.tag!('metadata') do
             case @metadata_format
-              when 'oai_qdc'
-                oai_pmh_qdc_elements_for(item, xml)
-              when 'oai_dcterms'
-                oai_pmh_dcterms_elements_for(item, xml)
-              else
-                oai_pmh_dc_elements_for(item, xml)
+            when OaiPmhController::IDHH_METADATA_FORMAT
+              oai_pmh_idhh_elements_for(item, xml)
+            when OaiPmhController::PRIMO_METADATA_FORMAT
+              oai_pmh_primo_elements_for(item, xml)
+            when OaiPmhController::DCTERMS_METADATA_FORMAT
+              oai_pmh_dcterms_elements_for(item, xml)
+            else
+              oai_pmh_dc_elements_for(item, xml)
             end
           end
         end
       end
       xml.tag!('resumptionToken',
-               { 'completeListSize' => @total_num_results,
-                 'cursor' => @results_offset,
-                 'expirationDate' => @expiration_date },
+               { completeListSize: @total_num_results,
+                 cursor: @results_offset,
+                 expirationDate: @expiration_date },
                @next_page_available ? @resumption_token : nil)
     end
   end
