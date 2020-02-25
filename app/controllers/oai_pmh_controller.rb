@@ -128,6 +128,15 @@ class OaiPmhController < ApplicationController
   def do_identify
     item = Item.order(created_at: :asc).limit(1).first
     @earliest_datestamp = item ? item.created_at.utc.iso8601 : nil
+
+    case @endpoint
+    when Endpoint::IDHH
+      @base_url = idhh_oai_pmh_url
+    when Endpoint::PRIMO
+      @base_url = primo_oai_pmh_url
+    else
+      @base_url = oai_pmh_url
+    end
     'identify.xml.builder'
   end
 

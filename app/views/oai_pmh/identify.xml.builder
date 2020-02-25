@@ -25,7 +25,7 @@ xml.tag!('OAI-PMH',
     xml.tag!('Identify') do
       xml.tag!('repositoryName',
                Option::string(Option::Keys::WEBSITE_NAME))
-      xml.tag!('baseURL', root_url)
+      xml.tag!('baseURL', @base_url)
       xml.tag!('protocolVersion', '2.0')
       xml.tag!('adminEmail', Option::string(Option::Keys::ADMINISTRATOR_EMAIL))
       xml.tag!('earliestDatestamp', @earliest_datestamp)
