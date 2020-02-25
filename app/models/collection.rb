@@ -48,8 +48,14 @@
 #                              used in the description boxes in results view.
 # * `external_id               Value of the Medusa "external ID" field.
 # * `harvestable               Controls visiblity of the collection's contents
-#                              in the OAI-PMH (or whatever) harvesting
-#                              endpoints.
+#                              in the generic OAI-PMH harvesting endpoint. (See
+#                              {OaiPmhController}.)
+# * `harvestable_by_idhh       Controls visiblity of the collection's contents
+#                              in the IDHH OAI-PMH harvesting endpoint. (See
+#                              {OaiPmhController}.)
+# * `harvestable_by_primo      Controls visiblity of the collection's contents
+#                              in the Primo OAI-PMH harvesting endpoint. (See
+#                              {OaiPmhController}.)
 # * `medusa_cfs_directory_id`  Medusa UUID of the root directory in which the
 #                              collection's contents reside. If nil, the root
 #                              directory of the file group will be used.
@@ -120,6 +126,8 @@ class Collection < ApplicationRecord
     EFFECTIVE_DENIED_HOST_GROUPS       = 'sys_k_effective_denied_host_groups'
     EXTERNAL_ID                        = 'sys_k_external_id'
     HARVESTABLE                        = 'sys_b_harvestable'
+    HARVESTABLE_BY_IDHH                = 'sys_b_harvestable_by_idhh'
+    HARVESTABLE_BY_PRIMO               = 'sys_b_harvestable_by_primo'
     LAST_INDEXED                       = ElasticsearchIndex::StandardFields::LAST_INDEXED
     LAST_MODIFIED                      = ElasticsearchIndex::StandardFields::LAST_MODIFIED
     NATIVE                             = 'sys_b_native'
@@ -332,6 +340,8 @@ class Collection < ApplicationRecord
         doc[IndexFields::DENIED_HOST_GROUP_COUNT]
     doc[IndexFields::EXTERNAL_ID] = self.external_id
     doc[IndexFields::HARVESTABLE] = self.harvestable
+    doc[IndexFields::HARVESTABLE_BY_IDHH] = self.harvestable_by_idhh
+    doc[IndexFields::HARVESTABLE_BY_PRIMO] = self.harvestable_by_primo
     doc[IndexFields::LAST_INDEXED] = Time.now.utc.iso8601
     doc[IndexFields::LAST_MODIFIED] = self.updated_at.utc.iso8601
     doc[IndexFields::NATIVE] = self.package_profile_id.present?

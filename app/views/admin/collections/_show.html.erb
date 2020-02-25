@@ -149,12 +149,21 @@
         </td>
       </tr>
       <tr>
-        <td>DLS</td>
+        <td>Published</td>
         <td>
           <span class="badge <%= @collection.published_in_dls ? 'badge-success' : 'badge-danger' %>">
             <%= @collection.published_in_dls ? 'Published' : 'Unpublished' %></span>
+        </td>
+      </tr>
+      <tr>
+        <td>Harvestable</td>
+        <td>
           <span class="badge <%= @collection.harvestable ? 'badge-success' : 'badge-danger' %>">
-            <%= @collection.harvestable ? 'Harvestable' : 'Unharvestable' %></span>
+            <%= @collection.harvestable ? 'Harvestable (in general)' : 'Unharvestable (in general)' %></span>
+          <span class="badge <%= @collection.harvestable_by_idhh ? 'badge-success' : 'badge-danger' %>">
+            <%= @collection.harvestable_by_idhh ? 'Harvestable by IDHH' : 'Unharvestable by IDHH' %></span>
+          <span class="badge <%= @collection.harvestable_by_primo ? 'badge-success' : 'badge-danger' %>">
+            <%= @collection.harvestable_by_primo ? 'Harvestable by Primo' : 'Unharvestable by Primo' %></span>
         </td>
       </tr>
       <tr>

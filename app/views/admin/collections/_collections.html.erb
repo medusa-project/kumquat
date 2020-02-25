@@ -11,7 +11,9 @@
     <th>Items</th>
     <th class="text-center">Public in Medusa</th>
     <th class="text-center">Published</th>
-    <th class="text-center">Harvestable</th>
+    <th class="text-center">Harvestable (in general)</th>
+    <th class="text-center">Harvestable by IDHH</th>
+    <th class="text-center">Harvestable by Primo</th>
   </thead>
   <tbody>
     <% @collections.each do |col| %>
@@ -27,6 +29,12 @@
         </td>
         <td class="text-center <%= col.harvestable ? 'bg-success' : 'bg-danger' %>">
           <%= boolean(col.harvestable) %>
+        </td>
+        <td class="text-center <%= col.harvestable_by_idhh ? 'bg-success' : 'bg-danger' %>">
+          <%= boolean(col.harvestable_by_idhh) %>
+        </td>
+        <td class="text-center <%= col.harvestable_by_primo ? 'bg-success' : 'bg-danger' %>">
+          <%= boolean(col.harvestable_by_primo) %>
         </td>
       </tr>
     <% end %>

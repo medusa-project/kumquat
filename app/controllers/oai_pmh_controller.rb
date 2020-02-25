@@ -162,8 +162,16 @@ class OaiPmhController < ApplicationController
 
   def do_list_sets
     @results = Collection.where(public_in_medusa: true,
-                                published_in_dls: true,
-                                harvestable: true).order(:repository_id)
+                                published_in_dls: true).order(:repository_id)
+    case @endpoint
+    when Endpoint::IDHH
+      @results.where(harvestable_by_idhh: true)
+    when Endpoint::PRIMO
+      @results.where(harvestable_by_primo: true)
+    else
+      @results.where(harvestable: true)
+    end
+
     @total_num_results   = @results.count
     @results_offset      = get_start
     @results             = @results.offset(@results_offset)
@@ -236,8 +244,7 @@ class OaiPmhController < ApplicationController
   def preprocessing_for_list_identifiers_or_records
     @results = Item.joins('LEFT JOIN collections ON collections.repository_id '\
             '= items.collection_repository_id').
-        where('collections.harvestable': true,
-              'collections.public_in_medusa': true,
+        where('collections.public_in_medusa': true,
               'collections.published_in_dls': true,
               published: true).
         where('collections.package_profile_id = ? OR items.parent_repository_id IS NULL',
@@ -245,6 +252,14 @@ class OaiPmhController < ApplicationController
         where('items.variant IS NULL OR items.variant = \'\' OR items.variant = ?',
               Item::Variants::FILE).
         order(created_at: :asc)
+    case @endpoint
+    when Endpoint::IDHH
+      @results.where('collections.harvestable_by_idhh': true)
+    when Endpoint::PRIMO
+      @results.where('collections.harvestable_by_primo': true)
+    else
+      @results.where('collections.harvestable': true)
+    end
 
     from      = get_from
     from_time = nil

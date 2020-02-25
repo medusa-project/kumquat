@@ -16,7 +16,17 @@
     </div>
     <div class="checkbox">
       <label>
-        <%= f.check_box(:harvestable) %> Harvestable
+        <%= f.check_box(:harvestable) %> Harvestable (in general)
+      </label>
+    </div>
+    <div class="checkbox">
+      <label>
+        <%= f.check_box(:harvestable_by_idhh) %> Harvestable by IDHH
+      </label>
+    </div>
+    <div class="checkbox">
+      <label>
+        <%= f.check_box(:harvestable_by_primo) %> Harvestable by Primo
       </label>
     </div>
   </div>

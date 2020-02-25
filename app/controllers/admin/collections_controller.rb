@@ -134,12 +134,12 @@ module Admin
     ##
     # Sync collections from Medusa.
     #
-    # N.B. After being available for some time, the end-user terminology for
-    # this feature was changed to "index" as part of a broader Medusa-wide
-    # terminology change (DLD-112). I decided to keep referring to it
-    # internally as "syncing" because that is a better description of what's
-    # happening, and also because "index" has a particular meaning that is
-    # already being used to describe indexing in Elasticsearch. -- @adolski
+    # N.B.: The end-user terminology for this feature was changed to "index" as
+    # part of a broader Medusa-wide terminology change (DLD-112). I decided to
+    # keep referring to it internally as "syncing" because that is a better
+    # description of what's happening, and also because "index" has a
+    # particular meaning that is already being used to describe indexing in
+    # Elasticsearch. -- @adolski
     #
     # Responds to PATCH /admin/collections/sync
     #
@@ -188,7 +188,8 @@ module Admin
     def sanitized_params
       params.require(:collection).permit(:id, :contentdm_alias,
                                          :descriptive_element_id,
-                                         :harvestable,
+                                         :harvestable, :harvestable_by_idhh,
+                                         :harvestable_by_primo,
                                          :medusa_cfs_directory_id,
                                          :medusa_file_group_id,
                                          :metadata_profile_id,

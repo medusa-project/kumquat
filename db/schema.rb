@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_12_05_210707) do
+ActiveRecord::Schema.define(version: 2020_02_24_205106) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -123,11 +123,15 @@ ActiveRecord::Schema.define(version: 2019_12_05_210707) do
     t.string "rightsstatements_org_uri"
     t.string "contentdm_alias"
     t.string "physical_collection_url"
-    t.boolean "harvestable", default: false
+    t.boolean "harvestable", default: false, null: false
     t.string "external_id"
     t.integer "descriptive_element_id"
+    t.boolean "harvestable_by_idhh", default: false, null: false
+    t.boolean "harvestable_by_primo", default: false, null: false
     t.index ["external_id"], name: "index_collections_on_external_id"
     t.index ["harvestable"], name: "index_collections_on_harvestable"
+    t.index ["harvestable_by_idhh"], name: "index_collections_on_harvestable_by_idhh"
+    t.index ["harvestable_by_primo"], name: "index_collections_on_harvestable_by_primo"
     t.index ["metadata_profile_id"], name: "index_collections_on_metadata_profile_id"
     t.index ["public_in_medusa"], name: "index_collections_on_public_in_medusa"
     t.index ["published_in_dls"], name: "index_collections_on_published"

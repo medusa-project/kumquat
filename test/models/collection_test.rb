@@ -111,6 +111,10 @@ class CollectionTest < ActiveSupport::TestCase
                  doc[Collection::IndexFields::EXTERNAL_ID]
     assert_equal @collection.harvestable,
                  doc[Collection::IndexFields::HARVESTABLE]
+    assert_equal @collection.harvestable_by_idhh,
+                 doc[Collection::IndexFields::HARVESTABLE_BY_IDHH]
+    assert_equal @collection.harvestable_by_primo,
+                 doc[Collection::IndexFields::HARVESTABLE_BY_PRIMO]
     assert_not_empty doc[Collection::IndexFields::LAST_INDEXED]
     assert_equal @collection.updated_at.utc.iso8601,
                  doc[Collection::IndexFields::LAST_MODIFIED]
