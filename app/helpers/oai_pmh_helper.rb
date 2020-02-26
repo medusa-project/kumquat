@@ -110,7 +110,7 @@ module OaiPmhHelper
       # Add a thumbnail URI, if the item has a representative image. This was
       # requested by mhan3@illinois.edu.
       image_url = item_image_url(item, :full, 150, :jpg)
-      xml.tag!('edm:preview', { 'xmlns:edm' => 'http://www.europeana.eu/schemas/edm/' }, image_url) if image_url
+      xml.tag!('edm:preview', image_url) if image_url
 
       # Add a link to the IIIF presentation manifest.
       xml.tag!('dcterms:isReferencedBy', item_iiif_manifest_url(item))
