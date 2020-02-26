@@ -174,11 +174,11 @@ class OaiPmhController < ApplicationController
                                 published_in_dls: true).order(:repository_id)
     case @endpoint
     when Endpoint::IDHH
-      @results.where(harvestable_by_idhh: true)
+      @results = @results.where(harvestable_by_idhh: true)
     when Endpoint::PRIMO
-      @results.where(harvestable_by_primo: true)
+      @results = @results.where(harvestable_by_primo: true)
     else
-      @results.where(harvestable: true)
+      @results = @results.where(harvestable: true)
     end
 
     @total_num_results   = @results.count
@@ -263,11 +263,11 @@ class OaiPmhController < ApplicationController
         order(created_at: :asc)
     case @endpoint
     when Endpoint::IDHH
-      @results.where('collections.harvestable_by_idhh': true)
+      @results = @results.where('collections.harvestable_by_idhh': true)
     when Endpoint::PRIMO
-      @results.where('collections.harvestable_by_primo': true)
+      @results = @results.where('collections.harvestable_by_primo': true)
     else
-      @results.where('collections.harvestable': true)
+      @results = @results.where('collections.harvestable': true)
     end
 
     from      = get_from
