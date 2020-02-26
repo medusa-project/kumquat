@@ -78,9 +78,8 @@ module OaiPmhHelper
         'xmlns:oai_idhh':     OaiPmhController::IDHH_METADATA_FORMAT[:uri],
         'xmlns:dc':           'http://purl.org/dc/elements/1.1/',
         'xmlns:dcterms':      'http://purl.org/dc/terms/',
-        'xmlns:xsi':          'http://www.w3.org/2001/XMLSchema-instance',
-        'xsi:schemaLocation': 'http://oclc.org/appqualifieddc/ '\
-                      'http://dublincore.org/schemas/xmls/qdc/2003/04/02/appqualifieddc.xsd'
+        'xmlns:edm':          'http://www.europeana.eu/schemas/edm/',
+        'xmlns:xsi':          'http://www.w3.org/2001/XMLSchema-instance'
     }) do
       item.elements_in_profile_order(only_visible: true).
           select{ |e| e.value.present? }.each do |ie|
@@ -132,9 +131,7 @@ module OaiPmhHelper
         "xmlns:oai_primo":    OaiPmhController::PRIMO_METADATA_FORMAT[:uri],
         'xmlns:dc':           'http://purl.org/dc/elements/1.1/',
         'xmlns:dcterms':      'http://purl.org/dc/terms/',
-        'xmlns:xsi':          'http://www.w3.org/2001/XMLSchema-instance',
-        'xsi:schemaLocation': 'http://oclc.org/appqualifieddc/ '\
-                      'http://dublincore.org/schemas/xmls/qdc/2003/04/02/appqualifieddc.xsd'
+        'xmlns:xsi':          'http://www.w3.org/2001/XMLSchema-instance'
     }) do
       item.elements_in_profile_order(only_visible: true).
           select{ |e| e.value.present? }.each do |ie|
