@@ -30,11 +30,11 @@ xml.tag!('OAI-PMH',
         end
         xml.tag!('metadata') do
           case @metadata_format
-          when OaiPmhController::IDHH_METADATA_FORMAT
+          when OaiPmhController::IDHH_METADATA_FORMAT[:prefix]
             oai_pmh_idhh_elements_for(@item, xml)
-          when OaiPmhController::PRIMO_METADATA_FORMAT
+          when OaiPmhController::PRIMO_METADATA_FORMAT[:prefix]
             oai_pmh_primo_elements_for(@item, xml)
-          when OaiPmhController::DCTERMS_METADATA_FORMAT
+          when OaiPmhController::DCTERMS_METADATA_FORMAT[:prefix]
             oai_pmh_dcterms_elements_for(@item, xml)
           else
             oai_pmh_dc_elements_for(@item, xml)
