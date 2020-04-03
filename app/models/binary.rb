@@ -560,6 +560,10 @@ class Binary < ApplicationRecord
   private
 
   def download_to(pathname, length = 0)
+    # Use the smaller of the actual length or the requested length.
+    read_size if byte_size < 1
+    length = [length, byte_size].min
+
     MedusaS3Client.instance.get_object(
         bucket:          MedusaS3Client::BUCKET,
         key:             self.object_key,
