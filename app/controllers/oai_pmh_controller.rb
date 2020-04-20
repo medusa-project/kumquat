@@ -273,14 +273,12 @@ class OaiPmhController < ApplicationController
     from      = get_from
     from_time = nil
     from_time = Time.parse(from).utc.iso8601 if from
-    to        = get_until
-    to_time   = nil
-    to_time   = Time.parse(to).utc.iso8601 if to
+    @results  = @results.where('items.created_at >= ?', from_time) if from_time
 
-    if from_time != to_time
-      @results = @results.where('items.created_at >= ?', from_time).
-          where('items.created_at <= ?', to_time)
-    end
+    to       = get_until
+    to_time  = nil
+    to_time  = Time.parse(to).utc.iso8601 if to
+    @results = where('items.created_at <= ?', to_time) if to_time
 
     set = get_set
     @results = @results.where(collection_repository_id: set) if set
