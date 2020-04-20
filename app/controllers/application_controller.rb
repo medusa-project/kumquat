@@ -85,7 +85,7 @@ class ApplicationController < ActionController::Base
 
     LOGGER.debug('send_binary(): requesting %s', s3_request)
 
-    aws_response = MedusaS3Client.instance.get_object(s3_request)
+    aws_response = MedusaS3Client.instance.head_object(s3_request)
 
     response.status                          = status
     response.headers['Content-Type']         = binary.media_type
