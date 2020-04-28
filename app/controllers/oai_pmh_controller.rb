@@ -126,8 +126,8 @@ class OaiPmhController < ApplicationController
   end
 
   def do_identify
-    item = Item.order(created_at: :asc).limit(1).first
-    @earliest_datestamp = item ? item.created_at.utc.iso8601 : nil
+    item = Item.order(:updated_at).limit(1).first
+    @earliest_datestamp = item ? item.updated_at.utc.iso8601 : nil
 
     case @endpoint
     when Endpoint::IDHH
@@ -260,7 +260,7 @@ class OaiPmhController < ApplicationController
               PackageProfile::FREE_FORM_PROFILE.id).
         where('items.variant IS NULL OR items.variant = \'\' OR items.variant = ?',
               Item::Variants::FILE).
-        order(created_at: :asc)
+        order(:updated_at)
     case @endpoint
     when Endpoint::IDHH
       @results = @results.where('collections.harvestable_by_idhh': true)
@@ -273,12 +273,12 @@ class OaiPmhController < ApplicationController
     from      = get_from
     from_time = nil
     from_time = Time.parse(from).utc.iso8601 if from
-    @results  = @results.where('items.created_at >= ?', from_time) if from_time
+    @results  = @results.where('items.updated_at >= ?', from_time) if from_time
 
     to       = get_until
     to_time  = nil
     to_time  = Time.parse(to).utc.iso8601 if to
-    @results = where('items.created_at <= ?', to_time) if to_time
+    @results = where('items.updated_at <= ?', to_time) if to_time
 
     set = get_set
     @results = @results.where(collection_repository_id: set) if set
