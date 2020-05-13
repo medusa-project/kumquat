@@ -11,7 +11,7 @@ class RightsStatementTest < ActiveSupport::TestCase
   # for_uri()
 
   test 'for_uri() should return nil for a bogus URI' do
-    assert_nil RightsStatement.for_uri('http://example.org/bogus')
+    assert_nil RightsStatement.for_uri('https://example.org/bogus')
   end
 
   test 'for_uri() should return a statement for a valid URI' do
@@ -19,7 +19,7 @@ class RightsStatementTest < ActiveSupport::TestCase
     st = RightsStatement.for_uri(uri)
     assert_equal 'In Copyright', st.name
     assert_equal 'rightsstatements.org/InC.dark-white-interior.svg', st.image
-    assert_equal 'http://rightsstatements.org/page/InC/1.0/', st.info_uri
+    assert_equal 'https://rightsstatements.org/page/InC/1.0/', st.info_uri
     assert_equal uri, st.uri
   end
 

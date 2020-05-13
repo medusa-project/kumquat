@@ -11,9 +11,10 @@
  * file per style scope.
  */
 
-@import "scars-bootstrap-theme/variables";
 @import "bootstrap";
-@import "scars-bootstrap-theme/theme";
+
+@import "font-awesome-sprockets";
+@import "font-awesome";
 
 //stylesheet for jstree
 @import "style";

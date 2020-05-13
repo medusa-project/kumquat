@@ -1,6 +1,8 @@
+<% page_links = paginate(@agent_count, @limit, @current_page,
+                         Admin::AgentsController::PERMITTED_PARAMS, true) %>
+
 <div class="text-center">
-  <%= paginate(@agent_count, @limit, @current_page,
-               Admin::AgentsController::PERMITTED_PARAMS, true) %>
+  <%= page_links %>
 </div>
 
 <table class="table table-striped">
@@ -34,6 +36,5 @@
 </table>
 
 <div class="text-center">
-  <%= paginate(@agent_count, @limit, @current_page,
-               Admin::AgentsController::PERMITTED_PARAMS, true) %>
+  <%= page_links %>
 </div>

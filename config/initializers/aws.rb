@@ -4,7 +4,4 @@ require 'configuration'
 
 config = ::Configuration.instance
 
-Aws.config.update(
-    credentials: Aws::Credentials.new(config.dls_aws_access_key_id,
-                                      config.dls_aws_secret_key),
-    region: config.aws_region)
+Aws.config.update(region: config.aws_region)

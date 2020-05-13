@@ -1,6 +1,8 @@
+<% page_links = paginate_items(@count, @limit, @current_page) %>
+
 <div class="row justify-content-md-center">
   <div class="col-md-auto">
-    <%= paginate_items(@count, @limit, @current_page) %>
+    <%= page_links %>
   </div>
 </div>
 
@@ -87,6 +89,6 @@
 
 <div class="row justify-content-md-center">
   <div class="col-md-auto">
-    <%= paginate_items(@count, @limit, @current_page) %>
+    <%= page_links %>
   </div>
 </div>

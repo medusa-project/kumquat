@@ -2,7 +2,7 @@ module Admin
 
   class TasksController < ControlPanelController
 
-    PERMITTED_PARAMS = []
+    PERMITTED_PARAMS = [:q, :queue, :start, :status]
 
     ##
     # Responds to GET /admin/tasks

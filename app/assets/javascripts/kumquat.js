@@ -285,9 +285,8 @@ var Application = {
      * Application-level initialization.
      */
     init: function() {
-        // Disable disabled anchors.
-        $('a[disabled="disabled"]').click(function(e){
-            e.preventDefault();
+        // Don't allow disabled elements to be clicked.
+        $("[disabled='disabled']").on("click", function() {
             return false;
         });
 

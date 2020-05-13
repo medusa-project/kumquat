@@ -10,13 +10,10 @@ class MedusaS3Client
 
   BUCKET = Configuration.instance.medusa_s3_bucket
 
-  CREDENTIALS = Aws::Credentials.new(
-      ::Configuration.instance.medusa_s3_bucket_access_key_id,
-      ::Configuration.instance.medusa_s3_bucket_secret_key)
-
   def method_missing(method, *args, &block)
-    @client = Aws::S3::Client.new(region: ::Configuration.instance.aws_region,
-                                  credentials: CREDENTIALS) unless @client
+    unless @client
+      @client = Aws::S3::Client.new(region: ::Configuration.instance.aws_region)
+    end
     @client.send(method, *args, &block)
   end
 

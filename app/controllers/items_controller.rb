@@ -219,11 +219,11 @@ class ItemsController < WebsiteController
       begin
         authorize(@collection)
       rescue AuthorizationError
-        redirect_to @collection
+        redirect_to @collection and return
       end
     elsif params[:q].blank?
       redirect_to ::Configuration.instance.metadata_gateway_url + '/items',
-                  status: 303
+                  status: 303 and return
     end
 
     finder             = item_finder_for(params)
@@ -307,7 +307,7 @@ class ItemsController < WebsiteController
 
           download = Download.create(ip_address: request.remote_ip)
           DownloadZipJob.perform_later(item_ids, zip_name, download)
-          redirect_to download_url(download)
+          redirect_to download_url(download) and return
         else
           flash['error'] = 'No items to download.'
           redirect_back fallback_location: request.fullpath
@@ -355,7 +355,7 @@ class ItemsController < WebsiteController
             # Non-XHR requests for free-form items are not allowed. Redirect
             # to the item's HTML representation.
             redirect_to collection_tree_path(@item.collection) + '#' +
-                            @item.repository_id
+                            @item.repository_id and return
           end
         else
           # DLD-98 calls for the URL in the browser bar to change when an item
@@ -416,10 +416,10 @@ class ItemsController < WebsiteController
         if @item.is_compound?
           download = Download.create(ip_address: request.remote_ip)
           CreatePdfJob.perform_later(@item, download)
-          redirect_to download_url(download)
+          redirect_to download_url(download) and return
         else
           flash['error'] = 'PDF downloads are only available for compound objects.'
-          redirect_to @item
+          redirect_to @item and return
         end
       end
       format.zip do
@@ -443,8 +443,7 @@ class ItemsController < WebsiteController
             zip_name = 'files'
           else
             flash['error'] = 'This directory is empty.'
-            redirect_to @item
-            return
+            redirect_to @item and return
           end
         elsif @item.file?
           if @item.parent
@@ -478,7 +477,7 @@ class ItemsController < WebsiteController
             else
               DownloadZipJob.perform_later(item_ids, zip_name, download)
           end
-          redirect_to download_url(download)
+          redirect_to download_url(download) and return
         else
           flash['error'] = 'No items to download.'
           redirect_back fallback_location: request.fullpath
@@ -516,7 +515,7 @@ class ItemsController < WebsiteController
             render 'show_collection_summary', layout: false
           end
         else
-          redirect_to collection_items_path
+          redirect_to collection_items_path and return
         end
       end
       format.atom do

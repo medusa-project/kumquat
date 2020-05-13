@@ -163,7 +163,7 @@ body#items_show, #dl-free-form-item-view {
       }
     }
     tr.selected {
-      background-color: $uiuc-blue-lighter-2;
+      background-color: $uofi-blue-lighter-2;
       color: white;
       .btn-outline-primary {
         border: 1px solid white;
@@ -207,7 +207,7 @@ body#items_show, #dl-free-form-item-view {
         width: 0;
       }
       div.radio.active {
-        background-color:$uiuc-blue-lighter-2;
+        background-color:$uofi-blue-lighter-2;
         color:white;
       }
       .dl-size-1 {
@@ -308,10 +308,10 @@ body#tree_browser {
 }
 .pagination {
   > li > a {
-    color: $uiuc-blue-lighter-2;
+    color: $uofi-blue-lighter-2;
   }
   > li.active > a {
-    background-color: $uiuc-blue-lighter-2;
+    background-color: $uofi-blue-lighter-2;
   }
 }
 

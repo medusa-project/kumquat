@@ -3,11 +3,12 @@ source 'https://rubygems.org'
 # Needs to match the version in .ruby-version and Dockerfile
 ruby '2.6.1'
 
-gem 'aws-sdk-s3', '~> 1.8'
-gem 'bootstrap', '~> 4.3.1'
+gem 'autoprefixer-rails'
+gem 'aws-sdk-s3', '~> 1'
 gem 'daemons' # enables bin/delayed_job start/stop
 gem 'delayed_job_active_record'
 gem 'draper' # Provides decorators
+gem "font-awesome-sass", "~> 5.6" # Provides all of our icons
 gem 'httpclient'
 gem 'jbuilder' # JSON DSL: https://github.com/rails/jbuilder
 gem 'jquery-rails'
@@ -25,11 +26,11 @@ gem 'pg'
 # warning about an already-initialized constant.
 # See: https://github.com/prawnpdf/prawn/issues/1024
 gem 'prawn', git: 'https://github.com/prawnpdf/prawn.git', ref: '9250c8675342872603332784f77263fcb1cf72a2'
-gem 'rails', '6.0.1'
+gem 'rails', '6.0.3'
 gem 'rails_autolink'
 gem 'sassc'
-gem 'scars-bootstrap-theme', git: 'https://github.com/medusa-project/scars-bootstrap-theme.git'
-gem 'tzinfo-data'
+gem 'scars-bootstrap-theme', git: 'https://github.com/medusa-project/scars-bootstrap-theme.git',
+    branch: 'release/bootstrap-4.4'
 gem 'uglifier', '>= 1.3.0' # JavaScript asset compressor
 
 group :development do
@@ -42,5 +43,6 @@ group :development do
 end
 
 group :production do
+  gem "omniauth-rails_csrf_protection"
   gem 'passenger'
 end
