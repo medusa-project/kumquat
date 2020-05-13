@@ -42,19 +42,13 @@ module Admin
         @num_vocabularies       = Vocabulary.count
       end
 
-      # Users section
-      users_time = measure_time do
-        @num_users = User.count
-      end
-
       round = 2
       LOGGER.debug('index(): [collections: %ss] [items: %ss] [binaries: %ss] '\
-          '[metadata: %ss] [users: %ss]',
+                   '[metadata: %ss]',
                    collections_time.round(round),
                    items_time.round(round),
                    binaries_time.round(round),
-                   metadata_time.round(round),
-                   users_time.round(round))
+                   metadata_time.round(round))
     end
 
     private
