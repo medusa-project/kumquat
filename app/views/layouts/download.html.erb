@@ -12,8 +12,6 @@
 
   <%= stylesheet_link_tag    'application', media: 'all' %>
   <%= javascript_include_tag 'application' %>
-
-  <%= render partial: 'layouts/font_awesome' %>
 </head>
 <body <%= !yield(:body_id).empty? ? raw("id=\"#{yield(:body_id)}\"") : nil %>
       <%= raw("data-nav=\"#{yield(:active_nav)}\"") %>>
