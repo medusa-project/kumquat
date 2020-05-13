@@ -28,6 +28,7 @@ Rails.application.routes.draw do
   resources :downloads, only: :show, param: :key do
     match '/file', to: 'downloads#file', via: :get, as: 'file'
   end
+  match '/health', to: 'health#index', via: :get
   resources :items, only: [:index, :show] do
     match '/treedata', to: 'items#item_tree_node', via: [:get, :post]
     match '/binaries/:filename', to: 'items#binary', via: :get, as: 'binary'
