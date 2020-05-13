@@ -192,7 +192,7 @@ class OaiPmhControllerTest < ActionDispatch::IntegrationTest
     get '/oai-pmh', params: { verb: 'Identify' }
     assert_select 'Identify > repositoryName',
                   Option::string(Option::Keys::WEBSITE_NAME)
-    assert_select 'Identify > baseURL', 'http://www.example.com/'
+    assert_select 'Identify > baseURL', 'http://www.example.com/oai-pmh'
     assert_select 'Identify > protocolVersion', '2.0'
     items = Item.where(published: true).order(created_at: :desc).limit(1)
     assert_select 'Identify > earliestDatestamp', items.first.created_at.utc.iso8601
@@ -424,8 +424,7 @@ class OaiPmhControllerTest < ActionDispatch::IntegrationTest
   def xsd_validate(params_)
     get '/oai-pmh', params: params_
     doc = Nokogiri::XML(response.body)
-    xsd = Nokogiri::XML::Schema(
-        File.read(File.join(Rails.root, 'test', 'integration', 'OAI-PMH.xsd')))
+    xsd = Nokogiri::XML::Schema(File.read(File.join(__dir__, 'OAI-PMH.xsd')))
     result = xsd.validate(doc)
     puts result if result.any?
     result.empty?

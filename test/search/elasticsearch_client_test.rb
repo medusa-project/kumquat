@@ -6,26 +6,25 @@ class ElasticsearchClientTest < ActiveSupport::TestCase
 
   setup do
     @instance = ElasticsearchClient.instance
-    @test_schema = ElasticsearchIndex::SCHEMA
   end
 
   test 'create_index() works' do
     name = 'test'
     begin
-      @instance.create_index(name, @test_schema)
+      @instance.create_index(name)
       assert @instance.index_exists?(name)
     ensure
-      @instance.delete_index(name)
+      @instance.delete_index(name) rescue nil
     end
   end
 
   test 'delete_index() works' do
     name = 'test'
     begin
-      @instance.create_index(name, @test_schema)
+      @instance.create_index(name)
       assert @instance.index_exists?(name)
     ensure
-      @instance.delete_index(name)
+      @instance.delete_index(name) rescue nil
       assert !@instance.index_exists?(name)
     end
   end
@@ -33,10 +32,10 @@ class ElasticsearchClientTest < ActiveSupport::TestCase
   test 'index_exists?() works' do
     name = 'test'
     begin
-      @instance.create_index(name, @test_schema)
+      @instance.create_index(name)
       assert @instance.index_exists?(name)
     ensure
-      @instance.delete_index(name)
+      @instance.delete_index(name) rescue nil
       assert !@instance.index_exists?(name)
     end
   end
