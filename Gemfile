@@ -31,6 +31,7 @@ gem 'rails_autolink'
 gem 'sassc'
 gem 'scars-bootstrap-theme', git: 'https://github.com/medusa-project/scars-bootstrap-theme.git',
     branch: 'release/bootstrap-4.4'
+#gem 'scars-bootstrap-theme', path: '../scars-bootstrap-theme'
 gem 'uglifier', '>= 1.3.0' # JavaScript asset compressor
 
 group :development do

@@ -1,1 +1,0 @@
-https://uofi.app.box.com/v/Illinois-Logo/folder/35002208298
