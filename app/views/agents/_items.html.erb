@@ -1,7 +1,9 @@
+<% page_links = paginate_agent_items(@agent, @related_object_count, @limit, @current_page) %>
+
 <% if @related_object_count > 0 %>
   <div class="row justify-content-md-center">
     <div class="col-md-auto">
-      <%= paginate_agent_items(@agent, @related_object_count, @limit, @current_page) %>
+      <%= page_links %>
     </div>
   </div>
 
@@ -11,7 +13,7 @@
 
   <div class="row justify-content-md-center">
     <div class="col-md-auto">
-    <%= paginate_agent_items(@agent, @related_object_count, @limit, @current_page) %>
+    <%= page_links %>
     </div>
   </div>
 <% end %>
