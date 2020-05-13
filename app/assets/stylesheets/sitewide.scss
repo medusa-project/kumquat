@@ -26,6 +26,10 @@ var {
   font-family: monospace;
 }
 
+[disabled], .disabled {
+  cursor: not-allowed;
+}
+
 div.alert ul {
   margin-left:1em;
   padding-left:0px;

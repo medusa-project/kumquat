@@ -131,8 +131,8 @@
       </div>
 
       <div role="tabpanel" class="tab-pane" id="dl-descriptive-metadata">
-        <div class="alert alert-info">
-          Collection metadata profile:
+        <div class="alert alert-light">
+          <i class="fa fa-info-circle"></i> Collection metadata profile:
           <%= @item.collection.metadata_profile ?
                   link_to(@item.collection.metadata_profile&.name,
                           admin_metadata_profile_path(@item.collection.metadata_profile)) :

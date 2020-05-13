@@ -82,7 +82,7 @@
   <table class="table">
     <thead>
       <tr>
-        <th colspan="2">Relationship</th>
+        <th>Relationship</th>
         <th>Agent</th>
         <th>Relation Type</th>
         <th>Referred Agent</th>
@@ -93,19 +93,19 @@
       <% @related_agents.each do |relation| %>
         <tr>
           <td style="white-space: nowrap">
-            <button type="button" class="btn btn-light btn-sm dl-edit-agent-relation"
-                    data-toggle="modal" data-target="#dl-agent-relation-modal"
-                    data-agent-relation-id="<%= relation.id %>">
-              <i class="fas fa-pencil-alt"></i> Edit
-            </button>
-          </td>
-          <td style="white-space: nowrap">
-            <%= link_to admin_agent_relation_path(relation),
-                        class: 'btn btn-danger btn-sm', method: :delete,
-                        data: { confirm: 'Are you sure you want to remove '\
-                          'this relationship?' } do %>
-              <i class="fa fa-trash"></i> Delete
-            <% end %>
+            <div class="btn-group">
+              <button type="button" class="btn btn-light btn-sm dl-edit-agent-relation"
+                      data-toggle="modal" data-target="#dl-agent-relation-modal"
+                      data-agent-relation-id="<%= relation.id %>">
+                <i class="fas fa-pencil-alt"></i> Edit
+              </button>
+              <%= link_to admin_agent_relation_path(relation),
+                          class: 'btn btn-danger btn-sm', method: :delete,
+                          data: { confirm: 'Are you sure you want to remove '\
+                            'this relationship?' } do %>
+                <i class="fa fa-trash"></i> Delete
+              <% end %>
+            </div>
           </td>
           <td><%= @agent.name %></td>
           <td><%= relation.agent_relation_type&.name %></td>
@@ -136,7 +136,7 @@
   <table class="table">
     <thead>
       <tr>
-        <th colspan="2">Relationship</th>
+        <th>Relationship</th>
         <th>Agent</th>
         <th>Relation Type</th>
         <th>Referred Agent</th>
@@ -147,19 +147,19 @@
       <% @relating_agents.each do |relation| %>
         <tr>
           <td style="white-space: nowrap">
-            <button type="button" class="btn btn-light btn-sm dl-edit-agent-relation"
-                    data-toggle="modal" data-target="#dl-agent-relation-modal"
-                    data-agent-relation-id="<%= relation.id %>">
-              <i class="fas fa-pencil-alt"></i> Edit
-            </button>
-          </td>
-          <td style="white-space: nowrap">
-            <%= link_to admin_agent_relation_path(relation),
-                        class: 'btn btn-danger btn-sm', method: :delete,
-                        data: { confirm: 'Are you sure you want to remove '\
-                        'this relationship?' } do %>
-                <i class="fa fa-trash"></i> Delete
-            <% end %>
+            <div class="btn-group">
+              <button type="button" class="btn btn-light btn-sm dl-edit-agent-relation"
+                      data-toggle="modal" data-target="#dl-agent-relation-modal"
+                      data-agent-relation-id="<%= relation.id %>">
+                <i class="fas fa-pencil-alt"></i> Edit
+              </button>
+              <%= link_to admin_agent_relation_path(relation),
+                          class: 'btn btn-danger btn-sm', method: :delete,
+                          data: { confirm: 'Are you sure you want to remove '\
+                          'this relationship?' } do %>
+                  <i class="fa fa-trash"></i> Delete
+              <% end %>
+            </div>
           </td>
           <td><%= link_to relation.agent.name,
                           admin_agent_path(relation.agent) %></td>
