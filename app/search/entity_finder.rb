@@ -1,6 +1,7 @@
 ##
 # Provides a convenient ActiveRecord-style Builder interface for cross-entity
-# search. Results may include instances of any indexed class.
+# search. By default, results may include instances of any indexed class. Limit
+# this using {exclude_types}.
 #
 # N.B.: All entities being searched must have an indexed
 # `effectively_published` field.
@@ -13,6 +14,7 @@ class EntityFinder < AbstractFinder
     super
     @bypass_authorization  = false
     @exclude_item_variants = []
+    @include_types         = %w(Agent Collection Item)
     @include_unpublished   = false
     @last_modified_after   = nil
     @last_modified_before  = nil
@@ -35,6 +37,15 @@ class EntityFinder < AbstractFinder
   #
   def exclude_item_variants(*variants)
     @exclude_item_variants = variants
+    self
+  end
+
+  ##
+  # @param types [Class,String]
+  # @return [self]
+  #
+  def include_types(*types)
+    @include_types = types.map(&:to_s)
     self
   end
 
@@ -140,6 +151,12 @@ class EntityFinder < AbstractFinder
           if @filters.any? or @only_described or !@include_unpublished or
               @last_modified_before or @last_modified_after
             j.filter do
+              j.child! do
+                j.terms do
+                  j.set! Item::IndexFields::CLASS, @include_types
+                end
+              end
+
               @filters.each do |field, value|
                 j.child! do
                   if value.respond_to?(:each)
