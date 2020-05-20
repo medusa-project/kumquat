@@ -1,0 +1,10 @@
+<% provide :title, "Error" %>
+
+<div class="text-center mt-4">
+  <h2 class="mb-4">We're sorry, but something went wrong.</h2>
+  <p>Details have been logged.</p>
+</div>
+
+<% if Rails.env.development? %>
+  <code><pre><%= @message %></pre></code>
+<% end %>

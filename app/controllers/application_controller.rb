@@ -6,6 +6,8 @@ class ApplicationController < ActionController::Base
   include ActionController::Live
   include SessionsHelper
 
+  rescue_from StandardError, with: :rescue_error
+
   before_action :setup
   after_action :flash_in_response_headers, :log_execution_time
 
@@ -149,6 +151,36 @@ class ApplicationController < ActionController::Base
                 controller_name.capitalize,
                 action_name,
                 (Time.now - @start_time) * 1000)
+  end
+
+  def rescue_error(exception)
+    io = StringIO.new
+    io << "Error on #{request.url}\n"
+    io << "Class: #{exception.class}\n"
+    io << "Message: #{exception.message}\n"
+    io << "Time: #{Time.now.iso8601}\n"
+    io << "User: #{current_user.username}}\n" if current_user
+    io << "Stack Trace:\n"
+    exception.backtrace.each do |line|
+      io << line
+      io << "\n"
+    end
+
+    @message = io.string
+    Rails.logger.error(@message)
+
+    respond_to do |format|
+      format.html do
+        render "errors/internal_server_error",
+               status: :internal_server_error,
+               content_type: "text/html"
+      end
+      format.all do
+        render plain: "500 Internal Server Error",
+               status: :internal_server_error,
+               content_type: "text/plain"
+      end
+    end
   end
 
 end
