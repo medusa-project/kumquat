@@ -3,16 +3,23 @@
 #
 class GatewayClient
 
+  ITEM_COUNT_CACHE_KEY = "gateway.items.count"
+  ITEM_COUNT_CACHE_TTL = 12.hours
+
   include Singleton
 
   ##
   # @return [Integer] Total number of items available.
   #
   def num_items
-    url = ::Configuration.instance.metadata_gateway_url.chomp('/') + '/items.json'
-    response = http_client.get(url)
-    struct = JSON.parse(response.body)
-    struct['numResults']
+    Rails.cache.fetch(ITEM_COUNT_CACHE_KEY,
+                      expires_in: ITEM_COUNT_CACHE_TTL) do
+      config   = ::Configuration.instance
+      url      = config.metadata_gateway_url.chomp('/') + '/items.json'
+      response = http_client.get(url)
+      struct   = JSON.parse(response.body)
+      struct['numResults']
+    end
   end
 
   private
