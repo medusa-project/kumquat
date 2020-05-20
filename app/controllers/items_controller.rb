@@ -680,28 +680,20 @@ class ItemsController < WebsiteController
   end
 
   def rescue_unauthorized
+    message = "You are not authorized to access this item."
     respond_to do |format|
-      format.html do
-        render 'unauthorized', status: :forbidden
-      end
-      format.json do
-        render 'errors/error', status: :forbidden, locals: {
-            message: 'You are not authorized to access this item.'
-        }
-      end
+      format.html { render "unauthorized", status: :forbidden }
+      format.json { render "errors/error", status: :forbidden, locals: { message: message } }
+      format.all { render plain: message, status: :forbidden, content_type: "text/plain" }
     end
   end
 
   def rescue_unpublished
+    message = "This item is unpublished."
     respond_to do |format|
-      format.html do
-        render 'unpublished', status: :forbidden
-      end
-      format.json do
-        render 'errors/error', status: :forbidden, locals: {
-            message: 'This item is unpublished.'
-        }
-      end
+      format.html { render "unpublished", status: :forbidden }
+      format.json { render "errors/error", status: :forbidden, locals: { message: message } }
+      format.all { render plain: message, status: :forbidden, content_type: "text/plain" }
     end
   end
 
