@@ -16,6 +16,7 @@ module Harvest
           bypass_authorization(true).
           # exclude all variants except File. (Only compound object items have
           # these variants.)
+          include_types(Collection, Item).
           exclude_item_variants(*Item::Variants::all.reject{ |v| v == Item::Variants::FILE }).
           aggregations(false).
           order(Item::IndexFields::REPOSITORY_ID).
