@@ -6,7 +6,10 @@ class ApplicationController < ActionController::Base
   include ActionController::Live
   include SessionsHelper
 
-  rescue_from StandardError, with: :rescue_error
+  # N.B.: these must be listed in order of most generic to most specific.
+  rescue_from StandardError, with: :rescue_internal_server_error
+  rescue_from ActionController::UnknownFormat, with: :rescue_unknown_format
+  rescue_from ActiveRecord::RecordNotFound, with: :rescue_not_found
 
   before_action :setup
   after_action :flash_in_response_headers, :log_execution_time
@@ -153,7 +156,7 @@ class ApplicationController < ActionController::Base
                 (Time.now - @start_time) * 1000)
   end
 
-  def rescue_error(exception)
+  def rescue_internal_server_error(exception)
     io = StringIO.new
     io << "Error on #{request.url}\n"
     io << "Class: #{exception.class}\n"
@@ -181,6 +184,31 @@ class ApplicationController < ActionController::Base
                content_type: "text/plain"
       end
     end
+  end
+
+  def rescue_not_found
+    message = 'This resource does not exist.'
+    respond_to do |format|
+      format.html do
+        render 'errors/error', status: :not_found, locals: {
+            status_code: 404,
+            status_message: 'Not Found',
+            message: message
+        }
+      end
+      format.json do
+        render 'errors/error', status: :not_found, locals: { message: message }
+      end
+      format.all do
+        render plain: "404 Not Found", status: :not_found,
+               content_type: "text/plain"
+      end
+    end
+  end
+
+  def rescue_unknown_format
+    render plain: "Sorry, we aren't able to provide the requested format.",
+           status: :unsupported_media_type
   end
 
 end
