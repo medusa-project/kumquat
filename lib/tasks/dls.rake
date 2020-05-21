@@ -2,6 +2,11 @@ namespace :dls do
 
   namespace :agents do
 
+    desc 'Delete orphaned indexed agent documents'
+    task :delete_orphaned_documents => :environment do |task, args|
+      Agent.delete_orphaned_documents
+    end
+
     desc 'Reindex all agents'
     task :reindex, [:index_name] => :environment do |task, args|
       Agent.reindex_all(args[:index_name])
@@ -116,6 +121,11 @@ namespace :dls do
 
   namespace :collections do
 
+    desc 'Delete orphaned indexed collection documents'
+    task :delete_orphaned_documents => :environment do |task, args|
+      Collection.delete_orphaned_documents
+    end
+
     desc 'Publish a collection'
     task :publish, [:uuid] => :environment do |task, args|
       Collection.find_by_repository_id(args[:uuid]).
@@ -195,6 +205,11 @@ namespace :dls do
   end
 
   namespace :items do
+
+    desc 'Delete orphaned indexed item documents'
+    task :delete_orphaned_documents => :environment do |task, args|
+      Item.delete_orphaned_documents
+    end
 
     desc 'Export all items in a collection as TSV'
     task :export_as_tsv, [:collection_uuid] => :environment do |task, args|
