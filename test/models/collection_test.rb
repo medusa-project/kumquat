@@ -80,6 +80,26 @@ class CollectionTest < ActiveSupport::TestCase
                  @collection.all_indexed_item_ids
   end
 
+  # as_harvestable_json()
+
+  test 'as_harvestable_json returns the correct structure' do
+    doc = @collection.as_harvestable_json
+    assert_equal 'Collection', doc[:class]
+    assert_equal @collection.repository_id, doc[:id]
+    assert_equal @collection.external_id, doc[:external_id]
+    assert_equal @collection.access_url, doc[:access_uri]
+    assert_equal @collection.physical_collection_url, doc[:physical_collection_uri]
+    assert_equal @collection.medusa_repository.title, doc[:repository_title]
+    assert_equal @collection.resource_types, doc[:resource_types]
+    assert_equal @collection.access_systems, doc[:access_systems]
+    assert_equal @collection.package_profile&.name, doc[:package_profile]
+    assert_nil doc[:access_master_image]
+    assert_equal @collection.elements_in_profile_order(only_visible: true)
+                     .map{ |e| { name: e.name, value: e.value } }, doc[:elements]
+    assert_equal @collection.created_at, doc[:created_at]
+    assert_equal @collection.updated_at, doc[:updated_at]
+  end
+
   # as_indexed_json()
 
   test 'as_indexed_json returns the correct structure' do

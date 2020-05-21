@@ -38,7 +38,8 @@
 #
 # 1. Add a column for it on Item
 # 2. Add it to {IndexFields} (if it needs to be indexed)
-# 3. Add serialization code to {as_json} and {as_indexed_json}
+# 3. Add serialization code to {as_json} and perhaps {as_indexed_json} and
+#    {as_harvestable_json}
 # 4. Add deserialization code to {update_from_json}
 # 5. If it needs to appear in TSV, add it to {tsv_columns}, {ItemTsvExporter},
 #    and/or {update_from_tsv}
@@ -467,6 +468,40 @@ class Item < ApplicationRecord
       p = p.parent
     end
     parents
+  end
+
+  ##
+  # @return [Hash] Harvestable representation. N.B.: this does not include any
+  #                links (URLs).
+  #
+  def as_harvestable_json
+    access_master_struct = nil
+    bin = self.effective_image_binary
+    if bin&.image_server_safe?
+      access_master_struct = {
+          id:         bin.cfs_file_uuid,
+          object_uri: bin.uri,
+          media_type: bin.media_type
+      }
+    end
+    {
+        class:                   self.class.to_s,
+        id:                      self.repository_id,
+        normalized_start_date:   self.start_date,
+        normalized_end_date:     self.end_date,
+        normalized_latitude:     self.latitude&.to_f,
+        normalized_longitude:    self.longitude&.to_f,
+        variant:                 self.variant,
+        preservation_media_type: self.binaries
+                                     .where(master_type: Binary::MasterType::PRESERVATION)
+                                     .limit(1)
+                                     .first&.media_type,
+        access_master_image:     access_master_struct,
+        elements:                self.elements_in_profile_order(only_visible: true)
+                                     .map{ |e| { name: e.name, value: e.value } },
+        created_at:              self.created_at,
+        updated_at:              self.updated_at
+    }
   end
 
   ##

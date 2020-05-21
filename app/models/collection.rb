@@ -317,6 +317,39 @@ class Collection < ApplicationRecord
   end
 
   ##
+  # @return [Hash] Harvestable representation. N.B.: this does not include any
+  #                links (URLs).
+  #
+  def as_harvestable_json
+    access_master_struct = nil
+    bin = self.effective_representative_image_binary
+    if bin&.image_server_safe?
+      access_master_struct = {
+          id:         bin.cfs_file_uuid,
+          object_uri: bin.uri,
+          media_type: bin.media_type
+      }
+    end
+    access_master_struct
+    {
+        class:                   self.class.to_s,
+        id:                      self.repository_id,
+        external_id:             self.external_id,
+        access_uri:              self.access_url,
+        physical_collection_uri: self.physical_collection_url,
+        repository_title:        self.medusa_repository.title,
+        resource_types:          self.resource_types,
+        access_systems:          self.access_systems,
+        package_profile:         self.package_profile&.name,
+        access_master_image:     access_master_struct,
+        elements:                self.elements_in_profile_order(only_visible: true)
+                                     .map{ |e| { name: e.name, value: e.value } },
+        created_at:              self.created_at,
+        updated_at:              self.updated_at
+    }
+  end
+
+  ##
   # @return [Hash] Indexable JSON representation of the instance.
   #
   def as_indexed_json(options = {})

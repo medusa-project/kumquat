@@ -110,6 +110,28 @@ class ItemTest < ActiveSupport::TestCase
                  result[1].repository_id
   end
 
+  # as_harvestable_json()
+
+  test 'as_harvestable_json() returns the correct structure' do
+    doc = @item.as_harvestable_json
+
+    assert_equal 'Item', doc[:class]
+    assert_equal @item.repository_id, doc[:id]
+    assert_equal @item.start_date, doc[:normalized_start_date]
+    assert_equal @item.end_date, doc[:normalized_end_date] if @item.end_date
+    assert_equal @item.latitude&.to_f, doc[:normalized_latitude]
+    assert_equal @item.longitude&.to_f, doc[:normalized_longitude]
+    assert_equal @item.variant, doc[:variant]
+    assert_equal @item.binaries
+                     .where(master_type: Binary::MasterType::PRESERVATION)
+                     .limit(1)
+                     .first&.media_type, doc[:preservation_media_type]
+    assert_equal @item.elements_in_profile_order(only_visible: true)
+                     .map{ |e| { name: e.name, value: e.value } }, doc[:elements]
+    assert_equal @item.created_at, doc[:created_at]
+    assert_equal @item.updated_at, doc[:updated_at]
+  end
+
   # as_indexed_json()
 
   test 'as_indexed_json() returns the correct structure' do
