@@ -92,10 +92,10 @@ class EntityFinder < AbstractFinder
     load
     if @response_json['hits']
       return @response_json['hits']['hits'].map { |r|
-        case r['_source']['sys_k_class'].downcase
+        case r['_source'][ElasticsearchIndex::StandardFields::CLASS].downcase
         when 'agent'
           id = r['_id']
-          agent = Agent.find(id)
+          agent = Agent.find_by_id(id)
           LOGGER.debug("to_a(): #{id} is missing from the database") unless agent
           agent
         when 'item'
