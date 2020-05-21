@@ -10,7 +10,7 @@ module Harvest
     def index
       @start = params[:start].to_i
 
-      # EntityFinder will search across entity classes and return Items, Agents,
+      # EntityFinder will search across entity classes and return Items and
       # and Collections.
       finder = EntityFinder.new.
           bypass_authorization(true).
@@ -39,8 +39,6 @@ module Harvest
           numResults: @count,
           results: @entities.map { |entity|
             case entity.class.to_s
-            when 'Agent'
-              uri = harvest_agent_url(entity)
             when 'Collection'
               uri = harvest_collection_url(entity)
             when 'Item'
