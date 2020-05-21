@@ -83,7 +83,7 @@ class ElasticsearchClient
     response = @http_client.post(url, query,
                                  'Content-Type': CONTENT_TYPE)
     if response.status == 200
-      LOGGER.info('delete_by_query(): %s', response.body)
+      LOGGER.debug('delete_by_query(): %s', response.body)
     else
       raise IOError, "Got HTTP #{response.status} for POST #{url}\n#{response.body}"
     end
