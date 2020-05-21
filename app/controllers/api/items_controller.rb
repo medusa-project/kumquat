@@ -5,13 +5,15 @@ module Api
     before_action :enforce_json_content_type, only: :update
 
     ##
-    # Responds to DELETE /api/items/:id
+    # Responds to `DELETE /api/items/:id`
     #
     def destroy
       item = Item.find_by_repository_id(params[:id])
       begin
         raise ActiveRecord::RecordNotFound unless item
-        item.destroy!
+        ActiveRecord::Base.transaction do
+          item.destroy!
+        end
       rescue ActiveRecord::RecordNotFound => e
         render plain: "#{e}", status: :not_found
       rescue => e
@@ -22,7 +24,8 @@ module Api
     end
 
     ##
-    # Responds to GET /api/items and /api/collections/:collection_id/items
+    # Responds to `GET /api/items` and
+    # `GET /api/collections/:collection_id/items`
     #
     def index
       @start = params[:start].to_i
@@ -61,7 +64,7 @@ module Api
     end
 
     ##
-    # Responds to GET /api/items/:id
+    # Responds to `GET /api/items/:id`
     #
     def show
       @item = Item.find_by_repository_id(params[:id])
@@ -70,14 +73,15 @@ module Api
     end
 
     ##
-    # Responds to PUT /api/items/:id
+    # Responds to `PUT /api/items/:id`
     #
     def update
       item = Item.find_by_repository_id(params[:id])
       begin
         raise ActiveRecord::RecordNotFound unless item
-
-        item.update_from_json(request.body.read)
+        ActiveRecord::Base.transaction do
+          item.update_from_json(request.body.read)
+        end
       rescue ActiveRecord::RecordNotFound => e
         render plain: "#{e}", status: :not_found
       rescue => e
