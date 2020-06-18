@@ -229,6 +229,7 @@ module Admin
             UpdateItemsFromTsvJob.perform_later(tempfile.path,
                                                 params[:tsv].original_filename)
           rescue => e
+            tempfile.close
             tempfile.unlink
             handle_error(e)
             redirect_back fallback_location: admin_collection_items_url(col)

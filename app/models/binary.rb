@@ -443,6 +443,7 @@ class Binary < ApplicationRecord
       rescue => e
         raise IOError, e
       ensure
+        tempfile.close
         tempfile.unlink
       end
     elsif is_video?
@@ -481,6 +482,7 @@ class Binary < ApplicationRecord
       rescue => e
         raise IOError, e
       ensure
+        tempfile&.close
         tempfile&.unlink
       end
     end
@@ -514,6 +516,7 @@ class Binary < ApplicationRecord
     rescue => e
       raise IOError, e
     ensure
+      tempfile&.close
       tempfile&.unlink
     end
   end

@@ -15,6 +15,7 @@ class UpdateItemsFromTsvJobTest < ActiveSupport::TestCase
       UpdateItemsFromTsvJob.perform_now(file.path, 'original.tsv')
       assert !File.exist?(file.path)
     ensure
+      file.close
       file.unlink
     end
   end
