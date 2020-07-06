@@ -48,7 +48,7 @@
           <%= icon_for(item.collection) %>&nbsp;&nbsp;Physical Collection
         <% end %>
       <% end %>
-      <% if signed_in? %>
+      <% if current_user&.medusa_user? %>
         <div class="dropdown-divider"></div>
         <%= link_to admin_collection_item_path(item.collection, item),
                     target: '_blank', class: 'dropdown-item' do %>

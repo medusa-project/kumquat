@@ -89,6 +89,10 @@
 #                              collection for use in e.g. thumbnails.
 # * `resource_types`           Serialized array of resource types contained
 #                              within the collection, copied from Medusa.
+# * `restricted`               Indicates a collection for which all items are
+#                              "private"--not indexed or discoverable in any
+#                              way except by sharing a link that is restricted
+#                              to a particular NetID. (DLD-337)
 # * `rights_statement`         Rights statement text.
 #                              TODO: store this in an accessRights CollectionElement
 # * `rightsstatements_org_uri` URI of a RightsStatements.org statement.
@@ -749,7 +753,11 @@ class Collection < ApplicationRecord
   # @return [void]
   #
   def reindex(index = nil)
-    index_in_elasticsearch(index)
+    if self.restricted
+      delete_from_elasticsearch rescue nil
+    else
+      index_in_elasticsearch(index)
+    end
   end
 
   def reindex_items

@@ -150,6 +150,23 @@ var PTAdminItemEditView = function() {
             return false;
         });
 
+        $('button#dl-add-netid-button').on('click', function() {
+            var element = $(this).parent().prev('.input-group');
+            var clone = element.clone(true);
+            clone.find('input').val('');
+            element.after(clone);
+            return false;
+        });
+        $('button.dl-remove-netid').on('click', function() {
+            var element = $(this).closest('.input-group');
+            if (element.siblings('.input-group').length > 0) {
+                element.remove();
+            } else {
+                element.find('input').val('');
+            }
+            return false;
+        });
+
         // Auto-vertical-resize the textareas...
         var textareas = $('#dl-metadata textarea');
         var MAGIC_FUDGE = 12;
@@ -317,6 +334,24 @@ var PTAdminItemsView = function() {
 var PTAdminItemView = function() {
     this.init = function() {
         $('[data-toggle=popover]').popover({ 'html' : true });
+
+        // Copy the restricted URL to the clipboard when a copy button is
+        // clicked. This uses clipboard.js: https://clipboardjs.com
+        var clipboard = new Clipboard('.dl-copy-to-clipboard');
+        clipboard.on('success', function(e) {
+            // Remove the button and add a "copied" message in its place.
+            var button = $(e.trigger);
+            button.parent().append('<small>' +
+                '<span class="text-success">' +
+                '<i class="fa fa-check"></i> Copied' +
+                '</span>'+
+                '</small>');
+            button.remove();
+        });
+        clipboard.on('error', function(e) {
+            console.error('Action:', e.action);
+            console.error('Trigger:', e.trigger);
+        });
     }
 };
 

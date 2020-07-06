@@ -21,16 +21,20 @@ class CollectionsControllerTest < ActionDispatch::IntegrationTest
 
   # show()
 
-  test 'show() should return 200' do
+  test 'show() returns HTTP 200 for HTML' do
     get('/collections/' + @collection.repository_id)
     assert_response :success
   end
 
-  # show() with JSON
-
-  test 'show() JSON should return 200' do
+  test 'show() returns HTTP 200 for JSON' do
     get('/collections/' + @collection.repository_id + '.json')
     assert_response :success
+  end
+
+  test 'show() returns HTTP 403 for restricted collections' do
+    @collection.update!(restricted: true)
+    get('/collections/' + @collection.repository_id)
+    assert_response :forbidden
   end
 
   # show_contentdm

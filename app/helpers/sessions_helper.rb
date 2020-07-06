@@ -5,9 +5,14 @@ module SessionsHelper
   end
 
   def current_user
-    unless session[:user].nil?
-      @current_user = User.find(session[:user])
+    unless @current_user
+      if session[:user].present?
+        @current_user = User.find(session[:user])
+      elsif session[:netid].present?
+        @current_user = User.new(username: session[:netid])
+      end
     end
+    @current_user
   end
 
   def current_user?(user)
@@ -15,17 +20,18 @@ module SessionsHelper
   end
 
   def sign_in(user)
-    session[:user] = user.id
-    self.current_user = user
+    if user.kind_of?(User)
+      session[:user] = user.id
+      self.current_user = user
+    else
+      session[:netid] = user
+    end
   end
 
   def sign_out
     session[:user] = nil
+    session[:netid] = nil
     self.current_user = nil
-  end
-
-  def signed_in?
-    !current_user.nil?
   end
 
   def redirect_back_or(default)

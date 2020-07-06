@@ -18,5 +18,6 @@
 //= require local-time
 //= require jquery.stickytableheaders.min.js
 //= require ../kumquat
+//= require clipboard.min
 //= require spin.min
 //= require_tree .

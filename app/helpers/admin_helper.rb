@@ -405,6 +405,24 @@ module AdminHelper
               value: item.effective_rightsstatements_org_statement ?
                   link_to(item.effective_rightsstatements_org_statement.name,
                           item.effective_rightsstatements_org_statement.info_uri) : '' }
+
+    # Allowed NetIDs
+    netid_table = ''
+    if item.allowed_netids&.any?
+      netid_table = "<table class=\"table table-sm\">"
+      netid_table += "<tr><th>NetID</th><th>Expires</th></tr>"
+      item.allowed_netids.each do |h|
+        expires = Time.at(h[:expires].to_i)
+        netid_table += "<tr><td>#{h[:netid]}</td><td class=\"#{expires < Time.now ? "text-danger" : ""}\">#{local_time_ago(expires)}</td></tr>"
+      end
+      netid_table += "</table>"
+    end
+    data << { label: 'Allowed NetIDs', value: netid_table }
+    if item.allowed_netids&.any?
+      data << { label: 'Restricted URL',
+                value: "#{item_url(item)} <button class=\"btn btn-light btn-sm dl-copy-to-clipboard\" data-clipboard-text=\"#{item_url(item)}\" type=\"button\"><i class=\"fa fa-clipboard\"></i></button>" }
+    end
+
     # Allowed Host Groups (assigned)
     data << { label: 'Allowed Host Groups (directly assigned)',
               value: item.allowed_host_groups.any? ?

@@ -557,6 +557,43 @@ class ItemTest < ActiveSupport::TestCase
 
   # save
 
+  test 'save() cleans up allowed NetIDs' do
+    @item.allowed_netids = [
+        { netid: 'bob', expires: Time.now.to_i + 3.hours.to_i },
+        { netid: 'joe ', expires: Time.now.to_i + 3.hours.to_i },
+        { netid: '', expires: Time.now.to_i + 3.hours.to_i }
+    ]
+    @item.save!
+    assert_equal [
+                     { netid: 'bob', expires: Time.now.to_i + 3.hours.to_i },
+                     { netid: 'joe', expires: Time.now.to_i + 3.hours.to_i }
+                 ],
+                 @item.allowed_netids
+
+    @item.allowed_netids = nil
+    @item.save!
+    assert_nil @item.allowed_netids
+  end
+
+  test 'save() notifies new allowed NetIDs' do
+    assert ActionMailer::Base.deliveries.empty?
+    @item.allowed_netids = ['bob', 'joe']
+    @item.save!
+    assert_equal 2, ActionMailer::Base.deliveries.length
+  end
+
+  test 'save() does not notify existing allowed NetIDs' do
+    assert ActionMailer::Base.deliveries.empty?
+    @item.allowed_netids = ['bob', 'joe']
+    @item.save!
+    assert_equal 2, ActionMailer::Base.deliveries.length
+
+    ActionMailer::Base.deliveries.clear
+    @item.allowed_netids = ['bob', 'joe', "stan"]
+    @item.save!
+    assert_equal 1, ActionMailer::Base.deliveries.length
+  end
+
   test 'save() prunes identical elements' do
     @item.elements.destroy_all
     # These are all unique and should survive.

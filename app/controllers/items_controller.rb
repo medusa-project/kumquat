@@ -319,6 +319,16 @@ class ItemsController < WebsiteController
   # Responds to GET /items/:id
   #
   def show
+    if @item.restricted
+      if current_user
+        struct = @item.allowed_netids&.find{ |h| h[:netid] == current_user.username }
+        if struct && Time.at(struct[:expires]) > Time.now
+          render 'show_restricted' and return
+        end
+      end
+      render 'unauthorized', status: :forbidden and return
+    end
+
     respond_to do |format|
       format.html do
         # Free-form items are handled differently from the rest: different
@@ -563,8 +573,8 @@ class ItemsController < WebsiteController
   private
 
   def authorize_item
+    authorize_host_group(@item.collection)
     authorize(@item)
-    authorize(@item.collection)
   end
 
   def item_tree_hash(item)

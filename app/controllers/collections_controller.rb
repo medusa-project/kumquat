@@ -5,7 +5,7 @@ class CollectionsController < WebsiteController
 
   before_action :load_collection, only: [:iiif_presentation, :show]
   before_action :check_publicly_accessible, only: [:iiif_presentation, :show]
-  before_action :authorize_collection, only: :iiif_presentation
+  before_action :authorize_collection, only: [:iiif_presentation, :show]
   before_action :enable_cors, only: :iiif_presentation
   before_action :set_sanitized_params, only: :show
 
@@ -62,17 +62,16 @@ class CollectionsController < WebsiteController
   #
   def show
     begin
-      @authorized = true
-      authorize(@collection)
-    rescue AuthorizationError => e
-      LOGGER.debug('show(): %s', e)
-      @authorized = false
+      @uofi_user = true
+      authorize_host_group(@collection)
+    rescue AuthorizationError
+      @uofi_user = false
     end
 
     respond_to do |format|
       format.html do
         @children = []
-        if @authorized
+        if @uofi_user
           @children = CollectionFinder.new.
               search_children(true).
               parent_collection(@collection).
@@ -90,7 +89,7 @@ class CollectionsController < WebsiteController
         end
       end
       format.json do
-        if @authorized
+        if @uofi_user
           render json: @collection.decorate
         else
           render plain: '403 Forbidden', status: :forbidden

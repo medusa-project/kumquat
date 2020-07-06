@@ -8,6 +8,45 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
 
   # show() access control
 
+  test 'show() allows access to non-expired restricted items by the correct NetID' do
+    sign_in_as(users(:admin))
+    @item.allowed_netids = [{ netid: 'admin',
+                              expires: Time.now.to_i + 1.day.to_i }]
+    @item.save!
+
+    get('/items/' + @item.repository_id)
+    assert_response :ok
+  end
+
+  test 'show() restricted access to expired restricted items by the correct NetID' do
+    sign_in_as(users(:admin))
+    @item.allowed_netids = [{ netid: 'admin',
+                              expires: Time.now.to_i - 1.day.to_i }]
+    @item.save!
+
+    get('/items/' + @item.repository_id)
+    assert_response :forbidden
+  end
+
+  test 'show() restricts access to restricted items with incorrect NetID' do
+    sign_in_as(users(:admin))
+    @item.allowed_netids = [{ netid: 'user',
+                              expires: Time.now.to_i + 1.day.to_i }]
+    @item.save!
+
+    get('/items/' + @item.repository_id)
+    assert_response :forbidden
+  end
+
+  test 'show() restricts access to restricted items for not-logged-in users' do
+    @item.allowed_netids = [{ netid: 'user',
+                              expires: Time.now.to_i + 1.day.to_i }]
+    @item.save!
+
+    get('/items/' + @item.repository_id)
+    assert_response :forbidden
+  end
+
   test 'show() restricts access to host group-restricted items' do
     # N.B.: Rails sets request.host to this pattern
     group = HostGroup.create!(key: 'test', name: 'Test',

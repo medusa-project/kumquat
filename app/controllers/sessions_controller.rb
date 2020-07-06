@@ -7,23 +7,30 @@ class SessionsController < WebsiteController
   # Responds to POST /auth/:provider/callback
   #
   def create
+    # Any NetID user is allowed to log in, but only users who are members of
+    # one of the relevant Medusa AD groups is given a User instance. Everyone
+    # else simply has their NetID stored in the session. This is part of the
+    # temporary Restricted Access feature (DLD-337).
+    #
+    # We can access other information via auth_hash[:extra][:raw_info][key]
+    # where key is one of the shibboleth* keys in shibboleth.yml
+    # (which have to correspond to passed attributes).
     auth_hash = request.env['omniauth.auth']
     if auth_hash and auth_hash[:uid]
-      username = auth_hash[:uid].split('@').first
-      user = User.find_or_create_by!(username: username)
+      username   = auth_hash[:uid].split('@').first
+      user       = User.new(username: username)
       if user.medusa_user?
-        return_url = clear_and_return_return_path
+        return_url = clear_and_return_return_path(admin_root_path)
+        user = User.find_or_create_by!(username: username)
         sign_in user
-        # We can access other information via auth_hash[:extra][:raw_info][key]
-        # where key is one of the shibboleth* keys in shibboleth.yml
-        # (which have to correspond to passed attributes).
-        redirect_to return_url
-        return
+      else
+        return_url = clear_and_return_return_path(root_path)
+        sign_in username
       end
+      redirect_to return_url
+    else
+      redirect_to root_url
     end
-    flash['error'] = sprintf('Sign-in failed. Ensure that you are a member '\
-                             'of the relevant AD group.')
-    redirect_to root_url
   end
 
   def destroy
@@ -46,8 +53,8 @@ class SessionsController < WebsiteController
 
   protected
 
-  def clear_and_return_return_path
-    return_url = session[:return_to] || session[:referer] || admin_root_path
+  def clear_and_return_return_path(fallback_url)
+    return_url = session[:return_to] || session[:referer] || fallback_url
     session[:return_to] = session[:referer] = nil
     reset_session
     return_url

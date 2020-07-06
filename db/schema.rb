@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_02_24_205106) do
+ActiveRecord::Schema.define(version: 2020_06_29_143237) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -128,6 +128,7 @@ ActiveRecord::Schema.define(version: 2020_02_24_205106) do
     t.integer "descriptive_element_id"
     t.boolean "harvestable_by_idhh", default: false, null: false
     t.boolean "harvestable_by_primo", default: false, null: false
+    t.boolean "restricted", default: false, null: false
     t.index ["external_id"], name: "index_collections_on_external_id"
     t.index ["harvestable"], name: "index_collections_on_harvestable"
     t.index ["harvestable_by_idhh"], name: "index_collections_on_harvestable_by_idhh"
@@ -259,6 +260,7 @@ ActiveRecord::Schema.define(version: 2020_02_24_205106) do
     t.string "embed_tag"
     t.integer "representative_binary_id"
     t.datetime "end_date"
+    t.text "allowed_netids"
     t.index ["collection_repository_id"], name: "index_items_on_collection_identifier"
     t.index ["parent_repository_id"], name: "index_items_on_parent_identifier"
     t.index ["published"], name: "index_items_on_published"

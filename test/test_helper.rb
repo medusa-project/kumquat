@@ -19,8 +19,9 @@ class ActiveSupport::TestCase
   end
 
   def sign_in_as(user)
+    username = user.kind_of?(User) ? user.username : user
     post '/auth/developer/callback', params: {
-        name: user.username, email: "#{user.username}@example.org"
+        name: username, email: "#{username}@example.org"
     }
   end
 

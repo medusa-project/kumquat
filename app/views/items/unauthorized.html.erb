@@ -1,35 +1,26 @@
 <% provide :title, @item.title %>
 <% provide :body_id, 'items_show' %>
 
-<%= breadcrumb(item: @item, context: session[:browse_context],
-               context_url: session[:browse_context_url]) %>
+<% if current_user&.medusa_user? %>
+  <div class="btn-group float-right" role="group">
+    <div class="btn-group">
+      <button type="button" class="btn btn-light dropdown-toggle"
+              data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <i class="fa fa-eye"></i>
+        View <span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu dropdown-menu-right" role="menu">
+        <%= link_to admin_collection_item_path(@item.collection, @item),
+                    class: 'dropdown-item', target: '_blank' do %>
+          <i class="fa fa-lock"></i>&nbsp;&nbsp;Admin View
+        <% end %>
+      </ul>
+    </div>
+  </div>
 
-<div class="alert alert-info">
+  <%= item_page_title(@item) %>
+<% end %>
+
+<div class="alert alert-danger">
   You are not authorized to access this item.
 </div>
-
-<div class="btn-group float-right" role="group">
-  <div class="btn-group">
-    <button type="button" class="btn btn-light dropdown-toggle"
-            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-      <i class="fa fa-eye"></i>
-      View <span class="caret"></span>
-    </button>
-    <ul class="dropdown-menu" role="menu">
-      <%= link_to admin_collection_item_path(@item.collection, @item),
-                  class: 'dropdown-item', target: '_blank' do %>
-        <i class="fa fa-lock"></i>&nbsp;&nbsp;Admin View
-      <% end %>
-    </ul>
-  </div>
-  <div class="text-center">
-    <% mailto = curator_mailto(@item) %>
-    <% if mailto %>
-      <%= link_to mailto, class: 'btn btn-light' do %>
-        <i class="fa fa-envelope"></i> Email Curator About This Item
-      <% end %>
-    <% end %>
-  </div>
-</div>
-
-<%= item_page_title(@item) %>

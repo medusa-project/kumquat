@@ -15,7 +15,13 @@ class WebsiteController < ApplicationController
   # @return [Boolean]
   #
   def authorize(model)
-    if model&.respond_to?(:authorized_by_any_host_groups?) # AuthorizableByHost method
+    return unless model
+    authorize_host_group(model)
+    authorize_restricted(model)
+  end
+
+  def authorize_host_group(model)
+    if model.respond_to?(:authorized_by_any_host_groups?) # AuthorizableByHost method
       unless model.authorized_by_any_host_groups?(client_host_groups)
         msg = sprintf('Authorization for %s %s denied for host groups: [%s]',
                       model.class.to_s,
@@ -26,16 +32,14 @@ class WebsiteController < ApplicationController
     end
   end
 
-  ##
-  # @param model [Object]
-  # @return [Boolean]
-  #
-  def authorized?(model)
-    authorized = true
-    if model&.respond_to?(:authorized_by_any_host_groups?) # AuthorizableByHost method
-      authorized = model.authorized_by_any_host_groups?(client_hosts)
+  def authorize_restricted(model)
+    if model.kind_of?(Item) && model.restricted # DLD-337
+      username = current_user&.username
+      raise AuthorizationError unless username.present? &&
+          model.allowed_netids&.map{ |h| h[:netid] }&.include?(username)
+    elsif model.kind_of?(Collection) && model.restricted
+      raise AuthorizationError
     end
-    authorized
   end
 
   ##

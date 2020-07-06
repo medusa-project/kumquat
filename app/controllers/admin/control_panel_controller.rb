@@ -24,7 +24,7 @@ module Admin
     @keep_flash = false
 
     def authorize_user
-      redirect_to signin_path unless signed_in?
+      redirect_to signin_path unless current_user&.medusa_user?
     end
 
     ##

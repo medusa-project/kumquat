@@ -1,5 +1,5 @@
 <div class="text-center dl-browse-buttons">
-  <% if @authorized %>
+  <% if @uofi_user %>
     <% if @show_browse_tree_button %>
       <%= link_to(collection_tree_path(@collection),
                   class: 'btn btn-lg btn-outline-primary') do %>
@@ -35,7 +35,7 @@
   <% end %>
 </div>
 
-<% unless @authorized %>
+<% unless @uofi_user %>
   <div class="alert alert-info">
     Due to access restrictions, this collection is only available to
     authenticated on-campus users at the University of Illinois at Urbana-Champaign.
@@ -47,7 +47,7 @@
           simple_format(auto_link(@collection.description)) %>
 </div>
 
-<% if @collection.free_form? and @authorized %>
+<% if @collection.free_form? and @uofi_user %>
   <div class="alert alert-info">
     This collection is managed by the <%= @collection.medusa_repository.title %>
       and does not feature precise descriptive information for each item. Discover

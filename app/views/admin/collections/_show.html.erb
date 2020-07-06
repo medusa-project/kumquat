@@ -156,6 +156,13 @@
         </td>
       </tr>
       <tr>
+        <td>Restricted</td>
+        <td>
+          <span class="badge <%= @collection.restricted ? 'badge-danger' : 'badge-success' %>">
+            <%= @collection.restricted ? 'Restricted' : 'Unrestricted' %></span>
+        </td>
+      </tr>
+      <tr>
         <td>Harvestable</td>
         <td>
           <span class="badge <%= @collection.harvestable ? 'badge-success' : 'badge-danger' %>">

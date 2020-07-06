@@ -17,9 +17,14 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
 =end
   end
 
-  test 'signing in should set the session cookie' do
+  test 'signing in as a Medusa user' do
     sign_in_as(users(:admin))
-    assert_not_nil session[:user]
+    assert_redirected_to admin_root_path
+  end
+
+  test 'signing in as a non-Medusa user' do
+    sign_in_as("johnsmith")
+    assert_redirected_to admin_root_path
   end
 
   # destroy()

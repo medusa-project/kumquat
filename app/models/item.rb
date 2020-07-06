@@ -69,6 +69,13 @@
 #
 # # Attributes
 #
+# * `allowed_netids`           Serialized array of hashes with `:netid` and
+#                              `:expires` keys. The latter is an epoch second.
+#                              This array contains the NetID(s) of the user(s)
+#                              allowed to access the item, alongside the times
+#                              that this access expires. (This supports the
+#                              temporary "Restricted Access" feature [DLD-337].
+#                              For most items, it is null or empty.)
 # * `collection_repository_id` See "Identifiers" above.
 # * `contentdm_alias`          String collection alias of items that have been
 #                              migrated out of CONTENTdm, used for URL
@@ -221,6 +228,8 @@ class Item < ApplicationRecord
 
   belongs_to :representative_binary, class_name: 'Binary', optional: true
 
+  serialize :allowed_netids
+
   # VALIDATIONS
 
   # collection_repository_id
@@ -260,8 +269,10 @@ class Item < ApplicationRecord
 
   # ACTIVERECORD CALLBACKS
 
-  before_save :prune_identical_elements, :set_effective_host_groups,
+  before_save :process_allowed_netids, :notify_netids,
+              :prune_identical_elements, :set_effective_host_groups,
               :set_normalized_coords, :set_normalized_date
+
   after_commit :index_in_elasticsearch, on: [:create, :update]
   after_commit :delete_from_elasticsearch, on: :destroy
 
@@ -1077,7 +1088,11 @@ class Item < ApplicationRecord
   # @return [void]
   #
   def reindex(index = nil)
-    index_in_elasticsearch(index)
+    if self.restricted
+      delete_from_elasticsearch rescue nil
+    else
+      index_in_elasticsearch(index)
+    end
   end
 
   ##
@@ -1100,6 +1115,13 @@ class Item < ApplicationRecord
   #
   def representative_item
     Item.find_by_repository_id(self.representative_item_repository_id)
+  end
+
+  ##
+  # @return [Boolean]
+  #
+  def restricted
+    self.collection&.restricted || self.allowed_netids&.any?
   end
 
   ##
@@ -1329,6 +1351,7 @@ class Item < ApplicationRecord
     walk(self, index, &block)
   end
 
+
   private
 
   def delete_from_elasticsearch
@@ -1496,6 +1519,26 @@ class Item < ApplicationRecord
       denied_hgs.each do |group|
         self.effective_denied_host_groups << group
       end
+    end
+  end
+
+  def notify_netids
+    if self.allowed_netids&.any? && !Rails.env.development?
+      prev_netids = self.allowed_netids_was&.map{ |h| h[:netid] } || []
+      new_netids  = self.allowed_netids.map{ |h| h[:netid] } - prev_netids
+      new_netids.each do |netid|
+        KumquatMailer.restricted_item_available(self, netid).deliver_now
+      end
+    end
+  end
+
+  def process_allowed_netids
+    if allowed_netids&.any?
+      allowed_netids.each_with_index do |h, i|
+        allowed_netids[i][:netid]   = h[:netid].strip
+        allowed_netids[i][:expires] = Time.now.to_i + 21.days.to_i if h[:expires].blank?
+      end
+      allowed_netids.select!{ |h| h[:netid].present? }
     end
   end
 

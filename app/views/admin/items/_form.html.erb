@@ -113,6 +113,36 @@
           </div>
         </div>
       </div>
+      <div class="row">
+        <div class="col-sm-12">
+          <h4>Allowed NetIDs</h4>
+          <%= hidden_field_tag('item[allowed_netids][][expires]', nil) %>
+          <%= hidden_field_tag('item[allowed_netids][][netid]', nil) %>
+          <% if f.object.allowed_netids.blank? %>
+            <% f.object.allowed_netids = [{ netid: '', expires: '' }] %>
+          <% end %>
+          <% f.object.allowed_netids.each do |h| %>
+            <div class="input-group mb-3">
+              <%= hidden_field_tag('item[allowed_netids][][expires]', h[:expires]) %>
+              <%= text_field_tag('item[allowed_netids][][netid]', h[:netid],
+                                 class: 'form-control dl-remove-element',
+                                 'aria-label': 'NetID',
+                                 'aria-describedby': "remove-netid-button-#{h[:netid]}") %>
+              <div class="input-group-append">
+                <button class="btn btn-danger dl-remove-netid" type="button" id="remove-netid-button-<%= h[:netid] %>">
+                  <i class="fa fa-minus"></i>
+                </button>
+              </div>
+            </div>
+          <% end %>
+          <p class="form-text">
+            <button class="btn btn-success mr-3" type="button" id="dl-add-netid-button">
+              <i class="fa fa-plus"></i>
+            </button>
+            <i class="fa fa-info-circle"></i>
+            An email will automatically be sent to any new NetIDs entered above.</p>
+        </div>
+      </div>
     </div>
 
     <div role="tabpanel" class="tab-pane" id="dl-metadata">
@@ -150,7 +180,7 @@
 
   </div>
 
-  <div class="float-right">
+  <div class="float-right mt-3">
     <%= f.submit 'Save Changes', class: 'btn btn-primary' %>
   </div>
 

@@ -195,6 +195,7 @@ module Admin
                                          :metadata_profile_id,
                                          :package_profile_id,
                                          :published_in_dls,
+                                         :restricted,
                                          :rightsstatements_org_uri,
                                          allowed_host_group_ids: [],
                                          denied_host_group_ids: [])

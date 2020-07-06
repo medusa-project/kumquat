@@ -3,7 +3,7 @@
   # item [Item]
 %>
 
-<% if signed_in? %>
+<% if current_user&.medusa_user? %>
   <section>
     <h2>
       <a role="button" data-toggle="collapse" href="#dl-staff-info"
