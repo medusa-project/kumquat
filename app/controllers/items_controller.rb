@@ -320,13 +320,7 @@ class ItemsController < WebsiteController
   #
   def show
     if @item.restricted
-      if current_user
-        struct = @item.allowed_netids&.find{ |h| h[:netid] == current_user.username }
-        if struct && Time.at(struct[:expires]) > Time.now
-          render 'show_restricted' and return
-        end
-      end
-      render 'unauthorized', status: :forbidden and return
+      render 'show_restricted' and return
     end
 
     respond_to do |format|
@@ -674,9 +668,20 @@ class ItemsController < WebsiteController
   def rescue_unauthorized
     message = "You are not authorized to access this item."
     respond_to do |format|
-      format.html { render "unauthorized", status: :forbidden }
-      format.json { render "errors/error", status: :forbidden, locals: { message: message } }
-      format.all { render plain: message, status: :forbidden, content_type: "text/plain" }
+      format.html do
+        if current_user || !@item.restricted
+          render "unauthorized", status: :forbidden
+        else
+          store_location
+          redirect_to signin_path
+        end
+      end
+      format.json do
+        render "errors/error", status: :forbidden, locals: { message: message }
+      end
+      format.all do
+        render plain: message, status: :forbidden, content_type: "text/plain"
+      end
     end
   end
 

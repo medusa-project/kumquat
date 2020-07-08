@@ -35,8 +35,9 @@ class WebsiteController < ApplicationController
   def authorize_restricted(model)
     if model.kind_of?(Item) && model.restricted # DLD-337
       username = current_user&.username
+      struct   = model.allowed_netids&.find{ |h| h[:netid] == username }
       raise AuthorizationError unless username.present? &&
-          model.allowed_netids&.map{ |h| h[:netid] }&.include?(username)
+          struct && Time.at(struct[:expires]) > Time.now
     elsif model.kind_of?(Collection) && model.restricted
       raise AuthorizationError
     end
