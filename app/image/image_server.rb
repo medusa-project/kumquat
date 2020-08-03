@@ -7,7 +7,7 @@ class ImageServer
     HTTPClient.new do
       # use the OS cert store
       self.ssl_config.cert_store.set_default_paths
-      self.ssl_config.verify_mode = OpenSSL::SSL::VERIFY_NONE
+      #self.ssl_config.verify_mode = OpenSSL::SSL::VERIFY_NONE
       self.force_basic_auth = true
       self.receive_timeout = 600
       uri = URI.parse(config.image_server_api_endpoint)

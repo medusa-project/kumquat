@@ -31,7 +31,7 @@ class GatewayClient
     unless @client
       @client = HTTPClient.new do
         self.ssl_config.cert_store.set_default_paths
-        self.ssl_config.verify_mode = OpenSSL::SSL::VERIFY_NONE
+        #self.ssl_config.verify_mode = OpenSSL::SSL::VERIFY_NONE
         self.receive_timeout        = 10000
       end
     end
