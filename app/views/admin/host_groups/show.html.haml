@@ -1,0 +1,53 @@
+- provide :title, @host_group.name
+- provide :active_nav, 'access'
+
+= admin_breadcrumb({ label: 'Home', url: admin_root_path },
+                   { label: 'Host Groups', url: admin_host_groups_path },
+                   { label: @host_group.name })
+
+.btn-group.float-right
+  -# Edit
+  = link_to edit_admin_host_group_path(@host_group), class: 'btn btn-light' do
+    = content_tag(:span, '', class: 'fas fa-pencil-alt')
+    Edit
+  -# Delete
+  = link_to admin_host_group_path(@host_group), method: 'delete',
+            class: 'btn btn-danger',
+            data: { confirm: 'Are you sure you want to delete this host group?' } do
+    = content_tag(:span, '', class: 'fa fa-trash')
+    Delete
+
+%h1= @host_group.name
+.row
+  .col-sm-6
+    %h2 Host Patterns
+    %pre= @host_group.pattern
+  .col-sm-6
+    %h2 Allowing Collections
+    - if @host_group.allowing_collections.any?
+      %ul
+        - @host_group.allowing_collections.each do |col|
+          %li= link_to col.title, admin_collection_path(col)
+    - else
+      %p None
+    %h2 Denying Collections
+    - if @host_group.denying_collections.any?
+      %ul
+        - @host_group.denying_collections.each do |col|
+          %li= link_to col.title, admin_collection_path(col)
+    - else
+      %p None
+    %h2 Allowing Items
+    - if @host_group.allowing_items.any?
+      %ul
+        - @host_group.allowing_items.each do |item|
+          %li= link_to item.title, admin_collection_item_path(item.collection, item)
+    - else
+      %p None
+    %h2 Denying Items
+    - if @host_group.denying_items.any?
+      %ul
+        - @host_group.denying_items.each do |item|
+          %li= link_to item.title, admin_collection_item_path(item.collection, item)
+    - else
+      %p None

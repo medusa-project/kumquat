@@ -1,0 +1,20 @@
+- page_links = paginate_items(@count, @limit, @current_page)
+- if @count > 0
+  .row.justify-content-md-center
+    .col-md-auto
+      = page_links
+  .dl-cards.d-none.d-sm-block.d-md-none
+    = entities_as_cards(@items)
+  .d-sm-none.d-md-block
+    = entities_as_media(@items, show_collections: !@collection)
+  .row.justify-content-md-center
+    .col-md-auto
+      = page_links
+- else
+  .dl-no-results
+    = no_results_help(params[:q], @suggestions)
+
+- if Rails.env.development?
+  = render partial: 'shared/results_debug',
+           locals: { es_request: @es_request_json,
+                     es_response: @es_response_json }

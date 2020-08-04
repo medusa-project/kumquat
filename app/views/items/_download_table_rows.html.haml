@@ -1,0 +1,35 @@
+-# Requires the following locals:
+-# item [Item]
+
+%tr
+  %td
+    .dl-thumbnail
+      = thumbnail_tag(item, shape: :square, lazy: true)
+  %td
+    = item.title
+  %td
+    .btn-group
+      - access_master = item.binaries.select{ |b| b.master_type == Binary::MasterType::ACCESS }.first
+      - if access_master
+        = link_to binary_path(access_master),
+                  class: 'btn btn-outline-primary btn-sm',
+                  target: '_blank' do
+          = icon_for(access_master)
+          Master File (#{access_master.human_readable_name})
+      - pres_master = item.binaries.select{ |b| b.master_type == Binary::MasterType::PRESERVATION }.first
+      - if pres_master
+        = link_to binary_path(pres_master),
+                  class: 'btn btn-outline-primary btn-sm',
+                  target: '_blank' do
+          = icon_for(pres_master)
+          Master File (#{pres_master.human_readable_name})
+      - if item.effective_image_binary&.image_server_safe?
+        %a.btn.btn-outline-primary.btn-sm{"data-iiif-info-url": item.effective_image_binary.iiif_info_url,
+                                          "data-iiif-url": item.effective_image_binary.iiif_image_url,
+                                          "data-target": "#dl-custom-image-modal",
+                                          "data-title": item.title,
+                                          "data-toggle": "modal",
+                                          href: "#",
+                                          onclick: "return false;"}
+          %i.fa.fa-image
+          Custom Image&hellip;

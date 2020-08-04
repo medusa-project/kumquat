@@ -1,0 +1,23 @@
+- provide :title, @item.title
+- provide :body_id, 'items_show'
+
+- if current_user&.medusa_user?
+  .btn-group.float-right{role: "group"}
+    .btn-group
+      %button.btn.btn-light.dropdown-toggle{"aria-expanded": "false",
+                                            "aria-haspopup": "true",
+                                            "data-toggle": "dropdown",
+                                            type: "button"}
+        %i.fa.fa-eye
+        View
+        %span.caret
+      %ul.dropdown-menu.dropdown-menu-right{role: "menu"}
+        = link_to admin_collection_item_path(@item.collection, @item),
+                  class: 'dropdown-item',
+                  target: '_blank' do
+          %i.fa.fa-lock
+            Admin View
+  = item_page_title(@item)
+
+.alert.alert-danger
+  You are not authorized to access this item.

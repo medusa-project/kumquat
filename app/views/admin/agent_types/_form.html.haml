@@ -1,0 +1,14 @@
+-# @param agent_type [AgentType]
+-# @param context [Symbol] :new or :edit
+
+= form_for([:admin, agent_type], remote: true) do |f|
+  .dl-error-messages
+    -# populated via ajax by shared/_validation_messages.js.erb
+  .form-group
+    = f.label :name
+    = f.text_field :name, class: 'form-control'
+  .clearfix
+    .float-right
+      %button.btn.btn-light{"data-dismiss": "modal", type: "button"} Cancel
+      = f.submit(context == :new ? 'Create Agent Type' : 'Edit Agent Type',
+                 class: 'btn btn-primary')

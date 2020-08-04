@@ -1,0 +1,25 @@
+-# Requires the following locals:
+-# item [Item]
+
+- if current_user&.medusa_user?
+  %section
+    %h2
+      %a{"aria-controls": "dl-staff-info",
+         "aria-expanded": "false",
+         "data-toggle": "collapse",
+         href: "#dl-staff-info",
+         role: "button"}
+        Staff Information
+    #dl-staff-info.collapse
+      - if item.is_compound?
+        -# For compound objects, display a table of all page binaries. (IMET-469)
+        %h3 Files
+        = compound_object_binary_info_table(item)
+      - elsif item.binaries.any?
+        - item.binaries.each do |bs|
+          %h3
+            = bs.human_readable_master_type
+            File
+          = binary_metadata_as_table(bs)
+      %h3 Object
+      = tech_metadata_as_table(item)

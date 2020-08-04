@@ -1,0 +1,44 @@
+- provide :title, "#{@collection.title}: Statistics"
+- provide :body_id, 'collection_statistics'
+- provide :active_nav, 'collections'
+
+= admin_breadcrumb({ label: 'Home', url: admin_root_path },
+                   { label: 'Collections', url: admin_collections_path },
+                   { label: @collection.title, url: admin_collection_path(@collection) },
+                   { label: 'Statistics' })
+
+%h1= @collection.title
+
+%h2 Statistics
+
+%h3 Items
+
+%table.table
+  %tr
+    %td Objects
+    %td= number_with_delimiter(@num_objects)
+  %tr
+    %td Items
+    %td= number_with_delimiter(@num_items)
+%hr
+
+%h3 Binaries
+
+%table.table
+  %tr
+    %td Total
+    %td= number_with_delimiter(@num_binaries)
+  - @extension_counts.each do |ext|
+    %tr
+      %td
+        \.#{ext['extension'].gsub(/[\\{\\}]/, '')}
+      %td= number_with_delimiter(ext['count'])
+
+%hr
+
+%h3 Metadata
+
+%table.table
+  %tr
+    %td Ascribed Descriptive Elements
+    %td= number_with_delimiter(@num_ascribed_elements)

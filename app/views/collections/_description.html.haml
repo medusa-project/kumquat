@@ -1,0 +1,48 @@
+.text-center.dl-browse-buttons
+  - if @uofi_user
+    - if @show_browse_tree_button
+      = link_to(collection_tree_path(@collection),
+                class: 'btn btn-lg btn-outline-primary') do
+        = icon_for(@collection)
+        Browse Collection
+    - elsif @collection.published_in_dls
+      -# If the collection contains only one item, link straight to it.
+      - if @num_public_objects == 1
+        - link_target = item_path(@collection.items.first)
+      - else
+        - options = @collection.free_form? ? { display: 'leaves' } : nil
+        - link_target = collection_items_path(@collection, options)
+      = link_to(link_target,
+                class: 'btn btn-lg btn-outline-primary',
+                target: @collection.published_in_dls ? '' : '_blank') do
+        = icon_for(Item)
+        = number_with_delimiter(@num_public_objects)
+        = 'Item'.pluralize(@num_public_objects)
+    - elsif @collection.access_url.present?
+      = link_to(@collection.access_url,
+                class: 'btn btn-lg btn-outline-primary',
+                target: @collection.published_in_dls ? '' : '_blank') do
+        = icon_for(Item)
+        View Items
+  - if @collection.physical_collection_url.present?
+    = link_to('Physical Collection',
+              @collection.physical_collection_url,
+              class: 'btn btn-lg btn-outline-primary',
+              target: '_blank')
+
+- unless @uofi_user
+  .alert.alert-info
+    Due to access restrictions, this collection is only available to
+    authenticated on-campus users at the University of Illinois at Urbana-Champaign.
+
+#dl-description
+  = raw(@collection.description_html) || simple_format(auto_link(@collection.description))
+
+- if @collection.free_form? && @uofi_user
+  .alert.alert-info
+    This collection is managed by the #{@collection.medusa_repository.title}
+    and does not feature precise descriptive information for each item. Discover
+    its contents by #{link_to 'browsing', collection_tree_path(@collection)}
+    the folders and files. For more information, contact an archivist at
+    = succeed "." do
+      %a{href: "mailto:#{@collection.medusa_repository.email}"}= @collection.medusa_repository.email

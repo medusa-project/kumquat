@@ -1,0 +1,15 @@
+-# Add-agent-rule modal
+#dl-add-agent-rule-modal.modal.fade{"aria-labelledby": "dl-add-agent-rule-modal-label",
+                                    role: "dialog",
+                                    tabindex: "-1"}
+  .modal-dialog{role: "document"}
+    .modal-content
+      .modal-header
+        %h4#dl-add-agent-rule-modal-label.modal-title Add Agent Rule
+        %button.close{"aria-label": "Close",
+                      "data-dismiss": "modal",
+                      type: "button"}
+          %span{"aria-hidden": "true"} ×
+      .modal-body
+        = render partial: 'form', locals: { agent_rule: @new_agent_rule,
+                                            context: :new }

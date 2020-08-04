@@ -1,0 +1,14 @@
+-# Add modal
+#dl-add-agent-relation-type-modal.modal.fade{"aria-labelledby": "dl-add-agent-relation-type-modal-label",
+                                             role: "dialog",
+                                             tabindex: "-1"}
+  .modal-dialog{role: "document"}
+    .modal-content
+      .modal-header
+        %h4#dl-add-agent-relation-type-modal-label.modal-title Add Relation Type
+        %button.close{"aria-label": "Close",
+                      "data-dismiss": "modal",
+                      type: "button"}
+          %span{"aria-hidden": "true"} ×
+      .modal-body
+        = render partial: 'form', locals: { type: @new_type, context: :new }

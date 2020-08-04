@@ -1,0 +1,26 @@
+= form_for [:admin, @host_group] do |f|
+  - render 'admin/shared/error_messages', object: f.object
+  %section
+    .form-group
+      = f.label :name
+      = f.text_field :name, class: 'form-control'
+    .form-group
+      = f.label :key
+      = f.text_field :key, class: 'form-control', disabled: (context == :edit)
+  .form-group
+    = f.label :pattern, 'Pattern(s) (one per line)'
+    = f.text_area :pattern, rows: 8, class: 'form-control'
+    %ul.text-info
+      %li
+        Comments (starting with
+        = succeed ")" do
+          %code #
+        are allowed on their own lines and at the end of lines.
+      %li
+        Wildcards (
+        %code> *
+        ) are allowed in hostnames and IP addresses.
+      %li IP address CIDR ranges are supported.
+  .float-right
+    = f.submit(context == :new ? 'Create Host Group' : 'Save Changes',
+               class: 'btn btn-primary')

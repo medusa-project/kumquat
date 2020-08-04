@@ -1,0 +1,38 @@
+-# Import-elements modal
+
+#dl-import-modal.modal.fade{"aria-labelledby": "dl-import-modal-label",
+                            role: "dialog",
+                            tabindex: "-1"}
+  .modal-dialog{role: "document"}
+    .modal-content
+      = form_tag(admin_elements_import_path(format: :json),
+                 { multipart: true }) do
+        .modal-header
+          %h4#dl-import-modal-label.modal-title Import Elements
+          %button.close{"aria-label": "Close", "data-dismiss": "modal", type: "button"}
+            %span{"aria-hidden": "true"} ×
+        .modal-body
+          = file_field_tag('elements')
+          %hr/
+          .form-group
+            .radio
+              %label
+                = radio_button_tag('import_mode',
+                                   Admin::ElementsController::ImportMode::MERGE, true,
+                                   'aria-described-by': 'dl-merge-help')
+                Merge
+              %span#dl-merge-help.form-text.text-muted
+                Create any new elements, and update existing elements, but don't
+                delete any elements.
+          .form-group
+            .radio
+              %label
+                = radio_button_tag('import_mode',
+                                   Admin::ElementsController::ImportMode::REPLACE, false,
+                                   'aria-described-by': 'dl-only-create-help')
+                Replace
+              %span#dl-only-create-help.form-text.text-muted
+                Replace the current list of elements with the ones being imported.
+        .modal-footer
+          %button.btn.btn-light{"data-dismiss": "modal", type: "button"} Cancel
+          %button.btn.btn-primary{type: "submit"} Import

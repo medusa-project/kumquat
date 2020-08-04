@@ -1,0 +1,33 @@
+!!!
+%html{prefix: "og: http://ogp.me/ns#"}
+  %head
+    %meta{content: "text/html; charset=UTF-8", "http-equiv" => "Content-Type"}
+    %title
+      = yield :title
+      |
+      \#{Option.string(Option::Keys::WEBSITE_NAME)}
+    %meta{charset: "utf-8"}
+    %meta{content: "#{Option.string(Option::Keys::COPYRIGHT_STATEMENT)}", name: "copyright"}
+    %meta{content: "width=device-width, initial-scale=1, shrink-to-fit=no", name: "viewport"}
+    = csrf_meta_tags
+    -# provided by scars-bootstrap-theme
+    = uofi_favicon_tags
+    = yield(:meta_tags)
+    = stylesheet_link_tag    'application', media: 'all'
+    = javascript_include_tag 'application'
+  %body{id: yield(:body_id).present? ? raw(yield(:body_id)) : nil,
+        "data-nav": yield(:active_nav)}
+    = hidden_field_tag('dl-root-path', root_path)
+    = hidden_field_tag('dl-root-url', root_url)
+    = hidden_field_tag('dl-current-path', request.path)
+    .container-fluid
+      - if request.path == '/'
+        %header
+          = render partial: 'layouts/top_header'
+      - else
+        = render partial: 'layouts/header'
+      .page-content
+        = flashes
+        = yield.force_encoding(Encoding::UTF_8)
+      = render 'layouts/footer'
+    = render partial: 'shared/google_analytics'

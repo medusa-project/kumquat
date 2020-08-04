@@ -1,0 +1,34 @@
+- page_links = paginate(@count, @limit, @current_page,
+                        Admin::TasksController::PERMITTED_PARAMS, true)
+- if @tasks.any?
+  .row.justify-content-md-center
+    .col-md-auto
+      = page_links
+  %table.table
+    %thead
+      %tr
+        %th Task
+        %th Status
+        %th Progress
+        %th Started
+    %tbody
+      - @tasks.each do |task|
+        %tr{"data-id" => task.id}
+          %td.dl-title
+            = link_to(task.status_text, '#', data: { 'toggle': 'modal',
+                                                     'target': '#dl-task-panel',
+                                                     'task-id': task.id })
+          %td.dl-status
+            %span{class: "badge #{bootstrap_class_for_task_status(task.status)}"}
+              = Task::Status::to_s(task.status)
+          %td.dl-progress
+            = (task.indeterminate and task.percent_complete < 1) ? |
+              'Indeterminate' :                                    |
+              (task.percent_complete * 100).round(1).to_s + '%'    |
+          %td.dl-started
+            = task.started_at ? local_time_ago(task.started_at) : ''
+  .row.justify-content-md-center
+    .col-md-auto
+      = page_links
+- else
+  %p No tasks to show.

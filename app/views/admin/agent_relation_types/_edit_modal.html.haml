@@ -1,0 +1,12 @@
+-# Edit modal
+#dl-edit-agent-relation-type-modal.modal.fade{"aria-labelledby": "dl-edit-agent-relation-type-modal-label",
+                                              role: "dialog",
+                                              tabindex: "-1"}
+  .modal-dialog{role: "document"}
+    .modal-content
+      .modal-header
+        %h4#dl-edit-agent-relation-type-modal-label.modal-title Edit Relation Type
+        %button.close{"aria-label": "Close", "data-dismiss": "modal", type: "button"}
+          %span{"aria-hidden": "true"} ×
+      .modal-body
+        -# will be populated via XHR

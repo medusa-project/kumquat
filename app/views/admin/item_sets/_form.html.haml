@@ -1,0 +1,25 @@
+-# @param collection [Collection]
+-# @param item_set [ItemSet]
+-# @param context [Symbol] :new or :edit
+
+= form_for([:admin, collection, item_set], remote: true) do |f|
+  .dl-error-messages
+    -# populated via ajax by shared/_validation_messages.js.erb
+  = f.hidden_field :collection_repository_id, value: collection.repository_id
+  .form-group
+    = f.label :name
+    = f.text_field :name, class: 'form-control'
+  .form-group
+    = f.label :users
+    - User.all.order(:username).each do |user|
+      .checkbox
+        = label_tag do
+          = check_box_tag :user_ids, user.id,
+                          item_set.users.include?(user),
+                          name: 'item_set[user_ids][]'
+          = user.username
+  .clearfix
+    .float-right
+      %button.btn.btn-light{"data-dismiss": "modal", type: "button"} Cancel
+      = f.submit(context == :new ? 'Create Set' : 'Edit Set',
+                 class: 'btn btn-primary')

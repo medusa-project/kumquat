@@ -1,0 +1,15 @@
+= form_for([:admin, vocabulary_term], remote: true) do |f|
+  .dl-error-messages
+    -# populated via ajax by shared/_validation_messages.js.erb
+  .form-group
+    = f.label :string
+    = f.text_field :string, class: 'form-control'
+  .form-group
+    = f.label :uri, 'URI'
+    = f.text_field :uri, class: 'form-control'
+  = f.hidden_field :vocabulary_id, value: vocabulary_term.vocabulary.id
+  .clearfix
+    .float-right
+      %button.btn.btn-light{"data-dismiss": "modal", type: "button"} Cancel
+      = f.submit(context == :new ? 'Create Term' : 'Edit Term',
+                 class: 'btn btn-primary')

@@ -1,0 +1,24 @@
+- provide :title, @collection.title
+- provide :body_id, 'collections_show'
+- provide :active_nav, 'collections'
+
+- if current_user&.medusa_user?
+  .btn-group.float-right{role: "group"}
+    .btn-group{role: "group"}
+      %button.btn.btn-light.dropdown-toggle{"aria-expanded": "false",
+                                            "aria-haspopup": "true",
+                                            "data-toggle": "dropdown",
+                                            type: "button"}
+        %i.fa.fa-eye
+        View
+        %span.caret
+      .dropdown-menu.dropdown-menu-right{role: "menu"}
+        = link_to admin_collection_path(@collection),
+                  target: '_blank',
+                  class: 'dropdown-item' do
+          %i.fa.fa-lock
+            Admin View
+  %h1= collection_page_title(@collection)
+
+.alert.alert-danger
+  You are not authorized to access this collection.

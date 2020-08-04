@@ -1,0 +1,14 @@
+.dl-result-navigation
+  .btn-group
+    - if @previous_result
+      = link_to @previous_result, class: 'btn btn-light btn-sm' do
+        %i.fa.fa-arrow-left
+        Previous
+    - if session[:browse_context_url]
+      = link_to session[:browse_context_url], class: 'btn btn-light btn-sm' do
+        %i.fa.fa-reply
+        Back To Results
+    - if @next_result
+      = link_to @next_result, class: 'btn btn-light btn-sm' do
+        Next
+        %i.fa.fa-arrow-right

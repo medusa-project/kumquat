@@ -1,0 +1,57 @@
+-# Requires the following locals:
+-#
+-# context [Symbol] :directory, :item, or :results
+-# num_downloadable_items [Fixnum]
+-# total_byte_size [Integer]
+
+- num_batches = (num_downloadable_items / MedusaDownloaderClient::BATCH_SIZE.to_f).ceil
+
+#dl-download-zip-modal.modal.fade{"aria-hidden": "true",
+                                  "aria-labelledby": "dl-download-zip-modal-label",
+                                  role: "dialog",
+                                  tabindex: "-1"}
+  .modal-dialog{role: "document"}
+    .modal-content
+      .modal-header
+        %h4#dl-download-zip-modal-label.modal-title Download Zip File
+        %button.close{"aria-label": "Close",
+                      "data-dismiss": "modal",
+                      type: "button"}
+          %span{"aria-hidden": "true"} ×
+      .modal-body
+        - case context
+        - when :results
+          %p
+            Zip files include access and preservation master files for all
+            of the items in the current result set.
+        - when :item
+          %p
+            Zip files include access and preservation master files for the
+            current object.
+        - when :directory
+          %p Zip files include all files in the current folder tree.
+        %hr/
+        - if num_batches > 1
+          %h4 All items in one zip file
+        .text-center
+          = link_to('Download',
+                    @permitted_params.except(:start).merge({ format: :zip, download_start: 0, limit: 0 }),
+                    target: '_blank',
+                    class: 'btn btn-primary')
+          - if total_byte_size > 0
+            %p.form-text.text-muted
+              Estimated size: #{number_to_human_size(total_byte_size)}
+        - if num_batches > 1
+          %hr
+          %h4 Items in batches
+          %p
+            Batches can make large downloads more manageable. Batched zip files
+            are limited to #{MedusaDownloaderClient::BATCH_SIZE} items per batch.
+          #dl-batch-buttons
+            - num_batches.times do |i|
+              = link_to("Batch #{i + 1}",
+                        @permitted_params.except(:start).merge({ format: :zip,
+                                                                 download_start: i * MedusaDownloaderClient::BATCH_SIZE,
+                                                                 limit: MedusaDownloaderClient::BATCH_SIZE }),
+                        class: 'btn btn-primary',
+                        target: '_blank')

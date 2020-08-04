@@ -1,0 +1,17 @@
+-# @param vocabulary [Vocabulary]
+-# @param context [Symbol] :new or :edit
+
+= form_for([:admin, vocabulary], remote: true) do |f|
+  .dl-error-messages
+    -# populated via ajax by shared/_validation_messages.js.erb
+  .form-group
+    = f.label :name
+    = f.text_field :name, class: 'form-control'
+  .form-group
+    = f.label :key
+    = f.text_field :key, class: 'form-control'
+  .clearfix
+    .float-right
+      %button.btn.btn-light{"data-dismiss": "modal", type: "button"} Cancel
+      = f.submit(context == :new ? 'Create Vocabulary' : 'Edit Vocabulary',
+                 class: 'btn btn-primary')

@@ -1,0 +1,11 @@
+- provide :body_id, 'admin_edit_collection'
+- provide :active_nav, 'entities'
+
+= admin_breadcrumb({ label: 'Home', url: admin_root_path },
+                   { label: 'Collections', url: admin_collections_path },
+                   { label: @collection.title, url: admin_collection_path(@collection) })
+
+%h1
+  Edit #{@collection.title}
+
+= render partial: 'form', locals: { collection: @collection, context: :edit }

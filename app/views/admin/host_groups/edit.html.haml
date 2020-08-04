@@ -1,0 +1,15 @@
+- provide :title, "Edit Host Group #{@host_group.name}"
+- provide :body_id, 'edit_host_group'
+- provide :active_nav, 'access'
+
+= admin_breadcrumb({ label: 'Home', url: admin_root_path },
+                   { label: 'Host Groups', url: admin_host_groups_path },
+                   { label: @host_group.name, url: admin_host_group_path(@host_group) },
+                   { label: 'Edit' })
+
+%h1
+  Edit #{@host_group.name}
+
+#edit
+  = render partial: 'form', locals: { host_group: @host_group,
+                                      context: :edit }

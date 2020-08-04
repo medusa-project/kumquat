@@ -9,6 +9,7 @@ gem 'daemons' # enables bin/delayed_job start/stop
 gem 'delayed_job_active_record'
 gem 'draper' # Provides decorators
 gem "font-awesome-sass", "~> 5.6" # Provides all of our icons
+gem 'haml'
 gem 'httpclient'
 gem 'jbuilder' # JSON DSL: https://github.com/rails/jbuilder
 gem 'jquery-rails'

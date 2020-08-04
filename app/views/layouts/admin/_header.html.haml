@@ -1,0 +1,80 @@
+%nav.navbar.navbar-expand-md.navbar-dark
+  %button.navbar-toggler{"aria-controls": "dl-navbar1-collapse",
+                         "aria-expanded": "false",
+                         "aria-label": "Toggle navigation",
+                         "data-target": "#dl-navbar1-collapse",
+                         "data-toggle": "collapse",
+                         type: "button"}
+    %span.navbar-toggler-icon
+  #dl-navbar1-collapse.collapse.navbar-collapse
+    %ul.navbar-nav
+      %li.nav-item
+        = link_to 'Collection Registry',
+                  Configuration.instance.medusa_url,
+                  class: 'nav-link'
+      %li.nav-item.active
+        = link_to 'Digital Library', '#', class: 'nav-link'
+      %li.nav-item
+        = link_to 'Metadata Gateway',
+                  Configuration.instance.metadata_gateway_url + '/admin',
+                  class: 'nav-link'
+%nav.navbar.navbar-expand-md.navbar-dark.bg-dark
+  = link_to admin_root_path, class: 'navbar-brand' do
+    %i.fas.fa-tachometer-alt
+  %button.navbar-toggler{"aria-controls": "dl-navbar2-collapse",
+                         "aria-expanded": "false",
+                         "aria-label": "Toggle navigation",
+                         "data-target": "#dl-navbar2-collapse",
+                         "data-toggle": "collapse",
+                         type: "button"}
+    %span.navbar-toggler-icon
+  #dl-navbar2-collapse.collapse.navbar-collapse
+    %ul.navbar-nav
+      %li.nav-item
+        = link_to 'Collections', admin_collections_path, class: 'nav-link'
+      %li#metadata-nav.nav-item.dropdown
+        %a.nav-link.dropdown-toggle{"data-toggle": "dropdown", href: "#"}
+          Metadata
+          %b.caret
+        .dropdown-menu
+          = link_to 'Elements', admin_elements_path, class: 'dropdown-item'
+          = link_to 'Vocabularies', admin_vocabularies_path, class: 'dropdown-item'
+          = link_to 'Profiles', admin_metadata_profiles_path, class: 'dropdown-item'
+          .dropdown-divider
+          = link_to 'Agents', admin_agents_path, class: 'dropdown-item'
+          = link_to 'Agent Relation Types', admin_agent_relation_types_path, class: 'dropdown-item'
+          = link_to 'Agent Rules', admin_agent_rules_path, class: 'dropdown-item'
+          = link_to 'Agent Types', admin_agent_types_path, class: 'dropdown-item'
+      %li#server-nav.nav-item.dropdown
+        %a.nav-link.dropdown-toggle{"data-toggle": "dropdown", href: "#"}
+          Server
+          %b.caret
+        .dropdown-menu
+          - if current_user.can?(Permissions::VIEW_USERS)
+            = link_to 'Users', admin_users_path, class: 'dropdown-item'
+          = link_to 'Host Groups', admin_host_groups_path, class: 'dropdown-item'
+          .dropdown-divider
+          = link_to 'Statistics', admin_statistics_path, class: 'dropdown-item'
+          = link_to 'Tasks', admin_tasks_path, class: 'dropdown-item'
+          - if current_user.can?(Permissions::MODIFY_SETTINGS)
+            .dropdown-divider
+            = link_to 'Settings', admin_settings_path, class: 'dropdown-item'
+    .navbar-nav.ml-md-auto
+      %ul.navbar-nav
+        %li.nav-item
+          %a.nav-link{href: "https://wiki.illinois.edu/wiki/display/scrs/DLS",
+                      target: "_blank"}
+            %i.fa.fa-question-circle
+        %li.nav-item.dropdown
+          %a.dropdown-toggle.nav-link{"aria-expanded": "false",
+                                      "aria-haspopup": "true",
+                                      "data-toggle": "dropdown",
+                                      href: "#"}
+            %i.fas.fa-user{"aria-hidden": "true"}
+            = current_user.username
+            %b.caret
+          .dropdown-menu.dropdown-menu-right{"aria-labelledby": "dl-user-menu-toggle"}
+            = link_to 'My Account', admin_user_path(current_user), class: 'dropdown-item'
+            = link_to 'Public Website', root_url, class: 'dropdown-item'
+            .dropdown-divider
+            = link_to 'Log Out', signout_path, method: 'delete', class: 'dropdown-item'

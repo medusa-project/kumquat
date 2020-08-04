@@ -1,0 +1,22 @@
+-# @param metadata_profile [MetadataProfile]
+-# @param context [Symbol] :new or :edit
+
+= form_for([:admin, metadata_profile], remote: true) do |f|
+  .dl-error-messages
+    -# populated via ajax by shared/_validation_messages.js.erb
+  .form-group
+    = f.label :name
+    = f.text_field :name, class: 'form-control'
+  - if context == :edit
+    .form-group
+      = f.label :default_sortable_element_id, 'Default Sort'
+      = select(:metadata_profile,
+               :default_sortable_element_id,
+               @element_options_for_select,
+               { selected: metadata_profile.default_sortable_element ? metadata_profile.default_sortable_element.id : nil },
+               class: 'custom-select')
+  .clearfix
+    .float-right
+      %button.btn.btn-light{"data-dismiss": "modal", type: "button"} Cancel
+      = f.submit(context == :new ? 'Create Profile' : 'Edit Profile',
+                 class: 'btn btn-primary')

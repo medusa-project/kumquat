@@ -1,0 +1,87 @@
+- provide :title, @root_item.title
+- provide :body_id, 'items_show'
+- provide :meta_tags, item_meta_tags(@root_item)
+
+= breadcrumb(item: @root_item,
+             context: session[:browse_context],
+             context_url: session[:browse_context_url])
+
+= render partial: 'show_button_group', locals: { item: @root_item }
+
+= item_page_title(@root_item)
+
+- if @previous_result || @next_result || session[:browse_context_url] || @root_item.three_d_item
+  %div{style: "margin-bottom:16px"}
+    %div{style: "float:right"}
+      - if @root_item.three_d_item
+        %a.btn.btn-light.btn-sm{"aria-controls": "dl-3d-viewer-container",
+                                "aria-expanded": "false",
+                                "data-toggle": "collapse",
+                                href: "#dl-3d-viewer-container",
+                                role: "button"}
+          %i.far.fa-plus-square
+          3D Model
+    -# IMET-487: center the nav buttons above the viewer
+    %div{style: "margin: 0 auto; width: 300px; text-align: center"}
+      = render partial: 'navigation_buttons'
+  - if @root_item.three_d_item
+    #dl-3d-viewer-container.collapse
+      = viewer_for_item(@root_item.three_d_item)
+%section
+  .dl-viewer
+    = viewer_for_item(@root_item)
+    - if @root_item.supplementary_item
+      - supp_item = @root_item.supplementary_item
+      - supp_bin = supp_item&.effective_image_binary
+      - if supp_bin
+        #dl-supplementary-viewer
+          .dl-bottom-panel
+            %a{"aria-controls": "dl-binary-#{supp_bin.id}",
+               "aria-expanded": "false",
+               "data-toggle": "collapse",
+               href: "#dl-binary-#{supp_bin.id}",
+               role: "button"}
+              %img{src: "/universalviewer/themes/uv-en-GB-theme/img/uv-shared-module/arrows_left.png"}/
+              = supp_item.element(:supplementType)&.value || "Supplementary #{supp_bin.human_readable_media_category}"
+          .dl-supplmentary-viewer-content.collapse{id: "dl-binary-#{supp_bin.id}"}
+            .row
+              .col-sm-9
+                = viewer_for_binary(supp_bin)
+              .col-sm-3.dl-metadata
+                = metadata_as_list(supp_item)
+  - if has_viewer?(@root_item)
+    .row
+      .col-sm-10
+        = render partial: 'permalink_section', locals: { item: @root_item }
+      .col-sm-2
+        %button#dl-download-button.btn.btn-lg.btn-success{style: "white-space: nowrap"}
+          %i.fa.fa-download
+          Download
+  - else
+    = render partial: 'permalink_section', locals: { item: @root_item }
+%section
+  = rights_statement(@root_item.effective_rightsstatements_org_statement,
+                     @root_item.effective_rights_statement)
+- if @root_item.elements.reject{ |e| e.name == 'title' }.any?
+  %section= metadata_section(@root_item)
+= render partial: 'download_section',
+         locals: { item: @root_item, expanded: false }
+= render partial: 'staff_info', locals: { item: @root_item }
+
+.text-center
+  - mailto = curator_mailto(@root_item)
+  - if mailto
+    = link_to mailto, class: 'btn btn-light' do
+      %i.fa.fa-envelope
+      Email Curator About This Item
+= render partial: 'cite_panel', locals: { item: @root_item }
+
+%script{type: "application/ld+json"}
+  :cdata
+    \#{schema_org_json_ld(@root_item)}
+
+-# We will refer to these in JS to determine which item to select in the viewer.
+- @downloadable_items.each_with_index do |dl_item, index|
+  - if dl_item.repository_id == @selected_item.repository_id
+    = hidden_field_tag('dl-download-item-index', index)
+  = hidden_field_tag('dl-download-item-id', dl_item.repository_id)

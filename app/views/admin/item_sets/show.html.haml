@@ -1,0 +1,99 @@
+- provide :title, @item_set.name
+- provide :body_id, 'admin_item_sets_show'
+- provide :active_nav, 'entities'
+
+= admin_breadcrumb({ label: 'Home', url: admin_root_path },
+                   { label: 'Collection', url: admin_collections_path },
+                   { label: @item_set.collection.title, url: admin_collection_path(@item_set.collection) },
+                   { label: 'Sets', url: admin_collection_path(@item_set.collection) },
+                   { label: @item_set })
+.btn.btn-group.float-right
+  -# Edit button
+  %button.btn.btn-light.dl-edit-item-set{"data-item-set-id": "#{@item_set.id}",
+                                         "data-target": "#dl-edit-item-set-modal",
+                                         "data-toggle": "modal",
+                                         type: "button"}
+    %span.fas.fa-pencil-alt
+    Edit
+  -# Metadata button
+  .btn-group
+    %button.btn.btn-light.dropdown-toggle{"aria-expanded": "false",
+                                          "data-toggle": "dropdown",
+                                          type: "button"}
+      %i.fa.fa-list
+      Metadata
+      %span.caret
+    .dropdown-menu
+      = link_to 'Edit Items',
+                admin_collection_edit_all_items_path(@item_set.collection,
+                                                     item_set: @item_set.id),
+                id: 'dl-edit-result-set-metadata-link',
+                class: "dropdown-item #{@item_set.collection.metadata_profile ? '' : 'disabled' }"
+      .dropdown-divider
+      = link_to raw('Import From TSV&hellip;'), '',
+                class: "dropdown-item #{(@item_set.collection.package_profile and @item_set.collection.medusa_file_group) ? '' : 'disabled' }",
+                'data-toggle': 'modal', 'data-target': '#dl-import-tsv-modal'
+      = link_to raw('Export As TSV'),
+                admin_collection_item_set_items_path(@item_set.collection, @item_set, format: 'tsv'),
+                class: 'dropdown-item'
+
+  -# Items button
+  .btn-group
+    %button.btn.btn-light.dropdown-toggle{"aria-expanded": "false",
+                                          "data-toggle": "dropdown",
+                                          type: "button"}
+      = icon_for(Item)
+      Items
+      %span.caret
+    .dropdown-menu.dropdown-menu-right
+      = link_to 'Add More',
+                admin_collection_items_path(@item_set.collection),
+                class: 'dropdown-item'
+      .dropdown-divider
+      = link_to 'Remove Checked',
+                admin_collection_item_set_items_path(@item_set.collection, @item_set),
+                class: 'dropdown-item dl-remove-checked',
+                method: :delete
+      = link_to 'Remove All',
+                admin_collection_item_set_all_items_path(@item_set.collection, @item_set),
+                method: :delete,
+                class: 'dropdown-item'
+  -# Delete button
+  = link_to admin_collection_item_set_path(@item_set.collection, @item_set),
+            class: 'btn btn-danger',
+            method: :delete,
+            data: { confirm: 'Are you sure you want to delete this set?' } do
+    %i.fa.fa-trash
+    Delete
+
+%h1
+  = @item_set
+  %small= @item_set.collection.title
+
+%h2 Users
+
+%table.table
+  - @item_set.users.each do |user|
+    %tr
+      %td= link_to user, admin_user_path(user)
+
+%h2
+  Objects
+  %small
+    %span.badge.badge-pill.badge-secondary= @count
+  - if @items.count > 0
+    = link_to '#', class: 'btn btn-light btn-sm dl-check-all' do
+      %i.fa.fa-check-square
+      Check All
+- if @items.count > 0
+  #dl-items.dl-results
+    = render partial: 'admin/items/items'
+- elsif @item_set.collection.items.count > 0
+  %p This set is empty.
+- else
+  %p This set is empty, and its collection is also empty.
+
+= render partial: 'edit_set_modal', locals: { collection: @item_set.collection,
+                                              item_set: @item_set }
+= render partial: 'admin/items/import_tsv_panel',
+         locals: { collection: @item_set.collection }

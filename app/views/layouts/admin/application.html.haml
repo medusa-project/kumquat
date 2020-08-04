@@ -1,0 +1,24 @@
+!!!
+%html
+  %head
+    %meta{content: "text/html; charset=UTF-8", "http-equiv" => "Content-Type"}
+    %title
+      Medusa DLS Control Panel | #{yield(:title)}
+    %meta{charset: "utf-8"}/
+    %meta{content: "width=device-width, initial-scale=1", name: "viewport"}
+    = csrf_meta_tags
+    = stylesheet_link_tag 'admin/application', media: 'all'
+    = javascript_include_tag 'admin/application'
+    = content_for :head
+
+  %body.dl-admin{id: yield(:body_id).present? ? raw(yield(:body_id)) : nil,
+                 "data-nav": yield(:active_nav)}
+    = hidden_field_tag('root_url', root_url)
+
+    = render partial: 'layouts/admin/header'
+    .container-fluid
+      .page-content
+        = flashes
+        = yield
+    %footer  
+    = ajax_shade

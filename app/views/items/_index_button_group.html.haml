@@ -1,0 +1,48 @@
+.btn-group.float-right
+  -# View menu
+  .btn-group
+    %button.btn.btn-light.dropdown-toggle{"aria-expanded": "false",
+                                          "aria-haspopup": "true",
+                                          "data-toggle": "dropdown",
+                                          type: "button"}
+      %i.fa.fa-eye
+      View
+      %span.caret
+    .dropdown-menu.dropdown-menu-right
+      = link_to @permitted_params.merge(format: :atom),
+                id: 'dl-view-as-atom',
+                class: 'dropdown-item' do
+        %i.fa.fa-rss
+          Atom
+      = link_to @permitted_params.merge(format: :json),
+                id: 'dl-view-as-json',
+                class: 'dropdown-item' do
+        %i.fa.fa-code
+         JSON
+      - if @collection
+        .dropdown-divider
+        = link_to admin_collection_items_path(@collection,
+                                              @permitted_params.except(:action, :collection_id, :controller, :format)),
+                  target: '_blank',
+                  class: 'dropdown-item' do
+          %i.fa.fa-lock
+            Admin View
+
+  -# Download menu, disabled in cross-collection contexts to limit the
+  -# downloading of huge amounts of content.
+  - if @collection
+    .btn-group
+      %button.btn.btn-light.dropdown-toggle{"aria-expanded": "false",
+                                            "aria-haspopup": "true",
+                                            "data-toggle": "dropdown",
+                                            type: "button"}
+        %i.fa.fa-download
+        Download
+        %span.caret
+      .dropdown-menu.dropdown-menu-right
+        = link_to('',
+                  class: 'dropdown-item',
+                  'data-toggle': 'modal',
+                  'data-target': '#dl-download-zip-modal') do
+          %i.fa.fa-file-archive
+          Zip File&hellip;

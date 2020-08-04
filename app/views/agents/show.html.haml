@@ -1,0 +1,59 @@
+- provide :title, @agent.name
+- provide :body_id, 'agents_show'
+
+.btn-group.float-right{role: "group"}
+  = share_button(@agent)
+  .btn-group
+    %button.btn.btn-light.dropdown-toggle{"aria-expanded": "false",
+                                          "aria-haspopup": "true",
+                                          "data-toggle": "dropdown",
+                                          type: "button"}
+      %i.fa.fa-eye
+      View
+      %span.caret
+    .dropdown-menu.dropdown-menu-right{role: "menu"}
+      = link_to @permitted_params.merge(format: :json),
+                target: '_blank', class: 'dropdown-item' do
+        %i.fa.fa-code
+         JSON
+      .dropdown-divider
+      = link_to admin_agent_path(@agent),
+                target: '_blank', class: 'dropdown-item' do
+        %i.fa.fa-lock
+          Admin View
+
+%h1= @agent.name
+
+%p= @agent.description
+
+- if @agent_relations.any?
+  %hr
+  %h2
+    Related Agents
+    %small
+      %span.badge.badge-pill.badge-secondary
+        = @agent_relations.length
+  %ul
+    - @agent_relations.each do |relation|
+      - if relation.agent.id == @agent.id
+        %li
+          = relation.agent_relation_type&.name
+          = link_to relation.related_agent.name, relation.related_agent
+          - if relation.dates.present?
+            %small
+              (#{relation.dates})
+      - else
+        %li
+          = link_to relation.agent.name, relation.agent
+          = relation.agent_relation_type.name
+          = @agent.name
+          - if relation.dates.present?
+            %small
+              (#{relation.dates})
+- if @related_objects.any?
+  %hr
+  %h2
+    Related Items
+    %span.badge= @related_object_count
+  #dl-items
+    = render partial: 'items'

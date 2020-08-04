@@ -1,0 +1,57 @@
+%footer{role: "contentinfo"}
+  .row
+    .col-sm-12.text-line
+      The Digital Collections are a product of the University Library.
+      \#{link_to 'Contact us', "mailto:#{Option::string(Option::Keys::ADMINISTRATOR_EMAIL)}"}
+      for questions and to provide feedback.
+    .col-md-12.info-area
+      .row
+        .col-md-4
+          %div Main Library Information Desk
+          %div
+            %a{href: "tel:+12173332290"} (217) 333-2290
+          %div 1408 W. Gregory Dr.
+          %div Urbana, IL 61801
+          .library-footer_social_div.mb-2
+            %a.library-footer_social_a{href: "https://www.facebook.com/universitylibrary",
+                                       title: "Univeristy of Illinois library facebook"}
+              %span.library-footer_social_span.fab.fa-facebook-f.fa-lg
+            %a.library-footer_social_a{href: "https://www.instagram.com/uillinoislibrary/",
+                                       title: "Univeristy of Illinois library instagram"}
+              %span.library-footer_social_span.fab.fa-instagram.fa-lg
+            %a.library-footer_social_a{href: "https://twitter.com/IllinoisLibrary",
+                                       title: "Univeristy of Illinois library twitter"}
+              %span.library-footer_social_span.fab.fa-twitter.fa-lg
+          %a{href: "https://www.library.illinois.edu/friends/make-a-gift/"} Make a Gift
+        .col-md-4.d-none.d-md-block
+          %a{href: "https://illinois.edu"}
+            = image_tag '009_LIBRA_OrangeI_Vert_RGB.png',
+                        class: 'footer-library_i-mark',
+                        alt: 'University of Illinois Logo'
+          .footer-library_copyright.text-center
+            = Option::string(Option::Keys::COPYRIGHT_STATEMENT)
+        .col-md-4
+          %nav#ui-skip-73{tabindex: "-1"}
+            %ul
+              %li
+                %a{href: "https://www.vpaa.uillinois.edu/policies/web_privacy.cfm"} Privacy Policy
+              %li
+                %a{href: "https://www.library.illinois.edu/library-building-project/"} Library Building Project
+              %li
+                %a{href: "https://guides.library.illinois.edu/usersdisabilities"} Accessibility
+              %li
+                %a{href: "https://illinois.edu/fb/sec/887006"} Suggest a Purchase
+              %li
+                %a{href: "https://www.library.illinois.edu/staff/"} Library Staff Website
+          .footer-library_fdlp-div
+            %a{href: "https://www.library.illinois.edu/doc/"}
+              = image_tag 'fdlp-emblem-logo-text-invert.png',
+                          class: 'footer-library_fdlp-div_img',
+                          alt: 'Federal Library Depository Program Logo'
+        .col-md-4.d-block.d-md-none
+          %a{href: "https://illinois.edu"}
+            = image_tag '009_LIBRA_OrangeI_Vert_RGB.png',
+                        class: 'footer-library_i-mark footer-library_i-mark_mobile',
+                        alt: 'University of Illinois Logo'
+          .footer-library_copyright.text-center
+            &copy; 2020 The Board of Trustees at the University of Illinois. All rights reserved.

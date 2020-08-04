@@ -1,0 +1,45 @@
+- provide :title, 'Metadata Profiles'
+- provide :body_id, 'metadata_profiles'
+- provide :active_nav, 'metadata'
+
+= admin_breadcrumb({ label: 'Home', url: admin_root_path },
+                   { label: 'Metadata Profiles' })
+
+- if current_user.can?(Permissions::MODIFY_METADATA_PROFILES)
+  .btn-group.float-right
+    %button.btn.btn-light{"data-target": "#dl-add-profile-modal",
+                          "data-toggle": "modal",
+                          type: "button"}
+      %span.fa.fa-plus
+      Add Profile
+    -# Import button
+    %button.btn.btn-light{"data-target": "#dl-import-modal",
+                          "data-toggle": "modal",
+                          type: "button"}
+      %i.fa.fa-upload
+      Import&hellip;
+%h1 Metadata Profiles
+.alert.alert-light
+  %i.fas.fa-info-circle
+  The default profile is used in cross-collection contexts.
+%table.table.table-striped.dl-predicates
+  %thead
+    %th{style: "min-width:5em"}
+    %th Name
+    %th Collections
+  %tbody
+    - @profiles.each do |profile|
+      %tr
+        %td.text-center
+          - if profile.default
+            %span.badge.badge-success Default
+          - elsif current_user.can?(Permissions::MODIFY_METADATA_PROFILES)
+            = link_to 'Set As Default',
+                      admin_metadata_profile_path(profile, metadata_profile: { default: true }),
+                      class: 'btn btn-light btn-sm',
+                      method: :patch
+        %td= link_to profile.name, admin_metadata_profile_path(profile)
+        %td= profile.collections.count
+
+= render partial: 'admin/metadata_profiles/add_profile_modal'
+= render partial: 'admin/metadata_profiles/import_profile_modal'

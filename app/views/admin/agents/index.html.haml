@@ -1,0 +1,35 @@
+- provide :title, 'Agents'
+- provide :body_id, 'admin_agents_index'
+- provide :active_nav, 'metadata'
+
+= admin_breadcrumb({ label: 'Home', url: admin_root_path },
+                   { label: 'Agents' })
+.btn-group.float-right
+  -# Add Agent button
+  %button.btn.btn-light{"data-target": "#dl-add-agent-modal",
+                        "data-toggle": "modal",
+                        type: "button"}
+    %span.fa.fa-plus
+    Add Agent
+%h1 Agents
+.card
+  .card-body
+    = form_tag admin_agents_path, method: 'get', class: 'dl-filter' do
+      .form-inline
+        = search_field_tag :q, params[:q], placeholder: 'Filter',
+                           class: 'form-control'
+#dl-agents
+  = render 'agents'
+= render partial: 'add_modal', locals: { agent: @new_agent, context: :new }
+
+-# Edit-agent modal
+#dl-edit-agent-modal.modal.fade{"aria-labelledby": "dl-edit-agent-modal-label",
+                                role: "dialog", tabindex: "-1"}
+  .modal-dialog{role: "document"}
+    .modal-content
+      .modal-header
+        %h4#dl-edit-agent-modal-label.modal-title Edit Agent
+        %button.close{"aria-label": "Close", "data-dismiss": "modal", type: "button"}
+          %span{"aria-hidden": "true"} ×
+      .modal-body
+        -# will be populated via XHR

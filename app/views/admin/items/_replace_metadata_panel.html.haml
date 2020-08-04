@@ -1,0 +1,47 @@
+#dl-find-replace-modal.modal.fade{"aria-labelledby": "dl-find-replace-modal-label",
+                                  role: "dialog",
+                                  tabindex: "-1"}
+  .modal-dialog{role: "document"}
+    .modal-content
+      = form_tag(admin_collection_items_replace_metadata_path(@collection)) do
+        .modal-header
+          %h4#dl-find-replace-modal-label.modal-title Find and Replace
+          %button.close{"aria-label": "Close",
+                        "data-dismiss": "modal",
+                        type: "button"}
+            %span{"aria-hidden": "true"} ×
+        .modal-body
+          .alert.alert-warning
+            %i.fa.fa-exclamation-triangle
+            This cannot be undone.
+          - if @collection.metadata_profile
+            - defs = @collection.metadata_profile.elements.select{ |e| !e.controlled? }.sort{ |a, b| a.label <=> b.label }.map{ |t| [ "#{t.label} (#{t.name})", t.name ] }
+            .form-group
+              %label{for: "matching_mode"} Find Values:
+              = select_tag(:matching_mode, options_for_select([[ 'Exactly Matching', 'exact_match' ],
+                            [ 'Containing', 'contain' ],
+                            [ 'Starting With', 'start' ],
+                            [ 'Ending With', 'end' ]]),
+                            class: 'custom-select')
+            .form-group
+              = text_field_tag(:find_value, '', class: 'form-control')
+            .form-group
+              %label{for: "element"} In Element:
+              = select_tag(:element,
+                           options_for_select(defs),
+                           class: 'custom-select')
+            .form-group
+              %label{for: "replace_mode"} Replace:
+              = select_tag(:replace_mode, options_for_select([[ 'Whole Value', 'whole_value' ],
+                           [ 'Matched Part', 'matched_part' ]], 'matched_part'),
+                           class: 'custom-select')
+            .form-group
+              %label{for: "replace_value"} With Value:
+              = text_field_tag(:replace_value, '', class: 'form-control')
+          - else
+            %p Metadata profile is not set.
+          .dl-query
+            -# will be populated by index.js.erb
+        .modal-footer
+          %button.btn.btn-light{"data-dismiss": "modal", type: "button"} Cancel
+          %button.btn.btn-primary{type: "submit"} Replace

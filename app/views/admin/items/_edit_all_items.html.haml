@@ -1,0 +1,62 @@
+- page_links = paginate_items(@count, @limit, @current_page)
+.row.justify-content-md-center
+  .col-md-auto
+    = page_links
+%table.table.table-bordered
+  %thead
+    %tr
+      %th
+      %th
+      - @metadata_profile.elements.each do |pe|
+        %th
+          = pe.label
+          %br/
+          %var= pe.name
+  %tbody
+    - @items.each do |item|
+      %tr
+        %td
+          - if item.file? || item.directory?
+            .dl-item-structure
+              = admin_structure_of_item(item,
+                                        include_subitems: false,
+                                        filenames_instead_of_titles: true)
+          - else
+            .dl-thumbnail
+              - if item.parent_repository_id.present? && !item.file?
+                %span.dl-tree-connector ↳
+              = link_to admin_collection_item_path(item.collection, item), target: '_blank' do
+                = thumbnail_tag(item)
+          = item.binaries.select{ |b| b.master_type == Binary::MasterType::PRESERVATION }.first&.filename
+        %td
+          - if item.file? or item.directory?
+            .dl-thumbnail
+              = thumbnail_tag(item)
+          - else
+            = select_tag("items[#{item.repository_id}][variant]",
+                         options_for_select(Item::Variants::all.map{ |v| [v.titleize, v] }, selected: item.variant),
+                         include_blank: true,
+                         class: 'custom-select custom-select-sm')
+            %table{border: "0"}
+              %tr
+                %td Page:
+                %td
+                  = number_field_tag("items[#{item.repository_id}][page]", item.page_number,
+                                     class: 'form-control form-control-sm')
+                %td
+                  Subpage:
+                %td
+                  = number_field_tag("items[#{item.repository_id}][subpage]", item.subpage_number,
+                                     class: 'form-control form-control-sm')
+        - @metadata_profile.elements.each do |pe|
+          %td
+            - item_elements = item.elements.select{ |ie| ie.name == pe.name }
+            - if item_elements.any?
+              = text_area_tag("items[#{item.repository_id}][#{pe.name}]",
+                              ItemElement::tsv_string_from_elements(item_elements))
+            - else
+              = text_area_tag("items[#{item.repository_id}][#{pe.name}]", '')
+
+.row.justify-content-md-center
+  .col-md-auto
+    = page_links

@@ -1,0 +1,14 @@
+-# Requires the following locals:
+-# item [Item]
+
+.media
+  .media-left
+    %i.fa.fa-link.fa-3x.fa-fw
+  .media-body
+    %h4.media-heading
+      Permalink
+      %button.btn.btn-light.btn-sm.dl-copy-permalink{"data-clipboard-text": "#{item_url(item)}",
+                                                     type: "button"}
+        %i.fa.fa-clipboard
+        Copy
+    = item_url(item)

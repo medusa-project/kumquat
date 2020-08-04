@@ -1,0 +1,57 @@
+-# @param agent [Agent]
+-# @param agent_relation [AgentRelation]
+-# @param context [Symbol] :new or :edit
+-# @param show_relation_types [Boolean]
+
+= form_for([:admin, agent], remote: true) do |f|
+  .dl-error-messages
+    -# populated via ajax by shared/_validation_messages.js.erb
+  .form-group
+    = f.label :name
+    = f.text_field :name, class: 'form-control'
+  .form-group
+    = f.label 'uris', 'URIs'
+    - if context == :edit
+      %span.help.text-danger
+        %i.fas.fa-exclamation-triangle
+        Changing URIs may break entity relationships.
+    %table#dl-agent-uris.table
+      - num_fields = f.object.agent_uris.length == 0 ? 0 : f.object.agent_uris.length - 1
+      - for index in 0..num_fields
+        - uri = f.object.agent_uris[index]
+        %tr
+          %td
+            = text_field_tag "agent_uris[#{index}][uri]", uri&.uri,
+                             class: 'form-control'
+          %td{style: "width:100px"}
+            = label_tag do
+              = radio_button_tag "agent_uris[#{index}][primary]", 'true',
+                uri&.primary
+              Primary
+          %td{style: "width:1px"}
+            %button.btn.btn-sm.btn-danger.dl-remove
+              %i.fa.fa-minus
+    %button.btn.btn-sm.btn-success.dl-add
+      %i.fa.fa-plus
+  .form-group
+    = label_tag :agent_rule, 'Agent Rule'
+    = select_tag 'agent[agent_rule_id]',
+                  options_from_collection_for_select(AgentRule.all.order(:name),
+                                                     'id', 'name', f.object.agent_rule_id),
+                  include_blank: true,
+                  class: 'custom-select'
+  .form-group
+    = label_tag :agent_type, 'Agent Type'
+    = select_tag 'agent[agent_type_id]',
+                  options_from_collection_for_select(AgentType.all.order(:name),
+                                                     'id', 'name', f.object.agent_type_id),
+                  include_blank: true,
+                  class: 'custom-select'
+  .form-group
+    = f.label :description
+    = f.text_area :description, class: 'form-control'
+  .clearfix
+    .float-right
+      %button.btn.btn-light{"data-dismiss": "modal", type: "button"} Cancel
+      = f.submit(context == :new ? 'Create Agent' : 'Edit Agent',
+                 class: 'btn btn-primary')

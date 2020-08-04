@@ -1,0 +1,76 @@
+- provide :title, 'Settings'
+- provide :body_id, 'settings'
+- provide :active_nav, 'website'
+
+= admin_breadcrumb({ label: 'Home', url: admin_root_path },
+                   { label: 'Settings' })
+
+%h1 Settings
+
+= form_tag(admin_settings_path, method: :patch) do
+  %h2 General
+  .form-group.row
+    = label_tag("options[#{Option::Keys::ORGANIZATION_NAME}]",
+                'Organization Name',
+                class: 'col-sm-3 col-form-label')
+    .col-sm-9
+      = text_field_tag("options[#{Option::Keys::ORGANIZATION_NAME}]",
+                       Option::string(Option::Keys::ORGANIZATION_NAME),
+                       class: 'form-control')
+  .form-group.row
+    = label_tag("options[#{Option::Keys::ADMINISTRATOR_EMAIL}]",
+                'Administrator Email',
+                class: 'col-sm-3 col-form-label')
+    .col-sm-9
+      = text_field_tag("options[#{Option::Keys::ADMINISTRATOR_EMAIL}]",
+                       Option::string(Option::Keys::ADMINISTRATOR_EMAIL),
+                       class: 'form-control')
+  .form-group.row
+    = label_tag("options[#{Option::Keys::COPYRIGHT_STATEMENT}]",
+                'Copyright Statement',
+                class: 'col-sm-3 col-form-label')
+    .col-sm-9
+      = text_field_tag("options[#{Option::Keys::COPYRIGHT_STATEMENT}]",
+                       Option::string(Option::Keys::COPYRIGHT_STATEMENT),
+                       class: 'form-control')
+  .form-group.row
+    .col-sm-3
+    .col-sm-9
+      = hidden_field_tag("options[#{Option::Keys::OAI_PMH_ENABLED}]", 0)
+      .form-check
+        = check_box_tag("options[#{Option::Keys::OAI_PMH_ENABLED}]", 1,
+                        Option::boolean(Option::Keys::OAI_PMH_ENABLED),
+                        id: 'dl-enable-oai-pmh',
+                        class: 'form-check-input')
+        = label_tag('dl-enable-oai-pmh',
+                    'Enable OAI-PMH',
+                    class: 'form-check-label')
+
+  %h2 Website
+  .form-group.row
+    = label_tag("options[#{Option::Keys::WEBSITE_NAME}]", 'Name',
+                class: 'col-sm-3 col-form-label')
+    .col-sm-9
+      = text_field_tag("options[#{Option::Keys::WEBSITE_NAME}]",
+                       Option::string(Option::Keys::WEBSITE_NAME),
+                       class: 'form-control')
+  .form-group.row
+    = label_tag("options[#{Option::Keys::DEFAULT_RESULT_WINDOW}]",
+                'Results Per Page',
+                class: 'col-sm-3 col-form-label')
+    .col-sm-9
+      = number_field_tag("options[#{Option::Keys::DEFAULT_RESULT_WINDOW}]",
+                         Option::integer(Option::Keys::DEFAULT_RESULT_WINDOW),
+                         class: 'form-control')
+  .form-group.row
+    = label_tag("options[#{Option::Keys::FACET_TERM_LIMIT}]",
+                'Facet Term Limit',
+                class: 'col-sm-3 col-form-label')
+    .col-sm-9
+      = number_field_tag("options[#{Option::Keys::FACET_TERM_LIMIT}]",
+                         Option::integer(Option::Keys::FACET_TERM_LIMIT),
+                         class: 'form-control')
+  .form-group.row
+    .col-sm-3
+    .col-sm-9
+      = submit_tag 'Save Changes', class: 'btn btn-primary'

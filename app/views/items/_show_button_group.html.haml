@@ -1,0 +1,75 @@
+-# Requires the following locals:
+-# item [Item]
+
+#item-show-buttons.btn-group.float-right{role: "group"}
+  = share_button(item)
+  .btn-group{role: "group"}
+    %button.btn.btn-light.dropdown-toggle{"aria-expanded": "false",
+                                          "aria-haspopup": "true",
+                                          "data-toggle": "dropdown",
+                                          type: "button"}
+      %i.fa.fa-eye
+      View
+      %span.caret
+    .dropdown-menu.dropdown-menu-right
+      = link_to @permitted_params.merge(format: :atom),
+                target: '_blank',
+                class: 'dropdown-item' do
+        %i.fa.fa-rss
+        Atom
+      = link_to @permitted_params.merge(format: :json),
+                target: '_blank',
+                class: 'dropdown-item' do
+        %i.fa.fa-code
+        JSON
+      - if item.has_iiif_manifest?
+        = link_to item_iiif_manifest_path(item),
+                  target: '_blank',
+                  class: 'dropdown-item' do
+          %i.fa.fa-code
+          IIIF Presentation Manifest
+      - unless item.is_compound?
+        - bin = item.effective_viewer_binary
+        - if bin
+          = link_to bin.iiif_image_url,
+                    target: '_blank',
+                    class: 'dropdown-item' do
+            %i.fa.fa-code
+            IIIF Image Information
+      - if item.bib_id.present?
+        = link_to item.catalog_record_url,
+                  target: '_blank',
+                  class: 'dropdown-item' do
+          %i.fa.fa-book Library Catalog Record
+      - if item.collection.physical_collection_url.present?
+        = link_to item.collection.physical_collection_url,
+                  target: '_blank',
+                  class: 'dropdown-item' do
+          = icon_for(item.collection)
+            Physical Collection
+      - if current_user&.medusa_user?
+        .dropdown-divider
+        = link_to admin_collection_item_path(item.collection, item),
+                  target: '_blank',
+                  class: 'dropdown-item' do
+          %i.fa.fa-lock
+          Admin View
+        = link_to(edit_admin_collection_item_path(item.collection, item) + '#dl-metadata',
+                  target: '_blank',
+                  class: 'dropdown-item') do
+          %i.fas.fa-pencil-alt
+          Edit
+  - mailto = curator_mailto(item)
+  - if mailto
+    .btn-group
+      %button.btn.btn-light.dropdown-toggle{"aria-expanded": "false",
+                                            "aria-haspopup": "true",
+                                            "data-toggle": "dropdown",
+                                            type: "button"}
+        %i.fa.fa-phone
+        Contact
+        %span.caret
+      .dropdown-menu.dropdown-menu-right{role: "menu"}
+        = link_to mailto, class: 'dropdown-item' do
+          %i.fa.fa-envelope
+          Email Curator

@@ -1,0 +1,38 @@
+- provide :title, 'Vocabularies'
+- provide :body_id, 'vocabularies'
+- provide :active_nav, 'metadata'
+
+= admin_breadcrumb({ label: 'Home', url: admin_root_path },
+                   { label: 'Vocabularies' })
+
+.btn-group.float-right
+  %button.btn.btn-light{"data-target": "#dl-add-vocabulary-modal",
+                        "data-toggle": "modal",
+                        type: "button"}
+    %span.fa.fa-plus
+    Add Vocabulary
+  -# Import button
+  %button.btn.btn-light{"data-target": "#dl-import-modal",
+                        "data-toggle": "modal",
+                        type: "button"}
+    %i.fa.fa-upload
+    Import&hellip;
+
+%h1 Vocabularies
+
+%table.table.table-striped
+  %thead
+    %tr
+      %th Key
+      %th Name
+      %th Terms
+  %tbody
+    - @vocabularies.each do |vocab|
+      %tr
+        %td
+          %code= link_to vocab.key, admin_vocabulary_path(vocab)
+        %td= link_to vocab.name, admin_vocabulary_path(vocab)
+        %td= vocab.vocabulary_terms.count
+
+= render partial: 'admin/vocabularies/add_modal'
+= render partial: 'admin/vocabularies/import_modal'

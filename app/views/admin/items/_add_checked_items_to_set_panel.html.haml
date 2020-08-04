@@ -1,0 +1,17 @@
+#dl-add-checked-items-to-set-modal.modal.fade{"aria-labelledby": "dl-add-checked-items-to-set-modal-label",
+                                              role: "dialog",
+                                              tabindex: "-1"}
+  .modal-dialog{role: "document"}
+    .modal-content
+      = form_tag(admin_collection_items_add_items_to_item_set_path(@collection)) do
+        .modal-header
+          %h4.modal-title Add Checked Items To Set
+          %button.close{"aria-label": "Close", "data-dismiss": "modal", type: "button"}
+            %span{"aria-hidden": "true"} ×
+        .modal-body
+          = select_tag(:item_set,
+                       options_for_select(current_user.item_sets.where(collection_repository_id: @collection.repository_id).map { |s| [s.name, s.id] }),
+            class: 'custom-select')
+        .modal-footer
+          %button.btn.btn-light{"data-dismiss": "modal", type: "button"} Cancel
+          %button.btn.btn-primary{type: "submit"} Add Items

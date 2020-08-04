@@ -1,0 +1,68 @@
+= render partial: 'show_button_group', locals: { item: @item }
+
+= item_page_title(@item)
+
+- if @item.supplementary_item || @item.three_d_item
+  - supp_item = @item.supplementary_item
+  - supp_bin = supp_item&.effective_image_binary
+  %div{style: "margin-bottom:16px"}
+    -# DLD-6: button that pops open the supplementary section is aligned to
+    -# the right of the nav buttons
+    %div{style: "float:right"}
+      - if supp_bin
+        %a.btn.btn-light.btn-sm{"aria-controls": "dl-binary-#{supp_bin.id}",
+                                "aria-expanded": "false",
+                                "data-toggle": "collapse",
+                                href: "#dl-binary-#{supp_bin.id}",
+                                role: "button"}
+          %i.far.fa-plus-square
+          Supplementary #{supp_bin.human_readable_media_category}
+      - if @item.three_d_item
+        %a.btn.btn-light.btn-sm{"aria-controls": "dl-3d-viewer-container",
+                                "aria-expanded": "false",
+                                "data-toggle": "collapse",
+                                href: "#dl-3d-viewer-container",
+                                role: "button"}
+          %i.far.fa-plus-square
+          3D Model
+  - if supp_bin
+    .collapse{id: "dl-binary-#{supp_bin.id}"}
+      .row
+        .col-sm-9
+          = viewer_for_binary(supp_bin)
+        .col-sm-3
+          = metadata_as_list(supp_item)
+  - if @item.three_d_item
+    #dl-3d-viewer-container.collapse
+      = viewer_for_item(@item.three_d_item)
+%section
+  .dl-viewer
+    = viewer_for_item(@item)
+  - if has_viewer?(@item)
+    .row
+      .col-sm-10
+        = render partial: 'permalink_section', locals: { item: @item }
+      .col-sm-2
+        %a.btn.btn-lg.btn-success{href: "#dl-download-section"}
+          %i.fa.fa-download
+          Download
+  - else
+    = render partial: 'permalink_section', locals: { item: @item }
+
+%section
+  = rights_statement(@item.effective_rightsstatements_org_statement,
+                     @item.effective_rights_statement)
+- if @item.elements.reject{ |e| e.name == 'title' }.any?
+  %section= metadata_section(@item)
+= render partial: 'download_section',
+         locals: { item: @item, expanded: false }
+= render partial: 'staff_info', locals: { item: @item }
+
+.text-center
+  - mailto = curator_mailto(@item)
+  - if mailto
+    = link_to mailto, class: 'btn btn-light' do
+      %i.fa.fa-envelope
+      Email Curator About This Item
+
+= render partial: 'cite_panel', locals: { item: @item }

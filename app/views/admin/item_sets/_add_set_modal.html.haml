@@ -1,0 +1,12 @@
+-# Add-set modal
+#dl-add-item-set-modal.modal.fade.dl-edit-panel{"aria-labelledby": "dl-add-item-set-modal-label",
+                                                role: "dialog",
+                                                tabindex: "-1"}
+  .modal-dialog{role: "document"}
+    .modal-content
+      .modal-header
+        %h4#dl-add-item-set-modal-label.modal-title Add Set
+        %button.close{"aria-label": "Close", "data-dismiss": "modal", type: "button"}
+          %span{"aria-hidden": "true"} ×
+      .modal-body
+        -# will be populated via XHR

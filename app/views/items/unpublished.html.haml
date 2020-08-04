@@ -1,0 +1,37 @@
+- provide :title, @item.title
+- provide :body_id, 'items_show'
+
+= breadcrumb(item: @item,
+             context: session[:browse_context],
+             context_url: session[:browse_context_url])
+
+.alert.alert-primary
+  %i.fas.fa-info-circle
+  - if @item.collection&.publicly_accessible?
+    This item is unpublished.
+  - else
+    This item is not publicly accessible.
+.btn-group.float-right{role: "group"}
+  .btn-group
+    %button.btn.btn-light.dropdown-toggle{"aria-expanded": "false",
+                                          "aria-haspopup": "true",
+                                          "data-toggle": "dropdown",
+                                          type: "button"}
+      %i.fa.fa-eye
+      View
+      %span.caret
+    .dropdown-menu.dropdown-menu-right
+      - if @item.collection
+        = link_to admin_collection_item_path(@item.collection, @item),
+                  target: '_blank',
+                  class: 'dropdown-item' do
+          %i.fa.fa-lock
+          Admin View
+  .text-center
+    - mailto = curator_mailto(@item)
+    - if mailto
+      = link_to mailto, class: 'btn btn-light' do
+        %i.fa.fa-envelope
+        Email Curator About This Item
+
+= item_page_title(@item)

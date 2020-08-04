@@ -1,0 +1,12 @@
+- provide :title, 'New Host Group'
+- provide :body_id, 'new_host_group'
+- provide :active_nav, 'access'
+
+= admin_breadcrumb({ label: 'Home', url: admin_root_path },
+                   { label: 'Host Groups', url: admin_host_groups_path },
+                   { label: 'New Host Group' })
+
+%h1 New Host Group
+
+= render partial: 'form', locals: { host_group: @host_group,
+                                    context: :new }

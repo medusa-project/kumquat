@@ -1,0 +1,66 @@
+- provide :title, @user.username
+- provide :active_nav, 'access'
+- provide :body_id, 'users_show'
+
+- if @user != current_user
+  = admin_breadcrumb({ label: 'Home', url: admin_root_path },
+                     { label: 'Users', url: admin_users_path },
+                     { label: @user.username })
+
+.btn-group.float-right{role: "group"}
+  - if @user == current_user
+    .btn-group
+      -# Actions menu
+      %button.btn.btn-light.dropdown-toggle{"aria-expanded": "false",
+                                            "aria-haspopup": "true",
+                                            "data-toggle": "dropdown",
+                                            type: "button"}
+        Actions
+        %span.caret
+      .dropdown-menu.dropdown-menu-right{role: "menu"}
+        = link_to admin_user_reset_api_key_path(@user),
+                  method: :post,
+                  class: 'dropdown-item' do
+          %i.fa.fa-key
+          Reset API Key
+  - if !@user.human && current_user.can?(Permissions::MODIFY_USERS)
+    -# Delete button
+    = link_to admin_user_path(@user),
+              method: :delete,
+              class: 'btn btn-danger',
+              data: { confirm: 'Are you sure you want to delete this user?' } do
+      %i.fa.fa-trash
+      Delete
+
+%h1
+  - if @user == current_user
+    My Account
+  - else
+    = @user.username
+
+%dl
+  - unless @user.human
+    %dt Type
+    %dd Non-Human
+  - if @user == current_user or !@user.human
+    %dt API Key
+    %dd
+      - if @user.api_key.present?
+        %code= @user.api_key
+      - else
+        None
+  - unless @user.human
+    %dt Account Created
+    %dd= local_time_ago(@user.created_at)
+  %dt Permissions
+  %dd
+    %ul.dl-permissions
+      - Permissions.all.each do |p|
+        - if @user.has_permission?(p)
+          %li.plus
+            %span.text-success ✓
+            = Permissions.constants.find{ |c| p == Permissions.const_get(c) }&.to_s&.humanize
+        - else
+          %li.minus
+            %span.text-danger ×
+            = Permissions.constants.find{ |c| p == Permissions.const_get(c) }&.to_s&.humanize

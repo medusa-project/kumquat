@@ -1,0 +1,17 @@
+- provide :title, 'Host Groups'
+- provide :body_id, 'host_groups'
+- provide :active_nav, 'access'
+
+= admin_breadcrumb({ label: 'Home', url: admin_root_path },
+                   { label: 'Host Groups' })
+
+.btn-group.float-right
+  -# New Host Group
+  = link_to new_admin_host_group_path, class: 'btn btn-light' do
+    %i.fa.fa-plus
+    New Host Group
+
+%h1 Host Groups
+%ul
+  - @host_groups.each do |group|
+    %li= link_to group.name, admin_host_group_path(group)

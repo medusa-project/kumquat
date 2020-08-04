@@ -1,0 +1,24 @@
+- provide :title, 'Users'
+- provide :body_id, 'admin_users'
+- provide :active_nav, 'access'
+
+= admin_breadcrumb({ label: 'Home', url: admin_root_path },
+                   { label: 'Users' })
+
+%h1 Users
+- if current_user.can?(Permissions::MODIFY_USERS)
+  .btn-group.float-right
+    = link_to new_admin_user_path, class: 'btn btn-light' do
+      %i.fa.fa-plus
+      New Non-Human User
+%h2
+  Non-Human Users
+  %a.btn.btn-sm.btn-light.popover-dismiss{"data-content": "These users are used for automated access by other applications and scripts.",
+                                          "data-toggle": "popover",
+                                          "data-trigger": "focus",
+                                          role: "button",
+                                          tabindex: "0"}
+    %i.fa.fa-question-circle
+%ul
+  - @non_human_users.each do |user|
+    %li= link_to user.username, admin_user_path(user)

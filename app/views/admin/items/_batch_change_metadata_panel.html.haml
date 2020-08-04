@@ -1,0 +1,43 @@
+#dl-batch-change-modal.modal.fade{"aria-labelledby": "dl-batch-change-modal-label",
+                                  role: "dialog",
+                                  tabindex: "-1"}
+  .modal-dialog{role: "document"}
+    .modal-content
+      = form_tag(admin_collection_items_batch_change_metadata_path(@collection)) do
+        .modal-header
+          %h4#dl-batch-change-modal-label.modal-title Batch Change
+          %button.close{"aria-label": "Close",
+                        "data-dismiss": "modal",
+                        type: "button"}
+            %span{"aria-hidden": "true"} ×
+        .modal-body
+          .alert.alert-warning
+            %i.fa.fa-exclamation-triangle
+            This cannot be undone.
+          - if @collection.metadata_profile
+            - defs = @collection.metadata_profile.elements.select{ |e| !e.controlled? }.sort{ |a, b| a.label <=> b.label }.map{ |t| [ "#{t.label} (#{t.name})", t.name ] }
+            .form-group
+              %label{for: "element"} Set Element:
+              = select_tag(:element,
+                           options_for_select(defs),
+                           class: 'custom-select')
+            .dl-elements
+              %label To:
+              .form-group
+                %table.table.table-sm
+                  %tr.dl-element
+                    %td
+                      %label String:
+                      = text_field_tag('replace_values[][string]', '', class: 'form-control')
+                      %label URI:
+                      = text_field_tag('replace_values[][uri]', '', class: 'form-control')
+                    %td{style: "text-align: center; vertical-align: middle;"}
+                      %button.btn.btn-sm.btn-danger.dl-remove-element{type: "button"} −
+              %button.btn.btn-sm.btn-success.dl-add-element &amp;plus;
+          - else
+            %p Metadata profile is not set.
+          .dl-query
+            -# will be populated by index.js.erb
+        .modal-footer
+          %button.btn.btn-light{"data-dismiss": "modal", type: "button"} Cancel
+          %button.btn.btn-primary{type: "submit"} Change

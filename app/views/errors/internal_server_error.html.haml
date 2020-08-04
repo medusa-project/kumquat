@@ -1,0 +1,9 @@
+- provide :title, "Error"
+
+.text-center.mt-4
+  %h2.mb-4 We're sorry, but something went wrong.
+  %p Details have been logged.
+
+- if Rails.env.development?
+  %code
+    %pre= @message

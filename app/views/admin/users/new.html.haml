@@ -1,0 +1,11 @@
+- provide(:title, 'New User')
+- provide(:body_id, 'users_new')
+- provide :active_nav, 'access'
+
+= admin_breadcrumb({ label: 'Home', url: admin_root_path },
+                   { label: 'Users', url: admin_users_path },
+                   { label: 'New User' })
+
+%h1 New User
+
+= render partial: 'form', locals: { user: @user, context: :new }

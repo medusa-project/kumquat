@@ -1,0 +1,102 @@
+= form_for([:admin, @collection]) do |f|
+  = hidden_field_tag :current_descriptive_element_id, @collection.descriptive_element_id
+  .clearfix
+    .float-right
+      = f.submit 'Save Changes', class: 'btn btn-primary'
+  .form-group
+    .checkbox
+      %label
+        = f.check_box(:published_in_dls)
+        Published
+    .checkbox
+      %label
+        = f.check_box(:harvestable)
+        Harvestable (in general)
+    .checkbox
+      %label
+        = f.check_box(:harvestable_by_idhh)
+        Harvestable by IDHH
+    .checkbox
+      %label
+        = f.check_box(:harvestable_by_primo)
+        Harvestable by Primo
+    .checkbox
+      %label
+        = f.check_box(:restricted)
+        Restricted
+  %hr
+  - if @collection.items.any?
+    .alert.alert-primary
+      %i.fas.fa-info-circle
+      The information in this section can only be
+      changed when the collection is empty.
+  .form-group
+    = f.label :medusa_file_group_id, 'Medusa File Group UUID'
+    = f.text_field(:medusa_file_group_id, class: 'form-control',
+                   disabled: @collection.items.any?)
+  .form-group
+    = f.label :medusa_cfs_directory_id, 'Medusa CFS Directory UUID'
+    = f.text_field(:medusa_cfs_directory_id, class: 'form-control',
+                   disabled: @collection.items.any?)
+    %span.form-text.text-muted
+      If omitted, the root CFS directory of the
+      file group will be used.
+  .form-group
+    = f.label :package_profile_id, 'Medusa Package Profile'
+    = select(:collection, :package_profile_id,
+             @package_profile_options_for_select,
+             { include_blank: 'None (External Content)' },
+             class: 'custom-select',
+             disabled: @collection.items.any?)
+
+  %hr
+  .form-group
+    = f.label :metadata_profile_id, 'Metadata Profile'
+    = select(:collection, :metadata_profile_id,
+             @metadata_profile_options_for_select, {},
+             class: 'custom-select')
+  .form-group
+    = f.label :descriptive_element_id, 'Descriptive Element'
+    = select(:collection, :descriptive_element_id,
+             @descriptive_element_options_for_select,
+             { include_blank: true },
+             class: 'custom-select')
+  .form-group
+    = f.label :contentdm_alias, 'CONTENTdm Alias'
+    = f.text_field(:contentdm_alias, class: 'form-control')
+  .form-group
+    - options = options_for_select(RightsStatement.all_statements.map{ |e| [e.name, e.uri] },
+                                   selected: f.object.rightsstatements_org_uri)
+    = f.label :rightsstatements_org_uri, 'RightsStatements.org Statement'
+    = f.select :rightsstatements_org_uri,
+               options,
+               { include_blank: true },
+               { class: 'custom-select' }
+    %p.form-text.text-muted The free-form rights statement can be edited in Medusa.
+  .row
+    .col-sm-6
+      .form-group
+        %h4 Allowed Host Groups
+        = hidden_field_tag :host_group_ids, nil,
+                           name: 'collection[allowed_host_group_ids][]'
+        - HostGroup.order(:name).each do |group|
+          .checkbox
+            %label
+              = check_box_tag :host_group_ids, group.id,
+                              f.object.allowed_host_groups.pluck(:id).include?(group.id),
+                              name: 'collection[allowed_host_group_ids][]'
+              = group.name
+    .col-sm-6
+      .form-group
+        %h4 Denied Host Groups
+        = hidden_field_tag :host_group_ids, nil,
+                           name: 'collection[denied_host_group_ids][]'
+        - HostGroup.order(:name).each do |group|
+          .checkbox
+            %label
+              = check_box_tag :host_group_ids, group.id,
+                              f.object.denied_host_groups.pluck(:id).include?(group.id),
+                              name: 'collection[denied_host_group_ids][]'
+              = group.name
+  .float-right
+    = f.submit 'Save Changes', class: 'btn btn-primary'

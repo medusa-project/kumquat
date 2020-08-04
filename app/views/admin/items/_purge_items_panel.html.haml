@@ -1,0 +1,23 @@
+-# Purge Items panel
+
+#dl-purge-items-modal.modal.fade{"aria-labelledby": "dl-purge-items-modal-label",
+                                 role: "dialog",
+                                 tabindex: "-1"}
+  .modal-dialog{role: "document"}
+    .modal-content
+      .modal-header
+        %h4#dl-purge-items-modal-label.modal-title Purge Items
+        %button.close{"aria-label": "Close",
+                      "data-dismiss": "modal",
+                      type: "button"}
+          %span{"aria-hidden": "true"} ×
+      .modal-body
+        .alert.alert-danger
+          All items in the collection will be deleted.
+          This cannot be undone.
+      .modal-footer
+        %button.btn.btn-light{"data-dismiss": "modal", type: "button"} Cancel
+        = link_to 'Purge Items',
+                  admin_collection_destroy_all_items_path(@collection),
+                  method: 'delete',
+                  class: 'btn btn-primary'

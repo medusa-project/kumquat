@@ -1,0 +1,20 @@
+-# Accepts the following locals:
+-#
+-# agent [Agent]
+-# agent_relation [AgentRelation]
+-# context [Symbol] :new or :edit
+
+#dl-related-agent-modal.modal.fade{"aria-labelledby": "dl-related-agent-modal-label",
+                                   role: "dialog",
+                                   tabindex: "-1"}
+  .modal-dialog{role: "document"}
+    .modal-content
+      .modal-header
+        %h4#dl-related-agent-modal-label.modal-title Add Referring Relationship
+        %button.close{"aria-label": "Close", "data-dismiss": "modal", type: "button"}
+          %span{"aria-hidden": "true"} ×
+      .modal-body
+        = render partial: 'admin/agent_relations/related_agent_form',
+                 locals: { agent: agent,
+                           agent_relation: agent_relation,
+                           context: context }

@@ -1,0 +1,66 @@
+- provide :title, 'Elements'
+- provide :body_id, 'elements'
+- provide :active_nav, 'metadata'
+
+= admin_breadcrumb({ label: 'Home', url: admin_root_path },
+                   { label: 'Elements' })
+
+.btn-group.float-right{role: "group"}
+  - if current_user.can?(Permissions::MODIFY_ELEMENTS)
+    -# Add Element button
+    %button.btn.btn-light{"data-target": "#dl-add-element-modal",
+                          "data-toggle": "modal",
+                          type: "button"}
+      %span.fa.fa-plus
+      Add Element
+    -# Import button
+    %button.btn.btn-light{"data-target": "#dl-import-modal",
+                          "data-toggle": "modal",
+                          type: "button"}
+      %i.fa.fa-upload
+      Import&hellip;
+  -# Export button
+  = link_to @permitted_params.merge(format: 'json'), role: 'button', class: 'btn btn-light' do
+    %i.fa.fa-download
+    Export
+
+%h1 Elements
+%table.table.table-striped
+  %thead
+    %tr
+      %th{style: "width: 1px"}
+      %th Element
+      %th Description
+      %th Metadata Profile Occurrences
+      %th Entity Occurrences
+  %tbody
+    - @elements.each do |row|
+      %tr
+        %td{style: "white-space: nowrap"}
+          .btn-group
+            - if current_user.can?(Permissions::MODIFY_ELEMENTS)
+              %button.btn.btn-light.btn-sm.dl-edit-element{"data-element-id": "#{row['name']}",
+                                                           "data-target": "#dl-edit-element-modal",
+                                                           "data-toggle": "modal",
+                                                           type: "button"}
+                %i.fas.fa-pencil-alt
+                Edit
+              - if row['entity_count'].to_i > 0
+                = link_to '#', class: 'btn btn-danger btn-sm', disabled: true do
+                  %i.fa.fa-trash
+                  Delete
+              - else
+                = link_to admin_element_path(row['name']),
+                          class: 'btn btn-danger btn-sm', method: :delete,
+                          data: { confirm: 'Are you sure you want to delete this element?' } do
+                  %i.fa.fa-trash
+                  Delete
+        %td{style: "white-space: nowrap"}
+          %code= link_to row['name'], admin_element_path(row['name'])
+        %td= row['description']
+        %td= number_with_delimiter(row['metadata_profile_count'])
+        %td= number_with_delimiter(row['entity_count'])
+
+= render partial: 'admin/elements/add_modal'
+= render partial: 'admin/elements/edit_modal'
+= render partial: 'admin/elements/import_modal'

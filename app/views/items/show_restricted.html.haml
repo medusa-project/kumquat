@@ -1,0 +1,56 @@
+- provide :title, @item.title
+- provide :body_id, 'items_show'
+
+- if current_user&.medusa_user?
+  #item-show-buttons.btn-group.float-right{role: "group"}
+    .btn-group{role: "group"}
+      %button.btn.btn-light.dropdown-toggle{"aria-expanded": "false",
+                                            "aria-haspopup": "true",
+                                            "data-toggle": "dropdown",
+                                            type: "button"}
+        %i.fa.fa-eye
+        View
+        %span.caret
+      .dropdown-menu.dropdown-menu-right
+        = link_to admin_collection_item_path(@item.collection, @item),
+                  target: '_blank',
+                  class: 'dropdown-item' do
+          %i.fa.fa-lock
+            Admin View
+        = link_to(edit_admin_collection_item_path(@item.collection, @item) + '#dl-metadata',
+                  target: '_blank',
+                  class: 'dropdown-item') do
+          %i.fas.fa-pencil-alt
+          Edit
+
+= item_page_title(@item)
+
+%section
+  .dl-viewer
+    = viewer_for_item(@item)
+    - if @item.supplementary_item
+      - supp_item = @item.supplementary_item
+      - supp_bin = supp_item&.effective_image_binary
+      - if supp_bin
+        #dl-supplementary-viewer
+          .dl-bottom-panel
+            %a{"aria-controls": "dl-binary-#{supp_bin.id}",
+               "aria-expanded": "false",
+               "data-toggle": "collapse",
+               href: "#dl-binary-#{supp_bin.id}",
+               role: "button"}
+              %img{src: "/universalviewer/themes/uv-en-GB-theme/img/uv-shared-module/arrows_left.png"}
+              = supp_item.element(:supplementType)&.value || "Supplementary #{supp_bin.human_readable_media_category}"
+          .dl-supplmentary-viewer-content.collapse{id: "dl-binary-#{supp_bin.id}"}
+            .row
+              .col-sm-9
+                = viewer_for_binary(supp_bin)
+              .col-sm-3.dl-metadata
+                = metadata_as_list(supp_item)
+%section
+  = rights_statement(@item.effective_rightsstatements_org_statement,
+                     @item.effective_rights_statement)
+- if @item.elements.reject{ |e| e.name == 'title' }.any?
+  %section= metadata_section(@item)
+
+= render partial: 'staff_info', locals: { item: @item }

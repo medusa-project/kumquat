@@ -1,0 +1,16 @@
+- provide(:title, 'Dashboard')
+
+%h1 Dashboard
+
+- if @item_sets.any?
+  %h2 My Sets
+  %table.table
+    %thead
+      %tr
+        %th Collection
+        %th Set
+    %tbody
+      - @item_sets.each do |set|
+        %tr
+          %td= link_to set.collection, admin_collection_path(set.collection)
+          %td= link_to set, admin_collection_item_set_path(set.collection, set)

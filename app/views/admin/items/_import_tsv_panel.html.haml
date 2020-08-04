@@ -1,0 +1,33 @@
+-# Requires the following locals:
+-#
+-# collection [Collection]
+
+#dl-import-tsv-modal.modal.fade{"aria-labelledby": "dl-import-tsv-modal-label",
+                                role: "dialog",
+                                tabindex: "-1"}
+  .modal-dialog{role: "document"}
+    .modal-content
+      = form_tag(admin_collection_items_import_path(collection, format: :tsv), { multipart: true }) do
+        .modal-header
+          %h4#dl-import-tsv-modal-label.modal-title Import TSV
+          %button.close{"aria-label": "Close",
+                        "data-dismiss": "modal",
+                        type: "button"}
+            %span{"aria-hidden": "true"} ×
+        .modal-body
+          - if controller_name == 'item_sets'
+            .alert.alert-info
+              %i.fas.fa-info-circle
+              All items in the TSV will be
+              updated, whether or not they are present in this set. Any items not
+              present in this set will not be added to it.
+          .alert.alert-warning
+            %i.fas.fa-exclamation-triangle
+            To avoid out-of-memory
+            errors, divide uploaded files into segments of no more than 4,000
+            rows each, and import each one individually.
+          .form-group
+            = file_field_tag('tsv')
+        .modal-footer
+          %button.btn.btn-light{"data-dismiss": "modal", type: "button"} Cancel
+          %button.btn.btn-primary{type: "submit"} Import

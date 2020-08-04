@@ -1,0 +1,54 @@
+- provide :title, @collection.title
+- provide :body_id, 'admin_collections_show'
+- provide :active_nav, 'entities'
+
+= admin_breadcrumb({ label: 'Home', url: admin_root_path },
+                   { label: 'Collections', url: admin_collections_path },
+                   { label: @collection.title })
+
+= hidden_field_tag 'dl-collection-id', @collection.repository_id
+
+.btn-group.float-right{role: "group"}
+  -# Objects button
+  = link_to admin_collection_items_path(@collection),
+            class: 'btn btn-light' do
+    = icon_for(Item)
+    Objects
+  - if current_user.can?(Permissions::MODIFY_COLLECTIONS)
+    -# Edit button
+    = link_to edit_admin_collection_path(@collection), class: 'btn btn-light' do
+      %i.fas.fa-pencil-alt
+      Edit
+  -# Statistics button
+  = link_to admin_collection_statistics_path(@collection), class: 'btn btn-light' do
+    %i.fa.fa-chart-bar
+    Statistics
+  -# View menu
+  .btn-group
+    %button.btn.btn-light.dropdown-toggle{"aria-expanded": "false",
+                                          "aria-haspopup": "true",
+                                          "data-toggle": "dropdown",
+                                          type: "button"}
+      %i.fa.fa-eye
+      View
+      %span.caret
+    .dropdown-menu.dropdown-menu-right
+      = link_to collection_path(@collection), target: '_blank', class: 'dropdown-item' do
+        %i.fa.fa-globe
+        Public Website
+      = link_to @collection.medusa_url, target: '_blank', class: 'dropdown-item' do
+        %i.fa.fa-database
+        Medusa
+%h1= @collection.title
+.row
+  - if @collection.children.count > 0 || @collection.parents.count > 0
+    .col-sm-4
+      = admin_collection_tree(@collection)
+    .col-sm-8
+      = render partial: 'show'
+  - else
+    .col-sm-12
+      = render partial: 'show'
+
+= render partial: 'admin/item_sets/add_set_modal'
+= render partial: 'admin/item_sets/edit_set_modal'

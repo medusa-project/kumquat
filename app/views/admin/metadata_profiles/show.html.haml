@@ -1,0 +1,144 @@
+- provide :title, @profile.name
+- provide :body_id, 'metadata_profiles_show'
+- provide :active_nav, 'metadata'
+
+= admin_breadcrumb({ label: 'Home', url: admin_root_path },
+                   { label: 'Metadata Profiles', url: admin_metadata_profiles_path },
+                   { label: @profile.name })
+
+.btn-group.float-right{role: "group"}
+  - if current_user.can?(Permissions::MODIFY_METADATA_PROFILES)
+    -# Edit button
+    %button.btn.btn-light{"data-target": "#dl-edit-profile-modal",
+                          "data-toggle": "modal",
+                          type: "button"}
+      %i.fas.fa-pencil-alt
+      Edit
+    -# Clone button
+    = link_to admin_metadata_profile_clone_path(@profile),
+              method: :patch,
+              class: 'btn btn-light' do
+      %i.fa.fa-copy
+      Clone
+  -# Export button
+  = link_to @permitted_params.merge(format: 'json'), class: 'btn btn-light' do
+    %i.fa.fa-download
+    Export
+  - if current_user.can?(Permissions::MODIFY_METADATA_PROFILES)
+    -# Delete button
+    = link_to admin_metadata_profile_path(@profile),
+              method: :delete,
+              class: 'btn btn-danger',
+              disabled: @profile.collections.count > 0,
+              data: { confirm: 'Are you sure you want to delete this profile?' } do
+      %i.fa.fa-trash
+      Delete
+
+%h1= @profile.name
+
+.row
+  .col-xl-2
+    %h2
+      Collections
+      %small
+        %span.badge.badge-pill.badge-secondary
+          = @profile.collections.count
+    .btn-group.float-right
+      = link_to admin_metadata_profile_reindex_items_path(@profile),
+                method: :post,
+                class: 'btn btn-light' do
+        %i.fas.fa-sync-alt
+        Reindex Items
+    - if @profile.collections.any?
+      %ul
+        - @profile.collections.sort{ |c, d| c.title <=> d.title }.each do |col|
+          %li= link_to(col.title, admin_collection_path(col))
+    - else
+      %p None
+  .col-xl-10
+    = form_tag(admin_metadata_profile_delete_elements_path(@profile), method: :post) do
+      - if current_user.can?(Permissions::MODIFY_METADATA_PROFILES)
+        .btn-group.float-right{role: "group"}
+          %button.btn.btn-light{"data-target": "#dl-add-element-modal",
+                                "data-toggle": "modal",
+                                type: "button"}
+            %i.fa.fa-plus
+            Add Element
+          %button#dl-delete-checked.btn.btn-danger{type: "button"}
+            %i.fa.fa-trash
+            Delete Checked
+      %h2
+        Elements
+        %small
+          %span.badge.badge-pill.badge-secondary
+            = @profile.elements.count
+      - if @profile.elements.any?
+        %table.table.table-sm
+          %thead
+            %tr
+              %th
+              %th
+              %th Element
+              %th Vocabularies
+              %th Mappings
+              %th Data Type
+              %th.text-center Visible
+              %th.text-center Indexed
+              %th.text-center Searchable
+              %th.text-center Sortable
+              %th.text-center Facetable
+          %tbody
+            - @profile.elements.order(:index).each do |element|
+              %tr
+                %td
+                  - if current_user.can?(Permissions::MODIFY_METADATA_PROFILES)
+                    .checkbox
+                      %label
+                        = check_box_tag('elements[]', element.id)
+                        = element.index + 1
+                %td
+                  - if current_user.can?(Permissions::MODIFY_METADATA_PROFILES)
+                    %button.btn.btn-light.btn-sm.dl-edit-element{"data-element-id": "#{element.id}",
+                                                                 "data-target": "#dl-edit-element-modal",
+                                                                 "data-toggle": "modal",
+                                                                 type: "button"} Edit
+                %td
+                  = element.label
+                  %br/
+                  %var= element.name
+                %td
+                  - if element.vocabularies.any?
+                    %ul
+                      - element.vocabularies.each do |vocab|
+                        %li= vocab.name
+                  - else
+                    –
+                %td
+                  %table.table.table-borderless
+                    %tr
+                      %th.text-right dc
+                      %td= DublinCoreElement.label_for(element.dc_map)
+                    %tr
+                      %th dcterms
+                      %td= DublinCoreTerm.label_for(element.dcterms_map)
+                %td
+                  = element.human_readable_data_type
+                %td{class: "text-center #{element.visible ? 'bg-success' : 'bg-danger'}"}
+                  = boolean(element.visible)
+                %td{class: "text-center #{element.indexed ? 'bg-success' : 'bg-danger'}"}
+                  = boolean(element.indexed)
+                %td{class: "text-center #{element.searchable ? 'bg-success' : 'bg-danger'}"}
+                  = boolean(element.searchable)
+                %td{class: "text-center #{element.sortable ? 'bg-success' : 'bg-danger'}"}
+                  - if element == @profile.default_sortable_element
+                    %span.text-success DEFAULT
+                  - else
+                    = boolean(element.sortable)
+                %td{class: "text-center #{element.facetable ? 'bg-success' : 'bg-danger'}"}
+                  = boolean(element.facetable)
+      - else
+        %p This profile has no elements.
+
+= render partial: 'add_element_modal'
+= render partial: 'edit_profile_modal'
+= render partial: 'edit_element_modal'

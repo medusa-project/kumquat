@@ -1,0 +1,20 @@
+- provide(:body_id, 'tree_browser')
+- provide(:title, @collection.title)
+- provide(:active_nav, 'collections')
+
+= breadcrumb(collection: @collection,
+             context: ItemsController::BrowseContext::BROWSING_COLLECTION)
+
+%h1= @collection.title
+
+%ul.nav.nav-pills
+  %li.nav-item
+    = link_to '#', class: 'nav-link active' do
+      %i.fa.fa-level-down-alt
+      Tree
+  %li.nav-item
+    = link_to collection_items_path(display: 'leaves'), class: 'nav-link' do
+      %i.fa.fa-bars
+      List
+
+= render partial: 'tree'

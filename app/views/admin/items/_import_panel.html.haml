@@ -1,0 +1,68 @@
+-# Import modal panel
+
+#dl-import-modal.modal.fade{"aria-labelledby": "dl-import-modal-label",
+                            role: "dialog",
+                            tabindex: "-1"}
+  .modal-dialog{role: "document"}
+    .modal-content
+      = form_tag(admin_collection_items_sync_path(@collection)) do
+        .modal-header
+          %h4#dl-import-modal-label.modal-title Import Items
+          %button.close{"aria-label": "Close",
+                        "data-dismiss": "modal",
+                        type: "button"}
+            %span{"aria-hidden": "true"} ×
+        .modal-body
+          .alert.alert-info
+            %i.fas.fa-info-circle
+            Before importing, verify that the collection's file group and
+            package profile are set correctly, and that its content in Medusa
+            conforms to the package profile.
+          .radio
+            %label
+              = radio_button_tag('ingest_mode',
+                                 MedusaIngester::IngestMode::CREATE_ONLY, true,
+                                 'aria-described-by': 'dl-create-only-help')
+              Create
+            %span#dl-create-only-help.form-text.text-muted
+              Create any items present in Medusa but not the DLS. Don't touch
+              existing DLS items.
+          .checkbox{style: "padding-left: 1.5em"}
+            %label
+              = check_box_tag('options[extract_metadata]', 'true', false)
+              Extract embedded file metadata
+          .checkbox{style: "padding-left: 1.5em"}
+            %label
+              = check_box_tag('options[include_date_created]', 'true', false)
+              Extract creation date from embedded file metadata
+          .radio
+            %label
+              = radio_button_tag('ingest_mode',
+                                 MedusaIngester::IngestMode::RECREATE_BINARIES, false,
+                                 'aria-described-by': 'dl-update-binaries-help')
+              Recreate Binaries
+            %span#dl-update-binaries-help.form-text.text-muted
+              Update existing DLS items' binaries based on their corresponding
+              files in Medusa.
+          .alert.alert-danger
+            .radio
+              %label
+                = radio_button_tag('ingest_mode',
+                                   MedusaIngester::IngestMode::REPLACE_METADATA, false,
+                                   'aria-described-by': 'dl-replace-metadata-help')
+                Replace Metadata
+                %span.badge.badge-danger dangerous!
+              %span#dl-replace-metadata-help.form-text.text-muted
+                Replaces DLS items' metadata with embedded metadata extracted
+                from their binaries.
+          .radio
+            %label
+              = radio_button_tag('ingest_mode',
+                                 MedusaIngester::IngestMode::DELETE_MISSING, false,
+                                 'aria-described-by': 'dl-delete-missing-help')
+              Delete Missing
+            %span#dl-delete-missing-help.form-text.text-muted
+              Delete any items present in the DLS but not Medusa.
+        .modal-footer
+          %button.btn.btn-light{"data-dismiss": "modal", type: "button"} Cancel
+          %button.btn.btn-primary{type: "submit"} Import

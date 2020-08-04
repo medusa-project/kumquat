@@ -1,0 +1,24 @@
+#dl-export-modal.modal.fade{"aria-labelledby": "dl-export-modal-label",
+                            role: "dialog",
+                            tabindex: "-1"}
+  .modal-dialog{role: "document"}
+    .modal-content
+      = form_tag(@permitted_params.merge(format: 'tsv'), method: :get) do
+        .modal-header
+          %h4#dl-export-modal-label.modal-title Export TSV
+          %button.close{"aria-label": "Close",
+                        "data-dismiss": "modal",
+                        type: "button"}
+            %span{"aria-hidden": "true"} ×
+        .modal-body
+          .radio
+            %label
+              = radio_button_tag('only_undescribed', 'false', checked: true)
+              All Items
+          .radio
+            %label
+              = radio_button_tag('only_undescribed', 'true')
+              Undescribed Items
+        .modal-footer
+          %button.btn.btn-light{"data-dismiss": "modal", type: "button"} Cancel
+          %button.btn.btn-primary{type: "submit"} Export

@@ -1,0 +1,10 @@
+%p Your file is ready.
+
+- if @download.filename.present?
+  - url = download_file_url(@download)
+- else
+  - url = @download.url
+
+= link_to url, class: 'btn btn-lg btn-success' do
+  %i.fas.fa-download
+  Download

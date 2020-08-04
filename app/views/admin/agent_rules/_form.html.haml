@@ -1,0 +1,17 @@
+-# @param agent_rule [AgentRule]
+-# @param context [Symbol] :new or :edit
+
+= form_for([:admin, agent_rule], remote: true) do |f|
+  .dl-error-messages
+    -# populated via ajax by shared/_validation_messages.js.erb
+  .form-group
+    = f.label :name
+    = f.text_field :name, class: 'form-control'
+  .form-group
+    = f.label :abbreviation
+    = f.text_field :abbreviation, class: 'form-control'
+  .clearfix
+    .float-right
+      %button.btn.btn-light{"data-dismiss": "modal", type: "button"} Cancel
+      = f.submit(context == :new ? 'Create Agent Rule' : 'Edit Agent Rule',
+                 class: 'btn btn-primary')

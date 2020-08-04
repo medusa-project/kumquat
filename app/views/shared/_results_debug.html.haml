@@ -1,0 +1,35 @@
+-# Used for debugging Elasticsearch request-response exchanges.
+-#
+-# Requires the following locals:
+-#
+-# es_request [Hash]
+-# es_response [Hash]
+
+.text-center
+  %button.btn.btn-light{"aria-controls": "dl-debug",
+                        "aria-expanded": "false",
+                        "data-target": "#dl-debug",
+                        "data-toggle": "collapse",
+                        type: "button"}
+    %i.fa.fa-plus
+    Developer Mode Debug
+#dl-debug.collapse
+  %nav
+    #dl-debug-nav-tab.nav.nav-tabs{role: "tablist"}
+      %a#dl-debug-es-request-tab.nav-item.nav-link.active{"aria-controls": "dl-debug-es-request",
+                                                          "aria-selected": "true",
+                                                          "data-toggle": "tab",
+                                                          href: "#dl-debug-es-request",
+                                                          role: "tab"} Elasticsearch Request
+      %a#dl-debug-es-response-tab.nav-item.nav-link{"aria-controls": "dl-debug-es-response",
+                                                    "aria-selected": "false",
+                                                    "data-toggle": "tab",
+                                                    href: "#dl-debug-es-response",
+                                                    role: "tab"} Elasticsearch Response
+  #dl-tab-content.tab-content
+    #dl-debug-es-request.tab-pane.fade.show.active{role: "tabpanel"}
+      %div{style: "height: 500px; overflow-y: scroll"}
+        %pre= JSON.pretty_generate(JSON.parse(es_request))
+    #dl-debug-es-response.tab-pane.fade{role: "tabpanel"}
+      %div{style: "height: 500px; overflow-y: scroll"}
+        %pre= JSON.pretty_generate(es_response)

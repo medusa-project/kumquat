@@ -1,0 +1,140 @@
+- provide :title, @item.title
+- provide :body_id, 'admin_items_show'
+- provide :active_nav, 'entities'
+
+= admin_breadcrumb({ label: 'Home', url: admin_root_path },
+                   { label: 'Collections', url: admin_collections_path },
+                   { label: @item.collection.title, url: admin_collection_path(@item.collection) },
+                   *admin_item_structure_breadcrumb(@item))
+
+.btn-group.float-right
+  -# Edit button
+  = link_to edit_admin_collection_item_path(@item.collection, @item),
+            class: 'btn btn-light' do
+    %i.fas.fa-pencil-alt
+    Edit
+  -# Purge Cached Images button
+  = link_to admin_collection_item_purge_cached_images_path(@item.collection, @item),
+            class: 'btn btn-light',
+            method: 'post' do
+    %i.fa.fa-trash
+    Purge Cached Images
+  -# Sets button
+  - if @item.collection.item_sets.count > 0
+    .btn-group
+      %button.btn.btn-light.dropdown-toggle{"aria-expanded": "false",
+                                            "aria-haspopup": "true",
+                                            "data-toggle": "dropdown",
+                                            type: "button"}
+        %i.fa.fa-plus
+        Add To Set
+        %span.caret
+      .dropdown-menu
+        - @item.collection.item_sets.joins(:users).where(users: { id: current_user.id }).each do |set|
+          = link_to set.name,
+            admin_collection_items_add_items_to_item_set_path(@item.collection,
+                                                              'items[]': @item.repository_id,
+                                                              item_set: set.id),
+            method: :post,
+            class: 'dropdown-item'
+  -# View button
+  .btn-group
+    %button.btn.btn-light.dropdown-toggle{"aria-expanded": "false",
+                                          "aria-haspopup": "true",
+                                          "data-toggle": "dropdown",
+                                          type: "button"}
+      %i.fa.fa-eye
+      View
+      %span.caret
+    .dropdown-menu.dropdown-menu-right
+      = link_to item_url(@item, format: :json),
+                target: '_blank',
+                class: 'dropdown-item' do
+        %i.fa.fa-code
+        JSON
+      - if @item.bib_id
+        = link_to @item.catalog_record_url,
+                  target: '_blank',
+                  class: 'dropdown-item' do
+          %i.fa.fa-book
+          Library Catalog Record
+      .dropdown-divider
+      = link_to @item,
+                target: '_blank',
+                class: 'dropdown-item' do
+        %i.fa.fa-globe
+        Public View
+- if @item.parent
+  %h1.dl-compound-title
+    %small= link_to @item.parent.title,
+                    admin_collection_item_path(@item.parent.collection, @item.parent)
+    = succeed "\u00A0\u00A0\u21B3" do
+      %br/
+    = @item.title
+- else
+  %h1
+    = @item.title
+    - if @item.subtitle
+      %br/
+      %small= @item.subtitle
+.row
+  .col-sm-2.dl-item-structure
+    = admin_structure_of_item(@item)
+  .col-sm-2
+    .dl-thumbnail
+      = thumbnail_tag(@item)
+    %ul.nav.nav-pills.nav-stacked
+      %li.nav-item
+        %a.nav-link.active{"aria-controls": "dl-system-info",
+                           "data-toggle": "tab",
+                           href: "#dl-system-info",
+                           role: "tab"} System Info
+      %li.nav-item
+        %a.nav-link{"aria-controls": "dl-descriptive-metadata",
+                    "data-toggle": "tab",
+                    href: "#dl-descriptive-metadata",
+                    role: "tab"} Descriptive Metadata
+      %li.nav-item
+        %a.nav-link{"aria-controls": "dl-binaries",
+                    "data-toggle": "tab",
+                    href: "#dl-binaries",
+                    role: "tab"}
+          Binaries
+          %span.badge.badge-pill.badge-secondary
+            = @item.binaries.length
+      %li.nav-item
+        %a.nav-link{"aria-controls": "dl-schema-org",
+                    "data-toggle": "tab",
+                    href: "#dl-schema-org",
+                    role: "tab"} schema.org
+  .col-sm-8
+    -# Display a warning if the item is not free-form and has a preservation
+    -# master binary but no access master.
+    - if !@item.collection.free_form? && @item.binaries.select{ |b| b.master_type == Binary::MasterType::PRESERVATION }.first && !@item.binaries.select{ |b| b.master_type == Binary::MasterType::ACCESS }.first
+      .alert.alert-danger
+        %i.fas.fa-exclamation-triangle
+        This item has no access master binary.
+        Its Medusa package may be malformed.
+    .tab-content
+      #dl-system-info.tab-pane.active{role: "tabpanel"}
+        = admin_system_info_as_list(@item)
+        = admin_system_info_as_table(@item)
+      #dl-descriptive-metadata.tab-pane{role: "tabpanel"}
+        .alert.alert-light
+          %i.fa.fa-info-circle
+          Collection metadata profile:
+          \#{@item.collection.metadata_profile ? link_to(@item.collection.metadata_profile&.name, admin_metadata_profile_path(@item.collection.metadata_profile)) : 'None'}
+        = admin_item_metadata_as_table(@item)
+      #dl-binaries.tab-pane{role: "tabpanel"}
+        - @item.binaries.each do |bin|
+          %h2= bin.human_readable_master_type
+          = binary_metadata_as_table(bin, admin: true)
+          %hr/
+      #dl-schema-org.tab-pane{role: "tabpanel"}
+        .clearfix
+          .float-right
+            %a.btn.btn-light{href: "https://search.google.com/structured-data/testing-tool",
+                             target: "_blank"}
+              %i.fab.fa-google
+              Test
+        %pre= schema_org_json_ld(@item, pretty_print: true)

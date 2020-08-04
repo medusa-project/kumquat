@@ -1,0 +1,15 @@
+#dl-edit-agent-modal.modal.fade{"aria-labelledby": "dl-edit-agent-modal-label",
+                                role: "dialog",
+                                tabindex: "-1"}
+  .modal-dialog.modal-lg{role: "document"}
+    .modal-content
+      .modal-header
+        %h4#dl-edit-agent-modal-label.modal-title Edit Agent
+        %button.close{"aria-label": "Close",
+                      "data-dismiss": "modal",
+                      type: "button"}
+          %span{"aria-hidden": "true"} ×
+      .modal-body
+        = render partial: 'form', locals: { agent: @agent,
+                                            agent_relation: @new_agent_relation,
+                                            context: :edit }

@@ -1,0 +1,20 @@
+-# @param type [AgentRelationType]
+-# @param context [Symbol] :new or :edit
+
+= form_for([:admin, type], remote: true) do |f|
+  .dl-error-messages
+    -# populated via ajax by shared/_validation_messages.js.erb
+  .form-group
+    = f.label :name
+    = f.text_field :name, class: 'form-control'
+  .form-group
+    = f.label :uri, 'URI'
+    = f.text_field :uri, class: 'form-control'
+  .form-group
+    = f.label :description
+    = f.text_area :description, class: 'form-control'
+  .clearfix
+    .float-right
+      %button.btn.btn-light{"data-dismiss": "modal", type: "button"} Cancel
+      = f.submit(context == :new ? 'Create Relation Type' : 'Edit Relation Type',
+                 class: 'btn btn-primary')

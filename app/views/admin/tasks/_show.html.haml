@@ -1,0 +1,40 @@
+%h1.dl-title= @task.status_text
+%dl
+  %dt Task ID
+  %dd= @task.id
+  %dt Job ID
+  %dd= @task.job_id
+  %dt Job Queue
+  %dd
+    %var= @task.queue
+  %dt Status
+  %dd.dl-status
+    %p
+      %span{class: "badge #{bootstrap_class_for_task_status(@task.status)}"}
+        = Task::Status::to_s(@task.status)
+  %dt Progress
+  %dd.dl-progress
+    = (@task.indeterminate and @task.percent_complete < 1) ? 'Indeterminate' : (@task.percent_complete * 100).round(1).to_s + '%'
+  %dt Started
+  %dd.dl-started
+    = @task.started_at ? local_time_ago(@task.started_at) : ''
+  - if @task.completed_at
+    %dt Completed In
+    %dd
+      = distance_of_time_in_words(@task.created_at, @task.completed_at,
+                                  include_seconds: true)
+  %dt Class
+  %dd= @task.name
+  - if @task.download
+    %dt Downloadable Resource
+    %dd
+      = @task.download.filename ? |
+        link_to(@task.download.filename, download_file_url(@task.download)) : |
+        link_to(@task.download.url, @task.download.url) |
+    %dt Client IP
+    %dd= @task.download.ip_address
+- if @task.detail.present?
+  %p.text-danger= h(@task.detail)
+- if @task.failed? and @task.backtrace.present?
+  %h2 Stack Trace
+  %pre= raw(@task.backtrace.split('", "').join('",<br>"'))

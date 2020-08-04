@@ -1,0 +1,59 @@
+- provide :title, 'Collections'
+- provide :body_id, 'admin_collections_index'
+- provide :active_nav, 'entities'
+
+= admin_breadcrumb({ label: 'Home', url: admin_root_path },
+                   { label: 'Collections' })
+
+.btn-group.float-right{role: "group"}
+  -# Index button
+  = link_to admin_collections_sync_path, method: 'patch', class: 'btn btn-light' do
+    %i.fas.fa-sync-alt
+    Index Collections Metadata From Medusa
+  -# Metadata menu
+  .btn-group{role: "group"}
+    %button.btn.btn-light.dropdown-toggle{"aria-expanded": "false",
+                                          "aria-haspopup": "true",
+                                          "data-toggle": "dropdown",
+                                          type: "button"}
+      %i.fa.fa-list
+      Metadata
+      %span.caret
+    .dropdown-menu
+      = link_to 'Export As TSV',
+                admin_collections_path(format: 'tsv'),
+                target: '_blank',
+                class: 'dropdown-item'
+  -# View menu
+  .btn-group
+    %button.btn.btn-light.dropdown-toggle{"aria-expanded": "false",
+                                          "aria-haspopup": "true",
+                                          "data-toggle": "dropdown",
+                                          type: "button"}
+      %i.fa.fa-eye
+      View
+      %span.caret
+    .dropdown-menu.dropdown-menu-right
+      = link_to Configuration.instance.medusa_url + '/collections',
+                target: '_blank', class: 'dropdown-item' do
+        %i.fa.fa-database
+        Medusa
+%h1 Collections
+.card
+  .card-body
+    = form_tag admin_collections_path, method: 'get', class: 'dl-filter' do
+      .form-inline
+        = search_field_tag :q, params[:q], placeholder: 'Filter',
+                           class: 'form-control mr-3'
+        .form-check.form-check-inline
+          %label
+            = hidden_field_tag(:public_in_medusa, '0')
+            = check_box_tag(:public_in_medusa, '1')
+            Public in Medusa
+        .form-check.form-check-inline
+          %label
+            = hidden_field_tag(:published_in_dls, '0')
+            = check_box_tag(:published_in_dls, '1')
+            Published in DLS
+#collections
+  = render 'collections'

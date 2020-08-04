@@ -1,0 +1,38 @@
+- provide :title, 'Tasks'
+- provide :body_id, 'admin_tasks'
+- provide :active_nav, 'server'
+
+= admin_breadcrumb({ label: 'Home', url: admin_root_path },
+                   { label: 'Tasks' })
+
+= hidden_field_tag('dl-tasks-url', admin_tasks_url)
+= hidden_field_tag('dl-limit', @limit)
+
+%h1 Tasks
+
+.card
+  .card-body
+    = form_tag admin_tasks_path, method: 'get', class: 'dl-filter' do
+      .form-inline
+        = search_field_tag :q,
+                           params[:q],
+                           placeholder: 'Filter',
+                           class: 'form-control'
+        %label.ml-3.mr-1{for: "dl-task-queue"} Queue
+        %select#dl-task-queue.custom-select{name: "queue"}
+          %option
+          - Job::Queue::all.each do |q|
+            %option
+              = q.to_s == params[:queue] ? 'selected' : ''
+              \#{q}
+        %label.ml-3.mr-1{for: "dl-task-status"} Status
+        %select#dl-task-status.custom-select{name: "status"}
+          %option
+          - Task::Status::all.each do |s|
+            %option{value: s}
+              = Task::Status::to_s(s)
+
+#dl-tasks-list
+  = render partial: 'tasks'
+
+= render partial: 'task_panel'
