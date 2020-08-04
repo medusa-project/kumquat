@@ -92,6 +92,30 @@ var PTAdminAgentsView = function() {
             $('form.dl-filter').submit();
         });
 
+        $('button.dl-add').on('click', function(e) {
+            e.preventDefault();
+            var lastRow = $(this).prev('table').find('tr:last');
+            var clone = lastRow.clone(true);
+            clone.find('input[type=text]').val('');
+            clone.find('input[type=radio]').prop('checked', false);
+            lastRow.after(clone);
+            updateRowIndices($(this).prev('table'));
+            return false;
+        });
+        $('button.dl-remove').on('click', function(e) {
+            e.preventDefault();
+            var row = $(this).closest('tr');
+            var siblings = row.siblings();
+            if (siblings.length > 0) {
+                row.remove();
+                if (siblings.find('input[type=radio]:checked').length < 1) {
+                    siblings.filter(':first').find('input[type=radio]')
+                        .prop('checked', true);
+                }
+            }
+            updateRowIndices(row.closest('table'));
+            return false;
+        });
         $('button.dl-edit-agent').on('click', function() {
             var agent_id = $(this).data('agent-id');
             var ROOT_URL = $('input[name="root_url"]').val();
