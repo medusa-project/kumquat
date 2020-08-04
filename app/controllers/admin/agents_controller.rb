@@ -54,7 +54,7 @@ module Admin
     def edit
       agent = Agent.find(params[:id])
       render partial: 'admin/agents/form',
-             locals: { agent: agent, context: :edit }
+             locals: { agent: agent }
     end
 
     ##

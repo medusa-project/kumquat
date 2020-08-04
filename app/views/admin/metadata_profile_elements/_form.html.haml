@@ -2,7 +2,6 @@
 -#
 -# element [MetadataProfileElement]
 -# metadata_profile [MetadataProfile]
--# context [Symbol] :new or :edit
 
 - dublin_core_elements         = DublinCoreElement.all.sort{ |e, f| e.label <=> f.label }.map { |p| [ p.label, p.name ] }
 - dublin_core_terms            = DublinCoreTerm.all.sort{ |e, f| e.label <=> f.label }.map { |p| [ p.label, p.name ] }
@@ -73,7 +72,7 @@
     %label
       = f.check_box :indexed
       Indexed
-  - if context == :edit
+  - unless f.object.new_record?
     .alert.alert-warning
       %i.fas.fa-exclamation-triangle
       After changing the indexed status
@@ -95,5 +94,5 @@
   .clearfix
     .float-right
       %button.btn.btn-light{"data-dismiss": "modal", type: "button"} Cancel
-      = f.submit(context == :new ? 'Create Element' : 'Edit Element',
+      = f.submit(f.object.new_record? ? 'Create Element' : 'Edit Element',
                  class: 'btn btn-primary')

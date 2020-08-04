@@ -20,7 +20,7 @@
                            class: 'form-control'
 #dl-agents
   = render 'agents'
-= render partial: 'add_modal', locals: { agent: @new_agent, context: :new }
+= render partial: 'add_modal', locals: { agent: @new_agent }
 
 -# Edit-agent modal
 #dl-edit-agent-modal.modal.fade{"aria-labelledby": "dl-edit-agent-modal-label",

@@ -159,14 +159,11 @@
     %td Collections
     %td= @num_collection_references
 = render partial: 'admin/agent_relations/agent_relation_panel',
-         locals: { agent_relation: @new_agent_relation,
-                   context: :new }
+         locals: { agent_relation: @new_agent_relation }
 = render partial: 'admin/agent_relations/related_agent_panel',
          locals: { agent: @agent,
-                   agent_relation: @new_agent_relation,
-                   context: :new }
+                   agent_relation: @new_agent_relation }
 = render partial: 'admin/agent_relations/relating_agent_panel',
          locals: { related_agent: @agent,
-                   agent_relation: @new_agent_relation,
-                   context: :new }
+                   agent_relation: @new_agent_relation }
 = render partial: 'edit_modal'

@@ -45,8 +45,7 @@ module Admin
     def edit
       item_set = ItemSet.find(params[:id])
       render partial: 'form', locals: { collection: item_set.collection,
-                                        item_set: item_set,
-                                        context: :edit }
+                                        item_set: item_set }
     end
 
     ##
@@ -75,8 +74,7 @@ module Admin
 
       new_item_set = ItemSet.new
       render partial: 'form', locals: { collection: collection,
-                                        item_set: new_item_set,
-                                        context: :new }
+                                        item_set: new_item_set }
     end
 
     ##

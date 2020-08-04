@@ -1,6 +1,5 @@
 -# @param agent [Agent]
 -# @param agent_relation [AgentRelation]
--# @param context [Symbol] :new or :edit
 -# @param show_relation_types [Boolean]
 
 = form_for([:admin, agent], remote: true) do |f|
@@ -11,7 +10,7 @@
     = f.text_field :name, class: 'form-control'
   .form-group
     = f.label 'uris', 'URIs'
-    - if context == :edit
+    - unless f.object.new_record?
       %span.help.text-danger
         %i.fas.fa-exclamation-triangle
         Changing URIs may break entity relationships.
@@ -53,5 +52,5 @@
   .clearfix
     .float-right
       %button.btn.btn-light{"data-dismiss": "modal", type: "button"} Cancel
-      = f.submit(context == :new ? 'Create Agent' : 'Edit Agent',
+      = f.submit(f.object.new_record? ? 'Create Agent' : 'Edit Agent',
                  class: 'btn btn-primary')

@@ -1,5 +1,4 @@
 -# @param type [AgentRelationType]
--# @param context [Symbol] :new or :edit
 
 = form_for([:admin, type], remote: true) do |f|
   .dl-error-messages
@@ -16,5 +15,5 @@
   .clearfix
     .float-right
       %button.btn.btn-light{"data-dismiss": "modal", type: "button"} Cancel
-      = f.submit(context == :new ? 'Create Relation Type' : 'Edit Relation Type',
+      = f.submit(f.object.new_record? ? 'Create Relation Type' : 'Edit Relation Type',
                  class: 'btn btn-primary')

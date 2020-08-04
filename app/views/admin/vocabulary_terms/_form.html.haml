@@ -11,5 +11,5 @@
   .clearfix
     .float-right
       %button.btn.btn-light{"data-dismiss": "modal", type: "button"} Cancel
-      = f.submit(context == :new ? 'Create Term' : 'Edit Term',
+      = f.submit(f.object.new_record? ? 'Create Term' : 'Edit Term',
                  class: 'btn btn-primary')

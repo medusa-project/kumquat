@@ -3,7 +3,6 @@
 -# Accepts the following locals:
 -#
 -# agent [Agent]
--# context [Symbol] :new or :edit
 
 #dl-add-agent-modal.modal.fade{"aria-labelledby": "dl-add-agent-modal-label",
                                role: "dialog",
@@ -17,4 +16,4 @@
                       type: "button"}
           %span{"aria-hidden": "true"} ×
       .modal-body
-        = render partial: 'form', locals: { agent: agent, context: context }
+        = render partial: 'form', locals: { agent: agent }

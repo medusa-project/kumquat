@@ -2,7 +2,6 @@
 -#
 -# agent [Agent]
 -# agent_relation [AgentRelation]
--# context [Symbol] :new or :edit
 
 #dl-relating-agent-modal.modal.fade{"aria-labelledby": "dl-relating-agent-modal-label",
                                     role: "dialog",
@@ -18,5 +17,4 @@
       .modal-body
         = render partial: 'admin/agent_relations/relating_agent_form',
                  locals: { related_agent: related_agent,
-                           agent_relation: agent_relation,
-                           context: context }
+                           agent_relation: agent_relation }

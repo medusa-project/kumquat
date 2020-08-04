@@ -1,5 +1,4 @@
 -# @param agent_rule [AgentRule]
--# @param context [Symbol] :new or :edit
 
 = form_for([:admin, agent_rule], remote: true) do |f|
   .dl-error-messages
@@ -13,5 +12,5 @@
   .clearfix
     .float-right
       %button.btn.btn-light{"data-dismiss": "modal", type: "button"} Cancel
-      = f.submit(context == :new ? 'Create Agent Rule' : 'Edit Agent Rule',
+      = f.submit(f.object.new_record? ? 'Create Agent Rule' : 'Edit Agent Rule',
                  class: 'btn btn-primary')

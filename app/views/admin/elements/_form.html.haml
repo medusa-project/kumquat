@@ -1,12 +1,11 @@
 -# @param element [Element]
--# @param context [Symbol] :new or :edit
 
 = form_for([:admin, element], remote: true) do |f|
   .dl-error-messages
     -# populated via ajax by shared/_validation_messages.js.erb
   .form-group
     = f.label :name
-    - if context == :new
+    - if f.object.new_record?
       = f.text_field :name, class: 'form-control'
     - else
       %br/
@@ -17,5 +16,5 @@
   .clearfix
     .float-right
       %button.btn.btn-light{"data-dismiss": "modal", type: "button"} Cancel
-      = f.submit(context == :new ? 'Create Element' : 'Edit Element',
+      = f.submit(f.object.new_record? ? 'Create Element' : 'Edit Element',
                  class: 'btn btn-primary')

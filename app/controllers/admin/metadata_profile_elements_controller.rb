@@ -47,8 +47,7 @@ module Admin
 
       render partial: 'admin/metadata_profile_elements/form',
              locals: { element: element,
-                       metadata_profile: profile,
-                       context: :edit }
+                       metadata_profile: profile }
     end
 
     ##

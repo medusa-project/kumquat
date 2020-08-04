@@ -1,7 +1,6 @@
 -# Form for editing the owning side of an AgentRelation.
 -#
 -# @param agent_relation [AgentRelation]
--# @param context [Symbol] :new or :edit
 
 = form_for([:admin, agent_relation], remote: true) do |f|
   .dl-error-messages
@@ -32,5 +31,5 @@
   .clearfix
     .float-right
       %button.btn.btn-light{"data-dismiss": "modal", type: "button"} Cancel
-      = f.submit(context == :new ? 'Create Relationship' : 'Edit Relationship',
+      = f.submit(f.object.new_record? ? 'Create Relationship' : 'Edit Relationship',
                  class: 'btn btn-primary')

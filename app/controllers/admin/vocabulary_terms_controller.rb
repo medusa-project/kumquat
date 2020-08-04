@@ -44,8 +44,7 @@ module Admin
     def edit
       term = VocabularyTerm.find(params[:id])
       render partial: 'admin/vocabulary_terms/form',
-             locals: { vocabulary_term: term,
-                       context: :edit }
+             locals: { vocabulary_term: term }
     end
 
     ##
