@@ -442,12 +442,14 @@ module ItemsHelper
     end
 
     # Add a synthetic "collection" element.
-    collection_title = item.collection&.title
-    if collection_title
-      html << '<dt>Collection</dt>'
-      html << '<dd>'
-      html <<   link_to(collection_title, item.collection)
-      html << '</dd>'
+    unless item.restricted
+      collection_title = item.collection&.title
+      if collection_title
+        html << '<dt>Collection</dt>'
+        html << '<dd>'
+        html <<   link_to(collection_title, item.collection)
+        html << '</dd>'
+      end
     end
 
     html << '</dl>'
@@ -494,14 +496,16 @@ module ItemsHelper
     end
 
     # Add a synthetic "collection" element.
-    collection_title = item.collection&.title
-    if collection_title
-      html << '<tr>'
-      html <<   '<td>Collection</td>'
-      html <<   '<td>'
-      html <<     link_to(collection_title, item.collection)
-      html <<   '</td>'
-      html << '</tr>'
+    unless item.restricted
+      collection_title = item.collection&.title
+      if collection_title
+        html << '<tr>'
+        html <<   '<td>Collection</td>'
+        html <<   '<td>'
+        html <<     link_to(collection_title, item.collection)
+        html <<   '</td>'
+        html << '</tr>'
+      end
     end
 
     html << '</table>'
