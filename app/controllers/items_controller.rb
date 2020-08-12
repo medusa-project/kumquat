@@ -599,7 +599,7 @@ class ItemsController < WebsiteController
   end
 
   def check_publicly_accessible
-    raise UnpublishedError unless @item.publicly_accessible?
+    raise UnpublishedError if !@item.publicly_accessible? && !@item.restricted
   end
 
   ##
