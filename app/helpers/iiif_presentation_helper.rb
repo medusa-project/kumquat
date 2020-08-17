@@ -73,10 +73,18 @@ module IiifPresentationHelper
   def iiif_canvases_for(item)
     # Directory and 3D items are not viewable, and composite and supplement
     # items are included in the annotation list instead.
-    result = item.items.where.not(variant: [Item::Variants::COMPOSITE,
-                                            Item::Variants::DIRECTORY,
-                                            Item::Variants::SUPPLEMENT,
-                                            Item::Variants::THREE_D_MODEL])
+    exclude_variants = [Item::Variants::COMPOSITE,
+                        Item::Variants::DIRECTORY,
+                        Item::Variants::SUPPLEMENT,
+                        Item::Variants::THREE_D_MODEL]
+    # Restricted items aren't indexed, so have to be retrieved from the
+    # database.
+    if item.restricted
+      result = item.items.where.not(variant: exclude_variants)
+    else
+      result = item.finder.exclude_variants(*exclude_variants).to_a
+    end
+
     if result.count > 0
       canvases = result.map { |child| iiif_canvas_for(child, true) }
     else
