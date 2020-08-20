@@ -171,7 +171,8 @@ class OaiPmhController < ApplicationController
 
   def do_list_sets
     @results = Collection.where(public_in_medusa: true,
-                                published_in_dls: true).order(:repository_id)
+                                published_in_dls: true,
+                                restricted: false).order(:repository_id)
     case @endpoint
     when Endpoint::IDHH
       @results = @results.where(harvestable_by_idhh: true)
