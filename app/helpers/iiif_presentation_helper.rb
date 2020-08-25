@@ -80,7 +80,7 @@ module IiifPresentationHelper
     # Restricted items aren't indexed, so have to be retrieved from the
     # database.
     if item.restricted
-      result = item.items.where.not(variant: exclude_variants)
+      result = item.items.where.not(variant: exclude_variants).order(:page_number, :subpage_number)
     else
       result = item.finder.exclude_variants(*exclude_variants).to_a
     end
