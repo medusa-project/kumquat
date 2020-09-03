@@ -52,6 +52,8 @@ var PTAdminItemSetView = function() {
                 $(this).html('<i class="far fa-minus-square"></i> Uncheck All');
             }
         });
+
+        Application.initThumbnails();
     };
 
 };

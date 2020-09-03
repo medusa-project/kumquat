@@ -103,11 +103,17 @@ div.alert ul {
 }
 
 .dl-results {
-  input[type=checkbox] {
-    margin-right: 1em;
+  .dl-checkbox-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 180px;
+    padding-right: 1em;
   }
   .dl-thumbnail-container {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     width: 190px;
