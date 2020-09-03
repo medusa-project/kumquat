@@ -715,7 +715,14 @@ class Item < ApplicationRecord
         if self.variant == Variants::SUPPLEMENT
           bin = self.binaries.first
         elsif self.is_compound?
-          first_child = self.finder.limit(1).to_a.first
+          # Restricted items aren't indexed, so we have to do this differently.
+          # (In hindsight they probably should have been designed to be indexed)
+          if self.restricted
+            first_child = self.items.order(:page_number, :subpage_number).
+                limit(1).first
+          else
+            first_child = self.finder.limit(1).to_a.first
+          end
           # This should always be true, but just to make sure we prevent a
           # circular reference...
           if first_child and first_child.repository_id != self.repository_id

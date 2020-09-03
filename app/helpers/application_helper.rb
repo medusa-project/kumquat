@@ -129,11 +129,15 @@ module ApplicationHelper
     entities.each do |entity|
       html << '<li class="media my-4">'
 
+      # Checkboxes
+      if options[:show_checkboxes]
+        html << '<div class="dl-checkbox-container">'
+        html <<   check_box_tag('dl-selected-items[]', entity.repository_id)
+        html << '</div>'
+      end
+
       # Thumbnail area
       html <<   '<div class="dl-thumbnail-container">'
-      if options[:show_checkboxes]
-        html <<   check_box_tag('dl-selected-items[]', entity.repository_id)
-      end
 
       if options[:link_to_admin] and entity.kind_of?(Item)
         link_target = admin_collection_item_path(entity.collection, entity)

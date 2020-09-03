@@ -37,7 +37,7 @@ class WebsiteController < ApplicationController
       username = current_user&.username
       struct   = model.allowed_netids&.find{ |h| h[:netid] == username }
       raise AuthorizationError unless username.present? &&
-          struct && Time.at(struct[:expires]) > Time.now
+          struct && Time.at(struct[:expires].to_i) > Time.now
     elsif model.kind_of?(Collection) && model.restricted
       raise AuthorizationError
     end
