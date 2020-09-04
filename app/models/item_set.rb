@@ -79,6 +79,7 @@ class ItemSet < ActiveRecord::Base
               item_set(self).
               aggregations(false).
               include_unpublished(true).
+              include_restricted(true).
               search_children(false).
               include_variants(*Item::Variants::FILE).
               limit(0).
@@ -88,6 +89,7 @@ class ItemSet < ActiveRecord::Base
               item_set(self).
               aggregations(false).
               include_unpublished(true).
+              include_restricted(true).
               search_children(false).
               limit(0).
               count

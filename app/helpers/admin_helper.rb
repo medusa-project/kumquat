@@ -196,7 +196,10 @@ module AdminHelper
         (item.virtual_filename || item.title) : item.title
     html << "<li><strong>#{icon_for(item)} #{title}</strong>"
     if include_subitems
-      subitems = item.finder.include_unpublished(true).to_a
+      subitems = item.finder.
+          include_unpublished(true).
+          include_restricted(true).
+          to_a
       if subitems.any?
         html << '<ul>'
         subitems.each do |child|

@@ -15,6 +15,7 @@ class EntityFinder < AbstractFinder
     @bypass_authorization  = false
     @exclude_item_variants = []
     @include_types         = %w(Agent Collection Item)
+    @include_restricted    = false
     @include_unpublished   = false
     @last_modified_after   = nil
     @last_modified_before  = nil
@@ -37,6 +38,15 @@ class EntityFinder < AbstractFinder
   #
   def exclude_item_variants(*variants)
     @exclude_item_variants = variants
+    self
+  end
+
+  ##
+  # @param bool [Boolean]
+  # @return [self]
+  #
+  def include_restricted(bool)
+    @include_restricted = bool
     self
   end
 
@@ -175,6 +185,14 @@ class EntityFinder < AbstractFinder
                 j.child! do
                   j.term do
                     j.set! Item::IndexFields::DESCRIBED, true
+                  end
+                end
+              end
+
+              unless @include_restricted
+                j.child! do
+                  j.term do
+                    j.set! ElasticsearchIndex::StandardFields::RESTRICTED, false
                   end
                 end
               end

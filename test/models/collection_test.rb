@@ -58,12 +58,18 @@ class CollectionTest < ActiveSupport::TestCase
   test 'reindex_all() reindexes all collections' do
     setup_elasticsearch
 
-    assert_equal 0, CollectionFinder.new.include_unpublished(true).count
+    assert_equal 0, CollectionFinder.new.
+        include_unpublished(true).
+        include_restricted(true).
+        count
 
     Collection.reindex_all
     refresh_elasticsearch
 
-    actual = CollectionFinder.new.include_unpublished(true).count
+    actual = CollectionFinder.new.
+        include_unpublished(true).
+        include_restricted(true).
+        count
     assert actual > 0
     assert_equal Collection.count, actual
   end
@@ -166,6 +172,7 @@ class CollectionTest < ActiveSupport::TestCase
     refresh_elasticsearch
     assert_equal 4, ItemFinder.new.
         include_unpublished(true).
+        include_restricted(true).
         include_children_in_results(true).
         collection(@collection).
         count
@@ -175,6 +182,7 @@ class CollectionTest < ActiveSupport::TestCase
     refresh_elasticsearch
     assert_equal 3, ItemFinder.new.
         include_unpublished(true).
+        include_restricted(true).
         include_children_in_results(true).
         collection(@collection).count
   end
@@ -503,6 +511,7 @@ class CollectionTest < ActiveSupport::TestCase
     assert_equal 0, ItemFinder.new.
         collection(@collection).
         include_unpublished(true).
+        include_restricted(true).
         include_children_in_results(true).
         count
 
@@ -512,6 +521,7 @@ class CollectionTest < ActiveSupport::TestCase
     assert_equal 4, ItemFinder.new.
         collection(@collection).
         include_unpublished(true).
+        include_restricted(true).
         include_children_in_results(true).
         count
   end

@@ -8,17 +8,18 @@ class ItemFinder < AbstractFinder
 
   def initialize
     super
-    @collection = nil
-    @exclude_variants = []
+    @collection                  = nil
+    @exclude_variants            = []
     @include_children_in_results = false
-    @include_unpublished = false
-    @include_variants = []
-    @item_set = nil
-    @only_described = false
-    @parent_item = nil
-    @search_children = false
+    @include_restricted          = false
+    @include_unpublished         = false
+    @include_variants            = []
+    @item_set                    = nil
+    @only_described              = false
+    @parent_item                 = nil
+    @search_children             = false
 
-    @result_byte_size = 0
+    @result_byte_size            = 0
   end
 
   ##
@@ -48,6 +49,15 @@ class ItemFinder < AbstractFinder
   #
   def include_children_in_results(bool)
     @include_children_in_results = bool
+    self
+  end
+
+  ##
+  # @param bool [Boolean]
+  # @return [ItemFinder] self
+  #
+  def include_restricted(bool)
+    @include_restricted = bool
     self
   end
 
@@ -159,12 +169,12 @@ class ItemFinder < AbstractFinder
       agg = @response_json['aggregations']&.
           find{ |a| a[0] == element.indexed_keyword_field }
       if agg
-        facet = Facet.new
-        facet.name = element.label
+        facet       = Facet.new
+        facet.name  = element.label
         facet.field = element.indexed_keyword_field
         agg[1]['buckets'].each do |bucket|
           term = FacetTerm.new
-          term.name = bucket['key'].to_s
+          term.name  = bucket['key'].to_s
           term.label = bucket['key'].to_s
           term.count = bucket['doc_count']
           term.facet = facet
@@ -283,6 +293,14 @@ class ItemFinder < AbstractFinder
               j.child! do
                 j.term do
                   j.set! Item::IndexFields::DESCRIBED, true
+                end
+              end
+            end
+
+            unless @include_restricted
+              j.child! do
+                j.term do
+                  j.set! Item::IndexFields::RESTRICTED, false
                 end
               end
             end

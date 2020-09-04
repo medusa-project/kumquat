@@ -56,6 +56,7 @@ module Admin
       finder = ItemFinder.new.
           aggregations(false).
           include_unpublished(true).
+          include_restricted(true).
           filter(Item::IndexFields::ITEM_SETS, @item_set.id).
           order(Item::IndexFields::TITLE)
       @items = finder.to_a
@@ -131,6 +132,7 @@ module Admin
       finder = ItemFinder.new.
           aggregations(false).
           include_unpublished(true).
+          include_restricted(true).
           filter(Item::IndexFields::ITEM_SETS, @item_set.id).
           order(Item::IndexFields::TITLE).
           start(@start).

@@ -35,6 +35,7 @@ class ElasticsearchIndex
     LAST_INDEXED        = 'sys_d_last_indexed'
     LAST_MODIFIED       = 'sys_d_last_modified'
     PUBLICLY_ACCESSIBLE = 'sys_b_publicly_accessible'
+    RESTRICTED          = 'sys_k_restricted'
     SEARCH_ALL          = 'search_all'
   end
 

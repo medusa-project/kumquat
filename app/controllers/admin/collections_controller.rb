@@ -34,6 +34,7 @@ module Admin
           aggregations(false).
           query_all(params[:q]).
           include_unpublished(true).
+          include_restricted(true).
           order(Collection::IndexFields::TITLE).
           start(@start).
           limit(@limit)

@@ -15,6 +15,7 @@ module Api
           aggregations(false).
           search_children(true).
           include_unpublished(true).
+          include_restricted(true).
           facet_filters(params[:fq]).
           query_all(params[:q]).
           order(Collection::IndexFields::TITLE).

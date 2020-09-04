@@ -90,9 +90,9 @@
 # * `resource_types`           Serialized array of resource types contained
 #                              within the collection, copied from Medusa.
 # * `restricted`               Indicates a collection for which all items are
-#                              "private"--not indexed or discoverable in any
-#                              way except by sharing a link that is restricted
-#                              to a particular NetID. (DLD-337)
+#                              "private"--not discoverable in any way except by
+#                              sharing a link that is restricted to a
+#                              particular NetID. (DLD-337)
 # * `rights_statement`         Rights statement text.
 #                              TODO: store this in an accessRights CollectionElement
 # * `rightsstatements_org_uri` URI of a RightsStatements.org statement.
@@ -144,6 +144,7 @@ class Collection < ApplicationRecord
     REPRESENTATIVE_IMAGE               = 'sys_k_representative_image'
     REPRESENTATIVE_ITEM                = 'sys_k_representative_item'
     RESOURCE_TYPES                     = 'sys_k_resource_types'
+    RESTRICTED                         = ElasticsearchIndex::StandardFields::RESTRICTED
     SEARCH_ALL                         = ElasticsearchIndex::StandardFields::SEARCH_ALL
     TITLE                              = CollectionElement.new(name: 'title').indexed_keyword_field
   end
@@ -230,6 +231,7 @@ class Collection < ApplicationRecord
     # Get the document count.
     finder = CollectionFinder.new.
         aggregations(false).
+        include_restricted(true).
         include_unpublished(true).
         limit(0)
     count = finder.count
@@ -356,16 +358,16 @@ class Collection < ApplicationRecord
   ##
   # @return [Hash] Indexable JSON representation of the instance.
   #
-  def as_indexed_json(options = {})
+  def as_indexed_json
     doc = {}
-    doc[IndexFields::ACCESS_SYSTEMS] = self.access_systems
-    doc[IndexFields::ACCESS_URL] = self.access_url
-    doc[IndexFields::ALLOWED_HOST_GROUPS] = self.allowed_host_groups.pluck(:key)
+    doc[IndexFields::ACCESS_SYSTEMS]           = self.access_systems
+    doc[IndexFields::ACCESS_URL]               = self.access_url
+    doc[IndexFields::ALLOWED_HOST_GROUPS]      = self.allowed_host_groups.pluck(:key)
     doc[IndexFields::ALLOWED_HOST_GROUP_COUNT] =
         doc[IndexFields::ALLOWED_HOST_GROUPS].length
-    doc[IndexFields::CLASS] = self.class.to_s
-    doc[IndexFields::DENIED_HOST_GROUPS] = self.denied_host_groups.pluck(:key)
-    doc[IndexFields::DENIED_HOST_GROUP_COUNT] =
+    doc[IndexFields::CLASS]                    = self.class.to_s
+    doc[IndexFields::DENIED_HOST_GROUPS]       = self.denied_host_groups.pluck(:key)
+    doc[IndexFields::DENIED_HOST_GROUP_COUNT]  =
         doc[IndexFields::DENIED_HOST_GROUPS].length
     doc[IndexFields::EFFECTIVE_ALLOWED_HOST_GROUPS] =
         doc[IndexFields::ALLOWED_HOST_GROUPS]
@@ -375,22 +377,23 @@ class Collection < ApplicationRecord
         doc[IndexFields::DENIED_HOST_GROUPS]
     doc[IndexFields::EFFECTIVE_DENIED_HOST_GROUP_COUNT] =
         doc[IndexFields::DENIED_HOST_GROUP_COUNT]
-    doc[IndexFields::EXTERNAL_ID] = self.external_id
-    doc[IndexFields::HARVESTABLE] = self.harvestable
-    doc[IndexFields::HARVESTABLE_BY_IDHH] = self.harvestable_by_idhh
+    doc[IndexFields::EXTERNAL_ID]          = self.external_id
+    doc[IndexFields::HARVESTABLE]          = self.harvestable
+    doc[IndexFields::HARVESTABLE_BY_IDHH]  = self.harvestable_by_idhh
     doc[IndexFields::HARVESTABLE_BY_PRIMO] = self.harvestable_by_primo
-    doc[IndexFields::LAST_INDEXED] = Time.now.utc.iso8601
-    doc[IndexFields::LAST_MODIFIED] = self.updated_at.utc.iso8601
-    doc[IndexFields::NATIVE] = self.package_profile_id.present?
-    doc[IndexFields::PARENT_COLLECTIONS] =
+    doc[IndexFields::LAST_INDEXED]         = Time.now.utc.iso8601
+    doc[IndexFields::LAST_MODIFIED]        = self.updated_at.utc.iso8601
+    doc[IndexFields::NATIVE]               = self.package_profile_id.present?
+    doc[IndexFields::PARENT_COLLECTIONS]   =
         self.parent_collection_joins.pluck(:parent_repository_id)
-    doc[IndexFields::PUBLIC_IN_MEDUSA] = self.public_in_medusa
-    doc[IndexFields::PUBLICLY_ACCESSIBLE] = self.publicly_accessible?
-    doc[IndexFields::PUBLISHED_IN_DLS] = self.published_in_dls
-    doc[IndexFields::REPOSITORY_ID] = self.repository_id
-    doc[IndexFields::REPOSITORY_TITLE] = self.medusa_repository&.title
-    doc[IndexFields::REPRESENTATIVE_ITEM] = self.representative_item_id
-    doc[IndexFields::RESOURCE_TYPES] = self.resource_types
+    doc[IndexFields::PUBLIC_IN_MEDUSA]     = self.public_in_medusa
+    doc[IndexFields::PUBLICLY_ACCESSIBLE]  = self.publicly_accessible?
+    doc[IndexFields::PUBLISHED_IN_DLS]     = self.published_in_dls
+    doc[IndexFields::REPOSITORY_ID]        = self.repository_id
+    doc[IndexFields::REPOSITORY_TITLE]     = self.medusa_repository&.title
+    doc[IndexFields::REPRESENTATIVE_ITEM]  = self.representative_item_id
+    doc[IndexFields::RESOURCE_TYPES]       = self.resource_types
+    doc[IndexFields::RESTRICTED]           = self.restricted
 
     self.elements.each do |element|
       # Skip non-indexable elements. Elements are considered indexable if they
@@ -631,6 +634,7 @@ class Collection < ApplicationRecord
           aggregations(false).
           search_children(true).
           include_unpublished(true).
+          include_restricted(true).
           order(false).
           limit(0).
           count
@@ -651,6 +655,7 @@ class Collection < ApplicationRecord
           collection(self).
           aggregations(false).
           include_unpublished(true).
+          include_restricted(true).
           order(false).
           limit(0)
       case self.package_profile
@@ -753,11 +758,7 @@ class Collection < ApplicationRecord
   # @return [void]
   #
   def reindex(index = nil)
-    if self.restricted
-      delete_from_elasticsearch rescue nil
-    else
-      index_in_elasticsearch(index)
-    end
+    index_in_elasticsearch(index)
   end
 
   def reindex_items

@@ -147,6 +147,7 @@ module Admin
       finder = finder.
           aggregations(false).
           include_unpublished(true).
+          include_restricted(true).
           include_children_in_results(true).
           order(Item::IndexFields::STRUCTURAL_SORT).
           start(@start).
@@ -455,6 +456,7 @@ module Admin
           query(params[:df], params[:q]).
           search_children(false).
           include_unpublished(true).
+          include_restricted(true).
           include_children_in_results(!collection.free_form?).
           facet_filters(params[:fq]).
           aggregations(false)
@@ -467,6 +469,7 @@ module Admin
           query(params[:df], params[:q]).
           search_children(false).
           include_unpublished(true).
+          include_restricted(true).
           exclude_variants(*Item::Variants::non_filesystem_variants).
           facet_filters(params[:fq]).
           order(params[:sort]).

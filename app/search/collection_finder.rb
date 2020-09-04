@@ -8,6 +8,7 @@ class CollectionFinder < AbstractFinder
 
   def initialize
     super
+    @include_restricted  = false
     @include_unpublished = false
     @parent_collection   = nil
     @search_children     = false
@@ -19,6 +20,15 @@ class CollectionFinder < AbstractFinder
   #
   def search_children(bool)
     @search_children = bool
+    self
+  end
+
+  ##
+  # @param bool [Boolean]
+  # @return [self]
+  #
+  def include_restricted(bool)
+    @include_restricted = bool
     self
   end
 
@@ -87,7 +97,7 @@ class CollectionFinder < AbstractFinder
       facet.field = agg[0]
       agg[1]['buckets'].each do |bucket|
         term = FacetTerm.new
-        term.name = bucket['key'].to_s
+        term.name  = bucket['key'].to_s
         term.label = bucket['key'].to_s
         term.count = bucket['doc_count']
         term.facet = facet
@@ -154,6 +164,14 @@ class CollectionFinder < AbstractFinder
                 j.term do
                   j.set! Collection::IndexFields::PARENT_COLLECTIONS,
                          @parent_collection.repository_id
+                end
+              end
+            end
+
+            unless @include_restricted
+              j.child! do
+                j.term do
+                  j.set! Collection::IndexFields::RESTRICTED, false
                 end
               end
             end

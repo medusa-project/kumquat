@@ -153,6 +153,7 @@ class Item < ApplicationRecord
     REPOSITORY_ID                      = 'sys_k_repository_id'
     REPRESENTATIVE_FILENAME            = 'sys_k_representative_filename'
     REPRESENTATIVE_ITEM                = 'sys_k_representative_item_id'
+    RESTRICTED                         = ElasticsearchIndex::StandardFields::RESTRICTED
     SEARCH_ALL                         = ElasticsearchIndex::StandardFields::SEARCH_ALL
     # Concatenation of various compound object page components or path
     # components (see as_indexed_json()) used for sorting items grouped
@@ -313,6 +314,7 @@ class Item < ApplicationRecord
     finder = ItemFinder.new.
         aggregations(false).
         include_unpublished(true).
+        include_restricted(true).
         search_children(true).
         limit(0)
     count = finder.count
@@ -344,6 +346,7 @@ class Item < ApplicationRecord
         include_variants(*Variants::FILE).
         aggregations(false).
         include_unpublished(true).
+        include_restricted(true).
         search_children(true).
         limit(0).
         count
@@ -358,6 +361,7 @@ class Item < ApplicationRecord
         aggregations(false).
         search_children(true).
         include_unpublished(true).
+        include_restricted(true).
         limit(0).
         count
   end
@@ -370,6 +374,7 @@ class Item < ApplicationRecord
     num_free_form_files + ItemFinder.new.
         aggregations(false).
         include_unpublished(true).
+        include_restricted(true).
         search_children(false).
         exclude_variants(Variants::FILE, Variants::DIRECTORY).
         limit(0).
@@ -518,14 +523,13 @@ class Item < ApplicationRecord
   ##
   # @return [Hash] Indexable JSON representation of the instance.
   #
-  def as_indexed_json(options = {})
+  def as_indexed_json
     doc = {}
-    doc[IndexFields::CLASS] = self.class.to_s
+    doc[IndexFields::CLASS]      = self.class.to_s
     doc[IndexFields::COLLECTION] = self.collection_repository_id
     # Elasticsearch date fields don't support >4-digit years.
-    doc[IndexFields::DATE] = self.date.utc.iso8601 if self.date and self.date.year < 10000
-    doc[IndexFields::DESCRIBED] = self.described?
-
+    doc[IndexFields::DATE]       = self.date.utc.iso8601 if self.date and self.date.year < 10000
+    doc[IndexFields::DESCRIBED]  = self.described?
     doc[IndexFields::EFFECTIVE_ALLOWED_HOST_GROUPS] =
         self.effective_allowed_host_groups.pluck(:key)
     doc[IndexFields::EFFECTIVE_ALLOWED_HOST_GROUP_COUNT] =
@@ -534,27 +538,28 @@ class Item < ApplicationRecord
         self.effective_denied_host_groups.pluck(:key)
     doc[IndexFields::EFFECTIVE_DENIED_HOST_GROUP_COUNT] =
         doc[IndexFields::EFFECTIVE_DENIED_HOST_GROUPS].length
-    doc[IndexFields::ITEM_SETS] = self.item_sets.pluck(:id)
-    doc[IndexFields::LAST_INDEXED] = Time.now.utc.iso8601
+    doc[IndexFields::ITEM_SETS]     = self.item_sets.pluck(:id)
+    doc[IndexFields::LAST_INDEXED]  = Time.now.utc.iso8601
     doc[IndexFields::LAST_MODIFIED] = self.updated_at.utc.iso8601
-    if self.latitude and self.longitude
+    if self.latitude && self.longitude
       doc[IndexFields::LAT_LONG] = { lon: self.longitude, lat: self.latitude }
     end
-    doc[IndexFields::OBJECT_REPOSITORY_ID] = self.collection&.free_form? ?
-                                                 self.repository_id :
-                                                 (self.parent_repository_id || self.repository_id)
-    doc[IndexFields::PAGE_NUMBER] = self.page_number
-    doc[IndexFields::PARENT_ITEM] = self.parent_repository_id
-    doc[IndexFields::PRIMARY_MEDIA_CATEGORY] = self.primary_media_category
-    doc[IndexFields::PUBLICLY_ACCESSIBLE] = self.publicly_accessible?
-    doc[IndexFields::PUBLISHED] = self.published
-    doc[IndexFields::REPOSITORY_ID] = self.repository_id
+    doc[IndexFields::OBJECT_REPOSITORY_ID]    = self.collection&.free_form? ?
+                                                    self.repository_id :
+                                                    (self.parent_repository_id || self.repository_id)
+    doc[IndexFields::PAGE_NUMBER]             = self.page_number
+    doc[IndexFields::PARENT_ITEM]             = self.parent_repository_id
+    doc[IndexFields::PRIMARY_MEDIA_CATEGORY]  = self.primary_media_category
+    doc[IndexFields::PUBLICLY_ACCESSIBLE]     = self.publicly_accessible?
+    doc[IndexFields::PUBLISHED]               = self.published
+    doc[IndexFields::REPOSITORY_ID]           = self.repository_id
     doc[IndexFields::REPRESENTATIVE_FILENAME] = self.representative_filename
-    doc[IndexFields::REPRESENTATIVE_ITEM] = self.representative_item_repository_id
-    doc[IndexFields::STRUCTURAL_SORT] = structural_sort_key
-    doc[IndexFields::SUBPAGE_NUMBER] = self.subpage_number
-    doc[IndexFields::TOTAL_BYTE_SIZE] = self.binaries.pluck(:byte_size).sum
-    doc[IndexFields::VARIANT] = self.variant
+    doc[IndexFields::REPRESENTATIVE_ITEM]     = self.representative_item_repository_id
+    doc[IndexFields::RESTRICTED]              = self.restricted
+    doc[IndexFields::STRUCTURAL_SORT]         = structural_sort_key
+    doc[IndexFields::SUBPAGE_NUMBER]          = self.subpage_number
+    doc[IndexFields::TOTAL_BYTE_SIZE]         = self.binaries.pluck(:byte_size).sum
+    doc[IndexFields::VARIANT]                 = self.variant
 
     # Index metadata elements into dynamic fields.
     self.elements.select{ |e| e.value.present? }.each do |element|
@@ -612,8 +617,7 @@ class Item < ApplicationRecord
     struct['binaries'] = []
     self.binaries.each { |b| struct['binaries'] << b.as_json.except(:item_id) }
     # Add ItemElements
-    struct['elements'] = []
-    self.elements.each { |e| struct['elements'] << e.as_json }
+    struct['elements'] = self.elements.map(&:as_json)
     struct
   end
 
@@ -677,9 +681,9 @@ class Item < ApplicationRecord
   #
   def described?
     if self.collection&.free_form?
-      return (self.directory? or self.elements.select{ |e| e.name == 'title' }.any?)
+      (self.directory? || self.elements.select{ |e| e.name == 'title' }.any?)
     else
-      return self.elements.reject{ |e| e.name == 'title' }.any?
+      self.elements.reject{ |e| e.name == 'title' }.any?
     end
   end
 
@@ -715,14 +719,7 @@ class Item < ApplicationRecord
         if self.variant == Variants::SUPPLEMENT
           bin = self.binaries.first
         elsif self.is_compound?
-          # Restricted items aren't indexed, so we have to do this differently.
-          # (In hindsight they probably should have been designed to be indexed)
-          if self.restricted
-            first_child = self.items.order(:page_number, :subpage_number).
-                limit(1).first
-          else
-            first_child = self.finder.limit(1).to_a.first
-          end
+          first_child = self.finder.limit(1).to_a.first
           # This should always be true, but just to make sure we prevent a
           # circular reference...
           if first_child and first_child.repository_id != self.repository_id
@@ -829,14 +826,14 @@ class Item < ApplicationRecord
   #
   def effective_rightsstatements_org_statement
     # Use the statement assigned to the instance.
-    uri = self.elements.select{ |e| e.name == 'accessRights' and
+    uri = self.elements.select{ |e| e.name == 'accessRights' &&
         e.uri&.start_with?('http://rightsstatements.org') }.first&.uri
     rs = RightsStatement.for_uri(uri)
     # If not assigned, walk up the item tree to find a parent statement.
     unless rs
       p = self.parent
       while p
-        uri = p.elements.select{ |e| e.name == 'accessRights' and
+        uri = p.elements.select{ |e| e.name == 'accessRights' &&
             e.uri&.start_with?('http://rightsstatements.org') }.first&.uri
         rs = RightsStatement.for_uri(uri)
         break if rs
@@ -983,6 +980,7 @@ class Item < ApplicationRecord
         aggregations(false).
         include_children_in_results(true).
         search_children(true).
+        include_restricted(true).
         order(Item::IndexFields::STRUCTURAL_SORT)
   end
 
@@ -1095,11 +1093,7 @@ class Item < ApplicationRecord
   # @return [void]
   #
   def reindex(index = nil)
-    if self.restricted
-      delete_from_elasticsearch rescue nil
-    else
-      index_in_elasticsearch(index)
-    end
+    index_in_elasticsearch(index)
   end
 
   ##
