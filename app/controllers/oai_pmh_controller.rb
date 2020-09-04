@@ -256,7 +256,8 @@ class OaiPmhController < ApplicationController
             '= items.collection_repository_id').
         where('collections.public_in_medusa': true,
               'collections.published_in_dls': true,
-              published: true).
+              published: true,
+              allowed_netids: nil).
         where('collections.package_profile_id = ? OR items.parent_repository_id IS NULL',
               PackageProfile::FREE_FORM_PROFILE.id).
         where('items.variant IS NULL OR items.variant = \'\' OR items.variant = ?',
