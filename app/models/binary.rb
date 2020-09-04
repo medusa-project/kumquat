@@ -305,23 +305,19 @@ class Binary < ApplicationRecord
     end
     if self.media_type.blank? or self.media_type == DEFAULT_MEDIA_TYPE
       # Try to infer the media type from the file header.
-      begin
-        # First, check the Content-Length response header in order to find the
-        # end of the requestable range.
-        client = MedusaS3Client.instance
-        response = client.head_object(
+      # First, check the Content-Length response header in order to find the
+      # end of the requestable range.
+      client = MedusaS3Client.instance
+      response = client.head_object(
+          bucket: MedusaS3Client::BUCKET,
+          key: self.object_key)
+      end_pos = [20, response.content_length].min
+      if end_pos > 2
+        response = client.get_object(
             bucket: MedusaS3Client::BUCKET,
-            key: self.object_key)
-        end_pos = [20, response.content_length].min
-        if end_pos > 2
-          response = client.get_object(
-              bucket: MedusaS3Client::BUCKET,
-              key: self.object_key,
-              range: "bytes=0-#{end_pos}")
-          self.media_type = MimeMagic.by_magic(response.body)
-        end
-      rescue => e
-        raise IOError, e
+            key: self.object_key,
+            range: "bytes=0-#{end_pos}")
+        self.media_type = MimeMagic.by_magic(response.body)
       end
       # If that failed, fall back to inferring it from the filename extension.
       if self.media_type.blank? or self.media_type == DEFAULT_MEDIA_TYPE
@@ -440,8 +436,6 @@ class Binary < ApplicationRecord
             end
           end
         end
-      rescue => e
-        raise IOError, e
       ensure
         tempfile.close
         tempfile.unlink
@@ -479,11 +473,9 @@ class Binary < ApplicationRecord
             LOGGER.warn('read_duration(): %s', e)
           end
         end
-      rescue => e
-        raise IOError, e
       ensure
-        tempfile&.close
-        tempfile&.unlink
+        tempfile.close
+        tempfile.unlink
       end
     end
   end
@@ -513,11 +505,9 @@ class Binary < ApplicationRecord
       read_metadata_using_exiv2(tempfile.path)
 
       @metadata_read = true
-    rescue => e
-      raise IOError, e
     ensure
-      tempfile&.close
-      tempfile&.unlink
+      tempfile.close
+      tempfile.unlink
     end
   end
 
@@ -528,14 +518,10 @@ class Binary < ApplicationRecord
   # @raises [IOError] If the file does not exist.
   #
   def read_size
-    begin
-      response = MedusaS3Client.instance.head_object(
-          bucket: MedusaS3Client::BUCKET,
-          key: self.object_key)
-      self.byte_size = response.content_length
-    rescue => e
-      raise IOError, e
-    end
+    response = MedusaS3Client.instance.head_object(
+        bucket: MedusaS3Client::BUCKET,
+        key: self.object_key)
+    self.byte_size = response.content_length
   end
 
   def to_param
