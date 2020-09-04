@@ -9,8 +9,8 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
   # show() access control
 
   test 'show() allows access to non-expired restricted items by the correct NetID' do
-    sign_in_as(users(:admin))
-    @item.allowed_netids = [{ netid: 'admin',
+    sign_in_as(users(:normal))
+    @item.allowed_netids = [{ netid: 'normal',
                               expires: Time.now.to_i + 1.day.to_i }]
     @item.save!
 
@@ -18,9 +18,29 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_response :ok
   end
 
-  test 'show() restricts access to expired restricted items by the correct NetID' do
+  test 'show() allows access to non-expired restricted items by logged-in administrators' do
     sign_in_as(users(:admin))
-    @item.allowed_netids = [{ netid: 'admin',
+    @item.allowed_netids = [{ netid: 'normal',
+                              expires: Time.now.to_i + 1.day.to_i }]
+    @item.save!
+
+    get('/items/' + @item.repository_id)
+    assert_response :ok
+  end
+
+  test 'show() allows access to expired restricted items by logged-in administrators' do
+    sign_in_as(users(:admin))
+    @item.allowed_netids = [{ netid: 'normal',
+                              expires: Time.now.to_i - 1.day.to_i }]
+    @item.save!
+
+    get('/items/' + @item.repository_id)
+    assert_response :ok
+  end
+
+  test 'show() forbids access to expired restricted items by the correct NetID' do
+    sign_in_as(users(:normal))
+    @item.allowed_netids = [{ netid: 'normal',
                               expires: Time.now.to_i - 1.day.to_i }]
     @item.save!
 
@@ -28,8 +48,8 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_response :forbidden
   end
 
-  test 'show() restricts access to restricted items with an incorrect NetID' do
-    sign_in_as(users(:admin))
+  test 'show() forbids access to restricted items with an incorrect NetID' do
+    sign_in_as(users(:normal))
     @item.allowed_netids = [{ netid: 'user',
                               expires: Time.now.to_i + 1.day.to_i }]
     @item.save!

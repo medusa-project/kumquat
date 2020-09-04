@@ -32,9 +32,19 @@ class WebsiteController < ApplicationController
     end
   end
 
+  ##
+  # Access is allowed to a restricted entity only by:
+  #
+  # 1. Administrators
+  # 2. If the entity is an item, users with a NetID in the item's list of
+  #    allowed NetIDs
+  #
   def authorize_restricted(model)
-    if model.kind_of?(Item) && model.restricted # DLD-337
-      username = current_user&.username
+    user = current_user
+    if user&.medusa_admin?
+      # authorized
+    elsif model.kind_of?(Item) && model.restricted # DLD-337
+      username = user&.username
       struct   = model.allowed_netids&.find{ |h| h[:netid] == username }
       raise AuthorizationError unless username.present? &&
           struct && Time.at(struct[:expires].to_i) > Time.now

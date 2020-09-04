@@ -31,10 +31,24 @@ class CollectionsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test 'show() returns HTTP 403 for restricted collections' do
+  test 'show() returns HTTP 403 for restricted collections for not-logged-in users' do
     @collection.update!(restricted: true)
     get('/collections/' + @collection.repository_id)
     assert_response :forbidden
+  end
+
+  test 'show() returns HTTP 403 for restricted collections for logged-in users' do
+    sign_in_as(users(:normal))
+    @collection.update!(restricted: true)
+    get('/collections/' + @collection.repository_id)
+    assert_response :forbidden
+  end
+
+  test 'show() returns HTTP 200 for restricted collections for administrators' do
+    sign_in_as(users(:admin))
+    @collection.update!(restricted: true)
+    get('/collections/' + @collection.repository_id)
+    assert_response :ok
   end
 
   # show_contentdm
