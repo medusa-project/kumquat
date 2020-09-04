@@ -3,5 +3,13 @@
 require 'configuration'
 
 config = ::Configuration.instance
+opts   = { region: config.aws_region }
 
-Aws.config.update(region: config.aws_region)
+if Rails.env.development? || Rails.env.test?
+  # In these environments, credentials are drawn from the application
+  # configuration.
+  opts[:credentials] = Aws::Credentials.new(config.aws_access_key_id,
+                                            config.aws_secret_access_key)
+end
+
+Aws.config.update(opts)
