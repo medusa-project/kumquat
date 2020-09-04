@@ -3,7 +3,8 @@
 
 = admin_breadcrumb({ label: 'Home', url: admin_root_path },
                    { label: 'Collections', url: admin_collections_path },
-                   { label: @collection.title, url: admin_collection_path(@collection) })
+                   { label: @collection.title, url: admin_collection_path(@collection) },
+                   { label: 'Edit' })
 
 %h1
   Edit #{@collection.title}
