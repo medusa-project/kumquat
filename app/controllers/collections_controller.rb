@@ -4,8 +4,8 @@ class CollectionsController < WebsiteController
   PERMITTED_PARAMS = [:_, :fq, :id, :q, :utf8]
 
   before_action :load_collection, only: [:iiif_presentation, :show]
-  before_action :check_publicly_accessible, only: [:iiif_presentation, :show]
   before_action :authorize_collection, only: [:iiif_presentation, :show]
+  before_action :check_publicly_accessible, only: [:iiif_presentation, :show]
   before_action :enable_cors, only: :iiif_presentation
   before_action :set_sanitized_params, only: :show
 
