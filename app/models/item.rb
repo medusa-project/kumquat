@@ -568,7 +568,7 @@ class Item < ApplicationRecord
       # collection doesn't have a metadata profile.
       next unless (!self.collection&.metadata_profile or
           self.collection&.metadata_profile.elements.
-              select{ |mpe| mpe.name == element.name }.first&.indexed)
+              find{ |mpe| mpe.name == element.name }&.indexed)
 
       # ES will automatically create a one or more multi fields for this.
       # See: https://www.elastic.co/guide/en/elasticsearch/reference/0.90/mapping-multi-field-type.html
@@ -609,7 +609,7 @@ class Item < ApplicationRecord
   def as_json(options = {})
     struct = super(options)
     struct['start_date'] = self.start_date&.utc&.iso8601
-    struct['end_date'] = self.end_date&.utc&.iso8601
+    struct['end_date']   = self.end_date&.utc&.iso8601
     # Add children
     struct['children'] = []
     self.items.each { |it| struct['children'] << it.as_json.select{ |k, v| k == 'repository_id' } }
@@ -799,14 +799,12 @@ class Item < ApplicationRecord
   #
   def effective_rights_statement
     # Use the statement assigned to the instance.
-    rs = self.elements.select{ |e| e.name == 'rights' and e.value.present? }.
-        first&.value
+    rs = self.elements.find{ |e| e.name == 'rights' && e.value.present? }&.value
     # If not available, walk up the item tree to find a parent statement.
     if rs.blank?
       p = self.parent
       while p
-        rs = p.elements.select{ |e| e.name == 'rights' and e.value.present? }.
-            first&.value
+        rs = p.elements.find{ |e| e.name == 'rights' && e.value.present? }&.value
         break if rs.present?
         p = p.parent
       end
@@ -1300,7 +1298,7 @@ class Item < ApplicationRecord
         heading_parts = heading.to_s.split(':')
         element_label = heading_parts.last
         element_name  = self.collection.metadata_profile.elements.
-            select{ |e| e.label == element_label }.first&.name
+            find{ |e| e.label == element_label }&.name
 
         # Skip non-descriptive columns.
         next if NON_DESCRIPTIVE_TSV_COLUMNS.include?(element_label)
@@ -1337,8 +1335,8 @@ class Item < ApplicationRecord
   def virtual_filename
     bin = nil
     if self.binaries.any?
-      bin = self.binaries.select{ |b| b.master_type == Binary::MasterType::PRESERVATION }.first ||
-          self.binaries.select{ |b| b.master_type == Binary::MasterType::ACCESS }.first
+      bin = self.binaries.find{ |b| b.master_type == Binary::MasterType::PRESERVATION } ||
+          self.binaries.find{ |b| b.master_type == Binary::MasterType::ACCESS }
     end
     bin&.filename
   end
@@ -1360,7 +1358,7 @@ class Item < ApplicationRecord
   end
 
   def elements_for_iim_value(iim_elem_label, dest_elem, iim_metadata)
-    src_elem = iim_metadata.select{ |e| e[:label] == iim_elem_label }.first
+    src_elem = iim_metadata.find{ |e| e[:label] == iim_elem_label }
     src_elem ? elements_for_value(src_elem[:value], dest_elem) : []
   end
 
@@ -1388,11 +1386,11 @@ class Item < ApplicationRecord
 
     # Get the binary from which the metadata will be extracted.
     # First, try to get the preservation master image.
-    bin = self.binaries.select{ |b| b.master_type == Binary::MasterType::PRESERVATION and
-        b.media_category == Binary::MediaCategory::IMAGE }.first
+    bin = self.binaries.find{ |b| b.master_type == Binary::MasterType::PRESERVATION &&
+        b.media_category == Binary::MediaCategory::IMAGE }
     # If that wasn't available, try to get any image.
     unless bin
-      bin = self.binaries.select{ |b| b.media_category == Binary::MediaCategory::IMAGE }.first
+      bin = self.binaries.find{ |b| b.media_category == Binary::MediaCategory::IMAGE }
       unless bin
         LOGGER.info('elements_from_embedded_metadata(): no binaries')
         return elements
@@ -1414,11 +1412,11 @@ class Item < ApplicationRecord
     if self.collection_repository_id == '8838a520-2b19-0132-3314-0050569601ca-7'
       title = { value: File.basename(bin.object_key) }
     else
-      title = iim_metadata.select{ |e| e[:label] == 'Headline' }.first
+      title = iim_metadata.find{ |e| e[:label] == 'Headline' }
       unless title
-        title = iim_metadata.select{ |e| e[:label] == 'Title' }.first
+        title = iim_metadata.find{ |e| e[:label] == 'Title' }
         unless title
-          title = iim_metadata.select{ |e| e[:label] == 'Object Name' }.first
+          title = iim_metadata.find{ |e| e[:label] == 'Object Name' }
         end
       end
     end
@@ -1430,21 +1428,21 @@ class Item < ApplicationRecord
     end
 
     # Creator
-    creator = iim_metadata.select{ |e| e[:label] == 'Creator' }.first
+    creator = iim_metadata.find{ |e| e[:label] == 'Creator' }
     unless creator
-      creator = iim_metadata.select{ |e| e[:label] == 'By-line' }.first
+      creator = iim_metadata.find{ |e| e[:label] == 'By-line' }
       unless creator
-        creator = iim_metadata.select{ |e| e[:label] == 'Credit Line' }.first
+        creator = iim_metadata.find{ |e| e[:label] == 'Credit Line' }
       end
     end
     elements += elements_for_value(creator[:value], 'creator') if creator
 
     # Description
-    desc = iim_metadata.select{ |e| e[:label] == 'Description' }.first
+    desc = iim_metadata.find{ |e| e[:label] == 'Description' }
     unless desc
-      desc = iim_metadata.select{ |e| e[:label] == 'Caption' }.first
+      desc = iim_metadata.find{ |e| e[:label] == 'Caption' }
       unless desc
-        desc = iim_metadata.select{ |e| e[:label] == 'Abstract' }.first
+        desc = iim_metadata.find{ |e| e[:label] == 'Abstract' }
       end
     end
     elements += elements_for_value(desc[:value], 'description') if desc
@@ -1593,7 +1591,7 @@ class Item < ApplicationRecord
     if coords_elem
       coords = SpaceUtil.string_coordinates_to_coordinates(coords_elem.value)
       if coords
-        self.latitude = coords[:latitude]
+        self.latitude  = coords[:latitude]
         self.longitude = coords[:longitude]
       end
     end
@@ -1665,7 +1663,7 @@ class Item < ApplicationRecord
           [zero_pad_numbers(self.title.downcase)]).join('-')
     else
       sort_first_token = 'aaa'
-      sort_last_token = 'zzz'
+      sort_last_token  = 'zzz'
       # Parents: (repository ID)-(variant key)-(page)-(subpage)-(title)
       # Children: (parent ID)-(variant key)-(page)-(subpage)-(title)
       key = sprintf('%s-%s-%s-%s-%s',
