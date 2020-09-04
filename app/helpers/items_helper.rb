@@ -1,5 +1,7 @@
 module ItemsHelper
 
+  LOGGER = CustomLogger.new(ItemsHelper)
+
   DEFAULT_THUMBNAIL_SIZE = 256
   PAGE_TITLE_LENGTH      = 35
   VIEWER_HEIGHT          = '600px'
@@ -1121,8 +1123,8 @@ module ItemsHelper
                   field[:value] : truncate(field[:value].to_s, length: 400)
           }
         end
-      rescue IOError
-        # Nothing we can do.
+      rescue => e
+        LOGGER.warn("binary_metadata_for(): %s", e)
       end
     end
     data
