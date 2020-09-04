@@ -525,11 +525,13 @@ class Item < ApplicationRecord
   #
   def as_indexed_json
     doc = {}
-    doc[IndexFields::CLASS]      = self.class.to_s
-    doc[IndexFields::COLLECTION] = self.collection_repository_id
+    doc[IndexFields::CLASS]                   = self.class.to_s
+    doc[IndexFields::COLLECTION]              = self.collection_repository_id
     # Elasticsearch date fields don't support >4-digit years.
-    doc[IndexFields::DATE]       = self.date.utc.iso8601 if self.date and self.date.year < 10000
-    doc[IndexFields::DESCRIBED]  = self.described?
+    if self.date && self.date.year < 10000
+      doc[IndexFields::DATE]                  = self.date.utc.iso8601
+    end
+    doc[IndexFields::DESCRIBED]               = self.described?
     doc[IndexFields::EFFECTIVE_ALLOWED_HOST_GROUPS] =
         self.effective_allowed_host_groups.pluck(:key)
     doc[IndexFields::EFFECTIVE_ALLOWED_HOST_GROUP_COUNT] =
@@ -538,11 +540,11 @@ class Item < ApplicationRecord
         self.effective_denied_host_groups.pluck(:key)
     doc[IndexFields::EFFECTIVE_DENIED_HOST_GROUP_COUNT] =
         doc[IndexFields::EFFECTIVE_DENIED_HOST_GROUPS].length
-    doc[IndexFields::ITEM_SETS]     = self.item_sets.pluck(:id)
-    doc[IndexFields::LAST_INDEXED]  = Time.now.utc.iso8601
-    doc[IndexFields::LAST_MODIFIED] = self.updated_at.utc.iso8601
+    doc[IndexFields::ITEM_SETS]               = self.item_sets.pluck(:id)
+    doc[IndexFields::LAST_INDEXED]            = Time.now.utc.iso8601
+    doc[IndexFields::LAST_MODIFIED]           = self.updated_at.utc.iso8601
     if self.latitude && self.longitude
-      doc[IndexFields::LAT_LONG] = { lon: self.longitude, lat: self.latitude }
+      doc[IndexFields::LAT_LONG]              = { lon: self.longitude, lat: self.latitude }
     end
     doc[IndexFields::OBJECT_REPOSITORY_ID]    = self.collection&.free_form? ?
                                                     self.repository_id :
@@ -722,7 +724,7 @@ class Item < ApplicationRecord
           first_child = self.finder.limit(1).to_a.first
           # This should always be true, but just to make sure we prevent a
           # circular reference...
-          if first_child and first_child.repository_id != self.repository_id
+          if first_child && first_child.repository_id != self.repository_id
             bin = first_child.effective_image_binary
           end
         end
@@ -754,7 +756,7 @@ class Item < ApplicationRecord
               }
           ].each do |pref|
             bin = self.binaries.select do |b|
-              b.master_type == pref[:master_type] and
+              b.master_type == pref[:master_type] &&
                   (pref[:media_category] ?
                        (b.media_category == pref[:media_category]) :
                        (b.media_type == pref[:media_type]))
@@ -888,7 +890,7 @@ class Item < ApplicationRecord
               }
           ].each do |pref|
             result = self.binaries.find do |b|
-              b.master_type == pref[:master_type] and
+              b.master_type == pref[:master_type] &&
                   (pref[:media_category] ?
                        (b.media_category == pref[:media_category]) : true)
             end
@@ -944,7 +946,7 @@ class Item < ApplicationRecord
   #                   {Variants::PAGE page variant}.
   #
   def is_compound?
-    self.variant.blank? and self.pages.count > 0
+    self.variant.blank? && self.pages.count > 0
   end
 
   ##
@@ -1071,7 +1073,7 @@ class Item < ApplicationRecord
       self.walk_tree do |item, index|
         item.save!
 
-        if task and index % 10 == 0
+        if task && index % 10 == 0
           task.update(percent_complete: index / num_items.to_f)
         end
       end
@@ -1083,7 +1085,7 @@ class Item < ApplicationRecord
   #                   publicly accessible.
   #
   def publicly_accessible?
-    self.published and self.collection&.publicly_accessible?
+    self.published && self.collection&.publicly_accessible?
   end
 
   ##
@@ -1370,7 +1372,7 @@ class Item < ApplicationRecord
   def elements_for_value(value, dest_elem)
     value = [value] unless value.respond_to?(:each)
     # "-" is a junk value that has been known to exist in our IPTC metadata.
-    value.select{ |v| v.present? and v != '-' }.map do |val|
+    value.select{ |v| v.present? && v != '-' }.map do |val|
       ItemElement.new(name: dest_elem, value: val,
                       vocabulary: Vocabulary.uncontrolled)
     end
@@ -1498,13 +1500,13 @@ class Item < ApplicationRecord
     denied_hgs  = []
     # Try to inherit from an ancestor.
     p = self.parent
-    while p and allowed_hgs.empty? and denied_hgs.empty?
+    while p && allowed_hgs.empty? && denied_hgs.empty?
       allowed_hgs = p.allowed_host_groups
       denied_hgs  = p.denied_host_groups
       p = p.parent
     end
     # If no ancestor has any host groups, inherit from the collection.
-    if allowed_hgs.empty? and denied_hgs.empty? and self.collection
+    if allowed_hgs.empty? && denied_hgs.empty? && self.collection
       allowed_hgs = self.collection.allowed_host_groups
       denied_hgs  = self.collection.denied_host_groups
     end
