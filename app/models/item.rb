@@ -1122,7 +1122,7 @@ class Item < ApplicationRecord
   # @return [Boolean]
   #
   def restricted
-    self.collection&.restricted || self.allowed_netids&.any?
+    (self.collection&.restricted || self.allowed_netids&.any?) ? true : false
   end
 
   ##
