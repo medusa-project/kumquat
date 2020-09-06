@@ -40,7 +40,8 @@
         = link_to item.catalog_record_url,
                   target: '_blank',
                   class: 'dropdown-item' do
-          %i.fa.fa-book Library Catalog Record
+          %i.fa.fa-book
+          Library Catalog Record
       - if item.collection.physical_collection_url.present?
         = link_to item.collection.physical_collection_url,
                   target: '_blank',
