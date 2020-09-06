@@ -721,7 +721,11 @@ class Item < ApplicationRecord
         if self.variant == Variants::SUPPLEMENT
           bin = self.binaries.first
         elsif self.is_compound?
-          first_child = self.finder.limit(1).to_a.first
+          first_child = self.finder.
+              include_restricted(true).
+              include_unpublished(true).
+              limit(1).
+              to_a.first
           # This should always be true, but just to make sure we prevent a
           # circular reference...
           if first_child && first_child.repository_id != self.repository_id
