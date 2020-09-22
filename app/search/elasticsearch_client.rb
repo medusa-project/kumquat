@@ -137,7 +137,7 @@ class ElasticsearchClient
   #
   def get_document(index_name, id)
     LOGGER.debug('get_document(): %s/%s', index_name, id)
-    url = sprintf('%s/%s/%s',
+    url = sprintf('%s/%s/entity/%s',
                   Configuration.instance.elasticsearch_endpoint,
                   index_name, id)
     response = @http_client.get(url, nil, 'Content-Type': CONTENT_TYPE)
