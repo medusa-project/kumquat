@@ -58,10 +58,11 @@ class MedusaClient
         #self.ssl_config.verify_mode = OpenSSL::SSL::VERIFY_NONE
         self.force_basic_auth = true
         self.receive_timeout = 10000
-        uri = URI.parse(config.medusa_url)
-        domain = uri.scheme + '://' + uri.host
-        user = config.medusa_user
-        secret = config.medusa_secret
+        uri     = URI.parse(config.medusa_url)
+        domain  = uri.scheme + '://' + uri.host
+        domain += ":#{uri.port}" unless [80, 443].include?(uri.port)
+        user    = config.medusa_user
+        secret  = config.medusa_secret
         self.set_auth(domain, user, secret)
       end
     end
