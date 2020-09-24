@@ -12,6 +12,8 @@
 !/log/.keep
 /tmp
 
+.minio.sys
+
 # Ignore master keys for decrypting credentials.
 /config/master.key
 /config/credentials/demo.key
