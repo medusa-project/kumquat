@@ -1101,13 +1101,15 @@ class Item < ApplicationRecord
   end
 
   ##
-  # @return [String]
+  # @return [String] Filename of the representative binary.
   #
   def representative_filename
     bin = self.binaries.
         where('object_key IS NOT NULL').
         where('media_category != ?', Binary::MediaCategory::THREE_D).
-        order(:master_type).limit(1).first
+        order(:master_type).
+        limit(1).
+        first
     bin&.filename&.split('.')&.first
   end
 
@@ -1406,23 +1408,26 @@ class Item < ApplicationRecord
     LOGGER.debug('elements_from_embedded_metadata(): using %s (%s)',
                  bin.human_readable_master_type, bin.object_key)
 
-    # Get its embedded IIM metadata
-    iim_metadata = bin.metadata.select{ |m| m[:category] == 'IPTC' }
+    # Get its embedded XMP metadata, falling back to IIM
+    metadata = bin.metadata.select{ |m| m[:category] == 'XMP' }
+    if metadata.empty?
+      metadata = bin.metadata.select{ |m| m[:category] == 'IPTC' }
+    end
 
     # See discussion in IMET-246
     # See: https://docs.google.com/spreadsheets/d/15Wf75vzP-rW-lrYzLHATjv1bI3xcMMSVbdBShy4t55A/edit
     # See: http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata
 
     # Title
-    # Hack to treat items in a particular collection differently (IMET-397)
+    # Hack to treat items in a particular collection differently (IMET-397) TODO: revisit this
     if self.collection_repository_id == '8838a520-2b19-0132-3314-0050569601ca-7'
       title = { value: File.basename(bin.object_key) }
     else
-      title = iim_metadata.find{ |e| e[:label] == 'Headline' }
+      title = metadata.find{ |e| e[:label] == 'Headline' }
       unless title
-        title = iim_metadata.find{ |e| e[:label] == 'Title' }
+        title = metadata.find{ |e| e[:label] == 'Title' }
         unless title
-          title = iim_metadata.find{ |e| e[:label] == 'Object Name' }
+          title = metadata.find{ |e| e[:label] == 'Object Name' }
         end
       end
     end
@@ -1430,57 +1435,56 @@ class Item < ApplicationRecord
 
     # Date Created
     if options[:include_date_created].to_s != 'false'
-      elements += elements_for_iim_value('Date Created', 'dateCreated', iim_metadata)
+      elements += elements_for_iim_value('Date', 'dateCreated', metadata)
     end
 
     # Creator
-    creator = iim_metadata.find{ |e| e[:label] == 'Creator' }
+    creator = metadata.find{ |e| e[:label] == 'Creator' }
     unless creator
-      creator = iim_metadata.find{ |e| e[:label] == 'By-line' }
+      creator = metadata.find{ |e| e[:label] == 'By-line' }
       unless creator
-        creator = iim_metadata.find{ |e| e[:label] == 'Credit Line' }
+        creator = metadata.find{ |e| e[:label] == 'Credit Line' }
       end
     end
     elements += elements_for_value(creator[:value], 'creator') if creator
 
     # Description
-    desc = iim_metadata.find{ |e| e[:label] == 'Description' }
+    desc = metadata.find{ |e| e[:label] == 'Description' }
     unless desc
-      desc = iim_metadata.find{ |e| e[:label] == 'Caption' }
+      desc = metadata.find{ |e| e[:label] == 'Caption' }
       unless desc
-        desc = iim_metadata.find{ |e| e[:label] == 'Abstract' }
+        desc = metadata.find{ |e| e[:label] == 'Abstract' }
       end
     end
     elements += elements_for_value(desc[:value], 'description') if desc
 
     # Copyright Notice
-    elements += elements_for_iim_value('Copyright Notice', 'rights', iim_metadata)
+    elements += elements_for_iim_value('Copyright Notice', 'rights', metadata)
 
     # Rights Usage Terms
-    elements += elements_for_iim_value('Rights Usage Terms', 'license', iim_metadata)
+    elements += elements_for_iim_value('Rights Usage Terms', 'license', metadata)
 
     # Keywords
-    elements += elements_for_iim_value('Keywords', 'keyword', iim_metadata)
+    elements += elements_for_iim_value('Keywords', 'keyword', metadata)
 
     # Sublocation
-    elements += elements_for_iim_value('Sublocation', 'streetAddress', iim_metadata)
+    elements += elements_for_iim_value('Sublocation', 'streetAddress', metadata)
 
     # City
-    elements += elements_for_iim_value('City', 'addressLocality', iim_metadata)
+    elements += elements_for_iim_value('City', 'addressLocality', metadata)
 
     # Province or State
-    elements += elements_for_iim_value('Province or State', 'addressRegion', iim_metadata)
+    elements += elements_for_iim_value('Province or State', 'addressRegion', metadata)
 
     # Country Name
-    elements += elements_for_iim_value('Country Name', 'addressCountry', iim_metadata)
+    elements += elements_for_iim_value('Country Name', 'addressCountry', metadata)
 
     # Copy sublocation, city, province or state, and country name into keyword
     # elements.
-
-    elements += elements_for_iim_value('Sublocation', 'keyword', iim_metadata)
-    elements += elements_for_iim_value('City', 'keyword', iim_metadata)
-    elements += elements_for_iim_value('Province or State', 'keyword', iim_metadata)
-    elements += elements_for_iim_value('Country Name', 'keyword', iim_metadata)
+    elements += elements_for_iim_value('Sublocation', 'keyword', metadata)
+    elements += elements_for_iim_value('City', 'keyword', metadata)
+    elements += elements_for_iim_value('Province or State', 'keyword', metadata)
+    elements += elements_for_iim_value('Country Name', 'keyword', metadata)
 
     elements
   end

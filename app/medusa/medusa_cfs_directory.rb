@@ -20,7 +20,13 @@ class MedusaCfsDirectory < ApplicationRecord
       dir = MedusaCfsDirectory.new
       dir.uuid = uuid
       dir.load_from_medusa
-      dir.save!
+      begin
+        dir.save!
+      rescue ActiveModel::RangeError
+        # this is caused by too-large IDs in Mockdusa, which go up to 2^32
+        # unsigned whereas this column is 2^32 signed. It's safe to ignore as
+        # this code should all be replaced with medusa-client anyway.
+      end
     end
     dir
   end

@@ -3,29 +3,29 @@ require 'test_helper'
 class IiifPdfGeneratorTest < ActiveSupport::TestCase
 
   setup do
-    Item.all.each { |it| it.reindex }
-    sleep 2
+    Item.reindex_all
+    refresh_elasticsearch
 
     @instance = IiifPdfGenerator.new
   end
 
   # generate_pdf()
 
-  test 'generate_pdf() should return nil when given a non-compound-object' do
+  test 'generate_pdf() returns nil when given a non-compound-object' do
     # File
-    assert_nil @instance.generate_pdf(items(:illini_union_dir1_dir1_file1))
+    assert_nil @instance.generate_pdf(items(:free_form_dir1_dir1_file1))
     # Page
-    assert_nil @instance.generate_pdf(items(:sanborn_obj1_page1))
+    assert_nil @instance.generate_pdf(items(:compound_object_1002_page1))
   end
 
-  test 'generate_pdf() should generate a PDF for compound objects' do
+  test 'generate_pdf() generates a PDF for compound objects' do
     begin
-      item = items(:sanborn_obj1)
+      item     = items(:compound_object_1002)
       pathname = @instance.generate_pdf(item)
       assert File.exists?(pathname)
-      assert File.size(pathname) > 10000
+      assert File.size(pathname) > 1000
     ensure
-      FileUtils.rm(pathname) if pathname
+      File.delete(pathname) if pathname
     end
   end
 

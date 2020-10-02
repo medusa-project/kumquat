@@ -3,8 +3,12 @@ require 'test_helper'
 class CreatePdfJobTest < ActiveSupport::TestCase
 
   setup do
-    @item = items(:sanborn_obj1)
+    @item = items(:compound_object_1002)
     @download = Download.create
+
+    setup_elasticsearch
+    Item.reindex_all
+    refresh_elasticsearch
   end
 
   teardown do

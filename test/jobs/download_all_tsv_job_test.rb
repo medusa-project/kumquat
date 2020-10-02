@@ -4,10 +4,14 @@ class DownloadAllTsvJobTest < ActiveSupport::TestCase
 
   setup do
     @download = Download.create
+
+    setup_elasticsearch
+    Item.reindex_all
+    refresh_elasticsearch
   end
 
   teardown do
-    File.delete(@download.pathname)
+    File.delete(@download.pathname) if @download.pathname
   end
 
   # perform()
@@ -15,7 +19,7 @@ class DownloadAllTsvJobTest < ActiveSupport::TestCase
   test 'perform() should assemble the expected zip file' do
     DownloadAllTsvJob.perform_now(@download)
     Dir.mktmpdir do |tmpdir|
-      `unzip #{@download.pathname} -d #{tmpdir}`
+      `unzip "#{@download.pathname}" -d #{tmpdir}`
       assert Dir.glob("#{tmpdir}/*").length > 0
     end
   end

@@ -24,6 +24,7 @@ class MedusaDownloaderClientTest < ActiveSupport::TestCase
   # head()
 
   test 'head() works' do
+    skip if ENV['CI'] == '1' # CI does not have access to the Downloader
     assert_nothing_raised do
       @instance.head
     end
@@ -32,9 +33,9 @@ class MedusaDownloaderClientTest < ActiveSupport::TestCase
   # zip_dirname()
 
   test 'zip_dirname() should return the correct path' do
-    item = items(:illini_union_dir1_dir1_file1)
-    binary = item.binaries.select{ |b| b.master_type == Binary::MasterType::ACCESS }.first
-    assert_equal '/136/310/3707005/access/online/Illini_Union_Photographs/binder_5/banquets',
+    item   = items(:free_form_dir1_dir1_file1)
+    binary = item.binaries.first
+    assert_equal '/repositories/1/collections/1/file_groups/1/root/dir1/dir1',
                  @instance.send(:zip_dirname, binary)
   end
 

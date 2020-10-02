@@ -23,8 +23,8 @@ class MetadataProfileElementTest < ActiveSupport::TestCase
 
   # create()
 
-  test 'create() should update indexes in the owning profile' do
-    profile = metadata_profiles(:default_metadata_profile)
+  test 'create() updates indexes in the owning profile' do
+    profile = metadata_profiles(:default)
     MetadataProfileElement.create!(name: 'rights',
                                    index: 1,
                                    metadata_profile: profile)
@@ -51,7 +51,7 @@ class MetadataProfileElementTest < ActiveSupport::TestCase
 
   # destroy()
 
-  test 'destroy() should update indexes in the owning profile' do
+  test 'destroy() updates indexes in the owning profile' do
     profile = @element.metadata_profile
     @element.destroy!
     # Assert that the indexes are sequential and zero-based.
@@ -72,7 +72,7 @@ class MetadataProfileElementTest < ActiveSupport::TestCase
 
   # update()
 
-  test 'update() should update indexes in the owning profile when increasing an
+  test 'update() updates indexes in the owning profile when increasing an
   element index' do
     assert_equal 0, @element.index
     @element.update!(index: 3)
@@ -82,7 +82,7 @@ class MetadataProfileElementTest < ActiveSupport::TestCase
     end
   end
 
-  test 'update() should update indexes in the owning profile when decreasing an
+  test 'update() updates indexes in the owning profile when decreasing an
   element index' do
     @element = @element.metadata_profile.elements.where(index: 3).first
     @element.update!(index: 0)
@@ -94,7 +94,7 @@ class MetadataProfileElementTest < ActiveSupport::TestCase
 
   # validate()
 
-  test 'validate() should require unique names' do
+  test 'validate() requires unique names' do
     @element.metadata_profile.elements.each_with_index do |e, i|
       e.name = 'title'
       if i == 0
@@ -107,7 +107,7 @@ class MetadataProfileElementTest < ActiveSupport::TestCase
     end
   end
 
-  test 'validate() should disallow negative indexes' do
+  test 'validate() disallows negative indexes' do
     @element.index = -1
     assert !@element.validate
   end

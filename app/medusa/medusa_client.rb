@@ -16,7 +16,7 @@ class MedusaClient
       response = get(url, follow_redirect: false)
       location = response.header['location'].first
       if location
-        if location.include?('/bit_level_file_groups/')
+        if location.include?('file_groups/')
           return MedusaFileGroup
         elsif location.include?('/cfs_directories/')
           return MedusaCfsDirectory
@@ -30,18 +30,16 @@ class MedusaClient
     nil
   end
 
-  def get(url, *args)
-    args = merge_args(args)
-    http_client.get(url, args)
+  def get(url, follow_redirect: true)
+    http_client.get(url, follow_redirect: follow_redirect)
   end
 
-  def get_uuid(url, *args)
-    get(url_for_uuid(url), args)
+  def get_uuid(url, follow_redirect: true)
+    get(url_for_uuid(url), follow_redirect: follow_redirect)
   end
 
-  def head(url, *args)
-    args = merge_args(args)
-    http_client.head(url, args)
+  def head(url, follow_redirect: true)
+    http_client.head(url, follow_redirect: follow_redirect)
   end
 
   private
@@ -67,16 +65,6 @@ class MedusaClient
       end
     end
     @client
-  end
-
-  def merge_args(args)
-    extra_args = { follow_redirect: true }
-    if args[0].kind_of?(Hash)
-      args[0] = extra_args.merge(args[0])
-    else
-      return extra_args
-    end
-    args
   end
 
   ##

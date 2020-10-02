@@ -3,7 +3,7 @@ require 'test_helper'
 class AuthorizableByHostTest < ActiveSupport::TestCase
 
   setup do
-    @collection = collections(:sanborn)
+    @collection = collections(:compound_object)
   end
 
   # authorized_by_any_host_groups?()

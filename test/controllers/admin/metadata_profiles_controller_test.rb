@@ -88,7 +88,7 @@ class MetadataProfilesControllerTest < ActionDispatch::IntegrationTest
   # show()
 
   test 'show() should return HTTP 200 for a present profile' do
-    profile = metadata_profiles(:default_metadata_profile)
+    profile = metadata_profiles(:default)
     get "/admin/metadata-profiles/#{profile.id}"
     assert_response :ok
   end

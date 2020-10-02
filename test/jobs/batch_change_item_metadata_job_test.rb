@@ -5,7 +5,7 @@ class BatchChangeItemMetadataJobTest < ActiveSupport::TestCase
   # perform()
 
   test 'perform() should change all matching elements in a collection' do
-    col = collections(:illini_union)
+    col = collections(:free_form)
     assert col.items.count > 0
 
     element_name = 'title'
@@ -32,7 +32,7 @@ class BatchChangeItemMetadataJobTest < ActiveSupport::TestCase
   end
 
   test 'perform() should change all matching elements in an ItemSet' do
-    set = item_sets(:sanborn)
+    set = item_sets(:one)
     assert set.items.count > 0
 
     element_name = 'title'
@@ -60,7 +60,7 @@ class BatchChangeItemMetadataJobTest < ActiveSupport::TestCase
 
   test 'perform() should change all matching elements in an Enumerable of
   Items' do
-    items = collections(:sanborn).items
+    items = collections(:compound_object).items
     assert items.count > 0
 
     element_name = 'title'

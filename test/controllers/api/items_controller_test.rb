@@ -6,7 +6,7 @@ module Api
   class ItemsControllerTest < ApiControllerTest
 
     setup do
-      @item = items(:illini_union_dir1_dir1_file1)
+      @item = items(:free_form_dir1_dir1_file1)
       @item.reindex
       sleep 2
     end

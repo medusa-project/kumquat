@@ -625,6 +625,7 @@ class Binary < ApplicationRecord
 
       value = cols[2]&.strip
       if value.present?
+        value = value.gsub(/lang=\".*\" /, '')
         label = cols[1].strip
         category = key.split('.').first.upcase
         

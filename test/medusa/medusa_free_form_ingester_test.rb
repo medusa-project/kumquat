@@ -3,284 +3,248 @@ require 'test_helper'
 class MedusaFreeFormIngesterTest < ActiveSupport::TestCase
 
   setup do
-    @collection = collections(:illini_union)
+    @collection = collections(:free_form)
     @ingester = MedusaFreeFormIngester.new
-
     # These will only get in the way.
     Item.destroy_all
   end
 
   # parent_id_from_medusa()
 
-  test 'parent_id_from_medusa() should return nil with top-level items' do
-    # https://medusa.library.illinois.edu/cfs_directories/414021.json
-    item = 'be8d3500-c451-0133-1d17-0050569601ca-9'
+  test 'parent_id_from_medusa() returns nil with top-level items' do
+    item = '7351760f-4b7b-5a6c-6dda-f5a92562b008'
     assert_nil MedusaFreeFormIngester.parent_id_from_medusa(item)
   end
 
-  test 'parent_id_from_medusa() should return the parent UUID with pages' do
-    # https://medusa.library.illinois.edu/cfs_directories/111150.json
-    page = 'a536b060-5ca8-0132-3334-0050569601ca-8'
-    # https://medusa.library.illinois.edu/cfs_directories/111144.json
-    expected_parent = 'a53194a0-5ca8-0132-3334-0050569601ca-8'
+  test 'parent_id_from_medusa() returns the parent UUID with non-top-level items' do
+    page            = '088a49f2-08f0-f43b-47a1-cd40cbc1d837'
+    expected_parent = '7351760f-4b7b-5a6c-6dda-f5a92562b008'
     assert_equal expected_parent,
                  MedusaFreeFormIngester.parent_id_from_medusa(page)
   end
 
   # create_items()
 
-  test 'create_items() with collection file group not set should raise an error' do
+  test 'create_items() with collection file group not set raises an error' do
     @collection.medusa_file_group_id = nil
-
     assert_raises ArgumentError do
       @ingester.create_items(@collection)
     end
   end
 
-  test 'create_items() with collection package profile not set should raise an
-  error' do
+  test 'create_items() with collection package profile not set raises an error' do
     @collection.package_profile = nil
-
     assert_raises ArgumentError do
       @ingester.create_items(@collection)
     end
   end
 
-  test 'create_items() with collection package profile set incorrectly should
-  raise an error' do
+  test 'create_items() with collection package profile set incorrectly
+  raises an error' do
     @collection.package_profile = PackageProfile::COMPOUND_OBJECT_PROFILE
-
     assert_raises ArgumentError do
       @ingester.create_items(@collection)
     end
   end
 
-  test 'create_items with no effective collection CFS directory should raise
-  an error' do
+  test 'create_items() with no effective collection directory raises an error' do
     @collection.medusa_cfs_directory_id = nil
-    @collection.medusa_file_group_id = nil
-
+    @collection.medusa_file_group_id    = nil
     assert_raises ArgumentError do
       @ingester.create_items(@collection)
     end
   end
 
-  test 'create_items() should work' do
-    # Set up the fixture data.
-    @collection.medusa_cfs_directory_id = 'a53add10-5ca8-0132-3334-0050569601ca-7'
-    cfs_dir = @collection.effective_medusa_cfs_directory
-    tree = JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_illini_union_tree.json'))
-    # Extract a small slice of the tree.
-    tree = tree['subdirectories'][0]
-    tree['subdirectories'] = tree['subdirectories'][0..0]
-    tree['subdirectories'][0]['files'] =
-        tree['subdirectories'][0]['files'][0..1]
-    cfs_dir.json_tree = tree
-
+  test 'create_items() works' do
+    skip if ENV['CI'] == '1' # TODO: unskip this after migrating to medusa-client
     # Run the ingest.
     result = @ingester.create_items(@collection)
 
     # Assert that the correct number of items were added.
-    assert_equal 3, Item.count
-    assert_equal 3, result[:num_created]
+    assert_equal 6, Item.count
+    assert_equal 6, result[:num_created]
     assert_equal 0, result[:num_skipped]
-    assert_equal 3, result[:num_walked]
+    assert_equal 6, result[:num_walked]
 
     # Inspect an individual directory item more thoroughly.
-    item = Item.find_by_repository_id('a53add10-5ca8-0132-3334-0050569601ca-7')
-    #assert_equal 1, item.items.length
+    item = Item.find_by_repository_id('7351760f-4b7b-5a6c-6dda-f5a92562b008')
     assert_equal 0, item.binaries.length
     assert_equal Item::Variants::DIRECTORY, item.variant
 
     # Inspect an individual file item more thoroughly.
-    item = Item.find_by_repository_id('6e3c33c0-5ce3-0132-3334-0050569601ca-f')
-    item.binaries.each do |bs|
-      assert_equal Binary::MasterType::ACCESS, bs.master_type
+    item = Item.find_by_repository_id('39582239-4307-1cc6-c9c6-074516fd7635')
+    item.binaries.each do |bin|
+      assert_equal Binary::MasterType::ACCESS, bin.master_type
     end
     assert_empty item.items
     assert_equal 1, item.binaries.length
     assert_equal Item::Variants::FILE, item.variant
     assert_equal 1, item.elements.length
-    assert_equal 'animals_001.jpg', item.title
+    assert_equal 'image1.jpg', item.title
 
     bin = item.binaries.first
-    assert_equal 1757527, bin.byte_size
+    assert_equal 6302, bin.byte_size
     assert_equal 'image/jpeg', bin.media_type
     assert_equal Binary::MediaCategory::IMAGE, bin.media_category
-    assert_equal '136/310/3707005/access/online/Illini_Union_Photographs/binder_10/animals/animals_001.jpg',
+    assert_equal 'repositories/1/collections/1/file_groups/1/root/dir1/image1.jpg',
                  bin.object_key
   end
 
-  test 'create_items() should extract metadata when told to' do
-    # Set up the fixture data.
-    @collection.medusa_cfs_directory_id = 'a53add10-5ca8-0132-3334-0050569601ca-7'
-    cfs_dir = @collection.effective_medusa_cfs_directory
-    tree = JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_illini_union_tree.json'))
-    # Extract a small slice of the tree.
-    tree = tree['subdirectories'][0]['subdirectories'][0]
-    tree['files'] = tree['files'][0..1]
-    cfs_dir.json_tree = tree
-
+  test 'create_items() extracts metadata when told to' do
+    skip if ENV['CI'] == '1' # TODO: unskip this after migrating to medusa-client
     # Run the ingest.
     @ingester.create_items(@collection, extract_metadata: true)
 
     # Assert that the metadata was extracted.
-    item = Item.find_by_repository_id('6e3c33c0-5ce3-0132-3334-0050569601ca-f')
-    assert item.elements.select{ |e| e.name == 'creator' }.map(&:value).
-        include?('University of Illinois Library')
+    item = Item.find_by_repository_id('39582239-4307-1cc6-c9c6-074516fd7635') # free_form_dir1_image
     assert item.elements.select{ |e| e.name == 'title' }.map(&:value).
-        include?('Illini Union Photographs Record Series 3707005')
+        include?('Escher Lego')
+    assert item.elements.select{ |e| e.name == 'creator' }.map(&:value).
+        include?('Lego Enthusiast')
+  end
+
+  test 'create_items() does not extract metadata when told not to' do
+    skip if ENV['CI'] == '1' # TODO: unskip this after migrating to medusa-client
+    # Run the ingest.
+    @ingester.create_items(@collection, extract_metadata: false)
+
+    # Assert that metadata was not extracted.
+    item = Item.find_by_repository_id('39582239-4307-1cc6-c9c6-074516fd7635') # free_form_dir1_image
+    assert_equal 'image1.jpg', item.title
+    assert item.elements.select{ |e| e.name == 'creator' }.empty?
   end
 
   # delete_missing_items()
 
-  test 'delete_missing_items() with collection file group not set should raise
-  an error' do
+  test 'delete_missing_items() with collection file group not set raises an
+  error' do
     @collection.medusa_file_group_id = nil
-
     assert_raises ArgumentError do
       @ingester.delete_missing_items(@collection)
     end
   end
 
-  test 'delete_missing_items() with collection package profile not set should
-  raise an error' do
+  test 'delete_missing_items() with collection package profile not set raises
+  an error' do
     @collection.package_profile = nil
-
     assert_raises ArgumentError do
       @ingester.delete_missing_items(@collection)
     end
   end
 
   test 'delete_missing_items() with collection package profile set incorrectly
-  should raise an error' do
+  raises an error' do
     @collection.package_profile = PackageProfile::COMPOUND_OBJECT_PROFILE
-
     assert_raises ArgumentError do
       @ingester.delete_missing_items(@collection)
     end
   end
 
-  test 'delete_missing_items with no effective collection CFS directory should
-  raise an error' do
+  test 'delete_missing_items() with no effective collection CFS directory raises
+  an error' do
     @collection.medusa_cfs_directory_id = nil
-    @collection.medusa_file_group_id = nil
-
+    @collection.medusa_file_group_id    = nil
     assert_raises ArgumentError do
       @ingester.delete_missing_items(@collection)
     end
   end
 
-  test 'delete_missing_items() should work' do
-    # Set up the fixture data.
-    @collection.medusa_cfs_directory_id = '19c62760-e894-0133-1d3c-0050569601ca-d'
-    cfs_dir = @collection.effective_medusa_cfs_directory
-    tree = JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_sanborn_tree.json'))
-    # Extract a small slice of the tree.
-    tree['subdirectories'] = tree['subdirectories'][0..1]
-    cfs_dir.json_tree = tree
-
+  test 'delete_missing_items() works' do
+    skip if ENV['CI'] == '1' # TODO: unskip this after migrating to medusa-client
     # Ingest some items.
     @ingester.create_items(@collection)
 
     # Record initial conditions.
     start_num_items = Item.count
 
-    # Slice off some items from the ingest data.
-    tree['subdirectories'] = tree['subdirectories'][0..0]
-    cfs_dir.json_tree = tree
+    client          = MedusaS3Client.instance
+    src_key_prefix  = 'repositories/1/collections/1/file_groups/1/root/dir1/dir1'
+    dest_key_prefix = 'tmp/dir1'
+    begin
+      # Temporarily move some objects out of the path of the ingester.
+      client.move_objects(src_key_prefix, dest_key_prefix)
 
-    # Delete the items.
-    result = @ingester.delete_missing_items(@collection)
+      # Delete the items.
+      # First we need to nillify some cached information from before the move. TODO: this is messy
+      @collection.instance_variable_set('@file_group', nil)
+      @collection.instance_variable_set('@cfs_directory', nil)
+      result = @ingester.delete_missing_items(@collection)
 
-    # Assert that they were deleted.
-    assert_equal start_num_items - 7, Item.count
-    assert_equal 7, result[:num_deleted]
+      # Assert that they were deleted.
+      assert_equal start_num_items - 2, Item.count
+      assert_equal 2, result[:num_deleted]
+    ensure
+      # Move the objects back into place.
+      client.move_objects(dest_key_prefix, src_key_prefix)
+    end
   end
 
   # replace_metadata()
 
-  test 'replace_metadata() with collection file group not set should raise an
-  error' do
+  test 'replace_metadata() with collection file group not set raises an error' do
     @collection.medusa_file_group_id = nil
-
     assert_raises ArgumentError do
       @ingester.replace_metadata(@collection)
     end
   end
 
-  test 'replace_metadata() with collection package profile not set should
-  raise an error' do
+  test 'replace_metadata() with collection package profile not set raises an error' do
     @collection.package_profile = nil
-
     assert_raises ArgumentError do
       @ingester.replace_metadata(@collection)
     end
   end
 
-  test 'replace_metadata with no effective collection CFS directory should
-  raise an error' do
+  test 'replace_metadata() with no effective collection CFS directory raises an
+  error' do
     @collection.medusa_cfs_directory_id = nil
-    @collection.medusa_file_group_id = nil
-
+    @collection.medusa_file_group_id    = nil
     assert_raises ArgumentError do
       @ingester.replace_metadata(@collection)
     end
   end
 
-  test 'replace_metadata() should work' do
+  test 'replace_metadata() works' do
     # TODO: write this
   end
 
   # recreate_binaries()
 
-  test 'recreate_binaries() with collection file group not set should raise an
-  error' do
+  test 'recreate_binaries() with collection file group not set raises an error' do
     @collection.medusa_file_group_id = nil
-
     assert_raises ArgumentError do
       @ingester.recreate_binaries(@collection)
     end
   end
 
-  test 'recreate_binaries() with collection package profile not set should
-  raise an error' do
+  test 'recreate_binaries() with collection package profile not set raises an
+  error' do
     @collection.package_profile = nil
-
     assert_raises ArgumentError do
       @ingester.recreate_binaries(@collection)
     end
   end
 
   test 'recreate_binaries() with collection package profile set incorrectly
-  should raise an error' do
+  raises an error' do
     @collection.package_profile = PackageProfile::COMPOUND_OBJECT_PROFILE
-
     assert_raises ArgumentError do
       @ingester.recreate_binaries(@collection)
     end
   end
 
-  test 'recreate_binaries with no effective collection CFS directory should
-  raise an error' do
+  test 'recreate_binaries() with no effective collection CFS directory raises an
+  error' do
     @collection.medusa_cfs_directory_id = nil
-    @collection.medusa_file_group_id = nil
-
+    @collection.medusa_file_group_id    = nil
     assert_raises ArgumentError do
       @ingester.recreate_binaries(@collection)
     end
   end
 
-  test 'recreate_binaries() should work' do
-    # Set up the fixture data.
-    @collection.medusa_cfs_directory_id = 'ac1a9850-0b09-0134-1d54-0050569601ca-a'
-    cfs_dir = @collection.effective_medusa_cfs_directory
-    # Not a typo; we're treating this as a free-form tree.
-    tree = JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_ww1posters_tree.json'))
-    cfs_dir.json_tree = tree
-
+  test 'recreate_binaries() works' do
     # Ingest some items.
-    @ingester.recreate_binaries(@collection)
+    @ingester.create_items(@collection)
 
     # Record initial conditions.
     start_num_items = Item.count
@@ -288,21 +252,21 @@ class MedusaFreeFormIngesterTest < ActiveSupport::TestCase
     # Delete all of their binaries.
     Binary.destroy_all
 
-    # Recreate binaries again.
+    # Recreate binaries.
     result = @ingester.recreate_binaries(@collection)
 
     # Assert that the binaries were created.
     assert_equal Binary.count, result[:num_created]
-    Binary.all.each do |bs|
-      assert_equal Binary::MasterType::ACCESS, bs.master_type
+    Binary.all.each do |bin|
+      assert_equal Binary::MasterType::ACCESS, bin.master_type
     end
     assert_equal start_num_items, Item.count
     assert_equal Item.where(variant: Item::Variants::FILE).count, Binary.count
-    Item.where(variant: Item::Variants::FILE).each do |it|
-      assert_equal 1, it.binaries.count
+    Item.where(variant: Item::Variants::FILE).each do |item|
+      assert_equal 1, item.binaries.count
     end
-    Item.where(variant: Item::Variants::DIRECTORY).each do |it|
-      assert_empty it.binaries
+    Item.where(variant: Item::Variants::DIRECTORY).each do |item|
+      assert_empty item.binaries
     end
   end
 

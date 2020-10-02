@@ -9,7 +9,7 @@ class OaiPmhControllerTest < ActionDispatch::IntegrationTest
 
   setup do
     @valid_identifier = 'oai:www.example.com:' +
-        items(:sanborn_obj1).repository_id
+        items(:compound_object_1001).repository_id
   end
 
   # 2.5.1
@@ -253,7 +253,7 @@ class OaiPmhControllerTest < ActionDispatch::IntegrationTest
   test 'ListIdentifiers disallows all other arguments when resumptionToken is present' do
     get '/oai-pmh', params: { verb: 'ListIdentifiers',
                               resumptionToken: 'offset:10',
-                              set: collections(:sanborn).repository_id }
+                              set: collections(:compound_object).repository_id }
     assert_select 'error', 'resumptionToken is an exclusive argument.'
   end
 
@@ -353,7 +353,7 @@ class OaiPmhControllerTest < ActionDispatch::IntegrationTest
   test 'ListRecords disallows all other arguments when resumptionToken is present' do
     get '/oai-pmh', params: { verb: 'ListRecords',
                               resumptionToken: 'offset:10',
-                              set: collections(:sanborn).repository_id }
+                              set: collections(:compound_object).repository_id }
     assert_select 'error', 'resumptionToken is an exclusive argument.'
   end
 
@@ -403,7 +403,7 @@ class OaiPmhControllerTest < ActionDispatch::IntegrationTest
   test 'ListSets returns a list when correct arguments are passed and results
   are available' do
     get '/oai-pmh', params: { verb: 'ListSets' }
-    assert_select 'ListSets > set > setSpec', collections(:sanborn).repository_id
+    assert_select 'ListSets > set > setSpec', collections(:compound_object).repository_id
   end
 
   test 'ListSets returns errors when illegal arguments are provided' do
@@ -415,7 +415,7 @@ class OaiPmhControllerTest < ActionDispatch::IntegrationTest
   test 'ListSets disallows all other arguments when resumptionToken is present' do
     get '/oai-pmh', params: { verb: 'ListSets',
                               resumptionToken: 'offset:10',
-                              set: collections(:sanborn).repository_id }
+                              set: collections(:compound_object).repository_id }
     assert_select 'error', 'resumptionToken is an exclusive argument.'
   end
 

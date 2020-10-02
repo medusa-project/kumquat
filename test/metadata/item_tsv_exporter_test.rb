@@ -2,6 +2,127 @@ require 'test_helper'
 
 class ItemTsvExporterTest < ActiveSupport::TestCase
 
+  COMPOUND_OBJECT_1001 = {
+      'uuid': '21353276-887c-0f2b-25a0-ed444003303f',
+      'parentId': nil,
+      'preservationMasterPathname': 'repositories/1/collections/3/file_groups/3/root/1001/preservation/1001_001.tif',
+      'preservationMasterFilename': '1001_001.tif',
+      'preservationMasterUUID': '8ec70c33-75c9-4ba5-cd21-54a1211e5375',
+      'accessMasterPathname': 'repositories/1/collections/3/file_groups/3/root/1001/access/1001_001.jp2',
+      'accessMasterFilename': '1001_001.jp2',
+      'accessMasterUUID': '5ab5693f-3a20-8769-5622-ca2ff9850d50',
+      'variant': nil,
+      'pageNumber': nil,
+      'subpageNumber': nil,
+      'published': true,
+      'contentdmAlias': nil,
+      'contentdmPointer': nil,
+      'IGNORE': '2',
+      'Title': 'My Great Title',
+      'Coordinates': nil,
+      'Creator': nil,
+      'Date Created': nil,
+      'Description': 'My Great Description',
+      'lcsh:Subject': nil,
+      'tgm:Subject': nil
+  }
+  COMPOUND_OBJECT_1002 = {
+      'uuid': '6bc86d3b-e321-1a63-5172-fbf9a6e1aaab',
+      'parentId': nil,
+      'preservationMasterPathname': nil,
+      'preservationMasterFilename': nil,
+      'preservationMasterUUID': nil,
+      'accessMasterPathname': nil,
+      'accessMasterFilename': nil,
+      'accessMasterUUID': nil,
+      'variant': nil,
+      'pageNumber': nil,
+      'subpageNumber': nil,
+      'published': true,
+      'contentdmAlias': nil,
+      'contentdmPointer': nil,
+      'IGNORE': '2',
+      'Title': 'My Great Title',
+      'Coordinates': nil,
+      'Creator': nil,
+      'Date Created': nil,
+      'Description': 'My Great Description',
+      'lcsh:Subject': nil,
+      'tgm:Subject': nil
+  }
+  COMPOUND_OBJECT_1002_PAGE1 = {
+      'uuid': '6a1d73f2-3493-1ca8-80e5-84a49d524f92',
+      'parentId': '6bc86d3b-e321-1a63-5172-fbf9a6e1aaab',
+      'preservationMasterPathname': 'repositories/1/collections/3/file_groups/3/root/1002/preservation/1002_001.tif',
+      'preservationMasterFilename': '1002_001.tif',
+      'preservationMasterUUID': '6a1d73f2-3493-1ca8-80e5-84a49d524f92',
+      'accessMasterPathname': 'repositories/1/collections/3/file_groups/3/root/1002/access/1002_001.jp2',
+      'accessMasterFilename': '1002_001.jp2',
+      'accessMasterUUID': 'f29d1764-904e-6f6b-1371-7c639c8a383a',
+      'variant': 'Page',
+      'pageNumber': '1',
+      'subpageNumber': nil,
+      'published': true,
+      'contentdmAlias': nil,
+      'contentdmPointer': nil,
+      'IGNORE': '0',
+      'Title': nil,
+      'Coordinates': nil,
+      'Creator': nil,
+      'Date Created': nil,
+      'Description': nil,
+      'lcsh:Subject': nil,
+      'tgm:Subject': nil
+  }
+  COMPOUND_OBJECT_1002_PAGE2 = {
+      'uuid': '9dc25346-b83a-eb8a-ac2a-bdde98b5a374',
+      'parentId': '6bc86d3b-e321-1a63-5172-fbf9a6e1aaab',
+      'preservationMasterPathname': 'repositories/1/collections/3/file_groups/3/root/1002/preservation/1002_002.tif',
+      'preservationMasterFilename': '1002_002.tif',
+      'preservationMasterUUID': '9dc25346-b83a-eb8a-ac2a-bdde98b5a374',
+      'accessMasterPathname': 'repositories/1/collections/3/file_groups/3/root/1002/access/1002_002.jp2',
+      'accessMasterFilename': '1002_002.jp2',
+      'accessMasterUUID': 'a9bdc6af-fecb-6ed9-2ca9-e577fd1455ed',
+      'variant': 'Page',
+      'pageNumber': '2',
+      'subpageNumber': nil,
+      'published': true,
+      'contentdmAlias': nil,
+      'contentdmPointer': nil,
+      'IGNORE': '0',
+      'Title': nil,
+      'Coordinates': nil,
+      'Creator': nil,
+      'Date Created': nil,
+      'Description': nil,
+      'lcsh:Subject': nil,
+      'tgm:Subject': nil
+  }
+  COMPOUND_OBJECT_1002_SUPPLEMENT = {
+      'uuid': '96a95ca7-57b5-3901-1022-2093e33cba3f',
+      'parentId': '6bc86d3b-e321-1a63-5172-fbf9a6e1aaab',
+      'preservationMasterPathname': 'repositories/1/collections/3/file_groups/3/root/1002/supplementary/text.txt',
+      'preservationMasterFilename': 'text.txt',
+      'preservationMasterUUID': '96a95ca7-57b5-3901-1022-2093e33cba3f',
+      'accessMasterPathname': nil,
+      'accessMasterFilename': nil,
+      'accessMasterUUID': nil,
+      'variant': 'Supplement',
+      'pageNumber': nil,
+      'subpageNumber': nil,
+      'published': true,
+      'contentdmAlias': nil,
+      'contentdmPointer': nil,
+      'IGNORE': '0',
+      'Title': nil,
+      'Coordinates': nil,
+      'Creator': nil,
+      'Date Created': nil,
+      'Description': nil,
+      'lcsh:Subject': nil,
+      'tgm:Subject': nil
+  }
+
   setup do
     @instance = ItemTsvExporter.new
   end
@@ -15,104 +136,13 @@ class ItemTsvExporterTest < ActiveSupport::TestCase
         published contentdmAlias contentdmPointer IGNORE Title
         Coordinates Creator Date\ Created Description lcsh:Subject tgm:Subject)
     expected_values = [
-        {
-            'uuid': 'be8d3500-c451-0133-1d17-0050569601ca-9',
-            'parentId': nil,
-            'preservationMasterPathname': nil,
-            'preservationMasterFilename': nil,
-            'preservationMasterUUID': nil,
-            'accessMasterPathname': nil,
-            'accessMasterFilename': nil,
-            'accessMasterUUID': nil,
-            'variant': nil,
-            'pageNumber': nil,
-            'subpageNumber': nil,
-            'published': true,
-            'contentdmAlias': 'sanborn',
-            'contentdmPointer': 150,
-            'IGNORE': '0',
-            'Title': nil,
-            'Coordinates': nil,
-            'Creator': nil,
-            'Date Created': nil,
-            'Description': nil,
-            'lcsh:Subject': nil,
-            'tgm:Subject': nil
-        },
-        {
-            'uuid': 'd29950d0-c451-0133-1d17-0050569601ca-2',
-            'parentId': 'be8d3500-c451-0133-1d17-0050569601ca-9',
-            'preservationMasterPathname': '162/2204/1601831/preservation/1601831_001.tif',
-            'preservationMasterFilename': '1601831_001.tif',
-            'preservationMasterUUID': 'd29950d0-c451-0133-1d17-0050569601ca-2',
-            'accessMasterPathname': '162/2204/1601831/access/1601831_001.jp2',
-            'accessMasterFilename': '1601831_001.jp2',
-            'accessMasterUUID': 'd25db810-c451-0133-1d17-0050569601ca-3',
-            'variant': 'Page',
-            'pageNumber': '1',
-            'subpageNumber': nil,
-            'published': true,
-            'contentdmAlias': nil,
-            'contentdmPointer': nil,
-            'IGNORE': '2',
-            'Title': 'My Great Title',
-            'Coordinates': nil,
-            'Creator': nil,
-            'Date Created': nil,
-            'Description': 'My Great Description',
-            'lcsh:Subject': nil,
-            'tgm:Subject': nil
-        },
-        {
-            'uuid': 'd29edba0-c451-0133-1d17-0050569601ca-c',
-            'parentId': 'be8d3500-c451-0133-1d17-0050569601ca-9',
-            'preservationMasterPathname': '162/2204/1601831/preservation/1601831_002.tif',
-            'preservationMasterFilename': '1601831_002.tif',
-            'preservationMasterUUID': 'd29edba0-c451-0133-1d17-0050569601ca-c',
-            'accessMasterPathname': '162/2204/1601831/access/1601831_002.jp2',
-            'accessMasterFilename': '1601831_002.jp2',
-            'accessMasterUUID': 'd2650710-c451-0133-1d17-0050569601ca-1',
-            'variant': 'Page',
-            'pageNumber': '2',
-            'subpageNumber': nil,
-            'published': true,
-            'contentdmAlias': nil,
-            'contentdmPointer': nil,
-            'IGNORE': '0',
-            'Title': nil,
-            'Coordinates': nil,
-            'Creator': nil,
-            'Date Created': nil,
-            'Description': nil,
-            'lcsh:Subject': nil,
-            'tgm:Subject': nil
-        },
-        {
-            'uuid': 'cd2d4601-c451-0133-1d17-0050569601ca-8',
-            'parentId': nil,
-            'preservationMasterPathname': nil,
-            'preservationMasterFilename': nil,
-            'preservationMasterUUID': nil,
-            'accessMasterPathname': nil,
-            'accessMasterFilename': nil,
-            'accessMasterUUID': nil,
-            'variant': nil,
-            'pageNumber': nil,
-            'subpageNumber': nil,
-            'published': true,
-            'contentdmAlias': nil,
-            'contentdmPointer': nil,
-            'IGNORE': '0',
-            'Title': nil,
-            'Coordinates': nil,
-            'Creator': nil,
-            'Date Created': nil,
-            'Description': nil,
-            'lcsh:Subject': nil,
-            'tgm:Subject': nil
-        }
+        COMPOUND_OBJECT_1001,
+        COMPOUND_OBJECT_1002,
+        COMPOUND_OBJECT_1002_SUPPLEMENT,
+        COMPOUND_OBJECT_1002_PAGE1,
+        COMPOUND_OBJECT_1002_PAGE2
     ]
-    collection = collections(:sanborn)
+    collection = collections(:compound_object)
     assert_equal to_tsv(expected_header, expected_values),
                  @instance.items_in_collection(collection)
   end
@@ -121,85 +151,16 @@ class ItemTsvExporterTest < ActiveSupport::TestCase
     expected_header = %w(uuid parentId preservationMasterPathname
         preservationMasterFilename preservationMasterUUID accessMasterPathname
         accessMasterFilename accessMasterUUID variant pageNumber subpageNumber
-        contentdmAlias contentdmPointer IGNORE Title
+        published contentdmAlias contentdmPointer IGNORE Title
         Coordinates Creator Date\ Created Description lcsh:Subject tgm:Subject)
 
     # There should not be any IGNORE column values > 0.
     expected_values = [
-        {
-            'uuid': 'be8d3500-c451-0133-1d17-0050569601ca-9',
-            'parentId': nil,
-            'preservationMasterPathname': nil,
-            'preservationMasterFilename': nil,
-            'preservationMasterUUID': nil,
-            'accessMasterPathname': nil,
-            'accessMasterFilename': nil,
-            'accessMasterUUID': nil,
-            'variant': nil,
-            'pageNumber': nil,
-            'subpageNumber': nil,
-            'published': true,
-            'contentdmAlias': 'sanborn',
-            'contentdmPointer': 150,
-            'IGNORE': '0',
-            'Title': nil,
-            'Coordinates': nil,
-            'Creator': nil,
-            'Date Created': nil,
-            'Description': nil,
-            'lcsh:Subject': nil,
-            'tgm:Subject': nil
-        },
-        {
-            'uuid': 'd29edba0-c451-0133-1d17-0050569601ca-c',
-            'parentId': 'be8d3500-c451-0133-1d17-0050569601ca-9',
-            'preservationMasterPathname': '162/2204/1601831/preservation/1601831_002.tif',
-            'preservationMasterFilename': '1601831_002.tif',
-            'preservationMasterUUID': 'd29edba0-c451-0133-1d17-0050569601ca-c',
-            'accessMasterPathname': '162/2204/1601831/access/1601831_002.jp2',
-            'accessMasterFilename': '1601831_002.jp2',
-            'accessMasterUUID': 'd2650710-c451-0133-1d17-0050569601ca-1',
-            'variant': 'Page',
-            'pageNumber': '2',
-            'subpageNumber': nil,
-            'published': true,
-            'contentdmAlias': nil,
-            'contentdmPointer': nil,
-            'IGNORE': '0',
-            'Title': nil,
-            'Coordinates': nil,
-            'Creator': nil,
-            'Date Created': nil,
-            'Description': nil,
-            'lcsh:Subject': nil,
-            'tgm:Subject': nil
-        },
-        {
-            'uuid': 'cd2d4601-c451-0133-1d17-0050569601ca-8',
-            'parentId': nil,
-            'preservationMasterPathname': nil,
-            'preservationMasterFilename': nil,
-            'preservationMasterUUID': nil,
-            'accessMasterPathname': nil,
-            'accessMasterFilename': nil,
-            'accessMasterUUID': nil,
-            'variant': nil,
-            'pageNumber': nil,
-            'subpageNumber': nil,
-            'published': true,
-            'contentdmAlias': nil,
-            'contentdmPointer': nil,
-            'IGNORE': '0',
-            'Title': nil,
-            'Coordinates': nil,
-            'Creator': nil,
-            'Date Created': nil,
-            'Description': nil,
-            'lcsh:Subject': nil,
-            'tgm:Subject': nil
-        }
+        COMPOUND_OBJECT_1002_SUPPLEMENT,
+        COMPOUND_OBJECT_1002_PAGE1,
+        COMPOUND_OBJECT_1002_PAGE2
     ]
-    collection = collections(:sanborn)
+    collection = collections(:compound_object)
     assert_equal to_tsv(expected_header, expected_values),
                  @instance.items_in_collection(collection, only_undescribed: true)
   end
@@ -210,109 +171,17 @@ class ItemTsvExporterTest < ActiveSupport::TestCase
     expected_header = %w(uuid parentId preservationMasterPathname
         preservationMasterFilename preservationMasterUUID accessMasterPathname
         accessMasterFilename accessMasterUUID variant pageNumber subpageNumber
-        contentdmAlias contentdmPointer IGNORE Title
+        published contentdmAlias contentdmPointer IGNORE Title
         Coordinates Creator Date\ Created Description lcsh:Subject tgm:Subject)
     expected_values = [
-        {
-            'uuid': 'be8d3500-c451-0133-1d17-0050569601ca-9',
-            'parentId': nil,
-            'preservationMasterPathname': nil,
-            'preservationMasterFilename': nil,
-            'preservationMasterUUID': nil,
-            'accessMasterPathname': nil,
-            'accessMasterFilename': nil,
-            'accessMasterUUID': nil,
-            'variant': nil,
-            'pageNumber': nil,
-            'subpageNumber': nil,
-            'published': true,
-            'contentdmAlias': 'sanborn',
-            'contentdmPointer': 150,
-            'IGNORE': '0',
-            'Title': nil,
-            'Coordinates': nil,
-            'Creator': nil,
-            'Date Created': nil,
-            'Description': nil,
-            'lcsh:Subject': nil,
-            'tgm:Subject': nil
-        },
-        {
-            'uuid': 'd29950d0-c451-0133-1d17-0050569601ca-2',
-            'parentId': 'be8d3500-c451-0133-1d17-0050569601ca-9',
-            'preservationMasterPathname': '162/2204/1601831/preservation/1601831_001.tif',
-            'preservationMasterFilename': '1601831_001.tif',
-            'preservationMasterUUID': 'd29950d0-c451-0133-1d17-0050569601ca-2',
-            'accessMasterPathname': '162/2204/1601831/access/1601831_001.jp2',
-            'accessMasterFilename': '1601831_001.jp2',
-            'accessMasterUUID': 'd25db810-c451-0133-1d17-0050569601ca-3',
-            'variant': 'Page',
-            'pageNumber': '1',
-            'subpageNumber': nil,
-            'published': true,
-            'contentdmAlias': nil,
-            'contentdmPointer': nil,
-            'IGNORE': '2',
-            'Title': 'My Great Title',
-            'Coordinates': nil,
-            'Creator': nil,
-            'Date Created': nil,
-            'Description': 'My Great Description',
-            'lcsh:Subject': nil,
-            'tgm:Subject': nil
-        },
-        {
-            'uuid': 'd29edba0-c451-0133-1d17-0050569601ca-c',
-            'parentId': 'be8d3500-c451-0133-1d17-0050569601ca-9',
-            'preservationMasterPathname': '162/2204/1601831/preservation/1601831_002.tif',
-            'preservationMasterFilename': '1601831_002.tif',
-            'preservationMasterUUID': 'd29edba0-c451-0133-1d17-0050569601ca-c',
-            'accessMasterPathname': '162/2204/1601831/access/1601831_002.jp2',
-            'accessMasterFilename': '1601831_002.jp2',
-            'accessMasterUUID': 'd2650710-c451-0133-1d17-0050569601ca-1',
-            'variant': 'Page',
-            'pageNumber': '2',
-            'subpageNumber': nil,
-            'published': true,
-            'contentdmAlias': nil,
-            'contentdmPointer': nil,
-            'IGNORE': '0',
-            'Title': nil,
-            'Coordinates': nil,
-            'Creator': nil,
-            'Date Created': nil,
-            'Description': nil,
-            'lcsh:Subject': nil,
-            'tgm:Subject': nil
-        },
-        {
-            'uuid': 'cd2d4601-c451-0133-1d17-0050569601ca-8',
-            'parentId': nil,
-            'preservationMasterPathname': nil,
-            'preservationMasterFilename': nil,
-            'preservationMasterUUID': nil,
-            'accessMasterPathname': nil,
-            'accessMasterFilename': nil,
-            'accessMasterUUID': nil,
-            'variant': nil,
-            'pageNumber': nil,
-            'subpageNumber': nil,
-            'published': true,
-            'contentdmAlias': nil,
-            'contentdmPointer': nil,
-            'IGNORE': '0',
-            'Title': nil,
-            'Coordinates': nil,
-            'Creator': nil,
-            'Date Created': nil,
-            'Description': nil,
-            'lcsh:Subject': nil,
-            'tgm:Subject': nil
-        }
+        COMPOUND_OBJECT_1001,
+        COMPOUND_OBJECT_1002,
+        COMPOUND_OBJECT_1002_SUPPLEMENT,
+        COMPOUND_OBJECT_1002_PAGE1,
+        COMPOUND_OBJECT_1002_PAGE2
     ]
-    collection = collections(:sanborn)
-
-    set = item_sets(:sanborn)
+    collection = collections(:compound_object)
+    set = item_sets(:one)
     set.items = collection.items
     set.save!
 

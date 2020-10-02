@@ -1,0 +1,15 @@
+# Repository info
+
+title:             Kumquat Test Repository
+url:               https://digital.library.illinois.edu
+notes:             This repository contains Kumquat test content.
+address_1:         123 Anywhere St.
+address_2:
+city:              Urbana
+state:             IL
+zip:               61820
+phone_number:      (555) 555-5555
+contact_email:     alexd@illinois.edu
+email:             alexd@illinois.edu
+ldap_admin_domain: uofi
+ldap_admin_group:  Some Group

@@ -861,14 +861,11 @@ class Collection < ApplicationRecord
     end
     client = MedusaClient.instance
     response = client.get(self.medusa_url('json'))
-    json_str = response.body
-    begin
-      struct = JSON.parse(json_str)
-    rescue JSON::ParserError => e
-      if e.message.include?('UUID not found')
-        raise ActiveRecord::RecordNotFound, self.repository_id
-      end
-      raise e
+    if response.status == 200
+      json_str = response.body
+      struct   = JSON.parse(json_str)
+    else
+      raise ActiveRecord::RecordNotFound
     end
 
     transaction do

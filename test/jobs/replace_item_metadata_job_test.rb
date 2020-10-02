@@ -10,7 +10,7 @@ class ReplaceItemMetadataJobTest < ActiveSupport::TestCase
   # thoroughly in ItemUpdaterTest.
   #
   test 'perform() should work when given a Collection' do
-    col = collections(:illini_union)
+    col = collections(:free_form)
     assert col.items.count > 0
 
     col.items.each do |item|
@@ -36,7 +36,7 @@ class ReplaceItemMetadataJobTest < ActiveSupport::TestCase
   # thoroughly in ItemUpdaterTest.
   #
   test 'perform() should work when given an ItemSet' do
-    set = item_sets(:sanborn)
+    set = item_sets(:one)
     assert set.items.count > 0
 
     set.items.each do |item|
@@ -62,7 +62,7 @@ class ReplaceItemMetadataJobTest < ActiveSupport::TestCase
   # thoroughly in ItemUpdaterTest.
   #
   test 'perform() should work when given an Enumerable of Items' do
-    items = collections(:sanborn).items
+    items = collections(:compound_object).items
     assert items.count > 0
 
     items.each do |item|

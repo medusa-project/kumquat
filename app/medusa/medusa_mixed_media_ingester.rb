@@ -132,8 +132,8 @@ class MedusaMixedMediaIngester < MedusaAbstractIngester
                       # Set the child's variant (if it indeed is a child and
                       # not a top-level item referred by a variable named
                       # `child`).
-                      if child.parent
-                        basename = File.basename(pres_file.object_key)
+                      if child.parent_repository_id
+                        basename = pres_file.name
                         if basename.include?('_frontmatter')
                           child.variant = Item::Variants::FRONT_MATTER
                         elsif basename.include?('_index')

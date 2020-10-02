@@ -14,53 +14,64 @@ class ApplicationHelperTest < ActionView::TestCase
   test 'icon_for() works with 3D items' do
     item = new_item
     item.representative_binary = three_d_binary
-    assert icon_for(item).include?('fa-cube')
+    icon = icon_for(item)
+    assert icon.include?('fa-cube')
   end
 
   test 'icon_for() works with audio items' do
     item = new_item
     item.representative_binary = audio_binary
-    assert icon_for(item).include?('fa-volume-up')
+    icon = icon_for(item)
+    assert icon.include?('fa-volume-up')
   end
 
   test 'icon_for() works with image items' do
     item = new_item
     item.representative_binary = image_binary
-    assert icon_for(item).include?('fa-image')
+    icon = icon_for(item)
+    assert icon.include?('fa-image')
   end
 
   test 'icon_for() works with document items' do
     item = new_item
     item.representative_binary = document_binary
-    assert icon_for(item).include?('fa-file-pdf')
+    icon = icon_for(item)
+    assert icon.include?('fa-file-pdf')
   end
 
   test 'icon_for() works with text items' do
     item = new_item
     item.representative_binary = text_binary
-    assert icon_for(item).include?('fa-file-alt')
+    icon = icon_for(item)
+    assert icon.include?('fa-file-alt')
   end
 
   test 'icon_for() works with video items' do
     item = new_item
     item.representative_binary = video_binary
-    assert icon_for(item).include?('fa-film')
+    icon = icon_for(item)
+    assert icon.include?('fa-film')
   end
 
   test 'icon_for() works with directory-variant items' do
-    item = items(:illini_union_dir1_dir1)
-    assert icon_for(item).include?('fa-folder-open')
+    item = items(:free_form_dir1_dir1)
+    icon = icon_for(item)
+    assert icon.include?('fa-folder-open')
   end
 
   test 'icon_for() works with file-variant items' do
-    item = items(:illini_union_dir1_dir1_file1)
+    item = items(:free_form_dir1_dir1_file1)
     item.binaries.destroy_all
-    assert icon_for(item).include?('fa-file')
+    icon = icon_for(item)
+    assert icon.include?('fa-file')
   end
 
   test 'icon_for() works with compound objects' do
-    item = items(:sanborn_obj1)
-    assert icon_for(item).include?('fa-image')
+    Item.reindex_all
+    refresh_elasticsearch
+    item = items(:compound_object_1002)
+    icon = icon_for(item)
+    assert icon.include?('fa-image')
   end
 
   # type_of()
@@ -109,18 +120,18 @@ class ApplicationHelperTest < ActionView::TestCase
   end
 
   test 'type_of() works with directory-variant items' do
-    item = items(:illini_union_dir1_dir1)
+    item = items(:free_form_dir1_dir1)
     assert_equal 'File Folder', type_of(item)
   end
 
   test 'type_of() works with file-variant items' do
-    item = items(:illini_union_dir1_dir1_file1)
+    item = items(:free_form_dir1_dir1_file1)
     item.binaries.destroy_all
     assert_equal 'File', type_of(item)
   end
 
   test 'type_of() works with compound objects' do
-    item = items(:sanborn_obj1)
+    item = items(:compound_object_1002)
     assert_equal 'Multi-Page Item', type_of(item)
   end
 
@@ -151,7 +162,7 @@ class ApplicationHelperTest < ActionView::TestCase
   end
 
   def new_item
-    Item.create!(collection_repository_id: collections(:sanborn).repository_id,
+    Item.create!(collection_repository_id: collections(:compound_object).repository_id,
                  repository_id: SecureRandom.uuid)
   end
 

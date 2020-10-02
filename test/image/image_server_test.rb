@@ -8,7 +8,7 @@ class ImageServerTest < ActiveSupport::TestCase
 
   test 'purge_item_images_from_cache() works' do
     # curl -v -X POST -u "admin:secret" -H "Content-Type: application/json" http://localhost:8189/tasks -d "{ \"verb\": \"PurgeCache\" }"
-    item = items(:sanborn_obj1_page1)
+    item = items(:compound_object_1002_page1)
     @instance.purge_item_images_from_cache(item)
   end
 

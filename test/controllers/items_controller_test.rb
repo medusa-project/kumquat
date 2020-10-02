@@ -3,7 +3,7 @@ require 'test_helper'
 class ItemsControllerTest < ActionDispatch::IntegrationTest
 
   def setup
-    @item = items(:illini_union_dir1_dir1_file1)
+    @item = items(:free_form_dir1_dir1_file1)
   end
 
   # show() access control

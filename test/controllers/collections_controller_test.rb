@@ -3,14 +3,15 @@ require 'test_helper'
 class CollectionsControllerTest < ActionDispatch::IntegrationTest
 
   setup do
-    @collection = collections(:sanborn)
+    @collection = collections(:compound_object)
   end
 
   # show() access control
 
   test 'show() restricts access to host group-restricted collections' do
     # N.B.: Rails sets request.host to this pattern
-    group = HostGroup.create!(key: 'test', name: 'Test',
+    group = HostGroup.create!(key: 'test',
+                              name: 'Test',
                               pattern: 'www.example.com')
     @collection.denied_host_groups << group
     @collection.save!
@@ -54,6 +55,7 @@ class CollectionsControllerTest < ActionDispatch::IntegrationTest
   # show_contentdm
 
   test 'show_contentdm() should redirect' do
+    @collection = collections(:contentdm)
     get '/projects/' + @collection.contentdm_alias
     assert_redirected_to '/collections/' + @collection.repository_id
 

@@ -1,7 +1,7 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  uuid: be8d3500-c451-0133-1d17-0050569601ca-9
-  parent_uuid: 7e927880-c12b-0133-1d0f-0050569601ca-4
-  medusa_database_id: 414021
-  repository_relative_pathname: /162/2204/1601831
+  uuid: 1b760655-c504-7fce-f171-76e4234844da
+  parent_uuid:
+  medusa_database_id: 460719701
+  repository_relative_pathname: repositories/1/collections/1/file_groups/1/root

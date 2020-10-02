@@ -167,12 +167,33 @@ possible.
 
 # Tests
 
-Elasticsearch and Cantaloupe must be running for all of the tests to pass.
+There are several dependent services:
 
-Test fixtures are based on production Medusa data.
-`test/fixtures/collections.yml` contains the collections used for testing.
-There are a few different ones which are used for testing different types of
-content; see the index at the beginning of the file.
+* PostgreSQL
+* Elasticsearch
+* A working [Medusa Collection Registry](https://medusa.library.illinois.edu).
+  There are a lot of tests that rely on fixture data within Medusa.
+  Unfortunately, production Medusa data is not stable enough to test against
+  and it's hard to tailor for specific tests that require specific types of
+  content. So instead, all of the tests rely on a mock of Medusa called
+  [Mockdusa](https://github.com/medusa-project/mockdusa).
+* A Cantaloupe image server instance.
+* Three S3 buckets:
+    1. One for the Cantaloupe cache.
+    2. One for application data.
+    3. One containing Medusa repository data. The content exposed by
+       Mockdusa, above, should be available in this bucket.
+
+It's perfectly legitimate to get all of this stuff configured and running
+locally. But because doing so can be a real bear, there is also a
+`docker-compose.yml` file that will spin up all of the required services and
+run the tests within a containerized environment:
+
+```sh
+aws login
+eval $(aws ecr get-login --region us-east-2 --no-include-email --profile default)
+docker-compose pull && docker-compose up --build --force-recreate --exit-code-from kumquat
+```
 
 # Configuration
 

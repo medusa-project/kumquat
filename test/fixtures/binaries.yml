@@ -1,83 +1,122 @@
-# item: folksong_obj1
+# Compound Object Collection
 
-folksong_obj1_preservation:
-  item: folksong_obj1
-  byte_size: 63798956
-  cfs_file_uuid: 2bfcad10-fb82-0134-23e3-0050569601ca-0
-  master_type: <%= Binary::MasterType::PRESERVATION %>
+compound_object_1001_access:
+  item:           compound_object_1001
+  byte_size:      18836
+  cfs_file_uuid:  5ab5693f-3a20-8769-5622-ca2ff9850d50
+  master_type:    <%= Binary::MasterType::ACCESS %>
+  media_category: <%= Binary::MediaCategory::IMAGE %>
+  media_type:     image/jp2
+  object_key:     repositories/1/collections/3/file_groups/3/root/1001/access/1001_001.jp2
+
+compound_object_1001_preservation:
+  item:           compound_object_1001
+  byte_size:      46346
+  cfs_file_uuid:  8ec70c33-75c9-4ba5-cd21-54a1211e5375
+  master_type:    <%= Binary::MasterType::PRESERVATION %>
+  media_category: <%= Binary::MediaCategory::IMAGE %>
+  media_type:     image/tiff
+  object_key:     repositories/1/collections/3/file_groups/3/root/1001/preservation/1001_001.tif
+
+compound_object_1002_page1_access:
+  item:           compound_object_1002_page1
+  byte_size:      18836
+  cfs_file_uuid:  f29d1764-904e-6f6b-1371-7c639c8a383a
+  master_type:    <%= Binary::MasterType::ACCESS %>
+  media_category: <%= Binary::MediaCategory::IMAGE %>
+  media_type:     image/jp2
+  object_key:     repositories/1/collections/3/file_groups/3/root/1002/access/1002_001.jp2
+
+compound_object_1002_page1_preservation:
+  item:           compound_object_1002_page1
+  byte_size:      0
+  cfs_file_uuid:  6a1d73f2-3493-1ca8-80e5-84a49d524f92
+  master_type:    <%= Binary::MasterType::PRESERVATION %>
+  media_category: <%= Binary::MediaCategory::IMAGE %>
+  media_type:     image/tiff
+  object_key:     repositories/1/collections/3/file_groups/3/root/1002/preservation/1002_001.tif
+
+compound_object_1002_page2_access:
+  item:           compound_object_1002_page2
+  byte_size:      18836
+  cfs_file_uuid:  a9bdc6af-fecb-6ed9-2ca9-e577fd1455ed
+  master_type:    <%= Binary::MasterType::ACCESS %>
+  media_category: <%= Binary::MediaCategory::IMAGE %>
+  media_type:     image/jp2
+  object_key:     repositories/1/collections/3/file_groups/3/root/1002/access/1002_002.jp2
+
+compound_object_1002_page2_preservation:
+  item:           compound_object_1002_page2
+  byte_size:      0
+  cfs_file_uuid:  9dc25346-b83a-eb8a-ac2a-bdde98b5a374
+  master_type:    <%= Binary::MasterType::PRESERVATION %>
+  media_category: <%= Binary::MediaCategory::IMAGE %>
+  media_type:     image/tiff
+  object_key:     repositories/1/collections/3/file_groups/3/root/1002/preservation/1002_002.tif
+
+compound_object_1002_supplement:
+  item:           compound_object_1002_supplement
+  byte_size:      0
+  cfs_file_uuid:  96a95ca7-57b5-3901-1022-2093e33cba3f
+  master_type:    <%= Binary::MasterType::PRESERVATION %>
+  media_category: <%= Binary::MediaCategory::TEXT %>
+  media_type:     text/plain
+  object_key:     repositories/1/collections/3/file_groups/3/root/1002/supplementary/text.txt
+
+# CONTENTdm Collection
+
+contentdm_obj1_page1_access:
+  item:           contentdm_obj1
+  byte_size:      18836
+  cfs_file_uuid:  2f0d670a-f067-efae-2603-391691fd92d6
+  master_type:    <%= Binary::MasterType::ACCESS %>
+  media_category: <%= Binary::MediaCategory::IMAGE %>
+  media_type:     image/jp2
+  object_key:     repositories/1/collections/5/file_groups/5/root/1001/access/1001_001.jp2
+
+contentdm_obj1_page1_preservation:
+  item:           contentdm_obj1
+  byte_size:      0
+  cfs_file_uuid:  db98452d-e027-3a26-63fc-cdff46dba537
+  master_type:    <%= Binary::MasterType::PRESERVATION %>
+  media_category: <%= Binary::MediaCategory::IMAGE %>
+  media_type:     image/tiff
+  object_key:     repositories/1/collections/3/file_groups/5/root/1001/preservation/1001_001.tif
+
+# Free-Form Collection
+
+free_form_dir1_audio:
+  item:           free_form_dir1_audio
+  byte_size:      22310
+  cfs_file_uuid:  307f29c6-8c63-eb2e-f0cb-f2bfc33176f7
+  master_type:    <%= Binary::MasterType::ACCESS %>
+  media_type:     audio/aiff
   media_category: <%= Binary::MediaCategory::AUDIO %>
-  media_type: audio/wav
-  object_key: 1206/2888/14/001/preservation/audio/NeilRosenbergJuly2007.wav
+  object_key:     repositories/1/collections/1/file_groups/1/root/dir1/piano.aif
 
-# item: illini_union_dir1_dir1_file1
-
-illini_union_dir1_dir1_file1:
-  item: illini_union_dir1_dir1_file1
-  byte_size: 1629599
-  cfs_file_uuid: 7400e0a0-5ce3-0132-3334-0050569601ca-c
-  master_type: <%= Binary::MasterType::ACCESS %>
-  media_type: image/jpeg
+free_form_dir1_image1:
+  item:           free_form_dir1_image
+  byte_size:      6198
+  cfs_file_uuid:  39582239-4307-1cc6-c9c6-074516fd7635
+  master_type:    <%= Binary::MasterType::ACCESS %>
+  media_type:     image/jpeg
   media_category: <%= Binary::MediaCategory::IMAGE %>
-  object_key: 136/310/3707005/access/online/Illini_Union_Photographs/binder_5/banquets/banquets_002.jpg
+  object_key:     repositories/1/collections/1/file_groups/1/root/dir1/image1.jpg
 
-# item: olin_obj1
-
-olin_obj1_preservation:
-  item: olin_obj1
-  byte_size: 3554482180
-  cfs_file_uuid: 1635fa90-5cc8-0132-3334-0050569601ca-3
-  master_type: <%= Binary::MasterType::PRESERVATION %>
+free_form_dir1_video:
+  item:           free_form_dir1_video
+  byte_size:      602418
+  cfs_file_uuid:  7a8f2629-e9ef-9b43-34b3-908c5a53c485
+  master_type:    <%= Binary::MasterType::ACCESS %>
+  media_type:     video/mp4
   media_category: <%= Binary::MediaCategory::VIDEO %>
-  media_type: video/mpeg
-  object_key: 52/612/001.mpg
+  object_key:     repositories/1/collections/1/file_groups/1/root/dir1/video.mp4
 
-# item: sanborn_obj1_page1
-
-sanborn_obj1_page1_preservation:
-  item: sanborn_obj1_page1
-  byte_size: 224238708
-  cfs_file_uuid: d29950d0-c451-0133-1d17-0050569601ca-2
-  master_type: <%= Binary::MasterType::PRESERVATION %>
+free_form_dir1_dir1_file1:
+  item:           free_form_dir1_dir1_file1
+  byte_size:      11
+  cfs_file_uuid:  09e9b9a6-b07e-2826-a61e-caf4cf9c8eb3
+  master_type:    <%= Binary::MasterType::ACCESS %>
+  media_type:     image/jpeg
   media_category: <%= Binary::MediaCategory::IMAGE %>
-  media_type: image/tiff
-  object_key: 162/2204/1601831/preservation/1601831_001.tif
-
-sanborn_obj1_page1_access:
-  item: sanborn_obj1_page1
-  byte_size: 13173904
-  cfs_file_uuid: d25db810-c451-0133-1d17-0050569601ca-3
-  master_type: <%= Binary::MasterType::ACCESS %>
-  media_category: <%= Binary::MediaCategory::IMAGE %>
-  media_type: image/jp2
-  object_key: 162/2204/1601831/access/1601831_001.jp2
-
-# item: sanborn_obj1_page2
-
-sanborn_obj1_page2_preservation:
-  item: sanborn_obj1_page2
-  byte_size: 224238708
-  cfs_file_uuid: d29edba0-c451-0133-1d17-0050569601ca-c
-  master_type: <%= Binary::MasterType::PRESERVATION %>
-  media_category: <%= Binary::MediaCategory::IMAGE %>
-  media_type: image/tiff
-  object_key: 162/2204/1601831/preservation/1601831_002.tif
-
-sanborn_obj1_page2_access:
-  item: sanborn_obj1_page2
-  byte_size: 13032156
-  cfs_file_uuid: d2650710-c451-0133-1d17-0050569601ca-1
-  master_type: <%= Binary::MasterType::ACCESS %>
-  media_category: <%= Binary::MediaCategory::IMAGE %>
-  media_type: image/jp2
-  object_key: 162/2204/1601831/access/1601831_002.jp2
-
-# this is a short video, not linked to an item in fixtures yet
-
-short_video:
-  byte_size: 66048
-  cfs_file_uuid: b40251f0-33e0-0133-a7eb-0050569601ca-6
-  master_type: <%= Binary::MasterType::ACCESS %>
-  media_category: <%= Binary::MediaCategory::VIDEO %>
-  media_type: video/x-msvideo
-  object_key: 346/720/1505050/access/online/Chem 234 PP F02/Lectures pp/dehydrate.avi
-  duration: 9
+  object_key:     repositories/1/collections/1/file_groups/1/root/dir1/dir1/file1

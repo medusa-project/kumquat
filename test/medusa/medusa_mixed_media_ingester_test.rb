@@ -3,75 +3,61 @@ require 'test_helper'
 class MedusaMixedMediaIngesterTest < ActiveSupport::TestCase
 
   setup do
-    @ingester = MedusaMixedMediaIngester.new
-    @collection = collections(:sousa)
-
+    @ingester   = MedusaMixedMediaIngester.new
+    @collection = collections(:mixed_media)
     # These will only get in the way.
     Item.destroy_all
   end
 
   # parent_id_from_medusa()
 
-  test 'parent_id_from_medusa() should return nil with top-level items' do
-    # https://medusa.library.illinois.edu/cfs_directories/1273904.json
-    item = 'bc5d68c0-ea4e-0134-23c2-0050569601ca-2'
+  test 'parent_id_from_medusa() returns nil with top-level items' do
+    item = '1db0b737-83ea-5587-d910-06c22eb6c74c'
     assert_nil MedusaMixedMediaIngester.parent_id_from_medusa(item)
   end
 
-  test 'parent_id_from_medusa() should return the parent UUID with pages' do
-    # https://medusa.library.illinois.edu/cfs_directories/1274132.json
-    page = 'cdd5cdc0-ea4e-0134-23c2-0050569601ca-8'
-    # https://medusa.library.illinois.edu/cfs_directories/1273904.json
-    expected_parent = 'bc5d68c0-ea4e-0134-23c2-0050569601ca-2'
+  test 'parent_id_from_medusa() returns the parent UUID with pages' do
+    page            = '718035e2-09bb-ed67-ccdc-05ecdf99d999'
+    expected_parent = '1db0b737-83ea-5587-d910-06c22eb6c74c'
     assert_equal expected_parent,
                  MedusaMixedMediaIngester.parent_id_from_medusa(page)
   end
 
-  test 'parent_id_from_medusa() should return nil for non-item content' do
-    # access folder
-    # https://medusa.library.illinois.edu/cfs_directories/1275947.json
-    bogus = '8df7b5e0-ea51-0134-23c2-0050569601ca-0'
+  test 'parent_id_from_medusa() returns nil for non-item content' do
+    bogus = 'd7c201cf-876e-7768-bd95-6785666a180e' # access folder
     assert_nil MedusaMixedMediaIngester.parent_id_from_medusa(bogus)
-
-    # preservation folder
-    # https://medusa.library.illinois.edu/cfs_directories/1275948.json
-    bogus = '948a3a80-ea51-0134-23c2-0050569601ca-5'
+    bogus = '7b292841-d8aa-c4e4-6561-eb8f3cb6d00c' # preservation folder
     assert_nil MedusaMixedMediaIngester.parent_id_from_medusa(bogus)
   end
 
   # create_items()
 
-  test 'create_items() with collection file group not set should raise an error' do
+  test 'create_items() with collection file group not set raises an error' do
     @collection.medusa_file_group_id = nil
-
     assert_raises ArgumentError do
       @ingester.create_items(@collection)
     end
   end
 
-  test 'create_items() with collection package profile not set should raise an
-  error' do
+  test 'create_items() with collection package profile not set raises an error' do
     @collection.package_profile = nil
-
     assert_raises ArgumentError do
       @ingester.create_items(@collection)
     end
   end
 
-  test 'create_items() with collection package profile set incorrectly should
-  raise an error' do
+  test 'create_items() with collection package profile set incorrectly raises an
+  error' do
     @collection.package_profile = PackageProfile::COMPOUND_OBJECT_PROFILE
-
     assert_raises ArgumentError do
       @ingester.create_items(@collection)
     end
   end
 
-  test 'create_items() with no effective collection CFS directory should raise
-  an error' do
+  test 'create_items() with no effective collection CFS directory raises an
+  error' do
     @collection.medusa_cfs_directory_id = nil
-    @collection.medusa_file_group_id = nil
-
+    @collection.medusa_file_group_id    = nil
     assert_raises ArgumentError do
       @ingester.create_items(@collection)
     end
@@ -81,265 +67,218 @@ class MedusaMixedMediaIngesterTest < ActiveSupport::TestCase
   # Object packages that have only one child directory are created as
   # standalone items.
   #
-  test 'create_items() should work with non-compound items' do
-    # Set up the fixture data.
-    item_uuid = 'bb60d790-ea4e-0134-23c2-0050569601ca-d'
-    cfs_dir = @collection.effective_medusa_cfs_directory
-    tree = JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_sousa_tree.json'))
-    # Whittle it down to one item directory containing one child directory.
-    tree['subdirectories'] = tree['subdirectories'].slice(0, 1)
-    tree['subdirectories'].first['subdirectories'] =
-        tree['subdirectories'].first['subdirectories'].slice(0, 1)
-    cfs_dir.json_tree = tree
-
+  test 'create_items() works with non-compound items' do
     # Run the ingest.
     result = @ingester.create_items(@collection)
 
-    assert_equal 1, result[:num_created]
+    assert_equal 4, result[:num_created]
 
-    # Inspect the item.
-    item = Item.find_by_repository_id(item_uuid)
-    assert_equal '1676', item.title
+    # Inspect an item.
+    item = Item.find_by_repository_id('1db0b737-83ea-5587-d910-06c22eb6c74c')
+    assert_equal '1001', item.title
     assert_nil item.variant
     assert_equal 0, item.items.length
     assert_equal 2, item.binaries.length
     assert_nil item.variant
-    assert_equal 'e6c511a0-ea6a-0134-23c2-0050569601ca-2',
+    assert_equal '084f6359-3213-35d7-a29b-bfee47b6dd9d',
                  item.representative_binary.cfs_file_uuid
 
     # Inspect the item's preservation master binary.
-    bin = item.binaries.
-        select{ |b| b.master_type == Binary::MasterType::PRESERVATION }.first
+    bin = item.binaries.find{ |b| b.master_type == Binary::MasterType::PRESERVATION }
     assert_equal 'image/tiff', bin.media_type
-    assert_equal 60623897, bin.byte_size
+    assert_equal 46346, bin.byte_size
     assert_equal Binary::MediaCategory::IMAGE, bin.media_category
-    assert_equal 'e717ad00-ea6a-0134-23c2-0050569601ca-f', bin.cfs_file_uuid
-    assert_equal '1108/2833/1676/001/preservation/images/120993_008_001.tif',
+    assert_equal '742ddfb4-5221-22a2-cfdd-9f56647f4746', bin.cfs_file_uuid
+    assert_equal 'repositories/1/collections/4/file_groups/4/root/1001/001/preservation/images/1001_001.tif',
                  bin.object_key
 
     # Inspect the item's access master binary.
-    bin = item.binaries.
-        select{ |b| b.master_type == Binary::MasterType::ACCESS }.first
+    bin = item.binaries.find{ |b| b.master_type == Binary::MasterType::ACCESS }
     assert_equal 'image/jp2', bin.media_type
-    assert_equal 3419163, bin.byte_size
+    assert_equal 18836, bin.byte_size
     assert_equal Binary::MediaCategory::IMAGE, bin.media_category
-    assert_equal 'e6c511a0-ea6a-0134-23c2-0050569601ca-2', bin.cfs_file_uuid
-    assert_equal '1108/2833/1676/001/access/images/120993_008_001.jp2',
+    assert_equal '084f6359-3213-35d7-a29b-bfee47b6dd9d', bin.cfs_file_uuid
+    assert_equal 'repositories/1/collections/4/file_groups/4/root/1001/001/access/images/1001_001.jp2',
                  bin.object_key
   end
 
-  test 'create_items() should work with compound items' do
-    # Set up the fixture data.
-    item_uuid = 'bb60d790-ea4e-0134-23c2-0050569601ca-d'
-    cfs_dir = @collection.effective_medusa_cfs_directory
-    cfs_dir.json_tree =
-        JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_sousa_tree.json'))
-    assert_equal 2, cfs_dir.directories.length
-
+  test 'create_items() works with compound items' do
     # Run the ingest.
     result = @ingester.create_items(@collection)
 
-    assert_equal 10, result[:num_created]
+    assert_equal 4, result[:num_created]
 
-    # Inspect a parent item.
-    item = Item.find_by_repository_id(item_uuid)
-    assert_equal '1676', item.title
+    # Inspect the parent item.
+    item = Item.find_by_repository_id('f6ebc18a-d88b-ecd7-f25e-82c69b4ce470')
+    assert_equal '1002', item.title
     assert_nil item.variant
-    assert_equal 6, item.items.length
+
+    assert_equal 2, item.items.length
     assert_equal 0, item.binaries.length
 
-    # Inspect its first child item.
-    child = item.items.
-        select{ |it| it.repository_id == '51f81d20-ea50-0134-23c2-0050569601ca-0' }.first
+    # Inspect a child item.
+    child = item.items.find{ |it| it.repository_id == 'a6ff394a-475b-4ea4-5558-795e9ef0f98e' }
     assert_equal '001', child.title
     assert_equal 2, child.binaries.length
-    assert_equal 'e6c511a0-ea6a-0134-23c2-0050569601ca-2',
-                 child.representative_binary.cfs_file_uuid
 
-    # Inspect its first child item's binaries.
-    bin = child.binaries.
-        select{ |b| b.master_type == Binary::MasterType::PRESERVATION }.first
+    # Inspect the first child's preservation master.
+    bin = child.binaries.find{ |b| b.master_type == Binary::MasterType::PRESERVATION }
     assert_equal 'image/tiff', bin.media_type
-    assert_equal 60623897, bin.byte_size
+    assert_equal 46346, bin.byte_size
     assert_equal Binary::MediaCategory::IMAGE, bin.media_category
-    assert_equal 'e717ad00-ea6a-0134-23c2-0050569601ca-f', bin.cfs_file_uuid
-    assert_equal '1108/2833/1676/001/preservation/images/120993_008_001.tif',
+    assert_equal 'repositories/1/collections/4/file_groups/4/root/1002/001/preservation/images/1002_001.tif',
                  bin.object_key
 
-    bin = child.binaries.
-        select{ |b| b.master_type == Binary::MasterType::ACCESS }.first
+    # Inspect the first child's access master.
+    bin = child.binaries.find{ |b| b.master_type == Binary::MasterType::ACCESS }
     assert_equal 'image/jp2', bin.media_type
-    assert_equal 3419163, bin.byte_size
+    assert_equal 18836, bin.byte_size
     assert_equal Binary::MediaCategory::IMAGE, bin.media_category
-    assert_equal 'e6c511a0-ea6a-0134-23c2-0050569601ca-2', bin.cfs_file_uuid
-    assert_equal '1108/2833/1676/001/access/images/120993_008_001.jp2',
+    assert_equal 'repositories/1/collections/4/file_groups/4/root/1002/001/access/images/1002_001.jp2',
                  bin.object_key
-
-    # Inspect its 5th child item's binaries.
-    child = item.items.
-        select{ |it| it.repository_id == '5231e8a0-ea50-0134-23c2-0050569601ca-e' }.first
-    assert_equal 10, child.binaries.count
   end
 
-  test 'create_items() should extract metadata when told to' do
-    # Currently no mixed media profile collections contain embedded metadata
-    # (or at least any that is used).
+  test 'create_items() extracts metadata when told to' do
+    # Run the ingest.
+    @ingester.create_items(@collection, extract_metadata: true)
+
+    # Inspect a child item.
+    item = Item.find_by_repository_id('a6ff394a-475b-4ea4-5558-795e9ef0f98e')
+    assert_equal 'Escher Lego', item.title
   end
 
   # delete_missing()
 
-  test 'delete_missing_items() with collection file group not set should raise
-  an error' do
+  test 'delete_missing_items() with collection file group not set raises an error' do
     @collection.medusa_file_group_id = nil
-
     assert_raises ArgumentError do
       @ingester.delete_missing_items(@collection)
     end
   end
 
-  test 'delete_missing_items() with collection package profile not set should
-  raise an error' do
+  test 'delete_missing_items() with collection package profile not set raises
+  an error' do
     @collection.package_profile = nil
-
     assert_raises ArgumentError do
       @ingester.delete_missing_items(@collection)
     end
   end
 
   test 'delete_missing_items() with collection package profile set incorrectly
-  should raise an error' do
+  raises an error' do
     @collection.package_profile = PackageProfile::COMPOUND_OBJECT_PROFILE
-
     assert_raises ArgumentError do
       @ingester.delete_missing_items(@collection)
     end
   end
 
-  test 'delete_missing_items() with no effective collection CFS directory
-  should raise an error' do
+  test 'delete_missing_items() with no effective collection CFS directory raises
+  an error' do
     @collection.medusa_cfs_directory_id = nil
-    @collection.medusa_file_group_id = nil
-
+    @collection.medusa_file_group_id    = nil
     assert_raises ArgumentError do
       @ingester.delete_missing_items(@collection)
     end
   end
 
-  test 'delete_missing_items() should work' do
-    # Set up the fixture data.
-    @collection.medusa_cfs_directory_id = 'bc0b9fb0-ea4e-0134-23c2-0050569601ca-b'
-    cfs_dir = @collection.effective_medusa_cfs_directory
-    tree = JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_sousa_tree.json'))
-    # Extract a small slice of the tree.
-    tree['subdirectories'] = tree['subdirectories'][0..1]
-    cfs_dir.json_tree = tree
-
+  test 'delete_missing_items() works' do
+    skip if ENV['CI'] == '1' # TODO: unskip this after migrating to medusa-client
     # Ingest some items.
     @ingester.create_items(@collection)
 
     # Record initial conditions.
     start_num_items = Item.count
 
-    # Slice off some items from the ingest data.
-    tree['subdirectories'][0]['subdirectories'] =
-        tree['subdirectories'][0]['subdirectories'][0..3]
-    cfs_dir.json_tree = tree
+    client          = MedusaS3Client.instance
+    src_key_prefix  = 'repositories/1/collections/4/file_groups/4/root/1002'
+    dest_key_prefix = 'tmp/1002'
+    begin
+      # Temporarily move some objects out of the path of the ingester.
+      client.move_objects(src_key_prefix, dest_key_prefix)
 
-    # Delete the items.
-    result = @ingester.delete_missing_items(@collection)
+      # Delete the items.
+      # First we need to nillify some cached information from before the move. TODO: this is messy
+      @collection.instance_variable_set('@file_group', nil)
+      @collection.instance_variable_set('@cfs_directory', nil)
+      result = @ingester.delete_missing_items(@collection)
 
-    # Assert that they were deleted.
-    assert_equal start_num_items - 2, Item.count
-    assert_equal 2, result[:num_deleted]
+      # Assert that they were deleted.
+      assert_equal start_num_items - 3, Item.count
+      assert_equal 3, result[:num_deleted]
+    ensure
+      # Move the objects back into place.
+      client.move_objects(dest_key_prefix, src_key_prefix)
+    end
   end
 
   # replace_metadata()
 
-  test 'replace_metadata() with collection file group not set should raise an
+  test 'replace_metadata() with collection file group not set raises an error' do
+    @collection.medusa_file_group_id = nil
+    assert_raises ArgumentError do
+      @ingester.replace_metadata(@collection)
+    end
+  end
+
+  test 'replace_metadata() with collection package profile not set raises an
   error' do
-    @collection.medusa_file_group_id = nil
-
-    assert_raises ArgumentError do
-      @ingester.replace_metadata(@collection)
-    end
-  end
-
-  test 'replace_metadata() with collection package profile not set should raise
-  an error' do
     @collection.package_profile = nil
-
     assert_raises ArgumentError do
       @ingester.replace_metadata(@collection)
     end
   end
 
-  test 'replace_metadata() with no effective collection CFS directory should
-  raise an error' do
+  test 'replace_metadata() with no effective collection directory raises an
+  error' do
     @collection.medusa_cfs_directory_id = nil
-    @collection.medusa_file_group_id = nil
-
+    @collection.medusa_file_group_id    = nil
     assert_raises ArgumentError do
       @ingester.replace_metadata(@collection)
     end
   end
 
-  test 'replace_metadata() should work' do
-    # Currently no mixed media profile collections contain embedded metadata
-    # (or at least any that is used).
+  test 'replace_metadata() works' do
+    # TODO: write this
   end
 
   # recreate_binaries()
 
-  test 'recreate_binaries() with collection file group not set should raise an
-  error' do
+  test 'recreate_binaries() with collection file group not set raises an error' do
     @collection.medusa_file_group_id = nil
-
     assert_raises ArgumentError do
       @ingester.recreate_binaries(@collection)
     end
   end
 
-  test 'recreate_binaries() with collection package profile not set should
-  raise an error' do
+  test 'recreate_binaries() with collection package profile not set raises an
+  error' do
     @collection.package_profile = nil
-
     assert_raises ArgumentError do
       @ingester.recreate_binaries(@collection)
     end
   end
 
   test 'recreate_binaries() with collection package profile set incorrectly
-  should raise an error' do
+  raises an error' do
     @collection.package_profile = PackageProfile::COMPOUND_OBJECT_PROFILE
-
     assert_raises ArgumentError do
       @ingester.recreate_binaries(@collection)
     end
   end
 
-  test 'recreate_binaries() with no effective collection CFS directory should
-  raise an error' do
+  test 'recreate_binaries() with no effective collection directory raises an error' do
     @collection.medusa_cfs_directory_id = nil
-    @collection.medusa_file_group_id = nil
-
+    @collection.medusa_file_group_id    = nil
     assert_raises ArgumentError do
       @ingester.recreate_binaries(@collection)
     end
   end
 
-  test 'recreate_binaries() should work' do
-    # Set up the fixture data.
-    item_uuid = 'bb60d790-ea4e-0134-23c2-0050569601ca-d'
-    cfs_dir = @collection.effective_medusa_cfs_directory
-    cfs_dir.json_tree =
-        JSON.parse(File.read(__dir__ + '/../fixtures/repository/medusa_sousa_tree.json'))
-
+  test 'recreate_binaries() works' do
     # Ingest some items.
     result = @ingester.create_items(@collection)
-    assert_equal 10, result[:num_created]
 
-    # Record initial conditions.
-    start_num_items = Item.count
+    assert_equal 4, result[:num_created]
 
     # Delete all binaries.
     Binary.destroy_all
@@ -348,43 +287,32 @@ class MedusaMixedMediaIngesterTest < ActiveSupport::TestCase
     result = @ingester.recreate_binaries(@collection)
 
     # Assert that the binaries were created.
-    assert_equal 24, result[:num_created]
-    assert_equal start_num_items, Item.count
+    assert_equal 6, result[:num_created]
+    assert_equal 6, Binary.count
 
     # Inspect a parent item.
-    item = Item.find_by_repository_id(item_uuid)
-    assert_equal 0, item.binaries.length
+    item = Item.find_by_repository_id('f6ebc18a-d88b-ecd7-f25e-82c69b4ce470')
+    assert_equal 0, item.binaries.count
 
     # Inspect its first child item.
-    child = item.items.
-        select{ |it| it.repository_id == '51f81d20-ea50-0134-23c2-0050569601ca-0' }.first
+    child = item.items.find{ |it| it.repository_id == 'a6ff394a-475b-4ea4-5558-795e9ef0f98e' }
     assert_equal 2, child.binaries.length
-    assert_equal 'e6c511a0-ea6a-0134-23c2-0050569601ca-2',
-                 child.representative_binary.cfs_file_uuid
 
-    # Inspect its first child item's binaries.
-    bs = child.binaries.
-        select{ |b| b.master_type == Binary::MasterType::PRESERVATION }.first
-    assert_equal 'image/tiff', bs.media_type
-    assert_equal 60623897, bs.byte_size
-    assert_equal Binary::MediaCategory::IMAGE, bs.media_category
-    assert_equal 'e717ad00-ea6a-0134-23c2-0050569601ca-f', bs.cfs_file_uuid
-    assert_equal '1108/2833/1676/001/preservation/images/120993_008_001.tif',
-                 bs.object_key
+    # Inspect the first child's preservation master.
+    bin = child.binaries.find{ |b| b.master_type == Binary::MasterType::PRESERVATION }
+    assert_equal 'image/tiff', bin.media_type
+    assert_equal 46346, bin.byte_size
+    assert_equal Binary::MediaCategory::IMAGE, bin.media_category
+    assert_equal 'repositories/1/collections/4/file_groups/4/root/1002/001/preservation/images/1002_001.tif',
+                 bin.object_key
 
-    bs = child.binaries.
-        select{ |b| b.master_type == Binary::MasterType::ACCESS }.first
-    assert_equal 'image/jp2', bs.media_type
-    assert_equal 3419163, bs.byte_size
-    assert_equal Binary::MediaCategory::IMAGE, bs.media_category
-    assert_equal 'e6c511a0-ea6a-0134-23c2-0050569601ca-2', bs.cfs_file_uuid
-    assert_equal '1108/2833/1676/001/access/images/120993_008_001.jp2',
-                 bs.object_key
-
-    # Inspect its 5th child item's binaries.
-    child = item.items.
-        select{ |it| it.repository_id == '5231e8a0-ea50-0134-23c2-0050569601ca-e' }.first
-    assert_equal 10, child.binaries.count
+    # Inspect the first child's access master.
+    bin = child.binaries.find{ |b| b.master_type == Binary::MasterType::ACCESS }
+    assert_equal 'image/jp2', bin.media_type
+    assert_equal 18836, bin.byte_size
+    assert_equal Binary::MediaCategory::IMAGE, bin.media_category
+    assert_equal 'repositories/1/collections/4/file_groups/4/root/1002/001/access/images/1002_001.jp2',
+                 bin.object_key
   end
 
 end

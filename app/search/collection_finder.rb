@@ -243,6 +243,7 @@ class CollectionFinder < AbstractFinder
           @orders.each do |order|
             j.set! order[:field] do
               j.order order[:direction]
+              j.unmapped_type 'keyword'
             end
           end
         end

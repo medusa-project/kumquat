@@ -9,9 +9,9 @@ class ItemUpdaterTest < ActiveSupport::TestCase
   # change_element_values()
 
   test 'change_element_values() should work' do
-    items = collections(:sanborn).items
+    items = collections(:compound_object).items
 
-    item = items(:sanborn_obj1_page1)
+    item = items(:compound_object_1002_page1)
     item.elements.build(name: 'cat', value: 'tiger')
     item.elements.build(name: 'cat', value: 'leopard')
     item.save!
@@ -33,9 +33,9 @@ class ItemUpdaterTest < ActiveSupport::TestCase
   # migrate_elements()
 
   test 'migrate_elements() should work' do
-    items = collections(:sanborn).items
+    items = collections(:compound_object).items
 
-    test_item = items(:sanborn_obj1_page1)
+    test_item = items(:compound_object_1001)
     test_title = test_item.title
     assert_not_empty test_title
     assert_equal 1, test_item.elements.select{ |e| e.name == 'description' }.length
@@ -51,10 +51,10 @@ class ItemUpdaterTest < ActiveSupport::TestCase
 
   test 'replace_element_values() should work with :exact_match matching
   mode and :whole_value replace mode' do
-    items = collections(:sanborn).items
+    items = collections(:compound_object).items
 
     # Test match
-    item = items(:sanborn_obj1_page1)
+    item = items(:compound_object_1002_page1)
     item.elements.build(name: 'cat', value: 'tigers')
     item.save!
 
@@ -78,9 +78,9 @@ class ItemUpdaterTest < ActiveSupport::TestCase
 
   test 'replace_element_values() should work with :exact_match matching
   mode and :matched_part replace mode' do
-    items = collections(:sanborn).items
+    items = collections(:compound_object).items
 
-    item = items(:sanborn_obj1_page1)
+    item = items(:compound_object_1002_page1)
     item.elements.build(name: 'cat', value: 'ZZZtigersZZZ')
     item.save!
 
@@ -93,10 +93,10 @@ class ItemUpdaterTest < ActiveSupport::TestCase
 
   test 'replace_element_values() should work with :contain matching mode
   and :whole_value replace mode' do
-    items = collections(:sanborn).items
+    items = collections(:compound_object).items
 
     # Test match
-    item = items(:sanborn_obj1_page1)
+    item = items(:compound_object_1002_page1)
     item.elements.build(name: 'cat', value: 'ZZZtigersZZZ')
     item.save!
 
@@ -120,9 +120,9 @@ class ItemUpdaterTest < ActiveSupport::TestCase
 
   test 'replace_element_values() should work with :contain matching mode
   and :matched_part replace mode' do
-    items = collections(:sanborn).items
+    items = collections(:compound_object).items
 
-    item = items(:sanborn_obj1_page1)
+    item = items(:compound_object_1002_page1)
     item.elements.build(name: 'cat', value: 'ZZZtigersZZZ')
     item.save!
 
@@ -135,10 +135,10 @@ class ItemUpdaterTest < ActiveSupport::TestCase
 
   test 'replace_element_values() should work with :start matching mode and
   :whole_value replace mode' do
-    items = collections(:sanborn).items
+    items = collections(:compound_object).items
 
     # Test match
-    item = items(:sanborn_obj1_page1)
+    item = items(:compound_object_1002_page1)
     item.elements.build(name: 'cat', value: 'tigersZZZ')
     item.save!
 
@@ -162,9 +162,9 @@ class ItemUpdaterTest < ActiveSupport::TestCase
 
   test 'replace_element_values() should work with :start matching mode and
   :matched_part replace mode' do
-    items = collections(:sanborn).items
+    items = collections(:compound_object).items
 
-    item = items(:sanborn_obj1_page1)
+    item = items(:compound_object_1002_page1)
     item.elements.build(name: 'cat', value: 'tigersZZZ')
     item.save!
 
@@ -177,10 +177,10 @@ class ItemUpdaterTest < ActiveSupport::TestCase
 
   test 'replace_element_values() should work with :end matching mode and
   :whole_value replace mode' do
-    items = collections(:sanborn).items
+    items = collections(:compound_object).items
 
     # Test match
-    item = items(:sanborn_obj1_page1)
+    item = items(:compound_object_1002_page1)
     item.elements.build(name: 'cat', value: 'ZZZtigers')
     item.save!
 
@@ -204,9 +204,9 @@ class ItemUpdaterTest < ActiveSupport::TestCase
 
   test 'replace_element_values() should work with end matching mode and
   matched_part replace mode' do
-    items = collections(:sanborn).items
+    items = collections(:compound_object).items
 
-    item = items(:sanborn_obj1_page1)
+    item = items(:compound_object_1002_page1)
     item.elements.build(name: 'cat', value: 'ZZZtigers')
     item.save!
 
@@ -221,21 +221,23 @@ class ItemUpdaterTest < ActiveSupport::TestCase
 
   test 'update_from_tsv() should update items from valid TSV' do
     Item.destroy_all
-    tsv_pathname = __dir__ + '/../fixtures/repository/lincoln.tsv'
+    tsv_pathname = __dir__ + '/../fixtures/repository/compound_object.tsv'
 
     # Create the items
     tsv = File.read(tsv_pathname)
-    CSV.parse(tsv, headers: true, col_sep: "\t", quote_char: "\x00").
-        map{ |row| row.to_hash }.each do |row|
+    CSV.parse(tsv,
+              headers: true,
+              col_sep: "\t",
+              quote_char: "\x00").map(&:to_hash).each do |row|
       Item.create!(repository_id: row['uuid'],
-                   collection_repository_id: '6ff23a90-95b4-0131-1105-0050569601ca-f')
+                   collection_repository_id: collections(:compound_object).repository_id)
     end
 
-    assert_equal 6, @instance.update_from_tsv(tsv_pathname)
+    assert_equal 2, @instance.update_from_tsv(tsv_pathname)
 
     # Check their metadata
-    assert_equal 'Meserve Lincoln Photograph No. 1',
-                 Item.find_by_repository_id('06639370-0b08-0134-1d55-0050569601ca-4').title
+    assert_equal 'New Title From TSV',
+                 Item.find_by_repository_id('21353276-887c-0f2b-25a0-ed444003303f').title
   end
 
 end

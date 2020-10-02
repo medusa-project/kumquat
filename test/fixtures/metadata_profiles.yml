@@ -1,19 +1,11 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-default_metadata_profile:
+default:
   name: Default Profile
   default: true
 
-lincoln:
-  name: Lincoln
-  default: false
-
-metadata_profile_2:
-  name: Other Profile
-  default: false
-
-sanborn:
-  name: Sanborn Maps
+compound_object:
+  name: Compound Objects
   default: false
 
 unused:

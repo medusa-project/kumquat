@@ -4,12 +4,12 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
 
   # create()
 
-  test 'signing in should redirect to the admin page by default' do
+  test 'signing in redirects to the admin page by default' do
     sign_in_as(users(:admin))
     assert_redirected_to admin_root_path
   end
 
-  test 'signing in should redirect to the requested URL if provided' do
+  test 'signing in redirects to the requested URL if provided' do
 =begin TODO: get this to work
     session[:return_to] = 'http://example.org/cats'
     sign_in_as(users(:admin))
@@ -24,18 +24,18 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
 
   test 'signing in as a non-Medusa user' do
     sign_in_as("johnsmith")
-    assert_redirected_to admin_root_path
+    assert_redirected_to root_path
   end
 
   # destroy()
 
-  test 'signing out should redirect to root' do
+  test 'signing out redirects to the root path' do
     sign_in_as(users(:admin))
     sign_out
     assert_redirected_to root_url
   end
 
-  test 'signing out should unset the session cookie' do
+  test 'signing out clears the session cookie' do
     sign_in_as(users(:admin))
     sign_out
     assert_nil session[:user]
@@ -43,7 +43,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
 
   # new()
 
-  test 'new() should redirect to the sign-in path' do
+  test 'new() redirects to the sign-in path' do
     get '/signin'
     assert_redirected_to '/auth/developer'
   end

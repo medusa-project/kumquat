@@ -3,10 +3,10 @@ require 'test_helper'
 class PropagatePropertiesToItemsJobTest < ActiveSupport::TestCase
 
   setup do
-    @collection = collections(:illini_union)
+    @collection = collections(:free_form)
     @collection.reindex
     @collection.items.each(&:reindex)
-    sleep 2
+    refresh_elasticsearch
   end
 
   # perform()

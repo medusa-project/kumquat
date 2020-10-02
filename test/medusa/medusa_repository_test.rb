@@ -12,7 +12,7 @@ class MedusaRepositoryTest < ActiveSupport::TestCase
     @repo.update!(title: 'Cats')
     MedusaRepository.sync_all
     @repo.reload
-    assert_equal 'Map Library', @repo.title
+    assert_equal 'Kumquat Test Repository', @repo.title
   end
 
   test 'sync_all() deletes repositories that do not exist in Medusa' do

@@ -1,0 +1,28 @@
+# Collection info
+
+title:                   Compound Object Collection
+description:             Contains content in the compound object package profile.
+description_html:        <p>Contains content in the compound object package profile.</p>
+access_url:              https://example.org/compound
+physical_collection_url:
+publish:                 true
+representative_image:
+representative_item:
+external_id:
+contact_email:           alexd@illinois.edu
+private_description:
+resource_types:
+  - name: photographs
+  - name: still image
+access_systems:
+  - name:                Some System
+    service_owner:       alexd@illinois.edu
+    application_manager: alexd@illinois.edu
+rights:
+  rights_basis:               copyright
+  copyright_jurisdiction:     us
+  copyright_statement:
+  custom_copyright_statement:
+  access_restrictions:        DISSEMINATE
+child_collections:  []
+parent_collections: []

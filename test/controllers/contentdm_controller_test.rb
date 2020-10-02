@@ -3,7 +3,7 @@ require 'test_helper'
 class ContentdmControllerTest < ActionDispatch::IntegrationTest
 
   setup do
-    @item = items(:sanborn_obj1)
+    @item = items(:contentdm_obj1)
   end
 
   test 'gone' do

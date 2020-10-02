@@ -3,7 +3,7 @@ require 'test_helper'
 class MetadataProfileTest < ActiveSupport::TestCase
 
   setup do
-    @profile = metadata_profiles(:default_metadata_profile)
+    @profile = metadata_profiles(:default)
     assert @profile.valid?
   end
 

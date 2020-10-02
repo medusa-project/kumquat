@@ -1,0 +1,45 @@
+##
+# docker-compose file for running tests.
+#
+# Example invocation: docker-compose up --build --exit-code-from kumquat
+#
+version: '3'
+services:
+  kumquat:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile-kumquat
+    command: bash -c "sleep 20 && bin/rails db:prepare && bin/rails \"elasticsearch:indexes:recreate[kumquat]\" && bin/rails test && bin/rails zeitwerk:check"
+    #command: bash -c "sleep 20 && bin/rails db:prepare && bin/rails \"elasticsearch:indexes:recreate[kumquat]\" && tail -f /dev/null"
+  cantaloupe:
+    hostname: cantaloupe
+    build:
+      context: .
+      dockerfile: docker/Dockerfile-cantaloupe
+  elasticsearch:
+    hostname: elasticsearch
+    build:
+      context: .
+      dockerfile: docker/Dockerfile-elasticsearch
+  minio:
+    hostname: minio
+    build:
+      context: .
+      dockerfile: docker/Dockerfile-minio
+  mockdusa:
+    hostname: mockdusa
+    image: 721945215539.dkr.ecr.us-east-2.amazonaws.com/mockdusa:latest
+    environment:
+      REPOSITORY_ROOT: /repo
+    volumes:
+      - type: bind
+        source: ./docker/mockdusa/content
+        target: /repo
+        read_only: true
+  postgres:
+    hostname: postgres
+    image: postgres:12-alpine
+    environment:
+      POSTGRES_DB: kumquat
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres

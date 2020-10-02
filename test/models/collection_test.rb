@@ -4,7 +4,7 @@ class CollectionTest < ActiveSupport::TestCase
 
   setup do
     setup_elasticsearch
-    @collection = collections(:sanborn)
+    @collection = collections(:compound_object)
   end
 
   # Collection.delete_document()
@@ -50,7 +50,7 @@ class CollectionTest < ActiveSupport::TestCase
     @collection.destroy!
 
     @collection = Collection.from_medusa(uuid)
-    assert_equal 'Sanborn Fire Insurance Maps', @collection.title
+    assert_equal 'Compound Object Collection', @collection.title
   end
 
   # reindex_all()
@@ -76,19 +76,20 @@ class CollectionTest < ActiveSupport::TestCase
 
   # all_indexed_item_ids()
 
-  test 'all_indexed_item_ids returns all indexed item IDs' do
+  test 'all_indexed_item_ids() returns all indexed item IDs' do
     @collection.items.each(&:reindex)
     refresh_elasticsearch
-    assert_equal ['be8d3500-c451-0133-1d17-0050569601ca-9',
-                  'd29950d0-c451-0133-1d17-0050569601ca-2',
-                  'd29edba0-c451-0133-1d17-0050569601ca-c',
-                  'cd2d4601-c451-0133-1d17-0050569601ca-8'],
-                 @collection.all_indexed_item_ids
+    assert_equal Set.new(['21353276-887c-0f2b-25a0-ed444003303f',
+                  '6bc86d3b-e321-1a63-5172-fbf9a6e1aaab',
+                  '9dc25346-b83a-eb8a-ac2a-bdde98b5a374',
+                  '6a1d73f2-3493-1ca8-80e5-84a49d524f92',
+                  '96a95ca7-57b5-3901-1022-2093e33cba3f']),
+                 Set.new(@collection.all_indexed_item_ids)
   end
 
   # as_harvestable_json()
 
-  test 'as_harvestable_json returns the correct structure' do
+  test 'as_harvestable_json() returns the correct structure' do
     doc = @collection.as_harvestable_json
     assert_equal 'Collection', doc[:class]
     assert_equal @collection.repository_id, doc[:id]
@@ -167,10 +168,10 @@ class CollectionTest < ActiveSupport::TestCase
 
   # delete_orphaned_item_documents
 
-  test 'delete_orphaned_item_documents works' do
+  test 'delete_orphaned_item_documents() works' do
     @collection.items.each(&:reindex)
     refresh_elasticsearch
-    assert_equal 4, ItemFinder.new.
+    assert_equal 5, ItemFinder.new.
         include_unpublished(true).
         include_restricted(true).
         include_children_in_results(true).
@@ -180,7 +181,8 @@ class CollectionTest < ActiveSupport::TestCase
     @collection.items.first.destroy! # delete outside of a transaction
     @collection.delete_orphaned_item_documents
     refresh_elasticsearch
-    assert_equal 3, ItemFinder.new.
+
+    assert_equal 4, ItemFinder.new.
         include_unpublished(true).
         include_restricted(true).
         include_children_in_results(true).
@@ -224,7 +226,7 @@ class CollectionTest < ActiveSupport::TestCase
 
   test 'effective_representative_entity() returns the effective
   representative item when set' do
-    item = items(:sanborn_obj1_page1)
+    item = items(:compound_object_1002_page1)
     @collection.representative_item_id = item.repository_id
     assert_equal item.repository_id,
                  @collection.effective_representative_entity.repository_id
@@ -268,7 +270,7 @@ class CollectionTest < ActiveSupport::TestCase
   # items()
 
   test 'items returns all items' do
-    assert_equal 4, @collection.items.length
+    assert_equal 5, @collection.items.length
   end
 
   # medusa_cfs_directory()
@@ -281,7 +283,7 @@ class CollectionTest < ActiveSupport::TestCase
 
   test 'medusa_cfs_directory() returns a MedusaCfsDirectory when
   medusa_cfs_directory_id is set' do
-    @collection.medusa_cfs_directory_id = 'be8d3500-c451-0133-1d17-0050569601ca-9'
+    @collection.medusa_cfs_directory_id = '21353276-887c-0f2b-25a0-ed444003303f'
     assert_equal @collection.medusa_cfs_directory.uuid,
                  @collection.medusa_cfs_directory_id
   end
@@ -358,21 +360,21 @@ class CollectionTest < ActiveSupport::TestCase
 
   test 'num_items() works' do
     items = @collection.items
-    assert_equal 4, items.length
+    assert_equal 5, items.length
 
     items.each(&:reindex)
-
     refresh_elasticsearch
-    assert_equal 4, @collection.num_items
+
+    assert_equal 5, @collection.num_items
   end
 
   # num_objects()
 
   test 'num_objects() works with free-form collections' do
-    @collection = collections(:illini_union)
+    @collection = collections(:free_form)
     @collection.items.each(&:reindex)
     refresh_elasticsearch
-    assert_equal 1, @collection.num_objects
+    assert_equal 4, @collection.num_objects
   end
 
   test 'num_objects() works with non-free-form collections' do
@@ -384,14 +386,14 @@ class CollectionTest < ActiveSupport::TestCase
   # num_public_objects()
 
   test 'num_public_objects works with free-form collections' do
-    @collection = collections(:illini_union)
+    @collection = collections(:free_form)
     @collection.items.each do |item|
       # Need to add a title element in order to consider it "described".
       item.elements.build(name: 'title', value: 'Cats')
       item.reindex
     end
     refresh_elasticsearch
-    assert_equal 1, @collection.num_public_objects
+    assert_equal 4, @collection.num_public_objects
   end
 
   test 'num_public_objects works with non-free-form collections' do
@@ -518,7 +520,7 @@ class CollectionTest < ActiveSupport::TestCase
     @collection.reindex_items
     refresh_elasticsearch
 
-    assert_equal 4, ItemFinder.new.
+    assert_equal 5, ItemFinder.new.
         collection(@collection).
         include_unpublished(true).
         include_restricted(true).
@@ -562,19 +564,21 @@ class CollectionTest < ActiveSupport::TestCase
   # root_item()
 
   test 'root_item() returns nil for non-free-form collections' do
-    assert_nil collections(:sanborn).root_item  # compound object
-    assert_nil collections(:folksong).root_item # mixed media
-    assert_nil collections(:lincoln).root_item  # single-item object
+    assert_nil collections(:compound_object).root_item
+    assert_nil collections(:mixed_media).root_item
+    assert_nil collections(:single_item_object).root_item
   end
 
-  test 'root_item() returns nil for free-form collections whose directory is the
-  same as the file group directory' do
-    assert_nil collections(:illini_union).root_item
+  test 'root_item() returns nil for free-form collections whose directory is
+  the same as the file group directory' do
+    assert_nil collections(:free_form).root_item
   end
 
-  test 'root_item() returns an item for free-form collections whose directory is
-  different from the same as the file group directory' do
-    # TODO: write this
+  test 'root_item() returns an item for free-form collections whose directory
+  is different from the same as the file group directory' do
+    @collection = collections(:free_form)
+    @collection.medusa_cfs_directory_id = '7351760f-4b7b-5a6c-6dda-f5a92562b008'
+    assert_not_nil @collection.root_item
   end
 
   # to_param()
@@ -595,7 +599,7 @@ class CollectionTest < ActiveSupport::TestCase
 
   test 'to_s returns the repository ID if there is no title element' do
     @collection.elements.destroy_all
-    assert_equal '6ff64b00-072d-0130-c5bb-0019b9e633c5-2', @collection.title
+    assert_equal @collection.repository_id, @collection.title
   end
 
   # update_from_medusa()
@@ -615,13 +619,14 @@ class CollectionTest < ActiveSupport::TestCase
   end
 
   test 'update_from_medusa should work' do
-    uuid = '6ff64b00-072d-0130-c5bb-0019b9e633c5-2'
-    Collection.find_by_repository_id(uuid)&.destroy!
+    collection = collections(:compound_object)
+    uuid = collection.repository_id
+    collection.destroy!
 
     c = Collection.new(repository_id: uuid)
     c.update_from_medusa
 
-    assert_equal 'Sanborn Fire Insurance Maps', c.title
+    assert_equal 'Compound Object Collection', c.title
   end
 
 end

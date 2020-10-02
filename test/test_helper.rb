@@ -9,6 +9,7 @@ class ActiveSupport::TestCase
   def refresh_elasticsearch
     client = ElasticsearchClient.instance
     client.refresh(Configuration.instance.elasticsearch_index)
+    sleep 0.5 # is this necessary?
   end
 
   def setup_elasticsearch

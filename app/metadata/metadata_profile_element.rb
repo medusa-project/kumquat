@@ -46,7 +46,7 @@ class MetadataProfileElement < ApplicationRecord
   validates_uniqueness_of :name, scope: :metadata_profile_id
 
   after_create :adjust_profile_element_indexes_after_create
-  after_update :adjust_profile_element_indexes_after_update
+  before_update :adjust_profile_element_indexes_before_update
   after_destroy :adjust_profile_element_indexes_after_destroy
 
   ##
@@ -124,25 +124,9 @@ class MetadataProfileElement < ApplicationRecord
 
   ##
   # Updates the indexes of all elements in the owning {MetadataProfile} to
-  # ensure that they are sequential and zero-based.
-  #
-  def adjust_profile_element_indexes_after_destroy
-    if self.metadata_profile and self.destroyed?
-      transaction do
-        self.metadata_profile.elements.order(:index).each_with_index do |element, index|
-          # update_column skips callbacks, which would cause this method to be
-          # called recursively.
-          element.update_column(:index, index) if element.index != index
-        end
-      end
-    end
-  end
-
-  ##
-  # Updates the indexes of all elements in the owning {MetadataProfile} to
   # ensure that they are sequential.
   #
-  def adjust_profile_element_indexes_after_update
+  def adjust_profile_element_indexes_before_update
     if self.metadata_profile and self.index_changed?
       min = [self.index_was, self.index].min
       max = [self.index_was, self.index].max
@@ -158,6 +142,22 @@ class MetadataProfileElement < ApplicationRecord
           else # shift it up
             e.update_column(:index, e.index + 1)
           end
+        end
+      end
+    end
+  end
+
+  ##
+  # Updates the indexes of all elements in the owning {MetadataProfile} to
+  # ensure that they are sequential and zero-based.
+  #
+  def adjust_profile_element_indexes_after_destroy
+    if self.metadata_profile and self.destroyed?
+      transaction do
+        self.metadata_profile.elements.order(:index).each_with_index do |element, index|
+          # update_column skips callbacks, which would cause this method to be
+          # called recursively.
+          element.update_column(:index, index) if element.index != index
         end
       end
     end

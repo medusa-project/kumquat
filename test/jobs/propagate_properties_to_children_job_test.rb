@@ -9,7 +9,7 @@ class PropagatePropertiesToChildrenJobTest < ActiveSupport::TestCase
   # propagation is done in the test of Item.
   #
   test 'perform() should return' do
-    item = items(:illini_union_dir1_dir1_file1)
+    item = items(:free_form_dir1_dir1_file1)
     PropagatePropertiesToChildrenJob.perform_now(item.repository_id)
   end
 

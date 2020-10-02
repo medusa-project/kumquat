@@ -1,0 +1,15 @@
+# Git
+/.git
+
+# Docker
+/Dockerfile
+/docker-compose.yml
+
+# Application
+/Capfile
+/log
+/storage
+/tmp
+README.*
+
+.minio.sys

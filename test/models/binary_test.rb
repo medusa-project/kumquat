@@ -25,38 +25,38 @@ class BinaryTest < ActiveSupport::TestCase
   end
 
   setup do
-    @binary = binaries(:illini_union_dir1_dir1_file1)
+    @instance = binaries(:free_form_dir1_dir1_file1)
   end
 
   # total_byte_size()
 
   test 'total_byte_size() returns an accurate figure' do
-    assert Binary.total_byte_size > 100000
+    assert Binary.total_byte_size > 50000
   end
 
   # data()
 
   test 'data should return the data' do
-    data = @binary.data
+    data = @instance.data
     #assert_kind_of IO, data # TODO: this is supposed to be an IO: https://docs.aws.amazon.com/sdk-for-ruby/v3/api/Aws/S3/Types/GetObjectOutput.html#body-instance_method
-    assert_equal 1629599, data.length
+    assert_equal 11, data.length
   end
 
   # exists?()
 
   test 'exists? returns true with valid object key set' do
-    assert @binary.exists?
+    assert @instance.exists?
   end
 
   test 'exists? returns false with invalid object key set' do
-    @binary.object_key = 'bogus'
-    assert !@binary.exists?
+    @instance.object_key = 'bogus'
+    assert !@instance.exists?
   end
 
   # filename()
 
   test 'filename() should return the filename' do
-    assert_equal('banquets_002.jpg', @binary.filename)
+    assert_equal('file1', @instance.filename)
   end
 
   # human_readable_media_category()
@@ -97,178 +97,182 @@ class BinaryTest < ActiveSupport::TestCase
   # human_readable_name()
 
   test 'human_readable_name() should work properly' do
-    assert_equal 'JPEG', @binary.human_readable_name
+    assert_equal 'JPEG', @instance.human_readable_name
   end
 
   # iiif_image_identifier()
 
   test 'iiif_image_identifier returns the correct identifier for images in Medusa' do
-    assert_equal @binary.cfs_file_uuid, @binary.iiif_image_identifier
+    assert_equal @instance.cfs_file_uuid, @instance.iiif_image_identifier
   end
 
   test 'iiif_image_identifier returns the correct identifier for images in MediaSpace' do
-    @binary.media_type = 'video/cats'
-    @binary.item.embed_tag = '<iframe id="kaltura_player" src="https://cdnapisec.kaltura.com/p/1329972/sp/132997200/embedIframeJs/uiconf_id/26883701/partner_id/1329972?iframeembed=true&playerId=kaltura_player&entry_id=1_l9epfpx1&flashvars[streamerType]=auto&flashvars[localizationCode]=en&flashvars[leadWithHTML5]=true&flashvars[sideBarContainer.plugin]=true&flashvars[sideBarContainer.position]=left&flashvars[sideBarContainer.clickToClose]=true&flashvars[chapters.plugin]=true&flashvars[chapters.layout]=vertical&flashvars[chapters.thumbnailRotator]=false&flashvars[streamSelector.plugin]=true&flashvars[EmbedPlayer.SpinnerTarget]=videoHolder&flashvars[dualScreen.plugin]=true&&wid=1_27eavjaq" width="640" height="480" allowfullscreen webkitallowfullscreen mozAllowFullScreen frameborder="0"></iframe>'
+    @instance.media_type = 'video/cats'
+    @instance.item.embed_tag = '<iframe id="kaltura_player" src="https://cdnapisec.kaltura.com/p/1329972/sp/132997200/embedIframeJs/uiconf_id/26883701/partner_id/1329972?iframeembed=true&playerId=kaltura_player&entry_id=1_l9epfpx1&flashvars[streamerType]=auto&flashvars[localizationCode]=en&flashvars[leadWithHTML5]=true&flashvars[sideBarContainer.plugin]=true&flashvars[sideBarContainer.position]=left&flashvars[sideBarContainer.clickToClose]=true&flashvars[chapters.plugin]=true&flashvars[chapters.layout]=vertical&flashvars[chapters.thumbnailRotator]=false&flashvars[streamSelector.plugin]=true&flashvars[EmbedPlayer.SpinnerTarget]=videoHolder&flashvars[dualScreen.plugin]=true&&wid=1_27eavjaq" width="640" height="480" allowfullscreen webkitallowfullscreen mozAllowFullScreen frameborder="0"></iframe>'
     assert_equal 'v/1329972/132997200/1_l9epfpx1',
-                 @binary.iiif_image_identifier
+                 @instance.iiif_image_identifier
   end
 
   # iiif_image_url()
 
   test 'iiif_image_url() should return the correct URL' do
-    assert_equal Configuration.instance.iiif_url + '/' + @binary.cfs_file_uuid,
-                 @binary.iiif_image_url
+    assert_equal Configuration.instance.iiif_url + '/' + @instance.cfs_file_uuid,
+                 @instance.iiif_image_url
   end
 
   # iiif_info_url()
 
   test 'iiif_info_url() should return the correct URL' do
-    assert_equal Configuration.instance.iiif_url + '/' + @binary.cfs_file_uuid + '/info.json',
-                 @binary.iiif_info_url
+    assert_equal Configuration.instance.iiif_url + '/' + @instance.cfs_file_uuid + '/info.json',
+                 @instance.iiif_info_url
   end
 
   # image_server_safe?()
 
   test 'image_server_safe?() returns false if the instance is not image
   server-compatible' do
-    @binary.media_type = 'application/octet-stream'
-    assert !@binary.image_server_safe?
+    @instance.media_type = 'application/octet-stream'
+    assert !@instance.image_server_safe?
 
-    @binary.media_type = 'text/plain'
-    assert !@binary.image_server_safe?
+    @instance.media_type = 'text/plain'
+    assert !@instance.image_server_safe?
   end
 
   test 'image_server_safe?() returns false if a TIFF image is too big' do
-    @binary.media_type = 'image/tiff'
-    assert @binary.image_server_safe?
-    @binary.byte_size = 30000001
-    assert !@binary.image_server_safe?
+    @instance.media_type = 'image/tiff'
+    assert @instance.image_server_safe?
+    @instance.byte_size = 30000001
+    assert !@instance.image_server_safe?
   end
 
   test 'image_server_safe?() returns true in all other cases' do
-    assert @binary.image_server_safe?
+    assert @instance.image_server_safe?
   end
 
   # infer_media_type()
 
   test 'infer_media_type() works' do
-    @binary.media_type = nil
-    @binary.infer_media_type
-    assert_equal 'image/jpeg', @binary.media_type
+    @instance = binaries(:free_form_dir1_image1)
+    @instance.media_type = nil
+    @instance.infer_media_type
+    assert_equal 'image/jpeg', @instance.media_type
   end
 
   # is_3d?()
 
   test 'is_3d?() works' do
-    assert !@binary.is_3d?
+    assert !@instance.is_3d?
 
-    @binary.media_category = Binary::MediaCategory::THREE_D
-    assert @binary.is_3d?
+    @instance.media_category = Binary::MediaCategory::THREE_D
+    assert @instance.is_3d?
   end
 
   # is_audio?()
 
   test 'is_audio?() works' do
-    assert !@binary.is_audio?
+    assert !@instance.is_audio?
 
-    @binary.media_type = 'audio/aiff'
-    assert @binary.is_audio?
+    @instance.media_type = 'audio/aiff'
+    assert @instance.is_audio?
   end
 
   # is_document?()
 
   test 'is_document?() works' do
-    assert !@binary.is_document?
+    assert !@instance.is_document?
 
-    @binary.media_category = Binary::MediaCategory::DOCUMENT
-    assert @binary.is_document?
+    @instance.media_category = Binary::MediaCategory::DOCUMENT
+    assert @instance.is_document?
   end
 
   # is_image?()
 
   test 'is_image?() works' do
-    @binary.media_type = 'unknown/unknown'
-    assert !@binary.is_image?
+    @instance.media_type = 'unknown/unknown'
+    assert !@instance.is_image?
 
-    @binary.media_type = 'image/jpeg'
-    assert @binary.is_image?
+    @instance.media_type = 'image/jpeg'
+    assert @instance.is_image?
   end
 
   # is_media_space_video?()
 
   test 'is_media_space_video?() works' do
-    assert !@binary.is_media_space_video?
+    assert !@instance.is_media_space_video?
 
-    @binary.media_type = 'video/mpeg'
-    @binary.item.embed_tag = '<embed>kaltura</embed>'
-    assert @binary.is_video?
+    @instance.media_type = 'video/mpeg'
+    @instance.item.embed_tag = '<embed>kaltura</embed>'
+    assert @instance.is_video?
   end
 
   # is_pdf?()
 
   test 'is_pdf?() works' do
-    assert !@binary.is_pdf?
+    assert !@instance.is_pdf?
 
-    @binary.media_type = 'application/pdf'
-    assert @binary.is_pdf?
+    @instance.media_type = 'application/pdf'
+    assert @instance.is_pdf?
   end
 
   # is_pdf?()
 
   test 'is_raster?() works' do
-    @binary.media_type = 'unknown/unknown'
-    assert !@binary.is_raster?
+    @instance.media_type = 'unknown/unknown'
+    assert !@instance.is_raster?
 
-    @binary.media_type = 'video/mpeg'
-    assert @binary.is_raster?
-    @binary.media_type = 'image/jpeg'
-    assert @binary.is_raster?
+    @instance.media_type = 'video/mpeg'
+    assert @instance.is_raster?
+    @instance.media_type = 'image/jpeg'
+    assert @instance.is_raster?
   end
 
   # is_text?()
 
   test 'is_text?() works' do
-    assert !@binary.is_text?
+    assert !@instance.is_text?
 
-    @binary.media_type = 'text/plain'
-    assert @binary.is_text?
+    @instance.media_type = 'text/plain'
+    assert @instance.is_text?
   end
 
   # is_video?()
 
-  test 'is_video?() works' do
-    assert !@binary.is_video?
+  test 'is_video?() returns false for non-videos' do
+    assert !@instance.is_video?
+  end
 
-    @binary.media_type = 'video/mpeg'
-    assert @binary.is_video?
+  test 'is_video?() returns true for videos' do
+    @instance.media_type = 'video/mpeg'
+    assert @instance.is_video?
   end
 
   # medusa_url()
 
   test 'medusa_url should return the Medusa URL' do
-    assert_equal 'https://medusa.library.illinois.edu/uuids/7400e0a0-5ce3-0132-3334-0050569601ca-c',
-                 @binary.medusa_url
+    assert_equal ::Configuration.instance.medusa_url + '/uuids/' + @instance.cfs_file_uuid,
+                 @instance.medusa_url
   end
 
   test 'medusa_url should return nil if the CFS file UUID is not set' do
-    @binary.cfs_file_uuid = nil
-    assert_nil @binary.medusa_url
+    @instance.cfs_file_uuid = nil
+    assert_nil @instance.medusa_url
   end
 
   # metadata()
 
   test 'metadata should return metadata' do
-    assert @binary.metadata.length > 10
+    @instance = binaries(:free_form_dir1_image1)
+    assert @instance.metadata.length > 2
   end
 
   # read_dimensions()
 
   test 'read_dimensions() should work on images' do
-    @binary.width = nil
-    @binary.height = nil
-    @binary.read_dimensions
-    assert_equal 2000, @binary.width
-    assert_equal 1434, @binary.height
+    @instance = binaries(:free_form_dir1_image1)
+    @instance.width = @instance.height = nil
+    @instance.read_dimensions
+    assert_equal 128, @instance.width
+    assert_equal 112, @instance.height
   end
 
   test 'read_dimensions() should work on videos' do
@@ -278,47 +282,47 @@ class BinaryTest < ActiveSupport::TestCase
   # read_duration()
 
   test 'read_duration works with audio' do
-    @binary = binaries(:folksong_obj1_preservation)
-    @binary.duration = nil
-    @binary.read_duration
-    assert_equal 1993, @binary.duration
+    @instance = binaries(:free_form_dir1_audio)
+    @instance.duration = nil
+    @instance.read_duration
+    assert_equal 0, @instance.duration
   end
 
   test 'read_duration works with video' do
-    @binary          = binaries(:short_video)
-    @binary.duration = nil
-    @binary.read_duration
-    assert_equal 9, @binary.duration
+    @instance          = binaries(:free_form_dir1_video)
+    @instance.duration = nil
+    @instance.read_duration
+    assert_equal 2, @instance.duration
   end
 
   test 'read_duration raises an error with missing files' do
-    @binary.media_type = 'audio/wav'
-    @binary.object_key = 'bogus'
-    assert_raises IOError do
-      @binary.read_duration
+    @instance.media_type = 'audio/wav'
+    @instance.object_key = 'bogus'
+    assert_raises Aws::S3::Errors::NoSuchKey do
+      @instance.read_duration
     end
   end
 
   # read_size()
 
-  test 'read_size() should work properly' do
-    @binary.byte_size = nil
-    @binary.read_size
-    assert_equal 1629599, @binary.byte_size
+  test 'read_size() reads a correct size' do
+    @instance.byte_size = nil
+    @instance.read_size
+    assert_equal 11, @instance.byte_size
   end
 
-  test 'read_size() should raise an error with missing files' do
-    @binary.object_key = 'bogus'
-    assert_raises IOError do
-      @binary.read_size
+  test 'read_size() raises an error for missing files' do
+    @instance.object_key = 'bogus'
+    assert_raises Aws::S3::Errors::NotFound do
+      @instance.read_size
     end
   end
 
   # uri()
 
   test 'uri returns the correct URI' do
-    assert_equal "s3://#{Configuration.instance.medusa_s3_bucket}/#{@binary.object_key}",
-                 @binary.uri
+    assert_equal "s3://#{Configuration.instance.medusa_s3_bucket}/#{@instance.object_key}",
+                 @instance.uri
   end
 
 end

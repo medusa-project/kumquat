@@ -10,7 +10,7 @@ class IiifImageConverterTest < ActiveSupport::TestCase
 
   test 'convert_binary()' do
     Dir.mktmpdir do |tmpdir|
-      binary = binaries(:sanborn_obj1_page1_access)
+      binary = binaries(:compound_object_1002_page1_access)
       format = 'png'
 
       pathname = @instance.convert_binary(binary, tmpdir, format)
@@ -19,7 +19,7 @@ class IiifImageConverterTest < ActiveSupport::TestCase
                        binary.object_key.split('.')[0...-1].join('.') +
                        '.' + format,
                    pathname
-      assert File.size(pathname) > 100000
+      assert File.size(pathname) > 1000
     end
   end
 
@@ -27,7 +27,7 @@ class IiifImageConverterTest < ActiveSupport::TestCase
 
   test 'convert_images() with compound object' do
     Dir.mktmpdir do |tmpdir|
-      item = items(:sanborn_obj1)
+      item = items(:compound_object_1001)
       format = 'png'
 
       @instance.convert_images(item, tmpdir, format)
@@ -40,7 +40,7 @@ class IiifImageConverterTest < ActiveSupport::TestCase
 
   test 'convert_images() with compound object page' do
     Dir.mktmpdir do |tmpdir|
-      item = items(:sanborn_obj1_page1)
+      item = items(:compound_object_1002_page1)
       format = 'png'
 
       @instance.convert_images(item, tmpdir, format)
@@ -53,7 +53,7 @@ class IiifImageConverterTest < ActiveSupport::TestCase
 
   test 'convert_images() with directory-variant' do
     Dir.mktmpdir do |tmpdir|
-      item = items(:illini_union_dir1_dir1)
+      item = items(:free_form_dir1_dir1)
       format = 'png'
 
       @instance.convert_images(item, tmpdir, format)
@@ -66,7 +66,7 @@ class IiifImageConverterTest < ActiveSupport::TestCase
 
   test 'convert_images() with file-variant' do
     Dir.mktmpdir do |tmpdir|
-      item = items(:illini_union_dir1_dir1_file1)
+      item = items(:free_form_dir1_dir1_file1)
       format = 'png'
 
       @instance.convert_images(item, tmpdir, format)

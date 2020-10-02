@@ -27,4 +27,34 @@ class MedusaS3Client
     @client.send(method, *args, &block)
   end
 
+  ##
+  # Used only in testing. Not for use in production, as the Medusa S3 bucket is
+  # read-only.
+  #
+  # @param src_key [String]
+  # @param dest_key [String]
+  #
+  def move_object(src_key, dest_key)
+    copy_object(bucket:      BUCKET,
+                copy_source: "/#{BUCKET}/#{src_key}",
+                key:         dest_key)
+    delete_object(bucket: BUCKET, key: src_key)
+  end
+
+  ##
+  # Used only in testing. Not for use in production, as the Medusa S3 bucket is
+  # read-only.
+  #
+  # @param src_prefix [String]
+  # @param dest_prefix [String]
+  #
+  def move_objects(src_prefix, dest_prefix)
+    response = list_objects_v2(bucket: BUCKET, prefix: src_prefix)
+    response.contents.each do |object|
+      dest_key = dest_prefix.delete_suffix('/') +
+          object.key.delete_prefix(src_prefix)
+      move_object(object.key, dest_key)
+    end
+  end
+
 end

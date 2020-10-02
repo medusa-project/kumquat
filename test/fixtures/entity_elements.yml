@@ -1,30 +1,40 @@
-# collection: sanborn
-
-sanborn_title:
-  collection: sanborn
-  name: title
-  value: Sanborn Fire Insurance Maps
-  vocabulary: uncontrolled
-  type: CollectionElement
-
-# item: sanborn_obj1_page1
-
-sanborn_obj1_page1_description:
-  item: sanborn_obj1_page1
+compound_object_1001_description:
+  item: compound_object_1001
   name: description
   value: My Great Description
   vocabulary: uncontrolled
   type: ItemElement
 
-sanborn_obj1_page1_rights:
-  item: sanborn_obj1_page1
+compound_object_1001_rights:
+  item: compound_object_1001
   name: rights
   value: Sample Rights
   vocabulary: rights
   type: ItemElement
 
-sanborn_obj1_page1_title:
-  item: sanborn_obj1_page1
+compound_object_1001_title:
+  item: compound_object_1001
+  name: title
+  value: My Great Title
+  vocabulary: uncontrolled
+  type: ItemElement
+
+compound_object_1002_description:
+  item: compound_object_1002
+  name: description
+  value: My Great Description
+  vocabulary: uncontrolled
+  type: ItemElement
+
+compound_object_1002_rights:
+  item: compound_object_1002
+  name: rights
+  value: Sample Rights
+  vocabulary: rights
+  type: ItemElement
+
+compound_object_1002_title:
+  item: compound_object_1002
   name: title
   value: My Great Title
   vocabulary: uncontrolled

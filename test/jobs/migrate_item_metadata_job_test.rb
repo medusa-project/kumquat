@@ -5,10 +5,10 @@ class MigrateItemMetadataJobTest < ActiveSupport::TestCase
   # perform()
 
   test 'perform() should work with a Collection argument' do
-    col = collections(:illini_union)
+    col = collections(:free_form)
     assert col.items.count > 0
 
-    src_element_name = 'old_bogus'
+    src_element_name  = 'old_bogus'
     dest_element_name = 'new_bogus'
 
     col.items.each do |item|
@@ -29,10 +29,10 @@ class MigrateItemMetadataJobTest < ActiveSupport::TestCase
   end
 
   test 'perform() should work with an ItemSet argument' do
-    set = item_sets(:sanborn)
+    set = item_sets(:one)
     assert set.items.count > 0
 
-    src_element_name = 'old_bogus'
+    src_element_name  = 'old_bogus'
     dest_element_name = 'new_bogus'
 
     set.items.each do |item|
@@ -53,10 +53,10 @@ class MigrateItemMetadataJobTest < ActiveSupport::TestCase
   end
 
   test 'perform() should work with an Enumerable of Items argument' do
-    items = collections(:illini_union).items
+    items = collections(:free_form).items
     assert items.count > 0
 
-    src_element_name = 'old_bogus'
+    src_element_name  = 'old_bogus'
     dest_element_name = 'new_bogus'
 
     items.each do |item|

@@ -8,9 +8,9 @@ class AgentUri < ApplicationRecord
 
   validates_presence_of :uri
 
-  after_create :create_vocabulary_term
-  after_update :update_vocabulary_term
-  after_destroy :destroy_vocabulary_term
+  before_create :create_vocabulary_term
+  before_update :update_vocabulary_term
+  before_destroy :destroy_vocabulary_term
 
   ##
   # @return [String] The URI.

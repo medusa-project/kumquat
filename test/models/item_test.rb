@@ -3,22 +3,26 @@ require 'test_helper'
 class ItemTest < ActiveSupport::TestCase
 
   setup do
+    ActionMailer::Base.deliveries.clear
     setup_elasticsearch
-    @item = items(:sanborn_obj1_page1)
+    @item = items(:compound_object_1002)
   end
 
   # Item.delete_document()
 
   test 'delete_document() deletes a document' do
-    items = Item.all.limit(5)
-    items.each(&:reindex)
+    Item.reindex_all
     refresh_elasticsearch
-    count = ItemFinder.new.count
-    assert count > 0
 
-    Item.delete_document(items.first.repository_id)
+    index = Configuration.instance.elasticsearch_index
+    item  = items(:compound_object_1002_page1)
+    assert_not_nil ElasticsearchClient.instance.get_document(index,
+                                                             item.repository_id)
+
+    Item.delete_document(item.repository_id)
     refresh_elasticsearch
-    assert_equal count - 1, ItemFinder.new.count
+    assert_nil ElasticsearchClient.instance.get_document(index,
+                                                         item.repository_id)
   end
 
   # Item.delete_orphaned_documents()
@@ -40,7 +44,7 @@ class ItemTest < ActiveSupport::TestCase
   # Item.num_free_form_files()
 
   test 'num_free_form_files() returns a correct count' do
-    Item.all.each(&:reindex)
+    Item.reindex_all
     refresh_elasticsearch
     assert_equal Item.where(variant: Item::Variants::FILE).count,
                  Item.num_free_form_files
@@ -49,7 +53,7 @@ class ItemTest < ActiveSupport::TestCase
   # Item.num_free_form_items()
 
   test 'num_free_form_items() returns a correct count' do
-    Item.all.each(&:reindex)
+    Item.reindex_all
     refresh_elasticsearch
     assert_equal Item.where(variant: [Item::Variants::FILE, Item::Variants::DIRECTORY]).count,
                  Item.num_free_form_items
@@ -58,7 +62,7 @@ class ItemTest < ActiveSupport::TestCase
   # Item.num_objects()
 
   test 'num_objects() returns a correct count' do
-    Item.all.each(&:reindex)
+    Item.reindex_all
     refresh_elasticsearch
     assert_equal Item.where('variant = ? OR variant IS NULL',
                             Item::Variants::FILE).count,
@@ -89,24 +93,24 @@ class ItemTest < ActiveSupport::TestCase
   # all_children()
 
   test 'all_children() returns the correct items' do
-    assert_equal items(:sanborn_obj1).items.count,
-                 items(:sanborn_obj1).all_children.count
+    assert_equal items(:compound_object_1001).items.count,
+                 items(:compound_object_1001).all_children.count
   end
 
   # all_files()
 
   test 'all_files() returns the correct items' do
-    assert_equal 1, items(:illini_union_dir1_dir1).all_files.count
+    assert_equal 1, items(:free_form_dir1_dir1).all_files.count
   end
 
   # all_parents()
 
   test 'all_parents() returns the parents' do
-    result = items(:illini_union_dir1_dir1_file1).all_parents
+    result = items(:free_form_dir1_dir1_file1).all_parents
     assert_equal 2, result.count
-    assert_equal items(:illini_union_dir1_dir1).repository_id,
+    assert_equal items(:free_form_dir1_dir1).repository_id,
                  result[0].repository_id
-    assert_equal items(:illini_union_dir1).repository_id,
+    assert_equal items(:free_form_dir1).repository_id,
                  result[1].repository_id
   end
 
@@ -158,10 +162,8 @@ class ItemTest < ActiveSupport::TestCase
     assert_not_empty doc[Item::IndexFields::LAST_INDEXED]
     assert_equal @item.updated_at.utc.iso8601,
                  doc[Item::IndexFields::LAST_MODIFIED]
-    assert_equal({ lat: @item.latitude, lon: @item.longitude },
-                 doc[Item::IndexFields::LAT_LONG])
-    assert_equal(@item.parent.repository_id,
-                 doc[Item::IndexFields::OBJECT_REPOSITORY_ID])
+    assert_nil doc[Item::IndexFields::LAT_LONG]
+    assert_nil doc[Item::IndexFields::PARENT_ITEM]
     assert_equal @item.page_number,
                  doc[Item::IndexFields::PAGE_NUMBER]
     assert_equal @item.parent_repository_id,
@@ -177,7 +179,7 @@ class ItemTest < ActiveSupport::TestCase
                  doc[Item::IndexFields::REPRESENTATIVE_FILENAME]
     assert_equal @item.representative_item_repository_id,
                  doc[Item::IndexFields::REPRESENTATIVE_ITEM]
-    assert_equal "#{@item.parent_repository_id}-iaa-0000000000000001-zzz-#{@item.title.downcase}",
+    assert_equal "#{@item.repository_id}-aaa-zzz-zzz-#{@item.title.downcase}",
                  doc[Item::IndexFields::STRUCTURAL_SORT]
     assert_equal @item.subpage_number,
                  doc[Item::IndexFields::SUBPAGE_NUMBER]
@@ -195,6 +197,7 @@ class ItemTest < ActiveSupport::TestCase
   # as_json()
 
   test 'as_json() returns the correct structure' do
+    @item  = items(:compound_object_1001)
     struct = @item.as_json
     assert_equal @item.repository_id, struct['repository_id']
     # We'll trust that all the other properties are present.
@@ -230,8 +233,7 @@ class ItemTest < ActiveSupport::TestCase
   # collection()
 
   test 'collection() returns the collection' do
-    item = items(:sanborn_obj1)
-    assert_equal collections(:sanborn), item.collection
+    assert_equal collections(:compound_object), @item.collection
   end
 
   # collection_repository_id
@@ -248,7 +250,7 @@ class ItemTest < ActiveSupport::TestCase
 
   test 'described?() returns true when the item is in a free-form collection
   and has a title element' do
-    @item.collection = collections(:illini_union)
+    @item.collection = collections(:free_form)
     @item.elements.destroy_all
     @item.elements.build(name: 'title', value: 'cats')
     assert @item.described?
@@ -256,7 +258,7 @@ class ItemTest < ActiveSupport::TestCase
 
   test 'described?() returns true when the item is in a free-form collection
   and has directory variant' do
-    @item.collection = collections(:illini_union)
+    @item.collection = collections(:free_form)
     @item.elements.destroy_all
     @item.variant = Item::Variants::DIRECTORY
     assert @item.described?
@@ -264,7 +266,7 @@ class ItemTest < ActiveSupport::TestCase
 
   test 'described?() returns false when the item is in a free-form collection,
   has no title element, and is not directory-variant' do
-    @item.collection = collections(:illini_union)
+    @item.collection = collections(:free_form)
     @item.elements.destroy_all
     @item.variant = nil
     assert !@item.described?
@@ -312,22 +314,22 @@ class ItemTest < ActiveSupport::TestCase
 
   test 'effective_representative_entity returns the representative item
         when it is assigned' do
-    id = 'a53add10-5ca8-0132-3334-0050569601ca-7'
+    id = items(:compound_object_1001).repository_id
     @item.representative_item_repository_id = id
     assert_equal id, @item.effective_representative_entity.repository_id
   end
 
   test 'effective_representative_entity returns the first page when
         representative_item_repository_id is not set' do
-    @item = items(:sanborn_obj1)
+    @item = items(:compound_object_1002)
     @item.representative_item_repository_id = nil
-    assert_equal 'd29950d0-c451-0133-1d17-0050569601ca-2',
+    assert_equal '6a1d73f2-3493-1ca8-80e5-84a49d524f92',
                  @item.effective_representative_entity.repository_id
   end
 
   test 'effective_representative_entity returns the instance when
         representative_item_repository_id is not set and it has no pages' do
-    @item = items(:sanborn_obj1)
+    @item = items(:compound_object_1001)
     @item.representative_item_repository_id = nil
     @item.items.delete_all
     assert_equal @item.repository_id,
@@ -337,6 +339,7 @@ class ItemTest < ActiveSupport::TestCase
   # effective_rights_statement()
 
   test 'effective_rights_statement() returns the statement of the instance' do
+    @item = items(:compound_object_1001)
     assert_equal 'Sample Rights', @item.effective_rights_statement
   end
 
@@ -366,6 +369,7 @@ class ItemTest < ActiveSupport::TestCase
 
   test 'effective_rightsstatements_org_statement() should fall back to a parent
   statement' do
+    @item = items(:compound_object_1002_page1)
     @item.elements.where(name: 'accessRights').destroy_all
     @item.parent.elements.build(name: 'accessRights',
                                 uri: 'http://rightsstatements.org/vocab/NoC-OKLR/1.0/')
@@ -385,6 +389,7 @@ class ItemTest < ActiveSupport::TestCase
   # element()
 
   test 'element() should work' do
+    @item = items(:compound_object_1001)
     assert_equal 'My Great Title', @item.element('title').value
     assert_nil @item.element('bogus')
   end
@@ -406,8 +411,9 @@ class ItemTest < ActiveSupport::TestCase
   # migrate_elements()
 
   test 'migrate_elements() should work' do
+    @item           = items(:compound_object_1001)
     source_elements = @item.elements.select{ |e| e.name == 'title' }
-    dest_elements = @item.elements.select{ |e| e.name == 'test' }
+    dest_elements   = @item.elements.select{ |e| e.name == 'test' }
 
     assert_equal 1, source_elements.length
     assert_equal 0, dest_elements.length
@@ -416,7 +422,7 @@ class ItemTest < ActiveSupport::TestCase
     @item.reload
 
     source_elements = @item.elements.select{ |e| e.name == 'title' }
-    dest_elements = @item.elements.select{ |e| e.name == 'test' }
+    dest_elements   = @item.elements.select{ |e| e.name == 'test' }
 
     assert_equal 0, source_elements.length
     assert_equal 1, dest_elements.length
@@ -509,7 +515,8 @@ class ItemTest < ActiveSupport::TestCase
   # representative_filename()
 
   test 'representative_filename() returns the representative filename' do
-    assert_equal '1601831_001', @item.representative_filename
+    @item = items(:compound_object_1002_page1)
+    assert_equal '1002_001', @item.representative_filename
   end
 
   # representative_item()
@@ -528,7 +535,7 @@ class ItemTest < ActiveSupport::TestCase
   test 'representative_item() returns an item when
   representative_item_repository_id is valid' do
     @item.representative_item_repository_id =
-        items(:illini_union_dir1_dir1_file1).repository_id
+        items(:free_form_dir1_dir1_file1).repository_id
     assert_kind_of Item, @item.representative_item
   end
 
@@ -545,28 +552,29 @@ class ItemTest < ActiveSupport::TestCase
   # root_parent()
 
   test 'root_parent returns the root parent, if available' do
-    @item = items(:illini_union_dir1_dir1_file1)
-    assert_equal items(:illini_union_dir1).repository_id,
+    @item = items(:free_form_dir1_dir1_file1)
+    assert_equal items(:free_form_dir1).repository_id,
                  @item.root_parent.repository_id
   end
 
   test 'root_parent returns the instance if it has no parents' do
-    @item = items(:sanborn_obj1)
+    @item = items(:compound_object_1001)
     assert_same @item, @item.root_parent
   end
 
   # save
 
   test 'save() cleans up allowed NetIDs' do
+    expires = Time.now.to_i + 3.hours.to_i
     @item.allowed_netids = [
-        { netid: 'bob', expires: Time.now.to_i + 3.hours.to_i },
-        { netid: 'joe ', expires: Time.now.to_i + 3.hours.to_i },
-        { netid: '', expires: Time.now.to_i + 3.hours.to_i }
+        { netid: 'bob', expires: expires },
+        { netid: 'joe ', expires: expires },
+        { netid: '', expires: expires }
     ]
     @item.save!
     assert_equal [
-                     { netid: 'bob', expires: Time.now.to_i + 3.hours.to_i },
-                     { netid: 'joe', expires: Time.now.to_i + 3.hours.to_i }
+                     { netid: 'bob', expires: expires },
+                     { netid: 'joe', expires: expires }
                  ],
                  @item.allowed_netids
 
@@ -577,19 +585,50 @@ class ItemTest < ActiveSupport::TestCase
 
   test 'save() notifies new allowed NetIDs' do
     assert ActionMailer::Base.deliveries.empty?
-    @item.allowed_netids = ['bob', 'joe']
+    @item.allowed_netids = [
+        {
+            netid: 'bob',
+            expires: Time.now.to_i + 21.days.to_i
+        },
+        {
+            netid: 'joe',
+            expires: Time.now.to_i + 21.days.to_i
+        }
+    ]
     @item.save!
     assert_equal 2, ActionMailer::Base.deliveries.length
   end
 
   test 'save() does not notify existing allowed NetIDs' do
     assert ActionMailer::Base.deliveries.empty?
-    @item.allowed_netids = ['bob', 'joe']
+    @item.allowed_netids = [
+        {
+            netid: 'bob',
+            expires: Time.now.to_i + 21.days.to_i
+        },
+        {
+            netid: 'joe',
+            expires: Time.now.to_i + 21.days.to_i
+        }
+    ]
     @item.save!
     assert_equal 2, ActionMailer::Base.deliveries.length
 
     ActionMailer::Base.deliveries.clear
-    @item.allowed_netids = ['bob', 'joe', "stan"]
+    @item.allowed_netids = [
+        {
+            netid: 'bob',
+            expires: Time.now.to_i + 21.days.to_i
+        },
+        {
+            netid: 'joe',
+            expires: Time.now.to_i + 21.days.to_i
+        },
+        {
+            netid: 'stan',
+            expires: Time.now.to_i + 21.days.to_i
+        }
+    ]
     @item.save!
     assert_equal 1, ActionMailer::Base.deliveries.length
   end
@@ -624,63 +663,57 @@ class ItemTest < ActiveSupport::TestCase
   test 'save() copies allowed_host_groups and denied_host_groups into
   effective_allowed_host_groups and effective_denied_host_groups when they
   exist' do
-    item = items(:sanborn_obj1_page1)
-
     # Create initial allowed and denied host groups.
-    item.allowed_host_groups << host_groups(:blue)
-    item.denied_host_groups << host_groups(:yellow)
+    @item.allowed_host_groups << host_groups(:blue)
+    @item.denied_host_groups << host_groups(:yellow)
     # Assert that they get propagated to effective host groups.
-    item.save!
-    assert_equal 1, item.effective_allowed_host_groups.length
-    assert_equal 'blue', item.effective_allowed_host_groups.first.key
-    assert_equal 1, item.effective_denied_host_groups.length
-    assert_equal 'yellow', item.effective_denied_host_groups.first.key
+    @item.save!
+    assert_equal 1, @item.effective_allowed_host_groups.length
+    assert_equal 'blue', @item.effective_allowed_host_groups.first.key
+    assert_equal 1, @item.effective_denied_host_groups.length
+    assert_equal 'yellow', @item.effective_denied_host_groups.first.key
 
     # Clear them out and change them.
-    item.allowed_host_groups.destroy_all
-    item.allowed_host_groups << host_groups(:green)
-    item.denied_host_groups.destroy_all
-    item.denied_host_groups << host_groups(:red)
+    @item.allowed_host_groups.destroy_all
+    @item.allowed_host_groups << host_groups(:green)
+    @item.denied_host_groups.destroy_all
+    @item.denied_host_groups << host_groups(:red)
     # Assert that they get propagated to effective host groups.
-    item.save!
-    assert_equal 1, item.effective_allowed_host_groups.length
-    assert_equal 'green', item.effective_allowed_host_groups.first.key
-    assert_equal 1, item.effective_denied_host_groups.length
-    assert_equal 'red', item.effective_denied_host_groups.first.key
+    @item.save!
+    assert_equal 1, @item.effective_allowed_host_groups.length
+    assert_equal 'green', @item.effective_allowed_host_groups.first.key
+    assert_equal 1, @item.effective_denied_host_groups.length
+    assert_equal 'red', @item.effective_denied_host_groups.first.key
   end
 
   test 'save() copies parent allowed_host_groups and denied_host_groups into
   effective_allowed_host_groups and effective_denied_host_groups when they are
   not set on the instance' do
-    item = items(:sanborn_obj1_page1)
-
     # Create initial allowed and denied host groups.
-    item.parent.allowed_host_groups << host_groups(:blue)
-    item.parent.denied_host_groups << host_groups(:yellow)
+    @item.allowed_host_groups << host_groups(:blue)
+    @item.denied_host_groups  << host_groups(:yellow)
 
     # Assert that they get propagated to effective host groups.
-    item.save!
-    assert_equal 1, item.effective_allowed_host_groups.length
-    assert_equal 'blue', item.effective_allowed_host_groups.first.key
-    assert_equal 1, item.effective_denied_host_groups.length
-    assert_equal 'yellow', item.effective_denied_host_groups.first.key
+    @item.save!
+    assert_equal 1, @item.effective_allowed_host_groups.length
+    assert_equal 'blue', @item.effective_allowed_host_groups.first.key
+    assert_equal 1, @item.effective_denied_host_groups.length
+    assert_equal 'yellow', @item.effective_denied_host_groups.first.key
   end
 
   test 'save() copies collection allowed_host_groups and denied_host_groups
   into effective_allowed_host_groups and effective_denied_host_groups when they
   are not set on the instance nor a parent' do
-    item = items(:sanborn_obj1_page1)
-
     # Create initial allowed and denied host groups.
-    item.collection.allowed_host_groups << host_groups(:blue)
-    item.collection.denied_host_groups << host_groups(:yellow)
+    @item.collection.allowed_host_groups << host_groups(:blue)
+    @item.collection.denied_host_groups << host_groups(:yellow)
 
     # Assert that they get propagated to effective host groups.
-    item.save!
-    assert_equal 1, item.effective_allowed_host_groups.length
-    assert_equal 'blue', item.effective_allowed_host_groups.first.key
-    assert_equal 1, item.effective_denied_host_groups.length
-    assert_equal 'yellow', item.effective_denied_host_groups.first.key
+    @item.save!
+    assert_equal 1, @item.effective_allowed_host_groups.length
+    assert_equal 'blue', @item.effective_allowed_host_groups.first.key
+    assert_equal 1, @item.effective_denied_host_groups.length
+    assert_equal 'yellow', @item.effective_denied_host_groups.first.key
   end
 
   test 'save() sets normalized coordinates' do
@@ -728,13 +761,10 @@ class ItemTest < ActiveSupport::TestCase
 
   test 'supplementary_item() returns the supplementary item, or nil if
   none exists' do
-    assert_nil @item.supplementary_item
-
-    Item.create!(repository_id: SecureRandom.uuid,
-                 collection_repository_id: @item.collection_repository_id,
-                 parent_repository_id: @item.repository_id,
-                 variant: Item::Variants::SUPPLEMENT)
     assert_equal Item::Variants::SUPPLEMENT, @item.supplementary_item.variant
+
+    @item.items.where(variant: Item::Variants::SUPPLEMENT).destroy_all
+    assert_nil @item.supplementary_item
   end
 
   # three_d_item()
@@ -770,34 +800,35 @@ class ItemTest < ActiveSupport::TestCase
   # update_from_embedded_metadata
 
   test 'update_from_embedded_metadata works' do
-    @item = items(:illini_union_dir1_dir1_file1)
+    @item = items(:free_form_dir1_image)
     @item.elements.destroy_all
     @item.update_from_embedded_metadata(include_date_created: true)
 
     assert_equal 1, @item.elements.
-        select{ |e| e.name == 'title' and e.value == 'Illini Union Photographs Record Series 3707005' }.length
+        select{ |e| e.name == 'title' && e.value == 'Escher Lego' }.length
     assert_equal 1, @item.elements.
-        select{ |e| e.name == 'creator' and e.value == 'University of Illinois Library' }.length
+        select{ |e| e.name == 'creator' && e.value == 'Lego Enthusiast' }.length
     assert_equal 1, @item.elements.
-        select{ |e| e.name == 'dateCreated' and e.value == '2012-10-10' }.length
+        select{ |e| e.name == 'dateCreated' && e.value == '2012-10-10' }.length
   end
 
   # update_from_json
 
   test 'update_from_json() should work' do
-    struct = @item.as_json
-    struct['contentdm_alias'] = 'cats'
-    struct['contentdm_pointer'] = 99
-    struct['embed_tag'] = '<embed></embed>'
-    struct['page_number'] = 60
-    struct['published'] = true
-    struct['representative_item_repository_id'] =
-        'd29950d0-c451-0133-1d17-0050569601ca-2'
-    struct['subpage_number'] = 61
-    struct['variant'] = Item::Variants::PAGE
-    desc = struct['elements'].select{ |e| e['name'] == 'description' }.first
-    desc['string'] = 'Something'
-    desc['uri'] = 'http://example.org/something'
+    struct                                      = @item.as_json
+    struct['contentdm_alias']                   = 'cats'
+    struct['contentdm_pointer']                 = 99
+    struct['embed_tag']                         = '<embed></embed>'
+    struct['page_number']                       = 60
+    struct['published']                         = true
+    struct['representative_item_repository_id'] = 'd29950d0-c451-0133-1d17-0050569601ca-2'
+    struct['subpage_number']                    = 61
+    struct['variant']                           = Item::Variants::PAGE
+    desc = struct['elements'].find{ |e| e['name'] == 'description' }
+    if desc
+      desc['string']                            = 'Something'
+      desc['uri']                               = 'http://example.org/something'
+    end
 
     json = JSON.generate(struct)
 
@@ -861,31 +892,31 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal Item::Variants::PAGE, @item.variant
 
     assert_equal 5, @item.elements.length
-    assert_equal 1, @item.elements.select{ |e| e.name == 'title' and
+    assert_equal 1, @item.elements.select{ |e| e.name == 'title' &&
         e.value == 'Cats & Stuff' }.length
-    assert_equal 1, @item.elements.select{ |e| e.name == 'description' and
-        e.value == 'cats' and e.uri == 'http://example.org/cats1' }.length
-    assert_equal 1, @item.elements.select{ |e| e.name == 'description' and
-        e.value == 'and more cats' and e.uri == 'http://example.org/cats2' }.length
-    assert_equal 1, @item.elements.select{ |e| e.name == 'subject' and
-        e.value == 'Cats' and e.vocabulary == vocabularies(:lcsh) }.length
+    assert_equal 1, @item.elements.select{ |e| e.name == 'description' &&
+        e.value == 'cats' && e.uri == 'http://example.org/cats1' }.length
+    assert_equal 1, @item.elements.select{ |e| e.name == 'description' &&
+        e.value == 'and more cats' && e.uri == 'http://example.org/cats2' }.length
+    assert_equal 1, @item.elements.select{ |e| e.name == 'subject' &&
+        e.value == 'Cats' && e.vocabulary == vocabularies(:lcsh) }.length
   end
 
   test 'update_from_tsv() raises an error when given an invalid element name' do
-    row = {}
-    row['Title'] = 'Cats'
-    row['TotallyBogus'] = 'Felines'
-
+    row = {
+        'Title'        => 'Cats',
+        'TotallyBogus' => 'Felines'
+    }
     assert_raises ArgumentError do
       @item.update_from_tsv(row)
     end
   end
 
   test 'update_from_tsv() raises an error when given an invalid vocabulary prefix' do
-    row = {}
-    row['Title'] = 'Cats'
-    row['bogus:Subject'] = 'Felines'
-
+    row = {
+        'Title'         => 'Cats',
+        'bogus:Subject' => 'Felines'
+    }
     assert_raises ArgumentError do
       @item.update_from_tsv(row)
     end
@@ -894,7 +925,8 @@ class ItemTest < ActiveSupport::TestCase
   # virtual_filename()
 
   test 'virtual_filename() works properly' do
-    assert_equal @item.binaries.select{ |b| b.master_type == Binary::MasterType::PRESERVATION }.first.filename,
+    @item = items(:compound_object_1002_page1)
+    assert_equal @item.binaries.find{ |b| b.master_type == Binary::MasterType::PRESERVATION }.filename,
                  @item.virtual_filename
 
     @item.binaries.destroy_all
@@ -905,7 +937,7 @@ class ItemTest < ActiveSupport::TestCase
 
   test 'walk_tree() walks the tree' do
     count = 0
-    @item = items(:sanborn_obj1)
+    @item = items(:compound_object_1001)
     @item.walk_tree do |item|
       assert_kind_of(Item, item)
       count += 1

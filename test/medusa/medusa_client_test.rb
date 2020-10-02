@@ -10,15 +10,15 @@ class MedusaClientTest < ActiveSupport::TestCase
 
   test 'class_of_uuid() should return the correct class' do
     # file group
-    uuid = '7afc3e80-b41b-0134-234d-0050569601ca-7'
+    uuid = '5881d456-6dbe-90f1-ac81-7e0bf53e9c84'
     assert_equal MedusaFileGroup, @instance.class_of_uuid(uuid)
 
     # directory
-    uuid = '7b1f3340-b41b-0134-234d-0050569601ca-8'
+    uuid = '1b760655-c504-7fce-f171-76e4234844da'
     assert_equal MedusaCfsDirectory, @instance.class_of_uuid(uuid)
 
     # file
-    uuid = '6cc533c0-cebf-0134-238a-0050569601ca-3'
+    uuid = '39582239-4307-1cc6-c9c6-074516fd7635'
     assert_equal MedusaCfsFile, @instance.class_of_uuid(uuid)
   end
 

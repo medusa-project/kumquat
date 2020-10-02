@@ -13,7 +13,7 @@ class MedusaCfsFileTest < ActiveSupport::TestCase
   end
 
   test 'file?() should work properly with files' do
-    assert MedusaCfsFile.file?('6e3c33c0-5ce3-0132-3334-0050569601ca-f')
+    assert MedusaCfsFile.file?('39582239-4307-1cc6-c9c6-074516fd7635')
   end
 
   # with_uuid()
@@ -36,14 +36,14 @@ class MedusaCfsFileTest < ActiveSupport::TestCase
   # pathname()
 
   test 'pathname() should return the correct pathname' do
-    assert_equal('/162/2204/1601831/access/1601831_001.jp2', @file.pathname)
+    assert_equal('repositories/1/collections/1/file_groups/1/root/dir1/image1.jpg', @file.pathname)
   end
 
   # repository_relative_pathname()
 
   test 'repository_relative_pathname() should return the correct
   repository-relative pathname' do
-    assert_equal('/162/2204/1601831/access/1601831_001.jp2',
+    assert_equal('repositories/1/collections/1/file_groups/1/root/dir1/image1.jpg',
                  @file.repository_relative_pathname)
   end
 
@@ -52,12 +52,12 @@ class MedusaCfsFileTest < ActiveSupport::TestCase
   test 'to_binary() should return a correct binary' do
     binary = @file.to_binary(Binary::MasterType::PRESERVATION)
     assert_equal Binary::MasterType::PRESERVATION, binary.master_type
-    assert_equal @file.repository_relative_pathname, '/' + binary.object_key
-    assert_equal 13173904, binary.byte_size
-    assert_equal 'image/jp2', binary.media_type
+    assert_equal @file.repository_relative_pathname, binary.object_key
+    assert_equal 6302, binary.byte_size
+    assert_equal 'image/jpeg', binary.media_type
     assert_equal Binary::MediaCategory::IMAGE, binary.media_category
-    assert_equal 3372, binary.width
-    assert_equal 4000, binary.height
+    assert_equal 128, binary.width
+    assert_equal 112, binary.height
   end
 
   test 'to_binary() should override the media category when supplied' do
@@ -71,7 +71,7 @@ class MedusaCfsFileTest < ActiveSupport::TestCase
 
   test 'url() should return the correct url' do
     assert_equal(Configuration.instance.medusa_url.chomp('/') +
-                     '/uuids/d25db810-c451-0133-1d17-0050569601ca-3',
+                     '/uuids/39582239-4307-1cc6-c9c6-074516fd7635',
                  @file.url)
   end
 

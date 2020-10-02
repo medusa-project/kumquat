@@ -1,7 +1,9 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
+# default
+
 default_profile_title:
-  metadata_profile: default_metadata_profile
+  metadata_profile: default
   dc_map: title
   dcterms_map: title
   facetable: false
@@ -16,7 +18,7 @@ default_profile_title:
     - uncontrolled
 
 default_profile_coordinates:
-  metadata_profile: default_metadata_profile
+  metadata_profile: default
   dc_map: spatial
   dcterms_map: spatial
   facetable: false
@@ -31,7 +33,7 @@ default_profile_coordinates:
     - uncontrolled
 
 default_profile_creator:
-  metadata_profile: default_metadata_profile
+  metadata_profile: default
   dc_map: creator
   dcterms_map: creator
   facetable: true
@@ -46,7 +48,7 @@ default_profile_creator:
     - uncontrolled
 
 default_profile_dateCreated:
-  metadata_profile: default_metadata_profile
+  metadata_profile: default
   dc_map: created
   dcterms_map: created
   facetable: false
@@ -61,7 +63,7 @@ default_profile_dateCreated:
     - uncontrolled
 
 default_profile_description:
-  metadata_profile: default_metadata_profile
+  metadata_profile: default
   dc_map: description
   dcterms_map: description
   facetable: false
@@ -76,7 +78,7 @@ default_profile_description:
     - uncontrolled
 
 default_profile_subject:
-  metadata_profile: default_metadata_profile
+  metadata_profile: default
   dc_map: subject
   dcterms_map: subject
   facetable: true
@@ -91,40 +93,10 @@ default_profile_subject:
     - lcsh
     - tgm
 
-# metadata profile: lincoln
+# compound_object collection
 
-lincoln_creator:
-  metadata_profile: lincoln
-  dc_map: creator
-  dcterms_map: creator
-  facetable: false
-  index: 0
-  label: Creator
-  name: creator
-  searchable: true
-  sortable: true
-  visible: true
-  indexed: true
-  vocabularies:
-    - uncontrolled
-
-lincoln_dateCreated:
-  metadata_profile: lincoln
-  dc_map: created
-  dcterms_map: created
-  facetable: false
-  index: 0
-  label: Date Created
-  name: dateCreated
-  searchable: true
-  sortable: true
-  visible: true
-  indexed: true
-  vocabularies:
-    - uncontrolled
-
-lincoln_title:
-  metadata_profile: lincoln
+compound_object_1001_title:
+  metadata_profile: compound_object
   dc_map: title
   dcterms_map: title
   facetable: false
@@ -138,25 +110,8 @@ lincoln_title:
   vocabularies:
     - uncontrolled
 
-# metadata profile: sanborn
-
-sanborn_title:
-  metadata_profile: sanborn
-  dc_map: title
-  dcterms_map: title
-  facetable: false
-  index: 0
-  label: Title
-  name: title
-  searchable: true
-  sortable: true
-  visible: true
-  indexed: true
-  vocabularies:
-    - uncontrolled
-
-sanborn_coordinates:
-  metadata_profile: sanborn
+compound_object_1001_coordinates:
+  metadata_profile: compound_object
   dc_map: spatial
   dcterms_map: spatial
   facetable: false
@@ -170,8 +125,8 @@ sanborn_coordinates:
   vocabularies:
     - uncontrolled
 
-sanborn_creator:
-  metadata_profile: sanborn
+compound_object_1001_creator:
+  metadata_profile: compound_object
   dc_map: creator
   dcterms_map: creator
   facetable: true
@@ -185,8 +140,8 @@ sanborn_creator:
   vocabularies:
     - uncontrolled
 
-sanborn_dateCreated:
-  metadata_profile: sanborn
+compound_object_1001_dateCreated:
+  metadata_profile: compound_object
   dc_map: created
   dcterms_map: created
   facetable: false
@@ -200,23 +155,23 @@ sanborn_dateCreated:
   vocabularies:
     - uncontrolled
 
-sanborn_description:
-  metadata_profile: sanborn
-  dc_map: description
-  dcterms_map: description
-  facetable: false
-  index: 4
-  label: Description
-  name: description
-  searchable: false
-  sortable: true
-  visible: true
-  indexed: true
+compound_object_1001_description:
+  metadata_profile: compound_object
+  dc_map:           description
+  dcterms_map:      description
+  facetable:        false
+  index:            4
+  label:            Description
+  name:             description
+  searchable:       false
+  sortable:         true
+  visible:          true
+  indexed:          true
   vocabularies:
     - uncontrolled
 
-sanborn_subject:
-  metadata_profile: sanborn
+compound_object_1001_subject:
+  metadata_profile: compound_object
   dc_map: subject
   dcterms_map: subject
   facetable: true
