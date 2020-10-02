@@ -20,7 +20,7 @@ class DownloadAllTsvJob < Job
       collections = Collection.all.select{ |c| c.num_items > 0 }
       collections.each_with_index do |col, index|
         tsv_filename = "#{CGI::escape(col.title)}.tsv"
-        tsv_file = File.join(tmpdir, tsv_filename)
+        tsv_file     = File.join(tmpdir, tsv_filename)
 
         LOGGER.info("perform(): generating %s (%.2f%%)",
                       tsv_file,
@@ -44,7 +44,7 @@ class DownloadAllTsvJob < Job
 
         # -j: don't record directory names
         # -r: recurse into directories
-        `zip -jr #{zip_pathname} #{tmpdir}`
+        `zip -jr "#{zip_pathname}" "#{tmpdir}"`
 
         if File.exists?(zip_pathname)
           download.update(filename: zip_filename)
