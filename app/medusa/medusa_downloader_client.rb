@@ -85,10 +85,11 @@ class MedusaDownloaderClient
       @client = HTTPClient.new do
         self.ssl_config.cert_store.set_default_paths
         self.receive_timeout = 10000
-        uri    = URI.parse(url)
-        domain = uri.scheme + '://' + uri.host
-        user   = config.downloader_user
-        secret = config.downloader_password
+        uri     = URI.parse(url)
+        domain  = uri.scheme + '://' + uri.host
+        domain += ":#{uri.port}" unless [80, 443].include?(uri.port)
+        user    = config.downloader_user
+        secret  = config.downloader_password
         self.set_auth(domain, user, secret)
       end
     end
