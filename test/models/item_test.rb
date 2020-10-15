@@ -222,11 +222,19 @@ class ItemTest < ActiveSupport::TestCase
     assert_nil @item.catalog_record_url
   end
 
-  test 'catalog_record_url() returns the catalog record URL when bib_id()
-  returns a string' do
-    @item.elements.build(name: 'bibId', value: '12345')
+  test 'catalog_record_url() returns the correct URL when bib_id() returns a
+  Voyager bib ID' do
+    @item.elements.build(name: 'bibId', value: '1234567')
     @item.save!
-    assert_equal 'http://vufind.carli.illinois.edu/vf-uiu/Record/uiu_12345/Description',
+    assert_equal 'https://i-share-uiu.primo.exlibrisgroup.com/permalink/01CARLI_UIU/gpjosq/alma/99123456712205899',
+                 @item.catalog_record_url
+  end
+
+  test 'catalog_record_url() returns the correct URL when bib_id() returns an
+  MMS ID' do
+    @item.elements.build(name: 'bibId', value: '99123456712205899')
+    @item.save!
+    assert_equal 'https://i-share-uiu.primo.exlibrisgroup.com/permalink/01CARLI_UIU/gpjosq/alma/99123456712205899',
                  @item.catalog_record_url
   end
 
