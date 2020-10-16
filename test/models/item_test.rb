@@ -226,7 +226,7 @@ class ItemTest < ActiveSupport::TestCase
   Voyager bib ID' do
     @item.elements.build(name: 'bibId', value: '1234567')
     @item.save!
-    assert_equal 'https://i-share-uiu.primo.exlibrisgroup.com/permalink/01CARLI_UIU/gpjosq/alma/99123456712205899',
+    assert_equal 'https://i-share-uiu.primo.exlibrisgroup.com/permalink/01CARLI_UIU/gpjosq/alma99123456712205899',
                  @item.catalog_record_url
   end
 
@@ -234,7 +234,7 @@ class ItemTest < ActiveSupport::TestCase
   MMS ID' do
     @item.elements.build(name: 'bibId', value: '99123456712205899')
     @item.save!
-    assert_equal 'https://i-share-uiu.primo.exlibrisgroup.com/permalink/01CARLI_UIU/gpjosq/alma/99123456712205899',
+    assert_equal 'https://i-share-uiu.primo.exlibrisgroup.com/permalink/01CARLI_UIU/gpjosq/alma99123456712205899',
                  @item.catalog_record_url
   end
 

@@ -645,7 +645,7 @@ class Item < ApplicationRecord
     # the id.
     bibid = self.bib_id
     if bibid.present?
-      base_url = 'https://i-share-uiu.primo.exlibrisgroup.com/permalink/01CARLI_UIU/gpjosq/alma/'
+      base_url = 'https://i-share-uiu.primo.exlibrisgroup.com/permalink/01CARLI_UIU/gpjosq/alma'
       prefix   = '99'
       suffix   = '12205899'
       return [base_url,
