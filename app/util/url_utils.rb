@@ -1,4 +1,4 @@
-class UrlUtil
+class UrlUtils
 
   ##
   # Parses the query portion of a URL into a hash.

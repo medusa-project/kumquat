@@ -275,7 +275,7 @@ module ItemsHelper
         # FfmpegProcessor doesn't allow a percentage argument because ffprobe
         # doesn't. (DLD-102)
         seconds = bin.duration * 0.2
-        time = '?time=' + TimeUtil.seconds_to_hms(seconds)
+        time = '?time=' + TimeUtils.seconds_to_hms(seconds)
       end
       url = sprintf('%s/%s/%s/0/default.%s%s',
                     bin.iiif_image_url, region, size, format, time)

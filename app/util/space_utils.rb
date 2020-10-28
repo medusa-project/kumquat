@@ -1,4 +1,4 @@
-class SpaceUtil
+class SpaceUtils
 
   ##
   # Parses a coordinate string such as:

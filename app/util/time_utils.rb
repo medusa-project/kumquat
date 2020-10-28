@@ -1,9 +1,9 @@
 ##
 # Helper class for converting times and durations.
 #
-class TimeUtil
+class TimeUtils
 
-  LOGGER = CustomLogger.new(TimeUtil)
+  LOGGER = CustomLogger.new(TimeUtils)
 
   ##
   # Estimates completion time based on a progress percentage.
@@ -45,17 +45,17 @@ class TimeUtil
     if seconds.to_f == seconds
       seconds = seconds.to_f
       # hours
-      hr = seconds / 60.0 / 60.0
-      floor = hr.floor
-      rem = hr - floor
-      hr = floor
+      hr      = seconds / 60.0 / 60.0
+      floor   = hr.floor
+      rem     = hr - floor
+      hr      = floor
       # minutes
-      min = rem * 60
-      floor = min.floor
-      rem = min - floor
-      min = floor
+      min     = rem * 60
+      floor   = min.floor
+      rem     = min - floor
+      min     = floor
       # seconds
-      sec = rem * 60
+      sec     = rem * 60
 
       return sprintf('%s:%s:%s',
                      hr.round.to_s.rjust(2, '0'),
@@ -79,10 +79,10 @@ class TimeUtil
 
       # YYYY:MM:DD HH:MM:SS
       if date.match(/[0-9]{4}:[0-1][0-9]:[0-3][0-9] [0-1][0-9]:[0-5][0-9]:[0-5][0-9]/)
-        parts = date.split(' ')
+        parts      = date.split(' ')
         date_parts = parts.first.split(':')
         time_parts = parts.last.split(':')
-        iso8601 = "#{date_parts[0]}-#{date_parts[1]}-#{date_parts[2]}T"\
+        iso8601    = "#{date_parts[0]}-#{date_parts[1]}-#{date_parts[2]}T"\
           "#{time_parts[0]}:#{time_parts[1]}:#{time_parts[2]}"
       # ISO-8601 formats
       # Credit: http://www.pelagodesign.com/blog/2009/05/20/iso-8601-date-validation-that-doesnt-suck/
@@ -99,7 +99,7 @@ class TimeUtil
         end
         return Marc::Dates::parse(date)
       rescue ArgumentError
-        LOGGER.warn("TimeUtil.parse_date(): unable to parse \"#{date}\"")
+        LOGGER.warn("TimeUtils.parse_date(): unable to parse \"#{date}\"")
       end
     end
     nil

@@ -1614,7 +1614,7 @@ class Item < ApplicationRecord
   def set_normalized_coords
     coords_elem = self.element(:coordinates)
     if coords_elem
-      coords = SpaceUtil.string_coordinates_to_coordinates(coords_elem.value)
+      coords = SpaceUtils.string_coordinates_to_coordinates(coords_elem.value)
       if coords
         self.latitude  = coords[:latitude]
         self.longitude = coords[:longitude]
@@ -1629,7 +1629,7 @@ class Item < ApplicationRecord
     updated = false
     date_elem = self.element(:date)
     if date_elem
-      range = TimeUtil.parse_date(date_elem.value)
+      range = TimeUtils.parse_date(date_elem.value)
       if range
         self.start_date = range[0]
         self.end_date   = range[1]

@@ -388,7 +388,7 @@ class ItemsController < WebsiteController
           # session.
           results_url = session[:browse_context_url]
           if results_url.present?
-            query = UrlUtil.parse_query(results_url).symbolize_keys
+            query = UrlUtils.parse_query(results_url).symbolize_keys
             query[:start] = session[:start].to_i if query[:start].blank?
             limit = Option::integer(Option::Keys::DEFAULT_RESULT_WINDOW)
             if session[:first_result_id] == @root_item.repository_id

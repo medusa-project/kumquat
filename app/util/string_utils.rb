@@ -39,7 +39,7 @@ class StringUtils
   #
   def self.progress(start_time, index, count)
     pct = index / count.to_f
-    eta = TimeUtil.eta(start_time, pct).localtime.strftime('%-m/%d %l:%M %p')
+    eta = TimeUtils.eta(start_time, pct).localtime.strftime('%-m/%d %l:%M %p')
     "#{(pct * 100).round(2)}% [ETA: #{eta}]"
   end
 

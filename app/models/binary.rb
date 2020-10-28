@@ -493,7 +493,7 @@ class Binary < ApplicationRecord
         result = output.match(/Duration: [0-9][0-9]:[0-5][0-9]:[0-5][0-9]/)
         if result and result.length > 0
           begin
-            self.duration = TimeUtil.hms_to_seconds(result[0].gsub('Duration: ', ''))
+            self.duration = TimeUtils.hms_to_seconds(result[0].gsub('Duration: ', ''))
           rescue ArgumentError => e
             LOGGER.warn('read_duration(): %s', e)
           end
