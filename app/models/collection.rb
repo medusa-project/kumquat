@@ -318,7 +318,6 @@ class Collection < ApplicationRecord
     end
     result = ElasticsearchClient.instance.query(json)
     struct = JSON.parse(result)
-    puts struct
     struct['hits']['hits'].map{ |r| r['_source'][Item::IndexFields::REPOSITORY_ID] }
   end
 
