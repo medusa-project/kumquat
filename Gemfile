@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 
 # Needs to match the version in .ruby-version and Dockerfile
-ruby '2.6.1'
+ruby '2.7.1'
 
 gem 'autoprefixer-rails'
 gem 'aws-sdk-s3', '~> 1'
