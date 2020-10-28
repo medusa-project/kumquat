@@ -193,18 +193,17 @@ class CollectionTest < ActiveSupport::TestCase
 
   test 'effective_medusa_cfs_directory() returns the instance CFS
   directory when set' do
-    dir = medusa_cfs_directories(:one)
-    @collection.medusa_cfs_directory_id = dir.uuid
-    assert_equal dir.uuid, @collection.effective_medusa_cfs_directory.uuid
+    uuid = SecureRandom.uuid
+    @collection.medusa_cfs_directory_id = uuid
+    assert_equal uuid, @collection.effective_medusa_cfs_directory.uuid
   end
 
   test 'effective_medusa_cfs_directory() should fall back to the file group CFS
   directory' do
-    group = medusa_file_groups(:one)
     @collection.medusa_cfs_directory_id = nil
-    @collection.medusa_file_group_id = group.uuid
+    @collection.medusa_file_group_id = '5881d456-6dbe-90f1-ac81-7e0bf53e9c84'
     @collection.save!
-    assert_equal group.cfs_directory.uuid,
+    assert_equal '1b760655-c504-7fce-f171-76e4234844da',
                  @collection.effective_medusa_cfs_directory.uuid
   end
 
@@ -281,7 +280,7 @@ class CollectionTest < ActiveSupport::TestCase
     assert_nil @collection.medusa_cfs_directory
   end
 
-  test 'medusa_cfs_directory() returns a MedusaCfsDirectory when
+  test 'medusa_cfs_directory() returns a Medusa::Directory when
   medusa_cfs_directory_id is set' do
     @collection.medusa_cfs_directory_id = '21353276-887c-0f2b-25a0-ed444003303f'
     assert_equal @collection.medusa_cfs_directory.uuid,
@@ -306,8 +305,9 @@ class CollectionTest < ActiveSupport::TestCase
     assert_nil @collection.medusa_file_group
   end
 
-  test 'medusa_file_group() returns a MedusaFileGroup' do
-    assert_equal @collection.medusa_file_group.uuid, @collection.medusa_file_group_id
+  test 'medusa_file_group() returns a Medusa::FileGroup' do
+    assert_equal @collection.medusa_file_group.uuid,
+                 @collection.medusa_file_group_id
   end
 
   # meduse_file_group_id
@@ -329,7 +329,7 @@ class CollectionTest < ActiveSupport::TestCase
   end
 
   test 'medusa_repository() returns a MedusaRepository' do
-    assert_equal @collection.medusa_repository.medusa_database_id,
+    assert_equal @collection.medusa_repository.id,
                  @collection.medusa_repository_id
   end
 

@@ -5,7 +5,7 @@
 # deleted, so are all of its binaries.
 #
 # Binaries are analogous to "CFS files" in Medusa, and are commonly obtained
-# via {MedusaCfsFile#to_binary}.
+# via {Binary#from_medusa_file}.
 #
 # Binary data is accessible via {data}, which returns a stream of data from the
 # repository S3 bucket.
@@ -100,6 +100,31 @@ class Binary < ApplicationRecord
   validates :object_key, length: { allow_blank: false }
 
   @@formats = YAML::load(File.read("#{Rails.root}/lib/formats.yml"))
+
+  ##
+  # @param file [Medusa::File]
+  # @param master_type [Integer]    One of the {Binary::MasterType} constant
+  #                                 values.
+  # @param media_category [Integer] One of the {Binary::MediaCategory} constant
+  #                                 values. If nil, will be inferred from the
+  #                                 media type.
+  # @return [Binary] Fully initialized instance. May be a new instance or an
+  #                  existing one, but either way, it may contain changes that
+  #                  have not been persisted.
+  #
+  def self.from_medusa_file(file, master_type, media_category = nil)
+    bin = Binary.find_by_object_key(file.relative_key) || Binary.new
+    bin.master_type   = master_type
+    bin.cfs_file_uuid = file.uuid
+    bin.object_key    = file.relative_key
+    # The media type of the file as reported by Medusa is likely to be vague,
+    # so let's see if we can do better.
+    bin.infer_media_type
+    bin.media_category = media_category ||
+        Binary::MediaCategory::media_category_for_media_type(bin.media_type)
+    bin.read_characteristics
+    bin
+  end
 
   ##
   # @return [Integer] Total byte size of all binaries in the system.
@@ -310,13 +335,13 @@ class Binary < ApplicationRecord
       client = MedusaS3Client.instance
       response = client.head_object(
           bucket: MedusaS3Client::BUCKET,
-          key: self.object_key)
+          key:    self.object_key)
       end_pos = [20, response.content_length].min
       if end_pos > 2
         response = client.get_object(
             bucket: MedusaS3Client::BUCKET,
-            key: self.object_key,
-            range: "bytes=0-#{end_pos}")
+            key:    self.object_key,
+            range:  "bytes=0-#{end_pos}")
         self.media_type = MimeMagic.by_magic(response.body)
       end
       # If that failed, fall back to inferring it from the filename extension.

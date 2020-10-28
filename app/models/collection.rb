@@ -456,11 +456,11 @@ class Collection < ApplicationRecord
   # The effective CFS directory of the instance -- either one that is directly
   # assigned, or the root CFS directory of the file group.
   #
-  # @return [MedusaCfsDirectory, nil]
+  # @return [Medusa::Directory, nil]
   # @see medusa_cfs_directory
   #
   def effective_medusa_cfs_directory
-    self.medusa_cfs_directory || self.medusa_file_group&.cfs_directory
+    self.medusa_cfs_directory || self.medusa_file_group&.directory
   end
 
   ##
@@ -564,41 +564,40 @@ class Collection < ApplicationRecord
   # root CFS directory of the file group, or deeper within it. This is used
   # as a refinement of {medusa_file_group}.
   #
-  # @return [MedusaCfsDirectory, nil]
+  # @return [Medusa::Directory, nil]
   # @see effective_medusa_cfs_directory
   #
   def medusa_cfs_directory
     unless @cfs_directory
       @cfs_directory = nil
       if self.medusa_cfs_directory_id.present?
-        @cfs_directory = MedusaCfsDirectory.with_uuid(self.medusa_cfs_directory_id)
+        @cfs_directory = Medusa::Directory.with_uuid(self.medusa_cfs_directory_id)
       end
     end
     @cfs_directory
   end
 
   ##
-  # @return [MedusaFileGroup]
+  # @return [Medusa::FileGroup]
   #
   def medusa_file_group
    unless @file_group
      @file_group = nil
      if self.medusa_file_group_id.present?
-       @file_group = MedusaFileGroup.with_uuid(self.medusa_file_group_id)
+       @file_group = Medusa::FileGroup.with_uuid(self.medusa_file_group_id)
      end
    end
    @file_group
   end
 
   ##
-  # @return [MedusaRepository]
+  # @return [Medusa::Repository]
   #
   def medusa_repository
     unless @medusa_repository
       @medusa_repository = nil
       if self.medusa_repository_id.present?
-        @medusa_repository = MedusaRepository.with_medusa_database_id(
-            self.medusa_repository_id)
+        @medusa_repository = Medusa::Repository.with_id(self.medusa_repository_id)
       end
     end
     @medusa_repository
@@ -779,13 +778,12 @@ class Collection < ApplicationRecord
   end
 
   ##
-  # @return [MedusaRepository]
+  # @return [Medusa::Repository]
   #
   def repository
     if medusa_repository_id.present?
-      return MedusaRepository.with_medusa_database_id(medusa_repository_id)
+      Medusa::Repository.with_id(self.medusa_repository_id)
     end
-    nil
   end
 
   ##
@@ -793,19 +791,16 @@ class Collection < ApplicationRecord
   #                       attribute.
   #
   def representative_image_binary
-    binary = nil
     if self.representative_image.present?
       # This may be nil, which may mean that it resides in a different file
-      # group, or doesn't comply with the package profile.
+      # group, or doesn't conform to the package profile.
       binary = Binary.find_by_cfs_file_uuid(self.representative_image)
       unless binary
-        # This may be very expensive!
-        cfs_file = MedusaCfsFile.with_uuid(self.representative_image)
-        binary = cfs_file.to_binary(Binary::MasterType::ACCESS)
-        binary.save!
+        cfs_file = Medusa::File.with_uuid(self.representative_image)
+        binary   = Binary.from_medusa_file(cfs_file, Binary::MasterType::ACCESS)
       end
+      binary
     end
-    binary
   end
 
   ##
@@ -859,7 +854,7 @@ class Collection < ApplicationRecord
       raise ActiveRecord::RecordNotFound,
             'update_from_medusa() called without repository_id set'
     end
-    client = MedusaClient.instance
+    client   = Medusa::Client.instance
     response = client.get(self.medusa_url('json'))
     if response.status == 200
       json_str = response.body
@@ -871,36 +866,35 @@ class Collection < ApplicationRecord
     transaction do
       self.elements.destroy_all
 
-      self.access_systems = struct['access_systems'].map{ |t| t['name'] }
-      self.access_url = struct['access_url']
+      self.access_systems          = struct['access_systems'].map{ |t| t['name'] }
+      self.access_url              = struct['access_url']
       if struct['description'].present?
         self.elements.build(name: 'description', value: struct['description'])
       end
-      self.description_html = struct['description_html']
-      self.external_id = struct['external_id']
-      self.medusa_repository_id = struct['repository_path'].gsub(/[^0-9+]/, '').to_i
+      self.description_html        = struct['description_html']
+      self.external_id             = struct['external_id']
+      self.medusa_repository_id    = struct['repository_path'].gsub(/[^0-9+]/, '').to_i
       self.physical_collection_url = struct['physical_collection_url']
-      self.public_in_medusa = struct['publish']
-      self.representative_image = struct['representative_image']
-      self.representative_item_id = struct['representative_item']
-      self.resource_types = struct['resource_types'].map do |t| # titleize these
+      self.public_in_medusa        = struct['publish']
+      self.representative_image    = struct['representative_image']
+      self.representative_item_id  = struct['representative_item']
+      self.resource_types          = struct['resource_types'].map do |t| # titleize these
         t['name'].split(' ').map{ |t| t.present? ? t.capitalize : '' }.join(' ')
       end
-      self.rights_statement = struct['rights']['custom_copyright_statement']
+      self.rights_statement        = struct['rights']['custom_copyright_statement']
       self.elements.build(name: 'title', value: struct['title'])
 
       self.parents.destroy_all
       struct['parent_collections'].each do |parent_struct|
         self.parent_collection_joins.build(parent_repository_id: parent_struct['uuid'],
-                                           child_repository_id: self.repository_id)
+                                           child_repository_id:  self.repository_id)
       end
 
       self.children.destroy_all
       struct['child_collections'].each do |child_struct|
         self.child_collection_joins.build(parent_repository_id: self.repository_id,
-                                          child_repository_id: child_struct['uuid'])
+                                          child_repository_id:  child_struct['uuid'])
       end
-
       self.save!
     end
   end
@@ -930,15 +924,15 @@ class Collection < ApplicationRecord
   end
 
   def validate_medusa_uuids
-    client = MedusaClient.instance
+    client = Medusa::Client.instance
     if self.medusa_file_group_id.present? and
         self.medusa_file_group_id_changed? and
-        client.class_of_uuid(self.medusa_file_group_id) != MedusaFileGroup
+        client.class_of_uuid(self.medusa_file_group_id) != Medusa::FileGroup
       errors.add(:medusa_file_group_id, 'is not a Medusa file group UUID')
     end
     if self.medusa_cfs_directory_id.present? and
         self.medusa_cfs_directory_id_changed? and
-        client.class_of_uuid(self.medusa_cfs_directory_id) != MedusaCfsDirectory
+        client.class_of_uuid(self.medusa_cfs_directory_id) != Medusa::Directory
       errors.add(:medusa_cfs_directory_id, 'is not a Medusa directory UUID')
     end
   end

@@ -28,6 +28,29 @@ class BinaryTest < ActiveSupport::TestCase
     @instance = binaries(:free_form_dir1_dir1_file1)
   end
 
+  # from_medusa_file()
+
+  test 'from_medusa_file() returns a correct binary' do
+    file   = Medusa::File.with_uuid('39582239-4307-1cc6-c9c6-074516fd7635')
+    binary = Binary.from_medusa_file(file, Binary::MasterType::PRESERVATION)
+    assert_equal Binary::MasterType::PRESERVATION, binary.master_type
+    assert_equal file.relative_key, binary.object_key
+    assert_equal 6302, binary.byte_size
+    assert_equal 'image/jpeg', binary.media_type
+    assert_equal Binary::MediaCategory::IMAGE, binary.media_category
+    assert_equal 128, binary.width
+    assert_equal 112, binary.height
+  end
+
+  test 'from_medusa_file() overrides the media category when supplied' do
+    file   = Medusa::File.with_uuid('39582239-4307-1cc6-c9c6-074516fd7635')
+    binary = Binary.from_medusa_file(file,
+                                     Binary::MasterType::PRESERVATION,
+                                     Binary::MediaCategory::AUDIO)
+    assert_equal Binary::MasterType::PRESERVATION, binary.master_type
+    assert_equal Binary::MediaCategory::AUDIO, binary.media_category
+  end
+
   # total_byte_size()
 
   test 'total_byte_size() returns an accurate figure' do

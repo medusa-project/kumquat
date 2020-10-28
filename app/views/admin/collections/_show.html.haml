@@ -83,17 +83,16 @@
         %td Representative Image Filename
         %td
           - if representative_image.present?
-            - file = MedusaCfsFile.with_uuid(representative_image)
+            - file = Medusa::File.with_uuid(representative_image)
             %code
-              = link_to(File.basename(file.repository_relative_pathname),
-                        file.url, target: '_blank')
+              = link_to(file.name, file.url, target: '_blank')
           - else
             None
       %tr
         %td Representative Image UUID
         %td
           - if representative_image.present?
-            - file = MedusaCfsFile.with_uuid(representative_image)
+            - file = Medusa::File.with_uuid(representative_image)
             %code= link_to(file.uuid, file.url, target: '_blank')
           - else
             None

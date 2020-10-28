@@ -5,6 +5,13 @@ GIT
     marc-dates (1.1)
 
 GIT
+  remote: https://github.com/medusa-project/medusa-client.git
+  revision: 9f802a2a04e4c30d21478fb266fbe91985f794b3
+  specs:
+    medusa-client (1.0.1)
+      httpclient
+
+GIT
   remote: https://github.com/medusa-project/scars-bootstrap-theme.git
   revision: 8aeee15063941c277924a04ff5e3f77f884e5cb1
   branch: release/bootstrap-4.4
@@ -279,6 +286,7 @@ DEPENDENCIES
   js_cookie_rails
   local_time
   marc-dates!
+  medusa-client!
   mime-types (~> 2.6)
   mimemagic
   mini_racer

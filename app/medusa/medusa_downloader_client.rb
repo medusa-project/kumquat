@@ -145,17 +145,17 @@ class MedusaDownloaderClient
     targets = []
     items.each do |item|
       if item.directory?
-        dir = MedusaCfsDirectory.with_uuid(item.repository_id)
-        targets.push(type: 'directory',
-                     path: dir.pathname.delete_prefix('/'),
-                     zip_path: dir.name,
+        dir = Medusa::Directory.with_uuid(item.repository_id)
+        targets.push(type:      'directory',
+                     path:      dir.relative_key,
+                     zip_path:  dir.name,
                      recursive: true)
       else
         item.binaries.each do |binary|
           zip_dirname = zip_dirname(binary)
           if zip_dirname
-            targets.push(type: 'file',
-                         path: binary.object_key,
+            targets.push(type:     'file',
+                         path:     binary.object_key,
                          zip_path: zip_dirname)
           end
         end
@@ -169,7 +169,7 @@ class MedusaDownloaderClient
   # @return [String] Path of the given binary within the zip file.
   #
   def zip_dirname(binary)
-    cfs_dir_path = binary.item.collection.effective_medusa_cfs_directory&.pathname
+    cfs_dir_path = binary.item.collection.effective_medusa_cfs_directory&.relative_key
     if cfs_dir_path
       root = '/' + cfs_dir_path
       return File.dirname('/' + binary.object_key.gsub(/^#{root}/, ''))

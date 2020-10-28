@@ -1,7 +1,0 @@
-# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
-
-one:
-  uuid: 39582239-4307-1cc6-c9c6-074516fd7635
-  repository_relative_pathname: repositories/1/collections/1/file_groups/1/root/dir1/image1.jpg
-  media_type: image/jpeg
-  directory_uuid: 1b760655-c504-7fce-f171-76e4234844da

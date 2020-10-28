@@ -1,9 +1,0 @@
-# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
-
-one:
-  medusa_database_id: 1
-  contact_email: alexd@illinois.edu
-  email: alexd@illinois.edu
-  title: Kumquat Test Repository
-  ldap_admin_domain: uofi
-  ldap_admin_group: Library Medusa Maps

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_06_29_143237) do
+ActiveRecord::Schema.define(version: 2020_10_27_200545) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -267,47 +267,6 @@ ActiveRecord::Schema.define(version: 2020_06_29_143237) do
     t.index ["repository_id"], name: "index_items_on_identifier", unique: true
     t.index ["representative_item_repository_id"], name: "index_items_on_representative_item_identifier"
     t.index ["variant"], name: "index_items_on_variant"
-  end
-
-  create_table "medusa_cfs_directories", id: :serial, force: :cascade do |t|
-    t.string "uuid", null: false
-    t.string "parent_uuid"
-    t.string "repository_relative_pathname", null: false
-    t.integer "medusa_database_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["uuid"], name: "index_medusa_cfs_directories_on_uuid"
-  end
-
-  create_table "medusa_cfs_files", id: :serial, force: :cascade do |t|
-    t.string "uuid", null: false
-    t.string "directory_uuid", null: false
-    t.string "media_type"
-    t.string "repository_relative_pathname", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["uuid"], name: "index_medusa_cfs_files_on_uuid"
-  end
-
-  create_table "medusa_file_groups", id: :serial, force: :cascade do |t|
-    t.string "uuid"
-    t.string "cfs_directory_uuid"
-    t.string "title"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["uuid"], name: "index_medusa_file_groups_on_uuid"
-  end
-
-  create_table "medusa_repositories", id: :serial, force: :cascade do |t|
-    t.integer "medusa_database_id"
-    t.string "contact_email"
-    t.string "email"
-    t.string "title"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.string "ldap_admin_domain"
-    t.string "ldap_admin_group"
-    t.index ["medusa_database_id"], name: "index_medusa_repository_names_on_medusa_database_id"
   end
 
   create_table "metadata_profile_elements", id: :serial, force: :cascade do |t|

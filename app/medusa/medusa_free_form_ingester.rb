@@ -15,15 +15,15 @@ class MedusaFreeFormIngester < MedusaAbstractIngester
   #
   def self.parent_id_from_medusa(item_id)
     parent_id = nil
-    client = MedusaClient.instance
-    response = client.get_uuid(item_id)
+    client    = Medusa::Client.instance
+    response  = client.get_uuid(item_id)
     if response.status < 300
-      json = response.body
+      json   = response.body
       struct = JSON.parse(json)
       if struct['parent_directory']
         # Top-level items in a file group will have no parent_directory key,
         # so check one level up.
-        json = client.get_uuid(struct['parent_directory']['uuid']).body
+        json    = client.get_uuid(struct['parent_directory']['uuid']).body
         struct2 = JSON.parse(json)
         if struct2['parent_directory']
           parent_id = struct['parent_directory']['uuid']
@@ -142,7 +142,7 @@ class MedusaFreeFormIngester < MedusaAbstractIngester
   private
 
   ##
-  # @param cfs_dir [MedusaCfsDirectory]
+  # @param cfs_dir [Medusa::Directory]
   # @param count [Integer] For internal use.
   # @return [Integer]
   #
@@ -157,8 +157,8 @@ class MedusaFreeFormIngester < MedusaAbstractIngester
 
   ##
   # @param collection [Collection]
-  # @param cfs_dir [MedusaCfsDirectory]
-  # @param top_cfs_dir [MedusaCfsDirectory]
+  # @param cfs_dir [Medusa::Directory]
+  # @param top_cfs_dir [Medusa::Directory]
   # @param options [Hash]
   # @option options [Boolean] :extract_metadata
   # @option options [Boolean] :include_date_created
@@ -177,10 +177,10 @@ class MedusaFreeFormIngester < MedusaAbstractIngester
         status[:num_skipped] += 1
       else
         LOGGER.info('create_items_in_tree(): creating item %s', dir.uuid)
-        item = Item.new(repository_id: dir.uuid,
-                        parent_repository_id: (cfs_dir.uuid != top_cfs_dir.uuid) ? cfs_dir.uuid : nil,
+        item = Item.new(repository_id:            dir.uuid,
+                        parent_repository_id:     (cfs_dir.uuid != top_cfs_dir.uuid) ? cfs_dir.uuid : nil,
                         collection_repository_id: collection.repository_id,
-                        variant: Item::Variants::DIRECTORY)
+                        variant:                  Item::Variants::DIRECTORY)
         # Assign a title of the directory name.
         item.elements.build(name: 'title', value: dir.name)
         item.save!
@@ -203,16 +203,16 @@ class MedusaFreeFormIngester < MedusaAbstractIngester
         next
       else
         LOGGER.info('create_items_in_tree(): creating item %s', file.uuid)
-        item = Item.new(repository_id: file.uuid,
-                        parent_repository_id: (cfs_dir.uuid != top_cfs_dir.uuid) ? cfs_dir.uuid : nil,
+        item = Item.new(repository_id:            file.uuid,
+                        parent_repository_id:     (cfs_dir.uuid != top_cfs_dir.uuid) ? cfs_dir.uuid : nil,
                         collection_repository_id: collection.repository_id,
-                        variant: Item::Variants::FILE)
+                        variant:                  Item::Variants::FILE)
         item.elements.build(name: 'title', value: file.name)
 
         # Create its corresponding binary.
-        bs = file.to_binary(Binary::MasterType::ACCESS)
-        bs.item = item
-        bs.save!
+        bin = Binary.from_medusa_file(file, Binary::MasterType::ACCESS)
+        bin.item = item
+        bin.save!
 
         update_item_from_embedded_metadata(item, options) if
             options[:extract_metadata]
@@ -233,7 +233,7 @@ class MedusaFreeFormIngester < MedusaAbstractIngester
   # Populates the given set with Medusa file/directory UUIDs corresponding to
   # items.
   #
-  # @param cfs_dir [MedusaCfsDirectory]
+  # @param cfs_dir [Medusa::Directory]
   # @param medusa_item_uuids [Set<String>]
   # @return [void]
   #
@@ -248,7 +248,7 @@ class MedusaFreeFormIngester < MedusaAbstractIngester
   end
 
   ##
-  # @param cfs_dir [MedusaCfsDirectory]
+  # @param cfs_dir [Medusa::Directory]
   # @return [Set<String>] Set of item UUIDs
   #
   def items_in(cfs_dir)
@@ -258,8 +258,8 @@ class MedusaFreeFormIngester < MedusaAbstractIngester
   end
 
   ##
-  # @param cfs_dir [MedusaCfsDirectory]
-  # @param top_cfs_dir [MedusaCfsDirectory]
+  # @param cfs_dir [Medusa::Directory]
+  # @param top_cfs_dir [Medusa::Directory]
   # @param stats [Hash<Symbol,Integer>]
   # @param task [Task] Supply to receive progress updates.
   # @param num_nodes [Integer]
@@ -287,9 +287,9 @@ class MedusaFreeFormIngester < MedusaAbstractIngester
         LOGGER.info('recreate_binaries_in_tree(): updating binaries for item: %s',
                     file.uuid)
         item.binaries.destroy_all
-        bs = file.to_binary(Binary::MasterType::ACCESS)
-        bs.item = item
-        bs.save!
+        bin = Binary.from_medusa_file(file, Binary::MasterType::ACCESS)
+        bin.item = item
+        bin.save!
         stats[:num_created] += 1
       end
     end

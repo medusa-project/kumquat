@@ -37,8 +37,8 @@ class MedusaMixedMediaIngester < MedusaAbstractIngester
   # @return [String]
   #
   def self.parent_id_from_medusa(item_id)
-    client = MedusaClient.instance
-    json = client.get_uuid(item_id).body
+    client = Medusa::Client.instance
+    json   = client.get_uuid(item_id).body
     struct = JSON.parse(json)
 
     # Child items will have subdirectories called `access` and/or
@@ -117,17 +117,16 @@ class MedusaMixedMediaIngester < MedusaAbstractIngester
             end
 
             # Create the child item's preservation binaries.
-            pres_dir = child_dir.directories.
-                select{ |d| d.name == 'preservation' }.first
+            pres_dir = child_dir.directories.find{ |d| d.name == 'preservation' }
             if pres_dir
               if pres_dir.directories.any?
                 pres_dir.directories.each do |pres_type_dir|
                   if pres_type_dir.files.any?
                     pres_type_dir.files.each do |pres_file|
                       # Create the preservation master binary.
-                      child.binaries << pres_file.
-                          to_binary(Binary::MasterType::PRESERVATION,
-                                    media_category_for_master_type(pres_type_dir.name))
+                      child.binaries << Binary.from_medusa_file(pres_file,
+                                                                Binary::MasterType::PRESERVATION,
+                                                                media_category_for_master_type(pres_type_dir.name))
 
                       # Set the child's variant (if it indeed is a child and
                       # not a top-level item referred by a variable named
@@ -166,15 +165,16 @@ class MedusaMixedMediaIngester < MedusaAbstractIngester
             end
 
             # Create the child's access binaries.
-            access_dir = child_dir.directories.select{ |d| d.name == 'access' }.first
+            access_dir = child_dir.directories.find{ |d| d.name == 'access' }
             if access_dir
               if access_dir.directories.any?
                 access_dir.directories.each do |access_type_dir|
                   if access_type_dir.files.any?
                     access_type_dir.files.each_with_index do |access_file, afi|
                       # Create the access master binary.
-                      binary = access_file.to_binary(Binary::MasterType::ACCESS,
-                                                     media_category_for_master_type(access_type_dir.name))
+                      binary = Binary.from_medusa_file(access_file,
+                                                       Binary::MasterType::ACCESS,
+                                                       media_category_for_master_type(access_type_dir.name))
                       child.binaries << binary
 
                       if afi == 0 and access_type_dir.name == 'images'
@@ -195,8 +195,7 @@ class MedusaMixedMediaIngester < MedusaAbstractIngester
                           child_dir.uuid)
             end
 
-            supp_dir = child_dir.directories.
-                select{ |d| d.name == 'supplementary' }.first
+            supp_dir = child_dir.directories.find{ |d| d.name == 'supplementary' }
             if supp_dir
               supp_dir.files.each do |supp_file|
                 # Find or create the supplementary item.
@@ -214,13 +213,13 @@ class MedusaMixedMediaIngester < MedusaAbstractIngester
                                    variant: Item::Variants::SUPPLEMENT)
                   # Assign a title of the filename.
                   child.elements.build(name: 'title', value: supp_file.name)
-                  child.binaries << supp_file.to_binary(Binary::MasterType::PRESERVATION)
+                  child.binaries << Binary.from_medusa_file(supp_file,
+                                                            Binary::MasterType::PRESERVATION)
                   child.save!
                   stats[:num_created] += 1
                 end
               end
             end
-
             child.save!
           end
         end
@@ -319,17 +318,16 @@ class MedusaMixedMediaIngester < MedusaAbstractIngester
               child.binaries.destroy_all
 
               # Create the child item's preservation binaries.
-              pres_dir = child_dir.directories.
-                  select{ |d| d.name == 'preservation' }.first
+              pres_dir = child_dir.directories.find{ |d| d.name == 'preservation' }
               if pres_dir
                 if pres_dir.directories.any?
                   pres_dir.directories.each do |pres_type_dir|
                     if pres_type_dir.files.any?
                       pres_type_dir.files.each do |pres_file|
                         # Create the preservation master binary.
-                        child.binaries << pres_file.
-                            to_binary(Binary::MasterType::PRESERVATION,
-                                      media_category_for_master_type(pres_type_dir.name))
+                        child.binaries << Binary.from_medusa_file(pres_file,
+                                                                  Binary::MasterType::PRESERVATION,
+                                                                  media_category_for_master_type(pres_type_dir.name))
                         stats[:num_created] += 1
                       end
                     else
@@ -347,16 +345,16 @@ class MedusaMixedMediaIngester < MedusaAbstractIngester
               end
 
               # Create the child's access binaries.
-              access_dir = child_dir.directories.
-                  select{ |d| d.name == 'access' }.first
+              access_dir = child_dir.directories.find{ |d| d.name == 'access' }
               if access_dir
                 if access_dir.directories.any?
                   access_dir.directories.each do |access_type_dir|
                     if access_type_dir.files.any?
                       access_type_dir.files.each_with_index do |access_file, afi|
                         # Create the access master binary.
-                        binary = access_file.to_binary(Binary::MasterType::ACCESS,
-                                                       media_category_for_master_type(access_type_dir.name))
+                        binary = Binary.from_medusa_file(access_file,
+                                                         Binary::MasterType::ACCESS,
+                                                         media_category_for_master_type(access_type_dir.name))
                         child.binaries << binary
 
                         if afi == 0 and access_type_dir.name == 'images'
@@ -379,14 +377,14 @@ class MedusaMixedMediaIngester < MedusaAbstractIngester
               end
 
               # Create the child's supplementary binaries.
-              supp_dir = child_dir.directories.
-                  select{ |d| d.name == 'supplementary' }.first
+              supp_dir = child_dir.directories.find{ |d| d.name == 'supplementary' }
               if supp_dir
                 supp_dir.files.each do |supp_file|
                   item = Item.find_by_repository_id(supp_file.uuid)
                   if item
                     item.binaries.destroy_all
-                    item.binaries << supp_file.to_binary(Binary::MasterType::PRESERVATION)
+                    item.binaries << Binary.from_medusa_file(supp_file,
+                                                             Binary::MasterType::PRESERVATION)
                     item.save!
                     stats[:num_created] += 1
                   else

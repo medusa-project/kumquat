@@ -25,8 +25,8 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
   # @return [String]
   #
   def self.parent_id_from_medusa(item_id)
-    client = MedusaClient.instance
-    json = client.get_uuid(item_id).body
+    client = Medusa::Client.instance
+    json   = client.get_uuid(item_id).body
     struct = JSON.parse(json)
 
     # Child items will reside in a directory called `access` or
@@ -82,8 +82,7 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
         # Whether or not the object already exists, scan the filesystem for new
         # child items to add.
         if top_item_dir.directories.any?
-          pres_dir = top_item_dir.directories.
-              select{ |d| d.name == 'preservation' }.first
+          pres_dir = top_item_dir.directories.find{ |d| d.name == 'preservation' }
           if pres_dir
             # If the preservation directory contains more than one file, each
             # file corresponds to a child item with its own preservation master.
@@ -98,29 +97,28 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
                 else
                   LOGGER.info('create_items(): creating child item %s',
                               pres_file.uuid)
-                  child = Item.new(repository_id: pres_file.uuid,
+                  child = Item.new(repository_id:            pres_file.uuid,
                                    collection_repository_id: collection.repository_id,
-                                   parent_repository_id: item.repository_id)
+                                   parent_repository_id:     item.repository_id)
                   # Assign a title of the filename.
                   child.elements.build(name: 'title', value: pres_file.name)
 
                   # Set the variant.
-                  basename = File.basename(pres_file.repository_relative_pathname)
-                  if basename.include?('_frontmatter')
+                  if pres_file.name.include?('_frontmatter')
                     child.variant = Item::Variants::FRONT_MATTER
-                  elsif basename.include?('_index')
+                  elsif pres_file.name.include?('_index')
                     child.variant = Item::Variants::INDEX
-                  elsif basename.include?('_key')
+                  elsif pres_file.name.include?('_key')
                     child.variant = Item::Variants::KEY
-                  elsif basename.include?('_title')
+                  elsif pres_file.name.include?('_title')
                     child.variant = Item::Variants::TITLE
                   else
                     child.variant = Item::Variants::PAGE
                   end
 
                   # Create the preservation master binary.
-                  child.binaries << pres_file.
-                      to_binary(Binary::MasterType::PRESERVATION)
+                  child.binaries << Binary.from_medusa_file(
+                      pres_file, Binary::MasterType::PRESERVATION)
 
                   # Find and create the access master binary.
                   begin
@@ -140,8 +138,8 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
             elsif pres_dir.files.length == 1 and !object_exists
               # Create the preservation master binary.
               pres_file = pres_dir.files.first
-              item.binaries << pres_file.
-                  to_binary(Binary::MasterType::PRESERVATION)
+              item.binaries << Binary.from_medusa_file(
+                  pres_file, Binary::MasterType::PRESERVATION)
 
               # Find and create the access master binary.
               begin
@@ -161,8 +159,7 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
                         top_item_dir.uuid)
           end
 
-          supplementary_dir = top_item_dir.directories.
-              select{ |d| d.name == 'supplementary' }.first
+          supplementary_dir = top_item_dir.directories.find{ |d| d.name == 'supplementary' }
           if supplementary_dir
             supplementary_dir.files.each do |supp_file|
               # Find or create the supplementary item.
@@ -174,21 +171,21 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
               else
                 LOGGER.info('create_items(): creating supplementary item %s',
                             supp_file.uuid)
-                child = Item.new(repository_id: supp_file.uuid,
+                child = Item.new(repository_id:            supp_file.uuid,
                                  collection_repository_id: collection.repository_id,
-                                 parent_repository_id: item.repository_id,
-                                 variant: Item::Variants::SUPPLEMENT)
+                                 parent_repository_id:     item.repository_id,
+                                 variant:                  Item::Variants::SUPPLEMENT)
                 # Assign a title of the filename.
                 child.elements.build(name: 'title', value: supp_file.name)
-                child.binaries << supp_file.to_binary(Binary::MasterType::PRESERVATION)
+                child.binaries << Binary.from_medusa_file(supp_file,
+                                                          Binary::MasterType::PRESERVATION)
                 child.save!
                 stats[:num_created] += 1
               end
             end
           end
 
-          composite_dir = top_item_dir.directories.
-              select{ |d| d.name == 'composite' }.first
+          composite_dir = top_item_dir.directories.find{ |d| d.name == 'composite' }
           if composite_dir
             composite_dir.files.each do |comp_file|
               # Find or create the composite item.
@@ -200,13 +197,14 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
               else
                 LOGGER.info('create_items(): creating composite item %s',
                             comp_file.uuid)
-                child = Item.new(repository_id: comp_file.uuid,
+                child = Item.new(repository_id:            comp_file.uuid,
                                  collection_repository_id: collection.repository_id,
-                                 parent_repository_id: item.repository_id,
-                                 variant: Item::Variants::COMPOSITE)
+                                 parent_repository_id:     item.repository_id,
+                                 variant:                  Item::Variants::COMPOSITE)
                 # Assign a title of the filename.
                 child.elements.build(name: 'title', value: comp_file.name)
-                child.binaries << comp_file.to_binary(Binary::MasterType::PRESERVATION)
+                child.binaries << Binary.from_medusa_file(comp_file,
+                                                          Binary::MasterType::PRESERVATION)
                 child.save!
                 stats[:num_created] += 1
               end
@@ -293,8 +291,7 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
           item.binaries.destroy_all
 
           if top_item_dir.directories.any?
-            pres_dir = top_item_dir.directories.
-                select{ |d| d.name == 'preservation' }.first
+            pres_dir = top_item_dir.directories.find{ |d| d.name == 'preservation' }
             if pres_dir
               # If the preservation directory contains more than one file, each
               # file corresponds to a child item with its own preservation master.
@@ -309,16 +306,17 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
                     child.binaries.destroy_all
 
                     # Create the preservation master binary.
-                    bs = pres_file.to_binary(Binary::MasterType::PRESERVATION)
-                    bs.item = child
-                    bs.save!
+                    bin = Binary.from_medusa_file(pres_file,
+                                                  Binary::MasterType::PRESERVATION)
+                    bin.item = child
+                    bin.save!
                     stats[:num_created] += 1
 
                     # Find and create the access master binary.
                     begin
-                      bs = access_master_binary(top_item_dir, pres_file)
-                      bs.item = child
-                      bs.save!
+                      bin = access_master_binary(top_item_dir, pres_file)
+                      bin.item = child
+                      bin.save!
                       stats[:num_created] += 1
                     rescue IllegalContentError => e
                       LOGGER.warn('recreate_binaries(): %s', e)
@@ -336,8 +334,8 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
 
                 # Create the preservation master binary.
                 pres_file = pres_dir.files.first
-                item.binaries <<
-                    pres_file.to_binary(Binary::MasterType::PRESERVATION)
+                item.binaries << Binary.from_medusa_file(pres_file,
+                                                         Binary::MasterType::PRESERVATION)
                 stats[:num_created] += 1
 
                 # Find and create the access master binary.
@@ -359,14 +357,14 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
             end
 
             # Update supplementary item binaries.
-            supplementary_dir = top_item_dir.directories.
-                select{ |d| d.name == 'supplementary' }.first
+            supplementary_dir = top_item_dir.directories.find{ |d| d.name == 'supplementary' }
             if supplementary_dir
               supplementary_dir.files.each do |supp_file|
                 item = Item.find_by_repository_id(supp_file.uuid)
                 if item
                   item.binaries.destroy_all
-                  item.binaries << supp_file.to_binary(Binary::MasterType::PRESERVATION)
+                  item.binaries << Binary.from_medusa_file(supp_file,
+                                                           Binary::MasterType::PRESERVATION)
                   item.save!
                   stats[:num_created] += 1
                 else
@@ -378,14 +376,14 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
             end
 
             # Update compoosite item binaries.
-            composite_dir = top_item_dir.directories.
-                select{ |d| d.name == 'composite' }.first
+            composite_dir = top_item_dir.directories.find{ |d| d.name == 'composite' }
             if composite_dir
               composite_dir.files.each do |comp_file|
                 item = Item.find_by_repository_id(comp_file.uuid)
                 if item
                   item.binaries.destroy_all
-                  item.binaries << comp_file.to_binary(Binary::MasterType::PRESERVATION)
+                  item.binaries << Binary.from_medusa_file(comp_file,
+                                                           Binary::MasterType::PRESERVATION)
                   item.save!
                   stats[:num_created] += 1
                 else
@@ -422,22 +420,21 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
   private
 
   ##
-  # @param item_cfs_dir [MedusaCfsDirectory]
-  # @param pres_master_file [MedusaCfsFile]
+  # @param item_cfs_dir [Medusa::Directory]
+  # @param pres_master_file [Medusa::File]
   # @return [Binary]
   # @raises [IllegalContentError]
   #
   def access_master_binary(item_cfs_dir, pres_master_file)
-    access_dir = item_cfs_dir.directories.
-        select{ |d| d.name == 'access' }.first
+    access_dir = item_cfs_dir.directories.find{ |d| d.name == 'access' }
     if access_dir
       if access_dir.files.any?
-        pres_master_name = File.basename(pres_master_file.pathname)
+        pres_master_name = pres_master_file.name
         access_file = access_dir.files.
-            select{ |f| f.name.chomp(File.extname(f.name)) ==
-            pres_master_name.chomp(File.extname(pres_master_name)) }.first
+            find{ |f| f.name.chomp(File.extname(f.name)) ==
+            pres_master_name.chomp(File.extname(pres_master_name)) }
         if access_file
-          return access_file.to_binary(Binary::MasterType::ACCESS)
+          return Binary.from_medusa_file(access_file, Binary::MasterType::ACCESS)
         else
           msg = "Preservation master file #{pres_master_file.uuid} has no "\
               "access master counterpart."
@@ -466,13 +463,12 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
     cfs_dir.directories.each do |top_item_dir|
       medusa_item_uuids << top_item_dir.uuid
       if top_item_dir.directories.any?
-        pres_dir = top_item_dir.directories.
-            select{ |d| d.name == 'preservation' }.first
+        pres_dir = top_item_dir.directories.find{ |d| d.name == 'preservation' }
         if pres_dir
           # If the preservation directory contains more than one file, each
           # file corresponds to a child item with its own preservation master.
           if pres_dir.files.length > 1
-            pres_dir.files.each { |file| medusa_item_uuids << file.uuid }
+            pres_dir.files.each{ |file| medusa_item_uuids << file.uuid }
           end
         end
       end

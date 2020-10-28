@@ -24,11 +24,11 @@ class MedusaSingleItemIngester < MedusaAbstractIngester
   def create_items(collection, options = {}, task = nil)
     check_collection(collection, PackageProfile::SINGLE_ITEM_OBJECT_PROFILE)
 
-    cfs_dir = collection.effective_medusa_cfs_directory
-    pres_dir = cfs_dir.directories.select{ |d| d.name == 'preservation' }.first
+    cfs_dir  = collection.effective_medusa_cfs_directory
+    pres_dir = cfs_dir.directories.find{ |d| d.name == 'preservation' }
 
-    stats = { num_created: 0, num_skipped: 0 }
-    files = pres_dir.files
+    stats     = { num_created: 0, num_skipped: 0 }
+    files     = pres_dir.files
     num_files = files.length
 
     ActiveRecord::Base.transaction do
@@ -48,7 +48,8 @@ class MedusaSingleItemIngester < MedusaAbstractIngester
           item.elements.build(name: 'title', value: file.name)
 
           # Create the preservation master binary.
-          item.binaries << file.to_binary(Binary::MasterType::PRESERVATION)
+          item.binaries << Binary.from_medusa_file(file,
+                                                   Binary::MasterType::PRESERVATION)
 
           # Find and create the access master binary.
           begin
@@ -122,11 +123,11 @@ class MedusaSingleItemIngester < MedusaAbstractIngester
   def recreate_binaries(collection, task = nil)
     check_collection(collection, PackageProfile::SINGLE_ITEM_OBJECT_PROFILE)
 
-    cfs_dir = collection.effective_medusa_cfs_directory
-    pres_dir = cfs_dir.directories.select{ |d| d.name == 'preservation' }.first
+    cfs_dir  = collection.effective_medusa_cfs_directory
+    pres_dir = cfs_dir.directories.find{ |d| d.name == 'preservation' }
 
-    stats = { num_created: 0 }
-    files = pres_dir.files
+    stats     = { num_created: 0 }
+    files     = pres_dir.files
     num_files = files.length
 
     ActiveRecord::Base.transaction do
@@ -136,7 +137,8 @@ class MedusaSingleItemIngester < MedusaAbstractIngester
           item.binaries.destroy_all
 
           # Create the preservation master binary.
-          item.binaries << file.to_binary(Binary::MasterType::PRESERVATION)
+          item.binaries << Binary.from_medusa_file(file,
+                                                   Binary::MasterType::PRESERVATION)
           stats[:num_created] += 1
 
           # Find and create the access master binary.
@@ -172,21 +174,22 @@ class MedusaSingleItemIngester < MedusaAbstractIngester
   private
 
   ##
-  # @param cfs_dir [MedusaCfsDirectory]
-  # @param pres_master_file [MedusaCfsFile]
+  # @param cfs_dir [Medusa::Directory]
+  # @param pres_master_file [Medusa::File]
   # @return [Binary]
   # @raises [IllegalContentError]
   #
   def access_master_binary(cfs_dir, pres_master_file)
-    access_dir = cfs_dir.directories.select{ |d| d.name == 'access' }.first
+    access_dir = cfs_dir.directories.find{ |d| d.name == 'access' }
     if access_dir
       if access_dir.files.any?
-        pres_master_name = File.basename(pres_master_file.pathname)
+        pres_master_name = pres_master_file.name
         access_file = access_dir.files.
-            select{ |f| f.name.chomp(File.extname(f.name)) ==
-            pres_master_name.chomp(File.extname(pres_master_name)) }.first
+            find{ |f| f.name.chomp(File.extname(f.name)) ==
+            pres_master_name.chomp(File.extname(pres_master_name)) }
         if access_file
-          return access_file.to_binary(Binary::MasterType::ACCESS)
+          return Binary.from_medusa_file(access_file,
+                                         Binary::MasterType::ACCESS)
         else
           msg = "Preservation master file #{pres_master_file.uuid} has no "\
                 "access master counterpart."
@@ -211,7 +214,7 @@ class MedusaSingleItemIngester < MedusaAbstractIngester
   #
   def items_in(cfs_dir)
     medusa_item_uuids = Set.new
-    pres_dir = cfs_dir.directories.select{ |d| d.name == 'preservation' }.first
+    pres_dir = cfs_dir.directories.find{ |d| d.name == 'preservation' }
     if pres_dir
       pres_dir.files.each { |file| medusa_item_uuids << file.uuid }
     end

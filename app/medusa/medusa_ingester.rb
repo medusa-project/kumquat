@@ -73,11 +73,11 @@ class MedusaIngester
   #
   def sync_collections(task = nil)
     config = Configuration.instance
-    url = sprintf('%s/collections.json', config.medusa_url.chomp('/'))
+    url    = sprintf('%s/collections.json', config.medusa_url.chomp('/'))
 
     # Download the list of collections from Medusa.
     LOGGER.info('sync_collections(): downloading collection list')
-    client = MedusaClient.instance
+    client   = Medusa::Client.instance
     response = client.get(url)
 
     if response.status == 200
