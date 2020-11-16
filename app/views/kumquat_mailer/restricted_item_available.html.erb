@@ -10,11 +10,10 @@
 <p>This link is restricted to your use and may not be shared. It will be
 available to you for the next 21 days.</p>
 
-<p>If you have any questions, send an email to
-  <a href="mailto:digitalcollections@lists.illinois.edu">digitalcollections@lists.illinois.edu</a>.
-  <strong>Do not reply to this email.</strong></p>
+<p>If you have any questions, please reply to this email.</p>
 
 <p>----
 <br>Digital Collections
 <br>University of Illinois at Urbana-Champaign Library
-<br><a href="mailto:digitalcollections@lists.illinois.edu">digitalcollections@lists.illinois.edu</a></p>
+<br><a href="mailto:<%= ::Configuration.instance.mail[:reply_to] %>">
+  <%= ::Configuration.instance.mail[:reply_to] %></a></p>
