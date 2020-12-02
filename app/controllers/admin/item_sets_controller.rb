@@ -18,12 +18,12 @@ module Admin
       rescue => e
         handle_error(e)
         keep_flash
-        render 'create'
+        render 'admin/shared/reload'
       else
         response.headers['X-Kumquat-Result'] = 'success'
         flash['success'] = "Set \"#{item_set}\" created."
         keep_flash
-        render 'create' # create.js.erb will reload the page
+        render 'admin/shared/reload'
       end
     end
 
@@ -32,7 +32,7 @@ module Admin
     #
     def destroy
       item_set = ItemSet.find(params[:id])
-      col = item_set.collection
+      col      = item_set.collection
       item_set.destroy!
 
       flash['success'] = "#{item_set} deleted."
@@ -155,12 +155,12 @@ module Admin
       rescue => e
         handle_error(e)
         keep_flash
-        render 'update'
+        render 'admin/shared/reload'
       else
         response.headers['X-Kumquat-Result'] = 'success'
         flash['success'] = "Set \"#{item_set}\" updated."
         keep_flash
-        render 'update' # update.js.erb will reload the page
+        render 'admin/shared/reload'
       end
     end
 

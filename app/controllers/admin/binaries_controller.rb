@@ -28,7 +28,7 @@ module Admin
         flash['success'] = "Binary ID \"#{@binary.id}\" updated."
       ensure
         keep_flash
-        render 'update' # update.js.erb will reload the page
+        render 'admin/shared/reload'
       end
     end
 

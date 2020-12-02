@@ -29,12 +29,12 @@ module Admin
       rescue => e
         handle_error(e)
         keep_flash
-        render 'create'
+        render 'admin/shared/reload'
       else
         response.headers['X-Kumquat-Result'] = 'success'
         flash['success'] = "Element \"#{@element.name}\" created."
         keep_flash
-        render 'create' # create.js.erb will reload the page
+        render 'admin/shared/reload'
       end
     end
 
@@ -144,12 +144,12 @@ module Admin
       rescue => e
         handle_error(e)
         keep_flash
-        render 'update'
+        render 'admin/shared/reload'
       else
         response.headers['X-Kumquat-Result'] = 'success'
         flash['success'] = "Element \"#{element.name}\" updated."
         keep_flash
-        render 'update' # update.js.erb will reload the page
+        render 'admin/shared/reload'
       end
     end
 

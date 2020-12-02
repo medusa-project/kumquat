@@ -17,12 +17,12 @@ module Admin
         response.headers['X-Kumquat-Result'] = 'error'
         handle_error(e)
         keep_flash
-        render 'create'
+        render 'admin/shared/reload'
       else
         response.headers['X-Kumquat-Result'] = 'success'
         flash['success'] = "Agent relation type \"#{@type.name}\" created."
         keep_flash
-        render 'create' # create.js.erb will reload the page
+        render 'admin/shared/reload'
       end
     end
 
@@ -71,12 +71,12 @@ module Admin
         response.headers['X-Kumquat-Result'] = 'error'
         handle_error(e)
         keep_flash
-        render 'update'
+        render 'admin/shared/reload'
       else
         response.headers['X-Kumquat-Result'] = 'success'
         flash['success'] = "Agent relation type \"#{type.name}\" updated."
         keep_flash
-        render 'update' # update.js.erb will reload the page
+        render 'admin/shared/reload'
       end
     end
 

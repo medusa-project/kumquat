@@ -16,12 +16,12 @@ module Admin
       rescue => e
         handle_error(e)
         keep_flash
-        render 'create'
+        render 'admin/shared/reload'
       else
         response.headers['X-Kumquat-Result'] = 'success'
         flash['success'] = "Agent rule \"#{@agent_rule.name}\" created."
         keep_flash
-        render 'create' # create.js.erb will reload the page
+        render 'admin/shared/reload'
       end
     end
 
@@ -51,7 +51,7 @@ module Admin
     # Responds to GET /admin/agent-rules
     #
     def index
-      @agent_rules = AgentRule.all.order(:name)
+      @agent_rules    = AgentRule.all.order(:name)
       @new_agent_rule = AgentRule.new
     end
 
@@ -69,12 +69,12 @@ module Admin
       rescue => e
         handle_error(e)
         keep_flash
-        render 'update'
+        render 'admin/shared/reload'
       else
         response.headers['X-Kumquat-Result'] = 'success'
         flash['success'] = "Agent \"#{agent_rule.name}\" updated."
         keep_flash
-        render 'update' # update.js.erb will reload the page
+        render 'admin/shared/reload'
       end
     end
 

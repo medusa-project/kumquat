@@ -26,12 +26,12 @@ module Admin
       rescue => e
         handle_error(e)
         keep_flash
-        render 'create'
+        render 'admin/shared/reload'
       else
         response.headers['X-Kumquat-Result'] = 'success'
         flash['success'] = "Agent \"#{@agent.name}\" created."
         keep_flash
-        render 'create' # create.js.erb will reload the page
+        render 'admin/shared/reload'
       end
     end
 
@@ -61,8 +61,8 @@ module Admin
     # Responds to GET /admin/agents
     #
     def index
-      @limit = Option::integer(Option::Keys::DEFAULT_RESULT_WINDOW)
-      @start = params[:start] ? params[:start].to_i : 0
+      @limit        = Option::integer(Option::Keys::DEFAULT_RESULT_WINDOW)
+      @start        = params[:start] ? params[:start].to_i : 0
       @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
 
       @agents = Agent.all.order(:name)
@@ -136,7 +136,7 @@ module Admin
         response.headers['X-Kumquat-Result'] = 'success'
         flash['success'] = "Agent \"#{agent.name}\" updated."
         keep_flash
-        render 'update' # update.js.erb will reload the page
+        render 'admin/shared/reload'
       end
     end
 
