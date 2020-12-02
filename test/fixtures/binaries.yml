@@ -8,6 +8,7 @@ compound_object_1001_access:
   media_category: <%= Binary::MediaCategory::IMAGE %>
   media_type:     image/jp2
   object_key:     repositories/1/collections/3/file_groups/3/root/1001/access/1001_001.jp2
+  public:         true
 
 compound_object_1001_preservation:
   item:           compound_object_1001
@@ -17,6 +18,7 @@ compound_object_1001_preservation:
   media_category: <%= Binary::MediaCategory::IMAGE %>
   media_type:     image/tiff
   object_key:     repositories/1/collections/3/file_groups/3/root/1001/preservation/1001_001.tif
+  public:         true
 
 compound_object_1002_page1_access:
   item:           compound_object_1002_page1
@@ -26,6 +28,7 @@ compound_object_1002_page1_access:
   media_category: <%= Binary::MediaCategory::IMAGE %>
   media_type:     image/jp2
   object_key:     repositories/1/collections/3/file_groups/3/root/1002/access/1002_001.jp2
+  public:         true
 
 compound_object_1002_page1_preservation:
   item:           compound_object_1002_page1
@@ -35,6 +38,7 @@ compound_object_1002_page1_preservation:
   media_category: <%= Binary::MediaCategory::IMAGE %>
   media_type:     image/tiff
   object_key:     repositories/1/collections/3/file_groups/3/root/1002/preservation/1002_001.tif
+  public:         true
 
 compound_object_1002_page2_access:
   item:           compound_object_1002_page2
@@ -44,6 +48,7 @@ compound_object_1002_page2_access:
   media_category: <%= Binary::MediaCategory::IMAGE %>
   media_type:     image/jp2
   object_key:     repositories/1/collections/3/file_groups/3/root/1002/access/1002_002.jp2
+  public:         true
 
 compound_object_1002_page2_preservation:
   item:           compound_object_1002_page2
@@ -53,6 +58,7 @@ compound_object_1002_page2_preservation:
   media_category: <%= Binary::MediaCategory::IMAGE %>
   media_type:     image/tiff
   object_key:     repositories/1/collections/3/file_groups/3/root/1002/preservation/1002_002.tif
+  public:         true
 
 compound_object_1002_supplement:
   item:           compound_object_1002_supplement
@@ -62,6 +68,7 @@ compound_object_1002_supplement:
   media_category: <%= Binary::MediaCategory::TEXT %>
   media_type:     text/plain
   object_key:     repositories/1/collections/3/file_groups/3/root/1002/supplementary/text.txt
+  public:         true
 
 # CONTENTdm Collection
 
@@ -73,6 +80,7 @@ contentdm_obj1_page1_access:
   media_category: <%= Binary::MediaCategory::IMAGE %>
   media_type:     image/jp2
   object_key:     repositories/1/collections/5/file_groups/5/root/1001/access/1001_001.jp2
+  public:         true
 
 contentdm_obj1_page1_preservation:
   item:           contentdm_obj1
@@ -82,6 +90,7 @@ contentdm_obj1_page1_preservation:
   media_category: <%= Binary::MediaCategory::IMAGE %>
   media_type:     image/tiff
   object_key:     repositories/1/collections/3/file_groups/5/root/1001/preservation/1001_001.tif
+  public:         true
 
 # Free-Form Collection
 
@@ -93,6 +102,7 @@ free_form_dir1_audio:
   media_type:     audio/aiff
   media_category: <%= Binary::MediaCategory::AUDIO %>
   object_key:     repositories/1/collections/1/file_groups/1/root/dir1/piano.aif
+  public:         true
 
 free_form_dir1_image1:
   item:           free_form_dir1_image
@@ -102,6 +112,7 @@ free_form_dir1_image1:
   media_type:     image/jpeg
   media_category: <%= Binary::MediaCategory::IMAGE %>
   object_key:     repositories/1/collections/1/file_groups/1/root/dir1/image1.jpg
+  public:         true
 
 free_form_dir1_video:
   item:           free_form_dir1_video
@@ -111,6 +122,7 @@ free_form_dir1_video:
   media_type:     video/mp4
   media_category: <%= Binary::MediaCategory::VIDEO %>
   object_key:     repositories/1/collections/1/file_groups/1/root/dir1/video.mp4
+  public:         true
 
 free_form_dir1_dir1_file1:
   item:           free_form_dir1_dir1_file1
@@ -120,3 +132,4 @@ free_form_dir1_dir1_file1:
   media_type:     image/jpeg
   media_category: <%= Binary::MediaCategory::IMAGE %>
   object_key:     repositories/1/collections/1/file_groups/1/root/dir1/dir1/file1
+  public:         true

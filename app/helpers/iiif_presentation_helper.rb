@@ -13,31 +13,30 @@ module IiifPresentationHelper
     resources = []
     item.items.where('variant IN (?)', [Item::Variants::COMPOSITE,
                                         Item::Variants::SUPPLEMENT]).each do |child|
-      binary = child.effective_image_binary
+      binary  = child.effective_image_binary
       dc_type = child.dc_type
-      if binary and dc_type
-      resources << {
-          '@type': 'oa:Annotation',
-          motivation: 'sc:painting',
-          resource: {
-              '@id': item_url(child),
-              # http://dublincore.org/documents/dcmi-type-vocabulary/#H7
-              '@type': "dctypes:#{dc_type}",
-              format: binary.media_type
-          },
-          on: item_iiif_layer_url(item, list_name)
-      }
+      if (binary&.public || current_user&.medusa_user?) && dc_type
+        resources << {
+            '@type':    'oa:Annotation',
+            motivation: 'sc:painting',
+            resource: {
+                '@id':   item_url(child),
+                # http://dublincore.org/documents/dcmi-type-vocabulary/#H7
+                '@type': "dctypes:#{dc_type}",
+                format:  binary.media_type
+            },
+            on: item_iiif_layer_url(item, list_name)
+        }
       end
     end
-
     {
         '@context': 'http://iiif.io/api/presentation/2/context.json',
-        '@id': item_iiif_annotation_list_url(item, list_name),
-        '@type': 'sc:AnnotationList',
+        '@id':      item_iiif_annotation_list_url(item, list_name),
+        '@type':    'sc:AnnotationList',
         within: {
-            '@id': item_iiif_layer_url(item, item.repository_id),
+            '@id':   item_iiif_layer_url(item, item.repository_id),
             '@type': 'sc:Layer',
-            label: LAYER_LABEL
+            label:   LAYER_LABEL
         },
         resources: resources
     }
@@ -50,17 +49,17 @@ module IiifPresentationHelper
   #
   def iiif_canvas_for(subitem, include_metadata)
     struct = {
-        '@id': item_iiif_canvas_url(subitem, subitem.repository_id),
+        '@id':   item_iiif_canvas_url(subitem, subitem.repository_id),
         '@type': 'sc:Canvas',
-        label: subitem.title,
-        height: canvas_height(subitem),
-        width: canvas_width(subitem)
+        label:   subitem.title,
+        height:  canvas_height(subitem),
+        width:   canvas_width(subitem)
     }
     if include_metadata
       struct[:metadata] = iiif_metadata_for(subitem)
     end
     binary = subitem.effective_image_binary
-    if binary
+    if binary&.public || current_user&.medusa_user?
       struct[:images] = iiif_image_resources_for(subitem, 'access')
     end
     struct
@@ -84,7 +83,7 @@ module IiifPresentationHelper
     if result.count > 0
       canvases = result.map { |child| iiif_canvas_for(child, true) }
     else
-      canvases = [ iiif_canvas_for(item, !(item.file? or item.directory?)) ]
+      canvases = [ iiif_canvas_for(item, !(item.file? || item.directory?)) ]
     end
     canvases
   end
@@ -95,9 +94,9 @@ module IiifPresentationHelper
   def iiif_collection_list_for(collections)
     collections.map do |c|
       {
-          '@id': collection_iiif_presentation_url(c),
+          '@id':   collection_iiif_presentation_url(c),
           '@type': 'sc:Collection',
-          label: c.title
+          label:   c.title
       }
     end
   end
@@ -109,23 +108,23 @@ module IiifPresentationHelper
   #
   def iiif_image_resources_for(item, resource_name)
     images = []
-    bin = item.effective_image_binary
-    if bin
+    binary = item.effective_image_binary
+    if binary&.public || current_user&.medusa_user?
       images << {
-          '@type': 'oa:Annotation',
-          '@id': item_iiif_image_resource_url(item, resource_name),
+          '@type':    'oa:Annotation',
+          '@id':      item_iiif_image_resource_url(item, resource_name),
           motivation: 'sc:painting',
           resource: {
-              '@id': item_image_url(item, :default, 1000),
-              '@type': 'dctypes:Image',
-              'format': bin.media_type,
+              '@id':    item_image_url(item, :default, 1000),
+              '@type':  'dctypes:Image',
+              'format': binary.media_type,
               service: {
                   '@context': 'http://iiif.io/api/image/2/context.json',
-                  '@id': bin.iiif_image_url,
-                  profile: 'http://iiif.io/api/image/2/profiles/level2.json'
+                  '@id':      binary.iiif_image_url,
+                  profile:    'http://iiif.io/api/image/2/profiles/level2.json'
               },
-              height: bin.height,
-              width: bin.width
+              height: binary.height,
+              width:  binary.width
           },
           on: item_iiif_canvas_url(item, item.repository_id)
       }
@@ -142,9 +141,9 @@ module IiifPresentationHelper
   def iiif_layer_for(item, layer_name)
     struct = {
         '@context': 'http://iiif.io/api/presentation/2/context.json',
-        '@id': item_iiif_layer_url(item, layer_name),
-        '@type': 'sc:Layer',
-        label: LAYER_LABEL
+        '@id':      item_iiif_layer_url(item, layer_name),
+        '@type':    'sc:Layer',
+        label:      LAYER_LABEL
     }
 
     items = item.items.where('variant IN (?)', [Item::Variants::COMPOSITE,
@@ -172,21 +171,22 @@ module IiifPresentationHelper
       # Audio
       # Example: http://wellcomelibrary.org/iiif/b17307922/manifest
       child.binaries.
-          select{ |b| b.media_category == Binary::MediaCategory::AUDIO and
-          b.master_type == Binary::MasterType::ACCESS }.each do |bin|
+          select{ |b| (binary&.public || current_user&.medusa_user?) &&
+              b.media_category == Binary::MediaCategory::AUDIO &&
+              b.master_type == Binary::MasterType::ACCESS }.each do |bin|
         sequences << {
-            '@id': item_iiif_media_sequence_url(item, bin.filename),
+            '@id':   item_iiif_media_sequence_url(item, bin.filename),
             '@type': 'ixif:MediaSequence',
             'label': "XSequence #{bin.filename}",
             'elements': [
-                '@id': binary_url(bin),
-                '@type': "dctypes:#{bin.dc_type}",
-                'format': bin.media_type,
-                'label': child.title,
-                'metadata': iiif_metadata_for(child),
+                '@id':       binary_url(bin),
+                '@type':     "dctypes:#{bin.dc_type}",
+                'format':    bin.media_type,
+                'label':     child.title,
+                'metadata':  iiif_metadata_for(child),
                 'thumbnail': thumbnail_url(child.effective_image_binary),
                 rendering: {
-                    '@id': binary_url(bin),
+                    '@id':  binary_url(bin),
                     format: bin.media_type
                 }
             ]
@@ -203,8 +203,7 @@ module IiifPresentationHelper
   def iiif_metadata_for(item)
     elements = []
     item.collection.metadata_profile.elements.select(&:visible).each do |pe|
-      item_elements = item.elements.
-          select{ |ie| ie.name == pe.name and ie.value.present? }
+      item_elements = item.elements.select{ |ie| ie.name == pe.name && ie.value.present? }
       if item_elements.any?
         elements << {
             label: pe.label,
@@ -227,8 +226,7 @@ module IiifPresentationHelper
         '@type': 'sc:Range',
         label: subitem.title
     }
-    if [Item::Variants::COMPOSITE, Item::Variants::SUPPLEMENT].
-        include?(subitem.variant)
+    if [Item::Variants::COMPOSITE, Item::Variants::SUPPLEMENT].include?(subitem.variant)
       struct[:contentLayer] = item_iiif_layer_url(item, subitem.repository_id)
     else
       struct[:canvases] = [ item_iiif_canvas_url(subitem, subitem.repository_id) ]
@@ -246,8 +244,8 @@ module IiifPresentationHelper
       iiif_range_for(item, subitem)
     end
 
-    top_range = ranges.select{ |r| r[:label] == Item::Variants::TITLE.titleize }.first ||
-        ranges.select{ |r| r[:label] == Item::Variants::TABLE_OF_CONTENTS.titleize }.first
+    top_range = ranges.find{ |r| r[:label] == Item::Variants::TITLE.titleize } ||
+        ranges.find{ |r| r[:label] == Item::Variants::TABLE_OF_CONTENTS.titleize }
     top_range[:viewingHint] = 'top' if top_range
 
     ranges
@@ -262,11 +260,11 @@ module IiifPresentationHelper
     if item.pages.count > 0
       sequences = [
           {
-              '@id': item_iiif_sequence_url(item, :page),
-              '@type': 'sc:Sequence',
-              label: 'Pages',
+              '@id':       item_iiif_sequence_url(item, :page),
+              '@type':     'sc:Sequence',
+              label:       'Pages',
               viewingHint: 'paged',
-              canvases: iiif_canvases_for(item)
+              canvases:    iiif_canvases_for(item)
           }
       ]
     # Otherwise, if it has any items of any variant, they will comprise the
@@ -274,9 +272,9 @@ module IiifPresentationHelper
     elsif item.items.count > 0
       sequences = [
           {
-             '@id': item_iiif_sequence_url(item, :item),
-             '@type': 'sc:Sequence',
-             label: 'Sub-Items',
+             '@id':    item_iiif_sequence_url(item, :item),
+             '@type':  'sc:Sequence',
+             label:    'Sub-Items',
              canvases: iiif_canvases_for(item)
           }
       ]
@@ -284,9 +282,9 @@ module IiifPresentationHelper
     else
       sequences = [
           {
-              '@id': item_iiif_sequence_url(item, :item),
-              '@type': 'sc:Sequence',
-              label: item.title,
+              '@id':    item_iiif_sequence_url(item, :item),
+              '@type':  'sc:Sequence',
+              label:    item.title,
               canvases: iiif_canvases_for(item)
           }
       ]
@@ -305,13 +303,17 @@ module IiifPresentationHelper
     # either edge, then the canvas’s dimensions should be double those of the
     # image."
     height = MIN_CANVAS_SIZE
-    item.binaries.each { |b| height = b.height if b.height and b.height > height }
+    item.binaries.select{ |b| b.public || current_user&.medusa_user? }.each do |b|
+      height = b.height if b.height && b.height > height
+    end
     height
   end
 
   def canvas_width(item)
     width = MIN_CANVAS_SIZE
-    item.binaries.each { |b| width = b.width if b.width and b.width > width }
+    item.binaries.select{ |b| b.public || current_user&.medusa_user? }.each do |b|
+      width = b.width if b.width && b.width > width
+    end
     width
   end
 

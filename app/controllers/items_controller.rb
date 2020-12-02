@@ -305,7 +305,10 @@ class ItemsController < WebsiteController
           zip_name = "items-#{start}-#{end_}"
 
           download = Download.create(ip_address: request.remote_ip)
-          DownloadZipJob.perform_later(item_ids, zip_name, download)
+          DownloadZipJob.perform_later(item_ids,
+                                       zip_name,
+                                       current_user&.medusa_user?,
+                                       download)
           redirect_to download_url(download) and return
         else
           flash['error'] = 'No items to download.'
@@ -418,7 +421,7 @@ class ItemsController < WebsiteController
         # PDF download is only available for compound objects.
         if @item.is_compound?
           download = Download.create(ip_address: request.remote_ip)
-          CreatePdfJob.perform_later(@item, download)
+          CreatePdfJob.perform_later(@item, current_user&.medusa_user?, download)
           redirect_to download_url(download) and return
         else
           flash['error'] = 'PDF downloads are only available for compound objects.'
@@ -476,9 +479,15 @@ class ItemsController < WebsiteController
           download = Download.create(ip_address: request.remote_ip)
           case params[:contents]
             when 'jpegs'
-              CreateZipOfJpegsJob.perform_later(item_ids, zip_name, download)
+              CreateZipOfJpegsJob.perform_later(item_ids,
+                                                zip_name,
+                                                current_user&.medusa_user?,
+                                                download)
             else
-              DownloadZipJob.perform_later(item_ids, zip_name, download)
+              DownloadZipJob.perform_later(item_ids,
+                                           zip_name,
+                                           current_user&.medusa_user?,
+                                           download)
           end
           redirect_to download_url(download) and return
         else

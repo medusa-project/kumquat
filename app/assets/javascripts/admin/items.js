@@ -1,35 +1,9 @@
 /**
- * The Batch Change modal is used in a couple of different views.
- *
- * @constructor
- */
-var BatchChangeModal = function() {
-
-    this.init = function() {
-        $('button.dl-add-element').on('click', function() {
-            var element = $(this).closest('.dl-elements').find('.dl-element:last-child');
-            var clone = element.clone(true);
-            clone.find('input').val('');
-            element.after(clone);
-            return false;
-        });
-        $('button.dl-remove-element').on('click', function() {
-            var element = $(this).closest('.dl-element');
-            if (element.siblings().length > 0) {
-                element.remove();
-            }
-            return false;
-        });
-    };
-
-};
-
-/**
  * Manages single-item edit view.
  *
  * @constructor
  */
-var PTAdminItemEditView = function() {
+const DLAdminItemEditView = function() {
 
     /**
      * @param input {jQuery}
@@ -198,7 +172,7 @@ var PTAdminItemEditView = function() {
  *
  * @constructor
  */
-var PTAdminItemsEditView = function() {
+const DLAdminItemsEditView = function() {
 
     var self = this;
     var shade = new Application.AJAXShade();
@@ -264,7 +238,7 @@ var PTAdminItemsEditView = function() {
  *
  * @constructor
  */
-var PTAdminItemsView = function() {
+const DLAdminItemsView = function() {
 
     var self = this;
 
@@ -272,7 +246,21 @@ var PTAdminItemsView = function() {
         new Application.FilterField();
         Application.initFacets();
 
-        new BatchChangeModal().init();
+        // Batch Change modal button click handlers
+        $('button.dl-add-element').on('click', function() {
+            var element = $(this).closest('.dl-elements').find('.dl-element:last-child');
+            var clone = element.clone(true);
+            clone.find('input').val('');
+            element.after(clone);
+            return false;
+        });
+        $('button.dl-remove-element').on('click', function() {
+            var element = $(this).closest('.dl-element');
+            if (element.siblings().length > 0) {
+                element.remove();
+            }
+            return false;
+        });
 
         self.attachEventListeners();
     };
@@ -331,9 +319,20 @@ var PTAdminItemsView = function() {
 
 };
 
-var PTAdminItemView = function() {
+const DLAdminItemView = function() {
+
     this.init = function() {
+        const ROOT_URL = $('input[name="root_url"]').val();
+
         $('[data-toggle=popover]').popover({ 'html' : true });
+
+        $('button.dl-edit-binary').on('click', function() {
+            const binary_id = $(this).data('binary-id');
+            const url = ROOT_URL + '/admin/binaries/' + binary_id + '/edit';
+            $.get(url, function(data) {
+                $('#dl-edit-binary-modal .modal-body').html(data);
+            });
+        });
 
         // Copy the restricted URL to the clipboard when a copy button is
         // clicked. This uses clipboard.js: https://clipboardjs.com
@@ -355,20 +354,18 @@ var PTAdminItemView = function() {
     }
 };
 
-var ready = function() {
+$(document).ready(function() {
     if ($('body#admin_items_edit').length) {
-        Application.view = new PTAdminItemEditView();
+        Application.view = new DLAdminItemEditView();
         Application.view.init();
     } else if ($('body#admin_items_edit_all').length) {
-        Application.view = new PTAdminItemsEditView();
+        Application.view = new DLAdminItemsEditView();
         Application.view.init();
     } else if ($('body#admin_items_index').length) {
-        Application.view = new PTAdminItemsView();
+        Application.view = new DLAdminItemsView();
         Application.view.init();
     } else if ($('body#admin_items_show').length) {
-        Application.view = new PTAdminItemView();
+        Application.view = new DLAdminItemView();
         Application.view.init();
     }
-};
-
-$(document).ready(ready);
+});

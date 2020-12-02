@@ -71,6 +71,7 @@ Rails.application.routes.draw do
     resources :agent_relations, except: [:index, :show], path: 'agent-relations'
     resources :agent_rules, except: :show, path: 'agent-rules'
     resources :agent_types, except: :show, path: 'agent-types'
+    resources :binaries, only: [:edit, :update]
     resources :elements, param: :name do
       match '/usages', to: 'elements#usages', via: :get
     end
@@ -91,7 +92,11 @@ Rails.application.routes.draw do
       match '/items/publish', to: 'items#publish', via: :patch
       match '/items/unpublish', to: 'items#unpublish', via: :patch
       resources :items do
+        match '/publicize-child-binaries', to: 'items#publicize_child_binaries',
+              via: :post
         match '/purge-cached-images', to: 'items#purge_cached_images',
+              via: :post
+        match '/unpublicize-child-binaries', to: 'items#unpublicize_child_binaries',
               via: :post
       end
       match '/items/add-items-to-item-set', to: 'items#add_items_to_item_set',

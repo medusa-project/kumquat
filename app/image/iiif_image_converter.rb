@@ -70,15 +70,22 @@ class IiifImageConverter
   # @param directory [String] Directory pathname in which to create the new
   #                           images.
   # @param format [Symbol] IIIF image format extension.
+  # @param include_private_binaries [Boolean]
   # @param task [Task] Supply to receive progress updates.
   # @return [void]
   #
-  def convert_images(item, directory, format, task = nil)
+  def convert_images(item:,
+                     directory:,
+                     format:,
+                     include_private_binaries: false,
+                     task: nil)
     # If the item is a directory variant, convert all of the files within it,
     # at any level in the tree.
     if item.variant == Item::Variants::DIRECTORY
-      item.all_files.each do |file|
-        file.binaries.each do |bin| # there should be only one
+      item.all_files.each do |file_item|
+        binaries = file_item.binaries
+        binaries = binaries.where(public: true) unless include_private_binaries
+        binaries.each do |bin| # there should be only one
           convert_binary(bin, directory, format)
         end
       end
@@ -88,7 +95,8 @@ class IiifImageConverter
         binaries = subitem.binaries.where(
             master_type: Binary::MasterType::ACCESS,
             media_category: Binary::MediaCategory::IMAGE)
-        count = binaries.count
+        binaries = binaries.where(public: true) unless include_private_binaries
+        count    = binaries.count
         binaries.each_with_index do |bin, index|
           task&.progress = index / count.to_f
           convert_binary(bin, directory, format)
@@ -100,7 +108,8 @@ class IiifImageConverter
       binaries = item.binaries.where(
           master_type: Binary::MasterType::ACCESS,
           media_category: Binary::MediaCategory::IMAGE)
-      count = binaries.count
+      binaries = binaries.where(public: true) unless include_private_binaries
+      count    = binaries.count
       binaries.each_with_index do |bin, index|
         task&.progress = index / count.to_f
         convert_binary(bin, directory, format)

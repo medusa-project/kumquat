@@ -8,16 +8,15 @@ class MedusaDownloaderClientTest < ActiveSupport::TestCase
 
   # download_url()
 
-  test 'download_url() should raise an error when given an illegal items
-  argument' do
+  test 'download_url() raises an error when given an illegal items argument' do
     assert_raises ArgumentError do
-      @instance.download_url(nil, 'cats')
+      @instance.download_url(nil, zip_name: 'cats')
     end
   end
 
-  test 'download_url() should raise an error when no items are provided' do
+  test 'download_url() raises an error when no items are provided' do
     assert_raises ArgumentError do
-      @instance.download_url([], 'cats')
+      @instance.download_url([], zip_name: 'cats')
     end
   end
 
@@ -32,7 +31,7 @@ class MedusaDownloaderClientTest < ActiveSupport::TestCase
 
   # zip_dirname()
 
-  test 'zip_dirname() should return the correct path' do
+  test 'zip_dirname() returns the correct path' do
     item   = items(:free_form_dir1_dir1_file1)
     binary = item.binaries.first
     assert_equal '/repositories/1/collections/1/file_groups/1/root/dir1/dir1',

@@ -16,11 +16,12 @@ class MedusaDownloaderClient
   # @param items [Enumerable<Item>]
   # @param zip_name [String] Desired name of the zip file, with or without
   #                          `.zip` suffix.
+  # @param include_private_binaries [Boolean]
   # @return [String] Download URL to which clients can be redirected.
   # @raises [ArgumentError] If illegal arguments have been supplied.
   # @raises [IOError] If there is an error communicating with the Downloader.
   #
-  def download_url(items, zip_name)
+  def download_url(items, zip_name:, include_private_binaries: false)
     if !items.respond_to?(:each)
       raise ArgumentError, 'Invalid items argument.'
     elsif items.length < 1
@@ -28,7 +29,7 @@ class MedusaDownloaderClient
     end
 
     # Compile the list of items to include in the file.
-    targets = targets_for(items)
+    targets = targets_for(items, include_private_binaries: include_private_binaries)
     if targets.count < 1
       raise ArgumentError, 'No files to download.'
     end
@@ -139,9 +140,10 @@ class MedusaDownloaderClient
 
   ##
   # @param items [Enumerable<Item>]
+  # @param include_private_binaries [Boolean]
   # @return [Array<Hash>]
   #
-  def targets_for(items)
+  def targets_for(items, include_private_binaries: false)
     targets = []
     items.each do |item|
       if item.directory?
@@ -151,7 +153,9 @@ class MedusaDownloaderClient
                      zip_path:  dir.name,
                      recursive: true)
       else
-        item.binaries.each do |binary|
+        binaries = item.binaries
+        binaries = binaries.where(public: true) unless include_private_binaries
+        binaries.each do |binary|
           zip_dirname = zip_dirname(binary)
           if zip_dirname
             targets.push(type:     'file',

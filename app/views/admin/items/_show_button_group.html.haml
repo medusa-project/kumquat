@@ -1,0 +1,51 @@
+.btn-group.float-right
+  -# Edit button
+  = link_to edit_admin_collection_item_path(@item.collection, @item),
+            class: 'btn btn-light' do
+    %i.fas.fa-pencil-alt
+    Edit
+  -# Sets button
+  - if @item.collection.item_sets.count > 0
+    .btn-group
+      %button.btn.btn-light.dropdown-toggle{"aria-expanded": "false",
+                                            "aria-haspopup": "true",
+                                            "data-toggle": "dropdown",
+                                            type: "button"}
+        %i.fa.fa-plus
+        Add To Set
+        %span.caret
+      .dropdown-menu
+        - @item.collection.item_sets.joins(:users).where(users: { id: current_user.id }).each do |set|
+          = link_to set.name,
+            admin_collection_items_add_items_to_item_set_path(@item.collection,
+                                                              'items[]': @item.repository_id,
+                                                              item_set: set.id),
+            method: :post,
+            class: 'dropdown-item'
+  -# View button
+  .btn-group
+    %button.btn.btn-light.dropdown-toggle{"aria-expanded": "false",
+                                          "aria-haspopup": "true",
+                                          "data-toggle": "dropdown",
+                                          type: "button"}
+      %i.fa.fa-eye
+      View
+      %span.caret
+    .dropdown-menu.dropdown-menu-right
+      = link_to item_url(@item, format: :json),
+                target: '_blank',
+                class: 'dropdown-item' do
+        %i.fa.fa-code
+        JSON
+      - if @item.bib_id
+        = link_to @item.catalog_record_url,
+                  target: '_blank',
+                  class: 'dropdown-item' do
+          %i.fa.fa-book
+          Library Catalog Record
+      .dropdown-divider
+      = link_to @item,
+                target: '_blank',
+                class: 'dropdown-item' do
+        %i.fa.fa-globe
+        Public View

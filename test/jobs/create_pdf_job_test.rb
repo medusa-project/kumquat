@@ -18,14 +18,14 @@ class CreatePdfJobTest < ActiveSupport::TestCase
   # perform()
 
   test 'perform() should assemble the expected PDF' do
-    CreatePdfJob.perform_now(@item, @download)
+    CreatePdfJob.perform_now(@item, false, @download)
 
     assert File.exists?(@download.pathname)
     assert File.size(@download.pathname) > 1000
   end
 
   test 'perform() should update the download object' do
-    CreatePdfJob.perform_now(@item, @download)
+    CreatePdfJob.perform_now(@item, false, @download)
     assert_equal Task::Status::SUCCEEDED, @download.task.status
   end
 

@@ -5,17 +5,21 @@ class CreatePdfJob < Job
   queue_as QUEUE
 
   ##
-  # @param args [Array] Two-element array with Item at position 0 and Download
-  #                     instance at position 1.
+  # @param args [Array] Three-element array with {Item} at position 0, whether
+  #                     to include private binaries at position 1, and
+  #                     {Download} instance at position 2.
   #
   def perform(*args)
-    item = args[0]
-    download = args[1]
+    item                     = args[0]
+    include_private_binaries = args[1]
+    download                 = args[2]
 
     self.task&.update!(download: download,
                        status_text: "Generating PDF for #{item}")
 
-    temp_pathname = IiifPdfGenerator.new.generate_pdf(item, self.task)
+    temp_pathname = IiifPdfGenerator.new.generate_pdf(item: item,
+                                                      include_private_binaries: include_private_binaries,
+                                                      task: self.task)
 
     if temp_pathname.present?
       # Create the downloads directory if it doesn't exist, and move the PDF

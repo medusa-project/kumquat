@@ -7,23 +7,23 @@ class CreateZipOfJpegsJobTest < ActiveSupport::TestCase
   end
 
   teardown do
-    File.delete(@download.pathname) if @download.pathname
+    File.delete(@download.pathname) if @download.pathname rescue nil
   end
 
   # perform()
 
-  test 'perform() should assemble the expected zip file' do
+  test 'perform() assembles the expected zip file' do
     items = [items(:free_form_dir1_dir1_file1).repository_id]
-    CreateZipOfJpegsJob.perform_now(items, 'items', @download)
+    CreateZipOfJpegsJob.perform_now(items, 'items', false, @download)
     Dir.mktmpdir do |tmpdir|
       `unzip "#{@download.pathname}" -d #{tmpdir}`
       assert Dir.glob("#{tmpdir}/*").length > 0
     end
   end
 
-  test 'perform() should update the download object' do
+  test 'perform() updates the download object' do
     items = [items(:free_form_dir1_dir1_file1).repository_id]
-    CreateZipOfJpegsJob.perform_now(items, 'items', @download)
+    CreateZipOfJpegsJob.perform_now(items, 'items', false, @download)
     assert_equal Task::Status::SUCCEEDED, @download.task.status
     assert File.exists?(@download.pathname)
   end

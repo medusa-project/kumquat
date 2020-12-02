@@ -268,6 +268,27 @@ module Admin
     end
 
     ##
+    # Responds to POST /admin/collections/:collection_id/items/:item_id/publicize-child-binaries
+    #
+    def publicize_child_binaries
+      item = Item.find_by_repository_id(params[:item_id])
+      raise ActiveRecord::RecordNotFound unless item
+      begin
+        item.all_children.each do |child|
+          child.binaries.where(public: false).each do |binary|
+            binary.update!(public: true)
+          end
+        end
+      rescue => e
+        handle_error(e)
+      else
+        flash['success'] = 'All binaries attached to all child items have been publicized.'
+      ensure
+        redirect_back fallback_location: admin_collection_item_path(item.collection, item)
+      end
+    end
+
+    ##
     # Responds to PATCH /admin/:collections/:collection_id/items/publish
     #
     def publish
@@ -356,6 +377,27 @@ module Admin
         'may take a while.'
       ensure
         redirect_to admin_collection_items_url(col)
+      end
+    end
+
+    ##
+    # Responds to POST /admin/collections/:collection_id/items/:item_id/unpublicize-child-binaries
+    #
+    def unpublicize_child_binaries
+      item = Item.find_by_repository_id(params[:item_id])
+      raise ActiveRecord::RecordNotFound unless item
+      begin
+        item.all_children.each do |child|
+          child.binaries.where(public: true).each do |binary|
+            binary.update!(public: false)
+          end
+        end
+      rescue => e
+        handle_error(e)
+      else
+        flash['success'] = 'All binaries attached to all child items have been unpublicized.'
+      ensure
+        redirect_back fallback_location: admin_collection_item_path(item.collection, item)
       end
     end
 

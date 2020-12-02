@@ -21,7 +21,7 @@ module ItemsHelper
   #                       with the image server or safe for it to serve.
   #
   def binary_image_url(binary, options = {})
-    url = nil
+    url   = nil
     query = {}
 
     if binary.image_server_safe?
@@ -32,8 +32,8 @@ module ItemsHelper
         options[:size] = "!#{options[:size]},#{options[:size]}"
       end
       options[:rotation] = 0 if options[:rotation].blank?
-      options[:color] = 'default' if options[:color].blank?
-      options[:format] = 'jpg' if options[:format].blank?
+      options[:color]    = 'default' if options[:color].blank?
+      options[:format]   = 'jpg' if options[:format].blank?
 
       url = sprintf('%s/%s/%s/%d/%s.%s',
                     binary.iiif_image_url,
@@ -69,12 +69,11 @@ module ItemsHelper
 
   ##
   # @param binary [Binary]
-  # @param options [Hash<Symbol,Object>]
-  # @option options [Boolean] :admin
+  # @param admin [Boolean] Whether to include administrative information.
   # @return [String]
   #
-  def binary_metadata_as_table(binary, options = {})
-    data = binary_metadata_for(binary, options)
+  def binary_metadata_as_table(binary, admin: false)
+    data = binary_metadata_for(binary, admin)
     html = StringIO.new
     if data.any?
       categories = data.map{ |f| f[:category] }.uniq.
@@ -145,24 +144,45 @@ module ItemsHelper
       html <<     '<th>Master Type</th>'
       html <<     '<th>Category</th>'
       html <<     '<th>Filename</th>'
+      html <<     '<th>Public</th>'
       html <<   '</tr>'
       binaries.each do |binary|
         html << '<tr>'
-        html <<   "<td>#{item.title}</td>"
-        html <<   "<td>#{binary.human_readable_master_type}</td>"
-        html <<   "<td>#{binary.human_readable_media_category}</td>"
-        html <<   "<td>#{link_to(binary.filename, binary.medusa_url, target: '_blank')}</td>"
+        html <<   '<td>'
+        html <<     item.title
+        html <<   '</td>'
+        html <<   '<td>'
+        html <<     binary.human_readable_master_type
+        html <<   '</td>'
+        html <<   '<td>'
+        html <<     binary.human_readable_media_category
+        html <<   '</td>'
+        html <<   '<td>'
+        html <<     link_to(binary.filename, binary.medusa_url, target: '_blank')
+        html <<   '</td>'
+        html <<   '<td>'
+        html <<     boolean(binary.public, style: :word)
+        html <<   '</td>'
         html << '</tr>'
       end
       subitems.each do |subitem|
-        subitem.binaries.each_with_index do |bs, index|
+        subitem.binaries.each_with_index do |binary, index|
           html << '<tr>'
           if index == 0
             html <<   "<td rowspan=\"#{subitem.binaries.length}\">#{subitem.title}</td>"
           end
-          html <<   "<td>#{bs.human_readable_master_type}</td>"
-          html <<   "<td>#{bs.human_readable_media_category}</td>"
-          html <<   "<td>#{link_to(bs.filename, bs.medusa_url, target: '_blank')}</td>"
+          html <<   '<td>'
+          html <<     binary.human_readable_master_type
+          html <<   '</td>'
+          html <<   '<td>'
+          html <<     binary.human_readable_media_category
+          html <<   '</td>'
+          html <<   '<td>'
+          html <<     link_to(binary.filename, binary.medusa_url, target: '_blank')
+          html <<   '</td>'
+          html <<   '<td>'
+          html <<     boolean(binary.public, style: :word)
+          html <<   '</td>'
           html << '</tr>'
         end
       end
@@ -1050,35 +1070,29 @@ module ItemsHelper
 
   ##
   # @param binary [Binary]
-  # @param options [Hash<Symbol,Object>]
-  # @option options [Boolean] :admin
+  # @option admin [Boolean] Whether to include administrative information.
   # @return [Enumerable<Hash<Symbol,Object>>] Array of hashes with `:label`,
   #                                           `:category`, and `:value` keys.
   #
-  def binary_metadata_for(binary, options = {})
+  def binary_metadata_for(binary, admin)
     data = []
     if binary
-      data << {
-          label: 'Filename',
-          category: 'File',
-          value: File.basename(binary.object_key)
-      }
-      if options[:admin]
+      if admin
         data << {
             label: 'Object Key',
             category: 'File',
-            value: binary.object_key
+            value: "<code>#{binary.object_key}</code>"
         }
       end
+      data << {
+          label: 'Media Type',
+          category: 'File',
+          value: "<code>#{binary.media_type}</code>"
+      }
       data << {
           label: 'Media Category',
           category: 'File',
           value: binary.human_readable_media_category
-      }
-      data << {
-          label: 'Media Type',
-          category: 'File',
-          value: binary.media_type
       }
       if binary.byte_size.present?
         data << {
@@ -1103,16 +1117,20 @@ module ItemsHelper
       end
       if binary.cfs_file_uuid.present?
         data << {
-            label: 'Medusa CFS File',
+            label: 'Medusa File UUID',
             category: 'File',
-            value: link_to(binary.cfs_file_uuid, binary.medusa_url,
-                           target: '_blank')
+            value: '<code>' + binary.cfs_file_uuid + '</code>'
         }
       end
       data << {
-          label: 'DLS ID',
+          label: 'Database ID',
           category: 'File',
-          value: link_to(binary.id, binary_url(binary))
+          value: binary.id
+      }
+      data << {
+          label: 'Public',
+          category: 'File',
+          value: boolean(binary.public, style: :word)
       }
       begin
         binary.metadata.each do |field|

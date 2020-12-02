@@ -14,15 +14,17 @@ class IiifPdfGenerator
   PAGE_HEIGHT_INCHES = 11
 
   ##
-  # Assembles the access master image binaries of all of a compound object's
-  # child items into a PDF.
+  # Assembles the {Binary#public public} access master image binaries of all of
+  # a compound object's child items into a PDF.
   #
   # @param item [Item] Compound object.
+  # @param include_private_binaries [Boolean]
   # @param task [Task] Optional; supply to receive progress updates.
   # @return [String, nil] Pathname of the generated PDF, or nil if there are no
   #                       images to add to the PDF.
   #
-  def generate_pdf(item, task = nil)
+  def generate_pdf(item:, include_private_binaries: false, task: nil)
+    reset
     children = item.finder.to_a
     if children.any?
       doc = pdf_document(item)
@@ -31,13 +33,13 @@ class IiifPdfGenerator
         count = children.count
         task&.progress = child_index / count.to_f
 
-        child.binaries.where(
+        binaries = child.binaries.where(
             master_type: Binary::MasterType::ACCESS,
-            media_category: Binary::MediaCategory::IMAGE).each do |bin|
-          if child_index > 0
-            doc.start_new_page
-          end
-          add_image(bin, doc)
+            media_category: Binary::MediaCategory::IMAGE)
+        binaries = binaries.where(public: true) unless include_private_binaries
+        binaries.each do |binary|
+          doc.start_new_page if child_index > 0
+          add_image(binary, doc)
         end
       end
       pathname = pdf_temp_file
@@ -47,7 +49,7 @@ class IiifPdfGenerator
 
       return pathname
     else
-      LOGGER.warn('assemble_pdf(): %s has no child items.', item)
+      LOGGER.info('generate_pdf(): %s has no child items.', item)
     end
     task&.succeeded
     nil
@@ -86,13 +88,15 @@ class IiifPdfGenerator
           end
         end
 
-        doc.image(image_pathname, position: :center, vposition: :center,
+        doc.image(image_pathname,
+                  position: :center,
+                  vposition: :center,
                   fit: [doc.bounds.width, doc.bounds.height])
 
         return image_pathname
       else
-        LOGGER.info('add_image(): %s will bog down the image server; skipping.',
-                    binary)
+        LOGGER.debug('add_image(): %s will bog down the image server; skipping.',
+                     binary)
       end
     else
       LOGGER.debug('add_image(): %s is not an image; skipping.', binary)
@@ -124,7 +128,7 @@ class IiifPdfGenerator
   #                  server.
   #
   def image_temp_dir
-    unless @image_temp_dir and Dir.exist?(@image_temp_dir)
+    unless @image_temp_dir && Dir.exist?(@image_temp_dir)
       @image_temp_dir = Dir.mktmpdir
     end
     @image_temp_dir
@@ -134,10 +138,14 @@ class IiifPdfGenerator
   # @return [String] Pathname of the generated PDF.
   #
   def pdf_temp_file
-    unless @pdf_temp_file and File.exist?(@pdf_temp_file)
-      @pdf_temp_file = Tempfile.new('item.pdf')
+    unless @pdf_temp_file && File.exist?(@pdf_temp_file)
+      @pdf_temp_file = Tempfile.new('item.pdf').path
     end
     @pdf_temp_file
+  end
+
+  def reset
+    @image_temp_dir = @pdf_temp_file = nil
   end
 
 end

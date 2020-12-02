@@ -30,7 +30,7 @@ class IiifImageConverterTest < ActiveSupport::TestCase
       item = items(:compound_object_1001)
       format = 'png'
 
-      @instance.convert_images(item, tmpdir, format)
+      @instance.convert_images(item: item, directory: tmpdir, format: format)
 
       inodes = Dir.glob(tmpdir + '/**')
 
@@ -43,7 +43,7 @@ class IiifImageConverterTest < ActiveSupport::TestCase
       item = items(:compound_object_1002_page1)
       format = 'png'
 
-      @instance.convert_images(item, tmpdir, format)
+      @instance.convert_images(item: item, directory: tmpdir, format: format)
 
       inodes = Dir.glob(tmpdir + '/**')
 
@@ -56,7 +56,7 @@ class IiifImageConverterTest < ActiveSupport::TestCase
       item = items(:free_form_dir1_dir1)
       format = 'png'
 
-      @instance.convert_images(item, tmpdir, format)
+      @instance.convert_images(item: item, directory: tmpdir, format: format)
 
       inodes = Dir.glob(tmpdir + '/**')
 
@@ -69,7 +69,7 @@ class IiifImageConverterTest < ActiveSupport::TestCase
       item = items(:free_form_dir1_dir1_file1)
       format = 'png'
 
-      @instance.convert_images(item, tmpdir, format)
+      @instance.convert_images(item: item, directory: tmpdir, format: format)
 
       inodes = Dir.glob(tmpdir + '/**')
 

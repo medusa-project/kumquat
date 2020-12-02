@@ -2,7 +2,7 @@ class BinariesController < WebsiteController
 
   include ActionController::Streaming
 
-  before_action :load_binary, :authorize_item
+  before_action :load_binary, :authorize_collection, :authorize_item, :authorize_binary
 
   rescue_from AuthorizationError, with: :rescue_unauthorized
 
@@ -21,10 +21,22 @@ class BinariesController < WebsiteController
 
   private
 
-  def authorize_item
+  def authorize_binary
+    unless @binary.public || current_user&.medusa_user?
+      raise AuthorizationError, "Binary is not public"
+    end
+  end
+
+  def authorize_collection
     item = @binary.item
     if item
       return unless authorize(item.collection)
+    end
+  end
+
+  def authorize_item
+    item = @binary.item
+    if item
       return unless authorize(item)
     end
   end
