@@ -30,7 +30,7 @@
 # # Attributes
 #
 # * `byte_size`      Size of the binary's contents in bytes.
-# * `cfs_file_uuid`  UUID of the binary's corresponding file in Medusa.
+# * `medusa_uuid`    UUID of the binary's corresponding file in Medusa.
 # * `created_at`     Managed by ActiveRecord.
 # * `duration`       Duration of audio/video, in seconds.
 # * `height`         Native pixel height of a raster binary (image or video).
@@ -114,9 +114,9 @@ class Binary < ApplicationRecord
   #
   def self.from_medusa_file(file, master_type, media_category = nil)
     bin = Binary.find_by_object_key(file.relative_key) || Binary.new
-    bin.master_type   = master_type
-    bin.cfs_file_uuid = file.uuid
-    bin.object_key    = file.relative_key
+    bin.master_type = master_type
+    bin.medusa_uuid = file.uuid
+    bin.object_key  = file.relative_key
     # The media type of the file as reported by Medusa is likely to be vague,
     # so let's see if we can do better.
     bin.infer_media_type
@@ -262,7 +262,7 @@ class Binary < ApplicationRecord
         return (['v'] + bits[0..2]).join('/')
       end
     else
-      self.cfs_file_uuid
+      self.medusa_uuid
     end
   end
 
@@ -402,9 +402,9 @@ class Binary < ApplicationRecord
   #
   def medusa_url
     url = nil
-    if self.cfs_file_uuid.present?
+    if self.medusa_uuid.present?
       url = Configuration.instance.medusa_url.chomp('/') + '/uuids/' +
-          self.cfs_file_uuid
+          self.medusa_uuid
     end
     url
   end
@@ -550,7 +550,7 @@ class Binary < ApplicationRecord
   end
 
   def to_param
-    cfs_file_uuid
+    medusa_uuid
   end
 
   ##
@@ -559,7 +559,7 @@ class Binary < ApplicationRecord
   #
   def to_s
     str = self.object_key
-    str = self.cfs_file_uuid if str.blank?
+    str = self.medusa_uuid if str.blank?
     str = super if str.blank?
     str
   end

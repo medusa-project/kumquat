@@ -495,7 +495,7 @@ class Item < ApplicationRecord
     bin = self.effective_image_binary
     if bin&.image_server_safe?
       access_master_struct = {
-          id:         bin.cfs_file_uuid,
+          id:         bin.medusa_uuid,
           object_uri: bin.uri,
           media_type: bin.media_type
       }

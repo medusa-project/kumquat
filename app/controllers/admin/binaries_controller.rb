@@ -39,7 +39,7 @@ module Admin
     end
 
     def set_binary
-      @binary = Binary.find_by_cfs_file_uuid(params[:id])
+      @binary = Binary.find_by_medusa_uuid(params[:id])
     end
 
   end

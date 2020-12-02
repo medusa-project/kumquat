@@ -3,7 +3,7 @@
 compound_object_1001_access:
   item:           compound_object_1001
   byte_size:      18836
-  cfs_file_uuid:  5ab5693f-3a20-8769-5622-ca2ff9850d50
+  medusa_uuid:    5ab5693f-3a20-8769-5622-ca2ff9850d50
   master_type:    <%= Binary::MasterType::ACCESS %>
   media_category: <%= Binary::MediaCategory::IMAGE %>
   media_type:     image/jp2
@@ -13,7 +13,7 @@ compound_object_1001_access:
 compound_object_1001_preservation:
   item:           compound_object_1001
   byte_size:      46346
-  cfs_file_uuid:  8ec70c33-75c9-4ba5-cd21-54a1211e5375
+  medusa_uuid:    8ec70c33-75c9-4ba5-cd21-54a1211e5375
   master_type:    <%= Binary::MasterType::PRESERVATION %>
   media_category: <%= Binary::MediaCategory::IMAGE %>
   media_type:     image/tiff
@@ -23,7 +23,7 @@ compound_object_1001_preservation:
 compound_object_1002_page1_access:
   item:           compound_object_1002_page1
   byte_size:      18836
-  cfs_file_uuid:  f29d1764-904e-6f6b-1371-7c639c8a383a
+  medusa_uuid:    f29d1764-904e-6f6b-1371-7c639c8a383a
   master_type:    <%= Binary::MasterType::ACCESS %>
   media_category: <%= Binary::MediaCategory::IMAGE %>
   media_type:     image/jp2
@@ -33,7 +33,7 @@ compound_object_1002_page1_access:
 compound_object_1002_page1_preservation:
   item:           compound_object_1002_page1
   byte_size:      0
-  cfs_file_uuid:  6a1d73f2-3493-1ca8-80e5-84a49d524f92
+  medusa_uuid:    6a1d73f2-3493-1ca8-80e5-84a49d524f92
   master_type:    <%= Binary::MasterType::PRESERVATION %>
   media_category: <%= Binary::MediaCategory::IMAGE %>
   media_type:     image/tiff
@@ -43,7 +43,7 @@ compound_object_1002_page1_preservation:
 compound_object_1002_page2_access:
   item:           compound_object_1002_page2
   byte_size:      18836
-  cfs_file_uuid:  a9bdc6af-fecb-6ed9-2ca9-e577fd1455ed
+  medusa_uuid:    a9bdc6af-fecb-6ed9-2ca9-e577fd1455ed
   master_type:    <%= Binary::MasterType::ACCESS %>
   media_category: <%= Binary::MediaCategory::IMAGE %>
   media_type:     image/jp2
@@ -53,7 +53,7 @@ compound_object_1002_page2_access:
 compound_object_1002_page2_preservation:
   item:           compound_object_1002_page2
   byte_size:      0
-  cfs_file_uuid:  9dc25346-b83a-eb8a-ac2a-bdde98b5a374
+  medusa_uuid:    9dc25346-b83a-eb8a-ac2a-bdde98b5a374
   master_type:    <%= Binary::MasterType::PRESERVATION %>
   media_category: <%= Binary::MediaCategory::IMAGE %>
   media_type:     image/tiff
@@ -63,7 +63,7 @@ compound_object_1002_page2_preservation:
 compound_object_1002_supplement:
   item:           compound_object_1002_supplement
   byte_size:      0
-  cfs_file_uuid:  96a95ca7-57b5-3901-1022-2093e33cba3f
+  medusa_uuid:    96a95ca7-57b5-3901-1022-2093e33cba3f
   master_type:    <%= Binary::MasterType::PRESERVATION %>
   media_category: <%= Binary::MediaCategory::TEXT %>
   media_type:     text/plain
@@ -75,7 +75,7 @@ compound_object_1002_supplement:
 contentdm_obj1_page1_access:
   item:           contentdm_obj1
   byte_size:      18836
-  cfs_file_uuid:  2f0d670a-f067-efae-2603-391691fd92d6
+  medusa_uuid:    2f0d670a-f067-efae-2603-391691fd92d6
   master_type:    <%= Binary::MasterType::ACCESS %>
   media_category: <%= Binary::MediaCategory::IMAGE %>
   media_type:     image/jp2
@@ -85,7 +85,7 @@ contentdm_obj1_page1_access:
 contentdm_obj1_page1_preservation:
   item:           contentdm_obj1
   byte_size:      0
-  cfs_file_uuid:  db98452d-e027-3a26-63fc-cdff46dba537
+  medusa_uuid:    db98452d-e027-3a26-63fc-cdff46dba537
   master_type:    <%= Binary::MasterType::PRESERVATION %>
   media_category: <%= Binary::MediaCategory::IMAGE %>
   media_type:     image/tiff
@@ -97,7 +97,7 @@ contentdm_obj1_page1_preservation:
 free_form_dir1_audio:
   item:           free_form_dir1_audio
   byte_size:      22310
-  cfs_file_uuid:  307f29c6-8c63-eb2e-f0cb-f2bfc33176f7
+  medusa_uuid:    307f29c6-8c63-eb2e-f0cb-f2bfc33176f7
   master_type:    <%= Binary::MasterType::ACCESS %>
   media_type:     audio/aiff
   media_category: <%= Binary::MediaCategory::AUDIO %>
@@ -107,7 +107,7 @@ free_form_dir1_audio:
 free_form_dir1_image1:
   item:           free_form_dir1_image
   byte_size:      6198
-  cfs_file_uuid:  39582239-4307-1cc6-c9c6-074516fd7635
+  medusa_uuid:    39582239-4307-1cc6-c9c6-074516fd7635
   master_type:    <%= Binary::MasterType::ACCESS %>
   media_type:     image/jpeg
   media_category: <%= Binary::MediaCategory::IMAGE %>
@@ -117,7 +117,7 @@ free_form_dir1_image1:
 free_form_dir1_video:
   item:           free_form_dir1_video
   byte_size:      602418
-  cfs_file_uuid:  7a8f2629-e9ef-9b43-34b3-908c5a53c485
+  medusa_uuid:    7a8f2629-e9ef-9b43-34b3-908c5a53c485
   master_type:    <%= Binary::MasterType::ACCESS %>
   media_type:     video/mp4
   media_category: <%= Binary::MediaCategory::VIDEO %>
@@ -127,7 +127,7 @@ free_form_dir1_video:
 free_form_dir1_dir1_file1:
   item:           free_form_dir1_dir1_file1
   byte_size:      11
-  cfs_file_uuid:  09e9b9a6-b07e-2826-a61e-caf4cf9c8eb3
+  medusa_uuid:    09e9b9a6-b07e-2826-a61e-caf4cf9c8eb3
   master_type:    <%= Binary::MasterType::ACCESS %>
   media_type:     image/jpeg
   media_category: <%= Binary::MediaCategory::IMAGE %>

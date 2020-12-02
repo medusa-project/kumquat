@@ -330,7 +330,7 @@ class Collection < ApplicationRecord
     bin = self.effective_representative_image_binary
     if bin&.image_server_safe?
       access_master_struct = {
-          id:         bin.cfs_file_uuid,
+          id:         bin.medusa_uuid,
           object_uri: bin.uri,
           media_type: bin.media_type
       }
@@ -793,10 +793,10 @@ class Collection < ApplicationRecord
     if self.representative_image.present?
       # This may be nil, which may mean that it resides in a different file
       # group, or doesn't conform to the package profile.
-      binary = Binary.find_by_cfs_file_uuid(self.representative_image)
+      binary = Binary.find_by_medusa_uuid(self.representative_image)
       unless binary
-        cfs_file = Medusa::File.with_uuid(self.representative_image)
-        binary   = Binary.from_medusa_file(cfs_file, Binary::MasterType::ACCESS)
+        file   = Medusa::File.with_uuid(self.representative_image)
+        binary = Binary.from_medusa_file(file, Binary::MasterType::ACCESS)
       end
       binary
     end

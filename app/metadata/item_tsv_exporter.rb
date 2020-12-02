@@ -125,7 +125,7 @@ class ItemTsvExporter
           ), '#{MULTI_VALUE_SEPARATOR}')) AS pres_filename,
         (SELECT array_to_string(
           array(
-            SELECT cfs_file_uuid
+            SELECT medusa_uuid
             FROM binaries
             WHERE binaries.item_id = items.id
               AND binaries.master_type = #{Binary::MasterType::PRESERVATION}
@@ -149,7 +149,7 @@ class ItemTsvExporter
           ), '#{MULTI_VALUE_SEPARATOR}')) AS access_filename,
         (SELECT array_to_string(
           array(
-            SELECT cfs_file_uuid
+            SELECT medusa_uuid
             FROM binaries
             WHERE binaries.item_id = items.id
               AND binaries.master_type = #{Binary::MasterType::ACCESS}

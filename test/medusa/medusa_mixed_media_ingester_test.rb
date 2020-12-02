@@ -81,14 +81,14 @@ class MedusaMixedMediaIngesterTest < ActiveSupport::TestCase
     assert_equal 2, item.binaries.length
     assert_nil item.variant
     assert_equal '084f6359-3213-35d7-a29b-bfee47b6dd9d',
-                 item.representative_binary.cfs_file_uuid
+                 item.representative_binary.medusa_uuid
 
     # Inspect the item's preservation master binary.
     bin = item.binaries.find{ |b| b.master_type == Binary::MasterType::PRESERVATION }
     assert_equal 'image/tiff', bin.media_type
     assert_equal 46346, bin.byte_size
     assert_equal Binary::MediaCategory::IMAGE, bin.media_category
-    assert_equal '742ddfb4-5221-22a2-cfdd-9f56647f4746', bin.cfs_file_uuid
+    assert_equal '742ddfb4-5221-22a2-cfdd-9f56647f4746', bin.medusa_uuid
     assert_equal 'repositories/1/collections/4/file_groups/4/root/1001/001/preservation/images/1001_001.tif',
                  bin.object_key
 
@@ -97,7 +97,7 @@ class MedusaMixedMediaIngesterTest < ActiveSupport::TestCase
     assert_equal 'image/jp2', bin.media_type
     assert_equal 18836, bin.byte_size
     assert_equal Binary::MediaCategory::IMAGE, bin.media_category
-    assert_equal '084f6359-3213-35d7-a29b-bfee47b6dd9d', bin.cfs_file_uuid
+    assert_equal '084f6359-3213-35d7-a29b-bfee47b6dd9d', bin.medusa_uuid
     assert_equal 'repositories/1/collections/4/file_groups/4/root/1001/001/access/images/1001_001.jp2',
                  bin.object_key
   end

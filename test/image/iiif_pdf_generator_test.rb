@@ -42,7 +42,7 @@ class IiifPdfGeneratorTest < ActiveSupport::TestCase
     end
 
     # mark the first binary of the first child private and generate another PDF
-    Binary.find_by_cfs_file_uuid('a9bdc6af-fecb-6ed9-2ca9-e577fd1455ed').update!(public: false)
+    Binary.find_by_medusa_uuid('a9bdc6af-fecb-6ed9-2ca9-e577fd1455ed').update!(public: false)
     begin
       pathname = @instance.generate_pdf(item: item)
       assert size - File.size(pathname) > 100

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_11_30_154247) do
+ActiveRecord::Schema.define(version: 2020_12_02_174600) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -82,7 +82,7 @@ ActiveRecord::Schema.define(version: 2020_11_30_154247) do
     t.datetime "updated_at", null: false
     t.integer "item_id"
     t.string "object_key"
-    t.string "cfs_file_uuid"
+    t.string "medusa_uuid"
     t.decimal "byte_size", precision: 15, null: false
     t.decimal "width", precision: 6
     t.decimal "height", precision: 6

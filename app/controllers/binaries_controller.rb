@@ -42,7 +42,7 @@ class BinariesController < WebsiteController
   end
 
   def load_binary
-    @binary = Binary.find_by_cfs_file_uuid(params[:id])
+    @binary = Binary.find_by_medusa_uuid(params[:id])
     raise ActiveRecord::RecordNotFound unless @binary
   end
 

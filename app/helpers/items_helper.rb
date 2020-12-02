@@ -1115,11 +1115,11 @@ module ItemsHelper
             value: distance_of_time_in_words(binary.duration)
         }
       end
-      if binary.cfs_file_uuid.present?
+      if binary.medusa_uuid.present?
         data << {
             label: 'Medusa File UUID',
             category: 'File',
-            value: '<code>' + binary.cfs_file_uuid + '</code>'
+            value: '<code>' + binary.medusa_uuid + '</code>'
         }
       end
       data << {

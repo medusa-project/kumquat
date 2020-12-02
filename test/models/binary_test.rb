@@ -126,7 +126,7 @@ class BinaryTest < ActiveSupport::TestCase
   # iiif_image_identifier()
 
   test 'iiif_image_identifier returns the correct identifier for images in Medusa' do
-    assert_equal @instance.cfs_file_uuid, @instance.iiif_image_identifier
+    assert_equal @instance.medusa_uuid, @instance.iiif_image_identifier
   end
 
   test 'iiif_image_identifier returns the correct identifier for images in MediaSpace' do
@@ -139,14 +139,14 @@ class BinaryTest < ActiveSupport::TestCase
   # iiif_image_url()
 
   test 'iiif_image_url() should return the correct URL' do
-    assert_equal Configuration.instance.iiif_url + '/' + @instance.cfs_file_uuid,
+    assert_equal Configuration.instance.iiif_url + '/' + @instance.medusa_uuid,
                  @instance.iiif_image_url
   end
 
   # iiif_info_url()
 
   test 'iiif_info_url() should return the correct URL' do
-    assert_equal Configuration.instance.iiif_url + '/' + @instance.cfs_file_uuid + '/info.json',
+    assert_equal Configuration.instance.iiif_url + '/' + @instance.medusa_uuid + '/info.json',
                  @instance.iiif_info_url
   end
 
@@ -272,12 +272,12 @@ class BinaryTest < ActiveSupport::TestCase
   # medusa_url()
 
   test 'medusa_url should return the Medusa URL' do
-    assert_equal ::Configuration.instance.medusa_url + '/uuids/' + @instance.cfs_file_uuid,
+    assert_equal ::Configuration.instance.medusa_url + '/uuids/' + @instance.medusa_uuid,
                  @instance.medusa_url
   end
 
-  test 'medusa_url should return nil if the CFS file UUID is not set' do
-    @instance.cfs_file_uuid = nil
+  test 'medusa_url should return nil if the Medusa file UUID is not set' do
+    @instance.medusa_uuid = nil
     assert_nil @instance.medusa_url
   end
 
