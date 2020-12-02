@@ -221,7 +221,7 @@ class ItemFinder < AbstractFinder
             j.must do
               if !@exact_match
                 # https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html
-                j.query_string do
+                j.simple_query_string do
                   j.query sanitized_query
                   j.default_operator 'AND'
                   j.lenient true
@@ -229,7 +229,7 @@ class ItemFinder < AbstractFinder
                     j.fields [@query[:field],
                               ItemElement.new(name: EntityElement.element_name_for_indexed_field(@query[:field])).parent_indexed_field]
                   else
-                    j.default_field @query[:field]
+                    j.fields [@query[:field]]
                   end
                 end
               else
