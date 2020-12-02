@@ -21,6 +21,8 @@ class User < ApplicationRecord
   # Username of a Medusa "super admin" in development & test environments.
   DEVELOPMENT_SUPERUSER_USERNAME = 'super'
 
+  LDAP_CACHE_TTL = 12.hours
+
   has_and_belongs_to_many :item_sets
 
   validates :username, presence: true, length: { maximum: 50 },
@@ -54,8 +56,11 @@ class User < ApplicationRecord
       return [DEVELOPMENT_ADMIN_USERNAME,
               DEVELOPMENT_SUPERUSER_USERNAME].include?(self.username)
     end
-    group = Configuration.instance.medusa_admins_group[:name]
-    LdapQuery.new.is_member_of?(group, self.username)
+    Rails.cache.fetch("user.#{username}.medusa_admin",
+                      expires_in: LDAP_CACHE_TTL) do
+      group = Configuration.instance.medusa_admins_group[:name]
+      LdapQuery.new.is_member_of?(group, self.username)
+    end
   end
 
   ##
@@ -65,8 +70,11 @@ class User < ApplicationRecord
     if Rails.env.development? or Rails.env.test?
       return self.username == DEVELOPMENT_SUPERUSER_USERNAME
     end
-    group = Configuration.instance.medusa_superusers_group[:name]
-    LdapQuery.new.is_member_of?(group, self.username)
+    Rails.cache.fetch("user.#{username}.medusa_superuser",
+                      expires_in: LDAP_CACHE_TTL) do
+      group = Configuration.instance.medusa_superusers_group[:name]
+      LdapQuery.new.is_member_of?(group, self.username)
+    end
   end
 
   ##
@@ -77,19 +85,11 @@ class User < ApplicationRecord
       return [DEVELOPMENT_USER_USERNAME, DEVELOPMENT_ADMIN_USERNAME,
               DEVELOPMENT_SUPERUSER_USERNAME].include?(self.username)
     end
-    group = Configuration.instance.medusa_users_group[:name]
-    LdapQuery.new.is_member_of?(group, self.username)
-  end
-
-  ##
-  # @param group [String] LDAP group.
-  # @return [Boolean]
-  #
-  def member_of?(group)
-    if Rails.env.development? or Rails.env.test?
-      return true
+    Rails.cache.fetch("user.#{username}.medusa_user",
+                      expires_in: LDAP_CACHE_TTL) do
+      group = Configuration.instance.medusa_users_group[:name]
+      LdapQuery.new.is_member_of?(group, self.username)
     end
-    LdapQuery.new.is_member_of?(group, self.username)
   end
 
   def reset_api_key
