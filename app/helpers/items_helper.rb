@@ -223,10 +223,16 @@ module ItemsHelper
   def has_viewer?(item)
     return false unless item
     # This logic needs to be kept in sync with viewer_for_item().
-    if item.embed_tag.present? or item.is_compound?
+    if item.embed_tag.present? || item.is_compound?
       return true
     end
-    item.effective_viewer_binary ? true : false
+    binary = item.effective_viewer_binary
+    if binary
+      if binary.public || current_user&.medusa_user?
+        return true
+      end
+    end
+    false
   end
 
   ##
@@ -1025,7 +1031,6 @@ module ItemsHelper
       return raw(frag.to_html.strip)
     elsif item.file?
       return free_form_viewer_for(item)
-
       # IMET-473: image files should be presented in the same manner as compound
       # objects, with a gallery viewer showing all of the other images in the
       # same directory.
@@ -1036,6 +1041,7 @@ module ItemsHelper
       return compound_viewer_for(item)
     else
       binary = item.effective_viewer_binary
+      return '' unless binary&.public || current_user&.medusa_user?
       case binary&.media_category
         when Binary::MediaCategory::AUDIO
           return audio_player_for(binary)

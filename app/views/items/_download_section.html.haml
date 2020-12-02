@@ -3,7 +3,14 @@
 -# item [Item]
 -# expanded [Boolean]
 
-- if item.directory? || item.is_compound? || item.binaries.any? || item.effective_image_binary&.media_category == Binary::MediaCategory::IMAGE
+-# The idea is that we only want to display the section if there is any
+-# downloadable content, and if so, we only want to display the particular
+-# widgets for downloading that content. The problem is figuring all of this
+-# out, as it may be complicated and expensive. So the rudimentary checks here
+-# are rather harebrained, but better than nothing.
+- if item.directory? || |
+    item.is_compound? || |
+    item.binaries.select{ |b| b.public || current_user&.medusa_user? }.any? |
   %section#dl-download-section
     %h2
       %a{"aria-controls": "dl-download",
@@ -20,7 +27,7 @@
                   'data-target': '#dl-download-zip-modal') do
           %i.far.fa-file-archive
             Zip of Masters&hellip;
-        - if item.binaries.reject(&:is_image?).empty? && !item.directory?
+        - if !item.directory? && item.binaries.reject(&:is_image?).empty?
           = link_to(item_url(item, format: :zip, contents: :jpegs),
                     target: '_blank',
                     class: 'btn btn-light') do

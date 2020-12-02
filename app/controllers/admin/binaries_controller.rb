@@ -25,7 +25,7 @@ module Admin
         handle_error(e)
       else
         response.headers['X-Kumquat-Result'] = 'success'
-        flash['success'] = "Binary ID \"#{@binary.id}\" updated."
+        flash['success'] = "Binary \"#{@binary.filename}\" updated."
       ensure
         keep_flash
         render 'admin/shared/reload'
