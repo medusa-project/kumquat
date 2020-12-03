@@ -56,7 +56,7 @@
 # * `harvestable_by_primo      Controls visiblity of the collection's contents
 #                              in the Primo OAI-PMH harvesting endpoint. (See
 #                              {OaiPmhController}.)
-# * `medusa_cfs_directory_id`  Medusa UUID of the root directory in which the
+# * `medusa_directory_uuid`    Medusa UUID of the root directory in which the
 #                              collection's contents reside. If nil, the root
 #                              directory of the file group will be used.
 # * `medusa_file_group_id`     Medusa UUID of the file group in which the
@@ -569,8 +569,8 @@ class Collection < ApplicationRecord
   def medusa_cfs_directory
     unless @cfs_directory
       @cfs_directory = nil
-      if self.medusa_cfs_directory_id.present?
-        @cfs_directory = Medusa::Directory.with_uuid(self.medusa_cfs_directory_id)
+      if self.medusa_directory_uuid.present?
+        @cfs_directory = Medusa::Directory.with_uuid(self.medusa_directory_uuid)
       end
     end
     @cfs_directory
@@ -827,7 +827,7 @@ class Collection < ApplicationRecord
   #                     Otherwise, nil.
   #
   def root_item
-    if free_form? and medusa_cfs_directory_id.present?
+    if free_form? and medusa_directory_uuid.present?
       return Item.where(collection_repository_id: self.repository_id)
                  .where(parent_repository_id: nil)
                  .limit(1)
@@ -905,7 +905,7 @@ class Collection < ApplicationRecord
   end
 
   def do_before_validation
-    self.medusa_cfs_directory_id&.strip!
+    self.medusa_directory_uuid&.strip!
     self.medusa_file_group_id&.strip!
     self.representative_image&.strip!
     self.representative_item_id&.strip!
@@ -924,15 +924,15 @@ class Collection < ApplicationRecord
 
   def validate_medusa_uuids
     client = Medusa::Client.instance
-    if self.medusa_file_group_id.present? and
-        self.medusa_file_group_id_changed? and
+    if self.medusa_file_group_id.present? &&
+      self.medusa_file_group_id_changed? &&
         client.class_of_uuid(self.medusa_file_group_id) != Medusa::FileGroup
       errors.add(:medusa_file_group_id, 'is not a Medusa file group UUID')
     end
-    if self.medusa_cfs_directory_id.present? and
-        self.medusa_cfs_directory_id_changed? and
-        client.class_of_uuid(self.medusa_cfs_directory_id) != Medusa::Directory
-      errors.add(:medusa_cfs_directory_id, 'is not a Medusa directory UUID')
+    if self.medusa_directory_uuid.present? &&
+        self.medusa_directory_uuid_changed? &&
+        client.class_of_uuid(self.medusa_directory_uuid) != Medusa::Directory
+      errors.add(:medusa_directory_uuid, 'is not a Medusa directory UUID')
     end
   end
 

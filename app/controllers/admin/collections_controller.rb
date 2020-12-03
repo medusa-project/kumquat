@@ -191,7 +191,7 @@ module Admin
                                          :descriptive_element_id,
                                          :harvestable, :harvestable_by_idhh,
                                          :harvestable_by_primo,
-                                         :medusa_cfs_directory_id,
+                                         :medusa_directory_uuid,
                                          :medusa_file_group_id,
                                          :metadata_profile_id,
                                          :package_profile_id,

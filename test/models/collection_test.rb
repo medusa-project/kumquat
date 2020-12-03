@@ -194,13 +194,13 @@ class CollectionTest < ActiveSupport::TestCase
   test 'effective_medusa_cfs_directory() returns the instance CFS
   directory when set' do
     uuid = SecureRandom.uuid
-    @collection.medusa_cfs_directory_id = uuid
+    @collection.medusa_directory_uuid = uuid
     assert_equal uuid, @collection.effective_medusa_cfs_directory.uuid
   end
 
   test 'effective_medusa_cfs_directory() should fall back to the file group CFS
   directory' do
-    @collection.medusa_cfs_directory_id = nil
+    @collection.medusa_directory_uuid = nil
     @collection.medusa_file_group_id = '5881d456-6dbe-90f1-ac81-7e0bf53e9c84'
     @collection.save!
     assert_equal '1b760655-c504-7fce-f171-76e4234844da',
@@ -274,27 +274,27 @@ class CollectionTest < ActiveSupport::TestCase
 
   # medusa_cfs_directory()
 
-  test 'medusa_cfs_directory() returns nil if medusa_cfs_directory_id is
+  test 'medusa_cfs_directory() returns nil if medusa_directory_uuid is
   nil' do
-    @collection.medusa_cfs_directory_id = nil
+    @collection.medusa_directory_uuid = nil
     assert_nil @collection.medusa_cfs_directory
   end
 
   test 'medusa_cfs_directory() returns a Medusa::Directory when
-  medusa_cfs_directory_id is set' do
-    @collection.medusa_cfs_directory_id = '21353276-887c-0f2b-25a0-ed444003303f'
+  medusa_directory_uuid is set' do
+    @collection.medusa_directory_uuid = '21353276-887c-0f2b-25a0-ed444003303f'
     assert_equal @collection.medusa_cfs_directory.uuid,
-                 @collection.medusa_cfs_directory_id
+                 @collection.medusa_directory_uuid
   end
 
-  # medusa_cfs_directory_id
+  # medusa_directory_uuid
 
-  test 'medusa_cfs_directory_id must be a valid Medusa directory ID' do
+  test 'medusa_directory_uuid must be a valid Medusa directory ID' do
     # set it to a file group UUID
-    @collection.medusa_cfs_directory_id = '7afc3e80-b41b-0134-234d-0050569601ca-7'
+    @collection.medusa_directory_uuid = '7afc3e80-b41b-0134-234d-0050569601ca-7'
     assert !@collection.valid?
     # set it to a file UUID
-    @collection.medusa_cfs_directory_id = '6cc533c0-cebf-0134-238a-0050569601ca-3'
+    @collection.medusa_directory_uuid = '6cc533c0-cebf-0134-238a-0050569601ca-3'
     assert !@collection.valid?
   end
 
@@ -577,7 +577,7 @@ class CollectionTest < ActiveSupport::TestCase
   test 'root_item() returns an item for free-form collections whose directory
   is different from the same as the file group directory' do
     @collection = collections(:free_form)
-    @collection.medusa_cfs_directory_id = '7351760f-4b7b-5a6c-6dda-f5a92562b008'
+    @collection.medusa_directory_uuid = '7351760f-4b7b-5a6c-6dda-f5a92562b008'
     assert_not_nil @collection.root_item
   end
 

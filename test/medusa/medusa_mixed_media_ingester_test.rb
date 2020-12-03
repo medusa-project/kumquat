@@ -56,8 +56,8 @@ class MedusaMixedMediaIngesterTest < ActiveSupport::TestCase
 
   test 'create_items() with no effective collection CFS directory raises an
   error' do
-    @collection.medusa_cfs_directory_id = nil
-    @collection.medusa_file_group_id    = nil
+    @collection.medusa_directory_uuid = nil
+    @collection.medusa_file_group_id  = nil
     assert_raises ArgumentError do
       @ingester.create_items(@collection)
     end
@@ -174,8 +174,8 @@ class MedusaMixedMediaIngesterTest < ActiveSupport::TestCase
 
   test 'delete_missing_items() with no effective collection CFS directory raises
   an error' do
-    @collection.medusa_cfs_directory_id = nil
-    @collection.medusa_file_group_id    = nil
+    @collection.medusa_directory_uuid = nil
+    @collection.medusa_file_group_id  = nil
     assert_raises ArgumentError do
       @ingester.delete_missing_items(@collection)
     end
@@ -230,8 +230,8 @@ class MedusaMixedMediaIngesterTest < ActiveSupport::TestCase
 
   test 'replace_metadata() with no effective collection directory raises an
   error' do
-    @collection.medusa_cfs_directory_id = nil
-    @collection.medusa_file_group_id    = nil
+    @collection.medusa_directory_uuid = nil
+    @collection.medusa_file_group_id  = nil
     assert_raises ArgumentError do
       @ingester.replace_metadata(@collection)
     end
@@ -267,8 +267,8 @@ class MedusaMixedMediaIngesterTest < ActiveSupport::TestCase
   end
 
   test 'recreate_binaries() with no effective collection directory raises an error' do
-    @collection.medusa_cfs_directory_id = nil
-    @collection.medusa_file_group_id    = nil
+    @collection.medusa_directory_uuid = nil
+    @collection.medusa_file_group_id  = nil
     assert_raises ArgumentError do
       @ingester.recreate_binaries(@collection)
     end

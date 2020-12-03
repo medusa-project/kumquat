@@ -6,7 +6,7 @@ compound_object:
   harvestable_by_primo:    true
   medusa_repository_id:    1
   medusa_file_group_id:    bd7811d0-0d79-15c5-da1a-da28261f680a
-  medusa_cfs_directory_id:
+  medusa_directory_uuid:
   metadata_profile:        compound_object
   package_profile_id:      <%= PackageProfile::COMPOUND_OBJECT_PROFILE.id %>
   public_in_medusa:        true
@@ -24,7 +24,7 @@ contentdm:
   harvestable_by_primo:    true
   medusa_repository_id:    1
   medusa_file_group_id:    e76fabd5-c4c2-be62-e4f7-6f3f3b1896be
-  medusa_cfs_directory_id:
+  medusa_directory_uuid:
   metadata_profile:        compound_object
   package_profile_id:      <%= PackageProfile::COMPOUND_OBJECT_PROFILE.id %>
   public_in_medusa:        true
@@ -41,7 +41,7 @@ free_form:
   harvestable_by_primo:    true
   medusa_repository_id:    1
   medusa_file_group_id:    5881d456-6dbe-90f1-ac81-7e0bf53e9c84
-  medusa_cfs_directory_id:
+  medusa_directory_uuid:
   metadata_profile:        default
   package_profile_id:      <%= PackageProfile::FREE_FORM_PROFILE.id %>
   public_in_medusa:        true
@@ -58,7 +58,7 @@ mixed_media:
   harvestable_by_primo:    true
   medusa_repository_id:    1
   medusa_file_group_id:    c18da3eb-60f2-1562-6df8-07410ca4d89d
-  medusa_cfs_directory_id:
+  medusa_directory_uuid:
   metadata_profile:        default
   package_profile_id:      <%= PackageProfile::MIXED_MEDIA_PROFILE.id %>
   public_in_medusa:        true
@@ -75,7 +75,7 @@ single_item_object:
   harvestable_by_primo:    true
   medusa_repository_id:    1
   medusa_file_group_id:    885079c1-3493-4c60-7cc0-04fb7cdbec75
-  medusa_cfs_directory_id:
+  medusa_directory_uuid:
   metadata_profile:        default
   package_profile_id:      <%= PackageProfile::SINGLE_ITEM_OBJECT_PROFILE.id %>
   public_in_medusa:        true

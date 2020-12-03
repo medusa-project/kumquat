@@ -35,8 +35,8 @@
     = f.text_field(:medusa_file_group_id, class: 'form-control',
                    disabled: @collection.items.any?)
   .form-group
-    = f.label :medusa_cfs_directory_id, 'Medusa CFS Directory UUID'
-    = f.text_field(:medusa_cfs_directory_id, class: 'form-control',
+    = f.label :medusa_directory_uuid, 'Medusa Directory UUID'
+    = f.text_field(:medusa_directory_uuid, class: 'form-control',
                    disabled: @collection.items.any?)
     %span.form-text.text-muted
       If omitted, the root CFS directory of the
