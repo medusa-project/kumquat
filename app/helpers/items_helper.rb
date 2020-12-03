@@ -223,7 +223,7 @@ module ItemsHelper
   def has_viewer?(item)
     return false unless item
     # This logic needs to be kept in sync with viewer_for_item().
-    if item.embed_tag.present? || item.is_compound?
+    if item.embed_tag.present? || item.compound?
       return true
     end
     binary = item.effective_viewer_binary
@@ -1037,7 +1037,7 @@ module ItemsHelper
     elsif item.file? and
         item.effective_image_binary&.media_category == Binary::MediaCategory::IMAGE
       return compound_viewer_for(item.parent, item)
-    elsif item.is_compound?
+    elsif item.compound?
       return compound_viewer_for(item)
     else
       binary = item.effective_viewer_binary

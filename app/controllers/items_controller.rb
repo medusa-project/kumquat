@@ -391,7 +391,7 @@ class ItemsController < WebsiteController
 
           # Determine which, if any, of the various download buttons should
           # appear.
-          if @root_item.is_compound?
+          if @root_item.compound?
             binaries = @root_item.all_child_binaries
             binaries = binaries.where(public: true) unless current_user&.medusa_user?
             @show_zip_of_masters = binaries.count > 0
@@ -440,7 +440,7 @@ class ItemsController < WebsiteController
       end
       format.pdf do
         # PDF download is only available for compound objects.
-        if @item.is_compound?
+        if @item.compound?
           download = Download.create(ip_address: request.remote_ip)
           CreatePdfJob.perform_later(@item, current_user&.medusa_user?, download)
           redirect_to download_url(download) and return

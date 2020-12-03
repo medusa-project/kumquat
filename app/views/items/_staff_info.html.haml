@@ -11,7 +11,7 @@
          role: "button"}
         Staff Information
     #dl-staff-info.collapse
-      - if item.is_compound?
+      - if item.compound?
         -# For compound objects, display a table of all page binaries. (IMET-469)
         %h3 Files
         = compound_object_binary_info_table(item)

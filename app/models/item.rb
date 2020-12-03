@@ -695,6 +695,17 @@ class Item < ApplicationRecord
     @collection = collection
   end
 
+  ##
+  # @return [Boolean] Whether the instance has any children with a
+  #                   {Variants::PAGE page variant}.
+  #
+  def compound?
+    self.variant.blank? && self.pages.count > 0
+  end
+
+  ##
+  # Alias of {start_date}.
+  #
   def date
     start_date
   end
@@ -704,7 +715,7 @@ class Item < ApplicationRecord
   # @see http://dublincore.org/documents/dcmi-type-vocabulary/#H7
   #
   def dc_type
-    self.is_compound? ? 'Collection' : self.effective_viewer_binary&.dc_type
+    self.compound? ? 'Collection' : self.effective_viewer_binary&.dc_type
   end
 
   ##
@@ -753,7 +764,7 @@ class Item < ApplicationRecord
       if !bin or !bin.image_server_safe?
         if self.variant == Variants::SUPPLEMENT
           bin = self.binaries.first
-        elsif self.is_compound?
+        elsif self.compound?
           first_child = self.finder.
               include_restricted(true).
               include_unpublished(true).
@@ -904,7 +915,7 @@ class Item < ApplicationRecord
       if !bin or !bin.image_server_safe?
         if self.variant == Variants::SUPPLEMENT
           bin = self.binaries.first
-        elsif self.is_compound?
+        elsif self.compound?
           bin = self.finder.limit(1).to_a.first&.effective_image_binary
         end
         if !bin or !bin.image_server_safe?
@@ -973,17 +984,9 @@ class Item < ApplicationRecord
   # @return [Boolean]
   #
   def has_iiif_manifest?
-    self.is_compound? or
-        [Variants::DIRECTORY, Variants::FILE].include?(self.variant) or
+    self.compound? ||
+        [Variants::DIRECTORY, Variants::FILE].include?(self.variant) ||
         !self.variant
-  end
-
-  ##
-  # @return [Boolean] Whether the instance has any children with a
-  #                   {Variants::PAGE page variant}.
-  #
-  def is_compound?
-    self.variant.blank? && self.pages.count > 0
   end
 
   ##

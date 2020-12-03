@@ -260,6 +260,29 @@ class ItemTest < ActiveSupport::TestCase
     assert @item.valid?
   end
 
+  # compound?()
+
+  test 'compound?() returns false for files and directories' do
+    assert !items(:free_form_dir1).compound?
+    assert !items(:free_form_dir1_image).compound?
+  end
+
+  test 'compound?() returns false for an item with a variant' do
+    item = items(:compound_object_1002)
+    item.variant = Item::Variants::TITLE
+    assert !item.compound?
+  end
+
+  test 'compound?() returns false for an item with no variant or pages' do
+    item = items(:compound_object_1002)
+    item.items.destroy_all
+    assert !item.compound?
+  end
+
+  test 'compound?() returns true for items with no variant but one or more pages' do
+    assert items(:compound_object_1002).compound?
+  end
+
   # described?()
 
   test 'described?() returns true when the item is in a free-form collection
