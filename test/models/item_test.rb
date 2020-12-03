@@ -90,6 +90,12 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal expected, actual
   end
 
+  # all_child_binaries()
+
+  test 'all_child_binaries() returns the correct binaries' do
+    assert_equal 5, items(:compound_object_1002).all_child_binaries.count
+  end
+
   # all_children()
 
   test 'all_children() returns the correct items' do

@@ -421,15 +421,32 @@ class Item < ApplicationRecord
   end
 
   ##
-  # @return [Enumerable<Item>] All items that are children of the instance, at
-  #                            any level in the tree.
+  # @return [ActiveRecord::Relation<Binary>] All binaries associated with every
+  #                                          immediate child item.
+  #
+  def all_child_binaries
+    sql = 'SELECT binaries.id
+        FROM binaries
+        LEFT JOIN items AS binary_items ON binaries.item_id = binary_items.id
+        LEFT JOIN items AS parent_items ON binary_items.parent_repository_id = parent_items.repository_id
+        WHERE parent_items.id = $1'
+    values = [[ nil, self.id ]]
+
+    results = ActiveRecord::Base.connection.exec_query(sql, 'SQL', values)
+    binary_ids = results.map{ |row| row['id'] }
+    Binary.where('id IN (?)', binary_ids)
+  end
+
+  ##
+  # @return [ActiveRecord::Relation<Item>] All items that are children of the
+  #                                        instance, at any level in the tree.
   # @see walk_tree
   #
   def all_children
     sql = 'WITH RECURSIVE q AS (
         SELECT h, 1 AS level, ARRAY[repository_id] AS breadcrumb
         FROM items h
-        WHERE repository_id = $1
+        WHERE id = $1
         UNION ALL
         SELECT hi, q.level + 1 AS level, breadcrumb || repository_id
         FROM q
@@ -439,7 +456,7 @@ class Item < ApplicationRecord
       SELECT (q.h).repository_id
       FROM q
       ORDER BY breadcrumb'
-    values = [[ nil, self.repository_id ]]
+    values = [[ nil, self.id ]]
 
     results = ActiveRecord::Base.connection.exec_query(sql, 'SQL', values)
     Item.where('repository_id IN (?)', results
@@ -448,15 +465,16 @@ class Item < ApplicationRecord
   end
 
   ##
-  # @return [Enumerable<Item>] All items with a variant of {Variants::FILE}
-  #                            that are children of the instance, at any level
-  #                            in the tree.
+  # @return [ActiveRecord::Relation<Item>] All items with a variant of
+  #                                        {Variants::FILE} that are children
+  #                                        of the instance, at any level in the
+  #                                        tree.
   #
   def all_files
     sql = 'WITH RECURSIVE q AS (
         SELECT h, 1 AS level, ARRAY[repository_id] AS breadcrumb
         FROM items h
-        WHERE repository_id = $1
+        WHERE id = $1
         UNION ALL
         SELECT hi, q.level + 1 AS level, breadcrumb || repository_id
         FROM q
@@ -467,7 +485,7 @@ class Item < ApplicationRecord
       FROM q
       WHERE (q.h).variant = $2
       ORDER BY breadcrumb'
-    values = [[ nil, self.repository_id, ], [ nil, Variants::FILE ]]
+    values = [[ nil, self.id, ], [ nil, Variants::FILE ]]
 
     results = ActiveRecord::Base.connection.exec_query(sql, 'SQL', values)
     Item.where('repository_id IN (?)', results.map{ |row| row['repository_id'] })

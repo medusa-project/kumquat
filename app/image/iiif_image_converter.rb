@@ -83,7 +83,7 @@ class IiifImageConverter
     # at any level in the tree.
     if item.variant == Item::Variants::DIRECTORY
       item.all_files.each do |file_item|
-        binaries = file_item.binaries
+        binaries = file_item.binaries.where('media_type LIKE ?', 'image/%')
         binaries = binaries.where(public: true) unless include_private_binaries
         binaries.each do |bin| # there should be only one
           convert_binary(bin, directory, format)

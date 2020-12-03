@@ -330,7 +330,7 @@ class ItemsController < WebsiteController
       format.html do
         # Free-form items are handled differently from the rest: different
         # controller ivars, different templates...
-        if @item.file? or @item.directory?
+        if @item.file? || @item.directory?
           # Only XHR requests are allowed for a file or directory variant.
           # These will generally be in response to a selection in the tree
           # browser and should render either a show-file or show-directory
@@ -340,9 +340,11 @@ class ItemsController < WebsiteController
                 exclude_variants(*Item::Variants::DIRECTORY)
             # If the item is a directory, its contents are downloadable.
             # Otherwise, it's a file and it itself is downloadable.
-            @downloadable_items = @item.directory? ?
-                                      download_finder.to_a : [@item]
-            @total_byte_size = download_finder.total_byte_size
+            @downloadable_items  = @item.directory? ?
+                                     download_finder.to_a : [@item]
+            @total_byte_size     = download_finder.total_byte_size
+            @show_zip_of_masters = @item.directory?
+            @show_zip_of_jpegs   = @show_pdf = false
 
             if params['tree-node-type'].include?('file_node')
               render 'show_file', layout: false
@@ -353,9 +355,9 @@ class ItemsController < WebsiteController
           # all dynamic and they won't be able to see anything. So, give them
           # the show template.
           elsif request.user_agent.include?('Twitterbot')
-            @root_item = @item
+            @root_item          = @item
             @downloadable_items = []
-            @total_byte_size = 0
+            @total_byte_size    = 0
             render 'show'
           else
             # Non-XHR requests for free-form items are not allowed. Redirect
@@ -370,7 +372,7 @@ class ItemsController < WebsiteController
           # page with a different viewer item selected. We refer to this item
           # as @selected_item, and nil out @item to prevent confusion.
           @selected_item = @item
-          @item = nil
+          @item          = nil
 
           # @containing_item is the immediate parent of @selected_item. If
           # @selected_item has no parent, @containing_item === @selected_item.
@@ -383,9 +385,29 @@ class ItemsController < WebsiteController
                       @selected_item.root_parent : @selected_item
 
           # All items within the containing item are downloadable.
-          finder = @containing_item.finder
-          @total_byte_size = finder.total_byte_size
+          finder              = @containing_item.finder
+          @total_byte_size    = finder.total_byte_size
           @downloadable_items = finder.to_a
+
+          # Determine which, if any, of the various download buttons should
+          # appear.
+          if @root_item.is_compound?
+            binaries = @root_item.all_child_binaries
+            binaries = binaries.where(public: true) unless current_user&.medusa_user?
+            @show_zip_of_masters = binaries.count > 0
+            if @show_zip_of_masters
+              binaries = binaries.where(media_category: Binary::MediaCategory::IMAGE)
+              @show_zip_of_jpegs = @show_pdf = binaries.count > 0
+            end
+          else # single-item object
+            @show_zip_of_masters = @root_item.binaries.select{ |b|
+              b.public || current_user&.medusa_user? }.any?
+            @show_zip_of_jpegs   = @root_item.binaries.select{ |b|
+              (b.public || current_user&.medusa_user?) &&
+                b.master_type == Binary::MasterType::ACCESS &&
+                b.image_server_safe? }.any?
+            @show_pdf            = false
+          end
 
           # Find the previous and next result based on the results URL in the
           # session.
@@ -399,17 +421,16 @@ class ItemsController < WebsiteController
             elsif session[:last_result_id] == @root_item.repository_id
               query[:start] = query[:start].to_i + limit / 2.0
             end
-            finder = item_finder_for(query)
+            finder  = item_finder_for(query)
             results = finder.to_a
             results.each_with_index do |result, index|
               if result.repository_id == @containing_item.repository_id
                 @previous_result = results[index - 1] if index - 1 >= 0
-                @next_result = results[index + 1] if index + 1 < results.length
+                @next_result     = results[index + 1] if index + 1 < results.length
               end
             end
-
             session[:first_result_id] = results.first&.repository_id
-            session[:last_result_id] = results.last&.repository_id
+            session[:last_result_id]  = results.last&.repository_id
           end
         end
       end
@@ -628,7 +649,7 @@ class ItemsController < WebsiteController
     session[:sort]          = query[:sort]
     session[:start]         = [0, query[:start].to_i].max
     session[:limit]         = query[:limit].to_i
-    if session[:limit].to_i < MIN_RESULT_WINDOW or
+    if session[:limit].to_i < MIN_RESULT_WINDOW ||
         session[:limit].to_i > MAX_RESULT_WINDOW
       session[:limit] = Option::integer(Option::Keys::DEFAULT_RESULT_WINDOW)
     end
@@ -710,7 +731,7 @@ class ItemsController < WebsiteController
   #
   def set_browse_context
     session[:browse_context_url] = request.url
-    if params[:q].present? and params[:collection_id].blank?
+    if params[:q].present? && params[:collection_id].blank?
       session[:browse_context] = BrowseContext::SEARCHING
     elsif params[:collection_id].blank?
       session[:browse_context] = BrowseContext::BROWSING_ALL_ITEMS
