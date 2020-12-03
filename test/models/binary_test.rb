@@ -326,21 +326,6 @@ class BinaryTest < ActiveSupport::TestCase
     end
   end
 
-  # read_size()
-
-  test 'read_size() reads a correct size' do
-    @instance.byte_size = nil
-    @instance.read_size
-    assert_equal 11, @instance.byte_size
-  end
-
-  test 'read_size() raises an error for missing files' do
-    @instance.object_key = 'bogus'
-    assert_raises Aws::S3::Errors::NotFound do
-      @instance.read_size
-    end
-  end
-
   # uri()
 
   test 'uri returns the correct URI' do

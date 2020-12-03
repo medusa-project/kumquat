@@ -117,12 +117,14 @@ class Binary < ApplicationRecord
     bin.master_type = master_type
     bin.medusa_uuid = file.uuid
     bin.object_key  = file.relative_key
+    bin.byte_size   = file.size
     # The media type of the file as reported by Medusa is likely to be vague,
     # so let's see if we can do better.
     bin.infer_media_type
     bin.media_category = media_category ||
         Binary::MediaCategory::media_category_for_media_type(bin.media_type)
-    bin.read_characteristics
+    bin.read_dimensions
+    bin.read_duration
     bin
   end
 
@@ -423,16 +425,6 @@ class Binary < ApplicationRecord
   end
 
   ##
-  # @return [void]
-  # @raises [IOError] If the file does not exist.
-  #
-  def read_characteristics
-    read_size
-    read_dimensions
-    read_duration
-  end
-
-  ##
   # Populates the `width` and `height` properties by reading the dimensions
   # from the source image or video.
   #
@@ -534,19 +526,6 @@ class Binary < ApplicationRecord
       tempfile.close
       tempfile.unlink
     end
-  end
-
-  ##
-  # Populates the byte_size property.
-  #
-  # @return [void]
-  # @raises [IOError] If the file does not exist.
-  #
-  def read_size
-    response = MedusaS3Client.instance.head_object(
-        bucket: MedusaS3Client::BUCKET,
-        key: self.object_key)
-    self.byte_size = response.content_length
   end
 
   def to_param
