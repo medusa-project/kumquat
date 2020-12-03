@@ -458,7 +458,7 @@ class Collection < ApplicationRecord
   # @return [Medusa::Directory, nil]
   # @see medusa_cfs_directory
   #
-  def effective_medusa_cfs_directory
+  def effective_medusa_directory
     self.medusa_cfs_directory || self.medusa_file_group&.directory
   end
 
@@ -564,7 +564,7 @@ class Collection < ApplicationRecord
   # as a refinement of {medusa_file_group}.
   #
   # @return [Medusa::Directory, nil]
-  # @see effective_medusa_cfs_directory
+  # @see effective_medusa_directory
   #
   def medusa_cfs_directory
     unless @cfs_directory

@@ -70,7 +70,7 @@ class MedusaMixedMediaIngester < MedusaAbstractIngester
     options = options.symbolize_keys
 
     stats = { num_created: 0, num_updated: 0, num_skipped: 0 }
-    directories = collection.effective_medusa_cfs_directory.directories
+    directories = collection.effective_medusa_directory.directories
     num_directories = directories.length
 
     ActiveRecord::Base.transaction do
@@ -246,7 +246,7 @@ class MedusaMixedMediaIngester < MedusaAbstractIngester
     check_collection(collection, PackageProfile::MIXED_MEDIA_PROFILE)
 
     # Compile a list of all item UUIDs currently in the Medusa file group.
-    medusa_items = items_in(collection.effective_medusa_cfs_directory)
+    medusa_items = items_in(collection.effective_medusa_directory)
     LOGGER.debug('delete_missing_items(): %d items in directory',
                  medusa_items.length)
 
@@ -287,7 +287,7 @@ class MedusaMixedMediaIngester < MedusaAbstractIngester
   def recreate_binaries(collection, task = nil)
     check_collection(collection, PackageProfile::MIXED_MEDIA_PROFILE)
 
-    directories = collection.effective_medusa_cfs_directory.directories
+    directories = collection.effective_medusa_directory.directories
     num_directories = directories.length
 
     stats = { num_created: 0 }

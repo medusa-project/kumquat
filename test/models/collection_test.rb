@@ -189,28 +189,25 @@ class CollectionTest < ActiveSupport::TestCase
         collection(@collection).count
   end
 
-  # effective_medusa_cfs_directory
+  # effective_medusa_directory
 
-  test 'effective_medusa_cfs_directory() returns the instance CFS
-  directory when set' do
+  test 'effective_medusa_directory() returns the instance CFS directory when set' do
     uuid = SecureRandom.uuid
     @collection.medusa_directory_uuid = uuid
-    assert_equal uuid, @collection.effective_medusa_cfs_directory.uuid
+    assert_equal uuid, @collection.effective_medusa_directory.uuid
   end
 
-  test 'effective_medusa_cfs_directory() should fall back to the file group CFS
-  directory' do
+  test 'effective_medusa_directory() falls back to the file group CFS directory' do
     @collection.medusa_directory_uuid = nil
     @collection.medusa_file_group_id = '5881d456-6dbe-90f1-ac81-7e0bf53e9c84'
     @collection.save!
     assert_equal '1b760655-c504-7fce-f171-76e4234844da',
-                 @collection.effective_medusa_cfs_directory.uuid
+                 @collection.effective_medusa_directory.uuid
   end
 
   # effective_metadata_profile()
 
-  test 'effective_metadata_profile() returns the assigned metadata
-  profile' do
+  test 'effective_metadata_profile() returns the assigned metadata profile' do
     assert_equal @collection.metadata_profile,
                  @collection.effective_metadata_profile
   end

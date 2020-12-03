@@ -52,11 +52,11 @@ class MedusaFreeFormIngester < MedusaAbstractIngester
   #
   def create_items(collection, options = {}, task = nil)
     check_collection(collection, PackageProfile::FREE_FORM_PROFILE)
-    num_nodes = task ? count_tree_nodes(collection.effective_medusa_cfs_directory) : 0
+    num_nodes = task ? count_tree_nodes(collection.effective_medusa_directory) : 0
     stats = { num_created: 0, num_skipped: 0, num_walked: 0 }
     ActiveRecord::Base.transaction do
-      create_items_in_tree(collection, collection.effective_medusa_cfs_directory,
-                           collection.effective_medusa_cfs_directory,
+      create_items_in_tree(collection, collection.effective_medusa_directory,
+                           collection.effective_medusa_directory,
                            options.symbolize_keys, stats, task, num_nodes)
     end
   end
@@ -75,7 +75,7 @@ class MedusaFreeFormIngester < MedusaAbstractIngester
     check_collection(collection, PackageProfile::FREE_FORM_PROFILE)
 
     # Compile a list of all item UUIDs currently in the Medusa file group.
-    medusa_items = items_in(collection.effective_medusa_cfs_directory)
+    medusa_items = items_in(collection.effective_medusa_directory)
     LOGGER.debug('delete_missing_items(): %d items in CFS directory',
                  medusa_items.length)
 
@@ -117,13 +117,13 @@ class MedusaFreeFormIngester < MedusaAbstractIngester
   def recreate_binaries(collection, task = nil)
     check_collection(collection, PackageProfile::FREE_FORM_PROFILE)
 
-    num_nodes = task ? count_tree_nodes(collection.effective_medusa_cfs_directory) : 0
+    num_nodes = task ? count_tree_nodes(collection.effective_medusa_directory) : 0
     stats = { num_created: 0 }
 
     ActiveRecord::Base.transaction do
       recreate_binaries_in_tree(
-          collection.effective_medusa_cfs_directory,
-          collection.effective_medusa_cfs_directory, stats, task, num_nodes)
+          collection.effective_medusa_directory,
+          collection.effective_medusa_directory, stats, task, num_nodes)
 
       # The binaries have been updated, but the image server may still have
       # cached versions of the old ones. Here, we will purge them.

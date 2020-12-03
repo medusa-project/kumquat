@@ -24,7 +24,7 @@ class MedusaSingleItemIngester < MedusaAbstractIngester
   def create_items(collection, options = {}, task = nil)
     check_collection(collection, PackageProfile::SINGLE_ITEM_OBJECT_PROFILE)
 
-    cfs_dir  = collection.effective_medusa_cfs_directory
+    cfs_dir  = collection.effective_medusa_directory
     pres_dir = cfs_dir.directories.find{ |d| d.name == 'preservation' }
 
     stats     = { num_created: 0, num_skipped: 0 }
@@ -85,7 +85,7 @@ class MedusaSingleItemIngester < MedusaAbstractIngester
     check_collection(collection, PackageProfile::SINGLE_ITEM_OBJECT_PROFILE)
 
     # Compile a list of all item UUIDs currently in the Medusa file group.
-    medusa_items = items_in(collection.effective_medusa_cfs_directory)
+    medusa_items = items_in(collection.effective_medusa_directory)
     LOGGER.debug('delete_missing_items(): %d items in CFS directory',
                  medusa_items.length)
 
@@ -123,7 +123,7 @@ class MedusaSingleItemIngester < MedusaAbstractIngester
   def recreate_binaries(collection, task = nil)
     check_collection(collection, PackageProfile::SINGLE_ITEM_OBJECT_PROFILE)
 
-    cfs_dir  = collection.effective_medusa_cfs_directory
+    cfs_dir  = collection.effective_medusa_directory
     pres_dir = cfs_dir.directories.find{ |d| d.name == 'preservation' }
 
     stats     = { num_created: 0 }

@@ -51,7 +51,7 @@ class MedusaAbstractIngester
     raise ArgumentError, 'Collection package profile is set incorrectly' if
         package_profile and collection.package_profile != package_profile
     raise ArgumentError, 'Collection\'s Medusa CFS directory is invalid' unless
-        collection.effective_medusa_cfs_directory
+        collection.effective_medusa_directory
   end
 
   ##
