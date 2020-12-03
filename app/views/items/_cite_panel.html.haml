@@ -2,14 +2,13 @@
 
 #dl-cite-modal.modal.fade{"aria-labelledby": "dl-cite-modal-label",
                           "data-backdrop": "false",
-                          role: "dialog",
                           tabindex: "-1"}
-  .modal-dialog{role: "document"}
+  .modal-dialog
     .modal-content
       .modal-header
+        %h3#dl-cite-modal-label.modal-title Cite This Item
         %button.close{"aria-label": "Close", "data-dismiss": "modal", type: "button"}
           %span{"aria-hidden": "true"} ×
-        %h3#dl-cite-modal-label.modal-title Cite This Item
       .modal-body
         = render partial: 'permalink_section', locals: { item: item }
         %hr/
@@ -20,7 +19,7 @@
                              Option::string(Option::Keys::ORGANIZATION_NAME))
           = hidden_field_tag('dl-citation-title', item.title)
           = hidden_field_tag('dl-citation-url', item_url(item))
-          %select.form-control{name: "dl-citation-format"}
+          %select.custom-select{name: "dl-citation-format"}
             %option APA
             %option Chicago
             %option MLA
