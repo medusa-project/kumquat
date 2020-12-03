@@ -129,15 +129,6 @@ class Binary < ApplicationRecord
   end
 
   ##
-  # @return [Integer] Total byte size of all binaries in the system.
-  #
-  def self.total_byte_size
-    sql = 'SELECT SUM(byte_size) AS sum FROM binaries'
-    result = Binary.connection.exec_query(sql, 'SQL', [])
-    result[0]['sum'].to_i
-  end
-
-  ##
   # @return [IO] Read-only stream of the instance's data.
   #
   def data

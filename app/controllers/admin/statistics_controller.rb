@@ -22,7 +22,7 @@ module Admin
       # Binaries section
       binaries_time = measure_time do
         @num_binaries      = Binary.count
-        @total_binary_size = Binary.total_byte_size
+        @total_binary_size = Binary.sum(:byte_size)
 
         sql = "SELECT regexp_matches(lower(object_key),'\\.(\\w+)$') AS extension,
           COUNT(id) AS count

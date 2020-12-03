@@ -51,12 +51,6 @@ class BinaryTest < ActiveSupport::TestCase
     assert_equal Binary::MediaCategory::AUDIO, binary.media_category
   end
 
-  # total_byte_size()
-
-  test 'total_byte_size() returns an accurate figure' do
-    assert Binary.total_byte_size > 50000
-  end
-
   # data()
 
   test 'data should return the data' do
