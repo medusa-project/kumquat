@@ -456,10 +456,10 @@ class Collection < ApplicationRecord
   # assigned, or the root CFS directory of the file group.
   #
   # @return [Medusa::Directory, nil]
-  # @see medusa_cfs_directory
+  # @see medusa_directory
   #
   def effective_medusa_directory
-    self.medusa_cfs_directory || self.medusa_file_group&.directory
+    self.medusa_directory || self.medusa_file_group&.directory
   end
 
   ##
@@ -566,7 +566,7 @@ class Collection < ApplicationRecord
   # @return [Medusa::Directory, nil]
   # @see effective_medusa_directory
   #
-  def medusa_cfs_directory
+  def medusa_directory
     unless @cfs_directory
       @cfs_directory = nil
       if self.medusa_directory_uuid.present?

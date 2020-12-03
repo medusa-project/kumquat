@@ -63,10 +63,10 @@
       %tr
         %td Medusa CFS Directory
         %td
-          - if @collection.medusa_cfs_directory
+          - if @collection.medusa_directory
             %code
               = link_to(@collection.medusa_directory_uuid,
-                        @collection.medusa_cfs_directory.url)
+                        @collection.medusa_directory.url)
           - else
             Same as File Group
       %tr

@@ -258,7 +258,7 @@ class ItemsController < WebsiteController
     else
       download_finder.query_all(params[:q])
     end
-    if @collection&.medusa_cfs_directory
+    if @collection&.medusa_directory
       download_finder = download_finder.parent_item(@collection.root_item)
     end
     @num_downloadable_items = download_finder.count

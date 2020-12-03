@@ -269,18 +269,16 @@ class CollectionTest < ActiveSupport::TestCase
     assert_equal 5, @collection.items.length
   end
 
-  # medusa_cfs_directory()
+  # medusa_directory()
 
-  test 'medusa_cfs_directory() returns nil if medusa_directory_uuid is
-  nil' do
+  test 'medusa_directory() returns nil if medusa_directory_uuid is nil' do
     @collection.medusa_directory_uuid = nil
-    assert_nil @collection.medusa_cfs_directory
+    assert_nil @collection.medusa_directory
   end
 
-  test 'medusa_cfs_directory() returns a Medusa::Directory when
-  medusa_directory_uuid is set' do
+  test 'medusa_directory() returns a Medusa::Directory when medusa_directory_uuid is set' do
     @collection.medusa_directory_uuid = '21353276-887c-0f2b-25a0-ed444003303f'
-    assert_equal @collection.medusa_cfs_directory.uuid,
+    assert_equal @collection.medusa_directory.uuid,
                  @collection.medusa_directory_uuid
   end
 
