@@ -133,9 +133,8 @@ class Binary < ApplicationRecord
   #
   def data
     client = MedusaS3Client.instance
-    response = client.get_object(
-        bucket: MedusaS3Client::BUCKET,
-        key: self.object_key)
+    response = client.get_object(bucket: MedusaS3Client::BUCKET,
+                                 key: self.object_key)
     response.body
   end
 
@@ -157,18 +156,6 @@ class Binary < ApplicationRecord
       type = 'Text'
     end
     type
-  end
-
-  ##
-  # @return [Boolean] True if the object to which `object_key` refers exists;
-  #                   false otherwise.
-  #
-  def exists?
-    MedusaS3Client.instance.head_object(bucket: MedusaS3Client::BUCKET,
-                                        key: self.object_key)
-    true
-  rescue Aws::S3::Errors::NotFound
-    false
   end
 
   ##
@@ -494,11 +481,9 @@ class Binary < ApplicationRecord
   # @raises [IOError] If the file does not exist.
   #
   def read_metadata
-    @metadata = []
-
     return unless self.is_image?
 
-    tempfile = nil
+    @metadata = []
     begin
       tempfile = Tempfile.new('image')
       download_to(tempfile.path, 1024 ** 2) # download the first 1 MB
@@ -545,7 +530,6 @@ class Binary < ApplicationRecord
 
   def download_to(pathname, length = 0)
     # Use the smaller of the actual length or the requested length.
-    read_size if byte_size < 1
     length = [length, byte_size].min
 
     MedusaS3Client.instance.get_object(
@@ -564,7 +548,7 @@ class Binary < ApplicationRecord
       struct = JSON.parse(json)
       struct.first.each do |k, v|
         next if k.include?('ExifToolVersion')
-        next if k.include?('Directory') and Rails.env.production?
+        next if k.include?('Directory') && Rails.env.production?
         next if k.include?('FileAccessDate')
         next if k.include?('FilePermissions')
         next if k.include?('FileTypeExtension')
@@ -575,7 +559,7 @@ class Binary < ApplicationRecord
           next if v['val']&.include?('use -b option to extract')
         end
 
-        if v['desc'].present? and v['val'].present?
+        if v['desc'].present? && v['val'].present?
           parts = k.split(':')
           category = parts.length > 1 ? parts[0] : nil
           category = category.upcase if category.include?('Jpeg')
@@ -624,7 +608,7 @@ class Binary < ApplicationRecord
         label = cols[1].strip
         category = key.split('.').first.upcase
         
-        md = @metadata.select{ |m| m[:category] == category and m[:label] == label }
+        md = @metadata.select{ |m| m[:category] == category && m[:label] == label }
         if md.any?
           unless md.first[:value].respond_to?(:each)
             md.first[:value] = [ md.first[:value] ]

@@ -59,17 +59,6 @@ class BinaryTest < ActiveSupport::TestCase
     assert_equal 11, data.length
   end
 
-  # exists?()
-
-  test 'exists? returns true with valid object key set' do
-    assert @instance.exists?
-  end
-
-  test 'exists? returns false with invalid object key set' do
-    @instance.object_key = 'bogus'
-    assert !@instance.exists?
-  end
-
   # filename()
 
   test 'filename() should return the filename' do
