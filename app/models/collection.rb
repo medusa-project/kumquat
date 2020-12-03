@@ -567,13 +567,13 @@ class Collection < ApplicationRecord
   # @see effective_medusa_directory
   #
   def medusa_directory
-    unless @cfs_directory
-      @cfs_directory = nil
+    unless @medusa_directory
+      @medusa_directory = nil
       if self.medusa_directory_uuid.present?
-        @cfs_directory = Medusa::Directory.with_uuid(self.medusa_directory_uuid)
+        @medusa_directory = Medusa::Directory.with_uuid(self.medusa_directory_uuid)
       end
     end
-    @cfs_directory
+    @medusa_directory
   end
 
   ##

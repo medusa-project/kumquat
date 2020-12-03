@@ -167,7 +167,7 @@ class MedusaFreeFormIngesterTest < ActiveSupport::TestCase
       # Delete the items.
       # First we need to nillify some cached information from before the move. TODO: this is messy
       @collection.instance_variable_set('@file_group', nil)
-      @collection.instance_variable_set('@cfs_directory', nil)
+      @collection.instance_variable_set('@medusa_directory', nil)
       result = @ingester.delete_missing_items(@collection)
 
       # Assert that they were deleted.
