@@ -2,6 +2,8 @@ require 'test_helper'
 
 class ItemsHelperTest < ActionView::TestCase
 
+  include SessionsHelper
+
   # viewer_for_binary()
 
   test 'viewer_for_binary() should work with PDFs' do

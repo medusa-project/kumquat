@@ -223,8 +223,12 @@ module ItemsHelper
   def has_viewer?(item)
     return false unless item
     # This logic needs to be kept in sync with viewer_for_item().
-    if item.embed_tag.present? || item.compound?
+    if item.embed_tag.present?
       return true
+    elsif item.compound?
+      binaries = item.all_child_binaries
+      binaries = binaries.where(public: true) unless current_user&.medusa_user?
+      return binaries.count > 0
     end
     binary = item.effective_viewer_binary
     if binary
@@ -1038,7 +1042,18 @@ module ItemsHelper
         item.effective_image_binary&.media_category == Binary::MediaCategory::IMAGE
       return compound_viewer_for(item.parent, item)
     elsif item.compound?
-      return compound_viewer_for(item)
+      binaries = item.all_child_binaries
+      binaries = binaries.where(public: true) unless current_user&.medusa_user?
+      if binaries.count > 0
+        return compound_viewer_for(item)
+      else
+        return raw("<div class=\"alert alert-info mt-4 mb-4\">
+          <i class=\"fa fa-info-circle\"></i>
+          This item's files are private. Please
+          #{link_to('contact the collection\'s curator', curator_mailto(item))}
+          to request access to the files.
+        </div>")
+      end
     else
       binary = item.effective_viewer_binary
       return '' unless binary&.public || current_user&.medusa_user?
