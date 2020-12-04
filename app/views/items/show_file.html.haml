@@ -36,8 +36,7 @@
     #dl-3d-viewer-container.collapse
       = viewer_for_item(@item.three_d_item)
 %section
-  .dl-viewer
-    = viewer_for_item(@item)
+  = viewer_for_item(@item)
   - if has_viewer?(@item)
     .row
       .col-sm-10
