@@ -1,5 +1,7 @@
 %h1.dl-title= @task.status_text
 %dl
+  %dt Class
+  %dd= @task.name
   %dt Task ID
   %dd= @task.id
   %dt Job ID
@@ -18,13 +20,12 @@
   %dt Started
   %dd.dl-started
     = @task.started_at ? local_time_ago(@task.started_at) : ''
-  - if @task.completed_at
-    %dt Completed In
-    %dd
-      = distance_of_time_in_words(@task.created_at, @task.completed_at,
+  %dt Run Time
+  %dd
+    - if @task.running? || @task.terminated?
+      = distance_of_time_in_words(@task.started_at,
+                                  (@task.completed_at || Time.now),
                                   include_seconds: true)
-  %dt Class
-  %dd= @task.name
   - if @task.download
     %dt Downloadable Resource
     %dd

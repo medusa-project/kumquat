@@ -11,6 +11,7 @@
         %th Status
         %th Progress
         %th Started
+        %th Run Time
     %tbody
       - @tasks.each do |task|
         %tr{"data-id" => task.id}
@@ -27,6 +28,11 @@
               (task.percent_complete * 100).round(1).to_s + '%'    |
           %td.dl-started
             = task.started_at ? local_time_ago(task.started_at) : ''
+          %td
+            - if task.running? || task.terminated?
+              = distance_of_time_in_words(task.started_at,
+                                          (task.completed_at || Time.now),
+                                          include_seconds: true)
   .row.justify-content-md-center
     .col-md-auto
       = page_links
