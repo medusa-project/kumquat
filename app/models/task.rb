@@ -14,7 +14,7 @@
 # task.update(status_text: 'Wrapping up', progress: 0.9)
 #
 # # done
-# task.done
+# task.succeeded
 # ```
 #
 # # Attributes
@@ -28,7 +28,7 @@
 # * `job_id`           Deprecated. TODO: remove this
 # * `name`             Name of the task, which does not change over the task's
 #                      lifecycle.
-# * `percent_complete` Float from 0 to 1.
+# * `percent_complete` Float between 0 and 1.
 # * `queue`            ActiveJob queue. Deprecated. TODO: remove this
 # * `started_at`       Start timestamp.
 # * `status`           One of the {Status} constant values.
@@ -93,15 +93,6 @@ class Task < ApplicationRecord
   end
 
   ##
-  # Completes the instance by setting its status to {Status::SUCCEEDED}.
-  #
-  def done
-    self.update!(status: Status::SUCCEEDED)
-  end
-
-  alias_method :succeeded, :done
-
-  ##
   # Fails the instance by setting its status to {Status::FAILED}.
   #
   def fail
@@ -116,6 +107,10 @@ class Task < ApplicationRecord
     self.update!(percent_complete: float.to_f)
   end
 
+  def running?
+    self.status == Status::RUNNING
+  end
+
   def status=(status)
     if self.status != status and status == Status::RUNNING
       self.started_at = Time.now
@@ -126,8 +121,22 @@ class Task < ApplicationRecord
     succeed if status == Status::SUCCEEDED
   end
 
+  ##
+  # Completes the instance by setting its status to {Status::SUCCEEDED}.
+  #
+  def succeeded
+    self.update!(status: Status::SUCCEEDED)
+  end
+
   def succeeded?
     self.status == Status::SUCCEEDED
+  end
+
+  ##
+  # @return [Boolean] Whether the instance is totally done, successful or not.
+  #
+  def terminated?
+    succeeded? || failed?
   end
 
   private
