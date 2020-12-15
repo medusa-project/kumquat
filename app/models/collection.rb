@@ -234,7 +234,8 @@ class Collection < ApplicationRecord
         include_restricted(true).
         include_unpublished(true).
         limit(0)
-    count = finder.count
+    count    = finder.count
+    progress = Progress.new(count)
 
     # Retrieve document IDs in batches.
     index = start = num_deleted = 0
@@ -247,8 +248,7 @@ class Collection < ApplicationRecord
           num_deleted += 1
         end
         index += 1
-        StringUtils.print_progress(start_time, index, count,
-                                   'Deleting stale documents')
+        progress.report(index, 'Deleting stale documents')
       end
       start += limit
     end
@@ -290,11 +290,11 @@ class Collection < ApplicationRecord
   #
   def self.reindex_all(index = nil)
     Collection.uncached do
-      start_time = Time.now
-      count = Collection.count
+      count    = Collection.count
+      progress = Progress.new(count)
       Collection.all.find_each.with_index do |col, i|
         col.reindex(index)
-        StringUtils.print_progress(start_time, i, count, 'Indexing collections')
+        progress.report(i, 'Indexing collections')
       end
     end
   end
@@ -428,15 +428,14 @@ class Collection < ApplicationRecord
   def delete_orphaned_item_documents
     item_ids     = all_indexed_item_ids
     count        = item_ids.length
+    progress     = Progress.new(count)
     orphaned_ids = []
-    start_time   = Time.now
 
     item_ids.each_with_index do |id, index|
       unless Item.find_by_repository_id(id)
         orphaned_ids << id
       end
-      StringUtils.print_progress(start_time, index, count,
-                                 'Finding orphaned documents')
+      progress.report(index, 'Finding orphaned documents')
     end
 
     if orphaned_ids.any?
@@ -762,13 +761,12 @@ class Collection < ApplicationRecord
   def reindex_items
     # Reindex all database items.
     puts "Step 1/2"
-    start_time = Time.now
-    items      = Item.where(collection_repository_id: self.repository_id)
-    count      = items.count
+    items    = Item.where(collection_repository_id: self.repository_id)
+    count    = items.count
+    progress = Progress.new(count)
     items.each_with_index do |item, index|
       item.reindex
-      StringUtils.print_progress(start_time, index, count,
-                                 'Reindexing collection items')
+      progress.report(index, 'Reindexing collection items')
     end
 
     # Delete indexed documents of items no longer present in the database.

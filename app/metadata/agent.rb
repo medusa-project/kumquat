@@ -58,12 +58,12 @@ class Agent < ApplicationRecord
   # @return [void]
   #
   def self.reindex_all(index = nil)
-    count = Agent.count
-    start_time = Time.now
+    count    = Agent.count
+    progress = Progress.new(count)
     Agent.uncached do
       Agent.all.find_each.with_index do |agent, i|
         agent.reindex(index)
-        StringUtils.print_progress(start_time, i, count, 'Indexing agents')
+        progress.report(i, 'Indexing agents')
       end
     end
   end

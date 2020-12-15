@@ -317,7 +317,8 @@ class Item < ApplicationRecord
         include_restricted(true).
         search_children(true).
         limit(0)
-    count = finder.count
+    count    = finder.count
+    progress = Progress.new(count)
 
     # Retrieve document IDs in batches.
     index = start = num_deleted = 0
@@ -330,8 +331,7 @@ class Item < ApplicationRecord
           num_deleted += 1
         end
         index += 1
-        StringUtils.print_progress(start_time, index, count,
-                                   'Deleting stale documents')
+        progress.report(index, 'Deleting stale documents')
       end
       start += limit
     end
@@ -389,12 +389,12 @@ class Item < ApplicationRecord
   # @return [void]
   #
   def self.reindex_all(index = nil)
-    count = Item.count
-    start_time = Time.now
+    count    = Item.count
+    progress = Progress.new(count)
     Item.uncached do
       Item.all.find_each.with_index do |item, i|
         item.reindex(index)
-        StringUtils.print_progress(start_time, i, count, 'Indexing items')
+        progress.report(i, 'Indexing items')
       end
     end
   end
