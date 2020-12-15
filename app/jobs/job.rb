@@ -106,10 +106,10 @@ class Job < ApplicationJob
   # @param e [Exception]
   #
   def fail_task(e)
-    self.task&.update!(status:       Task::Status::FAILED,
-                       completed_at: Time.now,
-                       detail:       "#{e}",
-                       backtrace:    e.backtrace)
+    self.task&.update!(status:     Task::Status::FAILED,
+                       stopped_at: Time.now,
+                       detail:     "#{e}",
+                       backtrace:  e.backtrace)
   end
 
 end

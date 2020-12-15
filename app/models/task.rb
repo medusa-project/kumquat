@@ -20,7 +20,6 @@
 # # Attributes
 #
 # * `backtrace`        Error backtrace.
-# * `completed_at`     Completion timestamp.
 # * `created_at`       Managed by ActiveRecord.
 # * `detail`           Detailed information about the task.
 # * `indeterminate`    When set to `true`, indicates that it is not possible to
@@ -33,6 +32,7 @@
 # * `started_at`       Start timestamp.
 # * `status`           One of the {Status} constant values.
 # * `status_text`      String describing the current status of the task.
+# * `stopped_at`       Time the task stopped, whether successfully or not.
 # * `updated_at`       Managed by ActiveRecord.
 #
 class Task < ApplicationRecord
@@ -156,7 +156,7 @@ class Task < ApplicationRecord
   def succeed
     write_attribute(:status, Status::SUCCEEDED)
     self.percent_complete = 1
-    self.completed_at     = Time.now
+    self.stopped_at       = Time.now
     self.backtrace        = nil
     self.detail           = nil
   end

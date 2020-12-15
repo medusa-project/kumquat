@@ -6,7 +6,7 @@ one:
   status_text: MyString
   job_id: MyString
   percent_complete: 1.5
-  completed_at: 2015-12-15 09:23:43
+  stopped_at: 2015-12-15 09:23:43
 
 two:
   name: MyString
@@ -14,4 +14,4 @@ two:
   status_text: MyString
   job_id: MyString
   percent_complete: 1.5
-  completed_at: 2015-12-15 09:23:43
+  stopped_at: 2015-12-15 09:23:43

@@ -31,7 +31,7 @@
           %td
             - if task.running? || task.terminated?
               = distance_of_time_in_words(task.started_at,
-                                          (task.completed_at || Time.now),
+                                          (task.stopped_at || Time.now),
                                           include_seconds: true)
   .row.justify-content-md-center
     .col-md-auto
