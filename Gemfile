@@ -29,7 +29,7 @@ gem 'pg'
 # See: https://github.com/prawnpdf/prawn/issues/1024
 gem 'prawn', git: 'https://github.com/prawnpdf/prawn.git', ref: '9250c8675342872603332784f77263fcb1cf72a2'
 gem 'puma'
-gem 'rails', '6.0.3.1'
+gem 'rails', '6.1.0'
 gem 'rails_autolink'
 gem 'sassc'
 gem 'scars-bootstrap-theme', git: 'https://github.com/medusa-project/scars-bootstrap-theme.git',

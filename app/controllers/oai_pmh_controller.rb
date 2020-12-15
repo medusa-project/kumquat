@@ -80,9 +80,7 @@ class OaiPmhController < ApplicationController
   #
   def handle
     if @errors.any? # validate_request() may have added some
-      template = 'error.xml.builder'
-      render template
-      return
+      render 'error', formats: :xml, handlers: :builder and return
     end
 
     @metadata_format      = get_metadata_prefix
@@ -109,8 +107,8 @@ class OaiPmhController < ApplicationController
         @errors << { code: 'badVerb', description: 'Illegal verb argument.' }
     end
 
-    template = 'error.xml.builder' if @errors.any?
-    render template
+    template = 'error' if @errors.any?
+    render template, formats: :xml, handlers: :builder
   end
 
   def do_get_record
@@ -122,7 +120,7 @@ class OaiPmhController < ApplicationController
                    description: 'The value of the identifier argument is '\
                        'unknown or illegal in this repository.' }
     end
-    'get_record.xml.builder'
+    'get_record'
   end
 
   def do_identify
@@ -137,12 +135,12 @@ class OaiPmhController < ApplicationController
     else
       @base_url = oai_pmh_url
     end
-    'identify.xml.builder'
+    'identify'
   end
 
   def do_list_identifiers
     @results = preprocessing_for_list_identifiers_or_records
-    'list_identifiers.xml.builder'
+    'list_identifiers'
   end
 
   def do_list_metadata_formats
@@ -161,12 +159,12 @@ class OaiPmhController < ApplicationController
     else
       @metadata_formats = [DC_METADATA_FORMAT, DCTERMS_METADATA_FORMAT]
     end
-    'list_metadata_formats.xml.builder'
+    'list_metadata_formats'
   end
 
   def do_list_records
     @results = preprocessing_for_list_identifiers_or_records
-    'list_records.xml.builder'
+    'list_records'
   end
 
   def do_list_sets
@@ -188,7 +186,7 @@ class OaiPmhController < ApplicationController
     @next_page_available = (@results_offset + MAX_RESULT_WINDOW < @total_num_results)
     @expiration_date     = resumption_token_expiration_date
     @results.limit(MAX_RESULT_WINDOW)
-    'list_sets.xml.builder'
+    'list_sets'
   end
 
   private

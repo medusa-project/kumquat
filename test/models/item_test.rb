@@ -431,6 +431,33 @@ class ItemTest < ActiveSupport::TestCase
     assert_nil @item.element('bogus')
   end
 
+  # elements
+
+  test 'elements must be unique' do
+    @item.elements.destroy_all
+    # These are all unique and should survive.
+    @item.elements.build(name: 'name1', value: 'value1',
+                         vocabulary: vocabularies(:uncontrolled))
+    @item.elements.build(name: 'name1', value: 'value2',
+                         vocabulary: vocabularies(:uncontrolled))
+    @item.elements.build(name: 'name2', value: 'value1',
+                         vocabulary: vocabularies(:uncontrolled))
+    @item.elements.build(name: 'name2', value: 'value2',
+                         vocabulary: vocabularies(:uncontrolled))
+    @item.elements.build(name: 'name3', value: 'value',
+                         vocabulary: vocabularies(:uncontrolled))
+    @item.elements.build(name: 'name3', value: 'value',
+                         vocabulary: vocabularies(:lcsh))
+
+    # One of these should get pruned.
+    @item.elements.build(name: 'prunable', value: 'value',
+                         vocabulary: vocabularies(:uncontrolled))
+    @item.elements.build(name: 'prunable', value: 'value',
+                         vocabulary: vocabularies(:uncontrolled))
+    @item.save!
+    assert_equal 7, @item.elements.count
+  end
+
   # file?()
 
   test 'file?() returns the correct value' do
@@ -668,33 +695,6 @@ class ItemTest < ActiveSupport::TestCase
     ]
     @item.save!
     assert_equal 1, ActionMailer::Base.deliveries.length
-  end
-
-  test 'save() prunes identical elements' do
-    @item.elements.destroy_all
-    # These are all unique and should survive.
-    @item.elements.build(name: 'name1', value: 'value1',
-                         vocabulary: vocabularies(:uncontrolled))
-    @item.elements.build(name: 'name1', value: 'value2',
-                         vocabulary: vocabularies(:uncontrolled))
-    @item.elements.build(name: 'name2', value: 'value1',
-                         vocabulary: vocabularies(:uncontrolled))
-    @item.elements.build(name: 'name2', value: 'value2',
-                         vocabulary: vocabularies(:uncontrolled))
-    @item.elements.build(name: 'name3', value: 'value',
-                         vocabulary: vocabularies(:uncontrolled))
-    @item.elements.build(name: 'name3', value: 'value',
-                         vocabulary: vocabularies(:lcsh))
-
-    # One of these should get pruned.
-    @item.elements.build(name: 'prunable', value: 'value',
-                         vocabulary: vocabularies(:uncontrolled))
-    @item.elements.build(name: 'prunable', value: 'value',
-                         vocabulary: vocabularies(:uncontrolled))
-
-    assert_equal 8, @item.elements.length
-    @item.save!
-    assert_equal 7, @item.elements.count
   end
 
   test 'save() copies allowed_host_groups and denied_host_groups into
