@@ -47,4 +47,5 @@ end
 
 group :production do
   gem "omniauth-rails_csrf_protection"
+  gem 'yarn' # capistrano seems to want this as of Rails 6.1
 end
