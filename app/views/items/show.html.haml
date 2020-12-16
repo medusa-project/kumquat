@@ -48,16 +48,17 @@
               = viewer_for_binary(supp_bin)
             .col-sm-3.dl-metadata
               = metadata_as_list(supp_item)
-  - if has_viewer?(@root_item)
-    .row
-      .col-sm-10
-        = render partial: 'permalink_section', locals: { item: @root_item }
-      .col-sm-2
-        %button#dl-download-button.btn.btn-lg.btn-success{style: "white-space: nowrap"}
-          %i.fa.fa-download
-          Download
-  - else
-    = render partial: 'permalink_section', locals: { item: @root_item }
+  .mt-3
+    - if has_viewer?(@root_item)
+      .row
+        .col-sm-10
+          = render partial: 'permalink_section', locals: { item: @root_item }
+        .col-sm-2
+          %button#dl-download-button.btn.btn-lg.btn-success{style: "white-space: nowrap"}
+            %i.fa.fa-download
+            Download
+    - else
+      = render partial: 'permalink_section', locals: { item: @root_item }
 %section
   = rights_statement(@root_item.effective_rightsstatements_org_statement,
                      @root_item.effective_rights_statement)
