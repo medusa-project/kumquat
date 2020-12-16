@@ -4,6 +4,7 @@
 #
 class Agent < ApplicationRecord
 
+  include Indexed
   include Representable
 
   class IndexFields
@@ -34,13 +35,6 @@ class Agent < ApplicationRecord
 
   validates_presence_of :name
 
-  after_commit :index_in_elasticsearch, on: [:create, :update]
-  after_commit :delete_from_elasticsearch, on: :destroy
-
-  def self.delete_orphaned_documents
-    # TODO: write this
-  end
-
   ##
   # @param id [String]
   # @return [Agent]
@@ -48,24 +42,6 @@ class Agent < ApplicationRecord
   def self.find_by_repository_id(id)
     # This logic must be kept in sync with that of index_id().
     Agent.find(id.gsub(/[^0-9]/, ''))
-  end
-
-  ##
-  # N.B.: Orphaned documents are not deleted; for that, use
-  # {delete_orphaned_documents}.
-  #
-  # @param index [String] Index name. If omitted, the default index is used.
-  # @return [void]
-  #
-  def self.reindex_all(index = nil)
-    count    = Agent.count
-    progress = Progress.new(count)
-    Agent.uncached do
-      Agent.all.find_each.with_index do |agent, i|
-        agent.reindex(index)
-        progress.report(i, 'Indexing agents')
-      end
-    end
   end
 
   ##
@@ -106,27 +82,12 @@ class Agent < ApplicationRecord
   end
 
   ##
-  # @return [String]
-  #
-  def index_id
-    "agent-#{self.id}"
-  end
-
-  ##
   # @return [String, nil] The agent's primary URI, or one if its URIs if none
   #                       are marked as primary; or nil if the agent has no
   #                       URIs.
   #
   def primary_uri
     self.agent_uris.select(&:primary).first&.uri || self.agent_uris.first&.uri
-  end
-
-  ##
-  # @param index [String] Index name. If omitted, the default index is used.
-  # @return [void]
-  #
-  def reindex(index = nil)
-    index_in_elasticsearch(index)
   end
 
   ##
@@ -169,34 +130,6 @@ class Agent < ApplicationRecord
     if self.agent_uris.empty?
       self.agent_uris.build(uri: "urn:uuid:#{SecureRandom.uuid}", primary: true)
     end
-  end
-
-  def delete_from_elasticsearch
-    query = {
-        query: {
-            bool: {
-                filter: [
-                    {
-                        term: {
-                            '_id': self.id
-                        }
-                    }
-                ]
-            }
-        }
-    }
-    ElasticsearchClient.instance.delete_by_query(JSON.generate(query))
-  end
-
-  ##
-  # @param index [String] Index name. If omitted, the default index is used.
-  # @return [void]
-  #
-  def index_in_elasticsearch(index = nil)
-    index ||= Configuration.instance.elasticsearch_index
-    ElasticsearchClient.instance.index_document(index,
-                                                self.repository_id,
-                                                self.as_indexed_json)
   end
 
 end

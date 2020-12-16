@@ -2,6 +2,11 @@ namespace :elasticsearch do
 
   namespace :indexes do
 
+    desc 'Copy one index into another index'
+    task :copy, [:from_index, :to_index] => :environment do |task, args|
+      ElasticsearchClient.instance.reindex(args[:from_index], args[:to_index])
+    end
+
     desc 'Create an index with the current index schema'
     task :create, [:name] => :environment do |task, args|
       ElasticsearchClient.instance.create_index(args[:name])
@@ -34,18 +39,11 @@ namespace :elasticsearch do
       puts ElasticsearchClient.instance.indexes
     end
 
-    desc 'Recreate an index with the current index schema'
-    task :recreate, [:name] => :environment do |task, args|
-      client = ElasticsearchClient.instance
-      client.delete_index(args[:name], false)
-      client.create_index(args[:name])
-    end
+  end
 
-    desc 'Copy the current index into the latest index'
-    task :reindex, [:from_index, :to_index] => :environment do |task, args|
-      ElasticsearchClient.instance.reindex(args[:from_index], args[:to_index])
-    end
-
+  desc 'Purge all documents from the current index'
+  task :purge => :environment do
+    ElasticsearchClient.instance.purge
   end
 
   desc 'Execute an arbitrary query'
@@ -61,6 +59,16 @@ namespace :elasticsearch do
             index,
             file_path)
     puts 'cURL equivalent: ' + curl_cmd
+  end
+
+  desc 'Reindex all database entities'
+  task :reindex, [:num_threads] => :environment do |task, args|
+    # N.B.: orphaned documents are not deleted.
+    num_threads = args[:num_threads].to_i
+    num_threads = 1 if num_threads == 0
+    Agent.reindex_all(num_threads: num_threads)
+    Collection.reindex_all(num_threads: num_threads)
+    Item.reindex_all(num_threads: num_threads)
   end
 
 end

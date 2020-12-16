@@ -46,9 +46,9 @@ module Admin
       raise ActiveRecord::RecordNotFound unless collection
 
       item_set = ItemSet.find(params[:item_set])
-      finder   = querying_item_finder_for(collection)
-      results  = finder.to_a
-      count    = finder.count
+      relation = querying_item_relation_for(collection)
+      results  = relation.to_a
+      count    = relation.count
       begin
         results.each do |item|
           item_set.add_item(item)
@@ -71,8 +71,8 @@ module Admin
       col = Collection.find_by_repository_id(params[:collection_id])
       raise ActiveRecord::RecordNotFound unless col
       begin
-        finder = editing_item_finder_for(col)
-        BatchChangeItemMetadataJob.perform_later(finder.to_a.select{ |e| e },
+        relation = editing_item_relation_for(col)
+        BatchChangeItemMetadataJob.perform_later(relation.to_a.select(&:present?),
                                                  params[:element].to_s,
                                                  params[:replace_values].map(&:to_unsafe_hash))
       rescue => e
@@ -134,17 +134,16 @@ module Admin
       # In both cases, results must include children.
       if params[:item_set]
         @item_set = ItemSet.find(params[:item_set])
-        finder = ItemFinder.new.
-            filter(Item::IndexFields::REPOSITORY_ID,
-                   @item_set.items.pluck(:repository_id))
+        relation = Item.search.filter(Item::IndexFields::REPOSITORY_ID,
+                                      @item_set.items.pluck(:repository_id))
       else
-        finder = ItemFinder.new.
+        relation = Item.search.
             collection(@collection).
             query(params[:df], params[:q]).
             facet_filters(params[:fq])
       end
 
-      finder = finder.
+      relation.
           aggregations(false).
           include_unpublished(true).
           include_restricted(true).
@@ -153,9 +152,9 @@ module Admin
           start(@start).
           limit(@limit)
 
-      @items = finder.to_a
-      @current_page = finder.page
-      @count = finder.count
+      @items        = relation.to_a
+      @current_page = relation.page
+      @count        = relation.count
 
       respond_to do |format|
         format.html
@@ -173,14 +172,13 @@ module Admin
       @start = params[:start] ? params[:start].to_i : 0
       @limit = Option::integer(Option::Keys::DEFAULT_RESULT_WINDOW)
 
-      finder = querying_item_finder_for(@collection, @start, @limit)
-      @items = finder.to_a
-      @facets = finder.facets
-
-      @current_page = finder.page
-      @count = finder.count
+      relation           = querying_item_relation_for(@collection, @start, @limit)
+      @items             = relation.to_a
+      @facets            = relation.facets
+      @current_page      = relation.page
+      @count             = relation.count
       @num_results_shown = [@limit, @count].min
-      @metadata_profile = @collection.effective_metadata_profile
+      @metadata_profile  = @collection.effective_metadata_profile
 
       respond_to do |format|
         format.html
@@ -253,8 +251,8 @@ module Admin
       col = Collection.find_by_repository_id(params[:collection_id])
       raise ActiveRecord::RecordNotFound unless col
       begin
-        finder = editing_item_finder_for(col)
-        MigrateItemMetadataJob.perform_later(finder.to_a.select{ |e| e },
+        relation = editing_item_relation_for(col)
+        MigrateItemMetadataJob.perform_later(relation.select(&:present?),
                                              params[:source_element],
                                              params[:dest_element])
       rescue => e
@@ -323,8 +321,8 @@ module Admin
       col = Collection.find_by_repository_id(params[:collection_id])
       raise ActiveRecord::RecordNotFound unless col
       begin
-        finder = editing_item_finder_for(col)
-        ReplaceItemMetadataJob.perform_later(finder.to_a.select{ |e| e },
+        relation = editing_item_relation_for(col)
+        ReplaceItemMetadataJob.perform_later(relation.select(&:present?),
                                              params[:matching_mode],
                                              params[:find_value],
                                              params[:element],
@@ -492,8 +490,8 @@ module Admin
 
     private
 
-    def editing_item_finder_for(collection)
-      ItemFinder.new.
+    def editing_item_relation_for(collection)
+      Item.search.
           collection(collection).
           query(params[:df], params[:q]).
           search_children(false).
@@ -504,9 +502,10 @@ module Admin
           aggregations(false)
     end
 
-    def querying_item_finder_for(collection, start = 0,
-                                 limit = ElasticsearchClient::MAX_RESULT_WINDOW)
-      ItemFinder.new.
+    def querying_item_relation_for(collection,
+                                   start = 0,
+                                   limit = ElasticsearchClient::MAX_RESULT_WINDOW)
+      Item.search.
           collection(collection).
           query(params[:df], params[:q]).
           search_children(false).
@@ -535,9 +534,9 @@ module Admin
         if params[:id].respond_to?(:any?) and params[:id].any?
           ids = params[:id]
         else
-          finder = editing_item_finder_for(col)
-          items  = finder.to_a.select{ |i| i }
-          ids    = items.map(&:repository_id)
+          relation = editing_item_relation_for(col)
+          items    = relation.to_a.select(&:present?)
+          ids      = items.map(&:repository_id)
         end
         Item.where('repository_id IN (?)', ids)
             .update_all(published: publish)

@@ -11,7 +11,7 @@ module Api
       @limit = DEFAULT_RESULTS_LIMIT if @limit < 1
       @limit = MAX_RESULTS_LIMIT if @limit > MAX_RESULTS_LIMIT
 
-      finder = CollectionFinder.new.
+      relation = Collection.search.
           aggregations(false).
           search_children(true).
           include_unpublished(true).
@@ -21,8 +21,8 @@ module Api
           order(Collection::IndexFields::TITLE).
           start(@start).
           limit(@limit)
-      @count = finder.count
-      @collections = finder.to_a
+      @count       = relation.count
+      @collections = relation.to_a
 
       render json: {
           start: @start,

@@ -135,7 +135,7 @@ module ItemsHelper
   #
   def compound_object_binary_info_table(item)
     binaries = item.binaries
-    subitems = item.finder.to_a
+    subitems = item.search_children.to_a
     html = StringIO.new
     if subitems.any? or binaries.any?
       html << '<table class="table">'
@@ -1183,7 +1183,7 @@ module ItemsHelper
 
       # If the object contains more than this many items, disable the gallery
       # view to allow the UI to load in a reasonable amount of time.
-      items = object.finder.limit(999)
+      items = object.search_children.limit(999)
       if items.count > 800
         return image_viewer_for(selected_item)
       end

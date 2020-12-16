@@ -1,9 +1,9 @@
 ##
-# Abstract base class for type-specific "finders," which are objects that
+# Abstract base class for type-specific "relations," which are objects that
 # simplify Elasticsearch queries (which can be pretty complex & awkward) using
-# the Builder pattern.
+# the Builder pattern, similar to {ActiveRecord::Relation}.
 #
-class AbstractFinder
+class AbstractRelation
 
   attr_reader :request_json, :response_json
 

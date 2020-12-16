@@ -13,12 +13,12 @@ class CollectionTest < ActiveSupport::TestCase
     collections = Collection.all.limit(5)
     collections.each(&:reindex)
     refresh_elasticsearch
-    count = CollectionFinder.new.count
+    count = Collection.search.count
     assert count > 0
 
-    Collection.delete_document(collections.first.repository_id)
+    Collection.delete_document(collections.first.index_id)
     refresh_elasticsearch
-    assert_equal count - 1, CollectionFinder.new.count
+    assert_equal count - 1, Collection.search.count
   end
 
   # Collection.delete_orphaned_documents()
@@ -34,7 +34,7 @@ class CollectionTest < ActiveSupport::TestCase
     Collection.delete_orphaned_documents
     refresh_elasticsearch
 
-    assert_equal count - 1, CollectionFinder.new.count
+    assert_equal count - 1, Collection.search.count
   end
 
   # from_medusa()
@@ -58,7 +58,7 @@ class CollectionTest < ActiveSupport::TestCase
   test 'reindex_all() reindexes all collections' do
     setup_elasticsearch
 
-    assert_equal 0, CollectionFinder.new.
+    assert_equal 0, Collection.search.
         include_unpublished(true).
         include_restricted(true).
         count
@@ -66,7 +66,7 @@ class CollectionTest < ActiveSupport::TestCase
     Collection.reindex_all
     refresh_elasticsearch
 
-    actual = CollectionFinder.new.
+    actual = Collection.search.
         include_unpublished(true).
         include_restricted(true).
         count
@@ -171,7 +171,7 @@ class CollectionTest < ActiveSupport::TestCase
   test 'delete_orphaned_item_documents() works' do
     @collection.items.each(&:reindex)
     refresh_elasticsearch
-    assert_equal 5, ItemFinder.new.
+    assert_equal 5, Item.search.
         include_unpublished(true).
         include_restricted(true).
         include_children_in_results(true).
@@ -182,7 +182,7 @@ class CollectionTest < ActiveSupport::TestCase
     @collection.delete_orphaned_item_documents
     refresh_elasticsearch
 
-    assert_equal 4, ItemFinder.new.
+    assert_equal 4, Item.search.
         include_unpublished(true).
         include_restricted(true).
         include_children_in_results(true).
@@ -492,20 +492,20 @@ class CollectionTest < ActiveSupport::TestCase
   # reindex()
 
   test 'reindex reindexes the instance' do
-    assert_equal 0, CollectionFinder.new.
+    assert_equal 0, Collection.search.
         filter(Collection::IndexFields::REPOSITORY_ID, @collection.repository_id).count
 
     @collection.reindex
     refresh_elasticsearch
 
-    assert_equal 1, CollectionFinder.new.
+    assert_equal 1, Collection.search.
         filter(Collection::IndexFields::REPOSITORY_ID, @collection.repository_id).count
   end
 
   # reindex_items
 
   test 'reindex_items works' do
-    assert_equal 0, ItemFinder.new.
+    assert_equal 0, Item.search.
         collection(@collection).
         include_unpublished(true).
         include_restricted(true).
@@ -515,7 +515,7 @@ class CollectionTest < ActiveSupport::TestCase
     @collection.reindex_items
     refresh_elasticsearch
 
-    assert_equal 5, ItemFinder.new.
+    assert_equal 5, Item.search.
         collection(@collection).
         include_unpublished(true).
         include_restricted(true).

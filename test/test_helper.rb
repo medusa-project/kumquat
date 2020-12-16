@@ -7,9 +7,7 @@ class ActiveSupport::TestCase
   fixtures :all
 
   def refresh_elasticsearch
-    client = ElasticsearchClient.instance
-    client.refresh(Configuration.instance.elasticsearch_index)
-    sleep 0.5 # is this necessary?
+    ElasticsearchClient.instance.refresh
   end
 
   def setup_elasticsearch

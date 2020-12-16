@@ -33,7 +33,7 @@ module Api
       @limit = DEFAULT_RESULTS_LIMIT if @limit < 1
       @limit = MAX_RESULTS_LIMIT if @limit > MAX_RESULTS_LIMIT
 
-      finder = ItemFinder.new.
+      relation = Item.search.
           collection(Collection.find_by_repository_id(params[:collection_id])).
           query_all(params[:q]).
           aggregations(false).
@@ -45,10 +45,9 @@ module Api
           start(@start).
           limit(@limit)
 
-      @items = finder.to_a
-
-      @current_page = finder.page
-      @count = finder.count
+      @items             = relation.to_a
+      @current_page      = relation.page
+      @count             = relation.count
       @num_results_shown = [@limit, @count].min
 
       render json: {

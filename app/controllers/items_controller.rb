@@ -177,7 +177,7 @@ class ItemsController < WebsiteController
     case @sequence_name
       when 'item'
         if @item.items.count > 0
-          @start_canvas_item = @item.finder.limit(1).first
+          @start_canvas_item = @item.search_children.limit(1).first
           render 'items/iiif_presentation_api/sequence',
                  formats: :json,
                  content_type: 'application/json'
@@ -225,25 +225,25 @@ class ItemsController < WebsiteController
                   status: 303 and return
     end
 
-    finder             = item_finder_for(params)
-    @items             = finder.to_a
-    @facets            = finder.facets
-    @current_page      = finder.page
-    @count             = finder.count
-    @start             = finder.get_start
-    @limit             = finder.get_limit
-    @es_request_json   = finder.request_json
-    @es_response_json  = finder.response_json
+    relation           = item_relation_for(params)
+    @items             = relation.to_a
+    @facets            = relation.facets
+    @current_page      = relation.page
+    @count             = relation.count
+    @start             = relation.get_start
+    @limit             = relation.get_limit
+    @es_request_json   = relation.request_json
+    @es_response_json  = relation.response_json
     @num_results_shown = [@limit, @count].min
     @metadata_profile  = @collection&.effective_metadata_profile ||
         MetadataProfile.default
 
     # If there are no results, get some search suggestions.
-    if @count < 1 and params[:q].present?
-      @suggestions = finder.suggestions
+    if @count < 1 && params[:q].present?
+      @suggestions = relation.suggestions
     end
 
-    download_finder = ItemFinder.new.
+    download_relation = Item.search.
         host_groups(client_host_groups).
         collection(@collection).
         facet_filters(params[:fq]).
@@ -254,15 +254,15 @@ class ItemsController < WebsiteController
         start(params[:download_start]).
         limit(0)
     if params[:field]
-      download_finder.query(params[:field], params[:q], true)
+      download_relation.query(params[:field], params[:q], true)
     else
-      download_finder.query_all(params[:q])
+      download_relation.query_all(params[:q])
     end
     if @collection&.medusa_directory
-      download_finder = download_finder.parent_item(@collection.root_item)
+      download_relation = download_relation.parent_item(@collection.root_item)
     end
-    @num_downloadable_items = download_finder.count
-    @total_byte_size = download_finder.total_byte_size
+    @num_downloadable_items = download_relation.count
+    @total_byte_size = download_relation.total_byte_size
 
     respond_to do |format|
       format.html do
@@ -288,16 +288,16 @@ class ItemsController < WebsiteController
           }
       end
       format.zip do
-        download_finder.limit((params[:limit].to_i > 0) ?
+        download_relation.limit((params[:limit].to_i > 0) ?
                                   params[:limit].to_i : ElasticsearchClient::MAX_RESULT_WINDOW)
 
         # Use the Medusa Downloader to generate a zip of items from
-        # download_finder. It takes the downloader time to generate the zip
+        # download_relation. It takes the downloader time to generate the zip
         # file manifest, which would block the web server if we did it here,
         # so the strategy is to do it using the asynchronous download feature,
         # and then stream the zip out to the user via the download button when
         # it's ready to start streaming.
-        item_ids = download_finder.to_a.map(&:repository_id)
+        item_ids = download_relation.to_a.map(&:repository_id)
 
         if item_ids.any?
           start = params[:download_start].to_i + 1
@@ -336,13 +336,13 @@ class ItemsController < WebsiteController
           # browser and should render either a show-file or show-directory
           # template with no layout.
           if request.xhr?
-            download_finder = @item.finder.
+            download_relation = @item.search_children.
                 exclude_variants(*Item::Variants::DIRECTORY)
             # If the item is a directory, its contents are downloadable.
             # Otherwise, it's a file and it itself is downloadable.
             @downloadable_items  = @item.directory? ?
-                                     download_finder.to_a : [@item]
-            @total_byte_size     = download_finder.total_byte_size
+                                     download_relation.to_a : [@item]
+            @total_byte_size     = download_relation.total_byte_size
             @show_zip_of_masters = @item.directory?
             @show_zip_of_jpegs   = @show_pdf = false
 
@@ -385,9 +385,9 @@ class ItemsController < WebsiteController
                       @selected_item.root_parent : @selected_item
 
           # All items within the containing item are downloadable.
-          finder              = @containing_item.finder
-          @total_byte_size    = finder.total_byte_size
-          @downloadable_items = finder.to_a
+          relation            = @containing_item.search_children
+          @total_byte_size    = relation.total_byte_size
+          @downloadable_items = relation.to_a
 
           # Determine which, if any, of the various download buttons should
           # appear.
@@ -421,8 +421,8 @@ class ItemsController < WebsiteController
             elsif session[:last_result_id] == @root_item.repository_id
               query[:start] = query[:start].to_i + limit / 2.0
             end
-            finder  = item_finder_for(query)
-            results = finder.to_a
+            relation  = item_relation_for(query)
+            results = relation.to_a
             results.each_with_index do |result, index|
               if result.repository_id == @containing_item.repository_id
                 @previous_result = results[index - 1] if index - 1 >= 0
@@ -474,12 +474,12 @@ class ItemsController < WebsiteController
           end
         elsif @item.file?
           if @item.parent
-            items = @item.parent.finder.
+            items = @item.parent.search_children.
                 host_groups(client_host_groups).
                 include_variants(*Item::Variants::FILE).
                 include_children_in_results(true).to_a
           else
-            items = ItemFinder.new
+            items = Item.search
                         .aggregations(false)
                         .host_groups(client_host_groups)
                         .collection(@item.collection)
@@ -489,7 +489,7 @@ class ItemsController < WebsiteController
           end
           zip_name = 'files'
         else
-          items = @item.finder.
+          items = @item.search_children.
               host_groups(client_host_groups).
               include_children_in_results(true).to_a + [@item]
           zip_name = 'item'
@@ -534,13 +534,13 @@ class ItemsController < WebsiteController
       format.html do
         if @collection.free_form?
           if request.xhr?
-            download_finder = ItemFinder.new.
+            download_relation = Item.search.
                 host_groups(client_host_groups).
                 collection(@collection).
                 include_children_in_results(true).
                 aggregations(false)
-            @num_downloadable_items = download_finder.count
-            @total_byte_size = download_finder.total_byte_size
+            @num_downloadable_items = download_relation.count
+            @total_byte_size = download_relation.total_byte_size
             @num_directories = @collection.items.
                 where(variant: Item::Variants::DIRECTORY).count
             @num_files = @collection.items.
@@ -574,9 +574,9 @@ class ItemsController < WebsiteController
     raise ActiveRecord::RecordNotFound unless @collection
     authorize(@collection)
 
-    @start = params[:start].to_i
-    finder = item_finder_for(params).order(Item::IndexFields::STRUCTURAL_SORT)
-    @items = finder.to_a
+    @start    = params[:start].to_i
+    relation  = item_relation_for(params).order(Item::IndexFields::STRUCTURAL_SORT)
+    @items    = relation.to_a
     tree_data = @items.map { |item| item_tree_hash(item) }
 
     render json: create_tree_root(tree_data, @collection)
@@ -589,7 +589,7 @@ class ItemsController < WebsiteController
   # Responds to GET /items/:id/treedata
   #
   def item_tree_node
-    render json: @item.finder.to_a.map { |child| item_tree_hash(child) }
+    render json: @item.search_children.map { |child| item_tree_hash(child) }
   end
 
 
@@ -633,15 +633,15 @@ class ItemsController < WebsiteController
   end
 
   ##
-  # Returns an ItemFinder for the given query (either params or parsed out of
-  # the request URI) and saves its builder arguments to the session. This is
+  # Returns an {ItemRelation} for the given query (either params or parsed out
+  # of the request URI) and saves its builder arguments to the session. This is
   # so that a similar instance can be constructed in show-item view to enable
   # paging through the results.
   #
   # @param query [ActionController::Parameters, Hash]
-  # @return [ItemFinder]
+  # @return [ItemRelation]
   #
-  def item_finder_for(query)
+  def item_relation_for(query)
     session[:collection_id] = query[:collection_id]
     session[:field]         = query[:field]
     session[:q]             = query[:q]
@@ -660,7 +660,7 @@ class ItemsController < WebsiteController
       sort = el.indexed_sort_field if el
     end
 
-    finder = ItemFinder.new.
+    relation = Item.search.
         host_groups(client_host_groups).
         collection(@collection).
         facet_filters(session[:fq]).
@@ -669,11 +669,11 @@ class ItemsController < WebsiteController
 
     # display=leaves is used in free-form collections to show files flattened.
     if params[:display] == 'leaves'
-      finder.search_children(true).
+      relation.search_children(true).
           include_variants(Item::Variants::FILE).
           limit(session[:limit])
     else
-      finder.search_children(@collection&.package_profile != PackageProfile::FREE_FORM_PROFILE).
+      relation.search_children(@collection&.package_profile != PackageProfile::FREE_FORM_PROFILE).
           exclude_variants(*Item::Variants::non_filesystem_variants).
           limit(@collection&.free_form? ?
                     ElasticsearchClient::MAX_RESULT_WINDOW : session[:limit])
@@ -683,11 +683,11 @@ class ItemsController < WebsiteController
     # metadata element (i.e. when the search button next to a metadata value
     # in show-item view is clicked).
     if session[:field]
-      finder.query(session[:field], session[:q], true)
+      relation.query(session[:field], session[:q], true)
     else
-      finder.query_all(session[:q])
+      relation.query_all(session[:q])
     end
-    finder
+    relation
   end
 
   def load_item

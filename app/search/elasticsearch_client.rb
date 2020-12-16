@@ -10,12 +10,20 @@ class ElasticsearchClient
   CONTENT_TYPE = 'application/json'
 
   # Field values should be truncated to this length.
-  # (32766 total / 3 bytes per character)
-  MAX_KEYWORD_FIELD_LENGTH = 10922
+  # (total / bytes per character)
+  MAX_KEYWORD_FIELD_LENGTH = 32766 / 3
 
-  # Default is 10,000. This should remain in sync with the same value in the
-  # schema YAML.
+  # Default is 10,000. ES wants you to use the paging API instead, but
+  # whatever.
+  # This should remain in sync with the same value in the schema YAML.
   MAX_RESULT_WINDOW = 1000000000
+
+  ##
+  # These characters should not be used in queries (or field names, which may
+  # be specified in queries). See
+  # [Query string query](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html).
+  #
+  RESERVED_CHARACTERS = /[+-=&|><!(){}\[\]^"~*?:\\]/
 
   def initialize
     @http_client = HTTPClient.new
@@ -136,7 +144,6 @@ class ElasticsearchClient
   # @return [Hash, nil]
   #
   def get_document(index_name, id)
-    LOGGER.debug('get_document(): %s/%s', index_name, id)
     url = sprintf('%s/%s/entity/%s',
                   Configuration.instance.elasticsearch_endpoint,
                   index_name, id)
@@ -159,7 +166,6 @@ class ElasticsearchClient
   # @raises [IOError]     If Elasticsearch returns an error response.
   #
   def index_document(index, id, doc)
-    LOGGER.debug('index_document(): %s/%s', index, id)
     url = sprintf('%s/%s/entity/%s', # in ES 7, `entity` changes to `_doc`
                   Configuration.instance.elasticsearch_endpoint,
                   index, id)
@@ -192,6 +198,15 @@ class ElasticsearchClient
                   Configuration.instance.elasticsearch_endpoint)
     response = @http_client.get(url, nil, 'Content-Type': CONTENT_TYPE)
     response.body
+  end
+
+  ##
+  # Deletes all documents from the index.
+  #
+  # @return [String] Response body.
+  #
+  def purge
+    delete_by_query(JSON.generate({ query: { match_all: {} }}))
   end
 
   ##
@@ -241,7 +256,9 @@ class ElasticsearchClient
   # @param index [String]
   # @return [void]
   #
-  def refresh(index)
+  def refresh(index = nil)
+    config = Configuration.instance
+    index ||= config.elasticsearch_index
     url = sprintf('%s/%s/_refresh',
                   Configuration.instance.elasticsearch_endpoint,
                   index)

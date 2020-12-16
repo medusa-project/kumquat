@@ -33,22 +33,20 @@ class EntityElement < ApplicationRecord
     if elements.to_a.map(&:name).uniq.length > 1
       raise ArgumentError, 'Elements must all have the same name'
     end
-
     values = []
     elements.each do |e|
       string = e.value
-      if string.present? and e.vocabulary and
-          e.vocabulary != Vocabulary::uncontrolled
+      if string.present? && e.vocabulary && e.vocabulary != Vocabulary::uncontrolled
         string = "#{e.vocabulary.key}:#{string}"
       end
       uri = e.uri
       if uri.present?
         uri = "<#{uri}>"
       end
-      if string.present? and uri.present?
+      if string.present? && uri.present?
         string = "#{string}#{ItemTsvExporter::URI_VALUE_SEPARATOR}#{uri}"
       end
-      if string.blank? and uri.present?
+      if string.blank? && uri.present?
         string = uri
       end
       if string.present?
@@ -70,9 +68,9 @@ class EntityElement < ApplicationRecord
   end
 
   def as_json(options = {})
-    struct = super(options)
-    struct['string'] = self.value
-    struct['uri'] = self.uri
+    struct               = super(options)
+    struct['string']     = self.value
+    struct['uri']        = self.uri
     struct['vocabulary'] = self.vocabulary&.key || Vocabulary::uncontrolled.key
     struct.except('value')
   end
@@ -82,7 +80,8 @@ class EntityElement < ApplicationRecord
   # @see indexed_keyword_field
   #
   def indexed_field
-    [INDEX_FIELD_PREFIX, self.name].join
+    [INDEX_FIELD_PREFIX,
+     self.name.gsub(ElasticsearchClient::RESERVED_CHARACTERS, "_")].join
   end
 
   ##
@@ -90,7 +89,9 @@ class EntityElement < ApplicationRecord
   # @see indexed_field
   #
   def indexed_keyword_field
-    [INDEX_FIELD_PREFIX, self.name, KEYWORD_FIELD_SUFFIX].join
+    [INDEX_FIELD_PREFIX,
+     self.name.gsub(ElasticsearchClient::RESERVED_CHARACTERS, "_"),
+     KEYWORD_FIELD_SUFFIX].join
   end
 
   ##
@@ -98,19 +99,23 @@ class EntityElement < ApplicationRecord
   # @see indexed_field
   #
   def indexed_sort_field
-    [INDEX_FIELD_PREFIX, self.name, SORT_FIELD_SUFFIX].join
+    [INDEX_FIELD_PREFIX,
+     self.name.gsub(ElasticsearchClient::RESERVED_CHARACTERS, "_"),
+     SORT_FIELD_SUFFIX].join
   end
 
   ##
   # @return [String] Name of the parent indexed field for the instance.
   #
   def parent_indexed_field
-    [INDEX_FIELD_PREFIX, 'parent_', self.name].join
+    [INDEX_FIELD_PREFIX,
+     'parent_',
+     self.name.gsub(ElasticsearchClient::RESERVED_CHARACTERS, "_")].join
   end
 
   def serializable_hash(opts)
     opts ||= {}
-    super(opts.merge(only: [ :name, :value ]))
+    super(opts.merge(only: [:name, :value]))
   end
 
   def to_s

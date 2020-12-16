@@ -15,22 +15,22 @@
 # # Identifiers
 #
 # Medusa is not item-aware; items are a DLS entity. Item IDs correspond to
-# Medusa file/directory IDs depending on a collection's package profile. These
-# IDs are stored in `repository_id`, **not** `id`, which is only used by
+# Medusa file/directory UUIDs depending on a collection's package profile.
+# These IDs are stored in `repository_id`, **not** `id`, which is only used by
 # ActiveRecord.
 #
-# Items have a soft pointer to their collection and parent item based on
-# repository ID, rather than a `belongs_to`/`has_many` on their database ID.
+# Items have a soft pointer to their owning {Collection} and parent item based
+# on repository ID, rather than a `belongs_to`/`has_many` on their database ID.
 # This is in order to establish structure outside of the application.
 # Repository IDs are the same in all instances of the application that use the
 # same Medusa content.
 #
 # # Description
 #
-# Items have a number of properties of their own as well as a one-to-many
-# relationship with {ItemElement}, which encapsulates a metadata element.
-# Properties are used by the system, and {ItemElement}s contain free-form
-# strings and/or URIs.
+# Items have a number of properties of their own (see below) as well as a
+# one-to-many relationship with {ItemElement}, which encapsulates a metadata
+# element. The general distinction is that properties are used by the system,
+# and {ItemElement}s are used for description.
 #
 # ## Properties
 #
@@ -59,8 +59,9 @@
 # Items are searchable via ActiveRecord as well as via Elasticsearch. A low-
 # level interface to Elasticsearch is provided by ElasticsearchClient, but
 # in most cases, it's better to use the higher-level query interface provided
-# by {ItemFinder}, which is easier to use, and takes authorization, public
-# visiblity, etc. into account.
+# by {ItemRelation}, which is easier to use, and takes authorization, public
+# visiblity, etc. into account. (An instance of {ItemRelation} can be obtained
+# from {search}.)
 #
 # **IMPORTANT**: Instances are automatically indexed in Elasticsearch (see
 # `as_indexed_json()`) upon transaction commit. They are **not** indexed on
@@ -107,7 +108,9 @@
 #                              single page of a physical object.
 # * `updated_at`               Managed by ActiveRecord.
 # * `variant`                  Like a subclass. Used to differentiate types of
-#                              items.
+#                              items. The only items without a variant are
+#                              "compound objects", or parent items with non-
+#                              file/directory-variant child items.
 #
 # ## Attribute Propagation
 #
@@ -120,6 +123,7 @@ class Item < ApplicationRecord
 
   include AuthorizableByHost
   include Describable
+  include Indexed
   include Representable
 
   ##
@@ -274,75 +278,11 @@ class Item < ApplicationRecord
               :prune_identical_elements, :set_effective_host_groups,
               :set_normalized_coords, :set_normalized_date
 
-  after_commit :index_in_elasticsearch, on: [:create, :update]
-  after_commit :delete_from_elasticsearch, on: :destroy
-
-  ##
-  # Normally this method should not be used except to delete "orphaned"
-  # documents with no database counterpart. See the class documentation for
-  # information about correct document deletion.
-  #
-  def self.delete_document(repository_id)
-    query = {
-        query: {
-            bool: {
-                filter: [
-                    {
-                        term: {
-                            Item::IndexFields::REPOSITORY_ID => repository_id
-                        }
-                    }
-                ]
-            }
-        }
-    }
-    ElasticsearchClient.instance.delete_by_query(JSON.generate(query))
-  end
-
-  ##
-  # Iterates through all indexed Item documents and deletes any for which no
-  # counterpart exists in the database.
-  #
-  # Normally this method should not be used except to delete orphaned documents
-  # with no database counterpart. See the class documentation for info about
-  # how documents are normally deleted.
-  #
-  def self.delete_orphaned_documents
-    start_time = Time.now
-
-    # Get the document count.
-    finder = ItemFinder.new.
-        aggregations(false).
-        include_unpublished(true).
-        include_restricted(true).
-        search_children(true).
-        limit(0)
-    count    = finder.count
-    progress = Progress.new(count)
-
-    # Retrieve document IDs in batches.
-    index = start = num_deleted = 0
-    limit = 1000
-    while start < count do
-      ids = finder.start(start).limit(limit).to_id_a
-      ids.each do |id|
-        unless Item.exists?(repository_id: id)
-          Item.delete_document(id)
-          num_deleted += 1
-        end
-        index += 1
-        progress.report(index, 'Deleting stale documents')
-      end
-      start += limit
-    end
-    puts "\nDeleted #{num_deleted} documents"
-  end
-
   ##
   # @return [Integer]
   #
   def self.num_free_form_files
-    ItemFinder.new.
+    Item.search.
         include_variants(*Variants::FILE).
         aggregations(false).
         include_unpublished(true).
@@ -356,7 +296,7 @@ class Item < ApplicationRecord
   # @return [Integer]
   #
   def self.num_free_form_items
-    ItemFinder.new.
+    Item.search.
         include_variants(Variants::FILE, Variants::DIRECTORY).
         aggregations(false).
         search_children(true).
@@ -371,7 +311,7 @@ class Item < ApplicationRecord
   #                   {Variants::FILE files} and items with no parent.
   #
   def self.num_objects
-    num_free_form_files + ItemFinder.new.
+    num_free_form_files + Item.search.
         aggregations(false).
         include_unpublished(true).
         include_restricted(true).
@@ -379,24 +319,6 @@ class Item < ApplicationRecord
         exclude_variants(Variants::FILE, Variants::DIRECTORY).
         limit(0).
         count
-  end
-
-  ##
-  # N.B.: Orphaned documents are not deleted; for that, use
-  # {delete_orphaned_documents}.
-  #
-  # @param index [String] Index name. If omitted, the default index is used.
-  # @return [void]
-  #
-  def self.reindex_all(index = nil)
-    count    = Item.count
-    progress = Progress.new(count)
-    Item.uncached do
-      Item.all.find_each.with_index do |item, i|
-        item.reindex(index)
-        progress.report(i, 'Indexing items')
-      end
-    end
   end
 
   ##
@@ -765,7 +687,7 @@ class Item < ApplicationRecord
         if self.variant == Variants::SUPPLEMENT
           bin = self.binaries.first
         elsif self.compound?
-          first_child = self.finder.
+          first_child = self.search_children.
               include_restricted(true).
               include_unpublished(true).
               limit(1).
@@ -916,7 +838,7 @@ class Item < ApplicationRecord
         if self.variant == Variants::SUPPLEMENT
           bin = self.binaries.first
         elsif self.compound?
-          bin = self.finder.limit(1).to_a.first&.effective_image_binary
+          bin = self.search_children.limit(1).to_a.first&.effective_image_binary
         end
         if !bin or !bin.image_server_safe?
           [
@@ -1012,19 +934,6 @@ class Item < ApplicationRecord
   end
 
   ##
-  # @return [ItemFinder] ItemFinder initialized to search for child items.
-  #
-  def finder
-    ItemFinder.new.
-        parent_item(self).
-        aggregations(false).
-        include_children_in_results(true).
-        search_children(true).
-        include_restricted(true).
-        order(Item::IndexFields::STRUCTURAL_SORT)
-  end
-
-  ##
   # Transactionally migrates elements with the given source name to new
   # elements with the given destination name, and then deletes the source
   # elements.
@@ -1051,11 +960,11 @@ class Item < ApplicationRecord
 
 =begin
   ##
-  # @return [ItemFinder] ItemFinder initialized to return all children with a
-  #                      {Variants::PAGE page variant}.
+  # @return [ItemRelation] New instance initialized to return all children with
+  #                        a {Variants::PAGE page variant}.
   #
   def pages TODO: why is this so slow?
-    self.finder.include_variants(Variants::PAGE).
+    self.search_children.include_variants(Variants::PAGE).
         order(IndexFields::PAGE_NUMBER).
         order(IndexFields::SUBPAGE_NUMBER)
   end
@@ -1129,14 +1038,6 @@ class Item < ApplicationRecord
   end
 
   ##
-  # @param index [String] Index name. If omitted, the default index is used.
-  # @return [void]
-  #
-  def reindex(index = nil)
-    index_in_elasticsearch(index)
-  end
-
-  ##
   # @return [String] Filename of the representative binary.
   #
   def representative_filename
@@ -1183,6 +1084,19 @@ class Item < ApplicationRecord
       return all_parents.last
     end
     self
+  end
+
+  ##
+  # @return [ItemRelation] New instance initialized to search for child items.
+  #
+  def search_children
+    Item.search.
+      parent_item(self).
+      aggregations(false).
+      include_children_in_results(true).
+      search_children(true).
+      include_restricted(true).
+      order(Item::IndexFields::STRUCTURAL_SORT)
   end
 
   ##
@@ -1397,10 +1311,6 @@ class Item < ApplicationRecord
 
   private
 
-  def delete_from_elasticsearch
-    self.class.delete_document(self.repository_id)
-  end
-
   def elements_for_iim_value(iim_elem_label, dest_elem, iim_metadata)
     src_elem = iim_metadata.find{ |e| e[:label] == iim_elem_label }
     src_elem ? elements_for_value(src_elem[:value], dest_elem) : []
@@ -1523,17 +1433,6 @@ class Item < ApplicationRecord
     elements += elements_for_iim_value('Country Name', 'keyword', metadata)
 
     elements
-  end
-
-  ##
-  # @param index [String] Index name. If omitted, the default index is used.
-  # @return [void]
-  #
-  def index_in_elasticsearch(index = nil)
-    index ||= Configuration.instance.elasticsearch_index
-    ElasticsearchClient.instance.index_document(index,
-                                                self.repository_id,
-                                                self.as_indexed_json)
   end
 
   ##

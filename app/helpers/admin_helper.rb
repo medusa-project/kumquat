@@ -196,7 +196,7 @@ module AdminHelper
         (item.virtual_filename || item.title) : item.title
     html << "<li><strong>#{icon_for(item)} #{title}</strong>"
     if include_subitems
-      subitems = item.finder.
+      subitems = item.search_children.
           include_unpublished(true).
           include_restricted(true).
           to_a

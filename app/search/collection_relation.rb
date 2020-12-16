@@ -2,9 +2,9 @@
 # Provides a convenient ActiveRecord-style Builder interface for Collection
 # retrieval.
 #
-class CollectionFinder < AbstractFinder
+class CollectionRelation < AbstractRelation
 
-  LOGGER = CustomLogger.new(CollectionFinder)
+  LOGGER = CustomLogger.new(CollectionRelation)
 
   def initialize
     super

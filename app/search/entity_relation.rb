@@ -6,9 +6,9 @@
 # N.B.: All entities being searched must have an indexed
 # `effectively_published` field.
 #
-class EntityFinder < AbstractFinder
+class EntityRelation < AbstractRelation
 
-  LOGGER = CustomLogger.new(EntityFinder)
+  LOGGER = CustomLogger.new(EntityRelation)
 
   def initialize
     super
@@ -88,7 +88,7 @@ class EntityFinder < AbstractFinder
 
   ##
   # @param boolean [Boolean]
-  # @return [ItemFinder] self
+  # @return [ItemRelation] self
   #
   def only_described(boolean)
     @only_described = boolean

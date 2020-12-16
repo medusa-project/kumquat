@@ -75,7 +75,7 @@ class ItemSet < ActiveRecord::Base
     unless @num_objects
       case self.collection.package_profile
         when PackageProfile::FREE_FORM_PROFILE
-          @num_objects = ItemFinder.new.
+          @num_objects = Item.search.
               item_set(self).
               aggregations(false).
               include_unpublished(true).
@@ -85,7 +85,7 @@ class ItemSet < ActiveRecord::Base
               limit(0).
               count
         else
-          @num_objects = ItemFinder.new.
+          @num_objects = Item.search.
               item_set(self).
               aggregations(false).
               include_unpublished(true).

@@ -29,14 +29,13 @@ class CollectionsController < WebsiteController
   # Serves an index of IIIF Presentation API collection representations.
   # N.B.: This endpoint is not an official part of the Presentation API.
   #
-  # Responds to GET /collections/iiif
+  # Responds to `GET /collections/iiif`
   #
   #
   def iiif_presentation_list
-    finder = CollectionFinder.new.
+    @collections = Collection.search.
         host_groups(client_host_groups).
         order(CollectionElement.new(name: 'title').indexed_sort_field)
-    @collections = finder.to_a
 
     render 'collections/iiif_presentation_api/index',
            formats: :json,
@@ -72,7 +71,7 @@ class CollectionsController < WebsiteController
       format.html do
         @children = []
         if @uofi_user
-          @children = CollectionFinder.new.
+          @children = Collection.search.
               search_children(true).
               parent_collection(@collection).
               order(CollectionElement.new(name: 'title').indexed_sort_field).

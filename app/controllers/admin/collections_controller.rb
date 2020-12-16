@@ -30,7 +30,7 @@ module Admin
       @limit = Option::integer(Option::Keys::DEFAULT_RESULT_WINDOW)
       @start = params[:start] ? params[:start].to_i : 0
 
-      finder = CollectionFinder.new.
+      relation = Collection.search.
           aggregations(false).
           query_all(params[:q]).
           include_unpublished(true).
@@ -40,15 +40,15 @@ module Admin
           limit(@limit)
 
       if params[:public_in_medusa] == '1'
-        finder = finder.filter(Collection::IndexFields::PUBLIC_IN_MEDUSA, true)
+        relation = relation.filter(Collection::IndexFields::PUBLIC_IN_MEDUSA, true)
       end
       if params[:published_in_dls] == '1'
-        finder = finder.filter(Collection::IndexFields::PUBLISHED_IN_DLS, true)
+        relation = relation.filter(Collection::IndexFields::PUBLISHED_IN_DLS, true)
       end
 
-      @collections = finder.to_a
+      @collections = relation.to_a
       @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
-      @count = finder.count
+      @count = relation.count
 
       respond_to do |format|
         format.html

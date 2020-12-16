@@ -9,7 +9,7 @@ class HealthController < ApplicationController
     Collection.count unless Rails.env.demo?
 
     # touch Elasticsearch
-    ItemFinder.new.aggregations(false).limit(0).count
+    Item.search.aggregations(false).limit(0).count
   rescue
     render plain: 'RED', status: :internal_server_error
   else

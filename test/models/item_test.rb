@@ -17,12 +17,12 @@ class ItemTest < ActiveSupport::TestCase
     index = Configuration.instance.elasticsearch_index
     item  = items(:compound_object_1002_page1)
     assert_not_nil ElasticsearchClient.instance.get_document(index,
-                                                             item.repository_id)
+                                                             item.index_id)
 
-    Item.delete_document(item.repository_id)
+    Item.delete_document(item.index_id)
     refresh_elasticsearch
     assert_nil ElasticsearchClient.instance.get_document(index,
-                                                         item.repository_id)
+                                                         item.index_id)
   end
 
   # Item.delete_orphaned_documents()
@@ -38,7 +38,7 @@ class ItemTest < ActiveSupport::TestCase
     Item.delete_orphaned_documents
     refresh_elasticsearch
 
-    assert_equal count - 1, ItemFinder.new.include_children_in_results(true).count
+    assert_equal count - 1, Item.search.include_children_in_results(true).count
   end
 
   # Item.num_free_form_files()
@@ -72,10 +72,10 @@ class ItemTest < ActiveSupport::TestCase
   # Item.reindex_all()
 
   test 'reindex_all() reindexes all items' do
-    assert_equal 0, ItemFinder.new.count
+    assert_equal 0, Item.search.count
     Item.reindex_all
     refresh_elasticsearch
-    assert ItemFinder.new.count > 0
+    assert Item.search.count > 0
   end
 
   # Item.tsv_columns()

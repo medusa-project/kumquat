@@ -25,7 +25,7 @@ class IiifPdfGenerator
   #
   def generate_pdf(item:, include_private_binaries: false, task: nil)
     reset
-    children = item.finder.to_a
+    children = item.search_children.to_a
     if children.any?
       doc = pdf_document(item)
 

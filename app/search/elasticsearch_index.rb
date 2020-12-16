@@ -32,6 +32,7 @@ class ElasticsearchIndex
   #
   class StandardFields
     CLASS               = 'sys_k_class'
+    ID                  = "_id"
     LAST_INDEXED        = 'sys_d_last_indexed'
     LAST_MODIFIED       = 'sys_d_last_modified'
     PUBLICLY_ACCESSIBLE = 'sys_b_publicly_accessible'

@@ -53,13 +53,12 @@ module Admin
     #
     def items
       @item_set = ItemSet.find(params[:item_set_id])
-      finder = ItemFinder.new.
+      @items    = Item.search.
           aggregations(false).
           include_unpublished(true).
           include_restricted(true).
           filter(Item::IndexFields::ITEM_SETS, @item_set.id).
           order(Item::IndexFields::TITLE)
-      @items = finder.to_a
 
       headers['Content-Disposition'] = 'attachment; filename="items.tsv"'
       headers['Content-Type'] = 'text/tab-separated-values'
@@ -123,13 +122,12 @@ module Admin
     # Responds to GET /admin/collections/:collection_id/item_sets/:id
     #
     def show
-      @item_set = ItemSet.find(params[:id])
-
-      @start = params[:start].to_i
-      @limit = Option::integer(Option::Keys::DEFAULT_RESULT_WINDOW)
+      @item_set     = ItemSet.find(params[:id])
+      @start        = params[:start].to_i
+      @limit        = Option::integer(Option::Keys::DEFAULT_RESULT_WINDOW)
       @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
 
-      finder = ItemFinder.new.
+      relation = Item.search.
           aggregations(false).
           include_unpublished(true).
           include_restricted(true).
@@ -137,8 +135,8 @@ module Admin
           order(Item::IndexFields::TITLE).
           start(@start).
           limit(@limit)
-      @items = finder.to_a
-      @count = finder.count
+      @items = relation.to_a
+      @count = relation.count
     end
 
     ##

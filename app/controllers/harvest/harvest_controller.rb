@@ -10,9 +10,9 @@ module Harvest
     def index
       @start = params[:start].to_i
 
-      # EntityFinder will search across entity classes and return Items and
+      # EntityRelation will search across entity classes and return Items and
       # and Collections.
-      finder = EntityFinder.new.
+      relation = EntityRelation.new.
           bypass_authorization(true).
           # exclude all variants except File. (Only compound object items have
           # these variants.)
@@ -24,14 +24,14 @@ module Harvest
           limit(WINDOW_SIZE)
 
       if params[:last_modified_before].present?
-        finder = finder.last_modified_before(Time.at(params[:last_modified_before].to_i))
+        relation = relation.last_modified_before(Time.at(params[:last_modified_before].to_i))
       end
       if params[:last_modified_after].present?
-        finder = finder.last_modified_after(Time.at(params[:last_modified_after].to_i))
+        relation = relation.last_modified_after(Time.at(params[:last_modified_after].to_i))
       end
 
-      @entities = finder.to_a
-      @count    = finder.count
+      @entities = relation.to_a
+      @count    = relation.count
 
       render json: {
           start: @start,

@@ -1,9 +1,9 @@
 ##
 # Provides a convenient ActiveRecord-style Builder interface for Item retrieval.
 #
-class ItemFinder < AbstractFinder
+class ItemRelation < AbstractRelation
 
-  LOGGER = CustomLogger.new(ItemFinder)
+  LOGGER                = CustomLogger.new(ItemRelation)
   BYTE_SIZE_AGGREGATION = 'byte_size'
 
   def initialize
@@ -24,7 +24,7 @@ class ItemFinder < AbstractFinder
 
   ##
   # @param collection [Collection]
-  # @return [ItemFinder] self
+  # @return [ItemRelation] self
   #
   def collection(collection)
     @collection = collection
@@ -33,7 +33,7 @@ class ItemFinder < AbstractFinder
 
   ##
   # @param variants [String] One or more `Item::Variants` constant values.
-  # @return [ItemFinder] self
+  # @return [ItemRelation] self
   #
   def exclude_variants(*variants)
     @exclude_variants = variants
@@ -44,7 +44,7 @@ class ItemFinder < AbstractFinder
   # @param bool [Boolean] Whether to include children (even unmatching ones) in
   #                       results. Ordering by `Item::Variants::STRUCTURAL_SORT`
   #                       would then achieve a "flat tree" of results.
-  # @return [ItemFinder] self
+  # @return [ItemRelation] self
   # @see search_children()
   #
   def include_children_in_results(bool)
@@ -54,7 +54,7 @@ class ItemFinder < AbstractFinder
 
   ##
   # @param bool [Boolean]
-  # @return [ItemFinder] self
+  # @return [ItemRelation] self
   #
   def include_restricted(bool)
     @include_restricted = bool
@@ -63,7 +63,7 @@ class ItemFinder < AbstractFinder
 
   ##
   # @param bool [Boolean]
-  # @return [ItemFinder] self
+  # @return [ItemRelation] self
   #
   def include_unpublished(bool)
     @include_unpublished = bool
@@ -72,7 +72,7 @@ class ItemFinder < AbstractFinder
 
   ##
   # @param variants [String] One or more Item::Variants constant values.
-  # @return [ItemFinder] self
+  # @return [ItemRelation] self
   #
   def include_variants(*variants)
     @include_variants = variants
@@ -81,7 +81,7 @@ class ItemFinder < AbstractFinder
 
   ##
   # @param item_set [ItemSet] Limit results to items within this ItemSet.
-  # @return [ItemFinder] self
+  # @return [ItemRelation] self
   #
   def item_set(item_set)
     @item_set = item_set
@@ -90,7 +90,7 @@ class ItemFinder < AbstractFinder
 
   ##
   # @param boolean [Boolean]
-  # @return [ItemFinder] self
+  # @return [ItemRelation] self
   #
   def only_described(boolean)
     @only_described = boolean
@@ -99,7 +99,7 @@ class ItemFinder < AbstractFinder
 
   ##
   # @param parent_item [Item]
-  # @return [ItemFinder] self
+  # @return [ItemRelation] self
   #
   def parent_item(item)
     @parent_item = item
@@ -110,7 +110,7 @@ class ItemFinder < AbstractFinder
   # @param bool [Boolean] Whether to search and include matching children in
   #                       results. If false, child items (items with a non-nil
   #                       parent ID) will be excluded.
-  # @return [ItemFinder] self
+  # @return [ItemRelation] self
   # @see include_children_in_results()
   #
   def search_children(bool)

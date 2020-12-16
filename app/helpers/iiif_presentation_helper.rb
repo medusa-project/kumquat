@@ -76,7 +76,7 @@ module IiifPresentationHelper
                         Item::Variants::DIRECTORY,
                         Item::Variants::SUPPLEMENT,
                         Item::Variants::THREE_D_MODEL]
-    result = item.finder.
+    result = item.search_children.
         include_restricted(true).
         include_unpublished(true).
         exclude_variants(*exclude_variants).to_a

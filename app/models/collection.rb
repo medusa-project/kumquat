@@ -21,8 +21,9 @@
 # Instances are automatically indexed in ES (see {as_indexed_json}) in an
 # `after_commit` callback. A low-level interface to Elasticsearch is provided
 # by ElasticsearchClient, but in most cases, it's better to use the
-# higher-level query interface provided by CollectionFinder, which is easier
-# to use, and takes authorization, public visiblity, etc. into account.
+# higher-level query interface provided by {CollectionRelation}, which is
+# easier to use, and takes authorization, public visibility, etc. into account.
+# (An instance can be obtained from {search}.)
 #
 # **IMPORTANT**: Instances are automatically indexed in Elasticsearch (see
 # {as_indexed_json}) upon transaction commit. They are **not** indexed on save.
@@ -109,6 +110,7 @@ class Collection < ApplicationRecord
 
   include AuthorizableByHost
   include Describable
+  include Indexed
   include Representable
 
   ##
@@ -192,69 +194,6 @@ class Collection < ApplicationRecord
   #
   #after_update :propagate_host_authorization
 
-  after_commit :index_in_elasticsearch, on: [:create, :update]
-  after_commit :delete_from_elasticsearch, on: :destroy
-
-  ##
-  # Normally this method should not be used except to delete orphaned documents
-  # with no database counterpart. Documents are automatically deleted in an
-  # ActiveRecord callback.
-  #
-  def self.delete_document(repository_id)
-    query = {
-        query: {
-            bool: {
-                filter: [
-                    {
-                        term: {
-                            Collection::IndexFields::REPOSITORY_ID => repository_id
-                        }
-                    }
-                ]
-            }
-        }
-    }
-    ElasticsearchClient.instance.delete_by_query(JSON.generate(query))
-  end
-
-  ##
-  # Iterates through all indexed Collection documents and deletes any for which
-  # no counterpart exists in the database.
-  #
-  # Normally this method should not be used except to delete orphaned documents
-  # with no database counterpart. See the class documentation for info about
-  # how documents are normally deleted.
-  #
-  def self.delete_orphaned_documents
-    start_time = Time.now
-
-    # Get the document count.
-    finder = CollectionFinder.new.
-        aggregations(false).
-        include_restricted(true).
-        include_unpublished(true).
-        limit(0)
-    count    = finder.count
-    progress = Progress.new(count)
-
-    # Retrieve document IDs in batches.
-    index = start = num_deleted = 0
-    limit = 1000
-    while start < count do
-      ids = finder.start(start).limit(limit).to_id_a
-      ids.each do |id|
-        unless Collection.exists?(repository_id: id)
-          Collection.delete_document(id)
-          num_deleted += 1
-        end
-        index += 1
-        progress.report(index, 'Deleting stale documents')
-      end
-      start += limit
-    end
-    puts "\nDeleted #{num_deleted} documents"
-  end
-
   ##
   # @return [Enumerable<Hash>] Array of hashes with `:name`, `:label`, and `id`
   #                            keys in the order they should appear.
@@ -279,24 +218,6 @@ class Collection < ApplicationRecord
     col.repository_id = id
     col.update_from_medusa
     col
-  end
-
-  ##
-  # N.B.: Orphaned documents are not deleted; for that, use
-  # {delete_orphaned_documents}.
-  #
-  # @param index [String] Index name. If omitted, the default index is used.
-  # @return [void]
-  #
-  def self.reindex_all(index = nil)
-    Collection.uncached do
-      count    = Collection.count
-      progress = Progress.new(count)
-      Collection.all.find_each.with_index do |col, i|
-        col.reindex(index)
-        progress.report(i, 'Indexing collections')
-      end
-    end
   end
 
   ##
@@ -626,7 +547,7 @@ class Collection < ApplicationRecord
   #
   def num_items
     unless @num_items
-      @num_items = ItemFinder.new.
+      @num_items = Item.search.
           collection(self).
           aggregations(false).
           search_children(true).
@@ -648,7 +569,7 @@ class Collection < ApplicationRecord
   #
   def num_objects
     unless @num_objects
-      finder = ItemFinder.new.
+      relation = Item.search.
           collection(self).
           aggregations(false).
           include_unpublished(true).
@@ -657,12 +578,12 @@ class Collection < ApplicationRecord
           limit(0)
       case self.package_profile
         when PackageProfile::FREE_FORM_PROFILE
-          @num_objects = finder.
+          @num_objects = relation.
               include_variants(*Item::Variants::FILE).
               include_children_in_results(true).
               count
         else
-          @num_objects = finder.search_children(false).count
+          @num_objects = relation.search_children(false).count
       end
     end
     @num_objects
@@ -676,14 +597,14 @@ class Collection < ApplicationRecord
     unless @num_public_objects
       case self.package_profile
         when PackageProfile::FREE_FORM_PROFILE
-          @num_public_objects = ItemFinder.new.
+          @num_public_objects = Item.search.
               collection(self).
               aggregations(false).
               include_variants(*Item::Variants::FILE).
               include_children_in_results(true).
               count
         else
-          @num_public_objects = ItemFinder.new.
+          @num_public_objects = Item.search.
               collection(self).
               aggregations(false).
               search_children(false).
@@ -748,14 +669,6 @@ class Collection < ApplicationRecord
       items.destroy_all
     end
     count
-  end
-
-  ##
-  # @param index [String] Index name. If omitted, the default index is used.
-  # @return [void]
-  #
-  def reindex(index = nil)
-    index_in_elasticsearch(index)
   end
 
   def reindex_items
@@ -898,26 +811,11 @@ class Collection < ApplicationRecord
 
   private
 
-  def delete_from_elasticsearch
-    self.class.delete_document(self.repository_id)
-  end
-
   def do_before_validation
     self.medusa_directory_uuid&.strip!
     self.medusa_file_group_id&.strip!
     self.representative_image&.strip!
     self.representative_item_id&.strip!
-  end
-
-  ##
-  # @param index [String] Index name. If omitted, the default index is used.
-  # @return [void]
-  #
-  def index_in_elasticsearch(index = nil)
-    index ||= Configuration.instance.elasticsearch_index
-    ElasticsearchClient.instance.index_document(index,
-                                                self.repository_id,
-                                                self.as_indexed_json)
   end
 
   def validate_medusa_uuids
