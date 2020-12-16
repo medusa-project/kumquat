@@ -2,6 +2,10 @@ require 'test_helper'
 
 class SyncItemsJobTest < ActiveSupport::TestCase
 
+  setup do
+    setup_elasticsearch
+  end
+
   # perform()
 
   test 'perform() should sync items' do
