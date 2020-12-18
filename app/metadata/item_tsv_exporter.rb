@@ -59,7 +59,6 @@ class ItemTsvExporter
   def items_in_item_set(item_set)
     # N.B.: The return value must remain in sync with that of
     # Item.tsv_columns().
-
     metadata_profile = item_set.collection.effective_metadata_profile
     sql = select_clause(metadata_profile) +
         from_clause +
@@ -67,14 +66,16 @@ class ItemTsvExporter
         'WHERE item_sets_items.item_set_id = $1 ' +
         order_clause +
         ") a\n"
-
     values = [[ nil, item_set.id ]]
 
-    tsv = Item.tsv_columns(metadata_profile).join("\t") + LINE_BREAK
+    io = StringIO.new
+    io << Item.tsv_columns(metadata_profile).join("\t")
+    io << LINE_BREAK
     ActiveRecord::Base.connection.exec_query(sql, 'SQL', values).each do |row|
-      tsv += row.values.join("\t") + LINE_BREAK
+      io << row.values.join("\t")
+      io << LINE_BREAK
     end
-    tsv
+    io.string
   end
 
   private
