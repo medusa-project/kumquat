@@ -51,6 +51,7 @@ mappings:
           mapping:
             type: text
             copy_to: search_all
+            store: false
             fields:
               keyword:
                 type: keyword
@@ -85,6 +86,7 @@ mappings:
           match: sys_k_*
           mapping:
             type: keyword
+            store: false
             fields:
               keyword:
                 type: keyword
