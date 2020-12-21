@@ -1099,7 +1099,7 @@ class Item < ApplicationRecord
       include_children_in_results(true).
       search_children(true).
       include_restricted(true).
-      order(Item::IndexFields::STRUCTURAL_SORT)
+      order("#{Item::IndexFields::STRUCTURAL_SORT}.#{EntityElement::SORT_FIELD_SUFFIX}")
   end
 
   ##
