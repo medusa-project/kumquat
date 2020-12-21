@@ -3,6 +3,7 @@ require 'test_helper'
 class MedusaMixedMediaIngesterTest < ActiveSupport::TestCase
 
   setup do
+    setup_elasticsearch
     @ingester   = MedusaMixedMediaIngester.new
     @collection = collections(:mixed_media)
     # These will only get in the way.

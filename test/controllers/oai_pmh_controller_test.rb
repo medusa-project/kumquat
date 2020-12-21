@@ -8,6 +8,7 @@ require 'test_helper'
 class OaiPmhControllerTest < ActionDispatch::IntegrationTest
 
   setup do
+    setup_elasticsearch
     @valid_identifier = 'oai:www.example.com:' +
         items(:compound_object_1001).repository_id
   end

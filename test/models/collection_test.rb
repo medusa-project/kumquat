@@ -56,8 +56,6 @@ class CollectionTest < ActiveSupport::TestCase
   # reindex_all()
 
   test 'reindex_all() reindexes all collections' do
-    setup_elasticsearch
-
     assert_equal 0, Collection.search.
         include_unpublished(true).
         include_restricted(true).

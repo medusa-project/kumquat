@@ -3,6 +3,7 @@ require 'test_helper'
 class MedusaSingleItemIngesterTest < ActiveSupport::TestCase
 
   setup do
+    setup_elasticsearch
     @ingester = MedusaSingleItemIngester.new
     @collection = collections(:single_item_object)
     # These will only get in the way.
