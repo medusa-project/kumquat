@@ -392,7 +392,7 @@ class Item < ApplicationRecord
   #                                        of the instance, at any level in the
   #                                        tree.
   #
-  def all_files
+  def all_files(offset: nil, limit: nil)
     sql = 'WITH RECURSIVE q AS (
         SELECT h, 1 AS level, ARRAY[repository_id] AS breadcrumb
         FROM items h
@@ -407,6 +407,9 @@ class Item < ApplicationRecord
       FROM q
       WHERE (q.h).variant = $2
       ORDER BY breadcrumb'
+    sql += " OFFSET #{offset}" if offset
+    sql += " LIMIT #{limit}" if limit
+
     values = [[ nil, self.id, ], [ nil, Variants::FILE ]]
 
     results = ActiveRecord::Base.connection.exec_query(sql, 'SQL', values)
