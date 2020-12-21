@@ -589,7 +589,7 @@ class ItemsController < WebsiteController
   # Responds to GET /items/:id/treedata
   #
   def item_tree_node
-    render json: @item.search_children.map { |child| item_tree_hash(child) }
+    render json: @item.search_children.to_a.map { |child| item_tree_hash(child) }
   end
 
 
