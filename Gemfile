@@ -21,6 +21,7 @@ gem 'medusa-client', git: 'https://github.com/medusa-project/medusa-client.git',
 gem 'mini_racer'
 gem 'netaddr', '~> 2'
 gem 'omniauth'
+gem 'omniauth-shibboleth'
 gem 'pg'
 # Used to generate PDFs of compound objects. This commit fixes a frequent
 # warning about an already-initialized constant.
@@ -45,6 +46,5 @@ end
 
 group :production do
   gem "omniauth-rails_csrf_protection"
-  gem 'omniauth-shibboleth'
   gem 'yarn' # capistrano seems to want this as of Rails 6.1
 end
