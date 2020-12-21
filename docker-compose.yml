@@ -8,24 +8,24 @@ services:
   kumquat:
     build:
       context: .
-      dockerfile: docker/Dockerfile-kumquat
+      dockerfile: docker/kumquat/Dockerfile
     command: bash -c "sleep 20 && bin/rails db:prepare && bin/rails \"elasticsearch:indexes:recreate[kumquat]\" && bin/rails test && bin/rails zeitwerk:check"
     #command: bash -c "sleep 20 && bin/rails db:prepare && bin/rails \"elasticsearch:indexes:recreate[kumquat]\" && tail -f /dev/null"
   cantaloupe:
     hostname: cantaloupe
     build:
       context: .
-      dockerfile: docker/Dockerfile-cantaloupe
+      dockerfile: docker/cantaloupe/Dockerfile
   elasticsearch:
     hostname: elasticsearch
     build:
       context: .
-      dockerfile: docker/Dockerfile-elasticsearch
+      dockerfile: docker/elasticsearch/Dockerfile
   minio:
     hostname: minio
     build:
       context: .
-      dockerfile: docker/Dockerfile-minio
+      dockerfile: docker/minio/Dockerfile
   mockdusa:
     hostname: mockdusa
     image: 721945215539.dkr.ecr.us-east-2.amazonaws.com/mockdusa:latest
