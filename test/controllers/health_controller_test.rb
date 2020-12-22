@@ -2,6 +2,10 @@ require 'test_helper'
 
 class HealthControllerTest < ActionDispatch::IntegrationTest
 
+  setup do
+    setup_elasticsearch
+  end
+
   # index()
 
   test 'index() returns HTTP 200 when the health check passes' do
