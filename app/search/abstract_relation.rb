@@ -7,6 +7,8 @@ class AbstractRelation
 
   include Enumerable
 
+  BYTE_SIZE_AGGREGATION = 'byte_size'
+
   attr_reader :request_json, :response_json
 
   def initialize
@@ -26,6 +28,7 @@ class AbstractRelation
 
     @request_json       = {}
     @response_json      = {}
+    @result_byte_size   = 0
     @result_count       = 0
     @result_facets      = []
     @result_instances   = []
@@ -227,6 +230,17 @@ class AbstractRelation
   end
 
   ##
+  # For this to work, {BYTE_SIZE_AGGREGATION} must have been included in the
+  # query.
+  #
+  # @return [Integer]
+  #
+  def total_byte_size
+    load
+    @result_byte_size
+  end
+
+  ##
   # @return [Enumerable<String>] Result suggestions.
   #
   def suggestions
@@ -234,7 +248,7 @@ class AbstractRelation
   end
 
   ##
-  # @return [Enumerable<Item>]
+  # @return [Enumerable<?>]
   #
   def to_a
     raise 'Subclasses must override to_a() and map @response_json to an '\
@@ -251,15 +265,21 @@ class AbstractRelation
     end
   end
 
+  def get_response
+    @request_json = build_query
+    result = @client.query(@request_json)
+    JSON.parse(result)
+  end
+
+  def metadata_profile
+    MetadataProfile.default
+  end
+
   ##
   # @return [String] Query that is safe to pass to Elasticsearch.
   #
   def sanitized_query
     @query[:query].gsub(/[\[\]\(\)]/, '').gsub('/', ' ')
-  end
-
-  def get_response
-    raise 'Subclasses must override get_response()'
   end
 
   def load
@@ -288,6 +308,11 @@ class AbstractRelation
       end
     end
 
+    agg = @response_json['aggregations']&.find{ |a| a[0] == BYTE_SIZE_AGGREGATION }
+    if agg
+      @result_byte_size = agg[1]['value'].to_i
+    end
+
     if @response_json['hits']
       @result_count = @response_json['hits']['total'] # ES 6.x
       if @result_count.respond_to?(:keys)
@@ -300,13 +325,6 @@ class AbstractRelation
     end
 
     @loaded = true
-  end
-
-  ##
-  # @return [MetadataProfile]
-  #
-  def metadata_profile
-    raise 'Must override metadata_profile()'
   end
 
 end

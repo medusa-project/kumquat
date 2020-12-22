@@ -25,7 +25,7 @@ class EntityRelation < AbstractRelation
   ##
   # @param boolean [Boolean] Whether to return all results. If true, calls to
   #                          {host_groups} are ignored.
-  # @return [self]
+  # @return [EntityRelation] The instance.
   #
   def bypass_authorization(boolean)
     @bypass_authorization = boolean
@@ -33,8 +33,8 @@ class EntityRelation < AbstractRelation
   end
 
   ##
-  # @param variants [String] One or more Item::Variants constant values.
-  # @return [self]
+  # @param variants [String] One or more {Item::Variants} constant values.
+  # @return [EntityRelation] The instance.
   #
   def exclude_item_variants(*variants)
     @exclude_item_variants = variants
@@ -43,7 +43,7 @@ class EntityRelation < AbstractRelation
 
   ##
   # @param bool [Boolean]
-  # @return [self]
+  # @return [EntityRelation] The instance.
   #
   def include_restricted(bool)
     @include_restricted = bool
@@ -52,7 +52,7 @@ class EntityRelation < AbstractRelation
 
   ##
   # @param types [Class,String]
-  # @return [self]
+  # @return [EntityRelation] The instance.
   #
   def include_types(*types)
     @include_types = types.map(&:to_s)
@@ -61,7 +61,7 @@ class EntityRelation < AbstractRelation
 
   ##
   # @param bool [Boolean]
-  # @return [self]
+  # @return [EntityRelation] The instance.
   #
   def include_unpublished(bool)
     @include_unpublished = bool
@@ -70,7 +70,7 @@ class EntityRelation < AbstractRelation
 
   ##
   # @param time [Time]
-  # @return [self]
+  # @return [EntityRelation] The instance.
   #
   def last_modified_after(time)
     @last_modified_after = time
@@ -79,7 +79,7 @@ class EntityRelation < AbstractRelation
 
   ##
   # @param time [Time]
-  # @return [self]
+  # @return [EntityRelation] The instance.
   #
   def last_modified_before(time)
     @last_modified_before = time
@@ -88,7 +88,7 @@ class EntityRelation < AbstractRelation
 
   ##
   # @param boolean [Boolean]
-  # @return [ItemRelation] self
+  # @return [EntityRelation] The instance.
   #
   def only_described(boolean)
     @only_described = boolean
@@ -96,7 +96,7 @@ class EntityRelation < AbstractRelation
   end
 
   ##
-  # @return [Enumerable<Item>]
+  # @return [Enumerable<Agent,Collection,Item>]
   #
   def to_a
     load
@@ -104,17 +104,17 @@ class EntityRelation < AbstractRelation
       return @response_json['hits']['hits'].map { |r|
         case r['_source'][ElasticsearchIndex::StandardFields::CLASS].downcase
         when 'agent'
-          id = r['_id']
+          id    = r['_id']
           agent = Agent.find_by_id(id)
           LOGGER.debug("to_a(): #{id} is missing from the database") unless agent
           agent
         when 'item'
-          id = r['_source'][Item::IndexFields::REPOSITORY_ID]
+          id   = r['_source'][Item::IndexFields::REPOSITORY_ID]
           item = Item.find_by_repository_id(id)
           LOGGER.debug("to_a(): #{id} is missing from the database") unless item
           item
         when 'collection'
-          id = r['_source'][Collection::IndexFields::REPOSITORY_ID]
+          id  = r['_source'][Collection::IndexFields::REPOSITORY_ID]
           col = Collection.find_by_repository_id(id)
           LOGGER.debug("to_a(): #{id} is missing from the database") unless col
           col
@@ -124,16 +124,6 @@ class EntityRelation < AbstractRelation
     []
   end
 
-  protected
-
-  def get_response
-    result = @client.query(build_query)
-    JSON.parse(result)
-  end
-
-  def metadata_profile
-    MetadataProfile.default
-  end
 
   private
 
@@ -158,8 +148,8 @@ class EntityRelation < AbstractRelation
             end
           end
 
-          if @filters.any? or @only_described or !@include_unpublished or
-              @last_modified_before or @last_modified_after
+          if @filters.any? || @only_described || !@include_unpublished ||
+              @last_modified_before || @last_modified_after
             j.filter do
               j.child! do
                 j.terms do
@@ -247,7 +237,7 @@ class EntityRelation < AbstractRelation
             j.minimum_should_match 1
           end
 
-          if @host_groups.any? or @exclude_item_variants.any?
+          if @host_groups.any? || @exclude_item_variants.any?
             j.must_not do
               if @host_groups.any?
                 j.child! do
