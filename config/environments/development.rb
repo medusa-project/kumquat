@@ -49,6 +49,11 @@ Rails.application.configure do
   # routes, locales, etc. This feature depends on the listen gem.
   # config.file_watcher = ActiveSupport::EventedFileUpdateChecker
 
+  logger           = ActiveSupport::Logger.new(STDOUT)
+  logger.formatter = config.log_formatter
+  config.logger    = ActiveSupport::TaggedLogging.new(logger)
+  config.log_level = :debug
+
   # ActionMailer configuration
   require File.join(Rails.root, "/app/config/configuration")
   mail_config = ::Configuration.instance.mail
