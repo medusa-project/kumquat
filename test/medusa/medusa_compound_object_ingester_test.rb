@@ -3,6 +3,7 @@ require 'test_helper'
 class MedusaCompoundObjectIngesterTest < ActiveSupport::TestCase
 
   setup do
+    setup_elasticsearch
     @collection = collections(:compound_object)
     @ingester = MedusaCompoundObjectIngester.new
     # These will only get in the way.

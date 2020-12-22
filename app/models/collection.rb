@@ -148,7 +148,7 @@ class Collection < ApplicationRecord
     RESOURCE_TYPES                     = 'sys_k_resource_types'
     RESTRICTED                         = ElasticsearchIndex::StandardFields::RESTRICTED
     SEARCH_ALL                         = ElasticsearchIndex::StandardFields::SEARCH_ALL
-    TITLE                              = CollectionElement.new(name: 'title').indexed_keyword_field
+    TITLE                              = CollectionElement.new(name: 'title').indexed_field
   end
 
   LOGGER = CustomLogger.new(Collection)
@@ -200,12 +200,21 @@ class Collection < ApplicationRecord
   #
   def self.facet_fields
     [
-        { name: IndexFields::REPOSITORY_TITLE, label: 'Repository',
-          id: 'dl-repository-facet' },
-        { name: IndexFields::RESOURCE_TYPES, label: 'Resource Type',
-          id: 'dl-resource-type-facet' },
-        { name: IndexFields::ACCESS_SYSTEMS, label: 'Access Systems',
-          id: 'dl-access-systems-facet' }
+      {
+        name:  CollectionElement.new(name: IndexFields::REPOSITORY_TITLE).indexed_keyword_field,
+        label: 'Repository',
+        id:    'dl-repository-facet'
+      },
+      {
+        name:  CollectionElement.new(name: IndexFields::RESOURCE_TYPES).indexed_keyword_field,
+        label: 'Resource Type',
+        id:    'dl-resource-type-facet'
+      },
+      {
+        name:  CollectionElement.new(name: IndexFields::ACCESS_SYSTEMS).indexed_keyword_field,
+        label: 'Access Systems',
+        id:    'dl-access-systems-facet'
+      }
     ]
   end
 

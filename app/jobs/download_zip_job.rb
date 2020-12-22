@@ -23,7 +23,7 @@ class DownloadZipJob < Job
 
     items  = Item.where('repository_id IN (?)', item_ids)
     client = MedusaDownloaderClient.new
-    download_url = client.download_url(items,
+    download_url = client.download_url(items: items,
                                        zip_name: zip_name,
                                        include_private_binaries: include_private_binaries)
     download.update(url: download_url)

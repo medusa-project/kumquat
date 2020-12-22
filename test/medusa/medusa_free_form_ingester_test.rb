@@ -3,6 +3,7 @@ require 'test_helper'
 class MedusaFreeFormIngesterTest < ActiveSupport::TestCase
 
   setup do
+    setup_elasticsearch
     @collection = collections(:free_form)
     @ingester = MedusaFreeFormIngester.new
     # These will only get in the way.

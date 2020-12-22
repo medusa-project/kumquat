@@ -79,40 +79,50 @@ class IiifImageConverter
                      format:,
                      include_private_binaries: false,
                      task: nil)
-    # If the item is a directory variant, convert all of the files within it,
-    # at any level in the tree.
-    if item.variant == Item::Variants::DIRECTORY
-      item.all_files.each do |file_item|
-        binaries = file_item.binaries.where('media_type LIKE ?', 'image/%')
-        binaries = binaries.where(public: true) unless include_private_binaries
-        binaries.each do |bin| # there should be only one
-          convert_binary(bin, directory, format)
+    Item.uncached do
+      # If the item is a directory variant, convert all of the files within it,
+      # at any level in the tree.
+      if item.variant == Item::Variants::DIRECTORY
+        # Fetch results in batches to reduce memory consumption.
+        offset  = 0
+        limit   = 100
+        results = nil
+        while results.nil? || results.length > 0
+          results = item.all_files(offset: offset, limit: limit)
+          results.each do |file_item|
+            binaries = file_item.binaries.where('media_type LIKE ?', 'image/%')
+            binaries = binaries.where(public: true) unless include_private_binaries
+            binaries.each do |bin| # there should only be one
+              convert_binary(bin, directory, format)
+            end
+          end
+          offset += limit
         end
-      end
-    # If the item has any child items, convert those.
-    elsif item.items.any?
-      item.items.each do |subitem|
-        binaries = subitem.binaries.where(
+      # If the item has any child items, convert those.
+      elsif item.items.count > 0
+        item.items.find_each do |subitem|
+          binaries = subitem.binaries.where(
+              master_type:    Binary::MasterType::ACCESS,
+              media_category: Binary::MediaCategory::IMAGE)
+          binaries = binaries.where(public: true) unless include_private_binaries
+          count    = binaries.count
+          binaries.each_with_index do |bin, index|
+            task&.progress = index / count.to_f
+            convert_binary(bin, directory, format)
+          end
+        end
+      # The item has no child items, so it's likely either standalone or a file
+      # variant.
+      else
+        binaries = item.binaries.where(
             master_type: Binary::MasterType::ACCESS,
             media_category: Binary::MediaCategory::IMAGE)
         binaries = binaries.where(public: true) unless include_private_binaries
-        count    = binaries.count
+        count    = binaries.length
         binaries.each_with_index do |bin, index|
           task&.progress = index / count.to_f
           convert_binary(bin, directory, format)
         end
-      end
-    # The item has no child items, so it's likely either standalone or a file
-    # variant.
-    else
-      binaries = item.binaries.where(
-          master_type: Binary::MasterType::ACCESS,
-          media_category: Binary::MediaCategory::IMAGE)
-      binaries = binaries.where(public: true) unless include_private_binaries
-      count    = binaries.count
-      binaries.each_with_index do |bin, index|
-        task&.progress = index / count.to_f
-        convert_binary(bin, directory, format)
       end
     end
     task&.succeeded

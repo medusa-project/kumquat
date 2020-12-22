@@ -2,6 +2,10 @@ require 'test_helper'
 
 class PurgeItemsJobTest < ActiveSupport::TestCase
 
+  setup do
+    setup_elasticsearch
+  end
+
   # perform()
 
   test 'perform() should work properly' do

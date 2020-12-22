@@ -9,7 +9,7 @@ namespace :dls do
 
     desc 'Reindex all agents'
     task :reindex, [:index_name] => :environment do |task, args|
-      Agent.reindex_all(args[:index_name])
+      Agent.reindex_all(es_index: args[:index_name])
     end
 
   end
@@ -134,7 +134,7 @@ namespace :dls do
 
     desc 'Reindex all collections'
     task :reindex, [:index_name] => :environment do |task, args|
-      Collection.reindex_all(args[:index_name])
+      Collection.reindex_all(es_index: args[:index_name])
     end
 
     desc 'Sync collections from Medusa'
@@ -279,7 +279,7 @@ namespace :dls do
   end
 
   def reindex_items(index = nil)
-    Item.reindex_all(index)
+    Item.reindex_all(es_index: index)
   end
 
 end

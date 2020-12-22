@@ -4,9 +4,6 @@ class MedusaIngesterTest < ActiveSupport::TestCase
 
   setup do
     @instance = MedusaIngester.new
-
-    # These will only get in the way.
-    Item.destroy_all
   end
 
   test 'sync_collections() should work' do

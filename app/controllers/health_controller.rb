@@ -10,8 +10,8 @@ class HealthController < ApplicationController
 
     # touch Elasticsearch
     Item.search.aggregations(false).limit(0).count
-  rescue
-    render plain: 'RED', status: :internal_server_error
+  rescue => e
+    render plain: "RED: #{e}", status: :internal_server_error
   else
     render plain: 'GREEN'
   end

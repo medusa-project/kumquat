@@ -13,7 +13,7 @@ class MedusaDownloaderClient
   # Sends a request to the Downloader to generate a zip file for the given
   # arguments, and returns its URL.
   #
-  # @param items [Enumerable<Item>]
+  # @param items [ActiveRecord::Relation<Item>]
   # @param zip_name [String] Desired name of the zip file, with or without
   #                          `.zip` suffix.
   # @param include_private_binaries [Boolean]
@@ -21,16 +21,16 @@ class MedusaDownloaderClient
   # @raises [ArgumentError] If illegal arguments have been supplied.
   # @raises [IOError] If there is an error communicating with the Downloader.
   #
-  def download_url(items, zip_name:, include_private_binaries: false)
+  def download_url(items:, zip_name:, include_private_binaries: false)
     if !items.respond_to?(:each)
       raise ArgumentError, 'Invalid items argument.'
-    elsif items.length < 1
+    elsif items.count < 1
       raise ArgumentError, 'No items provided.'
     end
 
     # Compile the list of items to include in the file.
     targets = targets_for(items, include_private_binaries: include_private_binaries)
-    if targets.count < 1
+    if targets.length < 1
       raise ArgumentError, 'No files to download.'
     end
 
@@ -39,9 +39,9 @@ class MedusaDownloaderClient
     url     = "#{config.downloader_url}/#{CREATE_DOWNLOAD_PATH}"
     headers = { 'Content-Type': 'application/json' }
     body    = JSON.generate(
-        root: 'medusa',
+        root:     'medusa',
         zip_name: "#{zip_name.chomp('.zip')}",
-        targets: targets)
+        targets:  targets)
 
     LOGGER.debug('download_url(): requesting %s', body)
     response = client.post(url, body, headers)
@@ -139,28 +139,30 @@ class MedusaDownloaderClient
   end
 
   ##
-  # @param items [Enumerable<Item>]
+  # @param items [ActiveRecord::Relation<Item>]
   # @param include_private_binaries [Boolean]
   # @return [Array<Hash>]
   #
   def targets_for(items, include_private_binaries: false)
     targets = []
-    items.each do |item|
-      if item.directory?
-        dir = Medusa::Directory.with_uuid(item.repository_id)
-        targets.push(type:      'directory',
-                     path:      dir.relative_key,
-                     zip_path:  dir.name,
-                     recursive: true)
-      else
-        binaries = item.binaries
-        binaries = binaries.where(public: true) unless include_private_binaries
-        binaries.each do |binary|
-          zip_dirname = zip_dirname(binary)
-          if zip_dirname
-            targets.push(type:     'file',
-                         path:     binary.object_key,
-                         zip_path: zip_dirname)
+    Item.uncached do
+      items.find_each do |item|
+        if item.directory?
+          dir = Medusa::Directory.with_uuid(item.repository_id)
+          targets.push(type:      'directory',
+                       path:      dir.relative_key,
+                       zip_path:  dir.name,
+                       recursive: true)
+        else
+          binaries = item.binaries
+          binaries = binaries.where(public: true) unless include_private_binaries
+          binaries.each do |binary|
+            zip_dirname = zip_dirname(binary)
+            if zip_dirname
+              targets.push(type:     'file',
+                           path:     binary.object_key,
+                           zip_path: zip_dirname)
+            end
           end
         end
       end

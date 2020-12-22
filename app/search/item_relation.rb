@@ -3,8 +3,7 @@
 #
 class ItemRelation < AbstractRelation
 
-  LOGGER                = CustomLogger.new(ItemRelation)
-  BYTE_SIZE_AGGREGATION = 'byte_size'
+  LOGGER = CustomLogger.new(ItemRelation)
 
   def initialize
     super
@@ -18,13 +17,11 @@ class ItemRelation < AbstractRelation
     @only_described              = false
     @parent_item                 = nil
     @search_children             = false
-
-    @result_byte_size            = 0
   end
 
   ##
   # @param collection [Collection]
-  # @return [ItemRelation] self
+  # @return [ItemRelation] The instance.
   #
   def collection(collection)
     @collection = collection
@@ -33,7 +30,7 @@ class ItemRelation < AbstractRelation
 
   ##
   # @param variants [String] One or more `Item::Variants` constant values.
-  # @return [ItemRelation] self
+  # @return [ItemRelation] The instance.
   #
   def exclude_variants(*variants)
     @exclude_variants = variants
@@ -44,7 +41,7 @@ class ItemRelation < AbstractRelation
   # @param bool [Boolean] Whether to include children (even unmatching ones) in
   #                       results. Ordering by `Item::Variants::STRUCTURAL_SORT`
   #                       would then achieve a "flat tree" of results.
-  # @return [ItemRelation] self
+  # @return [ItemRelation] The instance.
   # @see search_children()
   #
   def include_children_in_results(bool)
@@ -54,7 +51,7 @@ class ItemRelation < AbstractRelation
 
   ##
   # @param bool [Boolean]
-  # @return [ItemRelation] self
+  # @return [ItemRelation] The instance.
   #
   def include_restricted(bool)
     @include_restricted = bool
@@ -63,7 +60,7 @@ class ItemRelation < AbstractRelation
 
   ##
   # @param bool [Boolean]
-  # @return [ItemRelation] self
+  # @return [ItemRelation] The instance.
   #
   def include_unpublished(bool)
     @include_unpublished = bool
@@ -72,7 +69,7 @@ class ItemRelation < AbstractRelation
 
   ##
   # @param variants [String] One or more Item::Variants constant values.
-  # @return [ItemRelation] self
+  # @return [ItemRelation] The instance.
   #
   def include_variants(*variants)
     @include_variants = variants
@@ -81,7 +78,7 @@ class ItemRelation < AbstractRelation
 
   ##
   # @param item_set [ItemSet] Limit results to items within this ItemSet.
-  # @return [ItemRelation] self
+  # @return [ItemRelation] The instance.
   #
   def item_set(item_set)
     @item_set = item_set
@@ -90,7 +87,7 @@ class ItemRelation < AbstractRelation
 
   ##
   # @param boolean [Boolean]
-  # @return [ItemRelation] self
+  # @return [ItemRelation] The instance.
   #
   def only_described(boolean)
     @only_described = boolean
@@ -99,7 +96,7 @@ class ItemRelation < AbstractRelation
 
   ##
   # @param parent_item [Item]
-  # @return [ItemRelation] self
+  # @return [ItemRelation] The instance.
   #
   def parent_item(item)
     @parent_item = item
@@ -110,8 +107,8 @@ class ItemRelation < AbstractRelation
   # @param bool [Boolean] Whether to search and include matching children in
   #                       results. If false, child items (items with a non-nil
   #                       parent ID) will be excluded.
-  # @return [ItemRelation] self
-  # @see include_children_in_results()
+  # @return [ItemRelation] The instance.
+  # @see include_children_in_results
   #
   def search_children(bool)
     @search_children = bool
@@ -122,89 +119,19 @@ class ItemRelation < AbstractRelation
   # @return [Enumerable<Item>]
   #
   def to_a
-    items = to_id_a.map do |id|
-      it = Item.find_by_repository_id(id)
-      LOGGER.debug("to_a(): #{id} is missing from the database") unless it
-      it
-    end
-    items.select(&:present?)
+    load
+    ids = @response_json['hits']['hits']
+      .map{ |r| r['_source'][Item::IndexFields::REPOSITORY_ID] }
+    Item.where('repository_id IN (?)', ids)
   end
 
-  ##
-  # @return [Enumerable<String>] Enumerable of Item repository IDs.
-  #
-  def to_id_a
-    load
-    @response_json['hits']['hits']
-        .map{ |r| r['_source'][Item::IndexFields::REPOSITORY_ID] }
-  end
-
-  ##
-  # For this to work, `stats()` must have been called with an argument of
-  # `true`.
-  #
-  # @return [Integer]
-  #
-  def total_byte_size
-    load
-    @result_byte_size
-  end
 
   protected
-
-  def get_response
-    @request_json = build_query
-    result = @client.query(@request_json)
-    JSON.parse(result)
-  end
-
-  def load
-    return if @loaded
-
-    @response_json = get_response
-
-    # Assemble the response aggregations into Facets. The order of the facets
-    # should be the same as the order of elements in the metadata profile.
-    metadata_profile.facet_elements.each do |element|
-      agg = @response_json['aggregations']&.
-          find{ |a| a[0] == element.indexed_keyword_field }
-      if agg
-        facet       = Facet.new
-        facet.name  = element.label
-        facet.field = element.indexed_keyword_field
-        agg[1]['buckets'].each do |bucket|
-          term = FacetTerm.new
-          term.name  = bucket['key'].to_s
-          term.label = bucket['key'].to_s
-          term.count = bucket['doc_count']
-          term.facet = facet
-          facet.terms << term
-        end
-        @result_facets << facet
-      end
-    end
-
-    agg = @response_json['aggregations']&.find{ |a| a[0] == BYTE_SIZE_AGGREGATION }
-    if agg
-      @result_byte_size = agg[1]['value'].to_i
-    end
-
-    if @response_json['hits']
-      @result_count = @response_json['hits']['total'] # ES 6.x
-      if @result_count.respond_to?(:keys)
-        @result_count = @result_count['value'] # ES 7.x
-      end
-    else
-      @result_count = 0
-      raise IOError, "#{@response_json['error']['type']}: #{@response_json['error']['root_cause'][0]['reason']}"
-    end
-
-    @loaded = true
-  end
 
   def metadata_profile
     @collection&.effective_metadata_profile || MetadataProfile.default
   end
+
 
   private
 
@@ -314,7 +241,7 @@ class ItemRelation < AbstractRelation
             end
           end
 
-          if @host_groups.any? or @include_variants.any?
+          if @host_groups.any? || @include_variants.any?
             j.should do
               if @host_groups.any?
                 j.child! do
@@ -343,7 +270,7 @@ class ItemRelation < AbstractRelation
             j.minimum_should_match 1
           end
 
-          if @host_groups.any? or @exclude_variants.any? or !@search_children
+          if @host_groups.any? || @exclude_variants.any? || !@search_children
             j.must_not do
               if @host_groups.any?
                 j.child! do
@@ -362,7 +289,7 @@ class ItemRelation < AbstractRelation
                 end
               end
 
-              if !@include_children_in_results and !@search_children
+              if !@include_children_in_results && !@search_children
                 j.child! do
                   j.exists do
                     j.field Item::IndexFields::PARENT_ITEM
@@ -400,7 +327,7 @@ class ItemRelation < AbstractRelation
       # Order by explicit orders, if provided; otherwise sort by the metadata
       # profile's default order, if @orders is set to true; otherwise don't
       # sort.
-      if @orders.respond_to?(:any?) and @orders.any?
+      if @orders.respond_to?(:any?) && @orders.any?
         j.sort do
           @orders.each do |order|
             j.set! order[:field] do

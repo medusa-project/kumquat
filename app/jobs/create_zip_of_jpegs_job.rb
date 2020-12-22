@@ -24,12 +24,14 @@ class CreateZipOfJpegsJob < Job
     converter = IiifImageConverter.new
 
     Dir.mktmpdir do |tmpdir|
-      items.each do |item|
-        converter.convert_images(item:                     item,
-                                 directory:                tmpdir,
-                                 format:                   :jpg,
-                                 include_private_binaries: include_private_binaries,
-                                 task:                     self.task)
+      Item.uncached do
+        items.find_each do |item|
+          converter.convert_images(item:                     item,
+                                   directory:                tmpdir,
+                                   format:                   :jpg,
+                                   include_private_binaries: include_private_binaries,
+                                   task:                     self.task)
+        end
       end
 
       # Create the downloads directory if it doesn't exist.

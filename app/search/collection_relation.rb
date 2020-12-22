@@ -16,7 +16,7 @@ class CollectionRelation < AbstractRelation
 
   ##
   # @param bool [Boolean]
-  # @return [self]
+  # @return [CollectionRelation] The instance.
   #
   def search_children(bool)
     @search_children = bool
@@ -25,7 +25,7 @@ class CollectionRelation < AbstractRelation
 
   ##
   # @param bool [Boolean]
-  # @return [self]
+  # @return [CollectionRelation] The instance.
   #
   def include_restricted(bool)
     @include_restricted = bool
@@ -34,7 +34,7 @@ class CollectionRelation < AbstractRelation
 
   ##
   # @param bool [Boolean]
-  # @return [self]
+  # @return [CollectionRelation] The instance.
   #
   def include_unpublished(bool)
     @include_unpublished = bool
@@ -43,7 +43,7 @@ class CollectionRelation < AbstractRelation
 
   ##
   # @param collection [Collection]
-  # @return [self]
+  # @return [CollectionRelation] The instance.
   #
   def parent_collection(collection)
     @parent_collection = collection
@@ -54,70 +54,22 @@ class CollectionRelation < AbstractRelation
   # @return [Enumerable<Collection>]
   #
   def to_a
-    cols = to_id_a.map do |id|
-      col = Collection.find_by_repository_id(id)
-      LOGGER.debug("to_a(): #{id} is missing from the database") unless col
-      col
-    end
-    cols.select(&:present?)
+    load
+    ids = @response_json['hits']['hits']
+      .map { |r| r['_source'][Collection::IndexFields::REPOSITORY_ID] }
+    Collection.where('repository_id IN (?)', ids)
   end
 
-  ##
-  # @return [Enumerable<String>] Enumerable of repository IDs.
-  #
-  def to_id_a
-    load
-    @response_json['hits']['hits']
-        .map { |r| r['_source'][Collection::IndexFields::REPOSITORY_ID] }
-  end
 
   protected
-
-  def metadata_profile
-    MetadataProfile.default
-  end
 
   def get_response
     result = @client.query(build_query)
     JSON.parse(result)
   end
 
+
   private
-
-  def load
-    return if @loaded
-
-    @response_json = get_response
-
-    # Assemble the response aggregations into Facets.
-    @response_json['aggregations']&.each do |agg|
-      facet = Facet.new
-      facet.name = Collection.facet_fields.select{ |f| f[:name] == agg[0] }.
-          first[:label]
-      facet.field = agg[0]
-      agg[1]['buckets'].each do |bucket|
-        term = FacetTerm.new
-        term.name  = bucket['key'].to_s
-        term.label = bucket['key'].to_s
-        term.count = bucket['doc_count']
-        term.facet = facet
-        facet.terms << term
-      end
-      @result_facets << facet
-    end
-
-    if @response_json['hits']
-      @result_count = @response_json['hits']['total'] # ES 6.x
-      if @result_count.respond_to?(:keys)
-        @result_count = @result_count['value'] # ES 7.x
-      end
-    else
-      @result_count = 0
-      raise IOError, "#{@response_json['error']['type']}: #{@response_json['error']['root_cause'][0]['reason']}"
-    end
-
-    @loaded = true
-  end
 
   ##
   # @return [String] JSON string.

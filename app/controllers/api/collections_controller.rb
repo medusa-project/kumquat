@@ -18,7 +18,7 @@ module Api
           include_restricted(true).
           facet_filters(params[:fq]).
           query_all(params[:q]).
-          order(Collection::IndexFields::TITLE).
+          order(CollectionElement.new(name: 'title').indexed_sort_field).
           start(@start).
           limit(@limit)
       @count       = relation.count

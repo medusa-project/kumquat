@@ -392,7 +392,7 @@ class Item < ApplicationRecord
   #                                        of the instance, at any level in the
   #                                        tree.
   #
-  def all_files
+  def all_files(offset: nil, limit: nil)
     sql = 'WITH RECURSIVE q AS (
         SELECT h, 1 AS level, ARRAY[repository_id] AS breadcrumb
         FROM items h
@@ -407,6 +407,9 @@ class Item < ApplicationRecord
       FROM q
       WHERE (q.h).variant = $2
       ORDER BY breadcrumb'
+    sql += " OFFSET #{offset}" if offset
+    sql += " LIMIT #{limit}" if limit
+
     values = [[ nil, self.id, ], [ nil, Variants::FILE ]]
 
     results = ActiveRecord::Base.connection.exec_query(sql, 'SQL', values)
@@ -1096,7 +1099,7 @@ class Item < ApplicationRecord
       include_children_in_results(true).
       search_children(true).
       include_restricted(true).
-      order(Item::IndexFields::STRUCTURAL_SORT)
+      order("#{Item::IndexFields::STRUCTURAL_SORT}#{ItemElement::SORT_FIELD_SUFFIX}")
   end
 
   ##
@@ -1139,7 +1142,6 @@ class Item < ApplicationRecord
   #
   def update_from_embedded_metadata(options = {})
     return unless self.binaries.any?
-
     transaction do
       self.elements.destroy_all
       self.elements += elements_from_embedded_metadata(options)
@@ -1181,8 +1183,8 @@ class Item < ApplicationRecord
       self.variant = struct['variant']
 
       # ELEMENTS
-      # Current elements need to be deleted first, otherwise it would be
-      # impossible for an update to remove them.
+      # Current elements need to be deleted first, otherwise an update would
+      # not be able to remove them.
       self.elements.destroy_all
 
       if struct['elements'].respond_to?(:each)
@@ -1190,9 +1192,9 @@ class Item < ApplicationRecord
           # Add a new element
           ie = ItemElement.named(se['name'])
           if ie
-            ie.uri = se['uri']&.strip
-            ie.value = se['string']&.strip
-            ie.vocabulary = Vocabulary.find_by_key(se['vocabulary'])
+            ie.uri         = se['uri']&.strip
+            ie.value       = se['string']&.strip
+            ie.vocabulary  = Vocabulary.find_by_key(se['vocabulary'])
             self.elements << ie
           end
         end

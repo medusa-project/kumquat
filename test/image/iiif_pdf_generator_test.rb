@@ -4,7 +4,7 @@ class IiifPdfGeneratorTest < ActiveSupport::TestCase
 
   setup do
     Item.reindex_all
-    refresh_elasticsearch
+    setup_elasticsearch
 
     @instance = IiifPdfGenerator.new
   end
@@ -36,7 +36,7 @@ class IiifPdfGeneratorTest < ActiveSupport::TestCase
     # documents, not read existing ones)
     begin
       pathname = @instance.generate_pdf(item: item)
-      size = File.size(pathname)
+      initial_size = File.size(pathname)
     ensure
       File.delete(pathname) if pathname
     end
@@ -45,7 +45,7 @@ class IiifPdfGeneratorTest < ActiveSupport::TestCase
     Binary.find_by_medusa_uuid('a9bdc6af-fecb-6ed9-2ca9-e577fd1455ed').update!(public: false)
     begin
       pathname = @instance.generate_pdf(item: item)
-      assert size - File.size(pathname) > 100
+      assert initial_size > File.size(pathname)
     ensure
       File.delete(pathname) if pathname
     end

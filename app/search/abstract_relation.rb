@@ -5,6 +5,10 @@
 #
 class AbstractRelation
 
+  include Enumerable
+
+  BYTE_SIZE_AGGREGATION = 'byte_size'
+
   attr_reader :request_json, :response_json
 
   def initialize
@@ -24,11 +28,17 @@ class AbstractRelation
 
     @request_json       = {}
     @response_json      = {}
+    @result_byte_size   = 0
     @result_count       = 0
     @result_facets      = []
     @result_instances   = []
     @result_suggestions = []
   end
+
+  ###########################################################################
+  # BUILDER METHODS
+  # These methods initialize the query.
+  ###########################################################################
 
   ##
   # @param boolean [Boolean] Whether to compile aggregations (for faceting) in
@@ -43,11 +53,14 @@ class AbstractRelation
   end
 
   ##
-  # @return [Integer]
+  # @param limit [Integer] Maximum number of buckets that will be returned in a
+  #                        facet.
+  # @return [self]
   #
-  def count
-    load
-    @result_count
+  def bucket_limit(limit)
+    @bucket_limit = limit
+    @loaded = false
+    self
   end
 
   ##
@@ -73,25 +86,6 @@ class AbstractRelation
   end
 
   ##
-  # @param limit [Integer] Maximum number of buckets that will be returned in a
-  #                        facet.
-  # @return [self]
-  #
-  def bucket_limit(limit)
-    @bucket_limit = limit
-    @loaded = false
-    self
-  end
-
-  ##
-  # @return [Enumerable<Facet>] Result facets.
-  #
-  def facets
-    load
-    @result_facets
-  end
-
-  ##
   # Adds an arbitrary filter to limit results to.
   #
   # @param field [String]
@@ -102,20 +96,6 @@ class AbstractRelation
     @filters.merge!({ field => value })
     @loaded = false
     self
-  end
-
-  ##
-  # @return [Integer]
-  #
-  def get_limit
-    @limit
-  end
-
-  ##
-  # @return [Integer]
-  #
-  def get_start
-    @start
   end
 
   ##
@@ -165,13 +145,6 @@ class AbstractRelation
   end
 
   ##
-  # @return [Integer]
-  #
-  def page
-    ((@start / @limit.to_f).ceil + 1 if @limit > 0) || 1
-  end
-
-  ##
   # Adds a query to search a particular field.
   #
   # @param field [String, Symbol] Field name
@@ -207,6 +180,66 @@ class AbstractRelation
     self
   end
 
+  ###########################################################################
+  # RESULT METHODS
+  # These methods retrieve results.
+  ###########################################################################
+
+  ##
+  # @return [Integer]
+  #
+  def count
+    load
+    @result_count
+  end
+
+  ##
+  # Required by the {Enumerable} contract.
+  #
+  def each(&block)
+    to_a.each(&block)
+  end
+
+  ##
+  # @return [Enumerable<Facet>] Result facets.
+  #
+  def facets
+    load
+    @result_facets
+  end
+
+  ##
+  # @return [Integer] Limit provided to {limit}.
+  #
+  def get_limit
+    @limit
+  end
+
+  ##
+  # @return [Integer] Start provided to {start}.
+  #
+  def get_start
+    @start
+  end
+
+  ##
+  # @return [Integer]
+  #
+  def page
+    ((@start / @limit.to_f).ceil + 1 if @limit > 0) || 1
+  end
+
+  ##
+  # For this to work, {BYTE_SIZE_AGGREGATION} must have been included in the
+  # query.
+  #
+  # @return [Integer]
+  #
+  def total_byte_size
+    load
+    @result_byte_size
+  end
+
   ##
   # @return [Enumerable<String>] Result suggestions.
   #
@@ -215,12 +248,13 @@ class AbstractRelation
   end
 
   ##
-  # @return [Enumerable<Item>]
+  # @return [Enumerable<?>]
   #
   def to_a
     raise 'Subclasses must override to_a() and map @response_json to an '\
         'Enumerable of model objects'
   end
+
 
   protected
 
@@ -231,15 +265,21 @@ class AbstractRelation
     end
   end
 
+  def get_response
+    @request_json = build_query
+    result = @client.query(@request_json)
+    JSON.parse(result)
+  end
+
+  def metadata_profile
+    MetadataProfile.default
+  end
+
   ##
   # @return [String] Query that is safe to pass to Elasticsearch.
   #
   def sanitized_query
     @query[:query].gsub(/[\[\]\(\)]/, '').gsub('/', ' ')
-  end
-
-  def get_response
-    raise 'Subclasses must override get_response()'
   end
 
   def load
@@ -253,19 +293,24 @@ class AbstractRelation
       agg = @response_json['aggregations']&.
           find{ |a| a[0] == element.indexed_keyword_field }
       if agg
-        facet = Facet.new
-        facet.name = element.label
+        facet       = Facet.new
+        facet.name  = element.label
         facet.field = element.indexed_keyword_field
         agg[1]['buckets'].each do |bucket|
           term = FacetTerm.new
-          term.name = bucket['key'].to_s
-          term.label = bucket['key'].to_s
-          term.count = bucket['doc_count']
-          term.facet = facet
+          term.name    = bucket['key'].to_s
+          term.label   = bucket['key'].to_s
+          term.count   = bucket['doc_count']
+          term.facet   = facet
           facet.terms << term
         end
         @result_facets << facet
       end
+    end
+
+    agg = @response_json['aggregations']&.find{ |a| a[0] == BYTE_SIZE_AGGREGATION }
+    if agg
+      @result_byte_size = agg[1]['value'].to_i
     end
 
     if @response_json['hits']
@@ -275,17 +320,11 @@ class AbstractRelation
       end
     else
       @result_count = 0
-      raise IOError, "#{@response_json['error']['type']}: #{@response_json['error']['root_cause'][0]['reason']}"
+      raise IOError, "#{@response_json['error']['type']}: "\
+          "#{@response_json['error']['root_cause'][0]['reason']}"
     end
 
     @loaded = true
-  end
-
-  ##
-  # @return [MetadataProfile]
-  #
-  def metadata_profile
-    raise 'Must override metadata_profile()'
   end
 
 end
