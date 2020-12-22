@@ -55,16 +55,15 @@ namespace :elasticsearch do
   end
 
   desc 'Execute an arbitrary query'
-  task :query, [:index, :file] => :environment do |task, args|
-    index     = args[:index]
+  task :query, [:file] => :environment do |task, args|
     file_path = File.expand_path(args[:file])
     json      = File.read(file_path)
-    puts ElasticsearchClient.instance.query(index, json)
+    puts ElasticsearchClient.instance.query(json)
 
     curl_cmd = sprintf('curl -X POST -H "Content-Type: application/json" '\
         '"%s/%s/_search?pretty&size=0" -d @"%s"',
             Configuration.instance.elasticsearch_endpoint,
-            index,
+            Configuration.instance.elasticsearch_index,
             file_path)
     puts 'cURL equivalent: ' + curl_cmd
   end
