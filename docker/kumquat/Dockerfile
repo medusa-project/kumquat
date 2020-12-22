@@ -3,17 +3,21 @@ FROM ruby:2.7.1-slim
 ENV RAILS_ENV=test
 ENV RAILS_LOG_TO_STDOUT=true
 ENV SECRET_KEY_BASE=whateverdoesntmatter
+# This is checked in various places to customize the application for a CI environment
+# (where introducing a new Rails environment would be overkill)
 ENV CI=1
 
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
   build-essential \
+  curl \
+  exiv2 \
+  ffmpeg \
+  git \
   libmagic-dev \
   libpq-dev \
-  curl \
-  git \
-  exiv2 \
+  unzip \
   zip \
-  ffmpeg
+  && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir app
 WORKDIR app
