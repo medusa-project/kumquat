@@ -4,7 +4,7 @@ class IiifPdfGeneratorTest < ActiveSupport::TestCase
 
   setup do
     Item.reindex_all
-    refresh_elasticsearch
+    setup_elasticsearch
 
     @instance = IiifPdfGenerator.new
   end
