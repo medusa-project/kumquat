@@ -122,7 +122,12 @@ class ItemRelation < AbstractRelation
     load
     ids = @response_json['hits']['hits']
       .map{ |r| r['_source'][Item::IndexFields::REPOSITORY_ID] }
-    Item.where('repository_id IN (?)', ids)
+    items = ids.map do |id|
+      item = Item.find_by_repository_id(id)
+      LOGGER.debug("to_a(): #{id} is missing from the database") unless item
+      item
+    end
+    items.select(&:present?)
   end
 
 
