@@ -13,11 +13,8 @@ class ActiveSupport::TestCase
   def setup_elasticsearch
     index  = Configuration.instance.elasticsearch_index
     client = ElasticsearchClient.instance
-    if client.index_exists?(index)
-      client.purge
-    else
-      client.create_index(index)
-    end
+    client.delete_index(index) if client.index_exists?(index)
+    client.create_index(index)
   end
 
   def sign_in_as(user)
