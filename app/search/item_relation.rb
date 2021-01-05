@@ -120,14 +120,18 @@ class ItemRelation < AbstractRelation
   #
   def to_a
     load
-    ids = @response_json['hits']['hits']
-      .map{ |r| r['_source'][Item::IndexFields::REPOSITORY_ID] }
-    items = ids.map do |id|
+    items = to_id_a.map do |id|
       item = Item.find_by_repository_id(id)
       LOGGER.debug("to_a(): #{id} is missing from the database") unless item
       item
     end
     items.select(&:present?)
+  end
+
+  def to_id_a
+    load
+    @response_json['hits']['hits']
+      .map{ |r| r['_source'][Item::IndexFields::REPOSITORY_ID] }
   end
 
 

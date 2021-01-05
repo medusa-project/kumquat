@@ -55,14 +55,18 @@ class CollectionRelation < AbstractRelation
   #
   def to_a
     load
-    ids = @response_json['hits']['hits']
-      .map { |r| r['_source'][Collection::IndexFields::REPOSITORY_ID] }
-    cols = ids.map do |id|
+    cols = to_id_a.map do |id|
       col = Collection.find_by_repository_id(id)
       LOGGER.debug("to_a(): #{id} is missing from the database") unless col
       col
     end
     cols.select(&:present?)
+  end
+
+  def to_id_a
+    load
+    @response_json['hits']['hits']
+      .map { |r| r['_source'][Collection::IndexFields::REPOSITORY_ID] }
   end
 
 
