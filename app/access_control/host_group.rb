@@ -161,7 +161,7 @@ class HostGroup < ApplicationRecord
         end
 
         # Check that each quad is in the range 0-255.
-        if line.gsub(/\D/, '.').split('.').select{ |q| q.to_i > 255 }.any?
+        if line.gsub(/\D/, '.').split('.').find{ |q| q.to_i > 255 }
           errors.add(:pattern, 'is  malformed')
         end
       else

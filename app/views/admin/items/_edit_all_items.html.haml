@@ -27,7 +27,7 @@
                 %span.dl-tree-connector ↳
               = link_to admin_collection_item_path(item.collection, item), target: '_blank' do
                 = thumbnail_tag(item)
-          = item.binaries.select{ |b| b.master_type == Binary::MasterType::PRESERVATION }.first&.filename
+          = item.binaries.find{ |b| b.master_type == Binary::MasterType::PRESERVATION }&.filename
         %td
           - if item.file? or item.directory?
             .dl-thumbnail

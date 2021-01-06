@@ -29,7 +29,7 @@ module OaiPmhHelper
           select{ |e| e.value.present? }.each do |ie|
         # oai_dc supports only unqualified DC.
         dc_element = item.collection.metadata_profile.elements.
-            select{ |pe| pe.name == ie.name }.first&.dc_map
+          find{ |pe| pe.name == ie.name }&.dc_map
         xml.tag!("dc:#{dc_element}", ie.value) if dc_element.present?
       end
       # Add a dc:identifier element containing the item URI (IMET-391)
@@ -54,7 +54,7 @@ module OaiPmhHelper
       item.elements_in_profile_order(only_visible: true).
           select{ |e| e.value.present? }.each do |ie|
         dc_element = item.collection.metadata_profile.elements.
-            select{ |pe| pe.name == ie.name }.first&.dcterms_map
+          find{ |pe| pe.name == ie.name }&.dcterms_map
         xml.tag!("dcterms:#{dc_element}", ie.value) if dc_element.present?
       end
       # Add a dcterms:identifier element containing the item URI (IMET-391)
@@ -83,11 +83,11 @@ module OaiPmhHelper
     }) do
       item.elements_in_profile_order(only_visible: true).
           select{ |e| e.value.present? }.each do |ie|
-        profile_element = profile.elements.select{ |pe| pe.name == ie.name }.first
+        profile_element = profile.elements.find{ |pe| pe.name == ie.name }
         if profile_element
           dcterms_element = profile_element.dcterms_map
           if dcterms_element.present?
-            dc_element = DublinCoreElement.all.select{ |e| e.name == dcterms_element }.first
+            dc_element = DublinCoreElement.all.find{ |e| e.name == dcterms_element }
             if dc_element
               xml.tag!("dc:#{dc_element.name}", ie.value)
 
@@ -135,11 +135,11 @@ module OaiPmhHelper
     }) do
       item.elements_in_profile_order(only_visible: true).
           select{ |e| e.value.present? }.each do |ie|
-        profile_element = profile.elements.select{ |pe| pe.name == ie.name }.first
+        profile_element = profile.elements.find{ |pe| pe.name == ie.name }
         if profile_element
           dcterms_element = profile_element.dcterms_map
           if dcterms_element.present?
-            dc_element = DublinCoreElement.all.select{ |e| e.name == dcterms_element }.first
+            dc_element = DublinCoreElement.all.find{ |e| e.name == dcterms_element }
             if dc_element
               xml.tag!("dc:#{dc_element.name}", ie.value)
               if dc_element.name == 'rights' and ie.uri.present?

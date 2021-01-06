@@ -78,7 +78,7 @@ class MetadataProfileTest < ActiveSupport::TestCase
     assert_equal 'Test Profile (imported)', profile.name
     assert_equal 2, profile.elements.length
 
-    subject = profile.elements.select{ |ed| ed.name == 'subject' }.first
+    subject = profile.elements.find{ |ed| ed.name == 'subject' }
     assert_equal subject.id, profile.default_sortable_element_id
     assert_equal 'Subject', subject.label
     assert_equal profile.id, subject.metadata_profile_id

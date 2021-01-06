@@ -18,7 +18,7 @@ class CollectionElement < EntityElement
   #                             given name is not an available element name.
   #
   def self.named(name)
-    all_available.select{ |e| e.name == name }.first
+    all_available.find{ |e| e.name == name }
   end
 
   def ==(obj)

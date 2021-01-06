@@ -329,7 +329,7 @@ class Collection < ApplicationRecord
       # are marked as indexed in the collection's metadata profile, or if the
       # collection doesn't have a metadata profile.
       next unless (!self.metadata_profile or self.metadata_profile.elements.
-          select{ |mpe| mpe.name == element.name }.first&.indexed)
+        find{ |mpe| mpe.name == element.name }&.indexed)
 
       unless doc[element.indexed_field]&.respond_to?(:each)
         doc[element.indexed_field] = []

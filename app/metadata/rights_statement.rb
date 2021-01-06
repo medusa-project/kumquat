@@ -98,7 +98,7 @@ class RightsStatement
   #
   def self.for_uri(uri)
     statement = nil
-    struct = ALL_STATEMENTS.select{ |s| s[:uri] == uri }.first
+    struct = ALL_STATEMENTS.find{ |s| s[:uri] == uri }
     if struct
       statement = RightsStatement.new
       struct.each { |key, value| statement.send("#{key}=", value) }

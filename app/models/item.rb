@@ -799,15 +799,15 @@ class Item < ApplicationRecord
   #
   def effective_rightsstatements_org_statement
     # Use the statement assigned to the instance.
-    uri = self.elements.select{ |e| e.name == 'accessRights' &&
-        e.uri&.start_with?('http://rightsstatements.org') }.first&.uri
+    uri = self.elements.find{ |e| e.name == 'accessRights' &&
+        e.uri&.start_with?('http://rightsstatements.org') }&.uri
     rs = RightsStatement.for_uri(uri)
     # If not assigned, walk up the item tree to find a parent statement.
     unless rs
       p = self.parent
       while p
-        uri = p.elements.select{ |e| e.name == 'accessRights' &&
-            e.uri&.start_with?('http://rightsstatements.org') }.first&.uri
+        uri = p.elements.find{ |e| e.name == 'accessRights' &&
+            e.uri&.start_with?('http://rightsstatements.org') }&.uri
         rs = RightsStatement.for_uri(uri)
         break if rs
         p = p.parent

@@ -453,7 +453,7 @@ module ItemsHelper
     defs = defs.select(&:visible) unless options[:admin]
     defs.each do |e_def|
       elements = item.elements.
-          select{ |e| e.name == e_def.name and (e.value.present? or e.uri.present?) }
+          select{ |e| e.name == e_def.name && (e.value.present? || e.uri.present?) }
       next if elements.empty?
       html << '<dt>'
       html <<   e_def.label
@@ -505,7 +505,7 @@ module ItemsHelper
     p_els = p_els.select(&:visible) unless options[:admin]
     p_els.each do |pel|
       elements = item.elements.
-          select{ |e| e.name == pel.name and (e.value.present? or e.uri.present?) }
+          select{ |e| e.name == pel.name && (e.value.present? || e.uri.present?) }
       next if elements.empty?
       html << '<tr>'
       html <<   '<td>'
@@ -623,8 +623,8 @@ module ItemsHelper
       fq&.each do |fq_|
         parts = fq_.split(':')
         if parts.length == 2
-          name = EntityElement.element_name_for_indexed_field(parts[0])
-          label = profile.elements.select{ |e| e.name == name }.first.label
+          name  = EntityElement.element_name_for_indexed_field(parts[0])
+          label = profile.elements.find{ |e| e.name == name }.label
           value = parts[1].chomp('"').reverse.chomp('"').reverse
 
           query << "<li>#{label}: <span class=\"dl-query-summary-value\">#{value}</span></li>"
@@ -884,7 +884,7 @@ module ItemsHelper
       # If there is an element in the ?sort= query, select that. Otherwise,
       # select the metadata profile's default sort element.
       selected_element = sortable_elements.
-          select{ |e| e.indexed_sort_field == params[:sort] }.first
+        find{ |e| e.indexed_sort_field == params[:sort] }
       if !selected_element and default_sortable_element
         selected_element =
             sortable_elements.find_by_name(default_sortable_element.name)
@@ -1483,10 +1483,10 @@ module ItemsHelper
     three_d_binaries = item.binaries.
         select{ |b| b.media_category == Binary::MediaCategory::THREE_D }
     obj_binary = three_d_binaries.
-        select{ |b| b.filename&.downcase.end_with?('.obj') }.first
+      find{ |b| b.filename&.downcase.end_with?('.obj') }
     if obj_binary
       mtl_binary = three_d_binaries.
-          select{ |b| b.filename&.downcase.end_with?('.mtl') }.first
+        find{ |b| b.filename&.downcase.end_with?('.mtl') }
       # All items with OBJ models should also have one of these.
       if mtl_binary
         viewer_url = asset_path('/threejs-viewer/3dviewer.min.js')

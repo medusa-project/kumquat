@@ -881,7 +881,7 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal Item::Variants::PAGE, @item.variant
 
     assert_equal 3, @item.elements.length
-    description = @item.elements.select{ |e| e.name == 'description' }.first
+    description = @item.elements.find{ |e| e.name == 'description' }
     assert_equal 'Something', description.value
     assert_equal 'http://example.org/something', description.uri
     assert_equal 'uncontrolled', description.vocabulary.key

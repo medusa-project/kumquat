@@ -44,7 +44,7 @@ class MedusaMixedMediaIngester < MedusaAbstractIngester
     # Child items will have subdirectories called `access` and/or
     # `preservation`.
     if struct['subdirectories']&.
-        select{ |n| %w(access preservation).include?(n['name']) }.any?
+      find{ |n| %w(access preservation).include?(n['name']) }
       return struct['parent_directory']['uuid']
     end
     nil

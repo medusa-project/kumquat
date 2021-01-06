@@ -144,7 +144,7 @@ module AdminHelper
     defs = item.collection.effective_metadata_profile.elements
     defs.each do |e_def|
       elements = item.elements.
-          select{ |e| e.name == e_def.name and (e.value.present? or e.uri.present?) }
+          select{ |e| e.name == e_def.name && (e.value.present? || e.uri.present?) }
       next if elements.empty?
       html << '<tr>'
       html <<   "<td>#{e_def.label}</td>"

@@ -63,7 +63,7 @@ class ContentdmController < ApplicationController
   # Responds to GET /u
   #
   def v4_reference_url
-    identifier = params.keys.select{ |k| k.start_with?('/') }.first
+    identifier = params.keys.find{ |k| k.start_with?('/') }
     if identifier
       parts = identifier.split(',')
       if parts.length == 2

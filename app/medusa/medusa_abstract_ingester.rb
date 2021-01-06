@@ -66,7 +66,7 @@ class MedusaAbstractIngester
     item.update_from_embedded_metadata(options)
     # If there is no title present in the new metadata, restore the initial
     # title.
-    if item.elements.select{ |e| e.name == 'title' }.empty?
+    unless item.elements.find{ |e| e.name == 'title' }
       item.elements.build(name: 'title', value: initial_title)
     end
   end

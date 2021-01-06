@@ -51,7 +51,7 @@ class PackageProfile
   end
 
   def self.find(id)
-    self.all.select{ |p| p.id == id.to_i }.first
+    self.all.find{ |p| p.id == id.to_i }
   end
 
   # [Documentation](https://wiki.illinois.edu/wiki/display/LibraryDigitalPreservation/Compound-item+Object+Package)
