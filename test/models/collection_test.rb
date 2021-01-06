@@ -191,8 +191,8 @@ class CollectionTest < ActiveSupport::TestCase
   end
 
   test 'effective_medusa_directory() falls back to the file group CFS directory' do
-    @collection.medusa_directory_uuid = nil
-    @collection.medusa_file_group_id = '5881d456-6dbe-90f1-ac81-7e0bf53e9c84'
+    @collection.medusa_directory_uuid  = nil
+    @collection.medusa_file_group_uuid = '5881d456-6dbe-90f1-ac81-7e0bf53e9c84'
     @collection.save!
     assert_equal '1b760655-c504-7fce-f171-76e4234844da',
                  @collection.effective_medusa_directory.uuid
@@ -288,24 +288,24 @@ class CollectionTest < ActiveSupport::TestCase
 
   # medusa_file_group()
 
-  test 'medusa_file_group() returns nil if medusa_file_group_id is nil' do
-    @collection.medusa_file_group_id = nil
+  test 'medusa_file_group() returns nil if medusa_file_group_uuid is nil' do
+    @collection.medusa_file_group_uuid = nil
     assert_nil @collection.medusa_file_group
   end
 
   test 'medusa_file_group() returns a Medusa::FileGroup' do
     assert_equal @collection.medusa_file_group.uuid,
-                 @collection.medusa_file_group_id
+                 @collection.medusa_file_group_uuid
   end
 
-  # meduse_file_group_id
+  # meduse_file_group_uuid
 
-  test 'medusa_file_group_id must be a valid Medusa file group ID' do
+  test 'medusa_file_group_uuid must be a valid Medusa file group ID' do
     # set it to a directory UUID
-    @collection.medusa_file_group_id = '7b1f3340-b41b-0134-234d-0050569601ca-8'
+    @collection.medusa_file_group_uuid = '7b1f3340-b41b-0134-234d-0050569601ca-8'
     assert !@collection.valid?
     # set it to a file UUID
-    @collection.medusa_file_group_id = '6cc533c0-cebf-0134-238a-0050569601ca-3'
+    @collection.medusa_file_group_uuid = '6cc533c0-cebf-0134-238a-0050569601ca-3'
     assert !@collection.valid?
   end
 

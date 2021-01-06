@@ -31,8 +31,8 @@
       The information in this section can only be
       changed when the collection is empty.
   .form-group
-    = f.label :medusa_file_group_id, 'Medusa File Group UUID'
-    = f.text_field(:medusa_file_group_id, class: 'form-control',
+    = f.label :medusa_file_group_uuid, 'Medusa File Group UUID'
+    = f.text_field(:medusa_file_group_uuid, class: 'form-control',
                    disabled: @collection.items.any?)
   .form-group
     = f.label :medusa_directory_uuid, 'Medusa Directory UUID'

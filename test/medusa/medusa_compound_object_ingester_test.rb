@@ -32,7 +32,7 @@ class MedusaCompoundObjectIngesterTest < ActiveSupport::TestCase
   # create_items()
 
   test 'create_items() with collection file group not set raises an error' do
-    @collection.medusa_file_group_id = nil
+    @collection.medusa_file_group_uuid = nil
     assert_raises ArgumentError do
       @ingester.create_items(@collection)
     end
@@ -54,8 +54,8 @@ class MedusaCompoundObjectIngesterTest < ActiveSupport::TestCase
   end
 
   test 'create_items() with no effective collection directory raises an error' do
-    @collection.medusa_directory_uuid = nil
-    @collection.medusa_file_group_id  = nil
+    @collection.medusa_directory_uuid  = nil
+    @collection.medusa_file_group_uuid = nil
     assert_raises ArgumentError do
       @ingester.create_items(@collection)
     end
@@ -181,7 +181,7 @@ class MedusaCompoundObjectIngesterTest < ActiveSupport::TestCase
   # delete_missing_items()
 
   test 'delete_missing_items() with collection file group not set raises an error' do
-    @collection.medusa_file_group_id = nil
+    @collection.medusa_file_group_uuid = nil
     assert_raises ArgumentError do
       @ingester.delete_missing_items(@collection)
     end
@@ -205,8 +205,8 @@ class MedusaCompoundObjectIngesterTest < ActiveSupport::TestCase
 
   test 'delete_missing_items() with no effective collection directory raises an
   error' do
-    @collection.medusa_directory_uuid = nil
-    @collection.medusa_file_group_id  = nil
+    @collection.medusa_directory_uuid  = nil
+    @collection.medusa_file_group_uuid = nil
     assert_raises ArgumentError do
       @ingester.delete_missing_items(@collection)
     end
@@ -245,7 +245,7 @@ class MedusaCompoundObjectIngesterTest < ActiveSupport::TestCase
   # replace_metadata()
 
   test 'replace_metadata() with collection file group not set raises an error' do
-    @collection.medusa_file_group_id = nil
+    @collection.medusa_file_group_uuid = nil
     assert_raises ArgumentError do
       @ingester.replace_metadata(@collection)
     end
@@ -260,8 +260,8 @@ class MedusaCompoundObjectIngesterTest < ActiveSupport::TestCase
 
   test 'replace_metadata() with no effective collection CFS directory raises an
   error' do
-    @collection.medusa_directory_uuid = nil
-    @collection.medusa_file_group_id  = nil
+    @collection.medusa_directory_uuid  = nil
+    @collection.medusa_file_group_uuid = nil
     assert_raises ArgumentError do
       @ingester.replace_metadata(@collection)
     end
@@ -274,7 +274,7 @@ class MedusaCompoundObjectIngesterTest < ActiveSupport::TestCase
   # recreate_binaries()
 
   test 'recreate_binaries() with collection file group not set raises an error' do
-    @collection.medusa_file_group_id = nil
+    @collection.medusa_file_group_uuid = nil
     assert_raises ArgumentError do
       @ingester.recreate_binaries(@collection)
     end
@@ -297,8 +297,8 @@ class MedusaCompoundObjectIngesterTest < ActiveSupport::TestCase
   end
 
   test 'recreate_binaries() with no effective collection directory raises an error' do
-    @collection.medusa_directory_uuid = nil
-    @collection.medusa_file_group_id  = nil
+    @collection.medusa_directory_uuid  = nil
+    @collection.medusa_file_group_uuid = nil
     assert_raises ArgumentError do
       @ingester.recreate_binaries(@collection)
     end

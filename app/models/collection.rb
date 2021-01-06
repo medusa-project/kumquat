@@ -60,7 +60,7 @@
 # * `medusa_directory_uuid`    Medusa UUID of the root directory in which the
 #                              collection's contents reside. If nil, the root
 #                              directory of the file group will be used.
-# * `medusa_file_group_id`     Medusa UUID of the file group in which the
+# * `medusa_file_group_uuid`   Medusa UUID of the file group in which the
 #                              collection's contents reside.
 # * `medusa_repository_id`
 # * `metadata_profile_id`      Database ID of the MetadataProfile assigned to
@@ -511,8 +511,8 @@ class Collection < ApplicationRecord
   def medusa_file_group
    unless @file_group
      @file_group = nil
-     if self.medusa_file_group_id.present?
-       @file_group = Medusa::FileGroup.with_uuid(self.medusa_file_group_id)
+     if self.medusa_file_group_uuid.present?
+       @file_group = Medusa::FileGroup.with_uuid(self.medusa_file_group_uuid)
      end
    end
    @file_group
@@ -822,17 +822,17 @@ class Collection < ApplicationRecord
 
   def do_before_validation
     self.medusa_directory_uuid&.strip!
-    self.medusa_file_group_id&.strip!
+    self.medusa_file_group_uuid&.strip!
     self.representative_image&.strip!
     self.representative_item_id&.strip!
   end
 
   def validate_medusa_uuids
     client = Medusa::Client.instance
-    if self.medusa_file_group_id.present? &&
-      self.medusa_file_group_id_changed? &&
-        client.class_of_uuid(self.medusa_file_group_id) != Medusa::FileGroup
-      errors.add(:medusa_file_group_id, 'is not a Medusa file group UUID')
+    if self.medusa_file_group_uuid.present? &&
+      self.medusa_file_group_uuid_changed? &&
+        client.class_of_uuid(self.medusa_file_group_uuid) != Medusa::FileGroup
+      errors.add(:medusa_file_group_uuid, 'is not a Medusa file group UUID')
     end
     if self.medusa_directory_uuid.present? &&
         self.medusa_directory_uuid_changed? &&

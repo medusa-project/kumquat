@@ -84,7 +84,7 @@ module Admin
       @collection = Collection.find_by_repository_id(params[:id])
       raise ActiveRecord::RecordNotFound unless @collection
 
-      @file_group = @collection.medusa_file_group_id.present? ?
+      @file_group = @collection.medusa_file_group_uuid.present? ?
           @collection.medusa_file_group : nil
       @can_reindex = (@collection.published_in_dls and
           @collection.medusa_file_group)
@@ -192,7 +192,7 @@ module Admin
                                          :harvestable, :harvestable_by_idhh,
                                          :harvestable_by_primo,
                                          :medusa_directory_uuid,
-                                         :medusa_file_group_id,
+                                         :medusa_file_group_uuid,
                                          :metadata_profile_id,
                                          :package_profile_id,
                                          :published_in_dls,
