@@ -55,12 +55,12 @@ class CollectionRelation < AbstractRelation
   #
   def to_a
     load
-    cols = to_id_a.map do |id|
-      col = Collection.find_by_repository_id(id)
-      LOGGER.debug("to_a(): #{id} is missing from the database") unless col
-      col
-    end
-    cols.select(&:present?)
+    # This is basically a "WHERE IN" query that preserves the order of the
+    # results corresponding to the IDs in the "IN" clause.
+    # TODO: monkey-patch ActiveRecord::Base?
+    sql_arr = to_id_a.map{ |e| "\"#{e}\"" }.join(',')
+    Collection.joins("JOIN unnest('{#{sql_arr}}'::text[]) WITH ORDINALITY t(repository_id, ord) USING (repository_id)").
+      order('t.ord')
   end
 
   def to_id_a

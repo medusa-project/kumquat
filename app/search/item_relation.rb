@@ -120,12 +120,12 @@ class ItemRelation < AbstractRelation
   #
   def to_a
     load
-    items = to_id_a.map do |id|
-      item = Item.find_by_repository_id(id)
-      LOGGER.debug("to_a(): #{id} is missing from the database") unless item
-      item
-    end
-    items.select(&:present?)
+    # This is basically a "WHERE IN" query that preserves the order of the
+    # results corresponding to the IDs in the "IN" clause.
+    # TODO: monkey-patch ActiveRecord::Base?
+    sql_arr = to_id_a.map{ |e| "\"#{e}\"" }.join(',')
+    Item.joins("JOIN unnest('{#{sql_arr}}'::text[]) WITH ORDINALITY t(repository_id, ord) USING (repository_id)").
+      order('t.ord')
   end
 
   def to_id_a
