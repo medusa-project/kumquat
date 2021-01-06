@@ -3,9 +3,9 @@ class ItemsController < WebsiteController
   include ActionController::Streaming
 
   class BrowseContext
-    BROWSING_ALL_ITEMS = 0
+    BROWSING_ALL_ITEMS  = 0
     BROWSING_COLLECTION = 1
-    SEARCHING = 2
+    SEARCHING           = 2
   end
 
   PERMITTED_PARAMS = [:_, :collection_id, :df, :display, :download_start,
@@ -32,23 +32,25 @@ class ItemsController < WebsiteController
   # An item shouldn't have multiple binaries with the same filename, but if
   # it does, one of them will be sent at random.
   #
-  # Responds to GET /items/:item_id/binaries/:filename
+  # Responds to `GET /items/:item_id/binaries/:filename`
   #
   def binary
-    filename = [params[:filename], params[:format]].join('.')
-    binary = @item.binaries.where('object_key LIKE ?',
-                                  "%/#{filename}").limit(1).first
+    parts    = [params[:filename]]
+    parts    << params[:format] if params[:format]
+    filename = parts.join('.')
+    binary   = @item.binaries.where('object_key LIKE ?',
+                                    "%/#{filename}").limit(1).first
     if binary
       send_binary(binary)
     else
-      render status: 404, text: 'Binary not found'
+      render plain: 'Binary not found', status: :not_found
     end
   end
 
   ##
   # Serves IIIF Presentation API 2.1 annotation lists.
   #
-  # Responds to GET /items/:id/list/:name
+  # Responds to `GET /items/:id/list/:name`
   #
   # @see http://iiif.io/api/presentation/2.1/#annotation-list
   #
@@ -65,7 +67,7 @@ class ItemsController < WebsiteController
   ##
   # Serves IIIF Presentation API 2.1 canvases.
   #
-  # Responds to GET /items/:id/canvas/:name
+  # Responds to `GET /items/:id/canvas/:name`
   #
   # @see http://iiif.io/api/presentation/2.1/#canvas
   #
@@ -83,7 +85,7 @@ class ItemsController < WebsiteController
   ##
   # Serves IIIF Presentation API 2.1 image resources.
   #
-  # Responds to GET /items/:id/annotation/:name
+  # Responds to `GET /items/:id/annotation/:name`
   #
   # @see http://iiif.io/api/presentation/2.1/#image-resources
   #
@@ -91,7 +93,7 @@ class ItemsController < WebsiteController
     valid_names = %w(access preservation)
     if valid_names.include?(params[:name])
       @image_resource_name = params[:name]
-      @binary = @item.effective_image_binary
+      @binary              = @item.effective_image_binary
       render 'items/iiif_presentation_api/image_resource',
              formats: :json,
              content_type: 'application/json'
@@ -103,7 +105,7 @@ class ItemsController < WebsiteController
   ##
   # Serves IIIF Presentation API 2.1 layers.
   #
-  # Responds to GET /items/:id/layer/:name
+  # Responds to `GET /items/:id/layer/:name`
   #
   # @see http://iiif.io/api/presentation/2.1/#layer
   #
@@ -121,7 +123,7 @@ class ItemsController < WebsiteController
   ##
   # Serves IIIF Presentation API 2.1 manifests.
   #
-  # Responds to GET /items/:id/manifest
+  # Responds to `GET /items/:id/manifest`
   #
   # @see http://iiif.io/api/presentation/2.1/#manifest
   #
@@ -135,7 +137,7 @@ class ItemsController < WebsiteController
   # Wellcome Library that enables the UniversalViewer to work with certain
   # non-image content.
   #
-  # Responds to GET /items/:id/xsequence/:name
+  # Responds to `GET /items/:id/xsequence/:name`
   #
   # @see https://gist.github.com/tomcrane/7f86ac08d3b009c8af7c
   #
@@ -148,15 +150,15 @@ class ItemsController < WebsiteController
   ##
   # Serves IIIF Presentation API 2.1 ranges.
   #
-  # Responds to GET /items/:id/range/:name where :name is a subitem repository
-  # ID.
+  # Responds to `GET /items/:id/range/:name` where `:name` is a subitem
+  # repository ID.
   #
   # @see http://iiif.io/api/presentation/2.1/#range
   #
   def iiif_range
     @subitem = Item.find_by_repository_id(params[:name])
-    @item = @subitem.parent
-    if @subitem
+    @item    = @subitem.parent
+    if @item && @subitem
       render 'items/iiif_presentation_api/range',
              formats: :json,
              content_type: 'application/json'
@@ -168,7 +170,7 @@ class ItemsController < WebsiteController
   ##
   # Serves IIIF Presentation API 2.1 sequences.
   #
-  # Responds to GET /items/:id/sequence/:name
+  # Responds to `GET /items/:id/sequence/:name`
   #
   # @see http://iiif.io/api/presentation/2.1/#sequence
   #
@@ -188,7 +190,7 @@ class ItemsController < WebsiteController
       when 'page'
         if @item.pages.count > 0
           @start_canvas_item =
-              @item.items.where(variant: Variants::TITLE).limit(1).first ||
+              @item.items.where(variant: Item::Variants::TITLE).limit(1).first ||
                   @item.pages.first
           render 'items/iiif_presentation_api/sequence',
                  formats: :json,
@@ -319,7 +321,7 @@ class ItemsController < WebsiteController
   end
 
   ##
-  # Responds to GET /items/:id
+  # Responds to `GET /items/:id`
   #
   def show
     if @item.restricted
@@ -522,7 +524,7 @@ class ItemsController < WebsiteController
   ##
   # Handles the root of free-form tree view.
   #
-  # Responds to GET /collections/:collection_id/tree
+  # Responds to `GET /collections/:collection_id/tree`
   #
   def tree
     if params[:collection_id]
@@ -567,7 +569,7 @@ class ItemsController < WebsiteController
   # Returns a JSON representation of a collection's item tree structure, for
   # free-form tree view.
   #
-  # Responds to GET /collections/:id/items/treedata
+  # Responds to `GET /collections/:id/items/treedata`
   #
   def tree_data
     @collection = Collection.find_by_repository_id(params[:collection_id])
@@ -586,12 +588,11 @@ class ItemsController < WebsiteController
   # Returns a JSON representation of an item's tree structure, for free-form
   # tree view.
   #
-  # Responds to GET /items/:id/treedata
+  # Responds to `GET /items/:id/treedata`
   #
   def item_tree_node
     render json: @item.search_children.to_a.map { |child| item_tree_hash(child) }
   end
-
 
 
   private

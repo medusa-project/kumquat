@@ -1,6 +1,6 @@
 module IiifPresentationHelper
 
-  LAYER_LABEL = 'Additional Content'
+  LAYER_LABEL     = 'Additional Content'
   MIN_CANVAS_SIZE = 1200 # http://iiif.io/api/presentation/2.1/#canvas
 
   ##
@@ -47,7 +47,7 @@ module IiifPresentationHelper
   # @param include_metadata [Boolean]
   # @return [Hash<Symbol,Object>]
   #
-  def iiif_canvas_for(subitem, include_metadata)
+  def iiif_canvas_for(subitem, include_metadata:)
     struct = {
         '@id':   item_iiif_canvas_url(subitem, subitem.repository_id),
         '@type': 'sc:Canvas',
@@ -81,9 +81,9 @@ module IiifPresentationHelper
         include_unpublished(true).
         exclude_variants(*exclude_variants).to_a
     if result.count > 0
-      canvases = result.map { |child| iiif_canvas_for(child, true) }
+      canvases = result.map { |child| iiif_canvas_for(child, include_metadata: true) }
     else
-      canvases = [ iiif_canvas_for(item, !(item.file? || item.directory?)) ]
+      canvases = [ iiif_canvas_for(item, include_metadata: !(item.file? || item.directory?)) ]
     end
     canvases
   end

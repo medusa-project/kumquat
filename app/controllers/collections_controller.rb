@@ -15,7 +15,7 @@ class CollectionsController < WebsiteController
   ##
   # Serves IIIF Presentation API 2.1 collections.
   #
-  # Responds to GET /collections/:id
+  # Responds to `GET /collections/:id/iiif`
   #
   # @see http://iiif.io/api/presentation/2.1/#collection
   #
@@ -31,7 +31,6 @@ class CollectionsController < WebsiteController
   #
   # Responds to `GET /collections/iiif`
   #
-  #
   def iiif_presentation_list
     @collections = Collection.search.
         host_groups(client_host_groups).
@@ -46,15 +45,15 @@ class CollectionsController < WebsiteController
   # This is a legacy route that used to be served by this application, but now
   # the Metadata Gateway serves it instead.
   #
-  # Responds to GET /collections
+  # Responds to `GET /collections`
   #
   def index
     redirect_to ::Configuration.instance.metadata_gateway_url + '/collections',
-                status: 303
+                status: 301
   end
 
   ##
-  # Responds to GET /collections/:id
+  # Responds to `GET /collections/:id`
   #
   # N.B.: Unpublished collections are allowed to be shown, but any items
   # residing in them are NOT.
@@ -98,9 +97,9 @@ class CollectionsController < WebsiteController
   end
 
   ##
-  # Responds to GET /projects/:alias.
+  # Responds to `GET /projects/:alias`.
   #
-  # N.B.: This is a route from images.library.illinois.edu, not CONTENTdm.
+  # This is a legacy route from `images.library.illinois.edu`.
   #
   def show_contentdm
     col = Collection.where('LOWER(contentdm_alias) = ?',
