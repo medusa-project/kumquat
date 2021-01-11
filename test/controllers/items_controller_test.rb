@@ -145,8 +145,46 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
 
   # index()
 
-  test 'index()' do
-    # TODO: write tests for this
+  test 'index() returns HTTP 404 for an invalid collection ID' do
+    get collection_items_path('bogus')
+    assert_response :not_found
+  end
+
+  test 'index() redirects to the show-collection page for unauthorized collections' do
+    col = collections(:single_item_object)
+    col.update!(restricted: true)
+    get collection_items_path(col)
+    assert_redirected_to collection_path(col)
+  end
+
+  test 'index() redirects to the Search Gateway when the q argument is not provided' do
+    get items_path
+    assert_response :moved_permanently
+    assert_redirected_to ::Configuration.instance.metadata_gateway_url + '/items'
+  end
+
+  test 'index() returns HTTP 200 for Atom' do
+    get items_path(q: 'query', format: :atom)
+    assert_response :ok
+  end
+
+  test 'index() returns HTTP 200 for HTML' do
+    get items_path(q: 'query')
+    assert_response :ok
+  end
+
+  test 'index() returns HTTP 200 for JS' do
+    get items_path(q: 'query', format: :js)
+    assert_response :ok
+  end
+
+  test 'index() returns HTTP 200 for JSON' do
+    get items_path(q: 'query', format: :json)
+    assert_response :ok
+  end
+
+  test 'index() returns HTTP 200 for zip' do
+    # TODO: write zip tests
   end
 
   # show() access control
@@ -157,7 +195,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
                               expires: Time.now.to_i + 1.day.to_i }]
     @item.save!
 
-    get('/items/' + @item.repository_id)
+    get item_path(@item)
     assert_response :ok
   end
 
@@ -167,7 +205,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
                               expires: Time.now.to_i + 1.day.to_i }]
     @item.save!
 
-    get('/items/' + @item.repository_id)
+    get item_path(@item)
     assert_response :ok
   end
 
@@ -177,7 +215,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
                               expires: Time.now.to_i - 1.day.to_i }]
     @item.save!
 
-    get('/items/' + @item.repository_id)
+    get item_path(@item)
     assert_response :ok
   end
 
@@ -187,7 +225,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
                               expires: Time.now.to_i - 1.day.to_i }]
     @item.save!
 
-    get('/items/' + @item.repository_id)
+    get item_path(@item)
     assert_response :forbidden
   end
 
@@ -197,7 +235,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
                               expires: Time.now.to_i + 1.day.to_i }]
     @item.save!
 
-    get('/items/' + @item.repository_id)
+    get item_path(@item)
     assert_response :forbidden
   end
 
@@ -206,7 +244,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
                               expires: Time.now.to_i + 1.day.to_i }]
     @item.save!
 
-    get('/items/' + @item.repository_id)
+    get item_path(@item)
     assert_redirected_to signin_path
   end
 
@@ -217,15 +255,90 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     @item.denied_host_groups << group
     @item.save!
 
-    get('/items/' + @item.repository_id)
+    get item_path(@item)
     assert_response :forbidden
   end
 
-  # show() with JSON
+  # show() with file- and directory-variants
+
+  test 'show() does not allow access to file variants via non-XHR requests' do
+    get item_path(@item)
+    assert_response :found
+    assert_redirected_to collection_tree_path(@item.collection,
+                                              anchor: @item.repository_id)
+  end
+
+  test 'show() does not allow access to directory variants via non-XHR requests' do
+    @item = items(:free_form_dir1)
+    get item_path(@item)
+    assert_response :found
+    assert_redirected_to collection_tree_path(@item.collection,
+                                              anchor: @item.repository_id)
+  end
+
+  test 'show() returns HTTP 400 for requests for file variants that are missing
+  the tree-node-type argument' do
+    get item_path(@item), xhr: true
+    assert_response :bad_request
+  end
+
+  test 'show() returns HTTP 400 for requests for directory variants that are
+  missing the tree-node-type argument' do
+    @item = items(:free_form_dir1)
+    get item_path(@item), xhr: true
+    assert_response :bad_request
+  end
+
+  test 'show() allows access to file variants via XHR requests' do
+    get item_path(@item, 'tree-node-type': 'file_node'), xhr: true
+    assert_response :ok
+  end
+
+  test 'show() allows access to directory variants via XHR requests' do
+    @item = items(:free_form_dir1)
+    get item_path(@item, 'tree-node-type': 'directory_node'), xhr: true
+    assert_response :ok
+  end
+
+  # show() with non-free-form variants
+
+  test 'show() returns HTTP 200 for compound objects' do
+    @item = items(:compound_object_1002)
+    get item_path(@item)
+    assert_response :ok
+  end
+
+  test 'show() returns HTTP 200 for single-item objects' do
+    @item = items(:compound_object_1001)
+    get item_path(@item)
+    assert_response :ok
+  end
+
+  # show() output format
+
+  test 'show() Atom returns HTTP 200' do
+    get item_path(@item, format: :atom)
+    assert_response :success
+  end
 
   test 'show() JSON returns HTTP 200' do
-    get('/items/' + @item.repository_id + '.json')
+    get item_path(@item, format: :json)
     assert_response :success
+  end
+
+  test 'show() PDF redirects to download URL for compound objects' do
+    @item = items(:compound_object_1002)
+    get item_path(@item, format: :pdf)
+    assert_response :found
+  end
+
+  test 'show() PDF redirects to show-item page for non-compound objects' do
+    get item_path(@item, format: :pdf)
+    assert_redirected_to item_path(@item)
+  end
+
+  test 'show() zip' do
+    # TODO: write all these zip format tests
   end
 
 end

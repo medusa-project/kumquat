@@ -207,7 +207,7 @@ class ItemsController < WebsiteController
   ##
   # Responds to `GET /items` and `GET /collections/:collection_id/items`.
   # The former is only allowed for searches (namely of metadata values) and
-  # will redirect to the Gateway items path via HTTP 303 unless a `q` query
+  # will redirect to the Gateway items path via HTTP 301 unless a `q` query
   # argument is present.
   #
   def index
@@ -224,7 +224,7 @@ class ItemsController < WebsiteController
       end
     elsif params[:q].blank?
       redirect_to ::Configuration.instance.metadata_gateway_url + '/items',
-                  status: 303 and return
+                  status: :moved_permanently and return
     end
 
     relation           = item_relation_for(params)
@@ -348,15 +348,18 @@ class ItemsController < WebsiteController
             @show_zip_of_masters = @item.directory?
             @show_zip_of_jpegs   = @show_pdf = false
 
-            if params['tree-node-type'].include?('file_node')
+            if params['tree-node-type']&.include?('file_node')
               render 'show_file', layout: false
-            elsif params['tree-node-type'].include?('directory_node')
+            elsif params['tree-node-type']&.include?('directory_node')
               render 'show_directory', layout: false
+            else
+              render plain: 'Missing tree-node-type argument',
+                     status: :bad_request
             end
-          # We don't want to send crawler bots to the tree view because it's
-          # all dynamic and they won't be able to see anything. So, give them
-          # the show template.
-          elsif request.user_agent.include?('Twitterbot')
+          elsif false
+            # TODO: modify the above clause to check for crawler bots, because
+            # the tree view is all dynamic and most of them won't be able to
+            # see anything
             @root_item          = @item
             @downloadable_items = []
             @total_byte_size    = 0
