@@ -20,7 +20,7 @@ module ItemsHelper
   # @return [String, nil] Image URL, or nil if the binary is not compatible
   #                       with the image server or safe for it to serve.
   #
-  def binary_image_url(binary, options = {})
+  def binary_image_url(binary, options = {}) # TODO: update this signature to be consistent with item_image_url()
     url   = nil
     query = {}
 
@@ -286,7 +286,7 @@ module ItemsHelper
   # @return [String, nil] Image URL, or nil if the item has no image server-
   #                       compatible image binary.
   #
-  def item_image_url(item, region = :full, size = :full, format = :jpg)
+  def item_image_url(item:, region: :full, size: :full, format: :jpg)
     url = nil
     bin = item.effective_image_binary
     if bin
@@ -325,7 +325,7 @@ module ItemsHelper
   def item_meta_tags(item)
     # N.B.: Minimum Twitter image size is 300x157 and maximum size is
     # 4096x4096 / 5MB.
-    image_url = item_image_url(item, :full, 1600)
+    image_url = item_image_url(item: item, size: 1600)
 
     html = StringIO.new
 
@@ -439,18 +439,15 @@ module ItemsHelper
 
   ##
   # @param item [Item]
-  # @param options [Hash]
-  # @option options [Boolean] :admin
   # @return [String] HTML definition list containing item metadata.
   # @see metadata_as_table
   #
-  def metadata_as_list(item, options = {})
+  def metadata_as_list(item)
     html = StringIO.new
     html << '<dl class="dl-metadata">'
     # iterate through the index-ordered elements in the collection's metadata
     # profile in order to display the entity's elements in the correct order
-    defs = item.collection.effective_metadata_profile.elements
-    defs = defs.select(&:visible) unless options[:admin]
+    defs = item.collection.effective_metadata_profile.elements.select(&:visible)
     defs.each do |e_def|
       elements = item.elements.
           select{ |e| e.name == e_def.name && (e.value.present? || e.uri.present?) }
@@ -490,19 +487,16 @@ module ItemsHelper
 
   ##
   # @param item [Item]
-  # @param options [Hash]
-  # @option options [Boolean] :admin
   # @return [String] HTML table containing item metadata.
   # @see metadata_as_list
   # @see tech_metadata_as_table
   #
-  def metadata_as_table(item, options = {})
+  def metadata_as_table(item)
     html = StringIO.new
     html << '<table class="table table-sm dl-metadata">'
     # iterate through the index-ordered elements in the item's collection's
     # metadata profile.
-    p_els = item.collection.effective_metadata_profile.elements
-    p_els = p_els.select(&:visible) unless options[:admin]
+    p_els = item.collection.effective_metadata_profile.elements.select(&:visible)
     p_els.each do |pel|
       elements = item.elements.
           select{ |e| e.name == pel.name && (e.value.present? || e.uri.present?) }
@@ -637,11 +631,10 @@ module ItemsHelper
 
   ##
   # @param item [Item]
-  # @param options [Hash]
-  # @option options [Boolean] :pretty_print
+  # @param pretty_print [Boolean]
   # @return [String]
   #
-  def schema_org_json_ld(item, options = {})
+  def schema_org_json_ld(item, pretty_print: false)
     # See: http://schema.org/CreativeWork
     # See: https://search.google.com/structured-data/testing-tool
 
@@ -673,7 +666,7 @@ module ItemsHelper
       # be huge and/or in a format they can't use.
       struct[:image] = {
           '@type': 'ImageObject',
-          'contentUrl': item_image_url(item, :default, 1024)
+          'contentUrl': item_image_url(item: item, size: 1024)
       }
     end
 
@@ -783,11 +776,11 @@ module ItemsHelper
 
     # thumbnailUrl
     if iiif_image_binary
-      struct[:thumbnailUrl] = item_image_url(item, :default,
-                                             ItemsHelper::DEFAULT_THUMBNAIL_SIZE)
+      struct[:thumbnailUrl] = item_image_url(item: item,
+                                             size: ItemsHelper::DEFAULT_THUMBNAIL_SIZE)
     end
 
-    options[:pretty_print] ? JSON.pretty_generate(struct) : JSON.generate(struct)
+    pretty_print ? JSON.pretty_generate(struct) : JSON.generate(struct)
   end
 
   ##
@@ -812,7 +805,7 @@ module ItemsHelper
   #
   def share_button(entity)
     title = CGI::escape(entity.respond_to?(:title) ? entity.title : entity.name)
-    url = CGI::escape(polymorphic_url(entity))
+    url   = CGI::escape(polymorphic_url(entity))
 
     html = StringIO.new
     html << '<div class="btn-group" role="group">
@@ -847,7 +840,7 @@ module ItemsHelper
     # pinterest
     url = "http://pinterest.com/pin/create/button/?url=#{url}&description=#{title}"
     if entity.kind_of?(Item)
-      iiif_url = item_image_url(entity, :default, 512)
+      iiif_url = item_image_url(item: entity, size: 512)
       if iiif_url
         url << "&media=#{CGI::escape(iiif_url)}"
       end
@@ -950,9 +943,9 @@ module ItemsHelper
                                size: options[:size])
       end
     elsif entity.kind_of?(Item) and entity.effective_image_binary&.image_server_safe?
-      url = item_image_url(entity,
-                           options[:shape],
-                           options[:size])
+      url = item_image_url(item:   entity,
+                           region: options[:shape],
+                           size:   options[:size])
     end
 
     html = StringIO.new
@@ -989,7 +982,7 @@ module ItemsHelper
     if entity.kind_of?(Binary)
       url = binary_image_url(entity, region: shape, size: size)
     elsif entity.kind_of?(Item)
-      url = item_image_url(entity, shape, size)
+      url = item_image_url(item: entity, region: shape, size: size)
     end
     url
   end

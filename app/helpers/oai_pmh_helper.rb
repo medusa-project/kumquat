@@ -109,7 +109,7 @@ module OaiPmhHelper
 
       # Add a thumbnail URI, if the item has a representative image. This was
       # requested by mhan3@illinois.edu.
-      image_url = item_image_url(item, :full, 150, :jpg)
+      image_url = item_image_url(item: item, size: 150)
       xml.tag!('edm:preview', image_url) if image_url
 
       # Add a link to the IIIF presentation manifest.
