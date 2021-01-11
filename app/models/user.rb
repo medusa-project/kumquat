@@ -1,5 +1,9 @@
 ##
-# Application user. 
+# Application user.
+#
+# Users are authenticated via OmniAuth, which uses a local identity in
+# development/test and Shibboleth in demo/production. Authorization is via AD
+# group membership.
 #
 # # Attributes
 #

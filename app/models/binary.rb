@@ -1,11 +1,12 @@
 ##
-# Represents a file.
+# Represents a file stored in Medusa. Almost all binaries are attached to
+# {Item}s, but there may be a few that aren't (ones that are used to represent
+# collections, for example).
 #
 # Binaries have a many-to-one relationship with {Item}s. When an item is
 # deleted, so are all of its binaries.
 #
-# Binaries are analogous to "CFS files" in Medusa, and are commonly obtained
-# via {Binary#from_medusa_file}.
+# Binaries are commonly obtained via {Binary#from_medusa_file}.
 #
 # Binary data is accessible via {data}, which returns a stream of data from the
 # repository S3 bucket.
@@ -17,7 +18,7 @@
 # server or client viewer software, etc.
 #
 # A binary has a media (MIME) type, which may be different from the Medusa
-# CFS file's media type (which tends to be vague). When the two differ, the
+# file's media type (which tends to be vague). When the two differ, the
 # Binary's media type is usually more specific.
 #
 # A binary may also reside in a {MediaCategory media category}, which helps to
@@ -26,6 +27,10 @@
 # {PackageProfile::MIXED_MEDIA_PROFILE Mixed Media package profile}, whose
 # items may have a representative `image/jpeg` binary as well as an
 # `image/jpeg` 3D model texture.
+#
+# Access master images can are served via the image server. Their {medusa_uuid}
+# property is used as their IIIF ID. When it receives a request, the image
+# server queries Medusa for the S3 key of the file corresponding to that UUID.
 #
 # # Attributes
 #
@@ -134,7 +139,7 @@ class Binary < ApplicationRecord
   def data
     client = MedusaS3Client.instance
     response = client.get_object(bucket: MedusaS3Client::BUCKET,
-                                 key: self.object_key)
+                                 key:    self.object_key)
     response.body
   end
 
@@ -152,7 +157,7 @@ class Binary < ApplicationRecord
       type = 'MovingImage'
     elsif self.is_audio?
       type = 'Sound'
-    elsif self.is_pdf? or self.is_text?
+    elsif self.is_pdf? || self.is_text?
       type = 'Text'
     end
     type
@@ -221,8 +226,8 @@ class Binary < ApplicationRecord
 
   ##
   # If the instance is attached to an Item that has an embed tag that refers
-  # to a video in [UI MediaSpace](https://mediaspace.illinois.edu), parts of the
-  # URL in its `src` attribute are extracted in order to construct an
+  # to a video in [UI MediaSpace](https://mediaspace.illinois.edu), parts of
+  # the URL in its `src` attribute are extracted in order to construct an
   # identifier that the image server will recognize as an image it should serve
   # from there.
   #
@@ -308,7 +313,7 @@ class Binary < ApplicationRecord
         self.media_type = 'text/plain'
       end
     end
-    if self.media_type.blank? or self.media_type == DEFAULT_MEDIA_TYPE
+    if self.media_type.blank? || self.media_type == DEFAULT_MEDIA_TYPE
       # Try to infer the media type from the file header.
       # First, check the Content-Length response header in order to find the
       # end of the requestable range.
@@ -325,7 +330,7 @@ class Binary < ApplicationRecord
         self.media_type = MimeMagic.by_magic(response.body)
       end
       # If that failed, fall back to inferring it from the filename extension.
-      if self.media_type.blank? or self.media_type == DEFAULT_MEDIA_TYPE
+      if self.media_type.blank? || self.media_type == DEFAULT_MEDIA_TYPE
         self.media_type = MimeMagic.by_extension(ext)&.type
       end
     end
@@ -336,7 +341,7 @@ class Binary < ApplicationRecord
   end
 
   def is_audio?
-    self.media_type and self.media_type.start_with?('audio/')
+    self.media_type && self.media_type.start_with?('audio/')
   end
 
   def is_document?
@@ -344,7 +349,7 @@ class Binary < ApplicationRecord
   end
 
   def is_image?
-    self.media_type and self.media_type.start_with?('image/')
+    self.media_type && self.media_type.start_with?('image/')
   end
 
   ##

@@ -9,9 +9,11 @@
 # to their owning collection's repository ID.)
 #
 # Collections are associated with a {MetadataProfile}, which defines the list
-# of elements that contained items are supposed to have, as well as a
-# {PackageProfile} , which defines how collection content is structured in
-# Medusa in terms of its file/directory layout.
+# of elements that contained items are supposed to have.
+#
+# Collections also have a {PackageProfile}, which defines how collection
+# content is structured in Medusa in terms of its file/directory layout, which
+# in turn influences the kinds of {Item}s it contains.
 #
 # Collections are searchable via ActiveRecord as well as via Elasticsearch (see
 # below).
@@ -252,8 +254,8 @@ class Collection < ApplicationRecord
   end
 
   ##
-  # @return [Hash] Harvestable representation. N.B.: this does not include any
-  #                links (URLs).
+  # @return [Hash] Harvestable representation. This does not include any links
+  #                (URLs).
   #
   def as_harvestable_json
     access_master_struct = nil
@@ -488,9 +490,9 @@ class Collection < ApplicationRecord
   end
 
   ##
-  # The CFS directory in which content resides. This may be the same as the
-  # root CFS directory of the file group, or deeper within it. This is used
-  # as a refinement of {medusa_file_group}.
+  # The Medusa directory in which content resides. This may be the same as the
+  # root directory of the file group, or deeper within it. This is used as a
+  # refinement of {medusa_file_group}.
   #
   # @return [Medusa::Directory, nil]
   # @see effective_medusa_directory
@@ -651,7 +653,6 @@ class Collection < ApplicationRecord
       num_items = self.items.count
       self.items.each_with_index do |item, index|
         item.save!
-
         if task and index % 10 == 0
           task.update(percent_complete: index / num_items.to_f)
         end
@@ -667,7 +668,7 @@ class Collection < ApplicationRecord
   end
 
   ##
-  # Deletes all items in the collection. Does not commit the index.
+  # Deletes all items in the collection. Does not refresh the index.
   #
   # @return [Integer] Number of items purged.
   #

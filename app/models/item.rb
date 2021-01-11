@@ -12,6 +12,33 @@
 # An item may also have one or more {Binary binaries}, each corresponding to a
 # file in Medusa.
 #
+# # Variants
+#
+# There several different kinds of items:
+#
+# * A "compound object" is an item that has one or more child items not of
+#   {Variants::FILE file} or {Item::Variants::DIRECTORY directory} variant. It
+#   is found in collections that use the
+#   {PackageProfile::COMPOUND_OBJECT_PROFILE compound object} or
+#   {PackageProfile::MIXED_MEDIA_PROFILE mixed-media package profile}. It has
+#   no assigned variant.
+#     * Its child items always have a variant, which may be anything other than
+#       {Item::Variants::FILE} or {Item::Variants::DIRECTORY}.
+# * A "single-item object" is an item not of {Variants::FILE file} or
+#   {Item::Variants::DIRECTORY directory} variant that has no children. It is
+#   found in collections that use the
+#   {PackageProfile::SINGLE_ITEM_OBJECT_PROFILE single-item object package
+#   profile}. It has no assigned variant.
+# * A "file item" is an item of {Variants::FILE file} variant. It always has
+#   a {Item::Variants::DIRECTORY directory} parent, and no children. It is
+#   found only in collections that use the {PackageProfile::FREE_FORM_PROFILE
+#   free-form package profile}.
+# * A "directory item" is an item of {Variants::DIRECTORY directory} variant.
+#   It may have zero or more child items of either
+#   {Item::Variants::DIRECTORY directory} or {Item::Variants::FILE file}
+#   variant. It is found only in collections that use the
+#   {PackageProfile::FREE_FORM_PROFILE free-form package profile}.
+#
 # # Identifiers
 #
 # Medusa is not item-aware; items are a DLS entity. Item IDs correspond to
@@ -67,6 +94,14 @@
 # `as_indexed_json()`) upon transaction commit. They are **not** indexed on
 # save. For this reason, **instances should always be created, updated, and
 # deleted within transactions.**
+#
+# # Sorting
+#
+# The indexed document contains a {IndexFields::STRUCTURAL_SORT} key that
+# assists in sorting item documents retrieved from Elasticsearch by their
+# structure. For example, for a compound object, the {Variants::FRONT_COVER
+# front cover} will appear first, then the {Variants::PAGE pages} in page
+# order, then the {Variants::BACK_COVER back cover}.
 #
 # # Attributes
 #
@@ -430,8 +465,8 @@ class Item < ApplicationRecord
   end
 
   ##
-  # @return [Hash] Harvestable representation. N.B.: this does not include any
-  #                links (URLs).
+  # @return [Hash] Harvestable representation. This does not include any links
+  #                (URLs).
   #
   def as_harvestable_json
     access_master_struct = nil
@@ -511,12 +546,11 @@ class Item < ApplicationRecord
       # Skip non-indexable elements. Elements are considered indexable if they
       # are marked as indexed in the collection's metadata profile, or if the
       # collection doesn't have a metadata profile.
-      next unless (!self.collection&.metadata_profile or
+      next unless (!self.collection&.metadata_profile ||
           self.collection&.metadata_profile.elements.
               find{ |mpe| mpe.name == element.name }&.indexed)
 
       # ES will automatically create a one or more multi fields for this.
-      # See: https://www.elastic.co/guide/en/elasticsearch/reference/0.90/mapping-multi-field-type.html
       if element.value.present?
         unless doc[element.indexed_field]&.respond_to?(:each)
           doc[element.indexed_field] = []
@@ -567,16 +601,15 @@ class Item < ApplicationRecord
   end
 
   ##
-  # @return [String, nil] Value of the bibId element.
+  # @return [String, nil] Value of the `bibId` element.
   #
   def bib_id
     self.element(:bibId)&.value
   end
 
   ##
-  # @return [String, nil] URL of the instance in the library's VuFind OPAC.
-  #                       Will be non-nil only if the instance's bib ID is
-  #                       non-nil.
+  # @return [String, nil] URL of the instance in the library's OPAC. Will be
+  #                       nil if the instance's bib ID is nil.
   #
   def catalog_record_url
     # See https://bugs.library.illinois.edu/browse/DLD-342
@@ -585,7 +618,7 @@ class Item < ApplicationRecord
     # however it's likely that eventually new items will have the mms id
     # instead of a bib id from voyager, so to get around that you could first
     # check to see if the bib ID has 99 at the beginning and 5899 at the end of
-    # the id.
+    # the id."
     bibid = self.bib_id
     if bibid.present?
       base_url = 'https://i-share-uiu.primo.exlibrisgroup.com/permalink/01CARLI_UIU/gpjosq/alma'
@@ -636,7 +669,7 @@ class Item < ApplicationRecord
   end
 
   ##
-  # @return [String]
+  # @return [String,nil]
   # @see http://dublincore.org/documents/dcmi-type-vocabulary/#H7
   #
   def dc_type
@@ -1013,8 +1046,8 @@ class Item < ApplicationRecord
   end
 
   ##
-  # Propagates {HostGroup}s from the instance to all of its children. This is
-  # an O(n) operation.
+  # Transactionally propagates {HostGroup}s from the instance to all of its
+  # children.
   #
   # @param task [Task] Supply to receive progress updates.
   # @return [void]
@@ -1024,7 +1057,6 @@ class Item < ApplicationRecord
       num_items = self.items.count
       self.walk_tree do |item, index|
         item.save!
-
         if task && index % 10 == 0
           task.update(percent_complete: index / num_items.to_f)
         end

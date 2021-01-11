@@ -1,5 +1,6 @@
 ##
-# Arbitrary container of items.
+# Arbitrary container of items. These are used by Control Panel users to gather
+# up groups of items for editing.
 #
 # N.B.: For implementation reasons, when adding a compound object
 # (non-free-form {Item} with children) to an instance, all of its child items
