@@ -22,8 +22,8 @@ class CollectionElement < EntityElement
   end
 
   def ==(obj)
-    obj.kind_of?(CollectionElement) and obj.name == self.name and
-        obj.value == self.value and obj.uri == self.uri and
+    obj.kind_of?(CollectionElement) && obj.name == self.name &&
+        obj.value == self.value && obj.uri == self.uri &&
         obj.vocabulary_id == self.vocabulary_id
   end
 

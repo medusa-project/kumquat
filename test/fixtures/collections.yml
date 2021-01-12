@@ -1,3 +1,8 @@
+# These collections are based on the collections in the Mockdusa fixture data
+# located in /docker/mockdusa/content. In order to find out their repository
+# IDs etc., you will have to start up Mockdusa using that directory as its
+# content root, and access their JSON representations via Mockdusa.
+
 compound_object:
   access_url:
   description_html:

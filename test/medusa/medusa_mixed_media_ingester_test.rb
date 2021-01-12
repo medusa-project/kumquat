@@ -183,7 +183,7 @@ class MedusaMixedMediaIngesterTest < ActiveSupport::TestCase
   end
 
   test 'delete_missing_items() works' do
-    skip if ENV['CI'] == '1' # TODO: unskip this after migrating to medusa-client
+    skip if ENV['CI'] == '1' # this doesn't work in CI, maybe because of the way content is moved
     # Ingest some items.
     @ingester.create_items(@collection)
 

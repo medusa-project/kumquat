@@ -1,5 +1,8 @@
 ##
-# docker-compose file for running tests.
+# docker-compose file for running tests. All dependent services are included
+# except for the Medusa Downloader. (The Search Gateway is also technically a
+# dependent service, but only to obtain the item count for the landing page
+# search field, so that one is probably not worth adding.) # TODO: add a Downloader service
 #
 # Example invocation: docker-compose up --build --exit-code-from kumquat
 #
@@ -10,7 +13,8 @@ services:
       context: .
       dockerfile: docker/kumquat/Dockerfile
     command: bash -c "sleep 20 && bin/rails db:prepare && bin/rails \"elasticsearch:indexes:recreate[kumquat]\" && bin/rails test && bin/rails zeitwerk:check"
-    #command: bash -c "sleep 20 && bin/rails db:prepare && bin/rails \"elasticsearch:indexes:recreate[kumquat]\" && tail -f /dev/null"
+    # docker-compose exec kumquat /bin/bash
+    #command: bash -c "tail -f /dev/null"
   cantaloupe:
     hostname: cantaloupe
     build:

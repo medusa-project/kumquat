@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class AgentAffiliationTest < ActiveSupport::TestCase
+class AgentRelationTest < ActiveSupport::TestCase
   # test "the truth" do
   #   assert true
   # end

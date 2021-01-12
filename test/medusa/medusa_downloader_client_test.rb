@@ -10,13 +10,13 @@ class MedusaDownloaderClientTest < ActiveSupport::TestCase
 
   test 'download_url() raises an error when given an illegal items argument' do
     assert_raises ArgumentError do
-      @instance.download_url(nil, zip_name: 'cats')
+      @instance.download_url(items: nil, zip_name: 'cats')
     end
   end
 
   test 'download_url() raises an error when no items are provided' do
     assert_raises ArgumentError do
-      @instance.download_url([], zip_name: 'cats')
+      @instance.download_url(items: [], zip_name: 'cats')
     end
   end
 

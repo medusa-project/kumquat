@@ -39,7 +39,9 @@ class IiifPdfGeneratorTest < ActiveSupport::TestCase
       pathname = @instance.generate_pdf(item: item)
       initial_size = File.size(pathname)
     ensure
-      File.delete(pathname) if pathname
+      if pathname
+        File.delete(pathname) rescue nil
+      end
     end
 
     # mark the first binary of the first child private and generate another PDF
@@ -48,7 +50,9 @@ class IiifPdfGeneratorTest < ActiveSupport::TestCase
       pathname = @instance.generate_pdf(item: item)
       assert initial_size > File.size(pathname)
     ensure
-      File.delete(pathname) if pathname
+      if pathname
+        File.delete(pathname) rescue nil
+      end
     end
   end
 

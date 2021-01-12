@@ -51,6 +51,21 @@ class MedusaIngester
   end
 
   ##
+  # Recreates the binaries attached to each item in the given collection based
+  # on the contents of the item directories in Medusa.
+  #
+  # @param collection [Collection]
+  # @param task [Task] Supply to receive progress updates.
+  # @return [Hash<Symbol,Integer>] Hash with a `:num_updated` key.
+  # @raises [ArgumentError] If the collection's file group or package profile
+  #                         are not set or invalid.
+  # @raises [IllegalContentError]
+  #
+  def recreate_binaries(collection, task = nil)
+    ingester_for(collection).recreate_binaries(collection, task)
+  end
+
+  ##
   # Replaces existing DLS metadata for all items in the given collection with
   # metadata drawn from embedded file metadata, such as IPTC.
   #
@@ -142,20 +157,6 @@ class MedusaIngester
     end
   end
 
-  ##
-  # Recreates the binaries attached to each item in the given collection based
-  # on the contents of the item directories in Medusa.
-  #
-  # @param collection [Collection]
-  # @param task [Task] Supply to receive progress updates.
-  # @return [Hash<Symbol,Integer>] Hash with a `:num_updated` key.
-  # @raises [ArgumentError] If the collection's file group or package profile
-  #                         are not set or invalid.
-  # @raises [IllegalContentError]
-  #
-  def recreate_binaries(collection, task = nil)
-    ingester_for(collection).recreate_binaries(collection, task)
-  end
 
   private
 
