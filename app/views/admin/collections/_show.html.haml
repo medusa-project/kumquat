@@ -56,7 +56,10 @@
         %td Medusa File Group
         %td
           - if @file_group
-            = link_to(@file_group.title, @file_group.url)
+            - begin
+              = link_to(@file_group.title, @file_group.url)
+            - rescue Medusa::NotFoundError
+              Invalid
           - else
             None
       %tr
