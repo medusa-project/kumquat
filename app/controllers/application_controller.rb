@@ -165,6 +165,10 @@ class ApplicationController < ActionController::Base
     @message = io.string
     Rails.logger.error(@message)
 
+    unless Rails.env.development?
+      KumquatMailer.error(@message).deliver_now
+    end
+
     respond_to do |format|
       format.html do
         render "errors/internal_server_error",
