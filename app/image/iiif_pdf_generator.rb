@@ -27,14 +27,13 @@ class IiifPdfGenerator
     reset
     children = item.search_children.to_a
     if children.any?
-      doc = pdf_document(item)
-
+      doc   = pdf_document(item)
+      count = children.count
       children.each_with_index do |child, child_index|
-        count = children.count
         task&.progress = child_index / count.to_f
 
         binaries = child.binaries.where(
-            master_type: Binary::MasterType::ACCESS,
+            master_type:    Binary::MasterType::ACCESS,
             media_category: Binary::MediaCategory::IMAGE)
         binaries = binaries.where(public: true) unless include_private_binaries
         binaries.each do |binary|
@@ -139,7 +138,7 @@ class IiifPdfGenerator
   #
   def pdf_temp_file
     unless @pdf_temp_file && File.exist?(@pdf_temp_file)
-      @pdf_temp_file = Tempfile.new('item.pdf').path
+      @pdf_temp_file = Tempfile.new('item.pdf-').path
     end
     @pdf_temp_file
   end
