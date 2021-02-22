@@ -31,6 +31,7 @@ class ItemDecorator < Draper::Decorator
                                      item_url(object.parent, format: :json) : nil,
         collection_uri:          object.collection ?
                                      collection_url(object.collection, format: :json) : nil,
+        iiif_manifest_uri:       object.has_iiif_manifest? ? item_iiif_manifest_url(object) : nil,
         page_number:             object.page_number,
         subpage_number:          object.subpage_number,
         normalized_start_date:   object.start_date,
@@ -47,6 +48,8 @@ class ItemDecorator < Draper::Decorator
         created_at:              object.created_at,
         updated_at:              object.updated_at,
     }
+
+
 
     bin = object.effective_image_binary
     if bin
