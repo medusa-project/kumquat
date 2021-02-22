@@ -27,7 +27,6 @@ class IiifZipGenerator
       # -r: recurse into directories
       `zip -jr "#{zip_pathname}" #{tmpdir}`
 
-      task&.succeeded
       zip_pathname
     end
   end

@@ -50,7 +50,6 @@ class IiifPdfGenerator
     else
       LOGGER.info('generate_pdf(): %s has no child items.', item)
     end
-    task&.succeeded
     nil
   end
 
