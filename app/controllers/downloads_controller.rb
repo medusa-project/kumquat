@@ -5,7 +5,7 @@ class DownloadsController < ApplicationController
   layout 'download'
 
   ##
-  # Responds to GET /downloads/:download_key/file
+  # Responds to `GET /downloads/:download_key/file`
   #
   def file
     download = Download.find_by_key(params[:download_key])
@@ -13,7 +13,7 @@ class DownloadsController < ApplicationController
 
     if download.expired
       render plain: 'This download is expired.', status: :gone
-    elsif File.exists?(download.pathname)
+    elsif download.pathname && File.exists?(download.pathname)
       send_file(download.pathname)
     else
       LOGGER.error('file(): download %s: file does not exist: %s',
@@ -24,7 +24,7 @@ class DownloadsController < ApplicationController
   end
 
   ##
-  # Responds to GET /downloads/:key
+  # Responds to `GET /downloads/:key`
   #
   def show
     @download = Download.find_by_key(params[:key])
