@@ -123,7 +123,6 @@ class IiifImageConverter
         end
       end
     end
-    task&.succeeded
   end
 
 end
