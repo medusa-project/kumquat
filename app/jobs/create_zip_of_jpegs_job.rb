@@ -20,34 +20,25 @@ class CreateZipOfJpegsJob < Job
     self.task&.update!(download: download,
                        status_text: "Converting JPEGs for #{item_ids.length} items")
 
-    items     = Item.where('repository_id IN (?)', item_ids)
-    converter = IiifImageConverter.new
+    items = Item.where('repository_id IN (?)', item_ids)
 
-    Dir.mktmpdir do |tmpdir|
-      Item.uncached do
-        items.find_each do |item|
-          converter.convert_images(item:                     item,
-                                   directory:                tmpdir,
-                                   format:                   :jpg,
-                                   include_private_binaries: include_private_binaries,
-                                   task:                     self.task)
-        end
-      end
+    temp_pathname = IiifZipGenerator.new.generate_zip(items: items,
+                                                      include_private_binaries: include_private_binaries,
+                                                      task: self.task)
 
-      # Create the downloads directory if it doesn't exist.
-      zip_dir = Download::DOWNLOADS_DIRECTORY
-      FileUtils.mkdir_p(zip_dir)
+    if temp_pathname.present?
+      # Create the downloads directory if necessary, and move the zip there.
+      dest_dir = Download::DOWNLOADS_DIRECTORY
+      FileUtils.mkdir_p(dest_dir)
 
-      # Create the zip file within the downloads directory.
-      zip_filename = "#{zip_name}-#{Time.now.to_formatted_s(:number)}.zip"
-      zip_pathname = File.join(zip_dir, zip_filename)
+      dest_pathname = File.join(dest_dir, "#{zip_name}-#{Time.now.to_formatted_s(:number)}.zip")
+      FileUtils.move(temp_pathname, dest_pathname)
 
-      # -j: don't record directory names
-      # -r: recurse into directories
-      `zip -jr "#{zip_pathname}" #{tmpdir}`
+      download.update!(filename: File.basename(dest_pathname))
 
-      download.update(filename: zip_filename)
       self.task&.succeeded
+    else
+      self.task&.fail
     end
   end
 
