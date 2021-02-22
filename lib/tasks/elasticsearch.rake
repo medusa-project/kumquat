@@ -39,7 +39,7 @@ namespace :elasticsearch do
       puts ElasticsearchClient.instance.indexes
     end
 
-    # N.B.: This is used in the testing Dockerfile
+    # N.B.: This is used in the testing docker-compose.yml
     desc 'Recreate an index with the current index schema'
     task :recreate, [:name] => :environment do |task, args|
       client = ElasticsearchClient.instance
