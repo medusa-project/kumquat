@@ -38,9 +38,7 @@ class IiifImageConverter
           '.' + format
 
       if binary.image_server_safe?
-        # ?cache=false is supported by Cantaloupe to help reduce the cache size.
-        url = binary.iiif_image_url + '/full/full/0/default.' + format +
-            '?cache=false'
+        url = binary.iiif_image_url + '/full/full/0/default.' + format
 
         LOGGER.debug('Creating %s', new_pathname)
         FileUtils.mkdir_p(File.dirname(new_pathname))
