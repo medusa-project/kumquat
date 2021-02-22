@@ -482,21 +482,25 @@ class ItemsController < WebsiteController
             items = @item.parent.search_children.
                 host_groups(client_host_groups).
                 include_variants(*Item::Variants::FILE).
-                include_children_in_results(true).to_a
+                include_restricted(false).
+                to_a
           else
-            items = Item.search
-                        .aggregations(false)
-                        .host_groups(client_host_groups)
-                        .collection(@item.collection)
-                        .include_variants(*Item::Variants::FILE)
-                        .include_children_in_results(true)
-                        .to_a
+            items = Item.search.
+                aggregations(false).
+                host_groups(client_host_groups).
+                collection(@item.collection).
+                include_variants(*Item::Variants::FILE).
+                include_children_in_results(true).
+                to_a
           end
           zip_name = 'files'
         else
-          items = @item.search_children.
+          item  = @item.parent || @item
+          items = item.search_children.
+              include_restricted(false).
               host_groups(client_host_groups).
-              include_children_in_results(true).to_a + [@item]
+              to_a
+          items += [item] if @item.parent
           zip_name = 'item'
         end
 
