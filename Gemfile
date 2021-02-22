@@ -23,10 +23,8 @@ gem 'netaddr', '~> 2'
 gem 'omniauth'
 gem 'omniauth-shibboleth'
 gem 'pg'
-# Used to generate PDFs of compound objects. This commit fixes a frequent
-# warning about an already-initialized constant.
-# See: https://github.com/prawnpdf/prawn/issues/1024
-gem 'prawn', git: 'https://github.com/prawnpdf/prawn.git', ref: '9250c8675342872603332784f77263fcb1cf72a2'
+# Used to generate PDFs of compound objects.
+gem 'prawn'
 gem 'puma'
 gem 'rails', '6.1.0'
 gem 'rails_autolink'
