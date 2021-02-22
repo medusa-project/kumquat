@@ -31,7 +31,7 @@
     %dd
       = @task.download.filename ? |
         link_to(@task.download.filename, download_file_url(@task.download)) : |
-        link_to(@task.download.url, @task.download.url) |
+        "Not generated (yet?)" |
     %dt Client IP
     %dd= @task.download.ip_address
 - if @task.detail.present?
