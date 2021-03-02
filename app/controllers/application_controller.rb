@@ -9,7 +9,7 @@ class ApplicationController < ActionController::Base
   # N.B.: these must be listed in order of most generic to most specific.
   rescue_from StandardError, with: :rescue_internal_server_error
   rescue_from ActionController::InvalidAuthenticityToken, with: :rescue_invalid_auth_token
-  rescue_from ActionController::InvalidCrossOriginRequest, with: rescue_invalid_cross_origin_request
+  rescue_from ActionController::InvalidCrossOriginRequest, with: :rescue_invalid_cross_origin_request
   rescue_from ActionController::UnknownFormat, with: :rescue_unknown_format
   rescue_from ActiveRecord::RecordNotFound, with: :rescue_not_found
 
