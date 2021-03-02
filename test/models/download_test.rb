@@ -8,7 +8,7 @@ class DownloadTest < ActiveSupport::TestCase
 
   # cleanup()
 
-  test 'cleanup() should work properly' do
+  test 'cleanup() works properly' do
     Download.destroy_all
 
     d1 = Download.create
@@ -32,17 +32,24 @@ class DownloadTest < ActiveSupport::TestCase
 
   # pathname()
 
-  test 'pathname() should return the correct pathname' do
+  test 'pathname() returns the correct pathname' do
     assert_equal File.join(Rails.root, 'tmp', 'downloads', @download.filename),
                  @download.pathname
   end
 
   # ready?()
 
-  test 'ready?() should return the correct value' do
-    @download.task = Task.new(status: Task::Status::RUNNING)
+  test 'ready?() returns the correct value' do
+    @download.task     = Task.new(status: Task::Status::RUNNING)
+    @download.filename = "file.txt"
     assert !@download.ready?
+
+    @download.task     = Task.new(status: Task::Status::SUCCEEDED)
+    @download.filename = nil
+    assert !@download.ready?
+
     @download.task.status = Task::Status::SUCCEEDED
+    @download.filename    = "file.txt"
     assert @download.ready?
   end
 

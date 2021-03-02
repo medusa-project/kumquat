@@ -92,7 +92,7 @@ class Download < ApplicationRecord
   # @return [Boolean]
   #
   def ready?
-    self.task&.succeeded?
+    self.filename && self.task&.succeeded?
   end
 
   ##
@@ -101,6 +101,7 @@ class Download < ApplicationRecord
   def to_param
     self.key
   end
+
 
   private
 
