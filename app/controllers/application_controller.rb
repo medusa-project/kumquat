@@ -9,6 +9,7 @@ class ApplicationController < ActionController::Base
   # N.B.: these must be listed in order of most generic to most specific.
   rescue_from StandardError, with: :rescue_internal_server_error
   rescue_from ActionController::InvalidAuthenticityToken, with: :rescue_invalid_auth_token
+  rescue_from ActionController::InvalidCrossOriginRequest, with: rescue_invalid_cross_origin_request
   rescue_from ActionController::UnknownFormat, with: :rescue_unknown_format
   rescue_from ActiveRecord::RecordNotFound, with: :rescue_not_found
 
@@ -186,10 +187,18 @@ class ApplicationController < ActionController::Base
 
   ##
   # By default, Rails logs {ActionController::InvalidAuthenticityToken}s at
-  # error level. This only bloats the logs and is unnecessary, so we handle it
-  # differently.
+  # error level. This only bloats the logs, so we handle it differently.
+  #
   def rescue_invalid_auth_token
     render plain: "Invalid authenticity token.", status: :bad_request
+  end
+
+  ##
+  # By default, Rails logs {ActionController::InvalidCrossOriginRequest}s at
+  # error level. This only bloats the logs, so we handle it differently.
+  #
+  def rescue_invalid_cross_origin_request
+    render plain: "Invalid cross-origin request.", status: :bad_request
   end
 
   def rescue_not_found
