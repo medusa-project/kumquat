@@ -125,7 +125,7 @@ class Task < ApplicationRecord
   # Completes the instance by setting its status to {Status::SUCCEEDED}.
   #
   def succeeded
-    self.update!(status: Status::SUCCEEDED)
+    self.update!(percent_complete: 1.0, status: Status::SUCCEEDED)
   end
 
   def succeeded?
