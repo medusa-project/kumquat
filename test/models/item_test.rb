@@ -538,31 +538,49 @@ class ItemTest < ActiveSupport::TestCase
 
   # publicly_accessible?()
 
-  test 'publicly_accessible?() returns true when the instance and its
-  collection are both published' do
+  test 'publicly_accessible?() returns true when the instance has no parent
+  and its collection are both published' do
     @item.published = true
     @item.collection.published_in_dls = true
     assert @item.publicly_accessible?
   end
 
-  test 'publicly_accessible?() returns false when the instance is
-  published but its collection is not' do
+  test 'publicly_accessible?() returns false when the instance has no parent
+  and is published but its collection is not' do
     @item.published = true
     @item.collection.published_in_dls = false
     assert !@item.publicly_accessible?
   end
 
-  test 'publicly_accessible?() returns false when the instance is not
-  published but its collection is' do
+  test 'publicly_accessible?() returns false when the instance has no parent
+  and is not published but its collection is' do
     @item.published = false
     @item.collection.published_in_dls = true
     assert !@item.publicly_accessible?
   end
 
-  test 'publicly_accessible?() returns false when neither the instance
-  nor its collection are published' do
+  test 'publicly_accessible?() returns false when the instance has no parent
+  and neither it nor its collection are published' do
     @item.published = false
     @item.collection.published_in_dls = false
+    assert !@item.publicly_accessible?
+  end
+
+  test 'publicly_accessible?() returns true when the instance has a parent
+  and its parent and collection are both published' do
+    @item = items(:compound_object_1002_page1)
+    @item.published = true
+    @item.parent.published = true
+    @item.collection.published_in_dls = true
+    assert @item.publicly_accessible?
+  end
+
+  test 'publicly_accessible?() returns false when the instance and its
+  collection are published but its parent is not' do
+    @item = items(:compound_object_1002_page1)
+    @item.published = true
+    @item.parent.published = false
+    @item.collection.published_in_dls = true
     assert !@item.publicly_accessible?
   end
 

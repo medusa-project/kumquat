@@ -1065,11 +1065,15 @@ class Item < ApplicationRecord
   end
 
   ##
-  # @return [Boolean] Whether the instance and its collection are both
-  #                   publicly accessible.
+  # @return [Boolean] Whether the instance its collection, and its parent(s)
+  #                   (if any) are all publicly accessible.
   #
   def publicly_accessible?
-    self.published && self.collection&.publicly_accessible?
+    value = self.published && self.collection&.publicly_accessible?
+    if value && self.parent
+      value = self.parent.publicly_accessible?
+    end
+    value
   end
 
   ##
