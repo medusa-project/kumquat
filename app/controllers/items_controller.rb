@@ -402,12 +402,8 @@ class ItemsController < WebsiteController
               @show_zip_of_jpegs = @show_pdf = binaries.count > 0
             end
           else # single-item object
-            @show_zip_of_masters = @root_item.binaries.select{ |b|
-              b.public || current_user&.medusa_user? }.any?
-            @show_zip_of_jpegs   = @root_item.binaries.select{ |b|
-              (b.public || current_user&.medusa_user?) &&
-                b.master_type == Binary::MasterType::ACCESS &&
-                b.image_server_safe? }.any?
+            @show_zip_of_masters = false
+            @show_zip_of_jpegs   = false
             @show_pdf            = false
           end
 
