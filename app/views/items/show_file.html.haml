@@ -35,24 +35,28 @@
   - if @item.three_d_item
     #dl-3d-viewer-container.collapse
       = viewer_for_item(@item.three_d_item)
+
 %section
   = viewer_for_item(@item)
-  - if has_viewer?(@item)
-    .row
-      .col-sm-10
-        = render partial: 'permalink_section', locals: { item: @item }
-      .col-sm-2
-        %a.btn.btn-lg.btn-success{href: "#dl-download-section"}
-          %i.fa.fa-download
-          Download
-  - else
-    = render partial: 'permalink_section', locals: { item: @item }
+  .mt-3
+    - if has_viewer?(@item)
+      .row
+        .col-sm-10
+          = render partial: 'permalink_section', locals: { item: @item }
+        .col-sm-2
+          %button#dl-download-button.btn.btn-lg.btn-success{style: "white-space: nowrap"}
+            %i.fa.fa-download
+            Download
+    - else
+      = render partial: 'permalink_section', locals: { item: @item }
 
 %section
   = rights_statement(@item.effective_rightsstatements_org_statement,
                      @item.effective_rights_statement)
+
 - if @item.elements.reject{ |e| e.name == 'title' }.any?
   %section= metadata_section(@item)
+
 = render partial: 'download_section',
          locals: { item: @item, expanded: false }
 = render partial: 'staff_info', locals: { item: @item }

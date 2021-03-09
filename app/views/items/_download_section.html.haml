@@ -3,47 +3,46 @@
 -# item [Item]
 -# expanded [Boolean]
 
-- if @show_zip_of_masters || @show_zip_of_jpegs || @show_pdf
-  %section#dl-download-section
-    %h2
-      %a{"aria-controls": "dl-download",
-         "aria-expanded": "true",
-         "data-toggle": "collapse",
-         href: "#dl-download",
-         role: "button"} Download
-    #dl-download{class: "collapse #{expanded ? 'show' : ''}"}
-      .btn-group.mt-2.mb-2
-        - if @show_zip_of_masters
-          = link_to('',
-                    class: 'btn btn-light',
-                    target: '_blank',
-                    'data-toggle': 'modal',
-                    'data-target': '#dl-download-zip-modal') do
-            %i.far.fa-file-archive
-              Zip of Masters&hellip;
-        - if @show_zip_of_jpegs
-          = link_to(item_url(item, format: :zip, contents: :jpegs),
-                    target: '_blank',
-                    class: 'btn btn-light') do
-            %i.far.fa-file-archive
-              Zip of JPEGs
-        - if @show_pdf
-          = link_to(item_url(item, format: :pdf),
-                    class: 'btn btn-light',
-                    target: '_blank') do
-            %i.far.fa-file-pdf
-            PDF
-      %table.table
-        %tbody
-          - if @downloadable_items.any?
-            - @downloadable_items.each do |subitem|
-              = render partial: 'download_table_row', locals: { item: subitem }
-          - elsif !item.directory?
-            = render partial: 'download_table_row', locals: { item: item }
+%section#dl-download-section
+  %h2
+    %a{"aria-controls": "dl-download",
+       "aria-expanded": "true",
+       "data-toggle": "collapse",
+       href: "#dl-download",
+       role: "button"} Download
+  #dl-download{class: "collapse #{expanded ? 'show' : ''}"}
+    .btn-group.mt-2.mb-2
+      - if @show_zip_of_masters
+        = link_to('',
+                  class: 'btn btn-light',
+                  target: '_blank',
+                  'data-toggle': 'modal',
+                  'data-target': '#dl-download-zip-modal') do
+          %i.far.fa-file-archive
+            Zip of Masters&hellip;
+      - if @show_zip_of_jpegs
+        = link_to(item_url(item, format: :zip, contents: :jpegs),
+                  target: '_blank',
+                  class: 'btn btn-light') do
+          %i.far.fa-file-archive
+            Zip of JPEGs
+      - if @show_pdf
+        = link_to(item_url(item, format: :pdf),
+                  class: 'btn btn-light',
+                  target: '_blank') do
+          %i.far.fa-file-pdf
+          PDF
+    %table.table
+      %tbody
+        - if @downloadable_items.any?
+          - @downloadable_items.each do |subitem|
+            = render partial: 'download_table_row', locals: { item: subitem }
+        - elsif !item.directory?
+          = render partial: 'download_table_row', locals: { item: item }
 
-  = render partial: 'custom_image_panel'
-  -# num_downloadable_items is potentially expensive to calculate.
-  = render partial: 'download_zip_panel',
-           locals: { context: item.directory? ? :directory : :item,
-                     num_downloadable_items: 0,
-                     total_byte_size: @total_byte_size }
+= render partial: 'custom_image_panel'
+-# num_downloadable_items is potentially expensive to calculate.
+= render partial: 'download_zip_panel',
+         locals: { context: item.directory? ? :directory : :item,
+                   num_downloadable_items: 0,
+                   total_byte_size: @total_byte_size }
