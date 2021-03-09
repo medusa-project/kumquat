@@ -92,7 +92,7 @@ class Download < ApplicationRecord
   # @return [Boolean]
   #
   def ready?
-    self.filename && self.task&.succeeded?
+    (self.filename || self.url) && self.task&.succeeded?
   end
 
   ##
