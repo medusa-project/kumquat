@@ -297,12 +297,14 @@ class EntityRelation < AbstractRelation
       end
 
       # Start
-      j.from @start
+      if @start.present?
+        j.from @start
+      end
 
       # Limit
-      # ES requires from + size to be less than or equal to
-      # ElasticsearchClient::MAX_RESULT_WINDOW
-      j.size @limit - @start
+      if @limit.present?
+        j.size @limit
+      end
     end
   end
 
