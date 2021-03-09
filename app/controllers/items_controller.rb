@@ -260,16 +260,13 @@ class ItemsController < WebsiteController
     else
       download_relation.query_all(params[:q])
     end
-    if @collection&.medusa_directory
-      download_relation = download_relation.parent_item(@collection.root_item)
-    end
     @num_downloadable_items = download_relation.count
-    @total_byte_size = download_relation.total_byte_size
+    @total_byte_size        = download_relation.total_byte_size
 
     respond_to do |format|
       format.html do
         session[:first_result_id] = @items.first&.repository_id
-        session[:last_result_id] = @items.last&.repository_id
+        session[:last_result_id]  = @items.last&.repository_id
       end
       format.atom do
         @updated = @items.any? ?
