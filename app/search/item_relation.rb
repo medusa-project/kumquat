@@ -364,7 +364,9 @@ class ItemRelation < AbstractRelation
 
       # Limit
       if @limit.present?
-        j.size @limit
+        # ES requires from + size to be less than or equal to
+        # ElasticsearchClient::MAX_RESULT_WINDOW
+        j.size @limit.to_i - @start.to_i
       end
     end
   end
