@@ -70,14 +70,18 @@ class Element < ApplicationRecord
         FROM entity_elements
         LEFT JOIN items ON entity_elements.item_id = items.id
         LEFT JOIN collections ON collections.repository_id = items.collection_repository_id
+        LEFT JOIN metadata_profiles ON metadata_profiles.id = collections.metadata_profile_id
+        LEFT JOIN metadata_profile_elements ON metadata_profile_elements.metadata_profile_id = metadata_profiles.id
         WHERE entity_elements.item_id IS NOT NULL
-          AND entity_elements.name IN ($1)
+          AND entity_elements.name = $1
           AND collections.public_in_medusa = true
+          AND metadata_profile_elements.name = $2
         ORDER BY collection_id, item_id, entity_elements.name,
           entity_elements.value ASC"
-    values = [[nil, self.name]]
+    values = [[nil, self.name], [nil, self.name]]
     ActiveRecord::Base.connection.exec_query(sql, 'SQL', values)
   end
+
 
   private
 
