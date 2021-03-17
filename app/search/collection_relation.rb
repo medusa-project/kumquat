@@ -217,9 +217,7 @@ class CollectionRelation < AbstractRelation
 
       # Limit
       if @limit.present?
-        # ES requires from + size to be less than or equal to
-        # ElasticsearchClient::MAX_RESULT_WINDOW
-        j.size @limit.to_i - @start.to_i
+        j.size @limit
       end
     end
   end
