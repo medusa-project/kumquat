@@ -36,10 +36,15 @@ module CollectionsHelper
   end
 
   def repository_link(collection)
-    url = Configuration.instance.metadata_gateway_url +
-        "/collections?fq%5B%5D=local_facet_repository%3A" +
-        collection.medusa_repository.title
-    link_to collection.medusa_repository.title, url
+    begin
+      title = collection.medusa_repository.title
+      url = Configuration.instance.metadata_gateway_url +
+          "/collections?fq%5B%5D=local_facet_repository%3A" +
+          title
+      return link_to(title, url)
+    rescue IOError
+      return ""
+    end
   end
 
 end
