@@ -59,9 +59,11 @@ class Download < ApplicationRecord
   def self.cleanup(max_age_seconds)
     max_age_seconds = max_age_seconds.to_i
     num_expired = 0
-    Download.all.each do |download|
-      # Expire the instance if it is more than max_age_seconds old.
-      if Time.now.to_i - download.updated_at.to_i > max_age_seconds
+    # Expire instances more than max_age_seconds old.
+    Download.uncached do
+      Download.
+          where(expired: false).
+          where('updated_at < ?', Time.at(Time.now.to_i - max_age_seconds)).find_each do |download|
         download.expire
         num_expired += 1
       end
