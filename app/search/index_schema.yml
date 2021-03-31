@@ -21,7 +21,7 @@
 #
 settings:
   index.query.default_field: search_all
-  index.max_result_window: 1000000000 # must match ElasticsearchClient::MAX_RESULT_WINDOW
+  index.max_result_window: 10000 # must match ElasticsearchClient::MAX_RESULT_WINDOW
   analysis:
     filter:
       custom_stopper:
