@@ -13,10 +13,8 @@ class ElasticsearchClient
   # (total / bytes per character)
   MAX_KEYWORD_FIELD_LENGTH = 32766 / 3
 
-  # Default is 10,000. ES wants you to use the paging API instead, but
-  # whatever.
-  # This should remain in sync with the same value in the schema YAML.
-  MAX_RESULT_WINDOW = 1000000000
+  # This must remain in sync with the same value in the schema YAML.
+  MAX_RESULT_WINDOW = 10000
 
   ##
   # These characters should not be used in queries (or field names, which may
