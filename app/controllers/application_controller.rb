@@ -22,6 +22,7 @@ class ApplicationController < ActionController::Base
     @start_time = Time.now
   end
 
+
   protected
 
   ##
@@ -87,13 +88,13 @@ class ApplicationController < ActionController::Base
 
     aws_response = MedusaS3Client.instance.head_object(s3_request)
 
-    response.status                          = status
-    response.headers['Content-Type']         = binary.media_type
-    response.headers['Content-Disposition']  = "attachment; filename=#{binary.filename}"
-    response.headers['Content-Length']       = aws_response.content_length.to_s
-    response.headers['Last-Modified']        = aws_response.last_modified.utc.strftime('%a, %d %b %Y %T GMT')
-    response.headers['Cache-Control']        = 'public, must-revalidate, max-age=0'
-    response.headers['Accept-Ranges']        = 'bytes'
+    response.status                         = status
+    response.headers['Content-Type']        = binary.media_type
+    response.headers['Content-Disposition'] = "attachment; filename=#{binary.filename}"
+    response.headers['Content-Length']      = aws_response.content_length.to_s
+    response.headers['Last-Modified']       = aws_response.last_modified.utc.strftime('%a, %d %b %Y %T GMT')
+    response.headers['Cache-Control']       = 'public, must-revalidate, max-age=0'
+    response.headers['Accept-Ranges']       = 'bytes'
     if binary.duration.present?
       response.headers['Content-Duration']   = binary.duration
       response.headers['X-Content-Duration'] = binary.duration
@@ -104,13 +105,14 @@ class ApplicationController < ActionController::Base
   rescue ActionController::Live::ClientDisconnected => e
     # Rescue this or else Rails will log it at error level.
     LOGGER.debug('send_binary(): %s', e)
+  rescue Aws::S3::Errors::NotFound
+    render plain: 'Object does not exist in bucket', status: :not_found
   ensure
     response.stream.close
   end
 
   ##
-  # Sends an Enumerable object in chunks as an attachment. Streaming requires
-  # a web server capable of it (not WEBrick).
+  # Sends an Enumerable object in chunks as an attachment.
   #
   def stream(enumerable, filename)
     headers['X-Accel-Buffering'] = 'no'
@@ -119,6 +121,7 @@ class ApplicationController < ActionController::Base
     headers['Content-Disposition'] = "attachment; filename=\"#{filename}\""
     self.response_body = enumerable
   end
+
 
   private
 

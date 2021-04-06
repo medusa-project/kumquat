@@ -26,6 +26,15 @@ class BinariesControllerTest < ActionDispatch::IntegrationTest
     assert_response :forbidden
   end
 
+  test 'show() returns HTTP 404 for binaries that do not exist in the repository
+  bucket' do
+    @binary = Binary.create!(byte_size: 100,
+                             medusa_uuid: SecureRandom.uuid,
+                             object_key: 'bogus')
+    get binary_path(@binary)
+    assert_response :not_found
+  end
+
   test 'show() returns HTTP 200 for non-public binaries for administrators' do
     sign_in_as(users(:admin))
     @binary.update!(public: false)
