@@ -1210,6 +1210,7 @@ module ItemsHelper
   #
   def curator_mailto(item)
     mailto = nil
+    # THis may raise an IOError (see rescue block)
     email = item.collection&.medusa_repository&.email
     if email.present?
       # https://bugs.library.illinois.edu/browse/DLD-89
@@ -1222,6 +1223,9 @@ module ItemsHelper
       mailto = "mailto:#{email}?subject=#{subject}&body=#{body}"
     end
     mailto
+  rescue IOError
+    # It's still possible to render the page.
+    '#'
   end
 
   ##
