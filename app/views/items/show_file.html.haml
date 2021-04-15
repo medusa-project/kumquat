@@ -40,13 +40,10 @@
   = viewer_for_item(@item)
   .mt-3
     - if has_viewer?(@item)
-      .row
-        .col-sm-10
-          = render partial: 'permalink_section', locals: { item: @item }
-        .col-sm-2
-          %button#dl-download-button.btn.btn-lg.btn-success{style: "white-space: nowrap"}
-            %i.fa.fa-download
-            Download
+      .float-right.ml-3
+        %button#dl-download-button.btn.btn-lg.btn-outline-secondary{style: "white-space: nowrap"}
+          Download Options&hellip;
+      = render partial: 'permalink_section', locals: { item: @item }
     - else
       = render partial: 'permalink_section', locals: { item: @item }
 

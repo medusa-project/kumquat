@@ -275,12 +275,12 @@ var PTItemView = function() {
     this.init = function() {
         $('#dl-download-button').on('click', function() {
             $('#dl-download').collapse('show');
-            const offset   = $('#dl-download-section').offset();
-            let scrollable = $('#dl-free-form-item-view');
-            if (scrollable.length < 1) {
-                scrollable = $('html, body');
+            const offset  = $('#dl-download-section').offset();
+            var container = $('#dl-free-form-item-view');
+            if (container.length < 1) {
+                container = $('html, body');
             }
-            scrollable.animate({
+            container.animate({
                 scrollTop: offset.top,
             }, 500);
             return false;

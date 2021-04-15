@@ -50,13 +50,10 @@
               = metadata_as_list(supp_item)
   .mt-3
     - if has_viewer?(@root_item)
-      .row
-        .col-sm-10
-          = render partial: 'permalink_section', locals: { item: @root_item }
-        .col-sm-2
-          %button#dl-download-button.btn.btn-lg.btn-success{style: "white-space: nowrap"}
-            %i.fa.fa-download
-            Download
+      .float-right
+        %button#dl-download-button.btn.btn-lg.btn-outline-secondary{style: "white-space: nowrap"}
+          Download Options&hellip;
+      = render partial: 'permalink_section', locals: { item: @root_item }
     - else
       = render partial: 'permalink_section', locals: { item: @root_item }
 %section
