@@ -1436,7 +1436,7 @@ module ItemsHelper
       html << '<div id="dl-pdf-viewer">'
       html <<   "<iframe src=\"#{viewer_url}\" height=\"100%\" width=\"100%\"></iframe>"
       html <<   '<div style="text-align: center">'
-      html <<     link_to(viewer_url, target: '_blank', class: 'btn btn-outline-light btn-sm') do
+      html <<     link_to(viewer_url, target: '_blank', class: 'btn btn-outline-secondary btn-sm') do
         content_tag(:span, '', class: 'fa fa-file-pdf') + ' Open PDF in New Window'
       end
       html <<   '</div>'
