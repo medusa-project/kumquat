@@ -14,7 +14,7 @@ class ElasticsearchClient
   MAX_KEYWORD_FIELD_LENGTH = 32766 / 3
 
   # This must remain in sync with the same value in the schema YAML.
-  MAX_RESULT_WINDOW = 10000
+  MAX_RESULT_WINDOW = 100000000
 
   ##
   # These characters should not be used in queries (or field names, which may
