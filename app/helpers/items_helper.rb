@@ -1161,6 +1161,8 @@ module ItemsHelper
   end
 
   ##
+  # Renders a UniversalViewer.
+  #
   # @param object [Item] Compound object.
   # @param selected_item [Item]
   # @return [String]
@@ -1172,12 +1174,7 @@ module ItemsHelper
       # may be nil, in which case the compound viewer won't work.
       return image_viewer_for(selected_item) unless object
 
-      # If the object contains more than this many items, disable the gallery
-      # view to allow the UI to load in a reasonable amount of time.
-      items = object.search_children.limit(999)
-      if items.count > 800
-        return image_viewer_for(selected_item)
-      end
+      items = object.search_children.limit(9999)
       items.each_with_index do |subitem, index|
         if subitem.repository_id == selected_item.repository_id
           canvas_index = index
@@ -1208,7 +1205,7 @@ module ItemsHelper
                 collectionIndex: (collectionIndex !== undefined) ? Number(collectionIndex) : undefined,
                 manifestIndex: Number(urlDataProvider.get('m', 0)),
                 sequenceIndex: Number(urlDataProvider.get('s', 0)),
-                canvasIndex: #{canvas_index},
+                canvasIndex: Number(urlDataProvider.get('cv', #{canvas_index})),
                 rotation: Number(urlDataProvider.get('r', 0)),
                 rangeId: urlDataProvider.get('rid', ''),
                 xywh: urlDataProvider.get('xywh', '')
@@ -1361,7 +1358,7 @@ module ItemsHelper
       when Binary::MediaCategory::DOCUMENT
         return pdf_viewer_for(binary)
       when Binary::MediaCategory::IMAGE
-        return image_viewer_for(item)
+        return free_form_image_viewer_for(item)
       when Binary::MediaCategory::TEXT
         return text_viewer_for(binary)
       when Binary::MediaCategory::THREE_D
@@ -1373,6 +1370,43 @@ module ItemsHelper
     end
   end
 
+  ##
+  # Returns an OpenSeadragon viewer. UniversalViewer does not work in free-form
+  # item view due to its JavaScript underpinnings not playing nicely with the
+  # XHR-loaded free-form item view.
+  #
+  # @param item [Item] Free-form item.
+  # @return [String]
+  #
+  def free_form_image_viewer_for(item)
+    binary = item.effective_image_binary
+    if binary
+      # UV 2.x used to have a handy GUI config editor but that hasn't been
+      # ported to 3.x as of 4/2021. The new config structure is similar but
+      # mostly undocumented.
+      html = "<div id=\"dl-image-viewer\"></div>
+      <script src=\"/openseadragon/openseadragon.min.js\"></script>
+      <script type=\"text/javascript\">
+          var viewer = OpenSeadragon({
+              id: \"dl-image-viewer\",
+              prefixUrl: \"/openseadragon/images/\",
+              showNavigator: true,
+              immediateRender: true,
+              tileSources: \"#{binary.iiif_image_url}\"
+          });
+      </script>"
+    else
+      html = viewer_unavailable_message
+    end
+    raw(html)
+  end
+
+  ##
+  # Renders a UniversalViewer without the left thumbnail pane visible.
+  #
+  # @param item [Item]
+  # @return [String]
+  #
   def image_viewer_for(item)
     html = StringIO.new
     binary = item.effective_image_binary
