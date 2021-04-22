@@ -352,6 +352,7 @@ var Application = {
             console.error(event);
             console.error(request);
             console.error(settings);
+            console.trace();
         });
     },
 
