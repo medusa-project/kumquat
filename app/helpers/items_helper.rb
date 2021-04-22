@@ -4,8 +4,6 @@ module ItemsHelper
 
   DEFAULT_THUMBNAIL_SIZE = 256
   PAGE_TITLE_LENGTH      = 35
-  VIEWER_HEIGHT          = '600px'
-  VIEWER_WIDTH           = '95%'
 
   ##
   # @param binary [Binary]
@@ -1188,17 +1186,40 @@ module ItemsHelper
       end
     end
 
-    # Configuration is in /public/uvconfig_compound.json;
-    # See http://universalviewer.io/examples/ for config structure.
-    # UV seems to want its height to be defined in a style attribute.
+    # UV 2.x used to have a handy GUI config editor but that hasn't been ported
+    # to 3.x as of 4/2021. The new config structure is similar but mostly
+    # undocumented.
     html = StringIO.new
-    html << "<div id=\"dl-compound-viewer\" class=\"uv\" "\
-      "data-locale=\"en-GB:English (GB)\" "\
-      "data-config=\"#{asset_path('uvconfig_compound.json', skip_pipeline: true)}\" "\
-      "data-uri=\"#{item_iiif_manifest_url(object)}\" "\
-      "data-sequenceindex=\"0\" data-canvasindex=\"#{canvas_index}\" "\
-      "data-rotation=\"0\" style=\"height:#{VIEWER_HEIGHT}; background-color:#000;\"></div>"
-    html << javascript_include_tag('/universalviewer/lib/embed.js', id: 'embedUV')
+    html << "<div id=\"dl-compound-viewer\" class=\"uv\"></div>"
+    html << "<script type=\"text/javascript\">
+        var uv, urlDataProvider;
+
+        window.addEventListener('uvLoaded', function(e) {
+            urlDataProvider = new UV.URLDataProvider();
+            setupUV();
+        }, false);
+
+        function setupUV() {
+            var collectionIndex = urlDataProvider.get('c');
+            var data = {
+                root: \"../uv\",
+                iiifResourceUri: \"#{item_iiif_manifest_url(object)}\",
+                configUri: '#{asset_path('uvconfig_compound.json', skip_pipeline: true)}',
+                collectionIndex: (collectionIndex !== undefined) ? Number(collectionIndex) : undefined,
+                manifestIndex: Number(urlDataProvider.get('m', 0)),
+                sequenceIndex: Number(urlDataProvider.get('s', 0)),
+                canvasIndex: #{canvas_index},
+                rotation: Number(urlDataProvider.get('r', 0)),
+                rangeId: urlDataProvider.get('rid', ''),
+                xywh: urlDataProvider.get('xywh', '')
+            };
+            uv = createUV('#dl-compound-viewer', data, urlDataProvider);
+        }
+    </script>"
+    html << '<script type="text/javascript" src="https://unpkg.com/@edsilv/utils@0.2.6/dist/Utils.js"></script>'
+    html << javascript_include_tag('/uv/lib/offline.js')
+    html << javascript_include_tag('/uv/helpers.js')
+    html << javascript_include_tag('/uv/uv.js')
     raw(html.string)
   end
 
@@ -1356,26 +1377,40 @@ module ItemsHelper
     html = StringIO.new
     binary = item.effective_image_binary
     if binary
-      # Configuration is in /public/uvconfig_single.json;
-      # See http://universalviewer.io/examples/ for config structure.
-      # N.B. 1: UV 2.x doesn't work in IE 9, so render an <img> instead.
-      # N.B. 2: UV wants its height to be defined in a style attribute.
-      html << sprintf('<!--[if (lte IE 9)]>%s<![endif]-->
-          <!--[if gt IE 9 | !IE ]><!-->
-          <div id="dl-image-viewer" class="uv"
-          data-locale="en-GB:English (GB)"
-          data-config="%s"
-          data-uri="%s"
-          data-sequenceindex="0" data-canvasindex="0"
-          data-rotation="0" style="margin: 0 auto; width:%s; height:%s; background-color:#000;"></div>
-          %s
-          <![endif]-->',
-                      thumbnail_tag(binary, size: 800),
-                      asset_path('uvconfig_single.json', skip_pipeline: true),
-                      item_iiif_manifest_url(item),
-                      VIEWER_WIDTH,
-                      VIEWER_HEIGHT,
-                      javascript_include_tag('/universalviewer/lib/embed.js', id: 'embedUV'))
+      # UV 2.x used to have a handy GUI config editor but that hasn't been
+      # ported to 3.x as of 4/2021. The new config structure is similar but
+      # mostly undocumented.
+      html = StringIO.new
+      html << "<div id=\"dl-image-viewer\" class=\"uv\"></div>"
+      html << "<script type=\"text/javascript\">
+          var uv, urlDataProvider;
+
+          window.addEventListener('uvLoaded', function(e) {
+              urlDataProvider = new UV.URLDataProvider();
+              setupUV();
+          }, false);
+
+          function setupUV() {
+              var collectionIndex = urlDataProvider.get('c');
+              var data = {
+                  root: \"../uv\",
+                  iiifResourceUri: \"#{item_iiif_manifest_url(item)}\",
+                  configUri: '#{asset_path('uvconfig_single.json', skip_pipeline: true)}',
+                  collectionIndex: (collectionIndex !== undefined) ? Number(collectionIndex) : undefined,
+                  manifestIndex: Number(urlDataProvider.get('m', 0)),
+                  sequenceIndex: Number(urlDataProvider.get('s', 0)),
+                  canvasIndex: Number(urlDataProvider.get('cv', 0)),
+                  rotation: Number(urlDataProvider.get('r', 0)),
+                  rangeId: urlDataProvider.get('rid', ''),
+                  xywh: urlDataProvider.get('xywh', '')
+              };
+              uv = createUV('#dl-image-viewer', data, urlDataProvider);
+          }
+      </script>"
+      html << '<script type="text/javascript" src="https://unpkg.com/@edsilv/utils@0.2.6/dist/Utils.js"></script>'
+      html << javascript_include_tag('/uv/lib/offline.js')
+      html << javascript_include_tag('/uv/helpers.js')
+      html << javascript_include_tag('/uv/uv.js')
     else
       html << viewer_unavailable_message
     end

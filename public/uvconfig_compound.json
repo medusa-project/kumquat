@@ -1,5 +1,6 @@
 {
   "options": {
+    "leftPanelEnabled": true,
     "pagingEnabled": true,
     "pagingOptionEnabled": true,
     "saveUserSettings": true,
@@ -28,10 +29,10 @@
     },
     "seadragonCenterPanel": {
       "options": {
-        "attributionEnabled": false,
+        "requiredStatementEnabled": false,
         "immediateRender": true,
         "navigatorPosition": "TOP_RIGHT",
-        "showHomeControl": true
+        "showHomeControl": false
       }
     }
   }
