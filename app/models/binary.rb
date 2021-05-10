@@ -169,6 +169,7 @@ class Binary < ApplicationRecord
   ##
   # Runs OCR against the binary using AWS Textract. The result is saved in
   # {textract_json}.
+  #
   # @raises [RuntimeError] if the instance is not {ocrable?}.
   #
   def detect_text
