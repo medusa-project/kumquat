@@ -424,6 +424,14 @@ class Binary < ApplicationRecord
   end
 
   ##
+  # @return [Medusa::File] See the documentation for the medusa-client gem.
+  #
+  def medusa_file
+    @medusa_file = Medusa::File.with_uuid(self.medusa_uuid) unless @medusa_file
+    @medusa_file
+  end
+
+  ##
   # @return [String, nil] URI of the binary's equivalent Medusa file.
   #
   def medusa_url

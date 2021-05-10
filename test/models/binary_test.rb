@@ -274,6 +274,12 @@ class BinaryTest < ActiveSupport::TestCase
     assert @instance.is_video?
   end
 
+  # medusa_file()
+
+  test 'medusa_file() returns an instance' do
+    assert_not_nil @instance.medusa_file
+  end
+
   # medusa_url()
 
   test 'medusa_url should return the Medusa URL' do

@@ -47,8 +47,12 @@
                     href: "#dl-binaries",
                     role: "tab"}
           Binaries
-          %span.badge.badge-pill.badge-secondary
-            = @item.binaries.length
+          - if @item.binaries.find{ |b| !b.medusa_file.exists? }
+            %span.badge.badge-pill.badge-danger
+              %i.fa.fa-exclamation-triangle
+          - else
+            %span.badge.badge-pill.badge-secondary
+              = @item.binaries.length
       %li.nav-item{role: 'presentation'}
         %a.nav-link{"aria-controls": "dl-schema-org",
                     "data-toggle": "tab",
@@ -98,23 +102,32 @@
 
         .clearfix
         - @item.binaries.each do |bin|
-          .card
+          - exists = bin.medusa_file.exists?
+          %div{class: "card #{exists ? "" : "text-white bg-danger"}"}
             .card-body
-              .btn-group.float-right{role: 'group'}
-                = link_to(bin, class: 'btn btn-sm btn-light') do
-                  %i.fa.fa-download
-                  Download
-                - if bin.master_type == Binary::MasterType::ACCESS
-                  = link_to admin_collection_item_purge_cached_images_path(@item.collection, @item),
-                            class: 'btn btn-sm  btn-light',
-                            method: 'post' do
-                    %i.fa.fa-trash
-                    Purge Cached Images
-                = link_to(bin.medusa_url, class: 'btn btn-sm btn-light', target: '_blank') do
-                  %i.fa.fa-database
-                  View in Medusa
-              %h3= bin.human_readable_master_type
-              = render partial: 'admin/items/show_binary', locals: { binary: bin }
+              - if exists
+                .btn-group.float-right{role: 'group'}
+                  = link_to(bin, class: 'btn btn-sm btn-light') do
+                    %i.fa.fa-download
+                    Download
+                  - if bin.master_type == Binary::MasterType::ACCESS
+                    = link_to admin_collection_item_purge_cached_images_path(@item.collection, @item),
+                              class: 'btn btn-sm  btn-light',
+                              method: 'post' do
+                      %i.fa.fa-trash
+                      Purge Cached Images
+                  = link_to(bin.medusa_url, class: 'btn btn-sm btn-light', target: '_blank') do
+                    %i.fa.fa-database
+                    View in Medusa
+              %h3
+                - unless exists
+                  %i.fa.fa-exclamation-triangle
+                = bin.human_readable_master_type
+              - if exists
+                = render partial: 'admin/items/show_binary', locals: { binary: bin }
+              - else
+                .card-text This binary has gone missing from the Medusa Collection Registry since it was imported. |
+                  Run a "recreate binaries" import of this collection to remedy this. |
       #dl-schema-org.tab-pane{role: "tabpanel"}
         .clearfix
           .float-right
