@@ -66,8 +66,10 @@
         = link_to(admin_binary_run_ocr_path(binary), method: :patch, class: 'btn btn-sm btn-light') do
           %i.fas.fa-eye
           Run OCR
-      .clearfix
-      %pre= binary.textract_json
+      - if binary.textract_json.present?
+        .clearfix
+        %div{style: "max-height: 30em; overflow-x: scroll; overflow-y: scroll"}
+          %pre= JSON.pretty_generate(JSON.parse(binary.textract_json))
 
   -# Access tab
   .tab-pane{role: 'tabpanel',
