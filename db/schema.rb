@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_01_06_163106) do
+ActiveRecord::Schema.define(version: 2021_05_10_142839) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -89,6 +89,7 @@ ActiveRecord::Schema.define(version: 2021_01_06_163106) do
     t.integer "media_category"
     t.integer "duration"
     t.boolean "public", default: true, null: false
+    t.text "textract_json"
     t.index ["item_id"], name: "index_binaries_on_item_id"
     t.index ["master_type"], name: "index_binaries_on_master_type"
     t.index ["media_category"], name: "index_binaries_on_media_category"

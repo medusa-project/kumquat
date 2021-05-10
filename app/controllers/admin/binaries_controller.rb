@@ -5,10 +5,30 @@ module Admin
     before_action :set_binary
 
     ##
-    # Responds to `GET /admin/binaries/:id/edit` (XHR only)
+    # Responds to `GET /admin/binaries/:binary_id/edit-access` (XHR only)
     #
-    def edit
-      render partial: 'admin/binaries/edit'
+    def edit_access
+      render partial: 'admin/binaries/edit_access'
+    end
+
+    ##
+    # Responds to `PATCH /admin/binaries/:binary_id/run-ocr`
+    #
+    def run_ocr
+      if @binary.ocrable?
+        OcrJob.perform_later(@binary.id)
+      else
+        raise 'Only access master images and PDFs support OCR.'
+      end
+    rescue => e
+      handle_error(e)
+    else
+      response.headers['X-Kumquat-Result'] = 'success'
+      flash['success'] = 'Running OCR in the background. '\
+          'This should take less than a minute.'
+    ensure
+      redirect_back fallback_location:
+                      admin_collection_item_path(@binary.item.collection, @binary.item)
     end
 
     ##
@@ -39,7 +59,7 @@ module Admin
     end
 
     def set_binary
-      @binary = Binary.find_by_medusa_uuid(params[:id])
+      @binary = Binary.find_by_medusa_uuid(params[:id] || params[:binary_id])
     end
 
   end

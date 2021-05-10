@@ -13,13 +13,19 @@
     #dl-staff-info.collapse
       - if item.compound?
         -# For compound objects, display a table of all page binaries. (IMET-469)
-        %h3 Files
-        = compound_object_binary_info_table(item)
+        .card
+          .card-body
+            %h3.mt-0.mb-3 Files
+            = compound_object_binary_info_table(item)
       - elsif item.binaries.any?
-        - item.binaries.each do |bs|
-          %h3
-            = bs.human_readable_master_type
-            File
-          = binary_metadata_as_table(bs)
-      %h3 Object
-      = tech_metadata_as_table(item)
+        - item.binaries.each do |bin|
+          .card
+            .card-body
+              %h3.mt-0.mb-3
+                = bin.human_readable_master_type
+                File
+              = render partial: 'items/show_binary', locals: { binary: bin }
+      .card
+        .card-body
+          %h3.mt-0.mb-3 Object
+          = tech_metadata_as_table(item)

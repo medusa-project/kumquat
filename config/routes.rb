@@ -71,7 +71,10 @@ Rails.application.routes.draw do
     resources :agent_relations, except: [:index, :show], path: 'agent-relations'
     resources :agent_rules, except: :show, path: 'agent-rules'
     resources :agent_types, except: :show, path: 'agent-types'
-    resources :binaries, only: [:edit, :update]
+    resources :binaries, only: :update do
+      match '/edit-access', to: 'binaries#edit_access', via: :get
+      match '/run-ocr', to: 'binaries#run_ocr', via: :patch
+    end
     resources :elements, param: :name do
       match '/usages', to: 'elements#usages', via: :get
     end

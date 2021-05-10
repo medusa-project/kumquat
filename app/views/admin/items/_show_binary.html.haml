@@ -1,0 +1,86 @@
+-# Requires the following locals:
+-#
+-# binary [Binary]
+-#
+
+%ul.nav.nav-tabs{role: 'tablist'}
+  %li.nav-item{role: 'presentation'}
+    %a.nav-link.active{href:            "#dl-binary-tab-#{binary.master_type}-file",
+                       'aria-controls': "dl-binary-tab-#{binary.master_type}-file",
+                       role:            'tab',
+                       'data-toggle':   'tab'}
+      File
+  - if binary.metadata.any?
+    %li.nav-item{role: 'presentation'}
+      %a.nav-link{href:            "#dl-binary-tab-#{binary.master_type}-metadata",
+                  'aria-controls': "dl-binary-tab-#{binary.master_type}-metadata",
+                  role:            'tab',
+                  'data-toggle':   'tab'}
+        XMP
+  - if binary.ocrable?
+    %li.nav-item{role: 'presentation'}
+      %a.nav-link{href:            "#dl-binary-tab-#{binary.master_type}-ocr",
+                  'aria-controls': "dl-binary-tab-#{binary.master_type}-ocr",
+                  role:            'tab',
+                  'data-toggle':   'tab'}
+        OCR
+  %li.nav-item{role: 'presentation'}
+    %a.nav-link{href:            "#dl-binary-tab-#{binary.master_type}-access",
+                'aria-controls': "dl-binary-tab-#{binary.master_type}-access",
+                role:            'tab',
+                'data-toggle':   'tab'}
+      Access
+
+.tab-content
+  -# File tab
+  .tab-pane.active{role: 'tabpanel',
+                   id:   "dl-binary-tab-#{binary.master_type}-file"}
+    %table.table.table-sm.dl-metadata
+      - binary_info_for(binary, true).each do |row|
+        %tr
+          %td= row[:label]
+          %td= raw(row[:value])
+
+  -# Metadata tab
+  - if binary.metadata.any?
+    .tab-pane{role: 'tabpanel',
+              id:   "dl-binary-tab-#{binary.master_type}-metadata"}
+      %table.table.table-sm.dl-metadata
+        - binary_metadata_for(binary).each do |row|
+          - if row[:value].respond_to?(:each)
+            - value = '<ul>'
+            - row[:value].each do |v|
+              - value += "<li>#{v}</li>"
+            - value += '</ul>'
+          - else
+            - value = row[:value]
+          %tr
+            %td= row[:label]
+            %td= raw(value)
+
+  -# OCR tab
+  - if binary.ocrable?
+    .tab-pane{role: 'tabpanel',
+              id:   "dl-binary-tab-#{binary.master_type}-ocr"}
+      .float-right.mb-3
+        = link_to(admin_binary_run_ocr_path(binary), method: :patch, class: 'btn btn-sm btn-light') do
+          %i.fas.fa-eye
+          Run OCR
+      .clearfix
+      %pre= binary.textract_json
+
+  -# Access tab
+  .tab-pane{role: 'tabpanel',
+            id: "dl-binary-tab-#{binary.master_type}-access"}
+    .float-right.mb-3
+      %button.btn.btn-sm.btn-light.dl-edit-binary-access{type: 'button',
+                                                         'data-toggle': 'modal',
+                                                         'data-target': '#dl-edit-binary-access-modal',
+                                                         'data-binary-id': binary.medusa_uuid}
+        %i.fas.fa-pencil-alt
+        Edit Access
+    .clearfix
+    %table.table.table-sm
+      %tr
+        %td Public
+        %td= boolean(binary.public, style: :word)
