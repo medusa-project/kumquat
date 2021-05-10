@@ -23,23 +23,25 @@
       %br/
       %small= @item.subtitle
 .row
-  .col-sm-2.dl-item-structure
+  .col-sm-3.dl-item-structure
     = admin_structure_of_item(@item)
-  .col-sm-2
+
     .dl-thumbnail
       = thumbnail_tag(@item)
-    %ul.nav.nav-pills.nav-stacked
-      %li.nav-item
+  .col-sm-9
+    %ul.nav.nav-tabs{role: 'tablist'}
+      %li.nav-item{role: 'presentation'}
         %a.nav-link.active{"aria-controls": "dl-system-info",
                            "data-toggle": "tab",
                            href: "#dl-system-info",
-                           role: "tab"} System Info
-      %li.nav-item
+                           role: "tab",
+                           "aria-selected": true} System Info
+      %li.nav-item{role: 'presentation'}
         %a.nav-link{"aria-controls": "dl-descriptive-metadata",
                     "data-toggle": "tab",
                     href: "#dl-descriptive-metadata",
                     role: "tab"} Descriptive Metadata
-      %li.nav-item
+      %li.nav-item{role: 'presentation'}
         %a.nav-link{"aria-controls": "dl-binaries",
                     "data-toggle": "tab",
                     href: "#dl-binaries",
@@ -47,12 +49,12 @@
           Binaries
           %span.badge.badge-pill.badge-secondary
             = @item.binaries.length
-      %li.nav-item
+      %li.nav-item{role: 'presentation'}
         %a.nav-link{"aria-controls": "dl-schema-org",
                     "data-toggle": "tab",
                     href: "#dl-schema-org",
                     role: "tab"} schema.org
-  .col-sm-8
+
     -# Display a warning if the item is not free-form and has a preservation
     -# master binary but no access master.
     - if !@item.collection.free_form? && |
