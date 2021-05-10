@@ -1,0 +1,46 @@
+-# Requires the following locals:
+-#
+-# binary [Binary]
+-#
+
+%ul.nav.nav-tabs{role: 'tablist'}
+  %li.nav-item{role: 'presentation'}
+    %a.nav-link.active{href:            "#dl-binary-tab-#{binary.master_type}-file",
+                       'aria-controls': "dl-binary-tab-#{binary.master_type}-file",
+                       role:            'tab',
+                       'data-toggle':   'tab'}
+      File
+  - if binary.metadata.any?
+    %li.nav-item{role: 'presentation'}
+      %a.nav-link{href:            "#dl-binary-tab-#{binary.master_type}-metadata",
+                  'aria-controls': "dl-binary-tab-#{binary.master_type}-metadata",
+                  role:            'tab',
+                  'data-toggle':   'tab'}
+        XMP
+
+.tab-content
+  -# File tab
+  .tab-pane.active{role: 'tabpanel',
+                   id:   "dl-binary-tab-#{binary.master_type}-file"}
+    %table.table.table-sm.dl-metadata
+      - binary_info_for(binary, true).each do |row|
+        %tr
+          %td= row[:label]
+          %td= raw(row[:value])
+
+  -# Metadata tab
+  - if binary.metadata.any?
+    .tab-pane{role: 'tabpanel',
+              id:   "dl-binary-tab-#{binary.master_type}-metadata"}
+      %table.table.table-sm.dl-metadata
+        - binary_metadata_for(binary).each do |row|
+          - if row[:value].respond_to?(:each)
+            - value = '<ul>'
+            - row[:value].each do |v|
+              - value += "<li>#{v}</li>"
+            - value += '</ul>'
+          - else
+            - value = row[:value]
+          %tr
+            %td= row[:label]
+            %td= raw(value)

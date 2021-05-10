@@ -326,11 +326,11 @@ const DLAdminItemView = function() {
 
         $('[data-toggle=popover]').popover({ 'html' : true });
 
-        $('button.dl-edit-binary').on('click', function() {
+        $('button.dl-edit-binary-access').on('click', function() {
             const binary_id = $(this).data('binary-id');
-            const url = ROOT_URL + '/admin/binaries/' + binary_id + '/edit';
+            const url = ROOT_URL + '/admin/binaries/' + binary_id + '/edit-access';
             $.get(url, function(data) {
-                $('#dl-edit-binary-modal .modal-body').html(data);
+                $('#dl-edit-binary-access-modal .modal-body').html(data);
             });
         });
 

@@ -59,6 +59,28 @@ class BinaryTest < ActiveSupport::TestCase
     assert_equal 11, data.length
   end
 
+  # detect_text()
+
+  test 'detect_text() raises an error if the instance is not an access master' do
+    @instance.media_type = 'image/jpeg'
+    @instance.master_type = Binary::MasterType::PRESERVATION
+    assert_raises do
+      @instance.detect_text
+    end
+  end
+
+  test 'detect_text() raises an error if the instance is not an image or PDF' do
+    @instance.media_type = 'application/zip'
+    @instance.master_type = Binary::MasterType::ACCESS
+    assert_raises do
+      @instance.detect_text
+    end
+  end
+
+  test 'detect_text() detects text' do
+    # This is unfortunately not testable due to use of AWS Textract.
+  end
+
   # filename()
 
   test 'filename() should return the filename' do
@@ -269,6 +291,32 @@ class BinaryTest < ActiveSupport::TestCase
   test 'metadata should return metadata' do
     @instance = binaries(:free_form_dir1_image1)
     assert @instance.metadata.length > 2
+  end
+
+  # ocrable?()
+
+  test 'ocrable() returns false if the instance is not an access master' do
+    @instance.media_type  = 'image/jpeg'
+    @instance.master_type = Binary::MasterType::PRESERVATION
+    assert !@instance.ocrable?
+  end
+
+  test 'ocrable?() returns false if the instance is not an image or PDF' do
+    @instance.media_type  = 'application/zip'
+    @instance.master_type = Binary::MasterType::ACCESS
+    assert !@instance.ocrable?
+  end
+
+  test 'ocrable?() returns true if the instance is an access master image' do
+    @instance.media_type  = 'image/jpeg'
+    @instance.master_type = Binary::MasterType::ACCESS
+    assert @instance.ocrable?
+  end
+
+  test 'ocrable?() returns true if the instance is an access master PDF' do
+    @instance.media_type  = 'application/pdf'
+    @instance.master_type = Binary::MasterType::ACCESS
+    assert @instance.ocrable?
   end
 
   # read_dimensions()

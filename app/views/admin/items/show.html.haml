@@ -93,30 +93,26 @@
                           admin_collection_item_unpublicize_child_binaries_path(@item.collection, @item),
                           class: 'dropdown-item',
                           method: :post)
-          -# Purge Cached Images button
-          = link_to admin_collection_item_purge_cached_images_path(@item.collection, @item),
-                    class: 'btn btn-light',
-                    method: 'post' do
-            %i.fa.fa-trash
-            Purge Cached Images
+
         .clearfix
         - @item.binaries.each do |bin|
-          .btn-group.float-right{role: 'group'}
-            %button.btn.btn-light.dl-edit-binary{type: 'button',
-                                                 'data-toggle': 'modal',
-                                                 'data-target': '#dl-edit-binary-modal',
-                                                 'data-binary-id': bin.medusa_uuid}
-              %i.fas.fa-pencil-alt
-              Edit
-            = link_to(bin, class: 'btn btn-light') do
-              %i.fa.fa-download
-              Download
-            = link_to(bin.medusa_url, class: 'btn btn-light', target: '_blank') do
-              %i.fa.fa-database
-              Medusa
-          %h2= bin.human_readable_master_type
-          = binary_metadata_as_table(bin, admin: true)
-          %hr/
+          .card
+            .card-body
+              .btn-group.float-right{role: 'group'}
+                = link_to(bin, class: 'btn btn-sm btn-light') do
+                  %i.fa.fa-download
+                  Download
+                - if bin.master_type == Binary::MasterType::ACCESS
+                  = link_to admin_collection_item_purge_cached_images_path(@item.collection, @item),
+                            class: 'btn btn-sm  btn-light',
+                            method: 'post' do
+                    %i.fa.fa-trash
+                    Purge Cached Images
+                = link_to(bin.medusa_url, class: 'btn btn-sm btn-light', target: '_blank') do
+                  %i.fa.fa-database
+                  View in Medusa
+              %h3= bin.human_readable_master_type
+              = render partial: 'admin/items/show_binary', locals: { binary: bin }
       #dl-schema-org.tab-pane{role: "tabpanel"}
         .clearfix
           .float-right
@@ -126,4 +122,4 @@
               Test
         %pre= schema_org_json_ld(@item, pretty_print: true)
 
-= render partial: 'edit_binary_modal'
+= render partial: 'edit_binary_access_modal'

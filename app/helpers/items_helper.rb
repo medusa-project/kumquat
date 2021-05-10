@@ -67,65 +67,76 @@ module ItemsHelper
 
   ##
   # @param binary [Binary]
-  # @param admin [Boolean] Whether to include administrative information.
-  # @return [String]
+  # @option admin [Boolean] Whether to include administrative information.
+  # @return [Enumerable<Hash<Symbol,Object>>] Array of hashes with `:label`
+  #                                           and `:value` keys.
   #
-  def binary_metadata_as_table(binary, admin: false)
-    data = binary_metadata_for(binary, admin)
-    html = StringIO.new
-    if data.any?
-      categories = data.map{ |f| f[:category] }.uniq.
-          reject{ |cat| cat == 'ExifTool' }
+  def binary_info_for(binary, admin)
+    data = []
+    return data unless binary
 
-      # create the category tabs
-      html << '<ul class="nav nav-tabs" role="tablist">'
-      categories.each_with_index do |category, index|
-        tab_id = "dl-metadata-tab-#{binary.master_type}-#{category.gsub(' ', '')}"
-        class_ = (index == 0) ? 'active' : ''
-        html << "<li role=\"presentation\" class=\"nav-item\">"
-        html <<   "<a href=\"##{tab_id}\" class=\"nav-link #{class_}\" "\
-            "aria-controls=\"#{tab_id}\" role=\"tab\" "\
-            "data-toggle=\"tab\">#{category}</a>"
-        html << '</li>'
-      end
-      html << '</ul>'
-
-      # create the category tab panes
-      html << '<div class="tab-content">'
-      categories.each_with_index do |category, index|
-        tab_id = "dl-metadata-tab-#{binary.master_type}-#{category.gsub(' ', '')}"
-        class_ = (index == 0) ? 'active' : ''
-        html << "<div role=\"tabpanel\" class=\"tab-pane #{class_}\"
-            id=\"#{tab_id}\">"
-
-        html << '<table class="table table-sm dl-metadata">'
-        data.select{ |row| row[:category] == category }.each do |row|
-          if row[:value].respond_to?(:each)
-            value = '<ul>'
-            row[:value].each do |v|
-              value += "<li>#{v}</li>"
-            end
-            value += '</ul>'
-          else
-            value = row[:value]
-          end
-
-          html << '<tr>'
-          html <<   '<td>'
-          html <<     row[:label]
-          html <<   '</td>'
-          html <<   '<td>'
-          html <<     raw(value)
-          html <<   '</td>'
-          html << '</tr>'
-        end
-        html << '</table>'
-
-        html << '</div>' # .tab-pane
-      end
-      html << '</div>' # .tab-content
+    if admin
+      data << {
+        label: 'Database ID',
+        value: binary.id
+      }
+      data << {
+        label: 'Medusa File UUID',
+        value: "<code>#{binary.medusa_uuid}</code>"
+      }
+      data << {
+        label: 'Object Key',
+        value: "<code>#{binary.object_key}</code>"
+      }
     end
-    raw(html.string)
+    data << {
+      label: 'Size',
+      value: number_to_human_size(binary.byte_size)
+    }
+    data << {
+      label: 'Media Type',
+      value: "<code>#{binary.media_type}</code>"
+    }
+    data << {
+      label: 'Media Category',
+      value: binary.human_readable_media_category
+    }
+    if binary.width.present? && binary.height.present?
+      data << {
+        label: 'Dimensions',
+        value: "#{binary.width}&times;#{binary.height}"
+      }
+    end
+    if binary.duration.present?
+      data << {
+        label: 'Duration',
+        value: distance_of_time_in_words(binary.duration)
+      }
+    end
+    data
+  end
+
+  ##
+  # @param binary [Binary]
+  # @return [Enumerable<Hash<Symbol,Object>>] Array of hashes with `:label`
+  #                                           and `:value` keys.
+  #
+  def binary_metadata_for(binary)
+    data = []
+    return data unless binary
+
+    begin
+      binary.metadata.each do |field|
+        data << {
+          label: field[:label],
+          value: field[:value].respond_to?(:each) ?
+                   field[:value] : truncate(field[:value].to_s, length: 400)
+        }
+      end
+    rescue => e
+      LOGGER.warn("binary_metadata_for(): %s", e)
+    end
+    data
   end
 
   ##
@@ -1078,86 +1089,6 @@ module ItemsHelper
       </audio>"
     end
     raw(html.string)
-  end
-
-  ##
-  # @param binary [Binary]
-  # @option admin [Boolean] Whether to include administrative information.
-  # @return [Enumerable<Hash<Symbol,Object>>] Array of hashes with `:label`,
-  #                                           `:category`, and `:value` keys.
-  #
-  def binary_metadata_for(binary, admin)
-    data = []
-    if binary
-      if admin
-        data << {
-            label: 'Object Key',
-            category: 'File',
-            value: "<code>#{binary.object_key}</code>"
-        }
-      end
-      data << {
-          label: 'Media Type',
-          category: 'File',
-          value: "<code>#{binary.media_type}</code>"
-      }
-      data << {
-          label: 'Media Category',
-          category: 'File',
-          value: binary.human_readable_media_category
-      }
-      if binary.byte_size.present?
-        data << {
-            label: 'Size',
-            category: 'File',
-            value: number_to_human_size(binary.byte_size)
-        }
-      end
-      if binary.width.present? and binary.height.present?
-        data << {
-            label: 'Dimensions',
-            category: 'File',
-            value: "#{binary.width}&times;#{binary.height}"
-        }
-      end
-      if binary.duration.present?
-        data << {
-            label: 'Duration',
-            category: 'File',
-            value: distance_of_time_in_words(binary.duration)
-        }
-      end
-      if binary.medusa_uuid.present?
-        data << {
-            label: 'Medusa File UUID',
-            category: 'File',
-            value: '<code>' + binary.medusa_uuid + '</code>'
-        }
-      end
-      data << {
-          label: 'Database ID',
-          category: 'File',
-          value: binary.id
-      }
-      data << {
-          label: 'Public',
-          category: 'File',
-          value: boolean(binary.public, style: :word)
-      }
-      begin
-        binary.metadata.each do |field|
-          data << {
-              label: field[:label],
-              category: field[:category],
-              value: field[:value].respond_to?(:each) ?
-                  field[:value] : truncate(field[:value].to_s, length: 400)
-          }
-        end
-      rescue => e
-        LOGGER.warn("binary_metadata_for(): %s", e)
-      end
-    end
-    data
   end
 
   ##
