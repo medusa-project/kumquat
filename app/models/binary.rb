@@ -44,6 +44,8 @@
 # * `media_category` One of the {MediaCategory} constant values.
 # * `media_type`     Best-fit IANA media (MIME) type.
 # * `object_key`     S3 object key.
+# * `textract_json`  OCR data returned from AWS Textract via {detect_text},
+#                    serialized as JSON.
 # * `updated_at`     Managed by ActiveRecord.
 # * `width`          Native pixel width of a raster binary (image or video).
 #
@@ -92,8 +94,9 @@ class Binary < ApplicationRecord
     end
   end
 
-  LOGGER = CustomLogger.new(Binary)
-  DEFAULT_MEDIA_TYPE = 'unknown/unknown'
+  LOGGER                   = CustomLogger.new(Binary)
+  DEFAULT_MEDIA_TYPE       = 'unknown/unknown'
+  TEXTRACT_SUPPORTED_TYPES = %w(application/pdf image/jpeg image/png)
 
   # touch: true means when the instance is saved, the owning item's updated_at
   # property will be updated.
@@ -161,6 +164,42 @@ class Binary < ApplicationRecord
       type = 'Text'
     end
     type
+  end
+
+  ##
+  # Runs OCR against the binary using AWS Textract. The result is saved in
+  # {textract_json}.
+  #
+  def detect_text
+    return nil unless self.is_image? || self.is_pdf?
+
+    # If the binary is of a supported format, Textract can read it straight
+    # from the Medusa S3 bucket. Otherwise, it must be converted to a
+    # compatible format and sent to Textract in the API request.
+    args = nil
+    if TEXTRACT_SUPPORTED_TYPES.include?(self.media_type)
+      args = {
+        document: {
+          s3_object: {
+            bucket: MedusaS3Client::BUCKET,
+            name: self.object_key
+          }
+        }
+      }
+    else
+      Dir.mktmpdir do |tmpdir|
+        jpg_path = IiifImageConverter.new.convert_binary(self, tmpdir, :jpg)
+        args = {
+          document: {
+            bytes: File.read(jpg_path)
+          }
+        }
+      end
+    end
+    config   = ::Configuration.instance
+    client   = Aws::Textract::Client.new(region: config.aws_region)
+    response = client.detect_document_text(args)
+    self.update!(textract_json: JSON.generate(response.to_h))
   end
 
   ##
