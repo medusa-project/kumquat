@@ -212,6 +212,25 @@ class Binary < ApplicationRecord
   end
 
   ##
+  # @return [String,nil] Full text assembled from the lines contained within
+  #                      {textract_json}.
+  #
+  def full_text
+    return nil if self.textract_json.blank?
+    unless @full_text
+      struct = JSON.parse(self.textract_json)
+      if struct['detect_document_text_model_version'][0] != "1"
+        raise "Incompatible text model version"
+      end
+      @full_text = struct['blocks'].
+        select{ |b| b['block_type'] == 'LINE' }.
+        map{ |b| b['text'] }.
+        join("\n")
+    end
+    @full_text
+  end
+
+  ##
   # @return [String]
   #
   def human_readable_master_type

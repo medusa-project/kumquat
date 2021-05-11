@@ -17,6 +17,13 @@
                   role:            'tab',
                   'data-toggle':   'tab'}
         XMP
+  - if binary.textract_json.present?
+    %li.nav-item{role: 'presentation'}
+      %a.nav-link{href:            "#dl-binary-tab-#{binary.master_type}-full-text",
+                  'aria-controls': "dl-binary-tab-#{binary.master_type}-full-text",
+                  role:            'tab',
+                  'data-toggle':   'tab'}
+        Full Text
   - if binary.ocrable?
     %li.nav-item{role: 'presentation'}
       %a.nav-link{href:            "#dl-binary-tab-#{binary.master_type}-ocr",
@@ -57,6 +64,13 @@
           %tr
             %td= row[:label]
             %td= raw(value)
+
+  -# Full Text tab
+  - if binary.textract_json.present?
+    .tab-pane{role: 'tabpanel',
+              id:   "dl-binary-tab-#{binary.master_type}-full-text"}
+      %div{style: "max-height: 30em; overflow-x: scroll; overflow-y: scroll"}
+        %pre= binary.full_text
 
   -# OCR tab
   - if binary.ocrable?
