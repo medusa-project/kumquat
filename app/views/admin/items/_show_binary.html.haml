@@ -16,7 +16,7 @@
                   'aria-controls': "dl-binary-tab-#{binary.master_type}-metadata",
                   role:            'tab',
                   'data-toggle':   'tab'}
-        XMP
+        Metadata
   - if binary.textract_json.present?
     %li.nav-item{role: 'presentation'}
       %a.nav-link{href:            "#dl-binary-tab-#{binary.master_type}-full-text",
@@ -62,7 +62,7 @@
           - else
             - value = row[:value]
           %tr
-            %td= row[:label]
+            %td= "#{row[:category]}:#{row[:label]}"
             %td= raw(value)
 
   -# Full Text tab

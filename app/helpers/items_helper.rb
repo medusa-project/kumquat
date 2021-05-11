@@ -118,19 +118,19 @@ module ItemsHelper
 
   ##
   # @param binary [Binary]
-  # @return [Enumerable<Hash<Symbol,Object>>] Array of hashes with `:label`
-  #                                           and `:value` keys.
+  # @return [Enumerable<Hash<Symbol,Object>>] Array of hashes with `:category`,
+  #         `:label`, and `:value` keys.
   #
   def binary_metadata_for(binary)
     data = []
     return data unless binary
-
     begin
       binary.metadata.each do |field|
         data << {
-          label: field[:label],
-          value: field[:value].respond_to?(:each) ?
-                   field[:value] : truncate(field[:value].to_s, length: 400)
+          label:    field[:label],
+          category: field[:category],
+          value:    field[:value].respond_to?(:each) ?
+                      field[:value] : truncate(field[:value].to_s, length: 400)
         }
       end
     rescue => e

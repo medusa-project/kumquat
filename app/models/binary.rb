@@ -43,6 +43,10 @@
 # * `master_type`    One of the {MasterType} constant values.
 # * `media_category` One of the {MediaCategory} constant values.
 # * `media_type`     Best-fit IANA media (MIME) type.
+# * `metadata_json`  Embedded EXIF/IPTC/XMP metadata serialized as JSON. See
+#                    {read_metadata} for documentation of the structure.
+#                    Typically the metadata would be accessed via {metadata}
+#                    and not directly from this ivar.
 # * `object_key`     S3 object key.
 # * `textract_json`  OCR data returned from AWS Textract via {detect_text},
 #                    serialized as JSON.
@@ -133,6 +137,7 @@ class Binary < ApplicationRecord
         Binary::MediaCategory::media_category_for_media_type(bin.media_type)
     bin.read_dimensions
     bin.read_duration
+    bin.read_metadata
     bin
   end
 
@@ -415,6 +420,7 @@ class Binary < ApplicationRecord
   ##
   # @return [Boolean] Whether the binary is a video and a version of it resides
   #                   in [UI MediaSpace](https://mediaspace.illinois.edu).
+  #
   def is_media_space_video?
     is_video? and self.item&.embed_tag&.include?('kaltura')
   end
@@ -463,21 +469,26 @@ class Binary < ApplicationRecord
   end
 
   ##
-  # Returns metadata for human consumption that is not guaranteed to be in any
-  # particular format.
+  # Provides access to embedded EXIF/IPTC/XMP metadata. Note that this does
+  # not actually {read_metadata read the metadata}--it only deserializes and
+  # returns what is stored in the database.
   #
   # @return [Enumerable<Hash<Symbol,String>>] Array of hashes with `:label`,
   #                                           `:category`, and `:value` keys.
   # @raises [IOError] If the file is not found or can't be read.
   #
   def metadata
-    read_metadata unless @metadata_read
-    @metadata
+    unless @deserialized_metadata
+      @deserialized_metadata = self.metadata_json.present? ?
+                                 JSON.parse(self.metadata_json, symbolize_names: true) : []
+    end
+    @deserialized_metadata
   end
 
   ##
-  # @return [Boolean] Whether the instance is of a type that can be OCRed.
-  #                   (Format conversion may still be necessary.)
+  # @return [Boolean] Whether the instance is of a type that can be
+  #                   {detect_text OCRed}. (Format conversion may still be
+  #                   necessary.)
   #
   def ocrable?
     self.master_type == Binary::MasterType::ACCESS &&
@@ -560,15 +571,17 @@ class Binary < ApplicationRecord
   ##
   # Reads the binary's embedded metadata.
   #
-  # @raises [IOError] If the file does not exist.
+  # @return [Enumerable<Hash<Symbol,String>>] Array of hashes with `:label`,
+  #                                           `:category`, and `:value` keys.
+  # @raises [IOError] If the file is not found or can't be read.
   #
   def read_metadata
     return unless self.is_image?
-
-    @metadata = []
     begin
       tempfile = Tempfile.new('image')
-      download_to(tempfile.path, 2 ** 17) # hopefully the first 128 KB is enough
+      # For performance and I/O cost reasons, we download only a small portion
+      # of the beginning of the image.
+      download_to(tempfile.path, 2 ** 18)
 
       # exiftool's output is more comprehensive, but as of 2016-09-01, it
       # appears to cause my local machine's condo NFS mount to unmount itself.
@@ -578,8 +591,6 @@ class Binary < ApplicationRecord
       # exiftool if desired. --alexd
       #read_metadata_using_exiftool(pathname)
       read_metadata_using_exiv2(tempfile.path)
-
-      @metadata_read = true
     ensure
       tempfile.close
       tempfile.unlink
@@ -608,6 +619,7 @@ class Binary < ApplicationRecord
     "s3://#{Configuration.instance.medusa_s3_bucket}/#{self.object_key}"
   end
 
+
   private
 
   def download_to(pathname, length = 0)
@@ -622,10 +634,14 @@ class Binary < ApplicationRecord
   end
 
   ##
+  # Reads the contents of `pathname` into {metadata_json}. The instance is not
+  # saved.
+  #
   # @param pathname [String]
   #
   def read_metadata_using_exiftool(pathname)
-    json = `exiftool -json -l -G "#{pathname.gsub('"', '\\"')}"`
+    metadata = []
+    json     = `exiftool -json -l -G "#{pathname.gsub('"', '\\"')}"`
     begin
       struct = JSON.parse(json)
       struct.first.each do |k, v|
@@ -647,19 +663,24 @@ class Binary < ApplicationRecord
           category = category.upcase if category.include?('Jpeg')
           category.gsub!('_', ' ')
           value = v['val'].kind_of?(String) ? v['val'].strip : v['val']
-          @metadata << { label: v['desc'], category: category, value: value }
+          metadata << { label: v['desc'], category: category, value: value }
         end
       end
+      self.metadata_json = JSON.generate(metadata)
     rescue JSON::ParserError => e
       LOGGER.warn('read_metadata(): %s', e)
     end
   end
 
   ##
+  # Reads the contents of `pathname` into {metadata_json}. The instance is not
+  # saved.
+  #
   # @param pathname [String]
   #
   def read_metadata_using_exiv2(pathname)
-    output = `exiv2 -Pklt "#{pathname.gsub('"', '\\"')}"`
+    metadata = []
+    output   = `exiv2 -q -Pklt "#{pathname.gsub('"', '\\"')}"`
     output.encode('UTF-8', invalid: :replace).split("\n").each do |row|
       next if row.length < 10
 
@@ -690,17 +711,18 @@ class Binary < ApplicationRecord
         label = cols[1].strip
         category = key.split('.').first.upcase
         
-        md = @metadata.select{ |m| m[:category] == category && m[:label] == label }
+        md = metadata.select{ |m| m[:category] == category && m[:label] == label }
         if md.any?
           unless md.first[:value].respond_to?(:each)
             md.first[:value] = [ md.first[:value] ]
           end
           md.first[:value] << value
         else
-          @metadata << { label: label, category: category, value: value }
+          metadata << { label: label, category: category, value: value }
         end
       end
     end
+    self.metadata_json = JSON.generate(metadata)
   end
 
 end

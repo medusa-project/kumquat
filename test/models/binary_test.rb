@@ -40,6 +40,7 @@ class BinaryTest < ActiveSupport::TestCase
     assert_equal Binary::MediaCategory::IMAGE, binary.media_category
     assert_equal 128, binary.width
     assert_equal 112, binary.height
+    assert binary.metadata.length > 2
   end
 
   test 'from_medusa_file() overrides the media category when supplied' do
@@ -323,9 +324,15 @@ class BinaryTest < ActiveSupport::TestCase
 
   # metadata()
 
-  test 'metadata should return metadata' do
+  test 'metadata() returns metadata if metadata_json is set' do
     @instance = binaries(:free_form_dir1_image1)
+    @instance.read_metadata
     assert @instance.metadata.length > 2
+  end
+
+  test 'metadata() returns an empty array if metadata_json is not set' do
+    @instance = binaries(:free_form_dir1_image1)
+    assert_kind_of Enumerable, @instance.metadata
   end
 
   # ocrable?()
@@ -356,7 +363,7 @@ class BinaryTest < ActiveSupport::TestCase
 
   # read_dimensions()
 
-  test 'read_dimensions() should work on images' do
+  test 'read_dimensions() works on images' do
     @instance = binaries(:free_form_dir1_image1)
     @instance.width = @instance.height = nil
     @instance.read_dimensions
@@ -364,7 +371,7 @@ class BinaryTest < ActiveSupport::TestCase
     assert_equal 112, @instance.height
   end
 
-  test 'read_dimensions() should work on videos' do
+  test 'read_dimensions() works on videos' do
     skip # TODO: write this
   end
 
@@ -390,6 +397,15 @@ class BinaryTest < ActiveSupport::TestCase
     assert_raises Aws::S3::Errors::NoSuchKey do
       @instance.read_duration
     end
+  end
+
+  # read_metadata()
+
+  test 'read_metadata() works on images' do
+    @instance = binaries(:free_form_dir1_image1)
+    @instance.metadata_json = nil
+    @instance.read_metadata
+    assert_not_nil @instance.metadata_json
   end
 
   # uri()
