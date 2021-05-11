@@ -23,11 +23,11 @@
       %br/
       %small= @item.subtitle
 .row
-  .col-sm-3.dl-item-structure
-    = admin_structure_of_item(@item)
-
+  .col-sm-3
     .dl-thumbnail
       = thumbnail_tag(@item)
+    .dl-item-structure
+      = admin_structure_of_item(@item)
   .col-sm-9
     %ul.nav.nav-tabs{role: 'tablist'}
       %li.nav-item{role: 'presentation'}
