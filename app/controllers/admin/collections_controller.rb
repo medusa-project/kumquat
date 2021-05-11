@@ -74,6 +74,23 @@ module Admin
       flash['success'] = 'Purging images in the background. (This may take a
           minute.) When complete, you may need to clear your browser cache to
           see any changes take effect.'
+    ensure
+      redirect_back fallback_location: admin_collection_path(collection)
+    end
+
+    ##
+    # Runs OCR on all relevant binaries in a collection, in the background.
+    #
+    # Responds to `PATCH /admin/collections/:collection_id/run-ocr`
+    #
+    def run_ocr
+      collection = Collection.find_by_repository_id(params[:collection_id])
+      raise ActiveRecord::RecordNotFound unless collection
+
+      OcrCollectionJob.perform_later(collection.repository_id)
+
+      flash['success'] = 'Running OCR in the background. This may take a while.'
+    ensure
       redirect_back fallback_location: admin_collection_path(collection)
     end
 

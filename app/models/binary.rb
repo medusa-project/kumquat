@@ -491,6 +491,8 @@ class Binary < ApplicationRecord
   #                   necessary.)
   #
   def ocrable?
+    # N.B.: these conditions must be kept in sync with OcrCollectionJob and
+    # OcrItemJob.
     self.master_type == Binary::MasterType::ACCESS &&
       (self.is_image? || self.is_pdf?)
   end

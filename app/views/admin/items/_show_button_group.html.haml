@@ -4,6 +4,12 @@
             class: 'btn btn-light' do
     %i.fas.fa-pencil-alt
     Edit
+  -# OCR button
+  = link_to admin_collection_item_run_ocr_path(@item.collection, @item),
+            method: :patch,
+            class: 'btn btn-light' do
+    %i.fas.fa-eye
+    OCR
   -# Sets button
   - if @item.collection.item_sets.count > 0
     .btn-group

@@ -99,6 +99,7 @@ Rails.application.routes.draw do
               via: :post
         match '/purge-cached-images', to: 'items#purge_cached_images',
               via: :post
+        match '/run-ocr', to: 'items#run_ocr', via: :patch
         match '/unpublicize-child-binaries', to: 'items#unpublicize_child_binaries',
               via: :post
       end
@@ -114,6 +115,7 @@ Rails.application.routes.draw do
       match '/items/sync', to: 'items#sync', via: :post
       match '/purge-cached-images', to: 'collections#purge_cached_images',
             via: :post
+      match '/run-ocr', to: 'collections#run_ocr', via: :patch
       match '/statistics', to: 'collections#statistics', via: :get
     end
     resources :host_groups

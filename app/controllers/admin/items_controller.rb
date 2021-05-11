@@ -308,7 +308,8 @@ module Admin
         'from the image server cache. You may need to clear your browser '\
         'cache to see any changes take effect.'
       ensure
-        redirect_back fallback_location: admin_collection_item_path(item.collection, item)
+        redirect_back fallback_location:
+                        admin_collection_item_path(item.collection, item)
       end
     end
 
@@ -336,6 +337,24 @@ module Admin
       ensure
         redirect_back fallback_location: admin_collection_items_path(col)
       end
+    end
+
+    ##
+    # Runs OCR on all relevant binaries of an item and all of its children,
+    # in the background.
+    #
+    # Responds to `PATCH /admin/collections/:collection_id/items/:item_id/run-ocr`
+    #
+    def run_ocr
+      item = Item.find_by_repository_id(params[:item_id])
+      raise ActiveRecord::RecordNotFound unless item
+
+      OcrItemJob.perform_later(item.repository_id)
+
+      flash['success'] = 'Running OCR in the background. This may take a while.'
+    ensure
+      redirect_back fallback_location:
+                      admin_collection_item_path(item.collection, item)
     end
 
     ##

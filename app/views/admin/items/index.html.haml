@@ -16,6 +16,11 @@
                           disabled: (!@collection.package_profile || !@collection.medusa_file_group) }
       %i.fas.fa-sync-alt
       Import
+    -# OCR
+    = link_to(admin_collection_run_ocr_path(@collection),
+              method: :patch, class: "btn btn-light", role: "button") do
+      %i.fas.fa-eye
+      OCR
     -# Metadata
     .btn-group
       %button.btn.btn-light.dropdown-toggle{"aria-expanded": "false",

@@ -1,3 +1,9 @@
+##
+# Runs OCR against a single binary.
+#
+# @see [OcrCollectionJob]
+# @see [OcrItemJob]
+#
 class OcrJob < Job
 
   QUEUE = Job::Queue::ADMIN
