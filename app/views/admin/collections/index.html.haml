@@ -24,20 +24,21 @@
                 admin_collections_path(format: 'tsv'),
                 target: '_blank',
                 class: 'dropdown-item'
-  -# View menu
+  -# Go menu
   .btn-group
     %button.btn.btn-light.dropdown-toggle{"aria-expanded": "false",
                                           "aria-haspopup": "true",
                                           "data-toggle": "dropdown",
                                           type: "button"}
-      %i.fa.fa-eye
-      View
+      %i.fa.fa-external-link-alt
+      Go
       %span.caret
     .dropdown-menu.dropdown-menu-right
       = link_to Configuration.instance.medusa_url + '/collections',
                 target: '_blank', class: 'dropdown-item' do
         %i.fa.fa-database
         Medusa
+
 %h1 Collections
 .card
   .card-body

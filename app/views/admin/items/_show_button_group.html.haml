@@ -28,14 +28,14 @@
                                                               item_set: set.id),
             method: :post,
             class: 'dropdown-item'
-  -# View button
+  -# Go button
   .btn-group
     %button.btn.btn-light.dropdown-toggle{"aria-expanded": "false",
                                           "aria-haspopup": "true",
                                           "data-toggle": "dropdown",
                                           type: "button"}
-      %i.fa.fa-eye
-      View
+      %i.fa.fa-external-link-alt
+      Go
       %span.caret
     .dropdown-menu.dropdown-menu-right
       = link_to item_url(@item, format: :json),
