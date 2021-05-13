@@ -1,7 +1,11 @@
 module IiifPresentationHelper
 
-  LAYER_LABEL     = 'Additional Content'
-  MIN_CANVAS_SIZE = 1200 # http://iiif.io/api/presentation/2.1/#canvas
+  DEFAULT_ANNOTATION_LIST_NAME = 'annotation1'
+  DEFAULT_CANVAS_NAME          = 'canvas1'
+  DEFAULT_LAYER_NAME           = 'layer1'
+  DEFAULT_RANGE_NAME           = 'range1'
+  LAYER_LABEL                  = 'Additional Content'
+  MIN_CANVAS_SIZE              = 1200 # http://iiif.io/api/presentation/2.1/#canvas
 
   ##
   # @param item [Item] Compound object.
@@ -34,7 +38,7 @@ module IiifPresentationHelper
         '@id':      item_iiif_annotation_list_url(item, list_name),
         '@type':    'sc:AnnotationList',
         within: {
-            '@id':   item_iiif_layer_url(item, item.repository_id),
+            '@id':   item_iiif_layer_url(item, DEFAULT_LAYER_NAME),
             '@type': 'sc:Layer',
             label:   LAYER_LABEL
         },
@@ -49,7 +53,7 @@ module IiifPresentationHelper
   #
   def iiif_canvas_for(subitem, include_metadata:)
     struct = {
-        '@id':   item_iiif_canvas_url(subitem, subitem.repository_id),
+        '@id':   item_iiif_canvas_url(subitem, DEFAULT_CANVAS_NAME),
         '@type': 'sc:Canvas',
         label:   subitem.title,
         height:  canvas_height(subitem),
@@ -126,7 +130,7 @@ module IiifPresentationHelper
               height: binary.height,
               width:  binary.width
           },
-          on: item_iiif_canvas_url(item, item.repository_id)
+          on: item_iiif_canvas_url(item, DEFAULT_CANVAS_NAME)
       }
     end
     images
@@ -150,7 +154,7 @@ module IiifPresentationHelper
                                                 Item::Variants::SUPPLEMENT])
     if items.any?
       struct[:otherContent] = items.map do |it|
-        item_iiif_annotation_list_url(item, it.repository_id)
+        item_iiif_annotation_list_url(item, DEFAULT_ANNOTATION_LIST_NAME)
       end
     end
     struct
@@ -222,14 +226,14 @@ module IiifPresentationHelper
   #
   def iiif_range_for(item, subitem)
     struct = {
-        '@id': item_iiif_range_url(item, subitem.repository_id),
+        '@id': item_iiif_range_url(item, DEFAULT_RANGE_NAME),
         '@type': 'sc:Range',
         label: subitem.title
     }
     if [Item::Variants::COMPOSITE, Item::Variants::SUPPLEMENT].include?(subitem.variant)
-      struct[:contentLayer] = item_iiif_layer_url(item, subitem.repository_id)
+      struct[:contentLayer] = item_iiif_layer_url(item, DEFAULT_RANGE_NAME)
     else
-      struct[:canvases] = [ item_iiif_canvas_url(subitem, subitem.repository_id) ]
+      struct[:canvases] = [ item_iiif_canvas_url(subitem, DEFAULT_CANVAS_NAME) ]
     end
     struct
   end
