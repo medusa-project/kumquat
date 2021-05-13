@@ -26,7 +26,7 @@ class OcrItemJob < Job
       items.each_with_index do |item, index|
         # N.B.: these conditions must be kept in sync with Binary.ocrable?()
         binaries = item.binaries.
-          where(textract_json: nil).
+          where(full_text: nil).
           where(master_type: Binary::MasterType::ACCESS).
           where('media_type LIKE ? OR media_type = ?', 'image/%', 'application/pdf')
         binaries.each do |binary|

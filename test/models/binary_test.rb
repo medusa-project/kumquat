@@ -79,42 +79,13 @@ class BinaryTest < ActiveSupport::TestCase
   end
 
   test 'detect_text() detects text' do
-    # This is unfortunately not testable due to use of AWS Textract.
+    # TODO: write this
   end
 
   # filename()
 
   test 'filename() should return the filename' do
     assert_equal('file1', @instance.filename)
-  end
-
-  # full_text()
-
-  test 'full_text() returns nil when textract_json is nil' do
-    assert_nil @instance.full_text
-  end
-
-  test 'full_text() returns full text when textract_json is set' do
-    @instance.textract_json = JSON.generate({
-                                              blocks: [
-                                                {
-                                                  block_type: 'LINE',
-                                                  text: 'This is line 1'
-                                                },
-                                                {
-                                                  block_type: 'LINE',
-                                                  text: 'and this is line 2'
-                                                }
-                                              ]
-                                            })
-    assert_equal "This is line 1\nand this is line 2", @instance.full_text
-  end
-
-  test 'full_text() raises an error with an incompatible text model version' do
-    @instance.textract_json = JSON.generate({ detect_document_text_model_version: "2.0" })
-    assert_raises do
-      @instance.full_text
-    end
   end
 
   # human_readable_media_category()

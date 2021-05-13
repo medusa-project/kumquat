@@ -17,7 +17,7 @@
                   role:            'tab',
                   'data-toggle':   'tab'}
         Metadata
-  - if binary.textract_json.present?
+  - if binary.full_text.present?
     %li.nav-item{role: 'presentation'}
       %a.nav-link{href:            "#dl-binary-tab-#{binary.master_type}-full-text",
                   'aria-controls': "dl-binary-tab-#{binary.master_type}-full-text",
@@ -66,7 +66,7 @@
             %td= raw(value)
 
   -# Full Text tab
-  - if binary.textract_json.present?
+  - if binary.full_text.present?
     .tab-pane{role: 'tabpanel',
               id:   "dl-binary-tab-#{binary.master_type}-full-text"}
       %div{style: "max-height: 30em; overflow-x: scroll; overflow-y: scroll"}
@@ -80,10 +80,10 @@
         = link_to(admin_binary_run_ocr_path(binary), method: :patch, class: 'btn btn-sm btn-light') do
           %i.fas.fa-eye
           Run OCR
-      - if binary.textract_json.present?
+      - if binary.hocr.present?
         .clearfix
         %div{style: "max-height: 30em; overflow-x: scroll; overflow-y: scroll"}
-          %pre= JSON.pretty_generate(JSON.parse(binary.textract_json))
+          %pre= binary.hocr
 
   -# Access tab
   .tab-pane{role: 'tabpanel',

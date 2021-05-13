@@ -23,7 +23,7 @@ class OcrCollectionJob < Job
       # N.B.: these conditions must be kept in sync with Binary.ocrable?()
       binaries = Binary.joins(:item).
         where('items.collection_repository_id': collection.repository_id).
-        where(textract_json: nil).
+        where(full_text: nil).
         where(master_type: Binary::MasterType::ACCESS).
         where('media_type LIKE ? OR media_type = ?', 'image/%', 'application/pdf')
       binary_count = binaries.count

@@ -38,7 +38,9 @@
 # * `medusa_uuid`    UUID of the binary's corresponding file in Medusa.
 # * `created_at`     Managed by ActiveRecord.
 # * `duration`       Duration of audio/video, in seconds.
+# * `full_text`      Full text from OCR.
 # * `height`         Native pixel height of a raster binary (image or video).
+# * `hocr`           OCR data in hOCR format.
 # * `item_id`        Database ID of the binary's owning item.
 # * `master_type`    One of the {MasterType} constant values.
 # * `media_category` One of the {MediaCategory} constant values.
@@ -91,16 +93,17 @@ class Binary < ApplicationRecord
         when 'text/plain'
           return TEXT
       end
-      # TODO: this code finds the first but not necessarily best match, which is the reason for the override above. Pretty sloppy
+      # TODO: this code finds the first but not necessarily best match, which is the reason for the override above.
       formats = Binary.class_variable_get(:'@@formats')
       formats = formats.select{ |f| f['media_types'].include?(media_type) }
       formats.any? ? formats.first['media_category'] : nil
     end
   end
 
-  LOGGER                   = CustomLogger.new(Binary)
-  DEFAULT_MEDIA_TYPE       = 'unknown/unknown'
-  TEXTRACT_SUPPORTED_TYPES = %w(application/pdf image/jpeg image/png)
+  LOGGER                      = CustomLogger.new(Binary)
+  DEFAULT_MEDIA_TYPE          = 'unknown/unknown'
+  TESSERACT_SUPPORTED_FORMATS = %w(image/jpeg image/png image/tiff)
+  TEXTRACT_SUPPORTED_FORMATS  = %w(application/pdf image/jpeg image/png)
 
   # touch: true means when the instance is saved, the owning item's updated_at
   # property will be updated.
@@ -172,41 +175,14 @@ class Binary < ApplicationRecord
   end
 
   ##
-  # Runs OCR against the binary using AWS Textract. The result is saved in
-  # {textract_json}.
+  # Runs OCR against the binary.
   #
   # @raises [RuntimeError] if the instance is not {ocrable?}.
   #
   def detect_text
     raise 'This instance does not support OCR.' unless self.ocrable?
-
-    # If the binary is of a supported format, Textract can read it straight
-    # from the Medusa S3 bucket. Otherwise, it must be converted to a
-    # compatible format and sent to Textract in the API request.
-    args = nil
-    if TEXTRACT_SUPPORTED_TYPES.include?(self.media_type)
-      args = {
-        document: {
-          s3_object: {
-            bucket: MedusaS3Client::BUCKET,
-            name: self.object_key
-          }
-        }
-      }
-    else
-      Dir.mktmpdir do |tmpdir|
-        jpg_path = IiifImageConverter.new.convert_binary(self, tmpdir, :jpg)
-        args = {
-          document: {
-            bytes: File.read(jpg_path)
-          }
-        }
-      end
-    end
-    config   = ::Configuration.instance
-    client   = Aws::Textract::Client.new(region: config.aws_region)
-    response = client.detect_document_text(args)
-    self.update!(textract_json: JSON.generate(response.to_h))
+    detect_text_using_tesseract
+    #detect_text_using_textract
   end
 
   ##
@@ -214,25 +190,6 @@ class Binary < ApplicationRecord
   #
   def filename
     File.basename(self.object_key)
-  end
-
-  ##
-  # @return [String,nil] Full text assembled from the lines contained within
-  #                      {textract_json}.
-  #
-  def full_text
-    return nil if self.textract_json.blank?
-    unless @full_text
-      struct = JSON.parse(self.textract_json)
-      if struct['detect_document_text_model_version'][0] != "1"
-        raise "Incompatible text model version"
-      end
-      @full_text = struct['blocks'].
-        select{ |b| b['block_type'] == 'LINE' }.
-        map{ |b| b['text'] }.
-        join("\n")
-    end
-    @full_text
   end
 
   ##
@@ -623,6 +580,67 @@ class Binary < ApplicationRecord
 
 
   private
+
+  ##
+  # Populates the {hocr} and {full_text} attributes using `tesseract`
+  # invocations.
+  #
+  def detect_text_using_tesseract
+    Dir.mktmpdir do |tmpdir|
+      if TESSERACT_SUPPORTED_FORMATS.include?(self.media_type)
+        Tempfile.new do |file|
+          client = MedusaS3Client.instance
+          client.get_object(bucket: ::Configuration.instance.medusa_s3_bucket,
+                            key:    self.object_key,
+                            target: file)
+        end
+      else
+        jpg_path = IiifImageConverter.new.convert_binary(self, tmpdir, :jpg)
+      end
+      self.full_text = `tesseract #{jpg_path} stdout`
+      self.hocr      = `tesseract #{jpg_path} stdout hocr`
+      self.save!
+    end
+  end
+
+  # TODO: use this or lose it
+  def detect_text_using_textract
+    # If the binary is of a supported format, Textract can read it straight
+    # from the Medusa S3 bucket. Otherwise, it must be converted to a
+    # compatible format and sent to Textract in the API request.
+    args = nil
+    if TEXTRACT_SUPPORTED_FORMATS.include?(self.media_type)
+      args = {
+        document: {
+          s3_object: {
+            bucket: MedusaS3Client::BUCKET,
+            name: self.object_key
+          }
+        }
+      }
+    else
+      Dir.mktmpdir do |tmpdir|
+        jpg_path = IiifImageConverter.new.convert_binary(self, tmpdir, :jpg)
+        args = {
+          document: {
+            bytes: File.read(jpg_path)
+          }
+        }
+      end
+    end
+    config   = ::Configuration.instance
+    client   = Aws::Textract::Client.new(region: config.aws_region)
+    response = client.detect_document_text(args)
+    self.textract_json = JSON.generate(response.to_h)
+
+    if response['detect_document_text_model_version'][0] == "1"
+      self.full_text = response['blocks'].
+        select{ |b| b['block_type'] == 'LINE' }.
+        map{ |b| b['text'] }.
+        join("\n")
+    end
+    self.save!
+  end
 
   def download_to(pathname, length = 0)
     # Use the smaller of the actual length or the requested length.

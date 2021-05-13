@@ -23,6 +23,7 @@ This is a getting-started guide for developers.
       locally in Docker instead.
 * exiv2 (used to extract image metadata)
 * ffmpeg (used to extract video metadata)
+* tesseract (used for OCR)
 
 # Installation
 
