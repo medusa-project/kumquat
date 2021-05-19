@@ -40,7 +40,7 @@ Rails.application.routes.draw do
           defaults: { format: :json }
     match '/layer/:name', to: 'items#iiif_layer', via: :get, as: 'iiif_layer',
           defaults: { format: :json }
-    match '/list/:name', to: 'items#iiif_annotation_list', via: :get,
+    match '/annotation-list/:name', to: 'items#iiif_annotation_list', via: :get,
           as: 'iiif_annotation_list',
           defaults: { format: :json }
     match '/manifest', to: 'items#iiif_manifest', via: :get,
@@ -49,6 +49,9 @@ Rails.application.routes.draw do
           defaults: { format: :json }
     match '/sequence/:name', to: 'items#iiif_sequence', via: :get,
           as: 'iiif_sequence', defaults: { format: :json }
+    # IIIF Search API routes
+    match '/manifest/search', to: 'items#iiif_search', via: :get,
+          as: 'iiif_search', defaults: { format: :json }
     # Wellcome Library API extension
     match '/xsequence/:name', to: 'items#iiif_media_sequence', via: :get,
           as: 'iiif_media_sequence', defaults: { format: :json }

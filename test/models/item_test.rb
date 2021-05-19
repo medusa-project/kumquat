@@ -129,6 +129,7 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal @item.repository_id, doc[:id]
     assert_equal @item.start_date, doc[:normalized_start_date]
     assert_equal @item.end_date, doc[:normalized_end_date] if @item.end_date
+    assert_nil @item.full_text
     assert_equal @item.latitude&.to_f, doc[:normalized_latitude]
     assert_equal @item.longitude&.to_f, doc[:normalized_longitude]
     assert_equal @item.variant, doc[:variant]
@@ -163,6 +164,7 @@ class ItemTest < ActiveSupport::TestCase
                  doc[Item::IndexFields::EFFECTIVE_DENIED_HOST_GROUPS]
     assert_equal @item.effective_denied_host_groups.pluck(:key).length,
                  doc[Item::IndexFields::EFFECTIVE_DENIED_HOST_GROUP_COUNT]
+    assert_nil doc[Item::IndexFields::FULL_TEXT]
     assert_equal @item.item_sets.pluck(:id),
                  doc[Item::IndexFields::ITEM_SETS]
     assert_not_empty doc[Item::IndexFields::LAST_INDEXED]
@@ -470,6 +472,67 @@ class ItemTest < ActiveSupport::TestCase
 
     @item.variant = Item::Variants::FILE
     assert @item.file?
+  end
+
+  # full_text()
+
+  test 'full_text() returns nil if there are no binaries with full text' do
+    assert_nil @item.full_text
+  end
+
+  test 'full_text() returns full text if available' do
+    @item  = items(:free_form_dir1_image)
+    binary = @item.binaries.first
+    text   = 'The quick brown fox'
+    binary.update!(full_text: text)
+    assert_equal text, @item.full_text
+  end
+
+  # full_text_binary()
+
+  test 'full_text_binary() returns nil if there are no binaries with full text' do
+    assert_nil @item.full_text_binary
+  end
+
+  test 'full_text_binary() returns the full text binary if available' do
+    @item = items(:free_form_dir1_image)
+    binary = @item.binaries.first
+    binary.update!(full_text: 'The quick brown fox')
+    assert_not_nil @item.full_text_binary
+  end
+
+  # has_full_text?()
+
+  test 'has_full_text?() without including children returns false if the
+  instance has no binary with full text' do
+    assert !@item.has_full_text?(include_children: false)
+  end
+
+  test 'has_full_text?() without including children returns false if the
+  instance has a binary with full text' do
+    binary = @item.all_children.first.binaries.first
+    binary.update!(full_text: 'The quick brown fox')
+    assert !@item.has_full_text?(include_children: false)
+  end
+
+  test 'has_full_text?() without including children returns true if the
+  instance has a binary with full text' do
+    @item = items(:free_form_dir1_image)
+    binary = @item.binaries.first
+    binary.update!(full_text: 'The quick brown fox')
+    assert @item.has_full_text?(include_children: false)
+  end
+
+  test 'has_full_text?() including children returns false if neither the
+  instance nor any of its children has a binary with full text' do
+    assert !@item.has_full_text?(include_children: true)
+  end
+
+  test 'has_full_text?() including children returns true if the instance does
+  not have full text but one of its children does' do
+    binary = @item.all_children.first.binaries.first
+    binary.update!(full_text: 'The quick brown fox')
+    assert @item.has_full_text?(include_children: true)
   end
 
   # migrate_elements()

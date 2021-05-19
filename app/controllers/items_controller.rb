@@ -15,8 +15,7 @@ class ItemsController < WebsiteController
   before_action :enable_cors, only: [:iiif_annotation_list, :iiif_canvas,
                                      :iiif_image_resource, :iiif_layer,
                                      :iiif_manifest, :iiif_media_sequence,
-                                     :iiif_range, :iiif_sequence]
-
+                                     :iiif_range, :iiif_search, :iiif_sequence]
   before_action :load_item, except: [:index, :tree, :tree_data]
   before_action :authorize_item, except: [:index, :tree, :tree_data]
   before_action :check_publicly_accessible, except: [:index, :tree, :tree_data]
@@ -50,7 +49,7 @@ class ItemsController < WebsiteController
   ##
   # Serves IIIF Presentation API 2.1 annotation lists.
   #
-  # Responds to `GET /items/:id/list/:name`
+  # Responds to `GET /items/:item_id/annotation-list/:name`
   #
   # @see http://iiif.io/api/presentation/2.1/#annotation-list
   #
@@ -58,7 +57,8 @@ class ItemsController < WebsiteController
     @annotation_list_name = params[:name]
     if Item.find_by_repository_id(@annotation_list_name)
       render 'items/iiif_presentation_api/annotation_list',
-             formats: :json, content_type: 'application/json'
+             formats: :json,
+             content_type: 'application/json'
     else
       render plain: 'No such annotation list.', status: :not_found
     end
@@ -67,7 +67,7 @@ class ItemsController < WebsiteController
   ##
   # Serves IIIF Presentation API 2.1 canvases.
   #
-  # Responds to `GET /items/:id/canvas/:name`
+  # Responds to `GET /items/:item_id/canvas/:name`
   #
   # @see http://iiif.io/api/presentation/2.1/#canvas
   #
@@ -85,7 +85,7 @@ class ItemsController < WebsiteController
   ##
   # Serves IIIF Presentation API 2.1 image resources.
   #
-  # Responds to `GET /items/:id/annotation/:name`
+  # Responds to `GET /items/:item_id/annotation/:name`
   #
   # @see http://iiif.io/api/presentation/2.1/#image-resources
   #
@@ -105,7 +105,7 @@ class ItemsController < WebsiteController
   ##
   # Serves IIIF Presentation API 2.1 layers.
   #
-  # Responds to `GET /items/:id/layer/:name`
+  # Responds to `GET /items/:item_id/layer/:name`
   #
   # @see http://iiif.io/api/presentation/2.1/#layer
   #
@@ -123,7 +123,7 @@ class ItemsController < WebsiteController
   ##
   # Serves IIIF Presentation API 2.1 manifests.
   #
-  # Responds to `GET /items/:id/manifest`
+  # Responds to `GET /items/:item_id/manifest`
   #
   # @see http://iiif.io/api/presentation/2.1/#manifest
   #
@@ -137,7 +137,7 @@ class ItemsController < WebsiteController
   # Wellcome Library that enables the UniversalViewer to work with certain
   # non-image content.
   #
-  # Responds to `GET /items/:id/xsequence/:name`
+  # Responds to `GET /items/:item_id/xsequence/:name`
   #
   # @see https://gist.github.com/tomcrane/7f86ac08d3b009c8af7c
   #
@@ -150,7 +150,7 @@ class ItemsController < WebsiteController
   ##
   # Serves IIIF Presentation API 2.1 ranges.
   #
-  # Responds to `GET /items/:id/range/:name` where `:name` is a subitem
+  # Responds to `GET /items/:item_id/range/:name` where `:name` is a subitem
   # repository ID.
   #
   # @see http://iiif.io/api/presentation/2.1/#range
@@ -168,9 +168,26 @@ class ItemsController < WebsiteController
   end
 
   ##
+  # Provides an IIIF Search API endpoint which searches within the given item
+  # and all child items.
+  #
+  # Responds to `GET /items/:item_id/manifest/search`.
+  #
+  def iiif_search
+    if params[:q].blank?
+      render plain: "Missing query argument (?q=)",
+             status: :bad_request and return
+    end
+    @items = @item.search_children.query(Item::IndexFields::FULL_TEXT, params[:q])
+    render 'items/iiif_search_api/search',
+           formats: :json,
+           content_type: 'application/json'
+  end
+
+  ##
   # Serves IIIF Presentation API 2.1 sequences.
   #
-  # Responds to `GET /items/:id/sequence/:name`
+  # Responds to `GET /items/:item_id/sequence/:name`
   #
   # @see http://iiif.io/api/presentation/2.1/#sequence
   #

@@ -386,4 +386,24 @@ class BinaryTest < ActiveSupport::TestCase
                  @instance.uri
   end
 
+  # word_coordinates()
+
+  test 'word_coordinates() works with a word' do
+    binary      = binaries(:free_form_dir1_dir1_file1)
+    binary.hocr = File.read(File.join(Rails.root, 'test', 'fixtures', 'ocr', 'tesseract.hocr'))
+    result      = binary.word_coordinates('medicinal')
+    assert_equal 14, result.length
+    assert result[0][:x] > 0
+    assert result[0][:y] > 0
+    assert result[0][:width] > 0
+    assert result[0][:height] > 0
+  end
+
+  test 'word_coordinates() works with a phrase' do
+    binary      = binaries(:free_form_dir1_dir1_file1)
+    binary.hocr = File.read(File.join(Rails.root, 'test', 'fixtures', 'ocr', 'tesseract.hocr'))
+    result      = binary.word_coordinates('salvia officinalis.')
+    assert_equal 3, result.length
+  end
+
 end

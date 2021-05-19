@@ -42,6 +42,7 @@ class ItemDecorator < Draper::Decorator
         representative_item_uri: object.representative_item ?
                                      item_url(object.representative_item, format: :json) : nil,
         representative_images:   {},
+        full_text:               object.full_text,
         elements:                object.elements_in_profile_order(only_visible: true).map(&:decorate),
         binaries:                object.binaries.map{ |b| binary_url(b, format: :json) },
         children:                object.items.map{ |i| item_url(i, format: :json) },
@@ -63,7 +64,7 @@ class ItemDecorator < Draper::Decorator
         max_exp = 12
         (min_exp..max_exp).each do |exp|
           size = 2 ** exp
-          if (bin.width and bin.width >= size) or (bin.height and bin.height >= size)
+          if (bin.width && bin.width >= size) || (bin.height && bin.height >= size)
             struct[:representative_images][:full][size.to_s] =
                 "#{bin.iiif_image_url}/full/!#{size},#{size}/0/default.jpg"
           end
@@ -72,7 +73,7 @@ class ItemDecorator < Draper::Decorator
         struct[:representative_images][:square] = {}
         (min_exp..max_exp).each do |exp|
           size = 2 ** exp
-          if bin.width and bin.width >= size and bin.height and bin.height >= size
+          if bin.width && bin.width >= size && bin.height && bin.height >= size
             struct[:representative_images][:square][size.to_s] =
                 "#{bin.iiif_image_url}/square/!#{size},#{size}/0/default.jpg"
           end

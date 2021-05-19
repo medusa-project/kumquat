@@ -578,6 +578,38 @@ class Binary < ApplicationRecord
     "s3://#{Configuration.instance.medusa_s3_bucket}/#{self.object_key}"
   end
 
+  ##
+  # Returns a list of rectangle coordinates and dimensions within the {hocr
+  # OCRed image} for all matches for the given word or phrase.
+  #
+  # @param word_or_phrase [String]
+  # @return [Enumerable<Hash<Symbol,Integer>>] Enumerable of hashes with `:x`,
+  #         `:y`, `:width`, and `:height` keys.
+  #
+  def word_coordinates(word_or_phrase)
+    return nil if self.hocr.blank?
+    # Tesseract's hOCR output includes punctuation. We want to do a
+    # punctuation-free, case-insensitive search of only words.
+    filter_regex   = /[^\w]/
+    word_or_phrase = word_or_phrase.downcase
+    doc            = Nokogiri::HTML.parse(self.hocr)
+    results        = []
+    word_or_phrase.split(/\s+/).each do |word|
+      word.gsub!(filter_regex, '')
+      doc.xpath("//span[@class='ocrx_word']").each do |node|
+        if node.text.downcase.gsub(filter_regex, '') == word
+          parts = node['title'].split(' ')
+          x1    = parts[1].to_i
+          y1    = parts[2].to_i
+          x2    = parts[3].to_i
+          y2    = parts[4].chomp(';').to_i
+          results << { x: x1, y: y1, width: x2 - x1, height: y2 - y1 }
+        end
+      end
+    end
+    results
+  end
+
 
   private
 

@@ -256,6 +256,26 @@ module IiifPresentationHelper
   end
 
   ##
+  # N.B.: this method does not consider whether the given item is actually
+  # searchable (i.e. has full text). See {Item#has_full_text?}.
+  #
+  # @param item [Item]
+  # @return [Hash]
+  # @see https://iiif.io/api/search/0.9/#service-description
+  #
+  def iiif_search_service_description(item)
+    {
+      '@context': 'http://iiif.io/api/search/0/context.json',
+      '@id':      item_iiif_search_url(item),
+      profile:    'http://iiif.io/api/search/0/search'
+      #service: {
+      #  '@id':   item_iiif_search_autocomplete_url(item),
+      #  profile: 'http://iiif.io/api/search/0/autocomplete',
+      #}
+    }
+  end
+
+  ##
   # @param item [Item]
   # @return [Array]
   #

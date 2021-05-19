@@ -1114,6 +1114,10 @@ module ItemsHelper
       end
     end
 
+    config_file = object.has_full_text?(include_children: true) ?
+                    'uvconfig_compound_search.json' : 'uvconfig_compound.json'
+    config_uri = asset_path(config_file, skip_pipeline: true)
+
     # UV 2.x used to have a handy GUI config editor but that hasn't been ported
     # to 3.x as of 4/2021. The new config structure is similar but mostly
     # undocumented.
@@ -1132,7 +1136,7 @@ module ItemsHelper
             var data = {
                 root: \"../uv\",
                 iiifResourceUri: \"#{item_iiif_manifest_url(object)}\",
-                configUri: '#{asset_path('uvconfig_compound.json', skip_pipeline: true)}',
+                configUri: '#{config_uri}',
                 collectionIndex: (collectionIndex !== undefined) ? Number(collectionIndex) : undefined,
                 manifestIndex: Number(urlDataProvider.get('m', 0)),
                 sequenceIndex: Number(urlDataProvider.get('s', 0)),

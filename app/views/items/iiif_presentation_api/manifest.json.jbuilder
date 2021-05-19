@@ -8,6 +8,12 @@ json.label @item.title
 json.metadata iiif_metadata_for(@item)
 json.description @item.description if @item.description.present?
 
+services = []
+
+if @item.has_full_text?(include_children: true)
+  services << iiif_search_service_description(@item)
+end
+
 # Images
 thumb_url = thumbnail_url(@item)
 if thumb_url
@@ -20,12 +26,14 @@ if thumb_url
     end
   end
 
-  json.service do
-    json.set! '@context', 'http://iiif.io/api/image/2/context.json'
-    json.set! '@id', @item.effective_image_binary&.iiif_image_url
-    json.profile 'http://iiif.io/api/image/2/level2.json'
-  end
+  services << {
+    '@context': 'http://iiif.io/api/image/2/context.json',
+    '@id':      @item.effective_image_binary&.iiif_image_url,
+    profile:    'http://iiif.io/api/image/2/level2.json'
+  }
 end
+
+json.service services.select(&:present?)
 
 json.logo image_url('Illinois-Logo-Reversed-Orange-RGB-100.png')
 json.related({ '@id': item_url(@item), format: 'text/html' })

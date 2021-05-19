@@ -175,6 +175,7 @@ class Item < ApplicationRecord
     EFFECTIVE_ALLOWED_HOST_GROUPS      = 'sys_k_effective_allowed_host_groups'
     EFFECTIVE_DENIED_HOST_GROUP_COUNT  = 'sys_i_effective_denied_host_group_count'
     EFFECTIVE_DENIED_HOST_GROUPS       = 'sys_k_effective_denied_host_groups'
+    FULL_TEXT                          = 'sys_t_full_text'
     ITEM_SETS                          = 'sys_i_item_sets'
     LAST_INDEXED                       = ElasticsearchIndex::StandardFields::LAST_INDEXED
     LAST_MODIFIED                      = ElasticsearchIndex::StandardFields::LAST_MODIFIED
@@ -493,6 +494,7 @@ class Item < ApplicationRecord
         access_master_image:     access_master_struct,
         elements:                self.elements_in_profile_order(only_visible: true)
                                      .map{ |e| { name: e.name, value: e.value } },
+        full_text:               self.full_text,
         created_at:              self.created_at,
         updated_at:              self.updated_at
     }
@@ -518,6 +520,7 @@ class Item < ApplicationRecord
         self.effective_denied_host_groups.pluck(:key)
     doc[IndexFields::EFFECTIVE_DENIED_HOST_GROUP_COUNT] =
         doc[IndexFields::EFFECTIVE_DENIED_HOST_GROUPS].length
+    doc[IndexFields::FULL_TEXT]               = self.full_text
     doc[IndexFields::ITEM_SETS]               = self.item_sets.pluck(:id)
     doc[IndexFields::LAST_INDEXED]            = Time.now.utc.iso8601
     doc[IndexFields::LAST_MODIFIED]           = self.updated_at.utc.iso8601
@@ -939,6 +942,20 @@ class Item < ApplicationRecord
   end
 
   ##
+  # @return [String,nil] Full text of an attached binary that has it (if any).
+  #
+  def full_text
+    self.full_text_binary&.full_text
+  end
+
+  ##
+  # @return [Binary,nil] An attached binary that has full text (if any).
+  #
+  def full_text_binary
+    self.binaries.find{ |b| b.full_text.present? }
+  end
+
+  ##
   # @return [Boolean]
   #
   def has_iiif_manifest?
@@ -948,9 +965,27 @@ class Item < ApplicationRecord
   end
 
   ##
+  # @param include_children [Boolean] Whether to include immediate children in
+  #                                   the search.
+  # @return [Boolean] Whether the instance (or any of its immediate children,
+  #                   if specified) has an attached binary with full text.
+  #
+  def has_full_text?(include_children: false)
+    return true if self.full_text.present?
+    if include_children
+      return Binary.joins(:item).
+        where('items.parent_repository_id = ?', self.repository_id).
+        where('binaries.full_text IS NOT NULL').
+        count > 0
+    end
+    false
+  end
+
+  ##
   # @param recursive [Boolean] Whether to include all items regardless of depth
   #                            in the hierarchy, or only immediate children.
   # @return [Enumerable<Item>] Child items.
+  # @deprecated TODO: use all_children() instead (more efficient)
   #
   def items(recursive = false)
     items = []

@@ -116,6 +116,25 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_response :not_found
   end
 
+  # iiif_search()
+
+  test 'iiif_search() returns HTTP 200 for a valid item and query' do
+    @item = items(:compound_object_1002)
+    get item_iiif_search_path(@item, q: 'cats')
+    assert_response :ok
+  end
+
+  test 'iiif_search() returns HTTP 400 for a valid item and missing query' do
+    @item = items(:compound_object_1002)
+    get item_iiif_search_path(@item)
+    assert_response :bad_request
+  end
+
+  test 'iiif_search() returns HTTP 404 for an invalid item' do
+    get item_iiif_search_path('/items/bogus/manifest/search')
+    assert_response :not_found
+  end
+
   # iiif_sequence()
 
   test 'iiif_sequence() returns HTTP 200 for a valid parent item and sequence name' do
