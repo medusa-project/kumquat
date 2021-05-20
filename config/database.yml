@@ -9,19 +9,19 @@
 #
 
 <%
-path = File.join(Rails.root, 'config', 'credentials', 'development.yml')
+path               = File.join(Rails.root, 'config', 'credentials', 'development.yml')
 development_config = File.exists?(path) ? YAML.load(File.read(path)) : {}
-path = File.join(Rails.root, 'config', 'credentials', 'test.yml')
-test_config = File.exists?(path) ? YAML.load(File.read(path)) : {}
+path               = File.join(Rails.root, 'config', 'credentials', 'test.yml')
+test_config        = File.exists?(path) ? YAML.load(File.read(path)) : {}
 %>
 
 default: &default
-  adapter:  postgresql
-  encoding: unicode
-  pool:     <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
-  timeout:  5000
+  adapter:      postgresql
+  encoding:     unicode
+  pool:         <%= ENV.fetch("WEB_CONCURRENCY") { 1 } * ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  timeout:      5000
   min_messages: warning
-  template: template0
+  template:     template0
 
 development: &development
   <<: *default
@@ -55,6 +55,11 @@ demo: &demo
   database: <%= Rails.application.credentials.dig(:db_database) %>
   username: <%= Rails.application.credentials.dig(:db_username) %>
   password: <%= Rails.application.credentials.dig(:db_password) %>
+  # An optimal number when using Puma is RAILS_MAX_THREADS * WEB_CONCURRENCY
+  # (see puma.rb). However, we want to increase the parallelism of the various
+  # OCR jobs, which employ multi-threading in order to not take forever, even
+  # more than that.
+  pool:     <%= 3 * ENV.fetch("WEB_CONCURRENCY") { 1 } * ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
 
 demo_2:
   <<: *demo
@@ -66,6 +71,7 @@ production: &production
   database: <%= Rails.application.credentials.dig(:db_database) %>
   username: <%= Rails.application.credentials.dig(:db_username) %>
   password: <%= Rails.application.credentials.dig(:db_password) %>
+  pool:     50 # see comment in demo
 
 production_2:
   <<: *production
