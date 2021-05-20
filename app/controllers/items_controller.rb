@@ -178,7 +178,13 @@ class ItemsController < WebsiteController
       render plain: "Missing query argument (?q=)",
              status: :bad_request and return
     end
-    @items = @item.search_children.query(Item::IndexFields::FULL_TEXT, params[:q])
+    @items = @item.search_children.
+      query(Item::IndexFields::FULL_TEXT, params[:q])
+    # Restricted and unpublished items must be included to make this feature
+    # work for restricted items. A signed-in User could theoretically search
+    # within someone else's restricted item if they have its UUID, but this
+    # seems a very low risk.
+    @items.include_unpublished(true) if current_user
     render 'items/iiif_search_api/search',
            formats: :json,
            content_type: 'application/json'
