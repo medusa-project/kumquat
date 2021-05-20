@@ -15,9 +15,10 @@ class IiifPdfGenerator
 
   ##
   # Assembles the {Binary#public public} access master image binaries of all of
-  # a compound object's child items into a PDF.
+  # a compound object's child items into a PDF. If the instance has no child
+  # items, the item itself is compiled into a one-page PDF.
   #
-  # @param item [Item] Compound object.
+  # @param item [Item]
   # @param include_private_binaries [Boolean]
   # @param task [Task] Optional; supply to receive progress updates.
   # @return [String, nil] Pathname of the generated PDF, or nil if there are no
@@ -25,33 +26,27 @@ class IiifPdfGenerator
   #
   def generate_pdf(item:, include_private_binaries: false, task: nil)
     reset
-    children = item.search_children.to_a
-    if children.any?
-      doc   = pdf_document(item)
-      count = children.count
-      children.each_with_index do |child, child_index|
-        task&.progress = child_index / count.to_f
-
-        binaries = child.binaries.where(
-            master_type:    Binary::MasterType::ACCESS,
-            media_category: Binary::MediaCategory::IMAGE)
-        binaries = binaries.where(public: true) unless include_private_binaries
-        binaries.each do |binary|
-          doc.start_new_page if child_index > 0
-          add_image(binary, doc)
-        end
+    items = item.search_children.to_a
+    items = [item] if items.empty?
+    doc   = pdf_document(item)
+    count = items.count
+    items.each_with_index do |item_, index|
+      task&.progress = index / count.to_f
+      binaries = item_.binaries.where(
+          master_type:    Binary::MasterType::ACCESS,
+          media_category: Binary::MediaCategory::IMAGE)
+      binaries = binaries.where(public: true) unless include_private_binaries
+      binaries.each do |binary|
+        doc.start_new_page if index > 0
+        add_image(binary, doc)
       end
-      pathname = pdf_temp_file
-      doc.render_file(pathname)
-
-      FileUtils.rm_rf(image_temp_dir)
-
-      return pathname
-    else
-      LOGGER.info('generate_pdf(): %s has no child items.', item)
     end
-    nil
+    pathname = pdf_temp_file
+    doc.render_file(pathname)
+    FileUtils.rm_rf(image_temp_dir)
+    pathname
   end
+
 
   private
 
