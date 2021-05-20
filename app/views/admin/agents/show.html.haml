@@ -97,8 +97,7 @@
                 Delete
           %td= @agent.name
           %td= relation.agent_relation_type&.name
-          %td= link_to relation.related_agent.name,
-                       admin_agent_path(relation.related_agent)
+          %td= link_to(relation.related_agent.name, admin_agent_path(relation.related_agent))
           %td= relation.dates
 - else
   %p Nothing
