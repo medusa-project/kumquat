@@ -12,7 +12,6 @@ compound_object_1001_access:
   full_text:
   metadata_json:
   tesseract_json:
-  textract_json:
   hocr:
 
 compound_object_1001_preservation:
@@ -27,7 +26,6 @@ compound_object_1001_preservation:
   full_text:
   metadata_json:
   tesseract_json:
-  textract_json:
   hocr:
 
 compound_object_1002_page1_access:
@@ -42,7 +40,6 @@ compound_object_1002_page1_access:
   full_text:
   metadata_json:
   tesseract_json:
-  textract_json:
   hocr:
 
 compound_object_1002_page1_preservation:
@@ -57,7 +54,6 @@ compound_object_1002_page1_preservation:
   full_text:
   metadata_json:
   tesseract_json:
-  textract_json:
   hocr:
 
 compound_object_1002_page2_access:
@@ -72,7 +68,6 @@ compound_object_1002_page2_access:
   full_text:
   metadata_json:
   tesseract_json:
-  textract_json:
   hocr:
 
 compound_object_1002_page2_preservation:
@@ -87,7 +82,6 @@ compound_object_1002_page2_preservation:
   full_text:
   metadata_json:
   tesseract_json:
-  textract_json:
   hocr:
 
 compound_object_1002_supplement:
@@ -102,7 +96,6 @@ compound_object_1002_supplement:
   full_text:
   metadata_json:
   tesseract_json:
-  textract_json:
   hocr:
 
 # CONTENTdm Collection
@@ -119,7 +112,6 @@ contentdm_obj1_page1_access:
   full_text:
   metadata_json:
   tesseract_json:
-  textract_json:
   hocr:
 
 contentdm_obj1_page1_preservation:
@@ -134,7 +126,6 @@ contentdm_obj1_page1_preservation:
   full_text:
   metadata_json:
   tesseract_json:
-  textract_json:
   hocr:
 
 # Free-Form Collection
@@ -151,7 +142,6 @@ free_form_dir1_audio:
   full_text:
   metadata_json:
   tesseract_json:
-  textract_json:
   hocr:
 
 free_form_dir1_image1:
@@ -166,7 +156,6 @@ free_form_dir1_image1:
   full_text:
   metadata_json:
   tesseract_json:
-  textract_json:
   hocr:
 
 free_form_dir1_video:
@@ -181,7 +170,6 @@ free_form_dir1_video:
   full_text:
   metadata_json:
   tesseract_json:
-  textract_json:
   hocr:
 
 free_form_dir1_dir1_file1:
@@ -196,5 +184,4 @@ free_form_dir1_dir1_file1:
   full_text:
   metadata_json:
   tesseract_json:
-  textract_json:
   hocr:

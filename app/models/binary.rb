@@ -55,8 +55,6 @@
 #                    [tesseract-lambda](https://github.com/medusa-project/tesseract-lambda)
 #                    via {detect_text}, serialized as JSON. This may be blank
 #                    with {hocr} being used instead.
-# * `textract_json`  OCR data returned from AWS Textract via {detect_text},
-#                    serialized as JSON.
 # * `updated_at`     Managed by ActiveRecord.
 # * `width`          Native pixel width of a raster binary (image or video).
 #
@@ -108,7 +106,6 @@ class Binary < ApplicationRecord
   LOGGER                      = CustomLogger.new(Binary)
   DEFAULT_MEDIA_TYPE          = 'unknown/unknown'
   TESSERACT_SUPPORTED_FORMATS = %w(image/jpeg image/png image/tiff)
-  TEXTRACT_SUPPORTED_FORMATS  = %w(application/pdf image/jpeg image/png)
 
   # touch: true means when the instance is saved, the owning item's updated_at
   # property will be updated.
@@ -192,7 +189,6 @@ class Binary < ApplicationRecord
     else
       detect_text_using_lambda_ocr
     end
-    #detect_text_using_textract
   end
 
   ##
@@ -663,45 +659,6 @@ class Binary < ApplicationRecord
       raise IOError, "#{config.lambda_ocr_function} returned status "\
             "#{response.status_code}"
     end
-  end
-
-  # TODO: use this or lose it
-  def detect_text_using_textract
-    # If the binary is of a supported format, Textract can read it straight
-    # from the Medusa S3 bucket. Otherwise, it must be converted to a
-    # compatible format and sent to Textract in the API request.
-    args = nil
-    if TEXTRACT_SUPPORTED_FORMATS.include?(self.media_type)
-      args = {
-        document: {
-          s3_object: {
-            bucket: MedusaS3Client::BUCKET,
-            name: self.object_key
-          }
-        }
-      }
-    else
-      Dir.mktmpdir do |tmpdir|
-        jpg_path = IiifImageConverter.new.convert_binary(self, tmpdir, :jpg)
-        args = {
-          document: {
-            bytes: File.read(jpg_path)
-          }
-        }
-      end
-    end
-    config   = ::Configuration.instance
-    client   = Aws::Textract::Client.new(region: config.aws_region)
-    response = client.detect_document_text(args)
-    self.textract_json = JSON.generate(response.to_h)
-
-    if response['detect_document_text_model_version'][0] == "1"
-      self.full_text = response['blocks'].
-        select{ |b| b['block_type'] == 'LINE' }.
-        map{ |b| b['text'] }.
-        join("\n")
-    end
-    self.save!
   end
 
   def download_to(pathname, length = 0)
