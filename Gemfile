@@ -5,6 +5,7 @@ ruby '2.7.1'
 
 gem 'autoprefixer-rails'
 gem 'aws-sdk-s3', '~> 1'
+gem 'aws-sdk-lambda', '~> 1'
 gem 'aws-sdk-textract', '~> 1'
 gem 'daemons' # enables bin/delayed_job start/stop
 gem 'delayed_job_active_record'

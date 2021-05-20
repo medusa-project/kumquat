@@ -100,6 +100,9 @@ GEM
     aws-sdk-kms (1.4.0)
       aws-sdk-core (~> 3)
       aws-sigv4 (~> 1.0)
+    aws-sdk-lambda (1.57.0)
+      aws-sdk-core (~> 3, >= 3.109.0)
+      aws-sigv4 (~> 1.1)
     aws-sdk-s3 (1.8.0)
       aws-sdk-core (~> 3)
       aws-sdk-kms (~> 1)
@@ -279,6 +282,7 @@ PLATFORMS
 
 DEPENDENCIES
   autoprefixer-rails
+  aws-sdk-lambda (~> 1)
   aws-sdk-s3 (~> 1)
   aws-sdk-textract (~> 1)
   capistrano-bundler

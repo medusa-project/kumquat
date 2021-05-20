@@ -388,7 +388,7 @@ class BinaryTest < ActiveSupport::TestCase
 
   # word_coordinates()
 
-  test 'word_coordinates() works with a word' do
+  test 'word_coordinates() works with a word when using hOCR format' do
     binary      = binaries(:free_form_dir1_dir1_file1)
     binary.hocr = File.read(File.join(Rails.root, 'test', 'fixtures', 'ocr', 'tesseract.hocr'))
     result      = binary.word_coordinates('medicinal')
@@ -399,10 +399,28 @@ class BinaryTest < ActiveSupport::TestCase
     assert result[0][:height] > 0
   end
 
-  test 'word_coordinates() works with a phrase' do
+  test 'word_coordinates() works with a word when using Tesseract format' do
+    binary                = binaries(:free_form_dir1_dir1_file1)
+    binary.tesseract_json = File.read(File.join(Rails.root, 'test', 'fixtures', 'ocr', 'tesseract.json'))
+    result                = binary.word_coordinates('century')
+    assert_equal 4, result.length
+    assert result[0][:x] > 0
+    assert result[0][:y] > 0
+    assert result[0][:width] > 0
+    assert result[0][:height] > 0
+  end
+
+  test 'word_coordinates() works with a phrase when using hOCR format' do
     binary      = binaries(:free_form_dir1_dir1_file1)
     binary.hocr = File.read(File.join(Rails.root, 'test', 'fixtures', 'ocr', 'tesseract.hocr'))
     result      = binary.word_coordinates('salvia officinalis.')
+    assert_equal 3, result.length
+  end
+
+  test 'word_coordinates() works with a phrase when using Tesseract format' do
+    binary                = binaries(:free_form_dir1_dir1_file1)
+    binary.tesseract_json = File.read(File.join(Rails.root, 'test', 'fixtures', 'ocr', 'tesseract.json'))
+    result                = binary.word_coordinates('duced to britain')
     assert_equal 3, result.length
   end
 

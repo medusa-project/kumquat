@@ -40,7 +40,8 @@
 # * `duration`       Duration of audio/video, in seconds.
 # * `full_text`      Full text from OCR.
 # * `height`         Native pixel height of a raster binary (image or video).
-# * `hocr`           OCR data in hOCR format.
+# * `hocr`           OCR data in hOCR format. This may be blank with
+#                    {tesseract_json} being used instead.
 # * `item_id`        Database ID of the binary's owning item.
 # * `master_type`    One of the {MasterType} constant values.
 # * `media_category` One of the {MediaCategory} constant values.
@@ -50,6 +51,10 @@
 #                    Typically the metadata would be accessed via {metadata}
 #                    and not directly from this ivar.
 # * `object_key`     S3 object key.
+# * `tesseract_json` OCR data returned from
+#                    [tesseract-lambda](https://github.com/medusa-project/tesseract-lambda)
+#                    via {detect_text}, serialized as JSON. This may be blank
+#                    with {hocr} being used instead.
 # * `textract_json`  OCR data returned from AWS Textract via {detect_text},
 #                    serialized as JSON.
 # * `updated_at`     Managed by ActiveRecord.
@@ -181,7 +186,12 @@ class Binary < ApplicationRecord
   #
   def detect_text
     raise 'This instance does not support OCR.' unless self.ocrable?
-    detect_text_using_tesseract
+    if Rails.env.development? || Rails.env.test?
+      #detect_text_using_local_tesseract
+      detect_text_using_lambda_ocr
+    else
+      detect_text_using_lambda_ocr
+    end
     #detect_text_using_textract
   end
 
@@ -579,45 +589,30 @@ class Binary < ApplicationRecord
   end
 
   ##
-  # Returns a list of rectangle coordinates and dimensions within the {hocr
-  # OCRed image} for all matches for the given word or phrase.
+  # Returns a list of rectangle coordinates and dimensions within the OCR data
+  # (either {tesseract_json} or {hocr}) for all matches for the given word or
+  # phrase.
   #
   # @param word_or_phrase [String]
   # @return [Enumerable<Hash<Symbol,Integer>>] Enumerable of hashes with `:x`,
   #         `:y`, `:width`, and `:height` keys.
   #
   def word_coordinates(word_or_phrase)
-    return nil if self.hocr.blank?
-    # Tesseract's hOCR output includes punctuation. We want to do a
-    # punctuation-free, case-insensitive search of only words.
-    filter_regex   = /[^\w]/
-    word_or_phrase = word_or_phrase.downcase
-    doc            = Nokogiri::HTML.parse(self.hocr)
-    results        = []
-    word_or_phrase.split(/\s+/).each do |word|
-      word.gsub!(filter_regex, '')
-      doc.xpath("//span[@class='ocrx_word']").each do |node|
-        if node.text.downcase.gsub(filter_regex, '') == word
-          parts = node['title'].split(' ')
-          x1    = parts[1].to_i
-          y1    = parts[2].to_i
-          x2    = parts[3].to_i
-          y2    = parts[4].chomp(';').to_i
-          results << { x: x1, y: y1, width: x2 - x1, height: y2 - y1 }
-        end
-      end
+    if self.tesseract_json.present?
+      return word_coordinates_from_tesseract(word_or_phrase)
+    elsif self.hocr.present?
+      return word_coordinates_from_hocr(word_or_phrase)
     end
-    results
   end
 
 
   private
 
   ##
-  # Populates the {hocr} and {full_text} attributes using `tesseract`
+  # Populates the {hocr} and {full_text} attributes using `tesseract` command
   # invocations.
   #
-  def detect_text_using_tesseract
+  def detect_text_using_local_tesseract
     Dir.mktmpdir do |tmpdir|
       if TESSERACT_SUPPORTED_FORMATS.include?(self.media_type)
         Tempfile.new do |file|
@@ -632,6 +627,41 @@ class Binary < ApplicationRecord
       self.full_text = `tesseract #{jpg_path} stdout`
       self.hocr      = `tesseract #{jpg_path} stdout hocr`
       self.save!
+    end
+  end
+
+  ##
+  # Populates the {tesseract_json} and {full_text} attributes using an
+  # invocation of a
+  # [tesseract-lambda](https://github.com/medusa-project/tesseract-lambda)
+  # function.
+  #
+  def detect_text_using_lambda_ocr
+    config = ::Configuration.instance
+    client = Aws::Lambda::Client.new(region: config.aws_region)
+
+    payload = {
+      bucket: config.medusa_s3_bucket,
+      key:    self.object_key
+    }
+
+    response = client.invoke(
+      function_name:   config.lambda_ocr_function,
+      invocation_type: 'RequestResponse',
+      log_type:        'None',
+      payload:         JSON.generate(payload))
+
+    if response.status_code == 200
+      response_payload    = JSON.parse(response.payload.string)
+      self.tesseract_json = response_payload['body']
+      if self.tesseract_json.present?
+        struct = JSON.parse(self.tesseract_json)
+        self.full_text = struct['text'].join(' ')
+        self.save!
+      end
+    else
+      raise IOError, "#{config.lambda_ocr_function} returned status "\
+            "#{response.status_code}"
     end
   end
 
@@ -775,6 +805,62 @@ class Binary < ApplicationRecord
       end
     end
     self.metadata_json = JSON.generate(metadata)
+  end
+
+  def word_coordinates_from_hocr(word_or_phrase)
+    # hOCR format includes punctuation. We want to do a punctuation-free,
+    # case-insensitive search of only words.
+    filter_regex   = /[^\w]/
+    word_or_phrase = word_or_phrase.downcase
+    doc            = Nokogiri::HTML.parse(self.hocr)
+    results        = []
+    word_or_phrase.split(/\s+/).each do |word|
+      word.gsub!(filter_regex, '')
+      doc.xpath("//span[@class='ocrx_word']").each do |node|
+        if node.text.downcase.gsub(filter_regex, '') == word
+          parts = node['title'].split(' ')
+          x1    = parts[1].to_i
+          y1    = parts[2].to_i
+          x2    = parts[3].to_i
+          y2    = parts[4].chomp(';').to_i
+          results << { x: x1, y: y1, width: x2 - x1, height: y2 - y1 }
+        end
+      end
+    end
+    results
+  end
+
+  def word_coordinates_from_tesseract(word_or_phrase)
+    filter_regex      = /[^\w]/
+    word_or_phrase    = word_or_phrase.downcase
+    struct            = JSON.parse(self.tesseract_json)
+    struct['text']    = struct['text'].map{ |t| t.gsub(filter_regex, '').downcase }
+    results           = []
+    search_words      = word_or_phrase.split(/\s+/)
+    return results unless struct['text']
+
+    struct['text'].each_with_index do |ocr_word, ocr_word_index|
+      if search_words[0] == ocr_word
+        match_start_index = ocr_word_index
+        match_length      = 0
+        search_words.each_with_index do |search_word, search_word_index|
+          if search_word == struct['text'][ocr_word_index + search_word_index]
+            match_length += 1
+            if match_length == search_words.length
+              (match_start_index..(ocr_word_index + search_word_index)).each do |i|
+                results << {
+                  x:      struct['left'][i],
+                  y:      struct['top'][i],
+                  width:  struct['width'][i],
+                  height: struct['height'][i]
+                }
+              end
+            end
+          end
+        end
+      end
+    end
+    results
   end
 
 end

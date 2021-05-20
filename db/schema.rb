@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_05_13_141617) do
+ActiveRecord::Schema.define(version: 2021_05_19_200852) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -93,6 +93,7 @@ ActiveRecord::Schema.define(version: 2021_05_13_141617) do
     t.text "metadata_json"
     t.text "full_text"
     t.text "hocr"
+    t.text "tesseract_json"
     t.index ["item_id"], name: "index_binaries_on_item_id"
     t.index ["master_type"], name: "index_binaries_on_master_type"
     t.index ["media_category"], name: "index_binaries_on_media_category"
