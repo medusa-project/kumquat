@@ -20,6 +20,7 @@ class OcrJob < Job
     self.task&.update(status_text: "Running OCR on #{binary.object_key}")
 
     binary.detect_text
+    binary.item.reindex
 
     self.task&.succeeded
   end
