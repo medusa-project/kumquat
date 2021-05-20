@@ -249,6 +249,15 @@ namespace :dls do
       puts ItemTsvExporter.new.items_in_collection(col)
     end
 
+    desc 'Generate a PDF of an item'
+    task :generate_pdf, [:uuid, :path] => :environment do |task, args|
+      item = Item.find_by_repository_id(args[:uuid])
+      raise ArgumentError, 'Item does not exist' unless item
+      pdf_path = IiifPdfGenerator.new.generate_pdf(item: item,
+                                                   include_private_binaries: true)
+      FileUtils.mv(pdf_path, args[:path])
+    end
+
     desc 'Run OCR on an item and all children'
     task :ocr, [:uuid] => :environment do |task, args|
       OcrItemJob.new(args[:uuid]).perform_in_foreground
