@@ -18,7 +18,7 @@ test_config        = File.exists?(path) ? YAML.load(File.read(path)) : {}
 default: &default
   adapter:      postgresql
   encoding:     unicode
-  pool:         <%= ENV.fetch("WEB_CONCURRENCY") { 1 } * ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  pool:         <%= (ENV.fetch("WEB_CONCURRENCY") { 1 }).to_i * (ENV.fetch("RAILS_MAX_THREADS") { 5 }).to_i %>
   timeout:      5000
   min_messages: warning
   template:     template0
@@ -59,7 +59,7 @@ demo: &demo
   # (see puma.rb). However, we want to increase the parallelism of the various
   # OCR jobs, which employ multi-threading in order to not take forever, even
   # more than that.
-  pool:     <%= 3 * ENV.fetch("WEB_CONCURRENCY") { 1 } * ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  pool:     <%= (ENV.fetch("WEB_CONCURRENCY") { 1 }).to_i * (ENV.fetch("RAILS_MAX_THREADS") { 5 }).to_i %>
 
 demo_2:
   <<: *demo
@@ -71,7 +71,8 @@ production: &production
   database: <%= Rails.application.credentials.dig(:db_database) %>
   username: <%= Rails.application.credentials.dig(:db_username) %>
   password: <%= Rails.application.credentials.dig(:db_password) %>
-  pool:     50 # see comment in demo
+  # see comment in demo
+  pool:     <%= 3 * (ENV.fetch("WEB_CONCURRENCY") { 1 }).to_i * (ENV.fetch("RAILS_MAX_THREADS") { 5 }).to_i %>
 
 production_2:
   <<: *production

@@ -64,8 +64,7 @@ class OcrItemJob < Job
   private
 
   def num_threads
-    ActiveRecord::Base.connection_pool.instance_eval { @size } -
-      ENV.fetch("RAILS_MAX_THREADS") { 5 }
+    ActiveRecord::Base.connection_pool.instance_eval { @size }
   end
 
 end
