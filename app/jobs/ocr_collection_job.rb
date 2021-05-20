@@ -1,7 +1,7 @@
 ##
 # Runs OCR against all relevant {Binary binaries} in a collection.
 #
-# @see [OcrJob]
+# @see [OcrBinaryJob]
 # @see [OcrItemJob]
 #
 class OcrCollectionJob < Job

@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class OcrJobTest < ActiveSupport::TestCase
+class OcrBinaryJobTest < ActiveSupport::TestCase
 
   # perform()
 

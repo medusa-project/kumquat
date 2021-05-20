@@ -2,7 +2,7 @@
 # Runs OCR against the relevant binaries attached to an item and all of its
 # child items.
 #
-# @see [OcrJob]
+# @see [OcrBinaryJob]
 # @see [OcrCollectionJob]
 #
 class OcrItemJob < Job

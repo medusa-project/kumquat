@@ -18,7 +18,7 @@ namespace :dls do
 
     desc 'Run OCR on a binary'
     task :ocr, [:id] => :environment do |task, args|
-      OcrJob.new(args[:id]).perform_in_foreground
+      OcrBinaryJob.new(args[:id]).perform_in_foreground
     end
 
     desc 'Recreate binaries in all collections'

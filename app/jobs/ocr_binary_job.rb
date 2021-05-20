@@ -4,7 +4,7 @@
 # @see [OcrCollectionJob]
 # @see [OcrItemJob]
 #
-class OcrJob < Job
+class OcrBinaryJob < Job
 
   QUEUE = Job::Queue::ADMIN
 
