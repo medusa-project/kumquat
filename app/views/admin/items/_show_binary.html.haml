@@ -17,13 +17,6 @@
                   role:            'tab',
                   'data-toggle':   'tab'}
         Metadata
-  - if binary.full_text.present?
-    %li.nav-item{role: 'presentation'}
-      %a.nav-link{href:            "#dl-binary-tab-#{binary.master_type}-full-text",
-                  'aria-controls': "dl-binary-tab-#{binary.master_type}-full-text",
-                  role:            'tab',
-                  'data-toggle':   'tab'}
-        Full Text
   - if binary.ocrable?
     %li.nav-item{role: 'presentation'}
       %a.nav-link{href:            "#dl-binary-tab-#{binary.master_type}-ocr",
@@ -65,13 +58,6 @@
             %td= "#{row[:category]}:#{row[:label]}"
             %td= raw(value)
 
-  -# Full Text tab
-  - if binary.full_text.present?
-    .tab-pane{role: 'tabpanel',
-              id:   "dl-binary-tab-#{binary.master_type}-full-text"}
-      %div{style: "max-height: 30em; overflow-x: scroll; overflow-y: scroll"}
-        %pre= binary.full_text
-
   -# OCR tab
   - if binary.ocrable?
     .tab-pane{role: 'tabpanel',
@@ -80,10 +66,10 @@
         = link_to(admin_binary_run_ocr_path(binary), method: :patch, class: 'btn btn-sm btn-light') do
           %i.fas.fa-eye
           Run OCR
-      - if binary.hocr.present?
+      - if binary.full_text.present?
         .clearfix
         %div{style: "max-height: 30em; overflow-x: scroll; overflow-y: scroll"}
-          %pre= binary.hocr
+          %pre= binary.full_text
 
   -# Access tab
   .tab-pane{role: 'tabpanel',
