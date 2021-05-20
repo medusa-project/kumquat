@@ -16,6 +16,11 @@ namespace :dls do
 
   namespace :binaries do
 
+    desc 'Run OCR on a binary'
+    task :ocr, [:id] => :environment do |task, args|
+      OcrJob.new(args[:id]).perform_in_foreground
+    end
+
     desc 'Recreate binaries in all collections'
     task :recreate => :environment do
       ActiveRecord::Base.transaction do
@@ -147,6 +152,11 @@ namespace :dls do
       Collection.delete_orphaned_documents
     end
 
+    desc 'Run OCR on all items in a collection'
+    task :ocr, [:uuid] => :environment do |task, args|
+      OcrCollectionJob.new(args[:uuid]).perform_in_foreground
+    end
+
     desc 'Publish a collection'
     task :publish, [:uuid] => :environment do |task, args|
       Collection.find_by_repository_id(args[:uuid]).
@@ -237,6 +247,11 @@ namespace :dls do
       col = Collection.find_by_repository_id(args[:collection_uuid])
       raise ArgumentError, 'Collection does not exist' unless col
       puts ItemTsvExporter.new.items_in_collection(col)
+    end
+
+    desc 'Run OCR on an item and all children'
+    task :ocr, [:uuid] => :environment do |task, args|
+      OcrItemJob.new(args[:uuid]).perform_in_foreground
     end
 
     desc 'Delete all items from a collection'
