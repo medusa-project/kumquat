@@ -2,6 +2,10 @@ require 'test_helper'
 
 class SyncCollectionsJobTest < ActiveSupport::TestCase
 
+  setup do
+    setup_elasticsearch
+  end
+
   # perform()
 
   # Collection syncing is tested more thoroughly in MedusaIngesterTest. This is

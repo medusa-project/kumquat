@@ -920,6 +920,7 @@ class ItemTest < ActiveSupport::TestCase
   test 'update_from_embedded_metadata works' do
     @item = items(:free_form_dir1_image)
     @item.elements.destroy_all
+    @item.binaries.each{ |b| b.read_metadata; b.save }
     @item.update_from_embedded_metadata(include_date_created: true)
 
     assert_equal 1, @item.elements.
