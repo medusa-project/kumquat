@@ -42,6 +42,11 @@ Rails.application.configure do
   # Suppress logger output for asset requests.
   config.assets.quiet = true
 
+  config.action_controller.default_url_options = {
+    protocol: 'http://',
+    host: "localhost:3000"
+  }
+
   # Raises error for missing translations
   # config.action_view.raise_on_missing_translations = true
 
@@ -63,5 +68,5 @@ Rails.application.configure do
   config.action_mailer.perform_deliveries    = !mail_config[:smtp][:address].nil?
   config.action_mailer.raise_delivery_errors = !mail_config[:smtp][:address].nil?
   config.action_mailer.logger                = Rails.logger
-  config.action_mailer.default_url_options   = {host: "localhost:3000"}
+  config.action_mailer.default_url_options   = config.action_controller.default_url_options
 end

@@ -65,7 +65,8 @@ Rails.application.configure do
   config.log_formatter = ::Logger::Formatter.new
 
   config.action_controller.default_url_options = {
-      protocol: 'https://'
+    protocol: 'https://',
+    host: "demo.digital.library.illinois.edu"
   }
 
   # Use a different logger for distributed setups.
@@ -94,8 +95,5 @@ Rails.application.configure do
   config.action_mailer.perform_caching       = false
   config.action_mailer.raise_delivery_errors = true
   config.action_mailer.logger                = Rails.logger
-  config.action_mailer.default_url_options = {
-      protocol: 'https://',
-      host: "demo.digital.library.illinois.edu"
-  }
+  config.action_mailer.default_url_options   = config.action_controller.default_url_options
 end
