@@ -31,9 +31,10 @@ class IiifPdfGenerator
   #
   def generate_pdf(item:, include_private_binaries: false, task: nil)
     reset
+    doc   = pdf_document(item)
+    add_title_page(item, doc)
     items = item.search_children.to_a
     items = [item] if items.empty?
-    doc   = pdf_document(item)
     count = items.count
     items.each_with_index do |item_, index|
       task&.progress = index / count.to_f
@@ -42,10 +43,8 @@ class IiifPdfGenerator
           media_category: Binary::MediaCategory::IMAGE)
       binaries = binaries.where(public: true) unless include_private_binaries
       binaries.each do |binary|
-        if index > 0
-          doc.start_new_page(layout: ((binary.width || 0) > (binary.height || 0)) ?
-                                       :landscape : :portrait)
-        end
+        doc.start_new_page(layout: ((binary.width || 0) > (binary.height || 0)) ?
+                                     :landscape : :portrait)
         draw_page(binary, doc)
       end
     end
@@ -60,6 +59,48 @@ class IiifPdfGenerator
 
   private
 
+  include Rails.application.routes.url_helpers
+
+  def add_title_page(item, doc)
+    doc.stroke_bounds
+    doc.move_down doc.bounds.height / 5.0
+
+    box_margin = 20
+
+    # Title
+    doc.bounding_box([box_margin, doc.bounds.height * 0.8],
+                     width: doc.bounds.width - box_margin * 2,
+                     height: doc.bounds.height * 0.4) do
+      #doc.transparent(0.5) { doc.stroke_bounds }
+      doc.text(item.title,
+               align: :center,
+               overflow: :shrink_to_fit,
+               size: 32)
+    end
+
+    # Source
+    doc.bounding_box([box_margin, doc.bounds.height * 0.3 + box_margin],
+                     width: doc.bounds.width - box_margin * 2,
+                     height: 48) do
+      #doc.transparent(0.5) { doc.stroke_bounds }
+      doc.text(Option.string(Option::Keys::WEBSITE_NAME),
+               align: :center,
+               overflow: :shrink_to_fit,
+               size: 18)
+    end
+    doc.move_down(24)
+
+    # URL
+    url = item_url(item, Rails.application.config.action_controller.default_url_options)
+    doc.text("<link href='#{url}'>#{url}</link>",
+             inline_format: true,
+             align: :center)
+    doc.move_down(24)
+
+    # Download date
+    doc.text("Downloaded on #{Time.now.strftime("%B %e, %Y")}", align: :center)
+  end
+
   ##
   # @param item [Item] Parent item.
   # @param items [Enumerable<Item>] All items in the document.
@@ -67,8 +108,9 @@ class IiifPdfGenerator
   def create_outline(item, items, doc)
     doc.outline.define do |outline|
       outline.section(item.title, destination: 1) do
+        outline.page(title: "Title Page", destination: 1)
         items.each_with_index do |item, index|
-          outline.page(title: item.title, destination: index + 1)
+          outline.page(title: item.title, destination: 2 + index)
         end
       end
     end
