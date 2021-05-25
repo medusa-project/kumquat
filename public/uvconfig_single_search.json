@@ -1,0 +1,46 @@
+{
+  "options": {
+    "headerPanelEnabled": false,
+    "leftPanelEnabled": false,
+    "pagingEnabled": false,
+    "pagingOptionEnabled": false,
+    "saveUserSettings": true,
+    "searchWithinEnabled": true,
+    "termsOfUseEnabled": false,
+    "useArrowKeysToNavigate": false,
+    "zoomToSearchResultEnabled": true
+  },
+  "modules": {
+    "footerPanel": {
+      "options": {
+        "downloadEnabled": false,
+        "shareEnabled": false
+      }
+    },
+    "headerPanel": {
+      "options": {
+        "localeToggleEnabled": false,
+        "settingsButtonEnabled": false
+      }
+    },
+    "pagingHeaderPanel": {
+      "options": {
+        "pageModeEnabled": false,
+        "searchWithinEnabled": true
+      }
+    },
+    "seadragonCenterPanel": {
+      "options": {
+        "requiredStatementEnabled": false,
+        "immediateRender": true,
+        "navigatorPosition": "TOP_RIGHT",
+        "showHomeControl": false
+      }
+    },
+    "searchFooterPanel": {
+      "content": {
+        "displaying": "{1}"
+      }
+    }
+  }
+}

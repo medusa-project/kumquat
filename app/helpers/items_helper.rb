@@ -1097,6 +1097,7 @@ module ItemsHelper
   # @param object [Item] Compound object.
   # @param selected_item [Item]
   # @return [String]
+  # @see image_viewer_for
   #
   def compound_viewer_for(object, selected_item = nil)
     canvas_index = 0
@@ -1341,11 +1342,16 @@ module ItemsHelper
   #
   # @param item [Item]
   # @return [String]
+  # @see compound_viewer_for
   #
   def image_viewer_for(item)
     html = StringIO.new
     binary = item.effective_image_binary
     if binary
+      config_file = item.has_full_text? ?
+                      'uvconfig_single_search.json' : 'uvconfig_single.json'
+      config_uri = asset_path(config_file, skip_pipeline: true)
+
       # UV 2.x used to have a handy GUI config editor but that hasn't been
       # ported to 3.x as of 4/2021. The new config structure is similar but
       # mostly undocumented.
@@ -1364,7 +1370,7 @@ module ItemsHelper
               var data = {
                   root: \"../uv\",
                   iiifResourceUri: \"#{item_iiif_manifest_url(item)}\",
-                  configUri: '#{asset_path('uvconfig_single.json', skip_pipeline: true)}',
+                  configUri: '#{config_uri}',
                   collectionIndex: (collectionIndex !== undefined) ? Number(collectionIndex) : undefined,
                   manifestIndex: Number(urlDataProvider.get('m', 0)),
                   sequenceIndex: Number(urlDataProvider.get('s', 0)),

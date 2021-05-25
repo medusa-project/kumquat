@@ -1174,6 +1174,17 @@ class Item < ApplicationRecord
   end
 
   ##
+  # @return [ItemRelation] New instance initialized to search within the
+  #         instance's own document.
+  #
+  def search_self
+    Item.search.
+      aggregations(false).
+      include_restricted(true).
+      query(Item::IndexFields::REPOSITORY_ID, self.repository_id)
+  end
+
+  ##
   # @return [Item]
   #
   def supplementary_item
