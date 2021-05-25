@@ -49,6 +49,7 @@ class IiifPdfGenerator
         draw_page(binary, doc)
       end
     end
+    create_outline(item, items, doc)
     pathname = pdf_temp_file
     doc.render_file(pathname)
     pathname
@@ -58,6 +59,20 @@ class IiifPdfGenerator
 
 
   private
+
+  ##
+  # @param item [Item] Parent item.
+  # @param items [Enumerable<Item>] All items in the document.
+  #
+  def create_outline(item, items, doc)
+    doc.outline.define do |outline|
+      outline.section(item.title, destination: 1) do
+        items.each_with_index do |item, index|
+          outline.page(title: item.title, destination: index + 1)
+        end
+      end
+    end
+  end
 
   ##
   # Downloads an image binary in a PDF-optimized format and adds it to the
