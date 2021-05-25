@@ -1,5 +1,5 @@
 ##
-# Downloads images from the IIIF image server and assembles them into a PDF.
+# Assembles PDFs for single items and compound objects.
 #
 # @see http://prawnpdf.org/manual.pdf
 #
@@ -8,15 +8,20 @@ class IiifPdfGenerator
   LOGGER = CustomLogger.new(IiifPdfGenerator)
 
   DOCUMENT_DPI       = 72 # This is maintained by Prawn and should not be changed here.
-  IMAGE_DPI          = 150
-  MARGIN_INCHES      = 0.5
+  MARGIN_INCHES      = 0.25
   PAGE_WIDTH_INCHES  = 8.5
   PAGE_HEIGHT_INCHES = 11
+
+  def initialize
+    Prawn::Fonts::AFM.hide_m17n_warning = true
+  end
 
   ##
   # Assembles the {Binary#public public} access master image binaries of all of
   # a compound object's child items into a PDF. If the instance has no child
-  # items, the item itself is compiled into a one-page PDF.
+  # items, the item itself is compiled into a one-page PDF. If word coordinates
+  # are available, word boxes are drawn underneath the image(s) to facilitate
+  # copying and searching.
   #
   # @param item [Item]
   # @param include_private_binaries [Boolean]
@@ -37,14 +42,18 @@ class IiifPdfGenerator
           media_category: Binary::MediaCategory::IMAGE)
       binaries = binaries.where(public: true) unless include_private_binaries
       binaries.each do |binary|
-        doc.start_new_page if index > 0
-        add_image(binary, doc)
+        if index > 0
+          doc.start_new_page(layout: ((binary.width || 0) > (binary.height || 0)) ?
+                                       :landscape : :portrait)
+        end
+        draw_page(binary, doc)
       end
     end
     pathname = pdf_temp_file
     doc.render_file(pathname)
-    FileUtils.rm_rf(image_temp_dir)
     pathname
+  ensure
+    FileUtils.rm_rf(image_temp_dir)
   end
 
 
@@ -56,44 +65,91 @@ class IiifPdfGenerator
   #
   # @param binary [Binary]
   # @param doc [Prawn::Document]
-  # @return [String] Pathname of the converted image.
   #
-  def add_image(binary, doc)
-    if binary.is_image?
-      if binary.image_server_safe?
-        # Download an optimally-sized JPEG derivative of image to a temp file.
-        hres = IMAGE_DPI / DOCUMENT_DPI.to_f * doc.bounds.width
-        vres = IMAGE_DPI / DOCUMENT_DPI.to_f * doc.bounds.height
-        LOGGER.debug('add_image(): [document: %dx%d] [image box: %dx%d]',
-            doc.bounds.width, doc.bounds.height, hres, vres)
-
-        url = "#{binary.iiif_image_url}/full/!#{hres.to_i},#{vres.to_i}/0/default.jpg"
-
-        image_pathname = File.join(
-            image_temp_dir,
-            binary.filename.split('.')[0...-1].join('.') + '.jpg')
-
-        File.open(image_pathname, 'wb') do |file|
-          LOGGER.info('add_image(): downloading %s to %s',
-                      url, image_pathname)
-          ImageServer.instance.client.get_content(url) do |chunk|
-            file.write(chunk)
-          end
-        end
-
-        doc.image(image_pathname,
-                  position: :center,
-                  vposition: :center,
-                  fit: [doc.bounds.width, doc.bounds.height])
-
-        return image_pathname
-      else
-        LOGGER.debug('add_image(): %s will bog down the image server; skipping.',
-                     binary)
-      end
-    else
+  def draw_page(binary, doc)
+    if !binary.is_image?
       LOGGER.debug('add_image(): %s is not an image; skipping.', binary)
+      return
+    elsif !binary.image_server_safe?
+      LOGGER.debug('add_image(): %s will bog down the image server; skipping.',
+                   binary)
+      return
     end
+
+    draw_word_boxes(binary, doc)
+
+    # Download an optimally-sized JPEG derivative image to a temp file.
+    pathname = download_image(binary)
+
+    # Append it to the document.
+    doc.image(pathname,
+              position:  :center,
+              vposition: :center,
+              fit:       [doc.bounds.width, doc.bounds.height])
+  end
+
+  ##
+  # Adds text boxes containing OCRed words, if available, in order to make the
+  # document searchable.
+  #
+  def draw_word_boxes(binary, doc)
+    return if binary.tesseract_json.blank?
+
+    box_padding  = 6 # helps to avoid Prawn::Errors::CannotFit
+    doc_width    = PAGE_WIDTH_INCHES * DOCUMENT_DPI
+    doc_height   = PAGE_HEIGHT_INCHES * DOCUMENT_DPI
+    x_scale      = doc.bounds.width / binary.width.to_f
+    y_scale      = doc.bounds.height / binary.height.to_f
+    canvas_scale = [x_scale, y_scale].min
+    img_width    = binary.width * canvas_scale
+    img_height   = binary.height * canvas_scale
+    x_offset     = (doc.bounds.width - img_width) / 2.0
+    y_offset     = (doc.bounds.height - img_height) / 2.0
+    LOGGER.debug('add_image(): [page: %dx%d] [doc bounds: %dx%d] '\
+                 '[full image: %dx%d] [scaled image: %dx%d] [word offset: %d,%d]',
+                 doc_width, doc_height,
+                 doc.bounds.width, doc.bounds.height,
+                 binary.width, binary.height,
+                 img_width, img_height,
+                 x_offset, y_offset)
+
+    struct  = JSON.parse(binary.tesseract_json)
+    struct['text'].each_with_index do |word, word_index|
+      next if word.blank?
+      x      = struct['left'][word_index] * canvas_scale + x_offset - box_padding / 2.0
+      y      = doc.bounds.height - struct['top'][word_index] * canvas_scale - y_offset + box_padding / 2.0
+      width  = struct['width'][word_index] * canvas_scale + box_padding
+      height = struct['height'][word_index] * canvas_scale + box_padding
+      begin
+        doc.text_box(word,
+                     at:       [x, y],
+                     width:    width,
+                     height:   height,
+                     overflow: :shrink_to_fit) # truncate, shrink_to_fit, expand
+      rescue Prawn::Errors::CannotFit
+        LOGGER.warn("draw_word_boxes(): can't fit: #{x},#{y}/#{width}x#{height}")
+      end
+    end
+  end
+
+  ##
+  # Downloads an appropriate image to a temp file, which will be located in
+  # {image_temp_dir}.
+  #
+  # @return [String] Temp file path.
+  #
+  def download_image(binary)
+    url = "#{binary.iiif_image_url}/full/max/0/default.jpg"
+    pathname = File.join(
+      image_temp_dir,
+      binary.filename.split('.')[0...-1].join('.') + '.jpg')
+    File.open(pathname, 'wb') do |file|
+      LOGGER.debug('download_image(): downloading %s to %s', url, pathname)
+      ImageServer.instance.client.get_content(url) do |chunk|
+        file.write(chunk)
+      end
+    end
+    pathname
   end
 
   ##
@@ -102,7 +158,7 @@ class IiifPdfGenerator
   #
   def pdf_document(item)
     pdf = Prawn::Document.new(
-        margin: MARGIN_INCHES * 72, # 1 inch = 72 points
+        margin: MARGIN_INCHES * DOCUMENT_DPI,
         info: {
             Title: item.title,
             Author: item.element(:creator).to_s,
