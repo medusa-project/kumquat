@@ -17,9 +17,9 @@ class CreatePdfJob < Job
     self.task&.update!(download: download,
                        status_text: "Generating PDF for #{item}")
 
-    temp_pathname = IiifPdfGenerator.new.generate_pdf(item: item,
-                                                      include_private_binaries: include_private_binaries,
-                                                      task: self.task)
+    temp_pathname = PdfGenerator.new.generate_pdf(item: item,
+                                                  include_private_binaries: include_private_binaries,
+                                                  task: self.task)
 
     if temp_pathname.present?
       # Create the downloads directory if it doesn't exist, and move the PDF

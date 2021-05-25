@@ -1,13 +1,13 @@
 require 'test_helper'
 
-class IiifPdfGeneratorTest < ActiveSupport::TestCase
+class PdfGeneratorTest < ActiveSupport::TestCase
 
   setup do
     setup_elasticsearch
     Item.reindex_all
     refresh_elasticsearch
 
-    @instance = IiifPdfGenerator.new
+    @instance = PdfGenerator.new
   end
 
   # generate_pdf()

@@ -253,8 +253,8 @@ namespace :dls do
     task :generate_pdf, [:uuid, :path] => :environment do |task, args|
       item = Item.find_by_repository_id(args[:uuid])
       raise ArgumentError, 'Item does not exist' unless item
-      pdf_path = IiifPdfGenerator.new.generate_pdf(item: item,
-                                                   include_private_binaries: true)
+      pdf_path = PdfGenerator.new.generate_pdf(item: item,
+                                               include_private_binaries: true)
       FileUtils.mv(pdf_path, args[:path])
     end
 

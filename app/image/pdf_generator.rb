@@ -3,9 +3,9 @@
 #
 # @see http://prawnpdf.org/manual.pdf
 #
-class IiifPdfGenerator
+class PdfGenerator
 
-  LOGGER = CustomLogger.new(IiifPdfGenerator)
+  LOGGER = CustomLogger.new(PdfGenerator)
 
   DOCUMENT_DPI       = 72 # This is maintained by Prawn and should not be changed here.
   MARGIN_INCHES      = 0.25
