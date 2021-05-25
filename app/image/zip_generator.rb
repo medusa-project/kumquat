@@ -1,4 +1,4 @@
-class IiifZipGenerator
+class ZipGenerator
 
   ##
   # @param items [ActiveRecord::Relation<Item>]

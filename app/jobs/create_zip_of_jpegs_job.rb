@@ -22,9 +22,9 @@ class CreateZipOfJpegsJob < Job
 
     items = Item.where('repository_id IN (?)', item_ids)
 
-    temp_pathname = IiifZipGenerator.new.generate_zip(items: items,
-                                                      include_private_binaries: include_private_binaries,
-                                                      task: self.task)
+    temp_pathname = ZipGenerator.new.generate_zip(items: items,
+                                                  include_private_binaries: include_private_binaries,
+                                                  task: self.task)
 
     if temp_pathname.present?
       # Create the downloads directory if necessary, and move the zip there.
