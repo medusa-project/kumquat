@@ -65,7 +65,9 @@ class OcrCollectionJob < Job
   private
 
   def num_threads
-    ActiveRecord::Base.connection_pool.instance_eval { @size }
+    num = (ActiveRecord::Base.connection_pool.instance_eval { @size }) - 5 # leave some spare connections for Delayed Job itself
+    num = 10 if num < 10
+    num
   end
 
 end
