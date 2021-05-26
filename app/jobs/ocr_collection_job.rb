@@ -10,6 +10,10 @@ class OcrCollectionJob < Job
 
   queue_as QUEUE
 
+  def self.num_threads
+    OcrItemJob.num_threads
+  end
+
   ##
   # @param args [Array] One-element array containing a collection UUID.
   #
@@ -29,6 +33,7 @@ class OcrCollectionJob < Job
       where('media_type LIKE ? OR media_type = ?', 'image/%', 'application/pdf')
     binary_count        = binaries.count
     binary_index        = 0
+    num_threads         = self.class.num_threads
     binaries_per_thread = (binary_count / num_threads.to_f).ceil
     return if binaries_per_thread < 1
 
@@ -59,15 +64,6 @@ class OcrCollectionJob < Job
     end
     threads.each(&:join)
     self.task&.succeeded
-  end
-
-
-  private
-
-  def num_threads
-    num = (ActiveRecord::Base.connection_pool.instance_eval { @size }) - 5 # leave some spare connections for Delayed Job itself
-    num = 10 if num < 10
-    num
   end
 
 end

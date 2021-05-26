@@ -12,6 +12,23 @@ class OcrItemJob < Job
   queue_as QUEUE
 
   ##
+  # @return [Integer]
+  #
+  def self.num_threads
+    # The number of threads is limited mainly by two things:
+    #
+    # 1. The AWS Lambda concurrent invocation limit (which is in the thousands)
+    # 2. The database connection pool size (probably a lot smaller than [1])
+    #
+    # So we base it on (2). But we must consider that Task uses its own
+    # connection pool, which halves the number of threads we can use. Also we
+    # must remember to leave some spare connections for Delayed Job itself.
+    num = (ActiveRecord::Base.connection_pool.instance_eval { @size }) / 2
+    num = 10 if num < 10 # any less than this and it will be too slow
+    num
+  end
+
+  ##
   # @param args [Array] One-element array containing an item UUID.
   #
   def perform(*args)
@@ -25,6 +42,7 @@ class OcrItemJob < Job
     items            = [main_item] + main_item.all_children
     item_count       = items.length
     item_index       = 0
+    num_threads      = self.class.num_threads
     items_per_thread = (item_count / num_threads.to_f).ceil
     return if items_per_thread < 1
 
@@ -58,15 +76,6 @@ class OcrItemJob < Job
     end
     threads.each(&:join)
     self.task&.succeeded
-  end
-
-
-  private
-
-  def num_threads
-    num = (ActiveRecord::Base.connection_pool.instance_eval { @size }) - 5 # leave some spare connections for Delayed Job itself
-    num = 10 if num < 10
-    num
   end
 
 end

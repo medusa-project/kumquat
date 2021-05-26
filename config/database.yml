@@ -19,7 +19,7 @@ delayed_job = (ENV['DELAYED_JOB'] == '1')
 default: &default
   adapter:      postgresql
   encoding:     unicode
-  pool:         <%= (ENV.fetch("WEB_CONCURRENCY") { 1 }).to_i * (ENV.fetch("RAILS_MAX_THREADS") { 5 }).to_i %>
+  pool:         <%= ENV.fetch("RAILS_MAX_THREADS") { 5 }.to_i %>
   timeout:      5000
   min_messages: warning
   template:     template0
@@ -31,7 +31,6 @@ development: &development
   database: <%= dev_config['db_database'] %>
   username: <%= dev_config['db_username'] %>
   password: <%= dev_config['db_password'] %>
-  pool: <%= delayed_job ? 50 : 5 %>
 
 development_2:
   <<: *development
@@ -60,19 +59,18 @@ demo_and_production: &demo_and_production
 
 demo: &demo
   <<: *demo_and_production
-  # An optimal number for Puma is RAILS_MAX_THREADS * WEB_CONCURRENCY (see
-  # puma.rb). However, we want to increase the parallelism of the various OCR
-  # jobs, which employ multi-threading in order to not take forever.
-  pool: <%= delayed_job ? 105 : (ENV.fetch("WEB_CONCURRENCY") { 1 }).to_i * (ENV.fetch("RAILS_MAX_THREADS") { 5 }).to_i %>
+  # An optimal number for Puma is RAILS_MAX_THREADS (see puma.rb) as each
+  # worker will use its own pool. However, we want to increase the parallelism
+  # of the various OCR jobs, which employ multi-threading in order to not take
+  # forever, and each thread needs its own connection.
+  pool: <%= delayed_job ? 100 : ENV.fetch("RAILS_MAX_THREADS") { 5 }.to_i %>
 
 demo_2:
   <<: *demo
-  pool: 1
 
 production: &production
   <<: *demo_and_production
-  pool: <%= delayed_job ? 505 : (ENV.fetch("WEB_CONCURRENCY") { 1 }).to_i * (ENV.fetch("RAILS_MAX_THREADS") { 5 }).to_i %>
+  pool: <%= delayed_job ? 1000 : ENV.fetch("RAILS_MAX_THREADS") { 5 }.to_i %>
 
 production_2:
   <<: *production
-  pool: 1
