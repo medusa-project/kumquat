@@ -33,7 +33,7 @@ Rails.application.configure do
 
   config.action_controller.default_url_options = {
     protocol: 'http://',
-    host: "localhost:3000"
+    host: "www.example.com"
   }
 
   # Tell Action Mailer not to deliver emails to the real world.
