@@ -9,6 +9,8 @@ compound_object_1001_access:
   media_type:     image/jp2
   object_key:     repositories/1/collections/3/file_groups/3/root/1001/access/1001_001.jp2
   public:         true
+  width:          128
+  height:         112
   full_text:
   metadata_json:
   tesseract_json:
@@ -23,6 +25,8 @@ compound_object_1001_preservation:
   media_type:     image/tiff
   object_key:     repositories/1/collections/3/file_groups/3/root/1001/preservation/1001_001.tif
   public:         true
+  width:          128
+  height:         112
   full_text:
   metadata_json:
   tesseract_json:
@@ -37,6 +41,8 @@ compound_object_1002_page1_access:
   media_type:     image/jp2
   object_key:     repositories/1/collections/3/file_groups/3/root/1002/access/1002_001.jp2
   public:         true
+  width:          128
+  height:         112
   full_text:
   metadata_json:
   tesseract_json:
@@ -65,6 +71,8 @@ compound_object_1002_page2_access:
   media_type:     image/jp2
   object_key:     repositories/1/collections/3/file_groups/3/root/1002/access/1002_002.jp2
   public:         true
+  width:          128
+  height:         112
   full_text:
   metadata_json:
   tesseract_json:
@@ -153,6 +161,8 @@ free_form_dir1_image1:
   media_category: <%= Binary::MediaCategory::IMAGE %>
   object_key:     repositories/1/collections/1/file_groups/1/root/dir1/image1.jpg
   public:         true
+  width:          128
+  height:         112
   full_text:
   metadata_json:
   tesseract_json:

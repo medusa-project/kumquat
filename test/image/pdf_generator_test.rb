@@ -6,28 +6,45 @@ class PdfGeneratorTest < ActiveSupport::TestCase
     setup_elasticsearch
     Item.reindex_all
     refresh_elasticsearch
-
     @instance = PdfGenerator.new
   end
 
   # generate_pdf()
 
-  test 'generate_pdf() returns nil when given a non-compound-object' do
-    # File
-    assert_nil @instance.generate_pdf(item: items(:free_form_dir1_dir1_file1))
-    # Page
-    assert_nil @instance.generate_pdf(item: items(:compound_object_1002_page1))
+  test 'generate_pdf() generates a PDF for compound objects' do
+    item     = items(:compound_object_1002)
+    pathname = @instance.generate_pdf(item: item)
+    assert File.exists?(pathname)
+    assert File.size(pathname) > 1000
+  ensure
+    FileUtils.rm_f(pathname) if pathname
   end
 
-  test 'generate_pdf() generates a PDF for compound objects' do
-    begin
-      item     = items(:compound_object_1002)
-      pathname = @instance.generate_pdf(item: item)
-      assert File.exists?(pathname)
-      assert File.size(pathname) > 1000
-    ensure
-      File.delete(pathname) if pathname
-    end
+  test 'generate_pdf() generates a PDF for compound object pages' do
+    item     = items(:compound_object_1002_page1)
+    pathname = @instance.generate_pdf(item: item)
+    assert File.exists?(pathname)
+    assert File.size(pathname) > 1000
+  ensure
+    FileUtils.rm_f(pathname) if pathname
+  end
+
+  test 'generate_pdf() generates a PDF for single-item objects' do
+    item     = items(:compound_object_1001)
+    pathname = @instance.generate_pdf(item: item)
+    assert File.exists?(pathname)
+    assert File.size(pathname) > 1000
+  ensure
+    FileUtils.rm_f(pathname) if pathname
+  end
+
+  test 'generate_pdf() generates a PDF for free-form file items' do
+    item     = items(:free_form_dir1_image)
+    pathname = @instance.generate_pdf(item: item)
+    assert File.exists?(pathname)
+    assert File.size(pathname) > 1000
+  ensure
+    FileUtils.rm_f(pathname) if pathname
   end
 
   test 'generate_pdf() omits private binaries' do
@@ -39,9 +56,7 @@ class PdfGeneratorTest < ActiveSupport::TestCase
       pathname = @instance.generate_pdf(item: item)
       initial_size = File.size(pathname)
     ensure
-      if pathname
-        File.delete(pathname) rescue nil
-      end
+      FileUtils.rm_f(pathname) if pathname
     end
 
     # mark the first binary of the first child private and generate another PDF
@@ -50,9 +65,7 @@ class PdfGeneratorTest < ActiveSupport::TestCase
       pathname = @instance.generate_pdf(item: item)
       assert initial_size > File.size(pathname)
     ensure
-      if pathname
-        File.delete(pathname) rescue nil
-      end
+      FileUtils.rm_f(pathname) if pathname
     end
   end
 
