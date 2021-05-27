@@ -97,9 +97,10 @@ class Job < ApplicationJob
   private
 
   def create_task_for_job_id(job_id)
-    @task = Task.create!(name:   self.class.name,
-                         job_id: job_id,
-                         queue:  self.class::QUEUE)
+    @task = Task.create!(name:        self.class.name,
+                         status_text: "Waiting for other tasks to finish...",
+                         job_id:      job_id,
+                         queue:       self.class::QUEUE)
   end
 
   ##
