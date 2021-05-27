@@ -651,10 +651,12 @@ class Collection < ApplicationRecord
   def propagate_heritable_properties(task = nil)
     transaction do
       num_items = self.items.count
-      self.items.each_with_index do |item, index|
-        item.save!
-        if task and index % 10 == 0
-          task.update(percent_complete: index / num_items.to_f)
+      Collection.uncached do
+        self.items.find_each.with_index do |item, index|
+          item.save!
+          if task && index % 10 == 0
+            task.update(percent_complete: index / num_items.to_f)
+          end
         end
       end
     end
@@ -664,7 +666,7 @@ class Collection < ApplicationRecord
   # @return [Boolean] The instance's effective public accessibility status.
   #
   def publicly_accessible?
-    public_in_medusa and (published_in_dls or access_url.present?)
+    public_in_medusa && (published_in_dls || access_url.present?)
   end
 
   ##
