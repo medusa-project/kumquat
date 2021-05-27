@@ -324,23 +324,43 @@ var PTItemView = function() {
             }
         });
 
-        // Events are listed in uv.js (BaseEvents.*)
-        uv.on('canvasIndexChanged', function (index) {
-            // When there are >1 items in the viewer, highlight the item
-            // in the download table that corresponds to the one selected
-            // in the viewer.
-            // (The viewer and the download table should always contain the
+        var initial_index = $('[name=dl-download-item-index]').val();
+
+        // This acts as both a canvas-index-changed and on-load-complete
+        // listener, because UV doesn't have the latter, unless I'm missing
+        // something:
+        $(document).bind('uv.onCanvasIndexChanged', function(event, index) {
+            // Select the item in the viewer corresponding to the current URL.
+            if (initial_index) {
+                console.debug("Initially selected index: " + initial_index);
+                index = initial_index;
+                // UV doesn't have a "selectCanvasIndex(index)" method as of
+                // version 2.0. We can't do this quite yet but there is no
+                // event to let us know when it's safe, hence the delay.
+                setTimeout(function() {
+                    $('#dl-compound-viewer iframe').contents()
+                        .find('div#thumb' + index + ' img').trigger('click');
+                    initial_index = null;
+                }, 500);
+            }
+
+            console.debug('Selected canvas index: ' + index);
+
+            // When there are >1 items in the viewer:
+            // (N.B. The viewer and the download table will always contain the
             // same items in the same order.)
             const rows = $('#dl-download table tr');
             if (rows.length > 1) {
+                // Highlight the corresponding item in the download table.
+                // (UV will also fire this on load.)
                 rows.removeClass('selected')
                     .filter(':nth-child(' + (index + 1) + ')')
                     .addClass('selected');
 
                 // Update the URL in the location bar.
                 const item_id = $('[name=dl-download-item-id]').eq(index).val();
-                window.history.replaceState({id: item_id, index: index}, '',
-                    '/items/' + item_id + location.hash);
+                window.history.replaceState({ id: item_id, index: index }, '',
+                    '/items/' + item_id);
             }
         });
 

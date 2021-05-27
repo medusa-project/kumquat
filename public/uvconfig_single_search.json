@@ -31,10 +31,10 @@
     },
     "seadragonCenterPanel": {
       "options": {
-        "requiredStatementEnabled": false,
+        "attributionEnabled": false,
         "immediateRender": true,
         "navigatorPosition": "TOP_RIGHT",
-        "showHomeControl": false
+        "showHomeControl": true
       }
     },
     "searchFooterPanel": {
