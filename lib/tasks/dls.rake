@@ -255,7 +255,7 @@ namespace :dls do
       raise ArgumentError, 'Item does not exist' unless item
       pdf_path = PdfGenerator.new.generate_pdf(item: item,
                                                include_private_binaries: true)
-      FileUtils.mv(pdf_path, args[:path])
+      FileUtils.mv(pdf_path, File.expand_path(args[:path]))
     end
 
     desc 'Run OCR on an item and all children'
