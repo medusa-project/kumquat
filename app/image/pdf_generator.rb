@@ -127,6 +127,9 @@ class PdfGenerator
         end
       end
     end
+  rescue NoMethodError
+    # TODO: why does Prawn sometimes do this?
+    # NoMethodError: undefined method `dictionary' for nil:NilClass
   end
 
   ##
