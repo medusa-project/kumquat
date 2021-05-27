@@ -68,7 +68,7 @@ class PdfGenerator
     box_margin = 20
 
     # Title
-    doc.bounding_box([box_margin, doc.bounds.height * 0.8],
+    doc.bounding_box([box_margin, doc.bounds.height * 0.85],
                      width: doc.bounds.width - box_margin * 2,
                      height: doc.bounds.height * 0.4) do
       #doc.transparent(0.5) { doc.stroke_bounds }
@@ -76,6 +76,17 @@ class PdfGenerator
                align: :center,
                overflow: :shrink_to_fit,
                size: 32)
+    end
+
+    # Collection
+    doc.bounding_box([box_margin, doc.bounds.height * 0.4 + box_margin],
+                     width: doc.bounds.width - box_margin * 2,
+                     height: 48) do
+      #doc.transparent(0.5) { doc.stroke_bounds }
+      doc.text(item.collection.title,
+               align: :center,
+               overflow: :shrink_to_fit,
+               size: 18)
     end
 
     # Source
