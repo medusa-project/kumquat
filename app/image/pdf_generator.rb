@@ -39,7 +39,6 @@ class PdfGenerator
     items = [item] if items.empty?
     count = items.count
     items.each_with_index do |item_, index|
-      task&.progress = index / count.to_f
       binaries = item_.binaries.where(
           master_type:    Binary::MasterType::ACCESS,
           media_category: Binary::MediaCategory::IMAGE)
@@ -49,6 +48,7 @@ class PdfGenerator
                                      :landscape : :portrait)
         draw_item_page(binary, doc)
       end
+      task&.progress = index / count.to_f
     end
     create_outline(item, items, doc)
     pathname = pdf_temp_file
