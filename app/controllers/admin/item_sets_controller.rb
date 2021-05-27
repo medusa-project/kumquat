@@ -113,7 +113,7 @@ module Admin
         flash['error'] = 'No items are checked.'
       end
 
-      sleep(2) # give ES some time to catch up
+      ElasticsearchClient.instance.refresh
       redirect_back fallback_location: admin_collection_item_set_path(params[:collection_id],
                                                                       params[:item_set_id])
     end
@@ -127,7 +127,7 @@ module Admin
       @limit        = Option::integer(Option::Keys::DEFAULT_RESULT_WINDOW)
       @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
 
-      relation = Item.search.
+      @items = Item.search.
           aggregations(false).
           include_unpublished(true).
           include_restricted(true).
@@ -135,8 +135,7 @@ module Admin
           order(Item::IndexFields::TITLE).
           start(@start).
           limit(@limit)
-      @items = relation.to_a
-      @count = relation.count
+      @count = @items.count
     end
 
     ##
