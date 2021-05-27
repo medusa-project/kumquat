@@ -10,6 +10,7 @@ module Admin
     def index
       @limit = Option::integer(Option::Keys::DEFAULT_RESULT_WINDOW)
       @start = params[:start] ? params[:start].to_i : 0
+      @start = 0 if @start < 0
 
       @tasks = Task.order(created_at: :desc)
 
