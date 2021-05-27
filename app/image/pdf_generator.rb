@@ -7,7 +7,9 @@ class PdfGenerator
 
   LOGGER = CustomLogger.new(PdfGenerator)
 
-  DOCUMENT_DPI       = 72 # This is maintained by Prawn and should not be changed here.
+  # N.B.: document coordinates are expressed in points (1/72 inch).
+  DOCUMENT_PPI       = 72   # points/inch
+  IMAGE_DPI          = 200  # pixels/inch; tradeoff between quality and size
   MARGIN_INCHES      = 0.25
   PAGE_WIDTH_INCHES  = 8.5
   PAGE_HEIGHT_INCHES = 11
@@ -31,8 +33,8 @@ class PdfGenerator
   #
   def generate_pdf(item:, include_private_binaries: false, task: nil)
     reset
-    doc   = pdf_document(item)
-    add_title_page(item, doc)
+    doc = new_pdf_document(item)
+    draw_title_page(item, doc)
     items = item.search_children.to_a
     items = [item] if items.empty?
     count = items.count
@@ -45,7 +47,7 @@ class PdfGenerator
       binaries.each do |binary|
         doc.start_new_page(layout: ((binary.width || 0) > (binary.height || 0)) ?
                                      :landscape : :portrait)
-        draw_page(binary, doc)
+        draw_item_page(binary, doc)
       end
     end
     create_outline(item, items, doc)
@@ -61,7 +63,7 @@ class PdfGenerator
 
   include Rails.application.routes.url_helpers
 
-  def add_title_page(item, doc)
+  def draw_title_page(item, doc)
     doc.stroke_bounds
     doc.move_down doc.bounds.height / 5.0
 
@@ -134,7 +136,7 @@ class PdfGenerator
   # @param binary [Binary]
   # @param doc [Prawn::Document]
   #
-  def draw_page(binary, doc)
+  def draw_item_page(binary, doc)
     if !binary.is_image?
       LOGGER.debug('add_image(): %s is not an image; skipping.', binary)
       return
@@ -147,7 +149,16 @@ class PdfGenerator
     draw_word_boxes(binary, doc)
 
     # Download an optimally-sized JPEG derivative image to a temp file.
-    pathname = download_image(binary)
+    width    = IMAGE_DPI / DOCUMENT_PPI.to_f * doc.bounds.width
+    height   = IMAGE_DPI / DOCUMENT_PPI.to_f * doc.bounds.height
+    if binary.width && binary.height # should always be true
+      width  = binary.width if width > binary.width
+      height = binary.height if height > binary.height
+    else
+      width  = -1
+      height = -1
+    end
+    pathname = download_image(binary, width, height)
 
     # Append it to the document.
     doc.image(pathname,
@@ -164,8 +175,8 @@ class PdfGenerator
     return if binary.tesseract_json.blank?
 
     box_padding  = 6 # helps to avoid Prawn::Errors::CannotFit
-    doc_width    = PAGE_WIDTH_INCHES * DOCUMENT_DPI
-    doc_height   = PAGE_HEIGHT_INCHES * DOCUMENT_DPI
+    doc_width    = PAGE_WIDTH_INCHES * DOCUMENT_PPI
+    doc_height   = PAGE_HEIGHT_INCHES * DOCUMENT_PPI
     x_scale      = doc.bounds.width / binary.width.to_f
     y_scale      = doc.bounds.height / binary.height.to_f
     canvas_scale = [x_scale, y_scale].min
@@ -204,10 +215,16 @@ class PdfGenerator
   # Downloads an appropriate image to a temp file, which will be located in
   # {image_temp_dir}.
   #
+  # @param binary [Binary]
+  # @param width [Integer]
+  # @param height [Integer]
   # @return [String] Temp file path.
   #
-  def download_image(binary)
-    url = "#{binary.iiif_image_url}/full/max/0/default.jpg"
+  def download_image(binary, width, height)
+    width    = width.to_i
+    height   = height.to_i
+    size     = (width > 0) ? "!#{width},#{height}" : 'max'
+    url      = "#{binary.iiif_image_url}/full/#{size}/0/default.jpg"
     pathname = File.join(
       image_temp_dir,
       binary.filename.split('.')[0...-1].join('.') + '.jpg')
@@ -224,9 +241,9 @@ class PdfGenerator
   # @param item [Item] Compound object.
   # @return [Prawn::Document]
   #
-  def pdf_document(item)
+  def new_pdf_document(item)
     pdf = Prawn::Document.new(
-        margin: MARGIN_INCHES * DOCUMENT_DPI,
+        margin: MARGIN_INCHES * DOCUMENT_PPI,
         info: {
             Title: item.title,
             Author: item.element(:creator).to_s,
