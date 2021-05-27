@@ -51,9 +51,9 @@ class PdfGenerator
       task&.progress = index / count.to_f
     end
     create_outline(item, items, doc)
-    pathname = pdf_temp_file
-    doc.render_file(pathname)
-    pathname
+    tempfile = pdf_temp_file
+    doc.render_file(tempfile.path)
+    tempfile.path
   ensure
     FileUtils.rm_rf(image_temp_dir)
   end
@@ -276,7 +276,7 @@ class PdfGenerator
   #
   def pdf_temp_file
     unless @pdf_temp_file && File.exist?(@pdf_temp_file)
-      @pdf_temp_file = Tempfile.new('item.pdf-').path
+      @pdf_temp_file = Tempfile.new('item.pdf-')
     end
     @pdf_temp_file
   end
