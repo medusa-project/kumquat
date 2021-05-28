@@ -506,13 +506,6 @@ class Binary < ApplicationRecord
       # of the beginning of the image.
       download_to(tempfile.path, 2 ** 18)
 
-      # exiftool's output is more comprehensive, but as of 2016-09-01, it
-      # appears to cause my local machine's condo NFS mount to unmount itself.
-      # OTRS ticket filed, but don't want to wait on it. OTOH, exiv2 is faster.
-      #
-      # 2019 update: since we are no longer using NFS, we could switch back to
-      # exiftool if desired. --alexd
-      #read_metadata_using_exiftool(pathname)
       read_metadata_using_exiv2(tempfile.path)
     ensure
       tempfile.close
@@ -628,45 +621,6 @@ class Binary < ApplicationRecord
         key:             self.object_key,
         response_target: pathname,
         range:           (length > 0) ? "bytes=#{0}-#{length}" : nil)
-  end
-
-  ##
-  # Reads the contents of `pathname` into {metadata_json}. The instance is not
-  # saved.
-  #
-  # @param pathname [String]
-  #
-  def read_metadata_using_exiftool(pathname)
-    metadata = []
-    json     = `exiftool -json -l -G "#{pathname.gsub('"', '\\"')}"`
-    begin
-      struct = JSON.parse(json)
-      struct.first.each do |k, v|
-        next if k.include?('ExifToolVersion')
-        next if k.include?('Directory') && Rails.env.production?
-        next if k.include?('FileAccessDate')
-        next if k.include?('FilePermissions')
-        next if k.include?('FileTypeExtension')
-        next if k.include?('CurrentIPTCDigest')
-
-        if v['val']&.kind_of?(String)
-          # Skip binary values
-          next if v['val']&.include?('use -b option to extract')
-        end
-
-        if v['desc'].present? && v['val'].present?
-          parts = k.split(':')
-          category = parts.length > 1 ? parts[0] : nil
-          category = category.upcase if category.include?('Jpeg')
-          category.gsub!('_', ' ')
-          value = v['val'].kind_of?(String) ? v['val'].strip : v['val']
-          metadata << { label: v['desc'], category: category, value: value }
-        end
-      end
-      self.metadata_json = JSON.generate(metadata)
-    rescue JSON::ParserError => e
-      LOGGER.warn('read_metadata(): %s', e)
-    end
   end
 
   ##
