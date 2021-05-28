@@ -332,20 +332,6 @@ class BinaryTest < ActiveSupport::TestCase
     assert @instance.ocrable?
   end
 
-  # read_dimensions()
-
-  test 'read_dimensions() works on images' do
-    @instance = binaries(:free_form_dir1_image1)
-    @instance.width = @instance.height = nil
-    @instance.read_dimensions
-    assert_equal 128, @instance.width
-    assert_equal 112, @instance.height
-  end
-
-  test 'read_dimensions() works on videos' do
-    skip # TODO: write this
-  end
-
   # read_duration()
 
   test 'read_duration works with audio' do
@@ -375,7 +361,12 @@ class BinaryTest < ActiveSupport::TestCase
   test 'read_metadata() works on images' do
     @instance = binaries(:free_form_dir1_image1)
     @instance.metadata_json = nil
+    @instance.width         = nil
+    @instance.height        = nil
     @instance.read_metadata
+
+    assert_equal 128, @instance.width
+    assert_equal 112, @instance.height
     assert_not_nil @instance.metadata_json
   end
 

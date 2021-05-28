@@ -140,7 +140,6 @@ class Binary < ApplicationRecord
     bin.infer_media_type
     bin.media_category = media_category ||
         Binary::MediaCategory::media_category_for_media_type(bin.media_type)
-    bin.read_dimensions
     bin.read_duration
     bin.read_metadata
     bin
@@ -461,44 +460,6 @@ class Binary < ApplicationRecord
   end
 
   ##
-  # Populates the `width` and `height` properties by reading the dimensions
-  # from the source image or video.
-  #
-  # @return [void]
-  # @raises [IOError] If the file does not exist.
-  #
-  def read_dimensions
-    if is_image?
-      begin
-        # Download the image to a temp file.
-        tempfile = Tempfile.new('image')
-        download_to(tempfile.path, 1024 ** 2)
-
-        # Redirect stderr to /dev/null as there is apparently no other way to
-        # suppress "no exif data found in the file" messages.
-        output = `exiv2 "#{tempfile.path.gsub('"', '\\"')}" 2> /dev/null`
-        output.encode('UTF-8', invalid: :replace).split("\n").each do |row|
-          if row.downcase.start_with?('image size')
-            columns = row.split(':')
-            if columns.length > 1
-              dimensions = columns[1].split('x')
-              if dimensions.length == 2
-                self.width = dimensions[0].strip.to_i
-                self.height = dimensions[1].strip.to_i
-              end
-            end
-          end
-        end
-      ensure
-        tempfile.close
-        tempfile.unlink
-      end
-    elsif is_video?
-      # TODO: write this
-    end
-  end
-
-  ##
   # Populates the duration property by reading it from the source audio or
   # video.
   #
@@ -510,7 +471,6 @@ class Binary < ApplicationRecord
   #
   def read_duration
     if is_audio? or is_video?
-      tempfile = nil
       begin
         # Download the image to a temp file.
         tempfile = Tempfile.new('image')
@@ -534,10 +494,8 @@ class Binary < ApplicationRecord
   end
 
   ##
-  # Reads the binary's embedded metadata.
+  # Reads the binary's dimensions and embedded metadata.
   #
-  # @return [Enumerable<Hash<Symbol,String>>] Array of hashes with `:label`,
-  #                                           `:category`, and `:value` keys.
   # @raises [IOError] If the file is not found or can't be read.
   #
   def read_metadata
@@ -718,8 +676,27 @@ class Binary < ApplicationRecord
   # @param pathname [String]
   #
   def read_metadata_using_exiv2(pathname)
+    pathname = pathname.gsub('"', '\\"')
+
+    # Read dimensions
+    # Redirect stderr to /dev/null as there is apparently no other way to
+    # suppress "no exif data found in the file" messages.
+    output = `exiv2 "#{pathname}" 2> /dev/null`
+    output.encode('UTF-8', invalid: :replace).split("\n").each do |row|
+      next unless row.downcase.start_with?('image size')
+      columns = row.split(':')
+      if columns.length > 1
+        dimensions = columns[1].split('x')
+        if dimensions.length == 2
+          self.width  = dimensions[0].strip.to_i
+          self.height = dimensions[1].strip.to_i
+        end
+      end
+    end
+
+    # Read metadata
     metadata = []
-    output   = `exiv2 -q -Pklt "#{pathname.gsub('"', '\\"')}"`
+    output   = `exiv2 -q -Pklt "#{pathname}"`
     output.encode('UTF-8', invalid: :replace).split("\n").each do |row|
       next if row.length < 10
 

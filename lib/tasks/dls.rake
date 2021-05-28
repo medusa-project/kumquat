@@ -60,28 +60,6 @@ namespace :dls do
       end
     end
 
-    desc 'Populate the dimensions of all binaries'
-    task :populate_dimensions => :environment do
-      Binary.uncached do
-        binaries = Binary.where('(width IS NULL OR height IS NULL)').
-            where('media_type LIKE \'image/%\' OR media_type LIKE \'video/%\'').
-            where('object_key IS NOT NULL')
-        count = binaries.count
-        puts "#{count} binaries to update"
-
-        binaries.find_each.with_index do |binary, index|
-          puts "(#{((index / count.to_f) * 100).round(2)}%) #{binary.object_key}"
-
-          begin
-            binary.read_dimensions
-            binary.save!
-          rescue => e
-            puts e
-          end
-        end
-      end
-    end
-
     desc 'Populate the durations of all binaries'
     task :populate_durations => :environment do
       Binary.uncached do
@@ -125,7 +103,7 @@ namespace :dls do
     desc 'Populate the metadata of all binaries'
     task :populate_metadata => :environment do
       Binary.uncached do
-        binaries = Binary.where('metadata_json IS NULL').
+        binaries = Binary.where('metadata_json IS NULL OR width IS NULL OR height IS NULL').
           where('media_type LIKE \'image/%\' OR media_type = \'application/pdf\'').
           where('object_key IS NOT NULL')
         count = binaries.count
