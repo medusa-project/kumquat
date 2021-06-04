@@ -14,6 +14,7 @@ class DownloadsController < ApplicationController
     if download.expired
       render plain: 'This download is expired.', status: :gone
     elsif download.pathname && File.exists?(download.pathname)
+      response.headers['Content-Length'] = File.size(download.pathname)
       send_file(download.pathname)
     else
       LOGGER.error('file(): download %s: file does not exist: %s',
