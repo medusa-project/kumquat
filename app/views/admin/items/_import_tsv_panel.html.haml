@@ -21,11 +21,6 @@
               All items in the TSV will be
               updated, whether or not they are present in this set. Any items not
               present in this set will not be added to it.
-          .alert.alert-warning
-            %i.fas.fa-exclamation-triangle
-            To avoid out-of-memory
-            errors, divide uploaded files into segments of no more than 4,000
-            rows each, and import each one individually.
           .form-group
             = file_field_tag('tsv')
         .modal-footer
