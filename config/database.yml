@@ -60,17 +60,26 @@ demo_and_production: &demo_and_production
 demo: &demo
   <<: *demo_and_production
   # An optimal number for Puma is RAILS_MAX_THREADS (see puma.rb) as each
-  # worker will use its own pool. However, we want to increase the parallelism
-  # of the various OCR jobs, which employ multi-threading in order to not take
-  # forever, and each thread needs its own connection.
-  pool: <%= delayed_job ? 100 : ENV.fetch("RAILS_MAX_THREADS") { 5 }.to_i %>
+  # worker will use its own pool.
+  #
+  # But the app also runs in Delayed Job, which is a different story. There, we
+  # want to increase the parallelism of the various OCR jobs, which employ
+  # multi-threading in order to not take forever, and each thread needs its own
+  # database connection.
+  #
+  # It would be tempting to crank up the connection count into the hundreds,
+  # but in the context of these OCR jobs, we are limited further by the rate at
+  # which our Elasticsearch instance/cluster is able to process document
+  # changes. 50 DB connections (25 OCR threads) is probably a safe number for
+  # a t3.small.
+  pool: <%= delayed_job ? 50 : ENV.fetch("RAILS_MAX_THREADS") { 5 }.to_i %>
 
 demo_2:
   <<: *demo
 
 production: &production
   <<: *demo_and_production
-  pool: <%= delayed_job ? 1000 : ENV.fetch("RAILS_MAX_THREADS") { 5 }.to_i %>
+  pool: <%= delayed_job ? 100 : ENV.fetch("RAILS_MAX_THREADS") { 5 }.to_i %>
 
 production_2:
   <<: *production
