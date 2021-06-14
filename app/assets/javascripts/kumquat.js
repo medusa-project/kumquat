@@ -1,5 +1,7 @@
 var Application = {
 
+    SCROLL_SPEED: 500,
+
     /**
      * Enables the facets returned by one of the facets_as_x() helpers.
      */
@@ -274,7 +276,7 @@ var Application = {
             if (target) {
                 root.stop().animate({
                     'scrollTop': $(target).offset().top - top_padding
-                }, 500, 'swing', function () {
+                }, Application.SCROLL_SPEED, 'swing', function () {
                     window.location.hash = target;
                 });
             }

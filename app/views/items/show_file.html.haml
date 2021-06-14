@@ -40,19 +40,20 @@
   = viewer_for_item(@item)
   .mt-3
     - if has_viewer?(@item)
-      .float-right.ml-3
+      .btn-group-vertical.float-right.ml-3
+        - if @item.elements.reject{ |e| e.name == 'title' }.any?
+          %button#dl-more-information-button.btn.btn-lg.btn-outline-secondary{style: "white-space: nowrap"}
+            More Information&hellip;
         %button#dl-download-button.btn.btn-lg.btn-outline-secondary{style: "white-space: nowrap"}
           Download Options&hellip;
-      = render partial: 'permalink_section', locals: { item: @item }
-    - else
-      = render partial: 'permalink_section', locals: { item: @item }
+    = render partial: 'permalink_section', locals: { item: @item }
 
 %section
   = rights_statement(@item.effective_rightsstatements_org_statement,
                      @item.effective_rights_statement)
 
 - if @item.elements.reject{ |e| e.name == 'title' }.any?
-  %section= metadata_section(@item)
+  %section#dl-metadata-section= metadata_section(@item)
 
 = render partial: 'download_section',
          locals: { item: @item, expanded: false }

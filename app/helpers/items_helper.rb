@@ -557,24 +557,16 @@ module ItemsHelper
     # Bootstrap display utilities don't work very well within collapses, so we
     # need two separate collapses here.
     html = StringIO.new
-    html << '<div class="d-sm-none">'
-    html <<   '<h2>'
-    html <<     '<a role="button" data-toggle="collapse" href="#dl-metadata-list" aria-expanded="true" aria-controls="dl-metadata-list">'
-    html <<       'Descriptive Information'
-    html <<     '</a>'
-    html <<   '</h2>'
-    html <<   '<div id="dl-metadata-list" class="collapse show">'
+    html << '<h2>'
+    html <<   '<a role="button" data-toggle="collapse" href="#dl-metadata" aria-expanded="true" aria-controls="dl-metadata">'
+    html <<     'Descriptive Information'
+    html <<   '</a>'
+    html << '</h2>'
+    html << '<div id="dl-metadata" class="collapse show">'
+    html <<   '<div id="dl-metadata-list" class="d-sm-none">'
     html <<     metadata_as_list(item)
     html <<   '</div>'
-    html << '</div>'
-
-    html << '<div class="d-none d-sm-block">'
-    html <<   '<h2>'
-    html <<     '<a role="button" data-toggle="collapse" href="#dl-metadata-table" aria-expanded="true" aria-controls="dl-metadata-table">'
-    html <<       'Descriptive Information'
-    html <<     '</a>'
-    html <<   '</h2>'
-    html <<   '<div id="dl-metadata-table" class="collapse show">'
+    html <<   '<div id="dl-metadata-table">'
     html <<     metadata_as_table(item)
     html <<   '</div>'
     html << '</div>'

@@ -244,10 +244,10 @@ var PTItemView = function() {
             var embed_modal = $('#dl-custom-image-modal');
 
             var displayUrl = function() {
-                var size = embed_modal.find('input[name="size"]:checked').val();
+                var size    = embed_modal.find('input[name="size"]:checked').val();
                 var quality = embed_modal.find('input[name="quality"]:checked').val();
-                var format = embed_modal.find('input[name="format"]:checked').val();
-                var url = image_url + '/full/' + size + '/0/' + quality + '.' + format;
+                var format  = embed_modal.find('input[name="format"]:checked').val();
+                var url     = image_url + '/full/' + size + '/0/' + quality + '.' + format;
 
                 $('#dl-preview-link').attr('href', url).show();
                 $('#dl-embed-link').val('<img src="' + url + '" alt="' + title + '">');
@@ -275,14 +275,26 @@ var PTItemView = function() {
     this.init = function() {
         $('#dl-download-button').on('click', function() {
             $('#dl-download').collapse('show');
-            const offset  = $('#dl-download-section').offset();
             var container = $('#dl-free-form-item-view');
+            var offset    = $('#dl-download-section').offset().top;
             if (container.length < 1) {
                 container = $('html, body');
+            } else {
+                offset += container.scrollTop();
             }
-            container.animate({
-                scrollTop: offset.top,
-            }, 500);
+            container.animate({ scrollTop: offset }, Application.SCROLL_SPEED);
+            return false;
+        });
+        $('#dl-more-information-button').on('click', function() {
+            $('#dl-metadata').collapse('show');
+            var container = $('#dl-free-form-item-view');
+            var offset    = $('#dl-metadata-section').offset().top;
+            if (container.length < 1) {
+                container = $('html, body');
+            } else {
+                offset += container.scrollTop();
+            }
+            container.animate({ scrollTop: offset }, Application.SCROLL_SPEED);
             return false;
         });
 
