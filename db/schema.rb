@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_05_20_140639) do
+ActiveRecord::Schema.define(version: 2021_06_14_151454) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -93,11 +93,13 @@ ActiveRecord::Schema.define(version: 2021_05_20_140639) do
     t.text "full_text"
     t.text "hocr"
     t.text "tesseract_json"
+    t.datetime "ocred_at"
     t.index ["item_id"], name: "index_binaries_on_item_id"
     t.index ["master_type"], name: "index_binaries_on_master_type"
     t.index ["media_category"], name: "index_binaries_on_media_category"
     t.index ["media_type"], name: "index_binaries_on_media_type"
     t.index ["object_key"], name: "index_binaries_on_object_key", unique: true
+    t.index ["ocred_at"], name: "index_binaries_on_ocred_at"
   end
 
   create_table "collection_joins", id: :serial, force: :cascade do |t|

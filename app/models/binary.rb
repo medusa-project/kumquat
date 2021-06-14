@@ -41,7 +41,8 @@
 # * `full_text`      Full text from OCR.
 # * `height`         Native pixel height of a raster binary (image or video).
 # * `hocr`           OCR data in hOCR format. This may be blank with
-#                    {tesseract_json} being used instead.
+#                    {tesseract_json} being used instead, depending on
+#                    environment.
 # * `item_id`        Database ID of the binary's owning item.
 # * `master_type`    One of the {MasterType} constant values.
 # * `media_category` One of the {MediaCategory} constant values.
@@ -51,10 +52,14 @@
 #                    Typically the metadata would be accessed via {metadata}
 #                    and not directly from this ivar.
 # * `object_key`     S3 object key.
+# * `ocred_at`       The last time that OCR was run on the binary. This is a
+#                    more reliable way of knowing whether OCR has been run than
+#                    checking for a non-empty {full_text} value, because that
+#                    may be empty in the case of e.g. blank pages.
 # * `tesseract_json` OCR data returned from
 #                    [tesseract-lambda](https://github.com/medusa-project/tesseract-lambda)
 #                    via {detect_text}, serialized as JSON. This may be blank
-#                    with {hocr} being used instead.
+#                    with {hocr} being used instead, depending on environment.
 # * `updated_at`     Managed by ActiveRecord.
 # * `width`          Native pixel width of a raster binary (image or video).
 #
@@ -573,6 +578,7 @@ class Binary < ApplicationRecord
       end
       self.full_text = `tesseract #{jpg_path} stdout`
       self.hocr      = `tesseract #{jpg_path} stdout hocr`
+      self.ocred_at  = Time.now
       self.save!
     end
   end
@@ -604,8 +610,9 @@ class Binary < ApplicationRecord
       if self.tesseract_json.present?
         struct = JSON.parse(self.tesseract_json)
         self.full_text = struct['text'].join(' ')
-        self.save!
       end
+      self.ocred_at = Time.now
+      self.save!
     else
       raise IOError, "#{config.lambda_ocr_function} returned status "\
             "#{response.status_code}"
