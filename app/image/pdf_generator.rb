@@ -67,47 +67,120 @@ class PdfGenerator
     doc.stroke_bounds
     doc.move_down doc.bounds.height / 5.0
 
-    box_margin = 20
+    box_margin  = 20
+    box_width   = doc.bounds.width - box_margin * 2
+    col2_x      = doc.bounds.width * 0.25 + box_margin
+    col1_width  = doc.bounds.width * 0.25 - box_margin
+    col2_width  = doc.bounds.width * 0.75 - box_margin * 2
+    url_options = Rails.application.config.action_controller.default_url_options
+    draw_boxes  = false
 
     # Title
     doc.bounding_box([box_margin, doc.bounds.height * 0.85],
-                     width: doc.bounds.width - box_margin * 2,
-                     height: doc.bounds.height * 0.4) do
-      #doc.transparent(0.5) { doc.stroke_bounds }
+                     width: box_width,
+                     height: doc.bounds.height * 0.3) do
+      doc.transparent(0.5) { doc.stroke_bounds } if draw_boxes
       doc.text(item.title,
-               align: :center,
+               align:    :center,
                overflow: :shrink_to_fit,
-               size: 32)
+               size:     32)
     end
 
-    # Collection
-    doc.bounding_box([box_margin, doc.bounds.height * 0.4 + box_margin],
-                     width: doc.bounds.width - box_margin * 2,
-                     height: 48) do
-      #doc.transparent(0.5) { doc.stroke_bounds }
-      doc.text(item.collection.title,
-               align: :center,
+    # Collection column 1
+    doc.bounding_box([box_margin, doc.bounds.height * 0.5 + box_margin],
+                     width: col1_width,
+                     height: 44) do
+      doc.transparent(0.5) { doc.stroke_bounds } if draw_boxes
+      doc.text('Collection:',
+               align:    :right,
+               style:    :bold,
                overflow: :shrink_to_fit,
-               size: 18)
+               size:     18)
     end
 
-    # Source
-    doc.bounding_box([box_margin, doc.bounds.height * 0.3 + box_margin],
-                     width: doc.bounds.width - box_margin * 2,
-                     height: 48) do
-      #doc.transparent(0.5) { doc.stroke_bounds }
-      doc.text(Option.string(Option::Keys::WEBSITE_NAME),
-               align: :center,
+    # Collection column 2
+    doc.bounding_box([col2_x, doc.bounds.height * 0.5 + box_margin],
+                     width: col2_width,
+                     height: 44) do
+      doc.transparent(0.5) { doc.stroke_bounds } if draw_boxes
+      url = collection_url(item.collection, url_options)
+      doc.text("<link href='#{url}'>#{item.collection.title}</link>",
+               align:         :left,
+               inline_format: true,
+               overflow:      :shrink_to_fit,
+               size:          18)
+    end
+
+    # Repository column 1
+    doc.bounding_box([box_margin,
+                      doc.bounds.height * 0.42 + box_margin],
+                     width: col1_width,
+                     height: 44) do
+      doc.transparent(0.5) { doc.stroke_bounds } if draw_boxes
+      doc.text('Repository:',
+               align:    :right,
+               style:    :bold,
                overflow: :shrink_to_fit,
-               size: 18)
+               size:     18)
+    end
+
+    # Repository column 2
+    doc.bounding_box([col2_x, doc.bounds.height * 0.42 + box_margin],
+                     width: col2_width,
+                     height: 44) do
+      doc.transparent(0.5) { doc.stroke_bounds } if draw_boxes
+      doc.text(item.collection.medusa_repository.title,
+               align:    :left,
+               overflow: :shrink_to_fit,
+               size:     18)
+    end
+
+    # Rights column 1
+    rights_statement = item.rightsstatements_org_statement
+    if rights_statement
+      doc.bounding_box([box_margin,
+                        doc.bounds.height * 0.34 + box_margin],
+                       width: col1_width,
+                       height: 44) do
+        doc.transparent(0.5) { doc.stroke_bounds } if draw_boxes
+        doc.text('Rights:',
+                 align:    :right,
+                 style:    :bold,
+                 overflow: :shrink_to_fit,
+                 size:     18)
+      end
+
+      # Rights column 2
+      doc.bounding_box([col2_x, doc.bounds.height * 0.34 + box_margin],
+                       width: col2_width,
+                       height: 44) do
+        doc.transparent(0.5) { doc.stroke_bounds } if draw_boxes
+        doc.text("<link href='#{rights_statement.info_uri}'>#{rights_statement.name}</link>",
+                 align:         :left,
+                 inline_format: true,
+                 overflow:      :shrink_to_fit,
+                 size:          18)
+      end
+    end
+
+    # Website name
+    doc.bounding_box([box_margin, doc.bounds.height * 0.23 + box_margin],
+                     width: box_width, height: 44) do
+      doc.transparent(0.5) { doc.stroke_bounds } if draw_boxes
+      url = root_url(url_options)
+      doc.text("<link href='#{url}'>#{Option.string(Option::Keys::WEBSITE_NAME)}</link>",
+               align:         :center,
+               inline_format: true,
+               overflow:      :shrink_to_fit,
+               size:          18)
     end
     doc.move_down(24)
 
-    # URL
-    url = item_url(item, Rails.application.config.action_controller.default_url_options)
+    # Item URL
+    url = item_url(item, url_options)
     doc.text("<link href='#{url}'>#{url}</link>",
              inline_format: true,
-             align: :center)
+             align:         :center)
     doc.move_down(24)
 
     # Download date
