@@ -253,6 +253,7 @@ body#tree_browser {
     border-top-color: $gray-300;
     border-right-style: solid;
     border-right-color: $gray-300;
+    min-height: 500px;
     overflow-x: scroll;
     overflow-y: scroll;
   }

@@ -318,9 +318,9 @@ var PTItemView = function() {
         const freeFormItemView = $('#dl-free-form-item-view');
         if (freeFormItemView.length > 0) {
             collapses.on('shown.bs.collapse hidden.bs.collapse', function() {
-                const height = freeFormItemView.children()
-                    .filter(':visible').filter(':last').offset().top - 200;
-                $('#jstree').css('max-height', height);
+                const lastElem = freeFormItemView.children().filter(':visible').filter(':last');
+                const height   = lastElem.offset().top + lastElem.height() - 200;
+                $('#jstree').css('height', height);
             });
         }
 
@@ -647,9 +647,9 @@ var PTTreeBrowserView = function() {
         Application.view.init();
 
         // Update the height of the tree browser to fit.
-        const height = treeView.children()
-            .filter(':visible').filter(':last').offset().top - 200;
-        $('#jstree').css('max-height', height);
+        const lastElem = treeView.children().filter(':visible').filter(':last');
+        const height   = lastElem.offset().top + lastElem.height() - 200;
+        $('#jstree').css('height', height);
     };
 
     var getRootTreeDataURL = function() {
