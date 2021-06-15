@@ -2,6 +2,7 @@
 # https://github.com/medusa-project/dls-cantaloupe-docker/blob/master/image_files/delegates.rb
 
 require 'json'
+require 'uri'
 
 java_import java.net.HttpURLConnection
 java_import java.net.URL
@@ -15,12 +16,35 @@ class CustomDelegate
 
   attr_accessor :context
 
+  def deserialize_meta_identifier(meta_identifier)
+  end
+
+  def serialize_meta_identifier(components)
+  end
+
+  def pre_authorize(options = {})
+    true
+  end
+
   def authorize(options = {})
     true
   end
 
   def extra_iiif2_information_response_keys(options = {})
-    {}
+    extra_information_response_keys
+  end
+
+  def extra_iiif3_information_response_keys(options = {})
+    extra_information_response_keys
+  end
+
+  def extra_information_response_keys
+    {
+      'page_count' => context['page_count'],
+      'exif'       => context.dig('metadata', 'exif'),
+      'iptc'       => context.dig('metadata', 'iptc'),
+      'xmp'        => context.dig('metadata', 'xmp_string')
+    }
   end
 
   ##
@@ -103,7 +127,7 @@ class CustomDelegate
     rescue FileNotFoundException
       return nil
     rescue => e
-      Java::edu.illinois.library.cantaloupe.script.Logger.warn("#{e}")
+      Java::edu.illinois.library.cantaloupe.delegate.Logger.warn("#{e}")
     ensure
       reader&.close
       is&.close
@@ -114,6 +138,9 @@ class CustomDelegate
   def encoded_credential
     Base64.getEncoder.encodeToString(
         (ENV['MEDUSA_USER'] + ':' + ENV['MEDUSA_SECRET']).bytes)
+  end
+
+  def metadata(options = {})
   end
 
   def overlay(options = {})
