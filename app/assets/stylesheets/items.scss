@@ -248,20 +248,17 @@ body#items_index, body#items_show {
 
 // styles for free-form collection tree view
 body#tree_browser {
-  #collection-tree-row{
-    border-style: solid;
-    border-color: #dddddd;
-  }
   #jstree {
-    //width:400px;
-    max-height:545px;
-    height:545px;
+    border-top-style: solid;
+    border-top-color: $gray-300;
     border-right-style: solid;
-    border-right-color: #dddddd;
+    border-right-color: $gray-300;
+    overflow-x: scroll;
+    overflow-y: scroll;
   }
   #dl-free-form-item-view {
-    max-height: 545px;
-    height: 545px;
+    border-top-style: solid;
+    border-top-color: $gray-300;
     padding-top: 7px;
 
     #item-show-buttons{

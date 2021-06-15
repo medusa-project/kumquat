@@ -181,7 +181,7 @@ var PTItemView = function() {
                         Math.floor(size_i / num_usable_sizes * NUM_BUTTON_SIZE_TIERS);
                     var percent = Math.round(width / full_width * 100);
                     var checked = (size_i === num_sizes - 1) ? 'checked' : '';
-                    var active = (size_i === num_sizes - 1) ? 'active' : '';
+                    var active  = (size_i === num_sizes - 1) ? 'active' : '';
                     container.append(
                         '<div class="radio btn btn-outline-primary ' + size_class + ' ' + active + '">' +
                             '<label>' +
@@ -275,11 +275,9 @@ var PTItemView = function() {
     this.init = function() {
         $('#dl-download-button').on('click', function() {
             $('#dl-download').collapse('show');
-            var container = $('#dl-free-form-item-view');
+            var container = $('html, body');
             var offset    = $('#dl-download-section').offset().top;
-            if (container.length < 1) {
-                container = $('html, body');
-            } else {
+            if (container.length > 0) {
                 offset += container.scrollTop();
             }
             container.animate({ scrollTop: offset }, Application.SCROLL_SPEED);
@@ -287,11 +285,9 @@ var PTItemView = function() {
         });
         $('#dl-more-information-button').on('click', function() {
             $('#dl-metadata').collapse('show');
-            var container = $('#dl-free-form-item-view');
+            var container = $('html, body');
             var offset    = $('#dl-metadata-section').offset().top;
-            if (container.length < 1) {
-                container = $('html, body');
-            } else {
+            if (container.length > 0) {
                 offset += container.scrollTop();
             }
             container.animate({ scrollTop: offset }, Application.SCROLL_SPEED);
@@ -299,14 +295,14 @@ var PTItemView = function() {
         });
 
         // Add an expander icon in front of every collapse toggle.
-        var toggleForCollapse = function(collapse) {
+        const toggleForCollapse = function(collapse) {
             return collapse.prev().find('a[data-toggle="collapse"]:first');
         };
-        var setToggleState = function(elem, expanded) {
+        const setToggleState = function(elem, expanded) {
             elem.find('img').css('transform', expanded ? 'rotate(90deg)' : 'rotate(270deg)');
         };
 
-        var collapses = $('.collapse');
+        const collapses = $('.collapse');
         collapses.each(function() {
             setToggleState(toggleForCollapse($(this)), $(this).hasClass('show'));
         });
@@ -316,6 +312,17 @@ var PTItemView = function() {
         collapses.on('hide.bs.collapse', function () {
             setToggleState(toggleForCollapse($(this)), false);
         });
+
+        // In free-form item view, when a section is expanded or collapsed, the
+        // tree browser's height must be updated to fit.
+        const freeFormItemView = $('#dl-free-form-item-view');
+        if (freeFormItemView.length > 0) {
+            collapses.on('shown.bs.collapse hidden.bs.collapse', function() {
+                const height = freeFormItemView.children()
+                    .filter(':visible').filter(':last').offset().top - 200;
+                $('#jstree').css('max-height', height);
+            });
+        }
 
         // Lazy-load thumbnail images in the download section when it gets
         // expanded.
@@ -633,10 +640,16 @@ var PTTreeBrowserView = function() {
     var setItemViewHTML = function(result) {
         //reset flag used by embed.js
         window.embedScriptIncluded = false;
-        $('#dl-free-form-item-view').html(result);
+        const treeView = $('#dl-free-form-item-view');
+        treeView.html(result);
         Application.init();
         Application.view = new PTItemView();
         Application.view.init();
+
+        // Update the height of the tree browser to fit.
+        const height = treeView.children()
+            .filter(':visible').filter(':last').offset().top - 200;
+        $('#jstree').css('max-height', height);
     };
 
     var getRootTreeDataURL = function() {
