@@ -6,6 +6,9 @@
   %section
     = metadata_section(@item)
 
-= render partial: 'download_section', locals: { item: @item, expanded: true }
+= render partial: 'download_section', locals: { item: @item,
+                                                expanded: true,
+                                                show_heading: false,
+                                                link_to_items: true }
 = render partial: 'staff_info', locals: { item: @item }
 = render partial: 'cite_panel', locals: { item: @item }

@@ -2,14 +2,20 @@
 -#
 -# item [Item]
 -# expanded [Boolean]
+-# show_heading [Boolean] Whether to show the "Download Options" heading.
+-# link_to_items [Boolean] Whether to link item titles to show-item pages.
+
+- show_heading = true unless defined?(show_heading)
+- link_to_items = false unless defined?(link_to_items)
 
 %section#dl-download-section
-  %h2
-    %a{"aria-controls": "dl-download",
-       "aria-expanded": "true",
-       "data-toggle": "collapse",
-       href: "#dl-download",
-       role: "button"} Download Options
+  - if show_heading
+    %h2
+      %a{"aria-controls": "dl-download",
+         "aria-expanded": "true",
+         "data-toggle": "collapse",
+         href: "#dl-download",
+         role: "button"} Download Options
   #dl-download{class: "collapse #{expanded ? 'show' : ''}"}
     .btn-group.mt-2.mb-2
       - if @show_zip_of_masters
@@ -36,9 +42,9 @@
       %tbody
         - if @downloadable_items.any?
           - @downloadable_items.each do |subitem|
-            = render partial: 'download_table_row', locals: { item: subitem }
+            = render partial: 'download_table_row', locals: { item: subitem, link_to_items: link_to_items }
         - elsif !item.directory?
-          = render partial: 'download_table_row', locals: { item: item }
+          = render partial: 'download_table_row', locals: { item: item, link_to_items: link_to_items }
 
 = render partial: 'custom_image_panel'
 -# num_downloadable_items is potentially expensive to calculate.

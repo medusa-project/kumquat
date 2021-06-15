@@ -1,5 +1,7 @@
 -# Requires the following locals:
+-#
 -# item [Item]
+-# link_to_items [Boolean] Whether to link item titles to show-item view.
 
 - access_master       = item.binaries.find{ |b| b.master_type == Binary::MasterType::ACCESS && (b.public || current_user&.medusa_user?) }
 - preservation_master = item.binaries.find{ |b| b.master_type == Binary::MasterType::PRESERVATION && (b.public || current_user&.medusa_user?) }
@@ -9,9 +11,16 @@
   %tr
     %td
       .dl-thumbnail
-        = thumbnail_tag(item, shape: :square, lazy: true)
+        - if link_to_items
+          = link_to(item) do
+            = thumbnail_tag(item, shape: :square, lazy: true)
+        - else
+          = thumbnail_tag(item, shape: :square, lazy: true)
     %td
-      = item.title
+      - if link_to_items
+        = link_to(item.title, item)
+      - else
+        = item.title
     %td
       .btn-group
         - if access_master
