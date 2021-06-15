@@ -152,3 +152,8 @@ to get a flexbox list of items.
     margin-left: 0.5em;
   }
 }
+
+/* Header search field */
+header .form-inline .form-control {
+  width: 200px;
+}
