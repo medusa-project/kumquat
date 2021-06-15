@@ -32,8 +32,10 @@
                       %label URI:
                       = text_field_tag('replace_values[][uri]', '', class: 'form-control')
                     %td{style: "text-align: center; vertical-align: middle;"}
-                      %button.btn.btn-sm.btn-danger.dl-remove-element{type: "button"} −
-              %button.btn.btn-sm.btn-success.dl-add-element &amp;plus;
+                      %button.btn.btn-sm.btn-danger.dl-remove-element{type: "button"}
+                        %i.fa.fa-minus
+              %button.btn.btn-sm.btn-success.dl-add-element
+                %i.fa.fa-plus
           - else
             %p Metadata profile is not set.
           .dl-query
