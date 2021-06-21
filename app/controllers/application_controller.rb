@@ -11,6 +11,7 @@ class ApplicationController < ActionController::Base
   rescue_from ActionController::InvalidAuthenticityToken, with: :rescue_invalid_auth_token
   rescue_from ActionController::InvalidCrossOriginRequest, with: :rescue_invalid_cross_origin_request
   rescue_from ActionController::UnknownFormat, with: :rescue_unknown_format
+  rescue_from ActionDispatch::RemoteIp::IpSpoofAttackError, with: :rescue_ip_spoof
   rescue_from ActiveRecord::RecordNotFound, with: :rescue_not_found
 
   before_action :setup
@@ -202,6 +203,10 @@ class ApplicationController < ActionController::Base
   #
   def rescue_invalid_cross_origin_request
     render plain: "Invalid cross-origin request.", status: :bad_request
+  end
+
+  def rescue_ip_spoof
+    render plain: 'Client IP mismatch.', status: :bad_request
   end
 
   def rescue_not_found
