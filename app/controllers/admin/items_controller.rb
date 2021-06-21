@@ -273,9 +273,7 @@ module Admin
       raise ActiveRecord::RecordNotFound unless item
       begin
         item.all_children.each do |child|
-          child.binaries.where(public: false).each do |binary|
-            binary.update!(public: true)
-          end
+          child.binaries.update_all(public: true)
         end
       rescue => e
         handle_error(e)
@@ -405,9 +403,7 @@ module Admin
       raise ActiveRecord::RecordNotFound unless item
       begin
         item.all_children.each do |child|
-          child.binaries.where(public: true).each do |binary|
-            binary.update!(public: false)
-          end
+          child.binaries.update_all(public: false)
         end
       rescue => e
         handle_error(e)
