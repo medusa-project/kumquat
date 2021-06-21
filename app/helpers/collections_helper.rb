@@ -40,7 +40,7 @@ module CollectionsHelper
       title = collection.medusa_repository.title
       url = Configuration.instance.metadata_gateway_url +
           "/collections?fq%5B%5D=local_facet_repository%3A" +
-          title
+        CGI.escape(title)
       return link_to(title, url)
     rescue IOError
       return ""
