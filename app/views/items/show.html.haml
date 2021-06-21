@@ -29,10 +29,10 @@
       = viewer_for_item(@root_item.three_d_item)
 %section
   = viewer_for_item(@root_item)
-  - if @root_item.supplementary_item
+  - if has_viewer?(@root_item) && @root_item.supplementary_item
     - supp_item = @root_item.supplementary_item
-    - supp_bin = supp_item&.effective_image_binary
-    - if supp_bin
+    - supp_bin  = supp_item&.effective_image_binary
+    - if supp_bin && (supp_bin.public || current_user&.medusa_user?)
       #dl-supplementary-viewer
         .dl-bottom-panel
           %a{"aria-controls": "dl-binary-#{supp_bin.id}",
