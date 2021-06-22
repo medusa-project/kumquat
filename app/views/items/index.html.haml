@@ -6,10 +6,8 @@
   - provide(:title, @collection.title)
   - provide(:active_nav, 'collections')
 
-  %h1= @collection.title
-
   - if @collection.free_form?
-    %ul.nav.nav-pills
+    %ul.nav.nav-pills.float-right
       %li.nav-item
         = link_to collection_tree_path(@collection), class: 'nav-link' do
           %i.fa.fa-level-down-alt
@@ -18,6 +16,8 @@
         = link_to '#', class: 'nav-link active' do
           %i.fa.fa-bars
           List
+  %h1= @collection.title
+
 - else
   - provide(:title, 'Items')
   - provide(:active_nav, 'items')
