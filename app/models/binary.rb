@@ -476,7 +476,13 @@ class Binary < ApplicationRecord
   #         are set to `true`.
   #
   def public?
-    self.public && self.item&.collection&.publicize_binaries
+    if self.public
+      if self.item&.collection
+        return self.item.collection.publicize_binaries
+      end
+      return true
+    end
+    false
   end
 
   ##
