@@ -75,7 +75,7 @@ module ApplicationHelper
         return collection_view_breadcrumb(options[:collection])
       when 'items'
         case action_name
-          when 'index'
+          when 'index', 'tree'
             return results_breadcrumb(options[:collection], options[:context])
           when 'show'
             return item_view_breadcrumb(options[:item], options[:context],
