@@ -77,6 +77,7 @@ class IiifImageConverter
                      format:,
                      include_private_binaries: false,
                      task: nil)
+    return if !include_private_binaries && !item.collection.publicize_binaries
     Item.uncached do
       # If the item is a directory variant, convert all of the files within it,
       # at any level in the tree.

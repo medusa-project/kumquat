@@ -78,6 +78,11 @@
 #                              `published_in_dls` must be true in order for the
 #                              collection or any or any of its items to be
 #                              publicly accessible.
+# * `publicize_binaries`       Whether binaries attached to items residing in
+#                              the collection are public. If set to `true`,
+#                              a binary may be made private by setting its
+#                              {Binary#public} property to `false`, but if set
+#                              to `false`, that property is ignored.
 # * `published_in_dls`         Whether the collection's content resides in the
 #                              DLS, or somewhere else.
 #                              N.B.: use `publicly_accessible?()` to test a

@@ -172,7 +172,7 @@ module ItemsHelper
         html <<     link_to(binary.filename, binary.medusa_url, target: '_blank')
         html <<   '</td>'
         html <<   '<td>'
-        html <<     boolean(binary.public, style: :word)
+        html <<     boolean(binary.public?, style: :word)
         html <<   '</td>'
         html << '</tr>'
       end
@@ -192,7 +192,7 @@ module ItemsHelper
           html <<     link_to(binary.filename, binary.medusa_url, target: '_blank')
           html <<   '</td>'
           html <<   '<td>'
-          html <<     boolean(binary.public, style: :word)
+          html <<     boolean(binary.public?, style: :word)
           html <<   '</td>'
           html << '</tr>'
         end
@@ -228,23 +228,26 @@ module ItemsHelper
   end
 
   ##
-  # @param item [Item, nil]
+  # @param item [Item]
   # @return [Boolean]
   #
   def has_viewer?(item)
-    return false unless item
     # This logic needs to be kept in sync with viewer_for_item().
-    if item.embed_tag.present?
+    if !item
+      return false
+    elsif item.embed_tag.present?
       return true
-    elsif item.compound?
-      binaries = item.all_child_binaries
-      binaries = binaries.where(public: true) unless current_user&.medusa_user?
-      return binaries.count > 0
-    end
-    binary = item.effective_viewer_binary
-    if binary
-      if binary.public || current_user&.medusa_user?
-        return true
+    elsif current_user&.medusa_user? || item.collection.publicize_binaries
+      if item.compound?
+        binaries = item.all_child_binaries
+        binaries = binaries.where(public: true) unless current_user&.medusa_user?
+        return binaries.count > 0
+      end
+      binary = item.effective_viewer_binary
+      if binary
+        if current_user&.medusa_user? || binary.public?
+          return true
+        end
       end
     end
     false
@@ -624,7 +627,6 @@ module ItemsHelper
           name  = EntityElement.element_name_for_indexed_field(parts[0])
           label = profile.elements.find{ |e| e.name == name }.label
           value = parts[1].chomp('"').reverse.chomp('"').reverse
-
           query << "<li>#{label}: <span class=\"dl-query-summary-value\">#{value}</span></li>"
         end
       end
@@ -1020,57 +1022,55 @@ module ItemsHelper
   #
   def viewer_for_item(item)
     # This logic needs to be kept in sync with has_viewer?().
-    return nil unless item
-    if item.embed_tag.present?
+    if !item
+      return nil
+    elsif item.embed_tag.present?
       # Replace hard-coded width/height attribute values.
       frag = Nokogiri::HTML::DocumentFragment.parse(item.embed_tag)
       frag.xpath('.//@width').remove
       frag.xpath('.//@height').remove
       # These must be kept in sync with the viewer CSS dimensions.
-      frag.xpath('.//*').first['width'] = '100%'
-      frag.xpath('.//*').first['height'] = '600'
+      frag.xpath('.//*').first['width']  = VIEWER_WIDTH
+      frag.xpath('.//*').first['height'] = VIEWER_HEIGHT
       return raw(frag.to_html.strip)
-    elsif item.file?
-      return free_form_viewer_for(item)
-      # IMET-473: image files should be presented in the same manner as compound
-      # objects, with a gallery viewer showing all of the other images in the
-      # same directory.
-    elsif item.file? and
-        item.effective_image_binary&.media_category == Binary::MediaCategory::IMAGE
-      return compound_viewer_for(item.parent, item)
-    elsif item.compound?
-      binaries = item.all_child_binaries
-      binaries = binaries.where(public: true) unless current_user&.medusa_user?
-      if binaries.count > 0
-        return compound_viewer_for(item)
+    elsif current_user&.medusa_user? || item.collection.publicize_binaries
+      if item.file?
+        return free_form_viewer_for(item)
+      elsif item.compound?
+        binaries = item.all_child_binaries
+        binaries = binaries.where(public: true) unless current_user&.medusa_user?
+        if binaries.count > 0
+          return compound_viewer_for(item)
+        else
+          return raw("<div class=\"alert alert-info mt-4 mb-4\">
+            <i class=\"fa fa-info-circle\"></i>
+            This item's files are private. Please
+            #{link_to('contact the collection\'s curator', curator_mailto(item))}
+            to request access to the files.
+          </div>")
+        end
       else
-        return raw("<div class=\"alert alert-info mt-4 mb-4\">
-          <i class=\"fa fa-info-circle\"></i>
-          This item's files are private. Please
-          #{link_to('contact the collection\'s curator', curator_mailto(item))}
-          to request access to the files.
-        </div>")
-      end
-    else
-      binary = item.effective_viewer_binary
-      return '' unless binary&.public || current_user&.medusa_user?
-      case binary&.media_category
-        when Binary::MediaCategory::AUDIO
-          return audio_player_for(binary)
-        when Binary::MediaCategory::DOCUMENT
-          return pdf_viewer_for(binary)
-        when Binary::MediaCategory::IMAGE
-          return image_viewer_for(item)
-        when Binary::MediaCategory::TEXT
-          return text_viewer_for(binary)
-        when Binary::MediaCategory::THREE_D
-          return three_d_viewer_for(item)
-        when Binary::MediaCategory::VIDEO
-          return video_player_for(binary)
+        binary = item.effective_viewer_binary
+        return '' unless binary&.public? || current_user&.medusa_user?
+        case binary&.media_category
+          when Binary::MediaCategory::AUDIO
+            return audio_player_for(binary)
+          when Binary::MediaCategory::DOCUMENT
+            return pdf_viewer_for(binary)
+          when Binary::MediaCategory::IMAGE
+            return image_viewer_for(item)
+          when Binary::MediaCategory::TEXT
+            return text_viewer_for(binary)
+          when Binary::MediaCategory::THREE_D
+            return three_d_viewer_for(item)
+          when Binary::MediaCategory::VIDEO
+            return video_player_for(binary)
+        end
       end
     end
     nil
   end
+
 
   private
 

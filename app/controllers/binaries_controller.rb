@@ -22,7 +22,7 @@ class BinariesController < WebsiteController
   private
 
   def authorize_binary
-    unless @binary.public || current_user&.medusa_user?
+    unless @binary.public? || current_user&.medusa_user?
       raise AuthorizationError, "Binary is not public"
     end
   end

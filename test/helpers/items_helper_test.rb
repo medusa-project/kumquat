@@ -33,7 +33,7 @@ class ItemsHelperTest < ActionView::TestCase
   test 'viewer_for_item() should work for items with an embed tag' do
     item = items(:free_form_dir1_dir1_file1)
     item.embed_tag = '<embed></embed>'
-    assert viewer_for_item(item).include?('<embed width="100%" height="600"')
+    assert viewer_for_item(item).include?('<embed ')
   end
 
   test 'viewer_for_item() should work for non-PDF file items' do

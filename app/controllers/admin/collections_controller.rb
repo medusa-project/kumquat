@@ -212,6 +212,7 @@ module Admin
                                          :medusa_file_group_uuid,
                                          :metadata_profile_id,
                                          :package_profile_id,
+                                         :publicize_binaries,
                                          :published_in_dls,
                                          :restricted,
                                          :rightsstatements_org_uri,

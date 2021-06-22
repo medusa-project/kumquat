@@ -20,8 +20,15 @@ class BinariesControllerTest < ActionDispatch::IntegrationTest
     assert_response :forbidden
   end
 
-  test 'show() returns HTTP 403 for non-public binaries' do
+  test 'show() returns HTTP 403 for binaries set as non-public' do
     @binary.update!(public: false)
+    get binary_path(@binary)
+    assert_response :forbidden
+  end
+
+  test 'show() returns HTTP 403 for binaries whose owning collection is not
+  publicizing binaries' do
+    @binary.item.collection.update!(publicize_binaries: false)
     get binary_path(@binary)
     assert_response :forbidden
   end

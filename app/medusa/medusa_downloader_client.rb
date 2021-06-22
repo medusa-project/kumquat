@@ -153,7 +153,7 @@ class MedusaDownloaderClient
                        path:      dir.relative_key,
                        zip_path:  dir.name,
                        recursive: true)
-        else
+        elsif include_private_binaries || item.collection.publicize_binaries
           binaries = item.binaries
           binaries = binaries.where(public: true) unless include_private_binaries
           binaries.each do |binary|

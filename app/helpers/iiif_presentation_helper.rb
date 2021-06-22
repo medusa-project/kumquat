@@ -19,7 +19,7 @@ module IiifPresentationHelper
                                         Item::Variants::SUPPLEMENT]).each do |child|
       binary  = child.effective_image_binary
       dc_type = child.dc_type
-      if (binary&.public || current_user&.medusa_user?) && dc_type
+      if (binary&.public? || current_user&.medusa_user?) && dc_type
         resources << {
             '@type':    'oa:Annotation',
             motivation: 'sc:painting',
@@ -63,7 +63,7 @@ module IiifPresentationHelper
       struct[:metadata] = iiif_metadata_for(subitem)
     end
     binary = subitem.effective_image_binary
-    if binary&.public || current_user&.medusa_user?
+    if binary&.public? || current_user&.medusa_user?
       struct[:images] = iiif_image_resources_for(subitem, 'access')
     end
     struct
@@ -113,7 +113,7 @@ module IiifPresentationHelper
   def iiif_image_resources_for(item, resource_name)
     images = []
     binary = item.effective_image_binary
-    if binary&.public || current_user&.medusa_user?
+    if binary&.public? || current_user&.medusa_user?
       images << {
           '@type':    'oa:Annotation',
           '@id':      item_iiif_image_resource_url(item, resource_name),
@@ -175,7 +175,7 @@ module IiifPresentationHelper
       # Audio
       # Example: http://wellcomelibrary.org/iiif/b17307922/manifest
       child.binaries.
-          select{ |b| (binary&.public || current_user&.medusa_user?) &&
+          select{ |b| (binary&.public? || current_user&.medusa_user?) &&
               b.media_category == Binary::MediaCategory::AUDIO &&
               b.master_type == Binary::MasterType::ACCESS }.each do |bin|
         sequences << {
@@ -327,7 +327,7 @@ module IiifPresentationHelper
     # either edge, then the canvas’s dimensions should be double those of the
     # image."
     height = MIN_CANVAS_SIZE
-    item.binaries.select{ |b| b.public || current_user&.medusa_user? }.each do |b|
+    item.binaries.select{ |b| b.public? || current_user&.medusa_user? }.each do |b|
       height = b.height if b.height && b.height > height
     end
     height
@@ -335,7 +335,7 @@ module IiifPresentationHelper
 
   def canvas_width(item)
     width = MIN_CANVAS_SIZE
-    item.binaries.select{ |b| b.public || current_user&.medusa_user? }.each do |b|
+    item.binaries.select{ |b| b.public? || current_user&.medusa_user? }.each do |b|
       width = b.width if b.width && b.width > width
     end
     width

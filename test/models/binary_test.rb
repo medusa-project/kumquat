@@ -332,6 +332,33 @@ class BinaryTest < ActiveSupport::TestCase
     assert @instance.ocrable?
   end
 
+  # public?()
+
+  test 'public?() returns false if neither the instance nor its collection are
+  set public' do
+    @instance.public = false
+    @instance.item.collection.publicize_binaries = false
+    assert !@instance.public?
+  end
+
+  test 'public?() returns false if the instance is set private but its collection is set public' do
+    @instance.public = false
+    @instance.item.collection.publicize_binaries = true
+    assert !@instance.public?
+  end
+
+  test 'public?() returns false if the instance is set public but its collection is set private' do
+    @instance.public = true
+    @instance.item.collection.publicize_binaries = false
+    assert !@instance.public?
+  end
+
+  test 'public?() returns true if the instance and its collection are set public' do
+    @instance.public = true
+    @instance.item.collection.publicize_binaries = true
+    assert @instance.public?
+  end
+
   # read_duration()
 
   test 'read_duration works with audio' do

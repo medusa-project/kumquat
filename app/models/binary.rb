@@ -56,6 +56,12 @@
 #                    more reliable way of knowing whether OCR has been run than
 #                    checking for a non-empty {full_text} value, because that
 #                    may be empty in the case of e.g. blank pages.
+# * `public`         Whether the binary is publicly accessible. If false, the
+#                    binary cannot be viewed or downloaded. This is superseded
+#                    by {Collection#publicize_binaries} which, if `false`,
+#                    means that the binary is not publicly accessible
+#                    regardless of how this property is set. (N.B.: {public?}
+#                    takes this into account.)
 # * `tesseract_json` OCR data returned from
 #                    [tesseract-lambda](https://github.com/medusa-project/tesseract-lambda)
 #                    via {detect_text}, serialized as JSON. This may be blank
@@ -462,6 +468,15 @@ class Binary < ApplicationRecord
     # OcrItemJob.
     self.master_type == Binary::MasterType::ACCESS &&
       (self.is_image? || self.is_pdf?)
+  end
+
+  ##
+  # @return Whether the instance is publicly accessible--i.e. both {public} and
+  #         the owning collection's {Collection#publicize_binaries} property
+  #         are set to `true`.
+  #
+  def public?
+    self.public && self.item&.collection&.publicize_binaries
   end
 
   ##

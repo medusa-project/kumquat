@@ -123,10 +123,10 @@
           %span{class: "badge #{@collection.published_in_dls ? 'badge-success' : 'badge-danger'}"}
             = @collection.published_in_dls ? 'Published' : 'Unpublished'
       %tr
-        %td Restricted
+        %td Binaries
         %td
-          %span{class: "badge #{@collection.restricted ? 'badge-danger' : 'badge-success'}"}
-            = @collection.restricted ? 'Restricted' : 'Unrestricted'
+          %span{class: "badge #{@collection.publicize_binaries ? 'badge-success' : 'badge-danger'}"}
+            = @collection.publicize_binaries ? 'Public' : 'Private'
       %tr
         %td Harvestable
         %td
@@ -136,6 +136,11 @@
             = @collection.harvestable_by_idhh ? 'Harvestable by IDHH' : 'Unharvestable by IDHH'
           %span{class: "badge #{@collection.harvestable_by_primo ? 'badge-success' : 'badge-danger'}"}
             = @collection.harvestable_by_primo ? 'Harvestable by Primo' : 'Unharvestable by Primo'
+      %tr
+        %td Restricted
+        %td
+          %span{class: "badge #{@collection.restricted ? 'badge-danger' : 'badge-success'}"}
+            = @collection.restricted ? 'Restricted' : 'Unrestricted'
       %tr
         %td Allowed Host Groups
         %td

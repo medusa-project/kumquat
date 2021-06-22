@@ -30,8 +30,13 @@ class PdfGenerator
   # @param task [Task] Optional; supply to receive progress updates.
   # @return [String, nil] Pathname of the generated PDF, or nil if there are no
   #                       images to add to the PDF.
+  # @raises [RuntimeError] if the given item's owning collection is not
+  #         publicizing binaries and `include_private_binaries` is `false`.
   #
   def generate_pdf(item:, include_private_binaries: false, task: nil)
+    if !include_private_binaries && !item.collection.publicize_binaries
+      raise "Collection's binaries are not publicized"
+    end
     reset
     doc = new_pdf_document(item)
     draw_title_page(item, doc)
