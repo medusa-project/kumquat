@@ -382,20 +382,21 @@ module ItemsHelper
 
   ##
   # @param item [Item]
+  # @param heading_element [String]
   # @return [String] HTML string
   #
-  def item_page_title(item)
+  def item_page_title(item, heading_element: 'h1')
     html = StringIO.new
     if item.collection.free_form?
-      html << '<h1 class="dl-title">'
+      html << "<#{heading_element} class=\"dl-title\">"
       html <<   icon_for(item)
       html <<   ' '
       html <<   item.title
-      html << '</h1>'
-    elsif item.parent or item.items.any?
+      html << "</#{heading_element}>"
+    elsif item.parent || item.items.any?
       relative_parent = item.parent ? item.parent : item
       relative_child  = item.parent ? item : relative_parent
-      html << '<h1 class="dl-title dl-compound-title">'
+      html << "<#{heading_element} class=\"dl-title dl-compound-title\">"
       if item.parent
         html << '<small>'
         html <<   link_to(relative_parent.title, relative_parent)
@@ -406,9 +407,9 @@ module ItemsHelper
       html <<   icon_for(relative_child)
       html <<   ' '
       html <<   relative_child.title
-      html << '</h1>'
+      html << "</#{heading_element}>"
     else
-      html << '<h1 class="dl-title">'
+      html << "<#{heading_element} class=\"dl-title\">"
       html <<   icon_for(item)
       html <<   ' '
       html <<   item.title
@@ -418,7 +419,7 @@ module ItemsHelper
         html <<     item.subtitle
         html <<   '</small>'
       end
-      html << '</h1>'
+      html << "</#{heading_element}>"
     end
     raw(html.string)
   end

@@ -1,6 +1,6 @@
 = render partial: 'show_button_group', locals: { item: @item }
 
-= item_page_title(@item)
+= item_page_title(@item, heading_element: 'h2')
 
 - if @item.supplementary_item || @item.three_d_item
   - supp_item = @item.supplementary_item
