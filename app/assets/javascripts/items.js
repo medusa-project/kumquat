@@ -277,9 +277,6 @@ var PTItemView = function() {
             $('#dl-download').collapse('show');
             var container = $('html, body');
             var offset    = $('#dl-download-section').offset().top;
-            if (container.length > 0) {
-                offset += container.scrollTop();
-            }
             container.animate({ scrollTop: offset }, Application.SCROLL_SPEED);
             return false;
         });
@@ -287,9 +284,6 @@ var PTItemView = function() {
             $('#dl-metadata').collapse('show');
             var container = $('html, body');
             var offset    = $('#dl-metadata-section').offset().top;
-            if (container.length > 0) {
-                offset += container.scrollTop();
-            }
             container.animate({ scrollTop: offset }, Application.SCROLL_SPEED);
             return false;
         });
