@@ -16,7 +16,9 @@
         = link_to '#', class: 'nav-link active' do
           %i.fa.fa-bars
           List
-  %h1= @collection.title
+    %h2.dl-title= @collection.title
+  - else
+    %h1= @collection.title
 
 - else
   - provide(:title, 'Items')
