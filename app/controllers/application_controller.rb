@@ -155,19 +155,9 @@ class ApplicationController < ActionController::Base
   end
 
   def rescue_internal_server_error(exception)
-    io = StringIO.new
-    io << "Error on #{request.url}\n"
-    io << "Class: #{exception.class}\n"
-    io << "Message: #{exception.message}\n"
-    io << "Time: #{Time.now.iso8601}\n"
-    io << "User: #{current_user.username}\n" if current_user
-    io << "Stack Trace:\n"
-    exception.backtrace.each do |line|
-      io << line
-      io << "\n"
-    end
-
-    @message = io.string
+    @message = KumquatMailer.error_body(exception,
+                                        url:       request.url,
+                                        user:      current_user)
     Rails.logger.error(@message)
 
     unless Rails.env.development?
