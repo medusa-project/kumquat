@@ -4,6 +4,17 @@ class KumquatMailerTest < ActionMailer::TestCase
 
   tests KumquatMailer
 
+  # error_body()
+
+  test "error_body() returns a string" do
+    begin
+      raise "Something happened"
+    rescue => e
+      string = KumquatMailer.error_body(e)
+      assert string.starts_with?("Error:\n")
+    end
+  end
+
   # error()
 
   test "error() sends the expected email" do

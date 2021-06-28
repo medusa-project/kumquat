@@ -390,7 +390,7 @@ module ItemsHelper
   #
   def item_page_title(item, heading_element: 'h1')
     html = StringIO.new
-    if item.collection.free_form?
+    if item.collection&.free_form?
       html << "<#{heading_element} class=\"dl-title\">"
       html <<   icon_for(item)
       html <<   ' '

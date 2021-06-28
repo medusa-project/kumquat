@@ -7,6 +7,28 @@ class KumquatMailer < ApplicationMailer
   NO_REPLY_ADDRESS = "no-reply@illinois.edu"
 
   ##
+  # @param exception [Exception]
+  # @param url [String] Request URL.
+  # @param user [User] Current user.
+  # @return [String]
+  #
+  def self.error_body(exception, url: nil, user: nil)
+    io = StringIO.new
+    io << "Error"
+    io << " on #{url}" if url
+    io << ":\nClass: #{exception.class}\n"
+    io << "Message: #{exception.message}\n"
+    io << "Time: #{Time.now.iso8601}\n"
+    io << "User: #{user.username}\n" if user
+    io << "Stack Trace:\n"
+    exception.backtrace.each do |line|
+      io << line
+      io << "\n"
+    end
+    io.string
+  end
+
+  ##
   # @oaram error_text [String]
   #
   def error(error_text)

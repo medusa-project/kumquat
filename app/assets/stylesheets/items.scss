@@ -2,6 +2,8 @@
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
+$viewer-width: 95%;
+
 body#items_index .page-content, body#search_index .page-content {
   .dl-results-summary {
     margin-top: 1em;
@@ -49,7 +51,7 @@ body#items_show, #dl-free-form-item-view {
     background-color: black;
     margin: 0 auto;
     margin-bottom: 2em;
-    width: 95%;
+    width: $viewer-width;
     height: 650px;
   }
 
@@ -59,6 +61,8 @@ body#items_show, #dl-free-form-item-view {
     font-family: sans-serif;
     font-size: 12px;
     padding: 0.5em;
+    margin: 0 auto;
+    width: $viewer-width;
     .dl-bottom-panel {
       padding: 0.5em;
       > a {
@@ -103,7 +107,7 @@ body#items_show, #dl-free-form-item-view {
 
   #dl-3d-viewer {
     height: 600px;
-    width: 100%;
+    width: $viewer-width;
   }
 
   #dl-pdf-viewer {
@@ -117,7 +121,7 @@ body#items_show, #dl-free-form-item-view {
 
   #dl-video-player {
     margin: 0 auto;
-    width: 95%;
+    width: $viewer-width;
   }
 
   .dl-rights {
@@ -277,7 +281,7 @@ body#tree_browser {
   }
   #dl-video-player {
     margin: 0 auto;
-    width: 95%;
+    width: $viewer-width;
   }
 }
 @media (max-width: 992px) {

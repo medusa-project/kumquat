@@ -55,6 +55,8 @@ class Job < ApplicationJob
 
   rescue_from(Exception) do |e|
     fail_task(e)
+    message = KumquatMailer.error_body(e)
+    KumquatMailer.error(message).deliver_now
     raise e
   end
 
