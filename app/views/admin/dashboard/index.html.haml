@@ -1,16 +1,30 @@
+- provide(:body_id, 'dashboard')
 - provide(:title, 'Dashboard')
 
-%h1 Dashboard
+.row
+  - if @item_sets.any?
+    .col-sm-6
+      .card
+        .card-body
+          %h2 My Sets
+          %ul
+            - @item_sets.each do |set|
+              %li.mb-3
+                %h5.mb-0= link_to(set, admin_collection_item_set_path(set.collection, set))
+                = icon_for(set.collection)
+                = set.collection
 
-- if @item_sets.any?
-  %h2 My Sets
-  %table.table
-    %thead
-      %tr
-        %th Collection
-        %th Set
-    %tbody
-      - @item_sets.each do |set|
-        %tr
-          %td= link_to set.collection, admin_collection_path(set.collection)
-          %td= link_to set, admin_collection_item_set_path(set.collection, set)
+  - if @watches.any?
+    .col-sm-6
+      .card
+        .card-body
+          %h2 My Watched Collections
+          .alert.alert-light
+            %i.fa.fa-info-circle
+            You will receive a daily email containing an inventory of new items in each of these collections.
+          %ul
+            - @watches.each do |watch|
+              %li
+                = link_to(admin_collection_path(watch.collection)) do
+                  = icon_for(watch.collection)
+                  = watch.collection

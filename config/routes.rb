@@ -120,6 +120,8 @@ Rails.application.routes.draw do
             via: :post
       match '/run-ocr', to: 'collections#run_ocr', via: :patch
       match '/statistics', to: 'collections#statistics', via: :get
+      match '/unwatch', to: 'collections#unwatch', via: :patch
+      match '/watch', to: 'collections#watch', via: :patch
     end
     resources :host_groups
     match '/test-images', to: 'test#index', via: :get

@@ -4,15 +4,14 @@ module Admin
 
     PERMITTED_PARAMS = [:q, :public_in_medusa, :published_in_dls, :start]
 
-    before_action :authorize_modify_collections, only: [:edit, :update, :sync]
+    before_action :load_collection, except: :index
+    before_action :authorize_modify_collections, only: [:edit, :update, :sync,
+                                                        :unwatch, :watch]
 
     ##
-    # Responds to GET /admin/collections/:id/edit
+    # Responds to `GET /admin/collections/:id/edit`
     #
     def edit
-      @collection = Collection.find_by_repository_id(params[:id])
-      raise ActiveRecord::RecordNotFound unless @collection
-
       @metadata_profile_options_for_select = MetadataProfile.all.order(:name).
           map{ |t| [ t.name, t.id ] }
       @package_profile_options_for_select = PackageProfile.all.
@@ -24,7 +23,7 @@ module Admin
     end
 
     ##
-    # Responds to GET /admin/collections
+    # Responds to `GET /admin/collections`
     #
     def index
       @limit = Option::integer(Option::Keys::DEFAULT_RESULT_WINDOW)
@@ -46,9 +45,9 @@ module Admin
         relation = relation.filter(Collection::IndexFields::PUBLISHED_IN_DLS, true)
       end
 
-      @collections = relation.to_a
+      @collections  = relation.to_a
       @current_page = (@start / @limit.to_f).ceil + 1 if @limit > 0 || 1
-      @count = relation.count
+      @count        = relation.count
 
       respond_to do |format|
         format.html
@@ -62,14 +61,11 @@ module Admin
     end
 
     ##
-    # Responds to POST /admin/collections/:collection_id/purge-cached-images
+    # Responds to `POST /admin/collections/:collection_id/purge-cached-images`
     #
     def purge_cached_images
-      collection = Collection.find_by_repository_id(params[:collection_id])
-      raise ActiveRecord::RecordNotFound unless collection
-
       PurgeCollectionItemsFromImageServerCacheJob.
-          perform_later(collection.repository_id)
+          perform_later(@collection.repository_id)
 
       flash['success'] = 'Purging images in the background. (This may take a
           minute.) When complete, you may need to clear your browser cache to
@@ -84,39 +80,29 @@ module Admin
     # Responds to `PATCH /admin/collections/:collection_id/run-ocr`
     #
     def run_ocr
-      collection = Collection.find_by_repository_id(params[:collection_id])
-      raise ActiveRecord::RecordNotFound unless collection
-
-      OcrCollectionJob.perform_later(collection.repository_id)
-
+      OcrCollectionJob.perform_later(@collection.repository_id)
       flash['success'] = 'Running OCR in the background. This may take a while.'
     ensure
-      redirect_back fallback_location: admin_collection_path(collection)
+      redirect_back fallback_location: admin_collection_path(@collection)
     end
 
     ##
-    # Responds to GET /admin/collections/:id
+    # Responds to `GET /admin/collections/:id`
     #
     def show
-      @collection = Collection.find_by_repository_id(params[:id])
-      raise ActiveRecord::RecordNotFound unless @collection
-
       @file_group = @collection.medusa_file_group_uuid.present? ?
           @collection.medusa_file_group : nil
-      @can_reindex = (@collection.published_in_dls and
+      @can_reindex = (@collection.published_in_dls &&
           @collection.medusa_file_group)
     end
 
     ##
-    # Responds to GET /admin/collections/:id/statistics
+    # Responds to `GET /admin/collections/:id/statistics`
     #
     def statistics
-      @collection = Collection.find_by_repository_id(params[:collection_id])
-      raise ActiveRecord::RecordNotFound unless @collection
-
       # Items section
       @num_objects = @collection.num_objects
-      @num_items = @collection.num_items
+      @num_items   = @collection.num_items
 
       # Binaries section
       sql = "SELECT COUNT(binaries.id) AS count
@@ -159,7 +145,7 @@ module Admin
     # particular meaning that is already being used to describe indexing in
     # Elasticsearch. -- @adolski
     #
-    # Responds to PATCH /admin/collections/sync
+    # Responds to `PATCH /admin/collections/sync`
     #
     def sync
       SyncCollectionsJob.perform_later
@@ -169,30 +155,47 @@ module Admin
     end
 
     ##
-    # Responds to POST /admin/collections/:id
+    # Responds to `PATCH /admin/collections/:id/unwatch`
+    #
+    def unwatch
+      @collection.watches.where(user: current_user).destroy_all
+      flash['success'] = "You are no longer watching this collection."
+      redirect_back fallback_location: admin_collection_path(@collection)
+    end
+
+    ##
+    # Responds to `POST /admin/collections/:id`
     #
     def update
       begin
-        collection = Collection.find_by_repository_id(params[:id])
-        raise ActiveRecord::RecordNotFound unless collection
-
         ActiveRecord::Base.transaction do # trigger after_commit callbacks
-          collection.update!(sanitized_params)
+          @collection.update!(sanitized_params)
         end
 
         # We will also need to propagate various collection properties
         # (published status, allowed/denied host groups, etc.) to the items
         # contained within the collection. This will take some time, so we'll
         # do it in the background.
-        PropagatePropertiesToItemsJob.perform_later(collection.repository_id)
+        PropagatePropertiesToItemsJob.perform_later(@collection.repository_id)
       rescue => e
         handle_error(e)
-        redirect_to edit_admin_collection_path(collection)
+        redirect_to edit_admin_collection_path(@collection)
       else
-        flash['success'] = "Collection \"#{collection.title}\" updated."
-        redirect_to admin_collection_path(collection)
+        flash['success'] = "Collection \"#{@collection.title}\" updated."
+        redirect_to admin_collection_path(@collection)
       end
     end
+
+    ##
+    # Responds to `PATCH /admin/collections/:id/watch`
+    #
+    def watch
+      @collection.watches.build(user: current_user)
+      @collection.save!
+      flash['success'] = "You are now watching this collection."
+      redirect_back fallback_location: admin_collection_path(@collection)
+    end
+
 
     private
 
@@ -201,6 +204,10 @@ module Admin
         flash['error'] = 'You do not have permission to perform this action.'
         redirect_to admin_collections_url
       end
+    end
+
+    def load_collection
+      @collection = Collection.find_by_repository_id(params[:id] || params[:collection_id])
     end
 
     def sanitized_params

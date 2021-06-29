@@ -12,7 +12,7 @@
 # * `human`      Whether the user is associated with a human. Non-human users
 #                may be used by scripts etc.
 # * `updated_at` Managed by ActiveRecord.
-# * `username`   Username. For UIUC users, this is the NetID.
+# * `username`   Username, a.k.a. NetID.
 #
 class User < ApplicationRecord
 
@@ -28,11 +28,19 @@ class User < ApplicationRecord
   LDAP_CACHE_TTL = 12.hours
 
   has_and_belongs_to_many :item_sets
+  has_many :watches
 
   validates :username, presence: true, length: { maximum: 50 },
             uniqueness: { case_sensitive: false }
 
   before_create :reset_api_key
+
+  ##
+  # @return [String]
+  #
+  def email
+    "#{username}@illinois.edu"
+  end
 
   ##
   # @param key [String] One of the {Permissions} constant values.
@@ -106,6 +114,14 @@ class User < ApplicationRecord
 
   def to_s
     username
+  end
+
+  ##
+  # @param collection [Collection]
+  # @return [Boolean]
+  #
+  def watching?(collection)
+    self.watches.where(collection: collection).count > 0
   end
 
 end

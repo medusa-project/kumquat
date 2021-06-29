@@ -181,6 +181,7 @@ class Collection < ApplicationRecord
            dependent: :destroy
   has_many :parents, through: :parent_collection_joins,
            source: :parent_collection
+  has_many :watches
 
   has_and_belongs_to_many :allowed_host_groups, class_name: 'HostGroup',
                           association_foreign_key: :allowed_host_group_id

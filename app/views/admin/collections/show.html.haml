@@ -23,6 +23,15 @@
   = link_to admin_collection_statistics_path(@collection), class: 'btn btn-light' do
     %i.fa.fa-chart-bar
     Statistics
+  -# Watch button
+  - if current_user.watching?(@collection)
+    = link_to admin_collection_unwatch_path(@collection), method: :patch, class: 'btn btn-light' do
+      %i.fa.fa-eye-slash
+      Unwatch
+  - else
+    = link_to admin_collection_watch_path(@collection), method: :patch, class: 'btn btn-light' do
+      %i.fa.fa-eye
+      Watch
   -# Go menu
   .btn-group
     %button.btn.btn-light.dropdown-toggle{"aria-expanded": "false",
