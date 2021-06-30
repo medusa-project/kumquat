@@ -190,8 +190,10 @@ module Admin
     # Responds to `PATCH /admin/collections/:id/watch`
     #
     def watch
-      @collection.watches.build(user: current_user)
-      @collection.save!
+      if @collection.watches.where(user: current_user).count == 0
+        @collection.watches.build(user: current_user)
+        @collection.save!
+      end
       flash['success'] = "You are now watching this collection."
       redirect_back fallback_location: admin_collection_path(@collection)
     end
