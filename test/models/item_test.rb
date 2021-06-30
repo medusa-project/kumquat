@@ -862,6 +862,31 @@ class ItemTest < ActiveSupport::TestCase
     assert_nil @item.start_date
   end
 
+  test 'save() sets published_at for file variants' do
+    @item = items(:free_form_dir1_image)
+    @item.save!
+    assert_not_nil @item.published_at
+  end
+
+  test 'save() sets published_at for directory variants' do
+    @item = items(:free_form_dir1)
+    @item.save!
+    assert_not_nil @item.published_at
+  end
+
+  test 'save() sets published_at for an item with a non-title element' do
+    @item.save!
+    assert_not_nil @item.published_at
+  end
+
+  test 'save() does not set published_at for non-free-form items with only a
+  title element' do
+    @item.elements.destroy_all
+    @item.elements.build(name: 'title', value: 'Some title')
+    @item.save!
+    assert_nil @item.published_at
+  end
+
   # subtitle()
 
   test 'subtitle() returns the title element value, or nil if none

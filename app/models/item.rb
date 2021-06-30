@@ -130,6 +130,13 @@
 # * `published`                Controls public availability. Unpublished items
 #                              shouldn't appear in public search results or be
 #                              accessible in any other way publicly.
+# * `published_at`             Date/time that the item was first published.
+#                              For free-form items, this is the time that the
+#                              `published` attribute was set to `true`. For all
+#                              other items, it is the first time that a
+#                              metadata element other than `title` was
+#                              ascribed. This is set by an ActiveRecord
+#                              callback.
 # * `repository_id`            See "Identifiers" above.
 # * `representative_binary_id` Medusa UUID of an alternative binary designated
 #                              to stand in as a representation of the item.
@@ -312,7 +319,7 @@ class Item < ApplicationRecord
 
   before_save :process_allowed_netids, :notify_netids,
               :prune_identical_elements, :set_effective_host_groups,
-              :set_normalized_coords, :set_normalized_date
+              :set_normalized_coords, :set_normalized_date, :set_published_at
 
   ##
   # @return [Integer]
@@ -1643,6 +1650,18 @@ class Item < ApplicationRecord
     unless updated
       self.start_date = nil
       self.end_date   = nil
+    end
+  end
+
+  ##
+  # Sets the `published_at` attribute.
+  #
+  def set_published_at
+    if self.published_at.nil?
+      if ([Variants::FILE, Variants::DIRECTORY].include?(self.variant) && self.published) ||
+          (self.elements.reject{ |e| e.name == 'title' }.any?)
+        self.published_at = Time.now
+      end
     end
   end
 

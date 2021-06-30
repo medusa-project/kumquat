@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_06_29_184236) do
+ActiveRecord::Schema.define(version: 2021_06_30_134430) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -269,9 +269,11 @@ ActiveRecord::Schema.define(version: 2021_06_29_184236) do
     t.integer "representative_binary_id"
     t.datetime "end_date"
     t.text "allowed_netids"
+    t.datetime "published_at"
     t.index ["collection_repository_id"], name: "index_items_on_collection_identifier"
     t.index ["parent_repository_id"], name: "index_items_on_parent_identifier"
     t.index ["published"], name: "index_items_on_published"
+    t.index ["published_at"], name: "index_items_on_published_at"
     t.index ["repository_id"], name: "index_items_on_identifier", unique: true
     t.index ["representative_item_repository_id"], name: "index_items_on_representative_item_identifier"
     t.index ["variant"], name: "index_items_on_variant"
