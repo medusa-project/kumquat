@@ -140,6 +140,7 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal @item.elements_in_profile_order(only_visible: true)
                      .map{ |e| { name: e.name, value: e.value } }, doc[:elements]
     assert_equal @item.created_at, doc[:created_at]
+    assert_equal @item.published_at, doc[:published_at]
     assert_equal @item.updated_at, doc[:updated_at]
   end
 
@@ -181,6 +182,8 @@ class ItemTest < ActiveSupport::TestCase
     assert doc[Item::IndexFields::PUBLICLY_ACCESSIBLE]
     assert_equal @item.published,
                  doc[Item::IndexFields::PUBLISHED]
+    assert_equal @item.published_at,
+                 doc[Item::IndexFields::PUBLISHED_AT]
     assert_equal @item.repository_id,
                  doc[Item::IndexFields::REPOSITORY_ID]
     assert_equal @item.representative_filename,
@@ -956,15 +959,16 @@ class ItemTest < ActiveSupport::TestCase
         select{ |e| e.name == 'dateCreated' && e.value == '2012-10-10' }.length
   end
 
-  # update_from_json
+  # update_from_json()
 
-  test 'update_from_json() should work' do
+  test 'update_from_json() works' do
     struct                                      = @item.as_json
     struct['contentdm_alias']                   = 'cats'
     struct['contentdm_pointer']                 = 99
     struct['embed_tag']                         = '<embed></embed>'
     struct['page_number']                       = 60
     struct['published']                         = true
+    struct['published_at']                      = Time.now.utc.iso8601
     struct['representative_item_repository_id'] = 'd29950d0-c451-0133-1d17-0050569601ca-2'
     struct['subpage_number']                    = 61
     struct['variant']                           = Item::Variants::PAGE
@@ -982,6 +986,7 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal 99, @item.contentdm_pointer
     assert_equal 60, @item.page_number
     assert @item.published
+    assert_equal struct['published_at'], @item.published_at.iso8601
     assert_equal 'd29950d0-c451-0133-1d17-0050569601ca-2',
                  @item.representative_item_repository_id
     assert_equal 61, @item.subpage_number
@@ -994,7 +999,7 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal 'uncontrolled', description.vocabulary.key
   end
 
-  test 'update_from_json should raise an error with invalid data' do
+  test 'update_from_json() raises an error with invalid data' do
     struct = @item.as_json
     struct['variant'] = 'bogus'
 

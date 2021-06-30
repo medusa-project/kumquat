@@ -197,6 +197,7 @@ class Item < ApplicationRecord
     # it still effectively unpublished. This will take that into account.
     PUBLICLY_ACCESSIBLE                = ElasticsearchIndex::StandardFields::PUBLICLY_ACCESSIBLE
     PUBLISHED                          = 'sys_b_published'
+    PUBLISHED_AT                       = 'sys_d_published'
     REPOSITORY_ID                      = 'sys_k_repository_id'
     REPRESENTATIVE_FILENAME            = 'sys_k_representative_filename'
     REPRESENTATIVE_ITEM                = 'sys_k_representative_item_id'
@@ -503,6 +504,7 @@ class Item < ApplicationRecord
                                      .map{ |e| { name: e.name, value: e.value } },
         full_text:               self.full_text,
         created_at:              self.created_at,
+        published_at:            self.published_at,
         updated_at:              self.updated_at
     }
   end
@@ -542,6 +544,7 @@ class Item < ApplicationRecord
     doc[IndexFields::PRIMARY_MEDIA_CATEGORY]  = self.primary_media_category
     doc[IndexFields::PUBLICLY_ACCESSIBLE]     = self.publicly_accessible?
     doc[IndexFields::PUBLISHED]               = self.published
+    doc[IndexFields::PUBLISHED_AT]            = self.published_at&.utc&.iso8601
     doc[IndexFields::REPOSITORY_ID]           = self.repository_id
     doc[IndexFields::REPRESENTATIVE_FILENAME] = self.representative_filename
     doc[IndexFields::REPRESENTATIVE_ITEM]     = self.representative_item_repository_id
@@ -1264,6 +1267,7 @@ class Item < ApplicationRecord
       self.page_number = struct['page_number']
       # parent_repository_id is not modifiable
       self.published = struct['published']
+      self.published_at = Time.parse(struct['published_at'])
       # repository_id is not modifiable
       self.representative_item_repository_id =
           struct['representative_item_repository_id']

@@ -47,6 +47,7 @@ class ItemDecorator < Draper::Decorator
         binaries:                object.binaries.map{ |b| binary_url(b, format: :json) },
         children:                object.items.map{ |i| item_url(i, format: :json) },
         created_at:              object.created_at,
+        published_at:            object.published_at,
         updated_at:              object.updated_at,
     }
 
