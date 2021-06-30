@@ -451,6 +451,9 @@ module AdminHelper
     # Created
     data << { label: 'Created', value: local_time(item.created_at) }
 
+    # First Published
+    data << { label: 'First Published', value: item.published_at ? local_time(item.published_at) : nil }
+
     # Last Modified
     data << { label: 'Last Modified', value: local_time(item.updated_at) }
 
