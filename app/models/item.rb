@@ -1267,7 +1267,7 @@ class Item < ApplicationRecord
       self.page_number = struct['page_number']
       # parent_repository_id is not modifiable
       self.published = struct['published']
-      self.published_at = Time.parse(struct['published_at'])
+      self.published_at = Time.parse(struct['published_at']) if struct['published_at']
       # repository_id is not modifiable
       self.representative_item_repository_id =
           struct['representative_item_repository_id']
