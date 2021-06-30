@@ -39,6 +39,24 @@ class KumquatMailer < ApplicationMailer
   end
 
   ##
+  # Sends an email about new items in the collection associated with the given
+  # [Watch] to its associated user.
+  #
+  # @param watch [Watch]
+  # @param tsv [String]
+  # @param after [Time]
+  # @param before [Time]
+  #
+  def new_items(watch, tsv, after, before)
+    @after   = after.strftime('%Y-%m-%d')
+    @before  = before.strftime('%Y-%m-%d')
+    filename = "items-#{@after}-#{@before}"
+    attachments[filename] = tsv
+    mail(to:      watch.user.email,
+         subject: "#{subject_prefix} New items in #{watch.collection}")
+  end
+
+  ##
   # @param item [Item]
   # @param netid [String]
   #

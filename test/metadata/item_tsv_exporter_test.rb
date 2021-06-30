@@ -147,7 +147,7 @@ class ItemTsvExporterTest < ActiveSupport::TestCase
                  @instance.items_in_collection(collection)
   end
 
-  test 'items_in_collection works with the only_undescribed: true option' do
+  test 'items_in_collection respects the only_undescribed argument' do
     expected_header = %w(uuid parentId preservationMasterPathname
         preservationMasterFilename preservationMasterUUID accessMasterPathname
         accessMasterFilename accessMasterUUID variant pageNumber subpageNumber
@@ -163,6 +163,38 @@ class ItemTsvExporterTest < ActiveSupport::TestCase
     collection = collections(:compound_object)
     assert_equal to_tsv(expected_header, expected_values),
                  @instance.items_in_collection(collection, only_undescribed: true)
+  end
+
+  test 'items_in_collection respects the published_after and published_before
+  arguments' do
+    expected_header = %w(uuid parentId preservationMasterPathname
+        preservationMasterFilename preservationMasterUUID accessMasterPathname
+        accessMasterFilename accessMasterUUID variant pageNumber subpageNumber
+        published contentdmAlias contentdmPointer IGNORE Title
+        Coordinates Creator Date\ Created Description lcsh:Subject tgm:Subject)
+
+    collection = collections(:compound_object)
+    item = items(:compound_object_1002)
+    item.update!(published_at: Time.now)
+    item = items(:compound_object_1002_page1)
+    item.update!(published_at: 1.hour.ago)
+    item = items(:compound_object_1002_page2)
+    item.update!(published_at: Time.now + 1.hour)
+
+    # all items in range
+    expected_values = [COMPOUND_OBJECT_1002,
+                       COMPOUND_OBJECT_1002_PAGE1,
+                       COMPOUND_OBJECT_1002_PAGE2]
+    assert_equal to_tsv(expected_header, expected_values),
+                 @instance.items_in_collection(collection,
+                                               published_after: 2.hours.ago,
+                                               published_before: Time.now + 2.hours)
+    # only middle item in range
+    expected_values = [COMPOUND_OBJECT_1002]
+    assert_equal to_tsv(expected_header, expected_values),
+                 @instance.items_in_collection(collection,
+                                               published_after: 30.minutes.ago,
+                                               published_before: Time.now + 30.minutes)
   end
 
   # items_in_item_set()

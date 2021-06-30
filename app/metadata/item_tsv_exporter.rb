@@ -1,5 +1,3 @@
-require 'csv'
-
 ##
 # Exports various sets of items to TSV format.
 #
@@ -13,39 +11,45 @@ class ItemTsvExporter
   # Requires PostgreSQL.
   #
   # @param collection [Collection]
-  # @param options [Hash]
-  # @option options [Boolean] :only_undescribed
+  # @param only_undescribed [Boolean]
+  # @param published_after [Time]
+  # @param published_before [Time]
   # @return [String] Full contents of the collection as a TSV string. Item
   #                  children are included. Ordering, limit, offset, etc. is
   #                  not customizable.
   #
-  def items_in_collection(collection, options = {})
+  def items_in_collection(collection,
+                          only_undescribed: false,
+                          published_after: nil,
+                          published_before: nil)
     # N.B.: The return value must remain in sync with that of
     # Item.tsv_columns().
-
     metadata_profile = collection.effective_metadata_profile
-    sql = select_clause(metadata_profile) +
-        from_clause +
-        'WHERE items.collection_repository_id = $1 ' +
-        order_clause +
-        ") a\n"
+    sql = StringIO.new
+    sql << select_clause(metadata_profile)
+    sql << from_clause
+    sql << 'WHERE items.collection_repository_id = $1 '
+    sql <<   'AND items.published_at > $2' if published_after
+    sql <<   'AND items.published_at < $3' if published_before
+    sql << order_clause
+    sql << ") a\n"
 
     # If we are supposed to include only undescribed items, consider items
     # that have no elements or only a title element undescribed. (DLD-26)
-    if options[:only_undescribed]
-      sql += '      WHERE non_title_count < 1'
-    end
+    sql << '      WHERE non_title_count < 1' if only_undescribed
 
-    values = [[ nil, collection.repository_id ]]
+    values = [[nil, collection.repository_id]]
+    values << [nil, published_after] if published_after
+    values << [nil, published_before] if published_before
 
-    io = StringIO.new
-    io << Item.tsv_columns(metadata_profile).join("\t")
-    io << LINE_BREAK
-    ActiveRecord::Base.connection.exec_query(sql, 'SQL', values).each do |row|
-      io << row.values.join("\t")
-      io << LINE_BREAK
+    tsv = StringIO.new
+    tsv << Item.tsv_columns(metadata_profile).join("\t")
+    tsv << LINE_BREAK
+    ActiveRecord::Base.connection.exec_query(sql.string, 'SQL', values).each do |row|
+      tsv << row.values.join("\t")
+      tsv << LINE_BREAK
     end
-    io.string
+    tsv.string
   end
 
   ##

@@ -130,6 +130,11 @@ namespace :dls do
       Collection.delete_orphaned_documents
     end
 
+    desc 'Email lists of newly published items to watchers'
+    task :email_new_items => :environment do |task, args|
+      Watch.send_new_item_emails
+    end
+
     desc 'Run OCR on all items in a collection'
     task :ocr, [:uuid] => :environment do |task, args|
       OcrCollectionJob.new(args[:uuid]).perform_in_foreground

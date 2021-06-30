@@ -28,6 +28,27 @@ class KumquatMailerTest < ActionMailer::TestCase
     assert_equal "Something broke\r\n\r\n", email.body.raw_source
   end
 
+  # new_items()
+
+  test 'new_items() sends the expected email' do
+    collection = collections(:compound_object)
+    user       = users(:admin)
+    watch      = Watch.create!(collection: collection,
+                               user:       user)
+    tsv        = 'pretend this is some TSV'
+    after      = Time.new(2021, 6, 28)
+    before     = Time.new(2021, 6, 29)
+    email      = KumquatMailer.new_items(watch, tsv, after, before).deliver_now
+    assert !ActionMailer::Base.deliveries.empty?
+
+    config = ::Configuration.instance
+    assert_equal [config.mail[:reply_to]], email.reply_to
+    assert_equal [user.email], email.to
+    assert_equal "[TEST: Kumquat] New items in #{collection}", email.subject
+    assert_equal render_template("new_items.txt"), email.text_part.body.raw_source
+    assert_equal render_template("new_items.html"), email.html_part.body.raw_source
+  end
+
   # test()
 
   test "test() sends the expected email" do
