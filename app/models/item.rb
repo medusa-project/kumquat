@@ -1661,9 +1661,9 @@ class Item < ApplicationRecord
   # Sets the `published_at` attribute.
   #
   def set_published_at
-    if self.published_at.nil?
-      if ([Variants::FILE, Variants::DIRECTORY].include?(self.variant) && self.published) ||
-          (self.elements.reject{ |e| e.name == 'title' }.any?)
+    if self.published_at.nil? && self.published
+      if [Variants::FILE, Variants::DIRECTORY].include?(self.variant) ||
+          self.elements.reject{ |e| e.name == 'title' }.any?
         self.published_at = Time.now
       end
     end
