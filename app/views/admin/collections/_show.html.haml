@@ -15,6 +15,14 @@
                                             "data-toggle": "tab",
                                             href: "#nav-repository",
                                             role: "tab"} Repository
+    %a#nav-watchers-tab.nav-item.nav-link{"aria-controls": "nav-watchers",
+                                          "aria-selected": "false",
+                                          "data-toggle": "tab",
+                                          href: "#nav-watchers",
+                                          role: "tab"}
+      Watchers
+      %span.badge.badge-pill.badge-secondary
+        = @collection.watches.count
     %a#nav-sets-tab.nav-item.nav-link{"aria-controls": "nav-sets",
                                       "aria-selected": "false",
                                       "data-toggle": "tab",
@@ -172,6 +180,27 @@
           - if @collection.repository&.contact_email.present?
             = link_to @collection.repository.contact_email,
               "mailto:#{@collection.repository.contact_email}"
+
+  #nav-watchers.tab-pane.fade{"aria-labelledby": "nav-watchers-tab",
+                              role: "tabpanel"}
+    .btn.btn-group.float-right
+      -# Watch button
+      - if current_user.watching?(@collection)
+        = link_to admin_collection_unwatch_path(@collection), method: :patch, class: 'btn btn-light' do
+          %i.fa.fa-eye-slash
+          Unwatch
+      - else
+        = link_to admin_collection_watch_path(@collection), method: :patch, class: 'btn btn-light' do
+          %i.fa.fa-eye
+          Watch
+
+    %ul
+      - @collection.watches.each do |watch|
+        %li
+          = link_to(admin_user_path(watch.user)) do
+            = icon_for(watch.user)
+            = watch.user
+
   #nav-sets.tab-pane.fade{"aria-labelledby": "nav-sets-tab",
                           role: "tabpanel"}
     .btn.btn-group.float-right
