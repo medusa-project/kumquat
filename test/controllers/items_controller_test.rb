@@ -8,10 +8,10 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
 
   # binary()
 
-  test 'binary() returns HTTP 200 for a valid filename' do
+  test 'binary() redirects to a pre-signed URL for a valid filename' do
     @item = items(:compound_object_1001)
     get item_binary_path(@item, @item.binaries.first.filename)
-    assert_response :ok
+    assert_response :moved_permanently
   end
 
   test 'binary() returns HTTP 404 for an invalid filename' do

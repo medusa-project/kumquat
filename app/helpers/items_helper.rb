@@ -1077,7 +1077,7 @@ module ItemsHelper
   def audio_player_for(binary)
     html = StringIO.new
     if binary
-      url = binary_url(binary, disposition: 'inline')
+      url = binary_object_url(binary, disposition: 'inline')
       html << "<audio id=\"dl-audio-player\" src=\"#{url}\" "\
           "type=\"#{binary.media_type}\" controls>
           <a href=\"#{url}\">Download audio</a>
@@ -1395,7 +1395,7 @@ module ItemsHelper
   def pdf_viewer_for(binary)
     html = StringIO.new
     if binary
-      binary_url = binary_url(binary)
+      binary_url = binary_stream_url(binary)
       viewer_url = asset_path('/pdfjs/web/viewer.html?file=' + binary_url)
       html << '<div id="dl-pdf-viewer">'
       html <<   "<iframe src=\"#{viewer_url}\" height=\"100%\" width=\"100%\"></iframe>"
@@ -1482,7 +1482,7 @@ module ItemsHelper
   #
   def video_player_for(binary)
     tag = "<video controls id=\"dl-video-player\">
-      <source src=\"#{binary_url(binary)}\"
+      <source src=\"#{binary_object_url(binary)}\"
               type=\"#{binary.media_type}\">
         Your browser does not support the video tag.
     </video>"

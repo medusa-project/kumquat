@@ -40,7 +40,7 @@ class ItemsController < WebsiteController
     binary   = @item.binaries.where('object_key LIKE ?',
                                     "%/#{filename}").limit(1).first
     if binary
-      send_binary(binary)
+      redirect_to binary_stream_path(binary), status: :moved_permanently
     else
       render plain: 'Binary not found', status: :not_found
     end

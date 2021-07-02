@@ -44,7 +44,7 @@ class ItemDecorator < Draper::Decorator
         representative_images:   {},
         full_text:               object.full_text,
         elements:                object.elements_in_profile_order(only_visible: true).map(&:decorate),
-        binaries:                object.binaries.map{ |b| binary_url(b, format: :json) },
+        binaries:                object.binaries.map{ |b| binary_url(b) },
         children:                object.items.map{ |i| item_url(i, format: :json) },
         created_at:              object.created_at,
         updated_at:              object.updated_at,
@@ -58,7 +58,7 @@ class ItemDecorator < Draper::Decorator
 
     bin = object.effective_image_binary
     if bin
-      struct[:representative_images][:full] = { full: binary_url(bin, format: :json) }
+      struct[:representative_images][:full] = { full: binary_url(bin) }
       if bin.image_server_safe?
         min_exp = 6
         max_exp = 12

@@ -44,7 +44,7 @@ class CollectionDecorator < Draper::Decorator
 
     bin = object.effective_representative_image_binary
     if bin
-      struct[:representative_images][:full] = { full: binary_url(bin, format: :json) }
+      struct[:representative_images][:full] = { full: binary_url(bin) }
       if bin.image_server_safe?
         min_exp = 6
         max_exp = 12

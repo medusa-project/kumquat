@@ -24,13 +24,13 @@
     %td
       .btn-group
         - if access_master
-          = link_to binary_path(access_master),
+          = link_to binary_object_path(access_master),
                     class: 'btn btn-outline-primary btn-sm',
                     target: '_blank' do
             = icon_for(access_master)
             Master File (#{access_master.human_readable_name})
         - if preservation_master
-          = link_to binary_path(preservation_master),
+          = link_to binary_object_path(preservation_master),
                     class: 'btn btn-outline-primary btn-sm',
                     target: '_blank' do
             = icon_for(preservation_master)

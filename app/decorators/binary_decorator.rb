@@ -18,7 +18,7 @@ class BinaryDecorator < Draper::Decorator
     {
         class: Binary.to_s,
         id: binary.medusa_uuid,
-        content_uri: binary_url(object),
+        content_uri: binary_object_url(object),
         item_uri: object.item ? item_url(object.item, format: :json) : nil,
         object_key: object.object_key,
         object_uri: object.uri,

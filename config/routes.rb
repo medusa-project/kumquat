@@ -13,7 +13,10 @@ Rails.application.routes.draw do
   end
   match '/auth/:provider/callback', to: 'sessions#create', via: [:get, :post],
         as: 'auth' # used by omniauth
-  resources :binaries, only: :show
+  resources :binaries, only: :show do
+    match '/object', to: 'binaries#object', via: :get
+    match '/stream', to: 'binaries#stream', via: :get
+  end
   match '/collections/iiif', to: 'collections#iiif_presentation_list',
         via: :get, as: 'collections_iiif_presentation_list',
         defaults: { format: :json }
