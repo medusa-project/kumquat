@@ -13,6 +13,8 @@ class PdfGenerator
   MARGIN_INCHES      = 0.25
   PAGE_WIDTH_INCHES  = 8.5
   PAGE_HEIGHT_INCHES = 11
+  SANS_SERIF_FONT    = "DejaVuSans"
+  SERIF_FONT         = "DejaVuSerif"
 
   def initialize
     Prawn::Fonts::AFM.hide_m17n_warning = true
@@ -69,6 +71,21 @@ class PdfGenerator
   include Rails.application.routes.url_helpers
 
   def draw_title_page(item, doc)
+    # Built-in PDF fonts only support Windows 1252 encoding. Attempting to
+    # render a UTF-8 string will cause a
+    # Prawn::Errors::IncompatibleStringEncoding. These DejaVu fonts support
+    # many (but not all) UTF-8 glyphs, more or less solving that problem, and
+    # have a license we can live with.
+    doc.font_families.update(
+      SANS_SERIF_FONT => {
+        normal: File.join(Rails.root, 'app', 'assets', 'fonts', 'DejaVuSans.ttf')
+      },
+      SERIF_FONT => {
+        normal: File.join(Rails.root, 'app', 'assets', 'fonts', 'DejaVuSerif.ttf')
+      }
+    )
+    doc.fallback_fonts([SANS_SERIF_FONT])
+
     doc.stroke_bounds
     doc.move_down doc.bounds.height / 5.0
 
@@ -85,10 +102,12 @@ class PdfGenerator
                      width: box_width,
                      height: doc.bounds.height * 0.3) do
       doc.transparent(0.5) { doc.stroke_bounds } if draw_boxes
-      doc.text(item.title,
-               align:    :center,
-               overflow: :shrink_to_fit,
-               size:     32)
+      doc.font(SERIF_FONT) do
+        doc.text(item.title,
+                 align:    :center,
+                 overflow: :shrink_to_fit,
+                 size:     32)
+      end
     end
 
     # Collection column 1
@@ -183,12 +202,14 @@ class PdfGenerator
 
     # Item URL
     url = item_url(item, url_options)
+    doc.fill_color("0000d0")
     doc.text("<link href='#{url}'>#{url}</link>",
              inline_format: true,
              align:         :center)
     doc.move_down(24)
 
     # Download date
+    doc.fill_color("000000")
     doc.text("Downloaded on #{Time.now.strftime("%B %e, %Y")}", align: :center)
   end
 
