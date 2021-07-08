@@ -127,12 +127,10 @@ class PdfGenerator
                      width: col2_width,
                      height: 44) do
       doc.transparent(0.5) { doc.stroke_bounds } if draw_boxes
-      url = collection_url(item.collection, url_options)
-      doc.text("<link href='#{url}'>#{item.collection.title}</link>",
-               align:         :left,
-               inline_format: true,
-               overflow:      :shrink_to_fit,
-               size:          18)
+      doc.text(item.collection.title,
+               align:    :left,
+               overflow: :shrink_to_fit,
+               size:     18)
     end
 
     # Repository column 1
@@ -191,12 +189,10 @@ class PdfGenerator
     doc.bounding_box([box_margin, doc.bounds.height * 0.23 + box_margin],
                      width: box_width, height: 44) do
       doc.transparent(0.5) { doc.stroke_bounds } if draw_boxes
-      url = root_url(url_options)
-      doc.text("<link href='#{url}'>#{Option.string(Option::Keys::WEBSITE_NAME)}</link>",
-               align:         :center,
-               inline_format: true,
-               overflow:      :shrink_to_fit,
-               size:          18)
+      doc.text(Option.string(Option::Keys::WEBSITE_NAME),
+               align:    :center,
+               overflow: :shrink_to_fit,
+               size:     18)
     end
     doc.move_down(24)
 
