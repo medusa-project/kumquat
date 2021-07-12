@@ -643,9 +643,11 @@ class Binary < ApplicationRecord
         raise IOError, "#{config.lambda_ocr_function} returned status "\
               "#{response.status_code}"
       end
-    rescue Seahorse::Client::NetworkingError
+    rescue Seahorse::Client::NetworkingError => e
       if num_tries < NUM_LAMBDA_TRIES
         detect_text_using_lambda_ocr(num_tries + 1)
+      else
+        raise e
       end
     end
   end
