@@ -616,7 +616,8 @@ class Binary < ApplicationRecord
   #
   def detect_text_using_lambda_ocr(num_tries = 1)
     config = ::Configuration.instance
-    client = Aws::Lambda::Client.new(region: config.aws_region)
+    client = Aws::Lambda::Client.new(region: config.aws_region,
+                                     http_read_timeout: 120)
 
     payload = {
       bucket: config.medusa_s3_bucket,
