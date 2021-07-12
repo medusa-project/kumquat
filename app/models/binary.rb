@@ -604,13 +604,17 @@ class Binary < ApplicationRecord
     end
   end
 
+  NUM_LAMBDA_TRIES = 2
+
   ##
   # Populates the {tesseract_json} and {full_text} attributes using an
   # invocation of a
   # [tesseract-lambda](https://github.com/medusa-project/tesseract-lambda)
   # function.
   #
-  def detect_text_using_lambda_ocr
+  # @param num_tries [Integer] Used internally--ignore.
+  #
+  def detect_text_using_lambda_ocr(num_tries = 1)
     config = ::Configuration.instance
     client = Aws::Lambda::Client.new(region: config.aws_region)
 
@@ -619,24 +623,30 @@ class Binary < ApplicationRecord
       key:    self.object_key
     }
 
-    response = client.invoke(
-      function_name:   config.lambda_ocr_function,
-      invocation_type: 'RequestResponse',
-      log_type:        'None',
-      payload:         JSON.generate(payload))
+    begin
+      response = client.invoke(
+        function_name:   config.lambda_ocr_function,
+        invocation_type: 'RequestResponse',
+        log_type:        'None',
+        payload:         JSON.generate(payload))
 
-    if response.status_code == 200
-      response_payload    = JSON.parse(response.payload.string)
-      self.tesseract_json = response_payload['body']
-      if self.tesseract_json.present?
-        struct = JSON.parse(self.tesseract_json)
-        self.full_text = struct['text'].join(' ')
+      if response.status_code == 200
+        response_payload    = JSON.parse(response.payload.string)
+        self.tesseract_json = response_payload['body']
+        if self.tesseract_json.present?
+          struct = JSON.parse(self.tesseract_json)
+          self.full_text = struct['text'].join(' ')
+        end
+        self.ocred_at = Time.now
+        self.save!
+      else
+        raise IOError, "#{config.lambda_ocr_function} returned status "\
+              "#{response.status_code}"
       end
-      self.ocred_at = Time.now
-      self.save!
-    else
-      raise IOError, "#{config.lambda_ocr_function} returned status "\
-            "#{response.status_code}"
+    rescue Seahorse::Client::NetworkingError
+      if num_tries < NUM_LAMBDA_TRIES
+        detect_text_using_lambda_ocr(num_tries + 1)
+      end
     end
   end
 
