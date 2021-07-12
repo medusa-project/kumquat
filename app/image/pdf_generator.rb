@@ -8,13 +8,16 @@ class PdfGenerator
   LOGGER = CustomLogger.new(PdfGenerator)
 
   # N.B.: document coordinates are expressed in points (1/72 inch).
-  DOCUMENT_PPI       = 72   # points/inch
-  IMAGE_DPI          = 200  # pixels/inch; tradeoff between quality and size
-  MARGIN_INCHES      = 0.25
-  PAGE_WIDTH_INCHES  = 8.5
-  PAGE_HEIGHT_INCHES = 11
-  SANS_SERIF_FONT    = "DejaVuSans"
-  SERIF_FONT         = "DejaVuSerif"
+  DOCUMENT_PPI           = 72   # points/inch
+  IMAGE_DPI              = 200  # pixels/inch; tradeoff between quality and size
+  MARGIN_INCHES          = 0.25
+  # Maximum number of times to try downloading an image. This is meant to work
+  # around transient HTTP 502s from the image server.
+  MAX_NUM_DOWNLOAD_TRIES = 2
+  PAGE_WIDTH_INCHES      = 8.5
+  PAGE_HEIGHT_INCHES     = 11
+  SANS_SERIF_FONT        = "DejaVuSans"
+  SERIF_FONT             = "DejaVuSerif"
 
   def initialize
     Prawn::Fonts::AFM.hide_m17n_warning = true
@@ -316,9 +319,10 @@ class PdfGenerator
   # @param binary [Binary]
   # @param width [Integer]
   # @param height [Integer]
+  # @param num_tries [Integer] Used internally--ignore.
   # @return [String] Temp file path.
   #
-  def download_image(binary, width, height)
+  def download_image(binary, width, height, num_tries = 1)
     width    = width.to_i
     height   = height.to_i
     size     = (width > 0) ? "!#{width},#{height}" : 'max'
@@ -326,10 +330,16 @@ class PdfGenerator
     pathname = File.join(
       image_temp_dir,
       binary.filename.split('.')[0...-1].join('.') + '.jpg')
-    File.open(pathname, 'wb') do |file|
-      LOGGER.debug('download_image(): downloading %s to %s', url, pathname)
-      ImageServer.instance.client.get_content(url) do |chunk|
-        file.write(chunk)
+    begin
+      File.open(pathname, 'wb') do |file|
+        LOGGER.debug('download_image(): downloading %s to %s', url, pathname)
+        ImageServer.instance.client.get_content(url) do |chunk|
+          file.write(chunk)
+        end
+      end
+    rescue HTTPClient::BadResponseError
+      if num_tries < MAX_NUM_DOWNLOAD_TRIES
+        pathname = download_image(binary, width, height, num_tries + 1)
       end
     end
     pathname
