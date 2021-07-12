@@ -337,9 +337,11 @@ class PdfGenerator
           file.write(chunk)
         end
       end
-    rescue HTTPClient::BadResponseError
+    rescue HTTPClient::BadResponseError => e
       if num_tries < MAX_NUM_DOWNLOAD_TRIES
         pathname = download_image(binary, width, height, num_tries + 1)
+      else
+        raise e
       end
     end
     pathname
