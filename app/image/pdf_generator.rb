@@ -8,11 +8,16 @@ class PdfGenerator
   LOGGER = CustomLogger.new(PdfGenerator)
 
   # N.B.: document coordinates are expressed in points (1/72 inch).
-  DOCUMENT_PPI       = 72   # points/inch
-  IMAGE_DPI          = 200  # pixels/inch; tradeoff between quality and size
-  MARGIN_INCHES      = 0.25
-  PAGE_WIDTH_INCHES  = 8.5
-  PAGE_HEIGHT_INCHES = 11
+  DOCUMENT_PPI           = 72   # points/inch
+  IMAGE_DPI              = 200  # pixels/inch; tradeoff between quality and size
+  MARGIN_INCHES          = 0.25
+  # Maximum number of times to try downloading an image. This is meant to work
+  # around transient HTTP 502s from the image server.
+  MAX_NUM_DOWNLOAD_TRIES = 2
+  PAGE_WIDTH_INCHES      = 8.5
+  PAGE_HEIGHT_INCHES     = 11
+  SANS_SERIF_FONT        = "DejaVuSans"
+  SERIF_FONT             = "DejaVuSerif"
 
   def initialize
     Prawn::Fonts::AFM.hide_m17n_warning = true
@@ -69,6 +74,21 @@ class PdfGenerator
   include Rails.application.routes.url_helpers
 
   def draw_title_page(item, doc)
+    # Built-in PDF fonts only support Windows 1252 encoding. Attempting to
+    # render a UTF-8 string will cause a
+    # Prawn::Errors::IncompatibleStringEncoding. These DejaVu fonts support
+    # many (but not all) UTF-8 glyphs, more or less solving that problem, and
+    # have a license we can live with.
+    doc.font_families.update(
+      SANS_SERIF_FONT => {
+        normal: File.join(Rails.root, 'app', 'assets', 'fonts', 'DejaVuSans.ttf')
+      },
+      SERIF_FONT => {
+        normal: File.join(Rails.root, 'app', 'assets', 'fonts', 'DejaVuSerif.ttf')
+      }
+    )
+    doc.fallback_fonts([SANS_SERIF_FONT])
+
     doc.stroke_bounds
     doc.move_down doc.bounds.height / 5.0
 
@@ -85,10 +105,12 @@ class PdfGenerator
                      width: box_width,
                      height: doc.bounds.height * 0.3) do
       doc.transparent(0.5) { doc.stroke_bounds } if draw_boxes
-      doc.text(item.title,
-               align:    :center,
-               overflow: :shrink_to_fit,
-               size:     32)
+      doc.font(SERIF_FONT) do
+        doc.text(item.title,
+                 align:    :center,
+                 overflow: :shrink_to_fit,
+                 size:     32)
+      end
     end
 
     # Collection column 1
@@ -108,12 +130,10 @@ class PdfGenerator
                      width: col2_width,
                      height: 44) do
       doc.transparent(0.5) { doc.stroke_bounds } if draw_boxes
-      url = collection_url(item.collection, url_options)
-      doc.text("<link href='#{url}'>#{item.collection.title}</link>",
-               align:         :left,
-               inline_format: true,
-               overflow:      :shrink_to_fit,
-               size:          18)
+      doc.text(item.collection.title,
+               align:    :left,
+               overflow: :shrink_to_fit,
+               size:     18)
     end
 
     # Repository column 1
@@ -172,23 +192,23 @@ class PdfGenerator
     doc.bounding_box([box_margin, doc.bounds.height * 0.23 + box_margin],
                      width: box_width, height: 44) do
       doc.transparent(0.5) { doc.stroke_bounds } if draw_boxes
-      url = root_url(url_options)
-      doc.text("<link href='#{url}'>#{Option.string(Option::Keys::WEBSITE_NAME)}</link>",
-               align:         :center,
-               inline_format: true,
-               overflow:      :shrink_to_fit,
-               size:          18)
+      doc.text(Option.string(Option::Keys::WEBSITE_NAME),
+               align:    :center,
+               overflow: :shrink_to_fit,
+               size:     18)
     end
     doc.move_down(24)
 
     # Item URL
     url = item_url(item, url_options)
+    doc.fill_color("0000d0")
     doc.text("<link href='#{url}'>#{url}</link>",
              inline_format: true,
              align:         :center)
     doc.move_down(24)
 
     # Download date
+    doc.fill_color("000000")
     doc.text("Downloaded on #{Time.now.strftime("%B %e, %Y")}", align: :center)
   end
 
@@ -299,9 +319,10 @@ class PdfGenerator
   # @param binary [Binary]
   # @param width [Integer]
   # @param height [Integer]
+  # @param num_tries [Integer] Used internally--ignore.
   # @return [String] Temp file path.
   #
-  def download_image(binary, width, height)
+  def download_image(binary, width, height, num_tries = 1)
     width    = width.to_i
     height   = height.to_i
     size     = (width > 0) ? "!#{width},#{height}" : 'max'
@@ -309,10 +330,18 @@ class PdfGenerator
     pathname = File.join(
       image_temp_dir,
       binary.filename.split('.')[0...-1].join('.') + '.jpg')
-    File.open(pathname, 'wb') do |file|
-      LOGGER.debug('download_image(): downloading %s to %s', url, pathname)
-      ImageServer.instance.client.get_content(url) do |chunk|
-        file.write(chunk)
+    begin
+      File.open(pathname, 'wb') do |file|
+        LOGGER.debug('download_image(): downloading %s to %s', url, pathname)
+        ImageServer.instance.client.get_content(url) do |chunk|
+          file.write(chunk)
+        end
+      end
+    rescue HTTPClient::BadResponseError => e
+      if num_tries < MAX_NUM_DOWNLOAD_TRIES
+        pathname = download_image(binary, width, height, num_tries + 1)
+      else
+        raise e
       end
     end
     pathname
