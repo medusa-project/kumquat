@@ -15,11 +15,19 @@
       %span{class: "badge #{bootstrap_class_for_task_status(@task.status)}"}
         = Task::Status::to_s(@task.status)
   %dt Progress
-  %dd.dl-progress
+  %dd
     = (@task.indeterminate and @task.percent_complete < 1) ? 'Indeterminate' : (@task.percent_complete * 100).round(1).to_s + '%'
   %dt Started
-  %dd.dl-started
+  %dd
     = @task.started_at ? local_time_ago(@task.started_at) : ''
+  - if @task.stopped_at
+    %dt Stopped
+    %dd
+      = local_time_ago(@task.stopped_at)
+  - else
+    %dt ETA
+    %dd
+      = time_ago_in_words(@task.estimated_completion)
   %dt Run Time
   %dd
     - if @task.running? || @task.terminated?

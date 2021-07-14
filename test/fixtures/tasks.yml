@@ -1,17 +1,57 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-one:
-  name: MyString
-  status: 9.99
-  status_text: MyString
-  job_id: MyString
-  percent_complete: 1.5
-  stopped_at: 2015-12-15 09:23:43
+waiting:
+  name:             DoSomethingJob
+  status:           <%= Task::Status::WAITING %>
+  status_text:      Waiting to do something
+  detail:           Some details about what is being done
+  indeterminate:    false
+  job_id:
+  percent_complete: 0
+  started_at:       <%= 5.minutes.ago %>
+  stopped_at:
 
-two:
-  name: MyString
-  status: 9.99
-  status_text: MyString
-  job_id: MyString
-  percent_complete: 1.5
-  stopped_at: 2015-12-15 09:23:43
+running:
+  name:             DoSomethingJob
+  status:           <%= Task::Status::RUNNING %>
+  status_text:      Doing something
+  detail:           Some details about what is being done
+  indeterminate:    false
+  job_id:
+  percent_complete: 0.5
+  started_at:       <%= 30.minutes.ago %>
+  stopped_at:
+
+paused:
+  name:             DoSomethingJob
+  status:           <%= Task::Status::PAUSED %>
+  status_text:      Doing something
+  detail:           Some details about what is being done
+  indeterminate:    false
+  job_id:
+  percent_complete: 0.5
+  started_at:       <%= 30.minutes.ago %>
+  stopped_at:
+
+succeeded:
+  name:             DoSomethingJob
+  status:           <%= Task::Status::SUCCEEDED %>
+  status_text:      Did something
+  detail:           Some details about what was done
+  indeterminate:    false
+  job_id:
+  percent_complete: 1
+  started_at:       <%= 30.minutes.ago %>
+  stopped_at:       <%= 5.minutes.ago %>
+
+failed:
+  name:             DoSomethingJob
+  status:           <%= Task::Status::SUCCEEDED %>
+  status_text:      Tried to do something
+  detail:           Some details about what failed
+  indeterminate:    false
+  job_id:
+  percent_complete: 0.8
+  started_at:       <%= 30.minutes.ago %>
+  stopped_at:       <%= 5.minutes.ago %>
+
