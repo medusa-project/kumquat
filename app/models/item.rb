@@ -1052,6 +1052,27 @@ class Item < ApplicationRecord
 =end
 
   ##
+  # @param recursive [Boolean] If `true`, binaries of all child items are
+  #                            included, including children of children.
+  # @return [Enumerable<Binary>]
+  #
+  def ocrable_binaries(recursive: false)
+    binaries = recursive ? all_child_binaries : self.binaries
+    binaries.
+      where(master_type: Binary::MasterType::ACCESS).
+      where('media_type LIKE ? OR media_type = ?', 'image/%', 'application/pdf')
+  end
+
+  ##
+  # @param recursive [Boolean] If `true`, binaries of all child items are
+  #                            included, including children of children.
+  # @return [Enumerable<Binary>]
+  #
+  def ocred_binaries(recursive: false)
+    self.ocrable_binaries(recursive: recursive).where('ocred_at IS NOT NULL')
+  end
+
+  ##
   # @return [ActiveRecord::Relation<Item>] All children with a
   #                                        {Variants::PAGE page variant}.
   #

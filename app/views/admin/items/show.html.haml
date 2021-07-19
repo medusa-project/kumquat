@@ -142,6 +142,20 @@
                           class: 'dropdown-item',
                           method: :post)
 
+        - if @item.items.count > 0
+          %table.table
+            %tr
+              %td OCR (including all children)
+              - num   = @item.ocred_binaries(recursive: true).count
+              - total = @item.ocrable_binaries(recursive: true).count
+              %td{class: num < total ? 'text-warning' : 'text-success'}
+                - if num < total
+                  %i.fa.fa-exclamation-triangle
+                = number_with_delimiter(num)
+                of
+                = number_with_delimiter(total)
+                binaries OCRed
+
         .clearfix
         - @item.binaries.each do |bin|
           - exists = bin.medusa_file.exists?

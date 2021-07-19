@@ -558,6 +558,27 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal 1, dest_elements.length
   end
 
+  # ocrable_binaries()
+
+  test 'ocrable_binaries() returns OCRed binaries without recursion' do
+    assert_equal 0, @item.ocrable_binaries(recursive: false).count
+  end
+
+  test 'ocrable_binaries() returns OCRed binaries with recursion' do
+    assert_equal 2, @item.ocrable_binaries(recursive: true).count
+  end
+
+  # ocred_binaries()
+
+  test 'ocred_binaries() returns OCRed binaries without recursion' do
+    assert_equal 0, @item.ocred_binaries(recursive: false).count
+  end
+
+  test 'ocred_binaries() returns OCRed binaries with recursion' do
+    @item.all_child_binaries.update_all(ocred_at: Time.now)
+    assert_equal 2, @item.ocred_binaries(recursive: true).count
+  end
+
   # parent_repository_id
 
   test 'parent_repository_id must be a UUID' do
