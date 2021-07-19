@@ -133,15 +133,21 @@
                 %i.fa.fa-sitemap
                 Child Items
               .dropdown-menu.dropdown-menu-right{'aria-labelledby': 'dl-child-items-button'}
-                = link_to('Publicize All Binaries',
-                          admin_collection_item_publicize_child_binaries_path(@item.collection, @item),
+                = link_to(admin_collection_item_run_ocr_path(@item.collection, @item),
                           class: 'dropdown-item',
-                          method: :post)
-                = link_to('Unpublicize All Binaries',
-                          admin_collection_item_unpublicize_child_binaries_path(@item.collection, @item),
+                          method: :patch) do
+                  %i.fas.fa-eye
+                  OCR
+                = link_to(admin_collection_item_publicize_child_binaries_path(@item.collection, @item),
                           class: 'dropdown-item',
-                          method: :post)
-
+                          method: :post) do
+                  %i.fa.fa-unlock
+                  Publicize All Binaries
+                = link_to(admin_collection_item_unpublicize_child_binaries_path(@item.collection, @item),
+                          class: 'dropdown-item',
+                          method: :post) do
+                  %i.fa.fa-lock
+                  Unpublicize All Binaries
         - if @item.items.count > 0
           %table.table
             %tr
