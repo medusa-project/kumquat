@@ -1,9 +1,25 @@
 ##
 # Encapsulates the act of a user watching something.
 #
+# # Attributes
+#
+# * `collection_id`: Foreign key to {Collection}.
+# * `created_at`:    Managed by ActiveRecord.
+# * `email`:         Optional; used instead of an associated {User} if filled
+#                    in.
+# * `updated_at`:    Managed by ActiveRecord.
+# * `user_id`:       Foreign key to {User}. Used only if `email` is blank.
+#
 class Watch < ApplicationRecord
   belongs_to :collection
-  belongs_to :user
+  belongs_to :user, optional: true
+
+  validates :email, presence: false, length: {maximum: 255},
+            format: {with: StringUtils::EMAIL_REGEX},
+            uniqueness: {case_sensitive: false},
+            allow_blank: true
+
+  validate :validate_watcher
 
   ##
   # For every watched collection, sends an email to all watching users
@@ -25,6 +41,20 @@ class Watch < ApplicationRecord
         KumquatMailer.new_items(watch, tsv, after, before).deliver_now
       end
       progress.report(index + 1, 'Emailing watchers')
+    end
+  end
+
+
+  private
+
+  ##
+  # Ensures that when {email} is set, {user_id} is not set, and vice versa.
+  #
+  def validate_watcher
+    if self.user_id.present? && self.email.present?
+      errors.add(:base, "User and email cannot both be set")
+    elsif self.user_id.blank? && self.email.blank?
+      errors.add(:base, "User or email must be set")
     end
   end
 

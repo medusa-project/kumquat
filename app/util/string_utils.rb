@@ -3,8 +3,9 @@
 #
 class StringUtils
 
-  TRUE_STRINGS  = %w(true True TRUE yes Yes YES 1)
-  UUID_REGEX    = /\A[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/
+  EMAIL_REGEX  = /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i
+  TRUE_STRINGS = %w(true True TRUE yes Yes YES 1)
+  UUID_REGEX   = /\A[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/
 
   ##
   # Left-pads all numbers in the given string with the given character to the

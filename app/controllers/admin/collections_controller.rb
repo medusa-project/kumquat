@@ -23,6 +23,16 @@ module Admin
     end
 
     ##
+    # Renders HTML for the edit-email-watchers modal.
+    #
+    # Responds to `GET /admin/collections/:collection_id/edit-email-watchers`
+    # (XHR only).
+    #
+    def edit_email_watchers
+      render partial: 'admin/collections/email_watchers'
+    end
+
+    ##
     # Responds to `GET /admin/collections`
     #
     def index
@@ -164,25 +174,41 @@ module Admin
     end
 
     ##
-    # Responds to `POST /admin/collections/:id`
+    # Responds to `PATCH/POST /admin/collections/:id`
     #
     def update
-      begin
-        ActiveRecord::Base.transaction do # trigger after_commit callbacks
-          @collection.update!(sanitized_params)
+      ActiveRecord::Base.transaction do # trigger after_commit callbacks
+        if params[:watches] # input from the edit-email-watchers form
+          begin
+            @collection.watches.where('email IS NOT NULL').destroy_all
+            params[:watches].select{ |w| w[:email].present? }.each do |watch|
+              @collection.watches.build(email: watch[:email])
+            end
+            @collection.save!
+          rescue ActiveRecord::RecordInvalid
+            response.headers['X-Kumquat-Result'] = 'error'
+            render partial: 'shared/validation_messages',
+                   locals: { entity: @collection }
+          else
+            flash['success'] = "Watchers updated."
+            keep_flash
+          end
+        else # all other input
+          begin
+            @collection.update!(sanitized_params)
+            # We will also need to propagate various collection properties
+            # (published status, allowed/denied host groups, etc.) to the items
+            # contained within the collection. This will take some time, so
+            # we'll do it in the background.
+            PropagatePropertiesToItemsJob.perform_later(@collection.repository_id)
+          rescue => e
+            handle_error(e)
+            redirect_to edit_admin_collection_path(@collection)
+          else
+            flash['success'] = "Collection \"#{@collection.title}\" updated."
+            redirect_to admin_collection_path(@collection)
+          end
         end
-
-        # We will also need to propagate various collection properties
-        # (published status, allowed/denied host groups, etc.) to the items
-        # contained within the collection. This will take some time, so we'll
-        # do it in the background.
-        PropagatePropertiesToItemsJob.perform_later(@collection.repository_id)
-      rescue => e
-        handle_error(e)
-        redirect_to edit_admin_collection_path(@collection)
-      else
-        flash['success'] = "Collection \"#{@collection.title}\" updated."
-        redirect_to admin_collection_path(@collection)
       end
     end
 

@@ -1,0 +1,20 @@
+= form_for([:admin, @collection], remote: true) do |f|
+  .dl-error-messages
+    -# populated via ajax by shared/_validation_messages.js.erb
+
+  - watches = f.object.watches.select{ |w| w.email.present? }.sort_by(&:email)
+  - watches = [Watch.new(collection: f.object)] if watches.empty?
+  - watches.each do |watch|
+    .input-group.mb-3
+      = text_field_tag('watches[][email]', watch.email, class: 'form-control')
+      .input-group-append
+        %button.btn.btn-danger.dl-remove{type: "button"}
+          %i.fa.fa-minus
+
+  %button.btn.btn-success.dl-add{type: "button"}
+    %i.fa.fa-plus
+
+  .clearfix
+    .float-right
+      %button.btn.btn-light{"data-dismiss": "modal", type: "button"} Cancel
+      = f.submit('Edit', class: 'btn btn-primary')

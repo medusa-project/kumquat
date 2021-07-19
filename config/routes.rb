@@ -81,14 +81,11 @@ Rails.application.routes.draw do
       match '/edit-access', to: 'binaries#edit_access', via: :get
       match '/run-ocr', to: 'binaries#run_ocr', via: :patch
     end
-    resources :elements, param: :name do
-      match '/usages', to: 'elements#usages', via: :get
-    end
-    match '/elements/import', to: 'elements#import', via: :post,
-          as: 'elements_import'
     match '/collections/sync', to: 'collections#sync', via: :patch,
           as: 'collections_sync'
     resources :collections, except: [:new, :create, :delete] do
+      match '/edit-email-watchers', to: 'collections#edit_email_watchers', via: :get,
+            constraints: lambda { |request| request.xhr? }
       resources :item_sets, except: :index do
         match '/all-items', to: 'item_sets#remove_all_items', via: :delete
         match '/items', to: 'item_sets#items', via: :get
@@ -126,6 +123,11 @@ Rails.application.routes.draw do
       match '/unwatch', to: 'collections#unwatch', via: :patch
       match '/watch', to: 'collections#watch', via: :patch
     end
+    resources :elements, param: :name do
+      match '/usages', to: 'elements#usages', via: :get
+    end
+    match '/elements/import', to: 'elements#import', via: :post,
+          as: 'elements_import'
     resources :host_groups
     match '/test-images', to: 'test#index', via: :get
     resources :metadata_profile_elements,

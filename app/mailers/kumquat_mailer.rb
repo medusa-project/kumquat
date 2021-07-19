@@ -52,7 +52,7 @@ class KumquatMailer < ApplicationMailer
     @before  = before.strftime('%Y-%m-%d')
     filename = "items-#{@after}-#{@before}"
     attachments[filename] = tsv
-    mail(to:      watch.user.email,
+    mail(to:      watch.email || watch.user.email,
          subject: "#{subject_prefix} New items in #{watch.collection}")
   end
 
