@@ -3,10 +3,10 @@
     = f.submit 'Save Changes', class: 'btn btn-primary'
   %ul.nav.nav-tabs
     %li.nav-item
-      %a.nav-link.active{"aria-controls": "dl-system-info",
+      %a.nav-link.active{"aria-controls": "dl-technical-info",
                          "data-toggle": "tab",
-                         href: "#dl-system-info",
-                         role: "tab"} System Info
+                         href: "#dl-technical-info",
+                         role: "tab"} Technical Info
     %li.nav-item
       %a.nav-link{"aria-controls": "dl-access",
                   "data-toggle": "tab",
@@ -18,7 +18,7 @@
                   href: "#dl-metadata",
                   role: "tab"} Metadata
   .tab-content
-    #dl-system-info.tab-pane.active{role: "tabpanel"}
+    #dl-technical-info.tab-pane.active{role: "tabpanel"}
       %table.table.dl-elements
         %tbody
           %tr

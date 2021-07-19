@@ -31,11 +31,11 @@
   .col-sm-9
     %ul.nav.nav-tabs{role: 'tablist'}
       %li.nav-item{role: 'presentation'}
-        %a.nav-link.active{"aria-controls": "dl-system-info",
+        %a.nav-link.active{"aria-controls": "dl-technical-info",
                            "data-toggle": "tab",
-                           href: "#dl-system-info",
+                           href: "#dl-technical-info",
                            role: "tab",
-                           "aria-selected": true} System Info
+                           "aria-selected": true} Technical Info
       %li.nav-item{role: 'presentation'}
         %a.nav-link{"aria-controls": "dl-descriptive-metadata",
                     "data-toggle": "tab",
@@ -69,7 +69,7 @@
         This item has no access master binary.
         Its Medusa package may be malformed.
     .tab-content
-      #dl-system-info.tab-pane.active{role: "tabpanel"}
+      #dl-technical-info.tab-pane.active{role: "tabpanel"}
         = admin_system_info_as_list(@item)
         = admin_system_info_as_table(@item)
       #dl-descriptive-metadata.tab-pane{role: "tabpanel"}
