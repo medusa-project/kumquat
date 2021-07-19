@@ -37,6 +37,11 @@
                            role: "tab",
                            "aria-selected": true} Technical Info
       %li.nav-item{role: 'presentation'}
+        %a.nav-link{"aria-controls": "dl-access",
+                    "data-toggle": "tab",
+                    href: "#dl-access",
+                    role: "tab"} Access
+      %li.nav-item{role: 'presentation'}
         %a.nav-link{"aria-controls": "dl-descriptive-metadata",
                     "data-toggle": "tab",
                     href: "#dl-descriptive-metadata",
@@ -72,6 +77,43 @@
       #dl-technical-info.tab-pane.active{role: "tabpanel"}
         = admin_system_info_as_list(@item)
         = admin_system_info_as_table(@item)
+      #dl-access.tab-pane{role: "tabpanel"}
+        %table.table
+          %tr
+            %td Allowed NetIDs
+            %td
+              - if @item.allowed_netids&.any?
+                %table.table.table-sm
+                  %tr
+                    %th NetID
+                    %th Expires
+                  - @item.allowed_netids.each do |h|
+                    - expires = Time.at(h[:expires].to_i)
+                    %tr
+                      %td= h[:netid]
+                      %td{class: expires < Time.now ? "text-danger" : ""}
+                        = local_time_ago(expires)
+          %tr
+            %td Restricted URL
+            %td
+              = item_url(@item)
+              %button.btn.btn-light.btn-sm.dl-copy-to-clipboard{'data-clipboard-text': item_url(@item),
+                                                                type: 'button'}
+                %i.fa.fa-clipboard
+          %tr
+            %td Allowed Host Groups (directly assigned)
+            %td= @item.allowed_host_groups.any? ? @item.allowed_host_groups.map{ |g| link_to(g.name, admin_host_group_path(g)) } : "Any"
+          %tr
+            %td Allowed Host Groups (effective)
+            - effective_allowed_host_groups = @item.effective_allowed_host_groups
+            %td= effective_allowed_host_groups.any? ? effective_allowed_host_groups.map{ |g| link_to(g.name, admin_host_group_path(g)) } : "Any"
+          %tr
+            %td Denied Host Groups (directly assigned)
+            %td= @item.denied_host_groups.any? ? @item.denied_host_groups.map{ |g| link_to(g.name, admin_host_group_path(g)) } : "None"
+          %tr
+            %td Denied Host Groups (effective)
+            - effective_denied_host_groups = @item.effective_denied_host_groups
+            %td= effective_denied_host_groups.any? ? effective_denied_host_groups.map{ |g| link_to(g.name, admin_host_group_path(g)) } : "None"
       #dl-descriptive-metadata.tab-pane{role: "tabpanel"}
         .alert.alert-light
           %i.fa.fa-info-circle

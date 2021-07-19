@@ -332,6 +332,7 @@ module AdminHelper
                 max_links)
   end
 
+
   private
 
   ##
@@ -409,45 +410,6 @@ module AdminHelper
                   link_to(item.effective_rightsstatements_org_statement.name,
                           item.effective_rightsstatements_org_statement.info_uri) : '' }
 
-    # Allowed NetIDs
-    netid_table = ''
-    if item.allowed_netids&.any?
-      netid_table = "<table class=\"table table-sm\">"
-      netid_table += "<tr><th>NetID</th><th>Expires</th></tr>"
-      item.allowed_netids.each do |h|
-        expires = Time.at(h[:expires].to_i)
-        netid_table += "<tr><td>#{h[:netid]}</td><td class=\"#{expires < Time.now ? "text-danger" : ""}\">#{local_time_ago(expires)}</td></tr>"
-      end
-      netid_table += "</table>"
-    end
-    data << { label: 'Allowed NetIDs', value: netid_table }
-    if item.allowed_netids&.any?
-      data << { label: 'Restricted URL',
-                value: "#{item_url(item)} <button class=\"btn btn-light btn-sm dl-copy-to-clipboard\" data-clipboard-text=\"#{item_url(item)}\" type=\"button\"><i class=\"fa fa-clipboard\"></i></button>" }
-    end
-
-    # Allowed Host Groups (assigned)
-    data << { label: 'Allowed Host Groups (directly assigned)',
-              value: item.allowed_host_groups.any? ?
-                  item.allowed_host_groups.map{ |g| link_to(g.name, admin_host_group_path(g)) } :
-                         'Any' }
-    # Allowed Host Groups (effective)
-    effective_allowed_host_groups = item.effective_allowed_host_groups
-    data << { label: 'Allowed Host Groups (effective)',
-              value: effective_allowed_host_groups.any? ?
-                  effective_allowed_host_groups.map{ |g| link_to(g.name, admin_host_group_path(g)) } :
-                         'Any' }
-    # Denied Host Groups (assigned)
-    data << { label: 'Denied Host Groups (directly assigned)',
-              value: item.denied_host_groups.any? ?
-                  item.denied_host_groups.map{ |g| link_to(g.name, admin_host_group_path(g)) } :
-                         'None' }
-    # Denied Host Groups (effective)
-    effective_denied_host_groups = item.effective_denied_host_groups
-    data << { label: 'Denied Host Groups (effective)',
-              value: effective_denied_host_groups.any? ?
-                  effective_denied_host_groups.map{ |g| link_to(g.name, admin_host_group_path(g)) } :
-                         'None' }
     # Created
     data << { label: 'Created', value: local_time(item.created_at) }
 
