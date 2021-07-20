@@ -123,6 +123,10 @@
 # * `embed_tag`                HTML snippet that will be used to display an
 #                              alternative object viewer.
 # * `end_date`                 End date of a normalized date range.
+# * `expose_full_text_search`  Whether to expose full-text search of the
+#                              instance and any child items on the public
+#                              website. (This only has an effect when full text
+#                              is present.)
 # * `latitude`                 Normalized latitude in decimal degrees.
 # * `longitude`                Normalized longitude in decimal degrees.
 # * `page_number`              Literal page number of a page-variant item.

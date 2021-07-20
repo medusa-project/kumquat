@@ -1110,8 +1110,9 @@ module ItemsHelper
       end
     end
 
-    config_file = object.has_full_text?(include_children: true) ?
-                      'uvconfig_compound_search.json' : 'uvconfig_compound.json'
+    config_file = (object.expose_full_text_search &&
+        object.has_full_text?(include_children: true)) ?
+                    'uvconfig_compound_search.json' : 'uvconfig_compound.json'
     config_uri = asset_path(config_file, skip_pipeline: true)
     # See http://universalviewer.io/examples/ for config structure.
     # UV seems to want its height to be defined in a style attribute.
@@ -1318,7 +1319,7 @@ module ItemsHelper
     html = StringIO.new
     binary = item.effective_image_binary
     if binary
-      config_file = item.has_full_text? ?
+      config_file = (item.expose_full_text_search && item.has_full_text?) ?
                   'uvconfig_single_search.json' : 'uvconfig_single.json'
       config_uri = asset_path(config_file, skip_pipeline: true)
 

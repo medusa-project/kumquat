@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_07_16_182520) do
+ActiveRecord::Schema.define(version: 2021_07_20_133622) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -270,6 +270,7 @@ ActiveRecord::Schema.define(version: 2021_07_16_182520) do
     t.datetime "end_date"
     t.text "allowed_netids"
     t.datetime "published_at"
+    t.boolean "expose_full_text_search", default: true, null: false
     t.index ["collection_repository_id"], name: "index_items_on_collection_identifier"
     t.index ["parent_repository_id"], name: "index_items_on_parent_identifier"
     t.index ["published"], name: "index_items_on_published"

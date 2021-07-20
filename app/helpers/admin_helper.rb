@@ -356,14 +356,23 @@ module AdminHelper
 
     # Published
     data << { label: 'Published',
-              value: "<span class=\"badge #{item.published ? 'badge-success' : 'badge-danger'}\">"\
-                  "#{item.published ? 'Published' : 'Unpublished' }</span>"}
+              value: boolean(item.published,
+                             true_string: "Published",
+                             false_string: "Unpublished") }
 
-    # Primary IIIF Image URL
+    # Primary IIIF v2 Image URL
     iiif_url = item.effective_image_binary&.iiif_image_url
-    data << { label: 'Primary IIIF Image URL',
+    data << { label: 'Primary IIIF Image v2 URL',
               value: iiif_url.present? ?
                   link_to(iiif_url, iiif_url, target: '_blank') : 'None' }
+
+    # TODO: add v3 URL
+
+    # Expose Full Text Search
+    data << { label: 'Expose Full Text Search',
+              value: boolean(item.expose_full_text_search, style: :word),
+              help: "Whether to show the full-text search field in the item viewer. "\
+                    "This only has an effect if the item has full text." }
 
     # Variant
     data << { label: 'Variant', value: item.variant,
