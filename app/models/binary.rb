@@ -250,20 +250,14 @@ class Binary < ApplicationRecord
   def human_readable_name
     name = nil
     formats = @@formats.select{ |f| f['media_types'].include?(self.media_type) }
-    if formats.any?
-      name = formats.first['label']
-    end
-    if name.blank?
-      name = self.media_type
-    end
-    if name.blank?
-      name = 'Unknown Type'
-    end
+    name = formats.first['label'] if formats.any?
+    name = self.media_type if name.blank?
+    name = 'Unknown Type' if name.blank?
     name
   end
 
   ##
-  # If the instance is attached to an Item that has an embed tag that refers
+  # If the instance is attached to an [Item] that has an embed tag that refers
   # to a video in [UI MediaSpace](https://mediaspace.illinois.edu), parts of
   # the URL in its `src` attribute are extracted in order to construct an
   # identifier that the image server will recognize as an image it should serve
@@ -302,7 +296,7 @@ class Binary < ApplicationRecord
   ##
   # @return [String] IIIF Image API info.json URL.
   #
-  def iiif_info_url
+  def iiif_info_v2_url
     self.iiif_image_v2_url + '/info.json'
   end
 
