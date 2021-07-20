@@ -109,7 +109,8 @@
             %i.fa.fa-info-circle
             An email will automatically be sent to any new NetIDs entered above.
     #dl-metadata.tab-pane{role: "tabpanel"}
-      .alert.alert-info
+      .alert.alert-light
+        %i.fa.fa-info-circle
         Collection metadata profile:
         \#{link_to(@item.collection.metadata_profile.name, admin_metadata_profile_path(@item.collection.metadata_profile))}
       %table.table.dl-elements
