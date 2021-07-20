@@ -35,7 +35,12 @@
                     target: '_blank',
                     class: 'dropdown-item' do
             %i.fa.fa-code
-            IIIF Image Information
+            IIIF Image Information v2
+          = link_to bin.iiif_image_v3_url,
+                    target: '_blank',
+                    class: 'dropdown-item' do
+            %i.fa.fa-code
+            IIIF Image Information v3
       - if item.bib_id.present?
         = link_to item.catalog_record_url,
                   target: '_blank',

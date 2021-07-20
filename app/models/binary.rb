@@ -294,10 +294,27 @@ class Binary < ApplicationRecord
   end
 
   ##
-  # @return [String] IIIF Image API info.json URL.
+  # @return [String] IIIF Image API v3 URI of the instance, regardless of
+  #                  whether it is compatible with an image server.
+  # @see image_server_safe?
+  #
+  def iiif_image_v3_url
+    Configuration.instance.iiif_image_v3_url + '/' +
+      CGI.escape(self.iiif_image_identifier)
+  end
+
+  ##
+  # @return [String] IIIF Image API v2 `info.json` URL.
   #
   def iiif_info_v2_url
     self.iiif_image_v2_url + '/info.json'
+  end
+
+  ##
+  # @return [String] IIIF Image API v3 `info.json` URL.
+  #
+  def iiif_info_v3_url
+    self.iiif_image_v3_url + '/info.json'
   end
 
   ##

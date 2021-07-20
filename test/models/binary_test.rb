@@ -144,16 +144,30 @@ class BinaryTest < ActiveSupport::TestCase
 
   # iiif_image_v2_url()
 
-  test 'iiif_image_v2_url() should return the correct URL' do
+  test 'iiif_image_v2_url() returns correct URL' do
     assert_equal Configuration.instance.iiif_image_v2_url + '/' + @instance.medusa_uuid,
                  @instance.iiif_image_v2_url
   end
 
+  # iiif_image_v3_url()
+
+  test 'iiif_image_v3_url() returns correct URL' do
+    assert_equal Configuration.instance.iiif_image_v3_url + '/' + @instance.medusa_uuid,
+                 @instance.iiif_image_v3_url
+  end
+
   # iiif_info_v2_url()
 
-  test 'iiif_info_v2_url() should return the correct URL' do
+  test 'iiif_info_v2_url() returns a correct URL' do
     assert_equal Configuration.instance.iiif_image_v2_url + '/' + @instance.medusa_uuid + '/info.json',
                  @instance.iiif_info_v2_url
+  end
+
+  # iiif_info_v3_url()
+
+  test 'iiif_info_v3_url() returns a correct URL' do
+    assert_equal Configuration.instance.iiif_image_v3_url + '/' + @instance.medusa_uuid + '/info.json',
+                 @instance.iiif_info_v3_url
   end
 
   # image_server_safe?()

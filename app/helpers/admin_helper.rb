@@ -366,7 +366,11 @@ module AdminHelper
               value: iiif_v2_url.present? ?
                   link_to(iiif_v2_url, iiif_v2_url, target: '_blank') : 'None' }
 
-    # TODO: add v3 URL
+    # Primary IIIF v3 Image URL
+    iiif_v3_url = item.effective_image_binary&.iiif_image_v3_url
+    data << { label: 'Primary IIIF Image v3 URL',
+              value: iiif_v3_url.present? ?
+                       link_to(iiif_v3_url, iiif_v3_url, target: '_blank') : 'None' }
 
     # Expose Full Text Search
     data << { label: 'Expose Full Text Search',
