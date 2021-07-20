@@ -25,10 +25,26 @@ class ImageServer
                         cache:               true)
     return nil unless binary.image_server_safe?
     query = {}
-    size = "!#{size},#{size}" if size.to_i == size
-    url = sprintf('%s/%s/%s/%d/%s.%s',
-                  binary.iiif_image_v2_url,
-                  region, size, rotation, color, format)
+    size  = "!#{size},#{size}" if size.to_i == size
+    url   = sprintf('%s/%s/%s/%d/%s.%s',
+                    binary.iiif_image_v2_url,
+                    region, size, rotation, color, format)
+    if binary.duration
+      # ?time=hh:mm:ss is a nonstandard argument supported only by
+      # Cantaloupe's FfmpegProcessor. All other processors will ignore it.
+      # If it's missing, the first frame will be returned.
+      #
+      # For videos of all lengths, the time needs to be enough to advance
+      # past title frames but not longer than the duration. It would be
+      # easier to hard-code something like 00:00:10, but there are actually
+      # some videos in the repository that are two seconds long.
+      # FfmpegProcessor doesn't allow a percentage argument because ffprobe
+      # doesn't. (DLD-102)
+      #
+      # Ideally we would use ffmpeg's scene detection but FfmpegProcessor
+      # doesn't support that yet.
+      query['time'] = TimeUtils.seconds_to_hms(binary.duration * 0.2)
+    end
     if content_disposition
       if content_disposition == 'attachment'
         if filename.blank?
