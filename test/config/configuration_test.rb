@@ -13,11 +13,11 @@ class ConfigurationTest < ActiveSupport::TestCase
   end
 
   test 'get() with a string key returns the value' do
-    assert_not_nil @config.get('iiif_url')
+    assert_not_nil @config.get('iiif_image_v2_url')
   end
 
   test 'get() with a symbol key returns the value' do
-    assert_not_nil @config.get(:iiif_url)
+    assert_not_nil @config.get(:iiif_image_v2_url)
   end
 
   # method_missing()
@@ -27,7 +27,7 @@ class ConfigurationTest < ActiveSupport::TestCase
   end
 
   test 'method_missing() with a valid key returns the value' do
-    assert_not_nil @config.iiif_url
+    assert_not_nil @config.iiif_image_v2_url
   end
 
 end

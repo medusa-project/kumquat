@@ -295,7 +295,7 @@ class Binary < ApplicationRecord
   # @see image_server_safe?
   #
   def iiif_image_url
-    Configuration.instance.iiif_url + '/' +
+    Configuration.instance.iiif_image_v2_url + '/' +
         CGI.escape(self.iiif_image_identifier)
   end
 
