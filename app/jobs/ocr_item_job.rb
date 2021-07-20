@@ -15,14 +15,17 @@ class OcrItemJob < Job
   # @return [Integer]
   #
   def self.num_threads
-    # The number of threads is limited mainly by two things:
+    # The number of threads is limited mainly by:
     #
     # 1. The AWS Lambda concurrent invocation limit (which is in the thousands)
     # 2. The database connection pool size (probably a lot smaller than [1])
+    # 3. Indexing performance of Elasticsearch
     #
-    # So we base it on (2). But we must consider that Task uses its own
-    # connection pool, which halves the number of threads we can use. Also we
-    # must remember to leave some spare connections for Delayed Job itself.
+    # As the way the production environment is currently configured, the
+    # greatest limiter is #3, followed by #2. And as far as #2 goes, we must
+    # consider that Task uses its own connection pool, which halves the number
+    # of threads we can use. Also we must remember to leave some spare
+    # connections for Delayed Job itself.
     num = (ActiveRecord::Base.connection_pool.instance_eval { @size }) / 2
     num = 10 if num < 10 # any less than this and it will be too slow
     num
