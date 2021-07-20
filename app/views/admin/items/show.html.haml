@@ -5,6 +5,7 @@
 = admin_breadcrumb({ label: 'Home', url: admin_root_path },
                    { label: 'Collections', url: admin_collections_path },
                    { label: @item.collection.title, url: admin_collection_path(@item.collection) },
+                   { label: 'Items', url: admin_collection_items_path(@item.collection) },
                    *admin_item_structure_breadcrumb(@item))
 
 = render partial: 'show_button_group'
