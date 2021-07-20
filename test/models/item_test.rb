@@ -92,8 +92,14 @@ class ItemTest < ActiveSupport::TestCase
 
   # all_child_binaries()
 
-  test 'all_child_binaries() returns the correct binaries' do
+  test 'all_child_binaries() returns the correct binaries for a compound object' do
     assert_equal 5, items(:compound_object_1002).all_child_binaries.count
+    assert_equal 5, items(:compound_object_1002).all_child_binaries(include_self: true).count
+  end
+
+  test 'all_child_binaries() returns the correct binaries for a single-item object' do
+    assert_equal 0, items(:compound_object_1001).all_child_binaries.count
+    assert_equal 2, items(:compound_object_1001).all_child_binaries(include_self: true).count
   end
 
   # all_children()

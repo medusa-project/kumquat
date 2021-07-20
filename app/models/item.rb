@@ -391,16 +391,20 @@ class Item < ApplicationRecord
   end
 
   ##
+  # @param include_self [Boolean]
   # @return [ActiveRecord::Relation<Binary>] All binaries associated with every
   #                                          immediate child item.
   #
-  def all_child_binaries
+  def all_child_binaries(include_self: false)
     sql = 'SELECT binaries.id
         FROM binaries
         LEFT JOIN items AS binary_items ON binaries.item_id = binary_items.id
         LEFT JOIN items AS parent_items ON binary_items.parent_repository_id = parent_items.repository_id
         WHERE parent_items.id = $1'
+    sql += ' OR binary_items.id = $2' if include_self
+
     values = [[ nil, self.id ]]
+    values << [ nil, self.id ] if include_self
 
     results = ActiveRecord::Base.connection.exec_query(sql, 'SQL', values)
     binary_ids = results.map{ |row| row['id'] }
