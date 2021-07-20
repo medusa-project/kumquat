@@ -889,8 +889,8 @@ module ItemsHelper
       # helps make our CSS more concise. The files are available at:
       # https://github.com/encharm/Font-Awesome-SVG-PNG/tree/master/black/svg
       html << image_tag('fontawesome-' + fontawesome_icon_for(entity)[1] + '.svg',
-                        options.merge('data-type': 'svg',
-                                      'data-location': 'local'))
+                        'data-type': 'svg',
+                        'data-location': 'local')
     end
     raw(html.string)
   end
