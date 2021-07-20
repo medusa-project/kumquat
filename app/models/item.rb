@@ -1065,7 +1065,7 @@ class Item < ApplicationRecord
   # @return [Enumerable<Binary>]
   #
   def ocrable_binaries(recursive: false)
-    binaries = recursive ? all_child_binaries : self.binaries
+    binaries = recursive ? all_child_binaries(include_self: true) : self.binaries
     binaries.
       where(master_type: Binary::MasterType::ACCESS).
       where('media_type LIKE ? OR media_type = ?', 'image/%', 'application/pdf')
