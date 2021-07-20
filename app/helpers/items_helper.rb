@@ -246,7 +246,7 @@ module ItemsHelper
     if bin
       url = ImageServer.image_v2_url(bin,
                                      region: region.to_s,
-                                     size:   size.to_s,
+                                     size:   size,
                                      format: format.to_s)
     end
     url
@@ -847,42 +847,36 @@ module ItemsHelper
 
   ##
   # @param entity [Object]
-  # @param options [Hash]
-  # @option options [Integer] :size Defaults to {DEFAULT_THUMBNAIL_SIZE}.
-  # @option options [Symbol] :shape `:default` or `:square`; defaults to
-  #                                 `:default`.
-  # @option options [Boolean] :lazy If true, the `data-src` attribute will be
-  #                                 set instead of `src`; defaults to false.
+  # @param shape [Symbol] `:full` or `:square`.
+  # @param size [Integer]
+  # @param lazy [Boolean] If true, the `data-src` attribute will be set instead
+  #                       of `src`; defaults to false.
   # @return [String]
   #
-  def thumbnail_tag(entity, options = {}) # TODO: fix arguments
-    options         = {} unless options.kind_of?(Hash)
-    options[:size]  = DEFAULT_THUMBNAIL_SIZE unless options.keys.include?(:size)
-    options[:shape] = 'full' unless options.keys.include?(:shape)
-    options[:lazy]  = false unless options.keys.include?(:lazy)
-
+  def thumbnail_tag(entity,
+                    size:  DEFAULT_THUMBNAIL_SIZE,
+                    shape: :full,
+                    lazy:  false)
     url = nil
-    if entity.kind_of?(Binary) and entity.image_server_safe?
+    if entity.kind_of?(Binary)
       url = ImageServer.image_v2_url(entity,
-                                     region: options[:shape],
-                                     size:   options[:size])
+                                     region: shape,
+                                     size:   size)
     elsif entity.kind_of?(Collection)
       bin = entity.effective_representative_image_binary
-      if bin&.image_server_safe?
-        url = ImageServer.image_v2_url(bin,
-                                       region: options[:shape],
-                                       size:   options[:size])
-      end
-    elsif entity.kind_of?(Item) and entity.effective_image_binary&.image_server_safe?
+      url = ImageServer.image_v2_url(bin,
+                                     region: shape,
+                                     size:   size)
+    elsif entity.kind_of?(Item)
       url = item_image_url(item:   entity,
-                           region: options[:shape],
-                           size:   options[:size])
+                           region: shape,
+                           size:   size)
     end
 
     html = StringIO.new
     if url
-      # No alt because it may appear in a huge font size if the image is 404.
-      if options[:lazy]
+      # No alt because it may appear in a huge font size if the image is 404. TODO: is this still the case?
+      if lazy
         html << lazy_image_tag(url, class: 'dl-thumbnail mr-3', alt: '')
       else
         html << image_tag(url, class: 'dl-thumbnail mr-3', alt: '',

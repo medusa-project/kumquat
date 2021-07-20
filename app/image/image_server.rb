@@ -4,8 +4,8 @@ class ImageServer
 
   ##
   # @param binary [Binary]
-  # @param region [String]
-  # @param size [String]
+  # @param region [String,Symbol]
+  # @param size [String,Integer]
   # @param rotation [Integer]
   # @param color [String]
   # @param content_disposition [String] Cantaloupe-specific argument.
@@ -24,11 +24,12 @@ class ImageServer
                         filename:            nil,
                         cache:               true)
     return nil unless binary.image_server_safe?
-    query = {}
-    size  = "!#{size},#{size}" if size.to_i == size
-    url   = sprintf('%s/%s/%s/%d/%s.%s',
-                    binary.iiif_image_v2_url,
-                    region, size, rotation, color, format)
+    query  = {}
+    region = region.to_s
+    size   = "!#{size},#{size}" if size.to_i == size
+    url    = sprintf('%s/%s/%s/%d/%s.%s',
+                     binary.iiif_image_v2_url,
+                     region, size, rotation, color, format)
     if binary.duration
       # ?time=hh:mm:ss is a nonstandard argument supported only by
       # Cantaloupe's FfmpegProcessor. All other processors will ignore it.
@@ -41,7 +42,7 @@ class ImageServer
       # FfmpegProcessor doesn't allow a percentage argument because ffprobe
       # doesn't. (DLD-102)
       #
-      # Ideally we would use ffmpeg's scene detection but FfmpegProcessor
+      # Ideally we would use ffmpeg's scene detection, but FfmpegProcessor
       # doesn't support that yet.
       query['time'] = TimeUtils.seconds_to_hms(binary.duration * 0.2)
     end
