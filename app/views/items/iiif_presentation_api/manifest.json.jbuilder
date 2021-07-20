@@ -15,7 +15,8 @@ if @item.has_full_text?(include_children: true)
 end
 
 # Images
-thumb_url = thumbnail_url(@item)
+thumb_url = item_image_url(item: @item,
+                           size: ItemsHelper::DEFAULT_THUMBNAIL_SIZE)
 if thumb_url
   json.thumbnail do
     json.set! '@id', thumb_url

@@ -2,6 +2,50 @@ class ImageServer
 
   include Singleton
 
+  ##
+  # @param binary [Binary]
+  # @param region [String]
+  # @param size [String]
+  # @param rotation [Integer]
+  # @param color [String]
+  # @param content_disposition [String] Cantaloupe-specific argument.
+  # @param filename [String] Cantaloupe-specific argument.
+  # @param cache [Boolean] Cantaloupe-specific argument.
+  # @return [String, nil] Image URL, or nil if the binary is not compatible
+  #                       with the image server or safe for it to serve.
+  #
+  def self.image_v2_url(binary,
+                        region:              'full',
+                        size:                'max',
+                        rotation:            0,
+                        color:               'default',
+                        format:              'jpg',
+                        content_disposition: nil,
+                        filename:            nil,
+                        cache:               true)
+    return nil unless binary.image_server_safe?
+    query = {}
+    size = "!#{size},#{size}" if size.to_i == size
+    url = sprintf('%s/%s/%s/%d/%s.%s',
+                  binary.iiif_image_v2_url,
+                  region, size, rotation, color, format)
+    if content_disposition
+      if content_disposition == 'attachment'
+        if filename.blank?
+          filename = File.basename(binary.filename, File.extname(binary.filename)) +
+            '.' + format
+        end
+        value = "attachment; filename=\"#{filename}\""
+      else
+        value = content_disposition
+      end
+      query['response-content-disposition'] = value
+    end
+    query['cache'] = 'false' unless cache
+    url += '?' + query.to_query if query.keys.any?
+    url
+  end
+
   def client
     config = Configuration.instance
     HTTPClient.new do

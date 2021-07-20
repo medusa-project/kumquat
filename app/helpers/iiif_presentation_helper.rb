@@ -188,7 +188,8 @@ module IiifPresentationHelper
                 'format':    bin.media_type,
                 'label':     child.title,
                 'metadata':  iiif_metadata_for(child),
-                'thumbnail': thumbnail_url(child.effective_image_binary),
+                'thumbnail': ImageServer.image_v2_url(child.effective_image_binary,
+                                                      size: ItemsHelper::DEFAULT_THUMBNAIL_SIZE),
                 rendering: {
                     '@id':  binary_url(bin),
                     format: bin.media_type

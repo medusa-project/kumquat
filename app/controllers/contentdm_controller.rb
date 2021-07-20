@@ -5,13 +5,11 @@
 #
 class ContentdmController < ApplicationController
 
-  THUMBNAIL_SIZE = ItemsHelper::DEFAULT_THUMBNAIL_SIZE
-
   ##
   # Responds to:
   #
-  # * GET /projects/*
-  # * GET /ui/*
+  # * `GET /projects/*`
+  # * `GET /ui/*`
   #
   def gone
     render plain: 'This resource no longer exists.', status: :gone
@@ -21,7 +19,7 @@ class ContentdmController < ApplicationController
   # Handles CONTENTdm v4 results URLs. (CONTENTdm 4 doesn't have
   # collection-specific pages, so these redirect to DLS collection pages.)
   #
-  # Responds to GET /cdm4/browse.php
+  # Responds to `GET /cdm4/browse.php`
   #
   def v4_collection
     col = Collection.find_by_contentdm_alias(sanitize_alias(params[:CISOROOT]))
@@ -35,7 +33,7 @@ class ContentdmController < ApplicationController
   ##
   # Handles CONTENTdm v4 results URLs.
   #
-  # Responds to GET /cdm4/results.php
+  # Responds to `GET /cdm4/results.php`
   #
   def v4_collection_items
     col = Collection.find_by_contentdm_alias(sanitize_alias(params[:CISOROOT]))
@@ -50,8 +48,9 @@ class ContentdmController < ApplicationController
   # Handles CONTENTdm v4 item URLs.
   #
   # Responds to:
-  # * GET /cdm4/item_viewer.php
-  # * GET /cdm4/document.php
+  #
+  # * `GET /cdm4/item_viewer.php`
+  # * `GET /cdm4/document.php`
   #
   def v4_item
     redirect_to_best_match(params[:CISOROOT], params[:CISOPTR])
@@ -60,7 +59,7 @@ class ContentdmController < ApplicationController
   ##
   # Handles CONTENTdm v4 reference URLs, which look like: /u?/alias,pointer
   #
-  # Responds to GET /u
+  # Responds to `GET /u`
   #
   def v4_reference_url
     identifier = params.keys.find{ |k| k.start_with?('/') }
@@ -79,8 +78,8 @@ class ContentdmController < ApplicationController
   #
   # Responds to:
   #
-  # * GET /cdm/landingpage/collection/:alias
-  # * GET /cdm/about/collection/:alias
+  # * `GET /cdm/landingpage/collection/:alias`
+  # * `GET /cdm/about/collection/:alias`
   #
   def v6_collection
     col = Collection.find_by_contentdm_alias(params[:alias])
@@ -95,13 +94,14 @@ class ContentdmController < ApplicationController
   # Handles CONTENTdm v6 collection items URLs.
   #
   # Responds to:
-  # * GET /cdm/search/collection/:alias
-  # * GET /cdm/search/collection/:alias/order/:order/ad/:ad
-  # * GET /cdm/search/collection/:alias/searchterm/:term/mode/:mode/page/:page
-  # * GET /cdm/search/collection/:alias/searchterm/:term/mode/:mode/order/:title
-  # * GET /cdm/search/collection/:alias/searchterm/:term/field/:field/mode/:mode/conn/:conn/order/:order
-  # * GET /cdm/search/collection/:alias/searchterm/:term/field/:field/mode/:mode/conn/:conn/order/:order/ad/:ad
-  # * GET /cdm/search/collection/:alias/searchterm/:term/field/:field/mode/:mode/conn/:conn/order/:order/page/:page
+  #
+  # * `GET /cdm/search/collection/:alias`
+  # * `GET /cdm/search/collection/:alias/order/:order/ad/:ad`
+  # * `GET /cdm/search/collection/:alias/searchterm/:term/mode/:mode/page/:page`
+  # * `GET /cdm/search/collection/:alias/searchterm/:term/mode/:mode/order/:title`
+  # * `GET /cdm/search/collection/:alias/searchterm/:term/field/:field/mode/:mode/conn/:conn/order/:order`
+  # * `GET /cdm/search/collection/:alias/searchterm/:term/field/:field/mode/:mode/conn/:conn/order/:order/ad/:ad`
+  # * `GET /cdm/search/collection/:alias/searchterm/:term/field/:field/mode/:mode/conn/:conn/order/:order/page/:page`
   #
   def v6_collection_items
     col = Collection.find_by_contentdm_alias(sanitize_alias(params[:alias]))
@@ -121,13 +121,14 @@ class ContentdmController < ApplicationController
   # Handles CONTENTdm v6 item URLs.
   #
   # Responds to:
-  # * GET /cdm/ref/collection/:alias/:pointer
-  # * GET /cdm/ref/collection/:alias/id/:pointer
-  # * GET /cdm/singleitem/collection/:alias/id/:pointer
-  # * GET /cdm/singleitem/collection/:alias/id/:pointer/rec/:noop
-  # * GET /cdm/compoundobject/collection/:alias/id/:pointer
-  # * GET /cdm/compoundobject/collection/:alias/id/:pointer/rec/:noop
-  # * GET /cdm/compoundobject/collection/:alias/id/:pointer/show/:pointer/rec/:noop
+  #
+  # * `GET /cdm/ref/collection/:alias/:pointer`
+  # * `GET /cdm/ref/collection/:alias/id/:pointer`
+  # * `GET /cdm/singleitem/collection/:alias/id/:pointer`
+  # * `GET /cdm/singleitem/collection/:alias/id/:pointer/rec/:noop`
+  # * `GET /cdm/compoundobject/collection/:alias/id/:pointer`
+  # * `GET /cdm/compoundobject/collection/:alias/id/:pointer/rec/:noop`
+  # * `GET /cdm/compoundobject/collection/:alias/id/:pointer/show/:pointer/rec/:noop`
   #
   def v6_item
     redirect_to_best_match(params[:alias], params[:pointer])
@@ -138,21 +139,21 @@ class ContentdmController < ApplicationController
   #
   # Responds to:
   #
-  # * GET /cdm/search/searchterm/:term
-  # * GET /cdm/search/searchterm/:term/mode/:mode
-  # * GET /cdm/search/searchterm/:term/mode/:mode/page/:page
-  # * GET /cdm/search/searchterm/:term/mode/:mode/order/:order
-  # * GET /cdm/search/searchterm/:term/mode/:mode/order/:order/ad/:ad
-  # * GET /cdm/search/searchterm/:term/mode/:mode/order/:order/page/:page
-  # * GET /cdm/search/searchterm/:term/mode/:mode/order/:order/ad/:ad/page/:page
-  # * GET /cdm/search/searchterm/:term/order/:order
+  # * `GET /cdm/search/searchterm/:term`
+  # * `GET /cdm/search/searchterm/:term/mode/:mode`
+  # * `GET /cdm/search/searchterm/:term/mode/:mode/page/:page`
+  # * `GET /cdm/search/searchterm/:term/mode/:mode/order/:order`
+  # * `GET /cdm/search/searchterm/:term/mode/:mode/order/:order/ad/:ad`
+  # * `GET /cdm/search/searchterm/:term/mode/:mode/order/:order/page/:page`
+  # * `GET /cdm/search/searchterm/:term/mode/:mode/order/:order/ad/:ad/page/:page`
+  # * `GET /cdm/search/searchterm/:term/order/:order`
   #
   def v6_search_results
     redirect_to search_url(q: sanitize_term(params[:term])), status: 301
   end
 
   ##
-  # Responds to GET /utils/getthumbnail/collection/:alias/id/:pointer
+  # Responds to `GET /utils/getthumbnail/collection/:alias/id/:pointer`
   #
   def v6_thumbnail
     item = item_for(params[:alias], params[:pointer])
@@ -162,14 +163,15 @@ class ContentdmController < ApplicationController
       bin = item.binaries.where(master_type: Binary::MasterType::ACCESS,
                                 media_category: Binary::MediaCategory::IMAGE).limit(1).first
       if bin
-        redirect_to sprintf('%s/full/!%d,%d/0/default.jpg',
-                            bin.iiif_image_v2_url, THUMBNAIL_SIZE, THUMBNAIL_SIZE),
+        redirect_to ImageServer.image_v2_url(bin,
+                                             size: ItemsHelper::DEFAULT_THUMBNAIL_SIZE),
                     status: 301
         return
       end
     end
     render plain: 'Not found.', status: 404
   end
+
 
   private
 

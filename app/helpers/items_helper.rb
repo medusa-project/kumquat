@@ -9,66 +9,6 @@ module ItemsHelper
 
   ##
   # @param binary [Binary]
-  # @param options [Hash<Symbol,Object>]
-  # @option options [String] :region
-  # @option options [String] :size
-  # @option options [Integer] :rotation
-  # @option options [String] :color
-  # @option options [String] :content_disposition
-  # @option options [String] :filename
-  # @option options [Boolean] :cache
-  # @return [String, nil] Image URL, or nil if the binary is not compatible
-  #                       with the image server or safe for it to serve.
-  #
-  def binary_image_url(binary, options = {}) # TODO: update this signature to be consistent with item_image_url()
-    url   = nil
-    query = {}
-
-    if binary.image_server_safe?
-      options[:region] = 'full' if options[:region].blank?
-      if options[:size].blank?
-        options[:size] = 'full'
-      elsif options[:size].to_i == options[:size]
-        options[:size] = "!#{options[:size]},#{options[:size]}"
-      end
-      options[:rotation] = 0 if options[:rotation].blank?
-      options[:color]    = 'default' if options[:color].blank?
-      options[:format]   = 'jpg' if options[:format].blank?
-
-      url = sprintf('%s/%s/%s/%d/%s.%s',
-                    binary.iiif_image_v2_url,
-                    options[:region],
-                    options[:size],
-                    options[:rotation],
-                    options[:color],
-                    options[:format])
-
-      if options[:content_disposition].present?
-        if options[:content_disposition] == 'attachment'
-          if options[:filename].present?
-            filename = options[:filename]
-          else
-            filename = File.basename(binary.filename, File.extname(binary.filename)) +
-                '.' + options[:format]
-          end
-          value = "attachment; filename=\"#{filename}\""
-        else
-          value = options[:content_disposition]
-        end
-        query['response-content-disposition'] = value
-      end
-
-      if options.keys.include?(:cache) and !options[:cache]
-        query['cache'] = 'false'
-      end
-    end
-
-    url += '?' + query.to_query if query.keys.any?
-    url
-  end
-
-  ##
-  # @param binary [Binary]
   # @option admin [Boolean] Whether to include administrative information.
   # @return [Enumerable<Hash<Symbol,Object>>] Array of hashes with `:label`
   #                                           and `:value` keys.
@@ -930,7 +870,7 @@ module ItemsHelper
   #                                 set instead of `src`; defaults to false.
   # @return [String]
   #
-  def thumbnail_tag(entity, options = {})
+  def thumbnail_tag(entity, options = {}) # TODO: fix arguments
     options         = {} unless options.kind_of?(Hash)
     options[:size]  = DEFAULT_THUMBNAIL_SIZE unless options.keys.include?(:size)
     options[:shape] = 'full' unless options.keys.include?(:shape)
@@ -938,15 +878,15 @@ module ItemsHelper
 
     url = nil
     if entity.kind_of?(Binary) and entity.image_server_safe?
-      url = binary_image_url(entity,
-                             region: options[:shape],
-                             size: options[:size])
+      url = ImageServer.image_v2_url(entity,
+                                     region: options[:shape],
+                                     size:   options[:size])
     elsif entity.kind_of?(Collection)
       bin = entity.effective_representative_image_binary
       if bin&.image_server_safe?
-        url = binary_image_url(bin,
-                               region: options[:shape],
-                               size: options[:size])
+        url = ImageServer.image_v2_url(bin,
+                                       region: options[:shape],
+                                       size:   options[:size])
       end
     elsif entity.kind_of?(Item) and entity.effective_image_binary&.image_server_safe?
       url = item_image_url(item:   entity,
@@ -974,23 +914,6 @@ module ItemsHelper
                                       'data-location': 'local'))
     end
     raw(html.string)
-  end
-
-  ##
-  # @param entity [Item, Binary] or some other object suitable for passing to
-  #                              {ApplicationHelper#icon_for}
-  # @param size [Integer]
-  # @param shape [Symbol] `:default` or `:square`
-  # @return [String]
-  #
-  def thumbnail_url(entity, size = DEFAULT_THUMBNAIL_SIZE, shape = :default)
-    url = nil
-    if entity.kind_of?(Binary)
-      url = binary_image_url(entity, region: shape, size: size)
-    elsif entity.kind_of?(Item)
-      url = item_image_url(item: entity, region: shape, size: size)
-    end
-    url
   end
 
   ##
