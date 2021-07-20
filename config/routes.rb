@@ -94,9 +94,10 @@ Rails.application.routes.draw do
       match '/items/edit', to: 'items#edit_all', via: :get, as: 'edit_all_items'
       match '/items', to: 'items#destroy_all', via: :delete,
             as: 'destroy_all_items'
-      match '/items/update', to: 'items#update_all', via: :post
       match '/items/publish', to: 'items#publish', via: :patch
+      match '/items/run-ocr', to: 'items#run_ocr', via: :patch
       match '/items/unpublish', to: 'items#unpublish', via: :patch
+      match '/items/update', to: 'items#update_all', via: :post
       resources :items do
         match '/publicize-child-binaries', to: 'items#publicize_child_binaries',
               via: :post
@@ -118,7 +119,6 @@ Rails.application.routes.draw do
       match '/items/sync', to: 'items#sync', via: :post
       match '/purge-cached-images', to: 'collections#purge_cached_images',
             via: :post
-      match '/run-ocr', to: 'collections#run_ocr', via: :patch
       match '/statistics', to: 'collections#statistics', via: :get
       match '/unwatch', to: 'collections#unwatch', via: :patch
       match '/watch', to: 'collections#watch', via: :patch

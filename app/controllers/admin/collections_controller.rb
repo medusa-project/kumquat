@@ -85,18 +85,6 @@ module Admin
     end
 
     ##
-    # Runs OCR on all relevant binaries in a collection, in the background.
-    #
-    # Responds to `PATCH /admin/collections/:collection_id/run-ocr`
-    #
-    def run_ocr
-      OcrCollectionJob.perform_later(@collection.repository_id)
-      flash['success'] = 'Running OCR in the background. This may take a while.'
-    ensure
-      redirect_back fallback_location: admin_collection_path(@collection)
-    end
-
-    ##
     # Responds to `GET /admin/collections/:id`
     #
     def show

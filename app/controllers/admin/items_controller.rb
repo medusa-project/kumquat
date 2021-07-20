@@ -21,7 +21,7 @@ module Admin
     ##
     # Adds the items with the given IDs to the given item set.
     #
-    # Responds to POST /admin/collections/:collection_id/items/add-items-to-item-set
+    # Responds to `POST /admin/collections/:collection_id/items/add-items-to-item-set`
     #
     def add_items_to_item_set
       item_ids = params[:items]
@@ -41,7 +41,7 @@ module Admin
     #
     # Query syntax is the same as for item results view.
     #
-    # Responds to POST /admin/collections/:collection_id/items/add-query-to-item-set
+    # Responds to `POST /admin/collections/:collection_id/items/add-query-to-item-set`
     #
     def add_query_to_item_set
       collection = Collection.find_by_repository_id(params[:collection_id])
@@ -67,7 +67,7 @@ module Admin
     ##
     # Batch-changes metadata elements.
     #
-    # Responds to POST /admin/collections/:collection_id/items/batch-change-metadata
+    # Responds to `POST /admin/collections/:collection_id/items/batch-change-metadata`
     #
     def batch_change_metadata
       col = Collection.find_by_repository_id(params[:collection_id])
@@ -88,7 +88,7 @@ module Admin
     end
 
     ##
-    # Responds to DELETE /admin/collections/:collection_id/items
+    # Responds to `DELETE /admin/collections/:collection_id/items`
     #
     def destroy_all
       col = Collection.find_by_repository_id(params[:collection_id])
@@ -106,7 +106,7 @@ module Admin
     end
 
     ##
-    # Responds to GET /admin/collections/:collection_id/items/:id
+    # Responds to `GET /admin/collections/:collection_id/items/:id`
     #
     def edit
       @item = Item.find_by_repository_id(params[:id])
@@ -120,7 +120,7 @@ module Admin
     end
 
     ##
-    # Responds to GET /admin/collections/:collection_id/items/edit
+    # Responds to `GET /admin/collections/:collection_id/items/edit`
     #
     def edit_all
       @collection = Collection.find_by_repository_id(params[:collection_id])
@@ -165,7 +165,7 @@ module Admin
     end
 
     ##
-    # Responds to GET /admin/collections/:collection_id/items
+    # Responds to `GET /admin/collections/:collection_id/items`
     #
     def index
       @collection = Collection.find_by_repository_id(params[:collection_id])
@@ -208,7 +208,7 @@ module Admin
     ##
     # Imports item metadata from TSV.
     #
-    # Responds to POST /admin/collections/:collection_id/items/import
+    # Responds to `POST /admin/collections/:collection_id/items/import`
     #
     def import
       col = Collection.find_by_repository_id(params[:collection_id])
@@ -247,7 +247,7 @@ module Admin
     # Migrates values from elements of one name to elements of a different
     # name.
     #
-    # Responds to POST /admin/collections/:collection_id/items/migrate-metadata
+    # Responds to `POST /admin/collections/:collection_id/items/migrate-metadata`
     #
     def migrate_metadata
       col = Collection.find_by_repository_id(params[:collection_id])
@@ -268,7 +268,7 @@ module Admin
     end
 
     ##
-    # Responds to POST /admin/collections/:collection_id/items/:item_id/publicize-child-binaries
+    # Responds to `POST /admin/collections/:collection_id/items/:item_id/publicize-child-binaries`
     #
     def publicize_child_binaries
       item = Item.find_by_repository_id(params[:item_id])
@@ -287,14 +287,14 @@ module Admin
     end
 
     ##
-    # Responds to PATCH /admin/:collections/:collection_id/items/publish
+    # Responds to `PATCH /admin/:collections/:collection_id/items/publish`
     #
     def publish
       publish_or_unpublish(true)
     end
 
     ##
-    # Responds to POST /admin/collections/:collection_id/items/:item_id/purge-cached-images
+    # Responds to `POST /admin/collections/:collection_id/items/:item_id/purge-cached-images`
     #
     def purge_cached_images
       item = Item.find_by_repository_id(params[:item_id])
@@ -316,7 +316,7 @@ module Admin
     ##
     # Finds and replaces values across metadata elements.
     #
-    # Responds to POST /admin/collections/:collection_id/items/replace-metadata
+    # Responds to `POST /admin/collections/:collection_id/items/replace-metadata`
     #
     def replace_metadata
       col = Collection.find_by_repository_id(params[:collection_id])
@@ -343,22 +343,53 @@ module Admin
     # Runs OCR on all relevant binaries of an item and all of its children,
     # in the background.
     #
-    # Responds to `PATCH /admin/collections/:collection_id/items/:item_id/run-ocr`
+    # Responds to:
+    #
+    # * `PATCH /admin/collections/:collection_id/items/:item_id/run-ocr` (for
+    #   OCRing a single item)
+    # * `PATCH /admin/collections/:collection_id/items/run-ocr` (for OCRing a
+    #   whole collection, or selected items in a collection)
     #
     def run_ocr
-      item = Item.find_by_repository_id(params[:item_id])
-      raise ActiveRecord::RecordNotFound unless item
+      flash_msg = 'Running OCR in the background. This may take a while.'
+      if params[:item_id] # OCR single item
+        begin
+          item = Item.find_by_repository_id(params[:item_id])
+          raise ActiveRecord::RecordNotFound unless item
 
-      OcrItemJob.perform_later(item.repository_id)
+          OcrItemJob.perform_later(item.repository_id)
+        rescue => e
+          handle_error(e)
+        else
+          flash['success'] = flash_msg
+        ensure
+          redirect_back fallback_location:
+                          admin_collection_item_path(item.collection, item)
+        end
+      else # OCR multiple items or a whole collection
+        begin
+          collection = Collection.find_by_repository_id(params[:collection_id])
+          raise ActiveRecord::RecordNotFound unless collection
 
-      flash['success'] = 'Running OCR in the background. This may take a while.'
-    ensure
-      redirect_back fallback_location:
-                      admin_collection_item_path(item.collection, item)
+          # If we are OCRing only checked items, params[:id] will be set.
+          if params[:id].respond_to?(:any?) and params[:id].any?
+            OcrItemsJob.perform_later(params[:id])
+          else
+            OcrCollectionJob.perform_later(collection.repository_id)
+          end
+        rescue => e
+          handle_error(e)
+        else
+          flash['success'] = flash_msg
+        ensure
+          redirect_back fallback_location:
+                          admin_collection_items_path(collection)
+        end
+      end
     end
 
     ##
-    # Responds to GET /admin/collections/:collection_id/items/:id
+    # Responds to `GET /admin/collections/:collection_id/items/:id`
     #
     def show
       @item = Item.find_by_repository_id(params[:id])
@@ -376,7 +407,7 @@ module Admin
     # internally as "syncing" because that is a better description of what's
     # happening. -- alexd@illinois.edu
     #
-    # Responds to POST /admin/collections/:collection_id/items/sync
+    # Responds to `POST /admin/collections/:collection_id/items/sync`
     #
     def sync
       col = Collection.find_by_repository_id(params[:collection_id])
@@ -398,7 +429,7 @@ module Admin
     end
 
     ##
-    # Responds to POST /admin/collections/:collection_id/items/:item_id/unpublicize-child-binaries
+    # Responds to `POST /admin/collections/:collection_id/items/:item_id/unpublicize-child-binaries`
     #
     def unpublicize_child_binaries
       item = Item.find_by_repository_id(params[:item_id])
@@ -417,7 +448,7 @@ module Admin
     end
 
     ##
-    # Responds to PATCH /admin/:collections/:collection_id/items/unpublish
+    # Responds to `PATCH /admin/:collections/:collection_id/items/unpublish`
     #
     def unpublish
       publish_or_unpublish(false)
@@ -469,7 +500,7 @@ module Admin
     end
 
     ##
-    # Responds to POST /admin/items/update
+    # Responds to `POST /admin/items/update`
     #
     def update_all
       num_updated = 0
@@ -504,6 +535,7 @@ module Admin
       flash['success'] = "#{num_updated} items updated."
       redirect_back fallback_location: admin_collections_path
     end
+
 
     private
 

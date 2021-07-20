@@ -16,11 +16,27 @@
                           disabled: (!@collection.package_profile || !@collection.medusa_file_group) }
       %i.fas.fa-sync-alt
       Import
-    -# OCR
-    = link_to(admin_collection_run_ocr_path(@collection),
-              method: :patch, class: "btn btn-light", role: "button") do
-      %i.fas.fa-eye
-      OCR
+
+    -# OCR button
+    .btn-group
+      %button.btn.btn-light.dropdown-toggle{"aria-expanded": "false",
+                                            "data-toggle": "dropdown",
+                                            type: "button"}
+        %i.fas.fa-eye
+        OCR
+        %span.caret
+      .dropdown-menu
+        = link_to 'Run OCR on All Results',
+                  admin_collection_items_run_ocr_path(@collection),
+                  method: :patch,
+                  id: 'dl-ocr-results-link',
+                  class: 'dropdown-item'
+        = link_to 'Run OCR on Checked Results',
+                  admin_collection_items_run_ocr_path(@collection),
+                  method: :patch,
+                  id: 'dl-ocr-checked-results-link',
+                  class: 'dropdown-item'
+
     -# Metadata
     .btn-group
       %button.btn.btn-light.dropdown-toggle{"aria-expanded": "false",

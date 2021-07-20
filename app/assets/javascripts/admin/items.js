@@ -302,17 +302,18 @@ const DLAdminItemsView = function() {
             }
         });
 
-        // When the "Publish Checked Results" or "Unpublish Checked Results"
-        // menu items are clicked, copy the selected item IDs into their hrefs.
-        $('#dl-publish-checked-results-link, #dl-unpublish-checked-results-link').on('click', function() {
+        // When the "Publish Checked Results," "Unpublish Checked Results," or
+        // "Run OCR on Checked Results" menu items are clicked, copy the
+        // selected item IDs into their hrefs.
+        $('#dl-ocr-checked-results-link, #dl-publish-checked-results-link, ' +
+            '#dl-unpublish-checked-results-link').on('click', function() {
             var checked_items = [];
             $('[name="dl-selected-items[]"]:checked').each(function() {
                 checked_items.push($(this).val());
             });
-
-            var href = $(this).attr('href');
-            var pos = href.indexOf('?');
-            var url = (pos > 0) ? href.substring(0, pos) : href;
+            const href = $(this).attr('href');
+            const pos = href.indexOf('?');
+            const url = (pos > 0) ? href.substring(0, pos) : href;
             $(this).attr('href', url + '?id[]=' + checked_items.join('&id[]='));
         });
     };
