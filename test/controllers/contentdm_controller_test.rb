@@ -283,8 +283,8 @@ class ContentdmControllerTest < ActionDispatch::IntegrationTest
         where(master_type: Binary::MasterType::ACCESS).first
     assert_redirected_to sprintf('%s/full/!%d,%d/0/default.jpg',
                                  bin.iiif_image_v2_url,
-                                 ContentdmController::THUMBNAIL_SIZE,
-                                 ContentdmController::THUMBNAIL_SIZE)
+                                 ItemsHelper::DEFAULT_THUMBNAIL_SIZE,
+                                 ItemsHelper::DEFAULT_THUMBNAIL_SIZE)
   end
 
 end
