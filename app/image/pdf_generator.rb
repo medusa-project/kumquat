@@ -326,7 +326,7 @@ class PdfGenerator
     width    = width.to_i
     height   = height.to_i
     size     = (width > 0) ? "!#{width},#{height}" : 'max'
-    url      = "#{binary.iiif_image_url}/full/#{size}/0/default.jpg"
+    url      = "#{binary.iiif_image_v2_url}/full/#{size}/0/default.jpg"
     pathname = File.join(
       image_temp_dir,
       binary.filename.split('.')[0...-1].join('.') + '.jpg')

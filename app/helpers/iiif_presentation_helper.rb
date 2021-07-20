@@ -124,7 +124,7 @@ module IiifPresentationHelper
               'format': binary.media_type,
               service: {
                   '@context': 'http://iiif.io/api/image/2/context.json',
-                  '@id':      binary.iiif_image_url,
+                  '@id':      binary.iiif_image_v2_url,
                   profile:    'http://iiif.io/api/image/2/profiles/level2.json'
               },
               height: binary.height,

@@ -163,7 +163,7 @@ class ContentdmController < ApplicationController
                                 media_category: Binary::MediaCategory::IMAGE).limit(1).first
       if bin
         redirect_to sprintf('%s/full/!%d,%d/0/default.jpg',
-                            bin.iiif_image_url, THUMBNAIL_SIZE, THUMBNAIL_SIZE),
+                            bin.iiif_image_v2_url, THUMBNAIL_SIZE, THUMBNAIL_SIZE),
                     status: 301
         return
       end

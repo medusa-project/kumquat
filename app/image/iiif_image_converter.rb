@@ -38,7 +38,7 @@ class IiifImageConverter
           '.' + format
 
       if binary.image_server_safe?
-        url = binary.iiif_image_url + '/full/full/0/default.' + format
+        url = binary.iiif_image_v2_url + '/full/full/0/default.' + format
 
         LOGGER.debug('Creating %s', new_pathname)
         FileUtils.mkdir_p(File.dirname(new_pathname))

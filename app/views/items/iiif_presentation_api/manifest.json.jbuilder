@@ -21,14 +21,14 @@ if thumb_url
     json.set! '@id', thumb_url
     json.service do
       json.set! '@context', 'http://iiif.io/api/image/2/context.json'
-      json.set! '@id', @item.effective_image_binary&.iiif_image_url
+      json.set! '@id', @item.effective_image_binary&.iiif_image_v2_url
       json.profile 'http://iiif.io/api/image/2/level2.json'
     end
   end
 
   services << {
     '@context': 'http://iiif.io/api/image/2/context.json',
-    '@id':      @item.effective_image_binary&.iiif_image_url,
+    '@id':      @item.effective_image_binary&.iiif_image_v2_url,
     profile:    'http://iiif.io/api/image/2/level2.json'
   }
 end

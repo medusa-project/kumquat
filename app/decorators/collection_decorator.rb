@@ -52,7 +52,7 @@ class CollectionDecorator < Draper::Decorator
           size = 2 ** exp
           if (bin.width and bin.width >= size) or (bin.height and bin.height >= size)
             struct[:representative_images][:full][size.to_s] =
-                "#{bin.iiif_image_url}/full/!#{size},#{size}/0/default.jpg"
+                "#{bin.iiif_image_v2_url}/full/!#{size},#{size}/0/default.jpg"
           end
         end
 
@@ -61,7 +61,7 @@ class CollectionDecorator < Draper::Decorator
           size = 2 ** exp
           if bin.width and bin.width >= size and bin.height and bin.height >= size
             struct[:representative_images][:square][size.to_s] =
-                "#{bin.iiif_image_url}/square/!#{size},#{size}/0/default.jpg"
+                "#{bin.iiif_image_v2_url}/square/!#{size},#{size}/0/default.jpg"
           end
         end
       end

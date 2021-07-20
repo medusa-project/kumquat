@@ -142,11 +142,11 @@ class BinaryTest < ActiveSupport::TestCase
                  @instance.iiif_image_identifier
   end
 
-  # iiif_image_url()
+  # iiif_image_v2_url()
 
-  test 'iiif_image_url() should return the correct URL' do
+  test 'iiif_image_v2_url() should return the correct URL' do
     assert_equal Configuration.instance.iiif_image_v2_url + '/' + @instance.medusa_uuid,
-                 @instance.iiif_image_url
+                 @instance.iiif_image_v2_url
   end
 
   # iiif_info_url()

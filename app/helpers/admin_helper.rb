@@ -361,7 +361,7 @@ module AdminHelper
                              false_string: "Unpublished") }
 
     # Primary IIIF v2 Image URL
-    iiif_v2_url = item.effective_image_binary&.iiif_image_url
+    iiif_v2_url = item.effective_image_binary&.iiif_image_v2_url
     data << { label: 'Primary IIIF Image v2 URL',
               value: iiif_v2_url.present? ?
                   link_to(iiif_v2_url, iiif_v2_url, target: '_blank') : 'None' }

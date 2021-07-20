@@ -37,7 +37,7 @@
             Master File (#{preservation_master.human_readable_name})
         - if (image_binary&.public? || current_user&.medusa_user?) && image_binary&.image_server_safe?
           %a.btn.btn-outline-primary.btn-sm{"data-iiif-info-url": image_binary.iiif_info_url,
-                                            "data-iiif-url":      image_binary.iiif_image_url,
+                                            "data-iiif-url":      image_binary.iiif_image_v2_url,
                                             "data-target":        "#dl-custom-image-modal",
                                             "data-title":         item.title,
                                             "data-toggle":        "modal",

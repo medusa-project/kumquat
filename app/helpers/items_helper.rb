@@ -36,7 +36,7 @@ module ItemsHelper
       options[:format]   = 'jpg' if options[:format].blank?
 
       url = sprintf('%s/%s/%s/%d/%s.%s',
-                    binary.iiif_image_url,
+                    binary.iiif_image_v2_url,
                     options[:region],
                     options[:size],
                     options[:rotation],
@@ -322,7 +322,7 @@ module ItemsHelper
         time = '?time=' + TimeUtils.seconds_to_hms(seconds)
       end
       url = sprintf('%s/%s/%s/0/default.%s%s',
-                    bin.iiif_image_url, region, size, format, time)
+                    bin.iiif_image_v2_url, region, size, format, time)
     end
     url
   end
@@ -1299,7 +1299,7 @@ module ItemsHelper
               prefixUrl: \"/openseadragon/images/\",
               showNavigator: true,
               immediateRender: true,
-              tileSources: \"#{binary.iiif_image_url}\"
+              tileSources: \"#{binary.iiif_image_v2_url}\"
           });
       </script>"
     else

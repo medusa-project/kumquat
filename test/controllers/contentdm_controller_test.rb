@@ -282,7 +282,7 @@ class ContentdmControllerTest < ActionDispatch::IntegrationTest
     bin = @item.effective_representative_entity.binaries.
         where(master_type: Binary::MasterType::ACCESS).first
     assert_redirected_to sprintf('%s/full/!%d,%d/0/default.jpg',
-                                 bin.iiif_image_url,
+                                 bin.iiif_image_v2_url,
                                  ContentdmController::THUMBNAIL_SIZE,
                                  ContentdmController::THUMBNAIL_SIZE)
   end
