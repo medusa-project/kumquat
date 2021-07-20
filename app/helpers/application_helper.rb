@@ -35,13 +35,21 @@ module ApplicationHelper
   ##
   # Formats a boolean for display.
   #
-  # @param boolean [Boolean]
+  # @param boolean [Boolean] Boolean value.
   # @param style [Symbol] `:check` or `:word`
-  # @param invert_color [Boolean]
+  # @param invert_color [Boolean] Shows true in red and false in green.
   # @param omit_color [Boolean]
+  # @param true_string [String] Alternative to `YES`.
+  # @param false_string [String] Alternative to `NO`.
   # @return [String]
   #
-  def boolean(boolean, style: :check, invert_color: false, omit_color: false)
+  def boolean(boolean,
+              style:          :check,
+              invert_color:   false,
+              omit_color:     false,
+              true_string:    nil,
+              false_string:   nil)
+    style = :word if true_string.present? || false_string.present?
     if style == :check
       content = boolean ? '&check;' : '&times;'
       boolean = !boolean if invert_color
@@ -49,7 +57,11 @@ module ApplicationHelper
       class_  = 'text-light' if omit_color
       html    = "<span class=\"#{class_}\">#{content}</span>"
     else
-      content = boolean ? 'YES' : 'NO'
+      content = if boolean
+                  true_string.present? ? true_string : 'YES'
+                else
+                  false_string.present? ? false_string : 'NO'
+                end
       boolean = !boolean if invert_color
       class_  = boolean ? 'badge-success' : 'badge-danger'
       class_  = 'badge-light' if omit_color
