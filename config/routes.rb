@@ -92,6 +92,10 @@ Rails.application.routes.draw do
         match '/items', to: 'item_sets#remove_items', via: :delete
       end
       match '/items/edit', to: 'items#edit_all', via: :get, as: 'edit_all_items'
+      match '/items/enable-full-text-search', to: 'items#enable_full_text_search',
+            via: :patch
+      match '/items/disable-full-text-search', to: 'items#disable_full_text_search',
+            via: :patch
       match '/items', to: 'items#destroy_all', via: :delete,
             as: 'destroy_all_items'
       match '/items/publish', to: 'items#publish', via: :patch

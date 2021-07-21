@@ -305,7 +305,8 @@ const DLAdminItemsView = function() {
         // When the "Publish Checked Results," "Unpublish Checked Results," or
         // "Run OCR on Checked Results" menu items are clicked, copy the
         // selected item IDs into their hrefs.
-        $('#dl-ocr-checked-results-link, #dl-publish-checked-results-link, ' +
+        $('#dl-ocr-checked-results-link, #dl-enable-checked-fts-link, ' +
+            '#dl-disable-checked-fts-link, #dl-publish-checked-results-link, ' +
             '#dl-unpublish-checked-results-link').on('click', function() {
             var checked_items = [];
             $('[name="dl-selected-items[]"]:checked').each(function() {

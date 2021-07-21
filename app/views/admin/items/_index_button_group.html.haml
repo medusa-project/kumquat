@@ -12,8 +12,8 @@
     %button.btn.btn-light.dropdown-toggle{"aria-expanded": "false",
                                           "data-toggle": "dropdown",
                                           type: "button"}
-      %i.fas.fa-eye
-      OCR
+      %i.fas.fa-font
+      Full Text
       %span.caret
     .dropdown-menu
       = link_to 'Run OCR on All Results',
@@ -25,6 +25,27 @@
                 admin_collection_items_run_ocr_path(@collection),
                 method: :patch,
                 id: 'dl-ocr-checked-results-link',
+                class: 'dropdown-item'
+      .dropdown-divider
+      = link_to 'Enable Full Text Search for All Results',
+                admin_collection_items_enable_full_text_search_path(@collection),
+                method: :patch,
+                id: 'dl-enable-fts-link',
+                class: 'dropdown-item'
+      = link_to 'Disable Full Text Search for All Results',
+                admin_collection_items_disable_full_text_search_path(@collection),
+                method: :patch,
+                id: 'dl-disable-fts-link',
+                class: 'dropdown-item'
+      = link_to 'Enable Full Text Search for Checked Results',
+                admin_collection_items_enable_full_text_search_path(@collection),
+                method: :patch,
+                id: 'dl-enable-checked-fts-link',
+                class: 'dropdown-item'
+      = link_to 'Disable Full Text Search for Checked Results',
+                admin_collection_items_disable_full_text_search_path(@collection),
+                method: :patch,
+                id: 'dl-disable-checked-fts-link',
                 class: 'dropdown-item'
 
   -# Metadata

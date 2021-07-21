@@ -165,6 +165,20 @@ module Admin
     end
 
     ##
+    # Responds to `PATCH /admin/:collections/:collection_id/items/enable-full-text-search`
+    #
+    def enable_full_text_search
+      enable_or_disable_full_text_search(true)
+    end
+
+    ##
+    # Responds to `PATCH /admin/:collections/:collection_id/items/disable-full-text-search`
+    #
+    def disable_full_text_search
+      enable_or_disable_full_text_search(false)
+    end
+
+    ##
     # Responds to `GET /admin/collections/:collection_id/items`
     #
     def index
@@ -570,6 +584,33 @@ module Admin
     def authorize_modify_items
       redirect_to(admin_root_url) unless
           current_user.can?(Permissions::MODIFY_ITEMS)
+    end
+
+    ##
+    # @param enable [Boolean]
+    #
+    def enable_or_disable_full_text_search(enable)
+      col = Collection.find_by_repository_id(params[:collection_id])
+      raise ActiveRecord::RecordNotFound unless col
+      begin
+        # If we are (un)publishing only checked items, params[:id] will be set.
+        if params[:id].respond_to?(:any?) and params[:id].any?
+          ids = params[:id]
+        else
+          relation = editing_item_relation_for(col)
+          items    = relation.to_a.select(&:present?)
+          ids      = items.map(&:repository_id)
+        end
+        Item.where('repository_id IN (?)', ids)
+            .update_all(expose_full_text_search: enable)
+      rescue => e
+        handle_error(e)
+      else
+        flash['success'] = "#{enable ? 'En' : 'Dis'}abled "\
+                           "full text search for #{ids.length} items."
+      ensure
+        redirect_back fallback_location: admin_collection_items_path(col)
+      end
     end
 
     ##
