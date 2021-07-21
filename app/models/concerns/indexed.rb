@@ -98,49 +98,11 @@ module Indexed
     # @return [void]
     #
     def reindex_all(es_index: nil, num_threads: 1)
-      # THe basic idea is to divide the total number of results into num_threads
-      # segments, and have each thread work on a segment.
-      mutex              = Mutex.new
-      threads            = Set.new
-      num_records        = count
-      progress           = Progress.new(num_records)
-      record_index       = 0
-      num_thread_records = (num_records / num_threads.to_f).ceil
-      return if num_thread_records < 1
-
-      num_threads.times do |thread_num|
-        threads << Thread.new do
-          batch_size  = [1000, num_thread_records].min
-          num_batches = (num_thread_records / batch_size.to_f).ceil
-          num_batches.times do |batch_index|
-            batch_offset = batch_index * batch_size
-            q_offset     = thread_num * num_thread_records + batch_offset
-            q_limit      = [batch_size, num_thread_records - batch_offset].min
-            uncached do
-=begin
-              puts "[num_records: #{num_records}] "\
-                    "[num_threads: #{num_threads}] "\
-                    "[thread_num: #{thread_num}] "\
-                    "[num_thread_records: #{num_thread_records}] "\
-                    "[batch_offset: #{batch_offset}] "\
-                    "[batch_size: #{batch_size}] "\
-                    "[offset: #{q_offset}] "\
-                    "[limit: #{q_limit}] "
-=end
-              all.order(:id).offset(q_offset).limit(q_limit).each do |model|
-                model.reindex(es_index)
-                mutex.synchronize do
-                  record_index += 1
-                  progress.report(record_index,
-                                  "Indexing #{name.downcase.pluralize}")
-                end
-              end
-            end
-          end
-        end
+      ThreadUtils.process_in_parallel(all.order(:id),
+                                      num_threads: num_threads,
+                                      print_progress: true) do |model|
+        model.reindex(es_index)
       end
-      threads.each(&:join)
-      puts ""
     end
 
     ##
