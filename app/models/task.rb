@@ -92,13 +92,11 @@ class Task < ApplicationRecord
   # @return [Time,nil]
   #
   def estimated_completion
-    now = Time.zone.now
     if self.percent_complete < 0.0000001 || self.percent_complete > 0.9999999 ||
         self.started_at.blank? || self.stopped_at.present?
       nil
     else
-      runtime = now - self.started_at
-      Time.zone.at(now + ((1 - self.percent_complete) * runtime))
+      TimeUtils.eta(self.started_at, self.percent_complete)
     end
   end
 
