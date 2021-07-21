@@ -7,7 +7,43 @@
     %i.fas.fa-sync-alt
     Import
 
-  -# OCR button
+  -# Metadata
+  .btn-group
+    %button.btn.btn-light.dropdown-toggle{"aria-expanded": "false",
+                                          "data-toggle": "dropdown",
+                                          type: "button"}
+      %i.fa.fa-list
+      Metadata
+      %span.caret
+    .dropdown-menu
+      = link_to 'Edit Result Set',
+                admin_collection_edit_all_items_path(@collection),
+                id: 'dl-edit-result-set-metadata-link',
+                class: "dropdown-item #{@collection.metadata_profile ? '' : 'disabled'}"
+      .dropdown-divider
+      = link_to raw('Batch Change&hellip;'), '',
+                'data-toggle': 'modal',
+                'data-target': '#dl-batch-change-modal',
+                class: "dropdown-item #{@collection.metadata_profile ? '' : 'disabled'}"
+      = link_to raw('Find and Replace&hellip;'), '',
+                'data-toggle': 'modal',
+                'data-target': '#dl-find-replace-modal',
+                class: "dropdown-item #{@collection.metadata_profile ? '' : 'disabled'}"
+      = link_to raw('Migrate Element Values&hellip;'), '',
+                'data-toggle': 'modal',
+                'data-target': '#dl-migrate-modal',
+                class: "dropdown-item #{@collection.metadata_profile ? '' : 'disabled'}"
+      .dropdown-divider
+      = link_to raw('Import TSV&hellip;'), '',
+                'data-toggle': 'modal',
+                'data-target': '#dl-import-tsv-modal',
+                class: "dropdown-item #{(@collection.package_profile and @collection.medusa_file_group) ? '' : 'disabled'}"
+      = link_to raw('Export TSV&hellip;'), '',
+                class: 'dropdown-item',
+                'data-toggle': 'modal',
+                'data-target': '#dl-export-modal'
+
+  -# Full Text button
   .btn-group
     %button.btn.btn-light.dropdown-toggle{"aria-expanded": "false",
                                           "data-toggle": "dropdown",
@@ -48,41 +84,6 @@
                 id: 'dl-disable-checked-fts-link',
                 class: 'dropdown-item'
 
-  -# Metadata
-  .btn-group
-    %button.btn.btn-light.dropdown-toggle{"aria-expanded": "false",
-                                          "data-toggle": "dropdown",
-                                          type: "button"}
-      %i.fa.fa-list
-      Metadata
-      %span.caret
-    .dropdown-menu
-      = link_to 'Edit Result Set',
-                admin_collection_edit_all_items_path(@collection),
-                id: 'dl-edit-result-set-metadata-link',
-                class: "dropdown-item #{@collection.metadata_profile ? '' : 'disabled'}"
-      .dropdown-divider
-      = link_to raw('Batch Change&hellip;'), '',
-                'data-toggle': 'modal',
-                'data-target': '#dl-batch-change-modal',
-                class: "dropdown-item #{@collection.metadata_profile ? '' : 'disabled'}"
-      = link_to raw('Find and Replace&hellip;'), '',
-                'data-toggle': 'modal',
-                'data-target': '#dl-find-replace-modal',
-                class: "dropdown-item #{@collection.metadata_profile ? '' : 'disabled'}"
-      = link_to raw('Migrate Element Values&hellip;'), '',
-                'data-toggle': 'modal',
-                'data-target': '#dl-migrate-modal',
-                class: "dropdown-item #{@collection.metadata_profile ? '' : 'disabled'}"
-      .dropdown-divider
-      = link_to raw('Import TSV&hellip;'), '',
-                'data-toggle': 'modal',
-                'data-target': '#dl-import-tsv-modal',
-                class: "dropdown-item #{(@collection.package_profile and @collection.medusa_file_group) ? '' : 'disabled'}"
-      = link_to raw('Export TSV&hellip;'), '',
-                class: 'dropdown-item',
-                'data-toggle': 'modal',
-                'data-target': '#dl-export-modal'
   -# Sets button
   .btn-group
     %button.btn.btn-light.dropdown-toggle{"aria-expanded": "false",
