@@ -469,9 +469,11 @@ module AdminHelper
               value: iiif_v3_url.present? ?
                        link_to(iiif_v3_url, iiif_v3_url, target: '_blank') : 'None' }
 
-    # Expose Full Text Search
-    data << { label: 'Expose Full Text Search',
-              value: boolean(item.expose_full_text_search, style: :word),
+    # Full Text Search
+    data << { label: 'Full Text Search',
+              value: boolean(item.expose_full_text_search,
+                             true_string: "Enabled",
+                             false_string: "Disabled"),
               help: "Whether to show the full-text search field in the item viewer. "\
                     "This only has an effect if the item has full text." }
 
