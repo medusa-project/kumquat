@@ -611,7 +611,6 @@ class Binary < ApplicationRecord
       self.full_text = `tesseract #{jpg_path} stdout`
       self.hocr      = `tesseract #{jpg_path} stdout hocr`
       self.ocred_at  = Time.now
-      self.save!
     end
   end
 
@@ -650,7 +649,6 @@ class Binary < ApplicationRecord
           self.full_text = struct['text'].join(' ')
         end
         self.ocred_at = Time.now
-        self.save!
       else
         raise IOError, "#{config.lambda_ocr_function} returned status "\
               "#{response.status_code}"
