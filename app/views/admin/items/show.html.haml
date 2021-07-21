@@ -134,11 +134,6 @@
                 %i.fa.fa-sitemap
                 Child Items
               .dropdown-menu.dropdown-menu-right{'aria-labelledby': 'dl-child-items-button'}
-                = link_to(admin_collection_item_run_ocr_path(@item.collection, @item),
-                          class: 'dropdown-item',
-                          method: :patch) do
-                  %i.fas.fa-eye
-                  OCR
                 = link_to(admin_collection_item_publicize_child_binaries_path(@item.collection, @item),
                           class: 'dropdown-item',
                           method: :post) do
