@@ -145,37 +145,21 @@ module ApplicationHelper
   # Collections, Agents).
   #
   # @param entities [Enumerable<Representable>]
-  # @param options [Hash] Hash with optional keys.
-  # @option options [Boolean] :link_to_admin
-  # @option options [Boolean] :show_collections
-  # @option options [Boolean] :show_checkboxes
-  # @option options [Boolean] :show_published_status
+  # @param show_collections [Boolean] Relevant only when the given entities are
+  #                                   [Item]s.
   # @return [String] HTML string.
   #
-  def entities_as_media(entities, options = {})
+  def entities_as_media(entities, show_collections: false)
     html = StringIO.new
     html << '<ul class="list-unstyled">'
     entities.each do |entity|
       html << '<li class="media my-4">'
 
-      # Checkboxes
-      if options[:show_checkboxes]
-        html << '<div class="dl-checkbox-container">'
-        html <<   check_box_tag('dl-selected-items[]', entity.repository_id)
-        html << '</div>'
-      end
-
       # Thumbnail area
       html <<   '<div class="dl-thumbnail-container">'
-
-      if options[:link_to_admin] and entity.kind_of?(Item)
-        link_target = admin_collection_item_path(entity.collection, entity)
-      else
-        link_target = polymorphic_path(entity)
-      end
+      link_target = polymorphic_path(entity)
       html << link_to(link_target) do
-        thumbnail_tag(entity.effective_representative_entity,
-                      shape: :square)
+        thumbnail_tag(entity.effective_representative_entity, shape: :square)
       end
       # N.B.: this was made by https://loading.io with the following settings:
       # rolling, color: #cacaca, radius: 25, stroke width: 10, speed: 5, size: 150
@@ -218,18 +202,10 @@ module ApplicationHelper
         ]
         info_sections << range.select(&:present?).map(&:year).join('-') if range.any?
 
-        if options[:show_collections] and entity.collection
+        if show_collections && entity.collection
           link_target = link_to(entity.collection.title,
                                 collection_path(entity.collection))
           info_sections << "#{icon_for(entity.collection)} #{link_target}"
-        end
-      end
-
-      if options[:show_published_status] and entity.respond_to?(:published)
-        if entity.published
-          info_sections << '<span class="badge badge-success"><i class="fa fa-check"></i> Published</span>'
-        else
-          info_sections << '<span class="badge badge-danger"><i class="fa fa-lock"></i> Unpublished</span>'
         end
       end
 

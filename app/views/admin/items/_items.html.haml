@@ -4,11 +4,7 @@
   .col-md-auto
     = page_links
 
-= entities_as_media(@items,
-                    link_to_admin: true,
-                    show_collections: false,
-                    show_checkboxes: true,
-                    show_published_status: true)
+= admin_items_as_media(@items)
 
 .row.justify-content-md-center
   .col-md-auto

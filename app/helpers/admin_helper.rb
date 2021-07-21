@@ -178,6 +178,103 @@ module AdminHelper
   end
 
   ##
+  # Returns a series of Bootstrap media elements for the given [Item]s.
+  #
+  # @param items [Enumerable<Item>]
+  # @return [String] HTML string.
+  #
+  def admin_items_as_media(items)
+    html = StringIO.new
+    html << '<ul class="list-unstyled">'
+    items.each do |item|
+      html << '<li class="media my-4">'
+
+      # Checkboxes
+      html << '<div class="dl-checkbox-container">'
+      html <<   check_box_tag('dl-selected-items[]', item.repository_id)
+      html << '</div>'
+
+      # Thumbnail area
+      html <<   '<div class="dl-thumbnail-container">'
+      link_target = admin_collection_item_path(item.collection, item)
+      html << link_to(link_target) do
+        thumbnail_tag(item.effective_representative_entity,
+                      shape: :square)
+      end
+      # N.B.: this was made by https://loading.io with the following settings:
+      # rolling, color: #cacaca, radius: 25, stroke width: 10, speed: 5, size: 150
+      html <<   image_tag('thumbnail-spinner.svg', class: 'dl-load-indicator')
+      html << '</div>'
+
+      html << '<div class="media-body">'
+
+      # Title line
+      html <<   '<h5 class="mt-0">'
+      html <<     link_to(item.title, link_target)
+      html <<   '</h5>'
+
+      # Info line
+      info_sections = []
+      info_sections << "#{icon_for(item)} #{type_of(item)}"
+
+      num_pages = item.pages.count
+      if num_pages > 1
+        page_count     = "#{num_pages} pages"
+        three_d_item   = item.three_d_item
+        page_count    += ' + 3D model' if three_d_item
+        info_sections << page_count
+      else
+        num_files = item.items.where(variant: Item::Variants::FILE).count
+        if num_files > 0
+          info_sections << "#{num_files} files"
+        else
+          num_children = item.items.count
+          if num_children > 0
+            info_sections << "#{num_children} sub-items"
+          end
+        end
+      end
+
+      range = [
+        item.respond_to?(:date) ? item.date : nil,
+        item.respond_to?(:end_date) ? item.end_date : nil
+      ]
+      info_sections << range.select(&:present?).map(&:year).join('-') if range.any?
+
+      if item.published
+        info_sections << '<span class="text-success"><i class="fa fa-check"></i> Published</span>'
+      else
+        info_sections << '<span class="text-danger"><i class="fa fa-lock"></i> Unpublished</span>'
+      end
+
+      if item.expose_full_text_search
+        info_sections << '<span class="text-success"><i class="fa fa-check"></i> Full Text Search</span>'
+      else
+        info_sections << '<span class="text-danger"><i class="fa fa-times"></i> Full Text Search</span>'
+      end
+
+      html << '<span class="dl-info-line">'
+      html <<   info_sections.join('&nbsp;&nbsp;|&nbsp;&nbsp;')
+      html << '</span>'
+      html << '<span class="dl-description">'
+
+      desc_e = item.collection.descriptive_element
+      if desc_e
+        description = item.element(desc_e.name)&.value
+        if description.present?
+          html << truncate(description, length: 380)
+        end
+      end
+
+      html <<       '</span>'
+      html <<     '</div>'
+      html <<   '</li>'
+    end
+    html << '</ul>'
+    raw(html.string)
+  end
+
+  ##
   # @param item [Item]
   # @param options [Hash]
   # @option options [Boolean] :include_subitems
