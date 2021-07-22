@@ -27,7 +27,10 @@
   - else
     %dt ETA
     %dd
-      = time_ago_in_words(@task.estimated_completion)
+      - if @task.estimated_completion
+        = time_ago_in_words(@task.estimated_completion)
+      - else
+        Unknown
   %dt Run Time
   %dd
     - if @task.running? || @task.terminated?
