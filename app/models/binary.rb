@@ -114,9 +114,15 @@ class Binary < ApplicationRecord
     end
   end
 
-  LOGGER                      = CustomLogger.new(Binary)
-  DEFAULT_MEDIA_TYPE          = 'unknown/unknown'
-  TESSERACT_SUPPORTED_FORMATS = %w(image/jpeg image/png image/tiff)
+  LOGGER                        = CustomLogger.new(Binary)
+  DEFAULT_MEDIA_TYPE            = 'unknown/unknown'
+  TESSERACT_SUPPORTED_FORMATS   = %w(image/jpeg image/png image/tiff)
+  # These must align with the languages supported by the OCR Lambda service;
+  # see https://github.com/medusa-project/tesseract-lambda
+  TESSERACT_SUPPORTED_LANGUAGES = [
+    %w(English eng), %w(French fra), %w(German deu), %w(Italian ita),
+    %w(Latin lat), %w(Spanish spa)
+  ]
 
   # touch: true means when the instance is saved, the owning item's updated_at
   # property will be updated.
@@ -189,15 +195,16 @@ class Binary < ApplicationRecord
   ##
   # Runs OCR against the binary.
   #
+  # @param language [String] ISO 639-2 language code.
   # @raises [RuntimeError] if the instance is not {ocrable?}.
   #
-  def detect_text
+  def detect_text(language: 'eng')
     raise 'This instance does not support OCR.' unless self.ocrable?
     if Rails.env.development? || Rails.env.test?
-      #detect_text_using_local_tesseract
-      detect_text_using_lambda_ocr
+      #detect_text_using_local_tesseract(language: language)
+      detect_text_using_lambda_ocr(language: language)
     else
-      detect_text_using_lambda_ocr
+      detect_text_using_lambda_ocr(language: language)
     end
   end
 
@@ -596,7 +603,9 @@ class Binary < ApplicationRecord
   # Populates the {hocr} and {full_text} attributes using `tesseract` command
   # invocations.
   #
-  def detect_text_using_local_tesseract
+  # @param language [String] ISO 639-2 language code.
+  #
+  def detect_text_using_local_tesseract(language: 'eng')
     Dir.mktmpdir do |tmpdir|
       if TESSERACT_SUPPORTED_FORMATS.include?(self.media_type)
         Tempfile.new do |file|
@@ -608,8 +617,8 @@ class Binary < ApplicationRecord
       else
         jpg_path = IiifImageConverter.new.convert_binary(self, tmpdir, :jpg)
       end
-      self.full_text = `tesseract #{jpg_path} stdout`
-      self.hocr      = `tesseract #{jpg_path} stdout hocr`
+      self.full_text = `tesseract #{jpg_path} stdout -l #{language}`
+      self.hocr      = `tesseract #{jpg_path} stdout hocr -l #{language}`
       self.ocred_at  = Time.now
     end
   end
@@ -622,16 +631,18 @@ class Binary < ApplicationRecord
   # [tesseract-lambda](https://github.com/medusa-project/tesseract-lambda)
   # function.
   #
+  # @param language [String] ISO 639-2 language code.
   # @param num_tries [Integer] Used internally--ignore.
   #
-  def detect_text_using_lambda_ocr(num_tries = 1)
+  def detect_text_using_lambda_ocr(language: 'eng', num_tries: 1)
     config = ::Configuration.instance
     client = Aws::Lambda::Client.new(region: config.aws_region,
                                      http_read_timeout: 120)
 
     payload = {
-      bucket: config.medusa_s3_bucket,
-      key:    self.object_key
+      bucket:   config.medusa_s3_bucket,
+      key:      self.object_key,
+      language: language
     }
 
     begin
@@ -655,7 +666,8 @@ class Binary < ApplicationRecord
       end
     rescue Seahorse::Client::NetworkingError, Net::ReadTimeout => e
       if num_tries < NUM_LAMBDA_TRIES
-        detect_text_using_lambda_ocr(num_tries + 1)
+        detect_text_using_lambda_ocr(language:  language,
+                                     num_tries: num_tries + 1)
       else
         raise e
       end

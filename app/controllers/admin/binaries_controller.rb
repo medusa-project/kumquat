@@ -16,7 +16,7 @@ module Admin
     #
     def run_ocr
       if @binary.ocrable?
-        OcrBinaryJob.perform_later(@binary.id)
+        OcrBinaryJob.perform_later(@binary.id, params[:language])
       else
         raise 'Only access master images and PDFs support OCR.'
       end

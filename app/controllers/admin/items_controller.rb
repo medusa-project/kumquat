@@ -366,12 +366,14 @@ module Admin
     #
     def run_ocr
       flash_msg = 'Running OCR in the background. This may take a while.'
-      if params[:item_id] # OCR single item
+      if params[:item_id] # single item
         begin
           item = Item.find_by_repository_id(params[:item_id])
           raise ActiveRecord::RecordNotFound unless item
 
-          OcrItemJob.perform_later(item.repository_id)
+          OcrItemJob.perform_later(item.repository_id,
+                                   params[:language],
+                                   params[:include_ocred])
         rescue => e
           handle_error(e)
         else
@@ -380,16 +382,19 @@ module Admin
           redirect_back fallback_location:
                           admin_collection_item_path(item.collection, item)
         end
-      else # OCR multiple items or a whole collection
+      else # multiple items or a whole collection
         begin
           collection = Collection.find_by_repository_id(params[:collection_id])
           raise ActiveRecord::RecordNotFound unless collection
 
-          # If we are OCRing only checked items, params[:id] will be set.
-          if params[:id].respond_to?(:any?) and params[:id].any?
-            OcrItemsJob.perform_later(params[:id])
+          if params[:target] == 'checked'
+            OcrItemsJob.perform_later(params[:items],
+                                      params[:language],
+                                      params[:include_ocred])
           else
-            OcrCollectionJob.perform_later(collection.repository_id)
+            OcrCollectionJob.perform_later(collection.repository_id,
+                                           params[:language],
+                                           params[:include_ocred])
           end
         rescue => e
           handle_error(e)

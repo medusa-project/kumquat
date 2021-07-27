@@ -31,13 +31,17 @@ class OcrItemJob < Job # TODO: replace this with OcrItemsJob
   end
 
   ##
-  # @param args [Array] One-element array containing an item UUID.
+  # @param args [Array] Three-element array containing an item UUID at position
+  #                     0, an ISO 639-2 language code at position 1, and
+  #                     whether to include already-OCRed binaries at position
+  #                     2.
   #
   def perform(*args)
     main_item = Item.find_by_repository_id(args[0])
     raise ActiveRecord::RecordNotFound unless main_item
 
     binaries     = main_item.ocrable_binaries(recursive: true)
+    binaries     = binaries.where(ocred_at: nil) unless args[2]
     binary_count = binaries.count
     num_threads  = self.class.num_threads
     self.task&.update(status_text: "Running OCR on #{binary_count} binaries "\
@@ -46,7 +50,7 @@ class OcrItemJob < Job # TODO: replace this with OcrItemsJob
     ThreadUtils.process_in_parallel(binaries,
                                     num_threads: num_threads,
                                     task: self.task) do |binary|
-      binary.detect_text
+      binary.detect_text(language: args[1])
       binary.save!
       binary.item.reindex
     end

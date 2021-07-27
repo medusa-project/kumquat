@@ -13,7 +13,10 @@ class OcrCollectionJob < Job
   end
 
   ##
-  # @param args [Array] One-element array containing a collection UUID.
+  # @param args [Array] Three-element array containing a collection UUID at
+  #                     position 0, an ISO 639-2 language code at position 1,
+  #                     and whether to include already-OCRed binaries at
+  #                     position 2.
   #
   def perform(*args)
     collection = Collection.find_by_repository_id(args[0])
@@ -22,9 +25,9 @@ class OcrCollectionJob < Job
     # N.B.: these conditions must be kept in sync with Binary.ocrable?()
     binaries     = Binary.joins(:item).
       where('items.collection_repository_id': collection.repository_id).
-      where(ocred_at: nil).
       where(master_type: Binary::MasterType::ACCESS).
       where('media_type LIKE ? OR media_type = ?', 'image/%', 'application/pdf')
+    binaries = binaries.where(ocred_at: nil) unless args[2]
     binary_count = binaries.count
     num_threads  = self.class.num_threads
     self.task&.update(status_text: "Running OCR on #{binary_count} binaries "\
@@ -33,7 +36,7 @@ class OcrCollectionJob < Job
     ThreadUtils.process_in_parallel(binaries,
                                     num_threads: num_threads,
                                     task: self.task) do |binary|
-      binary.detect_text
+      binary.detect_text(language: args[1])
       binary.save!
       binary.item.reindex
     end

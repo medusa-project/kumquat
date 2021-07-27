@@ -136,8 +136,9 @@ namespace :dls do
     end
 
     desc 'Run OCR on all items in a collection'
-    task :ocr, [:uuid] => :environment do |task, args|
-      OcrCollectionJob.new(args[:uuid]).perform_in_foreground
+    task :ocr, [:uuid, :language] => :environment do |task, args|
+      language = args[:language] || 'eng'
+      OcrCollectionJob.new(args[:uuid], language, true).perform_in_foreground
     end
 
     desc 'Publish a collection'

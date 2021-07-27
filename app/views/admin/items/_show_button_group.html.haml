@@ -5,11 +5,13 @@
     %i.fas.fa-pencil-alt
     Edit
   -# OCR button
-  = link_to(admin_collection_item_run_ocr_path(@item.collection, @item),
-                      class: 'btn btn-light',
-                      method: :patch) do
+  = link_to('',
+            class: 'btn btn-light',
+            'data-toggle': 'modal',
+            'data-target': '#dl-ocr-modal') do
     %i.fas.fa-eye
     OCR
+
   -# Sets button
   - if @item.collection.item_sets.count > 0
     .btn-group

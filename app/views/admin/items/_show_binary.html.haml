@@ -63,9 +63,12 @@
     .tab-pane{role: 'tabpanel',
               id:   "dl-binary-tab-#{binary.master_type}-ocr"}
       .float-right.mb-3
-        = link_to(admin_binary_run_ocr_path(binary), method: :patch, class: 'btn btn-sm btn-light') do
+        = link_to('',
+                  class: 'btn btn-sm btn-light',
+                  'data-toggle': 'modal',
+                  'data-target': "#dl-ocr-binary-#{binary.id}-modal") do
           %i.fas.fa-eye
-          Run OCR
+          OCR
       - if binary.full_text.present?
         .clearfix
         %div{style: "max-height: 30em; overflow-x: scroll; overflow-y: scroll"}
@@ -86,3 +89,8 @@
       %tr
         %td Public
         %td= boolean(binary.public, style: :word)
+
+= render partial: 'ocr_panel', locals: { modal_id: "dl-ocr-binary-#{binary.id}-modal",
+                                         show_checked_results_radios: false,
+                                         show_include_ocred_checkbox: false,
+                                         target: admin_binary_run_ocr_path(binary) }

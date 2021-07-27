@@ -44,4 +44,6 @@
 = render partial: 'import_panel'
 = render partial: 'import_tsv_panel', locals: { collection: @collection }
 = render partial: 'export_panel'
+= render partial: 'ocr_panel', locals: { show_checked_results_radios: true,
+                                         target: admin_collection_items_run_ocr_path(@collection) }
 = render partial: 'purge_items_panel'

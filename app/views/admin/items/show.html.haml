@@ -196,3 +196,5 @@
         %pre= schema_org_json_ld(@item, pretty_print: true)
 
 = render partial: 'edit_binary_access_modal'
+= render partial: 'ocr_panel', locals: { show_checked_results_radios: false,
+                                         target: admin_collection_item_run_ocr_path(@item.collection, @item) }

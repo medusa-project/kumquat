@@ -278,8 +278,8 @@ const DLAdminItemsView = function() {
 
         // Enable certain checkboxes in the import panel only when the "create"
         // radio is selected.
-        var extract_metadata_checkbox = $('input[name="options[extract_metadata]"]');
-        var extract_creation_checkbox = $('input[name="options[include_date_created]"]');
+        const extract_metadata_checkbox = $('input[name="options[extract_metadata]"]');
+        const extract_creation_checkbox = $('input[name="options[include_date_created]"]');
         $('input[name="ingest_mode"]').on('change', function() {
             extract_metadata_checkbox.prop('disabled',
                 !$('input[value="create_only"]').prop('checked'));
@@ -287,13 +287,14 @@ const DLAdminItemsView = function() {
                 !$('input[value="create_only"]').prop('checked'));
         });
 
-        // When the add-checked-items-to-set modal is shown, copy the selected
-        // item IDs in the results into hidden inputs in the modal form.
-        $('#dl-add-checked-items-to-set-modal').on('shown.bs.modal', function() {
-            var modal_body = $(this).find('.modal-body');
+        // When the run-OCR or add-checked-items-to-set modals are shown, copy
+        // the selected item IDs in the results into hidden inputs in the modal
+        // form.
+        $('#dl-ocr-modal, #dl-add-checked-items-to-set-modal').on('shown.bs.modal', function() {
+            const modal_body = $(this).find('.modal-body');
             modal_body.find('[name="items[]"]').remove();
 
-            var checked_items = [];
+            const checked_items = [];
             $('[name="dl-selected-items[]"]:checked').each(function() {
                 checked_items.push($(this).val());
             });
@@ -302,11 +303,10 @@ const DLAdminItemsView = function() {
             }
         });
 
-        // When the "Publish Checked Results," "Unpublish Checked Results," or
-        // "Run OCR on Checked Results" menu items are clicked, copy the
-        // selected item IDs into their hrefs.
-        $('#dl-ocr-checked-results-link, #dl-enable-checked-fts-link, ' +
-            '#dl-disable-checked-fts-link, #dl-publish-checked-results-link, ' +
+        // When the "Publish Checked Results" or "Unpublish Checked Results"
+        // menu items are clicked, copy the selected item IDs into their hrefs.
+        $('#dl-enable-checked-fts-link, #dl-disable-checked-fts-link, '+
+            '#dl-publish-checked-results-link, ' +
             '#dl-unpublish-checked-results-link').on('click', function() {
             var checked_items = [];
             $('[name="dl-selected-items[]"]:checked').each(function() {
