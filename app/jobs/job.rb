@@ -55,8 +55,10 @@ class Job < ApplicationJob
 
   rescue_from(Exception) do |e|
     fail_task(e)
-    message = KumquatMailer.error_body(e)
-    KumquatMailer.error(message).deliver_now
+    if Rails.env.demo? || Rails.env.production?
+      message = KumquatMailer.error_body(e)
+      KumquatMailer.error(message).deliver_now
+    end
     raise e
   end
 
