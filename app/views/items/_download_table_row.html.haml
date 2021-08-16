@@ -3,10 +3,11 @@
 -# item [Item]
 -# link_to_items [Boolean] Whether to link item titles to show-item view.
 
-- preservation_master = item.binaries.find{ |b| b.master_type == Binary::MasterType::PRESERVATION && (b.public? || current_user&.medusa_user?) }
-- image_binary        = item.effective_image_binary
+- master       = item.binaries.find{ |b| b.master_type == (item.collection.free_form? ? Binary::MasterType::ACCESS : Binary::MasterType::PRESERVATION) && |
+                   (b.public? || current_user&.medusa_user?) } |
+- image_binary = item.effective_image_binary
 
-- if preservation_master || (image_binary&.public? || current_user&.medusa_user?)
+- if master || (image_binary&.public? || current_user&.medusa_user?)
   %tr
     %td
       .dl-thumbnail
@@ -22,12 +23,12 @@
         = item.title
     %td
       .btn-group
-        - if preservation_master
-          = link_to binary_object_path(preservation_master),
+        - if master
+          = link_to binary_object_path(master),
                     class: 'btn btn-outline-primary btn-sm',
                     target: '_blank' do
-            = icon_for(preservation_master)
-            Original File (#{preservation_master.human_readable_name})
+            = icon_for(master)
+            Original File (#{master.human_readable_name})
         - if (image_binary&.public? || current_user&.medusa_user?) && image_binary&.image_server_safe?
           %a.btn.btn-outline-primary.btn-sm{"data-iiif-info-url": image_binary.iiif_info_v2_url,
                                             "data-iiif-url":      image_binary.iiif_image_v2_url,
