@@ -81,7 +81,7 @@ module Admin
           minute.) When complete, you may need to clear your browser cache to
           see any changes take effect.'
     ensure
-      redirect_back fallback_location: admin_collection_path(collection)
+      redirect_back fallback_location: admin_collection_path(@collection)
     end
 
     ##

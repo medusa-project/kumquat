@@ -77,6 +77,7 @@ class MedusaDownloaderClient
     raise IOError, response.status if response.status != 200
   end
 
+
   private
 
   def client
@@ -155,6 +156,8 @@ class MedusaDownloaderClient
                        recursive: true)
         elsif include_private_binaries || item.collection.publicize_binaries
           binaries = item.binaries
+          # Exclude access masters (DLD-362)
+          binaries = binaries.where('media_type NOT LIKE ?', '%/access/%') unless item.collection.free_form?
           binaries = binaries.where(public: true) unless include_private_binaries
           binaries.each do |binary|
             zip_dirname = zip_dirname(binary)

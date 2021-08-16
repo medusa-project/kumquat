@@ -116,6 +116,12 @@
         %td RightsStatements.org
         %td
           = @collection.rightsstatements_org_statement ? @collection.rightsstatements_org_statement.name : 'None'
+      %tr
+        %td First Imported
+        %td= local_time(@collection.created_at)
+      %tr
+        %td Last Updated
+        %td= local_time(@collection.updated_at)
 
   #nav-access.tab-pane.fade{"aria-labelledby": "nav-access-tab",
                             role: "tabpanel"}
