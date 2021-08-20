@@ -197,9 +197,13 @@ var PTItemView = function() {
                 };
                 const result = doc.evaluate('//@tiff:XResolution', doc,
                     prefixResolver, XPathResult.STRING_TYPE, null);
-                dpi = parseInt(result.stringValue.split('/')[0]);
-            } else if (exif != null) { // Check in EXIF.
-                dpi = exif['fields']['XResolution']['numerator'];
+                const rational = result.stringValue.split('/');
+                if (rational.length === 2) {
+                    dpi = Math.round(parseInt(rational[0]) / parseFloat(rational[1]));
+                }
+            } else if (exif != null && exif.fields.XResolution) { // Check in EXIF
+                dpi = Math.round(exif.fields.XResolution.numerator /
+                    exif.fields.XResolution.denominator);
             }
 
             // Create a button for each size tier from the maximum down to
