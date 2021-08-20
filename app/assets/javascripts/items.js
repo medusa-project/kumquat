@@ -132,10 +132,10 @@ var PTItemView = function() {
         const MIN_IMAGE_SIZE        = 256;
         const NUM_BUTTON_SIZE_TIERS = 5;
 
-        let imageUrl;
-        let imageInfoUrl;
-        let isModalLoaded = false;
-        let title;
+        var imageUrl;
+        var imageInfoUrl;
+        var isModalLoaded = false;
+        var title;
 
         const init = function() {
             const modal = $('#dl-custom-image-modal');
@@ -171,12 +171,12 @@ var PTItemView = function() {
             const maxPixels = info['profile'][1]['maxArea'];
             const xmp       = info['xmp'];
             const exif      = info['exif'];
-            let dpi         = 0;
+            var dpi         = 0;
 
             // Find the number of usable sizes (i.e. sizes above MIN_IMAGE_SIZE
             // and below maxPixels) in order to calculate button size tiers.
-            let numUsableSizes = 0;
-            for (let i = 0; i < numSizes; i++) {
+            var numUsableSizes = 0;
+            for (var i = 0; i < numSizes; i++) {
                 const width  = info['sizes'][i]['width'];
                 const height = info['sizes'][i]['height'];
                 if (width >= MIN_IMAGE_SIZE && height >= MIN_IMAGE_SIZE
@@ -199,12 +199,12 @@ var PTItemView = function() {
                     prefixResolver, XPathResult.STRING_TYPE, null);
                 dpi = parseInt(result.stringValue.split('/')[0]);
             } else if (exif != null) { // Check in EXIF.
-                dpi = exif.fields?.XResolution?.numerator;
+                dpi = exif['fields']['XResolution']['numerator'];
             }
 
             // Create a button for each size tier from the maximum down to
             // the minimum.
-            for (let i = numSizes - 1, size_i = numSizes - 1; i >= 0; i--) {
+            for (var i = numSizes - 1, size_i = numSizes - 1; i >= 0; i--) {
                 const width   = info['sizes'][i]['width'];
                 const height  = info['sizes'][i]['height'];
                 const thisDPI = dpi / Math.pow(2, (numSizes - 1) - i);
@@ -236,8 +236,8 @@ var PTItemView = function() {
             info['profile'][1]['qualities'].forEach(function (item) {
                 // Exclude the "default" quality.
                 if (item === 'color' || item === 'gray' || item === 'bitonal') {
-                    let checked = '';
-                    let containerClass = '';
+                    var checked = '';
+                    var containerClass = '';
                     if (item === 'color') {
                         checked = 'checked';
                         containerClass = 'active';
@@ -256,13 +256,13 @@ var PTItemView = function() {
 
             const formatsDiv = $('<div class="form-inline"></div>');
             info['profile'][1]['formats'].forEach(function (item) {
-                let checked = '';
-                let containerClass = '';
+                var checked = '';
+                var containerClass = '';
                 if (item === 'jpg') {
                     checked        = 'checked';
                     containerClass = 'active';
                 }
-                let label = item.toUpperCase();
+                var label = item.toUpperCase();
                 if (label === 'JPG') {
                     label = 'JPEG';
                 } else if (label === 'TIF') {
