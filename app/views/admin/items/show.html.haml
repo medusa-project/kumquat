@@ -165,7 +165,7 @@
             .card-body
               - if exists
                 .btn-group.float-right{role: 'group'}
-                  = link_to(bin, class: 'btn btn-sm btn-light') do
+                  = link_to(binary_object_path(bin), class: 'btn btn-sm btn-light') do
                     %i.fa.fa-download
                     Download
                   - if bin.master_type == Binary::MasterType::ACCESS
