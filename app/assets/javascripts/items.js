@@ -12,7 +12,7 @@ var PTItemView = function() {
      *
      * @constructor
      */
-    var PTCitationPanel = function() {
+    const CitationPanel = function() {
 
         var init = function() {
             Date.prototype.getAbbreviatedMonthName = function() {
@@ -112,82 +112,119 @@ var PTItemView = function() {
      * The panel is opened by an anchor with data-iiif-url, data-iiif-info-url,
      * and data-title attributes. The size and quality options are presented
      * dynamically based on the support declared by the image server in the
-     * IIIF information response.
+     * IIIF information response. If EXIF XResolution information is present in
+     * the metadata, it is displayed in the size option buttons (as DPI)
+     * instead of pixel sizes.
      *
      * @constructor
      */
-    var PTEmbedPanel = function() {
+    const CustomImagePanel = function() {
 
-        var MIN_IMAGE_SIZE = 256;
-        var NUM_BUTTON_SIZE_TIERS = 5;
+        // After the DLS image server was upgraded to Cantaloupe 5.0,
+        // serialized embedded image metadata was added to information
+        // responses. However, as of 8/2021, many older serialized infos still
+        // reside in the cache without this metadata included. We need to
+        // bypass the cache in order to get the metadata in order to check for
+        // DPI information.
+        // If not for that, ideally this would be set to false.
+        // TODO: revisit this at a later date
+        const BYPASS_CACHE          = true;
+        const MIN_IMAGE_SIZE        = 256;
+        const NUM_BUTTON_SIZE_TIERS = 5;
 
-        var image_url;
-        var image_info_url;
-        var modal_loaded = false;
-        var title;
+        let imageUrl;
+        let imageInfoUrl;
+        let isModalLoaded = false;
+        let title;
 
-        var init = function() {
-            var embed_modal = $('#dl-custom-image-modal');
-            embed_modal.on('show.bs.modal', function(e) {
+        const init = function() {
+            const modal = $('#dl-custom-image-modal');
+            modal.on('show.bs.modal', function(e) {
                 // Get the element that was clicked to open the panel.
-                var clicked_button = $(e.relatedTarget);
+                const clicked_button = $(e.relatedTarget);
                 // Read its relevant data attributes.
-                image_url = clicked_button.data('iiif-url');
-                image_info_url = clicked_button.data('iiif-info-url');
-                title = clicked_button.data('title').trim().replace(/"/g, '&quot;');
+                title        = clicked_button.data('title').trim().replace(/"/g, '&quot;');
+                imageUrl     = clicked_button.data('iiif-url');
+                imageInfoUrl = clicked_button.data('iiif-info-url');
+                if (BYPASS_CACHE) {
+                    imageInfoUrl += "?cache=recache";
+                }
 
                 // Load the image's IIIF info.
                 $.ajax({
                     dataType: 'json',
-                    url: image_info_url,
-                    data: null,
-                    success: function(data) {
+                    url:      imageInfoUrl,
+                    data:     null,
+                    success:  function(data) {
                         renderContents(data);
                     }
                 });
-
-                modal_loaded = true;
+                isModalLoaded = true;
             });
         }; init();
 
-        var renderContents = function(iiif_info) {
-            var container = $('#iiif-download');
+        const renderContents = function(info) {
+            const container = $('#iiif-download');
             container.empty();
-            var full_width = iiif_info['width'];
-            var num_sizes = iiif_info['sizes'].length;
-            var max_pixels = iiif_info['profile'][1]['maxArea'];
+            const fullWidth = info['width'];
+            const numSizes  = info['sizes'].length;
+            const maxPixels = info['profile'][1]['maxArea'];
+            const xmp       = info['xmp'];
+            const exif      = info['exif'];
+            let dpi         = 0;
 
-            // find the number of usable sizes (i.e. sizes above MIN_IMAGE_SIZE
-            // and below max_pixels) in order to calculate button size tiers.
-            var num_usable_sizes = 0;
-            for (var i = 0; i < num_sizes; i++) {
-                var width = iiif_info['sizes'][i]['width'];
-                var height = iiif_info['sizes'][i]['height'];
+            // Find the number of usable sizes (i.e. sizes above MIN_IMAGE_SIZE
+            // and below maxPixels) in order to calculate button size tiers.
+            let numUsableSizes = 0;
+            for (let i = 0; i < numSizes; i++) {
+                const width  = info['sizes'][i]['width'];
+                const height = info['sizes'][i]['height'];
                 if (width >= MIN_IMAGE_SIZE && height >= MIN_IMAGE_SIZE
-                    && width * height <= max_pixels) {
-                    num_usable_sizes++;
+                    && width * height <= maxPixels) {
+                    numUsableSizes++;
                 }
             }
 
-            // Create a button for each size tier from the maximum down to the
-            // minimum.
-            for (var i = num_sizes - 1, size_i = num_sizes - 1; i >= 0; i--) {
-                width = iiif_info['sizes'][i]['width'];
-                height = iiif_info['sizes'][i]['height'];
+            // Try to find the DPI, which we prefer to display to the user
+            // instead of pixel sizes. Check first in EXIF-in-XMP.
+            if (xmp != null) {
+                const parser = new DOMParser();
+                const doc    = parser.parseFromString(xmp, "text/xml");
+                const prefixResolver = function(prefix) {
+                    if (prefix === 'tiff') {
+                        return 'http://ns.adobe.com/tiff/1.0/';
+                    }
+                };
+                const result = doc.evaluate('//@tiff:XResolution', doc,
+                    prefixResolver, XPathResult.STRING_TYPE, null);
+                dpi = parseInt(result.stringValue.split('/')[0]);
+            } else if (exif != null) { // Check in EXIF.
+                dpi = exif.fields?.XResolution?.numerator;
+            }
+
+            // Create a button for each size tier from the maximum down to
+            // the minimum.
+            for (let i = numSizes - 1, size_i = numSizes - 1; i >= 0; i--) {
+                const width   = info['sizes'][i]['width'];
+                const height  = info['sizes'][i]['height'];
+                const thisDPI = dpi / Math.pow(2, (numSizes - 1) - i);
 
                 if (width >= MIN_IMAGE_SIZE && height >= MIN_IMAGE_SIZE
-                    && width * height <= max_pixels) {
-                    var size_class = 'dl-size-' +
-                        Math.floor(size_i / num_usable_sizes * NUM_BUTTON_SIZE_TIERS);
-                    var percent = Math.round(width / full_width * 100);
-                    var checked = (size_i === num_sizes - 1) ? 'checked' : '';
-                    var active  = (size_i === num_sizes - 1) ? 'active' : '';
+                    && width * height <= maxPixels) {
+                    const sizeClass = 'dl-size-' +
+                        Math.floor(size_i / numUsableSizes * NUM_BUTTON_SIZE_TIERS);
+                    const percent = Math.round(width / fullWidth * 100);
+                    const checked = (size_i === numSizes - 1) ? 'checked' : '';
+                    const active  = (size_i === numSizes - 1) ? 'active' : '';
+                    const label   = (dpi > 0) ?
+                        thisDPI + ' DPI (' + percent + '%)' :
+                        width + '&times;' + height + ' pixels (' + percent + '%)';
                     container.append(
-                        '<div class="radio btn btn-outline-primary ' + size_class + ' ' + active + '">' +
-                            '<label>' +
-                                '<input type="radio" name="size" value="' + width + ',' + '" ' + checked + '>' +
-                                width + '&times;' + height + ' pixels (' + percent + '%)' +
-                            '</label>' +
+                        '<div class="radio btn btn-outline-primary ' + sizeClass + ' ' + active + '">' +
+                        '<label>' +
+                        '<input type="radio" name="size" value="' + width + ',' + '" ' + checked + '>' +
+                        label +
+                        '</label>' +
                         '</div><br>');
                     size_i--;
                 }
@@ -195,18 +232,18 @@ var PTItemView = function() {
 
             container.append('<hr>');
 
-            var qualities_div = $('<div class="form-inline"></div>');
-            iiif_info['profile'][1]['qualities'].forEach(function (item) {
+            const qualitiesDiv = $('<div class="form-inline"></div>');
+            info['profile'][1]['qualities'].forEach(function (item) {
                 // Exclude the "default" quality.
                 if (item === 'color' || item === 'gray' || item === 'bitonal') {
-                    var checked = '';
-                    var container_class = '';
+                    let checked = '';
+                    let containerClass = '';
                     if (item === 'color') {
                         checked = 'checked';
-                        container_class = 'active';
+                        containerClass = 'active';
                     }
-                    qualities_div.append(
-                        '<div class="radio btn btn-outline-primary ' + container_class + '">' +
+                    qualitiesDiv.append(
+                        '<div class="radio btn btn-outline-primary ' + containerClass + '">' +
                             '<label>' +
                                 '<input type="radio" name="quality" value="' + item + '" ' + checked + '>' +
                                 item.charAt(0).toUpperCase() + item.slice(1) +
@@ -214,41 +251,40 @@ var PTItemView = function() {
                         '</div>');
                 }
             });
-            container.append(qualities_div);
+            container.append(qualitiesDiv);
             container.append('<hr>');
 
-            var formats_div = $('<div class="form-inline"></div>');
-            iiif_info['profile'][1]['formats'].forEach(function (item) {
-                var checked = '';
-                var container_class = '';
+            const formatsDiv = $('<div class="form-inline"></div>');
+            info['profile'][1]['formats'].forEach(function (item) {
+                let checked = '';
+                let containerClass = '';
                 if (item === 'jpg') {
-                    checked = 'checked';
-                    container_class = 'active';
+                    checked        = 'checked';
+                    containerClass = 'active';
                 }
-                var label = item.toUpperCase();
+                let label = item.toUpperCase();
                 if (label === 'JPG') {
                     label = 'JPEG';
                 } else if (label === 'TIF') {
                     label = 'TIFF';
                 }
-                formats_div.append(
-                    '<div class="radio btn btn-outline-primary ' + container_class + '">' +
+                formatsDiv.append(
+                    '<div class="radio btn btn-outline-primary ' + containerClass + '">' +
                         '<label>' +
                             '<input type="radio" name="format" value="' + item + '" ' + checked + '>' +
                             label +
                         '</label>' +
                     '</div>');
             });
-            container.append(formats_div);
+            container.append(formatsDiv);
 
-            var embed_modal = $('#dl-custom-image-modal');
+            const modal = $('#dl-custom-image-modal');
 
-            var displayUrl = function() {
-                var size    = embed_modal.find('input[name="size"]:checked').val();
-                var quality = embed_modal.find('input[name="quality"]:checked').val();
-                var format  = embed_modal.find('input[name="format"]:checked').val();
-                var url     = image_url + '/full/' + size + '/0/' + quality + '.' + format;
-
+            const displayUrl = function() {
+                const size    = modal.find('input[name="size"]:checked').val();
+                const quality = modal.find('input[name="quality"]:checked').val();
+                const format  = modal.find('input[name="format"]:checked').val();
+                const url     = imageUrl + '/full/' + size + '/0/' + quality + '.' + format;
                 $('#dl-preview-link').attr('href', url).show();
                 $('#dl-embed-link').val('<img src="' + url + '" alt="' + title + '">');
             };
@@ -258,10 +294,10 @@ var PTItemView = function() {
             });
             displayUrl();
 
-            var radios = embed_modal.find('input[type=radio]');
+            const radios = modal.find('input[type=radio]');
             radios.on('click', function () {
                 radios.each(function () {
-                    var radio_container = $(this).parents('div.radio');
+                    const radio_container = $(this).parents('div.radio');
                     if ($(this).is(':checked')) {
                         radio_container.addClass('active');
                     } else {
@@ -395,8 +431,8 @@ var PTItemView = function() {
             console.error('Trigger:', e.trigger);
         });
 
-        new PTCitationPanel();
-        new PTEmbedPanel();
+        new CitationPanel();
+        new CustomImagePanel();
     };
 
 };
