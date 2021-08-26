@@ -103,18 +103,42 @@
                 %i.fa.fa-clipboard
           %tr
             %td Allowed Host Groups (directly assigned)
-            %td= @item.allowed_host_groups.any? ? @item.allowed_host_groups.map{ |g| link_to(g.name, admin_host_group_path(g)) } : "Any"
+            %td
+              - if @item.allowed_host_groups.any?
+                %ul
+                  - @item.allowed_host_groups.each do |group|
+                    %li= link_to(group.name, admin_host_group_path(group))
+              - else
+                Any
           %tr
             %td Allowed Host Groups (effective)
-            - effective_allowed_host_groups = @item.effective_allowed_host_groups
-            %td= effective_allowed_host_groups.any? ? effective_allowed_host_groups.map{ |g| link_to(g.name, admin_host_group_path(g)) } : "Any"
+            %td
+              - effective_allowed_host_groups = @item.effective_allowed_host_groups
+              - if effective_allowed_host_groups.any?
+                %ul
+                  - effective_allowed_host_groups.each do |group|
+                    %li= link_to(group.name, admin_host_group_path(group))
+              - else
+                Any
           %tr
             %td Denied Host Groups (directly assigned)
-            %td= @item.denied_host_groups.any? ? @item.denied_host_groups.map{ |g| link_to(g.name, admin_host_group_path(g)) } : "None"
+            %td
+              - if @item.denied_host_groups.any?
+                %ul
+                  - @item.denied_host_groups.each do |group|
+                    %li= link_to(group.name, admin_host_group_path(group))
+              - else
+                None
           %tr
             %td Denied Host Groups (effective)
             - effective_denied_host_groups = @item.effective_denied_host_groups
-            %td= effective_denied_host_groups.any? ? effective_denied_host_groups.map{ |g| link_to(g.name, admin_host_group_path(g)) } : "None"
+            %td
+              - if effective_denied_host_groups.any?
+                %ul
+                  - effective_denied_host_groups.each do |group|
+                    %li= link_to(group.name, admin_host_group_path(group))
+              - else
+                None
       #dl-descriptive-metadata.tab-pane{role: "tabpanel"}
         .alert.alert-light
           %i.fa.fa-info-circle
