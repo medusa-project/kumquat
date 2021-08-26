@@ -112,23 +112,13 @@ var PTItemView = function() {
      * The panel is opened by an anchor with data-iiif-url, data-iiif-info-url,
      * and data-title attributes. The size and quality options are presented
      * dynamically based on the support declared by the image server in the
-     * IIIF information response. If EXIF XResolution information is present in
-     * the metadata, it is displayed in the size option buttons (as DPI)
-     * instead of pixel sizes.
+     * IIIF information response.
      *
      * @constructor
      */
     const CustomImagePanel = function() {
 
-        // After the DLS image server was upgraded to Cantaloupe 5.0,
-        // serialized embedded image metadata was added to information
-        // responses. However, as of 8/2021, many older serialized infos still
-        // reside in the cache without this metadata included. We need to
-        // bypass the cache in order to get the metadata in order to check for
-        // DPI information.
-        // If not for that, ideally this would be set to false.
-        // TODO: revisit this at a later date
-        const BYPASS_CACHE          = true;
+        const BYPASS_CACHE          = false;
         const MIN_IMAGE_SIZE        = 256;
         const NUM_BUTTON_SIZE_TIERS = 5;
 
@@ -169,9 +159,6 @@ var PTItemView = function() {
             const fullWidth = info['width'];
             const numSizes  = info['sizes'].length;
             const maxPixels = info['profile'][1]['maxArea'];
-            const xmp       = info['xmp'];
-            const exif      = info['exif'];
-            var dpi         = 0;
 
             // Find the number of usable sizes (i.e. sizes above MIN_IMAGE_SIZE
             // and below maxPixels) in order to calculate button size tiers.
@@ -185,33 +172,11 @@ var PTItemView = function() {
                 }
             }
 
-            // Try to find the DPI, which we prefer to display to the user
-            // instead of pixel sizes. Check first in EXIF-in-XMP.
-            if (xmp != null) {
-                const parser = new DOMParser();
-                const doc    = parser.parseFromString(xmp, "text/xml");
-                const prefixResolver = function(prefix) {
-                    if (prefix === 'tiff') {
-                        return 'http://ns.adobe.com/tiff/1.0/';
-                    }
-                };
-                const result = doc.evaluate('//@tiff:XResolution', doc,
-                    prefixResolver, XPathResult.STRING_TYPE, null);
-                const rational = result.stringValue.split('/');
-                if (rational.length === 2) {
-                    dpi = Math.round(parseInt(rational[0]) / parseFloat(rational[1]));
-                }
-            } else if (exif != null && exif.fields.XResolution) { // Check in EXIF
-                dpi = Math.round(exif.fields.XResolution.numerator /
-                    exif.fields.XResolution.denominator);
-            }
-
             // Create a button for each size tier from the maximum down to
             // the minimum.
             for (var i = numSizes - 1, size_i = numSizes - 1; i >= 0; i--) {
                 const width   = info['sizes'][i]['width'];
                 const height  = info['sizes'][i]['height'];
-                const thisDPI = dpi / Math.pow(2, (numSizes - 1) - i);
 
                 if (width >= MIN_IMAGE_SIZE && height >= MIN_IMAGE_SIZE
                     && width * height <= maxPixels) {
@@ -220,9 +185,7 @@ var PTItemView = function() {
                     const percent = Math.round(width / fullWidth * 100);
                     const checked = (size_i === numSizes - 1) ? 'checked' : '';
                     const active  = (size_i === numSizes - 1) ? 'active' : '';
-                    const label   = (dpi > 0) ?
-                        thisDPI + ' DPI (' + percent + '%)' :
-                        width + '&times;' + height + ' pixels (' + percent + '%)';
+                    const label   = width + '&times;' + height + ' pixels (' + percent + '%)';
                     container.append(
                         '<div class="radio btn btn-outline-primary ' + sizeClass + ' ' + active + '">' +
                         '<label>' +
