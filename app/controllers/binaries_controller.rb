@@ -122,7 +122,10 @@ class BinariesController < WebsiteController
   end
 
   def content_disposition
-    "attachment; filename=#{@binary.filename}"
+    utf8_filename  = @binary.filename
+    ascii_filename = utf8_filename.gsub(/[^[:ascii:]]*/, '')
+    "attachment; filename=\"#{ascii_filename.gsub('"', "\"")}\" "\
+        "filename*=UTF-8''#{CGI.escape(utf8_filename)}"
   end
 
   def load_binary
