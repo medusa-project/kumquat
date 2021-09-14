@@ -25,8 +25,7 @@
       .btn-group
         - if master
           = link_to binary_object_path(master),
-                    class: 'btn btn-outline-primary btn-sm',
-                    target: '_blank' do
+                    class: 'btn btn-outline-primary btn-sm' do
             = icon_for(master)
             Original File (#{master.human_readable_name})
         - if (image_binary&.public? || current_user&.medusa_user?) && image_binary&.image_server_safe? && !image_binary.is_pdf?
