@@ -124,8 +124,10 @@ class BinariesController < WebsiteController
   def content_disposition
     utf8_filename  = @binary.filename
     ascii_filename = utf8_filename.gsub(/[^[:ascii:]]*/, '')
-    "attachment; filename=\"#{ascii_filename.gsub('"', "\"")}\" "\
-        "filename*=UTF-8''#{CGI.escape(utf8_filename)}"
+    # N.B.: CGI.escape() inserts "+" instead of "%20" which Chrome interprets
+    # literally.
+    "attachment; filename=\"#{ascii_filename.gsub('"', "\"")}\"; "\
+        "filename*=UTF-8''#{ERB::Util.url_encode(utf8_filename)}"
   end
 
   def load_binary
