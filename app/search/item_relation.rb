@@ -156,10 +156,11 @@ class ItemRelation < AbstractRelation
           if @query.present?
             j.must do
               if !@exact_match
-                # https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html
+                # https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-simple-query-string-query.html
                 j.simple_query_string do
-                  j.query sanitized_query
+                  j.query @query[:query]
                   j.default_operator 'AND'
+                  j.flags 'NONE'
                   j.lenient true
                   if @include_children_in_results
                     j.fields [@query[:field],
@@ -172,7 +173,7 @@ class ItemRelation < AbstractRelation
                 j.term do
                   # Use the keyword field to get an exact match.
                   j.set! @query[:field] + EntityElement::KEYWORD_FIELD_SUFFIX,
-                         sanitized_query
+                         @query[:query].gsub(/[\[\]\(\)]/, '').gsub('/', ' ')
                 end
               end
             end

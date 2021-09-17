@@ -91,10 +91,11 @@ class CollectionRelation < AbstractRelation
           # Query
           if @query.present?
             j.must do
-              # https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html
+              # https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-simple-query-string-query.html
               j.simple_query_string do
-                j.query sanitized_query
+                j.query @query[:query]
                 j.fields [@query[:field]]
+                j.flags 'NONE'
                 j.default_operator 'AND'
                 j.lenient true
               end

@@ -275,13 +275,6 @@ class AbstractRelation
     MetadataProfile.default
   end
 
-  ##
-  # @return [String] Query that is safe to pass to Elasticsearch.
-  #
-  def sanitized_query
-    @query[:query].gsub(/[\[\]\(\)]/, '').gsub('/', ' ')
-  end
-
   def load
     return if @loaded
 
