@@ -59,6 +59,16 @@ class ElasticsearchClientTest < ActiveSupport::TestCase
     end
   end
 
+  # delete_task()
+
+  test "delete_task() deletes a task" do
+    # TODO: write this
+  end
+
+  test "delete_task() raises an error when deleting a nonexistent task" do
+    # TODO: write this
+  end
+
   # delete_index_alias()
 
   test "delete_index_alias() works" do
@@ -89,6 +99,16 @@ class ElasticsearchClientTest < ActiveSupport::TestCase
     @instance.create_index(@test_index)
     @instance.index_document(@test_index, "id1", {})
     assert_not_nil @instance.get_document(@test_index, "id1")
+  end
+
+  # get_task()
+
+  test "get_task() returns nil for a missing task" do
+    # TODO: write this
+  end
+
+  test "get_task() returns an existing task" do
+    # TODO: write this
   end
 
   # index_document()

@@ -6,8 +6,9 @@ namespace :elasticsearch do
     task :copy, [:from_index, :to_index, :async] => :environment do |task, args|
       puts ElasticsearchClient.instance.reindex(args[:from_index],
                                                 args[:to_index],
-                                                StringUtils.to_b(args[:async]))
-      puts "Monitor the above task at /_tasks/:id, and delete it when it's done."
+                                                async: StringUtils.to_b(args[:async]))
+      puts "Monitor the above task using elasticsearch:tasks:show and delete "\
+        "it when it's done using elasticsearch:tasks:delete."
     end
 
     desc 'Create an index with the current index schema'
@@ -48,6 +49,20 @@ namespace :elasticsearch do
       client = ElasticsearchClient.instance
       client.delete_index(args[:name], false)
       client.create_index(args[:name])
+    end
+
+  end
+
+  namespace :tasks do
+
+    desc 'Delete a task'
+    task :delete, [:id] => :environment do |task, args|
+      ElasticsearchClient.instance.delete_task(args[:id])
+    end
+
+    desc 'Show the status of a task'
+    task :show, [:id] => :environment do |task, args|
+      puts JSON.pretty_generate(ElasticsearchClient.instance.get_task(args[:id]))
     end
 
   end
