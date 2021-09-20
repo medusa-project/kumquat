@@ -230,7 +230,7 @@ class ElasticsearchClient
   # @param to_index [String]
   #
   def reindex(from_index, to_index)
-    url = sprintf('%s/_refresh',
+    url = sprintf('%s/_reindex',
                   Configuration.instance.elasticsearch_endpoint)
     body = JSON.generate({
         source: {
@@ -240,7 +240,7 @@ class ElasticsearchClient
             index: to_index
         }
     })
-    response = @http_client.post(url, nil, 'Content-Type': CONTENT_TYPE)
+    response = @http_client.post(url, body, 'Content-Type': CONTENT_TYPE)
 
     LOGGER.debug("reindex():\n    Request: %s\n    Response: %s",
                  body.force_encoding('UTF-8'),
