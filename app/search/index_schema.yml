@@ -29,8 +29,8 @@ settings:
       custom_stopper:
         type: stop
         stopwords:
-        - _english_
-        - _french_
+          - _english_
+          - _french_
       english_stemmer:
         type: stemmer
         language: english
