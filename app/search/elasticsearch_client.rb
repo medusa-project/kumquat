@@ -228,9 +228,11 @@ class ElasticsearchClient
   ##
   # @param from_index [String]
   # @param to_index [String]
+  # @param async [Boolean] If true, monitor the returned task and delete it
+  #                        when it finishes.
   #
-  def reindex(from_index, to_index)
-    url = sprintf('%s/_reindex',
+  def reindex(from_index, to_index, async: false)
+    url = sprintf("%s/_reindex?wait_for_completion=#{!async}&pretty",
                   Configuration.instance.elasticsearch_endpoint)
     body = JSON.generate({
         source: {

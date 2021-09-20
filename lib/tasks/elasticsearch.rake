@@ -3,8 +3,11 @@ namespace :elasticsearch do
   namespace :indexes do
 
     desc 'Copy one index into another index'
-    task :copy, [:from_index, :to_index] => :environment do |task, args|
-      ElasticsearchClient.instance.reindex(args[:from_index], args[:to_index])
+    task :copy, [:from_index, :to_index, :async] => :environment do |task, args|
+      puts ElasticsearchClient.instance.reindex(args[:from_index],
+                                                args[:to_index],
+                                                StringUtils.to_b(args[:async]))
+      puts "Monitor the above task at /_tasks/:id, and delete it when it's done."
     end
 
     desc 'Create an index with the current index schema'
