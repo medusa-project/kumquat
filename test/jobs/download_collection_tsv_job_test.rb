@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class DownloadTsvJobTest < ActiveSupport::TestCase
+class DownloadCollectionTsvJobTest < ActiveSupport::TestCase
 
   setup do
     @download = Download.create
@@ -13,12 +13,12 @@ class DownloadTsvJobTest < ActiveSupport::TestCase
   # perform()
 
   test 'perform() should assemble the expected TSV file' do
-    DownloadTsvJob.perform_now(collections(:compound_object), @download, false)
+    DownloadCollectionTsvJob.perform_now(collections(:compound_object), @download, false)
     assert File.size(@download.pathname) > 0
   end
 
   test 'perform() should update the download object' do
-    DownloadTsvJob.perform_now(collections(:compound_object), @download, false)
+    DownloadCollectionTsvJob.perform_now(collections(:compound_object), @download, false)
     assert_equal Task::Status::SUCCEEDED, @download.task.status
     assert File.exists?(@download.pathname)
   end
