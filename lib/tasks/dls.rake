@@ -194,31 +194,6 @@ namespace :dls do
 
   end
 
-  namespace :elements do
-
-    ##
-    # This was requested by lampron2@illinois.edu on 1/18/2018.
-    #
-    desc 'Generate a report for PL'
-    task :elements_in_profiles => :environment do
-      lines = []
-      Element.all.order(:name).each do |el|
-        any = false
-        MetadataProfile.all.order(:name).each do |mp|
-          if mp.elements.where(name: el.name).count > 0
-            any = true
-            lines << "#{el.name}\t#{mp.name}"
-          end
-        end
-        unless any
-          lines << "#{el.name}\t"
-        end
-      end
-      puts lines.join(ItemTsvExporter::LINE_BREAK)
-    end
-
-  end
-
   namespace :images do
 
     desc 'Purge all images from the image server cache'
