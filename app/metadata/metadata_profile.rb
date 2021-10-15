@@ -6,8 +6,8 @@
 # in the OAI-PMH endpoint; etc.
 #
 # A metadata profile is like a template or view. Instead of enumerating an
-# {Item}'s metadata elements for public display, we enumerate the elements in
-# its {Collection}'s metadata profile, and display each of its elements that
+# [Item]'s metadata elements for public display, we enumerate the elements in
+# its [Collection]'s metadata profile, and display each of its elements that
 # match in profile order.
 #
 # # Attributes
@@ -18,7 +18,7 @@
 #                                 collection contexts. (Only one metadata
 #                                 profile can be marked default--this is
 #                                 enforced by an `after_save` callback.)
-# * `default_sortable_element_id` ID of the {MetadataProfileElement} that is
+# * `default_sortable_element_id` ID of the [MetadataProfileElement] that is
 #                                 sorted on by default (in the absence of a
 #                                 different user choice).
 # * `updated_at`                  Managed by ActiveRecord.
@@ -54,20 +54,20 @@ class MetadataProfile < ApplicationRecord
   def self.default_elements
     defs = []
     ItemElement.all_available.each_with_index do |elem, index|
-      dc_map = DublinCoreElement.all.map(&:name).include?(elem.name) ? elem.name : nil
-      dcterms_map = DublinCoreTerm.all.map(&:name).include?(elem.name) ? elem.name : nil
+      dc_map       = DublinCoreElement.all.map(&:name).include?(elem.name) ? elem.name : nil
+      dcterms_map  = DublinCoreTerm.all.map(&:name).include?(elem.name) ? elem.name : nil
       profile_elem = MetadataProfileElement.new(
-          name: elem.name,
-          label: elem.name.titleize,
-          visible: true,
-          searchable: true,
-          sortable: true,
-          facetable: true,
-          indexed: true,
-          dc_map: dc_map,
-          dcterms_map: dcterms_map,
+          name:         elem.name,
+          label:        elem.name.titleize,
+          visible:      true,
+          searchable:   true,
+          sortable:     true,
+          facetable:    true,
+          indexed:      true,
+          dc_map:       dc_map,
+          dcterms_map:  dcterms_map,
           vocabularies: [ Vocabulary.uncontrolled ],
-          index: index)
+          index:        index)
       # Add the RightsStatements.org vocabulary to the `rights` element.
       if profile_elem.name == 'rights'
         rights_vocab = Vocabulary.find_by_key('rights')
@@ -85,7 +85,7 @@ class MetadataProfile < ApplicationRecord
   #                        exist
   #
   def self.from_json(json)
-    struct = JSON.parse(json)
+    struct  = JSON.parse(json)
     profile = MetadataProfile.new
 
     transaction do
@@ -108,16 +108,16 @@ class MetadataProfile < ApplicationRecord
 
       # Add its elements.
       struct['elements'].each do |jd|
-        profile_elem = profile.elements.build
-        profile_elem.name = jd['name']
-        profile_elem.label = jd['label']
-        profile_elem.index = jd['index']
-        profile_elem.searchable = jd['searchable']
-        profile_elem.facetable = jd['facetable']
-        profile_elem.visible = jd['visible']
-        profile_elem.sortable = jd['sortable']
-        profile_elem.indexed = jd['indexed']
-        profile_elem.dc_map = jd['dc_map']
+        profile_elem             = profile.elements.build
+        profile_elem.name        = jd['name']
+        profile_elem.label       = jd['label']
+        profile_elem.index       = jd['index']
+        profile_elem.searchable  = jd['searchable']
+        profile_elem.facetable   = jd['facetable']
+        profile_elem.visible     = jd['visible']
+        profile_elem.sortable    = jd['sortable']
+        profile_elem.indexed     = jd['indexed']
+        profile_elem.dc_map      = jd['dc_map']
         profile_elem.dcterms_map = jd['dcterms_map']
         jd['vocabularies'].each do |v|
           vocab = Vocabulary.find_by_key(v['key'])
@@ -171,14 +171,13 @@ class MetadataProfile < ApplicationRecord
   end
 
   ##
-  # Overrides parent to intelligently clone a metadata profile including all
-  # of its elements.
+  # Overrides parent to clone a metadata profile including all of its elements.
   #
   # @return [MetadataProfile]
   #
   def dup
-    clone = super
-    clone.name = "Clone of #{self.name}"
+    clone         = super
+    clone.name    = "Clone of #{self.name}"
     clone.default = false
     # The instance requires an ID for MetadataProfileElement validations.
     clone.save!
@@ -192,6 +191,7 @@ class MetadataProfile < ApplicationRecord
   def facet_elements
     self.elements.where(facetable: true).order(:index)
   end
+
 
   private
 
@@ -213,7 +213,7 @@ class MetadataProfile < ApplicationRecord
   def using_valid_elements
     self.elements.each do |pe|
       unless Element.find_by_name(pe.name)
-        errors.add(:name, "\"#{pe.name}\" is not a valid DLS element.")
+        errors.add(:name, "\"#{pe.name}\" is not a valid element.")
       end
     end
   end
