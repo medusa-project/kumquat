@@ -222,8 +222,21 @@ namespace :dls do
       Item.delete_orphaned_documents
     end
 
+    desc 'Export an item and all children as TSV'
+    task :export_as_tsv, [:uuid] => :environment do |task, args|
+      item = Item.find_by_repository_id(args[:uuid])
+      raise ArgumentError, 'Item does not exist' unless item
+      if item.collection.free_form?
+        items = item.all_files
+      else
+        items = [item]
+        items += item.all_children
+      end
+      puts ItemTsvExporter.new.items(items)
+    end
+
     desc 'Export all items in a collection as TSV'
-    task :export_as_tsv, [:collection_uuid] => :environment do |task, args|
+    task :export_collection_as_tsv, [:collection_uuid] => :environment do |task, args|
       col = Collection.find_by_repository_id(args[:collection_uuid])
       raise ArgumentError, 'Collection does not exist' unless col
       puts ItemTsvExporter.new.items_in_collection(col)

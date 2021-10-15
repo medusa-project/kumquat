@@ -8,6 +8,31 @@ class ItemTsvExporter
   URI_VALUE_SEPARATOR   = '&&'
 
   ##
+  # @param items [Enumerable<Item>] Should all be in the same collection.
+  # @return [String] The given items as a TSV string.
+  #
+  def items(items)
+    # N.B.: The return value must remain in sync with that of
+    # Item.tsv_columns().
+    metadata_profile = items.first.collection.effective_metadata_profile
+    ids = items.map(&:id).join(',')
+    sql = select_clause(metadata_profile) +
+      from_clause +
+      "WHERE items.id IN (#{ids}) " +
+      order_clause +
+      ") a\n"
+
+    io = StringIO.new
+    io << Item.tsv_columns(metadata_profile).join("\t")
+    io << LINE_BREAK
+    ActiveRecord::Base.connection.exec_query(sql, 'SQL').each do |row|
+      io << row.values.join("\t")
+      io << LINE_BREAK
+    end
+    io.string
+  end
+
+  ##
   # Requires PostgreSQL.
   #
   # @param collection [Collection]

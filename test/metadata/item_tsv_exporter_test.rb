@@ -127,9 +127,33 @@ class ItemTsvExporterTest < ActiveSupport::TestCase
     @instance = ItemTsvExporter.new
   end
 
+  # items()
+
+  test 'items() works' do
+    expected_header = %w(uuid parentId preservationMasterPathname
+        preservationMasterFilename preservationMasterUUID accessMasterPathname
+        accessMasterFilename accessMasterUUID variant pageNumber subpageNumber
+        published contentdmAlias contentdmPointer IGNORE Title
+        Coordinates Creator Date\ Created Description lcsh:Subject tgm:Subject)
+    expected_values = [
+      COMPOUND_OBJECT_1002,
+      COMPOUND_OBJECT_1002_SUPPLEMENT,
+      COMPOUND_OBJECT_1002_PAGE1,
+      COMPOUND_OBJECT_1002_PAGE2
+    ]
+    items = [
+      items(:compound_object_1002),
+      items(:compound_object_1002_page1),
+      items(:compound_object_1002_page2),
+      items(:compound_object_1002_supplement)
+    ]
+    assert_equal to_tsv(expected_header, expected_values),
+                 @instance.items(items)
+  end
+
   # items_in_collection()
 
-  test 'items_in_collection works' do
+  test 'items_in_collection() works' do
     expected_header = %w(uuid parentId preservationMasterPathname
         preservationMasterFilename preservationMasterUUID accessMasterPathname
         accessMasterFilename accessMasterUUID variant pageNumber subpageNumber
