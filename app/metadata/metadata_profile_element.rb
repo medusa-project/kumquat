@@ -1,5 +1,5 @@
 ##
-# Encapsulates an element in a MetadataProfile.
+# Encapsulates an element in a [MetadataProfile].
 #
 # # Attributes
 #
@@ -45,6 +45,8 @@ class MetadataProfileElement < ApplicationRecord
             allow_blank: false
   validates_uniqueness_of :name, scope: :metadata_profile_id
 
+  validate :validate_vocabularies
+
   after_create :adjust_profile_element_indexes_after_create
   before_update :adjust_profile_element_indexes_before_update
   after_destroy :adjust_profile_element_indexes_after_destroy
@@ -53,7 +55,7 @@ class MetadataProfileElement < ApplicationRecord
   # @return [Boolean]
   #
   def controlled?
-    !(self.vocabularies.empty? or (self.vocabularies.length == 1 and
+    !(self.vocabularies.empty? || (self.vocabularies.length == 1 &&
         self.vocabularies.first == Vocabulary.uncontrolled))
   end
 
@@ -103,6 +105,7 @@ class MetadataProfileElement < ApplicationRecord
     self.name
   end
 
+
   private
 
   ##
@@ -128,8 +131,8 @@ class MetadataProfileElement < ApplicationRecord
   #
   def adjust_profile_element_indexes_before_update
     if self.metadata_profile and self.index_changed?
-      min = [self.index_was, self.index].min
-      max = [self.index_was, self.index].max
+      min       = [self.index_was, self.index].min
+      max       = [self.index_was, self.index].max
       increased = (self.index_was < self.index)
 
       transaction do
@@ -152,7 +155,7 @@ class MetadataProfileElement < ApplicationRecord
   # ensure that they are sequential and zero-based.
   #
   def adjust_profile_element_indexes_after_destroy
-    if self.metadata_profile and self.destroyed?
+    if self.metadata_profile && self.destroyed?
       transaction do
         self.metadata_profile.elements.order(:index).each_with_index do |element, index|
           # update_column skips callbacks, which would cause this method to be
@@ -160,6 +163,12 @@ class MetadataProfileElement < ApplicationRecord
           element.update_column(:index, index) if element.index != index
         end
       end
+    end
+  end
+
+  def validate_vocabularies
+    if self.vocabularies.empty?
+      errors.add(:vocabularies, 'must have at least one vocabulary assigned')
     end
   end
 

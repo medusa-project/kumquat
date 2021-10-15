@@ -9,7 +9,7 @@ class MetadataProfileElementTest < ActiveSupport::TestCase
 
   # controlled?()
 
-  test 'controlled?() should work' do
+  test 'controlled?() works' do
     e = MetadataProfileElement.new(name: 'animal')
     assert !e.controlled?
 
@@ -25,9 +25,10 @@ class MetadataProfileElementTest < ActiveSupport::TestCase
 
   test 'create() updates indexes in the owning profile' do
     profile = metadata_profiles(:default)
-    MetadataProfileElement.create!(name: 'rights',
-                                   index: 1,
-                                   metadata_profile: profile)
+    MetadataProfileElement.create!(name:             'rights',
+                                   index:            1,
+                                   metadata_profile: profile,
+                                   vocabularies:     [vocabularies(:uncontrolled)])
     # Assert that the indexes are sequential and zero-based.
     profile.elements.order(:index).each_with_index do |e, i|
       assert_equal i, e.index
@@ -110,6 +111,14 @@ class MetadataProfileElementTest < ActiveSupport::TestCase
   test 'validate() disallows negative indexes' do
     @element.index = -1
     assert !@element.validate
+  end
+
+  test 'validate() requires at least one associated vocabulary' do
+    @element.vocabularies.clear
+    assert !@element.validate
+
+    @element.vocabularies << vocabularies(:uncontrolled)
+    assert @element.validate
   end
 
 end
