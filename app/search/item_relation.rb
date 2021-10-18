@@ -7,16 +7,17 @@ class ItemRelation < AbstractRelation
 
   def initialize
     super
-    @collection                  = nil
-    @exclude_variants            = []
-    @include_children_in_results = false
-    @include_restricted          = false
-    @include_unpublished         = false
-    @include_variants            = []
-    @item_set                    = nil
-    @only_described              = false
-    @parent_item                 = nil
-    @search_children             = false
+    @collection                    = nil
+    @exclude_variants              = []
+    @include_children_in_results   = false
+    @include_restricted            = false
+    @include_publicly_inaccessible = false
+    @include_unpublished           = false
+    @include_variants              = []
+    @item_set                      = nil
+    @only_described                = false
+    @parent_item                   = nil
+    @search_children               = false
   end
 
   ##
@@ -46,6 +47,15 @@ class ItemRelation < AbstractRelation
   #
   def include_children_in_results(bool)
     @include_children_in_results = bool
+    self
+  end
+
+  ##
+  # @param bool [Boolean]
+  # @return [ItemRelation] The instance.
+  #
+  def include_publicly_inaccessible(bool)
+    @include_publicly_inaccessible = bool
     self
   end
 
@@ -242,10 +252,18 @@ class ItemRelation < AbstractRelation
               end
             end
 
-            unless @include_unpublished
+            if !@include_publicly_inaccessible && !@include_restricted
               j.child! do
                 j.term do
                   j.set! Item::IndexFields::PUBLICLY_ACCESSIBLE, true
+                end
+              end
+            end
+
+            unless @include_unpublished
+              j.child! do
+                j.term do
+                  j.set! Item::IndexFields::PUBLISHED, true
                 end
               end
             end

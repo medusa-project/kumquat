@@ -333,7 +333,7 @@ class Item < ApplicationRecord
     Item.search.
         include_variants(*Variants::FILE).
         aggregations(false).
-        include_unpublished(true).
+        include_publicly_inaccessible(true).
         include_restricted(true).
         search_children(true).
         limit(0).
@@ -348,7 +348,7 @@ class Item < ApplicationRecord
         include_variants(Variants::FILE, Variants::DIRECTORY).
         aggregations(false).
         search_children(true).
-        include_unpublished(true).
+        include_publicly_inaccessible(true).
         include_restricted(true).
         limit(0).
         count
@@ -361,7 +361,7 @@ class Item < ApplicationRecord
   def self.num_objects
     num_free_form_files + Item.search.
         aggregations(false).
-        include_unpublished(true).
+        include_publicly_inaccessible(true).
         include_restricted(true).
         search_children(false).
         exclude_variants(Variants::FILE, Variants::DIRECTORY).
@@ -746,7 +746,7 @@ class Item < ApplicationRecord
         elsif self.compound?
           first_child = self.search_children.
               include_restricted(true).
-              include_unpublished(true).
+              include_publicly_inaccessible(true).
               limit(1).
               to_a.first
           # This should always be true, but just to make sure we prevent a

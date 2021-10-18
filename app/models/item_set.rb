@@ -79,7 +79,7 @@ class ItemSet < ActiveRecord::Base
           @num_objects = Item.search.
               item_set(self).
               aggregations(false).
-              include_unpublished(true).
+              include_publicly_inaccessible(true).
               include_restricted(true).
               search_children(false).
               include_variants(*Item::Variants::FILE).
@@ -89,7 +89,7 @@ class ItemSet < ActiveRecord::Base
           @num_objects = Item.search.
               item_set(self).
               aggregations(false).
-              include_unpublished(true).
+              include_publicly_inaccessible(true).
               include_restricted(true).
               search_children(false).
               limit(0).

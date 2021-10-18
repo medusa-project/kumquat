@@ -57,8 +57,8 @@ module Indexed
       # no constraints
       if relation.respond_to?(:include_children_in_results)
         relation.include_children_in_results(true)
-      elsif relation.respond_to?(:include_unpublished)
-        relation.include_unpublished(true).include_restricted(true)
+      elsif relation.respond_to?(:include_publicly_inaccessible)
+        relation.include_publicly_inaccessible(true).include_restricted(true)
       end
       count    = relation.count
       progress = Progress.new(count)

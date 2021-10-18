@@ -127,9 +127,9 @@ module Admin
       raise ActiveRecord::RecordNotFound unless @collection
 
       @metadata_profile = @collection.effective_metadata_profile
-      @item_set = nil
-      @start = params[:start].to_i
-      @limit = 20
+      @item_set         = nil
+      @start            = params[:start].to_i
+      @limit            = 20
 
       # If there is an ItemSet ID in the URL, we want to edit all of its items.
       # Otherwise, we want to edit items from the collection item results.
@@ -147,7 +147,7 @@ module Admin
 
       relation.
           aggregations(false).
-          include_unpublished(true).
+          include_publicly_inaccessible(true).
           include_restricted(true).
           include_children_in_results(true).
           order(Item::IndexFields::STRUCTURAL_SORT).
@@ -563,7 +563,7 @@ module Admin
           collection(collection).
           query(params[:df], params[:q]).
           search_children(false).
-          include_unpublished(true).
+          include_publicly_inaccessible(true).
           include_restricted(true).
           include_children_in_results(!collection.free_form?).
           facet_filters(params[:fq]).
@@ -577,7 +577,7 @@ module Admin
           collection(collection).
           query(params[:df], params[:q]).
           search_children(false).
-          include_unpublished(true).
+          include_publicly_inaccessible(true).
           include_restricted(true).
           exclude_variants(*Item::Variants::non_filesystem_variants).
           facet_filters(params[:fq]).
