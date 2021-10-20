@@ -198,9 +198,20 @@
                               method: 'post' do
                       %i.fa.fa-trash
                       Purge Cached Images
-                  = link_to(bin.medusa_url, class: 'btn btn-sm btn-light', target: '_blank') do
-                    %i.fa.fa-database
-                    View in Medusa
+                  .btn-group
+                    %button.btn.btn-light.btn-sm.dropdown-toggle{"aria-expanded": "false",
+                                                                 "aria-haspopup": "true",
+                                                                 "data-toggle":   "dropdown",
+                                                                 type:            "button"}
+                      %i.fa.fa-external-link-alt
+                      Go
+                      %span.caret
+                    .dropdown-menu.dropdown-menu-right
+                      = link_to(bin.medusa_url, class: 'dropdown-item', target: '_blank') do
+                        Medusa
+                      - if bin.image_server_safe?
+                        = link_to(bin.iiif_info_v3_url, class: 'dropdown-item', target: '_blank') do
+                          IIIF Image Info
               %h3
                 - unless exists
                   %i.fa.fa-exclamation-triangle
