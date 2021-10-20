@@ -5,6 +5,10 @@ module Harvest
 
   class HarvestControllerTest < AbstractHarvestControllerTest
 
+    setup do
+      setup_elasticsearch
+    end
+
     # index()
 
     test 'index() with no credentials returns HTTP 401' do

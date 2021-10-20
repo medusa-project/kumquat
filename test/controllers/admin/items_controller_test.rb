@@ -4,6 +4,8 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
 
   setup do
     @item = items(:compound_object_1002)
+    setup_elasticsearch
+    Item.reindex_all
   end
 
   # disable_full_text_search()
@@ -16,9 +18,12 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
       items(:compound_object_1001),
       items(:compound_object_1002)
     ]
-    items.each do |item|
-      item.update!(expose_full_text_search: true)
+    Item.transaction do
+      items.each do |item|
+        item.update!(expose_full_text_search: true)
+      end
     end
+    refresh_elasticsearch
 
     ids = items.map(&:repository_id)
     patch admin_collection_items_disable_full_text_search_path(items[0].collection), {
@@ -37,9 +42,13 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
   collection when IDs are not provided' do
     sign_in_as(users(:admin))
 
-    @item.collection.items.each do |item|
-      item.update!(expose_full_text_search: true)
+    Item.transaction do
+      @item.collection.items.each do |item|
+        item.update!(expose_full_text_search: true)
+      end
     end
+    refresh_elasticsearch
+
     patch admin_collection_items_disable_full_text_search_path(@item.collection)
 
     @item.collection.items.each do |item|
@@ -58,9 +67,12 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
       items(:compound_object_1001),
       items(:compound_object_1002)
     ]
-    items.each do |item|
-      item.update!(expose_full_text_search: false)
+    Item.transaction do
+      items.each do |item|
+        item.update!(expose_full_text_search: false)
+      end
     end
+    refresh_elasticsearch
 
     ids = items.map(&:repository_id)
     patch admin_collection_items_enable_full_text_search_path(items[0].collection), {
@@ -79,9 +91,13 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
   collection when IDs are not provided' do
     sign_in_as(users(:admin))
 
-    @item.collection.items.each do |item|
-      item.update!(expose_full_text_search: false)
+    Item.transaction do
+      @item.collection.items.each do |item|
+        item.update!(expose_full_text_search: false)
+      end
     end
+    refresh_elasticsearch
+
     patch admin_collection_items_enable_full_text_search_path(@item.collection)
 
     @item.collection.items.each do |item|
@@ -128,9 +144,12 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
       items(:compound_object_1001),
       items(:compound_object_1002)
     ]
-    items.each do |item|
-      item.update!(published: false)
+    Item.transaction do
+      items.each do |item|
+        item.update!(published: false)
+      end
     end
+    refresh_elasticsearch
 
     ids = items.map(&:repository_id)
     patch admin_collection_items_publish_path(items[0].collection), {
@@ -148,9 +167,13 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
   test 'publish() publishes all items in a collection when IDs are not provided' do
     sign_in_as(users(:admin))
 
-    @item.collection.items.each do |item|
-      item.update!(published: false)
+    Item.transaction do
+      @item.collection.items.each do |item|
+        item.update!(published: false)
+      end
     end
+    refresh_elasticsearch
+
     patch admin_collection_items_publish_path(@item.collection)
 
     @item.collection.items.each do |item|
@@ -197,9 +220,12 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
       items(:compound_object_1001),
       items(:compound_object_1002)
     ]
-    items.each do |item|
-      item.update!(published: true)
+    Item.transaction do
+      items.each do |item|
+        item.update!(published: true)
+      end
     end
+    refresh_elasticsearch
 
     ids = items.map(&:repository_id)
     patch admin_collection_items_unpublish_path(items[0].collection), {
@@ -217,9 +243,13 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
   test 'unpublish() unpublishes all items in a collection when IDs are not provided' do
     sign_in_as(users(:admin))
 
-    @item.collection.items.each do |item|
-      item.update!(published: true)
+    Item.transaction do
+      @item.collection.items.each do |item|
+        item.update!(published: true)
+      end
     end
+    refresh_elasticsearch
+
     patch admin_collection_items_unpublish_path(@item.collection)
 
     @item.collection.items.each do |item|

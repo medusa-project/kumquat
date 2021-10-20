@@ -603,6 +603,7 @@ module Admin
           ids = params[:id]
         else
           relation = editing_item_relation_for(col)
+          relation.include_children_in_results(true)
           items    = relation.to_a.select(&:present?)
           ids      = items.map(&:repository_id)
         end
@@ -630,6 +631,7 @@ module Admin
           ids = params[:id]
         else
           relation = editing_item_relation_for(col)
+          relation.include_children_in_results(true)
           items    = relation.to_a.select(&:present?)
           ids      = items.map(&:repository_id)
         end
