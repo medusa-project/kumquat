@@ -79,6 +79,7 @@ class ItemSet < ActiveRecord::Base
           @num_objects = Item.search.
               item_set(self).
               aggregations(false).
+              include_unpublished(true).
               include_publicly_inaccessible(true).
               include_restricted(true).
               search_children(false).
@@ -89,6 +90,7 @@ class ItemSet < ActiveRecord::Base
           @num_objects = Item.search.
               item_set(self).
               aggregations(false).
+              include_unpublished(true).
               include_publicly_inaccessible(true).
               include_restricted(true).
               search_children(false).

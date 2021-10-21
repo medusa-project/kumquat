@@ -294,6 +294,7 @@ module AdminHelper
     html << "<li><strong>#{icon_for(item)} #{title}</strong>"
     if include_subitems
       subitems = item.search_children.
+          include_unpublished(true).
           include_publicly_inaccessible(true).
           include_restricted(true).
           to_a

@@ -55,6 +55,7 @@ module Admin
       @item_set = ItemSet.find(params[:item_set_id])
       @items    = Item.search.
           aggregations(false).
+          include_unpublished(true).
           include_publicly_inaccessible(true).
           include_restricted(true).
           filter(Item::IndexFields::ITEM_SETS, @item_set.id).
@@ -129,6 +130,7 @@ module Admin
 
       @items = Item.search.
           aggregations(false).
+          include_unpublished(true).
           include_publicly_inaccessible(true).
           include_restricted(true).
           filter(Item::IndexFields::ITEM_SETS, @item_set.id).

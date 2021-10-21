@@ -147,6 +147,7 @@ module Admin
 
       relation.
           aggregations(false).
+          include_unpublished(true).
           include_publicly_inaccessible(true).
           include_restricted(true).
           include_children_in_results(true).
@@ -563,6 +564,7 @@ module Admin
           collection(collection).
           query(params[:df], params[:q]).
           search_children(false).
+          include_unpublished(true).
           include_publicly_inaccessible(true).
           include_restricted(true).
           include_children_in_results(!collection.free_form?).
@@ -577,6 +579,7 @@ module Admin
           collection(collection).
           query(params[:df], params[:q]).
           search_children(false).
+          include_unpublished(true).
           include_publicly_inaccessible(true).
           include_restricted(true).
           exclude_variants(*Item::Variants::non_filesystem_variants).

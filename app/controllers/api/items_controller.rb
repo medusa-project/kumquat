@@ -38,6 +38,7 @@ module Api
           query_all(params[:q]).
           aggregations(false).
           search_children(true).
+          include_unpublished(true).
           include_publicly_inaccessible(true).
           include_restricted(true).
           facet_filters(params[:fq]).

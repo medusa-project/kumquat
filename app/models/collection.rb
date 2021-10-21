@@ -568,6 +568,7 @@ class Collection < ApplicationRecord
           collection(self).
           aggregations(false).
           search_children(true).
+          include_unpublished(true).
           include_publicly_inaccessible(true).
           include_restricted(true).
           order(false).
@@ -589,6 +590,7 @@ class Collection < ApplicationRecord
       relation = Item.search.
           collection(self).
           aggregations(false).
+          include_unpublished(true).
           include_publicly_inaccessible(true).
           include_restricted(true).
           order(false).
