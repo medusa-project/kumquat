@@ -1,0 +1,25 @@
+-# Uses the following locals:
+-#
+-# id [String] Modal panel ID. Required.
+-# title [String] Modal panel title. Required.
+-# size [Symbol] `:sm`, `:lg`, or `:xl` (optional)
+
+- size = nil unless defined?(size)
+
+.modal.fade{id: id,
+            "aria-hidden": "true",
+            "aria-labelledby": "#{id}-modal-label",
+            role: "dialog",
+            tabindex: "-1"}
+  %div{class: "modal-dialog modal-dialog-scrollable modal-dialog-centered #{size ? "modal-#{size}" : ""}",
+       role: "document"}
+    .modal-content
+      .modal-header
+        %h4.modal-title{id: "#{id}-modal-label"}
+          = title
+        %button.close{"aria-label": "Close", "data-dismiss": "modal", type: "button"}
+          %span{"aria-hidden": "true"} &times;
+      .modal-body
+        -# will be populated via XHR
+        .d-flex.justify-content-center
+          = spinner

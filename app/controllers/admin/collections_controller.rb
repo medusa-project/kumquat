@@ -5,13 +5,21 @@ module Admin
     PERMITTED_PARAMS = [:q, :public_in_medusa, :published_in_dls, :start]
 
     before_action :load_collection, except: :index
-    before_action :authorize_modify_collections, only: [:edit, :update, :sync,
-                                                        :unwatch, :watch]
+    before_action :authorize_modify_collections, only: [:edit_access,
+                                                        :edit_info, :update,
+                                                        :sync, :unwatch, :watch]
 
     ##
-    # Responds to `GET /admin/collections/:id/edit`
+    # Responds to `GET /admin/collections/:id/edit-access`.
     #
-    def edit
+    def edit_access
+      render partial: 'admin/collections/access_form'
+    end
+
+    ##
+    # Responds to `GET /admin/collections/:id/edit-info`.
+    #
+    def edit_info
       @metadata_profile_options_for_select = MetadataProfile.all.order(:name).
           map{ |t| [ t.name, t.id ] }
       @package_profile_options_for_select = PackageProfile.all.
@@ -20,6 +28,7 @@ module Admin
       profile = @collection.metadata_profile || MetadataProfile.default
       @descriptive_element_options_for_select =
           profile.elements.map{ |e| [e.label, e.id] }
+      render partial: 'admin/collections/info_form'
     end
 
     ##
@@ -29,7 +38,7 @@ module Admin
     # (XHR only).
     #
     def edit_email_watchers
-      render partial: 'admin/collections/email_watchers'
+      render partial: 'admin/collections/email_watchers_form'
     end
 
     ##

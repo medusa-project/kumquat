@@ -68,11 +68,27 @@ const PTAdminCollectionView = function() {
             });
         });
 
+        $('button.dl-edit-access').on('click', function() {
+            const url = ROOT_URL + '/admin/collections/' + collection_id +
+                '/edit-access';
+            $.get(url, function(data) {
+                $('#dl-edit-access-modal .modal-body').html(data);
+                attachEventListeners();
+            });
+        });
         $('button.dl-edit-email-watchers').on('click', function() {
             const url = ROOT_URL + '/admin/collections/' + collection_id +
                 '/edit-email-watchers';
             $.get(url, function(data) {
                 $('#dl-edit-email-watchers-modal .modal-body').html(data);
+                attachEventListeners();
+            });
+        });
+        $('button.dl-edit-info').on('click', function() {
+            const url = ROOT_URL + '/admin/collections/' + collection_id +
+                '/edit-info';
+            $.get(url, function(data) {
+                $('#dl-edit-info-modal .modal-body').html(data);
                 attachEventListeners();
             });
         });

@@ -491,6 +491,14 @@ module ApplicationHelper
     raw(html.string)
   end
 
+  def spinner
+    raw('<div class="d-flex justify-content-center align-items-center" style="height: 100%">
+      <div class="spinner-border text-secondary" role="status">
+        <span class="sr-only">Loading&hellip;</span>
+      </div>
+    </div>')
+  end
+
   ##
   # @param entity [Object]
   # @return [String] Text description of the entity's type

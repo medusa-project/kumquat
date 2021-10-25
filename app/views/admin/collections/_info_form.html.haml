@@ -1,34 +1,6 @@
 = form_for([:admin, @collection]) do |f|
   = hidden_field_tag :current_descriptive_element_id, @collection.descriptive_element_id
-  .clearfix
-    .float-right
-      = f.submit 'Save Changes', class: 'btn btn-primary'
-  .form-group
-    .checkbox
-      %label
-        = f.check_box(:published_in_dls)
-        Published
-    .checkbox
-      %label
-        = f.check_box(:publicize_binaries)
-        Publicize Binaries
-    .checkbox
-      %label
-        = f.check_box(:harvestable)
-        Harvestable (in general)
-    .checkbox
-      %label
-        = f.check_box(:harvestable_by_idhh)
-        Harvestable by IDHH
-    .checkbox
-      %label
-        = f.check_box(:harvestable_by_primo)
-        Harvestable by Primo
-    .checkbox
-      %label
-        = f.check_box(:restricted)
-        Restricted
-  %hr
+
   - if @collection.items.any?
     .alert.alert-primary
       %i.fas.fa-info-circle
@@ -77,30 +49,6 @@
                { include_blank: true },
                { class: 'custom-select' }
     %p.form-text.text-muted The free-form rights statement can be edited in Medusa.
-  .row
-    .col-sm-6
-      .form-group
-        %h4 Allowed Host Groups
-        = hidden_field_tag :host_group_ids, nil,
-                           name: 'collection[allowed_host_group_ids][]'
-        - HostGroup.order(:name).each do |group|
-          .checkbox
-            %label
-              = check_box_tag :host_group_ids, group.id,
-                              f.object.allowed_host_groups.pluck(:id).include?(group.id),
-                              name: 'collection[allowed_host_group_ids][]'
-              = group.name
-    .col-sm-6
-      .form-group
-        %h4 Denied Host Groups
-        = hidden_field_tag :host_group_ids, nil,
-                           name: 'collection[denied_host_group_ids][]'
-        - HostGroup.order(:name).each do |group|
-          .checkbox
-            %label
-              = check_box_tag :host_group_ids, group.id,
-                              f.object.denied_host_groups.pluck(:id).include?(group.id),
-                              name: 'collection[denied_host_group_ids][]'
-              = group.name
+
   .float-right
     = f.submit 'Save Changes', class: 'btn btn-primary'

@@ -34,6 +34,13 @@
 #nav-tabContent.tab-content
   #nav-technical-info.tab-pane.fade.show.active{"aria-labelledby": "nav-technical-info-tab",
                                                 role: "tabpanel"}
+    - if current_user.can?(Permissions::MODIFY_COLLECTIONS)
+      .btn-group.float-right
+        %button.btn.btn-light.dl-edit-info{type: 'button',
+                                           'data-toggle': 'modal',
+                                           'data-target': '#dl-edit-info-modal'}
+          %i.fas.fa-pencil-alt
+          Edit&hellip;
     %table.table
       %tr
         %td ID
@@ -125,6 +132,13 @@
 
   #nav-access.tab-pane.fade{"aria-labelledby": "nav-access-tab",
                             role: "tabpanel"}
+    - if current_user.can?(Permissions::MODIFY_COLLECTIONS)
+      .btn-group.float-right
+        %button.btn.btn-light.dl-edit-access{type: 'button',
+                                             'data-toggle': 'modal',
+                                             'data-target': '#dl-edit-access-modal'}
+          %i.fas.fa-pencil-alt
+          Edit&hellip;
     %table.table
       %tr
         %td Medusa Collection Metadata

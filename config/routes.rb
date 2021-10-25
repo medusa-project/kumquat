@@ -83,8 +83,12 @@ Rails.application.routes.draw do
     end
     match '/collections/sync', to: 'collections#sync', via: :patch,
           as: 'collections_sync'
-    resources :collections, except: [:new, :create, :delete] do
+    resources :collections, except: [:edit, :new, :create, :delete] do
+      match '/edit-access', to: 'collections#edit_access', via: :get,
+            constraints: lambda { |request| request.xhr? }
       match '/edit-email-watchers', to: 'collections#edit_email_watchers', via: :get,
+            constraints: lambda { |request| request.xhr? }
+      match '/edit-info', to: 'collections#edit_info', via: :get,
             constraints: lambda { |request| request.xhr? }
       resources :item_sets, except: :index do
         match '/all-items', to: 'item_sets#remove_all_items', via: :delete
