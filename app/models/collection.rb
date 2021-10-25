@@ -47,27 +47,28 @@
 #                              N.B. There may also be a description element in
 #                              the `elements` relationship containing a plain
 #                              text description, also copied from Medusa.
-# * `descriptive_element_id`   ID of a MetadataProfileElement whose values are
-#                              used in the description boxes in results view.
+# * `descriptive_element_id`   ID of a [MetadataProfileElement] whose values
+#                              are used in the description boxes in results
+#                              view.
 # * `external_id               Value of the Medusa "external ID" field.
-# * `harvestable               Controls visiblity of the collection's contents
+# * `harvestable               Controls visibility of the collection's contents
 #                              in the generic OAI-PMH harvesting endpoint. (See
-#                              {OaiPmhController}.)
-# * `harvestable_by_idhh       Controls visiblity of the collection's contents
+#                              [OaiPmhController].)
+# * `harvestable_by_idhh       Controls visibility of the collection's contents
 #                              in the IDHH OAI-PMH harvesting endpoint. (See
-#                              {OaiPmhController}.)
-# * `harvestable_by_primo      Controls visiblity of the collection's contents
+#                              [OaiPmhController].)
+# * `harvestable_by_primo      Controls visibility of the collection's contents
 #                              in the Primo OAI-PMH harvesting endpoint. (See
-#                              {OaiPmhController}.)
+#                              [OaiPmhController].)
 # * `medusa_directory_uuid`    Medusa UUID of the root directory in which the
 #                              collection's contents reside. If nil, the root
 #                              directory of the file group will be used.
 # * `medusa_file_group_uuid`   Medusa UUID of the file group in which the
 #                              collection's contents reside.
 # * `medusa_repository_id`
-# * `metadata_profile_id`      Database ID of the MetadataProfile assigned to
-#                              the collection.
-# * `package_profile_id`       ID of the PackageProfile assigned to the
+# * `metadata_profile_id`      Database ID of the [MetadataProfile] assigned to
+#                              the instance.
+# * `package_profile_id`       ID of the [PackageProfile] assigned to the
 #                              collection. The content in the effective root
 #                              directory of the collection must conform to this
 #                              profile.
@@ -75,7 +76,7 @@
 #                              counterpart.
 # * `public_in_medusa`         Whether the access level of the collection's
 #                              metadata is set to "public." This and
-#                              `published_in_dls` must be true in order for the
+#                              {published_in_dls} must be true in order for the
 #                              collection or any or any of its items to be
 #                              publicly accessible.
 # * `publicize_binaries`       Whether binaries attached to items residing in
@@ -85,7 +86,7 @@
 #                              to `false`, that property is ignored.
 # * `published_in_dls`         Whether the collection's content resides in the
 #                              DLS, or somewhere else.
-#                              N.B.: use `publicly_accessible?()` to test a
+#                              N.B.: use {publicly_accessible?()} to test a
 #                              collection's effective public accessibility.
 # * `repository_id`            The collection's effective UUID, copied from
 #                              Medusa.
@@ -93,7 +94,7 @@
 #                              collection for use in e.g. thumbnails.
 #                              `representative_item_id` should be used instead,
 #                              if possible.
-# * `representative_item_id`   Repository ID of an Item representating the
+# * `representative_item_id`   Repository ID of an [Item] representing the
 #                              collection for use in e.g. thumbnails.
 # * `resource_types`           Serialized array of resource types contained
 #                              within the collection, copied from Medusa.
