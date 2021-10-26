@@ -104,20 +104,11 @@ module ApplicationHelper
   def entities_as_cards(entities)
     html = StringIO.new
     entities.each do |entity|
-      bin = nil
-      begin
-        # If the entity is a Collection and the reference to the binary is
-        # invalid (for example, an invalid UUID has been entered), this will
-        # raise an error.
-        bin = entity.effective_representative_image_binary
-      rescue => e
-        LOGGER.warn('entities_as_cards(): %s (%s)', e, entity)
-      end
-
-      if bin&.image_server_safe?
-        img_url = ImageServer.binary_image_v2_url(binary: bin,
-                                                  region: 'square',
-                                                  size:   CARD_IMAGE_SIZE)
+      file = entity.effective_representative_image_file
+      if file
+        img_url = ImageServer.file_image_v2_url(file:   file,
+                                                region: 'square',
+                                                size:   CARD_IMAGE_SIZE)
       else
         case entity.class.to_s
           when 'Collection'
@@ -260,6 +251,14 @@ module ApplicationHelper
     html = sprintf('The Digital Collections are a product of the University Library.
       %s for questions and to provide feedback.', link)
     raw(html)
+  end
+
+  ##
+  # @param file [Medusa::File]
+  # @return [String]
+  #
+  def file_url(file)
+    "s3://#{Configuration.instance.medusa_s3_bucket}/#{file.relative_key}"
   end
 
   ##

@@ -8,10 +8,10 @@ json.label @collection.title
 json.description @collection.description
 
 # Thumbnail image
-bin = @collection.effective_representative_image_binary
-if bin
-  thumb_url = ImageServer.binary_image_v2_url(binary: bin,
-                                              size:   ItemsHelper::DEFAULT_THUMBNAIL_SIZE)
+file = @collection.effective_representative_image_file
+if file
+  thumb_url = ImageServer.file_image_v2_url(file: file,
+                                            size: ItemsHelper::DEFAULT_THUMBNAIL_SIZE)
   json.thumbnail do
     json.set! '@id', thumb_url
     json.service do

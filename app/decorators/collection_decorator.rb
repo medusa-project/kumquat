@@ -42,28 +42,25 @@ class CollectionDecorator < Draper::Decorator
         updated_at:              object.updated_at
     }
 
-    bin = object.effective_representative_image_binary
-    if bin
-      struct[:representative_images][:full] = { full: binary_url(bin) }
-      if bin.image_server_safe?
-        min_exp = 6
-        max_exp = 12
-        (min_exp..max_exp).each do |exp|
-          size = 2 ** exp
-          if (bin.width and bin.width >= size) or (bin.height and bin.height >= size)
-            struct[:representative_images][:full][size.to_s] =
-                "#{bin.iiif_image_v2_url}/full/!#{size},#{size}/0/default.jpg"
-          end
-        end
+    file = object.effective_representative_image_file
+    if file
+      struct[:representative_images][:full] = { full: file_url(file) }
+      min_exp = 6
+      max_exp = 12
+      (min_exp..max_exp).each do |exp|
+        size = 2 ** exp
+        struct[:representative_images][:full][size.to_s] =
+          ImageServer.file_image_v2_url(file: file,
+                                        size: size)
+      end
 
-        struct[:representative_images][:square] = {}
-        (min_exp..max_exp).each do |exp|
-          size = 2 ** exp
-          if bin.width and bin.width >= size and bin.height and bin.height >= size
-            struct[:representative_images][:square][size.to_s] =
-                "#{bin.iiif_image_v2_url}/square/!#{size},#{size}/0/default.jpg"
-          end
-        end
+      struct[:representative_images][:square] = {}
+      (min_exp..max_exp).each do |exp|
+        size = 2 ** exp
+        struct[:representative_images][:square][size.to_s] =
+          ImageServer.file_image_v2_url(file: file,
+                                        region: :square,
+                                        size: size)
       end
     end
     struct

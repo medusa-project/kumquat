@@ -38,7 +38,7 @@ class ImageServerTest < ActiveSupport::TestCase
 
   test 'file_image_v2_url() returns a correct URL with minimal arguments' do
     file   = binaries(:compound_object_1002_page2_access).medusa_file
-    url    = ImageServer.file_image_v2_url(file)
+    url    = ImageServer.file_image_v2_url(file: file)
     config = ::Configuration.instance
     assert_equal config.iiif_image_v2_url + '/' + file.uuid +
                    "/full/max/0/default.jpg",
@@ -47,7 +47,7 @@ class ImageServerTest < ActiveSupport::TestCase
 
   test 'file_image_v2_url() returns a correct URL with all arguments' do
     file = binaries(:compound_object_1002_page2_access).medusa_file
-    url  = ImageServer.file_image_v2_url(file,
+    url  = ImageServer.file_image_v2_url(file: file,
                                          region: '0,0,500,500',
                                          size: '300,',
                                          rotation: 15,

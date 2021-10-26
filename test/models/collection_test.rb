@@ -232,12 +232,6 @@ class CollectionTest < ActiveSupport::TestCase
     # TODO: write this
   end
 
-  # effective_representative_item()
-
-  test 'effective_representative_item() should work' do
-    # TODO: write this
-  end
-
   # free_form?()
 
   test 'free_form?() returns true when the package profile is free-form' do
@@ -535,12 +529,6 @@ class CollectionTest < ActiveSupport::TestCase
 
     @collection.repository_id = '8acdb390-96b6-0133-1ce8-0050569601ca-4'
     assert @collection.valid?
-  end
-
-  # representative_image_binary()
-
-  test 'representative_image_binary() works' do
-    # TODO: write this
   end
 
   # representative_item()

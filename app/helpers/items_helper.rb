@@ -846,7 +846,7 @@ module ItemsHelper
   end
 
   ##
-  # @param entity [Object]
+  # @param entity [Binary, Collection, Item, Medusa::File]
   # @param shape [Symbol] `:full` or `:square`.
   # @param size [Integer]
   # @param lazy [Boolean] If true, the `data-src` attribute will be set instead
@@ -859,18 +859,18 @@ module ItemsHelper
                     lazy:  false)
     url = nil
     if entity.kind_of?(Medusa::File)
-      url = ImageServer.file_image_v2_url(entity,
-                                          region: shape,
-                                          size:   size)
+      url  = ImageServer.file_image_v2_url(file:   entity,
+                                           region: shape,
+                                           size:   size)
     elsif entity.kind_of?(Binary)
       url = ImageServer.binary_image_v2_url(binary: entity,
                                             region: shape,
                                             size:   size)
     elsif entity.kind_of?(Collection)
-      bin = entity.effective_representative_image_binary
-      url = ImageServer.binary_image_v2_url(binary: bin,
-                                            region: shape,
-                                            size:   size)
+      file = entity.effective_representative_image_file
+      url  = ImageServer.file_image_v2_url(file:   file,
+                                           region: shape,
+                                           size:   size)
     elsif entity.kind_of?(Item)
       url = item_image_url(item:   entity,
                            region: shape,

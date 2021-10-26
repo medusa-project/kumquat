@@ -266,15 +266,14 @@ class Collection < ApplicationRecord
   #
   def as_harvestable_json
     access_master_struct = nil
-    bin = self.effective_representative_image_binary
-    if bin&.image_server_safe?
+    file                 = self.effective_representative_image_file
+    if file
       access_master_struct = {
-          id:         bin.medusa_uuid,
-          object_uri: bin.uri,
-          media_type: bin.media_type
+        id:         file.uuid,
+        object_uri: "s3://#{Configuration.instance.medusa_s3_bucket}/#{file.relative_key}",
+        media_type: file.media_type
       }
     end
-    access_master_struct
     {
         class:                   self.class.to_s,
         id:                      self.repository_id,
@@ -409,44 +408,30 @@ class Collection < ApplicationRecord
   end
 
   ##
+  # Overrides the same method in [Representable] to return the representative
+  # [Item], if set.
+  #
   # @return [Item, Collection]
   #
   def effective_representative_entity
-    self.effective_representative_item || self
+    self.representative_item || self
   end
 
   ##
-  # @return [Binary,nil] Best representative image binary based on the
-  #                      representative item set in Medusa, if available, or
-  #                      the representative image, if not.
-  # @see representative_image_binary
+  # @return [Medusa::File, nil] Best representative image file based on the
+  #                             representative item, if available, or
+  #                             the representative image file, if not.
   #
-  def effective_representative_image_binary
-    bin = self.representative_item&.effective_image_binary
-    unless bin
+  def effective_representative_image_file
+    file = self.representative_item&.effective_image_binary&.medusa_file
+    unless file
       begin
-        bin = self.representative_image_binary
+        file = self.representative_image_file
       rescue => e
-        LOGGER.warn('effective_representative_image_binary(): %s', e)
+        LOGGER.warn('effective_representative_image_file(): %s', e)
       end
     end
-    bin
-  end
-
-  ##
-  # @return [Item, nil] Item that effectively represents the instance.
-  # @see representative_item
-  #
-  def effective_representative_item
-    item = self.representative_item
-    unless item
-      begin
-        item = self.representative_image_binary&.item
-      rescue => e
-        LOGGER.warn('effective_representative_item(): %s', e)
-      end
-    end
-    item
+    file
   end
 
   ##
@@ -718,32 +703,22 @@ class Collection < ApplicationRecord
   end
 
   ##
-  # @return [Binary, nil] Binary corresponding to the `representative_image`
-  #                       attribute.
+  # @return [Medusa::File, nil] Instance corresponding to the
+  #                             `representative_image` attribute.
   #
-  def representative_image_binary
-    if self.representative_image.present?
-      # This may be nil, which may mean that it resides in a different file
-      # group, or doesn't conform to the package profile.
-      binary = Binary.find_by_medusa_uuid(self.representative_image)
-      unless binary
-        file   = Medusa::File.with_uuid(self.representative_image)
-        binary = Binary.from_medusa_file(file, Binary::MasterType::ACCESS)
-      end
-      binary
-    end
+  def representative_image_file
+    self.representative_image.present? ?
+      Medusa::File.with_uuid(self.representative_image) : nil
   end
 
   ##
-  # @return [Item, nil] Item assigned to represent the instance. May be nil.
-  # @see effective_representative_item
+  # @return [Item, nil] Item assigned to represent the instance.
   #
   def representative_item
-    item = nil
-    if self.representative_item_id.present?
-      item = Item.find_by_repository_id(self.representative_item_id)
+    if !@representative_item && self.representative_item_id.present?
+      @representative_item = Item.find_by_repository_id(self.representative_item_id)
     end
-    item
+    @representative_item
   end
 
   ##

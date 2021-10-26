@@ -77,9 +77,9 @@ class CollectionsController < WebsiteController
               to_a
           @num_public_objects = @collection.num_public_objects rescue nil
           # One or both of these may be nil.
-          @representative_image_binary =
-              @collection.effective_representative_image_binary
-          @representative_item = @collection.effective_representative_item
+          @representative_image_file =
+              @collection.effective_representative_image_file
+          @representative_item = @collection.representative_item
           # Show the "Browse Folder Tree" button only if the collection is
           # free-form and has no child items.
           @show_browse_tree_button = @collection.free_form? ?

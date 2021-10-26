@@ -70,7 +70,7 @@ class ImageServer
   #                                     compatible with the image server or
   #                                     safe for it to serve.
   #
-  def self.file_image_v2_url(file,
+  def self.file_image_v2_url(file:,
                              region:              'full',
                              size:                'max',
                              rotation:            0,
