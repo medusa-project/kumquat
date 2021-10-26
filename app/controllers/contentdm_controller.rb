@@ -160,11 +160,11 @@ class ContentdmController < ApplicationController
 
     if item
       item = item.effective_representative_entity
-      bin = item.binaries.where(master_type: Binary::MasterType::ACCESS,
+      bin = item.binaries.where(master_type:    Binary::MasterType::ACCESS,
                                 media_category: Binary::MediaCategory::IMAGE).limit(1).first
       if bin
-        redirect_to ImageServer.image_v2_url(bin,
-                                             size: ItemsHelper::DEFAULT_THUMBNAIL_SIZE),
+        redirect_to ImageServer.binary_image_v2_url(binary: bin,
+                                                    size:   ItemsHelper::DEFAULT_THUMBNAIL_SIZE),
                     status: 301
         return
       end

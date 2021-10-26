@@ -115,9 +115,9 @@ module ApplicationHelper
       end
 
       if bin&.image_server_safe?
-        img_url = ImageServer.image_v2_url(bin,
-                                           region: 'square',
-                                           size: CARD_IMAGE_SIZE)
+        img_url = ImageServer.binary_image_v2_url(binary: bin,
+                                                  region: 'square',
+                                                  size:   CARD_IMAGE_SIZE)
       else
         case entity.class.to_s
           when 'Collection'

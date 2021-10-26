@@ -244,10 +244,10 @@ module ItemsHelper
     url = nil
     bin = item.effective_image_binary
     if bin
-      url = ImageServer.image_v2_url(bin,
-                                     region: region.to_s,
-                                     size:   size,
-                                     format: format.to_s)
+      url = ImageServer.binary_image_v2_url(binary: bin,
+                                            region: region.to_s,
+                                            size:   size,
+                                            format: format.to_s)
     end
     url
   end
@@ -858,15 +858,19 @@ module ItemsHelper
                     shape: :full,
                     lazy:  false)
     url = nil
-    if entity.kind_of?(Binary)
-      url = ImageServer.image_v2_url(entity,
-                                     region: shape,
-                                     size:   size)
+    if entity.kind_of?(Medusa::File)
+      url = ImageServer.file_image_v2_url(entity,
+                                          region: shape,
+                                          size:   size)
+    elsif entity.kind_of?(Binary)
+      url = ImageServer.binary_image_v2_url(binary: entity,
+                                            region: shape,
+                                            size:   size)
     elsif entity.kind_of?(Collection)
       bin = entity.effective_representative_image_binary
-      url = ImageServer.image_v2_url(bin,
-                                     region: shape,
-                                     size:   size)
+      url = ImageServer.binary_image_v2_url(binary: bin,
+                                            region: shape,
+                                            size:   size)
     elsif entity.kind_of?(Item)
       url = item_image_url(item:   entity,
                            region: shape,
