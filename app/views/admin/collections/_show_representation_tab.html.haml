@@ -1,0 +1,63 @@
+- if current_user.can?(Permissions::MODIFY_COLLECTIONS)
+  .btn-group.float-right.mb-3
+    %button.btn.btn-light.dl-edit-representation{type: 'button',
+                                                 'data-toggle': 'modal',
+                                                 'data-target': '#dl-edit-representation-modal'}
+      %i.fas.fa-pencil-alt
+      Edit&hellip;
+
+.media.dl-representation
+  .dl-image-container
+    - active_1 = false
+    - representative_item_id = @collection.representative_item_id
+    - if representative_item_id.present?
+      - item = Item.find_by_repository_id(representative_item_id)
+      - if item
+        - active_1 = true
+        = link_to(admin_collection_item_path(@collection, item)) do
+          = thumbnail_tag(item, size: 256)
+      - else
+        .dl-no-image
+    - else
+      .dl-no-image
+  .media-body
+    %h5
+      Representative Item
+      - if active_1
+        %span.badge.badge-success active
+    - if item
+      %p= link_to(item.title,
+                  admin_collection_item_path(@collection, item))
+    - elsif representative_item_id.present?
+      %code
+        = representative_item_id
+      %span.badge.badge-pill.badge-danger invalid
+
+.media.mt-3.dl-representation
+  .dl-image-container
+    - active_2 = false
+    - rep_image_uuid = @collection.representative_image
+    - rep_image_file = Medusa::File.with_uuid(rep_image_uuid)
+    - if rep_image_uuid.present?
+      - if rep_image_file.exists?
+        - active_2 = true
+        = link_to(rep_image_file.url) do
+          = thumbnail_tag(rep_image_file, size: 256)
+      - else
+        .dl-no-image
+    - else
+      .dl-no-image
+  .media-body
+    %h5
+      Representative Image File
+      - if active_2 && !active_1
+        %span.badge.badge-success active
+    - if rep_image_uuid.present?
+      - if rep_image_file.exists?
+        = link_to(rep_image_file.url) do
+          %code= rep_image_file.name
+      - else
+        %code
+          = rep_image_uuid
+        %span.badge.badge-pill.badge-danger invalid
+

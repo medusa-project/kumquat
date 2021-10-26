@@ -1,0 +1,102 @@
+.row
+  .col-sm-6
+    .card
+      .card-body
+        - if current_user.can?(Permissions::MODIFY_COLLECTIONS)
+          .btn-group.float-right.mb-3
+            %button.btn.btn-sm.btn-light.dl-edit-info{type: 'button',
+                                                      'data-toggle': 'modal',
+                                                      'data-target': '#dl-edit-info-modal'}
+              %i.fas.fa-pencil-alt
+              Edit&hellip;
+
+        %h4 Local Info
+
+        %table.table
+          %tr
+            %td ID
+            %td
+              %code= @collection.repository_id
+          %tr
+            %td Package Profile
+            %td
+              = @collection.package_profile ? @collection.package_profile.name : 'None'
+          %tr
+            %td Medusa File Group
+            %td
+              - if @file_group
+                - begin
+                  = link_to(@file_group.title, @file_group.url)
+                - rescue Medusa::NotFoundError
+                  Invalid
+              - else
+                None
+          %tr
+            %td Medusa Directory
+            %td
+              - if @collection.medusa_directory
+                = medusa_directory_link(@collection.medusa_directory_uuid,
+                                        @collection.medusa_directory)
+              - else
+                File Group Root
+          %tr
+            %td Metadata Profile
+            %td
+              - if @collection.metadata_profile
+                = link_to(@collection.metadata_profile.name,
+                          admin_metadata_profile_path(@collection.metadata_profile))
+              - else
+                = link_to("Default (#{MetadataProfile.default.name})",
+                          admin_metadata_profile_path(MetadataProfile.default))
+          %tr
+            %td Descriptive Element
+            %td
+              = @collection.descriptive_element ? @collection.descriptive_element.label : 'None'
+          %tr
+            %td CONTENTdm Alias
+            %td
+              - if @collection.contentdm_alias.present?
+                %code= @collection.contentdm_alias
+              - else
+                None
+          %tr
+            %td RightsStatements.org
+            %td
+              = @collection.rightsstatements_org_statement ? @collection.rightsstatements_org_statement.name : 'None'
+          %tr
+            %td First Imported
+            %td= local_time(@collection.created_at)
+          %tr
+            %td Last Updated
+            %td= local_time(@collection.updated_at)
+
+  .col-sm-6
+    .card
+      .card-body
+        %h4 Medusa Info
+
+        .alert.alert-light
+          %i.fa.fa-info-circle
+          This information is managed in Medusa and cannot be edited here.
+
+        %table.table
+          %tr
+            %td External ID
+            %td
+              - if @collection.external_id.present?
+                %code= @collection.external_id
+              - else
+                None
+          %tr
+            %td Repository Title
+            %td= link_to @collection.repository&.title, @collection.repository&.url
+          %tr
+            %td Repository Contact Email
+            %td
+              - if @collection.repository&.contact_email.present?
+                = link_to @collection.repository.contact_email,
+                    "mailto:#{@collection.repository.contact_email}"
+          %tr
+            %td Rights Statement
+            %td
+              = @collection.rights_statement.present? ? @collection.rights_statement : 'None'

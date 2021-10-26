@@ -34,7 +34,9 @@
       = link_to @collection.medusa_url, target: '_blank', class: 'dropdown-item' do
         %i.fa.fa-database
         Medusa
+
 %h1= @collection.title
+
 .row
   - if @collection.children.count > 0 || @collection.parents.count > 0
     .col-sm-4
@@ -54,5 +56,8 @@
          locals: { id: "dl-edit-email-watchers-modal",
                    title: "Edit Email Watchers" }
 = render partial: 'shared/xhr_modal',
+         locals: { id: "dl-edit-representation-modal",
+                   title: "Edit Representation" }
+= render partial: 'shared/xhr_modal',
          locals: { id: "dl-edit-info-modal",
-                   title: "Edit Technical Info" }
+                   title: "Edit Local Info" }

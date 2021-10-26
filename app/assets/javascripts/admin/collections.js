@@ -92,6 +92,14 @@ const PTAdminCollectionView = function() {
                 attachEventListeners();
             });
         });
+        $('button.dl-edit-representation').on('click', function() {
+            const url = ROOT_URL + '/admin/collections/' + collection_id +
+                '/edit-representation';
+            $.get(url, function(data) {
+                $('#dl-edit-representation-modal .modal-body').html(data);
+                attachEventListeners();
+            });
+        });
 
         const attachEventListeners = function() {
             $('button.dl-remove').on('click', function() {

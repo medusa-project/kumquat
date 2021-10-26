@@ -2,10 +2,16 @@
   = hidden_field_tag :current_descriptive_element_id, @collection.descriptive_element_id
 
   - if @collection.items.any?
-    .alert.alert-primary
+    .alert.alert-light
       %i.fas.fa-info-circle
-      The information in this section can only be
-      changed when the collection is empty.
+      The fields in this section can only be changed when the collection is empty.
+  .form-group
+    = f.label :package_profile_id, 'Package Profile'
+    = select(:collection, :package_profile_id,
+             @package_profile_options_for_select,
+             { include_blank: 'None (External Content)' },
+             class: 'custom-select',
+             disabled: @collection.items.any?)
   .form-group
     = f.label :medusa_file_group_uuid, 'Medusa File Group UUID'
     = f.text_field(:medusa_file_group_uuid, class: 'form-control',
@@ -15,15 +21,7 @@
     = f.text_field(:medusa_directory_uuid, class: 'form-control',
                    disabled: @collection.items.any?)
     %span.form-text.text-muted
-      If omitted, the root CFS directory of the
-      file group will be used.
-  .form-group
-    = f.label :package_profile_id, 'Medusa Package Profile'
-    = select(:collection, :package_profile_id,
-             @package_profile_options_for_select,
-             { include_blank: 'None (External Content)' },
-             class: 'custom-select',
-             disabled: @collection.items.any?)
+      If omitted, the root directory of the file group will be used.
 
   %hr
   .form-group
@@ -48,7 +46,7 @@
                options,
                { include_blank: true },
                { class: 'custom-select' }
-    %p.form-text.text-muted The free-form rights statement can be edited in Medusa.
 
   .float-right
+    %button.btn.btn-light{"data-dismiss": "modal", type: "button"} Cancel
     = f.submit 'Save Changes', class: 'btn btn-primary'

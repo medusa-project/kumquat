@@ -90,6 +90,8 @@ Rails.application.routes.draw do
             constraints: lambda { |request| request.xhr? }
       match '/edit-info', to: 'collections#edit_info', via: :get,
             constraints: lambda { |request| request.xhr? }
+      match '/edit-representation', to: 'collections#edit_representation', via: :get,
+            constraints: lambda { |request| request.xhr? }
       resources :item_sets, except: :index do
         match '/all-items', to: 'item_sets#remove_all_items', via: :delete
         match '/items', to: 'item_sets#items', via: :get

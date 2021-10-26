@@ -1,0 +1,40 @@
+.row
+  .col-sm-6
+    .card
+      .card-body
+        .btn.btn-group.float-right
+          - if current_user.watching?(@collection)
+            = link_to(admin_collection_unwatch_path(@collection),
+                        method: :patch,
+                        class: 'btn btn-sm btn-light') do
+              %i.fa.fa-eye-slash
+              Unwatch
+          - else
+            = link_to(admin_collection_watch_path(@collection),
+                        method: :patch,
+                        class: 'btn btn-sm btn-light') do
+              %i.fa.fa-eye
+              Watch
+        %h4.card-title NetID Watchers
+        %ul
+          - @collection.watches.select{ |w| w.user_id.present? }.each do |watch|
+            %li
+              = link_to(admin_user_path(watch.user)) do
+                = icon_for(User)
+                = watch.user
+  .col-sm-6
+    .card
+      .card-body
+        .btn.btn-group.float-right
+          %button.btn.btn-sm.btn-light.dl-edit-email-watchers{type: 'button',
+                                                                'data-toggle': 'modal',
+                                                                'data-target': '#dl-edit-email-watchers-modal'}
+            %i.fas.fa-pencil-alt
+            Edit&hellip;
+
+        %h4.card-title Email Watchers
+        %ul
+          - @collection.watches.select{ |w| w.email.present? }.sort_by(&:email).each do |watch|
+            %li
+              = link_to("mailto:#{watch.email}") do
+                = watch.email

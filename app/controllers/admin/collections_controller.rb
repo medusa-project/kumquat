@@ -6,18 +6,20 @@ module Admin
 
     before_action :load_collection, except: :index
     before_action :authorize_modify_collections, only: [:edit_access,
-                                                        :edit_info, :update,
-                                                        :sync, :unwatch, :watch]
+                                                        :edit_info,
+                                                        :edit_representation,
+                                                        :update, :sync,
+                                                        :unwatch, :watch]
 
     ##
-    # Responds to `GET /admin/collections/:id/edit-access`.
+    # Responds to `GET /admin/collections/:id/edit-access` (XHR only).
     #
     def edit_access
       render partial: 'admin/collections/access_form'
     end
 
     ##
-    # Responds to `GET /admin/collections/:id/edit-info`.
+    # Responds to `GET /admin/collections/:id/edit-info` (XHR only).
     #
     def edit_info
       @metadata_profile_options_for_select = MetadataProfile.all.order(:name).
@@ -39,6 +41,14 @@ module Admin
     #
     def edit_email_watchers
       render partial: 'admin/collections/email_watchers_form'
+    end
+
+    ##
+    # Responds to
+    # `GET /admin/collections/:collection_id/edit-representation` (XHR only).
+    #
+    def edit_representation
+      render partial: 'admin/collections/representation_form'
     end
 
     ##
@@ -246,7 +256,8 @@ module Admin
                                          :package_profile_id,
                                          :publicize_binaries,
                                          :published_in_dls,
-                                         :restricted,
+                                         :representative_image_id,
+                                         :representative_item, :restricted,
                                          :rightsstatements_org_uri,
                                          allowed_host_group_ids: [],
                                          denied_host_group_ids: [])

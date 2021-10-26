@@ -13,6 +13,29 @@ body#admin_collections_show {
     border-top: 0px;
   }
 
+  .dl-representation {
+    $thumb_width:  128px;
+    $thumb_height: 128px;
+    .dl-image-container {
+      width:  $thumb_width;
+      height: $thumb_height;
+      margin-right: 10px;
+      img {
+        width:  $thumb_width;
+        height: $thumb_height;
+      }
+      .dl-no-image {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width:  $thumb_width;
+        height: $thumb_height;
+        border: 2px $gray-500 dashed;
+        border-radius: 5px;
+      }
+    }
+  }
+
   .dl-rights img {
     width: 200px;
   }

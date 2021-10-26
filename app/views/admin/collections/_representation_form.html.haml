@@ -1,0 +1,18 @@
+= form_for([:admin, @collection]) do |f|
+  .alert.alert-light
+    %i.fas.fa-info-circle
+    These fields are consulted in priority order.
+
+  .form-group
+    = f.label :representative_item_id, 'Representative Item UUID'
+    = f.text_field(:representative_item_id, class: 'form-control')
+    %p.form-text.text-muted UUID of a DLS item.
+
+  .form-group
+    = f.label :representative_image, 'Representative Image File UUID'
+    = f.text_field(:representative_image, class: 'form-control')
+    %p.form-text.text-muted UUID of a Medusa file.
+
+  .float-right
+    %button.btn.btn-light{"data-dismiss": "modal", type: "button"} Cancel
+    = f.submit 'Save Changes', class: 'btn btn-primary'
