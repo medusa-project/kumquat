@@ -821,8 +821,6 @@ class Item < ApplicationRecord
         self
   end
 
-  alias_method :effective_representative_image_binary, :effective_image_binary
-
   ##
   # Overrides the same method in [Representable].
   #
