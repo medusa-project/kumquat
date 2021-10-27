@@ -11,6 +11,10 @@ module Representable
   end
 
   ##
+  # Shortcut to accessing the [Medusa::File] associated (directly or
+  # indirectly) with the instance returned from
+  # {effective_representative_object}.
+  #
   # @return [Medusa::File]
   #
   def effective_representative_image_file
