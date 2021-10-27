@@ -198,8 +198,7 @@ module AdminHelper
       html <<   '<div class="dl-thumbnail-container">'
       link_target = admin_collection_item_path(item.collection, item)
       html << link_to(link_target) do
-        thumbnail_tag(item.effective_representative_object,
-                      shape: :square)
+        thumbnail_tag(item, shape: :square)
       end
       # N.B.: this was made by https://loading.io with the following settings:
       # rolling, color: #cacaca, radius: 25, stroke width: 10, speed: 5, size: 150

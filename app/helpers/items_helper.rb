@@ -365,7 +365,7 @@ module ItemsHelper
       html <<   link_to(item) do
         thumb = StringIO.new
         thumb << '<div class="dl-thumbnail">'
-        thumb <<   thumbnail_tag(item.effective_representative_object, size: thumb_width)
+        thumb <<   thumbnail_tag(item, size: thumb_width)
         thumb << '</div>'
         raw(thumb.string)
       end
