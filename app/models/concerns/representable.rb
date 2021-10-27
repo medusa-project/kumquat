@@ -4,10 +4,10 @@
 module Representable
 
   ##
-  # @return [Medusa::File,Binary,Collection,Item]
+  # @return [Collection,Item,Medusa::File]
   #
-  def effective_representative_entity
-    raise 'Implementations must override effective_representative_entity()'
+  def effective_representative_object
+    raise 'Implementations must override effective_representative_object()'
   end
 
   ##

@@ -159,7 +159,7 @@ class ContentdmController < ApplicationController
     item = item_for(params[:alias], params[:pointer])
 
     if item
-      item = item.effective_representative_entity
+      item = item.effective_representative_object
       bin = item.binaries.where(master_type:    Binary::MasterType::ACCESS,
                                 media_category: Binary::MediaCategory::IMAGE).limit(1).first
       if bin

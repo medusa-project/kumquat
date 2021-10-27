@@ -211,19 +211,19 @@ class CollectionTest < ActiveSupport::TestCase
     assert_equal MetadataProfile.default, @collection.effective_metadata_profile
   end
 
-  # effective_representative_entity()
+  # effective_representative_object()
 
-  test 'effective_representative_entity() returns the effective
+  test 'effective_representative_object() returns the effective
   representative item when set' do
     item = items(:compound_object_1002_page1)
     @collection.representative_item_id = item.repository_id
     assert_equal item.repository_id,
-                 @collection.effective_representative_entity.repository_id
+                 @collection.effective_representative_object.repository_id
   end
 
-  test 'effective_representative_entity() should fall back to the instance' do
+  test 'effective_representative_object() should fall back to the instance' do
     @collection.representative_item_id = nil
-    assert_same @collection, @collection.effective_representative_entity
+    assert_same @collection, @collection.effective_representative_object
   end
 
   # effective_representative_image_binary()

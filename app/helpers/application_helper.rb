@@ -150,7 +150,7 @@ module ApplicationHelper
       html <<   '<div class="dl-thumbnail-container">'
       link_target = polymorphic_path(entity)
       html << link_to(link_target) do
-        thumbnail_tag(entity.effective_representative_entity, shape: :square)
+        thumbnail_tag(entity.effective_representative_object, shape: :square)
       end
       # N.B.: this was made by https://loading.io with the following settings:
       # rolling, color: #cacaca, radius: 25, stroke width: 10, speed: 5, size: 150

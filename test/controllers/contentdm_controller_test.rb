@@ -279,7 +279,7 @@ class ContentdmControllerTest < ActionDispatch::IntegrationTest
     get("/utils/getthumbnail/collection/#{@item.contentdm_alias}/id/#{@item.contentdm_pointer}")
     assert_response :moved_permanently
 
-    bin = @item.effective_representative_entity.binaries.
+    bin = @item.effective_representative_object.binaries.
         where(master_type: Binary::MasterType::ACCESS).first
     assert_redirected_to sprintf('%s/full/!%d,%d/0/default.jpg',
                                  bin.iiif_image_v2_url,

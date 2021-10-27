@@ -416,7 +416,7 @@ class Collection < ApplicationRecord
   #
   # @return [Item, Collection]
   #
-  def effective_representative_entity
+  def effective_representative_object
     self.representative_item || self
   end
 

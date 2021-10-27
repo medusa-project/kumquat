@@ -802,8 +802,8 @@ class Item < ApplicationRecord
   end
 
   ##
-  # Returns the instance's effective representative item based on the following
-  # order of preference:
+  # Overrides the same method in [Representable] to return the instance's
+  # effective representative item based on the following order of preference:
   #
   # 1. The instance's {representative item} (if it has one)
   # 2. The instance's first page (if it has any)
@@ -813,7 +813,7 @@ class Item < ApplicationRecord
   # @return [Item]
   # @see representative_item
   #
-  def effective_representative_entity
+  def effective_representative_object
     self.representative_item ||
         self.items.where(variant: Variants::FRONT_COVER).first ||
         self.items.where(variant: Variants::TITLE).first ||
@@ -1177,9 +1177,9 @@ class Item < ApplicationRecord
 
   ##
   # @return [Item, nil] Instance corresponding to {representative_item_id}.
-  #                     {effective_representative_entity} should be used
+  #                     {effective_representative_object} should be used
   #                     instead.
-  # @see effective_representative_entity
+  # @see effective_representative_object
   #
   def representative_item
     Item.find_by_repository_id(self.representative_item_id)
