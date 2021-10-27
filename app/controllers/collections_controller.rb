@@ -76,9 +76,6 @@ class CollectionsController < WebsiteController
               order(CollectionElement.new(name: 'title').indexed_sort_field).
               to_a
           @num_public_objects = @collection.num_public_objects rescue nil
-          # One or both of these may be nil.
-          @representative_image_file =
-              @collection.effective_representative_image_file
           @representative_item = @collection.representative_item
           # Show the "Browse Folder Tree" button only if the collection is
           # free-form and has no child items.

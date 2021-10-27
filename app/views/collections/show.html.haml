@@ -54,17 +54,17 @@
       - if @representative_item
         - if @uofi_user
           = link_to @representative_item do
-            = thumbnail_tag(@representative_image_file, size: 512)
+            = thumbnail_tag(@collection, size: 512)
           = link_to @representative_item, class: 'dl-title' do
             - if @representative_item.parent
               = @representative_item.parent.title
               —
             = @representative_item.title
         - else
-          = thumbnail_tag(@representative_image_file, size: 512)
+          = thumbnail_tag(@collection, size: 512)
           = @representative_item.title
       - else
-        = thumbnail_tag(@representative_image_file, size: 512)
+        = thumbnail_tag(@collection, size: 512)
 
 - if @children.count > 0
   %hr/
