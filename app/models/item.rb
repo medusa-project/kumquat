@@ -825,6 +825,15 @@ class Item < ApplicationRecord
   alias_method :effective_representative_image_binary, :effective_image_binary
 
   ##
+  # Overrides the same method in [Representable].
+  #
+  # @return [Medusa::File]
+  #
+  def effective_representative_image_file
+    self.effective_image_binary&.medusa_file
+  end
+
+  ##
   # @return [String, nil] Rights statement assigned to the instance, if
   #                       present; otherwise, the closest ancestor statement,
   #                       if present; otherwise, the rights statement assigned
