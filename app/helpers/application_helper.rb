@@ -508,19 +508,24 @@ module ApplicationHelper
   #
   def thumbnail_tag(entity,
                     shape: :full,
-                    size:  DEFAULT_THUMBNAIL_SIZE,
+                    size:  ItemsHelper::DEFAULT_THUMBNAIL_SIZE,
                     lazy:  false)
     rep_entity = entity
-    if entity.include?(Representable)
+    if entity.class.include?(Representable)
       rep_entity = entity.effective_representative_object
     end
 
     url = nil
-    if rep_entity.kind_of?(Binary)
+    if rep_entity.kind_of?(Medusa::File)
+      url = ImageServer.file_image_v2_url(file:   rep_entity,
+                                          region: shape,
+                                          size:   size)
+    elsif rep_entity.kind_of?(Binary)
       url = ImageServer.binary_image_v2_url(binary: rep_entity,
                                             region: shape,
                                             size:   size)
-    elsif rep_entity.kind_of?(Collection) || rep_entity.kind_of?(Medusa::File)
+    elsif rep_entity.kind_of?(Collection)
+      rep_entity = rep_entity.effective_representative_image_file
       url = ImageServer.file_image_v2_url(file:   rep_entity,
                                           region: shape,
                                           size:   size)
