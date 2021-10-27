@@ -499,6 +499,60 @@ module ApplicationHelper
   end
 
   ##
+  # @param entity [Binary, Collection, Item, Medusa::File]
+  # @param shape [Symbol] `:full` or `:square`.
+  # @param size [Integer]
+  # @param lazy [Boolean] If true, the `data-src` attribute will be set instead
+  #                       of `src`; defaults to false.
+  # @return [String]
+  #
+  def thumbnail_tag(entity,
+                    size:  DEFAULT_THUMBNAIL_SIZE,
+                    shape: :full,
+                    lazy:  false)
+    rep_entity = entity
+    if entity.include?(Representable)
+      rep_entity = entity.effective_representative_object
+    end
+
+    url = nil
+    if rep_entity.kind_of?(Binary)
+      url = ImageServer.binary_image_v2_url(binary: rep_entity,
+                                            region: shape,
+                                            size:   size)
+    elsif rep_entity.kind_of?(Collection) || rep_entity.kind_of?(Medusa::File)
+      url = ImageServer.file_image_v2_url(file:   rep_entity,
+                                          region: shape,
+                                          size:   size)
+    elsif rep_entity.kind_of?(Item)
+      url = item_image_url(item:   rep_entity,
+                           region: shape,
+                           size:   size)
+    end
+
+    html = StringIO.new
+    if url
+      # No alt because it may appear in a huge font size if the image is 404. TODO: is this still the case?
+      if lazy
+        html << lazy_image_tag(url, class: 'dl-thumbnail mr-3', alt: '')
+      else
+        html << image_tag(url, class: 'dl-thumbnail mr-3', alt: '',
+                          data: { location: 'remote' })
+      end
+    else
+      # N.B.: instead of using ApplicationHelper.icon_for(), we have
+      # pre-downloaded some Font Awesome icons as SVGs and saved in them in the
+      # assets directory. This results in them appearing in <img> tags which
+      # helps make our CSS more concise. The files are available at:
+      # https://github.com/encharm/Font-Awesome-SVG-PNG/tree/master/black/svg
+      html << image_tag('fontawesome-' + fontawesome_icon_for(entity)[1] + '.svg',
+                        'data-type': 'svg',
+                        'data-location': 'local')
+    end
+    raw(html.string)
+  end
+
+  ##
   # @param entity [Object]
   # @return [String] Text description of the entity's type
   #
