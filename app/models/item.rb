@@ -815,9 +815,9 @@ class Item < ApplicationRecord
   #
   def effective_representative_object
     self.representative_item ||
-        self.items.where(variant: Variants::FRONT_COVER).first ||
-        self.items.where(variant: Variants::TITLE).first ||
-        self.pages.limit(1).to_a.first ||
+        self.items.where(variant: [Variants::FRONT_COVER, Variants::TITLE]).
+          order(:variant).limit(1).first ||
+        self.pages.limit(1).first ||
         self
   end
 
