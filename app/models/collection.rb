@@ -34,79 +34,83 @@
 #
 # # Attributes
 #
-# * `access_systems`           Access systems through which the collection is
-#                              accessible. Copied from Medusa.
-# * `access_url`               URL at which the collection's contents are
-#                              available, for collections whose content resides
-#                              outside the DLS.
-# * `contentdm_alias`          String alias of collections that have been
-#                              migrated out of CONTENTdm, used for URL
-#                              redirection.
-# * `created_at`               Managed by ActiveRecord.
-# * `description_html`         HTML-formatted description, copied from Medusa.
-#                              N.B. There may also be a description element in
-#                              the `elements` relationship containing a plain
-#                              text description, also copied from Medusa.
-# * `descriptive_element_id`   ID of a [MetadataProfileElement] whose values
-#                              are used in the description boxes in results
-#                              view.
-# * `external_id               Value of the Medusa "external ID" field.
-# * `harvestable               Controls visibility of the collection's contents
-#                              in the generic OAI-PMH harvesting endpoint. (See
-#                              [OaiPmhController].)
-# * `harvestable_by_idhh       Controls visibility of the collection's contents
-#                              in the IDHH OAI-PMH harvesting endpoint. (See
-#                              [OaiPmhController].)
-# * `harvestable_by_primo      Controls visibility of the collection's contents
-#                              in the Primo OAI-PMH harvesting endpoint. (See
-#                              [OaiPmhController].)
-# * `medusa_directory_uuid`    Medusa UUID of the root directory in which the
-#                              collection's contents reside. If nil, the root
-#                              directory of the file group will be used.
-# * `medusa_file_group_uuid`   Medusa UUID of the file group in which the
-#                              collection's contents reside.
+# * `access_systems`                Access systems through which the collection
+#                                   is accessible. Copied from Medusa.
+# * `access_url`                    URL at which the collection's contents are
+#                                   available, for collections whose content
+#                                   resides outside the DLS.
+# * `contentdm_alias`               String alias of collections that have been
+#                                   migrated out of CONTENTdm, used for URL
+#                                   redirection.
+# * `created_at`                    Managed by ActiveRecord.
+# * `description_html`              HTML-formatted description, copied from
+#                                   Medusa. N.B.: There may also be a
+#                                   description element in the {elements} text
+#                                   description, also copied from Medusa.
+# * `descriptive_element_id`        ID of a [MetadataProfileElement] whose
+#                                   values are used in the description boxes in
+#                                   results view.
+# * `external_id                    Value of the Medusa "external ID" field.
+# * `harvestable                    Controls visibility of the collection's
+#                                   contents in the generic OAI-PMH harvesting
+#                                   endpoint. (See [OaiPmhController].)
+# * `harvestable_by_idhh            Controls visibility of the collection's
+#                                   contents in the IDHH OAI-PMH harvesting
+#                                   endpoint. (See [OaiPmhController].)
+# * `harvestable_by_primo           Controls visibility of the collection's
+#                                   contents in the Primo OAI-PMH endpoint.
+#                                   (See [OaiPmhController].)
+# * `medusa_directory_uuid`         Medusa UUID of the root directory in which
+#                                   the collection's contents reside. If nil,
+#                                   the root directory of the file group will
+#                                   be used.
+# * `medusa_file_group_uuid`        Medusa UUID of the file group in which the
+#                                   collection's contents reside.
 # * `medusa_repository_id`
-# * `metadata_profile_id`      Database ID of the [MetadataProfile] assigned to
-#                              the instance.
-# * `package_profile_id`       ID of the [PackageProfile] assigned to the
-#                              collection. The content in the effective root
-#                              directory of the collection must conform to this
-#                              profile.
-# * `physical_collection_url`  URL of the collection's archival collection
-#                              counterpart.
-# * `public_in_medusa`         Whether the access level of the collection's
-#                              metadata is set to "public." This and
-#                              {published_in_dls} must be true in order for the
-#                              collection or any or any of its items to be
-#                              publicly accessible.
-# * `publicize_binaries`       Whether binaries attached to items residing in
-#                              the collection are public. If set to `true`,
-#                              a binary may be made private by setting its
-#                              {Binary#public} property to `false`, but if set
-#                              to `false`, that property is ignored.
-# * `published_in_dls`         Whether the collection's content resides in the
-#                              DLS, or somewhere else.
-#                              N.B.: use {publicly_accessible?()} to test a
-#                              collection's effective public accessibility.
-# * `repository_id`            The collection's effective UUID, copied from
-#                              Medusa.
-# * `representative_image`     UUID of a Medusa image file representing the
-#                              collection for use in e.g. thumbnails.
-#                              `representative_item_id` should be used instead,
-#                              if possible.
-# * `representative_item_id`   Repository ID of an [Item] representing the
-#                              collection for use in e.g. thumbnails.
-# * `resource_types`           Serialized array of resource types contained
-#                              within the collection, copied from Medusa.
-# * `restricted`               Indicates a collection for which all items are
-#                              "private"--not discoverable in any way except by
-#                              sharing a link that is restricted to a
-#                              particular NetID. (DLD-337)
-# * `rights_statement`         Rights statement text.
-#                              TODO: store this in an accessRights CollectionElement
-# * `rightsstatements_org_uri` URI of a RightsStatements.org statement.
-#                              TODO: store this in an accessRights CollectionElement
-# * `updated_at`               Managed by ActiveRecord.
+# * `metadata_profile_id`           Database ID of the [MetadataProfile]
+#                                   assigned to the instance.
+# * `package_profile_id`            ID of the [PackageProfile] assigned to the
+#                                   collection. The content in the effective
+#                                   root directory of the collection must
+#                                   conform to this profile.
+# * `physical_collection_url`       URL of the collection's archival collection
+#                                   counterpart.
+# * `public_in_medusa`              Whether the access level of the
+#                                   collection's metadata is set to "public."
+#                                   This and {published_in_dls} must be true in
+#                                   order for the collection or any or any of
+#                                   its items to be publicly accessible.
+# * `publicize_binaries`            Whether binaries attached to items residing
+#                                   in the collection are public. If set to
+#                                   `true`, a binary may be made private by
+#                                   setting its {Binary#public} property to
+#                                   `false`, but if set to `false`, that
+#                                   property is ignored.
+# * `published_in_dls`              Whether the collection's content resides in
+#                                   the DLS, or somewhere else.
+#                                   N.B.: use {publicly_accessible?()} to test
+#                                   a collection's effective public
+#                                   accessibility.
+# * `repository_id`                 The collection's effective UUID, copied
+#                                   from Medusa.
+# * `representative_medusa_file_id` UUID of a Medusa image file representing
+#                                   the collection for use in e.g. thumbnails.
+#                                   `representative_item_id` should be used
+#                                   instead, if possible.
+# * `representative_item_id`        Repository ID of an [Item] representing the
+#                                   collection for use in e.g. thumbnails.
+# * `resource_types`                Serialized array of resource types
+#                                   contained within the collection, copied
+#                                   from Medusa.
+# * `restricted`                    Indicates a collection for which all items
+#                                   are "private"--not discoverable in any way
+#                                   and restricted to a particular NetID.
+#                                   (DLD-337)
+# * `rights_statement`              Rights statement text.
+#                                   TODO: store this in an accessRights CollectionElement
+# * `rightsstatements_org_uri`      URI of a RightsStatements.org statement.
+#                                   TODO: store this in an accessRights CollectionElement
+# * `updated_at`                    Managed by ActiveRecord.
 #
 # Attribute Propagation
 #
@@ -151,7 +155,6 @@ class Collection < ApplicationRecord
     PUBLISHED_IN_DLS                   = 'sys_b_published_in_dls'
     REPOSITORY_ID                      = 'sys_k_repository_id'
     REPOSITORY_TITLE                   = 'sys_k_repository_title'
-    REPRESENTATIVE_IMAGE               = 'sys_k_representative_image'
     REPRESENTATIVE_ITEM                = 'sys_k_representative_item'
     RESOURCE_TYPES                     = 'sys_k_resource_types'
     RESTRICTED                         = ElasticsearchIndex::StandardFields::RESTRICTED
@@ -426,7 +429,7 @@ class Collection < ApplicationRecord
     file = self.representative_item&.effective_image_binary&.medusa_file
     unless file
       begin
-        file = self.representative_image_file
+        file = self.representative_medusa_file
       rescue => e
         LOGGER.warn('effective_representative_image_file(): %s', e)
       end
@@ -703,12 +706,12 @@ class Collection < ApplicationRecord
   end
 
   ##
-  # @return [Medusa::File, nil] Instance corresponding to the
-  #                             `representative_image` attribute.
+  # @return [Medusa::File, nil] Instance corresponding to
+  #                             {representative_medusa_file_id}.
   #
-  def representative_image_file
-    self.representative_image.present? ?
-      Medusa::File.with_uuid(self.representative_image) : nil
+  def representative_medusa_file
+    self.representative_medusa_file_id.present? ?
+      Medusa::File.with_uuid(self.representative_medusa_file_id) : nil
   end
 
   ##
@@ -772,22 +775,22 @@ class Collection < ApplicationRecord
     transaction do
       self.elements.destroy_all
 
-      self.access_systems          = struct['access_systems'].map{ |t| t['name'] }
-      self.access_url              = struct['access_url']
+      self.access_systems                = struct['access_systems'].map{ |t| t['name'] }
+      self.access_url                    = struct['access_url']
       if struct['description'].present?
         self.elements.build(name: 'description', value: struct['description'])
       end
-      self.description_html        = struct['description_html']
-      self.external_id             = struct['external_id']
-      self.medusa_repository_id    = struct['repository_path'].gsub(/[^0-9+]/, '').to_i
-      self.physical_collection_url = struct['physical_collection_url']
-      self.public_in_medusa        = struct['publish']
-      self.representative_image    = struct['representative_image']
-      self.representative_item_id  = struct['representative_item']
-      self.resource_types          = struct['resource_types'].map do |t| # titleize these
+      self.description_html              = struct['description_html']
+      self.external_id                   = struct['external_id']
+      self.medusa_repository_id          = struct['repository_path'].gsub(/[^0-9+]/, '').to_i
+      self.physical_collection_url       = struct['physical_collection_url']
+      self.public_in_medusa              = struct['publish']
+      self.representative_medusa_file_id = struct['representative_image']
+      self.representative_item_id        = struct['representative_item']
+      self.resource_types                = struct['resource_types'].map do |t| # titleize these
         t['name'].split(' ').map{ |t| t.present? ? t.capitalize : '' }.join(' ')
       end
-      self.rights_statement        = struct['rights']['custom_copyright_statement']
+      self.rights_statement              = struct['rights']['custom_copyright_statement']
       self.elements.build(name: 'title', value: struct['title'])
 
       self.parents.destroy_all
@@ -810,7 +813,7 @@ class Collection < ApplicationRecord
   def do_before_validation
     self.medusa_directory_uuid&.strip!
     self.medusa_file_group_uuid&.strip!
-    self.representative_image&.strip!
+    self.representative_medusa_file_id&.strip!
     self.representative_item_id&.strip!
   end
 

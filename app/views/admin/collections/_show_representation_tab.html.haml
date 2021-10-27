@@ -36,7 +36,7 @@
 .media.mt-3.dl-representation
   .dl-image-container
     - active_2 = false
-    - rep_image_uuid = @collection.representative_image
+    - rep_image_uuid = @collection.representative_medusa_file_id
     - rep_image_file = Medusa::File.with_uuid(rep_image_uuid)
     - if rep_image_uuid.present?
       - if rep_image_file.exists?

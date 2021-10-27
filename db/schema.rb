@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_10_15_143858) do
+ActiveRecord::Schema.define(version: 2021_10_27_144413) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -115,7 +115,7 @@ ActiveRecord::Schema.define(version: 2021_10_15_143858) do
     t.string "access_url"
     t.boolean "public_in_medusa"
     t.boolean "published_in_dls", default: false
-    t.string "representative_image"
+    t.string "representative_medusa_file_id"
     t.string "representative_item_id"
     t.integer "metadata_profile_id"
     t.string "medusa_file_group_uuid"

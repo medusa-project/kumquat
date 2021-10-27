@@ -256,7 +256,7 @@ module Admin
                                          :package_profile_id,
                                          :publicize_binaries,
                                          :published_in_dls,
-                                         :representative_image_id,
+                                         :representative_medusa_file_id,
                                          :representative_item, :restricted,
                                          :rightsstatements_org_uri,
                                          allowed_host_group_ids: [],
