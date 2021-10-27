@@ -144,11 +144,10 @@
 # * `repository_id`            See "Identifiers" above.
 # * `representative_binary_id` Medusa UUID of an alternative binary designated
 #                              to stand in as a representation of the item.
-# * `representative_item_repository_id` Repository ID of another item
-#                                       designated to represent the item. For
-#                                       example, using a different item to
-#                                       provide a thumbnail image for an item
-#                                       that is not very "photogenic."
+# * `representative_item_id`   Repository ID of another item designated to
+#                              represent the item. For example, using a
+#                              different item to provide a thumbnail image for
+#                              an item that is not very "photogenic."
 # * `subpage_number`           Subpage number of a page-variant item. Only used
 #                              when there are multiple items corresponding to a
 #                              single page of a physical object.
@@ -308,8 +307,8 @@ class Item < ApplicationRecord
   validates_format_of :repository_id,
                       with: StringUtils::UUID_REGEX,
                       message: 'UUID is invalid'
-  # representative_item_repository_id
-  validates_format_of :representative_item_repository_id,
+  # representative_item_id
+  validates_format_of :representative_item_id,
                       with: StringUtils::UUID_REGEX,
                       message: 'UUID is invalid',
                       allow_blank: true
@@ -558,7 +557,7 @@ class Item < ApplicationRecord
     doc[IndexFields::PUBLISHED_AT]            = self.published_at&.utc&.iso8601
     doc[IndexFields::REPOSITORY_ID]           = self.repository_id
     doc[IndexFields::REPRESENTATIVE_FILENAME] = self.representative_filename
-    doc[IndexFields::REPRESENTATIVE_ITEM]     = self.representative_item_repository_id
+    doc[IndexFields::REPRESENTATIVE_ITEM]     = self.representative_item_id
     doc[IndexFields::RESTRICTED]              = self.restricted
     doc[IndexFields::STRUCTURAL_SORT]         = structural_sort_key
     doc[IndexFields::SUBPAGE_NUMBER]          = self.subpage_number
@@ -1177,14 +1176,13 @@ class Item < ApplicationRecord
   end
 
   ##
-  # @return [Item, nil] The instance's assigned representative item. For the
-  #                     purposes of getting "the" representative item,
+  # @return [Item, nil] Instance corresponding to {representative_item_id}.
   #                     {effective_representative_entity} should be used
   #                     instead.
   # @see effective_representative_entity
   #
   def representative_item
-    Item.find_by_repository_id(self.representative_item_repository_id)
+    Item.find_by_repository_id(self.representative_item_id)
   end
 
   ##
@@ -1311,8 +1309,7 @@ class Item < ApplicationRecord
       self.published = struct['published']
       self.published_at = Time.parse(struct['published_at']) if struct['published_at']
       # repository_id is not modifiable
-      self.representative_item_repository_id =
-          struct['representative_item_repository_id']
+      self.representative_item_id = struct['representative_item_id']
       self.subpage_number = struct['subpage_number']
       # updated_at is not modifiable
       self.variant = struct['variant']

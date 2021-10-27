@@ -5,9 +5,8 @@ module Admin
     PERMITTED_PARAMS = [:id, :contentdm_alias, :contentdm_pointer, :df,
                         :embed_tag, :'fq[]', :expose_full_text_search,
                         :item_set, :page_number, :published, :q,
-                        :representative_item_repository_id, :subpage_number,
-                        :variant, allowed_host_group_ids: [],
-                        denied_host_group_ids: [],
+                        :representative_item_id, :subpage_number, :variant,
+                        allowed_host_group_ids: [], denied_host_group_ids: [],
                         allowed_netids: [ :expires, :netid ]]
 
     before_action :authorize_purge_items, only: :destroy_all

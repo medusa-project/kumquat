@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_10_27_144413) do
+ActiveRecord::Schema.define(version: 2021_10_27_155238) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -253,7 +253,7 @@ ActiveRecord::Schema.define(version: 2021_10_27_144413) do
     t.string "repository_id", null: false
     t.string "collection_repository_id"
     t.string "parent_repository_id"
-    t.string "representative_item_repository_id"
+    t.string "representative_item_id"
     t.string "variant"
     t.integer "page_number"
     t.integer "subpage_number"
@@ -276,7 +276,7 @@ ActiveRecord::Schema.define(version: 2021_10_27_144413) do
     t.index ["published"], name: "index_items_on_published"
     t.index ["published_at"], name: "index_items_on_published_at"
     t.index ["repository_id"], name: "index_items_on_identifier", unique: true
-    t.index ["representative_item_repository_id"], name: "index_items_on_representative_item_identifier"
+    t.index ["representative_item_id"], name: "index_items_on_representative_item_identifier"
     t.index ["variant"], name: "index_items_on_variant"
   end
 
