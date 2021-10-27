@@ -70,6 +70,7 @@
   %hr/
   %h2
     Subcollections
-    %span.badge= @children.count
+    %small
+      %span.badge.badge-pill.badge-secondary= @children.count
   .dl-cards
     = entities_as_cards(@children)
