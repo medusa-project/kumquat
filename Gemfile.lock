@@ -6,10 +6,10 @@ GIT
 
 GIT
   remote: https://github.com/medusa-project/medusa-client.git
-  revision: 86138c3367b1bb38e06cc51f7e0e58a65834c00a
-  tag: v1.1.0
+  revision: 551bf364260b4f31853173fb8b6aefedfc4eb4cc
+  tag: v1.2.0
   specs:
-    medusa-client (1.1.0)
+    medusa-client (1.2.0)
       httpclient
 
 GIT
