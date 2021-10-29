@@ -7,6 +7,8 @@ module ItemsHelper
   VIEWER_HEIGHT          = '650px'
   VIEWER_WIDTH           = '95%'
 
+  include ApplicationHelper # make its methods available in testing
+
   ##
   # @param binary [Binary]
   # @option admin [Boolean] Whether to include administrative information.

@@ -184,37 +184,45 @@ module Admin
     # Responds to `PATCH/POST /admin/collections/:id`
     #
     def update
-      ActiveRecord::Base.transaction do # trigger after_commit callbacks
-        if params[:watches] # input from the edit-email-watchers form
-          begin
+      if params[:watches] # input from the edit-email-watchers form
+        begin
+          ActiveRecord::Base.transaction do # trigger after_commit callbacks
             @collection.watches.where('email IS NOT NULL').destroy_all
             params[:watches].select{ |w| w[:email].present? }.each do |watch|
               @collection.watches.build(email: watch[:email])
             end
             @collection.save!
-          rescue ActiveRecord::RecordInvalid
-            response.headers['X-Kumquat-Result'] = 'error'
-            render partial: 'shared/validation_messages',
-                   locals: { entity: @collection }
-          else
-            flash['success'] = "Watchers updated."
-            keep_flash
           end
-        else # all other input
-          begin
+        rescue ActiveRecord::RecordInvalid
+          response.headers['X-Kumquat-Result'] = 'error'
+          render partial: 'shared/validation_messages',
+                 locals: { entity: @collection }
+        else
+          flash['success'] = "Watchers updated."
+          keep_flash
+        end
+      else # all other input
+        begin
+          ActiveRecord::Base.transaction do # trigger after_commit callbacks
+            # Process the image uploaded from the representative image form
+            image = params[:collection][:representative_image]
+            if image
+              @collection.upload_representative_image(io:       image.read,
+                                                      filename: image.original_filename)
+            end
             @collection.update!(sanitized_params)
             # We will also need to propagate various collection properties
             # (published status, allowed/denied host groups, etc.) to the items
             # contained within the collection. This will take some time, so
             # we'll do it in the background.
             PropagatePropertiesToItemsJob.perform_later(@collection.repository_id)
-          rescue => e
-            handle_error(e)
-            redirect_to edit_admin_collection_path(@collection)
-          else
-            flash['success'] = "Collection \"#{@collection.title}\" updated."
-            redirect_to admin_collection_path(@collection)
           end
+        rescue => e
+          handle_error(e)
+          redirect_to admin_collection_path(@collection)
+        else
+          flash['success'] = "Collection \"#{@collection.title}\" updated."
+          redirect_to admin_collection_path(@collection)
         end
       end
     end
@@ -256,6 +264,7 @@ module Admin
                                          :package_profile_id,
                                          :publicize_binaries,
                                          :published_in_dls,
+                                         :representation_type,
                                          :representative_medusa_file_id,
                                          :representative_item, :restricted,
                                          :rightsstatements_org_uri,

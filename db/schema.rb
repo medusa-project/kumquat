@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_10_27_155238) do
+ActiveRecord::Schema.define(version: 2021_10_28_183916) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -137,6 +137,8 @@ ActiveRecord::Schema.define(version: 2021_10_27_155238) do
     t.boolean "harvestable_by_primo", default: false, null: false
     t.boolean "restricted", default: false, null: false
     t.boolean "publicize_binaries", default: true, null: false
+    t.string "representative_image"
+    t.string "representation_type"
     t.index ["external_id"], name: "index_collections_on_external_id"
     t.index ["harvestable"], name: "index_collections_on_harvestable"
     t.index ["harvestable_by_idhh"], name: "index_collections_on_harvestable_by_idhh"

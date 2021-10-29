@@ -1,17 +1,34 @@
 = form_for([:admin, @collection]) do |f|
+  .dl-error-messages
+    -# populated via ajax by shared/_validation_messages.js.erb
+
+  .form-group
+    = f.label :representative_image, 'Representative Image'
+    = f.file_field(:representative_image)
+    %ul.text-muted
+      %li The image will be cropped automatically where necessary.
+      %li A size of at least 1024 pixels on the shortest side is recommended.
+      %li
+        %code .jp2
+        format is recommended.
+        %code .jpg
+        and
+        %code .png
+        are also accepted.
+
+  %hr
+
   .alert.alert-light
-    %i.fas.fa-info-circle
-    These fields are consulted in priority order.
+    %i.fa.fa-info-circle
+    These properties can only be changed in Medusa.
 
   .form-group
     = f.label :representative_item_id, 'Representative Item UUID'
-    = f.text_field(:representative_item_id, class: 'form-control')
-    %p.form-text.text-muted UUID of a DLS item.
+    = f.text_field(:representative_item_id, disabled: true, class: 'form-control')
 
   .form-group
     = f.label :representative_medusa_file_id, 'Representative Medusa File UUID'
-    = f.text_field(:representative_medusa_file_id, class: 'form-control')
-    %p.form-text.text-muted UUID of a Medusa file.
+    = f.text_field(:representative_medusa_file_id, disabled: true, class: 'form-control')
 
   .float-right
     %button.btn.btn-light{"data-dismiss": "modal", type: "button"} Cancel

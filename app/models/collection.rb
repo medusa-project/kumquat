@@ -18,6 +18,30 @@
 # Collections are searchable via ActiveRecord as well as via Elasticsearch (see
 # below).
 #
+# # Representations
+#
+# In some public contexts, an image or [Item] is needed to represent the
+# collection. For example, on the show-collection page, it may be desired to
+# display an archetypal or notable [Item]. There are three ways of doing this:
+#
+# 1. Assign an [Item]'s repository ID to the {representative_item_id}
+#    attribute. The item's own representative image will be used as the
+#    collection's representative image. This will also enable some of its
+#    metadata (e.g. title) to be displayed nearby.
+# 2. Assign a Medusa file's UUID to the {representative_medusa_file_id}
+#    attribute. This works similarly to the above except since there is no item
+#    information, there can be no metadata displayed alongside the title, nor
+#    can the image be hyperlinked to anything itself.
+# 3. Upload an image to the application S3 bucket and use that as the
+#    representative image. This works similarly to the above, with the same
+#    caveats, except it allows more control over the image (cropping, for
+#    example) without having to ingest it into Medusa.
+#
+# The effective representation type (i.e. which one of these strategies is in
+# effect) can be accessed via {representation_type}. But the [Representable]
+# methods provide a relatively convenient way of accessing the "effective"
+# representative item or image.
+#
 # # Indexing
 #
 # Instances are automatically indexed in ES (see {as_indexed_json}) in an
@@ -93,12 +117,17 @@
 #                                   accessibility.
 # * `repository_id`                 The collection's effective UUID, copied
 #                                   from Medusa.
+# * `representation_type`           Enum field containing one of the
+#                                   [Representation::Type] constant values.
+# * `representative_image`          Filename of a representative image within
+#                                   the application S3 bucket. See note about
+#                                   representations above.
 # * `representative_medusa_file_id` UUID of a Medusa image file representing
-#                                   the collection for use in e.g. thumbnails.
-#                                   `representative_item_id` should be used
-#                                   instead, if possible.
+#                                   the collection. See note about
+#                                   representations above.
 # * `representative_item_id`        Repository ID of an [Item] representing the
-#                                   collection for use in e.g. thumbnails.
+#                                   collection. See note about representative
+#                                   images above.
 # * `resource_types`                Serialized array of resource types
 #                                   contained within the collection, copied
 #                                   from Medusa.
@@ -195,6 +224,9 @@ class Collection < ApplicationRecord
   validates_format_of :repository_id,
                       with: StringUtils::UUID_REGEX,
                       message: 'UUID is invalid'
+  validates :representation_type, inclusion: { in: Representation::Type.all },
+            allow_blank: true
+  validate :validate_representative_image_format
   validate :validate_medusa_uuids
 
   before_validation :do_before_validation
@@ -269,12 +301,17 @@ class Collection < ApplicationRecord
   #
   def as_harvestable_json
     access_master_struct = nil
-    file                 = self.effective_representative_image_file
-    if file
+    rep                 = self.effective_file_representation
+    case rep.type
+    when Representation::Type::MEDUSA_FILE
       access_master_struct = {
-        id:         file.uuid,
-        object_uri: "s3://#{Configuration.instance.medusa_s3_bucket}/#{file.relative_key}",
-        media_type: file.media_type
+        id:         rep.file.uuid,
+        object_uri: "s3://#{Configuration.instance.medusa_s3_bucket}/#{rep.file.relative_key}",
+        media_type: rep.file.media_type
+      }
+    when Representation::Type::LOCAL_FILE
+      access_master_struct = {
+        object_uri: "s3://#{KumquatS3Client::BUCKET}/#{rep.key}"
       }
     end
     {
@@ -392,6 +429,17 @@ class Collection < ApplicationRecord
   end
 
   ##
+  # Overrides the same method in [Representable].
+  #
+  def effective_file_representation
+    rep = effective_representation
+    if rep.type == Representation::Type::ITEM
+      rep = rep.item.effective_file_representation
+    end
+    rep
+  end
+
+  ##
   # The effective CFS directory of the instance -- either one that is directly
   # assigned, or the root CFS directory of the file group.
   #
@@ -411,30 +459,30 @@ class Collection < ApplicationRecord
   end
 
   ##
-  # Overrides the same method in [Representable] to return the representative
-  # [Item], if set.
+  # Overrides the same method in [Representable].
   #
-  # @return [Item, Collection]
+  # @return [Representation]
   #
-  def effective_representative_object
-    self.representative_item || self
-  end
+  def effective_representation
+    rep = Representation.new
+    rep.type = self[:representation_type]
 
-  ##
-  # @return [Medusa::File, nil] Best representative image file based on the
-  #                             representative item, if available, or
-  #                             the representative image file, if not.
-  #
-  def effective_representative_image_file
-    file = self.representative_item&.effective_image_binary&.medusa_file
-    unless file
+    case self.representation_type
+    when Representation::Type::LOCAL_FILE
+      rep.key = self.representative_image_key_prefix + self.representative_image
+    when Representation::Type::MEDUSA_FILE
       begin
-        file = self.representative_medusa_file
+        rep.file = self.representative_medusa_file
       rescue => e
-        LOGGER.warn('effective_representative_image_file(): %s', e)
+        LOGGER.warn('%s(): %s', __method__, e)
       end
+    when Representation::Type::ITEM
+      rep.item = self.representative_item
+    else
+      rep.type       = Representation::Type::COLLECTION
+      rep.collection = self
     end
-    file
+    rep
   end
 
   ##
@@ -706,6 +754,15 @@ class Collection < ApplicationRecord
   end
 
   ##
+  # @return [String, nil] Full key of the representative image within the
+  #                       application S3 bucket, if one exists; `nil` otherwise.
+  #
+  def representative_image_key
+    representative_image.present? ?
+      representative_image_key_prefix + representative_image : nil
+  end
+
+  ##
   # @return [Medusa::File, nil] Instance corresponding to
   #                             {representative_medusa_file_id}.
   #
@@ -808,6 +865,37 @@ class Collection < ApplicationRecord
     end
   end
 
+  ##
+  # Writes the given stream to the application S3 bucket under the
+  # representative images key prefix, updates the {representative_image}
+  # attribute with its new filename, and saves the instance.
+  #
+  # @param io [IO]           Stream to read.
+  # @param filename [String] Uploaded filename. Only the extension will be
+  #                          preserved.
+  #
+  def upload_representative_image(io:, filename:)
+    ext = filename.split(".").last.downcase
+    unless Representation::SUPPORTED_IMAGE_FORMATS.include?(ext)
+      raise ArgumentError, "Unsupported file extension: .#{ext}"
+    end
+
+    client = KumquatS3Client.instance
+    bucket = KumquatS3Client::BUCKET
+    prefix = representative_image_key_prefix
+
+    # Delete any existing objects under the representative image key prefix.
+    client.delete_objects(prefix: prefix)
+
+    # Upload the new representative image.
+    filename = "#{SecureRandom.hex}.#{ext}"
+    client.put_object(bucket: bucket,
+                      key:    prefix + filename,
+                      body:   io)
+    self.update!(representative_image: filename)
+  end
+
+
   private
 
   def do_before_validation
@@ -815,6 +903,10 @@ class Collection < ApplicationRecord
     self.medusa_file_group_uuid&.strip!
     self.representative_medusa_file_id&.strip!
     self.representative_item_id&.strip!
+  end
+
+  def representative_image_key_prefix
+    "representative_images/collection/#{repository_id}/"
   end
 
   def validate_medusa_uuids
@@ -828,6 +920,14 @@ class Collection < ApplicationRecord
         self.medusa_directory_uuid_changed? &&
         client.class_of_uuid(self.medusa_directory_uuid) != Medusa::Directory
       errors.add(:medusa_directory_uuid, 'is not a Medusa directory UUID')
+    end
+  end
+
+  def validate_representative_image_format
+    if self.representative_image.present?
+      unless Representation::SUPPORTED_IMAGE_FORMATS.include?(self.representative_image.split(".").last)
+        errors.add(:representative_image, "is of an unsupported format")
+      end
     end
   end
 

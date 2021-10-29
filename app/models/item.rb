@@ -3,13 +3,13 @@
 #
 # # Structure
 #
-# All items reside in a {Collection}. An item may have one or more child items,
+# All items reside in a [Collection]. An item may have one or more child items,
 # as may any of those, forming a tree. The tree structure depends on the
-# collection's {PackageProfile}. The {PackageProfile::FREE_FORM_PROFILE
+# collection's [PackageProfile]. The {PackageProfile::FREE_FORM_PROFILE
 # free-form profile} allows an arbitrary structure; other profiles are more
 # rigid.
 #
-# An item may also have one or more {Binary binaries}, each corresponding to a
+# An item may also have one or more [Binary binaries], each corresponding to a
 # file in Medusa.
 #
 # # Variants
@@ -81,13 +81,17 @@
 # so that deleting an element from a profile does not delete it from any items
 # contained in the collections to which the profile is assigned.
 #
+# # Representations
+#
+# TODO: write this
+#
 # # Indexing
 #
 # Items are searchable via ActiveRecord as well as via Elasticsearch. A low-
 # level interface to Elasticsearch is provided by ElasticsearchClient, but
 # in most cases, it's better to use the higher-level query interface provided
 # by {ItemRelation}, which is easier to use, and takes authorization, public
-# visiblity, etc. into account. (An instance of {ItemRelation} can be obtained
+# visibility, etc. into account. (An instance of {ItemRelation} can be obtained
 # from {search}.)
 #
 # **IMPORTANT**: Instances are automatically indexed in Elasticsearch (see
@@ -722,6 +726,16 @@ class Item < ApplicationRecord
   end
 
   ##
+  # Overrides the same method in [Representable].
+  #
+  def effective_file_representation
+    rep      = Representation.new
+    rep.type = Representation::Type::MEDUSA_FILE
+    rep.file = self.effective_image_binary&.medusa_file
+    rep
+  end
+
+  ##
   # Returns the best binary to use with an image server, guaranteed to be
   # compatible with it, in the following order of preference:
   #
@@ -802,32 +816,29 @@ class Item < ApplicationRecord
   end
 
   ##
-  # Overrides the same method in [Representable] to return the instance's
-  # effective representative item based on the following order of preference:
+  # Overrides the same method in [Representable]. The effective representative
+  # item associated with the returned instance is based on the following order
+  # of preference:
   #
-  # 1. The instance's {representative item} (if it has one)
-  # 2. The instance's first page (if it has any)
-  # 3. The instance's first child item (if it has any)
-  # 4. The instance itself
+  # 1. The instance's {representative_item}
+  # 2. The instance's front cover page
+  # 3. The instance's title page
+  # 4. The instance's first page
+  # 5. The instance itself
   #
-  # @return [Item]
+  # @return [Representation]
   # @see representative_item
   #
-  def effective_representative_object
-    self.representative_item ||
-        self.items.where(variant: [Variants::FRONT_COVER, Variants::TITLE]).
-          order(:variant).limit(1).first ||
-        self.pages.limit(1).first ||
-        self
-  end
-
-  ##
-  # Overrides the same method in [Representable].
-  #
-  # @return [Medusa::File]
-  #
-  def effective_representative_image_file
-    self.effective_image_binary&.medusa_file
+  def effective_representation
+    rep = Representation.new
+    rep.type = Representation::Type::ITEM
+    rep.item = self.representative_item ||
+      self.items.
+        where(variant: [Variants::FRONT_COVER, Variants::TITLE, Variants::PAGE]).
+        order(:variant, :page_number).
+        limit(1).first ||
+      self
+    rep
   end
 
   ##

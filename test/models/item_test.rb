@@ -358,30 +358,45 @@ class ItemTest < ActiveSupport::TestCase
     assert @item.directory?
   end
 
-  # effective_representative_object()
+  # effective_file_representation()
 
-  test 'effective_representative_object() returns the representative item
+  test 'effective_file_representation() returns a correct instance' do
+    @item = items(:compound_object_1001)
+    rep   = @item.effective_file_representation
+    assert_equal Representation::Type::MEDUSA_FILE, rep.type
+    assert_not_nil rep.file # TODO: flesh this out once effective_image_binary() is tested
+  end
+
+  # effective_image_binary()
+
+  test 'effective_image_binary()' do
+    # TODO: write this
+  end
+
+  # effective_representation()
+
+  test 'effective_representation() returns the representative item
         when it is assigned' do
     id = items(:compound_object_1001).repository_id
     @item.representative_item_id = id
-    assert_equal id, @item.effective_representative_object.repository_id
+    assert_equal id, @item.effective_representation.item.repository_id
   end
 
-  test 'effective_representative_object() returns the first page when
+  test 'effective_representation() returns the first page when
         representative_item_id is not set' do
     @item = items(:compound_object_1002)
     @item.representative_item_id = nil
     assert_equal '6a1d73f2-3493-1ca8-80e5-84a49d524f92',
-                 @item.effective_representative_object.repository_id
+                 @item.effective_representation.item.repository_id
   end
 
-  test 'effective_representative_object() returns the instance when
+  test 'effective_representation() returns the instance when
         representative_item_id is not set and it has no pages' do
     @item = items(:compound_object_1001)
     @item.representative_item_id = nil
     @item.items.delete_all
     assert_equal @item.repository_id,
-                 @item.effective_representative_object.repository_id
+                 @item.effective_representation.item.repository_id
   end
 
   # effective_rights_statement()
@@ -392,6 +407,7 @@ class ItemTest < ActiveSupport::TestCase
   end
 
   test 'effective_rights_statement() should fall back to a parent statement' do
+    @item.collection.rights_statement = "cats"
     @item.elements.destroy_all
     assert_equal @item.collection.rights_statement,
                  @item.effective_rights_statement

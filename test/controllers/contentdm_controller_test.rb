@@ -280,7 +280,7 @@ class ContentdmControllerTest < ActionDispatch::IntegrationTest
     assert_response :moved_permanently
     assert_redirected_to sprintf('%s/%s/full/!%d,%d/0/default.jpg',
                                  Configuration.instance.iiif_image_v2_url,
-                                 @item.effective_representative_image_file.uuid,
+                                 @item.effective_file_representation.file.uuid,
                                  ItemsHelper::DEFAULT_THUMBNAIL_SIZE,
                                  ItemsHelper::DEFAULT_THUMBNAIL_SIZE)
   end

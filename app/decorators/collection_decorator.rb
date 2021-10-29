@@ -42,25 +42,42 @@ class CollectionDecorator < Draper::Decorator
         updated_at:              object.updated_at
     }
 
-    file = object.effective_representative_image_file
-    if file
-      struct[:representative_images][:full] = { full: file_url(file) }
+    rep = object.effective_file_representation
+    if rep
+      struct[:representative_images][:full] = { full: rep.url }
       min_exp = 6
       max_exp = 12
       (min_exp..max_exp).each do |exp|
         size = 2 ** exp
-        struct[:representative_images][:full][size.to_s] =
-          ImageServer.file_image_v2_url(file: file,
-                                        size: size)
+        case rep.type
+        when Representation::Type::MEDUSA_FILE
+          struct[:representative_images][:full][size.to_s] =
+            ImageServer.file_image_v2_url(file: rep.file,
+                                          size: size)
+        when Representation::Type::LOCAL_FILE
+          struct[:representative_images][:full][size.to_s] =
+            ImageServer.s3_image_v2_url(bucket: KumquatS3Client::BUCKET,
+                                        key:    rep.key,
+                                        size:   size)
+        end
       end
 
       struct[:representative_images][:square] = {}
       (min_exp..max_exp).each do |exp|
         size = 2 ** exp
-        struct[:representative_images][:square][size.to_s] =
-          ImageServer.file_image_v2_url(file: file,
+        case rep.type
+        when Representation::Type::MEDUSA_FILE
+          struct[:representative_images][:square][size.to_s] =
+            ImageServer.file_image_v2_url(file:   rep.file,
+                                          region: :square,
+                                          size:   size)
+        when Representation::Type::LOCAL_FILE
+          struct[:representative_images][:square][size.to_s] =
+            ImageServer.s3_image_v2_url(bucket: KumquatS3Client::BUCKET,
+                                        key:    rep.key,
                                         region: :square,
-                                        size: size)
+                                        size:   size)
+        end
       end
     end
     struct

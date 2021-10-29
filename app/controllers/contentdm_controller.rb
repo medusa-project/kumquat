@@ -161,10 +161,17 @@ class ContentdmController < ApplicationController
   def v6_thumbnail
     item = item_for(params[:alias], params[:pointer])
     if item
-      file = item.effective_representative_image_file
-      if file
-        redirect_to ImageServer.file_image_v2_url(file: file,
+      rep = item.effective_file_representation
+      case rep.type
+      when Representation::Type::MEDUSA_FILE
+        redirect_to ImageServer.file_image_v2_url(file: rep.file,
                                                   size: ItemsHelper::DEFAULT_THUMBNAIL_SIZE),
+                    status: 301
+        return
+      when Representation::Type::LOCAL_FILE
+        redirect_to ImageServer.s3_image_v2_url(bucket: KumquatS3Client::BUCKET,
+                                                key:    rep.key,
+                                                size:   ItemsHelper::DEFAULT_THUMBNAIL_SIZE),
                     status: 301
         return
       end

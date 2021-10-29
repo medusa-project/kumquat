@@ -104,11 +104,17 @@ module ApplicationHelper
   def entities_as_cards(entities)
     html = StringIO.new
     entities.each do |entity|
-      file = entity.effective_representative_image_file
-      if file
-        img_url = ImageServer.file_image_v2_url(file:   file,
+      rep = entity.effective_file_representation
+      case rep.type
+      when Representation::Type::MEDUSA_FILE
+        img_url = ImageServer.file_image_v2_url(file:   rep.file,
                                                 region: 'square',
                                                 size:   CARD_IMAGE_SIZE)
+      when Representation::Type::LOCAL_FILE
+        img_url = ImageServer.s3_image_v2_url(bucket: KumquatS3Client::BUCKET,
+                                              key:    rep.key,
+                                              region: 'square',
+                                              size:   CARD_IMAGE_SIZE)
       else
         case entity.class.to_s
           when 'Collection'
@@ -251,14 +257,6 @@ module ApplicationHelper
     html = sprintf('The Digital Collections are a product of the University Library.
       %s for questions and to provide feedback.', link)
     raw(html)
-  end
-
-  ##
-  # @param file [Medusa::File]
-  # @return [String]
-  #
-  def file_url(file)
-    "s3://#{Configuration.instance.medusa_s3_bucket}/#{file.relative_key}"
   end
 
   ##
@@ -499,7 +497,7 @@ module ApplicationHelper
   end
 
   ##
-  # @param entity [Binary, Collection, Item, Medusa::File]
+  # @param entity [Binary, Representable, Medusa::File] See above.
   # @param shape [Symbol] `:full` or `:square`.
   # @param size [Integer]
   # @param lazy [Boolean] If true, the `data-src` attribute will be set instead
@@ -512,7 +510,13 @@ module ApplicationHelper
                     lazy:  false)
     rep_entity = entity
     if entity.class.include?(Representable)
-      rep_entity = entity.effective_representative_object
+      rep_entity = entity.effective_file_representation
+      case rep_entity.type
+      when Representation::Type::MEDUSA_FILE
+        rep_entity = rep_entity.file
+      when Representation::Type::LOCAL_FILE
+        rep_entity = rep_entity.key
+      end
     end
 
     url = nil
@@ -524,15 +528,15 @@ module ApplicationHelper
       url = ImageServer.binary_image_v2_url(binary: rep_entity,
                                             region: shape,
                                             size:   size)
-    elsif rep_entity.kind_of?(Collection)
-      rep_entity = rep_entity.effective_representative_image_file
-      url = ImageServer.file_image_v2_url(file:   rep_entity,
-                                          region: shape,
-                                          size:   size)
     elsif rep_entity.kind_of?(Item)
       url = item_image_url(item:   rep_entity,
                            region: shape,
                            size:   size)
+    elsif rep_entity.kind_of?(String)
+      url = ImageServer.s3_image_v2_url(bucket: KumquatS3Client::BUCKET,
+                                        key:    rep_entity,
+                                        region: shape,
+                                        size:   size)
     end
 
     html = StringIO.new
@@ -551,7 +555,7 @@ module ApplicationHelper
       # helps make our CSS more concise. The files are available at:
       # https://github.com/encharm/Font-Awesome-SVG-PNG/tree/master/black/svg
       html << image_tag('fontawesome-' + fontawesome_icon_for(entity)[1] + '.svg',
-                        'data-type': 'svg',
+                        'data-type':     'svg',
                         'data-location': 'local')
     end
     raw(html.string)

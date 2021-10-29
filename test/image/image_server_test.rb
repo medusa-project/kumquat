@@ -62,6 +62,34 @@ class ImageServerTest < ActiveSupport::TestCase
                  url
   end
 
+  # s3_image_v2_url()
+
+  test 's3_image_v2_url() returns a correct URL with minimal arguments' do
+    url    = ImageServer.s3_image_v2_url(bucket: 'bucket', key: 'key')
+    config = ::Configuration.instance
+    assert_equal config.iiif_image_v2_url + '/' +
+                   CGI.escape("s3://bucket/key") + "/full/max/0/default.jpg",
+                 url
+  end
+
+  test 's3_image_v2_url() returns a correct URL with all arguments' do
+    s3_url = "s3://bucket/key"
+    url    = ImageServer.s3_image_v2_url(bucket:              'bucket',
+                                         key:                 'key',
+                                         region:              '0,0,500,500',
+                                         size:                '300,',
+                                         rotation:            15,
+                                         color:               'color',
+                                         format:              'png',
+                                         content_disposition: 'attachment',
+                                         filename:            'image.png',
+                                         cache:               false)
+    config = ::Configuration.instance
+    assert_equal config.iiif_image_v2_url + '/' + CGI.escape(s3_url) +
+                   "/0,0,500,500/300,/15/color.png?cache=false&response-content-disposition=attachment%3B+filename%3D%22image.png%22",
+                 url
+  end
+
   # purge_all_images_from_cache()
 
   test 'purge_all_images_from_cache() works' do

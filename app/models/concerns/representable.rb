@@ -4,21 +4,19 @@
 module Representable
 
   ##
-  # @return [Collection,Item,Medusa::File]
+  # @return [Representation] Instance of type
+  #                          {Representation::Type::LOCAL_FILE} or
+  #                          {Representation::Type::MEDUSA_FILE}.
   #
-  def effective_representative_object
-    raise 'Implementations must override effective_representative_object()'
+  def effective_file_representation
+    raise "Implementations must override #{__method__}"
   end
 
   ##
-  # Shortcut to accessing the [Medusa::File] associated (directly or
-  # indirectly) with the instance returned from
-  # {effective_representative_object}.
+  # @return [Representation]
   #
-  # @return [Medusa::File]
-  #
-  def effective_representative_image_file
-    raise 'Implementations must override effective_representative_image_file()'
+  def effective_representation
+    raise "Implementations must override #{__method__}()"
   end
 
 end
