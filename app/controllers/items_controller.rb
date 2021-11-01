@@ -247,8 +247,10 @@ class ItemsController < WebsiteController
         redirect_to @collection and return
       end
     elsif params[:q].blank?
+      # Use a temporary redirect, as this route is still active when certain
+      # query arguments are provided.
       redirect_to ::Configuration.instance.metadata_gateway_url + '/items',
-                  status: :moved_permanently and return
+                  status: :temporary_redirect and return
     end
 
     relation           = item_relation_for(params)
