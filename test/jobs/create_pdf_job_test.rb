@@ -20,8 +20,10 @@ class CreatePdfJobTest < ActiveSupport::TestCase
   test 'perform() should assemble the expected PDF' do
     CreatePdfJob.perform_now(@item, false, @download)
 
-    assert File.exists?(@download.pathname)
-    assert File.size(@download.pathname) > 1000
+    client   = KumquatS3Client.instance
+    response = client.head_object(bucket: KumquatS3Client::BUCKET,
+                                  key: @download.object_key)
+    assert response.content_length > 1000
   end
 
   test 'perform() should update the download object' do

@@ -13,12 +13,18 @@ class DownloadsController < ApplicationController
 
     if download.expired
       render plain: 'This download is expired.', status: :gone
-    elsif download.pathname && File.exists?(download.pathname)
-      response.headers['Content-Length'] = File.size(download.pathname)
-      send_file(download.pathname)
+    elsif download.filename.present?
+      # Generate a pre-signed URL to redirect to.
+      signer = Aws::S3::Presigner.new(client: KumquatS3Client.instance)
+      url    = signer.presigned_url(:get_object,
+                                    bucket:     KumquatS3Client::BUCKET,
+                                    key:        download.object_key,
+                                    response_content_disposition: content_disposition(download.filename),
+                                    expires_in: 900)
+      redirect_to url, status: :see_other
     else
-      LOGGER.error('file(): download %s: file does not exist: %s',
-                     download.id, download.pathname)
+      LOGGER.error('file(): object does not exist for download key %s',
+                   download.key)
       render plain: "File does not exist for download #{download.key}.",
              status: :not_found
     end
@@ -34,6 +40,18 @@ class DownloadsController < ApplicationController
     if @download.expired
       render 'expired', status: :gone
     end
+  end
+
+
+  private
+
+  def content_disposition(filename) # TODO: BinariesController has a similar method
+    utf8_filename  = filename
+    ascii_filename = utf8_filename.gsub(/[^[:ascii:]]*/, '')
+    # N.B.: CGI.escape() inserts "+" instead of "%20" which Chrome interprets
+    # literally.
+    "attachment; filename=\"#{ascii_filename.gsub('"', "\"")}\"; "\
+        "filename*=UTF-8''#{ERB::Util.url_encode(utf8_filename)}"
   end
 
 end

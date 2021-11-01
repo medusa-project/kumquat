@@ -5,14 +5,14 @@
 # a long time to prepare. A typical workflow is:
 #
 # 1. The user clicks a download button.
-# 2. The responding controller creates a {Download} instance, invokes an
+# 2. The responding controller creates a [Download] instance, invokes an
 #    asynchronous task to prepare the file for download, and redirects to the
 #    instance's URL.
-# 3. The task associates the Download with a {Task}. (This enables progress
+# 3. The task associates the Download with a [Task]. (This enables progress
 #    reporting.)
-# 4. The task does its work, periodically updating the associated Task's
+# 4. The task does its work, periodically updating the associated [Task]'s
 #    `percent_complete` attribute to keep the user informed. When done, it
-#    sets `filename` to the file's filename, and sets the Task's status to
+#    sets {filename} to the file's filename, and sets the [Task]'s status to
 #    {Task::Status::SUCCEEDED}.
 # 5. The user reloads the page (or it reloads automatically via XHR), sees a
 #    download link, and follows it to download the file.
@@ -28,10 +28,10 @@
 # * `expired`    When a download is expired, it is no longer usable and its
 #                associated file is no longer available. Client code should
 #                call {expire} rather than setting this directly.
-# * `filename`   Filename of the file to be downloaded. (`url` can be used
+# * `filename`   Filename of the file to be downloaded. ({url} can be used
 #                instead.
 # * `key`        Random alphanumeric "public ID." Should be hard to guess so
-#                that someone can't retrieve someone else's download.
+#                that someone can't access someone else's download.
 # * `updated_at` Managed by ActiveRecord.
 # * `url`        URL to redirect to rather than downloading a local file. Must
 #                be publicly accessible.
@@ -39,13 +39,13 @@
 class Download < ApplicationRecord
 
   LOGGER = CustomLogger.new(Download)
-  DOWNLOADS_DIRECTORY = File.join(Rails.root, 'tmp', 'downloads')
+  DOWNLOADS_KEY_PREFIX = 'downloads/'
 
   belongs_to :task, inverse_of: :download, optional: true
 
   before_create :assign_key
   # Downloads shouldn't be destroyed, but just in case.
-  after_destroy :delete_file
+  after_destroy :delete_object
 
   # Instances will often be updated from inside transactions, outside of which
   # any updates would not be visible. So, we use a different database
@@ -79,15 +79,15 @@ class Download < ApplicationRecord
   # @return [void]
   #
   def expire
-    delete_file
+    delete_object
     self.update!(expired: true)
   end
 
   ##
   # @return [String, nil]
   #
-  def pathname
-    self.filename.present? ? File.join(DOWNLOADS_DIRECTORY, self.filename) : nil
+  def object_key
+    self.filename.present? ? DOWNLOADS_KEY_PREFIX + self.filename : nil
   end
 
   ##
@@ -111,10 +111,11 @@ class Download < ApplicationRecord
     self.key = SecureRandom.hex
   end
 
-  def delete_file
-    if self.filename.present? and File.exists?(self.pathname)
-      LOGGER.debug('delete_file(): deleting %s', self.pathname)
-      File.delete(self.pathname)
+  def delete_object
+    if self.filename.present?
+      LOGGER.debug('delete_object(): deleting %s', self.object_key)
+      KumquatS3Client.instance.delete_object(bucket: KumquatS3Client::BUCKET,
+                                             key: self.object_key)
     end
   end
 

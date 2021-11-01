@@ -4,23 +4,20 @@ class DownloadsControllerTest < ActionDispatch::IntegrationTest
 
   setup do
     @instance = downloads(:one)
-    src = File.join(Rails.root, 'docker', 'mockdusa', 'content', 'repositories',
-                    '1', 'collections', '1', 'file_groups', '1', 'root', 'dir1',
-                    'image1.jpg')
-    dest = File.join(Download::DOWNLOADS_DIRECTORY, @instance.filename)
-    FileUtils.copy_file(src, dest)
+    src_pathname = File.join(Rails.root, 'docker', 'mockdusa', 'content',
+                             'repositories', '1', 'collections', '1',
+                             'file_groups', '1', 'root', 'dir1', 'image1.jpg')
+    dest_key = Download::DOWNLOADS_KEY_PREFIX + @instance.filename
+    KumquatS3Client.instance.put_object(bucket: KumquatS3Client::BUCKET,
+                                        key:    dest_key,
+                                        body:   src_pathname)
   end
 
   teardown do
-    FileUtils.rm_f(File.join(Download::DOWNLOADS_DIRECTORY, @instance.filename))
+    KumquatS3Client.instance.delete_objects(prefix: Download::DOWNLOADS_KEY_PREFIX)
   end
 
   # file()
-
-  test 'file() sends a file' do
-    get download_file_path(@instance)
-    assert_response :ok
-  end
 
   test 'file() returns HTTP 404 for an invalid download key' do
     get download_file_path('bogus_key')
@@ -31,6 +28,11 @@ class DownloadsControllerTest < ActionDispatch::IntegrationTest
     @instance.update!(expired: true)
     get download_file_path(@instance)
     assert_response :gone
+  end
+
+  test 'file() redirects to a pre-signed S3 URL upon success' do
+    get download_file_path(@instance)
+    assert_response :see_other
   end
 
   # show()

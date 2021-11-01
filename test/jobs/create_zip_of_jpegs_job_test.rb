@@ -7,7 +7,7 @@ class CreateZipOfJpegsJobTest < ActiveSupport::TestCase
   end
 
   teardown do
-    File.delete(@download.pathname) if @download.pathname rescue nil
+    @download.destroy!
   end
 
   # perform()
@@ -15,17 +15,24 @@ class CreateZipOfJpegsJobTest < ActiveSupport::TestCase
   test 'perform() assembles the expected zip file' do
     items = [items(:free_form_dir1_dir1_file1).repository_id]
     CreateZipOfJpegsJob.perform_now(items, 'items', false, @download)
+
     Dir.mktmpdir do |tmpdir|
-      `unzip "#{@download.pathname}" -d #{tmpdir}`
-      assert Dir.glob("#{tmpdir}/*").length > 0
+      zip_path = File.join(tmpdir, "file.zip")
+      client   = KumquatS3Client.instance
+      client.get_object(bucket:          KumquatS3Client::BUCKET,
+                        key:             @download.object_key,
+                        response_target: zip_path)
+
+      `unzip "#{zip_path}" -d #{tmpdir}`
+      assert Dir.glob("#{tmpdir}/*").length > 1
     end
   end
 
   test 'perform() updates the download object' do
     items = [items(:free_form_dir1_dir1_file1).repository_id]
     CreateZipOfJpegsJob.perform_now(items, 'items', false, @download)
+
     assert_equal Task::Status::SUCCEEDED, @download.task.status
-    assert File.exists?(@download.pathname)
   end
 
 end

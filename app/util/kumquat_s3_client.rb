@@ -1,6 +1,10 @@
 ##
 # Singleton client for accessing the application S3 bucket. The instance
-# proxies for an {Aws::S3::Client}.
+# proxies for an [Aws::S3::Client].
+#
+# We use separate clients for the application S3 bucket and Medusa S3 bucket
+# because in the development and test environments, they are on different
+# endpoints.
 #
 # @see https://docs.aws.amazon.com/sdk-for-ruby/v3/api/Aws/S3/Client.html
 # @see MedusaS3Client
