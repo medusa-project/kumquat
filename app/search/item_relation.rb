@@ -183,7 +183,7 @@ class ItemRelation < AbstractRelation
                 j.term do
                   # Use the keyword field to get an exact match.
                   j.set! @query[:field] + EntityElement::KEYWORD_FIELD_SUFFIX,
-                         @query[:query].gsub(/[\[\]\(\)]/, '').gsub('/', ' ')
+                         @query[:query]
                 end
               end
             end
