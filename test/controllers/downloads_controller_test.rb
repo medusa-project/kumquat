@@ -30,6 +30,13 @@ class DownloadsControllerTest < ActionDispatch::IntegrationTest
     assert_response :gone
   end
 
+  test 'file() returns HTTP 403 when request IP address is different from the
+  Download instance IP address' do
+    @instance.update!(ip_address: '10.2.5.3')
+    get download_file_path(@instance)
+    assert_response :forbidden
+  end
+
   test 'file() redirects to a pre-signed S3 URL upon success' do
     get download_file_path(@instance)
     assert_response :see_other
