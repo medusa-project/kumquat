@@ -12,6 +12,7 @@ compound_object_1001:
   page_number:
   published:                     true
   start_date:                    <%= Time.parse('2015-08-10') %>
+  representation_type:           <%= Representation::Type::SELF %>
   representative_image:
   representative_item_id:
   representative_medusa_file_id:
@@ -24,6 +25,7 @@ compound_object_1002:
   page_number:
   published:                     true
   start_date:                    <%= Time.parse('2015-08-10') %>
+  representation_type:           <%= Representation::Type::SELF %>
   representative_image:
   representative_item_id:
   representative_medusa_file_id:
@@ -36,6 +38,7 @@ compound_object_1002_page1:
   published:                     true
   start_date:                    <%= Time.parse('2015-08-10') %>
   variant:                       <%= Item::Variants::PAGE %>
+  representation_type:           <%= Representation::Type::SELF %>
   representative_image:
   representative_item_id:
   representative_medusa_file_id:
@@ -48,6 +51,7 @@ compound_object_1002_page2:
   published:                     true
   start_date:                    <%= Time.parse('2015-08-10') %>
   variant:                       <%= Item::Variants::PAGE %>
+  representation_type:           <%= Representation::Type::SELF %>
   representative_image:
   representative_item_id:
   representative_medusa_file_id:
@@ -60,6 +64,7 @@ compound_object_1002_supplement:
   published:                     true
   start_date:                    <%= Time.parse('2015-08-10') %>
   variant:                       <%= Item::Variants::SUPPLEMENT %>
+  representation_type:           <%= Representation::Type::SELF %>
   representative_image:
   representative_item_id:
   representative_medusa_file_id:
@@ -75,6 +80,7 @@ contentdm_obj1:
   page_number:
   published:                     true
   start_date:                    <%= Time.parse('2015-08-10') %>
+  representation_type:           <%= Representation::Type::SELF %>
   representative_image:
   representative_item_id:
   representative_medusa_file_id:
@@ -87,6 +93,7 @@ free_form_dir1:
   start_date:                    <%= Time.parse('2015-08-10') %>
   published:                     true
   variant:                       <%= Item::Variants::DIRECTORY %>
+  representation_type:           <%= Representation::Type::SELF %>
   representative_image:
   representative_item_id:
   representative_medusa_file_id:
@@ -97,6 +104,7 @@ free_form_dir1_audio:
   start_date:                    <%= Time.parse('2015-08-10') %>
   published:                     true
   variant:                       <%= Item::Variants::FILE %>
+  representation_type:           <%= Representation::Type::SELF %>
   representative_image:
   representative_item_id:
   representative_medusa_file_id:
@@ -107,6 +115,7 @@ free_form_dir1_image:
   start_date:                    <%= Time.parse('2015-08-10') %>
   published:                     true
   variant:                       <%= Item::Variants::FILE %>
+  representation_type:           <%= Representation::Type::SELF %>
   representative_image:
   representative_item_id:
   representative_medusa_file_id:
@@ -117,6 +126,7 @@ free_form_dir1_video:
   start_date:                    <%= Time.parse('2015-08-10') %>
   published:                     true
   variant:                       <%= Item::Variants::FILE %>
+  representation_type:           <%= Representation::Type::SELF %>
   representative_image:
   representative_item_id:
   representative_medusa_file_id:
@@ -128,6 +138,7 @@ free_form_dir1_dir1:
   published:                     true
   parent_repository_id:          7351760f-4b7b-5a6c-6dda-f5a92562b008
   variant:                       <%= Item::Variants::DIRECTORY %>
+  representation_type:           <%= Representation::Type::SELF %>
   representative_image:
   representative_item_id:
   representative_medusa_file_id:
@@ -139,6 +150,7 @@ free_form_dir1_dir1_file1:
   published:                     true
   parent_repository_id:          088a49f2-08f0-f43b-47a1-cd40cbc1d837
   variant:                       <%= Item::Variants::FILE %>
+  representation_type:           <%= Representation::Type::SELF %>
   representative_image:
   representative_item_id:
   representative_medusa_file_id:
