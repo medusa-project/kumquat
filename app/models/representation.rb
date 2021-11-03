@@ -40,7 +40,7 @@ class Representation
     when Type::LOCAL_FILE
       return "s3://#{KumquatS3Client::BUCKET}/#{key}"
     when Type::MEDUSA_FILE
-      return "s3://#{Configuration.instance.medusa_s3_bucket}/#{file}"
+      return "s3://#{MedusaS3Client::BUCKET}/#{file}"
     else
       return nil
     end

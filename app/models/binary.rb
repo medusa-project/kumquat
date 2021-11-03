@@ -586,7 +586,7 @@ class Binary < ApplicationRecord
   # @return [String] The URI of the corresponding S3 object.
   #
   def uri
-    "s3://#{Configuration.instance.medusa_s3_bucket}/#{self.object_key}"
+    "s3://#{MedusaS3Client::BUCKET}/#{self.object_key}"
   end
 
   ##
@@ -620,7 +620,7 @@ class Binary < ApplicationRecord
       if TESSERACT_SUPPORTED_FORMATS.include?(self.media_type)
         Tempfile.new do |file|
           client = MedusaS3Client.instance
-          client.get_object(bucket: ::Configuration.instance.medusa_s3_bucket,
+          client.get_object(bucket: MedusaS3Client::BUCKET,
                             key:    self.object_key,
                             target: file)
         end
@@ -650,7 +650,7 @@ class Binary < ApplicationRecord
                                      http_read_timeout: 120)
 
     payload = {
-      bucket:   config.medusa_s3_bucket,
+      bucket:   MedusaS3Client::BUCKET,
       key:      self.object_key,
       language: language
     }

@@ -286,7 +286,7 @@ class Collection < ApplicationRecord
     when Representation::Type::MEDUSA_FILE
       access_master_struct = {
         id:         rep.file.uuid,
-        object_uri: "s3://#{Configuration.instance.medusa_s3_bucket}/#{rep.file.relative_key}",
+        object_uri: "s3://#{MedusaS3Client::BUCKET}/#{rep.file.relative_key}",
         media_type: rep.file.media_type
       }
     when Representation::Type::LOCAL_FILE

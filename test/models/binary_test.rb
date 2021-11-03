@@ -423,7 +423,7 @@ class BinaryTest < ActiveSupport::TestCase
   # uri()
 
   test 'uri returns the correct URI' do
-    assert_equal "s3://#{Configuration.instance.medusa_s3_bucket}/#{@instance.object_key}",
+    assert_equal "s3://#{MedusaS3Client::BUCKET}/#{@instance.object_key}",
                  @instance.uri
   end
 
