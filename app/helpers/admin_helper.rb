@@ -451,12 +451,6 @@ module AdminHelper
                 value: bs.filename}
     end
 
-    # Published
-    data << { label: 'Published',
-              value: boolean(item.published,
-                             true_string: "Published",
-                             false_string: "Unpublished") }
-
     # Primary IIIF v2 Image URL
     iiif_v2_url = item.effective_image_binary&.iiif_image_v2_url
     data << { label: 'Primary IIIF Image v2 URL',

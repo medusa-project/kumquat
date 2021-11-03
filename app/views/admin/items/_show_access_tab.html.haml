@@ -1,5 +1,11 @@
 %table.table
   %tr
+    %td Published
+    %td
+      = boolean(@item.published,
+                true_string: "Published",
+                false_string: "Unpublished")
+  %tr
     %td Allowed NetIDs
     %td
       - if @item.allowed_netids&.any?
