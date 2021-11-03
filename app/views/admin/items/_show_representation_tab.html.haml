@@ -8,13 +8,26 @@
 
 .media.dl-representation
   .dl-image-container
+    = thumbnail_tag(@item, size: 256)
+  .media-body
+    %h5
+      Self
+      - if @item.representation_type == Representation::Type::SELF
+        %span.badge.badge-success active
+      - else
+        = form_for([:admin, @item.collection, @item]) do |f|
+          = f.hidden_field(:representation_type, value: Representation::Type::SELF)
+          = f.submit("Activate", class: "btn btn-light btn-sm")
+
+.media.mt-3.dl-representation
+  .dl-image-container
     - if @item.representative_image.present?
       = thumbnail_tag(@item.representative_image_key, size: 256)
     - else
       .dl-no-image
   .media-body
     %h5
-      Representative Local Image
+      Local Image
       - if @item.representation_type == Representation::Type::LOCAL_FILE
         %span.badge.badge-success active
       - elsif @item.representative_image.present?
@@ -35,7 +48,7 @@
       .dl-no-image
   .media-body
     %h5
-      Representative Item
+      Item
       - if @item.representation_type == Representation::Type::ITEM
         %span.badge.badge-success active
       - elsif @item.representative_item_id.present? && item
@@ -66,7 +79,7 @@
       .dl-no-image
   .media-body
     %h5
-      Representative Medusa Image
+      Medusa Image
       - if rep_image_present && rep_image_exists
         - if @item.representation_type == Representation::Type::MEDUSA_FILE
           %span.badge.badge-success active

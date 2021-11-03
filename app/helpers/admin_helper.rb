@@ -481,12 +481,6 @@ module AdminHelper
     data << { label: 'Variant', value: item.variant,
               help: "Available variants are: #{Item::Variants::all.map{ |v| "<code>#{v}</code>" }.sort.join(' ')}" }
 
-    # Representative Item
-    data << { label: 'Representative Item',
-              value: item.representative_item ?
-                  link_to(item.representative_item.title,
-                          admin_collection_item_path(item.representative_item.collection,
-                                                     item.representative_item)) : '' }
     # Page Number
     data << { label: 'Page Number', value: item.page_number }
 

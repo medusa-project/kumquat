@@ -14,7 +14,7 @@
       .dl-no-image
   .media-body
     %h5
-      Representative Local Image
+      Local Image
       - if @collection.representation_type == Representation::Type::LOCAL_FILE
         %span.badge.badge-success active
       - elsif @collection.representative_image.present?
@@ -35,7 +35,7 @@
       .dl-no-image
   .media-body
     %h5
-      Representative Item
+      Item
       - if @collection.representation_type == Representation::Type::ITEM
         %span.badge.badge-success active
       - elsif @collection.representative_item_id.present? && item
@@ -66,7 +66,7 @@
       .dl-no-image
   .media-body
     %h5
-      Representative Medusa Image
+      Medusa Image
       - if rep_image_present && rep_image_exists
         - if @collection.representation_type == Representation::Type::MEDUSA_FILE
           %span.badge.badge-success active

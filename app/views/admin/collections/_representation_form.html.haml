@@ -8,7 +8,8 @@
     -# populated via ajax by shared/_validation_messages.js.erb
 
   .form-group
-    = f.label :representative_image_data, 'Representative Image'
+    = f.label :representative_image_data, 'Local Image'
+    %br
     = f.file_field(:representative_image_data)
     %ul.text-muted
       %li The image will be cropped automatically where necessary.

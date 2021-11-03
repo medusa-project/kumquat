@@ -20,6 +20,7 @@ class Representation
     ITEM        = "item"
     LOCAL_FILE  = "local_file"
     MEDUSA_FILE = "medusa_file"
+    SELF        = "self"
 
     def self.all
       self.constants.map{ |c| self.const_get(c) }
@@ -36,10 +37,10 @@ class Representation
   #
   def url
     case type
-    when Type::MEDUSA_FILE
-      return "s3://#{Configuration.instance.medusa_s3_bucket}/#{file}"
     when Type::LOCAL_FILE
       return "s3://#{KumquatS3Client::BUCKET}/#{key}"
+    when Type::MEDUSA_FILE
+      return "s3://#{Configuration.instance.medusa_s3_bucket}/#{file}"
     else
       return nil
     end
