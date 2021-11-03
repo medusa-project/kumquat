@@ -1,7 +1,7 @@
 /**
  * @constructor
  */
-var PTAdminUsersView = function() {
+const DLAdminUsersView = function() {
 
     this.init = function() {
         $('.popover-dismiss').popover({
@@ -11,11 +11,9 @@ var PTAdminUsersView = function() {
 
 };
 
-var ready = function() {
+$(document).ready(function() {
     if ($('body#admin_users').length) {
-        Application.view = new PTAdminUsersView();
+        Application.view = new DLAdminUsersView();
         Application.view.init();
     }
-};
-
-$(document).ready(ready);
+});

@@ -1,4 +1,4 @@
-var PTAdminAgentEditForm = function() {
+const DLAdminAgentEditForm = function() {
 
     this.init = function() {
         var updateRowIndices = function(table) {
@@ -50,7 +50,7 @@ var PTAdminAgentEditForm = function() {
 
 };
 
-var PTAdminAgentRelationForm = function() {
+const DLAdminAgentRelationForm = function() {
 
     this.init = function() {
         $('input.dl-autocomplete').on('keyup', function() {
@@ -84,7 +84,7 @@ var PTAdminAgentRelationForm = function() {
  *
  * @constructor
  */
-var PTAdminAgentsView = function() {
+const DLAdminAgentsView = function() {
 
     this.init = function() {
         new Application.FilterField();
@@ -122,7 +122,7 @@ var PTAdminAgentsView = function() {
             var url = ROOT_URL + '/admin/agents/' + agent_id + '/edit';
             $.get(url, function(data) {
                 $('#dl-edit-agent-modal .modal-body').html(data);
-                new PTAdminAgentEditForm().init();
+                new DLAdminAgentEditForm().init();
             });
         });
         $('a[disabled="disabled"]').on('click', function() { return false; });
@@ -135,7 +135,7 @@ var PTAdminAgentsView = function() {
  *
  * @constructor
  */
-var PTAdminAgentView = function() {
+const DLAdminAgentView = function() {
 
     this.init = function() {
         $('button.dl-edit-agent-relation').on('click', function() {
@@ -144,24 +144,22 @@ var PTAdminAgentView = function() {
             var url = ROOT_URL + '/admin/agent-relations/' + agent_relation_id + '/edit';
             $.get(url, function(data) {
                 $('#dl-agent-relation-modal .modal-body').html(data);
-                new PTAdminAgentRelationForm().init();
+                new DLAdminAgentRelationForm().init();
             });
         });
 
-        new PTAdminAgentEditForm().init();
-        new PTAdminAgentRelationForm().init();
+        new DLAdminAgentEditForm().init();
+        new DLAdminAgentRelationForm().init();
     };
 
 };
 
-var ready = function() {
+$(document).ready(function() {
     if ($('body#admin_agents_index').length) {
-        Application.view = new PTAdminAgentsView();
+        Application.view = new DLAdminAgentsView();
         Application.view.init();
     } else if ($('body#admin_agents_show').length) {
-        Application.view = new PTAdminAgentView();
+        Application.view = new DLAdminAgentView();
         Application.view.init();
     }
-};
-
-$(document).ready(ready);
+});

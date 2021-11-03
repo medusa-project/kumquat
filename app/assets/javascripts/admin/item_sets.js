@@ -3,7 +3,7 @@
  *
  * @constructor
  */
-var PTAdminItemSetView = function() {
+const DLAdminItemSetView = function() {
 
     this.init = function() {
         attachEventListeners();
@@ -58,11 +58,9 @@ var PTAdminItemSetView = function() {
 
 };
 
-var ready = function() {
+$(document).ready(function() {
     if ($('body#admin_item_sets_show').length) {
-        Application.view = new PTAdminItemSetView();
+        Application.view = new DLAdminItemSetView();
         Application.view.init();
     }
-};
-
-$(document).ready(ready);
+});

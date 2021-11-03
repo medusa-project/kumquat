@@ -4,7 +4,7 @@
  *
  * @constructor
  */
-var PTControlPanel = function() {
+const DLControlPanel = function() {
 
     this.init = function() {
         // Save the last-clicked tab in a cookie.
@@ -31,9 +31,7 @@ var PTControlPanel = function() {
 
 };
 
-var ready = function() {
-    Application.ControlPanel = new PTControlPanel();
+$(document).ready(function() {
+    Application.ControlPanel = new DLControlPanel();
     Application.ControlPanel.init();
-};
-
-$(document).ready(ready);
+});

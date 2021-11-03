@@ -3,7 +3,7 @@
  *
  * @constructor
  */
-var PTItemView = function() {
+const DLItemView = function() {
 
     var three_d_viewer_loaded = false;
 
@@ -409,9 +409,9 @@ var PTItemView = function() {
  *
  * @constructor
  */
-var PTItemsView = function() {
+const DLItemsView = function() {
 
-    var self = this;
+    const self = this;
 
     this.init = function() {
         new Application.FilterField();
@@ -473,7 +473,7 @@ var PTItemsView = function() {
  *
  * @constructor
  */
-var PTTreeBrowserView = function() {
+const DLTreeBrowserView = function() {
 
     var NODE_SELECTION_DELAY = 600;
 
@@ -640,7 +640,7 @@ var PTTreeBrowserView = function() {
         const treeView = $('#dl-free-form-item-view');
         treeView.html(result);
         Application.init();
-        Application.view = new PTItemView();
+        Application.view = new DLItemView();
         Application.view.init();
 
         // Update the height of the tree browser to fit.
@@ -668,13 +668,13 @@ var PTTreeBrowserView = function() {
 
 $(document).ready(function() {
     if ($('body#tree_browser').length) {
-        Application.view = new PTTreeBrowserView();
+        Application.view = new DLTreeBrowserView();
         Application.view.init();
     } if ($('body#items_index').length) {
-        Application.view = new PTItemsView();
+        Application.view = new DLItemsView();
         Application.view.init();
     } else if ($('body#items_show').length) {
-        Application.view = new PTItemView();
+        Application.view = new DLItemView();
         Application.view.init();
     }
 });

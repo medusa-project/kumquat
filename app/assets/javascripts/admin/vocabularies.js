@@ -1,9 +1,9 @@
 /**
  * @constructor
  */
-var PTAdminVocabularyView = function() {
+const DLAdminVocabularyView = function() {
 
-    var init = function() {
+    const init = function() {
         $('button#dl-delete-checked').on('click', function() {
             $(this).parents('form').submit();
         });
@@ -20,10 +20,8 @@ var PTAdminVocabularyView = function() {
 
 };
 
-var ready = function() {
+$(document).ready(function() {
     if ($('body#vocabularies_show').length) {
-        Application.view = new PTAdminVocabularyView();
+        Application.view = new DLAdminVocabularyView();
     }
-};
-
-$(document).ready(ready);
+});

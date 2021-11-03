@@ -1,9 +1,9 @@
 /**
  * @constructor
  */
-var PTAdminTasksView = function() {
+const DLAdminTasksView = function() {
 
-    var TASKS_URL = $('input[name="dl-tasks-url"]').val();
+    const TASKS_URL = $('input[name="dl-tasks-url"]').val();
 
     this.init = function() {
         new Application.FilterField();
@@ -11,8 +11,8 @@ var PTAdminTasksView = function() {
         new TaskRefresher().start();
 
         $('#dl-task-panel').on('show.bs.modal', function(event) {
-            var modal = $(this);
-            var button = $(event.relatedTarget);
+            var modal   = $(this);
+            var button  = $(event.relatedTarget);
             var task_id = button.data('task-id');
 
             $.ajax({
@@ -29,13 +29,13 @@ var PTAdminTasksView = function() {
         });
     };
 
-    var TaskRefresher = function() {
+    const TaskRefresher = function() {
 
-        var FREQUENCY = 5000;
+        const FREQUENCY = 5000;
 
         var refreshTimer;
 
-        var refresh = function() {
+        const refresh = function() {
             console.debug('Refreshing task list...');
 
             var current_page = $('.pagination li.active > a:first')
@@ -65,11 +65,9 @@ var PTAdminTasksView = function() {
 
 };
 
-var ready = function() {
+$(document).ready(function() {
     if ($('body#admin_tasks').length) {
-        Application.view = new PTAdminTasksView();
+        Application.view = new DLAdminTasksView();
         Application.view.init();
     }
-};
-
-$(document).ready(ready);
+});

@@ -3,9 +3,9 @@
  *
  * @constructor
  */
-var PTAgentView = function() {
+const DLAgentView = function() {
 
-    var self = this;
+    const self = this;
 
     this.init = function() {
         self.attachEventListeners();
@@ -25,11 +25,9 @@ var PTAgentView = function() {
 
 };
 
-var ready = function() {
+$(document).ready(function() {
     if ($('body#agents_show').length) {
-        Application.view = new PTAgentView();
+        Application.view = new DLAgentView();
         Application.view.init();
     }
-};
-
-$(document).ready(ready);
+});
