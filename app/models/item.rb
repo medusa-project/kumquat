@@ -770,7 +770,7 @@ class Item < ApplicationRecord
   def effective_image_binary # TODO: this is very similar to effective_viewer_binary()
     unless @effective_image_binary
       bin = self.representative_medusa_file_id.present? ?
-              Binary.from_medusa_file(self.representative_medusa_file) : nil
+              Binary.from_medusa_file(file: self.representative_medusa_file) : nil
       if !bin || !bin.image_server_safe?
         if self.variant == Variants::SUPPLEMENT
           bin = self.binaries.first
@@ -927,7 +927,7 @@ class Item < ApplicationRecord
   def effective_viewer_binary # TODO: this is very similar to effective_image_binary()
     unless @effective_viewer_binary
       bin = self.representative_medusa_file_id.present? ?
-              Binary.from_medusa_file(self.representative_medusa_file) : nil
+              Binary.from_medusa_file(file: self.representative_medusa_file) : nil
       if !bin or !bin.image_server_safe?
         if self.variant == Variants::SUPPLEMENT
           bin = self.binaries.first

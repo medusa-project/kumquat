@@ -33,7 +33,8 @@ class BinaryTest < ActiveSupport::TestCase
   test 'from_medusa_file() returns an existing instance when one corresponding
   to the given file exists' do
     file   = Medusa::File.with_uuid('39582239-4307-1cc6-c9c6-074516fd7635')
-    binary = Binary.from_medusa_file(file, Binary::MasterType::PRESERVATION)
+    binary = Binary.from_medusa_file(file:        file,
+                                     master_type: Binary::MasterType::PRESERVATION)
     assert !binary.new_record?
     assert_equal Binary::MasterType::ACCESS, binary.master_type
     assert_equal file.relative_key, binary.object_key
@@ -48,7 +49,8 @@ class BinaryTest < ActiveSupport::TestCase
   given file does not already exist' do
     Binary.destroy_all
     file   = Medusa::File.with_uuid('084f6359-3213-35d7-a29b-bfee47b6dd9d')
-    binary = Binary.from_medusa_file(file, Binary::MasterType::PRESERVATION)
+    binary = Binary.from_medusa_file(file:        file,
+                                     master_type: Binary::MasterType::PRESERVATION)
     assert binary.new_record?
     assert_equal Binary::MasterType::PRESERVATION, binary.master_type
     assert_equal file.relative_key, binary.object_key

@@ -151,7 +151,7 @@ class Binary < ApplicationRecord
   # @return [Binary]                Fully initialized instance which may or may
   #                                 not have been persisted.
   #
-  def self.from_medusa_file(file, master_type = nil, media_category = nil)
+  def self.from_medusa_file(file:, master_type: nil, media_category: nil)
     bin = Binary.find_by_object_key(file.relative_key)
     unless bin
       bin                = Binary.new

@@ -210,7 +210,8 @@ class MedusaFreeFormIngester < MedusaAbstractIngester
         item.elements.build(name: 'title', value: file.name)
 
         # Create its corresponding binary.
-        bin = Binary.from_medusa_file(file, Binary::MasterType::ACCESS)
+        bin = Binary.from_medusa_file(file:        file,
+                                      master_type: Binary::MasterType::ACCESS)
         bin.item = item
         bin.save!
 
@@ -287,7 +288,8 @@ class MedusaFreeFormIngester < MedusaAbstractIngester
         LOGGER.info('recreate_binaries_in_tree(): updating binaries for item: %s',
                     file.uuid)
         item.binaries.destroy_all
-        bin = Binary.from_medusa_file(file, Binary::MasterType::ACCESS)
+        bin = Binary.from_medusa_file(file:        file,
+                                      master_type: Binary::MasterType::ACCESS)
         bin.item = item
         bin.save!
         stats[:num_created] += 1
