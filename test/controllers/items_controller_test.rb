@@ -178,7 +178,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
 
   test 'index() redirects to the Search Gateway when the q argument is not provided' do
     get items_path
-    assert_response :moved_permanently
+    assert_response :temporary_redirect
     assert_redirected_to ::Configuration.instance.metadata_gateway_url + '/items'
   end
 
