@@ -8,26 +8,34 @@ This is a getting-started guide for developers.
 * [SCARS Wiki](https://wiki.illinois.edu/wiki/display/scrs/DLS)
 * [JIRA Project](https://bugs.library.illinois.edu/projects/DLD)
 
-# Requirements
+# Prerequisites
 
 * Administrator access to the production DLS instance (in order to export data
   to import into your development instance)
 * PostgreSQL >= 9.x
+* An S3 bucket ([MinIO Server](https://min.io/download) will work in
+  development & test)
 * Elasticsearch 6
-    * Version 7 is not fully backwards-compatible and isn't supported yet.
+    * Version 7 is not fully backward-compatible and isn't supported yet.
     * The [ICU Analysis Plugin](https://www.elastic.co/guide/en/elasticsearch/plugins/current/analysis-icu.html)
       must also be installed.
-* Cantaloupe 4.1+
-    * You can install and configure this yourself, but it will be a lot easier
-      to run a [DLS image server container](https://github.com/medusa-project/dls-cantaloupe-docker)
-      locally in Docker instead.
+* Cantaloupe 5.0+
+    * You can install and configure this yourself, but it will be easier to run
+      a [DLS image server container](https://github.com/medusa-project/dls-cantaloupe-docker)
+      in Docker.
+    * This will also require the
+      [AWS Command Line Interface](https://aws.amazon.com/cli/) v1.x with the
+      [awscli-login](https://github.com/techservicesillinois/awscli-login)
+      plugin, which is needed to obtain credentials for Cantaloupe to access
+      the relevant S3 buckets. (awscli-login requires v1.x of the CLI as of
+      this writing, but that would be the only reason not to upgrade to v2.x.)
 * exiv2 (used to extract image metadata)
 * ffmpeg (used to extract video metadata)
 * tesseract (used for OCR)
 
 # Installation
 
-## Install everything
+## Install Kumquat
 ```sh
 # Install rbenv
 $ brew install rbenv
@@ -116,7 +124,7 @@ collection.)
 ## Sync the collection
 
 1. Go to the admin view of the collection.
-2. Click the "0 objects" button.
+2. Click the "Objects" button.
 3. Click the "Import" button.
 4. In the "Import Items" panel, make sure "Create" is checked, and click
    "Import."
@@ -126,7 +134,7 @@ collection.)
 ## Import the collection's metadata
 
 1. Go to the collection's admin view in production.
-2. Click the "n objects" button.
+2. Click the "Objects" button.
 3. Click "Metadata -> Export As TSV" and export all items to a file.
 4. Go to the same view on your local instance.
 5. Import the TSV. This will invoke a background job. Use
@@ -143,17 +151,17 @@ $ bin/rails db:migrate
 
 ## Update the Elasticsearch schema
 
-For the most part, once created, index schemas can't be modified. To migrate
-to an incompatible schema, the procedure would be something like:
+Once created, index schemas can only be modified to a limited extent. To
+migrate to an incompatible schema, the procedure would be:
 
 1. Update the index schema in `app/search/index_schema.yml`
-2. Create an index with the new schema:
-   `rails elasticsearch:indexes:create[my_new_index]`
+2. Create a new index with the new schema:
+   `rails elasticsearch:indexes:create[new_index]`
 3. Populate the new index with documents. There are a couple of ways to do
    this:
     1. If the schema change was backwards-compatible with the source documents
        added to the index, invoke
-       `rails elasticsearch:indexes:reindex[my_current_index,my_new_index]`.
+       `rails elasticsearch:indexes:reindex[current_index,new_index]`.
        This will reindex all source documents from the current index into the
        new index.
     2. Otherwise, reindex all database content:
@@ -162,9 +170,6 @@ to an incompatible schema, the procedure would be something like:
        $ rails dls:agents:reindex
        $ rails dls:items:reindex
        ```
-Because all of the above can be a pain, an effort has been made to design the
-index schema to be flexible enough to require migration as infrequently as
-possible.
 
 # Tests
 
@@ -185,15 +190,14 @@ There are several dependent services:
     3. One containing Medusa repository data. The content exposed by
        Mockdusa, above, should be available in this bucket.
 
-It's perfectly legitimate to get all of this stuff configured and running
-locally. But because doing so can be a real bear, there is also a
-`docker-compose.yml` file that will spin up all of the required services and
+Because getting all of this running locally can be a real hassle, there is also
+a `docker-compose.yml` file that will spin up all of the required services and
 run the tests within a containerized environment:
 
 ```sh
 aws login
 eval $(aws ecr get-login --region us-east-2 --no-include-email --profile default)
-docker-compose pull && docker-compose up --build --force-recreate --exit-code-from kumquat
+docker-compose pull && docker-compose up --build --exit-code-from kumquat
 ```
 
 # Configuration
