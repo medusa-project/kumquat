@@ -1,0 +1,84 @@
+- if current_user.can?(Permissions::MODIFY_ITEMS)
+  .btn-group.float-right.mb-3
+    %button.btn.btn-light.dl-edit-representation{type: 'button',
+                                                 'data-toggle': 'modal',
+                                                 'data-target': '#dl-edit-representation-modal'}
+      %i.fas.fa-pencil-alt
+      Edit&hellip;
+
+.media.dl-representation
+  .dl-image-container
+    - if @item.representative_image.present?
+      = thumbnail_tag(@item.representative_image_key, size: 256)
+    - else
+      .dl-no-image
+  .media-body
+    %h5
+      Representative Local Image
+      - if @item.representation_type == Representation::Type::LOCAL_FILE
+        %span.badge.badge-success active
+      - elsif @item.representative_image.present?
+        = form_for([:admin, @item.collection, @item]) do |f|
+          = f.hidden_field(:representation_type, value: Representation::Type::LOCAL_FILE)
+          = f.submit("Activate", class: "btn btn-light btn-sm")
+
+.media.mt-3.dl-representation
+  .dl-image-container
+    - if @item.representative_item_id.present?
+      - item = Item.find_by_repository_id(@item.representative_item_id)
+      - if item
+        = link_to(admin_collection_item_path(item.collection, item)) do
+          = thumbnail_tag(item, size: 256)
+      - else
+        .dl-no-image
+    - else
+      .dl-no-image
+  .media-body
+    %h5
+      Representative Item
+      - if @item.representation_type == Representation::Type::ITEM
+        %span.badge.badge-success active
+      - elsif @item.representative_item_id.present? && item
+        = form_for([:admin, @item.collection, @item]) do |f|
+          = f.hidden_field(:representation_type, value: Representation::Type::ITEM)
+          = f.submit("Activate", class: "btn btn-light btn-sm")
+    - if item
+      %p= link_to(item.title,
+                  admin_collection_item_path(item.collection, item))
+    - elsif @item.representative_item_id.present?
+      %code
+        = @item.representative_item_id
+      %span.badge.badge-pill.badge-danger invalid
+
+.media.mt-3.dl-representation
+  .dl-image-container
+    - rep_image_uuid    = @item.representative_medusa_file_id
+    - rep_image_file    = Medusa::File.with_uuid(rep_image_uuid)
+    - rep_image_present = rep_image_uuid.present?
+    - if rep_image_present
+      - rep_image_exists = rep_image_file.exists?
+      - if rep_image_exists
+        = link_to(rep_image_file.url) do
+          = thumbnail_tag(rep_image_file, size: 256)
+      - else
+        .dl-no-image
+    - else
+      .dl-no-image
+  .media-body
+    %h5
+      Representative Medusa Image
+      - if rep_image_present && rep_image_exists
+        - if @item.representation_type == Representation::Type::MEDUSA_FILE
+          %span.badge.badge-success active
+        - else
+          = form_for([:admin, @item.collection, @item]) do |f|
+            = f.hidden_field(:representation_type, value: Representation::Type::MEDUSA_FILE)
+            = f.submit("Activate", class: "btn btn-light btn-sm")
+    - if rep_image_present
+      - if rep_image_exists
+        = link_to(rep_image_file.url) do
+          %code= rep_image_file.name
+      - else
+        %code
+          = rep_image_uuid
+        %span.badge.badge-pill.badge-danger invalid

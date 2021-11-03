@@ -83,7 +83,7 @@
 #
 # # Representations
 #
-# TODO: write this
+# See [Representable].
 #
 # # Indexing
 #
@@ -109,63 +109,74 @@
 #
 # # Attributes
 #
-# * `allowed_netids`           Serialized array of hashes with `:netid` and
-#                              `:expires` keys. The latter is an epoch second.
-#                              This array contains the NetID(s) of the user(s)
-#                              allowed to access the item, alongside the times
-#                              that this access expires. (This supports the
-#                              temporary "Restricted Access" feature [DLD-337].
-#                              For most items, it is null or empty.)
-# * `collection_repository_id` See "Identifiers" above.
-# * `contentdm_alias`          String collection alias of items that have been
-#                              migrated out of CONTENTdm, used for URL
-#                              redirection.
-# * `contentdm_pointer`        Integer pointer of items that have been migrated
-#                              out of CONTENTdm, used for URL redirection.
-# * `created_at`               Managed by ActiveRecord.
-# * `start_date`               Start date of a normalized date range.
-# * `embed_tag`                HTML snippet that will be used to display an
-#                              alternative object viewer.
-# * `end_date`                 End date of a normalized date range.
-# * `expose_full_text_search`  Whether to expose full-text search of the
-#                              instance and any child items on the public
-#                              website. (This only has an effect when full text
-#                              is present.)
-# * `latitude`                 Normalized latitude in decimal degrees.
-# * `longitude`                Normalized longitude in decimal degrees.
-# * `page_number`              Literal page number of a page-variant item.
-# * `parent_repository_id`     See "Identifiers" above.
-# * `published`                Controls public availability. Unpublished items
-#                              shouldn't appear in public search results or be
-#                              accessible in any other way publicly.
-# * `published_at`             Date/time that the item was first published.
-#                              For free-form items, this is the time that the
-#                              `published` attribute was set to `true`. For all
-#                              other items, it is the first time that a
-#                              metadata element other than `title` was
-#                              ascribed. This is set by an ActiveRecord
-#                              callback.
-# * `repository_id`            See "Identifiers" above.
-# * `representative_binary_id` Medusa UUID of an alternative binary designated
-#                              to stand in as a representation of the item.
-# * `representative_item_id`   Repository ID of another item designated to
-#                              represent the item. For example, using a
-#                              different item to provide a thumbnail image for
-#                              an item that is not very "photogenic."
-# * `subpage_number`           Subpage number of a page-variant item. Only used
-#                              when there are multiple items corresponding to a
-#                              single page of a physical object.
-# * `updated_at`               Managed by ActiveRecord.
-# * `variant`                  Like a subclass. Used to differentiate types of
-#                              items. The only items without a variant are
-#                              "compound objects", or parent items with non-
-#                              file/directory-variant child items.
+# * `allowed_netids`                Serialized array of hashes with `:netid`
+#                                   and `:expires` keys. The latter is an epoch
+#                                   second. This array contains the NetID(s) of
+#                                   the user(s) allowed to access the item,
+#                                   alongside the times that this access
+#                                   expires. (This supports the temporary
+#                                   "Restricted Access" feature [DLD-337]. For
+#                                   most items, it is null or empty.)
+# * `collection_repository_id`      See "Identifiers" above.
+# * `contentdm_alias`               String collection alias of items that have
+#                                   been migrated out of CONTENTdm, used for
+#                                   URL redirection.
+# * `contentdm_pointer`             Integer "pointer" (in CONTENTdm lingo) of
+#                                   items that have been migrated out of
+#                                   CONTENTdm, used for URL redirection.
+# * `created_at`                    Managed by ActiveRecord.
+# * `start_date`                    Start date of a normalized date range.
+# * `embed_tag`                     HTML snippet that will be used to display
+#                                   an alternative object viewer.
+# * `end_date`                      End date of a normalized date range.
+# * `expose_full_text_search`       Whether to expose full-text search of the
+#                                   instance and any child items on the public
+#                                   website. (This only has an effect when full
+#                                   text is present.)
+# * `latitude`                      Normalized latitude in decimal degrees.
+# * `longitude`                     Normalized longitude in decimal degrees.
+# * `page_number`                   Literal page number of a page-variant item.
+# * `parent_repository_id`          See "Identifiers" above.
+# * `published`                     Controls public availability. Unpublished
+#                                   items shouldn't appear in public search
+#                                   results or be accessible in any other way
+#                                   publicly.
+# * `published_at`                  Date/time that the item was first
+#                                   published. For free-form items, this is the
+#                                   time that the {published} attribute was set
+#                                   to `true`. For all other items, it is the
+#                                   first time that a metadata element other
+#                                   than `title` was ascribed. This is set by
+#                                   an ActiveRecord callback.
+# * `repository_id`                 See "Identifiers" above.
+# * `representation_type`           Enum field containing one of the
+#                                   [Representation::Type] constant values.
+# * `representative_image`          Filename of a representative image within
+#                                   the application S3 bucket. See note about
+#                                   representations above.
+# * `representative_item_id`        Repository ID of another item designated to
+#                                   represent the item. For example, using a
+#                                   different item to provide a thumbnail image
+#                                   for an item that is not very "photogenic."
+# * `representative_medusa_file_id` UUID of an alternative Medusa file
+#                                   designated to stand in as a representation
+#                                   of the item.
+# * `subpage_number`                Subpage number of a page-variant item. Only
+#                                   used when there are multiple items
+#                                   corresponding to a single page of a
+#                                   physical object.
+# * `updated_at`                    Managed by ActiveRecord.
+# * `variant`                       Like a subclass. Used to differentiate
+#                                   types of items. The only items without a
+#                                   variant are "compound objects", or parent
+#                                   items with non-file/directory-variant child
+#                                   items.
 #
 # ## Attribute Propagation
 #
-# Some item properties, such as `allowed_hosts` and `denied_hosts`, propagate
+# Some item properties, such as {allowed_hosts} and {denied_hosts}, propagate
 # to child items in the item tree. The inherited counterparts of these
-# properties are `effective_allowed_hosts` and `effective_denied_hosts`. An
+# properties are {effective_allowed_hosts} and {effective_denied_hosts}. An
 # item's subtree can be updated using {propagate_heritable_properties}.
 #
 class Item < ApplicationRecord
@@ -282,8 +293,6 @@ class Item < ApplicationRecord
   has_many :elements, class_name: 'ItemElement', inverse_of: :item,
            dependent: :destroy
 
-  belongs_to :representative_binary, class_name: 'Binary', optional: true
-
   serialize :allowed_netids
 
   # VALIDATIONS
@@ -311,6 +320,9 @@ class Item < ApplicationRecord
   validates_format_of :repository_id,
                       with: StringUtils::UUID_REGEX,
                       message: 'UUID is invalid'
+  # representation_type
+  validates :representation_type, inclusion: { in: Representation::Type.all },
+            allow_blank: true
   # representative_item_id
   validates_format_of :representative_item_id,
                       with: StringUtils::UUID_REGEX,
@@ -322,6 +334,8 @@ class Item < ApplicationRecord
             allow_blank: true
   # variant
   validates :variant, inclusion: { in: Variants.all }, allow_blank: true
+
+  validate :validate_representative_image_format
 
   # ACTIVERECORD CALLBACKS
 
@@ -753,10 +767,11 @@ class Item < ApplicationRecord
   # @return [Binary, nil]
   # @see effective_viewer_binary
   #
-  def effective_image_binary
+  def effective_image_binary # TODO: this is very similar to effective_viewer_binary()
     unless @effective_image_binary
-      bin = self.representative_binary
-      if !bin or !bin.image_server_safe?
+      bin = self.representative_medusa_file_id.present? ?
+              Binary.from_medusa_file(self.representative_medusa_file) : nil
+      if !bin || !bin.image_server_safe?
         if self.variant == Variants::SUPPLEMENT
           bin = self.binaries.first
         elsif self.compound?
@@ -772,7 +787,7 @@ class Item < ApplicationRecord
             bin = first_child.effective_image_binary
           end
         end
-        if !bin or !bin.image_server_safe?
+        if !bin || !bin.image_server_safe?
           [
               {
                   master_type: Binary::MasterType::ACCESS,
@@ -909,16 +924,17 @@ class Item < ApplicationRecord
   # @return [Binary, nil]
   # @see effective_image_binary
   #
-  def effective_viewer_binary
+  def effective_viewer_binary # TODO: this is very similar to effective_image_binary()
     unless @effective_viewer_binary
-      bin = self.representative_binary
+      bin = self.representative_medusa_file_id.present? ?
+              Binary.from_medusa_file(self.representative_medusa_file) : nil
       if !bin or !bin.image_server_safe?
         if self.variant == Variants::SUPPLEMENT
           bin = self.binaries.first
         elsif self.compound?
           bin = self.search_children.limit(1).to_a.first&.effective_image_binary
         end
-        if !bin or !bin.image_server_safe?
+        if !bin || !bin.image_server_safe?
           [
               {
                   master_type: Binary::MasterType::ACCESS,
@@ -1182,16 +1198,6 @@ class Item < ApplicationRecord
         limit(1).
         first
     bin&.filename&.split('.')&.first
-  end
-
-  ##
-  # @return [Item, nil] Instance corresponding to {representative_item_id}.
-  #                     {effective_representative_object} should be used
-  #                     instead.
-  # @see effective_representative_object
-  #
-  def representative_item
-    Item.find_by_repository_id(self.representative_item_id)
   end
 
   ##
@@ -1646,6 +1652,13 @@ class Item < ApplicationRecord
   end
 
   ##
+  # Overrides the same method in [Representable].
+  #
+  def representative_image_key_prefix
+    "representative_images/item/#{repository_id}/"
+  end
+
+  ##
   # Populates {effective_allowed_host_groups} and
   # {effective_denied_host_groups}.
   #
@@ -1781,6 +1794,14 @@ class Item < ApplicationRecord
       index += 1
       yield(subitem, index)
       walk(subitem, index, &block)
+    end
+  end
+
+  def validate_representative_image_format
+    if self.representative_image.present?
+      unless Representation::SUPPORTED_IMAGE_FORMATS.include?(self.representative_image.split(".").last)
+        errors.add(:representative_image, "is of an unsupported format")
+      end
     end
   end
 

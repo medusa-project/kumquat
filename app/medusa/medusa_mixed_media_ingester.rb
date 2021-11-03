@@ -172,13 +172,12 @@ class MedusaMixedMediaIngester < MedusaAbstractIngester
                   if access_type_dir.files.any?
                     access_type_dir.files.each_with_index do |access_file, afi|
                       # Create the access master binary.
-                      binary = Binary.from_medusa_file(access_file,
-                                                       Binary::MasterType::ACCESS,
-                                                       media_category_for_master_type(access_type_dir.name))
-                      child.binaries << binary
+                      child.binaries << Binary.from_medusa_file(access_file,
+                                                                Binary::MasterType::ACCESS,
+                                                                media_category_for_master_type(access_type_dir.name))
 
-                      if afi == 0 and access_type_dir.name == 'images'
-                        child.representative_binary = binary
+                      if afi == 0 && access_type_dir.name == 'images'
+                        child.representative_medusa_file_id = access_file.uuid
                       end
                     end
                   else
@@ -265,7 +264,7 @@ class MedusaMixedMediaIngester < MedusaAbstractIngester
           stats[:num_deleted] += 1
         end
 
-        if task and index % 10 == 0
+        if task && index % 10 == 0
           task.update(percent_complete: index / num_items.to_f)
         end
       end
@@ -352,13 +351,12 @@ class MedusaMixedMediaIngester < MedusaAbstractIngester
                     if access_type_dir.files.any?
                       access_type_dir.files.each_with_index do |access_file, afi|
                         # Create the access master binary.
-                        binary = Binary.from_medusa_file(access_file,
-                                                         Binary::MasterType::ACCESS,
-                                                         media_category_for_master_type(access_type_dir.name))
-                        child.binaries << binary
+                        child.binaries << Binary.from_medusa_file(access_file,
+                                                                  Binary::MasterType::ACCESS,
+                                                                  media_category_for_master_type(access_type_dir.name))
 
-                        if afi == 0 and access_type_dir.name == 'images'
-                          child.representative_binary = binary
+                        if afi == 0 && access_type_dir.name == 'images'
+                          child.representative_medusa_file_id = access_file.uuid
                         end
                         stats[:num_created] += 1
                       end

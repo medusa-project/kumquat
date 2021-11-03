@@ -703,11 +703,46 @@ class ItemTest < ActiveSupport::TestCase
     assert @item.valid?
   end
 
+  # representation_type
+
+  test 'representation_type must be one of the Representation::Type constant
+  values' do
+    @item.representation_type = Representation::Type::ITEM
+    assert @item.valid?
+
+    @item.representation_type = "bogus"
+    assert !@item.valid?
+  end
+
   # representative_filename()
 
   test 'representative_filename() returns the representative filename' do
     @item = items(:compound_object_1002_page1)
     assert_equal '1002_001', @item.representative_filename
+  end
+
+  # representative_image
+
+  test 'representative_image must be of an allowed format' do
+    @item.representative_image = 'file.jp2'
+    assert @item.valid?
+
+    @item.representative_image = 'file.bogus'
+    assert !@item.valid?
+  end
+
+  # representative_image_key()
+
+  test 'representative_image_key() returns nil when representative_image is not
+  set' do
+    @item.representative_image = nil
+    assert_nil @item.representative_image_key
+  end
+
+  test 'representative_image_key() returns a correct value' do
+    @item.representative_image = 'file.jp2'
+    assert_equal "representative_images/item/#{@item.repository_id}/file.jp2",
+                 @item.representative_image_key
   end
 
   # representative_item()

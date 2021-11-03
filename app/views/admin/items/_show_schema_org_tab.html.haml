@@ -1,0 +1,7 @@
+.clearfix
+  .float-right
+    %a.btn.btn-light{href: "https://search.google.com/structured-data/testing-tool",
+                           target: "_blank"}
+      %i.fab.fa-google
+      Test
+  %pre= schema_org_json_ld(@item, pretty_print: true)

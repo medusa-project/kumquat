@@ -335,6 +335,15 @@ const DLAdminItemView = function() {
                 $('#dl-edit-binary-access-modal .modal-body').html(data);
             });
         });
+        $('button.dl-edit-representation').on('click', function() {
+            const collection_id = $('input[name="dl-collection-id"]').val();
+            const item_id       = $('input[name="dl-item-id"]').val();
+            const url = ROOT_URL + '/admin/collections/' + collection_id +
+                '/items/' + item_id + '/edit-representation';
+            $.get(url, function(data) {
+                $('#dl-edit-representation-modal .modal-body').html(data);
+            });
+        });
 
         // Copy the restricted URL to the clipboard when a copy button is
         // clicked. This uses clipboard.js: https://clipboardjs.com

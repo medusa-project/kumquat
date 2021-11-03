@@ -6,103 +6,139 @@
 
 # Single-item object
 compound_object_1001:
-  repository_id:            21353276-887c-0f2b-25a0-ed444003303f
+  repository_id:                 21353276-887c-0f2b-25a0-ed444003303f
   parent_repository_id:
-  collection_repository_id: bbe5cc7c-9689-2f25-7d2c-da361492b55e
+  collection_repository_id:      bbe5cc7c-9689-2f25-7d2c-da361492b55e
   page_number:
-  published:                true
-  start_date:               <%= Time.parse('2015-08-10') %>
+  published:                     true
+  start_date:                    <%= Time.parse('2015-08-10') %>
+  representative_image:
+  representative_item_id:
+  representative_medusa_file_id:
 
 # Multi-page compound object
 compound_object_1002:
-  repository_id:            6bc86d3b-e321-1a63-5172-fbf9a6e1aaab
+  repository_id:                 6bc86d3b-e321-1a63-5172-fbf9a6e1aaab
   parent_repository_id:
-  collection_repository_id: bbe5cc7c-9689-2f25-7d2c-da361492b55e
+  collection_repository_id:      bbe5cc7c-9689-2f25-7d2c-da361492b55e
   page_number:
-  published:                true
-  start_date:               <%= Time.parse('2015-08-10') %>
+  published:                     true
+  start_date:                    <%= Time.parse('2015-08-10') %>
+  representative_image:
+  representative_item_id:
+  representative_medusa_file_id:
 
 compound_object_1002_page1:
-  repository_id:            6a1d73f2-3493-1ca8-80e5-84a49d524f92
-  parent_repository_id:     6bc86d3b-e321-1a63-5172-fbf9a6e1aaab
-  collection_repository_id: bbe5cc7c-9689-2f25-7d2c-da361492b55e
-  page_number:              1
-  published:                true
-  start_date:               <%= Time.parse('2015-08-10') %>
-  variant:                  <%= Item::Variants::PAGE %>
+  repository_id:                 6a1d73f2-3493-1ca8-80e5-84a49d524f92
+  parent_repository_id:          6bc86d3b-e321-1a63-5172-fbf9a6e1aaab
+  collection_repository_id:      bbe5cc7c-9689-2f25-7d2c-da361492b55e
+  page_number:                   1
+  published:                     true
+  start_date:                    <%= Time.parse('2015-08-10') %>
+  variant:                       <%= Item::Variants::PAGE %>
+  representative_image:
+  representative_item_id:
+  representative_medusa_file_id:
 
 compound_object_1002_page2:
-  repository_id:            9dc25346-b83a-eb8a-ac2a-bdde98b5a374
-  parent_repository_id:     6bc86d3b-e321-1a63-5172-fbf9a6e1aaab
-  collection_repository_id: bbe5cc7c-9689-2f25-7d2c-da361492b55e
-  page_number:              2
-  published:                true
-  start_date:               <%= Time.parse('2015-08-10') %>
-  variant:                  <%= Item::Variants::PAGE %>
+  repository_id:                 9dc25346-b83a-eb8a-ac2a-bdde98b5a374
+  parent_repository_id:          6bc86d3b-e321-1a63-5172-fbf9a6e1aaab
+  collection_repository_id:      bbe5cc7c-9689-2f25-7d2c-da361492b55e
+  page_number:                   2
+  published:                     true
+  start_date:                    <%= Time.parse('2015-08-10') %>
+  variant:                       <%= Item::Variants::PAGE %>
+  representative_image:
+  representative_item_id:
+  representative_medusa_file_id:
 
 compound_object_1002_supplement:
-  repository_id:            96a95ca7-57b5-3901-1022-2093e33cba3f
-  parent_repository_id:     6bc86d3b-e321-1a63-5172-fbf9a6e1aaab
-  collection_repository_id: bbe5cc7c-9689-2f25-7d2c-da361492b55e
+  repository_id:                 96a95ca7-57b5-3901-1022-2093e33cba3f
+  parent_repository_id:          6bc86d3b-e321-1a63-5172-fbf9a6e1aaab
+  collection_repository_id:      bbe5cc7c-9689-2f25-7d2c-da361492b55e
   page_number:
-  published:                true
-  start_date:               <%= Time.parse('2015-08-10') %>
-  variant:                  <%= Item::Variants::SUPPLEMENT %>
+  published:                     true
+  start_date:                    <%= Time.parse('2015-08-10') %>
+  variant:                       <%= Item::Variants::SUPPLEMENT %>
+  representative_image:
+  representative_item_id:
+  representative_medusa_file_id:
 
 # CONTENTdm collection
 
 contentdm_obj1:
-  repository_id:            47bf6cb8-aaa4-61c5-ec38-68b89df31b71
+  repository_id:                 47bf6cb8-aaa4-61c5-ec38-68b89df31b71
   parent_repository_id:
-  collection_repository_id: ef8d94cb-cb5a-e797-51ad-ed24a7742528
-  contentdm_alias:          contentdm
-  contentdm_pointer:        1
+  collection_repository_id:      ef8d94cb-cb5a-e797-51ad-ed24a7742528
+  contentdm_alias:               contentdm
+  contentdm_pointer:             1
   page_number:
-  published:                true
-  start_date:               <%= Time.parse('2015-08-10') %>
+  published:                     true
+  start_date:                    <%= Time.parse('2015-08-10') %>
+  representative_image:
+  representative_item_id:
+  representative_medusa_file_id:
 
 # Free Form collection
 
 free_form_dir1:
-  repository_id:            7351760f-4b7b-5a6c-6dda-f5a92562b008
-  collection_repository_id: 81a13f45-d149-3dd7-f233-53cc395217fa
-  start_date:               <%= Time.parse('2015-08-10') %>
-  published:                true
-  variant:                  <%= Item::Variants::DIRECTORY %>
+  repository_id:                 7351760f-4b7b-5a6c-6dda-f5a92562b008
+  collection_repository_id:      81a13f45-d149-3dd7-f233-53cc395217fa
+  start_date:                    <%= Time.parse('2015-08-10') %>
+  published:                     true
+  variant:                       <%= Item::Variants::DIRECTORY %>
+  representative_image:
+  representative_item_id:
+  representative_medusa_file_id:
 
 free_form_dir1_audio:
-  repository_id:            307f29c6-8c63-eb2e-f0cb-f2bfc33176f7
-  collection_repository_id: 81a13f45-d149-3dd7-f233-53cc395217fa
-  start_date:               <%= Time.parse('2015-08-10') %>
-  published:                true
-  variant:                  <%= Item::Variants::FILE %>
+  repository_id:                 307f29c6-8c63-eb2e-f0cb-f2bfc33176f7
+  collection_repository_id:      81a13f45-d149-3dd7-f233-53cc395217fa
+  start_date:                    <%= Time.parse('2015-08-10') %>
+  published:                     true
+  variant:                       <%= Item::Variants::FILE %>
+  representative_image:
+  representative_item_id:
+  representative_medusa_file_id:
 
 free_form_dir1_image:
-  repository_id:            39582239-4307-1cc6-c9c6-074516fd7635
-  collection_repository_id: 81a13f45-d149-3dd7-f233-53cc395217fa
-  start_date:               <%= Time.parse('2015-08-10') %>
-  published:                true
-  variant:                  <%= Item::Variants::FILE %>
+  repository_id:                 39582239-4307-1cc6-c9c6-074516fd7635
+  collection_repository_id:      81a13f45-d149-3dd7-f233-53cc395217fa
+  start_date:                    <%= Time.parse('2015-08-10') %>
+  published:                     true
+  variant:                       <%= Item::Variants::FILE %>
+  representative_image:
+  representative_item_id:
+  representative_medusa_file_id:
 
 free_form_dir1_video:
-  repository_id:            7a8f2629-e9ef-9b43-34b3-908c5a53c485
-  collection_repository_id: 81a13f45-d149-3dd7-f233-53cc395217fa
-  start_date:               <%= Time.parse('2015-08-10') %>
-  published:                true
-  variant:                  <%= Item::Variants::FILE %>
+  repository_id:                 7a8f2629-e9ef-9b43-34b3-908c5a53c485
+  collection_repository_id:      81a13f45-d149-3dd7-f233-53cc395217fa
+  start_date:                    <%= Time.parse('2015-08-10') %>
+  published:                     true
+  variant:                       <%= Item::Variants::FILE %>
+  representative_image:
+  representative_item_id:
+  representative_medusa_file_id:
 
 free_form_dir1_dir1:
-  repository_id:            088a49f2-08f0-f43b-47a1-cd40cbc1d837
-  collection_repository_id: 81a13f45-d149-3dd7-f233-53cc395217fa
-  start_date:               <%= Time.parse('2015-08-10') %>
-  published:                true
-  parent_repository_id:     7351760f-4b7b-5a6c-6dda-f5a92562b008
-  variant:                  <%= Item::Variants::DIRECTORY %>
+  repository_id:                 088a49f2-08f0-f43b-47a1-cd40cbc1d837
+  collection_repository_id:      81a13f45-d149-3dd7-f233-53cc395217fa
+  start_date:                    <%= Time.parse('2015-08-10') %>
+  published:                     true
+  parent_repository_id:          7351760f-4b7b-5a6c-6dda-f5a92562b008
+  variant:                       <%= Item::Variants::DIRECTORY %>
+  representative_image:
+  representative_item_id:
+  representative_medusa_file_id:
 
 free_form_dir1_dir1_file1:
-  repository_id:            09e9b9a6-b07e-2826-a61e-caf4cf9c8eb3
-  collection_repository_id: 81a13f45-d149-3dd7-f233-53cc395217fa
-  start_date:               <%= Time.parse('2015-08-10') %>
-  published:                true
-  parent_repository_id:     088a49f2-08f0-f43b-47a1-cd40cbc1d837
-  variant:                  <%= Item::Variants::FILE %>
+  repository_id:                 09e9b9a6-b07e-2826-a61e-caf4cf9c8eb3
+  collection_repository_id:      81a13f45-d149-3dd7-f233-53cc395217fa
+  start_date:                    <%= Time.parse('2015-08-10') %>
+  published:                     true
+  parent_repository_id:          088a49f2-08f0-f43b-47a1-cd40cbc1d837
+  variant:                       <%= Item::Variants::FILE %>
+  representative_image:
+  representative_item_id:
+  representative_medusa_file_id:

@@ -5,13 +5,15 @@ module Admin
     PERMITTED_PARAMS = [:id, :contentdm_alias, :contentdm_pointer, :df,
                         :embed_tag, :'fq[]', :expose_full_text_search,
                         :item_set, :page_number, :published, :q,
+                        :representation_type, :representative_image,
                         :representative_item_id, :subpage_number, :variant,
                         allowed_host_group_ids: [], denied_host_group_ids: [],
                         allowed_netids: [ :expires, :netid ]]
 
     before_action :authorize_purge_items, only: :destroy_all
     before_action :authorize_modify_items, only: [:batch_change_metadata,
-                                                  :destroy_all, :edit, :import,
+                                                  :destroy_all, :edit,
+                                                  :edit_representation, :import,
                                                   :migrate_metadata,
                                                   :replace_metadata, :sync,
                                                   :update]
@@ -20,7 +22,8 @@ module Admin
     ##
     # Adds the items with the given IDs to the given item set.
     #
-    # Responds to `POST /admin/collections/:collection_id/items/add-items-to-item-set`
+    # Responds to
+    # `POST /admin/collections/:collection_id/items/add-items-to-item-set`
     #
     def add_items_to_item_set
       item_ids = params[:items]
@@ -162,6 +165,22 @@ module Admin
         format.html
         format.js
       end
+    end
+
+    ##
+    # Responds to
+    # `GET /admin/collections/:collection_id/items/:id/edit-representation`
+    # (XHR only).
+    #
+    def edit_representation
+      @item = Item.find_by_repository_id(params[:item_id])
+      raise ActiveRecord::RecordNotFound unless @item
+
+      # The form is the same for items & collections, except for a different
+      # form target.
+      render partial: 'admin/collections/representation_form', locals: {
+        target: [:admin, @item.collection, @item]
+      }
     end
 
     ##
@@ -486,10 +505,10 @@ module Admin
             params[:elements].each do |name, vocabs|
               vocabs.each do |vocab_id, occurrences|
                 occurrences.each do |occurrence|
-                  if occurrence[:string].present? or occurrence[:uri].present?
-                    item.elements.build(name: name,
-                                        value: occurrence[:string],
-                                        uri: occurrence[:uri],
+                  if occurrence[:string].present? || occurrence[:uri].present?
+                    item.elements.build(name:          name,
+                                        value:         occurrence[:string],
+                                        uri:           occurrence[:uri],
                                         vocabulary_id: vocab_id)
                   end
                 end
@@ -500,6 +519,12 @@ module Admin
         end
 
         if params[:item]
+          # Process the image uploaded from the representative image form
+          image = params[:item][:representative_image_data]
+          if image
+            item.upload_representative_image(io:       image.read,
+                                             filename: image.original_filename)
+          end
           ActiveRecord::Base.transaction do # trigger after_commit callbacks
             item.update!(sanitized_params)
           end
@@ -514,7 +539,7 @@ module Admin
       else
         flash['success'] = "Item \"#{item.title}\" updated."
       ensure
-        redirect_to edit_admin_collection_item_path(item.collection, item)
+        redirect_to admin_collection_item_path(item.collection, item)
       end
     end
 

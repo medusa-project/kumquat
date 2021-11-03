@@ -82,7 +82,7 @@ class MedusaMixedMediaIngesterTest < ActiveSupport::TestCase
     assert_equal 2, item.binaries.length
     assert_nil item.variant
     assert_equal '084f6359-3213-35d7-a29b-bfee47b6dd9d',
-                 item.representative_binary.medusa_uuid
+                 item.representative_medusa_file_id
 
     # Inspect the item's preservation master binary.
     bin = item.binaries.find{ |b| b.master_type == Binary::MasterType::PRESERVATION }

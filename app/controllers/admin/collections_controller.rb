@@ -48,7 +48,9 @@ module Admin
     # `GET /admin/collections/:collection_id/edit-representation` (XHR only).
     #
     def edit_representation
-      render partial: 'admin/collections/representation_form'
+      render partial: 'admin/collections/representation_form', locals: {
+        target: [:admin, @collection]
+      }
     end
 
     ##
@@ -205,7 +207,7 @@ module Admin
         begin
           ActiveRecord::Base.transaction do # trigger after_commit callbacks
             # Process the image uploaded from the representative image form
-            image = params[:collection][:representative_image]
+            image = params[:collection][:representative_image_data]
             if image
               @collection.upload_representative_image(io:       image.read,
                                                       filename: image.original_filename)

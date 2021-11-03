@@ -1,10 +1,15 @@
-= form_for([:admin, @collection]) do |f|
+-# Requires the following locals:
+-#
+-# target [Array] Target to pass into `form_for()`.
+-#
+
+= form_for(target) do |f|
   .dl-error-messages
     -# populated via ajax by shared/_validation_messages.js.erb
 
   .form-group
-    = f.label :representative_image, 'Representative Image'
-    = f.file_field(:representative_image)
+    = f.label :representative_image_data, 'Representative Image'
+    = f.file_field(:representative_image_data)
     %ul.text-muted
       %li The image will be cropped automatically where necessary.
       %li A size of at least 1024 pixels on the shortest side is recommended.

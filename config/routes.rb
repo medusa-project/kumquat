@@ -109,6 +109,8 @@ Rails.application.routes.draw do
       match '/items/unpublish', to: 'items#unpublish', via: :patch
       match '/items/update', to: 'items#update_all', via: :post
       resources :items do
+        match '/edit-representation', to: 'items#edit_representation', via: :get,
+              constraints: lambda { |request| request.xhr? }
         match '/publicize-child-binaries', to: 'items#publicize_child_binaries',
               via: :post
         match '/purge-cached-images', to: 'items#purge_cached_images',

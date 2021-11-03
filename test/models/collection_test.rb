@@ -584,8 +584,21 @@ class CollectionTest < ActiveSupport::TestCase
 
   # representative_item()
 
-  test 'representative_item() works' do
-    # TODO: write this
+  test 'representative_item() returns nil when representative_item_id is nil' do
+    assert_nil(@collection.representative_item)
+  end
+
+  test 'representative_item() returns nil when representative_item_id is
+  invalid' do
+    @collection.representative_item_id = 'bogus'
+    assert_nil(@collection.representative_item)
+  end
+
+  test 'representative_item() returns an item when representative_item_id is
+  valid' do
+    @collection.representative_item_id =
+      items(:free_form_dir1_dir1_file1).repository_id
+    assert_kind_of Item, @collection.representative_item
   end
 
   # root_item()
