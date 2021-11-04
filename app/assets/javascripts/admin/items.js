@@ -1,173 +1,4 @@
 /**
- * Manages single-item edit view.
- *
- * @constructor
- */
-const DLAdminItemEditView = function() {
-
-    /**
-     * @param input {jQuery}
-     * @constructor
-     */
-    var Autocompleter = function(input) {
-        var RESULTS_LIMIT = 10;
-        var self = this;
-
-        this.clearResults = function() {
-            $('.dl-autocomplete-results').remove();
-        };
-
-        this.fetchResults = function(onSuccess) {
-            var query = input.val();
-            if (query.length > 1) {
-                var vocabulary_id = input.data('vocabulary-id');
-                var inputType = (input.attr('name').indexOf('[string]') > 0) ?
-                    'string' : 'uri';
-                var url = $('[name=root_url]').val() +
-                    '/admin/vocabularies/' + vocabulary_id +
-                    '/terms.json?query=' + query + '&type=' + inputType;
-                console.debug('Autocompleter.fetchResults(): ' + url);
-                $.ajax({
-                    url: url,
-                    success: function (results) {
-                        onSuccess(results);
-                    }
-                });
-            } else {
-                self.clearResults();
-            }
-        };
-
-        /**
-         * @private
-         */
-        var init_ = function() {
-            self.clearResults();
-
-            self.fetchResults(function(results) {
-                if (results.length > 0) {
-                    self.renderResults(results);
-                } else {
-                    self.clearResults();
-                }
-            });
-        }; init_();
-
-        /**
-         * Called publicly to complete initialization.
-         */
-        this.init = function() {
-            $(':not([data-controlled=true])').on('click', function() {
-                self.clearResults();
-            });
-        };
-
-        this.renderResults = function(results) {
-            var div = '<div class="dl-autocomplete-results">' +
-                '<ul>';
-            results.forEach(function (obj, index) {
-                if (index < RESULTS_LIMIT) {
-                    var value, type;
-                    if (input.attr('name').indexOf('[string]') > 0) {
-                        value = obj['string'];
-                        type = 'string';
-                    } else {
-                        value = obj['uri'];
-                        type = 'uri';
-                    }
-                    div += '<li><a href="#" data-type="' + type +
-                        '" data-string="' + obj['string'] +
-                        '" data-uri="' + obj['uri'] + '">' + value + '</a></li>';
-                }
-            });
-            div += '</ul>' +
-                '</div>';
-            div = $(div);
-            div.css('width', input.width());
-            input.after(div);
-
-            div.find('a').on('click', function() {
-                if ($(this).data('type') == 'string') {
-                    input.val($(this).data('string'));
-                    input.parent().parent().next().find('input').val($(this).data('uri'));
-                } else {
-                    input.val($(this).data('uri'));
-                    input.parent().parent().prev().find('input').val($(this).data('string'));
-                }
-                self.clearResults();
-                return false;
-            });
-
-            div.find('li').on('mouseover', function() {
-                $(this).addClass('active');
-            }).on('mouseout', function() {
-                $(this).removeClass('active');
-            });
-        };
-    };
-
-    this.init = function() {
-        new Application.DirtyFormListener('form').listen();
-
-        $('button.dl-add-element').on('click', function() {
-            var element = $(this).closest('.dl-element');
-            var clone = element.clone(true);
-            clone.find('input').val('');
-            element.after(clone);
-            return false;
-        });
-        $('button.dl-remove-element').on('click', function() {
-            var element = $(this).closest('.dl-element');
-            if (element.siblings().length > 0) {
-                element.remove();
-            }
-            return false;
-        });
-
-        $('button#dl-add-netid-button').on('click', function() {
-            var element = $(this).parent().prev('.input-group');
-            var clone = element.clone(true);
-            clone.find('input').val('');
-            element.after(clone);
-            return false;
-        });
-        $('button.dl-remove-netid').on('click', function() {
-            var element = $(this).closest('.input-group');
-            if (element.siblings('.input-group').length > 0) {
-                element.remove();
-            } else {
-                element.find('input').val('');
-            }
-            return false;
-        });
-
-        // Auto-vertical-resize the textareas...
-        var textareas = $('#dl-metadata textarea');
-        var MAGIC_FUDGE = 12;
-        var MIN_HEIGHT = 20;
-        // ... initially
-        textareas.each(function() {
-            $(this).height('0px');
-            var height = this.scrollHeight - MAGIC_FUDGE;
-            height = (height < MIN_HEIGHT) ? MIN_HEIGHT : height;
-            $(this).height(height + 'px');
-        });
-        // ... and on change
-        textareas.on('propertychange keyup change', function() {
-            $(this).height('20px');
-            $(this).height((this.scrollHeight - MAGIC_FUDGE) + 'px');
-        });
-
-        // Initialize autocompletion for each controlled text field.
-        $('[data-controlled=true]').on('input', function() {
-            var ac = new Autocompleter($(this));
-            ac.init();
-        });
-    };
-
-};
-
-/**
  * Manages multiple-item edit view.
  *
  * @constructor
@@ -323,6 +154,174 @@ const DLAdminItemsView = function() {
 
 const DLAdminItemView = function() {
 
+    /**
+     * @param input {jQuery}
+     * @constructor
+     */
+    const Autocompleter = function(input) {
+        const RESULTS_LIMIT = 10;
+        const self = this;
+
+        this.clearResults = function() {
+            $('.dl-autocomplete-results').remove();
+        };
+
+        this.fetchResults = function(onSuccess) {
+            const query = input.val();
+            if (query.length > 1) {
+                const vocabulary_id = input.data('vocabulary-id');
+                const inputType = (input.attr('name').indexOf('[string]') > 0) ?
+                    'string' : 'uri';
+                const url = $('[name=root_url]').val() +
+                    '/admin/vocabularies/' + vocabulary_id +
+                    '/terms.json?query=' + query + '&type=' + inputType;
+                console.debug('Autocompleter.fetchResults(): ' + url);
+                $.ajax({
+                    url: url,
+                    success: function (results) {
+                        onSuccess(results);
+                    }
+                });
+            } else {
+                self.clearResults();
+            }
+        };
+
+        /**
+         * @private
+         */
+        var init_ = function() {
+            self.clearResults();
+            self.fetchResults(function(results) {
+                if (results.length > 0) {
+                    self.renderResults(results);
+                } else {
+                    self.clearResults();
+                }
+            });
+        }; init_();
+
+        /**
+         * Called publicly to complete initialization.
+         */
+        this.init = function() {
+            $(':not([data-controlled=true])').on('click', function() {
+                self.clearResults();
+            });
+        };
+
+        this.renderResults = function(results) {
+            var div = '<div class="dl-autocomplete-results">' +
+                '<ul>';
+            results.forEach(function (obj, index) {
+                if (index < RESULTS_LIMIT) {
+                    var value, type;
+                    if (input.attr('name').indexOf('[string]') > 0) {
+                        value = obj['string'];
+                        type = 'string';
+                    } else {
+                        value = obj['uri'];
+                        type = 'uri';
+                    }
+                    div += '<li><a href="#" data-type="' + type +
+                        '" data-string="' + obj['string'] +
+                        '" data-uri="' + obj['uri'] + '">' + value + '</a></li>';
+                }
+            });
+            div += '</ul>' +
+                '</div>';
+            div = $(div);
+            div.css('width', input.width());
+            input.after(div);
+
+            div.find('a').on('click', function() {
+                if ($(this).data('type') === 'string') {
+                    input.val($(this).data('string'));
+                    input.parent().parent().next().find('input').val($(this).data('uri'));
+                } else {
+                    input.val($(this).data('uri'));
+                    input.parent().parent().prev().find('input').val($(this).data('string'));
+                }
+                self.clearResults();
+                return false;
+            });
+
+            div.find('li').on('mouseover', function() {
+                $(this).addClass('active');
+            }).on('mouseout', function() {
+                $(this).removeClass('active');
+            });
+        };
+    };
+
+    const EditAccessForm = function() {
+
+        this.init = function() {
+            $('button#dl-add-netid-button').on('click', function() {
+                var element = $(this).prev('.input-group');
+                var clone   = element.clone(true);
+                clone.find('input').val('');
+                element.after(clone);
+                return false;
+            });
+            $('button.dl-remove-netid').on('click', function() {
+                var element = $(this).closest('.input-group');
+                if (element.siblings('.input-group').length > 0) {
+                    element.remove();
+                } else {
+                    element.find('input').val('');
+                }
+                return false;
+            });
+        };
+
+    };
+
+    const EditMetadataForm = function() {
+
+        this.init = function() {
+            new Application.DirtyFormListener('form').listen();
+
+            $('button.dl-add-element').on('click', function() {
+                var element = $(this).closest('.dl-element');
+                var clone = element.clone(true);
+                clone.find('input').val('');
+                element.after(clone);
+                return false;
+            });
+            $('button.dl-remove-element').on('click', function() {
+                var element = $(this).closest('.dl-element');
+                if (element.siblings().length > 0) {
+                    element.remove();
+                }
+                return false;
+            });
+
+            // Auto-vertical-resize the textareas...
+            const textareas   = $('#dl-metadata textarea');
+            const MAGIC_FUDGE = 12;
+            const MIN_HEIGHT  = 20;
+            // ... initially
+            textareas.each(function() {
+                $(this).height('0px');
+                var height = this.scrollHeight - MAGIC_FUDGE;
+                height     = (height < MIN_HEIGHT) ? MIN_HEIGHT : height;
+                $(this).height(height + 'px');
+            });
+            // ... and on change
+            textareas.on('propertychange keyup change', function() {
+                $(this).height('20px');
+                $(this).height((this.scrollHeight - MAGIC_FUDGE) + 'px');
+            });
+
+            // Initialize autocompletion for each controlled text field.
+            $('[data-controlled=true]').on('input', function() {
+                new Autocompleter($(this)).init();
+            });
+        };
+
+    };
+
     this.init = function() {
         const ROOT_URL = $('input[name="root_url"]').val();
 
@@ -333,6 +332,35 @@ const DLAdminItemView = function() {
             const url = ROOT_URL + '/admin/binaries/' + binary_id + '/edit-access';
             $.get(url, function(data) {
                 $('#dl-edit-binary-access-modal .modal-body').html(data);
+            });
+        });
+        $('button.dl-edit-access').on('click', function() {
+            const collection_id = $('input[name="dl-collection-id"]').val();
+            const item_id       = $('input[name="dl-item-id"]').val();
+            const url = ROOT_URL + '/admin/collections/' + collection_id +
+                '/items/' + item_id + '/edit-access';
+            $.get(url, function(data) {
+                $('#dl-edit-access-modal .modal-body').html(data);
+                new EditAccessForm().init();
+            });
+        });
+        $('button.dl-edit-info').on('click', function() {
+            const collection_id = $('input[name="dl-collection-id"]').val();
+            const item_id       = $('input[name="dl-item-id"]').val();
+            const url = ROOT_URL + '/admin/collections/' + collection_id +
+                '/items/' + item_id + '/edit-info';
+            $.get(url, function(data) {
+                $('#dl-edit-info-modal .modal-body').html(data);
+            });
+        });
+        $('button.dl-edit-metadata').on('click', function() {
+            const collection_id = $('input[name="dl-collection-id"]').val();
+            const item_id       = $('input[name="dl-item-id"]').val();
+            const url = ROOT_URL + '/admin/collections/' + collection_id +
+                '/items/' + item_id + '/edit-metadata';
+            $.get(url, function(data) {
+                $('#dl-edit-metadata-modal .modal-body').html(data);
+                new EditMetadataForm().init();
             });
         });
         $('button.dl-edit-representation').on('click', function() {
@@ -347,7 +375,7 @@ const DLAdminItemView = function() {
 
         // Copy the restricted URL to the clipboard when a copy button is
         // clicked. This uses clipboard.js: https://clipboardjs.com
-        var clipboard = new Clipboard('.dl-copy-to-clipboard');
+        const clipboard = new Clipboard('.dl-copy-to-clipboard');
         clipboard.on('success', function(e) {
             // Remove the button and add a "copied" message in its place.
             var button = $(e.trigger);
@@ -366,10 +394,7 @@ const DLAdminItemView = function() {
 };
 
 $(document).ready(function() {
-    if ($('body#admin_items_edit').length) {
-        Application.view = new DLAdminItemEditView();
-        Application.view.init();
-    } else if ($('body#admin_items_edit_all').length) {
+    if ($('body#admin_items_edit_all').length) {
         Application.view = new DLAdminItemsEditView();
         Application.view.init();
     } else if ($('body#admin_items_index').length) {

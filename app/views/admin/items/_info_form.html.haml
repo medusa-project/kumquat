@@ -1,0 +1,38 @@
+= form_for([:admin, @item.collection, @item]) do |f|
+  .dl-error-messages
+    -# populated via ajax by shared/_validation_messages.js.erb
+
+  .form-group
+    = f.label :variant, 'Variant'
+    = f.select(:variant,
+               @variants,
+               { include_blank: true },
+               { class: 'custom-select' })
+
+  .form-group
+    = f.label :page_number, 'Page Number'
+    = f.number_field(:page_number, class: 'form-control')
+
+  .form-group
+    = f.label :subpage_number, 'Subpage Number'
+    = f.number_field(:subpage_number, class: 'form-control')
+
+  .form-group
+    = f.label :embed_tag, 'Embed Tag'
+    = f.text_area(:embed_tag, class: 'form-control')
+    %p.form-text.text-muted If present, this will override the viewer.
+
+  .form-group
+    = f.label :contentdm_alias, 'CONTENTdm Alias'
+    = f.text_field(:contentdm_alias, class: 'form-control')
+    %p.form-text.text-muted
+      Only needed if the item's DLS
+      collection is different from its CONTENTdm collection.
+
+  .form-group
+    = f.label :contentdm_pointer, 'CONTENTdm Pointer'
+    = f.text_field(:contentdm_pointer, class: 'form-control')
+
+  .float-right.mt-3
+    %button.btn.btn-light{"data-dismiss": "modal", type: "button"} Cancel
+    = f.submit 'Save Changes', class: 'btn btn-primary'

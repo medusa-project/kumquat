@@ -101,5 +101,15 @@
 = render partial: 'ocr_panel', locals: { show_checked_results_radios: false,
                                          target: admin_collection_item_run_ocr_path(@item.collection, @item) }
 = render partial: 'shared/xhr_modal',
+         locals: { id: "dl-edit-access-modal",
+                   title: "Edit Access" }
+= render partial: 'shared/xhr_modal',
+         locals: { id: "dl-edit-info-modal",
+                   title: "Edit Technical Info" }
+= render partial: 'shared/xhr_modal',
+         locals: { id: "dl-edit-metadata-modal",
+                   title: "Edit Descriptive Metadata",
+                   size: :xl }
+= render partial: 'shared/xhr_modal',
          locals: { id: "dl-edit-representation-modal",
                    title: "Edit Representation" }

@@ -17,11 +17,6 @@
                   class: 'dropdown-item' do
           %i.fa.fa-lock
             Admin View
-        = link_to(edit_admin_collection_item_path(@item.collection, @item) + '#dl-metadata',
-                  target: '_blank',
-                  class: 'dropdown-item') do
-          %i.fas.fa-pencil-alt
-          Edit
 
 = item_page_title(@item)
 

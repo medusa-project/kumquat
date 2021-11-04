@@ -108,7 +108,13 @@ Rails.application.routes.draw do
       match '/items/run-ocr', to: 'items#run_ocr', via: :patch
       match '/items/unpublish', to: 'items#unpublish', via: :patch
       match '/items/update', to: 'items#update_all', via: :post
-      resources :items do
+      resources :items, except: :edit do
+        match '/edit-access', to: 'items#edit_access', via: :get,
+              constraints: lambda { |request| request.xhr? }
+        match '/edit-info', to: 'items#edit_info', via: :get,
+              constraints: lambda { |request| request.xhr? }
+        match '/edit-metadata', to: 'items#edit_metadata', via: :get,
+              constraints: lambda { |request| request.xhr? }
         match '/edit-representation', to: 'items#edit_representation', via: :get,
               constraints: lambda { |request| request.xhr? }
         match '/publicize-child-binaries', to: 'items#publicize_child_binaries',

@@ -1,0 +1,26 @@
+= form_for([:admin, @item.collection, @item]) do |f|
+  .dl-error-messages
+    -# populated via ajax by shared/_validation_messages.js.erb
+
+  .alert.alert-light
+    %i.fa.fa-info-circle
+    Collection metadata profile:
+    \#{link_to(@item.collection.metadata_profile.name, admin_metadata_profile_path(@item.collection.metadata_profile))}
+  %table.table.dl-elements
+    %tbody
+      - @item.collection.metadata_profile.elements.each do |profile_elem|
+        - profile_elem.vocabularies.each do |voc|
+          %tr
+            %td{style: "width:20%"}
+              %h5= profile_elem.label
+              %p.form-text.text-muted= voc.name
+            %td
+              - elements = @item.elements.select{ |e| e.name == profile_elem.name && (e.vocabulary_id == voc.id || (e.vocabulary_id.blank? && voc == Vocabulary.uncontrolled)) }
+              - if elements.any?
+                - elements.each do |elem|
+                  = admin_item_element_edit_tag(profile_elem, elem, voc)
+              - else
+                = admin_item_element_edit_tag(profile_elem, nil, voc)
+  .float-right.mt-3
+    %button.btn.btn-light{"data-dismiss": "modal", type: "button"} Cancel
+    = f.submit 'Save Changes', class: 'btn btn-primary'

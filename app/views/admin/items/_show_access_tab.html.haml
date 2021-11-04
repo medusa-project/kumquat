@@ -1,3 +1,11 @@
+- if current_user.can?(Permissions::MODIFY_ITEMS)
+  .btn-group.float-right.mb-3
+    %button.btn.btn-light.dl-edit-access{type: 'button',
+                                         'data-toggle': 'modal',
+                                         'data-target': '#dl-edit-access-modal'}
+      %i.fas.fa-pencil-alt
+      Edit&hellip;
+
 %table.table
   %tr
     %td Published
@@ -5,6 +13,18 @@
       = boolean(@item.published,
                 true_string: "Published",
                 false_string: "Unpublished")
+
+  %tr
+    %td
+      Full Text Search
+      %a{"data-toggle":  "popover",
+         "data-content": "Whether to show the full-text search field in the item viewer. This only has an effect if the item has full text."}
+        %i.fa.fa-question-circle
+    %td
+      = boolean(@item.expose_full_text_search,
+                true_string: "Enabled",
+                false_string: "Disabled")
+
   %tr
     %td Allowed NetIDs
     %td

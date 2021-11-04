@@ -104,9 +104,6 @@ body#admin_items_show {
     border-top: 0px;
   }
 
-}
-
-body#admin_items_edit {
   .dl-autocomplete-results {
     background-color: white;
     border: 1px solid #ccc;
@@ -132,13 +129,7 @@ body#admin_items_edit {
       }
     }
   }
-  input[type=text] {
-    font-family: monospace;
-  }
-  textarea {
-    font-family: monospace;
-    min-height: 75px;
-  }
+
 }
 
 body#admin_items_edit_all {
