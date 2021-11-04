@@ -449,6 +449,10 @@ module Admin
     #
     def show
       @pages = @item.parent ? @item.parent.items : @item.items
+      @current_elasticsearch_document =
+        JSON.pretty_generate(@item.indexed_document)
+      @expected_elasticsearch_document =
+        JSON.pretty_generate(@item.as_indexed_json)
     end
 
     ##

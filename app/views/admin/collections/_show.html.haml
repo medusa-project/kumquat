@@ -31,6 +31,12 @@
       Sets
       %span.badge.badge-pill.badge-secondary
         = @collection.item_sets.count
+    %a#nav-elasticsearch-tab.nav-item.nav-link{"aria-controls": "nav-elasticsearch",
+                                               "aria-selected": "false",
+                                               "data-toggle": "tab",
+                                               href: "#nav-elasticsearch",
+                                               role: "tab"} Elasticsearch
+
 #nav-tabContent.tab-content
   #nav-technical-info.tab-pane.fade.show.active{"aria-labelledby": "nav-technical-info-tab",
                                                 role: "tabpanel"}
@@ -51,3 +57,7 @@
   #nav-sets.tab-pane.fade{"aria-labelledby": "nav-sets-tab",
                           role: "tabpanel"}
     = render partial: 'admin/collections/show_sets_tab'
+
+  #nav-elasticsearch.tab-pane.fade{"aria-labelledby": "nav-elasticsearch-tab",
+                                   role: "tabpanel"}
+    = render partial: 'admin/collections/show_elasticsearch_tab'

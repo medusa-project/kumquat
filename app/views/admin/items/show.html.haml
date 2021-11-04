@@ -72,6 +72,11 @@
                     "data-toggle": "tab",
                     href: "#dl-schema-org",
                     role: "tab"} schema.org
+      %li.nav-item{role: 'presentation'}
+        %a.nav-link{"aria-controls": "dl-elasticsearch",
+                    "data-toggle": "tab",
+                    href: "#dl-elasticsearch",
+                    role: "tab"} Elasticsearch
 
     -# Display a warning if the item is not free-form and has a preservation
     -# master binary but no access master.
@@ -96,6 +101,8 @@
         = render partial: "admin/items/show_binaries_tab"
       #dl-schema-org.tab-pane{role: "tabpanel"}
         = render partial: "admin/items/show_schema_org_tab"
+      #dl-elasticsearch.tab-pane{role: "tabpanel"}
+        = render partial: "admin/items/show_elasticsearch_tab"
 
 = render partial: 'edit_binary_access_modal'
 = render partial: 'ocr_panel', locals: { show_checked_results_radios: false,

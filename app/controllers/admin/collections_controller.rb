@@ -113,6 +113,10 @@ module Admin
           @collection.medusa_file_group : nil
       @can_reindex = (@collection.published_in_dls &&
           @collection.medusa_file_group)
+      @current_elasticsearch_document =
+        JSON.pretty_generate(@collection.indexed_document)
+      @expected_elasticsearch_document =
+        JSON.pretty_generate(@collection.as_indexed_json)
     end
 
     ##
