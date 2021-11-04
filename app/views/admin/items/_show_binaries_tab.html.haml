@@ -20,57 +20,57 @@
                         method: :post) do
           %i.fa.fa-lock
           Unpublicize All Binaries
-  - if @item.items.count > 0
-    %table.table
-      %tr
-        %td OCR (including all children)
-        - num   = @item.ocred_binaries(recursive: true).count
-        - total = @item.ocrable_binaries(recursive: true).count
-        %td{class: num < total ? 'text-warning' : 'text-success'}
-          - if num < total
-            %i.fa.fa-exclamation-triangle
-          = number_with_delimiter(num)
-          of
-          = number_with_delimiter(total)
-          binaries OCRed
 
-  .clearfix
-  - @item.binaries.each do |bin|
-    - exists = bin.medusa_file.exists?
-    %div{class: "card #{exists ? "" : "text-white bg-danger"}"}
-      .card-body
-        - if exists
-          .btn-group.float-right{role: 'group'}
-            = link_to(binary_object_path(bin), class: 'btn btn-sm btn-light') do
-              %i.fa.fa-download
-              Download
-            - if bin.master_type == Binary::MasterType::ACCESS
-              = link_to admin_collection_item_purge_cached_images_path(@item.collection, @item),
-                            class: 'btn btn-sm  btn-light',
-                            method: 'post' do
-                %i.fa.fa-trash
-                Purge Cached Images
-            .btn-group
-              %button.btn.btn-light.btn-sm.dropdown-toggle{"aria-expanded": "false",
-                                                               "aria-haspopup": "true",
-                                                               "data-toggle":   "dropdown",
-                                                               type:            "button"}
-                %i.fa.fa-external-link-alt
-                Go
-                %span.caret
-              .dropdown-menu.dropdown-menu-right
-                = link_to(bin.medusa_url, class: 'dropdown-item', target: '_blank') do
-                  Medusa
-                - if bin.image_server_safe?
-                  = link_to(bin.iiif_info_v3_url, class: 'dropdown-item', target: '_blank') do
-                    IIIF Image Info
-        %h3
-          - unless exists
-            %i.fa.fa-exclamation-triangle
-          = bin.human_readable_master_type
-        - if exists
-          = render partial: 'admin/items/show_binary', locals: { binary: bin }
-        - else
-          .card-text
-            This binary has gone missing from the Medusa Collection Registry since it was imported.
-            Run a "recreate binaries" import of this collection to remedy this.
+- if @item.items.count > 0
+  %table.table
+    %tr
+      %td OCR (including all children)
+      - num   = @item.ocred_binaries(recursive: true).count
+      - total = @item.ocrable_binaries(recursive: true).count
+      %td{class: num < total ? 'text-warning' : 'text-success'}
+        - if num < total
+          %i.fa.fa-exclamation-triangle
+        = number_with_delimiter(num)
+        of
+        = number_with_delimiter(total)
+        binaries OCRed
+
+- @item.binaries.each do |bin|
+  - exists = bin.medusa_file.exists?
+  %div{class: "card #{exists ? "" : "text-white bg-danger"}"}
+    .card-body
+      - if exists
+        .btn-group.float-right{role: 'group'}
+          = link_to(binary_object_path(bin), class: 'btn btn-sm btn-light') do
+            %i.fa.fa-download
+            Download
+          - if bin.master_type == Binary::MasterType::ACCESS
+            = link_to admin_collection_item_purge_cached_images_path(@item.collection, @item),
+                          class: 'btn btn-sm  btn-light',
+                          method: 'post' do
+              %i.fa.fa-trash
+              Purge Cached Images
+          .btn-group
+            %button.btn.btn-light.btn-sm.dropdown-toggle{"aria-expanded": "false",
+                                                             "aria-haspopup": "true",
+                                                             "data-toggle":   "dropdown",
+                                                             type:            "button"}
+              %i.fa.fa-external-link-alt
+              Go
+              %span.caret
+            .dropdown-menu.dropdown-menu-right
+              = link_to(bin.medusa_url, class: 'dropdown-item', target: '_blank') do
+                Medusa
+              - if bin.image_server_safe?
+                = link_to(bin.iiif_info_v3_url, class: 'dropdown-item', target: '_blank') do
+                  IIIF Image Info
+      %h3
+        - unless exists
+          %i.fa.fa-exclamation-triangle
+        = bin.human_readable_master_type
+      - if exists
+        = render partial: 'admin/items/show_binary', locals: { binary: bin }
+      - else
+        .card-text
+          This binary has gone missing from the Medusa Collection Registry since it was imported.
+          Run a "recreate binaries" import of this collection to remedy this.
