@@ -1,11 +1,22 @@
 # See http://www.robotstxt.org/robotstxt.html for documentation on how to use the robots.txt file
 
+# "Amazonbot does not respect the * in patterns" - this is from Data Bank
+# And really, we don't care about Amazonbot. Shoo!
+User-agent: Amazonbot
+Disallow: /
+
 User-agent: *
 Crawl-delay: 5
 Disallow: /admin
 Disallow: /api
 Disallow: /binaries
+Disallow: /collections/*/items/treedata
+Disallow: /collections/*/tree
 Disallow: /downloads
 Disallow: /harvest
+Disallow: /health
+Disallow: /items/*/binaries
+Disallow: /items/*/files
+Disallow: /items/*/treedata
 Disallow: /oai-pmh
 Disallow: /*.zip
