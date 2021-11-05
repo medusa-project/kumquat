@@ -446,18 +446,6 @@ module AdminHelper
                 value: bs.filename}
     end
 
-    # Primary IIIF v2 Image URL
-    iiif_v2_url = item.effective_image_binary&.iiif_image_v2_url
-    data << { label: 'Primary IIIF Image v2 URL',
-              value: iiif_v2_url.present? ?
-                  link_to(iiif_v2_url, iiif_v2_url, target: '_blank') : 'None' }
-
-    # Primary IIIF v3 Image URL
-    iiif_v3_url = item.effective_image_binary&.iiif_image_v3_url
-    data << { label: 'Primary IIIF Image v3 URL',
-              value: iiif_v3_url.present? ?
-                       link_to(iiif_v3_url, iiif_v3_url, target: '_blank') : 'None' }
-
     # Variant
     data << { label: 'Variant', value: item.variant,
               help: "Available variants are: #{Item::Variants::all.map{ |v| "<code>#{v}</code>" }.sort.join(' ')}" }
