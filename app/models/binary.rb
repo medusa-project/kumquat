@@ -717,6 +717,8 @@ class Binary < ApplicationRecord
       next if row.length < 10
 
       first_space = row.index(' ')
+      next if first_space.nil? # we don't understand the format of this row
+
       col_2_start = first_space
       begin
         row[first_space..row.length - 1].split('').each_with_index do |char, index|
