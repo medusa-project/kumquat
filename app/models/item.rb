@@ -971,18 +971,15 @@ class Item < ApplicationRecord
   end
 
   ##
-  # @param options [Hash]
-  # @option options [Boolean] :only_visible
-  # @return [Enumerable<ItemElement>] The instance's ItemElements in the order
-  #                                   of the elements in the collection's
+  # @param only_visible [Boolean]
+  # @return [Enumerable<ItemElement>] The instance's [ItemElement]s in the
+  #                                   order of the elements in the collection's
   #                                   metadata profile.
   #
-  def elements_in_profile_order(options = {})
+  def elements_in_profile_order(only_visible: false)
+    mp_elements  = self.collection.metadata_profile.elements
+    mp_elements  = mp_elements.where(visible: true) if only_visible
     all_elements = []
-    mp_elements = self.collection.metadata_profile.elements
-    if options[:only_visible]
-      mp_elements = mp_elements.where(visible: true)
-    end
     mp_elements.each do |mpe|
       all_elements += self.elements.select{ |e| e.name == mpe.name }
     end

@@ -275,16 +275,12 @@ module AdminHelper
 
   ##
   # @param item [Item]
-  # @param options [Hash]
-  # @option options [Boolean] :include_subitems
-  # @option options [Boolean] :filenames_instead_of_titles
+  # @param include_subitems [Boolean]
+  # @param filenames_instead_of_titles [Boolean]
   #
-  def admin_structure_of_item(item, options = {})
-    include_subitems = options.keys.include?(:include_subitems) ?
-        options[:include_subitems] : true
-    filenames_instead_of_titles = options.keys.include?(:filenames_instead_of_titles) ?
-        options[:filenames_instead_of_titles] : false
-
+  def admin_structure_of_item(item,
+                              include_subitems: true,
+                              filenames_instead_of_titles: false)
     # 1. Build the item structure excluding parents
     html = StringIO.new
     html << '<ul>'
@@ -295,8 +291,7 @@ module AdminHelper
       subitems = item.search_children.
           include_unpublished(true).
           include_publicly_inaccessible(true).
-          include_restricted(true).
-          to_a
+          include_restricted(true)
       if subitems.any?
         html << '<ul>'
         subitems.each do |child|

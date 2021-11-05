@@ -466,23 +466,20 @@ class Collection < ApplicationRecord
   end
 
   ##
-  # @param options [Hash]
-  # @option options [Boolean] :only_visible
-  # @return [Enumerable<CollectionElement>] The instance's {CollectionElement
-  #         metadata elements} in the order of the elements in the instance's
+  # @param only_visible [Boolean]
+  # @return [Enumerable<CollectionElement>] The instance's [CollectionElement
+  #         metadata elements] in the order of the elements in the instance's
   #         metadata profile. If there is no associated metadata profile, all
   #         elements are returned.
   #
-  def elements_in_profile_order(options = {})
+  def elements_in_profile_order(only_visible: false)
     elements = []
-    profile = self.metadata_profile
+    profile  = self.metadata_profile
     if profile
       mp_elements = profile.elements
-      if options[:only_visible]
-        mp_elements = mp_elements.where(visible: true)
-      end
+      mp_elements = mp_elements.where(visible: true) if only_visible
       mp_elements.each do |mpe|
-        element = self.element(mpe.name)
+        element   = self.element(mpe.name)
         elements << element if element
       end
     else

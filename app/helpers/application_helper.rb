@@ -74,24 +74,22 @@ module ApplicationHelper
   # Renders the breadcrumb in public views. For admin views, see
   # {AdminHelper#admin_breadcrumb}.
   #
-  # @param options [Hash]
-  # @option options [Collection] :collection
-  # @option options [ItemsController::BrowseContext] :context
-  # @option options [String] :context_url
-  # @option options [Item] :item
+  # @param collection [Collection]
+  # @param item [Item]
+  # @param context [ItemsController::BrowseContext]
+  # @param context_url [String]
   # @return [String]
   #
-  def breadcrumb(options = {})
+  def breadcrumb(collection: nil, item: nil, context: nil, context_url: nil)
     case controller_name
       when 'collections'
-        return collection_view_breadcrumb(options[:collection])
+        return collection_view_breadcrumb(collection)
       when 'items'
         case action_name
           when 'index', 'tree'
-            return results_breadcrumb(options[:collection], options[:context])
+            return results_breadcrumb(collection, context)
           when 'show'
-            return item_view_breadcrumb(options[:item], options[:context],
-                                        options[:context_url])
+            return item_view_breadcrumb(item, context, context_url)
         end
     end
     nil
@@ -352,7 +350,7 @@ module ApplicationHelper
   # lazy-loading using JavaScript.
   #
   # @param source [String]
-  # @param options [Hash]
+  # @param options [Hash] Additional HTML tag attributes.
   # @return [String]
   #
   def lazy_image_tag(source, options = {})
