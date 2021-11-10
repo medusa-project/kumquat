@@ -19,11 +19,11 @@
     = (@task.indeterminate and @task.percent_complete < 1) ? 'Indeterminate' : (@task.percent_complete * 100).round(1).to_s + '%'
   %dt Started
   %dd
-    = @task.started_at ? local_time_ago(@task.started_at) : ''
+    = @task.started_at ? local_time(@task.started_at) : ''
   - if @task.stopped_at
     %dt Stopped
     %dd
-      = local_time_ago(@task.stopped_at)
+      = local_time(@task.stopped_at)
   - else
     %dt ETA
     %dd
