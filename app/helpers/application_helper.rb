@@ -104,11 +104,11 @@ module ApplicationHelper
     entities.each do |entity|
       rep = entity.effective_file_representation
       case rep.type
-      when Representation::Type::MEDUSA_FILE
+      when Representation::Type::MEDUSA_FILE && rep.file
         img_url = ImageServer.file_image_v2_url(file:   rep.file,
                                                 region: 'square',
                                                 size:   CARD_IMAGE_SIZE)
-      when Representation::Type::LOCAL_FILE
+      when Representation::Type::LOCAL_FILE && rep.key
         img_url = ImageServer.s3_image_v2_url(bucket: KumquatS3Client::BUCKET,
                                               key:    rep.key,
                                               region: 'square',
