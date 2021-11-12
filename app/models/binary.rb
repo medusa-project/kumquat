@@ -516,9 +516,11 @@ class Binary < ApplicationRecord
   def read_duration
     if is_audio? or is_video?
       begin
-        # Download the image to a temp file.
+        # Download the first MB of the file to a temp file.
+        # Some files may be very large and we only have a limited amount of
+        # local storage space.
         tempfile = Tempfile.new('image')
-        download_to(tempfile.path)
+        download_to(tempfile.path, length: 2 ** 20) # MB
 
         # Redirect ffprobe stderr output to stdout.
         output = `ffprobe "#{tempfile.path.gsub('"', '\\"')}" 2>&1`
@@ -546,9 +548,10 @@ class Binary < ApplicationRecord
     return unless self.is_image?
     begin
       tempfile = Tempfile.new('image')
-      # For performance and I/O cost reasons, we download only a small portion
-      # of the beginning of the image.
-      download_to(tempfile.path, 2 ** 18)
+      # Some files may be very large (e.g. multiple GBs for videos) and we only
+      # have a limited amount of local storage space. So, we download only the
+      # first MB of the file, as this is probably all we need anyway.
+      download_to(tempfile.path, length: 2 ** 20)
 
       read_metadata_using_exiv2(tempfile.path)
     ensure
@@ -674,7 +677,7 @@ class Binary < ApplicationRecord
     end
   end
 
-  def download_to(pathname, length = 0)
+  def download_to(pathname, length: 0)
     # Use the smaller of the actual length or the requested length.
     length = [length, byte_size].min
 
