@@ -1,0 +1,19 @@
+-# Requires the following locals:
+-#
+-# item [Item]
+-#
+
+#dl-download-zip-of-jpegs-modal.modal.fade{"aria-hidden":     "true",
+                                           "aria-labelledby": "dl-download-zip-of-jpegs-modal-label",
+                                           role:              "dialog",
+                                           tabindex:          "-1"}
+  .modal-dialog{role: "document"}
+    .modal-content
+      .modal-header
+        %h4#dl-download-zip-of-jpegs-modal-label.modal-title Download Zip of JPEGs
+        %button.close{"aria-label":   "Close",
+                      "data-dismiss": "modal",
+                      type:           "button"}
+          %span{"aria-hidden": "true"} ×
+      .modal-body
+        = captcha(item_url(item, format: :zip, contents: :jpegs))

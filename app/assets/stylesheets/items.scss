@@ -23,12 +23,6 @@ body#items_index .page-content, body#search_index .page-content {
     padding-right: 0;
   }
 
-  #dl-download-zip-modal {
-    #dl-batch-buttons {
-      line-height: 3em;
-      text-align: center;
-    }
-  }
   .pagination {
     margin: 0 0 1em 0;
   }
@@ -239,15 +233,6 @@ body#items_show, #dl-free-form-item-view {
     }
   }
 
-}
-
-body#items_index, body#items_show {
-  #dl-download-zip-modal {
-    #dl-batch-buttons {
-      line-height: 3em;
-      text-align: center;
-    }
-  }
 }
 
 // styles for free-form collection tree view

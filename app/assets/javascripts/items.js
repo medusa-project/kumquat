@@ -382,10 +382,10 @@ const DLItemView = function() {
 
         // Copy the permalink to the clipboard when a copy-permalink button is
         // clicked. This uses clipboard.js: https://clipboardjs.com
-        var clipboard = new Clipboard('.dl-copy-permalink');
+        const clipboard = new Clipboard('.dl-copy-permalink');
         clipboard.on('success', function(e) {
             // Remove the button and add a "copied" message in its place.
-            var button = $(e.trigger);
+            const button = $(e.trigger);
             button.parent().append('<small>' +
                     '<span class="text-success">' +
                         '<i class="fa fa-check"></i> Copied' +
@@ -400,6 +400,7 @@ const DLItemView = function() {
 
         new CitationPanel();
         new CustomImagePanel();
+        new Application.Captcha();
     };
 
 };
@@ -414,6 +415,7 @@ const DLItemsView = function() {
     const self = this;
 
     this.init = function() {
+        new Application.Captcha();
         new Application.FilterField();
         Application.initFacets();
 
@@ -475,7 +477,7 @@ const DLItemsView = function() {
  */
 const DLTreeBrowserView = function() {
 
-    var NODE_SELECTION_DELAY = 600;
+    const NODE_SELECTION_DELAY = 600;
 
     this.init = function() {
         initializeTree();
@@ -484,10 +486,10 @@ const DLTreeBrowserView = function() {
     /**
      * @see https://www.jstree.com/api/#/
      */
-    var initializeTree = function() {
-        var target_id = window.location.hash.substring(1);
+    const initializeTree = function() {
+        const target_id = window.location.hash.substring(1);
 
-        var jstree = $('#jstree');
+        const jstree = $('#jstree');
         if (jstree.length > 0) {
             jstree.jstree({
                 core: {
@@ -552,7 +554,7 @@ const DLTreeBrowserView = function() {
      *
      * @param id Item ID.
      */
-    var drillDownToID = function(id) {
+    const drillDownToID = function(id) {
         console.debug("Drilling down to ID " + id);
 
         /**
@@ -607,7 +609,7 @@ const DLTreeBrowserView = function() {
 
         traceLineage(id, [], function(parents) {
             drillDown(parents, 0, function() {
-                var jstree = $('#jstree');
+                const jstree = $('#jstree');
                 jstree.jstree('deselect_all');
                 jstree.jstree('select_node', '#' + id);
                 window.history.replaceState({id: id}, '', '/items/' + id);
@@ -616,7 +618,7 @@ const DLTreeBrowserView = function() {
         });
     };
 
-    var buildAjaxNodeURL = function(data) {
+    const buildAjaxNodeURL = function(data) {
         if (data.node.a_attr["name"] === 'root-collection-node') {
             return '/collections/' + data.node.id + '/tree.html?ajax=true';
         }
@@ -624,7 +626,7 @@ const DLTreeBrowserView = function() {
             data.node.a_attr["class"];
     };
 
-    var buildPublicNodeURL = function(data) {
+    const buildPublicNodeURL = function(data) {
         var url;
         if (data.node.a_attr.class.includes('Collection')) {
             url = '/collections/' + data.node.id + '/tree'
@@ -634,7 +636,7 @@ const DLTreeBrowserView = function() {
         return url;
     }
 
-    var setItemViewHTML = function(result) {
+    const setItemViewHTML = function(result) {
         //reset flag used by embed.js
         window.embedScriptIncluded = false;
         const treeView = $('#dl-free-form-item-view');
@@ -649,12 +651,12 @@ const DLTreeBrowserView = function() {
         $('#jstree').css('height', height);
     };
 
-    var getRootTreeDataURL = function() {
-        var ID = window.location.pathname.split("/")[2];
+    const getRootTreeDataURL = function() {
+        const ID = window.location.pathname.split("/")[2];
         return '/collections/' + ID + '/items/treedata.json';
     };
 
-    var retrieveItemView = function(ajax_url) {
+    const retrieveItemView = function(ajax_url) {
         $.ajax({
             url: ajax_url,
             method: 'GET',

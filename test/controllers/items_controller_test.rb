@@ -206,6 +206,22 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     # TODO: write zip tests
   end
 
+  test 'index() zip returns HTTP 400 for a missing CAPTCHA response' do
+    col = collections(:single_item_object)
+    get collection_items_path(col, format: :zip)
+    assert_response :bad_request
+  end
+
+  test 'index() zip returns HTTP 400 for an incorrect CAPTCHA response' do
+    col = collections(:single_item_object)
+    get collection_items_path(col,
+                              format:              :zip,
+                              email:               nil,
+                              answer:              3,
+                              correct_answer_hash: Digest::MD5.hexdigest((5 + 2).to_s + ApplicationHelper::CAPTCHA_SALT))
+    assert_response :bad_request
+  end
+
   # show() access control
 
   test 'show() allows access to non-expired restricted items by the correct NetID' do
@@ -345,19 +361,59 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test 'show() PDF redirects to download URL for compound objects' do
+  test 'show() PDF returns HTTP 400 for a missing CAPTCHA response' do
     @item = items(:compound_object_1002)
     get item_path(@item, format: :pdf)
+    assert_response :bad_request
+  end
+
+  test 'show() PDF returns HTTP 400 for an incorrect CAPTCHA response' do
+    @item = items(:compound_object_1002)
+    get item_path(@item,
+                  format:              :pdf,
+                  email:               nil,
+                  answer:              3,
+                  correct_answer_hash: Digest::MD5.hexdigest((5 + 2).to_s + ApplicationHelper::CAPTCHA_SALT))
+    assert_response :bad_request
+  end
+
+  test 'show() PDF redirects to download URL for compound objects' do
+    @item = items(:compound_object_1002)
+    get item_path(@item,
+                  format:              :pdf,
+                  email:               nil,
+                  answer:              7,
+                  correct_answer_hash: Digest::MD5.hexdigest((5 + 2).to_s + ApplicationHelper::CAPTCHA_SALT))
     assert_response :found
   end
 
   test 'show() PDF redirects to show-item page for non-compound objects' do
-    get item_path(@item, format: :pdf)
+    get item_path(@item,
+                  format:              :pdf,
+                  email:               nil,
+                  answer:              7,
+                  correct_answer_hash: Digest::MD5.hexdigest((5 + 2).to_s + ApplicationHelper::CAPTCHA_SALT))
     assert_redirected_to item_path(@item)
   end
 
   test 'show() zip' do
     # TODO: write all these zip format tests
+  end
+
+  test 'show() zip returns HTTP 400 for a missing CAPTCHA response' do
+    @item = items(:compound_object_1002)
+    get item_path(@item, format: :zip)
+    assert_response :bad_request
+  end
+
+  test 'show() zip returns HTTP 400 for an incorrect CAPTCHA response' do
+    @item = items(:compound_object_1002)
+    get item_path(@item,
+                  format:              :zip,
+                  email:               nil,
+                  answer:              3,
+                  correct_answer_hash: Digest::MD5.hexdigest((5 + 2).to_s + ApplicationHelper::CAPTCHA_SALT))
+    assert_response :bad_request
   end
 
 end

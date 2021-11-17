@@ -1,57 +1,86 @@
 -# Requires the following locals:
 -#
 -# context [Symbol] :directory, :item, or :results
--# num_downloadable_items [Fixnum]
+-# num_downloadable_items [Integer]
 -# total_byte_size [Integer]
 
-- num_batches = (num_downloadable_items / MedusaDownloaderClient::BATCH_SIZE.to_f).ceil
+- if total_byte_size > 0
+  - batch_byte_size = MedusaDownloaderClient::TARGET_BATCH_BYTE_SIZE
+  - num_batches     = (total_byte_size / batch_byte_size.to_f).ceil
+  - batch_size      = (num_downloadable_items / num_batches.to_f).ceil
+- else
+  - batch_size  = MedusaDownloaderClient::TARGET_BATCH_SIZE
+  - num_batches = (num_downloadable_items / batch_size.to_f).ceil
 
-#dl-download-zip-modal.modal.fade{"aria-hidden": "true",
+#dl-download-zip-modal.modal.fade{"aria-hidden":     "true",
                                   "aria-labelledby": "dl-download-zip-modal-label",
-                                  role: "dialog",
-                                  tabindex: "-1"}
+                                  role:              "dialog",
+                                  tabindex:          "-1"}
   .modal-dialog{role: "document"}
     .modal-content
       .modal-header
         %h4#dl-download-zip-modal-label.modal-title Download Zip File
-        %button.close{"aria-label": "Close",
+        %button.close{"aria-label":   "Close",
                       "data-dismiss": "modal",
-                      type: "button"}
+                      type:           "button"}
           %span{"aria-hidden": "true"} ×
       .modal-body
         - case context
         - when :results
-          %p
+          .alert.alert-light
+            %i.fa.fa-info-circle
             Zip files include high-resolution files for all of the items in the
             current result set.
         - when :item
-          %p
+          .alert.alert-light
+            %i.fa.fa-info-circle
             Zip files include high-resolution files for the current object in
             TIFF format.
         - when :directory
-          %p Zip files include all files in the current folder tree.
-        %hr/
+          .alert.alert-light
+            %i.fa.fa-info-circle
+            Zip files include all files in the current folder tree.
+
         - if num_batches > 1
-          %h4 All items in one zip file
-        .text-center
-          = link_to('Download',
-                    @permitted_params.except(:start).merge({ format: :zip, download_start: 0, limit: 0 }),
-                    target: '_blank',
-                    class: 'btn btn-primary')
+          %ul.nav.nav-pills.nav-fill{role: "tablist"}
+            %li.nav-item{role: "presentation"}
+              %a#dl-download-batches-tab.nav-link{href:            "#dl-download-batches",
+                                                  "data-toggle":   "tab",
+                                                  role:            "tab",
+                                                  "aria-controls": "dl-download-batches"} Items in Batches
+            %li.nav-item{role: "presentation"}
+              %a#dl-download-one-tab.nav-link{href:            "#dl-download-one",
+                                              "data-toggle":   "tab",
+                                              role:            "tab",
+                                              "aria-controls": "dl-download-one"} All Items in One Zip File
+
+          .tab-content
+            #dl-download-batches.tab-pane.fade.show{role:              "tabpanel",
+                                                    "aria-labelledby": "dl-download-batches-tab"}
+              - if total_byte_size > 0
+                %p.form-text.text-muted.text-center
+                  Estimated average file size: #{number_to_human_size(batch_byte_size)}
+              = captcha(@permitted_params.except(:start).merge(format: :zip)) do
+                = hidden_field_tag("limit", batch_size)
+                - num_batches.times do |i|
+                  .form-check
+                    = radio_button_tag(:download_start, i * batch_size,
+                                       class: "form-check-input",
+                                       type:  "radio")
+                    = label_tag("download_start_#{i * batch_size}",
+                                "Batch #{i + 1}",
+                                class: "form-check-label mb-1")
+
+            #dl-download-one.tab-pane.fade.show{role:              "tabpanel",
+                                                "aria-labelledby": "dl-download-one-tab"}
+              - if total_byte_size > 0
+                %p.form-text.text-muted.text-center
+                  Estimated file size: #{number_to_human_size(total_byte_size)}
+              = captcha(@permitted_params.except(:start).merge(format: :zip, download_start: 0, limit: 0))
+
+        - else
           - if total_byte_size > 0
-            %p.form-text.text-muted
-              Estimated size: #{number_to_human_size(total_byte_size)}
-        - if num_batches > 1
-          %hr
-          %h4 Items in batches
-          %p
-            Batches can make large downloads more manageable. Batched zip files
-            are limited to #{MedusaDownloaderClient::BATCH_SIZE} items per batch.
-          #dl-batch-buttons
-            - num_batches.times do |i|
-              = link_to("Batch #{i + 1}",
-                        @permitted_params.except(:start).merge({ format: :zip,
-                                                                 download_start: i * MedusaDownloaderClient::BATCH_SIZE,
-                                                                 limit: MedusaDownloaderClient::BATCH_SIZE }),
-                        class: 'btn btn-primary',
-                        target: '_blank')
+            %p.form-text.text-muted.text-center
+              Estimated file size: #{number_to_human_size(total_byte_size)}
+          = captcha(@permitted_params.except(:start).merge(format: :zip, download_start: 0, limit: 0))
+
