@@ -413,7 +413,7 @@ class Collection < ApplicationRecord
   #
   def effective_file_representation
     rep = effective_representation
-    if rep.type == Representation::Type::ITEM
+    if rep.type == Representation::Type::ITEM && rep.item
       rep = rep.item.effective_file_representation
     end
     rep
