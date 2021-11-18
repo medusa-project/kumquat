@@ -21,6 +21,12 @@ body#items_index .page-content, body#search_index .page-content {
   }
   .dl-facets {
     padding-right: 0;
+    .dl-facet{
+      .card-body {
+        max-height: 20em;
+        overflow-y: scroll;
+      }
+    }
   }
 
   .pagination {

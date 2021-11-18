@@ -63,14 +63,6 @@
                          Option::integer(Option::Keys::DEFAULT_RESULT_WINDOW),
                          class: 'form-control')
   .form-group.row
-    = label_tag("options[#{Option::Keys::FACET_TERM_LIMIT}]",
-                'Facet Term Limit',
-                class: 'col-sm-3 col-form-label')
-    .col-sm-9
-      = number_field_tag("options[#{Option::Keys::FACET_TERM_LIMIT}]",
-                         Option::integer(Option::Keys::FACET_TERM_LIMIT),
-                         class: 'form-control')
-  .form-group.row
     .col-sm-3
     .col-sm-9
       = submit_tag 'Save Changes', class: 'btn btn-primary'
