@@ -10,11 +10,10 @@ json.description @collection.description
 # Thumbnail image
 rep = @collection.effective_file_representation
 if rep
-  case rep.type
-  when Representation::Type::MEDUSA_FILE
+  if rep.type == Representation::Type::MEDUSA_FILE && rep.file
     thumb_url = ImageServer.file_image_v2_url(file: rep.file,
                                               size: ItemsHelper::DEFAULT_THUMBNAIL_SIZE)
-  when Representation::Type::LOCAL_FILE
+  elsif rep.type == Representation::Type::LOCAL_FILE && rep.key
     thumb_url = ImageServer.s3_image_v2_url(bucket: KumquatS3Client::BUCKET,
                                             key:    rep.key,
                                             size:   ItemsHelper::DEFAULT_THUMBNAIL_SIZE)
