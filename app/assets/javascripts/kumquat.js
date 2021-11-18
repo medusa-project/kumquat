@@ -112,6 +112,35 @@ var Application = {
 
     },
 
+    Captcha: function() {
+        const forms = $(".dl-captcha-form");
+        forms.on("submit", function(e) {
+            e.preventDefault();
+            const form = $(e.target);
+            form.find(".alert").remove();
+            const url = form.attr('action') + "?" + form.serialize();
+            $.ajax({
+                url:      url,
+                method:   'GET',
+                dataType: 'script',
+                success: function(data, status, xhr) {
+                    setTimeout(function() {
+                        form.parents(".modal").modal("hide");
+                    }, 5000);
+                    form.parents(".modal-body").html(
+                        "<p>Your download is being prepared in another tab.</p>" +
+                        "<p>If you don't see it, make sure your browser isn't blocking pop-ups.</p>");
+                    window.open(url, "_blank");
+                },
+                error: function(request, status, error) {
+                    const message = request.getResponseHeader('X-Kumquat-Message');
+                    form.prepend(
+                        "<div class='alert alert-danger'>" + message + "</div>");
+                }
+            });
+        })
+    },
+
     /**
      * Marks changed form fields as dirty.
      *

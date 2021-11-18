@@ -6,8 +6,13 @@ class MedusaDownloaderClient
 
   LOGGER = CustomLogger.new(MedusaDownloaderClient)
 
-  BATCH_SIZE           = 200
   CREATE_DOWNLOAD_PATH = '/downloads/create'
+
+  # Target batch byte size when the total download size is known.
+  TARGET_BATCH_BYTE_SIZE = 2**30 # 1 GB
+
+  # Target number of items per batch when their total byte size is not known.
+  TARGET_BATCH_SIZE = 200
 
   ##
   # Sends a request to the Downloader to generate a zip file for the given

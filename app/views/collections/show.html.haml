@@ -46,33 +46,31 @@
 
 %h1= collection_page_title(@collection)
 
-- if @representative_image_binary&.image_server_safe?
-  .row
-    .col-sm-6.col-md-7.col-lg-8
-      = render partial: 'description'
-    .col-sm-6.col-md-5.col-lg-4
-      .dl-main-image
-        - if @representative_item
-          - if @uofi_user
-            = link_to @representative_item do
-              = thumbnail_tag(@representative_image_binary, size: 512)
-            = link_to @representative_item, class: 'dl-title' do
-              - if @representative_item.parent
-                = @representative_item.parent.title
-                —
-              = @representative_item.title
-          - else
-            = thumbnail_tag(@representative_image_binary, size: 512)
+.row
+  .col-sm-6.col-md-7.col-lg-8
+    = render partial: 'description'
+  .col-sm-6.col-md-5.col-lg-4
+    .dl-main-image
+      - if @representative_item
+        - if @uofi_user
+          = link_to @representative_item do
+            = thumbnail_tag(@collection, size: 512)
+          = link_to @representative_item, class: 'dl-title' do
+            - if @representative_item.parent
+              = @representative_item.parent.title
+              —
             = @representative_item.title
         - else
-          = thumbnail_tag(@representative_image_binary, size: 512)
-- else
-  = render partial: 'description'
+          = thumbnail_tag(@collection, size: 512)
+          = @representative_item.title
+      - else
+        = thumbnail_tag(@collection, size: 512)
 
 - if @children.count > 0
   %hr/
   %h2
     Subcollections
-    %span.badge= @children.count
+    %small
+      %span.badge.badge-pill.badge-secondary= @children.count
   .dl-cards
     = entities_as_cards(@children)

@@ -5,13 +5,23 @@ module Admin
     PERMITTED_PARAMS = [:q, :public_in_medusa, :published_in_dls, :start]
 
     before_action :load_collection, except: :index
-    before_action :authorize_modify_collections, only: [:edit, :update, :sync,
+    before_action :authorize_modify_collections, only: [:edit_access,
+                                                        :edit_info,
+                                                        :edit_representation,
+                                                        :update, :sync,
                                                         :unwatch, :watch]
 
     ##
-    # Responds to `GET /admin/collections/:id/edit`
+    # Responds to `GET /admin/collections/:id/edit-access` (XHR only).
     #
-    def edit
+    def edit_access
+      render partial: 'admin/collections/access_form'
+    end
+
+    ##
+    # Responds to `GET /admin/collections/:id/edit-info` (XHR only).
+    #
+    def edit_info
       @metadata_profile_options_for_select = MetadataProfile.all.order(:name).
           map{ |t| [ t.name, t.id ] }
       @package_profile_options_for_select = PackageProfile.all.
@@ -20,6 +30,7 @@ module Admin
       profile = @collection.metadata_profile || MetadataProfile.default
       @descriptive_element_options_for_select =
           profile.elements.map{ |e| [e.label, e.id] }
+      render partial: 'admin/collections/info_form'
     end
 
     ##
@@ -29,7 +40,17 @@ module Admin
     # (XHR only).
     #
     def edit_email_watchers
-      render partial: 'admin/collections/email_watchers'
+      render partial: 'admin/collections/email_watchers_form'
+    end
+
+    ##
+    # Responds to
+    # `GET /admin/collections/:collection_id/edit-representation` (XHR only).
+    #
+    def edit_representation
+      render partial: 'admin/collections/representation_form', locals: {
+        target: [:admin, @collection]
+      }
     end
 
     ##
@@ -92,6 +113,10 @@ module Admin
           @collection.medusa_file_group : nil
       @can_reindex = (@collection.published_in_dls &&
           @collection.medusa_file_group)
+      @current_elasticsearch_document =
+        JSON.pretty_generate(@collection.indexed_document)
+      @expected_elasticsearch_document =
+        JSON.pretty_generate(@collection.as_indexed_json)
     end
 
     ##
@@ -165,37 +190,45 @@ module Admin
     # Responds to `PATCH/POST /admin/collections/:id`
     #
     def update
-      ActiveRecord::Base.transaction do # trigger after_commit callbacks
-        if params[:watches] # input from the edit-email-watchers form
-          begin
+      if params[:watches] # input from the edit-email-watchers form
+        begin
+          ActiveRecord::Base.transaction do # trigger after_commit callbacks
             @collection.watches.where('email IS NOT NULL').destroy_all
             params[:watches].select{ |w| w[:email].present? }.each do |watch|
               @collection.watches.build(email: watch[:email])
             end
             @collection.save!
-          rescue ActiveRecord::RecordInvalid
-            response.headers['X-Kumquat-Result'] = 'error'
-            render partial: 'shared/validation_messages',
-                   locals: { entity: @collection }
-          else
-            flash['success'] = "Watchers updated."
-            keep_flash
           end
-        else # all other input
-          begin
+        rescue ActiveRecord::RecordInvalid
+          response.headers['X-Kumquat-Result'] = 'error'
+          render partial: 'shared/validation_messages',
+                 locals: { entity: @collection }
+        else
+          flash['success'] = "Watchers updated."
+          keep_flash
+        end
+      else # all other input
+        begin
+          ActiveRecord::Base.transaction do # trigger after_commit callbacks
+            # Process the image uploaded from the representative image form
+            image = params[:collection][:representative_image_data]
+            if image
+              @collection.upload_representative_image(io:       image.read,
+                                                      filename: image.original_filename)
+            end
             @collection.update!(sanitized_params)
             # We will also need to propagate various collection properties
             # (published status, allowed/denied host groups, etc.) to the items
             # contained within the collection. This will take some time, so
             # we'll do it in the background.
             PropagatePropertiesToItemsJob.perform_later(@collection.repository_id)
-          rescue => e
-            handle_error(e)
-            redirect_to edit_admin_collection_path(@collection)
-          else
-            flash['success'] = "Collection \"#{@collection.title}\" updated."
-            redirect_to admin_collection_path(@collection)
           end
+        rescue => e
+          handle_error(e)
+          redirect_to admin_collection_path(@collection)
+        else
+          flash['success'] = "Collection \"#{@collection.title}\" updated."
+          redirect_to admin_collection_path(@collection)
         end
       end
     end
@@ -237,7 +270,9 @@ module Admin
                                          :package_profile_id,
                                          :publicize_binaries,
                                          :published_in_dls,
-                                         :restricted,
+                                         :representation_type,
+                                         :representative_medusa_file_id,
+                                         :representative_item, :restricted,
                                          :rightsstatements_org_uri,
                                          allowed_host_group_ids: [],
                                          denied_host_group_ids: [])

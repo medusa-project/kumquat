@@ -1,0 +1,86 @@
+- if current_user.can?(Permissions::MODIFY_ITEMS)
+  .btn-group.float-right.mb-3
+    %button.btn.btn-light.dl-edit-access{type: 'button',
+                                         'data-toggle': 'modal',
+                                         'data-target': '#dl-edit-access-modal'}
+      %i.fas.fa-pencil-alt
+      Edit&hellip;
+
+%table.table
+  %tr
+    %td Published
+    %td
+      = boolean(@item.published,
+                true_string: "Published",
+                false_string: "Unpublished")
+
+  %tr
+    %td
+      Full Text Search
+      %a{"data-toggle":  "popover",
+         "data-content": "Whether to show the full-text search field in the item viewer. This only has an effect if the item has full text."}
+        %i.fa.fa-question-circle
+    %td
+      = boolean(@item.expose_full_text_search,
+                true_string: "Enabled",
+                false_string: "Disabled")
+
+  %tr
+    %td Allowed NetIDs
+    %td
+      - if @item.allowed_netids&.any?
+        %table.table.table-sm
+          %tr
+            %th NetID
+            %th Expires
+          - @item.allowed_netids.each do |h|
+            - expires = Time.at(h[:expires].to_i)
+            %tr
+              %td= h[:netid]
+              %td{class: expires < Time.now ? "text-danger" : ""}
+                = local_time_ago(expires)
+  %tr
+    %td Restricted URL
+    %td
+      = item_url(@item)
+      %button.btn.btn-light.btn-sm.dl-copy-to-clipboard{'data-clipboard-text': item_url(@item),
+                                                              type: 'button'}
+        %i.fa.fa-clipboard
+  %tr
+    %td Allowed Host Groups (directly assigned)
+    %td
+      - if @item.allowed_host_groups.any?
+        %ul
+          - @item.allowed_host_groups.each do |group|
+            %li= link_to(group.name, admin_host_group_path(group))
+      - else
+        Any
+  %tr
+    %td Allowed Host Groups (effective)
+    %td
+      - effective_allowed_host_groups = @item.effective_allowed_host_groups
+      - if effective_allowed_host_groups.any?
+        %ul
+          - effective_allowed_host_groups.each do |group|
+            %li= link_to(group.name, admin_host_group_path(group))
+      - else
+        Any
+  %tr
+    %td Denied Host Groups (directly assigned)
+    %td
+      - if @item.denied_host_groups.any?
+        %ul
+          - @item.denied_host_groups.each do |group|
+            %li= link_to(group.name, admin_host_group_path(group))
+      - else
+        None
+  %tr
+    %td Denied Host Groups (effective)
+    - effective_denied_host_groups = @item.effective_denied_host_groups
+    %td
+      - if effective_denied_host_groups.any?
+        %ul
+          - effective_denied_host_groups.each do |group|
+            %li= link_to(group.name, admin_host_group_path(group))
+      - else
+        None

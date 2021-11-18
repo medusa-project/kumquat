@@ -1,47 +1,35 @@
 class DownloadCollectionTsvJob < Job
 
   LOGGER = CustomLogger.new(DownloadCollectionTsvJob)
-  QUEUE = Job::Queue::ADMIN
+  QUEUE  = Job::Queue::ADMIN
 
   queue_as QUEUE
 
   ##
-  # @param args [Array] Three-element array with Collection instance at
-  #                     position 0, Download instance at position 1, and
+  # @param args [Array] Three-element array with [Collection] instance at
+  #                     position 0, [Download] instance at position 1, and
   #                     boolean ("only undescribed") at position 2.
   # @raises [ArgumentError]
   #
   def perform(*args)
-    collection = args[0]
-    download = args[1]
+    collection       = args[0]
+    download         = args[1]
     only_undescribed = args[2]
 
-    self.task.update!(download: download,
+    self.task.update!(download:      download,
                       indeterminate: true,
-                      status_text: "Generating TSV for #{collection.title}")
+                      status_text:   "Generating TSV for #{collection.title}")
 
-    Dir.mktmpdir do |tmpdir|
-      tsv_filename = "#{CGI::escape(collection.title)}-#{Time.now.to_formatted_s(:number)}.tsv"
-      tsv_pathname = File.join(tmpdir, tsv_filename)
+    tsv          = ItemTsvExporter.new.items_in_collection(collection,
+                                                           only_undescribed: only_undescribed)
+    tsv_filename = "#{CGI::escape(collection.title)}-#{Time.now.to_formatted_s(:number)}.tsv"
 
-      LOGGER.info('perform(): generating %s', tsv_pathname)
+    KumquatS3Client.instance.put_object(bucket: KumquatS3Client::BUCKET,
+                                        key:    Download::DOWNLOADS_KEY_PREFIX + tsv_filename,
+                                        body:   StringIO.new(tsv))
 
-      exporter = ItemTsvExporter.new
-      File.open(tsv_pathname, 'w') do |file|
-        file.write(exporter.items_in_collection(collection,
-                                                only_undescribed: only_undescribed))
-      end
-
-      # Create the downloads directory if it doesn't exist.
-      dl_dir = Download::DOWNLOADS_DIRECTORY
-      FileUtils.mkdir_p(dl_dir)
-
-      # Move the TSV file into the downloads directory.
-      FileUtils.move(tsv_pathname, dl_dir)
-
-      download.update(filename: tsv_filename)
-      self.task&.succeeded
-    end
+    download.update(filename: tsv_filename)
+    self.task&.succeeded
   end
 
 end

@@ -1,0 +1,66 @@
+= form_for([:admin, @item.collection, @item]) do |f|
+  .dl-error-messages
+    -# populated via ajax by shared/_validation_messages.js.erb
+
+  %div.mb-3
+    .form-check
+      = f.check_box(:published, class: 'form-check-input')
+      = f.label :published, class: 'form-check-label'
+
+    .form-check
+      = f.check_box(:expose_full_text_search, class: 'form-check-input')
+      = f.label :expose_full_text_search, 'Enable Full Text Search',
+                class: 'form-check-label'
+
+  .row
+    .col-sm-6
+      .form-group
+        %h4 Allowed Host Groups
+        = hidden_field_tag :host_group_ids, nil,
+                               name: 'item[allowed_host_group_ids][]'
+        - HostGroup.order(:name).each do |group|
+          .checkbox
+            %label
+              = check_box_tag :host_group_ids, group.id,
+                                  f.object.allowed_host_groups.pluck(:id).include?(group.id),
+                                  name: 'item[allowed_host_group_ids][]'
+              = group.name
+    .col-sm-6
+      .form-group
+        %h4 Denied Host Groups
+        = hidden_field_tag :host_group_ids, nil,
+                               name: 'item[denied_host_group_ids][]'
+        - HostGroup.order(:name).each do |group|
+          .checkbox
+            %label
+              = check_box_tag :host_group_ids, group.id,
+                                  f.object.denied_host_groups.pluck(:id).include?(group.id),
+                                  name: 'item[denied_host_group_ids][]'
+              = group.name
+  .row
+    .col-sm-12
+      %h4 Allowed NetIDs
+      .alert.alert-light
+        %i.fa.fa-info-circle
+        An email will automatically be sent to any new NetIDs entered below.
+      = hidden_field_tag('item[allowed_netids][][expires]', nil)
+      = hidden_field_tag('item[allowed_netids][][netid]', nil)
+      - if f.object.allowed_netids.blank?
+        - f.object.allowed_netids = [{ netid: '', expires: '' }]
+      - f.object.allowed_netids.each do |h|
+        .input-group.mb-3
+          = hidden_field_tag('item[allowed_netids][][expires]', h[:expires])
+          = text_field_tag('item[allowed_netids][][netid]', h[:netid],
+                             class: 'form-control dl-remove-element',
+                             'aria-label': 'NetID',
+                             'aria-describedby': "remove-netid-button-#{h[:netid]}")
+          .input-group-append
+            %button.btn.btn-danger.dl-remove-netid{id: "remove-netid-button-#{h[:netid]}",
+                                                     type: "button"}
+              %i.fa.fa-minus
+      %button#dl-add-netid-button.btn.btn-success.mr-3{type: "button"}
+        %i.fa.fa-plus
+
+  .float-right.mt-3
+    %button.btn.btn-light{"data-dismiss": "modal", type: "button"} Cancel
+    = f.submit 'Save Changes', class: 'btn btn-primary'

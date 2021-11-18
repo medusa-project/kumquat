@@ -3,9 +3,9 @@
  *
  * @constructor
  */
-const PTAdminCollectionsView = function() {
+const DLAdminCollectionsView = function() {
 
-    var self = this;
+    const self = this;
 
     this.init = function() {
         new Application.FilterField();
@@ -29,7 +29,7 @@ const PTAdminCollectionsView = function() {
  *
  * @constructor
  */
-const PTAdminCollectionView = function() {
+const DLAdminCollectionView = function() {
 
     const ROOT_URL = $('input[name="root_url"]').val();
 
@@ -68,11 +68,35 @@ const PTAdminCollectionView = function() {
             });
         });
 
+        $('button.dl-edit-access').on('click', function() {
+            const url = ROOT_URL + '/admin/collections/' + collection_id +
+                '/edit-access';
+            $.get(url, function(data) {
+                $('#dl-edit-access-modal .modal-body').html(data);
+                attachEventListeners();
+            });
+        });
         $('button.dl-edit-email-watchers').on('click', function() {
             const url = ROOT_URL + '/admin/collections/' + collection_id +
                 '/edit-email-watchers';
             $.get(url, function(data) {
                 $('#dl-edit-email-watchers-modal .modal-body').html(data);
+                attachEventListeners();
+            });
+        });
+        $('button.dl-edit-info').on('click', function() {
+            const url = ROOT_URL + '/admin/collections/' + collection_id +
+                '/edit-info';
+            $.get(url, function(data) {
+                $('#dl-edit-info-modal .modal-body').html(data);
+                attachEventListeners();
+            });
+        });
+        $('button.dl-edit-representation').on('click', function() {
+            const url = ROOT_URL + '/admin/collections/' + collection_id +
+                '/edit-representation';
+            $.get(url, function(data) {
+                $('#dl-edit-representation-modal .modal-body').html(data);
                 attachEventListeners();
             });
         });
@@ -100,7 +124,7 @@ const PTAdminCollectionView = function() {
 
 };
 
-var PTAdminEditCollectionView = function() {
+const DLAdminEditCollectionView = function() {
 
     var ROOT_URL = $('input[name="root_url"]').val();
 
@@ -133,17 +157,15 @@ var PTAdminEditCollectionView = function() {
 
 };
 
-var ready = function() {
+$(document).ready(function() {
     if ($('body#admin_collections_index').length) {
-        Application.view = new PTAdminCollectionsView();
+        Application.view = new DLAdminCollectionsView();
         Application.view.init();
     } else if ($('body#admin_collections_show').length) {
-        Application.view = new PTAdminCollectionView();
+        Application.view = new DLAdminCollectionView();
         Application.view.init();
     } else if ($('body#admin_edit_collection').length) {
-        Application.view = new PTAdminEditCollectionView();
+        Application.view = new DLAdminEditCollectionView();
         Application.view.init();
     }
-};
-
-$(document).ready(ready);
+});

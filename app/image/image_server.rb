@@ -1,28 +1,36 @@
+##
+# Singleton image server client with some additional static helper methods.
+#
+# The image server is configured to understand three different identifier
+# schemes, explained in its
+# [README](https://github.com/medusa-project/dls-cantaloupe-docker).
+#
 class ImageServer
 
   include Singleton
 
   ##
   # @param binary [Binary]
-  # @param region [String,Symbol]
-  # @param size [String,Integer]
-  # @param rotation [Integer]
-  # @param color [String]
+  # @param region [String,Symbol]       IIIF Image API region.
+  # @param size [String,Integer]        IIIF Image API size.
+  # @param rotation [Integer]           IIIF Image API rotation.
+  # @param color [String]               IIIF Image API color.
   # @param content_disposition [String] Cantaloupe-specific argument.
-  # @param filename [String] Cantaloupe-specific argument.
-  # @param cache [Boolean] Cantaloupe-specific argument.
-  # @return [String, nil] Image URL, or nil if the binary is not compatible
-  #                       with the image server or safe for it to serve.
+  # @param filename [String]            Cantaloupe-specific argument.
+  # @param cache [Boolean]              Cantaloupe-specific argument.
+  # @return [String, nil]               Image URL, or nil if the binary is not
+  #                                     compatible with the image server or
+  #                                     safe for it to serve.
   #
-  def self.image_v2_url(binary,
-                        region:              'full',
-                        size:                'max',
-                        rotation:            0,
-                        color:               'default',
-                        format:              'jpg',
-                        content_disposition: nil,
-                        filename:            nil,
-                        cache:               true)
+  def self.binary_image_v2_url(binary:,
+                               region:              'full',
+                               size:                'max',
+                               rotation:            0,
+                               color:               'default',
+                               format:              'jpg',
+                               content_disposition: nil,
+                               filename:            nil,
+                               cache:               true)
     return nil unless binary.image_server_safe?
     query  = {}
     region = region.to_s
@@ -44,12 +52,114 @@ class ImageServer
       #
       # Ideally we would use ffmpeg's scene detection, but FfmpegProcessor
       # doesn't support that yet.
+      # TODO: use meta-identifier suffix
       query['time'] = TimeUtils.seconds_to_hms(binary.duration * 0.2)
     end
+    query = image_v2_url_query(query:               query,
+                               format:              format,
+                               content_disposition: content_disposition,
+                               filename:            filename,
+                               cache:               cache)
+    url += '?' + query.to_query if query.keys.any?
+    url
+  end
+
+  ##
+  # @param file [Medusa::File]
+  # @param region [String,Symbol]       IIIF Image API region.
+  # @param size [String,Integer]        IIIF Image API size.
+  # @param rotation [Integer]           IIIF Image API rotation.
+  # @param color [String]               IIIF Image API color.
+  # @param content_disposition [String] Cantaloupe-specific argument.
+  # @param filename [String]            Cantaloupe-specific argument.
+  # @param cache [Boolean]              Cantaloupe-specific argument.
+  # @return [String, nil]               Image URL, or nil if the binary is not
+  #                                     compatible with the image server or
+  #                                     safe for it to serve.
+  #
+  def self.file_image_v2_url(file:,
+                             region:              'full',
+                             size:                'max',
+                             rotation:            0,
+                             color:               'default',
+                             format:              'jpg',
+                             content_disposition: nil,
+                             filename:            nil,
+                             cache:               true)
+    query    = {}
+    region   = region.to_s
+    size     = "!#{size},#{size}" if size.to_i == size
+    base_url = Configuration.instance.iiif_image_v2_url + '/' + file.uuid
+    url      = sprintf('%s/%s/%s/%d/%s.%s',
+                       base_url, region, size, rotation, color, format)
+    query    = image_v2_url_query(query:               query,
+                                  format:              format,
+                                  content_disposition: content_disposition,
+                                  filename:            filename,
+                                  cache:               cache)
+    url += '?' + query.to_query if query.keys.any?
+    url
+  end
+
+  ##
+  # @param bucket [String]              S3 bucket.
+  # @param key [String]                 S3 object key.
+  # @param region [String,Symbol]       IIIF Image API region.
+  # @param size [String,Integer]        IIIF Image API size.
+  # @param rotation [Integer]           IIIF Image API rotation.
+  # @param color [String]               IIIF Image API color.
+  # @param content_disposition [String] Cantaloupe-specific argument.
+  # @param filename [String]            Cantaloupe-specific argument.
+  # @param cache [Boolean]              Cantaloupe-specific argument.
+  # @return [String, nil]               Image URL, or nil if the binary is not
+  #                                     compatible with the image server or
+  #                                     safe for it to serve.
+  #
+  def self.s3_image_v2_url(bucket:,
+                           key:,
+                           region:              'full',
+                           size:                'max',
+                           rotation:            0,
+                           color:               'default',
+                           format:              'jpg',
+                           content_disposition: nil,
+                           filename:            nil,
+                           cache:               true)
+    query  = {}
+    region = region.to_s
+    size   = "!#{size},#{size}" if size.to_i == size
+    s3_url = "s3://#{bucket}/#{key}"
+    url    = sprintf('%s/%s/%s/%s/%d/%s.%s',
+                     Configuration.instance.iiif_image_v2_url,
+                     CGI.escape(s3_url),
+                     region, size, rotation, color, format)
+    query  = image_v2_url_query(query:               query,
+                                format:              format,
+                                content_disposition: content_disposition,
+                                filename:            filename,
+                                cache:               cache)
+    url += '?' + query.to_query if query.keys.any?
+    url
+  end
+
+  ##
+  # Private method.
+  #
+  # @param query [Hash]                 Existing query keys and values.
+  # @param content_disposition [String] Cantaloupe-specific argument.
+  # @param filename [String]            Cantaloupe-specific argument.
+  # @param cache [Boolean]              Cantaloupe-specific argument.
+  # @return [Hash]                      URL query.
+  #
+  def self.image_v2_url_query(query:               {},
+                              format:              'jpg',
+                              content_disposition: nil,
+                              filename:            nil,
+                              cache:               true)
     if content_disposition
       if content_disposition == 'attachment'
         if filename.blank?
-          filename = File.basename(binary.filename, File.extname(binary.filename)) +
+          filename = File.basename(file.filename, File.extname(file.filename)) +
             '.' + format
         end
         value = "attachment; filename=\"#{filename}\""
@@ -59,8 +169,7 @@ class ImageServer
       query['response-content-disposition'] = value
     end
     query['cache'] = 'false' unless cache
-    url += '?' + query.to_query if query.keys.any?
-    url
+    query
   end
 
   def client

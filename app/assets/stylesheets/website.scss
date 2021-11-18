@@ -157,3 +157,8 @@ to get a flexbox list of items.
 header .form-inline .form-control {
   width: 200px;
 }
+
+/* CAPTCHA honeypot field */
+input.dl-captcha-email {
+  display: none;
+}

@@ -1,0 +1,16 @@
+- if current_user.can?(Permissions::MODIFY_ITEMS)
+  .btn-group.float-right.mb-3
+    %button.btn.btn-light.dl-edit-metadata{type: 'button',
+                                           'data-toggle': 'modal',
+                                           'data-target': '#dl-edit-metadata-modal'}
+      %i.fas.fa-pencil-alt
+      Edit&hellip;
+
+.clearfix
+
+.alert.alert-light
+  %i.fa.fa-info-circle
+  Collection metadata profile:
+  \#{@item.collection.metadata_profile ? link_to(@item.collection.metadata_profile&.name, admin_metadata_profile_path(@item.collection.metadata_profile)) : 'None'}
+
+= admin_item_metadata_as_table(@item)

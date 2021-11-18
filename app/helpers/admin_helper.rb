@@ -198,8 +198,7 @@ module AdminHelper
       html <<   '<div class="dl-thumbnail-container">'
       link_target = admin_collection_item_path(item.collection, item)
       html << link_to(link_target) do
-        thumbnail_tag(item.effective_representative_entity,
-                      shape: :square)
+        thumbnail_tag(item, shape: :square)
       end
       # N.B.: this was made by https://loading.io with the following settings:
       # rolling, color: #cacaca, radius: 25, stroke width: 10, speed: 5, size: 150
@@ -276,16 +275,12 @@ module AdminHelper
 
   ##
   # @param item [Item]
-  # @param options [Hash]
-  # @option options [Boolean] :include_subitems
-  # @option options [Boolean] :filenames_instead_of_titles
+  # @param include_subitems [Boolean]
+  # @param filenames_instead_of_titles [Boolean]
   #
-  def admin_structure_of_item(item, options = {})
-    include_subitems = options.keys.include?(:include_subitems) ?
-        options[:include_subitems] : true
-    filenames_instead_of_titles = options.keys.include?(:filenames_instead_of_titles) ?
-        options[:filenames_instead_of_titles] : false
-
+  def admin_structure_of_item(item,
+                              include_subitems: true,
+                              filenames_instead_of_titles: false)
     # 1. Build the item structure excluding parents
     html = StringIO.new
     html << '<ul>'
@@ -296,8 +291,7 @@ module AdminHelper
       subitems = item.search_children.
           include_unpublished(true).
           include_publicly_inaccessible(true).
-          include_restricted(true).
-          to_a
+          include_restricted(true)
       if subitems.any?
         html << '<ul>'
         subitems.each do |child|
@@ -452,42 +446,10 @@ module AdminHelper
                 value: bs.filename}
     end
 
-    # Published
-    data << { label: 'Published',
-              value: boolean(item.published,
-                             true_string: "Published",
-                             false_string: "Unpublished") }
-
-    # Primary IIIF v2 Image URL
-    iiif_v2_url = item.effective_image_binary&.iiif_image_v2_url
-    data << { label: 'Primary IIIF Image v2 URL',
-              value: iiif_v2_url.present? ?
-                  link_to(iiif_v2_url, iiif_v2_url, target: '_blank') : 'None' }
-
-    # Primary IIIF v3 Image URL
-    iiif_v3_url = item.effective_image_binary&.iiif_image_v3_url
-    data << { label: 'Primary IIIF Image v3 URL',
-              value: iiif_v3_url.present? ?
-                       link_to(iiif_v3_url, iiif_v3_url, target: '_blank') : 'None' }
-
-    # Full Text Search
-    data << { label: 'Full Text Search',
-              value: boolean(item.expose_full_text_search,
-                             true_string: "Enabled",
-                             false_string: "Disabled"),
-              help: "Whether to show the full-text search field in the item viewer. "\
-                    "This only has an effect if the item has full text." }
-
     # Variant
     data << { label: 'Variant', value: item.variant,
               help: "Available variants are: #{Item::Variants::all.map{ |v| "<code>#{v}</code>" }.sort.join(' ')}" }
 
-    # Representative Item
-    data << { label: 'Representative Item',
-              value: item.representative_item ?
-                  link_to(item.representative_item.title,
-                          admin_collection_item_path(item.representative_item.collection,
-                                                     item.representative_item)) : '' }
     # Page Number
     data << { label: 'Page Number', value: item.page_number }
 

@@ -3,7 +3,7 @@
  *
  * @constructor
  */
-var PTItemView = function() {
+const DLItemView = function() {
 
     var three_d_viewer_loaded = false;
 
@@ -382,10 +382,10 @@ var PTItemView = function() {
 
         // Copy the permalink to the clipboard when a copy-permalink button is
         // clicked. This uses clipboard.js: https://clipboardjs.com
-        var clipboard = new Clipboard('.dl-copy-permalink');
+        const clipboard = new Clipboard('.dl-copy-permalink');
         clipboard.on('success', function(e) {
             // Remove the button and add a "copied" message in its place.
-            var button = $(e.trigger);
+            const button = $(e.trigger);
             button.parent().append('<small>' +
                     '<span class="text-success">' +
                         '<i class="fa fa-check"></i> Copied' +
@@ -400,6 +400,7 @@ var PTItemView = function() {
 
         new CitationPanel();
         new CustomImagePanel();
+        new Application.Captcha();
     };
 
 };
@@ -409,11 +410,12 @@ var PTItemView = function() {
  *
  * @constructor
  */
-var PTItemsView = function() {
+const DLItemsView = function() {
 
-    var self = this;
+    const self = this;
 
     this.init = function() {
+        new Application.Captcha();
         new Application.FilterField();
         Application.initFacets();
 
@@ -473,9 +475,9 @@ var PTItemsView = function() {
  *
  * @constructor
  */
-var PTTreeBrowserView = function() {
+const DLTreeBrowserView = function() {
 
-    var NODE_SELECTION_DELAY = 600;
+    const NODE_SELECTION_DELAY = 600;
 
     this.init = function() {
         initializeTree();
@@ -484,10 +486,10 @@ var PTTreeBrowserView = function() {
     /**
      * @see https://www.jstree.com/api/#/
      */
-    var initializeTree = function() {
-        var target_id = window.location.hash.substring(1);
+    const initializeTree = function() {
+        const target_id = window.location.hash.substring(1);
 
-        var jstree = $('#jstree');
+        const jstree = $('#jstree');
         if (jstree.length > 0) {
             jstree.jstree({
                 core: {
@@ -552,7 +554,7 @@ var PTTreeBrowserView = function() {
      *
      * @param id Item ID.
      */
-    var drillDownToID = function(id) {
+    const drillDownToID = function(id) {
         console.debug("Drilling down to ID " + id);
 
         /**
@@ -607,7 +609,7 @@ var PTTreeBrowserView = function() {
 
         traceLineage(id, [], function(parents) {
             drillDown(parents, 0, function() {
-                var jstree = $('#jstree');
+                const jstree = $('#jstree');
                 jstree.jstree('deselect_all');
                 jstree.jstree('select_node', '#' + id);
                 window.history.replaceState({id: id}, '', '/items/' + id);
@@ -616,7 +618,7 @@ var PTTreeBrowserView = function() {
         });
     };
 
-    var buildAjaxNodeURL = function(data) {
+    const buildAjaxNodeURL = function(data) {
         if (data.node.a_attr["name"] === 'root-collection-node') {
             return '/collections/' + data.node.id + '/tree.html?ajax=true';
         }
@@ -624,7 +626,7 @@ var PTTreeBrowserView = function() {
             data.node.a_attr["class"];
     };
 
-    var buildPublicNodeURL = function(data) {
+    const buildPublicNodeURL = function(data) {
         var url;
         if (data.node.a_attr.class.includes('Collection')) {
             url = '/collections/' + data.node.id + '/tree'
@@ -634,13 +636,13 @@ var PTTreeBrowserView = function() {
         return url;
     }
 
-    var setItemViewHTML = function(result) {
+    const setItemViewHTML = function(result) {
         //reset flag used by embed.js
         window.embedScriptIncluded = false;
         const treeView = $('#dl-free-form-item-view');
         treeView.html(result);
         Application.init();
-        Application.view = new PTItemView();
+        Application.view = new DLItemView();
         Application.view.init();
 
         // Update the height of the tree browser to fit.
@@ -649,12 +651,12 @@ var PTTreeBrowserView = function() {
         $('#jstree').css('height', height);
     };
 
-    var getRootTreeDataURL = function() {
-        var ID = window.location.pathname.split("/")[2];
+    const getRootTreeDataURL = function() {
+        const ID = window.location.pathname.split("/")[2];
         return '/collections/' + ID + '/items/treedata.json';
     };
 
-    var retrieveItemView = function(ajax_url) {
+    const retrieveItemView = function(ajax_url) {
         $.ajax({
             url: ajax_url,
             method: 'GET',
@@ -668,13 +670,13 @@ var PTTreeBrowserView = function() {
 
 $(document).ready(function() {
     if ($('body#tree_browser').length) {
-        Application.view = new PTTreeBrowserView();
+        Application.view = new DLTreeBrowserView();
         Application.view.init();
     } if ($('body#items_index').length) {
-        Application.view = new PTItemsView();
+        Application.view = new DLItemsView();
         Application.view.init();
     } else if ($('body#items_show').length) {
-        Application.view = new PTItemView();
+        Application.view = new DLItemView();
         Application.view.init();
     }
 });

@@ -14,11 +14,6 @@
             class: 'btn btn-light' do
     = icon_for(Item)
     Objects
-  - if current_user.can?(Permissions::MODIFY_COLLECTIONS)
-    -# Edit button
-    = link_to edit_admin_collection_path(@collection), class: 'btn btn-light' do
-      %i.fas.fa-pencil-alt
-      Edit
   -# Statistics button
   = link_to admin_collection_statistics_path(@collection), class: 'btn btn-light' do
     %i.fa.fa-chart-bar
@@ -39,7 +34,9 @@
       = link_to @collection.medusa_url, target: '_blank', class: 'dropdown-item' do
         %i.fa.fa-database
         Medusa
+
 %h1= @collection.title
+
 .row
   - if @collection.children.count > 0 || @collection.parents.count > 0
     .col-sm-4
@@ -50,6 +47,17 @@
     .col-sm-12
       = render partial: 'show'
 
-= render partial: 'admin/collections/email_watchers_modal'
 = render partial: 'admin/item_sets/add_set_modal'
 = render partial: 'admin/item_sets/edit_set_modal'
+= render partial: 'shared/xhr_modal',
+         locals: { id: "dl-edit-access-modal",
+                   title: "Edit Access" }
+= render partial: 'shared/xhr_modal',
+         locals: { id: "dl-edit-email-watchers-modal",
+                   title: "Edit Email Watchers" }
+= render partial: 'shared/xhr_modal',
+         locals: { id: "dl-edit-representation-modal",
+                   title: "Edit Representation" }
+= render partial: 'shared/xhr_modal',
+         locals: { id: "dl-edit-info-modal",
+                   title: "Edit Local Info" }

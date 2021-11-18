@@ -136,29 +136,39 @@ class Binary < ApplicationRecord
   @@formats = YAML::load(File.read("#{Rails.root}/lib/formats.yml"))
 
   ##
+  # Returns an instance corresponding to the given [Medusa::File]. This may be
+  # a new, not-yet-persisted instance, or an existing, persisted instance. In
+  # the latter case, it will not have any unpersisted changes.
+  #
   # @param file [Medusa::File]
   # @param master_type [Integer]    One of the {Binary::MasterType} constant
-  #                                 values.
+  #                                 values. This is only used when a new
+  #                                 instance is created.
   # @param media_category [Integer] One of the {Binary::MediaCategory} constant
   #                                 values. If nil, will be inferred from the
-  #                                 media type.
-  # @return [Binary] Fully initialized instance. May be a new instance or an
-  #                  existing one, but either way, it may contain changes that
-  #                  have not been persisted.
+  #                                 media type. This is only used when a new
+  #                                 instance is created.
+  # @return [Binary]                Fully initialized instance which may or may
+  #                                 not have been persisted.
   #
-  def self.from_medusa_file(file, master_type, media_category = nil)
-    bin = Binary.find_by_object_key(file.relative_key) || Binary.new
-    bin.master_type = master_type
-    bin.medusa_uuid = file.uuid
-    bin.object_key  = file.relative_key
-    bin.byte_size   = file.size
-    # The media type of the file as reported by Medusa is likely to be vague,
-    # so let's see if we can do better.
-    bin.infer_media_type
-    bin.media_category = media_category ||
-        Binary::MediaCategory::media_category_for_media_type(bin.media_type)
-    bin.read_duration
-    bin.read_metadata
+  def self.from_medusa_file(file:, master_type: nil, media_category: nil)
+    bin = Binary.find_by_object_key(file.relative_key)
+    unless bin
+      bin                = Binary.new
+      likely_master_type = file.relative_key.include?("/preservation/") ?
+                             MasterType::PRESERVATION : MasterType::ACCESS
+      bin.master_type    = master_type || likely_master_type
+      bin.medusa_uuid    = file.uuid
+      bin.object_key     = file.relative_key
+      bin.byte_size      = file.size
+      # The media type of the file as reported by Medusa is likely to be vague,
+      # so let's see if we can do better.
+      bin.infer_media_type
+      bin.media_category = media_category ||
+          Binary::MediaCategory::media_category_for_media_type(bin.media_type)
+      bin.read_duration
+      bin.read_metadata
+    end
     bin
   end
 
@@ -579,7 +589,7 @@ class Binary < ApplicationRecord
   # @return [String] The URI of the corresponding S3 object.
   #
   def uri
-    "s3://#{Configuration.instance.medusa_s3_bucket}/#{self.object_key}"
+    "s3://#{MedusaS3Client::BUCKET}/#{self.object_key}"
   end
 
   ##
@@ -613,7 +623,7 @@ class Binary < ApplicationRecord
       if TESSERACT_SUPPORTED_FORMATS.include?(self.media_type)
         Tempfile.new do |file|
           client = MedusaS3Client.instance
-          client.get_object(bucket: ::Configuration.instance.medusa_s3_bucket,
+          client.get_object(bucket: MedusaS3Client::BUCKET,
                             key:    self.object_key,
                             target: file)
         end
@@ -643,7 +653,7 @@ class Binary < ApplicationRecord
                                      http_read_timeout: 120)
 
     payload = {
-      bucket:   config.medusa_s3_bucket,
+      bucket:   MedusaS3Client::BUCKET,
       key:      self.object_key,
       language: language
     }

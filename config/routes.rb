@@ -83,8 +83,14 @@ Rails.application.routes.draw do
     end
     match '/collections/sync', to: 'collections#sync', via: :patch,
           as: 'collections_sync'
-    resources :collections, except: [:new, :create, :delete] do
+    resources :collections, except: [:edit, :new, :create, :delete] do
+      match '/edit-access', to: 'collections#edit_access', via: :get,
+            constraints: lambda { |request| request.xhr? }
       match '/edit-email-watchers', to: 'collections#edit_email_watchers', via: :get,
+            constraints: lambda { |request| request.xhr? }
+      match '/edit-info', to: 'collections#edit_info', via: :get,
+            constraints: lambda { |request| request.xhr? }
+      match '/edit-representation', to: 'collections#edit_representation', via: :get,
             constraints: lambda { |request| request.xhr? }
       resources :item_sets, except: :index do
         match '/all-items', to: 'item_sets#remove_all_items', via: :delete
@@ -102,7 +108,15 @@ Rails.application.routes.draw do
       match '/items/run-ocr', to: 'items#run_ocr', via: :patch
       match '/items/unpublish', to: 'items#unpublish', via: :patch
       match '/items/update', to: 'items#update_all', via: :post
-      resources :items do
+      resources :items, except: :edit do
+        match '/edit-access', to: 'items#edit_access', via: :get,
+              constraints: lambda { |request| request.xhr? }
+        match '/edit-info', to: 'items#edit_info', via: :get,
+              constraints: lambda { |request| request.xhr? }
+        match '/edit-metadata', to: 'items#edit_metadata', via: :get,
+              constraints: lambda { |request| request.xhr? }
+        match '/edit-representation', to: 'items#edit_representation', via: :get,
+              constraints: lambda { |request| request.xhr? }
         match '/publicize-child-binaries', to: 'items#publicize_child_binaries',
               via: :post
         match '/purge-cached-images', to: 'items#purge_cached_images',

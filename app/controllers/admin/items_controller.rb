@@ -5,23 +5,32 @@ module Admin
     PERMITTED_PARAMS = [:id, :contentdm_alias, :contentdm_pointer, :df,
                         :embed_tag, :'fq[]', :expose_full_text_search,
                         :item_set, :page_number, :published, :q,
-                        :representative_item_repository_id, :subpage_number,
-                        :variant, allowed_host_group_ids: [],
-                        denied_host_group_ids: [],
+                        :representation_type, :representative_image,
+                        :representative_item_id, :subpage_number, :variant,
+                        allowed_host_group_ids: [], denied_host_group_ids: [],
                         allowed_netids: [ :expires, :netid ]]
 
     before_action :authorize_purge_items, only: :destroy_all
     before_action :authorize_modify_items, only: [:batch_change_metadata,
-                                                  :destroy_all, :edit, :import,
-                                                  :migrate_metadata,
+                                                  :destroy_all, :edit_access,
+                                                  :edit_all, :edit_info,
+                                                  :edit_metadata,
+                                                  :edit_representation,
+                                                  :import, :migrate_metadata,
                                                   :replace_metadata, :sync,
                                                   :update]
+    before_action :set_item, only: [:edit_access, :edit_info, :edit_metadata,
+                                    :edit_representation,
+                                    :publicize_child_binaries,
+                                    :purge_cached_images, :show,
+                                    :unpublicize_child_binaries, :update]
     before_action :set_permitted_params, only: [:index, :show]
 
     ##
     # Adds the items with the given IDs to the given item set.
     #
-    # Responds to `POST /admin/collections/:collection_id/items/add-items-to-item-set`
+    # Responds to
+    # `POST /admin/collections/:collection_id/items/add-items-to-item-set`
     #
     def add_items_to_item_set
       item_ids = params[:items]
@@ -106,20 +115,16 @@ module Admin
     end
 
     ##
-    # Responds to `GET /admin/collections/:collection_id/items/:id`
+    # Responds to `GET /admin/collections/:collection_id/items/:id/edit-access`
+    # (XHR only)
     #
-    def edit
-      @item = Item.find_by_repository_id(params[:id])
-      raise ActiveRecord::RecordNotFound unless @item
-
-      @variants = Item::Variants.constants.map do |v|
-        value = Item::Variants::const_get(v)
-        [value, value]
-      end
-      @variants.sort!
+    def edit_access
+      render partial: 'admin/items/access_form'
     end
 
     ##
+    # Renders the metadata table editor.
+    #
     # Responds to `GET /admin/collections/:collection_id/items/edit`
     #
     def edit_all
@@ -140,20 +145,20 @@ module Admin
                                       @item_set.items.pluck(:repository_id))
       else
         relation = Item.search.
-            collection(@collection).
-            query(params[:df], params[:q]).
-            facet_filters(params[:fq])
+          collection(@collection).
+          query(params[:df], params[:q]).
+          facet_filters(params[:fq])
       end
 
       relation.
-          aggregations(false).
-          include_unpublished(true).
-          include_publicly_inaccessible(true).
-          include_restricted(true).
-          include_children_in_results(true).
-          order(Item::IndexFields::STRUCTURAL_SORT).
-          start(@start).
-          limit(@limit)
+        aggregations(false).
+        include_unpublished(true).
+        include_publicly_inaccessible(true).
+        include_restricted(true).
+        include_children_in_results(true).
+        order(Item::IndexFields::STRUCTURAL_SORT).
+        start(@start).
+        limit(@limit)
 
       @items        = relation.to_a
       @current_page = relation.page
@@ -163,6 +168,40 @@ module Admin
         format.html
         format.js
       end
+    end
+
+    ##
+    # Responds to `GET /admin/collections/:collection_id/items/:id/edit-info`
+    # (XHR only)
+    #
+    def edit_info
+      @variants = Item::Variants.constants.map do |v|
+        value = Item::Variants::const_get(v)
+        [value, value]
+      end
+      @variants.sort!
+      render partial: 'admin/items/info_form'
+    end
+
+    ##
+    # Responds to
+    # `GET /admin/collections/:collection_id/items/:id/edit-metadata` (XHR only)
+    #
+    def edit_metadata
+      render partial: 'admin/items/metadata_form'
+    end
+
+    ##
+    # Responds to
+    # `GET /admin/collections/:collection_id/items/:id/edit-representation`
+    # (XHR only).
+    #
+    def edit_representation
+      # The form is the same for items & collections, except for a different
+      # form target.
+      render partial: 'admin/collections/representation_form', locals: {
+        target: [:admin, @item.collection, @item]
+      }
     end
 
     ##
@@ -286,10 +325,8 @@ module Admin
     # Responds to `POST /admin/collections/:collection_id/items/:item_id/publicize-child-binaries`
     #
     def publicize_child_binaries
-      item = Item.find_by_repository_id(params[:item_id])
-      raise ActiveRecord::RecordNotFound unless item
       begin
-        item.all_children.each do |child|
+        @item.all_children.each do |child|
           child.binaries.update_all(public: true)
         end
       rescue => e
@@ -297,7 +334,7 @@ module Admin
       else
         flash['success'] = 'All binaries attached to all child items have been publicized.'
       ensure
-        redirect_back fallback_location: admin_collection_item_path(item.collection, item)
+        redirect_back fallback_location: admin_collection_item_path(@item.collection, @item)
       end
     end
 
@@ -309,13 +346,12 @@ module Admin
     end
 
     ##
-    # Responds to `POST /admin/collections/:collection_id/items/:item_id/purge-cached-images`
+    # Responds to
+    # `POST /admin/collections/:collection_id/items/:item_id/purge-cached-images`
     #
     def purge_cached_images
-      item = Item.find_by_repository_id(params[:item_id])
-      raise ActiveRecord::RecordNotFound unless item
       begin
-        ImageServer.instance.purge_item_images_from_cache(item)
+        ImageServer.instance.purge_item_images_from_cache(@item)
       rescue => e
         handle_error(e)
       else
@@ -324,7 +360,7 @@ module Admin
         'cache to see any changes take effect.'
       ensure
         redirect_back fallback_location:
-                        admin_collection_item_path(item.collection, item)
+                        admin_collection_item_path(@item.collection, @item)
       end
     end
 
@@ -412,10 +448,11 @@ module Admin
     # Responds to `GET /admin/collections/:collection_id/items/:id`
     #
     def show
-      @item = Item.find_by_repository_id(params[:id])
-      raise ActiveRecord::RecordNotFound unless @item
-
       @pages = @item.parent ? @item.parent.items : @item.items
+      @current_elasticsearch_document =
+        JSON.pretty_generate(@item.indexed_document)
+      @expected_elasticsearch_document =
+        JSON.pretty_generate(@item.as_indexed_json)
     end
 
     ##
@@ -449,13 +486,12 @@ module Admin
     end
 
     ##
-    # Responds to `POST /admin/collections/:collection_id/items/:item_id/unpublicize-child-binaries`
+    # Responds to
+    # `POST /admin/collections/:collection_id/items/:item_id/unpublicize-child-binaries`
     #
     def unpublicize_child_binaries
-      item = Item.find_by_repository_id(params[:item_id])
-      raise ActiveRecord::RecordNotFound unless item
       begin
-        item.all_children.each do |child|
+        @item.all_children.each do |child|
           child.binaries.update_all(public: false)
         end
       rescue => e
@@ -463,7 +499,7 @@ module Admin
       else
         flash['success'] = 'All binaries attached to all child items have been unpublicized.'
       ensure
-        redirect_back fallback_location: admin_collection_item_path(item.collection, item)
+        redirect_back fallback_location: admin_collection_item_path(@item.collection, @item)
       end
     end
 
@@ -475,47 +511,50 @@ module Admin
     end
 
     def update
-      item = Item.find_by_repository_id(params[:id])
-      raise ActiveRecord::RecordNotFound unless item
-
       begin
         # If we are updating metadata, we will need to process the elements
         # manually.
         if params[:elements].respond_to?(:each)
           ActiveRecord::Base.transaction do
-            item.elements.destroy_all
+            @item.elements.destroy_all
             params[:elements].each do |name, vocabs|
               vocabs.each do |vocab_id, occurrences|
                 occurrences.each do |occurrence|
-                  if occurrence[:string].present? or occurrence[:uri].present?
-                    item.elements.build(name: name,
-                                        value: occurrence[:string],
-                                        uri: occurrence[:uri],
-                                        vocabulary_id: vocab_id)
+                  if occurrence[:string].present? || occurrence[:uri].present?
+                    @item.elements.build(name:          name,
+                                         value:         occurrence[:string],
+                                         uri:           occurrence[:uri],
+                                         vocabulary_id: vocab_id)
                   end
                 end
               end
             end
-            item.save!
+            @item.save!
           end
         end
 
         if params[:item]
+          # Process the image uploaded from the representative image form
+          image = params[:item][:representative_image_data]
+          if image
+            @item.upload_representative_image(io:       image.read,
+                                              filename: image.original_filename)
+          end
           ActiveRecord::Base.transaction do # trigger after_commit callbacks
-            item.update!(sanitized_params)
+            @item.update!(sanitized_params)
           end
 
           # We will also need to propagate various item properties (published
           # status, allowed/denied host groups, etc.) to its child items. This
           # will take some time, so we'll do it in the background.
-          PropagatePropertiesToChildrenJob.perform_later(item.repository_id)
+          PropagatePropertiesToChildrenJob.perform_later(@item.repository_id)
         end
       rescue => e
         handle_error(e)
       else
-        flash['success'] = "Item \"#{item.title}\" updated."
+        flash['success'] = "Item \"#{@item.title}\" updated."
       ensure
-        redirect_to edit_admin_collection_item_path(item.collection, item)
+        redirect_to admin_collection_item_path(@item.collection, @item)
       end
     end
 
@@ -660,6 +699,11 @@ module Admin
       # Metadata elements are not included here, as they are processed
       # separately.
       params.require(:item).permit(PERMITTED_PARAMS)
+    end
+
+    def set_item
+      @item = Item.find_by_repository_id(params[:item_id] || params[:id])
+      raise ActiveRecord::RecordNotFound unless @item
     end
 
     def set_permitted_params

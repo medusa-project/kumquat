@@ -1,11 +1,11 @@
 /**
  * @constructor
  */
-var PTDownloadView = function() {
+const DLDownloadView = function() {
 
-    var REFRESH_INTERVAL = 6000;
+    const REFRESH_INTERVAL = 6000;
 
-    var init = function() {
+    const init = function() {
         setInterval(function() {
             console.debug('Refreshing...');
             $.ajax({
@@ -23,10 +23,8 @@ var PTDownloadView = function() {
 
 };
 
-var ready = function() {
+$(document).ready(function() {
     if ($('body#download_status').length) {
-        Application.view = new PTDownloadView();
+        Application.view = new DLDownloadView();
     }
-};
-
-$(document).ready(ready);
+});

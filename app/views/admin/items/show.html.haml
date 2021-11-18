@@ -8,6 +8,9 @@
                    { label: 'Items', url: admin_collection_items_path(@item.collection) },
                    *admin_item_structure_breadcrumb(@item))
 
+= hidden_field_tag 'dl-collection-id', @item.collection_repository_id
+= hidden_field_tag 'dl-item-id', @item.repository_id
+
 = render partial: 'show_button_group'
 
 - if @item.parent
@@ -38,6 +41,11 @@
                            role: "tab",
                            "aria-selected": true} Technical Info
       %li.nav-item{role: 'presentation'}
+        %a.nav-link{"aria-controls": "dl-representation",
+                    "data-toggle": "tab",
+                    href: "#dl-representation",
+                    role: "tab"} Representation
+      %li.nav-item{role: 'presentation'}
         %a.nav-link{"aria-controls": "dl-access",
                     "data-toggle": "tab",
                     href: "#dl-access",
@@ -64,6 +72,11 @@
                     "data-toggle": "tab",
                     href: "#dl-schema-org",
                     role: "tab"} schema.org
+      %li.nav-item{role: 'presentation'}
+        %a.nav-link{"aria-controls": "dl-elasticsearch",
+                    "data-toggle": "tab",
+                    href: "#dl-elasticsearch",
+                    role: "tab"} Elasticsearch
 
     -# Display a warning if the item is not free-form and has a preservation
     -# master binary but no access master.
@@ -74,162 +87,36 @@
         %i.fas.fa-exclamation-triangle
         This item has no access master binary.
         Its Medusa package may be malformed.
+
     .tab-content
       #dl-technical-info.tab-pane.active{role: "tabpanel"}
-        = admin_system_info_as_list(@item)
-        = admin_system_info_as_table(@item)
+        = render partial: "admin/items/show_info_tab"
+      #dl-representation.tab-pane{role: "tabpanel"}
+        = render partial: "admin/items/show_representation_tab"
       #dl-access.tab-pane{role: "tabpanel"}
-        %table.table
-          %tr
-            %td Allowed NetIDs
-            %td
-              - if @item.allowed_netids&.any?
-                %table.table.table-sm
-                  %tr
-                    %th NetID
-                    %th Expires
-                  - @item.allowed_netids.each do |h|
-                    - expires = Time.at(h[:expires].to_i)
-                    %tr
-                      %td= h[:netid]
-                      %td{class: expires < Time.now ? "text-danger" : ""}
-                        = local_time_ago(expires)
-          %tr
-            %td Restricted URL
-            %td
-              = item_url(@item)
-              %button.btn.btn-light.btn-sm.dl-copy-to-clipboard{'data-clipboard-text': item_url(@item),
-                                                                type: 'button'}
-                %i.fa.fa-clipboard
-          %tr
-            %td Allowed Host Groups (directly assigned)
-            %td
-              - if @item.allowed_host_groups.any?
-                %ul
-                  - @item.allowed_host_groups.each do |group|
-                    %li= link_to(group.name, admin_host_group_path(group))
-              - else
-                Any
-          %tr
-            %td Allowed Host Groups (effective)
-            %td
-              - effective_allowed_host_groups = @item.effective_allowed_host_groups
-              - if effective_allowed_host_groups.any?
-                %ul
-                  - effective_allowed_host_groups.each do |group|
-                    %li= link_to(group.name, admin_host_group_path(group))
-              - else
-                Any
-          %tr
-            %td Denied Host Groups (directly assigned)
-            %td
-              - if @item.denied_host_groups.any?
-                %ul
-                  - @item.denied_host_groups.each do |group|
-                    %li= link_to(group.name, admin_host_group_path(group))
-              - else
-                None
-          %tr
-            %td Denied Host Groups (effective)
-            - effective_denied_host_groups = @item.effective_denied_host_groups
-            %td
-              - if effective_denied_host_groups.any?
-                %ul
-                  - effective_denied_host_groups.each do |group|
-                    %li= link_to(group.name, admin_host_group_path(group))
-              - else
-                None
+        = render partial: "admin/items/show_access_tab"
       #dl-descriptive-metadata.tab-pane{role: "tabpanel"}
-        .alert.alert-light
-          %i.fa.fa-info-circle
-          Collection metadata profile:
-          \#{@item.collection.metadata_profile ? link_to(@item.collection.metadata_profile&.name, admin_metadata_profile_path(@item.collection.metadata_profile)) : 'None'}
-        = admin_item_metadata_as_table(@item)
+        = render partial: "admin/items/show_metadata_tab"
       #dl-binaries.tab-pane{role: "tabpanel"}
-        .btn-group.mb-3.float-right{role: 'group'}
-          -# Child Items button
-          - if @item.items.count > 0
-            .dropdown
-              %button.btn.btn-light.dropdown-toggle{type: 'button',
-                                             id: 'dl-child-items-button',
-                                             'data-toggle': 'dropdown',
-                                             'aria-haspopup': 'true',
-                                             'aria-expanded': 'false'}
-                %i.fa.fa-sitemap
-                Child Items
-              .dropdown-menu.dropdown-menu-right{'aria-labelledby': 'dl-child-items-button'}
-                = link_to(admin_collection_item_publicize_child_binaries_path(@item.collection, @item),
-                          class: 'dropdown-item',
-                          method: :post) do
-                  %i.fa.fa-unlock
-                  Publicize All Binaries
-                = link_to(admin_collection_item_unpublicize_child_binaries_path(@item.collection, @item),
-                          class: 'dropdown-item',
-                          method: :post) do
-                  %i.fa.fa-lock
-                  Unpublicize All Binaries
-        - if @item.items.count > 0
-          %table.table
-            %tr
-              %td OCR (including all children)
-              - num   = @item.ocred_binaries(recursive: true).count
-              - total = @item.ocrable_binaries(recursive: true).count
-              %td{class: num < total ? 'text-warning' : 'text-success'}
-                - if num < total
-                  %i.fa.fa-exclamation-triangle
-                = number_with_delimiter(num)
-                of
-                = number_with_delimiter(total)
-                binaries OCRed
-
-        .clearfix
-        - @item.binaries.each do |bin|
-          - exists = bin.medusa_file.exists?
-          %div{class: "card #{exists ? "" : "text-white bg-danger"}"}
-            .card-body
-              - if exists
-                .btn-group.float-right{role: 'group'}
-                  = link_to(binary_object_path(bin), class: 'btn btn-sm btn-light') do
-                    %i.fa.fa-download
-                    Download
-                  - if bin.master_type == Binary::MasterType::ACCESS
-                    = link_to admin_collection_item_purge_cached_images_path(@item.collection, @item),
-                              class: 'btn btn-sm  btn-light',
-                              method: 'post' do
-                      %i.fa.fa-trash
-                      Purge Cached Images
-                  .btn-group
-                    %button.btn.btn-light.btn-sm.dropdown-toggle{"aria-expanded": "false",
-                                                                 "aria-haspopup": "true",
-                                                                 "data-toggle":   "dropdown",
-                                                                 type:            "button"}
-                      %i.fa.fa-external-link-alt
-                      Go
-                      %span.caret
-                    .dropdown-menu.dropdown-menu-right
-                      = link_to(bin.medusa_url, class: 'dropdown-item', target: '_blank') do
-                        Medusa
-                      - if bin.image_server_safe?
-                        = link_to(bin.iiif_info_v3_url, class: 'dropdown-item', target: '_blank') do
-                          IIIF Image Info
-              %h3
-                - unless exists
-                  %i.fa.fa-exclamation-triangle
-                = bin.human_readable_master_type
-              - if exists
-                = render partial: 'admin/items/show_binary', locals: { binary: bin }
-              - else
-                .card-text This binary has gone missing from the Medusa Collection Registry since it was imported. |
-                  Run a "recreate binaries" import of this collection to remedy this. |
+        = render partial: "admin/items/show_binaries_tab"
       #dl-schema-org.tab-pane{role: "tabpanel"}
-        .clearfix
-          .float-right
-            %a.btn.btn-light{href: "https://search.google.com/structured-data/testing-tool",
-                             target: "_blank"}
-              %i.fab.fa-google
-              Test
-        %pre= schema_org_json_ld(@item, pretty_print: true)
+        = render partial: "admin/items/show_schema_org_tab"
+      #dl-elasticsearch.tab-pane{role: "tabpanel"}
+        = render partial: "admin/items/show_elasticsearch_tab"
 
 = render partial: 'edit_binary_access_modal'
 = render partial: 'ocr_panel', locals: { show_checked_results_radios: false,
                                          target: admin_collection_item_run_ocr_path(@item.collection, @item) }
+= render partial: 'shared/xhr_modal',
+         locals: { id: "dl-edit-access-modal",
+                   title: "Edit Access" }
+= render partial: 'shared/xhr_modal',
+         locals: { id: "dl-edit-info-modal",
+                   title: "Edit Technical Info" }
+= render partial: 'shared/xhr_modal',
+         locals: { id: "dl-edit-metadata-modal",
+                   title: "Edit Descriptive Metadata",
+                   size: :xl }
+= render partial: 'shared/xhr_modal',
+         locals: { id: "dl-edit-representation-modal",
+                   title: "Edit Representation" }

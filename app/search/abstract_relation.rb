@@ -7,7 +7,8 @@ class AbstractRelation
 
   include Enumerable
 
-  BYTE_SIZE_AGGREGATION = 'byte_size'
+  AGGREGATION_TERM_LIMIT = 100
+  BYTE_SIZE_AGGREGATION  = 'byte_size'
 
   attr_reader :request_json, :response_json
 
@@ -15,7 +16,7 @@ class AbstractRelation
     @client = ElasticsearchClient.instance
 
     @aggregations = true
-    @bucket_limit = Option::integer(Option::Keys::FACET_TERM_LIMIT) || 10
+    @bucket_limit = AGGREGATION_TERM_LIMIT
     @exact_match  = false
     @filters      = {} # Hash<String,Object>
     @host_groups  = []

@@ -42,27 +42,41 @@ class CollectionDecorator < Draper::Decorator
         updated_at:              object.updated_at
     }
 
-    bin = object.effective_representative_image_binary
-    if bin
-      struct[:representative_images][:full] = { full: binary_url(bin) }
-      if bin.image_server_safe?
-        min_exp = 6
-        max_exp = 12
-        (min_exp..max_exp).each do |exp|
-          size = 2 ** exp
-          if (bin.width and bin.width >= size) or (bin.height and bin.height >= size)
-            struct[:representative_images][:full][size.to_s] =
-                "#{bin.iiif_image_v2_url}/full/!#{size},#{size}/0/default.jpg"
-          end
+    rep = object.effective_file_representation
+    if rep
+      struct[:representative_images][:full] = { full: rep.url }
+      min_exp = 6
+      max_exp = 12
+      (min_exp..max_exp).each do |exp|
+        size = 2 ** exp
+        case rep.type
+        when Representation::Type::MEDUSA_FILE
+          struct[:representative_images][:full][size.to_s] =
+            ImageServer.file_image_v2_url(file: rep.file,
+                                          size: size)
+        when Representation::Type::LOCAL_FILE
+          struct[:representative_images][:full][size.to_s] =
+            ImageServer.s3_image_v2_url(bucket: KumquatS3Client::BUCKET,
+                                        key:    rep.key,
+                                        size:   size)
         end
+      end
 
-        struct[:representative_images][:square] = {}
-        (min_exp..max_exp).each do |exp|
-          size = 2 ** exp
-          if bin.width and bin.width >= size and bin.height and bin.height >= size
-            struct[:representative_images][:square][size.to_s] =
-                "#{bin.iiif_image_v2_url}/square/!#{size},#{size}/0/default.jpg"
-          end
+      struct[:representative_images][:square] = {}
+      (min_exp..max_exp).each do |exp|
+        size = 2 ** exp
+        case rep.type
+        when Representation::Type::MEDUSA_FILE
+          struct[:representative_images][:square][size.to_s] =
+            ImageServer.file_image_v2_url(file:   rep.file,
+                                          region: :square,
+                                          size:   size)
+        when Representation::Type::LOCAL_FILE
+          struct[:representative_images][:square][size.to_s] =
+            ImageServer.s3_image_v2_url(bucket: KumquatS3Client::BUCKET,
+                                        key:    rep.key,
+                                        region: :square,
+                                        size:   size)
         end
       end
     end

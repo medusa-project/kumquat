@@ -211,31 +211,42 @@ class CollectionTest < ActiveSupport::TestCase
     assert_equal MetadataProfile.default, @collection.effective_metadata_profile
   end
 
-  # effective_representative_entity()
+  # effective_representation()
 
-  test 'effective_representative_entity() returns the effective
-  representative item when set' do
-    item = items(:compound_object_1002_page1)
-    @collection.representative_item_id = item.repository_id
-    assert_equal item.repository_id,
-                 @collection.effective_representative_entity.repository_id
+  test 'effective_representation() returns a correct instance when using a
+  local file representation' do
+    @collection.representation_type  = Representation::Type::LOCAL_FILE
+    @collection.representative_image = "file.jpg"
+    assert_equal Representation::Type::LOCAL_FILE,
+                 @collection.effective_representation.type
+    assert_equal "representative_images/collection/#{@collection.repository_id}/file.jpg",
+                 @collection.effective_representation.key
   end
 
-  test 'effective_representative_entity() should fall back to the instance' do
-    @collection.representative_item_id = nil
-    assert_same @collection, @collection.effective_representative_entity
+  test 'effective_representation() returns a correct instance when using a
+  Medusa file representation' do
+    @collection.representation_type           = Representation::Type::MEDUSA_FILE
+    @collection.representative_medusa_file_id = '39582239-4307-1cc6-c9c6-074516fd7635'
+    assert_equal Representation::Type::MEDUSA_FILE,
+                 @collection.effective_representation.type
+    assert_equal Medusa::File.with_uuid('39582239-4307-1cc6-c9c6-074516fd7635'),
+                 @collection.effective_representation.file
   end
 
-  # effective_representative_image_binary()
-
-  test 'effective_representative_image_binary() should work' do
-    # TODO: write this
+  test 'effective_representation() returns a correct instance when using an
+  Item representation' do
+    @collection.representation_type    = Representation::Type::ITEM
+    @collection.representative_item_id = items(:compound_object_1001).repository_id
+    rep = @collection.effective_representation
+    assert_equal Representation::Type::ITEM, rep.type
+    assert_equal items(:compound_object_1001), rep.item
   end
 
-  # effective_representative_item()
-
-  test 'effective_representative_item() should work' do
-    # TODO: write this
+  test 'effective_representation() falls back to the instance' do
+    @collection.representation_type = nil
+    rep = @collection.effective_representation
+    assert_equal Representation::Type::COLLECTION, rep.type
+    assert_same @collection, rep.collection
   end
 
   # free_form?()
@@ -537,16 +548,57 @@ class CollectionTest < ActiveSupport::TestCase
     assert @collection.valid?
   end
 
-  # representative_image_binary()
+  # representation_type
 
-  test 'representative_image_binary() works' do
-    # TODO: write this
+  test 'representation_type must be one of the Representation::Type constant values' do
+    @collection.representation_type = Representation::Type::ITEM
+    assert @collection.valid?
+
+    @collection.representation_type = "bogus"
+    assert !@collection.valid?
+  end
+
+  # representative_image
+
+  test 'representative_image must be of an allowed format' do
+    @collection.representative_image = 'file.jp2'
+    assert @collection.valid?
+
+    @collection.representative_image = 'file.bogus'
+    assert !@collection.valid?
+  end
+
+  # representative_image_key()
+
+  test 'representative_image_key() returns nil when representative_image is not
+  set' do
+    @collection.representative_image = nil
+    assert_nil @collection.representative_image_key
+  end
+
+  test 'representative_image_key() returns a correct value' do
+    @collection.representative_image = 'file.jp2'
+    assert_equal "representative_images/collection/#{@collection.repository_id}/file.jp2",
+                 @collection.representative_image_key
   end
 
   # representative_item()
 
-  test 'representative_item() works' do
-    # TODO: write this
+  test 'representative_item() returns nil when representative_item_id is nil' do
+    assert_nil(@collection.representative_item)
+  end
+
+  test 'representative_item() returns nil when representative_item_id is
+  invalid' do
+    @collection.representative_item_id = 'bogus'
+    assert_nil(@collection.representative_item)
+  end
+
+  test 'representative_item() returns an item when representative_item_id is
+  valid' do
+    @collection.representative_item_id =
+      items(:free_form_dir1_dir1_file1).repository_id
+    assert_kind_of Item, @collection.representative_item
   end
 
   # root_item()
@@ -615,6 +667,51 @@ class CollectionTest < ActiveSupport::TestCase
     c.update_from_medusa
 
     assert_equal 'Compound Object Collection', c.title
+  end
+
+  # upload_representative_image()
+
+  test 'upload_representative_image() raises an error for an unsupported file
+  type' do
+    assert_raises ArgumentError do
+      @collection.upload_representative_image(io: nil, filename: "file.bogus")
+    end
+  end
+
+  test 'upload_representative_image() works' do
+    client = KumquatS3Client.instance
+    begin
+      File.open(File.join(Rails.root, 'test', 'fixtures', 'images', 'escher_lego.jpeg'), 'r') do |file|
+        @collection.upload_representative_image(io: file, filename: "file.jpg")
+      end
+      assert client.object_exists?(bucket: KumquatS3Client::BUCKET,
+                                   key:    @collection.representative_image_key)
+    ensure
+      client.delete_objects(prefix: "representative_images/")
+    end
+  end
+
+  test 'upload_representative_image() deletes any previous representative
+  images' do
+    client = KumquatS3Client.instance
+    prefix = "representative_images/"
+    begin
+      # Upload the first one
+      File.open(File.join(Rails.root, 'test', 'fixtures', 'images', 'escher_lego.jpeg'), 'r') do |file|
+        @collection.upload_representative_image(io: file, filename: "file.jpg")
+      end
+      count_1 = client.count_objects(prefix: prefix)
+
+      # Upload another one
+      File.open(File.join(Rails.root, 'test', 'fixtures', 'images', 'escher_lego.jpeg'), 'r') do |file|
+        @collection.upload_representative_image(io: file, filename: "file.jpg")
+      end
+      count_2 = client.count_objects(prefix: prefix)
+
+      assert_equal count_1, count_2
+    ensure
+      client.delete_objects(prefix: prefix)
+    end
   end
 
 end

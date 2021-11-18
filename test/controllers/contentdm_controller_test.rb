@@ -278,11 +278,9 @@ class ContentdmControllerTest < ActionDispatch::IntegrationTest
   test 'v6 thumbnail' do
     get("/utils/getthumbnail/collection/#{@item.contentdm_alias}/id/#{@item.contentdm_pointer}")
     assert_response :moved_permanently
-
-    bin = @item.effective_representative_entity.binaries.
-        where(master_type: Binary::MasterType::ACCESS).first
-    assert_redirected_to sprintf('%s/full/!%d,%d/0/default.jpg',
-                                 bin.iiif_image_v2_url,
+    assert_redirected_to sprintf('%s/%s/full/!%d,%d/0/default.jpg',
+                                 Configuration.instance.iiif_image_v2_url,
+                                 @item.effective_file_representation.file.uuid,
                                  ItemsHelper::DEFAULT_THUMBNAIL_SIZE,
                                  ItemsHelper::DEFAULT_THUMBNAIL_SIZE)
   end

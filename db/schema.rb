@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_10_15_143858) do
+ActiveRecord::Schema.define(version: 2021_11_03_143136) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -115,7 +115,7 @@ ActiveRecord::Schema.define(version: 2021_10_15_143858) do
     t.string "access_url"
     t.boolean "public_in_medusa"
     t.boolean "published_in_dls", default: false
-    t.string "representative_image"
+    t.string "representative_medusa_file_id"
     t.string "representative_item_id"
     t.integer "metadata_profile_id"
     t.string "medusa_file_group_uuid"
@@ -137,6 +137,9 @@ ActiveRecord::Schema.define(version: 2021_10_15_143858) do
     t.boolean "harvestable_by_primo", default: false, null: false
     t.boolean "restricted", default: false, null: false
     t.boolean "publicize_binaries", default: true, null: false
+    t.string "representative_image"
+    t.string "representation_type", default: "self", null: false
+    t.string "representative_item_repository_id", limit: 1024
     t.index ["external_id"], name: "index_collections_on_external_id"
     t.index ["harvestable"], name: "index_collections_on_harvestable"
     t.index ["harvestable_by_idhh"], name: "index_collections_on_harvestable_by_idhh"
@@ -253,7 +256,7 @@ ActiveRecord::Schema.define(version: 2021_10_15_143858) do
     t.string "repository_id", null: false
     t.string "collection_repository_id"
     t.string "parent_repository_id"
-    t.string "representative_item_repository_id"
+    t.string "representative_item_id"
     t.string "variant"
     t.integer "page_number"
     t.integer "subpage_number"
@@ -266,17 +269,20 @@ ActiveRecord::Schema.define(version: 2021_10_15_143858) do
     t.integer "contentdm_pointer"
     t.string "contentdm_alias"
     t.string "embed_tag"
-    t.integer "representative_binary_id"
+    t.string "representative_medusa_file_id"
     t.datetime "end_date"
     t.text "allowed_netids"
     t.datetime "published_at"
     t.boolean "expose_full_text_search", default: true, null: false
+    t.string "representative_item_repository_id", limit: 1024
+    t.string "representative_image"
+    t.string "representation_type", default: "self", null: false
     t.index ["collection_repository_id"], name: "index_items_on_collection_identifier"
     t.index ["parent_repository_id"], name: "index_items_on_parent_identifier"
     t.index ["published"], name: "index_items_on_published"
     t.index ["published_at"], name: "index_items_on_published_at"
     t.index ["repository_id"], name: "index_items_on_identifier", unique: true
-    t.index ["representative_item_repository_id"], name: "index_items_on_representative_item_identifier"
+    t.index ["representative_item_id"], name: "index_items_on_representative_item_identifier"
     t.index ["variant"], name: "index_items_on_variant"
   end
 

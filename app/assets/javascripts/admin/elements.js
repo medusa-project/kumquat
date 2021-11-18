@@ -1,7 +1,7 @@
 /**
  * @constructor
  */
-var PTAdminElementsView = function() {
+const DLAdminElementsView = function() {
 
     this.init = function() {
         $('button.dl-edit-element').on('click', function() {
@@ -17,11 +17,9 @@ var PTAdminElementsView = function() {
 
 };
 
-var ready = function() {
+$(document).ready(function() {
     if ($('body#elements').length) {
-        Application.view = new PTAdminElementsView();
+        Application.view = new DLAdminElementsView();
         Application.view.init();
     }
-};
-
-$(document).ready(ready);
+});

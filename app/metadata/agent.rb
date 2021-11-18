@@ -73,7 +73,7 @@ class Agent < ApplicationRecord
   #
   # @return [self]
   #
-  def effective_representative_entity
+  def effective_representative_object
     self
   end
 

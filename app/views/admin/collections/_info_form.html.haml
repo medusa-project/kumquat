@@ -1,0 +1,52 @@
+= form_for([:admin, @collection]) do |f|
+  = hidden_field_tag :current_descriptive_element_id, @collection.descriptive_element_id
+
+  - if @collection.items.any?
+    .alert.alert-light
+      %i.fas.fa-info-circle
+      The fields in this section can only be changed when the collection is empty.
+  .form-group
+    = f.label :package_profile_id, 'Package Profile'
+    = select(:collection, :package_profile_id,
+             @package_profile_options_for_select,
+             { include_blank: 'None (External Content)' },
+             class: 'custom-select',
+             disabled: @collection.items.any?)
+  .form-group
+    = f.label :medusa_file_group_uuid, 'Medusa File Group UUID'
+    = f.text_field(:medusa_file_group_uuid, class: 'form-control',
+                   disabled: @collection.items.any?)
+  .form-group
+    = f.label :medusa_directory_uuid, 'Medusa Directory UUID'
+    = f.text_field(:medusa_directory_uuid, class: 'form-control',
+                   disabled: @collection.items.any?)
+    %span.form-text.text-muted
+      If omitted, the root directory of the file group will be used.
+
+  %hr
+  .form-group
+    = f.label :metadata_profile_id, 'Metadata Profile'
+    = select(:collection, :metadata_profile_id,
+             @metadata_profile_options_for_select, {},
+             class: 'custom-select')
+  .form-group
+    = f.label :descriptive_element_id, 'Descriptive Element'
+    = select(:collection, :descriptive_element_id,
+             @descriptive_element_options_for_select,
+             { include_blank: true },
+             class: 'custom-select')
+  .form-group
+    = f.label :contentdm_alias, 'CONTENTdm Alias'
+    = f.text_field(:contentdm_alias, class: 'form-control')
+  .form-group
+    - options = options_for_select(RightsStatement.all_statements.map{ |e| [e.name, e.uri] },
+                                   selected: f.object.rightsstatements_org_uri)
+    = f.label :rightsstatements_org_uri, 'RightsStatements.org Statement'
+    = f.select :rightsstatements_org_uri,
+               options,
+               { include_blank: true },
+               { class: 'custom-select' }
+
+  .float-right
+    %button.btn.btn-light{"data-dismiss": "modal", type: "button"} Cancel
+    = f.submit 'Save Changes', class: 'btn btn-primary'

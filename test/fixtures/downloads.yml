@@ -1,11 +1,13 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  key: 4a926d2bd33ca25887043ef83f6950c0
+  key:        4a926d2bd33ca25887043ef83f6950c0
   object_key: repositories/1/collections/1/file_group/1/root/dir1/image1.jpg
-  filename: file.zip
+  filename:   file.zip
+  ip_address: 127.0.0.1
 
 expired:
-  key: cfe5b27128678fe3fe3eb2f5e8ee6d8f
+  key:        cfe5b27128678fe3fe3eb2f5e8ee6d8f
   object_key: repositories/1/collections/1/file_group/1/root/dir1/image1.jpg
-  filename: expired.zip
+  filename:   expired.zip
+  ip_address: 127.0.0.1

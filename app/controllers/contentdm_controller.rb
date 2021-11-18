@@ -1,7 +1,10 @@
 ##
-# Handles requests to CONTENTdm URI paths. A CONTENTdm domain can then be
-# redirected to a DLS instance to enable straightforward redirection of
-# CONTENTdm resources to DLS resources.
+# Handles requests to legacy CONTENTdm URI paths, redirecting them to their
+# current counterparts within the application.
+#
+# CONTENTdm is a digital asset management application that the Library used to
+# use until 2017 or thereabouts, and from which some of the content in this
+# application was migrated.
 #
 class ContentdmController < ApplicationController
 
@@ -157,14 +160,18 @@ class ContentdmController < ApplicationController
   #
   def v6_thumbnail
     item = item_for(params[:alias], params[:pointer])
-
     if item
-      item = item.effective_representative_entity
-      bin = item.binaries.where(master_type: Binary::MasterType::ACCESS,
-                                media_category: Binary::MediaCategory::IMAGE).limit(1).first
-      if bin
-        redirect_to ImageServer.image_v2_url(bin,
-                                             size: ItemsHelper::DEFAULT_THUMBNAIL_SIZE),
+      rep = item.effective_file_representation
+      case rep.type
+      when Representation::Type::MEDUSA_FILE
+        redirect_to ImageServer.file_image_v2_url(file: rep.file,
+                                                  size: ItemsHelper::DEFAULT_THUMBNAIL_SIZE),
+                    status: 301
+        return
+      when Representation::Type::LOCAL_FILE
+        redirect_to ImageServer.s3_image_v2_url(bucket: KumquatS3Client::BUCKET,
+                                                key:    rep.key,
+                                                size:   ItemsHelper::DEFAULT_THUMBNAIL_SIZE),
                     status: 301
         return
       end

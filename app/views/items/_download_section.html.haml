@@ -20,22 +20,23 @@
     .btn-group.mt-2.mb-2
       - if @show_zip_of_masters
         = link_to('',
-                  class: 'btn btn-light',
-                  target: '_blank',
+                  class:         'btn btn-light',
                   'data-toggle': 'modal',
                   'data-target': '#dl-download-zip-modal') do
           %i.far.fa-file-archive
             Zip of Original Files&hellip;
       - if @show_zip_of_jpegs
-        = link_to(item_url(item, format: :zip, contents: :jpegs),
-                  target: '_blank',
-                  class: 'btn btn-light') do
+        = link_to('',
+                  class:         'btn btn-light',
+                  'data-toggle': 'modal',
+                  'data-target': '#dl-download-zip-of-jpegs-modal') do
           %i.far.fa-file-archive
             Zip of JPEGs
       - if @show_pdf
-        = link_to(item_url(item, format: :pdf),
-                  class: 'btn btn-light',
-                  target: '_blank') do
+        = link_to('',
+                  class:         'btn btn-light',
+                  'data-toggle': 'modal',
+                  'data-target': '#dl-download-pdf-modal') do
           %i.far.fa-file-pdf
           PDF
     %table.table
@@ -52,3 +53,5 @@
          locals: { context: item.directory? ? :directory : :item,
                    num_downloadable_items: 0,
                    total_byte_size: @total_byte_size }
+= render partial: 'download_zip_of_jpegs_panel', locals: { item: item }
+= render partial: 'download_pdf_panel', locals: { item: item }

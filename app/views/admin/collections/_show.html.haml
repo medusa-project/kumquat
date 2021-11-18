@@ -5,16 +5,16 @@
                                                        "data-toggle": "tab",
                                                        href: "#nav-technical-info",
                                                        role: "tab"} Technical Info
+    %a#nav-representation-tab.nav-item.nav-link{"aria-controls": "nav-representation",
+                                                "aria-selected": "true",
+                                                "data-toggle": "tab",
+                                                href: "#nav-representation",
+                                                role: "tab"} Representation
     %a#nav-access-tab.nav-item.nav-link{"aria-controls": "nav-access",
                                         "aria-selected": "false",
                                         "data-toggle": "tab",
                                         href: "#nav-access",
                                         role: "tab"} Access
-    %a#nav-repository-tab.nav-item.nav-link{"aria-controls": "nav-repository",
-                                            "aria-selected": "false",
-                                            "data-toggle": "tab",
-                                            href: "#nav-repository",
-                                            role: "tab"} Repository
     %a#nav-watchers-tab.nav-item.nav-link{"aria-controls": "nav-watchers",
                                           "aria-selected": "false",
                                           "data-toggle": "tab",
@@ -31,222 +31,33 @@
       Sets
       %span.badge.badge-pill.badge-secondary
         = @collection.item_sets.count
+    %a#nav-elasticsearch-tab.nav-item.nav-link{"aria-controls": "nav-elasticsearch",
+                                               "aria-selected": "false",
+                                               "data-toggle": "tab",
+                                               href: "#nav-elasticsearch",
+                                               role: "tab"} Elasticsearch
+
 #nav-tabContent.tab-content
   #nav-technical-info.tab-pane.fade.show.active{"aria-labelledby": "nav-technical-info-tab",
                                                 role: "tabpanel"}
-    %table.table
-      %tr
-        %td ID
-        %td
-          %code= @collection.repository_id
-      %tr
-        %td External ID
-        %td
-          %code= @collection.external_id
-      %tr
-        %td Metadata Profile
-        %td
-          - if @collection.metadata_profile
-            = link_to(@collection.metadata_profile.name,
-                      admin_metadata_profile_path(@collection.metadata_profile))
-          - else
-            = link_to("Default (#{MetadataProfile.default.name})",
-                      admin_metadata_profile_path(MetadataProfile.default))
-      %tr
-        %td Descriptive Element
-        %td
-          = @collection.descriptive_element ? @collection.descriptive_element.label : 'None'
-      %tr
-        %td Package Profile
-        %td
-          = @collection.package_profile ? @collection.package_profile.name : 'None'
-      %tr
-        %td Medusa File Group
-        %td
-          - if @file_group
-            - begin
-              = link_to(@file_group.title, @file_group.url)
-            - rescue Medusa::NotFoundError
-              Invalid
-          - else
-            None
-      %tr
-        %td Medusa CFS Directory
-        %td
-          - if @collection.medusa_directory
-            = medusa_directory_link(@collection.medusa_directory_uuid,
-                                    @collection.medusa_directory)
-          - else
-            Same as File Group
-      %tr
-        %td Representative Item
-        %td
-          - @representative_item = @collection.representative_item
-          - if @representative_item
-            = link_to(@representative_item.title,
-                      admin_collection_item_path(@collection, @representative_item))
-          - else
-            None
-      - rep_image_uuid = @collection.representative_image
-      - rep_image_file = Medusa::File.with_uuid(rep_image_uuid)
-      %tr
-        %td Representative Image
-        %td
-          - if rep_image_uuid.present?
-            - if rep_image_file.exists?
-              %code= link_to(rep_image_file.relative_key, rep_image_file.url, target: '_blank')
-            - else
-              %p.text-danger
-                %i.fa.fa-exclamation-triangle
-                Invalid Medusa file UUID
-          - else
-            None
-      %tr
-        %td CONTENTdm Alias
-        %td
-          - if @collection.contentdm_alias.present?
-            %code= @collection.contentdm_alias
-          - else
-            None
-      %tr
-        %td Rights Statement
-        %td
-          = @collection.rights_statement.present? ? @collection.rights_statement : 'None'
-      %tr
-        %td RightsStatements.org
-        %td
-          = @collection.rightsstatements_org_statement ? @collection.rightsstatements_org_statement.name : 'None'
-      %tr
-        %td First Imported
-        %td= local_time(@collection.created_at)
-      %tr
-        %td Last Updated
-        %td= local_time(@collection.updated_at)
+    = render partial: 'admin/collections/show_info_tab'
+
+  #nav-representation.tab-pane.fade{"aria-labelledby": "nav-representation-tab",
+                                    role: "tabpanel"}
+    = render partial: 'admin/collections/show_representation_tab'
 
   #nav-access.tab-pane.fade{"aria-labelledby": "nav-access-tab",
                             role: "tabpanel"}
-    %table.table
-      %tr
-        %td Medusa Collection Metadata
-        %td
-          %span{class: "badge #{@collection.public_in_medusa ? 'badge-success' : 'badge-danger'}"}
-            = @collection.public_in_medusa ? 'Public' : 'Private'
-      %tr
-        %td Published
-        %td
-          %span{class: "badge #{@collection.published_in_dls ? 'badge-success' : 'badge-danger'}"}
-            = @collection.published_in_dls ? 'Published' : 'Unpublished'
-      %tr
-        %td Binaries
-        %td
-          %span{class: "badge #{@collection.publicize_binaries ? 'badge-success' : 'badge-danger'}"}
-            = @collection.publicize_binaries ? 'Public' : 'Private'
-      %tr
-        %td Harvestable
-        %td
-          %span{class: "badge #{@collection.harvestable ? 'badge-success' : 'badge-danger'}"}
-            = @collection.harvestable ? 'Harvestable (in general)' : 'Unharvestable (in general)'
-          %span{class: "badge #{@collection.harvestable_by_idhh ? 'badge-success' : 'badge-danger'}"}
-            = @collection.harvestable_by_idhh ? 'Harvestable by IDHH' : 'Unharvestable by IDHH'
-          %span{class: "badge #{@collection.harvestable_by_primo ? 'badge-success' : 'badge-danger'}"}
-            = @collection.harvestable_by_primo ? 'Harvestable by Primo' : 'Unharvestable by Primo'
-      %tr
-        %td Restricted
-        %td
-          %span{class: "badge #{@collection.restricted ? 'badge-danger' : 'badge-success'}"}
-            = @collection.restricted ? 'Restricted' : 'Unrestricted'
-      %tr
-        %td Allowed Host Groups
-        %td
-          - if @collection.allowed_host_groups.any?
-            %ul
-              - @collection.allowed_host_groups.each do |group|
-                %li= link_to group.name, admin_host_group_path(group)
-          - else
-            Any
-      %tr
-        %td Denied Host Groups
-        %td
-          - if @collection.denied_host_groups.any?
-            %ul
-              - @collection.denied_host_groups.each do |group|
-                %li= link_to group.name, admin_host_group_path(group)
-          - else
-            None
-
-  #nav-repository.tab-pane.fade{"aria-labelledby": "nav-repository-tab",
-                                role: "tabpanel"}
-    %table.table
-      %tr
-        %td Title
-        %td= link_to @collection.repository&.title, @collection.repository&.url
-      %tr
-        %td Contact Email
-        %td
-          - if @collection.repository&.contact_email.present?
-            = link_to @collection.repository.contact_email,
-              "mailto:#{@collection.repository.contact_email}"
+    = render partial: 'admin/collections/show_access_tab'
 
   #nav-watchers.tab-pane.fade{"aria-labelledby": "nav-watchers-tab",
                               role: "tabpanel"}
-    .row
-      .col-sm-6
-        .card
-          .card-body
-            .btn.btn-group.float-right
-              - if current_user.watching?(@collection)
-                = link_to(admin_collection_unwatch_path(@collection),
-                          method: :patch,
-                          class: 'btn btn-sm btn-light') do
-                  %i.fa.fa-eye-slash
-                  Unwatch
-              - else
-                = link_to(admin_collection_watch_path(@collection),
-                          method: :patch,
-                          class: 'btn btn-sm btn-light') do
-                  %i.fa.fa-eye
-                  Watch
-            %h4.card-title NetID Watchers
-            %ul
-              - @collection.watches.select{ |w| w.user_id.present? }.each do |watch|
-                %li
-                  = link_to(admin_user_path(watch.user)) do
-                    = icon_for(User)
-                    = watch.user
-      .col-sm-6
-        .card
-          .card-body
-            .btn.btn-group.float-right
-              %button.btn.btn-sm.btn-light.dl-edit-email-watchers{type: 'button',
-                                                                  'data-toggle': 'modal',
-                                                                  'data-target': '#dl-edit-email-watchers-modal'}
-                %i.fas.fa-pencil-alt
-                Edit&hellip;
-
-            %h4.card-title Email Watchers
-            %ul
-              - @collection.watches.select{ |w| w.email.present? }.sort_by(&:email).each do |watch|
-                %li
-                  = link_to("mailto:#{watch.email}") do
-                    = watch.email
-
+    = render partial: 'admin/collections/show_watchers_tab'
 
   #nav-sets.tab-pane.fade{"aria-labelledby": "nav-sets-tab",
                           role: "tabpanel"}
-    .btn.btn-group.float-right
-      %button.btn.btn-light.dl-add-item-set{"data-target": "#dl-add-item-set-modal",
-                                            "data-toggle": "modal",
-                                            type: "button"}
-        %span.fa.fa-plus
-        Add Set
-    %table.table
-      - @collection.item_sets.order(:name).each do |set|
-        %tr
-          %td
-            = link_to set, admin_collection_item_set_path(@collection, set)
-          %td
-            = icon_for(User)
-            = set.users.count
-          %td
-            = icon_for(Item)
-            = number_with_delimiter(set.num_objects)
+    = render partial: 'admin/collections/show_sets_tab'
+
+  #nav-elasticsearch.tab-pane.fade{"aria-labelledby": "nav-elasticsearch-tab",
+                                   role: "tabpanel"}
+    = render partial: 'admin/collections/show_elasticsearch_tab'

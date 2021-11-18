@@ -27,14 +27,15 @@ class CreateZipOfJpegsJob < Job
                                                   task: self.task)
 
     if temp_pathname.present?
-      # Create the downloads directory if necessary, and move the zip there.
-      dest_dir = Download::DOWNLOADS_DIRECTORY
-      FileUtils.mkdir_p(dest_dir)
-
-      dest_pathname = File.join(dest_dir, "#{zip_name}-#{Time.now.to_formatted_s(:number)}.zip")
-      FileUtils.move(temp_pathname, dest_pathname)
-
-      download.update!(filename: File.basename(dest_pathname))
+      # Upload the PDF into the application S3 bucket.
+      filename = "#{zip_name}-#{Time.now.to_formatted_s(:number)}.zip"
+      dest_key = "#{Download::DOWNLOADS_KEY_PREFIX}#{filename}"
+      File.open(temp_pathname, "r") do |file|
+        KumquatS3Client.instance.put_object(bucket: KumquatS3Client::BUCKET,
+                                            key:    dest_key,
+                                            body:   file)
+      end
+      download.update!(filename: filename)
 
       self.task&.succeeded
     else

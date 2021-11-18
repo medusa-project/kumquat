@@ -1,7 +1,8 @@
 module ApplicationHelper
 
-  CARD_IMAGE_SIZE = 512
+  CARD_IMAGE_SIZE      = 512
   MAX_PAGINATION_LINKS = 9
+  CAPTCHA_SALT         = ::Configuration.instance.secret_key_base
 
   LOGGER = CustomLogger.new(ApplicationHelper)
 
@@ -74,27 +75,64 @@ module ApplicationHelper
   # Renders the breadcrumb in public views. For admin views, see
   # {AdminHelper#admin_breadcrumb}.
   #
-  # @param options [Hash]
-  # @option options [Collection] :collection
-  # @option options [ItemsController::BrowseContext] :context
-  # @option options [String] :context_url
-  # @option options [Item] :item
+  # @param collection [Collection]
+  # @param item [Item]
+  # @param context [ItemsController::BrowseContext]
+  # @param context_url [String]
   # @return [String]
   #
-  def breadcrumb(options = {})
+  def breadcrumb(collection: nil, item: nil, context: nil, context_url: nil)
     case controller_name
       when 'collections'
-        return collection_view_breadcrumb(options[:collection])
+        return collection_view_breadcrumb(collection)
       when 'items'
         case action_name
           when 'index', 'tree'
-            return results_breadcrumb(options[:collection], options[:context])
+            return results_breadcrumb(collection, context)
           when 'show'
-            return item_view_breadcrumb(options[:item], options[:context],
-                                        options[:context_url])
+            return item_view_breadcrumb(item, context, context_url)
         end
     end
     nil
+  end
+
+  ##
+  # Returns a CAPTCHA form.
+  #
+  # This is typically used in a modal in conjunction with the
+  # `Application.Captcha` JavaScript function.
+  #
+  # @param form_action [String] URL or URL path to submit the form to. This is
+  #                             typically the same as what a non-CAPTCHA-
+  #                             protected link would be pointing to.
+  # @param block [Block]        Additional HTML content to insert into the
+  #                             form.
+  # @return [String]            HTML form string.
+  #
+  def captcha(form_action, &block)
+    html = StringIO.new
+    html << form_tag(form_action, method: :get, class: "dl-captcha-form") do
+      number1     = rand(9)
+      number2     = rand(9)
+      answer_hash = Digest::MD5.hexdigest((number1 + number2).to_s + CAPTCHA_SALT)
+      form_html   = StringIO.new
+      if block_given?
+        form_html   << capture(&block)
+        form_html   << "<br>"
+      end
+      form_html   << text_field_tag(:email, nil,
+                                    placeholder: "Leave this field blank",
+                                    class:       "dl-captcha-email") # honeypot field
+      form_html   << label_tag(:answer, raw("What is #{number1} &plus; #{number2}?"))
+      form_html   << text_field_tag(:answer, nil, class: "form-control")
+      form_html   << hidden_field_tag(:correct_answer_hash, answer_hash)
+      form_html   << '<div class="text-right mt-3">'
+      form_html   <<   '<button class="btn btn-light" data-dismiss="modal" type="button">Cancel</button>'
+      form_html   <<   '<input type="submit" value="Download" class="btn btn-primary">'
+      form_html   << '</div>'
+      raw(form_html.string)
+    end
+    raw(html.string)
   end
 
   ##
@@ -104,20 +142,17 @@ module ApplicationHelper
   def entities_as_cards(entities)
     html = StringIO.new
     entities.each do |entity|
-      bin = nil
-      begin
-        # If the entity is a Collection and the reference to the binary is
-        # invalid (for example, an invalid UUID has been entered), this will
-        # raise an error.
-        bin = entity.effective_representative_image_binary
-      rescue => e
-        LOGGER.warn('entities_as_cards(): %s (%s)', e, entity)
-      end
-
-      if bin&.image_server_safe?
-        img_url = ImageServer.image_v2_url(bin,
-                                           region: 'square',
-                                           size: CARD_IMAGE_SIZE)
+      rep = entity.effective_file_representation
+      case rep.type
+      when Representation::Type::MEDUSA_FILE && rep.file
+        img_url = ImageServer.file_image_v2_url(file:   rep.file,
+                                                region: 'square',
+                                                size:   CARD_IMAGE_SIZE)
+      when Representation::Type::LOCAL_FILE && rep.key
+        img_url = ImageServer.s3_image_v2_url(bucket: KumquatS3Client::BUCKET,
+                                              key:    rep.key,
+                                              region: 'square',
+                                              size:   CARD_IMAGE_SIZE)
       else
         case entity.class.to_s
           when 'Collection'
@@ -159,7 +194,7 @@ module ApplicationHelper
       html <<   '<div class="dl-thumbnail-container">'
       link_target = polymorphic_path(entity)
       html << link_to(link_target) do
-        thumbnail_tag(entity.effective_representative_entity, shape: :square)
+        thumbnail_tag(entity, shape: :square)
       end
       # N.B.: this was made by https://loading.io with the following settings:
       # rolling, color: #cacaca, radius: 25, stroke width: 10, speed: 5, size: 150
@@ -355,7 +390,7 @@ module ApplicationHelper
   # lazy-loading using JavaScript.
   #
   # @param source [String]
-  # @param options [Hash]
+  # @param options [Hash] Additional HTML tag attributes.
   # @return [String]
   #
   def lazy_image_tag(source, options = {})
@@ -487,6 +522,79 @@ module ApplicationHelper
       html <<     text
       html <<   '</div>'
       html << '</div>'
+    end
+    raw(html.string)
+  end
+
+  def spinner
+    raw('<div class="d-flex justify-content-center align-items-center" style="height: 100%">
+      <div class="spinner-border text-secondary" role="status">
+        <span class="sr-only">Loading&hellip;</span>
+      </div>
+    </div>')
+  end
+
+  ##
+  # @param entity [Binary, Representable, Medusa::File] See above.
+  # @param shape [Symbol] `:full` or `:square`.
+  # @param size [Integer]
+  # @param lazy [Boolean] If true, the `data-src` attribute will be set instead
+  #                       of `src`; defaults to false.
+  # @return [String]
+  #
+  def thumbnail_tag(entity,
+                    shape: :full,
+                    size:  ItemsHelper::DEFAULT_THUMBNAIL_SIZE,
+                    lazy:  false)
+    rep_entity = entity
+    if entity.class.include?(Representable)
+      rep_entity = entity.effective_file_representation
+      case rep_entity.type
+      when Representation::Type::MEDUSA_FILE
+        rep_entity = rep_entity.file
+      when Representation::Type::LOCAL_FILE
+        rep_entity = rep_entity.key
+      end
+    end
+
+    url = nil
+    if rep_entity.kind_of?(Medusa::File)
+      url = ImageServer.file_image_v2_url(file:   rep_entity,
+                                          region: shape,
+                                          size:   size)
+    elsif rep_entity.kind_of?(Binary)
+      url = ImageServer.binary_image_v2_url(binary: rep_entity,
+                                            region: shape,
+                                            size:   size)
+    elsif rep_entity.kind_of?(Item)
+      url = item_image_url(item:   rep_entity,
+                           region: shape,
+                           size:   size)
+    elsif rep_entity.kind_of?(String)
+      url = ImageServer.s3_image_v2_url(bucket: KumquatS3Client::BUCKET,
+                                        key:    rep_entity,
+                                        region: shape,
+                                        size:   size)
+    end
+
+    html = StringIO.new
+    if url
+      # No alt because it may appear in a huge font size if the image is 404. TODO: is this still the case?
+      if lazy
+        html << lazy_image_tag(url, class: 'dl-thumbnail mr-3', alt: '')
+      else
+        html << image_tag(url, class: 'dl-thumbnail mr-3', alt: '',
+                          data: { location: 'remote' })
+      end
+    else
+      # N.B.: instead of using ApplicationHelper.icon_for(), we have
+      # pre-downloaded some Font Awesome icons as SVGs and saved in them in the
+      # assets directory. This results in them appearing in <img> tags which
+      # helps make our CSS more concise. The files are available at:
+      # https://github.com/encharm/Font-Awesome-SVG-PNG/tree/master/black/svg
+      html << image_tag('fontawesome-' + fontawesome_icon_for(entity)[1] + '.svg',
+                        'data-type':     'svg',
+                        'data-location': 'local')
     end
     raw(html.string)
   end

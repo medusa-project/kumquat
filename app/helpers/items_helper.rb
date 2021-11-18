@@ -7,6 +7,8 @@ module ItemsHelper
   VIEWER_HEIGHT          = '650px'
   VIEWER_WIDTH           = '95%'
 
+  include ApplicationHelper # make its methods available in testing
+
   ##
   # @param binary [Binary]
   # @option admin [Boolean] Whether to include administrative information.
@@ -244,10 +246,10 @@ module ItemsHelper
     url = nil
     bin = item.effective_image_binary
     if bin
-      url = ImageServer.image_v2_url(bin,
-                                     region: region.to_s,
-                                     size:   size,
-                                     format: format.to_s)
+      url = ImageServer.binary_image_v2_url(binary: bin,
+                                            region: region.to_s,
+                                            size:   size,
+                                            format: format.to_s)
     end
     url
   end
@@ -365,7 +367,7 @@ module ItemsHelper
       html <<   link_to(item) do
         thumb = StringIO.new
         thumb << '<div class="dl-thumbnail">'
-        thumb <<   thumbnail_tag(item.effective_representative_entity, size: thumb_width)
+        thumb <<   thumbnail_tag(item, size: thumb_width)
         thumb << '</div>'
         raw(thumb.string)
       end
@@ -842,56 +844,6 @@ module ItemsHelper
       html << '</tr>'
     end
     html << '</table>'
-    raw(html.string)
-  end
-
-  ##
-  # @param entity [Object]
-  # @param shape [Symbol] `:full` or `:square`.
-  # @param size [Integer]
-  # @param lazy [Boolean] If true, the `data-src` attribute will be set instead
-  #                       of `src`; defaults to false.
-  # @return [String]
-  #
-  def thumbnail_tag(entity,
-                    size:  DEFAULT_THUMBNAIL_SIZE,
-                    shape: :full,
-                    lazy:  false)
-    url = nil
-    if entity.kind_of?(Binary)
-      url = ImageServer.image_v2_url(entity,
-                                     region: shape,
-                                     size:   size)
-    elsif entity.kind_of?(Collection)
-      bin = entity.effective_representative_image_binary
-      url = ImageServer.image_v2_url(bin,
-                                     region: shape,
-                                     size:   size)
-    elsif entity.kind_of?(Item)
-      url = item_image_url(item:   entity,
-                           region: shape,
-                           size:   size)
-    end
-
-    html = StringIO.new
-    if url
-      # No alt because it may appear in a huge font size if the image is 404. TODO: is this still the case?
-      if lazy
-        html << lazy_image_tag(url, class: 'dl-thumbnail mr-3', alt: '')
-      else
-        html << image_tag(url, class: 'dl-thumbnail mr-3', alt: '',
-                          data: { location: 'remote' })
-      end
-    else
-      # N.B.: instead of using ApplicationHelper.icon_for(), we have
-      # pre-downloaded some Font Awesome icons as SVGs and saved in them in the
-      # assets directory. This results in them appearing in <img> tags which
-      # helps make our CSS more concise. The files are available at:
-      # https://github.com/encharm/Font-Awesome-SVG-PNG/tree/master/black/svg
-      html << image_tag('fontawesome-' + fontawesome_icon_for(entity)[1] + '.svg',
-                        'data-type': 'svg',
-                        'data-location': 'local')
-    end
     raw(html.string)
   end
 

@@ -8,10 +8,17 @@ json.label @collection.title
 json.description @collection.description
 
 # Thumbnail image
-bin = @collection.effective_representative_image_binary
-if bin
-  thumb_url = ImageServer.image_v2_url(bin,
-                                       size: ItemsHelper::DEFAULT_THUMBNAIL_SIZE)
+rep = @collection.effective_file_representation
+if rep
+  case rep.type
+  when Representation::Type::MEDUSA_FILE
+    thumb_url = ImageServer.file_image_v2_url(file: rep.file,
+                                              size: ItemsHelper::DEFAULT_THUMBNAIL_SIZE)
+  when Representation::Type::LOCAL_FILE
+    thumb_url = ImageServer.s3_image_v2_url(bucket: KumquatS3Client::BUCKET,
+                                            key:    rep.key,
+                                            size:   ItemsHelper::DEFAULT_THUMBNAIL_SIZE)
+  end
   json.thumbnail do
     json.set! '@id', thumb_url
     json.service do

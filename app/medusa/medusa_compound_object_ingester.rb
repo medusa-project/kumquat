@@ -118,7 +118,8 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
 
                   # Create the preservation master binary.
                   child.binaries << Binary.from_medusa_file(
-                      pres_file, Binary::MasterType::PRESERVATION)
+                    file:        pres_file,
+                    master_type: Binary::MasterType::PRESERVATION)
 
                   # Find and create the access master binary.
                   begin
@@ -139,7 +140,8 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
               # Create the preservation master binary.
               pres_file = pres_dir.files.first
               item.binaries << Binary.from_medusa_file(
-                  pres_file, Binary::MasterType::PRESERVATION)
+                file:        pres_file,
+                master_type: Binary::MasterType::PRESERVATION)
 
               # Find and create the access master binary.
               begin
@@ -177,8 +179,9 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
                                  variant:                  Item::Variants::SUPPLEMENT)
                 # Assign a title of the filename.
                 child.elements.build(name: 'title', value: supp_file.name)
-                child.binaries << Binary.from_medusa_file(supp_file,
-                                                          Binary::MasterType::PRESERVATION)
+                child.binaries << Binary.from_medusa_file(
+                  file:        supp_file,
+                  master_type: Binary::MasterType::PRESERVATION)
                 child.save!
                 stats[:num_created] += 1
               end
@@ -203,8 +206,9 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
                                  variant:                  Item::Variants::COMPOSITE)
                 # Assign a title of the filename.
                 child.elements.build(name: 'title', value: comp_file.name)
-                child.binaries << Binary.from_medusa_file(comp_file,
-                                                          Binary::MasterType::PRESERVATION)
+                child.binaries << Binary.from_medusa_file(
+                  file:        comp_file,
+                  master_type: Binary::MasterType::PRESERVATION)
                 child.save!
                 stats[:num_created] += 1
               end
@@ -306,8 +310,8 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
                     child.binaries.destroy_all
 
                     # Create the preservation master binary.
-                    bin = Binary.from_medusa_file(pres_file,
-                                                  Binary::MasterType::PRESERVATION)
+                    bin = Binary.from_medusa_file(file:        pres_file,
+                                                  master_type: Binary::MasterType::PRESERVATION)
                     bin.item = child
                     bin.save!
                     stats[:num_created] += 1
@@ -334,8 +338,8 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
 
                 # Create the preservation master binary.
                 pres_file = pres_dir.files.first
-                item.binaries << Binary.from_medusa_file(pres_file,
-                                                         Binary::MasterType::PRESERVATION)
+                item.binaries << Binary.from_medusa_file(file:        pres_file,
+                                                         master_type: Binary::MasterType::PRESERVATION)
                 stats[:num_created] += 1
 
                 # Find and create the access master binary.
@@ -363,8 +367,9 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
                 item = Item.find_by_repository_id(supp_file.uuid)
                 if item
                   item.binaries.destroy_all
-                  item.binaries << Binary.from_medusa_file(supp_file,
-                                                           Binary::MasterType::PRESERVATION)
+                  item.binaries << Binary.from_medusa_file(
+                    file:        supp_file,
+                    master_type: Binary::MasterType::PRESERVATION)
                   item.save!
                   stats[:num_created] += 1
                 else
@@ -382,8 +387,9 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
                 item = Item.find_by_repository_id(comp_file.uuid)
                 if item
                   item.binaries.destroy_all
-                  item.binaries << Binary.from_medusa_file(comp_file,
-                                                           Binary::MasterType::PRESERVATION)
+                  item.binaries << Binary.from_medusa_file(
+                    file:        comp_file,
+                    master_type: Binary::MasterType::PRESERVATION)
                   item.save!
                   stats[:num_created] += 1
                 else
@@ -434,7 +440,8 @@ class MedusaCompoundObjectIngester < MedusaAbstractIngester
             find{ |f| f.name.chomp(File.extname(f.name)) ==
             pres_master_name.chomp(File.extname(pres_master_name)) }
         if access_file
-          return Binary.from_medusa_file(access_file, Binary::MasterType::ACCESS)
+          return Binary.from_medusa_file(file:        access_file,
+                                         master_type: Binary::MasterType::ACCESS)
         else
           msg = "Preservation master file #{pres_master_file.uuid} has no "\
               "access master counterpart."

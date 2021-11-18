@@ -30,11 +30,11 @@ class DownloadTest < ActiveSupport::TestCase
     assert @download.key.length > 20
   end
 
-  # pathname()
+  # object_key()
 
-  test 'pathname() returns the correct pathname' do
-    assert_equal File.join(Rails.root, 'tmp', 'downloads', @download.filename),
-                 @download.pathname
+  test 'object_key() returns a correct value' do
+    assert_equal Download::DOWNLOADS_KEY_PREFIX + @download.filename,
+                 @download.object_key
   end
 
   # ready?()

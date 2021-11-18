@@ -1,0 +1,56 @@
+- if current_user.can?(Permissions::MODIFY_COLLECTIONS)
+  .btn-group.float-right.mb-3
+    %button.btn.btn-light.dl-edit-access{type: 'button',
+                                           'data-toggle': 'modal',
+                                           'data-target': '#dl-edit-access-modal'}
+      %i.fas.fa-pencil-alt
+      Edit&hellip;
+
+  %table.table
+    %tr
+      %td Medusa Collection Metadata
+      %td
+        %span{class: "badge #{@collection.public_in_medusa ? 'badge-success' : 'badge-danger'}"}
+          = @collection.public_in_medusa ? 'Public' : 'Private'
+    %tr
+      %td Published
+      %td
+        %span{class: "badge #{@collection.published_in_dls ? 'badge-success' : 'badge-danger'}"}
+          = @collection.published_in_dls ? 'Published' : 'Unpublished'
+    %tr
+      %td Binaries
+      %td
+        %span{class: "badge #{@collection.publicize_binaries ? 'badge-success' : 'badge-danger'}"}
+          = @collection.publicize_binaries ? 'Public' : 'Private'
+    %tr
+      %td Harvestable
+      %td
+        %span{class: "badge #{@collection.harvestable ? 'badge-success' : 'badge-danger'}"}
+          = @collection.harvestable ? 'Harvestable (in general)' : 'Unharvestable (in general)'
+        %span{class: "badge #{@collection.harvestable_by_idhh ? 'badge-success' : 'badge-danger'}"}
+          = @collection.harvestable_by_idhh ? 'Harvestable by IDHH' : 'Unharvestable by IDHH'
+        %span{class: "badge #{@collection.harvestable_by_primo ? 'badge-success' : 'badge-danger'}"}
+          = @collection.harvestable_by_primo ? 'Harvestable by Primo' : 'Unharvestable by Primo'
+    %tr
+      %td Restricted
+      %td
+        %span{class: "badge #{@collection.restricted ? 'badge-danger' : 'badge-success'}"}
+          = @collection.restricted ? 'Restricted' : 'Unrestricted'
+    %tr
+      %td Allowed Host Groups
+      %td
+        - if @collection.allowed_host_groups.any?
+          %ul
+            - @collection.allowed_host_groups.each do |group|
+              %li= link_to group.name, admin_host_group_path(group)
+        - else
+          Any
+    %tr
+      %td Denied Host Groups
+      %td
+        - if @collection.denied_host_groups.any?
+          %ul
+            - @collection.denied_host_groups.each do |group|
+              %li= link_to group.name, admin_host_group_path(group)
+        - else
+          None

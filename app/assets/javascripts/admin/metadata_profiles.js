@@ -1,9 +1,9 @@
 /**
  * @constructor
  */
-var PTAdminMetadataProfileView = function() {
+const DLAdminMetadataProfileView = function() {
 
-    var init = function() {
+    const init = function() {
         $('button#dl-delete-checked').on('click', function() {
             $(this).parents('form').submit();
         });
@@ -20,10 +20,8 @@ var PTAdminMetadataProfileView = function() {
 
 };
 
-var ready = function() {
+$(document).ready(function() {
     if ($('body#metadata_profiles_show').length) {
-        Application.view = new PTAdminMetadataProfileView();
+        Application.view = new DLAdminMetadataProfileView();
     }
-};
-
-$(document).ready(ready);
+});

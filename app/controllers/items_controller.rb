@@ -313,22 +313,18 @@ class ItemsController < WebsiteController
           }
       end
       format.zip do
+        return unless check_captcha
         download_relation.limit((params[:limit].to_i > 0) ?
                                   params[:limit].to_i : ElasticsearchClient::MAX_RESULT_WINDOW)
-
         # Use the Medusa Downloader to generate a zip of items from
         # download_relation. It takes the downloader time to generate the zip
         # file manifest, which would block the web server if we did it here,
-        # so the strategy is to do it using the asynchronous download feature,
-        # and then stream the zip out to the user via the download button when
-        # it's ready to start streaming.
+        # so the strategy is to do it using the asynchronous download feature.
         item_ids = download_relation.to_a.map(&:repository_id)
-
         if item_ids.any?
-          start = params[:download_start].to_i + 1
-          end_ = params[:download_start].to_i + item_ids.length
+          start    = params[:download_start].to_i + 1
+          end_     = params[:download_start].to_i + item_ids.length
           zip_name = "items-#{start}-#{end_}"
-
           download = Download.create(ip_address: request.remote_ip)
           DownloadZipJob.perform_later(item_ids,
                                        zip_name,
@@ -463,6 +459,7 @@ class ItemsController < WebsiteController
         render json: @item.decorate
       end
       format.pdf do
+        return unless check_captcha
         # PDF download is only available for compound objects.
         if @item.compound?
           download = Download.create(ip_address: request.remote_ip)
@@ -474,6 +471,7 @@ class ItemsController < WebsiteController
         end
       end
       format.zip do
+        return unless check_captcha
         # See the documentation for format.zip in index().
         #
         # * For Directory-variant items, the zip file will contain content for
@@ -557,7 +555,6 @@ class ItemsController < WebsiteController
       @collection = Collection.find_by_repository_id(params[:collection_id])
       raise ActiveRecord::RecordNotFound unless @collection
     end
-
     respond_to do |format|
       format.html do
         if @collection.free_form?
@@ -568,10 +565,10 @@ class ItemsController < WebsiteController
                 include_children_in_results(true).
                 aggregations(false)
             @num_downloadable_items = download_relation.count
-            @total_byte_size = download_relation.total_byte_size
-            @num_directories = @collection.items.
+            @total_byte_size        = download_relation.total_byte_size
+            @num_directories        = @collection.items.
                 where(variant: Item::Variants::DIRECTORY).count
-            @num_files = @collection.items.
+            @num_files              = @collection.items.
                 where(variant: Item::Variants::FILE).count
             render 'show_collection_summary', layout: false
           end
@@ -586,7 +583,8 @@ class ItemsController < WebsiteController
         redirect_to collection_items_path(format: :json)
       end
       format.zip do
-        redirect_to collection_items_path(format: :zip, params: @permitted_params)
+        redirect_to collection_items_path(format: :zip,
+                                          params: @permitted_params)
       end
     end
   end

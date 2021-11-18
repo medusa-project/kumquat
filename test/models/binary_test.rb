@@ -30,31 +30,40 @@ class BinaryTest < ActiveSupport::TestCase
 
   # from_medusa_file()
 
-  test 'from_medusa_file() returns a correct binary' do
+  test 'from_medusa_file() returns an existing instance when one corresponding
+  to the given file exists' do
     file   = Medusa::File.with_uuid('39582239-4307-1cc6-c9c6-074516fd7635')
-    binary = Binary.from_medusa_file(file, Binary::MasterType::PRESERVATION)
-    assert_equal Binary::MasterType::PRESERVATION, binary.master_type
+    binary = Binary.from_medusa_file(file:        file,
+                                     master_type: Binary::MasterType::PRESERVATION)
+    assert !binary.new_record?
+    assert_equal Binary::MasterType::ACCESS, binary.master_type
     assert_equal file.relative_key, binary.object_key
-    assert_equal 6302, binary.byte_size
+    assert_equal 6198, binary.byte_size
     assert_equal 'image/jpeg', binary.media_type
     assert_equal Binary::MediaCategory::IMAGE, binary.media_category
     assert_equal 128, binary.width
     assert_equal 112, binary.height
-    assert binary.metadata.length > 2
   end
 
-  test 'from_medusa_file() overrides the media category when supplied' do
-    file   = Medusa::File.with_uuid('39582239-4307-1cc6-c9c6-074516fd7635')
-    binary = Binary.from_medusa_file(file,
-                                     Binary::MasterType::PRESERVATION,
-                                     Binary::MediaCategory::AUDIO)
+  test 'from_medusa_file() returns a new instance when one corresponding to the
+  given file does not already exist' do
+    Binary.destroy_all
+    file   = Medusa::File.with_uuid('084f6359-3213-35d7-a29b-bfee47b6dd9d')
+    binary = Binary.from_medusa_file(file:        file,
+                                     master_type: Binary::MasterType::PRESERVATION)
+    assert binary.new_record?
     assert_equal Binary::MasterType::PRESERVATION, binary.master_type
-    assert_equal Binary::MediaCategory::AUDIO, binary.media_category
+    assert_equal file.relative_key, binary.object_key
+    assert_equal 18836, binary.byte_size
+    assert_equal 'image/jp2', binary.media_type
+    assert_equal Binary::MediaCategory::IMAGE, binary.media_category
+    assert_equal 128, binary.width
+    assert_equal 112, binary.height
   end
 
   # data()
 
-  test 'data should return the data' do
+  test 'data() returns the data' do
     data = @instance.data
     #assert_kind_of IO, data # TODO: this is supposed to be an IO: https://docs.aws.amazon.com/sdk-for-ruby/v3/api/Aws/S3/Types/GetObjectOutput.html#body-instance_method
     assert_equal 11, data.length
@@ -414,7 +423,7 @@ class BinaryTest < ActiveSupport::TestCase
   # uri()
 
   test 'uri returns the correct URI' do
-    assert_equal "s3://#{Configuration.instance.medusa_s3_bucket}/#{@instance.object_key}",
+    assert_equal "s3://#{MedusaS3Client::BUCKET}/#{@instance.object_key}",
                  @instance.uri
   end
 

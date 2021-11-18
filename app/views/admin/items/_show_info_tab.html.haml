@@ -1,0 +1,12 @@
+- if current_user.can?(Permissions::MODIFY_ITEMS)
+  .btn-group.float-right.mb-3
+    %button.btn.btn-light.dl-edit-info{type: 'button',
+                                       'data-toggle': 'modal',
+                                       'data-target': '#dl-edit-info-modal'}
+      %i.fas.fa-pencil-alt
+      Edit&hellip;
+
+.clearfix
+
+= admin_system_info_as_list(@item)
+= admin_system_info_as_table(@item)

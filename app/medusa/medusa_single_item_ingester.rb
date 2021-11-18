@@ -48,8 +48,8 @@ class MedusaSingleItemIngester < MedusaAbstractIngester
           item.elements.build(name: 'title', value: file.name)
 
           # Create the preservation master binary.
-          item.binaries << Binary.from_medusa_file(file,
-                                                   Binary::MasterType::PRESERVATION)
+          item.binaries << Binary.from_medusa_file(file:        file,
+                                                   master_type: Binary::MasterType::PRESERVATION)
 
           # Find and create the access master binary.
           begin
@@ -137,8 +137,8 @@ class MedusaSingleItemIngester < MedusaAbstractIngester
           item.binaries.destroy_all
 
           # Create the preservation master binary.
-          item.binaries << Binary.from_medusa_file(file,
-                                                   Binary::MasterType::PRESERVATION)
+          item.binaries << Binary.from_medusa_file(file:        file,
+                                                   master_type: Binary::MasterType::PRESERVATION)
           stats[:num_created] += 1
 
           # Find and create the access master binary.
@@ -188,8 +188,8 @@ class MedusaSingleItemIngester < MedusaAbstractIngester
             find{ |f| f.name.chomp(File.extname(f.name)) ==
             pres_master_name.chomp(File.extname(pres_master_name)) }
         if access_file
-          return Binary.from_medusa_file(access_file,
-                                         Binary::MasterType::ACCESS)
+          return Binary.from_medusa_file(file:        access_file,
+                                         master_type: Binary::MasterType::ACCESS)
         else
           msg = "Preservation master file #{pres_master_file.uuid} has no "\
                 "access master counterpart."

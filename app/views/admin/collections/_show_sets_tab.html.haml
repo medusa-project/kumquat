@@ -1,0 +1,18 @@
+.btn-group.float-right.mb-3
+  %button.btn.btn-light.dl-add-item-set{"data-target": "#dl-add-item-set-modal",
+                                          "data-toggle": "modal",
+                                          type: "button"}
+    %span.fa.fa-plus
+    Add Set
+
+%table.table
+  - @collection.item_sets.order(:name).each do |set|
+    %tr
+      %td
+        = link_to set, admin_collection_item_set_path(@collection, set)
+      %td
+        = icon_for(User)
+        = set.users.count
+      %td
+        = icon_for(Item)
+        = number_with_delimiter(set.num_objects)

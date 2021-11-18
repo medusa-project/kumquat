@@ -1,0 +1,47 @@
+-# Requires the following locals:
+-#
+-# target [Array] Target to pass into `form_for()`.
+-#
+
+= form_for(target) do |f|
+  .dl-error-messages
+    -# populated via ajax by shared/_validation_messages.js.erb
+
+  .form-group
+    = f.label :representative_image_data, 'Local Image'
+    %br
+    = f.file_field(:representative_image_data)
+    %ul.text-muted
+      %li The image will be cropped automatically where necessary.
+      %li The size must be at least 1024 pixels on the shortest side.
+      %li
+        %code .jp2
+        format is recommended.
+        %code .jpg
+        and
+        %code .png
+        are also accepted.
+
+  %hr
+
+  - if f.object.kind_of?(Collection)
+    .alert.alert-light
+      %i.fa.fa-info-circle
+      These properties can only be changed in Medusa.
+
+  - if f.object.kind_of?(Collection)
+    .form-group
+      = f.label :representative_item_id, 'Representative Item UUID'
+      = f.text_field(:representative_item_id,
+                     disabled: true,
+                     class: 'form-control')
+
+  .form-group
+    = f.label :representative_medusa_file_id, 'Representative Medusa File UUID'
+    = f.text_field(:representative_medusa_file_id,
+                   disabled: f.object.kind_of?(Collection),
+                   class: 'form-control')
+
+  .float-right
+    %button.btn.btn-light{"data-dismiss": "modal", type: "button"} Cancel
+    = f.submit 'Save Changes', class: 'btn btn-primary'

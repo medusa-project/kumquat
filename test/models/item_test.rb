@@ -194,7 +194,7 @@ class ItemTest < ActiveSupport::TestCase
                  doc[Item::IndexFields::REPOSITORY_ID]
     assert_equal @item.representative_filename,
                  doc[Item::IndexFields::REPRESENTATIVE_FILENAME]
-    assert_equal @item.representative_item_repository_id,
+    assert_equal @item.representative_item_id,
                  doc[Item::IndexFields::REPRESENTATIVE_ITEM]
     assert_equal "#{@item.repository_id}-aaa-zzz-zzz-#{@item.title.downcase}",
                  doc[Item::IndexFields::STRUCTURAL_SORT]
@@ -358,30 +358,45 @@ class ItemTest < ActiveSupport::TestCase
     assert @item.directory?
   end
 
-  # effective_representative_entity()
+  # effective_file_representation()
 
-  test 'effective_representative_entity returns the representative item
+  test 'effective_file_representation() returns a correct instance' do
+    @item = items(:compound_object_1001)
+    rep   = @item.effective_file_representation
+    assert_equal Representation::Type::MEDUSA_FILE, rep.type
+    assert_not_nil rep.file # TODO: flesh this out once effective_image_binary() is tested
+  end
+
+  # effective_image_binary()
+
+  test 'effective_image_binary()' do
+    # TODO: write this
+  end
+
+  # effective_representation()
+
+  test 'effective_representation() returns the representative item
         when it is assigned' do
     id = items(:compound_object_1001).repository_id
-    @item.representative_item_repository_id = id
-    assert_equal id, @item.effective_representative_entity.repository_id
+    @item.representative_item_id = id
+    assert_equal id, @item.effective_representation.item.repository_id
   end
 
-  test 'effective_representative_entity returns the first page when
-        representative_item_repository_id is not set' do
+  test 'effective_representation() returns the first page when
+        representative_item_id is not set' do
     @item = items(:compound_object_1002)
-    @item.representative_item_repository_id = nil
+    @item.representative_item_id = nil
     assert_equal '6a1d73f2-3493-1ca8-80e5-84a49d524f92',
-                 @item.effective_representative_entity.repository_id
+                 @item.effective_representation.item.repository_id
   end
 
-  test 'effective_representative_entity returns the instance when
-        representative_item_repository_id is not set and it has no pages' do
+  test 'effective_representation() returns the instance when
+        representative_item_id is not set and it has no pages' do
     @item = items(:compound_object_1001)
-    @item.representative_item_repository_id = nil
+    @item.representative_item_id = nil
     @item.items.delete_all
     assert_equal @item.repository_id,
-                 @item.effective_representative_entity.repository_id
+                 @item.effective_representation.item.repository_id
   end
 
   # effective_rights_statement()
@@ -392,6 +407,7 @@ class ItemTest < ActiveSupport::TestCase
   end
 
   test 'effective_rights_statement() should fall back to a parent statement' do
+    @item.collection.rights_statement = "cats"
     @item.elements.destroy_all
     assert_equal @item.collection.rights_statement,
                  @item.effective_rights_statement
@@ -687,6 +703,20 @@ class ItemTest < ActiveSupport::TestCase
     assert @item.valid?
   end
 
+  # representation_type
+
+  test 'representation_type must be one of the Representation::Type constant
+  values' do
+    @item.representation_type = Representation::Type::MEDUSA_FILE
+    assert @item.valid?
+
+    @item.representation_type = Representation::Type::ITEM
+    assert !@item.valid?
+
+    @item.representation_type = "bogus"
+    assert !@item.valid?
+  end
+
   # representative_filename()
 
   test 'representative_filename() returns the representative filename' do
@@ -694,33 +724,56 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal '1002_001', @item.representative_filename
   end
 
+  # representative_image
+
+  test 'representative_image must be of an allowed format' do
+    @item.representative_image = 'file.jp2'
+    assert @item.valid?
+
+    @item.representative_image = 'file.bogus'
+    assert !@item.valid?
+  end
+
+  # representative_image_key()
+
+  test 'representative_image_key() returns nil when representative_image is not
+  set' do
+    @item.representative_image = nil
+    assert_nil @item.representative_image_key
+  end
+
+  test 'representative_image_key() returns a correct value' do
+    @item.representative_image = 'file.jp2'
+    assert_equal "representative_images/item/#{@item.repository_id}/file.jp2",
+                 @item.representative_image_key
+  end
+
   # representative_item()
 
-  test 'representative_item() returns nil when
-  representative_item_repository_id is nil' do
+  test 'representative_item() returns nil when representative_item_id is nil' do
     assert_nil(@item.representative_item)
   end
 
-  test 'representative_item() returns nil when
-  representative_item_repository_id is invalid' do
-    @item.representative_item_repository_id = 'bogus'
+  test 'representative_item() returns nil when representative_item_id is
+  invalid' do
+    @item.representative_item_id = 'bogus'
     assert_nil(@item.representative_item)
   end
 
-  test 'representative_item() returns an item when
-  representative_item_repository_id is valid' do
-    @item.representative_item_repository_id =
-        items(:free_form_dir1_dir1_file1).repository_id
+  test 'representative_item() returns an item when representative_item_id is
+  valid' do
+    @item.representative_item_id =
+      items(:free_form_dir1_dir1_file1).repository_id
     assert_kind_of Item, @item.representative_item
   end
 
-  # representative_item_repository_id
+  # representative_item_id
 
-  test 'representative_item_repository_id must be a UUID' do
-    @item.representative_item_repository_id = 123
+  test 'representative_item_id must be a UUID' do
+    @item.representative_item_id = 123
     assert !@item.valid?
 
-    @item.representative_item_repository_id = '8acdb390-96b6-0133-1ce8-0050569601ca-4'
+    @item.representative_item_id = '8acdb390-96b6-0133-1ce8-0050569601ca-4'
     assert @item.valid?
   end
 
@@ -1007,20 +1060,20 @@ class ItemTest < ActiveSupport::TestCase
   # update_from_json()
 
   test 'update_from_json() works' do
-    struct                                      = @item.as_json
-    struct['contentdm_alias']                   = 'cats'
-    struct['contentdm_pointer']                 = 99
-    struct['embed_tag']                         = '<embed></embed>'
-    struct['page_number']                       = 60
-    struct['published']                         = true
-    struct['published_at']                      = Time.now.utc.iso8601
-    struct['representative_item_repository_id'] = 'd29950d0-c451-0133-1d17-0050569601ca-2'
-    struct['subpage_number']                    = 61
-    struct['variant']                           = Item::Variants::PAGE
+    struct                           = @item.as_json
+    struct['contentdm_alias']        = 'cats'
+    struct['contentdm_pointer']      = 99
+    struct['embed_tag']              = '<embed></embed>'
+    struct['page_number']            = 60
+    struct['published']              = true
+    struct['published_at']           = Time.now.utc.iso8601
+    struct['representative_item_id'] = 'd29950d0-c451-0133-1d17-0050569601ca-2'
+    struct['subpage_number']         = 61
+    struct['variant']                = Item::Variants::PAGE
     desc = struct['elements'].find{ |e| e['name'] == 'description' }
     if desc
-      desc['string']                            = 'Something'
-      desc['uri']                               = 'http://example.org/something'
+      desc['string']                 = 'Something'
+      desc['uri']                    = 'http://example.org/something'
     end
 
     json = JSON.generate(struct)
@@ -1033,7 +1086,7 @@ class ItemTest < ActiveSupport::TestCase
     assert @item.published
     assert_equal struct['published_at'], @item.published_at.iso8601
     assert_equal 'd29950d0-c451-0133-1d17-0050569601ca-2',
-                 @item.representative_item_repository_id
+                 @item.representative_item_id
     assert_equal 61, @item.subpage_number
     assert_equal Item::Variants::PAGE, @item.variant
 

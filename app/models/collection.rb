@@ -18,6 +18,10 @@
 # Collections are searchable via ActiveRecord as well as via Elasticsearch (see
 # below).
 #
+# # Representations
+#
+# See [Representable].
+#
 # # Indexing
 #
 # Instances are automatically indexed in ES (see {as_indexed_json}) in an
@@ -34,83 +38,93 @@
 #
 # # Attributes
 #
-# * `access_systems`           Access systems through which the collection is
-#                              accessible. Copied from Medusa.
-# * `access_url`               URL at which the collection's contents are
-#                              available, for collections whose content resides
-#                              outside the DLS.
-# * `contentdm_alias`          String alias of collections that have been
-#                              migrated out of CONTENTdm, used for URL
-#                              redirection.
-# * `created_at`               Managed by ActiveRecord.
-# * `description_html`         HTML-formatted description, copied from Medusa.
-#                              N.B. There may also be a description element in
-#                              the `elements` relationship containing a plain
-#                              text description, also copied from Medusa.
-# * `descriptive_element_id`   ID of a MetadataProfileElement whose values are
-#                              used in the description boxes in results view.
-# * `external_id               Value of the Medusa "external ID" field.
-# * `harvestable               Controls visiblity of the collection's contents
-#                              in the generic OAI-PMH harvesting endpoint. (See
-#                              {OaiPmhController}.)
-# * `harvestable_by_idhh       Controls visiblity of the collection's contents
-#                              in the IDHH OAI-PMH harvesting endpoint. (See
-#                              {OaiPmhController}.)
-# * `harvestable_by_primo      Controls visiblity of the collection's contents
-#                              in the Primo OAI-PMH harvesting endpoint. (See
-#                              {OaiPmhController}.)
-# * `medusa_directory_uuid`    Medusa UUID of the root directory in which the
-#                              collection's contents reside. If nil, the root
-#                              directory of the file group will be used.
-# * `medusa_file_group_uuid`   Medusa UUID of the file group in which the
-#                              collection's contents reside.
+# * `access_systems`                Access systems through which the collection
+#                                   is accessible. Copied from Medusa.
+# * `access_url`                    URL at which the collection's contents are
+#                                   available, for collections whose content
+#                                   resides outside the DLS.
+# * `contentdm_alias`               String alias of collections that have been
+#                                   migrated out of CONTENTdm, used for URL
+#                                   redirection.
+# * `created_at`                    Managed by ActiveRecord.
+# * `description_html`              HTML-formatted description, copied from
+#                                   Medusa. N.B.: There may also be a
+#                                   description element in the {elements} text
+#                                   description, also copied from Medusa.
+# * `descriptive_element_id`        ID of a [MetadataProfileElement] whose
+#                                   values are used in the description boxes in
+#                                   results view.
+# * `external_id                    Value of the Medusa "external ID" field.
+# * `harvestable                    Controls visibility of the collection's
+#                                   contents in the generic OAI-PMH harvesting
+#                                   endpoint. (See [OaiPmhController].)
+# * `harvestable_by_idhh            Controls visibility of the collection's
+#                                   contents in the IDHH OAI-PMH harvesting
+#                                   endpoint. (See [OaiPmhController].)
+# * `harvestable_by_primo           Controls visibility of the collection's
+#                                   contents in the Primo OAI-PMH endpoint.
+#                                   (See [OaiPmhController].)
+# * `medusa_directory_uuid`         Medusa UUID of the root directory in which
+#                                   the collection's contents reside. If nil,
+#                                   the root directory of the file group will
+#                                   be used.
+# * `medusa_file_group_uuid`        Medusa UUID of the file group in which the
+#                                   collection's contents reside.
 # * `medusa_repository_id`
-# * `metadata_profile_id`      Database ID of the MetadataProfile assigned to
-#                              the collection.
-# * `package_profile_id`       ID of the PackageProfile assigned to the
-#                              collection. The content in the effective root
-#                              directory of the collection must conform to this
-#                              profile.
-# * `physical_collection_url`  URL of the collection's archival collection
-#                              counterpart.
-# * `public_in_medusa`         Whether the access level of the collection's
-#                              metadata is set to "public." This and
-#                              `published_in_dls` must be true in order for the
-#                              collection or any or any of its items to be
-#                              publicly accessible.
-# * `publicize_binaries`       Whether binaries attached to items residing in
-#                              the collection are public. If set to `true`,
-#                              a binary may be made private by setting its
-#                              {Binary#public} property to `false`, but if set
-#                              to `false`, that property is ignored.
-# * `published_in_dls`         Whether the collection's content resides in the
-#                              DLS, or somewhere else.
-#                              N.B.: use `publicly_accessible?()` to test a
-#                              collection's effective public accessibility.
-# * `repository_id`            The collection's effective UUID, copied from
-#                              Medusa.
-# * `representative_image`     UUID of a Medusa image file representing the
-#                              collection for use in e.g. thumbnails.
-#                              `representative_item_id` should be used instead,
-#                              if possible.
-# * `representative_item_id`   Repository ID of an Item representating the
-#                              collection for use in e.g. thumbnails.
-# * `resource_types`           Serialized array of resource types contained
-#                              within the collection, copied from Medusa.
-# * `restricted`               Indicates a collection for which all items are
-#                              "private"--not discoverable in any way except by
-#                              sharing a link that is restricted to a
-#                              particular NetID. (DLD-337)
-# * `rights_statement`         Rights statement text.
-#                              TODO: store this in an accessRights CollectionElement
-# * `rightsstatements_org_uri` URI of a RightsStatements.org statement.
-#                              TODO: store this in an accessRights CollectionElement
-# * `updated_at`               Managed by ActiveRecord.
+# * `metadata_profile_id`           Database ID of the [MetadataProfile]
+#                                   assigned to the instance.
+# * `package_profile_id`            ID of the [PackageProfile] assigned to the
+#                                   collection. The content in the effective
+#                                   root directory of the collection must
+#                                   conform to this profile.
+# * `physical_collection_url`       URL of the collection's archival collection
+#                                   counterpart.
+# * `public_in_medusa`              Whether the access level of the
+#                                   collection's metadata is set to "public."
+#                                   This and {published_in_dls} must be true in
+#                                   order for the collection or any or any of
+#                                   its items to be publicly accessible.
+# * `publicize_binaries`            Whether binaries attached to items residing
+#                                   in the collection are public. If set to
+#                                   `true`, a binary may be made private by
+#                                   setting its {Binary#public} property to
+#                                   `false`, but if set to `false`, that
+#                                   property is ignored.
+# * `published_in_dls`              Whether the collection's content resides in
+#                                   the DLS, or somewhere else.
+#                                   N.B.: use {publicly_accessible?()} to test
+#                                   a collection's effective public
+#                                   accessibility.
+# * `repository_id`                 The collection's effective UUID, copied
+#                                   from Medusa.
+# * `representation_type`           Enum field containing one of the
+#                                   [Representation::Type] constant values.
+# * `representative_image`          Filename of a representative image within
+#                                   the application S3 bucket. See note about
+#                                   representations above.
+# * `representative_medusa_file_id` UUID of a Medusa image file representing
+#                                   the collection. See note about
+#                                   representations above.
+# * `representative_item_id`        Repository ID of an [Item] representing the
+#                                   collection. See note about representative
+#                                   images above.
+# * `resource_types`                Serialized array of resource types
+#                                   contained within the collection, copied
+#                                   from Medusa.
+# * `restricted`                    Indicates a collection for which all items
+#                                   are "private"--not discoverable in any way
+#                                   and restricted to a particular NetID.
+#                                   (DLD-337)
+# * `rights_statement`              Rights statement text.
+#                                   TODO: store this in an accessRights CollectionElement
+# * `rightsstatements_org_uri`      URI of a RightsStatements.org statement.
+#                                   TODO: store this in an accessRights CollectionElement
+# * `updated_at`                    Managed by ActiveRecord.
 #
 # Attribute Propagation
 #
-# Changes to some of a collection's properties, such as `allowed_host_groups`
-# and `denied_host_groups`, must be propagated to all of its {Item}s. This can
+# Changes to some of a collection's properties, such as {allowed_host_groups}
+# and {denied_host_groups}, must be propagated to all of its [Item]s. This can
 # be done using {propagate_heritable_properties}.
 #
 class Collection < ApplicationRecord
@@ -150,7 +164,6 @@ class Collection < ApplicationRecord
     PUBLISHED_IN_DLS                   = 'sys_b_published_in_dls'
     REPOSITORY_ID                      = 'sys_k_repository_id'
     REPOSITORY_TITLE                   = 'sys_k_repository_title'
-    REPRESENTATIVE_IMAGE               = 'sys_k_representative_image'
     REPRESENTATIVE_ITEM                = 'sys_k_representative_item'
     RESOURCE_TYPES                     = 'sys_k_resource_types'
     RESTRICTED                         = ElasticsearchIndex::StandardFields::RESTRICTED
@@ -191,6 +204,9 @@ class Collection < ApplicationRecord
   validates_format_of :repository_id,
                       with: StringUtils::UUID_REGEX,
                       message: 'UUID is invalid'
+  validates :representation_type, inclusion: { in: Representation::Type.all },
+            allow_blank: true
+  validate :validate_representative_image_format
   validate :validate_medusa_uuids
 
   before_validation :do_before_validation
@@ -265,15 +281,19 @@ class Collection < ApplicationRecord
   #
   def as_harvestable_json
     access_master_struct = nil
-    bin = self.effective_representative_image_binary
-    if bin&.image_server_safe?
+    rep                 = self.effective_file_representation
+    case rep.type
+    when Representation::Type::MEDUSA_FILE
       access_master_struct = {
-          id:         bin.medusa_uuid,
-          object_uri: bin.uri,
-          media_type: bin.media_type
+        id:         rep.file.uuid,
+        object_uri: "s3://#{MedusaS3Client::BUCKET}/#{rep.file.relative_key}",
+        media_type: rep.file.media_type
+      }
+    when Representation::Type::LOCAL_FILE
+      access_master_struct = {
+        object_uri: "s3://#{KumquatS3Client::BUCKET}/#{rep.key}"
       }
     end
-    access_master_struct
     {
         class:                   self.class.to_s,
         id:                      self.repository_id,
@@ -389,6 +409,17 @@ class Collection < ApplicationRecord
   end
 
   ##
+  # Overrides the same method in [Representable].
+  #
+  def effective_file_representation
+    rep = effective_representation
+    if rep.type == Representation::Type::ITEM && rep.item
+      rep = rep.item.effective_file_representation
+    end
+    rep
+  end
+
+  ##
   # The effective CFS directory of the instance -- either one that is directly
   # assigned, or the root CFS directory of the file group.
   #
@@ -408,64 +439,47 @@ class Collection < ApplicationRecord
   end
 
   ##
-  # @return [Item, Collection]
+  # Overrides the same method in [Representable].
   #
-  def effective_representative_entity
-    self.effective_representative_item || self
-  end
+  # @return [Representation]
+  #
+  def effective_representation
+    rep = Representation.new
+    rep.type = self[:representation_type]
 
-  ##
-  # @return [Binary,nil] Best representative image binary based on the
-  #                      representative item set in Medusa, if available, or
-  #                      the representative image, if not.
-  # @see representative_image_binary
-  #
-  def effective_representative_image_binary
-    bin = self.representative_item&.effective_image_binary
-    unless bin
+    case self.representation_type
+    when Representation::Type::LOCAL_FILE
+      rep.key = self.representative_image_key_prefix + self.representative_image
+    when Representation::Type::MEDUSA_FILE
       begin
-        bin = self.representative_image_binary
+        rep.file = self.representative_medusa_file
       rescue => e
-        LOGGER.warn('effective_representative_image_binary(): %s', e)
+        LOGGER.warn('%s(): %s', __method__, e)
       end
+    when Representation::Type::ITEM
+      rep.item = self.representative_item
+    else
+      rep.type       = Representation::Type::COLLECTION
+      rep.collection = self
     end
-    bin
+    rep
   end
 
   ##
-  # @return [Item, nil] Item that effectively represents the instance.
-  # @see representative_item
-  #
-  def effective_representative_item
-    item = self.representative_item
-    unless item
-      begin
-        item = self.representative_image_binary&.item
-      rescue => e
-        LOGGER.warn('effective_representative_item(): %s', e)
-      end
-    end
-    item
-  end
-
-  ##
-  # @param options [Hash]
-  # @option options [Boolean] :only_visible
-  # @return [Enumerable<CollectionElement>] The instance's {CollectionElement
-  #         metadata elements} in the order of the elements in the instance's
+  # @param only_visible [Boolean]
+  # @return [Enumerable<CollectionElement>] The instance's [CollectionElement
+  #         metadata elements] in the order of the elements in the instance's
   #         metadata profile. If there is no associated metadata profile, all
   #         elements are returned.
   #
-  def elements_in_profile_order(options = {})
+  def elements_in_profile_order(only_visible: false)
     elements = []
-    profile = self.metadata_profile
+    profile  = self.metadata_profile
     if profile
       mp_elements = profile.elements
-      if options[:only_visible]
-        mp_elements = mp_elements.where(visible: true)
-      end
+      mp_elements = mp_elements.where(visible: true) if only_visible
       mp_elements.each do |mpe|
-        element = self.element(mpe.name)
+        element   = self.element(mpe.name)
         elements << element if element
       end
     else
@@ -717,35 +731,6 @@ class Collection < ApplicationRecord
   end
 
   ##
-  # @return [Binary, nil] Binary corresponding to the `representative_image`
-  #                       attribute.
-  #
-  def representative_image_binary
-    if self.representative_image.present?
-      # This may be nil, which may mean that it resides in a different file
-      # group, or doesn't conform to the package profile.
-      binary = Binary.find_by_medusa_uuid(self.representative_image)
-      unless binary
-        file   = Medusa::File.with_uuid(self.representative_image)
-        binary = Binary.from_medusa_file(file, Binary::MasterType::ACCESS)
-      end
-      binary
-    end
-  end
-
-  ##
-  # @return [Item, nil] Item assigned to represent the instance. May be nil.
-  # @see effective_representative_item
-  #
-  def representative_item
-    item = nil
-    if self.representative_item_id.present?
-      item = Item.find_by_repository_id(self.representative_item_id)
-    end
-    item
-  end
-
-  ##
   # @return [RightsStatement, nil]
   #
   def rightsstatements_org_statement
@@ -796,22 +781,22 @@ class Collection < ApplicationRecord
     transaction do
       self.elements.destroy_all
 
-      self.access_systems          = struct['access_systems'].map{ |t| t['name'] }
-      self.access_url              = struct['access_url']
+      self.access_systems                = struct['access_systems'].map{ |t| t['name'] }
+      self.access_url                    = struct['access_url']
       if struct['description'].present?
         self.elements.build(name: 'description', value: struct['description'])
       end
-      self.description_html        = struct['description_html']
-      self.external_id             = struct['external_id']
-      self.medusa_repository_id    = struct['repository_path'].gsub(/[^0-9+]/, '').to_i
-      self.physical_collection_url = struct['physical_collection_url']
-      self.public_in_medusa        = struct['publish']
-      self.representative_image    = struct['representative_image']
-      self.representative_item_id  = struct['representative_item']
-      self.resource_types          = struct['resource_types'].map do |t| # titleize these
+      self.description_html              = struct['description_html']
+      self.external_id                   = struct['external_id']
+      self.medusa_repository_id          = struct['repository_path'].gsub(/[^0-9+]/, '').to_i
+      self.physical_collection_url       = struct['physical_collection_url']
+      self.public_in_medusa              = struct['publish']
+      self.representative_medusa_file_id = struct['representative_image']
+      self.representative_item_id        = struct['representative_item']
+      self.resource_types                = struct['resource_types'].map do |t| # titleize these
         t['name'].split(' ').map{ |t| t.present? ? t.capitalize : '' }.join(' ')
       end
-      self.rights_statement        = struct['rights']['custom_copyright_statement']
+      self.rights_statement              = struct['rights']['custom_copyright_statement']
       self.elements.build(name: 'title', value: struct['title'])
 
       self.parents.destroy_all
@@ -829,13 +814,21 @@ class Collection < ApplicationRecord
     end
   end
 
+
   private
 
   def do_before_validation
     self.medusa_directory_uuid&.strip!
     self.medusa_file_group_uuid&.strip!
-    self.representative_image&.strip!
+    self.representative_medusa_file_id&.strip!
     self.representative_item_id&.strip!
+  end
+
+  ##
+  # Overrides the same method in [Representable].
+  #
+  def representative_image_key_prefix
+    "representative_images/collection/#{repository_id}/"
   end
 
   def validate_medusa_uuids
@@ -849,6 +842,14 @@ class Collection < ApplicationRecord
         self.medusa_directory_uuid_changed? &&
         client.class_of_uuid(self.medusa_directory_uuid) != Medusa::Directory
       errors.add(:medusa_directory_uuid, 'is not a Medusa directory UUID')
+    end
+  end
+
+  def validate_representative_image_format
+    if self.representative_image.present?
+      unless Representation::SUPPORTED_IMAGE_FORMATS.include?(self.representative_image.split(".").last)
+        errors.add(:representative_image, "is of an unsupported format")
+      end
     end
   end
 
