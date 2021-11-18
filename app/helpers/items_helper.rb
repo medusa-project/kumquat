@@ -266,7 +266,11 @@ module ItemsHelper
   def item_meta_tags(item)
     # N.B.: Minimum Twitter image size is 300x157 and maximum size is
     # 4096x4096 / 5MB.
-    image_url = item_image_url(item: item, size: 1600)
+    begin
+      image_url = item_image_url(item: item, size: 1600)
+    rescue Medusa::NotFoundError
+      return nil
+    end
 
     html = StringIO.new
 
