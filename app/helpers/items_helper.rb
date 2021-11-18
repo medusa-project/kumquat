@@ -244,12 +244,16 @@ module ItemsHelper
   #
   def item_image_url(item:, region: 'full', size: 'max', format: 'jpg')
     url = nil
-    bin = item.effective_image_binary
-    if bin
-      url = ImageServer.binary_image_v2_url(binary: bin,
-                                            region: region.to_s,
-                                            size:   size,
-                                            format: format.to_s)
+    begin
+      bin = item.effective_image_binary
+      if bin
+        url = ImageServer.binary_image_v2_url(binary: bin,
+                                              region: region.to_s,
+                                              size:   size,
+                                              format: format.to_s)
+      end
+    rescue Medusa::NotFoundError
+      return nil
     end
     url
   end
@@ -266,11 +270,7 @@ module ItemsHelper
   def item_meta_tags(item)
     # N.B.: Minimum Twitter image size is 300x157 and maximum size is
     # 4096x4096 / 5MB.
-    begin
-      image_url = item_image_url(item: item, size: 1600)
-    rescue Medusa::NotFoundError
-      return nil
-    end
+    image_url = item_image_url(item: item, size: 1600)
 
     html = StringIO.new
 
