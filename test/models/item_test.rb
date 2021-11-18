@@ -707,8 +707,11 @@ class ItemTest < ActiveSupport::TestCase
 
   test 'representation_type must be one of the Representation::Type constant
   values' do
-    @item.representation_type = Representation::Type::ITEM
+    @item.representation_type = Representation::Type::MEDUSA_FILE
     assert @item.valid?
+
+    @item.representation_type = Representation::Type::ITEM
+    assert !@item.valid?
 
     @item.representation_type = "bogus"
     assert !@item.valid?

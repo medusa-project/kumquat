@@ -154,10 +154,8 @@
 # * `representative_image`          Filename of a representative image within
 #                                   the application S3 bucket. See note about
 #                                   representations above.
-# * `representative_item_id`        Repository ID of another item designated to
-#                                   represent the item. For example, using a
-#                                   different item to provide a thumbnail image
-#                                   for an item that is not very "photogenic."
+# * `representative_item_id`        Dummy column used to comply with
+#                                   [Representable].
 # * `representative_medusa_file_id` UUID of an alternative Medusa file
 #                                   designated to stand in as a representation
 #                                   of the item.
@@ -321,7 +319,7 @@ class Item < ApplicationRecord
                       with: StringUtils::UUID_REGEX,
                       message: 'UUID is invalid'
   # representation_type
-  validates :representation_type, inclusion: { in: Representation::Type.all },
+  validates :representation_type, inclusion: { in: Representation::Type.all.reject{ |t| t == Representation::Type::ITEM } },
             allow_blank: true
   # representative_item_id
   validates_format_of :representative_item_id,
