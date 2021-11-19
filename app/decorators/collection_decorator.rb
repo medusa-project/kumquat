@@ -49,12 +49,11 @@ class CollectionDecorator < Draper::Decorator
       max_exp = 12
       (min_exp..max_exp).each do |exp|
         size = 2 ** exp
-        case rep.type
-        when Representation::Type::MEDUSA_FILE
+        if rep.type == Representation::Type::MEDUSA_FILE && rep.file
           struct[:representative_images][:full][size.to_s] =
             ImageServer.file_image_v2_url(file: rep.file,
                                           size: size)
-        when Representation::Type::LOCAL_FILE
+        elsif rep.type == Representation::Type::LOCAL_FILE && rep.key
           struct[:representative_images][:full][size.to_s] =
             ImageServer.s3_image_v2_url(bucket: KumquatS3Client::BUCKET,
                                         key:    rep.key,
@@ -65,13 +64,12 @@ class CollectionDecorator < Draper::Decorator
       struct[:representative_images][:square] = {}
       (min_exp..max_exp).each do |exp|
         size = 2 ** exp
-        case rep.type
-        when Representation::Type::MEDUSA_FILE
+        if rep.type == Representation::Type::MEDUSA_FILE && rep.file
           struct[:representative_images][:square][size.to_s] =
             ImageServer.file_image_v2_url(file:   rep.file,
                                           region: :square,
                                           size:   size)
-        when Representation::Type::LOCAL_FILE
+        elsif rep.type == Representation::Type::LOCAL_FILE && rep.key
           struct[:representative_images][:square][size.to_s] =
             ImageServer.s3_image_v2_url(bucket: KumquatS3Client::BUCKET,
                                         key:    rep.key,
