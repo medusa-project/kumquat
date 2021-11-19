@@ -5,7 +5,7 @@
 #dl-import-tsv-modal.modal.fade{"aria-labelledby": "dl-import-tsv-modal-label",
                                 role: "dialog",
                                 tabindex: "-1"}
-  .modal-dialog{role: "document"}
+  .modal-dialog.modal-dialog-centered{role: "document"}
     .modal-content
       = form_tag(admin_collection_items_import_path(collection, format: :tsv), { multipart: true }) do
         .modal-header

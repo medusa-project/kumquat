@@ -3,7 +3,7 @@
 #dl-import-modal.modal.fade{"aria-labelledby": "dl-import-modal-label",
                             role: "dialog",
                             tabindex: "-1"}
-  .modal-dialog{role: "document"}
+  .modal-dialog.modal-dialog-centered{role: "document"}
     .modal-content
       = form_tag(admin_vocabulary_import_path(format: :json),
                  { multipart: true }) do

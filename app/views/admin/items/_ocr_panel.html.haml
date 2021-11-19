@@ -15,7 +15,7 @@
             "aria-labelledby": "#{modal_id}-label",
             role: "dialog",
             tabindex: "-1"}
-  .modal-dialog{role: "document"}
+  .modal-dialog.modal-dialog-centered{role: "document"}
     .modal-content
       = form_tag(target, method: :patch) do
         .modal-header

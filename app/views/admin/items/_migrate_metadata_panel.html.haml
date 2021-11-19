@@ -1,7 +1,7 @@
 #dl-migrate-modal.modal.fade{"aria-labelledby": "dl-migrate-modal-label",
                              role: "dialog",
                              tabindex: "-1"}
-  .modal-dialog{role: "document"}
+  .modal-dialog.modal-dialog-centered{role: "document"}
     .modal-content
       = form_tag(admin_collection_items_migrate_metadata_path(@collection)) do
         .modal-header
