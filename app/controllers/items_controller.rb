@@ -330,7 +330,7 @@ class ItemsController < WebsiteController
                                        zip_name,
                                        current_user&.medusa_user?,
                                        download)
-          redirect_to download_url(download) and return
+          redirect_to download_url(download, format: :json) and return
         else
           flash['error'] = 'No items to download.'
           redirect_back fallback_location: request.fullpath
@@ -464,7 +464,7 @@ class ItemsController < WebsiteController
         if @item.compound?
           download = Download.create(ip_address: request.remote_ip)
           CreatePdfJob.perform_later(@item, current_user&.medusa_user?, download)
-          redirect_to download_url(download) and return
+          redirect_to download_url(download, format: :json) and return
         else
           flash['error'] = 'PDF downloads are only available for compound objects.'
           redirect_to @item and return
@@ -536,7 +536,7 @@ class ItemsController < WebsiteController
                                            current_user&.medusa_user?,
                                            download)
           end
-          redirect_to download_url(download) and return
+          redirect_to download_url(download, format: :json) and return
         else
           flash['error'] = 'No items to download.'
           redirect_back fallback_location: request.fullpath

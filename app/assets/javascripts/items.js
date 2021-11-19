@@ -400,7 +400,7 @@ const DLItemView = function() {
 
         new CitationPanel();
         new CustomImagePanel();
-        new Application.Captcha();
+        new Application.CaptchaProtectedDownload();
     };
 
 };
@@ -415,7 +415,7 @@ const DLItemsView = function() {
     const self = this;
 
     this.init = function() {
-        new Application.Captcha();
+        new Application.CaptchaProtectedDownload();
         new Application.FilterField();
         Application.initFacets();
 

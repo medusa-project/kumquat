@@ -67,7 +67,7 @@ class WebsiteController < ApplicationController
   # return value and return immediately if it is `false`.
   #
   # This method works in conjunction with {ApplicationHelper#captcha} and the
-  # `Application.Captcha()` JavaScript function.
+  # `Application.CaptchaProtectedDownload()` JavaScript function.
   #
   # @return [Boolean] If `false`, the check failed and the caller should return
   #                   immediately.

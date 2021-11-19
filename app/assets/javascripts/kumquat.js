@@ -112,7 +112,7 @@ var Application = {
 
     },
 
-    Captcha: function() {
+    CaptchaProtectedDownload: function() {
         const forms = $(".dl-captcha-form");
         forms.on("submit", function(e) {
             e.preventDefault();
@@ -123,14 +123,66 @@ var Application = {
                 url:      url,
                 method:   'GET',
                 dataType: 'script',
-                success: function(data, status, xhr) {
-                    setTimeout(function() {
-                        form.parents(".modal").modal("hide");
+                success:  function(data, status, xhr) {
+                    const waitMessageHTML = '<p>Your file is being prepared. ' +
+                        'When it\'s ready, a download button will appear below.</p>';
+                    const modalBody = form.parents(".modal-body");
+                    form.remove();
+                    modalBody.html(waitMessageHTML +
+                        '<div class="text-center">' +
+                            '<div class="spinner-border" role="status">' +
+                                '<span class="sr-only">Loading&hellip;</span>' +
+                            '</div>' +
+                        '</div>');
+
+                    // Poll the Download representation at an interval, updating
+                    // the modal content (e.g. progress bar) at each refresh.
+                    const intervalID = setInterval(function() {
+                        $.ajax({
+                            url:      xhr.getResponseHeader("X-Kumquat-Location"),
+                            method:   'GET',
+                            dataType: 'json',
+                            success:  function(data, status, xhr) {
+                                var href = null;
+                                if (data.filename) {
+                                    href = "/downloads/" + data.key + "/file";
+                                } else if (data.url) {
+                                    href = data.url;
+                                }
+                                if (parseInt(data.task.status) === 4) { // failed
+                                    modalBody.html("<p>There was an error preparing the file.</p>");
+                                    clearInterval(intervalID);
+                                } else if (href) {
+                                    modalBody.html('<div class="text-center">' +
+                                            '<a href="' + href + '" class="btn btn-lg btn-success">' +
+                                                '<i class="fa fa-download"></i> Download' +
+                                            '</a>' +
+                                        '</div>');
+                                    clearInterval(intervalID);
+                                } else if (!data.task.indeterminate) {
+                                    const pct = Math.round(data.task.percent_complete * 100);
+                                    modalBody.html(waitMessageHTML +
+                                        '<div class="progress mt-3" style="height: 2em">' +
+                                            '<div class="progress-bar progress-bar-striped progress-bar-animated bg-info" ' +
+                                                'aria-valuemax="100" ' +
+                                                'aria-valuemin="0" ' +
+                                                'aria-valuenow="' + pct + '" ' +
+                                                'role="progressbar" ' +
+                                                'style="width:' + pct + '%">' +
+                                            '</div>' +
+                                        '</div>' +
+                                        '<span class="sr-only">' + pct + '% complete</span>' +
+                                        '<p class="text-center">' + pct + '%</p>');
+                                }
+                            },
+                            error: function(request, status, error) {
+                                clearInterval(intervalID);
+                                const message = request.getResponseHeader('X-Kumquat-Message');
+                                modalBody.append(
+                                    "<div class='alert alert-danger'>" + message + "</div>");
+                            }
+                        });
                     }, 5000);
-                    form.parents(".modal-body").html(
-                        "<p>Your download is being prepared in another tab.</p>" +
-                        "<p>If you don't see it, make sure your browser isn't blocking pop-ups.</p>");
-                    window.open(url, "_blank");
                 },
                 error: function(request, status, error) {
                     const message = request.getResponseHeader('X-Kumquat-Message');

@@ -100,7 +100,7 @@ module ApplicationHelper
   # Returns a CAPTCHA form.
   #
   # This is typically used in a modal in conjunction with the
-  # `Application.Captcha` JavaScript function.
+  # `Application.CaptchaProtectedDownload()` JavaScript function.
   #
   # @param form_action [String] URL or URL path to submit the form to. This is
   #                             typically the same as what a non-CAPTCHA-

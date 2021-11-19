@@ -60,4 +60,19 @@ class DownloadsControllerTest < ActionDispatch::IntegrationTest
     assert_response :gone
   end
 
+  test 'show() returns HTTP 200 for HTML' do
+    get download_path(@instance)
+    assert_response :ok
+  end
+
+  test 'show() returns HTTP 200 for XHR' do
+    get download_path(@instance), xhr: true
+    assert_response :ok
+  end
+
+  test 'show() returns HTTP 200 for JSON' do
+    get download_path(@instance, format: :json)
+    assert_response :ok
+  end
+
 end
