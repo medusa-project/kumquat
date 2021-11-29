@@ -124,6 +124,17 @@ class VocabularyTest < ActiveSupport::TestCase
     assert_equal Vocabulary::UNCONTROLLED_KEY, Vocabulary.uncontrolled.key
   end
 
+  # controlled?()
+
+  test 'controlled?() returns false for the uncontrolled vocabulary' do
+    assert !vocabularies(:uncontrolled).controlled?
+  end
+
+  test 'controlled?() returns true for all other vocabularies' do
+    assert vocabularies(:agent).controlled?
+    assert Vocabulary.create!(key: 'cats', name: 'Cats').controlled?
+  end
+
   # readonly?()
 
   test 'readonly?() should return true for the uncontrolled and agent

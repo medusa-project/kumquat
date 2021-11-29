@@ -5,8 +5,8 @@
  */
 const DLAdminItemsEditView = function() {
 
-    var self = this;
-    var shade = new Application.AJAXShade();
+    const self = this;
+    const shade = new Application.AJAXShade();
 
     this.init = function() {
         self.attachEventListeners();
@@ -71,34 +71,78 @@ const DLAdminItemsEditView = function() {
  */
 const DLAdminItemsView = function() {
 
-    var self = this;
+    const BatchChangeModal = function() {
+        const modal = $('#dl-batch-change-modal');
+        modal.find('select#element').on('change', function() {
+            const selected_option = $(this).find('option[value=' + $(this).val() + ']');
+            if (selected_option.data('controlled')) {
+                modal.find('.dl-uncontrolled-value').hide();
+                const cell = modal.find('.dl-controlled-value');
+                cell.show();
+
+                const vocabulary_id = selected_option.data('controlled-vocabulary-id');
+                const url = '/admin/vocabularies/' + vocabulary_id + '/terms.json';
+                $.ajax({
+                    url: url,
+                    success: function(result) {
+                        var term_options = ""
+                        for (var i = 0; i < result.length; i++) {
+                            term_options += "<option value=\"" + result[i]['string'] + "\" data-string=\"" + result[i]['string'] + "\" data-uri=\"" + result[i]['uri'] + "\">" +
+                                result[i]['string'] + "</option>"
+                        }
+                        const controlled_term_select = cell.find('select[name=controlled_value]');
+                        controlled_term_select.html(term_options);
+                        controlled_term_select.on('change', function() {
+                            const selected_term = $(this).find('option[value="' + $(this).val() + '"]');
+                            const string        = selected_term.data('string');
+                            const uri           = selected_term.data('uri');
+                            console.log(string);
+                            console.log(uri);
+                            cell.find("input[name='replace_values[][string]']").val(string);
+                            cell.find("input[name='replace_values[][uri]']").val(uri);
+                        }).trigger('change');
+                    },
+                    error: function(xhr, status, error) {
+                        console.error(error);
+                        console.error(xhr);
+                        console.error(status);
+                    }
+                });
+            } else {
+                modal.find('.dl-controlled-value').hide();
+                modal.find('.dl-uncontrolled-value').show();
+            }
+        });
+
+        modal.find('button.dl-add-element').on('click', function(e) {
+            e.preventDefault();
+            const element = $(this).closest('.dl-elements').find('.dl-element:last-child');
+            const clone   = element.clone(true);
+            clone.find('input').val('');
+            element.after(clone);
+        });
+        modal.find('button.dl-remove-element').on('click', function(e) {
+            e.preventDefault();
+            const element = $(this).closest('.dl-element');
+            if (element.siblings().length > 0) {
+                element.remove();
+            }
+        });
+    };
+
+    const self = this;
 
     this.init = function() {
         new Application.FilterField();
         Application.initFacets();
+        Application.initThumbnails();
 
-        // Batch Change modal button click handlers
-        $('button.dl-add-element').on('click', function() {
-            var element = $(this).closest('.dl-elements').find('.dl-element:last-child');
-            var clone = element.clone(true);
-            clone.find('input').val('');
-            element.after(clone);
-            return false;
-        });
-        $('button.dl-remove-element').on('click', function() {
-            var element = $(this).closest('.dl-element');
-            if (element.siblings().length > 0) {
-                element.remove();
-            }
-            return false;
-        });
+        new BatchChangeModal();
 
         self.attachEventListeners();
     };
 
     this.attachEventListeners = function() {
-        Application.initThumbnails();
-
         $('.pagination a').on('click', function() {
             $('form.dl-filter')[0].scrollIntoView({behavior: "smooth", block: "start"});
         });
@@ -139,7 +183,7 @@ const DLAdminItemsView = function() {
         $('#dl-enable-checked-fts-link, #dl-disable-checked-fts-link, '+
             '#dl-publish-checked-results-link, ' +
             '#dl-unpublish-checked-results-link').on('click', function() {
-            var checked_items = [];
+            const checked_items = [];
             $('[name="dl-selected-items[]"]:checked').each(function() {
                 checked_items.push($(this).val());
             });

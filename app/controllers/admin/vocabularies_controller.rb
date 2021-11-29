@@ -27,7 +27,7 @@ module Admin
     end
 
     ##
-    # Responds to POST /vocabularies/:id/delete-vocabulary-terms
+    # Responds to `POST /vocabularies/:id/delete-vocabulary-terms`
     #
     def delete_vocabulary_terms
       vocab = Vocabulary.find(params[:vocabulary_id])
@@ -59,7 +59,7 @@ module Admin
     end
 
     ##
-    # Responds to POST /admin/vocabularies/import
+    # Responds to `POST /admin/vocabularies/import`
     #
     def import
       begin
@@ -78,7 +78,7 @@ module Admin
     end
 
     ##
-    # Responds to GET /admin/vocabularies
+    # Responds to `GET /admin/vocabularies`
     #
     def index
       @vocabularies = Vocabulary.all.order(:name)
@@ -86,7 +86,7 @@ module Admin
     end
 
     ##
-    # Responds to GET /admin/vocabularies/:id
+    # Responds to `GET /admin/vocabularies/:id`
     #
     def show
       @vocabulary = Vocabulary.find(params[:id])
@@ -104,18 +104,22 @@ module Admin
     end
 
     ##
-    # Responds to GET /admin/vocabularies/:id/terms.json?query=&type={string,uri}
+    # This is used for autocompleting element values as well as in the Batch
+    # Change modal.
+    #
+    # Responds to `GET /admin/vocabularies/:id/terms.json?query=&type={string,uri}`
     #
     def terms
       @vocabulary = Vocabulary.find(params[:vocabulary_id])
-
       respond_to do |format|
         format.json do
-          type = %w(string uri).include?(params[:type]) ?
-              params[:type] : 'string'
-          render json: @vocabulary.vocabulary_terms.
-              where("LOWER(#{type}) LIKE ?", "%#{params[:query].downcase}%").
-              order(:string, :uri).limit(50)
+          terms = @vocabulary.vocabulary_terms.order(:string, :uri)
+          if params[:query].present?
+            type = %w(string uri).include?(params[:type]) ?
+                     params[:type] : 'string'
+            terms = terms.where("LOWER(#{type}) LIKE ?", "%#{params[:query].downcase}%")
+          end
+          render json: terms
         end
       end
     end
@@ -155,6 +159,7 @@ module Admin
         end
       end
     end
+
 
     private
 

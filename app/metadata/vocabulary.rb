@@ -1,12 +1,19 @@
 ##
-# List of terms (values) that can be set as values of an {ItemElement}. This
+# List of terms (values) that can be set as values of an [ItemElement]. This
 # list may be controlled (curated/restricted) or uncontrolled (anything goes).
 #
-# {MetadataProfileElement}s should be associated with one or more vocabularies.
-# By default, new {MetadataProfileElement} instances are associated with the
+# [MetadataProfileElement]s should be associated with one or more vocabularies.
+# By default, new [MetadataProfileElement] instances are associated with the
 # uncontrolled vocabulary instance, which signifies that they may contain any
 # value. The application depends on this instance (with a key of
 # `uncontrolled`) always existing.
+#
+# Attributes
+#
+# * `created_at` Managed by ActiveRecord.
+# * `key`        Unique string identifying the instance.
+# * `name`       Human-readable name of the instance.
+# * `updated_at` Managed by ActiveRecord.
 #
 class Vocabulary < ApplicationRecord
 
@@ -21,7 +28,7 @@ class Vocabulary < ApplicationRecord
 
   validate :restrict_changes_to_required_vocabs
 
-  AGENT_KEY = 'agent'
+  AGENT_KEY        = 'agent'
   UNCONTROLLED_KEY = 'uncontrolled'
 
   ##
@@ -58,7 +65,7 @@ class Vocabulary < ApplicationRecord
   end
 
   ##
-  # @return [Vocabulary] The uncontrolled vocabulary.
+  # @return [Vocabulary] The agent vocabulary.
   #
   def self.agent
     Vocabulary.find_by_key(AGENT_KEY)
@@ -83,6 +90,14 @@ class Vocabulary < ApplicationRecord
   end
 
   ##
+  # @return [Boolean] True if the instance is not the
+  #                   {UNCONTROLLED_KEY uncontrolled} vocabulary.
+  #
+  def controlled?
+    self.key != UNCONTROLLED_KEY
+  end
+
+  ##
   # @return [Boolean] True if the instance is not a system-required vocabulary.
   #
   def readonly?
@@ -93,13 +108,12 @@ class Vocabulary < ApplicationRecord
     self.key
   end
 
+
   private
 
   def restrict_changes_to_required_vocabs
-    if self.key_changed?
-      if self.key_was == UNCONTROLLED_KEY or self.key_was == AGENT_KEY
-        errors.add(:key, 'Key cannot be changed.')
-      end
+    if self.key_changed? && (self.key_was == UNCONTROLLED_KEY || self.key_was == AGENT_KEY)
+      errors.add(:key, 'Key cannot be changed.')
     end
   end
 

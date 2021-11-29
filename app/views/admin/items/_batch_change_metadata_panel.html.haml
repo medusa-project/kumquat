@@ -11,26 +11,30 @@
                         type: "button"}
             %span{"aria-hidden": "true"} ×
         .modal-body
-          .alert.alert-warning
-            %i.fa.fa-exclamation-triangle
-            This cannot be undone.
           - if @collection.metadata_profile
-            - defs = @collection.metadata_profile.elements.select{ |e| !e.controlled? }.sort{ |a, b| a.label <=> b.label }.map{ |t| [ "#{t.label} (#{t.name})", t.name ] }
+            - element_defs = @collection.metadata_profile.elements.sort_by(&:label)
             .form-group
               %label{for: "element"} Set Element:
               = select_tag(:element,
-                           options_for_select(defs),
+                           raw(element_defs.map{ |d| "<option data-controlled=\"#{d.vocabularies.select(&:controlled?).any?}\" data-controlled-vocabulary-id=\"#{d.vocabularies.find(&:controlled?)&.id}\" value=\"#{d.name}\">#{d.label} (#{d.name})</option>" }.join),
                            class: 'custom-select')
             .dl-elements
               %label To:
               .form-group
-                %table.table.table-sm
+                %table.table.table-borderless.table-sm
                   %tr.dl-element
-                    %td
+                    %td.dl-uncontrolled-value
                       %label String:
                       = text_field_tag('replace_values[][string]', '', class: 'form-control')
                       %label URI:
                       = text_field_tag('replace_values[][uri]', '', class: 'form-control')
+                    %td.dl-controlled-value{style: "display: none"}
+                      = hidden_field_tag('replace_values[][string]', nil)
+                      = hidden_field_tag('replace_values[][uri]', nil)
+                      -# option values are populated via JS populate the above fields on change
+                      = select_tag(:controlled_value,
+                                   nil,
+                                   class: 'custom-select')
                     %td{style: "text-align: center; vertical-align: middle;"}
                       %button.btn.btn-sm.btn-danger.dl-remove-element{type: "button"}
                         %i.fa.fa-minus
