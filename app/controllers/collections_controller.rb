@@ -78,6 +78,9 @@ class CollectionsController < WebsiteController
           @num_public_objects = @collection.num_public_objects rescue nil
           if @collection.representation_type == Representation::Type::ITEM
             @representative_item = @collection.representative_item
+          elsif @collection.representation_type == Representation::Type::MEDUSA_FILE
+            bin = Binary.find_by_medusa_uuid(@collection.representative_medusa_file_id)
+            @representative_item = bin.item if bin
           end
           # Show the "Browse Folder Tree" button only if the collection is
           # free-form and has no child items.
