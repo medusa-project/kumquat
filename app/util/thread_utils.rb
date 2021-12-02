@@ -13,6 +13,9 @@ class ThreadUtils
                                task:           nil,
                                print_progress: false,
                                &block)
+    if items.length < 1
+      task&.succeeded and return
+    end
     # Divide the total number of items into num_threads segments, and have
     # each thread work on a segment.
     mutex            = Mutex.new
