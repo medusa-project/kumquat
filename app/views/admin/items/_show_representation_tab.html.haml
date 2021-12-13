@@ -8,7 +8,8 @@
 
 .media.dl-representation
   .dl-image-container
-    = thumbnail_tag(@item, size: 256)
+    = thumbnail_tag(@item, size: 256,
+                    representation_type: Representation::Type::SELF)
   .media-body
     %h5
       Self

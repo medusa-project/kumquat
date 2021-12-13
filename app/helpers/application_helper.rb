@@ -540,20 +540,24 @@ module ApplicationHelper
   # @param size [Integer]
   # @param lazy [Boolean] If true, the `data-src` attribute will be set instead
   #                       of `src`; defaults to false.
+  # @param representation_type [String] One of the [Representation::Type]
+  #                                     constant values.
   # @return [String]
   #
   def thumbnail_tag(entity,
-                    shape: :full,
-                    size:  ItemsHelper::DEFAULT_THUMBNAIL_SIZE,
-                    lazy:  false)
+                    shape:               :full,
+                    size:                ItemsHelper::DEFAULT_THUMBNAIL_SIZE,
+                    lazy:                false,
+                    representation_type: nil)
     rep_entity = entity
     if entity.class.include?(Representable)
-      rep_entity = entity.effective_file_representation
-      case rep_entity.type
+      rep      = entity.effective_file_representation
+      rep_type = representation_type || rep.type
+      case rep_type
       when Representation::Type::MEDUSA_FILE
-        rep_entity = rep_entity.file
+        rep_entity = rep.file
       when Representation::Type::LOCAL_FILE
-        rep_entity = rep_entity.key
+        rep_entity = rep.key
       end
     end
 
