@@ -164,16 +164,18 @@ class ContentdmController < ApplicationController
       rep = item.effective_file_representation
       case rep.type
       when Representation::Type::MEDUSA_FILE
-        redirect_to ImageServer.file_image_v2_url(file: rep.file,
-                                                  size: ItemsHelper::DEFAULT_THUMBNAIL_SIZE),
-                    status: 301
-        return
+        url = ImageServer.file_image_v2_url(file: rep.file,
+                                            size: ItemsHelper::DEFAULT_THUMBNAIL_SIZE)
+        redirect_to url, status: 301 and return
       when Representation::Type::LOCAL_FILE
-        redirect_to ImageServer.s3_image_v2_url(bucket: KumquatS3Client::BUCKET,
-                                                key:    rep.key,
-                                                size:   ItemsHelper::DEFAULT_THUMBNAIL_SIZE),
-                    status: 301
-        return
+        url = ImageServer.s3_image_v2_url(bucket: KumquatS3Client::BUCKET,
+                                          key:    rep.key,
+                                          size:   ItemsHelper::DEFAULT_THUMBNAIL_SIZE)
+        redirect_to url, status: 301 and return
+      when Representation::Type::SELF
+        url = ImageServer.binary_image_v2_url(binary: item.effective_image_binary,
+                                              size:   ItemsHelper::DEFAULT_THUMBNAIL_SIZE)
+        redirect_to url, status: 301 and return
       end
     end
     render plain: 'Not found.', status: 404
