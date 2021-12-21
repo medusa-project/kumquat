@@ -363,8 +363,8 @@ class ItemTest < ActiveSupport::TestCase
   test 'effective_file_representation() returns a correct instance' do
     @item = items(:compound_object_1001)
     rep   = @item.effective_file_representation
-    assert_equal Representation::Type::MEDUSA_FILE, rep.type
-    assert_not_nil rep.file # TODO: flesh this out once effective_image_binary() is tested
+    assert_equal Representation::Type::SELF, rep.type
+    assert_nil rep.file # TODO: flesh this out once effective_image_binary() is tested
   end
 
   # effective_image_binary()
