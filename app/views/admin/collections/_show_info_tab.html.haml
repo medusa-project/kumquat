@@ -60,9 +60,12 @@
               - else
                 None
           %tr
-            %td RightsStatements.org
+            %td Rights Term
             %td
-              = @collection.rightsstatements_org_statement ? @collection.rightsstatements_org_statement.name : 'None'
+              - if @collection.rights_term
+                = "#{@collection.rights_term&.string} (#{@collection.rights_term.vocabulary.name})"
+              - else
+                None
           %tr
             %td First Imported
             %td= local_time(@collection.created_at)

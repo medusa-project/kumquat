@@ -421,40 +421,42 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal 'cats', @item.effective_rights_statement
   end
 
-  # effective_rightsstatement_org_statement()
+  # effective_rights_term()
 
-  test 'effective_rightsstatements_org_statement() returns the statement
-  of the instance' do
-    @item.elements.build(name: 'accessRights',
-                         uri: 'http://rightsstatements.org/vocab/NoC-OKLR/1.0/')
-    assert_equal 'http://rightsstatements.org/vocab/NoC-OKLR/1.0/',
-                 @item.effective_rightsstatements_org_statement.uri
+  test 'effective_rights_term() returns a correct instance with an ascribed
+  accessRights element' do
+    uri = 'http://rightsstatements.org/vocab/InC/1.0/'
+    @item.elements.build(name: EntityElement::CONTROLLED_RIGHTS_ELEMENT, uri: uri)
+    assert_equal uri, @item.effective_rights_term.uri
   end
 
-  test 'effective_rightsstatements_org_statement() should fall back to a parent
-  statement' do
-    @item = items(:compound_object_1002_page1)
-    @item.elements.where(name: 'accessRights').destroy_all
-    @item.parent.elements.build(name: 'accessRights',
-                                uri: 'http://rightsstatements.org/vocab/NoC-OKLR/1.0/')
-    assert_equal 'http://rightsstatements.org/vocab/NoC-OKLR/1.0/',
-                 @item.effective_rightsstatements_org_statement.uri
+  test 'effective_rights_term() falls back to a parent term' do
+    element = EntityElement::CONTROLLED_RIGHTS_ELEMENT
+    uri     = 'http://rightsstatements.org/vocab/InC/1.0/'
+    @item   = items(:compound_object_1002_page1)
+    @item.elements.where(name: element).destroy_all
+    @item.parent.elements.build(name: element, uri: uri)
+    assert_equal uri, @item.effective_rights_term.uri
   end
 
-  test 'effective_rightsstatements_org_statement() should fall back to the
-  collection rights statement' do
-    @item.elements.where(name: 'accessRights').destroy_all
-    @item.collection.rightsstatements_org_uri =
-        'http://rightsstatements.org/vocab/NoC-OKLR/1.0/'
-    assert_equal 'http://rightsstatements.org/vocab/NoC-OKLR/1.0/',
-                 @item.effective_rightsstatements_org_statement.uri
+  test 'effective_rights_term() falls back to the collection rights term' do
+    element = EntityElement::CONTROLLED_RIGHTS_ELEMENT
+    uri     = 'http://rightsstatements.org/vocab/InC/1.0/'
+    @item.elements.where(name: element).destroy_all
+    @item.collection.rights_term_uri = uri
+    assert_equal uri, @item.effective_rights_term.uri
   end
 
   # element()
 
-  test 'element() should work' do
+  test 'element() returns an element' do
     @item = items(:compound_object_1001)
     assert_equal 'My Great Title', @item.element('title').value
+  end
+
+  test 'element() returns nil when there is no element corresponding to the
+  argument' do
+    @item = items(:compound_object_1001)
     assert_nil @item.element('bogus')
   end
 
@@ -775,6 +777,19 @@ class ItemTest < ActiveSupport::TestCase
 
     @item.representative_item_id = '8acdb390-96b6-0133-1ce8-0050569601ca-4'
     assert @item.valid?
+  end
+
+  # rights_term()
+
+  test 'rights_term() returns an instance when a relevant accessRights element
+  exists' do
+    assert_not_nil @item.rights_term
+  end
+
+  test 'rights_term() returns nil when a relevant accessRights element does not
+  exist' do
+    @item.elements.destroy_all
+    assert_nil @item.rights_term
   end
 
   # root_parent()

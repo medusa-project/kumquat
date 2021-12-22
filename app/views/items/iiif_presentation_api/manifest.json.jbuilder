@@ -51,7 +51,7 @@ end
 json.navDate @item.date.utc.iso8601 if @item.date
 
 # Rights information
-license = @item.effective_rightsstatements_org_statement&.info_uri
+license = @item.effective_rights_term&.info_uri
 json.license license if license.present?
 ers = @item.effective_rights_statement
 json.attribution ers if ers.present?

@@ -7,11 +7,40 @@ class MetadataProfileTest < ActiveSupport::TestCase
     assert @profile.valid?
   end
 
-  test 'default_elements should work' do
-    assert_equal 9, MetadataProfile.default_elements.length
+  # default_elements()
+
+  test 'default_elements() returns correct elements' do
+    elements = MetadataProfile.default_elements
+    assert_equal 10, elements.length
+
+    # Check an uncontrolled element.
+    elem = elements.find{ |e| e.name == "title" }
+    assert_not_nil elem.name
+    assert_not_nil elem.label
+    assert elem.visible
+    assert elem.searchable
+    assert elem.sortable
+    assert elem.facetable
+    assert elem.indexed
+    assert_equal "title", elem.dc_map
+    assert_equal "title", elem.dcterms_map
+    assert_equal 1, elem.vocabularies.length
+    assert_equal Vocabulary.uncontrolled, elem.vocabularies.first
+    assert elem.index >= 0
   end
 
-  test 'from_json should work' do
+  test 'default_elements() assigns correct vocabularies to the accessRights
+  element' do
+    elem = MetadataProfile.default_elements.find{ |e| e.name == EntityElement::CONTROLLED_RIGHTS_ELEMENT }
+    expected_vocabs = [Vocabulary.uncontrolled,
+                       Vocabulary.find_by_key("rights"),
+                       Vocabulary.find_by_key("cc")]
+    assert_equal elem.vocabularies.to_a, expected_vocabs
+  end
+
+  # from_json()
+
+  test 'from_json() works' do
     json = <<-HEREDOC
     {
         "id": 15,

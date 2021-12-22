@@ -66,12 +66,14 @@ class MetadataProfile < ApplicationRecord
           indexed:      true,
           dc_map:       dc_map,
           dcterms_map:  dcterms_map,
-          vocabularies: [ Vocabulary.uncontrolled ],
+          vocabularies: [Vocabulary.uncontrolled],
           index:        index)
-      # Add the RightsStatements.org vocabulary to the `rights` element.
-      if profile_elem.name == 'rights'
-        rights_vocab = Vocabulary.find_by_key('rights')
-        profile_elem.vocabularies << rights_vocab if rights_vocab
+      # Add the rights-related vocabularies to the `accessRights` element.
+      if profile_elem.name == EntityElement::CONTROLLED_RIGHTS_ELEMENT
+        vocab = Vocabulary.find_by_key('rights') # RightsStatements.org
+        profile_elem.vocabularies << vocab if vocab
+        vocab = Vocabulary.find_by_key('cc') # Creative Commons
+        profile_elem.vocabularies << vocab if vocab
       end
       defs << profile_elem
     end

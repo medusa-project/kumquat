@@ -10,7 +10,7 @@ class VocabularyTest < ActiveSupport::TestCase
 
   # from_json()
 
-  test 'from_json should work' do
+  test 'from_json() works with valid JSON' do
     json = <<-HEREDOC
     {
       "id": 15,
@@ -48,7 +48,7 @@ class VocabularyTest < ActiveSupport::TestCase
     assert_equal 'http://rightsstatements.org/vocab/CNE/1.0/', term.uri
   end
 
-  test 'from_json should raise an error when importing JSON that contains '\
+  test 'from_json() raises an error when importing JSON that contains '\
   'a key that already exists' do
     Vocabulary.create!(key: 'rs', name: 'bogus')
     json = <<-HEREDOC
@@ -83,7 +83,7 @@ class VocabularyTest < ActiveSupport::TestCase
     end
   end
 
-  test 'from_json should raise an error when importing JSON that contains '\
+  test 'from_json() raises an error when importing JSON that contains '\
   'a name that already exists' do
     Vocabulary.create!(key: 'new', name: 'NewVocabulary')
     json = <<-HEREDOC
@@ -120,7 +120,7 @@ class VocabularyTest < ActiveSupport::TestCase
 
   # uncontrolled()
 
-  test 'uncontrolled() should return the uncontrolled vocabulary' do
+  test 'uncontrolled() returns the uncontrolled vocabulary' do
     assert_equal Vocabulary::UNCONTROLLED_KEY, Vocabulary.uncontrolled.key
   end
 
@@ -137,20 +137,18 @@ class VocabularyTest < ActiveSupport::TestCase
 
   # readonly?()
 
-  test 'readonly?() should return true for the uncontrolled and agent
-  vocabularies' do
+  test 'readonly?() returns true for the uncontrolled and agent vocabularies' do
     assert vocabularies(:uncontrolled).readonly?
     assert vocabularies(:agent).readonly?
   end
 
-  test 'readonly?() should return false for all other vocabularies' do
+  test 'readonly?() returns false for all other vocabularies' do
     assert !Vocabulary.create!(key: 'cats', name: 'Cats').readonly?
   end
 
   # save()
 
-  test 'save() should restrict changes of the uncontrolled and agent
-  vocabulary keys' do
+  test 'save() restricts changes of the uncontrolled and agent vocabulary keys' do
     voc = vocabularies(:uncontrolled)
     voc.key = 'dogs'
     assert !voc.save
@@ -160,7 +158,7 @@ class VocabularyTest < ActiveSupport::TestCase
     assert !voc.save
   end
 
-  test 'save() should allow changes of all other vocabulary keys' do
+  test 'save() allows changes of all other vocabulary keys' do
     voc = Vocabulary.create!(key: 'cats', name: 'Cats')
     voc.key = 'dogs'
     assert voc.save

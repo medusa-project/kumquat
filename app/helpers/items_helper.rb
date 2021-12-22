@@ -702,8 +702,8 @@ module ItemsHelper
     end
 
     # license
-    statement = item.effective_rightsstatements_org_statement
-    struct[:license] = statement.uri if statement
+    term = item.effective_rights_term
+    struct[:license] = term.uri if term
 
     # position
     struct[:position] = item.page_number if item.page_number

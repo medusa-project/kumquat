@@ -494,35 +494,35 @@ module ApplicationHelper
   end
 
   ##
-  # @param statement [RightsStatement, nil]
+  # @param term [VocabularyTerm, nil]
   # @param text [String, nil]
   # @return [String]
   #
-  def rights_statement(statement, text)
+  def rights_statement(term, text)
     html = StringIO.new
-    if statement or text.present?
-      if statement
-        image = link_to(statement.info_uri, target: '_blank') do
-          image_tag(statement.image,
-                    alt: "#{statement.name} (RightsStatement.org)")
-        end
-      else
-        image = '<i class="far fa-copyright fa-fw fa-3x"></i>'
+    if term&.vocabulary
+      image = link_to(term.info_uri, target: '_blank') do
+        image_tag(term.image, alt: "#{term.string} (#{term.vocabulary.name})")
       end
-
-      title = statement ? '' : '<h4 class="media-heading">Rights Information</h4>'
-      text = text.present? ? "<p>#{auto_link(text)}</p>" : ''
-
-      html << '<div class="media dl-rights">'
-      html <<   '<div class="media-left">'
-      html <<     image
-      html <<   '</div>'
-      html <<   '<div class="media-body">'
-      html <<     title
-      html <<     text
-      html <<   '</div>'
-      html << '</div>'
+    elsif text.present?
+      image = '<i class="far fa-copyright fa-fw fa-3x"></i>'
+    else
+      return html.string
     end
+
+    title = term ? '' : '<h4 class="media-heading">Rights Information</h4>'
+    text = text.present? ? "<p>#{auto_link(text)}</p>" : ''
+
+    html << '<div class="media dl-rights">'
+    html <<   '<div class="media-left">'
+    html <<     image
+    html <<   '</div>'
+    html <<   '<div class="media-body">'
+    html <<     title
+    html <<     text
+    html <<   '</div>'
+    html << '</div>'
+
     raw(html.string)
   end
 

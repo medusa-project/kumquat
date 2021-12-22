@@ -29,7 +29,7 @@ class CollectionDecorator < Draper::Decorator
         repository_title:        object.medusa_repository.title,
         resource_types:          object.resource_types,
         access_systems:          object.access_systems,
-        rights_statement:        object.rightsstatements_org_uri,
+        rights_uri:              object.rights_term_uri,
         package_profile:         object.package_profile&.name,
         representative_images:   {},
         representative_item_uri: object.representative_item ?

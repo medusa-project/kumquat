@@ -1,41 +1,47 @@
 compound_object_1001_description:
-  item: compound_object_1001
-  name: description
-  value: My Great Description
+  item:       compound_object_1001
+  name:       description
+  value:      My Great Description
+  uri:
   vocabulary: uncontrolled
-  type: ItemElement
+  type:       ItemElement
 
 compound_object_1001_rights:
-  item: compound_object_1001
-  name: rights
-  value: Sample Rights
-  vocabulary: rights
-  type: ItemElement
+  item:       compound_object_1001
+  name:       rights
+  value:      Sample Rights
+  uri:
+  vocabulary:
+  type:       ItemElement
 
 compound_object_1001_title:
-  item: compound_object_1001
-  name: title
-  value: My Great Title
+  item:       compound_object_1001
+  name:       title
+  value:      My Great Title
+  uri:
   vocabulary: uncontrolled
-  type: ItemElement
+  type:       ItemElement
 
 compound_object_1002_description:
-  item: compound_object_1002
-  name: description
-  value: My Great Description
+  item:       compound_object_1002
+  name:       description
+  value:      My Great Description
+  uri:
   vocabulary: uncontrolled
-  type: ItemElement
+  type:       ItemElement
 
-compound_object_1002_rights:
-  item: compound_object_1002
-  name: rights
-  value: Sample Rights
+compound_object_1002_accessRights:
+  item:       compound_object_1002
+  name:       <%= EntityElement::RIGHTS_ELEMENT %>
+  value:      In Copyright
+  uri:        http://rightsstatements.org/vocab/InC/1.0/
   vocabulary: rights
-  type: ItemElement
+  type:       ItemElement
 
 compound_object_1002_title:
-  item: compound_object_1002
-  name: title
-  value: My Great Title
+  item:       compound_object_1002
+  name:       title
+  value:      My Great Title
+  uri:
   vocabulary: uncontrolled
-  type: ItemElement
+  type:       ItemElement

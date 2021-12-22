@@ -1,0 +1,66 @@
+# Augments particular VocabularyTerms with additional info.
+#
+# * `uri`:      Corresponds to the URI of a VocabularyTerm.
+# * `image`:    Location of an image in the assets folder.
+# * `info_uri`: Destination of a hyperlinked image.
+
+# Creative Commons
+- uri:      https://creativecommons.org/licenses/by/4.0/
+  image:    creative_commons/by.png
+  info_uri: https://creativecommons.org/licenses/by/4.0/
+- uri:      https://creativecommons.org/licenses/by-nd/4.0/
+  image:    creative_commons/by-nd.png
+  info_uri: https://creativecommons.org/licenses/by-nd/4.0/
+- uri:      https://creativecommons.org/licenses/by-nc/4.0/
+  image:    creative_commons/by-nc.png
+  info_uri: https://creativecommons.org/licenses/by-nc/4.0/
+- uri:      https://creativecommons.org/licenses/by-nc-nd/4.0/
+  image:    creative_commons/by-nc-nd.png
+  info_uri: https://creativecommons.org/licenses/by-nc-nd/4.0/
+- uri:      https://creativecommons.org/licenses/by-nc-sa/4.0/
+  image:    creative_commons/by-nc-sa.png
+  info_uri: https://creativecommons.org/licenses/by-nc-sa/4.0/
+- uri:      https://creativecommons.org/licenses/by-sa/4.0/
+  image:    creative_commons/by-sa.png
+  info_uri: https://creativecommons.org/licenses/by-sa/4.0/
+- uri:      https://creativecommons.org/publicdomain/zero/1.0/
+  image:    creative_commons/cc-zero.png
+  info_uri: https://creativecommons.org/publicdomain/zero/1.0/
+
+  # RightsStatements.org
+- uri:      http://rightsstatements.org/vocab/InC/1.0/
+  image:    rightsstatements.org/InC.dark-white-interior.svg
+  info_uri: https://rightsstatements.org/page/InC/1.0/
+- uri:      http://rightsstatements.org/vocab/InC-OW-EU/1.0/
+  image:    rightsstatements.org/InC-OW-EU.dark-white-interior.svg
+  info_uri: https://rightsstatements.org/page/InC-OW-EU/1.0/
+- uri:      http://rightsstatements.org/vocab/InC-EDU/1.0/
+  image:    rightsstatements.org/InC-EDU.dark-white-interior.svg
+  info_uri: https://rightsstatements.org/page/InC-EDU/1.0/
+- uri:      http://rightsstatements.org/vocab/InC-NC/1.0/
+  image:    rightsstatements.org/InC-NC.dark-white-interior.svg
+  info_uri: https://rightsstatements.org/page/InC-NC/1.0/
+- uri:      http://rightsstatements.org/vocab/InC-RUU/1.0/
+  image:    rightsstatements.org/InC-RUU.dark-white-interior.svg
+  info_uri: https://rightsstatements.org/page/InC-RUU/1.0/
+- uri:      http://rightsstatements.org/vocab/NoC-CR/1.0/
+  image:    rightsstatements.org/NoC-CR.dark-white-interior.svg
+  info_uri: https://rightsstatements.org/page/NoC-CR/1.0/
+- uri:      http://rightsstatements.org/vocab/NoC-NC/1.0/
+  image:    rightsstatements.org/NoC-CR.dark-white-interior.svg
+  info_uri: https://rightsstatements.org/page/NoC-NC/1.0/
+- uri:      http://rightsstatements.org/vocab/NoC-OKLR/1.0/
+  image:    rightsstatements.org/NoC-OKLR.dark-white-interior.svg
+  info_uri: https://rightsstatements.org/page/NoC-OKLR/1.0/
+- uri:      http://rightsstatements.org/vocab/NoC-US/1.0/
+  image:    rightsstatements.org/NoC-US.dark-white-interior.svg
+  info_uri: https://rightsstatements.org/page/NoC-US/1.0/
+- uri:      http://rightsstatements.org/vocab/CNE/1.0/
+  image:    rightsstatements.org/CNE.dark-white-interior.svg
+  info_uri: https://rightsstatements.org/page/CNE/1.0/
+- uri:      http://rightsstatements.org/vocab/UND/1.0/
+  image:    rightsstatements.org/UND.dark-white-interior.svg
+  info_uri: https://rightsstatements.org/page/UND/1.0/
+- uri:      http://rightsstatements.org/vocab/NKC/1.0/
+  image:    rightsstatements.org/NKC.dark-white-interior.svg
+  info_uri: https://rightsstatements.org/page/NKC/1.0/

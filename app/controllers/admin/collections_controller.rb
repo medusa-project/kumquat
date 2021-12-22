@@ -273,7 +273,7 @@ module Admin
                                          :representation_type,
                                          :representative_medusa_file_id,
                                          :representative_item, :restricted,
-                                         :rightsstatements_org_uri,
+                                         :rights_term_uri,
                                          allowed_host_group_ids: [],
                                          denied_host_group_ids: [])
     end

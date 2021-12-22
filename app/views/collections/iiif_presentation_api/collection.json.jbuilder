@@ -37,7 +37,7 @@ json.seeAlso [ { '@id': collection_url(@collection, format: :json),
 json.viewingHint 'individuals'
 
 # Rights information
-license = @collection.rightsstatements_org_statement&.info_uri
+license = @collection.rights_term&.info_uri
 json.license license if license.present?
 ers = @collection.rights_statement
 json.attribution ers if ers.present?

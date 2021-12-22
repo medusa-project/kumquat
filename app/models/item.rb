@@ -85,6 +85,19 @@
 #
 # See [Representable].
 #
+# # Rights
+#
+# Rights information can be directly ascribed to an item by associating it with
+# a {EntityElement::RIGHTS_ELEMENT rights element} whose {EntityElement#uri}
+# value matches one of the terms in its associated RightsStatements.org,
+# Creative Commons, etc. [Vocabulary vocabularies]. If there is no such
+# associated element value, one is drawn from a parent item, if one exists.
+# Otherwise, the owning [Collection]'s {Collection#effective_rights_term} is
+# used.
+#
+# It is also possible to ascribe a free-form rights statement. This is added to
+# the string value of a `rights` element.
+#
 # # Indexing
 #
 # Items are searchable via ActiveRecord as well as via Elasticsearch. A low-
@@ -865,10 +878,15 @@ class Item < ApplicationRecord
   end
 
   ##
+  # N.B.: a rights statement differs from a rights term (e.g.
+  # {effective_rights_term}) in that the statement is free-form and the term is
+  # drawn from some controlled vocabulary.
+  #
   # @return [String, nil] Rights statement assigned to the instance, if
   #                       present; otherwise, the closest ancestor statement,
   #                       if present; otherwise, the rights statement assigned
   #                       to its collection, if present; otherwise nil.
+  # @see effective_rights_term
   #
   def effective_rights_statement
     # Use the statement assigned to the instance.
@@ -888,32 +906,32 @@ class Item < ApplicationRecord
   end
 
   ##
-  # @return [RightsStatement, nil] RightsStatements.org statement assigned to
-  #                                the instance, if present; otherwise, the
-  #                                closest ancestor statement, if present;
-  #                                otherwise, the statement assigned to its
-  #                                collection, if present; otherwise nil.
-  # @see rightsstatements_org_statement
+  # @return [VocabularyTerm, nil] Term assigned to the instance, if present;
+  #                               otherwise, the closest ancestor rights term,
+  #                               if present; otherwise, the statement assigned
+  #                               to its owning [Collection], if present;
+  #                               otherwise nil.
+  # @see rights_term
   #
-  def effective_rightsstatements_org_statement
+  def effective_rights_term
     # Use the statement assigned to the instance.
-    uri = self.elements.find{ |e| e.name == 'accessRights' &&
-        e.uri&.start_with?('http://rightsstatements.org') }&.uri
-    rs = RightsStatement.for_uri(uri)
+    uri = self.elements.find{ |e| e.name == EntityElement::CONTROLLED_RIGHTS_ELEMENT &&
+      (e.uri&.include?('rightsstatements.org') || e.uri&.include?('creativecommons.org')) }&.uri
+    term = VocabularyTerm.find_by_uri(uri)
     # If not assigned, walk up the item tree to find a parent statement.
-    unless rs
+    unless term
       p = self.parent
       while p
-        uri = p.elements.find{ |e| e.name == 'accessRights' &&
-            e.uri&.start_with?('http://rightsstatements.org') }&.uri
-        rs = RightsStatement.for_uri(uri)
-        break if rs
+        uri = p.elements.find{ |e| e.name == EntityElement::CONTROLLED_RIGHTS_ELEMENT &&
+          (e.uri&.include?('rightsstatements.org') || e.uri&.include?('creativecommons.org')) }&.uri
+        term = VocabularyTerm.find_by_uri(uri)
+        break if term
         p = p.parent
       end
     end
     # If still no statement available, use the collection's statement.
-    rs = RightsStatement.for_uri(self.collection.rightsstatements_org_uri) unless rs
-    rs
+    term = VocabularyTerm.find_by_uri(self.collection.rights_term_uri) unless term
+    term
   end
 
   ##
@@ -1213,11 +1231,11 @@ class Item < ApplicationRecord
   end
 
   ##
-  # @return [RightsStatement, nil]
-  # @see effective_rightsstatements_org_statement
+  # @return [VocabularyTerm, nil]
+  # @see effective_rights_term
   #
-  def rightsstatements_org_statement
-    RightsStatement.for_uri(self.element(:accessRights)&.uri)
+  def rights_term
+    VocabularyTerm.find_by_uri(self.element(EntityElement::CONTROLLED_RIGHTS_ELEMENT)&.uri)
   end
 
   ##
@@ -1343,7 +1361,7 @@ class Item < ApplicationRecord
         struct['elements'].each do |se|
           # Add a new element
           ie = ItemElement.named(se['name'])
-          if ie
+          if ie # TODO: raise an error if this is nil
             ie.uri         = se['uri']&.strip
             ie.value       = se['string']&.strip
             ie.vocabulary  = Vocabulary.find_by_key(se['vocabulary'])

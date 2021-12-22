@@ -448,7 +448,7 @@ module AdminHelper
 
     # Variant
     data << { label: 'Variant', value: item.variant,
-              help: "Available variants are: #{Item::Variants::all.map{ |v| "<code>#{v}</code>" }.sort.join(' ')}" }
+              help: "Available variants: #{Item::Variants::all.map{ |v| "<code>#{v}</code>" }.sort.join(', ')}" }
 
     # Page Number
     data << { label: 'Page Number', value: item.page_number }
@@ -474,16 +474,20 @@ module AdminHelper
     # CONTENTdm Pointer
     data << { label: 'CONTENTdm Pointer', value: item.contentdm_pointer }
 
-    # RightsStatements.org (assigned)
-    data << { label: 'RightsStatements.org (directly assigned)',
-              value: item.rightsstatements_org_statement ?
-                  link_to(item.rightsstatements_org_statement.name,
-                          item.rightsstatements_org_statement.info_uri) : '' }
-    # RightsStatements.org (effective)
-    data << { label: 'RightsStatements.org (effective)',
-              value: item.effective_rightsstatements_org_statement ?
-                  link_to(item.effective_rightsstatements_org_statement.name,
-                          item.effective_rightsstatements_org_statement.info_uri) : '' }
+    # Rights Term (assigned)
+    data << { label: "Rights Term (directly assigned)",
+              help: "This term is assigned to an <code>#{EntityElement::CONTROLLED_RIGHTS_ELEMENT}</code> element.",
+              value: item.rights_term ?
+                  link_to(item.rights_term.string,
+                          item.rights_term.info_uri) : '' }
+    # Rights Term (effective)
+    data << { label: 'Rights Term (effective)',
+              help: "This term is inherited from a parent item's "\
+                    "<code>#{EntityElement::CONTROLLED_RIGHTS_ELEMENT}</code> element or "\
+                    "the owning collection's rights term.",
+              value: item.effective_rights_term ?
+                  link_to(item.effective_rights_term.string,
+                          item.effective_rights_term.info_uri) : '' }
 
     # Created
     data << { label: 'Created', value: local_time(item.created_at) }

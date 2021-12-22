@@ -57,7 +57,7 @@
     - else
       = render partial: 'permalink_section', locals: { item: @root_item }
 %section
-  = rights_statement(@root_item.effective_rightsstatements_org_statement,
+  = rights_statement(@root_item.effective_rights_term,
                      @root_item.effective_rights_statement)
 - if @root_item.elements.reject{ |e| e.name == 'title' }.any?
   %section= metadata_section(@root_item)

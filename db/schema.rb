@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_11_03_143136) do
+ActiveRecord::Schema.define(version: 2021_12_21_152114) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -127,7 +127,7 @@ ActiveRecord::Schema.define(version: 2021_11_03_143136) do
     t.text "access_systems"
     t.integer "medusa_repository_id"
     t.text "rights_statement"
-    t.string "rightsstatements_org_uri"
+    t.string "rights_term_uri"
     t.string "contentdm_alias"
     t.string "physical_collection_url"
     t.boolean "harvestable", default: false, null: false
@@ -139,7 +139,6 @@ ActiveRecord::Schema.define(version: 2021_11_03_143136) do
     t.boolean "publicize_binaries", default: true, null: false
     t.string "representative_image"
     t.string "representation_type", default: "self", null: false
-    t.string "representative_item_repository_id", limit: 1024
     t.index ["external_id"], name: "index_collections_on_external_id"
     t.index ["harvestable"], name: "index_collections_on_harvestable"
     t.index ["harvestable_by_idhh"], name: "index_collections_on_harvestable_by_idhh"
@@ -274,7 +273,6 @@ ActiveRecord::Schema.define(version: 2021_11_03_143136) do
     t.text "allowed_netids"
     t.datetime "published_at"
     t.boolean "expose_full_text_search", default: true, null: false
-    t.string "representative_item_repository_id", limit: 1024
     t.string "representative_image"
     t.string "representation_type", default: "self", null: false
     t.index ["collection_repository_id"], name: "index_items_on_collection_identifier"
@@ -375,7 +373,7 @@ ActiveRecord::Schema.define(version: 2021_11_03_143136) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["string"], name: "index_vocabulary_terms_on_string"
-    t.index ["uri"], name: "index_vocabulary_terms_on_uri"
+    t.index ["uri"], name: "index_vocabulary_terms_on_uri", unique: true
     t.index ["vocabulary_id"], name: "index_vocabulary_terms_on_vocabulary_id"
   end
 

@@ -80,10 +80,10 @@ contentdm_obj1:
   page_number:
   published:                     true
   start_date:                    <%= Time.parse('2015-08-10') %>
-  representation_type:           <%= Representation::Type::SELF %>
+  representation_type:           <%= Representation::Type::MEDUSA_FILE %>
   representative_image:
   representative_item_id:
-  representative_medusa_file_id:
+  representative_medusa_file_id: <%= SecureRandom.uuid %>
 
 # Free Form collection
 

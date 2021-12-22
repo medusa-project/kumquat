@@ -49,7 +49,7 @@
     = render partial: 'permalink_section', locals: { item: @item }
 
 %section
-  = rights_statement(@item.effective_rightsstatements_org_statement,
+  = rights_statement(@item.effective_rights_term,
                      @item.effective_rights_statement)
 
 - if @item.elements.reject{ |e| e.name == 'title' }.any?

@@ -161,8 +161,8 @@ class PdfGenerator
     end
 
     # Rights column 1
-    rights_statement = item.rightsstatements_org_statement
-    if rights_statement
+    rights_term = item.rights_term
+    if rights_term
       doc.bounding_box([box_margin,
                         doc.bounds.height * 0.34 + box_margin],
                        width: col1_width,
@@ -180,7 +180,7 @@ class PdfGenerator
                        width: col2_width,
                        height: 44) do
         doc.transparent(0.5) { doc.stroke_bounds } if draw_boxes
-        doc.text("<link href='#{rights_statement.info_uri}'>#{rights_statement.name}</link>",
+        doc.text("<link href='#{rights_term.info_uri}'>#{rights_term.string}</link>",
                  align:         :left,
                  inline_format: true,
                  overflow:      :shrink_to_fit,

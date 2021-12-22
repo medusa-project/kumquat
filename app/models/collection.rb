@@ -116,9 +116,10 @@
 #                                   and restricted to a particular NetID.
 #                                   (DLD-337)
 # * `rights_statement`              Rights statement text.
-#                                   TODO: store this in an accessRights CollectionElement
-# * `rightsstatements_org_uri`      URI of a RightsStatements.org statement.
-#                                   TODO: store this in an accessRights CollectionElement
+# * `rights_term_uri`               URI of a term in one of the vocabularies
+#                                   associated with the
+#                                   {EntityElement::RIGHTS_ELEMENT rights
+#                                   element}.
 # * `updated_at`                    Managed by ActiveRecord.
 #
 # Attribute Propagation
@@ -731,10 +732,10 @@ class Collection < ApplicationRecord
   end
 
   ##
-  # @return [RightsStatement, nil]
+  # @return [VocabularyTerm, nil]
   #
-  def rightsstatements_org_statement
-    RightsStatement.for_uri(self.rightsstatements_org_uri)
+  def rights_term
+    VocabularyTerm.find_by_uri(self.rights_term_uri)
   end
 
   ##
