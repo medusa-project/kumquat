@@ -27,9 +27,7 @@
       %td OCR (including all children)
       - num   = @item.ocred_binaries(recursive: true).count
       - total = @item.ocrable_binaries(recursive: true).count
-      %td{class: num < total ? 'text-warning' : 'text-success'}
-        - if num < total
-          %i.fa.fa-exclamation-triangle
+      %td
         = number_with_delimiter(num)
         of
         = number_with_delimiter(total)
