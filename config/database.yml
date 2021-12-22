@@ -10,9 +10,9 @@
 
 <%
 path        = File.join(Rails.root, 'config', 'credentials', 'development.yml')
-dev_config  = File.exists?(path) ? YAML.load(File.read(path)) : {}
+dev_config  = File.exist?(path) ? YAML.load(File.read(path)) : {}
 path        = File.join(Rails.root, 'config', 'credentials', 'test.yml')
-test_config = File.exists?(path) ? YAML.load(File.read(path)) : {}
+test_config = File.exist?(path) ? YAML.load(File.read(path)) : {}
 delayed_job = (ENV['DELAYED_JOB'] == '1')
 %>
 
