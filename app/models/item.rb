@@ -756,8 +756,9 @@ class Item < ApplicationRecord
   def effective_file_representation
     rep      = Representation.new
     rep.type = self.representation_type
-    case self.representation_type
-    when Representation::Type::MEDUSA_FILE
+    case rep.type
+    when Representation::Type::MEDUSA_FILE, Representation::Type::SELF
+      rep.type = Representation::Type::MEDUSA_FILE
       rep.file = self.effective_image_binary&.medusa_file
     when Representation::Type::LOCAL_FILE
       rep.key = self.representative_image_key_prefix + self.representative_image
