@@ -42,16 +42,15 @@ class CollectionsControllerTest < ActionDispatch::IntegrationTest
     @collection.watches.build(user: users(:admin))
     @collection.save!
 
-    patch admin_collection_path(@collection), {
-      xhr: true,
-      params: {
-        watches: [
-          { email: 'sam@example.org' },
-          { email: 'jane@example.org' },
-          { email: 'bill@example.org' }
-        ]
-      }
-    }
+    patch admin_collection_path(@collection),
+          xhr: true,
+          params: {
+            watches: [
+              { email: 'sam@example.org' },
+              { email: 'jane@example.org' },
+              { email: 'bill@example.org' }
+            ]
+          }
     assert_response :ok
 
     @collection.reload

@@ -32,7 +32,7 @@ compound_object_1002_description:
 
 compound_object_1002_accessRights:
   item:       compound_object_1002
-  name:       <%= EntityElement::RIGHTS_ELEMENT %>
+  name:       <%= EntityElement::CONTROLLED_RIGHTS_ELEMENT %>
   value:      In Copyright
   uri:        http://rightsstatements.org/vocab/InC/1.0/
   vocabulary: rights

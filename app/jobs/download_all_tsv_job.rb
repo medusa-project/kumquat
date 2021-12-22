@@ -43,7 +43,7 @@ class DownloadAllTsvJob < Job
       # -r: recurse into directories
       `zip -jr "#{zip_pathname}" "#{tmpdir}"`
 
-      if File.exists?(zip_pathname)
+      if File.exist?(zip_pathname)
         dest_key = Download::DOWNLOADS_KEY_PREFIX + zip_filename
         File.open(zip_pathname, "r") do |file|
           KumquatS3Client.instance.put_object(bucket: KumquatS3Client::BUCKET,

@@ -14,7 +14,7 @@ class PdfGeneratorTest < ActiveSupport::TestCase
   test 'generate_pdf() generates a PDF for compound objects' do
     item     = items(:compound_object_1002)
     pathname = @instance.generate_pdf(item: item)
-    assert File.exists?(pathname)
+    assert File.exist?(pathname)
     assert File.size(pathname) > 1000
   ensure
     FileUtils.rm_f(pathname) if pathname
@@ -23,7 +23,7 @@ class PdfGeneratorTest < ActiveSupport::TestCase
   test 'generate_pdf() generates a PDF for compound object pages' do
     item     = items(:compound_object_1002_page1)
     pathname = @instance.generate_pdf(item: item)
-    assert File.exists?(pathname)
+    assert File.exist?(pathname)
     assert File.size(pathname) > 1000
   ensure
     FileUtils.rm_f(pathname) if pathname
@@ -32,7 +32,7 @@ class PdfGeneratorTest < ActiveSupport::TestCase
   test 'generate_pdf() generates a PDF for single-item objects' do
     item     = items(:compound_object_1001)
     pathname = @instance.generate_pdf(item: item)
-    assert File.exists?(pathname)
+    assert File.exist?(pathname)
     assert File.size(pathname) > 1000
   ensure
     FileUtils.rm_f(pathname) if pathname
@@ -41,7 +41,7 @@ class PdfGeneratorTest < ActiveSupport::TestCase
   test 'generate_pdf() generates a PDF for free-form file items' do
     item     = items(:free_form_dir1_image)
     pathname = @instance.generate_pdf(item: item)
-    assert File.exists?(pathname)
+    assert File.exist?(pathname)
     assert File.size(pathname) > 1000
   ensure
     FileUtils.rm_f(pathname) if pathname

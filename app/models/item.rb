@@ -88,12 +88,12 @@
 # # Rights
 #
 # Rights information can be directly ascribed to an item by associating it with
-# a {EntityElement::RIGHTS_ELEMENT rights element} whose {EntityElement#uri}
-# value matches one of the terms in its associated RightsStatements.org,
-# Creative Commons, etc. [Vocabulary vocabularies]. If there is no such
-# associated element value, one is drawn from a parent item, if one exists.
-# Otherwise, the owning [Collection]'s {Collection#effective_rights_term} is
-# used.
+# a {EntityElement::CONTROLLED_RIGHTS_ELEMENT rights element} whose
+# {EntityElement#uri} value matches one of the terms in its associated
+# RightsStatements.org, Creative Commons, etc. [Vocabulary vocabularies]. If
+# there is no such associated element value, one is drawn from a parent item,
+# if one exists. Otherwise, the owning [Collection]'s
+# {Collection#effective_rights_term} is used.
 #
 # It is also possible to ascribe a free-form rights statement. This is added to
 # the string value of a `rights` element.
@@ -756,8 +756,9 @@ class Item < ApplicationRecord
   def effective_file_representation
     rep      = Representation.new
     rep.type = self.representation_type
-    case self.representation_type
-    when Representation::Type::MEDUSA_FILE
+    case rep.type
+    when Representation::Type::MEDUSA_FILE, Representation::Type::SELF
+      rep.type = Representation::Type::MEDUSA_FILE
       rep.file = self.effective_image_binary&.medusa_file
     when Representation::Type::LOCAL_FILE
       rep.key = self.representative_image_key_prefix + self.representative_image

@@ -24,14 +24,13 @@ class MetadataProfilesControllerTest < ActionDispatch::IntegrationTest
   # create()
 
   test 'create() creates a profile' do
-    post '/admin/metadata-profiles', {
-        xhr: true,
-        params: {
-            metadata_profile: {
-                name: 'cats'
-            }
-        }
-    }
+    post '/admin/metadata-profiles',
+         xhr: true,
+         params: {
+           metadata_profile: {
+             name: 'cats'
+           }
+         }
 
     assert_not_nil MetadataProfile.find_by_name('cats')
   end
@@ -44,13 +43,12 @@ class MetadataProfilesControllerTest < ActionDispatch::IntegrationTest
     count = profile.elements.count
     assert count > 0
 
-    post "/admin/metadata-profiles/#{profile.id}/delete-elements", {
-        params: {
-            elements: [
-                profile.elements.where(name: 'title').first.id
-            ]
-        }
-    }
+    post "/admin/metadata-profiles/#{profile.id}/delete-elements",
+         params: {
+           elements: [
+             profile.elements.where(name: 'title').first.id
+           ]
+         }
 
     profile.reload
     assert_equal count - 1, profile.elements.count
@@ -80,14 +78,14 @@ class MetadataProfilesControllerTest < ActionDispatch::IntegrationTest
 
   # index()
 
-  test 'index() should return HTTP 200' do
+  test 'index() returns HTTP 200' do
     get '/admin/metadata-profiles'
     assert_response :ok
   end
 
   # show()
 
-  test 'show() should return HTTP 200 for a present profile' do
+  test 'show() returns HTTP 200 for a present profile' do
     profile = metadata_profiles(:default)
     get "/admin/metadata-profiles/#{profile.id}"
     assert_response :ok
@@ -95,16 +93,15 @@ class MetadataProfilesControllerTest < ActionDispatch::IntegrationTest
 
   # update()
 
-  test 'update() should update a profile' do
+  test 'update() updates a profile' do
     profile = metadata_profiles(:unused)
 
-    patch "/admin/metadata-profiles/#{profile.id}", {
-        params: {
+    patch "/admin/metadata-profiles/#{profile.id}",
+          params: {
             metadata_profile: {
-                name: 'cats'
+              name: 'cats'
             }
-        }
-    }
+          }
 
     profile.reload
     assert_equal 'cats', profile.name
