@@ -26,11 +26,10 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     refresh_elasticsearch
 
     ids = items.map(&:repository_id)
-    patch admin_collection_items_disable_full_text_search_path(items[0].collection), {
-      params: {
-        'ids[]': ids
-      }
-    }
+    patch admin_collection_items_disable_full_text_search_path(items[0].collection),
+          params: {
+            'ids[]': ids
+          }
 
     items.each do |item|
       item.reload
@@ -75,11 +74,10 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     refresh_elasticsearch
 
     ids = items.map(&:repository_id)
-    patch admin_collection_items_enable_full_text_search_path(items[0].collection), {
-      params: {
-        'ids[]': ids
-      }
-    }
+    patch admin_collection_items_enable_full_text_search_path(items[0].collection),
+          params: {
+            'ids[]': ids
+          }
 
     items.each do |item|
       item.reload
@@ -152,11 +150,10 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     refresh_elasticsearch
 
     ids = items.map(&:repository_id)
-    patch admin_collection_items_publish_path(items[0].collection), {
-      params: {
-        'ids[]': ids
-      }
-    }
+    patch admin_collection_items_publish_path(items[0].collection),
+          params: {
+            'ids[]': ids
+          }
 
     items.each do |item|
       item.reload
@@ -228,11 +225,10 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     refresh_elasticsearch
 
     ids = items.map(&:repository_id)
-    patch admin_collection_items_unpublish_path(items[0].collection), {
-      params: {
-        'ids[]': ids
-      }
-    }
+    patch admin_collection_items_unpublish_path(items[0].collection),
+          params: {
+            'ids[]': ids
+          }
 
     items.each do |item|
       item.reload

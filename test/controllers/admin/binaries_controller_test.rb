@@ -50,14 +50,13 @@ class BinariesControllerTest < ActionDispatch::IntegrationTest
     sign_in_as(users(:admin))
     assert @binary.public
 
-    patch admin_binary_path(@binary), {
-        xhr: true,
-        params: {
+    patch admin_binary_path(@binary),
+          xhr: true,
+          params: {
             binary: {
-                public: false
+              public: false
             }
-        }
-    }
+          }
     @binary.reload
     assert !@binary.public
   end
