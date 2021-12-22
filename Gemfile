@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 
 # Needs to match the version in .ruby-version and Dockerfile
-ruby '2.7.1'
+ruby '3.0.3'
 
 gem 'autoprefixer-rails'
 gem 'aws-sdk-s3', '~> 1'
@@ -19,7 +19,7 @@ gem 'local_time'
 gem 'mimemagic'
 gem 'marc-dates', git: 'https://github.com/medusa-project/marc-dates.git'
 gem 'medusa-client', git: 'https://github.com/medusa-project/medusa-client.git', tag: 'v1.2.0'
-gem 'mini_racer'
+gem 'mini_racer', '~> 0.4'
 gem 'netaddr', '~> 2'
 gem 'omniauth'
 gem 'omniauth-shibboleth'
@@ -34,6 +34,7 @@ gem 'scars-bootstrap-theme', git: 'https://github.com/medusa-project/scars-boots
     branch: 'release/bootstrap-4.4'
 #gem 'scars-bootstrap-theme', path: '../scars-bootstrap-theme'
 gem 'uglifier', '>= 1.3.0' # JavaScript asset compressor
+gem 'webrick' # Rails complains if this isn't available (maybe a bug in 6.1.4.4)
 
 group :development do
   gem 'capistrano-bundler'
