@@ -118,8 +118,8 @@
 # * `rights_statement`              Rights statement text.
 # * `rights_term_uri`               URI of a term in one of the vocabularies
 #                                   associated with the
-#                                   {EntityElement::RIGHTS_ELEMENT rights
-#                                   element}.
+#                                   {EntityElement::CONTROLLED_RIGHTS_ELEMENT
+#                                   rights element}.
 # * `updated_at`                    Managed by ActiveRecord.
 #
 # Attribute Propagation

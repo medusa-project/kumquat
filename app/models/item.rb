@@ -88,12 +88,12 @@
 # # Rights
 #
 # Rights information can be directly ascribed to an item by associating it with
-# a {EntityElement::RIGHTS_ELEMENT rights element} whose {EntityElement#uri}
-# value matches one of the terms in its associated RightsStatements.org,
-# Creative Commons, etc. [Vocabulary vocabularies]. If there is no such
-# associated element value, one is drawn from a parent item, if one exists.
-# Otherwise, the owning [Collection]'s {Collection#effective_rights_term} is
-# used.
+# a {EntityElement::CONTROLLED_RIGHTS_ELEMENT rights element} whose
+# {EntityElement#uri} value matches one of the terms in its associated
+# RightsStatements.org, Creative Commons, etc. [Vocabulary vocabularies]. If
+# there is no such associated element value, one is drawn from a parent item,
+# if one exists. Otherwise, the owning [Collection]'s
+# {Collection#effective_rights_term} is used.
 #
 # It is also possible to ascribe a free-form rights statement. This is added to
 # the string value of a `rights` element.
