@@ -30,7 +30,15 @@ module OaiPmhHelper
         # oai_dc supports only unqualified DC.
         dc_element = item.collection.metadata_profile.elements.
           find{ |pe| pe.name == ie.name }&.dc_map
-        xml.tag!("dc:#{dc_element}", ie.value) if dc_element.present?
+        if dc_element.present?
+          name = "dc:#{dc_element}"
+          xml.tag!(name, ie.value)
+          # If the element is in a rights-related vocabulary, and the
+          # ItemElement contains a URI, add another element for that.
+          if ie.uri.present? && %w(cc rights).include?(ie.vocabulary&.key)
+            xml.tag!(name, ie.uri)
+          end
+        end
       end
       # Add a dc:identifier element containing the item URI (IMET-391)
       xml.tag!('dc:identifier', item_url(item))
@@ -55,7 +63,15 @@ module OaiPmhHelper
           select{ |e| e.value.present? }.each do |ie|
         dc_element = item.collection.metadata_profile.elements.
           find{ |pe| pe.name == ie.name }&.dcterms_map
-        xml.tag!("dcterms:#{dc_element}", ie.value) if dc_element.present?
+        if dc_element.present?
+          name = "dcterms:#{dc_element}"
+          xml.tag!(name, ie.value)
+          # If the element is in a rights-related vocabulary, and the
+          # ItemElement contains a URI, add another element for that.
+          if ie.uri.present? && %w(cc rights).include?(ie.vocabulary&.key)
+            xml.tag!(name, ie.uri)
+          end
+        end
       end
       # Add a dcterms:identifier element containing the item URI (IMET-391)
       xml.tag!('dcterms:identifier', item_url(item))
@@ -140,7 +156,9 @@ module OaiPmhHelper
             dc_element = DublinCoreElement.all.find{ |e| e.name == dcterms_element }
             if dc_element
               xml.tag!("dc:#{dc_element.name}", ie.value)
-              if dc_element.name == 'rights' and ie.uri.present?
+              # If the element is in a rights-related vocabulary, and the
+              # ItemElement contains a URI, add another element for that.
+              if ie.uri.present? && profile_element.vocabularies.pluck(:key).any?{ |k| %w(cc rights).include?(k) }
                 xml.tag!("dc:#{dc_element.name}", ie.uri)
               end
             else
