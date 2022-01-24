@@ -18,25 +18,25 @@ module OaiPmhHelper
   # @return [void]
   #
   def oai_pmh_dc_elements_for(item, xml)
+    profile = item.collection.metadata_profile
     xml.tag!('oai_dc:dc', {
-        'xmlns:oai_dc' => 'http://www.openarchives.org/OAI/2.0/oai_dc/',
-        'xmlns:dc' => 'http://purl.org/dc/elements/1.1/',
-        'xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance',
-        'xsi:schemaLocation' => 'http://www.openarchives.org/OAI/2.0/oai_dc/ '\
-                  'http://www.openarchives.org/OAI/2.0/oai_dc.xsd'
+        'xmlns:oai_dc':       'http://www.openarchives.org/OAI/2.0/oai_dc/',
+        'xmlns:dc':           'http://purl.org/dc/elements/1.1/',
+        'xmlns:xsi':          'http://www.w3.org/2001/XMLSchema-instance',
+        'xsi:schemaLocation': 'http://www.openarchives.org/OAI/2.0/oai_dc/ '\
+                              'http://www.openarchives.org/OAI/2.0/oai_dc.xsd'
     }) do
       item.elements_in_profile_order(only_visible: true).
           select{ |e| e.value.present? }.each do |ie|
-        # oai_dc supports only unqualified DC.
-        dc_element = item.collection.metadata_profile.elements.
-          find{ |pe| pe.name == ie.name }&.dc_map
+        profile_element = profile.elements.find{ |pe| pe.name == ie.name }
+        dc_element      = profile_element.dc_map
         if dc_element.present?
           name = "dc:#{dc_element}"
           xml.tag!(name, ie.value)
           # If the element is in a rights-related vocabulary, and the
           # ItemElement contains a URI, add another element for that.
-          if ie.uri.present? && %w(cc rights).include?(ie.vocabulary&.key)
-            xml.tag!(name, ie.uri)
+          if ie.uri.present? && profile_element.vocabularies.pluck(:key).any?{ |k| %w(cc rights).include?(k) }
+            xml.tag!("dc:#{dc_element}", ie.uri)
           end
         end
       end
@@ -51,25 +51,25 @@ module OaiPmhHelper
   # @return [void]
   #
   def oai_pmh_dcterms_elements_for(item, xml)
+    profile = item.collection.metadata_profile
     xml.tag!('oai_dcterms:dcterms', {
-        'xmlns:oai_dcterms' => 'http://oclc.org/appqualifieddc/',
-        'xmlns:dcterms' => 'http://purl.org/dc/terms/',
-        'xmlns:dc' => 'http://purl.org/dc/elements/1.1/',
-        'xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance',
-        'xsi:schemaLocation' => 'http://oclc.org/appqualifieddc/ '\
-                      'http://dublincore.org/schemas/xmls/qdc/2003/04/02/appqualifieddc.xsd'
+        'xmlns:oai_dcterms':  'http://oclc.org/appqualifieddc/',
+        'xmlns:dcterms':      'http://purl.org/dc/terms/',
+        'xmlns:dc':           'http://purl.org/dc/elements/1.1/',
+        'xmlns:xsi':          'http://www.w3.org/2001/XMLSchema-instance',
+        'xsi:schemaLocation': 'http://oclc.org/appqualifieddc/ '\
+                              'http://dublincore.org/schemas/xmls/qdc/2003/04/02/appqualifieddc.xsd'
     }) do
       item.elements_in_profile_order(only_visible: true).
           select{ |e| e.value.present? }.each do |ie|
-        dc_element = item.collection.metadata_profile.elements.
-          find{ |pe| pe.name == ie.name }&.dcterms_map
-        if dc_element.present?
-          name = "dcterms:#{dc_element}"
-          xml.tag!(name, ie.value)
+        profile_element = profile.elements.find{ |pe| pe.name == ie.name }
+        dcterms_element = profile_element.dcterms_map
+        if dcterms_element.present?
+          xml.tag!("dcterms:#{dcterms_element}", ie.value)
           # If the element is in a rights-related vocabulary, and the
           # ItemElement contains a URI, add another element for that.
-          if ie.uri.present? && %w(cc rights).include?(ie.vocabulary&.key)
-            xml.tag!(name, ie.uri)
+          if ie.uri.present? && profile_element.vocabularies.pluck(:key).any?{ |k| %w(cc rights).include?(k) }
+            xml.tag!("dcterms:#{dcterms_element}", ie.uri)
           end
         end
       end
@@ -100,20 +100,18 @@ module OaiPmhHelper
       item.elements_in_profile_order(only_visible: true).
           select{ |e| e.value.present? }.each do |ie|
         profile_element = profile.elements.find{ |pe| pe.name == ie.name }
-        if profile_element
-          dcterms_element = profile_element.dcterms_map
-          if dcterms_element.present?
-            dc_element = DublinCoreElement.all.find{ |e| e.name == dcterms_element }
-            if dc_element
-              xml.tag!("dc:#{dc_element.name}", ie.value)
-              # If the element is in a rights-related vocabulary, and the
-              # ItemElement contains a URI, add another element for that.
-              if ie.uri.present? && profile_element.vocabularies.pluck(:key).any?{ |k| %w(cc rights).include?(k) }
-                xml.tag!("dc:#{dc_element.name}", ie.uri)
-              end
-            else
-              xml.tag!("dcterms:#{dcterms_element}", ie.value)
+        dcterms_element = profile_element.dcterms_map
+        if dcterms_element.present?
+          dc_element = DublinCoreElement.all.find{ |e| e.name == dcterms_element }
+          if dc_element
+            xml.tag!("dc:#{dc_element.name}", ie.value)
+            # If the element is in a rights-related vocabulary, and the
+            # ItemElement contains a URI, add another element for that.
+            if ie.uri.present? && profile_element.vocabularies.pluck(:key).any?{ |k| %w(cc rights).include?(k) }
+              xml.tag!("dc:#{dc_element.name}", ie.uri)
             end
+          else
+            xml.tag!("dcterms:#{dcterms_element}", ie.value)
           end
         end
       end
