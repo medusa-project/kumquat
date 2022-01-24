@@ -45,6 +45,8 @@ class OaiPmhController < ApplicationController
 
   before_action :check_pmh_enabled, :set_endpoint, :validate_request
 
+  rescue_from ActionView::Template::Error, with: :rescue_server_error
+
   DC_METADATA_FORMAT = {
       prefix: 'oai_dc',
       uri:    'http://www.openarchives.org/OAI/2.0/oai_dc/',
@@ -294,6 +296,17 @@ class OaiPmhController < ApplicationController
                                             @metadata_format)
     @expiration_date     = resumption_token_expiration_date
     @results.limit(MAX_RESULT_WINDOW)
+  end
+
+  def rescue_server_error(error)
+    message = KumquatMailer.error_body(error,
+                                       url:   request.url,
+                                       user:  current_user)
+    Rails.logger.error(message)
+    KumquatMailer.error(message).deliver_now unless Rails.env.development?
+
+    @error = error
+    render "server_error.xml", status: :internal_server_error
   end
 
   def resumption_token(set, from, until_, current_start, metadata_prefix)
