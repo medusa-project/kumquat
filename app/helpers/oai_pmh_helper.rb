@@ -90,11 +90,9 @@ module OaiPmhHelper
             dc_element = DublinCoreElement.all.find{ |e| e.name == dcterms_element }
             if dc_element
               xml.tag!("dc:#{dc_element.name}", ie.value)
-
-              # If the element is `rights` and the ItemElement contains a URI,
-              # add another element for that. (Requested by
-              # lampron2@illinois.edu)
-              if dc_element.name == 'rights' and ie.uri.present?
+              # If the element is in a rights-related vocabulary, and the
+              # ItemElement contains a URI, add another element for that.
+              if ie.uri.present? && profile_element.vocabularies.pluck(:key).any?{ |k| %w(cc rights).include?(k) }
                 xml.tag!("dc:#{dc_element.name}", ie.uri)
               end
             else
