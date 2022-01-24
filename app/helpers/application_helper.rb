@@ -500,7 +500,7 @@ module ApplicationHelper
   #
   def rights_statement(term, text)
     html = StringIO.new
-    if term&.vocabulary
+    if term&.vocabulary && term&.info_uri
       image = link_to(term.info_uri, target: '_blank') do
         image_tag(term.image, alt: "#{term.string} (#{term.vocabulary.name})")
       end
