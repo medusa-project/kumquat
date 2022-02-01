@@ -9,7 +9,7 @@ module OaiPmhHelper
     parts = identifier.split(':')
     id = parts.pop
     return nil if parts.join(':') != "oai:#{host}"
-    Item.where(repository_id: id, published: true).limit(1).first
+    Item.find_by(repository_id: id, published: true)
   end
 
   ##
@@ -33,11 +33,7 @@ module OaiPmhHelper
         if dc_element.present?
           name = "dc:#{dc_element}"
           xml.tag!(name, ie.value)
-          # If the element is in a rights-related vocabulary, and the
-          # ItemElement contains a URI, add another element for that.
-          if ie.uri.present? && profile_element.vocabularies.pluck(:key).any?{ |k| %w(cc rights).include?(k) }
-            xml.tag!("dc:#{dc_element}", ie.uri)
-          end
+          xml.tag!(name, ie.uri) if ie.uri.present?
         end
       end
       # Add a dc:identifier element containing the item URI (IMET-391)
@@ -65,12 +61,9 @@ module OaiPmhHelper
         profile_element = profile.elements.find{ |pe| pe.name == ie.name }
         dcterms_element = profile_element.dcterms_map
         if dcterms_element.present?
-          xml.tag!("dcterms:#{dcterms_element}", ie.value)
-          # If the element is in a rights-related vocabulary, and the
-          # ItemElement contains a URI, add another element for that.
-          if ie.uri.present? && profile_element.vocabularies.pluck(:key).any?{ |k| %w(cc rights).include?(k) }
-            xml.tag!("dcterms:#{dcterms_element}", ie.uri)
-          end
+          name = "dcterms:#{dcterms_element}"
+          xml.tag!(name, ie.value)
+          xml.tag!(name, ie.uri) if ie.uri.present?
         end
       end
       # Add a dcterms:identifier element containing the item URI (IMET-391)
@@ -91,11 +84,11 @@ module OaiPmhHelper
   def oai_pmh_idhh_elements_for(item, xml)
     profile = item.collection.metadata_profile
     xml.tag!('oai_idhh:idhh', {
-        'xmlns:oai_idhh':     OaiPmhController::IDHH_METADATA_FORMAT[:uri],
-        'xmlns:dc':           'http://purl.org/dc/elements/1.1/',
-        'xmlns:dcterms':      'http://purl.org/dc/terms/',
-        'xmlns:edm':          'http://www.europeana.eu/schemas/edm/',
-        'xmlns:xsi':          'http://www.w3.org/2001/XMLSchema-instance'
+        'xmlns:oai_idhh': OaiPmhController::IDHH_METADATA_FORMAT[:uri],
+        'xmlns:dc':       'http://purl.org/dc/elements/1.1/',
+        'xmlns:dcterms':  'http://purl.org/dc/terms/',
+        'xmlns:edm':      'http://www.europeana.eu/schemas/edm/',
+        'xmlns:xsi':      'http://www.w3.org/2001/XMLSchema-instance'
     }) do
       item.elements_in_profile_order(only_visible: true).
           select{ |e| e.value.present? }.each do |ie|
@@ -104,14 +97,13 @@ module OaiPmhHelper
         if dcterms_element.present?
           dc_element = DublinCoreElement.all.find{ |e| e.name == dcterms_element }
           if dc_element
-            xml.tag!("dc:#{dc_element.name}", ie.value)
-            # If the element is in a rights-related vocabulary, and the
-            # ItemElement contains a URI, add another element for that.
-            if ie.uri.present? && profile_element.vocabularies.pluck(:key).any?{ |k| %w(cc rights).include?(k) }
-              xml.tag!("dc:#{dc_element.name}", ie.uri)
-            end
+            name = "dc:#{dc_element.name}"
+            xml.tag!(name, ie.value)
+            xml.tag!(name, ie.uri) if ie.uri.present?
           else
-            xml.tag!("dcterms:#{dcterms_element}", ie.value)
+            name = "dcterms:#{dcterms_element}"
+            xml.tag!(name, ie.value)
+            xml.tag!(name, ie.uri) if ie.uri.present?
           end
         end
       end
@@ -140,10 +132,10 @@ module OaiPmhHelper
   def oai_pmh_primo_elements_for(item, xml)
     profile = item.collection.metadata_profile
     xml.tag!('oai_primo:primo', {
-        "xmlns:oai_primo":    OaiPmhController::PRIMO_METADATA_FORMAT[:uri],
-        'xmlns:dc':           'http://purl.org/dc/elements/1.1/',
-        'xmlns:dcterms':      'http://purl.org/dc/terms/',
-        'xmlns:xsi':          'http://www.w3.org/2001/XMLSchema-instance'
+        "xmlns:oai_primo": OaiPmhController::PRIMO_METADATA_FORMAT[:uri],
+        'xmlns:dc':        'http://purl.org/dc/elements/1.1/',
+        'xmlns:dcterms':   'http://purl.org/dc/terms/',
+        'xmlns:xsi':       'http://www.w3.org/2001/XMLSchema-instance'
     }) do
       item.elements_in_profile_order(only_visible: true).
           select{ |e| e.value.present? }.each do |ie|
@@ -153,14 +145,13 @@ module OaiPmhHelper
           if dcterms_element.present?
             dc_element = DublinCoreElement.all.find{ |e| e.name == dcterms_element }
             if dc_element
-              xml.tag!("dc:#{dc_element.name}", ie.value)
-              # If the element is in a rights-related vocabulary, and the
-              # ItemElement contains a URI, add another element for that.
-              if ie.uri.present? && profile_element.vocabularies.pluck(:key).any?{ |k| %w(cc rights).include?(k) }
-                xml.tag!("dc:#{dc_element.name}", ie.uri)
-              end
+              name = "dc:#{dc_element.name}"
+              xml.tag!(name, ie.value)
+              xml.tag!(name, ie.uri) if ie.uri.present?
             else
-              xml.tag!("dcterms:#{dcterms_element}", ie.value)
+              name = "dcterms:#{dcterms_element}"
+              xml.tag!(name, ie.value)
+              xml.tag!(name, ie.uri) if ie.uri.present?
             end
           end
         end
