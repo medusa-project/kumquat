@@ -13,6 +13,10 @@ class ReindexItemsJob < Job
 
     self.task&.update(status_text: "Reindexing items in #{collection.title}")
 
+    # Technically the items' owning collection is not an item, but as this job
+    # may be invoked in response to metadata profile changes which also affect
+    # the collection, we might as well reindex it too.
+    collection.reindex
     collection.items.each do |item|
       item.reindex
     end
