@@ -71,6 +71,16 @@ class MetadataProfileElementTest < ActiveSupport::TestCase
     assert_equal 'Multi-Line String', @element.human_readable_data_type
   end
 
+  # indexed
+
+  test "title element must be indexed" do
+    @element.name = "title"
+    @element.indexed = true
+    assert @element.valid?
+    @element.indexed = false
+    assert !@element.valid?
+  end
+
   # update()
 
   test 'update() updates indexes in the owning profile when increasing an

@@ -45,6 +45,7 @@ class MetadataProfileElement < ApplicationRecord
             allow_blank: false
   validates_uniqueness_of :name, scope: :metadata_profile_id
 
+  validate :validate_indexed_title
   validate :validate_vocabularies
 
   after_create :adjust_profile_element_indexes_after_create
@@ -166,9 +167,20 @@ class MetadataProfileElement < ApplicationRecord
     end
   end
 
+  ##
+  # Ensures that the `title` element is always indexed.
+  #
+  def validate_indexed_title
+    if self.name == "title" && !self.indexed
+      errors.add(:indexed, "must be enabled on the title element")
+      throw(:abort)
+    end
+  end
+
   def validate_vocabularies
     if self.vocabularies.empty?
       errors.add(:vocabularies, 'must have at least one vocabulary assigned')
+      throw(:abort)
     end
   end
 
