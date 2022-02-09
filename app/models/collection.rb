@@ -285,11 +285,13 @@ class Collection < ApplicationRecord
     rep                 = self.effective_file_representation
     case rep.type
     when Representation::Type::MEDUSA_FILE
-      access_master_struct = {
-        id:         rep.file.uuid,
-        object_uri: "s3://#{MedusaS3Client::BUCKET}/#{rep.file.relative_key}",
-        media_type: rep.file.media_type
-      }
+      if rep.file
+        access_master_struct = {
+          id:         rep.file.uuid,
+          object_uri: "s3://#{MedusaS3Client::BUCKET}/#{rep.file.relative_key}",
+          media_type: rep.file.media_type
+        }
+      end
     when Representation::Type::LOCAL_FILE
       access_master_struct = {
         object_uri: "s3://#{KumquatS3Client::BUCKET}/#{rep.key}"

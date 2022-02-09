@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_12_21_152114) do
+ActiveRecord::Schema.define(version: 2022_02_04_222328) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -58,6 +58,7 @@ ActiveRecord::Schema.define(version: 2021_12_21_152114) do
     t.boolean "primary", default: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["agent_id"], name: "index_agent_uris_on_agent_id"
     t.index ["uri"], name: "index_agent_uris_on_uri", unique: true
   end
 
@@ -70,6 +71,8 @@ ActiveRecord::Schema.define(version: 2021_12_21_152114) do
     t.datetime "updated_at", null: false
     t.integer "agent_rule_id"
     t.integer "agent_type_id"
+    t.index ["agent_rule_id"], name: "index_agents_on_agent_rule_id"
+    t.index ["agent_type_id"], name: "index_agents_on_agent_type_id"
     t.index ["begin_date"], name: "index_agents_on_begin_date"
     t.index ["end_date"], name: "index_agents_on_end_date"
     t.index ["name"], name: "index_agents_on_name", unique: true
@@ -139,6 +142,8 @@ ActiveRecord::Schema.define(version: 2021_12_21_152114) do
     t.boolean "publicize_binaries", default: true, null: false
     t.string "representative_image"
     t.string "representation_type", default: "self", null: false
+    t.string "rightsstatements_org_uri"
+    t.index ["descriptive_element_id"], name: "index_collections_on_descriptive_element_id"
     t.index ["external_id"], name: "index_collections_on_external_id"
     t.index ["harvestable"], name: "index_collections_on_harvestable"
     t.index ["harvestable_by_idhh"], name: "index_collections_on_harvestable_by_idhh"
@@ -157,6 +162,9 @@ ActiveRecord::Schema.define(version: 2021_12_21_152114) do
     t.integer "denied_host_group_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.index ["allowed_host_group_id"], name: "index_collections_host_groups_on_allowed_host_group_id"
+    t.index ["collection_id"], name: "index_collections_host_groups_on_collection_id"
+    t.index ["denied_host_group_id"], name: "index_collections_host_groups_on_denied_host_group_id"
   end
 
   create_table "delayed_jobs", id: :serial, force: :cascade do |t|
@@ -186,6 +194,7 @@ ActiveRecord::Schema.define(version: 2021_12_21_152114) do
     t.string "object_key"
     t.index ["expired"], name: "index_downloads_on_expired"
     t.index ["ip_address"], name: "index_downloads_on_ip_address"
+    t.index ["task_id"], name: "index_downloads_on_task_id"
   end
 
   create_table "elements", id: :serial, force: :cascade do |t|
@@ -230,6 +239,11 @@ ActiveRecord::Schema.define(version: 2021_12_21_152114) do
     t.integer "effective_denied_host_group_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.index ["allowed_host_group_id"], name: "index_host_groups_items_on_allowed_host_group_id"
+    t.index ["denied_host_group_id"], name: "index_host_groups_items_on_denied_host_group_id"
+    t.index ["effective_allowed_host_group_id"], name: "index_host_groups_items_on_effective_allowed_host_group_id"
+    t.index ["effective_denied_host_group_id"], name: "index_host_groups_items_on_effective_denied_host_group_id"
+    t.index ["item_id"], name: "index_host_groups_items_on_item_id"
   end
 
   create_table "item_sets", id: :serial, force: :cascade do |t|
@@ -237,6 +251,7 @@ ActiveRecord::Schema.define(version: 2021_12_21_152114) do
     t.string "collection_repository_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["collection_repository_id"], name: "index_item_sets_on_collection_repository_id"
   end
 
   create_table "item_sets_items", id: :serial, force: :cascade do |t|

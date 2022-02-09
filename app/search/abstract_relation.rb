@@ -312,7 +312,7 @@ class AbstractRelation
       if @result_count.respond_to?(:keys)
         @result_count = @result_count['value'] # ES 7.x
       end
-    else
+    elsif @response_json['error']
       @result_count = 0
       raise IOError, "#{@response_json['error']['type']}: "\
           "#{@response_json['error']['root_cause'][0]['reason']}"
