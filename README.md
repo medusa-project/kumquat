@@ -15,8 +15,7 @@ This is a getting-started guide for developers.
 * PostgreSQL >= 9.x
 * An S3 bucket ([MinIO Server](https://min.io/download) will work in
   development & test)
-* Elasticsearch 6
-    * Version 7 is not fully backward-compatible and isn't supported yet.
+* Elasticsearch 7
     * The [ICU Analysis Plugin](https://www.elastic.co/guide/en/elasticsearch/plugins/current/analysis-icu.html)
       must also be installed.
 * Cantaloupe 5.0+

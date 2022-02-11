@@ -158,7 +158,7 @@ class ElasticsearchClient
   # @return [Hash, nil]
   #
   def get_document(index_name, id)
-    url = sprintf('%s/%s/entity/%s',
+    url = sprintf('%s/%s/_doc/%s',
                   Configuration.instance.elasticsearch_endpoint,
                   index_name, id)
     response = @http_client.get(url, nil, 'Content-Type': CONTENT_TYPE)
@@ -199,7 +199,7 @@ class ElasticsearchClient
   # @raises [IOError]     If Elasticsearch returns an error response.
   #
   def index_document(index, id, doc)
-    url = sprintf('%s/%s/entity/%s', # in ES 7, `entity` changes to `_doc`
+    url = sprintf('%s/%s/_doc/%s',
                   Configuration.instance.elasticsearch_endpoint,
                   index, id)
     response = @http_client.put(url,

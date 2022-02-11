@@ -17,11 +17,13 @@
 #
 # All operations in parentheses are carried out in Item.as_indexed_json().
 #
-# Requires Elasticsearch >= 5.6
+# Requires Elasticsearch 7.
 #
 settings:
-  index.query.default_field: search_all
-  index.max_result_window: 100000000 # must match ElasticsearchClient::MAX_RESULT_WINDOW
+  index:
+    query:
+      default_field: search_all
+    max_result_window: 100000000 # must match ElasticsearchClient::MAX_RESULT_WINDOW
   analysis:
     filter:
       custom_stopper:
@@ -45,75 +47,74 @@ settings:
           - english_stemmer
           - decimal_digit
 mappings:
-  entity:
-    date_detection: false
-    dynamic_templates:
-      - metadata_elements:
-          match: metadata*
-          mapping:
-            type: text
-            analyzer: custom_analyzer
-            copy_to: search_all
-            store: false
-            fields:
-              keyword:
-                type: keyword
-              sort:
-                type: icu_collation_keyword
-                index: false
-                numeric: true
-                language: en
-                strength: quaternary
-                alternate: shifted
-      - booleans:
-          match: sys_b_*
-          mapping:
-            type: boolean
-            store: false
-      - dates:
-          match: sys_d_*
-          mapping:
-            type: date
-            store: false
-      - geo_points:
-          match: sys_p_*
-          mapping:
-            type: geo_point
-            store: false
-      - integers:
-          match: sys_i_*
-          mapping:
-            type: integer
-            store: false
-      - keywords:
-          match: sys_k_*
-          mapping:
-            type: keyword
-            store: false
-            fields:
-              keyword:
-                type: keyword
-              sort:
-                type: icu_collation_keyword
-                index: false
-                numeric: true
-                language: en
-                strength: quaternary
-                alternate: shifted
-      - longs:
-          match: sys_l_*
-          mapping:
-            type: long
-            store: false
-      - text:
-          match: sys_t_*
-          mapping:
-            type: text
-            analyzer: custom_analyzer
-            copy_to: search_all
-            store: false
-    properties:
-      search_all:
-        type: text
-        analyzer: custom_analyzer
-        store: false
+  date_detection: false
+  dynamic_templates:
+    - metadata_elements:
+        match: metadata*
+        mapping:
+          type: text
+          analyzer: custom_analyzer
+          copy_to: search_all
+          store: false
+          fields:
+            keyword:
+              type: keyword
+            sort:
+              type: icu_collation_keyword
+              index: false
+              numeric: true
+              language: en
+              strength: quaternary
+              alternate: shifted
+    - booleans:
+        match: sys_b_*
+        mapping:
+          type: boolean
+          store: false
+    - dates:
+        match: sys_d_*
+        mapping:
+          type: date
+          store: false
+    - geo_points:
+        match: sys_p_*
+        mapping:
+          type: geo_point
+          store: false
+    - integers:
+        match: sys_i_*
+        mapping:
+          type: integer
+          store: false
+    - keywords:
+        match: sys_k_*
+        mapping:
+          type: keyword
+          store: false
+          fields:
+            keyword:
+              type: keyword
+            sort:
+              type: icu_collation_keyword
+              index: false
+              numeric: true
+              language: en
+              strength: quaternary
+              alternate: shifted
+    - longs:
+        match: sys_l_*
+        mapping:
+          type: long
+          store: false
+    - text:
+        match: sys_t_*
+        mapping:
+          type: text
+          analyzer: custom_analyzer
+          copy_to: search_all
+          store: false
+  properties:
+    search_all:
+      type: text
+      analyzer: custom_analyzer
+      store: false
