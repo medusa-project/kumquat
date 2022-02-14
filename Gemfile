@@ -26,7 +26,7 @@ gem 'omniauth-shibboleth'
 gem 'pg'
 # Used to generate PDFs of compound objects.
 gem 'prawn'
-gem 'puma'
+gem 'puma', '~> 5'
 gem 'rails', '~> 6.1'
 gem 'rails_autolink'
 gem 'sassc'
