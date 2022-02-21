@@ -215,6 +215,8 @@ module Admin
             if image
               @collection.upload_representative_image(io:       image.read,
                                                       filename: image.original_filename)
+              # Also activate it for convenience's sake (DLD-408)
+              @collection.representation_type = Representation::Type::LOCAL_FILE
             end
             @collection.update!(sanitized_params)
             # We will also need to propagate various collection properties
