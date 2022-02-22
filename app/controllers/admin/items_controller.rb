@@ -535,22 +535,22 @@ module Admin
         end
 
         if params[:item]
-          # Process the image uploaded from the representative image form
-          image = params[:item][:representative_image_data]
-          if image
-            @item.upload_representative_image(io:       image.read,
-                                              filename: image.original_filename)
-            # Also activate it for convenience's sake (DLD-408)
-            @item.representation_type = Representation::Type::LOCAL_FILE
-          end
           ActiveRecord::Base.transaction do # trigger after_commit callbacks
+            # Process the image uploaded from the representative image form
+            image = params[:item][:representative_image_data]
+            if image
+              @item.upload_representative_image(io:       image.read,
+                                                filename: image.original_filename)
+              # Also activate it for convenience's sake (DLD-408)
+              @item.representation_type = Representation::Type::LOCAL_FILE
+            end
             @item.update!(sanitized_params)
-          end
 
-          # We will also need to propagate various item properties (published
-          # status, allowed/denied host groups, etc.) to its child items. This
-          # will take some time, so we'll do it in the background.
-          PropagatePropertiesToChildrenJob.perform_later(@item.repository_id)
+            # We will also need to propagate various item properties (published
+            # status, allowed/denied host groups, etc.) to its child items. This
+            # will take some time, so we'll do it in the background.
+            PropagatePropertiesToChildrenJob.perform_later(@item.repository_id)
+          end
         end
       rescue => e
         handle_error(e)
