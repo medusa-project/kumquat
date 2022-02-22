@@ -665,12 +665,16 @@ class Item < ApplicationRecord
   #
   def catalog_record_url
     # See https://bugs.library.illinois.edu/browse/DLD-342
-    # "The bib IDs currently in the digital library will have to have 99 added
-    # to the beginning and 12205899 added to the end to create the mms id,
-    # however it's likely that eventually new items will have the mms id
+    #
+    # N.B.: "The bib IDs currently in the digital library will have to have 99
+    # added to the beginning and 12205899 added to the end to create the mms
+    # id, however it's likely that eventually new items will have the mms id
     # instead of a bib id from voyager, so to get around that you could first
     # check to see if the bib ID has 99 at the beginning and 5899 at the end of
     # the id."
+    #
+    # N.B. 2: this method is also used by Book Tracker in
+    # Book.uiuc_catalog_url(). These methods should be kept in sync.
     bibid = self.bib_id
     if bibid.present?
       base_url = 'https://i-share-uiu.primo.exlibrisgroup.com/permalink/01CARLI_UIU/gpjosq/alma'
