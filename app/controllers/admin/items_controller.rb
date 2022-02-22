@@ -540,6 +540,8 @@ module Admin
           if image
             @item.upload_representative_image(io:       image.read,
                                               filename: image.original_filename)
+            # Also activate it for convenience's sake (DLD-408)
+            @item.representation_type = Representation::Type::LOCAL_FILE
           end
           ActiveRecord::Base.transaction do # trigger after_commit callbacks
             @item.update!(sanitized_params)
