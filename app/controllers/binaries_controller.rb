@@ -25,7 +25,7 @@ class BinariesController < WebsiteController
                                   key:        @binary.object_key,
                                   response_content_disposition: content_disposition,
                                   expires_in: 900)
-    redirect_to url, status: :temporary_redirect
+    redirect_to url, status: :temporary_redirect, allow_other_host: true
   end
 
   ##

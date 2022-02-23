@@ -434,8 +434,8 @@ class Item < ApplicationRecord
         WHERE parent_items.id = $1'
     sql += ' OR binary_items.id = $2' if include_self
 
-    values = [[ nil, self.id ]]
-    values << [ nil, self.id ] if include_self
+    values = [self.id]
+    values << self.id if include_self
 
     results = ActiveRecord::Base.connection.exec_query(sql, 'SQL', values)
     binary_ids = results.map{ |row| row['id'] }
@@ -461,7 +461,7 @@ class Item < ApplicationRecord
       SELECT (q.h).repository_id
       FROM q
       ORDER BY breadcrumb'
-    values = [[ nil, self.id ]]
+    values = [self.id]
 
     results = ActiveRecord::Base.connection.exec_query(sql, 'SQL', values)
     Item.where('repository_id IN (?)', results
@@ -493,7 +493,7 @@ class Item < ApplicationRecord
     sql += " OFFSET #{offset}" if offset
     sql += " LIMIT #{limit}" if limit
 
-    values = [[ nil, self.id, ], [ nil, Variants::FILE ]]
+    values = [self.id, Variants::FILE]
 
     results = ActiveRecord::Base.connection.exec_query(sql, 'SQL', values)
     Item.where('repository_id IN (?)', results.map{ |row| row['repository_id'] })

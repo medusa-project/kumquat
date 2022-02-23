@@ -1,15 +1,15 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  agent_id: 1
-  related_agent_id: 1
+  agent: one
+  related_agent: two
   dates: MyString
   description: MyText
   agent_relation_type: one
 
 two:
-  agent_id: 1
-  related_agent_id: 1
+  agent: two
+  related_agent: one
   dates: MyString
   description: MyText
   agent_relation_type: two

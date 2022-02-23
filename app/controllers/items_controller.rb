@@ -250,7 +250,9 @@ class ItemsController < WebsiteController
       # Use a temporary redirect, as this route is still active when certain
       # query arguments are provided.
       redirect_to ::Configuration.instance.metadata_gateway_url + '/items',
-                  status: :temporary_redirect and return
+                  status: :temporary_redirect,
+                  allow_other_host: true
+      return
     end
 
     relation           = item_relation_for(params)
