@@ -7,7 +7,8 @@
 # alexd note: there is probably a point at which increasing this number slows
 # things down due to increased contention for the Global Interpreter Lock.
 # But I don't know what that point is yet.
-threads_count = ENV.fetch("RAILS_MAX_THREADS") { 5 }
+#threads_count = ENV.fetch("RAILS_MAX_THREADS") { 5 }
+threads_count = 1
 threads threads_count, threads_count
 
 # Specifies the `port` that Puma will listen on to receive requests; default is 3000.
