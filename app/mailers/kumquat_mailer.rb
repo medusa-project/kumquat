@@ -8,18 +8,26 @@ class KumquatMailer < ApplicationMailer
 
   ##
   # @param exception [Exception]
-  # @param url [String] Request URL.
-  # @param user [User] Current user.
+  # @param url [String]          Request URL.
+  # @param url_path [String]     Request URL path.
+  # @param url_query [String]    Request URL query string.
+  # @param user [User]           Current user.
   # @return [String]
   #
-  def self.error_body(exception, url: nil, user: nil)
+  def self.error_body(exception,
+                      url:       nil,
+                      url_path:  nil,
+                      url_query: nil,
+                      user:      nil)
     io = StringIO.new
-    io << "Error"
-    io << " on #{url}" if url
-    io << ":\nClass: #{exception.class}\n"
+    io << "Error\n"
+    io << "Class: #{exception.class}\n"
     io << "Message: #{exception.message}\n"
-    io << "Time: #{Time.now.iso8601}\n"
+    io << "URL: #{url}\n" if url
+    io << "    Path: #{url_path}\n" if url_path
+    io << "    Query: #{url_query}\n" if url_query
     io << "User: #{user.username}\n" if user
+    io << "Time: #{Time.now.iso8601}\n"
     io << "Stack Trace:\n"
     exception.backtrace.each do |line|
       io << line

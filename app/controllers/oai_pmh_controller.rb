@@ -300,8 +300,10 @@ class OaiPmhController < ApplicationController
 
   def rescue_server_error(error)
     message = KumquatMailer.error_body(error,
-                                       url:   request.url,
-                                       user:  current_user)
+                                       url:       request.url,
+                                       url_path:  request.path,
+                                       url_query: request.query_string,
+                                       user:      current_user)
     Rails.logger.error(message)
     KumquatMailer.error(message).deliver_now unless Rails.env.development?
 
