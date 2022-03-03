@@ -1,16 +1,15 @@
 class DublinCoreTerm
 
-  @@elements = YAML::load_file(File.join(__dir__, 'dublin_core_terms.yml'))
+  ALL_ELEMENTS = YAML::load_file(File.join(__dir__, 'dublin_core_terms.yml'))
 
-  attr_accessor :label
-  attr_accessor :name
+  attr_accessor :label, :name
 
   def self.all
     elements = []
-    @@elements.each do |name, props|
-      e = DublinCoreTerm.new
-      e.name = name
-      e.label = props['label']
+    ALL_ELEMENTS.each do |name, props|
+      e         = DublinCoreTerm.new
+      e.name    = name
+      e.label   = props['label']
       elements << e
     end
     elements

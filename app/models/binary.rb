@@ -108,7 +108,7 @@ class Binary < ApplicationRecord
           return TEXT
       end
       # TODO: this code finds the first but not necessarily best match, which is the reason for the override above.
-      formats = Binary.class_variable_get(:'@@formats')
+      formats = Binary::ALL_FORMATS
       formats = formats.select{ |f| f['media_types'].include?(media_type) }
       formats.any? ? formats.first['media_category'] : nil
     end
@@ -133,7 +133,7 @@ class Binary < ApplicationRecord
             allow_blank: false
   validates :object_key, length: { allow_blank: false }
 
-  @@formats = YAML::load(File.read("#{Rails.root}/lib/formats.yml"))
+  ALL_FORMATS = YAML::load(File.read("#{Rails.root}/lib/formats.yml"))
 
   ##
   # Returns an instance corresponding to the given [Medusa::File]. This may be
@@ -266,7 +266,7 @@ class Binary < ApplicationRecord
   #
   def human_readable_name
     name = nil
-    formats = @@formats.select{ |f| f['media_types'].include?(self.media_type) }
+    formats = ALL_FORMATS.select{ |f| f['media_types'].include?(self.media_type) }
     name = formats.first['label'] if formats.any?
     name = self.media_type if name.blank?
     name = 'Unknown Type' if name.blank?
