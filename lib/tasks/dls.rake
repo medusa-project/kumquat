@@ -309,6 +309,11 @@ namespace :dls do
       Task.where(status: Task::Status::WAITING).destroy_all
     end
 
+    desc 'Fail running tasks'
+    task :fail_running => :environment do
+      Task.where(status: Task::Status::RUNNING).each(&:fail)
+    end
+
     desc 'Run a test task'
     task :test => :environment do
       SleepJob.new(15).perform_in_foreground
