@@ -499,6 +499,20 @@ class Binary < ApplicationRecord
   end
 
   ##
+  # @param content_disposition [String]
+  # @return [String]
+  #
+  def presigned_url(content_disposition: "attachment")
+    client = MedusaS3Client.instance.send(:get_client)
+    signer = Aws::S3::Presigner.new(client: client)
+    signer.presigned_url(:get_object,
+                         bucket:     MedusaS3Client::BUCKET,
+                         key:        self.object_key,
+                         response_content_disposition: content_disposition,
+                         expires_in: 900)
+  end
+
+  ##
   # @return Whether the instance is publicly accessible--i.e. both {public} and
   #         the owning collection's {Collection#publicize_binaries} property
   #         are set to `true`.

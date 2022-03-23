@@ -355,6 +355,12 @@ class BinaryTest < ActiveSupport::TestCase
     assert @instance.ocrable?
   end
 
+  # presigned_url()
+
+  test "presigned_url() returns a presigned URL" do
+    assert_not_nil @instance.presigned_url
+  end
+
   # public?()
 
   test 'public?() returns false if neither the instance nor its collection are

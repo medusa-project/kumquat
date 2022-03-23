@@ -18,13 +18,7 @@ class BinariesController < WebsiteController
   # Responds to `GET /binaries/:id`
   #
   def object
-    client = MedusaS3Client.instance.send(:get_client)
-    signer = Aws::S3::Presigner.new(client: client)
-    url    = signer.presigned_url(:get_object,
-                                  bucket:     MedusaS3Client::BUCKET,
-                                  key:        @binary.object_key,
-                                  response_content_disposition: content_disposition,
-                                  expires_in: 900)
+    url = @binary.presigned_url(content_disposition: content_disposition)
     redirect_to url, status: :temporary_redirect
   end
 
