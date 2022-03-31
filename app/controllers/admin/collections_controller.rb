@@ -259,6 +259,7 @@ module Admin
 
     def load_collection
       @collection = Collection.find_by_repository_id(params[:id] || params[:collection_id])
+      raise ActiveRecord::RecordNotFound unless @collection
     end
 
     def sanitized_params
