@@ -27,12 +27,13 @@ gem 'pg'
 # Used to generate PDFs of compound objects.
 gem 'prawn'
 gem 'puma', '~> 5'
-gem 'rails', '~> 6.1'
+gem 'rails', '~> 7.0'
 gem 'rails_autolink'
 gem 'sassc'
 gem 'scars-bootstrap-theme', git: 'https://github.com/medusa-project/scars-bootstrap-theme.git',
     branch: 'release/bootstrap-4.4'
 #gem 'scars-bootstrap-theme', path: '../scars-bootstrap-theme'
+gem 'sprockets-rails'
 gem 'uglifier', '>= 1.3.0' # JavaScript asset compressor
 gem 'webrick' # Rails complains if this isn't available (maybe a bug in 6.1.4.4)
 

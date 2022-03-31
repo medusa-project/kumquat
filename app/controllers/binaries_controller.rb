@@ -19,7 +19,7 @@ class BinariesController < WebsiteController
   #
   def object
     url = @binary.presigned_url(content_disposition: content_disposition)
-    redirect_to url, status: :temporary_redirect
+    redirect_to url, status: :temporary_redirect, allow_other_host: true
   end
 
   ##

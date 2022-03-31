@@ -1,11 +1,11 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  name: MyString
+  name:        Type One
   description: MyText
-  uri: http://example.org/1
+  uri:         http://example.org/1
 
 two:
-  name: MyString
+  name:        Type Two
   description: MyText
-  uri: http://example.org/2
+  uri:         http://example.org/2

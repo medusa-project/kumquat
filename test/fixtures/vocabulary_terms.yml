@@ -1,13 +1,16 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  string: Some string
-  uri:    http://example.org/one
+  string:     Some string
+  uri:        http://example.org/one
+  vocabulary: uncontrolled
 
 augmented:
-  string: CC-BY
-  uri:    https://creativecommons.org/licenses/by/4.0/
+  string:     CC-BY
+  uri:        https://creativecommons.org/licenses/by/4.0/
+  vocabulary: cc
 
 rightsstatements_org_inc_10:
-  string: In Copyright
-  uri:    http://rightsstatements.org/vocab/InC/1.0/
+  string:     In Copyright
+  uri:        http://rightsstatements.org/vocab/InC/1.0/
+  vocabulary: rights

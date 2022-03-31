@@ -24,7 +24,7 @@ class DownloadsController < ApplicationController
                                     key:        @download.object_key,
                                     response_content_disposition: content_disposition(@download.filename),
                                     expires_in: 900)
-      redirect_to url, status: :see_other
+      redirect_to url, status: :see_other, allow_other_host: true
     else
       LOGGER.error('file(): object does not exist for download key %s',
                    @download.key)

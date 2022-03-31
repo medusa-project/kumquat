@@ -63,9 +63,9 @@ class ItemTsvExporter
     # that have no elements or only a title element undescribed. (DLD-26)
     sql << '      WHERE non_title_count < 1' if only_undescribed
 
-    values = [[nil, collection.repository_id]]
-    values << [nil, published_after] if published_after
-    values << [nil, published_before] if published_before
+    values = [collection.repository_id]
+    values << published_after if published_after
+    values << published_before if published_before
 
     tsv = StringIO.new
     tsv << Item.tsv_columns(metadata_profile).join("\t")
@@ -95,7 +95,7 @@ class ItemTsvExporter
         'WHERE item_sets_items.item_set_id = $1 ' +
         order_clause +
         ") a\n"
-    values = [[ nil, item_set.id ]]
+    values = [item_set.id]
 
     io = StringIO.new
     io << Item.tsv_columns(metadata_profile).join("\t")

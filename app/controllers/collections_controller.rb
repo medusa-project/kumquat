@@ -49,7 +49,8 @@ class CollectionsController < WebsiteController
   #
   def index
     redirect_to ::Configuration.instance.metadata_gateway_url + '/collections',
-                status: 301
+                status:           301,
+                allow_other_host: true
   end
 
   ##

@@ -146,40 +146,36 @@ class ItemUpdater
     pathname = File.expand_path(pathname)
     filename = original_filename || File.basename(pathname)
     num_rows = File.read(pathname).scan(/\n/).count
-
-    if task
-      task.update(status_text: "Importing metadata for #{num_rows} items "\
-      "from TSV (#{filename})")
-    end
-    LOGGER.info('update_from_tsv(): ingesting metadata for %d items from %s...',
-                num_rows, pathname)
+    status   = "Importing metadata for #{num_rows} items from TSV (#{filename})"
+    task&.update(status_text: status)
+    LOGGER.info("update_from_tsv(): %s", status)
 
     num_ingested = 0
-    ActiveRecord::Base.transaction do
-      # Treat the zero-byte as the quote character in order to allow quotes in
-      # values without escaping.
-      row_num = 0
-      CSV.foreach(pathname, headers: true, col_sep: "\t",
-                  quote_char: "\x00") do |tsv_row|
-        progress = progress(row_num, num_rows)
-        struct = tsv_row.to_hash
-        item = Item.find_by_repository_id(struct['uuid'])
-        if item
-          LOGGER.info('update_from_tsv(): %s %s',
-                      struct['uuid'], progress)
+    row_num      = 0
+
+    # Treat the zero byte as the quote character in order to allow quotes in
+    # values without escaping.
+    CSV.foreach(pathname, headers: true, col_sep: "\t",
+                quote_char: "\x00") do |tsv_row|
+      progress = progress(row_num, num_rows)
+      struct   = tsv_row.to_hash
+      item     = Item.find_by_repository_id(struct['uuid'])
+      if item
+        LOGGER.info('update_from_tsv(): %s %s',
+                    struct['uuid'], progress)
+        Item.transaction do
           item.update_from_tsv(struct)
           num_ingested += 1
-        else
-          LOGGER.warn('update_from_tsv(): does not exist: %s %s',
-                      struct['uuid'], progress)
         end
-
-        if task and row_num % 10 == 0
-          task.update(percent_complete: row_num / num_rows.to_f)
-        end
-
-        row_num += 1
+      else
+        LOGGER.warn('update_from_tsv(): does not exist: %s %s',
+                    struct['uuid'], progress)
       end
+
+      if task and row_num % 10 == 0
+        task.update(percent_complete: row_num / num_rows.to_f)
+      end
+      row_num += 1
     end
     num_ingested
   end
