@@ -15,6 +15,7 @@
                         type: "button"}
             %span{"aria-hidden": "true"} ×
         .modal-body
+          = render partial: "admin/items/excel_tsv_warning"
           - if controller_name == 'item_sets'
             .alert.alert-info
               %i.fas.fa-info-circle

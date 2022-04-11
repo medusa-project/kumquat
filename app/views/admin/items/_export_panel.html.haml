@@ -11,6 +11,7 @@
                         type: "button"}
             %span{"aria-hidden": "true"} ×
         .modal-body
+          = render partial: "admin/items/excel_tsv_warning"
           .radio
             %label
               = radio_button_tag('only_undescribed', 'false', checked: true)
