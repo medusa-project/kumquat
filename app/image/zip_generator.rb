@@ -1,5 +1,7 @@
 class ZipGenerator
 
+  LOGGER = CustomLogger.new(ZipGenerator)
+
   ##
   # @param items [ActiveRecord::Relation<Item>]
   # @param include_private_binaries [Boolean]
@@ -21,10 +23,12 @@ class ZipGenerator
       end
 
       zip_filename = "item-#{Time.now.to_formatted_s(:number)}.zip"
-      zip_pathname = File.join(temp_dir, zip_filename)
+      zip_tmpdir   = Dir.mktmpdir
+      zip_pathname = File.join(zip_tmpdir, zip_filename)
 
       # -j: don't record directory names
       # -r: recurse into directories
+      LOGGER.debug("Generating #{zip_pathname}")
       `zip -jr "#{zip_pathname}" #{tmpdir}`
 
       zip_pathname
