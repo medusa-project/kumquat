@@ -36,26 +36,29 @@
 
 %h1= @profile.name
 
-.row
-  .col-xl-2
-    %h2
+%ul.nav.nav-tabs{role: "tablist"}
+  %li.nav-item{role: "presentation"}
+    %a#dl-elements-tab.nav-link.active{"data-toggle":   "tab",
+                                       href:            "#dl-elements",
+                                       role:            "tab",
+                                       "aria-controls": "dl-elements",
+                                       "aria-selected": "true"}
+      Elements
+      %span.badge.badge-pill.badge-secondary
+        = @profile.elements.count
+  %li.nav-item{role: "presentation"}
+    %a#dl-collections-tab.nav-link{"data-toggle":   "tab",
+                                   href:            "#dl-collections",
+                                   role:            "tab",
+                                   "aria-controls": "dl-collections",
+                                   "aria-selected": "false"}
       Collections
-      %small
-        %span.badge.badge-pill.badge-secondary
-          = @profile.collections.count
-    .btn-group.float-right
-      = link_to admin_metadata_profile_reindex_items_path(@profile),
-                method: :post,
-                class: 'btn btn-light' do
-        %i.fas.fa-sync-alt
-        Reindex Items
-    - if @profile.collections.any?
-      %ul
-        - @profile.collections.sort{ |c, d| c.title <=> d.title }.each do |col|
-          %li= link_to(col.title, admin_collection_path(col))
-    - else
-      %p None
-  .col-xl-10
+      %span.badge.badge-pill.badge-secondary
+        = @profile.collections.count
+
+.tab-content
+  #dl-elements.tab-pane.fade.show.active{role:              "tabpanel",
+                                         "aria-labelledby": "dl-elements-tab"}
     = form_tag(admin_metadata_profile_delete_elements_path(@profile), method: :post) do
       - if current_user.can?(Permissions::MODIFY_METADATA_PROFILES)
         .btn-group.float-right{role: "group"}
@@ -67,11 +70,6 @@
           %button#dl-delete-checked.btn.btn-danger{type: "button"}
             %i.fa.fa-trash
             Delete Checked
-      %h2
-        Elements
-        %small
-          %span.badge.badge-pill.badge-secondary
-            = @profile.elements.count
       - if @profile.elements.any?
         %table.table.table-sm
           %thead
@@ -138,6 +136,21 @@
                   = boolean(element.facetable)
       - else
         %p This profile has no elements.
+
+  #dl-collections.tab-pane.fade{role:              "tabpanel",
+                                "aria-labelledby": "dl-collections-tab"}
+    .btn-group.float-right
+      = link_to admin_metadata_profile_reindex_items_path(@profile),
+                method: :post,
+                class: 'btn btn-light' do
+        %i.fas.fa-sync-alt
+        Reindex Items
+    - if @profile.collections.any?
+      %ul
+        - @profile.collections.sort{ |c, d| c.title <=> d.title }.each do |col|
+          %li= link_to(col.title, admin_collection_path(col))
+    - else
+      %p None
 
 = render partial: 'add_element_modal'
 = render partial: 'edit_profile_modal'
