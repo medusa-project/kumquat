@@ -16,9 +16,9 @@ class IiifImageConverter
   # @return [String] Pathname of the converted image.
   #
   def convert_binary(binary, directory, format)
-    format = format.to_s
-    if binary.media_type == 'image/jpeg'
-      # The binary is already a JPEG, so just download it.
+    format = format.to_s.downcase
+    if binary.object_key.downcase.end_with?(format)
+      # The binary is already in our desired format, so just download it.
       new_pathname = directory + '/' + binary.object_key
 
       LOGGER.debug('convert_binary(): downloading %s to %s',
@@ -27,15 +27,14 @@ class IiifImageConverter
       FileUtils.mkdir_p(File.dirname(new_pathname))
 
       MedusaS3Client.instance.get_object(
-          bucket: MedusaS3Client::BUCKET,
-          key: binary.object_key,
+          bucket:          MedusaS3Client::BUCKET,
+          key:             binary.object_key,
           response_target: new_pathname)
       return new_pathname
     elsif binary.is_image?
       format.gsub!('.', '')
       new_pathname = directory + '/' +
-          binary.object_key.split('.')[0...-1].join('.') +
-          '.' + format
+          binary.object_key.split('.')[0...-1].join('.') + '.' + format
 
       if binary.image_server_safe?
         url = binary.iiif_image_v2_url + '/full/full/0/default.' + format
