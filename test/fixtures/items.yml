@@ -100,6 +100,7 @@ free_form_dir1:
 
 free_form_dir1_audio:
   repository_id:                 307f29c6-8c63-eb2e-f0cb-f2bfc33176f7
+  parent_repository_id:          7351760f-4b7b-5a6c-6dda-f5a92562b008
   collection_repository_id:      81a13f45-d149-3dd7-f233-53cc395217fa
   start_date:                    <%= Time.parse('2015-08-10') %>
   published:                     true
@@ -111,6 +112,7 @@ free_form_dir1_audio:
 
 free_form_dir1_image:
   repository_id:                 39582239-4307-1cc6-c9c6-074516fd7635
+  parent_repository_id:          7351760f-4b7b-5a6c-6dda-f5a92562b008
   collection_repository_id:      81a13f45-d149-3dd7-f233-53cc395217fa
   start_date:                    <%= Time.parse('2015-08-10') %>
   published:                     true
@@ -122,6 +124,7 @@ free_form_dir1_image:
 
 free_form_dir1_video:
   repository_id:                 7a8f2629-e9ef-9b43-34b3-908c5a53c485
+  parent_repository_id:          7351760f-4b7b-5a6c-6dda-f5a92562b008
   collection_repository_id:      81a13f45-d149-3dd7-f233-53cc395217fa
   start_date:                    <%= Time.parse('2015-08-10') %>
   published:                     true
@@ -133,10 +136,10 @@ free_form_dir1_video:
 
 free_form_dir1_dir1:
   repository_id:                 088a49f2-08f0-f43b-47a1-cd40cbc1d837
+  parent_repository_id:          7351760f-4b7b-5a6c-6dda-f5a92562b008
   collection_repository_id:      81a13f45-d149-3dd7-f233-53cc395217fa
   start_date:                    <%= Time.parse('2015-08-10') %>
   published:                     true
-  parent_repository_id:          7351760f-4b7b-5a6c-6dda-f5a92562b008
   variant:                       <%= Item::Variants::DIRECTORY %>
   representation_type:           <%= Representation::Type::SELF %>
   representative_image:
@@ -145,10 +148,10 @@ free_form_dir1_dir1:
 
 free_form_dir1_dir1_file1:
   repository_id:                 09e9b9a6-b07e-2826-a61e-caf4cf9c8eb3
+  parent_repository_id:          088a49f2-08f0-f43b-47a1-cd40cbc1d837
   collection_repository_id:      81a13f45-d149-3dd7-f233-53cc395217fa
   start_date:                    <%= Time.parse('2015-08-10') %>
   published:                     true
-  parent_repository_id:          088a49f2-08f0-f43b-47a1-cd40cbc1d837
   variant:                       <%= Item::Variants::FILE %>
   representation_type:           <%= Representation::Type::SELF %>
   representative_image:

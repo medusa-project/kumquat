@@ -91,7 +91,12 @@ class IiifImageConverter
             binaries = file_item.binaries.where('media_type LIKE ?', 'image/%')
             binaries = binaries.where(public: true) unless include_private_binaries
             binaries.each do |bin| # there should only be one
-              convert_binary(bin, directory, format)
+              begin
+                convert_binary(bin, directory, format)
+              rescue => e
+                LOGGER.warn("convert_images(): failed to convert %s (%s)",
+                            bin.object_key, e.message)
+              end
             end
           end
           offset += limit
@@ -106,7 +111,12 @@ class IiifImageConverter
           count    = binaries.count
           binaries.each_with_index do |bin, index|
             task&.progress = index / count.to_f
-            convert_binary(bin, directory, format)
+            begin
+              convert_binary(bin, directory, format)
+            rescue => e
+              LOGGER.warn("convert_images(): failed to convert %s (%s)",
+                          bin.object_key, e.message)
+            end
           end
         end
       # The item has no child items, so it's likely either standalone or a file
@@ -119,7 +129,12 @@ class IiifImageConverter
         count    = binaries.length
         binaries.each_with_index do |bin, index|
           task&.progress = index / count.to_f
-          convert_binary(bin, directory, format)
+          begin
+            convert_binary(bin, directory, format)
+          rescue => e
+            LOGGER.warn("convert_images(): failed to convert %s (%s)",
+                        bin.object_key, e.message)
+          end
         end
       end
     end

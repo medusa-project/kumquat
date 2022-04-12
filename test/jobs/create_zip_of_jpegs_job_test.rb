@@ -13,7 +13,7 @@ class CreateZipOfJpegsJobTest < ActiveSupport::TestCase
   # perform()
 
   test 'perform() assembles the expected zip file' do
-    items = [items(:free_form_dir1_dir1_file1).repository_id]
+    items = [items(:free_form_dir1_image).repository_id]
     CreateZipOfJpegsJob.perform_now(items, 'items', false, @download)
 
     Dir.mktmpdir do |tmpdir|
@@ -29,7 +29,7 @@ class CreateZipOfJpegsJobTest < ActiveSupport::TestCase
   end
 
   test 'perform() updates the download object' do
-    items = [items(:free_form_dir1_dir1_file1).repository_id]
+    items = [items(:free_form_dir1_image).repository_id]
     CreateZipOfJpegsJob.perform_now(items, 'items', false, @download)
 
     assert_equal Task::Status::SUCCEEDED, @download.task.status

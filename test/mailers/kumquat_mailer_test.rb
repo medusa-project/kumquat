@@ -11,7 +11,7 @@ class KumquatMailerTest < ActionMailer::TestCase
       raise "Something happened"
     rescue => e
       string = KumquatMailer.error_body(e)
-      assert string.starts_with?("Error:\n")
+      assert string.starts_with?("Error\n")
     end
   end
 
