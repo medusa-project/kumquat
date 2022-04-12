@@ -3,6 +3,8 @@
 #
 class ZipGenerator
 
+  LOGGER = CustomLogger.new(ZipGenerator)
+
   ##
   # Generates a zip file for an [Item]. The file consists of all of an item's
   # images converted to JPEGs.
@@ -27,10 +29,12 @@ class ZipGenerator
       end
 
       zip_filename = "item-#{Time.now.to_formatted_s(:number)}.zip"
-      zip_pathname = File.join(tmpdir, zip_filename)
+      zip_tmpdir   = Dir.mktmpdir
+      zip_pathname = File.join(zip_tmpdir, zip_filename)
 
       # -j: don't record directory names
       # -r: recurse into directories
+      LOGGER.debug("Generating #{zip_pathname}")
       `zip -jr "#{zip_pathname}" #{tmpdir}`
 
       zip_pathname
