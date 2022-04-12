@@ -50,7 +50,7 @@ mappings:
   date_detection: false
   dynamic_templates:
     - metadata_elements:
-        match: metadata*
+        match: "*metadata_*"
         mapping:
           type: text
           analyzer: custom_analyzer

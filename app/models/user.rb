@@ -25,7 +25,7 @@ class User < ApplicationRecord
   # Username of a Medusa "super admin" in development & test environments.
   DEVELOPMENT_SUPERUSER_USERNAME = 'super'
 
-  LDAP_CACHE_TTL = 12.hours
+  LDAP_CACHE_TTL = 1.hour
 
   has_and_belongs_to_many :item_sets
   has_many :watches
