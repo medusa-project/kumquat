@@ -526,17 +526,16 @@ class ItemsController < WebsiteController
         item_ids = items.map(&:repository_id)
         if item_ids.any?
           download = Download.create(ip_address: request.remote_ip)
-          case params[:contents]
-            when 'jpegs'
-              CreateZipOfJpegsJob.perform_later(item_ids,
-                                                zip_name,
-                                                current_user&.medusa_user?,
-                                                download)
-            else
-              DownloadZipJob.perform_later(item_ids,
-                                           zip_name,
-                                           current_user&.medusa_user?,
-                                           download)
+          if params[:contents].match?(/jpegs/)
+            CreateZipOfJpegsJob.perform_later(item_ids,
+                                              zip_name,
+                                              current_user&.medusa_user?,
+                                              download)
+          else
+            DownloadZipJob.perform_later(item_ids,
+                                         zip_name,
+                                         current_user&.medusa_user?,
+                                         download)
           end
           redirect_to download_url(download, format: :json) and return
         else
