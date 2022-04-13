@@ -133,7 +133,7 @@ GEM
     choice (0.2.0)
     concurrent-ruby (1.1.9)
     crass (1.0.6)
-    daemons (1.2.4)
+    daemons (1.4.1)
     delayed_job (4.1.10)
       activesupport (>= 3.0, < 8.0)
     delayed_job_active_record (4.1.7)
