@@ -14,6 +14,8 @@ module Kumquat
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 7.0
 
+    config.active_record.schema_format = :sql
+
     # Make pages embeddable within other websites. (Spurlock needs this as of
     # 8/2017.)
     config.action_dispatch.default_headers =
