@@ -1254,14 +1254,29 @@ module ItemsHelper
   def pdf_viewer_for(binary)
     html = StringIO.new
     if binary
+      # This container will contain two different viewers: PDF.js and a native
+      # viewer. One or the other will be shown via JS depending on whether the
+      # browser supports PDF natively.
+      html << '<div id="dl-pdf-viewer">'
+
+      # Add a PDF.js viewer
       binary_url = binary_stream_url(binary)
       viewer_url = asset_path('/pdfjs/web/viewer.html?file=' + binary_url)
-      html << '<div id="dl-pdf-viewer">'
-      html <<   "<iframe src=\"#{viewer_url}\" height=\"100%\" width=\"100%\"></iframe>"
-      html <<   '<div style="text-align: center">'
-      html <<     link_to(viewer_url, target: '_blank', class: 'btn btn-outline-secondary btn-sm') do
+      html <<   '<div id="dl-pdfjs-viewer" style="width: 100%; height: 100%">'
+      html <<     "<iframe src=\"#{viewer_url}\" height=\"100%\" width=\"100%\"></iframe>"
+      html <<     '<div style="text-align: center">'
+      html <<       link_to(viewer_url, target: '_blank', class: 'btn btn-outline-secondary btn-sm') do
         content_tag(:span, '', class: 'fa fa-file-pdf') + ' Open PDF in New Window'
       end
+      html <<     '</div>'
+      html <<   '</div>'
+
+      # Add a generic embedded viewer; this is preferable to PDF.js when
+      # the browser supports embedded PDFs
+      binary_url = binary.presigned_url(content_disposition: "inline")
+      html << '<div id="dl-native-pdf-viewer">'
+      html <<   raw("<object data=\"#{binary_url}\" "\
+                    "type=\"#{binary.media_type}\"></object>")
       html <<   '</div>'
       html << '</div>'
     end

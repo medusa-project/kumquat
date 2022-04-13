@@ -67,6 +67,24 @@ var Application = {
     },
 
     /**
+     * @returns {Boolean}
+     */
+    isPDFSupportedNatively: function() {
+        function hasAcrobatInstalled() {
+            function getActiveXObject(name) {
+                try { return new ActiveXObject(name); } catch(e) {}
+            }
+            return getActiveXObject('AcroPDF.PDF') || getActiveXObject('PDF.PdfCtrl');
+        }
+
+        function isApple() {
+            return /Mac|iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream
+        }
+
+        return navigator.mimeTypes['application/pdf'] || hasAcrobatInstalled() || isApple();
+    },
+
+    /**
      * Encapsulates an AJAX shade with a spinner. Use the ajax_shade() helper
      * to add the shade div to the layout, instantiate an AJAXShade, and call
      * show() or hide() on it.
