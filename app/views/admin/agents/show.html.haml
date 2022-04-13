@@ -32,9 +32,9 @@
         Public View
 
   -# Delete button
-  = link_to admin_agent_path(@agent), method: :delete,
-            class: 'btn btn-danger',
-            data: { confirm: 'Are you sure you want to delete this agent?' } do
+  = button_to admin_agent_path(@agent), method: :delete,
+              class: 'btn btn-danger',
+              data: { confirm: 'Are you sure you want to delete this agent?' } do
     %i.fa.fa-trash
     Delete
 
@@ -89,10 +89,10 @@
                                                                   type: "button"}
                 %i.fas.fa-pencil-alt
                 Edit
-              = link_to admin_agent_relation_path(relation),
-                        class: 'btn btn-danger btn-sm',
-                        method: :delete,
-                        data: { confirm: 'Are you sure you want to remove this relationship?' } do
+              = button_to admin_agent_relation_path(relation),
+                          class: 'btn btn-danger btn-sm',
+                          method: :delete,
+                          data: { confirm: 'Are you sure you want to remove this relationship?' } do
                 %i.fa.fa-trash
                 Delete
           %td= @agent.name
@@ -132,9 +132,10 @@
                                                                   type: "button"}
                 %i.fas.fa-pencil-alt
                 Edit
-              = link_to admin_agent_relation_path(relation),
-                        class: 'btn btn-danger btn-sm', method: :delete,
-                        data: { confirm: 'Are you sure you want to remove this relationship?' } do
+              = button_to admin_agent_relation_path(relation),
+                          class: 'btn btn-danger btn-sm',
+                          method: :delete,
+                          data: { confirm: 'Are you sure you want to remove this relationship?' } do
                 %i.fa.fa-trash
                 Delete
           %td= link_to relation.agent.name, admin_agent_path(relation.agent)

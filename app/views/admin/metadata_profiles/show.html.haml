@@ -15,9 +15,9 @@
       %i.fas.fa-pencil-alt
       Edit
     -# Clone button
-    = link_to admin_metadata_profile_clone_path(@profile),
-              method: :patch,
-              class: 'btn btn-light' do
+    = button_to admin_metadata_profile_clone_path(@profile),
+                method: :patch,
+                class: 'btn btn-light' do
       %i.fa.fa-copy
       Clone
   -# Export button
@@ -26,11 +26,11 @@
     Export
   - if current_user.can?(Permissions::MODIFY_METADATA_PROFILES)
     -# Delete button
-    = link_to admin_metadata_profile_path(@profile),
-              method: :delete,
-              class: 'btn btn-danger',
-              disabled: @profile.collections.count > 0,
-              data: { confirm: 'Are you sure you want to delete this profile?' } do
+    = button_to admin_metadata_profile_path(@profile),
+                method: :delete,
+                class: 'btn btn-danger',
+                disabled: @profile.collections.count > 0,
+                data: { confirm: 'Are you sure you want to delete this profile?' } do
       %i.fa.fa-trash
       Delete
 
@@ -140,9 +140,9 @@
   #dl-collections.tab-pane.fade{role:              "tabpanel",
                                 "aria-labelledby": "dl-collections-tab"}
     .btn-group.float-right
-      = link_to admin_metadata_profile_reindex_items_path(@profile),
-                method: :post,
-                class: 'btn btn-light' do
+      = button_to admin_metadata_profile_reindex_items_path(@profile),
+                  method: :post,
+                  class: 'btn btn-light' do
         %i.fas.fa-sync-alt
         Reindex Items
     - if @profile.collections.any?

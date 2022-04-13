@@ -57,26 +57,26 @@
                 'data-toggle': 'modal',
                 'data-target': '#dl-ocr-modal'
       .dropdown-divider
-      = link_to 'Enable Full Text Search for All Results',
-                admin_collection_items_enable_full_text_search_path(@collection),
-                method: :patch,
-                id: 'dl-enable-fts-link',
-                class: 'dropdown-item'
-      = link_to 'Disable Full Text Search for All Results',
-                admin_collection_items_disable_full_text_search_path(@collection),
-                method: :patch,
-                id: 'dl-disable-fts-link',
-                class: 'dropdown-item'
-      = link_to 'Enable Full Text Search for Checked Results',
-                admin_collection_items_enable_full_text_search_path(@collection),
-                method: :patch,
-                id: 'dl-enable-checked-fts-link',
-                class: 'dropdown-item'
-      = link_to 'Disable Full Text Search for Checked Results',
-                admin_collection_items_disable_full_text_search_path(@collection),
-                method: :patch,
-                id: 'dl-disable-checked-fts-link',
-                class: 'dropdown-item'
+      = button_to 'Enable Full Text Search for All Results',
+                  admin_collection_items_enable_full_text_search_path(@collection),
+                  method: :patch,
+                  id: 'dl-enable-fts-link',
+                  class: 'dropdown-item'
+      = button_to 'Disable Full Text Search for All Results',
+                  admin_collection_items_disable_full_text_search_path(@collection),
+                  method: :patch,
+                  id: 'dl-disable-fts-link',
+                  class: 'dropdown-item'
+      = button_to 'Enable Full Text Search for Checked Results',
+                  admin_collection_items_enable_full_text_search_path(@collection),
+                  method: :patch,
+                  id: 'dl-enable-checked-fts-link',
+                  class: 'dropdown-item'
+      = button_to 'Disable Full Text Search for Checked Results',
+                  admin_collection_items_disable_full_text_search_path(@collection),
+                  method: :patch,
+                  id: 'dl-disable-checked-fts-link',
+                  class: 'dropdown-item'
 
   -# Sets button
   .btn-group

@@ -50,9 +50,10 @@
                   %i.fa.fa-trash
                   Delete
               - else
-                = link_to admin_element_path(row['name']),
-                          class: 'btn btn-danger btn-sm', method: :delete,
-                          data: { confirm: 'Are you sure you want to delete this element?' } do
+                = button_to admin_element_path(row['name']),
+                            class: 'btn btn-danger btn-sm',
+                            method: :delete,
+                            data: { confirm: 'Are you sure you want to delete this element?' } do
                   %i.fa.fa-trash
                   Delete
         %td{style: "white-space: nowrap"}

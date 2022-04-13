@@ -278,18 +278,28 @@ const DLItemView = function() {
     this.init = function() {
         $('#dl-download-button').on('click', function() {
             $('#dl-download').collapse('show');
-            var container = $('html, body');
-            var offset    = $('#dl-download-section').offset().top;
+            const container = $('html, body');
+            const offset    = $('#dl-download-section').offset().top;
             container.animate({ scrollTop: offset }, Application.SCROLL_SPEED);
             return false;
         });
         $('#dl-more-information-button').on('click', function() {
             $('#dl-metadata').collapse('show');
-            var container = $('html, body');
-            var offset    = $('#dl-metadata-section').offset().top;
+            const container = $('html, body');
+            const offset    = $('#dl-metadata-section').offset().top;
             container.animate({ scrollTop: offset }, Application.SCROLL_SPEED);
             return false;
         });
+
+        const pdfjsViewer     = $("#dl-pdfjs-viewer");
+        const nativePDFViewer = $("#dl-native-pdf-viewer");
+        if (Application.isPDFSupportedNatively()) {
+            nativePDFViewer.show();
+            pdfjsViewer.hide();
+        } else {
+            nativePDFViewer.hide();
+            pdfjsViewer.show();
+        }
 
         // Add an expander icon in front of every collapse toggle.
         const toggleForCollapse = function(collapse) {

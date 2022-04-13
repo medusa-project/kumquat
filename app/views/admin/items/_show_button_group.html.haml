@@ -19,12 +19,12 @@
         %span.caret
       .dropdown-menu
         - @item.collection.item_sets.joins(:users).where(users: { id: current_user.id }).each do |set|
-          = link_to set.name,
-            admin_collection_items_add_items_to_item_set_path(@item.collection,
-                                                              'items[]': @item.repository_id,
-                                                              item_set: set.id),
-            method: :post,
-            class: 'dropdown-item'
+          = button_to set.name,
+                      admin_collection_items_add_items_to_item_set_path(@item.collection,
+                                                                        'items[]': @item.repository_id,
+                                                                        item_set: set.id),
+                      method: :post,
+                      class: 'dropdown-item'
   -# Go button
   .btn-group
     %button.btn.btn-light.dropdown-toggle{"aria-expanded": "false",

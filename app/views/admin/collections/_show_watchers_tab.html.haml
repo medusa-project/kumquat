@@ -4,13 +4,13 @@
       .card-body
         .btn.btn-group.float-right
           - if current_user.watching?(@collection)
-            = link_to(admin_collection_unwatch_path(@collection),
+            = button_to(admin_collection_unwatch_path(@collection),
                         method: :patch,
                         class: 'btn btn-sm btn-light') do
               %i.fa.fa-eye-slash
               Unwatch
           - else
-            = link_to(admin_collection_watch_path(@collection),
+            = button_to(admin_collection_watch_path(@collection),
                         method: :patch,
                         class: 'btn btn-sm btn-light') do
               %i.fa.fa-eye
