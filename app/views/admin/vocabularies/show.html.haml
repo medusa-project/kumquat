@@ -19,9 +19,10 @@
       %i.fa.fa-download
       Export
     -# Delete button
-    = link_to admin_vocabulary_path(@vocabulary), method: :delete,
-              class: 'btn btn-danger',
-              data: { confirm: 'Are you sure you want to delete this vocabulary?' } do
+    = button_to admin_vocabulary_path(@vocabulary),
+                method: :delete,
+                class: 'btn btn-danger',
+                data: { confirm: 'Are you sure you want to delete this vocabulary?' } do
       %i.fa.fa-trash
       Delete
 %h1

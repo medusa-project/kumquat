@@ -15,10 +15,10 @@
                                                                      type: "button"}
               %i.fas.fa-pencil-alt
               Edit
-            = link_to(admin_agent_relation_type_path(type),
-                      class: 'btn btn-danger btn-sm',
-                      method: :delete,
-                      data: { confirm: 'Are you sure you want to delete this relation type?' }) do
+            = button_to(admin_agent_relation_type_path(type),
+                        class: 'btn btn-danger btn-sm',
+                        method: :delete,
+                        data: { confirm: 'Are you sure you want to delete this relation type?' }) do
               %i.fa.fa-trash
               Delete
         %td= type.name

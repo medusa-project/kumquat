@@ -14,10 +14,10 @@
                                                             type: "button"}
               %i.fas.fa-pencil-alt
               Edit
-            = link_to(admin_agent_rule_path(rule),
-                      class: 'btn btn-danger btn-sm',
-                      method: :delete,
-                      data: { confirm: 'Are you sure you want to delete this agent rule?' }) do
+            = button_to(admin_agent_rule_path(rule),
+                        class: 'btn btn-danger btn-sm',
+                        method: :delete,
+                        data: { confirm: 'Are you sure you want to delete this agent rule?' }) do
               %i.fa.fa-trash
               Delete
         %td= rule.name

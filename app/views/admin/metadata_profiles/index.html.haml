@@ -34,10 +34,10 @@
           - if profile.default
             %span.badge.badge-success Default
           - elsif current_user.can?(Permissions::MODIFY_METADATA_PROFILES)
-            = link_to 'Set As Default',
-                      admin_metadata_profile_path(profile, metadata_profile: { default: true }),
-                      class: 'btn btn-light btn-sm',
-                      method: :patch
+            = button_to 'Set As Default',
+                        admin_metadata_profile_path(profile, metadata_profile: { default: true }),
+                        class: 'btn btn-light btn-sm',
+                        method: :patch
         %td= link_to profile.name, admin_metadata_profile_path(profile)
         %td= profile.collections.count
 

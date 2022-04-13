@@ -7,7 +7,7 @@
 
 .btn-group.float-right{role: "group"}
   -# Index button
-  = link_to admin_collections_sync_path, method: 'patch', class: 'btn btn-light' do
+  = button_to admin_collections_sync_path, method: 'patch', class: 'btn btn-light' do
     %i.fas.fa-sync-alt
     Index Collections Metadata From Medusa
   -# Metadata menu
