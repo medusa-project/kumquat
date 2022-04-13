@@ -35,7 +35,7 @@ module SessionsHelper
   end
 
   def redirect_back_or(default)
-    redirect_to(session[:return_to] || default)
+    redirect_to((session[:return_to] || default), allow_other_host: true)
     session.delete(:return_to)
   end
 

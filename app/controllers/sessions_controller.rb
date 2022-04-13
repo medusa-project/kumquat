@@ -27,7 +27,7 @@ class SessionsController < WebsiteController
         return_url = clear_and_return_return_path(root_path)
         sign_in username
       end
-      redirect_to return_url
+      redirect_to return_url, allow_other_host: true
     else
       redirect_to root_url
     end
@@ -36,7 +36,7 @@ class SessionsController < WebsiteController
   def destroy
     sign_out
     return_url = params[:referer] || root_path
-    redirect_to return_url
+    redirect_to return_url, allow_other_host: true
   end
 
   ##
