@@ -526,7 +526,7 @@ class ItemsController < WebsiteController
         item_ids = items.map(&:repository_id)
         if item_ids.any?
           download = Download.create(ip_address: request.remote_ip)
-          if params[:contents].match?(/jpegs/)
+          if params[:contents]&.match?(/jpegs/)
             CreateZipOfJpegsJob.perform_later(item_ids,
                                               zip_name,
                                               current_user&.medusa_user?,
