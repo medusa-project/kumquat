@@ -133,6 +133,12 @@ GEM
     choice (0.2.0)
     concurrent-ruby (1.1.9)
     crass (1.0.6)
+    daemons (1.4.1)
+    delayed_job (4.1.10)
+      activesupport (>= 3.0, < 8.0)
+    delayed_job_active_record (4.1.7)
+      activerecord (>= 3.0, < 8.0)
+      delayed_job (>= 3.0, < 5)
     digest (3.1.0)
     draper (4.0.1)
       actionpack (>= 5.0)
@@ -313,6 +319,9 @@ DEPENDENCIES
   capistrano-bundler
   capistrano-rails
   capistrano-rbenv
+  daemons
+  delayed_job
+  delayed_job_active_record
   draper
   font-awesome-sass (~> 5.6)
   haml

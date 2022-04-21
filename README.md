@@ -219,6 +219,15 @@ development and test, there is one "canned user" for each Medusa LDAP group:
 
 Sign in with any of these using `[username]@example.org` as the password.
 
+# Jobs
+
+Most long-running operations are invoked in background jobs, which use Rails'
+ActiveJob API backed by Delayed::Job. After firing one of these off, use
+`bin/rails jobs:workoff` to run it.
+
+Delayed::Job can also run continually, using `bin/rails jobs:work`. This is
+how it runs in production, but it won't pick up code changes while running.
+
 # Documentation
 
 The `rake doc:generate` command invokes YARD to generate HTML documentation

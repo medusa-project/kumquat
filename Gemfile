@@ -6,6 +6,9 @@ ruby '3.0.3'
 gem 'autoprefixer-rails'
 gem 'aws-sdk-s3', '~> 1'
 gem 'aws-sdk-lambda', '~> 1'
+gem 'daemons' # delayed_job needs this
+gem 'delayed_job'
+gem 'delayed_job_active_record'
 gem 'draper' # Provides decorators
 gem "font-awesome-sass", "~> 5.6" # Provides all of our icons
 gem 'haml'

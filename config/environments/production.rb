@@ -62,9 +62,7 @@ Rails.application.configure do
   # config.cache_store = :mem_cache_store
 
   # Use a real queuing backend for Active Job (and separate queues per environment).
-  config.active_job.queue_adapter = ActiveJob::QueueAdapters::AsyncAdapter.new(
-    min_threads: 1,
-    max_threads: 1)
+  config.active_job.queue_adapter = :delayed_job
   config.active_job.queue_name_prefix = "kumquat_production"
 
   # Enable locale fallbacks for I18n (makes lookups for any locale fall back to
