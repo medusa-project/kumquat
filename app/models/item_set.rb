@@ -35,7 +35,6 @@ class ItemSet < ActiveRecord::Base
     transaction do
       if self.items.where(repository_id: item.repository_id).count < 1
         self.items << item
-        self.save!
       end
     end
   end
@@ -54,7 +53,6 @@ class ItemSet < ActiveRecord::Base
           self.items << child
         end
       end
-      self.save!
     end
   end
 
