@@ -1,10 +1,10 @@
 ##
-# Application element archetype. This is a way of expressing a certain set of
-# elements that are available for use in the application. This class in
-# particular has no relationships, but {MetadataProfileElement}s and
-# {ItemElement}s (for example) can only be created if there is an {Element}
-# with a matching name present. If that {Element} is later renamed or deleted,
-# the corresponding {MetadataProfileElement}s and {ItemElement}s are not
+# Metadata element archetype. This is a way of expressing an element that is
+# recognized by, or available for use in, the application. This class in
+# particular has no relationships, but [MetadataProfileElement]s and
+# [ItemElement]s (for example) can only be created if there is an [Element]
+# with a matching name present. If that element is later renamed or deleted,
+# the corresponding [MetadataProfileElement]s and [ItemElement]s are not
 # affected, which is a safety feature.
 #
 # # Attributes
@@ -18,8 +18,10 @@ class Element < ApplicationRecord
 
   validates :name, presence: true, format: { with: /\A[-a-zA-Z0-9]+\Z/ },
             uniqueness: { case_sensitive: false }
+  # Prevent name from being changed.
+  validates :name, inclusion: { in: ->(i) { [i.name_was] } },
+            on: :update
 
-  before_update :restrict_name_changes
   before_destroy :restrict_delete_of_used_elements
 
   ##
@@ -51,9 +53,9 @@ class Element < ApplicationRecord
   end
 
   def update_from_json_struct(struct)
-    self.name = struct['name']
-    self.description = struct['description']
-    self.save!
+    struct = struct.symbolize_keys
+    self.update!(name:        struct[:name],
+                 description: struct[:description])
   end
 
   ##
@@ -65,8 +67,8 @@ class Element < ApplicationRecord
   #
   def usages
     sql = "SELECT collections.repository_id AS collection_id,
-          items.repository_id AS item_id, entity_elements.name,
-          entity_elements.value, entity_elements.uri
+          items.repository_id AS item_id, entity_elements.name AS element_name,
+          entity_elements.value AS element_value, entity_elements.uri AS element_uri
         FROM entity_elements
         LEFT JOIN items ON entity_elements.item_id = items.id
         LEFT JOIN collections ON collections.repository_id = items.collection_repository_id
@@ -78,7 +80,7 @@ class Element < ApplicationRecord
           AND metadata_profile_elements.name = $2
         ORDER BY collection_id, item_id, entity_elements.name,
           entity_elements.value ASC"
-    values = [[nil, self.name], [nil, self.name]]
+    values = [self.name, self.name]
     ActiveRecord::Base.connection.exec_query(sql, 'SQL', values)
   end
 
@@ -89,14 +91,13 @@ class Element < ApplicationRecord
   # Disallows instances with any uses from being destroyed.
   #
   def restrict_delete_of_used_elements
-    self.num_usages_by_items == 0 and self.num_usages_by_metadata_profiles == 0
-  end
-
-  ##
-  # Disallows the name from being changed.
-  #
-  def restrict_name_changes
-    self.name_was == self.name
+    if self.num_usages_by_items > 0
+      errors.add(:base, "Element is in use by one or more items")
+      throw :abort
+    elsif self.num_usages_by_metadata_profiles > 0
+      errors.add(:base, "Element is in use by one or more metadata profiles")
+      throw :abort
+    end
   end
 
 end
