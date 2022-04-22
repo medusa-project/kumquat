@@ -34,7 +34,12 @@ class ItemSet < ActiveRecord::Base
   def add_item(item)
     transaction do
       if self.items.where(repository_id: item.repository_id).count < 1
-        self.items << item
+        begin
+          self.items << item
+        rescue ActiveRecord::RecordNotUnique
+          # I don't know why this happens, as the outer `if` should be
+          # preventing it. But it does, rarely.
+        end
       end
     end
   end
@@ -49,9 +54,7 @@ class ItemSet < ActiveRecord::Base
 
       # Add all of its children.
       item.all_children.each do |child|
-        if self.items.where(repository_id: child.repository_id).count < 1
-          self.items << child
-        end
+        add_item(child)
       end
     end
   end
