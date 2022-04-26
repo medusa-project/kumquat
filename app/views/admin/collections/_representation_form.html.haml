@@ -25,21 +25,14 @@
   %hr
 
   - if f.object.kind_of?(Collection)
-    .alert.alert-light
-      %i.fa.fa-info-circle
-      These properties can only be changed in Medusa.
-
-  - if f.object.kind_of?(Collection)
     .form-group
       = f.label :representative_item_id, 'Representative Item UUID'
       = f.text_field(:representative_item_id,
-                     disabled: true,
                      class: 'form-control')
 
   .form-group
     = f.label :representative_medusa_file_id, 'Representative Medusa File UUID'
     = f.text_field(:representative_medusa_file_id,
-                   disabled: f.object.kind_of?(Collection),
                    class: 'form-control')
 
   .float-right
