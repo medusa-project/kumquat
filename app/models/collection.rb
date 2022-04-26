@@ -784,23 +784,23 @@ class Collection < ApplicationRecord
     transaction do
       self.elements.destroy_all
 
-      self.access_systems                = struct['access_systems'].map{ |t| t['name'] }
-      self.access_url                    = struct['access_url']
+      self.access_systems          = struct['access_systems'].map{ |t| t['name'] }
+      self.access_url              = struct['access_url']
       if struct['description'].present?
-        self.elements.build(name: 'description', value: struct['description'])
+        self.elements.build(name:  'description',
+                            value: struct['description'])
       end
-      self.description_html              = struct['description_html']
-      self.external_id                   = struct['external_id']
-      self.medusa_repository_id          = struct['repository_path'].gsub(/[^0-9+]/, '').to_i
-      self.physical_collection_url       = struct['physical_collection_url']
-      self.public_in_medusa              = struct['publish']
-      self.representative_medusa_file_id = struct['representative_image']
-      self.representative_item_id        = struct['representative_item']
-      self.resource_types                = struct['resource_types'].map do |t| # titleize these
+      self.description_html        = struct['description_html']
+      self.external_id             = struct['external_id']
+      self.medusa_repository_id    = struct['repository_path'].gsub(/[^\d+]/, '').to_i
+      self.physical_collection_url = struct['physical_collection_url']
+      self.public_in_medusa        = struct['publish']
+      self.resource_types          = struct['resource_types'].map do |t| # titleize these
         t['name'].split(' ').map{ |t| t.present? ? t.capitalize : '' }.join(' ')
       end
-      self.rights_statement              = struct['rights']['custom_copyright_statement']
-      self.elements.build(name: 'title', value: struct['title'])
+      self.rights_statement        = struct['rights']['custom_copyright_statement']
+      self.elements.build(name:  'title',
+                          value: struct['title'])
 
       self.parents.destroy_all
       struct['parent_collections'].each do |parent_struct|

@@ -14,7 +14,7 @@
       .checkbox
         = label_tag do
           = check_box_tag :user_ids, user.id,
-                          item_set.users.include?(user),
+                          item_set.users.include?(user) || (user == current_user && f.object.new_record?),
                           name: 'item_set[user_ids][]'
           = user.username
   .clearfix

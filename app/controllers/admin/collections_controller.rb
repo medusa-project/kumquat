@@ -274,9 +274,9 @@ module Admin
                                          :publicize_binaries,
                                          :published_in_dls,
                                          :representation_type,
+                                         :representative_item_id,
                                          :representative_medusa_file_id,
-                                         :representative_item, :restricted,
-                                         :rights_term_uri,
+                                         :restricted, :rights_term_uri,
                                          allowed_host_group_ids: [],
                                          denied_host_group_ids: [])
     end
