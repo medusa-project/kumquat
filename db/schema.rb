@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2022_04_26_160044) do
+ActiveRecord::Schema[7.0].define(version: 2022_04_26_185425) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -393,6 +393,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_04_26_160044) do
     t.text "backtrace"
     t.datetime "started_at", precision: nil
     t.string "queue"
+    t.index ["job_id"], name: "index_tasks_on_job_id", unique: true
   end
 
   create_table "users", id: :serial, force: :cascade do |t|
