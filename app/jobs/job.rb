@@ -1,5 +1,5 @@
 ##
-# Augments {ApplicationJob} with {Task}-management functionality that enables
+# Augments [ApplicationJob] with [Task]-management functionality that enables
 # the job to be monitored via ActiveRecord queries. Most application jobs
 # should extend this.
 #
@@ -30,21 +30,21 @@ class Job < ApplicationJob
   # ```
   #
   # @param args Arguments to pass to the job. Must be serializable or an
-  #             instance of a class that `include`s {GlobalID::Identifier}.
+  #             instance of a class that `include`s [GlobalID::Identifier].
   #
   def perform(*args)
     raise 'Must override perform()'
   end
 
   ##
-  # This is not a {ActiveJob::Job} method. Client code will call this instead
+  # This is not a [ActiveJob::Job] method. Client code will call this instead
   # of {perform_now} so that the job can better discern whether it is being run
   # in the foreground.
   #
   def perform_in_foreground(*args)
     # Background jobs will have a job_id, but foreground jobs will not, so use
     # the object_id instead.
-    create_task_for_job_id(self.object_id)
+    @task = create_task_for_job_id(self.object_id)
     begin
       perform_now
     rescue Exception => e
@@ -67,10 +67,8 @@ class Job < ApplicationJob
   #
   def task
     unless @task
-      @task = Task.find_by_job_id(self.job_id || self.object_id)
-      unless @task
-        @task = create_task_for_job_id(self.job_id)
-      end
+      id    = self.job_id || self.object_id
+      @task = Task.find_by_job_id(id) || create_task_for_job_id(id)
     end
     @task
   end
@@ -87,7 +85,7 @@ class Job < ApplicationJob
   # Will be called after enqueueing (background jobs only).
   #
   def do_after_enqueue
-    create_task_for_job_id(self.job_id) # Background jobs will have a job_id.
+    @task = create_task_for_job_id(self.job_id)
   end
 
   def do_before_perform
@@ -98,13 +96,14 @@ class Job < ApplicationJob
     self.task&.succeeded
   end
 
+
   private
 
   def create_task_for_job_id(job_id)
-    @task = Task.create!(name:        self.class.name,
-                         status_text: "Waiting for other tasks to finish...",
-                         job_id:      job_id,
-                         queue:       self.class::QUEUE)
+    Task.create!(name:        self.class.name,
+                 status_text: "Waiting for other tasks to finish...",
+                 job_id:      job_id,
+                 queue:       self.class::QUEUE)
   end
 
   ##
