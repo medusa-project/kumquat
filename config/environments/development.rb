@@ -33,7 +33,7 @@ Rails.application.configure do
     config.cache_store = :null_store
   end
 
-  config.active_job.queue_adapter = :delayed_job
+  config.active_job.queue_adapter = :good_job
   config.active_job.queue_name_prefix = "kumquat_development"
 
   # Store uploaded files on the local file system (see config/storage.yml for options).

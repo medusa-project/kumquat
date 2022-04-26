@@ -292,6 +292,15 @@ namespace :dls do
 
   end
 
+  namespace :jobs do
+
+    desc 'Run a test job'
+    task :test => :environment do
+      SleepJob.perform_later(30)
+    end
+
+  end
+
   namespace :tasks do
 
     desc 'Clear all tasks'
