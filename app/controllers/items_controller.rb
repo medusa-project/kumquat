@@ -675,8 +675,7 @@ class ItemsController < WebsiteController
     session[:sort]          = query[:sort]
     session[:start]         = [0, query[:start].to_i].max
     session[:limit]         = query[:limit].to_i
-    if session[:limit].to_i < MIN_RESULT_WINDOW ||
-        session[:limit].to_i > MAX_RESULT_WINDOW
+    if session[:limit] < MIN_RESULT_WINDOW || session[:limit] > MAX_RESULT_WINDOW
       session[:limit] = Option::integer(Option::Keys::DEFAULT_RESULT_WINDOW)
     end
 
@@ -693,8 +692,8 @@ class ItemsController < WebsiteController
         order(sort).
         start(session[:start])
 
-    # display=leaves is used in free-form collections to show files flattened.
-    if params[:display] == 'leaves'
+    # Return results flattened if not viewing a file tree.
+    if action_name != 'tree_data'
       relation.search_children(true).
           include_variants(Item::Variants::FILE).
           limit(session[:limit])

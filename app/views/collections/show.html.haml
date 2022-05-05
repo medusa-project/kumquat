@@ -15,8 +15,6 @@
                          params[:q],
                          class: 'form-control',
                          placeholder: 'Search This Collection'
-      - if @collection.free_form?
-        = hidden_field_tag(:display, 'leaves')
     .input-group-append
       %button.btn.btn-light.dropdown-toggle{"aria-expanded": "false",
                                             "aria-haspopup": "true",
