@@ -100,10 +100,19 @@ class Job < ApplicationJob
   private
 
   def create_task_for_job_id(job_id)
-    Task.create!(name:        self.class.name,
-                 status_text: "Waiting for other tasks to finish...",
-                 job_id:      job_id,
-                 queue:       self.class::QUEUE)
+    begin
+      Task.create!(name:        self.class.name,
+                   status_text: "Waiting for other tasks to finish...",
+                   job_id:      job_id,
+                   queue:       self.class::QUEUE)
+    rescue ActiveRecord::RecordNotUnique
+      # job_id is violating a uniqueness constraint. Assuming that job_id is a
+      # UUID, this can only mean that a Task corresponding to this job has
+      # already been created due to the ActiveJob engine having called its
+      # after_enqueue callback(s) (and therefore this method) multiple times,
+      # which is probably a bug, but one that can be worked around by rescuing
+      # this.
+    end
   end
 
   ##
