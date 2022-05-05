@@ -33,18 +33,6 @@
       = text_field_tag("options[#{Option::Keys::COPYRIGHT_STATEMENT}]",
                        Option::string(Option::Keys::COPYRIGHT_STATEMENT),
                        class: 'form-control')
-  .form-group.row
-    .col-sm-3
-    .col-sm-9
-      = hidden_field_tag("options[#{Option::Keys::OAI_PMH_ENABLED}]", 0)
-      .form-check
-        = check_box_tag("options[#{Option::Keys::OAI_PMH_ENABLED}]", 1,
-                        Option::boolean(Option::Keys::OAI_PMH_ENABLED),
-                        id: 'dl-enable-oai-pmh',
-                        class: 'form-check-input')
-        = label_tag('dl-enable-oai-pmh',
-                    'Enable OAI-PMH',
-                    class: 'form-check-label')
 
   %h2 Website
   .form-group.row

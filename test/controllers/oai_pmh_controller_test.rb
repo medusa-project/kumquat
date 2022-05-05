@@ -51,13 +51,6 @@ class OaiPmhControllerTest < ActionDispatch::IntegrationTest
     assert response.headers['Content-Type'].start_with?('text/xml')
   end
 
-  # 3.1.2.2
-  test 'response status code is 503 when endpoint is disabled' do
-    Option::set(Option::Keys::OAI_PMH_ENABLED, false)
-    get '/oai-pmh', params: { verb: 'Identify' }
-    assert_response :service_unavailable
-  end
-
   # 3.2
   test 'response content type must be UTF-8' do
     get '/oai-pmh', params: { verb: 'Identify' }

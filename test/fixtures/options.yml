@@ -8,10 +8,6 @@ default_result_window:
   key: <%= Option::Keys::DEFAULT_RESULT_WINDOW %>
   value: '{"value" : 20}'
 
-oai_pmh_enabled:
-  key: <%= Option::Keys::OAI_PMH_ENABLED %>
-  value: '{"value" : 1}'
-
 website_name:
   key: <%= Option::Keys::WEBSITE_NAME %>
   value: '{"value" : "My Great Website"}'

@@ -43,7 +43,7 @@ class OaiPmhController < ApplicationController
 
   protect_from_forgery with: :null_session
 
-  before_action :check_pmh_enabled, :set_endpoint, :validate_request
+  before_action :set_endpoint, :validate_request
 
   rescue_from ActionView::Template::Error, with: :rescue_server_error
 
@@ -192,13 +192,6 @@ class OaiPmhController < ApplicationController
   end
 
   private
-
-  def check_pmh_enabled
-    unless Option::boolean(Option::Keys::OAI_PMH_ENABLED)
-      render plain: 'This server\'s OAI-PMH endpoint is disabled.',
-             status: :service_unavailable
-    end
-  end
 
   ##
   # @return [String, nil] "From" from the resumptionToken, if present, or else

@@ -9,7 +9,6 @@ class Option < ApplicationRecord
     ADMINISTRATOR_EMAIL   = 'website.administrator.email'
     COPYRIGHT_STATEMENT   = 'website.copyright_statement'
     DEFAULT_RESULT_WINDOW = 'website.results_per_page'
-    OAI_PMH_ENABLED       = 'oai_pmh.enabled'
     ORGANIZATION_NAME     = 'organization.name'
     WEBSITE_NAME          = 'website.name'
   end
