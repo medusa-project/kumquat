@@ -46,3 +46,17 @@
                   'data-target': '#dl-download-zip-modal') do
           %i.fa.fa-file-archive
           Zip File&hellip;
+  - mailto = curator_mailto(@collection)
+  - if mailto
+    .btn-group
+      %button.btn.btn-light.dropdown-toggle{"aria-expanded": "false",
+                                            "aria-haspopup": "true",
+                                            "data-toggle": "dropdown",
+                                            type: "button"}
+        %i.fa.fa-envelope
+        Contact
+        %span.caret
+      .dropdown-menu.dropdown-menu-right{role: "menu"}
+        = link_to mailto, class: 'dropdown-item' do
+          %i.fa.fa-envelope
+          Email Curator
