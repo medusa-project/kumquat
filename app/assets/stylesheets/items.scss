@@ -249,18 +249,36 @@ body#items_show, #dl-free-form-item-view {
 
 // styles for free-form collection tree view
 body#tree_browser {
-  #jstree {
+  #dl-free-form-split-pane {
     border-top-style: solid;
     border-top-color: $gray-300;
-    border-right-style: solid;
-    border-right-color: $gray-300;
+    display: flex;
     min-height: 500px;
-    overflow-x: scroll;
-    overflow-y: scroll;
+    div#dl-free-form-tree-view {
+      padding-right: 15px;
+      padding-left: 15px;
+      min-width: 15%;
+      width: 25%;
+      height: 100% !important;
+      overflow: scroll;
+    }
+    #dl-splitter {
+      cursor: ew-resize;
+      margin: 0;
+      padding: 0;
+      width: 4px;
+      border-style: solid;
+      border-width: 2px;
+      border-color: $gray-300;
+    }
+    div#dl-free-form-item-view {
+      flex: 1 1 0%;
+      padding-left: 15px;
+      padding-right: 15px;
+    }
   }
+
   #dl-free-form-item-view {
-    border-top-style: solid;
-    border-top-color: $gray-300;
     padding-top: 7px;
 
     #item-show-buttons{

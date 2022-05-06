@@ -327,7 +327,7 @@ const DLItemView = function() {
             collapses.on('shown.bs.collapse hidden.bs.collapse', function() {
                 const lastElem = freeFormItemView.children().filter(':visible').filter(':last');
                 const height   = lastElem.offset().top + lastElem.height() - 200;
-                $('#jstree').css('height', height);
+                $('#dl-free-form-tree-view').css('height', height);
             });
         }
 
@@ -490,7 +490,50 @@ const DLTreeBrowserView = function() {
     const NODE_SELECTION_DELAY = 600;
 
     this.init = function() {
+        initializeSplitView();
         initializeTree();
+    };
+
+    const initializeSplitView = function() {
+        const leftSide  = document.querySelector("#dl-free-form-tree-view");
+        const splitter  = document.querySelector("#dl-splitter");
+        const rightSide = document.querySelector("#dl-free-form-item-view");
+
+        let x = 0, y = 0, leftWidth = 0;
+
+        const onMouseDown = function (e) {
+            x         = e.clientX;
+            y         = e.clientY;
+            leftWidth = leftSide.getBoundingClientRect().width;
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('mouseup', onMouseUp);
+        };
+
+        const onMouseMove = function(e) {
+            e.preventDefault();
+            const dx                      = e.clientX - x;
+            const newLeftWidth            = ((leftWidth + dx) * 100) /
+                splitter.parentNode.getBoundingClientRect().width;
+            leftSide.style.width          = `${newLeftWidth}%`;
+            leftSide.style.userSelect     = 'none';
+            leftSide.style.pointerEvents  = 'none';
+            rightSide.style.userSelect    = 'none';
+            rightSide.style.pointerEvents = 'none';
+            document.body.style.cursor = 'col-resize';
+        };
+
+        const onMouseUp = function() {
+            document.body.style.removeProperty('cursor');
+            splitter.style.removeProperty('cursor');
+            leftSide.style.removeProperty('user-select');
+            leftSide.style.removeProperty('pointer-events');
+            rightSide.style.removeProperty('user-select');
+            rightSide.style.removeProperty('pointer-events');
+            document.removeEventListener('mousemove', onMouseMove);
+            document.removeEventListener('mouseup', onMouseUp);
+        };
+
+        splitter.addEventListener('mousedown', onMouseDown);
     };
 
     /**
@@ -499,7 +542,7 @@ const DLTreeBrowserView = function() {
     const initializeTree = function() {
         const target_id = window.location.hash.substring(1);
 
-        const jstree = $('#jstree');
+        const jstree = $('#dl-free-form-tree-view');
         if (jstree.length > 0) {
             jstree.jstree({
                 core: {
@@ -576,7 +619,7 @@ const DLTreeBrowserView = function() {
          * @param onComplete Callback function.
          */
         var drillDown = function(nodes, level, onComplete) {
-            var jstree = $('#jstree');
+            var jstree = $('#dl-free-form-tree-view');
             if (level < nodes.length) {
                 var id = nodes[level];
                 jstree.jstree('open_node', '#' + id, function() {
@@ -619,7 +662,7 @@ const DLTreeBrowserView = function() {
 
         traceLineage(id, [], function(parents) {
             drillDown(parents, 0, function() {
-                const jstree = $('#jstree');
+                const jstree = $('#dl-free-form-tree-view');
                 jstree.jstree('deselect_all');
                 jstree.jstree('select_node', '#' + id);
                 window.history.replaceState({id: id}, '', '/items/' + id);
@@ -658,7 +701,7 @@ const DLTreeBrowserView = function() {
         // Update the height of the tree browser to fit.
         const lastElem = treeView.children().filter(':visible').filter(':last');
         const height   = lastElem.offset().top + lastElem.height() - 200;
-        $('#jstree').css('height', height);
+        $('#dl-free-form-split-pane').css('height', height);
     };
 
     const getRootTreeDataURL = function() {
