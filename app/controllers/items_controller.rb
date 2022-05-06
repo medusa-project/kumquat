@@ -636,7 +636,8 @@ class ItemsController < WebsiteController
         icon: (num_subitems == 0) ? 'jstree_file' : nil,
         a_attr: {
             href: item_path(item),
-            class: item.directory? ? 'directory_node Item' : 'file_node Item'
+            class: item.directory? ? 'directory_node Item' : 'file_node Item',
+            title: item.title
         }
     }
   end
@@ -649,7 +650,8 @@ class ItemsController < WebsiteController
     # We will check the class in JS to determine what URL to route to
     # (/collections/:id or /items/:id).
     node_hash['a_attr'] = {name: 'root-collection-node',
-                           class: 'root-collection-node Collection'}
+                           class: 'root-collection-node Collection',
+                           title: node_hash['text']}
     node_hash['children'] = tree_hash_array
     node_hash
   end
