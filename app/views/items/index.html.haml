@@ -46,6 +46,15 @@
               = sort_menu(@metadata_profile)
       #dl-items.dl-results.dl-list-results
         = render partial: 'items'
+
+- if @collection
+  .text-center
+    - mailto = curator_mailto(@collection)
+    - if mailto
+      = link_to mailto, class: 'btn btn-light' do
+        %i.fa.fa-envelope
+        Email Curator About This Collection
+
 #dl-download-zip-modal-container
   = render partial: 'download_zip_panel',
            locals: { context: :results,
