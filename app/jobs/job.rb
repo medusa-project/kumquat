@@ -7,7 +7,7 @@ class Job < ApplicationJob
 
   class Queue
     ADMIN    = :admin
-    DOWNLOAD = :download
+    PUBLIC   = :public
 
     def self.all
       self.constants.map{ |c| self.const_get(c) }

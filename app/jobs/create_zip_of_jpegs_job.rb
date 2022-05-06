@@ -1,6 +1,6 @@
 class CreateZipOfJpegsJob < Job
 
-  QUEUE = Job::Queue::DOWNLOAD
+  QUEUE = Job::Queue::PUBLIC
 
   queue_as QUEUE
 
