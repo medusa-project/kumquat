@@ -986,32 +986,6 @@ module ItemsHelper
   end
 
   ##
-  # @param item [Item]
-  # @return [String, nil] Mailto string for injection into an anchor href, or
-  #                       nil if the item's collection's repository does not
-  #                       have a contact email.
-  #
-  def curator_mailto(item)
-    mailto = nil
-    # THis may raise an IOError (see rescue block)
-    email = item.collection&.medusa_repository&.email
-    if email.present?
-      # https://bugs.library.illinois.edu/browse/DLD-89
-      website_name = Option::string(Option::Keys::WEBSITE_NAME)
-      subject = sprintf('%s: %s', website_name, item.title)
-      body = sprintf("This email was sent to you from the %s by a patron "\
-                     "wishing to contact the curator of %s for more information.",
-                     website_name, item_url(item))
-      body += "%0D%0D(Enter your comment here.)%0D"
-      mailto = "mailto:#{email}?subject=#{subject}&body=#{body}"
-    end
-    mailto
-  rescue IOError
-    # It's still possible to render the page.
-    '#'
-  end
-
-  ##
   # @param count [Integer] Total number of items to paginate through. This will
   #                        be limited internally to
   #                        {ElasticsearchClient#MAX_RESULT_WINDOW}.

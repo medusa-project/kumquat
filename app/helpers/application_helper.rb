@@ -136,6 +136,34 @@ module ApplicationHelper
   end
 
   ##
+  # @param entity [Item,Collection]
+  # @return [String, nil] Mailto string for injection into an anchor href, or
+  #                       nil if the collection's repository does not have a
+  #                       contact email.
+  #
+  def curator_mailto(entity)
+    mailto     = nil
+    collection = entity.kind_of?(Item) ? entity.collection : entity
+    # Communication with Medusa may raise an IOError (see rescue block)
+    email      = collection&.medusa_repository&.email
+    if email.present?
+      # https://bugs.library.illinois.edu/browse/DLD-89
+      website_name = Option::string(Option::Keys::WEBSITE_NAME)
+      subject      = sprintf('%s: %s', website_name, entity.title)
+      body         = sprintf("This email was sent to you from the %s by a "\
+                             "patrion wishing to contact the curator of %s "\
+                             "for more information.",
+                             website_name, item_url(entity))
+      body        += "%0D%0D(Enter your comment here.)%0D"
+      mailto       = "mailto:#{email}?subject=#{subject}&body=#{body}"
+    end
+    mailto
+  rescue IOError
+    # It's still possible to render the page.
+    '#'
+  end
+
+  ##
   # @param entities [Enumerable<Collection, Item>]
   # @return [String]
   #

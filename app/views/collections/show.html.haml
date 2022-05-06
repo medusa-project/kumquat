@@ -72,3 +72,10 @@
       %span.badge.badge-pill.badge-secondary= @children.count
   .dl-cards
     = entities_as_cards(@children)
+
+.text-center
+  - mailto = curator_mailto(@collection)
+  - if mailto
+    = link_to mailto, class: 'btn btn-light' do
+      %i.fa.fa-envelope
+      Email Curator About This Collection
