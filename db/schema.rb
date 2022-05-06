@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2022_04_26_185425) do
+ActiveRecord::Schema[7.0].define(version: 2022_05_06_174848) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -165,21 +165,6 @@ ActiveRecord::Schema[7.0].define(version: 2022_04_26_185425) do
     t.index ["allowed_host_group_id"], name: "index_collections_host_groups_on_allowed_host_group_id"
     t.index ["collection_id"], name: "index_collections_host_groups_on_collection_id"
     t.index ["denied_host_group_id"], name: "index_collections_host_groups_on_denied_host_group_id"
-  end
-
-  create_table "delayed_jobs", id: :serial, force: :cascade do |t|
-    t.integer "priority", default: 0, null: false
-    t.integer "attempts", default: 0, null: false
-    t.text "handler", null: false
-    t.text "last_error"
-    t.datetime "run_at", precision: nil
-    t.datetime "locked_at", precision: nil
-    t.datetime "failed_at", precision: nil
-    t.string "locked_by"
-    t.string "queue"
-    t.datetime "created_at", precision: nil
-    t.datetime "updated_at", precision: nil
-    t.index ["priority", "run_at"], name: "delayed_jobs_priority"
   end
 
   create_table "downloads", id: :serial, force: :cascade do |t|
