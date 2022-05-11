@@ -1,20 +1,18 @@
 = render partial: 'index_button_group'
 
-%section
-  %h2.dl-title Collection Summary
-  .alert.alert-primary.dl-side-by-side{role: "alert"}
-    Discover the contents of these digital records
-    by browsing folders and files in the navigation pane to the left.
-  .alert.alert-primary.dl-top-bottom{role: "alert"}
-    Discover the contents of these digital records
-    by browsing folders and files in the navigation pane above.
-  %dl
-    %dt Folders
-    %dd= number_with_delimiter(@num_directories)
-    %dt Files
-    %dd= number_with_delimiter(@num_files)
-    %dt Total Size
-    %dd= number_to_human_size(@total_byte_size)
+%h2.dl-title Collection Summary
+
+.row
+  .col-sm-2
+    %dl
+      %dt Folders
+      %dd= number_with_delimiter(@num_directories)
+      %dt Files
+      %dd= number_with_delimiter(@num_files)
+      %dt Total Size
+      %dd= number_to_human_size(@total_byte_size)
+  #dl-description.col-sm-10
+    = raw(@collection.description_html) || simple_format(auto_link(@collection.description))
 
 = render partial: 'download_zip_panel',
          locals: { context: :results,

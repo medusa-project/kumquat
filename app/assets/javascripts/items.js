@@ -544,6 +544,17 @@ const DLTreeBrowserView = function() {
 
         const jstree = $('#dl-free-form-tree-view');
         if (jstree.length > 0) {
+            // Enable the "tree help" popover unless the browser has already
+            // seen it.
+            const hideTreeHelp = Cookies.get('hide_tree_popover');
+            if (!hideTreeHelp) {
+                jstree.popover("toggle");
+                $(".popover .btn").on("click", function () {
+                    jstree.popover("dispose");
+                    Cookies.set('hide_tree_popover', true);
+                });
+            }
+
             jstree.jstree({
                 core: {
                     multiple: false,
