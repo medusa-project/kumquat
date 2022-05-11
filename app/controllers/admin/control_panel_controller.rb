@@ -5,6 +5,7 @@ module Admin
     layout 'admin/application'
 
     before_action :authorize_user
+    after_action :flash_in_response_headers
 
 
     private

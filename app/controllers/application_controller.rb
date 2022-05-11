@@ -15,7 +15,7 @@ class ApplicationController < ActionController::Base
   rescue_from ActiveRecord::RecordNotFound, with: :rescue_not_found
 
   before_action :setup
-  after_action :flash_in_response_headers, :log_execution_time
+  after_action :log_execution_time
 
   LOGGER = CustomLogger.new(ApplicationController)
 
