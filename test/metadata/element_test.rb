@@ -45,13 +45,9 @@ class ElementTest < ActiveSupport::TestCase
   # name
 
   test "name may contain only alphanumerics and dashes" do
-    e = elements(:title)
-    e.name = "abcABC123"
-    assert e.valid?
-    e.name = "abc-abc"
-    assert e.valid?
-    e.name = "abc_abc"
-    assert !e.valid?
+    assert Element.new(name: "abcABC123").valid?
+    assert Element.new(name: "abc-abc").valid?
+    assert !Element.new(name: "abc_abc").valid?
   end
 
   test "name may not be changed" do
