@@ -633,7 +633,7 @@ class ItemsController < WebsiteController
         id: item.repository_id,
         text: item.title,
         children: (num_subitems > 0),
-        icon: (num_subitems == 0) ? 'jstree_file' : nil,
+        icon: (num_subitems == 0) ? 'jstree-file' : nil,
         a_attr: {
             href: item_path(item),
             class: item.directory? ? 'directory_node Item' : 'file_node Item',
