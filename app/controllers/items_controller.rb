@@ -695,7 +695,7 @@ class ItemsController < WebsiteController
     # Return results flattened if not viewing a file tree.
     if action_name != 'tree_data'
       relation.search_children(true).
-          include_variants(Item::Variants::FILE).
+          exclude_variants(Item::Variants::DIRECTORY).
           limit(session[:limit])
     else
       relation.search_children(@collection&.package_profile != PackageProfile::FREE_FORM_PROFILE).
