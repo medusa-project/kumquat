@@ -100,7 +100,6 @@ class ApplicationController < ActionController::Base
 
   def rescue_internal_server_error(exception)
     @message = KumquatMailer.error_body(exception,
-                                        url:       request.url,
                                         url_path:  request.path,
                                         url_query: request.query_string,
                                         user:      current_user)

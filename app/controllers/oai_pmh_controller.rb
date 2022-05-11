@@ -293,7 +293,6 @@ class OaiPmhController < ApplicationController
 
   def rescue_server_error(error)
     message = KumquatMailer.error_body(error,
-                                       url:       request.url,
                                        url_path:  request.path,
                                        url_query: request.query_string,
                                        user:      current_user)
