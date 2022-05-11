@@ -557,6 +557,7 @@ const DLTreeBrowserView = function() {
 
             jstree.jstree({
                 core: {
+                    dblclick_toggle: false,
                     multiple: false,
                     data: {
                         url: function (node) {
@@ -582,6 +583,10 @@ const DLTreeBrowserView = function() {
                 console.debug('Navigating to ' + data.node.id);
                 window.history.replaceState({id: data.node.id}, '',
                     buildPublicNodeURL(data));
+            }).bind("click", '.jstree-anchor', function (e) {
+                if ($(e.target).hasClass("jstree-themeicon")) {
+                    jstree.jstree(true).toggle_node(e.target);
+                }
             });
 
             // DLD-132: when an arrow key is used to change the tree selection,
