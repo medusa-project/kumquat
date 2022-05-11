@@ -794,8 +794,9 @@ class Item < ApplicationRecord
       begin
         bin = self.representative_medusa_file_id.present? ?
                 Binary.from_medusa_file(file: self.representative_medusa_file) : nil
-      rescue Medusa::NotFoundError
+      rescue Medusa::NotFoundError, IOError => e
         # nothing we can do
+        LOGGER.warn("effective_image_binary(): #{e} [item %s]", self.repository_id)
       end
       if !bin || !bin.image_server_safe?
         if self.variant == Variants::SUPPLEMENT
