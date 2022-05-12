@@ -445,6 +445,7 @@ class Item < ApplicationRecord
   ##
   # @return [ActiveRecord::Relation<Item>] All items that are children of the
   #                                        instance, at any level in the tree.
+  # @see items
   # @see walk_tree
   #
   def all_children
@@ -794,9 +795,8 @@ class Item < ApplicationRecord
       begin
         bin = self.representative_medusa_file_id.present? ?
                 Binary.from_medusa_file(file: self.representative_medusa_file) : nil
-      rescue Medusa::NotFoundError, IOError => e
-        # nothing we can do
-        LOGGER.warn("effective_image_binary(): #{e} [item %s]", self.repository_id)
+      rescue => e
+        LOGGER.warn("effective_image_binary(): #{e} [item: %s]", self.repository_id)
       end
       if !bin || !bin.image_server_safe?
         if self.variant == Variants::SUPPLEMENT
@@ -958,8 +958,13 @@ class Item < ApplicationRecord
   #
   def effective_viewer_binary # TODO: this is very similar to effective_image_binary()
     unless @effective_viewer_binary
-      bin = self.representative_medusa_file_id.present? ?
-              Binary.from_medusa_file(file: self.representative_medusa_file) : nil
+      bin = nil
+      begin
+        bin = self.representative_medusa_file_id.present? ?
+                Binary.from_medusa_file(file: self.representative_medusa_file) : nil
+      rescue => e
+        LOGGER.warn("effective_viewer_binary(): #{e} [item: %s]", self.repository_id)
+      end
       if !bin or !bin.image_server_safe?
         if self.variant == Variants::SUPPLEMENT
           bin = self.binaries.first
@@ -1066,26 +1071,11 @@ class Item < ApplicationRecord
   end
 
   ##
-  # @param recursive [Boolean] Whether to include all items regardless of depth
-  #                            in the hierarchy, or only immediate children.
-  # @return [Enumerable<Item>] Child items.
-  # @deprecated TODO: use all_children() instead (more efficient)
+  # @return [ActiveRecord::Relation<Item>] Immediate child items.
+  # @see all_children
   #
-  def items(recursive = false)
-    items = []
-    if recursive
-      def all_items(bucket, child_items)
-        child_items.each do |child|
-          bucket << child
-          all_items(bucket, child.items(false))
-        end
-        bucket
-      end
-      items = all_items(items, self.items(false))
-    else
-      items = Item.where(parent_repository_id: self.repository_id)
-    end
-    items
+  def items
+    Item.where(parent_repository_id: self.repository_id)
   end
 
   ##
