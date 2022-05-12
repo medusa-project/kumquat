@@ -319,12 +319,7 @@ module ApplicationHelper
     if entity == Item
       icon = %w(fas cube)
     elsif entity.kind_of?(Item)
-      viewer_binary = nil
-      begin
-        viewer_binary = entity.effective_viewer_binary
-      rescue Medusa::NotFoundError
-        # nothing we can do
-      end
+      viewer_binary = entity.effective_viewer_binary
       if viewer_binary&.is_audio?
         icon = %w(fas volume-up)
       elsif viewer_binary&.is_image?
