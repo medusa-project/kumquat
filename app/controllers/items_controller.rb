@@ -695,15 +695,15 @@ class ItemsController < WebsiteController
         start(session[:start])
 
     # Return results flattened if not viewing a file tree.
-    if action_name != 'tree_data'
+    if @collection&.free_form? && action_name != "tree_data"
       relation.search_children(true).
-          exclude_variants(Item::Variants::DIRECTORY).
-          limit(session[:limit])
+        include_variants(Item::Variants::FILE).
+        limit(session[:limit])
     else
       relation.search_children(@collection&.package_profile != PackageProfile::FREE_FORM_PROFILE).
-          exclude_variants(*Item::Variants::non_filesystem_variants).
-          limit(@collection&.free_form? ?
-                    ElasticsearchClient::MAX_RESULT_WINDOW : session[:limit])
+        exclude_variants(*Item::Variants::non_filesystem_variants).
+        limit(@collection&.free_form? ?
+                ElasticsearchClient::MAX_RESULT_WINDOW : session[:limit])
     end
 
     # `field` is present when searching for identical values in the same
