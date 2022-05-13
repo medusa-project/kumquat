@@ -584,7 +584,14 @@ const DLTreeBrowserView = function() {
                 window.history.replaceState({id: data.node.id}, '',
                     buildPublicNodeURL(data));
             }).bind("click", '.jstree-anchor', function (e) {
-                if ($(e.target).hasClass("jstree-themeicon")) {
+                // We want to toggle node expansion/contraction on single click.
+                // This works in conjunction with the
+                // `core.dblclick_toggle: false` that we did above.
+                // A click may hit the main node a, the a > i to which the icon
+                // is attached, or the node expansion button to the left of the
+                // icon. We want to ignore the latter case,
+                if (e.target.tagName == "A" ||
+                    (e.target.tagName == "I" && $(e.target).parent().hasClass("directory_node"))) {
                     jstree.jstree(true).toggle_node(e.target);
                 }
             });
