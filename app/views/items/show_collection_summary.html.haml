@@ -12,7 +12,7 @@
       %dt Total Size
       %dd= number_to_human_size(@total_byte_size)
   #dl-description.col-sm-10
-    = raw(@collection.description_html) || simple_format(auto_link(@collection.description))
+    %p= raw(@collection.description_html) || simple_format(auto_link(@collection.description))
 
 = render partial: 'download_zip_panel',
          locals: { context: :results,
