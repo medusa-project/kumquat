@@ -151,7 +151,7 @@ module ApplicationHelper
       website_name = Option::string(Option::Keys::WEBSITE_NAME)
       subject      = sprintf('%s: %s', website_name, entity.title)
       body         = sprintf("This email was sent to you from the %s by a "\
-                             "patrion wishing to contact the curator of %s "\
+                             "patron wishing to contact the curator of %s "\
                              "for more information.",
                              website_name, item_url(entity))
       body        += "%0D%0D(Enter your comment here.)%0D"
