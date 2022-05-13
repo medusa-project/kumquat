@@ -261,6 +261,10 @@ body#tree_browser {
       width: 25%;
       height: 100% !important;
       overflow: scroll;
+      .jstree-anchor {
+        font-size: 1.1em;
+        margin: 0.1em 0;
+      }
     }
     #dl-splitter {
       cursor: ew-resize;
