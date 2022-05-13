@@ -14,6 +14,13 @@
   #dl-description.col-sm-10
     %p= raw(@collection.description_html) || simple_format(auto_link(@collection.description))
 
+.text-center
+  - mailto = curator_mailto(@collection)
+  - if mailto
+    = link_to mailto, class: 'btn btn-light' do
+      %i.fa.fa-envelope
+      Email Curator About This Collection
+
 = render partial: 'download_zip_panel',
          locals: { context: :results,
                    num_downloadable_items: @num_downloadable_items,
