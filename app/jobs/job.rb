@@ -66,6 +66,9 @@ class Job < ApplicationJob
   # @return [Task] Task associated with the job, created after enqueue.
   #
   def task
+    unless Task.find_by_job_id(self.job_id)
+      create_task_for_job_id(self.job_id)
+    end
     Task.find_by_job_id(self.job_id)
   end
 
