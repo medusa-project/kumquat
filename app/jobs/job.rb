@@ -44,7 +44,7 @@ class Job < ApplicationJob
   def perform_in_foreground(*args)
     # Background jobs will have a job_id, but foreground jobs will not, so use
     # the object_id instead.
-    @task = create_task_for_job_id(self.object_id)
+    create_task_for_job_id(self.object_id)
     begin
       perform_now
     rescue Exception => e
@@ -66,12 +66,9 @@ class Job < ApplicationJob
   # @return [Task] Task associated with the job, created after enqueue.
   #
   def task
-    unless @task
-      id    = self.job_id || self.object_id
-      @task = Task.find_by_job_id(id) || create_task_for_job_id(id)
-    end
-    @task
+    Task.find_by_job_id(self.job_id)
   end
+
 
   protected
 
@@ -85,7 +82,7 @@ class Job < ApplicationJob
   # Will be called after enqueueing (background jobs only).
   #
   def do_after_enqueue
-    @task = create_task_for_job_id(self.job_id)
+    create_task_for_job_id(self.job_id)
   end
 
   def do_before_perform
