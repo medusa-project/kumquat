@@ -84,7 +84,7 @@ module Admin
       raise ActiveRecord::RecordNotFound unless col
       begin
         relation = editing_item_relation_for(col)
-        BatchChangeItemMetadataJob.perform_later(relation.to_a.select(&:present?).map(&:repository_id),
+        BatchChangeItemMetadataJob.perform_later(relation.select(&:present?).map(&:repository_id),
                                                  params[:element].to_s,
                                                  params[:replace_values].map(&:to_unsafe_hash))
       rescue => e
@@ -309,7 +309,7 @@ module Admin
       raise ActiveRecord::RecordNotFound unless col
       begin
         relation = editing_item_relation_for(col)
-        MigrateItemMetadataJob.perform_later(relation.select(&:present?),
+        MigrateItemMetadataJob.perform_later(relation.select(&:present?).map(&:repository_id),
                                              params[:source_element],
                                              params[:dest_element])
       rescue => e
@@ -375,7 +375,7 @@ module Admin
       raise ActiveRecord::RecordNotFound unless col
       begin
         relation = editing_item_relation_for(col)
-        ReplaceItemMetadataJob.perform_later(relation.select(&:present?),
+        ReplaceItemMetadataJob.perform_later(relation.select(&:present?).map(&:repository_id),
                                              params[:matching_mode],
                                              params[:find_value],
                                              params[:element],

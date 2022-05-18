@@ -41,15 +41,15 @@ class ItemUpdater
   # Migrates all instances of the given source element to the given
   # destination element on all given items.
   #
-  # @param items [Enumerable<Item>]
+  # @param items [ActiveRecord::Relation<Item>]
   # @param source_element [String] Element name.
   # @param dest_element [String] Element name.
   # @param task [Task] Supply to receive progress updates.
   # @return [void]
   #
   def migrate_elements(items, source_element, dest_element, task = nil)
-    ActiveRecord::Base.transaction do
-      items.each_with_index do |item, index|
+    Item.uncached do
+      items.find_each.with_index do |item, index|
         LOGGER.info('migrate_mlements(): migrating %s to %s in %s',
                     source_element, dest_element, item)
         item.migrate_elements(source_element, dest_element)
@@ -62,7 +62,7 @@ class ItemUpdater
   end
 
   ##
-  # @param items [Enumerable<Item>]
+  # @param items [ActiveRecord::Relation<Item>]
   # @param matching_mode [Symbol] `:exact_match`, `:contain`, `:start`, or
   #                               `:end`
   # @param find_value [String] Value to search for.
@@ -83,8 +83,8 @@ class ItemUpdater
       raise ArgumentError, "Illegal matching mode: #{matching_mode}"
     end
 
-    ActiveRecord::Base.transaction do
-      items.each_with_index do |item, index|
+    items.find_each.with_index do |item, index|
+      Item.transaction do
         item.elements.where(name: element_name).each do |element|
           case matching_mode
             when :exact_match
@@ -123,7 +123,6 @@ class ItemUpdater
                 element.save!
               end
           end
-
           if task and index % 10 == 0
             task.update(percent_complete: index / items.length.to_f)
           end
@@ -164,10 +163,8 @@ class ItemUpdater
       if item
         LOGGER.info('update_from_tsv(): %s %s',
                     struct['uuid'], progress)
-        Item.transaction do
-          item.update_from_tsv(struct)
-          num_ingested += 1
-        end
+        item.update_from_tsv(struct)
+        num_ingested += 1
       else
         LOGGER.warn('update_from_tsv(): does not exist: %s %s',
                     struct['uuid'], progress)
