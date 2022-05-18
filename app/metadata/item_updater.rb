@@ -9,27 +9,28 @@ class ItemUpdater
   MAX_TSV_VALUE_LENGTH = 10000
 
   ##
-  # @param items [Enumerable<Item>]
+  # @param items [ActiveRecord::Relation<Item>]
   # @param element_name [String] Element to replace.
-  # @param replace_values [Enumerable<Hash<Symbol,String>] Enumerable of hashes
-  #                                                        with `:string` and
-  #                                                        `:uri` keys.
+  # @param replace_values [Enumerable<Hash<Symbol,String>>] Enumerable of hashes
+  #                                                         with `:string` and
+  #                                                         `:uri` keys.
   # @param task [Task] Supply to receive progress updates.
   # @return [void]
   #
   def change_element_values(items, element_name, replace_values, task = nil)
-    ActiveRecord::Base.transaction do
-      items.each_with_index do |item, index|
-        item.elements.where(name: element_name).destroy_all
-        replace_values.each do |hash|
-          hash = hash.symbolize_keys
-          item.elements.build(name: element_name,
-                              value: hash[:string],
-                              uri: hash[:uri])
+    Item.uncached do
+      items.find_each.with_index do |item, index|
+        Item.transaction do
+          item.elements.where(name: element_name).destroy_all
+          replace_values.each do |hash|
+            hash = hash.symbolize_keys
+            item.elements.build(name:  element_name,
+                                value: hash[:string],
+                                uri:   hash[:uri])
+          end
+          item.save!
         end
-        item.save!
-
-        if task and index % 10 == 0
+        if task && index % 10 == 0
           task.update(percent_complete: index / items.length.to_f)
         end
       end
@@ -134,7 +135,7 @@ class ItemUpdater
   ##
   # Updates items from the given TSV file.
   #
-  # Items will not be created or deleted. (For that, use {MedusaIngester}.)
+  # Items will not be created or deleted. (For that, use [MedusaIngester].)
   #
   # @param pathname [String] Absolute pathname of a TSV file.
   # @param original_filename [String] Filename of the TSV file as it was

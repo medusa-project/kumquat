@@ -16,18 +16,18 @@ class BatchChangeItemMetadataJob < Job
   def perform(*args)
     if args[0].kind_of?(Collection)
       items = args[0].items
-      what = args[0].title
+      what  = args[0].title
     elsif args[0].kind_of?(ItemSet)
       items = args[0].items
-      what = args[0].name
+      what  = args[0].name
     elsif args[0].respond_to?(:each)
-      items = args[0]
-      what = "#{args[0].length} items"
+      items = Item.where("repository_id IN (?)", args[0])
+      what  = "#{args[0].length} items"
     else
       raise ArgumentError, 'Illegal first argument'
     end
 
-    element_name = args[1]
+    element_name   = args[1]
     replace_values = args[2]
 
     self.task.update!(status_text: "Changing #{element_name} element values "\

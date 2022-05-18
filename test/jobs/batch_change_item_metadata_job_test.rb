@@ -4,7 +4,7 @@ class BatchChangeItemMetadataJobTest < ActiveSupport::TestCase
 
   # perform()
 
-  test 'perform() should change all matching elements in a collection' do
+  test 'perform() changes all matching elements in a Collection' do
     col = collections(:free_form)
     assert col.items.count > 0
 
@@ -31,7 +31,7 @@ class BatchChangeItemMetadataJobTest < ActiveSupport::TestCase
     end
   end
 
-  test 'perform() should change all matching elements in an ItemSet' do
+  test 'perform() changes all matching elements in an ItemSet' do
     set = item_sets(:one)
     assert set.items.count > 0
 
@@ -58,8 +58,7 @@ class BatchChangeItemMetadataJobTest < ActiveSupport::TestCase
     end
   end
 
-  test 'perform() should change all matching elements in an Enumerable of
-  Items' do
+  test 'perform() changes all matching elements in a Relation of Items' do
     items = collections(:compound_object).items
     assert items.count > 0
 
@@ -75,7 +74,9 @@ class BatchChangeItemMetadataJobTest < ActiveSupport::TestCase
         }
     ]
 
-    BatchChangeItemMetadataJob.perform_now(items, element_name, new_values)
+    BatchChangeItemMetadataJob.perform_now(items.map(&:repository_id),
+                                           element_name,
+                                           new_values)
 
     items.each do |item|
       titles = item.elements.select{ |e| e.name == 'title' }
