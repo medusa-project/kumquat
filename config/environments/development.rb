@@ -35,6 +35,8 @@ Rails.application.configure do
 
   config.active_job.queue_adapter = :good_job
   config.active_job.queue_name_prefix = "kumquat_development"
+  config.good_job.retry_on_unhandled_error = false
+  config.good_job.queues = "admin,public"
 
   # Store uploaded files on the local file system (see config/storage.yml for options).
   config.active_storage.service = :local

@@ -33,6 +33,8 @@ Rails.application.configure do
     min_threads: 1,
     max_threads: 1)
   config.active_job.queue_name_prefix = "kumquat_test"
+  config.good_job.retry_on_unhandled_error = false
+  config.good_job.queues = "admin,public"
 
   # Raise exceptions instead of rendering exception templates.
   config.action_dispatch.show_exceptions = false
