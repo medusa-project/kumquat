@@ -116,7 +116,8 @@ class Task < ApplicationRecord
   end
 
   def progress=(float)
-    self.update!(percent_complete: float.to_f)
+    self.update!(percent_complete: float.to_f,
+                 status:           Status::RUNNING)
   end
 
   def running?
