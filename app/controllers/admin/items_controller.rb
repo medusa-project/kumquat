@@ -84,7 +84,7 @@ module Admin
       raise ActiveRecord::RecordNotFound unless col
       begin
         relation = editing_item_relation_for(col)
-        BatchChangeItemMetadataJob.perform_later(relation.to_id_a,
+        BatchChangeItemMetadataJob.perform_later(relation.to_a.select(&:present?).map(&:repository_id),
                                                  params[:element].to_s,
                                                  params[:replace_values].map(&:to_unsafe_hash))
       rescue => e
