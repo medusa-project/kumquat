@@ -1176,16 +1176,16 @@ class Item < ApplicationRecord
   end
 
   ##
-  # Transactionally propagates {HostGroup}s from the instance to all of its
+  # Transactionally propagates [HostGroup]s from the instance to all of its
   # children.
   #
   # @param task [Task] Supply to receive progress updates.
   # @return [void]
   #
   def propagate_heritable_properties(task = nil)
-    transaction do
-      num_items = self.items.count
-      self.walk_tree do |item, index|
+    num_items = self.items.count
+    self.walk_tree do |item, index|
+      transaction do
         item.save!
         if task && index % 10 == 0
           task.update(percent_complete: index / num_items.to_f)

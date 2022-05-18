@@ -674,14 +674,14 @@ class Collection < ApplicationRecord
   # @return [void]
   #
   def propagate_heritable_properties(task = nil)
-    transaction do
-      num_items = self.items.count
-      Collection.uncached do
-        self.items.find_each.with_index do |item, index|
+    num_items = self.items.count
+    Item.uncached do
+      self.items.find_each.with_index do |item, index|
+        transaction do
           item.save!
-          if task && index % 10 == 0
-            task.update(percent_complete: index / num_items.to_f)
-          end
+        end
+        if task && index % 10 == 0
+          task.update(percent_complete: index / num_items.to_f)
         end
       end
     end
