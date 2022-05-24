@@ -25,7 +25,7 @@ class ReplaceItemMetadataJob < Job
       items = args[0].items
       what = args[0].name
     elsif args[0].respond_to?(:each)
-      items = args[0]
+      items = Item.where(repository_id: args[0])
       what = "#{args[0].length} items"
     else
       raise ArgumentError, 'Illegal first argument'
