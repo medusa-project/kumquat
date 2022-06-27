@@ -17,8 +17,13 @@ class ReindexItemsJob < Job
     # may be invoked in response to metadata profile changes which also affect
     # the collection, we might as well reindex it too.
     collection.reindex
-    collection.items.each do |item|
-      item.reindex
+    Item.uncached do
+      items = collection.items
+      count = items.count + 1 # plus the collection
+      items.find_each.with_index do |item, index|
+        item.reindex
+        self.task&.progress = (index + 1) / count.to_f
+      end
     end
 
     self.task&.succeeded
