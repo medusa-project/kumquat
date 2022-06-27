@@ -7,11 +7,11 @@
 #                     status_text: 'Doing something')
 # # do stuff...
 #
-# task.update(progress: 0.3)
+# task.progress = 0.3
 #
 # # do some more stuff...
 #
-# task.update(status_text: 'Wrapping up', progress: 0.9)
+# task.update(status_text: 'Wrapping up', percent_complete: 0.9)
 #
 # # done
 # task.succeeded
