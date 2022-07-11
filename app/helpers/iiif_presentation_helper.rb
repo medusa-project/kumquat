@@ -113,7 +113,7 @@ module IiifPresentationHelper
   def iiif_image_resources_for(item, resource_name)
     images = []
     binary = item.effective_image_binary
-    if binary&.public? || current_user&.medusa_user?
+    if binary && (binary.public? || current_user&.medusa_user?)
       images << {
           '@type':    'oa:Annotation',
           '@id':      item_iiif_image_resource_url(item, resource_name),
