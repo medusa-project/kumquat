@@ -150,12 +150,14 @@ module ApplicationHelper
       # https://bugs.library.illinois.edu/browse/DLD-89
       website_name = Option::string(Option::Keys::WEBSITE_NAME)
       subject      = sprintf('%s: %s', website_name, entity.title)
-      body         = sprintf("This email was sent to you from the %s by a "\
-                             "patron wishing to contact the curator of %s "\
-                             "for more information.",
-                             website_name, item_url(entity))
-      body        += "%0D%0D(Enter your comment here.)%0D"
-      mailto       = "mailto:#{email}?subject=#{subject}&body=#{body}"
+      body         = StringIO.new
+      body         << "This email was sent to you from the #{website_name} "\
+                      "by a patron wishing to contact the curator of the following "
+      body         << (entity.kind_of?(Collection) ? "collection" : "item")
+      body         << " for more information:%0D%0D"
+      body         << (entity.kind_of?(Collection) ? collection_url(entity) : item_url(entity))
+      body         << "%0D%0D(Enter your comment here.)%0D"
+      mailto       = "mailto:#{email}?subject=#{subject}&body=#{body.string}"
     end
     mailto
   rescue IOError
