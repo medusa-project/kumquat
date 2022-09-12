@@ -189,7 +189,7 @@ namespace :dls do
 
     desc 'Expire all downloads'
     task :expire => :environment do
-      Download.all.each(&:expire)
+      Download.where(expired: false).each(&:expire)
     end
 
   end
