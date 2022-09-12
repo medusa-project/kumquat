@@ -10,7 +10,10 @@ class EntityElement < ApplicationRecord
   belongs_to :vocabulary, optional: true
 
   # Contains controlled rights information in the RightsStatements.org or
-  # Creative Commons vocabulary.
+  # Creative Commons vocabulary. This is more of a vestigial suggestion than
+  # anything else, as the name of the element associated with one of these
+  # vocabularies is no longer important, generally. But accessRights has been
+  # the historical convention.
   CONTROLLED_RIGHTS_ELEMENT = "accessRights"
 
   INDEX_FIELD_PREFIX        = "metadata_"

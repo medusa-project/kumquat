@@ -88,11 +88,10 @@
 # # Rights
 #
 # Rights information can be directly ascribed to an item by associating it with
-# a {EntityElement::CONTROLLED_RIGHTS_ELEMENT rights element} whose
-# {EntityElement#uri} value matches one of the terms in its associated
-# RightsStatements.org, Creative Commons, etc. [Vocabulary vocabularies]. If
-# there is no such associated element value, one is drawn from a parent item,
-# if one exists. Otherwise, the owning [Collection]'s
+# an element whose {EntityElement#uri} value matches one of the terms in its
+# associated RightsStatements.org, Creative Commons, etc. [Vocabulary
+# vocabularies]. If there is no such associated element value, one is drawn
+# from a parent item, if one exists. Otherwise, the owning [Collection]'s
 # {Collection#effective_rights_term} is used.
 #
 # It is also possible to ascribe a free-form rights statement. This is added to
@@ -921,15 +920,15 @@ class Item < ApplicationRecord
   #
   def effective_rights_term
     # Use the statement assigned to the instance.
-    uri = self.elements.find{ |e| e.name == EntityElement::CONTROLLED_RIGHTS_ELEMENT &&
-      (e.uri&.include?('rightsstatements.org') || e.uri&.include?('creativecommons.org')) }&.uri
+    uri = self.elements.find{ |e| e.uri&.include?('://rightsstatements.org') ||
+      e.uri&.include?('://creativecommons.org') }&.uri
     term = VocabularyTerm.find_by_uri(uri)
     # If not assigned, walk up the item tree to find a parent statement.
     unless term
       p = self.parent
       while p
-        uri = p.elements.find{ |e| e.name == EntityElement::CONTROLLED_RIGHTS_ELEMENT &&
-          (e.uri&.include?('rightsstatements.org') || e.uri&.include?('creativecommons.org')) }&.uri
+        uri = p.elements.find{ |e| e.uri&.include?('://rightsstatements.org') ||
+          e.uri&.include?('://creativecommons.org') }&.uri
         term = VocabularyTerm.find_by_uri(uri)
         break if term
         p = p.parent
@@ -1231,7 +1230,9 @@ class Item < ApplicationRecord
   # @see effective_rights_term
   #
   def rights_term
-    VocabularyTerm.find_by_uri(self.element(EntityElement::CONTROLLED_RIGHTS_ELEMENT)&.uri)
+    uri = self.elements.find{ |e| e.uri&.include?('://rightsstatements.org') ||
+      e.uri&.include?('://creativecommons.org') }&.uri
+    VocabularyTerm.find_by_uri(uri)
   end
 
   ##

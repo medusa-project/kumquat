@@ -476,15 +476,14 @@ module AdminHelper
 
     # Rights Term (assigned)
     data << { label: "Rights Term (directly assigned)",
-              help: "This term is assigned to an <code>#{EntityElement::CONTROLLED_RIGHTS_ELEMENT}</code> element.",
+              help: "This term is assigned to an element that uses one of the rights-related vocabularies.",
               value: item.rights_term ?
                   link_to(item.rights_term.string,
                           item.rights_term.info_uri) : '' }
     # Rights Term (effective)
     data << { label: 'Rights Term (effective)',
-              help: "This term is inherited from a parent item's "\
-                    "<code>#{EntityElement::CONTROLLED_RIGHTS_ELEMENT}</code> element or "\
-                    "the owning collection's rights term.",
+              help: "This term is inherited from a parent item's rights-related "\
+                    "element or the owning collection's rights term.",
               value: item.effective_rights_term ?
                   link_to(item.effective_rights_term.string,
                           item.effective_rights_term.info_uri) : '' }

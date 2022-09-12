@@ -116,10 +116,8 @@
 #                                   and restricted to a particular NetID.
 #                                   (DLD-337)
 # * `rights_statement`              Rights statement text.
-# * `rights_term_uri`               URI of a term in one of the vocabularies
-#                                   associated with the
-#                                   {EntityElement::CONTROLLED_RIGHTS_ELEMENT
-#                                   rights element}.
+# * `rights_term_uri`               URI of a term in one of the rights-related
+#                                   vocabularies.
 # * `updated_at`                    Managed by ActiveRecord.
 #
 # Attribute Propagation
