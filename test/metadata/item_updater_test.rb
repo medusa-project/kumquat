@@ -220,7 +220,7 @@ class ItemUpdaterTest < ActiveSupport::TestCase
 
   # update_from_tsv()
 
-  test 'update_from_tsv() should update items from valid TSV' do
+  test 'update_from_tsv() updates items from valid TSV' do
     Item.destroy_all
     tsv_pathname = __dir__ + '/../fixtures/repository/compound_object.tsv'
 
@@ -239,6 +239,29 @@ class ItemUpdaterTest < ActiveSupport::TestCase
     # Check their metadata
     assert_equal 'New Title From TSV',
                  Item.find_by_repository_id('21353276-887c-0f2b-25a0-ed444003303f').title
+  end
+
+  test 'update_from_tsv() does not add unnecessary quotes' do
+    Item.destroy_all
+    tsv_pathname = __dir__ + '/../fixtures/repository/quotes.tsv'
+
+    # Create the items
+    tsv = File.read(tsv_pathname)
+    CSV.parse(tsv,
+              headers:         true,
+              col_sep:         "\t",
+              quote_char:      "\x00",
+              liberal_parsing: true).map(&:to_hash).each do |row|
+      Item.create!(repository_id: row['uuid'],
+                   collection_repository_id: collections(:compound_object).repository_id)
+    end
+
+    assert_equal 2, @instance.update_from_tsv(tsv_pathname)
+
+    assert_equal '"This title has quotes"',
+                 Item.find_by_repository_id('21353276-887c-0f2b-25a0-ed444003303f').title
+    assert_equal '""This title has double quotes""',
+                 Item.find_by_repository_id('8ec70c33-75c9-4ba5-cd21-54a1211e5375').title
   end
 
 end
