@@ -12,7 +12,7 @@ module Admin
       @start = params[:start] ? params[:start].to_i : 0
       @start = 0 if @start < 0
 
-      @tasks = Task.order(updated_at: :desc)
+      @tasks = Task.order("started_at DESC NULLS FIRST")
 
       if params[:q].present?
         @tasks = @tasks.where('LOWER(status_text) LIKE ?',
