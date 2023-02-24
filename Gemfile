@@ -22,7 +22,7 @@ gem 'mini_racer', '~> 0.4'
 gem 'netaddr', '~> 2'
 gem 'omniauth'
 gem 'omniauth-shibboleth'
-gem 'pg'
+gem 'pg', '~> 1.2'
 # Used to generate PDFs of compound objects.
 gem 'prawn'
 gem 'puma', '~> 5'
