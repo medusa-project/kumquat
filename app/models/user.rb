@@ -64,14 +64,19 @@ class User < ApplicationRecord
   # @return [Boolean]
   #
   def medusa_admin?
-    if Rails.env.development? or Rails.env.test?
+    if Rails.env.development? || Rails.env.test?
       return [DEVELOPMENT_ADMIN_USERNAME,
               DEVELOPMENT_SUPERUSER_USERNAME].include?(self.username)
     end
+    group = Configuration.instance.medusa_admins_group[:name]
     Rails.cache.fetch("user.#{username}.medusa_admin",
                       expires_in: LDAP_CACHE_TTL) do
-      group = Configuration.instance.medusa_admins_group[:name]
-      LdapQuery.new.is_member_of?(group, self.username)
+      begin
+        user = UiucLibAd::User.new(cn: self.username)
+        user.is_member_of?(group_cn: group)
+      rescue UiucLibAd::NoDNFound
+        false
+      end
     end
   end
 
@@ -79,13 +84,18 @@ class User < ApplicationRecord
   # @return [Boolean]
   #
   def medusa_superuser?
-    if Rails.env.development? or Rails.env.test?
+    if Rails.env.development? || Rails.env.test?
       return self.username == DEVELOPMENT_SUPERUSER_USERNAME
     end
+    group = Configuration.instance.medusa_superusers_group[:name]
     Rails.cache.fetch("user.#{username}.medusa_superuser",
                       expires_in: LDAP_CACHE_TTL) do
-      group = Configuration.instance.medusa_superusers_group[:name]
-      LdapQuery.new.is_member_of?(group, self.username)
+      begin
+        user = UiucLibAd::User.new(cn: self.username)
+        user.is_member_of?(group_cn: group)
+      rescue UiucLibAd::NoDNFound
+        false
+      end
     end
   end
 
@@ -93,14 +103,19 @@ class User < ApplicationRecord
   # @return [Boolean]
   #
   def medusa_user?
-    if Rails.env.development? or Rails.env.test?
+    if Rails.env.development? || Rails.env.test?
       return [DEVELOPMENT_USER_USERNAME, DEVELOPMENT_ADMIN_USERNAME,
               DEVELOPMENT_SUPERUSER_USERNAME].include?(self.username)
     end
+    group = Configuration.instance.medusa_users_group[:name]
     Rails.cache.fetch("user.#{username}.medusa_user",
                       expires_in: LDAP_CACHE_TTL) do
-      group = Configuration.instance.medusa_users_group[:name]
-      LdapQuery.new.is_member_of?(group, self.username)
+      begin
+        user = UiucLibAd::User.new(cn: self.username)
+        user.is_member_of?(group_cn: group)
+      rescue UiucLibAd::NoDNFound
+        false
+      end
     end
   end
 
