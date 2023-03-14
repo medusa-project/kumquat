@@ -28,6 +28,7 @@ class User < ApplicationRecord
   LDAP_CACHE_TTL = 1.hour
 
   has_and_belongs_to_many :item_sets
+  has_many :tasks
   has_many :watches
 
   validates :username, presence: true, length: { maximum: 50 },

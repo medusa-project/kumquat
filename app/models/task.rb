@@ -3,7 +3,8 @@
 #
 # To use:
 # ```
-# task = Task.create!(name: 'Do Something',
+# task = Task.create!(name:        'Do Something',
+#                     user:        user,
 #                     status_text: 'Doing something')
 # # do stuff...
 #
@@ -33,6 +34,7 @@
 # * `status`           One of the {Status} constant values.
 # * `status_text`      String describing the current status of the task.
 # * `stopped_at`       Time the task stopped, whether successfully or not.
+# * `user_id`          Foreign key to {User}.
 # * `updated_at`       Managed by ActiveRecord.
 #
 class Task < ApplicationRecord
@@ -79,6 +81,7 @@ class Task < ApplicationRecord
   end
 
   has_one :download, inverse_of: :task
+  belongs_to :user, optional: true
 
   # Instances will often be updated from inside transactions, outside of which
   # any updates would not be visible. So, we use a different database

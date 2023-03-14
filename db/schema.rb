@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_03_14_143330) do
+ActiveRecord::Schema[7.0].define(version: 2023_03_14_144617) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -378,7 +378,9 @@ ActiveRecord::Schema[7.0].define(version: 2023_03_14_143330) do
     t.text "backtrace"
     t.datetime "started_at", precision: nil
     t.string "queue"
+    t.bigint "user_id"
     t.index ["job_id"], name: "index_tasks_on_job_id", unique: true
+    t.index ["user_id"], name: "index_tasks_on_user_id"
   end
 
   create_table "users", id: :serial, force: :cascade do |t|
@@ -445,6 +447,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_03_14_143330) do
   add_foreign_key "metadata_profile_elements_vocabularies", "metadata_profile_elements", on_update: :cascade, on_delete: :cascade
   add_foreign_key "metadata_profile_elements_vocabularies", "vocabularies", on_update: :cascade, on_delete: :cascade
   add_foreign_key "metadata_profiles", "metadata_profile_elements", column: "default_sortable_element_id", on_update: :cascade, on_delete: :nullify
+  add_foreign_key "tasks", "users", on_update: :cascade, on_delete: :nullify
   add_foreign_key "vocabulary_terms", "vocabularies", on_delete: :cascade
   add_foreign_key "watches", "collections", on_update: :cascade, on_delete: :cascade
   add_foreign_key "watches", "users", on_update: :cascade, on_delete: :cascade
