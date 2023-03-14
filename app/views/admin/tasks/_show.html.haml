@@ -33,7 +33,7 @@
         Unknown
   %dt Run Time
   %dd
-    - if @task.running? || @task.terminated?
+    - if @task.running? || @task.terminated? && @task.started_at
       = distance_of_time_in_words(@task.started_at,
                                   (@task.stopped_at || Time.now),
                                   include_seconds: true)
