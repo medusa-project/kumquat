@@ -8,7 +8,7 @@ gem 'aws-sdk-s3', '~> 1'
 gem 'aws-sdk-lambda', '~> 1'
 gem 'draper' # Provides decorators
 gem "font-awesome-sass", "~> 5.6" # Provides all of our icons
-gem 'good_job'
+gem 'good_job', '~> 3'
 gem 'haml'
 gem 'httpclient'
 gem 'jbuilder' # JSON DSL: https://github.com/rails/jbuilder
