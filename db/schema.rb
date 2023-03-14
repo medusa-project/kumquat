@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_03_14_144617) do
+ActiveRecord::Schema[7.0].define(version: 2023_03_14_150802) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -379,7 +379,11 @@ ActiveRecord::Schema[7.0].define(version: 2023_03_14_144617) do
     t.datetime "started_at", precision: nil
     t.string "queue"
     t.bigint "user_id"
+    t.index ["created_at"], name: "index_tasks_on_created_at"
     t.index ["job_id"], name: "index_tasks_on_job_id", unique: true
+    t.index ["started_at"], name: "index_tasks_on_started_at"
+    t.index ["stopped_at"], name: "index_tasks_on_stopped_at"
+    t.index ["updated_at"], name: "index_tasks_on_updated_at"
     t.index ["user_id"], name: "index_tasks_on_user_id"
   end
 
