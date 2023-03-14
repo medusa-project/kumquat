@@ -5,32 +5,37 @@ class MigrateItemMetadataJob < Job
   queue_as QUEUE
 
   ##
-  # @param args [Array] Three-element array. Position 0 contains either a
-  #                     Collection UUID, an ItemSet ID, or an Enumerable of
-  #                     Item UUIDs.
-  #                     Position 1 contains a source element name. Position 2
-  #                     contains a destination element name.
+  # Arguments:
+  #
+  # 1. `:user`: {User} instance
+  # 2. One of the following:
+  #     * `:collection`: {Collection} instance
+  #     * `:item_set`: {ItemSet} instance
+  #     * `:item_ids`: Array of {Item} UUIDs
+  # 3. `source_element`: Element name string
+  # 4. `dest_element`: Element name string
+  #
+  # @param args [Hash]
   # @raises [ArgumentError]
   #
-  def perform(*args)
-    if args[0].is_a?(Collection)
-      items = args[0].items
-      what = args[0].title
-    elsif args[0].is_a?(ItemSet)
-      items = args[0].items
-      what = args[0].name
-    elsif args[0].respond_to?(:each)
-      items = args[0]
-      what = "#{args[0].length} items"
+  def perform(**args)
+    if args[:collection]
+      items = args[:collection].items
+      what  = args[:collection].title
+    elsif args[:item_set]
+      items = args[:item_set].items
+      what  = args[:item_set].name
+    elsif args[:item_ids]
+      items = Item.where(repository_id: args[:item_ids])
+      what  = "#{items.count} items"
     else
       raise ArgumentError, 'Illegal first argument'
     end
-
-    source_element = args[1]
-    dest_element = args[2]
+    source_element = args[:source_element]
+    dest_element   = args[:dest_element]
 
     self.task.update!(status_text: "Migrating #{source_element} "\
-      "elements to #{dest_element} in #{what}")
+                                   "elements to #{dest_element} in #{what}")
 
     ItemUpdater.new.migrate_elements(items, source_element, dest_element,
                                      self.task)

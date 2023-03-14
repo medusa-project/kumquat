@@ -5,11 +5,15 @@ class ReindexItemsJob < Job
   queue_as QUEUE
 
   ##
-  # @param args [Array] One-element array with Collection whose items to reindex
-  #                     at position 0.
+  # Arguments:
   #
-  def perform(*args)
-    collection = args[0]
+  # 1. `:user`: {User} instance
+  # 2. `:collection`: {Collection} instance
+  #
+  # @param args [Hash]
+  #
+  def perform(**args)
+    collection = args[:collection]
 
     self.task&.update(status_text: "Reindexing items in #{collection.title}")
 

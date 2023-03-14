@@ -1,5 +1,5 @@
 ##
-# Augments [ApplicationJob] with [Task]-management functionality that enables
+# Augments {ActiveJob::Base} with {Task} management functionality that enables
 # the job to be monitored via ActiveRecord queries. Most application jobs
 # should extend this.
 #
@@ -32,7 +32,7 @@ class Job < ApplicationJob
   # @param args Arguments to pass to the job. Must be serializable or an
   #             instance of a class that `include`s [GlobalID::Identifier].
   #
-  def perform(*args)
+  def perform(**args)
     raise 'Must override perform()'
   end
 
@@ -44,7 +44,7 @@ class Job < ApplicationJob
   def perform_in_foreground(*args)
     # Background jobs will have a job_id, but foreground jobs will not, so use
     # the object_id instead.
-    create_task_for_job_id(self.object_id)
+    create_task(job_id: self.object_id, user: args[:user])
     begin
       perform_now
     rescue Exception => e
@@ -67,7 +67,8 @@ class Job < ApplicationJob
   #
   def task
     unless Task.find_by_job_id(self.job_id)
-      create_task_for_job_id(self.job_id)
+      user = arguments.any? ? arguments[0][:user] : nil
+      create_task(job_id: self.job_id, user: user)
     end
     Task.find_by_job_id(self.job_id)
   end
@@ -85,7 +86,7 @@ class Job < ApplicationJob
   # Will be called after enqueueing (background jobs only).
   #
   def do_after_enqueue
-    create_task_for_job_id(self.job_id)
+    create_task(job_id: self.job_id, user: arguments[0][:user])
   end
 
   def do_before_perform
@@ -99,9 +100,10 @@ class Job < ApplicationJob
 
   private
 
-  def create_task_for_job_id(job_id)
+  def create_task(job_id:, user: nil)
     begin
       Task.create!(name:        self.class.name,
+                   user:        user,
                    status_text: "Waiting for other tasks to finish...",
                    job_id:      job_id,
                    queue:       self.class::QUEUE)

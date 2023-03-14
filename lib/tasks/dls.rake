@@ -158,8 +158,11 @@ namespace :dls do
 
     desc 'Run OCR on all items in a collection'
     task :ocr, [:uuid, :language] => :environment do |task, args|
-      language = args[:language] || 'eng'
-      OcrCollectionJob.new(args[:uuid], language, true).perform_in_foreground
+      collection = Collection.find_by_repository_id(args[:uuid])
+      language   = args[:language] || 'eng'
+      OcrCollectionJob.new(collection:            collection,
+                           language_code:         language,
+                           include_already_ocred: true).perform_in_foreground
     end
 
     desc 'Publish a collection'
@@ -253,7 +256,8 @@ namespace :dls do
 
     desc 'Run OCR on an item and all children'
     task :ocr, [:uuid] => :environment do |task, args|
-      OcrItemJob.new(args[:uuid]).perform_in_foreground
+      item = Item.find_by_repository_id(args[:uuid])
+      OcrItemJob.new(item: item).perform_in_foreground
     end
 
     desc 'Delete all items from a collection'
@@ -281,13 +285,15 @@ namespace :dls do
 
     desc 'Sync items from Medusa (modes: create_only, recreate_binaries, delete_missing)'
     task :sync, [:collection_uuid, :mode] => :environment do |task, args|
-      SyncItemsJob.new(args[:collection_uuid], args[:mode],
-                       extract_metadata: false).perform_in_foreground
+      collection = Collection.find_by_repository_id(args[:collection_uuid])
+      SyncItemsJob.new(collection:  collection,
+                       ingest_mode: args[:mode],
+                       options:     { extract_metadata: false }).perform_in_foreground
     end
 
     desc 'Update items from a TSV file'
     task :update_from_tsv, [:pathname] => :environment do |task, args|
-      UpdateItemsFromTsvJob.new(args[:pathname]).perform_in_foreground
+      UpdateItemsFromTsvJob.new(tsv_pathname: args[:pathname]).perform_in_foreground
     end
 
   end
@@ -301,7 +307,7 @@ namespace :dls do
 
     desc 'Run a test job'
     task :test => :environment do
-      SleepJob.perform_later(30)
+      SleepJob.perform_later(interval: 30)
     end
 
   end
@@ -330,7 +336,7 @@ namespace :dls do
 
     desc 'Run a test task'
     task :test => :environment do
-      SleepJob.new(15).perform_in_foreground
+      SleepJob.new(interval: 15).perform_in_foreground
     end
 
   end

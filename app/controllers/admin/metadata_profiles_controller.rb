@@ -118,7 +118,8 @@ module Admin
       profile = MetadataProfile.find(params[:metadata_profile_id])
       begin
         profile.collections.each do |col|
-          ReindexItemsJob.perform_later(col)
+          ReindexItemsJob.perform_later(collection: col,
+                                        user:       current_user)
         end
       rescue => e
         handle_error(e)

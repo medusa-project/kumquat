@@ -11,7 +11,7 @@ class PurgeItemsJobTest < ActiveSupport::TestCase
   test 'perform() should work properly' do
     col = collections(:free_form)
     assert col.items.count > 0
-    PurgeItemsJob.perform_now(col.repository_id)
+    PurgeItemsJob.perform_now(collection: col)
     assert_equal 0, col.items.count
   end
 

@@ -6,15 +6,19 @@ class DownloadCollectionTsvJob < Job
   queue_as QUEUE
 
   ##
-  # @param args [Array] Three-element array with [Collection] instance at
-  #                     position 0, [Download] instance at position 1, and
-  #                     boolean ("only undescribed") at position 2.
-  # @raises [ArgumentError]
+  # Arguments:
   #
-  def perform(*args)
-    collection       = args[0]
-    download         = args[1]
-    only_undescribed = args[2]
+  # 1. `:user`: {User} instance
+  # 2. `:collection`: {Collection} instance
+  # 3. `:download`: {Download} instance
+  # 4. `:only_undescribed`: Boolean
+  #
+  # @param args [Hash]
+  #
+  def perform(**args)
+    collection       = args[:collection]
+    download         = args[:download]
+    only_undescribed = args[:only_undescribed]
 
     self.task.update!(download:      download,
                       indeterminate: true,

@@ -5,16 +5,22 @@ class UpdateItemsFromTsvJob < Job
   queue_as QUEUE
 
   ##
-  # @param args [Array] Two-element array with the pathname of the TSV to
-  #                     ingest at position 0 and its original filename at
-  #                     position 1.
+  # Arguments:
   #
-  def perform(*args)
+  # 1. `:user`: {User} instance
+  # 2. `:tsv_pathname`
+  # 3. `:tsv_original_filename`
+  #
+  # @param args [Hash]
+  #
+  def perform(**args)
     self.task.update(status_text: 'Updating item metadata from TSV')
 
-    ItemUpdater.new.update_from_tsv(args[0], args[1], self.task)
+    ItemUpdater.new.update_from_tsv(args[:tsv_pathname],
+                                    args[:tsv_original_filename],
+                                    self.task)
 
-    File.delete(args[0]) if File.exist?(args[0])
+    File.delete(args[:tsv_pathname]) if File.exist?(args[:tsv_pathname])
 
     self.task.succeeded
   end

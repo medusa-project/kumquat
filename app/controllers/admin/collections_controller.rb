@@ -85,7 +85,8 @@ module Admin
         format.js
         format.tsv do
           download = Download.create(ip_address: request.remote_ip)
-          DownloadAllTsvJob.perform_later(download)
+          DownloadAllTsvJob.perform_later(download: download,
+                                          user:     current_user)
           redirect_to download_url(download)
         end
       end
@@ -95,8 +96,9 @@ module Admin
     # Responds to `POST /admin/collections/:collection_id/purge-cached-images`
     #
     def purge_cached_images
-      PurgeCollectionItemsFromImageServerCacheJob.
-          perform_later(@collection.repository_id)
+      PurgeCollectionItemsFromImageServerCacheJob.perform_later(
+        collection: @collection,
+        user:       current_user)
 
       flash['success'] = 'Purging images in the background. (This may take a
           minute.) When complete, you may need to clear your browser cache to
@@ -171,7 +173,7 @@ module Admin
     # Responds to `PATCH /admin/collections/sync`
     #
     def sync
-      SyncCollectionsJob.perform_later
+      SyncCollectionsJob.perform_later(user: current_user)
       flash['success'] = 'Indexing collections in the background.
         (This will take a minute.)'
       redirect_back fallback_location: admin_collections_path
@@ -223,7 +225,8 @@ module Admin
             # (published status, allowed/denied host groups, etc.) to the items
             # contained within the collection. This will take some time, so
             # we'll do it in the background.
-            PropagatePropertiesToItemsJob.perform_later(@collection.repository_id)
+            PropagatePropertiesToItemsJob.perform_later(collection: @collection,
+                                                        user:       current_user)
           end
         rescue => e
           handle_error(e)

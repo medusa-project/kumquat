@@ -20,7 +20,9 @@ class BatchChangeItemMetadataJobTest < ActiveSupport::TestCase
         }
     ]
 
-    BatchChangeItemMetadataJob.perform_now(col, element_name, new_values)
+    BatchChangeItemMetadataJob.perform_now(collection: col,
+                                           element_name:       element_name,
+                                           replacement_values: new_values)
 
     col.items.each do |item|
       titles = item.elements.select{ |e| e.name == 'title' }
@@ -47,7 +49,9 @@ class BatchChangeItemMetadataJobTest < ActiveSupport::TestCase
         }
     ]
 
-    BatchChangeItemMetadataJob.perform_now(set, element_name, new_values)
+    BatchChangeItemMetadataJob.perform_now(item_set:           set,
+                                           element_name:       element_name,
+                                           replacement_values: new_values)
 
     set.items.each do |item|
       titles = item.elements.select{ |e| e.name == 'title' }
@@ -74,9 +78,9 @@ class BatchChangeItemMetadataJobTest < ActiveSupport::TestCase
         }
     ]
 
-    BatchChangeItemMetadataJob.perform_now(items.map(&:repository_id),
-                                           element_name,
-                                           new_values)
+    BatchChangeItemMetadataJob.perform_now(item_ids:           items.map(&:repository_id),
+                                           element_name:       element_name,
+                                           replacement_values: new_values)
 
     items.each do |item|
       titles = item.elements.select{ |e| e.name == 'title' }

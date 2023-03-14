@@ -18,8 +18,12 @@ class ReplaceItemMetadataJobTest < ActiveSupport::TestCase
       item.save!
     end
 
-    ReplaceItemMetadataJob.perform_now(col, :exact_match, 'cats', 'title',
-                                       :whole_value, 'dogs')
+    ReplaceItemMetadataJob.perform_now(collection:    col,
+                                       matching_mode: :exact_match,
+                                       find_value:    'cats',
+                                       element_name:  'title',
+                                       replace_mode:  :whole_value,
+                                       replace_value: 'dogs')
 
     col.items.each do |item|
       item.reload
@@ -44,15 +48,19 @@ class ReplaceItemMetadataJobTest < ActiveSupport::TestCase
       item.save!
     end
 
-    ReplaceItemMetadataJob.perform_now(set, :exact_match, 'cats', 'title',
-                                       :whole_value, 'dogs')
+    ReplaceItemMetadataJob.perform_now(item_set:      set,
+                                       matching_mode: :exact_match,
+                                       find_value:    'cats',
+                                       element_name:  'title',
+                                       replace_mode:  :whole_value,
+                                       replace_value: 'dogs')
 
     set.items.each do |item|
       item.reload
       assert_equal 0, item.elements.
-          select{ |e| e.name == 'title' and e.value == 'cats' }.length
+          select{ |e| e.name == 'title' && e.value == 'cats' }.length
       assert_equal 1, item.elements.
-          select{ |e| e.name == 'title' and e.value == 'dogs' }.length
+          select{ |e| e.name == 'title' && e.value == 'dogs' }.length
     end
   end
 
@@ -70,15 +78,19 @@ class ReplaceItemMetadataJobTest < ActiveSupport::TestCase
       item.save!
     end
 
-    ReplaceItemMetadataJob.perform_now(items, :exact_match, 'cats', 'title',
-                                       :whole_value, 'dogs')
+    ReplaceItemMetadataJob.perform_now(item_ids:      items.map(&:repository_id),
+                                       matching_mode: :exact_match,
+                                       find_value:    'cats',
+                                       element_name:  'title',
+                                       replace_mode:  :whole_value,
+                                       replace_value: 'dogs')
 
     items.each do |item|
       item.reload
       assert_equal 0, item.elements.
-          select{ |e| e.name == 'title' and e.value == 'cats' }.length
+          select{ |e| e.name == 'title' && e.value == 'cats' }.length
       assert_equal 1, item.elements.
-          select{ |e| e.name == 'title' and e.value == 'dogs' }.length
+          select{ |e| e.name == 'title' && e.value == 'dogs' }.length
     end
   end
 

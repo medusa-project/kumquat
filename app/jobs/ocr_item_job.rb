@@ -18,9 +18,9 @@ class OcrItemJob < Job # TODO: replace this with OcrItemsJob
   # As the way the production environment is currently configured, the greatest
   # limiter is #3, followed by #2.
   #
-  # As far as #2 goes, we must consider that Task uses its own connection pool,
-  # which halves the number of threads we can use. Also we must remember to
-  # leave some spare connections for Delayed Job itself.
+  # As far as #2 goes, we must consider that {Task} uses its own connection
+  # pool, which halves the number of threads we can use. Also we must remember
+  # to leave some spare connections for our job worker itself.
   #
   # @return [Integer]
   #
@@ -31,17 +31,19 @@ class OcrItemJob < Job # TODO: replace this with OcrItemsJob
   end
 
   ##
-  # @param args [Array] Three-element array containing an item UUID at position
-  #                     0, an ISO 639-2 language code at position 1, and
-  #                     whether to include already-OCRed binaries at position
-  #                     2.
+  # Arguments:
   #
-  def perform(*args)
-    main_item = Item.find_by_repository_id(args[0])
-    raise ActiveRecord::RecordNotFound unless main_item
-
+  # 1. `:user`: {User} instance
+  # 2. `:item`: {Item} instance
+  # 3. `:language_code`: ISO 639-2 language code
+  # 4. `:include_already_ocred`: Boolean
+  #
+  # @param args [Hash]
+  #
+  def perform(**args)
+    main_item    = args[:item]
     binaries     = main_item.ocrable_binaries(recursive: true)
-    binaries     = binaries.where(ocred_at: nil) unless args[2]
+    binaries     = binaries.where(ocred_at: nil) unless args[:include_already_ocred]
     binary_count = binaries.count
     num_threads  = self.class.num_threads
     self.task&.update(status_text: "Running OCR on #{binary_count} binaries "\
@@ -50,7 +52,7 @@ class OcrItemJob < Job # TODO: replace this with OcrItemsJob
     ThreadUtils.process_in_parallel(binaries,
                                     num_threads: num_threads,
                                     task: self.task) do |binary|
-      binary.detect_text(language: args[1])
+      binary.detect_text(language: args[:language_code])
       binary.save!
       binary.item.reindex
     end

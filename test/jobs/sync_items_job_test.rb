@@ -12,8 +12,9 @@ class SyncItemsJobTest < ActiveSupport::TestCase
     col = collections(:compound_object)
     col.items.destroy_all
 
-    SyncItemsJob.perform_now(col.repository_id,
-                             MedusaIngester::IngestMode::CREATE_ONLY, {})
+    SyncItemsJob.perform_now(collection:  col,
+                             ingest_mode: MedusaIngester::IngestMode::CREATE_ONLY,
+                             options:     {})
 
     assert_equal 5, col.items.count
   end

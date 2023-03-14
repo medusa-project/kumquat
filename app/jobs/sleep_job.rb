@@ -8,11 +8,15 @@ class SleepJob < Job
   queue_as QUEUE
 
   ##
-  # @param args [Enumerable<String>] One-element array containing a sleep
-  #                                  interval in seconds.
+  # Arguments:
   #
-  def perform(*args)
-    interval = args[0].to_i
+  # 1. `:interval`: Sleep interval in seconds
+  # 2. `:user`: {User} instance
+  #
+  # @param args [Hash]
+  #
+  def perform(**args)
+    interval = args[:interval].to_i
     self.task&.update!(indeterminate: false,
                        status_text: "Sleeping for #{interval} seconds")
 

@@ -8,10 +8,15 @@ class PropagatePropertiesToChildrenJob < Job
   queue_as QUEUE
 
   ##
-  # @param args [Array] One-element array with item UUID at position 0.
+  # Arguments:
   #
-  def perform(*args)
-    item = Item.find_by_repository_id(args[0])
+  # 1. `:item`: {Item} instance
+  # 2. `:user`: {User} instance
+  #
+  # @param args [Hash]
+  #
+  def perform(**args)
+    item = args[:item]
 
     self.task.update(status_text: "Propagating heritable properties of "\
         "#{item.title} to its children ")

@@ -12,7 +12,8 @@ class UpdateItemsFromTsvJobTest < ActiveSupport::TestCase
     file = Tempfile.new('test')
     begin
       file.close
-      UpdateItemsFromTsvJob.perform_now(file.path, 'original.tsv')
+      UpdateItemsFromTsvJob.perform_now(tsv_pathname:          file.path,
+                                        tsv_original_filename: 'original.tsv')
       assert !File.exist?(file.path)
     ensure
       file.close

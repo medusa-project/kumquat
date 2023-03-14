@@ -5,14 +5,19 @@ class CreatePdfJob < Job
   queue_as QUEUE
 
   ##
-  # @param args [Array] Three-element array with [Item] at position 0, whether
-  #                     to include private binaries at position 1, and
-  #                     [Download] instance at position 2.
+  # Arguments:
   #
-  def perform(*args)
-    item                     = args[0]
-    include_private_binaries = args[1]
-    download                 = args[2]
+  # 1. `:user`: {User} instance
+  # 2. `:item`: {Item} instance
+  # 3. `:include_private_binaries`: Boolean
+  # 4. `:download`: {Download} instance.
+  #
+  # @param args [Hash]
+  #
+  def perform(**args)
+    item                     = args[:item]
+    include_private_binaries = args[:include_private_binaries]
+    download                 = args[:download]
 
     self.task&.update!(download:    download,
                        status_text: "Generating PDF for #{item}")

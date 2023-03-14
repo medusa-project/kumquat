@@ -5,30 +5,35 @@ class BatchChangeItemMetadataJob < Job
   queue_as QUEUE
 
   ##
-  # @param args [Array] Three-element array. Position 0 contains either a
-  #                     Collection UUID, an ItemSet ID, or an Enumerable of
-  #                     Item UUIDs.
-  #                     Position 1 contains an element name. Position 2
-  #                     contains an array of replacement values, as hashes with
-  #                     :string and :uri keys.
+  # Arguments:
+  #
+  # 1. `:user`: {User} instance.
+  # 2. One of the following:
+  #     * `:collection`: {Collection} instance
+  #     * `:item_set`: {ItemSet} instance
+  #     * `:item_ids`: Array of {Item} UUIDs
+  # 3. `:element_name`
+  # 4. `:replacement_values`: Array of replacement values as
+  #    hashes with `:string` and `:uri` keys.
+  #
+  # @param args [Hash]
   # @raises [ArgumentError]
   #
-  def perform(*args)
-    if args[0].kind_of?(Collection)
-      items = args[0].items
-      what  = args[0].title
-    elsif args[0].kind_of?(ItemSet)
-      items = args[0].items
-      what  = args[0].name
-    elsif args[0].respond_to?(:each)
-      items = Item.where("repository_id IN (?)", args[0])
-      what  = "#{args[0].length} items"
+  def perform(**args)
+    if args[:collection]
+      items = args[:collection].items
+      what  = args[:collection].title
+    elsif args[:item_set]
+      items = args[:item_set].items
+      what  = args[:item_set].name
+    elsif args[:item_ids]
+      items = Item.where("repository_id IN (?)", args[:item_ids])
+      what  = "#{args[:item_ids].length} items"
     else
       raise ArgumentError, 'Illegal first argument'
     end
-
-    element_name   = args[1]
-    replace_values = args[2]
+    element_name   = args[:element_name]
+    replace_values = args[:replacement_values]
 
     self.task.update!(status_text: "Changing #{element_name} element values "\
         "in #{what}")

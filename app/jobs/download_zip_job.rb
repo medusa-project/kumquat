@@ -5,21 +5,26 @@ class DownloadZipJob < Job
   queue_as QUEUE
 
   ##
-  # @param args [Array] Four-element array with array of {Item}s at
-  #                     position 0, zip name at position 1, whether to include
-  #                     private binaries at position 2, and {Download}
-  #                     instance at position 3.
+  # Arguments:
   #
-  def perform(*args)
-    item_ids                 = args[0]
-    zip_name                 = args[1]
-    include_private_binaries = args[2]
-    download                 = args[3]
+  # 1. `:user`: {User} instance
+  # 2. `:item_ids`: Array of {Item} UUIDs
+  # 3. `:zip_name`
+  # 4. `:include_private_binaries`: Boolean
+  # 5. `:download`: {Download} instance
+  #
+  # @param args [Hash]
+  #
+  def perform(**args)
+    item_ids                 = args[:item_ids]
+    zip_name                 = args[:zip_name]
+    include_private_binaries = args[:include_private_binaries]
+    download                 = args[:download]
 
-    self.task&.update!(download: download,
+    self.task&.update!(download:      download,
                        indeterminate: true,
-                       status_text: "Requesting a #{item_ids.length}-item zip "\
-                       "file from the Medusa Downloader")
+                       status_text:   "Requesting a #{item_ids.length}-item "\
+                                      "zip file from the Medusa Downloader")
 
     items  = Item.where('repository_id IN (?)', item_ids)
     client = MedusaDownloaderClient.new

@@ -328,10 +328,10 @@ class ItemsController < WebsiteController
           end_     = params[:download_start].to_i + item_ids.length
           zip_name = "items-#{start}-#{end_}"
           download = Download.create(ip_address: request.remote_ip)
-          DownloadZipJob.perform_later(item_ids,
-                                       zip_name,
-                                       current_user&.medusa_user?,
-                                       download)
+          DownloadZipJob.perform_later(item_ids:                 item_ids,
+                                       zip_name:                 zip_name,
+                                       include_private_binaries: current_user&.medusa_user?,
+                                       download:                 download)
           redirect_to download_url(download, format: :json) and return
         else
           flash['error'] = 'No items to download.'
@@ -465,7 +465,9 @@ class ItemsController < WebsiteController
         # PDF download is only available for compound objects.
         if @item.compound?
           download = Download.create(ip_address: request.remote_ip)
-          CreatePdfJob.perform_later(@item, current_user&.medusa_user?, download)
+          CreatePdfJob.perform_later(item:                     @item,
+                                     include_private_binaries: current_user&.medusa_user?,
+                                     download:                 download)
           redirect_to download_url(download, format: :json) and return
         else
           flash['error'] = 'PDF downloads are only available for compound objects.'
@@ -527,15 +529,15 @@ class ItemsController < WebsiteController
         if item_ids.any?
           download = Download.create(ip_address: request.remote_ip)
           if params[:contents]&.match?(/jpegs/)
-            CreateZipOfJpegsJob.perform_later(item_ids,
-                                              zip_name,
-                                              current_user&.medusa_user?,
-                                              download)
+            CreateZipOfJpegsJob.perform_later(item_ids:                 item_ids,
+                                              zip_name:                 zip_name,
+                                              include_private_binaries: current_user&.medusa_user?,
+                                              download:                 download)
           else
-            DownloadZipJob.perform_later(item_ids,
-                                         zip_name,
-                                         current_user&.medusa_user?,
-                                         download)
+            DownloadZipJob.perform_later(item_ids:                 item_ids,
+                                         zip_name:                 zip_name,
+                                         include_private_binaries: current_user&.medusa_user?,
+                                         download:                 download)
           end
           redirect_to download_url(download, format: :json) and return
         else

@@ -10,7 +10,7 @@ class PropagatePropertiesToChildrenJobTest < ActiveSupport::TestCase
   #
   test 'perform() should return' do
     item = items(:free_form_dir1_dir1_file1)
-    PropagatePropertiesToChildrenJob.perform_now(item.repository_id)
+    PropagatePropertiesToChildrenJob.perform_now(item: item)
   end
 
 end

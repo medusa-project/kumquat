@@ -84,9 +84,11 @@ module Admin
       raise ActiveRecord::RecordNotFound unless col
       begin
         relation = editing_item_relation_for(col)
-        BatchChangeItemMetadataJob.perform_later(relation.to_id_a,
-                                                 params[:element].to_s,
-                                                 params[:replace_values].map(&:to_unsafe_hash))
+        BatchChangeItemMetadataJob.perform_later(
+          item_ids:           relation.to_id_a,
+          element_name:       params[:element].to_s,
+          replacement_values: params[:replace_values].map(&:to_unsafe_hash),
+          user:               current_user)
       rescue => e
         handle_error(e)
       else
@@ -104,7 +106,8 @@ module Admin
       col = Collection.find_by_repository_id(params[:collection_id])
       raise ActiveRecord::RecordNotFound unless col
       begin
-        PurgeItemsJob.perform_later(col.repository_id)
+        PurgeItemsJob.perform_later(collection: col,
+                                    user:       current_user)
       rescue => e
         handle_error(e)
       else
@@ -246,8 +249,10 @@ module Admin
           # more than n items in the collection, do the download asynchronously.
           if @collection.items.count > 2000
             download = Download.create(ip_address: request.remote_ip)
-            DownloadCollectionTsvJob.perform_later(@collection, download,
-                                                   only_undescribed)
+            DownloadCollectionTsvJob.perform_later(collection:       @collection,
+                                                   download:         download,
+                                                   only_undescribed: only_undescribed,
+                                                   user:             current_user)
             redirect_to download_url(download)
           else
             headers['Content-Disposition'] = 'attachment; filename="items.tsv"'
@@ -282,8 +287,10 @@ module Admin
             tsv = params[:tsv].read.force_encoding('UTF-8')
             tempfile.write(tsv)
             tempfile.close
-            UpdateItemsFromTsvJob.perform_later(tempfile.path,
-                                                params[:tsv].original_filename)
+            UpdateItemsFromTsvJob.perform_later(
+              tsv_pathname:          tempfile.path,
+              tsv_original_filename: params[:tsv].original_filename,
+              user:                  current_user)
           rescue => e
             tempfile.close
             tempfile.unlink
@@ -309,9 +316,10 @@ module Admin
       raise ActiveRecord::RecordNotFound unless col
       begin
         relation = editing_item_relation_for(col)
-        MigrateItemMetadataJob.perform_later(relation.to_id_a,
-                                             params[:source_element],
-                                             params[:dest_element])
+        MigrateItemMetadataJob.perform_later(item_ids:       relation.to_id_a,
+                                             source_element: params[:source_element],
+                                             dest_element:   params[:dest_element],
+                                             user:           current_user)
       rescue => e
         handle_error(e)
       else
@@ -375,12 +383,13 @@ module Admin
       raise ActiveRecord::RecordNotFound unless col
       begin
         relation = editing_item_relation_for(col)
-        ReplaceItemMetadataJob.perform_later(relation.to_id_a,
-                                             params[:matching_mode],
-                                             params[:find_value],
-                                             params[:element],
-                                             params[:replace_mode],
-                                             params[:replace_value])
+        ReplaceItemMetadataJob.perform_later(item_ids:      relation.to_id_a,
+                                             matching_mode: params[:matching_mode],
+                                             find_value:    params[:find_value],
+                                             element_name:  params[:element],
+                                             replace_mode:  params[:replace_mode],
+                                             replace_value: params[:replace_value],
+                                             user:          current_user)
       rescue => e
         handle_error(e)
       else
@@ -409,9 +418,10 @@ module Admin
           item = Item.find_by_repository_id(params[:item_id])
           raise ActiveRecord::RecordNotFound unless item
 
-          OcrItemJob.perform_later(item.repository_id,
-                                   params[:language],
-                                   params[:include_ocred])
+          OcrItemJob.perform_later(item:                  item,
+                                   language_code:         params[:language],
+                                   include_already_ocred: params[:include_ocred],
+                                   user:                  current_user)
         rescue => e
           handle_error(e)
         else
@@ -426,13 +436,15 @@ module Admin
           raise ActiveRecord::RecordNotFound unless collection
 
           if params[:target] == 'checked'
-            OcrItemsJob.perform_later(params[:items],
-                                      params[:language],
-                                      params[:include_ocred])
+            OcrItemsJob.perform_later(item_ids:              params[:items],
+                                      language_code:         params[:language],
+                                      include_already_ocred: params[:include_ocred],
+                                      user:                  current_user)
           else
-            OcrCollectionJob.perform_later(collection.repository_id,
-                                           params[:language],
-                                           params[:include_ocred])
+            OcrCollectionJob.perform_later(collection:            collection,
+                                           language_code:         params[:language],
+                                           include_already_ocred: params[:include_ocred],
+                                           user:                  current_user)
           end
         rescue => e
           handle_error(e)
@@ -473,9 +485,10 @@ module Admin
 
       begin
         params[:options] = {} unless params[:options].kind_of?(Hash)
-        SyncItemsJob.perform_later(params[:collection_id],
-                                   params[:ingest_mode],
-                                   params[:options].to_unsafe_hash)
+        SyncItemsJob.perform_later(collection:  col,
+                                   ingest_mode: params[:ingest_mode],
+                                   options:     params[:options].to_unsafe_hash,
+                                   user:        current_user)
       rescue => e
         handle_error(e)
       else
@@ -549,7 +562,8 @@ module Admin
             # We will also need to propagate various item properties (published
             # status, allowed/denied host groups, etc.) to its child items. This
             # will take some time, so we'll do it in the background.
-            PropagatePropertiesToChildrenJob.perform_later(@item.repository_id)
+            PropagatePropertiesToChildrenJob.perform_later(item: @item,
+                                                           user: current_user)
           end
         end
       rescue => e

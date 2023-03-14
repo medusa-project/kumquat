@@ -2,6 +2,8 @@
 %dl
   %dt Class
   %dd= @task.name
+  %dt User
+  %dd= @task.user ? @task.user.name : "Unknown"
   %dt Task ID
   %dd= @task.id
   %dt Job ID

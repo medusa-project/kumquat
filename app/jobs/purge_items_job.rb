@@ -5,11 +5,15 @@ class PurgeItemsJob < Job
   queue_as QUEUE
 
   ##
-  # @param args [Array] One-element array with the UUID of the collection to
-  #                     purge items from at position 0.
+  # Arguments:
   #
-  def perform(*args)
-    collection = Collection.find_by_repository_id(args[0])
+  # 1. `:collection`: {Collection} instance
+  # 2. `:user`: {User} instance
+  #
+  # @param args [Hash]
+  #
+  def perform(**args)
+    collection = args[:collection]
 
     self.task&.update(status_text: "Purging items in #{collection.title}")
 

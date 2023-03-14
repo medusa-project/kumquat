@@ -16,8 +16,9 @@ class MigrateItemMetadataJobTest < ActiveSupport::TestCase
       item.save!
     end
 
-    MigrateItemMetadataJob.perform_now(col, src_element_name,
-                                       dest_element_name)
+    MigrateItemMetadataJob.perform_now(collection:     col,
+                                       source_element: src_element_name,
+                                       dest_element:   dest_element_name)
 
     col.items.each do |item|
       item.reload
@@ -40,8 +41,9 @@ class MigrateItemMetadataJobTest < ActiveSupport::TestCase
       item.save!
     end
 
-    MigrateItemMetadataJob.perform_now(set, src_element_name,
-                                       dest_element_name)
+    MigrateItemMetadataJob.perform_now(item_set:       set,
+                                       source_element: src_element_name,
+                                       dest_element:   dest_element_name)
 
     set.items.each do |item|
       item.reload
@@ -64,8 +66,9 @@ class MigrateItemMetadataJobTest < ActiveSupport::TestCase
       item.save!
     end
 
-    MigrateItemMetadataJob.perform_now(items, src_element_name,
-                                       dest_element_name)
+    MigrateItemMetadataJob.perform_now(item_ids:       items.map(&:repository_id),
+                                       source_element: src_element_name,
+                                       dest_element:   dest_element_name)
 
     items.each do |item|
       item.reload

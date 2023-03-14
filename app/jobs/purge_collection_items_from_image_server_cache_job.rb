@@ -5,13 +5,16 @@ class PurgeCollectionItemsFromImageServerCacheJob < Job
   queue_as QUEUE
 
   ##
-  # @param args [Array] One-element array with collection UUID at position 0.
+  # Arguments:
   #
-  def perform(*args)
-    collection = Collection.find_by_repository_id(args[0])
+  # 1. `:user`: {User} instance
+  # 2. `:collection`: {Collection} instance
+  #
+  def perform(**args)
+    collection = args[:collection]
 
     self.task.update(status_text: "Purging images relating to "\
-        "#{collection.title} from the image server cache")
+                     "#{collection.title} from the image server cache")
 
     ImageServer.instance.purge_collection_item_images_from_cache(collection,
                                                                  self.task)

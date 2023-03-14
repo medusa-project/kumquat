@@ -6,11 +6,15 @@ class DownloadAllTsvJob < Job
   queue_as QUEUE
 
   ##
-  # @param args [Array] One-element array with Download instance at position 0.
-  # @raises [ArgumentError]
+  # Arguments:
   #
-  def perform(*args)
-    download = args[0]
+  # 1. `:user`: {User} instance
+  # 2. `:download`: {Download} instance
+  #
+  # @param args [Hash]
+  #
+  def perform(**args)
+    download = args[:download]
 
     self.task.update!(download:    download,
                       status_text: 'Generating TSV for all collections')

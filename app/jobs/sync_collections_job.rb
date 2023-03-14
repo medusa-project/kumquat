@@ -5,9 +5,13 @@ class SyncCollectionsJob < Job
   queue_as QUEUE
 
   ##
+  # Arguments:
+  #
+  # 1. `:user`: {User} instance
+  #
   # @param args [Hash]
   #
-  def perform(*args)
+  def perform(**args)
     self.task.update!(status_text: 'Indexing collections metadata from Medusa')
 
     MedusaIngester.new.sync_collections(self.task)

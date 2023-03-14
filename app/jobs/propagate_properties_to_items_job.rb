@@ -8,10 +8,13 @@ class PropagatePropertiesToItemsJob < Job
   queue_as QUEUE
 
   ##
-  # @param args [Array] One-element array with collection UUID at position 0.
+  # Arguments:
   #
-  def perform(*args)
-    collection = Collection.find_by_repository_id(args[0])
+  # 1. `:collection`: {Collection} instance
+  # 2. `:user`: {User} instance
+  #
+  def perform(**args)
+    collection = args[:collection]
 
     self.task.update(status_text: "Propagating heritable collection "\
         "properties to items in #{collection.title}")

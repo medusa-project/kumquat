@@ -16,7 +16,7 @@ class PropagatePropertiesToItemsJobTest < ActiveSupport::TestCase
   # propagation is done in the test of Collection.
   #
   test 'perform() should return' do
-    PropagatePropertiesToItemsJob.perform_now(@collection.repository_id)
+    PropagatePropertiesToItemsJob.perform_now(collection: @collection)
   end
 
 end
