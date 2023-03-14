@@ -3,7 +3,7 @@
   %dt Class
   %dd= @task.name
   %dt User
-  %dd= @task.user ? @task.user.name : "Unknown"
+  %dd= @task.user ? link_to(@task.user.username, admin_user_path(@task.user)) : "Unknown"
   %dt Task ID
   %dd= @task.id
   %dt Job ID
