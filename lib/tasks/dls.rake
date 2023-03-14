@@ -1,6 +1,6 @@
 namespace :dls do
 
-  desc 'Check access to AWS resources (temporary task to assist jmtroy)'
+  desc 'Check access to AWS resources'
   task :aws_check => :environment do |task, args|
     print "Checking access to RDS... "
     Binary.all.limit(1).first
@@ -293,6 +293,11 @@ namespace :dls do
   end
 
   namespace :jobs do
+
+    desc 'Clear all jobs'
+    task :clear => :environment do
+      ActiveRecord::Base.connection.execute("DELETE FROM good_jobs;")
+    end
 
     desc 'Run a test job'
     task :test => :environment do
