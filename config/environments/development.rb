@@ -33,7 +33,7 @@ Rails.application.configure do
     config.cache_store = :null_store
   end
 
-  config.active_job.queue_adapter = :good_job
+  config.active_job.queue_adapter = :async
   config.active_job.queue_name_prefix = "kumquat_development"
   config.good_job.retry_on_unhandled_error = false
 
