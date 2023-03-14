@@ -41,7 +41,7 @@ class Job < ApplicationJob
   # of {perform_now} so that the job can better discern whether it is being run
   # in the foreground.
   #
-  def perform_in_foreground(*args)
+  def perform_in_foreground(**args)
     # Background jobs will have a job_id, but foreground jobs will not, so use
     # the object_id instead.
     create_task(job_id: self.object_id, user: args[:user])
