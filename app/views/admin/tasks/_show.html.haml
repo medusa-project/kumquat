@@ -17,6 +17,8 @@
   %dt Progress
   %dd
     = (@task.indeterminate and @task.percent_complete < 1) ? 'Indeterminate' : (@task.percent_complete * 100).round(1).to_s + '%'
+  %dt Created
+  %dd= local_time(@task.created_at)
   %dt Started
   %dd
     = @task.started_at ? local_time(@task.started_at) : ''
@@ -33,7 +35,7 @@
         Unknown
   %dt Run Time
   %dd
-    - if @task.running? || @task.terminated? && @task.started_at
+    - if (@task.running? || @task.terminated?) && @task.started_at
       = distance_of_time_in_words(@task.started_at,
                                   (@task.stopped_at || Time.now),
                                   include_seconds: true)
