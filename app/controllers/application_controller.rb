@@ -12,6 +12,7 @@ class ApplicationController < ActionController::Base
   rescue_from ActionController::InvalidCrossOriginRequest, with: :rescue_invalid_cross_origin_request
   rescue_from ActionController::UnknownFormat, with: :rescue_unknown_format
   rescue_from ActionDispatch::RemoteIp::IpSpoofAttackError, with: :rescue_ip_spoof
+  rescue_from ActionDispatch::Http::Parameters::ParseError, with: :rescue_parse_error
   rescue_from ActiveRecord::RecordNotFound, with: :rescue_not_found
 
   before_action :setup
@@ -161,6 +162,10 @@ class ApplicationController < ActionController::Base
                content_type: "text/plain"
       end
     end
+  end
+
+  def rescue_parse_error
+    render plain: 'Invalid request parameters.', status: :bad_request
   end
 
   def rescue_unknown_format
