@@ -136,7 +136,12 @@ var Application = {
             e.preventDefault();
             const form = $(e.target);
             form.find(".alert").remove();
-            const url = form.attr('action') + "?" + form.serialize();
+            let url;
+            if (form.attr("action").includes("?")) {
+                url = form.attr('action') + "&" + form.serialize();
+            } else {
+                url = form.attr('action') + "?" + form.serialize();
+            }
             $.ajax({
                 url:      url,
                 method:   'GET',
