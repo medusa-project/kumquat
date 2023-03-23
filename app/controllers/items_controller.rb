@@ -587,7 +587,7 @@ class ItemsController < WebsiteController
       end
       format.zip do
         redirect_to collection_items_path(format: :zip,
-                                          params: @permitted_params)
+                                          params: params.to_unsafe_h)
       end
     end
   end
