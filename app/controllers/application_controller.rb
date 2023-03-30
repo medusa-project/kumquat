@@ -129,7 +129,7 @@ class ApplicationController < ActionController::Base
   # error level. This only bloats the logs, so we handle it differently.
   #
   def rescue_invalid_auth_token
-    render plain: "Invalid authenticity token.", status: :bad_request
+    render plain: "Invalid authenticity token.", status: :forbidden
   end
 
   ##
