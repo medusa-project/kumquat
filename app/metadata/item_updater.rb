@@ -155,25 +155,27 @@ class ItemUpdater
 
     # Treat the zero byte as the quote character in order to allow quotes in
     # values without escaping.
-    CSV.foreach(pathname, headers: true, col_sep: "\t",
-                quote_char: "\x00") do |tsv_row|
-      progress = progress(row_num, num_rows)
-      struct   = tsv_row.to_hash
-      item     = Item.find_by_repository_id(struct['uuid'])
-      if item
-        LOGGER.info('update_from_tsv(): %s %s',
-                    struct['uuid'], progress)
-        item.update_from_tsv(struct)
-        num_ingested += 1
-      else
-        LOGGER.warn('update_from_tsv(): does not exist: %s %s',
-                    struct['uuid'], progress)
-      end
+    Item.uncached do
+      CSV.foreach(pathname, headers: true, col_sep: "\t",
+                  quote_char: "\x00") do |tsv_row|
+        progress = progress(row_num, num_rows)
+        struct   = tsv_row.to_hash
+        item     = Item.find_by_repository_id(struct['uuid'])
+        if item
+          LOGGER.info('update_from_tsv(): %s %s',
+                      struct['uuid'], progress)
+          item.update_from_tsv(struct)
+          num_ingested += 1
+        else
+          LOGGER.warn('update_from_tsv(): does not exist: %s %s',
+                      struct['uuid'], progress)
+        end
 
-      if task and row_num % 10 == 0
-        task.update(percent_complete: row_num / num_rows.to_f)
+        if task and row_num % 10 == 0
+          task.update(percent_complete: row_num / num_rows.to_f)
+        end
+        row_num += 1
       end
-      row_num += 1
     end
     num_ingested
   end
