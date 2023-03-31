@@ -19,6 +19,10 @@ module Kumquat
     config.action_dispatch.default_headers =
         config.action_dispatch.default_headers.delete('X-Frame-Options')
 
+    config.active_record.yaml_column_permitted_classes = [
+      ActiveSupport::HashWithIndifferentAccess, Symbol, Date, Time
+    ]
+
     # Configuration for the application, engines, and railties goes here.
     #
     # These settings can be overridden in specific environments using the files
