@@ -16,12 +16,13 @@ class SessionsController < WebsiteController
     # where key is one of the shibboleth* keys in shibboleth.yml
     # (which have to correspond to passed attributes).
     auth_hash = request.env['omniauth.auth']
-    if auth_hash and auth_hash[:uid]
+    if auth_hash && auth_hash[:uid]
       username   = auth_hash[:uid].split('@').first
       user       = User.new(username: username)
       if user.medusa_user?
         return_url = clear_and_return_return_path(admin_root_path)
-        user = User.find_or_create_by!(username: username)
+        user       = User.find_or_create_by!(username: username)
+        user.update!(last_logged_in_at: Time.now)
         sign_in user
       else
         return_url = clear_and_return_return_path(root_path)

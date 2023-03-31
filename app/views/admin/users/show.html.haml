@@ -42,6 +42,12 @@
   - unless @user.human
     %dt Type
     %dd Non-Human
+  %dt Last Login
+  %dd
+    - if @user.last_logged_in_at
+      = local_time(@user.last_logged_in_at)
+    - else
+      Never
   - if @user == current_user or !@user.human
     %dt API Key
     %dd
