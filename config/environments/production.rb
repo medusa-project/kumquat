@@ -64,6 +64,7 @@ Rails.application.configure do
   # Use a real queuing backend for Active Job (and separate queues per environment).
   config.active_job.queue_adapter = :good_job
   config.active_job.queue_name_prefix = "kumquat_production"
+  config.good_job.execution_mode = :external
   config.good_job.retry_on_unhandled_error = false
   config.good_job.preserve_job_records = false
 

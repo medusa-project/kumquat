@@ -33,6 +33,7 @@ Rails.application.configure do
     min_threads: 1,
     max_threads: 1)
   config.active_job.queue_name_prefix = "kumquat_test"
+  config.good_job.execution_mode = :inline
   config.good_job.retry_on_unhandled_error = false
 
   # Raise exceptions instead of rendering exception templates.
