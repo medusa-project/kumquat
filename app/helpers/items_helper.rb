@@ -1234,8 +1234,8 @@ module ItemsHelper
       html << '<div id="dl-pdf-viewer">'
 
       # Add a PDF.js viewer
-      binary_url = binary_stream_url(binary)
-      viewer_url = asset_path('/pdfjs/web/viewer.html?file=' + binary_url)
+      binary_url = binary_stream_url(binary, "content-disposition": "inline")
+      viewer_url = asset_path('/pdfjs/web/viewer.html?file=' + CGI.escape(binary_url))
       html <<   '<div id="dl-pdfjs-viewer" style="width: 100%; height: 100%">'
       html <<     "<iframe src=\"#{viewer_url}\" height=\"100%\" width=\"100%\"></iframe>"
       html <<     '<div style="text-align: center">'

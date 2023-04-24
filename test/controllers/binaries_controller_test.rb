@@ -100,6 +100,20 @@ class BinariesControllerTest < ActionDispatch::IntegrationTest
     assert_response :ok
   end
 
+  test 'stream() sets the Content-Disposition to attachment' do
+    sign_in_as(users(:admin))
+    @binary.update!(public: false)
+    get binary_stream_path(@binary)
+    assert response.header['Content-Disposition'].start_with?("attachment")
+  end
+
+  test 'stream() supports overriding the Content-Disposition to inline' do
+    sign_in_as(users(:admin))
+    @binary.update!(public: false)
+    get binary_stream_path(@binary)
+    assert_equal "inline", response.header['Content-Disposition']
+  end
+
   test 'stream() returns binary data' do
     get binary_stream_path(@binary)
     assert_response :ok

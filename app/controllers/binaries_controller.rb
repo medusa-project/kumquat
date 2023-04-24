@@ -39,6 +39,10 @@ class BinariesController < WebsiteController
   # download is in progress, other clients may experience delays in connecting,
   # depending on the worker pool size and how requests are dispatched to it.
   #
+  # A `content-disposition` query argument is accepted only with a value of
+  # `inline`. If this is not provided then the disposition will be
+  # `attachment`.
+  #
   # Responds to `GET /binaries/:id`
   #
   def stream
@@ -71,7 +75,7 @@ class BinariesController < WebsiteController
 
     response.status                         = status
     response.headers['Content-Type']        = @binary.media_type
-    response.headers['Content-Disposition'] = content_disposition
+    response.headers['Content-Disposition'] = (params[:'content-disposition'] == "inline") ? "inline" : content_disposition
     response.headers['Content-Length']      = aws_response.content_length.to_s
     response.headers['Last-Modified']       = aws_response.last_modified.utc.strftime('%a, %d %b %Y %T GMT')
     response.headers['Cache-Control']       = 'public, must-revalidate, max-age=0'
