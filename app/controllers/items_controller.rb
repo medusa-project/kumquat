@@ -462,17 +462,18 @@ class ItemsController < WebsiteController
       end
       format.pdf do
         return unless check_captcha
-        # PDF download is only available for compound objects.
-        if @item.compound?
-          download = Download.create(ip_address: request.remote_ip)
-          CreatePdfJob.perform_later(item:                     @item,
-                                     include_private_binaries: current_user&.medusa_user?,
-                                     download:                 download)
-          redirect_to download_url(download, format: :json) and return
-        else
+        if !@item.compound?
           flash['error'] = 'PDF downloads are only available for compound objects.'
           redirect_to @item and return
+        elsif !@item.collection&.publicize_binaries
+          flash['error'] = 'This collection\'s binaries are not publicized.'
+          redirect_to @item and return
         end
+        download = Download.create(ip_address: request.remote_ip)
+        CreatePdfJob.perform_later(item:                     @item,
+                                   include_private_binaries: current_user&.medusa_user?,
+                                   download:                 download)
+        redirect_to download_url(download, format: :json) and return
       end
       format.zip do
         return unless check_captcha
