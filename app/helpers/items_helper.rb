@@ -1233,7 +1233,10 @@ module ItemsHelper
       # browser supports PDF natively.
       html << '<div id="dl-pdf-viewer">'
 
-      # Add a PDF.js viewer
+      # Add a PDF.js viewer.
+      # N.B.: S3 presigned URLs won't work because some files/objects in Medusa
+      # have a content type of application/octet-stream, which a browser will
+      # not display regardless of the content disposition.
       binary_url = binary_stream_url(binary, "content-disposition": "inline")
       viewer_url = asset_path('/pdfjs/web/viewer.html?file=' + CGI.escape(binary_url))
       html <<   '<div id="dl-pdfjs-viewer" style="width: 100%; height: 100%">'
@@ -1247,7 +1250,6 @@ module ItemsHelper
 
       # Add a generic embedded viewer; this is preferable to PDF.js when
       # the browser supports embedded PDFs
-      binary_url = binary.presigned_url(content_disposition: "inline")
       html << '<div id="dl-native-pdf-viewer">'
       html <<   raw("<object data=\"#{binary_url}\" "\
                     "type=\"#{binary.media_type}\"></object>")
