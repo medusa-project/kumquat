@@ -18,7 +18,10 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'signing in as a Medusa user' do
-    sign_in_as(users(:admin))
+    user = users(:admin)
+    sign_in_as(user)
+    user.reload
+    assert user.last_logged_in_at > 5.seconds.ago
     assert_redirected_to admin_root_path
   end
 

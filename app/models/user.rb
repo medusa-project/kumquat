@@ -7,12 +7,13 @@
 #
 # # Attributes
 #
-# * `api_key`    Used as a secret/password for accessing the HTTP API.
-# * `created_at` Managed by ActiveRecord.
-# * `human`      Whether the user is associated with a human. Non-human users
-#                may be used by scripts etc.
-# * `updated_at` Managed by ActiveRecord.
-# * `username`   Username, a.k.a. NetID.
+# * `api_key`           Used as a secret/password for accessing the HTTP API.
+# * `created_at`        Managed by ActiveRecord.
+# * `human`             Whether the user is associated with a human. Non-human
+#                       users may be used by scripts etc.
+# * `last_logged_in_at` Date/time of last login.
+# * `updated_at`        Managed by ActiveRecord.
+# * `username`          Username, a.k.a. NetID.
 #
 class User < ApplicationRecord
 
