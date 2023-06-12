@@ -1120,9 +1120,6 @@ module ItemsHelper
   def free_form_image_viewer_for(item)
     binary = item.effective_image_binary
     if binary&.image_server_safe?
-      # UV 2.x used to have a handy GUI config editor but that hasn't been
-      # ported to 3.x as of 4/2021. The new config structure is similar but
-      # mostly undocumented.
       html = "<div id=\"dl-image-viewer\"></div>
       <script src=\"/openseadragon/openseadragon.min.js\"></script>
       <script type=\"text/javascript\">
