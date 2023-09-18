@@ -18,9 +18,19 @@ class ActiveSupport::TestCase
   end
 
   def sign_in_as(user)
-    username = user.kind_of?(User) ? user.username : user
-    post '/auth/developer/callback', params: {
-        name: username, email: "#{username}@example.org"
+    post "/auth/shibboleth/callback", env: {
+      "omniauth.auth": {
+        provider:          "shibboleth",
+        "Shib-Session-ID": SecureRandom.hex,
+        uid:               user.email,
+        info: {
+          email: user.email
+        },
+        extra: {
+          raw_info: {
+          }
+        }
+      }
     }
   end
 
