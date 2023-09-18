@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_03_31_213454) do
+ActiveRecord::Schema[7.0].define(version: 2023_09_18_154210) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -87,8 +87,8 @@ ActiveRecord::Schema[7.0].define(version: 2023_03_31_213454) do
     t.string "object_key"
     t.string "medusa_uuid"
     t.decimal "byte_size", precision: 15, null: false
-    t.decimal "width", precision: 6
-    t.decimal "height", precision: 6
+    t.integer "width"
+    t.integer "height"
     t.integer "media_category"
     t.integer "duration"
     t.boolean "public", default: true, null: false
