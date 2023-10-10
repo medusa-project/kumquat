@@ -249,10 +249,10 @@ module Admin
           # more than n items in the collection, do the download asynchronously.
           if @collection.items.count > 2000
             download = Download.create(ip_address: request.remote_ip)
-            DownloadCollectionTsvJob.perform_later(collection:       @collection,
-                                                   download:         download,
-                                                   only_undescribed: only_undescribed,
-                                                   user:             current_user)
+            DownloadItemsTsvJob.perform_later(collection:       @collection,
+                                              download:         download,
+                                              only_undescribed: only_undescribed,
+                                              user:             current_user)
             redirect_to download_url(download)
           else
             headers['Content-Disposition'] = 'attachment; filename="items.tsv"'

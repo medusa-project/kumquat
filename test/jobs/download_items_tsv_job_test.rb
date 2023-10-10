@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class DownloadCollectionTsvJobTest < ActiveSupport::TestCase
+class DownloadItemsTsvJobTest < ActiveSupport::TestCase
 
   setup do
     @download = Download.create
@@ -13,9 +13,9 @@ class DownloadCollectionTsvJobTest < ActiveSupport::TestCase
   # perform()
 
   test 'perform() should assemble the expected TSV file' do
-    DownloadCollectionTsvJob.perform_now(collection:       collections(:compound_object),
-                                         download:         @download,
-                                         only_undescribed: false)
+    DownloadItemsTsvJob.perform_now(collection:       collections(:compound_object),
+                                    download:         @download,
+                                    only_undescribed: false)
 
     client   = KumquatS3Client.instance
     response = client.head_object(bucket: KumquatS3Client::BUCKET,
@@ -24,9 +24,9 @@ class DownloadCollectionTsvJobTest < ActiveSupport::TestCase
   end
 
   test 'perform() should update the download object' do
-    DownloadCollectionTsvJob.perform_now(collection:       collections(:compound_object),
-                                         download:         @download,
-                                         only_undescribed: false)
+    DownloadItemsTsvJob.perform_now(collection:       collections(:compound_object),
+                                    download:         @download,
+                                    only_undescribed: false)
     assert_equal Task::Status::SUCCEEDED, @download.task.status
   end
 
