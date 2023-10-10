@@ -16,11 +16,15 @@
                                           "aria-haspopup": "true",
                                           "data-toggle": "dropdown",
                                           type: "button"}
-      %i.fa.fa-list
-      Metadata
+      %i.fa.fa-download
+      Export
       %span.caret
     .dropdown-menu
-      = link_to 'Export As TSV',
+      = link_to 'Items As TSV',
+                admin_collections_items_path(format: 'tsv'),
+                target: '_blank',
+                class: 'dropdown-item'
+      = link_to 'Collections As TSV',
                 admin_collections_path(format: 'tsv'),
                 target: '_blank',
                 class: 'dropdown-item'

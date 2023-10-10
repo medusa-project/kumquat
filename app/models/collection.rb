@@ -210,6 +210,15 @@ class Collection < ApplicationRecord
 
   before_validation :do_before_validation
 
+  # In the order they should appear in the TSV, left-to-right. These generally
+  # correspond to database columns although they need not be named the same.
+  TSV_COLUMNS = %w(uuid title description publicInMedusa publishedInDLS
+    restricted publicizeBinaries representativeItemID
+    representativeMedusaFileID medusaRepositoryID medusaFileGroupUUID
+    medusaDirectoryUUID packageProfile physicalCollectionURI externalID
+    accessURI rightsStatement rightsTermURI rightsstatementsOrgURI harvestable
+    harvestableByIDHH harvestableByPrimo)
+
   # This is commented out because, even though it has to happen, it is
   # potentially very time-consuming. CollectionsController.update() is
   # currently the only means by which collections are updated, so it will

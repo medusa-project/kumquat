@@ -81,6 +81,7 @@ Rails.application.routes.draw do
       match '/edit-access', to: 'binaries#edit_access', via: :get
       match '/run-ocr', to: 'binaries#run_ocr', via: :patch
     end
+    match '/collections/items', to: 'collections#items', via: :get
     match '/collections/sync', to: 'collections#sync', via: :patch,
           as: 'collections_sync'
     resources :collections, except: [:edit, :new, :create, :delete] do

@@ -57,7 +57,8 @@ module Admin
     # Responds to `GET /admin/collections`
     #
     def index
-      @limit = Option::integer(Option::Keys::DEFAULT_RESULT_WINDOW)
+      @limit = request.format == :tsv ?
+                 999999 : Option::integer(Option::Keys::DEFAULT_RESULT_WINDOW)
       @start = params[:start] ? params[:start].to_i : 0
 
       relation = Collection.search.
@@ -84,7 +85,22 @@ module Admin
         format.html
         format.js
         format.tsv do
-          download = Download.create(ip_address: request.remote_ip)
+          download = Download.create!(ip_address: request.remote_ip)
+          DownloadCollectionsTsvJob.perform_later(collection_ids: @collections.map(&:repository_id),
+                                                  download:       download,
+                                                  user:           current_user)
+          redirect_to download_url(download)
+        end
+      end
+    end
+
+    ##
+    # Responds to `GET /admin/collections/items`
+    #
+    def items
+      respond_to do |format|
+        format.tsv do
+          download = Download.create!(ip_address: request.remote_ip)
           DownloadAllItemsTsvJob.perform_later(download: download,
                                                user:     current_user)
           redirect_to download_url(download)
