@@ -4,7 +4,7 @@ module Admin
 
     PERMITTED_PARAMS = [:q, :public_in_medusa, :published_in_dls, :start]
 
-    before_action :load_collection, except: [:index, :sync]
+    before_action :load_collection, except: [:index, :items, :sync]
     before_action :authorize_modify_collections, only: [:edit_access,
                                                         :edit_info,
                                                         :edit_representation,
