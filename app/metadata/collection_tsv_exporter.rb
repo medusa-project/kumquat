@@ -91,7 +91,6 @@ class CollectionTsvExporter
         collections.access_url,
         collections.rights_statement,
         collections.rights_term_uri,
-        collections.rightsstatements_org_uri,
         collections.harvestable,
         collections.harvestable_by_idhh,
         collections.harvestable_by_primo "

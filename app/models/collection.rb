@@ -216,8 +216,8 @@ class Collection < ApplicationRecord
     restricted publicizeBinaries representativeItemID
     representativeMedusaFileID medusaRepositoryID medusaFileGroupUUID
     medusaDirectoryUUID packageProfile physicalCollectionURI externalID
-    accessURI rightsStatement rightsTermURI rightsstatementsOrgURI harvestable
-    harvestableByIDHH harvestableByPrimo)
+    accessURI rightsStatement rightsTermURI harvestable harvestableByIDHH
+harvestableByPrimo)
 
   # This is commented out because, even though it has to happen, it is
   # potentially very time-consuming. CollectionsController.update() is

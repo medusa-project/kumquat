@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_10_10_205636) do
+ActiveRecord::Schema[7.0].define(version: 2023_10_10_210224) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -142,7 +142,6 @@ ActiveRecord::Schema[7.0].define(version: 2023_10_10_205636) do
     t.boolean "publicize_binaries", default: true, null: false
     t.string "representative_image"
     t.string "representation_type", default: "self", null: false
-    t.string "rightsstatements_org_uri"
     t.index ["descriptive_element_id"], name: "index_collections_on_descriptive_element_id"
     t.index ["external_id"], name: "index_collections_on_external_id"
     t.index ["harvestable"], name: "index_collections_on_harvestable"

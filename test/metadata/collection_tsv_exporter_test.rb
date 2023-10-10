@@ -21,7 +21,6 @@ class CollectionTsvExporterTest < ActiveSupport::TestCase
     'access_url': nil,
     'rights_statement': nil,
     'rights_term_uri': nil,
-    'rightsstatements_org_uri': nil,
     'harvestable': true,
     'harvestable_by_idhh': true,
     'harvestable_by_primo': true
