@@ -17,7 +17,8 @@ class DownloadAllItemsTsvJobTest < ActiveSupport::TestCase
   # perform()
 
   test 'perform() should assemble the expected zip file' do
-    DownloadAllItemsTsvJob.perform_now(download: @download)
+    DownloadAllItemsTsvJob.perform_now(download: @download,
+                                       user:     users(:admin))
     Dir.mktmpdir do |tmpdir|
       zip_path = File.join(tmpdir, "file.zip")
       client   = KumquatS3Client.instance
@@ -31,7 +32,9 @@ class DownloadAllItemsTsvJobTest < ActiveSupport::TestCase
   end
 
   test 'perform() should update the download object' do
-    DownloadAllItemsTsvJob.perform_now(download: @download)
+    DownloadAllItemsTsvJob.perform_now(download: @download,
+                                       user:     users(:admin))
+    @download.reload
     assert_equal Task::Status::SUCCEEDED, @download.task.status
   end
 

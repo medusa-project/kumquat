@@ -15,8 +15,10 @@ class DownloadAllItemsTsvJob < Job
   #
   def perform(**args)
     download = args[:download]
+    user     = args[:user]
 
     self.task.update!(download:    download,
+                      user:        user,
                       status_text: 'Generating TSV for all collections')
 
     Dir.mktmpdir do |tmpdir|
