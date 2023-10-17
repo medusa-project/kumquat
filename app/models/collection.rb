@@ -293,11 +293,15 @@ harvestableByPrimo)
     case rep.type
     when Representation::Type::MEDUSA_FILE
       if rep.file
-        access_master_struct = {
-          id:         rep.file.uuid,
-          object_uri: "s3://#{MedusaS3Client::BUCKET}/#{rep.file.relative_key}",
-          media_type: rep.file.media_type
-        }
+        begin
+          access_master_struct = {
+            id:         rep.file.uuid,
+            object_uri: "s3://#{MedusaS3Client::BUCKET}/#{rep.file.relative_key}",
+            media_type: rep.file.media_type
+          }
+        rescue Medusa::NotFoundError => e
+          LOGGER.warn("Collection.as_harvestable_json(): file not found in medusa: #{e}")
+        end
       end
     when Representation::Type::LOCAL_FILE
       access_master_struct = {
