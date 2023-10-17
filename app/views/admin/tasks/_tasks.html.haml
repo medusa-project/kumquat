@@ -7,6 +7,7 @@
   %table.table
     %thead
       %tr
+        %th User
         %th Task
         %th Status
         %th Progress
@@ -15,6 +16,8 @@
     %tbody
       - @tasks.each do |task|
         %tr{"data-id": task.id}
+          %td
+            = task.user ? link_to(task.user.username, admin_user_path(task.user)) : ""
           %td
             = link_to(task.status_text, '#', data: { 'toggle': 'modal',
                                                      'target': '#dl-task-panel',
