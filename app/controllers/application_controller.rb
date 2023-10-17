@@ -13,6 +13,7 @@ class ApplicationController < ActionController::Base
   rescue_from ActionController::UnknownFormat, with: :rescue_unknown_format
   rescue_from ActionDispatch::RemoteIp::IpSpoofAttackError, with: :rescue_ip_spoof
   rescue_from ActionDispatch::Http::Parameters::ParseError, with: :rescue_parse_error
+  rescue_from ActionView::Template::Error, with: :rescue_template_error
   rescue_from ActiveRecord::RecordNotFound, with: :rescue_not_found
 
   before_action :setup
@@ -166,6 +167,17 @@ class ApplicationController < ActionController::Base
 
   def rescue_parse_error
     render plain: 'Invalid request parameters.', status: :bad_request
+  end
+
+  def rescue_template_error(exception)
+    # This is raised by stylesheet_link_tag() when the client IP does not match
+    # the X-Forwarded-For header. We want to stop processing but not make it
+    # to rescue_internal_server_error().
+    if exception.message.start_with?('IP spoofing attack')
+      render plain: '400 Bad Request', status: :bad_request
+    else
+      raise exception
+    end
   end
 
   def rescue_unknown_format
