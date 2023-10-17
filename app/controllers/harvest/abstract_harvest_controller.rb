@@ -21,11 +21,14 @@ module Harvest
 
     layout false
 
+    # N.B.: these must be listed in order of most generic to most specific.
+    rescue_from StandardError, with: :rescue_internal_server_error
+
     before_action :authorize_user
     skip_before_action :verify_authenticity_token
 
     DEFAULT_RESULTS_LIMIT = 100
-    MAX_RESULTS_LIMIT = 1000
+    MAX_RESULTS_LIMIT     = 1000
 
     protected
 
@@ -48,6 +51,30 @@ module Harvest
         return false
       end
       true
+    end
+
+    def rescue_internal_server_error(exception)
+      @message = KumquatMailer.error_body(exception,
+                                          url_path:  request.path,
+                                          url_query: request.query_string)
+      Rails.logger.error(@message)
+
+      unless Rails.env.development?
+        KumquatMailer.error(@message).deliver_now
+      end
+
+      respond_to do |format|
+        format.html do
+          render "errors/internal_server_error",
+                 status: :internal_server_error,
+                 content_type: "text/html"
+        end
+        format.all do
+          render plain: "500 Internal Server Error",
+                 status: :internal_server_error,
+                 content_type: "text/plain"
+        end
+      end
     end
 
   end
