@@ -252,6 +252,33 @@ namespace :dls do
       puts ItemTsvExporter.new.items_in_collection(col)
     end
 
+    # Workaround for https://github.com/medusa-project/digital-library-issues/issues/78
+    desc 'Fix titles of child items with no titles' # TODO: remove this when no longer needed
+    task :fix_child_titles, [:collection_uuid] => :environment do |task, args|
+      col       = Collection.find_by_repository_id(args[:collection_uuid])
+      raise ArgumentError, 'Collection does not exist' unless col
+      items     = col.items
+      num_added = 0
+      progress  = Progress.new(items.count)
+      items.find_each.with_index do |item, index|
+        next unless item.parent_repository_id
+        unless item.elements.find{ |e| e.name == "title" }
+          pres_master = item.binaries.find{ |b| b.master_type == Binary::MasterType::PRESERVATION }
+          if pres_master
+            filename = pres_master.object_key.split("/").last
+            if filename.present?
+              filename = File.basename(filename, File.extname(filename))
+              #puts "Item #{item.repository_id}: adding #{filename}"
+              item.elements.build(name: "title", value: filename).save!
+              num_added += 1
+            end
+          end
+        end
+        progress.report(index, "Fixing titles")
+      end
+      puts "Added #{num_added} titles"
+    end
+
     desc 'Generate a PDF of an item'
     task :generate_pdf, [:uuid, :path] => :environment do |task, args|
       item = Item.find_by_repository_id(args[:uuid])
