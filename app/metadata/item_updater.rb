@@ -145,7 +145,10 @@ class ItemUpdater
   def update_from_tsv(pathname, original_filename = nil, task = nil)
     pathname = File.expand_path(pathname)
     filename = original_filename || File.basename(pathname)
-    num_rows = File.read(pathname).scan(/\n/).count
+    num_rows = 0
+    File.foreach(pathname) do
+      num_rows += 1
+    end
     status   = "Importing metadata for #{num_rows} items from TSV (#{filename})"
     task&.update(status_text: status)
     LOGGER.info("update_from_tsv(): %s", status)
