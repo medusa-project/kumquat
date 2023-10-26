@@ -277,23 +277,21 @@ module Admin
       respond_to do |format|
         format.tsv do
           # Can't pass an uploaded file to an ActiveJob, so it will be saved
-          # to this temp file, whose pathname gets passed to the job.
-          tempfile = Tempfile.new('uploaded-items.tsv')
-          # The finalizer would otherwise delete it.
-          ObjectSpace.undefine_finalizer(tempfile)
-
+          # to this temporary file, whose pathname gets passed to the job.
+          tempfile = File.join(Dir.tmpdir,
+                               "uploaded-items-#{Time.now.strftime("%Y%m%d-%H%m%s")}.tsv")
           begin
             raise 'No TSV content specified.' if params[:tsv].blank?
             tsv = params[:tsv].read.force_encoding('UTF-8')
-            tempfile.write(tsv)
-            tempfile.close
+            File.open(tempfile, "wb") do |file|
+              file.write(tsv)
+            end
             UpdateItemsFromTsvJob.perform_later(
-              tsv_pathname:          tempfile.path,
+              tsv_pathname:          tempfile,
               tsv_original_filename: params[:tsv].original_filename,
               user:                  current_user)
           rescue => e
-            tempfile.close
-            tempfile.unlink
+            File.delete(tempfile)
             handle_error(e)
             redirect_back fallback_location: admin_collection_items_url(col)
           else
