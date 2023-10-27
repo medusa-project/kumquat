@@ -1,4 +1,4 @@
-FROM ruby:3.0.3-slim
+FROM ruby:3.2.2-slim
 
 ENV RAILS_ENV=test
 ENV RAILS_LOG_TO_STDOUT=true
@@ -16,6 +16,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   libmagic-dev \
   libpq-dev \
   postgresql \
+  python-is-python3 \
   unzip \
   zip \
   && rm -rf /var/lib/apt/lists/*

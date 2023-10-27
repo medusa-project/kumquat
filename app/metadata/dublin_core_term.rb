@@ -1,6 +1,6 @@
 class DublinCoreTerm
 
-  ALL_ELEMENTS = YAML::load_file(File.join(__dir__, 'dublin_core_terms.yml'))
+  ALL_ELEMENTS = YAML.unsafe_load_file(File.join(__dir__, 'dublin_core_terms.yml'))
 
   attr_accessor :label, :name
 

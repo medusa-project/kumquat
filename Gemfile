@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 
 # Needs to match the version in .ruby-version and Dockerfile
-ruby '3.0.3'
+ruby '3.2.2'
 
 gem 'autoprefixer-rails'
 gem 'aws-sdk-s3', '~> 1'
@@ -17,6 +17,7 @@ gem 'js_cookie_rails'
 gem 'local_time'
 gem 'mimemagic'
 gem 'marc-dates', git: 'https://github.com/medusa-project/marc-dates.git'
+gem 'matrix' # prawn needs this
 gem 'medusa-client', git: 'https://github.com/medusa-project/medusa-client.git', tag: 'v1.2.0'
 gem 'mini_racer', '~> 0.4'
 gem 'netaddr', '~> 2'

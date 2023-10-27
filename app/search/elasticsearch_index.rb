@@ -40,6 +40,6 @@ class ElasticsearchIndex
     SEARCH_ALL          = 'search_all'
   end
 
-  SCHEMA = YAML.load_file(File.join(Rails.root, 'app', 'search', 'index_schema.yml'))
+  SCHEMA = YAML.unsafe_load_file(File.join(Rails.root, 'app', 'search', 'index_schema.yml'))
 
 end

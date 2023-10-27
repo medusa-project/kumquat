@@ -19,7 +19,7 @@
 #
 class VocabularyTerm < ApplicationRecord
 
-  AUGMENTED_INFO = YAML::load_file(File.join(__dir__, 'vocabulary_term_info.yml'))
+  AUGMENTED_INFO = YAML.unsafe_load_file(File.join(__dir__, 'vocabulary_term_info.yml'))
 
   belongs_to :vocabulary, inverse_of: :vocabulary_terms
 

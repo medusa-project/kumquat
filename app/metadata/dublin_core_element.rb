@@ -1,6 +1,6 @@
 class DublinCoreElement
 
-  ALL_ELEMENTS = YAML::load_file(File.join(__dir__, 'dublin_core_elements.yml'))
+  ALL_ELEMENTS = YAML.unsafe_load_file(File.join(__dir__, 'dublin_core_elements.yml'))
 
   # @!attribute label
   #   @return [String] Human-readable label.
