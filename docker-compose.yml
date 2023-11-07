@@ -12,8 +12,7 @@ services:
     build:
       context: .
       dockerfile: docker/kumquat/Dockerfile
-    # TODO: use test helpers to manage the indexes
-    command: bash -c "sleep 20 && bin/rails db:prepare && bin/rails \"elasticsearch:indexes:recreate[kumquat]\" && bin/rails test && bin/rails zeitwerk:check"
+    command: bash -c "sleep 20 && bin/rails db:prepare && bin/rails test && bin/rails zeitwerk:check"
     # docker-compose exec kumquat /bin/bash
     #command: bash -c "tail -f /dev/null"
   cantaloupe:
