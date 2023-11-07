@@ -54,8 +54,8 @@ class ItemTsvExporter
     sql << select_clause(metadata_profile)
     sql << from_clause
     sql << 'WHERE items.collection_repository_id = $1 '
-    sql <<   'AND items.published_at > $2' if published_after
-    sql <<   'AND items.published_at < $3' if published_before
+    sql <<   'AND items.published_at > $2 ' if published_after
+    sql <<   'AND items.published_at < $3 ' if published_before
     sql << order_clause
     sql << ") a\n"
 
