@@ -22,11 +22,11 @@ services:
     build:
       context: .
       dockerfile: docker/cantaloupe/Dockerfile
-  elasticsearch:
-    hostname: elasticsearch
+  opensearch:
+    hostname: opensearch
     build:
       context: .
-      dockerfile: docker/elasticsearch/Dockerfile
+      dockerfile: docker/opensearch/Dockerfile
   s3proxy:
     hostname: s3
     build:
