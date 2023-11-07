@@ -1,9 +1,24 @@
+# frozen_string_literal: true
+
 ##
 # Encapsulates a metadata element attached to an entity such as an {Item} or
 # {Collection}. Has a name matching any of the {Element} names.
 #
 # This class is "abstract" and intended to be used as a base class with
 # single-table inheritance.
+#
+# # Attributes
+#
+# * `collection_id` Foreign key to {Collection} for {CollectionElement}s/
+# * `created_at`    Managed by ActiveRecord.
+# * `item_id`       Foreign key to {Item} for {ItemElement}s.
+# * `name`          Element name, which must be one of the {Element} names.
+# * `type`          Rails single-table inheritance column.
+# * `updated_at`    Managed by ActiveRecord.
+# * `uri`           URI value.
+# * `value`         String value.
+# * `vocabulary_id` Foreign key to {Vocabulary} for constraining the value to
+#                   a term in that vocabulary.
 #
 class EntityElement < ApplicationRecord
 
