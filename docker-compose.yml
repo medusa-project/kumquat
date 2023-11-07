@@ -44,7 +44,7 @@ services:
         read_only: true
   postgres:
     hostname: postgres
-    image: postgres:12-alpine
+    image: postgres:15-alpine
     environment:
       POSTGRES_DB: kumquat
       POSTGRES_USER: postgres
