@@ -73,7 +73,7 @@ class ContentdmController < ApplicationController
         return
       end
     end
-    redirect_to root_url, status: 301
+    redirect_to root_url, status: 301, allow_other_host: true
   end
 
   ##
