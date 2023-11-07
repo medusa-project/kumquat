@@ -251,7 +251,7 @@ GEM
     prawn (2.4.0)
       pdf-core (~> 0.9.0)
       ttfunk (~> 1.7)
-    puma (5.6.7)
+    puma (6.4.0)
       nio4r (~> 2.0)
     raabro (1.4.0)
     racc (1.7.1)
@@ -381,14 +381,14 @@ DEPENDENCIES
   matrix
   medusa-client!
   mimemagic
-  mini_racer (~> 0.4)
+  mini_racer
   netaddr (~> 2)
   omniauth
   omniauth-rails_csrf_protection
   omniauth-shibboleth
-  pg (~> 1.2)
+  pg
   prawn
-  puma (~> 5)
+  puma
   rails (~> 7.0)
   rails-erd
   rails_autolink
