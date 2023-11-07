@@ -173,14 +173,12 @@ class MetadataProfileElement < ApplicationRecord
   def validate_indexed_title
     if self.name == "title" && !self.indexed
       errors.add(:indexed, "must be enabled on the title element")
-      throw(:abort)
     end
   end
 
   def validate_vocabularies
     if self.vocabularies.empty?
       errors.add(:vocabularies, 'must have at least one vocabulary assigned')
-      throw(:abort)
     end
   end
 
