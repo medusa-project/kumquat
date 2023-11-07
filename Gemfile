@@ -36,7 +36,6 @@ gem 'scars-bootstrap-theme', git: 'https://github.com/medusa-project/scars-boots
 gem 'sprockets-rails'
 gem 'uglifier', '>= 1.3.0' # JavaScript asset compressor
 gem 'uiuc_lib_ad', git: 'https://github.com/UIUCLibrary/uiuc_lib_ad.git'
-gem 'webrick' # Rails complains if this isn't available (maybe a bug in 6.1.4.4)
 
 group :development do
   gem 'capistrano-bundler'
