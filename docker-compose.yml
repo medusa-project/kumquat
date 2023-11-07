@@ -18,6 +18,8 @@ services:
     #command: bash -c "tail -f /dev/null"
   cantaloupe:
     hostname: cantaloupe
+    # Cantaloupe is x86-only until the Kakadu native lib is compiled for ARM
+    platform: linux/amd64
     build:
       context: .
       dockerfile: docker/cantaloupe/Dockerfile
