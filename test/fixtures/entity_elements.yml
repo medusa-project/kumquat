@@ -1,3 +1,5 @@
+# compound_object_1001
+
 compound_object_1001_description:
   item:       compound_object_1001
   name:       description
@@ -22,13 +24,7 @@ compound_object_1001_title:
   vocabulary: uncontrolled
   type:       ItemElement
 
-compound_object_1002_description:
-  item:       compound_object_1002
-  name:       description
-  value:      My Great Description
-  uri:
-  vocabulary: uncontrolled
-  type:       ItemElement
+# compound_object_1002
 
 compound_object_1002_accessRights:
   item:       compound_object_1002
@@ -38,8 +34,116 @@ compound_object_1002_accessRights:
   vocabulary: rights
   type:       ItemElement
 
+compound_object_1002_description:
+  item:       compound_object_1002
+  name:       description
+  value:      My Great Description
+  uri:
+  vocabulary: uncontrolled
+  type:       ItemElement
+
 compound_object_1002_title:
   item:       compound_object_1002
+  name:       title
+  value:      My Great Title
+  uri:
+  vocabulary: uncontrolled
+  type:       ItemElement
+
+# compound_object_1002_page1
+
+compound_object_1002_page1_title:
+  item:       compound_object_1002_page1
+  name:       title
+  value:      My Great Title
+  uri:
+  vocabulary: uncontrolled
+  type:       ItemElement
+
+# compound_object_1002_page2
+
+compound_object_1002_page2_title:
+  item:       compound_object_1002_page2
+  name:       title
+  value:      My Great Title
+  uri:
+  vocabulary: uncontrolled
+  type:       ItemElement
+
+# compound_object_1002_supplement
+
+compound_object_1002_supplement_title:
+  item:       compound_object_1002_supplement
+  name:       title
+  value:      My Great Title
+  uri:
+  vocabulary: uncontrolled
+  type:       ItemElement
+
+# contentdm_obj1
+
+contentdm_obj1_title:
+  item:       contentdm_obj1
+  name:       title
+  value:      My Great Title
+  uri:
+  vocabulary: uncontrolled
+  type:       ItemElement
+
+# free_form_dir1
+
+free_form_dir1_title:
+  item:       free_form_dir1
+  name:       title
+  value:      My Great Title
+  uri:
+  vocabulary: uncontrolled
+  type:       ItemElement
+
+# free_form_dir1_audio
+
+free_form_dir1_audio_title:
+  item:       free_form_dir1_audio
+  name:       title
+  value:      My Great Title
+  uri:
+  vocabulary: uncontrolled
+  type:       ItemElement
+
+# free_form_dir1_image
+
+free_form_dir1_image_title:
+  item:       free_form_dir1_image
+  name:       title
+  value:      My Great Title
+  uri:
+  vocabulary: uncontrolled
+  type:       ItemElement
+
+# free_form_dir1_video
+
+free_form_dir1_image_video:
+  item:       free_form_dir1_video
+  name:       title
+  value:      My Great Title
+  uri:
+  vocabulary: uncontrolled
+  type:       ItemElement
+
+# free_form_dir1_dir1
+
+free_form_dir1_dir1_title:
+  item:       free_form_dir1_dir1
+  name:       title
+  value:      My Great Title
+  uri:
+  vocabulary: uncontrolled
+  type:       ItemElement
+
+# free_form_dir1_dir1_file1
+
+free_form_dir1_dir1_file1:
+  item:       free_form_dir1_dir1_file1
   name:       title
   value:      My Great Title
   uri:

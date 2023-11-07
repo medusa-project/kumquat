@@ -1,6 +1,9 @@
 ##
 # These items are based on content in the mockdusa repository
 # (/docker/mockdusa/content).
+#
+# N.B.: all items must have at least a title element in `entity_elements.yml`.
+#
 
 # Compound Object collection
 

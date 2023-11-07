@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 ##
 # Encapsulates a unit of intellectual content.
 #
@@ -346,6 +348,7 @@ class Item < ApplicationRecord
   validates :variant, inclusion: { in: Variants.all }, allow_blank: true
 
   validate :validate_representative_image_format
+  validate :validate_title_exists
 
   # ACTIVERECORD CALLBACKS
 
@@ -1304,6 +1307,20 @@ class Item < ApplicationRecord
     transaction do
       self.elements.destroy_all
       self.elements += elements_from_embedded_metadata(options)
+      # Add a title (because it's required) in case the embedded metadata
+      # didn't contain one.
+      unless self.element(:title)
+        pres_master = self.binaries.find{ |b| b.master_type == Binary::MasterType::PRESERVATION }
+        if pres_master
+          filename = pres_master.object_key.split("/").last
+          title    = File.basename(filename, File.extname(filename))
+        else
+          title = self.repository_id
+        end
+        self.elements.build(name:       "title",
+                            value:      title,
+                            vocabulary: Vocabulary.uncontrolled)
+      end
       self.save!
     end
   end
@@ -1814,6 +1831,15 @@ class Item < ApplicationRecord
       unless Representation::SUPPORTED_IMAGE_FORMATS.include?(self.representative_image.split(".").last)
         errors.add(:representative_image, "is of an unsupported format")
       end
+    end
+  end
+
+  ##
+  # Ensures that instances have a title element.
+  #
+  def validate_title_exists
+    unless self.element(:title)
+      errors.add(:elements, "must contain a title element")
     end
   end
 

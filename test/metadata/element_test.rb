@@ -87,14 +87,22 @@ class ElementTest < ActiveSupport::TestCase
   # usages()
 
   test "usages() works" do
-    result = elements(:title).usages
-    assert_equal 2, result.length
-    u = result[0]
-    assert_equal collections(:compound_object).repository_id, u['collection_id']
-    assert_equal items(:compound_object_1001).repository_id, u['item_id']
-    assert_equal "title", u['element_name']
-    assert_equal "My Great Title", u['element_value']
-    assert_nil u['element_uri']
+    usages = elements(:title).usages
+    assert_equal ItemElement.where(name: "title").count, usages.length
+
+    expected = {
+      collection_id: collections(:compound_object).repository_id,
+      item_id:       items(:compound_object_1001).repository_id,
+      element_name:  "title",
+      element_value: "My Great Title",
+      element_uri:   nil
+    }.stringify_keys
+
+    found = false
+    usages.each do |u|
+      found = true if u == expected
+    end
+    assert found
   end
 
 end

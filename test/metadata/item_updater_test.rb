@@ -67,6 +67,7 @@ class ItemUpdaterTest < ActiveSupport::TestCase
 
     # Test no match
     item.elements.clear
+    item.elements.build(name: 'title', value: 'required')
     item.elements.build(name: 'cat', value: 'tigers')
     item.save!
 
@@ -109,6 +110,7 @@ class ItemUpdaterTest < ActiveSupport::TestCase
 
     # Test no match
     item.elements.clear
+    item.elements.build(name: 'title', value: 'required')
     item.elements.build(name: 'cat', value: 'foxes')
     item.save!
 
@@ -151,6 +153,7 @@ class ItemUpdaterTest < ActiveSupport::TestCase
 
     # Test no match
     item.elements.clear
+    item.elements.build(name: 'title', value: 'required')
     item.elements.build(name: 'cat', value: 'ZZZtigers')
     item.save!
 
@@ -193,6 +196,7 @@ class ItemUpdaterTest < ActiveSupport::TestCase
 
     # Test no match
     item.elements.clear
+    item.elements.build(name: 'title', value: 'required')
     item.elements.build(name: 'cat', value: 'tigersZZZ')
     item.save!
 
@@ -230,8 +234,10 @@ class ItemUpdaterTest < ActiveSupport::TestCase
               headers: true,
               col_sep: "\t",
               quote_char: "\x00").map(&:to_hash).each do |row|
-      Item.create!(repository_id: row['uuid'],
-                   collection_repository_id: collections(:compound_object).repository_id)
+      item = Item.new(repository_id: row['uuid'],
+                      collection_repository_id: collections(:compound_object).repository_id)
+      item.elements.build(name: "title", value: row['Title'])
+      item.save!
     end
 
     assert_equal 2, @instance.update_from_tsv(tsv_pathname)
@@ -252,8 +258,10 @@ class ItemUpdaterTest < ActiveSupport::TestCase
               col_sep:         "\t",
               quote_char:      "\x00",
               liberal_parsing: true).map(&:to_hash).each do |row|
-      Item.create!(repository_id: row['uuid'],
-                   collection_repository_id: collections(:compound_object).repository_id)
+      item = Item.new(repository_id: row['uuid'],
+                      collection_repository_id: collections(:compound_object).repository_id)
+      item.elements.build(name: "title", value: row['Title'])
+      item.save!
     end
 
     assert_equal 2, @instance.update_from_tsv(tsv_pathname)

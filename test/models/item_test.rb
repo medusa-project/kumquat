@@ -462,9 +462,19 @@ class ItemTest < ActiveSupport::TestCase
 
   # elements
 
+  test 'elements() must include a title element' do
+    @item.elements.destroy_all
+    assert !@item.valid?
+    @item.elements.build(name: 'title', value: 'Title',
+                         vocabulary: vocabularies(:uncontrolled))
+    assert @item.valid?
+  end
+
   test 'elements must be unique' do
     @item.elements.destroy_all
     # These are all unique and should survive.
+    @item.elements.build(name: 'title', value: 'Title',
+                         vocabulary: vocabularies(:uncontrolled))
     @item.elements.build(name: 'name1', value: 'value1',
                          vocabulary: vocabularies(:uncontrolled))
     @item.elements.build(name: 'name1', value: 'value2',
@@ -484,7 +494,7 @@ class ItemTest < ActiveSupport::TestCase
     @item.elements.build(name: 'prunable', value: 'value',
                          vocabulary: vocabularies(:uncontrolled))
     @item.save!
-    assert_equal 7, @item.elements.count
+    assert_equal 8, @item.elements.count
   end
 
   # file?()
@@ -1035,6 +1045,7 @@ class ItemTest < ActiveSupport::TestCase
                        collection_repository_id: @item.collection_repository_id,
                        parent_repository_id: @item.repository_id,
                        variant: Item::Variants::THREE_D_MODEL)
+    subitem.elements.build(name: "title", value: "Title")
     subitem.binaries.build(media_category: Binary::MediaCategory::THREE_D,
                            object_key: 'bogus',
                            byte_size: 0)
@@ -1070,6 +1081,11 @@ class ItemTest < ActiveSupport::TestCase
         select{ |e| e.name == 'creator' && e.value == 'Lego Enthusiast' }.length
     assert_equal 1, @item.elements.
         select{ |e| e.name == 'dateCreated' && e.value == '2012-10-10' }.length
+  end
+
+  test 'update_from_embedded_metadata adds a title when the metadata does not
+  include one' do
+    # TODO: write this
   end
 
   # update_from_json()
