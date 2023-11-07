@@ -1283,14 +1283,6 @@ class Item < ApplicationRecord
     self.items.where(variant: Variants::THREE_D_MODEL).limit(1).first
   end
 
-  ##
-  # @return [String]
-  #
-  def title
-    t = self.element(:title)&.value
-    t.present? ? t : self.repository_id
-  end
-
   def to_param
     self.repository_id
   end
