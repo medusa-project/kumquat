@@ -27,6 +27,7 @@ class DownloadItemsTsvJobTest < ActiveSupport::TestCase
     DownloadItemsTsvJob.perform_now(collection:       collections(:compound_object),
                                     download:         @download,
                                     only_undescribed: false)
+    @download.task.reload
     assert_equal Task::Status::SUCCEEDED, @download.task.status
   end
 

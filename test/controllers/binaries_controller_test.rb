@@ -110,7 +110,7 @@ class BinariesControllerTest < ActionDispatch::IntegrationTest
   test 'stream() supports overriding the Content-Disposition to inline' do
     sign_in_as(users(:admin))
     @binary.update!(public: false)
-    get binary_stream_path(@binary)
+    get binary_stream_path(@binary), params: {'content-disposition': "inline"}
     assert_equal "inline", response.header['Content-Disposition']
   end
 

@@ -37,7 +37,7 @@ class CreateZipOfJpegsJobTest < ActiveSupport::TestCase
                                     zip_name:                 'items',
                                     include_private_binaries: false,
                                     download:                 @download)
-
+    @download.task.reload
     assert_equal Task::Status::SUCCEEDED, @download.task.status
   end
 

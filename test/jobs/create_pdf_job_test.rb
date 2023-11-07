@@ -32,6 +32,7 @@ class CreatePdfJobTest < ActiveSupport::TestCase
     CreatePdfJob.perform_now(item:                     @item,
                              include_private_binaries: false,
                              download:                 @download)
+    @download.task.reload
     assert_equal Task::Status::SUCCEEDED, @download.task.status
   end
 
