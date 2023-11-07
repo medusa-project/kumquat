@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class SessionsController < WebsiteController
 
   # This is contained within omniauth.
@@ -17,17 +19,21 @@ class SessionsController < WebsiteController
     # (which have to correspond to passed attributes).
     auth_hash = request.env['omniauth.auth']
     if auth_hash && auth_hash[:uid]
-      username   = auth_hash[:uid].split('@').first
-      user       = User.new(username: username)
+      username = auth_hash[:uid].split('@').first
+      user     = User.new(username: username)
       if user.medusa_user?
         return_url = clear_and_return_return_path(admin_root_path)
         user       = User.find_or_create_by!(username: username)
         user.update!(last_logged_in_at: Time.now)
-        sign_in user
+        sign_in_obj = user
       else
-        return_url = clear_and_return_return_path(root_path)
-        sign_in username
+        return_url  = clear_and_return_return_path(root_path)
+        sign_in_obj = username
       end
+      # Reset the session in order to prevent session fixation:
+      # https://guides.rubyonrails.org/security.html#session-fixation-countermeasures
+      reset_session
+      sign_in(sign_in_obj)
       redirect_to return_url, allow_other_host: true
     else
       redirect_to root_url
