@@ -1,4 +1,4 @@
-require 'csv'
+# frozen_string_literal: true
 
 ##
 # Batch-updates item metadata.
@@ -134,7 +134,7 @@ class ItemUpdater
   ##
   # Updates items from the given TSV file.
   #
-  # Items will not be created or deleted. (For that, use [MedusaIngester].)
+  # Items will not be created or deleted. (For that, use {MedusaIngester}.)
   #
   # @param pathname [String] Absolute pathname of a TSV file.
   # @param original_filename [String] Filename of the TSV file as it was
@@ -183,6 +183,29 @@ class ItemUpdater
     num_ingested
   end
 
+  ##
+  # Ensures that the given TSV file does not contain any columns that the given
+  # metadata profile does not contain, and also that none of the columns are
+  # using a vocabulary not defined in the corresponding metadata profile
+  # element.
+  #
+  # @param pathname [String]
+  # @param metadata_profile [MetadataProfile]
+  # @raises [ArgumentError] if the TSV header is invalid.
+  #
+  def validate_tsv(pathname:, metadata_profile:)
+    pathname = File.expand_path(pathname)
+    CSV.foreach(pathname, headers: true, col_sep: "\t",
+                quote_char: "\x00") do |tsv_row|
+      header_row = tsv_row.to_hash
+      validate_tsv_header(header_row:       header_row,
+                          metadata_profile: metadata_profile)
+      break
+    end
+    true
+  end
+
+
   private
 
   ##
@@ -193,6 +216,40 @@ class ItemUpdater
   def progress(row_num, num_rows)
     percent = (((row_num + 1) / num_rows.to_f) * 100).round(2)
     "(#{row_num + 1}/#{num_rows}) (#{percent}%)"
+  end
+
+  ##
+  # @param header_row [Hash] Deserialized TSV header row.
+  # @param metadata_profile [MetadataProfile]
+  # @raises [ArgumentError]
+  #
+  def validate_tsv_header(header_row:, metadata_profile:)
+    header_row.each do |heading, raw_value|
+      # Vocabulary columns will have a heading of "vocabKey:elementLabel",
+      # except uncontrolled columns which will have a heading of just
+      # "elementLabel".
+      heading_parts = heading.to_s.split(':')
+      element_label = heading_parts.last
+      element_name  = metadata_profile.elements.
+        find{ |e| e.label == element_label }&.name
+
+      # Skip non-descriptive columns.
+      next if Item::NON_DESCRIPTIVE_TSV_COLUMNS.include?(element_label)
+
+      if element_name
+        # Get the vocabulary based on the prefix in the column heading.
+        if heading_parts.length > 1
+          vocabulary = Vocabulary.find_by_key(heading_parts.first)
+          unless vocabulary
+            raise ArgumentError, "Column contains an unrecognized vocabulary "\
+              "key: #{heading_parts.first}"
+          end
+        end
+      else
+        raise ArgumentError, "Column contains an element not present in the "\
+          "metadata profile: #{element_label}"
+      end
+    end
   end
 
 end

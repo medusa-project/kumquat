@@ -286,6 +286,8 @@ module Admin
             File.open(tempfile, "wb") do |file|
               file.write(tsv)
             end
+            ItemUpdater.new.validate_tsv(pathname:         tempfile,
+                                         metadata_profile: col.effective_metadata_profile)
             UpdateItemsFromTsvJob.perform_later(
               tsv_pathname:          tempfile,
               tsv_original_filename: params[:tsv].original_filename,

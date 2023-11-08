@@ -226,7 +226,8 @@ class ItemUpdaterTest < ActiveSupport::TestCase
 
   test 'update_from_tsv() updates items from valid TSV' do
     Item.destroy_all
-    tsv_pathname = __dir__ + '/../fixtures/repository/compound_object.tsv'
+    tsv_pathname = File.join(Rails.root, 'test', 'fixtures', 'repository',
+                             'compound_object.tsv')
 
     # Create the items
     tsv = File.read(tsv_pathname)
@@ -249,7 +250,8 @@ class ItemUpdaterTest < ActiveSupport::TestCase
 
   test 'update_from_tsv() does not add unnecessary quotes' do
     Item.destroy_all
-    tsv_pathname = __dir__ + '/../fixtures/repository/quotes.tsv'
+    tsv_pathname = File.join(Rails.root, 'test', 'fixtures', 'repository',
+                             'quotes.tsv')
 
     # Create the items
     tsv = File.read(tsv_pathname)
@@ -270,6 +272,24 @@ class ItemUpdaterTest < ActiveSupport::TestCase
                  Item.find_by_repository_id('21353276-887c-0f2b-25a0-ed444003303f').title
     assert_equal '""This title has double quotes""',
                  Item.find_by_repository_id('8ec70c33-75c9-4ba5-cd21-54a1211e5375').title
+  end
+
+  # validate_tsv_header()
+
+  test "validate_tsv_header() returns true for a valid header" do
+    tsv_pathname = File.join(Rails.root, 'test', 'fixtures', 'repository',
+                             'compound_object.tsv')
+    assert @instance.validate_tsv(pathname:         tsv_pathname,
+                                  metadata_profile: metadata_profiles(:compound_object))
+  end
+
+  test "validate_tsv_header() returns false for an invalid header" do
+    tsv_pathname = File.join(Rails.root, 'test', 'fixtures', 'repository',
+                             'compound_object.tsv')
+    assert_raises ArgumentError do
+      @instance.validate_tsv(pathname:         tsv_pathname,
+                             metadata_profile: metadata_profiles(:unused))
+    end
   end
 
 end
