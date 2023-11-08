@@ -155,6 +155,7 @@ GEM
     concurrent-ruby (1.2.2)
     connection_pool (2.4.1)
     crass (1.0.6)
+    csv (3.2.8)
     date (3.3.4)
     draper (4.0.1)
       actionpack (>= 5.0)
@@ -402,6 +403,7 @@ DEPENDENCIES
   capistrano-bundler
   capistrano-rails
   capistrano-rbenv
+  csv
   draper
   font-awesome-sass (~> 5.6)
   good_job (~> 3)

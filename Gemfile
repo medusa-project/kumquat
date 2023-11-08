@@ -6,6 +6,7 @@ ruby '3.2.2'
 gem 'autoprefixer-rails'
 gem 'aws-sdk-s3', '~> 1'
 gem 'aws-sdk-lambda', '~> 1'
+gem 'csv'
 gem 'draper' # Provides decorators
 gem "font-awesome-sass", "~> 5.6" # Provides all of our icons
 gem 'good_job', '~> 3'
