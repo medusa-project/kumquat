@@ -110,7 +110,7 @@ class OaiPmhController < ApplicationController
     end
 
     template = 'error' if @errors.any?
-    render template, formats: :xml, handlers: :builder
+    render template, formats: :xml
   end
 
   def do_get_record

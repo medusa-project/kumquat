@@ -1,6 +1,3 @@
-# Eliminate whitespace
-xml = Builder::XmlMarkup.new
-
 xml.instruct!
 
 xml.tag!('OAI-PMH',
