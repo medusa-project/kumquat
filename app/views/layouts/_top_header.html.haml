@@ -33,5 +33,8 @@
                         signout_path,
                         method: :delete,
                         class: 'dropdown-item'
+      - elsif Rails.env.development?
+        = form_tag("/auth/developer", method: :post) do
+          = submit_tag("Log In", class: "btn btn-link p-0 mr-2")
       - else
         = link_to 'Log In', signin_path, class: 'stripe-link mr-2'
