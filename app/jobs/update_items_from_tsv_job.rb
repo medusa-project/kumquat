@@ -15,6 +15,10 @@ class UpdateItemsFromTsvJob < Job
   #
   def perform(**args)
     self.task.update(status_text: 'Updating item metadata from TSV')
+    # TODO: remove this
+    tsv_dir = File.expand_path("~/tsv_forensics")
+    FileUtils.mkdir_p(tsv_dir)
+    FileUtils.cp(args[:tsv_pathname], File.join(tsv_dir, args[:tsv_original_filename]))
 
     ItemUpdater.new.update_from_tsv(args[:tsv_pathname],
                                     args[:tsv_original_filename],
