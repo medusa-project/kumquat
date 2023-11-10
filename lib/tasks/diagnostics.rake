@@ -11,31 +11,48 @@ namespace :diagnostics do
             WHERE e.item_id = i.id
                 AND e.name = 'title'
         );"
-    results   = ActiveRecord::Base.connection.exec_query(sql)
-    num_added = 0
-    parents_missing_titles = []
+    results               = ActiveRecord::Base.connection.exec_query(sql)
+    repaired_parent_items = []
+    repaired_child_items  = []
+    unable_to_repair      = []
     results.each do |row|
       item = Item.find_by_repository_id(row['repository_id'])
       if item.parent_repository_id.present?
-        pres_master = item.binaries.find{ |b| b.master_type == Binary::MasterType::PRESERVATION }
-        if pres_master
-          key   = pres_master.object_key
-          title = File.basename(key, File.extname(key))
-          item.elements.build(name:       "title",
-                              value:      title,
-                              vocabulary: Vocabulary.uncontrolled).save!
-          num_added += 1
+        master_binary =
+          item.binaries.find{ |b| b.master_type == Binary::MasterType::PRESERVATION } ||
+          item.binaries.find{ |b| b.master_type == Binary::MasterType::ACCESS }
+        if master_binary
+          repaired_child_items << item
+          key   = master_binary.object_key
+          title = File.basename(key, File.extname(key)) # filename without extension
+          e = item.elements.build(name:       "title",
+                                  value:      title,
+                                  vocabulary: Vocabulary.uncontrolled)
+          e.save!
         end
       else
-        parents_missing_titles << item
-        item.elements.build(name:       "title",
-                            value:      item.repository_id,
-                            vocabulary: Vocabulary.uncontrolled).save!
+        repaired_parent_items << item
+        e = item.elements.build(name:       "title",
+                                value:      item.repository_id,
+                                vocabulary: Vocabulary.uncontrolled)
+        e.save!
       end
     end
-    puts "Added #{num_added} titles"
-    puts "Parents missing titles:"
-    parents_missing_titles.sort_by{ |i| i.collection.title }.each do |item|
+    puts "Parent items that are missing titles:"
+    puts "Collection Title\tItem ID\tNew Title"
+    repaired_parent_items.sort_by{ |i| i.collection.title }.each do |item|
+      puts "#{item.collection.title}\t#{item.repository_id}\t#{item.title}"
+    end
+    puts ""
+    puts "Child items that are missing titles:"
+    puts "Collection Title\tParent Item ID\tItem ID\tNew Title"
+    repaired_child_items.sort_by{ |i| [i.collection.title, i.parent_repository_id] }.each do |item|
+      puts "#{item.collection.title}\t#{item.parent_repository_id}\t#{item.repository_id}\t#{item.title}"
+    end
+    puts ""
+    puts "Unable to repair (items have no binaries):"
+    puts "Collection Title\tItem ID"
+    unable_to_repair.sort_by{ |i| i.collection.title }.each do |item|
       puts "#{item.collection.title}\t#{item.repository_id}"
     end
   end
