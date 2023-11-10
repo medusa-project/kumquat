@@ -21,8 +21,10 @@ module Admin
 
       # Binaries section
       binaries_time = measure_time do
-        @num_binaries      = Binary.count
-        @total_binary_size = Binary.sum(:byte_size)
+        @num_binaries                    = Binary.count
+        @total_binary_size               = Binary.sum(:byte_size)
+        @preservation_master_binary_size = Binary.where(master_type: Binary::MasterType::PRESERVATION).sum(:byte_size)
+        @access_master_binary_size       = Binary.where(master_type: Binary::MasterType::ACCESS).sum(:byte_size)
 
         sql = "SELECT regexp_matches(lower(object_key),'\\.(\\w+)$') AS extension,
           COUNT(id) AS count

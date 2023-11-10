@@ -50,11 +50,17 @@
     %h2 Binaries
     %table.table
       %tr
-        %td Total
+        %td Total Count
         %td= number_with_delimiter(@num_binaries)
       %tr
         %td Total Size
         %td= number_to_human_size(@total_binary_size)
+      %tr
+        %td Preservation Master Size
+        %td= number_to_human_size(@preservation_master_binary_size)
+      %tr
+        %td Access Master Size
+        %td= number_to_human_size(@access_master_binary_size)
       - @extension_counts.each do |ext|
         %tr
           %td
