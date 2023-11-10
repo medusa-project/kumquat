@@ -34,9 +34,9 @@
             %th NetID
             %th Expires
           - @item.allowed_netids.each do |h|
-            - expires = Time.at(h[:expires].to_i)
+            - expires = Time.at(h['expires'].to_i)
             %tr
-              %td= h[:netid]
+              %td= h['netid']
               %td{class: expires < Time.now ? "text-danger" : ""}
                 = local_time_ago(expires)
   %tr

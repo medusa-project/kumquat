@@ -123,8 +123,8 @@
 #
 # # Attributes
 #
-# * `allowed_netids`                Serialized array of hashes with `:netid`
-#                                   and `:expires` keys. The latter is an epoch
+# * `allowed_netids`                Serialized array of hashes with `netid`
+#                                   and `expires` keys. The latter is an epoch
 #                                   second. This array contains the NetID(s) of
 #                                   the user(s) allowed to access the item,
 #                                   alongside the times that this access
@@ -305,7 +305,7 @@ class Item < ApplicationRecord
   has_many :elements, class_name: 'ItemElement', inverse_of: :item,
            dependent: :destroy
 
-  serialize :allowed_netids
+  serialize :allowed_netids, coder: JSON
 
   # VALIDATIONS
 
@@ -1646,8 +1646,8 @@ class Item < ApplicationRecord
 
   def notify_netids
     if self.allowed_netids&.any? && !Rails.env.development?
-      prev_netids = self.allowed_netids_was&.map{ |h| h[:netid] } || []
-      new_netids  = self.allowed_netids.map{ |h| h[:netid] } - prev_netids
+      prev_netids = self.allowed_netids_was&.map{ |h| h['netid'] } || []
+      new_netids  = self.allowed_netids.map{ |h| h['netid'] } - prev_netids
       new_netids.each do |netid|
         KumquatMailer.restricted_item_available(self, netid).deliver_now
       end
@@ -1657,10 +1657,10 @@ class Item < ApplicationRecord
   def process_allowed_netids
     if allowed_netids&.any?
       allowed_netids.each_with_index do |h, i|
-        allowed_netids[i][:netid]   = h[:netid].strip
-        allowed_netids[i][:expires] = Time.now.to_i + 21.days.to_i if h[:expires].blank?
+        allowed_netids[i]['netid']   = h['netid'].strip
+        allowed_netids[i]['expires'] = Time.now.to_i + 21.days.to_i if h['expires'].blank?
       end
-      allowed_netids.select!{ |h| h[:netid].present? }
+      allowed_netids.select!{ |h| h['netid'].present? }
     end
   end
 

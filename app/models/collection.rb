@@ -172,8 +172,8 @@ class Collection < ApplicationRecord
 
   LOGGER = CustomLogger.new(Collection)
 
-  serialize :access_systems
-  serialize :resource_types
+  serialize :access_systems, coder: JSON
+  serialize :resource_types, coder: JSON
 
   belongs_to :descriptive_element, class_name: 'MetadataProfileElement',
              optional: true

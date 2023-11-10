@@ -826,8 +826,8 @@ class ItemTest < ActiveSupport::TestCase
     ]
     @item.save!
     assert_equal [
-                     { netid: 'bob', expires: expires },
-                     { netid: 'joe', expires: expires }
+                     { 'netid' => 'bob', 'expires' => expires },
+                     { 'netid' => 'joe', 'expires' => expires }
                  ],
                  @item.allowed_netids
 

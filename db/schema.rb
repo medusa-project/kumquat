@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_10_27_202944) do
+ActiveRecord::Schema[7.1].define(version: 2023_11_10_165954) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -124,10 +124,10 @@ ActiveRecord::Schema[7.0].define(version: 2023_10_27_202944) do
     t.string "medusa_file_group_uuid"
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
-    t.text "resource_types"
+    t.text "resource_types_deleteme"
     t.string "medusa_directory_uuid"
     t.integer "package_profile_id"
-    t.text "access_systems"
+    t.text "access_systems_deleteme"
     t.integer "medusa_repository_id"
     t.text "rights_statement"
     t.string "rights_term_uri"
@@ -142,6 +142,8 @@ ActiveRecord::Schema[7.0].define(version: 2023_10_27_202944) do
     t.boolean "publicize_binaries", default: true, null: false
     t.string "representative_image"
     t.string "representation_type", default: "self", null: false
+    t.text "access_systems"
+    t.text "resource_types"
     t.index ["descriptive_element_id"], name: "index_collections_on_descriptive_element_id"
     t.index ["external_id"], name: "index_collections_on_external_id"
     t.index ["harvestable"], name: "index_collections_on_harvestable"
@@ -300,11 +302,12 @@ ActiveRecord::Schema[7.0].define(version: 2023_10_27_202944) do
     t.string "embed_tag"
     t.string "representative_medusa_file_id"
     t.datetime "end_date", precision: nil
-    t.text "allowed_netids"
+    t.text "allowed_netids_deleteme"
     t.datetime "published_at", precision: nil
     t.boolean "expose_full_text_search", default: true, null: false
     t.string "representative_image"
     t.string "representation_type", default: "self", null: false
+    t.text "allowed_netids"
     t.index ["collection_repository_id"], name: "index_items_on_collection_identifier"
     t.index ["parent_repository_id"], name: "index_items_on_parent_identifier"
     t.index ["published"], name: "index_items_on_published"
