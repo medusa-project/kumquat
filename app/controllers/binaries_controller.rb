@@ -87,6 +87,10 @@ class BinariesController < WebsiteController
     MedusaS3Client.instance.get_object(s3_request) do |chunk|
       response.stream.write chunk
     end
+  rescue Aws::S3::Plugins::NonRetryableStreamingError => e
+    # This is raised when the client closes the connection prematurely.
+    # Rescue it or else Rails will log it at error level.
+    LOGGER.debug('stream(): %s', e)
   rescue ActionController::Live::ClientDisconnected => e
     # Rescue this or else Rails will log it at error level.
     LOGGER.debug('stream(): %s', e)
