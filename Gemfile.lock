@@ -207,8 +207,8 @@ GEM
     json (2.6.3)
     language_server-protocol (3.17.0.3)
     libv8-node (18.16.0.0)
-    libv8-node (18.16.0.0-x86_64-darwin)
-    libv8-node (18.16.0.0-x86_64-linux)
+    libv8-node (18.16.0.0-aarch64-linux)
+    libv8-node (18.16.0.0-arm64-darwin)
     local_time (2.0.0)
     loofah (2.21.4)
       crass (~> 1.0.2)
@@ -247,9 +247,9 @@ GEM
     nokogiri (1.15.4)
       mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
-    nokogiri (1.15.4-x86_64-darwin)
+    nokogiri (1.15.4-aarch64-linux)
       racc (~> 1.4)
-    nokogiri (1.15.4-x86_64-linux)
+    nokogiri (1.15.4-arm64-darwin)
       racc (~> 1.4)
     omniauth (2.1.1)
       hashie (>= 3.4.6)
@@ -392,9 +392,9 @@ GEM
     zeitwerk (2.6.12)
 
 PLATFORMS
+  aarch64-linux
+  arm64-darwin
   ruby
-  x86_64-darwin-21
-  x86_64-linux
 
 DEPENDENCIES
   autoprefixer-rails
