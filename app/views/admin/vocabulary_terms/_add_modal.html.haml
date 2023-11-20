@@ -1,0 +1,14 @@
+#dl-add-term-modal.modal.fade{"aria-labelledby": "dl-add-term-modal-label",
+                              role:              "dialog",
+                              tabindex:          "-1"}
+  .modal-dialog.modal-dialog-centered{role: "document"}
+    .modal-content
+      .modal-header
+        %h4#dl-add-term-modal-label.modal-title Add Term
+        %button.close{"aria-label":   "Close",
+                      "data-dismiss": "modal",
+                      type:           "button"}
+          %span{"aria-hidden": "true"} ×
+      .modal-body
+        = render partial: 'admin/vocabulary_terms/form',
+                 locals: { vocabulary_term: @new_vocabulary_term }

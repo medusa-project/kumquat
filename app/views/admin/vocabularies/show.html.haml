@@ -74,43 +74,7 @@
                     Edit
               %td= term.string
               %td= link_to term.uri, term.uri, target: '_blank'
-#dl-edit-vocabulary-modal.modal.fade{"aria-labelledby": "dl-edit-vocabulary-modal-label",
-                                     role:              "dialog",
-                                     tabindex:          "-1"}
-  .modal-dialog.modal-dialog-centered{role: "document"}
-    .modal-content
-      .modal-header
-        %button.close{"aria-label": "Close",
-                      "data-dismiss": "modal",
-                      type: "button"}
-          %span{"aria-hidden": "true"} ×
-        %h4#dl-edit-vocabulary-modal-label.modal-title Edit Vocabulary
-      .modal-body
-        = render partial: 'form', locals: { vocabulary: @vocabulary }
-#dl-add-term-modal.modal.fade{"aria-labelledby": "dl-add-term-modal-label",
-                              role:              "dialog",
-                              tabindex:          "-1"}
-  .modal-dialog.modal-dialog-centered{role: "document"}
-    .modal-content
-      .modal-header
-        %button.close{"aria-label":   "Close",
-                      "data-dismiss": "modal",
-                      type:           "button"}
-          %span{"aria-hidden": "true"} ×
-        %h4#dl-add-term-modal-label.modal-title Add Term
-      .modal-body
-        = render partial: 'admin/vocabulary_terms/form',
-                 locals: { vocabulary_term: @new_vocabulary_term }
-#dl-edit-term-modal.modal.fade{"aria-labelledby": "dl-edit-term-modal-label",
-                               role:              "dialog",
-                               tabindex:          "-1"}
-  .modal-dialog.modal-dialog-centered{role: "document"}
-    .modal-content
-      .modal-header
-        %button.close{"aria-label":   "Close",
-                      "data-dismiss": "modal",
-                      type:           "button"}
-          %span{"aria-hidden": "true"} ×
-        %h4#dl-edit-term-modal-label.modal-title Edit Term
-      .modal-body
-        -# will be populated via XHR
+
+= render partial: "edit_modal"
+= render partial: "admin/vocabulary_terms/add_modal"
+= render partial: "admin/vocabulary_terms/edit_modal"
